@@ -1,0 +1,98 @@
+/*
+ This file forms part of hpGEM. This package has been developed over a number of years by various people at the University of Twente and a full list of contributors can be found at
+ http://hpgem.org/about-the-code/team
+ 
+ This code is distributed using BSD 3-Clause License. A copy of which can found below.
+ 
+ 
+ Copyright (c) 2014, University of Twente
+ All rights reserved.
+ 
+ Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ 
+ 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+ 
+ 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#ifndef Expansion_h
+#define Expansion_h
+
+#include "../LinearAlgebra/MiddleSizeVector.h"
+#include "../Geometry/PointReference.h"
+#include "../Base/BasisFunctionSet.h"
+#include "../LinearAlgebra/Matrix.h"
+namespace Base
+{
+    ///\deprecated Use Element::getSolution instead of this class.
+    class Expansion
+    {
+        
+    public:
+        
+        using PointReferenceT = BasisFunctionSet::PointReferenceT;
+        Expansion(const BasisFunctionSet* BFSetPtr)
+                : BFSetPtr_(BFSetPtr), coeff_(BFSetPtr->size()), size_(BFSetPtr->size())
+        {
+        }
+        
+        ~Expansion()
+        {
+        }
+
+        void setBasisFunction(const BasisFunctionSet* BFSetPtr)
+        {
+            BFSetPtr_ = BFSetPtr;
+            size_ = BFSetPtr_->size();
+            coeff_.resize(size_);
+        }
+        
+        double EvalBasisFunction(std::size_t iBF, const PointReferenceT& p) const
+        {
+            return BFSetPtr_->eval(iBF, p);
+        }
+        
+        double EvalDerivBasisFunction(std::size_t iBF, const std::size_t jDir, const PointReferenceT& p) const
+        {
+            return BFSetPtr_->evalDeriv(iBF, jDir, p);
+        }
+        
+        void PhysGradientOfBasisFunction(const Element& el, const std::size_t iBF, const PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
+        {
+            ret.resize(p.size());
+            // get derivatives df
+            // get Jacobian    jac
+            // solve the linear system and return
+        }
+        
+        double Eval(const PointReferenceT& p) const
+        {
+            double ret(0.);
+            for (std::size_t i = 0; i < size_; ++i)
+                ret += (coeff_[i] * BFSetPtr_->eval(i, p));
+            
+            return ret;
+        }
+        
+        double EvalDeriv(const std::size_t jDir, const PointReferenceT& p) const
+        {
+            double ret(0.);
+            for (std::size_t i = 0; i < size_; ++i)
+                ret += (coeff_[i] * BFSetPtr_->evalDeriv(i, jDir, p));
+            
+            return ret;
+        }
+        
+    private:
+        BasisFunctionSet* BFSetPtr_;
+        LinearAlgebra::MiddleSizeVector coeff_;
+        std::size_t size_;
+    };
+
+}
+
+#endif // Expansion_h

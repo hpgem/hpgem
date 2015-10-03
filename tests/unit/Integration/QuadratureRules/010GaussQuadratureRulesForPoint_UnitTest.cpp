@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -22,28 +22,35 @@
 //naming convention: <Digit><ClassName>_UnitTest.cpp where <Digit> is a number that will make sure
 //the unit tests are ordered such that the first failing unit test indicate the culprit class and
 //other 'unit' tests may assume correct execution of all prior unit tests
+#include "Integration/QuadratureRules/GaussQuadratureRulesForPoint.h"
+#include "Logger.h"
+#include <iostream>
+#include <typeinfo>
+#include "Geometry/PointReference.h"
+#include "Geometry/ReferencePoint.h"
+#include <cmath>
 
-#include "Integration/QuadratureRules/GaussQuadratureRulesForPoint.hpp"
-
-void testRule(QuadratureRules::GaussQuadratureRule& test){
-	cout<<test.getName();
-	assert(("dimension",test.dimension()==0));
-	assert(("order",test.order()>11));
-	assert(("forReferenceGeometry",typeid(*test.forReferenceGeometry())==typeid(Geometry::ReferencePoint)));
-	Geometry::PointReference point(0);
-	//0D Quadrature rules are special
-	double integrated=0;
-	for(int i=0;i<test.nrOfPoints();++i){
-		integrated+=test.weight(i);
-		test.getPoint(i,point);
-	}
-	assert(("integration",fabs(integrated-1)<1e-12));
+void testRule(QuadratureRules::GaussQuadratureRule& test)
+{
+    std::cout << test.getName();
+    logger.assert_always((test.dimension() == 0), "dimension");
+    logger.assert_always((test.order() > 11), "order");
+    logger.assert_always((typeid(*test.forReferenceGeometry()) == typeid(Geometry::ReferencePoint)), "forReferenceGeometry");
+    //0D Quadrature rules are special
+    double integrated = 0;
+    for (std::size_t i = 0; i < test.nrOfPoints(); ++i)
+    {
+        integrated += test.weight(i);
+        const Geometry::PointReference<0>& point = test.getPoint(i);
+    }
+    logger.assert_always((std::abs(integrated - 1) < 1e-12), "integration");
 }
 
-int main(){
-
-	testRule(QuadratureRules::Cn0_inf_1::Instance());
-
-	return 0;
+int main()
+{
+    
+    testRule(QuadratureRules::Cn0_inf_1::Instance());
+    
+    return 0;
 }
 

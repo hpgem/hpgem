@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -21,204 +21,210 @@
 //naming convention: <Digit><ClassName>_UnitTest.cpp where <Digit> is a number that will make sure
 //the unit tests are ordered such that the first failing unit test indicate the culprit class and
 //other 'unit' tests may assume correct execution of all prior unit tests
-
-#include "Geometry/ReferenceTriangularPrism.hpp"
+#include "Geometry/ReferenceTriangularPrism.h"
+#include "Geometry/ReferenceTriangle.h"
+#include "Geometry/ReferenceSquare.h"
+#include "Geometry/ReferenceLine.h"
+#include "Geometry/ReferencePoint.h"
 #include <iostream>
-#include "cassert"
+#include "Logger.h"
 
-#include "Geometry/PointReference.hpp"
+#include "Geometry/PointReference.h"
+#include "Geometry/Mappings/MappingToRefFaceToTriangularPrism.h"
+#include "Integration/QuadratureRules/GaussQuadratureRule.h"
+#include <cmath>
 using Geometry::ReferenceTriangularPrism;
 
-int main(){
-	ReferenceTriangularPrism& test=ReferenceTriangularPrism::Instance();
-
-	Geometry::PointReference pTest(3);
-
-	//testing basic functionality
-
-	for(pTest[0]=-3.141;pTest[0]<0.;pTest[0]+=0.1){
-		for(pTest[1]=-3.1416;pTest[1]<3.1416;pTest[1]+=0.1){
-			for(pTest[2]=-3.1416;pTest[2]<3.1416;pTest[2]+=0.1){
-				assert(("isInternalPoint",!test.isInternalPoint(pTest)));
-			}
-		}
-	}
-	for(;pTest[0]<1;pTest[0]+=0.1){
-		for(pTest[1]=-3.1417;pTest[1]<0.;pTest[1]+=0.1){
-			for(pTest[2]=-3.1416;pTest[2]<3.1416;pTest[2]+=0.1){
-				assert(("isInternalPoint",!test.isInternalPoint(pTest)));
-			}
-		}
-		for(;pTest[1]<1.-pTest[0];pTest[1]+=0.1){
-			for(pTest[2]=-3.1416;pTest[2]<-1.;pTest[2]+=0.1){
-				assert(("isInternalPoint",!test.isInternalPoint(pTest)));
-			}
-			for(;pTest[2]<1.;pTest[2]+=0.1){
-				assert(("isInternalPoint",test.isInternalPoint(pTest)));
-			}
-			for(;pTest[2]<3.141;pTest[2]+=0.1){
-				assert(("isInternalPoint",!test.isInternalPoint(pTest)));
-			}
-		}
-		for(;pTest[1]<3.141;pTest[1]+=0.1){
-			for(pTest[2]=-3.1416;pTest[2]<3.1416;pTest[2]+=0.1){
-				assert(("isInternalPoint",!test.isInternalPoint(pTest)));
-			}
-		}
-	}
-	for(;pTest[0]<3.141;pTest[0]+=0.1){
-		for(pTest[1]=-3.1416;pTest[1]<3.1416;pTest[1]+=0.1){
-			for(pTest[2]=-3.1416;pTest[2]<3.1416;pTest[2]+=0.1){
-				assert(("isInternalPoint",!test.isInternalPoint(pTest)));
-			}
-		}
-	}
-
-	test.getCenter(pTest);
-	assert(("getCenter",test.isInternalPoint(pTest)&&fabs(pTest[0]-1./3.)<1e-12&&fabs(pTest[1]-1./3.)<1e-12)&&fabs(pTest[2])<1e-12);
-	test.getNode(0,pTest);
-	assert(("getNode 0",fabs(pTest[0])<1e-12&&fabs(pTest[1])<1e-12&&fabs(pTest[2]+1)<1e-12));
-	test.getNode(1,pTest);
-	assert(("getNode 1",fabs(pTest[0]-1)<1e-12&&fabs(pTest[1])<1e-12&&fabs(pTest[2]+1)<1e-12));
-	test.getNode(2,pTest);
-	assert(("getNode 2",fabs(pTest[0])<1e-12&&fabs(pTest[1]-1)<1e-12&&fabs(pTest[2]+1)<1e-12));
-	test.getNode(3,pTest);
-	assert(("getNode 3",fabs(pTest[0])<1e-12&&fabs(pTest[1])<1e-12&&fabs(pTest[2]-1)<1e-12));
-	test.getNode(4,pTest);
-	assert(("getNode 4",fabs(pTest[0]-1)<1e-12&&fabs(pTest[1])<1e-12&&fabs(pTest[2]-1)<1e-12));
-	test.getNode(5,pTest);
-	assert(("getNode 5",fabs(pTest[0])<1e-12&&fabs(pTest[1]-1)<1e-12&&fabs(pTest[2]-1)<1e-12));
-	cout<<test.getName();
-
-	assert(("getLocalNodeIndex 0",test.getLocalNodeIndex(0,0)==0));//the nodes of the face must always be specified IN THIS SPECIFIC ORDER
-	assert(("getLocalNodeIndex 0",test.getLocalNodeIndex(0,1)==2));//im not sure if I like this myself, but this should at least verify
-	assert(("getLocalNodeIndex 0",test.getLocalNodeIndex(0,2)==1));//that all face nodes are specified, none are specified twice
-	assert(("getLocalNodeIndex 1",test.getLocalNodeIndex(1,0)==3));//and only face nodes are specified and the ordering of the nodes is consistent
-	assert(("getLocalNodeIndex 1",test.getLocalNodeIndex(1,1)==4));//across function calls
-	assert(("getLocalNodeIndex 1",test.getLocalNodeIndex(1,2)==5));
-	assert(("getLocalNodeIndex 2",test.getLocalNodeIndex(2,0)==2));
-	assert(("getLocalNodeIndex 2",test.getLocalNodeIndex(2,1)==0));
-	assert(("getLocalNodeIndex 2",test.getLocalNodeIndex(2,2)==5));
-	assert(("getLocalNodeIndex 2",test.getLocalNodeIndex(2,3)==3));
-	assert(("getLocalNodeIndex 3",test.getLocalNodeIndex(3,0)==0));
-	assert(("getLocalNodeIndex 3",test.getLocalNodeIndex(3,1)==1));
-	assert(("getLocalNodeIndex 3",test.getLocalNodeIndex(3,2)==3));
-	assert(("getLocalNodeIndex 3",test.getLocalNodeIndex(3,3)==4));
-	assert(("getLocalNodeIndex 4",test.getLocalNodeIndex(4,0)==1));
-	assert(("getLocalNodeIndex 4",test.getLocalNodeIndex(4,1)==2));
-	assert(("getLocalNodeIndex 4",test.getLocalNodeIndex(4,2)==4));
-	assert(("getLocalNodeIndex 4",test.getLocalNodeIndex(4,3)==5));
-
-	cout<<test;
-
-	//testing mappings and quadrature rules
-
-	std::vector<unsigned int> faceIndices(3);
-	//codim0maps dont exist so they dont need to be found properly
-
-
-	assert(("higher codimensional entities",test.getNrOfCodim1Entities()==5&&test.getNrOfCodim2Entities()==9)&&test.getNrOfCodim3Entities()==6);
-	assert(("getCodim1ReferenceGeometry",test.getCodim1ReferenceGeometry(0)==&Geometry::ReferenceTriangle::Instance()&&
-										 test.getCodim1ReferenceGeometry(1)==&Geometry::ReferenceTriangle::Instance()&&
-										 test.getCodim1ReferenceGeometry(2)==&Geometry::ReferenceSquare::Instance()&&
-										 test.getCodim1ReferenceGeometry(3)==&Geometry::ReferenceSquare::Instance()&&
-										 test.getCodim1ReferenceGeometry(4)==&Geometry::ReferenceSquare::Instance()));
-	assert(("getCodim2ReferenceGeometry",test.getCodim2ReferenceGeometry(0)==&Geometry::ReferenceLine::Instance()&&
-										 test.getCodim2ReferenceGeometry(1)==&Geometry::ReferenceLine::Instance()&&
-										 test.getCodim2ReferenceGeometry(2)==&Geometry::ReferenceLine::Instance()&&
-										 test.getCodim2ReferenceGeometry(3)==&Geometry::ReferenceLine::Instance()&&
-										 test.getCodim2ReferenceGeometry(4)==&Geometry::ReferenceLine::Instance()&&
-										 test.getCodim2ReferenceGeometry(5)==&Geometry::ReferenceLine::Instance()&&
-										 test.getCodim2ReferenceGeometry(6)==&Geometry::ReferenceLine::Instance()&&
-										 test.getCodim2ReferenceGeometry(7)==&Geometry::ReferenceLine::Instance()&&
-										 test.getCodim2ReferenceGeometry(8)==&Geometry::ReferenceLine::Instance()));
-	assert(("getCodim1MappingPtr",test.getCodim1MappingPtr(0)==&Geometry::MappingToRefFaceToTriangularPrism0::Instance()));
-	assert(("getCodim1MappingPtr",test.getCodim1MappingPtr(1)==&Geometry::MappingToRefFaceToTriangularPrism1::Instance()));
-	assert(("getCodim1MappingPtr",test.getCodim1MappingPtr(2)==&Geometry::MappingToRefFaceToTriangularPrism2::Instance()));
-	assert(("getCodim1MappingPtr",test.getCodim1MappingPtr(3)==&Geometry::MappingToRefFaceToTriangularPrism3::Instance()));
-	assert(("getCodim1MappingPtr",test.getCodim1MappingPtr(4)==&Geometry::MappingToRefFaceToTriangularPrism4::Instance()));
-	test.getCodim1EntityLocalIndices(0,faceIndices);
-	assert(("getCodim1EntityLocalIndices",faceIndices[0]==test.getLocalNodeIndex(0,0)));
-	assert(("getCodim1EntityLocalIndices",faceIndices[1]==test.getLocalNodeIndex(0,1)));
-	assert(("getCodim1EntityLocalIndices",faceIndices[2]==test.getLocalNodeIndex(0,2)));
-	test.getCodim1EntityLocalIndices(1,faceIndices);
-	assert(("getCodim1EntityLocalIndices",faceIndices[0]==test.getLocalNodeIndex(1,0)));
-	assert(("getCodim1EntityLocalIndices",faceIndices[1]==test.getLocalNodeIndex(1,1)));
-	assert(("getCodim1EntityLocalIndices",faceIndices[2]==test.getLocalNodeIndex(1,2)));
-	faceIndices.resize(4);
-	test.getCodim1EntityLocalIndices(2,faceIndices);
-	assert(("getCodim1EntityLocalIndices",faceIndices[0]==test.getLocalNodeIndex(2,0)));
-	assert(("getCodim1EntityLocalIndices",faceIndices[1]==test.getLocalNodeIndex(2,1)));
-	assert(("getCodim1EntityLocalIndices",faceIndices[2]==test.getLocalNodeIndex(2,2)));
-	assert(("getCodim1EntityLocalIndices",faceIndices[3]==test.getLocalNodeIndex(2,3)));
-	test.getCodim1EntityLocalIndices(3,faceIndices);
-	assert(("getCodim1EntityLocalIndices",faceIndices[0]==test.getLocalNodeIndex(3,0)));
-	assert(("getCodim1EntityLocalIndices",faceIndices[1]==test.getLocalNodeIndex(3,1)));
-	assert(("getCodim1EntityLocalIndices",faceIndices[2]==test.getLocalNodeIndex(3,2)));
-	assert(("getCodim1EntityLocalIndices",faceIndices[3]==test.getLocalNodeIndex(3,3)));
-	test.getCodim1EntityLocalIndices(4,faceIndices);
-	assert(("getCodim1EntityLocalIndices",faceIndices[0]==test.getLocalNodeIndex(4,0)));
-	assert(("getCodim1EntityLocalIndices",faceIndices[1]==test.getLocalNodeIndex(4,1)));
-	assert(("getCodim1EntityLocalIndices",faceIndices[2]==test.getLocalNodeIndex(4,2)));
-	assert(("getCodim1EntityLocalIndices",faceIndices[3]==test.getLocalNodeIndex(4,3)));
-	faceIndices.resize(2);
-	test.getCodim2EntityLocalIndices(0,faceIndices);
-	assert(("getCodim2EntityLocalIndices",faceIndices[0]==0));
-	assert(("getCodim2EntityLocalIndices",faceIndices[1]==1));
-	test.getCodim2EntityLocalIndices(1,faceIndices);
-	assert(("getCodim2EntityLocalIndices",faceIndices[0]==0));
-	assert(("getCodim2EntityLocalIndices",faceIndices[1]==2));
-	test.getCodim2EntityLocalIndices(2,faceIndices);
-	assert(("getCodim2EntityLocalIndices",faceIndices[0]==1));
-	assert(("getCodim2EntityLocalIndices",faceIndices[1]==2));
-	test.getCodim2EntityLocalIndices(3,faceIndices);
-	assert(("getCodim2EntityLocalIndices",faceIndices[0]==3));
-	assert(("getCodim2EntityLocalIndices",faceIndices[1]==4));
-	test.getCodim2EntityLocalIndices(4,faceIndices);
-	assert(("getCodim2EntityLocalIndices",faceIndices[0]==3));
-	assert(("getCodim2EntityLocalIndices",faceIndices[1]==5));
-	test.getCodim2EntityLocalIndices(5,faceIndices);
-	assert(("getCodim2EntityLocalIndices",faceIndices[0]==4));
-	assert(("getCodim2EntityLocalIndices",faceIndices[1]==5));
-	test.getCodim2EntityLocalIndices(6,faceIndices);
-	assert(("getCodim2EntityLocalIndices",faceIndices[0]==0));
-	assert(("getCodim2EntityLocalIndices",faceIndices[1]==3));
-	test.getCodim2EntityLocalIndices(7,faceIndices);
-	assert(("getCodim2EntityLocalIndices",faceIndices[0]==1));
-	assert(("getCodim2EntityLocalIndices",faceIndices[1]==4));
-	test.getCodim2EntityLocalIndices(8,faceIndices);
-	assert(("getCodim2EntityLocalIndices",faceIndices[0]==2));
-	assert(("getCodim2EntityLocalIndices",faceIndices[1]==5));
-	faceIndices.resize(1);
-	test.getCodim3EntityLocalIndices(0,faceIndices);
-	assert(("getCodim3EntityLocalIndices",faceIndices[0]==0));
-	test.getCodim3EntityLocalIndices(1,faceIndices);
-	assert(("getCodim3EntityLocalIndices",faceIndices[0]==1));
-	test.getCodim3EntityLocalIndices(2,faceIndices);
-	assert(("getCodim3EntityLocalIndices",faceIndices[0]==2));
-	test.getCodim3EntityLocalIndices(3,faceIndices);
-	assert(("getCodim3EntityLocalIndices",faceIndices[0]==3));
-	test.getCodim3EntityLocalIndices(4,faceIndices);
-	assert(("getCodim3EntityLocalIndices",faceIndices[0]==4));
-	test.getCodim3EntityLocalIndices(5,faceIndices);
-	assert(("getCodim3EntityLocalIndices",faceIndices[0]==5));
-
-
-	assert(("quadrature rules",test.getGaussQuadratureRule(3)->order()>=3));
-	assert(("quadrature rules",test.getGaussQuadratureRule(5)->order()>=5));
-	assert(("quadrature rules",test.getGaussQuadratureRule(7)->order()>=7));
-	//assert(("quadrature rules",test.getGaussQuadratureRule(9)->order()>=9));///\TODO add extra quadrature rules
-	//assert(("quadrature rules",test.getGaussQuadratureRule(11)->order()>=11));
-
-	//testing functionality of abstract parent classes
-
-	assert(("number of nodes",test.getNumberOfNodes()==6));
-	assert(("type of geometry",test.getGeometryType()==Geometry::TRIANGULARPRISM));
-
-	///\TODO if it is decided that getBasisFunctionValue and getBasisFucntionDerivative remain here, test them
-
-	///\TODO testing that the refinement maps behave exactly like the forwarded calls of this class
+int main()
+{
+    ReferenceTriangularPrism& test = ReferenceTriangularPrism::Instance();
+    
+    Geometry::Point<3> pTest;
+    
+    //testing basic functionality
+    
+    for (pTest[0] = -1.51; pTest[0] < 0.; pTest[0] += 0.2)
+    {
+        for (pTest[1] = -1.51; pTest[1] < 1.51; pTest[1] += 0.2)
+        {
+            for (pTest[2] = -1.51; pTest[2] < 1.51; pTest[2] += 0.2)
+            {
+                logger.assert_always((!test.isInternalPoint(*Geometry::PointReferenceFactory<3>::instance()->makePoint(pTest))), "isInternalPoint");
+            }
+        }
+    }
+    for (; pTest[0] < 1; pTest[0] += 0.2)
+    {
+        for (pTest[1] = -1.51; pTest[1] < 0.; pTest[1] += 0.2)
+        {
+            for (pTest[2] = -1.51; pTest[2] < 1.51; pTest[2] += 0.2)
+            {
+                logger.assert_always((!test.isInternalPoint(*Geometry::PointReferenceFactory<3>::instance()->makePoint(pTest))), "isInternalPoint");
+            }
+        }
+        for (; pTest[1] < 1. - pTest[0]; pTest[1] += 0.2)
+        {
+            for (pTest[2] = -1.51; pTest[2] < -1.; pTest[2] += 0.2)
+            {
+                logger.assert_always((!test.isInternalPoint(*Geometry::PointReferenceFactory<3>::instance()->makePoint(pTest))), "isInternalPoint");
+            }
+            for (; pTest[2] < 1.; pTest[2] += 0.2)
+            {
+                logger.assert_always((test.isInternalPoint(*Geometry::PointReferenceFactory<3>::instance()->makePoint(pTest))), "isInternalPoint");
+            }
+            for (; pTest[2] < 1.51; pTest[2] += 0.2)
+            {
+                logger.assert_always((!test.isInternalPoint(*Geometry::PointReferenceFactory<3>::instance()->makePoint(pTest))), "isInternalPoint");
+            }
+        }
+        for (; pTest[1] < 1.51; pTest[1] += 0.2)
+        {
+            for (pTest[2] = -1.51; pTest[2] < 1.51; pTest[2] += 0.2)
+            {
+                logger.assert_always((!test.isInternalPoint(*Geometry::PointReferenceFactory<3>::instance()->makePoint(pTest))), "isInternalPoint");
+            }
+        }
+    }
+    for (; pTest[0] < 1.51; pTest[0] += 0.2)
+    {
+        for (pTest[1] = -1.51; pTest[1] < 1.51; pTest[1] += 0.2)
+        {
+            for (pTest[2] = -1.51; pTest[2] < 1.51; pTest[2] += 0.2)
+            {
+                logger.assert_always((!test.isInternalPoint(*Geometry::PointReferenceFactory<3>::instance()->makePoint(pTest))), "isInternalPoint");
+            }
+        }
+    }
+    
+    pTest = test.getCenter();
+    logger.assert_always((test.isInternalPoint(*Geometry::PointReferenceFactory<3>::instance()->makePoint(pTest)) && std::abs(pTest[0] - 1. / 3.) < 1e-12 && std::abs(pTest[1] - 1. / 3.) < 1e-12) && std::abs(pTest[2]) < 1e-12, "getCenter");
+    pTest = test.getNode(0);
+    logger.assert_always((std::abs(pTest[0]) < 1e-12 && std::abs(pTest[1]) < 1e-12 && std::abs(pTest[2] + 1) < 1e-12), "getNode 0");
+    pTest = test.getNode(1);
+    logger.assert_always((std::abs(pTest[0] - 1) < 1e-12 && std::abs(pTest[1]) < 1e-12 && std::abs(pTest[2] + 1) < 1e-12), "getNode 1");
+    pTest = test.getNode(2);
+    logger.assert_always((std::abs(pTest[0]) < 1e-12 && std::abs(pTest[1] - 1) < 1e-12 && std::abs(pTest[2] + 1) < 1e-12), "getNode 2");
+    pTest = test.getNode(3);
+    logger.assert_always((std::abs(pTest[0]) < 1e-12 && std::abs(pTest[1]) < 1e-12 && std::abs(pTest[2] - 1) < 1e-12), "getNode 3");
+    pTest = test.getNode(4);
+    logger.assert_always((std::abs(pTest[0] - 1) < 1e-12 && std::abs(pTest[1]) < 1e-12 && std::abs(pTest[2] - 1) < 1e-12), "getNode 4");
+    pTest = test.getNode(5);
+    logger.assert_always((std::abs(pTest[0]) < 1e-12 && std::abs(pTest[1] - 1) < 1e-12 && std::abs(pTest[2] - 1) < 1e-12), "getNode 5");
+    std::cout << test.getName();
+    
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 0) == 0), "getLocalNodeIndex 0"); //the nodes of the face must always be specified IN THIS SPECIFIC ORDER
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 1) == 2), "getLocalNodeIndex 0"); //im not sure if I like this myself, but this should at least verify
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 2) == 1), "getLocalNodeIndex 0"); //that all face nodes are specified, none are specified twice
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 0) == 3), "getLocalNodeIndex 1"); //and only face nodes are specified and the ordering of the nodes is consistent
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 1) == 4), "getLocalNodeIndex 1"); //across function calls
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 2) == 5), "getLocalNodeIndex 1");
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 0) == 2), "getLocalNodeIndex 2");
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 1) == 0), "getLocalNodeIndex 2");
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 2) == 5), "getLocalNodeIndex 2");
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 3) == 3), "getLocalNodeIndex 2");
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 0) == 0), "getLocalNodeIndex 3");
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 1) == 1), "getLocalNodeIndex 3");
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 2) == 3), "getLocalNodeIndex 3");
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 3) == 4), "getLocalNodeIndex 3");
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 0) == 1), "getLocalNodeIndex 4");
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 1) == 2), "getLocalNodeIndex 4");
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 2) == 4), "getLocalNodeIndex 4");
+    logger.assert_always((test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 3) == 5), "getLocalNodeIndex 4");
+    
+    std::cout << test;
+    
+    //testing mappings and quadrature rules
+    
+    std::vector<std::size_t> faceIndices(3);
+    //codim0maps dont exist so they dont need to be found properly
+    
+    logger.assert_always((test.getNrOfCodim1Entities() == 5 && test.getNrOfCodim2Entities() == 9) && test.getNrOfCodim3Entities() == 6, "higher codimensional entities");
+    logger.assert_always((test.getCodim1ReferenceGeometry(0) == &Geometry::ReferenceTriangle::Instance() && test.getCodim1ReferenceGeometry(1) == &Geometry::ReferenceTriangle::Instance() && test.getCodim1ReferenceGeometry(2) == &Geometry::ReferenceSquare::Instance() && test.getCodim1ReferenceGeometry(3) == &Geometry::ReferenceSquare::Instance() && test.getCodim1ReferenceGeometry(4) == &Geometry::ReferenceSquare::Instance()), "getCodim1ReferenceGeometry");
+    logger.assert_always((test.getCodim2ReferenceGeometry(0) == &Geometry::ReferenceLine::Instance() && test.getCodim2ReferenceGeometry(1) == &Geometry::ReferenceLine::Instance() && test.getCodim2ReferenceGeometry(2) == &Geometry::ReferenceLine::Instance() && test.getCodim2ReferenceGeometry(3) == &Geometry::ReferenceLine::Instance() && test.getCodim2ReferenceGeometry(4) == &Geometry::ReferenceLine::Instance() && test.getCodim2ReferenceGeometry(5) == &Geometry::ReferenceLine::Instance() && test.getCodim2ReferenceGeometry(6) == &Geometry::ReferenceLine::Instance() && test.getCodim2ReferenceGeometry(7) == &Geometry::ReferenceLine::Instance() && test.getCodim2ReferenceGeometry(8) == &Geometry::ReferenceLine::Instance()), "getCodim2ReferenceGeometry");
+    logger.assert_always((test.getCodim1MappingPtr(0) == &Geometry::MappingToRefFaceToTriangularPrism0::Instance()), "getCodim1MappingPtr");
+    logger.assert_always((test.getCodim1MappingPtr(1) == &Geometry::MappingToRefFaceToTriangularPrism1::Instance()), "getCodim1MappingPtr");
+    logger.assert_always((test.getCodim1MappingPtr(2) == &Geometry::MappingToRefFaceToTriangularPrism2::Instance()), "getCodim1MappingPtr");
+    logger.assert_always((test.getCodim1MappingPtr(3) == &Geometry::MappingToRefFaceToTriangularPrism3::Instance()), "getCodim1MappingPtr");
+    logger.assert_always((test.getCodim1MappingPtr(4) == &Geometry::MappingToRefFaceToTriangularPrism4::Instance()), "getCodim1MappingPtr");
+    faceIndices = test.getCodim1EntityLocalIndices(0);
+    logger.assert_always((faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 0)), "getCodim1EntityLocalIndices");
+    logger.assert_always((faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 1)), "getCodim1EntityLocalIndices");
+    logger.assert_always((faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 2)), "getCodim1EntityLocalIndices");
+    faceIndices = test.getCodim1EntityLocalIndices(1);
+    logger.assert_always((faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 0)), "getCodim1EntityLocalIndices");
+    logger.assert_always((faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 1)), "getCodim1EntityLocalIndices");
+    logger.assert_always((faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 2)), "getCodim1EntityLocalIndices");
+    faceIndices.resize(4);
+    faceIndices = test.getCodim1EntityLocalIndices(2);
+    logger.assert_always((faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 0)), "getCodim1EntityLocalIndices");
+    logger.assert_always((faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 1)), "getCodim1EntityLocalIndices");
+    logger.assert_always((faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 2)), "getCodim1EntityLocalIndices");
+    logger.assert_always((faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 3)), "getCodim1EntityLocalIndices");
+    faceIndices = test.getCodim1EntityLocalIndices(3);
+    logger.assert_always((faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 0)), "getCodim1EntityLocalIndices");
+    logger.assert_always((faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 1)), "getCodim1EntityLocalIndices");
+    logger.assert_always((faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 2)), "getCodim1EntityLocalIndices");
+    logger.assert_always((faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 3)), "getCodim1EntityLocalIndices");
+    faceIndices = test.getCodim1EntityLocalIndices(4);
+    logger.assert_always((faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 0)), "getCodim1EntityLocalIndices");
+    logger.assert_always((faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 1)), "getCodim1EntityLocalIndices");
+    logger.assert_always((faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 2)), "getCodim1EntityLocalIndices");
+    logger.assert_always((faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 3)), "getCodim1EntityLocalIndices");
+    faceIndices.resize(2);
+    faceIndices = test.getCodim2EntityLocalIndices(0);
+    logger.assert_always((faceIndices[0] == 0), "getCodim2EntityLocalIndices");
+    logger.assert_always((faceIndices[1] == 1), "getCodim2EntityLocalIndices");
+    faceIndices = test.getCodim2EntityLocalIndices(1);
+    logger.assert_always((faceIndices[0] == 0), "getCodim2EntityLocalIndices");
+    logger.assert_always((faceIndices[1] == 2), "getCodim2EntityLocalIndices");
+    faceIndices = test.getCodim2EntityLocalIndices(2);
+    logger.assert_always((faceIndices[0] == 1), "getCodim2EntityLocalIndices");
+    logger.assert_always((faceIndices[1] == 2), "getCodim2EntityLocalIndices");
+    faceIndices = test.getCodim2EntityLocalIndices(3);
+    logger.assert_always((faceIndices[0] == 3), "getCodim2EntityLocalIndices");
+    logger.assert_always((faceIndices[1] == 4), "getCodim2EntityLocalIndices");
+    faceIndices = test.getCodim2EntityLocalIndices(4);
+    logger.assert_always((faceIndices[0] == 3), "getCodim2EntityLocalIndices");
+    logger.assert_always((faceIndices[1] == 5), "getCodim2EntityLocalIndices");
+    faceIndices = test.getCodim2EntityLocalIndices(5);
+    logger.assert_always((faceIndices[0] == 4), "getCodim2EntityLocalIndices");
+    logger.assert_always((faceIndices[1] == 5), "getCodim2EntityLocalIndices");
+    faceIndices = test.getCodim2EntityLocalIndices(6);
+    logger.assert_always((faceIndices[0] == 0), "getCodim2EntityLocalIndices");
+    logger.assert_always((faceIndices[1] == 3), "getCodim2EntityLocalIndices");
+    faceIndices = test.getCodim2EntityLocalIndices(7);
+    logger.assert_always((faceIndices[0] == 1), "getCodim2EntityLocalIndices");
+    logger.assert_always((faceIndices[1] == 4), "getCodim2EntityLocalIndices");
+    faceIndices = test.getCodim2EntityLocalIndices(8);
+    logger.assert_always((faceIndices[0] == 2), "getCodim2EntityLocalIndices");
+    logger.assert_always((faceIndices[1] == 5), "getCodim2EntityLocalIndices");
+    faceIndices.resize(1);
+    faceIndices = test.getCodim3EntityLocalIndices(0);
+    logger.assert_always((faceIndices[0] == 0), "getCodim3EntityLocalIndices");
+    faceIndices = test.getCodim3EntityLocalIndices(1);
+    logger.assert_always((faceIndices[0] == 1), "getCodim3EntityLocalIndices");
+    faceIndices = test.getCodim3EntityLocalIndices(2);
+    logger.assert_always((faceIndices[0] == 2), "getCodim3EntityLocalIndices");
+    faceIndices = test.getCodim3EntityLocalIndices(3);
+    logger.assert_always((faceIndices[0] == 3), "getCodim3EntityLocalIndices");
+    faceIndices = test.getCodim3EntityLocalIndices(4);
+    logger.assert_always((faceIndices[0] == 4), "getCodim3EntityLocalIndices");
+    faceIndices = test.getCodim3EntityLocalIndices(5);
+    logger.assert_always((faceIndices[0] == 5), "getCodim3EntityLocalIndices");
+    
+    logger.assert_always((test.getGaussQuadratureRule(3)->order() >= 3), "quadrature rules");
+    logger.assert_always((test.getGaussQuadratureRule(5)->order() >= 5), "quadrature rules");
+    logger.assert_always((test.getGaussQuadratureRule(7)->order() >= 7), "quadrature rules");
+    //assert(("quadrature rules",test.getGaussQuadratureRule(9)->order()>=9));///\TODO add extra quadrature rules
+    //assert(("quadrature rules",test.getGaussQuadratureRule(11)->order()>=11));
+    
+    //testing functionality of abstract parent classes
+    
+    logger.assert_always((test.getNumberOfNodes() == 6), "number of nodes");
+    logger.assert_always((test.getGeometryType() == Geometry::ReferenceGeometryType::TRIANGULARPRISM), "type of geometry");
+    
+    ///\TODO if it is decided that getBasisFunctionValue and getBasisFucntionDerivative remain here, test them
+    
+    ///\TODO testing that the refinement maps behave exactly like the forwarded calls of this class
 }
-
-
 

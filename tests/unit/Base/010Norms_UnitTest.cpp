@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -21,101 +21,100 @@
 //naming convention: <Digit><ClassName>_UnitTest.cpp where <Digit> is a number that will make sure
 //the unit tests are ordered such that the first failing unit test indicate the culprit class and
 //other 'unit' tests may assume correct execution of all prior unit tests
+#include "Base/L2Norm.h"
 
-#include "Base/L2Norm.hpp"
-#include "Base/Norm2.hpp"
-#include "cassert"
+#include <cmath>
+#include <iostream>
+#include "LinearAlgebra/MiddleSizeVector.h"
+#include "Geometry/PointPhysical.h"
+#include "Logger.h"
 
-int main(){
+int main()
+{
+    
+    LinearAlgebra::MiddleSizeVector::type *test0(nullptr), test1[1], test2[2], test3[3];
+    
+    LinearAlgebra::MiddleSizeVector vec0D(test0, 0);
+    Geometry::PointPhysical<0> point0D(vec0D);
+    
+    logger.assert_always(Base::L2Norm(vec0D) == 0., "0D case");
+    logger.assert_always(Base::L2Norm(point0D) == 0., "0D case");
+    
+    test1[0] = 1;
+    
+    LinearAlgebra::MiddleSizeVector vec1D(test1, 1);
+    Geometry::PointPhysical<1> point1D(vec1D);
+    
+    logger.assert_always(std::abs(Base::L2Norm(vec1D) - 1.) < 1e-12, "1D case, positive");
+    logger.assert_always(std::abs(Base::L2Norm(point1D) - 1.) < 1e-12, "1D case, positive");
+    
+    vec1D[0] = -1;
+    point1D[0] = -1;
+    
+    logger.assert_always(std::abs(Base::L2Norm(vec1D) - 1.) < 1e-12, "1D case, negative");
+    logger.assert_always(std::abs(Base::L2Norm(point1D) - 1.) < 1e-12, "1D case, negative");
+    
+    vec1D[0] = 4.38573895783677438;
+    point1D[0] = 4.38573895783677438;
+    
+    logger.assert_always(std::abs(Base::L2Norm(vec1D) - 4.38573895783677438) < 1e-12, "non-unit data");
+    logger.assert_always(std::abs(Base::L2Norm(point1D) - 4.38573895783677438) < 1e-12, "non-unit data");
+    
+    test2[0] = 1;
+    test2[1] = 1;
+    
+    LinearAlgebra::MiddleSizeVector vec2D(test2, 2);
+    LinearAlgebra::SmallVector<2> smallVec2D(vec2D);
+    Geometry::PointPhysical<2> point2D(vec2D);
 
-	double test0[0],test1[1],test2[2],test3[3],test4[4];
+    logger.assert_always(std::abs(Base::L2Norm(vec2D) - std::sqrt(2.)) < 1e-12, "2D case, positive");
+    logger.assert_always(std::abs(Base::L2Norm(smallVec2D) - std::sqrt(2.)) < 1e-12, "2D case, positive");
+    logger.assert_always(std::abs(Base::L2Norm(point2D) - std::sqrt(2.)) < 1e-12, "2D case, positive");
 
-	LinearAlgebra::NumericalVector vec0D(test0,0);
-	Geometry::PointPhysical point0D(vec0D);
+    vec2D[0] = -1;
+    smallVec2D[0] = -1;
+    point2D[0] = -1;
 
-	assert(("0D case",Base::L2Norm(vec0D)==0));
-	assert(("0D case",Base::L2Norm(point0D)==0));
-	assert(("0D case",Utilities::norm2(point0D)==0));
+    logger.assert_always(std::abs(Base::L2Norm(vec2D) - std::sqrt(2.)) < 1e-12, "2D case, mix");
+    logger.assert_always(std::abs(Base::L2Norm(smallVec2D) - std::sqrt(2.)) < 1e-12, "2D case, mix");
+    logger.assert_always(std::abs(Base::L2Norm(point2D) - std::sqrt(2.)) < 1e-12, "2D case, mix");
 
-	test1[0]=1;
+    vec2D[1] = -1;
+    smallVec2D[1] = -1;
+    point2D[1] = -1;
 
-	LinearAlgebra::NumericalVector vec1D(test1,1);
-	Geometry::PointPhysical point1D(vec1D);
-
-	assert(("1D case, positive",fabs(Base::L2Norm(vec1D)-1)<1e-12));
-	assert(("1D case, positive",fabs(Base::L2Norm(point1D)-1)<1e-12));
-	assert(("1D case, positive",fabs(Utilities::norm2(point1D)-1)<1e-12));
-
-	vec1D[0]=-1;
-	point1D[0]=-1;
-
-	assert(("1D case, negative",fabs(Base::L2Norm(vec1D)-1)<1e-12));
-	assert(("1D case, negative",fabs(Base::L2Norm(point1D)-1)<1e-12));
-	assert(("1D case, negative",fabs(Utilities::norm2(point1D)-1)<1e-12));
-
-	vec1D[0]=4.38573895783677438;
-	point1D[0]=4.38573895783677438;
-
-	assert(("non-unit data",fabs(Base::L2Norm(vec1D)-4.38573895783677438)<1e-12));
-	assert(("non-unit data",fabs(Base::L2Norm(point1D)-4.38573895783677438)<1e-12));
-	assert(("non-unit data",fabs(Utilities::norm2(point1D)-4.38573895783677438)<1e-12));
-
-	test2[0]=1;
-	test2[1]=1;
-
-	LinearAlgebra::NumericalVector vec2D(test2,2);
-	Geometry::PointPhysical point2D(vec2D);
-
-	assert(("2D case, positive",fabs(Base::L2Norm(vec2D)-sqrt(2.))<1e-12));
-	assert(("2D case, positive",fabs(Base::L2Norm(point2D)-sqrt(2.))<1e-12));
-	assert(("2D case, positive",fabs(Utilities::norm2(point2D)-sqrt(2.))<1e-12));
-
-	vec2D[0]=-1;
-	point2D[0]=-1;
-
-	assert(("2D case, mix",fabs(Base::L2Norm(vec2D)-sqrt(2.))<1e-12));
-	assert(("2D case, mix",fabs(Base::L2Norm(point2D)-sqrt(2.))<1e-12));
-	assert(("2D case, mix",fabs(Utilities::norm2(point2D)-sqrt(2.))<1e-12));
-
-	vec2D[1]=-1;
-	point2D[1]=-1;
-
-	assert(("2D case, negative",fabs(Base::L2Norm(vec2D)-sqrt(2.))<1e-12));
-	assert(("2D case, negative",fabs(Base::L2Norm(point2D)-sqrt(2.))<1e-12));
-	assert(("2D case, negative",fabs(Utilities::norm2(point2D)-sqrt(2.))<1e-12));
-
-	test3[0]=1;
-	test3[1]=1;
-	test3[2]=2;
-
-	LinearAlgebra::NumericalVector vec3D(test3,3);
-	Geometry::PointPhysical point3D(vec3D);
-
-	assert(("3D case, positive",fabs(Base::L2Norm(vec3D)-sqrt(6.))<1e-12));
-	assert(("3D case, positive",fabs(Base::L2Norm(point3D)-sqrt(6.))<1e-12));
-	assert(("3D case, positive",fabs(Utilities::norm2(point3D)-sqrt(6.))<1e-12));
-
-	vec3D[0]=-1;
-	point3D[0]=-1;
-
-	assert(("3D case, mix",fabs(Base::L2Norm(vec3D)-sqrt(6.))<1e-12));
-	assert(("3D case, mix",fabs(Base::L2Norm(point3D)-sqrt(6.))<1e-12));
-	assert(("3D case, mix",fabs(Utilities::norm2(point3D)-sqrt(6.))<1e-12));
-
-	vec3D[1]=-1;
-	point3D[1]=-1;
-
-	assert(("3D case, mix",fabs(Base::L2Norm(vec3D)-sqrt(6.))<1e-12));
-	assert(("3D case, mix",fabs(Base::L2Norm(point3D)-sqrt(6.))<1e-12));
-	assert(("3D case, mix",fabs(Utilities::norm2(point3D)-sqrt(6.))<1e-12));
-
-	vec3D[2]=-2;
-	point3D[2]=-2;
-
-	assert(("3D case, negative",fabs(Base::L2Norm(vec3D)-sqrt(6.))<1e-12));
-	assert(("3D case, negative",fabs(Base::L2Norm(point3D)-sqrt(6.))<1e-12));
-	assert(("3D case, negative",fabs(Utilities::norm2(point3D)-sqrt(6.))<1e-12));
-
-	return 0;
+    logger.assert_always(std::abs(Base::L2Norm(vec2D) - std::sqrt(2.)) < 1e-12, "2D case, negative");
+    logger.assert_always(std::abs(Base::L2Norm(smallVec2D) - std::sqrt(2.)) < 1e-12, "2D case, negative");
+    logger.assert_always(std::abs(Base::L2Norm(point2D) - std::sqrt(2.)) < 1e-12, "2D case, negative");
+    
+    test3[0] = 1;
+    test3[1] = 1;
+    test3[2] = 2;
+    
+    LinearAlgebra::MiddleSizeVector vec3D(test3, 3);
+    Geometry::PointPhysical<3> point3D(vec3D);
+    
+    logger.assert_always(std::abs(Base::L2Norm(vec3D) - std::sqrt(6.)) < 1e-12, "3D case, positive");
+    logger.assert_always(std::abs(Base::L2Norm(point3D) - std::sqrt(6.)) < 1e-12, "3D case, positive");
+    
+    vec3D[0] = -1;
+    point3D[0] = -1;
+    
+    logger.assert_always(std::abs(Base::L2Norm(vec3D) - std::sqrt(6.)) < 1e-12, "3D case, mix");
+    logger.assert_always(std::abs(Base::L2Norm(point3D) - std::sqrt(6.)) < 1e-12, "3D case, mix");
+    
+    vec3D[1] = -1;
+    point3D[1] = -1;
+    
+    logger.assert_always(std::abs(Base::L2Norm(vec3D) - std::sqrt(6.)) < 1e-12, "3D case, mix");
+    logger.assert_always(std::abs(Base::L2Norm(point3D) - std::sqrt(6.)) < 1e-12, "3D case, mix");
+    
+    vec3D[2] = -2;
+    point3D[2] = -2;
+    
+    logger.assert_always(std::abs(Base::L2Norm(vec3D) - std::sqrt(6.)) < 1e-12, "3D case, negative");
+    logger.assert_always(std::abs(Base::L2Norm(point3D) - std::sqrt(6.)) < 1e-12, "3D case, negative");
+    
+    return 0;
 }
 

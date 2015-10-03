@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -22,31 +22,37 @@
 #include <iostream>
 #include <stdlib.h>
 #include <math.h>
-#include "LinearAlgebra/Matrix.hpp"
+#include "LinearAlgebra/MiddleSizeMatrix.h"
 
-using namespace::std;
+using namespace ::std;
 
+///\todo Please fix or remove.
 int main(int argc, char* argv[])
 {
-	
+    
+#ifdef LA_STL_VECTOR
+    std::cout << "Life is good" << std::endl;
+#endif
+    
     /*
-	
-	LinearAlgebra::Matrix<double> A(10,10);
-	
-	for (int i=0; i<10; i++)
-		for (int j=0; j<10; j++)
-		{
-			A(i,j)=0.1*i*j;
-		}
-	
-	LinearAlgebra::Matrix<double> B(A);
-	LinearAlgebra::Matrix<double> C(10,10,0);
-	
-	for (int k=0; k<100000000; k++)
-	{
-		C=A+B;
-	}
-	
+     
+     LinearAlgebra::Matrix<double> A(10,10);
+     
+     for (std::size_t i=0; i<10; i++)
+     for (std::size_t j=0; j<10; j++)
+     {
+     A(i,j)=0.1*i*j;
+     }
+     
+     LinearAlgebra::Matrix<double> B(A);
+     LinearAlgebra::Matrix<double> C(10,10,0);
+     
+     for (std::size_t k=0; k<100000000; k++)
+     {
+     C=A+B;
+     }
+     
      */
+    return 0;
 }
 

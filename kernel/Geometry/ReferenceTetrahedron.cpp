@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -19,9 +19,11 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ReferenceTetrahedron.hpp"
-#include "ReferenceLine.hpp"
-#include "ReferenceTriangle.hpp"
+#include "ReferenceTetrahedron.h"
+#include "ReferenceLine.h"
+#include "ReferenceTriangle.h"
+#include "Geometry/PointReference.h"
+#include "Mappings/MappingToRefTriangleToTetrahedron.h"
 
 namespace Geometry
 {
@@ -33,225 +35,120 @@ namespace Geometry
      *   |/     \
      * 0 o--------o 1
      */
-     int ReferenceTetrahedron::localNodeIndexes_[4][3] =
-     {
-         { 0, 3, 2 },
-         { 0, 1, 3 },
-         { 0, 2, 1 },
-         { 1, 2, 3 }
-     };
-
-     int ReferenceTetrahedron::localNodesOnEdge_[6][2] =
-     {
-         { 0, 1 },
-         { 0, 2 },
-         { 0, 3 },
-         { 2, 3 },
-         { 1, 3 },
-         { 1, 2 },
-     };
-
-    ReferenceTetrahedron::ReferenceTetrahedron():/// Tetrahedron has four nodes 3D + 1
-        ReferenceGeometry(ThreeD+1,3,TETRAHEDRON),
-        referenceGeometryCodim1Ptr_(&ReferenceTriangle::Instance()),
-        referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
+    std::size_t ReferenceTetrahedron::localNodeIndexes_[4][3] = { {0, 3, 2}, {0, 1, 3}, {0, 2, 1}, {1, 2, 3}};
+    
+    std::size_t ReferenceTetrahedron::localNodesOnEdge_[6][2] = { {0, 1}, {0, 2}, {0, 3}, {2, 3}, {1, 3}, {1, 2}, };
+    
+    ReferenceTetrahedron::ReferenceTetrahedron()
+            : /// Tetrahedron has four nodes 3D + 1
+            ReferenceGeometry(4, 3, ReferenceGeometryType::TETRAHEDRON, {1./4., 1./4., 1./4.}), referenceGeometryCodim1Ptr_(&ReferenceTriangle::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance()), points_(4)
     {
-        PointReferenceT p1(3), p2(3), p3(3), p4(3);
+        name = "ReferenceTetrahedron";
         
-        p1[0] = +0.0; p1[1] = +0.0; p1[2] = +0.0;
-        p2[0] = +1.0; p2[1] = +0.0; p2[2] = +0.0;
-        p3[0] = +0.0; p3[1] = +1.0; p3[2] = +0.0;
-        p4[0] = +0.0; p4[1] = +0.0; p4[2] = +1.0;
+        points_[0] = PointReferenceFactory<3>::instance()->makePoint({0., 0., 0.});
+        points_[1] = PointReferenceFactory<3>::instance()->makePoint({1., 0., 0.});
+        points_[2] = PointReferenceFactory<3>::instance()->makePoint({0., 1., 0.});
+        points_[3] = PointReferenceFactory<3>::instance()->makePoint({0., 0., 1.});
+        center_ = PointReferenceFactory<3>::instance()->makePoint({1./4., 1./4., 1./4.});
         
-        points_[0] = p1;
-        points_[1] = p2;
-        points_[2] = p3;
-        points_[3] = p4;
-
         mappingsTriangleToTetrahedron_[0] = &MappingToRefTriangleToTetrahedron0::Instance();
         mappingsTriangleToTetrahedron_[1] = &MappingToRefTriangleToTetrahedron1::Instance();
         mappingsTriangleToTetrahedron_[2] = &MappingToRefTriangleToTetrahedron2::Instance();
         mappingsTriangleToTetrahedron_[3] = &MappingToRefTriangleToTetrahedron3::Instance();
-
+        
         /// TODO: Implement MappingTetrahedronToTetrahedron.
         mappingsTetrahedronToTetrahedron_[0] = 0;
     }
     
-    ReferenceTetrahedron::ReferenceTetrahedron(const ReferenceTetrahedron& copy):
-        ReferenceGeometry(copy),
-        referenceGeometryCodim1Ptr_(copy.referenceGeometryCodim1Ptr_),
-        referenceGeometryCodim2Ptr_(copy.referenceGeometryCodim2Ptr_)
+    bool ReferenceTetrahedron::isInternalPoint(const PointReference<3>& p) const
     {
-    }
-    
-    bool ReferenceTetrahedron::isInternalPoint(const PointReferenceT& p) const
-    {
-        return ((p[0] >= 0.) && (p[0] <= 1.) && (p[1] >= 0.) && (p[1] <= 1. - p[0]) &&
-                (p[2] >= 0.) && (p[2] <= 1. - p[0] - p[1]));
-    }
-    
-    void ReferenceTetrahedron::getCenter(PointReferenceT& p) const
-    {
-        p[0] = p[1] = p[2] = 1. / 4.;
-    }
-    
-    void ReferenceTetrahedron::getNode(const IndexT& i, PointReferenceT& point) const
-    {
-        point = points_[i];
+        logger.assert(p.size()==3, "The dimension of the reference point is incorrect");
+        return ((p[0] >= 0.) && (p[0] <= 1.) && (p[1] >= 0.) && (p[1] <= 1. - p[0]) && (p[2] >= 0.) && (p[2] <= 1. - p[0] - p[1]));
     }
     
     std::ostream& operator<<(std::ostream& os, const ReferenceTetrahedron& tetra)
     {
-        os <<tetra.getName()<<" =( ";
-        ReferenceTetrahedron::const_iterator it = tetra.points_.begin();
-        ReferenceTetrahedron::const_iterator end = tetra.points_.end();
-
-        for ( ; it != end; ++it)
+        os << tetra.getName() << " =( ";
+        auto it = tetra.points_.begin();
+        auto end = tetra.points_.end();
+        
+        for (; it != end; ++it)
         {
             os << (*it) << '\t';
         }
-        os <<')'<<std::endl;
-
+        os << ')' << std::endl;
+        
         return os;
     }
-
+    
     // ================================== Codimension 0 ============================================
-
-    int ReferenceTetrahedron::
-    getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
+    
+    std::size_t ReferenceTetrahedron::getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
     {
-        /// TODO: Implement tetrahedron to tetrahedron mappings.
-        throw "ERROR: Tetrahedron to tetrahedron mappings do not exist";
+        logger(FATAL, "Tetrahedron to tetrahedron mappings do not exist.\n");
+        return 0;
     }
-
-    const MappingReferenceToReference*
-    ReferenceTetrahedron::getCodim0MappingPtr(const IndexT i) const
+    
+    const MappingReferenceToReference<0>*
+    ReferenceTetrahedron::getCodim0MappingPtr(const std::size_t i) const
     {
-        /// TODO: Implement tetrahedron to tetrahedron mappings.
-        throw "ERROR: Tetrahedron to tetrahedron mappings do not exist";
+        /// \TODO: Implement tetrahedron to tetrahedron mappings.
+        logger(FATAL, "ERROR: Tetrahedron to tetrahedron mappings do not exist.\n");
+        return 0;
     }
-
+    
     // ================================== Codimension 1 ============================================
-
-    void ReferenceTetrahedron::
-    getCodim1EntityLocalIndices(const IndexT faceIndex, ListOfIndexesT& faceNodesLocal) const
+    
+    std::vector<std::size_t> ReferenceTetrahedron::getCodim1EntityLocalIndices(const std::size_t faceIndex) const
     {
-        if (faceIndex < 4)
-        {
-            faceNodesLocal.resize(3); // 3 nodes per face
-            faceNodesLocal[0] = (IndexT) localNodeIndexes_[faceIndex][0];
-            faceNodesLocal[1] = (IndexT) localNodeIndexes_[faceIndex][1];
-            faceNodesLocal[2] = (IndexT) localNodeIndexes_[faceIndex][2];
-        }
-        else
-        {
-            throw "ERROR: Index out of range. Tetrahedron has only 3 faces.";
-        }
+        logger.assert((faceIndex < 4), "ERROR: Index out of range. Tetrahedron has only 3 faces.\n");
+        return std::vector<std::size_t>(localNodeIndexes_[faceIndex], localNodeIndexes_[faceIndex] + 3);
     }
-
+    
     const ReferenceGeometry*
-    ReferenceTetrahedron::getCodim1ReferenceGeometry(const IndexT faceIndex) const
+    ReferenceTetrahedron::getCodim1ReferenceGeometry(const std::size_t faceIndex) const
     {
-        if (faceIndex < 4)
-        {
-            return referenceGeometryCodim1Ptr_;
-        }
-        else
-        {
-            throw "ERROR: Index out of range. Tetrahedron has only 3 faces.";
-        }
+        logger.assert((faceIndex < 4), "ERROR: Index out of range. Tetrahedron has only 3 faces.\n");
+        return referenceGeometryCodim1Ptr_;
     }
-
-    const MappingReferenceToReference*
-    ReferenceTetrahedron::getCodim1MappingPtr(const IndexT faceIndex) const
+    
+    const MappingReferenceToReference<1>*
+    ReferenceTetrahedron::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
-        if (faceIndex < 4)
-        {
-            return mappingsTriangleToTetrahedron_[faceIndex];
-        }
-        else
-        {
-            throw "ERROR: Asked for a square point index larger than 3. There are only 4 nodes in a square!";
-        }
+        logger.assert((faceIndex < 4), "ERROR: Asked for a square point index larger than 3. There are only 4 nodes in a square.\n");
+        return mappingsTriangleToTetrahedron_[faceIndex];
     }
-
+    
     // ================================== Codimension 2 ============================================
-
-    void ReferenceTetrahedron::
-    getCodim2EntityLocalIndices(const IndexT edgeIndex, ListOfIndexesT& edgeNodesLocal) const
+    
+    std::vector<std::size_t> ReferenceTetrahedron::getCodim2EntityLocalIndices(const std::size_t edgeIndex) const
     {
-        if (edgeIndex < 6)
-        {
-            edgeNodesLocal.resize(2); // 2 nodes per edge
-            edgeNodesLocal[0] = (IndexT) localNodesOnEdge_[edgeIndex][0];
-            edgeNodesLocal[1] = (IndexT) localNodesOnEdge_[edgeIndex][1];
-        }
-        else
-        {
-            throw "ERROR: Index out of range. Tetrahedron has only 6 edges.";
-        }
+        logger.assert((edgeIndex < 6), "ERROR: Index out of range. Tetrahedron has only 6 edges.\n");
+        return std::vector<std::size_t>(localNodesOnEdge_[edgeIndex], localNodesOnEdge_[edgeIndex] + 2);
     }
-
+    
     const ReferenceGeometry*
-    ReferenceTetrahedron::getCodim2ReferenceGeometry(const IndexT edgeIndex) const
+    ReferenceTetrahedron::getCodim2ReferenceGeometry(const std::size_t edgeIndex) const
     {
-        if (edgeIndex < 6)
-        {
-            return referenceGeometryCodim2Ptr_;
-        }
-        else
-        {
-            throw "ERROR: Index out of range. Tetrahedron has only 6 edges.";
-        }
+        logger.assert((edgeIndex < 6), "ERROR: Index out of range. Tetrahedron has only 6 edges.\n");
+        return referenceGeometryCodim2Ptr_;
     }
-
-    const MappingReferenceToReference*
-    ReferenceTetrahedron::getCodim2MappingPtr(const IndexT faceIndex) const
+    
+    const MappingReferenceToReference<2>*
+    ReferenceTetrahedron::getCodim2MappingPtr(const std::size_t faceIndex) const
     {
-        /// TODO: Implement line to tetrahedron mappings.
-        throw "ERROR: Line to tetrahedron mappings do not exist";
+        /// \TODO: Implement line to tetrahedron mappings.
+        logger(FATAL, "ERROR: Line to tetrahedron mappings do not exist.\n");
+        return 0;
     }
-
+    
     // ================================== Codimension 3 ============================================
-
-    void ReferenceTetrahedron::
-    getCodim3EntityLocalIndices(const IndexT nodeIndex, ListOfIndexesT& nodeNodesLocal) const
+    
+    std::vector<std::size_t> ReferenceTetrahedron::getCodim3EntityLocalIndices(const std::size_t nodeIndex) const
     {
-        if (nodeIndex < 4)
-        {
-            nodeNodesLocal.resize(1); // 2 nodes per edge
-            nodeNodesLocal[0] = nodeIndex;
-        }
-        else
-        {
-            throw "ERROR: Index out of range. Tetrahedron has only 4 nodes.";
-        }
+        logger.assert((nodeIndex < 4), "ERROR: Index out of range. Tetrahedron has only 4 nodes.\n");
+        return std::vector<std::size_t>(1, nodeIndex);
     }
 
-
-    // ================================== Quadrature rules =====================================
-
-    /// Add a quadrature rule into the list of valid quadrature rules for this geometry.
-    void ReferenceTetrahedron::addGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const qr)
-    {
-        std::list<QuadratureRules::GaussQuadratureRule*>::iterator it = lstGaussQuadratureRules_.begin();
-        while (it != lstGaussQuadratureRules_.end())
-        {
-          if ((*it)->order() < qr->order()) ++it;
-          else break;
-        }
-        lstGaussQuadratureRules_.insert(it,qr);
-    }
-
-    /// Get a valid quadrature for this geometry.
-    QuadratureRules::GaussQuadratureRule* const ReferenceTetrahedron::getGaussQuadratureRule(int order) const
-    {
-        for (std::list<QuadratureRules::GaussQuadratureRule*>::const_iterator it = lstGaussQuadratureRules_.begin();
-              it != lstGaussQuadratureRules_.end(); ++it)
-          if ((*it)->order() >= order) return *it;
-
-        return NULL;
-    }
-            
-};
+}
 

@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.8)
-project (hpGEM CXX Fortran)
+project (hpGEM C CXX Fortran)
 
 set(hpGEM_VERSION_MAJOR 2)
 set(hpGEM_VERSION_MINOR 0)
@@ -27,18 +27,13 @@ if (NOT CMAKE_CXX_FLAGS)
 endif(NOT CMAKE_CXX_FLAGS)
 
 
-add_subdirectory(kernel)
-add_subdirectory(tests)
-add_subdirectory(applications)
-
-
 
 
 #This section generates a configuration file that contains the CMake varibles#
 #############################################
 
 configure_file(conf/cmake/CMakeDefinitions.conf
-		${PROJECT_BINARY_DIR}/kernel/CMakeDefinitions.hpp)
+		${PROJECT_BINARY_DIR}/kernel/CMakeDefinitions.h)
 
 
 #Make the default build release is this in what a normal user wants
@@ -58,12 +53,106 @@ add_custom_target(fullTest
 		COMMENT "This will clean the project, rebuild and test." )
 
 
+################################################################################
+#This section is about the logger, debugging and other stuff
+################################################################################
+
+#==========[ Assert Config ]============
+set(hpGEM_DISABLE_ASSERTS OFF CACHE BOOL "Disables asserts - use at your own risk!")
+mark_as_advanced( FORCE hpGEM_DISABLE_ASSERTS )
+if (hpGEM_DISABLE_ASSERTS)
+  add_definitions( -DHPGEM_NO_ASSERTS )
+endif()
+
+set(hpGEM_ENFORCE_ASSERTS OFF CACHE BOOL "Enables asserts even in release mode - may be slow!")
+mark_as_advanced( FORCE hpGEM_ENFORCE_ASSERTS )
+if (hpGEM_ENFORCE_ASSERTS)
+  if(hpGEM_DISABLE_ASSERTS)
+    message(FATAL_ERROR, "Cannot disable the assertions when they are enforced!!!")
+  endif()
+  add_definitions( -DHPGEM_FORCE_ASSERTS )
+endif()
+
+#=======[ The default loglevel ]========
+set(hpGEM_LOGLEVEL "DEFAULT" CACHE STRING "Verbosity of hpGEM. Default is recommended.")
+set_property( CACHE hpGEM_LOGLEVEL PROPERTY STRINGS FATAL ERROR WARN INFO DEFAULT VERBOSE DEBUG )
+mark_as_advanced( FORCE hpGEM_LOGLEVEL )
+add_definitions( -DHPGEM_LOGLEVEL=Log::${hpGEM_LOGLEVEL} )
+
+#===========[ Stacktraces ]=============
+#we need this to check if we can
+#even make stacktraces
+include(CheckIncludeFiles)
+include(CheckIncludeFileCXX)
+include(CheckLibraryExists)
+
+#Now, we need execinfo() to do it a bit
+#in a sane way (nobody likes assembly)
+CHECK_INCLUDE_FILES(execinfo.h  HAS_EXECINFO_H)
+
+#Now, we would also like to have some
+#name demangling going on...
+#dynlinker
+CHECK_INCLUDE_FILES(dlfcn.h     HAS_DLFCN_H)
+#CXX demangler api
+CHECK_INCLUDE_FILE_CXX(cxxabi.h HAS_CXXABI_H)
+CHECK_LIBRARY_EXISTS(dl dladdr "" HAS_DLADDR_LIB)
+
+#So, now see what we've end up with.
+if (${HAS_EXECINFO_H})
+  #the bare minimum is there...
+  if (CMAKE_BUILD_TYPE)
+    if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+      set( hpGEM_STACKTRACE_ENABLE ON CACHE BOOL "Enable stacktraces for log messages")
+    else()
+      set( hpGEM_STACKTRACE_ENABLE OFF CHACHE BOOL "Enable stacktraces for log messages")
+    endif()
+  endif()
+  #now, check whether or not we can do demangling
+  set( USE_DEMANGLE ON )
+  if (NOT HAS_DLFCN_H)
+    set( USE_DEMANGLE OFF )
+  endif()
+  if (NOT HAS_DLADDR_LIB)
+    set( USE_DEMANGLE OFF )
+  endif()
+  if (NOT HAS_CXXABI_H)
+    set( USE_DEMANGLE OFF )
+  endif()
+  set( hpGEM_STACKTRACE_DEMANGLE ${USE_DEMANGLE} CACHE BOOL "Enable name demangling for stacktraces")
+else()
+  set( hpGEM_STACKTRACE_ENABLE   OFF CACHE INTERNAL "execinfo.h not found - no stacktraces possible")
+  set( hpGEM_STACKTRACE_DEMANGLE OFF CACHE INTERNAL "demangling is not going to happen, no bt!")
+endif()
+mark_as_advanced( FORCE hpGEM_STACKTRACE_ENABLE hpGEM_STACKTRACE_DEMANGLE )
+#Well, that should work now...
+
+if (hpGEM_STACKTRACE_ENABLE)
+  add_definitions(-DHPGEM_STACKTRACE_ENABLE)
+endif()
+if (hpGEM_STACKTRACE_DEMANGLE)
+  add_definitions(-DHPGEM_STACKTRACE_DEMANGLE)
+endif()
+
 #This section is about the build of documentation#
 ##############################################
 
 option(hpGEM_BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
-option(hpGEM_INCLUDE_PETSC_SUPPORT "Include PETSC this is required for GlobalAssemble" OFF)
-option(hpGEM_INCLUDE_SLEPC_SUPPORT "Include SLEPC this is needed for some applications" OFF)
+option(hpGEM_USE_METIS "Include metis this will enable parallel computation" OFF)
+option(hpGEM_USE_MPI "Include mpi this will enable parallel computation" OFF)
+option(hpGEM_USE_QHULL "Include QHull this will allow unstructured mesh generation and r-refinement" OFF)
+option(hpGEM_USE_PETSC "Include PETSC this is required for GlobalAssemble" OFF)
+option(hpGEM_USE_COMPLEX_PETSC "Include a more complex version of PETSc instead" OFF)
+option(hpGEM_USE_SLEPC "Include SLEPC this is needed for some applications" OFF)
+option(hpGEM_USE_STL_VECTOR_FOR_LA "Will swap the internal storage of the linear algebra from being based on valarray to STL vector" ON)
+mark_as_advanced(hpGEM_USE_STL_VECTOR_FOR_LA)
+if(hpGEM_USE_STL_VECTOR_FOR_LA)
+	add_definitions(-DLA_STL_VECTOR)
+endif(hpGEM_USE_STL_VECTOR_FOR_LA)
+if (NOT hpGEM_USE_STL_VECTOR_FOR_LA)
+	message (FATAL_ERROR
+		"Val array is no longer support; please select use hpGEM_USE_STK_VECTOR_FOR_LA")
+endif()
 if(hpGEM_BUILD_DOCUMENTATION)
     FIND_PACKAGE(Doxygen)
     if (NOT DOXYGEN_FOUND)
@@ -113,32 +202,87 @@ if(hpGEM_BUILD_DOCUMENTATION)
   endif()
 endif()
 
-if(hpGEM_INCLUDE_PETSC_SUPPORT)
+if(hpGEM_USE_MPI)
+    if(NOT hpGEM_USE_METIS)
+        message(FATAL_ERROR "The option you have chosen requires some form of mesh decomposition, please enable metis")
+    endif()
+    FIND_PACKAGE(MPI REQUIRED)
+    add_definitions(-DHPGEM_USE_MPI)
+    if(NOT MPI_FOUND)
+        message(FATAL_ERROR "The option you have chosen requires mpi and you do not have this installed. Please install")
+    endif()
+endif()
+
+if(hpGEM_USE_METIS)
+    if(NOT hpGEM_USE_MPI)
+        message(FATAL_ERROR "metis is useless without mpi, please use MPI or do not use metis")
+    endif()
+    FIND_PACKAGE(METIS REQUIRED)
+    add_definitions(-DHPGEM_USE_METIS)
+    if(NOT METIS_FOUND)
+        message(FATAL_ERROR "The option you have chosen requires metis and you do not have this installed. Please install")
+    endif()
+endif()
+
+if(hpGEM_USE_QHULL)
+    FIND_PACKAGE(QHULL REQUIRED)
+    add_definitions(-DHPGEM_USE_QHULL)
+    if(NOT QHULL_FOUND)
+        message(FATAL_ERROR "The option you have chosen requires QHull and you do not have this installed. Please install")
+    endif()
+endif()
+
+if (hpGEM_USE_PETSC OR hpGEM_USE_COMPLEX_PETSC)
+	set(PETSC_ARCH "NOTFOUND" CACHE STRING "PETSc arch string should be set be the user; he will know this if he has installed PETSc")
+	set(hpGEM_LOGLEVEL "DEFAULT" CACHE STRING "Verbosity of hpGEM. Default is recommended.")
+endif()
+
+if(hpGEM_USE_PETSC) 
+    if(hpGEM_USE_COMPLEX_PETSC)
+        message(FATAL_ERROR "The options 'hpGEM_USE_PETSC' and 'hpGEM_USE_COMPLEX_PETSC' are mutually exclusive, please disable one of them")
+    endif()
         enable_language(C)
 	FIND_PACKAGE(PETSc REQUIRED)
-	#FIND_PACKAGE(SLEPc REQUIRED)
+        add_definitions(-DHPGEM_USE_PETSC)
         if (NOT PETSC_FOUND)
 		message(FATAL_ERROR
 			"The option you have choosen requires PETSc and you do not have this installed. Please install")
 	endif()
 
-#?	message(FATAL_ERROR 
-#?		"You should not ahve choose this option")
+#endif PETSc required
+endif()
+
+if(hpGEM_USE_COMPLEX_PETSC)
+    if(hpGEM_USE_PETSC)
+        message(FATAL_ERROR "The options 'hpGEM_USE_PETSC' and 'hpGEM_USE_COMPLEX_PETSC' are mutually exclusive, please disable one of them")
+    endif()
+        enable_language(C)
+	FIND_PACKAGE(PETSc REQUIRED)
+        add_definitions(-DHPGEM_USE_COMPLEX_PETSC)
+        if (NOT PETSC_FOUND)
+		message(FATAL_ERROR
+			"The option you have choosen requires PETSc and you do not have this installed. Please install")
+	endif()
 
 #endif PETSc required
 endif()
 
-if(hpGEM_INCLUDE_SLEPC_SUPPORT)
+if(hpGEM_USE_SLEPC)
         enable_language(C)
-        if(NOT hpGEM_INCLUDE_PETSC_SUPPORT)
+        if(NOT hpGEM_USE_PETSC AND NOT hpGEM_USE_COMPLEX_PETSC)
                message(FATAL_ERROR
                        "SLEPc depends on PETSc, please also enable PETSc support")
         endif()
         FIND_PACKAGE(SLEPc REQUIRED)
+        add_definitions(-DHPGEM_USE_SLEPC)
         if(NOT SLEPC_FOUND)
                message(FATAL_ERROR
                        "The option you have chosen requires SLEPc and you do not have this installed. Please install")
         endif()
 endif()
 
+
+add_subdirectory(kernel)
+add_subdirectory(tests)
+add_subdirectory(applications)
 

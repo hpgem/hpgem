@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -30,119 +30,124 @@
 //Testing derivatives is much easier since it relies on using the same numerical approximation for all basis-function over and over again
 //(but of course this is not as accurate as the actual derivative should be) -FB
 
-#include "Base/AssembleBasisFunctionSet.hpp"
-#include "cassert"
+#include "Base/AssembleBasisFunctionSet.h"
 
-int main() {
+#include "Base/BasisFunctionSet.h"
+#include "Geometry/PointReference.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
+#include "Base/BaseBasisFunction.h"
+#include "Logger.h"
 
-	// 1D
-
-	Base::BasisFunctionSet all1DbasisFunctions(5);//WARNING: this breaks the ordering of the unit tests, but it is basically the only way to collect all basisfunctions in an indexable way
-	Base::AssembleBasisFunctionSet_1D_Ord5_A0(all1DbasisFunctions);
-	Geometry::PointReference point1D(1);
-	LinearAlgebra::NumericalVector ret(1);
-	for(int i=0;i<all1DbasisFunctions.size();++i){
-		const Base::BaseBasisFunction* test = all1DbasisFunctions[i];
-		for(point1D[0]=-1.5;point1D[0]<1.51;point1D[0]+=0.1){
-			test->eval(point1D,ret);
-			assert(("eval",(test->eval(point1D)-ret[0])<1e-12));
-
-			point1D[0]+=-1.e-8;
-			double x0=test->eval(point1D);
-			point1D[0]+=2.e-8;
-			double x1=test->eval(point1D);
-
-			point1D[0]+=-1e-8;
-			test->evalDeriv(point1D,ret);
-			assert(("derivative",fabs(ret[0]-5.e7*(x1-x0))<1e-5));
-			assert(("derivative",fabs(test->evalDeriv0(point1D)-5.e7*(x1-x0))<1e-5));
-		}
-	}
-
-	// 2D
-
-	Base::BasisFunctionSet all2DbasisFunctions(5);//WARNING: this breaks the ordering of the unit tests, but it is basically the only way to collect all basisfunctions in an indexable way
-	Base::AssembleBasisFunctionSet_2D_Ord5_A1(all2DbasisFunctions);
-	Geometry::PointReference point2D(2);
-	for(int i=0;i<all2DbasisFunctions.size();++i){
-		const Base::BaseBasisFunction* test = all2DbasisFunctions[i];
-		for(point2D[0]=-1.5;point2D[0]<1.51;point2D[0]+=0.1){
-			for(point2D[1]=-1.5;point2D[1]<1.51;point2D[1]+=0.1){
-				test->eval(point2D,ret);
-				assert(("eval",(test->eval(point2D)-ret[0])<1e-12));
-
-				point2D[0]+=-1.e-8;
-				double x0=test->eval(point2D);
-				point2D[0]+=2.e-8;
-				double x1=test->eval(point2D);
-
-				point2D[0]+=-1e-8;
-				ret.resize(2);
-				test->evalDeriv(point2D,ret);
-				assert(("derivative",fabs(ret[0]-5.e7*(x1-x0))<1e-5));
-				assert(("derivative",fabs(test->evalDeriv0(point2D)-5.e7*(x1-x0))<1e-5));
-
-				point2D[1]+=-1.e-8;
-				x0=test->eval(point2D);
-				point2D[1]+=2.e-8;
-				x1=test->eval(point2D);
-
-				point2D[1]+=-1e-8;
-				assert(("derivative",fabs(ret[1]-5.e7*(x1-x0))<1e-5));
-				assert(("derivative",fabs(test->evalDeriv1(point2D)-5.e7*(x1-x0))<1e-5));
-
-				ret.resize(1);
-			}
-		}
-	}
-
-	//3D
-
-	Base::BasisFunctionSet all3DbasisFunctions(5);//WARNING: this breaks the ordering of the unit tests, but it is basically the only way to collect all basisfunctions in an indexable way
-	Base::AssembleBasisFunctionSet_3D_Ord5_A1(all3DbasisFunctions);
-	Geometry::PointReference point3D(3);
-	for(int i=0;i<all3DbasisFunctions.size();++i){
-		const Base::BaseBasisFunction* test = all3DbasisFunctions[i];
-		for(point3D[0]=-1.5;point3D[0]<1.51;point3D[0]+=0.15){
-			for(point3D[1]=-1.5;point3D[1]<1.51;point3D[1]+=0.15){
-				for(point3D[2]=-1.5;point3D[2]<1.51;point3D[2]+=0.15){
-					test->eval(point3D,ret);
-					assert(("eval",(test->eval(point3D)-ret[0])<1e-12));
-
-					point3D[0]+=-1.e-8;
-					double x0=test->eval(point3D);
-					point3D[0]+=2.e-8;
-					double x1=test->eval(point3D);
-
-					point3D[0]+=-1e-8;
-					ret.resize(3);
-					test->evalDeriv(point3D,ret);
-					assert(("derivative",fabs(ret[0]-5.e7*(x1-x0))<1e-5));
-					assert(("derivative",fabs(test->evalDeriv0(point3D)-5.e7*(x1-x0))<1e-5));
-
-					point3D[1]+=-1.e-8;
-					x0=test->eval(point3D);
-					point3D[1]+=2.e-8;
-					x1=test->eval(point3D);
-
-					point3D[1]+=-1e-8;
-					assert(("derivative",fabs(ret[1]-5.e7*(x1-x0))<1e-5));
-					assert(("derivative",fabs(test->evalDeriv1(point3D)-5.e7*(x1-x0))<1e-5));
-
-					point3D[2]+=-1.e-8;
-					x0=test->eval(point3D);
-					point3D[2]+=2.e-8;
-					x1=test->eval(point3D);
-
-					point3D[2]+=-1e-8;
-					assert(("derivative",fabs(ret[2]-5.e7*(x1-x0))<1e-5));
-					assert(("derivative",fabs(test->evalDeriv2(point3D)-5.e7*(x1-x0))<1e-5));
-
-					ret.resize(1);
-				}
-			}
-		}
-	}
-
-	return 0;
+#include <cmath>
+int main()
+{
+    
+    // 1D
+    
+    Base::BasisFunctionSet all1DbasisFunctions(5); //WARNING: this breaks the ordering of the unit tests, but it is basically the only way to collect all basisfunctions in an indexable way
+    Base::AssembleBasisFunctionSet_1D_Ord5_A0(all1DbasisFunctions);
+    Geometry::Point<1> point1D;
+    LinearAlgebra::SmallVector<1> ret;
+    for (std::size_t i = 0; i < all1DbasisFunctions.size(); ++i)
+    {
+        const Base::BaseBasisFunction* test = all1DbasisFunctions[i];
+        for (point1D[0] = -1.5; point1D[0] < 1.51; point1D[0] += 0.1)
+        {
+            point1D[0] += -1.e-8;
+            double x0 = test->eval(*Geometry::PointReferenceFactory<1>::instance()->makePoint(point1D));
+            point1D[0] += 2.e-8;
+            double x1 = test->eval(*Geometry::PointReferenceFactory<1>::instance()->makePoint(point1D));
+            
+            point1D[0] += -1e-8;
+            ret = test->evalDeriv(*Geometry::PointReferenceFactory<1>::instance()->makePoint(point1D));
+            logger.assert_always(std::abs(ret[0] - 5.e7 * (x1 - x0)) < 1e-5, "derivative");
+            logger.assert_always(std::abs(test->evalDeriv0(*Geometry::PointReferenceFactory<1>::instance()->makePoint(point1D)) - 5.e7 * (x1 - x0)) < 1e-5, "derivative");
+        }
+    }
+    
+    // 2D
+    
+    Base::BasisFunctionSet all2DbasisFunctions(5); //WARNING: this breaks the ordering of the unit tests, but it is basically the only way to collect all basisfunctions in an indexable way
+    Base::AssembleBasisFunctionSet_2D_Ord5_A1(all2DbasisFunctions);
+    Geometry::Point<2> point2D;
+    LinearAlgebra::SmallVector<2> ret2;
+    for (std::size_t i = 0; i < all2DbasisFunctions.size(); ++i)
+    {
+        const Base::BaseBasisFunction* test = all2DbasisFunctions[i];
+        for (point2D[0] = -1.5; point2D[0] < 1.51; point2D[0] += 0.3)
+        {
+            for (point2D[1] = -1.5; point2D[1] < 1.51; point2D[1] += 0.3)
+            {
+                point2D[0] += -1.e-8;
+                double x0 = test->eval(*Geometry::PointReferenceFactory<2>::instance()->makePoint(point2D));
+                point2D[0] += 2.e-8;
+                double x1 = test->eval(*Geometry::PointReferenceFactory<2>::instance()->makePoint(point2D));
+                
+                point2D[0] += -1e-8;
+                ret2 = test->evalDeriv(*Geometry::PointReferenceFactory<2>::instance()->makePoint(point2D));
+                logger.assert_always(std::abs(ret2[0] - 5.e7 * (x1 - x0)) < 1e-5, "derivative");
+                logger.assert_always(std::abs(test->evalDeriv0(*Geometry::PointReferenceFactory<2>::instance()->makePoint(point2D)) - 5.e7 * (x1 - x0)) < 1e-5, "derivative");
+                
+                point2D[1] += -1.e-8;
+                x0 = test->eval(*Geometry::PointReferenceFactory<2>::instance()->makePoint(point2D));
+                point2D[1] += 2.e-8;
+                x1 = test->eval(*Geometry::PointReferenceFactory<2>::instance()->makePoint(point2D));
+                
+                point2D[1] += -1e-8;
+                logger.assert_always(std::abs(ret2[1] - 5.e7 * (x1 - x0)) < 1e-5, "derivative");
+                logger.assert_always(std::abs(test->evalDeriv1(*Geometry::PointReferenceFactory<2>::instance()->makePoint(point2D)) - 5.e7 * (x1 - x0)) < 1e-5, "derivative");
+                
+            }
+        }
+    }
+    
+    //3D
+    
+    Base::BasisFunctionSet all3DbasisFunctions(5); //WARNING: this breaks the ordering of the unit tests, but it is basically the only way to collect all basisfunctions in an indexable way
+    Base::AssembleBasisFunctionSet_3D_Ord5_A1(all3DbasisFunctions);
+    Geometry::Point<3> point3D;
+    LinearAlgebra::SmallVector<3> ret3;
+    for (std::size_t i = 0; i < all3DbasisFunctions.size(); ++i)
+    {
+        const Base::BaseBasisFunction* test = all3DbasisFunctions[i];
+        for (point3D[0] = -1.5; point3D[0] < 1.51; point3D[0] += 0.6)
+        {
+            for (point3D[1] = -1.5; point3D[1] < 1.51; point3D[1] += 0.7)
+            {
+                for (point3D[2] = -1.5; point3D[2] < 1.51; point3D[2] += 0.8)
+                {
+                    point3D[0] += -1.e-8;
+                    double x0 = test->eval(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D));
+                    point3D[0] += 2.e-8;
+                    double x1 = test->eval(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D));
+                    
+                    point3D[0] += -1e-8;
+                    ret3 = test->evalDeriv(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D));
+                    logger.assert_always(std::abs(ret3[0] - 5.e7 * (x1 - x0)) < 1e-5, "derivative");
+                    logger.assert_always(std::abs(test->evalDeriv0(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D)) - 5.e7 * (x1 - x0)) < 1e-5, "derivative");
+                    
+                    point3D[1] += -1.e-8;
+                    x0 = test->eval(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D));
+                    point3D[1] += 2.e-8;
+                    x1 = test->eval(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D));
+                    
+                    point3D[1] += -1e-8;
+                    logger.assert_always(std::abs(ret3[1] - 5.e7 * (x1 - x0)) < 1e-5, "derivative");
+                    logger.assert_always(std::abs(test->evalDeriv1(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D)) - 5.e7 * (x1 - x0)) < 1e-5, "derivative");
+                    
+                    point3D[2] += -1.e-8;
+                    x0 = test->eval(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D));
+                    point3D[2] += 2.e-8;
+                    x1 = test->eval(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D));
+                    
+                    point3D[2] += -1e-8;
+                    logger.assert_always(std::abs(ret3[2] - 5.e7 * (x1 - x0)) < 1e-5, "derivative");
+                    logger.assert_always(std::abs(test->evalDeriv2(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D)) - 5.e7 * (x1 - x0)) < 1e-5, "derivative");
+                    
+                }
+            }
+        }
+    }
+    
+    return 0;
 }

@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -18,28 +18,18 @@
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "PhysicalLine.hpp"
+#include "PhysicalLine.h"
 #include <vector>
+
+#include "Geometry/PointPhysical.h"
+#include "Geometry/PointReference.h"
+#include "Geometry/ReferenceLine.h"
 
 namespace Geometry
 {
-    PhysicalLine::PhysicalLine(
-        const VectorOfPointIndexesT& globalNodeIndexes,
-        const VectorOfPhysicalPointsT& nodes,
-        const ReferenceLine* const line) :
-        PhysicalGeometry(globalNodeIndexes,nodes, line)
+    PhysicalLine::PhysicalLine(const std::vector<std::size_t>& globalNodeIndexes, std::vector<PointPhysical<1> >& nodes)
+            : PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceLine::Instance())
     {
     }
 
-    void PhysicalLine::getGlobalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
-    {
-        indexes.resize(1);
-        indexes[0] = globalNodeIndexes_[refGeometry_->getLocalNodeIndex(face,0)];
-    }
-
-    void PhysicalLine::getLocalFaceNodeIndices(const PointIndexT face, VectorOfPointIndexesT& indexes) const
-    {
-        indexes.resize(1);
-        indexes[0] = refGeometry_->getLocalNodeIndex(face,0);
-    }
 }

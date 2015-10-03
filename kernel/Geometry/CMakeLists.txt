@@ -2,7 +2,7 @@ add_subdirectory(Mappings)
 
 include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 
-add_library(Reference_geometries SHARED
+add_library(Reference_geometries STATIC
 	${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferencePoint.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceLine.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceTriangle.cpp
@@ -13,9 +13,9 @@ add_library(Reference_geometries SHARED
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceCube.cpp 
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceHypercube.cpp 
 	
-        ${hpGEM_SOURCE_DIR}/kernel/Geometry/Jacobian.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceGeometry.cpp
-        ${hpGEM_SOURCE_DIR}/kernel/Geometry/Point.cpp 
+        ${hpGEM_SOURCE_DIR}/kernel/Geometry/PointReferenceBase.cpp
+        ${hpGEM_SOURCE_DIR}/kernel/Geometry/PointPhysicalBase.cpp
 	# Mappings
 
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefCubeToHypercube.cpp
@@ -30,8 +30,10 @@ add_library(Reference_geometries SHARED
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefLineToTriangle.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefLineToLine.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefPointToLine.cpp
+        ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/ConcatenatedMapping.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefPointToPoint.cpp)
 
+set_target_properties(Reference_geometries PROPERTIES POSITION_INDEPENDENT_CODE true)
 
 
 add_library(Geometry SHARED
@@ -51,10 +53,8 @@ add_library(Geometry SHARED
         # Mappings
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToPhysHypercubeLinear.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToPhysPyramid.cpp
-       # ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefCubeToHypercube.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToPhysTriangularPrism.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/OutwardNormalVectorSign.cpp
-        ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingReferenceToPhysical.cpp
 
         # Refinements
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/RefinementLine.cpp
@@ -65,6 +65,5 @@ add_library(Geometry SHARED
 
       )
 
-target_link_libraries(Reference_geometries LinearAlgebra)
-target_link_libraries(Geometry Reference_geometries LinearAlgebra)
-
+target_link_libraries(Reference_geometries LinearAlgebra QuadratureRules)
+target_link_libraries(Geometry Reference_geometries)

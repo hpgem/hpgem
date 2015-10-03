@@ -1,5 +1,5 @@
 add_subdirectory(Basic)
-if(hpGEM_INCLUDE_PETSC_SUPPORT)
+if(hpGEM_USE_PETSC OR hpGEM_USE_COMPLEX_PETSC)
 	add_subdirectory(PETSc)
-endif(hpGEM_INCLUDE_PETSC_SUPPORT)
+endif(hpGEM_USE_PETSC OR hpGEM_USE_COMPLEX_PETSC)
 

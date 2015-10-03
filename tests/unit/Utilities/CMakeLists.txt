@@ -11,15 +11,7 @@ foreach(CPPFILE ${CPPFILES})
 	#extract the filename minus the cpp. This will be the name of exe file
 	get_filename_component(EXECNAME ${CPPFILE} NAME_WE)
 	#Make the exe
-	add_executable(${EXECNAME} ${FILENAME}
-	
-	#temporary hack because I want to test the utilities
-	${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions1DH1ConformingLine.cpp
-	${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions2DH1ConformingSquare.cpp
-	${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions2DH1ConformingTriangle.cpp
-	${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions3DH1ConformingCube.cpp
-	${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions3DH1ConformingPrism.cpp
-	${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions3DH1ConformingTetrahedron.cpp
-	${hpGEM_SOURCE_DIR}/kernel/Utilities/helperFunctions.cpp)
+	add_executable(${EXECNAME} ${FILENAME})
+
 	target_link_libraries(${EXECNAME}  hpGEM_Base QuadratureRules)
 endforeach()

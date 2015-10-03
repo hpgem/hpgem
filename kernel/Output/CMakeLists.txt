@@ -1,7 +1,9 @@
 include_directories(${hpGEM_SOURCE_DIR}/kernel/ .)
 
-add_library(Output SHARED
-	${hpGEM_SOURCE_DIR}/kernel/Output/TecplotPhysicalGeometryIterator.cpp		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotDiscontinuousSolutionWriter.cpp
+add_library(Output STATIC
+	${hpGEM_SOURCE_DIR}/kernel/Output/TecplotPhysicalGeometryIterator.cpp		
+    ${hpGEM_SOURCE_DIR}/kernel/Output/base64.cpp
 	)
 
-target_link_libraries(Output hpGEM_Base QuadratureRules)
+target_link_libraries(Output hpGEM_Base)
+set_target_properties(Output PROPERTIES POSITION_INDEPENDENT_CODE true)

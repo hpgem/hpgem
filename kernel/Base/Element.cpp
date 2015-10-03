@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -18,327 +18,228 @@
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _Element_Impl_hpp
-#define _Element_Impl_hpp
 
-#include "Base/Element.hpp"
-#include "PhysGradientOfBasisFunction.hpp"
-#include "Edge.hpp"
-#include "Face.hpp"
+#include "Element.h"
+#include "PhysGradientOfBasisFunction.h"
+#include "Edge.h"
+#include "FaceCacheData.h"
+#include "Face.h"
+
+#include "BasisFunctionSet.h"
+#include "Geometry/PhysicalGeometry.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
+#include "Geometry/PointPhysical.h"
+#include "ElementCacheData.h"
+#include "Geometry/ReferenceGeometry.h"
+#include "Geometry/PointReference.h"
+#include "Logger.h"
+#include "Node.h"
+#include "Integration/QuadratureRules/GaussQuadratureRule.h"
+#include "Geometry/Jacobian.h"
+
+#include <limits>
+#include <algorithm>
 
 namespace Base
 {
-    //class Element;
-    
-    Element::Element(const VectorOfPointIndexesT& globalNodeIndexes,
-                          const std::vector<const BasisFunctionSetT*>* basisFunctionSet,
-                          const VectorOfPhysicalPointsT& allNodes,
-                          unsigned int nrOfUnkowns,
-                          unsigned int nrOfTimeLevels,
-                          unsigned int nrOfBasisFunc,
-                          unsigned int id,
-                          unsigned int numberOfElementMatrixes,
-                          unsigned int numberOfElementVectors,
-                          const std::vector< int>& basisFunctionSetPositions):
-        ElementGeometryT(globalNodeIndexes, allNodes),
-        ElementDataT(nrOfTimeLevels, nrOfUnkowns, nrOfBasisFunc,numberOfElementMatrixes,numberOfElementVectors),
-        basisFunctionSet_(basisFunctionSet),
-        quadratureRule_(NULL),
-        vecCacheData_(),
-        id_(id),
-        basisFunctionSetPositions_(basisFunctionSetPositions)
-    {
-        orderCoeff_ = 2;// for safety
-    	int numberOfBasisFunctions(0);
-    	for(int i=0;i<basisFunctionSetPositions_.size();++i)
-    	{
-    		numberOfBasisFunctions+=basisFunctionSet_->at(basisFunctionSetPositions_[i])->size();
-    	}
-    	setNumberOfBasisFunctions(numberOfBasisFunctions);
-        setQuadratureRulesWithOrder(orderCoeff_ * basisFunctionSet_->at(basisFunctionSetPositions_[0])->getOrder()+1);
-        nrOfDOFinTheElement_=basisFunctionSet_->at(basisFunctionSetPositions_[0])->size();
-        nrOfDOFperVertex_=0;
-    }
-
-    Element::Element(const Element& other):
-        ElementGeometryT(other),
-        ElementDataT(other),
-        basisFunctionSet_(other.basisFunctionSet_),
-        quadratureRule_(other.quadratureRule_),
-        vecCacheData_(other.vecCacheData_),
-        id_(other.id_),
-        orderCoeff_(other.orderCoeff_),
-        basisFunctionSetPositions_(other.basisFunctionSetPositions_),
-        nrOfDOFinTheElement_(other.nrOfDOFinTheElement_),
-        nrOfDOFperVertex_(other.nrOfDOFperVertex_)
-    {
-        std::cout << "In the copy constructor of Element " << std::endl;
-    }
-
-    Element::~Element()
-    {
         
+    Element::Element(const ElementData& otherData, const ElementGeometry& otherGeometry)
+        :
+        ElementGeometry(otherGeometry), ElementData(otherData)
+    {        
     }
-//    template<unsigned int DIM>
-//    unsigned int
-//    Element<DIM>::getNumberOfDegreesOfFreedom()
-//    {
-//        return basisFunctionSet_.size();
-//    }
-//    
-//    template<unsigned int DIM>
-//    unsigned int 
-//    Element<DIM>::getNumberOfDegreesOfFreedom()const
-//    {
-//        return basisFunctionSet_.size();
-//    }
     
-    void
-    Element::setDefaultBasisFunctionSet(unsigned int position)
+    Element* Element::copyWithoutFacesEdgesNodes()
     {
-    	basisFunctionSetPositions_.resize(1,-1);
-    	basisFunctionSetPositions_[0]=position;
-    	int numberOfBasisFunctions(0);
-    	for(int i:basisFunctionSetPositions_)
-    	{
-    		if(i!=-1) numberOfBasisFunctions+=basisFunctionSet_->at(i)->size();
-    	}
-    	setNumberOfBasisFunctions(numberOfBasisFunctions);
-        setQuadratureRulesWithOrder(orderCoeff_ * basisFunctionSet_->at(position)->getOrder()+1);
-        nrOfDOFinTheElement_=basisFunctionSet_->at(position)->size();
-        nrOfDOFperVertex_=0;
+        //Make a new element with the data and geometry of this element
+        Element* newElement = new Element(*this, *this);
+        
+        //copy the pointers to singletons
+        newElement->quadratureRule_ = quadratureRule_;
+        newElement->basisFunctionSet_ = basisFunctionSet_;
+        
+        //copy other data
+        newElement->basisFunctionSetPositions_ = basisFunctionSetPositions_;
+        newElement->id_ = id_;
+        newElement->nrOfDOFinTheElement_ = nrOfDOFinTheElement_;
+        newElement->orderCoeff_ = orderCoeff_;
+        newElement->vecCacheData_ = vecCacheData_;
+        
+        //allocate memory for nodesList, facesList and edgesList
+        newElement->nodesList_.resize(getNrOfNodes());
+        newElement->edgesList_.resize(getNrOfEdges());
+        newElement->facesList_.resize(getNrOfFaces());
+        
+        return newElement;
     }
-
-    void
-    Element::setFaceBasisFunctionSet(unsigned int position,int localFaceIndex)
+    
+    void Element::setDefaultBasisFunctionSet(std::size_t position)
     {
-    	if(basisFunctionSetPositions_.size()<1+physicalGeometry_->getNrOfFaces()){
-			basisFunctionSetPositions_.resize(1+physicalGeometry_->getNrOfFaces(),-1);
-		}
-    	basisFunctionSetPositions_[1+localFaceIndex]=position;
-    	int numberOfBasisFunctions(0);
-    	for(int i:basisFunctionSetPositions_)
-    	{
-    		if(i!=-1) numberOfBasisFunctions+=basisFunctionSet_->at(i)->size();
-    	}
-    	setNumberOfBasisFunctions(numberOfBasisFunctions);
-    }
-
-    void
-    Element::setEdgeBasisFunctionSet(unsigned int position, int localEdgeIndex)
-    {
-    	if(basisFunctionSetPositions_.size()<1+physicalGeometry_->getNrOfFaces()+getNrOfEdges()){
-			basisFunctionSetPositions_.resize(1+physicalGeometry_->getNrOfFaces()+getNrOfEdges(),-1);
-		}
-    	basisFunctionSetPositions_[1+physicalGeometry_->getNrOfFaces()+localEdgeIndex]=position;
-    	int numberOfBasisFunctions(0);
-    	for(int i:basisFunctionSetPositions_)
-    	{
-    		if(i!=-1) numberOfBasisFunctions+=basisFunctionSet_->at(i)->size();
-    	}
-    	setNumberOfBasisFunctions(numberOfBasisFunctions);
-    }
-
-    void
-    Element::setVertexBasisFunctionSet(unsigned int position, int localVertexIndex)
-    {
-    	if(basisFunctionSetPositions_.size()<1+physicalGeometry_->getNrOfFaces()+getNrOfEdges()+getNrOfNodes()){
-			basisFunctionSetPositions_.resize(1+physicalGeometry_->getNrOfFaces()+getNrOfEdges()+getNrOfNodes(),-1);
-		}
-    	basisFunctionSetPositions_[1+physicalGeometry_->getNrOfFaces()+getNrOfEdges()+localVertexIndex]=position;
-    	int numberOfBasisFunctions(0);
-    	for(int i:basisFunctionSetPositions_)
-    	{
-    		if(i!=-1) numberOfBasisFunctions+=basisFunctionSet_->at(i)->size();
-    	}
-    	setNumberOfBasisFunctions(numberOfBasisFunctions);
-    	nrOfDOFperVertex_=basisFunctionSet_->at(position)->size();
-    }
-
-    double
-    Element::basisFunctionDeriv(unsigned int i, unsigned int jDir, const PointReferenceT& p)const
-    {
-        TestErrorDebug((jDir<p.size()),"Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
-
-        /*if (jDir>= DIM)
-            return -1.e50;
-        else*/
-        int basePosition(0);
-        for(int j:basisFunctionSetPositions_){
-        	if(j!=-1){
-				if(i-basePosition<basisFunctionSet_->at(j)->size()){
-					return basisFunctionSet_->at(j)->evalDeriv(i-basePosition, jDir, p);
-				}else{
-					basePosition+=basisFunctionSet_->at(j)->size();
-				}
-        	}
+        logger.assert(position < basisFunctionSet_->size(), "Not enough basis function sets passed");
+        basisFunctionSetPositions_.resize(1, -1);
+        basisFunctionSetPositions_[0] = position;
+        std::size_t numberOfBasisFunctions(0);
+        for (int i : basisFunctionSetPositions_)
+        {
+            if (i != -1)
+                numberOfBasisFunctions += basisFunctionSet_->at(i)->size();
         }
-        throw "in basisFunctionDeriv(jdir): asked for a basisFunction that doesn't exist!";
+        setNumberOfBasisFunctions(numberOfBasisFunctions);
+        setQuadratureRulesWithOrder(orderCoeff_ * basisFunctionSet_->at(position)->getOrder() + 1);
+        nrOfDOFinTheElement_ = basisFunctionSet_->at(position)->size();
     }
     
-    double
-    Element::basisFunction(unsigned int i, const PointReferenceT& p)const
+    void Element::setFaceBasisFunctionSet(std::size_t position, std::size_t localFaceIndex)
     {
-    	const Base::BaseBasisFunction* function;
-        int basePosition(0);
-        for(int j:basisFunctionSetPositions_){
-        	if(j!=-1){
-				if(i-basePosition<basisFunctionSet_->at(j)->size()){
-					function=basisFunctionSet_->at(j)->operator[](i-basePosition);
-					basePosition+=basisFunctionSet_->at(j)->size();
-				}else{
-					basePosition+=basisFunctionSet_->at(j)->size();
-				}
-        	}
+        logger.assert(position < basisFunctionSet_->size(), "Not enough basis function sets passed");
+        logger.assert(localFaceIndex < getNrOfFaces(), "Asked for face %, but there are only % faces", localFaceIndex, getNrOfFaces());
+        if (basisFunctionSetPositions_.size() < 1 + getNrOfFaces())
+        {
+            basisFunctionSetPositions_.resize(1 + getNrOfFaces(), -1);
         }
-    	return getReferenceGeometry()->getBasisFunctionValue(function,p);
-        //return basisFunctionSet_->eval(i,p);
+        basisFunctionSetPositions_[1 + localFaceIndex] = position;
+        std::size_t numberOfBasisFunctions(0);
+        for (int i : basisFunctionSetPositions_)
+        {
+            if (i != -1)
+                numberOfBasisFunctions += basisFunctionSet_->at(i)->size();
+        }
+        setNumberOfBasisFunctions(numberOfBasisFunctions);
     }
     
-    unsigned int
-    Element::getID()const
+    void Element::setEdgeBasisFunctionSet(std::size_t position, std::size_t localEdgeIndex)
+    {
+        logger.assert(position < basisFunctionSet_->size(), "Not enough basis function sets passed");
+        logger.assert(localEdgeIndex < getNrOfEdges(), "Asked for edge %, but there are only % edges", localEdgeIndex, getNrOfEdges());
+        if (basisFunctionSetPositions_.size() < 1 + getNrOfFaces() + getNrOfEdges())
+        {
+            basisFunctionSetPositions_.resize(1 + getNrOfFaces() + getNrOfEdges(), -1);
+        }
+        basisFunctionSetPositions_[1 + getNrOfFaces() + localEdgeIndex] = position;
+        std::size_t numberOfBasisFunctions(0);
+        for (int i : basisFunctionSetPositions_)
+        {
+            if (i != -1)
+                numberOfBasisFunctions += basisFunctionSet_->at(i)->size();
+        }
+        setNumberOfBasisFunctions(numberOfBasisFunctions);
+    }
+    
+    void Element::setVertexBasisFunctionSet(std::size_t position, std::size_t localNodeIndex)
+    {
+        logger.assert(position < basisFunctionSet_->size(), "Not enough basis function sets passed");
+        logger.assert(localNodeIndex < getNrOfNodes(), "Asked for node %, but there are only % nodes", localNodeIndex, getNrOfNodes());
+        if (basisFunctionSetPositions_.size() < 1 + getNrOfFaces() + getNrOfEdges() + getNrOfNodes())
+        {
+            basisFunctionSetPositions_.resize(1 + getNrOfFaces() + getNrOfEdges() + getNrOfNodes(), -1);
+        }
+        basisFunctionSetPositions_[1 + getNrOfFaces() + getNrOfEdges() + localNodeIndex] = position;
+        std::size_t numberOfBasisFunctions(0);
+        for (int i : basisFunctionSetPositions_)
+        {
+            if (i != -1)
+                numberOfBasisFunctions += basisFunctionSet_->at(i)->size();
+        }
+        setNumberOfBasisFunctions(numberOfBasisFunctions);
+    }
+    
+    std::size_t Element::getID() const
     {
         return id_;
     }
     
-    unsigned int
-    Element::getID()
+    std::size_t Element::getID()
     {
         return id_;
     }
     
-    void
-    Element::setQuadratureRulesWithOrder(unsigned int quadrROrder)
+    void Element::setQuadratureRulesWithOrder(std::size_t quadrROrder)
     {
-        quadratureRule_ =  Geometry::ElementGeometry::referenceGeometry_->getGaussQuadratureRule(quadrROrder);
+        quadratureRule_ = Geometry::ElementGeometry::referenceGeometry_->getGaussQuadratureRule(quadrROrder);
     }
     
-    void
-    Element::setGaussQuadratureRule(GaussQuadratureRuleT* const quadR)
+    void Element::setGaussQuadratureRule(GaussQuadratureRuleT* const quadR)
     {
+        logger.assert(quadR!=nullptr, "Invalid quadrature rule passed");
         quadratureRule_ = quadR;
     }
     
-    const QuadratureRules::GaussQuadratureRule*
-    Element::getGaussQuadratureRule() const
+    const QuadratureRules::GaussQuadratureRule* Element::getGaussQuadratureRule() const
     {
         return quadratureRule_;
     }
     
-    std::vector<Base::ElementCacheData >&
-    Element::getVecCacheData()
+    std::vector<Base::ElementCacheData>& Element::getVecCacheData()
     {
         return vecCacheData_;
     }
     
-    
-    void
-    Element::getSolution(unsigned int timeLevel, const PointReferenceT& p, SolutionVector& solution) const
+#ifndef NDEBUG
+    const Base::BaseBasisFunction* Element::getBasisFunction(std::size_t i) const
     {
-        unsigned int numberOfUnknows = ElementData::getNrOfUnknows();
-        solution.resize(numberOfUnknows);
-        
-        const LinearAlgebra::Matrix& data = ElementData::getTimeLevelData(0);
-        for (int i=0; i < ElementData::getNrOfBasisFunctions(); ++i)
+        logger.assert(i<getNrOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNrOfBasisFunctions());
+        int basePosition = 0;
+        for (int j : basisFunctionSetPositions_)
         {
-            for (int k=0; k < numberOfUnknows; ++k)
+            if (j != -1)
             {
-                solution[k] += data(k, i) * basisFunction(i, p);
+                if (i - basePosition < basisFunctionSet_->at(j)->size())
+                {
+                    return basisFunctionSet_->at(j)->operator[](i - basePosition);
+                }
+                else
+                {
+                    basePosition += basisFunctionSet_->at(j)->size();
+                }
             }
         }
-    }
-    
-    void
-    Element::basisFunction(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const
-    {
-        int basePosition(0);
-        for(int j:basisFunctionSetPositions_){
-        	if(j!=-1){
-				if(i-basePosition<basisFunctionSet_->at(j)->size()){
-					basisFunctionSet_->at(j)->eval(i-basePosition,p,ret);
-					return;
-				}else{
-					basePosition+=basisFunctionSet_->at(j)->size();
-				}
-        	}
-        }
-        throw "in basisFunctionDeriv(jdir): asked for a basisFunction that doesn't exist!";
-    }
-    
-    void
-    Element::basisFunctionCurl(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const
-    {
-        int basePosition(0);
-        for(int j:basisFunctionSetPositions_){
-        	if(j!=-1){
-				if(i-basePosition<basisFunctionSet_->at(j)->size()){
-					basisFunctionSet_->at(j)->evalCurl(i-basePosition,p,ret);
-					return;
-				}else{
-					basePosition+=basisFunctionSet_->at(j)->size();
-				}
-        	}
-        }
-        throw "in basisFunctionDeriv(jdir): asked for a basisFunction that doesn't exist!";
-    }
-
-    void
-    Element::basisFunctionDeriv(unsigned int i, const PointReferenceT& p, NumericalVector& ret) const
-    {
-    	const Base::BaseBasisFunction* function;
-        int basePosition(0);
-        for(int j:basisFunctionSetPositions_){
-        	if(j!=-1){
-				if(i-basePosition<basisFunctionSet_->at(j)->size()){
-					function=basisFunctionSet_->at(j)->operator[](i-basePosition);
-					basePosition+=basisFunctionSet_->at(j)->size();
-				}else{
-					basePosition+=basisFunctionSet_->at(j)->size();
-				}
-        	}
-        }
-    	Utilities::PhysGradientOfBasisFunction functionGradient(this,function);
-    	functionGradient(p,ret);
-    }
-
-#ifndef NDEBUG
-    const Base::BaseBasisFunction*
-    Element::getBasisFunction(int i) const
-    {
-    	int basePosition(0);
-    	for(int j:basisFunctionSetPositions_){
-    		if(j!=-1){
-    			if(i-basePosition<basisFunctionSet_->at(j)->size()){
-    				return basisFunctionSet_->at(j)->operator[](i-basePosition);
-    			}else{
-					basePosition+=basisFunctionSet_->at(j)->size();
-    			}
-    		}
-    	}
-        throw "in getBasisFunction(): asked for a basisFunction that doesn't exist!";
+        logger(ERROR, "This is not supposed to happen, please try again with assertions turned on");
+        return nullptr;
     }
 #endif
-
-    void
-    Element::setFace(int localFaceNr, const Face* face)
+    
+    void Element::setFace(std::size_t localFaceNr, const Face* face)
     {
-    	TestErrorDebug((face->getPtrElementLeft()==this&&face->localFaceNumberLeft()==localFaceNr)||
-    			       (face->getPtrElementRight()==this&&face->localFaceNumberRight()==localFaceNr),"You are only allowed to set a face to a local face index that matches");
-    	if(facesList_.size()<localFaceNr+1)
-    	{
-    		facesList_.resize(localFaceNr+1);
-    	}
-    	facesList_[localFaceNr]=face;
+        logger.assert(localFaceNr < getNrOfFaces(), "Asked for face %, but there are only % faces", localFaceNr, getNrOfFaces());
+        logger.assert(face!=nullptr, "Invalid face passed");
+        logger.assert((face->getPtrElementLeft() == this && face->localFaceNumberLeft() == localFaceNr) 
+                || (face->getPtrElementRight() == this && face->localFaceNumberRight() == localFaceNr),
+                      "You are only allowed to set a face to a local face index that matches");
+        if (facesList_.size() < localFaceNr + 1)
+        {
+            logger(WARN, "Resizing the facesList, since it's smaller(%) than to localFaceNr + 1(%)", facesList_.size(), localFaceNr + 1);
+            facesList_.resize(localFaceNr + 1);
+        }
+        facesList_[localFaceNr] = face;
+    }
+    
+    void Element::setEdge(std::size_t localEdgeNr, const Edge* edge)
+    {
+        logger.assert(localEdgeNr < getNrOfEdges(), "Asked for edge %, but there are only % edges", localEdgeNr, getNrOfEdges());
+        logger.assert(edge!=nullptr, "Invalid edge passed");
+        //This if-statement is needed, since it could happen in 4D
+        if (edgesList_.size() < localEdgeNr + 1)
+        {
+            edgesList_.resize(localEdgeNr + 1);
+        }
+        edgesList_[localEdgeNr] = edge;
+    }
+    
+    void Element::setNode(std::size_t localNodeNr, const Node* node)
+    {
+        logger.assert(node!=nullptr, "Invalid node passed");
+        logger.assert(std::find(nodesList_.begin(), nodesList_.end(), node) == nodesList_.end(), "Trying to add node %, but it was already added", node->getID());
+        logger.assert(localNodeNr < getNrOfNodes(), "Asked for node %, but there are only % nodes", localNodeNr, getNrOfNodes());
+        nodesList_[localNodeNr] = node;
     }
 
-    void
-    Element::setEdge(int localEdgeNr, const Edge* edge)
+    std::ostream& operator<<(std::ostream& os, const Element& element)
     {
-    	if(edgesList_.size()<localEdgeNr+1)
-    	{
-    		edgesList_.resize(localEdgeNr+1);
-    	}
-    	edgesList_[localEdgeNr]=edge;
+        os << '(';
+        const Geometry::ElementGeometry& elemG = static_cast<const Geometry::ElementGeometry&>(element);
+        operator<<(os, elemG);
+        os << std::endl;
+        return os;
     }
+
 }
-#endif

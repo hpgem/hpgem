@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, Univesity of Twenete
+ Copyright (c) 2014, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -20,44 +20,76 @@
  */
 
 #include <iostream>
-#include "Base/Logger.h"
+#include "Logger.h"
 
 // --- Declaring a logger.
 // --- This allows you to redefine LogLevels based on command line options.
-#ifndef LOG_MAIN_LEVEL
-#define LOG_MAIN_LEVEL Log::FATAL
+#ifndef LOG_TESTING_LEVEL
+#define LOG_TESTING_LEVEL Log::DEBUG
 #endif
-Logger<LOG_MAIN_LEVEL> log("Main");
+Logger<LOG_TESTING_LEVEL, false> log("Main");
 
 void logMessage(std::string, std::string);
 
-int main(int argc, char** argv) {
+void logTestMessage(std::string, std::string);
+
+int main(int argc, char** argv)
+{
     
-    int x = 3;
     //Basic use cases
-    log.log(Log::ERROR, "Oopsie!");
-    log.log(Log::FATAL, "Mweh. x = %", x);
-    log.log(Log::DEBUG, "You won't see me!");
-    log.log(Log::WARN, "Escapes are possible! %\% sure!", 100.01f);
+    
+    std::size_t x = 3;
+    x = 4; // suppress unused variable
+    //the following two lines will abort the program (and fail the test in the process)
+//    logger(ERROR, "Oopsie!");
+//    logger(FATAL, "x is not supposed to be %!!!", x);
+    logger(DEBUG, "You won't see me!");
+    log(DEBUG, "But you will see me!");
+    logger(WARN, "Escapes are possible! %\\% sure!", 100.01f);
     
     //Usage case for redefining with an function
     loggerOutput->onWarn = logMessage;
-    log.log(Log::WARN, "Custom logger! % + % = %, %!",
-            3, 5, 3+5, "yay");
+    logger(WARN, "Custom logger! % + % = %, %!", 3, 5, 3 + 5, "yay");
+
+    //for testing blatant assumptions about the state of the code
+    logger.assert(true, "Test %", 3);
+    
+    //normal logger will only crash the program in debug mode, use with care
+    log.assert(false, "Test %", 4);
+
+    //for testing blatant assumptions when it is necessary to check again in release mode
+    //(for example, opening files, processing command line input, running unit tests, ...)
+    logger.assert_always(true, "Test %", 5);
+
+    //will test even when turned off
+    log.assert_always(true, "Test %", 6);
+
+    //test if the string parser works correctly (\ tends to accumulate exponentially as the amount of escape layers grows)
+    //note that placing \% in a string is technically implementation defined behaviour (to be avoided in portable code) (§2.14.3.3 of the c++11 standard draft)
+    loggerOutput->onDebug = logTestMessage;
+    log(DEBUG, "If you don't like \\\\\\\\\\%, it is also possible to escape the \\%, by substituting the % with a % manually", '%', "%");
     
     //Usage case for redefining with a lambda func
-    loggerOutput->onFatal = [](std::string module, std::string message) {
+    loggerOutput->onFatal = [](std::string module, std::string message)
+    {   
         std::cerr << "A fatal error has occurred."
         << "\n  Module: " << module
-        << "\n  Message: " << message << std::endl;
-//        std::exit(-1);
+        << "\n  Message: " << message
+        << "\n (This is part of the test.)\n" << std::endl;
     };
     
-    log.log(Log::FATAL, "Null pointer passed!");
-    std::cout << "You shouldn't see me." << std::endl;
+    log(FATAL, "Null pointer passed!");
+    std::cout << "In a normal application you wouldn't see me, but someone redefined onFatal for the purpose of this demonstration" << std::endl;
     return 0;
 }
 
-void logMessage(std::string module, std::string msg) {
+void logMessage(std::string module, std::string msg)
+{
     std::cout << "Custom logger. Module " << module << ": " << msg << std::endl;
+}
+
+void logTestMessage(std::string module, std::string msg)
+{
+    logger.assert_always(msg=="If you don't like \\\\%, it is also possible to escape the %, by substituting the % with a % manually", "% got processed wrong", msg);
+    logger(INFO, "% got processed correctly!", msg);
 }
