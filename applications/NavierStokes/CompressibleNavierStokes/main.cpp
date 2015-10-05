@@ -46,7 +46,7 @@ int main (int argc, char **argv){
 
 	//logger(WARN,"WARNING: Timestep is determined a priori. Stability Criteria might not be satisfied!");
     // Set parameters for the PDE.
-    const Base::MeshType meshType = Base::MeshType::TRIANGULAR;
+    const Base::MeshType meshType = Base::MeshType::RECTANGULAR;
     const TimeIntegration::ButcherTableau * const ptrButcherTableau = TimeIntegration::AllTimeIntegrators::Instance().getRule(3,3,true);
 
     //Set variable names and number of parameters

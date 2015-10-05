@@ -98,11 +98,11 @@ public:
     /// ***    external face integration functions     ***
     /// **************************************************
 
-/*    /// \brief Compute the integrand for the right hand side for the face corresponding to an external face.
+    /// \brief Compute the integrand for the right hand side for the face corresponding to an external face.
     LinearAlgebra::MiddleSizeVector integrandRightHandSideOnFace(Base::PhysicalFace<DIM> &face, const double &time, const LinearAlgebra::MiddleSizeVector &stateCoefficients);
 
     /// \brief Compute the right-hand side corresponding to an external face
-    LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace(Base::Face *ptrFace, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time) override final;*/
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace(Base::Face *ptrFace, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time) override final;
 
     /// **************************************************
     /// ***    internal face integration functions     ***
@@ -156,16 +156,6 @@ private:
     /// \var Dimension of the domain
     const std::size_t DIM_;
 
-    /// \var Specific heat ratio
-    const double gamma_ = 1.4;
-
-    /// \var specific gas constant
-    const double Rs_ = (1 - 1/gamma_)*1000; // cp-cv;
-
-    /// \var specific heat at constant pressure
-    //todo: remove this from viscous.cpp
-    const double cp_ = 1000;
-
 	/// \var Number of variables
 	const std::size_t numOfVariables_;
 
@@ -182,15 +172,33 @@ private:
 	const double tPlateBottom_ = 288;		//temperature of the bottom plate
 
 	/// Simulation parameters
-	const double Tc_ = 3.0/5.0;
+	const double Tc_ = 0.001;
+
+	/// material properties
+	const double cp_ = 1010.0;				//specific heat at constant temperature
+	const double cv_ = 718.0;				//specific heat at constant volume
+	const double Rs_ = cp_ - cv_;			//specific gas constant
+
+	/// reference parameters
+	const double densityRef_ = 1.0;
+	const double velocityRef_ = 1.0;
+	const double viscosityRef_ = 0.000017894;
+	const double distanceRef_ = 1.0;
+	const double kappaRef_ = 0.025454845070422536;
 
 	/// non-Dimensionless parameters
-	const double rho0_ = 1.225;
-	const double U0_ = 1.0;
-	const double E0_ = 1.225*1000/1.4*288;
-	const double H_ = 1.0;
+	const double gamma_ = cp_/cv_;
+	const double reynoldsNumber_ = densityRef_*velocityRef_*distanceRef_/viscosityRef_;
+	//const double machNumber_ = 1.0;
+	const double prandtlNumber_ = viscosityRef_*cp_/kappaRef_;
 
-	const double nonDIM1_ = 1.0;//E0_/(U0_*U0_);// //E0_/(uWall_ *uWall_); //Used for scaling the pressure correctly
+	// much used values
+	const double temperatureRef_ = velocityRef_*velocityRef_;
+	/// Much used inverse values
+	//todo: rewrite Scaling to inverse
+	const double viscosityRefInv_ = 1.0/viscosityRef_;
+	const double reynoldsScaling_ = 1.0/reynoldsNumber_;
+	//const double prandtScaling_ = 1.0/prandtlNumber_;
 
 	friend class Inviscid;
 	friend class Viscous;
