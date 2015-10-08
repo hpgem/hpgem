@@ -345,7 +345,7 @@ namespace Base
 
         if(world_rank == 0)
         {
-            logger.assert(std::abs(std::imag(totalError)) < 1e-12, "The computed error has an imaginairy component");
+            logger.assert(std::abs(std::imag(totalError)) < 1e-12, "The computed error has an imaginary component");
             if(std::real(totalError) >= 0)
             {
                 error = std::sqrt(totalError);
