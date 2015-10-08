@@ -55,7 +55,7 @@ SlopeLimiter * SavageHutter::createSlopeLimiter(const SHConstructorStruct &input
 ///\details Actual creation of the non-negativity limiter. The delete is called in the class SavageHutterBase, since that's also where the non-negativity limiter resides.
 HeightLimiter * SavageHutter::createHeightLimiter(const SHConstructorStruct& inputValues)
 {
-    if (true || inputValues.polyOrder == 0)
+    if (inputValues.polyOrder == 0)
         return new EmptyHeightLimiter();
     return new PositiveLayerLimiter(1e-5);
 }
@@ -69,7 +69,7 @@ RightHandSideComputer * SavageHutter::createRightHandSideComputer(const SHConstr
     if (DIM == 1)
         return new SavageHutterRightHandSideComputer(inputValues.numOfVariables, 1e-1, 45./180*M_PI, inflowBC);
     
-    return new SavageHutterRHS2D(inputValues.numOfVariables, 0.8, 28./180*M_PI, inflowBC);
+    return new SavageHutterRHS2D(inputValues.numOfVariables, 0.1, 29.6484/180*M_PI, inflowBC);
 }
 
 

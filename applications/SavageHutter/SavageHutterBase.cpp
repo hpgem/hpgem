@@ -23,6 +23,7 @@
 #include "HelperFunctions.h"
 #include "MeshMoverContraction.h"
 #include "Base/CommandLineOptions.h"
+#include "Base/MpiContainer.h"
 
 
 SavageHutterBase::SavageHutterBase(const SHConstructorStruct& inputValues) :
@@ -200,23 +201,41 @@ double SavageHutterBase::getMinimumHeight(const Base::Element* element)
 // Sorry for the ugliness...
 std::vector<std::pair<double, LinearAlgebra::MiddleSizeVector>> SavageHutterBase::widthAverage()
 {
+    
+    //Since we're using a rectangular grid, we can get the number of nodes in x direction and y direction
+    //The number of elements in x direction is given by the user in the commandline.
+    extern Base::CommandLineOption<std::size_t>& numOfElements;
+    const std::size_t nodesInXDirection = numOfElements.getValue() + 1;
+    const std::size_t elementsInYDirection = meshes_[0]->getNumberOfElements(Base::IteratorType::GLOBAL) / (nodesInXDirection - 1);
+    logger(DEBUG, "elements in y direction: % ", elementsInYDirection);
+    
+    //make xs
+    ///\todo insert length of the domain here automatically instead of hardcoded
+    const double dx = 11./(nodesInXDirection - 1);
+    std::vector<std::pair<double, LinearAlgebra::MiddleSizeVector>> totals;
+    for(std::size_t i = 0; i < nodesInXDirection; ++i)
+    {
+        totals.push_back(std::make_pair(i*dx, LinearAlgebra::MiddleSizeVector(numOfVariables_)));
+    }
+    
     //add all values at a certain x-coordinate. To do that, first check if this value
     //of x is already in the vector. If not, make a pair of this x-value and the value of the variables
     //if there was already an entry for this x, add the value of the current point
-    std::vector<std::pair<double, LinearAlgebra::MiddleSizeVector>> totals;    
-    for (Base::Element* element : meshes_[0]->getElementsList(Base::IteratorType::GLOBAL))
+    for (Base::Element* element : meshes_[0]->getElementsList())
     {
         const Geometry::ReferenceGeometry *referenceElement = element->getReferenceGeometry();
         for (std::size_t i = 0; i < referenceElement->getNumberOfNodes(); ++i)
         {
             const Geometry::PointReference<DIM> &nodeReference = referenceElement->getReferenceNodeCoordinate(i);
-            LinearAlgebra::MiddleSizeVector value = element->getSolution(0, nodeReference);
+            const LinearAlgebra::MiddleSizeVector& value = element->getSolution(0, nodeReference);
+            logger(DEBUG, "value: %", value);
             const Geometry::PointPhysical<DIM> node = element->referenceToPhysical(nodeReference);
             
             const auto xPosInVector = std::find_if(totals.begin(), totals.end(), [=](const std::pair<double, LinearAlgebra::MiddleSizeVector> current){return std::abs(current.first - (node)[0]) < 1e-10;});
             if (xPosInVector == totals.end())
             {
                 totals.push_back(std::make_pair(node[0], value));
+                logger(WARN, "x = % not found", node[0]);
             }
             else
             {
@@ -224,27 +243,49 @@ std::vector<std::pair<double, LinearAlgebra::MiddleSizeVector>> SavageHutterBase
             }
         }
         
-    }    
+    }
+#ifdef HPGEM_USE_MPI
+    int world_rank = Base::MPIContainer::Instance().getProcessorID();
+    auto& comm = Base::MPIContainer::Instance().getComm();
+
+    //split the pairs, since MPI can't send over a vector of pairs
+    std::vector<LinearAlgebra::MiddleSizeVector> solutions;
+    solutions.reserve(totals.size());
+    for (std::pair<double, LinearAlgebra::MiddleSizeVector> p : totals)
+    {
+        solutions.push_back(p.second);
+    }
+
     
-    //Since we're using a rectangular grid, we can get the number of nodes in x direction and y direction
-    //The number of elements in x direction is given by the user in the commandline.
-    extern Base::CommandLineOption<std::size_t>& numOfElements;
-    const std::size_t nodesInXDirection = numOfElements.getValue() + 1;
-    const std::size_t elementsInYDirection = meshes_[0]->getNumberOfElements(Base::IteratorType::GLOBAL) / (nodesInXDirection - 1);
-    
-    //divide by the number of times a value for the given x-point is added
-    //then multiply with the width of the chute, which is given by the meshmover
-    const MeshMoverContraction meshMover;
+    std::vector<LinearAlgebra::MiddleSizeVector> globalSolutions(solutions.size());
+    for(std::size_t i = 0; i < solutions.size(); ++i)
+    {
+        LinearAlgebra::MiddleSizeVector v = solutions[i];
+        comm.Reduce(v.data(), globalSolutions[i].data(), v.size(), Base::Detail::toMPIType(*v.data()), MPI::SUM, 0);
+    }
+
+    if(world_rank == 0)
+    {
+        logger.assert(totals.size() == globalSolutions.size(), "wrong size");
+        for(std::size_t i = 0; i < globalSolutions.size(); ++i)
+        {
+            totals[i].second = globalSolutions[i];
+        }
+ #endif      
+    //divide by the number of times a value for the given x-point is added, which
+    //is 2 times the number of elements in y-direction for boundary nodes and 
+    //4 times the number of elements in y-direction otherwise
     (*totals.begin()).second *= 2;
     (totals.back()).second *= 2;
     for (std::pair<double, LinearAlgebra::MiddleSizeVector> &val : totals)
     {
         val.second /= 4*elementsInYDirection;
-        val.second *= meshMover.computeWidth(val.first);
-        logger(DEBUG, "x: %, average: %, width: %", val.first, val.second, meshMover.computeWidth(val.first));
-        
+        logger(INFO, "x: %, average: %", val.first, val.second);        
     }
     //just make sure we did not forget any points or that points that are the same have been put in different rows
     logger.assert(totals.size() == nodesInXDirection, "wrong number of points in vector of width-averaging");
+#ifdef HPGEM_USE_MPI
+    }
+#endif     
     return totals;
 }

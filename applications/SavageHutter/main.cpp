@@ -54,7 +54,7 @@ int main(int argc, char **argv)
     SavageHutter test(inputVals);    
     std::vector<std::string> variableNames = {"h", "hu", "hv"};
     if (DIM == 1)
-        test.setOutputNames("output1", "SavageHutter", "SavageHutter", variableNames);
+        test.setOutputNames("output1D", "SavageHutter", "SavageHutter", variableNames);
     else
         test.setOutputNames("output", "SavageHutter", "SavageHutter", variableNames);
     
@@ -64,17 +64,21 @@ int main(int argc, char **argv)
 
     // Solve the problem over time interval [startTime,endTime].
     test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), false);
-    auto widthValues = test.widthAverage();
     
-    std::ofstream widthFile("widthFile.dat");
-    for (auto myPair : widthValues)
+    if (DIM == 2)
     {
-        widthFile << myPair.first;
-        for (std::size_t i = 0; i < inputVals.numOfVariables; ++i)
+        auto widthValues = test.widthAverage();
+
+        std::ofstream widthFile("widthFile.dat");
+        for (auto myPair : widthValues)
         {
-            widthFile << '\t' << std::setw(10) << myPair.second[i];
+            widthFile << myPair.first;
+            for (std::size_t i = 0; i < inputVals.numOfVariables; ++i)
+            {
+                widthFile << '\t' << std::setw(10) << myPair.second[i];
+            }
+            widthFile << '\n';
         }
-        widthFile << '\n';
     }
 
     // Measure elapsed time
