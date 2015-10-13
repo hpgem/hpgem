@@ -129,7 +129,7 @@ int main()
         }
     }
     
-    logger.assert_always((test.getNrOfFaces() == 4), "getNrOfFaces");
+    logger.assert_always((test.getNumberOfFaces() == 4), "getNumberOfFaces");
     
     logger.assert_always((test.getRefGeometry() == &Geometry::ReferenceTetrahedron::Instance()), "getRefGeometry");
     

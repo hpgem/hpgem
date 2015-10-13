@@ -52,7 +52,13 @@ namespace Base
 
         void addElement(Element* element, std::size_t localNodeNr);
 
+        ///\deprecated Does not conform naming conventions, use getLocalNumberOfBasisFunctions instead
         std::size_t getLocalNrOfBasisFunctions() const
+        {
+            return getLocalNumberOfBasisFunctions();
+        }
+        
+        std::size_t getLocalNumberOfBasisFunctions() const
         {
             return numberOfConformingDOFOnTheNode_;
         }
@@ -62,7 +68,13 @@ namespace Base
             return ID_;
         }
         
-        std::size_t getNrOfElements() const;
+        ///\deprecated Does not conform naming conventions, use getNumberOfElements instead
+        std::size_t getNrOfElements() const
+        {
+            return getNumberOfElements();
+        }
+        
+        std::size_t getNumberOfElements() const;
 
         Element* getElement(std::size_t i);
         const Element* getElement(std::size_t i) const;
@@ -72,10 +84,16 @@ namespace Base
             return elements_;
         }
         
-        ///Get the local node number for this node at the given element.
+        ///\deprecated Does not conform naming conventions, use getNodeNumber instead
         std::size_t getNodeNr(std::size_t i) const
         {
-            logger.assert(i < getNrOfElements(), "Asked for element %, but there are only % elements", i, getNrOfElements());
+            return getNodeNumber(i);
+        }
+        
+        ///Get the local node number for this node at the given element.
+        std::size_t getNodeNumber(std::size_t i) const
+        {
+            logger.assert(i < getNumberOfElements(), "Asked for element %, but there are only % elements", i, getNumberOfElements());
             return localNodeNumbers_[i];
         }
         

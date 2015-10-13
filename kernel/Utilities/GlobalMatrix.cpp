@@ -85,7 +85,7 @@ namespace Utilities
             nodeEntries = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(face->localFaceNumberLeft());
             for (std::size_t i : nodeEntries)
             {
-                number = face->getPtrElementLeft()->getNode(i)->getLocalNrOfBasisFunctions();
+                number = face->getPtrElementLeft()->getNode(i)->getLocalNumberOfBasisFunctions();
                 numberOfEntries += number;
                 for (std::size_t j = 0; j < number; ++j)
                     entries.push_back(startPositionsOfNodesInTheMatrix_[face->getPtrElementLeft()->getNode(i)->getID()] + j + index * number);

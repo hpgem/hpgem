@@ -443,10 +443,10 @@ namespace Base
         }
         for(Edge* edge : getEdgesList(IteratorType::GLOBAL))
         {
-            for(std::size_t i = 0; i < edge->getNrOfElements(); ++i)
+            for(std::size_t i = 0; i < edge->getNumberOfElements(); ++i)
             {
                 Element* element = edge->getElement(i);
-                std::size_t edgeNr = edge->getEdgeNr(i);
+                std::size_t edgeNr = edge->getEdgeNumber(i);
                 std::size_t orientation = edge->getOrientation(i);
                 auto type = element->getReferenceGeometry()->getGeometryType();
                 for(std::size_t j = shapeToElementIndex[type] + numberOfFaceSets[type] + 1; j < shapeToElementIndex[type] + numberOfFaceSets[type] + numberOfEdgeSets[type] + 1; ++j)
@@ -455,7 +455,7 @@ namespace Base
                     if (static_cast<const OrientedBasisFunctionSet*>(collBasisFSet_[j].get())->checkOrientation(orientation, edgeNr))
                     {
                         element->setEdgeBasisFunctionSet(j, edgeNr);
-                        edge->setLocalNrOfBasisFunctions(collBasisFSet_[j]->size());
+                        edge->setLocalNumberOfBasisFunctions(collBasisFSet_[j]->size());
                     }
 
                 }
@@ -465,10 +465,10 @@ namespace Base
         {
             if(DIM > 1)
             {
-                for(std::size_t i = 0; i < node->getNrOfElements(); ++i)
+                for(std::size_t i = 0; i < node->getNumberOfElements(); ++i)
                 {
                     Element* element = node->getElement(i);
-                    std::size_t nodeNr = node->getNodeNr(i);
+                    std::size_t nodeNr = node->getNodeNumber(i);
                     auto type = element->getReferenceGeometry()->getGeometryType();
                     element->setVertexBasisFunctionSet(shapeToElementIndex[type] + numberOfFaceSets[type] + numberOfEdgeSets[type] + 1 + nodeNr, nodeNr);
                     node->setLocalNrOfBasisFunctions(collBasisFSet_[shapeToElementIndex[type] + numberOfFaceSets[type] + numberOfEdgeSets[type] + 1 + nodeNr]->size());
@@ -525,7 +525,7 @@ namespace Base
         }
         for (Base::Edge* edge : getEdgesList(IteratorType::GLOBAL))
         {
-            edge->setLocalNrOfBasisFunctions(0);
+            edge->setLocalNumberOfBasisFunctions(0);
         }
         for (Base::Node* node : getNodesList(IteratorType::GLOBAL))
         {
@@ -548,9 +548,9 @@ namespace Base
         }
         for (Node* node : getNodesList())
         {
-            for (std::size_t i = 0; i < node->getNrOfElements(); ++i)
+            for (std::size_t i = 0; i < node->getNumberOfElements(); ++i)
             {
-                node->getElement(i)->setVertexBasisFunctionSet(firstNewEntry + node->getNodeNr(i), node->getNodeNr(i));
+                node->getElement(i)->setVertexBasisFunctionSet(firstNewEntry + node->getNodeNumber(i), node->getNodeNumber(i));
             }
             node->setLocalNrOfBasisFunctions(bFsets[0]->size());
         }
@@ -590,7 +590,7 @@ namespace Base
             }
             face->setLocalNumberOfBasisFunctions(bFsets[0]->size());
         }
-        const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_ += (*elementColBegin())->getPhysicalGeometry()->getNrOfFaces() * bFsets[0]->size();
+        const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_ += (*elementColBegin())->getPhysicalGeometry()->getNumberOfFaces() * bFsets[0]->size();
     }
 
     template<std::size_t DIM>
@@ -605,21 +605,21 @@ namespace Base
         logger(DEBUG, "In MeshManipulator::addEdgeBasisFunctionSet: ");
         for (Edge* edge : getEdgesList())
         {
-            for (std::size_t i = 0; i < edge->getNrOfElements(); ++i)
+            for (std::size_t i = 0; i < edge->getNumberOfElements(); ++i)
             {
                 for (std::size_t j = 0; j < bFsets.size(); ++j)
                 {
-                    if (bFsets[j]->checkOrientation(edge->getOrientation(i), edge->getEdgeNr(i)))
+                    if (bFsets[j]->checkOrientation(edge->getOrientation(i), edge->getEdgeNumber(i)))
                     {
-                        edge->getElement(i)->setEdgeBasisFunctionSet(firstNewEntry + j, edge->getEdgeNr(i));
+                        edge->getElement(i)->setEdgeBasisFunctionSet(firstNewEntry + j, edge->getEdgeNumber(i));
                         logger(DEBUG, "% % %", edge->getOrientation(i), 
-                               edge->getEdgeNr(i), bFsets[j]->size());
+                               edge->getEdgeNumber(i), bFsets[j]->size());
                     }
                 }
             }
-            edge->setLocalNrOfBasisFunctions(bFsets[0]->size());
+            edge->setLocalNumberOfBasisFunctions(bFsets[0]->size());
         }
-        const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_ += (*elementColBegin())->getPhysicalGeometry()->getNrOfFaces() * bFsets[0]->size();
+        const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_ += (*elementColBegin())->getPhysicalGeometry()->getNumberOfFaces() * bFsets[0]->size();
     }
 
     template<std::size_t DIM>

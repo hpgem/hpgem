@@ -72,7 +72,7 @@ namespace Base
             for(std::size_t i = 0; i < nodeElements.size(); ++i)
             {
                 std::size_t id = nodeElements[i]->getID();
-                nodes_.back()->addElement(elements_[id], node->getNodeNr(i));
+                nodes_.back()->addElement(elements_[id], node->getNodeNumber(i));
             }
             ++nodeCounter_;
         }
@@ -106,7 +106,7 @@ namespace Base
             for(std::size_t i = 0; i < edgeElements.size(); ++i)
             {
                 std::size_t id = edgeElements[i]->getID();
-                edges_.back()->addElement(elements_[id], edge->getEdgeNr(i));
+                edges_.back()->addElement(elements_[id], edge->getEdgeNumber(i));
             }
             ++edgeCounter_;
         }
@@ -201,7 +201,7 @@ namespace Base
             {   
                 xadj[xadjCounter] = connectionsUsed;
                 xadjCounter++;
-                for (int i = 0; i < element->getReferenceGeometry()->getNrOfCodim1Entities(); ++i)
+                for (int i = 0; i < element->getReferenceGeometry()->getNumberOfCodim1Entities(); ++i)
                 {   
                     const Face* face = element->getFace(i);
                     if (face->isInternal())

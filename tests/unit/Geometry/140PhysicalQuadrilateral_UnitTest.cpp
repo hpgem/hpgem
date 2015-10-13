@@ -127,7 +127,7 @@ int main()
     logger.assert_always((pointIndexes[0] == test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(3, 0)), "getLocalFaceNodeIndices");
     logger.assert_always((pointIndexes[1] == test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(3, 1)), "getLocalFaceNodeIndices");
     
-    logger.assert_always((test.getNrOfFaces() == 4), "getNrOfFaces");
+    logger.assert_always((test.getNumberOfFaces() == 4), "getNumberOfFaces");
     
     logger.assert_always((test.getRefGeometry() == &Geometry::ReferenceSquare::Instance()), "getRefGeometry");
     

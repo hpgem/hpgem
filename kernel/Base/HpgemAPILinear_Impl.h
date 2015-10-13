@@ -237,7 +237,7 @@ namespace Base
             Base::FaceMatrix stiffnessFaceMatrix(computeStiffnessMatrixAtFace(ptrFace));
             if(!ptrFace->isInternal())
             {
-                logger.assert(stiffnessFaceMatrix.getNrOfDegreesOfFreedom(Base::Side::RIGHT) == 0,"The number of degrees of freedom corresonding to the right side of a boundary face should be 0, but is here %.", stiffnessFaceMatrix.getNrOfDegreesOfFreedom(Base::Side::RIGHT));
+                logger.assert(stiffnessFaceMatrix.getNumberOfDegreesOfFreedom(Base::Side::RIGHT) == 0,"The number of degrees of freedom corresonding to the right side of a boundary face should be 0, but is here %.", stiffnessFaceMatrix.getNumberOfDegreesOfFreedom(Base::Side::RIGHT));
             }
             //std::cout << "-- Stiffness matrix face: \n";
             //std::cout << "--- Stiffness submatrix face:\n" << stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::LEFT) << "\n";

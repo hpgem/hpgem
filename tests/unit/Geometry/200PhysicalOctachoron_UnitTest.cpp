@@ -231,7 +231,7 @@ int main()
         }
     }
     
-    logger.assert_always((test.getNrOfFaces() == 8), "getNrOfFaces");
+    logger.assert_always((test.getNumberOfFaces() == 8), "getNumberOfFaces");
     
     logger.assert_always((test.getRefGeometry() == &Geometry::ReferenceHypercube::Instance()), "getRefGeometry");
     

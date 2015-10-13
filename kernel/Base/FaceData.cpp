@@ -80,7 +80,7 @@ void Base::FaceData::setFaceMatrix(const Base::FaceMatrix &faceMatrix, std::size
         faceMatrix_.resize(matrixID + 1);
     }
     
-    faceMatrix_[matrixID].resize(faceMatrix.getNrOfDegreesOfFreedom(Base::Side::LEFT), faceMatrix.getNrOfDegreesOfFreedom(Base::Side::RIGHT));
+    faceMatrix_[matrixID].resize(faceMatrix.getNumberOfDegreesOfFreedom(Base::Side::LEFT), faceMatrix.getNumberOfDegreesOfFreedom(Base::Side::RIGHT));
     faceMatrix_[matrixID] = faceMatrix;
 }
 

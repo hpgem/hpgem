@@ -90,7 +90,7 @@ int main()
     pointIndexes = test.getLocalFaceNodeIndices(1);
     logger.assert_always((pointIndexes[0] == 1), "getLocalFaceNodeIndices");
     
-    logger.assert_always((test.getNrOfFaces() == 2), "getNrOfFaces");
+    logger.assert_always((test.getNumberOfFaces() == 2), "getNumberOfFaces");
     
     logger.assert_always((test.getRefGeometry() == &Geometry::ReferenceLine::Instance()), "getRefGeometry");
     

@@ -115,7 +115,7 @@ namespace Geometry
         /// \brief Given a local face index, return the global indices of the entities contained on that face.
         std::vector<std::size_t> getGlobalFaceNodeIndices(const std::size_t i) const
         {
-            logger.assert(i < getNrOfFaces(), "Asked for face %, but there are only % faces", i, getNrOfFaces());
+            logger.assert(i < getNumberOfFaces(), "Asked for face %, but there are only % faces", i, getNumberOfFaces());
             std::vector<std::size_t> result = getLocalFaceNodeIndices(i);
             for(std::size_t j = 0; j < result.size(); ++j)
             {
@@ -127,12 +127,18 @@ namespace Geometry
         /// \brief Given a local face index, return the local indices of the entities contained on that face.
         std::vector<std::size_t> getLocalFaceNodeIndices(const std::size_t i) const
         {
-            logger.assert(i < getNrOfFaces(), "Asked for face %, but there are only % faces", i, getNrOfFaces());
+            logger.assert(i < getNumberOfFaces(), "Asked for face %, but there are only % faces", i, getNumberOfFaces());
             return refGeometry_->getCodim1EntityLocalIndices(i);
         }
-
-        /// \brief Returns the number of faces via a call to ReferenceGeometry->getNrOfCodim1Entities();
+        
+        ///\deprecated Does not conform naming conventions, use getNumberOfFaces instead
         std::size_t getNrOfFaces() const
+        {
+            return getNumberOfFaces();
+        }
+
+        /// \brief Returns the number of faces via a call to ReferenceGeometry->getNumberOfCodim1Entities();
+        std::size_t getNumberOfFaces() const
         {
             return refGeometry_->getNumberOfCodim1Entities();
         }

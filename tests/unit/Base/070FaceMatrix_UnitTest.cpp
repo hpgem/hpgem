@@ -59,7 +59,7 @@ int main()
     F4.setEntireMatrix(F3.getEntireMatrix());
     
     Base::FaceMatrix F5;
-    F5.resize(F4.getNrOfDegreesOfFreedom(sL), F4.getNrOfDegreesOfFreedom(sR));
+    F5.resize(F4.getNumberOfDegreesOfFreedom(sL), F4.getNumberOfDegreesOfFreedom(sR));
     F5.setElementMatrix(F4.getElementMatrix(sL, sL), sL, sL);
     F5.setElementMatrix(F4.getElementMatrix(sL, sR), sL, sR);
     F5.setElementMatrix(F4.getElementMatrix(sR, sL), sR, sL);

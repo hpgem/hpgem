@@ -48,8 +48,8 @@ namespace Base
     /// \param[in] jVarBasisFunction Index for both the variable and basis function corresponding to the solution at the element on side jSide.
     LinearAlgebra::MiddleSizeMatrix::type & FaceMatrix::operator()(Side iSide, Side jSide, std::size_t iVarBasisFunction, std::size_t jVarBasisFunction)
     {
-        logger.assert(iVarBasisFunction < getNrOfDegreesOfFreedom(iSide), "Asked for degree of freedom %, but there are only % degrees of freedom", iVarBasisFunction, getNrOfDegreesOfFreedom(iSide));
-        logger.assert(jVarBasisFunction < getNrOfDegreesOfFreedom(jSide), "Asked for degree of freedom %, but there are only % degrees of freedom", jVarBasisFunction, getNrOfDegreesOfFreedom(jSide));
+        logger.assert(iVarBasisFunction < getNumberOfDegreesOfFreedom(iSide), "Asked for degree of freedom %, but there are only % degrees of freedom", iVarBasisFunction, getNumberOfDegreesOfFreedom(iSide));
+        logger.assert(jVarBasisFunction < getNumberOfDegreesOfFreedom(jSide), "Asked for degree of freedom %, but there are only % degrees of freedom", jVarBasisFunction, getNumberOfDegreesOfFreedom(jSide));
         if (iSide == Side::LEFT)
         {
             if (jSide == Side::LEFT)
@@ -81,8 +81,8 @@ namespace Base
     /// The index i indicates the side of the adjacent element as well as the variable and basis function at this element corresponding to the test function. Idem for j, but now for the solution instead of the test function.
     LinearAlgebra::MiddleSizeMatrix::type & FaceMatrix::operator()(std::size_t i, std::size_t j)
     {
-        logger.assert(i < getNrOfDegreesOfFreedom(Side::LEFT) + getNrOfDegreesOfFreedom(Side::RIGHT), "Asked for degree of freedom %, but there are only % degrees of freedom", i, getNrOfDegreesOfFreedom(Side::LEFT) + getNrOfDegreesOfFreedom(Side::RIGHT));
-        logger.assert(j < getNrOfDegreesOfFreedom(Side::LEFT) + getNrOfDegreesOfFreedom(Side::RIGHT), "Asked for degree of freedom %, but there are only % degrees of freedom", j, getNrOfDegreesOfFreedom(Side::LEFT) + getNrOfDegreesOfFreedom(Side::RIGHT));
+        logger.assert(i < getNumberOfDegreesOfFreedom(Side::LEFT) + getNumberOfDegreesOfFreedom(Side::RIGHT), "Asked for degree of freedom %, but there are only % degrees of freedom", i, getNumberOfDegreesOfFreedom(Side::LEFT) + getNumberOfDegreesOfFreedom(Side::RIGHT));
+        logger.assert(j < getNumberOfDegreesOfFreedom(Side::LEFT) + getNumberOfDegreesOfFreedom(Side::RIGHT), "Asked for degree of freedom %, but there are only % degrees of freedom", j, getNumberOfDegreesOfFreedom(Side::LEFT) + getNumberOfDegreesOfFreedom(Side::RIGHT));
         std::size_t nDOFLeft = M_LeftLeft_.getNRows();
         if (i < nDOFLeft)
         {
@@ -183,8 +183,8 @@ namespace Base
     void FaceMatrix::setElementMatrix(const LinearAlgebra::MiddleSizeMatrix & elementMatrix, Side iSide, Side jSide)
     {
         // Check size of the elementMatrix.
-        logger.assert(elementMatrix.getNRows() == getNrOfDegreesOfFreedom(iSide), "elementMatrix has the wrong size.");
-        logger.assert(elementMatrix.getNCols() == getNrOfDegreesOfFreedom(jSide), "elementMatrix has the wrong size.");
+        logger.assert(elementMatrix.getNRows() == getNumberOfDegreesOfFreedom(iSide), "elementMatrix has the wrong size.");
+        logger.assert(elementMatrix.getNCols() == getNumberOfDegreesOfFreedom(jSide), "elementMatrix has the wrong size.");
         
         if (iSide == Side::LEFT)
         {

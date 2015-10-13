@@ -64,12 +64,18 @@ namespace Base
 
         // Other member functions
         /// \brief Gets the number of degrees of freedom (usually the amount of (vector)-basis functions) corresponding to the element at side iSide.
-        std::size_t getNrOfDegreesOfFreedom(Side iSide) const
+        std::size_t getNumberOfDegreesOfFreedom(Side iSide) const
         {
             if (iSide == Side::LEFT)
                 return M_LeftLeft_.getNRows();
             else
                 return M_RightRight_.getNRows();
+        }
+        
+        ///\deprecated Does not conform naming conventions, use getNumberOfDegreesOfFreedom instead
+        std::size_t getNrOfDegreesOfFreedom(Side iSide) const
+        {
+            return getNumberOfDegreesOfFreedom(iSide);
         }
         
         /// \brief Resizes the element matrices.

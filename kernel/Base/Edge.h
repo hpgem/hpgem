@@ -64,25 +64,43 @@ namespace Base
             return ID_;
         }
         
-        std::size_t getNrOfElements();
+        ///\deprecated Does not conform naming conventions, use getNumberOfElements instead
+        std::size_t getNrOfElements()
+        {
+            return getNumberOfElements();
+        }
 
+        std::size_t getNumberOfElements();
+        
         Element* getElement(std::size_t i);
         
         std::vector<Element*> getElements();
-
+        
+        ///\deprecated Does not conform naming conventions, use getEdgeNumber instead
         std::size_t getEdgeNr(std::size_t i)
         {
-            logger.assert(i < getNrOfElements(), "Asked for element %, but there are only % elements", i, getNrOfElements());
-            return localEdgeNrs_[i];
+            return getEdgeNumber(i);
+        }
+
+        std::size_t getEdgeNumber(std::size_t i)
+        {
+            logger.assert(i < getNumberOfElements(), "Asked for element %, but there are only % elements", i, getNumberOfElements());
+            return localEdgeNumbers_[i];
         }
         
         std::size_t getOrientation(std::size_t i)
         {
-            logger.assert(i < getNrOfElements(), "Asked for element %, but there are only % elements", i, getNrOfElements());
+            logger.assert(i < getNumberOfElements(), "Asked for element %, but there are only % elements", i, getNumberOfElements());
             return orientation_[i];
         }
         
+        ///\deprecated Does not conform naming conventions, use setLocalNumberOfBasisFunctions instead
         void setLocalNrOfBasisFunctions(std::size_t number)
+        {
+            setLocalNumberOfBasisFunctions(number);
+        }
+        
+        void setLocalNumberOfBasisFunctions(std::size_t number)
         {
             numberOfConformingDOFOnTheEdge_ = number;
         }
@@ -90,7 +108,7 @@ namespace Base
     private:
 
         std::vector<Element*> elements_;
-        std::vector<std::size_t> localEdgeNrs_;
+        std::vector<std::size_t> localEdgeNumbers_;
         std::vector<std::size_t> orientation_;
 
         std::size_t numberOfConformingDOFOnTheEdge_;
