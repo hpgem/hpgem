@@ -95,8 +95,8 @@ Output::VTKSpecificTimeWriter<DIM>::VTKSpecificTimeWriter(const std::string& bas
         masterFile_ << "<?xml version=\"1.0\"?>" << std::endl;
         masterFile_ << "<VTKFile type=\"PUnstructuredGrid\" version=\"0.1\" byte_order=\"" << (Detail::isBigEndian() ? "BigEndian" : "LittleEndian") << "\">" << std::endl;
         masterFile_ << "  <PUnstructuredGrid GhostLevel=\"0\">" << std::endl;
-        std::size_t numProcs = Base::MPIContainer::Instance().getNumProcessors();
-        for (std::size_t i = 0; i < numProcs; ++i)
+        std::size_t numberOfProcs = Base::MPIContainer::Instance().getNumberOfProcessors();
+        for (std::size_t i = 0; i < numberOfProcs; ++i)
         {
             std::string fileName = baseName;
             if (fileName.find('/') != std::string::npos)

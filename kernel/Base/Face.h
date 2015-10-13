@@ -226,14 +226,14 @@ namespace Base
     double Face::basisFunction(std::size_t i, const Geometry::PointReference<DIM>& p) const
     {
         logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
-        std::size_t numBasisFuncs = getPtrElementLeft()->getNumberOfBasisFunctions();
-        if (i < numBasisFuncs)
+        std::size_t numberOfBasisFuncs = getPtrElementLeft()->getNumberOfBasisFunctions();
+        if (i < numberOfBasisFuncs)
         {
             return getPtrElementLeft()->basisFunction(i, mapRefFaceToRefElemL(p));
         }
         else
         {
-            return getPtrElementRight()->basisFunction(i - numBasisFuncs, mapRefFaceToRefElemR(p));
+            return getPtrElementRight()->basisFunction(i - numberOfBasisFuncs, mapRefFaceToRefElemR(p));
         }
     }
 
@@ -363,14 +363,14 @@ namespace Base
     LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionCurl(std::size_t i, const Geometry::PointReference<DIM>& p) const
     {
         logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
-        std::size_t numBasisFuncsLeft = getPtrElementLeft()->getNumberOfBasisFunctions();
-        if (i < numBasisFuncsLeft)
+        std::size_t numberOfBasisFunctionsLeft = getPtrElementLeft()->getNumberOfBasisFunctions();
+        if (i < numberOfBasisFunctionsLeft)
         {
             return getPtrElementLeft()->basisFunctionCurl(i, mapRefFaceToRefElemL(p));
         }
         else
         {
-            return getPtrElementRight()->basisFunctionCurl(i - numBasisFuncsLeft, mapRefFaceToRefElemR(p));
+            return getPtrElementRight()->basisFunctionCurl(i - numberOfBasisFunctionsLeft, mapRefFaceToRefElemR(p));
         }
     }
 }

@@ -81,7 +81,14 @@ public:
     }
     
     std::size_t getProcessorID();
-    std::size_t getNumProcessors();
+    
+    ///\deprecated Does not conform naming conventions, use getNumberOfProcessors instead
+    std::size_t getNumProcessors()
+    {
+        return getNumberOfProcessors();
+    }
+    
+    std::size_t getNumberOfProcessors();
 #ifdef HPGEM_USE_MPI
     MPI::Intracomm& getComm();
 
@@ -171,7 +178,7 @@ private:
     MPIContainer(const MPIContainer& orig) = delete;
 
     std::size_t processorID_;
-    std::size_t numProcessors_;
+    std::size_t numberOfProcessors_;
 #ifdef HPGEM_USE_MPI
     std::vector<MPI::Request> pending_;
     MPI::Intracomm communicator_;

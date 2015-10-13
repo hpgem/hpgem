@@ -64,7 +64,7 @@ namespace Base
     template<std::size_t DIM>
     typename HpgemAPIBase<DIM>::MeshId HpgemAPIBase<DIM>::addMesh(const RectangularMeshDescriptor<DIM>& meshDscr, const MeshType& meshType, std::size_t numberOfElementMatrixes, std::size_t numberOfElementVectors, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
     {
-        std::size_t numOfMeshes = meshes_.size();
+        std::size_t numberOfMeshes = meshes_.size();
         MeshManipulator<DIM>* mesh = new MeshManipulator<DIM>(configData_, meshDscr.boundaryConditions_[0],
                                                     (configData_->dimension_ > 1) ? meshDscr.boundaryConditions_[1] : BoundaryType::SOLID_WALL, (configData_->dimension_ > 2) ? meshDscr.boundaryConditions_[2] : BoundaryType::SOLID_WALL, configData_->polynomialOrder_, 0, numberOfElementMatrixes, numberOfElementVectors, numberOfFaceMatrixes, numberOfFaceVectors);
         
@@ -85,19 +85,19 @@ namespace Base
             logger(ERROR, "The only mesh types that are implemented are RECTANGULAR and TRIANGULAR. % is not implemented.", meshType);
         }*/
         logger(INFO, "HpgemAPIBase::addMesh created a mesh.");
-        return numOfMeshes;
+        return numberOfMeshes;
     }
 
     template<std::size_t DIM>
     typename HpgemAPIBase<DIM>::MeshId HpgemAPIBase<DIM>::addMesh(const std::string& fileName, std::size_t numberOfElementMatrixes, std::size_t numberOfElementVectors, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
     {
-        std::size_t numOfMeshes = meshes_.size();
+        std::size_t numberOfMeshes = meshes_.size();
         MeshManipulator<DIM>* mesh = new MeshManipulator<DIM>(configData_, BoundaryType::SOLID_WALL, BoundaryType::SOLID_WALL, BoundaryType::SOLID_WALL, configData_->polynomialOrder_, 0, numberOfElementMatrixes, numberOfElementVectors, numberOfFaceMatrixes, numberOfFaceVectors);
         mesh->readCentaurMesh(fileName);                             //boundary information (^) is ignored
         mesh->getElementsList();
         meshes_.push_back(mesh);
         logger(INFO, "HpgemAPIBase::addMesh read a mesh.");
-        return numOfMeshes;
+        return numberOfMeshes;
     }
 
     template<std::size_t DIM>
@@ -116,7 +116,7 @@ namespace Base
         {
             for (Base::Element *ptrElement : it.second)
             {
-                logger.assert(ptrElement->getTimeIntegrationVector(timeIntegrationVectorId).size() == ptrElement->getNrOfBasisFunctions() * this->configData_->numberOfUnknowns_ , "Size of time integration vector % is wrong: % instead of %.", timeIntegrationVectorId, ptrElement->getTimeIntegrationVector(timeIntegrationVectorId).size(), this->configData_->numberOfBasisFunctions_ * this->configData_->numberOfUnknowns_);
+                logger.assert(ptrElement->getTimeIntegrationVector(timeIntegrationVectorId).size() == ptrElement->getNumberOfBasisFunctions() * this->configData_->numberOfUnknowns_ , "Size of time integration vector % is wrong: % instead of %.", timeIntegrationVectorId, ptrElement->getTimeIntegrationVector(timeIntegrationVectorId).size(), this->configData_->numberOfBasisFunctions_ * this->configData_->numberOfUnknowns_);
 
                 Base::MPIContainer::Instance().receive(ptrElement->getTimeIntegrationVector(timeIntegrationVectorId), it.first, ptrElement->getID());
             }
@@ -125,7 +125,7 @@ namespace Base
         {
             for (Base::Element *ptrElement : it.second)
             {
-                logger.assert(ptrElement->getTimeIntegrationVector(timeIntegrationVectorId).size() == ptrElement->getNrOfBasisFunctions() * this->configData_->numberOfUnknowns_, "Size of time integration vector % is wrong: % instead of %.", timeIntegrationVectorId, ptrElement->getTimeIntegrationVector(timeIntegrationVectorId).size(), this->configData_->numberOfBasisFunctions_ * this->configData_->numberOfUnknowns_);
+                logger.assert(ptrElement->getTimeIntegrationVector(timeIntegrationVectorId).size() == ptrElement->getNumberOfBasisFunctions() * this->configData_->numberOfUnknowns_, "Size of time integration vector % is wrong: % instead of %.", timeIntegrationVectorId, ptrElement->getTimeIntegrationVector(timeIntegrationVectorId).size(), this->configData_->numberOfBasisFunctions_ * this->configData_->numberOfUnknowns_);
 
                 Base::MPIContainer::Instance().send(ptrElement->getTimeIntegrationVector(timeIntegrationVectorId), it.first, ptrElement->getID());
             }

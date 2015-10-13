@@ -41,21 +41,21 @@ namespace Base
     
     class Face;
     
-    /// \details The user does not need to worry about the contruction of faces. This is done by mesh-generators. For example the interface HpgemAPIBase can be used to create meshes.
-    Face::Face(Element* ptrElemL, const LocalFaceNumberTypeT& localFaceNumL, Element* ptrElemR, const LocalFaceNumberTypeT& localFaceNumR, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
-            : FaceGeometryT(ptrElemL, localFaceNumL, ptrElemR, localFaceNumR),
+    /// \details The user does not need to worry about the construction of faces. This is done by mesh-generators. For example the interface HpgemAPIBase can be used to create meshes.
+    Face::Face(Element* ptrElemL, const LocalFaceNumberTypeT& localFaceNumberL, Element* ptrElemR, const LocalFaceNumberTypeT& localFaceNumberR, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
+            : FaceGeometryT(ptrElemL, localFaceNumberL, ptrElemR, localFaceNumberR),
             FaceData(ptrElemL->getNumberOfBasisFunctions() * ptrElemL->getNumberOfUnknowns() + ptrElemR->getNumberOfBasisFunctions() * ptrElemR->getNumberOfUnknowns(), numberOfFaceMatrixes, numberOfFaceVectors), 
             elementLeft_(ptrElemL), elementRight_(ptrElemR), numberOfConformingDOFOnTheFace_(0), faceID_(faceID)
     {
         logger.assert(ptrElemL != nullptr, "Invalid element passed");
         logger.assert(ptrElemR != nullptr, "Error: passing a boundary face to the constructor for internal faces!");
         createQuadratureRules();
-        ptrElemL->setFace(localFaceNumL, this);
-        ptrElemR->setFace(localFaceNumR, this);
+        ptrElemL->setFace(localFaceNumberL, this);
+        ptrElemR->setFace(localFaceNumberR, this);
         
         std::vector<std::size_t> leftNodes, rightNodes;
-        std::vector<std::size_t> localLeftNodes = ptrElemL->getPhysicalGeometry()->getLocalFaceNodeIndices(localFaceNumL);
-        std::vector<std::size_t> localRightNodes = ptrElemR->getPhysicalGeometry()->getLocalFaceNodeIndices(localFaceNumR);
+        std::vector<std::size_t> localLeftNodes = ptrElemL->getPhysicalGeometry()->getLocalFaceNodeIndices(localFaceNumberL);
+        std::vector<std::size_t> localRightNodes = ptrElemR->getPhysicalGeometry()->getLocalFaceNodeIndices(localFaceNumberR);
         for (std::size_t i = 0; i < getReferenceGeometry()->getNumberOfNodes(); ++i)
         {
             leftNodes.push_back(ptrElemL->getNode(localLeftNodes[i])->getID());
@@ -107,12 +107,12 @@ namespace Base
         initialiseFaceToFaceMapIndex(leftNodes, rightNodes);
     }
     
-    Face::Face(Element* ptrElemL, const LocalFaceNumberTypeT& localFaceNumL, const Geometry::FaceType& faceType, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
-            : FaceGeometryT(ptrElemL, localFaceNumL, faceType), FaceData(ptrElemL->getNumberOfBasisFunctions() * ptrElemL->getNumberOfUnknowns(), numberOfFaceMatrixes, numberOfFaceVectors), elementLeft_(ptrElemL), elementRight_(nullptr), numberOfConformingDOFOnTheFace_(0), faceID_(faceID)
+    Face::Face(Element* ptrElemL, const LocalFaceNumberTypeT& localFaceNumberL, const Geometry::FaceType& faceType, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
+            : FaceGeometryT(ptrElemL, localFaceNumberL, faceType), FaceData(ptrElemL->getNumberOfBasisFunctions() * ptrElemL->getNumberOfUnknowns(), numberOfFaceMatrixes, numberOfFaceVectors), elementLeft_(ptrElemL), elementRight_(nullptr), numberOfConformingDOFOnTheFace_(0), faceID_(faceID)
     {
         logger.assert(ptrElemL != nullptr, "Invalid element passed");
         createQuadratureRules();
-        ptrElemL->setFace(localFaceNumL, this);
+        ptrElemL->setFace(localFaceNumberL, this);
     }
     
     Face::Face(const Face& other, Element* elementL, const std::size_t localFaceL, Element* elementR, const std::size_t localFaceR)
@@ -169,13 +169,13 @@ namespace Base
         LinearAlgebra::MiddleSizeVector resLeft = getPtrElementLeft()->getTimeIntegrationSubvector(timeIntegrationVectorId, unknown);
         if (isInternal())
         {
-            std::size_t numBasisFuncs = getNumberOfBasisFunctions();
-            std::size_t numBasisFuncsLeft = getPtrElementLeft()->getNumberOfBasisFunctions();
-            resLeft.resize(numBasisFuncs);
+            std::size_t numberOfBasisFunctions = getNumberOfBasisFunctions();
+            std::size_t numberOfBasisFunctionsLeft = getPtrElementLeft()->getNumberOfBasisFunctions();
+            resLeft.resize(numberOfBasisFunctions);
             LinearAlgebra::MiddleSizeVector resRight = getPtrElementRight()->getTimeIntegrationSubvector(timeIntegrationVectorId, unknown);
-            for (std::size_t i = numBasisFuncsLeft; i < numBasisFuncs; ++i)
+            for (std::size_t i = numberOfBasisFunctionsLeft; i < numberOfBasisFunctions; ++i)
             {
-                resLeft[i] = resRight[i - numBasisFuncsLeft];
+                resLeft[i] = resRight[i - numberOfBasisFunctionsLeft];
             }
         }
         return resLeft;

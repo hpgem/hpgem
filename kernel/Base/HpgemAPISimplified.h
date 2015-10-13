@@ -113,7 +113,7 @@ namespace Base
         virtual ~HpgemAPISimplified() = default;
 
         /// \brief Create a mesh description
-        virtual Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection)
+        virtual Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numberOfElementPerDirection)
         {
             logger(ERROR, "No routine for creating the domain implemented.");
             Base::RectangularMeshDescriptor<DIM> description;
@@ -121,7 +121,7 @@ namespace Base
         }
         
         /// \brief Create the mesh.
-        virtual void createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType);
+        virtual void createMesh(const std::size_t numberOfElementsPerDirection, const Base::MeshType meshType);
         
         
         /// \brief Compute the exact solution at a given point in space and time.
@@ -293,7 +293,7 @@ namespace Base
         virtual bool checkBeforeSolving();
         
         /// \brief Solve the PDE, using a Runge-Kutta scheme.
-        virtual bool solve(const double startTime, const double endTime, double dt, const std::size_t numOfOutputFrames, bool doComputeError);
+        virtual bool solve(const double startTime, const double endTime, double dt, const std::size_t numberOfOutputFrames, bool doComputeError);
         
     protected:
         /// Butcher tableau for time integration. The integration method is assumed to be explicit.

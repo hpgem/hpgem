@@ -136,7 +136,7 @@ namespace Utilities
     {
         int ierr = VecDestroy(&b_);
 #ifdef HPGEM_USE_MPI
-        std::size_t n = Base::MPIContainer::Instance().getNumProcessors();
+        std::size_t n = Base::MPIContainer::Instance().getNumberOfProcessors();
         //offset by one to put a 0 in front
         std::vector<int> MPISendElementCounts(n+1,0), MPISendFaceCounts(n+1,0), MPISendEdgeCounts(n+1,0), MPISendNodeCounts(n+1,0);
 

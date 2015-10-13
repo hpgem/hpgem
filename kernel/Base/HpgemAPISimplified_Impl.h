@@ -52,7 +52,7 @@ namespace Base
     extern CommandLineOption<double>& dt;
     extern CommandLineOption<std::string>& outputName;
     
-    /// \param[in] numOfVariables Number of variables in the PDE
+    /// \param[in] numberOfVariables Number of variables in the PDE
     /// \param[in] polynomialOrder Polynomial order of the basis functions
     /// \param[in] ptrButcherTableau A butcherTableau used to solve the PDE with a Runge-Kutta method.
     /// \param[in] numberOfTimeLevels Number of time levels.
@@ -60,13 +60,13 @@ namespace Base
     template<std::size_t DIM>
     HpgemAPISimplified<DIM>::HpgemAPISimplified
     (
-     const std::size_t numOfVariables,
+     const std::size_t numberOfVariables,
      const std::size_t polynomialOrder,
      const TimeIntegration::ButcherTableau * const ptrButcherTableau,
      const std::size_t numberOfTimeLevels,
      const bool computeBothFaces
      ) :
-    HpgemAPIBase<DIM>(new Base::GlobalData, new Base::ConfigurationData(DIM, numOfVariables, polynomialOrder,  numberOfTimeLevels)),
+    HpgemAPIBase<DIM>(new Base::GlobalData, new Base::ConfigurationData(DIM, numberOfVariables, polynomialOrder,  numberOfTimeLevels)),
     ptrButcherTableau_(ptrButcherTableau),
     outputFileName_("output"),
     internalFileTitle_("output"),
@@ -86,7 +86,7 @@ namespace Base
         }
     }
     
-    /// \param[in] numOfVariables Number of variables in the PDE
+    /// \param[in] numberOfVariables Number of variables in the PDE
     /// \param[in] polynomialOrder Polynomial order of the basis functions
     /// \param[in] globalNumberOfTimeIntegrationVectors number of time integration vectors for every element.
     /// \param[in] numberOfTimeLevels Number of time levels.
@@ -94,13 +94,13 @@ namespace Base
     template<std::size_t DIM>
     HpgemAPISimplified<DIM>::HpgemAPISimplified
     (
-     const std::size_t numOfVariables,
+     const std::size_t numberOfVariables,
      const std::size_t polynomialOrder,
      const std::size_t globalNumberOfTimeIntegrationVectors,
      const std::size_t numberOfTimeLevels,
      const bool computeBothFaces
      ) :
-    HpgemAPIBase<DIM>(new Base::GlobalData, new Base::ConfigurationData(DIM, numOfVariables, polynomialOrder,  numberOfTimeLevels)),
+    HpgemAPIBase<DIM>(new Base::GlobalData, new Base::ConfigurationData(DIM, numberOfVariables, polynomialOrder,  numberOfTimeLevels)),
     ptrButcherTableau_(nullptr),
     outputFileName_("output"),
     internalFileTitle_("output"),
@@ -121,18 +121,18 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    void HpgemAPISimplified<DIM>::createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType)
+    void HpgemAPISimplified<DIM>::createMesh(const std::size_t numberOfElementsPerDirection, const Base::MeshType meshType)
     {
-        const Base::RectangularMeshDescriptor<DIM> description = createMeshDescription(numOfElementsPerDirection);
+        const Base::RectangularMeshDescriptor<DIM> description = createMeshDescription(numberOfElementsPerDirection);
         
         // Set the number of Element/Face Matrices/Vectors.
-        std::size_t numOfElementMatrices = 0;
-        std::size_t numOfElementVectors = 0;
-        std::size_t numOfFaceMatrices = 0;
-        std::size_t numOfFaceVectors = 0;
+        std::size_t numberOfElementMatrices = 0;
+        std::size_t numberOfElementVectors = 0;
+        std::size_t numberOfFaceMatrices = 0;
+        std::size_t numberOfFaceVectors = 0;
         
         // Create mesh and set basis functions.
-        this->addMesh(description, meshType, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
+        this->addMesh(description, meshType, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors);
         this->meshes_[0]->useDefaultDGBasisFunctions();
         
         // Set the number of time integration vectors according to the size of the Butcher tableau.
@@ -149,34 +149,34 @@ namespace Base
     LinearAlgebra::MiddleSizeMatrix HpgemAPISimplified<DIM>::computeMassMatrixAtElement(Base::Element *ptrElement)
     {
         // Get number of basis functions
-        std::size_t numOfBasisFunctions = ptrElement->getNumberOfBasisFunctions();
+        std::size_t numberOfBasisFunctions = ptrElement->getNumberOfBasisFunctions();
         
         // Make the mass matrix of the correct size and set all entries to zero.
-        LinearAlgebra::MiddleSizeMatrix massMatrix(numOfBasisFunctions * this->configData_->numberOfUnknowns_, numOfBasisFunctions * this->configData_->numberOfUnknowns_, 0);
+        LinearAlgebra::MiddleSizeMatrix massMatrix(numberOfBasisFunctions * this->configData_->numberOfUnknowns_, numberOfBasisFunctions * this->configData_->numberOfUnknowns_, 0);
         
         // Declare integrand
-        LinearAlgebra::MiddleSizeMatrix integrandMassMatrix(numOfBasisFunctions * this->configData_->numberOfUnknowns_, numOfBasisFunctions * this->configData_->numberOfUnknowns_, 0);
+        LinearAlgebra::MiddleSizeMatrix integrandMassMatrix(numberOfBasisFunctions * this->configData_->numberOfUnknowns_, numberOfBasisFunctions * this->configData_->numberOfUnknowns_, 0);
         
         // Get quadrature rule and number of points.
         const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
-        std::size_t numOfQuadPoints = ptrQdrRule->getNumberOfPoints();
+        std::size_t numberOfQuadPoints = ptrQdrRule->getNumberOfPoints();
         
         // For each quadrature point, compute the value of the product of the
         // basisfunctions, then add it with the correct weight to massMatrix
-        for (std::size_t pQuad = 0; pQuad < numOfQuadPoints; ++pQuad)
+        for (std::size_t pQuad = 0; pQuad < numberOfQuadPoints; ++pQuad)
         {
             const Geometry::PointReference<DIM>& pRef = ptrQdrRule->getPoint(pQuad);
             Geometry::Jacobian<DIM, DIM> jac = ptrElement->calcJacobian(pRef);
             
-            LinearAlgebra::MiddleSizeVector valueBasisFunction(numOfBasisFunctions);
-            for(std::size_t iB = 0; iB < numOfBasisFunctions; ++iB)
+            LinearAlgebra::MiddleSizeVector valueBasisFunction(numberOfBasisFunctions);
+            for(std::size_t iB = 0; iB < numberOfBasisFunctions; ++iB)
             {
                 valueBasisFunction(iB) = ptrElement->basisFunction(iB, pRef);
             }
             
-            for(std::size_t iB = 0; iB < numOfBasisFunctions; ++iB)
+            for(std::size_t iB = 0; iB < numberOfBasisFunctions; ++iB)
             {
-                for(std::size_t jB = 0; jB < numOfBasisFunctions; ++jB)
+                for(std::size_t jB = 0; jB < numberOfBasisFunctions; ++jB)
                 {
                     LinearAlgebra::MiddleSizeMatrix::type massProduct = valueBasisFunction(iB) * valueBasisFunction(jB);
                     for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
@@ -219,21 +219,21 @@ namespace Base
     LinearAlgebra::MiddleSizeVector HpgemAPISimplified<DIM>::integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
     {
         // Get number of basis functions
-        std::size_t numOfBasisFunctions = ptrElement->getNumberOfBasisFunctions();
+        std::size_t numberOfBasisFunctions = ptrElement->getNumberOfBasisFunctions();
         
         // Declare integral initial solution
-        LinearAlgebra::MiddleSizeVector integralInitialSolution(numOfBasisFunctions * this->configData_->numberOfUnknowns_);
+        LinearAlgebra::MiddleSizeVector integralInitialSolution(numberOfBasisFunctions * this->configData_->numberOfUnknowns_);
         
         // Declare integrand
-        LinearAlgebra::MiddleSizeVector integrandInitialSolution(numOfBasisFunctions * this->configData_->numberOfUnknowns_);
+        LinearAlgebra::MiddleSizeVector integrandInitialSolution(numberOfBasisFunctions * this->configData_->numberOfUnknowns_);
         
         // Get quadrature rule and number of points.
         const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
-        std::size_t numOfQuadPoints = ptrQdrRule->getNumberOfPoints();
+        std::size_t numberOfQuadPoints = ptrQdrRule->getNumberOfPoints();
         
         // For each quadrature point, compute the value of the product of the
         // test function and the initial solution, then add it with the correct weight to the integral solution.
-        for (std::size_t pQuad = 0; pQuad < numOfQuadPoints; ++pQuad)
+        for (std::size_t pQuad = 0; pQuad < numberOfQuadPoints; ++pQuad)
         {
             const Geometry::PointReference<DIM>& pRef = ptrQdrRule->getPoint(pQuad);
             Geometry::PointPhysical<DIM> pPhys = ptrElement->referenceToPhysical(pRef);
@@ -242,7 +242,7 @@ namespace Base
             
             LinearAlgebra::MiddleSizeVector initialSolution = getInitialSolution(pPhys, startTime, orderTimeDerivative);
             
-            for(std::size_t iB = 0; iB < numOfBasisFunctions; ++iB)
+            for(std::size_t iB = 0; iB < numberOfBasisFunctions; ++iB)
             {
                 double valueBasisFunction = ptrElement->basisFunction(iB, pRef);
                 
@@ -277,7 +277,7 @@ namespace Base
     LinearAlgebra::MiddleSizeVector::type HpgemAPISimplified<DIM>::integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
     {
         // Get number of basis functions
-        std::size_t numOfBasisFunctions = ptrElement->getNumberOfBasisFunctions();
+        std::size_t numberOfBasisFunctions = ptrElement->getNumberOfBasisFunctions();
         
         // Declare integral initial solution
         LinearAlgebra::MiddleSizeVector::type integralError = 0.;
@@ -287,10 +287,10 @@ namespace Base
         
         // Get quadrature rule and number of points.
         const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
-        std::size_t numOfQuadPoints = ptrQdrRule->getNumberOfPoints();
+        std::size_t numberOfQuadPoints = ptrQdrRule->getNumberOfPoints();
         
         // For each quadrature point, compute the square of the error, then add it with the correct weight to the integral solution.
-        for (std::size_t pQuad = 0; pQuad < numOfQuadPoints; ++pQuad)
+        for (std::size_t pQuad = 0; pQuad < numberOfQuadPoints; ++pQuad)
         {
             const Geometry::PointReference<DIM>& pRef = ptrQdrRule->getPoint(pQuad);
             Geometry::PointPhysical<DIM> pPhys = ptrElement->referenceToPhysical(pRef);
@@ -302,7 +302,7 @@ namespace Base
             LinearAlgebra::MiddleSizeVector numericalSolution(this->configData_->numberOfUnknowns_);
             numericalSolution *= 0;
             
-            for(std::size_t iB = 0; iB < numOfBasisFunctions; ++iB)
+            for(std::size_t iB = 0; iB < numberOfBasisFunctions; ++iB)
             {
                 double valueBasisFunction = ptrElement->basisFunction(iB, pRef);
                 
@@ -379,7 +379,7 @@ namespace Base
     LinearAlgebra::MiddleSizeVector HpgemAPISimplified<DIM>::computeMaxErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
     {
         // Get number of basis functions
-        std::size_t numOfBasisFunctions = ptrElement->getNumberOfBasisFunctions();
+        std::size_t numberOfBasisFunctions = ptrElement->getNumberOfBasisFunctions();
         
         // Declare vector of maxima of the error.
         LinearAlgebra::MiddleSizeVector maxError(this->configData_->numberOfUnknowns_);
@@ -387,10 +387,10 @@ namespace Base
         
         // Get quadrature rule and number of points.
         const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
-        std::size_t numOfQuadPoints = ptrQdrRule->getNumberOfPoints();
+        std::size_t numberOfQuadPoints = ptrQdrRule->getNumberOfPoints();
         
         // For each quadrature point update the maxima of the error.
-        for (std::size_t pQuad = 0; pQuad < numOfQuadPoints; ++pQuad)
+        for (std::size_t pQuad = 0; pQuad < numberOfQuadPoints; ++pQuad)
         {
             const Geometry::PointReference<DIM>& pRef = ptrQdrRule->getPoint(pQuad);
             Geometry::PointPhysical<DIM> pPhys = ptrElement->referenceToPhysical(pRef);
@@ -400,7 +400,7 @@ namespace Base
             LinearAlgebra::MiddleSizeVector numericalSolution(this->configData_->numberOfUnknowns_);
             numericalSolution *= 0;
             
-            for(std::size_t iB = 0; iB < numOfBasisFunctions; ++iB)
+            for(std::size_t iB = 0; iB < numberOfBasisFunctions; ++iB)
             {
                 double valueBasisFunction = ptrElement->basisFunction(iB, pRef);
                 
@@ -624,10 +624,10 @@ namespace Base
     template<std::size_t DIM>
     void HpgemAPISimplified<DIM>::computeOneTimeStep(double &time, const double dt)
     {
-        std::size_t numOfStages = ptrButcherTableau_->getNumStages();
+        std::size_t numberOfStages = ptrButcherTableau_->getNumStages();
         
         // Compute intermediate Runge-Kutta stages
-        for (std::size_t iStage = 0; iStage < numOfStages; iStage++)
+        for (std::size_t iStage = 0; iStage < numberOfStages; iStage++)
         {
             double stageTime = time + ptrButcherTableau_->getC(iStage) * dt;
             
@@ -646,7 +646,7 @@ namespace Base
         }
         
         // Update the solution
-        for (std::size_t jStage = 0; jStage < numOfStages; jStage++)
+        for (std::size_t jStage = 0; jStage < numberOfStages; jStage++)
         {
             scaleAndAddVector(solutionVectorId_, auxiliaryVectorIds_[jStage], dt * ptrButcherTableau_->getB(jStage));
         }
@@ -672,14 +672,14 @@ namespace Base
     template<std::size_t DIM>
     void HpgemAPISimplified<DIM>::writeToTecplotFile(const Element *ptrElement, const PointReferenceT &pRef, std::ostream &out)
     {
-        std::size_t numOfVariables = this->configData_->numberOfUnknowns_;
+        std::size_t numberOfVariables = this->configData_->numberOfUnknowns_;
         
-        LinearAlgebra::MiddleSizeVector solution(numOfVariables);
+        LinearAlgebra::MiddleSizeVector solution(numberOfVariables);
         solution = ptrElement->getSolution(solutionVectorId_, pRef);
          
         std::size_t iV = 0; // Index for the variable
         out << std::real(solution(iV));
-        for (iV = 1; iV < numOfVariables; iV++)
+        for (iV = 1; iV < numberOfVariables; iV++)
         {
             out << " " << std::real(solution(iV));
         }
@@ -708,10 +708,10 @@ namespace Base
     /// \param[in] initialTime Initial time
     /// \param[in] finalTime End time
     /// \param[in] dt Size of the time step
-    /// \param[in] numOutputFrames Number of times the solution is written to an output file.
+    /// \param[in] numberOutputFrames Number of times the solution is written to an output file.
     /// \param[in] doComputeError Boolean to indicate if the error should be computed.
     template<std::size_t DIM>
-    bool HpgemAPISimplified<DIM>::solve(const double initialTime, const double finalTime, double dt, const std::size_t numOfOutputFrames, bool doComputeError)
+    bool HpgemAPISimplified<DIM>::solve(const double initialTime, const double finalTime, double dt, const std::size_t numberOfOutputFrames, bool doComputeError)
     {
         checkBeforeSolving();
         
@@ -745,19 +745,19 @@ namespace Base
         
         // Compute parameters for time integration
         double T = finalTime - initialTime;     // Time interval
-        std::size_t numOfTimeSteps = std::ceil(T / dt);
-        std::size_t numOfTimeStepsForOutput;
-        if (numOfOutputFrames > 0)
+        std::size_t numberOfTimeSteps = std::ceil(T / dt);
+        std::size_t numberOfTimeStepsForOutput;
+        if (numberOfOutputFrames > 0)
         {
             // Round off to above such that the number of time steps is a multiple of the number of output frames.
-            numOfTimeSteps += (numOfOutputFrames - (numOfTimeSteps % numOfOutputFrames)) % numOfOutputFrames;
+            numberOfTimeSteps += (numberOfOutputFrames - (numberOfTimeSteps % numberOfOutputFrames)) % numberOfOutputFrames;
             
             // Recompute dt.
-            dt = T / numOfTimeSteps;
+            dt = T / numberOfTimeSteps;
             
             // Compute the number of timesteps after which to create an output frame.
             ///\todo current syntax makes it unclear if you try to cast before or after division, please add brackets and/or static_cast to clarify
-            numOfTimeStepsForOutput = (std::size_t) numOfTimeSteps / numOfOutputFrames;
+            numberOfTimeStepsForOutput = (std::size_t) numberOfTimeSteps / numberOfOutputFrames;
         }
         
         // Set the initial time.
@@ -775,13 +775,13 @@ namespace Base
         // Solve the system of PDE's.
         logger(INFO,"Solving the system of PDE's.");
         logger(INFO, "dt: %.", dt);
-        logger(INFO, "Total number of time steps: %.", numOfTimeSteps);
-        logger(INFO, "Number of time steps for output: %.", numOfTimeStepsForOutput);
-        for (std::size_t iT = 1; iT <= numOfTimeSteps; iT++)
+        logger(INFO, "Total number of time steps: %.", numberOfTimeSteps);
+        logger(INFO, "Number of time steps for output: %.", numberOfTimeStepsForOutput);
+        for (std::size_t iT = 1; iT <= numberOfTimeSteps; iT++)
         {
             computeOneTimeStep(time, dt);
             
-            if (iT % numOfTimeStepsForOutput == 0)
+            if (iT % numberOfTimeStepsForOutput == 0)
             {
                 tecplotWriter.write(this->meshes_[0], solutionTitle_, false, this, time);
                 VTKWrite(VTKWriter, time, solutionVectorId_);

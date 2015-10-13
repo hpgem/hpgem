@@ -106,7 +106,7 @@ namespace Base
         HpgemAPILinear& operator=(const HpgemAPILinear &other) = delete;
         
         /// \brief Create the mesh.
-        virtual void createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType) override;
+        virtual void createMesh(const std::size_t numberOfElementsPerDirection, const Base::MeshType meshType) override;
         
         /// \brief Compute the source term at a given physical point.
         virtual LinearAlgebra::MiddleSizeVector getSourceTerm(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)

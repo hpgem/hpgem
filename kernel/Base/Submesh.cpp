@@ -86,7 +86,7 @@ namespace Base
         {
             //reconstruct element->processor mapping
             MPIContainer& container = MPIContainer::Instance();
-            std::size_t n = container.getNumProcessors();
+            std::size_t n = container.getNumberOfProcessors();
             std::size_t rank = container.getProcessorID();
             std::vector<int> numberOfElements(n + 1, 0), cumulativeNumberOfElements(n + 1);
             auto& comm = container.getComm();

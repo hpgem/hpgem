@@ -181,7 +181,7 @@ namespace Base
 #ifdef HPGEM_USE_MPI
 #ifdef HPGEM_USE_METIS
         pid = MPIContainer::Instance().getProcessorID();
-        int nProcs = MPIContainer::Instance().getNumProcessors();
+        int nProcs = MPIContainer::Instance().getNumberOfProcessors();
 
         if (pid == 0 && nProcs > 1)
         {   

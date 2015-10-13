@@ -113,14 +113,26 @@ namespace Base
         ///the element (elements have extra functions for users that need them)
         const Base::Element* getElement();
 
-        ///the number of basis functions that are nonzero in the element
+        ///\deprecated Does not conform naming conventions, use getNumberOfBasisFunctions instead
         std::size_t getNumOfBasisFunctions()
+        {
+            return getNumberOfBasisFunctions();
+        }
+        
+        ///the number of basis functions that are nonzero in the element
+        std::size_t getNumberOfBasisFunctions()
         {
             return theElement_->getNumberOfBasisFunctions();
         }
 
-        ///the number of unknowns present in the problem
+        ///\deprecated Does not conform naming conventions, use getNumberOfUnknowns instead
         std::size_t getNumOfUnknowns()
+        {
+            return getNumberOfUnknowns();
+        }
+        
+        ///the number of unknowns present in the problem
+        std::size_t getNumberOfUnknowns()
         {
             return theElement_->getNumberOfUnknowns();
         }

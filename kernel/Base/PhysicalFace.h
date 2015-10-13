@@ -173,15 +173,27 @@ namespace Base
 
         ///check if this PhysicalFace is an internal face or a face on a periodic boundary.
         bool isInternal();
+        
+        ///\deprecated Does not conform naming conventions, use getNumberOfBasisFunctions instead
+        std::size_t getNumOfBasisFunctions()
+        {
+            return getNumberOfBasisFunctions();
+        }
 
         ///get the total number of basis functions that might be nonzero on the face
-        std::size_t getNumOfBasisFunctions()
+        std::size_t getNumberOfBasisFunctions()
         {
             return face_->getNumberOfBasisFunctions();
         }
+        
+        ///\deprecated Does not conform naming conventions, use getNumberOfUnknowns instead
+        std::size_t getNumOfUnknowns()
+        {
+            return getNumberOfUnknowns();
+        }
 
         /// get the number of variables present in the problem
-        std::size_t getNumOfUnknowns()
+        std::size_t getNumberOfUnknowns()
         {
             return face_->getPtrElementLeft()->getNumberOfUnknowns();
         }
