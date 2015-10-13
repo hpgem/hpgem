@@ -30,7 +30,7 @@ Inviscid::Inviscid(const CompressibleNavierStokes& instance) : instance_(instanc
 LinearAlgebra::MiddleSizeVector Inviscid::integrandAtElement(Base::PhysicalElement<DIM> &element, const double &time, const double &pressureTerm, const LinearAlgebra::MiddleSizeVector &state)
 {
 	// Get the number of basis functions in an element.
-	std::size_t numberOfBasisFunctions =  element.getNumOfBasisFunctions();
+	std::size_t numberOfBasisFunctions =  element.getNumberOfBasisFunctions();
 
 	//Create data structures for calculating the integrand
 	LinearAlgebra::MiddleSizeVector integrand(instance_.numOfVariables_ * numberOfBasisFunctions); //The final integrand value will be stored in this vector
@@ -246,7 +246,7 @@ LinearAlgebra::MiddleSizeVector Inviscid::integrandAtFace(
 {
 
 	   //Get the number of basis functions
-	   std::size_t numOfTestBasisFunctions = face.getPhysicalElement(iSide).getNumOfBasisFunctions();
+	   std::size_t numOfTestBasisFunctions = face.getPhysicalElement(iSide).getNumberOfBasisFunctions();
 
 	   LinearAlgebra::MiddleSizeVector integrand(instance_.numOfVariables_*numOfTestBasisFunctions);
 
@@ -278,7 +278,7 @@ LinearAlgebra::MiddleSizeVector Inviscid::integrandAtBoundaryFace(
 {
 
 	   //Get the number of basis functions
-	   std::size_t numOfTestBasisFunctions = face.getPhysicalElement(Base::Side::LEFT).getNumOfBasisFunctions();
+	   std::size_t numOfTestBasisFunctions = face.getPhysicalElement(Base::Side::LEFT).getNumberOfBasisFunctions();
 
 	   LinearAlgebra::MiddleSizeVector integrand(instance_.numOfVariables_*numOfTestBasisFunctions);
 
@@ -306,8 +306,8 @@ std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> Invis
 		const LinearAlgebra::MiddleSizeVector &stateRight)
 {
 	//Data structures for left and right integrand
-	std::size_t numOfTestBasisFunctionsLeft = face.getPhysicalElement(Base::Side::LEFT).getNumOfBasisFunctions();
-	std::size_t numOfTestBasisFunctionsRight = face.getPhysicalElement(Base::Side::RIGHT).getNumOfBasisFunctions();
+	std::size_t numOfTestBasisFunctionsLeft = face.getPhysicalElement(Base::Side::LEFT).getNumberOfBasisFunctions();
+	std::size_t numOfTestBasisFunctionsRight = face.getPhysicalElement(Base::Side::RIGHT).getNumberOfBasisFunctions();
 	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrands(
 			std::piecewise_construct,
 			std::forward_as_tuple(instance_.numOfVariables_*numOfTestBasisFunctionsLeft),

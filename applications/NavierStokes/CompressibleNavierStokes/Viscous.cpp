@@ -279,7 +279,7 @@ LinearAlgebra::MiddleSizeVector Viscous::integrandAtElement(
 		const LinearAlgebra::MiddleSizeVector &partialState)
 {
 	// Get the number of basis functions in an element.
-	std::size_t numberOfBasisFunctions = element.getNumOfBasisFunctions();
+	std::size_t numberOfBasisFunctions = element.getNumberOfBasisFunctions();
 
 	// Create data structures for calculating the integrand
 	LinearAlgebra::MiddleSizeVector integrand(instance_.numOfVariables_ * numberOfBasisFunctions);
@@ -349,7 +349,7 @@ LinearAlgebra::MiddleSizeMatrix Viscous::computeStabilityParameters(
 
 	//Datastructures
 	LinearAlgebra::MiddleSizeMatrix stabilityParametersBoundary(instance_.numOfVariables_,instance_.DIM_);
-	std::size_t numberOfTestBasisFunctionsLeft = face.getPhysicalElement(Base::Side::LEFT).getNumOfBasisFunctions();
+	std::size_t numberOfTestBasisFunctionsLeft = face.getPhysicalElement(Base::Side::LEFT).getNumberOfBasisFunctions();
 	LinearAlgebra::MiddleSizeVector rhs(numberOfTestBasisFunctionsLeft);
 	LinearAlgebra::MiddleSizeVector result(instance_.numOfVariables_);
 
@@ -403,7 +403,7 @@ LinearAlgebra::MiddleSizeVector Viscous::integrandViscousAtFace(
 		)
 {
 
-	std::size_t numOfTestBasisFunctionsLeft = face.getPhysicalElement(Base::Side::LEFT).getNumOfBasisFunctions();
+	std::size_t numOfTestBasisFunctionsLeft = face.getPhysicalElement(Base::Side::LEFT).getNumberOfBasisFunctions();
 	LinearAlgebra::MiddleSizeVector integrand(instance_.numOfVariables_*numOfTestBasisFunctionsLeft);
 	LinearAlgebra::SmallVector<DIM> unitNormalLeft = face.getUnitNormalVector();
 	LinearAlgebra::SmallVector<DIM> gradientBasisFunctionLeft;
@@ -454,7 +454,7 @@ LinearAlgebra::MiddleSizeVector Viscous::integrandAuxilliaryAtFace(
 {
 
 	//Data structures for left and right integrand
-	std::size_t numOfTestBasisFunctionsLeft = face.getPhysicalElement(Base::Side::LEFT).getNumOfBasisFunctions();
+	std::size_t numOfTestBasisFunctionsLeft = face.getPhysicalElement(Base::Side::LEFT).getNumberOfBasisFunctions();
 	LinearAlgebra::MiddleSizeVector integrand(instance_.numOfVariables_*numOfTestBasisFunctionsLeft);
 	LinearAlgebra::SmallVector<DIM> unitNormalLeft = face.getUnitNormalVector();
 	std::size_t iVB;
@@ -526,8 +526,8 @@ LinearAlgebra::MiddleSizeMatrix Viscous::computeStabilityParameters(
 
 	//Datastructures
 	LinearAlgebra::MiddleSizeMatrix stabilityParametersAverage(instance_.numOfVariables_,instance_.DIM_);
-	std::size_t numberOfTestBasisFunctionsLeft = face.getPhysicalElement(Base::Side::LEFT).getNumOfBasisFunctions();
-	std::size_t numberOfTestBasisFunctionsRight = face.getPhysicalElement(Base::Side::RIGHT).getNumOfBasisFunctions();
+	std::size_t numberOfTestBasisFunctionsLeft = face.getPhysicalElement(Base::Side::LEFT).getNumberOfBasisFunctions();
+	std::size_t numberOfTestBasisFunctionsRight = face.getPhysicalElement(Base::Side::RIGHT).getNumberOfBasisFunctions();
 	LinearAlgebra::MiddleSizeVector rhsLeft(numberOfTestBasisFunctionsLeft);
 	LinearAlgebra::MiddleSizeVector rhsRight(numberOfTestBasisFunctionsRight);
 	LinearAlgebra::MiddleSizeVector resultLeft(instance_.numOfVariables_);
@@ -593,8 +593,8 @@ std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> Visco
 {
 
 	//Data structures for left and right integrand
-	std::size_t numOfTestBasisFunctionsLeft = face.getPhysicalElement(Base::Side::LEFT).getNumOfBasisFunctions();
-	std::size_t numOfTestBasisFunctionsRight = face.getPhysicalElement(Base::Side::RIGHT).getNumOfBasisFunctions();
+	std::size_t numOfTestBasisFunctionsLeft = face.getPhysicalElement(Base::Side::LEFT).getNumberOfBasisFunctions();
+	std::size_t numOfTestBasisFunctionsRight = face.getPhysicalElement(Base::Side::RIGHT).getNumberOfBasisFunctions();
 	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrands(
 			std::piecewise_construct,
 			std::forward_as_tuple(instance_.numOfVariables_*numOfTestBasisFunctionsLeft),
@@ -638,8 +638,8 @@ std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> Visco
 		)
 {
 
-	std::size_t numOfTestBasisFunctionsLeft = face.getPhysicalElement(Base::Side::LEFT).getNumOfBasisFunctions();
-	std::size_t numOfTestBasisFunctionsRight = face.getPhysicalElement(Base::Side::RIGHT).getNumOfBasisFunctions();
+	std::size_t numOfTestBasisFunctionsLeft = face.getPhysicalElement(Base::Side::LEFT).getNumberOfBasisFunctions();
+	std::size_t numOfTestBasisFunctionsRight = face.getPhysicalElement(Base::Side::RIGHT).getNumberOfBasisFunctions();
 	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrands(
 			std::piecewise_construct,
 			std::forward_as_tuple(instance_.numOfVariables_*numOfTestBasisFunctionsLeft),
@@ -698,7 +698,7 @@ LinearAlgebra::MiddleSizeVector Viscous::integrandStabilityRightHandSideOnFace(
 		const std::size_t iD)
 
 {
-	std::size_t numBasisFunctions = face.getPhysicalElement(side).getNumOfBasisFunctions();
+	std::size_t numBasisFunctions = face.getPhysicalElement(side).getNumberOfBasisFunctions();
 	std::size_t iVB;
 	LinearAlgebra::MiddleSizeVector integrand(numBasisFunctions*instance_.numOfVariables_);
 

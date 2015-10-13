@@ -82,7 +82,7 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::computeSolutionAtElement(const Base:
 template<std::size_t DIM>
 LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandSourceAtElement(Base::PhysicalElement<DIM> &Element, const LinearAlgebra::MiddleSizeVector qSolution, const double pressureTerm, const double &time)
 {
-	std::size_t numOfBasisFunctions = Element.getNumOfBasisFunctions();
+	std::size_t numOfBasisFunctions = Element.getNumberOfBasisFunctions();
 	std::size_t iVB;
 
 	LinearAlgebra::MiddleSizeVector integrandSource(numOfVariables_ * numOfBasisFunctions);

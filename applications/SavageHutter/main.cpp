@@ -44,9 +44,9 @@ int main(int argc, char **argv)
     // Set parameters for the PDE.
     SHConstructorStruct inputVals;
     //DIM is declared in GlobalConstants.h
-    inputVals.numOfVariables = DIM + 1;    
+    inputVals.numberOfVariables = DIM + 1;    
     inputVals.polyOrder = polynomialOrder.getValue();
-    inputVals.numElements = numOfElements.getValue();
+    inputVals.numberOfElements = numOfElements.getValue();
     inputVals.meshType = Base::MeshType::RECTANGULAR; // Either TRIANGULAR or RECTANGULAR.
     inputVals.ptrButcherTableau = TimeIntegration::AllTimeIntegrators::Instance().getRule(1,1);
     
@@ -73,7 +73,7 @@ int main(int argc, char **argv)
         for (auto myPair : widthValues)
         {
             widthFile << myPair.first;
-            for (std::size_t i = 0; i < inputVals.numOfVariables; ++i)
+            for (std::size_t i = 0; i < inputVals.numberOfVariables; ++i)
             {
                 widthFile << '\t' << std::setw(10) << myPair.second[i];
             }

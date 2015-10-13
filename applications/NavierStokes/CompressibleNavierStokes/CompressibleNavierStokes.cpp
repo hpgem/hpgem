@@ -100,7 +100,7 @@ double CompressibleNavierStokes::computePressure(const LinearAlgebra::MiddleSize
 ///  \brief Constructs the solution based on the solutionCoefficients.
 LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeStateOnElement(Base::PhysicalElement<DIM> &element, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)
 {
-		std::size_t numberOfBasisFunctions =  element.getNumOfBasisFunctions();
+		std::size_t numberOfBasisFunctions =  element.getNumberOfBasisFunctions();
 		LinearAlgebra::MiddleSizeVector elementState(numOfVariables_);
 		std::size_t iVB; // Index in solution coefficients for variable i and basisfunction j
 
@@ -119,7 +119,7 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeStateOnElement(
 
 LinearAlgebra::MiddleSizeMatrix CompressibleNavierStokes::computeStateJacobianAtElement(Base::PhysicalElement<DIM> &element, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)
 {
-		std::size_t numberOfBasisFunctions =  element.getNumOfBasisFunctions();
+		std::size_t numberOfBasisFunctions =  element.getNumberOfBasisFunctions();
 		std::size_t iVB; // Index in solution coefficients for variable i and basisfunction j
 
 		LinearAlgebra::MiddleSizeMatrix stateJacobian(numOfVariables_,DIM_);
@@ -163,7 +163,7 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computePartialState(co
 /// \brief computes the source at an element
 LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::integrandSourceAtElement(Base::PhysicalElement<DIM>& element, const LinearAlgebra::MiddleSizeVector &state, const double &pressureTerm, const double &time)
 {
-	std::size_t numOfBasisFunctions = element.getNumOfBasisFunctions();
+	std::size_t numOfBasisFunctions = element.getNumberOfBasisFunctions();
 
 	LinearAlgebra::MiddleSizeVector integrandSource(numOfVariables_ * numOfBasisFunctions);
 
@@ -499,7 +499,7 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeRightHandSideAt
 
 LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeStateOnFace(Base::PhysicalFace<DIM> &face, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &stateCoefficients) const
 {
-	std::size_t numOfBasisFunctions =  face.getPhysicalElement(iSide).getNumOfBasisFunctions();
+	std::size_t numOfBasisFunctions =  face.getPhysicalElement(iSide).getNumberOfBasisFunctions();
 	LinearAlgebra::MiddleSizeVector elementState(numOfVariables_);
 	std::size_t iVB; // Index in solution coefficients for variable i and basisfunction j
 
@@ -519,7 +519,7 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeStateOnFace(Bas
 
 LinearAlgebra::MiddleSizeMatrix CompressibleNavierStokes::computeStateJacobianAtFace(Base::PhysicalFace<DIM> &face, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &stateCoefficients)
 {
-	std::size_t numberOfBasisFunctions =  face.getPhysicalElement(iSide).getNumOfBasisFunctions();
+	std::size_t numberOfBasisFunctions =  face.getPhysicalElement(iSide).getNumberOfBasisFunctions();
 	std::size_t iVB; // Index in solution coefficients for variable i and basisfunction j
 
 	LinearAlgebra::MiddleSizeMatrix stateJacobian(numOfVariables_,DIM_);

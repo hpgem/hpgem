@@ -27,10 +27,10 @@
 
 
 SavageHutterBase::SavageHutterBase(const SHConstructorStruct& inputValues) :
-HpgemAPISimplified(inputValues.numOfVariables, inputValues.polyOrder, inputValues.ptrButcherTableau),
-    numOfVariables_(inputValues.numOfVariables), dryLimit_(1e-5), time_(0)
+HpgemAPISimplified(inputValues.numberOfVariables, inputValues.polyOrder, inputValues.ptrButcherTableau),
+    numberOfVariables_(inputValues.numberOfVariables), dryLimit_(1e-5), time_(0)
 {
-    createMesh(inputValues.numElements, inputValues.meshType);
+    createMesh(inputValues.numberOfElements, inputValues.meshType);
     if (DIM == 2)
     {
         //Set up the move of the mesh; note that the mesh mover gets deleted in the mesh manipulator
@@ -45,7 +45,7 @@ HpgemAPISimplified(inputValues.numOfVariables, inputValues.polyOrder, inputValue
     }
 }
 
-Base::RectangularMeshDescriptor<DIM> SavageHutterBase::createMeshDescription(const std::size_t numOfElementPerDirection)
+Base::RectangularMeshDescriptor<DIM> SavageHutterBase::createMeshDescription(const std::size_t numberOfElementPerDirection)
 {
     // Create the domain. In this case the domain is the square [0,1]^DIM and periodic.
     Base::RectangularMeshDescriptor<DIM> description;
@@ -57,7 +57,7 @@ Base::RectangularMeshDescriptor<DIM> SavageHutterBase::createMeshDescription(con
         description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
     }
     description.topRight_[0] = 14;
-    description.numElementsInDIM_[0] = numOfElementPerDirection;
+    description.numElementsInDIM_[0] = numberOfElementPerDirection;
     return description;
 }
 
@@ -113,11 +113,11 @@ LinearAlgebra::MiddleSizeVector SavageHutterBase::computeRightHandSideAtFace
 
 void SavageHutterBase::computeOneTimeStep(double &time, const double dt)
 {
-    std::size_t numOfStages = ptrButcherTableau_->getNumStages();
+    std::size_t numberOfStages = ptrButcherTableau_->getNumStages();
 
     // Compute intermediate Runge-Kutta stages
     ///\todo think of something for height limiter with higher order RK methods
-    for (std::size_t iStage = 0; iStage < numOfStages; iStage++)
+    for (std::size_t iStage = 0; iStage < numberOfStages; iStage++)
     {
         double stageTime = time + ptrButcherTableau_->getC(iStage) * dt;
 
@@ -136,7 +136,7 @@ void SavageHutterBase::computeOneTimeStep(double &time, const double dt)
     }
 
     // Update the solution
-    for (std::size_t jStage = 0; jStage < numOfStages; jStage++)
+    for (std::size_t jStage = 0; jStage < numberOfStages; jStage++)
     {
         scaleAndAddVector(solutionVectorId_, auxiliaryVectorIds_[jStage], dt * ptrButcherTableau_->getB(jStage));
     }    
@@ -179,18 +179,18 @@ double SavageHutterBase::getMinimumHeight(const Base::Element* element)
 {
     const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0);
     const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeIntegrationVector(0);
-    const std::size_t numOfVariables = element->getNumberOfUnknowns();
-    const double solutionLeft = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefL, numOfVariables)(0);    
+    const std::size_t numberOfVariables = element->getNumberOfUnknowns();
+    const double solutionLeft = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefL, numberOfVariables)(0);    
     double minimum = solutionLeft;
     for (std::size_t iPoint = 1; iPoint < element->getReferenceGeometry()->getNumberOfNodes(); ++iPoint)
     {
         const PointReferenceT &pRef = element->getReferenceGeometry()->getReferenceNodeCoordinate(iPoint);
-        minimum = std::min(minimum, Helpers::getSolution<DIM>(element, solutionCoefficients, pRef, numOfVariables)(0));
+        minimum = std::min(minimum, Helpers::getSolution<DIM>(element, solutionCoefficients, pRef, numberOfVariables)(0));
     }
     for (std::size_t p = 0; p < element->getGaussQuadratureRule()->getNumberOfPoints(); ++p)
     {
         const PointReferenceT& pRef = element->getGaussQuadratureRule()->getPoint(p);
-        minimum = std::min(minimum, Helpers::getSolution<DIM>(element, solutionCoefficients, pRef, numOfVariables)(0));
+        minimum = std::min(minimum, Helpers::getSolution<DIM>(element, solutionCoefficients, pRef, numberOfVariables)(0));
     }
     return minimum;
 }
@@ -215,7 +215,7 @@ std::vector<std::pair<double, LinearAlgebra::MiddleSizeVector>> SavageHutterBase
     std::vector<std::pair<double, LinearAlgebra::MiddleSizeVector>> totals;
     for(std::size_t i = 0; i < nodesInXDirection; ++i)
     {
-        totals.push_back(std::make_pair(i*dx, LinearAlgebra::MiddleSizeVector(numOfVariables_)));
+        totals.push_back(std::make_pair(i*dx, LinearAlgebra::MiddleSizeVector(numberOfVariables_)));
     }
     
     //add all values at a certain x-coordinate. To do that, first check if this value
