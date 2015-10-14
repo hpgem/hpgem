@@ -23,16 +23,16 @@ namespace Base
         MPI::Group groupID=MPI::COMM_WORLD.Get_group();
         communicator_=MPI::COMM_WORLD.Create( groupID );
         processorID_=communicator_.Get_rank();
-        numProcessors_=communicator_.Get_size();
+        numberOfProcessors_=communicator_.Get_size();
 #else
-        numProcessors_ = 1;
+        numberOfProcessors_ = 1;
         processorID_ = 0;
 #endif
     }
     
-    std::size_t MPIContainer::getNumProcessors()
+    std::size_t MPIContainer::getNumberOfProcessors()
     {
-        return numProcessors_;
+        return numberOfProcessors_;
     }
     
     std::size_t MPIContainer::getProcessorID()

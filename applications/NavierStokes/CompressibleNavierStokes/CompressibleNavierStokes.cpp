@@ -30,7 +30,7 @@ CompressibleNavierStokes::CompressibleNavierStokes
 const std::size_t numOfVariables,
 const double endTime,
 const std::size_t polynomialOrder,
-const Base::ButcherTableau * const ptrButcherTableau,
+const TimeIntegration::ButcherTableau * const ptrButcherTableau,
 const bool computeBothFaces
 ) :
 HpgemAPISimplified<DIM>(numOfVariables, polynomialOrder, ptrButcherTableau, 1, computeBothFaces),
@@ -39,6 +39,9 @@ numOfVariables_(numOfVariables),
 inviscidTerms_(*this),
 viscousTerms_(*this)
 {
+	std::cout << "Reynolds: " << reynoldsNumber_ << std::endl;
+	std::cout << "gamma: " << gamma_ << std::endl;
+	std::cout << "Prandtl: " << prandtlNumber_ << std::endl;
 }
 
 /// \brief General mesh description
@@ -49,7 +52,7 @@ Base::RectangularMeshDescriptor<DIM> CompressibleNavierStokes::createMeshDescrip
     for (std::size_t i = 0; i < DIM_; ++i)
     {
         description.bottomLeft_[i] = 0;
-        description.topRight_[i] = 1;
+        description.topRight_[i] = 1.0;
         description.numElementsInDIM_[i] = numOfElementPerDirection;
     }
     description.boundaryConditions_[0] = Base::BoundaryType::PERIODIC;
@@ -77,9 +80,14 @@ double CompressibleNavierStokes::computePressure(const LinearAlgebra::MiddleSize
 	}
 
 
-	pressure = (gamma_ -1)*(state(DIM_+1)*nonDIM1_ - 0.5*inverseDensity*(momentumSquared)); // (gamma-1)*rho*(e*nondim1- (u^2 + v^2 + w^2)/2), where nondim1 is scaling such that it is dimensionless
+	pressure = (gamma_ -1)*(state(DIM_+1) - 0.5*inverseDensity*(momentumSquared)); // (gamma-1)*rho*(e*nondim1- (u^2 + v^2 + w^2)/2), where nondim1 is scaling such that it is dimensionless
 
-	logger.assert(pressure > 0, "Negative pressure.");
+
+	if (pressure < 0)
+	{
+		std::cout << "Non-physical behaviour: pressure is zero" << std::endl;
+		std::exit(-1);
+	}
 
 	return pressure;
 }
@@ -92,7 +100,7 @@ double CompressibleNavierStokes::computePressure(const LinearAlgebra::MiddleSize
 ///  \brief Constructs the solution based on the solutionCoefficients.
 LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeStateOnElement(Base::PhysicalElement<DIM> &element, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)
 {
-		std::size_t numberOfBasisFunctions =  element.getNumOfBasisFunctions();
+		std::size_t numberOfBasisFunctions =  element.getNumberOfBasisFunctions();
 		LinearAlgebra::MiddleSizeVector elementState(numOfVariables_);
 		std::size_t iVB; // Index in solution coefficients for variable i and basisfunction j
 
@@ -111,13 +119,13 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeStateOnElement(
 
 LinearAlgebra::MiddleSizeMatrix CompressibleNavierStokes::computeStateJacobianAtElement(Base::PhysicalElement<DIM> &element, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)
 {
-		std::size_t numberOfBasisFunctions =  element.getNumOfBasisFunctions();
+		std::size_t numberOfBasisFunctions =  element.getNumberOfBasisFunctions();
 		std::size_t iVB; // Index in solution coefficients for variable i and basisfunction j
 
-		LinearAlgebra::MiddleSizeMatrix solutionGradient(numOfVariables_,DIM_);
+		LinearAlgebra::MiddleSizeMatrix stateJacobian(numOfVariables_,DIM_);
 		LinearAlgebra::SmallVector<DIM> gradientBasisFunction;
 
-		for (std::size_t iB = 0; iB < numberOfBasisFunctions; iB++) //Note, For the current purpose the derivative of rhoE is not required.
+		for (std::size_t iB = 0; iB < numberOfBasisFunctions; iB++)
 		{
 			gradientBasisFunction = element.basisFunctionDeriv(iB);
 			for (std::size_t iV = 0; iV < numOfVariables_; iV++)
@@ -125,12 +133,12 @@ LinearAlgebra::MiddleSizeMatrix CompressibleNavierStokes::computeStateJacobianAt
 				iVB = element.convertToSingleIndex(iB,iV);
 				for (std::size_t iD = 0; iD < DIM_; iD++)
 				{
-					solutionGradient(iV,iD) += solutionCoefficients(iVB)*gradientBasisFunction(iD);
+					stateJacobian(iV,iD) += solutionCoefficients(iVB)*gradientBasisFunction(iD);
 				}
 			}
 		}
 
-		return solutionGradient;
+		return stateJacobian;
 }
 
 LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computePartialState(const LinearAlgebra::MiddleSizeVector &state)
@@ -155,7 +163,7 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computePartialState(co
 /// \brief computes the source at an element
 LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::integrandSourceAtElement(Base::PhysicalElement<DIM>& element, const LinearAlgebra::MiddleSizeVector &state, const double &pressureTerm, const double &time)
 {
-	std::size_t numOfBasisFunctions = element.getNumOfBasisFunctions();
+	std::size_t numOfBasisFunctions = element.getNumberOfBasisFunctions();
 
 	LinearAlgebra::MiddleSizeVector integrandSource(numOfVariables_ * numOfBasisFunctions);
 
@@ -165,7 +173,7 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::integrandSourceAtEleme
 	//create datastructures
 	double A = 1.225;
 	double B = 239750.0;;
-	double C = 1.0; //std::exp(-1000*time);
+	double C = 0.2; //std::exp(-1000*time);
 	double C_t = 0.0; //-1000*std::exp(-1000*time);
 	double D = 50.0;
 	double pi = M_PI;
@@ -332,8 +340,7 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::integrandSourceAtEleme
 						-partialState_y(1)*partialState_y(1) - partialState(1)*partialState_yy(1)
 						-partialState_y(2)*partialState_y(2) - partialState(2)*partialState_yy(2);
 
-	//WARNING cv is hardcoded
-	double cv = 1000/gamma_;
+	double cv = cv_;
 	double T = viscousTerms_.computeTemperature(exactState,p);
 	double T_x = e_x/cv;
 	double T_y = e_y/cv;
@@ -345,15 +352,15 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::integrandSourceAtEleme
 	double Ts = 110;
 	double lambda = -2/3;
 	double mu = viscousTerms_.computeViscosity(T);
-	double mu_x = mu*(3*Tref/(2*T) - 1/(T + Ts))*T_x;
-	double mu_y = mu*(3*Tref/(2*T) - 1/(T + Ts))*T_y;
+	double tempScaled = T*temperatureRef_;
+	double mu_x = mu*(3*Tref/(2*tempScaled) - 1/(tempScaled + Ts))*T_x*viscosityRefInv_;
+	double mu_y = mu*(3*Tref/(2*tempScaled) - 1/(tempScaled + Ts))*T_y*viscosityRefInv_;
 
 	double Txx = (2 + lambda)*mu*partialState_x(1) + lambda*mu*partialState_y(2);
 	double Txy = mu*(partialState_y(1) + partialState_x(2));
 	double Tyy = (2 + lambda)*mu*partialState_y(2) + lambda*mu*partialState_x(1);
 
-	//WARNING: Kappa is hardcoded
-	double kappa = gamma_*mu*0.71*cv;
+	double kappa = kappaRef_;
 
 	//**********************************
 	//***	Compute equation terms	 ***
@@ -407,13 +414,13 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::integrandSourceAtEleme
 						+ Txx*partialState_x(1)
 						+ partialState(2)*Txy_x
 						+ Txy*partialState_x(2)
-						+ kappa*T_xx;
+						+ gamma_/(prandtlNumber_)*T_xx;
 
 	double Ay_y = partialState(1)*Tyx_y
 						+ Txy*partialState_y(1)
 						+ partialState(2)*Tyy_y
 						+ Tyy*partialState_y(2)
-						+ kappa*T_yy;
+						+ gamma_/(prandtlNumber_)*T_yy;
 
 
 
@@ -422,9 +429,9 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::integrandSourceAtEleme
 	//*********************************
 
 	double sDensity = state_t(0) + state_x(1) + state_y(2);
-	double sMomentumX = state_t(1) + conv_uu_x + conv_vu_y + p_x - Txx_x - Tyx_y;
-	double sMomentumY = state_t(2) + conv_uv_x + conv_vv_y + p_y - Txy_x - Tyy_y;
-	double sEnergy = state_t(3) + conv_Hu_x + conv_Hv_y - Ax_x -Ay_y;
+	double sMomentumX = state_t(1) + conv_uu_x + conv_vu_y + p_x - (Txx_x + Tyx_y)*reynoldsScaling_;
+	double sMomentumY = state_t(2) + conv_uv_x + conv_vv_y + p_y - (Txy_x + Tyy_y)*reynoldsScaling_;
+	double sEnergy = state_t(3) + conv_Hu_x + conv_Hv_y - (Ax_x + Ay_y )*reynoldsScaling_;
 
 	//*************************************
 	//***	Compute source integrand	***
@@ -449,7 +456,6 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::integrandSourceAtEleme
 		iVB = element.convertToSingleIndex(iB,3);
 		integrandSource(iVB) = sEnergy*element.basisFunction(iB);
 	}
-
 
 
 	return integrandSource;
@@ -493,7 +499,7 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeRightHandSideAt
 
 LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeStateOnFace(Base::PhysicalFace<DIM> &face, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &stateCoefficients) const
 {
-	std::size_t numOfBasisFunctions =  face.getPhysicalElement(iSide).getNumOfBasisFunctions();
+	std::size_t numOfBasisFunctions =  face.getPhysicalElement(iSide).getNumberOfBasisFunctions();
 	LinearAlgebra::MiddleSizeVector elementState(numOfVariables_);
 	std::size_t iVB; // Index in solution coefficients for variable i and basisfunction j
 
@@ -513,7 +519,7 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeStateOnFace(Bas
 
 LinearAlgebra::MiddleSizeMatrix CompressibleNavierStokes::computeStateJacobianAtFace(Base::PhysicalFace<DIM> &face, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &stateCoefficients)
 {
-	std::size_t numberOfBasisFunctions =  face.getPhysicalElement(iSide).getNumOfBasisFunctions();
+	std::size_t numberOfBasisFunctions =  face.getPhysicalElement(iSide).getNumberOfBasisFunctions();
 	std::size_t iVB; // Index in solution coefficients for variable i and basisfunction j
 
 	LinearAlgebra::MiddleSizeMatrix stateJacobian(numOfVariables_,DIM_);
@@ -544,56 +550,67 @@ LinearAlgebra::MiddleSizeMatrix CompressibleNavierStokes::computeStateJacobianAt
 //This function is written for the Couette type flow, a plate at top and a plate at bottom
 //The state is reconstructed based on the plate's temperature and movement speed, and therefore this is a dirichlet type of BC
 //It is handled like an internal element.
-/*
 LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::integrandRightHandSideOnFace(Base::PhysicalFace<DIM> &face, const double &time, const LinearAlgebra::MiddleSizeVector &stateCoefficients)
 {
 	//Compute the internal state
-	const LinearAlgebra::MiddleSizeVector stateInternal = computeStateOnFace(face, Base::Side::LEFT, stateCoefficients);
-	const LinearAlgebra::SmallVector<DIM> normalInternal = face.getNormalVector();
-	//const double pressureInternal = computePressure(stateInternal);
-	const LinearAlgebra::MiddleSizeVector partialStateInternal = computePartialState(stateInternal);
-	const LinearAlgebra::MiddleSizeMatrix stateJacobianInternal = computeStateJacobianAtFace(face, Base::Side::LEFT, stateCoefficients);
+	const LinearAlgebra::MiddleSizeVector stateLeft = computeStateOnFace(face, Base::Side::LEFT, stateCoefficients);
+	const double pressureLeft = computePressure(stateLeft);
+	const LinearAlgebra::MiddleSizeVector partialStateLeft = computePartialState(stateLeft);
+	const LinearAlgebra::MiddleSizeMatrix stateJacobianLeft = computeStateJacobianAtFace(face, Base::Side::LEFT, stateCoefficients);
 
 	//Determine if this is the top or bottom boundary and set boundary state
 	LinearAlgebra::MiddleSizeVector stateBoundary(DIM_+2);
 	double temperatureBoundary;
 	double velocityBoundary;
 	double exponent;
+
+	//Check if the face is located at the top or bottom face
 	const Geometry::PointPhysical<DIM> pPhys = face.getPointPhysical();
 	if(pPhys[1] > 0.8)
 	{
 		exponent = time*time/(Tc_*Tc_);
-		velocityBoundary = uPlateTop_ - std::exp(-exponent);							// Spatial blending factor for the transient phase
+		velocityBoundary = uPlateTop_ - uPlateTop_*std::exp(-exponent);							// Spatial blending factor for the transient phase
 		temperatureBoundary = tPlateTop_;
-		stateBoundary(0) = (gamma_ - 1.0)*stateInternal(DIM_ + 1)/tPlateTop_/Rs_;	 	// density
-		stateBoundary(1) = stateBoundary(0)*velocityBoundary; 								// velocity u on plate is uPlateTop_
-		stateBoundary(2) = 0; 															//velocity v on plate is zero
-		stateBoundary(DIM_+1) = stateInternal(DIM_ + 1);								// energy is copied from internal
+		stateBoundary(0) = stateLeft(0);												// density is derived from the pressure
+		//stateBoundary(0) = (gamma_ -1)*stateLeft(DIM_+1)/(Rs_*temperatureBoundary);
+		stateBoundary(1) = stateBoundary(0)*velocityBoundary; 							// velocity u on plate is uPlateTop_
+		stateBoundary(2) = 0; 															// velocity v on plate is zero
+		//stateBoundary(DIM_+1) = stateLeft(0)*Rs_*temperatureBoundary/(gamma_ - 1);		// energy is evaluated from the pressure
+		stateBoundary(DIM_+1) = stateLeft(DIM_+1);
 	}
 	else
 	{
 		exponent = time*time/(Tc_*Tc_);
-		velocityBoundary = uPlateBottom_ - std::exp(-exponent);
+		velocityBoundary = uPlateBottom_ - uPlateBottom_*std::exp(-exponent);
 		temperatureBoundary = tPlateBottom_;
-		stateBoundary(0) = (gamma_ - 1.0)*stateInternal(DIM_ + 1)/tPlateBottom_/Rs_;	// density
-		stateBoundary(1) = stateBoundary(0)*uPlateBottom_; 								// velocity u on plate is uPlateBottom_
+		stateBoundary(0) = stateLeft(0);												// density is derived from the pressure
+		//stateBoundary(0) = (gamma_ -1)*stateLeft(DIM_+1)/(Rs_*temperatureBoundary);
+		stateBoundary(1) = stateBoundary(0)*velocityBoundary; 								// velocity u on plate is uPlateBottom_
 		stateBoundary(2) = 0; 															// velocity v on plate is zero
-		stateBoundary(DIM_+1) = stateInternal(DIM_ + 1);								// energy is copied from internal
+		stateBoundary(DIM_+1) = stateLeft(DIM_+1);
+		//stateBoundary(DIM_+1) = stateLeft(0)*Rs_*temperatureBoundary/(gamma_ - 1);		// energy is copied from internal
 	}
 	const LinearAlgebra::MiddleSizeVector partialStateBoundary = computePartialState(stateBoundary);
+	const double pressureBoundary = computePressure(stateBoundary);
+
+ 	//Compute ALeft and ABoundary
+	double temperatureLeft = viscousTerms_.computeTemperature(stateLeft,pressureLeft);
+	double viscosityLeft = viscousTerms_.computeViscosity(temperatureLeft);
+	double viscosityBoundary = viscousTerms_.computeViscosity(temperatureBoundary);
+	std::vector<LinearAlgebra::MiddleSizeMatrix> ATensorLeft = viscousTerms_.computeATensor(partialStateLeft, viscosityLeft);
+	std::vector<LinearAlgebra::MiddleSizeMatrix> ATensorBoundary = viscousTerms_.computeATensor(partialStateBoundary, viscosityBoundary);
 
 	//Compute inviscid terms
-	//todo:FIX ERROR: unitNormal goes in here
-	LinearAlgebra::MiddleSizeVector integrandInviscid = inviscidTerms_.integrandAtFace(face, time, Base::Side::LEFT, stateInternal, stateBoundary, normalInternal);
+	LinearAlgebra::MiddleSizeVector integrandInviscid = inviscidTerms_.integrandAtBoundaryFace(face, time, stateBoundary, pressureBoundary, face.getUnitNormalVector());
 
 	//Compute viscous terms
-	LinearAlgebra::MiddleSizeVector integrandViscous = integrandInviscid; //viscousTerms_.integrandViscousAtFace(face, Base::Side::LEFT, stateInternal, stateBoundary, pressureInternal, partialStateInternal, normalInternal);
+	LinearAlgebra::MiddleSizeVector integrandViscous = viscousTerms_.integrandViscousAtFace(face, stateLeft, stateBoundary, ATensorLeft, ATensorBoundary);
 
 
 	//Compute support variable terms
-	LinearAlgebra::MiddleSizeVector integrandAuxilliary = integrandInviscid; //viscousTerms_.integrandAuxilliaryAtFace(face, temperatureBoundary, stateInternal, stateBoundary, partialStateBoundary, normalInternal, stateJacobianInternal);
+	LinearAlgebra::MiddleSizeVector integrandAuxilliary = viscousTerms_.integrandAuxilliaryAtFace(face, stateLeft, stateBoundary, stateJacobianLeft, ATensorBoundary);
 
-	return  integrandInviscid + integrandViscous + integrandAuxilliary;
+ 	return  integrandInviscid + integrandViscous + integrandAuxilliary;
 }
 
 /// \brief Compute the right-hand side corresponding to a boundary face
@@ -605,7 +622,7 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeRightHandSideAt
 
 	    return faceIntegrator_.integrate(ptrFace, integrandFunction);
 }
-*/
+
 
 
 /// **************************************************
@@ -635,10 +652,8 @@ std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> Compr
 	double temperatureRight = viscousTerms_.computeTemperature(stateRight,pressureRight);
 	double viscosityLeft = viscousTerms_.computeViscosity(temperatureLeft);
 	double viscosityRight = viscousTerms_.computeViscosity(temperatureRight);
-	std::vector<LinearAlgebra::MiddleSizeMatrix> ATensorLeft;
-	std::vector<LinearAlgebra::MiddleSizeMatrix> ATensorRight;
-	ATensorLeft = viscousTerms_.computeATensor(partialStateLeft, viscosityLeft);
-	ATensorRight = viscousTerms_.computeATensor(partialStateRight, viscosityRight);
+	std::vector<LinearAlgebra::MiddleSizeMatrix> ATensorLeft = viscousTerms_.computeATensor(partialStateLeft, viscosityLeft);
+	std::vector<LinearAlgebra::MiddleSizeMatrix> ATensorRight = viscousTerms_.computeATensor(partialStateRight, viscosityRight);
 
 	//Compute inviscid terms
 	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrandsInviscid = inviscidTerms_.integrandsAtFace(face, time, stateLeft, stateRight);
@@ -677,7 +692,8 @@ std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> Compr
 
 		LinearAlgebra::MiddleSizeVector exactSolution(numOfVariables_);
 
-		/*	exactSolution(0) = 1.225;
+
+			exactSolution(0) = 1.225;
 
 		exactSolution(1) = 50.0;
 
@@ -686,27 +702,31 @@ std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> Compr
 		exactSolution(DIM_ + 1) = exactSolution(0)*cp_/gamma_*288.0 + 0.5/exactSolution(0)*(exactSolution(1)*exactSolution(1) + exactSolution(2)*exactSolution(2));
 
 
+/*
+ 		//Exact solution to the Euler source function
+ 		double amplitude = 0.2;
+		double frequency = 2.0*M_PI;
+		double function = amplitude*std::cos(frequency*time);
 
-/*		double Val = std::sqrt((pPhys[0]-0.5)*(pPhys[0]-0.5) + (pPhys[1]-0.5)*(pPhys[1]-0.5));
-
-		if (Val < 0.15)
+		for (std::size_t iD = 0; iD < DIM; iD++)
 		{
-			exactSolution(0) = 1.5;
+			function *= std::cos(frequency*pPhys[iD]);
 		}
-		else
+
+		exactSolution(0) = (1.5 + function)/(densityRef_);
+
+		for (std::size_t iD = 0; iD < DIM; iD++)
 		{
-			exactSolution(0) = 1;
+			exactSolution(iD+1) = function/(densityRef_*velocityRef_);
 		}
 
+		exactSolution(DIM + 1) = (30.0 + function)/(densityRef_*totalEnergyRef_);*/
 
-		exactSolution(1) = 0.0;
 
-
-		exactSolution(DIM + 1) = exactSolution(0)*30.0;*/
-
-		double A = 1.225;
+  	  	//Exact solution to the Navier-Stokes source function
+  		double A = 1.225;
 		double B = 239750.0;
-		double C = 1.0; //std::exp(-1000*time);
+		double C = 0.2; //std::exp(-1000*time);
 		double D = 50.0;
 		double pi = M_PI;
 		LinearAlgebra::MiddleSizeVector zVal(4);
@@ -719,10 +739,10 @@ std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> Compr
 		zVal(3) = std::sin(2*pi*pPhys[0])*std::cos(2*pi*pPhys[1]);
 
 		//compute state
-		exactSolution(0) = A + C*zVal(0);
-		exactSolution(1) = D + C*zVal(3);
-		exactSolution(2) = D + C*zVal(2);
-		exactSolution(3) = B + C*zVal(0);
+		exactSolution(0) = (A + C*zVal(0))/densityRef_;
+		exactSolution(1) = (D + C*zVal(3))/(densityRef_*velocityRef_);
+		exactSolution(2) = (D + C*zVal(2))/(densityRef_*velocityRef_);
+		exactSolution(3) = (B + C*zVal(0))/(densityRef_*velocityRef_*velocityRef_);
 
 	    return exactSolution;
    }
@@ -736,7 +756,15 @@ std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> Compr
    /// \brief Computes the error for output purposes
    LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::Error(const double time)
    {
-	   return computeMaxError(solutionVectorId_, time);
+	   LinearAlgebra::MiddleSizeVector error = computeMaxError(solutionVectorId_, time);
+
+	   //Scale by their relative magnatude
+	   error(0) /= 1.225;
+	   error(1) /= 50.0;
+	   error(2) /= 50.0;
+	   error(3) /= 239750.0;
+
+	   return error;
    }
 
    /// \brief Show the progress of the time integration.

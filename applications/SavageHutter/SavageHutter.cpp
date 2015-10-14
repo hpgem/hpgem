@@ -67,9 +67,9 @@ RightHandSideComputer * SavageHutter::createRightHandSideComputer(const SHConstr
     LinearAlgebra::MiddleSizeVector inflowBC = getInitialSolution(pPhys, 0);
     //magic numbers: epsilon and chute angle (in radians)
     if (DIM == 1)
-        return new SavageHutterRightHandSideComputer(inputValues.numOfVariables, 1e-1, 45./180*M_PI, inflowBC);
+        return new SavageHutterRightHandSideComputer(inputValues.numberOfVariables, 1e-1, 45./180*M_PI, inflowBC);
     
-    return new SavageHutterRHS2D(inputValues.numOfVariables, 5e-1, 45./180*M_PI, inflowBC);
+    return new SavageHutterRHS2D(inputValues.numberOfVariables, 0.1, 29.6484/180*M_PI, inflowBC);
 }
 
 
@@ -86,14 +86,14 @@ void SavageHutter::showProgress(const double time, const std::size_t timeStepID)
 LinearAlgebra::MiddleSizeVector SavageHutter::getInitialSolution(const PointPhysicalT& pPhys, const double& startTime, const std::size_t orderTimeDerivative)
 {
     double h = 0.5;
-    double hu = 0.5;
+    double hu = 1;
     const double x = pPhys[0];
-    if (x <= 0.1)
+    if (x <= 0.5)
     {
-        hu = 1;
+        hu = 2.521353341;
         h = 1;
     }
-    LinearAlgebra::MiddleSizeVector initialCondition(numOfVariables_);
+    LinearAlgebra::MiddleSizeVector initialCondition(numberOfVariables_);
     initialCondition[0] = h;
     initialCondition[1] = hu;
     initialCondition[2] = 0;
@@ -142,7 +142,7 @@ void SavageHutter::registerVTKWriteFunctions()
             const double h = element->getSolution(timeLevel, pRef)[0];
             const double x = element->getReferenceToPhysicalMap()->transform(pRef)[0];
             const double c = 1./2*(1 + .1*std::sqrt(2));
-            const double s = 1./std::sqrt(2)*(1 - std::sqrt(3));
+            const double s = 1./std::sqrt(2)*(1 - std::tan(50);
             const double third = .1*std::sqrt(2)/2;
             const double second = s*x + c;
             return std::real(third * h * h * h - second * h * h + 0.5);

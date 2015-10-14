@@ -26,7 +26,7 @@
 #include <vector>
 #include "ButcherTableau.h"
 
-namespace Base
+namespace TimeIntegration
 {
 
 	class RK2TVD : public ButcherTableau

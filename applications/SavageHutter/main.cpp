@@ -21,6 +21,7 @@
 
 #include <chrono>
 #include <fstream>
+#include <iomanip>
 
 #include "SavageHutter.h"
 #include "Base/TimeIntegration/AllTimeIntegrators.h"
@@ -43,26 +44,42 @@ int main(int argc, char **argv)
     // Set parameters for the PDE.
     SHConstructorStruct inputVals;
     //DIM is declared in GlobalConstants.h
-    inputVals.numOfVariables = DIM + 1;    
+    inputVals.numberOfVariables = DIM + 1;    
     inputVals.polyOrder = polynomialOrder.getValue();
-    inputVals.numElements = numOfElements.getValue();
+    inputVals.numberOfElements = numOfElements.getValue();
     inputVals.meshType = Base::MeshType::RECTANGULAR; // Either TRIANGULAR or RECTANGULAR.
-    inputVals.ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(1,1);
+    inputVals.ptrButcherTableau = TimeIntegration::AllTimeIntegrators::Instance().getRule(1,1);
     
     //Construct the problem and output generator
     SavageHutter test(inputVals);    
     std::vector<std::string> variableNames = {"h", "hu", "hv"};
     if (DIM == 1)
-        test.setOutputNames("output1", "SavageHutter", "SavageHutter", variableNames);
+        test.setOutputNames("output1D", "SavageHutter", "SavageHutter", variableNames);
     else
         test.setOutputNames("output", "SavageHutter", "SavageHutter", variableNames);
-
+    
     // Start measuring elapsed time
     std::chrono::time_point<std::chrono::system_clock> startClock, endClock;
     startClock = std::chrono::system_clock::now();
 
     // Solve the problem over time interval [startTime,endTime].
     test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), false);
+    
+    if (DIM == 2)
+    {
+        auto widthValues = test.widthAverage();
+
+        std::ofstream widthFile("widthFile.dat");
+        for (auto myPair : widthValues)
+        {
+            widthFile << myPair.first;
+            for (std::size_t i = 0; i < inputVals.numberOfVariables; ++i)
+            {
+                widthFile << '\t' << std::setw(10) << myPair.second[i];
+            }
+            widthFile << '\n';
+        }
+    }
 
     // Measure elapsed time
     endClock = std::chrono::system_clock::now();

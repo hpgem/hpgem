@@ -20,12 +20,10 @@
  */
 
 #include "MiddleSizeVector.h"
-
 #include "Logger.h"
 
-/**
- * \bug part of the fortran interface is passes integers as unsigned int and part of the fortran interface passes integers as int
- */
+#include <limits>
+
 namespace LinearAlgebra
 {
     
@@ -48,11 +46,13 @@ namespace LinearAlgebra
     MiddleSizeVector::MiddleSizeVector(std::size_t m)
             : data_(m)
     {
+        logger.assert(m <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for vectors that are this large");
     }
     
     MiddleSizeVector::MiddleSizeVector(std::initializer_list<type> l)
             : data_(l)
     {
+        logger.assert(l.size() <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for vectors that are this large");
     }
 
     MiddleSizeVector::MiddleSizeVector(const MiddleSizeVector& other)
@@ -78,6 +78,7 @@ namespace LinearAlgebra
     
     void MiddleSizeVector::resize(std::size_t size)
     {
+        logger.assert(size <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for vectors that are this large");
         if (size != data_.size())
         {
             data_.resize(size);
@@ -138,7 +139,7 @@ namespace LinearAlgebra
     
     MiddleSizeVector::type MiddleSizeVector::operator*(const MiddleSizeVector& right) const
     {
-        ///\TODO replace with BLAS 
+        ///\todo replace with BLAS
         logger.assert(data_.size() == right.data_.size(), "Vectors don't have equal length.");
 #ifdef LA_STL_VECTOR
         type sum = 0;

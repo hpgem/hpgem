@@ -165,7 +165,7 @@ int main()
         }
     }
     
-    logger.assert_always((test.getNrOfFaces() == 6), "getNrOfFaces");
+    logger.assert_always((test.getNumberOfFaces() == 6), "getNumberOfFaces");
     
     logger.assert_always((test.getRefGeometry() == &Geometry::ReferenceCube::Instance()), "getRefGeometry");
     

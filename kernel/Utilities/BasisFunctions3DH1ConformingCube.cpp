@@ -277,7 +277,7 @@ namespace Utilities
         {
             Geometry::ReferenceCube& cube = Geometry::ReferenceCube::Instance();
             std::vector<std::size_t> vectorOfPointIndices(4);
-            for (std::size_t i = 0; i < cube.getNrOfCodim3Entities(); ++i)
+            for (std::size_t i = 0; i < cube.getNumberOfCodim3Entities(); ++i)
             {
                 result->addBasisFunction(new BasisFunction3DVertexCube(i));
             }
@@ -367,7 +367,7 @@ namespace Utilities
         std::vector<const Base::BasisFunctionSet*> result;
         Base::BasisFunctionSet* set;
         Geometry::ReferenceCube& cube = Geometry::ReferenceCube::Instance();
-        for (std::size_t i = 0; i < cube.getNrOfCodim3Entities(); ++i)
+        for (std::size_t i = 0; i < cube.getNumberOfCodim3Entities(); ++i)
         {
             set = new Base::BasisFunctionSet(order);
             set->addBasisFunction(new BasisFunction3DVertexCube(i));
@@ -438,7 +438,7 @@ namespace Utilities
     {
         logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::OrientedBasisFunctionSet*> result;
-        Base::OrientedBasisFunctionSet* set; //todo write clever code
+        Base::OrientedBasisFunctionSet* set;
         Geometry::ReferenceCube& cube = Geometry::ReferenceCube::Instance();
         std::vector<std::size_t> vectorOfPointIndices(4);
         vectorOfPointIndices = cube.getCodim1EntityLocalIndices(0);

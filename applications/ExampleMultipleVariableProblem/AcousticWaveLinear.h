@@ -84,7 +84,7 @@ public:
     (
      const std::size_t numOfVariables,
      const std::size_t polynomialOrder,
-     const Base::ButcherTableau * const ptrButcherTableau,
+     const TimeIntegration::ButcherTableau * const ptrButcherTableau,
      const bool useSourceTerm = false
      );
     

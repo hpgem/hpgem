@@ -65,27 +65,23 @@ public:
     /// **************************************************
     /// ***    External face integration functions     ***
     /// **************************************************
-/*
 
-	//todo: ATensor matrix might be a small matrix.
-	//todo: check if the order of boundary and internal state inputs are correct
-	/// \brief Computes the fluxFunction in the stability parameter calculation used for the external stability parameter
-	void computeStabilityFluxFunction(const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensorExternal, const LinearAlgebra::MiddleSizeVector &stateInternal, const LinearAlgebra::MiddleSizeVector &stateExternal, const LinearAlgebra::SmallVector<DIM> &normalInternal);
+	//Computes the flux function required for the stability parameter calculation
+	LinearAlgebra::MiddleSizeMatrix computeStabilityFluxFunctionBoundary(const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensorBoundary, const LinearAlgebra::MiddleSizeVector &stateLeft,	const LinearAlgebra::MiddleSizeVector &stateBoundary, const LinearAlgebra::SmallVector<DIM> &unitNormalLeft);
 
-	/// \brief Computes the stability parameters used in the external auxilliary integrand
-	LinearAlgebra::MiddleSizeMatrix computeStabilityParameters(Base::PhysicalFace<DIM> &face, const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensorExternal, const LinearAlgebra::MiddleSizeVector &stateInternal, const LinearAlgebra::MiddleSizeVector &stateExternal, const LinearAlgebra::SmallVector<DIM> &normalInternal);
+	/// \brief Computes the stability parameters used in the auxilliary integrand for an external face
+	LinearAlgebra::MiddleSizeMatrix computeStabilityParameters(Base::PhysicalFace<DIM> &face, const LinearAlgebra::MiddleSizeVector &stateLeft, const LinearAlgebra::MiddleSizeVector &stateBoundary, const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensorBoundary, const LinearAlgebra::SmallVector<DIM> &unitNormalLeft);
 
 	/// \brief Computes the flux function for the auxilliary value at an external face
-	LinearAlgebra::MiddleSizeMatrix computeAuxilliaryFlux(Base::PhysicalFace<DIM> &face, const double temperatureExternal, const LinearAlgebra::MiddleSizeVector &stateInternal, const LinearAlgebra::MiddleSizeVector &stateExternal, const LinearAlgebra::MiddleSizeVector &partialStateExternal, const LinearAlgebra::MiddleSizeMatrix &stateJacobianInternal, const LinearAlgebra::SmallVector<DIM> &normalInternal);
+	LinearAlgebra::MiddleSizeMatrix computeAuxilliaryFlux(Base::PhysicalFace<DIM> &face, const LinearAlgebra::MiddleSizeVector &stateLeft,	const LinearAlgebra::MiddleSizeVector &stateBoundary, const LinearAlgebra::MiddleSizeMatrix &stateJacobianLeft, const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensorBoundary, const LinearAlgebra::SmallVector<DIM> &unitNormalLeft);
 
-	/// \brief Computes the auxilliary integrand at the face, based on the auxilliary flux
-	LinearAlgebra::MiddleSizeVector integrandAuxilliaryAtFace(Base::PhysicalFace<DIM> &face, const double temperatureExternal, const LinearAlgebra::MiddleSizeVector &stateInternal, const LinearAlgebra::MiddleSizeVector &stateBoundary, const LinearAlgebra::MiddleSizeVector &partialStateExternal, const LinearAlgebra::SmallVector<DIM> &normalInternal, const LinearAlgebra::MiddleSizeMatrix &stateJacobianInternal);
-*/
+	/// \brief Computes the viscous integral at the face, based on the viscous fluxes for an external face
+	LinearAlgebra::MiddleSizeVector integrandViscousAtFace(Base::PhysicalFace<DIM> &face, const LinearAlgebra::MiddleSizeVector &stateLeft,	const LinearAlgebra::MiddleSizeVector &stateBoundary, const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensorLeft, const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensorBoundary);
 
-	/// \brief
-	///todo: integrand viscous at boundary write it here
+	/// \brief Computes the auxilliary integrand at an internal face
+	LinearAlgebra::MiddleSizeVector integrandAuxilliaryAtFace(Base::PhysicalFace<DIM> &face, const LinearAlgebra::MiddleSizeVector &stateLeft, const LinearAlgebra::MiddleSizeVector &stateBoundary, const LinearAlgebra::MiddleSizeMatrix &stateJacobianLeft, const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensorBoundary);
 
-    /// **************************************************
+	/// **************************************************
     /// ***    Internal face integration functions     ***
     /// **************************************************
 
@@ -98,12 +94,6 @@ public:
 	/// \brief Computes the fluxFunction for the auxilliary values at an internal face
 	LinearAlgebra::MiddleSizeMatrix computeAuxilliaryFlux(Base::PhysicalFace<DIM> &face, const LinearAlgebra::MiddleSizeVector &stateLeft, const LinearAlgebra::MiddleSizeVector &stateRight, const LinearAlgebra::MiddleSizeMatrix &stateJacobianLeft, const LinearAlgebra::MiddleSizeMatrix &stateJacobianRight,  const LinearAlgebra::SmallVector<DIM> &unitNormalInternal, const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensorLeft, const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensorRight);
 
-	/*/// \brief Computes the auxilliary integrand at an internal face
-	LinearAlgebra::MiddleSizeVector integrandAuxilliaryAtFace(Base::PhysicalFace<DIM> &face, const LinearAlgebra::MiddleSizeVector &stateLeft, const LinearAlgebra::MiddleSizeVector &stateRight, const LinearAlgebra::MiddleSizeMatrix &stateJacobianLeft, const LinearAlgebra::MiddleSizeMatrix &stateJacobianRight, const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensorLeft, const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensorRight);
-
-	/// \brief Computes the viscous integral at the face, based on the viscous fluxes
-	LinearAlgebra::MiddleSizeVector integrandViscousAtFace(Base::PhysicalFace<DIM> &face, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &stateInternal, const LinearAlgebra::MiddleSizeVector &stateExternal, const double pressure, const LinearAlgebra::MiddleSizeVector &partialStateInternal, const LinearAlgebra::SmallVector<DIM> &unitNormalInternal);
-*/
 	/// \brief Compute both the auxilliary face integral for the left element as the right element at the same time. (reducing flux calculations)
 	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrandsAuxilliaryAtFace(Base::PhysicalFace<DIM> &face, const LinearAlgebra::MiddleSizeVector &stateLeft, const LinearAlgebra::MiddleSizeVector &stateRight, const LinearAlgebra::MiddleSizeMatrix &stateJacobianLeft, const LinearAlgebra::MiddleSizeMatrix &stateJacobianRight, const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensorLeft, const std::vector<LinearAlgebra::MiddleSizeMatrix> &ATensorRight);
 
@@ -130,8 +120,6 @@ private:
 	/// \var Integrator voor the stability parameters
 	Integration::FaceIntegral<DIM> stabilityFaceIntegrator_;
 
-	const double PrInv_; //Inverse of Pr
-	const double cp_;
 	LinearAlgebra::MiddleSizeMatrix stabilityMassMatrix_; //Note: this breaks down if p is not the same in all elements.
 };
 

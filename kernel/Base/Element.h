@@ -143,7 +143,8 @@ namespace Base
         template<std::size_t DIM>
         std::vector<LinearAlgebra::SmallVector<DIM> > getSolutionGradient(std::size_t timeLevel, PhysicalElement<DIM>& element) const;
 
-        void initialiseSolution(std::size_t timeLevel, std::size_t solutionId, const SolutionVector& solution); ///\todo not implemented
+        ///\todo not implemented
+        void initialiseSolution(std::size_t timeLevel, std::size_t solutionId, const SolutionVector& solution);
                 
         void setFace(std::size_t localFaceNumber, const Face* face);
 
@@ -272,7 +273,7 @@ namespace Base
 #include "PhysicalElement.h"
 namespace Base
 {
-    /// \details The user does not need to worry about the contruction of elements. This is done by mesh-generators. For example the interface HpgemAPIBase can be used to create meshes.
+    /// \details The user does not need to worry about the construction of elements. This is done by mesh-generators. For example the interface HpgemAPIBase can be used to create meshes.
     template<std::size_t DIM>
     Element::Element(const VectorOfPointIndexesT& globalNodeIndexes,
                      const CollectionOfBasisFunctionSets *basisFunctionSet,
@@ -310,10 +311,10 @@ namespace Base
         setNumberOfBasisFunctions(numberOfBasisFunctions);
         setQuadratureRulesWithOrder(orderCoeff_ * basisFunctionSet_->at(basisFunctionSetPositions_[0])->getOrder() + 1);
         numberOfDOFinTheElement_ = basisFunctionSet_->at(basisFunctionSetPositions_[0])->size();
-        facesList_.assign(getReferenceGeometry()->getNrOfCodim1Entities(), nullptr);
-        if (getReferenceGeometry()->getNrOfCodim3Entities() > 0)
+        facesList_.assign(getReferenceGeometry()->getNumberOfCodim1Entities(), nullptr);
+        if (getReferenceGeometry()->getNumberOfCodim3Entities() > 0)
         {
-            edgesList_.assign(getReferenceGeometry()->getNrOfCodim2Entities(), nullptr);
+            edgesList_.assign(getReferenceGeometry()->getNumberOfCodim2Entities(), nullptr);
         }
         nodesList_.assign(getReferenceGeometry()->getNumberOfNodes(), nullptr);
     }

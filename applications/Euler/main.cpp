@@ -37,7 +37,7 @@ void doThings()
 {
     // Set parameters for the PDE.
     const Base::MeshType meshType = Base::MeshType::TRIANGULAR;
-    const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(2,2,true);
+    const TimeIntegration::ButcherTableau * const ptrButcherTableau = TimeIntegration::AllTimeIntegrators::Instance().getRule(2,2,true);
 
     // Calculate number of variables
     const std::size_t numOfVariables = 2+dimension.getValue();

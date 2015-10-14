@@ -88,7 +88,7 @@ namespace Geometry
         // ================================== Codimension 1 ========================================
         
         //! (see MappingCodimensions.h)
-        std::size_t getNrOfCodim1Entities() const override final
+        std::size_t getNumberOfCodim1Entities() const override final
         {
             return 2;
         }
@@ -140,10 +140,10 @@ namespace Geometry
         //! and nodes are just a coordinate).
         static std::size_t localNodeIndexes_[2][1];
 
-        //! Codimension 0 mappings, from a line to a line. TODO: Where is this used? clarify here.
-        const Ref1ToRef1MappingT* mappingsLineToLine_[2]; //!< codim0
+        //! Codimension 0 mappings, from a line to a line. Used to rotate the face when the left and right elements dont think it has the same orientation
+        const Ref1ToRef1MappingT* mappingsLineToLine_[2];
         
-        //! Codimension 1 mappings, from a point to a line. TODO: Where is this used? clarify here. This is the 1D face->element map
+        //! Codimension 1 mappings, from a point to a line. This is the 1D face->element map
         const Ref0ToRef1MappingT* mappingsPointToLine_[2];
 
         //! Pointer to the Codimension 1 reference geometry, in this case, to ReferencePoint.

@@ -49,9 +49,8 @@ namespace Geometry
     
     Jacobian<0, 1> ConcatenatedMapping::calcJacobian(const PointReference<0>& p) const
     {
-        Jacobian<0, 0> j1 = map1_.calcJacobian(p);
-        Jacobian<0, 1> j2 = map2_.calcJacobian(map1_.transform(p));
-        return j2.multiplyJacobiansInto(j1);
+        //degenerate case
+        return Jacobian<0, 1>();
     }
 
     Jacobian<1, 2> ConcatenatedMapping::calcJacobian(const PointReference<1>& p) const

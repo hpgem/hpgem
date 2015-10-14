@@ -65,8 +65,8 @@ int main()
     leftIndices.resize(1);
     rightIndices.resize(1);
     
-    ///\TODO test the normal vector
-    //todo also test individual functions
+    ///\todo test the normal vector
+    ///\todo also test individual functions
     
     leftIndices = test->getElementGLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(test->localFaceNumberLeft());
     rightIndices = test->getPtrElementGRight()->getPhysicalGeometry()->getLocalFaceNodeIndices(test->localFaceNumberRight());
@@ -93,9 +93,10 @@ int main()
         point1D = test->refFaceToRefElemMapR()->transform(*Geometry::PointReferenceFactory<0>::instance()->makePoint(orig1D));
         logger.assert_always((std::abs(compare1D[0] - point1D[0]) < 1e-12), "refFaceToRefElemMapR");
     }
-    
+
+    const Geometry::ReferenceGeometry& refGeo1 = *test->getReferenceGeometry();
     logger.assert_always((test->getFaceType() == Geometry::FaceType::INTERNAL), "Face type internal");
-    logger.assert_always((typeid(*test->getReferenceGeometry()) == typeid(Geometry::ReferencePoint)), "Reference geometry point");
+    logger.assert_always((typeid(refGeo1) == typeid(Geometry::ReferencePoint)), "Reference geometry point");
     
     //dim 1
     
@@ -137,8 +138,8 @@ int main()
     leftIndices.resize(2);
     rightIndices.resize(2);
     
-    ///\TODO test the normal vector
-    //todo also test individual functions
+    ///\todo test the normal vector
+    ///\todo also test individual functions
     
     leftIndices = test->getElementGLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(test->localFaceNumberLeft());
     rightIndices = test->getPtrElementGRight()->getPhysicalGeometry()->getLocalFaceNodeIndices(test->localFaceNumberRight());
@@ -171,9 +172,10 @@ int main()
         logger.assert_always((std::abs(compare2D[0] - point2D[0]) < 1e-12), "refFaceToRefElemMapR");
         logger.assert_always((std::abs(compare2D[1] - point2D[1]) < 1e-12), "refFaceToRefElemMapR");
     }
-    
+
+    const Geometry::ReferenceGeometry& refGeo2 = *test->getReferenceGeometry();
     logger.assert_always((test->getFaceType() == Geometry::FaceType::INTERNAL), "Internal face type");
-    logger.assert_always((typeid(*test->getReferenceGeometry()) == typeid(Geometry::ReferenceLine)), "Reference geometry line");
+    logger.assert_always((typeid(refGeo2) == typeid(Geometry::ReferenceLine)), "Reference geometry line");
     
     delete left;
     delete test;
@@ -185,8 +187,8 @@ int main()
     leftIndices.resize(2);
     rightIndices.resize(2);
     
-    ///\TODO test the normal vector
-    //todo also test individual functions
+    ///\todo test the normal vector
+    ///\todo also test individual functions
     
     leftIndices = test->getElementGLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(test->localFaceNumberLeft());
     
@@ -205,9 +207,10 @@ int main()
         logger.assert_always((std::abs(compare2D[0] - point2D[0]) < 1e-12), "refFaceToRefElemMapL");
         logger.assert_always((std::abs(compare2D[1] - point2D[1]) < 1e-12), "refFaceToRefElemMapL");
     }
-    
+
+    const Geometry::ReferenceGeometry& refGeo3 = *test->getReferenceGeometry();
     logger.assert_always((test->getFaceType() == Geometry::FaceType::WALL_BC), "FaceType wall");
-    logger.assert_always((typeid(*test->getReferenceGeometry()) == typeid(Geometry::ReferenceLine)), "Reference geometry line");
+    logger.assert_always((typeid(refGeo3) == typeid(Geometry::ReferenceLine)), "Reference geometry line");
     logger.assert_always((test->getPtrElementGRight() == nullptr), "No right element");
 }
 

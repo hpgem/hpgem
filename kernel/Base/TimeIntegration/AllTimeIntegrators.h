@@ -24,7 +24,7 @@
 
 #include "ButcherTableau.h"
 
-namespace Base
+namespace TimeIntegration
 {
     class ButcherTableau;
     

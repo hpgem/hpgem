@@ -33,11 +33,11 @@
 /// \param[in] ptrButcherTableau Pointer to a Butcher Tableau used to do the time integration with a Runge-Kutta scheme. By default this is a RK4 scheme.
 struct SHConstructorStruct
 {
-    std::size_t numOfVariables;
+    std::size_t numberOfVariables;
     std::size_t polyOrder;
-    std::size_t numElements;
+    std::size_t numberOfElements;
     Base::MeshType meshType;
-    Base::ButcherTableau * ptrButcherTableau;
+    TimeIntegration::ButcherTableau * ptrButcherTableau;
 };
 
 class SavageHutterBase : public Base::HpgemAPISimplified<DIM>
@@ -51,6 +51,8 @@ public:
         delete slopeLimiter_;
         delete heightLimiter_;
     }
+    
+    std::vector<std::pair<double, LinearAlgebra::MiddleSizeVector>> widthAverage();
 
 protected:
 
@@ -58,7 +60,7 @@ protected:
     Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override final;
     
     /// Number of variables
-    const std::size_t numOfVariables_;
+    const std::size_t numberOfVariables_;
 
     RightHandSideComputer* rhsComputer_;
 

@@ -154,7 +154,6 @@ namespace Output
         // We do this by getting the element list from the mesh, and then iterating over the
         // elements.
         
-        using MeshType = Base::MeshManipulator<DIM>;
         using ElementT = Base::Element;
         using ListOfElementsT = std::vector<ElementT*>;
         

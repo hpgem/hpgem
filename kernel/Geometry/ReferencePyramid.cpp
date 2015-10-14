@@ -53,9 +53,6 @@ namespace Geometry
         mappingsFaceToPyramid_[2] = &MappingToRefFaceToPyramid2::Instance();
         mappingsFaceToPyramid_[3] = &MappingToRefFaceToPyramid3::Instance();
         mappingsFaceToPyramid_[4] = &MappingToRefFaceToPyramid4::Instance();
-        
-        /// There are no MappingPyramidToPyramid. TODO: Implement.
-        mappingsPyramidToPyramid_[0] = 0;
     }
     
     bool ReferencePyramid::isInternalPoint(const PointReference<3>& p) const

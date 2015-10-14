@@ -30,7 +30,7 @@ Inviscid::Inviscid(const CompressibleNavierStokes& instance) : instance_(instanc
 LinearAlgebra::MiddleSizeVector Inviscid::integrandAtElement(Base::PhysicalElement<DIM> &element, const double &time, const double &pressureTerm, const LinearAlgebra::MiddleSizeVector &state)
 {
 	// Get the number of basis functions in an element.
-	std::size_t numberOfBasisFunctions =  element.getNumOfBasisFunctions();
+	std::size_t numberOfBasisFunctions =  element.getNumberOfBasisFunctions();
 
 	//Create data structures for calculating the integrand
 	LinearAlgebra::MiddleSizeVector integrand(instance_.numOfVariables_ * numberOfBasisFunctions); //The final integrand value will be stored in this vector
@@ -103,9 +103,9 @@ LinearAlgebra::MiddleSizeVector Inviscid::RoeRiemannFluxFunction(const LinearAlg
 
 	   for (std::size_t iD = 0; iD < instance_.DIM_; iD++)
 	   {
-		   stateAverage(iD) = stateLeft(iD+1)*tmp1 + stateRight(iD+1)*tmp2; // u_average
-		   ruSquaredLeft += stateLeft(iD+1)*stateLeft(iD+1); 			// Kinetic part of the left pressure term
-		   ruSquaredRight += stateRight(iD+1)*stateRight(iD+1);			// Kinetic part of the right pressure term
+		   stateAverage(iD) = (stateLeft(iD+1)*tmp1 + stateRight(iD+1)*tmp2); 	// u_average
+		   ruSquaredLeft += stateLeft(iD+1)*stateLeft(iD+1); 											// Kinetic part of the left pressure term
+		   ruSquaredRight += stateRight(iD+1)*stateRight(iD+1);											// Kinetic part of the right pressure term
 	   }
 
 	   //todo: function layer above contains this information already
@@ -195,68 +195,47 @@ LinearAlgebra::MiddleSizeVector Inviscid::RoeRiemannFluxFunction(const LinearAlg
 	    }
 
 	    //energy equation
-	    flux(instance_.DIM_+1) = (unL*(stateLeft(instance_.DIM_+1)+pressureLeft) + unR*(stateRight(instance_.DIM_+1)+pressureRight) - (lam3*stateDifference(instance_.DIM_+1) + stateAverage(instance_.DIM_)*abv6 + unAvg*abv7));
+	    flux(instance_.DIM_+1) = (unL*(stateLeft(instance_.DIM_+1) + pressureLeft) + unR*(stateRight(instance_.DIM_+1) + pressureRight) - (lam3*stateDifference(instance_.DIM_+1) + stateAverage(instance_.DIM_)*abv6 + unAvg*abv7));
 
 	    //Note: Twice the flux is computed above, hence the factor 0.5 in front of the equation
      return 0.5*flux;
 }
 
-/// \brief Compute the integrand for the right hand side for the reference face corresponding to an external face.
-LinearAlgebra::MiddleSizeVector Inviscid::integrandAtFace(Base::PhysicalFace<DIM> &face, const double &time, const LinearAlgebra::MiddleSizeVector &stateInternal)
+//Compute the actual flux function
+LinearAlgebra::MiddleSizeVector Inviscid::FluxFunction(
+		const LinearAlgebra::MiddleSizeVector &stateBoundary,
+		double pressure,
+		const LinearAlgebra::SmallVector<DIM> &normalUnitVector)
 {
-	   //Get the number of basis functions
-	   std::size_t numOfBasisFunctionsLeft= face.getPhysicalElement(Base::Side::LEFT).getNumOfBasisFunctions();
 
-	   LinearAlgebra::MiddleSizeVector integrand(instance_.numOfVariables_*numOfBasisFunctionsLeft);
-	   LinearAlgebra::MiddleSizeVector stateExternal(instance_.numOfVariables_);
+	LinearAlgebra::MiddleSizeVector flux(instance_.DIM_ + 2);
+	double densityInverse = 1.0/stateBoundary(0);
 
-/*	   //Deprecated code:
-	   //Compute left and right states
-	    std::size_t jVB; // Index for both variable and basis function.
-	    for (std::size_t jV = 0; jV < instance_.numOfVariables_; jV++)
-	    {
-	        qReconstructionLeft(jV) = 0;
-	        for (std::size_t jB = 0; jB < numOfBasisFunctionsLeft; jB++)
-	        {
-	            jVB = ptrFace->getPtrElementLeft()->convertToSingleIndex(jB, jV);
-	            qReconstructionLeft(jV) += ptrFace->basisFunction(Base::Side::LEFT, jB, pRef) * solutionCoefficients(jVB);
-	        }
-	    }*/
+	for (std::size_t iD = 0; iD < instance_.DIM_; iD++)
+	{
+		//Mass flux
+		flux(0) += stateBoundary(iD+1)*normalUnitVector(iD); // rho*u *n1 + rho*v * n2 + rho*w * n3;
 
-	   // Boundary face is assumed to be a solid wall: set reflective solution on the other side
-	   stateExternal(0) = stateInternal(0);
-	   for (std::size_t iD = 0; iD < instance_.DIM_; iD++)
-	   {
-		   stateExternal(iD+1) = -stateInternal(iD+1);
-	   }
-	   stateExternal(instance_.DIM_+1) = stateInternal(instance_.DIM_+1);
+		//Momentum flux: convection part
+		for (std::size_t iD2 = 0; iD2 < instance_.DIM_; iD2++)
+		{
+			flux(iD2 + 1) += stateBoundary(iD2 + 1)*stateBoundary(iD+1)*densityInverse*normalUnitVector(iD); // rho*u*u*n1 + rho*u*v*n2 + rho*u*w*n3 for iD2 = 0; rho*v*u*n1 etc for iD2 = 1
+		}
 
-	   //WARNING: not a unit normal vector here
-	   // Compute normal vector, with size of the ref-to-phys face scale, pointing outward of the left element.
-	   LinearAlgebra::MiddleSizeVector normalInternal = face.getNormalVector();
-	   LinearAlgebra::MiddleSizeVector unitNormalInternal = normalInternal/Base::L2Norm(normalInternal);
+		//Momentum flux: pressure part
+		flux(iD + 1) += pressure*normalUnitVector(iD);
 
-	   //Compute flux
-	   //todo: check if this function is called correctly
-	   LinearAlgebra::MiddleSizeVector flux = RoeRiemannFluxFunction(stateExternal, stateInternal, unitNormalInternal);
+		//Energy flux
+		flux(instance_.DIM_ + 1) += (stateBoundary(instance_.DIM_ + 1) + pressure)*stateBoundary(iD+1)*densityInverse*normalUnitVector(iD);
+	}
 
-	   // Compute integrand on the reference element.
-	   std::size_t iVB; // Index for both variable and basis function.
-	   for (std::size_t iB = 0; iB < numOfBasisFunctionsLeft; iB++)
-	   {
-	       for (std::size_t iV = 0; iV < instance_.numOfVariables_; iV++) // Index for direction
-	       {
-	           iVB = face.getPhysicalElement(Base::Side::LEFT).convertToSingleIndex(iB, iV);
-	           integrand(iVB) = -flux(iV)*face.basisFunction(Base::Side::LEFT, iB);
-	       }
-	   }
-	   std::cout << "I should not be here" << std::endl;
-
-	   return  integrand;
+	return flux;
 }
 
+
+
 /// \brief Compute the integrand for the right hand side for the reference face corresponding to an internal face.
-/*
+
 LinearAlgebra::MiddleSizeVector Inviscid::integrandAtFace(
 		Base::PhysicalFace<DIM> &face,
 		const double &time,
@@ -267,7 +246,7 @@ LinearAlgebra::MiddleSizeVector Inviscid::integrandAtFace(
 {
 
 	   //Get the number of basis functions
-	   std::size_t numOfTestBasisFunctions = face.getPhysicalElement(iSide).getNumOfBasisFunctions();
+	   std::size_t numOfTestBasisFunctions = face.getPhysicalElement(iSide).getNumberOfBasisFunctions();
 
 	   LinearAlgebra::MiddleSizeVector integrand(instance_.numOfVariables_*numOfTestBasisFunctions);
 
@@ -286,7 +265,39 @@ LinearAlgebra::MiddleSizeVector Inviscid::integrandAtFace(
 	   }
 
 	   return  -integrand;
-}*/
+}
+
+/// \brief Compute the integrand for the right hand side for the reference face corresponding to an external face.
+
+LinearAlgebra::MiddleSizeVector Inviscid::integrandAtBoundaryFace(
+		Base::PhysicalFace<DIM> &face,
+		const double &time,
+		const LinearAlgebra::MiddleSizeVector &stateBoundary,
+		double pressureBoundary,
+		const LinearAlgebra::SmallVector<DIM> &unitNormalInternal)
+{
+
+	   //Get the number of basis functions
+	   std::size_t numOfTestBasisFunctions = face.getPhysicalElement(Base::Side::LEFT).getNumberOfBasisFunctions();
+
+	   LinearAlgebra::MiddleSizeVector integrand(instance_.numOfVariables_*numOfTestBasisFunctions);
+
+	   //Compute flux: we take the exact flux given by the boundary
+	   LinearAlgebra::MiddleSizeVector flux = FluxFunction(stateBoundary, pressureBoundary, unitNormalInternal);
+
+ 	   // Compute integrand on the reference element.
+	   std::size_t iVB; // Index for both variable and basis function.
+	   for (std::size_t iB = 0; iB < numOfTestBasisFunctions; iB++)
+	   {
+	       for (std::size_t iV = 0; iV < instance_.numOfVariables_; iV++) // Index for direction
+	       {
+	           iVB = face.getPhysicalElement(Base::Side::LEFT).convertToSingleIndex(iB, iV);
+	           integrand(iVB) = flux(iV)*face.basisFunction(Base::Side::LEFT, iB);
+	       }
+	   }
+
+	   return  -integrand;
+}
 
 std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> Inviscid::integrandsAtFace(
 		Base::PhysicalFace<DIM> &face,
@@ -295,8 +306,8 @@ std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> Invis
 		const LinearAlgebra::MiddleSizeVector &stateRight)
 {
 	//Data structures for left and right integrand
-	std::size_t numOfTestBasisFunctionsLeft = face.getPhysicalElement(Base::Side::LEFT).getNumOfBasisFunctions();
-	std::size_t numOfTestBasisFunctionsRight = face.getPhysicalElement(Base::Side::RIGHT).getNumOfBasisFunctions();
+	std::size_t numOfTestBasisFunctionsLeft = face.getPhysicalElement(Base::Side::LEFT).getNumberOfBasisFunctions();
+	std::size_t numOfTestBasisFunctionsRight = face.getPhysicalElement(Base::Side::RIGHT).getNumberOfBasisFunctions();
 	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrands(
 			std::piecewise_construct,
 			std::forward_as_tuple(instance_.numOfVariables_*numOfTestBasisFunctionsLeft),

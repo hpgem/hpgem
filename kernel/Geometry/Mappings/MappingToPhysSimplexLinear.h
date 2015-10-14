@@ -66,7 +66,8 @@ namespace Geometry
         }
         
     private:
-        //bool isValidPoint(const PointReferenceT&) const; ///\TODO: Implement this function.
+        ///\todo: Implement this function.
+        bool isValidPoint(const PointReference<DIM>&) const;
     };
 }
 #include "MappingToPhysSimplexLinear_Impl.h"

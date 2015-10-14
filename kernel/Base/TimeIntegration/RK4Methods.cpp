@@ -22,7 +22,7 @@
 #include "RK4Methods.h"
 #include "Logger.h"
 
-namespace Base
+namespace TimeIntegration
 {
     RK4_4::RK4_4()
     {

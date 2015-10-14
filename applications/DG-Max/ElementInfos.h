@@ -1,4 +1,4 @@
-/*
+ /*
  This file forms part of hpGEM. This package has been developed over a number of years by various people at the University of Twente and a full list of contributors can be found at
  http://hpgem.org/about-the-code/team
  
@@ -30,17 +30,6 @@
 #include "Base/GlobalData.h"
 #include "Geometry/Jacobian.h"
 
-using PointElementReferenceT = Geometry::PointReference;
-//#if __cplusplus<=199711L
-#include "map"
-using myMap = std::map<PointElementReferenceT,std::vector<LinearAlgebra::MiddleSizeVector> >;
-//#else
-//#include "unordered_map"
-//typedef std::unordered_map<PointElementReferenceT,std::vector<LinearAlgebra::NumericalVector> > myMap;//the unordered_map trades functionality for speed
-//#endif
-
-using basisFunctionT = Base::threeDBasisFunction;
-using PointFaceReferenceT = Geometry::PointReference;
 
 //one there is a default way in hpGEM to configure code without haveing to recompile this and some other things should be grouped in another file
 /**
@@ -50,7 +39,7 @@ using PointFaceReferenceT = Geometry::PointReference;
 struct MaxwellData : public Base::GlobalData
 {
     double Sigma_; //allows for lossy media - untested except maybe by Domokos
-    double StabCoeff_; //a_F for IP or 1+eta_F/4 for BR
+    static double StabCoeff_; //a_F for IP or 1+eta_F/4 for BR
     int NumberOfIntervals_;
     int PolynomialOrder_;
     double StartTime_;
@@ -59,55 +48,22 @@ struct MaxwellData : public Base::GlobalData
     MaxwellData(int numberOfIntervals, int polynomialOrder);
 };
 
-/**
- * Computes the transpose of the inverse of a 3 by 3 Jacobian.
- * \param [in] orig The matrix to be inverted
- * \param [out] inverse The inverse of the transpose of orig. This may not be the same matrix as orig.
- */
-//void InvertAndTranspose(Geometry::Jacobian& orig, Geometry::Jacobian& inverse);
-/**
- * store the basisfunction values for the reference element (i.e. without any transformations) for later reuse
- * this class will also compute basisfunction values if they are not yet available
- */
-class FunctionCache
-{
-    
-    static myMap valueCache_;
-    static myMap curlCache_;
 
-public:
-    
-    /**
-     * gets the function values of the function on the reference element
-     */
-    //static void getFunctionValuesVector(const Base::Element* element, const PointElementReferenceT& point, std::vector<LinearAlgebra::NumericalVector>& values);
-    /**
-     * gets the curl of the function on the reference element
-     */
-    //static void getFunctionCurlsVector(const Base::Element* element, const PointElementReferenceT& point, std::vector<LinearAlgebra::NumericalVector>& curls);
-};
 
 /**
  * store some usefull information that needs to be computed everytime at the beginning of an integrand
  * specialized for tetrahedra
  */
+
+
 class ElementInfos : public UserElementData
 {
 public:
     double determinant_;
-    Geometry::Jacobian Jacobian_, inverse_;
+    Geometry::Jacobian<DIM, DIM> Jacobian_, inverse_;
     double epsilon_;
 
     ElementInfos(const Base::Element& element);
-    
-    /**
-     * gets the basisfunction values on one mantissa from the reference element and transforms them based on the current element
-     */
-    //void makeFunctionValuesVector(const Base::Element* element, const PointElementReferenceT& point, std::vector<LinearAlgebra::NumericalVector>& values);
-    /**
-     * gets the curls of the baisfunction values on one mantissa from the reference element and transforms them based on the current element
-     */
-    //void makeFunctionCurlsVector(const Base::Element* element, const PointElementReferenceT& point, std::vector<LinearAlgebra::NumericalVector>& curls);
 };
 
-#endif  // Elementinfos_h
+#endif  

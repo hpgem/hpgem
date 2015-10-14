@@ -38,7 +38,8 @@ void testRule(QuadratureRules::GaussQuadratureRule& test, std::size_t expectedOr
     std::cout << test.getName() << std::endl;
     logger.assert_always((test.dimension() == 2), "dimension");
     logger.assert_always((test.order() >= expectedOrder), "order");
-    logger.assert_always((typeid(*test.forReferenceGeometry()) == typeid(Geometry::ReferenceTriangle)), "forReferenceGeometry");
+    const Geometry::ReferenceGeometry& refGeo = *test.forReferenceGeometry();
+    logger.assert_always((typeid(refGeo) == typeid(Geometry::ReferenceTriangle)), "forReferenceGeometry");
     std::cout.precision(14);
     Base::BasisFunctionSet* functions = Utilities::createDGBasisFunctionSet2DH1Triangle(expectedOrder);
     for (std::size_t i = 0; i < functions->size(); ++i)

@@ -82,7 +82,7 @@ int main()
     logger.assert_always((test.getCodim0MappingPtr(test.getCodim0MappingIndex(base, transformed)) == &Geometry::MappingToRefLineToLine1::Instance()), "getCodim0MappingIndex&Ptr");
     logger.assert_always((test.getCodim0MappingPtr(base, transformed) == &Geometry::MappingToRefLineToLine1::Instance()), "getCodim0MappingIndex&Ptr");
     
-    logger.assert_always((test.getNrOfCodim1Entities() == 2 && test.getNrOfCodim2Entities() == 0) && test.getNrOfCodim3Entities() == 0, "higher codimensional entities");
+    logger.assert_always((test.getNumberOfCodim1Entities() == 2 && test.getNumberOfCodim2Entities() == 0) && test.getNumberOfCodim3Entities() == 0, "higher codimensional entities");
     logger.assert_always((test.getCodim1ReferenceGeometry(0) == &Geometry::ReferencePoint::Instance() && test.getCodim1ReferenceGeometry(1) == &Geometry::ReferencePoint::Instance()), "getCodim1ReferenceGeometry");
     logger.assert_always((test.getCodim1MappingPtr(0) == &Geometry::MappingToRefPointToLine0::Instance()), "getCodim1MappingPtr");
     logger.assert_always((test.getCodim1MappingPtr(1) == &Geometry::MappingToRefPointToLine1::Instance()), "getCodim1MappingPtr");
@@ -102,8 +102,6 @@ int main()
     logger.assert_always((test.getNumberOfNodes() == 2), "number of nodes");
     logger.assert_always((test.getGeometryType() == Geometry::ReferenceGeometryType::LINE), "type of geometry");
     
-    ///\TODO if it is decided that getBasisFunctionValue and getBasisFucntionDerivative remain here, test them
-    
-    ///\TODO testing that the refinement maps behave exactly like the forwarded calls of this class
+    ///\todo testing that the refinement maps behave exactly like the forwarded calls of this class
 }
 

@@ -99,35 +99,36 @@ namespace Output
     
     void TecplotPhysicalGeometryIterator::acceptG(const Geometry::PhysicalGeometryBase* geo)
     {
-        if (typeid(*geo->getRefGeometry()) == typeid(const Geometry::ReferenceLine))
+        const Geometry::ReferenceGeometry& refGeo = *geo->getRefGeometry();
+        if (typeid(refGeo) == typeid(const Geometry::ReferenceLine))
         {
             acceptLineGeometry(geo);
         }
-        else if (typeid(*geo->getRefGeometry()) == typeid(const Geometry::ReferenceTriangle))
+        else if (typeid(refGeo) == typeid(const Geometry::ReferenceTriangle))
         {
             acceptTriangleGeometry(geo);
         }
-        else if (typeid(*geo->getRefGeometry()) == typeid(const Geometry::ReferenceSquare))
+        else if (typeid(refGeo) == typeid(const Geometry::ReferenceSquare))
         {
             acceptQuadrilateralGeometry(geo);
         }
-        else if (typeid(*geo->getRefGeometry()) == typeid(const Geometry::ReferenceCube))
+        else if (typeid(refGeo) == typeid(const Geometry::ReferenceCube))
         {
             acceptHexahedronGeometry(geo);
         }
-        else if (typeid(*geo->getRefGeometry()) == typeid(const Geometry::ReferenceTetrahedron))
+        else if (typeid(refGeo) == typeid(const Geometry::ReferenceTetrahedron))
         {
             acceptTetrahedronGeometry(geo);
         }
-        else if (typeid(*geo->getRefGeometry()) == typeid(const Geometry::ReferenceTriangularPrism))
+        else if (typeid(refGeo) == typeid(const Geometry::ReferenceTriangularPrism))
         {
             acceptTriangularPrismGeometry(geo);
         }
-        else if (typeid(*geo->getRefGeometry()) == typeid(const Geometry::ReferencePyramid))
+        else if (typeid(refGeo) == typeid(const Geometry::ReferencePyramid))
         {
             acceptPyramidGeometry(geo);
         }
-        else if (typeid(*geo->getRefGeometry()) == typeid(const Geometry::ReferenceHypercube))
+        else if (typeid(refGeo) == typeid(const Geometry::ReferenceHypercube))
         {
             logger(FATAL, "This physical geometry is not supported by the Tecplot output writer yet.\n"
                     "  classname = % ", typeid(geo->getRefGeometry()).name());

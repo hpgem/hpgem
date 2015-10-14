@@ -32,6 +32,7 @@ namespace Base
 
 namespace LinearAlgebra
 {
+    class MiddleSizeMatrix;
     class MiddleSizeVector;
 }
 

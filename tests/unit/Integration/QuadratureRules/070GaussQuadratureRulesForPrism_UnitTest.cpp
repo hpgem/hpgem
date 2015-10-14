@@ -38,7 +38,8 @@ void testRule(QuadratureRules::GaussQuadratureRule& test, std::size_t expectedOr
     std::cout << test.getName() << std::endl;
     logger.assert_always((test.dimension() == 3), "dimension");
     logger.assert_always((test.order() >= expectedOrder), "order");
-    logger.assert_always((typeid(*test.forReferenceGeometry()) == typeid(Geometry::ReferenceTriangularPrism)), "forReferenceGeometry");
+    const Geometry::ReferenceGeometry& refGeo = *test.forReferenceGeometry();
+    logger.assert_always((typeid(refGeo) == typeid(Geometry::ReferenceTriangularPrism)), "forReferenceGeometry");
     std::cout.precision(14);
     Base::BasisFunctionSet* functions = Utilities::createDGBasisFunctionSet3DH1ConformingPrism(expectedOrder);
     for (std::size_t i = 0; i < functions->size(); ++i)
@@ -125,8 +126,9 @@ int main()
     testRule(QuadratureRules::TriPrism_1_1::Instance(), 1);
     testRule(QuadratureRules::TriPrism_3_8::Instance(), 3);
     testRule(QuadratureRules::TriPrism_5_21::Instance(), 5);
-    testRule(QuadratureRules::TriPrism_7_64::Instance(), 7); ///\TODO not accurate enough
-    ///\TODO there are no quadrature rules for higher order prisms
+    ///\todo not accurate enough
+    testRule(QuadratureRules::TriPrism_7_64::Instance(), 7);
+    ///\todo there are no quadrature rules for higher order prisms
     
     return 0;
 }

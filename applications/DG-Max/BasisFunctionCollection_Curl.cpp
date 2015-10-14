@@ -20,17 +20,15 @@
  */
 
 #include "BasisFunctionCollection_Curl.h"
-#include "LinearAlgebra/NumericalVector.h"
-#include "Base/Element.h"
 #include "Base/BasisFunctionSet.h"
 #include "Geometry/PointReference.h"
 #include "Geometry/PointPhysical.h"
 #include "Geometry/ReferenceGeometry.h"
 #include "Base/ElementCacheData.h"
 
-void OuterProduct(const LinearAlgebra::MiddleSizeVector& a, const LinearAlgebra::MiddleSizeVector& b, LinearAlgebra::MiddleSizeVector& ret)
+void OuterProduct(const LinearAlgebra::SmallVector<DIM>& a, const LinearAlgebra::SmallVector<DIM>& b, LinearAlgebra::SmallVector<DIM>& ret)
 {
-    ret.resize(3);
+    //ret.resize(3);
     //direct computation using the definition
     ret[0] = a[1] * b[2] - a[2] * b[1];
     ret[1] = a[2] * b[0] - a[0] * b[2];
@@ -73,26 +71,27 @@ Base::Basis_Curl_Bari::Basis_Curl_Bari(int vertex)
         : BaseBasisFunction(), VertexNr(vertex)
 {
 }
-double Base::Basis_Curl_Bari::eval(const Base::BaseBasisFunction::PointReferenceT& p) const
+double Base::Basis_Curl_Bari::eval(const Geometry::PointReference<DIM>& p) const
 {
     return (VertexNr == 0) ? (1 - p[0] - p[1] - p[2]) : (p[VertexNr - 1]);
 }
-double Base::Basis_Curl_Bari::evalDeriv0(const Base::BaseBasisFunction::PointReferenceT& p) const
+double Base::Basis_Curl_Bari::evalDeriv0(const Geometry::PointReference<DIM>& p) const
 {
     return (VertexNr == 1) - (VertexNr == 0);
 }
-double Base::Basis_Curl_Bari::evalDeriv1(const Base::BaseBasisFunction::PointReferenceT& p) const
+double Base::Basis_Curl_Bari::evalDeriv1(const Geometry::PointReference<DIM>& p) const
 {
     return (VertexNr == 2) - (VertexNr == 0);
 }
-double Base::Basis_Curl_Bari::evalDeriv2(const Base::BaseBasisFunction::PointReferenceT& p) const
+double Base::Basis_Curl_Bari::evalDeriv2(const Geometry::PointReference<DIM>& p) const
 {
     return (VertexNr == 3) - (VertexNr == 0);
 }
 
-void Base::Basis_Curl_Bari::evalDeriv(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret)
+LinearAlgebra::SmallVector<DIM> Base::Basis_Curl_Bari::evalDeriv(const Geometry::PointReference<DIM>& p) const
 {
-    ret.resize(3);
+    LinearAlgebra::SmallVector<DIM> ret;
+    //ret.resize(3);
     if (VertexNr == 0)
     {
         ret[0] = -1;
@@ -107,26 +106,27 @@ void Base::Basis_Curl_Bari::evalDeriv(const Base::BaseBasisFunction::PointRefere
         ret[2] = 0;
         ret[VertexNr - 1] = 1;
     }
+    return ret;
 }
 
 Base::Basis_Curl_Bari Base::Basis_Curl_Bari::barycentricFunctions[] = {Basis_Curl_Bari(0), Basis_Curl_Bari(1), Basis_Curl_Bari(2), Basis_Curl_Bari(3)};
 
-double Base::threeDBasisFunction::eval(const Base::BaseBasisFunction::PointReferenceT& p) const
+double Base::threeDBasisFunction::eval(const Geometry::PointReference<DIM>& p) const
 {
     std::cout << "This type of basisfunctions expects to return vectors, but the return type of this function expects scalars";
     exit(-1);
 }
-double Base::threeDBasisFunction::evalDeriv0(const Base::BaseBasisFunction::PointReferenceT& p) const
+double Base::threeDBasisFunction::evalDeriv0(const Geometry::PointReference<DIM>& p) const
 {
     std::cout << "The derivative of a vector-function is not implemented. Perhaps you meant evalCurl?";
     exit(-1);
 }
-double Base::threeDBasisFunction::evalDeriv1(const Base::BaseBasisFunction::PointReferenceT& p) const
+double Base::threeDBasisFunction::evalDeriv1(const Geometry::PointReference<DIM>& p) const
 {
     std::cout << "The derivative of a vector-function is not implemented. Perhaps you meant evalCurl?";
     exit(-1);
 }
-double Base::threeDBasisFunction::evalDeriv2(const Base::BaseBasisFunction::PointReferenceT& p) const
+double Base::threeDBasisFunction::evalDeriv2(const Geometry::PointReference<DIM>& p) const
 {
     std::cout << "The derivative of a vector-function is not implemented. Perhaps you meant evalCurl?";
     exit(-1);
@@ -137,11 +137,11 @@ Base::Basis_Curl_Edge::Basis_Curl_Edge(int degree, int localFirstVertex, int loc
 {
 }
 
-void Base::Basis_Curl_Edge::eval(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
+void Base::Basis_Curl_Edge::eval(const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret) const
 {
-    LinearAlgebra::MiddleSizeVector dummy(3); //dummy vectors are used to store parial results
-    Basis_Curl_Bari::barycentricFunctions[o].evalDeriv(p, ret);
-    Basis_Curl_Bari::barycentricFunctions[i].evalDeriv(p, dummy);
+    LinearAlgebra::SmallVector<DIM> dummy; //dummy vectors are used to store parial results
+    ret = Basis_Curl_Bari::barycentricFunctions[o].evalDeriv(p);
+    dummy = Basis_Curl_Bari::barycentricFunctions[i].evalDeriv(p);
     ret *= Basis_Curl_Bari::barycentricFunctions[i].eval(p); //use only *= and += and so on near numerical vectors or you will be rapidly creating
     dummy *= Basis_Curl_Bari::barycentricFunctions[o].eval(p); //and destroying a gazilion of them, which is a waste of time
     //switch between the special cases in the definition
@@ -165,15 +165,16 @@ void Base::Basis_Curl_Edge::eval(const Base::BaseBasisFunction::PointReferenceT&
     }
 }
 
-void Base::Basis_Curl_Edge::evalCurl(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
+LinearAlgebra::SmallVector<DIM> Base::Basis_Curl_Edge::evalCurl(const Geometry::PointReference<DIM>& p) const
 {
-    LinearAlgebra::MiddleSizeVector dummy(3), dummy2(3);
-    ret.resize(3);
+    
+    LinearAlgebra::SmallVector<DIM> ret, dummy, dummy2;
+    //ret.resize(3);
     switch (deg)
     {
         case 0:
-            Basis_Curl_Bari::barycentricFunctions[o].evalDeriv(p, dummy);
-            Basis_Curl_Bari::barycentricFunctions[i].evalDeriv(p, dummy2);
+            dummy = Basis_Curl_Bari::barycentricFunctions[o].evalDeriv(p);
+            dummy2 = Basis_Curl_Bari::barycentricFunctions[i].evalDeriv(p);
             OuterProduct(dummy2, dummy, ret);
             ret *= 2;
             break;
@@ -183,9 +184,9 @@ void Base::Basis_Curl_Edge::evalCurl(const Base::BaseBasisFunction::PointReferen
             ret[2] = 0;
             break;
         default:
-            Basis_Curl_Bari::barycentricFunctions[o].evalDeriv(p, dummy);
-            Basis_Curl_Bari::barycentricFunctions[i].evalDeriv(p, dummy2);
-            LinearAlgebra::MiddleSizeVector dummy3(3), dummy4(dummy2);
+            dummy = Basis_Curl_Bari::barycentricFunctions[o].evalDeriv(p);
+            dummy2 = Basis_Curl_Bari::barycentricFunctions[i].evalDeriv(p);
+            LinearAlgebra::SmallVector<DIM> dummy3, dummy4(dummy2);
             dummy4 -= dummy; //dummy4=nambla(labda_i-labda_o)
             double valI(Basis_Curl_Bari::barycentricFunctions[i].eval(p)), valO(Basis_Curl_Bari::barycentricFunctions[o].eval(p));
             OuterProduct(dummy2, dummy, ret);
@@ -202,14 +203,14 @@ void Base::Basis_Curl_Edge::evalCurl(const Base::BaseBasisFunction::PointReferen
             dummy3 *= double(deg - 1) / double(deg) * LegendrePolynomialDerivative(deg - 2, valI - valO);
             ret -= dummy3;
     }
+    return ret;
 }
 
-void Base::Basis_Curl_Edge::getReasonableNode(const Base::Element& element, Geometry::PointPhysical node)
+void Base::Basis_Curl_Edge::getReasonableNode(const Base::Element& element, Geometry::PointPhysical<DIM> node)
 {
-    PointReferenceT leftnode(3), rightnode(3);
-    element.getReferenceGeometry()->getNode(i, leftnode);
-    element.getReferenceGeometry()->getNode(o, rightnode);
-    element.referenceToPhysical((leftnode + rightnode) * .5, node);
+    const Geometry::PointReference<DIM>& leftnode = element.getReferenceGeometry()->getReferenceNodeCoordinate(i);
+    //const Geometry::PointReference<DIM>& rightnode = element.getReferenceGeometry()->getReferenceNodeCoordinate(o);
+    node = element.referenceToPhysical(leftnode);
 }
 
 Base::Basis_Curl_Edge_Face::Basis_Curl_Edge_Face(int degree, int localOpposingVertex, int localSpecialVertex)
@@ -228,34 +229,34 @@ Base::Basis_Curl_Edge_Face::Basis_Curl_Edge_Face(int degree, int localOpposingVe
     }
 }
 
-void Base::Basis_Curl_Edge_Face::eval(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
+void Base::Basis_Curl_Edge_Face::eval(const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret) const
 {
-    Basis_Curl_Bari::barycentricFunctions[c].evalDeriv(p, ret);
+    ret = Basis_Curl_Bari::barycentricFunctions[c].evalDeriv(p);
     double valA(Basis_Curl_Bari::barycentricFunctions[a].eval(p)), valB(Basis_Curl_Bari::barycentricFunctions[b].eval(p));
     ret *= valA * valB * LegendrePolynomial(deg - 2, valB - valA);
 }
 
-void Base::Basis_Curl_Edge_Face::evalCurl(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
+LinearAlgebra::SmallVector<DIM> Base::Basis_Curl_Edge_Face::evalCurl(const Geometry::PointReference<DIM>& p) const
 {
-    LinearAlgebra::MiddleSizeVector dummy(3), dummy2(3), dummy3(3);
-    ret.resize(3);
+    LinearAlgebra::SmallVector<DIM> ret, dummy, dummy2, dummy3;
+    //ret.resize(3);
     double valA(Basis_Curl_Bari::barycentricFunctions[a].eval(p)), valB(Basis_Curl_Bari::barycentricFunctions[b].eval(p));
-    Basis_Curl_Bari::barycentricFunctions[a].evalDeriv(p, dummy);
-    Basis_Curl_Bari::barycentricFunctions[b].evalDeriv(p, dummy2);
-    Basis_Curl_Bari::barycentricFunctions[c].evalDeriv(p, dummy3);
+    dummy = Basis_Curl_Bari::barycentricFunctions[a].evalDeriv(p);
+    dummy2 = Basis_Curl_Bari::barycentricFunctions[b].evalDeriv(p);
+    dummy3 = Basis_Curl_Bari::barycentricFunctions[c].evalDeriv(p);
     OuterProduct(dummy, dummy3, ret);
     OuterProduct(dummy2, dummy3, dummy);
     ret *= valB * LegendrePolynomial(deg - 2, valB - valA) - valA * valB * LegendrePolynomialDerivative(deg - 2, valB - valA);
     dummy *= valA * LegendrePolynomial(deg - 2, valB - valA) + valA * valB * LegendrePolynomialDerivative(deg - 2, valB - valA);
     ret += dummy;
+    return ret;
 }
 
-void Base::Basis_Curl_Edge_Face::getReasonableNode(const Base::Element& element, Geometry::PointPhysical node)
+void Base::Basis_Curl_Edge_Face::getReasonableNode(const Base::Element& element, Geometry::PointPhysical<DIM> node)
 {
-    PointReferenceT leftnode(3), rightnode(3);
-    element.getReferenceGeometry()->getNode(a, leftnode);
-    element.getReferenceGeometry()->getNode(b, rightnode);
-    element.referenceToPhysical((leftnode + rightnode) * .5, node);
+    const Geometry::PointReference<DIM>& leftnode = element.getReferenceGeometry()->getReferenceNodeCoordinate(a);
+    //const Geometry::PointReference<DIM>& rightnode = element.getReferenceGeometry()->getReferenceNodeCoordinate(b);
+    node = element.referenceToPhysical(leftnode);
 }
 
 Base::Basis_Curl_Face::Basis_Curl_Face(int degree1, int degree2, int localOpposingVertex, int direction)
@@ -286,9 +287,9 @@ Base::Basis_Curl_Face::Basis_Curl_Face(int degree1, int degree2, int localOpposi
     }
 }
 
-void Base::Basis_Curl_Face::eval(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
+void Base::Basis_Curl_Face::eval(const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret) const
 {
-    ret.resize(3);
+    //ret.resize(3);
     double valA(Basis_Curl_Bari::barycentricFunctions[a].eval(p)), valB(Basis_Curl_Bari::barycentricFunctions[b].eval(p)), valC(Basis_Curl_Bari::barycentricFunctions[c].eval(p));
     ret[0] = (b == 1 - a == 1);
     ret[1] = (b == 2);
@@ -296,34 +297,34 @@ void Base::Basis_Curl_Face::eval(const Base::BaseBasisFunction::PointReferenceT&
     ret *= valA * valB * valC * LegendrePolynomial(deg1, valB - valA) * LegendrePolynomial(deg2, valC - valA);
 }
 
-void Base::Basis_Curl_Face::evalCurl(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
+LinearAlgebra::SmallVector<DIM> Base::Basis_Curl_Face::evalCurl(const Geometry::PointReference<DIM>& p) const
 {
     double valA(Basis_Curl_Bari::barycentricFunctions[a].eval(p)), valB(Basis_Curl_Bari::barycentricFunctions[b].eval(p)), valC(Basis_Curl_Bari::barycentricFunctions[c].eval(p));
-    LinearAlgebra::MiddleSizeVector dummy(3), dummy2(3), dummy3(3);
-    ret.resize(3);
+    LinearAlgebra::SmallVector<DIM> ret, dummy, dummy2, dummy3;
+    //ret.resize(3);
     dummy[0] = (b == 1 - a == 1);
     dummy[1] = (b == 2);
     dummy[2] = (b == 3);
-    Basis_Curl_Bari::barycentricFunctions[a].evalDeriv(p, dummy2);
+    dummy2 = Basis_Curl_Bari::barycentricFunctions[a].evalDeriv(p);
     OuterProduct(dummy2, dummy, ret);
     ret *= valB * valC * LegendrePolynomial(deg1, valB - valA) * LegendrePolynomial(deg2, valC - valA) - valA * valB * valC * (LegendrePolynomialDerivative(deg1, valB - valA) * LegendrePolynomial(deg2, valC - valA) + LegendrePolynomial(deg1, valB - valA) * LegendrePolynomialDerivative(deg2, valC - valA));
-    Basis_Curl_Bari::barycentricFunctions[b].evalDeriv(p, dummy2);
+    dummy2 = Basis_Curl_Bari::barycentricFunctions[b].evalDeriv(p);
     OuterProduct(dummy2, dummy, dummy3);
     dummy3 *= valA * valC * LegendrePolynomial(deg1, valB - valA) * LegendrePolynomial(deg2, valC - valA) + valA * valB * valC * LegendrePolynomialDerivative(deg1, valB - valA) * LegendrePolynomial(deg2, valC - valA);
     ret += dummy3;
-    Basis_Curl_Bari::barycentricFunctions[c].evalDeriv(p, dummy2);
+    dummy2 = Basis_Curl_Bari::barycentricFunctions[c].evalDeriv(p);
     OuterProduct(dummy2, dummy, dummy3);
     dummy3 *= valA * valB * LegendrePolynomial(deg1, valB - valA) * LegendrePolynomial(deg2, valC - valA) + valA * valB * valC * LegendrePolynomial(deg1, valB - valA) * LegendrePolynomialDerivative(deg2, valC - valA);
     ret += dummy3;
+    return ret;
 }
 
-void Base::Basis_Curl_Face::getReasonableNode(const Base::Element& element, Geometry::PointPhysical node)
+void Base::Basis_Curl_Face::getReasonableNode(const Base::Element& element, Geometry::PointPhysical<DIM> node)
 {
-    PointReferenceT leftnode(3), rightnode(3), Cnode(3);
-    element.getReferenceGeometry()->getNode(a, leftnode);
-    element.getReferenceGeometry()->getNode(b, rightnode);
-    element.getReferenceGeometry()->getNode(c, Cnode);
-    element.referenceToPhysical((leftnode + rightnode + Cnode) * .33333, node);
+    const Geometry::PointReference<DIM>& leftnode = element.getReferenceGeometry()->getReferenceNodeCoordinate(a);
+    //const Geometry::PointReference<DIM>& rightnode = element.getReferenceGeometry()->getReferenceNodeCoordinate(b);
+    //const Geometry::PointReference<DIM>& Cnode = element.getReferenceGeometry()->getReferenceNodeCoordinate(c);
+    node = element.referenceToPhysical(leftnode);
 }
 
 Base::Basis_Curl_Face_interior::Basis_Curl_Face_interior(int degree1, int degree2, int localOpposingVertex)
@@ -347,39 +348,39 @@ Base::Basis_Curl_Face_interior::Basis_Curl_Face_interior(int degree1, int degree
     }
 }
 
-void Base::Basis_Curl_Face_interior::eval(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
+void Base::Basis_Curl_Face_interior::eval(const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret) const
 {
     double valA(Basis_Curl_Bari::barycentricFunctions[a].eval(p)), valB(Basis_Curl_Bari::barycentricFunctions[b].eval(p)), valC(Basis_Curl_Bari::barycentricFunctions[c].eval(p));
-    Basis_Curl_Bari::barycentricFunctions[d].evalDeriv(p, ret);
+    ret = Basis_Curl_Bari::barycentricFunctions[d].evalDeriv(p);
     ret *= valA * valB * valC * LegendrePolynomial(deg1, valB - valA) * LegendrePolynomial(deg2, valC - valA);
 }
 
-void Base::Basis_Curl_Face_interior::evalCurl(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
+LinearAlgebra::SmallVector<DIM> Base::Basis_Curl_Face_interior::evalCurl(const Geometry::PointReference<DIM>& p) const
 {
     double valA(Basis_Curl_Bari::barycentricFunctions[a].eval(p)), valB(Basis_Curl_Bari::barycentricFunctions[b].eval(p)), valC(Basis_Curl_Bari::barycentricFunctions[c].eval(p));
-    LinearAlgebra::MiddleSizeVector dummy(3), dummy2(3), dummy3(3);
-    ret.resize(3);
-    Basis_Curl_Bari::barycentricFunctions[d].evalDeriv(p, dummy);
-    Basis_Curl_Bari::barycentricFunctions[a].evalDeriv(p, dummy2);
+    LinearAlgebra::SmallVector<DIM> ret, dummy, dummy2, dummy3;
+    //ret.resize(3);
+    dummy = Basis_Curl_Bari::barycentricFunctions[d].evalDeriv(p);
+    dummy2 = Basis_Curl_Bari::barycentricFunctions[a].evalDeriv(p);
     OuterProduct(dummy2, dummy, ret);
     ret *= valB * valC * LegendrePolynomial(deg1, valB - valA) * LegendrePolynomial(deg2, valC - valA) - valA * valB * valC * (LegendrePolynomialDerivative(deg1, valB - valA) * LegendrePolynomial(deg2, valC - valA) + LegendrePolynomial(deg1, valB - valA) * LegendrePolynomialDerivative(deg2, valC - valA));
-    Basis_Curl_Bari::barycentricFunctions[b].evalDeriv(p, dummy2);
+    dummy2 = Basis_Curl_Bari::barycentricFunctions[b].evalDeriv(p);
     OuterProduct(dummy2, dummy, dummy3);
     dummy3 *= valA * valC * LegendrePolynomial(deg1, valB - valA) * LegendrePolynomial(deg2, valC - valA) + valA * valB * valC * LegendrePolynomialDerivative(deg1, valB - valA) * LegendrePolynomial(deg2, valC - valA);
     ret += dummy3;
-    Basis_Curl_Bari::barycentricFunctions[c].evalDeriv(p, dummy2);
+    dummy2 = Basis_Curl_Bari::barycentricFunctions[c].evalDeriv(p);
     OuterProduct(dummy2, dummy, dummy3);
     dummy3 *= valA * valB * LegendrePolynomial(deg1, valB - valA) * LegendrePolynomial(deg2, valC - valA) + valA * valB * valC * LegendrePolynomial(deg1, valB - valA) * LegendrePolynomialDerivative(deg2, valC - valA);
     ret += dummy3;
+    return ret;
 }
 
-void Base::Basis_Curl_Face_interior::getReasonableNode(const Base::Element& element, Geometry::PointPhysical node)
+void Base::Basis_Curl_Face_interior::getReasonableNode(const Base::Element& element, Geometry::PointPhysical<DIM> node)
 {
-    PointReferenceT leftnode(3), rightnode(3), Cnode(3);
-    element.getReferenceGeometry()->getNode(a, leftnode);
-    element.getReferenceGeometry()->getNode(b, rightnode);
-    element.getReferenceGeometry()->getNode(c, Cnode);
-    element.referenceToPhysical((leftnode + rightnode + Cnode) * .3333333333, node);
+    const Geometry::PointReference<DIM>& leftnode = element.getReferenceGeometry()->getReferenceNodeCoordinate(a);
+    //const Geometry::PointReference<DIM>& rightnode = element.getReferenceGeometry()->getReferenceNodeCoordinate(b);
+    //const Geometry::PointReference<DIM>& Cnode = element.getReferenceGeometry()->getReferenceNodeCoordinate(c);
+    node = element.referenceToPhysical(leftnode);
 }
 
 Base::Basis_Curl_interior::Basis_Curl_interior(int degree1, int degree2, int degree3, int direction)
@@ -387,9 +388,9 @@ Base::Basis_Curl_interior::Basis_Curl_interior(int degree1, int degree2, int deg
 {
 }
 
-void Base::Basis_Curl_interior::eval(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
+void Base::Basis_Curl_interior::eval(const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret) const
 {
-    ret.resize(3);
+    //ret.resize(3);
     ret[0] = 0;
     ret[1] = 0;
     ret[2] = 0;
@@ -398,41 +399,41 @@ void Base::Basis_Curl_interior::eval(const Base::BaseBasisFunction::PointReferen
     ret *= val0 * val1 * val2 * val3 * LegendrePolynomial(deg1, val1 - val0) * LegendrePolynomial(deg2, val2 - val0) * LegendrePolynomial(deg3, val3 - val0);
 }
 
-void Base::Basis_Curl_interior::evalCurl(const Base::BaseBasisFunction::PointReferenceT& p, LinearAlgebra::MiddleSizeVector& ret) const
+LinearAlgebra::SmallVector<DIM> Base::Basis_Curl_interior::evalCurl(const Geometry::PointReference<DIM>& p) const
 {
     double val0(Basis_Curl_Bari::barycentricFunctions[0].eval(p)), val1(Basis_Curl_Bari::barycentricFunctions[1].eval(p)), val2(Basis_Curl_Bari::barycentricFunctions[2].eval(p)), val3(Basis_Curl_Bari::barycentricFunctions[3].eval(p));
-    LinearAlgebra::MiddleSizeVector dummy(3), dummy2(3), dummy3(3);
+    LinearAlgebra::SmallVector<DIM> ret, dummy, dummy2, dummy3;
     dummy[0] = 0;
     dummy[1] = 0;
     dummy[2] = 0;
     dummy[direction - 1] = 1;
-    Basis_Curl_Bari::barycentricFunctions[0].evalDeriv(p, dummy2);
-    ret.resize(3);
+    dummy2 = Basis_Curl_Bari::barycentricFunctions[0].evalDeriv(p);
+    //ret.resize(3);
     OuterProduct(dummy2, dummy, ret);
     ret *= val1 * val2 * val3 * LegendrePolynomial(deg1, val1 - val0) * LegendrePolynomial(deg2, val2 - val0) * LegendrePolynomial(deg3, val3 - val0) - val0 * val1 * val2 * val3 * (LegendrePolynomialDerivative(deg1, val1 - val0) * LegendrePolynomial(deg2, val2 - val0) * LegendrePolynomial(deg3, val3 - val0) + LegendrePolynomial(deg1, val1 - val0) * LegendrePolynomialDerivative(deg2, val2 - val0) * LegendrePolynomial(deg3, val3 - val0) + LegendrePolynomial(deg1, val1 - val0) * LegendrePolynomial(deg2, val2 - val0) * LegendrePolynomialDerivative(deg3, val3 - val0));
-    Basis_Curl_Bari::barycentricFunctions[1].evalDeriv(p, dummy2);
+    dummy2 = Basis_Curl_Bari::barycentricFunctions[1].evalDeriv(p);
     OuterProduct(dummy2, dummy, dummy3);
     dummy3 *= val0 * val2 * val3 * LegendrePolynomial(deg1, val1 - val0) * LegendrePolynomial(deg2, val2 - val0) * LegendrePolynomial(deg3, val3 - val0) + val0 * val1 * val2 * val3 * LegendrePolynomialDerivative(deg1, val1 - val0) * LegendrePolynomial(deg2, val2 - val0) * LegendrePolynomial(deg3, val3 - val0);
     ret += dummy3;
-    Basis_Curl_Bari::barycentricFunctions[2].evalDeriv(p, dummy2);
+    dummy2 = Basis_Curl_Bari::barycentricFunctions[2].evalDeriv(p);
     OuterProduct(dummy2, dummy, dummy3);
     dummy3 *= val0 * val1 * val3 * LegendrePolynomial(deg1, val1 - val0) * LegendrePolynomial(deg2, val2 - val0) * LegendrePolynomial(deg3, val3 - val0) + val0 * val1 * val2 * val3 * LegendrePolynomial(deg1, val1 - val0) * LegendrePolynomialDerivative(deg2, val2 - val0) * LegendrePolynomial(deg3, val3 - val0);
     ret += dummy3;
-    Basis_Curl_Bari::barycentricFunctions[3].evalDeriv(p, dummy2);
+    dummy2 = Basis_Curl_Bari::barycentricFunctions[3].evalDeriv(p);
     OuterProduct(dummy2, dummy, dummy3);
     dummy3 *= val0 * val1 * val2 * LegendrePolynomial(deg1, val1 - val0) * LegendrePolynomial(deg2, val2 - val0) * LegendrePolynomial(deg3, val3 - val0) + val0 * val1 * val2 * val3 * LegendrePolynomial(deg1, val1 - val0) * LegendrePolynomial(deg2, val2 - val0) * LegendrePolynomialDerivative(deg3, val3 - val0);
     ret += dummy3;
+    return ret;
 }
 
-void Base::Basis_Curl_interior::getReasonableNode(const Base::Element& element, Geometry::PointPhysical node)
+void Base::Basis_Curl_interior::getReasonableNode(const Base::Element& element, Geometry::PointPhysical<DIM> node)
 {
-    PointReferenceT center(3);
-    element.getReferenceGeometry()->getCenter(center);
-    element.referenceToPhysical(center, node);
+    const Geometry::PointReference<DIM>& center = element.getReferenceGeometry()->getCenter();
+    node = element.referenceToPhysical(center);
 }
 
-MyMeshManipulator::MyMeshManipulator(const Base::ConfigurationData* data, bool xPer, bool yPer, bool zPer, std::size_t order, std::size_t idRangeBegin, int nrOfElementMatrixes, int nrOfElementVectors, int nrOfFaceMatrixes, int nrOfFaceVectors)
-        : Base::MeshManipulator(data, xPer, yPer, zPer, order, idRangeBegin, nrOfElementMatrixes, nrOfElementVectors, nrOfFaceMatrixes, nrOfFaceVectors)
+MyMeshManipulator::MyMeshManipulator(const Base::ConfigurationData* data, Base::BoundaryType xPer, Base::BoundaryType yPer, Base::BoundaryType zPer, std::size_t order, std::size_t idRangeBegin, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrixes, std::size_t nrOfFaceVectors)
+        : Base::MeshManipulator<DIM>(data, xPer, yPer, zPer, order, idRangeBegin, nrOfElementMatrixes, nrOfElementVectors, nrOfFaceMatrixes, nrOfFaceVectors)
 {
     //std::cout<<nrOfElementVectors<<std::endl;
     createBasisFunctions(order);

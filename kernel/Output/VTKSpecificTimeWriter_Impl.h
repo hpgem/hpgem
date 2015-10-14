@@ -95,8 +95,8 @@ Output::VTKSpecificTimeWriter<DIM>::VTKSpecificTimeWriter(const std::string& bas
         masterFile_ << "<?xml version=\"1.0\"?>" << std::endl;
         masterFile_ << "<VTKFile type=\"PUnstructuredGrid\" version=\"0.1\" byte_order=\"" << (Detail::isBigEndian() ? "BigEndian" : "LittleEndian") << "\">" << std::endl;
         masterFile_ << "  <PUnstructuredGrid GhostLevel=\"0\">" << std::endl;
-        std::size_t numProcs = Base::MPIContainer::Instance().getNumProcessors();
-        for (std::size_t i = 0; i < numProcs; ++i)
+        std::size_t numberOfProcs = Base::MPIContainer::Instance().getNumberOfProcessors();
+        for (std::size_t i = 0; i < numberOfProcs; ++i)
         {
             std::string fileName = baseName;
             if (fileName.find('/') != std::string::npos)
@@ -136,7 +136,8 @@ Output::VTKSpecificTimeWriter<DIM>::VTKSpecificTimeWriter(const std::string& bas
     for (Base::Element* element : mesh_->getElementsList())
     {
         cumulativeNodesPerElement.push_back(element->getNumberOfNodes() + cumulativeNodesPerElement.back());
-        elementTypes.push_back(hpGEMToVTK.at(std::type_index(typeid(*element->getReferenceGeometry()))));
+        const Geometry::ReferenceGeometry& referenceGeometry = *element->getReferenceGeometry();
+        elementTypes.push_back(hpGEMToVTK.at(std::type_index(typeid(referenceGeometry))));
         for (std::size_t i = 0; i < element->getNumberOfNodes(); ++i)
         {
             actualNode = element->getPhysicalGeometry()->getLocalNodeCoordinates(tohpGEMOrdering(i, element->getReferenceGeometry()));

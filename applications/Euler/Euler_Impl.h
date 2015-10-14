@@ -29,7 +29,7 @@ Euler<DIM>::Euler
  const std::size_t numOfVariables,
  const double endTime,
  const std::size_t polynomialOrder,
- const Base::ButcherTableau * const ptrButcherTableau
+ const TimeIntegration::ButcherTableau * const ptrButcherTableau
 ) :
 Base::HpgemAPISimplified<DIM>(numOfVariables, polynomialOrder, ptrButcherTableau),
 numOfVariables_(numOfVariables)
@@ -82,7 +82,7 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::computeSolutionAtElement(const Base:
 template<std::size_t DIM>
 LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandSourceAtElement(Base::PhysicalElement<DIM> &Element, const LinearAlgebra::MiddleSizeVector qSolution, const double pressureTerm, const double &time)
 {
-	std::size_t numOfBasisFunctions = Element.getNumOfBasisFunctions();
+	std::size_t numOfBasisFunctions = Element.getNumberOfBasisFunctions();
 	std::size_t iVB;
 
 	LinearAlgebra::MiddleSizeVector integrandSource(numOfVariables_ * numOfBasisFunctions);

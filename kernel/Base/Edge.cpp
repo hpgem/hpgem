@@ -37,7 +37,7 @@ namespace Base
     {
         logger.assert(element!=nullptr, "Invalid element detected");
         elements_.push_back(element);
-        localEdgeNrs_.push_back(edgeNr);
+        localEdgeNumbers_.push_back(edgeNr);
         element->setEdge(edgeNr, this);
         std::vector<std::size_t> indices = element->getReferenceGeometry()->getCodim2EntityLocalIndices(edgeNr);
         indices[0] = element->getPhysicalGeometry()->getNodeIndex(indices[0]);
@@ -45,14 +45,14 @@ namespace Base
         orientation_.push_back((indices[0] < indices[1] ? 0 : 1));
     }
     
-    std::size_t Edge::getNrOfElements()
+    std::size_t Edge::getNumberOfElements()
     {
         return elements_.size();
     }
     
     Element* Edge::getElement(std::size_t i)
     {
-        logger.assert(i < getNrOfElements(), "Asked for element %, but there are only % elements", i, getNrOfElements());
+        logger.assert(i < getNumberOfElements(), "Asked for element %, but there are only % elements", i, getNumberOfElements());
         return elements_[i];
     }
     

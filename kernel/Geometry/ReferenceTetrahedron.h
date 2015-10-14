@@ -88,7 +88,7 @@ namespace Geometry
         // ================================== Codimension 1 ========================================
         
         //! (see MappingCodimensions.h)
-        std::size_t getNrOfCodim1Entities() const override final
+        std::size_t getNumberOfCodim1Entities() const override final
         {
             return 4;
         }
@@ -105,7 +105,7 @@ namespace Geometry
         // ================================== Codimension 2 ========================================
         
         //! (see MappingCodimensions.h)
-        std::size_t getNrOfCodim2Entities() const override final
+        std::size_t getNumberOfCodim2Entities() const override final
         {
             return 6;
         }
@@ -122,7 +122,7 @@ namespace Geometry
         // ================================== Codimension 3 ========================================
         
         //! (see MappingCodimensions.h)
-        std::size_t getNrOfCodim3Entities() const override final
+        std::size_t getNumberOfCodim3Entities() const override final
         {
             return 4;
         }
@@ -168,9 +168,9 @@ namespace Geometry
         static std::size_t localNodeIndexes_[4][3];
         static std::size_t localNodesOnEdge_[6][2];
 
-        //! Codimension 1 mappings, from a square to a tetrahedron face. TODO: Where is this used? clarify here.
+        //! Codimension 1 mappings, from a square to a tetrahedron face. (used to map a coordinate from a face to an element)
         const MappingReferenceToReference<1>* mappingsTriangleToTetrahedron_[4];
-        const MappingReferenceToReference<0>* mappingsTetrahedronToTetrahedron_[1];
+        //const MappingReferenceToReference<0>* mappingsTetrahedronToTetrahedron_[1];
 
         //! Pointer to the Codimension 1 reference geometry.
         ReferenceGeometry* const referenceGeometryCodim1Ptr_;

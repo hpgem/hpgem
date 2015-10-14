@@ -30,15 +30,14 @@ add_library(hpGEM_Base STATIC
 		FaceMatrix.cpp
  		Edge.cpp
  		Node.cpp
+		HpgemAPISimplified.cpp
 		#miscellaneous required stuff
 		${hpGEM_SOURCE_DIR}/kernel/Base/MeshManipulatorBase.cpp
                 Submesh.cpp
         	${hpGEM_SOURCE_DIR}/kernel/Base/AssembleBasisFunctionSet.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Base/L2Norm.cpp
                 MpiContainer.cpp
-
-        HpgemAPISimplified.cpp
-
+		        
         	${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions1DH1ConformingLine.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions2DH1ConformingSquare.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions2DH1ConformingTriangle.cpp

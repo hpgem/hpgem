@@ -58,7 +58,13 @@ namespace Geometry
             return getCodim0MappingPtr(getCodim0MappingIndex(n1, n2));
         }
         
-        virtual std::size_t getNrOfCodim1Entities() const
+        ///\deprecated use getNumberOfCodim1Entities instead
+        std::size_t getNrOfCodim1Entities() const
+        {
+            return getNumberOfCodim1Entities();
+        }
+        
+        virtual std::size_t getNumberOfCodim1Entities() const
         {
             return 0;
         }
@@ -83,7 +89,13 @@ namespace Geometry
             return 0;
         }
         
-        virtual std::size_t getNrOfCodim2Entities() const
+        ///\deprecated use getNumberOfCodim1Entities instead
+        std::size_t getNrOfCodim2Entities() const
+        {
+            return getNumberOfCodim2Entities();
+        }
+        
+        virtual std::size_t getNumberOfCodim2Entities() const
         {
             return 0;
         }
@@ -107,7 +119,13 @@ namespace Geometry
             return 0;
         }
         
-        virtual std::size_t getNrOfCodim3Entities() const
+        ///\deprecated use getNumberOfCodim3Entities instead
+        std::size_t getNrOfCodim3Entities() const
+        {
+            return getNumberOfCodim3Entities();
+        }
+        
+        virtual std::size_t getNumberOfCodim3Entities() const
         {
             return 0;
         }

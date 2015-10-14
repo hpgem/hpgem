@@ -28,6 +28,7 @@
 #include "Geometry/Jacobian.h"
 #include "CoordinateTransformation.h"
 #include "H1ConformingTransformation.h"
+#include "HCurlConformingTransformation.h"
 
 namespace Base
 {
@@ -38,7 +39,7 @@ namespace Base
     //note that none of the functions in here is marked const, because a PhysicalElement reserves the right to alter its internal state to optimize future repeated calls
     //note that names in this class match the names in Element unless this makes no sense
     //when you use a physical element in the kernel be careful to avoid infinite recursion
-    ///\TODO generalize implementation to support the cached data
+    ///\todo generalize implementation to support the cached data
     template<std::size_t DIM>
     class PhysicalElement final
     {
@@ -112,14 +113,26 @@ namespace Base
         ///the element (elements have extra functions for users that need them)
         const Base::Element* getElement();
 
-        ///the number of basis functions that are nonzero in the element
+        ///\deprecated Does not conform naming conventions, use getNumberOfBasisFunctions instead
         std::size_t getNumOfBasisFunctions()
+        {
+            return getNumberOfBasisFunctions();
+        }
+        
+        ///the number of basis functions that are nonzero in the element
+        std::size_t getNumberOfBasisFunctions()
         {
             return theElement_->getNumberOfBasisFunctions();
         }
 
-        ///the number of unknowns present in the problem
+        ///\deprecated Does not conform naming conventions, use getNumberOfUnknowns instead
         std::size_t getNumOfUnknowns()
+        {
+            return getNumberOfUnknowns();
+        }
+        
+        ///the number of unknowns present in the problem
+        std::size_t getNumberOfUnknowns()
         {
             return theElement_->getNumberOfUnknowns();
         }

@@ -165,7 +165,7 @@ int main()
         }
     }
     
-    logger.assert_always((test.getNrOfFaces() == 5), "getNrOfFaces");
+    logger.assert_always((test.getNumberOfFaces() == 5), "getNumberOfFaces");
     
     logger.assert_always((test.getRefGeometry() == &Geometry::ReferenceTriangularPrism::Instance()), "getRefGeometry");
     

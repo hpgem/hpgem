@@ -35,17 +35,17 @@ void Base::Node::addElement(Element* element, std::size_t localNodeNr)
 
 Base::Element* Base::Node::getElement(std::size_t i)
 {
-    logger.assert(i < getNrOfElements(), "asked for element %, but there are only % elements", i, getNrOfElements());
+    logger.assert(i < getNumberOfElements(), "asked for element %, but there are only % elements", i, getNumberOfElements());
     return elements_[i];
 }
 
 const Base::Element* Base::Node::getElement(std::size_t i) const
 {
-    logger.assert(i < getNrOfElements(), "asked for element %, but there are only % elements", i, getNrOfElements());
+    logger.assert(i < getNumberOfElements(), "asked for element %, but there are only % elements", i, getNumberOfElements());
     return elements_[i];
 }
 
-std::size_t Base::Node::getNrOfElements() const
+std::size_t Base::Node::getNumberOfElements() const
 {
     return elements_.size();
 }

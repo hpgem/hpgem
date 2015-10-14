@@ -85,7 +85,7 @@ namespace Utilities
             nodeEntries = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(face->localFaceNumberLeft());
             for (std::size_t i : nodeEntries)
             {
-                number = face->getPtrElementLeft()->getNode(i)->getLocalNrOfBasisFunctions();
+                number = face->getPtrElementLeft()->getNode(i)->getLocalNumberOfBasisFunctions();
                 numberOfEntries += number;
                 for (std::size_t j = 0; j < number; ++j)
                     entries.push_back(startPositionsOfNodesInTheMatrix_[face->getPtrElementLeft()->getNode(i)->getID()] + j + index * number);
@@ -229,7 +229,7 @@ namespace Utilities
     {
         MatDestroy(&A_);
 #ifdef HPGEM_USE_MPI
-        std::size_t n = Base::MPIContainer::Instance().getNumProcessors();
+        std::size_t n = Base::MPIContainer::Instance().getNumberOfProcessors();
         //offset by one to put a 0 in front (type int, because MPI wants it to be int)
         std::vector<int> MPISendElementCounts(n+1,0), MPISendFaceCounts(n+1,0), MPISendEdgeCounts(n+1,0), MPISendNodeCounts(n+1,0);
 

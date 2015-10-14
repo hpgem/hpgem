@@ -71,7 +71,7 @@ namespace Base
     
     //class is made final so we don't have to create a v-table specifically for the destructor
     template<std::size_t DIM>
-    class MeshManipulator final : public MeshManipulatorBase
+    class MeshManipulator : public MeshManipulatorBase //remove the word final after MeshManipulator
     {
     public:
         
@@ -105,7 +105,7 @@ namespace Base
 
         MeshManipulator(const MeshManipulator& other);
 
-        ~MeshManipulator();
+        virtual ~MeshManipulator();
 
         /// creates some cheap, easy to construct basis function set (monomials) to use as a placeholder
         /// \bug this function needs to exist because elements must have a set of basis functions at all time

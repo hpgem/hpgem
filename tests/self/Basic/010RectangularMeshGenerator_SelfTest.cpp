@@ -52,14 +52,14 @@ void testMesh(Base::MeshManipulator<DIM>* test)
     {
         logger.assert_always((elementIDs.find(element->getID()) == elementIDs.end()), "duplicate element ID");
         elementIDs.insert(element->getID());
-        logger.assert_always((element->getNumberOfFaces() == element->getReferenceGeometry()->getNrOfCodim1Entities()), "confusion about the number of faces");
+        logger.assert_always((element->getNumberOfFaces() == element->getReferenceGeometry()->getNumberOfCodim1Entities()), "confusion about the number of faces");
         if (test->dimension() == 2)
         {
             logger.assert_always((element->getNumberOfEdges() == 0), "confusion about the number of edges");
         }
         else
         {
-            logger.assert_always((element->getNumberOfEdges() == element->getReferenceGeometry()->getNrOfCodim2Entities()), "confusion about the number of edges");
+            logger.assert_always((element->getNumberOfEdges() == element->getReferenceGeometry()->getNumberOfCodim2Entities()), "confusion about the number of edges");
         }
         logger.assert_always((element->getNumberOfNodes() == element->getReferenceGeometry()->getNumberOfNodes()), "confusion about the number of vertices");
         for (std::size_t i = 0; i < element->getNumberOfFaces(); ++i)
@@ -102,17 +102,17 @@ void testMesh(Base::MeshManipulator<DIM>* test)
     {
         logger.assert_always((edgeIDs.find(edge->getID()) == edgeIDs.end()), "duplicate edge ID");
         edgeIDs.insert(edge->getID());
-        logger.assert_always((edge->getElement(0)->getEdge(edge->getEdgeNr(0)) == edge), "element<->edge matching");
-        std::vector<std::size_t> firstNodes(edge->getElement(0)->getReferenceGeometry()->getCodim2ReferenceGeometry(edge->getEdgeNr(0))->getNumberOfNodes()), otherNodes(firstNodes);
-        firstNodes = edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(0));
+        logger.assert_always((edge->getElement(0)->getEdge(edge->getEdgeNumber(0)) == edge), "element<->edge matching");
+        std::vector<std::size_t> firstNodes(edge->getElement(0)->getReferenceGeometry()->getCodim2ReferenceGeometry(edge->getEdgeNumber(0))->getNumberOfNodes()), otherNodes(firstNodes);
+        firstNodes = edge->getElement(0)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNumber(0));
         for (std::size_t i = 0; i < firstNodes.size(); ++i)
         {
             firstNodes[i] = edge->getElement(0)->getPhysicalGeometry()->getNodeIndex(firstNodes[i]);
         }
-        for (std::size_t i = 1; i < edge->getNrOfElements(); ++i)
+        for (std::size_t i = 1; i < edge->getNumberOfElements(); ++i)
         {
-            logger.assert_always((edge->getElement(i)->getEdge(edge->getEdgeNr(i)) == edge), "element<->edge matching");
-            otherNodes = edge->getElement(i)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNr(i));
+            logger.assert_always((edge->getElement(i)->getEdge(edge->getEdgeNumber(i)) == edge), "element<->edge matching");
+            otherNodes = edge->getElement(i)->getReferenceGeometry()->getCodim2EntityLocalIndices(edge->getEdgeNumber(i));
             for (std::size_t j = 0; j < otherNodes.size(); ++j)
             {
                 otherNodes[j] = edge->getElement(i)->getPhysicalGeometry()->getNodeIndex(otherNodes[j]);
@@ -133,13 +133,13 @@ void testMesh(Base::MeshManipulator<DIM>* test)
     {
         logger.assert_always((nodeIDs.find(node->getID()) == nodeIDs.end()), "duplicate node ID");
         nodeIDs.insert(node->getID());
-        logger.assert_always((node->getElement(0)->getNode(node->getNodeNr(0)) == node), "element<->node matching");
+        logger.assert_always((node->getElement(0)->getNode(node->getNodeNumber(0)) == node), "element<->node matching");
         Geometry::PointPhysical<DIM> pFirst, pOther;
-        pFirst = node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getNodeNr(0));
-        for (std::size_t i = 1; i < node->getNrOfElements(); ++i)
+        pFirst = node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getNodeNumber(0));
+        for (std::size_t i = 1; i < node->getNumberOfElements(); ++i)
         {
-            logger.assert_always((node->getElement(i)->getNode(node->getNodeNr(i)) == node), "element<->node matching");
-            pOther = node->getElement(i)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getNodeNr(i));
+            logger.assert_always((node->getElement(i)->getNode(node->getNodeNumber(i)) == node), "element<->node matching");
+            pOther = node->getElement(i)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getNodeNumber(i));
             logger.assert_always((pFirst == pOther), "node positioning");
         }
     }

@@ -31,7 +31,7 @@ AcousticWave<DIM>::AcousticWave
 (
  const std::size_t numOfVariables,
  const std::size_t polynomialOrder,
- const Base::ButcherTableau * const ptrButcherTableau
+ const TimeIntegration::ButcherTableau * const ptrButcherTableau
  ) :
 Base::HpgemAPISimplified<DIM>(numOfVariables, polynomialOrder, ptrButcherTableau),
 numOfVariables_(numOfVariables),

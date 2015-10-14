@@ -22,7 +22,7 @@
 #include "MidPoint.h"
 #include "Logger.h"
 
-namespace Base
+namespace TimeIntegration
 {
     MidPoint::MidPoint()
     {

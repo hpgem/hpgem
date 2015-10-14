@@ -31,7 +31,7 @@ AcousticWaveLinear<DIM>::AcousticWaveLinear
 (
  const std::size_t numOfVariables,
  const std::size_t polynomialOrder,
- const Base::ButcherTableau * const ptrButcherTableau,
+ const TimeIntegration::ButcherTableau * const ptrButcherTableau,
  const bool useSourceTerm
  ) :
 Base::HpgemAPILinear<DIM>(numOfVariables, polynomialOrder, ptrButcherTableau, 1, useSourceTerm),

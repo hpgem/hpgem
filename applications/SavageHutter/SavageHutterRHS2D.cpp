@@ -179,7 +179,7 @@ MiddleSizeVector SavageHutterRHS2D::computeSourceTerm(const MiddleSizeVector& nu
     const double mu = computeFriction(numericalSolution);
     const double sourceX = h * std::sin(chuteAngle_) - h * mu * uNormalized * std::cos(chuteAngle_);
     const double sourceY = -h * mu * vNormalized * std::cos(chuteAngle_);
-    return MiddleSizeVector({0, 0, 0});
+    return MiddleSizeVector({0, sourceX, sourceY});
 }
 
 MiddleSizeVector SavageHutterRHS2D::localLaxFriedrichsFlux(const MiddleSizeVector& numericalSolutionLeft, const MiddleSizeVector& numericalSolutionRight,const LinearAlgebra::SmallVector<DIM>& normal)
@@ -233,7 +233,7 @@ MiddleSizeVector SavageHutterRHS2D::localLaxFriedrichsFlux(const MiddleSizeVecto
 ///The HLLC flux is an approximate Riemann solver
 MiddleSizeVector SavageHutterRHS2D::hllcFlux(const MiddleSizeVector& numericalSolutionLeft, const MiddleSizeVector& numericalSolutionRight, const LinearAlgebra::SmallVector<DIM>& normal)
 {
-    logger.assert(Base::L2Norm(normal) == 1, "hllc flux needs unit normal vector");
+    logger.assert(std::abs(Base::L2Norm(normal)-1) < 1e-14, "hllc flux needs unit normal vector");
     const double nx = normal[0];
     const double ny = normal[1];
     const double hLeft = numericalSolutionLeft[0];
@@ -280,17 +280,19 @@ MiddleSizeVector SavageHutterRHS2D::hllcFlux(const MiddleSizeVector& numericalSo
 
 double SavageHutterRHS2D::computeFriction(const MiddleSizeVector& numericalSolution)
 {
-    const double delta1 = 17;
-    const double delta2 = 32;
+    const double delta1 = 17.518/180 * M_PI;
+    const double delta2 = 29.712/180 * M_PI;
     const double h = numericalSolution[0];
     if (h < 1e-10)
         return std::tan(delta1);
     const double u = numericalSolution[1] / h;
     const double v = numericalSolution[2] / h;
     const double froude = std::sqrt(u * u + v * v) / std::sqrt(epsilon_ * std::cos(chuteAngle_) * h);
-    const double A = 3.836;
-    const double beta = 0.191;
-    const double gamma = -0.045;
+    const double A = 5.29;
+    const double beta = 0.189;
+    const double gamma = -0.080;
+    const double d = 2;
 
-    return std::tan(delta1) + (std::tan(delta2) - std::tan(delta1)) / (beta * h / (A * (froude - gamma)) + 1);
+    //return std::tan(45./180*M_PI);
+    return std::tan(delta1) + (std::tan(delta2) - std::tan(delta1)) / (beta * h / (A*d * (froude - gamma)) + 1);
 }

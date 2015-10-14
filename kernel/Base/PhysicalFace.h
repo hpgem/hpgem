@@ -33,12 +33,13 @@ namespace Base
     class CoordinateTransformation;
     template<std::size_t DIM>
     class H1ConformingTransformation;
+    
 
     //class is final as a reminder that there is no virtual destructor
     //note that none of the functions in here is marked const, because a PhysicalFace reserves the right to alter its internal state to optimize future repeated calls
     //note that names in this class match the names in Face unless this makes no sense
     //when you use a physical face in the kernel be careful to avoid infinite recursion
-    ///\TODO generalize implementation to support the cached data
+    ///\todo generalize implementation to support the cached data
     template<std::size_t DIM>
     class PhysicalFace final
     {
@@ -172,15 +173,27 @@ namespace Base
 
         ///check if this PhysicalFace is an internal face or a face on a periodic boundary.
         bool isInternal();
+        
+        ///\deprecated Does not conform naming conventions, use getNumberOfBasisFunctions instead
+        std::size_t getNumOfBasisFunctions()
+        {
+            return getNumberOfBasisFunctions();
+        }
 
         ///get the total number of basis functions that might be nonzero on the face
-        std::size_t getNumOfBasisFunctions()
+        std::size_t getNumberOfBasisFunctions()
         {
             return face_->getNumberOfBasisFunctions();
         }
+        
+        ///\deprecated Does not conform naming conventions, use getNumberOfUnknowns instead
+        std::size_t getNumOfUnknowns()
+        {
+            return getNumberOfUnknowns();
+        }
 
         /// get the number of variables present in the problem
-        std::size_t getNumOfUnknowns()
+        std::size_t getNumberOfUnknowns()
         {
             return face_->getPtrElementLeft()->getNumberOfUnknowns();
         }
@@ -453,7 +466,7 @@ namespace Base
     }
     
     template<std::size_t DIM>
-    inline void Base::PhysicalFace<DIM>::basisFunctionNormal(std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
+    inline void Base::PhysicalFace<DIM>::basisFunctionNormal(std::size_t i, LinearAlgebra::SmallVector<DIM>& result) //Needed for DGMax
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(hasVectorBasisFunctionNormal)
@@ -511,7 +524,8 @@ namespace Base
                 vectorBasisFunctionUnitNormal_[j] = LinearAlgebra::SmallMatrix<DIM, DIM - 1>{{getUnitNormalVector(), result}}.computeWedgeStuffVector();
                 if(j >= nLeftBasisFunctions)
                 {
-                    vectorBasisFunctionUnitNormal_[j] *= -1.;
+                    vectorBasisFunctionUnitNormal_[j] *= -1.; //current
+                    
                 }
             }
             result = vectorBasisFunctionUnitNormal_[i];

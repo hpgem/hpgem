@@ -234,7 +234,7 @@ int main()
     std::vector<std::size_t> faceIndices(8);
     //there is no 5D element so codim0mappings are not needed
     
-    logger.assert_always((test.getNrOfCodim1Entities() == 8 && test.getNrOfCodim2Entities() == 24) && test.getNrOfCodim3Entities() == 32, "higher codimensional entities");
+    logger.assert_always((test.getNumberOfCodim1Entities() == 8 && test.getNumberOfCodim2Entities() == 24) && test.getNumberOfCodim3Entities() == 32, "higher codimensional entities");
     logger.assert_always((test.getCodim1ReferenceGeometry(0) == &Geometry::ReferenceCube::Instance() && test.getCodim1ReferenceGeometry(1) == &Geometry::ReferenceCube::Instance() && test.getCodim1ReferenceGeometry(2) == &Geometry::ReferenceCube::Instance() && test.getCodim1ReferenceGeometry(3) == &Geometry::ReferenceCube::Instance() && test.getCodim1ReferenceGeometry(4) == &Geometry::ReferenceCube::Instance() && test.getCodim1ReferenceGeometry(5) == &Geometry::ReferenceCube::Instance() && test.getCodim1ReferenceGeometry(6) == &Geometry::ReferenceCube::Instance() && test.getCodim1ReferenceGeometry(7) == &Geometry::ReferenceCube::Instance()), "getCodim1ReferenceGeometry");
     logger.assert_always((test.getCodim2ReferenceGeometry(0) == &Geometry::ReferenceSquare::Instance() && test.getCodim2ReferenceGeometry(1) == &Geometry::ReferenceSquare::Instance() && test.getCodim2ReferenceGeometry(2) == &Geometry::ReferenceSquare::Instance() && test.getCodim2ReferenceGeometry(3) == &Geometry::ReferenceSquare::Instance() && test.getCodim2ReferenceGeometry(4) == &Geometry::ReferenceSquare::Instance() && test.getCodim2ReferenceGeometry(5) == &Geometry::ReferenceSquare::Instance() && test.getCodim2ReferenceGeometry(6) == &Geometry::ReferenceSquare::Instance() && test.getCodim2ReferenceGeometry(7) == &Geometry::ReferenceSquare::Instance() && test.getCodim2ReferenceGeometry(8) == &Geometry::ReferenceSquare::Instance() && test.getCodim2ReferenceGeometry(9) == &Geometry::ReferenceSquare::Instance() && test.getCodim2ReferenceGeometry(10) == &Geometry::ReferenceSquare::Instance() && test.getCodim2ReferenceGeometry(11) == &Geometry::ReferenceSquare::Instance() && test.getCodim2ReferenceGeometry(12) == &Geometry::ReferenceSquare::Instance() && test.getCodim2ReferenceGeometry(13) == &Geometry::ReferenceSquare::Instance() && test.getCodim2ReferenceGeometry(14) == &Geometry::ReferenceSquare::Instance() && test.getCodim2ReferenceGeometry(15) == &Geometry::ReferenceSquare::Instance() && test.getCodim2ReferenceGeometry(16) == &Geometry::ReferenceSquare::Instance() && test.getCodim2ReferenceGeometry(17) == &Geometry::ReferenceSquare::Instance() && test.getCodim2ReferenceGeometry(18) == &Geometry::ReferenceSquare::Instance() && test.getCodim2ReferenceGeometry(19) == &Geometry::ReferenceSquare::Instance() && test.getCodim2ReferenceGeometry(20) == &Geometry::ReferenceSquare::Instance() && test.getCodim2ReferenceGeometry(21) == &Geometry::ReferenceSquare::Instance() && test.getCodim2ReferenceGeometry(22) == &Geometry::ReferenceSquare::Instance() && test.getCodim2ReferenceGeometry(23) == &Geometry::ReferenceSquare::Instance()), "getCodim2ReferenceGeometry");
     logger.assert_always((test.getCodim1MappingPtr(0) == &Geometry::MappingToRefCubeToHypercube0::Instance()), "getCodim1MappingPtr");
@@ -321,7 +321,8 @@ int main()
     //other codimensions are not implemented
     
     logger.assert_always((test.getGaussQuadratureRule(3)->order() >= 3), "quadrature rules");
-    //assert(("quadrature rules",test.getGaussQuadratureRule(5)->order()>=5));///\TODO implement more quadrature rules
+    ///\todo implement more quadrature rules
+    //assert(("quadrature rules",test.getGaussQuadratureRule(5)->order()>=5));
     //assert(("quadrature rules",test.getGaussQuadratureRule(7)->order()>=7));
     //assert(("quadrature rules",test.getGaussQuadratureRule(9)->order()>=9));
     //assert(("quadrature rules",test.getGaussQuadratureRule(11)->order()>=11));
@@ -331,8 +332,6 @@ int main()
     logger.assert_always((test.getNumberOfNodes() == 16), "number of nodes");
     logger.assert_always((test.getGeometryType() == Geometry::ReferenceGeometryType::HYPERCUBE), "type of geometry");
     
-    ///\TODO if it is decided that getBasisFunctionValue and getBasisFucntionDerivative remain here, test them
-    
-    ///\TODO testing that the refinement maps behave exactly like the forwarded calls of this class
+    ///\todo testing that the refinement maps behave exactly like the forwarded calls of this class
 }
 

@@ -50,37 +50,37 @@
 namespace Base
 {
     /// \param[in] dimension Dimension of the domain
-    /// \param[in] numOfVariables Number of variables in the PDE
+    /// \param[in] numberOfVariables Number of variables in the PDE
     /// \param[in] polynomialOrder Polynomial order of the basis functions
     /// \param[in] useSourceTerm Boolean to indicate if there is a source term.
     /// \param[in] useSourceTermAtBoundary Boolean to indicate if there is a source term at the domain boundary.
     template<std::size_t DIM>
     HpgemAPILinearSteadyState<DIM>::HpgemAPILinearSteadyState
     (
-     const std::size_t numOfVariables,
+     const std::size_t numberOfVariables,
      const std::size_t polynomialOrder,
      const bool useSourceTerm,
      const bool useSourceTermAtBoundary
      ) :
-    HpgemAPILinear<DIM>(numOfVariables, polynomialOrder, 1, 0, useSourceTerm, useSourceTermAtBoundary),
+    HpgemAPILinear<DIM>(numberOfVariables, polynomialOrder, 1, 0, useSourceTerm, useSourceTermAtBoundary),
     sourceElementVectorID_(0),
     sourceFaceVectorID_(0)
     {
     }
 
     template<std::size_t DIM>
-    void HpgemAPILinearSteadyState<DIM>::createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType)
+    void HpgemAPILinearSteadyState<DIM>::createMesh(const std::size_t numberOfElementsPerDirection, const Base::MeshType meshType)
     {
-        const Base::RectangularMeshDescriptor<DIM> description = this->createMeshDescription(numOfElementsPerDirection);
+        const Base::RectangularMeshDescriptor<DIM> description = this->createMeshDescription(numberOfElementsPerDirection);
         
         // Set the number of Element/Face Matrices/Vectors.
-        std::size_t numOfElementMatrices = 2;   // Mass matrix and stiffness matrix
-        std::size_t numOfElementVectors = 1;    // Source term vector
-        std::size_t numOfFaceMatrices = 1;      // Stiffness matrix
-        std::size_t numOfFaceVectors = 1;       // Source term vector at boundary
+        std::size_t numberOfElementMatrices = 2;   // Mass matrix and stiffness matrix
+        std::size_t numberOfElementVectors = 1;    // Source term vector
+        std::size_t numberOfFaceMatrices = 1;      // Stiffness matrix
+        std::size_t numberOfFaceVectors = 1;       // Source term vector at boundary
 
         // Create mesh and set basis functions.
-        this->addMesh(description, meshType, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
+        this->addMesh(description, meshType, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors);
         this->meshes_[0]->useDefaultDGBasisFunctions();
         
         // Set the number of time integration vectors according to the size of the Butcher tableau.

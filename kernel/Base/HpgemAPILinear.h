@@ -84,7 +84,7 @@ namespace Base
         (
          const std::size_t numberOfUnknowns,
          const std::size_t polynomialOrder,
-         const Base::ButcherTableau * const ptrButcherTableau = Base::AllTimeIntegrators::Instance().getRule(4, 4),
+         const TimeIntegration::ButcherTableau * const ptrButcherTableau = TimeIntegration::AllTimeIntegrators::Instance().getRule(4, 4),
          const std::size_t numberOfTimeLevels = 0,
          const bool useSourceTerm = false,
          const bool useSourceTermAtBoundary = false
@@ -106,7 +106,7 @@ namespace Base
         HpgemAPILinear& operator=(const HpgemAPILinear &other) = delete;
         
         /// \brief Create the mesh.
-        virtual void createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType) override;
+        virtual void createMesh(const std::size_t numberOfElementsPerDirection, const Base::MeshType meshType) override;
         
         /// \brief Compute the source term at a given physical point.
         virtual LinearAlgebra::MiddleSizeVector getSourceTerm(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)

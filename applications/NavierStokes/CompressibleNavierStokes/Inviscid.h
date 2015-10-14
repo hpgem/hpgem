@@ -43,10 +43,12 @@ public:
     /// \brief Compute the Roe Riemann Flux.
     LinearAlgebra::MiddleSizeVector RoeRiemannFluxFunction(const LinearAlgebra::MiddleSizeVector &stateLeft, const LinearAlgebra::MiddleSizeVector &stateRight, const LinearAlgebra::SmallVector<DIM> &unitNormalInternal);
 
+    LinearAlgebra::MiddleSizeVector FluxFunction(const LinearAlgebra::MiddleSizeVector &stateBoundary, double pressure, const LinearAlgebra::SmallVector<DIM> &normalUnitVector);
 
     /// \brief Compute the integrand for the right hand side for the reference face corresponding to a external face.
-	LinearAlgebra::MiddleSizeVector integrandAtFace(Base::PhysicalFace<DIM> &face, const double &time, const LinearAlgebra::MiddleSizeVector &stateInternal);
+	LinearAlgebra::MiddleSizeVector integrandAtBoundaryFace(Base::PhysicalFace<DIM> &face, const double &time, const LinearAlgebra::MiddleSizeVector &stateBoundary, double pressureBoundary, const LinearAlgebra::SmallVector<DIM> &unitNormalInternal);
 
+	/// \possibly deprecated
 	/// \brief Compute the integrand for the right hand side for the reference face corresponding to an internal face.
 	LinearAlgebra::MiddleSizeVector integrandAtFace(Base::PhysicalFace<DIM> &face, const double &time, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &stateInternal, const LinearAlgebra::MiddleSizeVector &stateExternal, const LinearAlgebra::SmallVector<DIM> &unitNormalInternal);
 

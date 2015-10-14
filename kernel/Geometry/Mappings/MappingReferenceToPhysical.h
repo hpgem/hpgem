@@ -97,7 +97,10 @@ namespace Geometry
             return PointPhysical<4>();
         }
         
-        //! ~OC~ Recompute mapping after physical nodes have moved.
+        /// Recompute mapping after physical nodes have moved.
+        /// Note that this typically has to be done for all elements, so make sure
+        /// to use the global iterator to get all the elements when using parallel 
+        /// computing.
         virtual void reinit() = 0;
 
     protected:

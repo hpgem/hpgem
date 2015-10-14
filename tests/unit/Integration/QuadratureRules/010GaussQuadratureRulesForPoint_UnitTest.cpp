@@ -35,7 +35,8 @@ void testRule(QuadratureRules::GaussQuadratureRule& test)
     std::cout << test.getName();
     logger.assert_always((test.dimension() == 0), "dimension");
     logger.assert_always((test.order() > 11), "order");
-    logger.assert_always((typeid(*test.forReferenceGeometry()) == typeid(Geometry::ReferencePoint)), "forReferenceGeometry");
+    const Geometry::ReferenceGeometry& refGeo = *test.forReferenceGeometry();
+    logger.assert_always((typeid(refGeo) == typeid(Geometry::ReferencePoint)), "forReferenceGeometry");
     //0D Quadrature rules are special
     double integrated = 0;
     for (std::size_t i = 0; i < test.getNumberOfPoints(); ++i)

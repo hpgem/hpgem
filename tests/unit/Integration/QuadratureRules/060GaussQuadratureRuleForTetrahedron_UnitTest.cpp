@@ -38,7 +38,8 @@ void testRule(QuadratureRules::GaussQuadratureRule& test, std::size_t expectedOr
     std::cout << test.getName() << std::endl;
     logger.assert_always((test.dimension() == 3), "dimension");
     logger.assert_always((test.order() >= expectedOrder), "order");
-    logger.assert_always((typeid(*test.forReferenceGeometry()) == typeid(Geometry::ReferenceTetrahedron)), "forReferenceGeometry");
+    const Geometry::ReferenceGeometry& refGeo = *test.forReferenceGeometry();
+    logger.assert_always((typeid(refGeo) == typeid(Geometry::ReferenceTetrahedron)), "forReferenceGeometry");
     std::cout.precision(14);
     Base::BasisFunctionSet* functions = Utilities::createDGBasisFunctionSet3DH1Tetrahedron(expectedOrder);
     for (std::size_t i = 0; i < functions->size(); ++i)
@@ -295,8 +296,9 @@ int main()
     testRule(QuadratureRules::T3_7_31::Instance(), 7);
     testRule(QuadratureRules::T3_8_43::Instance(), 8);
     testRule(QuadratureRules::T3_9_53::Instance(), 9);
-    testRule(QuadratureRules::T3_10_126::Instance(), 10); ///\TODO implement 11th order quadrature
-            
+    testRule(QuadratureRules::T3_10_126::Instance(), 10);
+    ///\todo implement 11th order quadrature
+
     return 0;
 }
 

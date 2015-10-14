@@ -71,14 +71,7 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefF
     
     MiddleSizeVector flux(2);
     
-    if (normal > 0)
-    {
-        flux = localLaxFriedrichsFlux(solutionLeft, solutionRight);
-    }
-    else
-    {
-        flux = localLaxFriedrichsFlux(solutionRight, solutionLeft);
-    }
+    flux = hllcFlux(solutionLeft, solutionRight, face.getUnitNormalVector()[0]);
     
     if (iSide == Base::Side::RIGHT) //the normal is defined for the left element
     {
@@ -120,8 +113,9 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefF
     }
     
     //outflow
-    if (normal*solution(1) > 0)
+    if (normal> 0)
     {
+        /*
         const Base::Face *otherFace = face.getPhysicalElement(Base::Side::LEFT).getElement()->getFace(0);
         logger(DEBUG, "face before last: %, position %", otherFace->getID(), otherFace->referenceToPhysical(pRef));
         MiddleSizeVector otherSideSolution = 0.5*(otherFace->getPtrElementRight()->getSolution(0, otherFace->mapRefFaceToRefElemR(pRef)) + otherFace->getPtrElementLeft()->getSolution(0, otherFace->mapRefFaceToRefElemL(pRef)));
@@ -166,22 +160,20 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefF
             flux = localLaxFriedrichsFlux(solution, solution);
         }
         //flux = computePhysicalFlux(ghostSolution);
-        //logger(INFO, "old flux %", flux);
+        //logger(INFO, "old flux %", flux);*/
+        flux = hllcFlux(solution, solution, face.getUnitNormalVector()[0]);
     }
     else //inflow
     {
         //subcritical
-        if (solution[1]/solution[0] < std::sqrt(solution[0]*std::cos(chuteAngle_)*epsilon_))
+        /*if (false && solution[1]/solution[0] < std::sqrt(solution[0]*std::cos(chuteAngle_)*epsilon_))
         {
             double hNew = inflowBC_[0];
             double uNew = solution[1] / solution[0] - 2*std::sqrt(epsilon_*std::cos(chuteAngle_))*(std::sqrt(solution[0]) - std::sqrt(hNew));
             auto stateNew = MiddleSizeVector({hNew, hNew * uNew});
             flux = localLaxFriedrichsFlux(solution, stateNew);
-        }
-        else
-        {            
+        }     */
             flux = localLaxFriedrichsFlux(inflowBC_, inflowBC_);
-        }
     }
     
     MiddleSizeVector integrand(numOfVariables_ * numBasisFuncs);
@@ -297,4 +289,37 @@ double SavageHutterRightHandSideComputer::computeFrictionExponential(const Middl
     if (std::abs(u) < 1e-16)
         return std::tan(delta1);
     return std::tan(delta1) + (std::tan(delta2) - std::tan(delta1))*std::exp(-beta*std::pow(epsilon_*h, 1.5)/(L * std::abs(u)));
+}
+
+
+MiddleSizeVector SavageHutterRightHandSideComputer::hllcFlux(const MiddleSizeVector& numericalSolutionLeft, const MiddleSizeVector& numericalSolutionRight, const double normal)
+{
+    const double hLeft = numericalSolutionLeft[0];
+    const double hRight = numericalSolutionRight[0];
+    double normalSpeedLeft = 0;
+    if (numericalSolutionLeft(0) > minH_)
+    {
+        normalSpeedLeft = normal * numericalSolutionLeft(1) / numericalSolutionLeft(0);
+    }
+    
+    double normalSpeedRight = 0;
+    if (numericalSolutionRight(0) > minH_)
+    {
+        normalSpeedRight = normal * numericalSolutionRight(1) / numericalSolutionRight(0);
+    }
+    MiddleSizeVector fluxNormalLeft = normal * computePhysicalFlux(numericalSolutionLeft);
+    MiddleSizeVector fluxNormalRight = normal * computePhysicalFlux(numericalSolutionRight);
+    double phaseSpeedLeft = std::sqrt(epsilon_ * std::cos(chuteAngle_) * hLeft);
+    double phaseSpeedRight = std::sqrt(epsilon_ * std::cos(chuteAngle_) * hRight);
+    double sl=std::min(normalSpeedLeft-phaseSpeedLeft, normalSpeedRight-phaseSpeedRight);
+    double sr=std::max(normalSpeedLeft+phaseSpeedLeft, normalSpeedRight+phaseSpeedRight);
+    if (sl >= 0)
+    {
+        return fluxNormalLeft;
+    }
+    if (sr <= 0)
+    {
+        return fluxNormalRight;
+    }
+	return ((sr*fluxNormalLeft-sl*fluxNormalRight+sl*sr*(numericalSolutionRight-numericalSolutionLeft))/(sr-sl));
 }

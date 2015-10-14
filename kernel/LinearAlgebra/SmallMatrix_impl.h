@@ -56,6 +56,11 @@ namespace LinearAlgebra
             logger(WARN, "Trying to multiply a vector with a matrix without any rows.");
             return SmallVector<nRows>();
         }
+        if (nCols == 0)
+        {
+            logger(WARN, "Trying to multiply a vector with a matrix without any columns.");
+            return SmallVector<nRows>();
+        }
         int nr = nRows;
         int nc = nCols;
 
@@ -77,6 +82,11 @@ namespace LinearAlgebra
         if (nRows == 0)
         {
             logger(WARN, "Trying to multiply a vector with a matrix without any rows.");
+            return SmallVector<nRows>();
+        }
+        if (nCols == 0)
+        {
+            logger(WARN, "Trying to multiply a vector with a matrix without any columns.");
             return SmallVector<nRows>();
         }
         int nr = nRows;
@@ -102,6 +112,11 @@ namespace LinearAlgebra
         int j = nCols;
         int k = K;
 
+        if (nCols == 0)
+        {
+            logger(WARN, "Trying to multiply a matrix with a matrix without any columns.");
+            return SmallMatrix<nRows,K>();
+        }
         //The result of the matrix is left.Nrows, right.NCols()
         SmallMatrix<nRows, K> C;
 
@@ -122,6 +137,11 @@ namespace LinearAlgebra
         int j = nCols;
         int k = K;
 
+        if (nCols == 0)
+        {
+            logger(WARN, "Trying to multiply a matrix with a matrix without any columns.");
+            return SmallMatrix<nRows,K>();
+        }
         //The result of the matrix is left.Nrows, right.NCols()
         SmallMatrix<nRows, K> C;
 

@@ -33,7 +33,7 @@ namespace Geometry
 namespace Output
 {
     
-    /// \TODO: Implement other geometries. For that we need the physical geometries.
+    /// \todo: Implement other geometries.
     class TecplotPhysicalGeometryIterator : public PhysicalGeometryAcceptor
     {
         

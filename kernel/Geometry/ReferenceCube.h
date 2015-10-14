@@ -89,7 +89,7 @@ namespace Geometry
         // ================================== Codimension 1 ========================================
         
         //! (see MappingCodimensions.h)
-        std::size_t getNrOfCodim1Entities() const override final
+        std::size_t getNumberOfCodim1Entities() const override final
         {
             return 6;
         }
@@ -106,7 +106,7 @@ namespace Geometry
         // ================================== Codimension 2 ========================================
         
         //! (see MappingCodimensions.h)
-        std::size_t getNrOfCodim2Entities() const override final
+        std::size_t getNumberOfCodim2Entities() const override final
         {
             return 12;
         }
@@ -123,7 +123,7 @@ namespace Geometry
         // ================================== Codimension 3 ========================================
         
         //! (see MappingCodimensions.h)
-        std::size_t getNrOfCodim3Entities() const override final
+        std::size_t getNumberOfCodim3Entities() const override final
         {
             return 8;
         }
@@ -137,19 +137,19 @@ namespace Geometry
         // =============================== Refinement mappings =====================================
         
         //! Transform a reference point using refinement mapping
-        void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference<3>& p, PointReference<3>& pMap) const;
+        void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference<3>& p, PointReference<3>& pMap) const override;
 
         //! Transformation matrix of this refinement when located on the LEFT side
-        void getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::MiddleSizeMatrix& Q) const;
+        void getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::MiddleSizeMatrix& Q) const override;
 
         //! Transformation matrix of this refinement when located on the RIGHT side
-        void getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx, LinearAlgebra::MiddleSizeMatrix& Q) const;
+        void getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx, LinearAlgebra::MiddleSizeMatrix& Q) const override;
 
         //! Refinement mapping on codim1 for a given refinement on codim0
-        void getCodim1RefinementMappingMatrixL(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::MiddleSizeMatrix& Q) const;
+        void getCodim1RefinementMappingMatrixL(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::MiddleSizeMatrix& Q) const override;
 
         //! Refinement mapping on codim1 for a given refinement on codim0
-        void getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::MiddleSizeMatrix& Q) const;
+        void getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::MiddleSizeMatrix& Q) const override;
 
     private:
         
@@ -162,10 +162,10 @@ namespace Geometry
         //! The nodes on edge contains the local index of the two nodes in every edge.
         static std::size_t localNodesOnEdge_[12][2]; //!< 12 edges with 2 nodes
         
-        //! Codimension 1 mappings, from a line to a square. TODO: Where is this used? clarify here.
+        //! Codimension 1 mappings, from a square to a cube. (Used to map a coordinate on a face to a coordinate on an element)
         const MappingReferenceToReference<1>* mappingsSquareToCube_[6];
 
-        //! Codimension 0 mappings, from a square to a square. TODO: Where is this used? clarifiy here.
+        //! Codimension 0 mappings, from a cube to a cube. (Used to rotate the face when the left and right elements dont think it has the same orientation)
         const MappingReferenceToReference<0>* mappingsCubeToCube_[8];
 
         //! Pointer to the Codimension 1 reference geometry, in this case, to ReferenceSquare.

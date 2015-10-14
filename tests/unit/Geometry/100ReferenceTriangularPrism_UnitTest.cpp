@@ -138,7 +138,7 @@ int main()
     std::vector<std::size_t> faceIndices(3);
     //codim0maps dont exist so they dont need to be found properly
     
-    logger.assert_always((test.getNrOfCodim1Entities() == 5 && test.getNrOfCodim2Entities() == 9) && test.getNrOfCodim3Entities() == 6, "higher codimensional entities");
+    logger.assert_always((test.getNumberOfCodim1Entities() == 5 && test.getNumberOfCodim2Entities() == 9) && test.getNumberOfCodim3Entities() == 6, "higher codimensional entities");
     logger.assert_always((test.getCodim1ReferenceGeometry(0) == &Geometry::ReferenceTriangle::Instance() && test.getCodim1ReferenceGeometry(1) == &Geometry::ReferenceTriangle::Instance() && test.getCodim1ReferenceGeometry(2) == &Geometry::ReferenceSquare::Instance() && test.getCodim1ReferenceGeometry(3) == &Geometry::ReferenceSquare::Instance() && test.getCodim1ReferenceGeometry(4) == &Geometry::ReferenceSquare::Instance()), "getCodim1ReferenceGeometry");
     logger.assert_always((test.getCodim2ReferenceGeometry(0) == &Geometry::ReferenceLine::Instance() && test.getCodim2ReferenceGeometry(1) == &Geometry::ReferenceLine::Instance() && test.getCodim2ReferenceGeometry(2) == &Geometry::ReferenceLine::Instance() && test.getCodim2ReferenceGeometry(3) == &Geometry::ReferenceLine::Instance() && test.getCodim2ReferenceGeometry(4) == &Geometry::ReferenceLine::Instance() && test.getCodim2ReferenceGeometry(5) == &Geometry::ReferenceLine::Instance() && test.getCodim2ReferenceGeometry(6) == &Geometry::ReferenceLine::Instance() && test.getCodim2ReferenceGeometry(7) == &Geometry::ReferenceLine::Instance() && test.getCodim2ReferenceGeometry(8) == &Geometry::ReferenceLine::Instance()), "getCodim2ReferenceGeometry");
     logger.assert_always((test.getCodim1MappingPtr(0) == &Geometry::MappingToRefFaceToTriangularPrism0::Instance()), "getCodim1MappingPtr");
@@ -215,7 +215,8 @@ int main()
     logger.assert_always((test.getGaussQuadratureRule(3)->order() >= 3), "quadrature rules");
     logger.assert_always((test.getGaussQuadratureRule(5)->order() >= 5), "quadrature rules");
     logger.assert_always((test.getGaussQuadratureRule(7)->order() >= 7), "quadrature rules");
-    //assert(("quadrature rules",test.getGaussQuadratureRule(9)->order()>=9));///\TODO add extra quadrature rules
+    ///\todo add extra quadrature rules
+    //assert(("quadrature rules",test.getGaussQuadratureRule(9)->order()>=9));
     //assert(("quadrature rules",test.getGaussQuadratureRule(11)->order()>=11));
     
     //testing functionality of abstract parent classes
@@ -223,8 +224,6 @@ int main()
     logger.assert_always((test.getNumberOfNodes() == 6), "number of nodes");
     logger.assert_always((test.getGeometryType() == Geometry::ReferenceGeometryType::TRIANGULARPRISM), "type of geometry");
     
-    ///\TODO if it is decided that getBasisFunctionValue and getBasisFucntionDerivative remain here, test them
-    
-    ///\TODO testing that the refinement maps behave exactly like the forwarded calls of this class
+    ///\todo testing that the refinement maps behave exactly like the forwarded calls of this class
 }
 

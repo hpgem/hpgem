@@ -45,7 +45,7 @@ private:
     LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
     
     ///\brief Show the progress of the time integration.
-    void showProgress(const double time, const std::size_t timeStepID);
+    void showProgress(const double time, const std::size_t timeStepID) override final;
     
     LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0) override final;
     

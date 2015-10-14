@@ -7,7 +7,7 @@
 #include "Base/TimeIntegration/AllTimeIntegrators.h"
 #include "Logger.h"
 
-double executeOneTimeStep(const Base::ButcherTableau *integrator, double u, double dt)
+double executeOneTimeStep(const TimeIntegration::ButcherTableau *integrator, double u, double dt)
 {
     std::vector<double> k;
     //iterate over the stages of the Runge Kutta method, compute temporary solutions
@@ -32,12 +32,12 @@ double executeOneTimeStep(const Base::ButcherTableau *integrator, double u, doub
 
 int main()
 {
-    const Base::ButcherTableau *integrator1 = Base::AllTimeIntegrators::Instance().getRule(1, 1);
-    const Base::ButcherTableau *integrator2 = Base::AllTimeIntegrators::Instance().getRule(2, 2);
-    const Base::ButcherTableau *integrator4 = Base::AllTimeIntegrators::Instance().getRule(4, 4);
-    const Base::ButcherTableau *integrator1Tvd = Base::AllTimeIntegrators::Instance().getRule(1, 1, true);
-    const Base::ButcherTableau *integrator2Tvd = Base::AllTimeIntegrators::Instance().getRule(2, 2, true);
-    const Base::ButcherTableau *integrator3Tvd = Base::AllTimeIntegrators::Instance().getRule(3, 3, true);
+    const TimeIntegration::ButcherTableau *integrator1 = TimeIntegration::AllTimeIntegrators::Instance().getRule(1, 1);
+    const TimeIntegration::ButcherTableau *integrator2 = TimeIntegration::AllTimeIntegrators::Instance().getRule(2, 2);
+    const TimeIntegration::ButcherTableau *integrator4 = TimeIntegration::AllTimeIntegrators::Instance().getRule(4, 4);
+    const TimeIntegration::ButcherTableau *integrator1Tvd = TimeIntegration::AllTimeIntegrators::Instance().getRule(1, 1, true);
+    const TimeIntegration::ButcherTableau *integrator2Tvd = TimeIntegration::AllTimeIntegrators::Instance().getRule(2, 2, true);
+    const TimeIntegration::ButcherTableau *integrator3Tvd = TimeIntegration::AllTimeIntegrators::Instance().getRule(3, 3, true);
     
     double dt = 0.04;
     double u1 = 1;

@@ -129,7 +129,7 @@ namespace Geometry
     const MappingReferenceToReference<2>*
     ReferenceHypercube::getCodim2MappingPtr(const std::size_t lineIndex) const
     {
-        /// TODO: Implement face to hypercube mappings.
+        /// \todo: Implement face to hypercube mappings.
         logger(FATAL, "ERROR: ReferenceHypercube::getCodim2MappingPtr: face to hypercube mappings not implemented.\n");
         return 0;
     }
