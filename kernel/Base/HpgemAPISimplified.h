@@ -61,6 +61,8 @@ namespace Base
      * \li Implement the function 'createMeshDescription' to create a mesh description (e.g. domain, number of elements, etc.).
      * \li Implement the function 'getInitialConditions' to define the initial condition(s) of your problem.
      * \li Implement the functions 'computeRightHandSideAtElement' and 'computeRightHandSideAtFace' to compute the right-hand side corresponding to an element or face.
+     * \li Optional: Implement the function 'computeBothRightHandSidesAtFace' to compute the right-hand side of both faces between two elements together (requires one flux calculation instead of two).
+
      */
     /** \details To solve the PDE do the following in the main routine:
      * \li Create an object of your own class, that inherits from this class and has the necessary functions implemented (see list above).

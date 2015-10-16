@@ -56,7 +56,7 @@ namespace Base
     /// \param[in] polynomialOrder Polynomial order of the basis functions
     /// \param[in] ptrButcherTableau A butcherTableau used to solve the PDE with a Runge-Kutta method.
     /// \param[in] numberOfTimeLevels Number of time levels.
-    /// \param[in] computeBothFaces Compute integrands for the test functions on each sides of the face simultaneously (true) or seperately (false).
+    /// \param[in] computeBothFaces Compute integrands for the test functions on each sides of the face simultaneously (true) or seperately (false). Note: requires different face integrand function
     template<std::size_t DIM>
     HpgemAPISimplified<DIM>::HpgemAPISimplified
     (
