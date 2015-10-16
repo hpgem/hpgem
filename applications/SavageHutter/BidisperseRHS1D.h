@@ -34,7 +34,7 @@ class BidisperseRHS1D : public RightHandSideComputer
 public:
 
     BidisperseRHS1D(const std::size_t numOfVariables, const double epsilon, const double chuteAngle, const MiddleSizeVector inflowBC) :
-    RightHandSideComputer(numOfVariables), epsilon_(epsilon), chuteAngle_(chuteAngle), inflowBC_(inflowBC), minH_(1e-10), alpha_(0.5) { } //simple shear
+    RightHandSideComputer(numOfVariables, chuteAngle), epsilon_(epsilon), inflowBC_(inflowBC), minH_(1e-10), alpha_(0.5) { } //simple shear
 
     /// \brief Compute the integrand for the right hand side for the reference element.
     MiddleSizeVector integrandRightHandSideOnElement
@@ -48,7 +48,8 @@ public:
     MiddleSizeVector integrandRightHandSideOnRefFace
     (
         Base::PhysicalFace<DIM>& face,
-        const MiddleSizeVector &solutionCoefficients
+        const MiddleSizeVector &solutionCoefficients,
+        const double time = 0
         ) override final;
 
     /// \brief Compute the integrand for the right hand side for the reference face corresponding to an internal face.
@@ -76,7 +77,6 @@ private:
     double computeFrictionCoulomb(const MiddleSizeVector &numericalSolution);
 
     double epsilon_;
-    double chuteAngle_; //in radians
     MiddleSizeVector inflowBC_;
     double minH_; //below this height, don't divide by it, but set u to 0
     double alpha_;

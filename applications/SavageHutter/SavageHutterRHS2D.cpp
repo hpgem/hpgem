@@ -84,7 +84,8 @@ MiddleSizeVector SavageHutterRHS2D::integrandRightHandSideOnRefFace
 MiddleSizeVector SavageHutterRHS2D::integrandRightHandSideOnRefFace
 (
  Base::PhysicalFace<DIM>& face,
- const MiddleSizeVector &solutionCoefficients
+ const MiddleSizeVector &solutionCoefficients,
+ const double time
  )
 {
     double normalX = face.getUnitNormalVector()[0];

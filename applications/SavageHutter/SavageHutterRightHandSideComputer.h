@@ -39,7 +39,7 @@ class SavageHutterRightHandSideComputer : public RightHandSideComputer
 public:
 
     SavageHutterRightHandSideComputer(const std::size_t numOfVariables, const double epsilon, const double chuteAngle, const MiddleSizeVector inflowBC) :
-    RightHandSideComputer(numOfVariables), epsilon_(epsilon), chuteAngle_(chuteAngle), inflowBC_(inflowBC), minH_(1e-10), alpha_(1) { } //simple shear: 4./3, plug flow: 1, Bagnold: 5./4
+    RightHandSideComputer(numOfVariables, chuteAngle), epsilon_(epsilon), inflowBC_(inflowBC), minH_(1e-10), alpha_(1) { } //simple shear: 4./3, plug flow: 1, Bagnold: 5./4
 
     /// \brief Compute the integrand for the right hand side for the reference element.
     MiddleSizeVector integrandRightHandSideOnElement
@@ -53,7 +53,8 @@ public:
     MiddleSizeVector integrandRightHandSideOnRefFace
     (
         Base::PhysicalFace<DIM>& face,
-        const MiddleSizeVector &solutionCoefficients
+        const MiddleSizeVector &solutionCoefficients,
+        const double time = 0
         ) override final;
 
     /// \brief Compute the integrand for the right hand side for the reference face corresponding to an internal face.
@@ -70,7 +71,7 @@ public:
     {
         inflowBC_ = inflowBC;
     }
-
+    
 private:
     MiddleSizeVector computePhysicalFlux(const MiddleSizeVector &numericalSolution);
     MiddleSizeVector computeSourceTerm(const MiddleSizeVector &numericalSolution, const PointPhysicalT &pPhys, const double time);
@@ -81,10 +82,11 @@ private:
     double computeFrictionExponential(const MiddleSizeVector &numericalSolution);
     double computeFrictionCoulomb(const MiddleSizeVector &numericalSolution);
     
+    //Use for outflow only!
     double bisectionHFinder(const double hu, const MiddleSizeVector solutionOld)
     {
-        double left = 1e-5;
-        double right = 10;
+        double left = solutionOld[0] - .5;
+        double right = solutionOld[0] + .5;
         double oldSpeed = solutionOld[1]/solutionOld[0] + 2*std::sqrt(epsilon_*std::cos(chuteAngle_) * solutionOld[0]);
         std::function<double(double)> zeroFun = [=] (double h){return hu/h + 2*std::sqrt(epsilon_ * std::cos(chuteAngle_) * h) - oldSpeed;};
         if(Helpers::sign(zeroFun(left)) == Helpers::sign(zeroFun(right))) //if there is no zero, look for the minimum
@@ -110,9 +112,39 @@ private:
         
         return left + (right - left) / 2;
     }
+    
+    //for Inflow
+    double bisectionHFinder2(const double hu, const MiddleSizeVector solutionOld)
+    {
+        double left = solutionOld[0] - .5;
+        double right = solutionOld[0] + .5;
+        double oldSpeed = solutionOld[1]/solutionOld[0] - 2*std::sqrt(epsilon_*std::cos(chuteAngle_) * solutionOld[0]);
+        std::function<double(double)> zeroFun = [=] (double h){return hu/h - 2*std::sqrt(epsilon_ * std::cos(chuteAngle_) * h) - oldSpeed;};
+        if(Helpers::sign(zeroFun(left)) == Helpers::sign(zeroFun(right))) //if there is no zero, look for the minimum
+        {
+            zeroFun = [=] (double h){return -hu/h/h - std::sqrt(epsilon_ * std::cos(chuteAngle_)/ h);};
+            logger(WARN, "no solution for height for subcritical outflow in given interval");
+            return solutionOld[0];
+        }
+            
+        while (right - left > 1e-4)
+        {
+            double middle = left + (right - left) / 2;
+            logger(DEBUG, "left %, value %, \t right %, value % \t middle %", left, zeroFun(left), right, zeroFun(right), middle);
+            if (Helpers::sign(zeroFun(middle)) != Helpers::sign(zeroFun(left)))
+            {
+                right = middle;
+            }
+            else
+            {
+                left = middle;
+            }
+        }
+        
+        return left + (right - left) / 2;
+    }
 
     double epsilon_;
-    double chuteAngle_; //in radians
     MiddleSizeVector inflowBC_;
     double minH_; //below this height, don't divide by it, but set u to 0
     double alpha_;

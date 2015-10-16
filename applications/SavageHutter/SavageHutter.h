@@ -53,7 +53,25 @@ private:
     
     void setInflowBC(double time) override final
     {
-        
+        /*if (time > 7 && time < 12)
+        {
+            double h = 1 - .1*(time - 7);
+            rhsComputer_->setInflowBC(LinearAlgebra::MiddleSizeVector({h, .5}));
+        }
+        if (time >= 10)
+        {
+            double h = .5;
+            rhsComputer_->setInflowBC(LinearAlgebra::MiddleSizeVector({h, .5}));
+        }*/
+        /*if (time > 5 && time < 8)
+        {
+            rhsComputer_->setChuteAngle(rhsComputer_->getChuteAngle() - 1e-5);
+        }
+        if (time >= 10 && time < 11)
+        {
+            rhsComputer_->setChuteAngle(rhsComputer_->getChuteAngle() + 1e-5);
+        }*/
+            
     }
 
 };

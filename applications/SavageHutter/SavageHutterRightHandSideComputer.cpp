@@ -94,7 +94,8 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefF
 MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefFace
     (
      Base::PhysicalFace<DIM>& face,
-     const MiddleSizeVector &solutionCoefficients
+     const MiddleSizeVector &solutionCoefficients,
+     const double time
      )
 {
     double normal = face.getNormalVector()[0];
@@ -115,65 +116,85 @@ MiddleSizeVector SavageHutterRightHandSideComputer::integrandRightHandSideOnRefF
     //outflow
     if (normal> 0)
     {
-        /*
-        const Base::Face *otherFace = face.getPhysicalElement(Base::Side::LEFT).getElement()->getFace(0);
-        logger(DEBUG, "face before last: %, position %", otherFace->getID(), otherFace->referenceToPhysical(pRef));
-        MiddleSizeVector otherSideSolution = 0.5*(otherFace->getPtrElementRight()->getSolution(0, otherFace->mapRefFaceToRefElemR(pRef)) + otherFace->getPtrElementLeft()->getSolution(0, otherFace->mapRefFaceToRefElemL(pRef)));
-        const Base::Element *otherElement = otherFace->getPtrElementLeft();
-        logger(DEBUG, "one back: %", otherElement->getID());
-        otherFace = otherElement->getFace(0);
-        MiddleSizeVector twoBackSolution = 0.5*(otherFace->getPtrElementRight()->getSolution(0, otherFace->mapRefFaceToRefElemR(pRef)) + otherFace->getPtrElementLeft()->getSolution(0, otherFace->mapRefFaceToRefElemL(pRef)));
-        otherElement = otherFace->getPtrElementLeft();
-        logger(DEBUG, "two back: %", otherElement->getID());
-        otherFace = otherElement->getFace(0);
-        MiddleSizeVector threeBackSolution = 0.5*(otherFace->getPtrElementRight()->getSolution(0, otherFace->mapRefFaceToRefElemR(pRef)) + otherFace->getPtrElementLeft()->getSolution(0, otherFace->mapRefFaceToRefElemL(pRef)));
-        otherElement = otherFace->getPtrElementLeft();
-        logger(DEBUG, "three back: %", otherElement->getID());
-        otherFace = otherElement->getFace(0);
-        MiddleSizeVector fourBackSolution = 0.5*(otherFace->getPtrElementRight()->getSolution(0, otherFace->mapRefFaceToRefElemR(pRef)) + otherFace->getPtrElementLeft()->getSolution(0, otherFace->mapRefFaceToRefElemL(pRef)));
-        otherElement = otherFace->getPtrElementLeft();
-        logger(DEBUG, "four back: %", otherElement->getID());
-        otherFace = otherElement->getFace(0);
-        MiddleSizeVector fiveBackSolution = 0.5*(otherFace->getPtrElementRight()->getSolution(0, otherFace->mapRefFaceToRefElemR(pRef)) + otherFace->getPtrElementLeft()->getSolution(0, otherFace->mapRefFaceToRefElemL(pRef)));
-        otherElement = otherFace->getPtrElementLeft();
-        logger(DEBUG, "five back: %", otherElement->getID());
-        otherFace = otherElement->getFace(0);
-        MiddleSizeVector sixBackSolution = 0.5*(otherFace->getPtrElementRight()->getSolution(0, otherFace->mapRefFaceToRefElemR(pRef)) + otherFace->getPtrElementLeft()->getSolution(0, otherFace->mapRefFaceToRefElemL(pRef)));
-        
-        MiddleSizeVector ghostSolution =  solution;
-        
-        //logger(INFO, "new flux %", flux);
-        logger(DEBUG, "solution: %, otherSideSolution: % \n", solution, otherSideSolution);
-        //subcritical
-        if (solution[1]/solution[0] < std::sqrt(solution[0]*std::cos(chuteAngle_)*epsilon_))
+        //solid wall on the end
+        if (time > 2 && time < 7)
         {
-            double huNew = 1;
-            double hNew = 1.14;//bisectionHFinder(huNew, solution);
-            double uNew = solution[1] / solution[0] + 2*std::sqrt(epsilon_*std::cos(chuteAngle_))*(std::sqrt(solution[0]) - std::sqrt(hNew));
-            auto stateNew = MiddleSizeVector({hNew, hNew * uNew});
-            flux = localLaxFriedrichsFlux(solution, stateNew);
-            
-            logger(INFO, "reached subcritical! old state: % new state: %",solution, stateNew);
+            LinearAlgebra::MiddleSizeVector reflection;
+            if (time < 10)
+            {
+                reflection = LinearAlgebra::MiddleSizeVector({solution[0], -solution[1]});
+            }
+            else
+            {
+                reflection = LinearAlgebra::MiddleSizeVector({solution[0], 20*(time-0.15)*solution[1]});
+            }
+            flux = hllcFlux(solution, reflection, 1);
         }
         else
-        {            
-            flux = localLaxFriedrichsFlux(solution, solution);
+        {
+            const Base::Face *otherFace = face.getPhysicalElement(Base::Side::LEFT).getElement()->getFace(0);
+            logger(DEBUG, "face before last: %, position %", otherFace->getID(), otherFace->referenceToPhysical(pRef));
+            MiddleSizeVector otherSideSolution = 0.5*(otherFace->getPtrElementRight()->getSolution(0, otherFace->mapRefFaceToRefElemR(pRef)) + otherFace->getPtrElementLeft()->getSolution(0, otherFace->mapRefFaceToRefElemL(pRef)));
+            const Base::Element *otherElement = otherFace->getPtrElementLeft();
+            logger(DEBUG, "one back: %", otherElement->getID());
+            otherFace = otherElement->getFace(0);
+            MiddleSizeVector twoBackSolution = 0.5*(otherFace->getPtrElementRight()->getSolution(0, otherFace->mapRefFaceToRefElemR(pRef)) + otherFace->getPtrElementLeft()->getSolution(0, otherFace->mapRefFaceToRefElemL(pRef)));
+            otherElement = otherFace->getPtrElementLeft();
+            logger(DEBUG, "two back: %", otherElement->getID());
+            /*otherFace = otherElement->getFace(0);
+            MiddleSizeVector threeBackSolution = 0.5*(otherFace->getPtrElementRight()->getSolution(0, otherFace->mapRefFaceToRefElemR(pRef)) + otherFace->getPtrElementLeft()->getSolution(0, otherFace->mapRefFaceToRefElemL(pRef)));
+            otherElement = otherFace->getPtrElementLeft();
+            logger(DEBUG, "three back: %", otherElement->getID());
+            otherFace = otherElement->getFace(0);
+            MiddleSizeVector fourBackSolution = 0.5*(otherFace->getPtrElementRight()->getSolution(0, otherFace->mapRefFaceToRefElemR(pRef)) + otherFace->getPtrElementLeft()->getSolution(0, otherFace->mapRefFaceToRefElemL(pRef)));
+            otherElement = otherFace->getPtrElementLeft();
+            logger(DEBUG, "four back: %", otherElement->getID());
+            otherFace = otherElement->getFace(0);
+            MiddleSizeVector fiveBackSolution = 0.5*(otherFace->getPtrElementRight()->getSolution(0, otherFace->mapRefFaceToRefElemR(pRef)) + otherFace->getPtrElementLeft()->getSolution(0, otherFace->mapRefFaceToRefElemL(pRef)));
+            otherElement = otherFace->getPtrElementLeft();
+            logger(DEBUG, "five back: %", otherElement->getID());
+            otherFace = otherElement->getFace(0);
+            MiddleSizeVector sixBackSolution = 0.5*(otherFace->getPtrElementRight()->getSolution(0, otherFace->mapRefFaceToRefElemR(pRef)) + otherFace->getPtrElementLeft()->getSolution(0, otherFace->mapRefFaceToRefElemL(pRef)));*/
+
+            MiddleSizeVector ghostSolution =  2*solution - 1*otherSideSolution + 0*twoBackSolution;
+
+            //subcritical outflow:
+            if ((solution[1]/solution[0] < std::sqrt(solution[0]*std::cos(chuteAngle_)*epsilon_)))
+            {
+                double uIn = solution[1] / solution[0];
+                double invariantIn = uIn + 2*std::sqrt(epsilon_*std::cos(chuteAngle_)*solution[0]);
+                double froudeIn = solution[1] / solution[0] / std::sqrt(epsilon_*std::cos(chuteAngle_)*solution[0]);
+                double froudePrescribed = 1;
+                double dischargePrescribed = .5;
+                //double hOut = bisectionHFinder(dischargePrescribed, solution);
+                double hOut = (invariantIn / (2+froudePrescribed)) * (invariantIn / (2+froudePrescribed))/ (epsilon_*std::cos(chuteAngle_));
+                //double hOut = solution[0];
+                double uOut = invariantIn - 2*std::sqrt(epsilon_ * std::cos(chuteAngle_)*hOut);
+                logger(DEBUG, "new h and u and F: %, %, %", hOut, uOut, uOut / std::sqrt(epsilon_ * std::cos(chuteAngle_)*hOut));
+                auto stateNew = MiddleSizeVector({hOut, hOut * uOut});
+                flux = hllcFlux(solution, stateNew, 1);
+            }
+            else
+            {
+                //supercritical outflow:
+                flux = hllcFlux(solution, solution, face.getUnitNormalVector()[0]);
+            }
         }
-        //flux = computePhysicalFlux(ghostSolution);
-        //logger(INFO, "old flux %", flux);*/
-        flux = hllcFlux(solution, solution, face.getUnitNormalVector()[0]);
     }
     else //inflow
     {
-        //subcritical
-        /*if (false && solution[1]/solution[0] < std::sqrt(solution[0]*std::cos(chuteAngle_)*epsilon_))
+        //subcritical inflow:
+        if (solution[1]/solution[0] < std::sqrt(solution[0]*std::cos(chuteAngle_)*epsilon_))
         {
             double hNew = inflowBC_[0];
             double uNew = solution[1] / solution[0] - 2*std::sqrt(epsilon_*std::cos(chuteAngle_))*(std::sqrt(solution[0]) - std::sqrt(hNew));
             auto stateNew = MiddleSizeVector({hNew, hNew * uNew});
-            flux = localLaxFriedrichsFlux(solution, stateNew);
-        }     */
-            flux = localLaxFriedrichsFlux(inflowBC_, inflowBC_);
+            flux = hllcFlux(stateNew, solution, 1);
+        }
+        else
+        {
+            flux = hllcFlux( inflowBC_, solution, 1);
+        }
     }
     
     MiddleSizeVector integrand(numOfVariables_ * numBasisFuncs);
@@ -217,7 +238,7 @@ MiddleSizeVector SavageHutterRightHandSideComputer::computeSourceTerm(const Midd
     {
         u = hu/h;
     }
-    double mu = computeFrictionCoulomb(numericalSolution);
+    double mu = computeFriction(numericalSolution);
     const int signU = Helpers::sign(u);
     double sourceX = h * std::sin(chuteAngle_) - h * mu * signU * std::cos(chuteAngle_);
     logger(DEBUG, "Source: %, h: %", sourceX, h);
@@ -254,19 +275,19 @@ MiddleSizeVector SavageHutterRightHandSideComputer::localLaxFriedrichsFlux(const
 
 double SavageHutterRightHandSideComputer::computeFrictionCoulomb(const MiddleSizeVector& numericalSolution)
 {
-    return std::tan(60./180*M_PI);
+    return std::tan(20./180*M_PI);
 }
 
 /// Compute friction as described in Weinhart (2012), eq (50) with lambda = 1, d = 1
 /// Notice that the minus sign for gamma in eq (50) is wrong.
 double SavageHutterRightHandSideComputer::computeFriction(const MiddleSizeVector& numericalSolution)
-{
-    const double delta1 = 17.561 / 180 * M_PI ;
-    const double delta2 = 32.257 / 180 * M_PI;
-    const double A = 3.836;
-    const double beta = 0.191;
-    const double gamma = -.045;
-    const double d = 1.;
+{ 
+    const double delta1 = 17.518 / 180 * M_PI ;
+    const double delta2 = 29.712 / 180 * M_PI;
+    const double A = 5.29;
+    const double beta = 0.189;
+    const double gamma = -.080;
+    const double d = 2;
     const double h = numericalSolution[0];
     if (h < minH_)
         return std::tan(delta1);

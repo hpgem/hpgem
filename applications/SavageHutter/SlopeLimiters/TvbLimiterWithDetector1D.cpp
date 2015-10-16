@@ -140,7 +140,8 @@ bool TvbLimiterWithDetector1D::hasSmallSlope(Base::Element* element, std::size_t
     
     const double uPlus = element->getSolution(0, pRefR)[iVar];
     const double uMinus = element->getSolution(0, pRefL)[iVar];
-    const double M = 500;
+    const double M = 10;
+    //slope smaller than M*dx*dx? then don't limit
     return (std::abs(uPlus - uMinus) < M * (2*element->calcJacobian(pRefL).determinant())* (2*element->calcJacobian(pRefL).determinant()));
 }
 
@@ -173,14 +174,16 @@ void TvbLimiterWithDetector1D::limitWithMinMod(Base::Element* element, const std
     const double uMinus = element->getSolution(0, pRefL)[iVar];
     
     const double u0 = Helpers::computeAverageOfSolution<1>(element, solutionCoefficients, elementIntegrator_)(iVar);
-    const double uElemR = Helpers::computeAverageOfSolution<1>(const_cast<Base::Element*>(elemR), solutionCoefficients, elementIntegrator_)(iVar);
-    const double uElemL = Helpers::computeAverageOfSolution<1>(const_cast<Base::Element*>(elemL), solutionCoefficients, elementIntegrator_)(iVar);
+    //const double uElemR = Helpers::computeAverageOfSolution<1>(const_cast<Base::Element*>(elemR), solutionCoefficients, elementIntegrator_)(iVar);
+    //const double uElemL = Helpers::computeAverageOfSolution<1>(const_cast<Base::Element*>(elemL), solutionCoefficients, elementIntegrator_)(iVar);
+    const double uElemR = Helpers::computeAverageOfSolution<1>(const_cast<Base::Element*>(elemR), elemR->getTimeIntegrationVector(0), elementIntegrator_)(iVar);
+    const double uElemL = Helpers::computeAverageOfSolution<1>(const_cast<Base::Element*>(elemL), elemL->getTimeIntegrationVector(0), elementIntegrator_)(iVar);
     logger(DEBUG, "coefficients: %", element->getTimeIntegrationSubvector(0, iVar));
     logger(DEBUG, "uPlus: %, basis function vals: %, %", uPlus , element->basisFunction(0,pRefR), element->basisFunction(1,pRefR));
     logger(DEBUG, "uMinus: %, basis function vals: %, %", uMinus, element->basisFunction(0,pRefL), element->basisFunction(1,pRefL));
-    logger(INFO, "Element %: %, %, %",element->getID(), (uPlus - uMinus), uElemR - u0, u0 - uElemL);
+    logger(DEBUG, "Element %: %, %, %",element->getID(), (uPlus - uMinus), uElemR - u0, u0 - uElemL);
     double slope =  0;
-    if (Helpers::sign(uElemR - u0) == Helpers::sign(u0 - uElemL) && Helpers::sign(uElemR - u0) == Helpers::sign(uPlus - uMinus))
+    if (false && Helpers::sign(uElemR - u0) == Helpers::sign(u0 - uElemL) && Helpers::sign(uElemR - u0) == Helpers::sign(uPlus - uMinus))
     {
         slope = Helpers::sign(uElemR - u0) * std::min(std::abs(uPlus - uMinus), std::min(std::abs(uElemR - u0), std::abs(u0 - uElemL)));
     }
@@ -191,6 +194,6 @@ void TvbLimiterWithDetector1D::limitWithMinMod(Base::Element* element, const std
         std::function<double(const PointReferenceT&)> newFun = [=] (const PointReferenceT& pRef) {return u0 + slope*pRef[0];};
         LinearAlgebra::MiddleSizeVector newCoeffs = Helpers::projectOnBasisFuns<1>(element, newFun, elementIntegrator_);
         element->setTimeIntegrationSubvector(0, iVar, newCoeffs);
-        logger(INFO, "Element % is limited, slope %!", element->getID(), slope);
+        logger(DEBUG, "Element % is limited, slope %!", element->getID(), slope);
     }
 }

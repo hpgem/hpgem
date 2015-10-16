@@ -56,7 +56,7 @@ Base::RectangularMeshDescriptor<DIM> SavageHutterBase::createMeshDescription(con
         description.numElementsInDIM_[i] = 20;
         description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
     }
-    description.topRight_[0] = 14;
+    description.topRight_[0] = 2;
     description.numElementsInDIM_[0] = numberOfElementPerDirection;
     return description;
 }
@@ -103,7 +103,7 @@ LinearAlgebra::MiddleSizeVector SavageHutterBase::computeRightHandSideAtFace
     const std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalFace<DIM>&)> integrandFunction =
         [ = ](Base::PhysicalFace<DIM>& face) -> LinearAlgebra::MiddleSizeVector
         {
-            return rhsComputer_->integrandRightHandSideOnRefFace(face, solutionCoefficients);
+            return rhsComputer_->integrandRightHandSideOnRefFace(face, solutionCoefficients, time);
         };
         
     return faceIntegrator_.integrate(ptrFace, integrandFunction, ptrFace->getGaussQuadratureRule());

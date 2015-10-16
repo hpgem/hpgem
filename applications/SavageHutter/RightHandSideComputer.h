@@ -31,8 +31,8 @@ class RightHandSideComputer
 {
 public:
 
-    RightHandSideComputer(std::size_t numVars)
-    : numOfVariables_(numVars) { }
+    RightHandSideComputer(std::size_t numVars, double chuteAngle)
+    : numOfVariables_(numVars), chuteAngle_(chuteAngle) { }
     
     virtual ~RightHandSideComputer(){ }
 
@@ -48,7 +48,8 @@ public:
     virtual MiddleSizeVector integrandRightHandSideOnRefFace
     (
         Base::PhysicalFace<DIM> &face,
-        const MiddleSizeVector &solutionCoefficients
+        const MiddleSizeVector &solutionCoefficients,
+        const double time
         ) = 0;
 
     /// \brief Purely virtual function to compute the integrand for the right hand side for the reference face corresponding to an internal face.
@@ -61,9 +62,22 @@ public:
         ) = 0;
     
     virtual void setInflowBC(MiddleSizeVector inflowBC){ }
+    
+     ///\brief set the angle of the chute, in radians
+    void setChuteAngle(const double angle)
+    {
+        chuteAngle_ = angle;
+    }
+    
+    ///\brief chute angle is in radians
+    double getChuteAngle()
+    {
+        return chuteAngle_;
+    }
 
 protected:
     std::size_t numOfVariables_;
+    double chuteAngle_;
 };
 
 #endif	/* RIGHTHANDSIDECOMPUTER_H */
