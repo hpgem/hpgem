@@ -27,7 +27,8 @@
 
 namespace Base
 {
-    ///behaves like the underlying transformation, except it will not scale the integrand (useful when the integrand over a face is linear in the normal)
+    ///You have to pass this coordinate transformation another transformation, which will be used to transform function values, derivatives and curls.
+    ///This transformation will scale the integrand by a factor 1. This can be useful when each term is already scaled correctly
     template<std::size_t DIM>
     class DoNotScaleIntegrands : public CoordinateTransformation<DIM>
     {

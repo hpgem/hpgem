@@ -29,43 +29,57 @@
 
 namespace Base
 {
-    ///base class for coordinate transformations. All functions are implemented to generate errors so specializations only need to override the functions they need
+    ///Base class for coordinate transformations. Coordinate transformations are used internally to rewrite the integral
+    ///expressions in the physical domain as integral expressions on reference elements. By default the expressions are
+    ///rewritten using a H1-conforming transformation. (Roughly speaking, H1 is the space where functions and their derivatives
+    ///are well behaved). If you need something different for your application you can set one of the provided alternatives
+    ///before evaluating the integrals or provide your own transformation.
+    ///All functions are implemented to generate errors so specializations only need to override the functions they need
     template<std::size_t DIM>
     class CoordinateTransformation
     {
     public:
         virtual ~CoordinateTransformation() = default;
 
+        ///provide a transformation strategy for (scalar valued) functions
         virtual double transform(double referenceData, PhysicalElement<DIM>& element) const
         {
             logger(ERROR, "Transforming scalar data is not supported, please set a different transformation");
             return 0.;
         }
 
+        ///provide a transformation strategy for vector valued functions. Typically your functions will be either scalar valued or vector valued
+        ///so you will need to override only one of the overloads
         virtual LinearAlgebra::SmallVector<DIM> transform(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const
         {
             logger(ERROR, "Transforming vector data is not supported, please set a different transformation");
             return LinearAlgebra::SmallVector<DIM>();
         }
 
+        ///provide a transformation for the derivative of a function
         virtual LinearAlgebra::SmallVector<DIM> transformDeriv(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const
         {
             logger(ERROR, "Transforming derivative data is not supported, please set a different transformation");
             return LinearAlgebra::SmallVector<DIM>();
         }
 
+        ///provide a transformation for the curl of a function
         virtual LinearAlgebra::SmallVector<DIM> transformCurl(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const
         {
             logger(ERROR, "Transforming curl data is not supported, please set a different transformation");
             return LinearAlgebra::SmallVector<DIM>();
         }
 
+        ///provide a scaling that will be applied to the entire integrand when integrating over elements
+        ///(typically this will be the absolute value of the determinant of the Jacobian)
         virtual double getIntegrandScaleFactor(PhysicalElement<DIM>& element) const
         {
             logger(ERROR, "Scaling integrands is not supported, please set a different transformation");
             return 0.;
         }
 
+        /// provide a scaling that will be applied to the entire integrand when integrating over faces
+        ///(in hpGEM, this will typically be the norm of the (non-unit) outward pointing normal vector)
         virtual double getIntegrandScaleFactor(PhysicalFace<DIM>& face) const
         {
             logger(ERROR, "Scaling integrands is not supported, please set a different transformation");
