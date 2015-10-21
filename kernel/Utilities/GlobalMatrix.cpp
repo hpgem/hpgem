@@ -213,6 +213,11 @@ namespace Utilities
                     }
                 }
                 faceMatrix = face->getFaceMatrixMatrix(faceMatrixID_);
+                //work-around: both subdomains have the boundary face so by default it is added twice, but it should only be added once
+                if(face->getFaceType() == Geometry::FaceType::SUBDOMAIN_BOUNDARY || face->getFaceType() == Geometry::FaceType::PERIODIC_SUBDOMAIN_BC)
+                {
+                    faceMatrix *= 0.5;
+                }
                 ierr = MatSetValues(A_, positions.size(), positions.data(), positions.size(), positions.data(), faceMatrix.data(), ADD_VALUES);
                 CHKERRV(ierr);
             }

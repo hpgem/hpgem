@@ -327,7 +327,7 @@ namespace Base
     template<std::size_t DIM>
     LinearAlgebra::MiddleSizeVector::type HpgemAPISimplified<DIM>::computeTotalError(const std::size_t solutionVectorId, const double time)
     {
-        LinearAlgebra::MiddleSizeVector::type localError = 0, totalError = 0;
+        LinearAlgebra::MiddleSizeVector::type localError = 0;
         
         for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
@@ -337,40 +337,24 @@ namespace Base
         
         LinearAlgebra::MiddleSizeVector::type error;
         
+        MPIContainer& communicator = MPIContainer::Instance();
 #ifdef HPGEM_USE_MPI
-        int world_rank = MPIContainer::Instance().getProcessorID();
-        auto& comm = MPIContainer::Instance().getComm();
-
-        comm.Reduce(&localError, &totalError, 1, Base::Detail::toMPIType(totalError), MPI::SUM, 0);
-
-        if(world_rank == 0)
-        {
-            logger.assert(std::abs(std::imag(totalError)) < 1e-12, "The computed error has an imaginary component");
-            if(std::real(totalError) >= 0)
+        communicator.reduce(localError, MPI::SUM);
+#endif
+        communicator.onlyOnOneProcessor({[&](){
+            logger.assert(std::abs(std::imag(localError)) < 1e-12, "The computed error has an imaginary component");
+            if (std::real(localError) >= 0)
             {
-                error = std::sqrt(totalError);
+                error = std::sqrt(localError);
             }
             else
             {
-                logger(WARN,"Warning: the computed total error is negative.");
-                error = std::sqrt(-totalError);
+                logger(WARN, "Warning: the computed total error is negative.");
+                error = std::sqrt(-localError);
             }
-        }
-        MPIContainer::Instance().broadcast(error, 0);
+        }});
+        MPIContainer::Instance().broadcast(error);
         return error;
-#else
-        
-        if (std::real(localError) >= 0)
-        {
-            error = std::sqrt(localError);
-        }
-        else
-        {
-            logger(WARN, "Warning: the computed total error is negative.");
-            error = std::sqrt(-localError);
-        }
-        return error;
-#endif
     }
     
     /// \details This function returns a vector of the suprema of the error of every variable.
@@ -461,17 +445,13 @@ namespace Base
         }
         
 #ifdef HPGEM_USE_MPI
-        auto& comm = MPIContainer::Instance().getComm();
-
+        auto& comm = MPIContainer::Instance();
         MPI::Op myMax;
         myMax.Init(computeMPIMaximum,true);
-
-        auto recieveError = maxError;
-        comm.Allreduce(maxError.data(), recieveError.data(), maxError.size(), Base::Detail::toMPIType(*maxError.data()), myMax);
-        return recieveError;
-#else
-        return maxError;
+        comm.reduce(maxError, myMax);
+        comm.broadcast(maxError);
 #endif
+        return maxError;
     }
     
     
