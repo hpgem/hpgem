@@ -246,6 +246,7 @@ namespace Geometry
     ElementGeometry::createMappings(std::size_t size, const PhysicalGeometry<DIM> * const pGeo)
     {
         logger(ERROR, "DIM may range from 1 to 4, but it seems to be %", DIM);
+        return nullptr;
     }
 
     template<>
