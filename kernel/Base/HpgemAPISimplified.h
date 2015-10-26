@@ -291,6 +291,11 @@ namespace Base
         {
         }
         
+        virtual void tasksAfterSolving()
+        {
+            
+        }
+        
         /// \brief Check things before solving (e.g. check if a mesh is created.)
         virtual bool checkBeforeSolving();
         

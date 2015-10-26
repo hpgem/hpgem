@@ -769,6 +769,8 @@ namespace Base
             showProgress(time, iT);
         }
         
+        tasksAfterSolving();
+        
         // Compute the energy norm of the error
         if(doComputeError)
         {
@@ -785,4 +787,3 @@ namespace Base
         return true;
     }
 }
-
