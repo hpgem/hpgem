@@ -53,7 +53,6 @@ public:
         //Choose the "direction" of the advection.
         //This cannot be implemented with iterators, and since the dimension is
         //not always 2, this is the most generic way to write it.
-        a.resize(DIM);
         for (std::size_t i = 0; i < DIM; ++i)
         {
             a[i] = 0.1 + 0.1 * i;
@@ -186,7 +185,7 @@ public:
 private:
     
     ///Advective vector
-    LinearAlgebra::MiddleSizeVector a;
+    LinearAlgebra::SmallVector<DIM> a;
 };
 
 auto& n = Base::register_argument<std::size_t>('n', "numelems", "Number of Elements", true);
