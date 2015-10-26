@@ -9,15 +9,15 @@ if(NOT hpGEM_USE_COMPLEX_PETSC)
 add_subdirectory(SlopeLimiters)
 add_subdirectory(HeightLimiters)
 
-add_executable(SavageHutterOld.out
+add_executable(SavageHutter.out
     HelperFunctions.cpp
-    SavageHutterRightHandSideComputer.cpp
-    BidisperseRHS1D.cpp
-    SavageHutterRHS2D.cpp
-		SavageHutter.cpp
-    SavageHutterBase.cpp
+    SavageHutter1DBasic.cpp
+    SavageHutter1DBidispersed.cpp
+    SavageHutter2DBasic.cpp
+    SavageHutter1DBase.cpp
+    SavageHutter2DBase.cpp
 		main.cpp
       		)
-target_link_libraries(SavageHutterOld.out hpGEM_Base Output SlopeLimiters HeightLimiters)
+target_link_libraries(SavageHutter.out hpGEM_Base Output SlopeLimiters HeightLimiters)
 
 endif()
