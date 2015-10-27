@@ -25,7 +25,7 @@
 #include "HeightLimiter.h"
 
 #include "Integration/ElementIntegral.h"
-#include "HelperFunctions.h"
+#include "../HelperFunctions.h"
 
 ///Use only for 1D
 ///It does not seem to work very well, use at your own risk

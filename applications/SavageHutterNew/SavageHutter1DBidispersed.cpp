@@ -132,7 +132,7 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DBidispersed::computeSourceTerm(con
 }
 
 ///\details Compute the function f(h,hu) = {hu,  hu^2 + h^2/2 \epsilon \cos \theta, eta*u - (1-alpha)*eta*u*(1-eta/h)}
-LinearAlgebra::MiddleSizeVector SavageHutter1DBidispersed::computePhysicalFlux(const MiddleSizeVector &numericalSolution)
+LinearAlgebra::MiddleSizeVector SavageHutter1DBidispersed::computePhysicalFlux(const MiddleSizeVector &numericalSolution, const PointPhysicalT& pPhys)
 {
     const double h = numericalSolution(0);
     logger.assert(h > -1e-16, "Negative height (%)", h);

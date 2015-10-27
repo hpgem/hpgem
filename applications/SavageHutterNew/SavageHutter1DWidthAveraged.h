@@ -19,12 +19,12 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SAVAGEHUTTER1DBIDSIPERSED_H
-#define	SAVAGEHUTTER1DBIDSIPERSED_H
+#ifndef SAVAGEHUTTER1DWIDTHAVERAGED_H
+#define	SAVAGEHUTTER1DWIDTHAVERAGED_H
 
 #include "SavageHutter1DBase.h"
 
-///\brief Class to solve the bidispersed Savage-Hutter equations with segregation equation.
+///\brief Class to solve the basic Savage-Hutter equations in 1D.
 ///\details The idea is that almost everything you want to change in your application
 ///can be changed in this class: the domain, initial solution, parameter values
 ///and output functions are all described in this class. It is also possible
@@ -32,13 +32,13 @@
 ///here between the different types of friction that are given in SavageHutter1DBase.
 ///The other function in here is computePhysicalFlux, which is the function F in 
 ///(h,hu)_t + F(h,hu)_x = S(h,hu). This is described here because it is different 
-///for this system than for example for the basic system or the width-averaged system
-///This system is not stable, so this application is not usable yet.
-class SavageHutter1DBidispersed : public SavageHutter1DBase
+///for this system than for example for the standard system and the bidispersed system
+class SavageHutter1DWidthAveraged : public SavageHutter1DBase
 {
 public:
+    
     ///\brief Constructor: initialise parent classes and set parameters.
-    SavageHutter1DBidispersed(std::size_t polyOrder, std::size_t numberOfElements);
+    SavageHutter1DWidthAveraged(std::size_t polyOrder, std::size_t numberOfElements);
     
     ///\brief Create the description of the domain and the mesh.
     Base::RectangularMeshDescriptor<1> createMeshDescription(const std::size_t numOfElementsPerDirection);
@@ -67,11 +67,13 @@ public:
     ///\brief Define your boundary conditions here
     LinearAlgebra::MiddleSizeVector computeGhostSolution(const LinearAlgebra::MiddleSizeVector &numericalSolution, const double normal, const double time);
     
+    std::array<double, 2> getWidth(const PointPhysicalT &pPhys) const;
     
-private:
-    ///shape factor of the velocity of the flow, 0<=alpha_<=1 . 
-    ///This is a different alpha_ than in the basic application!
-    double alpha_;
+    double computeFriction(const double h, const double u);
+    
+    LinearAlgebra::MiddleSizeVector hllcFlux(const LinearAlgebra::MiddleSizeVector& numericalSolutionLeft, const LinearAlgebra::MiddleSizeVector& numericalSolutionRight, const double normal, Base::PhysicalFace<1> &face);
+    
 };
-#endif	/* SAVAGEHUTTER1DBIDSIPERSED_H */
+
+#endif	/* SAVAGEHUTTER1DAVERAGED_H */
 

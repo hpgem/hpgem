@@ -75,6 +75,7 @@ protected:
     
 protected:
     ///\brief Compute the friction as in Weinhart et. al. (2012)
+    ///\todo make the friction depend on h and u (or F) instead of numericalSolution
     double computeFriction(const LinearAlgebra::MiddleSizeVector &numericalSolution);    
     
     ///\brief Compute friction with exponential friction law
@@ -84,15 +85,17 @@ protected:
     double computeFrictionCoulomb(const LinearAlgebra::MiddleSizeVector &numericalSolution, const double frictionAngle);
     
 private:
-    virtual LinearAlgebra::MiddleSizeVector computePhysicalFlux(const LinearAlgebra::MiddleSizeVector &numericalSolution) = 0;
+    virtual LinearAlgebra::MiddleSizeVector computePhysicalFlux(const LinearAlgebra::MiddleSizeVector &numericalSolution, const PointPhysicalT& pPhys) = 0;
     virtual LinearAlgebra::MiddleSizeVector computeSourceTerm(const LinearAlgebra::MiddleSizeVector &numericalSolution, const PointPhysicalT &pPhys, const double time) = 0;
+    ///\bug defining the boundary conditions in the children does not seem to work well...
+    [[deprecated]]
     virtual LinearAlgebra::MiddleSizeVector computeGhostSolution(const LinearAlgebra::MiddleSizeVector &numericalSolution, const double normal, const double time) = 0;
     
     ///\brief Compute the local Lax-Friedrichs flux for the two given numerical solutions across a face.
-    LinearAlgebra::MiddleSizeVector localLaxFriedrichsFlux(const LinearAlgebra::MiddleSizeVector &numericalSolutionLeft, const LinearAlgebra::MiddleSizeVector &NumericalSolutionRight);
+    LinearAlgebra::MiddleSizeVector localLaxFriedrichsFlux(const LinearAlgebra::MiddleSizeVector &numericalSolutionLeft, const LinearAlgebra::MiddleSizeVector &NumericalSolutionRight, Base::PhysicalFace<1> &face);
     
     ///\brief Compute the HLLC flux for the two given numerical solutions across a face.
-    LinearAlgebra::MiddleSizeVector hllcFlux(const LinearAlgebra::MiddleSizeVector &numericalSolutionLeft, const LinearAlgebra::MiddleSizeVector &NumericalSolutionRight, const double normal);
+    virtual LinearAlgebra::MiddleSizeVector hllcFlux(const LinearAlgebra::MiddleSizeVector &numericalSolutionLeft, const LinearAlgebra::MiddleSizeVector &NumericalSolutionRight, const double normal, Base::PhysicalFace<1> &face);
     
 };
 

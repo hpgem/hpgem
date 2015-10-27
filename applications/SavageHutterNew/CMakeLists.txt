@@ -13,6 +13,7 @@ add_executable(SavageHutter.out
     HelperFunctions.cpp
     SavageHutter1DBasic.cpp
     SavageHutter1DBidispersed.cpp
+    SavageHutter1DWidthAveraged.cpp
     SavageHutter2DBasic.cpp
     SavageHutter1DBase.cpp
     SavageHutter2DBase.cpp

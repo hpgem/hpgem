@@ -62,7 +62,7 @@ public:
     LinearAlgebra::MiddleSizeVector computeSourceTerm(const LinearAlgebra::MiddleSizeVector &numericalSolution, const PointPhysicalT& pPhys, const double time) override final;
     
     ///\brief Compute F in (h,hu)_t + F(h,hu)_x = S(h,hu)
-    LinearAlgebra::MiddleSizeVector computePhysicalFlux(const LinearAlgebra::MiddleSizeVector &numericalSolution);
+    LinearAlgebra::MiddleSizeVector computePhysicalFlux(const LinearAlgebra::MiddleSizeVector &numericalSolution, const PointPhysicalT& pPhys);
     
     ///\brief Define your boundary conditions here
     LinearAlgebra::MiddleSizeVector computeGhostSolution(const LinearAlgebra::MiddleSizeVector &numericalSolution, const double normal, const double time);
