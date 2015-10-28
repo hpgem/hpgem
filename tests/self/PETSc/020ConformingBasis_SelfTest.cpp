@@ -50,7 +50,6 @@ public:
     p_(p),
     totalError_(0)
     {
-        penalty_ = 3 * n_ * p_ * (p_ + DIM - 1) + 1;
         createMesh(n_, meshType);
     }
     
@@ -121,62 +120,19 @@ public:
         
         return integrandVal;
     }
-    
-    /// \brief Compute the integrand for the siffness matrix at the face.
+
+    //the default hpGEM solver expects to have to construct a face matrix, just give it the default one
     Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(Base::PhysicalFace<DIM> &face) override final
     {
-        //Get the number of basis functions, first of both sides of the face and
-        //then only the basis functions associated with the left and right element.
-        std::size_t numBasisFunctions = face.getFace()->getNrOfBasisFunctions();
-        
-        //Create the FaceMatrix integrandVal with the correct size.
-        Base::FaceMatrix& integrandVal = face.getResultMatrix();
-        
-        //Initialize the vectors that contain gradient(phi_i), gradient(phi_j), normal_i phi_i and normal_j phi_j
-        LinearAlgebra::SmallVector<DIM> phiNormalI, phiNormalJ, phiDerivI, phiDerivJ;
-        
-        //Transform the point from the reference value to its physical value.
-        //This is necessary to check at which boundary we are if we are at a boundary face.
-        const PointPhysicalT& pPhys = face.getPointPhysical();
-        
-        for (int i = 0; i < numBasisFunctions; ++i)
-        {
-            //normal_i phi_i is computed at point p, the result is stored in phiNormalI.
-            phiNormalI = face.basisFunctionUnitNormal(i);
-            //The gradient of basisfunction phi_i is computed at point p, the result is stored in phiDerivI.
-            phiDerivI = face.basisFunctionDeriv(i);
-            
-            for (int j = 0; j < numBasisFunctions; ++j)
-            {
-                //normal_j phi_j is computed at point p, the result is stored in phiNormalJ.
-                phiNormalJ = face.basisFunctionUnitNormal(j);
-                //The gradient of basisfunction phi_j is computed at point p, the result is stored in phiDerivJ.
-                phiDerivJ = face.basisFunctionDeriv(j);
-                
-                //Switch to the correct type of face, and compute the integrand accordingly
-                //you could also compute the integrandVal by directly using face->basisFunctionDeriv
-                //and face->basisFunctionNormal in the following lines, but this results in very long expressions
-                //Internal face:
-                if (face.isInternal())
-                {
-                    integrandVal(j, i) = -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI) / 2 + penalty_ * phiNormalI * phiNormalJ;
-                }
-                //Boundary face with Dirichlet boundary conditions:
-                else if (std::abs(pPhys[0]) < 1e-9 || std::abs(pPhys[0] - 1.) < 1e-9)
-                {
-                    integrandVal(j, i) = -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI) + penalty_ * phiNormalI * phiNormalJ * 2;
-                }
-                //Boundary face with homogeneous Neumann boundary conditions:
-                else
-                {
-                    integrandVal(j, i) = 0;
-                }
-            }
-        }
-        
-        return integrandVal;
+        return face.getResultMatrix();
     }
-    
+
+    //the default hpGEM solver expects to have to construct a face vector, just give it the default one
+    LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(Base::PhysicalFace<DIM> &face) override final
+    {
+        return face.getResultVector();
+    }
+
     /// \brief Define the exact solution
     LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &p) override final
     {
@@ -215,36 +171,9 @@ public:
         return sourceTerm;
     }
     
-    /// \brief Compute the integrals of the right-hand side associated with faces.
-    LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(Base::PhysicalFace<DIM> &face) override final
-    {
-        //Obtain the number of basisfunctions that are possibly non-zero
-        const std::size_t numBasisFunctions = face.getFace()->getNrOfBasisFunctions();
-        //Resize the integrandVal such that it contains as many rows as
-        //the number of basisfunctions.
-        LinearAlgebra::MiddleSizeVector& integrandVal = face.getResultVector();
-        
-        const PointPhysicalT& pPhys = face.getPointPhysical();
-        if (std::abs(pPhys[0]) < 1e-9 || std::abs(pPhys[0] - 1) < 1e-9)
-        { //Dirichlet
-            LinearAlgebra::SmallVector<DIM> phiDeriv;
-            for (std::size_t i = 0; i < numBasisFunctions; ++i)
-            {
-                phiDeriv = face.basisFunctionDeriv(i);
-                integrandVal[i] = (-face.getUnitNormalVector() * phiDeriv + penalty_ * face.basisFunction(i)) * 0;
-            }
-        }
-        else
-        {
-            for (std::size_t i = 0; i < numBasisFunctions; ++i)
-            {
-                integrandVal[i] = 0;
-            }
-        }
-        
-        return integrandVal;
-    }
-    
+    //This routine alters the matrix such that it can deal with conforming boundaries. It assumes correct boundary values are provided in
+    //its third argument (the rest of the vector can be garbage) and that the second vector will be used as the RHS of a linear system solve
+    //it clears the rows corresponding to the boudary nodes to have only a 1 on the diagonal and sets the RHS to the appropriate value
     void insertDirichletBoundary(Utilities::GlobalPetscMatrix& A, Utilities::GlobalPetscVector& b, Utilities::GlobalPetscVector& x)
     {
         std::size_t numberOfRows(0);
@@ -254,9 +183,11 @@ public:
         {
             const PointReferenceOnFaceT& center = face->getReferenceGeometry()->getCenter();
             pPhys = face->referenceToPhysical(center);
+            //if the face is on a dirichlet boundary
             //if(face->faceType_=(...))
             if (std::abs(pPhys[0]) < 1e-9 || std::abs(pPhys[0] - 1) < 1e-9)
             {
+                //fetch the row numbers
                 A.getMatrixBCEntries(face, numberOfRows, rows);
             }
         }
@@ -272,10 +203,12 @@ public:
         
         // Solve the linear problem
         //Assemble the matrix A of the system Ax = b.
-        Utilities::GlobalPetscMatrix A(this->meshes_[0], this->stiffnessElementMatrixID_, this->stiffnessFaceMatrixID_);
+        //The special value -1 is used to indicate there is no face matrix (since there is no flux in the conforming case)
+        Utilities::GlobalPetscMatrix A(this->meshes_[0], this->stiffnessElementMatrixID_, -1);
         MatScale(A,-1);
         //Declare the vectors x and b of the system Ax = b.
-        Utilities::GlobalPetscVector b(this->meshes_[0], this->sourceElementVectorID_, this->sourceFaceVectorID_), x(this->meshes_[0]);
+        //The special value -1 is used to indicate there is no face matrix (since there is no flux in the conforming case)
+        Utilities::GlobalPetscVector b(this->meshes_[0], this->sourceElementVectorID_, -1), x(this->meshes_[0]);
         
         //Assemble the vector b. This is needed because Petsc assumes you don't know
         //yet whether a vector is a variable or right-hand side the moment it is
@@ -330,13 +263,6 @@ private:
     
     ///polynomial order of the approximation
     int p_;
-    
-    ///\brief Penalty parameter
-    ///
-    ///Penalty parameter that is associated with the interior penalty discontinuous
-    ///Galerkin method. This parameter is initialized in the constructor, and has
-    ///to be greater than 3 * n_ * p_ * (p_ + DIM - 1) in order for the method to be stable.
-    double penalty_;
     
     /// Weighted L2 norm of the error
     LinearAlgebra::MiddleSizeVector::type totalError_;
@@ -406,51 +332,6 @@ int main(int argc, char** argv)
     PoissonTest<3> test14(16, 1, Base::MeshType::RECTANGULAR);
     test14.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test14.getTotalError() - 0.00454794) < 1e-8), "comparison to old results");
-
-    //no 3D testing due to speed related issues
-    /*
-    Laplace test0(1, 2, 1, Base::MeshType::RECTANGULAR);
-    test0.initialise();
-    std::cout.precision(10);
-    std::cout << test0.solve() << std::endl;
-    logger.assert_always((std::abs(test0.solve() - 0.48478776) < 1e-8), "comparison to old results");
-    Laplace test1(2, 3, 1, Base::MeshType::RECTANGULAR);
-    test1.initialise();
-    std::cout << test1.solve() << std::endl;
-    logger.assert_always((std::abs(test1.solve() - 0.02225892) < 1e-8), "comparison to old results");
-    Laplace test2(4, 4, 1, Base::MeshType::RECTANGULAR);
-    test2.initialise();
-    std::cout << test2.solve() << std::endl;
-    logger.assert_always((std::abs(test2.solve() - 0.00008248) < 1e-8), "comparison to old results");
-    Laplace test3(8, 5, 1, Base::MeshType::RECTANGULAR);
-    test3.initialise();
-    std::cout << test3.solve() << std::endl;
-    logger.assert_always((std::abs(test3.solve() - 0.00000008) < 1e-8), "comparison to old results");
-    Laplace test4(16, 1, 1, Base::MeshType::RECTANGULAR);
-    test4.initialise();
-    std::cout << test4.solve() << std::endl;
-    logger.assert_always((std::abs(test4.solve() - 0.00904309) < 1e-8), "comparison to old results");
-    Laplace test5(1, 2, 2, Base::MeshType::TRIANGULAR);
-    test5.initialise();
-    std::cout << test5.solve() << std::endl;
-    logger.assert_always((std::abs(test5.solve() - 0.21870166) < 1e-8), "comparison to old results");
-    Laplace test6(2, 3, 2, Base::MeshType::TRIANGULAR);
-    test6.initialise();
-    std::cout << test6.solve() << std::endl;
-    logger.assert_always((std::abs(test6.solve() - 0.02345377) < 1e-8), "comparison to old results");
-    Laplace test7(4, 4, 2, Base::MeshType::TRIANGULAR);
-    test7.initialise();
-    std::cout << test7.solve() << std::endl;
-    logger.assert_always((std::abs(test7.solve() - 0.00039351) < 1e-8), "comparison to old results");
-    Laplace test8(8, 5, 2, Base::MeshType::TRIANGULAR);
-    test8.initialise();
-    std::cout << test8.solve() << std::endl;
-    logger.assert_always((std::abs(test8.solve() - 0.00000066) < 1e-8), "comparison to old results");
-    Laplace test9(16, 1, 2, Base::MeshType::TRIANGULAR);
-    test9.initialise();
-    std::cout << test9.solve() << std::endl;
-    logger.assert_always((std::abs(test9.solve() - 0.00911139) < 1e-8), "comparison to old results");
-     */
      
     return 0;
 }

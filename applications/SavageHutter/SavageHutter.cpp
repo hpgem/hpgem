@@ -47,9 +47,9 @@ SlopeLimiter * SavageHutter::createSlopeLimiter(const SHConstructorStruct &input
 {
     const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
     LinearAlgebra::MiddleSizeVector inflowBC = getInitialSolution(pPhys, 0.);
-    return (new EmptySlopeLimiter());
-    //return (new TvbLimiter1D(numOfVariables_));
-    //return new TvbLimiterWithDetector1D(numOfVariables_, inflowBC, inputValues.polyOrder);
+    //return (new EmptySlopeLimiter());
+    //return (new TvbLimiter1D(numberOfVariables_));
+    return new TvbLimiterWithDetector1D(numberOfVariables_, inflowBC, inputValues.polyOrder);
 }
 
 ///\details Actual creation of the non-negativity limiter. The delete is called in the class SavageHutterBase, since that's also where the non-negativity limiter resides.
@@ -67,7 +67,7 @@ RightHandSideComputer * SavageHutter::createRightHandSideComputer(const SHConstr
     LinearAlgebra::MiddleSizeVector inflowBC = getInitialSolution(pPhys, 0);
     //magic numbers: epsilon and chute angle (in radians)
     if (DIM == 1)
-        return new SavageHutterRightHandSideComputer(inputValues.numberOfVariables, 1e-1, 45./180*M_PI, inflowBC);
+        return new SavageHutterRightHandSideComputer(inputValues.numberOfVariables, .1, M_PI * 30./180, inflowBC);
     
     return new SavageHutterRHS2D(inputValues.numberOfVariables, 0.1, 29.6484/180*M_PI, inflowBC);
 }
@@ -85,10 +85,10 @@ void SavageHutter::showProgress(const double time, const std::size_t timeStepID)
 
 LinearAlgebra::MiddleSizeVector SavageHutter::getInitialSolution(const PointPhysicalT& pPhys, const double& startTime, const std::size_t orderTimeDerivative)
 {
-    double h = 0.5;
-    double hu = 1;
-    const double x = pPhys[0];
-    if (x <= 0.5)
+    const double x = pPhys[0];    
+    double h = 1;
+    double hu = .882849;
+    if (false && x <= 0.5)
     {
         hu = 2.521353341;
         h = 1;
@@ -135,6 +135,18 @@ void SavageHutter::registerVTKWriteFunctions()
             return std::real(element->getSolution(timeLevel, pRef)[1]/element->getSolution(timeLevel, pRef)[0]);
         return 0;
         }, "u");
+        
+        registerVTKWriteFunction([ = ](Base::Element* element, const Geometry::PointReference<DIM>& pRef, std::size_t timeLevel) -> double
+        {
+            const double h = element->getSolution(timeLevel, pRef)[0];
+            if (h > 1e-5)
+            {
+                const double u = std::real(element->getSolution(timeLevel, pRef)[1]/element->getSolution(timeLevel, pRef)[0]);
+                const double F = u/std::sqrt(.1*std::cos(30./180*M_PI)*h);
+                return F;
+            }
+            return 0;
+        }, "F");
         
         //for straining flow
     /*registerVTKWriteFunction([ = ](Base::Element* element, const Geometry::PointReference<DIM>& pRef, std::size_t timeLevel) -> double

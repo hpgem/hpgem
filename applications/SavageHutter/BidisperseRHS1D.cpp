@@ -103,7 +103,8 @@ MiddleSizeVector BidisperseRHS1D::integrandRightHandSideOnRefFace
 MiddleSizeVector BidisperseRHS1D::integrandRightHandSideOnRefFace
     (
      Base::PhysicalFace<DIM>& face,
-     const MiddleSizeVector &solutionCoefficients
+     const MiddleSizeVector &solutionCoefficients,
+     const double time
      )
 {
     double normal = face.getNormalVector()[0];

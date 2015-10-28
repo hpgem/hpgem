@@ -33,22 +33,29 @@ namespace Base
     class HCurlConformingTransformation : public CoordinateTransformation<DIM>
     {
     public:
+        ///transform functions as if they are the gradient of some other function. This will exactly map the kernel of the physical curl-operator
+        ///to the kernel of the reference curl-operator.
         LinearAlgebra::SmallVector<DIM> transform(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final
         {
             element.getTransposeJacobian().solve(referenceData);
             return referenceData;
         }
 
+        ///transform the curl by using the chain rule
         LinearAlgebra::SmallVector<DIM> transformCurl(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final
         {
             return element.getJacobian() * referenceData / element.getJacobianAbsDet();
         }
 
+        ///integrands for elements are multiplied by the absolute value of the determinant of the Jacobian
+        ///to correct for the difference in volume
         double getIntegrandScaleFactor(PhysicalElement<DIM>& element) const override final
         {
             return element.getJacobianAbsDet();
         }
 
+        ///integrands for faces are multiplied by the norm of the outward normal vector
+        ///to correct for the difference in area
         double getIntegrandScaleFactor(PhysicalFace<DIM>& face) const override final
         {
             return face.getRelativeSurfaceArea();

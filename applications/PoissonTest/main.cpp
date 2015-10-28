@@ -21,6 +21,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <chrono>
 
 #include "Base/HpgemAPILinearSteadyState.h"
 #include "Base/ElementCacheData.h"
@@ -40,7 +41,7 @@
 #include "Base/CommandLineOptions.h"
 
     // Choose the dimension (1 or 2 or 3)
-const static std::size_t DIM = 3;
+const static std::size_t DIM = 2;
 
 ///\brief Test application that solves the Poisson equation.
 ///
@@ -198,7 +199,7 @@ public:
     LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &p) override final
     {
         LinearAlgebra::MiddleSizeVector exactSolution(1);
-        exactSolution[0] = std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]) * std::cos(2 * M_PI * p[2]) / 2;
+        exactSolution[0] = std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]);
         return exactSolution;
     }
     
@@ -209,7 +210,7 @@ public:
     LinearAlgebra::MiddleSizeVector getSourceTerm(const PointPhysicalT &p) override final
     {
         LinearAlgebra::MiddleSizeVector sourceTerm(1);
-        sourceTerm[0] = (-12 * M_PI * M_PI) * std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]) * std::cos(2 * M_PI * p[2]) / 2;
+        sourceTerm[0] = (-8 * M_PI * M_PI) * std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]);
         return sourceTerm;
     }
     
@@ -297,8 +298,14 @@ int main(int argc, char **argv)
     // Set the names for the output file
     test.setOutputNames("output", "PoissonTest", "PoissonTest", variableNames);
 
+    auto startTime = std::chrono::steady_clock::now();
+
     //Solve the system.
     test.solveSteadyStateWithPetsc(true);
+
+    auto endTime = std::chrono::steady_clock::now();
+
+    logger(INFO, "Simulation took %ms.", std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count());
 
     return 0;
 }

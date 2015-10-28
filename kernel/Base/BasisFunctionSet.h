@@ -118,6 +118,7 @@ namespace Base
     double BasisFunctionSet::evalDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference<DIM>& p) const
     {
         logger(ERROR, "Only supports points of dimension up to 4");
+        return 0.;
     }
 
     template<>

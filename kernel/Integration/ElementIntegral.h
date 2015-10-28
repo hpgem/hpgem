@@ -80,6 +80,7 @@ namespace Integration
         //! \brief Set recompute the cache OFF.
         void recomputeCacheOff();
 
+        /// you can set the coordinate transformation that is to be used here, before calling integrate
         void setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> > transform);
 
         Base::CoordinateTransformation<DIM>& getTransformation();
@@ -89,10 +90,10 @@ namespace Integration
         //! \brief Directly integrate the integrand and return ReturnTrait1.
         //! ReturnTrait1 needs to have the function LinearAlgebra::axpy() implemented
         template<class ReturnTrait1>
-        ReturnTrait1 integrate(Base::Element* el, ElementIntegrandBase<ReturnTrait1, DIM>* integrand, const QuadratureRulesT * const qdrRule = nullptr);
+        ReturnTrait1 integrate(const Base::Element* el, ElementIntegrandBase<ReturnTrait1, DIM>* integrand, const QuadratureRulesT * const qdrRule = nullptr);
 
         template<class ReturnType>
-        ReturnType integrate(Base::Element* el, std::function<ReturnType(Base::PhysicalElement<DIM>&)> integrand, const QuadratureRulesT * const qdrRule = nullptr);
+        ReturnType integrate(const Base::Element* el, std::function<ReturnType(Base::PhysicalElement<DIM>&)> integrand, const QuadratureRulesT * const qdrRule = nullptr);
 
         /// \brief Compute the integral on a reference element. IntegrandType needs to have the function LinearAlgebra::axpy() implemented.
         template<typename IntegrandType>

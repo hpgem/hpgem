@@ -29,15 +29,15 @@
 
 #include "Logger.h"
 
-auto& numOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", false, 10);
+auto& numOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", false, 20);
 auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", false, 1);
-auto& numOfOutputFrames = Base::register_argument<std::size_t>('O', "numOfOutputFrames", "Number of frames to output", false, 1);
+auto& numOfOutputFrames = Base::register_argument<std::size_t>('O', "numOfOutputFrames", "Number of frames to output", false, 100);
 auto& startTime = Base::register_argument<double>('S', "startTime", "start time of the simulation", false, 0.0);
-auto& endTime = Base::register_argument<double>('T', "endTime", "end time of the simulation", false, 0.001);
-auto& dt = Base::register_argument<double>('d', "timeStepSize", "time step of the simulation", false, 0.001);
+auto& endTime = Base::register_argument<double>('T', "endTime", "end time of the simulation", false, 3);
+auto& dt = Base::register_argument<double>('d', "timeStepSize", "time step of the simulation", false, 0.0001);
 
 int main(int argc, char **argv)
-{
+{    
     Base::parse_options(argc, argv);
     logger.assert_always(startTime.getValue() <= endTime.getValue(), "start time must be before end time!");
     

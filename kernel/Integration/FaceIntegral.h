@@ -79,6 +79,7 @@ namespace Integration
         //! \brief Stop using cache.
         void recomputeCacheOff();
 
+        /// you can set the coordinate transformation that is to be used here, before calling integrate
         void setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> > transform);
 
         Base::CoordinateTransformation<DIM>& getTransformation();

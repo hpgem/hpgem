@@ -29,35 +29,43 @@
 namespace Base
 {
     ///the identity transformation is meant for advanced users that need accurate control over how their data gets transformed
+    ///and are willing to do the analytic work manually
     template<std::size_t DIM>
     class IdentityTransformation : public CoordinateTransformation<DIM>
     {
     public:
+
+        ///just do noting with the data
         double transform(double referenceData, PhysicalElement<DIM>& element) const override final
         {
             return referenceData;
         }
 
+        ///just do noting with the data
         LinearAlgebra::SmallVector<DIM> transform(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final
         {
             return referenceData;
         }
 
+        ///just do noting with the data
         LinearAlgebra::SmallVector<DIM> transformDeriv(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final
         {
             return referenceData;
         }
 
+        ///just do noting with the data
         LinearAlgebra::SmallVector<DIM> transformCurl(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final
         {
             return referenceData;
         }
 
+        ///just multiply by 1
         double getIntegrandScaleFactor(PhysicalElement<DIM>& element) const override final
         {
             return 1.;
         }
 
+        ///just multiply by 1
         double getIntegrandScaleFactor(PhysicalFace<DIM>& face) const override final
         {
             return 1.;
