@@ -366,6 +366,7 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::integrandSourceAtEleme
 	//***	Compute equation terms	 ***
 	//**********************************
 
+	//TODO: I HAVE FOUND AN ERROR: state_x(1) should be partialState_x (??)
 	double conv_uu_x = 2*partialState(1)*state_x(1)
 								-partialState(1)*partialState(1)*state_x(0); // conv_uu_x = d (rho * u * u ) / dx
 
