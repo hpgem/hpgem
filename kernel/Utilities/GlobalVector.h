@@ -26,6 +26,9 @@
 #if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
 #include "petscvec.h"
 #endif
+#if defined(HPGEM_USE_SUNDIALS)
+#include "nvector/nvector_serial.h"
+#endif
 #include <vector>
 namespace Base
 {
@@ -117,6 +120,35 @@ namespace Utilities
     private:
         
         Vec b_;
+    };
+#endif
+
+#if defined(HPGEM_USE_SUNDIALS)
+    class GlobalSundialsVector : public GlobalVector
+    {
+
+    public:
+        operator N_Vector();
+
+        GlobalSundialsVector(Base::MeshManipulatorBase* theMesh, int elementVectorID = 0, int faceVectorID = 0);
+        ~GlobalSundialsVector();
+
+        void writeTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t variable);
+        void constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t variable);
+        void writeTimeIntegrationVector(std::size_t timeIntegrationVectorId);
+        void constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId);
+
+        void reset();
+
+        void assemble();
+
+    private:
+
+        //std::vector<PetscInt> makePositionsInVector(const Base::Element*);
+
+    private:
+
+        N_Vector b_;
     };
 #endif
 
