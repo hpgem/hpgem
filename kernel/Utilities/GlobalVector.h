@@ -130,17 +130,25 @@ namespace Utilities
     public:
         operator N_Vector();
 
+        GlobalSundialsVector();
         GlobalSundialsVector(Base::MeshManipulatorBase* theMesh, int elementVectorID = 0, int faceVectorID = 0);
         ~GlobalSundialsVector();
 
-        void writeTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t variable);
-        void constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t variable);
+        void writeTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t variable)
+        {
+        }
+
+        void constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t variable)
+        {
+        }
         void writeTimeIntegrationVector(std::size_t timeIntegrationVectorId);
         void constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId);
 
         void reset();
-
-        void assemble();
+        void assemble()
+        {
+        }
+        void setVector(N_Vector b);
 
     private:
 

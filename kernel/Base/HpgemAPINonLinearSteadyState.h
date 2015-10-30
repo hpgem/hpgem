@@ -24,6 +24,7 @@
 
 #include "Base/HpgemAPISimplified.h"
 #include "Base/TimeIntegration/AllTimeIntegrators.h"
+#include "Utilities/GlobalVector.h"
 
 #if defined(HPGEM_USE_SUNDIALS)
 	#include "nvector/nvector_serial.h"
@@ -59,7 +60,7 @@ namespace Base
 		//todo: Write a function that computes the Jacobian, creates a sparse matrix and can be used by KINsol
 
 		//todo: Write a function that solves a steady state solution of a non linear PDE using KINsol
-		virtual bool solve();
+		virtual bool solve(bool doComputeInitialCondition, bool doComputeError);
 
     protected:
         /// Index to indicate where the vectors for the source terms for the elements are stored.
@@ -69,8 +70,19 @@ namespace Base
         const std::size_t sourceFaceVectorID_;
 
     private:
-        /// Flag to use a given initial condition
-        bool computeInitialCondition_ = false;
+
+        //Flag to output intermediate solutions
+        bool doOutputIntermediateSolutions_ = true;
+
+#if defined(HPGEM_USE_SUNDIALS)
+        //Global Vector and global matrix
+        Utilities::GlobalSundialsVector *globalVector_;
+        //Utilities::GlobalSundialsMatrix jacobianMatrix_;
+#endif
+
+        //tecplotwriter
+        Output::TecplotDiscontinuousSolutionWriter<DIM> *tecplotWriter_;
+        Output::VTKTimeDependentWriter<DIM> *VTKWriter_;
 
 	};
 
