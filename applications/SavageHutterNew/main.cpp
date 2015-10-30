@@ -27,6 +27,7 @@
 
 #include "Logger.h"
 #include "SavageHutter1DWidthAveraged.h"
+#include "SavageHutter1DWidthHAndU.h"
 
 auto& numberOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", false, 20);
 auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", false, 1);
@@ -41,7 +42,7 @@ int main(int argc, char **argv)
     logger.assert_always(startTime.getValue() <= endTime.getValue(), "start time must be before end time!");
     
     //Construct the problem
-    SavageHutter1DWidthAveraged problemDescriptor(polynomialOrder.getValue(), numberOfElements.getValue());
+    SavageHutter1DWidthHAndU problemDescriptor(polynomialOrder.getValue(), numberOfElements.getValue());
     
     // Start measuring elapsed time
     std::chrono::time_point<std::chrono::system_clock> startClock, endClock;

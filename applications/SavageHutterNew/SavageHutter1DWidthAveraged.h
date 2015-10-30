@@ -65,7 +65,7 @@ public:
     LinearAlgebra::MiddleSizeVector computePhysicalFlux(const LinearAlgebra::MiddleSizeVector &numericalSolution, const PointPhysicalT& pPhys);
     
     ///\brief Define your boundary conditions here
-    LinearAlgebra::MiddleSizeVector computeGhostSolution(const LinearAlgebra::MiddleSizeVector &numericalSolution, const double normal, const double time);
+    LinearAlgebra::MiddleSizeVector computeGhostSolution(const LinearAlgebra::MiddleSizeVector &numericalSolution, const double normal, const double time, const PointPhysicalT & pPhys);
     
     std::array<double, 2> getWidth(const PointPhysicalT &pPhys) const;
     

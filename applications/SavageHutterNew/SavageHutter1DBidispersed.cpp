@@ -153,7 +153,7 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DBidispersed::computePhysicalFlux(c
 }
 
 ///\brief Define your boundary conditions here
-    LinearAlgebra::MiddleSizeVector SavageHutter1DBidispersed::computeGhostSolution(const LinearAlgebra::MiddleSizeVector &solution, const double normal, const double time)
+    LinearAlgebra::MiddleSizeVector SavageHutter1DBidispersed::computeGhostSolution(const LinearAlgebra::MiddleSizeVector &solution, const double normal, const double time, const PointPhysicalT & pPhys)
     {
         const double h = solution[0];
         const double u = h > dryLimit_ ? solution[1]/h : 0;

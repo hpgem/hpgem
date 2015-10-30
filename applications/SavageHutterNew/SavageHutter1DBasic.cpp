@@ -32,12 +32,12 @@
 SavageHutter1DBasic::SavageHutter1DBasic(std::size_t polyOrder, std::size_t numberOfElements)
 : SavageHutter1DBase(2, polyOrder)
 {
-    alpha_ = 1;
+    alpha_ = 5./4;
     chuteAngle_ = M_PI / 180 * 30;
     epsilon_ = .1;
     const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
     inflowBC_ = getInitialSolution(pPhys, 0);
-    logger(INFO, "inflow: %", inflowBC_);
+    dryLimit_ = 1e-5;
     
     std::vector<std::string> variableNames = {"h", "hu"};
     setOutputNames("output1D", "SavageHutter", "SavageHutter", variableNames);
@@ -55,7 +55,7 @@ SavageHutter1DBasic::SavageHutter1DBasic(std::size_t polyOrder, std::size_t numb
 ///faces. The ghost solution on the boundary can be described with computeGhostSolution.
 Base::RectangularMeshDescriptor<1> SavageHutter1DBasic::createMeshDescription(const std::size_t numOfElementsPerDirection)
 {
-    const double endOfDomain = 1;
+    const double endOfDomain = 10;
     const Base::BoundaryType boundary = Base::BoundaryType::SOLID_WALL;
     return SavageHutter1DBase::createMeshDescription(numOfElementsPerDirection, endOfDomain, boundary);
 }
@@ -65,11 +65,11 @@ Base::RectangularMeshDescriptor<1> SavageHutter1DBasic::createMeshDescription(co
  LinearAlgebra::MiddleSizeVector SavageHutter1DBasic::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
 {
     const double x = pPhys[0];
-    double h = 1;
+    double h = 0;
     const double hu = 0;
-    if (x > 0.5)
+    if (x >= 0.5 && x <= 2.5)
     {
-        h = .5;
+        h = 1 - (x-1.5)*(x-1.5);
     }
     return LinearAlgebra::MiddleSizeVector({h, hu});
 }
@@ -78,14 +78,18 @@ Base::RectangularMeshDescriptor<1> SavageHutter1DBasic::createMeshDescription(co
  ///is not necessary, unless the last flag in main::solve has been set to true.
 LinearAlgebra::MiddleSizeVector SavageHutter1DBasic::getExactSolution(const PointPhysicalT& pPhys, const double& time, const std::size_t orderTimeDerivative)
 {
+    const double x = pPhys[0];
+    const double g = 1.0842493835;
+    const double chuteAngle = 30./180*M_PI;
+    const double frictionAngle = 22./180*M_PI;
+    const double angleTerm = std::sin(chuteAngle) - std::tan(frictionAngle)*std::cos(chuteAngle);
     double h = 0;
-    double hu = 0;
-    if (pPhys[0] > 0.5)
-    {
-        h = 0;
-        hu = 0;
-    }
-    return LinearAlgebra::MiddleSizeVector({h, hu});
+    if (x >.5*angleTerm + 1.5 - g && x < .5*angleTerm + 1.5 + g)
+        h = 1/g*(1-(1/g/g*(x - .5*angleTerm - 1.5)*(x - .5*angleTerm - 1.5)));
+    const double k = .1*std::sqrt(3.);
+    const double uTilde = std::sqrt(2*k/g*(g-1))*1/g*(x - .5*angleTerm - 1.5);
+    const double u = uTilde + angleTerm;
+    return LinearAlgebra::MiddleSizeVector({h, h*u});
 }
 
 ///\details Constructs the slope limiter, available slope limiters can be found 
@@ -118,6 +122,16 @@ void SavageHutter1DBasic::registerVTKWriteFunctions()
             return std::real(element->getSolution(timeLevel, pRef)[1] / element->getSolution(timeLevel, pRef)[0]);
         return 0;
     }, "u");
+    
+    registerVTKWriteFunction([ = ](Base::Element* element, const Geometry::PointReference<1>& pRef, std::size_t timeLevel) -> double
+    {
+        return getExactSolution(element->referenceToPhysical(pRef), 1)[0];
+    }, "h (analytical)");
+    
+    registerVTKWriteFunction([ = ](Base::Element* element, const Geometry::PointReference<1>& pRef, std::size_t timeLevel) -> double
+    {
+        return getExactSolution(element->referenceToPhysical(pRef), 1)[1];
+    }, "hu (analytical)");
 }
 
 ///\details Compute the source term of the 1D shallow granular flow system, namely
@@ -135,7 +149,7 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DBasic::computeSourceTerm(const Lin
     {
         u = hu / h;
     }
-    double mu = computeFrictionCoulomb(numericalSolution, chuteAngle_);
+    double mu = computeFrictionCoulomb(numericalSolution, 22*M_PI/180);
     const int signU = Helpers::sign(u);
     double sourceX = h * std::sin(chuteAngle_) - h * mu * signU * std::cos(chuteAngle_);
     logger(DEBUG, "Source: %, h: %", sourceX, h);
@@ -161,7 +175,7 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DBasic::computePhysicalFlux(const L
 }
 
 ///\brief Define your boundary conditions here
-LinearAlgebra::MiddleSizeVector SavageHutter1DBasic::computeGhostSolution(const LinearAlgebra::MiddleSizeVector &solution, const double normal, const double time)
+LinearAlgebra::MiddleSizeVector SavageHutter1DBasic::computeGhostSolution(const LinearAlgebra::MiddleSizeVector &solution, const double normal, const double time, const PointPhysicalT & pPhys)
 {
     const double h = solution[0];
     const double u = h > dryLimit_ ? solution[1] / h : 0;

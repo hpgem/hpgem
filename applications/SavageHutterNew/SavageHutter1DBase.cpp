@@ -195,13 +195,13 @@ const LinearAlgebra::MiddleSizeVector SavageHutter1DBase::integrandRightHandSide
     }*/
     
     double normal = face.getNormalVector()[0];
-    const std::size_t numberOfBasisFuncs = face.getFace()->getNumberOfBasisFunctions();
+    const std::size_t numberOfBasisFuncs = face.getNumberOfBasisFunctions();
 
     //note that at the boundary, the element is the left element by definition
     LinearAlgebra::MiddleSizeVector solution = Helpers::getSolution<1>(face.getPhysicalElement(Base::Side::LEFT), solutionCoefficients, numberOfVariables_);
-    LinearAlgebra::MiddleSizeVector flux = hllcFlux(solution, computeGhostSolution(solution, normal, time), 1, face);
+    LinearAlgebra::MiddleSizeVector flux = hllcFlux(solution, computeGhostSolution(solution, normal, time, face.getPointPhysical()), 1, face);
     //enforce inflow bc strongly
-    if (std::abs(computeGhostSolution(solution, normal, time)[1] - inflowBC_[1]) < 1e-10)
+    if (std::abs(computeGhostSolution(solution, normal, time, face.getPointPhysical())[1] - inflowBC_[1]) < 1e-10)
     {
         flux = computePhysicalFlux(inflowBC_, face.getPointPhysical());
     }

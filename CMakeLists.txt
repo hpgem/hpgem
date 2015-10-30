@@ -150,6 +150,7 @@ option(hpGEM_USE_PETSC "Include PETSC this is required for GlobalAssemble" OFF)
 option(hpGEM_USE_COMPLEX_PETSC "Include a more complex version of PETSc instead" OFF)
 option(hpGEM_USE_SLEPC "Include SLEPC this is needed for some applications" OFF)
 option(hpGEM_USE_EXTERNAL_BLAS "Try to use a version of BLAS optimised for your system" ON)
+option(hpGEM_USE_SUNDIALS "Include SUNDIALS containing robust time integrators and nonlinear solvers" OFF)
 mark_as_advanced(hpGEM_USE_EXTERNAL_BLAS)
 option(hpGEM_USE_EXTERNAL_LAPACK "Try to use a version of LAPACK optimised for your system" ON)
 mark_as_advanced(hpGEM_USE_EXTERNAL_LAPACK)
@@ -305,6 +306,20 @@ if(hpGEM_USE_EXTERNAL_LAPACK)
         set(hpGEM_USE_EXTERNAL_LAPACK OFF CACHE BOOL "Try to use a version of LAPACK optimised for your system" FORCE)
     endif()
 endif()
+
+if(hpGEM_USE_SUNDIALS)
+    if(hpGEM_USE_MPI)
+        message(FATAL_ERROR "SUNDIALS is only serial (for now)")
+    endif()
+    #enable_language(C)
+    FIND_PACKAGE(SUNDIALS QUIET)
+    add_definitions(-DHPGEM_USE_SUNDIALS)
+    if(NOT SUNDIALS_FOUND)
+           message(FATAL_ERROR
+                   "The option you have choosen requires SUNDIALS and you do not have this installed. Please install")
+    endif()
+endif()
+
 
 
 add_subdirectory(kernel)

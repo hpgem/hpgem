@@ -19,26 +19,16 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SAVAGEHUTTER1DBASIC_H
-#define	SAVAGEHUTTER1DBASIC_H
+#ifndef SAVAGEHUTTER1DWIDTHHANDU_H
+#define	SAVAGEHUTTER1DWIDTHHANDU_H
 
 #include "SavageHutter1DBase.h"
 
-///\brief Class to solve the basic Savage-Hutter equations in 1D.
-///\details The idea is that almost everything you want to change in your application
-///can be changed in this class: the domain, initial solution, parameter values
-///and output functions are all described in this class. It is also possible
-///to construct the different limiters here. Furthermore, you can choose
-///here between the different types of friction that are given in SavageHutter1DBase.
-///The other function in here is computePhysicalFlux, which is the function F in 
-///(h,hu)_t + F(h,hu)_x = S(h,hu). This is described here because it is different 
-///for this system than for example for the bidispersed system or the width-averaged system
-class SavageHutter1DBasic : public SavageHutter1DBase
+class SavageHutter1DWidthHAndU : public SavageHutter1DBase
 {
 public:
-    
-    ///\brief Constructor: initialise parent classes and set parameters.
-    SavageHutter1DBasic(std::size_t polyOrder, std::size_t numberOfElements);
+        
+    SavageHutter1DWidthHAndU(const std::size_t polyOrder, const std::size_t numberOfElements);
     
     ///\brief Create the description of the domain and the mesh.
     Base::RectangularMeshDescriptor<1> createMeshDescription(const std::size_t numOfElementsPerDirection);
@@ -67,11 +57,15 @@ public:
     ///\brief Define your boundary conditions here
     LinearAlgebra::MiddleSizeVector computeGhostSolution(const LinearAlgebra::MiddleSizeVector &numericalSolution, const double normal, const double time, const PointPhysicalT & pPhys);
     
-    
 private:
-    //shape factor of the velocity of the flow. plug flow -> 1, Bagnold -> 5/4, simple shear -> 4/3
-    double alpha_;
+    double getWidth(const PointPhysicalT &pPhys);
+    
+    double computeFriction(const double h, const double u);
+    
+    LinearAlgebra::MiddleSizeVector hllcFlux(const LinearAlgebra::MiddleSizeVector& numericalSolutionLeft, const LinearAlgebra::MiddleSizeVector& numericalSolutionRight, const double normal, Base::PhysicalFace<1> &face);
+    
+
 };
 
-#endif	/* SAVAGEHUTTER1DBASIC_H */
+#endif	/* SAVAGEHUTTER1DWIDTHHANDU_H */
 

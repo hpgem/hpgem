@@ -98,7 +98,7 @@ protected:
     HeightLimiter* heightLimiter_;
 
     ///If the minimum height in an element is below this number, the element is considered to be dry.
-    const double dryLimit_;
+    double dryLimit_;
     
     double time_;
     

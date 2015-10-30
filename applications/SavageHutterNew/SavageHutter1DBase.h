@@ -89,7 +89,7 @@ private:
     virtual LinearAlgebra::MiddleSizeVector computeSourceTerm(const LinearAlgebra::MiddleSizeVector &numericalSolution, const PointPhysicalT &pPhys, const double time) = 0;
     ///\bug defining the boundary conditions in the children does not seem to work well...
     [[deprecated]]
-    virtual LinearAlgebra::MiddleSizeVector computeGhostSolution(const LinearAlgebra::MiddleSizeVector &numericalSolution, const double normal, const double time) = 0;
+    virtual LinearAlgebra::MiddleSizeVector computeGhostSolution(const LinearAlgebra::MiddleSizeVector &numericalSolution, const double normal, const double time, const PointPhysicalT & pPhys) = 0;
     
     ///\brief Compute the local Lax-Friedrichs flux for the two given numerical solutions across a face.
     LinearAlgebra::MiddleSizeVector localLaxFriedrichsFlux(const LinearAlgebra::MiddleSizeVector &numericalSolutionLeft, const LinearAlgebra::MiddleSizeVector &NumericalSolutionRight, Base::PhysicalFace<1> &face);
