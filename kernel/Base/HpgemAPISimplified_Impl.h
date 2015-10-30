@@ -477,9 +477,18 @@ namespace Base
                 LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight(ptrFace->getPtrElementRight()->getTimeIntegrationVector(inputVectorId));
                 LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
                 LinearAlgebra::MiddleSizeVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeIntegrationVector(resultVectorId));
-                
-                solutionCoefficientsLeftNew += computeRightHandSideAtFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
-                solutionCoefficientsRightNew += computeRightHandSideAtFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
+
+                if (computeBothFaces_ == false)
+                {
+                	solutionCoefficientsLeftNew += computeRightHandSideAtFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
+                	solutionCoefficientsRightNew += computeRightHandSideAtFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
+                }
+                else
+                {
+                	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> solutionCoefficients(computeBothRightHandSidesAtFace(ptrFace, solutionCoefficientsLeft, solutionCoefficientsRight, time));
+                	solutionCoefficientsLeftNew += solutionCoefficients.first;
+                	solutionCoefficientsRightNew += solutionCoefficients.second;
+                }
             }
             else
             {

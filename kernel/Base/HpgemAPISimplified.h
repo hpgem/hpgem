@@ -220,9 +220,14 @@ namespace Base
          const double time
          )
         {
-        	logger(WARN, "No function for computing both right-hand sides at an internal face implemented.");
         	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> bothRightHandSidesFace;
+        	if (computeBothFaces_ == true)
+        	{
+            	logger(ERROR, "No function for computing both right-hand sides at an internal face implemented.");
+
+        	}
         	return bothRightHandSidesFace;
+
         }
 
         /// \brief Compute the right hand side for the DG function with coefficients given by the time integration vector with index 'inputVectorId'. Store the result in the time integration vector with index 'resultVectorId'. Make sure inputVectorId is different from resultVectorId.

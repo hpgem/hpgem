@@ -17,6 +17,10 @@ if(hpGEM_USE_QHULL)
   include_directories(${QHULL_INCLUDE_DIR})
 endif()
 
+if(hpGEM_USE_SUNDIALS) 
+  include_directories(${SUNDIALS_INCLUDE_DIR})
+endif()
+
 add_library(hpGEM_Base STATIC
  		${hpGEM_SOURCE_DIR}/kernel/Base/BasisFunctionSet.cpp	
  		BaseBasisFunction.cpp	  
@@ -83,6 +87,13 @@ if(hpGEM_USE_QHULL)
     else()
         target_link_libraries(hpGEM_Base "${QHULL_LIBRARIES}")
     endif()
+endif()
+
+if(hpGEM_USE_SUNDIALS)
+target_link_libraries(hpGEM_Base "${SUNDIALS_LIB_sundials_cvodes}")
+target_link_libraries(hpGEM_Base "${SUNDIALS_LIB_sundials_idas}")
+target_link_libraries(hpGEM_Base "${SUNDIALS_LIB_sundials_kinsol}")
+target_link_libraries(hpGEM_Base "${SUNDIALS_LIB_sundials_nvecserial}")
 endif()
 
 set_target_properties(hpGEM_Base PROPERTIES COMPILE_FLAGS "${DEP_COMPILE_FLAGS}")
