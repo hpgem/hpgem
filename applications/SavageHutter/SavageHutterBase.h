@@ -22,62 +22,99 @@
 #ifndef SAVAGEHUTTERBASE_H
 #define	SAVAGEHUTTERBASE_H
 
-#include "RightHandSideComputer.h"
 #include "SlopeLimiters/SlopeLimiter.h"
 #include "HeightLimiters/HeightLimiter.h"
 #include "Base/HpgemAPISimplified.h"
+#include "SlopeLimiters/EmptySlopeLimiter.h"
+#include "HeightLimiters/EmptyHeightLimiter.h"
 
-/// \param[in] numberOfVariables Number of variables in the PDE
-/// \param[in] polynomialOrder Polynomial order of the basis functions
-/// \param[in] useMatrixStorage Boolean to indicate if element and face matrices for the PDE should be stored
-/// \param[in] ptrButcherTableau Pointer to a Butcher Tableau used to do the time integration with a Runge-Kutta scheme. By default this is a RK4 scheme.
-struct SHConstructorStruct
-{
-    std::size_t numberOfVariables;
-    std::size_t polyOrder;
-    std::size_t numberOfElements;
-    Base::MeshType meshType;
-    TimeIntegration::ButcherTableau * ptrButcherTableau;
-};
 
+template <std::size_t DIM>
 class SavageHutterBase : public Base::HpgemAPISimplified<DIM>
 {
 public:
-    SavageHutterBase(const SHConstructorStruct & inputValues);
+    using MiddleSizeVector = LinearAlgebra::MiddleSizeVector;
+    
+    SavageHutterBase(std::size_t numberOfVariables, std::size_t polyOrder);
 
     virtual ~SavageHutterBase()
     {
-        delete rhsComputer_;
         delete slopeLimiter_;
         delete heightLimiter_;
-    }
+    }    
     
-    std::vector<std::pair<double, LinearAlgebra::MiddleSizeVector>> widthAverage();
+    ///\brief Show the progress of the time integration.
+    void showProgress(const double time, const std::size_t timeStepID) override final;
 
 protected:
 
-    /// \brief Create a domain
-    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override final;
+    /// \brief Purely virtual function to compute the integrand for the right hand side for the reference element.
+    virtual const MiddleSizeVector integrandRightHandSideOnElement
+    (
+        Base::PhysicalElement<DIM> &element,
+        const double &time,
+        const MiddleSizeVector &solutionCoefficients
+        ) = 0;
+
+    /// \brief Purely virtual function to compute the integrand for the right hand side for the reference face corresponding to a boundary face.
+    virtual const MiddleSizeVector integrandRightHandSideOnRefFace
+    (
+        Base::PhysicalFace<DIM> &face,
+        const MiddleSizeVector &solutionCoefficients,
+        const double time
+        ) = 0;
+
+    /// \brief Purely virtual function to compute the integrand for the right hand side for the reference face corresponding to an internal face.
+    virtual const MiddleSizeVector integrandRightHandSideOnRefFace
+    (
+        Base::PhysicalFace<DIM> &face,
+        const Base::Side &iSide,
+        const MiddleSizeVector &solutionCoefficientsLeft,
+        const MiddleSizeVector &solutionCoefficientsRight
+        ) = 0;
+    
+    ///\brief Creates an empty slope limiter.
+    ///\details This function creates an empty slope limiter, but can be overwritten
+    ///by an application in order to create the slope limiter you want. This is not 
+    ///available yet in 2D.
+    virtual SlopeLimiter* createSlopeLimiter()
+    {
+        return new EmptySlopeLimiter;
+    }
+    
+    ///\brief Creates an empty height limiter.
+    ///\details This function creates an empty height limiter, but can be overwritten
+    ///by an application in order to create the non-negativity limiter you want.
+    virtual HeightLimiter* createHeightLimiter()
+    {
+        return new EmptyHeightLimiter;
+    }
     
     /// Number of variables
     const std::size_t numberOfVariables_;
-
-    RightHandSideComputer* rhsComputer_;
 
     SlopeLimiter* slopeLimiter_;
 
     HeightLimiter* heightLimiter_;
 
     ///If the minimum height in an element is below this number, the element is considered to be dry.
-    const double dryLimit_;
-    
+    double dryLimit_;
     
     double time_;
+    
+    double epsilon_;
+    
+    double chuteAngle_;
+    
+    MiddleSizeVector inflowBC_;
+    
+    void tasksBeforeSolving() override
+    {
+        slopeLimiter_ = createSlopeLimiter();
+        heightLimiter_ = createHeightLimiter();
+    }
 
 private:
-    virtual SlopeLimiter * createSlopeLimiter(const SHConstructorStruct &inputValues) = 0;
-    virtual HeightLimiter * createHeightLimiter(const SHConstructorStruct &inputValues) = 0;
-    virtual RightHandSideComputer * createRightHandSideComputer(const SHConstructorStruct &inputValues) = 0;
     
     virtual void setInflowBC(double time) {  }
     
@@ -104,9 +141,10 @@ private:
     void limitSolutionInnerLoop();
 
     ///Compute the minimum of the height in the given element
-    double getMinimumHeight(const Base::Element *element);
+    const double getMinimumHeight(const Base::Element *element);
 
 };
 
+#include "SavageHutterBase_Impl.h"
 #endif	/* SAVAGEHUTTERBASE_H */
 

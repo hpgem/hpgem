@@ -24,15 +24,18 @@
 
 #include "HeightLimiter.h"
 #include "Integration/ElementIntegral.h"
-#include "../GlobalConstants.h"
 
+template <std::size_t DIM>
 class AverageValuesNonNegativeLimiter : public HeightLimiter
 {
 public:
     using PointReferenceT = Geometry::PointReference<DIM>;
     
     AverageValuesNonNegativeLimiter(const double layerThickness) : 
-    minH_(layerThickness) { }
+    minH_(layerThickness) 
+    {
+        logger(INFO, "constructing limiter");
+    }
     
     ///replace with average where necessary
     void limit(Base::Element *element, LinearAlgebra::MiddleSizeVector &solutionCoefficients) override final;
@@ -47,8 +50,11 @@ private:
     
     /// Integrator for the elements
     Integration::ElementIntegral<DIM> elementIntegrator_;
+    
 
 };
 
+
+#include "AverageValuesNonNegativeLimiter_Impl.h"
 #endif	/* AVERAGEVALUESNONNEGATIVELIMITER_H */
 
