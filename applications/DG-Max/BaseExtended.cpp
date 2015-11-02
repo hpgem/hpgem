@@ -61,15 +61,18 @@ double hpGemUIExtentions::sourceTermTime(const double t)
 
 void hpGemUIExtentions::exactSolution(const Geometry::PointPhysical<DIM>& p, const double t, LinearAlgebra::SmallVector<DIM>& ret)
 {
-    //  ret[0]=sin(M_PI*2*p[1])*sin(M_PI*2*p[2]);
-    //  ret[1]=sin(M_PI*2*p[2])*sin(M_PI*2*p[0]);
-    //  ret[2]=sin(M_PI*2*p[0])*sin(M_PI*2*p[1]);
-    //  ret*=cos(sqrt(2)*2*M_PI*t);
+      //ret[0]=sin(M_PI*2*p[1])*sin(M_PI*2*p[2]);
+      //ret[1]=sin(M_PI*2*p[2])*sin(M_PI*2*p[0]);
+      //ret[2]=sin(M_PI*2*p[0])*sin(M_PI*2*p[1]);
+      //ret*=cos(sqrt(2)*2*M_PI*t);
     
     ret[0]=sin(M_PI*p[1])*sin(M_PI*p[2]);
     ret[1]=sin(M_PI*p[2])*sin(M_PI*p[0]);
     ret[2]=sin(M_PI*p[0])*sin(M_PI*p[1]);
     ret*=cos(sqrt(2)*M_PI*t);
+    //ret[0] = p[2];
+    //ret[1] = p[0];
+    //ret[2] = p[1];
     
     //     ret[0]=p[0]*(1-p[0]);
     //     ret[1]=0;
@@ -78,15 +81,19 @@ void hpGemUIExtentions::exactSolution(const Geometry::PointPhysical<DIM>& p, con
 
 void hpGemUIExtentions::exactSolutionCurl(const Geometry::PointPhysical<DIM>& p, const double t, LinearAlgebra::SmallVector<DIM>& ret)
 {
-    //  ret[0]=sin(M_PI*2*p[0])*(cos(M_PI*2*p[1])-cos(M_PI*2*p[2]));
-    //  ret[1]=sin(M_PI*2*p[1])*(cos(M_PI*2*p[2])-cos(M_PI*2*p[0]));
-    //  ret[2]=sin(M_PI*2*p[2])*(cos(M_PI*2*p[0])-cos(M_PI*2*p[1]));
-    //  ret*=cos(sqrt(2)*2*M_PI*t)*2*M_PI;
+      //ret[0]=sin(M_PI*2*p[0])*(cos(M_PI*2*p[1])-cos(M_PI*2*p[2]));
+      //ret[1]=sin(M_PI*2*p[1])*(cos(M_PI*2*p[2])-cos(M_PI*2*p[0]));
+      //ret[2]=sin(M_PI*2*p[2])*(cos(M_PI*2*p[0])-cos(M_PI*2*p[1]));
+      //ret*=cos(sqrt(2)*2*M_PI*t)*2*M_PI;
     
     ret[0] = sin(M_PI * p[0]) * (cos(M_PI * p[1]) - cos(M_PI * p[2]));
     ret[1] = sin(M_PI * p[1]) * (cos(M_PI * p[2]) - cos(M_PI * p[0]));
     ret[2] = sin(M_PI * p[2]) * (cos(M_PI * p[0]) - cos(M_PI * p[1]));
     ret *= cos(sqrt(2) * M_PI * t) * M_PI;
+    
+    //ret[0] = 1.0;
+    //ret[1] = 1.0;
+    //ret[2] = 1.0;
     
     //          ret[0]=0;ret[1]=0;ret[2]=0;
 }
@@ -744,7 +751,7 @@ void hpGemUIExtentions::solveEigenvalues()
     int measureAmount = 0;
     
     std::vector<IS> xboundaryRow, xboundaryCol, yboundaryRow, yboundaryCol, zboundaryRow, zboundaryCol;
-    findBoundaryBlocks(xboundaryRow, xboundaryCol, yboundaryRow, yboundaryCol, zboundaryRow, zboundaryCol);
+    //findBoundaryBlocks(xboundaryRow, xboundaryCol, yboundaryRow, yboundaryCol, zboundaryRow, zboundaryCol);
     
     //For IP-DG solving a general eigenproblem is slightly faster,
     //but the Brezzi formulation needs an inverse of each block in the mass matrix anyway
@@ -788,7 +795,7 @@ void hpGemUIExtentions::solveEigenvalues()
     eigenVectors = new Vec[40]; //a few extra in case SLEPc finds more than the requested amount of eigenvalues
     ierr_ = VecCreate(PETSC_COMM_WORLD, &example);
     CHKERRABORT(PETSC_COMM_WORLD, ierr_);
-    ierr_ = VecSetSizes(example, PETSC_DECIDE, 61);
+    ierr_ = VecSetSizes(example, PETSC_DECIDE, 1);// SH put back to 61 when turning k back on
     CHKERRABORT(PETSC_COMM_WORLD, ierr_);
     ierr_ = VecSetUp(example);
     CHKERRABORT(PETSC_COMM_WORLD, ierr_);
@@ -846,7 +853,7 @@ void hpGemUIExtentions::solveEigenvalues()
     ierr_ = PetscLayoutSetUp(distribution);
     CHKERRABORT(PETSC_COMM_WORLD, ierr_);
     
-    for (int i = 1; i < 61; ++i)
+    /*for (int i = 1; i < 61; ++i)
     {
         std::cout << i << std::endl;
         if (i == 21)
@@ -999,7 +1006,7 @@ void hpGemUIExtentions::solveEigenvalues()
     {
         ISDestroy(&zboundaryCol[i]);
         ISDestroy(&zboundaryRow[i]);
-    }
+    }*/
     for (int i = 0; i < 20; ++i)
     {
         ierr_ = VecAssemblyBegin(eigenvalues[i]);
@@ -1360,6 +1367,7 @@ void hpGemUIExtentions::sourceTerm(const PointPhysicalT& p, LinearAlgebra::Small
     // 	ret*=-1;
     //ret*=M_PI*M_PI*8-1;
     ret *= M_PI * M_PI * 2 - 1;
+    //ret *= -1;
 }
 
 void hpGemUIExtentions::initialExactSolution(const PointPhysicalT& p, LinearAlgebra::SmallVector<DIM>& ret)
@@ -1371,6 +1379,10 @@ void hpGemUIExtentions::initialExactSolution(const PointPhysicalT& p, LinearAlge
     ret[0] = sin(M_PI * p[1]) * sin(M_PI * p[2]);
     ret[1] = sin(M_PI * p[2]) * sin(M_PI * p[0]);
     ret[2] = sin(M_PI * p[0]) * sin(M_PI * p[1]);
+    
+    //ret[0] = p[2];
+    //ret[1] = p[0];
+    //ret[2] = p[1];
     
     //            ret[0]=p[0]*(1-p[0]);
     //            ret[1]=0;

@@ -98,7 +98,7 @@ public:
         numElementsOneD[1] = n;
         numElementsOneD[2] = n;
         
-        BaseMeshManipulatorT* mesh = new MyMeshManipulator(getConfigData(), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, getData()->PolynomialOrder_, 0, 2, 3, 1, 1);
+        BaseMeshManipulatorT* mesh = new MyMeshManipulator(getConfigData(), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, getData()->PolynomialOrder_, 0, 2, 3, 1, 1, true);
         mesh->createTriangularMesh(bottomLeft, topRight, numElementsOneD);
         const_cast<MaxwellData*>(getData())->numberOfUnknowns_ = (*mesh->elementColBegin())->getNrOfBasisFunctions();
         setConfigData();
@@ -107,7 +107,7 @@ public:
         //mesh->readCentaurMesh("Cube_final.hyb");
         
         addMesh(mesh);
-        setNumberOfTimeIntegrationVectorsGlobally(1);
+        setNumberOfTimeIntegrationVectorsGlobally(21);
         const_cast<MaxwellData*>(getData())->numberOfUnknowns_ *= mesh->getElementsList().size();
         for (Base::MeshManipulator<DIM>::ElementIterator it = mesh->elementColBegin(); it != mesh->elementColEnd(); ++it)
         {
