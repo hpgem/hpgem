@@ -197,20 +197,20 @@ int Base::Detail::CLOParser::go()
     catch (const std::string& explain)
     {
         std::cerr << explain << std::endl;
-        for (int i = 0; i < count; i++)
+        for (std::size_t i = 0; i < count; i++)
         {
             std::cerr << pData[i] << ' ';
         }
         std::cerr << std::endl;
-        for (int i = 0; i < currCount; i++)
+        for (std::size_t i = 0; i < currCount; i++)
         {
-            for (int j = 0; j < std::strlen(pData[i]); j++)
+            for (std::size_t j = 0; j < std::strlen(pData[i]); j++)
             {
                 std::cerr << ' ';
             }
             std::cerr << ' ';
         }
-        for (int j = 0; j < std::strlen(pData[currCount]); j++)
+        for (std::size_t j = 0; j < std::strlen(pData[currCount]); j++)
         {
             std::cerr << '^';
         }
