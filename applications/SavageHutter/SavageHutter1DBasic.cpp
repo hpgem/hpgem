@@ -204,8 +204,8 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DBasic::computeGhostSolution(const 
         {
             double invariantIn = u + 2 * std::sqrt(epsilon_ * std::cos(chuteAngle_) * h);
             double froudePrescribed = 1;
-            //double hOut = (invariantIn / (2 + froudePrescribed)) * (invariantIn / (2 + froudePrescribed)) / (epsilon_ * std::cos(chuteAngle_));
-            double hOut = h;
+            double hOut = (invariantIn / (2 + froudePrescribed)) * (invariantIn / (2 + froudePrescribed)) / (epsilon_ * std::cos(chuteAngle_));
+            //double hOut = h;
             double uOut = invariantIn - 2 * std::sqrt(epsilon_ * std::cos(chuteAngle_) * hOut);
             logger(DEBUG, "new h and u and F: %, %, %", hOut, uOut, uOut / std::sqrt(epsilon_ * std::cos(chuteAngle_) * hOut));
             return MiddleSizeVector({hOut, hOut * uOut});

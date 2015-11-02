@@ -76,7 +76,6 @@ double PositiveLayerLimiter<DIM>::getMinimumHeight(const Base::Element* element)
 {
     const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0);
     const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeIntegrationVector(0);
-    const std::size_t numOfVariables = element->getNumberOfUnknowns();
     const double solutionLeft = element->getSolution(0, pRefL)(0);
     double minimum = solutionLeft;
     for (std::size_t iPoint = 1; iPoint < element->getReferenceGeometry()->getNumberOfNodes(); ++iPoint)

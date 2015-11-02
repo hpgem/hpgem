@@ -63,7 +63,6 @@ Base::RectangularMeshDescriptor<1> SavageHutter1DWidthHAndU::createMeshDescripti
 ///here to get the analytical solution at the start time.
  LinearAlgebra::MiddleSizeVector SavageHutter1DWidthHAndU::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
 {
-    const double x = pPhys[0];
     const double width = getWidth(pPhys);
     double h = 1;
     const double u = 0.884404;

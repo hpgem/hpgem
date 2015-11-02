@@ -194,7 +194,7 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DWidthAveraged::computeGhostSolutio
         else
         {
             double invariantIn = u + 2 * std::sqrt(epsilon_ * std::cos(chuteAngle_) * h);
-            double froudePrescribed = 1;
+            //double froudePrescribed = 1;
             //double hOut = (invariantIn / (2 + froudePrescribed)) * (invariantIn / (2 + froudePrescribed)) / (epsilon_ * std::cos(chuteAngle_));
             double hOut = h;
             double uOut = invariantIn - 2 * std::sqrt(epsilon_ * std::cos(chuteAngle_) * hOut);
