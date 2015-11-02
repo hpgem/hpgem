@@ -145,10 +145,15 @@ namespace Utilities
         void constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId);
 
         void reset();
+        void print();
         void assemble()
         {
         }
         void setVector(N_Vector b);
+        std::size_t getTotalNumberOfDOF()
+        {
+        	return totalNumberOfDOF_;
+        }
 
     private:
 
@@ -156,6 +161,7 @@ namespace Utilities
 
     private:
 
+        std::size_t totalNumberOfDOF_;
         N_Vector b_;
     };
 #endif

@@ -32,12 +32,9 @@
 
 namespace Base
 {
-	//todo:write documentation
-	//todo: Rewrite in such a way it is readable
 	//todo: Butcher table is not required, remove this from the constructor
-	//todo: Add a bool that can switch if you want to store the intermediate solutions or only the last solution
-	//todo: Initial condition is optional; i.e. if not specified everything is 0
 	//todo: Possibly add restart from data file to create a p-multigrid solution strategy
+	//todo: Add function that can add setup functions to the solve function
 
 
 	//note: compute error is always on, compute both faces is always on
@@ -50,7 +47,7 @@ namespace Base
 			const TimeIntegration::ButcherTableau * const ptrButcherTableau,
 			const bool computeBothFaces
 	) :
-	HpgemAPISimplified<DIM>(numberOfVariables, polynomialOrder, ptrButcherTableau, 1, computeBothFaces),
+	HpgemAPISimplified<DIM>(numberOfVariables, polynomialOrder, 1, 0, computeBothFaces),
     sourceElementVectorID_(0),
     sourceFaceVectorID_(0)
 	{
@@ -66,34 +63,35 @@ namespace Base
 	}
 
 	//Member function computing the rhs
-	//todo: Add the option to write intermediate solutions to VTK output
 	template<std::size_t DIM>
 	int HpgemAPINonLinearSteadyState<DIM>::computeRHS(N_Vector u, N_Vector fval)
 	{
-
-		std::cout << "YOLO" << std::endl;
-
 		//Pass the solution vector u to the GlobalSundialsVector
 		globalVector_->setVector(u);
+		//globalVector_->print();
 		//The GlobalSundialsVector will then put the data in the hpGEM data structure
 		globalVector_->writeTimeIntegrationVector(this->solutionVectorId_);
 
 		//Compute RHS with the new data
 		//todo: mention that computeRightHandSide is very confusing on naming
-		this->computeRightHandSide(0, 1, 0);
-
+		//todo: This step_ is actually not the real step
+		//solutionCoefficients are stored at this->solutionVectorId_ (=0 by default) and the rhs at 1, the time = 0
+		this->computeRightHandSide(this->solutionVectorId_, 1, step_);
 		//Compute intermediate solutions
 		if (doOutputIntermediateSolutions_)
 		{
-			logger(INFO,"Writing intermediate solution:");
-			tecplotWriter_->write(this->meshes_[0], this->solutionTitle_, false, this, 0);
-			this->VTKWrite(*(this->VTKWriter_), 0, this->solutionVectorId_);
+			//Update the nstep number
+			step_++;
+			logger(INFO,"Writing intermediate solution: %", step_);
+			tecplotWriter_->write(this->meshes_[0], this->solutionTitle_, false, this, step_);
+			this->VTKWrite(*(this->VTKWriter_), step_, this->solutionVectorId_);
 		}
 
 		//Set the correct N_Vector pointer
 		globalVector_->setVector(fval);
 		//Pass the new solution back to KINsol
-		globalVector_->constructFromTimeIntegrationVector(0);
+		globalVector_->constructFromTimeIntegrationVector(1); //1 corresponds to the resultId vector
+		//globalVector_->print();
 
 		return 0;
 	}
@@ -106,10 +104,12 @@ namespace Base
 		std::cout << "Hello!" << std::endl;
 		int flag;
 		int maxl;
-		int globalStrategy = KIN_NONE; // For now: nothing special, in future maybe linesearch
+		int globalStrategy = KIN_LINESEARCH; // For now: nothing special, in future maybe linesearch
 
         // Create output files for Paraview.
         std::string outputFileNameVTK = this->outputFileName_;
+
+        //todo: Maybe add scaling
 
         this->registerVTKWriteFunctions();
         Output::VTKTimeDependentWriter<DIM> VTKWriter(outputFileNameVTK, this->meshes_[0]);
@@ -145,8 +145,8 @@ namespace Base
 		//Initialise Global Solution Vector and template N_Vector u
 		Utilities::GlobalSundialsVector globalVector(HpgemAPIBase<DIM>::meshes_[0], sourceElementVectorID_, sourceFaceVectorID_);
 		globalVector_ = &globalVector;
-		N_Vector u = globalVector;
-		int numberOfDOF = NV_LENGTH_S(u);
+		std::size_t numberOfDOF = globalVector_->getTotalNumberOfDOF();
+		N_Vector u = N_VNew_Serial(numberOfDOF);
 
 		//Create the scale vector. For now this is just all set to 1
 		N_Vector scale = N_VNew_Serial(numberOfDOF);
@@ -167,12 +167,6 @@ namespace Base
 			globalVector_->constructFromTimeIntegrationVector(0);
 		}
 
-		///DEBUG
-		//Write final solution to VTK
-		tecplotWriter.write(this->meshes_[0], this->solutionTitle_, false, this, 0);
-		this->VTKWrite(VTKWriter, 0, this->solutionVectorId_);
-		///DEBUG
-
 		//Give userdata to KINSol, as a void pointer
 		void * userdata = static_cast<void*>(this);
 		flag = KINSetUserData(kmem, userdata);
@@ -191,12 +185,19 @@ namespace Base
 
 		//Call the KINsol function
 		flag = KINSol(kmem, u, globalStrategy, scale, scale);
-		logger.assert(flag >= 0, "Failed to solve the problem with flag %.",flag);
-		logger(WARN,"Warning: An event happened during the problem solving, with flag %.", flag);
+		if (flag == 0)
+		{
+			logger(INFO, "Solution obtained");
+		}
+		else
+		{
+			logger.assert(flag >= 0, "Failed to solve the problem with flag %.",flag);
+		}
 
 		//Write final solution to VTK
-		tecplotWriter.write(this->meshes_[0], this->solutionTitle_, false, this, 0);
-		this->VTKWrite(VTKWriter, 0, this->solutionVectorId_);
+		step_++;
+		tecplotWriter.write(this->meshes_[0], this->solutionTitle_, false, this, step_);
+		this->VTKWrite(VTKWriter, step_, this->solutionVectorId_);
 
         // Compute the energy norm of the error
         if(doComputeError)
@@ -213,6 +214,7 @@ namespace Base
 
 		//Free memory
 		KINFree(&kmem);
+		N_VDestroy_Serial(u);
 		N_VDestroy_Serial(scale);
 
 		return false;

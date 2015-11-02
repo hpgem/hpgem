@@ -645,13 +645,13 @@ namespace Utilities
             : GlobalVector(theMesh, elementVectorID, faceVectorID)
     {
         logger.assert(theMesh!=nullptr, "Invalid mesh passed");
-        b_ = N_VNew_Serial(1); //Create a temporary placeholder vector
+        //b_ = N_VNew_Serial(1); //Create a temporary placeholder vector
         reset();
     }
 
     GlobalSundialsVector::~GlobalSundialsVector()
     {
-    	N_VDestroy_Serial(b_);
+    	//N_VDestroy_Serial(b_);
     }
 
     GlobalSundialsVector::operator N_Vector()
@@ -718,7 +718,7 @@ namespace Utilities
     void GlobalSundialsVector::reset()
     {
         //Destroy old vector
-    	N_VDestroy_Serial(b_);
+    	//N_VDestroy_Serial(b_);
 
     	//Assign private variables to the global vector
     	//Initialise totalNrOfDOF to zero, this will be calculated as we go
@@ -772,7 +772,8 @@ namespace Utilities
             }
         }
 
-        b_ = N_VNew_Serial(totalNrOfDOF);
+        //b_ = N_VNew_Serial(totalNrOfDOF);
+        totalNumberOfDOF_ = totalNrOfDOF;
     }
 
     void GlobalSundialsVector::constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId)
@@ -884,6 +885,19 @@ namespace Utilities
             logger.assert(localData.size() == runningTotal, "not enough info to fill the vector");
             element->setTimeIntegrationVector(timeIntegrationVectorId, localData);
         }
+    }
+
+    void GlobalSundialsVector::print()
+    {
+    	std::size_t length = NV_LENGTH_S(b_);
+    	double *data = NV_DATA_S(b_);
+
+		std::cout << "[" << data[0];
+    	for (std::size_t i = 1; i < length; i++)
+    	{
+    		std::cout << ", " << data[i];
+    	}
+    	std::cout << ']' << std::endl;
     }
 
     void GlobalSundialsVector::setVector(N_Vector b)

@@ -33,7 +33,29 @@
 
 namespace Base
 {
-	//todo: Write documentation
+	/// \brief Interface for solving steady-state solutions of non-linear PDE's. At the moment this class can only solve steady state problems using Sundials.
+	/** The API is well suited to solve steady-state problems of non-Linear PDE's. The API solves problems of the form \f[ F(u) = 0 \f]. Where the function F(u) is
+	 * the right hand side of the system of equations that has to be solved and u are the solution coefficients.
+	 * To use the API, only the functions are required to compute the RHS must be user supplied. Jacobian information is not required, since internally a finite difference approximation
+	 * will be constructed. In future however Jacobian information will be added to the API
+	 */
+
+	/** \details To solve some steady-state non-linear PDE with this class you should at least do the following:
+	 * \li Create your own class that inherits this class.
+	 * \li Implement the function 'createMeshDescription' to create a mesh description (e.g. domain, number of elements, etc.).
+	 * \li Implement the function 'computeRightHandSideAtFace' to compute the face contribution to the rhs vector \f[ F(u) \f].
+	 * \li Implement the function 'computeRightHandSideAtElement' to get the element contribution to the rhs vector \f[ F(u) \f].
+	 */
+/** \details To solve the PDE do the following in the main routine:
+ * \li Create an object of your own class, that inherits from this class and has the necessary functions implemented (see list above).
+ * \li Call the function 'CreateMesh' to create the mesh.
+ * \li Call the function 'setOutputNames' to set the names for the output files.
+ * \li Call the function 'solve'.
+ */
+/** \details An example using this interface is still under construction.
+ */
+
+
 
 	template<std::size_t DIM>
 	class HpgemAPINonLinearSteadyState : public HpgemAPISimplified<DIM>
@@ -50,16 +72,17 @@ namespace Base
 		);
 
 #if defined(HPGEM_USE_SUNDIALS)
-		//todo: Write a function that computes the RHS, creates the vector and can be used by KINsol
+		/// \brief This function is called by the Sundials library and then calls the function int computeRHS(N_Vector u, N_Vector fval);
 		static int func(N_Vector cc, N_Vector fval, void *user_data);
 
-		//Member function computing the rhs
+		/// \brief This function computes the right hand side of the system of equations. N_Vector u contains the supplied solution coefficients
+		/// N_Vector fval will contain the computed rhs
 		int computeRHS(N_Vector u, N_Vector fval);
 #endif
 
 		//todo: Write a function that computes the Jacobian, creates a sparse matrix and can be used by KINsol
 
-		//todo: Write a function that solves a steady state solution of a non linear PDE using KINsol
+		/// \brief Solve the steady-state problem using Sundials
 		virtual bool solve(bool doComputeInitialCondition, bool doComputeError);
 
     protected:
@@ -71,38 +94,22 @@ namespace Base
 
     private:
 
-        //Flag to output intermediate solutions
+        /// \brief for Debugging purposes or curiousity. If the flag is true it will output intermediate solutions.
         bool doOutputIntermediateSolutions_ = true;
 
 #if defined(HPGEM_USE_SUNDIALS)
-        //Global Vector and global matrix
+        /// GlobalVector that performs operations on a given N_Vector. Either writes solutionCoefficients to the hpGEM data structure,
+        /// or obtains the RHS from the hpGEM data structure
         Utilities::GlobalSundialsVector *globalVector_;
         //Utilities::GlobalSundialsMatrix jacobianMatrix_;
 #endif
 
-        //tecplotwriter
+        /// tecplotwriter
         Output::TecplotDiscontinuousSolutionWriter<DIM> *tecplotWriter_;
         Output::VTKTimeDependentWriter<DIM> *VTKWriter_;
+        double step_ = 0.0;
 
 	};
-
-/*    std::ostream& operator<<(std::ostream &os, const N_Vector &A)
-    {
-    	std::size_t length = NV_LENGTH_S(A);
-    	double *data = NV_DATA_S(A);
-            os << '[';
-        for (std::size_t i = 0; i < length; i++)
-        {
-            if(i != 0)
-            {
-                os << ", ";
-            }
-            os << data[i];
-        }
-        os << ']';
-        return os;
-    }*/
-
 }
 
 #include "HpgemAPINonLinearSteadyState_Impl.h"
