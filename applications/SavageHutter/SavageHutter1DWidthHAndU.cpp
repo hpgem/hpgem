@@ -80,9 +80,9 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DWidthHAndU::getExactSolution(const
 ///in the folder SlopeLimiters.
 SlopeLimiter* SavageHutter1DWidthHAndU::createSlopeLimiter()
 {
-    return new EmptySlopeLimiter;
+    //return new EmptySlopeLimiter;
     //Little hack: the polynomial order is the number of basis functions minus one.
-    //return new TvbLimiterWithDetector1D(numberOfVariables_, inflowBC_, (*meshes_[0]->getElementsList().begin())->getNumberOfBasisFunctions() - 1);
+    return new TvbLimiterWithDetector1D(numberOfVariables_, inflowBC_, (*meshes_[0]->getElementsList().begin())->getNumberOfBasisFunctions() - 1);
     //return new TvbLimiter1D(numberOfVariables_);
 }
 
@@ -175,6 +175,10 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DWidthHAndU::computeGhostSolution(c
     }
     else //outflow boundary
     {
+        if (time < 5)
+        {
+            return MiddleSizeVector({h, -u});
+        }
         if (froude >= 1)
         {
             return solution;

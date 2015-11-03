@@ -20,6 +20,6 @@ add_executable(SavageHutter.out
     SavageHutter2DBase.cpp
 		main.cpp
       		)
-target_link_libraries(SavageHutter.out hpGEM_Base Output)
+target_link_libraries(SavageHutter.out hpGEM_Base Output SlopeLimiters)
 
 endif()

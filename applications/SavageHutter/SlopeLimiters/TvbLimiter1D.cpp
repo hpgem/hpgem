@@ -20,12 +20,15 @@
  */
 
 #include "TvbLimiter1D.h"
-#include "../GlobalConstants.h"
+
+TvbLimiter1D::TvbLimiter1D(std::size_t numberOfVariables)  
+    : SlopeLimiter(numberOfVariables)
+{
+}
 
 void TvbLimiter1D::limitSlope(Base::Element* element) 
 {
-    logger.assert(1 == DIM, "Slope limiter for the wrong dimension");
-    for (std::size_t iVar = 0; iVar < numOfVariables_; ++iVar)
+    for (std::size_t iVar = 0; iVar < numberOfVariables_; ++iVar)
     {
         if (!hasSmallSlope(element, iVar))
         {
