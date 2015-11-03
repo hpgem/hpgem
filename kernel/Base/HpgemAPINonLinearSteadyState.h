@@ -55,7 +55,10 @@ namespace Base
 /** \details An example using this interface is still under construction.
  */
 
-
+	enum class JacobianMatrixType
+	{
+		LOCAL, NON_LOCAL
+	};
 
 	template<std::size_t DIM>
 	class HpgemAPINonLinearSteadyState : public HpgemAPISimplified<DIM>
@@ -75,15 +78,36 @@ namespace Base
 		/// \brief This function is called by the Sundials library and then calls the function int computeRHS(N_Vector u, N_Vector fval);
 		static int func(N_Vector cc, N_Vector fval, void *user_data);
 
+		//todo: write this function
+		static int jtimes(N_Vector v, N_Vector Jv, N_Vector u, booleantype *new_u, void *user_data);
+
 		/// \brief This function computes the right hand side of the system of equations. N_Vector u contains the supplied solution coefficients
 		/// N_Vector fval will contain the computed rhs
 		int computeRHS(N_Vector u, N_Vector fval);
+
+		//todo: write this function
+		int computeJacTimesVector(N_Vector v, N_Vector Jv, N_Vector u, bool new_u);
 #endif
 
-		//todo: Write a function that computes the Jacobian, creates a sparse matrix and can be used by KINsol
+		/// \brief This function computes the local and non-local Jacobian contributions from face i of the face integrals
+		virtual LinearAlgebra::MiddleSizeMatrix computeJacobianAtFace(Element *ptrElement, Element *ptrElementNonLocal, JacobianMatrixType type)
+		{
+            logger(ERROR, "No function computeJacobianFaceAtElement() implemented to compute the local and non local contributions from face integrals.");
+            LinearAlgebra::MiddleSizeMatrix jacobianAtFace(1,1);
+            return jacobianAtFace;
+		}
+
+		/// \brief This function computes the local Jacobian contributions from the element integrals
+		virtual LinearAlgebra::MiddleSizeMatrix computeJacobianAtElement(Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
+		{
+            logger(ERROR, "No function computeJacobianAtElement() implemented to compute the local contributions of the Jacobian matrix from element integrals.");
+            LinearAlgebra::MiddleSizeMatrix jacobianAtElement(1,1);
+            return jacobianAtElement;
+		}
+
 
 		/// \brief Solve the steady-state problem using Sundials
-		virtual bool solve(bool doComputeInitialCondition, bool doComputeError);
+		virtual bool solve(bool doComputeInitialCondition, bool doComputeError, bool doUseJacobian);
 
     protected:
         /// Index to indicate where the vectors for the source terms for the elements are stored.
@@ -96,6 +120,8 @@ namespace Base
 
         /// \brief for Debugging purposes or curiousity. If the flag is true it will output intermediate solutions.
         bool doOutputIntermediateSolutions_ = true;
+
+        const std::size_t jTimesvecID_ = 3;
 
 #if defined(HPGEM_USE_SUNDIALS)
         /// GlobalVector that performs operations on a given N_Vector. Either writes solutionCoefficients to the hpGEM data structure,

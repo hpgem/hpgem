@@ -900,6 +900,21 @@ namespace Utilities
     	std::cout << ']' << std::endl;
     }
 
+    LinearAlgebra::MiddleSizeVector GlobalSundialsVector::getLocalVector(const Base::Element* ptrElement)
+    {
+    	//Create the local vector
+    	std::size_t numberOfDOF = ptrElement->getNrOfBasisFunctions() * ptrElement->getNrOfUnknowns();
+    	LinearAlgebra::MiddleSizeVector localVector(numberOfDOF);
+
+    	//Fill the local vector
+    	for (std::size_t i = 0; i < numberOfDOF; i++)
+    	{
+    		localVector(i) = startPositionsOfElementsInTheVector_[ptrElement->getID()] + i;
+    	}
+
+    	return localVector;
+    }
+
     void GlobalSundialsVector::setVector(N_Vector b)
     {
     	b_ = b;

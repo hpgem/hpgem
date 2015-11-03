@@ -32,13 +32,14 @@
 
 namespace Base
 {
+	//todo: I have broken the butcher table thingy, fix this
+	//todo: Tomorrow add the Jacobian function and start the implementation of it
 	//todo: Butcher table is not required, remove this from the constructor
 	//todo: Possibly add restart from data file to create a p-multigrid solution strategy
 	//todo: Add function that can add setup functions to the solve function
 
 
 	//note: compute error is always on, compute both faces is always on
-	//NOTE: Temporary just 10 coefficients for testing
 	template<std::size_t DIM>
 	HpgemAPINonLinearSteadyState<DIM>::HpgemAPINonLinearSteadyState
 	(
@@ -47,7 +48,7 @@ namespace Base
 			const TimeIntegration::ButcherTableau * const ptrButcherTableau,
 			const bool computeBothFaces
 	) :
-	HpgemAPISimplified<DIM>(numberOfVariables, polynomialOrder, 1, 0, computeBothFaces),
+	HpgemAPISimplified<DIM>(numberOfVariables, polynomialOrder, 3, 0, computeBothFaces),
     sourceElementVectorID_(0),
     sourceFaceVectorID_(0)
 	{
@@ -60,6 +61,12 @@ namespace Base
 	int HpgemAPINonLinearSteadyState<DIM>::func(N_Vector u, N_Vector fval, void *user_data)
 	{
 		return static_cast<HpgemAPINonLinearSteadyState<DIM>*>(user_data)->computeRHS(u, fval);
+	}
+
+	template<std::size_t DIM>
+	int HpgemAPINonLinearSteadyState<DIM>::jtimes(N_Vector v, N_Vector Jv, N_Vector u, booleantype *new_u, void *user_data)
+	{
+		return static_cast<HpgemAPINonLinearSteadyState<DIM>*>(user_data)->computeJacTimesVector(v, Jv, u, new_u);
 	}
 
 	//Member function computing the rhs
@@ -95,13 +102,83 @@ namespace Base
 
 		return 0;
 	}
+
+	//todo: If required, make this function work for conforming
+	template<std::size_t DIM>
+	int HpgemAPINonLinearSteadyState<DIM>::computeJacTimesVector(N_Vector v, N_Vector Jv, N_Vector u, bool new_u)
+	{
+		//todo: make use of the new_u boolean: this means that some matrices should not have to be calculated again, only the multiplication with the vector v
+		//todo: Add storage of the computed matrices
+		std::cout << new_u << std::endl;
+		//Pass the solution vector u to the GlobalSundialsVector
+		globalVector_->setVector(u);
+		//The GlobalSundialsVector will then put the data in the hpGEM data structure
+		globalVector_->writeTimeIntegrationVector(this->solutionVectorId_);
+
+		//To obtain the vLocal vector
+		globalVector_->setVector(v);
+
+		//For all elements
+		for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
+		{
+			//Create the required datastructures for calculations
+			std::size_t numberOfDOF = ptrElement->getNrOfBasisFunctions() * ptrElement->getNrOfUnknowns();
+			LinearAlgebra::MiddleSizeVector vLocal;
+			LinearAlgebra::MiddleSizeVector jTimesLocal(numberOfDOF);
+			//LinearAlgebra::MiddleSizeMatrix jacobianLocal(numberOfDOF,numberOfDOF);
+
+			//Compute the local Jacobian Matrix: all derivatives of the local solutionCoefficients
+			LinearAlgebra::MiddleSizeVector &solutionCoefficients(ptrElement->getTimeIntegrationVector(this->solutionVectorId_));
+			LinearAlgebra::MiddleSizeMatrix jacobianLocal = computeJacobianAtElement(ptrElement, solutionCoefficients, 0);
+			//Select the correct v-vector;
+			vLocal = globalVector_->getLocalVector(ptrElement);
+			//Multiply matrix by v-vector and add to the local solution;
+			jTimesLocal += jacobianLocal*vLocal;
+
+			//compute the non-local Jacobian matrices
+			for (Base::Face *ptrFace : this->meshes_[0]->getFacesList())
+			{
+				//Compute non local matrix and the degrees of freedom
+				//First Obtain the non-local element pointer
+				Base::Element *ptrElementLeft = ptrFace->getPtrElementLeft();
+				Base::Element *ptrElementNonLocal = nullptr;
+				if (ptrElementLeft == ptrElement)
+				{
+					ptrElementNonLocal = ptrFace->getPtrElementRight();
+				}
+				else
+				{
+					ptrElementNonLocal = ptrElementLeft;
+				}
+				//Then compute the matrix with the correct elements
+				LinearAlgebra::MiddleSizeMatrix jacobianNonLocal = computeJacobianAtFace(ptrElement, ptrElementNonLocal, JacobianMatrixType::NON_LOCAL);
+				std::size_t numberOfNonLocalDOF = jacobianNonLocal.getNCols();
+				LinearAlgebra::MiddleSizeVector vNonLocal(numberOfNonLocalDOF);
+				//Select the correct v-vector;
+				vNonLocal = globalVector_->getLocalVector(ptrElementNonLocal);
+				//Multiply matrix by v-vector and add to the local solution;
+				jTimesLocal += jacobianNonLocal*vNonLocal;
+			}
+
+			//put the solution in the timeIntegrationVector
+			ptrElement->setTimeIntegrationVector(jTimesvecID_, jTimesLocal);
+		}
+
+		//Write solution in the global vector Jv
+		globalVector_->setVector(Jv);
+		//Pass the new solution back to KINsol
+		globalVector_->constructFromTimeIntegrationVector(jTimesvecID_); //1 corresponds to the resultId vector
+
+		std::cout << "I am also active!!" << std::endl;
+		return 0;
+	}
+
 #endif
 
 	template<std::size_t DIM>
-	bool HpgemAPINonLinearSteadyState<DIM>::solve(bool doComputeInitialCondition, bool doComputeError)
+	bool HpgemAPINonLinearSteadyState<DIM>::solve(bool doComputeInitialCondition, bool doComputeError, bool doUseJacobian)
 	{
 #if defined(HPGEM_USE_SUNDIALS)
-		std::cout << "Hello!" << std::endl;
 		int flag;
 		int maxl;
 		int globalStrategy = KIN_LINESEARCH; // For now: nothing special, in future maybe linesearch
@@ -177,15 +254,23 @@ namespace Base
 		logger.assert_always(flag >= 0, "Initialisation failed with flag %.", flag);
 
 		//Set type of solver
+		//todo: Make a switch between different types of solver
 		maxl = 15;
 		flag = KINSpgmr(kmem, maxl);
 		logger.assert(flag >= 0, "Failed to attach GMRS solver.");
 
-		//Set parameters
+		//Set jacobian times vector function, if specified
+		if (doUseJacobian == true)
+		{
+			flag = KINSpilsSetJacTimesVecFn(kmem, jtimes);
+			logger.assert(flag >= 0, "Failed to attach jtimes function to KINSol.");
+		}
+
+		//Set additional parameters
 
 		//Call the KINsol function
 		flag = KINSol(kmem, u, globalStrategy, scale, scale);
-		if (flag == 0)
+		if ((flag == 0 ) || (flag == 1))
 		{
 			logger(INFO, "Solution obtained");
 		}
@@ -220,5 +305,6 @@ namespace Base
 		return false;
 #endif
 		logger(ERROR, "Sundials is required to solve the non linear steady state problem using this function.");
+		return false;
 	}
 }
