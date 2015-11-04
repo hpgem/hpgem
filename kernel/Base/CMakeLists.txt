@@ -48,6 +48,7 @@ add_library(hpGEM_Base STATIC
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions3DH1ConformingCube.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions3DH1ConformingPrism.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions3DH1ConformingTetrahedron.cpp
+		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions3DNedelec.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/helperFunctions.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/GlobalMatrix.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/GlobalVector.cpp

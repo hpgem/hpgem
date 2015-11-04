@@ -98,8 +98,13 @@ public:
         numElementsOneD[1] = n;
         numElementsOneD[2] = n;
         
-        BaseMeshManipulatorT* mesh = new MyMeshManipulator(getConfigData(), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, getData()->PolynomialOrder_, 0, 2, 3, 1, 1, true);
+        // this is the old way of creating the mesh.
+        //BaseMeshManipulatorT* mesh = new MyMeshManipulator(getConfigData(), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, getData()->PolynomialOrder_, 0, 2, 3, 1, 1, true);
+        
+        // this is the way the mesh is created in hpGEM.
+        BaseMeshManipulatorT* mesh = new Base::MeshManipulator<3>(getConfigData(), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, getData()->PolynomialOrder_, 0, 2, 3, 1, 1);
         mesh->createTriangularMesh(bottomLeft, topRight, numElementsOneD);
+        mesh->useNedelecDGBasisFunctions();
         const_cast<MaxwellData*>(getData())->numberOfUnknowns_ = (*mesh->elementColBegin())->getNrOfBasisFunctions();
         setConfigData();
         //mesh->readCentaurMesh("Cylinder3.hyb");
