@@ -368,7 +368,7 @@ namespace Base
             return theMesh_.getNodesList(part);
         }
         
-        //! Changes the default set of basisFunctions for this mesh and all of its elements. Ignores any conforming basisFunctionset that nay be linked to faces/edges/...
+        //! Changes the default set of basisFunctions for this mesh and all of its elements. Ignores any conforming basisFunctionset that may be linked to faces/edges/...
         /// Using this to set the hpGEM provided conforming or DG basis functions is deprecated: The routines useDefaultDGBasisFunctionSet and useDefaultConformingBasisFunctionSet can do this more flexibly and also support mixed meshes
         void setDefaultBasisFunctionSet(BasisFunctionSetT* bFSet);
 

@@ -39,7 +39,6 @@ namespace Base
 
 namespace Utilities
 {
-    
     /**
      *  General global assembly class for vectors. Defines the general routines that specializations will always need
      *  Subclasses should also derive from the external package specific vector type they try to implement
