@@ -82,8 +82,8 @@ SlopeLimiter* SavageHutter1DWidthHAndU::createSlopeLimiter()
 {
     //return new EmptySlopeLimiter;
     //Little hack: the polynomial order is the number of basis functions minus one.
-    return new TvbLimiterWithDetector1D(numberOfVariables_, inflowBC_, (*meshes_[0]->getElementsList().begin())->getNumberOfBasisFunctions() - 1);
-    //return new TvbLimiter1D(numberOfVariables_);
+    //return new TvbLimiterWithDetector1D(numberOfVariables_, inflowBC_, (*meshes_[0]->getElementsList().begin())->getNumberOfBasisFunctions() - 1);
+    return new TvbLimiter1D(numberOfVariables_);
 }
 
 ///\details Constructs the non-negativity limiter, available non-negativity limiters
@@ -175,7 +175,7 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DWidthHAndU::computeGhostSolution(c
     }
     else //outflow boundary
     {
-        if (time < 5)
+        if (time > 0 && time < 1.5)
         {
             return MiddleSizeVector({h, -u});
         }

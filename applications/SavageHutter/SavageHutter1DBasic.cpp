@@ -32,12 +32,12 @@
 SavageHutter1DBasic::SavageHutter1DBasic(std::size_t polyOrder, std::size_t numberOfElements)
 : SavageHutter1DBase(2, polyOrder)
 {
-    alpha_ = 5./4;
-    chuteAngle_ = M_PI / 180 * 30;
+    alpha_ = 1;
+    chuteAngle_ = M_PI / 180 * 21;
     epsilon_ = .1;
     const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
     inflowBC_ = getInitialSolution(pPhys, 0);
-    dryLimit_ = 1e-5;
+    dryLimit_ = 1e-10;
     
     std::vector<std::string> variableNames = {"h", "hu"};
     setOutputNames("output1D", "SavageHutter", "SavageHutter", variableNames);
@@ -55,7 +55,7 @@ SavageHutter1DBasic::SavageHutter1DBasic(std::size_t polyOrder, std::size_t numb
 ///faces. The ghost solution on the boundary can be described with computeGhostSolution.
 Base::RectangularMeshDescriptor<1> SavageHutter1DBasic::createMeshDescription(const std::size_t numOfElementsPerDirection)
 {
-    const double endOfDomain = 10;
+    const double endOfDomain = 1;
     const Base::BoundaryType boundary = Base::BoundaryType::SOLID_WALL;
     return SavageHutter1DBase::createMeshDescription(numOfElementsPerDirection, endOfDomain, boundary);
 }
@@ -65,12 +65,12 @@ Base::RectangularMeshDescriptor<1> SavageHutter1DBasic::createMeshDescription(co
  LinearAlgebra::MiddleSizeVector SavageHutter1DBasic::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
 {
     const double x = pPhys[0];
-    double h = 0;
-    const double hu = 0;
-    if (x >= 0.5 && x <= 2.5)
+    double h = 1 - .5*x;
+    const double hu = .05;
+    /*if (x >= 0.5 && x <= 2.5)
     {
         h = 1 - (x-1.5)*(x-1.5);
-    }
+    }*/ 
     return LinearAlgebra::MiddleSizeVector({h, hu});
 }
 
@@ -125,13 +125,24 @@ void SavageHutter1DBasic::registerVTKWriteFunctions()
     
     registerVTKWriteFunction([ = ](Base::Element* element, const Geometry::PointReference<1>& pRef, std::size_t timeLevel) -> double
     {
+        if (element->getSolution(timeLevel, pRef)[0] > 1e-5)
+        {
+            const double h = element->getSolution(timeLevel, pRef)[0];
+            const double u = element->getSolution(timeLevel, pRef)[1] / h;
+            return u/std::sqrt(h*epsilon_*std::cos(chuteAngle_));
+        }
+        return 0;
+    }, "F");
+    
+    /*registerVTKWriteFunction([ = ](Base::Element* element, const Geometry::PointReference<1>& pRef, std::size_t timeLevel) -> double
+    {
         return getExactSolution(element->referenceToPhysical(pRef), 1)[0];
     }, "h (analytical)");
     
     registerVTKWriteFunction([ = ](Base::Element* element, const Geometry::PointReference<1>& pRef, std::size_t timeLevel) -> double
     {
         return getExactSolution(element->referenceToPhysical(pRef), 1)[1];
-    }, "hu (analytical)");
+    }, "hu (analytical)");*/
 }
 
 ///\details Compute the source term of the 1D shallow granular flow system, namely
@@ -179,10 +190,10 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DBasic::computeGhostSolution(const 
 {
     const double h = solution[0];
     const double u = h > dryLimit_ ? solution[1] / h : 0;
-    const double froude = std::abs(u) / std::sqrt(epsilon_ * std::cos(chuteAngle_) * h);
+    const double froude = u / std::sqrt(epsilon_ * std::cos(chuteAngle_) * h);
     if (normal < 0) //inflow boundary
     {
-        if (true || froude >= 1)
+        if (froude >= 1)
         {
             return inflowBC_;
         }
@@ -190,22 +201,22 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DBasic::computeGhostSolution(const 
         {
             const double hOut = inflowBC_[0];
             const double uOut = u - 2 * std::sqrt(epsilon_ * std::cos(chuteAngle_))*(std::sqrt(h) - std::sqrt(hOut));
-            logger(INFO, "h and u: %, %", hOut, uOut);
+            logger(DEBUG, "h and u: %, %", hOut, uOut);
             return MiddleSizeVector({hOut, hOut * uOut});
         }
     }
     else //outflow boundary
     {
-        if (true || froude >= 1)
+        if (froude >= 1)
         {
             return solution;
         }
         else
         {
             double invariantIn = u + 2 * std::sqrt(epsilon_ * std::cos(chuteAngle_) * h);
-            double froudePrescribed = 1;
-            double hOut = (invariantIn / (2 + froudePrescribed)) * (invariantIn / (2 + froudePrescribed)) / (epsilon_ * std::cos(chuteAngle_));
-            //double hOut = h;
+            //double froudePrescribed = 1;
+            //double hOut = (invariantIn / (2 + froudePrescribed)) * (invariantIn / (2 + froudePrescribed)) / (epsilon_ * std::cos(chuteAngle_));
+            double hOut = 0.75;
             double uOut = invariantIn - 2 * std::sqrt(epsilon_ * std::cos(chuteAngle_) * hOut);
             logger(DEBUG, "new h and u and F: %, %, %", hOut, uOut, uOut / std::sqrt(epsilon_ * std::cos(chuteAngle_) * hOut));
             return MiddleSizeVector({hOut, hOut * uOut});

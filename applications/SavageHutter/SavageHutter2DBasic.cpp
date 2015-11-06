@@ -29,7 +29,7 @@
 SavageHutter2DBasic::SavageHutter2DBasic(std::size_t polyOrder, std::size_t numberOfElements) :
 SavageHutter2DBase(3, polyOrder)
 {
-    chuteAngle_ = M_PI / 180 * 30;
+    chuteAngle_ = M_PI / 180 * 24;
     epsilon_ = .1;
     const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
     inflowBC_ = getInitialSolution(pPhys, 0);
@@ -66,7 +66,7 @@ void SavageHutter2DBasic::createContraction()
     contraction->xBegin = 5;
     contraction->xMiddle = 5;
     contraction->xEnd = 5;
-    contraction->contractionWidth = 0.8; 
+    contraction->contractionWidth = 1; 
     
     //Actually move the mesh such that a contraction is formed.
     meshes_[0]->move();
@@ -80,13 +80,9 @@ void SavageHutter2DBasic::createContraction()
 
 LinearAlgebra::MiddleSizeVector SavageHutter2DBasic::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
 {
-    double h = .5;
-    double hu = .5;
-    if (pPhys[0] < .5)
-    {
-        h = 1;
-        hu = 1;
-    }
+    const double x = pPhys[0];
+    double h = 1 - .25*x;
+    double hu = .1;
     const double hv = 0;
     return MiddleSizeVector({h, hu, hv});
 }
@@ -99,6 +95,17 @@ LinearAlgebra::MiddleSizeVector SavageHutter2DBasic::getExactSolution(const Poin
 void SavageHutter2DBasic::registerVTKWriteFunctions()
 {
     HpgemAPISimplified::registerVTKWriteFunctions();
+    
+    registerVTKWriteFunction([ = ](Base::Element* element, const Geometry::PointReference<2>& pRef, std::size_t timeLevel) -> double
+    {
+        if (element->getSolution(timeLevel, pRef)[0] > 1e-5)
+        {
+            const double h = element->getSolution(timeLevel, pRef)[0];
+            const double u = element->getSolution(timeLevel, pRef)[1] / h;
+            return u/std::sqrt(h*epsilon_*std::cos(chuteAngle_));
+        }
+        return 0;
+    }, "F");
 }
 
 HeightLimiter* SavageHutter2DBasic::createHeightLimiter()
@@ -160,6 +167,8 @@ LinearAlgebra::MiddleSizeVector SavageHutter2DBasic::computePhysicalFlux(const L
 
 void SavageHutter2DBasic::tasksAfterSolving()
 {
+    if (false)
+    {
         auto widthValues = widthAverage();
 
         std::ofstream widthFile("widthFile.dat");
@@ -172,4 +181,5 @@ void SavageHutter2DBasic::tasksAfterSolving()
             }
             widthFile << '\n';
         }
+    }
 }

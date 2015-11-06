@@ -140,6 +140,8 @@ void SavageHutterBase<DIM>::computeOneTimeStep(double &time, const double dt)
 template <std::size_t DIM>
 void SavageHutterBase<DIM>::limitSolutionOuterLoop()
 {
+
+    this->synchronize(0);
     for (Base::Element *element : this->meshes_[0]->getElementsList())
     {
         //don't use the slope limiter if the water height is adapted with the non-negativity limiter
@@ -161,6 +163,7 @@ void SavageHutterBase<DIM>::limitSolutionOuterLoop()
             }
         }
     }
+    this->synchronize(0);
 }
 
 ///\details Compute the minimum height by checking the vertices of the element and the Gauss quadrature points in the element.

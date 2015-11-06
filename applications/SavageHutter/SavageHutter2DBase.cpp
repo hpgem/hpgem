@@ -117,12 +117,34 @@ const LinearAlgebra::MiddleSizeVector SavageHutter2DBase::integrandRightHandSide
     //outflow
     if (normalX > 0 && std::abs(normalY) < 1e-10)
     {
-        logger.assert_always( solution[1]/solution[0] - std::sqrt(epsilon_ * std::cos(chuteAngle_) * solution[0]) > 0, "subcritical outflow");
-        flux = hllcFlux(solution, solution, face.getUnitNormalVector());
+        if (solution[1]/solution[0] < std::sqrt(epsilon_ * std::cos(chuteAngle_) * solution[0])) //subcritical
+        {
+            logger(DEBUG, "subcritical outflow");
+            double uIn = solution[1] / solution[0];
+            double invariantIn = uIn + 2 * std::sqrt(epsilon_ * std::cos(chuteAngle_) * solution[0]);
+            double hOut = .75;
+            double uOut = invariantIn - 2 * std::sqrt(epsilon_ * std::cos(chuteAngle_) * hOut);
+            auto stateNew = MiddleSizeVector({hOut, hOut * uOut, solution[2]}); //keep hv continuous
+            flux = hllcFlux(solution, stateNew, face.getUnitNormalVector());
+        }
+        else
+        {
+            flux = hllcFlux(solution, solution, face.getUnitNormalVector());
+        }
     }
     else if (std::abs(normalY) < 1e-10) //inflow
     {
-        flux = hllcFlux(inflowBC_, inflowBC_, face.getUnitNormalVector());
+        if (solution[1]/solution[0] < std::sqrt(epsilon_ * std::cos(chuteAngle_) * solution[0])) //subcritical
+        {
+            double hNew = inflowBC_[0];
+            double uNew = solution[1] / solution[0] - 2 * std::sqrt(epsilon_ * std::cos(chuteAngle_))*(std::sqrt(solution[0]) - std::sqrt(hNew));
+            auto stateNew = MiddleSizeVector({hNew, hNew * uNew, solution[2]});
+            flux = hllcFlux(solution, stateNew, face.getUnitNormalVector());
+        }
+        else
+        {
+            flux = hllcFlux(inflowBC_, inflowBC_, face.getUnitNormalVector());
+        }
     }
     else //solid wall
     {

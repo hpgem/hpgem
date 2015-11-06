@@ -90,10 +90,10 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DWidthAveraged::getExactSolution(co
 ///in the folder SlopeLimiters.
 SlopeLimiter* SavageHutter1DWidthAveraged::createSlopeLimiter()
 {
-    return new EmptySlopeLimiter;
+    //return new EmptySlopeLimiter;
     //Little hack: the polynomial order is the number of basis functions minus one.
     //return new TvbLimiterWithDetector1D(numberOfVariables_, inflowBC_, (*meshes_[0]->getElementsList().begin())->getNumberOfBasisFunctions() - 1);
-    //return new TvbLimiter1D(numberOfVariables_);
+    return new TvbLimiter1D(numberOfVariables_);
 }
 
 ///\details Constructs the non-negativity limiter, available non-negativity limiters
@@ -114,6 +114,18 @@ void SavageHutter1DWidthAveraged::registerVTKWriteFunctions()
         const double width = getWidth(pPhys)[0];
         return std::real(element->getSolution(timeLevel, pRef)[0] / width);
     }, "h");
+    
+    registerVTKWriteFunction([ = ](Base::Element* element, const Geometry::PointReference<1>& pRef, std::size_t timeLevel) -> double
+    {
+        const PointPhysicalT &pPhys = element->referenceToPhysical(pRef);
+        const double width = getWidth(pPhys)[0];
+        const double h = element->getSolution(timeLevel, pRef)[0] / width;
+        const double u = element->getSolution(0, pRef)[1] / element->getSolution(0,pRef)[0];
+        if (h > dryLimit_)
+            return std::real(u / std::sqrt(epsilon_ * std::cos(chuteAngle_) * h));
+        else
+            return 0;
+    }, "F");
 }
 
 ///\details Compute the source term of the 1D shallow granular flow system, namely
@@ -165,7 +177,7 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DWidthAveraged::computeGhostSolutio
 {
     double width;
     if (normal > 0)
-        width = 0.8;
+        width = 0.6;
     else
         width = 1;
     const double h = solution[0] / width;
@@ -173,7 +185,7 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DWidthAveraged::computeGhostSolutio
     const double froude = std::abs(u) / std::sqrt(epsilon_ * std::cos(chuteAngle_) * h);
     if (normal < 0) //inflow boundary
     {
-        if (true || froude >= 1)
+        if (froude >= 1)
         {
             return inflowBC_;
         }
@@ -187,7 +199,11 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DWidthAveraged::computeGhostSolutio
     }
     else //outflow boundary
     {
-        if (true || froude >= 1)
+        if (time < 1)
+        {
+            return MiddleSizeVector({solution[0], -solution[1]});
+        }
+        if (froude >= 1)
         {
             return solution;
         }
@@ -211,8 +227,8 @@ std::array<double, 2> SavageHutter1DWidthAveraged::getWidth(const PointPhysicalT
     double widthDerivX = 0;
     if (x > 1)
     {
-        width = 1 - (x - 1)/25;
-        widthDerivX = -1./25;
+        width = 1 - 2*(x - 1)/25;
+        widthDerivX = -2./25;
     }
     return {width, widthDerivX};
 }
