@@ -33,7 +33,7 @@ SavageHutter1DBasic::SavageHutter1DBasic(std::size_t polyOrder, std::size_t numb
 : SavageHutter1DBase(2, polyOrder)
 {
     alpha_ = 1;
-    chuteAngle_ = M_PI / 180 * 21;
+    chuteAngle_ = M_PI / 180 * 25;
     epsilon_ = .1;
     const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
     inflowBC_ = getInitialSolution(pPhys, 0);
@@ -160,7 +160,7 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DBasic::computeSourceTerm(const Lin
     {
         u = hu / h;
     }
-    double mu = computeFrictionCoulomb(numericalSolution, 22*M_PI/180);
+    double mu = computeFriction(numericalSolution);
     const int signU = Helpers::sign(u);
     double sourceX = h * std::sin(chuteAngle_) - h * mu * signU * std::cos(chuteAngle_);
     logger(DEBUG, "Source: %, h: %", sourceX, h);

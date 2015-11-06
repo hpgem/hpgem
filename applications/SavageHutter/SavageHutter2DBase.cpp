@@ -122,7 +122,7 @@ const LinearAlgebra::MiddleSizeVector SavageHutter2DBase::integrandRightHandSide
             logger(DEBUG, "subcritical outflow");
             double uIn = solution[1] / solution[0];
             double invariantIn = uIn + 2 * std::sqrt(epsilon_ * std::cos(chuteAngle_) * solution[0]);
-            double hOut = .75;
+            double hOut = .5;
             double uOut = invariantIn - 2 * std::sqrt(epsilon_ * std::cos(chuteAngle_) * hOut);
             auto stateNew = MiddleSizeVector({hOut, hOut * uOut, solution[2]}); //keep hv continuous
             flux = hllcFlux(solution, stateNew, face.getUnitNormalVector());
@@ -295,11 +295,11 @@ std::vector<std::pair<double, LinearAlgebra::MiddleSizeVector>> SavageHutter2DBa
     extern Base::CommandLineOption<std::size_t>& numberOfElements;
     const std::size_t nodesInXDirection = numberOfElements.getValue() + 1;
     const std::size_t elementsInYDirection = this->meshes_[0]->getNumberOfElements(Base::IteratorType::GLOBAL) / (nodesInXDirection - 1);
-    logger(DEBUG, "elements in y direction: % ", elementsInYDirection);
+    logger(INFO, "elements in y direction: % ", elementsInYDirection);
     
     //make xs
     ///\todo insert length of the domain here automatically instead of hardcoded
-    const double dx = 1./(nodesInXDirection - 1);
+    const double dx = 11./(nodesInXDirection - 1);
     std::vector<std::pair<double, LinearAlgebra::MiddleSizeVector>> totals;
     for(std::size_t i = 0; i < nodesInXDirection; ++i)
     {
