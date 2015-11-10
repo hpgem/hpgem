@@ -218,6 +218,20 @@ namespace Base
             }
         }
 
+        ///provides access to the element on the opposite side of iSide.
+        PhysicalElement<DIM>& getPhysicalElementOpposite(Base::Side side)
+        {
+            if(side == Base::Side::LEFT)
+            {
+                logger.assert(isInternal(), "This physical face is meant for boundaries and can only see left elements");
+                return right;
+            }
+            else
+            {
+                return left;
+            }
+        }
+
         ///get the index of the face
         std::size_t getID()
         {

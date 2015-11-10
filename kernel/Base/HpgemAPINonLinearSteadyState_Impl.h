@@ -48,11 +48,34 @@ namespace Base
 			const TimeIntegration::ButcherTableau * const ptrButcherTableau,
 			const bool computeBothFaces
 	) :
-	HpgemAPISimplified<DIM>(numberOfVariables, polynomialOrder, 3, 0, computeBothFaces),
+	HpgemAPISimplified<DIM>(numberOfVariables, polynomialOrder, 4, 0, computeBothFaces),
     sourceElementVectorID_(0),
     sourceFaceVectorID_(0)
 	{
 	}
+
+    template<std::size_t DIM>
+    void HpgemAPINonLinearSteadyState<DIM>::createMesh(const std::size_t numberOfElementsPerDirection, const Base::MeshType meshType)
+    {
+        const Base::RectangularMeshDescriptor<DIM> description = this->createMeshDescription(numberOfElementsPerDirection);
+
+        // Set the number of Element/Face Matrices/Vectors.
+        std::size_t numberOfElementMatrices = 1; // A sub matrix for the Jacobian, results from the element integral
+        std::size_t numberOfElementVectors = 0;
+        std::size_t numberOfFaceMatrices = 1; // A sub matrix for the Jacobian, results from the face integral
+        std::size_t numberOfFaceVectors = 0;
+
+        // Create mesh and set basis functions.
+        this->addMesh(description, meshType, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors);
+        this->meshes_[0]->useDefaultDGBasisFunctions();
+
+        // Set the number of time integration vectors according to the size of the Butcher tableau.
+        this->setNumberOfTimeIntegrationVectorsGlobally(this->globalNumberOfTimeIntegrationVectors_);
+
+        // Plot info about the mesh
+        std::size_t nElements = this->meshes_[0]->getNumberOfElements();
+        logger(VERBOSE, "Total number of elements: %", nElements);
+    }
 
 #if defined(HPGEM_USE_SUNDIALS)
 	//static int KINSol function required function to compute the right hand side.
@@ -75,101 +98,127 @@ namespace Base
 	{
 		//Pass the solution vector u to the GlobalSundialsVector
 		globalVector_->setVector(u);
-		//globalVector_->print();
 		//The GlobalSundialsVector will then put the data in the hpGEM data structure
 		globalVector_->writeTimeIntegrationVector(this->solutionVectorId_);
 
 		//Compute RHS with the new data
 		//todo: mention that computeRightHandSide is very confusing on naming
-		//todo: This step_ is actually not the real step
 		//solutionCoefficients are stored at this->solutionVectorId_ (=0 by default) and the rhs at 1, the time = 0
-		this->computeRightHandSide(this->solutionVectorId_, 1, step_);
-		//Compute intermediate solutions
+		this->computeRightHandSide(this->solutionVectorId_, this->solutionRHS_, 0);
+		//Set the correct N_Vector pointer
+		globalVector_->setVector(fval);
+		//Pass the new solution back to KINsol
+		globalVector_->constructFromTimeIntegrationVector(this->solutionRHS_); //1 corresponds to the resultId vector
+
+		//Write intermediate solutions
 		if (doOutputIntermediateSolutions_)
 		{
 			//Update the nstep number
+			//NOTE: step is not a real step, just the number of times the function is called
 			step_++;
 			logger(INFO,"Writing intermediate solution: %", step_);
 			tecplotWriter_->write(this->meshes_[0], this->solutionTitle_, false, this, step_);
 			this->VTKWrite(*(this->VTKWriter_), step_, this->solutionVectorId_);
 		}
-
-		//Set the correct N_Vector pointer
-		globalVector_->setVector(fval);
-		//Pass the new solution back to KINsol
-		globalVector_->constructFromTimeIntegrationVector(1); //1 corresponds to the resultId vector
-		//globalVector_->print();
-
 		return 0;
 	}
 
 	//todo: If required, make this function work for conforming
 	template<std::size_t DIM>
-	int HpgemAPINonLinearSteadyState<DIM>::computeJacTimesVector(N_Vector v, N_Vector Jv, N_Vector u, bool new_u)
+	int HpgemAPINonLinearSteadyState<DIM>::computeJacTimesVector(N_Vector v, N_Vector Jv, N_Vector u, booleantype *new_u)
 	{
-		//todo: make use of the new_u boolean: this means that some matrices should not have to be calculated again, only the multiplication with the vector v
-		//todo: Add storage of the computed matrices
-		std::cout << new_u << std::endl;
 		//Pass the solution vector u to the GlobalSundialsVector
 		globalVector_->setVector(u);
 		//The GlobalSundialsVector will then put the data in the hpGEM data structure
 		globalVector_->writeTimeIntegrationVector(this->solutionVectorId_);
 
-		//To obtain the vLocal vector
-		globalVector_->setVector(v);
-
-		//For all elements
-		for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
+		//If a new solution exists, new Jacobian values need to be calculated
+		if (*new_u == true)
 		{
-			//Create the required datastructures for calculations
-			std::size_t numberOfDOF = ptrElement->getNrOfBasisFunctions() * ptrElement->getNrOfUnknowns();
-			LinearAlgebra::MiddleSizeVector vLocal;
-			LinearAlgebra::MiddleSizeVector jTimesLocal(numberOfDOF);
-			//LinearAlgebra::MiddleSizeMatrix jacobianLocal(numberOfDOF,numberOfDOF);
+			logger(INFO,"Computing new Jacobian Matrix.");
+			//Compute new Jacobian element matrices for J(u)
+			for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
+			{
+				//Get the solution coefficients required for the calculation
+				LinearAlgebra::MiddleSizeVector &solutionCoefficients(ptrElement->getTimeIntegrationVector(this->solutionVectorId_));
+				//Calculate and store the matrix
+				ptrElement->setElementMatrix(computeJacobianAtElement(ptrElement, solutionCoefficients, 0), jacobianElementMatrixID_);
 
-			//Compute the local Jacobian Matrix: all derivatives of the local solutionCoefficients
-			LinearAlgebra::MiddleSizeVector &solutionCoefficients(ptrElement->getTimeIntegrationVector(this->solutionVectorId_));
-			LinearAlgebra::MiddleSizeMatrix jacobianLocal = computeJacobianAtElement(ptrElement, solutionCoefficients, 0);
-			//Select the correct v-vector;
-			vLocal = globalVector_->getLocalVector(ptrElement);
-			//Multiply matrix by v-vector and add to the local solution;
-			jTimesLocal += jacobianLocal*vLocal;
+			}
 
-			//compute the non-local Jacobian matrices
+			//Compute the local Jacobian Matrix: Face integrals
 			for (Base::Face *ptrFace : this->meshes_[0]->getFacesList())
 			{
-				//Compute non local matrix and the degrees of freedom
-				//First Obtain the non-local element pointer
-				Base::Element *ptrElementLeft = ptrFace->getPtrElementLeft();
-				Base::Element *ptrElementNonLocal = nullptr;
-				if (ptrElementLeft == ptrElement)
+				//grab the coefficients
+				LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(this->solutionVectorId_));
+				LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight(ptrFace->getPtrElementRight()->getTimeIntegrationVector(this->solutionVectorId_));
+				//Calculate and store the matrix
+				ptrFace->setFaceMatrix(computeJacobianAtFace(ptrFace, solutionCoefficientsLeft, solutionCoefficientsRight, 0), jacobianFaceMatrixID_); // time=0
+			}
+			//Set new_u to false since we have computed the new matrices
+			*new_u = false;
+		}
+
+
+		//Compute J(u) times v
+		//Put v in the hpGEM structure
+		globalVector_->setVector(v);
+		globalVector_->writeTimeIntegrationVector(this->VectorVID_);
+
+		//Compute J(u) times v for every element and place it in the hpGEM structure
+		for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
+		{
+			LinearAlgebra::MiddleSizeVector jTimesV(ptrElement->getNumberOfBasisFunctions()*ptrElement->getNumberOfUnknowns());
+			LinearAlgebra::MiddleSizeMatrix matrix;
+			LinearAlgebra::MiddleSizeVector vector;
+
+			//Element matrix
+			matrix = ptrElement->getElementMatrix(jacobianElementMatrixID_);
+			vector = ptrElement->getTimeIntegrationVector(this->VectorVID_);
+			jTimesV += matrix*vector;
+			//std::cout << "==========" << std::endl;
+			//std::cout << "matrix element: " << matrix << std::endl;
+			//std::cout << "vector element: " << vector << std::endl;
+
+			//Face matrices
+			for (const Base::Face *ptrFace : ptrElement->getFacesList())
+			{
+				Base::Side elementSide;
+				Base::Side neighbourElementSide;
+				//Check if current element is the left or the right element
+				if (ptrFace->getPtrElementLeft() == ptrElement)
 				{
-					ptrElementNonLocal = ptrFace->getPtrElementRight();
+					elementSide = Base::Side::LEFT;
+					neighbourElementSide = Base::Side::RIGHT;
 				}
 				else
 				{
-					ptrElementNonLocal = ptrElementLeft;
+					elementSide = Base::Side::RIGHT;
+					neighbourElementSide = Base::Side::LEFT;
 				}
-				//Then compute the matrix with the correct elements
-				LinearAlgebra::MiddleSizeMatrix jacobianNonLocal = computeJacobianAtFace(ptrElement, ptrElementNonLocal, JacobianMatrixType::NON_LOCAL);
-				std::size_t numberOfNonLocalDOF = jacobianNonLocal.getNCols();
-				LinearAlgebra::MiddleSizeVector vNonLocal(numberOfNonLocalDOF);
-				//Select the correct v-vector;
-				vNonLocal = globalVector_->getLocalVector(ptrElementNonLocal);
-				//Multiply matrix by v-vector and add to the local solution;
-				jTimesLocal += jacobianNonLocal*vNonLocal;
+
+				//Compute local face contribution
+				matrix = ptrFace->getFaceMatrix(this->jacobianFaceMatrixID_).getElementMatrix(elementSide,elementSide);
+				vector = ptrFace->getPtrElement(elementSide)->getTimeIntegrationVector(this->VectorVID_);
+				jTimesV +=  matrix*vector ;
+				//std::cout << "matrix local: " << matrix << std::endl;
+				//std::cout << "vector local: " << vector << std::endl;
+
+				//Compute non local face contribution
+				matrix = ptrFace->getFaceMatrix(jacobianFaceMatrixID_).getElementMatrix(elementSide,neighbourElementSide);
+				vector = ptrFace->getPtrElement(neighbourElementSide)->getTimeIntegrationVector(this->VectorVID_);
+				jTimesV += matrix*vector;
+				//std::cout << "matrix non local: " << matrix << std::endl;
+				//std::cout << "vector non local: " << vector << std::endl;
 			}
 
-			//put the solution in the timeIntegrationVector
-			ptrElement->setTimeIntegrationVector(jTimesvecID_, jTimesLocal);
+			//Set resulting vector
+			ptrElement->setTimeIntegrationVector(jTimesvecID_, jTimesV);
 		}
 
-		//Write solution in the global vector Jv
+		//Write the data from hpGEM to KINSOL
 		globalVector_->setVector(Jv);
-		//Pass the new solution back to KINsol
-		globalVector_->constructFromTimeIntegrationVector(jTimesvecID_); //1 corresponds to the resultId vector
-
-		std::cout << "I am also active!!" << std::endl;
+		globalVector_->constructFromTimeIntegrationVector(jTimesvecID_);
 		return 0;
 	}
 
@@ -181,7 +230,7 @@ namespace Base
 #if defined(HPGEM_USE_SUNDIALS)
 		int flag;
 		int maxl;
-		int globalStrategy = KIN_LINESEARCH; // For now: nothing special, in future maybe linesearch
+		int globalStrategy = KIN_LINESEARCH; // For now: nothing special, in future maybe KIN_LINESEARCH
 
         // Create output files for Paraview.
         std::string outputFileNameVTK = this->outputFileName_;
@@ -253,6 +302,9 @@ namespace Base
 		flag = KINInit(kmem, func, u);
 		logger.assert_always(flag >= 0, "Initialisation failed with flag %.", flag);
 
+		//Set FTOL
+		//flag = KINSetFuncNormTol(kmem, 1e-6);
+
 		//Set type of solver
 		//todo: Make a switch between different types of solver
 		maxl = 15;
@@ -283,6 +335,23 @@ namespace Base
 		step_++;
 		tecplotWriter.write(this->meshes_[0], this->solutionTitle_, false, this, step_);
 		this->VTKWrite(VTKWriter, step_, this->solutionVectorId_);
+
+		//DEBUG
+		N_Vector temp = N_VNew_Serial(numberOfDOF);
+		globalVector_->setVector(temp);
+		//Pass the new solution back to KINsol
+		globalVector_->constructFromTimeIntegrationVector(1); //1 corresponds to the resultId vector
+		double *tempData = NV_DATA_S(temp);
+		double max = 0;
+		for (std::size_t i = 0; i < numberOfDOF; i++)
+		{
+			if (tempData[i] > max)
+			{
+				max = tempData[i];
+			}
+		}
+		std::cout << "Max RHS value: " << max << std::endl;
+		//DEBUG
 
         // Compute the energy norm of the error
         if(doComputeError)

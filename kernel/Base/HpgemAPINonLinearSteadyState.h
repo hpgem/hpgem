@@ -24,6 +24,7 @@
 
 #include "Base/HpgemAPISimplified.h"
 #include "Base/TimeIntegration/AllTimeIntegrators.h"
+#include "Base/FaceMatrix.h"
 #include "Utilities/GlobalVector.h"
 
 #if defined(HPGEM_USE_SUNDIALS)
@@ -55,11 +56,6 @@ namespace Base
 /** \details An example using this interface is still under construction.
  */
 
-	enum class JacobianMatrixType
-	{
-		LOCAL, NON_LOCAL
-	};
-
 	template<std::size_t DIM>
 	class HpgemAPINonLinearSteadyState : public HpgemAPISimplified<DIM>
 	{
@@ -74,6 +70,11 @@ namespace Base
 				const bool computeBothFaces
 		);
 
+        HpgemAPINonLinearSteadyState(const HpgemAPINonLinearSteadyState &other) = delete;
+
+        /// \brief Create the mesh.
+        virtual void createMesh(const std::size_t numberOfElementsPerDirection, const Base::MeshType meshType) override;
+
 #if defined(HPGEM_USE_SUNDIALS)
 		/// \brief This function is called by the Sundials library and then calls the function int computeRHS(N_Vector u, N_Vector fval);
 		static int func(N_Vector cc, N_Vector fval, void *user_data);
@@ -86,14 +87,14 @@ namespace Base
 		int computeRHS(N_Vector u, N_Vector fval);
 
 		//todo: write this function
-		int computeJacTimesVector(N_Vector v, N_Vector Jv, N_Vector u, bool new_u);
+		int computeJacTimesVector(N_Vector v, N_Vector Jv, N_Vector u, booleantype *new_u);
 #endif
 
 		/// \brief This function computes the local and non-local Jacobian contributions from face i of the face integrals
-		virtual LinearAlgebra::MiddleSizeMatrix computeJacobianAtFace(Element *ptrElement, Element *ptrElementNonLocal, JacobianMatrixType type)
+		virtual Base::FaceMatrix computeJacobianAtFace(Base::Face *ptrFace, LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight, const double time)
 		{
             logger(ERROR, "No function computeJacobianFaceAtElement() implemented to compute the local and non local contributions from face integrals.");
-            LinearAlgebra::MiddleSizeMatrix jacobianAtFace(1,1);
+            Base::FaceMatrix jacobianAtFace;
             return jacobianAtFace;
 		}
 
@@ -121,13 +122,23 @@ namespace Base
         /// \brief for Debugging purposes or curiousity. If the flag is true it will output intermediate solutions.
         bool doOutputIntermediateSolutions_ = true;
 
-        const std::size_t jTimesvecID_ = 3;
+        /// \brief Location of the computed RHS
+        const std::size_t solutionRHS_ = 1;
+        /// \brief Location of the jacobian times vector v in the solution
+        const std::size_t jTimesvecID_ = 2;
+        /// \brief Location of the vector V which will be multiplied by the jacobian matrices
+        const std::size_t VectorVID_ = 3;
+
+        /// \brief Location of the Jacobian Element Matrix in the elementMatrix vector
+        const std::size_t jacobianElementMatrixID_ = 0;
+        /// \brief Location of the faceMatrix
+        const std::size_t jacobianFaceMatrixID_ = 0;
 
 #if defined(HPGEM_USE_SUNDIALS)
         /// GlobalVector that performs operations on a given N_Vector. Either writes solutionCoefficients to the hpGEM data structure,
         /// or obtains the RHS from the hpGEM data structure
         Utilities::GlobalSundialsVector *globalVector_;
-        //Utilities::GlobalSundialsMatrix jacobianMatrix_;
+
 #endif
 
         /// tecplotwriter

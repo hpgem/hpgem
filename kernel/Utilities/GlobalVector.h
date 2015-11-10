@@ -147,6 +147,8 @@ namespace Utilities
         //Writes data from the N_Vector into the hpGEM structure
         void writeTimeIntegrationVector(std::size_t timeIntegrationVectorId);
 
+        void setScale(LinearAlgebra::MiddleSizeVector scaleFactor);
+
         //Writes data from the hpGEM structure into the N_Vector
         void constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId);
 

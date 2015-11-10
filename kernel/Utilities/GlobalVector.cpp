@@ -831,6 +831,58 @@ namespace Utilities
             }
     }
 
+    void GlobalSundialsVector::setScale(LinearAlgebra::MiddleSizeVector scaleFactor)
+    {
+       	//Extract data pointer from the input vector
+    	double *data = NV_DATA_S(b_);
+
+    	//For all elements
+    	for (Base::Element* element : theMesh_->getElementsList())
+    	{
+    		std::size_t runningTotal = 0;
+    		for(std::size_t index = 0; index < element->getNrOfUnknowns(); ++index) // for every variable iV
+    		{
+    			for(std::size_t i = 0; i < element->getLocalNrOfBasisFunctions(); ++i) // Get the local basis functions of the element
+    			{
+    				//Copy the scale value
+    				data[startPositionsOfElementsInTheVector_[element->getID()] + i + index * element->getLocalNrOfBasisFunctions()] = scaleFactor(index);
+    				++runningTotal;
+
+    			}
+    			// The code below does not return anything in case of DG, however in case of conforming FEM they will return data
+    			for (std::size_t i = 0; i < element->getPhysicalGeometry()->getNrOfFaces(); ++i) // for all faces of the element
+    			{
+    				for (std::size_t j = 0; j < element->getFace(i)->getLocalNrOfBasisFunctions(); ++j) // get local basis functions of a face
+    				{
+    					data[startPositionsOfFacesInTheVector_[element->getFace(i)->getID()] + j + index * element->getFace(i)->getLocalNrOfBasisFunctions()] = scaleFactor(index);
+    					++runningTotal;
+    				}
+    			}
+    			for (std::size_t i = 0; i < element->getNrOfEdges(); ++i) // For all edges of the element
+    			{
+    				for (std::size_t j = 0; j < element->getEdge(i)->getLocalNrOfBasisFunctions(); ++j) //Get the local basis function of an edge
+    				{
+    					//Copy the scale value
+    					data[startPositionsOfEdgesInTheVector_[element->getEdge(i)->getID()] + j + index * element->getEdge(i)->getLocalNrOfBasisFunctions()] = scaleFactor(index);
+    					++runningTotal;
+    				}
+    			}
+    			if (theMesh_->dimension() > 1) // There are no nodes in a 1D problem
+    			{
+    				for (std::size_t i = 0; i < element->getNrOfNodes(); ++i) //For all nodes
+    				{
+    					for (std::size_t j = 0; j < element->getNode(i)->getLocalNrOfBasisFunctions(); ++j) //Get the local number of basis function of a node
+    					{
+    						//Copy the scale value
+    						data[startPositionsOfNodesInTheVector_[element->getNode(i)->getID()] + j + index * element->getNode(i)->getLocalNrOfBasisFunctions()] = scaleFactor(index);
+    						++runningTotal;
+    					}
+    				}
+    			}
+    		}
+    	}
+    }
+
     void GlobalSundialsVector::writeTimeIntegrationVector(std::size_t timeIntegrationVectorId)
     {
     	//do something here
@@ -887,6 +939,7 @@ namespace Utilities
         }
     }
 
+
     void GlobalSundialsVector::print()
     {
     	std::size_t length = NV_LENGTH_S(b_);
@@ -900,7 +953,7 @@ namespace Utilities
     	std::cout << ']' << std::endl;
     }
 
-    LinearAlgebra::MiddleSizeVector GlobalSundialsVector::getLocalVector(const Base::Element* ptrElement)
+/*    LinearAlgebra::MiddleSizeVector GlobalSundialsVector::getLocalVector(const Base::Element* ptrElement)
     {
     	//Create the local vector
     	std::size_t numberOfDOF = ptrElement->getNrOfBasisFunctions() * ptrElement->getNrOfUnknowns();
@@ -913,7 +966,7 @@ namespace Utilities
     	}
 
     	return localVector;
-    }
+    }*/
 
     void GlobalSundialsVector::setVector(N_Vector b)
     {
