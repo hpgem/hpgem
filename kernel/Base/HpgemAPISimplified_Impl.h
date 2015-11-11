@@ -143,54 +143,42 @@ namespace Base
         logger(VERBOSE, "Total number of elements: %", nElements);
     }
     
+    /// \details By default this function computes the matrix of the products of all basis functions corresponding to the given element.
+    template<std::size_t DIM>
+    LinearAlgebra::MiddleSizeMatrix HpgemAPISimplified<DIM>::computeIntegrandMassMatrix(Base::PhysicalElement<DIM> &element)
+    {
+        // Get a reference to the result matrix.
+        LinearAlgebra::MiddleSizeMatrix &integrand = element.getResultMatrix();
+        
+        // Get the number of basis functions.
+        const std::size_t numOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
+        
+        // Compute the matrix of products for all basis functions.
+        std::size_t iVB, jVB; // indices for both variable and basis function.
+        for (std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; iV++)
+        {
+            for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++)
+            {
+                for (std::size_t jB = 0; jB < numOfBasisFunctions; jB++)
+                {
+                    iVB = element.getElement()->convertToSingleIndex(iB, iV);
+                    jVB = element.getElement()->convertToSingleIndex(jB, iV);
+                    integrand(iVB, jVB) = element.basisFunction(iB) * element.basisFunction(jB);
+                }
+            }
+        }
+        return integrand;
+    }
+    
     /// \details By default this function computes the mass matrix that corresponds to the integral of the inner product of the test functions on the element.
-    /// \todo please use Integration::ElementIntegral::integrate() for integration over elements
     template<std::size_t DIM>
     LinearAlgebra::MiddleSizeMatrix HpgemAPISimplified<DIM>::computeMassMatrixAtElement(Base::Element *ptrElement)
     {
-        // Get number of basis functions
-        std::size_t numberOfBasisFunctions = ptrElement->getNumberOfBasisFunctions();
+        std::function<LinearAlgebra::MiddleSizeMatrix(Base::PhysicalElement<DIM>&)> integrandFunction =
+        [=](Base::PhysicalElement<DIM>& element) -> LinearAlgebra::MiddleSizeMatrix
+        { return this -> computeIntegrandMassMatrix(element);};
         
-        // Make the mass matrix of the correct size and set all entries to zero.
-        LinearAlgebra::MiddleSizeMatrix massMatrix(numberOfBasisFunctions * this->configData_->numberOfUnknowns_, numberOfBasisFunctions * this->configData_->numberOfUnknowns_, 0);
-        
-        // Declare integrand
-        LinearAlgebra::MiddleSizeMatrix integrandMassMatrix(numberOfBasisFunctions * this->configData_->numberOfUnknowns_, numberOfBasisFunctions * this->configData_->numberOfUnknowns_, 0);
-        
-        // Get quadrature rule and number of points.
-        const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
-        std::size_t numberOfQuadPoints = ptrQdrRule->getNumberOfPoints();
-        
-        // For each quadrature point, compute the value of the product of the
-        // basisfunctions, then add it with the correct weight to massMatrix
-        for (std::size_t pQuad = 0; pQuad < numberOfQuadPoints; ++pQuad)
-        {
-            const Geometry::PointReference<DIM>& pRef = ptrQdrRule->getPoint(pQuad);
-            Geometry::Jacobian<DIM, DIM> jac = ptrElement->calcJacobian(pRef);
-            
-            LinearAlgebra::MiddleSizeVector valueBasisFunction(numberOfBasisFunctions);
-            for(std::size_t iB = 0; iB < numberOfBasisFunctions; ++iB)
-            {
-                valueBasisFunction(iB) = ptrElement->basisFunction(iB, pRef);
-            }
-            
-            for(std::size_t iB = 0; iB < numberOfBasisFunctions; ++iB)
-            {
-                for(std::size_t jB = 0; jB < numberOfBasisFunctions; ++jB)
-                {
-                    LinearAlgebra::MiddleSizeMatrix::type massProduct = valueBasisFunction(iB) * valueBasisFunction(jB);
-                    for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
-                    {
-                        std::size_t iVB = ptrElement->convertToSingleIndex(iB,iV);
-                        std::size_t jVB = ptrElement->convertToSingleIndex(jB,iV);
-                        integrandMassMatrix(iVB,jVB) = massProduct;
-                    }
-                }
-            }
-            massMatrix.axpy((ptrQdrRule->weight(pQuad)) * std::abs(jac.determinant()), integrandMassMatrix);
-        }
-        
-        return massMatrix;
+         return this->elementIntegrator_.integrate(ptrElement, integrandFunction);
     }
 
     template<std::size_t DIM>
@@ -213,50 +201,43 @@ namespace Base
         this->synchronize(timeIntegrationVectorId);
     }
     
+    template<std::size_t DIM>
+    LinearAlgebra::MiddleSizeVector HpgemAPISimplified<DIM>::computeIntegrandInitialSolution(Base::PhysicalElement<DIM> &element, const double startTime, const std::size_t orderTimeDerivative)
+    {
+        // Get a reference to the result vector.
+        LinearAlgebra::MiddleSizeVector &integrand = element.getResultVector();
+        
+        // Get the physical point.
+        PointPhysicalT pPhys = element.getPointPhysical();
+        
+        // Compute the initial solution.
+        LinearAlgebra::MiddleSizeVector initialSolution = getInitialSolution(pPhys, startTime, orderTimeDerivative);
+        
+        // Get the number of basis functions.
+        const std::size_t numOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
+        
+        // Compute the product of the initial solution and all test functions.
+        std::size_t iVB, jVB; // indices for both variable and basis function.
+        for (std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; iV++)
+        {
+            for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++)
+            {
+                iVB = element.getElement()->convertToSingleIndex(iB, iV);
+                integrand(iVB) = element.basisFunction(iB) * initialSolution(iV);
+            }
+        }
+        
+        return integrand;
+    }
+    
     /// \brief By default this function computes the integral of the inner product of the initial solution (for given order time derivative) and the test function on the element.
-    /// \todo please use Integration::ElementIntegral::integrate() for integration over elements
     template<std::size_t DIM>
     LinearAlgebra::MiddleSizeVector HpgemAPISimplified<DIM>::integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
     {
-        // Get number of basis functions
-        std::size_t numberOfBasisFunctions = ptrElement->getNumberOfBasisFunctions();
+        // Define the integrand function for the the initial solution integral.
+        std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalElement<DIM>&)> integrandFunction = [=](Base::PhysicalElement<DIM>& element) -> LinearAlgebra::MiddleSizeVector { return this -> computeIntegrandInitialSolution(element, startTime, orderTimeDerivative);};
         
-        // Declare integral initial solution
-        LinearAlgebra::MiddleSizeVector integralInitialSolution(numberOfBasisFunctions * this->configData_->numberOfUnknowns_);
-        
-        // Declare integrand
-        LinearAlgebra::MiddleSizeVector integrandInitialSolution(numberOfBasisFunctions * this->configData_->numberOfUnknowns_);
-        
-        // Get quadrature rule and number of points.
-        const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
-        std::size_t numberOfQuadPoints = ptrQdrRule->getNumberOfPoints();
-        
-        // For each quadrature point, compute the value of the product of the
-        // test function and the initial solution, then add it with the correct weight to the integral solution.
-        for (std::size_t pQuad = 0; pQuad < numberOfQuadPoints; ++pQuad)
-        {
-            const Geometry::PointReference<DIM>& pRef = ptrQdrRule->getPoint(pQuad);
-            Geometry::PointPhysical<DIM> pPhys = ptrElement->referenceToPhysical(pRef);
-            
-            Geometry::Jacobian<DIM, DIM> jac = ptrElement->calcJacobian(pRef);
-            
-            LinearAlgebra::MiddleSizeVector initialSolution = getInitialSolution(pPhys, startTime, orderTimeDerivative);
-            
-            for(std::size_t iB = 0; iB < numberOfBasisFunctions; ++iB)
-            {
-                double valueBasisFunction = ptrElement->basisFunction(iB, pRef);
-                
-                for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
-                {
-                    std::size_t iVB = ptrElement->convertToSingleIndex(iB,iV);
-                    
-                    integrandInitialSolution(iVB) = initialSolution(iV) * valueBasisFunction;
-                }
-            }
-            integralInitialSolution.axpy((ptrQdrRule->weight(pQuad)) * std::abs(jac.determinant()), integrandInitialSolution);
-        }
-        
-        return integralInitialSolution;
+        return this->elementIntegrator_.integrate(ptrElement, integrandFunction);
     }
 
     template<std::size_t DIM>
@@ -271,54 +252,56 @@ namespace Base
         this->synchronize(resultVectorId);
     }
     
-    /// By default the square of the standard L2 norm is integrated.
-    /// \todo please use Integration::ElementIntegral::integrate() for integration over elements
+    template<std::size_t DIM>
+    LinearAlgebra::MiddleSizeVector::type HpgemAPISimplified<DIM>::computeIntegrandTotalError(Base::PhysicalElement<DIM>& element, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
+    {
+        // Define the integrand.
+        LinearAlgebra::MiddleSizeVector::type integrand = 0;
+        
+        // Get the physical point.
+        const PointPhysicalT &pPhys = element.getPointPhysical();
+        
+        // Compute the real solution.
+        const LinearAlgebra::MiddleSizeVector exactSolution = getExactSolution(pPhys, time, 0);
+        
+        // Get the number of basis functions.
+        const std::size_t numOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
+        
+        // Compute the numerical solution.
+        LinearAlgebra::MiddleSizeVector numericalSolution(this->configData_->numberOfUnknowns_);
+        numericalSolution *= 0;
+        for(std::size_t jB = 0; jB < numOfBasisFunctions; jB++)
+        {
+            for(std::size_t jV = 0; jV < this->configData_->numberOfUnknowns_; jV++)
+            {
+                std::size_t jVB = element.getElement()->convertToSingleIndex(jB, jV);
+                numericalSolution(jV) += element.basisFunction(jB) * solutionCoefficients(jVB);
+            }
+        }
+        
+        // Compute the error
+        const LinearAlgebra::MiddleSizeVector error = exactSolution - numericalSolution;
+        
+        // Compute the square of the l2 norm.
+        for (std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; iV++)
+        {
+            integrand += error(iV) * error(iV);
+        }
+        
+        return integrand;
+    }
+    
+    /// \detauls By default the square of the standard L2 norm is integrated.
     template<std::size_t DIM>
     LinearAlgebra::MiddleSizeVector::type HpgemAPISimplified<DIM>::integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
     {
-        // Get number of basis functions
-        std::size_t numberOfBasisFunctions = ptrElement->getNumberOfBasisFunctions();
-        
-        // Declare integral initial solution
-        LinearAlgebra::MiddleSizeVector::type integralError = 0.;
-        
-        // Declare integrand
-        LinearAlgebra::MiddleSizeVector::type integrandError = 0.;
-        
-        // Get quadrature rule and number of points.
-        const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
-        std::size_t numberOfQuadPoints = ptrQdrRule->getNumberOfPoints();
-        
-        // For each quadrature point, compute the square of the error, then add it with the correct weight to the integral solution.
-        for (std::size_t pQuad = 0; pQuad < numberOfQuadPoints; ++pQuad)
+        // Define the integrand function for the error energy.
+        std::function<LinearAlgebra::MiddleSizeVector::type(Base::PhysicalElement<DIM>&)> integrandFunction = [=](Base::PhysicalElement<DIM>& element) -> LinearAlgebra::MiddleSizeVector::type
         {
-            const Geometry::PointReference<DIM>& pRef = ptrQdrRule->getPoint(pQuad);
-            Geometry::PointPhysical<DIM> pPhys = ptrElement->referenceToPhysical(pRef);
-            
-            Geometry::Jacobian<DIM, DIM> jac = ptrElement->calcJacobian(pRef);
-            
-            LinearAlgebra::MiddleSizeVector exactSolution = getExactSolution(pPhys, time, 0);
-            
-            LinearAlgebra::MiddleSizeVector numericalSolution(this->configData_->numberOfUnknowns_);
-            numericalSolution *= 0;
-            
-            for(std::size_t iB = 0; iB < numberOfBasisFunctions; ++iB)
-            {
-                double valueBasisFunction = ptrElement->basisFunction(iB, pRef);
-                
-                for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
-                {
-                    std::size_t iVB = ptrElement->convertToSingleIndex(iB,iV);
-                    
-                    numericalSolution(iV) += solutionCoefficients(iVB) * valueBasisFunction;
-                }
-            }
-            integrandError = (numericalSolution - exactSolution) * (numericalSolution - exactSolution);
-            
-            LinearAlgebra::axpy((ptrQdrRule->weight(pQuad)) * std::abs(jac.determinant()), integrandError, integralError);
-        }
+            return this->computeIntegrandTotalError(element, solutionCoefficients, time);
+        };
         
-        return integralError;
+        return this->elementIntegrator_.integrate(ptrElement, integrandFunction);
     }
     
     /// \param[in] solutionVectorId index of the time integration vector where the solution is stored.
@@ -358,7 +341,6 @@ namespace Base
     }
     
     /// \details This function returns a vector of the suprema of the error of every variable.
-    /// \todo please use Integration::ElementIntegral::integrate() for integration over elements
     template<std::size_t DIM>
     LinearAlgebra::MiddleSizeVector HpgemAPISimplified<DIM>::computeMaxErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
     {

@@ -174,50 +174,44 @@ namespace Base
         return this->faceIntegrator_.integrate(ptrFace, integrandFunction);
     }
     
+    template<std::size_t DIM>
+    LinearAlgebra::MiddleSizeVector HpgemAPILinear<DIM>::computeIntegrandSourceTermAtElement(Base::PhysicalElement<DIM> &element, const double time, const std::size_t orderTimeDerivative)
+    {
+        // Get a reference to the result vector.
+        LinearAlgebra::MiddleSizeVector &integrand = element.getResultVector();
+        
+        // Get the physical point.
+        PointPhysicalT pPhys = element.getPointPhysical();
+        
+        // Compute the source term.
+        LinearAlgebra::MiddleSizeVector sourceTerm = getSourceTerm(pPhys, time, orderTimeDerivative);
+        
+        // Get the number of basis functions.
+        const std::size_t numOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
+        
+        // Compute the product of the source term and all test functions.
+        std::size_t iVB, jVB; // indices for both variable and basis function.
+        for (std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; iV++)
+        {
+            for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++)
+            {
+                iVB = element.getElement()->convertToSingleIndex(iB, iV);
+                integrand(iVB) = element.basisFunction(iB) * sourceTerm(iV);
+            }
+        }
+        
+        return integrand;
+    }
+    
     /// \details By default, the standard L2 inner product with the source term is computed.
     /// \todo please use Integration::ElementIntegral::integrate() for integration over elements
     template<std::size_t DIM>
     LinearAlgebra::MiddleSizeVector HpgemAPILinear<DIM>::integrateSourceTermAtElement(Base::Element * ptrElement, const double time, const std::size_t orderTimeDerivative)
     {
-        // Get number of basis functions
-        std::size_t numberOfBasisFunctions = ptrElement->getNumberOfBasisFunctions();
+        // Define the integrand function for the the source term.
+        std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalElement<DIM>&)> integrandFunction = [=](Base::PhysicalElement<DIM>& element) -> LinearAlgebra::MiddleSizeVector { return this -> computeIntegrandSourceTermAtElement(element, time, orderTimeDerivative);};
         
-        // Declare integral source term
-        LinearAlgebra::MiddleSizeVector integralSourceTerm(numberOfBasisFunctions * this->configData_->numberOfUnknowns_);
-        
-        // Declare integrand
-        LinearAlgebra::MiddleSizeVector integrandSourceTerm(numberOfBasisFunctions * this->configData_->numberOfUnknowns_);
-        
-        // Get quadrature rule and number of points.
-        const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
-        std::size_t numberOfQuadPoints = ptrQdrRule->getNumberOfPoints();
-        
-        // For each quadrature point, compute the value of the product of the
-        // test function and the source term, then add it with the correct weight to the integral solution.
-        for (std::size_t pQuad = 0; pQuad < numberOfQuadPoints; ++pQuad)
-        {
-            const Geometry::PointReference<DIM>& pRef = ptrQdrRule->getPoint(pQuad);
-            Geometry::PointPhysical<DIM> pPhys = ptrElement->referenceToPhysical(pRef);
-            
-            Geometry::Jacobian<DIM, DIM> jac = ptrElement->calcJacobian(pRef);
-            
-            LinearAlgebra::MiddleSizeVector sourceTerm = getSourceTerm(pPhys, time, orderTimeDerivative);
-            
-            for(std::size_t iB = 0; iB < numberOfBasisFunctions; ++iB)
-            {
-                double valueBasisFunction = ptrElement->basisFunction(iB, pRef);
-                
-                for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
-                {
-                    std::size_t iVB = ptrElement->convertToSingleIndex(iB,iV);
-                    
-                    integrandSourceTerm(iVB) = sourceTerm(iV) * valueBasisFunction;
-                }
-            }
-            integralSourceTerm.axpy((ptrQdrRule->weight(pQuad)) * std::abs(jac.determinant()), integrandSourceTerm);
-        }
-        
-        return integralSourceTerm;
+        return this->elementIntegrator_.integrate(ptrElement, integrandFunction);
     }
 
     template<std::size_t DIM>

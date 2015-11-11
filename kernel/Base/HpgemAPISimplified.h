@@ -142,6 +142,9 @@ namespace Base
             return initialSolution;
         }
         
+        /// \brief Compute the integrand for the mass matrix
+        virtual LinearAlgebra::MiddleSizeMatrix computeIntegrandMassMatrix(Base::PhysicalElement<DIM> &element);
+        
         /// \brief Compute the mass matrix for a single element.
         virtual LinearAlgebra::MiddleSizeMatrix computeMassMatrixAtElement(Base::Element *ptrElement);
         
@@ -152,12 +155,18 @@ namespace Base
         /// \brief Solve the mass matrix equations.
         virtual void solveMassMatrixEquations(const std::size_t timeIntegrationVectorId);
 
-        /// \brief Integrate the initial solution at a single element.
+        /// \brief Compute the integrand for the L2 inner product of the initial solution and the basis functions.
+        virtual LinearAlgebra::MiddleSizeVector computeIntegrandInitialSolution(Base::PhysicalElement<DIM> &element, const double startTime, const std::size_t orderTimeDerivative);
+        
+        /// \brief Integrate the product of the initial solution and basisfunctions at a single element.
         virtual LinearAlgebra::MiddleSizeVector integrateInitialSolutionAtElement( Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative);
         
-        /// \brief Integrate the initial solution.
+        /// \brief Integrate the product of the initial solution and all basis functions.
         virtual void integrateInitialSolution(const std::size_t resultVectorId, const double startTime, const std::size_t orderTimeDerivative);
 
+        /// \broef Compute the integrand for the total error.
+        virtual LinearAlgebra::MiddleSizeVector::type computeIntegrandTotalError(Base::PhysicalElement<DIM> & element, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
+        
         /// \brief Integrate the square of some norm of the error on a single element.
         virtual LinearAlgebra::MiddleSizeVector::type integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
         
