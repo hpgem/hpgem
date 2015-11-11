@@ -182,9 +182,9 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    void HpgemAPISimplified<DIM>::solveMassMatrixEquationsAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients)
+    void HpgemAPISimplified<DIM>::solveMassMatrixEquationsAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &functionCoefficients)
     {
-        computeMassMatrixAtElement(ptrElement).solve(solutionCoefficients);
+        computeMassMatrixAtElement(ptrElement).solve(functionCoefficients);
     }
     
     /// \details Solve the equation \f$ Mu = r \f$ for \f$ u \f$, where \f$ r \f$ is the right-hand sid and \f$ M \f$ is the mass matrix.
@@ -193,9 +193,9 @@ namespace Base
     {
         for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
-            LinearAlgebra::MiddleSizeVector &solutionCoefficients(ptrElement->getTimeIntegrationVector(timeIntegrationVectorId));
+            LinearAlgebra::MiddleSizeVector &functionCoefficients(ptrElement->getTimeIntegrationVector(timeIntegrationVectorId));
             
-            solveMassMatrixEquationsAtElement(ptrElement, solutionCoefficients);
+            solveMassMatrixEquationsAtElement(ptrElement, functionCoefficients);
         }
         
         this->synchronize(timeIntegrationVectorId);
@@ -245,8 +245,8 @@ namespace Base
     {
         for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
-            LinearAlgebra::MiddleSizeVector &solutionCoefficients = ptrElement->getTimeIntegrationVector(resultVectorId);
-            solutionCoefficients = integrateInitialSolutionAtElement(ptrElement, initialTime, orderTimeDerivative);
+            LinearAlgebra::MiddleSizeVector &resultFunctionCoefficients = ptrElement->getTimeIntegrationVector(resultVectorId);
+            resultFunctionCoefficients = integrateInitialSolutionAtElement(ptrElement, initialTime, orderTimeDerivative);
         }
         
         this->synchronize(resultVectorId);
@@ -444,10 +444,10 @@ namespace Base
         // Apply the right hand side corresponding to integration on the elements.
         for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
-            LinearAlgebra::MiddleSizeVector &solutionCoefficients(ptrElement->getTimeIntegrationVector(inputVectorId));
-            LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrElement->getTimeIntegrationVector(resultVectorId));
+            LinearAlgebra::MiddleSizeVector &inputFunctionCoefficients(ptrElement->getTimeIntegrationVector(inputVectorId));
+            LinearAlgebra::MiddleSizeVector &resultFunctionCoefficients(ptrElement->getTimeIntegrationVector(resultVectorId));
             
-            solutionCoefficientsNew = computeRightHandSideAtElement(ptrElement,  solutionCoefficients, time);
+            resultFunctionCoefficients = computeRightHandSideAtElement(ptrElement,  inputFunctionCoefficients, time);
         }
         
         // Apply the right hand side corresponding to integration on the faces.
@@ -455,29 +455,29 @@ namespace Base
         {
             if(ptrFace->isInternal())
             {
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(inputVectorId));
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight(ptrFace->getPtrElementRight()->getTimeIntegrationVector(inputVectorId));
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeIntegrationVector(resultVectorId));
+                LinearAlgebra::MiddleSizeVector &inputFunctionCoefficientsLeft(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(inputVectorId));
+                LinearAlgebra::MiddleSizeVector &inputFunctionCoefficientsRight(ptrFace->getPtrElementRight()->getTimeIntegrationVector(inputVectorId));
+                LinearAlgebra::MiddleSizeVector &resultFunctionCoefficientsLeft(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
+                LinearAlgebra::MiddleSizeVector &resultFunctionCoefficientsRight(ptrFace->getPtrElementRight()->getTimeIntegrationVector(resultVectorId));
 
                 if (computeBothFaces_ == false)
                 {
-                	solutionCoefficientsLeftNew += computeRightHandSideAtFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
-                	solutionCoefficientsRightNew += computeRightHandSideAtFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
+                	resultFunctionCoefficientsLeft += computeRightHandSideAtFace(ptrFace, Base::Side::LEFT, inputFunctionCoefficientsLeft, inputFunctionCoefficientsRight, time);
+                	resultFunctionCoefficientsRight += computeRightHandSideAtFace(ptrFace, Base::Side::RIGHT, inputFunctionCoefficientsLeft, inputFunctionCoefficientsRight, time);
                 }
                 else
                 {
-                	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> solutionCoefficients(computeBothRightHandSidesAtFace(ptrFace, solutionCoefficientsLeft, solutionCoefficientsRight, time));
-                	solutionCoefficientsLeftNew += solutionCoefficients.first;
-                	solutionCoefficientsRightNew += solutionCoefficients.second;
+                	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> resultFunctionCoefficients(computeBothRightHandSidesAtFace(ptrFace, inputFunctionCoefficientsLeft, inputFunctionCoefficientsRight, time));
+                	resultFunctionCoefficientsLeft += resultFunctionCoefficients.first;
+                	resultFunctionCoefficientsRight += resultFunctionCoefficients.second;
                 }
             }
             else
             {
-                LinearAlgebra::MiddleSizeVector &solutionCoefficients(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(inputVectorId));
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
+                LinearAlgebra::MiddleSizeVector &inputFunctionCoefficients(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(inputVectorId));
+                LinearAlgebra::MiddleSizeVector &resultFunctionCoefficients(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
                 
-                solutionCoefficientsNew = computeRightHandSideAtFace(ptrFace, solutionCoefficients, time);
+                resultFunctionCoefficients = computeRightHandSideAtFace(ptrFace, inputFunctionCoefficients, time);
             }
         }
         
@@ -506,10 +506,10 @@ namespace Base
         // Apply the right hand side corresponding to integration on the elements.
         for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
-            LinearAlgebra::MiddleSizeVector solutionCoefficients(getLinearCombinationOfVectors(ptrElement, inputVectorIds, coefficientsInputVectors));
-            LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrElement->getTimeIntegrationVector(resultVectorId));
+            LinearAlgebra::MiddleSizeVector inputFunctionCoefficients(getLinearCombinationOfVectors(ptrElement, inputVectorIds, coefficientsInputVectors));
+            LinearAlgebra::MiddleSizeVector &resultFunctionCoefficients(ptrElement->getTimeIntegrationVector(resultVectorId));
             
-            solutionCoefficientsNew = computeRightHandSideAtElement(ptrElement,  solutionCoefficients, time);
+            resultFunctionCoefficients = computeRightHandSideAtElement(ptrElement, inputFunctionCoefficients, time);
         }
         
         // Apply the right hand side corresponding to integration on the faces.
@@ -517,29 +517,29 @@ namespace Base
         {
             if(ptrFace->isInternal())
             {
-                LinearAlgebra::MiddleSizeVector solutionCoefficientsLeft(getLinearCombinationOfVectors(ptrFace->getPtrElementLeft(), inputVectorIds, coefficientsInputVectors));
-                LinearAlgebra::MiddleSizeVector solutionCoefficientsRight(getLinearCombinationOfVectors(ptrFace->getPtrElementRight(), inputVectorIds, coefficientsInputVectors));
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeIntegrationVector(resultVectorId));
+                LinearAlgebra::MiddleSizeVector inputFunctionCoefficientsLeft(getLinearCombinationOfVectors(ptrFace->getPtrElementLeft(), inputVectorIds, coefficientsInputVectors));
+                LinearAlgebra::MiddleSizeVector inputFunctionCoefficientsRight(getLinearCombinationOfVectors(ptrFace->getPtrElementRight(), inputVectorIds, coefficientsInputVectors));
+                LinearAlgebra::MiddleSizeVector &resultFunctionCoefficientsLeft(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
+                LinearAlgebra::MiddleSizeVector &resultFunctionCoefficientsRight(ptrFace->getPtrElementRight()->getTimeIntegrationVector(resultVectorId));
 
                 if (computeBothFaces_ == false)
                 {
-                	solutionCoefficientsLeftNew += computeRightHandSideAtFace(ptrFace, Base::Side::LEFT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
-                	solutionCoefficientsRightNew += computeRightHandSideAtFace(ptrFace, Base::Side::RIGHT, solutionCoefficientsLeft, solutionCoefficientsRight, time);
+                	resultFunctionCoefficientsLeft += computeRightHandSideAtFace(ptrFace, Base::Side::LEFT, inputFunctionCoefficientsLeft, inputFunctionCoefficientsRight, time);
+                	resultFunctionCoefficientsRight += computeRightHandSideAtFace(ptrFace, Base::Side::RIGHT, inputFunctionCoefficientsLeft, inputFunctionCoefficientsRight, time);
                 }
                 else
                 {
-                	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> solutionCoefficients(computeBothRightHandSidesAtFace(ptrFace, solutionCoefficientsLeft, solutionCoefficientsRight, time));
-                	solutionCoefficientsLeftNew += solutionCoefficients.first;
-                	solutionCoefficientsRightNew += solutionCoefficients.second;
+                	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> resultFunctionCoefficients(computeBothRightHandSidesAtFace(ptrFace, inputFunctionCoefficientsLeft, inputFunctionCoefficientsRight, time));
+                	resultFunctionCoefficientsLeft += resultFunctionCoefficients.first;
+                	resultFunctionCoefficientsRight += resultFunctionCoefficients.second;
                 }
             }
             else
             {
-                LinearAlgebra::MiddleSizeVector solutionCoefficients(getLinearCombinationOfVectors(ptrFace->getPtrElementLeft(), inputVectorIds, coefficientsInputVectors));
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
+                LinearAlgebra::MiddleSizeVector inputFunctionCoefficients(getLinearCombinationOfVectors(ptrFace->getPtrElementLeft(), inputVectorIds, coefficientsInputVectors));
+                LinearAlgebra::MiddleSizeVector &resultFunctionCoefficients(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
                 
-                solutionCoefficientsNew += computeRightHandSideAtFace(ptrFace, solutionCoefficients, time);
+                resultFunctionCoefficients += computeRightHandSideAtFace(ptrFace, inputFunctionCoefficients, time);
             }
         }
         

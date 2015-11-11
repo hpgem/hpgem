@@ -348,7 +348,7 @@ namespace Base
         const bool computeBothFaces_;
 
         /// \brief Define how the solution should be written in the VTK files.
-        /// \details For an example of using this function, see for example the application 'TutorialAdvection' to find out how to use this function.
+        /// \details For an example of using this function, see the application 'TutorialAdvection'.
         void registerVTKWriteFunction(std::function<double(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> function, std::string name)
         {
             VTKDoubleWrite_.push_back( {function, name});
