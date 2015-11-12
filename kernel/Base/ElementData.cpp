@@ -32,7 +32,7 @@
 namespace Base
 {
     ElementData::ElementData(std::size_t timeLevels, std::size_t numberOfUnknowns, std::size_t numberOfBasisFunctions, std::size_t numberOfElementMatrixes, std::size_t numberOfElementVectors)
-            : timeLevels_(timeLevels), numberOfUnknowns_(numberOfUnknowns), numberOfBasisFunctions_(numberOfBasisFunctions), expansionCoefficients_(timeLevels_), userData_(nullptr), elementMatrix_(numberOfElementMatrixes), elementVector_(numberOfElementVectors)
+            : timeLevels_(timeLevels), numberOfUnknowns_(numberOfUnknowns), numberOfBasisFunctions_(numberOfBasisFunctions), timeLevelDataVectors_(timeLevels_), userData_(nullptr), elementMatrix_(numberOfElementMatrixes), elementVector_(numberOfElementVectors)
     {
         logger(VERBOSE, "In constructor of ElementData: ");
         logger(VERBOSE, "numberOfElementMatrixes %", numberOfElementMatrixes);
@@ -47,7 +47,7 @@ namespace Base
         numberOfUnknowns_ = other.numberOfUnknowns_;
         numberOfBasisFunctions_ = other.numberOfBasisFunctions_;
         
-        expansionCoefficients_ = other.expansionCoefficients_;
+        timeLevelDataVectors_ = other.timeLevelDataVectors_;
         timeIntegrationVectors_ = other.timeIntegrationVectors_;
         
         //note: shallow copy
@@ -134,11 +134,11 @@ namespace Base
     void ElementData::setData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction, double val)
     {
         logger.assert((timeLevel < timeLevels_ && unknown < numberOfUnknowns_ && basisFunction < numberOfBasisFunctions_), "Error: Asked for a time level, or unknown, greater than the amount of time levels");
-        if(expansionCoefficients_[timeLevel].size() != numberOfUnknowns_ * numberOfBasisFunctions_)
+        if(timeLevelDataVectors_[timeLevel].size() != numberOfUnknowns_ * numberOfBasisFunctions_)
         {
-            expansionCoefficients_[timeLevel].resize(numberOfUnknowns_ * numberOfBasisFunctions_);
+            timeLevelDataVectors_[timeLevel].resize(numberOfUnknowns_ * numberOfBasisFunctions_);
         }
-        expansionCoefficients_[timeLevel](convertToSingleIndex(basisFunction, unknown)) = val;
+        timeLevelDataVectors_[timeLevel](convertToSingleIndex(basisFunction, unknown)) = val;
     }
     
     /// \param[in] timeLevel Index corresponding to the time level.
@@ -147,8 +147,8 @@ namespace Base
     LinearAlgebra::MiddleSizeVector::type ElementData::getData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction) const
     {
         logger.assert((timeLevel < timeLevels_ && unknown < numberOfUnknowns_ && basisFunction < numberOfBasisFunctions_), "Error: Asked for a time level, or unknown, greater than the amount of time levels");
-        logger.assert(expansionCoefficients_[timeLevel].size() == numberOfUnknowns_ * numberOfBasisFunctions_, "Wrong number of expansion coefficients.");
-        return expansionCoefficients_[timeLevel](convertToSingleIndex(basisFunction, unknown));
+        logger.assert(timeLevelDataVectors_[timeLevel].size() == numberOfUnknowns_ * numberOfBasisFunctions_, "Wrong number of expansion coefficients.");
+        return timeLevelDataVectors_[timeLevel](convertToSingleIndex(basisFunction, unknown));
     }
 
     /// \details Rewrite with swap!!! This method is slow and inefficient. It is therefore advised to use getTimeLevelDataVector instead.
@@ -159,14 +159,14 @@ namespace Base
     {
         logger.assert(val.size() == numberOfBasisFunctions_, "data vector has the wrong size");
         logger.assert((timeLevel < timeLevels_ && unknown < numberOfUnknowns_), "Error: Asked for a time level, or unknown, greater than the amount of time levels");
-        if(expansionCoefficients_[timeLevel].size() != numberOfUnknowns_ * numberOfBasisFunctions_)
+        if(timeLevelDataVectors_[timeLevel].size() != numberOfUnknowns_ * numberOfBasisFunctions_)
         {
-            expansionCoefficients_[timeLevel].resize(numberOfUnknowns_ * numberOfBasisFunctions_);
+            timeLevelDataVectors_[timeLevel].resize(numberOfUnknowns_ * numberOfBasisFunctions_);
         }
 
         for(std::size_t iB = 0; iB < val.size(); ++iB) // iB = iBasisFunction
         {
-            expansionCoefficients_[timeLevel](convertToSingleIndex(iB, unknown)) = val[iB];
+            timeLevelDataVectors_[timeLevel](convertToSingleIndex(iB, unknown)) = val[iB];
         }
     }
 
@@ -187,7 +187,7 @@ namespace Base
         LinearAlgebra::MiddleSizeVector timeLevelData(numberOfBasisFunctions_);
         for(std::size_t iB = 0; iB < numberOfBasisFunctions_; iB++) // iB = iBasisFunction
         {
-            timeLevelData(iB) = expansionCoefficients_[timeLevel](convertToSingleIndex(iB, unknown));
+            timeLevelData(iB) = timeLevelDataVectors_[timeLevel](convertToSingleIndex(iB, unknown));
         }
         return timeLevelData;
     }
@@ -201,11 +201,11 @@ namespace Base
                       " are only % time levels", timeLevel, timeLevels_);
         // The vector can be of dimension 0 if it hasn't been used before, 
         // therefore it must be resized first.
-        if(expansionCoefficients_[timeLevel].size() != numberOfUnknowns_ * numberOfBasisFunctions_)
+        if(timeLevelDataVectors_[timeLevel].size() != numberOfUnknowns_ * numberOfBasisFunctions_)
         {
-            expansionCoefficients_[timeLevel].resize(numberOfUnknowns_ * numberOfBasisFunctions_);
+            timeLevelDataVectors_[timeLevel].resize(numberOfUnknowns_ * numberOfBasisFunctions_);
         }
-        expansionCoefficients_[timeLevel] = val;
+        timeLevelDataVectors_[timeLevel] = val;
     }
     
     /// \param[in] timeLevel Index corresponding to the time level.
@@ -213,8 +213,8 @@ namespace Base
     const LinearAlgebra::MiddleSizeVector & ElementData::getTimeLevelDataVector(std::size_t timeLevel) const
     {
         logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there are only % time levels", timeLevel, timeLevels_);
-        logger.assert(expansionCoefficients_[timeLevel].size() == numberOfUnknowns_ * numberOfBasisFunctions_, "Wrong number of expansion coefficients.");
-        return expansionCoefficients_[timeLevel];
+        logger.assert(timeLevelDataVectors_[timeLevel].size() == numberOfUnknowns_ * numberOfBasisFunctions_, "Wrong number of expansion coefficients.");
+        return timeLevelDataVectors_[timeLevel];
     }
     
     LinearAlgebra::MiddleSizeVector & ElementData::getTimeLevelDataVector(std::size_t timeLevel)
@@ -222,11 +222,11 @@ namespace Base
         logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there are only % time levels", timeLevel, timeLevels_);
         // The vector can be of dimension 0 if it hasn't been used before, 
         // therefore it must be resized first.
-        if(expansionCoefficients_[timeLevel].size() != numberOfUnknowns_ * numberOfBasisFunctions_)
+        if(timeLevelDataVectors_[timeLevel].size() != numberOfUnknowns_ * numberOfBasisFunctions_)
         {
-            expansionCoefficients_[timeLevel].resize(numberOfUnknowns_ * numberOfBasisFunctions_);
+            timeLevelDataVectors_[timeLevel].resize(numberOfUnknowns_ * numberOfBasisFunctions_);
         }
-        return expansionCoefficients_[timeLevel];
+        return timeLevelDataVectors_[timeLevel];
     }
     
     
