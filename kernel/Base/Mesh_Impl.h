@@ -175,27 +175,27 @@ namespace Base
     template<std::size_t DIM>
     void Mesh<DIM>::split()
     {
-        std::vector<int> partition(elements_.size()); //output
         //split the mesh
         int pid = 0;
 #ifdef HPGEM_USE_MPI
 #ifdef HPGEM_USE_METIS
+        std::vector<idx_t> partition(elements_.size()); //output
         pid = MPIContainer::Instance().getProcessorID();
-        int nProcs = MPIContainer::Instance().getNumberOfProcessors();
+        idx_t nProcs = MPIContainer::Instance().getNumberOfProcessors();
 
         if (pid == 0 && nProcs > 1)
         {   
             logger(INFO, "start of metis");
 
-            int one = 1; //actually the number of constraints. This can be increased for example when we want to distribute an entire mesh tree in one go (while keeping each of the levels balanced) - increasing this number turns imbalance into a vector
-            int numberOfElements = elements_.size();
+            idx_t one = 1; //actually the number of constraints. This can be increased for example when we want to distribute an entire mesh tree in one go (while keeping each of the levels balanced) - increasing this number turns imbalance into a vector
+            idx_t numberOfElements = elements_.size();
 
             //int mpiCommSize=4;
             float imbalance = 1.001;//explicitly put the default for later manipulation
-            int totalCutSize;//output
+            idx_t totalCutSize;//output
             
-            std::vector<int> xadj(numberOfElements + 1);//make sure not to put this data on the stack
-            std::vector<int> adjncy(2 * faces_.size());//if this basic connectivity structure turns out to be very slow for conforming meshes, some improvements can be made
+            std::vector<idx_t> xadj(numberOfElements + 1);//make sure not to put this data on the stack
+            std::vector<idx_t> adjncy(2 * faces_.size());//if this basic connectivity structure turns out to be very slow for conforming meshes, some improvements can be made
             int connectionsUsed(0), xadjCounter(0);
             for (Element* element : elements_)
             {   
@@ -221,7 +221,7 @@ namespace Base
             }
             xadj[xadjCounter] = connectionsUsed;
 
-            int metisOptions[METIS_NOPTIONS];
+            idx_t metisOptions[METIS_NOPTIONS];
             METIS_SetDefaultOptions(metisOptions);
 
             metisOptions[METIS_OPTION_CTYPE] = METIS_CTYPE_SHEM;
@@ -235,8 +235,9 @@ namespace Base
         }
 
         MPIContainer::Instance().broadcast(partition, 0);
-
 #endif
+#else
+        std::vector<std::size_t> partition(elements_.size()); //output
 #endif
         submeshes_.clear();
         auto elementIterator = elements_.begin();
