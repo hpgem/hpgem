@@ -19,8 +19,8 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BASISFUNCTIONS3DNEDELEC_H_
-#define BASISFUNCTIONS3DNEDELEC_H_
+#ifndef BASISFUNCTIONS3DAINSWORTHCOYLE_H_
+#define BASISFUNCTIONS3DAINSWORTHCOYLE_H_
 
 #include "Base/BaseBasisFunction.h"
 #include <vector>
@@ -38,91 +38,77 @@ namespace Geometry
 
 namespace Utilities
 {
-    
-    //! Curl conforming Nedelec edge functions.
-    class BasisCurlEdgeNedelec : public Base::BaseBasisFunction
+    //! Curl conforming edge functions.
+    class BasisCurlEdgeAinsworthCoyle : public Base::BaseBasisFunction
     {
     public:
-        BasisCurlEdgeNedelec(std::size_t degree1,std::size_t degree2,std::size_t localFirstVertex,std::size_t localSecondVertex);
-        
-	void eval(const Geometry::PointReference<3>& p, LinearAlgebra::SmallVector<3>& ret) const override;
+        BasisCurlEdgeAinsworthCoyle(std::size_t degree, std::size_t localFirstVertex, std::size_t localSecondVertex);
 
-        LinearAlgebra::SmallVector<3> evalCurl(const Geometry::PointReference<3>& p) const override;
-        
-    private:
-        const std::size_t deg1,deg2,i,j;
-    };
-    
-    //! Curl conforming Nedelec face functions.
-    class BasisCurlFace1Nedelec : public Base::BaseBasisFunction
-    {
-    public:
-        BasisCurlFace1Nedelec(std::size_t degree1,std::size_t degree2,std::size_t degree3,std::size_t localOpposingVertex);
-        
         void eval(const Geometry::PointReference<3>& p, LinearAlgebra::SmallVector<3>& ret) const override;
 
         LinearAlgebra::SmallVector<3> evalCurl(const Geometry::PointReference<3>& p) const override;
         
     private:
-        std::size_t deg1,deg2,deg3,a,b,c,d;
-    };
-
-    class BasisCurlFace2Nedelec : public Base::BaseBasisFunction
-    {
-    public:
-        BasisCurlFace2Nedelec(std::size_t degree1,std::size_t degree2,std::size_t degree3,std::size_t localOpposingVertex);
-        
-        void eval(const Geometry::PointReference<3>& p, LinearAlgebra::SmallVector<3>& ret) const override;
-
-        LinearAlgebra::SmallVector<3> evalCurl(const Geometry::PointReference<3>& p) const override;
-        
-    private:
-        std::size_t deg1,deg2,deg3,a,b,c,d;
+        const std::size_t deg, o, i;
     };
     
-    //! curl conforming interior Nedelec functions
-    class BasisCurlinterior1Nedelec : public Base::BaseBasisFunction
+    //! Curl conforming edge based face functions.
+    class BasisCurlEdgeFaceAinsworthCoyle : public Base::BaseBasisFunction
     {
     public:
-        BasisCurlinterior1Nedelec(std::size_t degree1,std::size_t degree2,std::size_t degree3,std::size_t degree4);
-                
+        BasisCurlEdgeFaceAinsworthCoyle(std::size_t degree, std::size_t localOpposingVertex, std::size_t localSpecialVertex);
+
         void eval(const Geometry::PointReference<3>& p, LinearAlgebra::SmallVector<3>& ret) const override;
 
         LinearAlgebra::SmallVector<3> evalCurl(const Geometry::PointReference<3>& p) const override;
         
     private:
-        const std::size_t deg1,deg2,deg3,deg4;
+        std::size_t deg, a, b, c;
     };
 
-    //! curl conforming interior Nedelec functions
-    class BasisCurlinterior2Nedelec : public Base::BaseBasisFunction
+    //! Curl conforming face functions.
+    class BasisCurlFaceAinsworthCoyle : public Base::BaseBasisFunction
     {
     public:
-        BasisCurlinterior2Nedelec(std::size_t degree1,std::size_t degree2,std::size_t degree3,std::size_t degree4);
-                
+        BasisCurlFaceAinsworthCoyle(std::size_t degree1, std::size_t degree2, std::size_t localOpposingVertex, std::size_t direction);
+
         void eval(const Geometry::PointReference<3>& p, LinearAlgebra::SmallVector<3>& ret) const override;
 
         LinearAlgebra::SmallVector<3> evalCurl(const Geometry::PointReference<3>& p) const override;
         
     private:
-        const std::size_t deg1,deg2,deg3,deg4;
+        std::size_t deg1, deg2, a, b, c;
     };
 
-    //! curl conforming interior Nedelec functions
-    class BasisCurlinterior3Nedelec : public Base::BaseBasisFunction
+    //! Curl conforming face based interior functions.
+    class BasisCurlFaceinteriorAinsworthCoyle : public Base::BaseBasisFunction
     {
     public:
-        BasisCurlinterior3Nedelec(std::size_t degree1,std::size_t degree2,std::size_t degree3,std::size_t degree4);
-                
+        BasisCurlFaceinteriorAinsworthCoyle(std::size_t degree1, std::size_t degree2, std::size_t localOpposingVertex);
+
+        void eval(const Geometry::PointReference<3>& p, LinearAlgebra::SmallVector<3>& ret) const override;
+
+        LinearAlgebra::SmallVector<3> evalCurl(const Geometry::PointReference<3>& p) const override;
+     
+    private:
+        std::size_t deg1, deg2, a, b, c, d;
+    };
+    
+    //! curl conforming interior functions
+    class BasisCurlinteriorAinsworthCoyle : public Base::BaseBasisFunction
+    {
+    public:
+        BasisCurlinteriorAinsworthCoyle(std::size_t degree1, std::size_t degree2, std::size_t degree3, std::size_t direction);
+
         void eval(const Geometry::PointReference<3>& p, LinearAlgebra::SmallVector<3>& ret) const override;
 
         LinearAlgebra::SmallVector<3> evalCurl(const Geometry::PointReference<3>& p) const override;
         
     private:
-        const std::size_t deg1,deg2,deg3,deg4;
+        const std::size_t deg1, deg2, deg3, direction;
     };
 
-    Base::BasisFunctionSet* createDGBasisFunctionSet3DNedelec(std::size_t order);
+    Base::BasisFunctionSet* createDGBasisFunctionSet3DAinsworthCoyle(std::size_t order);
 
 }
 

@@ -105,6 +105,7 @@ public:
         BaseMeshManipulatorT* mesh = new Base::MeshManipulator<3>(getConfigData(), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, getData()->PolynomialOrder_, 0, 2, 3, 1, 1);
         mesh->createTriangularMesh(bottomLeft, topRight, numElementsOneD);
         mesh->useNedelecDGBasisFunctions();
+        //mesh->useAinsworthCoyleDGBasisFunctions();
         const_cast<MaxwellData*>(getData())->numberOfUnknowns_ = (*mesh->elementColBegin())->getNrOfBasisFunctions();
         setConfigData();
         //mesh->readCentaurMesh("Cylinder3.hyb");
@@ -245,6 +246,7 @@ int main(int argc, char** argv)
         //choose what problem to solve
         //problem.solveEigenvalues();
         problem.solveHarmonic();
+        //problem.solveTimeDependent(false,true);
         std::cout << "solved for Harmonic" << std::endl;
         time(&solved);
         char filename[] = "output.dat";

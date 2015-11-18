@@ -66,6 +66,7 @@
 #include "Utilities/BasisFunctions3DH1ConformingPrism.h"
 #include "Utilities/BasisFunctions3DH1ConformingTetrahedron.h"
 #include "Utilities/BasisFunctions3DNedelec.h"
+#include "Utilities/BasisFunctions3DAinsworthCoyle.h"
 #include "Logger.h"
 
 #include <algorithm>
@@ -281,6 +282,41 @@ namespace Base
                     case Geometry::ReferenceGeometryType::TETRAHEDRON:
                         shapeToIndex[Geometry::ReferenceGeometryType::TETRAHEDRON] = collBasisFSet_.size();
                         collBasisFSet_.emplace_back(Utilities::createDGBasisFunctionSet3DNedelec(configData_->polynomialOrder_));
+                        break;
+                    default:
+                        logger(ERROR, "No Nedelec basis functions have been implemented for %s", element->getReferenceGeometry()->getName());
+
+                }
+                element->setDefaultBasisFunctionSet(shapeToIndex.at(element->getReferenceGeometry()->getGeometryType()));
+            }
+        }
+    }
+    
+    template<std::size_t DIM>
+    void MeshManipulator<DIM>::useAinsworthCoyleDGBasisFunctions()
+    {
+        for(std::shared_ptr<const Base::BasisFunctionSet> set : collBasisFSet_)
+        {
+            for(const Base::BaseBasisFunction* function : *set)
+            {
+                Geometry::PointReferenceFactory<DIM>::instance()->removeBasisFunctionData(function);
+            }
+        }
+        collBasisFSet_.clear();
+        std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > shapeToIndex;
+        for(Element* element : getElementsList(IteratorType::GLOBAL))
+        {
+            try
+            {
+                element->setDefaultBasisFunctionSet(shapeToIndex.at(element->getReferenceGeometry()->getGeometryType()));
+            }
+            catch(std::out_of_range&)
+            {
+                switch(element->getReferenceGeometry()->getGeometryType())
+                {
+                    case Geometry::ReferenceGeometryType::TETRAHEDRON:
+                        shapeToIndex[Geometry::ReferenceGeometryType::TETRAHEDRON] = collBasisFSet_.size();
+                        collBasisFSet_.emplace_back(Utilities::createDGBasisFunctionSet3DAinsworthCoyle(configData_->polynomialOrder_));
                         break;
                     default:
                         logger(ERROR, "No Nedelec basis functions have been implemented for %s", element->getReferenceGeometry()->getName());

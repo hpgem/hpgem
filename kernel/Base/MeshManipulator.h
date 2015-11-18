@@ -125,6 +125,10 @@ namespace Base
         /// \details This function should be called after a mesh has been created to ensure basis functions exist for all types of elements needed.
         void useNedelecDGBasisFunctions();
         
+        /// \brief automatically creates Ainsworth-Coyle DG basis functions for tetrahedra.
+        /// \details This function should be called after a mesh has been created to ensure basis functions exist for all types of elements needed.
+        void useAinsworthCoyleDGBasisFunctions();
+        
         /// \brief automatically creates conforming basis functions, even for mixed meshes
         /// \details For p=1, this creates a nodal basis function set associated with the mesh nodes.
         /// This function should be called after a mesh has been created to ensure basis functions exist for all types of elements needed. For higher polynomial orders it will add hierarchic basis functions associated

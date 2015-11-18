@@ -64,7 +64,7 @@ namespace Utilities
         }
     }    
 
-    BasisCurlEdgeNedelec::BasisCurlEdgeNedelec(int degree1, int degree2, int localFirstVertex, int localSecondVertex)
+    BasisCurlEdgeNedelec::BasisCurlEdgeNedelec(std::size_t degree1, std::size_t degree2, std::size_t localFirstVertex, std::size_t localSecondVertex)
             : deg1(degree1), deg2(degree2), i(localFirstVertex), j(localSecondVertex)
     {
         logger.assert(i < 4 && j < 4, "A tetrahedron only has 4 nodes");
@@ -102,7 +102,7 @@ namespace Utilities
         return ret;
     }
 
-    BasisCurlFace1Nedelec::BasisCurlFace1Nedelec(int degree1, int degree2, int degree3, int localOpposingVertex)
+    BasisCurlFace1Nedelec::BasisCurlFace1Nedelec(std::size_t degree1, std::size_t degree2, std::size_t degree3, std::size_t localOpposingVertex)
         : deg1(degree1), deg2(degree2), deg3(degree3), d(localOpposingVertex)
     {
         logger.assert(d < 4, "A tetrahedron only has 4 nodes");
@@ -166,7 +166,7 @@ namespace Utilities
         return ret;
     }
 
-    BasisCurlFace2Nedelec::BasisCurlFace2Nedelec(int degree1, int degree2, int degree3, int localOpposingVertex)
+    BasisCurlFace2Nedelec::BasisCurlFace2Nedelec(std::size_t degree1, std::size_t degree2, std::size_t degree3, std::size_t localOpposingVertex)
             : deg1(degree1), deg2(degree2), deg3(degree3), d(localOpposingVertex)
     {
         logger.assert(d < 4, "A tetrahedron only has 4 nodes");
@@ -230,7 +230,7 @@ namespace Utilities
         return ret;
     }
 
-    BasisCurlinterior1Nedelec::BasisCurlinterior1Nedelec(int degree1, int degree2, int degree3, int degree4)
+    BasisCurlinterior1Nedelec::BasisCurlinterior1Nedelec(std::size_t degree1, std::size_t degree2, std::size_t degree3, std::size_t degree4)
             : deg1(degree1), deg2(degree2), deg3(degree3), deg4(degree4)
     {
     }
@@ -285,7 +285,7 @@ namespace Utilities
         return ret;
     }
 
-    BasisCurlinterior2Nedelec::BasisCurlinterior2Nedelec(int degree1, int degree2, int degree3, int degree4)
+    BasisCurlinterior2Nedelec::BasisCurlinterior2Nedelec(std::size_t degree1, std::size_t degree2, std::size_t degree3, std::size_t degree4)
             : deg1(degree1), deg2(degree2), deg3(degree3), deg4(degree4)
     {
     }
@@ -340,7 +340,7 @@ namespace Utilities
         return ret;
     }
 
-    BasisCurlinterior3Nedelec::BasisCurlinterior3Nedelec(int degree1, int degree2, int degree3, int degree4)
+    BasisCurlinterior3Nedelec::BasisCurlinterior3Nedelec(std::size_t degree1, std::size_t degree2, std::size_t degree3, std::size_t degree4)
             : deg1(degree1), deg2(degree2), deg3(degree3), deg4(degree4)
     {
     }
@@ -398,9 +398,9 @@ namespace Utilities
     Base::BasisFunctionSet* createDGBasisFunctionSet3DNedelec(std::size_t order)
     {
         Base::BasisFunctionSet* bFset = new Base::BasisFunctionSet(order);
-        for(int l=0; l+1<=order; ++l)
+        for(std::size_t l=0; l+1<=order; ++l)
         {
-            int m((order-1)-l);	
+            std::size_t m((order-1)-l);	
             bFset->addBasisFunction(new BasisCurlEdgeNedelec(l,m,0,1));
             bFset->addBasisFunction(new BasisCurlEdgeNedelec(l,m,0,2));
             bFset->addBasisFunction(new BasisCurlEdgeNedelec(l,m,0,3));
@@ -411,11 +411,11 @@ namespace Utilities
         }
         if(order>1)
         {
-            for(int l=0; l+2<=order; ++l)
+            for(std::size_t l=0; l+2<=order; ++l)
             {
-                for(int m=0; m+l+2<=order; ++m)
+                for(std::size_t m=0; m+l+2<=order; ++m)
                 {
-                    int n((order-2)-(l+m));
+                    std::size_t n((order-2)-(l+m));
                     bFset->addBasisFunction(new BasisCurlFace1Nedelec(l,m,n,0));
                     bFset->addBasisFunction(new BasisCurlFace1Nedelec(l,m,n,1));
                     bFset->addBasisFunction(new BasisCurlFace1Nedelec(l,m,n,2));
@@ -430,13 +430,13 @@ namespace Utilities
         }
         if(order>2)
         {
-            for(int l=0; l+3<=order; ++l)
+            for(std::size_t l=0; l+3<=order; ++l)
             {
-                for(int m=0; m+l+3<=order; ++m)
+                for(std::size_t m=0; m+l+3<=order; ++m)
                 {
-                    for(int n=0; n+m+l+3<=order; ++n)
+                    for(std::size_t n=0; n+m+l+3<=order; ++n)
                     {
-                        int o((order-3)-(l+m+n));
+                        std::size_t o((order-3)-(l+m+n));
                         bFset->addBasisFunction(new BasisCurlinterior1Nedelec(l,m,n,o));
                         bFset->addBasisFunction(new BasisCurlinterior2Nedelec(l,m,n,o));
                         bFset->addBasisFunction(new BasisCurlinterior3Nedelec(l,m,n,o));

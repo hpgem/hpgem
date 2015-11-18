@@ -305,10 +305,18 @@ public:
      */
     void findBoundaryBlocks(std::vector<IS>& xRow, std::vector<IS>& xCol, std::vector<IS>& yRow, std::vector<IS>& yCol, std::vector<IS>& zRow, std::vector<IS>& zCol);
 
+    // called for CO4 scheme in solveTimeDependent
+    void GetCoeffCO4(LinearAlgebra::SmallVector<6>& alpha,
+		 LinearAlgebra::SmallVector<6>& beta,
+		 LinearAlgebra::SmallVector<6>& alpha_sum,
+		 LinearAlgebra::SmallVector<6>& beta_sum,
+		 LinearAlgebra::SmallVector<6>& scale0,
+		 LinearAlgebra::SmallVector<6>& scale1,
+		 const double& tau);
     /**
      * Call after setting up the mesh. This will arrange that the matrices are assembled and then solve Sx+omegaEpsilon*Mderivative=RHS using a leap-frog time-stepping method
      */
-    void solveTimeDependant();
+    void solveTimeDependent(bool useCO2, bool useCO4);
 
     /**
      * Call after setting up the mesh. This will arrange that the matrices are assembled and then solve Sx-omega*Mx=RHS using a krylov-subspace solver
