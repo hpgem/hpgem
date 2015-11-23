@@ -54,6 +54,12 @@ namespace Base
         }
 
         ///just do noting with the data
+        double transformDiv(double referenceData, PhysicalElement<DIM>& element) const override final
+        {
+            return referenceData;
+        }
+
+        ///just do noting with the data
         LinearAlgebra::SmallVector<DIM> transformCurl(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final
         {
             return referenceData;

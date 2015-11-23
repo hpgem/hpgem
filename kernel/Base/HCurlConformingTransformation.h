@@ -44,7 +44,7 @@ namespace Base
         ///transform the curl by using the chain rule
         LinearAlgebra::SmallVector<DIM> transformCurl(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final
         {
-            return element.getJacobian() * referenceData / element.getJacobianAbsDet();
+            return element.getJacobian() * referenceData / element.getJacobianDet();
         }
 
         ///integrands for elements are multiplied by the absolute value of the determinant of the Jacobian

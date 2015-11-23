@@ -74,6 +74,10 @@ namespace Base
         template<std::size_t DIM>
         LinearAlgebra::SmallVector<DIM> evalCurl(std::size_t i, const Geometry::PointReference<DIM>& p) const;
 
+        ///\brief returns the divergence of the i-th basisfunction at point p in ret
+        template<std::size_t DIM>
+        double evalDiv(std::size_t i, const Geometry::PointReference<DIM>& p) const;
+
         const BaseBasisFunction* operator[](std::size_t i) const
         {
             logger.assert(i<size(), "Asked for basis function %, but there are only % basis functions", i, size());
@@ -205,6 +209,13 @@ namespace Base
     {
         logger.assert(i<size(), "Asked for basis function %, but there are only % basis functions", i, size());
         return vecOfBasisFcn_[i]->evalCurl(p);
+    }
+
+    template<std::size_t DIM>
+    double BasisFunctionSet::evalDiv(std::size_t i, const Geometry::PointReference<DIM>& p) const
+    {
+        logger.assert(i<size(), "Asked for basis function %, but there are only % basis functions", i, size());
+        return vecOfBasisFcn_[i]->evalDiv(p);
     }
 }
 

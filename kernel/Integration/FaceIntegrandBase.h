@@ -25,15 +25,8 @@
 
 namespace Base
 {
-    class Face;
     template<std::size_t DIM>
     class PhysicalFace;
-}
-
-namespace LinearAlgebra
-{
-    class MiddleSizeMatrix;
-    class MiddleSizeVector;
 }
 
 namespace Integration

@@ -28,7 +28,7 @@
 
 namespace LinearAlgebra
 {
-    /// \class Matrix
+    /// \class SmallMatrix
     /// \brief Data type for small dense matrix.
     ///
     /// \details Stores small dense matrix efficiently.

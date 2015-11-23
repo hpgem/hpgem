@@ -32,7 +32,7 @@
 namespace LinearAlgebra
 {
     class MiddleSizeVector;
-    /// \class NumericalVector
+    /// \class SmallVector
     /// \brief This is a vector of doubles
     ///
     /// \details
