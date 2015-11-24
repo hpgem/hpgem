@@ -295,7 +295,7 @@ std::vector<std::pair<double, LinearAlgebra::MiddleSizeVector>> SavageHutter2DBa
     extern Base::CommandLineOption<std::size_t>& numberOfElements;
     const std::size_t nodesInXDirection = numberOfElements.getValue() + 1;
     const std::size_t elementsInYDirection = this->meshes_[0]->getNumberOfElements(Base::IteratorType::GLOBAL) / (nodesInXDirection - 1);
-    logger(INFO, "elements in y direction: % ", elementsInYDirection);
+    logger(DEBUG, "elements in y direction: % ", elementsInYDirection);
     
     //make xs
     ///\todo insert length of the domain here automatically instead of hardcoded
@@ -305,6 +305,7 @@ std::vector<std::pair<double, LinearAlgebra::MiddleSizeVector>> SavageHutter2DBa
     {
         totals.push_back(std::make_pair(i*dx, LinearAlgebra::MiddleSizeVector(numberOfVariables_)));
     }
+    logger(DEBUG, "size of totals: %", totals.size());
     
     //add all values at a certain x-coordinate. To do that, first check if this value
     //of x is already in the vector. If not, make a pair of this x-value and the value of the variables
@@ -343,14 +344,19 @@ std::vector<std::pair<double, LinearAlgebra::MiddleSizeVector>> SavageHutter2DBa
     {
         solutions.push_back(p.second);
     }
+    logger(DEBUG, "solutions size: %", solutions.size());
 
     
-    std::vector<LinearAlgebra::MiddleSizeVector> globalSolutions(solutions.size());
+    std::vector<LinearAlgebra::MiddleSizeVector> globalSolutions(solutions.size(), LinearAlgebra::MiddleSizeVector(numberOfVariables_));
+    logger(DEBUG, "global solutions size %", globalSolutions.size());
     for(std::size_t i = 0; i < solutions.size(); ++i)
     {
         LinearAlgebra::MiddleSizeVector v = solutions[i];
+        logger(DEBUG, "v pointer: %, v: %", v.data(), v);
+        logger(DEBUG, "pointer to global solutions: %", globalSolutions[i].data());
         comm.Reduce(v.data(), globalSolutions[i].data(), v.size(), Base::Detail::toMPIType(*v.data()), MPI::SUM, 0);
     }
+    logger(DEBUG, "I'm still here!");
 
     if(world_rank == 0)
     {
