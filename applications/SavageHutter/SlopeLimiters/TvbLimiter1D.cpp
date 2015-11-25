@@ -20,12 +20,15 @@
  */
 
 #include "TvbLimiter1D.h"
-#include "../GlobalConstants.h"
+
+TvbLimiter1D::TvbLimiter1D(std::size_t numberOfVariables)  
+    : SlopeLimiter(numberOfVariables)
+{
+}
 
 void TvbLimiter1D::limitSlope(Base::Element* element) 
 {
-    logger.assert(1 == DIM, "Slope limiter for the wrong dimension");
-    for (std::size_t iVar = 0; iVar < numOfVariables_; ++iVar)
+    for (std::size_t iVar = 0; iVar < numberOfVariables_; ++iVar)
     {
         if (!hasSmallSlope(element, iVar))
         {
@@ -34,18 +37,15 @@ void TvbLimiter1D::limitSlope(Base::Element* element)
     }
 }
 
-
+///\details Doing it the DG way for p=1 does not lead to conservation of mass, so 
+///for now, do it the FVM way. Don't look at the slope in this element at all, just
+///at the averages of this element and the adjacent elements.
+///We also assume that we limit only once per time step.
+///Lastly, it is assumed that the first two basis functions are the nodal basis functions
 void TvbLimiter1D::limitWithMinMod(Base::Element* element, const std::size_t iVar)
-{    
-    
-    const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeIntegrationVector(0);
-    const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0); 
-    const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
-    logger.assert(std::abs(-1  - pRefL[0]) < 1e-10, "xi_L != -1");    
-    logger.assert(std::abs(1 - pRefR[0]) < 1e-10, "xi_R != 1");
-    
-    //this does not work for first boundary, probably also not for triangular mesh.
-    //maybe write getNeighbour(face)?
+{        
+    //this does not work for boundaries, probably also not for triangular mesh.
+    //maybe write getNeighbour(face), which deals with nullpointers in case of a boundary?
     const Base::Element *elemL;
     const Base::Element *elemR;
     if (element->getFace(0)->isInternal())
@@ -57,32 +57,38 @@ void TvbLimiter1D::limitWithMinMod(Base::Element* element, const std::size_t iVa
     else
         return; //for now, just don't use the limiter here...
     
-    logger.assert(elemR->getID() == element->getID() + 1 && element->getID() == elemL->getID() + 1, "elements not in correct order");
-
-    const double uPlus = element->getSolution(0, pRefR)[iVar];
-    const double uMinus = element->getSolution(0, pRefL)[iVar];
+    logger.assert_always(elemR->getID() == element->getID() + 1 && element->getID() == elemL->getID() + 1, "elements not in correct order");
     
-    const double u0 = Helpers::computeAverageOfSolution<1>(element, solutionCoefficients, elementIntegrator_)(iVar);    
+    const double u0 = Helpers::computeAverageOfSolution<1>(element, element->getTimeIntegrationVector(0), elementIntegrator_)(iVar);    
     const double uElemR = Helpers::computeAverageOfSolution<1>(const_cast<Base::Element*>(elemR), elemR->getTimeIntegrationVector(0), elementIntegrator_)(iVar);
     const double uElemL = Helpers::computeAverageOfSolution<1>(const_cast<Base::Element*>(elemL), elemL->getTimeIntegrationVector(0), elementIntegrator_)(iVar);
-    logger(DEBUG, "coefficients: %", element->getTimeIntegrationSubvector(0, iVar));
-    logger(DEBUG, "uPlus: %, basis function vals: %, %", uPlus , element->basisFunction(0,pRefR), element->basisFunction(1,pRefR));
-    logger(DEBUG, "uMinus: %, basis function vals: %, %", uMinus, element->basisFunction(0,pRefL), element->basisFunction(1,pRefL));
-    logger(DEBUG, "Element %: %, %, %",element->getID(), (uPlus - uMinus), uElemR - u0, u0 - uElemL);
-    double slope =  0;
-    if (false && Helpers::sign(uElemR - u0) == Helpers::sign(u0 - uElemL) && Helpers::sign(uElemR - u0) == Helpers::sign(uPlus - uMinus))
-    {
-        slope = Helpers::sign(uElemR - u0) * std::min(std::abs(uPlus - uMinus), std::min(std::abs(uElemR - u0), std::abs(u0 - uElemL)));
-    }
     
-    if (std::abs(std::abs(slope) - std::abs(uPlus - uMinus)) > 1e-16 )
+    logger(INFO, "uLeft: %\nu0: %\nuRight: %", uElemL, u0, uElemR);
+    
+    LinearAlgebra::MiddleSizeVector newCoeffs = LinearAlgebra::MiddleSizeVector(element->getNumberOfBasisFunctions());
+    if (Helpers::sign(uElemR - u0) != Helpers::sign(u0 - uElemL)) //phi(r) = 0
     {
-        //replace coefficients with "u0 + slope/2 * xi" coefficients
-        std::function<double(const PointReferenceT&)> newFun = [=] (const PointReferenceT& pRef) {return u0 + slope*pRef[0];};
-        LinearAlgebra::MiddleSizeVector newCoeffs = Helpers::projectOnBasisFuns<1>(element, newFun, elementIntegrator_);
-        element->setTimeIntegrationSubvector(0, iVar, newCoeffs);
-        logger(DEBUG, "element % is being limited.", element->getID());
+        newCoeffs[0] = u0;
+        newCoeffs[1] = u0;
+        logger(INFO, "phi = 0");
     }
+    else
+    {
+        if ((u0 - uElemL) / (uElemR - u0) < 1) //phi(r) = r
+        {
+            newCoeffs[0] = .5 * u0 + .5 * uElemL;
+            newCoeffs[1] = 1.5 * u0 - .5 * uElemL;
+            logger(INFO, "phi = r");
+        }
+        else //phi(r) = 1
+        {
+            newCoeffs[0] = 1.5 * u0 - .5 * uElemR;
+            newCoeffs[1] = .5 * u0 + .5 * uElemR;
+            logger(INFO, "phi = 1");
+        }
+    }
+    logger(INFO, "new coefficients: % \n \n", newCoeffs);
+    element->setTimeIntegrationSubvector(0, iVar, newCoeffs);
 }
 
 

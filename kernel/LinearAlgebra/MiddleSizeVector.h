@@ -43,7 +43,7 @@ namespace LinearAlgebra
     using std::valarray;
 #endif
     
-    /// \class NumericalVector
+    /// \class MiddleSizeVector
     /// \brief This is a vector of doubles
     ///
     /// \details

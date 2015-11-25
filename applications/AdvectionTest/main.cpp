@@ -89,6 +89,7 @@ public:
     {
         std::size_t numBasisFuncs = element.getElement()->getNumberOfBasisFunctions();
         LinearAlgebra::MiddleSizeMatrix&  result = element.getResultMatrix();
+        logger(INFO, "%", numBasisFuncs);
         for (std::size_t i = 0; i < numBasisFuncs; ++i)
         {
             for (std::size_t j = 0; j < numBasisFuncs; ++j)

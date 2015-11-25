@@ -25,8 +25,10 @@
 #include "HeightLimiter.h"
 
 #include "Integration/ElementIntegral.h"
-#include "HelperFunctions.h"
+#include "../HelperFunctions.h"
 
+///Use only for 1D
+///It does not seem to work very well, use at your own risk
 class SqueezeLimiterWithLayer : public HeightLimiter
 {
 public:
@@ -40,13 +42,15 @@ private:
     ///Compute the minimum of the height in the given element
     double getMinimumHeight(const Base::Element *element);  
     
-    const PointReferenceT* getMinimumHeightPoint(const Base::Element *element);
+    const PointReferenceT *getMinimumHeightPoint(const Base::Element *element);
     
     const double minH_;
     
     /// Integrator for the elements
     Integration::ElementIntegral<1> elementIntegrator_;
+    
 };
+#include "SqueezeLimiterWithLayer_Impl.h"
 
 #endif	/* SQUEEZELIMITERWITHLAYER_H */
 

@@ -98,8 +98,14 @@ public:
         numElementsOneD[1] = n;
         numElementsOneD[2] = n;
         
-        BaseMeshManipulatorT* mesh = new MyMeshManipulator(getConfigData(), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, getData()->PolynomialOrder_, 0, 2, 3, 1, 1);
+        // this is the old way of creating the mesh.
+        //BaseMeshManipulatorT* mesh = new MyMeshManipulator(getConfigData(), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, getData()->PolynomialOrder_, 0, 2, 3, 1, 1, true);
+        
+        // this is the way the mesh is created in hpGEM.
+        BaseMeshManipulatorT* mesh = new Base::MeshManipulator<3>(getConfigData(), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, getData()->PolynomialOrder_, 0, 2, 3, 1, 1);
         mesh->createTriangularMesh(bottomLeft, topRight, numElementsOneD);
+        mesh->useNedelecDGBasisFunctions();
+        //mesh->useAinsworthCoyleDGBasisFunctions();
         const_cast<MaxwellData*>(getData())->numberOfUnknowns_ = (*mesh->elementColBegin())->getNrOfBasisFunctions();
         setConfigData();
         //mesh->readCentaurMesh("Cylinder3.hyb");
@@ -107,7 +113,7 @@ public:
         //mesh->readCentaurMesh("Cube_final.hyb");
         
         addMesh(mesh);
-        setNumberOfTimeIntegrationVectorsGlobally(1);
+        setNumberOfTimeIntegrationVectorsGlobally(21);
         const_cast<MaxwellData*>(getData())->numberOfUnknowns_ *= mesh->getElementsList().size();
         for (Base::MeshManipulator<DIM>::ElementIterator it = mesh->elementColBegin(); it != mesh->elementColEnd(); ++it)
         {
@@ -240,6 +246,7 @@ int main(int argc, char** argv)
         //choose what problem to solve
         //problem.solveEigenvalues();
         problem.solveHarmonic();
+        //problem.solveTimeDependent(false,true);
         std::cout << "solved for Harmonic" << std::endl;
         time(&solved);
         char filename[] = "output.dat";

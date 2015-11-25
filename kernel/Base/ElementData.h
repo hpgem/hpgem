@@ -159,13 +159,13 @@ namespace Base
         /// The number of basis functions
         std::size_t numberOfBasisFunctions_;
 
-        /// \brief Stores the expansion coefficients.
-        /// \details The value expansionCoefficients_[iT](iVB) is the expansion
+        /// \brief Vectors of function coefficients of the solution at different time levels.
+        /// \details The value timeLevelDataVectors_[iT](iVB) is the expansion
         /// coefficient corresponding to the solution at time level iT and vector-
         /// basisfunction iVB. Index iVB satisfies iVB = convertToSingleIndex(iB,iV), 
         /// where iB is the index corresponding to the scalar basis function and iV the
         /// index corresponding to the variable.
-        std::vector<LinearAlgebra::MiddleSizeVector> expansionCoefficients_;
+        std::vector<LinearAlgebra::MiddleSizeVector> timeLevelDataVectors_;
         
         /// \brief Vectors used for the time integration
         /// \details The value timeIntegrationVectors_[i](iVB) is the expansion

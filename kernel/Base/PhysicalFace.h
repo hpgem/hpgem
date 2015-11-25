@@ -97,6 +97,12 @@ namespace Base
         ///curl of basis function i at the current reference point; indexing the left and the right element separately
         const LinearAlgebra::SmallVector<DIM>& basisFunctionCurl(Side side, std::size_t i);
 
+        ///divergence of basis function i at the current reference point; indexing functions in the right element after functions in the left element
+        const double& basisFunctionDiv(std::size_t i);
+
+        ///divergence of basis function i at the current reference point; indexing the left and the right element separately
+        const double& basisFunctionDiv(Side side, std::size_t i);
+
         ///value of basis function i multiplied by the normal vector at the current reference point; indexing functions in the right element after functions in the left element
         /// \details this normal vector includes a scaling by the surface area of the face
         void basisFunctionNormal(std::size_t i, LinearAlgebra::SmallVector<DIM>& result);
@@ -125,6 +131,9 @@ namespace Base
 
         ///curl of the trace of the solution
         const std::vector<LinearAlgebra::SmallVector<DIM> >& getSolutionCurl(Side side);
+
+        ///divergence of the trace of the solution
+        const LinearAlgebra::MiddleSizeVector& getSolutionDiv(Side side);
 
         ///trace of the solution multiplied by the normal vector
         std::vector<LinearAlgebra::SmallVector<DIM> > getSolutionNormal(Side side);
@@ -215,6 +224,20 @@ namespace Base
             {
                 logger.assert(isInternal(), "This physical face is meant for boundaries and can only see left elements");
                 return right;
+            }
+        }
+
+        ///provides access to the element on the opposite side of iSide.
+        PhysicalElement<DIM>& getPhysicalElementOpposite(Base::Side side)
+        {
+            if(side == Base::Side::LEFT)
+            {
+                logger.assert(isInternal(), "This physical face is meant for boundaries and can only see left elements");
+                return right;
+            }
+            else
+            {
+                return left;
             }
         }
 
@@ -465,6 +488,36 @@ namespace Base
         }
     }
     
+    template<std::size_t DIM>
+    inline const double& Base::PhysicalFace<DIM>::basisFunctionDiv(std::size_t i)
+    {
+        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        if(i < nLeftBasisFunctions)
+        {
+            return left.basisFunctionDiv(i);
+        }
+        else
+        {
+            logger.assert(isInternal_, "basis function index out of bounds");
+            return right.basisFunctionDiv(i - nLeftBasisFunctions);
+        }
+    }
+
+    template<std::size_t DIM>
+    inline const double& Base::PhysicalFace<DIM>::basisFunctionDiv(Side side, std::size_t i)
+    {
+        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        if(side == Side::LEFT)
+        {
+            return left.basisFunctionDiv(i);
+        }
+        else
+        {
+            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            return right.basisFunctionDiv(i);
+        }
+    }
+
     template<std::size_t DIM>
     inline void Base::PhysicalFace<DIM>::basisFunctionNormal(std::size_t i, LinearAlgebra::SmallVector<DIM>& result) //Needed for DGMax
     {

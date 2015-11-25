@@ -157,6 +157,9 @@ namespace Base
         /// \brief Compute and store stiffness matrices for computing the right hand side.
         virtual void createStiffnessMatrices();
         
+        /// \brief Compute the integrand for the source term at the element.
+        virtual LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtElement(Base::PhysicalElement<DIM> &element, const double time, const std::size_t orderTimeDerivative);
+        
         /// \brief Integrate the source term at a single element.
         virtual LinearAlgebra::MiddleSizeVector integrateSourceTermAtElement(Base::Element *ptrElement, const double time, const std::size_t orderTimeDerivative);
         

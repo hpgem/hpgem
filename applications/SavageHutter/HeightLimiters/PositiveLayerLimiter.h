@@ -25,9 +25,10 @@
 
 #include "Integration/ElementIntegral.h"
 #include "HelperFunctions.h"
-#include "../GlobalConstants.h"
 
-class PositiveLayerLimiter : public HeightLimiter
+
+template <std::size_t DIM>
+class PositiveLayerLimiter: public HeightLimiter
 {
 public:
     using PointReferenceT = Geometry::PointReference<DIM>;
@@ -50,5 +51,6 @@ private:
     Integration::ElementIntegral<DIM> elementIntegrator_;
 };
 
+#include "PositiveLayerLimiter_Impl.h"
 #endif	/* POSITIVELAYERLIMITER_H */
 

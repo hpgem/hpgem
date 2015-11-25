@@ -27,14 +27,14 @@ class SlopeLimiter
 {
 public:
     SlopeLimiter(std::size_t numVars) :
-    numOfVariables_(numVars) { }
+    numberOfVariables_(numVars) { }
     
     virtual void limitSlope(Base::Element *elt) = 0;
     
     virtual ~SlopeLimiter() { }
     
 protected:
-    std::size_t numOfVariables_;
+    std::size_t numberOfVariables_;
 };
 #endif	/* SLOPELIMITER_H */
 

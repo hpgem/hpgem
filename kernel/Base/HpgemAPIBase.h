@@ -82,6 +82,8 @@ namespace Base
         MeshId addMesh(const String& fileName, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0, std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
 
         /// \brief Synchronize between the different submeshes (when using MPI)
+        /// You should call this function after you update a timeIntegrationVector, but before
+        /// you need information from neighboring elements, including when you integrate over a Face to compute a flux
         virtual void synchronize(const std::size_t timeIntegrationVectorId);
 
         /// \brief Set the number of time integration vectors for every element.

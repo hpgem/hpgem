@@ -23,8 +23,12 @@
 #ifndef GLOBALVECTOR_HPP_
 #define GLOBALVECTOR_HPP_
 
+#include "LinearAlgebra/MiddleSizeVector.h"
 #if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
 #include "petscvec.h"
+#endif
+#if defined(HPGEM_USE_SUNDIALS)
+#include "nvector/nvector_serial.h"
 #endif
 #include <vector>
 namespace Base
@@ -35,7 +39,6 @@ namespace Base
 
 namespace Utilities
 {
-    
     /**
      *  General global assembly class for vectors. Defines the general routines that specializations will always need
      *  Subclasses should also derive from the external package specific vector type they try to implement
@@ -117,6 +120,66 @@ namespace Utilities
     private:
         
         Vec b_;
+    };
+#endif
+
+#if defined(HPGEM_USE_SUNDIALS)
+    class GlobalSundialsVector : public GlobalVector
+    {
+
+    public:
+        operator N_Vector();
+
+        GlobalSundialsVector();
+        GlobalSundialsVector(Base::MeshManipulatorBase* theMesh, int elementVectorID = 0, int faceVectorID = 0);
+        ~GlobalSundialsVector();
+
+        //This function is not used in the current implementation
+        void writeTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t variable)
+        {
+        }
+
+        //This function is not used in the current implementation
+        void constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t variable)
+        {
+        }
+
+        //Writes data from the N_Vector into the hpGEM structure
+        void writeTimeIntegrationVector(std::size_t timeIntegrationVectorId);
+
+        void setScale(LinearAlgebra::MiddleSizeVector scaleFactor);
+
+        //Writes data from the hpGEM structure into the N_Vector
+        void constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId);
+
+        //Resets the vector to the size of the total number of degrees of freedom and initialises the entries as zero
+        void reset();
+
+        //Prints the data of the current N_Vector pointer
+        void print();
+
+        //Not used function in this implementation
+        void assemble()
+        {
+        }
+
+        //This functions obtains the vector corresponding to the part of an element in the global N_Vector. i.e. the local solutionCoefficients.
+        //todo: only works for DG. Conforming not implemented yet. Will do when it is required by someone.
+        LinearAlgebra::MiddleSizeVector getLocalVector(const Base::Element* ptrElement);
+
+        //Set the correct N_Vector from KINSol to do operations on
+        void setVector(N_Vector b);
+
+        //Get the total number of DOF from the whole system
+        std::size_t getTotalNumberOfDOF()
+        {
+        	return totalNumberOfDOF_;
+        }
+
+    private:
+
+        std::size_t totalNumberOfDOF_;
+        N_Vector b_;
     };
 #endif
 

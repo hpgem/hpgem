@@ -28,7 +28,6 @@
 #include "Geometry/Jacobian.h"
 #include "CoordinateTransformation.h"
 #include "H1ConformingTransformation.h"
-#include "HCurlConformingTransformation.h"
 
 namespace Base
 {
@@ -67,6 +66,9 @@ namespace Base
         ///curl of basis function i at the current reference point
         const LinearAlgebra::SmallVector<DIM>& basisFunctionCurl(std::size_t i);
 
+        ///divergence of basis function i at the current reference point
+        const double& basisFunctionDiv(std::size_t i);
+
 
         ///value of the solution at the current reference point at time level 0
         const LinearAlgebra::MiddleSizeVector& getSolution();
@@ -80,6 +82,9 @@ namespace Base
 
         ///curl of the solution at the current reference point at time level 0
         const std::vector<LinearAlgebra::SmallVector<DIM> >& getSolutionCurl();
+
+        ///divergence of the solution at the current reference point at time level 0
+        const LinearAlgebra::MiddleSizeVector& getSolutionDiv();
 
 
         ///the current reference point
@@ -170,11 +175,13 @@ namespace Base
         std::vector<LinearAlgebra::SmallVector<DIM> > vectorBasisFunctionValue;
         std::vector<LinearAlgebra::SmallVector<DIM> > basisFunctionDeriv_;
         std::vector<LinearAlgebra::SmallVector<DIM> > basisFunctionCurl_;
+        std::vector<double> basisFunctionDiv_;
 
         LinearAlgebra::MiddleSizeVector solution;
         std::vector<LinearAlgebra::SmallVector<DIM> > vectorSolution;
         std::vector<LinearAlgebra::SmallVector<DIM> > solutionDeriv;
         std::vector<LinearAlgebra::SmallVector<DIM> > solutionCurl;
+        LinearAlgebra::MiddleSizeVector solutionDiv;
 
         Geometry::PointPhysical<DIM> pointPhysical;
         Geometry::Jacobian<DIM, DIM> jacobian, transposeJacobian, inverseTransposeJacobian;
@@ -187,8 +194,8 @@ namespace Base
 
         bool hasElementMatrix, hasElementVector;
         //did we already compute this?
-        bool hasFunctionValue, hasVectorFunctionValue, hasFunctionDeriv, hasFunctionCurl;
-        bool hasSolution, hasVectorSolution, hasSolutionDeriv, hasSolutionCurl;
+        bool hasFunctionValue, hasVectorFunctionValue, hasFunctionDeriv, hasFunctionCurl, hasFunctionDiv;
+        bool hasSolution, hasVectorSolution, hasSolutionDeriv, hasSolutionCurl, hasSolutionDiv;
         bool hasPointPhysical, hasJacobian, hasTransposeJacobian, hasInverseTransposeJacobian, hasJacobianDet;
     };
 
@@ -274,6 +281,25 @@ namespace Base
     }
     
     template<std::size_t DIM>
+    inline const double& Base::PhysicalElement<DIM>::basisFunctionDiv(std::size_t i)
+    {
+        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
+        if(hasFunctionDiv)
+        {
+            return basisFunctionDiv_[i];
+        }
+        else
+        {
+            hasFunctionDiv = true;
+            for(std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions(); ++j)
+            {
+                basisFunctionDiv_[j] = transform_->transformDiv(theElement_->basisFunctionDiv(j, *pointReference_), *this);
+            }
+            return basisFunctionDiv_[i];
+        }
+    }
+
+    template<std::size_t DIM>
     inline const LinearAlgebra::MiddleSizeVector& Base::PhysicalElement<DIM>::getSolution()
     {
         logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
@@ -318,6 +344,15 @@ namespace Base
         return std::vector<LinearAlgebra::SmallVector<DIM> >();
     }
     
+    template<std::size_t DIM>
+    inline const LinearAlgebra::MiddleSizeVector& Base::PhysicalElement<DIM>::getSolutionDiv()
+    {
+        logger(ERROR, "not supported by element yet");
+        //just inlining a default-constructed vector complains about stack return despite being dead code
+        static LinearAlgebra::MiddleSizeVector dummy;
+        return dummy;
+    }
+
     template<std::size_t DIM>
     inline const Geometry::PointReference<DIM>& Base::PhysicalElement<DIM>::getPointReference()
     {
@@ -446,10 +481,12 @@ namespace Base
         hasVectorFunctionValue = false;
         hasFunctionDeriv = false;
         hasFunctionCurl = false;
+        hasFunctionDiv = false;
         hasSolution = false;
         hasVectorSolution = false;
         hasSolutionDeriv = false;
         hasSolutionCurl = false;
+        hasSolutionDiv = false;
         hasPointPhysical = false;
         hasJacobian = false;
         hasTransposeJacobian = false;
@@ -480,6 +517,7 @@ namespace Base
             vectorBasisFunctionValue.resize(theElement_->getNumberOfBasisFunctions());
             basisFunctionDeriv_.resize(theElement_->getNumberOfBasisFunctions());
             basisFunctionCurl_.resize(theElement_->getNumberOfBasisFunctions());
+            basisFunctionDiv_.resize(theElement_->getNumberOfBasisFunctions());
         }
         hasElement = true;
         //even if they are already computed, the information is now out of date
@@ -487,10 +525,12 @@ namespace Base
         hasVectorFunctionValue = false;
         hasFunctionDeriv = false;
         hasFunctionCurl = false;
+        hasFunctionDiv = false;
         hasSolution = false;
         hasVectorSolution = false;
         hasSolutionDeriv = false;
         hasSolutionCurl = false;
+        hasSolutionDiv = false;
         hasPointPhysical = false;
         hasJacobian = false;
         hasTransposeJacobian = false;
@@ -517,10 +557,12 @@ namespace Base
         hasVectorFunctionValue = false;
         hasFunctionDeriv = false;
         hasFunctionCurl = false;
+        hasFunctionDiv = false;
         hasSolution = false;
         hasVectorSolution = false;
         hasSolutionDeriv = false;
         hasSolutionCurl = false;
+        hasSolutionDiv = false;
         if(!hasElementMatrix)
         {
             resultMatrix *= 0;

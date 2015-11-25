@@ -137,6 +137,376 @@ Base::Basis_Curl_Edge::Basis_Curl_Edge(int degree, int localFirstVertex, int loc
 {
 }
 
+Base::BasisCurlEdgeNedelec::BasisCurlEdgeNedelec(int degree1, int degree2, int localFirstVertex, int localSecondVertex)
+    : deg1(degree1), deg2(degree2), i(localFirstVertex), j(localSecondVertex)
+{
+}
+
+void Base::BasisCurlEdgeNedelec::eval(const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret) const 
+{
+    LinearAlgebra::SmallVector<DIM> dummy;
+
+    ret = Basis_Curl_Bari::barycentricFunctions[i].evalDeriv(p);
+    dummy = Basis_Curl_Bari::barycentricFunctions[j].evalDeriv(p);
+
+    double valI(Basis_Curl_Bari::barycentricFunctions[i].eval(p)),
+	      valJ(Basis_Curl_Bari::barycentricFunctions[j].eval(p));
+
+    ret*=valJ;
+    dummy*=valI;
+    ret-=dummy;
+
+    ret*=pow(valI,deg1)*pow(valJ,deg2);
+}
+
+LinearAlgebra::SmallVector<DIM> Base::BasisCurlEdgeNedelec::evalCurl(const Geometry::PointReference<DIM>& p) const 
+{
+    LinearAlgebra::SmallVector<DIM> dummy,dummy2, ret;
+
+    dummy = Basis_Curl_Bari::barycentricFunctions[i].evalDeriv(p);
+    dummy2 = Basis_Curl_Bari::barycentricFunctions[j].evalDeriv(p);
+    OuterProduct(dummy2,dummy,ret);
+
+    double valI(Basis_Curl_Bari::barycentricFunctions[i].eval(p)),
+           valJ(Basis_Curl_Bari::barycentricFunctions[j].eval(p));
+
+    ret*=double(deg1+deg2+2)*pow(valI,deg1)*pow(valJ,deg2);
+    return ret;
+}
+
+void Base::BasisCurlEdgeNedelec::getReasonableNode(const Base::Element& element, Geometry::PointPhysical<DIM> node)
+{
+    const Geometry::PointReference<DIM>& leftnode = element.getReferenceGeometry()->getReferenceNodeCoordinate(i);
+    const Geometry::PointReference<DIM>& rightnode = element.getReferenceGeometry()->getReferenceNodeCoordinate(j);
+    node = element.referenceToPhysical(leftnode); // (leftnode+rightnode)*.5
+}
+
+Base::BasisCurlFace1Nedelec::BasisCurlFace1Nedelec(int degree1, int degree2, int degree3, int localOpposingVertex)
+    : deg1(degree1), deg2(degree2), deg3(degree3), d(localOpposingVertex)
+{
+    a=0;
+    if(d==a)
+    {
+        a++;
+    }
+    b=a+1;
+    if(d==b)
+    {
+        b++;
+    }
+    c=b+1;
+    if(d==c)
+    {
+        c++;
+    }
+}
+
+void Base::BasisCurlFace1Nedelec::eval(const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret) const 
+{
+    LinearAlgebra::SmallVector<DIM> dummy;
+
+    double valI(Basis_Curl_Bari::barycentricFunctions[a].eval(p)),
+           valJ(Basis_Curl_Bari::barycentricFunctions[b].eval(p)),
+           valK(Basis_Curl_Bari::barycentricFunctions[c].eval(p));
+	    
+    ret = Basis_Curl_Bari::barycentricFunctions[a].evalDeriv(p);
+    dummy = Basis_Curl_Bari::barycentricFunctions[b].evalDeriv(p);
+
+    ret*=valJ;
+    dummy*=valI;
+    ret-=dummy;
+
+    ret*=pow(valI,deg1)*pow(valJ,deg2)*pow(valK,deg3+1);
+}
+
+LinearAlgebra::SmallVector<DIM> Base::BasisCurlFace1Nedelec::evalCurl(const Geometry::PointReference<DIM>& p) const 
+{
+    LinearAlgebra::SmallVector<DIM> dummy, dummy2, dummy3, ret;
+
+    double valI(Basis_Curl_Bari::barycentricFunctions[a].eval(p)),
+           valJ(Basis_Curl_Bari::barycentricFunctions[b].eval(p)),
+           valK(Basis_Curl_Bari::barycentricFunctions[c].eval(p));
+    dummy = Basis_Curl_Bari::barycentricFunctions[a].evalDeriv(p);
+    dummy2 = Basis_Curl_Bari::barycentricFunctions[b].evalDeriv(p);
+    dummy3 = Basis_Curl_Bari::barycentricFunctions[c].evalDeriv(p);
+
+    OuterProduct(dummy2,dummy,ret);
+    ret*=double(deg1+deg2+2)*pow(valI,deg1)*pow(valJ,deg2)*pow(valK,deg3+1);
+
+    dummy*=valJ;
+    dummy2*=valI;
+    dummy-=dummy2;
+
+    OuterProduct(dummy3,dummy,dummy2);
+    dummy2*=double(1+deg3)*pow(valI,deg1)*pow(valJ,deg2)*pow(valK,deg3);
+
+    ret+=dummy2;
+    return ret;
+}
+
+void Base::BasisCurlFace1Nedelec::getReasonableNode(const Base::Element& element, Geometry::PointPhysical<DIM> node)
+{
+    const Geometry::PointReference<DIM>& leftnode = element.getReferenceGeometry()->getReferenceNodeCoordinate(a);
+    const Geometry::PointReference<DIM>& rightnode = element.getReferenceGeometry()->getReferenceNodeCoordinate(b);
+    const Geometry::PointReference<DIM>& Cnode = element.getReferenceGeometry()->getReferenceNodeCoordinate(c);
+    node = element.referenceToPhysical(leftnode); // (leftnode+rightnode+Cnode)*.33333
+}
+
+Base::BasisCurlFace2Nedelec::BasisCurlFace2Nedelec(int degree1, int degree2, int degree3, int localOpposingVertex)
+    : deg1(degree1), deg2(degree2), deg3(degree3), d(localOpposingVertex)
+{
+    a=0;
+    if(d==a)
+    {
+	a++;
+    }
+    b=a+1;
+    if(d==b)
+    {
+	b++;
+    }
+    c=b+1;
+    if(d==c)
+    {
+	c++;
+    }
+}
+
+void Base::BasisCurlFace2Nedelec::eval(const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret) const 
+{
+    LinearAlgebra::SmallVector<DIM> dummy;
+
+    double valI(Basis_Curl_Bari::barycentricFunctions[a].eval(p)),
+           valJ(Basis_Curl_Bari::barycentricFunctions[b].eval(p)),
+           valK(Basis_Curl_Bari::barycentricFunctions[c].eval(p));
+	    
+    ret = Basis_Curl_Bari::barycentricFunctions[b].evalDeriv(p);
+    dummy = Basis_Curl_Bari::barycentricFunctions[c].evalDeriv(p);
+
+    ret*=valK;
+    dummy*=valJ;
+    ret-=dummy;
+
+    ret*=pow(valI,deg1+1)*pow(valJ,deg2)*pow(valK,deg3);
+}
+
+LinearAlgebra::SmallVector<DIM> Base::BasisCurlFace2Nedelec::evalCurl(const Geometry::PointReference<DIM>& p) const 
+{
+    LinearAlgebra::SmallVector<DIM> dummy, dummy2, ret, dummy3;
+
+    double valI(Basis_Curl_Bari::barycentricFunctions[a].eval(p)),
+           valJ(Basis_Curl_Bari::barycentricFunctions[b].eval(p)),
+           valK(Basis_Curl_Bari::barycentricFunctions[c].eval(p));
+    dummy3 = Basis_Curl_Bari::barycentricFunctions[a].evalDeriv(p);
+    dummy = Basis_Curl_Bari::barycentricFunctions[b].evalDeriv(p);
+    dummy2 = Basis_Curl_Bari::barycentricFunctions[c].evalDeriv(p);
+
+    OuterProduct(dummy2,dummy,ret);
+    ret*=double(deg2+deg3+2)*pow(valI,deg1+1)*pow(valJ,deg2)*pow(valK,deg3);
+
+    dummy*=valK;
+    dummy2*=valJ;
+    dummy-=dummy2;
+
+    OuterProduct(dummy3,dummy,dummy2);
+    dummy2*=double(1+deg1)*pow(valI,deg1)*pow(valJ,deg2)*pow(valK,deg3);
+
+    ret+=dummy2;
+    return ret;
+}
+
+void Base::BasisCurlFace2Nedelec::getReasonableNode(const Base::Element& element, Geometry::PointPhysical<DIM> node)
+{
+    const Geometry::PointReference<DIM>& leftnode = element.getReferenceGeometry()->getReferenceNodeCoordinate(a);
+    const Geometry::PointReference<DIM>& rightnode = element.getReferenceGeometry()->getReferenceNodeCoordinate(b);
+    const Geometry::PointReference<DIM>& Cnode = element.getReferenceGeometry()->getReferenceNodeCoordinate(c);
+    node = element.referenceToPhysical(leftnode); //(leftnode+rightnode+Cnode)*.33333
+}
+
+Base::BasisCurlinterior1Nedelec::BasisCurlinterior1Nedelec(int degree1, int degree2, int degree3, int degree4)
+    : deg1(degree1), deg2(degree2), deg3(degree3), deg4(degree4)
+{
+}
+                
+void Base::BasisCurlinterior1Nedelec::eval(const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret) const 
+{    
+    LinearAlgebra::SmallVector<DIM> dummy;
+
+    double val0(Basis_Curl_Bari::barycentricFunctions[0].eval(p)),
+           val1(Basis_Curl_Bari::barycentricFunctions[1].eval(p)), 
+           val2(Basis_Curl_Bari::barycentricFunctions[2].eval(p)),
+           val3(Basis_Curl_Bari::barycentricFunctions[3].eval(p));
+   
+    ret = Basis_Curl_Bari::barycentricFunctions[0].evalDeriv(p);
+    dummy = Basis_Curl_Bari::barycentricFunctions[1].evalDeriv(p);
+
+    ret*=val1;
+    dummy*=val0;
+    ret-=dummy;
+
+    ret*=pow(val0,deg1)*pow(val1,deg2)*pow(val2,deg3+1)*pow(val3,deg4+1);
+}
+
+LinearAlgebra::SmallVector<DIM> Base::BasisCurlinterior1Nedelec::evalCurl(const Geometry::PointReference<DIM>& p) const 
+{
+    LinearAlgebra::SmallVector<DIM> dummy, dummy2, dummy3, dummy4, ret;
+
+    double val0(Basis_Curl_Bari::barycentricFunctions[0].eval(p)),
+           val1(Basis_Curl_Bari::barycentricFunctions[1].eval(p)),
+           val2(Basis_Curl_Bari::barycentricFunctions[2].eval(p)),
+           val3(Basis_Curl_Bari::barycentricFunctions[3].eval(p));
+   
+    dummy = Basis_Curl_Bari::barycentricFunctions[0].evalDeriv(p);
+    dummy2 = Basis_Curl_Bari::barycentricFunctions[1].evalDeriv(p);
+    dummy3 = Basis_Curl_Bari::barycentricFunctions[2].evalDeriv(p);
+    dummy4 = Basis_Curl_Bari::barycentricFunctions[3].evalDeriv(p);
+
+    OuterProduct(dummy2,dummy,ret);
+
+    dummy*=val1;
+    dummy2*=val0;
+    dummy-=dummy2;
+
+    OuterProduct(dummy3,dummy,dummy2);
+    OuterProduct(dummy4,dummy,dummy3);
+
+    dummy2*=double(1+deg3)*pow(val0,deg1)*pow(val1,deg2)*pow(val2,deg3)*pow(val3,deg4+1);
+    dummy3*=double(1+deg4)*pow(val0,deg1)*pow(val1,deg2)*pow(val2,deg3+1)*pow(val3,deg4);
+
+    ret*=double(deg1+deg2+2)*pow(val0,deg1)*pow(val1,deg2)*pow(val2,deg3+1)*pow(val3,deg4+1);
+    ret+=dummy2+dummy3;
+    return ret;
+}
+
+void Base::BasisCurlinterior1Nedelec::getReasonableNode(const Base::Element& element, Geometry::PointPhysical<DIM> node)
+{
+    const Geometry::PointReference<DIM>& center = element.getReferenceGeometry()->getCenter();
+    node = element.referenceToPhysical(center);
+}
+
+
+Base::BasisCurlinterior2Nedelec::BasisCurlinterior2Nedelec(int degree1, int degree2, int degree3, int degree4)
+    : deg1(degree1), deg2(degree2), deg3(degree3), deg4(degree4)
+{
+}
+                
+void Base::BasisCurlinterior2Nedelec::eval(const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret) const 
+{    
+    LinearAlgebra::SmallVector<DIM> dummy;
+
+    double val0(Basis_Curl_Bari::barycentricFunctions[0].eval(p)),
+           val1(Basis_Curl_Bari::barycentricFunctions[1].eval(p)), 
+           val2(Basis_Curl_Bari::barycentricFunctions[2].eval(p)),
+           val3(Basis_Curl_Bari::barycentricFunctions[3].eval(p));
+   
+    ret = Basis_Curl_Bari::barycentricFunctions[1].evalDeriv(p);
+    dummy = Basis_Curl_Bari::barycentricFunctions[2].evalDeriv(p);
+
+    ret*=val2;
+    dummy*=val1;
+    ret-=dummy;
+
+    ret*=pow(val0,deg1+1)*pow(val1,deg2)*pow(val2,deg3)*pow(val3,deg4+1);
+}
+
+LinearAlgebra::SmallVector<DIM> Base::BasisCurlinterior2Nedelec::evalCurl(const Geometry::PointReference<DIM>& p) const 
+{    
+    LinearAlgebra::SmallVector<DIM> dummy, dummy2, dummy3, dummy4, ret;
+
+    double val0(Basis_Curl_Bari::barycentricFunctions[0].eval(p)),
+           val1(Basis_Curl_Bari::barycentricFunctions[1].eval(p)),
+           val2(Basis_Curl_Bari::barycentricFunctions[2].eval(p)),
+           val3(Basis_Curl_Bari::barycentricFunctions[3].eval(p));
+   
+    dummy = Basis_Curl_Bari::barycentricFunctions[1].evalDeriv(p);
+    dummy2 = Basis_Curl_Bari::barycentricFunctions[2].evalDeriv(p);
+    dummy3 = Basis_Curl_Bari::barycentricFunctions[0].evalDeriv(p);
+    dummy4 = Basis_Curl_Bari::barycentricFunctions[3].evalDeriv(p);
+
+    OuterProduct(dummy2,dummy,ret);
+
+    dummy*=val2;
+    dummy2*=val1;
+    dummy-=dummy2;
+
+    OuterProduct(dummy3,dummy,dummy2);
+    OuterProduct(dummy4,dummy,dummy3);
+
+    dummy2*=double(1+deg1)*pow(val0,deg1)*pow(val1,deg2)*pow(val2,deg3)*pow(val3,deg4+1);
+    dummy3*=double(1+deg4)*pow(val0,deg1+1)*pow(val1,deg2)*pow(val2,deg3)*pow(val3,deg4);
+
+    ret*=double(deg2+deg3+2)*pow(val0,deg1+1)*pow(val1,deg2)*pow(val2,deg3)*pow(val3,deg4+1);
+    ret+=dummy2+dummy3;
+    return ret;
+}
+
+void Base::BasisCurlinterior2Nedelec::getReasonableNode(const Base::Element& element, Geometry::PointPhysical<DIM> node)
+{
+    const Geometry::PointReference<DIM>& center = element.getReferenceGeometry()->getCenter();
+    node = element.referenceToPhysical(center);
+}
+
+
+Base::BasisCurlinterior3Nedelec::BasisCurlinterior3Nedelec(int degree1, int degree2, int degree3, int degree4)
+    : deg1(degree1), deg2(degree2), deg3(degree3), deg4(degree4)
+{
+}
+                
+void Base::BasisCurlinterior3Nedelec::eval(const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret) const 
+{    
+    LinearAlgebra::SmallVector<DIM> dummy;
+
+    double val0(Basis_Curl_Bari::barycentricFunctions[0].eval(p)),
+           val1(Basis_Curl_Bari::barycentricFunctions[1].eval(p)), 
+           val2(Basis_Curl_Bari::barycentricFunctions[2].eval(p)),
+           val3(Basis_Curl_Bari::barycentricFunctions[3].eval(p));
+   
+    ret = Basis_Curl_Bari::barycentricFunctions[2].evalDeriv(p);
+    dummy = Basis_Curl_Bari::barycentricFunctions[3].evalDeriv(p);
+
+    ret*=val3;
+    dummy*=val2;
+    ret-=dummy;
+
+    ret*=pow(val0,deg1+1)*pow(val1,deg2+1)*pow(val2,deg3)*pow(val3,deg4);
+}
+
+LinearAlgebra::SmallVector<DIM> Base::BasisCurlinterior3Nedelec::evalCurl(const Geometry::PointReference<DIM>& p) const 
+{    
+    LinearAlgebra::SmallVector<DIM> dummy, dummy2, dummy3, dummy4, ret;
+
+    double val0(Basis_Curl_Bari::barycentricFunctions[0].eval(p)),
+           val1(Basis_Curl_Bari::barycentricFunctions[1].eval(p)),
+           val2(Basis_Curl_Bari::barycentricFunctions[2].eval(p)),
+           val3(Basis_Curl_Bari::barycentricFunctions[3].eval(p));
+   
+    dummy = Basis_Curl_Bari::barycentricFunctions[2].evalDeriv(p);
+    dummy2 = Basis_Curl_Bari::barycentricFunctions[3].evalDeriv(p);
+    dummy3 = Basis_Curl_Bari::barycentricFunctions[0].evalDeriv(p);
+    dummy4 = Basis_Curl_Bari::barycentricFunctions[1].evalDeriv(p);
+
+    OuterProduct(dummy2,dummy,ret);
+
+    dummy*=val3;
+    dummy2*=val2;
+    dummy-=dummy2;
+
+    OuterProduct(dummy3,dummy,dummy2);
+    OuterProduct(dummy4,dummy,dummy3);
+
+    dummy2*=double(1+deg1)*pow(val0,deg1)*pow(val1,deg2+1)*pow(val2,deg3)*pow(val3,deg4);
+    dummy3*=double(1+deg2)*pow(val0,deg1+1)*pow(val1,deg2)*pow(val2,deg3)*pow(val3,deg4);
+
+    ret*=double(deg3+deg4+2)*pow(val0,deg1+1)*pow(val1,deg2+1)*pow(val2,deg3)*pow(val3,deg4);
+    ret+=dummy2+dummy3;
+    return ret;
+}
+
+void Base::BasisCurlinterior3Nedelec::getReasonableNode(const Base::Element& element, Geometry::PointPhysical<DIM> node){
+    const Geometry::PointReference<DIM>& center = element.getReferenceGeometry()->getCenter();
+    node = element.referenceToPhysical(center);
+}
+
 void Base::Basis_Curl_Edge::eval(const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret) const
 {
     LinearAlgebra::SmallVector<DIM> dummy; //dummy vectors are used to store parial results
@@ -432,79 +802,136 @@ void Base::Basis_Curl_interior::getReasonableNode(const Base::Element& element, 
     node = element.referenceToPhysical(center);
 }
 
-MyMeshManipulator::MyMeshManipulator(const Base::ConfigurationData* data, Base::BoundaryType xPer, Base::BoundaryType yPer, Base::BoundaryType zPer, std::size_t order, std::size_t idRangeBegin, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrixes, std::size_t nrOfFaceVectors)
+MyMeshManipulator::MyMeshManipulator(const Base::ConfigurationData* data, Base::BoundaryType xPer, Base::BoundaryType yPer, Base::BoundaryType zPer, std::size_t order, std::size_t idRangeBegin, std::size_t nrOfElementMatrixes, std::size_t nrOfElementVectors, std::size_t nrOfFaceMatrixes, std::size_t nrOfFaceVectors, bool useNedelec)
         : Base::MeshManipulator<DIM>(data, xPer, yPer, zPer, order, idRangeBegin, nrOfElementMatrixes, nrOfElementVectors, nrOfFaceMatrixes, nrOfFaceVectors)
 {
     //std::cout<<nrOfElementVectors<<std::endl;
-    createBasisFunctions(order);
+    createBasisFunctions(order, useNedelec);
     
 }
 
-void MyMeshManipulator::createBasisFunctions(unsigned int order)
+void MyMeshManipulator::createBasisFunctions(unsigned int order, bool useNedelec)
 {
-    Base::BasisFunctionSet* bFset = new Base::BasisFunctionSet(order);
-    for (int p = 0; p <= order; ++p)
+    if (useNedelec == 1)
     {
-        //constructor takes first the degree of the function then the two vertices on the edge
-        bFset->addBasisFunction(new Base::Basis_Curl_Edge(p, 0, 1));
-        bFset->addBasisFunction(new Base::Basis_Curl_Edge(p, 0, 2));
-        bFset->addBasisFunction(new Base::Basis_Curl_Edge(p, 0, 3));
-        bFset->addBasisFunction(new Base::Basis_Curl_Edge(p, 2, 3));
-        bFset->addBasisFunction(new Base::Basis_Curl_Edge(p, 1, 3));
-        bFset->addBasisFunction(new Base::Basis_Curl_Edge(p, 1, 2));
-        //	    std::cout<<"constructed edge functions with p="<<p<<std::endl;
-    }
-    for (int p = 2; p <= order; ++p)
-    {
-        //constructor takes first the degree of the function the the vertex opposing the face, then the vertex not on the edge
-        bFset->addBasisFunction(new Base::Basis_Curl_Edge_Face(p, 3, 0));
-        bFset->addBasisFunction(new Base::Basis_Curl_Edge_Face(p, 3, 1));
-        bFset->addBasisFunction(new Base::Basis_Curl_Edge_Face(p, 3, 2));
-        bFset->addBasisFunction(new Base::Basis_Curl_Edge_Face(p, 2, 0));
-        bFset->addBasisFunction(new Base::Basis_Curl_Edge_Face(p, 2, 1));
-        bFset->addBasisFunction(new Base::Basis_Curl_Edge_Face(p, 2, 3));
-        bFset->addBasisFunction(new Base::Basis_Curl_Edge_Face(p, 1, 0));
-        bFset->addBasisFunction(new Base::Basis_Curl_Edge_Face(p, 1, 2));
-        bFset->addBasisFunction(new Base::Basis_Curl_Edge_Face(p, 1, 3));
-        bFset->addBasisFunction(new Base::Basis_Curl_Edge_Face(p, 0, 1));
-        bFset->addBasisFunction(new Base::Basis_Curl_Edge_Face(p, 0, 2));
-        bFset->addBasisFunction(new Base::Basis_Curl_Edge_Face(p, 0, 3));
-        //	    std::cout<<"constructed edge based face functions with p="<<p<<std::endl;
-    }
-    for (int l = 0; l + 3 <= order; ++l)
-    {
-        for (int m = 0; m + l + 3 <= order; ++m)
+        Base::BasisFunctionSet* bFset = new Base::BasisFunctionSet(order);
+        for(int l=0; l+1<=order; ++l)
         {
-            //constructor takes first the degrees of the legendre polinomials, then the vertex opposing the face, then a 1 or 2 to fix the direction of the bubble function
-            bFset->addBasisFunction(new Base::Basis_Curl_Face(l, m, 3, 1));
-            bFset->addBasisFunction(new Base::Basis_Curl_Face(l, m, 3, 2));
-            bFset->addBasisFunction(new Base::Basis_Curl_Face(l, m, 2, 1));
-            bFset->addBasisFunction(new Base::Basis_Curl_Face(l, m, 2, 2));
-            bFset->addBasisFunction(new Base::Basis_Curl_Face(l, m, 1, 1));
-            bFset->addBasisFunction(new Base::Basis_Curl_Face(l, m, 1, 2));
-            bFset->addBasisFunction(new Base::Basis_Curl_Face(l, m, 0, 1));
-            bFset->addBasisFunction(new Base::Basis_Curl_Face(l, m, 0, 2));
-            //constructor takes first the degrees of the legendre polinomials, then the vertex opposing the face
-            bFset->addBasisFunction(new Base::Basis_Curl_Face_interior(l, m, 3));
-            bFset->addBasisFunction(new Base::Basis_Curl_Face_interior(l, m, 2));
-            bFset->addBasisFunction(new Base::Basis_Curl_Face_interior(l, m, 1));
-            bFset->addBasisFunction(new Base::Basis_Curl_Face_interior(l, m, 0));
-            //	    std::cout<<"constructed face functions and face based interior functions with l="<<l<<" and m="<<m<<std::endl;
+	    int m((order-1)-l);	
+	    bFset->addBasisFunction(new Base::BasisCurlEdgeNedelec(l,m,0,1));
+	    bFset->addBasisFunction(new Base::BasisCurlEdgeNedelec(l,m,0,2));
+	    bFset->addBasisFunction(new Base::BasisCurlEdgeNedelec(l,m,0,3));
+	    bFset->addBasisFunction(new Base::BasisCurlEdgeNedelec(l,m,2,3));
+	    bFset->addBasisFunction(new Base::BasisCurlEdgeNedelec(l,m,1,3));
+	    bFset->addBasisFunction(new Base::BasisCurlEdgeNedelec(l,m,1,2));
+    //	    std::cout<<"constructed edge functions with p="<<p<<std::endl;
         }
-    }
-    for (int l = 0; l + 4 <= order; ++l)
-    {
-        for (int m = 0; m + l + 4 <= order; ++m)
+        if(order>1)
         {
-            for (int n = 0; n + m + l + 4 <= order; ++n)
+            for(int l=0; l+2<=order; ++l)
             {
-                //constructor takes first the degrees of the legendre polinomials, then a 1, 2 or 3 to fix the direction of the bubble function
-                bFset->addBasisFunction(new Base::Basis_Curl_interior(l, m, n, 1));
-                bFset->addBasisFunction(new Base::Basis_Curl_interior(l, m, n, 2));
-                bFset->addBasisFunction(new Base::Basis_Curl_interior(l, m, n, 3));
-                //	    std::cout<<"constructed interior functions with l="<<l<<" and m="<<m<<" and n="<<n<<std::endl;
+                for(int m=0; m+l+2<=order; ++m)
+                {
+	            int n((order-2)-(l+m));
+	            bFset->addBasisFunction(new Base::BasisCurlFace1Nedelec(l,m,n,0));
+	            bFset->addBasisFunction(new Base::BasisCurlFace1Nedelec(l,m,n,1));
+	            bFset->addBasisFunction(new Base::BasisCurlFace1Nedelec(l,m,n,2));
+	            bFset->addBasisFunction(new Base::BasisCurlFace1Nedelec(l,m,n,3));
+	            bFset->addBasisFunction(new Base::BasisCurlFace2Nedelec(l,m,n,0));
+	            bFset->addBasisFunction(new Base::BasisCurlFace2Nedelec(l,m,n,1));
+	            bFset->addBasisFunction(new Base::BasisCurlFace2Nedelec(l,m,n,2));
+	            bFset->addBasisFunction(new Base::BasisCurlFace2Nedelec(l,m,n,3));
+//	    std::cout<<"constructed face functions and face based interior functions with l="<<l<<" and m="<<m<<std::endl;
+	        }
             }
         }
+        if(order>2)
+        {
+	    for(int l=0; l+3<=order; ++l)
+            {
+	        for(int m=0; m+l+3<=order; ++m)
+                {
+                    for(int n=0; n+m+l+3<=order; ++n)
+                    {
+	                int o((order-3)-(l+m+n));
+	                bFset->addBasisFunction(new Base::BasisCurlinterior1Nedelec(l,m,n,o));
+                        bFset->addBasisFunction(new Base::BasisCurlinterior2Nedelec(l,m,n,o));
+	                bFset->addBasisFunction(new Base::BasisCurlinterior3Nedelec(l,m,n,o));
+    //	    std::cout<<"constructed interior functions with l="<<l<<" and m="<<m<<" and n="<<n<<std::endl;
+	            }
+	        }
+    	    }
+        }
+        setDefaultBasisFunctionSet(bFset);
     }
-    setDefaultBasisFunctionSet(bFset);
+    else
+    {
+        Base::BasisFunctionSet* bFset = new Base::BasisFunctionSet(order);
+        for (int p = 0; p <= order; ++p)
+        {
+            //constructor takes first the degree of the function then the two vertices on the edge
+            bFset->addBasisFunction(new Base::Basis_Curl_Edge(p, 0, 1));
+            bFset->addBasisFunction(new Base::Basis_Curl_Edge(p, 0, 2));
+            bFset->addBasisFunction(new Base::Basis_Curl_Edge(p, 0, 3));
+            bFset->addBasisFunction(new Base::Basis_Curl_Edge(p, 2, 3));
+            bFset->addBasisFunction(new Base::Basis_Curl_Edge(p, 1, 3));
+            bFset->addBasisFunction(new Base::Basis_Curl_Edge(p, 1, 2));
+            //	    std::cout<<"constructed edge functions with p="<<p<<std::endl;
+        }
+        for (int p = 2; p <= order; ++p)
+        {
+            //constructor takes first the degree of the function the the vertex opposing the face, then the vertex not on the edge
+            bFset->addBasisFunction(new Base::Basis_Curl_Edge_Face(p, 3, 0));
+            bFset->addBasisFunction(new Base::Basis_Curl_Edge_Face(p, 3, 1));
+            bFset->addBasisFunction(new Base::Basis_Curl_Edge_Face(p, 3, 2));
+            bFset->addBasisFunction(new Base::Basis_Curl_Edge_Face(p, 2, 0));
+            bFset->addBasisFunction(new Base::Basis_Curl_Edge_Face(p, 2, 1));
+            bFset->addBasisFunction(new Base::Basis_Curl_Edge_Face(p, 2, 3));
+            bFset->addBasisFunction(new Base::Basis_Curl_Edge_Face(p, 1, 0));
+            bFset->addBasisFunction(new Base::Basis_Curl_Edge_Face(p, 1, 2));
+            bFset->addBasisFunction(new Base::Basis_Curl_Edge_Face(p, 1, 3));
+            bFset->addBasisFunction(new Base::Basis_Curl_Edge_Face(p, 0, 1));
+            bFset->addBasisFunction(new Base::Basis_Curl_Edge_Face(p, 0, 2));
+            bFset->addBasisFunction(new Base::Basis_Curl_Edge_Face(p, 0, 3));
+            //	    std::cout<<"constructed edge based face functions with p="<<p<<std::endl;
+        }
+        for (int l = 0; l + 3 <= order; ++l)
+        {
+            for (int m = 0; m + l + 3 <= order; ++m)
+            {
+                //constructor takes first the degrees of the legendre polinomials, then the vertex opposing the face, then a 1 or 2 to fix the direction of the bubble function
+                bFset->addBasisFunction(new Base::Basis_Curl_Face(l, m, 3, 1));
+                bFset->addBasisFunction(new Base::Basis_Curl_Face(l, m, 3, 2));
+                bFset->addBasisFunction(new Base::Basis_Curl_Face(l, m, 2, 1));
+                bFset->addBasisFunction(new Base::Basis_Curl_Face(l, m, 2, 2));
+                bFset->addBasisFunction(new Base::Basis_Curl_Face(l, m, 1, 1));
+                bFset->addBasisFunction(new Base::Basis_Curl_Face(l, m, 1, 2));
+                bFset->addBasisFunction(new Base::Basis_Curl_Face(l, m, 0, 1));
+                bFset->addBasisFunction(new Base::Basis_Curl_Face(l, m, 0, 2));
+                //constructor takes first the degrees of the legendre polinomials, then the vertex opposing the face
+                bFset->addBasisFunction(new Base::Basis_Curl_Face_interior(l, m, 3));
+                bFset->addBasisFunction(new Base::Basis_Curl_Face_interior(l, m, 2));
+                bFset->addBasisFunction(new Base::Basis_Curl_Face_interior(l, m, 1));
+                bFset->addBasisFunction(new Base::Basis_Curl_Face_interior(l, m, 0));
+                //	    std::cout<<"constructed face functions and face based interior functions with l="<<l<<" and m="<<m<<std::endl;
+            }
+        }
+        for (int l = 0; l + 4 <= order; ++l)
+        {
+            for (int m = 0; m + l + 4 <= order; ++m)
+            {
+                for (int n = 0; n + m + l + 4 <= order; ++n)
+                {
+                    //constructor takes first the degrees of the legendre polinomials, then a 1, 2 or 3 to fix the direction of the bubble function
+                    bFset->addBasisFunction(new Base::Basis_Curl_interior(l, m, n, 1));
+                    bFset->addBasisFunction(new Base::Basis_Curl_interior(l, m, n, 2));
+                    bFset->addBasisFunction(new Base::Basis_Curl_interior(l, m, n, 3));
+                    //	    std::cout<<"constructed interior functions with l="<<l<<" and m="<<m<<" and n="<<n<<std::endl;
+                }
+            }
+        }
+        setDefaultBasisFunctionSet(bFset);
+    }
 }
+
+

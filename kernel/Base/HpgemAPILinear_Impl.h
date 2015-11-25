@@ -135,10 +135,10 @@ namespace Base
     {
         for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
-            LinearAlgebra::MiddleSizeVector &solutionCoefficients(ptrElement->getTimeIntegrationVector(timeIntegrationVectorId));
+            LinearAlgebra::MiddleSizeVector &functionCoefficients(ptrElement->getTimeIntegrationVector(timeIntegrationVectorId));
             
             const LinearAlgebra::MiddleSizeMatrix &massMatrix(ptrElement->getElementMatrix(massMatrixID_));
-            massMatrix.solve(solutionCoefficients);
+            massMatrix.solve(functionCoefficients);
         }
         
         this->synchronize(timeIntegrationVectorId);
@@ -174,50 +174,44 @@ namespace Base
         return this->faceIntegrator_.integrate(ptrFace, integrandFunction);
     }
     
+    template<std::size_t DIM>
+    LinearAlgebra::MiddleSizeVector HpgemAPILinear<DIM>::computeIntegrandSourceTermAtElement(Base::PhysicalElement<DIM> &element, const double time, const std::size_t orderTimeDerivative)
+    {
+        // Get a reference to the result vector.
+        LinearAlgebra::MiddleSizeVector &integrand = element.getResultVector();
+        
+        // Get the physical point.
+        PointPhysicalT pPhys = element.getPointPhysical();
+        
+        // Compute the source term.
+        LinearAlgebra::MiddleSizeVector sourceTerm = getSourceTerm(pPhys, time, orderTimeDerivative);
+        
+        // Get the number of basis functions.
+        const std::size_t numOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
+        
+        // Compute the product of the source term and all test functions.
+        std::size_t iVB, jVB; // indices for both variable and basis function.
+        for (std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; iV++)
+        {
+            for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++)
+            {
+                iVB = element.getElement()->convertToSingleIndex(iB, iV);
+                integrand(iVB) = element.basisFunction(iB) * sourceTerm(iV);
+            }
+        }
+        
+        return integrand;
+    }
+    
     /// \details By default, the standard L2 inner product with the source term is computed.
     /// \todo please use Integration::ElementIntegral::integrate() for integration over elements
     template<std::size_t DIM>
     LinearAlgebra::MiddleSizeVector HpgemAPILinear<DIM>::integrateSourceTermAtElement(Base::Element * ptrElement, const double time, const std::size_t orderTimeDerivative)
     {
-        // Get number of basis functions
-        std::size_t numberOfBasisFunctions = ptrElement->getNumberOfBasisFunctions();
+        // Define the integrand function for the the source term.
+        std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalElement<DIM>&)> integrandFunction = [=](Base::PhysicalElement<DIM>& element) -> LinearAlgebra::MiddleSizeVector { return this -> computeIntegrandSourceTermAtElement(element, time, orderTimeDerivative);};
         
-        // Declare integral source term
-        LinearAlgebra::MiddleSizeVector integralSourceTerm(numberOfBasisFunctions * this->configData_->numberOfUnknowns_);
-        
-        // Declare integrand
-        LinearAlgebra::MiddleSizeVector integrandSourceTerm(numberOfBasisFunctions * this->configData_->numberOfUnknowns_);
-        
-        // Get quadrature rule and number of points.
-        const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
-        std::size_t numberOfQuadPoints = ptrQdrRule->getNumberOfPoints();
-        
-        // For each quadrature point, compute the value of the product of the
-        // test function and the source term, then add it with the correct weight to the integral solution.
-        for (std::size_t pQuad = 0; pQuad < numberOfQuadPoints; ++pQuad)
-        {
-            const Geometry::PointReference<DIM>& pRef = ptrQdrRule->getPoint(pQuad);
-            Geometry::PointPhysical<DIM> pPhys = ptrElement->referenceToPhysical(pRef);
-            
-            Geometry::Jacobian<DIM, DIM> jac = ptrElement->calcJacobian(pRef);
-            
-            LinearAlgebra::MiddleSizeVector sourceTerm = getSourceTerm(pPhys, time, orderTimeDerivative);
-            
-            for(std::size_t iB = 0; iB < numberOfBasisFunctions; ++iB)
-            {
-                double valueBasisFunction = ptrElement->basisFunction(iB, pRef);
-                
-                for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
-                {
-                    std::size_t iVB = ptrElement->convertToSingleIndex(iB,iV);
-                    
-                    integrandSourceTerm(iVB) = sourceTerm(iV) * valueBasisFunction;
-                }
-            }
-            integralSourceTerm.axpy((ptrQdrRule->weight(pQuad)) * std::abs(jac.determinant()), integrandSourceTerm);
-        }
-        
-        return integralSourceTerm;
+        return this->elementIntegrator_.integrate(ptrElement, integrandFunction);
     }
 
     template<std::size_t DIM>
@@ -256,10 +250,10 @@ namespace Base
         // Multiply the stiffness matrices corresponding to the elements.
         for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
-            LinearAlgebra::MiddleSizeVector &solutionCoefficients(ptrElement->getTimeIntegrationVector(inputVectorId));
-            LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrElement->getTimeIntegrationVector(resultVectorId));
+            LinearAlgebra::MiddleSizeVector &inputFunctionCoefficients(ptrElement->getTimeIntegrationVector(inputVectorId));
+            LinearAlgebra::MiddleSizeVector &resultFunctionCoefficients(ptrElement->getTimeIntegrationVector(resultVectorId));
             
-            solutionCoefficientsNew = ptrElement->getElementMatrix(stiffnessElementMatrixID_) * solutionCoefficients;
+            resultFunctionCoefficients = ptrElement->getElementMatrix(stiffnessElementMatrixID_) * inputFunctionCoefficients;
         }
         
         // Multiply the stiffness matrices corresponding to the faces.
@@ -267,24 +261,24 @@ namespace Base
         {
             if(ptrFace->isInternal())
             {
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(inputVectorId));
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight(ptrFace->getPtrElementRight()->getTimeIntegrationVector(inputVectorId));
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeIntegrationVector(resultVectorId));
+                LinearAlgebra::MiddleSizeVector &inputFunctionCoefficientsLeft(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(inputVectorId));
+                LinearAlgebra::MiddleSizeVector &inputFunctionCoefficientsRight(ptrFace->getPtrElementRight()->getTimeIntegrationVector(inputVectorId));
+                LinearAlgebra::MiddleSizeVector &resultFunctionCoefficientsLeft(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
+                LinearAlgebra::MiddleSizeVector &resultFunctionCoefficientsRight(ptrFace->getPtrElementRight()->getTimeIntegrationVector(resultVectorId));
                 
                 const Base::FaceMatrix &stiffnessFaceMatrix = ptrFace->getFaceMatrix(stiffnessFaceMatrixID_);
                 
-                solutionCoefficientsLeftNew += stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::LEFT) * solutionCoefficientsLeft + stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::RIGHT) * solutionCoefficientsRight;
-                solutionCoefficientsRightNew += stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::LEFT) * solutionCoefficientsLeft + stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::RIGHT) * solutionCoefficientsRight;
+                resultFunctionCoefficientsLeft += stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::LEFT) * inputFunctionCoefficientsLeft + stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::RIGHT) * inputFunctionCoefficientsRight;
+                resultFunctionCoefficientsRight += stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::LEFT) * inputFunctionCoefficientsLeft + stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::RIGHT) * inputFunctionCoefficientsRight;
             }
             else
             {
-                LinearAlgebra::MiddleSizeVector &solutionCoefficients(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(inputVectorId));
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
+                LinearAlgebra::MiddleSizeVector &inputFunctionCoefficients(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(inputVectorId));
+                LinearAlgebra::MiddleSizeVector &resultFunctionCoefficients(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
                 
                 const LinearAlgebra::MiddleSizeMatrix &stiffnessMatrix = ptrFace->getFaceMatrix(stiffnessFaceMatrixID_).getElementMatrix(Base::Side::LEFT, Base::Side::LEFT);
                 
-                solutionCoefficientsNew += stiffnessMatrix * solutionCoefficients;
+                resultFunctionCoefficients += stiffnessMatrix * inputFunctionCoefficients;
             }
         }
         
@@ -298,10 +292,10 @@ namespace Base
         // Multiply the stiffness matrices corresponding to the elements.
         for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
-            LinearAlgebra::MiddleSizeVector solutionCoefficients(this->getLinearCombinationOfVectors(ptrElement, inputVectorIds, coefficientsInputVectors));
-            LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrElement->getTimeIntegrationVector(resultVectorId));
+            LinearAlgebra::MiddleSizeVector inputFunctionCoefficients(this->getLinearCombinationOfVectors(ptrElement, inputVectorIds, coefficientsInputVectors));
+            LinearAlgebra::MiddleSizeVector &resultFunctionCoefficients(ptrElement->getTimeIntegrationVector(resultVectorId));
             
-            solutionCoefficientsNew = ptrElement->getElementMatrix(stiffnessElementMatrixID_) * solutionCoefficients;
+            resultFunctionCoefficients = ptrElement->getElementMatrix(stiffnessElementMatrixID_) * inputFunctionCoefficients;
         }
         
         // Multiply the stiffness matrices corresponding to the faces.
@@ -309,26 +303,26 @@ namespace Base
         {
             if(ptrFace->isInternal())
             {
-                LinearAlgebra::MiddleSizeVector solutionCoefficientsLeft(this->getLinearCombinationOfVectors(ptrFace->getPtrElementLeft(), inputVectorIds, coefficientsInputVectors));
-                LinearAlgebra::MiddleSizeVector solutionCoefficientsRight(this->getLinearCombinationOfVectors(ptrFace->getPtrElementRight(), inputVectorIds, coefficientsInputVectors));
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeftNew(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsRightNew(ptrFace->getPtrElementRight()->getTimeIntegrationVector(resultVectorId));
+                LinearAlgebra::MiddleSizeVector inputFunctionCoefficientsLeft(this->getLinearCombinationOfVectors(ptrFace->getPtrElementLeft(), inputVectorIds, coefficientsInputVectors));
+                LinearAlgebra::MiddleSizeVector inputFunctionCoefficientsRight(this->getLinearCombinationOfVectors(ptrFace->getPtrElementRight(), inputVectorIds, coefficientsInputVectors));
+                LinearAlgebra::MiddleSizeVector &resultFunctionCoefficientsLeft(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
+                LinearAlgebra::MiddleSizeVector &resultFunctionCoefficientsRight(ptrFace->getPtrElementRight()->getTimeIntegrationVector(resultVectorId));
                 
                 const Base::FaceMatrix &stiffnessFaceMatrix = ptrFace->getFaceMatrix(stiffnessFaceMatrixID_);
                 
-                solutionCoefficientsLeftNew += stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::LEFT) * solutionCoefficientsLeft;
-                solutionCoefficientsLeftNew += stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::RIGHT) * solutionCoefficientsRight;
-                solutionCoefficientsRightNew += stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::LEFT) * solutionCoefficientsLeft;
-                solutionCoefficientsRightNew += stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::RIGHT) * solutionCoefficientsRight;
+                resultFunctionCoefficientsLeft += stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::LEFT) * inputFunctionCoefficientsLeft;
+                resultFunctionCoefficientsLeft += stiffnessFaceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::RIGHT) * inputFunctionCoefficientsRight;
+                resultFunctionCoefficientsRight += stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::LEFT) * inputFunctionCoefficientsLeft;
+                resultFunctionCoefficientsRight += stiffnessFaceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::RIGHT) * inputFunctionCoefficientsRight;
             }
             else
             {
-                LinearAlgebra::MiddleSizeVector solutionCoefficients(this->getLinearCombinationOfVectors(ptrFace->getPtrElementLeft(), inputVectorIds, coefficientsInputVectors));
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
+                LinearAlgebra::MiddleSizeVector inputFunctionCoefficients(this->getLinearCombinationOfVectors(ptrFace->getPtrElementLeft(), inputVectorIds, coefficientsInputVectors));
+                LinearAlgebra::MiddleSizeVector &resultFunctionCoefficients(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
                 
                 const LinearAlgebra::MiddleSizeMatrix &stiffnessMatrix = ptrFace->getFaceMatrix(stiffnessFaceMatrixID_).getElementMatrix(Base::Side::LEFT, Base::Side::LEFT);
                 
-                solutionCoefficientsNew += stiffnessMatrix * solutionCoefficients;
+                resultFunctionCoefficients += stiffnessMatrix * inputFunctionCoefficients;
             }
         }
         
@@ -342,9 +336,9 @@ namespace Base
         // Add the source terms corresponding to the elements.
         for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
-            LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrElement->getTimeIntegrationVector(resultVectorId));
+            LinearAlgebra::MiddleSizeVector &resultFunctionCoefficientsNew(ptrElement->getTimeIntegrationVector(resultVectorId));
             
-            solutionCoefficientsNew += integrateSourceTermAtElement(ptrElement, time, orderTimeDerivative);
+            resultFunctionCoefficientsNew += integrateSourceTermAtElement(ptrElement, time, orderTimeDerivative);
         }
         this->synchronize(resultVectorId);
     }
@@ -357,9 +351,9 @@ namespace Base
         {
             if(!ptrFace->isInternal())
             {
-                LinearAlgebra::MiddleSizeVector &solutionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
+                LinearAlgebra::MiddleSizeVector &resultFunctionCoefficientsNew(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
                 
-                solutionCoefficientsNew += integrateSourceTermAtFace(ptrFace, time, orderTimeDerivative);
+                resultFunctionCoefficientsNew += integrateSourceTermAtFace(ptrFace, time, orderTimeDerivative);
             }
         }
         this->synchronize(resultVectorId);

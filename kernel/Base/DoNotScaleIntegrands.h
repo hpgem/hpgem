@@ -56,6 +56,11 @@ namespace Base
             return underlying_->transformDeriv(referenceData, element);
         }
 
+        double transformDiv(double referenceData, PhysicalElement<DIM>& element) const override final
+        {
+            return underlying_->transformDiv(referenceData, element);
+        }
+
         LinearAlgebra::SmallVector<DIM> transformCurl(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final
         {
             return underlying_->transformCurl(referenceData, element);

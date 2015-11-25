@@ -20,18 +20,18 @@
  */
 
 #include <chrono>
-#include <fstream>
-#include <iomanip>
 
-#include "SavageHutter.h"
 #include "Base/TimeIntegration/AllTimeIntegrators.h"
-#include "GlobalConstants.h"
+#include "SavageHutter1DBasic.h"
+#include "SavageHutter2DBasic.h"
 
 #include "Logger.h"
+#include "SavageHutter1DWidthAveraged.h"
+#include "SavageHutter1DWidthHAndU.h"
 
-auto& numOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", false, 20);
+auto& numberOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", false, 20);
 auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", false, 1);
-auto& numOfOutputFrames = Base::register_argument<std::size_t>('O', "numOfOutputFrames", "Number of frames to output", false, 100);
+auto& numberOfOutputFrames = Base::register_argument<std::size_t>('O', "numOfOutputFrames", "Number of frames to output", false, 100);
 auto& startTime = Base::register_argument<double>('S', "startTime", "start time of the simulation", false, 0.0);
 auto& endTime = Base::register_argument<double>('T', "endTime", "end time of the simulation", false, 3);
 auto& dt = Base::register_argument<double>('d', "timeStepSize", "time step of the simulation", false, 0.0001);
@@ -41,50 +41,19 @@ int main(int argc, char **argv)
     Base::parse_options(argc, argv);
     logger.assert_always(startTime.getValue() <= endTime.getValue(), "start time must be before end time!");
     
-    // Set parameters for the PDE.
-    SHConstructorStruct inputVals;
-    //DIM is declared in GlobalConstants.h
-    inputVals.numberOfVariables = DIM + 1;    
-    inputVals.polyOrder = polynomialOrder.getValue();
-    inputVals.numberOfElements = numOfElements.getValue();
-    inputVals.meshType = Base::MeshType::RECTANGULAR; // Either TRIANGULAR or RECTANGULAR.
-    inputVals.ptrButcherTableau = TimeIntegration::AllTimeIntegrators::Instance().getRule(1,1);
-    
-    //Construct the problem and output generator
-    SavageHutter test(inputVals);    
-    std::vector<std::string> variableNames = {"h", "hu", "hv"};
-    if (DIM == 1)
-        test.setOutputNames("output1D", "SavageHutter", "SavageHutter", variableNames);
-    else
-        test.setOutputNames("output", "SavageHutter", "SavageHutter", variableNames);
+    //Construct the problem
+    SavageHutter2DBasic problemDescriptor(polynomialOrder.getValue(), numberOfElements.getValue());
     
     // Start measuring elapsed time
     std::chrono::time_point<std::chrono::system_clock> startClock, endClock;
     startClock = std::chrono::system_clock::now();
 
     // Solve the problem over time interval [startTime,endTime].
-    test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), false);
-    
-    if (DIM == 2)
-    {
-        auto widthValues = test.widthAverage();
-
-        std::ofstream widthFile("widthFile.dat");
-        for (auto myPair : widthValues)
-        {
-            widthFile << myPair.first;
-            for (std::size_t i = 0; i < inputVals.numberOfVariables; ++i)
-            {
-                widthFile << '\t' << std::setw(10) << myPair.second[i];
-            }
-            widthFile << '\n';
-        }
-    }
+    problemDescriptor.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numberOfOutputFrames.getValue(), false);
 
     // Measure elapsed time
     endClock = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = endClock - startClock;
     logger(INFO, "Elapsed time for solving the PDE: % s", elapsed_seconds.count());
-
     return 0;
 }

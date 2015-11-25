@@ -111,6 +111,7 @@ public:
     {
         //Obtain the number of basisfunctions that are possibly non-zero on this element.
         const std::size_t numBasisFunctions = element.getElement()->getNrOfBasisFunctions();
+        logger(INFO, "%", numBasisFunctions);
         
         //Create the integrandVal such that it contains as many rows and columns as
         //the number of basisfunctions.

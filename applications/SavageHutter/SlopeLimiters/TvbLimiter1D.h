@@ -30,9 +30,13 @@ public:
     
     using PointReferenceT = Geometry::PointReference<1>;
     using PointPhysicalT = Geometry::PointPhysical<1>;
-    TvbLimiter1D(std::size_t numOfVariables) : SlopeLimiter(numOfVariables){ }
+    
+    
+    TvbLimiter1D(std::size_t numOfVariables);
     
     void limitSlope(Base::Element *element) override final;
+    
+    ~TvbLimiter1D(){ }
 private:
     void limitWithMinMod(Base::Element *element, const std::size_t iVar);
     

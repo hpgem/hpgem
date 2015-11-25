@@ -38,16 +38,16 @@ namespace Helpers
     int sign(const double x);
 
     template <std::size_t DIM>
-    LinearAlgebra::MiddleSizeVector getSolution(const Base::Element *element, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const Geometry::PointReference<DIM>& pRef, const std::size_t numVariables)
+    LinearAlgebra::MiddleSizeVector getSolution( Base::PhysicalElement<DIM> &element, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const std::size_t numVariables)
     {
-        const std::size_t numBasisFunctions = element->getNumberOfBasisFunctions();
+        const std::size_t numBasisFunctions = element.getNumberOfBasisFunctions();
         LinearAlgebra::MiddleSizeVector solution(numVariables);
         for (std::size_t iFun = 0; iFun < numBasisFunctions; ++ iFun)
         {
             for (std::size_t iVar = 0; iVar < numVariables; ++ iVar)
             {
-                std::size_t iVB = element->convertToSingleIndex(iFun, iVar);
-                solution(iVar) += element->basisFunction(iFun, pRef) * solutionCoefficients(iVB);
+                std::size_t iVB = element.convertToSingleIndex(iFun, iVar);
+                solution(iVar) += element.basisFunction(iFun) * solutionCoefficients(iVB);
             }
         }
         return solution;
@@ -60,12 +60,12 @@ namespace Helpers
         std::size_t numOfVariables = element->getNumberOfUnknowns();
         const std::function < LinearAlgebra::MiddleSizeVector(Base::PhysicalElement<DIM>&) > integrandFunction =
             [ = ](Base::PhysicalElement<DIM>& elt) -> LinearAlgebra::MiddleSizeVector {
-                LinearAlgebra::MiddleSizeVector solution = Helpers::getSolution<DIM>(elt.getElement(), solutionCoefficients, elt.getPointReference(), numOfVariables);
+                LinearAlgebra::MiddleSizeVector solution = Helpers::getSolution<DIM>(elt, solutionCoefficients, numOfVariables);
                 logger(DEBUG, "Solution at quadrature point: %", solution);
                 return solution;
             };
         LinearAlgebra::MiddleSizeVector average = (elementIntegrator.integrate(element, integrandFunction, element->getGaussQuadratureRule()));
-        //\todo: generalize to more than 1D
+        //\todo: generalise to other than rectangular grid
         Geometry::PointPhysical<DIM> p0 = element->getPhysicalGeometry()->getLocalNodeCoordinates(0);
         Geometry::PointPhysical<DIM> p1 = element->getPhysicalGeometry()->getLocalNodeCoordinates(1);
         average /= Base::L2Norm(p1 - p0);

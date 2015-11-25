@@ -123,6 +123,10 @@ namespace Base
         template<std::size_t DIM>
         LinearAlgebra::SmallVector<DIM> basisFunctionCurl(std::size_t i, const Geometry::PointReference<DIM>& p) const;
 
+        /// \brief Returns the divergence of the i-th basisfunction at point p in ret.
+        template<std::size_t DIM>
+        double basisFunctionDiv(std::size_t i, const Geometry::PointReference<DIM>& p) const;
+
         /// \brief Get the solution at the given timeLevel at the physical point corresponding to reference point p.
         /// \details This routine assumes the result of evaluating a basis function has to be transformed using the identity transformation
         template<std::size_t DIM>
@@ -414,6 +418,30 @@ namespace Base
         }
         logger(ERROR, "This is not supposed to happen, please try again with assertions turned on");
         return LinearAlgebra::SmallVector<DIM>();
+    }
+
+    template<std::size_t DIM>
+    double Element::basisFunctionDiv(std::size_t i, const Geometry::PointReference<DIM>& p) const
+    {
+        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
+        int basePosition(0);
+        for (int j : basisFunctionSetPositions_)
+        {
+            if (j != -1)
+            {
+                int n = basisFunctionSet_->at(j)->size();
+                if (i - basePosition < n)
+                {
+                    return basisFunctionSet_->at(j)->evalDiv(i - basePosition, p);
+                }
+                else
+                {
+                    basePosition += n;
+                }
+            }
+        }
+        logger(ERROR, "This is not supposed to happen, please try again with assertions turned on");
+        return 0;
     }
 
     template<std::size_t DIM>

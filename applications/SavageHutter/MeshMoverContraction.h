@@ -27,54 +27,32 @@
 /// MeshMoverContraction moves the grid such that a contraction in the domain arises
 /// If you want only the first half of the contraction, set xMiddle to the end of the
 /// domain.
-class MeshMoverContraction : public Base::MeshMoverBase<DIM>
+class MeshMoverContraction : public Base::MeshMoverBase<2>
 {
     
 public:
+    
+    double xBegin = 0;
+    double xMiddle = .5;
+    double xEnd = 1;
+    double contractionWidth = 0.8;   
 
-    using PointPhysicalT = Geometry::PointPhysical<DIM>;
-    
-    const double xBegin = 6;
-    const double xMiddle = 11;
-    const double xEnd = 14;
-    const double contractionWidth = 0.8;   
-    
-    MeshMoverContraction()
-    {
-    }
-    
-    virtual ~MeshMoverContraction()
-    {
-    }
-
-    ///\details computes the width of the chute at a given x-position
-    double computeWidth(double x) const
-    {
-        if (x < xBegin || x > xEnd)
-        {
-            return 1;
-        }
-        if (x < xMiddle)
-        {
-            return 1 - (1-contractionWidth) / (xMiddle - xBegin) * (x - xBegin);
-        }
-        return 1 - (1-contractionWidth) / (xMiddle - xBegin) * (xEnd - x);
-    }
-    
-    void movePoint(PointPhysicalT& point) const override final
-    {
-        logger.assert(2 == DIM, "Called mesh mover for contraction while DIM != 2");     
+    void movePoint(Geometry::PointPhysical<2>& point) const override final
+    {          
+        //length of the contracting part
+        const double lengthFirst = xMiddle - xBegin;
         
-        const double distFirst = xMiddle - xBegin;
-        const double distSecond = xEnd - xMiddle;
+        //length of the widening part
+        const double lengthSecond = xEnd - xMiddle;
+        
         const double indentationWidth = (1. - contractionWidth) / 2;
         if (point[0] >= xBegin && point[0] < xMiddle)
         {
-            point[1] = (indentationWidth + point[1] * contractionWidth)  - (point[1] - (indentationWidth + point[1] * contractionWidth))* ((point[0] - xMiddle)/distFirst );
+            point[1] = (indentationWidth + point[1] * contractionWidth)  - (point[1] - (indentationWidth + point[1] * contractionWidth))* ((point[0] - xMiddle)/lengthFirst );
         }
         if (point[0] >= xMiddle && point[0] <= xEnd)
         {
-            point[1] = (indentationWidth + point[1] * contractionWidth)  + (point[1] - (indentationWidth + point[1] * contractionWidth))* ((point[0] - xMiddle)/distSecond );
+            point[1] = (indentationWidth + point[1] * contractionWidth)  + (point[1] - (indentationWidth + point[1] * contractionWidth))* ((point[0] - xMiddle)/lengthSecond );
         }
     }
 };

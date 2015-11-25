@@ -56,39 +56,63 @@ const MaxwellData* hpGemUIExtentions::getData() const
 
 double hpGemUIExtentions::sourceTermTime(const double t)
 {
-    return 1.;
+    return 1.0; // for comparison with Freekjan's report. The 1.0 is not physically meaningful. The source term is actually 0.0, but we want to avoid division by zero in timedependent code.
+    
+    // for comparison with time-integration paper by Domokos Sarmany
+    //return -cos(t)-1.0/4.0*cos(t/2.0)-1.0/9.0*cos(t/3.0)+2*M_PI*M_PI*(cos(t)+cos(.5*t)+cos(1.0/3.0*t));
 }
 
 void hpGemUIExtentions::exactSolution(const Geometry::PointPhysical<DIM>& p, const double t, LinearAlgebra::SmallVector<DIM>& ret)
 {
-    //  ret[0]=sin(M_PI*2*p[1])*sin(M_PI*2*p[2]);
-    //  ret[1]=sin(M_PI*2*p[2])*sin(M_PI*2*p[0]);
-    //  ret[2]=sin(M_PI*2*p[0])*sin(M_PI*2*p[1]);
-    //  ret*=cos(sqrt(2)*2*M_PI*t);
+      //ret[0]=sin(M_PI*2*p[1])*sin(M_PI*2*p[2]);
+      //ret[1]=sin(M_PI*2*p[2])*sin(M_PI*2*p[0]);
+      //ret[2]=sin(M_PI*2*p[0])*sin(M_PI*2*p[1]);
+      //ret*=cos(sqrt(2)*2*M_PI*t);
     
+    // for comparison with Freekjan's report.
     ret[0]=sin(M_PI*p[1])*sin(M_PI*p[2]);
     ret[1]=sin(M_PI*p[2])*sin(M_PI*p[0]);
     ret[2]=sin(M_PI*p[0])*sin(M_PI*p[1]);
     ret*=cos(sqrt(2)*M_PI*t);
+    //ret[0] = p[2];
+    //ret[1] = p[0];
+    //ret[2] = p[1];
     
     //     ret[0]=p[0]*(1-p[0]);
     //     ret[1]=0;
     // 	   ret[2]=0;
+    
+    // for comparison with the time-integration paper by Domokos Sarmany
+    //ret[0]=sin(M_PI*p[1])*sin(M_PI*p[2]);
+    //ret[1]=sin(M_PI*p[2])*sin(M_PI*p[0]);
+    //ret[2]=sin(M_PI*p[0])*sin(M_PI*p[1]);
+    //ret*=(cos(t)+cos(.5*t)+cos(1.0/3.0*t));
 }
 
 void hpGemUIExtentions::exactSolutionCurl(const Geometry::PointPhysical<DIM>& p, const double t, LinearAlgebra::SmallVector<DIM>& ret)
 {
-    //  ret[0]=sin(M_PI*2*p[0])*(cos(M_PI*2*p[1])-cos(M_PI*2*p[2]));
-    //  ret[1]=sin(M_PI*2*p[1])*(cos(M_PI*2*p[2])-cos(M_PI*2*p[0]));
-    //  ret[2]=sin(M_PI*2*p[2])*(cos(M_PI*2*p[0])-cos(M_PI*2*p[1]));
-    //  ret*=cos(sqrt(2)*2*M_PI*t)*2*M_PI;
+      //ret[0]=sin(M_PI*2*p[0])*(cos(M_PI*2*p[1])-cos(M_PI*2*p[2]));
+      //ret[1]=sin(M_PI*2*p[1])*(cos(M_PI*2*p[2])-cos(M_PI*2*p[0]));
+      //ret[2]=sin(M_PI*2*p[2])*(cos(M_PI*2*p[0])-cos(M_PI*2*p[1]));
+      //ret*=cos(sqrt(2)*2*M_PI*t)*2*M_PI;
     
+    // for comparison with Freekjan's report.
     ret[0] = sin(M_PI * p[0]) * (cos(M_PI * p[1]) - cos(M_PI * p[2]));
     ret[1] = sin(M_PI * p[1]) * (cos(M_PI * p[2]) - cos(M_PI * p[0]));
     ret[2] = sin(M_PI * p[2]) * (cos(M_PI * p[0]) - cos(M_PI * p[1]));
     ret *= cos(sqrt(2) * M_PI * t) * M_PI;
     
+    //ret[0] = 1.0;
+    //ret[1] = 1.0;
+    //ret[2] = 1.0;
+    
     //          ret[0]=0;ret[1]=0;ret[2]=0;
+    
+    // for comparison with the time-integration paper by Domokos Sarmany
+    //ret[0] = sin(M_PI * p[0]) * (cos(M_PI * p[1]) - cos(M_PI * p[2]));
+    //ret[1] = sin(M_PI * p[1]) * (cos(M_PI * p[2]) - cos(M_PI * p[0]));
+    //ret[2] = sin(M_PI * p[2]) * (cos(M_PI * p[0]) - cos(M_PI * p[1]));
+    //ret *= (cos(t)+cos(.5*t)+cos(1.0/3.0*t)) * M_PI;
 }
 
 
@@ -578,8 +602,59 @@ void hpGemUIExtentions::makeFunctionValue(Vec eigenVector, LinearAlgebra::Middle
     CHKERRABORT(PETSC_COMM_WORLD, ierr_);
 }
 */
-void hpGemUIExtentions::solveTimeDependant()
+
+void hpGemUIExtentions::GetCoeffCO4(LinearAlgebra::SmallVector<6>& alpha,
+		 LinearAlgebra::SmallVector<6>& beta,
+		 LinearAlgebra::SmallVector<6>& alpha_sum,
+		 LinearAlgebra::SmallVector<6>& beta_sum,
+		 LinearAlgebra::SmallVector<6>& scale0,
+		 LinearAlgebra::SmallVector<6>& scale1,
+		 const double& tau)
 {
+  alpha[0] = 0.0;
+  beta[0]  = 0.0;
+  scale0[0] = 0.0;
+  scale1[0] = 0.0;
+
+  alpha[1] = (146 + 5*std::sqrt(19.0))/540;
+  beta[5]  = alpha[1];
+
+  alpha[2] = (-2 + 10*std::sqrt(19.0)) / 135;
+  beta[4]  = alpha[2];
+
+  alpha[3] = 1.0/5.0;
+  beta[3]  = alpha[3];
+
+  alpha[4] = (-23 - 20*std::sqrt(19.0)) / 270;
+  beta[2]  = alpha[4];
+
+  alpha[5] = (14 - std::sqrt(19.0)) / 108;
+  beta[1]  = alpha[5];
+
+  for(unsigned int i = 0; i < 6; ++i)
+    {
+      alpha_sum[i] = 0.0;
+      beta_sum[i] = 0.0;
+      for(unsigned int j = 0; j <= i; ++j)
+	{
+	  alpha_sum[i] += alpha[j];
+	  beta_sum[i]  += beta[j];
+	}
+      scale0[i] = 1;
+      scale1[i] = 1;
+    }
+
+//   for(unsigned int i = 0; i < 6; ++i)
+//     cout << scale0[i] << "\t" << scale1[i] << endl;
+
+//   for(unsigned int i = 0; i < 6; ++i)
+//     cout << alpha_sum[i] << "\t" << beta_sum[i] << endl;
+
+  return;
+}
+
+void hpGemUIExtentions::solveTimeDependent(bool useCO2, bool useCO4)
+{  
     std::cout << "doing a time dependent simulation" << std::endl;
     const MaxwellData* actualdata = getData();
     MHasToBeInverted_ = true;
@@ -596,9 +671,14 @@ void hpGemUIExtentions::solveTimeDependant()
     derivative_.assemble();
     std::cout << "derivative_ assembled" << std::endl;
     
-    Vec dummy, dummy2;
+    Vec dummy, dummy2, dummy3; 
     ierr_ = VecDuplicate(derivative_, &dummy);
     CHKERRABORT(PETSC_COMM_WORLD, ierr_);
+    if (useCO4 == true)
+    {
+        ierr_ = VecDuplicate(derivative_, &dummy3);
+        CHKERRABORT(PETSC_COMM_WORLD, ierr_);
+    }
     ierr_ = VecDuplicate(derivative_, &dummy2);
     CHKERRABORT(PETSC_COMM_WORLD, ierr_);
     ierr_ = MatMult(M_, derivative_, dummy);
@@ -610,7 +690,17 @@ void hpGemUIExtentions::solveTimeDependant()
     ierr_ = VecCopy(dummy, x_);
     CHKERRABORT(PETSC_COMM_WORLD, ierr_);
     
-    double tau = 0.05 / ((2 * actualdata->PolynomialOrder_ + 1) * actualdata->NumberOfIntervals_);
+    double tau;
+    if (useCO2 == true)
+    {
+        tau = 0.05 / ((2 * actualdata->PolynomialOrder_ + 1) * actualdata->NumberOfIntervals_);
+    }
+        
+    if (useCO4 == true)
+    {
+        tau = 0.3/( (2*actualdata->PolynomialOrder_+1)*actualdata->NumberOfIntervals_ );
+    }
+    
     double Nsteps = floor((actualdata->EndTime_ - actualdata->StartTime_) / tau) + 1;
     tau = (actualdata->EndTime_ - actualdata->StartTime_) / Nsteps;
     Nsteps = (actualdata->EndTime_ - actualdata->StartTime_) / tau;
@@ -626,56 +716,108 @@ void hpGemUIExtentions::solveTimeDependant()
     ierr_ = VecScale(RHS_, 1 / eta);
     CHKERRABORT(PETSC_COMM_WORLD, ierr_);
     
-    double scale0 = (1 - actualdata->Sigma_ * tau / 2);
-    double scale1 = 1 / (1 + actualdata->Sigma_ * tau / 2);
+    double scale0, scale1;
+    if (useCO2 == true)
+    {
+        scale0 = (1 - actualdata->Sigma_ * tau / 2);
+        scale1 = 1 / (1 + actualdata->Sigma_ * tau / 2);
+    }
     
+    LinearAlgebra::SmallVector<6> alpha, beta, alpha_sum, beta_sum, scale0vector, scale1vector;
+    double sourceTime;
+    if (useCO4 == true)
+    {
+        GetCoeffCO4(alpha, beta, alpha_sum, beta_sum, scale0vector, scale1vector, tau);
+    }
     int measureAmount = 0;
     
     std::cout << tau << " " << Nsteps << std::endl;
-    
+
     for (int i = 0; i < Nsteps; ++i)
     {
         if (i % measureStep == 0)
         {
-        x_.writeTimeIntegrationVector(measureAmount);
+            x_.writeTimeIntegrationVector(measureAmount);
             
-        measureTimes_[measureAmount] = t;
-        measureAmount++;
+            measureTimes_[measureAmount] = t;
+            measureAmount++;
         }
-        
-        //leap-frog sceme (Yee)
-        ierr_ = VecAXPY(x_, tau / 2, derivative_);
-        CHKERRABORT(PETSC_COMM_WORLD, ierr_);
-        ierr_ = MatMult(S_, x_, dummy);
-        CHKERRABORT(PETSC_COMM_WORLD, ierr_); //starting here:dummy contaings partial update of x
-                
-        eta = sourceTermTime(t);
-        CHKERRABORT(PETSC_COMM_WORLD, ierr_);
-        ierr_ = VecCopy(RHS_, dummy2);
-        CHKERRABORT(PETSC_COMM_WORLD, ierr_); //starting here: dummy2 contains time-scaled version of RHS
-        ierr_ = VecScale(dummy2, 0.5 * tau * eta);
-        CHKERRABORT(PETSC_COMM_WORLD, ierr_);
-        ierr_ = VecAYPX(dummy, -tau, dummy2);
-        CHKERRABORT(PETSC_COMM_WORLD, ierr_);
-        eta = sourceTermTime(t + tau);
-        ierr_ = VecCopy(RHS_, dummy2);
-        CHKERRABORT(PETSC_COMM_WORLD, ierr_);
-        ierr_ = VecAXPY(dummy, 0.5 * tau * eta, dummy2);
-        CHKERRABORT(PETSC_COMM_WORLD, ierr_);
-        ierr_ = VecScale(dummy, scale1);
-        CHKERRABORT(PETSC_COMM_WORLD, ierr_);
-        ierr_ = MatMult(M_, dummy, dummy2);
-        CHKERRABORT(PETSC_COMM_WORLD, ierr_); //starting here: dummy2 contiains partial update of x
-        ierr_ = VecAYPX(derivative_, scale0 * scale1, dummy2);
-        CHKERRABORT(PETSC_COMM_WORLD, ierr_);
-        ierr_ = VecAXPY(x_, tau / 2, derivative_);
-        CHKERRABORT(PETSC_COMM_WORLD, ierr_);
-        t = t + tau;
-    }
-    //getArrayRead only gets local values, so make the entire std::vector local
+        if (useCO2 == true)
+        {
+            //leap-frog sceme (Yee)
+            ierr_ = VecAXPY(x_, tau / 2, derivative_);
+            CHKERRABORT(PETSC_COMM_WORLD, ierr_);
+            ierr_ = MatMult(S_, x_, dummy);
+            CHKERRABORT(PETSC_COMM_WORLD, ierr_); //starting here:dummy contaings partial update of x
 
+            eta = sourceTermTime(t);
+            CHKERRABORT(PETSC_COMM_WORLD, ierr_);
+            ierr_ = VecCopy(RHS_, dummy2);
+            CHKERRABORT(PETSC_COMM_WORLD, ierr_); //starting here: dummy2 contains time-scaled version of RHS
+            ierr_ = VecScale(dummy2, 0.5 * tau * eta);
+            CHKERRABORT(PETSC_COMM_WORLD, ierr_);
+            ierr_ = VecAYPX(dummy, -tau, dummy2);
+            CHKERRABORT(PETSC_COMM_WORLD, ierr_);
+            eta = sourceTermTime(t + tau);
+            ierr_ = VecCopy(RHS_, dummy2);
+            CHKERRABORT(PETSC_COMM_WORLD, ierr_);
+            ierr_ = VecAXPY(dummy, 0.5 * tau * eta, dummy2);
+            CHKERRABORT(PETSC_COMM_WORLD, ierr_);
+            ierr_ = VecScale(dummy, scale1);
+            CHKERRABORT(PETSC_COMM_WORLD, ierr_);
+            ierr_ = MatMult(M_, dummy, dummy2);
+            CHKERRABORT(PETSC_COMM_WORLD, ierr_); //starting here: dummy2 contiains partial update of x
+            ierr_ = VecAYPX(derivative_, scale0 * scale1, dummy2);
+            CHKERRABORT(PETSC_COMM_WORLD, ierr_);
+            ierr_ = VecAXPY(x_, tau / 2, derivative_);
+            CHKERRABORT(PETSC_COMM_WORLD, ierr_);
+            t = t + tau;
+        }
+       
+        if (useCO4 == true)
+        {
+            for(unsigned int k = 1; k < 6; ++k)
+            {
+                ierr_ = VecAXPY(x_, tau*(alpha[k-1] + beta[k]), derivative_);
+                CHKERRABORT(PETSC_COMM_WORLD, ierr_);
+
+                ierr_ = MatMult(S_, x_, dummy);
+                CHKERRABORT(PETSC_COMM_WORLD, ierr_);
+
+                sourceTime = t + (alpha_sum[k-1] + beta_sum[k-1])*tau;
+                eta = sourceTermTime(sourceTime);
+                ierr_ = VecCopy(RHS_, dummy2);
+                CHKERRABORT(PETSC_COMM_WORLD, ierr_);
+                ierr_ = VecScale(dummy2, beta[k]*tau*eta);
+                CHKERRABORT(PETSC_COMM_WORLD, ierr_);
+                VecAYPX(dummy, -(beta[k]+alpha[k])*tau, dummy2);
+                CHKERRABORT(PETSC_COMM_WORLD, ierr_);
+
+                sourceTime = t + (alpha_sum[k] + beta_sum[k])*tau;
+                eta = sourceTermTime(sourceTime);
+                ierr_ = VecCopy(RHS_, dummy2);
+                CHKERRABORT(PETSC_COMM_WORLD, ierr_);
+                ierr_ = VecScale(dummy2, alpha[k]*tau*eta);
+                CHKERRABORT(PETSC_COMM_WORLD, ierr_);
+                ierr_ = VecAXPY(dummy, 1, dummy2);
+                CHKERRABORT(PETSC_COMM_WORLD, ierr_);
+
+                ierr_ = VecScale(dummy, scale1vector[k]);
+                CHKERRABORT(PETSC_COMM_WORLD, ierr_);
+                ierr_ = MatMult(M_, dummy, dummy3);
+                CHKERRABORT(PETSC_COMM_WORLD, ierr_);
+                VecAYPX(derivative_, scale0vector[k]*scale1vector[k], dummy3);
+                CHKERRABORT(PETSC_COMM_WORLD, ierr_);
+            }
+            ierr_ = VecAXPY(x_, tau*alpha[5], derivative_);
+            CHKERRABORT(PETSC_COMM_WORLD, ierr_);
+            t += tau;
+        }
+    //getArrayRead only gets local values, so make the entire std::vector local
+        
     x_.writeTimeIntegrationVector(measureAmount);
     measureTimes_[measureAmount] = t;
+    }
 }
 
 void hpGemUIExtentions::solveHarmonic()
@@ -744,7 +886,7 @@ void hpGemUIExtentions::solveEigenvalues()
     int measureAmount = 0;
     
     std::vector<IS> xboundaryRow, xboundaryCol, yboundaryRow, yboundaryCol, zboundaryRow, zboundaryCol;
-    findBoundaryBlocks(xboundaryRow, xboundaryCol, yboundaryRow, yboundaryCol, zboundaryRow, zboundaryCol);
+    //findBoundaryBlocks(xboundaryRow, xboundaryCol, yboundaryRow, yboundaryCol, zboundaryRow, zboundaryCol);
     
     //For IP-DG solving a general eigenproblem is slightly faster,
     //but the Brezzi formulation needs an inverse of each block in the mass matrix anyway
@@ -788,7 +930,7 @@ void hpGemUIExtentions::solveEigenvalues()
     eigenVectors = new Vec[40]; //a few extra in case SLEPc finds more than the requested amount of eigenvalues
     ierr_ = VecCreate(PETSC_COMM_WORLD, &example);
     CHKERRABORT(PETSC_COMM_WORLD, ierr_);
-    ierr_ = VecSetSizes(example, PETSC_DECIDE, 61);
+    ierr_ = VecSetSizes(example, PETSC_DECIDE, 1);// SH put back to 61 when turning k back on
     CHKERRABORT(PETSC_COMM_WORLD, ierr_);
     ierr_ = VecSetUp(example);
     CHKERRABORT(PETSC_COMM_WORLD, ierr_);
@@ -846,7 +988,7 @@ void hpGemUIExtentions::solveEigenvalues()
     ierr_ = PetscLayoutSetUp(distribution);
     CHKERRABORT(PETSC_COMM_WORLD, ierr_);
     
-    for (int i = 1; i < 61; ++i)
+    /*for (int i = 1; i < 61; ++i)
     {
         std::cout << i << std::endl;
         if (i == 21)
@@ -999,7 +1141,7 @@ void hpGemUIExtentions::solveEigenvalues()
     {
         ISDestroy(&zboundaryCol[i]);
         ISDestroy(&zboundaryRow[i]);
-    }
+    }*/
     for (int i = 0; i < 20; ++i)
     {
         ierr_ = VecAssemblyBegin(eigenvalues[i]);
@@ -1360,6 +1502,16 @@ void hpGemUIExtentions::sourceTerm(const PointPhysicalT& p, LinearAlgebra::Small
     // 	ret*=-1;
     //ret*=M_PI*M_PI*8-1;
     ret *= M_PI * M_PI * 2 - 1;
+    //ret *= -1; 
+    // for comparison with the time-dependent code in Freekjan's report.
+    //ret[0] = 0.0;
+    //ret[1] = 0.0;
+    //ret[2] = 0.0;
+    
+    // for comparison with the time-integration paper by Domokos Sarmany
+    //ret[0] = hpGemUIExtentions::sourceTermTime(0)*sin(M_PI * p[1]) * sin(M_PI * p[2]);
+    //ret[1] = hpGemUIExtentions::sourceTermTime(0)*sin(M_PI * p[2]) * sin(M_PI * p[0]);
+    //ret[2] = hpGemUIExtentions::sourceTermTime(0)*sin(M_PI * p[0]) * sin(M_PI * p[1]);
 }
 
 void hpGemUIExtentions::initialExactSolution(const PointPhysicalT& p, LinearAlgebra::SmallVector<DIM>& ret)
@@ -1372,9 +1524,18 @@ void hpGemUIExtentions::initialExactSolution(const PointPhysicalT& p, LinearAlge
     ret[1] = sin(M_PI * p[2]) * sin(M_PI * p[0]);
     ret[2] = sin(M_PI * p[0]) * sin(M_PI * p[1]);
     
+    //ret[0] = p[2];
+    //ret[1] = p[0];
+    //ret[2] = p[1];
+    
     //            ret[0]=p[0]*(1-p[0]);
     //            ret[1]=0;
     // 	  		  ret[2]=0;
+    
+    // for comparison with the time-integration paper by Domokos Sarmany
+    //ret[0] = 3.0*sin(M_PI * p[1]) * sin(M_PI * p[2]);
+    //ret[1] = 3.0*sin(M_PI * p[2]) * sin(M_PI * p[0]);
+    //ret[2] = 3.0*sin(M_PI * p[0]) * sin(M_PI * p[1]);
 }
 
 void hpGemUIExtentions::boundaryConditions(const PointPhysicalT &p, LinearAlgebra::SmallVector<DIM>& ret)

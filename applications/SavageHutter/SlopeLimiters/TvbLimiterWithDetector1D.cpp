@@ -25,7 +25,7 @@
 
 void TvbLimiterWithDetector1D::limitSlope(Base::Element *element)
 {
-    for (std::size_t i = 0; i < numOfVariables_; ++i)
+    for (std::size_t i = 0; i < numberOfVariables_; ++i)
     {
         if (detectDiscontinuity(element)[i] && !hasSmallSlope(element, i))
         {
@@ -39,9 +39,9 @@ void TvbLimiterWithDetector1D::limitSlope(Base::Element *element)
 ///limiting is needed, this function calls limitWithMinmod
 std::vector<bool> TvbLimiterWithDetector1D::detectDiscontinuity(Base::Element* element)
 {
-    LinearAlgebra::MiddleSizeVector totalIntegral(numOfVariables_);
-    LinearAlgebra::MiddleSizeVector numericalSolution(numOfVariables_);
-    std::vector<bool> isDiscontinuous(numOfVariables_, false);
+    LinearAlgebra::MiddleSizeVector totalIntegral(numberOfVariables_);
+    LinearAlgebra::MiddleSizeVector numericalSolution(numberOfVariables_);
+    std::vector<bool> isDiscontinuous(numberOfVariables_, false);
     const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeIntegrationVector(0);
 
     //For every face of this element, check the size of the jump
@@ -53,11 +53,11 @@ std::vector<bool> TvbLimiterWithDetector1D::detectDiscontinuity(Base::Element* e
         LinearAlgebra::SmallVector<1> normal = face->getNormalVector(pRefForInflowTest);
         if (sideOfElement == Base::Side::LEFT)
         {
-            numericalSolution = Helpers::getSolution<1>(face->getPtrElement(sideOfElement), solutionCoefficients, face->mapRefFaceToRefElemL(pRefForInflowTest), numOfVariables_);
+            numericalSolution = face->getPtrElementLeft()->getSolution(0,face->mapRefFaceToRefElemL(pRefForInflowTest));
         }
         else
         {
-            numericalSolution = Helpers::getSolution<1>(face->getPtrElement(sideOfElement), solutionCoefficients, face->mapRefFaceToRefElemR(pRefForInflowTest), numOfVariables_);
+            numericalSolution = face->getPtrElementRight()->getSolution(0,face->mapRefFaceToRefElemR(pRefForInflowTest));
             normal *= -1;
         }
 
@@ -67,18 +67,18 @@ std::vector<bool> TvbLimiterWithDetector1D::detectDiscontinuity(Base::Element* e
         if (velocity * normal < -1e-14)
         {
             logger(DEBUG, "Face % is an inflow face for element %.", face->getID(), element->getID());
-            LinearAlgebra::MiddleSizeVector numericalSolutionOther(numOfVariables_);
+            LinearAlgebra::MiddleSizeVector numericalSolutionOther(numberOfVariables_);
             if (face->isInternal())
             {
                 if (sideOfElement == Base::Side::LEFT)
                 {
                     LinearAlgebra::MiddleSizeVector solutionCoefficientsOther = face->getPtrElement(Base::Side::RIGHT)->getTimeIntegrationVector(0);
-                    numericalSolutionOther = Helpers::getSolution<1>(face->getPtrElement(Base::Side::RIGHT), solutionCoefficientsOther, face->mapRefFaceToRefElemR(pRefForInflowTest), numOfVariables_);
+                    numericalSolutionOther = face->getPtrElementRight()->getSolution(0,face->mapRefFaceToRefElemR(pRefForInflowTest));
                 }
                 else
                 {
                     LinearAlgebra::MiddleSizeVector solutionCoefficientsOther = face->getPtrElement(Base::Side::LEFT)->getTimeIntegrationVector(0);
-                    numericalSolutionOther = Helpers::getSolution<1>(face->getPtrElement(Base::Side::LEFT), solutionCoefficientsOther, face->mapRefFaceToRefElemL(pRefForInflowTest), numOfVariables_);
+                    numericalSolutionOther = face->getPtrElementLeft()->getSolution(0,face->mapRefFaceToRefElemL(pRefForInflowTest));
                 }
             }
             else
@@ -103,7 +103,7 @@ std::vector<bool> TvbLimiterWithDetector1D::detectDiscontinuity(Base::Element* e
     totalIntegral /= std::pow(dx, (polynomialOrder_ + 1.) / 2);
 
     LinearAlgebra::MiddleSizeVector average = Helpers::computeAverageOfSolution<1>(element, solutionCoefficients, elementIntegrator_);
-    for (std::size_t i = 0; i < numOfVariables_; ++i)
+    for (std::size_t i = 0; i < numberOfVariables_; ++i)
     {
         if (average(i) > 1e-10)
             totalIntegral(i) /= std::abs(average(i));
@@ -111,7 +111,7 @@ std::vector<bool> TvbLimiterWithDetector1D::detectDiscontinuity(Base::Element* e
     ///\todo divide by the size of the faces for DIM > 1
 
     //compare this with 1: if >1, discontinuous, if <1 smooth
-    for (std::size_t i = 0; i < numOfVariables_; ++i)
+    for (std::size_t i = 0; i < numberOfVariables_; ++i)
     {
         if (std::abs(totalIntegral(i)) > 1)
         {

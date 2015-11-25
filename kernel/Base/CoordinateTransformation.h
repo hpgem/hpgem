@@ -63,6 +63,13 @@ namespace Base
             return LinearAlgebra::SmallVector<DIM>();
         }
 
+        ///provide a transformation for the divergence of a function
+        virtual double transformDiv(double referenceData, PhysicalElement<DIM>& element) const
+        {
+            logger(ERROR, "Transforming derivative data is not supported, please set a different transformation");
+            return 0;
+        }
+
         ///provide a transformation for the curl of a function
         virtual LinearAlgebra::SmallVector<DIM> transformCurl(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const
         {

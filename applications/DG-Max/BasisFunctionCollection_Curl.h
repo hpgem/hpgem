@@ -120,6 +120,83 @@ namespace Base
          */
         virtual LinearAlgebra::SmallVector<DIM> evalCurl(const Geometry::PointReference<DIM>& p) const=0;
     };
+   
+    //! Curl conforming edge Nedelec functions.
+    struct BasisCurlEdgeNedelec : public threeDBasisFunction
+    {
+        const int deg1,deg2,i,j;
+        BasisCurlEdgeNedelec(int degree1,int degree2,int localFirstVertex,int localSecondVertex);
+        
+	virtual void eval(const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret) const;
+
+        virtual LinearAlgebra::SmallVector<DIM> evalCurl(const Geometry::PointReference<DIM>& p) const;
+	
+	virtual void getReasonableNode(const Element& element, Geometry::PointPhysical<DIM> node);
+    };
+    
+    //! Curl conforming Nedelec face functions.
+    struct BasisCurlFace1Nedelec : public threeDBasisFunction
+    {
+        int deg1,deg2,deg3,a,b,c,d;
+        BasisCurlFace1Nedelec(int degree1,int degree2,int degree3,int localOpposingVertex);
+        
+        virtual void eval(const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret) const;
+
+        virtual LinearAlgebra::SmallVector<DIM> evalCurl(const Geometry::PointReference<DIM>& p) const;
+	
+	virtual void getReasonableNode(const Element& element, Geometry::PointPhysical<DIM> node);
+    };
+
+    struct BasisCurlFace2Nedelec : public threeDBasisFunction
+    {
+        int deg1,deg2,deg3,a,b,c,d;
+        BasisCurlFace2Nedelec(int degree1,int degree2,int degree3,int localOpposingVertex);
+        
+        virtual void eval(const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret) const;
+
+        virtual LinearAlgebra::SmallVector<DIM> evalCurl(const Geometry::PointReference<DIM>& p) const;
+	
+	virtual void getReasonableNode(const Element& element, Geometry::PointPhysical<DIM> node);
+    };
+    
+    //! curl conforming interior Nedelec functions
+    struct BasisCurlinterior1Nedelec : public threeDBasisFunction
+    {
+        const int deg1,deg2,deg3,deg4;
+        BasisCurlinterior1Nedelec(int degree1,int degree2,int degree3,int degree4);
+                
+        virtual void eval(const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret) const;
+
+        virtual LinearAlgebra::SmallVector<DIM> evalCurl(const Geometry::PointReference<DIM>& p) const;
+	
+	virtual void getReasonableNode(const Element& element, Geometry::PointPhysical<DIM> node);
+    };
+
+    //! curl conforming interior Nedelec functions
+    struct BasisCurlinterior2Nedelec : public threeDBasisFunction
+    {
+        const int deg1,deg2,deg3,deg4;
+        BasisCurlinterior2Nedelec(int degree1,int degree2,int degree3,int degree4);
+                
+        virtual void eval(const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret) const;
+
+        virtual LinearAlgebra::SmallVector<DIM> evalCurl(const Geometry::PointReference<DIM>& p) const;
+	
+	virtual void getReasonableNode(const Element& element, Geometry::PointPhysical<DIM> node);
+    };
+
+    //! curl conforming interior Nedelec functions
+    struct BasisCurlinterior3Nedelec : public threeDBasisFunction
+    {
+        const int deg1,deg2,deg3,deg4;
+        BasisCurlinterior3Nedelec(int degree1,int degree2,int degree3,int degree4);
+                
+        virtual void eval(const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret) const;
+
+        virtual LinearAlgebra::SmallVector<DIM> evalCurl(const Geometry::PointReference<DIM>& p) const;
+	
+	virtual void getReasonableNode(const Element& element, Geometry::PointPhysical<DIM> node);
+    };
     
     //! Curl conforming edge functions.
     struct Basis_Curl_Edge : public threeDBasisFunction
@@ -195,11 +272,11 @@ class MyMeshManipulator : public Base::MeshManipulator<DIM>
 {
     
 public:
-    MyMeshManipulator(const Base::ConfigurationData* data, Base::BoundaryType xPer = Base::BoundaryType::SOLID_WALL, Base::BoundaryType yPer = Base::BoundaryType::SOLID_WALL, Base::BoundaryType zPer = Base::BoundaryType::SOLID_WALL, std::size_t order = 1, std::size_t idRangeBegin = 0, std::size_t nrOfElementMatrixes = 0, std::size_t nrOfElementVectors = 0, std::size_t nrOfFaceMatrixes = 0, std::size_t nrOfFaceVectors = 0);
+    MyMeshManipulator(const Base::ConfigurationData* data, Base::BoundaryType xPer = Base::BoundaryType::SOLID_WALL, Base::BoundaryType yPer = Base::BoundaryType::SOLID_WALL, Base::BoundaryType zPer = Base::BoundaryType::SOLID_WALL, std::size_t order = 1, std::size_t idRangeBegin = 0, std::size_t nrOfElementMatrixes = 0, std::size_t nrOfElementVectors = 0, std::size_t nrOfFaceMatrixes = 0, std::size_t nrOfFaceVectors = 0, bool useNedelec = true);
     
 
 private:
-    void createBasisFunctions(unsigned int order);
+    void createBasisFunctions(unsigned int order, bool useNedelec);
 };
 
 #endif  // BasisFunctionsCollection_Curl_h

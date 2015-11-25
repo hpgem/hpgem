@@ -1,3 +1,5 @@
+
+
 /*
  This file forms part of hpGEM. This package has been developed over a number of years by various people at the University of Twente and a full list of contributors can be found at
  http://hpgem.org/about-the-code/team
@@ -21,7 +23,8 @@
 
 #include "PositiveLayerLimiter.h"
 
-void PositiveLayerLimiter::limit(Base::Element *element, LinearAlgebra::MiddleSizeVector &solutionCoefficients)
+template <std::size_t DIM>
+void PositiveLayerLimiter<DIM>::limit(Base::Element *element, LinearAlgebra::MiddleSizeVector &solutionCoefficients)
 {
     if (getMinimumHeight(element) >= minH_)
         return;
@@ -39,9 +42,9 @@ void PositiveLayerLimiter::limit(Base::Element *element, LinearAlgebra::MiddleSi
     else
     {
         const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0);
-        const double solutionLeft = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefL, element->getNumberOfUnknowns())(0);
+        const double solutionLeft = element->getSolution(0, pRefL)(0);
         const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
-        const double solutionRight = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefR, element->getNumberOfUnknowns())(0);
+        const double solutionRight = element->getSolution(0, pRefR)(0);
 
         double slopeDischarge = averageDischarge;
         double slopeHeight = std::min((solutionLeft + solutionRight - 2 * minH_) / 2, averageHeight - minH_);
@@ -68,19 +71,22 @@ void PositiveLayerLimiter::limit(Base::Element *element, LinearAlgebra::MiddleSi
     }
 }
 
-double PositiveLayerLimiter::getMinimumHeight(const Base::Element* element)
+template <std::size_t DIM>
+double PositiveLayerLimiter<DIM>::getMinimumHeight(const Base::Element* element)
 {
     const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0);
-    const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
     const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeIntegrationVector(0);
-    const std::size_t numOfVariables = element->getNumberOfUnknowns();
-    const double solutionLeft = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefL, numOfVariables)(0);
-    const double solutionRight = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefR, numOfVariables)(0);
-    double minimum = std::min(solutionLeft, solutionRight);
+    const double solutionLeft = element->getSolution(0, pRefL)(0);
+    double minimum = solutionLeft;
+    for (std::size_t iPoint = 1; iPoint < element->getReferenceGeometry()->getNumberOfNodes(); ++iPoint)
+    {
+        const PointReferenceT &pRef = element->getReferenceGeometry()->getReferenceNodeCoordinate(iPoint);
+        minimum = std::min(minimum, element->getSolution(0, pRef)(0));
+    }
     for (std::size_t p = 0; p < element->getGaussQuadratureRule()->getNumberOfPoints(); ++p)
     {
         const PointReferenceT& pRef = element->getGaussQuadratureRule()->getPoint(p);
-        minimum = std::min(minimum, Helpers::getSolution<DIM>(element, solutionCoefficients, pRef, numOfVariables)(0));
+        minimum = std::min(minimum, element->getSolution(0, pRef)(0));
     }
     logger(DEBUG, "Minimum in element %: %", element->getID(), minimum);
     return minimum;

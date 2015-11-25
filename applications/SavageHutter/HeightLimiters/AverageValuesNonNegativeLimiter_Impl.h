@@ -19,41 +19,36 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "AverageValuesNonNegativeLimiter.h"
 #include "../HelperFunctions.h"
-#include "../GlobalConstants.h"
-void AverageValuesNonNegativeLimiter::limit(Base::Element *element, LinearAlgebra::MiddleSizeVector &solutionCoefficients)
+
+///\details Limit the solution by changing the solution coefficients that are given to this function.
+template <std::size_t DIM>
+void AverageValuesNonNegativeLimiter<DIM>::limit(Base::Element *element, LinearAlgebra::MiddleSizeVector &solutionCoefficients)
 {
     const double minimumHeight = getMinimumHeight(element);
     if (minimumHeight >= minH_)
         return;
 
     logger(DEBUG, "solution coefficients before limiting element %: %", element->getID(), solutionCoefficients);
-    const double averageHeight = Helpers::computeAverageOfSolution<DIM>(element, solutionCoefficients, elementIntegrator_)(0);
-    const double averageDischargeX = Helpers::computeAverageOfSolution<DIM>(element, solutionCoefficients, elementIntegrator_)(1);
+    const LinearAlgebra::MiddleSizeVector averages = Helpers::computeAverageOfSolution(element, solutionCoefficients, elementIntegrator_);
+    const double averageHeight = averages(0);
+    const double averageDischargeX = averages(1);
     double averageDischargeY;
     if (DIM == 2)    
-        averageDischargeY = Helpers::computeAverageOfSolution<DIM>(element, solutionCoefficients, elementIntegrator_)(2);
+        averageDischargeY = averages(2);
     logger(DEBUG, "average height: %", averageHeight);
     LinearAlgebra::MiddleSizeVector heightCoefficients;
     LinearAlgebra::MiddleSizeVector dischargeCoefficientsX;
     LinearAlgebra::MiddleSizeVector dischargeCoefficientsY;
 
+    //compute the new solution coefficients
     heightCoefficients =
         Helpers::projectOnBasisFuns<DIM>(element, [ = ](const PointReferenceT & pRef){return averageHeight;}, elementIntegrator_);
-    if (false && averageHeight < minH_)
-    {
-        dischargeCoefficientsX = Helpers::projectOnBasisFuns<DIM>(element, [ = ](const PointReferenceT & pRef){return 0;}, elementIntegrator_);        
-        if (DIM == 2) 
-            dischargeCoefficientsY = dischargeCoefficientsX;
-    }
-    else
-    {
-        dischargeCoefficientsX = Helpers::projectOnBasisFuns<DIM>(element, [ = ](const PointReferenceT & pRef){return averageDischargeX;}, elementIntegrator_);
-        if (DIM == 2) 
-            dischargeCoefficientsY = Helpers::projectOnBasisFuns<DIM>(element, [ = ](const PointReferenceT & pRef){return averageDischargeY;}, elementIntegrator_);
-    }
+    dischargeCoefficientsX = Helpers::projectOnBasisFuns<DIM>(element, [ = ](const PointReferenceT & pRef){return averageDischargeX;}, elementIntegrator_);
+    if (DIM == 2) 
+        dischargeCoefficientsY = Helpers::projectOnBasisFuns<DIM>(element, [ = ](const PointReferenceT & pRef){return averageDischargeY;}, elementIntegrator_);
 
+    // set the solution coefficients
     for (std::size_t iFun = 0; iFun < element->getNumberOfBasisFunctions(); ++iFun)
     {
         std::size_t iVF = element->convertToSingleIndex(iFun, 0);
@@ -68,22 +63,23 @@ void AverageValuesNonNegativeLimiter::limit(Base::Element *element, LinearAlgebr
     }
     logger(DEBUG, "solution coefficients after limiting element %: %", element->getID(), solutionCoefficients);
 }
-double AverageValuesNonNegativeLimiter::getMinimumHeight(const Base::Element* element)
+
+template <std::size_t DIM>
+double AverageValuesNonNegativeLimiter<DIM>::getMinimumHeight(const Base::Element* element)
 {
     const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0);
     const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeIntegrationVector(0);
-    const std::size_t numOfVariables = element->getNumberOfUnknowns();
-    const double solutionLeft = Helpers::getSolution<DIM>(element, solutionCoefficients, pRefL, numOfVariables)(0);    
+    const double solutionLeft = element->getSolution(0, pRefL)(0);//Helpers::getSolution<DIM>(element, solutionCoefficients, pRefL, numOfVariables)(0);    
     double minimum = solutionLeft;
     for (std::size_t iPoint = 1; iPoint < element->getReferenceGeometry()->getNumberOfNodes(); ++iPoint)
     {
         const PointReferenceT &pRef = element->getReferenceGeometry()->getReferenceNodeCoordinate(iPoint);
-        minimum = std::min(minimum, Helpers::getSolution<DIM>(element, solutionCoefficients, pRef, numOfVariables)(0));
+        minimum = std::min(minimum, element->getSolution(0, pRef)(0));
     }
     for (std::size_t p = 0; p < element->getGaussQuadratureRule()->getNumberOfPoints(); ++p)
     {
         const PointReferenceT& pRef = element->getGaussQuadratureRule()->getPoint(p);
-        minimum = std::min(minimum, Helpers::getSolution<DIM>(element, solutionCoefficients, pRef, numOfVariables)(0));
+        minimum = std::min(minimum, element->getSolution(0, pRef)(0));
     }
     logger(DEBUG, "Minimum in element %: %", element->getID(), minimum);
     return minimum;

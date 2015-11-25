@@ -142,6 +142,9 @@ namespace Base
             return initialSolution;
         }
         
+        /// \brief Compute the integrand for the mass matrix
+        virtual LinearAlgebra::MiddleSizeMatrix computeIntegrandMassMatrix(Base::PhysicalElement<DIM> &element);
+        
         /// \brief Compute the mass matrix for a single element.
         virtual LinearAlgebra::MiddleSizeMatrix computeMassMatrixAtElement(Base::Element *ptrElement);
         
@@ -152,12 +155,18 @@ namespace Base
         /// \brief Solve the mass matrix equations.
         virtual void solveMassMatrixEquations(const std::size_t timeIntegrationVectorId);
 
-        /// \brief Integrate the initial solution at a single element.
+        /// \brief Compute the integrand for the L2 inner product of the initial solution and the basis functions.
+        virtual LinearAlgebra::MiddleSizeVector computeIntegrandInitialSolution(Base::PhysicalElement<DIM> &element, const double startTime, const std::size_t orderTimeDerivative);
+        
+        /// \brief Integrate the product of the initial solution and basisfunctions at a single element.
         virtual LinearAlgebra::MiddleSizeVector integrateInitialSolutionAtElement( Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative);
         
-        /// \brief Integrate the initial solution.
+        /// \brief Integrate the product of the initial solution and all basis functions.
         virtual void integrateInitialSolution(const std::size_t resultVectorId, const double startTime, const std::size_t orderTimeDerivative);
 
+        /// \broef Compute the integrand for the total error.
+        virtual LinearAlgebra::MiddleSizeVector::type computeIntegrandTotalError(Base::PhysicalElement<DIM> & element, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
+        
         /// \brief Integrate the square of some norm of the error on a single element.
         virtual LinearAlgebra::MiddleSizeVector::type integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
         
@@ -220,9 +229,14 @@ namespace Base
          const double time
          )
         {
-        	logger(WARN, "No function for computing both right-hand sides at an internal face implemented.");
         	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> bothRightHandSidesFace;
+        	if (computeBothFaces_ == true)
+        	{
+            	logger(ERROR, "No function for computing both right-hand sides at an internal face implemented.");
+
+        	}
         	return bothRightHandSidesFace;
+
         }
 
         /// \brief Compute the right hand side for the DG function with coefficients given by the time integration vector with index 'inputVectorId'. Store the result in the time integration vector with index 'resultVectorId'. Make sure inputVectorId is different from resultVectorId.
@@ -334,7 +348,7 @@ namespace Base
         const bool computeBothFaces_;
 
         /// \brief Define how the solution should be written in the VTK files.
-        /// \details For an example of using this function, see for example the application 'TutorialAdvection' to find out how to use this function.
+        /// \details For an example of using this function, see the application 'TutorialAdvection'.
         void registerVTKWriteFunction(std::function<double(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> function, std::string name)
         {
             VTKDoubleWrite_.push_back( {function, name});

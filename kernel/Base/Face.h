@@ -109,6 +109,19 @@ namespace Base
             }
         }
         
+        /// \brief Return the pointer to the element on the opposite side of iSide.
+        const Element* getPtrElementOpposite(Side iSide) const
+        {
+            if (iSide == Side::LEFT)
+            {
+                return elementRight_;
+            }
+            else
+            {
+                return elementLeft_;
+            }
+        }
+
         /// \brief Create a quadrature for this face based on the quadrature rules of adjacent elements.
         void createQuadratureRules();
 

@@ -115,13 +115,23 @@ namespace Base
         /// \brief automatically creates the DG basis function set most appropriate for the shape of the element and sets that set as the basis function set to use
         /// \details This function takes the default conforming basis functions and cuts them off at element boundaries. The resulting basis functions have much better
         /// conditioning properties than monomials. Due to the nature of DG, this creates 'interior' basis functions only. (All basis functions are associated with the element)
+        /// This function should be called after a mesh has been created to ensure basis functions exist for all types of elements needed.
         /// It is allowed to change the basis function during a computation, but you have to re-initialise the expansion coefficients, since they are expected to change
         /// such that the current solution stays the same. (Stored old solutions are not affected, but they may require a change back to the original basis functions before being
         /// usable again)
         void useDefaultDGBasisFunctions();
-
+        
+        /// \brief automatically creates Nedelec DG basis functions for tetrahedra.
+        /// \details This function should be called after a mesh has been created to ensure basis functions exist for all types of elements needed.
+        void useNedelecDGBasisFunctions();
+        
+        /// \brief automatically creates Ainsworth-Coyle DG basis functions for tetrahedra.
+        /// \details This function should be called after a mesh has been created to ensure basis functions exist for all types of elements needed.
+        void useAinsworthCoyleDGBasisFunctions();
+        
         /// \brief automatically creates conforming basis functions, even for mixed meshes
-        /// \details For p=1, this creates a nodal basis function set associated with the mesh nodes. For higher polynomial orders it will add hierarchic basis functions associated
+        /// \details For p=1, this creates a nodal basis function set associated with the mesh nodes.
+        /// This function should be called after a mesh has been created to ensure basis functions exist for all types of elements needed. For higher polynomial orders it will add hierarchic basis functions associated
         /// with edges, faces and the interior of elements. For the basis functions to be truly conforming you will need some sort of global assembly structure that respects these
         /// associations (GlobalPETScMatrix does this). If you are building such an assembly structure yourself you may assume that the basisFunctions are indexed such that
         /// interior basis functions of the element are first. They are followed by the face basis functions(ordered by local face number primary and the different basis functions secondary)
@@ -365,7 +375,7 @@ namespace Base
         }
         // ************************************************************************
         
-        //! Changes the default set of basisFunctions for this mesh and all of its elements. Ignores any conforming basisFunctionset that nay be linked to faces/edges/...
+        //! Changes the default set of basisFunctions for this mesh and all of its elements. Ignores any conforming basisFunctionset that may be linked to faces/edges/...
         /// Using this to set the hpGEM provided conforming or DG basis functions is deprecated: The routines useDefaultDGBasisFunctionSet and useDefaultConformingBasisFunctionSet can do this more flexibly and also support mixed meshes
         void setDefaultBasisFunctionSet(BasisFunctionSetT* bFSet);
 
