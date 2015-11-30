@@ -41,7 +41,7 @@
 #include "Base/CommandLineOptions.h"
 
     // Choose the dimension (1 or 2 or 3)
-const static std::size_t DIM = 2;
+const static std::size_t DIM = 3;
 
 ///\brief Test application that solves the Poisson equation.
 ///
