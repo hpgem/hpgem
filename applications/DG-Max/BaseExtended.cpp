@@ -823,13 +823,21 @@ void hpGemUIExtentions::solveTimeDependent(bool useCO2, bool useCO4)
 void hpGemUIExtentions::solveHarmonic()
 {
     std::cout << "finding a time-harmonic solution" << std::endl;
+    const MaxwellData* actualdata = getData();
     MHasToBeInverted_ = false;
     assembler->fillMatrices(this);
+    
     Utilities::GlobalPetscMatrix M_(meshes_[0], 0, -1), S_(meshes_[0], 1, 0);
+    std::cout << "GlobalPetscMatrix initialised" << std::endl;
     Utilities::GlobalPetscVector x_(meshes_[0], 0, -1), derivative_(meshes_[0], 1, -1), RHS_(meshes_[0], 2, 0);
+    std::cout << "GlobalPetscVector initialised" << std::endl;
     x_.assemble();
-    derivative_.assemble();
+    std::cout << "x_ assembled" << std::endl;
     RHS_.assemble();
+    std::cout << "RHS_ assembled" << std::endl;
+    derivative_.assemble();
+    std::cout << "derivative_ assembled" << std::endl;
+
     PC preconditioner;
     ierr_ = KSPGetPC(solver_, &preconditioner);
     ierr_ = PCSetType(preconditioner, "jacobi");
@@ -847,9 +855,7 @@ void hpGemUIExtentions::solveHarmonic()
     //everything that is set in the code, but before this line is overridden by command-line options
     ierr_ = KSPSetFromOptions(solver_);
     CHKERRABORT(PETSC_COMM_WORLD, ierr_);
-    //everything that is set in the code, but after this line overrides the comand-line options
-    //Changed due to PETSC-3.5.3
-    //ierr_=KSPSetOperators(solver_,S_,S_,DIFFERENT_NONZERO_PATTERN);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    
     ierr_ = KSPSetOperators(solver_, S_, S_);
     CHKERRABORT(PETSC_COMM_WORLD, ierr_);
     ierr_ = KSPSetUp(solver_);
@@ -858,9 +864,9 @@ void hpGemUIExtentions::solveHarmonic()
     CHKERRABORT(PETSC_COMM_WORLD, ierr_);
     
     x_.writeTimeIntegrationVector(0); //DOUBTFUL
+    measureTimes_[0]=0;
     
     synchronize(0);
-    timelevel_ = 0;
 }
 
 void hpGemUIExtentions::exportMatrixes()
