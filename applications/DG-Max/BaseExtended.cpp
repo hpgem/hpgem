@@ -116,30 +116,30 @@ void hpGemUIExtentions::exactSolutionCurl(const Geometry::PointPhysical<DIM>& p,
 }
 
 
- void hpGemUIExtentions::writeToTecplotFile(const Base::Element*, const PointReferenceT&, std::ostream&)
+ void hpGemUIExtentions::writeToTecplotFile(const Base::Element* element, const PointReferenceT& p, std::ostream& output)
 //Needs to be changed in arguments, use PhysicalElement instead of Reference element in the argument list
 {
-   /*
-    const Base::Element* element = el.getElement();
-    const Geometry::PointReference<DIM>& p = el.getPointReference();
+   
+   // const Base::Element* element = el.getElement();
+    //const Geometry::PointReference<DIM>& p = el.getPointReference();
 
     
     LinearAlgebra::MiddleSizeVector data;
-    data = const_cast<ElementT*>(element)->getTimeLevelData(timelevel_);
+    data = const_cast<ElementT*>(element)->getTimeIntegrationVector(timelevel_);
     //std::cout<<data.size()<<std::endl;
     LinearAlgebra::SmallVector<DIM> results1, results, curls1, curls;
     
     for (int i = 0; i < element->getNrOfBasisFunctions(); ++i)
     {
-        el.basisFunction(i, results1); //Needs to be corrected
-        curls1 = el.basisFunctionCurl(i); //Needs to be corrected
+        element->basisFunction(i, p, results1); //Needs to be corrected
+        curls1 = element->basisFunctionCurl(i, p); //Needs to be corrected
         results1 = results1 * std::real(data[i]);
         results += results1;
         curls1 = curls1 * std::real(data[i]);
         curls += curls1;
     }
     output << results[0] << " " << results[1] << " " << results[2] << " " << curls[0] << " " << curls[1] << " " << curls[2] << std::endl;
-    */
+    
 }
  
 /*
@@ -860,6 +860,7 @@ void hpGemUIExtentions::solveHarmonic()
     x_.writeTimeIntegrationVector(0); //DOUBTFUL
     
     synchronize(0);
+    timelevel_ = 0;
 }
 
 void hpGemUIExtentions::exportMatrixes()
