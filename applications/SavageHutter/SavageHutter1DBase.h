@@ -72,8 +72,13 @@ protected:
         const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
         const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight
         ) override final;
+
+    std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrandsAtFace(
+	Base::PhysicalFace<1> &face,
+	const double &time,
+	const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
+	const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight);
     
-protected:
     ///\brief Compute the friction as in Weinhart et. al. (2012)
     ///\todo make the friction depend on h and u (or F) instead of numericalSolution
     double computeFriction(const LinearAlgebra::MiddleSizeVector &numericalSolution);    
@@ -87,8 +92,6 @@ protected:
 private:
     virtual LinearAlgebra::MiddleSizeVector computePhysicalFlux(const LinearAlgebra::MiddleSizeVector &numericalSolution, const PointPhysicalT& pPhys) = 0;
     virtual LinearAlgebra::MiddleSizeVector computeSourceTerm(const LinearAlgebra::MiddleSizeVector &numericalSolution, const PointPhysicalT &pPhys, const double time) = 0;
-    ///\bug defining the boundary conditions in the children does not seem to work well, especially not for inflow
-    virtual LinearAlgebra::MiddleSizeVector computeGhostSolution(const LinearAlgebra::MiddleSizeVector &numericalSolution, const double normal, const double time, const PointPhysicalT & pPhys) = 0;
     
     ///\brief Compute the local Lax-Friedrichs flux for the two given numerical solutions across a face.
     LinearAlgebra::MiddleSizeVector localLaxFriedrichsFlux(const LinearAlgebra::MiddleSizeVector &numericalSolutionLeft, const LinearAlgebra::MiddleSizeVector &NumericalSolutionRight, Base::PhysicalFace<1> &face);

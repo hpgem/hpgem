@@ -71,7 +71,26 @@ protected:
         const Base::Side &iSide,
         const MiddleSizeVector &solutionCoefficientsLeft,
         const MiddleSizeVector &solutionCoefficientsRight
-        ) = 0;
+            ) = 0;
+
+
+
+    virtual std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrandsAtFace(
+		Base::PhysicalFace<DIM> &face,
+		const double &time,
+		const LinearAlgebra::MiddleSizeVector &stateLeft,
+		const LinearAlgebra::MiddleSizeVector &stateRight) = 0;
+
+    void tasksBeforeSolving() override
+    {
+        slopeLimiter_ = createSlopeLimiter();
+        heightLimiter_ = createHeightLimiter();
+    }
+
+    void tasksAfterTimeStep()
+    {
+        limitSolutionOuterLoop();
+    }
     
     ///\brief Creates an empty slope limiter.
     ///\details This function creates an empty slope limiter, but can be overwritten
@@ -105,14 +124,8 @@ protected:
     double epsilon_;
     
     double chuteAngle_;
-    
+
     MiddleSizeVector inflowBC_;
-    
-    void tasksBeforeSolving() override
-    {
-        slopeLimiter_ = createSlopeLimiter();
-        heightLimiter_ = createHeightLimiter();
-    }
 
 private:
     
@@ -135,6 +148,14 @@ private:
         LinearAlgebra::MiddleSizeVector &solutionCoefficients,
         const double time
         ) override final;
+
+    std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> computeBothRightHandSidesAtFace
+        (
+         Base::Face *ptrFace,
+         LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
+         LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight,
+         const double time
+         ) override final;
 
     void computeOneTimeStep(double &time, const double dt) override final;
     void limitSolutionOuterLoop();

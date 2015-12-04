@@ -29,7 +29,7 @@
 SavageHutter2DBasic::SavageHutter2DBasic(std::size_t polyOrder, std::size_t numberOfElements) :
 SavageHutter2DBase(3, polyOrder)
 {
-    chuteAngle_ = M_PI / 180 * 28;
+    chuteAngle_ = M_PI / 180 * 28.5;
     epsilon_ = .1;
     const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
     inflowBC_ = getInitialSolution(pPhys, 0);
@@ -43,11 +43,11 @@ SavageHutter2DBase(3, polyOrder)
     createContraction();
 }
 
-Base::RectangularMeshDescriptor<2> SavageHutter2DBasic::createMeshDescription(const std::size_t numOfElementsPerDirection)
+Base::RectangularMeshDescriptor<2> SavageHutter2DBasic::createMeshDescription(const std::size_t numberOfElementsPerDirection)
 {
-    const std::size_t nx = numOfElementsPerDirection;
+    const std::size_t nx = numberOfElementsPerDirection;
     const std::size_t ny = 10;
-    const double xMax = 11;
+    const double xMax = 1;
     const double yMax = 1;
     const Base::BoundaryType xBoundary = Base::BoundaryType::SOLID_WALL;
     const Base::BoundaryType yBoundary = Base::BoundaryType::SOLID_WALL;
@@ -63,10 +63,10 @@ void SavageHutter2DBasic::createContraction()
     
     //Set the parameters for the contraction. Not necessary to do here, 
     //but it is nice to have everything at one place.
-    contraction->xBegin = 6;
-    contraction->xMiddle = 11;
+    contraction->xBegin = 1;
+    contraction->xMiddle = 6;
     contraction->xEnd = 12;
-    contraction->contractionWidth = .6; 
+    contraction->contractionWidth = 1;
     
     //Actually move the mesh such that a contraction is formed.
     meshes_[0]->move();
@@ -81,8 +81,8 @@ void SavageHutter2DBasic::createContraction()
 LinearAlgebra::MiddleSizeVector SavageHutter2DBasic::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
 {
     const double x = pPhys[0];
-    double h = 1 - .04*x;
-    double hu = .05;
+    double h = 1 - x / 24;
+    double hu = .01;
     const double hv = 0;
     return MiddleSizeVector({h, hu, hv});
 }

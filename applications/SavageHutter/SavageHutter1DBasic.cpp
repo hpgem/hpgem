@@ -33,11 +33,11 @@ SavageHutter1DBasic::SavageHutter1DBasic(std::size_t polyOrder, std::size_t numb
 : SavageHutter1DBase(2, polyOrder)
 {
     alpha_ = 1;
-    chuteAngle_ = M_PI / 180 * 25;
+    chuteAngle_ = M_PI / 180 * 29.6484;
     epsilon_ = .1;
     const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
     inflowBC_ = getInitialSolution(pPhys, 0);
-    dryLimit_ = 1e-10;
+    dryLimit_ = 1e-5;
     
     std::vector<std::string> variableNames = {"h", "hu"};
     setOutputNames("output1D", "SavageHutter", "SavageHutter", variableNames);
@@ -55,7 +55,7 @@ SavageHutter1DBasic::SavageHutter1DBasic(std::size_t polyOrder, std::size_t numb
 ///faces. The ghost solution on the boundary can be described with computeGhostSolution.
 Base::RectangularMeshDescriptor<1> SavageHutter1DBasic::createMeshDescription(const std::size_t numOfElementsPerDirection)
 {
-    const double endOfDomain = 1;
+    const double endOfDomain = 8;
     const Base::BoundaryType boundary = Base::BoundaryType::SOLID_WALL;
     return SavageHutter1DBase::createMeshDescription(numOfElementsPerDirection, endOfDomain, boundary);
 }
@@ -65,8 +65,8 @@ Base::RectangularMeshDescriptor<1> SavageHutter1DBasic::createMeshDescription(co
  LinearAlgebra::MiddleSizeVector SavageHutter1DBasic::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
 {
     const double x = pPhys[0];
-    double h = 1 - .5*x;
-    const double hu = .05;
+    double h = 0;
+    const double hu = 0;
     /*if (x >= 0.5 && x <= 2.5)
     {
         h = 1 - (x-1.5)*(x-1.5);
@@ -222,4 +222,12 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DBasic::computeGhostSolution(const 
             return MiddleSizeVector({hOut, hOut * uOut});
         }
     }
+}
+
+void SavageHutter1DBasic::setInflowBC(double time)
+{
+    const double inflowTurnOnRate = 1;
+    const double hIn = 1-std::exp(-inflowTurnOnRate * time);
+    const double uIn = .884404;
+    inflowBC_ = LinearAlgebra::MiddleSizeVector({hIn, hIn*uIn});
 }
