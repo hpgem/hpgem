@@ -260,6 +260,12 @@ void hpGemUIExtentions::faceIntegrand(Base::PhysicalFace<DIM>& fa, errorData &re
         }
     }
     ret[0] = Base::L2Norm(error) * Base::L2Norm(error);
+    //To remove double contribution of flux computed on the boudary faces by different processors
+    if(face->getFaceType() == Geometry::FaceType::SUBDOMAIN_BOUNDARY ||face->getFaceType() == Geometry::FaceType::PERIODIC_SUBDOMAIN_BC)
+    {
+        ret[0] /= 2.;
+    }
+
 }
 
 void hpGemUIExtentions::computeErrors(Base::MeshManipulator<DIM>& Mesh, int timelevel, double& L2Norm, double& InfNorm, double& HCurlNorm, double& DGNorm)
