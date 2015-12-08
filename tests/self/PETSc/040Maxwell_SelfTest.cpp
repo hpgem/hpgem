@@ -256,7 +256,7 @@ public:
         {
             std::size_t jVB = element.getElement()->convertToSingleIndex(jB, 0);
             element.basisFunction(jB, functionValue);
-            numericalSolution += functionValue * solutionCoefficients[jVB];
+            numericalSolution += functionValue * std::real(solutionCoefficients[jVB]);
         }
 
         // Compute the error
@@ -321,7 +321,7 @@ private:
 
     std::size_t n;
     std::size_t p;
-    double totalError;
+    LinearAlgebra::MiddleSizeVector::type totalError;
     double penalty;
 };
 
