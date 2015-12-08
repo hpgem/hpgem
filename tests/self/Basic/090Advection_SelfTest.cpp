@@ -36,11 +36,11 @@
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
 #include "Logger.h"
 
-/// This class is used to test if the advection equation is solved correctly when using HpgemAPILinear.
+/// This class is used to test if the advection equation is solved correctly when using HpgemAPISimplified.
 /// Linear advection equation: du/dt + a[0] du/dx + a[1] du/dy = 0, or equivalently: du/dt = - a[0] du/dx - a[1] du/dy = 0.
 
 template<std::size_t DIM>
-class AdvectionLinear : public Base::HpgemAPILinear<DIM>
+class Advection : public Base::HpgemAPISimplified<DIM>
 {
 public:
     
@@ -49,8 +49,8 @@ public:
     using typename Base::HpgemAPIBase<DIM>::PointReferenceOnFaceT;
     
     ///Constructor. Assign all private variables.
-    AdvectionLinear(const std::size_t n, const std::size_t p, const Base::MeshType meshType) :
-    Base::HpgemAPILinear<DIM>(1, p),
+    Advection(const std::size_t n, const std::size_t p, const Base::MeshType meshType) :
+    Base::HpgemAPISimplified<DIM>(1, p),
     n_(n),
     meshType_(meshType)
     {
@@ -82,63 +82,132 @@ public:
         return description;
     }
     
-    /// \brief Compute the integrals of the right-hand side associated with elements.
-    LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(Base::PhysicalElement<DIM>& element) override final
+    /// \brief Compute the integrand of the right-hand side associated with elements.
+    LinearAlgebra::MiddleSizeVector computeIntegrandRightHandSideAtElement
+    (
+     Base::PhysicalElement<DIM> &element,
+     const LinearAlgebra::MiddleSizeVector &inputFunctionCoefficients,
+     const double time
+     )
     {
         std::size_t numBasisFuncs = element.getElement()->getNumberOfBasisFunctions();
-        LinearAlgebra::MiddleSizeMatrix&  result = element.getResultMatrix();
+        LinearAlgebra::MiddleSizeVector&  result = element.getResultVector();
+        LinearAlgebra::MiddleSizeVector::type functionValue = 0;
+        for(std::size_t j = 0; j < numBasisFuncs; ++j)
+        {
+            functionValue += inputFunctionCoefficients(j) * element.basisFunction(j);
+        }
         for (std::size_t i = 0; i < numBasisFuncs; ++i)
         {
-            for (std::size_t j = 0; j < numBasisFuncs; ++j)
-            {
-                result(j, i) = element.basisFunction(i) * (a * element.basisFunctionDeriv(j));
-            }
+            result(i) =  functionValue * (a * element.basisFunctionDeriv(i));
         }
         
         return result;
     }
     
-    /// \brief Compute the integrals of the left-hand side associated with faces.
-    Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(Base::PhysicalFace<DIM>& face) override final
+    /// \brief Compute the integrals of the right-hand side associated with elements.
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement
+    (
+     Base::Element *ptrElement,
+     LinearAlgebra::MiddleSizeVector &inputFunctionCoefficients,
+     const double time
+     ) override final
     {
-        //Get the number of basis functions, first of both sides of the face and
-        //then only the basis functions associated with the left and right element.
-        std::size_t numBasisFuncs = face.getFace()->getNumberOfBasisFunctions();
+        // Define a function for the integrand of the right hand side at the element.
+        std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalElement<DIM>&)> integrandFunction = [=](Base::PhysicalElement<DIM> &element) -> LinearAlgebra::MiddleSizeVector {return this->computeIntegrandRightHandSideAtElement(element, inputFunctionCoefficients, time);};
+        
+        return this->elementIntegrator_.integrate(ptrElement, integrandFunction);
+    }
+    
+    /// \brief Compute the integrals of the right-hand side associated with faces.
+    LinearAlgebra::MiddleSizeVector computeIntegrandRightHandSideAtFace
+    (
+     Base::PhysicalFace<DIM> &face,
+     const Base::Side iSide,
+     const LinearAlgebra::MiddleSizeVector &inputFunctionCoefficientsLeft,
+     const LinearAlgebra::MiddleSizeVector &inputFunctionCoefficientsRight,
+     const double time
+     )
+    {
+        //Get the number of basis functions of the elements at both sides.
+        std::size_t numTestFuncs = face.getFace()->getPtrElement(iSide)->getNumberOfBasisFunctions();
+        std::size_t numBasisFuncsLeft = face.getFace()->getPtrElementLeft()->getNumberOfBasisFunctions();
+        std::size_t numBasisFuncsRight = face.getFace()->getPtrElementRight()->getNumberOfBasisFunctions();
         
         //Resize the result to the correct size and set all elements to 0.
-        Base::FaceMatrix& integrandVal = face.getResultMatrix();
+        LinearAlgebra::MiddleSizeVector integrandVal = face.getResultVector(iSide);
         integrandVal *= 0;
         
-        //Check if the normal is in the same direction as the advection.
+        // Check if the outward pointing normal vector of the left element is in the same direction as the advection term.
         const double A = a * face.getUnitNormalVector();
         
-        //Compute all entries of the integrand at this point:
-        for (std::size_t i = 0; i < numBasisFuncs; ++i)
+        // Compute the sign of the normal vector (1 if iSide is left, -1 if iSide is right)
+        int iSign = 1;
+        if(iSide == Base::Side::RIGHT)
         {
-            Base::Side sideBasisFunction = face.getFace()->getSide(i);
-            for (std::size_t j = 0; j < numBasisFuncs; ++j)
+            iSign *= -1;
+        }
+        
+        // Compute the value of the jump times the advection term
+        LinearAlgebra::MiddleSizeVector::type jump = 0;
+            //Advection in the same direction as outward normal of left element:
+        if (A > 1e-12)
+        {
+            for(std::size_t j = 0; j < numBasisFuncsLeft; ++j)
             {
-                //Give the terms of the upwind flux.
-                //Advection in the same direction as outward normal of the left element:
-                if ((A > 1e-12) && (sideBasisFunction == Base::Side::LEFT))
-                {
-                    integrandVal(j, i) = -(a * face.basisFunctionUnitNormal(j)) * face.basisFunction(i);
-                }
-                //Advection in the same direction as outward normal of right element:
-                else if ((A < -1e-12) && (sideBasisFunction == Base::Side::RIGHT))
-                {
-                    integrandVal(j, i) = -(a * face.basisFunctionUnitNormal(j)) * face.basisFunction(i);
-                }
-                //Advection orthogonal to normal:
-                else if (std::abs(A) < 1e-12)
-                {
-                    integrandVal(j, i) = -(a * face.basisFunctionUnitNormal(j)) * face.basisFunction(i) / 2.0;
-                }
+                jump += inputFunctionCoefficientsLeft(j) * face.basisFunction(Base::Side::LEFT, j);
             }
+            jump *= A * iSign;
+        }
+            //Advection in the same direction as outward normal of right element:
+        else if (A < -1e-12)
+        {
+            for(std::size_t j = 0; j < numBasisFuncsRight; ++j)
+            {
+                jump += inputFunctionCoefficientsRight(j) * face.basisFunction(Base::Side::RIGHT, j);
+            }
+            jump *= A * iSign;
+        }
+            //Advection orthogonal to normal:
+        else if (std::abs(A) < 1e-12)
+        {
+            for(std::size_t j = 0; j < numBasisFuncsLeft; ++j)
+            {
+                jump += inputFunctionCoefficientsLeft(j) * face.basisFunction(Base::Side::LEFT, j);
+            }
+            for(std::size_t j = 0; j < numBasisFuncsRight; ++j)
+            {
+                jump += inputFunctionCoefficientsRight(j) * face.basisFunction(Base::Side::RIGHT, j);
+            }
+            jump *= A * iSign / 2;
+        }
+        
+        //Compute all entries of the integrand at this point:
+        for (std::size_t i = 0; i < numTestFuncs; ++i)
+        {
+            integrandVal(i) = -jump * face.basisFunction(iSide,i);
         }
         
         return integrandVal;
     }
+    
+    /// \brief Compute the integrals of the right-hand side associated with faces.
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace
+    (
+     Base::Face *ptrFace,
+     const Base::Side iSide,
+     LinearAlgebra::MiddleSizeVector &inputFunctionCoefficientsLeft,
+     LinearAlgebra::MiddleSizeVector &inputFunctionCoefficientsRight,
+     const double time
+     ) override final
+    {
+        // Define a function for the integrand of the right hand side at the face.
+        std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalFace<DIM>&)> integrandFunction = [=](Base::PhysicalFace<DIM> &face) -> LinearAlgebra::MiddleSizeVector {return this->computeIntegrandRightHandSideAtFace(face, iSide, inputFunctionCoefficientsLeft, inputFunctionCoefficientsRight, time);};
+        
+        return this->faceIntegrator_.integrate(ptrFace, integrandFunction);
+    }
+    
+    
     
     /// Define a solution at time zero.
     double getSolutionAtTimeZero(const PointPhysicalT& point)
@@ -210,8 +279,8 @@ int main(int argc, char **argv)
     std::array<std::size_t, numberOfTests> dim = {1,1,1,1,1, 2,2,2,2,2, 3,3,3,3};
     std::array<std::size_t, numberOfTests> p = {1,2,3,4,5, 1,2,3,4,5, 1,2,3,4};
     std::array<std::size_t, numberOfTests> n = {16,8,4,4,4, 16,8,4,4,4, 16,8,4,4};
-    std::array<double, numberOfTests> T = {0.1,0.1,0.1,0.1,0.1, 0.1,0.1,0.1,0.1,0.1, 0.1,0.1,0.1,0.1};
-    std::array<std::size_t, numberOfTests> nT = {10,10,10,10,10, 10,10,10,10,10, 10,10,10,10};
+    std::array<double, numberOfTests> T = {0.1,0.1,0.1,0.1,0.1, 0.1,0.1,0.1,0.1,0.1, 0.02,0.02,0.02,0.01};
+    std::array<std::size_t, numberOfTests> nT = {10,10,10,10,10, 10,10,10,10,10, 2,2,2,1};
     std::array<std::size_t, numberOfTests> shapeId = {1,0,1,0,1, 0,1,0,1,0, 1,0,1,0};
     std::array<double, numberOfTests> errors =
     {
@@ -225,10 +294,10 @@ int main(int argc, char **argv)
         0.00236532,
         4.79497e-05,
         7.70023e-05,
-        0.00368729,
-        0.00187681,
-        0.000534851,
-        0.00053317
+        0.00148109,
+        0.00113544,
+        0.000181175,
+        0.00032545
     };
     
     // Define clocks for measuring simulation time.
@@ -236,13 +305,14 @@ int main(int argc, char **argv)
     std::chrono::duration<double> elapsed_seconds;
     
     // Define error
-    LinearAlgebra::MiddleSizeVector::type error;
+    double error;
     
     // Define mesh type
     Base::MeshType meshType;
     
     
     startClock = std::chrono::system_clock::now();
+    
     // Perform tests
     for(std::size_t i=0; i<numberOfTests; i++)
     {
@@ -258,23 +328,23 @@ int main(int argc, char **argv)
         
         if(dim[i] == 1)
         {
-            AdvectionLinear<1> test(n[i], p[i], meshType);
+            Advection<1> test(n[i], p[i], meshType);
             error = test.createAndSolve(T[i], nT[i]);
-            //std::cout << "Error: " << error << "\n";
+            std::cout << "Error: " << error << "\n";
             logger.assert_always((std::abs(error - errors[i]) < 1e-8), "comparison to old results");
         }
         else if(dim[i] == 2)
         {
-            AdvectionLinear<2> test(n[i], p[i], meshType);
+            Advection<2> test(n[i], p[i], meshType);
             error = test.createAndSolve(T[i], nT[i]);
-            //std::cout << "Error: " << error << "\n";
+            std::cout << "Error: " << error << "\n";
             logger.assert_always((std::abs(error - errors[i]) < 1e-8), "comparison to old results");
         }
         else
         {
-            AdvectionLinear<3> test(n[i], p[i], meshType);
+            Advection<3> test(n[i], p[i], meshType);
             error = test.createAndSolve(T[i], nT[i]);
-            //std::cout << "Error: " << error << "\n";
+            std::cout << "Error: " << error << "\n";
             logger.assert_always((std::abs(error - errors[i]) < 1e-8), "comparison to old results");
         }
         
