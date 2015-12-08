@@ -727,8 +727,12 @@ namespace Base
             dt = T / numberOfTimeSteps;
             
             // Compute the number of timesteps after which to create an output frame.
-            ///\todo current syntax makes it unclear if you try to cast before or after division, please add brackets and/or static_cast to clarify
-            numberOfTimeStepsForOutput = (std::size_t) numberOfTimeSteps / numberOfOutputFrames;
+            numberOfTimeStepsForOutput = (std::size_t) (numberOfTimeSteps / numberOfOutputFrames);
+        }
+        else
+        {
+            // Set the number of timesteps after which to create an output frame higher then the total number of time steps.
+            numberOfTimeStepsForOutput = numberOfTimeSteps + 1;
         }
         
         // Set the initial time.
@@ -747,15 +751,21 @@ namespace Base
         logger(INFO,"Solving the system of PDE's.");
         logger(INFO, "dt: %.", dt);
         logger(INFO, "Total number of time steps: %.", numberOfTimeSteps);
-        logger(INFO, "Number of time steps for output: %.", numberOfTimeStepsForOutput);
+        if(numberOfOutputFrames > 0)
+        {
+            logger(INFO, "Number of time steps for output: %.", numberOfTimeStepsForOutput);
+        }
         for (std::size_t iT = 1; iT <= numberOfTimeSteps; iT++)
         {
             computeOneTimeStep(time, dt);
             
-            if (iT % numberOfTimeStepsForOutput == 0)
+            if(numberOfOutputFrames > 0)
             {
-                tecplotWriter.write(this->meshes_[0], solutionTitle_, false, this, time);
-                VTKWrite(VTKWriter, time, solutionVectorId_);
+                if (iT % numberOfTimeStepsForOutput == 0)
+                {
+                    tecplotWriter.write(this->meshes_[0], solutionTitle_, false, this, time);
+                    VTKWrite(VTKWriter, time, solutionVectorId_);
+                }
             }
             showProgress(time, iT);
         }

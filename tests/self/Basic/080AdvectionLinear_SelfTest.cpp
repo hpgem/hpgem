@@ -36,23 +36,24 @@
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
 #include "Logger.h"
 
-const static std::size_t DIM = 2;
+/// This class is used to test if the advection equation is solved correctly when using HpgemAPILinear.
+/// Linear advection equation: du/dt + a[0] du/dx + a[1] du/dy = 0.
 
-/// Linear advection equation du/dt + a[0] du/dx + a[1] du/dy = 0.
-/// This class is meant for testing purposes.
-//  Please verify that nobody went and tested a broken feature
-//  Please keep the problem modelled here reasonably close to the linear advection problem
-///\todo Write self-test
-class AdvectionTest : public Base::HpgemAPILinear<DIM>
+template<std::size_t DIM>
+class AdvectionLinear : public Base::HpgemAPILinear<DIM>
 {
 public:
+    
+    using typename Base::HpgemAPIBase<DIM>::PointPhysicalT;
+    using typename Base::HpgemAPIBase<DIM>::PointReferenceT;
+    using typename Base::HpgemAPIBase<DIM>::PointReferenceOnFaceT;
+    
     ///Constructor. Assign all private variables.
-    AdvectionTest(std::size_t p) :
-    HpgemAPILinear<DIM>(1, p)
+    AdvectionLinear(const std::size_t n, const std::size_t p, const Base::MeshType meshType) :
+    Base::HpgemAPILinear<DIM>(1, p),
+    n_(n),
+    meshType_(meshType)
     {
-        //Choose the "direction" of the advection.
-        //This cannot be implemented with iterators, and since the dimension is
-        //not always 2, this is the most generic way to write it.
         for (std::size_t i = 0; i < DIM; ++i)
         {
             a[i] = 0.1 + 0.1 * i;
@@ -81,15 +82,11 @@ public:
         return description;
     }
     
-    ///Compute phi_i*(a.grad(phi_j)) on a reference point on an element for all
-    ///basisfunctions phi_i and phi_j.
-    ///You pass the reference point to the basisfunctions. Internally the basisfunctions will be mapped to the physical element
-    ///so you wont have to do any transformations yourself
+    /// \brief Compute the integrals of the left-hand sice associated with elements.
     LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(Base::PhysicalElement<DIM>& element) override final
     {
         std::size_t numBasisFuncs = element.getElement()->getNumberOfBasisFunctions();
         LinearAlgebra::MiddleSizeMatrix&  result = element.getResultMatrix();
-        // logger(INFO, "%", numBasisFuncs);
         for (std::size_t i = 0; i < numBasisFuncs; ++i)
         {
             for (std::size_t j = 0; j < numBasisFuncs; ++j)
@@ -102,15 +99,6 @@ public:
     }
     
     /// \brief Compute the integrals of the left-hand side associated with faces.
-    ///
-    ///For every internal face, we want to compute the integral of the flux
-    ///for all basisfunctions phi_i and phi_j that are non-zero on that face.
-    ///For boundary faces, similar expressions can be obtained depending of the type of boundary condition.
-    ///This function will compute these integrands for all basisfunctions phi_i and phi_j
-    ///on a certain face at a reference point p. Then the integral can later be computed with appropriate (Gauss-)quadrature rules.
-    ///The resulting matrix of values is then given in the matrix integrandVal, to which we passed a reference when calling it.
-    ///Please note that you pass a reference point to the basisfunctions and the
-    ///transformations are done internally. The class FaceMatrix consists of four element matrices for internal faces and one element matrix for faces on the boundary. Each element matrix corresponds to a pair of two adjacent elements of the face.
     Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(Base::PhysicalFace<DIM>& face) override final
     {
         //Get the number of basis functions, first of both sides of the face and
@@ -122,7 +110,6 @@ public:
         integrandVal *= 0;
         
         //Check if the normal is in the same direction as the advection.
-        //Note that normal does not have length 1!
         const double A = a * face.getUnitNormalVector();
         
         //Compute all entries of the integrand at this point:
@@ -156,7 +143,13 @@ public:
     /// Define a solution at time zero.
     double getSolutionAtTimeZero(const PointPhysicalT& point)
     {
-        return (std::sin(2 * M_PI * point[0]) * std::sin(2 * M_PI * point[1]));
+        double solution;
+        solution = std::sin(2 * M_PI * point[0]);
+        for(std::size_t i=1; i<DIM; i++)
+        {
+            solution *= std::sin(2 * M_PI * point[i]);
+        }
+        return solution;
     }
     
     /// Define the exact solution. In this case that is \f$ u_0(\vec{x}-\vec{a}t) \f$, where \f$ u_0 \f$ is the solution at time zero.
@@ -165,8 +158,8 @@ public:
         LinearAlgebra::MiddleSizeVector exactSolution(1);
         if(orderTimeDerivative == 0)
         {
-            PointPhysicalT displacement(-a*time);
-            exactSolution(0) = getSolutionAtTimeZero(point + displacement);
+            PointPhysicalT displacement(a*time);
+            exactSolution(0) = getSolutionAtTimeZero(point - displacement);
             return exactSolution;
         }
         else
@@ -183,44 +176,113 @@ public:
         return getExactSolution(point, startTime, orderTimeDerivative);
     }
     
+    
+    /// \brief Create a mesh, solve the problem and return the total error.
+    LinearAlgebra::MiddleSizeVector::type createAndSolve
+    (
+     const double T, // final time
+     const std::size_t nT // number of time steps
+    )
+    {
+        this->createMesh(n_, meshType_);
+        this->solve(0, T,  (T / nT), 0, false);
+        return this->computeTotalError(this->solutionVectorId_, T);
+    }
+    
 private:
+    /// Number of elements per direction
+    std::size_t n_;
+    
+    /// Mesh type
+    Base::MeshType meshType_;
     
     ///Advective vector
     LinearAlgebra::SmallVector<DIM> a;
 };
 
-auto& n = Base::register_argument<std::size_t>('n', "numelems", "Number of Elements", true);
-auto& p = Base::register_argument<std::size_t>('p', "poly", "Polynomial order", true);
 
-///Make the problem and solve it.
 int main(int argc, char **argv)
 {
     Base::parse_options(argc, argv);
-    // Choose a mesh type (e.g. TRIANGULAR, RECTANGULAR).
-    const Base::MeshType meshType = Base::MeshType::RECTANGULAR;
-
-    // Choose variable name(s). Since we have a scalar function, we only need to choose one name.
-    std::vector<std::string> variableNames;
-    variableNames.push_back("u");
-
-    //Construct our problem with n elements in every direction and polynomial order p
-    AdvectionTest test(p.getValue());
-
-    //Create the mesh
-    test.createMesh(n.getValue(), meshType);
-
-    // Set the names for the output file
-    test.setOutputNames("output", "AdvectionTest", "AdvectionTest", variableNames);
-
-    //Run the simulation and write the solution
-
-    auto startTime = std::chrono::steady_clock::now();
-
-    test.solve(Base::startTime.getValue(), Base::endTime.getValue(), Base::dt.getValue(), Base::numberOfSnapshots.getValue(), true);
-
-    auto endTime = std::chrono::steady_clock::now();
-
-    logger(INFO, "Simulation took %ms.", std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count());
-
+    
+    // Define test parameters
+    const std::size_t numberOfTests = 14;
+    std::array<std::size_t, numberOfTests> dim = {1,1,1,1,1, 2,2,2,2,2, 3,3,3,3};
+    std::array<std::size_t, numberOfTests> p = {1,2,3,4,5, 1,2,3,4,5, 1,2,3,4};
+    std::array<std::size_t, numberOfTests> n = {16,8,4,4,4, 16,8,4,4,4, 16,8,4,4};
+    std::array<double, numberOfTests> T = {0.1,0.1,0.1,0.1,0.1, 0.1,0.1,0.1,0.1,0.1, 0.1,0.1,0.1,0.1};
+    std::array<std::size_t, numberOfTests> nT = {10,10,10,10,10, 10,10,10,10,10, 10,10,10,10};
+    std::array<std::size_t, numberOfTests> shapeId = {1,0,1,0,1, 0,1,0,1,0, 1,0,1,0};
+    std::array<double, numberOfTests> errors =
+    {
+        0.00322137,
+        0.000642002,
+        0.000417087,
+        3.90839e-05,
+        2.83226e-06,
+        0.00361477,
+        0.000847142,
+        0.00236532,
+        4.79497e-05,
+        7.70023e-05,
+        0.00368729,
+        0.00187681,
+        0.000534851,
+        0.00053317
+    };
+    
+    // Define clocks for measuring simulation time.
+    std::chrono::time_point<std::chrono::system_clock> startClock, endClock;
+    std::chrono::duration<double> elapsed_seconds;
+    
+    // Define error
+    double error;
+    
+    // Define mesh type
+    Base::MeshType meshType;
+    
+    
+    startClock = std::chrono::system_clock::now();
+    // Perform tests
+    for(std::size_t i=0; i<numberOfTests; i++)
+    {
+        
+        if(shapeId[i] == 0)
+        {
+            meshType = Base::MeshType::TRIANGULAR;
+        }
+        else
+        {
+            meshType = Base::MeshType::RECTANGULAR;
+        }
+        
+        if(dim[i] == 1)
+        {
+            AdvectionLinear<1> test(n[i], p[i], meshType);
+            error = test.createAndSolve(T[i], nT[i]);
+            //std::cout << "Error: " << error << "\n";
+            logger.assert_always((std::abs(error - errors[i]) < 1e-8), "comparison to old results");
+        }
+        else if(dim[i] == 2)
+        {
+            AdvectionLinear<2> test(n[i], p[i], meshType);
+            error = test.createAndSolve(T[i], nT[i]);
+            //std::cout << "Error: " << error << "\n";
+            logger.assert_always((std::abs(error - errors[i]) < 1e-8), "comparison to old results");
+        }
+        else
+        {
+            AdvectionLinear<3> test(n[i], p[i], meshType);
+            error = test.createAndSolve(T[i], nT[i]);
+            //std::cout << "Error: " << error << "\n";
+            logger.assert_always((std::abs(error - errors[i]) < 1e-8), "comparison to old results");
+        }
+        
+    }
+    endClock = std::chrono::system_clock::now();
+    elapsed_seconds = endClock - startClock;
+    std::cout << "Elapsed time for solving the PDE: " << elapsed_seconds.count() << "s\n";
+    
+    
     return 0;
 }
