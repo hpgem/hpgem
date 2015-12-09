@@ -28,7 +28,7 @@
 
 template<std::size_t DIM>
 SavageHutterBase<DIM>::SavageHutterBase(std::size_t numberOfVariables, std::size_t polyOrder) :
-    Base::HpgemAPISimplified<DIM>(numberOfVariables, polyOrder, TimeIntegration::AllTimeIntegrators::Instance().getRule(1, 1)),
+    Base::HpgemAPISimplified<DIM>(numberOfVariables, polyOrder, TimeIntegration::AllTimeIntegrators::Instance().getRule(1, 1), 0, true),
     numberOfVariables_(numberOfVariables),
     dryLimit_(1e-5),
     time_(0)
@@ -96,6 +96,25 @@ LinearAlgebra::MiddleSizeVector SavageHutterBase<DIM>::computeRightHandSideAtFac
     return this->faceIntegrator_.integrate(ptrFace, integrandFunction, ptrFace->getGaussQuadratureRule());
 }
 
+template <std::size_t DIM>
+std::pair<LinearAlgebra::MiddleSizeVector, LinearAlgebra::MiddleSizeVector> SavageHutterBase<DIM>::computeBothRightHandSidesAtFace
+(
+        Base::Face *ptrFace,
+        LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
+        LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight,
+        const double time
+        )
+{
+    // Define the integrand function for the right hand side for the face.
+    std::function < std::pair<LinearAlgebra::MiddleSizeVector, LinearAlgebra::MiddleSizeVector>(Base::PhysicalFace<DIM>&) > integrandFunction = [ = ](Base::PhysicalFace<DIM>& face) -> std::pair<LinearAlgebra::MiddleSizeVector, LinearAlgebra::MiddleSizeVector>
+    {
+        return this->integrandsAtFace(face, time, solutionCoefficientsLeft, solutionCoefficientsRight);
+    };
+    return this->faceIntegrator_.integratePair(ptrFace, integrandFunction);
+}
+
+
+
 /******************************Limiting****************************************/
 template <std::size_t DIM>
 void SavageHutterBase<DIM>::computeOneTimeStep(double &time, const double dt)
@@ -127,9 +146,9 @@ void SavageHutterBase<DIM>::computeOneTimeStep(double &time, const double dt)
     for (std::size_t jStage = 0; jStage < numberOfStages; jStage++)
     {
         this->scaleAndAddVector(this->solutionVectorId_, this->auxiliaryVectorIds_[jStage], dt * this->ptrButcherTableau_->getB(jStage));
-    }    
+    }
 
-    limitSolutionOuterLoop();
+    tasksAfterTimeStep();
 
     // Update the time.
     time += dt;

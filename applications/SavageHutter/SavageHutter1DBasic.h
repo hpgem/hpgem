@@ -67,6 +67,7 @@ public:
     ///\brief Define your boundary conditions here
     LinearAlgebra::MiddleSizeVector computeGhostSolution(const LinearAlgebra::MiddleSizeVector &numericalSolution, const double normal, const double time, const PointPhysicalT & pPhys);
     
+    void setInflowBC(double time) override final;
     
 private:
     //shape factor of the velocity of the flow. plug flow -> 1, Bagnold -> 5/4, simple shear -> 4/3

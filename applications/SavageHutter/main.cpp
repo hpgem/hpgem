@@ -24,6 +24,8 @@
 #include "Base/TimeIntegration/AllTimeIntegrators.h"
 #include "SavageHutter1DBasic.h"
 #include "SavageHutter2DBasic.h"
+#include "SavageHutter2DInteriorTest.h"
+#include "SavageHutter1DBidispersed.h"
 
 #include "Logger.h"
 #include "SavageHutter1DWidthAveraged.h"

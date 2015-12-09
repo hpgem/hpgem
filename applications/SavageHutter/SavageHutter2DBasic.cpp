@@ -22,6 +22,9 @@
 
 #include <fstream>
 #include <iomanip>
+#include <algorithm>
+
+#include "CMakeDefinitions.h"
 
 #include "SavageHutter2DBasic.h"
 #include "HeightLimiters/PositiveLayerLimiter.h"
@@ -29,10 +32,12 @@
 SavageHutter2DBasic::SavageHutter2DBasic(std::size_t polyOrder, std::size_t numberOfElements) :
 SavageHutter2DBase(3, polyOrder)
 {
-    chuteAngle_ = M_PI / 180 * 28;
+    chuteAngle_ = M_PI / 180 * 29;
     epsilon_ = .1;
     const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
     inflowBC_ = getInitialSolution(pPhys, 0);
+    inflowBC_ = LinearAlgebra::MiddleSizeVector({1, 0.00618, 0});
+    logger(INFO, "inflow BC: %", inflowBC_);
     
     
     std::vector<std::string> variableNames = {"h", "hu", "hv"};
@@ -43,9 +48,9 @@ SavageHutter2DBase(3, polyOrder)
     createContraction();
 }
 
-Base::RectangularMeshDescriptor<2> SavageHutter2DBasic::createMeshDescription(const std::size_t numOfElementsPerDirection)
+Base::RectangularMeshDescriptor<2> SavageHutter2DBasic::createMeshDescription(const std::size_t numberOfElementsPerDirection)
 {
-    const std::size_t nx = numOfElementsPerDirection;
+    const std::size_t nx = numberOfElementsPerDirection;
     const std::size_t ny = 10;
     const double xMax = 11;
     const double yMax = 1;
@@ -66,7 +71,7 @@ void SavageHutter2DBasic::createContraction()
     contraction->xBegin = 6;
     contraction->xMiddle = 11;
     contraction->xEnd = 12;
-    contraction->contractionWidth = .6; 
+    contraction->contractionWidth = .6;
     
     //Actually move the mesh such that a contraction is formed.
     meshes_[0]->move();
@@ -81,10 +86,14 @@ void SavageHutter2DBasic::createContraction()
 LinearAlgebra::MiddleSizeVector SavageHutter2DBasic::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
 {
     const double x = pPhys[0];
-    double h = 1 - .04*x;
-    double hu = .05;
+    std::map<double, std::array<double, 3>>::iterator positionInMap = inputValues_.lower_bound(x);
+    std::array<double, 3> value =  positionInMap->second;
+    logger(DEBUG, "initial conditions at x = %: %, %", x, value[0], value[1]);
+    return LinearAlgebra::MiddleSizeVector({value[0], value[1], value[2]});
+    /*double h = 1 - x / 10;
+    double hu = .03*h;
     const double hv = 0;
-    return MiddleSizeVector({h, hu, hv});
+    return MiddleSizeVector({h, hu, hv});*/
 }
 
 LinearAlgebra::MiddleSizeVector SavageHutter2DBasic::getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
@@ -183,4 +192,23 @@ void SavageHutter2DBasic::tasksAfterSolving()
             widthFile << '\n';
         }
     }
+}
+
+void SavageHutter2DBasic::tasksBeforeSolving()
+{
+    SavageHutterBase::tasksBeforeSolving();
+    //put values of initial conditions from text file in a map
+    std::ifstream inFile(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/applications/SavageHutter/initialConditionsGeneratedBy1DMatlab");
+    std::string line;
+    while(getline(inFile, line))
+    {
+        std::stringstream lineStream(line);
+        double x;
+        std::array<double, 2> hAndU;
+        std::array<double, 3> valuesForVariables;
+        lineStream >> x >> hAndU[0] >> hAndU[1];
+        valuesForVariables = {hAndU[0], hAndU[0]*hAndU[1], 0};
+        inputValues_[x] = valuesForVariables;
+    }
+    logger(INFO, "size of the map after reading: %", inputValues_.size());
 }

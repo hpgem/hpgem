@@ -91,6 +91,43 @@ const LinearAlgebra::MiddleSizeVector SavageHutter1DBase::integrandRightHandSide
     return integrand;
 }
 
+std::pair<LinearAlgebra::MiddleSizeVector, LinearAlgebra::MiddleSizeVector> SavageHutter1DBase::integrandsAtFace(
+        Base::PhysicalFace<1> &face,
+        const double &time,
+        const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
+        const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight)
+{
+    double normal = face.getNormalVector()[0];
+
+    //compute numerical solution at the left side and right side of this face
+    LinearAlgebra::MiddleSizeVector solutionLeft = Helpers::getSolution<1>(face.getPhysicalElement(Base::Side::LEFT), solutionCoefficientsLeft, numberOfVariables_);
+    LinearAlgebra::MiddleSizeVector solutionRight = Helpers::getSolution<1>(face.getPhysicalElement(Base::Side::RIGHT), solutionCoefficientsRight, numberOfVariables_);
+
+    LinearAlgebra::MiddleSizeVector flux = hllcFlux(solutionLeft, solutionRight, face.getUnitNormalVector()[0], face);
+
+    std::size_t numOfTestBasisFunctionsLeft = face.getPhysicalElement(Base::Side::LEFT).getNumberOfBasisFunctions();
+    std::size_t numOfTestBasisFunctionsRight = face.getPhysicalElement(Base::Side::RIGHT).getNumberOfBasisFunctions();
+    std::pair<LinearAlgebra::MiddleSizeVector, LinearAlgebra::MiddleSizeVector> integrands(
+            std::piecewise_construct,
+            std::forward_as_tuple(numberOfVariables_ * numOfTestBasisFunctionsLeft),
+            std::forward_as_tuple(numberOfVariables_ * numOfTestBasisFunctionsRight));
+
+    for (std::size_t iVar = 0; iVar < numberOfVariables_; ++iVar)
+    {
+        for (std::size_t iFun = 0; iFun < numOfTestBasisFunctionsLeft; ++iFun)
+        {
+            std::size_t iVarFun = face.getFace()->getPtrElement(Base::Side::LEFT)->convertToSingleIndex(iFun, iVar);
+            integrands.first(iVarFun) = -flux(iVar) * face.basisFunction(Base::Side::LEFT, iFun) * normal;
+        }
+        for (std::size_t iFun = 0; iFun < numOfTestBasisFunctionsRight; ++iFun)
+        {
+            std::size_t iVarFun = face.getFace()->getPtrElement(Base::Side::RIGHT)->convertToSingleIndex(iFun, iVar);
+            integrands.second(iVarFun) = flux(iVar) * face.basisFunction(Base::Side::RIGHT, iFun) * normal;
+        }
+    }
+    return integrands;
+}
+
 ///\details Compute the flux on the boundary. Note that there is a lot of dead code
 ///in here, this can be deleted when everything proves to work fine or in April 2016, whichever comes first.
 const LinearAlgebra::MiddleSizeVector SavageHutter1DBase::integrandRightHandSideOnRefFace

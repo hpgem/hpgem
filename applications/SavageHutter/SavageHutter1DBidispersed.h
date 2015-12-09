@@ -63,12 +63,17 @@ public:
     
     ///\brief Compute F in (h,hu)_t + F(h,hu)_x = S(h,hu)
     LinearAlgebra::MiddleSizeVector computePhysicalFlux(const LinearAlgebra::MiddleSizeVector &numericalSolution, const PointPhysicalT& pPhys);
-    
-    ///\brief Define your boundary conditions here
-    LinearAlgebra::MiddleSizeVector computeGhostSolution(const LinearAlgebra::MiddleSizeVector &numericalSolution, const double normal, const double time, const PointPhysicalT & pPhys);
-    
-    
+
+    void setInflowBC(double time) override final;
 private:
+
+    void limitSmallHeight();
+
+    void tasksAfterTimeStep() override final
+    {
+      SavageHutterBase::tasksAfterTimeStep ();
+      limitSmallHeight();
+    }
     ///shape factor of the velocity of the flow, 0<=alpha_<=1 . 
     ///This is a different alpha_ than in the basic application!
     double alpha_;

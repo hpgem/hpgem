@@ -97,6 +97,42 @@ const LinearAlgebra::MiddleSizeVector SavageHutter2DBase::integrandRightHandSide
     return integrand;
 }
 
+std::pair<LinearAlgebra::MiddleSizeVector, LinearAlgebra::MiddleSizeVector> SavageHutter2DBase::integrandsAtFace(
+        Base::PhysicalFace<2> &face,
+        const double &time,
+        const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
+        const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight)
+{
+
+    //compute numerical solution at the left side and right side of this face
+    LinearAlgebra::MiddleSizeVector solutionLeft = Helpers::getSolution<2>(face.getPhysicalElement(Base::Side::LEFT), solutionCoefficientsLeft, numberOfVariables_);
+    LinearAlgebra::MiddleSizeVector solutionRight = Helpers::getSolution<2>(face.getPhysicalElement(Base::Side::RIGHT), solutionCoefficientsRight, numberOfVariables_);
+
+    LinearAlgebra::MiddleSizeVector flux = hllcFlux(solutionLeft, solutionRight, face.getUnitNormalVector());
+
+    std::size_t numOfTestBasisFunctionsLeft = face.getPhysicalElement(Base::Side::LEFT).getNumberOfBasisFunctions();
+    std::size_t numOfTestBasisFunctionsRight = face.getPhysicalElement(Base::Side::RIGHT).getNumberOfBasisFunctions();
+    std::pair<LinearAlgebra::MiddleSizeVector, LinearAlgebra::MiddleSizeVector> integrands(
+            std::piecewise_construct,
+            std::forward_as_tuple(numberOfVariables_ * numOfTestBasisFunctionsLeft),
+            std::forward_as_tuple(numberOfVariables_ * numOfTestBasisFunctionsRight));
+
+    for (std::size_t iVar = 0; iVar < numberOfVariables_; ++iVar)
+    {
+        for (std::size_t iFun = 0; iFun < numOfTestBasisFunctionsLeft; ++iFun)
+        {
+            std::size_t iVarFun = face.getFace()->getPtrElement(Base::Side::LEFT)->convertToSingleIndex(iFun, iVar);
+            integrands.first(iVarFun) = -flux(iVar) * face.basisFunction(Base::Side::LEFT, iFun);
+        }
+        for (std::size_t iFun = 0; iFun < numOfTestBasisFunctionsRight; ++iFun)
+        {
+            std::size_t iVarFun = face.getFace()->getPtrElement(Base::Side::RIGHT)->convertToSingleIndex(iFun, iVar);
+            integrands.second(iVarFun) = flux(iVar) * face.basisFunction(Base::Side::RIGHT, iFun);
+        }
+    }
+    return integrands;
+}
+
 const LinearAlgebra::MiddleSizeVector SavageHutter2DBase::integrandRightHandSideOnRefFace
 (
  Base::PhysicalFace<2>& face,
@@ -115,14 +151,14 @@ const LinearAlgebra::MiddleSizeVector SavageHutter2DBase::integrandRightHandSide
     LinearAlgebra::MiddleSizeVector flux(3);
 
     //outflow
-    if (normalX > 0 && std::abs(normalY) < 1e-10)
+    if (normalX > .5 && std::abs(normalY) < 1e-5)
     {
         if (solution[1]/solution[0] < std::sqrt(epsilon_ * std::cos(chuteAngle_) * solution[0])) //subcritical
         {
             logger(DEBUG, "subcritical outflow");
             double uIn = solution[1] / solution[0];
             double invariantIn = uIn + 2 * std::sqrt(epsilon_ * std::cos(chuteAngle_) * solution[0]);
-            double hOut = .5;
+            double hOut = 0.75;
             double uOut = invariantIn - 2 * std::sqrt(epsilon_ * std::cos(chuteAngle_) * hOut);
             auto stateNew = MiddleSizeVector({hOut, hOut * uOut, solution[2]}); //keep hv continuous
             flux = hllcFlux(solution, stateNew, face.getUnitNormalVector());
@@ -132,7 +168,7 @@ const LinearAlgebra::MiddleSizeVector SavageHutter2DBase::integrandRightHandSide
             flux = hllcFlux(solution, solution, face.getUnitNormalVector());
         }
     }
-    else if (std::abs(normalY) < 1e-10) //inflow
+    else if (std::abs(normalY) < 1e-5) //inflow
     {
         if (solution[1]/solution[0] < std::sqrt(epsilon_ * std::cos(chuteAngle_) * solution[0])) //subcritical
         {
@@ -261,7 +297,7 @@ LinearAlgebra::MiddleSizeVector SavageHutter2DBase::hllcFlux(const LinearAlgebra
     {
         return fluxNormalRight;
     }
-	return ((sr*fluxNormalLeft-sl*fluxNormalRight+sl*sr*(numericalSolutionRight-numericalSolutionLeft))/(sr-sl));
+    return ((sr*fluxNormalLeft-sl*fluxNormalRight+sl*sr*(numericalSolutionRight-numericalSolutionLeft))/(sr-sl));
 }
 
 double SavageHutter2DBase::computeFriction(const LinearAlgebra::MiddleSizeVector& numericalSolution)
@@ -299,7 +335,7 @@ std::vector<std::pair<double, LinearAlgebra::MiddleSizeVector>> SavageHutter2DBa
     
     //make xs
     ///\todo insert length of the domain here automatically instead of hardcoded
-    const double dx = 11./(nodesInXDirection - 1);
+    const double dx = 11. / (nodesInXDirection - 1);
     std::vector<std::pair<double, LinearAlgebra::MiddleSizeVector>> totals;
     for(std::size_t i = 0; i < nodesInXDirection; ++i)
     {

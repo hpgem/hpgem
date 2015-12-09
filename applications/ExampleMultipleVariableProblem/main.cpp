@@ -29,11 +29,11 @@
 #include "Logger.h"
 
 
-auto& numOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
+auto& numberOfElements = Base::register_argument<std::size_t>('n', "numberOfElems", "number of elements per dimension", true);
 auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
 auto& solverId = Base::register_argument<std::size_t>('s', "solverId", "integer to indicate if you want to use AcousticWave (0) or AcousticWaveLinear (1)", true);
 
-auto& numOfOutputFrames = Base::register_argument<std::size_t>('O', "numOfOutputFrames", "Number of frames to output", false, 1);
+auto& numberOfOutputFrames = Base::register_argument<std::size_t>('O', "numberOfOutputFrames", "Number of frames to output", false, 1);
 auto& startTime = Base::register_argument<double>('S', "startTime", "start time of the simulation", false, 0.0);
 auto& endTime = Base::register_argument<double>('T', "endTime", "end time of the simulation", false, 1.0);
 auto& dt = Base::register_argument<double>('d', "timeStepSize", "time step of the simulation", false, 0.01);
@@ -57,15 +57,15 @@ int main(int argc, char **argv)
     }
 
     // Compute parameters for PDE
-    const std::size_t numOfVariables = dimension + 1;
+    const std::size_t numberOfVariables = dimension + 1;
 
     if(solverId.getValue() == 1)
     {
         // Create problem solver 'test', that can solve the acoustic wave equations.
-        AcousticWaveLinear<dimension> test(numOfVariables, polynomialOrder.getValue(), ptrButcherTableau);
+        AcousticWaveLinear<dimension> test(numberOfVariables, polynomialOrder.getValue(), ptrButcherTableau);
 
         // Create the mesh
-        test.createMesh(numOfElements.getValue(), meshType);
+        test.createMesh(numberOfElements.getValue(), meshType);
 
         // Set the material parameter
         test.setMaterialParameter(c);
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
         startClock = std::chrono::system_clock::now();
         
             // Solve the problem
-        test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), true);
+        test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numberOfOutputFrames.getValue(), true);
         
             // Measure elapsed time
         endClock = std::chrono::system_clock::now();
@@ -89,10 +89,10 @@ int main(int argc, char **argv)
     else
     {
         // Create problem solver 'test', that can solve the acoustic wave equations.
-        AcousticWave<dimension> test(numOfVariables, polynomialOrder.getValue(), ptrButcherTableau);
+        AcousticWave<dimension> test(numberOfVariables, polynomialOrder.getValue(), ptrButcherTableau);
 
         // Create the mesh
-        test.createMesh(numOfElements.getValue(), meshType);
+        test.createMesh(numberOfElements.getValue(), meshType);
 
         // Set the material parameter
         test.setMaterialParameter(c);
@@ -106,7 +106,7 @@ int main(int argc, char **argv)
         startClock = std::chrono::system_clock::now();
 
             // Solve the problem
-        test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), true);
+        test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numberOfOutputFrames.getValue(), true);
 
             // Measure elapsed time
         endClock = std::chrono::system_clock::now();

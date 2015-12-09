@@ -116,30 +116,30 @@ void hpGemUIExtentions::exactSolutionCurl(const Geometry::PointPhysical<DIM>& p,
 }
 
 
- void hpGemUIExtentions::writeToTecplotFile(const Base::Element*, const PointReferenceT&, std::ostream&)
+ void hpGemUIExtentions::writeToTecplotFile(const Base::Element* element, const PointReferenceT& p, std::ostream& output)
 //Needs to be changed in arguments, use PhysicalElement instead of Reference element in the argument list
 {
-   /*
-    const Base::Element* element = el.getElement();
-    const Geometry::PointReference<DIM>& p = el.getPointReference();
+   
+   // const Base::Element* element = el.getElement();
+    //const Geometry::PointReference<DIM>& p = el.getPointReference();
 
     
     LinearAlgebra::MiddleSizeVector data;
-    data = const_cast<ElementT*>(element)->getTimeLevelData(timelevel_);
+    data = const_cast<ElementT*>(element)->getTimeIntegrationVector(timelevel_);
     //std::cout<<data.size()<<std::endl;
     LinearAlgebra::SmallVector<DIM> results1, results, curls1, curls;
     
     for (int i = 0; i < element->getNrOfBasisFunctions(); ++i)
     {
-        el.basisFunction(i, results1); //Needs to be corrected
-        curls1 = el.basisFunctionCurl(i); //Needs to be corrected
+        element->basisFunction(i, p, results1); //Needs to be corrected
+        curls1 = element->basisFunctionCurl(i, p); //Needs to be corrected
         results1 = results1 * std::real(data[i]);
         results += results1;
         curls1 = curls1 * std::real(data[i]);
         curls += curls1;
     }
     output << results[0] << " " << results[1] << " " << results[2] << " " << curls[0] << " " << curls[1] << " " << curls[2] << std::endl;
-    */
+    
 }
  
 /*
@@ -260,6 +260,12 @@ void hpGemUIExtentions::faceIntegrand(Base::PhysicalFace<DIM>& fa, errorData &re
         }
     }
     ret[0] = Base::L2Norm(error) * Base::L2Norm(error);
+    //To remove double contribution of flux computed on the boudary faces by different processors
+    if(face->getFaceType() == Geometry::FaceType::SUBDOMAIN_BOUNDARY ||face->getFaceType() == Geometry::FaceType::PERIODIC_SUBDOMAIN_BC)
+    {
+        ret[0] /= 2.;
+    }
+
 }
 
 void hpGemUIExtentions::computeErrors(Base::MeshManipulator<DIM>& Mesh, int timelevel, double& L2Norm, double& InfNorm, double& HCurlNorm, double& DGNorm)
@@ -823,13 +829,21 @@ void hpGemUIExtentions::solveTimeDependent(bool useCO2, bool useCO4)
 void hpGemUIExtentions::solveHarmonic()
 {
     std::cout << "finding a time-harmonic solution" << std::endl;
+    const MaxwellData* actualdata = getData();
     MHasToBeInverted_ = false;
     assembler->fillMatrices(this);
+    
     Utilities::GlobalPetscMatrix M_(meshes_[0], 0, -1), S_(meshes_[0], 1, 0);
+    std::cout << "GlobalPetscMatrix initialised" << std::endl;
     Utilities::GlobalPetscVector x_(meshes_[0], 0, -1), derivative_(meshes_[0], 1, -1), RHS_(meshes_[0], 2, 0);
+    std::cout << "GlobalPetscVector initialised" << std::endl;
     x_.assemble();
-    derivative_.assemble();
+    std::cout << "x_ assembled" << std::endl;
     RHS_.assemble();
+    std::cout << "RHS_ assembled" << std::endl;
+    derivative_.assemble();
+    std::cout << "derivative_ assembled" << std::endl;
+
     PC preconditioner;
     ierr_ = KSPGetPC(solver_, &preconditioner);
     ierr_ = PCSetType(preconditioner, "jacobi");
@@ -847,9 +861,7 @@ void hpGemUIExtentions::solveHarmonic()
     //everything that is set in the code, but before this line is overridden by command-line options
     ierr_ = KSPSetFromOptions(solver_);
     CHKERRABORT(PETSC_COMM_WORLD, ierr_);
-    //everything that is set in the code, but after this line overrides the comand-line options
-    //Changed due to PETSC-3.5.3
-    //ierr_=KSPSetOperators(solver_,S_,S_,DIFFERENT_NONZERO_PATTERN);CHKERRABORT(PETSC_COMM_WORLD,ierr_);
+    
     ierr_ = KSPSetOperators(solver_, S_, S_);
     CHKERRABORT(PETSC_COMM_WORLD, ierr_);
     ierr_ = KSPSetUp(solver_);
@@ -858,6 +870,7 @@ void hpGemUIExtentions::solveHarmonic()
     CHKERRABORT(PETSC_COMM_WORLD, ierr_);
     
     x_.writeTimeIntegrationVector(0); //DOUBTFUL
+    measureTimes_[0]=0;
     
     synchronize(0);
 }

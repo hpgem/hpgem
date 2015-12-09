@@ -21,6 +21,7 @@
 
 #include "SavageHutter1DBidispersed.h"
 #include "HelperFunctions.h"
+#include "HeightLimiters/PositiveLayerLimiter.h"
 
 ///\details In this constructor, some of the parameters for the problem are set.
 ///Most of these parameters are declared in SavageHutterBase, but since they are protected
@@ -28,8 +29,8 @@
 SavageHutter1DBidispersed::SavageHutter1DBidispersed(std::size_t polyOrder, std::size_t numberOfElements)
 : SavageHutter1DBase(3, polyOrder)
 {
-    alpha_ = .5;
-    chuteAngle_ = M_PI / 180 * 30;
+    alpha_ = .1;
+    chuteAngle_ = M_PI / 180 * 29.6484;
     epsilon_ = .1;
     const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
     inflowBC_ = getInitialSolution(pPhys, 0);    
@@ -46,10 +47,10 @@ SavageHutter1DBidispersed::SavageHutter1DBidispersed(std::size_t polyOrder, std:
 ///conditions. If the boundary conditions are not periodic, set the BoundaryType
 ///in this function to Base::BoundaryType::SOLID_WALL and make sure that the function
 ///SavageHutter1DBase::integrandRightHandSideOnRefFace is set correctly for boundary
-///faces. The ghost solution on the boundary can be described with computeGhostSolution.
+///faces. 
 Base::RectangularMeshDescriptor<1> SavageHutter1DBidispersed::createMeshDescription(const std::size_t numOfElementsPerDirection)
 {
-    const double endOfDomain = 1;
+    const double endOfDomain = 8;
     const Base::BoundaryType boundary = Base::BoundaryType::SOLID_WALL;
     return SavageHutter1DBase::createMeshDescription(numOfElementsPerDirection, endOfDomain, boundary);
 }
@@ -58,15 +59,19 @@ Base::RectangularMeshDescriptor<1> SavageHutter1DBidispersed::createMeshDescript
 ///here to get the analytical solution at the start time.
  LinearAlgebra::MiddleSizeVector SavageHutter1DBidispersed::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
 {
-    const double x = pPhys[0];
-    double h = 1;
-    if (x > 0.5)
-    {
-        h = 0.5;
-    }
+    const double h = 0;
     const double hu = 0;
-    const double eta = 1;
+    const double eta = 0;
     return LinearAlgebra::MiddleSizeVector({h, hu, eta});
+}
+
+void SavageHutter1DBidispersed::setInflowBC(double time)
+{
+    const double inflowTurnOnRate = 2;
+    const double hIn = 1 - std::exp(-inflowTurnOnRate * time);
+    const double uIn = .884404;
+    const double phiIn = 1;
+    inflowBC_ = LinearAlgebra::MiddleSizeVector({hIn, hIn * uIn, hIn * phiIn});
 }
 
  ///\details Gives the exact (analytical) solution for the test problem. This function
@@ -91,7 +96,7 @@ SlopeLimiter* SavageHutter1DBidispersed::createSlopeLimiter()
 ///can be found in the folder HeightLimiters.
 HeightLimiter* SavageHutter1DBidispersed::createHeightLimiter()
 {
-    return new EmptyHeightLimiter;
+    return new PositiveLayerLimiter<1>(1e-5);
 }
 
 ///\details Write the values of the variables to the VTK file. The method of 
@@ -118,15 +123,20 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DBidispersed::computeSourceTerm(con
 {
     logger.assert(chuteAngle_ < M_PI, "Angle must be in radians, not degrees!");
     const double h = numericalSolution(0);
-    const double hu = numericalSolution(1);
-    double u = 0;
+    double sourceX;
     if (h > dryLimit_)
     {
-        u = hu / h;
+        const double hu = numericalSolution(1);
+        const double u = hu / h;
+        const double mu = computeFriction(numericalSolution);
+        const int signU = Helpers::sign(u);
+        sourceX = h * std::sin(chuteAngle_) - h * mu * signU * std::cos(chuteAngle_);
     }
-    double mu = computeFriction(numericalSolution);
-    const int signU = Helpers::sign(u);
-    double sourceX = h * std::sin(chuteAngle_) - h * mu * signU * std::cos(chuteAngle_);
+    else
+    {
+        sourceX = 0;
+    }
+    
     logger(DEBUG, "Source: %, h: %", sourceX, h);
     return MiddleSizeVector({0, sourceX, 0});
 }
@@ -134,52 +144,31 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DBidispersed::computeSourceTerm(con
 ///\details Compute the function f(h,hu) = {hu,  hu^2 + h^2/2 \epsilon \cos \theta, eta*u - (1-alpha)*eta*u*(1-eta/h)}
 LinearAlgebra::MiddleSizeVector SavageHutter1DBidispersed::computePhysicalFlux(const MiddleSizeVector &numericalSolution, const PointPhysicalT& pPhys)
 {
-    const double h = numericalSolution(0);
+    double h = numericalSolution(0);
     logger.assert(h > -1e-16, "Negative height (%)", h);
     const double hu = numericalSolution(1);
     const double smallHeight = numericalSolution(2);
-    double u = 0;
-    double phi = 0;
+    MiddleSizeVector flux(3);
     if (h > dryLimit_)
     {
-        u = hu/h;
-        phi = smallHeight/h;
+        double u = hu / h;
+        double phi = smallHeight / h;
+
+        flux(0) = hu;
+        flux(1) = hu * u + epsilon_ / 2 * std::cos(chuteAngle_) * h * h;
+        flux(2) = hu * phi * (alpha_ + (1 - alpha_) * phi);
     }
-    MiddleSizeVector flux(3);
-    flux(0) = hu;
-    flux(1) = hu * u + epsilon_/2 * std::cos(chuteAngle_) * h * h;
-    flux(2) = h*phi*u - (1-alpha_)*h*phi*u*(1-phi);
+    else
+    {
+        flux = LinearAlgebra::MiddleSizeVector({hu, 0, 0});
+    }
     return flux;
 }
 
-///\brief Define your boundary conditions here
-    LinearAlgebra::MiddleSizeVector SavageHutter1DBidispersed::computeGhostSolution(const LinearAlgebra::MiddleSizeVector &solution, const double normal, const double time, const PointPhysicalT & pPhys)
+void SavageHutter1DBidispersed::limitSmallHeight()
+{
+    for (Base::Element* element : meshes_[0]->getElementsList(Base::IteratorType::GLOBAL))
     {
-        const double h = solution[0];
-        const double u = h > dryLimit_ ? solution[1]/h : 0;
-        const double froude = std::abs(u)/std::sqrt(epsilon_*std::cos(chuteAngle_) * h);
-        if (normal < 0) //inflow boundary
-        {
-            if (froude >= 1)
-            {
-                return inflowBC_;
-            }
-            else
-            {
-                logger(WARN, "subcritical inflow boundary not implemented for bidispersed system, the supercritical one is used instead.");
-                return inflowBC_;
-            }
-        }
-        else //outflow boundary
-        {
-            if (froude >= 1)
-            {
-                return solution;
-            }
-            else
-            {
-                logger(WARN, "subcritical outflow boundary not implemented for bidispersed system, the supercritical one is used instead.");
-                return solution;
-            }
-        }
+        
     }
+}

@@ -151,15 +151,15 @@ namespace Base
         LinearAlgebra::MiddleSizeMatrix &integrand = element.getResultMatrix();
         
         // Get the number of basis functions.
-        const std::size_t numOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
+        const std::size_t numberOfBasisFunctions = element.getElement()->getNumberOfBasisFunctions();
         
         // Compute the matrix of products for all basis functions.
         std::size_t iVB, jVB; // indices for both variable and basis function.
         for (std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; iV++)
         {
-            for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++)
+            for (std::size_t iB = 0; iB < numberOfBasisFunctions; iB++)
             {
-                for (std::size_t jB = 0; jB < numOfBasisFunctions; jB++)
+                for (std::size_t jB = 0; jB < numberOfBasisFunctions; jB++)
                 {
                     iVB = element.getElement()->convertToSingleIndex(iB, iV);
                     jVB = element.getElement()->convertToSingleIndex(jB, iV);
@@ -214,13 +214,13 @@ namespace Base
         LinearAlgebra::MiddleSizeVector initialSolution = getInitialSolution(pPhys, startTime, orderTimeDerivative);
         
         // Get the number of basis functions.
-        const std::size_t numOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
+        const std::size_t numberOfBasisFunctions = element.getElement()->getNumberOfBasisFunctions();
         
         // Compute the product of the initial solution and all test functions.
         std::size_t iVB, jVB; // indices for both variable and basis function.
         for (std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; iV++)
         {
-            for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++)
+            for (std::size_t iB = 0; iB < numberOfBasisFunctions; iB++)
             {
                 iVB = element.getElement()->convertToSingleIndex(iB, iV);
                 integrand(iVB) = element.basisFunction(iB) * initialSolution(iV);
@@ -265,12 +265,12 @@ namespace Base
         const LinearAlgebra::MiddleSizeVector exactSolution = getExactSolution(pPhys, time, 0);
         
         // Get the number of basis functions.
-        const std::size_t numOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
+        const std::size_t numberOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
         
         // Compute the numerical solution.
         LinearAlgebra::MiddleSizeVector numericalSolution(this->configData_->numberOfUnknowns_);
         numericalSolution *= 0;
-        for(std::size_t jB = 0; jB < numOfBasisFunctions; jB++)
+        for(std::size_t jB = 0; jB < numberOfBasisFunctions; jB++)
         {
             for(std::size_t jV = 0; jV < this->configData_->numberOfUnknowns_; jV++)
             {
@@ -727,8 +727,12 @@ namespace Base
             dt = T / numberOfTimeSteps;
             
             // Compute the number of timesteps after which to create an output frame.
-            ///\todo current syntax makes it unclear if you try to cast before or after division, please add brackets and/or static_cast to clarify
-            numberOfTimeStepsForOutput = (std::size_t) numberOfTimeSteps / numberOfOutputFrames;
+            numberOfTimeStepsForOutput = (std::size_t) (numberOfTimeSteps / numberOfOutputFrames);
+        }
+        else
+        {
+            // Set the number of timesteps after which to create an output frame higher then the total number of time steps.
+            numberOfTimeStepsForOutput = numberOfTimeSteps + 1;
         }
         
         // Set the initial time.
@@ -747,15 +751,21 @@ namespace Base
         logger(INFO,"Solving the system of PDE's.");
         logger(INFO, "dt: %.", dt);
         logger(INFO, "Total number of time steps: %.", numberOfTimeSteps);
-        logger(INFO, "Number of time steps for output: %.", numberOfTimeStepsForOutput);
+        if(numberOfOutputFrames > 0)
+        {
+            logger(INFO, "Number of time steps for output: %.", numberOfTimeStepsForOutput);
+        }
         for (std::size_t iT = 1; iT <= numberOfTimeSteps; iT++)
         {
             computeOneTimeStep(time, dt);
             
-            if (iT % numberOfTimeStepsForOutput == 0)
+            if(numberOfOutputFrames > 0)
             {
-                tecplotWriter.write(this->meshes_[0], solutionTitle_, false, this, time);
-                VTKWrite(VTKWriter, time, solutionVectorId_);
+                if (iT % numberOfTimeStepsForOutput == 0)
+                {
+                    tecplotWriter.write(this->meshes_[0], solutionTitle_, false, this, time);
+                    VTKWrite(VTKWriter, time, solutionVectorId_);
+                }
             }
             showProgress(time, iT);
         }

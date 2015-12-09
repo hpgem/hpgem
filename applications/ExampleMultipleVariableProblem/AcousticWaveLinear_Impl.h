@@ -29,19 +29,19 @@
 template<std::size_t DIM>
 AcousticWaveLinear<DIM>::AcousticWaveLinear
 (
- const std::size_t numOfVariables,
+ const std::size_t numberOfVariables,
  const std::size_t polynomialOrder,
  const TimeIntegration::ButcherTableau * const ptrButcherTableau,
  const bool useSourceTerm
  ) :
-Base::HpgemAPILinear<DIM>(numOfVariables, polynomialOrder, ptrButcherTableau, 1, useSourceTerm),
-numOfVariables_(numOfVariables),
+Base::HpgemAPILinear<DIM>(numberOfVariables, polynomialOrder, ptrButcherTableau, 1, useSourceTerm),
+numberOfVariables_(numberOfVariables),
 cInv_(1.0)
 {
 }
 
 template<std::size_t DIM>
-Base::RectangularMeshDescriptor<DIM> AcousticWaveLinear<DIM>::createMeshDescription(const std::size_t numOfElementPerDirection)
+Base::RectangularMeshDescriptor<DIM> AcousticWaveLinear<DIM>::createMeshDescription(const std::size_t numberOfElementsPerDirection)
 {
     // Create the domain. In this case the domain is the square [0,1]^DIM and periodic.
     Base::RectangularMeshDescriptor<DIM> description;
@@ -49,7 +49,7 @@ Base::RectangularMeshDescriptor<DIM> AcousticWaveLinear<DIM>::createMeshDescript
     {
         description.bottomLeft_[i] = 0;
         description.topRight_[i] = 1;
-        description.numElementsInDIM_[i] = numOfElementPerDirection;
+        description.numElementsInDIM_[i] = numberOfElementsPerDirection;
         if(i == 0)
         {
             description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
@@ -66,7 +66,7 @@ Base::RectangularMeshDescriptor<DIM> AcousticWaveLinear<DIM>::createMeshDescript
 template<std::size_t DIM>
 LinearAlgebra::MiddleSizeVector AcousticWaveLinear<DIM>::getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
 {
-    LinearAlgebra::MiddleSizeVector realSolution(numOfVariables_);
+    LinearAlgebra::MiddleSizeVector realSolution(numberOfVariables_);
     double c = std::sqrt(1.0 / cInv_); // Wave velocity.
     
     double x0 = pPhys[0];
@@ -78,7 +78,7 @@ LinearAlgebra::MiddleSizeVector AcousticWaveLinear<DIM>::getExactSolution(const 
     
     realSolution(0) = - std::sqrt(DIM) * c * (2 * M_PI) * std::cos(2 * M_PI * x0) * std::cos(2 * M_PI * (x1 - std::sqrt(DIM) * c * time));
     realSolution(1) = - (2 * M_PI) * std::sin(2 * M_PI * x0) * std::sin(2 * M_PI * (x1 - std::sqrt(DIM) * c * time)) / cInv_;
-    for (std::size_t iV = 2; iV < numOfVariables_; iV++) // iV is the index for the variable.
+    for (std::size_t iV = 2; iV < numberOfVariables_; iV++) // iV is the index for the variable.
     {
         realSolution(iV) = (2 * M_PI) * std::cos(2 * M_PI * x0) * std::cos(2 * M_PI * (x1 - std::sqrt(DIM) * c * time)) / cInv_;
     }
@@ -97,19 +97,19 @@ LinearAlgebra::MiddleSizeVector AcousticWaveLinear<DIM>::getInitialSolution(cons
 template<std::size_t DIM>
 LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear<DIM>::integrandMassMatrixOnRefElement(Base::PhysicalElement<DIM>& element)
 {
-    std::size_t numOfBasisFunctions = element.getElement()->getNumberOfBasisFunctions();
+    std::size_t numberOfBasisFunctions = element.getNumberOfBasisFunctions();
     LinearAlgebra::MiddleSizeMatrix& integrand = element.getResultMatrix();
     const PointPhysicalT& pPhys = element.getPointPhysical();
     
     std::size_t iVB, jVB; // indices for both variable and basis function.
-    for (std::size_t iV = 0; iV < numOfVariables_; iV++)
+    for (std::size_t iV = 0; iV < numberOfVariables_; iV++)
     {
-        for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++)
+        for (std::size_t iB = 0; iB < numberOfBasisFunctions; iB++)
         {
-            for (std::size_t jB = 0; jB < numOfBasisFunctions; jB++)
+            for (std::size_t jB = 0; jB < numberOfBasisFunctions; jB++)
             {
-                iVB = element.getElement()->convertToSingleIndex(iB, iV);
-                jVB = element.getElement()->convertToSingleIndex(jB, iV);
+                iVB = element.convertToSingleIndex(iB, iV);
+                jVB = element.convertToSingleIndex(jB, iV);
                 integrand(iVB, jVB) = element.basisFunction(iB) * element.basisFunction(jB);
                 if (iV > 0)
                 {
@@ -130,7 +130,7 @@ template<std::size_t DIM>
 LinearAlgebra::MiddleSizeVector AcousticWaveLinear<DIM>::integrandInitialSolutionOnRefElement
 (Base::PhysicalElement<DIM>& element, const double &startTime)
 {
-    std::size_t numOfBasisFunctions = element.getElement()->getNumberOfBasisFunctions();
+    std::size_t numberOfBasisFunctions = element.getNumberOfBasisFunctions();
     
     LinearAlgebra::MiddleSizeVector integrand = element.getResultVector();
     
@@ -139,11 +139,11 @@ LinearAlgebra::MiddleSizeVector AcousticWaveLinear<DIM>::integrandInitialSolutio
     LinearAlgebra::MiddleSizeVector initialSolution(getInitialSolution(pPhys, startTime));
     
     std::size_t iVB; // Index for both variable and basis function.
-    for (std::size_t iV = 0; iV < numOfVariables_; iV++)
+    for (std::size_t iV = 0; iV < numberOfVariables_; iV++)
     {
-        for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++)
+        for (std::size_t iB = 0; iB < numberOfBasisFunctions; iB++)
         {
-            iVB = element.getElement()->convertToSingleIndex(iB, iV);
+            iVB = element.convertToSingleIndex(iB, iV);
             integrand(iVB) = element.basisFunction(iB) * initialSolution(iV);
             if (iV > 0)
             {
@@ -162,31 +162,31 @@ LinearAlgebra::MiddleSizeVector AcousticWaveLinear<DIM>::integrandInitialSolutio
 template<std::size_t DIM>
 LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear<DIM>::integrandStiffnessMatrixOnRefElement(Base::PhysicalElement<DIM>& element)
 {
-    std::size_t numOfBasisFunctions = element.getElement()->getNumberOfBasisFunctions();
+    std::size_t numberOfBasisFunctions = element.getNumberOfBasisFunctions();
     LinearAlgebra::MiddleSizeMatrix& integrand = element.getResultMatrix();
     LinearAlgebra::SmallVector<DIM> gradientBasisFunction;
     double valueTestFunction;
     
     std::size_t iVB, jVB; // Indices for both variable and basisfunction
-    for (std::size_t jB = 0; jB < numOfBasisFunctions; jB++)
+    for (std::size_t jB = 0; jB < numberOfBasisFunctions; jB++)
     {
         gradientBasisFunction = element.basisFunctionDeriv(jB);
-        for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++)
+        for (std::size_t iB = 0; iB < numberOfBasisFunctions; iB++)
         {
             valueTestFunction = element.basisFunction(iB);
             
-            iVB = element.getElement()->convertToSingleIndex(iB, 0);
+            iVB = element.convertToSingleIndex(iB, 0);
             for (std::size_t jD = 0; jD < DIM; jD++) // Index for the derivatives
             {
-                jVB = element.getElement()->convertToSingleIndex(jB, jD + 1);
+                jVB = element.convertToSingleIndex(jB, jD + 1);
                 integrand(iVB, jVB) = gradientBasisFunction(jD) * valueTestFunction;
                 
             }
             
-            jVB = element.getElement()->convertToSingleIndex(jB, 0);
+            jVB = element.convertToSingleIndex(jB, 0);
             for (std::size_t iD = 0; iD < DIM; iD++) // Index for the derivatives
             {
-                iVB = element.getElement()->convertToSingleIndex(iB, iD + 1);
+                iVB = element.convertToSingleIndex(iB, iD + 1);
                 integrand(iVB, jVB) = gradientBasisFunction(iD) * valueTestFunction;
             }
         }
@@ -202,8 +202,8 @@ LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear<DIM>::integrandStiffnessMatri
 template<std::size_t DIM>
 LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear<DIM>::integrandStiffnessMatrixOnRefFace(Base::PhysicalFace<DIM>& face, const Base::Side &iSide, const Base::Side &jSide)
 {
-    std::size_t numOfSolutionBasisFunctions = face.getFace()->getPtrElement(jSide)->getNumberOfBasisFunctions();
-    std::size_t numOfTestBasisFunctions = face.getFace()->getPtrElement(iSide)->getNumberOfBasisFunctions();
+    std::size_t numberOfSolutionBasisFunctions = face.getFace()->getPtrElement(jSide)->getNumberOfBasisFunctions();
+    std::size_t numberOfTestBasisFunctions = face.getFace()->getPtrElement(iSide)->getNumberOfBasisFunctions();
     
     LinearAlgebra::MiddleSizeMatrix integrand = face.getResultMatrix(iSide, jSide);
     
@@ -219,10 +219,10 @@ LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear<DIM>::integrandStiffnessMatri
     
     // Compute the integrand
     std::size_t iVB, jVB; // Indices for both variable and basisfunction.
-    for (std::size_t jB = 0; jB < numOfSolutionBasisFunctions; jB++) // iB and jB are indices for the basis function.
+    for (std::size_t jB = 0; jB < numberOfSolutionBasisFunctions; jB++) // iB and jB are indices for the basis function.
     {
         valueBasisFunction = face.basisFunction(jSide, jB);
-        for (std::size_t iB = 0; iB < numOfTestBasisFunctions; iB++)
+        for (std::size_t iB = 0; iB < numberOfTestBasisFunctions; iB++)
         {
             valueTestFunction = face.basisFunction(iSide, iB);
             
@@ -276,7 +276,7 @@ double AcousticWaveLinear<DIM>::integrandErrorOnRefElement
     LinearAlgebra::MiddleSizeVector realSolution(getExactSolution(pPhys, time));
     const LinearAlgebra::MiddleSizeVector& numericalSolution = element.getSolution();
     
-    for (std::size_t jV = 0; jV < numOfVariables_; jV++)
+    for (std::size_t jV = 0; jV < numberOfVariables_; jV++)
     {
         if (jV > 0)
         {
@@ -339,13 +339,13 @@ LinearAlgebra::MiddleSizeMatrix AcousticWaveLinear<DIM>::computeStiffnessMatrixA
 template<std::size_t DIM>
 Base::FaceMatrix AcousticWaveLinear<DIM>::computeStiffnessMatrixAtFace(Base::Face *ptrFace)
 {
-    std::size_t numOfBasisFunctionsLeft = 0;
-    std::size_t numOfBasisFunctionsRight = 0;
+    std::size_t numberOfBasisFunctionsLeft = 0;
+    std::size_t numberOfBasisFunctionsRight = 0;
     
-    numOfBasisFunctionsLeft = ptrFace->getPtrElementLeft()->getNumberOfBasisFunctions();
+    numberOfBasisFunctionsLeft = ptrFace->getPtrElementLeft()->getNumberOfBasisFunctions();
     if (ptrFace->isInternal())
     {
-        numOfBasisFunctionsRight = ptrFace->getPtrElementRight()->getNumberOfBasisFunctions();
+        numberOfBasisFunctionsRight = ptrFace->getPtrElementRight()->getNumberOfBasisFunctions();
     }
     
     std::vector<Base::Side> allSides; // Vector with all sides of the face.
@@ -355,7 +355,7 @@ Base::FaceMatrix AcousticWaveLinear<DIM>::computeStiffnessMatrixAtFace(Base::Fac
         allSides.push_back(Base::Side::RIGHT);
     }
     
-    Base::FaceMatrix stiffnessFaceMatrix(numOfBasisFunctionsLeft * numOfVariables_, numOfBasisFunctionsRight * numOfVariables_);
+    Base::FaceMatrix stiffnessFaceMatrix(numberOfBasisFunctionsLeft * numberOfVariables_, numberOfBasisFunctionsRight * numberOfVariables_);
     
     for (Base::Side iSide : allSides)
     {

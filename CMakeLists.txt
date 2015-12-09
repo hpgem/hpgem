@@ -36,8 +36,8 @@ endif(NOT CMAKE_CXX_FLAGS)
 #This section generates a configuration file that contains the CMake varibles#
 #############################################
 
-configure_file(conf/cmake/CMakeDefinitions.conf
-		${PROJECT_BINARY_DIR}/kernel/CMakeDefinitions.h)
+configure_file(${hpGEM_SOURCE_DIR}/conf/cmake/CMakeDefinitions.conf ${hpGEM_SOURCE_DIR}/conf/cmake/CMakeDefinitions.h ESCAPE_QUOTES)
+include_directories(${hpGEM_SOURCE_DIR}/conf/cmake)
 
 
 #Make the default build release is this in what a normal user wants

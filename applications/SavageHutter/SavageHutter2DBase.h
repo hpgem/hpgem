@@ -72,6 +72,12 @@ protected:
         const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
         const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight
         )override final;
+
+    std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrandsAtFace(
+		Base::PhysicalFace<2> &face,
+		const double &time,
+		const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
+		const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight);
     
 protected:
     ///\brief Compute the friction as in Weinhart et. al. (2012)

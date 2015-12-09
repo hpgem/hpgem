@@ -75,7 +75,7 @@ public:
     ///We define the domain, number of elements in each direction and whether or
     ///no there are periodic boundary conditions. Then make a triangular mesh and 
     ///generate the basisfunctions on the reference domain.
-    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override final
+    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numberOfElementsPerDirection) override final
     {
         //describes a rectangular domain
         Base::RectangularMeshDescriptor<DIM> description;

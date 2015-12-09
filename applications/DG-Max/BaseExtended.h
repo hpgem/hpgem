@@ -62,20 +62,20 @@ using PointFaceReferenceT = Geometry::PointReference<DIM>;
 class MatrixAssembly;
 namespace Integration
 {
-
-//Tell the integrators that these functions are valid as integrands
-
-//face-integrand
-/*template <template<unsigned int> class B, typename T>
- struct ReturnTrait1<void (B::*)(const FaceT*, const Geometry::PointPhysical<DIM>&, const PointFaceReferenceT&, T& )> {
- typedef T ReturnType;
- };
- 
- //element-integrand
- template <template<unsigned int> class B, typename T>
- struct ReturnTrait1<void (B::*)(const ElementT*, const PointElementReferenceT&, T&)> {
- typedef T ReturnType;
- };*/
+    
+    //Tell the integrators that these functions are valid as integrands
+    
+    //face-integrand
+    /*template <template<unsigned int> class B, typename T>
+     struct ReturnTrait1<void (B::*)(const FaceT*, const Geometry::PointPhysical<DIM>&, const PointFaceReferenceT&, T& )> {
+     typedef T ReturnType;
+     };
+     
+     //element-integrand
+     template <template<unsigned int> class B, typename T>
+     struct ReturnTrait1<void (B::*)(const ElementT*, const PointElementReferenceT&, T&)> {
+     typedef T ReturnType;
+     };*/
 }
 
 struct errorData
@@ -125,18 +125,18 @@ public:
     int timelevel_; //this is a hack - passing a timelevel to the error integrand requires rewriting the actual integration routine
     PetscErrorCode ierr_;
     MatrixAssembly* assembler;
-
+    
     /**
      * Makes sure the configuration data and the global data agree on the information they share
      */
     void setConfigData();
-
+    
     //! gives read-only acces to the configuration data
     const Base::ConfigurationData* getConfigData();
-
+    
     //! gives read-only acces to the global data
     const MaxwellData* getData() const;
-
+    
     /**
      * set up the mesh and complete initialisation of the global data and the configuration data
      */
@@ -145,24 +145,24 @@ public:
      * this is where you specify the time part of the source Term
      * assumes that the source term can be split is a spatial part and a time part
      */
-
+    
     static double sourceTermTime(const double t);
-
+    
     /**
      * this is where you choose the solution of your problem
      * this will only have an effect on the accuracy of your error estimates
      * as a temporary solution remember to also update the exact solution in fillMatrices.cpp otherwise the final result will be incorrect
      */
     static void exactSolution(const Geometry::PointPhysical<DIM>& p, const double t, LinearAlgebra::SmallVector<DIM>& ret);
-
+    
     /**
      * this is where you choose the curl of the solution of your problem
      * this will only have an effect on the accuracy of your error estimates
      */
     static void exactSolutionCurl(const Geometry::PointPhysical<DIM>& p, const double t, LinearAlgebra::SmallVector<DIM>& ret);
-
+    
     //using ElementFunction = void(hpGemUIExtentions::*)(const ElementT*, const PointElementReferenceT&, LinearAlgebra::Matrix&);
-
+    
     /**
      * integrand for the filling of the mass matrix M
      * \param [in] element the element that is currently being integrated on
@@ -234,7 +234,7 @@ public:
      */
     // void initialConditionsDeriv(const ElementT *element, const PointElementReferenceT &p, LinearAlgebra::Matrix &ret);
     using writeFunction = void (hpGemUIExtentions::*)(const ElementT&,const PointElementReferenceT&,std::ostream&);
-
+    
     /**
      * Expand the solution back from the expansion coefficients and write them to an output stream
      * \param [in] element,p the point where the solution should be computed, given as element/reference point pair.
@@ -243,7 +243,7 @@ public:
      */
     
     void writeToTecplotFile(const Base::Element*, const PointReferenceT&, std::ostream&);
-
+    
     //tecplotwriter is also avaiable in the hpGEM kernel
     //void writeTecplotFile(const MeshManipulatorT& mesh, const char* zonetitle, const int timelevel, std::ofstream& file, const bool existingFile);
     
@@ -251,27 +251,27 @@ public:
      * Integrand for the computation of the L^2 and the Hcurl error
      */
     void elementIntegrand(Base::PhysicalElement<DIM>& el, errorData& ret);
-
+    
     /**
      * Integrand for the comutation of the jump part of the DG error
      */
     void faceIntegrand(Base::PhysicalFace<DIM>& fa, errorData& ret);
-
+    
     void LDOSIntegrand(Base::PhysicalElement<DIM>& el, double& ret);
-
+    
     /**
      * Function for the computation of some usefull errors measures. Currently computes the L2 norm, the HCurl and the DG norm norm.
      * This function does not guarantee correct results if the exact solution is not known
      */
     void computeErrors(Base::MeshManipulator<DIM>& Mesh, int timelevel, double& L2Norm, double& InfNorm, double& HCurlNorm, double& DGNorm);
-
+    
     /**
      * Writes a tecplot-readable file with the solution on some time-levels and uses PETSc to display the errors.
      * Assumes the solution is already available
      * \param [in] filename The name of the file that will contain the tecplot output.
      */
     void makeOutput(char* filename);
-
+    
     /**
      * Constructor allows PETSc to parse any PETSc-related input and does most of the initialisations.
      *
@@ -279,22 +279,22 @@ public:
      * actually usefull for computations or storing data.
      */
     hpGemUIExtentions(MaxwellData* globalConfig, Base::ConfigurationData* elementConfig, MatrixAssembly* fluxType);
-
+    
     /**
      * Deconstructor cleans up again and logs performance statistics of PETSc
      */
     ~hpGemUIExtentions();
-
+    
     /**
      * Wrapper for protected function in superclass
      */
     MeshId addMesh(Base::MeshManipulator<DIM>* mesh);
-
+    
     /**
      * makes a matrix with the shifts
      */
     void makeShiftMatrix(LinearAlgebra::SmallVector<DIM>& direction, Vec& waveVecMatrix);
-
+    
     /**
      * Tell PETSc the places where special care must be taken because of periodic boundary conditions
      * different sorts of care need to be taken in different cardinal directions so this function also
@@ -304,129 +304,129 @@ public:
      * with rows first and then columns
      */
     void findBoundaryBlocks(std::vector<IS>& xRow, std::vector<IS>& xCol, std::vector<IS>& yRow, std::vector<IS>& yCol, std::vector<IS>& zRow, std::vector<IS>& zCol);
-
+    
     // called for CO4 scheme in solveTimeDependent
     void GetCoeffCO4(LinearAlgebra::SmallVector<6>& alpha,
-		 LinearAlgebra::SmallVector<6>& beta,
-		 LinearAlgebra::SmallVector<6>& alpha_sum,
-		 LinearAlgebra::SmallVector<6>& beta_sum,
-		 LinearAlgebra::SmallVector<6>& scale0,
-		 LinearAlgebra::SmallVector<6>& scale1,
-		 const double& tau);
+                     LinearAlgebra::SmallVector<6>& beta,
+                     LinearAlgebra::SmallVector<6>& alpha_sum,
+                     LinearAlgebra::SmallVector<6>& beta_sum,
+                     LinearAlgebra::SmallVector<6>& scale0,
+                     LinearAlgebra::SmallVector<6>& scale1,
+                     const double& tau);
     /**
      * Call after setting up the mesh. This will arrange that the matrices are assembled and then solve Sx+omegaEpsilon*Mderivative=RHS using a leap-frog time-stepping method
      */
     void solveTimeDependent(bool useCO2, bool useCO4);
-
+    
     /**
      * Call after setting up the mesh. This will arrange that the matrices are assembled and then solve Sx-omega*Mx=RHS using a krylov-subspace solver
      */
     void solveHarmonic();
-
+    
     /**
      * Call after setting up the mesh. This will arrange that the matrices are assembled and then solve a series of eigenvalue problems in k-space
      */
     void solveEigenvalues();
-
+    
     /*
      * Call after setting up the mesh. This will arrange that the matrices are assembled and then find the Density of States using eigenfunction expansions
      */
     void solveDOS();
-
+    
     /**
      * If you just want to dump the matrixes for some testing in matlab, this is your routine
      */
     void exportMatrixes();
-
+    
     /**
      * given an eigenvector, prepare an expression for f(x) in int(f(x)*delta(omega) dx)
      */
     void makeFunctionValue(Vec eigenVector, LinearAlgebra::MiddleSizeVector& result);
-
+    
     class anonymous1 : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeMatrix, DIM>
     {
     public:
         
         void elementIntegrand(Base::PhysicalElement<DIM>& el , LinearAlgebra::MiddleSizeMatrix& ret);
     } elementMassIntegrand;
-
+    
     class anonymous2 : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeMatrix, DIM>
     {
     public:
         
         void elementIntegrand(Base::PhysicalElement<DIM>& el , LinearAlgebra::MiddleSizeMatrix& ret);
     } elementStiffnessIntegrand;
-
+    
     class anonymous3 : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector, DIM>
     {
     public:
         
         void elementIntegrand(Base::PhysicalElement<DIM>& el , LinearAlgebra::MiddleSizeVector& ret);
     } elementSpaceIntegrand;
-
+    
     class anonymous4 : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector, DIM>
     {
     public:
         
         void elementIntegrand(Base::PhysicalElement<DIM>& el , LinearAlgebra::MiddleSizeVector& ret);
     } initialConditionsIntegrand;
-
+    
     class anonymous5 : public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeVector, DIM>
     {
     public:
         
         void elementIntegrand(Base::PhysicalElement<DIM>& el , LinearAlgebra::MiddleSizeVector& ret);
     } initialConditionsDerivIntegrand;
-
+    
     class anonymous6 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeMatrix, DIM>
     {
     public:
         void faceIntegrand(Base::PhysicalFace<DIM>& fa, LinearAlgebra::MiddleSizeMatrix& ret);
     } faceStiffnessIntegrand;
-
+    
     class anonymous7 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeMatrix, DIM>
     {
     public:
         
         void faceIntegrand(Base::PhysicalFace<DIM>& fa, LinearAlgebra::MiddleSizeMatrix& ret);
     } faceStiffnessIntegrandIP;
-
+    
     class anonymous8 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeVector, DIM>
     {
     public:
         
         void faceIntegrand(Base::PhysicalFace<DIM>& fa, LinearAlgebra::MiddleSizeVector& ret);
     } faceSpaceIntegrandIP;
-
+    
     class anonymous9 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeMatrix, DIM>
     {
     public:
         
         void faceIntegrand(Base::PhysicalFace<DIM>& fa, LinearAlgebra::MiddleSizeMatrix& ret);
     } faceStiffnessIntegrandBR;
-
+    
     class anonymous10 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeVector, DIM>
     {
     public:
         
         void faceIntegrand(Base::PhysicalFace<DIM>& fa, LinearAlgebra::MiddleSizeVector& ret);
     } faceSpaceIntegrandBR;
-
+    
     class anonymous11 : public Integration::FaceIntegrandBase<LinearAlgebra::MiddleSizeVector, DIM>
     {
     public:
         
         void faceIntegrand(Base::PhysicalFace<DIM>& fa, LinearAlgebra::MiddleSizeVector& ret);
     } faceSpaceIntegrand;
-
+    
     static void initialConditions(const PointPhysicalT& p, LinearAlgebra::SmallVector<DIM>& ret);
-
+    
     static void initialConditionsDeriv(const PointPhysicalT& p, LinearAlgebra::SmallVector<DIM>& ret);
-
+    
     static void sourceTerm(const Geometry::PointPhysical<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret);
-
+    
     static void initialExactSolution(const Geometry::PointPhysical<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret);
-
+    
     static void boundaryConditions(const Geometry::PointPhysical<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret);
     
 };

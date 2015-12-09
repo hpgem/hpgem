@@ -106,7 +106,9 @@ namespace Base
         ///the absolute value of the determinant of the Jacobian of the coordinate transformation
         double getJacobianAbsDet();
 
-
+        ///the determinant of the Jacobian of the coordinate transformation
+        double getJacobianDet();
+        
         ///a middle size square matrix of size nBasisFunctions x nUnknowns
         ///\details this gets zeroed out every time the reference point is changed and is only resized by the physical element upon construction, so this could also be used for matrixes of different size
         LinearAlgebra::MiddleSizeMatrix& getResultMatrix();
@@ -186,6 +188,7 @@ namespace Base
         Geometry::PointPhysical<DIM> pointPhysical;
         Geometry::Jacobian<DIM, DIM> jacobian, transposeJacobian, inverseTransposeJacobian;
         double jacobianAbsDet;
+        double jacobianDet;
 
         LinearAlgebra::MiddleSizeMatrix resultMatrix;
         LinearAlgebra::MiddleSizeVector resultVector;
@@ -196,7 +199,7 @@ namespace Base
         //did we already compute this?
         bool hasFunctionValue, hasVectorFunctionValue, hasFunctionDeriv, hasFunctionCurl, hasFunctionDiv;
         bool hasSolution, hasVectorSolution, hasSolutionDeriv, hasSolutionCurl, hasSolutionDiv;
-        bool hasPointPhysical, hasJacobian, hasTransposeJacobian, hasInverseTransposeJacobian, hasJacobianDet;
+        bool hasPointPhysical, hasJacobian, hasTransposeJacobian, hasInverseTransposeJacobian, hasJacobianDet, hasJacobianAbsDet;
     };
 
     template<std::size_t DIM>
@@ -428,18 +431,35 @@ namespace Base
     inline double Base::PhysicalElement<DIM>::getJacobianAbsDet()
     {
         logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
-        if(hasJacobianDet)
+        if(hasJacobianAbsDet)
         {
             return jacobianAbsDet;
         }
         else
         {
-            hasJacobianDet = true;
-            jacobianAbsDet = std::abs(getJacobian().determinant());
+            hasJacobianAbsDet = true;
+            jacobianAbsDet = std::abs(getJacobianDet());
             return jacobianAbsDet;
         }
     }
-    
+
+    template<std::size_t DIM>
+    inline double Base::PhysicalElement<DIM>::getJacobianDet()
+    {
+        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
+        if(hasJacobianDet)
+        {
+            return jacobianDet;
+        }
+        else
+        {
+            hasJacobianDet = true;
+            jacobianDet = getJacobian().determinant();
+            return jacobianDet;
+        }
+    }
+
+
     template<std::size_t DIM>
     inline LinearAlgebra::MiddleSizeMatrix& Base::PhysicalElement<DIM>::getResultMatrix()
     {
@@ -492,6 +512,7 @@ namespace Base
         hasTransposeJacobian = false;
         hasInverseTransposeJacobian = false;
         hasJacobianDet = false;
+        hasJacobianAbsDet = false;
         if(!hasElementMatrix)
         {
             resultMatrix *= 0;
@@ -536,6 +557,7 @@ namespace Base
         hasTransposeJacobian = false;
         hasInverseTransposeJacobian = false;
         hasJacobianDet = false;
+        hasJacobianAbsDet = false;
         if(!hasElementMatrix)
         {
             resultMatrix *= 0;

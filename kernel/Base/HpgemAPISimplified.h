@@ -149,8 +149,8 @@ namespace Base
         virtual LinearAlgebra::MiddleSizeMatrix computeMassMatrixAtElement(Base::Element *ptrElement);
         
         /// \brief Solve the mass matrix equations for a single element.
-        /// \details Solve the equation \f$ Mu = r \f$ for \f$ u \f$ for a single element, where \f$ r \f$ is the right-hand sid and \f$ M \f$ is the mass matrix. The input is the right hand side here called 'solutionCoefficients' and the result is returned in this same vector.
-        virtual void solveMassMatrixEquationsAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients);
+        /// \details Solve the equation \f$ Mu = r \f$ for \f$ u \f$ for a single element, where \f$ r \f$ is the right-hand sid and \f$ M \f$ is the mass matrix. The input is the right hand side here called 'inputFunctionCoefficients' and the result is returned in this same vector.
+        virtual void solveMassMatrixEquationsAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &inputFunctionCoefficients);
 
         /// \brief Solve the mass matrix equations.
         virtual void solveMassMatrixEquations(const std::size_t timeIntegrationVectorId);
@@ -183,7 +183,7 @@ namespace Base
         virtual LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement
         (
          Base::Element *ptrElement,
-         LinearAlgebra::MiddleSizeVector &solutionCoefficients,
+         LinearAlgebra::MiddleSizeVector &inputFunctionCoefficients,
          const double time
         )
         {
@@ -196,7 +196,7 @@ namespace Base
         virtual LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace
         (
          Base::Face *ptrFace,
-         LinearAlgebra::MiddleSizeVector &solutionCoefficients,
+         LinearAlgebra::MiddleSizeVector &inputFunctionCoefficients,
          const double time
          )
         {
@@ -210,8 +210,8 @@ namespace Base
         (
          Base::Face *ptrFace,
          const Base::Side side,
-         LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
-         LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight,
+         LinearAlgebra::MiddleSizeVector &inputFunctionCoefficientsLeft,
+         LinearAlgebra::MiddleSizeVector &inputFunctionCoefficientsRight,
          const double time
          )
         {
@@ -224,8 +224,8 @@ namespace Base
         virtual std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> computeBothRightHandSidesAtFace
         (
          Base::Face *ptrFace,
-         LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
-         LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight,
+         LinearAlgebra::MiddleSizeVector &inputFunctionCoefficientsLeft,
+         LinearAlgebra::MiddleSizeVector &inputFunctionCoefficientsRight,
          const double time
          )
         {

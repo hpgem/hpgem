@@ -44,10 +44,11 @@ namespace Helpers
         LinearAlgebra::MiddleSizeVector solution(numVariables);
         for (std::size_t iFun = 0; iFun < numBasisFunctions; ++ iFun)
         {
+            const double basisFunctionValue = element.basisFunction(iFun);
             for (std::size_t iVar = 0; iVar < numVariables; ++ iVar)
             {
                 std::size_t iVB = element.convertToSingleIndex(iFun, iVar);
-                solution(iVar) += element.basisFunction(iFun) * solutionCoefficients(iVB);
+                solution(iVar) += basisFunctionValue * solutionCoefficients(iVB);
             }
         }
         return solution;

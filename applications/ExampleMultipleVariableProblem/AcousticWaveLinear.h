@@ -82,14 +82,14 @@ public:
 
     AcousticWaveLinear
     (
-     const std::size_t numOfVariables,
+     const std::size_t numberOfVariables,
      const std::size_t polynomialOrder,
      const TimeIntegration::ButcherTableau * const ptrButcherTableau,
      const bool useSourceTerm = false
      );
     
     /// \brief Create a domain
-    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override final;
+    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numberOfElementsPerDirection) override final;
     
     /// \brief Set the material parameter.
     /// \param[in] c Material parameter corresponding to the speed with which waves can propagate.
@@ -165,7 +165,7 @@ public:
 private:
 
 /// Number of variables
-const std::size_t numOfVariables_;
+const std::size_t numberOfVariables_;
 
 /// Material parameter c^{-1}
 double cInv_;

@@ -41,7 +41,7 @@
 #include "Base/CommandLineOptions.h"
 
     // Choose the dimension (1 or 2 or 3)
-const static std::size_t DIM = 2;
+const static std::size_t DIM = 3;
 
 ///\brief Test application that solves the Poisson equation.
 ///
@@ -76,7 +76,7 @@ public:
     ///We define the domain, number of elements in each direction and whether or
     ///no there are periodic boundary conditions. Then make a triangular mesh and
     ///generate the basisfunctions on the reference domain.
-    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override final
+    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numberOfElementsPerDirection) override final
     {
         //describes a rectangular domain
         Base::RectangularMeshDescriptor<DIM> description;
