@@ -486,29 +486,29 @@ namespace Base
         }
         for(Face* face : getFacesList(IteratorType::GLOBAL))
         {
-            std::size_t faceNr = face->localFaceNumberLeft();
+            std::size_t faceNumber = face->localFaceNumberLeft();
             auto type = face->getPtrElementLeft()->getReferenceGeometry()->getGeometryType();
             for (std::size_t i = shapeToElementIndex[type] + 1; i < shapeToElementIndex[type] + numberOfFaceSets[type] + 1; ++i)
             {
                 logger.assert(typeid(*collBasisFSet_[i]) == typeid(const OrientedBasisFunctionSet), "This is not supposed to happen");
-                if (static_cast<const OrientedBasisFunctionSet*>(collBasisFSet_[i].get())->checkOrientation(0, faceNr))
+                if (static_cast<const OrientedBasisFunctionSet*>(collBasisFSet_[i].get())->checkOrientation(0, faceNumber))
                 {
-                    face->getPtrElementLeft()->setFaceBasisFunctionSet(i, faceNr);
+                    face->getPtrElementLeft()->setFaceBasisFunctionSet(i, faceNumber);
                     //the number of basis functions depends on the shape of the face, not on the shape of the element
                     face->setLocalNumberOfBasisFunctions(collBasisFSet_[i]->size());
                 }
             }
             if (face->isInternal())
             {
-                faceNr = face->localFaceNumberRight();
+                faceNumber = face->localFaceNumberRight();
                 type = face->getPtrElementRight()->getReferenceGeometry()->getGeometryType();
                 std::size_t orientation = face->getFaceToFaceMapIndex();
                 for (std::size_t i = shapeToElementIndex[type] + 1; i < shapeToElementIndex[type] + numberOfFaceSets[type] + 1; ++i)
                 {
                     logger.assert(typeid(*collBasisFSet_[i]) == typeid(const OrientedBasisFunctionSet), "This is not supposed to happen");
-                    if (static_cast<const OrientedBasisFunctionSet*>(collBasisFSet_[i].get())->checkOrientation(orientation, faceNr))
+                    if (static_cast<const OrientedBasisFunctionSet*>(collBasisFSet_[i].get())->checkOrientation(orientation, faceNumber))
                     {
-                        face->getPtrElementRight()->setFaceBasisFunctionSet(i, faceNr);
+                        face->getPtrElementRight()->setFaceBasisFunctionSet(i, faceNumber);
                     }
                 }
             }
@@ -518,15 +518,15 @@ namespace Base
             for(std::size_t i = 0; i < edge->getNumberOfElements(); ++i)
             {
                 Element* element = edge->getElement(i);
-                std::size_t edgeNr = edge->getEdgeNumber(i);
+                std::size_t edgeNumber = edge->getEdgeNumber(i);
                 std::size_t orientation = edge->getOrientation(i);
                 auto type = element->getReferenceGeometry()->getGeometryType();
                 for(std::size_t j = shapeToElementIndex[type] + numberOfFaceSets[type] + 1; j < shapeToElementIndex[type] + numberOfFaceSets[type] + numberOfEdgeSets[type] + 1; ++j)
                 {
                     logger.assert(typeid(*collBasisFSet_[j]) == typeid(const OrientedBasisFunctionSet), "This is not supposed to happen");
-                    if (static_cast<const OrientedBasisFunctionSet*>(collBasisFSet_[j].get())->checkOrientation(orientation, edgeNr))
+                    if (static_cast<const OrientedBasisFunctionSet*>(collBasisFSet_[j].get())->checkOrientation(orientation, edgeNumber))
                     {
-                        element->setEdgeBasisFunctionSet(j, edgeNr);
+                        element->setEdgeBasisFunctionSet(j, edgeNumber);
                         edge->setLocalNumberOfBasisFunctions(collBasisFSet_[j]->size());
                     }
 
@@ -540,10 +540,10 @@ namespace Base
                 for(std::size_t i = 0; i < node->getNumberOfElements(); ++i)
                 {
                     Element* element = node->getElement(i);
-                    std::size_t nodeNr = node->getNodeNumber(i);
+                    std::size_t nodeNumber = node->getNodeNumber(i);
                     auto type = element->getReferenceGeometry()->getGeometryType();
-                    element->setVertexBasisFunctionSet(shapeToElementIndex[type] + numberOfFaceSets[type] + numberOfEdgeSets[type] + 1 + nodeNr, nodeNr);
-                    node->setLocalNrOfBasisFunctions(collBasisFSet_[shapeToElementIndex[type] + numberOfFaceSets[type] + numberOfEdgeSets[type] + 1 + nodeNr]->size());
+                    element->setVertexBasisFunctionSet(shapeToElementIndex[type] + numberOfFaceSets[type] + numberOfEdgeSets[type] + 1 + nodeNumber, nodeNumber);
+                    node->setLocalNumberOfBasisFunctions(collBasisFSet_[shapeToElementIndex[type] + numberOfFaceSets[type] + numberOfEdgeSets[type] + 1 + nodeNumber]->size());
                 }
             }
         }
@@ -601,7 +601,7 @@ namespace Base
         }
         for (Base::Node* node : getNodesList(IteratorType::GLOBAL))
         {
-            node->setLocalNrOfBasisFunctions(0);
+            node->setLocalNumberOfBasisFunctions(0);
         }
         for (ElementIterator it = elementColBegin(IteratorType::GLOBAL); it != elementColEnd(IteratorType::GLOBAL); ++it)
         {
@@ -624,7 +624,7 @@ namespace Base
             {
                 node->getElement(i)->setVertexBasisFunctionSet(firstNewEntry + node->getNodeNumber(i), node->getNodeNumber(i));
             }
-            node->setLocalNrOfBasisFunctions(bFsets[0]->size());
+            node->setLocalNumberOfBasisFunctions(bFsets[0]->size());
         }
         const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_ += (*elementColBegin())->getNumberOfNodes() * bFsets[0]->size();
     }
@@ -640,23 +640,23 @@ namespace Base
         }
         for (Face* face : getFacesList())
         {
-            std::size_t faceNr = face->localFaceNumberLeft();
+            std::size_t faceNumber = face->localFaceNumberLeft();
             for (std::size_t i = 0; i < bFsets.size(); ++i)
             {
-                if (bFsets[i]->checkOrientation(0, faceNr))
+                if (bFsets[i]->checkOrientation(0, faceNumber))
                 {
-                    face->getPtrElementLeft()->setFaceBasisFunctionSet(firstNewEntry + i, faceNr);
+                    face->getPtrElementLeft()->setFaceBasisFunctionSet(firstNewEntry + i, faceNumber);
                 }
             }
             if (face->isInternal())
             {
-                faceNr = face->localFaceNumberRight();
+                faceNumber = face->localFaceNumberRight();
                 std::size_t orientation = face->getFaceToFaceMapIndex();
                 for (std::size_t i = 0; i < bFsets.size(); ++i)
                 {
-                    if (bFsets[i]->checkOrientation(orientation, faceNr))
+                    if (bFsets[i]->checkOrientation(orientation, faceNumber))
                     {
-                        face->getPtrElementRight()->setFaceBasisFunctionSet(firstNewEntry + i, faceNr);
+                        face->getPtrElementRight()->setFaceBasisFunctionSet(firstNewEntry + i, faceNumber);
                     }
                 }
             }

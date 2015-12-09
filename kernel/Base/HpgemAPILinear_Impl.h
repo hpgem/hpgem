@@ -187,7 +187,7 @@ namespace Base
         LinearAlgebra::MiddleSizeVector sourceTerm = getSourceTerm(pPhys, time, orderTimeDerivative);
         
         // Get the number of basis functions.
-        const std::size_t numberOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
+        const std::size_t numberOfBasisFunctions = element.getNumberOfBasisFunctions();
         
         // Compute the product of the source term and all test functions.
         std::size_t iVB, jVB; // indices for both variable and basis function.

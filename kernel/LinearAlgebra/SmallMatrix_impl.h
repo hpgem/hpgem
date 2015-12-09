@@ -48,27 +48,27 @@ namespace LinearAlgebra
 
 
 
-    template<std::size_t nRows, std::size_t nCols>
-    SmallVector<nRows> SmallMatrix<nRows, nCols>::operator *(SmallVector<nCols>& right)
+    template<std::size_t numberOfRows, std::size_t numberOfColumns>
+    SmallVector<numberOfRows> SmallMatrix<numberOfRows, numberOfColumns>::operator *(SmallVector<numberOfColumns>& right)
     {
-        if (nRows == 0)
+        if (numberOfRows == 0)
         {
             logger(WARN, "Trying to multiply a vector with a matrix without any rows.");
-            return SmallVector<nRows>();
+            return SmallVector<numberOfRows>();
         }
-        if (nCols == 0)
+        if (numberOfColumns == 0)
         {
             logger(WARN, "Trying to multiply a vector with a matrix without any columns.");
-            return SmallVector<nRows>();
+            return SmallVector<numberOfRows>();
         }
-        int nr = nRows;
-        int nc = nCols;
+        int nr = numberOfRows;
+        int nc = numberOfColumns;
 
         int i_one = 1;
         double d_one = 1.0;
         double d_zero = 0.0;
 
-        SmallVector<nRows> result;
+        SmallVector<numberOfRows> result;
 
         logger(DEBUG, "Matrix size: % x % \n Vector size: %", nr, nc, right.size());
 
@@ -76,27 +76,27 @@ namespace LinearAlgebra
         return result;
     }
 
-    template<std::size_t nRows, std::size_t nCols>
-    SmallVector<nRows> SmallMatrix<nRows, nCols>::operator *(SmallVector<nCols>& right) const
+    template<std::size_t numberOfRows, std::size_t numberColumns>
+    SmallVector<numberOfRows> SmallMatrix<numberOfRows, numberColumns>::operator *(SmallVector<numberColumns>& right) const
     {
-        if (nRows == 0)
+        if (numberOfRows == 0)
         {
             logger(WARN, "Trying to multiply a vector with a matrix without any rows.");
-            return SmallVector<nRows>();
+            return SmallVector<numberOfRows>();
         }
-        if (nCols == 0)
+        if (numberColumns == 0)
         {
             logger(WARN, "Trying to multiply a vector with a matrix without any columns.");
-            return SmallVector<nRows>();
+            return SmallVector<numberOfRows>();
         }
-        int nr = nRows;
-        int nc = nCols;
+        int nr = numberOfRows;
+        int nc = numberColumns;
 
         int i_one = 1;
         double d_one = 1.0;
         double d_zero = 0.0;
 
-        SmallVector<nRows> result;
+        SmallVector<numberOfRows> result;
 
         logger(DEBUG, "Matrix size: % x % \n Vector size: %", nr, nc, right.size());
 
@@ -104,21 +104,21 @@ namespace LinearAlgebra
         return result;
     }
 
-    template<std::size_t nRows, std::size_t nCols>
+    template<std::size_t numberOfRows, std::size_t numberOfColumns>
     template<std::size_t K>
-    SmallMatrix<nRows, K> SmallMatrix<nRows, nCols>::operator *(const SmallMatrix<nCols, K>& other)
+    SmallMatrix<numberOfRows, K> SmallMatrix<numberOfRows, numberOfColumns>::operator *(const SmallMatrix<numberOfColumns, K>& other)
     {
-        int i = nRows;
-        int j = nCols;
+        int i = numberOfRows;
+        int j = numberOfColumns;
         int k = K;
 
-        if (nCols == 0)
+        if (numberOfColumns == 0)
         {
             logger(WARN, "Trying to multiply a matrix with a matrix without any columns.");
-            return SmallMatrix<nRows,K>();
+            return SmallMatrix<numberOfRows,K>();
         }
-        //The result of the matrix is left.Nrows, right.NCols()
-        SmallMatrix<nRows, K> C;
+        //The result of the matrix is left.numberOfRows, right.numberOfColumns()
+        SmallMatrix<numberOfRows, K> C;
 
         double d_one = 1.0;
         double d_zero = 0.0;
@@ -129,21 +129,21 @@ namespace LinearAlgebra
         return C;
     }
 
-    template<std::size_t nRows, std::size_t nCols>
+    template<std::size_t numberOfRows, std::size_t numberOfColumns>
     template<std::size_t K>
-    SmallMatrix<nRows, K> SmallMatrix<nRows, nCols>::operator *(const SmallMatrix<nCols, K>& other) const
+    SmallMatrix<numberOfRows, K> SmallMatrix<numberOfRows, numberOfColumns>::operator *(const SmallMatrix<numberOfColumns, K>& other) const
     {
-        int i = nRows;
-        int j = nCols;
+        int i = numberOfRows;
+        int j = numberOfColumns;
         int k = K;
 
-        if (nCols == 0)
+        if (numberOfColumns == 0)
         {
             logger(WARN, "Trying to multiply a matrix with a matrix without any columns.");
-            return SmallMatrix<nRows,K>();
+            return SmallMatrix<numberOfRows,K>();
         }
         //The result of the matrix is left.Nrows, right.NCols()
-        SmallMatrix<nRows, K> C;
+        SmallMatrix<numberOfRows, K> C;
 
         double d_one = 1.0;
         double d_zero = 0.0;
@@ -154,21 +154,21 @@ namespace LinearAlgebra
         return C;
     }
 
-    template<std::size_t nRows, std::size_t nCols>
-    SmallMatrix<nRows, nCols>& SmallMatrix<nRows, nCols>::operator *=(const SmallMatrix<nCols, nCols>& other)
+    template<std::size_t numberOfRows, std::size_t numberOfColumns>
+    SmallMatrix<numberOfRows, numberOfColumns>& SmallMatrix<numberOfRows, numberOfColumns>::operator *=(const SmallMatrix<numberOfColumns, numberOfColumns>& other)
     {
         //blas does not support in-place multiply
         return (*this) = (*this) * other;
     }
 
-    template<std::size_t nRows, std::size_t nCols>
-    SmallVector<nRows> SmallMatrix<nRows, nCols>::computeWedgeStuffVector() const
+    template<std::size_t numberOfRows, std::size_t numberOfColumns>
+    SmallVector<numberOfRows> SmallMatrix<numberOfRows, numberOfColumns>::computeWedgeStuffVector() const
     {
         //copied from MiddleSizeMatrix to prevent constructing a temporary MiddleSizeMatrix
-        logger.assert(nCols == nRows - 1, "Matrix has wrong dimensions to construct the wedge stuff vector");
-        SmallVector<nRows> result;
+        logger.assert(numberOfColumns == numberOfRows - 1, "Matrix has wrong dimensions to construct the wedge stuff vector");
+        SmallVector<numberOfRows> result;
 
-        switch (nRows)
+        switch (numberOfRows)
         {
             case 2:
                 result[0] = -(*this)(1, 0);
@@ -193,12 +193,12 @@ namespace LinearAlgebra
         return (result);
     }
 
-    template<std::size_t nRows, std::size_t nCols>
-    SmallMatrix<nRows, nCols> SmallMatrix<nRows, nCols>::LUfactorisation() const
+    template<std::size_t numberOfRows, std::size_t numberOfColumns>
+    SmallMatrix<numberOfRows, numberOfColumns> SmallMatrix<numberOfRows, numberOfColumns>::LUfactorisation() const
     {
-        int nr = nRows;
-        int nc = nCols;
-        int nPivot = std::min(nRows, nCols);
+        int nr = numberOfRows;
+        int nc = numberOfColumns;
+        int nPivot = std::min(numberOfRows, numberOfColumns);
         int iPivot[nPivot];
 
         SmallMatrix result(*this);
@@ -212,12 +212,12 @@ namespace LinearAlgebra
 
     //class template specialization for this one function is a waste of code duplication
     //just let the compiler figure out which case it needs
-    template<std::size_t nRows, std::size_t nCols>
-    double SmallMatrix<nRows, nCols>::determinant() const
+    template<std::size_t numberOfRows, std::size_t numberOfColumns>
+    double SmallMatrix<numberOfRows, numberOfColumns>::determinant() const
     {
-        logger.assert(nRows == nCols, "Matrix should be square to have a determinant!");
+        logger.assert(numberOfRows == numberOfColumns, "Matrix should be square to have a determinant!");
 
-        switch (nRows)
+        switch (numberOfRows)
         {
             case 0:
                 return 1;
@@ -234,80 +234,80 @@ namespace LinearAlgebra
                 // ... says Maple; this can possibly be done more efficiently,
                 // maybe even with LU (with pivoting, though...)
             default:
-                logger(ERROR, "Computing the Determinant for size % is not implemented", nRows);
+                logger(ERROR, "Computing the Determinant for size % is not implemented", numberOfRows);
                 break;
         }
         return 0;
     }
 
-    template<std::size_t nRows, std::size_t nCols>
-    SmallMatrix<nRows, nCols> SmallMatrix<nRows, nCols>::inverse() const
+    template<std::size_t numberOfRows, std::size_t numberOfColumns>
+    SmallMatrix<numberOfRows, numberOfColumns> SmallMatrix<numberOfRows, numberOfColumns>::inverse() const
     {
-        logger.assert(nRows == nCols, "Cannot invert a non-square matrix");
-        SmallMatrix<nRows, nCols> result = (*this);
+        logger.assert(numberOfRows == numberOfColumns, "Cannot invert a non-square matrix");
+        SmallMatrix<numberOfRows, numberOfColumns> result = (*this);
 
-        int nr = nRows;
-        int nc = nCols;
+        int nr = numberOfRows;
+        int nc = numberOfColumns;
 
-        int nPivot = nRows;
+        int nPivot = numberOfRows;
         int iPivot[nPivot];
 
         int info = 0;
 
         dgetrf_(&nr, &nc, result.data(), &nr, iPivot, &info);
 
-        int lwork = nRows * nCols;
+        int lwork = numberOfRows * numberOfColumns;
         SmallMatrix work;
         dgetri_(&nc, result.data(), &nc, iPivot, work.data(), &lwork, &info);
 
         return result;
     }
 
-    template<std::size_t nRows, std::size_t nCols>
-    template<std::size_t nRHS>
-    void SmallMatrix<nRows, nCols>::solve(SmallMatrix<nRows, nRHS>& B) const
+    template<std::size_t numberOfRows, std::size_t numberOfColumns>
+    template<std::size_t numberOfRightHandSideColumns>
+    void SmallMatrix<numberOfRows, numberOfColumns>::solve(SmallMatrix<numberOfRows, numberOfRightHandSideColumns>& B) const
     {
-        logger.assert(nRows == nCols, "can only solve for square matrixes");
+        logger.assert(numberOfRows == numberOfColumns, "can only solve for square matrixes");
 
-        int n = nRows;
-        int nrhs = nRHS;
+        int n = numberOfRows;
+        int nrhs = numberOfRightHandSideColumns;
         int info;
 
-        int IPIV[nRows];
-        SmallMatrix<nRows, nCols> matThis = *this;
+        int IPIV[numberOfRows];
+        SmallMatrix<numberOfRows, numberOfColumns> matThis = *this;
         dgesv_(&n, &nrhs, matThis.data(), &n, IPIV, B.data(), &n, &info);
     }
 
-    template<std::size_t nRows, std::size_t nCols>
-    void SmallMatrix<nRows, nCols>::solve(SmallVector<nRows>& b) const
+    template<std::size_t numberOfRows, std::size_t numberOfColumns>
+    void SmallMatrix<numberOfRows, numberOfColumns>::solve(SmallVector<numberOfRows>& b) const
     {
-        logger.assert(nRows == nCols, "can only solve for square matrixes");
+        logger.assert(numberOfRows == numberOfColumns, "can only solve for square matrixes");
 
-        int n = nRows;
+        int n = numberOfRows;
         int nrhs = 1;
         int info;
 
-        int IPIV[nRows];
+        int IPIV[numberOfRows];
         SmallMatrix matThis = *this;
         dgesv_(&n, &nrhs, matThis.data(), &n, IPIV, b.data(), &n, &info);
     }
 
-    template<std::size_t nRows, std::size_t nCols>
-    SmallVector<nCols> operator *(SmallVector<nRows>& vec, SmallMatrix<nRows, nCols>& mat)
+    template<std::size_t numberOfRows, std::size_t numberOfColumns>
+    SmallVector<numberOfColumns> operator *(SmallVector<numberOfRows>& vec, SmallMatrix<numberOfRows, numberOfColumns>& mat)
     {
-        if (nCols == 0)
+        if (numberOfColumns == 0)
         {
             logger(WARN, "Trying to multiply a vector with a matrix without any columns.");
-            return SmallVector<nCols>();
+            return SmallVector<numberOfColumns>();
         }
-        int nr = nRows;
-        int nc = nCols;
+        int nr = numberOfRows;
+        int nc = numberOfColumns;
 
         int i_one = 1;
         double d_one = 1.0;
         double d_zero = 0.0;
 
-        SmallVector<nCols> result;
+        SmallVector<numberOfColumns> result;
 
         logger(DEBUG, "Matrix size: % x % \n Vector size: %", nr, nc, vec.size());
 

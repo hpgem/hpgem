@@ -83,7 +83,7 @@ namespace Base
     {
         logger.assert(i < getNumberOfDegreesOfFreedom(Side::LEFT) + getNumberOfDegreesOfFreedom(Side::RIGHT), "Asked for degree of freedom %, but there are only % degrees of freedom", i, getNumberOfDegreesOfFreedom(Side::LEFT) + getNumberOfDegreesOfFreedom(Side::RIGHT));
         logger.assert(j < getNumberOfDegreesOfFreedom(Side::LEFT) + getNumberOfDegreesOfFreedom(Side::RIGHT), "Asked for degree of freedom %, but there are only % degrees of freedom", j, getNumberOfDegreesOfFreedom(Side::LEFT) + getNumberOfDegreesOfFreedom(Side::RIGHT));
-        std::size_t nDOFLeft = M_LeftLeft_.getNRows();
+        std::size_t nDOFLeft = M_LeftLeft_.getNumberOfRows();
         if (i < nDOFLeft)
         {
             if (j < nDOFLeft)
@@ -183,8 +183,8 @@ namespace Base
     void FaceMatrix::setElementMatrix(const LinearAlgebra::MiddleSizeMatrix & elementMatrix, Side iSide, Side jSide)
     {
         // Check size of the elementMatrix.
-        logger.assert(elementMatrix.getNRows() == getNumberOfDegreesOfFreedom(iSide), "elementMatrix has the wrong size.");
-        logger.assert(elementMatrix.getNCols() == getNumberOfDegreesOfFreedom(jSide), "elementMatrix has the wrong size.");
+        logger.assert(elementMatrix.getNumberOfRows() == getNumberOfDegreesOfFreedom(iSide), "elementMatrix has the wrong size.");
+        logger.assert(elementMatrix.getNumberOfColumns() == getNumberOfDegreesOfFreedom(jSide), "elementMatrix has the wrong size.");
         
         if (iSide == Side::LEFT)
         {
@@ -214,8 +214,8 @@ namespace Base
     /// advised to use getElementMatrix instead when possible.
     const LinearAlgebra::MiddleSizeMatrix FaceMatrix::getEntireMatrix() const
     {
-        std::size_t nDOFLeft = M_LeftLeft_.getNRows();
-        std::size_t nDOFRight = M_RightRight_.getNRows();
+        std::size_t nDOFLeft = M_LeftLeft_.getNumberOfRows();
+        std::size_t nDOFRight = M_RightRight_.getNumberOfRows();
         LinearAlgebra::MiddleSizeMatrix entireMatrix(nDOFLeft + nDOFRight, nDOFLeft + nDOFRight);
         
         // This is probably slow and inefficient.
@@ -255,12 +255,12 @@ namespace Base
     /// \details This function will be slow compared to setElementMatrix. It is advised to use setElementMatrix instead when possible.
     void FaceMatrix::setEntireMatrix(const LinearAlgebra::MiddleSizeMatrix & entireMatrix)
     {
-        std::size_t nDOFLeft = M_LeftLeft_.getNRows();
-        std::size_t nDOFRight = M_RightRight_.getNRows();
+        std::size_t nDOFLeft = M_LeftLeft_.getNumberOfRows();
+        std::size_t nDOFRight = M_RightRight_.getNumberOfRows();
         
         // Check size of entireMatrix.
-        logger.assert(entireMatrix.getNRows() == nDOFLeft + nDOFRight, "elementMatrix has the wrong size.");
-        logger.assert(entireMatrix.getNCols() == nDOFLeft + nDOFRight, "elementMatrix has the wrong size.");
+        logger.assert(entireMatrix.getNumberOfRows() == nDOFLeft + nDOFRight, "elementMatrix has the wrong size.");
+        logger.assert(entireMatrix.getNumberOfColumns() == nDOFLeft + nDOFRight, "elementMatrix has the wrong size.");
         
         // This is probably slow and inefficient.
         for (std::size_t i = 0; i < nDOFLeft; i++)

@@ -243,16 +243,16 @@ int main()
     rectangle23(1, 2) = 12.;
             
     auto product2 = rectangle21.multiplyJacobiansInto(dim1);
-    logger.assert_always((product2.getNCols() == 1 && product2.getNRows() == 2), "multiply JacobiansInto - square & rectangular matrixes");
+    logger.assert_always((product2.getNumberOfColumns() == 1 && product2.getNumberOfRows() == 2), "multiply JacobiansInto - square & rectangular matrixes");
     
     auto product4 = rectangle12.multiplyJacobiansInto(dim2);
-    logger.assert_always((product4.getNCols() == 2 && product4.getNRows() == 1), "multiply JacobiansInto - square & rectangular matrixes");
+    logger.assert_always((product4.getNumberOfColumns() == 2 && product4.getNumberOfRows() == 1), "multiply JacobiansInto - square & rectangular matrixes");
     
     auto product6 = rectangle23.multiplyJacobiansInto(dim3);
-    logger.assert_always((product6.getNCols() == 3 && product6.getNRows() == 2), "multiply JacobiansInto - square & rectangular matrixes");
+    logger.assert_always((product6.getNumberOfColumns() == 3 && product6.getNumberOfRows() == 2), "multiply JacobiansInto - square & rectangular matrixes");
     
     auto product8 = rectangle32.multiplyJacobiansInto(dim2);
-    logger.assert_always((product8.getNCols() == 2 && product8.getNRows() == 3), "multiply JacobiansInto - square & rectangular matrixes");
+    logger.assert_always((product8.getNumberOfColumns() == 2 && product8.getNumberOfRows() == 3), "multiply JacobiansInto - square & rectangular matrixes");
     
     return 0;
 }

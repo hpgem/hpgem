@@ -33,13 +33,13 @@
 namespace Base
 {
 
-    void Edge::addElement(Element* element, std::size_t edgeNr)
+    void Edge::addElement(Element* element, std::size_t edgeNumber)
     {
         logger.assert(element!=nullptr, "Invalid element detected");
         elements_.push_back(element);
-        localEdgeNumbers_.push_back(edgeNr);
-        element->setEdge(edgeNr, this);
-        std::vector<std::size_t> indices = element->getReferenceGeometry()->getCodim2EntityLocalIndices(edgeNr);
+        localEdgeNumbers_.push_back(edgeNumber);
+        element->setEdge(edgeNumber, this);
+        std::vector<std::size_t> indices = element->getReferenceGeometry()->getCodim2EntityLocalIndices(edgeNumber);
         indices[0] = element->getPhysicalGeometry()->getNodeIndex(indices[0]);
         indices[1] = element->getPhysicalGeometry()->getNodeIndex(indices[1]);
         orientation_.push_back((indices[0] < indices[1] ? 0 : 1));
