@@ -16,6 +16,7 @@ add_executable(SavageHutter.out
     SavageHutter1DWidthAveraged.cpp
     SavageHutter1DWidthHAndU.cpp
     SavageHutter2DBasic.cpp
+    SavageHutter2DInteriorTest.cpp
     SavageHutter1DBase.cpp
     SavageHutter2DBase.cpp
 		main.cpp

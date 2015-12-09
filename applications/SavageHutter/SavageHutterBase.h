@@ -87,7 +87,7 @@ protected:
         heightLimiter_ = createHeightLimiter();
     }
 
-    void tasksAfterTimeStep()
+    virtual void tasksAfterTimeStep()
     {
         limitSolutionOuterLoop();
     }

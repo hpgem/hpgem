@@ -164,3 +164,11 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DBidispersed::computePhysicalFlux(c
     }
     return flux;
 }
+
+void SavageHutter1DBidispersed::limitSmallHeight()
+{
+    for (Base::Element* element : meshes_[0]->getElementsList(Base::IteratorType::GLOBAL))
+    {
+        
+    }
+}

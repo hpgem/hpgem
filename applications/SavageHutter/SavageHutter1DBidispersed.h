@@ -66,6 +66,14 @@ public:
 
     void setInflowBC(double time) override final;
 private:
+
+    void limitSmallHeight();
+
+    void tasksAfterTimeStep() override final
+    {
+      SavageHutterBase::tasksAfterTimeStep ();
+      limitSmallHeight();
+    }
     ///shape factor of the velocity of the flow, 0<=alpha_<=1 . 
     ///This is a different alpha_ than in the basic application!
     double alpha_;

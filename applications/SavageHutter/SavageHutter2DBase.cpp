@@ -151,7 +151,7 @@ const LinearAlgebra::MiddleSizeVector SavageHutter2DBase::integrandRightHandSide
     LinearAlgebra::MiddleSizeVector flux(3);
 
     //outflow
-    if (normalX > 0 && std::abs(normalY) < 1e-10)
+    if (normalX > .5 && std::abs(normalY) < 1e-5)
     {
         if (solution[1]/solution[0] < std::sqrt(epsilon_ * std::cos(chuteAngle_) * solution[0])) //subcritical
         {
@@ -168,7 +168,7 @@ const LinearAlgebra::MiddleSizeVector SavageHutter2DBase::integrandRightHandSide
             flux = hllcFlux(solution, solution, face.getUnitNormalVector());
         }
     }
-    else if (std::abs(normalY) < 1e-10) //inflow
+    else if (std::abs(normalY) < 1e-5) //inflow
     {
         if (solution[1]/solution[0] < std::sqrt(epsilon_ * std::cos(chuteAngle_) * solution[0])) //subcritical
         {
@@ -297,7 +297,7 @@ LinearAlgebra::MiddleSizeVector SavageHutter2DBase::hllcFlux(const LinearAlgebra
     {
         return fluxNormalRight;
     }
-	return ((sr*fluxNormalLeft-sl*fluxNormalRight+sl*sr*(numericalSolutionRight-numericalSolutionLeft))/(sr-sl));
+    return ((sr*fluxNormalLeft-sl*fluxNormalRight+sl*sr*(numericalSolutionRight-numericalSolutionLeft))/(sr-sl));
 }
 
 double SavageHutter2DBase::computeFriction(const LinearAlgebra::MiddleSizeVector& numericalSolution)
@@ -335,7 +335,7 @@ std::vector<std::pair<double, LinearAlgebra::MiddleSizeVector>> SavageHutter2DBa
     
     //make xs
     ///\todo insert length of the domain here automatically instead of hardcoded
-    const double dx = 1. / (nodesInXDirection - 1);
+    const double dx = 11. / (nodesInXDirection - 1);
     std::vector<std::pair<double, LinearAlgebra::MiddleSizeVector>> totals;
     for(std::size_t i = 0; i < nodesInXDirection; ++i)
     {

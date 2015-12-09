@@ -57,8 +57,10 @@ public:
     LinearAlgebra::MiddleSizeVector computePhysicalFlux(const LinearAlgebra::MiddleSizeVector &numericalSolution);
     
     void tasksAfterSolving() override final;
-private:
 
+    void tasksBeforeSolving() override final;
+private:
+   std::map<double, std::array<double, 3> > inputValues_;
 };
 
 #endif	/* SAVAGEHUTTER2DBASIC_H */
