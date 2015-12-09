@@ -42,7 +42,6 @@ const static std::size_t DIM = 2;
 /// This class is meant for testing purposes.
 //  Please verify that nobody went and tested a broken feature
 //  Please keep the problem modelled here reasonably close to the linear advection problem
-///\todo Write self-test
 class AdvectionTest : public Base::HpgemAPILinear<DIM>
 {
 public:
@@ -60,7 +59,7 @@ public:
     }
     
     /// Create a mesh description
-    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override final
+    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numberOfElementsPerDirection) override final
     {
         //describes a rectangular domain
         Base::RectangularMeshDescriptor<DIM> description;
@@ -71,7 +70,7 @@ public:
             description.bottomLeft_[i] = 0;
             description.topRight_[i] = 1;
             //Define elements in each direction.
-            description.numElementsInDIM_[i] = numOfElementPerDirection;
+            description.numElementsInDIM_[i] = numberOfElementsPerDirection;
             
             //Choose whether you want periodic boundary conditions or other (solid wall)
             //boundary conditions.

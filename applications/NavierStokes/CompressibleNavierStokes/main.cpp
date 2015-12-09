@@ -25,10 +25,10 @@
 #include <chrono>
 
 //todo: decide if choosing the dimension during run time is worth the design overhead
-auto& numOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
+auto& numberOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
 auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
 
-auto& numOfOutputFrames = Base::register_argument<std::size_t>('O', "numOfOutputFrames", "Number of frames to output", false, 100);
+auto& numberOfOutputFrames = Base::register_argument<std::size_t>('O', "numOfOutputFrames", "Number of frames to output", false, 100);
 auto& startTime = Base::register_argument<double>('S', "startTime", "start time of the simulation", false, 0.0);
 auto& endTime = Base::register_argument<double>('T', "endTime", "end time of the simulation", false,  0.001);
 auto& dt = Base::register_argument<double>('d', "timeStepSize", "time step of the simulation", false, 0.00001);
@@ -66,13 +66,13 @@ int main (int argc, char **argv){
     CompressibleNavierStokes test(numOfVariables, endTime.getValue(), polynomialOrder.getValue(), ptrButcherTableau, true);
 
     // Create the mesh, a simple square domain
-    test.createMesh(numOfElements.getValue(), meshType);
+    test.createMesh(numberOfElements.getValue(), meshType);
 
     // Sets the mass matrix required for the stability parameters in the viscous class. Slight hack. todo: improve this
     test.setStabilityMassMatrix();
 
     // Solve the problem over time interval [startTime,endTime].
-    test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), true);
+    test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numberOfOutputFrames.getValue(), true);
 
     //Compute errors at the end of the simulation
     LinearAlgebra::MiddleSizeVector maxError = test.Error(endTime.getValue());

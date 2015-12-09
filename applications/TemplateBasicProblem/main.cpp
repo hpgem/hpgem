@@ -41,25 +41,25 @@ class ExampleProblem : public Base::HpgemAPISimplified<DIM>
 public:
     // constructor.
     /// \param[in] dimension Dimension of the domain
-    /// \param[in] numOfUnknowns Number of variables in the PDE
+    /// \param[in] numberOfUnknowns Number of variables in the PDE
     /// \param[in] polynomialOrder Polynomial order of the basis functions
     /// \param[in] ptrButcherTableau A butcherTableau used to solve the PDE with a Runge-Kutta method.
-    /// \param[in] numOfTimeLevels Number of time levels. If a butcherTableau is set and the number of time levels is too low, this will be corrected automatically.
+    /// \param[in] numberOfTimeLevels Number of time levels. If a butcherTableau is set and the number of time levels is too low, this will be corrected automatically.
     ExampleProblem
     (
      const std::size_t numberOfUnknowns,
      const std::size_t polynomialOrder,
      const TimeIntegration::ButcherTableau * const ptrButcherTableau = TimeIntegration::AllTimeIntegrators::Instance().getRule(4, 4),
-     const std::size_t numOfTimeLevels = 1
+     const std::size_t numberOfTimeLevels = 1
      ) :
-    Base::HpgemAPISimplified<DIM>(numberOfUnknowns, polynomialOrder, ptrButcherTableau, numOfTimeLevels)
+    Base::HpgemAPISimplified<DIM>(numberOfUnknowns, polynomialOrder, ptrButcherTableau, numberOfTimeLevels)
     {
         // Look at the constructor of HpgemAPISimplified to see what arguments are optional.
         logger(ERROR, "Remove this message. Make sure the constructor of this class is adapted to your purposes.");
     }
     
     /// \brief Create a rectangular mesh description
-    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override final
+    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numberOfElementsPerDirection) override final
     {
         //describes a rectangular domain
         Base::RectangularMeshDescriptor<DIM> description;
@@ -70,7 +70,7 @@ public:
             description.topRight_[i] = 1;
             
             //Define elements in each direction.
-            description.numElementsInDIM_[i] = numOfElementPerDirection;
+            description.numElementsInDIM_[i] = numberOfElementsPerDirection;
             
             //Choose the type of boundary conditions (PERIODIC or SOLID_WALL) for each direction.
             description.boundaryConditions_[i] = Base::BoundaryType::PERIODIC;
@@ -110,10 +110,10 @@ public:
      ) override final
     {
         // Compute the number of basis functions
-        std::size_t numOfBasisFunctions = ptrElement->getNumberOfBasisFunctions();
+        std::size_t numberOfBasisFunctions = ptrElement->getNumberOfBasisFunctions();
         
         // Declare the right-hand side at the element.
-        LinearAlgebra::MiddleSizeVector rightHandSideAtElement(configData_->numberOfUnknowns_ * numOfBasisFunctions);
+        LinearAlgebra::MiddleSizeVector rightHandSideAtElement(configData_->numberOfUnknowns_ * numberOfBasisFunctions);
         
         // Compute the right hand side at the element here.
         logger(ERROR, "No function for computing the right-hand side at an element implemented.");
@@ -130,10 +130,10 @@ public:
      ) override final
     {
         // Compute the number of basis functions
-        std::size_t numOfBasisFunctions = ptrFace->getPtrElementLeft()->getNumberOfBasisFunctions();
+        std::size_t numberOfBasisFunctions = ptrFace->getPtrElementLeft()->getNumberOfBasisFunctions();
         
         // Declare the right-hand side at the boundary face.
-        LinearAlgebra::MiddleSizeVector rightHandSideAtFace(configData_->numberOfUnknowns_ * numOfBasisFunctions);
+        LinearAlgebra::MiddleSizeVector rightHandSideAtFace(configData_->numberOfUnknowns_ * numberOfBasisFunctions);
         
         // Compute the right hand side at the boundary face here.
         logger(ERROR, "No function for computing the right-hand side at a boundary face implemented.");
@@ -152,10 +152,10 @@ public:
      ) override final
     {
         // Compute the number of basis functions corresponding to the element at the given side.
-        std::size_t numOfBasisFunctions = ptrFace->getPtrElement(side)->getNumberOfBasisFunctions();
+        std::size_t numberOfBasisFunctions = ptrFace->getPtrElement(side)->getNumberOfBasisFunctions();
         
         // Declare the right-hand side at the internal face.
-        LinearAlgebra::MiddleSizeVector rightHandSideAtFace(configData_->numberOfUnknowns_ * numOfBasisFunctions);
+        LinearAlgebra::MiddleSizeVector rightHandSideAtFace(configData_->numberOfUnknowns_ * numberOfBasisFunctions);
         
         // Compute the right hand side at the internal face here.
         logger(ERROR, "No function for computing the right-hand side at an internal face implemented.");
@@ -175,7 +175,7 @@ public:
     
 };
 
-auto& numOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
+auto& numberOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
 auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
 
 int main(int argc, char **argv)
@@ -199,7 +199,7 @@ int main(int argc, char **argv)
     ExampleProblem problemSolver(numberOfVariables, polynomialOrder.getValue(), ptrButcherTableau);
 
     // Create the mesh
-    problemSolver.createMesh(numOfElements.getValue(), meshType);
+    problemSolver.createMesh(numberOfElements.getValue(), meshType);
 
     // Set the names for the output file. Choose your own names.
     problemSolver.setOutputNames("output", "internalFileTitle", "solutionTitle", variableNames);
