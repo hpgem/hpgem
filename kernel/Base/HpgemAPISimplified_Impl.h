@@ -151,15 +151,15 @@ namespace Base
         LinearAlgebra::MiddleSizeMatrix &integrand = element.getResultMatrix();
         
         // Get the number of basis functions.
-        const std::size_t numOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
+        const std::size_t numberOfBasisFunctions = element.getElement()->getNumberOfBasisFunctions();
         
         // Compute the matrix of products for all basis functions.
         std::size_t iVB, jVB; // indices for both variable and basis function.
         for (std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; iV++)
         {
-            for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++)
+            for (std::size_t iB = 0; iB < numberOfBasisFunctions; iB++)
             {
-                for (std::size_t jB = 0; jB < numOfBasisFunctions; jB++)
+                for (std::size_t jB = 0; jB < numberOfBasisFunctions; jB++)
                 {
                     iVB = element.getElement()->convertToSingleIndex(iB, iV);
                     jVB = element.getElement()->convertToSingleIndex(jB, iV);
@@ -214,13 +214,13 @@ namespace Base
         LinearAlgebra::MiddleSizeVector initialSolution = getInitialSolution(pPhys, startTime, orderTimeDerivative);
         
         // Get the number of basis functions.
-        const std::size_t numOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
+        const std::size_t numberOfBasisFunctions = element.getElement()->getNumberOfBasisFunctions();
         
         // Compute the product of the initial solution and all test functions.
         std::size_t iVB, jVB; // indices for both variable and basis function.
         for (std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; iV++)
         {
-            for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++)
+            for (std::size_t iB = 0; iB < numberOfBasisFunctions; iB++)
             {
                 iVB = element.getElement()->convertToSingleIndex(iB, iV);
                 integrand(iVB) = element.basisFunction(iB) * initialSolution(iV);
@@ -265,12 +265,12 @@ namespace Base
         const LinearAlgebra::MiddleSizeVector exactSolution = getExactSolution(pPhys, time, 0);
         
         // Get the number of basis functions.
-        const std::size_t numOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
+        const std::size_t numberOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
         
         // Compute the numerical solution.
         LinearAlgebra::MiddleSizeVector numericalSolution(this->configData_->numberOfUnknowns_);
         numericalSolution *= 0;
-        for(std::size_t jB = 0; jB < numOfBasisFunctions; jB++)
+        for(std::size_t jB = 0; jB < numberOfBasisFunctions; jB++)
         {
             for(std::size_t jV = 0; jV < this->configData_->numberOfUnknowns_; jV++)
             {
