@@ -9,10 +9,16 @@ include_directories(	${hpGEM_SOURCE_DIR}/kernel
 
 file(GLOB SELFTESTS "*SelfTest.cpp")
 file(GLOB UNITTESTS "*UnitTest.cpp")
+file(GLOB NEGATIVETESTS "*NegativeTest.cpp")
 #for each demo add a test with the same name
 foreach (TEST ${SELFTESTS} ${UNITTESTS})
         get_filename_component(EXECNAME ${TEST} NAME_WE)
         add_test(${EXECNAME} ${EXECNAME})
+endforeach()
+foreach (TEST ${NEGATIVETESTS})
+        get_filename_component(EXECNAME ${TEST} NAME_WE)
+        add_test(${EXECNAME} ${EXECNAME})
+        set_tests_properties(${EXECNAME} PROPERTIES WILL_FAIL true)
 endforeach()
 
 #Part 3 : Make tests for each of the selftest_data files
