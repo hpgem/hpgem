@@ -60,34 +60,18 @@ namespace Base
     struct ConfigurationData;
     class Edge;
     
-    //class is made final so we don't have to create a v-table specifically for the destructor
     class MeshManipulatorBase
     {
     public:
         
-        using PointIndexT = std::size_t;
-        using ElementT = Element;
-        using FaceT = Face;
-        using BasisFunctionSetT = Base::BasisFunctionSet;
-
-        using ElementLevelTreeT = LevelTree<ElementT>;
-        using FaceLevelTreeT = LevelTree<FaceT>;
-
-        using ListOfFacesT = std::vector<FaceT*>;
-        using ListOfElementsT = std::vector<ElementT*>;
-        using VectorOfElementPtrT = std::vector<ElementT* >;
-        using VectorOfPointIndicesT = std::vector<PointIndexT>;
-        using CollectionOfBasisFunctionSets = std::vector<std::shared_ptr<const BasisFunctionSetT>>;
-        using VecOfElementLevelTreePtrT = std::vector<ElementLevelTreeT*>;
-        using VecOfFaceLevelTreePtrT = std::vector<FaceLevelTreeT*>;
+        using CollectionOfBasisFunctionSets = Element::CollectionOfBasisFunctionSets;
         
-        using ConstElementIterator = ListOfElementsT::const_iterator;
-        using ElementIterator = ListOfElementsT::iterator;
+        using ConstElementIterator = std::vector<Element*>::const_iterator;
+        using ElementIterator = std::vector<Element*>::iterator;
 
-        using ConstFaceIterator = ListOfFacesT::const_iterator;
-        using FaceIterator = ListOfFacesT::iterator;
+        using ConstFaceIterator = std::vector<Face*>::const_iterator;
+        using FaceIterator = std::vector<Face*>::iterator;
 
-    public:
         /// idRangeBegin is the beginning of the range, from where the Element's ids should be assigned.
         /// In case of multiple meshes, one has to take care of empty intersection of those ranges!!!
         MeshManipulatorBase(const ConfigurationData* configData, BoundaryType xPer = BoundaryType::SOLID_WALL, BoundaryType yPer = BoundaryType::SOLID_WALL, BoundaryType zPer = BoundaryType::SOLID_WALL, std::size_t orderOfFEM = 1, std::size_t idRangeBegin = 0, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0, std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
@@ -140,16 +124,16 @@ namespace Base
         //  *****************Iteration through the Elements*******************
         
         //! Get const list of elements
-        virtual const ListOfElementsT& getElementsList(IteratorType part = IteratorType::LOCAL) const = 0;
+        virtual const std::vector<Element*>& getElementsList(IteratorType part = IteratorType::LOCAL) const = 0;
         
         //! Get non-const list of elements
-        virtual ListOfElementsT& getElementsList(IteratorType part = IteratorType::LOCAL) = 0;
+        virtual std::vector<Element*>& getElementsList(IteratorType part = IteratorType::LOCAL) = 0;
         
         //! Get const list of faces
-        virtual const ListOfFacesT& getFacesList(IteratorType part = IteratorType::LOCAL) const = 0;
+        virtual const std::vector<Face*>& getFacesList(IteratorType part = IteratorType::LOCAL) const = 0;
         
         //! Get non-const list of faces
-        virtual ListOfFacesT& getFacesList(IteratorType part = IteratorType::LOCAL) = 0;
+        virtual std::vector<Face*>& getFacesList(IteratorType part = IteratorType::LOCAL) = 0;
         
         virtual const std::vector<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL) const = 0;
         

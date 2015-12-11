@@ -34,16 +34,10 @@ namespace Geometry
 //---------------------------------------------------------------------------
 namespace QuadratureRules
 {
-    using Geometry::PointReference;
-    using Geometry::ReferenceGeometry;
     
 //---------------------------------------------------------------------------
     class Cn3_1_1 : public GaussQuadratureRule
     {
-    public:
-        using PointReferenceT = Geometry::PointReferenceBase;
-        using ReferenceGeometryT = Geometry::ReferenceGeometry;
-
     public:
         static Cn3_1_1& Instance()
         {
@@ -62,26 +56,22 @@ namespace QuadratureRules
 
         double weight(std::size_t i) const override final;
 
-        const PointReferenceT& getPoint(std::size_t i) const override final;
+        const Geometry::PointReferenceBase& getPoint(std::size_t i) const override final;
 
-        ReferenceGeometryT* forReferenceGeometry() const override final;
+        Geometry::ReferenceGeometry* forReferenceGeometry() const override final;
 
     private:
         Cn3_1_1();
 
         const std::string name_;
         double weight_[1];
-        ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReference<3>*> gp_;
+        Geometry::ReferenceGeometry* const refGeoPtr_;
+        std::vector<const Geometry::PointReference<3>*> gp_;
     };
     
 //---------------------------------------------------------------------------
     class Cn3_3_4 : public GaussQuadratureRule
     {
-    public:
-        using PointReferenceT = Geometry::PointReferenceBase;
-        using ReferenceGeometryT = Geometry::ReferenceGeometry;
-
     public:
         static Cn3_3_4& Instance()
         {
@@ -95,25 +85,21 @@ namespace QuadratureRules
         std::size_t dimension() const override final;
         std::size_t getNumberOfPoints() const override final;
         double weight(std::size_t i) const override final;
-        const PointReferenceT& getPoint(std::size_t i) const override final;
-        ReferenceGeometryT* forReferenceGeometry() const override final;
+        const Geometry::PointReferenceBase& getPoint(std::size_t i) const override final;
+        Geometry::ReferenceGeometry* forReferenceGeometry() const override final;
 
     private:
         Cn3_3_4();
 
         const std::string name_;
         double weight_[8];
-        ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReference<3>*> gp_;
+        Geometry::ReferenceGeometry* const refGeoPtr_;
+        std::vector<const Geometry::PointReference<3>*> gp_;
     };
     
 //---------------------------------------------------------------------------
     class Cn3_5_9 : public GaussQuadratureRule
     {
-    public:
-        using PointReferenceT = Geometry::PointReferenceBase;
-        using ReferenceGeometryT = Geometry::ReferenceGeometry;
-
     public:
         static Cn3_5_9& Instance()
         {
@@ -127,25 +113,21 @@ namespace QuadratureRules
         std::size_t dimension() const override final;
         std::size_t getNumberOfPoints() const override final;
         double weight(std::size_t i) const override final;
-        const PointReferenceT& getPoint(std::size_t i) const override final;
-        ReferenceGeometryT* forReferenceGeometry() const override final;
+        const Geometry::PointReferenceBase& getPoint(std::size_t i) const override final;
+        Geometry::ReferenceGeometry* forReferenceGeometry() const override final;
 
     private:
         Cn3_5_9();
 
         const std::string name_;
         double weight_[27];
-        ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReference<3>*> gp_;
+        Geometry::ReferenceGeometry* const refGeoPtr_;
+        std::vector<const Geometry::PointReference<3>*> gp_;
     };
     
 //---------------------------------------------------------------------------
     class C3_7_2 : public GaussQuadratureRule
     {
-    public:
-        using PointReferenceT = Geometry::PointReferenceBase;
-        using ReferenceGeometryT = Geometry::ReferenceGeometry;
-
     public:
         static C3_7_2& Instance()
         {
@@ -159,25 +141,21 @@ namespace QuadratureRules
         std::size_t dimension() const override final;
         std::size_t getNumberOfPoints() const override final;
         double weight(std::size_t i) const override final;
-        const PointReferenceT& getPoint(std::size_t i) const override final;
-        ReferenceGeometryT* forReferenceGeometry() const override final;
+        const Geometry::PointReferenceBase& getPoint(std::size_t i) const override final;
+        Geometry::ReferenceGeometry* forReferenceGeometry() const override final;
 
     private:
         C3_7_2();
 
         const std::string name_;
         double weight_[64];
-        ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReference<3>*> gp_;
+        Geometry::ReferenceGeometry* const refGeoPtr_;
+        std::vector<const Geometry::PointReference<3>*> gp_;
     };
     
 //---------------------------------------------------------------------------
     class C3_9_2 : public GaussQuadratureRule
     {
-    public:
-        using PointReferenceT = Geometry::PointReferenceBase;
-        using ReferenceGeometryT = Geometry::ReferenceGeometry;
-
     public:
         static C3_9_2& Instance()
         {
@@ -191,25 +169,21 @@ namespace QuadratureRules
         std::size_t dimension() const override final;
         std::size_t getNumberOfPoints() const override final;
         double weight(std::size_t i) const override final;
-        const PointReferenceT& getPoint(std::size_t i) const override final;
-        ReferenceGeometryT* forReferenceGeometry() const override final;
+        const Geometry::PointReferenceBase& getPoint(std::size_t i) const override final;
+        Geometry::ReferenceGeometry* forReferenceGeometry() const override final;
 
     private:
         C3_9_2();
 
         const std::string name_;
         double weight_[125]; //FIXME
-        ReferenceGeometry* const refGeoPtr_;
-        std::vector<const PointReference<3>*> gp_;
+        Geometry::ReferenceGeometry* const refGeoPtr_;
+        std::vector<const Geometry::PointReference<3>*> gp_;
     };
     
 //---------------------------------------------------------------------------
     class C3_11_2 : public GaussQuadratureRule
     {
-    public:
-        using PointReferenceT = Geometry::PointReferenceBase;
-        using ReferenceGeometryT = Geometry::ReferenceGeometry;
-
     public:
         static C3_11_2& Instance()
         {
@@ -223,16 +197,16 @@ namespace QuadratureRules
         std::size_t dimension() const override final;
         std::size_t getNumberOfPoints() const override final;
         double weight(std::size_t i) const override final;
-        const PointReferenceT& getPoint(std::size_t i) const override final;
-        ReferenceGeometryT* forReferenceGeometry() const override final;
+        const Geometry::PointReferenceBase& getPoint(std::size_t i) const override final;
+        Geometry::ReferenceGeometry* forReferenceGeometry() const override final;
 
     private:
         C3_11_2();
 
         const std::string name_;
         double weight_[216]; //FIXME
-        ReferenceGeometryT* const refGeoPtr_;
-        std::vector<const PointReference<3>*> gp_;
+        Geometry::ReferenceGeometry* const refGeoPtr_;
+        std::vector<const Geometry::PointReference<3>*> gp_;
     };
 
 //---------------------------------------------------------------------------

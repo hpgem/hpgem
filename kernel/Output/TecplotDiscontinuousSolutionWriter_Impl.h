@@ -154,19 +154,17 @@ namespace Output
         // We do this by getting the element list from the mesh, and then iterating over the
         // elements.
         
-        using ElementT = Base::Element;
-        using ListOfElementsT = std::vector<ElementT*>;
         
         std::size_t numberOfNodes; // i.e. on one element
         TecplotPhysicalGeometryIterator& nodeIt = TecplotPhysicalGeometryIterator::Instance();
         
-        const ListOfElementsT& elements = mesh->getElementsList();
+        const std::vector<Base::Element*>& elements = mesh->getElementsList();
         
         Geometry::PointPhysical<DIM> pPhys;
         
         // 1. Element cycle, print physical coordinates.
         
-        for (typename ListOfElementsT::const_iterator iterator = elements.begin(), end = elements.end(); iterator != end; ++iterator)
+        for (typename std::vector<Base::Element*>::const_iterator iterator = elements.begin(), end = elements.end(); iterator != end; ++iterator)
         {
             totalNumberOfElements++;
             numberOfNodes = 0;

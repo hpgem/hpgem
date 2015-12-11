@@ -49,7 +49,7 @@ namespace Integration
     //dim denotes the dimension of the ELEMENT here
     template<std::size_t DIM>
     template<typename ReturnTrait1>
-    ReturnTrait1 FaceIntegral<DIM>::integrate(const Base::Face* fa, std::function<ReturnTrait1(Base::PhysicalFace<DIM>&)> integrandFunc, const QuadratureRulesT* const qdrRule)
+    ReturnTrait1 FaceIntegral<DIM>::integrate(const Base::Face* fa, std::function<ReturnTrait1(Base::PhysicalFace<DIM>&)> integrandFunc, const QuadratureRules::GaussQuadratureRule* const qdrRule)
     {
         logger.assert(fa!=nullptr, "Invalid face detected");
         Base::PhysicalFace<DIM>* face_;
@@ -66,7 +66,7 @@ namespace Integration
         }
         face_->setFace(fa);
         //quadrature rule is allowed to be equal to nullptr!
-        const QuadratureRulesT * const qdrRuleLoc = (qdrRule == nullptr ? fa->getGaussQuadratureRule() : qdrRule);
+        const QuadratureRules::GaussQuadratureRule * const qdrRuleLoc = (qdrRule == nullptr ? fa->getGaussQuadratureRule() : qdrRule);
         
         // check whether the GaussIntegrationRule is actually for the
         // Element's ReferenceGeometry
@@ -104,7 +104,7 @@ namespace Integration
     //dim denotes the dimension of the ELEMENT here
      template<std::size_t DIM>
      template<typename ReturnTrait1>
-     ReturnTrait1 FaceIntegral<DIM>::integratePair(const Base::Face* fa, std::function<ReturnTrait1(Base::PhysicalFace<DIM>&)> integrandFunc, const QuadratureRulesT* const qdrRule)
+     ReturnTrait1 FaceIntegral<DIM>::integratePair(const Base::Face* fa, std::function<ReturnTrait1(Base::PhysicalFace<DIM>&)> integrandFunc, const QuadratureRules::GaussQuadratureRule* const qdrRule)
      {
          logger.assert(fa!=nullptr, "Invalid face detected");
          Base::PhysicalFace<DIM>* face_;
@@ -121,7 +121,7 @@ namespace Integration
          }
          face_->setFace(fa);
          //quadrature rule is allowed to be equal to nullptr!
-         const QuadratureRulesT * const qdrRuleLoc = (qdrRule == nullptr ? fa->getGaussQuadratureRule() : qdrRule);
+         const QuadratureRules::GaussQuadratureRule * const qdrRuleLoc = (qdrRule == nullptr ? fa->getGaussQuadratureRule() : qdrRule);
 
          // check whether the GaussIntegrationRule is actually for the
          // Element's ReferenceGeometry

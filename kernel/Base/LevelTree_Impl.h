@@ -28,7 +28,7 @@ namespace Base
 {
     template<class V>
     LevelTree<V>::LevelTree()
-            : noRootEntries_(0), minLevel_(0), maxLevel_(0), activeLevel_(-1), coarsestEntriesSet_(false)
+            : maxLevel_(0), activeLevel_(-1), traversalMethod_(TraversalMethod::ALLLEVEL)
     {
     }
     
@@ -52,31 +52,33 @@ namespace Base
     
     //! Number of entries in the LevelTree
     template<class V>
-    int LevelTree<V>::size() const
+    std::size_t LevelTree<V>::size() const
     {
         return entries_.size();
     }
     
     template<class V>
-    int LevelTree<V>::maxLevel() const
+    std::size_t LevelTree<V>::maxLevel() const
     {
         return maxLevel_;
     }
     
     template<class V>
-    void LevelTree<V>::setActiveLevel(const DimT level)
+    void LevelTree<V>::setSingleLevelTraversal(const std::size_t level)
     {
         activeLevel_ = level;
+        traversalMethod_ = TraversalMethod::SINGLELEVEL;
     }
     
     template<class V>
-    void LevelTree<V>::resetActiveLevel()
+    void LevelTree<V>::setAllLevelTraversal()
     {
         activeLevel_ = -1;
+        traversalMethod_ = TraversalMethod::ALLLEVEL;
     }
     
     template<class V>
-    int LevelTree<V>::getActiveLevel() const
+    std::size_t LevelTree<V>::getActiveLevel() const
     {
         return activeLevel_;
     }
@@ -110,25 +112,24 @@ namespace Base
     
     //! Add new entry
     template<class V>
-    typename LevelTree<V>::iterator LevelTree<V>::addEntry(const valueT& newEl, const bool preserveLinks)
+    typename LevelTree<V>::iterator LevelTree<V>::addRootEntry(const valueT& newEl)
     {
-        return addTreeEntry(new treeEntryT(newEl));
+        entries_.push_back(new TreeEntry<V>(newEl));
     }
     
-    template<class V>
+    /*template<class V>
     typename LevelTree<V>::iterator LevelTree<V>::addTreeEntry(treeEntryT* const newEnt, const bool preserveLinks)
     {
         // put it on the back of the list
         entries_.push_back(newEnt);
-        ++noRootEntries_;
-        
+
         // update some statistics of the LevelTree
         const int level = newEnt->getLevel();
         if (minLevel_ > level)
             minLevel_ = level;
         else if (maxLevel_ < level)
             maxLevel_ = level;
-        
+
         iterator fci;
         fci.ptr_ = --entries_.end(); // it's on the back, dear!
         if (!preserveLinks)
@@ -138,10 +139,10 @@ namespace Base
             fci->setSelf(fci); // self iterator
             fci->setChild(fci); // self loop-back for child
         }
-        
+
         return fci;
     }
-    
+
     template<class V>
     typename LevelTree<V>::iterator LevelTree<V>::addDummyEntry(iterator it)
     {
@@ -428,7 +429,7 @@ namespace Base
         iterator it(entries_.erase(fci.ptr_));
         
         return it;
-    }
+    }*/
 
 } // close namespace Base
 

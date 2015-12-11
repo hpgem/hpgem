@@ -37,8 +37,6 @@ namespace Geometry
     class ReferencePoint : public ReferenceGeometry
     {
     public:
-        using ReferenceGeometryT = ReferenceGeometry;
-        using ListOfIndexesT = std::vector<std::size_t>;
         
         static ReferencePoint& Instance()
         {
@@ -54,7 +52,7 @@ namespace Geometry
         // ================================== Codimension 0 ========================================
         
         /// \brief Returns 0.
-        std::size_t getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const override final;
+        std::size_t getCodim0MappingIndex(const std::vector<std::size_t>&, const std::vector<std::size_t>&) const override final;
 
         /// \brief Returns 0.
         const MappingReferenceToReference<0>* getCodim0MappingPtr(const std::size_t a) const override final;

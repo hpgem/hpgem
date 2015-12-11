@@ -88,7 +88,7 @@ namespace Geometry
     
     // ================================== Codimension 0 ============================================
     
-    std::size_t ReferenceHypercube::getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
+    std::size_t ReferenceHypercube::getCodim0MappingIndex(const std::vector<std::size_t>& list1, const std::vector<std::size_t>& list2) const
     {
         logger(FATAL, "ReferenceCube::getCodim0MappingIndex not implemented.\n");
         return 0;

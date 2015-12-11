@@ -38,12 +38,6 @@ namespace LinearAlgebra
     template<std::size_t nRows, std::size_t nCols>
     class SmallMatrix;
     class MiddleSizeVector;
-    //We need the ostream for outputting and we encapsulate from valarray.
-#ifdef LA_STL_VECTOR
-    using std::vector;
-#else
-    using std::valarray;
-#endif
     /// \class MiddleSizeMatrix
     /// \brief Data type for dense matrix.
     /// 
@@ -203,10 +197,10 @@ namespace LinearAlgebra
     private:
         /// The actually data of the matrix class
 #ifdef LA_STL_VECTOR
-        vector<type> data_;
+        std::vector<type> data_;
 #else
 #error "valarray is broken, please turn on hpGEM_USE_STL_VECTOR_FOR_LA"
-        valarray<type> data_;
+        std::valarray<type> data_;
 #endif
         
         /// Stores the number of rows of the matrix

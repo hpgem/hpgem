@@ -26,7 +26,6 @@
 #include "Integration/QuadratureRules/GaussQuadratureRulesForPyramid.h"
 #include "Geometry/ReferencePyramid.h"
 #include "Geometry/PointReference.h"
-using Geometry::ReferencePyramid;
 
 //---------------------------------------------------------------------------
 namespace QuadratureRules
@@ -65,14 +64,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    Pyramid_1_4::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     Pyramid_1_4::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     Pyramid_1_4::Pyramid_1_4()
-            : name_("Pyramid_1_1"), refGeoPtr_(&ReferencePyramid::Instance()), gp_(0)
+            : name_("Pyramid_1_1"), refGeoPtr_(&Geometry::ReferencePyramid::Instance()), gp_(0)
     {
         weight_[0] = ((2.0) * (2.0)) * (0.1108884156);
         gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(0.0) * (1. - (0.4850054945e-1)), (0.0) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
@@ -122,14 +121,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    Pyramid_3_16::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     Pyramid_3_16::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     Pyramid_3_16::Pyramid_3_16()
-            : name_("Pyramid_3_1"), refGeoPtr_(&ReferencePyramid::Instance()), gp_(0)
+            : name_("Pyramid_3_1"), refGeoPtr_(&Geometry::ReferencePyramid::Instance()), gp_(0)
     {
         weight_[0] = ((1.0) * (1.0)) * (0.1108884156);
         gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-std::sqrt(3.0) / 3.0) * (1. - (0.4850054945e-1)), (-std::sqrt(3.0) / 3.0) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
@@ -215,14 +214,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    Pyramid_5_36::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     Pyramid_5_36::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     Pyramid_5_36::Pyramid_5_36()
-            : name_("Pyramid_5_1"), refGeoPtr_(&ReferencePyramid::Instance()), gp_(0)
+            : name_("Pyramid_5_1"), refGeoPtr_(&Geometry::ReferencePyramid::Instance()), gp_(0)
     {
         weight_[0] = ((5. / 9.) * (5. / 9.)) * (0.1108884156);
         gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(-std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), (-std::sqrt(3.0 / 5.0)) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));
@@ -368,14 +367,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    Pyramid_7_48::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     Pyramid_7_48::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     Pyramid_7_48::Pyramid_7_48()
-            : name_("Pyramid_7_1"), refGeoPtr_(&ReferencePyramid::Instance()), gp_(0)
+            : name_("Pyramid_7_1"), refGeoPtr_(&Geometry::ReferencePyramid::Instance()), gp_(0)
     {
         weight_[0] = (98. / 405.) * (0.1108884156);
         gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({(+(std::sqrt(6. / 7.))) * (1. - (0.4850054945e-1)), (0.) * (1. - (0.4850054945e-1)), 0.4850054945e-1}));

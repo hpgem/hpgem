@@ -36,13 +36,7 @@ namespace Geometry
      */
     class ReferenceLine : public ReferenceGeometry
     {
-        
     public:
-        using ReferenceGeometry::String;
-        using ListOfIndexesT = std::vector<std::size_t>;
-        using Ref1ToRef1MappingT = MappingReferenceToReference<0>; // Numbers indicate dim.
-        using Ref0ToRef1MappingT = MappingReferenceToReference<1>;
-
         static ReferenceLine& Instance()
         {
             static ReferenceLine theInstance;
@@ -50,8 +44,6 @@ namespace Geometry
         }
         
         ReferenceLine(const ReferenceLine&) = delete;
-
-    public:
         
         //! (see ReferenceGeometry.h)
         bool isInternalPoint(const PointReference<1>&) const override final;
@@ -78,7 +70,7 @@ namespace Geometry
         // ================================== Codimension 0 ========================================
         
         //! (see MappingCodimensions.h)
-        std::size_t getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const override final;
+        std::size_t getCodim0MappingIndex(const std::vector<std::size_t>&, const std::vector<std::size_t>&) const override final;
 
         //! (see MappingCodimensions.h)
         const MappingReferenceToReference<0>* getCodim0MappingPtr(const std::size_t) const override final;
@@ -141,10 +133,10 @@ namespace Geometry
         static std::size_t localNodeIndexes_[2][1];
 
         //! Codimension 0 mappings, from a line to a line. Used to rotate the face when the left and right elements dont think it has the same orientation
-        const Ref1ToRef1MappingT* mappingsLineToLine_[2];
+        const MappingReferenceToReference<0>* mappingsLineToLine_[2];
         
         //! Codimension 1 mappings, from a point to a line. This is the 1D face->element map
-        const Ref0ToRef1MappingT* mappingsPointToLine_[2];
+        const MappingReferenceToReference<1>* mappingsPointToLine_[2];
 
         //! Pointer to the Codimension 1 reference geometry, in this case, to ReferencePoint.
         ReferenceGeometry* const referenceGeometryCodim1Ptr_;

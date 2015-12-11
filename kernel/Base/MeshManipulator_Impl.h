@@ -595,7 +595,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    void MeshManipulator<DIM>::setDefaultBasisFunctionSet(BasisFunctionSetT* bFSet)
+    void MeshManipulator<DIM>::setDefaultBasisFunctionSet(BasisFunctionSet* bFSet)
     {
         logger.assert(bFSet!=nullptr, "Invalid basis function set passed");
         for(const Base::BaseBasisFunction* function : *collBasisFSet_[0])
@@ -709,7 +709,7 @@ namespace Base
 
     template<std::size_t DIM>
     Base::Element*
-    MeshManipulator<DIM>::addElement(const VectorOfPointIndicesT& globalNodeIndexes)
+    MeshManipulator<DIM>::addElement(const std::vector<std::size_t>& globalNodeIndexes)
     {
         logger.assert([&]()->bool{
             for(std::size_t i = 0; i < globalNodeIndexes.size(); ++i)
@@ -741,7 +741,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    bool MeshManipulator<DIM>::addFace(ElementT* leftElementPtr, std::size_t leftElementLocalFaceNo, ElementT* rightElementPtr, std::size_t rightElementLocalFaceNo, const Geometry::FaceType& faceType)
+    bool MeshManipulator<DIM>::addFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo, Element* rightElementPtr, std::size_t rightElementLocalFaceNo, const Geometry::FaceType& faceType)
     {
         logger.assert(leftElementPtr!=nullptr, "Invalid element passed");
         //rightElementPtr may be nullptr for boundary faces
@@ -780,7 +780,7 @@ namespace Base
 {
 
     template<std::size_t DIM>
-    void MeshManipulator<DIM>::createRectangularMesh(const Geometry::PointPhysical<DIM>& bottomLeft, const Geometry::PointPhysical<DIM>& topRight, const VectorOfPointIndicesT& linearNoElements)
+    void MeshManipulator<DIM>::createRectangularMesh(const Geometry::PointPhysical<DIM>& bottomLeft, const Geometry::PointPhysical<DIM>& topRight, const std::vector<std::size_t>& linearNoElements)
     {
         logger.assert(bottomLeft.size()==topRight.size(), "The corners of the mesh must have the same dimension");
         logger.assert(bottomLeft.size()==configData_->dimension_, "The corners of the mesh have the wrong dimension");
@@ -931,7 +931,7 @@ namespace Base
     //Where createRectangularMesh makes rectangular elements, createTrianglularMesh
     //splits the elements into a partition of triangles.
     template<std::size_t DIM>
-    void MeshManipulator<DIM>::createTriangularMesh(Geometry::PointPhysical<DIM> bottomLeft, Geometry::PointPhysical<DIM> topRight, const VectorOfPointIndicesT& linearNoElements)
+    void MeshManipulator<DIM>::createTriangularMesh(Geometry::PointPhysical<DIM> bottomLeft, Geometry::PointPhysical<DIM> topRight, const std::vector<std::size_t>& linearNoElements)
     {
         logger.assert(bottomLeft.size()==topRight.size(), "The corners of the mesh must have the same dimension");
         logger.assert(bottomLeft.size()==configData_->dimension_, "The corners of the mesh have the wrong dimension");

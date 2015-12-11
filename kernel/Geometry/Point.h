@@ -32,11 +32,6 @@ namespace Geometry
     {
     public:
         
-    public:
-        using PointT = Geometry::Point<DIM>;
-        using VectorOfCoordsT = LinearAlgebra::SmallVector<DIM>;
-        
-    public:
         /// Constructors.
         Point();
         
@@ -45,10 +40,10 @@ namespace Geometry
 
         Point(const Point& other);
 
-        Point(const VectorOfCoordsT& coord);
+        Point(const LinearAlgebra::SmallVector<DIM>& coord);
 
         void setCoordinate(std::size_t n, const double& coord);
-        void setCoordinates(const VectorOfCoordsT& coord);
+        void setCoordinates(const LinearAlgebra::SmallVector<DIM>& coord);
 
         double& operator[](std::size_t n);
         const double& operator[](std::size_t n) const;
@@ -89,7 +84,7 @@ namespace Geometry
         std::size_t size();
 
         double getCoordinate(std::size_t n) const;
-        const VectorOfCoordsT& getCoordinates() const;
+        const LinearAlgebra::SmallVector<DIM>& getCoordinates() const;
 
         friend Point operator-(const Point& right)
         {
@@ -97,7 +92,7 @@ namespace Geometry
         }
 
     protected:
-        VectorOfCoordsT coordinates_;
+        LinearAlgebra::SmallVector<DIM> coordinates_;
     };
 
     template<std::size_t DIM>

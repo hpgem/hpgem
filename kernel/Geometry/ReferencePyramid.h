@@ -41,7 +41,6 @@ namespace Geometry
     class ReferencePyramid : public ReferenceGeometry
     {
     public:
-        using ReferenceGeometry::String;
 
         static ReferencePyramid& Instance()
         {
@@ -50,8 +49,6 @@ namespace Geometry
         }
         
         ReferencePyramid(const ReferencePyramid& copy) = delete;
-
-    public:
         
         //! (see ReferenceGeometry.h)
         bool isInternalPoint(const PointReference<3>& point) const override final;
@@ -78,7 +75,7 @@ namespace Geometry
         // ================================== Codimension 0 ========================================
         
         //! (see MappingCodimensions.h)
-        std::size_t getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const override final;
+        std::size_t getCodim0MappingIndex(const std::vector<std::size_t>&, const std::vector<std::size_t>&) const override final;
 
         //! (see MappingCodimensions.h)
         const MappingReferenceToReference<0>* getCodim0MappingPtr(const std::size_t) const override final;

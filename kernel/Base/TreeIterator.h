@@ -36,12 +36,19 @@ namespace Base
         friend class LevelTree<V> ;
 
     public:
+        //old typedefs
         using valueType = T*;
-        using reference = T&;
         using valueVType = V;
         using referenceV = V&;
         using iterator_ref = TreeIterator&;
+
+        //typedefs expected by the standard c++ library (do not rewrite to conform to code standards)
         using difference_type = int;
+        using value_type = V;
+        using pointer = V*;
+        using reference = V&;
+        //can go forward or back, but cant skip
+        using iterator_category = std::bidirectional_iterator_tag;
 
         TreeIterator()
         {
@@ -52,58 +59,61 @@ namespace Base
         //! Copy constructor
         TreeIterator(const TreeIterator& i)
         {
-            if (this != &i)
-            {
-                ptr_ = i.ptr_; // current position
-                end_ = i.end_; // end position
-                first_ = i.first_; // the last valid position
-                last_ = i.last_; // the last valid position
-                traversalMethod_ = i.traversalMethod_;
-            }
-            else
-                std::cout << "Gotcha!  TreeIterator trap.\n";
+            ptr_ = i.ptr_; // current position
+            end_ = i.end_; // end position
+            first_ = i.first_; // the last valid position
+            last_ = i.last_; // the last valid position
+            traversalMethod_ = i.traversalMethod_;
         }
         
-        //! Copy constructor
-        TreeIterator(const typename std::deque<valueType>::iterator& li)
+        //! Move constructor
+        TreeIterator(TreeIterator&& i)
         {
-            ptr_ = li;
-            
-            // on default, the iterator behaves as a std::deque::iterator
-            traversalMethod_ = traversalList_;
+            ptr_ = i.ptr_; // current position
+            end_ = i.end_; // end position
+            first_ = i.first_; // the last valid position
+            last_ = i.last_; // the last valid position
+            traversalMethod_ = i.traversalMethod_;
         }
         
-        //! Assignment operator
+        //! Copy Assignment operator
         TreeIterator& operator=(const TreeIterator& i)
         {
-            if (this != &i)
-            {
-                ptr_ = i.ptr_; // current position
-                end_ = i.end_; // end position
-                first_ = i.first_; // the last valid position
-                last_ = i.last_; // the last valid position
-                traversalMethod_ = i.traversalMethod_;
-            }
-            
+            ptr_ = i.ptr_; // current position
+            end_ = i.end_; // end position
+            first_ = i.first_; // the last valid position
+            last_ = i.last_; // the last valid position
+            traversalMethod_ = i.traversalMethod_;
+            return *this;
+        }
+
+        //! Move Assignment operator
+        TreeIterator& operator=(TreeIterator&& i)
+        {
+            ptr_ = i.ptr_; // current position
+            end_ = i.end_; // end position
+            first_ = i.first_; // the last valid position
+            last_ = i.last_; // the last valid position
+            traversalMethod_ = i.traversalMethod_;
             return *this;
         }
         
-        //! Return the object reference
-//         reference operator*() const
-//             {      
-//                 return (**ptr_);
-//             }
-        referenceV operator*() const
+        const reference operator*() const
         {
-            return ((**ptr_).getData());
+            //return ((**ptr_).getData());
+        }
+
+        reference operator*()
+        {
+            //return ((**ptr_).getData());
         }
         
         //! Return the object instance
         valueType operator->() const
         {
-            return (*ptr_);
+            //return *ptr_;
         }
-        
+
         //! Preincrement iterator
         iterator_ref operator++()
         {
@@ -236,13 +246,14 @@ namespace Base
         //! Are they the same iterators?
         bool operator==(const TreeIterator &i) const
         {
+            //should also compare all past-the-end iterators and all defualt initialized iterators as equal
             return (ptr_ == i.ptr_);
         }
         
         //! Are they different iterators?
         bool operator!=(const TreeIterator &i) const
         {
-            return (ptr_ != i.ptr_);
+            return !(*this == i);
         }
         
         //! set traversal method to pre order

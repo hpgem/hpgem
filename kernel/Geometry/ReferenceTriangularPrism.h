@@ -47,7 +47,6 @@ namespace Geometry
     class ReferenceTriangularPrism : public ReferenceGeometry
     {
     public:
-        using ReferenceGeometry::String;
 
         static ReferenceTriangularPrism& Instance()
         {
@@ -82,7 +81,7 @@ namespace Geometry
         // ================================== Codimension 0 ========================================
         
         //! (see MappingCodimensions.h)
-        std::size_t getCodim0MappingIndex(const ListOfIndexesT&, const ListOfIndexesT&) const override final;
+        std::size_t getCodim0MappingIndex(const std::vector<std::size_t>&, const std::vector<std::size_t>&) const override final;
 
         //! (see MappingCodimensions.h)
         const MappingReferenceToReference<0>* getCodim0MappingPtr(const std::size_t) const override final;

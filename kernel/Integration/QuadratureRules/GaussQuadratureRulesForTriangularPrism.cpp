@@ -26,7 +26,6 @@
 #include "Integration/QuadratureRules/GaussQuadratureRulesForTriangularPrism.h"
 #include "Geometry/ReferenceTriangularPrism.h"
 #include "Geometry/PointReference.h"
-using Geometry::ReferenceTriangularPrism;
 
 //---------------------------------------------------------------------------
 namespace QuadratureRules
@@ -65,14 +64,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    TriPrism_1_1::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     TriPrism_1_1::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     TriPrism_1_1::TriPrism_1_1()
-            : name_("TriPrism_1_1"), refGeoPtr_(&ReferenceTriangularPrism::Instance()), gp_(0)
+            : name_("TriPrism_1_1"), refGeoPtr_(&Geometry::ReferenceTriangularPrism::Instance()), gp_(0)
     {
         weight_[0] = (0.5) * (2.0);
         gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({1.0 / 3.0, 1.0 / 3.0, 0.0}));
@@ -113,14 +112,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    TriPrism_3_8::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     TriPrism_3_8::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     TriPrism_3_8::TriPrism_3_8()
-            : name_("TriPrism_3_1"), refGeoPtr_(&ReferenceTriangularPrism::Instance()), gp_(0)
+            : name_("TriPrism_3_1"), refGeoPtr_(&Geometry::ReferenceTriangularPrism::Instance()), gp_(0)
     {
         weight_[0] = (-9. / 32.) * (1.0);
         gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({1. / 3., 1. / 3., -std::sqrt(3.0) / 3.0}));
@@ -182,14 +181,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    TriPrism_5_21::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     TriPrism_5_21::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     TriPrism_5_21::TriPrism_5_21()
-            : name_("TriPrism_5_1"), refGeoPtr_(&ReferenceTriangularPrism::Instance()), gp_(0)
+            : name_("TriPrism_5_1"), refGeoPtr_(&Geometry::ReferenceTriangularPrism::Instance()), gp_(0)
     {
         weight_[0] = (9. / 80.) * (5. / 9.);
         gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({1. / 3., 1. / 3., -std::sqrt(3.0 / 5.0)}));
@@ -290,14 +289,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    TriPrism_7_64::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     TriPrism_7_64::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     TriPrism_7_64::TriPrism_7_64()
-            : name_("TriPrism_7_1"), refGeoPtr_(&ReferenceTriangularPrism::Instance()), gp_(0)
+            : name_("TriPrism_7_1"), refGeoPtr_(&Geometry::ReferenceTriangularPrism::Instance()), gp_(0)
     {
         weight_[0] = ((0.1739274226) * (0.1355069134)) * ((2. * 0.1739274226));
         gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({((-0.861136312 + 1.) / 2.) * (1. - (0.0571041961)), 0.0571041961, (-0.861136312)}));

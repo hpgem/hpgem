@@ -35,6 +35,7 @@ namespace Base
     template<class V, class T>
     class TreeIterator;
     
+    //actually a forest
     template<class V>
     class LevelTree
     {
@@ -44,7 +45,6 @@ namespace Base
         using treeEntryT = TreeEntry<V>;
         //  this is our (rather special) iterator 
         using iterator = TreeIterator<V,TreeEntry<V> >;
-        using DimT = unsigned int;
 
         LevelTree();
 
@@ -53,41 +53,52 @@ namespace Base
         bool empty() const;
 
         //! Number of entries in the LevelTree
-        int size() const;
+        std::size_t size() const;
 
-        int maxLevel() const;
+        std::size_t maxLevel() const;
 
-        //protected:
-        void setActiveLevel(const DimT level);
+        void setSingleLevelTraversal(std::size_t level);
 
-        void resetActiveLevel();
+        void setAllLevelTraversal();
 
-        int getActiveLevel() const;
+        void setPreOrderTraversal();
 
-    public:
+        void setPostOrderTraversal();
+
+        std::size_t getActiveLevel() const;
+
         //! Getting the beginning of traversal
         iterator begin();
 
         //! Getting the end of traversal
         iterator end();
 
-        //! Add new entry
-        iterator addEntry(const valueT& newEl, const bool preserveLinks = false);
+        //! Getting the reverse iterator to the reverse beginning
+        std::reverse_iterator<iterator> rbegin();
 
-        //! Add new dummy TreeEntry
-        iterator addDummyEntry(iterator it);
+        //! Getting the reverse iterator to the reverse end
+        std::reverse_iterator<iterator> rend();
+
+        //! Add an additional tree to the forest
+        iterator addRootEntry(const valueT& newEl);
 
         //! Add children of an entry.
         iterator addChildren(iterator parentEl, const std::vector<valueT>& subEntries);
 
-        //! Set the current entries as part of the coarsest mesh.
-        void setAsTheCoarsestEntries();
+        //! Add children of an entry.
+        iterator addChild(iterator parentEl, const valueT& subEntries);
+
+        //! Add children of an entry.
+        iterator addChildren(iterator parentEl, const std::vector<valueT>& subEntries, std::size_t level);
+
+        //! Add children of an entry.
+        iterator addChild(iterator parentEl, const valueT& subEntries, std::size_t level);
 
         //! Getting the beginning of tree-level traversal
         iterator beginLevel(const int level);
 
         //! Getting the beginning of leaves traversal
-        iterator beginLeaf();
+        iterator beginAllLevel();
 
         //! Getting the beginning of pre-order traversal
         iterator beginPreOrder();
@@ -96,38 +107,27 @@ namespace Base
         iterator beginPostOrder();
 
         //! Erase all descendants of an entry
-        void eraseChildsOf(iterator fci);
+        void eraseChilds(iterator parentEl);
 
         //! Describe the LevelTree
         friend std::ostream& operator<<(std::ostream& os, const LevelTree<V>& e)
         {
             os << "LevelTree: ";
-            os << "noRootEntries_= " << e.noRootEntries_ << " ";
             os << "entries_.size()= " << e.entries_.size() << " ";
-            os << "minLevel_= " << e.minLevel_ << " ";
+            os << "minLevel_= " << 0 << " ";
             os << "maxLevel_= " << e.maxLevel_ << " ";
             os << "activeLevel_= " << e.activeLevel_ << " ";
-            os << "coarsestEntriesSet_= " << e.coarsestEntriesSet_ << " ";
             return os;
         }
-        
-    private:
-        //! Add new TreeEntry
-        iterator addTreeEntry(treeEntryT* const newEnt, const bool preserveLinks = false);
-
-        //! Add tree-children of an entry.
-        iterator addTreeChildren(iterator parentEl, const std::vector<treeEntryT>& subEntries);
-
-        //! Erase a leaf entry
-        iterator eraseLastLeaf(iterator fci);
 
     private:
-        int noRootEntries_;
-        std::deque<treeEntryT*> entries_;
-        int minLevel_;
+        std::vector<treeEntryT*> entries_;
         int maxLevel_;
         int activeLevel_;
-        bool coarsestEntriesSet_;
+        enum class TraversalMethod
+        {
+            SINGLELEVEL, ALLLEVEL, PREORDER, POSTORDER
+        } traversalMethod_;
     };
 
 } // close namespace Base

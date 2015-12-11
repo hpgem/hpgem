@@ -46,20 +46,14 @@ namespace Base
     {
     public:
         
-        using ElementGeometryT = Geometry::ElementGeometry;
-        using LocalFaceNumberTypeT = Geometry::FaceGeometry::LocalFaceNumberType;
-        using CacheT = Base::FaceCacheData;
-        using VecCacheT = std::vector<CacheT>;
-        using FaceGeometryT = Geometry::FaceGeometry;
         using FaceQuadratureRule = QuadratureRules::GaussQuadratureRule;
 
-    public:
-        Face(Element* ptrElemL, const LocalFaceNumberTypeT& localFaceNumL, 
-                Element* ptrElemRight, const LocalFaceNumberTypeT& localFaceNumR, 
+        Face(Element* ptrElemL, const std::size_t& localFaceNumL,
+                Element* ptrElemRight, const std::size_t& localFaceNumR,
                 std::size_t faceID, std::size_t numberOfFaceMatrixes = 0, 
                 std::size_t numberOfFaceVectors = 0);
         
-        Face(Element* ptrElemL, const LocalFaceNumberTypeT& localFaceNumL, 
+        Face(Element* ptrElemL, const std::size_t& localFaceNumL,
         const Geometry::FaceType& ftype, std::size_t faceID, 
         std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
                 

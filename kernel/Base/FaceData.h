@@ -42,10 +42,6 @@ namespace Base
     class FaceData
     {
     public:
-        using CacheT = FaceCacheData;
-        using VecCacheT = std::vector<CacheT>;
-
-    public:
         FaceData(std::size_t numberOfDOF, std::size_t numberOfFaceMatrices = 0, std::size_t numberOfFaceVactors = 0);        
         
         FaceData(const FaceData& other);
@@ -71,7 +67,7 @@ namespace Base
 
         LinearAlgebra::MiddleSizeVector getFaceVector(std::size_t vectorID = 0) const;
 
-        VecCacheT& getVecCacheData();
+        std::vector<FaceCacheData>& getVecCacheData();
         
         UserFaceData* getUserData() const
         {
@@ -105,7 +101,7 @@ namespace Base
         
     protected:
         /// Vector of data which the user might want to store. For example determinants of the Jacobian for each quadrature point.
-        VecCacheT vecCacheData_;
+        std::vector<FaceCacheData> vecCacheData_;
 
     private:
         ///Stores polymorphic pointer to UserDefined Data, internally not used.

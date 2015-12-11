@@ -69,10 +69,6 @@ namespace Geometry
     class ReferenceGeometry : public RefinementMapping, public MappingCodimensions
     {
     public:
-        using String = std::string;
-        using ListOfIndexesT = std::vector<std::size_t>;
-
-    public:
         
         virtual ~ReferenceGeometry() = default;
         

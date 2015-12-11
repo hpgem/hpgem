@@ -44,7 +44,7 @@ namespace Base
 
         //! Constructor
         TreeEntry(const V& data)
-                : data_(data), referenceCounter_(0)
+                : data_(data)
         {
 //               std::cout << "TreeEntry is created\n"; 
         }
@@ -54,7 +54,7 @@ namespace Base
         //! compensation, we implement reference counter (referenceCounter_) to avoid 
         //! double freeing the memory
         TreeEntry(const TreeEntry<V>& other)
-                : BaseType(other), data_(other.data_), referenceCounter_(other.referenceCounter_ + 1)
+                : BaseType(other), data_(other.data_)
         {
 //                 std::cout << "TreeEntry is copied\n";
         }
@@ -73,9 +73,6 @@ namespace Base
     public:
         //! data stored at this TreeEntry
         V data_;
-
-        //! counter for reference an original element: 0= the original, >0 a shallow copy of an original element
-        int referenceCounter_;
 
     private:
         TreeEntry();
