@@ -20,70 +20,92 @@
  */
 #ifndef TreeIterator_h
 #define TreeIterator_h
-#include <deque>
+#include <vector>
 #include <iostream>
 
+#include "Logger.h"
+#include "TreeEntry.h"
 //------------------------------------------------------------------------------
 namespace Base
 {
-    // some forward declaration
-    template<class V>
+
+
+    template<typename V>
     class LevelTree;
-    
-    template<class V, class T>
+
+    //for some routines a faster, more elaborate implementation might be available.
+    //Recommended to first test if the current implementation is fast enough for low overhead in most simulations
+    template<typename V>
     class TreeIterator
     {
-        friend class LevelTree<V> ;
-
     public:
-        //old typedefs
-        using valueType = T*;
-        using valueVType = V;
-        using referenceV = V&;
-        using iterator_ref = TreeIterator&;
-
-        //typedefs expected by the standard c++ library (do not rewrite to conform to code standards)
-        using difference_type = int;
+        //typedefs expected by the standard c++ library (do not rename to conform to code standards)
+        using difference_type = std::ptrdiff_t;
         using value_type = V;
         using pointer = V*;
         using reference = V&;
         //can go forward or back, but cant skip
         using iterator_category = std::bidirectional_iterator_tag;
 
+        //levelTree is able to step iterators to their expected positions while ignoring the ordering
+        friend LevelTree<V>;
+
+        //! the standard c++ library expects iterators to be default constructible
         TreeIterator()
         {
-            // on default, the iterator behaves as a std::deque::iterator
-            traversalMethod_ = traversalList_;
+            //by default just do everything
+            traversalMethod_ = TreeTraversalMethod::ALLLEVEL;
+            depthCounter_ = 0;
         }
         
+        //! actual constructor; may not directly be used to construct a past-the-end iterator
+        TreeIterator(typename std::vector<TreeEntry<V>*>::iterator position, TreeTraversalMethod method, std::size_t singleLevelLevel)
+        {
+            ptr_ = position;
+            end_ = (*position)->getSiblings().end();
+            traversalMethod_ = method;
+            depthCounter_ = 0;
+            //shift to the correct level if we only iterate part of the tree
+            if(method == TreeTraversalMethod::SINGLELEVEL)
+            {
+                setSingleLevelTraversal(singleLevelLevel);
+            }
+        }
+
+        //! allow to construct an iterator on a specific entry with single level traversal, even when it is on the wrong level
+        TreeIterator(typename std::vector<TreeEntry<V>*>::iterator position, TreeTraversalMethod method)
+        {
+            ptr_ = position;
+            end_ = (*position)->getSiblings().end();
+            traversalMethod_ = method;
+            depthCounter_ = 0;
+        }
+
         //! Copy constructor
         TreeIterator(const TreeIterator& i)
         {
             ptr_ = i.ptr_; // current position
-            end_ = i.end_; // end position
-            first_ = i.first_; // the last valid position
-            last_ = i.last_; // the last valid position
+            end_ = i.end_;
             traversalMethod_ = i.traversalMethod_;
+            depthCounter_ = i.depthCounter_;
         }
         
         //! Move constructor
         TreeIterator(TreeIterator&& i)
         {
             ptr_ = i.ptr_; // current position
-            end_ = i.end_; // end position
-            first_ = i.first_; // the last valid position
-            last_ = i.last_; // the last valid position
+            end_ = i.end_;
             traversalMethod_ = i.traversalMethod_;
+            depthCounter_ = i.depthCounter_;
         }
         
         //! Copy Assignment operator
         TreeIterator& operator=(const TreeIterator& i)
         {
             ptr_ = i.ptr_; // current position
-            end_ = i.end_; // end position
-            first_ = i.first_; // the last valid position
-            last_ = i.last_; // the last valid position
+            end_ = i.end_;
             traversalMethod_ = i.traversalMethod_;
+            depthCounter_ = i.depthCounter_;
             return *this;
         }
 
@@ -91,103 +113,69 @@ namespace Base
         TreeIterator& operator=(TreeIterator&& i)
         {
             ptr_ = i.ptr_; // current position
-            end_ = i.end_; // end position
-            first_ = i.first_; // the last valid position
-            last_ = i.last_; // the last valid position
+            end_ = i.end_;
             traversalMethod_ = i.traversalMethod_;
+            depthCounter_ = i.depthCounter_;
             return *this;
-        }
-        
-        const reference operator*() const
-        {
-            //return ((**ptr_).getData());
         }
 
         reference operator*()
         {
-            //return ((**ptr_).getData());
+            logger.assert(ptr_ != end_, "cannot read from past-the-end position");
+            return (*ptr_)->getData();
         }
         
-        //! Return the object instance
-        valueType operator->() const
+        pointer operator->() const
         {
-            //return *ptr_;
+            logger.assert(ptr_ != end_, "cannot read from past-the-end position");
+            return &(**ptr_).getData();
         }
 
-        //! Preincrement iterator
-        iterator_ref operator++()
+        TreeIterator& operator++()
         {
+            logger.assert(ptr_ != end_, "illegal to increment an iterator when it is already equal to end()");
             switch (traversalMethod_)
             {
-                case traversalList_:
-                    ++ptr_;
+                case TreeTraversalMethod::ALLLEVEL:
+                    moveToNextMultiLevel();
                     break;
                     
-                case traversalTreeLeaves_:
-                    if (ptr_ == last_)
-                        ptr_ = end_;
-                    else if (ptr_ == end_)
-                        ptr_ = first_;
-                    else
-                        NextLeaf();
+                case TreeTraversalMethod::PREORDER:
+                    moveToNextPreOrder();
                     break;
                     
-                case traversalTreePreOrder_:
-//                         if ((ptr_ == last_) && (!(*this)->hasChild()))
-                    if ((ptr_ == last_) && (!(*this)->hasChild()))
-                        ptr_ = end_;
-                    else if (ptr_ == end_)
-                        ptr_ = first_;
-                    else
-                        NextPreOrder();
+                case TreeTraversalMethod::POSTORDER:
+                    moveToNextPostOrder();
                     break;
                     
-                case traversalTreePostOrder_:
-                    if (ptr_ == last_)
-                        ptr_ = end_;
-                    else if (ptr_ == end_)
-                        ptr_ = first_;
-                    else
-                        NextPostOrder();
-                    break;
-                    
-                default: // TraversalTreeOnLevel
-                    if (ptr_ == last_)
-                        ptr_ = end_;
-                    else
-                        NextOnLevel();
+                default: //SINGLELEVEL
+                    moveToNextOnLevel();
                     break;
             }
             
             return (*this);
         }
         
-        //! Predecrement iterator
-        iterator_ref operator--()
+        TreeIterator& operator--()
         {
+            //no convenient check for begin available validity will be checked in called routines
             switch (traversalMethod_)
             {
-                case traversalList_:
-                    --ptr_;
+                case TreeTraversalMethod::ALLLEVEL:
+                    moveToPreviousMultiLevel();
                     break;
                     
-                case traversalTreeLeaves_:
-                    break; // not implemented yet
-                    
-                case traversalTreePreOrder_:
-                    if (ptr_ == first_)
-                        ptr_ = end_;
-                    else if (ptr_ == end_)
-                        ptr_ = last_;
-                    else
-                        PreviousPreOrder();
+                case TreeTraversalMethod::PREORDER:
+                    moveToPreviousPreOrder();
                     break;
                     
-                case traversalTreePostOrder_:
-                    break; // not implemented yet
+                case TreeTraversalMethod::POSTORDER:
+                    moveToPreviousPostOrder();
+                    break;
                     
-                default: // TraversalTreeOnLevel
-                    break; // not implemented yet
+                default: //SINGLELEVEL
+                    moveToPreviousOnLevel();
+                    break;
             }
             
             return (*this);
@@ -195,6 +183,7 @@ namespace Base
         
         TreeIterator operator++(int) // postinc
         {
+            logger.assert(ptr_ != end_, "illegal to increment an iterator when it is already equal to end()");
             TreeIterator tmp(*this);
             ++*this;
             return (tmp);
@@ -202,52 +191,27 @@ namespace Base
         
         TreeIterator operator--(int) // postdec
         {
+            //no convenient check for begin available validity will be checked in called routines
             TreeIterator tmp(*this);
             --*this;
             return (tmp);
         }
         
-        //! Move the iterator to the parent
-        iterator_ref parent()
-        {
-            if ((*this)->canDecreaseCounter())
-                (*this)->decreaseCounter();
-            else
-            {
-                ptr_ = (*this)->getParent().ptr_;
-                (*this)->setCounterMax();
-            }
-            
-            return (*this);
-        }
-        
-        //! Move the iterator to a child
-        iterator_ref child(const int iChild = 0)
-        {
-            if ((*this)->canIncreaseCounter())
-            {
-                (*this)->increaseCounter();
-            }
-            else
-            {
-                ptr_ = (*this)->getChild().ptr_;
-                (*this)->setCounterMin();
-            }
-            
-            if (iChild < (*this)->getNumSiblings())
-                for (int i = 0; i < iChild - 1; ++i, ++ptr_)
-                    ;
-            else
-                std::cerr << "iterator::child() exceed NumSiblings\n"; // error message!
-                        
-            return (*this);
-        }
-        
         //! Are they the same iterators?
         bool operator==(const TreeIterator &i) const
         {
-            //should also compare all past-the-end iterators and all defualt initialized iterators as equal
-            return (ptr_ == i.ptr_);
+            //technically comparing two iterators to two different vectors is not guaranteed to give meaningful results (if any)
+            //so has to be slightly more elaborate
+            if(ptr_ != end_ && traversalMethod_ == i.traversalMethod_ && i.ptr_ != i.end_)
+            {
+                return *ptr_ == *i.ptr_;
+            }
+            else
+            {
+                //a == b implies ++a == ++b, and --a == --b implies a == b, but the reverses are not required
+                //and having one end() for all treeTraversalMethods is easier
+                return ptr_ == end_ && i.ptr_ == i.end_;
+            }
         }
         
         //! Are they different iterators?
@@ -256,356 +220,417 @@ namespace Base
             return !(*this == i);
         }
         
-        //! set traversal method to pre order
-        void setBasicLevelTraversal(const int level)
+        //! set traversal method to pre order (also skips to the indicated level)
+        void setSingleLevelTraversal(std::size_t level)
         {
-            traversalMethod_ = level;
+            traversalMethod_ = TreeTraversalMethod::SINGLELEVEL;
+            if(ptr_ == end_)
+            {
+                --ptr_;
+                moveToLastOnLevel(level);
+                moveToNextOnLevel();
+            }
+            else if(level < (*ptr_)->getLevel() + depthCounter_)
+            {
+                moveUpToLevel(level);
+            }
+            else
+            {
+                moveDownToLevelBegin(level);
+            }
         }
         
         //! set traversal method to leaves traversal
-        void setLeavesTraversal()
+        void setAllLevelTraversal()
         {
-            traversalMethod_ = traversalTreeLeaves_;
+            traversalMethod_ = TreeTraversalMethod::ALLLEVEL;
+            if(ptr_ == end_)
+            {
+                //if the iterator is in the past-the-end position, update to the new past-the-end position
+                --ptr_;
+                while((*ptr_)->hasChild())
+                {
+                    moveToChild((*ptr_)->getNumberOfChildren() - 1);
+                }
+                ++ptr_;
+            }
         }
         
         //! set traversal method to pre order
         void setPreOrderTraversal()
         {
-            traversalMethod_ = traversalTreePreOrder_;
+            traversalMethod_ = TreeTraversalMethod::PREORDER;
+            if(ptr_ == end_)
+            {
+                //if the iterator is in the past-the-end position, update to the new past-the-end position
+                --ptr_;
+                while((*ptr_)->hasChild())
+                {
+                    moveToChild((*ptr_)->getNumberOfChildren() - 1);
+                }
+                ++ptr_;
+            }
         }
         
         //! set traversal method to post order
         void setPostOrderTraversal()
         {
-            traversalMethod_ = traversalTreePostOrder_;
+            traversalMethod_ = TreeTraversalMethod::POSTORDER;
+            if(ptr_ == end_)
+            {
+                //if the iterator is in the past-the-end position, update to the new past-the-end position
+                --ptr_;
+                while(!(*ptr_)->isRoot())
+                {
+                    moveToParent();
+                }
+                ++ptr_;
+            }
         }
         
     private:
+
+        bool canDecreaseCounter() const
+        {
+            return depthCounter_ > 0;
+        }
+
+        bool canIncreaseCounter() const
+        {
+            return !(ptr_ == end_) && depthCounter_ < (*ptr_)->getDepth() - 1;
+        }
+
+        void increaseCounter()
+        {
+            logger.assert(canIncreaseCounter(), "Tree iterator was asked to increase the depth counter, while this is currently impossible");
+            ++depthCounter_;
+        }
+
+        void decreaseCounter()
+        {
+            logger.assert(canDecreaseCounter(), "Tree iterator was asked to decrease the depth counter, while this is currently impossible");
+            --depthCounter_;
+        }
+
+        void setMaxDepthCounter()
+        {
+            depthCounter_ = (ptr_ == end_ ? 0 : (*ptr_)->getDepth() - 1);
+        }
+
+        //! Move the iterator to the parent
+        void moveToParent()
+        {
+            logger.assert(ptr_ != end_, "cannot move to the parent of the past the end iterator");
+            if (canDecreaseCounter())
+            {
+                decreaseCounter();
+            }
+            else
+            {
+                logger.assert(!(*ptr_)->isRoot(), "cannot move to the parent of the root node");
+                *this = (*ptr_)->getParent()->getIterator(traversalMethod_);
+                setMaxDepthCounter();
+            }
+            end_ = (*ptr_)->getSiblings().end();
+        }
+
+        //! Move the iterator to a child
+        void moveToChild(std::size_t iChild = 0)
+        {
+            logger.assert(ptr_ != end_, "cannot move to the children of the past the end iterator");
+            if (canIncreaseCounter())
+            {
+                increaseCounter();
+            }
+            else
+            {
+                logger.assert((*ptr_)->hasChild(), "cannot move to the child of a leaf node");
+                *this = (*ptr_)->getChild(iChild)->getIterator(traversalMethod_);
+                //depthcounter is automatically 0
+            }
+            end_ = (*ptr_)->getSiblings().end();
+        }
         
         //! find the first node at a specified level
-        iterator_ref firstOnLevel(const int level)
+        void moveToFirstOnLevel(std::size_t level)
         {
-            for (int i = 0; i < (*this)->getNumSiblings(); ++i, ++ptr_)
+            if(ptr_ == end_)
             {
-                if ((*this)->getLevel() >= level)
-                    break; // success
-                    
-                if (!(*this)->hasChild()) // no childs
-                {
-                    // the last brother, failed to find the level
-                    if (i == (*this)->getNumSiblings() - 1)
-                        break;
-                }
-                else
-                {
-                    child(); // try to find it below
-                    firstOnLevel(level); // recursive call
-                    if ((*this)->getLevel() >= level)
-                        break; // success
-                    parent(); // can't find it below
-                    
-                    // the last brother, failed to find the level
-                    if (i == (*this)->getNumSiblings() - 1)
-                        break;
-                }
+                --ptr_;
             }
-            
-            return (*this);
+            moveUpToLevel(0);
+            //there might be a forest
+            *this = (*ptr_)->getSiblings()[0]->getIterator(traversalMethod_);
+            moveDownToLevelBegin(level);
         }
         
         //! find the last node at a specified level
-        iterator_ref lastOnLevel(const int level)
+        void moveToLastOnLevel(std::size_t level)
         {
-            // move to the last brother
-            int numBro = (*this)->getNumSiblings();
-            for (int i = (*this)->getSiblingIndex(); i < numBro - 1; ++i, ++ptr_)
-                ;
-            
-            // loop over all brothers
-            for (int i = (*this)->getNumSiblings() - 1; i >= 0; --i, --ptr_)
+            if(ptr_ == end_)
             {
-                if ((*this)->getLevel() >= level)
-                    break; // success
-                    
-                if (!(*this)->hasChild()) // no childs
-                {
-                    // the first brother, failed to find the level
-                    if (i == 0)
-                        break;
-                }
-                else
-                {
-                    child(); // try to find it below
-                    lastOnLevel(level); // recursive call
-                    if ((*this)->getLevel() >= level)
-                        break; // success
-                    parent(); // can't find if below
-                    
-                    // the first brother, failed to find the level
-                    if (i == 0)
-                        break;
-                }
+                --ptr_;
             }
-            
-            return (*this);
+            moveUpToLevel(0);
+            *this = (*ptr_)->getSiblings()[(*ptr_)->getNumberOfSiblings() - 1]->getIterator(traversalMethod_);
+            moveDownToLevelEnd(level);
+        }
+
+        void moveUpToLevel(std::size_t level)
+        {
+            logger.assert(ptr_ != end_, "cannot move up from the past-the-end iterator");
+            while((*ptr_)->getLevel() + depthCounter_ > level)
+            {
+                moveToParent();
+            }
+        }
+
+        //might move to siblings if it can't find the appropriate level among descendants
+        bool moveDownToLevelBegin(std::size_t level)
+        {
+            while(!(ptr_ == end_) && (*ptr_)->getLevel() + depthCounter_ < level)
+            {
+                moveToNextPreOrder();
+            }
+            return !(ptr_ == end_);
+        }
+
+        //might move to siblings if it can't find the appropriate level among descendants
+        bool moveDownToLevelEnd(std::size_t level)
+        {
+            //don't rely on the existence of --begin()
+            while(ptr_ == end_ || ((*ptr_)->getLevel() + depthCounter_ < level && hasPreviousPostOrder()))
+            {
+                moveToPreviousPostOrder();
+            }
+            return (*ptr_)->getLevel() + depthCounter_ == level;
         }
         
         //! move to next node on the same level
-        iterator_ref NextOnLevel()
+        void moveToNextOnLevel()
         {
-            if ((*this)->getLevel() == traversalMethod_)
+            logger.assert(ptr_ != end_, "can only increment dereferenceable iterators");
+            //if we can't move to the next, this should be the last one
+            TreeIterator backup = *this;
+            std::size_t level = (*ptr_)->getLevel() + depthCounter_;
+            while((*ptr_)->isLastSibling() && !(*ptr_)->isRoot())
             {
-                if (!(*this)->isLastSibling())
+                //move up until we can move to the next
+                moveToParent();
+            }
+            if((*ptr_)->isLastSibling())
+            {
+                //if we still can't move to the next entry, restore the old pointer so we can move back to the last on the level with --
+                *this = backup;
+                ++ptr_;
+            }
+            else
+            {
+                ++ptr_;
+                depthCounter_ = 0;
+                if(!moveDownToLevelBegin(level))
                 {
-                    // move right if I can
+                    //moveDownToLevelBegin will automatically try to move to the next sibling and/or up to another parent if it fails initially
+                    //so if it fails this was the last on the level
+                    *this = backup;
                     ++ptr_;
-                    (*this)->setDepthCounter((*this)->getLevel() - traversalMethod_ + 1);
                 }
                 else
                 {
-                    // can't move right, then move upward until the top level
-                    // or until I can move right at some level
-                    do
-                    {
-                        parent();
-                    } while ((!(*this)->isRoot()) && (*this)->isLastSibling());
-                    
-                    if (!(*this)->isLastSibling())
-                    // move right if I can
-                    {
-                        ++ptr_;
-                        if ((*this)->getLevel() != traversalMethod_)
-                            NextOnLevel();
-                    }
+                    end_ = (*ptr_)->getSiblings().end();
                 }
             }
-            else if ((*this)->getLevel() < traversalMethod_) // I am above the specified level)
-            {
-                // move downward until reaching the specified level or until I can't move downward
-                do
-                {
-                    child();
-                } while (((*this)->getLevel() < traversalMethod_) && (*this)->hasChild());
-                
-                // if I reach the specified level
-                if ((*this)->getLevel() == traversalMethod_)
-                {
-                    return (*this);
-                }
-                
-                if (!(*this)->isLastSibling())
-                // move right if I can
-                {
-                    ++ptr_;
-                    if ((*this)->getLevel() != traversalMethod_)
-                        NextOnLevel();
-                }
-                else
-                {
-                    // can't move right, then move upward until the top level
-                    // or until I can move right at some level
-                    do
-                    {
-                        parent();
-                    } while ((!(*this)->isRoot()) && (*this)->isLastSibling());
-                    
-                    if (!(*this)->isLastSibling())
-                    // move right if I can
-                    {
-                        ++ptr_;
-                        if ((*this)->getLevel() != traversalMethod_)
-                            NextOnLevel();
-                    }
-                }
-            }
-            else // I am below the specified level
-            {
-                // move upward until reaching the specified level
-                do
-                {
-                    parent();
-                } while ((*this)->getLevel() > traversalMethod_);
-            }
-            
-            return (*this);
         }
         
         //! move to previous node on the same level
-        iterator_ref PreviousOnLevel()
+        void moveToPreviousOnLevel()
         {
-            if ((*this)->getLevel() == traversalMethod_)
+            if(ptr_ == end_)
             {
-                if (!(*this)->isfirst_Sibling())
+                //the increment operator made sure we end up at the back
+                --ptr_;
+            }
+            else
+            {
+                //--begin() is undefined so we don't have to care about restoring the current position
+                std::size_t level = (*ptr_)->getLevel() + depthCounter_;
+                while((*ptr_)->isFirstSibling())
                 {
-                    // move left if I can
-                    --ptr_;
+                    //move up until we can go to the previous
+                    logger.assert(!(*ptr_)->isRoot(), "cannot move to previous from the first element");
+                    moveToParent();
                 }
-                else
+                --ptr_;
+                depthCounter_ = 0;
+                //please keep as assert_always, routine needs to run and must return true
+                logger.assert_always(moveDownToLevelEnd(level),"cannot move to previous from the first element");
+                end_ = (*ptr_)->getSiblings().end();
+            }
+        }
+        
+        bool hasPreviousOnLevel()
+        {
+            if(ptr_ == end_ || !(*ptr_)->isFirstSibling())
+            {
+                return true;
+            }
+            else
+            {
+                std::size_t level = (*ptr_)->getLevel() + depthCounter_;
+                TreeIterator duplicate = *this;
+                while(!(*duplicate.ptr_)->isRoot() && (*duplicate.ptr_)->isFirstSibling())
                 {
-                    // can't move left, then move upward until the top level
-                    // or until I can move right at some level
-                    do
+                    duplicate.moveToParent();
+                }
+                return !(*duplicate.ptr_)->isFirstSibling() && (--duplicate).moveDownToLevelEnd(level);
+            }
+        }
+
+        //! move to next node in the pre-order traversal
+        void moveToNextPreOrder()
+        {
+            logger.assert(ptr_ != end_, "can only increment dereferenceable iterators");
+            if((*ptr_)->hasChild() || canIncreaseCounter())
+            {
+                moveToChild(0);
+            }
+            else if(!(*ptr_)->isLastSibling())
+            {
+                ++ptr_;
+            }
+            else
+            {
+                while(!(*ptr_)->isRoot() && (*ptr_)->isLastSibling())
+                {
+                    moveToParent();
+                }
+                if((*ptr_)->isLastSibling())
+                {
+                    //move back to the final node before moving to end_
+                    while((*ptr_)->hasChild())
                     {
-                        parent();
-                    } while ((!(*this)->isRoot()) && (*this)->isfirst_Sibling());
-                    
-                    if (!(*this)->isfirst_Sibling())
-                    {
-                        // move left if I can
-                        --ptr_;
-                        PreviousOnLevel();
+                        moveToChild((*ptr_)->getNumberOfChildren() - 1);
                     }
                 }
+                ++ptr_;
+                depthCounter_ = 0;
             }
-            else if ((*this)->getLevel() < traversalMethod_) // I am above the specified level)
-            {
-                // not implemented yet
-            }
-            else // I am below the specified level
-            {
-                // not implemented yet
-            }
-            
-            return (*this);
-        }
-        
-        //! find the first leaf node
-        iterator_ref firstLeaf()
-        {
-            if ((*this)->hasChild())
-            { // find it below
-                child();
-                firstLeaf(); // recursive call
-            }
-            
-            return (*this);
-        }
-        
-        //! find the last leaf node
-        iterator_ref lastLeaf()
-        {
-            // move to the last brother
-            for (int i = (*this)->getSiblingIndex(); i < (*this)->getNumSiblings() - 1; ++i, ++ptr_)
-                ;
-            
-            if ((*this)->hasChild())
-            { // find it below
-                child();
-                lastLeaf(); // recursive call
-            }
-            
-            return (*this);
-        }
-        
-        //! move to next leaf node
-        iterator_ref NextLeaf()
-        {
-            // find it on the right, if I can move right
-            if (!(*this)->isLastSibling())
-            {
-                ++ptr_; // move right
-                firstLeaf();
-            }
-            else
-            {
-                // can't move right, then move upward until the top level
-                // or until I can move right at some point
-                do
-                {
-                    parent();
-                } while ((!(*this)->isRoot()) && (*this)->isLastSibling());
-                
-                // find it on the right, if I can move right
-                if (!(*this)->isLastSibling())
-                {
-                    ++ptr_; // move right
-                    firstLeaf();
-                }
-            }
-            
-            return (*this);
-        }
-        
-        //! move to next node in the pre-order traversal
-        iterator_ref NextPreOrder()
-        {
-            if ((*this)->hasChild())
-                child(); // visit the first child
-            else
-            {
-                // visit the right node, if I can move right
-                if (!(*this)->isLastSibling())
-                    ++ptr_; // move right
-                else
-                {
-                    // can't move right, then move upward until the top level
-                    // or until I can move right at some point
-                    do
-                    {
-                        parent();
-                    } while ((!(*this)->isRoot()) && (*this)->isLastSibling());
-                    
-                    // visit the right node, if I can move right
-                    if (!(*this)->isLastSibling())
-                        ++ptr_; // move right
-                }
-            }
-            
-            return (*this);
         }
         
         //! move to previous node in the pre-order traversal
-        iterator_ref PreviousPreOrder()
+        void moveToPreviousPreOrder()
         {
-            if (!(*this)->isfirst_Sibling())
+            if(ptr_ == end_ || (!(*ptr_)->isFirstSibling() && depthCounter_ == 0))
             {
-                --ptr_; // move left
-                if ((*this)->hasChild())
+                --ptr_;
+                while((*ptr_)->hasChild())
                 {
-                    child();
-                    lastLeaf();
+                    moveToChild((*ptr_)->getNumberOfChildren() - 1);
                 }
             }
             else
-                parent(); // visit the parent
-                
-            return (*this);
+            {
+                logger.assert(!(*ptr_)->isRoot() || depthCounter_ > 0, "may not decrement the first entrty of a container");
+                moveToParent();
+            }
         }
         
         //! move to next node in the post-order traversal
-        iterator_ref NextPostOrder()
+        void moveToNextPostOrder()
         {
-            // visit the right node, if I can move right
-            if (!(*this)->isLastSibling())
+            logger.assert(ptr_ != end_, "can only increment dereferenceable iterators");
+            if (!(*ptr_)->isLastSibling() && depthCounter_ == 0)
             {
-                ++ptr_; // visit the right
-                firstLeaf();
+                ++ptr_;
+                while((*ptr_)->hasChild())
+                {
+                    moveToChild(0);
+                }
             }
-            else if (!(*this)->isRoot())
-                parent();
-            
-            return (*this);
+            else if((*ptr_)->isRoot() && depthCounter_ == 0)
+            {
+                ++ptr_;
+            }
+            else
+            {
+                moveToParent();
+            }
         }
         
         //! move to previous node in the post-order traversal
-        iterator_ref PreviousPostOrder()
+        void moveToPreviousPostOrder()
         {
-            // not implemented yet, sorry!
-            return (*this);
+            //we have the function anyway, might as well use it
+            logger.assert(hasPreviousPostOrder(), "decrementing an iterator to the beginning of a range is undefined behaviour, please don't do that.");
+            if(ptr_ != end_ && ((*ptr_)->hasChild() || canIncreaseCounter()))
+            {
+                moveToChild((*ptr_)->getNumberOfChildren() - 1);
+            }
+            else if(ptr_ == end_)
+            {
+                --ptr_;
+            }
+            else
+            {
+                while((*ptr_)->isFirstSibling())
+                {
+                    moveToParent();
+                }
+                --ptr_;
+            }
         }
         
-    private:
-        typename std::deque<valueType>::iterator ptr_; // current position
-        typename std::deque<valueType>::iterator end_; // end position
-        typename std::deque<valueType>::iterator first_; // the last valid position
-        typename std::deque<valueType>::iterator last_; // the last valid position
-        
-        int traversalMethod_;
-        enum
+        bool hasPreviousPostOrder()
         {
-            traversalList_ = -1, traversalTreeLeaves_ = -2, traversalTreePreOrder_ = -3, traversalTreePostOrder_ = -4
-        };
+            if(ptr_ == end_ || (*ptr_)->hasChild() || !(*ptr_)->isFirstSibling() || canIncreaseCounter())
+            {
+                return true;
+            }
+            else
+            {
+                TreeIterator duplicate = *this;
+                while(!(*duplicate.ptr_)->isRoot() && (*duplicate.ptr_)->isFirstSibling())
+                {
+                    duplicate.moveToParent();
+                }
+                return !(*duplicate.ptr_)->isFirstSibling();
+            }
+        }
+
+        void moveToNextMultiLevel()
+        {
+            logger.assert(ptr_ != end_, "iterator has to be dereferenceable to be incrementable");
+            moveToNextOnLevel();
+            if(ptr_ == end_)
+            {
+                --ptr_;
+                std::size_t level = (*ptr_)->getLevel() + depthCounter_ + 1;
+                //will move to end_ again if this was the last level
+                moveToFirstOnLevel(level);
+            }
+        }
+
+        void moveToPreviousMultiLevel()
+        {
+            if(hasPreviousOnLevel())
+            {
+                moveToPreviousOnLevel();
+            }
+            else
+            {
+                std::size_t level = (*ptr_)->getLevel() + depthCounter_;
+                logger.assert(level > 0, "Cannot move to the previous from the first entry in the range");
+                moveToLastOnLevel(level - 1);
+            }
+        }
+
+    private:
+        typename std::vector<TreeEntry<V>*>::iterator ptr_; // current position
+        typename std::vector<TreeEntry<V>*>::iterator end_; // past the end iterator for the current node
         
+        TreeTraversalMethod traversalMethod_;
+        
+        std::size_t depthCounter_;
     };
 } // close namespace Base
 

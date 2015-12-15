@@ -25,89 +25,108 @@
 #include <vector>
 #include <iostream>
 #include "Logger.h"
+#include "TreeEntry.h"
+#include "TreeIterator.h"
 
 namespace Base
 {
     
-    template<class V>
+    template<typename V>
     class TreeEntry;
     
-    template<class V, class T>
+    template<typename V>
     class TreeIterator;
-    
+
+    /**
+     * A tree structure that allows iteration over a single level (distance from the root entry) or over all levels
+     * in addition to normal pre-order and post-order traversal. Entries may reside in multiple levels. This allows
+     * for example locally refining a mesh on the next level without having to duplicate the elements that were not
+     * refined. The structure supports having multiple entries on level 0.
+     */
     //actually a forest
-    template<class V>
+    template<typename V>
     class LevelTree
     {
-        
     public:
-        using valueT = V;
-        using treeEntryT = TreeEntry<V>;
-        //  this is our (rather special) iterator 
-        using iterator = TreeIterator<V,TreeEntry<V> >;
-
+        
+        //! construct a new empty level tree
         LevelTree();
 
+        //!clean up the entries (does not do memory management on V)
         ~LevelTree();
 
+        //! false if there are entries in the tree
         bool empty() const;
 
-        //! Number of entries in the LevelTree
+        //! Number of trees in the LevelTree
+        //!\note could also recursively descend the trees to return the size including children if this is more intuitive
         std::size_t size() const;
 
+        //! highest level that contains an element
         std::size_t maxLevel() const;
 
+        //! iterators created after this call will traverse only the indicated level. Does not affect existing iterators
         void setSingleLevelTraversal(std::size_t level);
 
+        //! iterators created after this call will traverse all entries, visiting all entries on lower levels before visiting any entries on higher levels. Does not affect existing iterators
         void setAllLevelTraversal();
 
+        //! iterators created after this call will traverse in pre-order (visiting parents before their children, but visiting children before visiting unvisited siblings). Does not affect existing iterators
         void setPreOrderTraversal();
 
+        //! iterators created after this call will traverse in post-order (visiting parents after their children, but visiting parents before visiting unvisited siblings or their children). Does not affect existing iterators
         void setPostOrderTraversal();
 
+        //! iterators created after this call will use the indicated traversal method. Does not affect existing iterators
+        void setTraversalMethod(TreeTraversalMethod method);
+
+        //! returns the level currently being visited for single level traversal, or an arbitrary number if any other traversal method is currently active
         std::size_t getActiveLevel() const;
 
         //! Getting the beginning of traversal
-        iterator begin();
+        TreeIterator<V> begin();
 
         //! Getting the end of traversal
-        iterator end();
+        TreeIterator<V> end();
 
         //! Getting the reverse iterator to the reverse beginning
-        std::reverse_iterator<iterator> rbegin();
+        std::reverse_iterator<TreeIterator<V>> rbegin();
 
         //! Getting the reverse iterator to the reverse end
-        std::reverse_iterator<iterator> rend();
+        std::reverse_iterator<TreeIterator<V>> rend();
 
         //! Add an additional tree to the forest
-        iterator addRootEntry(const valueT& newEl);
+        TreeIterator<V> addRootEntry(const V& newEl);
 
-        //! Add children of an entry.
-        iterator addChildren(iterator parentEl, const std::vector<valueT>& subEntries);
+        //! Add children to an entry. Provided iterator must point into this tree.
+        void addChildren(TreeIterator<V> parentEl, const std::vector<V>& subEntries);
 
-        //! Add children of an entry.
-        iterator addChild(iterator parentEl, const valueT& subEntries);
+        //! Add children of an entry. Provided iterator must point into this tree.
+        TreeIterator<V> addChild(TreeIterator<V> parentEl, const V& subEntry);
 
-        //! Add children of an entry.
-        iterator addChildren(iterator parentEl, const std::vector<valueT>& subEntries, std::size_t level);
+        //! Add children of an entry, making the children occupy a specific level. The parent will stretch to fill empty lower levels if necessary. Provided iterator must point into this tree.
+        void addChildren(TreeIterator<V> parentEl, const std::vector<V>& subEntries, std::size_t level);
 
-        //! Add children of an entry.
-        iterator addChild(iterator parentEl, const valueT& subEntries, std::size_t level);
+        //! Add children of an entry, making the children occupy a specific level. The parent will stretch to fill empty lower levels if necessary. Provided iterator must point into this tree.
+        TreeIterator<V> addChild(TreeIterator<V> parentEl, const V& subEntry, std::size_t level);
 
-        //! Getting the beginning of tree-level traversal
-        iterator beginLevel(const int level);
+        //! Make all leaves occupy a specified level, stretching leaves to fill empty lower levels if necessary.
+        void fillToLevel(std::size_t level);
 
-        //! Getting the beginning of leaves traversal
-        iterator beginAllLevel();
+        //! Getting the beginning of single level traversal
+        TreeIterator<V> beginLevel(std::size_t level);
+
+        //! Getting the beginning of all level traversal
+        TreeIterator<V> beginAllLevel();
 
         //! Getting the beginning of pre-order traversal
-        iterator beginPreOrder();
+        TreeIterator<V> beginPreOrder();
 
         //! Getting the beginning of post-order traversal
-        iterator beginPostOrder();
+        TreeIterator<V> beginPostOrder();
 
-        //! Erase all descendants of an entry
-        void eraseChilds(iterator parentEl);
+        //! Erase all descendants of an entry (and reset its depth to 1)
+        void eraseChilds(TreeIterator<V> parentEl);
 
         //! Describe the LevelTree
         friend std::ostream& operator<<(std::ostream& os, const LevelTree<V>& e)
@@ -121,18 +140,15 @@ namespace Base
         }
 
     private:
-        std::vector<treeEntryT*> entries_;
-        int maxLevel_;
-        int activeLevel_;
-        enum class TraversalMethod
-        {
-            SINGLELEVEL, ALLLEVEL, PREORDER, POSTORDER
-        } traversalMethod_;
+        std::vector<TreeEntry<V>*> entries_;
+        std::size_t maxLevel_;
+        std::size_t activeLevel_;
+        TreeTraversalMethod traversalMethod_;
     };
 
 } // close namespace Base
 
 // merge the implementation file here.
-#include "Base/LevelTree_Impl.h"
+#include "LevelTree_Impl.h"
 
 #endif //LevelTree_h

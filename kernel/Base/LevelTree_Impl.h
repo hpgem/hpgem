@@ -22,17 +22,15 @@
 #ifndef LevelTree_Impl_h
 #define LevelTree_Impl_h
 
-#include "Base/LevelTree.h"
-
 namespace Base
 {
-    template<class V>
+    template<typename V>
     LevelTree<V>::LevelTree()
-            : maxLevel_(0), activeLevel_(-1), traversalMethod_(TraversalMethod::ALLLEVEL)
+            : maxLevel_(0), activeLevel_(-1), traversalMethod_(TreeTraversalMethod::ALLLEVEL)
     {
     }
     
-    template<class V>
+    template<typename V>
     LevelTree<V>::~LevelTree()
     {
         logger(VERBOSE, "-------------Deleting LevelTree....");
@@ -44,392 +42,222 @@ namespace Base
         logger(VERBOSE, "-------------LevelTree is deleted.");
     }
     
-    template<class V>
+    template<typename V>
     bool LevelTree<V>::empty() const
     {
         return entries_.empty();
     }
     
-    //! Number of entries in the LevelTree
-    template<class V>
+    //! Number of trees in the LevelTree
+    template<typename V>
     std::size_t LevelTree<V>::size() const
     {
         return entries_.size();
     }
     
-    template<class V>
+    template<typename V>
     std::size_t LevelTree<V>::maxLevel() const
     {
         return maxLevel_;
     }
     
-    template<class V>
+    template<typename V>
     void LevelTree<V>::setSingleLevelTraversal(const std::size_t level)
     {
+        logger.assert(maxLevel_ > level, "Trying to iterate over level %, but there are only % levels", level, maxLevel_);
         activeLevel_ = level;
-        traversalMethod_ = TraversalMethod::SINGLELEVEL;
+        traversalMethod_ = TreeTraversalMethod::SINGLELEVEL;
     }
     
-    template<class V>
+    template<typename V>
     void LevelTree<V>::setAllLevelTraversal()
     {
         activeLevel_ = -1;
-        traversalMethod_ = TraversalMethod::ALLLEVEL;
+        traversalMethod_ = TreeTraversalMethod::ALLLEVEL;
+    }
+
+    template<typename V>
+    void LevelTree<V>::setPreOrderTraversal()
+    {
+        traversalMethod_ = TreeTraversalMethod::PREORDER;
+    }
+
+    template<typename V>
+    void LevelTree<V>::setPostOrderTraversal()
+    {
+        traversalMethod_ = TreeTraversalMethod::POSTORDER;
+    }
+
+    template<typename V>
+    void LevelTree<V>::setTraversalMethod(TreeTraversalMethod method)
+    {
+        logger.assert(method != TreeTraversalMethod::SINGLELEVEL, "need to provide a level to traverse");
+        traversalMethod_ = method;
     }
     
-    template<class V>
+    template<typename V>
     std::size_t LevelTree<V>::getActiveLevel() const
     {
         return activeLevel_;
     }
     
     //! Setting sequential list traversal
-    template<class V>
-    typename LevelTree<V>::iterator LevelTree<V>::begin()
+    template<typename V>
+    TreeIterator<V> LevelTree<V>::begin()
     {
-        if (activeLevel_ >= 0)
+        TreeIterator<V> result = entries_.front()->getIterator(traversalMethod_, activeLevel_);
+        if(traversalMethod_ == TreeTraversalMethod::POSTORDER)
         {
-            return beginLevel(activeLevel_);
+            while((*result.ptr_)->hasChild())
+            {
+                result.moveToChild(0);
+            }
         }
-        else
-        {
-            iterator fci;
-            fci.ptr_ = entries_.begin();
-            
-            return fci;
-        }
+        return result;
     }
     
     //! Setting end of traversal
-    template<class V>
-    typename LevelTree<V>::iterator LevelTree<V>::end()
+    template<typename V>
+    TreeIterator<V> LevelTree<V>::end()
     {
-        iterator fci;
-        fci.ptr_ = entries_.end();
-        
-        return fci;
+        //it is easier to first get the last valid position
+        TreeIterator<V> result = entries_.back()->getIterator(traversalMethod_, activeLevel_);
+        if(traversalMethod_ == TreeTraversalMethod::PREORDER || traversalMethod_ == TreeTraversalMethod::ALLLEVEL)
+        {
+            while((*result.ptr_)->hasChild())
+            {
+                result.moveToChild((*result.ptr_)->getNumberOfChildren() - 1);
+            }
+        }
+        if(traversalMethod_ == TreeTraversalMethod::SINGLELEVEL)
+        {
+            result.moveToLastOnLevel(activeLevel_);
+        }
+        //and then increment once
+        ++result;
+        return result;
+    }
+
+    template<typename V>
+    std::reverse_iterator<TreeIterator<V>> LevelTree<V>::rbegin()
+    {
+        return std::reverse_iterator<TreeIterator<V>>(end());
+    }
+
+    template<typename V>
+    std::reverse_iterator<TreeIterator<V>> LevelTree<V>::rend()
+    {
+        return std::reverse_iterator<TreeIterator<V>>(begin());
     }
     
     //! Add new entry
-    template<class V>
-    typename LevelTree<V>::iterator LevelTree<V>::addRootEntry(const valueT& newEl)
+    template<typename V>
+    TreeIterator<V> LevelTree<V>::addRootEntry(const V& newEl)
     {
+        maxLevel_ = std::max(1UL, maxLevel_);
         entries_.push_back(new TreeEntry<V>(newEl));
-    }
-    
-    /*template<class V>
-    typename LevelTree<V>::iterator LevelTree<V>::addTreeEntry(treeEntryT* const newEnt, const bool preserveLinks)
-    {
-        // put it on the back of the list
-        entries_.push_back(newEnt);
-
-        // update some statistics of the LevelTree
-        const int level = newEnt->getLevel();
-        if (minLevel_ > level)
-            minLevel_ = level;
-        else if (maxLevel_ < level)
-            maxLevel_ = level;
-
-        iterator fci;
-        fci.ptr_ = --entries_.end(); // it's on the back, dear!
-        if (!preserveLinks)
-        {
-            // set the default links of the new tree node (new entry)
-            fci->setParent(fci); // self loop-back for parent
-            fci->setSelf(fci); // self iterator
-            fci->setChild(fci); // self loop-back for child
-        }
-
-        return fci;
+        entries_.back()->setSiblings(entries_.size() - 1, &entries_);
+        return entries_.back()->getIterator(traversalMethod_);
     }
 
-    template<class V>
-    typename LevelTree<V>::iterator LevelTree<V>::addDummyEntry(iterator it)
+    template<typename V>
+    void LevelTree<V>::addChildren(TreeIterator<V> parentEl, const std::vector<V>& subEntries)
     {
-        // update some statistics of the LevelTree
-        const int level = (*it)->getBasicLevel() + (*it)->getDepth() - 1;
-        if (minLevel_ > level)
-            minLevel_ = level;
-        else if (maxLevel_ < level)
-            maxLevel_ = level;
-        
-        return it;
+        (*parentEl.ptr_)->addChildren(subEntries);
+        maxLevel_ = std::max((*parentEl.ptr_)->getLastChild()->getDepth() + (*parentEl.ptr_)->getLastChild()->getLevel(), maxLevel_);
     }
-    
-    //! Set the current entries as the coarsest mesh.  This means that all
-    //! existing entries are the roots of the tree.  So, we just need to
-    //! update sibling related numbers of the roots.
-    template<class V>
-    void LevelTree<V>::setAsTheCoarsestEntries()
+
+    template<typename V>
+    TreeIterator<V> LevelTree<V>::addChild(TreeIterator<V> parentEl, const V& subEntry)
     {
-        if (coarsestEntriesSet_)
-            return;
-        coarsestEntriesSet_ = true;
-        
-        if (entries_.empty())
+        (*parentEl.ptr_)->addChild(subEntry);
+        maxLevel_ = std::max((*parentEl.ptr_)->getLastChild()->getDepth() + (*parentEl.ptr_)->getLastChild()->getLevel(), maxLevel_);
+        return (*parentEl.ptr_)->getLastChild()->getIterator(traversalMethod_);
+    }
+
+    template<typename V>
+    void LevelTree<V>::addChildren(TreeIterator<V> parentEl, const std::vector<V>& subEntries, std::size_t level)
+    {
+        logger.assert((*parentEl.ptr_)->getLevel() < level, "trying to at children at level %, but the parent lives at level %", level, (*parentEl.ptr_)->getLevel());
+        (*parentEl.ptr_)->setDepth(level - (*parentEl.ptr_)->getLevel());
+        (*parentEl.ptr_)->addChildren(subEntries);
+        maxLevel_ = std::max((*parentEl.ptr_)->getLastChild()->getDepth() + (*parentEl.ptr_)->getLastChild()->getLevel(), maxLevel_);
+    }
+
+    template<typename V>
+    TreeIterator<V> LevelTree<V>::addChild(TreeIterator<V> parentEl, const V& subEntry, std::size_t level)
+    {
+        logger.assert((*parentEl.ptr_)->getLevel() < level, "trying to at children at level %, but the parent lives at level %", level, (*parentEl.ptr_)->getLevel());
+        (*parentEl.ptr_)->setDepth(level - (*parentEl.ptr_)->getLevel());
+        (*parentEl.ptr_)->addChild(subEntry);
+        maxLevel_ = std::max((*parentEl.ptr_)->getLastChild()->getDepth() + (*parentEl.ptr_)->getLastChild()->getLevel(), maxLevel_);
+        return (*parentEl.ptr_)->getLastChild()->getIterator(traversalMethod_);
+    }
+
+    template<typename V>
+    void LevelTree<V>::fillToLevel(std::size_t level)
+    {
+        maxLevel_ = std::max(level + 1, maxLevel_);
+        TreeTraversalMethod active = traversalMethod_;
+        traversalMethod_ = TreeTraversalMethod::POSTORDER;
+        //no range based loop because I have to modify 'inside' the iterator
+        for(TreeIterator<V> iterator = begin(); iterator != end(); ++iterator)
         {
-            logger(ERROR, "LevelTree<V>::setAsTheCoarsestEntries() error: the mesh is empty!");
-        }
-        
-        int numRoots = 0;
-        for (iterator it = begin(); it != end(); ++it)
-        {
-            if ((*it)->getLevel() == 0)
+            if((*iterator.ptr_)->isLeaf() && (*iterator.ptr_)->getLevel() + (*iterator.ptr_)->getDepth() - 1 < level)
             {
-                (*it)->setSiblingIndex(numRoots);
-                ++numRoots;
+                (*iterator.ptr_)->setDepth(level - (*iterator.ptr_)->getLevel() + 1);
             }
-            else
-                break;
         }
-        
-        for (iterator it = begin(); it != end(); ++it)
-        {
-            if ((*it)->getLevel() == 0)
-            {
-                (*it)->setNumSiblings(numRoots);
-            }
-            else
-                break;
-        }
-        
+        traversalMethod_ = active;
     }
     
     //! Setting tree-level traversal
-    template<class V>
-    typename LevelTree<V>::iterator LevelTree<V>::beginLevel(const int level)
+    template<typename V>
+    TreeIterator<V> LevelTree<V>::beginLevel(std::size_t level)
     {
-        if (!coarsestEntriesSet_)
-        {
-            logger(ERROR, "LevelTree<V>::beginLevel() error: the coarsest entries has not been set!");
-        }
-        
-        iterator fci;
-        
-        if ((level < minLevel_) || (level > maxLevel_))
-        {
-            logger(ERROR, "LevelTree<V>::beginLevel() error: the level must in the valid range!");
-            
-            fci.end_ = entries_.end();
-            fci.ptr_ = fci.end_;
-            fci.last_ = fci.end_;
-            
-            return fci;
-        }
-        
-        // set the traversal level
-        fci.setBasicLevelTraversal(level);
-        
-        // mark the last on the level
-        fci.ptr_ = entries_.begin();
-        fci->resetDepthCounter();
-        fci.lastOnLevel(level);
-        fci.last_ = fci.ptr_;
-        
-        // move to the first on the level
-        fci.ptr_ = entries_.begin();
-        fci.firstOnLevel(level);
-        
-        // mark the end of the LevelTree
-        fci.end_ = entries_.end();
-        
-        return fci;
+        logger.assert(maxLevel_ > level, "Trying to iterate over level %, but there are only % levels", level, maxLevel_);
+        return entries_.front()->getIterator(TreeTraversalMethod::SINGLELEVEL, level);
     }
     
     //! Setting up leaves traversal
-    template<class V>
-    typename LevelTree<V>::iterator LevelTree<V>::beginLeaf()
+    template<typename V>
+    TreeIterator<V> LevelTree<V>::beginAllLevel()
     {
-        if (!coarsestEntriesSet_)
-        {
-            logger(ERROR, "LevelTree<V>::beginLeaf() error: the coarsest entries has not been set!");
-        }
-        
-        iterator fci;
-        
-        // set the traversal method to be visiting leaves
-        fci.setLeavesTraversal();
-        
-        // mark the last leaf
-        fci.ptr_ = entries_.begin();
-        fci.LastLeaf();
-        fci.last_ = fci.ptr_;
-        
-        // move to the first leaf
-        fci.ptr_ = entries_.begin();
-        fci.first_Leaf();
-        fci.first_ = fci.ptr_;
-        
-        // mark the end of the LevelTree
-        fci.end_ = entries_.end();
-        
-        return fci;
+        return entries_.front()->getIterator(TreeTraversalMethod::ALLLEVEL);
     }
     
     //! Setting up pre-order traversal
-    template<class V>
-    typename LevelTree<V>::iterator LevelTree<V>::beginPreOrder()
+    template<typename V>
+    TreeIterator<V> LevelTree<V>::beginPreOrder()
     {
-        if (!coarsestEntriesSet_)
-        {
-            logger(ERROR, "LevelTree<V>::beginPreOrder() error: the coarsest entries has not been set!");
-        }
-        
-        iterator fci;
-        
-        // set the traversal method to be pre-order
-        fci.setPreOrderTraversal();
-        
-        // move to the first node
-        fci.ptr_ = entries_.begin();
-        fci.first_ = fci.ptr_;
-        
-        // mark the end of the LevelTree
-        fci.end_ = entries_.end();
-        
-        // mark the last node
-        fci.ptr_ = entries_.begin();
-        fci.LastLeaf();
-        fci.last_ = fci.ptr_;
-        
-        return fci;
+        return entries_.front()->getIterator(TreeTraversalMethod::PREORDER);
     }
     
     //! Setting up post-order traversal
-    template<class V>
-    typename LevelTree<V>::iterator LevelTree<V>::beginPostOrder()
+    template<typename V>
+    TreeIterator<V> LevelTree<V>::beginPostOrder()
     {
-        if (!coarsestEntriesSet_)
+        TreeIterator<V> result = entries_.front()->getIterator(TreeTraversalMethod::POSTORDER);
+        while((*result.ptr_)->hasChild())
         {
-            logger(ERROR, "LevelTree<V>::beginPostOrder() error: the coarsest entries has not been set!");
+            result.moveToChild(0);
         }
-        
-        iterator fci;
-        
-        // set the traversal method to be post-order
-        fci.setPostOrderTraversal();
-        
-        // mark the last node, the top rightmost node
-        fci.ptr_ = entries_.begin();
-        for (int i = 0; i < fci->getNumSiblings() - 1; ++i, ++(fci.ptr_))
-            ; // the last brother
-        fci.last_ = fci.ptr_;
-        
-        // move to the first leaf node
-        fci.ptr_ = entries_.begin();
-        fci.first_Leaf();
-        fci.first_ = fci.ptr_;
-        
-        // mark the end of the LevelTree
-        fci.end_ = entries_.end();
-        
-        return fci;
-    }
-    
-    template<class V>
-    typename LevelTree<V>::iterator LevelTree<V>::addChildren(iterator parentIt, const std::vector<valueT>& subEntries)
-    {
-        std::vector<treeEntryT> subTreeEntries;
-        
-        for (typename std::vector<valueT>::const_iterator it = subEntries.begin(); it != subTreeEntries.end(); ++it)
-            subEntries.push_back(*(new treeEntryT(*it)));
-        
-        addTreeChildren(parentIt, subTreeEntries);
-    }
-    
-    //! Add children of an entry.  Note that you are not allowed 
-    //! to add more children to the entry later.
-    //! \return iterator to the first child is returned
-    template<class V>
-    typename LevelTree<V>::iterator LevelTree<V>::addTreeChildren(iterator parentIt, const std::vector<treeEntryT>& subEntries)
-    {
-        if (!coarsestEntriesSet_)
-        {
-            logger(ERROR, "LevelTree<V>::addTreeChildren() error: the coarsest entries has not been set!");
-        }
-        
-        DimT numSubEntries = subEntries.size();
-        if (numSubEntries == 0)
-        {
-            parentIt->incrDepth();
-            addDummyEntry(parentIt);
-            return parentIt;
-        }
-        
-        iterator firstChild;
-        for (DimT i = 0; i < numSubEntries; ++i)
-        {
-            treeEntryT te = subEntries[i];
-            te->setBasicLevel(parentIt->getLevel() + 1);
-            te->setSiblingIndex(i);
-            te->setNumSiblings(numSubEntries);
-            iterator it = addTreeEntry(te);
-            
-            (*it)->setParent(parentIt);
-            if (i == 0)
-            {
-                parentIt->setChild(it);
-                firstChild = it;
-            }
-        } // end for
-        
-        return firstChild;
+        return result;
     }
     
     //! Erase all descendants of an entry
-    template<class V>
-    void LevelTree<V>::eraseChildsOf(iterator fci)
+    template<typename V>
+    void LevelTree<V>::eraseChilds(TreeIterator<V> parent)
     {
-        if (!coarsestEntriesSet_)
+        (*parent.ptr_)->removeChildren();
+        TreeIterator<V> testIterator = entries_.front()->getIterator(TreeTraversalMethod::ALLLEVEL);
+        //can probably become more efficient
+        while(!testIterator.moveDownToLevelBegin(maxLevel_ - 1))
         {
-            logger(ERROR, "LevelTree<V>::eraseChildsOf() error: the coarsest entries has not been set!");
-        }
-        
-        if (fci->hasChild())
-        {
-            iterator it(fci->getChild().ptr_);
-            it.LastLeaf();
-            it.setPreOrderTraversal();
-            do
-            {
-                eraseLastLeaf((*it)--);
-            } while (!((*it)->id() == fci->id()));
+            testIterator = entries_.front()->getIterator(TreeTraversalMethod::ALLLEVEL);
+            --maxLevel_;
         }
     }
-    
-    //! Erase a leaf entry
-    template<class V>
-    typename LevelTree<V>::iterator LevelTree<V>::eraseLastLeaf(iterator fci)
-    {
-        if ((!fci->isLastSibling()) || !(fci->isLeaf()))
-        {
-            logger(ERROR, "LevelTree<V>::eraseLastLeaf() error: eraseLastLeaf not the last leaf node!");
-        }
-        
-        if (fci->canDecreaseCounter())
-        {
-            fci.parent();
-            fci->decrDepth();
-            return fci;
-        }
-        
-        // correct the link from parent to its child
-        if (fci->isFirstSibling())
-            fci->getParent()->setChild(fci->getParent());
-        else
-        {
-            // update numSiblings info on the undeleted brothers
-            iterator bro;
-            bro.ptr_ = fci->getParent()->getChild().ptr_;
-            int numBro = fci->getNumSiblings() - 1;
-            for (int i = 0; i < numBro; ++i, ++bro)
-                bro->setNumSiblings(numBro);
-        }
-        
-        iterator it(entries_.erase(fci.ptr_));
-        
-        return it;
-    }*/
 
 } // close namespace Base
 
