@@ -275,18 +275,18 @@ void Output::VTKSpecificTimeWriter<DIM>::write(std::function<LinearAlgebra::Smal
             const Geometry::PointReference<DIM>& node = element->getReferenceGeometry()->getReferenceNodeCoordinate(i);
             newData = dataCompute(element, node, timelevel_);
             std::size_t j = 0;
-            for (; j < newData.getNRows(); ++j)
+            for (; j < newData.getNumberOfRows(); ++j)
             {
-                for (std::size_t k = 0; k < newData.getNCols(); ++k)
+                for (std::size_t k = 0; k < newData.getNumberOfColumns(); ++k)
                 {
                     data.push_back(newData(j, k));
                 }
-                for (std::size_t k = newData.getNCols(); k < 3; ++k)
+                for (std::size_t k = newData.getNumberOfColumns(); k < 3; ++k)
                 {
                     data.push_back(0.);
                 }
             }
-            j *= newData.getNCols();
+            j *= newData.getNumberOfColumns();
             for (; j < 9; ++j)
             { //identity matrix
                 data.push_back(((j == 0 || j == 4 || j == 8) ? 1. : 0.));

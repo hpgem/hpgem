@@ -62,10 +62,10 @@ void Base::FaceData::setFaceMatrix(const LinearAlgebra::MiddleSizeMatrix& matrix
     }
     
     // Check if the input matrix is square.
-    logger.assert(matrix.getNRows() == matrix.getNCols(), "FaceMatrix is not square.");
+    logger.assert(matrix.getNumberOfRows() == matrix.getNumberOfColumns(), "FaceMatrix is not square.");
     
-    std::size_t nDOFLeft = std::size_t(matrix.getNRows() / 2);
-    std::size_t nDOFRight = matrix.getNRows() - nDOFLeft;
+    std::size_t nDOFLeft = std::size_t(matrix.getNumberOfRows() / 2);
+    std::size_t nDOFRight = matrix.getNumberOfRows() - nDOFLeft;
     faceMatrix_[matrixID].resize(nDOFLeft, nDOFRight);
     faceMatrix_[matrixID].setEntireMatrix(matrix);
 }

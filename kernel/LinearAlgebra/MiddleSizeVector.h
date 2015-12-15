@@ -35,7 +35,7 @@
 
 namespace LinearAlgebra
 {
-    template<std::size_t nRows>
+    template<std::size_t numberOfRows>
     class SmallVector;
     
     /// \class MiddleSizeVector
@@ -66,8 +66,8 @@ namespace LinearAlgebra
         MiddleSizeVector(MiddleSizeVector&& other);
 
         //implemented with SmallVector for dependency reasons
-        template<std::size_t nRows>
-        MiddleSizeVector(const SmallVector<nRows>& other);
+        template<std::size_t numberOfRows>
+        MiddleSizeVector(const SmallVector<numberOfRows>& other);
 
         MiddleSizeVector(const type array[], std::size_t size);
 

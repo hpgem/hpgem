@@ -63,14 +63,14 @@ namespace LinearAlgebra
     }
     
     MiddleSizeMatrix::MiddleSizeMatrix()
-            : nRows_(0), nCols_(0)
+            : numberOfRows_(0), numberOfColumns_(0)
     {
     }
     
     /// \param[in]  n The number of rows the matrix will have
     /// \param[in]  m The number of columns the matrix will have
     MiddleSizeMatrix::MiddleSizeMatrix(const std::size_t n, const std::size_t m)
-            : data_(n * m), nRows_(n), nCols_(m)
+            : data_(n * m), numberOfRows_(n), numberOfColumns_(m)
     {
         logger.assert(n <= std::numeric_limits<int>::max() && m <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for matrices that are this large");
     }
@@ -88,38 +88,38 @@ namespace LinearAlgebra
 #else
                     data_(c, n*m),
 #endif
-                    nRows_(n), nCols_(m)
+                    numberOfRows_(n), numberOfColumns_(m)
     {
         logger.assert(n <= std::numeric_limits<int>::max() && m <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for matrices that are this large");
     }
     
     /// \param[in] Matrix A i.e. the matrix to be copies.
     MiddleSizeMatrix::MiddleSizeMatrix(const MiddleSizeMatrix& other)
-            : data_(other.data_), nRows_(other.nRows_), nCols_(other.nCols_)
+            : data_(other.data_), numberOfRows_(other.numberOfRows_), numberOfColumns_(other.numberOfColumns_)
     {
     }
     
     MiddleSizeMatrix::MiddleSizeMatrix(MiddleSizeMatrix&& other)
-            : data_(std::move(other.data_)), nRows_(other.nRows_), nCols_(other.nCols_)
+            : data_(std::move(other.data_)), numberOfRows_(other.numberOfRows_), numberOfColumns_(other.numberOfColumns_)
     {
     }
     
     MiddleSizeMatrix::MiddleSizeMatrix(const MiddleSizeVector& list)
-            : data_(list.data(), list.data() + list.size()), nRows_(list.size()), nCols_(1)
+            : data_(list.data(), list.data() + list.size()), numberOfRows_(list.size()), numberOfColumns_(1)
     {
         logger.assert(list.size() <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for matrices that are this large");
     }
 
     MiddleSizeMatrix::MiddleSizeMatrix(std::initializer_list<MiddleSizeMatrix> list)
-            : data_(0), nRows_(list.begin()->getNRows()), nCols_(0)
+            : data_(0), numberOfRows_(list.begin()->getNumberOfRows()), numberOfColumns_(0)
     {
         for(MiddleSizeMatrix mat : list)
         {
-            logger.assert(nRows_ == mat.getNRows(), "Can only construct a matrix from vectors of the same size");
-            nCols_ += mat.getNCols();
+            logger.assert(numberOfRows_ == mat.getNumberOfRows(), "Can only construct a matrix from vectors of the same size");
+            numberOfColumns_ += mat.getNumberOfColumns();
         }
-        logger.assert(nRows_ <= std::numeric_limits<int>::max() && nCols_ <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for matrices that are this large");
-        data_.resize(nRows_ * nCols_);
+        logger.assert(numberOfRows_ <= std::numeric_limits<int>::max() && numberOfColumns_ <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for matrices that are this large");
+        data_.resize(numberOfRows_ * numberOfColumns_);
         auto inserter = data_.begin();
         for(MiddleSizeMatrix mat : list)
         {
@@ -148,7 +148,7 @@ namespace LinearAlgebra
     MiddleSizeMatrix& MiddleSizeMatrix::operator+=(const MiddleSizeMatrix& other)
     {
         //Make sure the matrices are the same size
-        logger.assert(size() == other.size() && nCols_ == other.nCols_, "Dimensions of matrices are not the same.");
+        logger.assert(size() == other.size() && numberOfColumns_ == other.numberOfColumns_, "Dimensions of matrices are not the same.");
         
         //add the matrices element-wise
         for (std::size_t i = 0; i < size(); ++i)
@@ -162,7 +162,7 @@ namespace LinearAlgebra
     MiddleSizeMatrix& MiddleSizeMatrix::operator-=(const MiddleSizeMatrix& other)
     {
         //Make sure the matrices are the same size
-        logger.assert(size() == other.size() && nCols_ == other.nCols_, "Dimensions of matrices are not the same.");
+        logger.assert(size() == other.size() && numberOfColumns_ == other.numberOfColumns_, "Dimensions of matrices are not the same.");
 
         //add the matrices element-wise
         for (std::size_t i = 0; i < size(); ++i)
@@ -227,20 +227,20 @@ namespace LinearAlgebra
      */
     MiddleSizeVector MiddleSizeMatrix::operator*(MiddleSizeVector& right) const
     {
-        logger.assert(nCols_ == right.size(), "Matrix-vector multiplication with mismatching sizes");
+        logger.assert(numberOfColumns_ == right.size(), "Matrix-vector multiplication with mismatching sizes");
         
-        if (nRows_ == 0)
+        if (numberOfRows_ == 0)
         {
             logger(WARN, "Trying to multiply a vector with a matrix without any rows.");
             return MiddleSizeVector(0);
         }
-        if (nCols_ == 0)
+        if (numberOfColumns_ == 0)
         {
             logger(WARN, "Trying to multiply a vector with a matrix without any columns.");
-            return MiddleSizeVector(nRows_);
+            return MiddleSizeVector(numberOfRows_);
         }
-        int nr = nRows_;
-        int nc = nCols_;
+        int nr = numberOfRows_;
+        int nc = numberOfColumns_;
         
         int i_one = 1;
         type d_one = 1.0;
@@ -263,21 +263,21 @@ namespace LinearAlgebra
      */
     MiddleSizeVector MiddleSizeMatrix::operator*(MiddleSizeVector& right)
     {
-        logger.assert(nCols_ == right.size(), "Matrix-vector multiplication with mismatching sizes");
+        logger.assert(numberOfColumns_ == right.size(), "Matrix-vector multiplication with mismatching sizes");
 
-        if (nRows_ == 0)
+        if (numberOfRows_ == 0)
         {
             logger(WARN, "Trying to multiply a vector with a matrix without any rows.");
             return MiddleSizeVector(0);
         }
-        if (nCols_ == 0)
+        if (numberOfColumns_ == 0)
         {
             logger(WARN, "Trying to multiply a vector with a matrix without any columns.");
-            return MiddleSizeVector(nRows_);
+            return MiddleSizeVector(numberOfRows_);
         }
 
-        int nr = nRows_;
-        int nc = nCols_;
+        int nr = numberOfRows_;
+        int nc = numberOfColumns_;
 
         int i_one = 1;
         type d_one = 1.0;
@@ -303,16 +303,16 @@ namespace LinearAlgebra
      */
     MiddleSizeMatrix MiddleSizeMatrix::operator*(const MiddleSizeMatrix &other)
     {
-        logger.assert(nCols_ == other.nRows_, "Inner dimensions not equal.");
+        logger.assert(numberOfColumns_ == other.numberOfRows_, "Inner dimensions not equal.");
 
-        if (nCols_ == 0)
+        if (numberOfColumns_ == 0)
         {
             logger(WARN, "Trying to multiply a matrix with a matrix without any columns.");
-            return MiddleSizeMatrix(nRows_, other.getNCols());
+            return MiddleSizeMatrix(numberOfRows_, other.getNumberOfColumns());
         }
-        int i = nRows_;
-        int j = nCols_;
-        int k = other.getNCols();
+        int i = numberOfRows_;
+        int j = numberOfColumns_;
+        int k = other.getNumberOfColumns();
         
         ///The result of the matrix is left.Nrows, right.NCols()
         MiddleSizeMatrix C(i, k);
@@ -333,18 +333,18 @@ namespace LinearAlgebra
     MiddleSizeMatrix MiddleSizeMatrix::operator*(const MiddleSizeMatrix &other) const
     {
         
-        logger.assert(nCols_ == other.nRows_, "Inner dimensions are not the same.");
+        logger.assert(numberOfColumns_ == other.numberOfRows_, "Inner dimensions are not the same.");
 
-        if (nCols_ == 0)
+        if (numberOfColumns_ == 0)
         {
             logger(WARN, "Trying to multiply a matrix with a matrix without any columns.");
-            return MiddleSizeMatrix(nRows_, other.getNCols());
+            return MiddleSizeMatrix(numberOfRows_, other.getNumberOfColumns());
         }
-        int i = nRows_;
-        int j = nCols_;
-        int k = other.getNCols();
+        int i = numberOfRows_;
+        int j = numberOfColumns_;
+        int k = other.getNumberOfColumns();
         
-        //The result of the matrix is left.Nrows, right.NCols()
+        //The result of the matrix is left.numberOfRows, right.numberOfColumns()
         MiddleSizeMatrix C(i, k);
         
         type d_one = 1.0;
@@ -383,8 +383,8 @@ namespace LinearAlgebra
     {
         if (size() != 1)
         {
-            nRows_ = 1;
-            nCols_ = 1;
+            numberOfRows_ = 1;
+            numberOfColumns_ = 1;
             data_.resize(1);
         }
 #ifdef LA_STL_VECTOR
@@ -399,16 +399,16 @@ namespace LinearAlgebra
     MiddleSizeMatrix& MiddleSizeMatrix::operator=(const MiddleSizeMatrix& right)
     {
         data_ = (right.data_);
-        nRows_ = right.nRows_;
-        nCols_ = right.nCols_;
+        numberOfRows_ = right.numberOfRows_;
+        numberOfColumns_ = right.numberOfColumns_;
         return *this;
     }
     
     MiddleSizeMatrix& MiddleSizeMatrix::operator=(MiddleSizeMatrix&& right)
     {
         data_ = std::move(right.data_);
-        nRows_ = right.nRows_;
-        nCols_ = right.nCols_;
+        numberOfRows_ = right.numberOfRows_;
+        numberOfColumns_ = right.numberOfColumns_;
         return *this;
     }
 
@@ -425,10 +425,10 @@ namespace LinearAlgebra
     ///evaluation of the determinant is easy and can be inserted directly.
     MiddleSizeVector MiddleSizeMatrix::computeWedgeStuffVector() const
     {
-        logger.assert(nCols_ == nRows_ - 1, "Matrix has wrong dimensions to construct the wedge stuff vector");
-        MiddleSizeVector result(nRows_);
+        logger.assert(numberOfColumns_ == numberOfRows_ - 1, "Matrix has wrong dimensions to construct the wedge stuff vector");
+        MiddleSizeVector result(numberOfRows_);
         
-        switch (nRows_)
+        switch (numberOfRows_)
         {
             case 2:
                 result[0] = -(*this)(1, 0);
@@ -461,9 +461,9 @@ namespace LinearAlgebra
     void MiddleSizeMatrix::axpy(type a, const MiddleSizeMatrix& x)
     {
         
-        int size = nRows_ * nCols_;
-        logger.assert(nRows_ == x.nRows_, "Dimensions are not the same.");
-        logger.assert(nCols_ == x.nCols_, "Dimensions are not the same.");
+        int size = numberOfRows_ * numberOfColumns_;
+        logger.assert(numberOfRows_ == x.numberOfRows_, "Dimensions are not the same.");
+        logger.assert(numberOfColumns_ == x.numberOfColumns_, "Dimensions are not the same.");
         int i_one = 1;
         
 #ifdef HPGEM_USE_COMPLEX_PETSC
@@ -479,11 +479,11 @@ namespace LinearAlgebra
     void MiddleSizeMatrix::resize(std::size_t n, std::size_t m)
     {
         logger.assert(n <= std::numeric_limits<int>::max() && m <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for matrices that are this large");
-        nRows_ = n;
-        nCols_ = m;
+        numberOfRows_ = n;
+        numberOfColumns_ = m;
         if (n * m != data_.size())
         {
-            data_.resize(nRows_ * nCols_);
+            data_.resize(numberOfRows_ * numberOfColumns_);
         }
     }
     
@@ -491,69 +491,69 @@ namespace LinearAlgebra
     /// \todo Find a more elegant way to do this.
     void MiddleSizeMatrix::concatenate(const MiddleSizeMatrix& other)
     {
-        logger.assert(nCols_ == other.nCols_, "Number of columns is not the same.");
-        logger.assert(nRows_+other.nRows_ <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for matrices that are this large");
+        logger.assert(numberOfColumns_ == other.numberOfColumns_, "Number of columns is not the same.");
+        logger.assert(numberOfRows_+other.numberOfRows_ <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for matrices that are this large");
         
 #ifdef LA_STL_VECTOR
-        std::vector<type> data_new(nCols_ * (nRows_ + other.nRows_));
+        std::vector<type> data_new(numberOfColumns_ * (numberOfRows_ + other.numberOfRows_));
 #else
-        std::valarray<type> data_new(nCols_ * (nRows_ + other.nRows_));
+        std::valarray<type> data_new(numberOfColumns_ * (numberOfRows_ + other.numberOfRows_));
 #endif
         
-        for (std::size_t col = 0; col < nCols_; ++col)
+        for (std::size_t col = 0; col < numberOfColumns_; ++col)
         {
             //First insert the values of this matrix, then of the other matrix.
             //Index row stands for the row number in the new matrix.
-            for (std::size_t row = 0; row < nRows_; ++row)
+            for (std::size_t row = 0; row < numberOfRows_; ++row)
             {
-                data_new[row + col * (nRows_ + other.nRows_)] = data_[row + col * nRows_];
+                data_new[row + col * (numberOfRows_ + other.numberOfRows_)] = data_[row + col * numberOfRows_];
             }
-            for (std::size_t row = nRows_; row < nRows_ + other.nRows_; ++row)
+            for (std::size_t row = numberOfRows_; row < numberOfRows_ + other.numberOfRows_; ++row)
             {
-                data_new[row + col * (nRows_ + other.nRows_)] = other.data_[(row - nRows_) + col * other.nRows_];
+                data_new[row + col * (numberOfRows_ + other.numberOfRows_)] = other.data_[(row - numberOfRows_) + col * other.numberOfRows_];
             }
         }
-        nRows_ += other.nRows_;
+        numberOfRows_ += other.numberOfRows_;
         data_ = data_new;
     }
     
     /// \return the total number of entries
     std::size_t MiddleSizeMatrix::size() const
     {
-        return nRows_ * nCols_;
+        return numberOfRows_ * numberOfColumns_;
     }
     
     /// \return the number of rows
-    std::size_t MiddleSizeMatrix::getNRows() const
+    std::size_t MiddleSizeMatrix::getNumberOfRows() const
     {
-        return nRows_;
+        return numberOfRows_;
     }
     
     /// \brief Get the number of columns
     /// \return int : the number of columns
-    std::size_t MiddleSizeMatrix::getNCols() const
+    std::size_t MiddleSizeMatrix::getNumberOfColumns() const
     {
-        return nCols_;
+        return numberOfColumns_;
     }
     
     LinearAlgebra::MiddleSizeVector MiddleSizeMatrix::getColumn(std::size_t j) const
     {
-        logger.assert(j < nCols_, "Requested column %, but there are only % columns", j, nCols_);
-        LinearAlgebra::MiddleSizeVector ret(nRows_);
-        for (std::size_t i = 0; i < nRows_; ++i)
+        logger.assert(j < numberOfColumns_, "Requested column %, but there are only % columns", j, numberOfColumns_);
+        LinearAlgebra::MiddleSizeVector ret(numberOfRows_);
+        for (std::size_t i = 0; i < numberOfRows_; ++i)
         {
-            ret[i] = data_[j * nRows_ + i];
+            ret[i] = data_[j * numberOfRows_ + i];
         }
         return ret;
     }
     
     LinearAlgebra::MiddleSizeVector MiddleSizeMatrix::getRow(std::size_t i) const
     {
-        logger.assert(i < nRows_, "Requested row %, but there are only % rows", i, nRows_);
-        LinearAlgebra::MiddleSizeVector ret(nCols_);
-        for (std::size_t j = 0; j < nCols_; ++j)
+        logger.assert(i < numberOfRows_, "Requested row %, but there are only % rows", i, numberOfRows_);
+        LinearAlgebra::MiddleSizeVector ret(numberOfColumns_);
+        for (std::size_t j = 0; j < numberOfColumns_; ++j)
         {
-            ret[j] = data_[j * nRows_ + i];
+            ret[j] = data_[j * numberOfRows_ + i];
         }
         return ret;
     }
@@ -562,9 +562,9 @@ namespace LinearAlgebra
     MiddleSizeMatrix MiddleSizeMatrix::LUfactorisation() const
     {
         
-        int nr = nRows_;
-        int nc = nCols_;
-        int nPivot = std::min(nRows_, nCols_);
+        int nr = numberOfRows_;
+        int nc = numberOfColumns_;
+        int nPivot = std::min(numberOfRows_, numberOfColumns_);
         std::vector<int> iPivot(nPivot);
         
         MiddleSizeMatrix result(*this);
@@ -583,20 +583,20 @@ namespace LinearAlgebra
     /// \param[out] result this is the inverse of the current matrix
     MiddleSizeMatrix MiddleSizeMatrix::inverse() const
     {
-        logger.assert(nRows_ == nCols_, "Cannot invert a non-square matrix");
+        logger.assert(numberOfRows_ == numberOfColumns_, "Cannot invert a non-square matrix");
         MiddleSizeMatrix result = (*this);
         
-        int nr = nRows_;
-        int nc = nCols_;
+        int nr = numberOfRows_;
+        int nc = numberOfColumns_;
         
-        int nPivot = std::min(nRows_, nCols_);
+        int nPivot = std::min(numberOfRows_, numberOfColumns_);
         std::vector<int> iPivot(nPivot);
         
         int info = 0;
         
-        int lwork = nRows_ * nCols_;
+        int lwork = numberOfRows_ * numberOfColumns_;
         
-        MiddleSizeMatrix work(nRows_, nCols_);
+        MiddleSizeMatrix work(numberOfRows_, numberOfColumns_);
 
 #ifdef HPGEM_USE_COMPLEX_PETSC
         zgetrf_(&nr, &nc, result.data(), &nr, iPivot.data(), &info);
@@ -612,10 +612,10 @@ namespace LinearAlgebra
     
     MiddleSizeMatrix MiddleSizeMatrix::transpose() const
     {
-        MiddleSizeMatrix result(nCols_, nRows_);
-        for(std::size_t i = 0; i < nRows_; ++i)
+        MiddleSizeMatrix result(numberOfColumns_, numberOfRows_);
+        for(std::size_t i = 0; i < numberOfRows_; ++i)
         {
-            for(std::size_t j = 0; j < nCols_; ++j)
+            for(std::size_t j = 0; j < numberOfColumns_; ++j)
             {
                 result(j, i) = (*this)(i, j);
             }
@@ -626,11 +626,11 @@ namespace LinearAlgebra
     /// \param[in,out] B. On enter is B in Ax=B and on exit is x.
     void MiddleSizeMatrix::solve(MiddleSizeMatrix& B) const
     {
-        logger.assert(nRows_ == nCols_, "can only solve for square matrixes");
-        logger.assert(nRows_ == B.nRows_, "size of the RHS does not match the size of the matrix");
+        logger.assert(numberOfRows_ == numberOfColumns_, "can only solve for square matrixes");
+        logger.assert(numberOfRows_ == B.numberOfRows_, "size of the RHS does not match the size of the matrix");
         
-        int n = nRows_;
-        int nrhs = B.getNCols();
+        int n = numberOfRows_;
+        int nrhs = B.getNumberOfColumns();
         int info;
         
         std::vector<int> IPIV(n);
@@ -646,10 +646,10 @@ namespace LinearAlgebra
 
     void MiddleSizeMatrix::solve(MiddleSizeVector& b) const
     {
-        logger.assert(nRows_ == nCols_, "can only solve for square matrixes");
-        logger.assert(nRows_ == b.size(), "size of the RHS does not match the size of the matrix");
+        logger.assert(numberOfRows_ == numberOfColumns_, "can only solve for square matrixes");
+        logger.assert(numberOfRows_ == b.size(), "size of the RHS does not match the size of the matrix");
         
-        int n = nRows_;
+        int n = numberOfRows_;
         int nrhs = 1;
         int info;
         
@@ -677,8 +677,8 @@ namespace LinearAlgebra
     ///Print the matrix with () around each line and [] around the matrix.
     std::ostream& operator<<(std::ostream& os, const MiddleSizeMatrix& A)
     {
-        std::size_t nRows = A.getNRows();
-        std::size_t nCols = A.getNCols();
+        std::size_t nRows = A.getNumberOfRows();
+        std::size_t nCols = A.getNumberOfColumns();
         os << "[" << std::endl;
         for (std::size_t i = 0; i < nRows; ++i)
         {
@@ -703,15 +703,15 @@ namespace LinearAlgebra
 
     MiddleSizeVector operator*(MiddleSizeVector& left, MiddleSizeMatrix& right)
     {
-        logger.assert(right.getNRows() == left.size(), "Matrix-vector multiplication with mismatching sizes");
+        logger.assert(right.getNumberOfRows() == left.size(), "Matrix-vector multiplication with mismatching sizes");
 
-        if (right.getNCols() == 0)
+        if (right.getNumberOfColumns() == 0)
         {
             logger(WARN, "Trying to multiply a vector with a matrix without any columns.");
             return MiddleSizeVector(0);
         }
-        int nr = right.getNRows();
-        int nc = right.getNCols();
+        int nr = right.getNumberOfRows();
+        int nc = right.getNumberOfColumns();
 
         int i_one = 1;
         MiddleSizeMatrix::type d_one = 1.0;

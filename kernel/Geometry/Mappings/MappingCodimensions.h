@@ -89,7 +89,7 @@ namespace Geometry
             return 0;
         }
         
-        ///\deprecated use getNumberOfCodim1Entities instead
+        ///\deprecated use getNumberOfCodim2Entities instead
         std::size_t getNrOfCodim2Entities() const
         {
             return getNumberOfCodim2Entities();

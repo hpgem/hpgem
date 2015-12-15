@@ -25,12 +25,12 @@
 #include "ElementCacheData.h"
 #include <algorithm>
 
-void Base::Node::addElement(Element* element, std::size_t localNodeNr)
+void Base::Node::addElement(Element* element, std::size_t localNodeNumber)
 {
     logger.assert(std::find(elements_.begin(), elements_.end(), element) == elements_.end(), "Trying to add the same Element (%) twice", *element);
     elements_.push_back(element);
-    localNodeNumbers_.push_back(localNodeNr);
-    element->setNode(localNodeNr, this);
+    localNodeNumbers_.push_back(localNodeNumber);
+    element->setNode(localNodeNumber, this);
 }
 
 Base::Element* Base::Node::getElement(std::size_t i)

@@ -38,7 +38,7 @@ namespace LinearAlgebra
     /// \details
     /// This implements a vector of doubles and all the standard operators for it.
     /// Note it is encapulating a std::array for its data storage.
-    template<std::size_t nRows>
+    template<std::size_t numberOfRows>
     class SmallVector
     {
 
@@ -49,7 +49,7 @@ namespace LinearAlgebra
         {
         }
 
-        /*SmallVector(std::array<double, nRows> t)
+        /*SmallVector(std::array<double, numberOfRows> t)
             : data_(t)
         {
         }*/
@@ -63,8 +63,8 @@ namespace LinearAlgebra
         SmallVector(const MiddleSizeVector& other)
             : data_()
         {
-            logger.assert(other.size() == nRows, "Cannot construct a vector of size % from a vector of size %", nRows, other.size());
-            for(std::size_t i = 0; i < nRows; ++i)
+            logger.assert(other.size() == numberOfRows, "Cannot construct a vector of size % from a vector of size %", numberOfRows, other.size());
+            for(std::size_t i = 0; i < numberOfRows; ++i)
             {
                 logger.assert(std::abs(other[i] - std::real(other[i])) < 1e-9, "trying to construct a real vector from a vector with nonzero complex component");
                 data_[i] = std::real(other[i]);
@@ -79,7 +79,7 @@ namespace LinearAlgebra
         SmallVector(const double array[])
             : data_()
         {
-            std::copy(array, array + nRows, data_.begin());
+            std::copy(array, array + numberOfRows, data_.begin());
         }
 
         SmallVector& operator=(const SmallVector& right)
@@ -88,7 +88,7 @@ namespace LinearAlgebra
             return *this;
         }
 
-        SmallVector& operator=(const std::array<double, nRows> l)
+        SmallVector& operator=(const std::array<double, numberOfRows> l)
         {
             std::copy(l.begin(), l.end(), data_.begin());
             return *this;
@@ -136,7 +136,7 @@ namespace LinearAlgebra
 
         void axpy(double a, const SmallVector& x)
         {
-            for(std::size_t i = 0; i < nRows; ++i)
+            for(std::size_t i = 0; i < numberOfRows; ++i)
             {
                 data_[i] += a * x[i];
             }
@@ -146,7 +146,7 @@ namespace LinearAlgebra
         /// a tolerance interval to see if they are equal.
         bool operator==(const SmallVector& right) const
         {
-            for(std::size_t i = 0; i < nRows; ++i)
+            for(std::size_t i = 0; i < numberOfRows; ++i)
             {
                 if(data_[i] != right[i])
                 {
@@ -160,7 +160,7 @@ namespace LinearAlgebra
         /// a tolerance interval to see if they are equal.
         bool operator<(const SmallVector& right) const
         {
-            for(std::size_t i = 0; i < nRows; ++i)
+            for(std::size_t i = 0; i < numberOfRows; ++i)
             {
                 if(data_[i] < right[i])
                 {
@@ -194,31 +194,31 @@ namespace LinearAlgebra
 
         double& operator[](std::size_t n)
         {
-            logger.assert(n < nRows, "Requested entry %, but there are only % entries", n, nRows);
+            logger.assert(n < numberOfRows, "Requested entry %, but there are only % entries", n, numberOfRows);
             return data_[n];
         }
 
         const double& operator[](std::size_t n) const
         {
-            logger.assert(n < nRows, "Requested entry %, but there are only % entries", n, nRows);
+            logger.assert(n < numberOfRows, "Requested entry %, but there are only % entries", n, numberOfRows);
             return data_[n];
         }
 
         double& operator()(std::size_t n)
         {
-            logger.assert(n < nRows, "Requested entry %, but there are only % entries", n, nRows);
+            logger.assert(n < numberOfRows, "Requested entry %, but there are only % entries", n, numberOfRows);
             return data_[n];
         }
 
         const double& operator()(std::size_t n) const
         {
-            logger.assert(n < nRows, "Requested entry %, but there are only % entries", n, nRows);
+            logger.assert(n < numberOfRows, "Requested entry %, but there are only % entries", n, numberOfRows);
             return data_[n];
         }
 
         std::size_t size() const
         {
-            return nRows;
+            return numberOfRows;
         }
         const double* data() const
         {
@@ -236,21 +236,21 @@ namespace LinearAlgebra
         }
 
     private:
-        std::array<double, nRows> data_;
+        std::array<double, numberOfRows> data_;
 
     };
 
-    template<std::size_t nRows>
-    SmallVector<nRows> operator*(const double& left, const SmallVector<nRows>& right)
+    template<std::size_t numberOfRows>
+    SmallVector<numberOfRows> operator*(const double& left, const SmallVector<numberOfRows>& right)
     {
         return right * left;
     }
 
-    template<std::size_t nRows>
-    std::ostream& operator<<(std::ostream& os, const SmallVector<nRows>& A)
+    template<std::size_t numberOfRows>
+    std::ostream& operator<<(std::ostream& os, const SmallVector<numberOfRows>& A)
     {
         os << "(";
-        for(std::size_t i = 0; i < nRows; ++i)
+        for(std::size_t i = 0; i < numberOfRows; ++i)
         {
             os << A[i] << " ";
         }
@@ -270,9 +270,9 @@ namespace LinearAlgebra
         }
     }
 #else
-    template<std::size_t nRows>
-    MiddleSizeVector::MiddleSizeVector(const SmallVector<nRows>& other)
-        : data_(other.data(), other.data() + nRows)
+    template<std::size_t numberOfRows>
+    MiddleSizeVector::MiddleSizeVector(const SmallVector<numberOfRows>& other)
+        : data_(other.data(), other.data() + numberOfRows)
     {
         logger(WARN, "Constructing middle size vector from small vector, consider "
             "using small vectors everywhere for fixed length vectors of size <= 4. "

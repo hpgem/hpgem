@@ -151,7 +151,7 @@ namespace Base
         ///\deprecated Does not follow naming conventions, use getLocalNumberOfBasisFunctions instead
         std::size_t getLocalNrOfBasisFunctions() const
         {
-            return numberOfDOFinTheElement_;
+            return getLocalNumberOfBasisFunctions();
         }
         
         ///return the number of basis functions that are associated with this element only. This always includes functions with compact support on the interior of the element and DG basis function, but never include conforming basis functions that are nonzero on a face, edge or node
@@ -196,19 +196,19 @@ namespace Base
         ///\deprecated Does not follow naming conventions, use getNumberOfFaces instead
         std::size_t getNrOfFaces() const
         {
-            return facesList_.size();
+            return getNumberOfFaces();
         }
         
         ///\deprecated Does not follow naming conventions, use getNumberOfEdges instead
         std::size_t getNrOfEdges() const
         {
-            return edgesList_.size();
+            return getNumberOfEdges();
         }
         
         ///\deprecated Does not follow naming conventions, use getNumberOfNodes instead
         std::size_t getNrOfNodes() const
         {
-            return nodesList_.size();
+            return getNumberOfNodes();
         }
         
         std::size_t getNumberOfFaces() const

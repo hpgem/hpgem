@@ -52,11 +52,17 @@ namespace Base
         Edge(const Edge &other) = delete;
         Edge& operator=(const Edge &other) = delete;
         
-        void addElement(Element* element, std::size_t edgeNr);
+        void addElement(Element* element, std::size_t edgeNumber);
 
-        std::size_t getLocalNrOfBasisFunctions() const
+        std::size_t getLocalNumberOfBasisFunctions() const
         {
             return numberOfConformingDOFOnTheEdge_;
+        }
+
+        ///\deprecated Does not conform naming conventions, use getLocalNumberOfBasisFunctions instead
+        std::size_t getLocalNrOfBasisFunctions() const
+        {
+          return getLocalNumberOfBasisFunctions();
         }
         
         std::size_t getID() const

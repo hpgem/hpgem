@@ -34,49 +34,49 @@ int main(int argc, char** argv)
     //constructors
     LinearAlgebra::MiddleSizeVector vec0{0., 1.}, vec1{2., 3.}, vec2{4., 5.}, vec3{6., 7.};
     MiddleSizeMatrix A0, A22(2, 2), A23(2, 3), A32(3, 2), destroy(3, 3, 1), count0({vec0, vec1}), count1({vec2, vec3}), copy(count0), bla({count0}), merge({count0, count1});
-    logger.assert_always(destroy.getNRows() == 3, "Rows in a matrix");
-    logger.assert_always(destroy.getNCols() == 3, "Columns in a matrix");
+    logger.assert_always(destroy.getNumberOfRows() == 3, "Rows in a matrix");
+    logger.assert_always(destroy.getNumberOfColumns() == 3, "Columns in a matrix");
     logger.assert_always(destroy.size() == 9, "Size of a matrix");
     for(std::size_t i = 0; i < destroy.size(); ++i)
     {
         logger.assert_always(std::abs(destroy[i] - 1.) < 1e-12, "Entry of a matrix");
     }
-    for(std::size_t i = 0; i < destroy.getNRows(); ++i)
+    for(std::size_t i = 0; i < destroy.getNumberOfRows(); ++i)
     {
-        for(std::size_t j = 0; j < destroy.getNCols(); ++j)
+        for(std::size_t j = 0; j < destroy.getNumberOfColumns(); ++j)
         {
             logger.assert_always(std::abs(destroy(i, j) - 1.) < 1e-12, "Entry of a matrix");
         }
     }
     MiddleSizeMatrix moved(std::move(destroy));
-    logger.assert_always(moved.getNRows() == 3, "Rows in a matrix");
-    logger.assert_always(moved.getNCols() == 3, "Columns in a matrix");
+    logger.assert_always(moved.getNumberOfRows() == 3, "Rows in a matrix");
+    logger.assert_always(moved.getNumberOfColumns() == 3, "Columns in a matrix");
     logger.assert_always(moved.size() == 9, "Size of a matrix");
     for(std::size_t i = 0; i < moved.size(); ++i)
     {
         logger.assert_always(std::abs(moved[i] - 1.) < 1e-12, "Entry of a matrix");
     }
-    for(std::size_t i = 0; i < moved.getNRows(); ++i)
+    for(std::size_t i = 0; i < moved.getNumberOfRows(); ++i)
     {
-        for(std::size_t j = 0; j < moved.getNCols(); ++j)
+        for(std::size_t j = 0; j < moved.getNumberOfColumns(); ++j)
         {
             logger.assert_always(std::abs(moved(i, j) - 1.) < 1e-12, "Entry of a matrix");
         }
     }
-    logger.assert_always(A0.getNRows() == 0, "Rows in a matrix");
-    logger.assert_always(A0.getNCols() == 0, "Columns in a matrix");
+    logger.assert_always(A0.getNumberOfRows() == 0, "Rows in a matrix");
+    logger.assert_always(A0.getNumberOfColumns() == 0, "Columns in a matrix");
     logger.assert_always(A0.size() == 0, "Size of a matrix");
-    logger.assert_always(A22.getNRows() == 2, "Rows in a matrix");
-    logger.assert_always(A22.getNCols() == 2, "Columns in a matrix");
+    logger.assert_always(A22.getNumberOfRows() == 2, "Rows in a matrix");
+    logger.assert_always(A22.getNumberOfColumns() == 2, "Columns in a matrix");
     logger.assert_always(A22.size() == 4, "Size of a matrix");
-    logger.assert_always(A23.getNRows() == 2, "Rows in a matrix");
-    logger.assert_always(A23.getNCols() == 3, "Columns in a matrix");
+    logger.assert_always(A23.getNumberOfRows() == 2, "Rows in a matrix");
+    logger.assert_always(A23.getNumberOfColumns() == 3, "Columns in a matrix");
     logger.assert_always(A23.size() == 6, "Size of a matrix");
-    logger.assert_always(A32.getNRows() == 3, "Rows in a matrix");
-    logger.assert_always(A32.getNCols() == 2, "Columns in a matrix");
+    logger.assert_always(A32.getNumberOfRows() == 3, "Rows in a matrix");
+    logger.assert_always(A32.getNumberOfColumns() == 2, "Columns in a matrix");
     logger.assert_always(A32.size() == 6, "Size of a matrix");
-    logger.assert_always(count0.getNRows() == 2, "Rows in a matrix");
-    logger.assert_always(count0.getNCols() == 2, "Columns in a matrix");
+    logger.assert_always(count0.getNumberOfRows() == 2, "Rows in a matrix");
+    logger.assert_always(count0.getNumberOfColumns() == 2, "Columns in a matrix");
     logger.assert_always(count0.size() == 4, "Size of a matrix");
     for(std::size_t i = 0; i < count0.size(); ++i)
     {
@@ -86,29 +86,29 @@ int main(int argc, char** argv)
     logger.assert_always(std::abs(count0(1, 0) - 1.) < 1e-12, "Entry of a matrix");
     logger.assert_always(std::abs(count0(0, 1) - 2.) < 1e-12, "Entry of a matrix");
     logger.assert_always(std::abs(count0(1, 1) - 3.) < 1e-12, "Entry of a matrix");
-    logger.assert_always(count1.getNRows() == 2, "Rows in a matrix");
-    logger.assert_always(count1.getNCols() == 2, "Columns in a matrix");
+    logger.assert_always(count1.getNumberOfRows() == 2, "Rows in a matrix");
+    logger.assert_always(count1.getNumberOfColumns() == 2, "Columns in a matrix");
     logger.assert_always(count1.size() == 4, "Size of a matrix");
     for(std::size_t i = 0; i < count1.size(); ++i)
     {
         logger.assert_always(std::abs(count1[i] - 4. - double(i)) < 1e-12, "Entry of a matrix");
     }
-    logger.assert_always(copy.getNRows() == 2, "Rows in a matrix");
-    logger.assert_always(copy.getNCols() == 2, "Columns in a matrix");
+    logger.assert_always(copy.getNumberOfRows() == 2, "Rows in a matrix");
+    logger.assert_always(copy.getNumberOfColumns() == 2, "Columns in a matrix");
     logger.assert_always(copy.size() == 4, "Size of a matrix");
     for(std::size_t i = 0; i < copy.size(); ++i)
     {
         logger.assert_always(std::abs(copy[i] - double(i)) < 1e-12, "Entry of a matrix");
     }
-    logger.assert_always(bla.getNRows() == 2, "Rows in a matrix");
-    logger.assert_always(bla.getNCols() == 2, "Columns in a matrix");
+    logger.assert_always(bla.getNumberOfRows() == 2, "Rows in a matrix");
+    logger.assert_always(bla.getNumberOfColumns() == 2, "Columns in a matrix");
     logger.assert_always(bla.size() == 4, "Size of a matrix");
     for(std::size_t i = 0; i < bla.size(); ++i)
     {
         logger.assert_always(std::abs(bla[i] - double(i)) < 1e-12, "Entry of a matrix");
     }
-    logger.assert_always(merge.getNRows() == 2, "Rows in a matrix");
-    logger.assert_always(merge.getNCols() == 4, "Columns in a matrix");
+    logger.assert_always(merge.getNumberOfRows() == 2, "Rows in a matrix");
+    logger.assert_always(merge.getNumberOfColumns() == 4, "Columns in a matrix");
     logger.assert_always(merge.size() == 8, "Size of a matrix");
     for(std::size_t i = 0; i < merge.size(); ++i)
     {
@@ -193,42 +193,42 @@ int main(int argc, char** argv)
 
     //assignent operators
     destroy = 4;
-    logger.assert_always(destroy.getNRows() == 1, "Rows in a matrix");
-    logger.assert_always(destroy.getNCols() == 1, "Columns in a matrix");
+    logger.assert_always(destroy.getNumberOfRows() == 1, "Rows in a matrix");
+    logger.assert_always(destroy.getNumberOfColumns() == 1, "Columns in a matrix");
     logger.assert_always(destroy.size() == 1, "Size of a matrix");
     logger.assert_always(std::abs(destroy[0] - 4.) < 1e-12, "Entry of a matrix");
     MiddleSizeMatrix extra = copy;
-    logger.assert_always(extra.getNRows() == 2, "Rows in a matrix");
-    logger.assert_always(extra.getNCols() == 2, "Columns in a matrix");
+    logger.assert_always(extra.getNumberOfRows() == 2, "Rows in a matrix");
+    logger.assert_always(extra.getNumberOfColumns() == 2, "Columns in a matrix");
     logger.assert_always(extra.size() == 4, "Size of a matrix");
     for(std::size_t i = 0; i < extra.size(); ++i)
     {
         logger.assert_always(std::abs(extra[i] - double(i)) < 1e-12, "Entry of a matrix");
     }
     copy = count1;
-    logger.assert_always(copy.getNRows() == 2, "Rows in a matrix");
-    logger.assert_always(copy.getNCols() == 2, "Columns in a matrix");
+    logger.assert_always(copy.getNumberOfRows() == 2, "Rows in a matrix");
+    logger.assert_always(copy.getNumberOfColumns() == 2, "Columns in a matrix");
     logger.assert_always(copy.size() == 4, "Size of a matrix");
     for(std::size_t i = 0; i < copy.size(); ++i)
     {
         logger.assert_always(std::abs(copy[i] - double(i) - 4.) < 1e-12, "Entry of a matrix");
     }
     A0 = std::move(destroy);
-    logger.assert_always(A0.getNRows() == 1, "Rows in a matrix");
-    logger.assert_always(A0.getNCols() == 1, "Columns in a matrix");
+    logger.assert_always(A0.getNumberOfRows() == 1, "Rows in a matrix");
+    logger.assert_always(A0.getNumberOfColumns() == 1, "Columns in a matrix");
     logger.assert_always(A0.size() == 1, "Size of a matrix");
     logger.assert_always(std::abs(A0[0] - 4.) < 1e-12, "Entry of a matrix");
     count0*=count1;
-    logger.assert_always(count0.getNRows() == 2, "Rows in a matrix");
-    logger.assert_always(count0.getNCols() == 2, "Columns in a matrix");
+    logger.assert_always(count0.getNumberOfRows() == 2, "Rows in a matrix");
+    logger.assert_always(count0.getNumberOfColumns() == 2, "Columns in a matrix");
     logger.assert_always(count0.size() == 4, "Size of a matrix");
     logger.assert_always(std::abs((count0)(0, 0) - 10.) < 1e-12, "multiply");
     logger.assert_always(std::abs((count0)(1, 0) - 19.) < 1e-12, "multiply");
     logger.assert_always(std::abs((count0)(0, 1) - 14.) < 1e-12, "multiply");
     logger.assert_always(std::abs((count0)(1, 1) - 27.) < 1e-12, "multiply");
     count1*=A23;
-    logger.assert_always(count1.getNRows() == 2, "Rows in a matrix");
-    logger.assert_always(count1.getNCols() == 3, "Columns in a matrix");
+    logger.assert_always(count1.getNumberOfRows() == 2, "Rows in a matrix");
+    logger.assert_always(count1.getNumberOfColumns() == 3, "Columns in a matrix");
     logger.assert_always(count1.size() == 6, "Size of a matrix");
     logger.assert_always(std::abs((count1)(0, 0) - .6) < 1e-12, "multiply");
     logger.assert_always(std::abs((count1)(1, 0) - .7) < 1e-12, "multiply");
@@ -237,48 +237,48 @@ int main(int argc, char** argv)
     logger.assert_always(std::abs((count1)(0, 2) - 4.6) < 1e-12, "multiply");
     logger.assert_always(std::abs((count1)(1, 2) - 5.5) < 1e-12, "multiply");
     count0*=4;
-    logger.assert_always(count0.getNRows() == 2, "Rows in a matrix");
-    logger.assert_always(count0.getNCols() == 2, "Columns in a matrix");
+    logger.assert_always(count0.getNumberOfRows() == 2, "Rows in a matrix");
+    logger.assert_always(count0.getNumberOfColumns() == 2, "Columns in a matrix");
     logger.assert_always(count0.size() == 4, "Size of a matrix");
     logger.assert_always(std::abs((count0)(0, 0) - 40.) < 1e-12, "multiply");
     logger.assert_always(std::abs((count0)(1, 0) - 76.) < 1e-12, "multiply");
     logger.assert_always(std::abs((count0)(0, 1) - 56.) < 1e-12, "multiply");
     logger.assert_always(std::abs((count0)(1, 1) - 108.) < 1e-12, "multiply");
     count0/=2;
-    logger.assert_always(count0.getNRows() == 2, "Rows in a matrix");
-    logger.assert_always(count0.getNCols() == 2, "Columns in a matrix");
+    logger.assert_always(count0.getNumberOfRows() == 2, "Rows in a matrix");
+    logger.assert_always(count0.getNumberOfColumns() == 2, "Columns in a matrix");
     logger.assert_always(count0.size() == 4, "Size of a matrix");
     logger.assert_always(std::abs((count0)(0, 0) - 20.) < 1e-12, "divide");
     logger.assert_always(std::abs((count0)(1, 0) - 38.) < 1e-12, "divide");
     logger.assert_always(std::abs((count0)(0, 1) - 28.) < 1e-12, "divide");
     logger.assert_always(std::abs((count0)(1, 1) - 54.) < 1e-12, "divide");
     copy+=extra;
-    logger.assert_always(copy.getNRows() == 2, "Rows in a matrix");
-    logger.assert_always(copy.getNCols() == 2, "Columns in a matrix");
+    logger.assert_always(copy.getNumberOfRows() == 2, "Rows in a matrix");
+    logger.assert_always(copy.getNumberOfColumns() == 2, "Columns in a matrix");
     logger.assert_always(copy.size() == 4, "Size of a matrix");
     logger.assert_always(std::abs((copy)(0, 0) - 4.) < 1e-12, "add");
     logger.assert_always(std::abs((copy)(1, 0) - 6.) < 1e-12, "add");
     logger.assert_always(std::abs((copy)(0, 1) - 8.) < 1e-12, "add");
     logger.assert_always(std::abs((copy)(1, 1) - 10.) < 1e-12, "add");
     extra-=count0;
-    logger.assert_always(extra.getNRows() == 2, "Rows in a matrix");
-    logger.assert_always(extra.getNCols() == 2, "Columns in a matrix");
+    logger.assert_always(extra.getNumberOfRows() == 2, "Rows in a matrix");
+    logger.assert_always(extra.getNumberOfColumns() == 2, "Columns in a matrix");
     logger.assert_always(extra.size() == 4, "Size of a matrix");
     logger.assert_always(std::abs((extra)(0, 0) + 20.) < 1e-12, "subtract");
     logger.assert_always(std::abs((extra)(1, 0) + 37.) < 1e-12, "subtract");
     logger.assert_always(std::abs((extra)(0, 1) + 26.) < 1e-12, "subtract");
     logger.assert_always(std::abs((extra)(1, 1) + 51.) < 1e-12, "subtract");
     extra.axpy(3., copy);
-    logger.assert_always(extra.getNRows() == 2, "Rows in a matrix");
-    logger.assert_always(extra.getNCols() == 2, "Columns in a matrix");
+    logger.assert_always(extra.getNumberOfRows() == 2, "Rows in a matrix");
+    logger.assert_always(extra.getNumberOfColumns() == 2, "Columns in a matrix");
     logger.assert_always(extra.size() == 4, "Size of a matrix");
     logger.assert_always(std::abs((extra)(0, 0) + 8.) < 1e-12, "ax+y");
     logger.assert_always(std::abs((extra)(1, 0) + 19.) < 1e-12, "ax+y");
     logger.assert_always(std::abs((extra)(0, 1) + 2.) < 1e-12, "ax+y");
     logger.assert_always(std::abs((extra)(1, 1) + 21.) < 1e-12, "ax+y");
     A0.resize(3, 7);
-    logger.assert_always(A0.getNRows() == 3, "Rows in a matrix");
-    logger.assert_always(A0.getNCols() == 7, "Columns in a matrix");
+    logger.assert_always(A0.getNumberOfRows() == 3, "Rows in a matrix");
+    logger.assert_always(A0.getNumberOfColumns() == 7, "Columns in a matrix");
     logger.assert_always(A0.size() == 21, "Size of a matrix");
     logger.assert_always(std::abs(A0[0] - 4.) < 1e-12, "Entry of a matrix");
 
@@ -315,8 +315,8 @@ int main(int argc, char** argv)
     logger.assert_always(std::abs((MiddleSizeMatrix({vec4D1, vec4D2, vec4D3}).computeWedgeStuffVector()) * vec4D3) < 1e-12, "direction of wedge stuff vector");
 
     copy.concatenate(extra);
-    logger.assert_always(copy.getNRows() == 4, "Rows in a matrix");
-    logger.assert_always(copy.getNCols() == 2, "Columns in a matrix");
+    logger.assert_always(copy.getNumberOfRows() == 4, "Rows in a matrix");
+    logger.assert_always(copy.getNumberOfColumns() == 2, "Columns in a matrix");
     logger.assert_always(copy.size() == 8, "Size of a matrix");
     logger.assert_always(std::abs((copy)(0, 0) - 4.) < 1e-12, "concatenate");
     logger.assert_always(std::abs((copy)(1, 0) - 6.) < 1e-12, "concatenate");
@@ -378,231 +378,5 @@ int main(int argc, char** argv)
 
     std::cout << A32 << std::endl;
 
-
-}
-
-
-
-//there is only comment below this line
-//---------------------------------------------------------------------------------------
-
-
-/*int main(int argc, char* argv[])
-{
-    
-    //First test the empty constructor
-    LinearAlgebra::Matrix AA1;
-    
-    //Second test the constuctor which defines the size
-    LinearAlgebra::Matrix AA2(2, 3);
-    
-    //Third test the constuctor to initiate to a set value e.g. 2 by 3 matrix with all values initised to 1.5
-    LinearAlgebra::Matrix AA3(2, 3, 1.5);
-    
-    //Check the copy constructor
-    LinearAlgebra::Matrix AA4(AA3);
-    
-    //Check resizing the matrix
-    AA4.resize(2, 5);
-    
-    //Check the Matrix assigment
-    AA2 = AA3;
-    
-    //Now test Matrix times vector
-    LinearAlgebra::Matrix BB1(2, 2);
-    BB1(0, 0) = 1.0;
-    BB1(0, 1) = 2.0;
-    BB1(1, 0) = 3.0;
-    BB1(1, 1) = 4.0;
-    
-    logger.assert_always(2.0 == BB1[2], "Test the [] operator, Matrix should column-major.");
-    logger.assert_always(3.0 == BB1[1], "Test the [] operator, Matrix should column-major.");
-    logger.assert_always(BB1(0,1) == 2.0, "Test the () operator. Expected 2.0, but got %", BB1(0,1));
-    
-    cout << "This is BB1 \n" << BB1 << "\n";
-    
-    //now test divide
-    
-    BB1 /= 2.0;
-    cout << "This is BB1 divided by 2 \n" << BB1 << "\n";
-    
-    cout << "and by 2.0 again but using inline divide \n" << BB1 / 2.0 << "\n";
-    
-    //Now test output
-    
-    cout << BB1 << "\n";
-    
-    cout << AA3 << endl;
-    
-    LinearAlgebra::NumericalVector B2(2);
-    LinearAlgebra::NumericalVector B3;
-    B2(0) = 1.0;
-    B2(1) = 2.0;
-    
-    cout << "axpy" << endl;
-    B3 = BB1 * B2;
-    
-    cout << "axpy" << endl;
-    //Test wedge product both quick form if vector exist and create vector form.
-    //Not supposed to be used for square matrices, turned of for now
-    //B2=BB1.computeWedgeStuffVector();
-    //B3=BB1.computeWedgeStuffVector();
-    
-    //Matrix assigment test
-    AA4 = 2.0;
-    
-    //Matrix times matrix test
-    LinearAlgebra::Matrix CC1(2, 3, 2);
-    LinearAlgebra::Matrix CC2(3, 2, 2);
-    LinearAlgebra::Matrix CC3(2, 2);
-    
-    CC3 = CC1 * CC2;
-    
-    cout << CC1 << std::endl;
-    
-    LinearAlgebra::Matrix CC2_fix(3, 2, 4);
-    std::cout << "CC2_fix PRE" << std::endl;
-    std::cout << CC2_fix << std::endl;
-    
-    CC2.axpy(2.0, CC2_fix);
-    
-    std::cout << "CC2_fix POST" << std::endl;
-    std::cout << CC2_fix << std::endl;
-    
-    std::cout << CC2 << std::endl;
-    
-    CC3 = BB1;
-    CC3 = BB1.LUfactorisation();
-    
-    cout << "\n Now the LU factorisation \n";
-    
-    cout << "Before : \n";
-    
-    cout << BB1;
-    
-    cout << "After : \n";
-    cout << CC3;
-    
-    cout << "\n Now the inverse" << endl;
-    
-    CC3(0, 0) = 0.8147;
-    CC3(0, 1) = 0.1270;
-    CC3(1, 0) = 0.9058;
-    CC3(1, 1) = 0.9134;
-    
-    LinearAlgebra::Matrix CC4(2, 2);
-    
-    CC4 = CC3.inverse();
-    
-    cout << CC4;
-    
-    CC3 = CC3 * CC4;
-    
-    cout << CC3;
-    
-    cout << "\n Now test the solution of Ax=B \n ";
-    
-    CC3.solve(CC4);
-    
-    cout << CC4;
-    
-    cout << "\n Now test the inverse of a 3 by3 \n";
-    
-    LinearAlgebra::Matrix DD(3, 3);
-    
-    DD(0, 0) = 0.6324;
-    DD(0, 1) = 0.5469;
-    DD(0, 2) = 0.1576;
-    DD(1, 0) = 0.0975;
-    DD(1, 1) = 0.9575;
-    DD(1, 2) = 0.9706;
-    DD(2, 0) = 0.2785;
-    DD(2, 1) = 0.9649;
-    DD(2, 2) = 0.9572;
-    
-    LinearAlgebra::Matrix ans(3, 3);
-    
-    ans = DD.inverse();
-    
-    cout << ans << std::endl;
-    
     return 0;
-    
 }
-
-//	LinearAlgebra::Matrix<double> AA(3,2);
-//	
-//	LinearAlgebra::Matrix<double> BB(2,3);
-//	
-//	LinearAlgebra::Matrix<double> CC(2,4);
-//	
-//	LinearAlgebra::Matrix<double> DD(3,2);
-//	
-//	LinearAlgebra::Matrix<double> ANS;
-//    
-//    LinearAlgebra::NumericalVector x(2);
-//    LinearAlgebra::NumericalVector y(2);
-//    
-//    LinearAlgebra::Matrix<double> A(2,2);
-//    
-//    
-//	x(0)=1.0;
-//    x(1)=2.0;
-//    
-//    A(0,0)=1.0;
-//    A(0,1)=2.0;
-//    A(1,0)=3.0;
-//    A(1,1)=4.0;
-//	
-//	AA(0,0)=1;
-//	AA(0,1)=2;
-//	AA(1,0)=3;
-//	AA(1,1)=4;
-//	AA(2,0)=5;
-//	AA(2,1)=6;
-//    
-//    cout << x;
-//    
-//    y=AA*x;
-//    
-//    cout << "Help" << endl;
-//    cout << y;
-//    cout << "and now " <<endl;
-//	
-//	BB(0,0)=7;
-//	BB(0,1)=8;
-//	BB(0,2)=9;
-//	BB(1,0)=10;
-//	BB(1,1)=11;
-//	BB(1,2)=12;
-//	
-//	CC(0,0)=7;
-//	CC(0,1)=8;
-//	CC(0,2)=9;
-//	CC(0,3)=10;
-//	CC(1,0)=11;
-//	CC(1,1)=12;
-//	CC(1,2)=13;
-//	CC(1,3)=14;
-//	
-//	DD(0,0)=6;
-//	DD(0,1)=5;
-//	DD(1,0)=4;
-//	DD(1,1)=3;
-//	DD(2,0)=2;
-//	DD(2,1)=1;
-//	
-//	//AA*=BB;
-//	cout << AA;
-//	//AA*=CC;
-//	cout << AA;
-//	
-//	ANS=AA+DD;
-//	cout << ANS;
-//	//cout << DD;
-//	//cout << AA;
-//	
-//	
-// 	;
-
-*/

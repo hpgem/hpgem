@@ -35,7 +35,7 @@
 
 namespace LinearAlgebra
 {
-    template<std::size_t nRows, std::size_t nCols>
+    template<std::size_t numberOfRows, std::size_t numberOfColumns>
     class SmallMatrix;
     class MiddleSizeVector;
     /// \class MiddleSizeMatrix
@@ -72,8 +72,8 @@ namespace LinearAlgebra
         MiddleSizeMatrix(const MiddleSizeMatrix& other);
         
         //implemented with SmallMatrix for dependency reasons
-        template<std::size_t nRows, std::size_t nCols>
-        MiddleSizeMatrix(const SmallMatrix<nRows, nCols>& other);
+        template<std::size_t numberOfRows, std::size_t nCols>
+        MiddleSizeMatrix(const SmallMatrix<numberOfRows, nCols>& other);
 
         /// \brief construct a matrix by placing some vectors next to each other. Note that vectors in hpGEM are column vectors
         MiddleSizeMatrix(const MiddleSizeVector& other);
@@ -87,17 +87,17 @@ namespace LinearAlgebra
         /// \brief defines the operator (n,m) to access the element on row n and column m        
         type& operator()(std::size_t n, std::size_t m)
         {
-            logger.assert(n < nRows_, "Requested row number % for a matrix with only % rows", n, nRows_);
-            logger.assert(m < nCols_, "Requested column number % for a matrix with only % columns", m, nCols_);
-            return data_[n + m * nRows_];
+            logger.assert(n < numberOfRows_, "Requested row number % for a matrix with only % rows", n, numberOfRows_);
+            logger.assert(m < numberOfColumns_, "Requested column number % for a matrix with only % columns", m, numberOfColumns_);
+            return data_[n + m * numberOfRows_];
         }
         
         /// \brief defines the operator (n,m) to access the element on row n and column m        
         const type& operator()(std::size_t n, std::size_t m) const
         {
-            logger.assert(n < nRows_, "Requested row number % for a matrix with only % rows", n, nRows_);
-            logger.assert(m < nCols_, "Requested column number % for a matrix with only % columns", m, nCols_);
-            return data_[n + m * nRows_];
+            logger.assert(n < numberOfRows_, "Requested row number % for a matrix with only % rows", n, numberOfRows_);
+            logger.assert(m < numberOfColumns_, "Requested column number % for a matrix with only % columns", m, numberOfColumns_);
+            return data_[n + m * numberOfRows_];
         }
         
         /// \brief Access the n linear element in the matrix. 
@@ -160,10 +160,22 @@ namespace LinearAlgebra
         std::size_t size() const;
 
         /// \brief Get the number of rows
-        std::size_t getNRows() const;
+        std::size_t getNumberOfRows() const;
+
+        ///\deprecated Does not conform the naming conventions, please use getNumberOfRows instead.
+        std::size_t getNRows() const
+        {
+          return getNumberOfRows();
+        }
 
         /// \brief Get the number of columns
-        std::size_t getNCols() const;
+        std::size_t getNumberOfColumns() const;
+
+        ///\deprecated Does not conform the naming conventions, please use getNumberOfColumns instead.
+        std::size_t getNCols() const
+        {
+          return getNumberOfColumns();
+        }
 
         /// \brief get the j^th column
         /// If someone knows how to do this such that it returns a reference, please
@@ -204,10 +216,10 @@ namespace LinearAlgebra
 #endif
         
         /// Stores the number of rows of the matrix
-        std::size_t nRows_;
+        std::size_t numberOfRows_;
 
         /// Store the number of columns of the matrix
-        std::size_t nCols_;
+        std::size_t numberOfColumns_;
         
     };
     

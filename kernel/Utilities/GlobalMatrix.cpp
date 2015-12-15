@@ -74,7 +74,7 @@ namespace Utilities
                 }
                 if (firstFound && secondFound)
                 {
-                    number = face->getPtrElementLeft()->getEdge(i)->getLocalNrOfBasisFunctions();
+                    number = face->getPtrElementLeft()->getEdge(i)->getLocalNumberOfBasisFunctions();
                     numberOfEntries += number;
                     for (std::size_t j = 0; j < number; ++j)
                     {

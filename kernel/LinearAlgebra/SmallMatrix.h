@@ -38,7 +38,7 @@ namespace LinearAlgebra
     ///     0   2
     ///     1   3
     /// Examples for the implementation are given in the unit test (../tests/unit/LinearAlgebra/MatrixUnitTest).
-    template<std::size_t nRows, std::size_t nCols>
+    template<std::size_t numberOfRows, std::size_t numberOfColumns>
     class SmallMatrix
     {
     public:
@@ -49,11 +49,11 @@ namespace LinearAlgebra
         {
         }
 
-        SmallMatrix(const SmallVector<nRows>& other)
+        SmallMatrix(const SmallVector<numberOfRows>& other)
             : data_()
         {
-            logger.assert(nCols == 1, "Trying to construct a matrix with more than 1 columns from a vector");
-            std::copy(other.data(), other.data() + nRows, data_.begin());
+            logger.assert(numberOfColumns == 1, "Trying to construct a matrix with more than 1 columns from a vector");
+            std::copy(other.data(), other.data() + numberOfRows, data_.begin());
         }
 
         /// \brief Constructs a matrix of size n-rows by m-columns and initialises all entry to a constant
@@ -74,21 +74,21 @@ namespace LinearAlgebra
         SmallMatrix(const MiddleSizeMatrix& other)
             : data_()
         {
-            logger.assert(other.getNRows() == nRows, "expected a matrix with % rows, but got a matrix with % rows", nRows, other.getNRows());
-            logger.assert(other.getNCols() == nCols, "expected a matrix with % columns, but got a matrix with % columns", nCols, other.getNCols());
-            for(std::size_t i = 0; i < nRows * nCols; ++i)
+            logger.assert(other.getNumberOfRows() == numberOfRows, "expected a matrix with % rows, but got a matrix with % rows", numberOfRows, other.getNumberOfRows());
+            logger.assert(other.getNumberOfColumns() == numberOfColumns, "expected a matrix with % columns, but got a matrix with % columns", numberOfColumns, other.getNumberOfColumns());
+            for(std::size_t i = 0; i < numberOfRows * numberOfColumns; ++i)
             {
                 data_[i] = std::real(other[i]);
             }
         }
 
         /// \brief Glues one or more vectors with the same number of rows together
-        SmallMatrix(std::array<SmallVector<nRows>, nCols> entries)
+        SmallMatrix(std::array<SmallVector<numberOfRows>, numberOfColumns> entries)
             : data_()
         {
-            for(std::size_t i = 0; i < nRows; ++i)
+            for(std::size_t i = 0; i < numberOfRows; ++i)
             {
-                for(std::size_t j = 0; j < nCols; ++j)
+                for(std::size_t j = 0; j < numberOfColumns; ++j)
                 {
                     (*this)(i, j) = entries[j][i];
                 }
@@ -104,35 +104,35 @@ namespace LinearAlgebra
         /// \brief defines the operator (n,m) to access the element on row n and column m
         double& operator()(std::size_t n, std::size_t m)
         {
-            logger.assert(n < nRows, "Requested row number % for a matrix with only % rows", n, nRows);
-            logger.assert(m < nCols, "Requested column number % for a matrix with only % columns", m, nCols);
-            return data_[n + m * nRows];
+            logger.assert(n < numberOfRows, "Requested row number % for a matrix with only % rows", n, numberOfRows);
+            logger.assert(m < numberOfColumns, "Requested column number % for a matrix with only % columns", m, numberOfColumns);
+            return data_[n + m * numberOfRows];
         }
 
         /// \brief defines the operator (n,m) to access the element on row n and column m
         const double& operator()(std::size_t n, std::size_t m) const
         {
-            logger.assert(n < nRows, "Requested row number % for a matrix with only % rows", n, nRows);
-            logger.assert(m < nCols, "Requested column number % for a matrix with only % columns", m, nCols);
-            return data_[n + m * nRows];
+            logger.assert(n < numberOfRows, "Requested row number % for a matrix with only % rows", n, numberOfRows);
+            logger.assert(m < numberOfColumns, "Requested column number % for a matrix with only % columns", m, numberOfColumns);
+            return data_[n + m * numberOfRows];
         }
 
         /// \brief Access the n linear element in the matrix.
         double& operator[](const std::size_t n)
         {
-            logger.assert(n < nRows * nCols, "Requested entry % for a matrix with only % entries", n, nRows * nCols);
+            logger.assert(n < numberOfRows * numberOfColumns, "Requested entry % for a matrix with only % entries", n, numberOfRows * numberOfColumns);
             return data_[n];
         }
 
         const double& operator[](const std::size_t n) const
         {
-            logger.assert(n < nRows * nCols, "Requested entry % for a matrix with only % entries", n, nRows * nCols);
+            logger.assert(n < numberOfRows * numberOfColumns, "Requested entry % for a matrix with only % entries", n, numberOfRows * numberOfColumns);
             return data_[n];
         }
 
         /// \brief Defines Matrix A times vector B and return vector C i.e. C_,j= A_ij B_,j
-        SmallVector<nRows> operator*(SmallVector<nCols>& right);
-        SmallVector<nRows> operator*(SmallVector<nCols>& right) const;
+        SmallVector<numberOfRows> operator*(SmallVector<numberOfColumns>& right);
+        SmallVector<numberOfRows> operator*(SmallVector<numberOfColumns>& right) const;
 
         /// \brief Does matrix A_ij=scalar*B_ij
         SmallMatrix operator*(const double& right) const
@@ -144,9 +144,9 @@ namespace LinearAlgebra
 
         /// \brief Does matrix A_ij = B_ik * C_kj
         template<std::size_t K>
-        SmallMatrix<nRows, K> operator*(const SmallMatrix<nCols, K> &other);
+        SmallMatrix<numberOfRows, K> operator*(const SmallMatrix<numberOfColumns, K> &other);
         template<std::size_t K>
-        SmallMatrix<nRows, K> operator*(const SmallMatrix<nCols, K> &other) const;
+        SmallMatrix<numberOfRows, K> operator*(const SmallMatrix<numberOfColumns, K> &other) const;
 
         SmallMatrix& operator+=(const SmallMatrix& other)
         {
@@ -188,7 +188,7 @@ namespace LinearAlgebra
 
         /// \brief Does matrix A_ij = A_ik * B_kj
         /// note that other must be square because this is a fixed-size matrix
-        SmallMatrix& operator*=(const SmallMatrix<nCols, nCols> &other);
+        SmallMatrix& operator*=(const SmallMatrix<numberOfColumns, numberOfColumns> &other);
 
         /// \brief Does matrix A_ij=scalar*A_ij
         SmallMatrix& operator/=(const double &scalar)
@@ -220,12 +220,12 @@ namespace LinearAlgebra
         }
 
         /// \brief computeWedgeStuffVector.
-        SmallVector<nRows> computeWedgeStuffVector() const;
+        SmallVector<numberOfRows> computeWedgeStuffVector() const;
 
         /// \brief Applies the matrix y=ax + y, where x is another matrix and a is a scalar
         void axpy(double a, const SmallMatrix& x)
         {
-            for(std::size_t i = 0; i < nRows * nCols; ++i)
+            for(std::size_t i = 0; i < numberOfRows * numberOfColumns; ++i)
             {
                 data_[i] += a * x[i];
             }
@@ -234,34 +234,45 @@ namespace LinearAlgebra
         /// \brief Get total number of Matrix entries
         std::size_t size() const
         {
-            return nRows * nCols;
+            return numberOfRows * numberOfColumns;
         }
 
         /// \brief Get the number of rows
+        std::size_t getNumberOfRows() const
+        {
+            return numberOfRows;
+        }
+
+        ///\deprecated Does not conform naming convention, please use getNumberOfRows instead.
         std::size_t getNRows() const
         {
-            return nRows;
+            return getNumberOfRows();
         }
 
         /// \brief Get the number of columns
+        std::size_t getNumberOfColumns() const
+        {
+            return numberOfColumns;
+        }
+
         std::size_t getNCols() const
         {
-            return nCols;
+          return getNumberOfColumns();
         }
 
         /// \brief get the j^th column
-        SmallVector<nRows> getColumn(std::size_t j) const
+        SmallVector<numberOfRows> getColumn(std::size_t j) const
         {
-            logger.assert(j < nCols, "Asked for column %, but there are only % columns", j, nCols);
-            return SmallVector<nRows>(data() + j * nRows);
+            logger.assert(j < numberOfColumns, "Asked for column %, but there are only % columns", j, numberOfColumns);
+            return SmallVector<numberOfRows>(data() + j * numberOfRows);
         }
 
         /// \brief get the i^th row
-        SmallVector<nCols> getRow(std::size_t i) const
+        SmallVector<numberOfColumns> getRow(std::size_t i) const
         {
-            logger.assert(i < nRows, "Asked for row %, but there are only % rows", i, nRows);
-            SmallVector<nCols> result;
-            for(std::size_t j = 0; j < nCols; ++j)
+            logger.assert(i < numberOfRows, "Asked for row %, but there are only % rows", i, numberOfRows);
+            SmallVector<numberOfColumns> result;
+            for(std::size_t j = 0; j < numberOfColumns; ++j)
             {
                 result[j] = (*this)(i,j);
             }
@@ -276,12 +287,12 @@ namespace LinearAlgebra
         /// \brief return the inverse in the vector result. The size of result matches the matrix.
         SmallMatrix inverse() const;
 
-        SmallMatrix<nCols, nRows> transpose() const
+        SmallMatrix<numberOfColumns, numberOfRows> transpose() const
         {
-            SmallMatrix<nCols, nRows> result;
-            for(std::size_t i = 0; i < nRows; ++i)
+            SmallMatrix<numberOfColumns, numberOfRows> result;
+            for(std::size_t i = 0; i < numberOfRows; ++i)
             {
-                for(std::size_t j = 0; j < nCols; ++j)
+                for(std::size_t j = 0; j < numberOfColumns; ++j)
                 {
                     result(j, i) = (*this)(i, j);
                 }
@@ -290,12 +301,12 @@ namespace LinearAlgebra
         }
 
         /// \brief solves Ax=B where A is the current matrix and B is passed in. The result is returned in B.
-        template<std::size_t nRHS>
-        void solve(SmallMatrix<nRows, nRHS>& B) const;
+        template<std::size_t numberOfRightHandSideColumns>
+        void solve(SmallMatrix<numberOfRows, numberOfRightHandSideColumns>& B) const;
 
         /// \brief solves Ax=b where A is the current matrix and NumericalVector b
         /// is the input parameter. The result is returned in b.
-        void solve(SmallVector<nRows>& b) const;
+        void solve(SmallVector<numberOfRows>& b) const;
 
         double* data()
         {
@@ -309,14 +320,14 @@ namespace LinearAlgebra
 
     private:
         /// The actually data of the matrix class
-        std::array<double, nRows * nCols> data_;
+        std::array<double, numberOfRows * numberOfColumns> data_;
     };
 
     /// Writes nicely formatted entries of the Matrix A to the stream os.
-    template<std::size_t nRows, std::size_t nCols>
-    std::ostream& operator<<(std::ostream& os, const SmallMatrix<nRows, nCols>& A)
+    template<std::size_t numberOfRows, std::size_t numberOfColumns>
+    std::ostream& operator<<(std::ostream& os, const SmallMatrix<numberOfRows, numberOfColumns>& A)
     {
-        for(std::size_t i = 0; i < nRows; ++i)
+        for(std::size_t i = 0; i < numberOfRows; ++i)
         {
             os << A.getRow(i) << std::endl;
         }
@@ -324,21 +335,21 @@ namespace LinearAlgebra
     }
 
     ///Multiplies a matrix with a double
-    template<std::size_t nRows, std::size_t nCols>
-    SmallMatrix<nRows, nCols> operator*(const double d, const SmallMatrix<nRows, nCols>& mat)
+    template<std::size_t numberOfRows, std::size_t numberOfColumns>
+    SmallMatrix<numberOfRows, numberOfColumns> operator*(const double d, const SmallMatrix<numberOfRows, numberOfColumns>& mat)
     {
         return mat * d;
     }
 
     ///Multiplies a matrix with a vector
-    template<std::size_t nRows, std::size_t nCols>
-    SmallVector<nCols> operator*(SmallVector<nRows>& vec, SmallMatrix<nRows, nCols>& mat);
+    template<std::size_t numberOfRows, std::size_t numberOfColumns>
+    SmallVector<numberOfColumns> operator*(SmallVector<numberOfRows>& vec, SmallMatrix<numberOfRows, numberOfColumns>& mat);
 
-    template<std::size_t nRows, std::size_t nCols>
-    MiddleSizeMatrix::MiddleSizeMatrix(const SmallMatrix<nRows, nCols>& other)
-        : data_(nRows * nCols), nRows_(nRows), nCols_(nCols)
+    template<std::size_t numberOfRows, std::size_t numberOfColumns>
+    MiddleSizeMatrix::MiddleSizeMatrix(const SmallMatrix<numberOfRows, numberOfColumns>& other)
+        : data_(numberOfRows * numberOfColumns), numberOfRows_(numberOfRows), numberOfColumns_(numberOfColumns)
     {
-        std::copy(other.data(), other.data() + nRows * nCols, data_.begin());
+        std::copy(other.data(), other.data() + numberOfRows * numberOfColumns, data_.begin());
     }
 
 }

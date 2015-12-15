@@ -50,7 +50,7 @@ namespace Base
         //constructor of Node is deleted.
         Node(const Node &other) = delete;
 
-        void addElement(Element* element, std::size_t localNodeNr);
+        void addElement(Element* element, std::size_t localNodeNumber);
 
         ///\deprecated Does not conform naming conventions, use getLocalNumberOfBasisFunctions instead
         std::size_t getLocalNrOfBasisFunctions() const
@@ -97,10 +97,16 @@ namespace Base
             return localNodeNumbers_[i];
         }
         
-        void setLocalNrOfBasisFunctions(std::size_t number)
+        void setLocalNumberOfBasisFunctions(std::size_t number)
         {
             numberOfConformingDOFOnTheNode_ = number;
         }
+
+        void setLocalNrOfBasisFunctions(std::size_t number)
+        {
+            setLocalNumberOfBasisFunctions(number);
+        }
+
     private:
         
         //provide information to map back to a unique corner of the element
