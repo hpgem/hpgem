@@ -19,9 +19,13 @@ This report describes in detail the Navier-Stokes equation and it's application 
 
 \chapter{Navier-Stokes}
 \section{Compressible Navier-Stokes}
-In this section compressible Navier-Stokes is treated. A fluid is deemed to be compressible for $M > 0.3$ where $M$ is the ratio of the mean stream velocity and the speed of sound, known as the Mach number. In many practises compressibility effects are not present and hence incompressible flow can be assumed. The incompressible Navier-Stokes equations are given in section \ref{}. When modeling grains as a continum media however, they act like a compressible media ~\cite{} and hence the compressible Navier-Stokes equations are useful. In this document the compressible Navier-Stokes equation for an ideal are described. Extensions to grains can be found in ~\cite{}.
+In this section compressible Navier-Stokes is treated. A fluid is deemed to be compressible for $M > 0.3$ where $M$ is the ratio of the mean stream velocity and the speed of sound, known as the Mach number. In many practises compressibility effects are not present and hence incompressible flow can be assumed. The incompressible Navier-Stokes equations are given in section \ref{}, applied, which is applied to water-like substances. The compressible Navier-Stokes is not a complete system and therefore needs to be closed by utilising closure relations. The standard closure relations for an ideal gas are given in \ref{}.
 
-The full Navier-Stokes equations are a system of equations describing mass, momentum and energy balance of an infinitesimal small volume of fluid. Derivation of the Navier-Stokes equations can be found in~\cite{}. The states of a fluid at a specific location is described by the state vector
+The Navier-Stokes equations do not only emerge in describing the behaviour of fluids. Granular media often behaves as if it is fluidised. Modeling these fluidisied systems can possibly be done by applying the correct closure laws to the Navier-Stokes equations. It is observed that these granular media have compressibility effects~\cite{} and therefore they will be modeled by the compressible Navier-Stokes equations.
+
+In this document the compressible Navier-Stokes equation are closed for several systems. Section \ref{} describes the closure relations for an ideal gas and section \ref{} describes the behaviour of fluidised partially wetted particles.
+
+Although the closure relations are different, the main equations are the same and will be described in more detail in this section. The full Navier-Stokes equations are a system of equations describing mass, momentum and energy balance of an infinitesimal small volume of fluid. Derivation of the Navier-Stokes equations can be found in~\cite{}. The states of a fluid at a specific location is described by the state vector
 \begin{equation}
 \label{e:stateVector}
 \mathbf{U} =
@@ -146,6 +150,34 @@ The viscosity in ideal gases is a function of the temperature which behaves rela
 \end{equation}
 with values $\mu_{ref} = 0.000017894$ $Pa s$, $T_s = 110$ $K$ and $T_{ref} = 288.16$ $K$.
 
+\subsubsection{Dry granular media}
+Extending the compressible Navier-Stokes equations to dry granular media requires different closure relations and a slightly modified system. The energy equation will not be taken into account, which reduces the number of equations required to close the system. The pressure in the system is based on~\cite{} and takes the form
+%TODO I need a paper that verifies and satisfies this assumption, elaborate this
+\begin{equation}
+\label{e:DryGrainPressure}
+p = A_0 \log{\frac{\rho_{\infty} - \rho_c}{\rho_{\infty} - \rho}}.
+\end{equation}
+The pressure in this system is solely a function of the bulk density, $\rho$, of the particles together with some additional coefficients. Here $A_0$ is the "savage-hutter" coefficient, The coefficient $\rho_{\infty}$ is the bulk density of the particles at the maximum packing state and $\rho_{\infty}$ is the bulk density at the jamming point. 
+%TODO Savage-hutter coefficient needs more elaboration
+Because of the compressible nature of the granular media, any perturbations in a quiescent flow travel with a certain speed through the domain. After doing an eigenvalue analysis of the hyperbolic part of the equation one can show that information travels at a speed of $|\vec{u}| \pm a$, where $a$ can be viewed, by analogy of the gas equations, as the speed of sound given by 
+\begin{equation}
+\label{DryGrainSpeedOfSound}
+a = \sqrt{\frac{A_0}{\rho_{\infty} - \rho}}
+\end{equation}
+The components for the shear stress tensor are equal to equation~\ref{e:shearStressTensor}. This is reasoned to be the same as a gas since the particles simulated in this state behave as a fluid. The major difference with the gas equations is that the viscosity is described by a different relation.
+%TODO Add more information on how particles and bulk viscosity are related
+Based on numerical DEM simulations~\cite{} a constitutive relation has been determined.
+%TODO read the paper of abby
+\begin{equation}
+\label{e:DryGrainViscosity}
+\mu = \tan{\theta_1} + (\tan{\theta_2} - \tan{\theta_1}) \frac{I}{I_0 + I}
+\end{equation}
+In this equation....
+
+
+\subsubsection{Wetted granular media}
+Future work: Sudeshna is working on closure relations
+
 \subsection{Compact form}
 The equations given in the previous section are very lengthy and impractical for mathematical analysis. In order to write the equations compactly note that they can be split two parts. The convection part, containing the first order derivatives and the pressure, and the viscosity part, containing second order derivatives. Here it is assumed that there are no source functions. The equation is split up in two parts since the first order and second order derivatives require different treatment in the discretisation process. The equations can now be compactly written as
 \begin{equation}
@@ -239,202 +271,203 @@ F^v_{ik} = A_{ikjm}(\mathbf{U})U_{j,m}
 For a clear description of this fourth order tensor, see~\cite{}.
 
 
-\subsection{Non-dimensional form}
-It is possible to rewrite the Navier-Stokes equations in such a way that it has no dimensions. When non-dimensionalising these equations several non-dimensional numbers turn up, such as the Reynolds number or the Mach number. Solutions to problems with the same dimensionless numbers are identical, and thus saving extra computations. Another benefit is that several variables can be scaled to ensure less numerical error due to rounding effects of the computer. In the latter case it is feasible to ensure that the state variables are of the same order.
-
-There are many ways to non-dimensionalise the Navier-Stokes equations. To keep the framework general, every variable is non-dimensionalised with a typical value, instead of picking reference variables. By choosing the correct typical values, different scalings can be obtained.
-
-The variables $rho,u,v,w,E,p,T, \mu, \kappa, x,y,z,t$ are non-dimensionalised in the form
-\begin{equation}
-\label{e:exampleNonDim}
-u = \tilde{u}u_t,
-\end{equation}
-where $\tilde{u}$ is the non dimensional variable and $u_t$ is the typical scaling value. Applying this to the mass balance equation, multiplying by $\frac{t_t}{\rho_t}$ and neglecting the tilde for convenience results in
-\begin{equation}
-\label{e:nonDimMassEquation}
-\dt{\rho} 
-+ \frac{u_t t_t}{x_t}\dx{\rho u}
-+ \frac{v_t t_t}{y_t}\dy{\rho v}
-+ \frac{w_t t_t}{z_t}\dz{\rho w}
-\end{equation}
-Note that when the typical values are choosen to be one, the normal dimensional form of the Navier-Stokes equations is obtained. This way of non-dimensionalising is the most general form, however to keep the implementation of a solution algorithm reasonably easy, the velocities are scaled by $u_t$ only and the space variables by $x_t$ resulting in
-\begin{equation}
-\label{e:nonDimMassEquationEasy}
-\dt{\rho} + \frac{u_t t_t}{x_t}
-\left(
-\dx{\rho u}
-+ \dy{\rho v}
-+ \dz{\rho w}
-\right)
-\end{equation}
-Non-dimensionalising the momentum in the x-direction balances result in
-\begin{equation}
-\label{e:momentumBalance_XNonDim}
-\begin{array}{c}
-\dt{\rho u}
- + \frac{u_t t_t}{x_t}\left [\dx{\rho u^2 + P_sp} + \dy{\rho v u} + \dz{\rho w u} \right] = \\
- \frac{\mu_t t_t}{x_t^2 \rho_t}\left[ \dx{\tau_{xx}} + \dy{\tau_{yx}} + \dz{\tau_{zx}} \right]
- + \frac{S_{x_t} t_t}{\rho_t u_t}S_x,
- \end{array}
-\end{equation}
-with
-\begin{equation}
-P_s = \frac{p_t}{\rho_t u_t^2}.
-\end{equation}
-Momentum balances in the other directions have exactly the same non-dimensional numbers. Note that when $x_t = D$, $u_t = U_{\infty}$, $\mu_t = \mu_{\infty}$ and $t_t = \frac{D}{U_{\infty}}$ then the scaling factor infront of the shear stress terms turns into $\frac{1}{Re}$. Since the temperature will be scaled as well for the energy equation, the Sutherland's law, Eqn.~\ref{e:SutherlandsLaw} must be adapted resulting into
-\begin{equation}
-\label{e:SutherlandsLawScaled}
-\mu = \mu_{ref}  \frac{T_{ref} + T_s}{T T_t + T_s} \left( \frac{T T_t}{T_{ref}} \right)^\frac{3}{2},
-\end{equation}
-
-The energy equation is writtin in the form
-
-\begin{equation}
-\label{e:energyBalanceNonDim}
-\dt{\rho E}
- + \frac{H_t u_t t_t}{E_t x_t}
-\left[
-\dx{\rho H u} + \dy{\rho H v} + \dz{\rho H w} 
-\right] =
- \frac{\mu_t u_t^2 t_t}{\rho_t E_t x_t^2} 
-\left[
-\dx{A_x} + \dy{A_y} + \dz{A_z} 
-\right],
-\end{equation}
-with
-\begin{equation}
-\label{e:energyBalance_AxNonDim}
-A_x = u \tau_{xx} + v \tau_{yx} + w \tau_{zx} + T_s\dx{T},
-\end{equation}
-\begin{equation}
-\label{e:energyBalance_AyNonDim}
-A_y = u \tau_{xy} + v \tau_{yy} + w \tau_{zy} + T_s\dy{T},
-\end{equation}
-\begin{equation}
-\label{e:energyBalance_AzNonDim}
-A_z = u \tau_{xz} + v \tau_{yz} + w \tau_{zz} + T_s\dz{T},
-\end{equation}
-and
-\begin{equation}
-\label{e:temperatureScale}
-T_s = \frac{\kappa T_t}{\mu_t u_t^2}.
-\end{equation}
-Some definitions for convenience are given.
-\begin{equation}
-\label{e:dimGroup1}
-D_1 = \frac{u_t t_t}{x_t}
-\end{equation}
-\begin{equation}
-\label{e:dimGroup2}
-D_2 = \frac{\mu_t t_t}{x_t^2 \rho_t}
-\end{equation}
-\begin{equation}
-\label{e:dimGroup3}
-D_3 = \frac{H_t}{E_t}
-\end{equation}
-\begin{equation}
-\label{e:dimGroup4}
-D_4 = \frac{u_t^2}{E_t}
-\end{equation}
-The inviscid flux vectors can now be written as
-
-\begin{center}
-\begin{tabular}{ccc}
-$
-{F}_{1} = D_1
-\left[
-\begin{array}{c}
-\rho u		\\
-\rho u^2 + P_s p	 	\\
-\rho vu		\\
-\rho wu		\\
-D_3 \rho H u 	\\
-\end{array}
-\right],$ & 
-$
-{F}_{2} = D_1
-\left[
-\begin{array}{c}
-\rho v		\\
-\rho uv	 	\\
-\rho v^2	+ P_s p	\\
-\rho wv		\\
-D_3 \rho H v	\\
-\end{array}
-\right],$ & 
-$
-{F}_{3} = D_1
-\left[
-\begin{array}{c}
-\rho w		\\
-\rho uw	 	\\
-\rho vw		\\
-\rho w^2	+ P_s p	\\
-D_3 \rho H w	\\
-\end{array}
-\right].$
-\end{tabular}
-\end{center}
-
-The viscous flux vector can now be written as
-
-\begin{equation*}
-{F}_{1}^v = D_2
-\left[
-\begin{array}{c}
-0		\\
-\tau_{xx}	 	\\
-\tau_{yx}		\\
-\tau_{zx}		\\
-D_4\left[
-u\tau_{xx} + v\tau_{yx} + w\tau_{zx} + T_s\dx{T}
-\right]	\\
-\end{array}
-\right],
-\end{equation*}
-
-\begin{equation*}
-{F}_{2}^v = D_2
-\left[
-\begin{array}{c}
-0		\\
-\tau_{xy}	 	\\
-\tau_{yy}		\\
-\tau_{zy}		\\
-D_4 \left[
-u\tau_{xy} + v\tau_{yy} + w\tau_{zy} + T_s\dy{T}
-\right]	\\
-\end{array}
-\right],
-\end{equation*}
-
-\begin{equation*}
-{F}_{3}^v = D_2
-\left[
-\begin{array}{c}
-0		\\
-\tau_{xz}	 	\\
-\tau_{yz}		\\
-\tau_{zz}		\\
-D_4 \left[
-u\tau_{xz} + v\tau_{yz} + w\tau_{zz} + T_s\dz{T}
-\right]	\\
-\end{array}
-\right].
-\end{equation*}
+%\subsection{Non-dimensional form}
+%It is possible to rewrite the Navier-Stokes equations in such a way that it has no dimensions. When non-dimensionalising these equations several non-dimensional numbers turn up, such as the Reynolds number or the Mach number. Solutions to problems with the same dimensionless numbers are identical, and thus saving extra computations. Another benefit is that several variables can be scaled to ensure less numerical error due to rounding effects of the computer. In the latter case it is feasible to ensure that the state variables are of the same order.
+%
+%There are many ways to non-dimensionalise the Navier-Stokes equations. To keep the framework general, every variable is non-dimensionalised with a typical value, instead of picking reference variables. By choosing the correct typical values, different scalings can be obtained.
+%
+%The variables $rho,u,v,w,E,p,T, \mu, \kappa, x,y,z,t$ are non-dimensionalised in the form
+%\begin{equation}
+%\label{e:exampleNonDim}
+%u = \tilde{u}u_t,
+%\end{equation}
+%where $\tilde{u}$ is the non dimensional variable and $u_t$ is the typical scaling value. Applying this to the mass balance equation, multiplying by $\frac{t_t}{\rho_t}$ and neglecting the tilde for convenience results in
+%\begin{equation}
+%\label{e:nonDimMassEquation}
+%\dt{\rho} 
+%+ \frac{u_t t_t}{x_t}\dx{\rho u}
+%+ \frac{v_t t_t}{y_t}\dy{\rho v}
+%+ \frac{w_t t_t}{z_t}\dz{\rho w}
+%\end{equation}
+%Note that when the typical values are choosen to be one, the normal dimensional form of the Navier-Stokes equations is obtained. This way of non-dimensionalising is the most general form, however to keep the implementation of a solution algorithm reasonably easy, the velocities are scaled by $u_t$ only and the space variables by $x_t$ resulting in
+%\begin{equation}
+%\label{e:nonDimMassEquationEasy}
+%\dt{\rho} + \frac{u_t t_t}{x_t}
+%\left(
+%\dx{\rho u}
+%+ \dy{\rho v}
+%+ \dz{\rho w}
+%\right)
+%\end{equation}
+%Non-dimensionalising the momentum in the x-direction balances result in
+%\begin{equation}
+%\label{e:momentumBalance_XNonDim}
+%\begin{array}{c}
+%\dt{\rho u}
+% + \frac{u_t t_t}{x_t}\left [\dx{\rho u^2 + P_sp} + \dy{\rho v u} + \dz{\rho w u} \right] = \\
+% \frac{\mu_t t_t}{x_t^2 \rho_t}\left[ \dx{\tau_{xx}} + \dy{\tau_{yx}} + \dz{\tau_{zx}} \right]
+% + \frac{S_{x_t} t_t}{\rho_t u_t}S_x,
+% \end{array}
+%\end{equation}
+%with
+%\begin{equation}
+%P_s = \frac{p_t}{\rho_t u_t^2}.
+%\end{equation}
+%Momentum balances in the other directions have exactly the same non-dimensional numbers. Note that when $x_t = D$, $u_t = U_{\infty}$, $\mu_t = \mu_{\infty}$ and $t_t = \frac{D}{U_{\infty}}$ then the scaling factor infront of the shear stress terms turns into $\frac{1}{Re}$. Since the temperature will be scaled as well for the energy equation, the Sutherland's law, Eqn.~\ref{e:SutherlandsLaw} must be adapted resulting into
+%\begin{equation}
+%\label{e:SutherlandsLawScaled}
+%\mu = \mu_{ref}  \frac{T_{ref} + T_s}{T T_t + T_s} \left( \frac{T T_t}{T_{ref}} \right)^\frac{3}{2},
+%\end{equation}
+%
+%The energy equation is writtin in the form
+%
+%\begin{equation}
+%\label{e:energyBalanceNonDim}
+%\dt{\rho E}
+% + \frac{H_t u_t t_t}{E_t x_t}
+%\left[
+%\dx{\rho H u} + \dy{\rho H v} + \dz{\rho H w} 
+%\right] =
+% \frac{\mu_t u_t^2 t_t}{\rho_t E_t x_t^2} 
+%\left[
+%\dx{A_x} + \dy{A_y} + \dz{A_z} 
+%\right],
+%\end{equation}
+%with
+%\begin{equation}
+%\label{e:energyBalance_AxNonDim}
+%A_x = u \tau_{xx} + v \tau_{yx} + w \tau_{zx} + T_s\dx{T},
+%\end{equation}
+%\begin{equation}
+%\label{e:energyBalance_AyNonDim}
+%A_y = u \tau_{xy} + v \tau_{yy} + w \tau_{zy} + T_s\dy{T},
+%\end{equation}
+%\begin{equation}
+%\label{e:energyBalance_AzNonDim}
+%A_z = u \tau_{xz} + v \tau_{yz} + w \tau_{zz} + T_s\dz{T},
+%\end{equation}
+%and
+%\begin{equation}
+%\label{e:temperatureScale}
+%T_s = \frac{\kappa T_t}{\mu_t u_t^2}.
+%\end{equation}
+%Some definitions for convenience are given.
+%\begin{equation}
+%\label{e:dimGroup1}
+%D_1 = \frac{u_t t_t}{x_t}
+%\end{equation}
+%\begin{equation}
+%\label{e:dimGroup2}
+%D_2 = \frac{\mu_t t_t}{x_t^2 \rho_t}
+%\end{equation}
+%\begin{equation}
+%\label{e:dimGroup3}
+%D_3 = \frac{H_t}{E_t}
+%\end{equation}
+%\begin{equation}
+%\label{e:dimGroup4}
+%D_4 = \frac{u_t^2}{E_t}
+%\end{equation}
+%The inviscid flux vectors can now be written as
+%
+%\begin{center}
+%\begin{tabular}{ccc}
+%$
+%{F}_{1} = D_1
+%\left[
+%\begin{array}{c}
+%\rho u		\\
+%\rho u^2 + P_s p	 	\\
+%\rho vu		\\
+%\rho wu		\\
+%D_3 \rho H u 	\\
+%\end{array}
+%\right],$ & 
+%$
+%{F}_{2} = D_1
+%\left[
+%\begin{array}{c}
+%\rho v		\\
+%\rho uv	 	\\
+%\rho v^2	+ P_s p	\\
+%\rho wv		\\
+%D_3 \rho H v	\\
+%\end{array}
+%\right],$ & 
+%$
+%{F}_{3} = D_1
+%\left[
+%\begin{array}{c}
+%\rho w		\\
+%\rho uw	 	\\
+%\rho vw		\\
+%\rho w^2	+ P_s p	\\
+%D_3 \rho H w	\\
+%\end{array}
+%\right].$
+%\end{tabular}
+%\end{center}
+%
+%The viscous flux vector can now be written as
+%
+%\begin{equation*}
+%{F}_{1}^v = D_2
+%\left[
+%\begin{array}{c}
+%0		\\
+%\tau_{xx}	 	\\
+%\tau_{yx}		\\
+%\tau_{zx}		\\
+%D_4\left[
+%u\tau_{xx} + v\tau_{yx} + w\tau_{zx} + T_s\dx{T}
+%\right]	\\
+%\end{array}
+%\right],
+%\end{equation*}
+%
+%\begin{equation*}
+%{F}_{2}^v = D_2
+%\left[
+%\begin{array}{c}
+%0		\\
+%\tau_{xy}	 	\\
+%\tau_{yy}		\\
+%\tau_{zy}		\\
+%D_4 \left[
+%u\tau_{xy} + v\tau_{yy} + w\tau_{zy} + T_s\dy{T}
+%\right]	\\
+%\end{array}
+%\right],
+%\end{equation*}
+%
+%\begin{equation*}
+%{F}_{3}^v = D_2
+%\left[
+%\begin{array}{c}
+%0		\\
+%\tau_{xz}	 	\\
+%\tau_{yz}		\\
+%\tau_{zz}		\\
+%D_4 \left[
+%u\tau_{xz} + v\tau_{yz} + w\tau_{zz} + T_s\dz{T}
+%\right]	\\
+%\end{array}
+%\right].
+%\end{equation*}
 
 \section{Incompressible Navier-Stokes}
 \section{Local Averaged Navier-Stokes}
 
 
 \chapter{Solution Method}
-In this section the solution method and discretisation of the Navier-Stokes is explained. 
-\section{Discontinous Galerkin}
-%todo: add for all v_k to the equations and break them up in two rows
-The method used here to approximate a solution of the Navier-Stokes equations is known as Discontinous Galerking (DG) and is a type of Finite Element Method (FEM). This method does not solve the strong form of the differential equation, but the weakform, allowing for discontinuities in the solution. The difference between DG and Standard Galerkin is that the solution does not necessarily have to be continous. Benefits of this formulation are easy local grid refinement in terms of extra cells (h-refinement) or higher order approximations (p-refinement). Connection between neighbouring cells is obtained by Finite Volume Method (FVM) style flux functions. DG can therefore be seen as a hybrid FEM/FVM method.
+\label{c:SolutionMethod}
+Finding analytical solutions to the Navier-Stokes equations is practically impossible and therefore solutions will be approximated. These approximations use a framework that turns the PDE into a system of equations that can then be solved or approximated by a computing device. In general these transformation methods can be subdivided into three basic methods: Finite Difference (FD), Finite Element Method (FEM) and Finite Volume Method (FVM). Each method having their benefits and problems, it is important to make the correct choice for problem at hand. 
+%I could elaborate more on their ups and downs
+An important problem which standard FD and FEM methods suffer from is the occurence of shocks in the solution. When this is the case, either a FVM method or a more sophisticated method is required. A flexible method, known as Discontinuous Galerkin (DG), is a combination of both FEM and FVM, enabling the benefits of an FEM solver, with the benefits of the FVM such as allowing shocks in the domain. In the application of dry and wet granular media, shocks will occur and hence this method is a fine choice. A FEM/FVM type of solver does not solve the strong form of the PDE, but the weak form, allowing for discontinuities in the solution. The difference between DG and Standard FEM is that the solution does not necessarily have to be continous. Benefits of this formulation are easy local grid refinement in terms of extra cells (h-refinement) or higher order approximations (p-refinement). Connection between neighbouring cells is obtained by Finite Volume Method (FVM) style flux functions. DG can therefore be seen as a hybrid FEM/FVM method. In order to use DG as discretisation a weakform of the Navier-Stokes has to be derived, in next section.
 
 \section{Weak Formulation}
-Much research has been performed on solving the Navier-Stokes equations~\cite{} in a DG setting. In order to be able to solve the equations, space and time first need to be discretised. The Navier-Stokes equations are solved on a domain $\Omega$. The first step in the discretisation is to discretise this domain into elements such that $ \Omega = \sum_e \Omega_e$. The boundaries of an element is given by $\Gamma_e$ and they can either be an internal boundary $\Gamma_i$, neighbouring another element, or an external boundary. Boundary conditions are supplied on external boundaries and can be divided into two catagories: Dirichlet and Neuman boundaries. Their notation respectively is $\Gamma_D$ and $\Gamma_N$.
+\label{s:WeakFormulation}
+Much research has been performed on solving the Navier-Stokes equations~\cite{} in a DG setting. In order to be able to solve the equations, space and time first need to be discretised. The Navier-Stokes equations are solved on a domain $\Omega$. The first step in the discretisation is to discretise this domain into elements such that $ \Omega = \sum_e \Omega_e$. The boundaries of an element is given by $\Gamma_e$ and they can either be an internal boundary $\Gamma_i$, neighbouring another element, or an external boundary. Boundary conditions are supplied on external boundaries and can be divided into two catagories: Dirichlet and Neuman boundaries. Their notation respectively is $\Gamma_D$ and $\Gamma_N$, Robin boundary conditions will not be considered.
 
 The second step is to multiply Eqn.~\ref{e:NavierStokesCompact} by a test function $\mathbf{v} \in {\rm I\!R}^5$ and integrate it over an element. At this point is is convenient to switch to index notation. The resulting equation is
 \begin{equation}
@@ -468,7 +501,7 @@ The first term in this integral can be rewritten as a boundary integral by using
 \begin{equation}
 \label{e:weakFormEuler}
 \mathbf{E}_e(\mathbf{v},\mathbf{U}) = 
-\int_{\Gamma_e} v_k^{+} \hat{F}_{ik}(\mathbf{U}^{-},\mathbf{U}^{+}) n_i \mathrm{ds}
+\int_{\Gamma_e} v_k^{+} \hat{F}_{ik}(\mathbf{U}^{-},\mathbf{U}^{+}) n_i^+ \mathrm{ds}
 - \int_{\Omega_e} {F}_{ik}(\mathbf{U}) \partial_i v_k \mathrm{d}\Omega,
 \end{equation}
 where $n_i$ is the unit outward normal vector component in the $i$th direction. The solution on the boundary of an element has not a single value, the neighbouring element has a solution on this boundary as well. It not trivial to understand what the flux function should be and hence the flux $\hat{F}_{ik}(\mathbf{U})$ is introduced. The flux will have to be some function of both traces on the boundary, or the element will be decoupled. In this equation $\mathbf{U}^{+}$ is the trace of the current element on the boundary and $\mathbf{U}^{-}$ is the trace of the neighbouring element. There exist many flux functions and some of them will be discussed in section \ref{s:fluxFunctions}.
@@ -483,7 +516,9 @@ Consider the viscous terms using Eqn.~\ref{e:Atensor},
 \mathbf{V}_e(\mathbf{v},\mathbf{U}) = 
 - \int_{\Omega_e} v_k \partial_i ({A}_{ikjm} \partial_m U_{j}) \mathrm{d}\Omega.
 \end{equation}
-Due to the derivative of the states, the final result contains second derivatives. Solving equations containing second order derivatives generally is done by introducting auxilliary variables in order to reduce one second order derivative equation into a system of first order equations. This approach is used for the viscous fluxes here.
+Due to the derivative of the states, the final result contains second derivatives. Solving equations containing second order derivatives generally is done by introducting auxilliary variables in order to reduce one second order derivative equation into a system of first order equations.
+%TODO Add a short overview of methods that can deal with elliptic problems, link papers and describe why I choose the current method.
+ This approach is used for the viscous fluxes here.
 Introducing the auxilliary variable $Q_{jm} = \partial_m U_j$, the equation becomes
 \begin{equation}
 \mathbf{V}_e(\mathbf{v},\mathbf{U}) = 
@@ -499,7 +534,7 @@ Using the divergence theorem the equation now becomes
 \begin{equation}
 \label{e:ViscousWeakFormPart1}
 \mathbf{V}_e(\mathbf{v},\mathbf{U}) = 
-- \int_{\Gamma_e} v_k^{+} \widehat{{{A}_{ikjm} Q_{jm}}} n_i \mathrm{ds}
+- \int_{\Gamma_e} v_k^{+} \widehat{{{A}_{ikjm} Q_{jm}}} n_i^+ \mathrm{ds}
 + \int_{\Omega_e} \partial_i v_k {A}_{ikjm} Q_{jm} \mathrm{d}\Omega.
 \end{equation}
 Note that this equation shows similar structure to that of Eqn.~\ref{e:weakFormEuler}, however the auxilliary variable is still unknown. This variable needs to be approximated on an element as well resulting in an additional weak form equation. In order to derive the weakform of this equation, introduce a testfunction $w_{jm}$, multiply the auxilliary variable with the testfunction and $A_{ikjm}$ and integrate over the element. The result is
@@ -515,25 +550,26 @@ Applying the product rule,
 \end{equation}
 and the divergence theorem,
 \begin{equation}
+\label{e:WeakFormAuxilliary}
 \int_{\Omega_e} w_{ik} A_{ikjm} Q_{jm} \mathrm{d}\Omega 
-= \int_{\Gamma_e} {w_{ik} \widehat{A_{ikjm} U_j}} n_m \mathrm{ds}
+= \int_{\Gamma_e} {w_{ik}^+ \widehat{A_{ikjm} U_j}} n_m^+ \mathrm{ds}
 - \int_{\Omega_e} \partial_m (w_{ik} A_{ikjm}) U_j \mathrm{d}\Omega.
 \end{equation}
-Note that when the testfunction $w_{ik} = \partial_i v_k$ this equation can be substituted in Eqn.~\ref{e:ViscousWeakFormPart1} whichs results in
+Note that when the testfunction $w_{ik} = \partial_i v_k$ is used, equation~\ref{e:WeakFormAuxilliary} an be substituted in Eqn.~\ref{e:ViscousWeakFormPart1} whichs results in
 \begin{equation}
 \label{e:ViscousWeakForm3}
 \mathbf{V}_e(\mathbf{v},\mathbf{U}) = 
 - \int_{\Gamma_e} v_k^{+} \widehat{{{A}_{ikjm} Q_{jm}}} n_i \mathrm{ds}
-+ \int_{\Gamma_e} {\partial_i v_k \widehat{A_{ikjm} U_j}} n_m \mathrm{ds}
++ \int_{\Gamma_e} {\partial_i v_k^+ \widehat{A_{ikjm} U_j}} n_m \mathrm{ds}
 - \int_{\Omega_e} \partial_m (\partial_i v_k A_{ikjm}) U_j \mathrm{d}\Omega.
 \end{equation}
 The last term in this equation can be rewritten by using the product rule and divergence theorem once again resulting in
 \begin{equation}
 \int_{\Omega_e} \partial_m (\partial_i v_k A_{ikjm}) U_j \mathrm{d}\Omega
-=  \int_{\Gamma_e} \partial_i v_k A_{ikjm} U_j n_m \mathrm{d}\Omega
+=  \int_{\Gamma_e} \partial_i v_k^+ A_{ikjm}^+ U_j^+ n_m^+ \mathrm{d}\Omega
 - \int_{\Omega_e} \partial_i v_k A_{ikjm} \partial_m U_j \mathrm{d}\Omega.
 \end{equation}
-Substituting this in Eqn.~\ref{e:ViscousWeakForm3} results in
+Note that the boundary integral is only a function of the element, and not of the neighbours, since the coupling flux is already achieved by the second integral in equation~\ref{e:ViscousWeakForm3}. Substituting this in Eqn.~\ref{e:ViscousWeakForm3} results in
 \begin{equation}
 \mathbf{V}_e(\mathbf{v},\mathbf{U}) = 
 - \int_{\Gamma_e} v_k^{+} \widehat{{{A}_{ikjm} Q_{jm}}} n_i \mathrm{ds}
@@ -563,19 +599,32 @@ and
 - \int_{\Gamma_e} \partial_i v_k (A_{ikjm}^+ U_j^{+} - \widehat{A_{ikjm} U_j})n_m \mathrm{d}\Omega
 + \int_{\Omega_e} \partial_i v_k A_{ikjm} \partial_m U_j \mathrm{d}\Omega.
 \end{equation}
+The first integral in the Euler part is termed the inviscid face integral, the second integral the inviscid element integral. The first integral of the viscous part is termed the Auxilliary face integral, the second integral is termed the viscous face integral and the last is the viscous element integral.
 
-\section{Solution Method}
-In section \ref{} a weak form is derived that is suitable for the DG solution method. This section explains how to approximate the states based on the weak form. 
+\section{Basis Functions}
+\label{s:BasisFunctions}
+In section \ref{s:WeakFormulation} a weak form is derived that is suitable for the DG solution method. Although the space has been discretised by replacing it by elements, the elements itself are still not discretised. In this section the weakform is turned into a discreet system of equations.
 
-The DG method discretises the domain in order to search for an approximate solution. In this framework an approximation to the states is searched for inside a Sobolev function space. %add more information of a Sobolev space (?)
+The DG method discretises an element in order to search for an approximate solution. In this framework an approximation to the states is searched for inside a Sobolev function space.
+%TODO NEGLECT SOBOLEV SPACES. This is for diehard mathematicians, or maybe I Should add it
 
 In general the approximation of a state is given by
 \begin{equation}
+\label{e:StateApproximation}
 U^h(\mathbf{x},t) = \sum_l U_l(t) \phi_l(\mathbf{x}).
 \end{equation}
-Here the superscript $h$ means the solution $U$ is approximated on an element of size $h$, functions $\phi_l$ are basis functions spanning the Sobolev space. In general these are polynomial functions of maximum order $p$. The state is therefore approximated by state coefficients as function of time, and basis functions as function of space. 
+Here the superscript $h$ means the solution $U$ is approximated on an element of size $h$, functions $\phi_l$ are basis functions spanning the Sobolev space. In general these are polynomial functions of maximum order $p$. The state is therefore approximated by state coefficients as function of time, and basis functions as function of space. And therefore in some sense seperation of variables has been introduced. Because of non-linearity
+Applying equation~\ref{e:StateApproximation} to the the weak form, equation~\ref{e:weakformFinal}, results in
+\begin{equation}
+\label{e:DiscreteWeakForm}
+a
+\end{equation}
 
-I AM STILL TYPING THIS DOCUMENT, IT WILL GROW PRETTY BIG MKAY
+choosing the test functions in the same space as the basis functions results in ..
+
+Mass matrix.. etc
+
+
 
 \section{Flux Functions}
 \label{s:fluxFunctions}
@@ -599,6 +648,10 @@ This section explains how to go from the weakform to a system of equations using
 \subsection{Test Functions}
 
 \subsection{Time stepping}
+
+\subsection{Solving the system of equations}
+\subsubsection{Steady-State simulation}
+\subsubsection{Unsteady simulation} 
 
 
 \section{Implementation in hpGEM}
