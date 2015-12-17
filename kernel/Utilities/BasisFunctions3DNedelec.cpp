@@ -84,7 +84,7 @@ namespace Utilities
         dummy*=valI;
         ret-=dummy;
 
-        ret*=pow(valI,deg1)*pow(valJ,deg2);
+        ret*=std::pow(valI,deg1)*std::pow(valJ,deg2);
     }
 
     LinearAlgebra::SmallVector<3> BasisCurlEdgeNedelec::evalCurl(const Geometry::PointReference<3>& p) const 
@@ -98,7 +98,7 @@ namespace Utilities
         double valI(baricentric_3D(i,p)),
                valJ(baricentric_3D(j,p));
 
-        ret*=double(deg1+deg2+2)*pow(valI,deg1)*pow(valJ,deg2);
+        ret*=double(deg1+deg2+2)*std::pow(valI,deg1)*std::pow(valJ,deg2);
         return ret;
     }
 
@@ -138,7 +138,7 @@ namespace Utilities
         dummy*=valI;
         ret-=dummy;
 
-        ret*=pow(valI,deg1)*pow(valJ,deg2)*pow(valK,deg3+1);
+        ret*=std::pow(valI,deg1)*std::pow(valJ,deg2)*std::pow(valK,deg3+1);
     }
 
     LinearAlgebra::SmallVector<3> BasisCurlFace1Nedelec::evalCurl(const Geometry::PointReference<3>& p) const 
@@ -153,14 +153,14 @@ namespace Utilities
         dummy3 = baricentricDeriv(c);
 
         OuterProduct(dummy2,dummy,ret);
-        ret*=double(deg1+deg2+2)*pow(valI,deg1)*pow(valJ,deg2)*pow(valK,deg3+1);
+        ret*=double(deg1+deg2+2)*std::pow(valI,deg1)*std::pow(valJ,deg2)*std::pow(valK,deg3+1);
 
         dummy*=valJ;
         dummy2*=valI;
         dummy-=dummy2;
 
         OuterProduct(dummy3,dummy,dummy2);
-        dummy2*=double(1+deg3)*pow(valI,deg1)*pow(valJ,deg2)*pow(valK,deg3);
+        dummy2*=double(1+deg3)*std::pow(valI,deg1)*std::pow(valJ,deg2)*std::pow(valK,deg3);
 
         ret+=dummy2;
         return ret;
@@ -202,7 +202,7 @@ namespace Utilities
         dummy*=valJ;
         ret-=dummy;
 
-        ret*=pow(valI,deg1+1)*pow(valJ,deg2)*pow(valK,deg3);
+        ret*=std::pow(valI,deg1+1)*std::pow(valJ,deg2)*std::pow(valK,deg3);
     }
 
     LinearAlgebra::SmallVector<3> BasisCurlFace2Nedelec::evalCurl(const Geometry::PointReference<3>& p) const 
@@ -217,14 +217,14 @@ namespace Utilities
         dummy2 = baricentricDeriv(c);
 
         OuterProduct(dummy2,dummy,ret);
-        ret*=double(deg2+deg3+2)*pow(valI,deg1+1)*pow(valJ,deg2)*pow(valK,deg3);
+        ret*=double(deg2+deg3+2)*std::pow(valI,deg1+1)*std::pow(valJ,deg2)*std::pow(valK,deg3);
 
         dummy*=valK;
         dummy2*=valJ;
         dummy-=dummy2;
 
         OuterProduct(dummy3,dummy,dummy2);
-        dummy2*=double(1+deg1)*pow(valI,deg1)*pow(valJ,deg2)*pow(valK,deg3);
+        dummy2*=double(1+deg1)*std::pow(valI,deg1)*std::pow(valJ,deg2)*std::pow(valK,deg3);
 
         ret+=dummy2;
         return ret;
@@ -251,7 +251,7 @@ namespace Utilities
         dummy*=val0;
         ret-=dummy;
 
-        ret*=pow(val0,deg1)*pow(val1,deg2)*pow(val2,deg3+1)*pow(val3,deg4+1);
+        ret*=std::pow(val0,deg1)*std::pow(val1,deg2)*std::pow(val2,deg3+1)*std::pow(val3,deg4+1);
     }
 
     LinearAlgebra::SmallVector<3> BasisCurlinterior1Nedelec::evalCurl(const Geometry::PointReference<3>& p) const 
@@ -277,10 +277,10 @@ namespace Utilities
         OuterProduct(dummy3,dummy,dummy2);
         OuterProduct(dummy4,dummy,dummy3);
 
-        dummy2*=double(1+deg3)*pow(val0,deg1)*pow(val1,deg2)*pow(val2,deg3)*pow(val3,deg4+1);
-        dummy3*=double(1+deg4)*pow(val0,deg1)*pow(val1,deg2)*pow(val2,deg3+1)*pow(val3,deg4);
+        dummy2*=double(1+deg3)*std::pow(val0,deg1)*std::pow(val1,deg2)*std::pow(val2,deg3)*std::pow(val3,deg4+1);
+        dummy3*=double(1+deg4)*std::pow(val0,deg1)*std::pow(val1,deg2)*std::pow(val2,deg3+1)*std::pow(val3,deg4);
 
-        ret*=double(deg1+deg2+2)*pow(val0,deg1)*pow(val1,deg2)*pow(val2,deg3+1)*pow(val3,deg4+1);
+        ret*=double(deg1+deg2+2)*std::pow(val0,deg1)*std::pow(val1,deg2)*std::pow(val2,deg3+1)*std::pow(val3,deg4+1);
         ret+=dummy2+dummy3;
         return ret;
     }
@@ -306,7 +306,7 @@ namespace Utilities
         dummy*=val1;
         ret-=dummy;
 
-        ret*=pow(val0,deg1+1)*pow(val1,deg2)*pow(val2,deg3)*pow(val3,deg4+1);
+        ret*=std::pow(val0,deg1+1)*std::pow(val1,deg2)*std::pow(val2,deg3)*std::pow(val3,deg4+1);
     }
 
     LinearAlgebra::SmallVector<3> BasisCurlinterior2Nedelec::evalCurl(const Geometry::PointReference<3>& p) const 
@@ -332,10 +332,10 @@ namespace Utilities
         OuterProduct(dummy3,dummy,dummy2);
         OuterProduct(dummy4,dummy,dummy3);
 
-        dummy2*=double(1+deg1)*pow(val0,deg1)*pow(val1,deg2)*pow(val2,deg3)*pow(val3,deg4+1);
-        dummy3*=double(1+deg4)*pow(val0,deg1+1)*pow(val1,deg2)*pow(val2,deg3)*pow(val3,deg4);
+        dummy2*=double(1+deg1)*std::pow(val0,deg1)*std::pow(val1,deg2)*std::pow(val2,deg3)*std::pow(val3,deg4+1);
+        dummy3*=double(1+deg4)*std::pow(val0,deg1+1)*std::pow(val1,deg2)*std::pow(val2,deg3)*std::pow(val3,deg4);
 
-        ret*=double(deg2+deg3+2)*pow(val0,deg1+1)*pow(val1,deg2)*pow(val2,deg3)*pow(val3,deg4+1);
+        ret*=double(deg2+deg3+2)*std::pow(val0,deg1+1)*std::pow(val1,deg2)*std::pow(val2,deg3)*std::pow(val3,deg4+1);
         ret+=dummy2+dummy3;
         return ret;
     }
@@ -361,7 +361,7 @@ namespace Utilities
         dummy*=val2;
         ret-=dummy;
 
-        ret*=pow(val0,deg1+1)*pow(val1,deg2+1)*pow(val2,deg3)*pow(val3,deg4);
+        ret*=std::pow(val0,deg1+1)*std::pow(val1,deg2+1)*std::pow(val2,deg3)*std::pow(val3,deg4);
     }
 
     LinearAlgebra::SmallVector<3> BasisCurlinterior3Nedelec::evalCurl(const Geometry::PointReference<3>& p) const 
@@ -387,10 +387,10 @@ namespace Utilities
         OuterProduct(dummy3,dummy,dummy2);
         OuterProduct(dummy4,dummy,dummy3);
 
-        dummy2*=double(1+deg1)*pow(val0,deg1)*pow(val1,deg2+1)*pow(val2,deg3)*pow(val3,deg4);
-        dummy3*=double(1+deg2)*pow(val0,deg1+1)*pow(val1,deg2)*pow(val2,deg3)*pow(val3,deg4);
+        dummy2*=double(1+deg1)*std::pow(val0,deg1)*std::pow(val1,deg2+1)*std::pow(val2,deg3)*std::pow(val3,deg4);
+        dummy3*=double(1+deg2)*std::pow(val0,deg1+1)*std::pow(val1,deg2)*std::pow(val2,deg3)*std::pow(val3,deg4);
 
-        ret*=double(deg3+deg4+2)*pow(val0,deg1+1)*pow(val1,deg2+1)*pow(val2,deg3)*pow(val3,deg4);
+        ret*=double(deg3+deg4+2)*std::pow(val0,deg1+1)*std::pow(val1,deg2+1)*std::pow(val2,deg3)*std::pow(val3,deg4);
         ret+=dummy2+dummy3;
         return ret;
     }
