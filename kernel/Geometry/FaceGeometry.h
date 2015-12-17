@@ -178,7 +178,6 @@ namespace Geometry
         
         using ReferenceFaceGeometryT = ReferenceGeometry;
 
-    public:
         ///Constructor for interior faces.
         //constructor will not initialize faceToFaceMapIndex, because it doesnt know how the elements are connected
         FaceGeometry(ElementGeometry* ptrElemL, const LocalFaceNumberType& localFaceNumberL, ElementGeometry* ptrElemRight, const LocalFaceNumberType& localFaceNumberR);
@@ -189,7 +188,7 @@ namespace Geometry
         /// Copy constructor with new elements, for both internal and boundary faces.
         FaceGeometry(const FaceGeometry& other, ElementGeometry* ptrElemL, const LocalFaceNumberType& localFaceNumberL, ElementGeometry* ptrElemRight, const LocalFaceNumberType& localFaceNumberR);
         
-        /// Don't use this copy constructor, but use the one with new elements instead
+        /// \deprecated Don't use this copy constructor, but use the one with new elements instead
         FaceGeometry(const FaceGeometry &other) = delete;
 
         virtual ~FaceGeometry() = default;

@@ -71,8 +71,6 @@ namespace Geometry
     public:
         using String = std::string;
         using ListOfIndexesT = std::vector<std::size_t>;
-
-    public:
         
         virtual ~ReferenceGeometry() = default;
         

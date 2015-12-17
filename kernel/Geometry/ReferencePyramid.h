@@ -50,8 +50,6 @@ namespace Geometry
         }
         
         ReferencePyramid(const ReferencePyramid& copy) = delete;
-
-    public:
         
         //! (see ReferenceGeometry.h)
         bool isInternalPoint(const PointReference<3>& point) const override final;

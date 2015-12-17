@@ -30,13 +30,11 @@ namespace Geometry
     template<std::size_t DIM>
     class Point
     {
-    public:
         
     public:
         using PointT = Geometry::Point<DIM>;
         using VectorOfCoordsT = LinearAlgebra::SmallVector<DIM>;
         
-    public:
         /// Constructors.
         Point();
         

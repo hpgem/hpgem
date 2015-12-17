@@ -59,8 +59,6 @@ namespace Geometry
     public:
 
         using VectorOfPhysicalPointsT = std::vector<PointPhysical<DIM> >;
-
-    public:
         
         /// \brief Constructor gets indexes of the nodes, a reference to the node container, and a pointer to the corresponding reference geometry.        
         PhysicalGeometry(const std::vector<std::size_t>& globalNodeIndexes, VectorOfPhysicalPointsT& nodes, const ReferenceGeometry * const refG)

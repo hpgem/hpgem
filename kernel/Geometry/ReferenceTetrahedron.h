@@ -44,7 +44,6 @@ namespace Geometry
     public:
         using ReferenceGeometry::String;
 
-    public:
         static ReferenceTetrahedron& Instance()
         {
             static ReferenceTetrahedron theInstance;

@@ -50,8 +50,6 @@ namespace Geometry
         }
         
         ReferenceLine(const ReferenceLine&) = delete;
-
-    public:
         
         //! (see ReferenceGeometry.h)
         bool isInternalPoint(const PointReference<1>&) const override final;
