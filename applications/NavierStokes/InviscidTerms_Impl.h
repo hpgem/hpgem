@@ -386,7 +386,30 @@ LinearAlgebra::MiddleSizeVector InviscidTerms<DIM,NUMBER_OF_VARIABLES>::computeH
 		stateIntermediateRight(iD+1) += factorRight*(pIntermediate - pressureRight)*unitNormalLeft(iD);
 	}
 
-	if (waveSpeedLeft >  0)
+	///compute normalFluxLeft and normalFluxRight
+	LinearAlgebra::MiddleSizeMatrix fluxMatrixLeft = faceStateStructLeft.getHyperbolicMatrix();
+	LinearAlgebra::MiddleSizeMatrix fluxMatrixRight = faceStateStructRight.getHyperbolicMatrix();
+	LinearAlgebra::MiddleSizeVector normalFluxLeft(NUMBER_OF_VARIABLES);
+	LinearAlgebra::MiddleSizeVector normalFluxRight(NUMBER_OF_VARIABLES);
+	for (std::size_t iV = 0; iV < NUMBER_OF_VARIABLES; iV++)
+	{
+		for (std::size_t iD = 0; iD < DIM; iD++)
+		{
+			normalFluxLeft(iV) += fluxMatrixLeft(iV,iD)*unitNormalLeft(iD);
+			normalFluxRight(iV) += fluxMatrixRight(iV,iD)*unitNormalLeft(iD);
+		}
+	}
+
+	//compute flux function
+	LinearAlgebra::MiddleSizeVector fluxFunction(NUMBER_OF_VARIABLES);
+
+	fluxFunction = 0.5*(normalFluxLeft + normalFluxRight
+				 + (std::abs(waveSpeedMiddle) - std::abs(waveSpeedLeft))*stateIntermediateLeft + std::abs(waveSpeedLeft)*stateLeft
+				 + (std::abs(waveSpeedRight) - std::abs(waveSpeedMiddle))*stateIntermediateRight - std::abs(waveSpeedRight)*stateRight);
+
+	return fluxFunction;
+
+/*	if (waveSpeedLeft >  0)
 	{
 
 		LinearAlgebra::MiddleSizeMatrix fluxMatrix = faceStateStructLeft.getHyperbolicMatrix();
@@ -437,7 +460,7 @@ LinearAlgebra::MiddleSizeVector InviscidTerms<DIM,NUMBER_OF_VARIABLES>::computeH
 		logger(ERROR, "Flux error");
 		LinearAlgebra::MiddleSizeVector fluxFunction(NUMBER_OF_VARIABLES);
 		return fluxFunction;
-	}
+	}*/
 }
 
 /// **************************************************
@@ -473,7 +496,7 @@ std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> Invis
 
 	//Compute left flux
 	LinearAlgebra::SmallVector<DIM> unitNormalLeft = face.getUnitNormalVector();
-	LinearAlgebra::MiddleSizeVector flux = computeRoeFluxFunction(faceStateStructLeft, faceStateStructRight, unitNormalLeft);
+	LinearAlgebra::MiddleSizeVector flux = computeHLLCFluxFunction(faceStateStructLeft, faceStateStructRight, unitNormalLeft);
 /*
 	LinearAlgebra::MiddleSizeVector fluxCorrect = computeRoeFluxFunction(faceStateStructLeft, faceStateStructRight, unitNormalLeft);
 

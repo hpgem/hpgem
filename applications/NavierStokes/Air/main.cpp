@@ -23,6 +23,7 @@
 #include "Logger.h"
 #include <iostream>
 #include <chrono>
+#include <fstream>
 
 auto& numOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
 auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
@@ -78,6 +79,20 @@ int main (int argc, char **argv){
 	std::cout << "Pressure_wall: " << PRESSURE_WALL << std::endl;
 	std::cout << "Viscosity_wall: " << MU_WALL << std::endl;
 	std::cout << "gas constant: " << GAS_CONSTANT << std::endl;
+
+	// Output error to file for testing purposes
+	LinearAlgebra::MiddleSizeVector errors = problem.computeMaxError(0, endTime.getValue());
+	std::fstream myFile;
+	myFile.open("errorResult", std::fstream::out | std::fstream::app);
+	myFile << "=========START=========" << std::endl;
+	myFile << "Density: " << errors(0) << std::endl;
+	myFile << "Momentum x: " << errors(1) << std::endl;
+	myFile << "Momentum y: " << errors(2) << std::endl;
+	myFile << "Total Energy: " << errors(3) << std::endl;
+	myFile << "p = " << polynomialOrder.getValue() << std::endl;
+	myFile << "n = " << numOfElements.getValue() << std::endl;
+	myFile << "=========END===========" << std::endl;
+	myFile.close();
 
     return 0;
 }
