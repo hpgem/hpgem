@@ -24,7 +24,7 @@
 #include <iomanip>
 #include <algorithm>
 
-#include "CMakeDefinitions.h"
+#include "../../conf/cmake/CMakeDefinitions.h"
 
 #include "SavageHutter2DBasic.h"
 #include "HeightLimiters/PositiveLayerLimiter.h"
