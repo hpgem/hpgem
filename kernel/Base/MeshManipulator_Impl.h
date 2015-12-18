@@ -1406,7 +1406,7 @@ namespace Base
             
             //boundary faces *should* border only one element
             logger.assert_always(candidateElements.size() == 1, "candidate boundary face lies at two or more elements");
-            boundaryFaces[i].elementNum = candidateElements[0];
+            boundaryFaces[i].elementNumber = candidateElements[0];
             
             Element* current = elementslist[candidateElements[0]];
             std::vector<std::size_t> faceNodes(2);
@@ -1490,32 +1490,32 @@ namespace Base
             if (boundaryType < 1001)
             {
                 logger(INFO, "Viscous Wall boundary for face % assigned as WALL_BC", i);
-                addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
+                addFace(elementslist[boundaryFaces[i].elementNumber], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
             }
             else if (boundaryType < 2001)
             {
                 logger(INFO, "Inviscid Wall boundary for face % assigned as WALL_BC", i);
-                addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
+                addFace(elementslist[boundaryFaces[i].elementNumber], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
             }
             else if (boundaryType < 3001)
             {
                 logger(INFO,  "symmetry plane boundary for face % assigned as WALL_BC", i);
-                addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
+                addFace(elementslist[boundaryFaces[i].elementNumber], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
             }
             else if (boundaryType < 4001)
             {
                 logger(INFO, "inlet pipe boundary for face % assigned as OPEN_BC", i);
-                addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
+                addFace(elementslist[boundaryFaces[i].elementNumber], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
             }
             else if (boundaryType < 5001)
             {
                 logger(INFO, "outlet pipe boundary for face % assigned as OPEN_BC", i);
-                addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
+                addFace(elementslist[boundaryFaces[i].elementNumber], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
             }
             else if (boundaryType < 6001)
             {
                 logger(INFO, "farfield boundary for face % assigned as OPEN_BC", i);
-                addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
+                addFace(elementslist[boundaryFaces[i].elementNumber], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
             }
             else if (boundaryType < 7001)
             {
@@ -1532,17 +1532,17 @@ namespace Base
             else if (boundaryType < 9001)
             {
                 logger(INFO, "wake boundary for face % assigned as OPEN_BC", i);
-                addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
+                addFace(elementslist[boundaryFaces[i].elementNumber], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
             }
             else if (boundaryType < 10001)
             {
                 logger(INFO, "moving wall boundary for face % assigned as WALL_BC", i);
-                addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
+                addFace(elementslist[boundaryFaces[i].elementNumber], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
             }
             else
             {
                 logger(INFO, "alternative boundary condition for face % assigned as WALL_BC", i);
-                addFace(elementslist[boundaryFaces[i].elementNum], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
+                addFace(elementslist[boundaryFaces[i].elementNumber], boundaryFaces[i].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
             }
         }
         //I don't care about the names of the groups, just skip them
@@ -2091,7 +2091,7 @@ namespace Base
                 
                 logger.assert_always(candidates.size() < 2, "candidate boundary face lies at two or more elements");
                 
-                boundarFaces[i].elementNum = candidates[0];
+                boundarFaces[i].elementNumber = candidates[0];
                 
                 Element* current = elementsList[candidates[0]];
                 
@@ -2215,7 +2215,7 @@ namespace Base
                     for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j)
                     {
                         //big assumption on the nature of elementIDs here...
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNumber], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                     }
                 }
                 else if (centaurBCType < 2001)
@@ -2224,7 +2224,7 @@ namespace Base
                     for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j)
                     {
                         //big assumption on the nature of elementIDs here...
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNumber], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                     }
                 }
                 else if (centaurBCType < 3001)
@@ -2233,7 +2233,7 @@ namespace Base
                     for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j)
                     {
                         //big assumption on the nature of elementIDs here...
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNumber], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                     }
                 }
                 else if (centaurBCType < 4001)
@@ -2242,7 +2242,7 @@ namespace Base
                     for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j)
                     {
                         //big assumption on the nature of elementIDs here...
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNumber], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
                     }
                 }
                 else if (centaurBCType < 5001)
@@ -2251,7 +2251,7 @@ namespace Base
                     for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j)
                     {
                         //big assumption on the nature of elementIDs here...
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNumber], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
                     }
                 }
                 else if (centaurBCType < 6001)
@@ -2260,7 +2260,7 @@ namespace Base
                     for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j)
                     {
                         //big assumption on the nature of elementIDs here...
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNumber], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
                     }
                 }
                 else if (centaurBCType < 7001)
@@ -2280,7 +2280,7 @@ namespace Base
                     logger(INFO,  "wake boundary for group % assigned as OPEN_BC", i);
                     for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j)
                     {
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNumber], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::OPEN_BC);
                     }
                 }
                 else if (centaurBCType < 10001)
@@ -2288,7 +2288,7 @@ namespace Base
                     logger(INFO, "moving wall boundary for group % assigned as WALL_BC", i);
                     for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j)
                     {
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNumber], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                     }
                 }
                 else
@@ -2296,7 +2296,7 @@ namespace Base
                     logger(INFO, "alternative boundary condition for group % assigned as WALL_BC", i);
                     for (std::size_t j = 0; j < facesForEachBoundaryGroup[i].size(); ++j)
                     {
-                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNum], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
+                        addFace(tempElementVector[boundarFaces[facesForEachBoundaryGroup[i][j]].elementNumber], boundarFaces[facesForEachBoundaryGroup[i][j]].localFaceIndex, nullptr, 0, Geometry::FaceType::WALL_BC);
                     }
                 }
                 logger(INFO, "total number of boundary faces: %", getFacesList().size());

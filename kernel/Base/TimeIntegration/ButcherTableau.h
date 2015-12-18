@@ -38,7 +38,11 @@ namespace TimeIntegration
     {
     public:
         virtual std::size_t getOrder() const = 0;
-        virtual std::size_t getNumStages() const = 0;
+        virtual std::size_t getNumberOfStages() const = 0;
+        std::size_t getNumStages()
+        {
+          return getNumberOfStages();
+        }
         virtual bool getTotalVariationDiminishing() const = 0;
         virtual double getA(std::size_t i, std::size_t j) const = 0;
         virtual double getB(std::size_t i) const = 0;

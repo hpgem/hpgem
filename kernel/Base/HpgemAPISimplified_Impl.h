@@ -73,7 +73,7 @@ namespace Base
     solutionTitle_("solution"),
     computeBothFaces_(computeBothFaces)
     {
-        this->globalNumberOfTimeIntegrationVectors_ = ptrButcherTableau->getNumStages() + 1;
+        this->globalNumberOfTimeIntegrationVectors_ = ptrButcherTableau->getNumberOfStages() + 1;
         solutionVectorId_ = 0;
         for (std::size_t i = 1; i < this->globalNumberOfTimeIntegrationVectors_; i++)
         {
@@ -595,7 +595,7 @@ namespace Base
     template<std::size_t DIM>
     void HpgemAPISimplified<DIM>::computeOneTimeStep(double &time, const double dt)
     {
-        std::size_t numberOfStages = ptrButcherTableau_->getNumStages();
+        std::size_t numberOfStages = ptrButcherTableau_->getNumberOfStages();
         
         // Compute intermediate Runge-Kutta stages
         for (std::size_t iStage = 0; iStage < numberOfStages; iStage++)
