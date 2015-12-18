@@ -69,6 +69,10 @@ private:
 
     void limitSmallHeight();
 
+    bool containsNegativeSmallHeight(const Base::Element* element);
+
+    double computeFriction(const LinearAlgebra::MiddleSizeVector& numericalSolution) override final;
+
     void tasksAfterTimeStep() override final
     {
       SavageHutterBase::tasksAfterTimeStep ();

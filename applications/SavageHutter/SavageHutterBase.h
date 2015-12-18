@@ -108,6 +108,10 @@ protected:
     {
         return new EmptyHeightLimiter;
     }
+
+
+    ///Compute the minimum of the height in the given element
+    const double getMinimumHeight(const Base::Element *element);
     
     /// Number of variables
     const std::size_t numberOfVariables_;
@@ -161,8 +165,6 @@ private:
     void limitSolutionOuterLoop();
     void limitSolutionInnerLoop();
 
-    ///Compute the minimum of the height in the given element
-    const double getMinimumHeight(const Base::Element *element);
 
 };
 

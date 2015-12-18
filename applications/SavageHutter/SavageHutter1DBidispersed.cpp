@@ -22,6 +22,8 @@
 #include "SavageHutter1DBidispersed.h"
 #include "HelperFunctions.h"
 #include "HeightLimiters/PositiveLayerLimiter.h"
+#include "SlopeLimiters/TvbLimiter1D.h"
+#include "SlopeLimiters/TvbLimiterWithDetector1D.h"
 
 ///\details In this constructor, some of the parameters for the problem are set.
 ///Most of these parameters are declared in SavageHutterBase, but since they are protected
@@ -29,8 +31,8 @@
 SavageHutter1DBidispersed::SavageHutter1DBidispersed(std::size_t polyOrder, std::size_t numberOfElements)
 : SavageHutter1DBase(3, polyOrder)
 {
-    alpha_ = .1;
-    chuteAngle_ = M_PI / 180 * 29.6484;
+    alpha_ = 0.1;
+    chuteAngle_ = M_PI / 180 * 32.2178 ;
     epsilon_ = .1;
     const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
     inflowBC_ = getInitialSolution(pPhys, 0);    
@@ -50,7 +52,7 @@ SavageHutter1DBidispersed::SavageHutter1DBidispersed(std::size_t polyOrder, std:
 ///faces. 
 Base::RectangularMeshDescriptor<1> SavageHutter1DBidispersed::createMeshDescription(const std::size_t numOfElementsPerDirection)
 {
-    const double endOfDomain = 8;
+    const double endOfDomain = 20;
     const Base::BoundaryType boundary = Base::BoundaryType::SOLID_WALL;
     return SavageHutter1DBase::createMeshDescription(numOfElementsPerDirection, endOfDomain, boundary);
 }
@@ -69,8 +71,8 @@ void SavageHutter1DBidispersed::setInflowBC(double time)
 {
     const double inflowTurnOnRate = 2;
     const double hIn = 1 - std::exp(-inflowTurnOnRate * time);
-    const double uIn = .884404;
-    const double phiIn = 1;
+    const double uIn = 0.872597;
+    const double phiIn = .5;
     inflowBC_ = LinearAlgebra::MiddleSizeVector({hIn, hIn * uIn, hIn * phiIn});
 }
 
@@ -96,7 +98,7 @@ SlopeLimiter* SavageHutter1DBidispersed::createSlopeLimiter()
 ///can be found in the folder HeightLimiters.
 HeightLimiter* SavageHutter1DBidispersed::createHeightLimiter()
 {
-    return new PositiveLayerLimiter<1>(1e-5);
+    return new PositiveLayerLimiter<1>(1e-10);
 }
 
 ///\details Write the values of the variables to the VTK file. The method of 
@@ -169,6 +171,57 @@ void SavageHutter1DBidispersed::limitSmallHeight()
 {
     for (Base::Element* element : meshes_[0]->getElementsList(Base::IteratorType::GLOBAL))
     {
-        
+        if(containsNegativeSmallHeight(element))
+        {
+            const std::size_t numberOfBasisFunctions = element->getNumberOfBasisFunctions();
+            //element->setTimeIntegrationSubvector(0, 2, LinearAlgebra::MiddleSizeVector(numberOfBasisFunctions)*0);
+        }
     }
+}
+
+bool SavageHutter1DBidispersed::containsNegativeSmallHeight(const Base::Element* element)
+{        
+    //loop over the other nodes of the element
+    for (std::size_t iPoint = 0; iPoint < element->getReferenceGeometry()->getNumberOfNodes(); ++iPoint)
+    {
+        const Geometry::PointReference<1> &pRef = element->getReferenceGeometry()->getReferenceNodeCoordinate(iPoint);
+        if(element->getSolution(0, pRef)(2) < -1e2)
+            return true;
+    }
+    //loop over the quadrature points
+    for (std::size_t p = 0; p < element->getGaussQuadratureRule()->getNumberOfPoints(); ++p)
+    {
+        const Geometry::PointReference<1>& pRef = element->getGaussQuadratureRule()->getPoint(p);
+        if(element->getSolution(0, pRef)(2) < -1e-2)
+            return true;
+    }
+    return false;
+}
+
+/// Compute friction as described in Weinhart et al (2012), eq (50)
+/// Notice that the minus sign for gamma in eq (50) is wrong.
+double SavageHutter1DBidispersed::computeFriction(const LinearAlgebra::MiddleSizeVector& numericalSolution)
+{
+    
+    const double h = numericalSolution[0];
+    logger.assert(h > 0, "Can't compute friction if the height is too small."); 
+    const double u = numericalSolution[1] / h;
+    const double phi = numericalSolution[2] / h;
+    logger.assert(phi > -1e-10 && (phi - 1) < 1e-10, "the fraction of small particles should be between 0 and 1");
+    const double F = u / std::sqrt(epsilon_ * std::cos(chuteAngle_) * h);
+    
+    double delta1 = 17.518 / 180 * M_PI;
+    double delta2 = 29.712 / 180 * M_PI;
+    const double A = 5.29;
+    const double beta = 0.189;
+    const double gamma = -.080;
+    double d = 2;
+    const double frictionSmall = std::tan(delta1) + (std::tan(delta2) - std::tan(delta1)) / (beta * h / (A * d * (F - gamma)) + 1);
+    
+    ///\todo determine the correct friction parameters
+    delta1 = 22.518 / 180 * M_PI;
+    delta2 = 34.712 / 180 * M_PI;
+    
+    const double frictionLarge = std::tan(delta1) + (std::tan(delta2) - std::tan(delta1)) / (beta * h / (A * d * (F - gamma)) + 1);
+    return phi * frictionSmall + (1-phi) * frictionLarge;
 }

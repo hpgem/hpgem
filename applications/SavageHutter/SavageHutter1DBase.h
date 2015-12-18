@@ -81,7 +81,7 @@ protected:
     
     ///\brief Compute the friction as in Weinhart et. al. (2012)
     ///\todo make the friction depend on h and u (or F) instead of numericalSolution
-    double computeFriction(const LinearAlgebra::MiddleSizeVector &numericalSolution);    
+    virtual double computeFriction(const LinearAlgebra::MiddleSizeVector &numericalSolution);
     
     ///\brief Compute friction with exponential friction law
     double computeFrictionExponential(const LinearAlgebra::MiddleSizeVector &numericalSolution);
