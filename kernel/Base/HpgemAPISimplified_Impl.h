@@ -139,8 +139,8 @@ namespace Base
         this->setNumberOfTimeIntegrationVectorsGlobally(this->globalNumberOfTimeIntegrationVectors_);
         
         // Plot info about the mesh
-        std::size_t nElements = this->meshes_[0]->getNumberOfElements();
-        logger(VERBOSE, "Total number of elements: %", nElements);
+        std::size_t numberOfElements = this->meshes_[0]->getNumberOfElements();
+        logger(VERBOSE, "Total number of elements: %", numberOfElements);
     }
     
     /// \details By default this function computes the matrix of the products of all basis functions corresponding to the given element.
@@ -151,18 +151,18 @@ namespace Base
         LinearAlgebra::MiddleSizeMatrix &integrand = element.getResultMatrix();
         
         // Get the number of basis functions.
-        const std::size_t numberOfBasisFunctions = element.getElement()->getNumberOfBasisFunctions();
+        const std::size_t numberOfBasisFunctions = element.getNumberOfBasisFunctions();
         
         // Compute the matrix of products for all basis functions.
         std::size_t iVB, jVB; // indices for both variable and basis function.
-        for (std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; iV++)
+        for (std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
         {
-            for (std::size_t iB = 0; iB < numberOfBasisFunctions; iB++)
+            for (std::size_t iB = 0; iB < numberOfBasisFunctions; ++iB)
             {
-                for (std::size_t jB = 0; jB < numberOfBasisFunctions; jB++)
+                for (std::size_t jB = 0; jB < numberOfBasisFunctions; ++jB)
                 {
-                    iVB = element.getElement()->convertToSingleIndex(iB, iV);
-                    jVB = element.getElement()->convertToSingleIndex(jB, iV);
+                    iVB = element.convertToSingleIndex(iB, iV);
+                    jVB = element.convertToSingleIndex(jB, iV);
                     integrand(iVB, jVB) = element.basisFunction(iB) * element.basisFunction(jB);
                 }
             }
@@ -208,21 +208,21 @@ namespace Base
         LinearAlgebra::MiddleSizeVector &integrand = element.getResultVector();
         
         // Get the physical point.
-        PointPhysicalT pPhys = element.getPointPhysical();
+        const PointPhysicalT &pPhys = element.getPointPhysical();
         
         // Compute the initial solution.
-        LinearAlgebra::MiddleSizeVector initialSolution = getInitialSolution(pPhys, startTime, orderTimeDerivative);
+        const LinearAlgebra::MiddleSizeVector initialSolution = getInitialSolution(pPhys, startTime, orderTimeDerivative);
         
         // Get the number of basis functions.
-        const std::size_t numberOfBasisFunctions = element.getElement()->getNumberOfBasisFunctions();
+        const std::size_t numberOfBasisFunctions = element.getNumberOfBasisFunctions();
         
         // Compute the product of the initial solution and all test functions.
-        std::size_t iVB, jVB; // indices for both variable and basis function.
-        for (std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; iV++)
+        for (std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
         {
-            for (std::size_t iB = 0; iB < numberOfBasisFunctions; iB++)
-            {
-                iVB = element.getElement()->convertToSingleIndex(iB, iV);
+            for (std::size_t iB = 0; iB < numberOfBasisFunctions; ++iB)
+            {                
+                //Determine index for this combination of variable and basis function.
+                const std::size_t iVB = element.convertToSingleIndex(iB, iV);
                 integrand(iVB) = element.basisFunction(iB) * initialSolution(iV);
             }
         }
@@ -235,7 +235,7 @@ namespace Base
     LinearAlgebra::MiddleSizeVector HpgemAPISimplified<DIM>::integrateInitialSolutionAtElement(Base::Element * ptrElement, const double startTime, const std::size_t orderTimeDerivative)
     {
         // Define the integrand function for the the initial solution integral.
-        std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalElement<DIM>&)> integrandFunction = [=](Base::PhysicalElement<DIM>& element) -> LinearAlgebra::MiddleSizeVector { return this -> computeIntegrandInitialSolution(element, startTime, orderTimeDerivative);};
+        const std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalElement<DIM>&)> integrandFunction = [=](Base::PhysicalElement<DIM>& element) -> LinearAlgebra::MiddleSizeVector { return this -> computeIntegrandInitialSolution(element, startTime, orderTimeDerivative);};
         
         return this->elementIntegrator_.integrate(ptrElement, integrandFunction);
     }
@@ -265,16 +265,16 @@ namespace Base
         const LinearAlgebra::MiddleSizeVector exactSolution = getExactSolution(pPhys, time, 0);
         
         // Get the number of basis functions.
-        const std::size_t numberOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
+        const std::size_t numberOfBasisFunctions = element.getNumberOfBasisFunctions();
         
         // Compute the numerical solution.
         LinearAlgebra::MiddleSizeVector numericalSolution(this->configData_->numberOfUnknowns_);
         numericalSolution *= 0;
-        for(std::size_t jB = 0; jB < numberOfBasisFunctions; jB++)
+        for(std::size_t jB = 0; jB < numberOfBasisFunctions; ++jB)
         {
-            for(std::size_t jV = 0; jV < this->configData_->numberOfUnknowns_; jV++)
+            for(std::size_t jV = 0; jV < this->configData_->numberOfUnknowns_; ++jV)
             {
-                std::size_t jVB = element.getElement()->convertToSingleIndex(jB, jV);
+                const std::size_t jVB = element.convertToSingleIndex(jB, jV);
                 numericalSolution(jV) += element.basisFunction(jB) * solutionCoefficients(jVB);
             }
         }
@@ -291,12 +291,12 @@ namespace Base
         return integrand;
     }
     
-    /// \detauls By default the square of the standard L2 norm is integrated.
+    /// \details By default the square of the standard L2 norm is integrated.
     template<std::size_t DIM>
     LinearAlgebra::MiddleSizeVector::type HpgemAPISimplified<DIM>::integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
     {
         // Define the integrand function for the error energy.
-        std::function<LinearAlgebra::MiddleSizeVector::type(Base::PhysicalElement<DIM>&)> integrandFunction = [=](Base::PhysicalElement<DIM>& element) -> LinearAlgebra::MiddleSizeVector::type
+        const std::function<LinearAlgebra::MiddleSizeVector::type(Base::PhysicalElement<DIM>&)> integrandFunction = [=](Base::PhysicalElement<DIM>& element) -> LinearAlgebra::MiddleSizeVector::type
         {
             return this->computeIntegrandTotalError(element, solutionCoefficients, time);
         };
@@ -324,7 +324,8 @@ namespace Base
 #ifdef HPGEM_USE_MPI
         communicator.reduce(localError, MPI::SUM);
 #endif
-        communicator.onlyOnOneProcessor({[&](){
+        communicator.onlyOnOneProcessor({[&]()
+        {
             logger.assert(std::abs(std::imag(localError)) < 1e-12, "The computed error has an imaginary component");
             if (std::real(localError) >= 0)
             {
@@ -342,37 +343,37 @@ namespace Base
     
     /// \details This function returns a vector of the suprema of the error of every variable.
     template<std::size_t DIM>
-    LinearAlgebra::MiddleSizeVector HpgemAPISimplified<DIM>::computeMaxErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
+    LinearAlgebra::MiddleSizeVector HpgemAPISimplified<DIM>::computeMaxErrorAtElement(Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
     {
         // Get number of basis functions
-        std::size_t numberOfBasisFunctions = ptrElement->getNumberOfBasisFunctions();
+        const std::size_t numberOfBasisFunctions = ptrElement->getNumberOfBasisFunctions();
         
         // Declare vector of maxima of the error.
         LinearAlgebra::MiddleSizeVector maxError(this->configData_->numberOfUnknowns_);
         maxError *= 0;
         
         // Get quadrature rule and number of points.
-        const QuadratureRules::GaussQuadratureRule *ptrQdrRule = ptrElement->getGaussQuadratureRule();
-        std::size_t numberOfQuadPoints = ptrQdrRule->getNumberOfPoints();
+        const QuadratureRules::GaussQuadratureRule *quadratureRule = ptrElement->getGaussQuadratureRule();
+        const std::size_t numberOfQuadPoints = quadratureRule->getNumberOfPoints();
         
         // For each quadrature point update the maxima of the error.
         for (std::size_t pQuad = 0; pQuad < numberOfQuadPoints; ++pQuad)
         {
-            const Geometry::PointReference<DIM>& pRef = ptrQdrRule->getPoint(pQuad);
-            Geometry::PointPhysical<DIM> pPhys = ptrElement->referenceToPhysical(pRef);
+            const Geometry::PointReference<DIM> &pRef = quadratureRule->getPoint(pQuad);
+            const Geometry::PointPhysical<DIM> &pPhys = ptrElement->referenceToPhysical(pRef);
             
-            LinearAlgebra::MiddleSizeVector exactSolution = getExactSolution(pPhys, time, 0);
+            const LinearAlgebra::MiddleSizeVector exactSolution = getExactSolution(pPhys, time, 0);
             
             LinearAlgebra::MiddleSizeVector numericalSolution(this->configData_->numberOfUnknowns_);
             numericalSolution *= 0;
             
             for(std::size_t iB = 0; iB < numberOfBasisFunctions; ++iB)
             {
-                double valueBasisFunction = ptrElement->basisFunction(iB, pRef);
+                const double valueBasisFunction = ptrElement->basisFunction(iB, pRef);
                 
                 for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
                 {
-                    std::size_t iVB = ptrElement->convertToSingleIndex(iB,iV);
+                    const std::size_t iVB = ptrElement->convertToSingleIndex(iB,iV);
                     
                     numericalSolution(iV) += solutionCoefficients(iVB) * valueBasisFunction;
                 }
@@ -393,7 +394,7 @@ namespace Base
 #ifdef HPGEM_USE_MPI
     inline void computeMPIMaximum(const void* in, void* inout, int len, const MPI::Datatype& type)
     {
-        for(int i = 0; i < len; i++)
+        for(std::size_t i = 0; i < len; i++)
         {
             logger.assert(std::abs(std::imag(reinterpret_cast<LinearAlgebra::MiddleSizeVector::type*>(inout)[i]))<1e-12, "can only do this for complex numbers");
             logger.assert(std::abs(std::imag(reinterpret_cast<const LinearAlgebra::MiddleSizeVector::type*>(in)[i]))<1e-12, "can only do this for complex numbers");
@@ -413,9 +414,9 @@ namespace Base
         
         for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
-            LinearAlgebra::MiddleSizeVector &solutionCoefficients = ptrElement->getTimeIntegrationVector(solutionVectorId);
+            const LinearAlgebra::MiddleSizeVector &solutionCoefficients = ptrElement->getTimeIntegrationVector(solutionVectorId);
             
-            LinearAlgebra::MiddleSizeVector maxErrorAtElement(computeMaxErrorAtElement(ptrElement, solutionCoefficients, time));
+            const LinearAlgebra::MiddleSizeVector maxErrorAtElement(computeMaxErrorAtElement(ptrElement, solutionCoefficients, time));
             
             for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; ++iV)
             {
@@ -444,9 +445,10 @@ namespace Base
         // Apply the right hand side corresponding to integration on the elements.
         for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
-            LinearAlgebra::MiddleSizeVector &inputFunctionCoefficients(ptrElement->getTimeIntegrationVector(inputVectorId));
-            LinearAlgebra::MiddleSizeVector &resultFunctionCoefficients(ptrElement->getTimeIntegrationVector(resultVectorId));
+            LinearAlgebra::MiddleSizeVector &inputFunctionCoefficients = ptrElement->getTimeIntegrationVector(inputVectorId);
             
+            //Overwrite the vector at resultVectorId with the vector that is returned by computeRightHandSideAtElement
+            LinearAlgebra::MiddleSizeVector &resultFunctionCoefficients = ptrElement->getTimeIntegrationVector(resultVectorId);            
             resultFunctionCoefficients = computeRightHandSideAtElement(ptrElement,  inputFunctionCoefficients, time);
         }
         
@@ -460,7 +462,7 @@ namespace Base
                 LinearAlgebra::MiddleSizeVector &resultFunctionCoefficientsLeft(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
                 LinearAlgebra::MiddleSizeVector &resultFunctionCoefficientsRight(ptrFace->getPtrElementRight()->getTimeIntegrationVector(resultVectorId));
 
-                if (computeBothFaces_ == false)
+                if (!computeBothFaces_)
                 {
                 	resultFunctionCoefficientsLeft += computeRightHandSideAtFace(ptrFace, Base::Side::LEFT, inputFunctionCoefficientsLeft, inputFunctionCoefficientsRight, time);
                 	resultFunctionCoefficientsRight += computeRightHandSideAtFace(ptrFace, Base::Side::RIGHT, inputFunctionCoefficientsLeft, inputFunctionCoefficientsRight, time);
@@ -500,6 +502,7 @@ namespace Base
     }
     
     /// \details Make sure resultVectorId is different from the inputVectorIds.
+    /// \todo Merge this with the other computeRightHandSide to reduce code duplication
     template<std::size_t DIM>
     void HpgemAPISimplified<DIM>::computeRightHandSide(const std::vector<std::size_t> inputVectorIds, const std::vector<double> coefficientsInputVectors, const std::size_t resultVectorId, const double time)
     {
@@ -507,8 +510,9 @@ namespace Base
         for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
         {
             LinearAlgebra::MiddleSizeVector inputFunctionCoefficients(getLinearCombinationOfVectors(ptrElement, inputVectorIds, coefficientsInputVectors));
-            LinearAlgebra::MiddleSizeVector &resultFunctionCoefficients(ptrElement->getTimeIntegrationVector(resultVectorId));
             
+            //Overwrite the vector at resultVectorId with the vector that is returned by computeRightHandSideAtElement
+            LinearAlgebra::MiddleSizeVector &resultFunctionCoefficients(ptrElement->getTimeIntegrationVector(resultVectorId));            
             resultFunctionCoefficients = computeRightHandSideAtElement(ptrElement, inputFunctionCoefficients, time);
         }
         
@@ -522,7 +526,7 @@ namespace Base
                 LinearAlgebra::MiddleSizeVector &resultFunctionCoefficientsLeft(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
                 LinearAlgebra::MiddleSizeVector &resultFunctionCoefficientsRight(ptrFace->getPtrElementRight()->getTimeIntegrationVector(resultVectorId));
 
-                if (computeBothFaces_ == false)
+                if (!computeBothFaces_)
                 {
                 	resultFunctionCoefficientsLeft += computeRightHandSideAtFace(ptrFace, Base::Side::LEFT, inputFunctionCoefficientsLeft, inputFunctionCoefficientsRight, time);
                 	resultFunctionCoefficientsRight += computeRightHandSideAtFace(ptrFace, Base::Side::RIGHT, inputFunctionCoefficientsLeft, inputFunctionCoefficientsRight, time);
@@ -600,7 +604,7 @@ namespace Base
         // Compute intermediate Runge-Kutta stages
         for (std::size_t iStage = 0; iStage < numberOfStages; iStage++)
         {
-            double stageTime = time + ptrButcherTableau_->getC(iStage) * dt;
+            const double stageTime = time + ptrButcherTableau_->getC(iStage) * dt;
             
             std::vector<std::size_t> inputVectorIds;
             std::vector<double> coefficientsInputVectors;
@@ -643,10 +647,9 @@ namespace Base
     template<std::size_t DIM>
     void HpgemAPISimplified<DIM>::writeToTecplotFile(const Element *ptrElement, const PointReferenceT &pRef, std::ostream &out)
     {
-        std::size_t numberOfVariables = this->configData_->numberOfUnknowns_;
+        const std::size_t numberOfVariables = this->configData_->numberOfUnknowns_;
         
-        LinearAlgebra::MiddleSizeVector solution(numberOfVariables);
-        solution = ptrElement->getSolution(solutionVectorId_, pRef);
+        const LinearAlgebra::MiddleSizeVector solution = ptrElement->getSolution(solutionVectorId_, pRef);
          
         std::size_t iV = 0; // Index for the variable
         out << std::real(solution(iV));
@@ -681,24 +684,25 @@ namespace Base
     /// \param[in] dt Size of the time step
     /// \param[in] numberOutputFrames Number of times the solution is written to an output file.
     /// \param[in] doComputeError Boolean to indicate if the error should be computed.
+    /// \todo Split in smaller functions, maybe split of creating the output files?
     template<std::size_t DIM>
     bool HpgemAPISimplified<DIM>::solve(const double initialTime, const double finalTime, double dt, const std::size_t numberOfOutputFrames, bool doComputeError)
     {
         checkBeforeSolving();
         
         // Create output files for Paraview.
-        std::string outputFileNameVTK = outputFileName_;
+        const std::string outputFileNameVTK = outputFileName_;
         
         registerVTKWriteFunctions();
         Output::VTKTimeDependentWriter<DIM> VTKWriter(outputFileNameVTK, this->meshes_[0]);
         
         // Create output files for Tecplot.
 #ifdef HPGEM_USE_MPI
-        std::string outputFileName = outputFileName_ + "." + std::to_string(Base::MPIContainer::Instance().getProcessorID());
+        const std::string outputFileName = outputFileName_ + "." + std::to_string(Base::MPIContainer::Instance().getProcessorID());
 #else
-        std::string outputFileName = outputFileName_;
+        const std::string outputFileName = outputFileName_;
 #endif
-        std::string outputFileNameTecplot = outputFileName + ".dat";
+        const std::string outputFileNameTecplot = outputFileName + ".dat";
         std::string dimensionsToWrite = "";
         for(std::size_t i = 0; i < this->configData_->dimension_; i++)
         {
@@ -715,7 +719,7 @@ namespace Base
         Output::TecplotDiscontinuousSolutionWriter<DIM> tecplotWriter(outputFile, internalFileTitle_, dimensionsToWrite, variableString);
         
         // Compute parameters for time integration
-        double T = finalTime - initialTime;     // Time interval
+        const double T = finalTime - initialTime;     // Time interval
         std::size_t numberOfTimeSteps = std::ceil(T / dt);
         std::size_t numberOfTimeStepsForOutput;
         if (numberOfOutputFrames > 0)
@@ -775,9 +779,9 @@ namespace Base
         // Compute the energy norm of the error
         if(doComputeError)
         {
-            LinearAlgebra::MiddleSizeVector::type totalError = computeTotalError(solutionVectorId_, finalTime);
+            const LinearAlgebra::MiddleSizeVector::type totalError = computeTotalError(solutionVectorId_, finalTime);
             logger(INFO, "Total error: %.", totalError);
-            LinearAlgebra::MiddleSizeVector maxError = computeMaxError(solutionVectorId_, finalTime);
+            const LinearAlgebra::MiddleSizeVector maxError = computeMaxError(solutionVectorId_, finalTime);
             logger.assert(maxError.size() == this->configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)", maxError.size(), this->configData_->numberOfUnknowns_);
             for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; iV ++)
             {

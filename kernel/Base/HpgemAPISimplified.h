@@ -56,12 +56,12 @@ namespace Base
      
      Let \f$ f \f$ be a face and \f$ i_S \f$ the index of a side of the face (either left or right. Let \f$ (f,i_S) \f$ denote the element at side \f$ i_S \f$ of face \f$ f \f$ (at the boundary we only have a left side). We can write the DG scheme as follows \f[ \sum_{j_V,j_B} M^e_{i_V,i_B;j_V,j_B} \partial_t \bar{u}^e_{j_V,j_B} = r^e_{i_V,i_B}(\bar{u}^e,t) + \sum_{(f,i_S)=e} r^{f,i_S}_{i_V,i_B}(\bar{u}^{(f,j_S)},t), \f] where \f$ M^e \f$ is the mass matrix at an element, \f$ r^e \f$ is the right hand side corresponding to an eleement and \f$ r^{f,i_S} \f$ the right-hand-side corresponding to a face.
      */
-    /** \details To solve some linear time depent PDE with this class you should at least do the following:
+    /** \details To solve some time dependent PDE with this class you should at least do the following:
      * \li Create your own class that inherits this class.
      * \li Implement the function 'createMeshDescription' to create a mesh description (e.g. domain, number of elements, etc.).
      * \li Implement the function 'getInitialConditions' to define the initial condition(s) of your problem.
      * \li Implement the functions 'computeRightHandSideAtElement' and 'computeRightHandSideAtFace' to compute the right-hand side corresponding to an element or face.
-     * \li Optional: Implement the function 'computeBothRightHandSidesAtFace' to compute the right-hand side of both faces between two elements together (requires one flux calculation instead of two).
+     * \li Optional: Implement the function 'computeBothRightHandSidesAtFace' to compute the right-hand side of both faces between two elements together (requires one flux calculation instead of two). If this option is used, then computeRightHandSideAtFace does not have to be implemented in your own application for internal faces.
 
      */
     /** \details To solve the PDE do the following in the main routine:
@@ -74,7 +74,7 @@ namespace Base
      * \li Implement the function 'getExactSolution' if you know the analytic solution and want to compute the error.
      * \li Implement the function 'integrateInitialSolutionAtElement' for integrating the initial solution at the element (by default this function computes the standard L2 inner product).
      * \li Implement the function 'computeMassMatrixAtElement' if you want to compute the mass matrix (by default a mass matrix is computed based on the L2 inner product).
-     * \li Override the function 'solveMassMatrixEquationsAtElement' if you want to solve the mass matrix equtions without computing the mass matrix first.
+     * \li Override the function 'solveMassMatrixEquationsAtElement' if you want to solve the mass matrix equations without computing the mass matrix first.
      * \li Implement the function 'integrateErrorAtElement' to compute the square of some user-defined norm of the error at an element (by default the L2-norm is computed).
      * \li Override the function 'writeToTecplotFile' to determine what data to write to the output file.
      * \li Override the function 'showProgress' to determine how you want to show the progress of the time integration routine.
@@ -174,12 +174,13 @@ namespace Base
         virtual LinearAlgebra::MiddleSizeVector::type computeTotalError(const std::size_t solutionVectorId, const double time);
         
         /// \brief Compute the L-infinity norm (essential supremum) of the error at an element.
-        virtual LinearAlgebra::MiddleSizeVector computeMaxErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
+        virtual LinearAlgebra::MiddleSizeVector computeMaxErrorAtElement(Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
         
         /// \brief Compute the L-infinity norm (essential supremum) of the error.
         virtual LinearAlgebra::MiddleSizeVector computeMaxError(const std::size_t solutionVectorId, const double time);
         
         /// \brief Compute the right-hand side corresponding to an element
+        /// \todo Make a version in which the inputFunctionCoefficients are const
         virtual LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement
         (
          Base::Element *ptrElement,
@@ -193,6 +194,7 @@ namespace Base
         }
         
         /// \brief Compute the right-hand side corresponding to a boundary face
+        /// \todo Make a version in which the inputFunctionCoefficients are const
         virtual LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace
         (
          Base::Face *ptrFace,
@@ -206,6 +208,7 @@ namespace Base
         }
         
         /// \brief Compute the right-hand side corresponding to an internal face
+        /// \todo Make a version in which the inputFunctionCoefficients are const
         virtual LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace
         (
          Base::Face *ptrFace,
@@ -230,11 +233,14 @@ namespace Base
          )
         {
         	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> bothRightHandSidesFace;
-        	if (computeBothFaces_ == true)
+        	if (computeBothFaces_)
         	{
-            	logger(ERROR, "No function for computing both right-hand sides at an internal face implemented.");
-
+                    logger(ERROR, "No function for computing both right-hand sides at an internal face implemented.");
         	}
+                else
+                {
+                    logger(WARN, "The function computeBothRightHandSidesAtFace is called while computeBothFaces is set to false.");
+                }
         	return bothRightHandSidesFace;
 
         }
@@ -251,7 +257,7 @@ namespace Base
         /// \brief Scale the time integration vector with index 'timeIntegrationVectorId'.
         virtual void scaleVector(const std::size_t timeIntegrationVectorId, const double scale);
 
-        /// \brief scale and add a certain time integartion vector and add it to another time integration vector.
+        /// \brief scale and add a certain time integration vector and add it to another time integration vector.
         virtual void scaleAndAddVector(const std::size_t vectorToChangeId, const std::size_t vectorToAddId, const double scale);
 
         /// \brief Set the initial numerical solution (w at t=0).
@@ -344,7 +350,7 @@ namespace Base
         /// Integrator for the faces
         Integration::FaceIntegral<DIM> faceIntegrator_;
         
-        /// Compute integrands for the test functions on each sides of the face simultaneously (true) or seperately (false)
+        /// Compute integrands for the test functions on each sides of the face simultaneously (true) or separately (false)
         const bool computeBothFaces_;
 
         /// \brief Define how the solution should be written in the VTK files.
