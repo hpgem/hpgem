@@ -61,7 +61,7 @@ protected:
     (
         Base::PhysicalFace<DIM> &face,
         const MiddleSizeVector &solutionCoefficients,
-        const double time
+        const double &time
         ) = 0;
 
     /// \brief Purely virtual function to compute the integrand for the right hand side for the reference face corresponding to an internal face.

@@ -61,7 +61,7 @@ protected:
     (
         Base::PhysicalFace<2> &face,
         const LinearAlgebra::MiddleSizeVector &solutionCoefficients,
-        const double time
+        const double &time
         )override final;
 
     /// \brief Function to compute the integrand for the right hand side for the reference face corresponding to an internal face.

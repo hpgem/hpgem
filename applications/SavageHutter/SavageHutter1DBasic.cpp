@@ -55,7 +55,7 @@ SavageHutter1DBasic::SavageHutter1DBasic(std::size_t polyOrder, std::size_t numb
 ///faces. The ghost solution on the boundary can be described with computeGhostSolution.
 Base::RectangularMeshDescriptor<1> SavageHutter1DBasic::createMeshDescription(const std::size_t numOfElementsPerDirection)
 {
-    const double endOfDomain = 8;
+    const double endOfDomain = .5;
     const Base::BoundaryType boundary = Base::BoundaryType::SOLID_WALL;
     return SavageHutter1DBase::createMeshDescription(numOfElementsPerDirection, endOfDomain, boundary);
 }

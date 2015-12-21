@@ -137,7 +137,7 @@ const LinearAlgebra::MiddleSizeVector SavageHutter2DBase::integrandRightHandSide
 (
  Base::PhysicalFace<2>& face,
  const LinearAlgebra::MiddleSizeVector &solutionCoefficients,
- const double time
+ const double &time
  )
 {
     double normalX = face.getUnitNormalVector()[0];

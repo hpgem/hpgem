@@ -33,15 +33,9 @@ public:
     using PointReferenceOnFaceT = Geometry::PointReference<0>;
     
     SavageHutter1DBase(std::size_t numberOfVariables, std::size_t polyOrder) 
-    : SavageHutterBase(numberOfVariables, polyOrder)
-    {
-        
-    }
+    : SavageHutterBase(numberOfVariables, polyOrder){ }
     
-    virtual ~SavageHutter1DBase()
-    {
-        
-    }
+    virtual ~SavageHutter1DBase(){ }
     
 protected:
         
@@ -61,7 +55,7 @@ protected:
     (
         Base::PhysicalFace<1> &face,
         const LinearAlgebra::MiddleSizeVector &solutionCoefficients,
-        const double time
+        const double &time
         ) override final;
 
     /// \brief Function to compute the integrand for the right hand side for the reference face corresponding to an internal face.
@@ -87,7 +81,7 @@ protected:
     double computeFrictionExponential(const LinearAlgebra::MiddleSizeVector &numericalSolution);
     
     ///\brief Compute the friction with \mu = \tan frictionAngle
-    double computeFrictionCoulomb(const LinearAlgebra::MiddleSizeVector &numericalSolution, const double frictionAngle);
+    double computeFrictionCoulomb(const LinearAlgebra::MiddleSizeVector &numericalSolution, const double &frictionAngle);
     
 private:
     virtual LinearAlgebra::MiddleSizeVector computePhysicalFlux(const LinearAlgebra::MiddleSizeVector &numericalSolution, const PointPhysicalT& pPhys) = 0;
