@@ -24,6 +24,7 @@
 #include "HeightLimiters/PositiveLayerLimiter.h"
 #include "SlopeLimiters/TvbLimiter1D.h"
 #include "SlopeLimiters/TvbLimiterWithDetector1D.h"
+#include "HeightLimiters/BidispersedLimiter1D.h"
 
 ///\details In this constructor, some of the parameters for the problem are set.
 ///Most of these parameters are declared in SavageHutterBase, but since they are protected
@@ -36,6 +37,7 @@ SavageHutter1DBidispersed::SavageHutter1DBidispersed(std::size_t polyOrder, std:
     epsilon_ = .1;
     const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
     inflowBC_ = getInitialSolution(pPhys, 0);    
+    dryLimit_ = 1e-5;
     
     std::vector<std::string> variableNames = {"h", "hu", "eta"};
     setOutputNames("output1D", "SavageHutter", "SavageHutter", variableNames);
@@ -52,7 +54,7 @@ SavageHutter1DBidispersed::SavageHutter1DBidispersed(std::size_t polyOrder, std:
 ///faces. 
 Base::RectangularMeshDescriptor<1> SavageHutter1DBidispersed::createMeshDescription(const std::size_t numOfElementsPerDirection)
 {
-    const double endOfDomain = 20;
+    const double endOfDomain = 6;
     const Base::BoundaryType boundary = Base::BoundaryType::SOLID_WALL;
     return SavageHutter1DBase::createMeshDescription(numOfElementsPerDirection, endOfDomain, boundary);
 }
@@ -98,7 +100,7 @@ SlopeLimiter* SavageHutter1DBidispersed::createSlopeLimiter()
 ///can be found in the folder HeightLimiters.
 HeightLimiter* SavageHutter1DBidispersed::createHeightLimiter()
 {
-    return new PositiveLayerLimiter<1>(1e-10);
+    return new BidispersedLimiter(1e-5);
 }
 
 ///\details Write the values of the variables to the VTK file. The method of 
@@ -167,37 +169,6 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DBidispersed::computePhysicalFlux(c
     return flux;
 }
 
-void SavageHutter1DBidispersed::limitSmallHeight()
-{
-    for (Base::Element* element : meshes_[0]->getElementsList(Base::IteratorType::GLOBAL))
-    {
-        if(containsNegativeSmallHeight(element))
-        {
-            const std::size_t numberOfBasisFunctions = element->getNumberOfBasisFunctions();
-            //element->setTimeIntegrationSubvector(0, 2, LinearAlgebra::MiddleSizeVector(numberOfBasisFunctions)*0);
-        }
-    }
-}
-
-bool SavageHutter1DBidispersed::containsNegativeSmallHeight(const Base::Element* element)
-{        
-    //loop over the other nodes of the element
-    for (std::size_t iPoint = 0; iPoint < element->getReferenceGeometry()->getNumberOfNodes(); ++iPoint)
-    {
-        const Geometry::PointReference<1> &pRef = element->getReferenceGeometry()->getReferenceNodeCoordinate(iPoint);
-        if(element->getSolution(0, pRef)(2) < -1e2)
-            return true;
-    }
-    //loop over the quadrature points
-    for (std::size_t p = 0; p < element->getGaussQuadratureRule()->getNumberOfPoints(); ++p)
-    {
-        const Geometry::PointReference<1>& pRef = element->getGaussQuadratureRule()->getPoint(p);
-        if(element->getSolution(0, pRef)(2) < -1e-2)
-            return true;
-    }
-    return false;
-}
-
 /// Compute friction as described in Weinhart et al (2012), eq (50)
 /// Notice that the minus sign for gamma in eq (50) is wrong.
 double SavageHutter1DBidispersed::computeFriction(const LinearAlgebra::MiddleSizeVector& numericalSolution)
@@ -224,4 +195,15 @@ double SavageHutter1DBidispersed::computeFriction(const LinearAlgebra::MiddleSiz
     
     const double frictionLarge = std::tan(delta1) + (std::tan(delta2) - std::tan(delta1)) / (beta * h / (A * d * (F - gamma)) + 1);
     return phi * frictionSmall + (1-phi) * frictionLarge;
+}
+
+void SavageHutter1DBidispersed::tasksAfterTimeStep()
+{
+    this->synchronize(0);
+    for (Base::Element *element : this->meshes_[0]->getElementsList())
+    {
+        LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeIntegrationVector(0);
+        heightLimiter_->limit(element, solutionCoefficients);
+    }
+    this->synchronize(0);
 }
