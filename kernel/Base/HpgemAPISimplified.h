@@ -164,7 +164,7 @@ namespace Base
         /// \brief Integrate the product of the initial solution and all basis functions.
         virtual void integrateInitialSolution(const std::size_t resultVectorId, const double startTime, const std::size_t orderTimeDerivative);
 
-        /// \broef Compute the integrand for the total error.
+        /// \brief Compute the integrand for the total error.
         virtual LinearAlgebra::MiddleSizeVector::type computeIntegrandTotalError(Base::PhysicalElement<DIM> & element, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time);
         
         /// \brief Integrate the square of some norm of the error on a single element.
