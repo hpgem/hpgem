@@ -67,7 +67,8 @@ public:
     void setInflowBC(double time) override final;
 private:
 
-    double computeFriction(const LinearAlgebra::MiddleSizeVector& numericalSolution) override final;
+    double computeFrictionBidispersed(const LinearAlgebra::MiddleSizeVector& numericalSolution);
+    double computeFrictionExponentialBidispersed(const LinearAlgebra::MiddleSizeVector &numericalSolution);
 
     void tasksAfterTimeStep() override final;
     

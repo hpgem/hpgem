@@ -37,7 +37,7 @@ Base::RectangularMeshDescriptor<1> SavageHutter1DBase::createMeshDescription(con
 const LinearAlgebra::MiddleSizeVector SavageHutter1DBase::integrandRightHandSideOnElement
 (Base::PhysicalElement<1> &element, const double &time, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)
 {
-    const std::size_t numBasisFuncs = element.getElement()->getNumberOfBasisFunctions();
+    const std::size_t numberOfBasisFunctions = element.getNumberOfBasisFunctions();
 
     MiddleSizeVector& integrand = element.getResultVector(); //just to have the correct length    
     const PointPhysicalT& pPhys = element.getPointPhysical();
@@ -46,11 +46,11 @@ const LinearAlgebra::MiddleSizeVector SavageHutter1DBase::integrandRightHandSide
     const LinearAlgebra::MiddleSizeVector source = computeSourceTerm(numericalSolution, pPhys, time);
 
     // Compute integrand on the physical element.
-    for (std::size_t iFun = 0; iFun < numBasisFuncs; iFun++)
+    for (std::size_t iFun = 0; iFun < numberOfBasisFunctions; iFun++)
     {
         for (std::size_t iVar = 0; iVar < numberOfVariables_; ++iVar)
         {
-            const std::size_t iVarFun = element.getElement()->convertToSingleIndex(iFun, iVar);
+            const std::size_t iVarFun = element.convertToSingleIndex(iFun, iVar);
             integrand(iVarFun) = physicalFlux(iVar) * element.basisFunctionDeriv(iFun)(0);
             integrand(iVarFun) += source(iVar) * element.basisFunction(iFun);
         }
@@ -63,7 +63,7 @@ const LinearAlgebra::MiddleSizeVector SavageHutter1DBase::integrandRightHandSide
 const LinearAlgebra::MiddleSizeVector SavageHutter1DBase::integrandRightHandSideOnRefFace
 (Base::PhysicalFace<1>& face, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight)
 {
-    const std::size_t numTestBasisFuncs = face.getFace()->getPtrElement(iSide)->getNumberOfBasisFunctions();
+    const std::size_t numTestBasisFuncs = face.getPhysicalElement(iSide).getNumberOfBasisFunctions();
 
     //compute numerical solution at the left side and right side of this face
     const LinearAlgebra::MiddleSizeVector solutionLeft = Helpers::getSolution<1>(face.getPhysicalElement(Base::Side::LEFT), solutionCoefficientsLeft, numberOfVariables_);
@@ -132,11 +132,7 @@ const LinearAlgebra::MiddleSizeVector SavageHutter1DBase::integrandRightHandSide
     MiddleSizeVector flux(numberOfVariables_);
     
     const LinearAlgebra::MiddleSizeVector solution = Helpers::getSolution<1>(face.getPhysicalElement(Base::Side::LEFT), solutionCoefficients, numberOfVariables_);
-    double u = 0;
-    if (solution(0) > dryLimit_)
-    {
-        u = solution(1) / solution(0);
-    }
+    const double u = (solution(0) > dryLimit_) ? solution(1) / solution(0) : 0;
     
     //outflow
     if (face.getNormalVector()(0) > 0)
@@ -172,7 +168,7 @@ const LinearAlgebra::MiddleSizeVector SavageHutter1DBase::integrandRightHandSide
     else //inflow
     {
         //subcritical inflow:
-        if (solution[1] / solution[0] < std::sqrt(solution[0] * std::cos(chuteAngle_) * epsilon_))
+        if (false && solution[1] / solution[0] < std::sqrt(solution[0] * std::cos(chuteAngle_) * epsilon_))
         {
             const double hNew = inflowBC_[0];
             const double uNew = solution[1] / solution[0] - 2 * std::sqrt(epsilon_ * std::cos(chuteAngle_))*(std::sqrt(solution[0]) - std::sqrt(hNew));
@@ -204,17 +200,11 @@ const LinearAlgebra::MiddleSizeVector SavageHutter1DBase::integrandRightHandSide
 
 LinearAlgebra::MiddleSizeVector SavageHutter1DBase::localLaxFriedrichsFlux(const LinearAlgebra::MiddleSizeVector& numericalSolutionLeft, const LinearAlgebra::MiddleSizeVector& numericalSolutionRight, Base::PhysicalFace<1> &face)
 {
-    double uLeft = 0;
-    if (numericalSolutionLeft(0) > dryLimit_)
-    {
-        uLeft = numericalSolutionLeft(1) / numericalSolutionLeft(0);
-    }
+    const double hLeft = numericalSolutionLeft(0);
+    const double uLeft = (hLeft > dryLimit_) ? numericalSolutionLeft(1) / hLeft : 0;
 
-    double uRight = 0;
-    if (numericalSolutionRight(0) > dryLimit_)
-    {
-        uRight = numericalSolutionRight(1) / numericalSolutionRight(0);
-    }
+    const double hRight = numericalSolutionRight(0);
+    const double uRight = (hRight > dryLimit_) ? numericalSolutionRight(1) / hRight : 0;
 
     const double alpha = std::max(std::abs(uLeft) + std::sqrt(epsilon_ * std::max(0., numericalSolutionLeft(0))),
                                   std::abs(uRight) + std::sqrt(epsilon_ * std::max(0., numericalSolutionRight(0))));
@@ -232,25 +222,21 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DBase::localLaxFriedrichsFlux(const
 
 LinearAlgebra::MiddleSizeVector SavageHutter1DBase::hllcFlux(const LinearAlgebra::MiddleSizeVector& numericalSolutionLeft, const LinearAlgebra::MiddleSizeVector& numericalSolutionRight, const double normal, Base::PhysicalFace<1> &face)
 {
-    const double hLeft = numericalSolutionLeft[0];
-    const double hRight = numericalSolutionRight[0];
-    double normalSpeedLeft = 0;
-    if (numericalSolutionLeft(0) > dryLimit_)
-    {
-        normalSpeedLeft = normal * numericalSolutionLeft(1) / numericalSolutionLeft(0);
-    }
-
-    double normalSpeedRight = 0;
-    if (numericalSolutionRight(0) > dryLimit_)
-    {
-        normalSpeedRight = normal * numericalSolutionRight(1) / numericalSolutionRight(0);
-    }
+    const double hLeft = numericalSolutionLeft(0);
+    const double hRight = numericalSolutionRight(0);
+    
+    const double normalSpeedLeft = (hLeft > dryLimit_) ? normal * numericalSolutionLeft(1) / hLeft : 0;    
+    const double normalSpeedRight = (hRight > dryLimit_) ? normal * numericalSolutionRight(1) / hRight : 0;
+    
     const LinearAlgebra::MiddleSizeVector fluxNormalLeft = normal * computePhysicalFlux(numericalSolutionLeft, face.getPointPhysical());
     const LinearAlgebra::MiddleSizeVector fluxNormalRight = normal * computePhysicalFlux(numericalSolutionRight, face.getPointPhysical());
+    
     const double phaseSpeedLeft = std::sqrt(epsilon_ * std::cos(chuteAngle_) * hLeft);
     const double phaseSpeedRight = std::sqrt(epsilon_ * std::cos(chuteAngle_) * hRight);
+    
     const double sl = std::min(normalSpeedLeft - phaseSpeedLeft, normalSpeedRight - phaseSpeedRight);
     const double sr = std::max(normalSpeedLeft + phaseSpeedLeft, normalSpeedRight + phaseSpeedRight);
+    
     if (sl >= 0)
     {
         return fluxNormalLeft;
