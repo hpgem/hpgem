@@ -66,7 +66,7 @@ namespace Geometry
      * Constructors are protected, to avoid the creation of two identical physical geometries.
      * Only one of every needed type is necessary.
      */
-    class ReferenceGeometry : public RefinementMapping, public MappingCodimensions
+    class ReferenceGeometry : public MappingCodimensions
     {
     public:
         

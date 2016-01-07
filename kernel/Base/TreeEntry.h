@@ -36,7 +36,6 @@ namespace Base
     class TreeIterator;
     
     //! data structure that allows LevelTree to provide the tree behavior it promises. It is responsible for its children, but not for its siblings or its parent
-    //! application developers should not need to directly interact with this class
     template<typename V>
     class TreeEntry
     {

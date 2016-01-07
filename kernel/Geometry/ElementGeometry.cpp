@@ -45,15 +45,6 @@
 #include "Mappings/MappingToPhysPyramid.h"
 #include "Mappings/MappingToPhysTriangularPrism.h"
 
-#include "RefinementLine.h"
-#include "RefinementTriangle.h"
-#include "RefinementQuadrilateral.h"
-#include "RefinementTetrahedron.h"
-#include "RefinementPyramid.h"
-#include "RefinementTriangularPrism.h"
-#include "RefinementHexahedron.h"
-#include "RefinementHypercube.h"
-
 #include "PointReference.h"
 
 namespace Geometry
@@ -80,7 +71,7 @@ namespace Geometry
     /// Copy constructor that actually makes a deep copy
     ElementGeometry::ElementGeometry(const ElementGeometry& other)
             : referenceGeometry_(other.referenceGeometry_), 
-        refinementGeometry_(other.refinementGeometry_) //refinement is turned off by default, to  enable it one needs to call enableRefinement
+        refinementMap_(other.refinementMap_) //refinement is turned off by default, to  enable it one needs to call enableRefinement
     {
         //we have to un-hide the template arguments to make a copy :(
         switch(referenceGeometry_->getGeometryType())
@@ -160,10 +151,10 @@ namespace Geometry
 
     /// Returns a pointer to the refinementGeometry object.
     
-    const RefinementGeometry*
-    ElementGeometry::getRefinementGeometry() const
+    const RefinementMapping*
+    ElementGeometry::getRefinementMap() const
     {
-        return refinementGeometry_;
+        return refinementMap_;
     }
     
     std::size_t ElementGeometry::getNumberOfNodes() const

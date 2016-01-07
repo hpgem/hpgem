@@ -59,9 +59,9 @@ namespace Geometry
         virtual ~PhysicalGeometryBase() = default;
 
         /// \brief Constructor gets indexes of the nodes, a reference to the node container, and a pointer to the corresponding reference geometry.
-        
+        //placeholder constructor for the refinement map; could also default to the identity map
         PhysicalGeometryBase(const std::vector<std::size_t>& globalNodeIndexes, const ReferenceGeometry * const refG)
-                : globalNodeIndexes_(globalNodeIndexes), refGeometry_(refG)
+                : globalNodeIndexes_(globalNodeIndexes), referenceGeometry_(refG)
         {
             logger.assert(refG!=nullptr, "Invalid reference geometry passed");
         }
@@ -78,7 +78,7 @@ namespace Geometry
         std::string getName()
         {
             //skip "Reference" and put "Physical" instead
-            return std::string("Physical").append(refGeometry_->getName().substr(9));
+            return std::string("Physical").append(referenceGeometry_->getName().substr(9));
         }
 
         /// \brief Given a local index relative to globalNodeIndexes_, return the global node index.
@@ -128,7 +128,7 @@ namespace Geometry
         std::vector<std::size_t> getLocalFaceNodeIndices(const std::size_t i) const
         {
             logger.assert(i < getNumberOfFaces(), "Asked for face %, but there are only % faces", i, getNumberOfFaces());
-            return refGeometry_->getCodim1EntityLocalIndices(i);
+            return referenceGeometry_->getCodim1EntityLocalIndices(i);
         }
         
         ///\deprecated Does not conform naming conventions, use getNumberOfFaces instead
@@ -140,13 +140,13 @@ namespace Geometry
         /// \brief Returns the number of faces via a call to ReferenceGeometry->getNumberOfCodim1Entities();
         std::size_t getNumberOfFaces() const
         {
-            return refGeometry_->getNumberOfCodim1Entities();
+            return referenceGeometry_->getNumberOfCodim1Entities();
         }
 
         /// \brief Returns a reference to the corresponding reference geometry.
         const ReferenceGeometry * getRefGeometry() const
         {
-            return refGeometry_;
+            return referenceGeometry_;
         }
         
         /// \brief Output operator
@@ -168,7 +168,7 @@ namespace Geometry
         /// Reference to the container of global indexes of the nodes, relative to nodes_.
         std::vector<std::size_t> globalNodeIndexes_;
 
-        const ReferenceGeometry * const refGeometry_;
+        const ReferenceGeometry * const referenceGeometry_;
     };
 
 }

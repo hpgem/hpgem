@@ -53,15 +53,6 @@
 #include "Mappings/MappingToPhysPyramid.h"
 #include "Mappings/MappingToPhysTriangularPrism.h"
 
-#include "RefinementLine.h"
-#include "RefinementTriangle.h"
-#include "RefinementQuadrilateral.h"
-#include "RefinementTetrahedron.h"
-#include "RefinementPyramid.h"
-#include "RefinementTriangularPrism.h"
-#include "RefinementHexahedron.h"
-#include "RefinementHypercube.h"
-
 #include "PointReference.h"
 
 namespace Geometry
@@ -111,8 +102,8 @@ namespace Geometry
         
         ReferenceGeometry* getReferenceGeometry();
         
-        /// Returns a pointer to the refinementGeometry object.
-        const RefinementGeometry* getRefinementGeometry() const;
+        /// Returns a pointer to the refinementMapping object.
+        const RefinementMapping* getRefinementMap() const;
         
         /// This method gets a PointReference, which specifies a coordinate in the ReferenceGeometry,
         /// and returns a PointPhysical which is the corresponding point in the PhysicalGeometry,
@@ -154,7 +145,7 @@ namespace Geometry
         MappingReferenceToPhysical* referenceToPhysicalMapping_;
 
         /// The corresponding refinementGeometry object
-        RefinementGeometry* refinementGeometry_;
+        RefinementMapping* refinementMap_;
     };
 
 
@@ -312,7 +303,7 @@ namespace Geometry
             : referenceGeometry_(ElementGeometry::createReferenceGeometry<DIM>(globalNodeIndexes.size())),
         physicalGeometry_(ElementGeometry::createPhysicalGeometry(globalNodeIndexes, nodes, referenceGeometry_)),
         referenceToPhysicalMapping_(ElementGeometry::createMappings<DIM>(globalNodeIndexes.size(), static_cast<PhysicalGeometry<DIM>*>(physicalGeometry_))),
-        refinementGeometry_(nullptr) //refinement is turned off by default, to  enable it one needs to call enableRefinement
+        refinementMap_(nullptr) //refinement is turned off by default, to  enable it one needs to call enableRefinement
     {
     }
 }
