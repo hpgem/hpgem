@@ -50,7 +50,7 @@ namespace TimeIntegration
         return order_;
     }
     
-    std::size_t MidPoint::getNumStages() const
+    std::size_t MidPoint::getNumberOfStages() const
     {
         return numStages_;
     }
@@ -62,20 +62,20 @@ namespace TimeIntegration
 
     double MidPoint::getA(std::size_t i, std::size_t j) const
     {
-        logger.assert(i<getNumStages(), "Asked for stage %, but there are only % stages", i, getNumStages());
+        logger.assert(i<getNumberOfStages(), "Asked for stage %, but there are only % stages", i, getNumberOfStages());
         logger.assert(j<i, "Asked for implicit coefficient %, but this is an explicit butcher tableau", j);
         return a_[i][j];
     }
     
     double MidPoint::getB(std::size_t i) const
     {
-        logger.assert(i<getNumStages(), "Asked for stage %, but there are only % stages", i, getNumStages());
+        logger.assert(i<getNumberOfStages(), "Asked for stage %, but there are only % stages", i, getNumberOfStages());
         return b_[i];
     }
     
     double MidPoint::getC(std::size_t i) const
     {
-        logger.assert(i<getNumStages(), "Asked for stage %, but there are only % stages", i, getNumStages());
+        logger.assert(i<getNumberOfStages(), "Asked for stage %, but there are only % stages", i, getNumberOfStages());
         return c_[i];
     }
 }

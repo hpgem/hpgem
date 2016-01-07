@@ -11,7 +11,7 @@ double executeOneTimeStep(const TimeIntegration::ButcherTableau *integrator, dou
 {
     std::vector<double> k;
     //iterate over the stages of the Runge Kutta method, compute temporary solutions
-    for (std::size_t level = 0; level < integrator->getNumStages(); ++level)
+    for (std::size_t level = 0; level < integrator->getNumberOfStages(); ++level)
     {
         double kNew = u;
         for (std::size_t i = 0; i < level; ++i)
@@ -23,7 +23,7 @@ double executeOneTimeStep(const TimeIntegration::ButcherTableau *integrator, dou
     
     //Combine all temporary solutions to the solution for the next time step        
     double newVal = u;
-    for (std::size_t i = 0; i < integrator->getNumStages(); ++i)
+    for (std::size_t i = 0; i < integrator->getNumberOfStages(); ++i)
     {
         newVal += dt * (integrator->getB(i)) * k[i];
     }

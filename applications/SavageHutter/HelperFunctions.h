@@ -53,6 +53,23 @@ namespace Helpers
         }
         return solution;
     }
+    
+    template <std::size_t DIM>
+    LinearAlgebra::MiddleSizeVector getSolution( Base::Element *element, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const Geometry::PointReference<DIM> &pRef)
+    {
+        const std::size_t numberOfBasisFunctions = element->getNumberOfBasisFunctions();
+        LinearAlgebra::MiddleSizeVector solution(element->getNumberOfUnknowns());
+        for (std::size_t iFun = 0; iFun < numberOfBasisFunctions; ++ iFun)
+        {
+            const double basisFunctionValue = element->basisFunction<DIM>(iFun, pRef);
+            for (std::size_t iVar = 0; iVar < element->getNumberOfUnknowns(); ++ iVar)
+            {
+                const std::size_t iVB = element->convertToSingleIndex(iFun, iVar);
+                solution(iVar) += basisFunctionValue * solutionCoefficients(iVB);
+            }
+        }
+        return solution;
+    }
 
     ///Compute the average of the height and discharge in the given element
     template <std::size_t DIM>
@@ -83,7 +100,7 @@ namespace Helpers
     }
 
     template <std::size_t DIM>
-    LinearAlgebra::MiddleSizeVector projectOnBasisFuns(Base::Element *elt, std::function<double(const Geometry::PointReference<DIM>&) > myFun, Integration::ElementIntegral<DIM>& elementIntegrator)
+    LinearAlgebra::MiddleSizeVector projectOnBasisFuns(Base::Element *elt, std::function<double(const Geometry::PointReference<DIM>&) > myFun, Integration::ElementIntegral<DIM> &elementIntegrator)
     {
         const std::size_t numBasisFuns = elt->getNumberOfBasisFunctions();
         LinearAlgebra::MiddleSizeVector projection(numBasisFuns);

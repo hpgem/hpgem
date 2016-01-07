@@ -204,7 +204,6 @@ namespace Base
     }
     
     /// \details By default, the standard L2 inner product with the source term is computed.
-    /// \todo please use Integration::ElementIntegral::integrate() for integration over elements
     template<std::size_t DIM>
     LinearAlgebra::MiddleSizeVector HpgemAPILinear<DIM>::integrateSourceTermAtElement(Base::Element * ptrElement, const double time, const std::size_t orderTimeDerivative)
     {

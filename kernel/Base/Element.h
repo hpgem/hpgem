@@ -220,7 +220,8 @@ namespace Base
         {
             return edgesList_.size();
         }
-        
+
+        ///\todo This function overwrites the non-virtual function in ElementGeometry. Either remove this function, rename one of the two functions or make the one in ElementGeometry virtual
         std::size_t getNumberOfNodes() const
         {
             return nodesList_.size();
@@ -373,7 +374,7 @@ namespace Base
         {
             if (j != -1)
             {
-                int n = basisFunctionSet_->at(j)->size();
+                std::size_t n = basisFunctionSet_->at(j)->size();
                 if (i - basePosition < n)
                 {
                     basisFunctionSet_->at(j)->eval(i - basePosition, p, ret);
@@ -396,7 +397,7 @@ namespace Base
         {
             if (j != -1)
             {
-                int n = basisFunctionSet_->at(j)->size();
+                std::size_t n = basisFunctionSet_->at(j)->size();
                 if (i - basePosition < n)
                 {
                     return basisFunctionSet_->at(j)->evalCurl(i - basePosition, p);
@@ -420,7 +421,7 @@ namespace Base
         {
             if (j != -1)
             {
-                int n = basisFunctionSet_->at(j)->size();
+                std::size_t n = basisFunctionSet_->at(j)->size();
                 if (i - basePosition < n)
                 {
                     return basisFunctionSet_->at(j)->evalDiv(i - basePosition, p);
@@ -505,14 +506,14 @@ namespace Base
     Element::SolutionVector Element::getSolution(std::size_t timeIntegrationVectorId, PhysicalElement<DIM>& element) const
     {
         logger.assert(element.getElement() == this, "Cannot find the solution in a different element!");
-        std::size_t numberOfUnknows = ElementData::getNumberOfUnknowns();
+        std::size_t numberOfUnknowns = ElementData::getNumberOfUnknowns();
         std::size_t numberOfBasisFunctions = ElementData::getNumberOfBasisFunctions();
-        SolutionVector solution(numberOfUnknows);
+        SolutionVector solution(numberOfUnknowns);
 
         const LinearAlgebra::MiddleSizeVector& data = ElementData::getTimeIntegrationVector(timeIntegrationVectorId);
 
         std::size_t iVB = 0;
-        for (std::size_t iV = 0; iV < numberOfUnknows; ++iV)
+        for (std::size_t iV = 0; iV < numberOfUnknowns; ++iV)
         {
             for (std::size_t iB = 0; iB < numberOfBasisFunctions; ++iB)
             {
@@ -527,14 +528,14 @@ namespace Base
     std::vector<LinearAlgebra::SmallVector<DIM> > Element::getSolutionGradient(std::size_t timeIntegrationVectorId, PhysicalElement<DIM>& element) const
     {
         logger.assert(element.getElement() == this, "Cannot find the gradient of the solution in a different element!");
-        std::size_t numberOfUnknows = ElementData::getNumberOfUnknowns();
+        std::size_t numberOfUnknowns = ElementData::getNumberOfUnknowns();
         std::size_t numberOfBasisFunctions = ElementData::getNumberOfBasisFunctions();
-        std::vector<LinearAlgebra::SmallVector<DIM> > solution(numberOfUnknows);
+        std::vector<LinearAlgebra::SmallVector<DIM> > solution(numberOfUnknowns);
 
         LinearAlgebra::MiddleSizeVector data = ElementData::getTimeIntegrationVector(timeIntegrationVectorId);
 
         std::size_t iVB = 0;
-        for (std::size_t iV = 0; iV < numberOfUnknows; ++iV)
+        for (std::size_t iV = 0; iV < numberOfUnknowns; ++iV)
         {
             for (std::size_t iB = 0; iB < numberOfBasisFunctions; ++iB)
             {

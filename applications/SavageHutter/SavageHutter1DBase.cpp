@@ -35,9 +35,9 @@ Base::RectangularMeshDescriptor<1> SavageHutter1DBase::createMeshDescription(con
 
 /// \details The integrand for the reference element is the same as the physical element, but scaled with the reference-to-physical element scale, which is the determinant of the jacobian of the reference-to-physical element mapping.
 const LinearAlgebra::MiddleSizeVector SavageHutter1DBase::integrandRightHandSideOnElement
-(Base::PhysicalElement<1>& element, const double &time, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)
+(Base::PhysicalElement<1> &element, const double &time, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)
 {
-    const std::size_t numBasisFuncs = element.getElement()->getNumberOfBasisFunctions();
+    const std::size_t numberOfBasisFunctions = element.getNumberOfBasisFunctions();
 
     MiddleSizeVector& integrand = element.getResultVector(); //just to have the correct length    
     const PointPhysicalT& pPhys = element.getPointPhysical();
@@ -46,14 +46,13 @@ const LinearAlgebra::MiddleSizeVector SavageHutter1DBase::integrandRightHandSide
     const LinearAlgebra::MiddleSizeVector source = computeSourceTerm(numericalSolution, pPhys, time);
 
     // Compute integrand on the physical element.
-    std::size_t iVB; // Index for both basis function and variable
-    for (std::size_t iB = 0; iB < numBasisFuncs; iB++) // Index for basis function
+    for (std::size_t iFun = 0; iFun < numberOfBasisFunctions; iFun++)
     {
-        for (std::size_t iV = 0; iV < numberOfVariables_; ++iV)
+        for (std::size_t iVar = 0; iVar < numberOfVariables_; ++iVar)
         {
-            iVB = element.getElement()->convertToSingleIndex(iB, iV);
-            integrand(iVB) = physicalFlux(iV) * element.basisFunctionDeriv(iB)(0);
-            integrand(iVB) += source(iV) * element.basisFunction(iB);
+            const std::size_t iVarFun = element.convertToSingleIndex(iFun, iVar);
+            integrand(iVarFun) = physicalFlux(iVar) * element.basisFunctionDeriv(iFun)(0);
+            integrand(iVarFun) += source(iVar) * element.basisFunction(iFun);
         }
     }
 
@@ -64,27 +63,22 @@ const LinearAlgebra::MiddleSizeVector SavageHutter1DBase::integrandRightHandSide
 const LinearAlgebra::MiddleSizeVector SavageHutter1DBase::integrandRightHandSideOnRefFace
 (Base::PhysicalFace<1>& face, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight)
 {
-    double normal = face.getNormalVector()[0];
-    const std::size_t numTestBasisFuncs = face.getFace()->getPtrElement(iSide)->getNumberOfBasisFunctions();
+    const std::size_t numTestBasisFuncs = face.getPhysicalElement(iSide).getNumberOfBasisFunctions();
 
     //compute numerical solution at the left side and right side of this face
-    LinearAlgebra::MiddleSizeVector solutionLeft = Helpers::getSolution<1>(face.getPhysicalElement(Base::Side::LEFT), solutionCoefficientsLeft, numberOfVariables_);
-    LinearAlgebra::MiddleSizeVector solutionRight = Helpers::getSolution<1>(face.getPhysicalElement(Base::Side::RIGHT), solutionCoefficientsRight, numberOfVariables_);
+    const LinearAlgebra::MiddleSizeVector solutionLeft = Helpers::getSolution<1>(face.getPhysicalElement(Base::Side::LEFT), solutionCoefficientsLeft, numberOfVariables_);
+    const LinearAlgebra::MiddleSizeVector solutionRight = Helpers::getSolution<1>(face.getPhysicalElement(Base::Side::RIGHT), solutionCoefficientsRight, numberOfVariables_);
 
-    LinearAlgebra::MiddleSizeVector flux = hllcFlux(solutionLeft, solutionRight, face.getUnitNormalVector()[0], face);
+    const LinearAlgebra::MiddleSizeVector flux = hllcFlux(solutionLeft, solutionRight, face.getUnitNormalVector()[0], face);
 
-    if (iSide == Base::Side::RIGHT) //the normal is defined for the left element
-    {
-        normal *= -1;
-    }
     LinearAlgebra::MiddleSizeVector& integrand = face.getResultVector(iSide); // Integrand value based on n number of testbasisfunctions from element corresponding to side iSide
 
     for (std::size_t iFun = 0; iFun < numTestBasisFuncs; ++iFun)
     {
         for (std::size_t iVar = 0; iVar < numberOfVariables_; ++iVar)
         {
-            std::size_t iVarFun = face.getFace()->getPtrElement(iSide)->convertToSingleIndex(iFun, iVar);
-            integrand(iVarFun) = -flux(iVar) * face.basisFunction(iSide, iFun) * normal;
+            std::size_t iVarFun = face.convertToSingleIndex(iSide, iFun, iVar);
+            integrand(iVarFun) = -flux(iVar) * face.basisFunctionNormal(iSide, iFun)(0);
         }
     }
 
@@ -97,16 +91,14 @@ std::pair<LinearAlgebra::MiddleSizeVector, LinearAlgebra::MiddleSizeVector> Sava
         const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
         const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight)
 {
-    double normal = face.getNormalVector()[0];
-
     //compute numerical solution at the left side and right side of this face
-    LinearAlgebra::MiddleSizeVector solutionLeft = Helpers::getSolution<1>(face.getPhysicalElement(Base::Side::LEFT), solutionCoefficientsLeft, numberOfVariables_);
-    LinearAlgebra::MiddleSizeVector solutionRight = Helpers::getSolution<1>(face.getPhysicalElement(Base::Side::RIGHT), solutionCoefficientsRight, numberOfVariables_);
+    const LinearAlgebra::MiddleSizeVector solutionLeft = Helpers::getSolution<1>(face.getPhysicalElement(Base::Side::LEFT), solutionCoefficientsLeft, numberOfVariables_);
+    const LinearAlgebra::MiddleSizeVector solutionRight = Helpers::getSolution<1>(face.getPhysicalElement(Base::Side::RIGHT), solutionCoefficientsRight, numberOfVariables_);
 
-    LinearAlgebra::MiddleSizeVector flux = hllcFlux(solutionLeft, solutionRight, face.getUnitNormalVector()[0], face);
+    const LinearAlgebra::MiddleSizeVector flux = hllcFlux(solutionLeft, solutionRight, face.getUnitNormalVector()[0], face);
 
-    std::size_t numOfTestBasisFunctionsLeft = face.getPhysicalElement(Base::Side::LEFT).getNumberOfBasisFunctions();
-    std::size_t numOfTestBasisFunctionsRight = face.getPhysicalElement(Base::Side::RIGHT).getNumberOfBasisFunctions();
+    const std::size_t numOfTestBasisFunctionsLeft = face.getPhysicalElement(Base::Side::LEFT).getNumberOfBasisFunctions();
+    const std::size_t numOfTestBasisFunctionsRight = face.getPhysicalElement(Base::Side::RIGHT).getNumberOfBasisFunctions();
     std::pair<LinearAlgebra::MiddleSizeVector, LinearAlgebra::MiddleSizeVector> integrands(
             std::piecewise_construct,
             std::forward_as_tuple(numberOfVariables_ * numOfTestBasisFunctionsLeft),
@@ -116,97 +108,54 @@ std::pair<LinearAlgebra::MiddleSizeVector, LinearAlgebra::MiddleSizeVector> Sava
     {
         for (std::size_t iFun = 0; iFun < numOfTestBasisFunctionsLeft; ++iFun)
         {
-            std::size_t iVarFun = face.getFace()->getPtrElement(Base::Side::LEFT)->convertToSingleIndex(iFun, iVar);
-            integrands.first(iVarFun) = -flux(iVar) * face.basisFunction(Base::Side::LEFT, iFun) * normal;
+            const std::size_t iVarFunLeft = face.getPhysicalElement(Base::Side::LEFT).convertToSingleIndex(iFun, iVar);
+            integrands.first(iVarFunLeft) = -flux(iVar) * face.basisFunctionNormal(Base::Side::LEFT, iFun)(0);
         }
         for (std::size_t iFun = 0; iFun < numOfTestBasisFunctionsRight; ++iFun)
         {
-            std::size_t iVarFun = face.getFace()->getPtrElement(Base::Side::RIGHT)->convertToSingleIndex(iFun, iVar);
-            integrands.second(iVarFun) = flux(iVar) * face.basisFunction(Base::Side::RIGHT, iFun) * normal;
+            const std::size_t iVarFunRight = face.getPhysicalElement(Base::Side::RIGHT).convertToSingleIndex(iFun, iVar);
+            integrands.second(iVarFunRight) = -flux(iVar) * face.basisFunctionNormal(Base::Side::RIGHT, iFun)(0);
         }
     }
     return integrands;
 }
 
-///\details Compute the flux on the boundary. Note that there is a lot of dead code
-///in here, this can be deleted when everything proves to work fine or in April 2016, whichever comes first.
+///\details Compute the flux on the boundary. 
+///\todo split in multiple functions
 const LinearAlgebra::MiddleSizeVector SavageHutter1DBase::integrandRightHandSideOnRefFace
 (
  Base::PhysicalFace<1>& face,
  const LinearAlgebra::MiddleSizeVector &solutionCoefficients,
- const double time
+ const double &time
  )
 {
-    
-    // Dead code that is a back-up of the boundary conditions.
     MiddleSizeVector flux(numberOfVariables_);
     
-    double normal = face.getNormalVector()[0];
-    const std::size_t numberOfBasisFuncs = face.getNumberOfBasisFunctions();
-    LinearAlgebra::MiddleSizeVector solution = Helpers::getSolution<1>(face.getPhysicalElement(Base::Side::LEFT), solutionCoefficients, numberOfVariables_);
-    double u = 0;
-    if (solution(0) > dryLimit_)
-    {
-        u = solution(1) / solution(0);
-    }
+    const LinearAlgebra::MiddleSizeVector solution = Helpers::getSolution<1>(face.getPhysicalElement(Base::Side::LEFT), solutionCoefficients, numberOfVariables_);
+    const double u = (solution(0) > dryLimit_) ? solution(1) / solution(0) : 0;
     
     //outflow
-    if (normal > 0)
+    if (face.getNormalVector()(0) > 0)
     {
-        //solid wall on the end
-        if (time > 10 && time < 7)
+        //solid wall on the end, can be put in as a function of time
+        if (false)
         {
-            LinearAlgebra::MiddleSizeVector reflection;
-            if (time < 10)
-            {
-                reflection = LinearAlgebra::MiddleSizeVector({solution[0], -solution[1]});
-            }
-            else
-            {
-                reflection = LinearAlgebra::MiddleSizeVector({solution[0], 20 * (time - 0.15) * solution[1]});
-            }
+            const LinearAlgebra::MiddleSizeVector reflection = LinearAlgebra::MiddleSizeVector({solution[0], -solution[1]});
             flux = hllcFlux(solution, reflection, 1, face);
         }
         else
-        {
-            /*//reference for how to do interpolation with finite differences of faces:
-            const Base::Face *otherFace = face.getPhysicalElement(Base::Side::LEFT).getElement()->getFace(0);
-            MiddleSizeVector otherSideSolution = 0.5 * (otherFace->getPtrElementRight()->getSolution(0, otherFace->mapRefFaceToRefElemR(pRef)) + otherFace->getPtrElementLeft()->getSolution(0, otherFace->mapRefFaceToRefElemL(pRef)));
-            const Base::Element *otherElement = otherFace->getPtrElementLeft();
-            logger(DEBUG, "one back: %", otherElement->getID());
-            otherFace = otherElement->getFace(0);
-            MiddleSizeVector twoBackSolution = 0.5 * (otherFace->getPtrElementRight()->getSolution(0, otherFace->mapRefFaceToRefElemR(pRef)) + otherFace->getPtrElementLeft()->getSolution(0, otherFace->mapRefFaceToRefElemL(pRef)));
-            otherElement = otherFace->getPtrElementLeft();
-            logger(DEBUG, "two back: %", otherElement->getID());
-            otherFace = otherElement->getFace(0);
-            MiddleSizeVector threeBackSolution = 0.5*(otherFace->getPtrElementRight()->getSolution(0, otherFace->mapRefFaceToRefElemR(pRef)) + otherFace->getPtrElementLeft()->getSolution(0, otherFace->mapRefFaceToRefElemL(pRef)));
-            otherElement = otherFace->getPtrElementLeft();
-            logger(DEBUG, "three back: %", otherElement->getID());
-            otherFace = otherElement->getFace(0);
-            MiddleSizeVector fourBackSolution = 0.5*(otherFace->getPtrElementRight()->getSolution(0, otherFace->mapRefFaceToRefElemR(pRef)) + otherFace->getPtrElementLeft()->getSolution(0, otherFace->mapRefFaceToRefElemL(pRef)));
-            otherElement = otherFace->getPtrElementLeft();
-            logger(DEBUG, "four back: %", otherElement->getID());
-            otherFace = otherElement->getFace(0);
-            MiddleSizeVector fiveBackSolution = 0.5*(otherFace->getPtrElementRight()->getSolution(0, otherFace->mapRefFaceToRefElemR(pRef)) + otherFace->getPtrElementLeft()->getSolution(0, otherFace->mapRefFaceToRefElemL(pRef)));
-            otherElement = otherFace->getPtrElementLeft();
-            logger(DEBUG, "five back: %", otherElement->getID());
-            otherFace = otherElement->getFace(0);
-            MiddleSizeVector sixBackSolution = 0.5*(otherFace->getPtrElementRight()->getSolution(0, otherFace->mapRefFaceToRefElemR(pRef)) + otherFace->getPtrElementLeft()->getSolution(0, otherFace->mapRefFaceToRefElemL(pRef)));
-            
-            MiddleSizeVector ghostSolution = 2 * solution - 1 * otherSideSolution + 0 * twoBackSolution;*/
-
+        {            
             //subcritical outflow:
             if ((solution[1] / solution[0] < std::sqrt(solution[0] * std::cos(chuteAngle_) * epsilon_)))
             {
-                double uIn = solution[1] / solution[0];
-                double invariantIn = uIn + 2 * std::sqrt(epsilon_ * std::cos(chuteAngle_) * solution[0]);
-                //double froudeIn = solution[1] / solution[0] / std::sqrt(epsilon_ * std::cos(chuteAngle_) * solution[0]);
-                double froudePrescribed = .75;
-                double hOut = (invariantIn / (2 + froudePrescribed)) * (invariantIn / (2 + froudePrescribed)) / (epsilon_ * std::cos(chuteAngle_));
+                const double uIn = solution[1] / solution[0];
+                const double invariantIn = uIn + 2 * std::sqrt(epsilon_ * std::cos(chuteAngle_) * solution[0]);
+                const double froudePrescribed = .75;
+                const double hOut = (invariantIn / (2 + froudePrescribed)) * (invariantIn / (2 + froudePrescribed)) / (epsilon_ * std::cos(chuteAngle_));
                 //double hOut = 0.5;
-                double uOut = invariantIn - 2 * std::sqrt(epsilon_ * std::cos(chuteAngle_) * hOut);
+                const double uOut = invariantIn - 2 * std::sqrt(epsilon_ * std::cos(chuteAngle_) * hOut);
                 logger(DEBUG, "new h and u and F: %, %, %", hOut, uOut, uOut / std::sqrt(epsilon_ * std::cos(chuteAngle_) * hOut));
-                auto stateNew = MiddleSizeVector({hOut, hOut * uOut});
+                const auto stateNew = MiddleSizeVector({hOut, hOut * uOut});
                 flux = hllcFlux(solution, stateNew, 1, face);
             }
             else
@@ -219,11 +168,11 @@ const LinearAlgebra::MiddleSizeVector SavageHutter1DBase::integrandRightHandSide
     else //inflow
     {
         //subcritical inflow:
-        if (solution[1] / solution[0] < std::sqrt(solution[0] * std::cos(chuteAngle_) * epsilon_))
+        if (false && solution[1] / solution[0] < std::sqrt(solution[0] * std::cos(chuteAngle_) * epsilon_))
         {
-            double hNew = inflowBC_[0];
-            double uNew = solution[1] / solution[0] - 2 * std::sqrt(epsilon_ * std::cos(chuteAngle_))*(std::sqrt(solution[0]) - std::sqrt(hNew));
-            auto stateNew = MiddleSizeVector({hNew, hNew * uNew});
+            const double hNew = inflowBC_[0];
+            const double uNew = solution[1] / solution[0] - 2 * std::sqrt(epsilon_ * std::cos(chuteAngle_))*(std::sqrt(solution[0]) - std::sqrt(hNew));
+            const auto stateNew = MiddleSizeVector({hNew, hNew * uNew});
             flux = hllcFlux(stateNew, solution, 1, face);
         }
         else
@@ -232,24 +181,15 @@ const LinearAlgebra::MiddleSizeVector SavageHutter1DBase::integrandRightHandSide
         }
     }
     
+    const std::size_t numberOfBasisFunctions = face.getNumberOfBasisFunctions();
+    LinearAlgebra::MiddleSizeVector integrand(numberOfVariables_ * numberOfBasisFunctions);
 
-    //note that at the boundary, the element is the left element by definition
-    //LinearAlgebra::MiddleSizeVector solution = Helpers::getSolution<1>(face.getPhysicalElement(Base::Side::LEFT), solutionCoefficients, numberOfVariables_);
-    //LinearAlgebra::MiddleSizeVector flux = hllcFlux(solution, computeGhostSolution(solution, normal, time, face.getPointPhysical()), 1, face);
-    //enforce inflow bc strongly
-    //if (std::abs(computeGhostSolution(solution, normal, time, face.getPointPhysical())[1] - inflowBC_[1]) < 1e-10 && normal < 0)
-    //{
-    //    flux = computePhysicalFlux(inflowBC_, face.getPointPhysical());
-    //    logger(INFO, "test");
-    //}
-    LinearAlgebra::MiddleSizeVector integrand(numberOfVariables_ * numberOfBasisFuncs);
-
-    for (std::size_t iFun = 0; iFun < numberOfBasisFuncs; ++iFun)
+    for (std::size_t iFun = 0; iFun < numberOfBasisFunctions; ++iFun)
     {
         for (std::size_t iVar = 0; iVar < numberOfVariables_; ++iVar)
         {
-            std::size_t iVarFun = face.getFace()->getPtrElementLeft()->convertToSingleIndex(iFun, iVar);
-            integrand(iVarFun) = -flux(iVar) * face.basisFunction(iFun) * normal;
+            const std::size_t iVarFun = face.convertToSingleIndex(Base::Side::LEFT, iFun, iVar);
+            integrand(iVarFun) = -flux(iVar) * face.basisFunctionNormal(iFun)[0];
         }
     }
     
@@ -260,17 +200,11 @@ const LinearAlgebra::MiddleSizeVector SavageHutter1DBase::integrandRightHandSide
 
 LinearAlgebra::MiddleSizeVector SavageHutter1DBase::localLaxFriedrichsFlux(const LinearAlgebra::MiddleSizeVector& numericalSolutionLeft, const LinearAlgebra::MiddleSizeVector& numericalSolutionRight, Base::PhysicalFace<1> &face)
 {
-    double uLeft = 0;
-    if (numericalSolutionLeft(0) > dryLimit_)
-    {
-        uLeft = numericalSolutionLeft(1) / numericalSolutionLeft(0);
-    }
+    const double hLeft = numericalSolutionLeft(0);
+    const double uLeft = (hLeft > dryLimit_) ? numericalSolutionLeft(1) / hLeft : 0;
 
-    double uRight = 0;
-    if (numericalSolutionRight(0) > dryLimit_)
-    {
-        uRight = numericalSolutionRight(1) / numericalSolutionRight(0);
-    }
+    const double hRight = numericalSolutionRight(0);
+    const double uRight = (hRight > dryLimit_) ? numericalSolutionRight(1) / hRight : 0;
 
     const double alpha = std::max(std::abs(uLeft) + std::sqrt(epsilon_ * std::max(0., numericalSolutionLeft(0))),
                                   std::abs(uRight) + std::sqrt(epsilon_ * std::max(0., numericalSolutionRight(0))));
@@ -278,7 +212,7 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DBase::localLaxFriedrichsFlux(const
     logger(DEBUG, "alpha: %", alpha);
 
     logger(DEBUG, "physical fluxes: %, %", computePhysicalFlux(numericalSolutionLeft, face.getPointPhysical()), computePhysicalFlux(numericalSolutionRight, face.getPointPhysical()));
-    LinearAlgebra::MiddleSizeVector diffSolutions = numericalSolutionRight - numericalSolutionLeft;
+    const LinearAlgebra::MiddleSizeVector diffSolutions = numericalSolutionRight - numericalSolutionLeft;
     const LinearAlgebra::MiddleSizeVector numericalFlux = 0.5 *
         (computePhysicalFlux(numericalSolutionLeft, face.getPointPhysical()) + computePhysicalFlux(numericalSolutionRight, face.getPointPhysical())
          - alpha * (diffSolutions));
@@ -288,25 +222,21 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DBase::localLaxFriedrichsFlux(const
 
 LinearAlgebra::MiddleSizeVector SavageHutter1DBase::hllcFlux(const LinearAlgebra::MiddleSizeVector& numericalSolutionLeft, const LinearAlgebra::MiddleSizeVector& numericalSolutionRight, const double normal, Base::PhysicalFace<1> &face)
 {
-    const double hLeft = numericalSolutionLeft[0];
-    const double hRight = numericalSolutionRight[0];
-    double normalSpeedLeft = 0;
-    if (numericalSolutionLeft(0) > dryLimit_)
-    {
-        normalSpeedLeft = normal * numericalSolutionLeft(1) / numericalSolutionLeft(0);
-    }
-
-    double normalSpeedRight = 0;
-    if (numericalSolutionRight(0) > dryLimit_)
-    {
-        normalSpeedRight = normal * numericalSolutionRight(1) / numericalSolutionRight(0);
-    }
-    LinearAlgebra::MiddleSizeVector fluxNormalLeft = normal * computePhysicalFlux(numericalSolutionLeft, face.getPointPhysical());
-    LinearAlgebra::MiddleSizeVector fluxNormalRight = normal * computePhysicalFlux(numericalSolutionRight, face.getPointPhysical());
-    double phaseSpeedLeft = std::sqrt(epsilon_ * std::cos(chuteAngle_) * hLeft);
-    double phaseSpeedRight = std::sqrt(epsilon_ * std::cos(chuteAngle_) * hRight);
-    double sl = std::min(normalSpeedLeft - phaseSpeedLeft, normalSpeedRight - phaseSpeedRight);
-    double sr = std::max(normalSpeedLeft + phaseSpeedLeft, normalSpeedRight + phaseSpeedRight);
+    const double hLeft = numericalSolutionLeft(0);
+    const double hRight = numericalSolutionRight(0);
+    
+    const double normalSpeedLeft = (hLeft > dryLimit_) ? normal * numericalSolutionLeft(1) / hLeft : 0;    
+    const double normalSpeedRight = (hRight > dryLimit_) ? normal * numericalSolutionRight(1) / hRight : 0;
+    
+    const LinearAlgebra::MiddleSizeVector fluxNormalLeft = normal * computePhysicalFlux(numericalSolutionLeft, face.getPointPhysical());
+    const LinearAlgebra::MiddleSizeVector fluxNormalRight = normal * computePhysicalFlux(numericalSolutionRight, face.getPointPhysical());
+    
+    const double phaseSpeedLeft = std::sqrt(epsilon_ * std::cos(chuteAngle_) * hLeft);
+    const double phaseSpeedRight = std::sqrt(epsilon_ * std::cos(chuteAngle_) * hRight);
+    
+    const double sl = std::min(normalSpeedLeft - phaseSpeedLeft, normalSpeedRight - phaseSpeedRight);
+    const double sr = std::max(normalSpeedLeft + phaseSpeedLeft, normalSpeedRight + phaseSpeedRight);
+    
     if (sl >= 0)
     {
         return fluxNormalLeft;
@@ -319,7 +249,7 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DBase::hllcFlux(const LinearAlgebra
 }
 
 
-double SavageHutter1DBase::computeFrictionCoulomb(const LinearAlgebra::MiddleSizeVector& numericalSolution, const double frictionAngle)
+double SavageHutter1DBase::computeFrictionCoulomb(const LinearAlgebra::MiddleSizeVector& numericalSolution, const double& frictionAngle)
 {
     return std::tan(frictionAngle);
 }

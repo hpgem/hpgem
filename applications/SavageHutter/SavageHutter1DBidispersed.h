@@ -67,13 +67,11 @@ public:
     void setInflowBC(double time) override final;
 private:
 
-    void limitSmallHeight();
+    double computeFrictionBidispersed(const LinearAlgebra::MiddleSizeVector& numericalSolution);
+    double computeFrictionExponentialBidispersed(const LinearAlgebra::MiddleSizeVector &numericalSolution);
 
-    void tasksAfterTimeStep() override final
-    {
-      SavageHutterBase::tasksAfterTimeStep ();
-      limitSmallHeight();
-    }
+    void tasksAfterTimeStep() override final;
+    
     ///shape factor of the velocity of the flow, 0<=alpha_<=1 . 
     ///This is a different alpha_ than in the basic application!
     double alpha_;

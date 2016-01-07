@@ -31,7 +31,6 @@ namespace Geometry
     class Point
     {
     public:
-        
         /// Constructors.
         Point();
         

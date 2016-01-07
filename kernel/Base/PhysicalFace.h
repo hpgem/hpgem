@@ -40,6 +40,7 @@ namespace Base
     //note that names in this class match the names in Face unless this makes no sense
     //when you use a physical face in the kernel be careful to avoid infinite recursion
     ///\todo generalize implementation to support the cached data
+    ///\todo move method implementations to PhysicalFace_Impl.h
     template<std::size_t DIM>
     class PhysicalFace final
     {

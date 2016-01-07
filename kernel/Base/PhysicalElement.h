@@ -39,6 +39,7 @@ namespace Base
     //note that names in this class match the names in Element unless this makes no sense
     //when you use a physical element in the kernel be careful to avoid infinite recursion
     ///\todo generalize implementation to support the cached data
+    //\todo move implementation of methods to PhysicalElement_Impl.h
     template<std::size_t DIM>
     class PhysicalElement final
     {

@@ -50,7 +50,7 @@ std::size_t RK2TVD::getOrder() const
     return order_;
 }
 
-std::size_t RK2TVD::getNumStages() const
+std::size_t RK2TVD::getNumberOfStages() const
 {
     return numStages_;
 }
@@ -62,20 +62,20 @@ bool RK2TVD::getTotalVariationDiminishing() const
 
 double RK2TVD::getA(std::size_t i, std::size_t j) const
 {
-    logger.assert(i<getNumStages(), "Asked for stage %, but there are only % stages", i, getNumStages());
+    logger.assert(i<getNumberOfStages(), "Asked for stage %, but there are only % stages", i, getNumberOfStages());
     logger.assert(j<i, "Asked for implicit coefficient %, but this is an explicit butcher tableau", j);
     return a_[i][j];
 }
 
 double RK2TVD::getB(std::size_t i) const
 {
-    logger.assert(i<getNumStages(), "Asked for stage %, but there are only % stages", i, getNumStages());
+    logger.assert(i<getNumberOfStages(), "Asked for stage %, but there are only % stages", i, getNumberOfStages());
     return b_[i];
 }
 
 double RK2TVD::getC(std::size_t i) const
 {
-    logger.assert(i<getNumStages(), "Asked for stage %, but there are only % stages", i, getNumStages());
+    logger.assert(i<getNumberOfStages(), "Asked for stage %, but there are only % stages", i, getNumberOfStages());
     return c_[i];
 }
 

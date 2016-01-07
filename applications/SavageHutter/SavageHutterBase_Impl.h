@@ -119,7 +119,7 @@ std::pair<LinearAlgebra::MiddleSizeVector, LinearAlgebra::MiddleSizeVector> Sava
 template <std::size_t DIM>
 void SavageHutterBase<DIM>::computeOneTimeStep(double &time, const double dt)
 {
-    std::size_t numberOfStages = this->ptrButcherTableau_->getNumStages();
+    std::size_t numberOfStages = this->ptrButcherTableau_->getNumberOfStages();
 
     // Compute intermediate Runge-Kutta stages
     ///Currently, the limiting is only possible with the explicit Euler method.

@@ -61,7 +61,7 @@ protected:
     (
         Base::PhysicalFace<DIM> &face,
         const MiddleSizeVector &solutionCoefficients,
-        const double time
+        const double &time
         ) = 0;
 
     /// \brief Purely virtual function to compute the integrand for the right hand side for the reference face corresponding to an internal face.
@@ -108,6 +108,10 @@ protected:
     {
         return new EmptyHeightLimiter;
     }
+
+
+    ///Compute the minimum of the height in the given element
+    const double getMinimumHeight(const Base::Element *element);
     
     /// Number of variables
     const std::size_t numberOfVariables_;
@@ -161,8 +165,6 @@ private:
     void limitSolutionOuterLoop();
     void limitSolutionInnerLoop();
 
-    ///Compute the minimum of the height in the given element
-    const double getMinimumHeight(const Base::Element *element);
 
 };
 

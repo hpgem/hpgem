@@ -167,6 +167,11 @@ namespace Geometry
         return referenceToPhysicalMapping_->calcJacobian(pointReference);
     }
 
+    ///Create the reference element for the given number of nodes. Since this method
+    ///is templated on the dimension, there is always a unique reference geometry
+    ///for the given number of nodes. This method then returns a pointer to the
+    ///relevant ReferenceGeometry, for example the reference triangle if the given
+    ///number of nodes equals 3.
     template<std::size_t DIM>
     ReferenceGeometry *
     ElementGeometry::createReferenceGeometry(std::size_t size)

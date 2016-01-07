@@ -37,7 +37,7 @@ namespace TimeIntegration
         }
         
         std::size_t getOrder() const override final;
-        std::size_t getNumStages() const override final;
+        std::size_t getNumberOfStages() const override final;
         bool getTotalVariationDiminishing() const override final;
         double getA(std::size_t i, std::size_t j) const override final;
         double getB(std::size_t i) const override final;
