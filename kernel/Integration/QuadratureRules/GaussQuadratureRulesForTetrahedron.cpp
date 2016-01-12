@@ -26,7 +26,6 @@
 #include "Integration/QuadratureRules/GaussQuadratureRulesForTetrahedron.h"
 #include "Geometry/ReferenceTetrahedron.h"
 #include "Geometry/PointReference.h"
-using Geometry::ReferenceTetrahedron;
 
 //---------------------------------------------------------------------------
 namespace QuadratureRules
@@ -65,14 +64,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    Tn3_1_1::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     Tn3_1_1::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     Tn3_1_1::Tn3_1_1()
-            : name_("Tn3_1_1"), refGeoPtr_(&ReferenceTetrahedron::Instance()), gp_(0)
+            : name_("Tn3_1_1"), refGeoPtr_(&Geometry::ReferenceTetrahedron::Instance()), gp_(0)
     {
         weight_[0] = 1.6666666666666663e-01;
         gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({2.5000000000000000e-01, 2.5000000000000000e-01, 2.5000000000000000e-01}));
@@ -113,14 +112,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    Tn3_2_4::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     Tn3_2_4::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     Tn3_2_4::Tn3_2_4()
-            : name_("Tn3_2_1"), refGeoPtr_(&ReferenceTetrahedron::Instance()), gp_(0)
+            : name_("Tn3_2_1"), refGeoPtr_(&Geometry::ReferenceTetrahedron::Instance()), gp_(0)
     {
         weight_[0] = 4.1666666666666623e-02;
         gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({1.3819660112501048e-01, 1.3819660112501048e-01, 1.3819660112501048e-01}));
@@ -170,14 +169,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    Tn3_3_5::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     Tn3_3_5::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     Tn3_3_5::Tn3_3_5()
-            : name_("Tn3_3_1"), refGeoPtr_(&ReferenceTetrahedron::Instance()), gp_(0)
+            : name_("Tn3_3_1"), refGeoPtr_(&Geometry::ReferenceTetrahedron::Instance()), gp_(0)
     {
         weight_[0] = -1.3333333333333339e-01;
         gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({2.5000000000000000e-01, 2.5000000000000000e-01, 2.5000000000000000e-01}));
@@ -230,14 +229,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    Tn3_4_11::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     Tn3_4_11::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     Tn3_4_11::Tn3_4_11()
-            : name_("Tn3_4_1"), refGeoPtr_(&ReferenceTetrahedron::Instance()), gp_(0)
+            : name_("Tn3_4_1"), refGeoPtr_(&Geometry::ReferenceTetrahedron::Instance()), gp_(0)
     {
         weight_[0] = -1.3155555555555500e-02;
         gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({2.5000000000000000e-01, 2.5000000000000000e-01, 2.5000000000000000e-01}));
@@ -308,14 +307,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    T3_5_14::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     T3_5_14::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     T3_5_14::T3_5_14()
-            : name_("T3_5_1"), refGeoPtr_(&ReferenceTetrahedron::Instance()), gp_(0)
+            : name_("T3_5_1"), refGeoPtr_(&Geometry::ReferenceTetrahedron::Instance()), gp_(0)
     {
         weight_[0] = 1.2248840519393626e-02;
         gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({9.2735250310891026e-02, 9.2735250310891026e-02, 9.2735250310891026e-02}));
@@ -395,14 +394,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    T3_6_24::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     T3_6_24::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     T3_6_24::T3_6_24()
-            : name_("T3_6_1"), refGeoPtr_(&ReferenceTetrahedron::Instance()), gp_(0)
+            : name_("T3_6_1"), refGeoPtr_(&Geometry::ReferenceTetrahedron::Instance()), gp_(0)
     {
         weight_[0] = 6.6537917096946252e-03;
         gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({2.1460287125915201e-01, 2.1460287125915201e-01, 2.1460287125915201e-01}));
@@ -512,14 +511,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    T3_7_31::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     T3_7_31::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     T3_7_31::T3_7_31()
-            : name_("T3_7_1"), refGeoPtr_(&ReferenceTetrahedron::Instance()), gp_(0)
+            : name_("T3_7_1"), refGeoPtr_(&Geometry::ReferenceTetrahedron::Instance()), gp_(0)
     {
         weight_[0] = 9.7001763668425002e-04;
         gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({5.0000000000000000e-01, 5.0000000000000000e-01, 0.0000000000000000e+00}));
@@ -650,14 +649,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    T3_8_43::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     T3_8_43::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     T3_8_43::T3_8_43()
-            : name_("T3_8_1"), refGeoPtr_(&ReferenceTetrahedron::Instance()), gp_(0)
+            : name_("T3_8_1"), refGeoPtr_(&Geometry::ReferenceTetrahedron::Instance()), gp_(0)
     {
         weight_[0] = -2.0500188658639874e-02;
         gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({2.5000000000000000e-01, 2.5000000000000000e-01, 2.5000000000000000e-01}));
@@ -824,14 +823,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    T3_9_53::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     T3_9_53::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     T3_9_53::T3_9_53()
-            : name_("T3_9_1"), refGeoPtr_(&ReferenceTetrahedron::Instance()), gp_(0)
+            : name_("T3_9_1"), refGeoPtr_(&Geometry::ReferenceTetrahedron::Instance()), gp_(0)
     {
         weight_[0] = -1.3779903832610862e-01;
         gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({2.5000000000000000e-01, 2.5000000000000000e-01, 2.5000000000000000e-01}));
@@ -1028,14 +1027,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    T3_10_126::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     T3_10_126::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     T3_10_126::T3_10_126()
-            : name_("T3_10_1"), refGeoPtr_(&ReferenceTetrahedron::Instance()), gp_(0)
+            : name_("T3_10_1"), refGeoPtr_(&Geometry::ReferenceTetrahedron::Instance()), gp_(0)
     {
         weight_[0] = 4.5362824065080999e-02;
         gp_.push_back(Geometry::PointReferenceFactory<3>::instance()->makePoint({7.1428571428571508e-02, 7.1428571428571508e-02, 7.8571428571428548e-01}));

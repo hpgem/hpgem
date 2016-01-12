@@ -72,7 +72,7 @@ namespace Geometry
         return os;
     }
     // ================================== Codimension 0 ============================================
-    std::size_t ReferenceLine::getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
+    std::size_t ReferenceLine::getCodim0MappingIndex(const std::vector<std::size_t>& list1, const std::vector<std::size_t>& list2) const
     {
         if (list1.size() == 2 && list2.size() == 2)
         {

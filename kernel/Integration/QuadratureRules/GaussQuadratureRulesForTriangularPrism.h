@@ -29,15 +29,10 @@
 //---------------------------------------------------------------------------
 namespace QuadratureRules
 {
-    using Geometry::PointReference;
-    using Geometry::ReferenceGeometry;
     
 //---------------------------------------------------------------------------
     class TriPrism_1_1 : public GaussQuadratureRule
     {
-    public:
-        using ReferenceGeometryT = ReferenceGeometry;
-        using PointReferenceT = Geometry::PointReferenceBase;
     public:
         static TriPrism_1_1& Instance()
         {
@@ -51,24 +46,21 @@ namespace QuadratureRules
         std::size_t dimension() const override final;
         std::size_t getNumberOfPoints() const override final;
         double weight(std::size_t i) const override final;
-        const PointReferenceT& getPoint(std::size_t i) const override final;
-        ReferenceGeometryT* forReferenceGeometry() const override final;
+        const Geometry::PointReferenceBase& getPoint(std::size_t i) const override final;
+        Geometry::ReferenceGeometry* forReferenceGeometry() const override final;
 
     private:
         TriPrism_1_1();
 
         const std::string name_;
         double weight_[1];
-        ReferenceGeometryT* const refGeoPtr_;
+        Geometry::ReferenceGeometry* const refGeoPtr_;
         std::vector<const Geometry::PointReference<3>*> gp_;
     };
     
 //---------------------------------------------------------------------------
     class TriPrism_3_8 : public GaussQuadratureRule
     {
-    public:
-        using ReferenceGeometryT = ReferenceGeometry;
-        using PointReferenceT = Geometry::PointReferenceBase;
     public:
         static TriPrism_3_8& Instance()
         {
@@ -82,24 +74,21 @@ namespace QuadratureRules
         std::size_t dimension() const override final;
         std::size_t getNumberOfPoints() const override final;
         double weight(std::size_t i) const override final;
-        const PointReferenceT& getPoint(std::size_t i) const override final;
-        ReferenceGeometryT* forReferenceGeometry() const override final;
+        const Geometry::PointReferenceBase& getPoint(std::size_t i) const override final;
+        Geometry::ReferenceGeometry* forReferenceGeometry() const override final;
 
     private:
         TriPrism_3_8();
 
         const std::string name_;
         double weight_[8];
-        ReferenceGeometryT* const refGeoPtr_;
+        Geometry::ReferenceGeometry* const refGeoPtr_;
         std::vector<const Geometry::PointReference<3>*> gp_;
     };
     
 //---------------------------------------------------------------------------
     class TriPrism_5_21 : public GaussQuadratureRule
     {
-    public:
-        using ReferenceGeometryT = ReferenceGeometry;
-        using PointReferenceT = Geometry::PointReferenceBase;
     public:
         static TriPrism_5_21& Instance()
         {
@@ -113,24 +102,21 @@ namespace QuadratureRules
         std::size_t dimension() const override final;
         std::size_t getNumberOfPoints() const override final;
         double weight(std::size_t i) const override final;
-        const PointReferenceT& getPoint(std::size_t i) const override final;
-        ReferenceGeometryT* forReferenceGeometry() const override final;
+        const Geometry::PointReferenceBase& getPoint(std::size_t i) const override final;
+        Geometry::ReferenceGeometry* forReferenceGeometry() const override final;
 
     private:
         TriPrism_5_21();
 
         const std::string name_;
         double weight_[21];
-        ReferenceGeometryT* const refGeoPtr_;
+        Geometry::ReferenceGeometry* const refGeoPtr_;
         std::vector<const Geometry::PointReference<3>*> gp_;
     };
     
 //---------------------------------------------------------------------------
     class TriPrism_7_64 : public GaussQuadratureRule
     {
-    public:
-        using ReferenceGeometryT = ReferenceGeometry;
-        using PointReferenceT = Geometry::PointReferenceBase;
     public:
         static TriPrism_7_64& Instance()
         {
@@ -144,15 +130,15 @@ namespace QuadratureRules
         std::size_t dimension() const override final;
         std::size_t getNumberOfPoints() const override final;
         double weight(std::size_t i) const override final;
-        const PointReferenceT& getPoint(std::size_t i) const override final;
-        ReferenceGeometryT* forReferenceGeometry() const override final;
+        const Geometry::PointReferenceBase& getPoint(std::size_t i) const override final;
+        Geometry::ReferenceGeometry* forReferenceGeometry() const override final;
 
     private:
         TriPrism_7_64();
 
         const std::string name_;
         double weight_[64];
-        ReferenceGeometryT* const refGeoPtr_;
+        Geometry::ReferenceGeometry* const refGeoPtr_;
         std::vector<const Geometry::PointReference<3>*> gp_;
     };
 

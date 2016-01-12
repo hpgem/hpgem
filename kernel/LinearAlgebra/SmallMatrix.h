@@ -63,6 +63,19 @@ namespace LinearAlgebra
             data_.fill(c);
         }
 
+        SmallMatrix(const std::initializer_list<SmallVector<numberOfRows>>& entries)
+            : data_()
+        {
+            logger.assert(entries.size() == numberOfColumns, "expected a matrix with % columns, but got a matrix with % columns", numberOfColumns, entries.size());
+            std::size_t column = 0;
+            for(const SmallVector<numberOfRows>& entrie : entries) {
+                for(std::size_t i = 0; i < numberOfRows; ++i) {
+                    (*this)(i, column) = entrie[i];
+                }
+                ++column;
+            }
+        }
+
         /// \brief Construct and copy Matrix from another Matrix i.e. B(A) where B and A are both matrices
         SmallMatrix(const SmallMatrix& other)
             : data_()

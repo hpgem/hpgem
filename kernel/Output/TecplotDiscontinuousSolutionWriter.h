@@ -54,8 +54,6 @@ namespace Output
     class TecplotDiscontinuousSolutionWriter
     {
     public:
-        
-        using StringT = std::string;
 
         TecplotDiscontinuousSolutionWriter(std::ostream& output, const std::string& fileTitle, const std::string& dimensionsToWrite, const std::string& variableString);
         
@@ -79,7 +77,7 @@ namespace Output
         
     private:
         
-        StringT makeTecplotVariableString(const StringT& s) const;
+        std::string makeTecplotVariableString(const std::string& s) const;
 
         std::ostream& output_;
 

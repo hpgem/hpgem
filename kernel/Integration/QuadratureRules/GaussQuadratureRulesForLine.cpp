@@ -27,7 +27,6 @@
 
 #include "Geometry/ReferenceLine.h"
 #include "Geometry/PointReference.h"
-using Geometry::ReferenceLine;
 
 //---------------------------------------------------------------------------
 namespace QuadratureRules
@@ -72,14 +71,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
 
-    Cn1_1_1::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     Cn1_1_1::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
 
     Cn1_1_1::Cn1_1_1()
-    : name_("Cn1_1_1"), refGeoPtr_(&ReferenceLine::Instance()), gp_(0)
+    : name_("Cn1_1_1"), refGeoPtr_(&Geometry::ReferenceLine::Instance()), gp_(0)
     {
         weight_[0] = 2.0;
         gp_.push_back(Geometry::PointReferenceFactory<1>::instance()->makePoint({0.0}));
@@ -126,14 +125,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
 
-    Cn1_3_2::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     Cn1_3_2::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
 
     Cn1_3_2::Cn1_3_2()
-    : name_("Cn1_3_4"), refGeoPtr_(&ReferenceLine::Instance()), gp_(0)
+    : name_("Cn1_3_4"), refGeoPtr_(&Geometry::ReferenceLine::Instance()), gp_(0)
     {
         weight_[0] = 1.0;
         gp_.push_back(Geometry::PointReferenceFactory<1>::instance()->makePoint({-std::sqrt(3.0) / 3.0}));
@@ -183,14 +182,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
 
-    Cn1_5_3::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     Cn1_5_3::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
 
     Cn1_5_3::Cn1_5_3()
-    : name_("Cn1_5_9"), refGeoPtr_(&ReferenceLine::Instance()), gp_(0)
+    : name_("Cn1_5_9"), refGeoPtr_(&Geometry::ReferenceLine::Instance()), gp_(0)
     {
         weight_[0] = 5. / 9.;
         gp_.push_back(Geometry::PointReferenceFactory<1>::instance()->makePoint({-std::sqrt(3.0 / 5.0)}));
@@ -243,14 +242,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
 
-    C1_7_4::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     C1_7_4::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
 
     C1_7_4::C1_7_4()
-    : name_("C1_7_x"), refGeoPtr_(&ReferenceLine::Instance()), gp_(0)
+    : name_("C1_7_x"), refGeoPtr_(&Geometry::ReferenceLine::Instance()), gp_(0)
     {
         weight_[0] = (0.347854845137453);
         gp_.push_back(Geometry::PointReferenceFactory<1>::instance()->makePoint({-0.861136311594053}));
@@ -306,14 +305,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
 
-    C1_9_5::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     C1_9_5::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
 
     C1_9_5::C1_9_5()
-    : name_("C1_9_25"), refGeoPtr_(&ReferenceLine::Instance()), gp_(0)
+    : name_("C1_9_25"), refGeoPtr_(&Geometry::ReferenceLine::Instance()), gp_(0)
     {
         weight_[0] = (0.236926885056189);
         gp_.push_back(Geometry::PointReferenceFactory<1>::instance()->makePoint({-0.906179845938663}));
@@ -372,14 +371,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
 
-    C1_11_6::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     C1_11_6::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
 
     C1_11_6::C1_11_6()
-    : name_("C1_11_36"), refGeoPtr_(&ReferenceLine::Instance()), gp_(0)
+    : name_("C1_11_36"), refGeoPtr_(&Geometry::ReferenceLine::Instance()), gp_(0)
     {
         weight_[0] = (0.171324492379170);
         gp_.push_back(Geometry::PointReferenceFactory<1>::instance()->makePoint({-0.932469514203152}));

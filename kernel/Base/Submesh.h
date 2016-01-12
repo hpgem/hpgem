@@ -24,6 +24,7 @@
 
 #include <vector>
 #include <map>
+#include "LevelTree.h"
 
 namespace Geometry
 {
@@ -65,35 +66,35 @@ namespace Base
         }
 
         //! Get const list of elements
-        const std::vector<Element*>& getElementsList() const
+        const LevelTree<Element*>& getElementsList() const
         {
             return elements_;
         }
         
         //! Get non-const list of elements
-        std::vector<Element*>& getElementsList()
+        LevelTree<Element*>& getElementsList()
         {
             return elements_;
         }
         
         //! Get const list of faces
-        const std::vector<Face*>& getFacesList() const
+        const LevelTree<Face*>& getFacesList() const
         {
             return faces_;
         }
         
         //! Get non-const list of faces
-        std::vector<Face*>& getFacesList()
+        LevelTree<Face*>& getFacesList()
         {
             return faces_;
         }
         
-        const std::vector<Edge*>& getEdgesList() const
+        const LevelTree<Edge*>& getEdgesList() const
         {
             return edges_;
         }
         
-        std::vector<Edge*>& getEdgesList()
+        LevelTree<Edge*>& getEdgesList()
         {
             return edges_;
         }
@@ -163,16 +164,16 @@ namespace Base
         
         //! List of all elements. 
         ///\todo: this should be replaced by the mesh-tree structure
-        std::vector<Element*> elements_;
+        LevelTree<Element*> elements_;
 
         //! List of all faces. 
         ///\todo: this should be replaced by the mesh-tree structure
         //! This contains the list of all faces connected to at least one element in this sub-domain
-        std::vector<Face*> faces_;
+        LevelTree<Face*> faces_;
 
         //! List of all edges.
         //! This contains the list of all edges connected to at least one element in this sub-domain
-        std::vector<Edge*> edges_;
+        LevelTree<Edge*> edges_;
 
         //! List of all edges.
         //! This contains the list of all edges connected to at least one element in this sub-domain

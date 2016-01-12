@@ -56,13 +56,6 @@ add_library(Geometry SHARED
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToPhysTriangularPrism.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/OutwardNormalVectorSign.cpp
 
-        # Refinements
-        ${hpGEM_SOURCE_DIR}/kernel/Geometry/RefinementLine.cpp
-        ${hpGEM_SOURCE_DIR}/kernel/Geometry/RefinementTriangle.cpp
-        ${hpGEM_SOURCE_DIR}/kernel/Geometry/RefinementQuadrilateral.cpp
-        ${hpGEM_SOURCE_DIR}/kernel/Geometry/RefinementTriangularPrism.cpp
-        ${hpGEM_SOURCE_DIR}/kernel/Geometry/RefinementHexahedron.cpp
-
       )
 
 target_link_libraries(Reference_geometries LinearAlgebra QuadratureRules)

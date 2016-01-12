@@ -80,7 +80,7 @@ namespace Geometry
     
     // ================================== Codimension 0 ============================================
     
-    std::size_t ReferenceTetrahedron::getCodim0MappingIndex(const ListOfIndexesT& list1, const ListOfIndexesT& list2) const
+    std::size_t ReferenceTetrahedron::getCodim0MappingIndex(const std::vector<std::size_t>& list1, const std::vector<std::size_t>& list2) const
     {
         logger(FATAL, "Tetrahedron to tetrahedron mappings do not exist.\n");
         return 0;

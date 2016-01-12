@@ -320,7 +320,8 @@ void UnsteadyNavierStokesAPI<DIM,NUMBER_OF_VARIABLES>::tasksBeforeSolving
 {
 	//Stability parameters in the auxiliary flux needs the mass matrix
 	//For a single element create the mass matrix: note this breaks down with p-refinement or limiters
-	LinearAlgebra::MiddleSizeMatrix stabilityMassMatrix  = this->computeMassMatrixAtElement(this->meshes_[0]->getElementsList()[0]);
+    //the result of getElementsList() no longer provides a subscript-operator, so I traced the iterator to the beginning instead -FB
+	LinearAlgebra::MiddleSizeMatrix stabilityMassMatrix  = this->computeMassMatrixAtElement(*this->meshes_[0]->elementColBegin());
 	viscousTerms_.setStabilityMassMatrix(stabilityMassMatrix);
 }
 

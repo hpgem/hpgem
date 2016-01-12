@@ -69,7 +69,7 @@ public:
         rectangularMesh.numElementsInDIM_[0] = 8;
         rectangularMesh.numElementsInDIM_[1] = 8;
         
-        Base::HpgemAPIBase<2>::MeshId id = addMesh(rectangularMesh);
+        std::size_t id = addMesh(rectangularMesh);
         
         //Set up the move of the mesh; note that the mesh mover gets deleted in the mesh manipulator
         const MeshMover* meshMover = new MeshMover;

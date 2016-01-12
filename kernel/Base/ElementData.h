@@ -41,9 +41,6 @@ namespace Base
     {
         
     public:
-        using MatrixT = LinearAlgebra::MiddleSizeMatrix;
-        using VectorOfMatrices = std::vector<LinearAlgebra::MiddleSizeMatrix>;
-
         ElementData(std::size_t timeLevels, std::size_t numberOfUnkowns, std::size_t numberOfBasisFunctions, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0);
         
         ElementData(const ElementData& other);
@@ -180,7 +177,7 @@ namespace Base
         UserElementData* userData_;
 
         ///Stores element matrix(es) for this element
-        VectorOfMatrices elementMatrix_;
+        std::vector<LinearAlgebra::MiddleSizeMatrix> elementMatrix_;
         
         ///Stores element vector(s) for this element
         std::vector<LinearAlgebra::MiddleSizeVector> elementVector_;

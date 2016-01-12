@@ -30,6 +30,7 @@
 #include "Submesh.h"
 #include "Geometry/PointPhysical.h"
 #include "Node.h"
+#include "LevelTree.h"
 
 namespace Geometry
 {
@@ -104,27 +105,27 @@ namespace Base
         /// elements in the mesh. Usually an application uses only the local elements,
         /// but after for example changing a mesh, the iterator type should be global
         /// to get all elements.
-        const std::vector<Element*>& getElementsList(IteratorType part = IteratorType::LOCAL) const;
+        const LevelTree<Element*>& getElementsList(IteratorType part = IteratorType::LOCAL) const;
         
         /// Get a vector of elements. If the IteratorType is LOCAL, get all elements
         /// on the core you're working on. If the IteratorType is GLOBAL, get all 
         /// elements in the mesh. Usually an application uses only the local elements,
         /// but after for example changing a mesh, the iterator type should be global
         /// to get all elements.
-        std::vector<Element*>& getElementsList(IteratorType part = IteratorType::LOCAL);
+        LevelTree<Element*>& getElementsList(IteratorType part = IteratorType::LOCAL);
 
         /// Get a vector of faces. If the IteratorType is LOCAL, get all faces of the elements
         /// on the core you're working on. If the IteratorType is GLOBAL, get all 
         /// faces in the mesh. Usually an application uses only the local faces.
-        const std::vector<Face*>& getFacesList(IteratorType part = IteratorType::LOCAL) const;
+        const LevelTree<Face*>& getFacesList(IteratorType part = IteratorType::LOCAL) const;
         
         /// Get a vector of faces. If the IteratorType is LOCAL, get all faces of the elements
         /// on the core you're working on. If the IteratorType is GLOBAL, get all 
         /// faces in the mesh. Usually an application uses only the local faces.
-        std::vector<Face*>& getFacesList(IteratorType part = IteratorType::LOCAL);
+        LevelTree<Face*>& getFacesList(IteratorType part = IteratorType::LOCAL);
 
-        const std::vector<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL) const;
-        std::vector<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL);
+        const LevelTree<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL) const;
+        LevelTree<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL);
 
         const std::vector<Node*>& getNodesList(IteratorType part = IteratorType::LOCAL) const;
         std::vector<Node*>& getNodesList(IteratorType part = IteratorType::LOCAL);
@@ -134,62 +135,62 @@ namespace Base
 
         //********************************************************************************
         
-        std::vector<Element*>::const_iterator elementColBegin(IteratorType part = IteratorType::LOCAL) const
+        TreeIteratorConst<Element*> elementColBegin(IteratorType part = IteratorType::LOCAL) const
         {
             return getElementsList(part).begin();
         }
         
-        std::vector<Element*>::const_iterator elementColEnd(IteratorType part = IteratorType::LOCAL) const
+        TreeIteratorConst<Element*> elementColEnd(IteratorType part = IteratorType::LOCAL) const
         {
             return getElementsList(part).end();
         }
         
-        std::vector<Element*>::iterator elementColBegin(IteratorType part = IteratorType::LOCAL)
+        TreeIterator<Element*> elementColBegin(IteratorType part = IteratorType::LOCAL)
         {
             return getElementsList(part).begin();
         }
         
-        std::vector<Element*>::iterator elementColEnd(IteratorType part = IteratorType::LOCAL)
+        TreeIterator<Element*> elementColEnd(IteratorType part = IteratorType::LOCAL)
         {
             return getElementsList(part).end();
         }
         
-        std::vector<Face*>::const_iterator faceColBegin(IteratorType part = IteratorType::LOCAL) const
+        TreeIteratorConst<Face*> faceColBegin(IteratorType part = IteratorType::LOCAL) const
         {
             return getFacesList(part).begin();
         }
         
-        std::vector<Face*>::const_iterator faceColEnd(IteratorType part = IteratorType::LOCAL) const
+        TreeIteratorConst<Face*> faceColEnd(IteratorType part = IteratorType::LOCAL) const
         {
             return getFacesList(part).end();
         }
         
-        std::vector<Face*>::iterator faceColBegin(IteratorType part = IteratorType::LOCAL)
+        TreeIterator<Face*> faceColBegin(IteratorType part = IteratorType::LOCAL)
         {
             return getFacesList(part).begin();
         }
         
-        std::vector<Face*>::iterator faceColEnd(IteratorType part = IteratorType::LOCAL)
+        TreeIterator<Face*> faceColEnd(IteratorType part = IteratorType::LOCAL)
         {
             return getFacesList(part).end();
         }
         
-        std::vector<Edge*>::const_iterator edgeColBegin(IteratorType part = IteratorType::LOCAL) const
+        TreeIteratorConst<Edge*> edgeColBegin(IteratorType part = IteratorType::LOCAL) const
         {
             return getEdgesList(part).begin();
         }
         
-        std::vector<Edge*>::const_iterator edgeColEnd(IteratorType part = IteratorType::LOCAL) const
+        TreeIteratorConst<Edge*> edgeColEnd(IteratorType part = IteratorType::LOCAL) const
         {
             return getEdgesList(part).end();
         }
         
-        std::vector<Edge*>::iterator edgeColBegin(IteratorType part = IteratorType::LOCAL)
+        TreeIterator<Edge*> edgeColBegin(IteratorType part = IteratorType::LOCAL)
         {
             return getEdgesList(part).begin();
         }
         
-        std::vector<Edge*>::iterator edgeColEnd(IteratorType part = IteratorType::LOCAL)
+        TreeIterator<Edge*> edgeColEnd(IteratorType part = IteratorType::LOCAL)
         {
             return getEdgesList(part).end();
         }
@@ -239,14 +240,14 @@ namespace Base
         Submesh submeshes_;
         //! List of all elements. 
         //! \todo: this should be replaced by the mesh-tree structure
-        std::vector<Element*> elements_;
+        LevelTree<Element*> elements_;
 
         //! List of all faces. 
         //! \todo: this should be replaced by the mesh-tree structure
-        std::vector<Face*> faces_;
+        LevelTree<Face*> faces_;
 
         //! List of all edges.
-        std::vector<Edge*> edges_;
+        LevelTree<Edge*> edges_;
 
         //! List of all nodes. (connectivity-based location of vertices)
         std::vector<Node*> nodes_;

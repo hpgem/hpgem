@@ -49,11 +49,6 @@ namespace Base
     template<std::size_t DIM>
     class MeshMoverBase
     {
-        
-    public:
-        
-        using PointPhysicalT = Geometry::PointPhysical<DIM>;
-
     public:
         
         MeshMoverBase() = default;
@@ -65,7 +60,7 @@ namespace Base
         
         /// This pure virtual function should be implemented in the Problem that needs moving meshes,
         /// and is called by MeshManipulator on every point.
-        virtual void movePoint(PointPhysicalT& point) const=0;
+        virtual void movePoint(Geometry::PointPhysical<DIM>& point) const=0;
     };
 }
 

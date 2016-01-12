@@ -31,7 +31,7 @@ namespace Base
 {
     ///Base class for coordinate transformations. Coordinate transformations are used internally to rewrite the integral
     ///expressions in the physical domain as integral expressions on reference elements. By default the expressions are
-    ///rewritten using a H1-conforming transformation. (Roughly speaking, H1 is the space where functions and their derivatives
+    ///rewritten using a H1-conforming transformation. (Roughly speaking, H1 is the space where functions and their gradients
     ///are well behaved). If you need something different for your application you can set one of the provided alternatives
     ///before evaluating the integrals or provide your own transformation.
     ///All functions are implemented to generate errors so specializations only need to override the functions they need

@@ -23,7 +23,6 @@
 #include "Integration/QuadratureRules/GaussQuadratureRulesForHypercube.h"
 #include "Geometry/ReferenceHypercube.h"
 #include "Geometry/PointReference.h"
-using Geometry::ReferenceHypercube;
 
 //---------------------------------------------------------------------------
 namespace QuadratureRules
@@ -68,14 +67,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
 
-    Cn4_1_1::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     Cn4_1_1::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
 
     Cn4_1_1::Cn4_1_1()
-    : name_("Cn4_1_1"), refGeoPtr_(&ReferenceHypercube::Instance()), gp_(0)
+    : name_("Cn4_1_1"), refGeoPtr_(&Geometry::ReferenceHypercube::Instance()), gp_(0)
     {
         weight_[0] = 16.0;
         gp_.push_back(Geometry::PointReferenceFactory<4>::instance()->makePoint({0.0, 0.0, 0.0, 0.0}));
@@ -122,14 +121,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
 
-    Cn4_3_16::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     Cn4_3_16::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
 
     Cn4_3_16::Cn4_3_16()
-    : name_("Cn4_3_4"), refGeoPtr_(&ReferenceHypercube::Instance()), gp_(0)
+    : name_("Cn4_3_4"), refGeoPtr_(&Geometry::ReferenceHypercube::Instance()), gp_(0)
     {
         weight_[0] = 1.0;
         gp_.push_back(Geometry::PointReferenceFactory<4>::instance()->makePoint({-std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0}));

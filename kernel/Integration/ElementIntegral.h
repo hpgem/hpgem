@@ -57,8 +57,6 @@ namespace Integration
     class ElementIntegral
     {
     public:
-        using QuadratureRulesT = QuadratureRules::GaussQuadratureRule;
-    public:
         
         //! \brief Construct an ElementIntegral, either with or without cache.
         ElementIntegral(bool useCache = false);
@@ -90,10 +88,10 @@ namespace Integration
         //! \brief Directly integrate the integrand and return ReturnTrait1.
         //! ReturnTrait1 needs to have the function LinearAlgebra::axpy() implemented
         template<class ReturnTrait1>
-        ReturnTrait1 integrate(const Base::Element* el, ElementIntegrandBase<ReturnTrait1, DIM>* integrand, const QuadratureRulesT * const qdrRule = nullptr);
+        ReturnTrait1 integrate(const Base::Element* el, ElementIntegrandBase<ReturnTrait1, DIM>* integrand, const QuadratureRules::GaussQuadratureRule * const qdrRule = nullptr);
 
         template<class ReturnType>
-        ReturnType integrate(const Base::Element* el, std::function<ReturnType(Base::PhysicalElement<DIM>&)> integrand, const QuadratureRulesT * const qdrRule = nullptr);
+        ReturnType integrate(const Base::Element* el, std::function<ReturnType(Base::PhysicalElement<DIM>&)> integrand, const QuadratureRules::GaussQuadratureRule * const qdrRule = nullptr);
 
         /// \brief Compute the integral on a reference element. IntegrandType needs to have the function LinearAlgebra::axpy() implemented.
         template<typename IntegrandType>

@@ -371,7 +371,6 @@ public:
     ///retrieve a communicator for use in direct MPI calls. Please be aware that an unspecified amount of resources,
     ///such as asynchronous communication tags, is already in use by hpGEM
     MPI::Intracomm& getComm();
-public:
 #endif
     
 private:

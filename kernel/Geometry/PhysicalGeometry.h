@@ -57,11 +57,9 @@ namespace Geometry
     class PhysicalGeometry : public PhysicalGeometryBase
     {
     public:
-
-        using VectorOfPhysicalPointsT = std::vector<PointPhysical<DIM> >;
         
         /// \brief Constructor gets indexes of the nodes, a reference to the node container, and a pointer to the corresponding reference geometry.        
-        PhysicalGeometry(const std::vector<std::size_t>& globalNodeIndexes, VectorOfPhysicalPointsT& nodes, const ReferenceGeometry * const refG)
+        PhysicalGeometry(const std::vector<std::size_t>& globalNodeIndexes, std::vector<PointPhysical<DIM> >& nodes, const ReferenceGeometry * const refG)
                 : PhysicalGeometryBase(globalNodeIndexes, refG), nodeCoordinates_(nodes)
         {
             logger.assert(refG!=nullptr, "Invalid reference geometry passed");
@@ -70,13 +68,13 @@ namespace Geometry
         PhysicalGeometry(const PhysicalGeometry& other) = delete;
         
         /// \brief Returns a pointer to the global container of nodes.
-        VectorOfPhysicalPointsT& getNodeCoordinates()
+        std::vector<PointPhysical<DIM> >& getNodeCoordinates()
         {
             return nodeCoordinates_;
         }
         
         /// \brief Returns a constant pointer of the global container of nodes
-        const VectorOfPhysicalPointsT& getNodeCoordinates() const
+        const std::vector<PointPhysical<DIM> >& getNodeCoordinates() const
         {
             return nodeCoordinates_;
         }
@@ -96,13 +94,13 @@ namespace Geometry
         }        
         
         /// \deprecated Not consistent with naming convention, please use getNodeCoordinates()
-        VectorOfPhysicalPointsT& getNodes()
+        std::vector<PointPhysical<DIM> >& getNodes()
         {
             return nodeCoordinates_;
         }
         
         /// \deprecated Not consistent with naming convention, please use getNodeCoordinates()
-        VectorOfPhysicalPointsT& getNodes() const
+        std::vector<PointPhysical<DIM> >& getNodes() const
         {
             return nodeCoordinates_;
         }
@@ -135,7 +133,7 @@ namespace Geometry
         
     protected:
         /// Reference to the global node container.
-        VectorOfPhysicalPointsT& nodeCoordinates_;
+        std::vector<PointPhysical<DIM> >& nodeCoordinates_;
     };
 
 }

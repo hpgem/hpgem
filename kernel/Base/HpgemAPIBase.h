@@ -49,18 +49,9 @@ namespace Base
         using ElementIterator = typename MeshManipulator<DIM>::ElementIterator;
         using ConstFaceIterator = typename MeshManipulator<DIM>::ConstFaceIterator;
         using FaceIterator = typename MeshManipulator<DIM>::FaceIterator;
-        using VectorOfMeshManipulatorT = std::vector<MeshManipulator<DIM>*>;
         using PointPhysicalT = Geometry::PointPhysical<DIM>;
         using PointReferenceT = Geometry::PointReference<DIM>;
         using PointReferenceOnFaceT = Geometry::PointReference<DIM - 1>;
-
-        using MeshId = std::size_t;
-        using VectorOfUIntegers = std::vector<std::size_t>;
-        using String = std::string;
-        
-
-
-    public:
         
         HpgemAPIBase(GlobalData * const global, const ConfigurationData* config);
 
@@ -76,10 +67,10 @@ namespace Base
         virtual bool initialiseMeshMover(const MeshMoverBase<DIM>* meshMoverBase, std::size_t meshID);
 
         /// Creating a mesh with in-house remesher.
-        MeshId addMesh(const RectangularMeshDescriptor<DIM>& meshDescriptor, const MeshType& meshType = MeshType::RECTANGULAR, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0, std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
+        std::size_t addMesh(const RectangularMeshDescriptor<DIM>& meshDescriptor, const MeshType& meshType = MeshType::RECTANGULAR, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0, std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
         
         /// Reading a mesh from a file, currently only Centaur is supported.
-        MeshId addMesh(const String& fileName, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0, std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
+        std::size_t addMesh(const std::string& fileName, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0, std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
 
         /// \brief Synchronize between the different submeshes (when using MPI)
         /// You should call this function after you update a timeIntegrationVector, but before
@@ -97,25 +88,25 @@ namespace Base
         void copyTimeLevelToTimeIntegrationData(std::size_t timeLevel, std::size_t timeIntegrationVectorId);
         
         
-        std::size_t getNumberOfElements(MeshId id) const
+        std::size_t getNumberOfElements(std::size_t id) const
         {
             return meshes_[id]->getNumberOfElements();
         }
         
-        ConstElementIterator elementColBegin(MeshId mId = 0) const;
-        ConstElementIterator elementColEnd(MeshId mId = 0) const;
+        ConstElementIterator elementColBegin(std::size_t mId = 0) const;
+        ConstElementIterator elementColEnd(std::size_t mId = 0) const;
 
-        ElementIterator elementColBegin(MeshId mId = 0);
-        ElementIterator elementColEnd(MeshId mId = 0);
+        ElementIterator elementColBegin(std::size_t mId = 0);
+        ElementIterator elementColEnd(std::size_t mId = 0);
 
-        ConstFaceIterator faceColBegin(MeshId mId = 0) const;
-        ConstFaceIterator faceColEnd(MeshId mId = 0) const;
+        ConstFaceIterator faceColBegin(std::size_t mId = 0) const;
+        ConstFaceIterator faceColEnd(std::size_t mId = 0) const;
 
-        FaceIterator faceColBegin(MeshId mId = 0);
-        FaceIterator faceColEnd(MeshId mId = 0);
+        FaceIterator faceColBegin(std::size_t mId = 0);
+        FaceIterator faceColEnd(std::size_t mId = 0);
         
     protected:
-        VectorOfMeshManipulatorT meshes_;
+        std::vector<MeshManipulator<DIM>*> meshes_;
 
         GlobalData * const globalData_;
         const ConfigurationData * const configData_;

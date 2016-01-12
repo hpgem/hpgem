@@ -56,9 +56,6 @@ namespace Integration
     class FaceIntegral
     {
     public:
-        
-        using QuadratureRulesT = QuadratureRules::GaussQuadratureRule;
-    public:
         //! \brief Construct an FaceIntegral with cache on.
         FaceIntegral(bool useCache = false);
         
@@ -86,15 +83,15 @@ namespace Integration
 
         //! \brief Do the face integration using given Gauss integration rule.
         template<typename ReturnTrait1>
-        ReturnTrait1 integrate(const Base::Face* fa, FaceIntegrandBase<ReturnTrait1, DIM>* integrand, const QuadratureRulesT* qdrRule = nullptr);
+        ReturnTrait1 integrate(const Base::Face* fa, FaceIntegrandBase<ReturnTrait1, DIM>* integrand, const QuadratureRules::GaussQuadratureRule* qdrRule = nullptr);
 
         //! \brief Nice version accepting an appropriate std::function
         template<typename ReturnTrait1>
-        ReturnTrait1 integrate(const Base::Face* fa, std::function<ReturnTrait1(Base::PhysicalFace<DIM>&)> integrandFunc, const QuadratureRulesT* qdrRule = nullptr);
+        ReturnTrait1 integrate(const Base::Face* fa, std::function<ReturnTrait1(Base::PhysicalFace<DIM>&)> integrandFunc, const QuadratureRules::GaussQuadratureRule* qdrRule = nullptr);
 
         //! \brief Nice version accepting an appropriate std::function
         template<typename ReturnTrait1>
-        ReturnTrait1 integratePair(const Base::Face* fa, std::function<ReturnTrait1(Base::PhysicalFace<DIM>&)> integrandFunc, const QuadratureRulesT* qdrRule = nullptr);
+        ReturnTrait1 integratePair(const Base::Face* fa, std::function<ReturnTrait1(Base::PhysicalFace<DIM>&)> integrandFunc, const QuadratureRules::GaussQuadratureRule* qdrRule = nullptr);
 
 
         /// \brief Compute the integral on a reference element. IntegrandType needs to have the function LinearAlgebra::axpy() implemented.

@@ -60,34 +60,18 @@ namespace Base
     struct ConfigurationData;
     class Edge;
     
-    //class is made final so we don't have to create a v-table specifically for the destructor
     class MeshManipulatorBase
     {
     public:
         
-        using PointIndexT = std::size_t;
-        using ElementT = Element;
-        using FaceT = Face;
-        using BasisFunctionSetT = Base::BasisFunctionSet;
-
-        using ElementLevelTreeT = LevelTree<ElementT>;
-        using FaceLevelTreeT = LevelTree<FaceT>;
-
-        using ListOfFacesT = std::vector<FaceT*>;
-        using ListOfElementsT = std::vector<ElementT*>;
-        using VectorOfElementPtrT = std::vector<ElementT* >;
-        using VectorOfPointIndicesT = std::vector<PointIndexT>;
-        using CollectionOfBasisFunctionSets = std::vector<std::shared_ptr<const BasisFunctionSetT>>;
-        using VecOfElementLevelTreePtrT = std::vector<ElementLevelTreeT*>;
-        using VecOfFaceLevelTreePtrT = std::vector<FaceLevelTreeT*>;
+        using CollectionOfBasisFunctionSets = Element::CollectionOfBasisFunctionSets;
         
-        using ConstElementIterator = ListOfElementsT::const_iterator;
-        using ElementIterator = ListOfElementsT::iterator;
+        using ConstElementIterator = TreeIteratorConst<Element*>;
+        using ElementIterator = TreeIterator<Element*>;
 
-        using ConstFaceIterator = ListOfFacesT::const_iterator;
-        using FaceIterator = ListOfFacesT::iterator;
+        using ConstFaceIterator = TreeIteratorConst<Face*>;
+        using FaceIterator = TreeIterator<Face*>;
 
-    public:
         /// idRangeBegin is the beginning of the range, from where the Element's ids should be assigned.
         /// In case of multiple meshes, one has to take care of empty intersection of those ranges!!!
         MeshManipulatorBase(const ConfigurationData* configData, BoundaryType xPer = BoundaryType::SOLID_WALL, BoundaryType yPer = BoundaryType::SOLID_WALL, BoundaryType zPer = BoundaryType::SOLID_WALL, std::size_t orderOfFEM = 1, std::size_t idRangeBegin = 0, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0, std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
@@ -122,13 +106,13 @@ namespace Base
         
         virtual FaceIterator faceColEnd(IteratorType part = IteratorType::LOCAL) = 0;
         
-        virtual std::vector<Edge*>::const_iterator edgeColBegin(IteratorType part = IteratorType::LOCAL) const = 0;
+        virtual TreeIteratorConst<Edge*> edgeColBegin(IteratorType part = IteratorType::LOCAL) const = 0;
         
-        virtual std::vector<Edge*>::const_iterator edgeColEnd(IteratorType part = IteratorType::LOCAL) const = 0;
+        virtual TreeIteratorConst<Edge*> edgeColEnd(IteratorType part = IteratorType::LOCAL) const = 0;
         
-        virtual std::vector<Edge*>::iterator edgeColBegin(IteratorType part = IteratorType::LOCAL) = 0;
+        virtual TreeIterator<Edge*> edgeColBegin(IteratorType part = IteratorType::LOCAL) = 0;
         
-        virtual std::vector<Edge*>::iterator edgeColEnd(IteratorType part = IteratorType::LOCAL) = 0;
+        virtual TreeIterator<Edge*> edgeColEnd(IteratorType part = IteratorType::LOCAL) = 0;
         
         virtual std::vector<Node*>::const_iterator nodeColBegin(IteratorType part = IteratorType::LOCAL) const = 0;
         
@@ -140,20 +124,20 @@ namespace Base
         //  *****************Iteration through the Elements*******************
         
         //! Get const list of elements
-        virtual const ListOfElementsT& getElementsList(IteratorType part = IteratorType::LOCAL) const = 0;
+        virtual const LevelTree<Element*>& getElementsList(IteratorType part = IteratorType::LOCAL) const = 0;
         
         //! Get non-const list of elements
-        virtual ListOfElementsT& getElementsList(IteratorType part = IteratorType::LOCAL) = 0;
+        virtual LevelTree<Element*>& getElementsList(IteratorType part = IteratorType::LOCAL) = 0;
         
         //! Get const list of faces
-        virtual const ListOfFacesT& getFacesList(IteratorType part = IteratorType::LOCAL) const = 0;
+        virtual const LevelTree<Face*>& getFacesList(IteratorType part = IteratorType::LOCAL) const = 0;
         
         //! Get non-const list of faces
-        virtual ListOfFacesT& getFacesList(IteratorType part = IteratorType::LOCAL) = 0;
+        virtual LevelTree<Face*>& getFacesList(IteratorType part = IteratorType::LOCAL) = 0;
         
-        virtual const std::vector<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL) const = 0;
+        virtual const LevelTree<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL) const = 0;
         
-        virtual std::vector<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL) = 0;
+        virtual LevelTree<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL) = 0;
         
         virtual const std::vector<Node*>& getNodesList(IteratorType part = IteratorType::LOCAL) const = 0;
         
