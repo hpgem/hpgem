@@ -23,6 +23,10 @@
 #include <functional>
 #include <chrono>
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#undef assert
+
 #include "Base/CommandLineOptions.h"
 #include "Base/ConfigurationData.h"
 #include "Base/Element.h"
@@ -45,6 +49,15 @@ const static std::size_t DIM = 2;
 class AdvectionTest : public Base::HpgemAPILinear<DIM>
 {
 public:
+    // When the class Archive corresponds to an output archive, the
+    // & operator is defined similar to <<.  Likewise, when the class Archive
+    // is a type of input archive the & operator is defined similar to >>.
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        ar & a;
+    }
+    
     ///Constructor. Assign all private variables.
     AdvectionTest(std::size_t p) :
     HpgemAPILinear<DIM>(1, p)
@@ -210,6 +223,17 @@ int main(int argc, char **argv)
 
     // Set the names for the output file
     test.setOutputNames("output", "AdvectionTest", "AdvectionTest", variableNames);
+    
+    // create and open a character archive for output
+    std::ofstream ofs("filename");
+
+    // save data to archive
+    {
+        boost::archive::text_oarchive oa(ofs);
+        // write class instance to archive
+        oa << test;
+    	// archive and stream closed when destructors are called
+    }
 
     //Run the simulation and write the solution
 
@@ -218,6 +242,27 @@ int main(int argc, char **argv)
     test.solve(Base::startTime.getValue(), Base::endTime.getValue(), Base::dt.getValue(), Base::numberOfSnapshots.getValue(), true);
 
     auto endTime = std::chrono::steady_clock::now();
+    
+    AdvectionTest test2(1);
+    //Create the mesh
+    test2.createMesh(n.getValue(), meshType);
+
+    // Set the names for the output file
+    test2.setOutputNames("output", "AdvectionTest", "AdvectionTest", variableNames);
+    {
+        // create and open an archive for input
+        std::ifstream ifs("filename");
+        boost::archive::text_iarchive ia(ifs);
+        // read class state from archive
+        ia >> test2;
+        // archive and stream closed when destructors are called
+    }
+    
+    startTime = std::chrono::steady_clock::now();
+
+    test2.solve(Base::startTime.getValue(), Base::endTime.getValue(), Base::dt.getValue(), Base::numberOfSnapshots.getValue(), true);
+
+    endTime = std::chrono::steady_clock::now();
 
     logger(INFO, "Simulation took %ms.", std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count());
 

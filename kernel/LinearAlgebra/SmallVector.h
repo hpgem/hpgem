@@ -22,12 +22,16 @@
 #ifndef SMALLVECTOR_H_
 #define SMALLVECTOR_H_
 
+
+#include <boost/archive/text_oarchive.hpp>
+#undef assert
 #include "Logger.h"
 #include <array>
 #include <cmath>
 #include "MiddleSizeVector.h"
 #include <algorithm>
 #include <numeric>
+
 
 namespace LinearAlgebra
 {
@@ -37,7 +41,7 @@ namespace LinearAlgebra
     ///
     /// \details
     /// This implements a vector of doubles and all the standard operators for it.
-    /// Note it is encapulating a std::array for its data storage.
+    /// Note it is encapsulating a std::array for its data storage.
     template<std::size_t numberOfRows>
     class SmallVector
     {
@@ -230,9 +234,18 @@ namespace LinearAlgebra
             return data_.data();
         }
 
-        SmallVector operator-() const
+        SmallVector operator-() const 
         {
             return *this * -1.;
+        }
+
+        // When the class Archive corresponds to an output archive, the
+        // & operator is defined similar to <<.  Likewise, when the class Archive
+        // is a type of input archive the & operator is defined similar to >>.
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version) 
+        {
+            ar & boost::serialization::make_array(data_.data(), data_.size());
         }
 
     private:

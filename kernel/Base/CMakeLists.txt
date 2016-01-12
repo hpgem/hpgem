@@ -55,7 +55,7 @@ add_library(hpGEM_Base STATIC
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/GlobalVector.cpp
 	) 
 
-target_link_libraries(hpGEM_Base Output Geometry TimeIntegration)
+target_link_libraries(hpGEM_Base Output Geometry TimeIntegration boost_serialization)
 
 set_target_properties(hpGEM_Base PROPERTIES POSITION_INDEPENDENT_CODE true)
 
