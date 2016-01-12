@@ -22,16 +22,13 @@
 #ifndef SMALLVECTOR_H_
 #define SMALLVECTOR_H_
 
-
-#include <boost/archive/text_oarchive.hpp>
-#undef assert
+#include "Base/SerializationInclude.h"
 #include "Logger.h"
 #include <array>
 #include <cmath>
 #include "MiddleSizeVector.h"
 #include <algorithm>
 #include <numeric>
-
 
 namespace LinearAlgebra
 {
@@ -41,7 +38,7 @@ namespace LinearAlgebra
     ///
     /// \details
     /// This implements a vector of doubles and all the standard operators for it.
-    /// Note it is encapsulating a std::array for its data storage.
+    /// Note it is encapsulating an std::array for its data storage.
     template<std::size_t numberOfRows>
     class SmallVector
     {

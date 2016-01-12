@@ -23,10 +23,8 @@
 #include <functional>
 #include <chrono>
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#undef assert
-
+#include "Base/SerializationInclude.h"
+#include <boost/serialization/shared_ptr.hpp>
 #include "Base/CommandLineOptions.h"
 #include "Base/ConfigurationData.h"
 #include "Base/Element.h"
@@ -49,15 +47,6 @@ const static std::size_t DIM = 2;
 class AdvectionTest : public Base::HpgemAPILinear<DIM>
 {
 public:
-    // When the class Archive corresponds to an output archive, the
-    // & operator is defined similar to <<.  Likewise, when the class Archive
-    // is a type of input archive the & operator is defined similar to >>.
-    template<class Archive>
-    void serialize(Archive & ar, const unsigned int version)
-    {
-        ar & a;
-    }
-    
     ///Constructor. Assign all private variables.
     AdvectionTest(std::size_t p) :
     HpgemAPILinear<DIM>(1, p)
@@ -67,7 +56,7 @@ public:
         //not always 2, this is the most generic way to write it.
         for (std::size_t i = 0; i < DIM; ++i)
         {
-            a[i] = 0.1 + 0.1 * i;
+            a[i] = .1 + 0.0 * i;
         }
     }
     
@@ -195,12 +184,46 @@ public:
         return getExactSolution(point, startTime, orderTimeDerivative);
     }
     
+    
+        
+    // When the class Archive corresponds to an output archive, the
+    // & operator is defined similar to <<.  Likewise, when the class Archive
+    // is a type of input archive the & operator is defined similar to >>.
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        ar & boost::serialization::base_object<HpgemAPILinear<DIM>>(*this);
+        ar & a;
+    }
 private:
     
     ///Advective vector
     LinearAlgebra::SmallVector<DIM> a;
 };
 
+namespace boost {
+namespace serialization {
+
+    template<class Archive>
+    inline void save_construct_data(
+        Archive & ar, const AdvectionTest * test, const unsigned long int file_version)
+    {
+        // save data required to construct instance
+        ar << 1;
+    }
+
+    template<class Archive>
+    inline void load_construct_data(
+        Archive & ar, AdvectionTest * t, const unsigned long int file_version)
+    {
+        
+        // retrieve data from archive required to construct new instance
+        std::size_t polynomialOrder;
+        ar >> polynomialOrder;
+        // invoke inplace constructor to initialize instance of my_class
+        ::new(t)AdvectionTest(polynomialOrder);
+    }
+}}
 auto& n = Base::register_argument<std::size_t>('n', "numelems", "Number of Elements", true);
 auto& p = Base::register_argument<std::size_t>('p', "poly", "Polynomial order", true);
 
@@ -208,60 +231,40 @@ auto& p = Base::register_argument<std::size_t>('p', "poly", "Polynomial order", 
 int main(int argc, char **argv)
 {
     Base::parse_options(argc, argv);
-    // Choose a mesh type (e.g. TRIANGULAR, RECTANGULAR).
     const Base::MeshType meshType = Base::MeshType::RECTANGULAR;
-
-    // Choose variable name(s). Since we have a scalar function, we only need to choose one name.
     std::vector<std::string> variableNames;
     variableNames.push_back("u");
-
-    //Construct our problem with n elements in every direction and polynomial order p
     AdvectionTest test(p.getValue());
-
-    //Create the mesh
     test.createMesh(n.getValue(), meshType);
-
-    // Set the names for the output file
     test.setOutputNames("output", "AdvectionTest", "AdvectionTest", variableNames);
-    
-    // create and open a character archive for output
-    std::ofstream ofs("filename");
 
     // save data to archive
     {
-        boost::archive::text_oarchive oa(ofs);
-        // write class instance to archive
-        oa << test;
+        std::ofstream outputFileStream("advectionFile");
+        boost::archive::text_oarchive outputArchive(outputFileStream);
+        //save_construct_data(outputArchive, &test, 0);
+        outputArchive << test;
     	// archive and stream closed when destructors are called
     }
-
-    //Run the simulation and write the solution
-
     auto startTime = std::chrono::steady_clock::now();
-
     test.solve(Base::startTime.getValue(), Base::endTime.getValue(), Base::dt.getValue(), Base::numberOfSnapshots.getValue(), true);
-
     auto endTime = std::chrono::steady_clock::now();
     
-    AdvectionTest test2(1);
-    //Create the mesh
-    test2.createMesh(n.getValue(), meshType);
-
-    // Set the names for the output file
-    test2.setOutputNames("output", "AdvectionTest", "AdvectionTest", variableNames);
+    auto test2 = (AdvectionTest*) operator new(sizeof(AdvectionTest));
     {
         // create and open an archive for input
-        std::ifstream ifs("filename");
-        boost::archive::text_iarchive ia(ifs);
+        std::ifstream inputFileStream("AdvectionFile");
+        boost::archive::text_iarchive inputArchive(inputFileStream);
         // read class state from archive
-        ia >> test2;
+        boost::serialization::load_construct_data(inputArchive, test2, 0);
+        inputArchive >> test2;
         // archive and stream closed when destructors are called
     }
     
+    test2->createMesh(n.getValue(), meshType);
+    
     startTime = std::chrono::steady_clock::now();
-
-    test2.solve(Base::startTime.getValue(), Base::endTime.getValue(), Base::dt.getValue(), Base::numberOfSnapshots.getValue(), true);
-
+    test2->solve(Base::startTime.getValue(), Base::endTime.getValue(), Base::dt.getValue(), Base::numberOfSnapshots.getValue(), true);
     endTime = std::chrono::steady_clock::now();
 
     logger(INFO, "Simulation took %ms.", std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count());

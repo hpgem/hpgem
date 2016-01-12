@@ -675,6 +675,7 @@ namespace Base
         {
             logger(ERROR, "Error no mesh created : You need to create at least one mesh to solve a problem");
         }
+        logger(INFO, "Polynomial order: % ---------------------------------------------------------", this->configData_->polynomialOrder_);
         return true;
     }
     

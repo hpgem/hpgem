@@ -22,6 +22,7 @@
 #ifndef BaseLinearH
 #define BaseLinearH
 
+#include "Base/SerializationInclude.h"
 #include "Base/ConfigurationData.h"
 #include "Base/Element.h"
 #include "Base/Face.h"
@@ -195,6 +196,17 @@ namespace Base
         /// \brief Create and Store things before solving the problem.
         void tasksBeforeSolving() override;
         
+
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version) 
+        {
+            ar & useSourceTerm_;
+            ar & useSourceTermAtBoundary_;
+            ar & massMatrixID_;
+            ar & stiffnessElementMatrixID_;
+            ar & stiffnessFaceMatrixID_;
+        }
+        
     protected:
         /// Boolean to indicate if there is a source term.
         const bool useSourceTerm_;
@@ -211,8 +223,33 @@ namespace Base
         /// Index to indicate where the stiffness matrix for the elements is stored
         const std::size_t stiffnessFaceMatrixID_;
     };
+    
+    
 }
 
+
+        template<class Archive, std::size_t DIM>
+        inline void save_construct_data(
+            Archive & ar, const Base::HpgemAPILinear<DIM> * t, const unsigned long int file_version)
+        {
+            // save data required to construct instance
+            ar << 100;
+            ar << 1;
+        }
+
+        template<class Archive, std::size_t DIM>
+        inline void load_construct_data(
+            Archive & ar, Base::HpgemAPILinear<DIM> * t, const unsigned long int file_version)
+        {
+            // retrieve data from archive required to construct new instance
+            std::size_t numberOfUnknowns;
+            std::size_t polynomialOrder;
+            ar >> numberOfUnknowns;
+            ar >> polynomialOrder;
+            // invoke inplace constructor to initialize instance of my_class
+            ::new(t)Base::HpgemAPILinear<DIM>(numberOfUnknowns, polynomialOrder);
+        }
+        
 #include "HpgemAPILinear_Impl.h"
 
 #endif
