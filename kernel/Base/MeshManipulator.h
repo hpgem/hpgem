@@ -69,36 +69,19 @@ namespace Base
         std::size_t localFaceIndex;
     };
     
-    //class is made final so we don't have to create a v-table specifically for the destructor
     template<std::size_t DIM>
-    class MeshManipulator : public MeshManipulatorBase //remove the word final after MeshManipulator
+    class MeshManipulator : public MeshManipulatorBase
     {
     public:
+
+        using CollectionOfBasisFunctionSets = Element::CollectionOfBasisFunctionSets;
         
-        using PointIndexT = std::size_t;
-        using ElementT = Element;
-        using FaceT = Face;
-        using MeshMoverBaseT = MeshMoverBase<DIM>;
-        using BasisFunctionSetT = Base::BasisFunctionSet;
+        /*using ConstElementIterator = TreeIteratorConst<Element*>;
+        using ElementIterator = TreeIterator<Element*>;
 
-        using ElementLevelTreeT = LevelTree<ElementT>;
-        using FaceLevelTreeT = LevelTree<FaceT>;
+        using ConstFaceIterator = TreeIteratorConst<Face*>;
+        using FaceIterator = TreeIterator<Face*>;*/
 
-        using ListOfFacesT = std::vector<FaceT*>;
-        using ListOfElementsT = std::vector<ElementT*>;
-        using VectorOfElementPtrT = std::vector<ElementT* >;
-        using VectorOfPointIndicesT = std::vector<PointIndexT>;
-        using CollectionOfBasisFunctionSets = std::vector<std::shared_ptr<const BasisFunctionSetT>>;
-        using VecOfElementLevelTreePtrT = std::vector<ElementLevelTreeT*>;
-        using VecOfFaceLevelTreePtrT = std::vector<FaceLevelTreeT*>;
-        
-        using ConstElementIterator = ListOfElementsT::const_iterator;
-        using ElementIterator = ListOfElementsT::iterator;
-
-        using ConstFaceIterator = ListOfFacesT::const_iterator;
-        using FaceIterator = ListOfFacesT::iterator;
-
-    public:
         /// idRangeBegin is the beginning of the range, from where the Element's ids should be assigned.
         /// In case of multiple meshes, one has to take care of empty intersection of those ranges!!!
         MeshManipulator(const ConfigurationData* configData, BoundaryType xPer = BoundaryType::SOLID_WALL, BoundaryType yPer = BoundaryType::SOLID_WALL, BoundaryType zPer = BoundaryType::SOLID_WALL, std::size_t orderOfFEM = 1, std::size_t idRangeBegin = 0, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0, std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
@@ -141,9 +124,9 @@ namespace Base
         /// usable again)
         void useDefaultConformingBasisFunctions();
 
-        ElementT* addElement(const VectorOfPointIndicesT& globalNodeIndexes);
+        Element* addElement(const std::vector<std::size_t>& globalNodeIndexes);
 
-        bool addFace(ElementT* leftElementPtr, std::size_t leftElementLocalFaceNo, ElementT* rightElementPtr, std::size_t rightElementLocalFaceNo, const Geometry::FaceType& faceType = Geometry::FaceType::WALL_BC);
+        bool addFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo, Element* rightElementPtr, std::size_t rightElementLocalFaceNo, const Geometry::FaceType& faceType = Geometry::FaceType::WALL_BC);
 
         void addEdge();
 
@@ -216,22 +199,22 @@ namespace Base
             return theMesh_.faceColEnd(part);
         }
         
-        std::vector<Edge*>::const_iterator edgeColBegin(IteratorType part = IteratorType::LOCAL) const
+        TreeIteratorConst<Edge*> edgeColBegin(IteratorType part = IteratorType::LOCAL) const
         {
             return theMesh_.edgeColBegin(part);
         }
         
-        std::vector<Edge*>::const_iterator edgeColEnd(IteratorType part = IteratorType::LOCAL) const
+        TreeIteratorConst<Edge*> edgeColEnd(IteratorType part = IteratorType::LOCAL) const
         {
             return theMesh_.edgeColEnd(part);
         }
         
-        std::vector<Edge*>::iterator edgeColBegin(IteratorType part = IteratorType::LOCAL)
+        TreeIterator<Edge*> edgeColBegin(IteratorType part = IteratorType::LOCAL)
         {
             return theMesh_.edgeColBegin(part);
         }
         
-        std::vector<Edge*>::iterator edgeColEnd(IteratorType part = IteratorType::LOCAL)
+        TreeIterator<Edge*> edgeColEnd(IteratorType part = IteratorType::LOCAL)
         {
             return theMesh_.edgeColEnd(part);
         }
@@ -257,7 +240,7 @@ namespace Base
         }
         /// *****************Iteration through the Elements*******************
         
-        void createRectangularMesh(const Geometry::PointPhysical<DIM>& BottomLeft, const Geometry::PointPhysical<DIM>& TopRight, const VectorOfPointIndicesT& LinearNoElements);
+        void createRectangularMesh(const Geometry::PointPhysical<DIM>& BottomLeft, const Geometry::PointPhysical<DIM>& TopRight, const std::vector<std::size_t>& LinearNoElements);
 
         /**
          * Crates a mesh of simplices for the specified cube
@@ -267,7 +250,7 @@ namespace Base
          * This routine generates the same mesh structure as createRectangularMesh, but then refines each of the cubes into
          * (DIM-1)^2+1 tetrahedra
          */
-        void createTriangularMesh(Geometry::PointPhysical<DIM> BottomLeft, Geometry::PointPhysical<DIM> TopRight, const VectorOfPointIndicesT& LinearNoElements);
+        void createTriangularMesh(Geometry::PointPhysical<DIM> BottomLeft, Geometry::PointPhysical<DIM> TopRight, const std::vector<std::size_t>& LinearNoElements);
 
         void readCentaurMesh(const std::string& filename);
 
@@ -324,40 +307,42 @@ namespace Base
 #endif
 
         //! Set MeshMoverBase object pointer, for moving meshes if needed
-        void setMeshMover(const MeshMoverBaseT * const meshMover);
+        void setMeshMover(const MeshMoverBase<DIM> * const meshMover);
 
         void move();
+
+        // ********THESE SHOULD BE REPLACED by ITERABLE EDITIONS LATER**********
         
         //! Get const list of elements
-        const ListOfElementsT& getElementsList(IteratorType part = IteratorType::LOCAL) const
+        const LevelTree<Element*>& getElementsList(IteratorType part = IteratorType::LOCAL) const
         {
             return theMesh_.getElementsList(part);
         }
         
         //! Get non-const list of elements
-        ListOfElementsT& getElementsList(IteratorType part = IteratorType::LOCAL)
+        LevelTree<Element*>& getElementsList(IteratorType part = IteratorType::LOCAL)
         {
             return theMesh_.getElementsList(part);
         }
         
         //! Get const list of faces
-        const ListOfFacesT& getFacesList(IteratorType part = IteratorType::LOCAL) const
+        const LevelTree<Face*>& getFacesList(IteratorType part = IteratorType::LOCAL) const
         {
             return theMesh_.getFacesList(part);
         }
         
         //! Get non-const list of faces
-        ListOfFacesT& getFacesList(IteratorType part = IteratorType::LOCAL)
+        LevelTree<Face*>& getFacesList(IteratorType part = IteratorType::LOCAL)
         {
             return theMesh_.getFacesList(part);
         }
         
-        const std::vector<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL) const
+        const LevelTree<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL) const
         {
             return theMesh_.getEdgesList(part);
         }
         
-        std::vector<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL)
+        LevelTree<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL)
         {
             return theMesh_.getEdgesList(part);
         }
@@ -371,10 +356,11 @@ namespace Base
         {
             return theMesh_.getNodesList(part);
         }
+        // ************************************************************************
         
         //! Changes the default set of basisFunctions for this mesh and all of its elements. Ignores any conforming basisFunctionset that may be linked to faces/edges/...
         /// Using this to set the hpGEM provided conforming or DG basis functions is deprecated: The routines useDefaultDGBasisFunctionSet and useDefaultConformingBasisFunctionSet can do this more flexibly and also support mixed meshes
-        void setDefaultBasisFunctionSet(BasisFunctionSetT* bFSet);
+        void setDefaultBasisFunctionSet(BasisFunctionSet* bFSet);
 
         //! Adds vertex based degrees of freedom to the set of basisfunctions for this mesh and all of its vertices. This routine will assume that the first basisfunctionset connects to the first vertex (local numbering) and so on
         /// Using this to set the hpGEM provided conforming basis functions is deprecated: The routine useDefaultConformingBasis is more flexible and can also deal with mixed meshes
@@ -402,7 +388,9 @@ namespace Base
          */
         Mesh<DIM>& getMesh();
         const Mesh<DIM>& getMesh() const;
+
         
+        //---------------------------------------------------------------------
     private:
         
         //!Does the actual reading for 2D centaur meshes
@@ -417,12 +405,10 @@ namespace Base
         //!Construct the faces based on connectivity information about elements and nodes
         void edgeFactory();
         
-    private:
-        
         Mesh<DIM> theMesh_;
 
         /// Pointer to MeshMoverBase, in order to move points in the mesh, when needed by user.
-        const MeshMoverBaseT* meshMover_;
+        const MeshMoverBase<DIM>* meshMover_;
 
         //! Collection of additional basis function set, if p-refinement is applied
         CollectionOfBasisFunctionSets collBasisFSet_;

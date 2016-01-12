@@ -65,8 +65,6 @@ namespace Output
     {
         logger.assert(mesh!=nullptr, "Invalid mesh passed to this writer");
         logger.assert(writeDataClass!=nullptr, "Invalid write class passed");
-        using ElementT = Base::Element;
-        using ListOfElementsT = std::vector<ElementT*>;
         
         //First assert that we have defined the correct number of dimensions in 
         //the constructor.
@@ -84,13 +82,13 @@ namespace Output
         TecplotPhysicalGeometryIterator& nodeIt = TecplotPhysicalGeometryIterator::Instance();
         
         //construct the list of all elements.
-        const ListOfElementsT& elements = mesh->getElementsList();
+        const std::vector<Base::Element*>& elements = mesh->getElementsList();
         
         //get the physical and reference coordinates of the first node of the first element.
         Geometry::PointPhysical<DIM> pPhys;
         
         //Element cycle, print physical coordinates:
-        for (typename ListOfElementsT::const_iterator eltIterator = elements.begin(); eltIterator != elements.end(); ++eltIterator)
+        for (typename std::vector<Base::Element*>::const_iterator eltIterator = elements.begin(); eltIterator != elements.end(); ++eltIterator)
         {
             // Tell the TecplotPhysicalGeometryIterator which shape is to be iterated next
             nodeIt.acceptG((*eltIterator)->getPhysicalGeometry());

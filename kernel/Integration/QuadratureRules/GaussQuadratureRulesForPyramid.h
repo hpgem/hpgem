@@ -29,15 +29,10 @@
 namespace QuadratureRules
 {
     
-    using Geometry::PointReference;
-    using Geometry::ReferenceGeometry;
     
 //---------------------------------------------------------------------------
     class Pyramid_1_4 : public GaussQuadratureRule
     {
-    public:
-        using PointReferenceT = Geometry::PointReferenceBase;
-        using ReferenceGeometryT = ReferenceGeometry;
     public:
         static Pyramid_1_4& Instance()
         {
@@ -51,24 +46,21 @@ namespace QuadratureRules
         std::size_t dimension() const override final;
         std::size_t getNumberOfPoints() const override final;
         double weight(std::size_t i) const override final;
-        const PointReferenceT& getPoint(std::size_t i) const override final;
-        ReferenceGeometryT* forReferenceGeometry() const override final;
+        const Geometry::PointReferenceBase& getPoint(std::size_t i) const override final;
+        Geometry::ReferenceGeometry* forReferenceGeometry() const override final;
 
     private:
         Pyramid_1_4();
         
         const std::string name_;
         double weight_[4];
-        ReferenceGeometryT* const refGeoPtr_;
+        Geometry::ReferenceGeometry* const refGeoPtr_;
         std::vector<const Geometry::PointReference<3>*> gp_;
     };
     
 //---------------------------------------------------------------------------
     class Pyramid_3_16 : public GaussQuadratureRule
     {
-    public:
-        using PointReferenceT = Geometry::PointReferenceBase;
-        using ReferenceGeometryT = ReferenceGeometry;
     public:
         static Pyramid_3_16& Instance()
         {
@@ -82,24 +74,21 @@ namespace QuadratureRules
         std::size_t dimension() const override final;
         std::size_t getNumberOfPoints() const override final;
         double weight(std::size_t i) const override final;
-        const PointReferenceT& getPoint(std::size_t i) const override final;
-        ReferenceGeometryT* forReferenceGeometry() const override final;
+        const Geometry::PointReferenceBase& getPoint(std::size_t i) const override final;
+        Geometry::ReferenceGeometry* forReferenceGeometry() const override final;
 
     private:
         Pyramid_3_16();
 
         const std::string name_;
         double weight_[16];
-        ReferenceGeometryT* const refGeoPtr_;
+        Geometry::ReferenceGeometry* const refGeoPtr_;
         std::vector<const Geometry::PointReference<3>*> gp_;
     };
     
 //---------------------------------------------------------------------------
     class Pyramid_5_36 : public GaussQuadratureRule
     {
-    public:
-        using PointReferenceT = Geometry::PointReferenceBase;
-        using ReferenceGeometryT = ReferenceGeometry;
     public:
         static Pyramid_5_36& Instance()
         {
@@ -113,24 +102,21 @@ namespace QuadratureRules
         std::size_t dimension() const override final;
         std::size_t getNumberOfPoints() const override final;
         double weight(std::size_t i) const override final;
-        const PointReferenceT& getPoint(std::size_t i) const override final;
-        ReferenceGeometryT* forReferenceGeometry() const override final;
+        const Geometry::PointReferenceBase& getPoint(std::size_t i) const override final;
+        Geometry::ReferenceGeometry* forReferenceGeometry() const override final;
 
     private:
         Pyramid_5_36();
 
         const std::string name_;
         double weight_[36];
-        ReferenceGeometryT* const refGeoPtr_;
+        Geometry::ReferenceGeometry* const refGeoPtr_;
         std::vector<const Geometry::PointReference<3>*> gp_;
     };
     
 //---------------------------------------------------------------------------
     class Pyramid_7_48 : public GaussQuadratureRule
     {
-    public:
-        using PointReferenceT = Geometry::PointReferenceBase;
-        using ReferenceGeometryT = ReferenceGeometry;
     public:
         static Pyramid_7_48& Instance()
         {
@@ -144,15 +130,15 @@ namespace QuadratureRules
         std::size_t dimension() const override final;
         std::size_t getNumberOfPoints() const override final;
         double weight(std::size_t i) const override final;
-        const PointReferenceT& getPoint(std::size_t i) const override final;
-        ReferenceGeometryT* forReferenceGeometry() const override final;
+        const Geometry::PointReferenceBase& getPoint(std::size_t i) const override final;
+        Geometry::ReferenceGeometry* forReferenceGeometry() const override final;
 
     private:
         Pyramid_7_48();
 
         const std::string name_;
         double weight_[48];
-        ReferenceGeometryT* const refGeoPtr_;
+        Geometry::ReferenceGeometry* const refGeoPtr_;
         std::vector<const Geometry::PointReference<3>*> gp_;
     };
 

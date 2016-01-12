@@ -55,16 +55,8 @@ namespace Base
     class Element final: public Geometry::ElementGeometry, public ElementData
     {
     public:
-        using ReferenceGeometryT = Geometry::ReferenceGeometry;
-        using MappingReferenceToPhysicalT = Geometry::MappingReferenceToPhysical;
-        using ElementGeometryT = Geometry::ElementGeometry;
-        using CacheT = Base::ElementCacheData;
-        using GaussQuadratureRuleT = QuadratureRules::GaussQuadratureRule;
-        using VecCacheT = std::vector<CacheT>;
         using SolutionVector = LinearAlgebra::MiddleSizeVector;
         using CollectionOfBasisFunctionSets = std::vector<std::shared_ptr<const BasisFunctionSet>>;
-
-    public:
         
         template<std::size_t DIM>
         Element(const std::vector<std::size_t>& globalNodeIndexes, 
@@ -89,7 +81,7 @@ namespace Base
 
         void setQuadratureRulesWithOrder(std::size_t quadrROrder);
 
-        void setGaussQuadratureRule(GaussQuadratureRuleT * const quadR);
+        void setGaussQuadratureRule(QuadratureRules::GaussQuadratureRule * const quadR);
 
         void setDefaultBasisFunctionSet(std::size_t position);
 
@@ -98,9 +90,9 @@ namespace Base
         void setFaceBasisFunctionSet(std::size_t position, std::size_t localIndex);
 
         /// \brief Get a pointer to the quadrature rule used to do integration on this element.
-        const GaussQuadratureRuleT* getGaussQuadratureRule() const;
+        const QuadratureRules::GaussQuadratureRule* getGaussQuadratureRule() const;
 
-        VecCacheT& getVecCacheData();
+        std::vector<Base::ElementCacheData>& getVecCacheData();
 
         /// \brief Get the value of the basis function (corresponding to index i) at the physical point corresponding to reference point p.
         template<std::size_t DIM>
@@ -239,16 +231,15 @@ namespace Base
         const Base::BaseBasisFunction* getBasisFunction(std::size_t i) const;
 #endif
 
-    public:
         /// Output operator.        
         friend std::ostream& operator<<(std::ostream& os, const Element& element);
         
     private:
         ///Constructor that copies the data and geometry of the given ElementData and ElementGeometry.
-        Element(const ElementData& otherData, const ElementGeometryT& otherGeometry);
+        Element(const ElementData& otherData, const ElementGeometry& otherGeometry);
 
         /// Quadrature rule used to do the integration on this element.
-        const GaussQuadratureRuleT *quadratureRule_;
+        const QuadratureRules::GaussQuadratureRule *quadratureRule_;
         
         /// Vector of basis function sets. Usually you only need one basis function set.
         const CollectionOfBasisFunctionSets *basisFunctionSet_;
@@ -270,7 +261,7 @@ namespace Base
         std::size_t numberOfDOFinTheElement_;
         
         /// Vector of data which the user might want to store. For example determinants of the Jacobian for each quadrature point.
-        VecCacheT vecCacheData_;
+        std::vector<Base::ElementCacheData> vecCacheData_;
         
     };
 }
@@ -280,7 +271,7 @@ namespace Base
 {
     /// \details The user does not need to worry about the construction of elements. This is done by mesh-generators. For example the interface HpgemAPIBase can be used to create meshes.
     template<std::size_t DIM>
-    Element::Element(const VectorOfPointIndexesT& globalNodeIndexes,
+    Element::Element(const std::vector<std::size_t>& globalNodeIndexes,
                      const CollectionOfBasisFunctionSets *basisFunctionSet,
                      std::vector<Geometry::PointPhysical<DIM> >& allNodes,
                      std::size_t numberOfUnkowns,
@@ -290,7 +281,7 @@ namespace Base
                      std::size_t numberOfElementMatrices,
                      std::size_t numberOfElementVectors,
                      const std::vector<int>& basisFunctionSetPositions)
-            : ElementGeometryT(globalNodeIndexes, allNodes),
+            : ElementGeometry(globalNodeIndexes, allNodes),
         ElementData(numberOfTimeLevels, numberOfUnkowns, numberOfBasisFuncs, numberOfElementMatrices, numberOfElementVectors),
         quadratureRule_(nullptr), basisFunctionSet_(basisFunctionSet),
         id_(id), basisFunctionSetPositions_(basisFunctionSetPositions), vecCacheData_()

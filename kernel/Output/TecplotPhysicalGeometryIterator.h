@@ -80,20 +80,19 @@ namespace Output
         TecplotPhysicalGeometryIterator(const TecplotPhysicalGeometryIterator&) = delete;
         TecplotPhysicalGeometryIterator& operator=(const TecplotPhysicalGeometryIterator&) = delete;
         
-        using InternalIndexType = int;
-        using VectorOfNodeIndexes = std::vector<std::size_t>;
-        VectorOfNodeIndexes hypercubeNodes;
-        VectorOfNodeIndexes hexahedronNodes;
-        VectorOfNodeIndexes cubeNodes;
-        VectorOfNodeIndexes triangularPrismNodes;
-        VectorOfNodeIndexes pyramidNodes;
-        VectorOfNodeIndexes tetrahedronNodes;
-        VectorOfNodeIndexes quadrilateralNodes;
-        VectorOfNodeIndexes triangleNodes;
-        VectorOfNodeIndexes lineNodes;
+        std::vector<std::size_t> hypercubeNodes;
+        std::vector<std::size_t> hexahedronNodes;
+        std::vector<std::size_t> cubeNodes;
+        std::vector<std::size_t> triangularPrismNodes;
+        std::vector<std::size_t> pyramidNodes;
+        std::vector<std::size_t> tetrahedronNodes;
+        std::vector<std::size_t> quadrilateralNodes;
+        std::vector<std::size_t> triangleNodes;
+        std::vector<std::size_t> lineNodes;
 
-        VectorOfNodeIndexes* currentSequencePtr;
-        InternalIndexType currentNode;
+        std::vector<std::size_t>* currentSequencePtr;
+        //this has to be an int because everything is numbering down
+        int currentNode;
     };
 
 }

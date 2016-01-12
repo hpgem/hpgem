@@ -42,8 +42,8 @@ namespace Base
     class Face;
     
     /// \details The user does not need to worry about the construction of faces. This is done by mesh-generators. For example the interface HpgemAPIBase can be used to create meshes.
-    Face::Face(Element* ptrElemL, const LocalFaceNumberTypeT& localFaceNumberL, Element* ptrElemR, const LocalFaceNumberTypeT& localFaceNumberR, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
-            : FaceGeometryT(ptrElemL, localFaceNumberL, ptrElemR, localFaceNumberR),
+    Face::Face(Element* ptrElemL, const std::size_t& localFaceNumberL, Element* ptrElemR, const std::size_t& localFaceNumberR, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
+            : FaceGeometry(ptrElemL, localFaceNumberL, ptrElemR, localFaceNumberR),
             FaceData(ptrElemL->getNumberOfBasisFunctions() * ptrElemL->getNumberOfUnknowns() + ptrElemR->getNumberOfBasisFunctions() * ptrElemR->getNumberOfUnknowns(), numberOfFaceMatrixes, numberOfFaceVectors), 
             elementLeft_(ptrElemL), elementRight_(ptrElemR), numberOfConformingDOFOnTheFace_(0), faceID_(faceID)
     {
@@ -107,8 +107,8 @@ namespace Base
         initialiseFaceToFaceMapIndex(leftNodes, rightNodes);
     }
     
-    Face::Face(Element* ptrElemL, const LocalFaceNumberTypeT& localFaceNumberL, const Geometry::FaceType& faceType, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
-            : FaceGeometryT(ptrElemL, localFaceNumberL, faceType), FaceData(ptrElemL->getNumberOfBasisFunctions() * ptrElemL->getNumberOfUnknowns(), numberOfFaceMatrixes, numberOfFaceVectors), elementLeft_(ptrElemL), elementRight_(nullptr), numberOfConformingDOFOnTheFace_(0), faceID_(faceID)
+    Face::Face(Element* ptrElemL, const std::size_t& localFaceNumberL, const Geometry::FaceType& faceType, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
+            : FaceGeometry(ptrElemL, localFaceNumberL, faceType), FaceData(ptrElemL->getNumberOfBasisFunctions() * ptrElemL->getNumberOfUnknowns(), numberOfFaceMatrixes, numberOfFaceVectors), elementLeft_(ptrElemL), elementRight_(nullptr), numberOfConformingDOFOnTheFace_(0), faceID_(faceID)
     {
         logger.assert(ptrElemL != nullptr, "Invalid element passed");
         createQuadratureRules();
@@ -140,12 +140,12 @@ namespace Base
         std::size_t leftOrder = elementLeft_->getGaussQuadratureRule()->order();
         if (leftOrder >= rightOrder)
         {
-            quadratureRule_ = elementLeft_->getReferenceGeometry()->getCodim1ReferenceGeometry(FaceGeometryT::localFaceNumberLeft_)->getGaussQuadratureRule(leftOrder);
+            quadratureRule_ = elementLeft_->getReferenceGeometry()->getCodim1ReferenceGeometry(localFaceNumberLeft_)->getGaussQuadratureRule(leftOrder);
         }
         else
         {
             logger(DEBUG, "again..... Face<DIM>::createQuadratureRules(): % %.", leftOrder, rightOrder);
-            quadratureRule_ = elementRight_->getReferenceGeometry()->getCodim1ReferenceGeometry(FaceGeometryT::localFaceNumberRight_)->getGaussQuadratureRule(rightOrder);
+            quadratureRule_ = elementRight_->getReferenceGeometry()->getCodim1ReferenceGeometry(localFaceNumberRight_)->getGaussQuadratureRule(rightOrder);
         }
         
     }

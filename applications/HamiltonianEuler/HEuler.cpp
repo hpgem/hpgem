@@ -152,7 +152,7 @@ bool HEuler::initialiseMesh()
     rectangularMesh.numElementsInDIM_[1] = config->ny_;
     rectangularMesh.numElementsInDIM_[2] = config->nz_;
     
-    MeshId id = addMesh(rectangularMesh);
+    std::size_t id = addMesh(rectangularMesh);
     
     HEulerGlobalVariables* globalData = static_cast<HEulerGlobalVariables*>(globalData_);
     

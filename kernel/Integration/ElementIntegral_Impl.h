@@ -48,7 +48,7 @@ namespace Integration
      */
     template<std::size_t DIM>
     template<typename ReturnTrait1>
-    ReturnTrait1 ElementIntegral<DIM>::integrate(const Base::Element* el, ElementIntegrandBase<ReturnTrait1, DIM>* integrand, const QuadratureRulesT * const qdrRule)
+    ReturnTrait1 ElementIntegral<DIM>::integrate(const Base::Element* el, ElementIntegrandBase<ReturnTrait1, DIM>* integrand, const QuadratureRules::GaussQuadratureRule * const qdrRule)
     {
         logger.assert(el!=nullptr, "Invalid element detected");
         logger.assert(integrand!=nullptr, "Invalid integrand detected");
@@ -76,12 +76,12 @@ namespace Integration
     */
     template<std::size_t DIM>
     template<typename ReturnType>
-    ReturnType ElementIntegral<DIM>::integrate(const Base::Element* el, std::function<ReturnType(Base::PhysicalElement<DIM>&)> integrandFun, const QuadratureRulesT * const qdrRule)
+    ReturnType ElementIntegral<DIM>::integrate(const Base::Element* el, std::function<ReturnType(Base::PhysicalElement<DIM>&)> integrandFun, const QuadratureRules::GaussQuadratureRule * const qdrRule)
     {
         logger.assert(el!=nullptr, "Invalid element detected");
         element_.setElement(el);
         //quadrature rule is allowed to be equal to nullptr!
-        const QuadratureRulesT * const qdrRuleLoc = (qdrRule == nullptr ? el->getGaussQuadratureRule() : qdrRule);
+        const QuadratureRules::GaussQuadratureRule * const qdrRuleLoc = (qdrRule == nullptr ? el->getGaussQuadratureRule() : qdrRule);
         
         // check whether the GaussQuadratureRule is actually for the element's ReferenceGeometry
         logger.assert((qdrRuleLoc->forReferenceGeometry() == el->getReferenceGeometry()), "ElementIntegral: wrong geometry.");

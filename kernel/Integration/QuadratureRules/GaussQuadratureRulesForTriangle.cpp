@@ -26,7 +26,6 @@
 #include "Integration/QuadratureRules/GaussQuadratureRulesForTriangle.h"
 #include "Geometry/ReferenceTriangle.h"
 #include "Geometry/PointReference.h"
-using Geometry::ReferenceTriangle;
 //---------------------------------------------------------------------------
 namespace QuadratureRules
 {
@@ -64,14 +63,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    Tn2_1_1::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     Tn2_1_1::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     Tn2_1_1::Tn2_1_1()
-            : name_("Tn2_1_1"), refGeoPtr_(&ReferenceTriangle::Instance()), gp_(0)
+            : name_("Tn2_1_1"), refGeoPtr_(&Geometry::ReferenceTriangle::Instance()), gp_(0)
     {
         weight_[0] = 5.0000000000000000e-01;
         gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({3.3333333333333348e-01, 3.3333333333333348e-01}));
@@ -112,14 +111,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    Tn2_2_3::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     Tn2_2_3::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     Tn2_2_3::Tn2_2_3()
-            : name_("Tn2_2_1"), refGeoPtr_(&ReferenceTriangle::Instance()), gp_(0)
+            : name_("Tn2_2_1"), refGeoPtr_(&Geometry::ReferenceTriangle::Instance()), gp_(0)
     {
         weight_[0] = 1.6666666666666674e-01;
         gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({1.6666666666666652e-01, 1.6666666666666652e-01}));
@@ -166,14 +165,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    Tn2_3_4::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     Tn2_3_4::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     Tn2_3_4::Tn2_3_4()
-            : name_("Tn2_3_1"), refGeoPtr_(&ReferenceTriangle::Instance()), gp_(0)
+            : name_("Tn2_3_1"), refGeoPtr_(&Geometry::ReferenceTriangle::Instance()), gp_(0)
     {
         weight_[0] = -2.8125000000000000e-01;
         gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({3.3333333333333348e-01, 3.3333333333333348e-01}));
@@ -223,14 +222,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    Tn2_4_6::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     Tn2_4_6::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     Tn2_4_6::Tn2_4_6()
-            : name_("Tn2_4_1"), refGeoPtr_(&ReferenceTriangle::Instance()), gp_(0)
+            : name_("Tn2_4_1"), refGeoPtr_(&Geometry::ReferenceTriangle::Instance()), gp_(0)
     {
         weight_[0] = 1.1169079483900550e-01;
         gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({4.4594849091596500e-01, 4.4594849091596500e-01}));
@@ -286,14 +285,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    T2_5_7::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     T2_5_7::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     T2_5_7::T2_5_7()
-            : name_("T2_5_1"), refGeoPtr_(&ReferenceTriangle::Instance()), gp_(0)
+            : name_("T2_5_1"), refGeoPtr_(&Geometry::ReferenceTriangle::Instance()), gp_(0)
     {
         weight_[0] = 1.1250000000000000e-01;
         gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({3.3333333333333348e-01, 3.3333333333333348e-01}));
@@ -352,14 +351,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    T2_6_12::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     T2_6_12::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     T2_6_12::T2_6_12()
-            : name_("T2_6_1"), refGeoPtr_(&ReferenceTriangle::Instance()), gp_(0)
+            : name_("T2_6_1"), refGeoPtr_(&Geometry::ReferenceTriangle::Instance()), gp_(0)
     {
         weight_[0] = 5.8393137863189497e-02;
         gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({2.4928674517090998e-01, 2.4928674517090998e-01}));
@@ -433,14 +432,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    T2_7_13::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     T2_7_13::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     T2_7_13::T2_7_13()
-            : name_("T2_7_1"), refGeoPtr_(&ReferenceTriangle::Instance()), gp_(0)
+            : name_("T2_7_1"), refGeoPtr_(&Geometry::ReferenceTriangle::Instance()), gp_(0)
     {
         weight_[0] = -7.4785022233840995e-02;
         gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({3.3333333333333348e-01, 3.3333333333333348e-01}));
@@ -517,14 +516,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    T2_8_16::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     T2_8_16::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     T2_8_16::T2_8_16()
-            : name_("T2_8_1"), refGeoPtr_(&ReferenceTriangle::Instance()), gp_(0)
+            : name_("T2_8_1"), refGeoPtr_(&Geometry::ReferenceTriangle::Instance()), gp_(0)
     {
         weight_[0] = 7.2157803838893503e-02;
         gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({3.3333333333333348e-01, 3.3333333333333348e-01}));
@@ -610,14 +609,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    T2_9_19::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     T2_9_19::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     T2_9_19::T2_9_19()
-            : name_("T2_9_1"), refGeoPtr_(&ReferenceTriangle::Instance()), gp_(0)
+            : name_("T2_9_1"), refGeoPtr_(&Geometry::ReferenceTriangle::Instance()), gp_(0)
     {
         weight_[0] = 4.8567898141399501e-02;
         gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({3.3333333333333348e-01, 3.3333333333333348e-01}));
@@ -712,14 +711,14 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    T2_10_25::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     T2_10_25::forReferenceGeometry() const
     {
         return refGeoPtr_;
     }
     
     T2_10_25::T2_10_25()
-            : name_("T2_10_1"), refGeoPtr_(&ReferenceTriangle::Instance()), gp_(0)
+            : name_("T2_10_1"), refGeoPtr_(&Geometry::ReferenceTriangle::Instance()), gp_(0)
     {
         weight_[0] = 4.5408995191376998e-02;
         gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({3.3333333333333348e-01, 3.3333333333333348e-01}));
@@ -832,7 +831,7 @@ namespace QuadratureRules
         return *gp_[i];
     }
     
-    T2_11_28::ReferenceGeometryT*
+    Geometry::ReferenceGeometry*
     T2_11_28::forReferenceGeometry() const
     {
         return refGeoPtr_;
@@ -840,7 +839,7 @@ namespace QuadratureRules
     
     T2_11_28::T2_11_28()
             : //warning: points and weights found vary wildly between runs of the quadrature rule generator
-            name_("T2_11_1"), refGeoPtr_(&ReferenceTriangle::Instance()), gp_(0)
+            name_("T2_11_1"), refGeoPtr_(&Geometry::ReferenceTriangle::Instance()), gp_(0)
     {
         weight_[0] = 8.005121009414541471823946e-02 / 2.;
         gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({3.3333333333333333e-01, 3.3333333333333333e-01}));

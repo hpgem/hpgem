@@ -37,11 +37,6 @@ namespace LinearAlgebra
 {
     template<std::size_t numberOfRows>
     class SmallVector;
-#ifdef LA_STL_VECTOR
-    using std::vector;
-#else
-    using std::valarray;
-#endif
     
     /// \class MiddleSizeVector
     /// \brief This is a vector of doubles
@@ -149,9 +144,9 @@ namespace LinearAlgebra
 
     private:
 #ifdef LA_STL_VECTOR
-        vector<type> data_;
+        std::vector<type> data_;
 #else
-        valarray<type> data_;
+        std::valarray<type> data_;
 #endif
         
     };

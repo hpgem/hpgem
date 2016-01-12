@@ -20,8 +20,6 @@
  */
 #include <iostream>
 #include "Point.h"
-using std::cout;
-using std::endl;
 
 namespace Geometry
 {
@@ -44,7 +42,7 @@ namespace Geometry
     }
 
     template<std::size_t DIM>
-    Point<DIM>::Point(const VectorOfCoordsT& coord)
+    Point<DIM>::Point(const LinearAlgebra::SmallVector<DIM>& coord)
             : coordinates_(coord)
     {
     }
@@ -144,7 +142,7 @@ namespace Geometry
     }
 
     template<std::size_t DIM>
-    const typename Point<DIM>::VectorOfCoordsT&
+    const typename LinearAlgebra::SmallVector<DIM>&
     Point<DIM>::getCoordinates() const
     {
         return coordinates_;
@@ -158,7 +156,7 @@ namespace Geometry
     }
 
     template<std::size_t DIM>
-    void Point<DIM>::setCoordinates(const VectorOfCoordsT& coord)
+    void Point<DIM>::setCoordinates(const LinearAlgebra::SmallVector<DIM>& coord)
     {
         coordinates_ = coord;        
     }

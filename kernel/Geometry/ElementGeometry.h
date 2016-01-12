@@ -53,15 +53,6 @@
 #include "Mappings/MappingToPhysPyramid.h"
 #include "Mappings/MappingToPhysTriangularPrism.h"
 
-#include "RefinementLine.h"
-#include "RefinementTriangle.h"
-#include "RefinementQuadrilateral.h"
-#include "RefinementTetrahedron.h"
-#include "RefinementPyramid.h"
-#include "RefinementTriangularPrism.h"
-#include "RefinementHexahedron.h"
-#include "RefinementHypercube.h"
-
 #include "PointReference.h"
 
 namespace Geometry
@@ -80,12 +71,10 @@ namespace Geometry
     class ElementGeometry
     {
     public:
-        using PointIndexT = std::size_t;
-        using VectorOfPointIndexesT = std::vector<PointIndexT>;
         
         /// New style constructor with one less pass
         template<std::size_t DIM>
-        ElementGeometry(const VectorOfPointIndexesT& globalNodeIndexes, std::vector<PointPhysical<DIM> >& nodes);
+        ElementGeometry(const std::vector<std::size_t>& globalNodeIndexes, std::vector<PointPhysical<DIM> >& nodes);
 
         /// Copy constructor
         ElementGeometry(const ElementGeometry& other);
@@ -113,8 +102,8 @@ namespace Geometry
         
         ReferenceGeometry* getReferenceGeometry();
         
-        /// Returns a pointer to the refinementGeometry object.
-        const RefinementGeometry* getRefinementGeometry() const;
+        /// Returns a pointer to the refinementMapping object.
+        const RefinementMapping* getRefinementMap() const;
         
         /// This method gets a PointReference, which specifies a coordinate in the ReferenceGeometry,
         /// and returns a PointPhysical which is the corresponding point in the PhysicalGeometry,
@@ -138,7 +127,7 @@ namespace Geometry
         static ReferenceGeometry* createReferenceGeometry(std::size_t size);
 
         template<std::size_t DIM>
-        static PhysicalGeometry<DIM>* createPhysicalGeometry(const VectorOfPointIndexesT& globalNodeIndexes, std::vector<PointPhysical<DIM> >& nodes, const ReferenceGeometry* const geo);
+        static PhysicalGeometry<DIM>* createPhysicalGeometry(const std::vector<std::size_t>& globalNodeIndexes, std::vector<PointPhysical<DIM> >& nodes, const ReferenceGeometry* const geo);
 
         template<std::size_t DIM>
         static MappingReferenceToPhysical* createMappings(std::size_t size, const PhysicalGeometry<DIM>* const pGeo);
@@ -156,7 +145,7 @@ namespace Geometry
         MappingReferenceToPhysical* referenceToPhysicalMapping_;
 
         /// The corresponding refinementGeometry object
-        RefinementGeometry* refinementGeometry_;
+        RefinementMapping* refinementMap_;
     };
 
 
@@ -238,7 +227,7 @@ namespace Geometry
 
     template<std::size_t DIM>
     PhysicalGeometry<DIM> *
-    ElementGeometry::createPhysicalGeometry(const VectorOfPointIndexesT& globalNodeIndexes, std::vector<PointPhysical<DIM> >& nodes, const ReferenceGeometry * const geo)
+    ElementGeometry::createPhysicalGeometry(const std::vector<std::size_t>& globalNodeIndexes, std::vector<PointPhysical<DIM> >& nodes, const ReferenceGeometry * const geo)
     {
         logger.assert(geo!=nullptr, "Invalid reference geometry passed");
         return new PhysicalGeometry<DIM>(globalNodeIndexes, nodes, geo);
@@ -315,11 +304,11 @@ namespace Geometry
     }
 
     template<std::size_t DIM>
-    ElementGeometry::ElementGeometry(const VectorOfPointIndexesT& globalNodeIndexes, std::vector<PointPhysical<DIM> >& nodes)
+    ElementGeometry::ElementGeometry(const std::vector<std::size_t>& globalNodeIndexes, std::vector<PointPhysical<DIM> >& nodes)
             : referenceGeometry_(ElementGeometry::createReferenceGeometry<DIM>(globalNodeIndexes.size())),
         physicalGeometry_(ElementGeometry::createPhysicalGeometry(globalNodeIndexes, nodes, referenceGeometry_)),
         referenceToPhysicalMapping_(ElementGeometry::createMappings<DIM>(globalNodeIndexes.size(), static_cast<PhysicalGeometry<DIM>*>(physicalGeometry_))),
-        refinementGeometry_(nullptr) //refinement is turned off by default, to  enable it one needs to call enableRefinement
+        refinementMap_(nullptr) //refinement is turned off by default, to  enable it one needs to call enableRefinement
     {
     }
 }

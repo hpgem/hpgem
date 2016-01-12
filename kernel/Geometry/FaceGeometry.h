@@ -170,23 +170,16 @@ namespace Geometry
     class FaceGeometry
     {
     public:
-        using MatrixT = LinearAlgebra::MiddleSizeMatrix;
-        using SetOfGlobalNodes = std::set<std::size_t>;
-        using VectorOfLocalNodes = std::vector<std::size_t>;
-        using LocalFaceNumberType = std::size_t;
-        using RefFaceToRefElementMappingPtr = std::shared_ptr<const MappingReferenceToReference<1> >;
-        
-        using ReferenceFaceGeometryT = ReferenceGeometry;
 
         ///Constructor for interior faces.
         //constructor will not initialize faceToFaceMapIndex, because it doesnt know how the elements are connected
-        FaceGeometry(ElementGeometry* ptrElemL, const LocalFaceNumberType& localFaceNumberL, ElementGeometry* ptrElemRight, const LocalFaceNumberType& localFaceNumberR);
+        FaceGeometry(ElementGeometry* ptrElemL, const std::size_t& localFaceNumberL, ElementGeometry* ptrElemRight, const std::size_t& localFaceNumberR);
 
         /// Constructor for boundary faces.
-        FaceGeometry(ElementGeometry* ptrElemL, const LocalFaceNumberType& localFaceNumberL, const FaceType& boundaryLabel);
+        FaceGeometry(ElementGeometry* ptrElemL, const std::size_t& localFaceNumberL, const FaceType& boundaryLabel);
         
         /// Copy constructor with new elements, for both internal and boundary faces.
-        FaceGeometry(const FaceGeometry& other, ElementGeometry* ptrElemL, const LocalFaceNumberType& localFaceNumberL, ElementGeometry* ptrElemRight, const LocalFaceNumberType& localFaceNumberR);
+        FaceGeometry(const FaceGeometry& other, ElementGeometry* ptrElemL, const std::size_t& localFaceNumberL, ElementGeometry* ptrElemRight, const std::size_t& localFaceNumberR);
         
         /// \deprecated Don't use this copy constructor, but use the one with new elements instead
         FaceGeometry(const FaceGeometry &other) = delete;
@@ -241,7 +234,7 @@ namespace Geometry
             return faceToFaceMapIndex_;
         }
         
-        const ReferenceFaceGeometryT* getReferenceGeometry() const;
+        const ReferenceGeometry* getReferenceGeometry() const;
 
         /** \brief Map a point in coordinates of the reference geometry of the face to
          *  the reference geometry of the left (L) element. */
@@ -263,10 +256,10 @@ namespace Geometry
         LinearAlgebra::SmallVector<DIM + 1> getNormalVector(const PointReference<DIM>& pRefFace) const;
 
         /// \brief Return the mapping of the reference face to the left reference element
-        RefFaceToRefElementMappingPtr refFaceToRefElemMapL() const;
+        std::shared_ptr<const MappingReferenceToReference<1> > refFaceToRefElemMapL() const;
 
         /// \brief Return the mapping of the reference face to the right reference element.
-        RefFaceToRefElementMappingPtr refFaceToRefElemMapR() const;
+        std::shared_ptr<const MappingReferenceToReference<1> > refFaceToRefElemMapR() const;
 
         /// \brief Returns the physical point corresponding to the given face reference point.
         template<std::size_t DIM>
@@ -279,7 +272,7 @@ namespace Geometry
 
         void invertFaceToFaceMapMatrix();
 
-        void recalculateRefinementMatrix(MatrixT& Lmat, MatrixT& Rmat);
+        void recalculateRefinementMatrix(LinearAlgebra::MiddleSizeMatrix& Lmat, LinearAlgebra::MiddleSizeMatrix& Rmat);
 
         void printRefMatrix() const;
 
@@ -295,10 +288,10 @@ namespace Geometry
         const ElementGeometry* rightElementGeom_;
 
         /// face index of the left element corresponding to this face
-        LocalFaceNumberType localFaceNumberLeft_;
+        std::size_t localFaceNumberLeft_;
         
         /// face index of the right element corresponding to this face
-        LocalFaceNumberType localFaceNumberRight_;
+        std::size_t localFaceNumberRight_;
 
         /// Index corresponding to a face-to-face mapping. 
         std::size_t faceToFaceMapIndex_;

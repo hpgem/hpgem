@@ -143,7 +143,7 @@ std::size_t Base::FaceData::getNumberOfFaceVectors() const
     return faceVector_.size();
 }
 
-Base::FaceData::VecCacheT& Base::FaceData::getVecCacheData()
+std::vector<Base::FaceCacheData>& Base::FaceData::getVecCacheData()
 {
     return vecCacheData_;
 }

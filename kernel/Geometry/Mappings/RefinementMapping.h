@@ -23,11 +23,7 @@
 
 #include <iostream>
 #include <string>
-
-namespace LinearAlgebra
-{
-    class MiddleSizeMatrix;
-}
+#include "LinearAlgebra/SmallMatrix.h"
 
 namespace Geometry
 {
@@ -37,62 +33,114 @@ namespace Geometry
     class RefinementMapping
     {
     public:
-        //! Default constructor.
-        RefinementMapping()
-        {
-        }
-        
-        virtual ~RefinementMapping()
-        {
-        }
-        
-        //---------------------- Refinement mappings -----------------------------------------
+        virtual ~RefinementMapping() = default;
+
+        virtual std::string getName() const = 0;
         
         //! Transform a reference point using refinement mapping
-        virtual void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference<0>& p, PointReference<0>& pMap) const
+        virtual const PointReference<0>& refinementTransform(std::size_t subElementIdx, const PointReference<0>& p) const
         {
             logger(ERROR, "You passed a coordinate with the wrong dimension!");
+            return p;
         }
 
-        virtual void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference<1>& p, PointReference<1>& pMap) const
+        virtual const PointReference<1>& refinementTransform(std::size_t subElementIdx, const PointReference<1>& p) const
         {
             logger(ERROR, "You passed a coordinate with the wrong dimension!");
+            return p;
         }
 
-        virtual void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference<2>& p, PointReference<2>& pMap) const
+        virtual const PointReference<2>& refinementTransform(std::size_t subElementIdx, const PointReference<2>& p) const
         {
             logger(ERROR, "You passed a coordinate with the wrong dimension!");
+            return p;
         }
 
-        virtual void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference<3>& p, PointReference<3>& pMap) const
+        virtual const PointReference<3>& refinementTransform(std::size_t subElementIdx, const PointReference<3>& p) const
         {
             logger(ERROR, "You passed a coordinate with the wrong dimension!");
+            return p;
         }
 
-        virtual void refinementTransform(int refineType, std::size_t subElementIdx, const PointReference<4>& p, PointReference<4>& pMap) const
+        virtual const PointReference<4>& refinementTransform(std::size_t subElementIdx, const PointReference<4>& p) const
         {
             logger(ERROR, "You passed a coordinate with the wrong dimension!");
+            return p;
         }
 
-        ///\todo functions below this line were not considered during the reintroduction of templated coordinate data, when element refinement is fixed, please update them as appropriate
-        ///-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        //! Transformation matrix of this refinement when located on the LEFT side. This is also the jacobian of the refinementTransform
+        virtual LinearAlgebra::SmallMatrix<0, 0> getRefinementMappingMatrixL(std::size_t subElementIdx, const PointReference<0>& p) const
+        {
+            logger(ERROR, "You passed a coordinate with the wrong dimension!");
+            return LinearAlgebra::SmallMatrix<0, 0>();
+        }
 
+        virtual LinearAlgebra::SmallMatrix<1, 1> getRefinementMappingMatrixL(std::size_t subElementIdx, const PointReference<1>& p) const
+        {
+            logger(ERROR, "You passed a coordinate with the wrong dimension!");
+            return LinearAlgebra::SmallMatrix<1, 1>();
+        }
 
+        virtual LinearAlgebra::SmallMatrix<2, 2> getRefinementMappingMatrixL(std::size_t subElementIdx, const PointReference<2>& p) const
+        {
+            logger(ERROR, "You passed a coordinate with the wrong dimension!");
+            return LinearAlgebra::SmallMatrix<2, 2>();
+        }
 
+        virtual LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixL(std::size_t subElementIdx, const PointReference<3>& p) const
+        {
+            logger(ERROR, "You passed a coordinate with the wrong dimension!");
+            return LinearAlgebra::SmallMatrix<3, 3>();
+        }
 
-        //! Transformation matrix of this refinement when located on the LEFT side
-        virtual void getRefinementMappingMatrixL(int refineType, std::size_t subElementIdx, LinearAlgebra::MiddleSizeMatrix& Q) const = 0;
+        virtual LinearAlgebra::SmallMatrix<4, 4> getRefinementMappingMatrixL(std::size_t subElementIdx, const PointReference<4>& p) const
+        {
+            logger(ERROR, "You passed a coordinate with the wrong dimension!");
+            return LinearAlgebra::SmallMatrix<4, 4>();
+        }
 
-        //! Transformation matrix of this refinement when located on the RIGHT side
-        virtual void getRefinementMappingMatrixR(int refineType, std::size_t subElementIdx, LinearAlgebra::MiddleSizeMatrix& Q) const = 0;
+        //! Transformation matrix of this refinement when located on the RIGHT side. This is the inverse of the LEFT transformation
+        //it would be nicer if the return type was a smallMatrix, but it is illegal to change only the return type and nothing else
+        virtual LinearAlgebra::SmallMatrix<0, 0> getRefinementMappingMatrixR(std::size_t subElementIdx, const PointReference<0>& p) const
+        {
+            logger(ERROR, "You passed a coordinate with the wrong dimension!");
+            return LinearAlgebra::SmallMatrix<0, 0>();
+        }
 
-        //! Refinement mapping on codim1 for a given refinement on codim0
-        //! Note: this should also applied on other dimensions
-        virtual void getCodim1RefinementMappingMatrixL(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::MiddleSizeMatrix& Q) const = 0;
+        virtual LinearAlgebra::SmallMatrix<1, 1> getRefinementMappingMatrixR(std::size_t subElementIdx, const PointReference<1>& p) const
+        {
+            logger(ERROR, "You passed a coordinate with the wrong dimension!");
+            return LinearAlgebra::SmallMatrix<1, 1>();
+        }
 
-        //! Refinement mapping on codim1 for a given refinement on codim0
-        //! Note: this should also applied on other dimensions
-        virtual void getCodim1RefinementMappingMatrixR(int refineType, std::size_t subElementIdx, std::size_t faLocalIndex, LinearAlgebra::MiddleSizeMatrix& Q) const = 0;
+        virtual LinearAlgebra::SmallMatrix<2, 2> getRefinementMappingMatrixR(std::size_t subElementIdx, const PointReference<2>& p) const
+        {
+            logger(ERROR, "You passed a coordinate with the wrong dimension!");
+            return LinearAlgebra::SmallMatrix<2, 2>();
+        }
+
+        virtual LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixR(std::size_t subElementIdx, const PointReference<3>& p) const
+        {
+            logger(ERROR, "You passed a coordinate with the wrong dimension!");
+            return LinearAlgebra::SmallMatrix<3, 3>();
+        }
+
+        virtual LinearAlgebra::SmallMatrix<4, 4> getRefinementMappingMatrixR(std::size_t subElementIdx, const PointReference<4>& p) const
+        {
+            logger(ERROR, "You passed a coordinate with the wrong dimension!");
+            return LinearAlgebra::SmallMatrix<4, 4>();
+        }
+
+        //! \brief Number of new nodes due to the refinement that should be added to the vector of localNodeIndices
+        virtual std::size_t getNumberOfNewNodes() const = 0;
+
+        //! \brief Number of sub-elements due to the refinement
+        virtual std::size_t getNumberOfSubElements() const = 0;
+
+        //! \brief Assembly nodes for sub-element
+        virtual std::vector<std::size_t> getSubElementLocalNodeIndices(std::size_t subElement) const = 0;
+
+        virtual std::vector<const RefinementMapping*> getCodim1RefinementMaps() const = 0;
     };
 }
 #endif

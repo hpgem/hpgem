@@ -34,7 +34,7 @@ namespace Geometry
 
     public:
         
-        PhysicalTetrahedron(const std::vector<std::size_t>&, VectorOfPhysicalPointsT&);
+        PhysicalTetrahedron(const std::vector<std::size_t>&, std::vector<PointPhysical<3> >&);
     };
 }
 #endif

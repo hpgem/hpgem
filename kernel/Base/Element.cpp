@@ -158,7 +158,7 @@ namespace Base
         quadratureRule_ = Geometry::ElementGeometry::referenceGeometry_->getGaussQuadratureRule(quadrROrder);
     }
     
-    void Element::setGaussQuadratureRule(GaussQuadratureRuleT* const quadR)
+    void Element::setGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const quadR)
     {
         logger.assert(quadR!=nullptr, "Invalid quadrature rule passed");
         quadratureRule_ = quadR;

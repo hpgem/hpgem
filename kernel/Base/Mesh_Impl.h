@@ -54,10 +54,11 @@ namespace Base
         elementCounter_(0), faceCounter_(0), edgeCounter_(0), nodeCounter_(0), 
         nodeCoordinates_(orig.nodeCoordinates_)
     {
+        logger(ERROR, "To be done again with the help of Boost::serialize");
         //Make elements. Note: each element gets a new unique ID
-        for(Element* element : orig.elements_)
+        /*for(Element* element : orig.elements_)
         {
-            elements_.push_back(element->copyWithoutFacesEdgesNodes());
+            elements_.addRootEntry(element->copyWithoutFacesEdgesNodes());
             ++elementCounter_;
         }
         logger.assert(orig.elementCounter_ == elementCounter_, "In the copy constructor of Mesh,"
@@ -91,7 +92,7 @@ namespace Base
                 elRight = elements_[face->getPtrElementRight()->getID()];
                 idOnRight = face->localFaceNumberRight();
             }
-            faces_.push_back(new Face(*face, elLeft, idOnLeft, elRight, idOnRight));
+            faces_.addRootEntry(new Face(*face, elLeft, idOnLeft, elRight, idOnRight));
             ++faceCounter_;
         }
         logger.assert(orig.faceCounter_ == faceCounter_, "In the copy constructor of Mesh,"
@@ -100,21 +101,21 @@ namespace Base
         //Make nodes and couple them with elements
         for(Edge* edge : orig.edges_)
         {
-            edges_.push_back(new Edge(edge->getID()));
+            edges_.addRootEntry(new Edge(edge->getID()));
             std::vector<Element*> edgeElements = edge->getElements();
-            logger.assert(edgeElements.size() > 0, "There are no elements at this node.");
+            logger.assert(edgeElements.size() > 0, "There are no elements at this edge.");
             for(std::size_t i = 0; i < edgeElements.size(); ++i)
             {
                 std::size_t id = edgeElements[i]->getID();
-                edges_.back()->addElement(elements_[id], edge->getEdgeNumber(i));
+                (*(--edges_.end()))->addElement(elements_[id], edge->getEdgeNumber(i));
             }
             ++edgeCounter_;
         }
         logger.assert(orig.edgeCounter_ == edgeCounter_, "In the copy constructor of Mesh,"
             "there is a different number of nodes in the new Mesh than in the old one.");
         
-        //call split() to make get...List() to work with local iterators
-        split();
+        //call split() to make get...List() const to work with local iterators
+        split();*/
     }
 
     template<std::size_t DIM>
@@ -126,10 +127,10 @@ namespace Base
     template<std::size_t DIM>
     Element* Mesh<DIM>::addElement(const std::vector<std::size_t>& globalNodeIndexes)
     {
-        elements_.push_back(ElementFactory::instance().makeElement(globalNodeIndexes, nodeCoordinates_, elementCounter_));
+        elements_.addRootEntry(ElementFactory::instance().makeElement(globalNodeIndexes, nodeCoordinates_, elementCounter_));
         ++elementCounter_;
         hasToSplit_ = true;
-        return elements_.back();
+        return *(--elements_.end());
     }
 
     template<std::size_t DIM>
@@ -138,11 +139,11 @@ namespace Base
         logger.assert(leftElementPtr!=nullptr, "Invalid element passed");
         if (rightElementPtr == nullptr)
         {
-            faces_.push_back(FaceFactory::instance().makeFace(leftElementPtr, leftElementLocalFaceNo, faceType, faceCounter_));
+            faces_.addRootEntry(FaceFactory::instance().makeFace(leftElementPtr, leftElementLocalFaceNo, faceType, faceCounter_));
         }
         else
         {
-            faces_.push_back(FaceFactory::instance().makeFace(leftElementPtr, leftElementLocalFaceNo, rightElementPtr, rightElementLocalFaceNo, faceCounter_));
+            faces_.addRootEntry(FaceFactory::instance().makeFace(leftElementPtr, leftElementLocalFaceNo, rightElementPtr, rightElementLocalFaceNo, faceCounter_));
         }
         ++faceCounter_;
         hasToSplit_ = true;
@@ -152,7 +153,7 @@ namespace Base
     template<std::size_t DIM>
     void Mesh<DIM>::addEdge()
     {
-        edges_.push_back(new Edge(edgeCounter_));
+        edges_.addRootEntry(new Edge(edgeCounter_));
         ++edgeCounter_;
         hasToSplit_ = true;
     }
@@ -335,7 +336,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    const std::vector<Element*>& Mesh<DIM>::getElementsList(IteratorType part) const
+    const LevelTree<Element*>& Mesh<DIM>::getElementsList(IteratorType part) const
     {
         if (part == IteratorType::LOCAL)
         {
@@ -350,7 +351,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    std::vector<Element*>& Mesh<DIM>::getElementsList(IteratorType part)
+    LevelTree<Element*>& Mesh<DIM>::getElementsList(IteratorType part)
     {
         if (part == IteratorType::LOCAL)
         {
@@ -367,7 +368,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    const std::vector<Face*>& Mesh<DIM>::getFacesList(IteratorType part) const
+    const LevelTree<Face*>& Mesh<DIM>::getFacesList(IteratorType part) const
     {
         if (part == IteratorType::LOCAL)
         {
@@ -382,7 +383,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    std::vector<Face*>& Mesh<DIM>::getFacesList(IteratorType part)
+    LevelTree<Face*>& Mesh<DIM>::getFacesList(IteratorType part)
     {
         if (part == IteratorType::LOCAL)
         {
@@ -399,7 +400,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    const std::vector<Edge*>& Mesh<DIM>::getEdgesList(IteratorType part) const
+    const LevelTree<Edge*>& Mesh<DIM>::getEdgesList(IteratorType part) const
     {
         if (part == IteratorType::LOCAL)
         {
@@ -414,7 +415,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    std::vector<Edge*>& Mesh<DIM>::getEdgesList(IteratorType part)
+    LevelTree<Edge*>& Mesh<DIM>::getEdgesList(IteratorType part)
     {
         if (part == IteratorType::LOCAL)
         {

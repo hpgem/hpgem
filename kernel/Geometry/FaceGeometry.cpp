@@ -50,7 +50,7 @@ namespace Geometry
     ///directly used.) If a user want to directly use this class himself, he should be
     ///aware that this constructor assumes he will call initialiseFaceToFaceMapIndex
     ///before actually using the FaceGeometry.
-    FaceGeometry::FaceGeometry(ElementGeometry* ptrElemL, const LocalFaceNumberType& localFaceNumberL, ElementGeometry* ptrElemR, const LocalFaceNumberType& localFaceNumberR)
+    FaceGeometry::FaceGeometry(ElementGeometry* ptrElemL, const std::size_t& localFaceNumberL, ElementGeometry* ptrElemR, const std::size_t& localFaceNumberR)
             : leftElementGeom_(ptrElemL), rightElementGeom_(ptrElemR), localFaceNumberLeft_(localFaceNumberL), localFaceNumberRight_(localFaceNumberR), faceToFaceMapIndex_(Geometry::MAXSIZET), faceType_(FaceType::INTERNAL)
     {
         logger.assert(ptrElemL!=nullptr, "Invalid main element passed");
@@ -58,15 +58,15 @@ namespace Geometry
     }
     
     //! Constructor for boundary faces.
-    FaceGeometry::FaceGeometry(ElementGeometry* ptrElemL, const LocalFaceNumberType& localFaceNumberL, const FaceType& boundaryLabel)
+    FaceGeometry::FaceGeometry(ElementGeometry* ptrElemL, const std::size_t& localFaceNumberL, const FaceType& boundaryLabel)
             : leftElementGeom_(ptrElemL), rightElementGeom_(nullptr), localFaceNumberLeft_(localFaceNumberL), localFaceNumberRight_(Geometry::MAXSIZET), faceToFaceMapIndex_(0), faceType_(boundaryLabel)
     {
         logger.assert(ptrElemL!=nullptr, "Invalid main element passed");
     }
     
     FaceGeometry::FaceGeometry(const FaceGeometry& other, 
-                               ElementGeometry* ptrElemL, const LocalFaceNumberType& localFaceNumberL, 
-                               ElementGeometry* ptrElemRight, const LocalFaceNumberType& localFaceNumberR) 
+                               ElementGeometry* ptrElemL, const std::size_t& localFaceNumberL, 
+                               ElementGeometry* ptrElemRight, const std::size_t& localFaceNumberR) 
     {
         logger.assert(ptrElemL!=nullptr, "Invalid main element passed");
         leftElementGeom_ = ptrElemL;
@@ -86,19 +86,19 @@ namespace Geometry
     }
     
     //! Return a Mapping
-    FaceGeometry::RefFaceToRefElementMappingPtr FaceGeometry::refFaceToRefElemMapL() const
+    std::shared_ptr<const MappingReferenceToReference<1> > FaceGeometry::refFaceToRefElemMapL() const
     {
         //we abuse shared_ptr here to provide common behaviour with refFaceToRefElemMapR, but we don't actually want to delete the mapping when the shared_ptr is destroyed
-        return RefFaceToRefElementMappingPtr(leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_), [](const MappingReferenceToReference<1>*){});
+        return std::shared_ptr<const MappingReferenceToReference<1> >(leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_), [](const MappingReferenceToReference<1>*){});
     }
     
     //! Return a mapping to the right reference element.
-    typename FaceGeometry::RefFaceToRefElementMappingPtr FaceGeometry::refFaceToRefElemMapR() const
+    std::shared_ptr<const MappingReferenceToReference<1> > FaceGeometry::refFaceToRefElemMapR() const
     {
         const MappingReferenceToReference<0> * const m1Ptr = this->getReferenceGeometry()->getCodim0MappingPtr(faceToFaceMapIndex_);
         const MappingReferenceToReference<1> * const m2Ptr = rightElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberRight_);
         
-        return RefFaceToRefElementMappingPtr(new ConcatenatedMapping(*m1Ptr, *m2Ptr));
+        return std::shared_ptr<const MappingReferenceToReference<1> >(new ConcatenatedMapping(*m1Ptr, *m2Ptr));
     }
     
     //finding node numbers here is way to hard, leave that to someplace else

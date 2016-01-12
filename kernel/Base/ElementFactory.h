@@ -41,7 +41,7 @@ namespace Base
     class ElementFactory
     {
     public:
-        using CollectionOfBasisFunctionSets = std::vector<std::shared_ptr<const BasisFunctionSet>>;
+        using CollectionOfBasisFunctionSets = Element::CollectionOfBasisFunctionSets;
         static ElementFactory& instance()
         {
             static ElementFactory theInstance;
