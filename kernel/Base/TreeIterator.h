@@ -29,31 +29,49 @@
 namespace Base
 {
 
+    namespace Detail {
+        template<bool doAdd, typename V>
+        struct maybeAddConst {
+            using type = const V;
+            using iterator = typename std::vector<TreeEntry<V>*>::const_iterator;
+        };
+
+        template<typename V>
+        struct maybeAddConst<false, V> {
+            using type = V;
+            using iterator = typename std::vector<TreeEntry<V>*>::iterator;
+        };
+    }
 
     template<typename V>
     class LevelTree;
 
     //for some routines a faster, more elaborate implementation might be available.
     //Recommended to first test if the current implementation is fast enough for low overhead in most simulations
-    template<typename V>
+    template<typename V, bool isConst = false>
     class TreeIterator
     {
     public:
         //typedefs expected by the standard c++ library (do not rename to conform to code standards)
         using difference_type = std::ptrdiff_t;
         using value_type = V;
-        using pointer = V*;
-        using reference = V&;
+        using pointer = typename Detail::maybeAddConst<isConst, V>::type*;
+        using reference = typename Detail::maybeAddConst<isConst, V>::type&;
         //can go forward or back, but cant skip
         using iterator_category = std::bidirectional_iterator_tag;
 
         //levelTree is able to step iterators to their expected positions while ignoring the ordering
         friend LevelTree<V>;
 
+        //TreeIteratorConst may construct by directly reading variables from non-const TreeIterator
+        friend TreeIterator<V, true>;
+
         //! the standard c++ library expects iterators to be default constructible
         TreeIterator()
         {
             //by default just do everything
+            ptr_ = std::vector<TreeEntry<V>*>().begin();
+            end_ = std::vector<TreeEntry<V>*>().end();
             traversalMethod_ = TreeTraversalMethod::ALLLEVEL;
             depthCounter_ = 0;
         }
@@ -90,6 +108,16 @@ namespace Base
             depthCounter_ = i.depthCounter_;
         }
         
+        //! allow implicit non-const->const conversion (template magic to make sure the copy constructor is used for the non-const tree-iterator)
+        template<bool otherConst, typename = typename std::enable_if<!otherConst>::type>
+        TreeIterator(const TreeIterator<V, otherConst>& i)
+        {
+            ptr_ = i.ptr_; // current position
+            end_ = i.end_;
+            traversalMethod_ = i.traversalMethod_;
+            depthCounter_ = i.depthCounter_;
+        }
+
         //! Move constructor
         TreeIterator(TreeIterator&& i)
         {
@@ -197,8 +225,9 @@ namespace Base
             return (tmp);
         }
         
-        //! Are they the same iterators?
-        bool operator==(const TreeIterator &i) const
+        //! Are they the same iterators? (ignore const-ness of the other iterator)
+        template<bool otherConst>
+        bool operator==(const TreeIterator<V, otherConst> &i) const
         {
             //technically comparing two iterators to two different vectors is not guaranteed to give meaningful results (if any)
             //so has to be slightly more elaborate
@@ -215,7 +244,8 @@ namespace Base
         }
         
         //! Are they different iterators?
-        bool operator!=(const TreeIterator &i) const
+        template<bool otherConst>
+        bool operator!=(const TreeIterator<V, otherConst> &i) const
         {
             return !(*this == i);
         }
@@ -625,13 +655,16 @@ namespace Base
         }
 
     private:
-        typename std::vector<TreeEntry<V>*>::iterator ptr_; // current position
-        typename std::vector<TreeEntry<V>*>::iterator end_; // past the end iterator for the current node
+        typename Detail::maybeAddConst<isConst, V>::iterator ptr_; // current position
+        typename Detail::maybeAddConst<isConst, V>::iterator end_; // past the end iterator for the current node
         
         TreeTraversalMethod traversalMethod_;
         
         std::size_t depthCounter_;
     };
+
+    template<typename V>
+    using TreeIteratorConst = TreeIterator<V, true>;
 } // close namespace Base
 
 #endif  // TreeIterator_h

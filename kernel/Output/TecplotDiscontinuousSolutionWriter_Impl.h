@@ -158,18 +158,16 @@ namespace Output
         std::size_t numberOfNodes; // i.e. on one element
         TecplotPhysicalGeometryIterator& nodeIt = TecplotPhysicalGeometryIterator::Instance();
         
-        const std::vector<Base::Element*>& elements = mesh->getElementsList();
-        
         Geometry::PointPhysical<DIM> pPhys;
         
         // 1. Element cycle, print physical coordinates.
         
-        for (typename std::vector<Base::Element*>::const_iterator iterator = elements.begin(), end = elements.end(); iterator != end; ++iterator)
+        for (Base::Element* element: mesh->getElementsList())
         {
             totalNumberOfElements++;
             numberOfNodes = 0;
             // Tell the TecplotPhysicalGeometryIterator which shape is to be iterated next
-            nodeIt.acceptG((*iterator)->getPhysicalGeometry());
+            nodeIt.acceptG(element->getPhysicalGeometry());
             
             // Cycle through nodes
             while (nodeIt.more())
@@ -180,13 +178,13 @@ namespace Output
                 
                 // For the solution data, write function of the user, however we pass a local
                 // coordinate of the current reference element
-                const Geometry::PointReference<DIM>& pRef = (*iterator)->getReferenceGeometry()->getReferenceNodeCoordinate(localNode);
+                const Geometry::PointReference<DIM>& pRef = element->getReferenceGeometry()->getReferenceNodeCoordinate(localNode);
                 
                 if (!sameGeometry)
                 {
                     // First write the (possibly reduced) coordinates of the point;
                     // note: PHYSICAL coordinates here!                    
-                    pPhys = (*iterator)->referenceToPhysical(pRef);
+                    pPhys = element->referenceToPhysical(pRef);
                     
                     for (std::size_t i = 0; i < numberOfDimensionsToWrite_; ++i)
                     {
@@ -200,7 +198,7 @@ namespace Output
                 // function
                 output_.precision(8);
                 output_.width(16);
-                writeDataFun(*iterator, pRef, output_);
+                writeDataFun(element, pRef, output_);
                 output_ << "\n";
                 
             } // 'nodes of element' loop

@@ -105,6 +105,9 @@ namespace Base
     template<typename V>
     TreeIterator<V> LevelTree<V>::begin()
     {
+        if(empty()) {
+            return TreeIterator<V>();
+        }
         TreeIterator<V> result = entries_.front()->getIterator(traversalMethod_, activeLevel_);
         if(traversalMethod_ == TreeTraversalMethod::POSTORDER)
         {
@@ -120,6 +123,52 @@ namespace Base
     template<typename V>
     TreeIterator<V> LevelTree<V>::end()
     {
+        if(empty()) {
+            return TreeIterator<V>();
+        }
+        //it is easier to first get the last valid position
+        TreeIterator<V> result = entries_.back()->getIterator(traversalMethod_, activeLevel_);
+        if(traversalMethod_ == TreeTraversalMethod::PREORDER || traversalMethod_ == TreeTraversalMethod::ALLLEVEL)
+        {
+            while((*result.ptr_)->hasChild())
+            {
+                result.moveToChild((*result.ptr_)->getNumberOfChildren() - 1);
+            }
+        }
+        if(traversalMethod_ == TreeTraversalMethod::SINGLELEVEL)
+        {
+            result.moveToLastOnLevel(activeLevel_);
+        }
+        //and then increment once
+        ++result;
+        return result;
+    }
+
+    //! Setting sequential list traversal
+    template<typename V>
+    TreeIteratorConst<V> LevelTree<V>::begin() const
+    {
+        if(empty()) {
+            return TreeIterator<V>();
+        }
+        TreeIterator<V> result = entries_.front()->getIterator(traversalMethod_, activeLevel_);
+        if(traversalMethod_ == TreeTraversalMethod::POSTORDER)
+        {
+            while((*result.ptr_)->hasChild())
+            {
+                result.moveToChild(0);
+            }
+        }
+        return result;
+    }
+
+    //! Setting end of traversal
+    template<typename V>
+    TreeIteratorConst<V> LevelTree<V>::end() const
+    {
+        if(empty()) {
+            return TreeIterator<V>();
+        }
         //it is easier to first get the last valid position
         TreeIterator<V> result = entries_.back()->getIterator(traversalMethod_, activeLevel_);
         if(traversalMethod_ == TreeTraversalMethod::PREORDER || traversalMethod_ == TreeTraversalMethod::ALLLEVEL)
@@ -148,6 +197,18 @@ namespace Base
     std::reverse_iterator<TreeIterator<V>> LevelTree<V>::rend()
     {
         return std::reverse_iterator<TreeIterator<V>>(begin());
+    }
+
+    template<typename V>
+    std::reverse_iterator<TreeIteratorConst<V>> LevelTree<V>::rbegin() const
+    {
+        return std::reverse_iterator<TreeIteratorConst<V>>(end());
+    }
+
+    template<typename V>
+    std::reverse_iterator<TreeIteratorConst<V>> LevelTree<V>::rend() const
+    {
+        return std::reverse_iterator<TreeIteratorConst<V>>(begin());
     }
     
     //! Add new entry
@@ -257,6 +318,17 @@ namespace Base
             testIterator = entries_.front()->getIterator(TreeTraversalMethod::ALLLEVEL);
             --maxLevel_;
         }
+    }
+
+    template<typename V>
+    void Base::LevelTree<V>::clear()
+    {
+        while (!entries_.empty())
+        {
+            delete entries_.back();
+            entries_.pop_back();
+        }
+        maxLevel_ = 0;
     }
 
 } // close namespace Base

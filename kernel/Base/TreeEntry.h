@@ -32,7 +32,7 @@ namespace Base
         SINGLELEVEL, ALLLEVEL, PREORDER, POSTORDER
     };
 
-    template<typename V>
+    template<typename V, bool isConst>
     class TreeIterator;
     
     //! data structure that allows LevelTree to provide the tree behavior it promises. It is responsible for its children, but not for its siblings or its parent
@@ -69,15 +69,27 @@ namespace Base
         }
 
         //! create an iterator with desired traversal method that points to this entry. Second argument is used only when single level traversal is requested
-        TreeIterator<V> getIterator(TreeTraversalMethod type, std::size_t singleLevelLevel) const
+        TreeIterator<V, true> getIterator(TreeTraversalMethod type, std::size_t singleLevelLevel) const
         {
-            return TreeIterator<V>(siblings_->begin() + siblingIndex_, type, singleLevelLevel);
+            return TreeIterator<V, true>(siblings_->begin() + siblingIndex_, type, singleLevelLevel);
         }
 
         //! create an iterator with desired traversal method that points to this entry. Second argument is used only when single level traversal is requested
-        TreeIterator<V> getIterator(TreeTraversalMethod type) const
+        TreeIterator<V, true> getIterator(TreeTraversalMethod type) const
         {
-            return TreeIterator<V>(siblings_->begin() + siblingIndex_, type);
+            return TreeIterator<V, true>(siblings_->begin() + siblingIndex_, type);
+        }
+
+        //! create an iterator with desired traversal method that points to this entry. Second argument is used only when single level traversal is requested
+        TreeIterator<V, false> getIterator(TreeTraversalMethod type, std::size_t singleLevelLevel)
+        {
+            return TreeIterator<V, false>(siblings_->begin() + siblingIndex_, type, singleLevelLevel);
+        }
+
+        //! create an iterator with desired traversal method that points to this entry. Second argument is used only when single level traversal is requested
+        TreeIterator<V, false> getIterator(TreeTraversalMethod type)
+        {
+            return TreeIterator<V, false>(siblings_->begin() + siblingIndex_, type);
         }
 
         //! get the lowest level that this entry resides in

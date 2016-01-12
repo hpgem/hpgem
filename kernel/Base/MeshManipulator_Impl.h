@@ -3653,7 +3653,7 @@ namespace Base
                         addEdge();
                         nodes[0] = element->getNode(nodeList[0]);
                         nodes[1] = element->getNode(nodeList[1]);
-                        Edge* newEdge = theMesh_.getEdgesList(IteratorType::GLOBAL).back();
+                        Edge* newEdge = *(--theMesh_.getEdgesList(IteratorType::GLOBAL).end());
                         newEdge->addElement(element, i);
                         for (std::size_t j = 1; j < candidates.size(); ++j)
                         {

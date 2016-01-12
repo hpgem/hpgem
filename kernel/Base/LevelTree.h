@@ -33,9 +33,6 @@ namespace Base
     
     template<typename V>
     class TreeEntry;
-    
-    template<typename V>
-    class TreeIterator;
 
     /**
      * A tree structure that allows iteration over a single level (distance from the root entry) or over all levels
@@ -89,11 +86,23 @@ namespace Base
         //! Getting the end of traversal
         TreeIterator<V> end();
 
+        //! Getting the beginning of traversal
+        TreeIteratorConst<V> begin() const;
+
+        //! Getting the end of traversal
+        TreeIteratorConst<V> end() const;
+
         //! Getting the reverse iterator to the reverse beginning
         std::reverse_iterator<TreeIterator<V>> rbegin();
 
         //! Getting the reverse iterator to the reverse end
         std::reverse_iterator<TreeIterator<V>> rend();
+
+        //! Getting the reverse iterator to the reverse beginning
+        std::reverse_iterator<TreeIteratorConst<V>> rbegin() const;
+
+        //! Getting the reverse iterator to the reverse end
+        std::reverse_iterator<TreeIteratorConst<V>> rend() const;
 
         //! Add an additional tree to the forest
         TreeIterator<V> addRootEntry(const V& newEl);
@@ -127,6 +136,9 @@ namespace Base
 
         //! Erase all descendants of an entry (and reset its depth to 1)
         void eraseChilds(TreeIterator<V> parentEl);
+
+        //! Erase all entries (including descendants)
+        void clear();
 
         //! Describe the LevelTree
         friend std::ostream& operator<<(std::ostream& os, const LevelTree<V>& e)

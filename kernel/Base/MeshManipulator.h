@@ -69,19 +69,18 @@ namespace Base
         std::size_t localFaceIndex;
     };
     
-    //class is made final so we don't have to create a v-table specifically for the destructor
     template<std::size_t DIM>
-    class MeshManipulator : public MeshManipulatorBase //remove the word final after MeshManipulator
+    class MeshManipulator : public MeshManipulatorBase
     {
     public:
 
         using CollectionOfBasisFunctionSets = Element::CollectionOfBasisFunctionSets;
         
-        using ConstElementIterator = std::vector<Element*>::const_iterator;
-        using ElementIterator = std::vector<Element*>::iterator;
+        /*using ConstElementIterator = TreeIteratorConst<Element*>;
+        using ElementIterator = TreeIterator<Element*>;
 
-        using ConstFaceIterator = std::vector<Face*>::const_iterator;
-        using FaceIterator = std::vector<Face*>::iterator;
+        using ConstFaceIterator = TreeIteratorConst<Face*>;
+        using FaceIterator = TreeIterator<Face*>;*/
 
         /// idRangeBegin is the beginning of the range, from where the Element's ids should be assigned.
         /// In case of multiple meshes, one has to take care of empty intersection of those ranges!!!
@@ -200,22 +199,22 @@ namespace Base
             return theMesh_.faceColEnd(part);
         }
         
-        std::vector<Edge*>::const_iterator edgeColBegin(IteratorType part = IteratorType::LOCAL) const
+        TreeIteratorConst<Edge*> edgeColBegin(IteratorType part = IteratorType::LOCAL) const
         {
             return theMesh_.edgeColBegin(part);
         }
         
-        std::vector<Edge*>::const_iterator edgeColEnd(IteratorType part = IteratorType::LOCAL) const
+        TreeIteratorConst<Edge*> edgeColEnd(IteratorType part = IteratorType::LOCAL) const
         {
             return theMesh_.edgeColEnd(part);
         }
         
-        std::vector<Edge*>::iterator edgeColBegin(IteratorType part = IteratorType::LOCAL)
+        TreeIterator<Edge*> edgeColBegin(IteratorType part = IteratorType::LOCAL)
         {
             return theMesh_.edgeColBegin(part);
         }
         
-        std::vector<Edge*>::iterator edgeColEnd(IteratorType part = IteratorType::LOCAL)
+        TreeIterator<Edge*> edgeColEnd(IteratorType part = IteratorType::LOCAL)
         {
             return theMesh_.edgeColEnd(part);
         }
@@ -315,35 +314,35 @@ namespace Base
         // ********THESE SHOULD BE REPLACED by ITERABLE EDITIONS LATER**********
         
         //! Get const list of elements
-        const std::vector<Element*>& getElementsList(IteratorType part = IteratorType::LOCAL) const
+        const LevelTree<Element*>& getElementsList(IteratorType part = IteratorType::LOCAL) const
         {
             return theMesh_.getElementsList(part);
         }
         
         //! Get non-const list of elements
-        std::vector<Element*>& getElementsList(IteratorType part = IteratorType::LOCAL)
+        LevelTree<Element*>& getElementsList(IteratorType part = IteratorType::LOCAL)
         {
             return theMesh_.getElementsList(part);
         }
         
         //! Get const list of faces
-        const std::vector<Face*>& getFacesList(IteratorType part = IteratorType::LOCAL) const
+        const LevelTree<Face*>& getFacesList(IteratorType part = IteratorType::LOCAL) const
         {
             return theMesh_.getFacesList(part);
         }
         
         //! Get non-const list of faces
-        std::vector<Face*>& getFacesList(IteratorType part = IteratorType::LOCAL)
+        LevelTree<Face*>& getFacesList(IteratorType part = IteratorType::LOCAL)
         {
             return theMesh_.getFacesList(part);
         }
         
-        const std::vector<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL) const
+        const LevelTree<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL) const
         {
             return theMesh_.getEdgesList(part);
         }
         
-        std::vector<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL)
+        LevelTree<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL)
         {
             return theMesh_.getEdgesList(part);
         }
@@ -389,50 +388,6 @@ namespace Base
          */
         Mesh<DIM>& getMesh();
         const Mesh<DIM>& getMesh() const;
-        
-        //routines that deal with level trees
-        //---------------------------------------------------------------------
-        //! Get the number of mesh-tree.
-        /*int getNumberOfMeshes() const;
-
-         //! Create a new (empty) mesh-tree.
-         void createNewMeshTree();
-
-         //! Get the element container of a specific mesh-tree.
-         ElementLevelTreeT* ElCont(int meshTreeIdx) const;
-
-         //! Get the face container of a specific mesh-tree.
-         FaceLevelTreeT* FaCont(int meshTreeIdx) const;
-
-         //! Some mesh generator: centaur / rectangular / triangle / tetrahedra / triangular-prism.
-         void someMeshGenerator(int meshTreeIdx);
-
-         //! Set active mesh-tree.
-         void setActiveMeshTree(std::size_t meshTreeIdx);
-
-         //! Get active mesh-tree index.
-         int getActiveMeshTree() const;
-
-         //! Reset active mesh-tree.
-         void resetActiveMeshTree();
-
-         //! Get maximum h-level of a specific mesh-tree.
-         std::size_t getMaxLevel(int meshTreeIdx) const;
-
-         //! Set active level of a specific mesh-tree.
-         void setActiveLevel(std::size_t meshTreeIdx, int level);
-
-         //! Get active level of a specific mesh-tree.
-         int getActiveLevel(int meshTreeIdx) const;
-
-         //! Reset active level of a specific mesh-tree.
-         void resetActiveLevel(int meshTreeIdx);
-
-         //! Duplicate mesh contents including all refined meshes.
-         void duplicate(std::size_t fromMeshTreeIdx, std::size_t toMeshTreeIdx, std::size_t upToLevel);
-
-         //! Refine a specific mesh-tree.
-         void doRefinement(std::size_t meshTreeIdx, int refinementType);*/
 
         
         //---------------------------------------------------------------------
@@ -449,24 +404,6 @@ namespace Base
 
         //!Construct the faces based on connectivity information about elements and nodes
         void edgeFactory();
-
-        //! Do refinement on the elements.
-        /*void doElementRefinement(std::size_t meshTreeIdx);
-
-         //! Do refinement on the faces.
-         void doFaceRefinement(std::size_t meshTreeIdx);
-
-         //! Check whether the two elements may be connected by a face or not.
-         void pairingCheck(const ElementIterator elL, std::size_t locFaceNrL,
-         const ElementIterator elR, std::size_t locFaceNrR,
-         int& pairingValue, bool& sizeOrder);*/
-
-        //! Check whether the two elements may be connected by a face or not in periodic face case.
-        //void                            periodicPairingCheck(const FaceIteratorT fa,
-        //                                                     const ElementIteratorT elL, std::size_t localFaceNrL,
-        //                                                     const ElementIteratorT elR, std::size_t localFaceNrR,
-        //                                                     int& pairingValue, bool& sizeOrder);
-        //---------------------------------------------------------------------
         
         Mesh<DIM> theMesh_;
 
@@ -475,20 +412,6 @@ namespace Base
 
         //! Collection of additional basis function set, if p-refinement is applied
         CollectionOfBasisFunctionSets collBasisFSet_;
-
-        //const BasisFunctionSet*        defaultSetOfBasisFunctions_;
-        
-        //! Active mesh-tree.
-        //int activeMeshTree_;
-        
-        //! Number of mesh-tree.
-        //int numMeshTree_;
-        
-        //! Vector elements LevelTree.
-        //VecOfElementLevelTreePtrT vecOfElementTree_;
-        
-        //! Vector faces LevelTree.
-        //VecOfFaceLevelTreePtrT vecOfFaceTree_;
 
         //when the mesh is updated, persistently store original node coordinates to see if retriangulation is in order
         std::vector<Geometry::PointPhysical<DIM> > oldNodeLocations_;

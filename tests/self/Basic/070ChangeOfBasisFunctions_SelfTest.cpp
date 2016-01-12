@@ -33,7 +33,7 @@
 #include "Base/CommandLineOptions.h"
 
 template<std::size_t DIM>
-void testData(Base::MeshManipulator<DIM> mesh)
+void testData(const Base::MeshManipulator<DIM>& mesh)
 {
     for(Base::Element* element : mesh.getElementsList())
     {

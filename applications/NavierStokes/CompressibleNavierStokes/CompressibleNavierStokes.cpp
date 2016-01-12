@@ -64,7 +64,8 @@ Base::RectangularMeshDescriptor<DIM> CompressibleNavierStokes::createMeshDescrip
 void CompressibleNavierStokes::setStabilityMassMatrix()
 {
 	//For a single element create the mass matrix: note this breaks down with p-refinement or limiters
-	LinearAlgebra::MiddleSizeMatrix stabilityMassMatrix  = computeMassMatrixAtElement(meshes_[0]->getElementsList()[0]);
+    //the result of getElementsList() no longer provides a subscript-operator, so I traced the iterator to the beginning instead -FB
+	LinearAlgebra::MiddleSizeMatrix stabilityMassMatrix  = computeMassMatrixAtElement(*meshes_[0]->elementColBegin());
 	viscousTerms_.setStabilityMassMatrix(stabilityMassMatrix);
 }
 

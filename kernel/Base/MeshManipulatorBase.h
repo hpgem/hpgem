@@ -66,11 +66,11 @@ namespace Base
         
         using CollectionOfBasisFunctionSets = Element::CollectionOfBasisFunctionSets;
         
-        using ConstElementIterator = std::vector<Element*>::const_iterator;
-        using ElementIterator = std::vector<Element*>::iterator;
+        using ConstElementIterator = TreeIteratorConst<Element*>;
+        using ElementIterator = TreeIterator<Element*>;
 
-        using ConstFaceIterator = std::vector<Face*>::const_iterator;
-        using FaceIterator = std::vector<Face*>::iterator;
+        using ConstFaceIterator = TreeIteratorConst<Face*>;
+        using FaceIterator = TreeIterator<Face*>;
 
         /// idRangeBegin is the beginning of the range, from where the Element's ids should be assigned.
         /// In case of multiple meshes, one has to take care of empty intersection of those ranges!!!
@@ -106,13 +106,13 @@ namespace Base
         
         virtual FaceIterator faceColEnd(IteratorType part = IteratorType::LOCAL) = 0;
         
-        virtual std::vector<Edge*>::const_iterator edgeColBegin(IteratorType part = IteratorType::LOCAL) const = 0;
+        virtual TreeIteratorConst<Edge*> edgeColBegin(IteratorType part = IteratorType::LOCAL) const = 0;
         
-        virtual std::vector<Edge*>::const_iterator edgeColEnd(IteratorType part = IteratorType::LOCAL) const = 0;
+        virtual TreeIteratorConst<Edge*> edgeColEnd(IteratorType part = IteratorType::LOCAL) const = 0;
         
-        virtual std::vector<Edge*>::iterator edgeColBegin(IteratorType part = IteratorType::LOCAL) = 0;
+        virtual TreeIterator<Edge*> edgeColBegin(IteratorType part = IteratorType::LOCAL) = 0;
         
-        virtual std::vector<Edge*>::iterator edgeColEnd(IteratorType part = IteratorType::LOCAL) = 0;
+        virtual TreeIterator<Edge*> edgeColEnd(IteratorType part = IteratorType::LOCAL) = 0;
         
         virtual std::vector<Node*>::const_iterator nodeColBegin(IteratorType part = IteratorType::LOCAL) const = 0;
         
@@ -124,20 +124,20 @@ namespace Base
         //  *****************Iteration through the Elements*******************
         
         //! Get const list of elements
-        virtual const std::vector<Element*>& getElementsList(IteratorType part = IteratorType::LOCAL) const = 0;
+        virtual const LevelTree<Element*>& getElementsList(IteratorType part = IteratorType::LOCAL) const = 0;
         
         //! Get non-const list of elements
-        virtual std::vector<Element*>& getElementsList(IteratorType part = IteratorType::LOCAL) = 0;
+        virtual LevelTree<Element*>& getElementsList(IteratorType part = IteratorType::LOCAL) = 0;
         
         //! Get const list of faces
-        virtual const std::vector<Face*>& getFacesList(IteratorType part = IteratorType::LOCAL) const = 0;
+        virtual const LevelTree<Face*>& getFacesList(IteratorType part = IteratorType::LOCAL) const = 0;
         
         //! Get non-const list of faces
-        virtual std::vector<Face*>& getFacesList(IteratorType part = IteratorType::LOCAL) = 0;
+        virtual LevelTree<Face*>& getFacesList(IteratorType part = IteratorType::LOCAL) = 0;
         
-        virtual const std::vector<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL) const = 0;
+        virtual const LevelTree<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL) const = 0;
         
-        virtual std::vector<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL) = 0;
+        virtual LevelTree<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL) = 0;
         
         virtual const std::vector<Node*>& getNodesList(IteratorType part = IteratorType::LOCAL) const = 0;
         

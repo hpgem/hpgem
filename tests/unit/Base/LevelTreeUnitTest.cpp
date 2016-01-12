@@ -43,6 +43,10 @@ int main()
     logger.assert_always(testSingleRoot.maxLevel() == 0, "initial tree nonempty");
     logger.assert_always(testMultiRoot.maxLevel() == 0, "initial tree nonempty");
 
+    for(std::size_t i : testBalancedBinary) {
+        logger(ERROR, "should be able to iterator over an empty tree");
+    }
+
     testBalancedBinary.addRootEntry(0);
     testSingleRoot.addRootEntry(0);
     for(std::size_t i = 0; i < 5; ++i)
