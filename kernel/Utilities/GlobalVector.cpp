@@ -953,6 +953,7 @@ namespace Utilities
     	std::cout << ']' << std::endl;
     }
 
+    //Possibly deprecated
 /*    LinearAlgebra::MiddleSizeVector GlobalSundialsVector::getLocalVector(const Base::Element* ptrElement)
     {
     	//Create the local vector

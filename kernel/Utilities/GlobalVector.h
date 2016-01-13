@@ -176,6 +176,12 @@ namespace Utilities
         	return totalNumberOfDOF_;
         }
 
+        //Get element positions
+        std::vector<int> getStartPositionsOfElementsInTheVector()
+		{
+        	return startPositionsOfElementsInTheVector_;
+		}
+
     private:
 
         std::size_t totalNumberOfDOF_;
