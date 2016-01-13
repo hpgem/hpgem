@@ -24,7 +24,6 @@
 #include <chrono>
 
 #include "Base/SerializationInclude.h"
-#include <boost/serialization/shared_ptr.hpp>
 #include "Base/CommandLineOptions.h"
 #include "Base/ConfigurationData.h"
 #include "Base/Element.h"
@@ -201,31 +200,27 @@ private:
     LinearAlgebra::SmallVector<DIM> a;
 };
 
-namespace boost {
-namespace serialization {
-
-    template<class Archive>
-    inline void save_construct_data(
-        Archive & ar, const AdvectionTest * test, const unsigned long int file_version)
-    {
-        // save data required to construct instance
-        ar << 1;
-    }
-
-    template<class Archive>
-    inline void load_construct_data(
-        Archive & ar, AdvectionTest * t, const unsigned long int file_version)
-    {
-        
-        // retrieve data from archive required to construct new instance
-        std::size_t polynomialOrder;
-        ar >> polynomialOrder;
-        // invoke inplace constructor to initialize instance of my_class
-        ::new(t)AdvectionTest(polynomialOrder);
-    }
-}}
 auto& n = Base::register_argument<std::size_t>('n', "numelems", "Number of Elements", true);
 auto& p = Base::register_argument<std::size_t>('p', "poly", "Polynomial order", true);
+
+template<class Archive>
+inline void save_construct_data(
+    Archive & ar, const AdvectionTest * test, const unsigned int file_version)
+{
+    // save data required to construct instance (for now cheat and acquire the info from somewhere else)
+    ar << p.getValue();
+}
+
+template<class Archive>
+inline void load_construct_data(
+    Archive & ar, AdvectionTest * t, const unsigned int file_version)
+{
+    // retrieve data from archive required to construct new instance
+    std::size_t polynomialOrder;
+    ar >> polynomialOrder;
+    // invoke inplace constructor to initialize instance of my_class
+    ::new(t)AdvectionTest(polynomialOrder);
+}
 
 ///Make the problem and solve it.
 int main(int argc, char **argv)
@@ -242,21 +237,20 @@ int main(int argc, char **argv)
     {
         std::ofstream outputFileStream("advectionFile");
         boost::archive::text_oarchive outputArchive(outputFileStream);
-        //save_construct_data(outputArchive, &test, 0);
-        outputArchive << test;
+        //save a pointer so we don't need to figure out how to call the constructor when reloading
+        outputArchive << &test;
     	// archive and stream closed when destructors are called
     }
     auto startTime = std::chrono::steady_clock::now();
     test.solve(Base::startTime.getValue(), Base::endTime.getValue(), Base::dt.getValue(), Base::numberOfSnapshots.getValue(), true);
     auto endTime = std::chrono::steady_clock::now();
     
-    auto test2 = (AdvectionTest*) operator new(sizeof(AdvectionTest));
+    AdvectionTest* test2;
     {
         // create and open an archive for input
-        std::ifstream inputFileStream("AdvectionFile");
+        std::ifstream inputFileStream("advectionFile");
         boost::archive::text_iarchive inputArchive(inputFileStream);
         // read class state from archive
-        boost::serialization::load_construct_data(inputArchive, test2, 0);
         inputArchive >> test2;
         // archive and stream closed when destructors are called
     }
@@ -268,6 +262,9 @@ int main(int argc, char **argv)
     endTime = std::chrono::steady_clock::now();
 
     logger(INFO, "Simulation took %ms.", std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count());
+
+    //boost created some space for us, but it won't and shouldn't clean up
+    delete test2;
 
     return 0;
 }
