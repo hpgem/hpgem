@@ -52,7 +52,7 @@ public:
     }
     
     ///\brief set up the mesh
-    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override final
+    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numberOfElementPerDirection) override final
     {
         //describes a rectangular domain
         Base::RectangularMeshDescriptor<DIM> description;
@@ -66,7 +66,7 @@ public:
             //define how many elements there should be in the direction of dimension
             //At this stage, the mesh first consists of n^2 squares, and later these
             //squares can be divided in two triangles each if a triangular mesh is desired.
-            description.numElementsInDIM_[i] = n_;
+            description.numberOfElementsInDIM_[i] = n_;
             //define whether you have periodic boundary conditions or a solid wall in this direction.
             description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
         }
@@ -78,15 +78,15 @@ public:
     LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(Base::PhysicalElement<DIM> &element) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero on this element.
-        const std::size_t numBasisFunctions = element.getElement()->getNrOfBasisFunctions();
+        const std::size_t numberOfBasisFunctions = element.getElement()->getNumberOfBasisFunctions();
         
         //Create the integrandVal such that it contains as many rows and columns as
         //the number of basisfunctions.
         LinearAlgebra::MiddleSizeMatrix& integrandVal = element.getResultMatrix();
         
-        for (std::size_t i = 0; i < numBasisFunctions; ++i)
+        for (std::size_t i = 0; i < numberOfBasisFunctions; ++i)
         {
-            for (std::size_t j = 0; j < numBasisFunctions; ++j)
+            for (std::size_t j = 0; j < numberOfBasisFunctions; ++j)
             {
                 //Compute the value of gradient(phi_i).gradient(phi_j) at point p and
                 //store it at the appropriate place in the matrix integrandVal.
@@ -102,7 +102,7 @@ public:
     {
         //Get the number of basis functions, first of both sides of the face and
         //then only the basis functions associated with the left and right element.
-        std::size_t numBasisFunctions = face.getFace()->getNrOfBasisFunctions();
+        std::size_t numberOfBasisFunctions = face.getFace()->getNumberOfBasisFunctions();
         
         //Create the FaceMatrix integrandVal with the correct size.
         Base::FaceMatrix& integrandVal = face.getResultMatrix();
@@ -114,14 +114,14 @@ public:
         //This is necessary to check at which boundary we are if we are at a boundary face.
         const PointPhysicalT& pPhys = face.getPointPhysical();
         
-        for (int i = 0; i < numBasisFunctions; ++i)
+        for (int i = 0; i < numberOfBasisFunctions; ++i)
         {
             //normal_i phi_i is computed at point p, the result is stored in phiNormalI.
             phiNormalI = face.basisFunctionUnitNormal(i);
             //The gradient of basisfunction phi_i is computed at point p, the result is stored in phiDerivI.
             phiDerivI = face.basisFunctionDeriv(i);
             
-            for (int j = 0; j < numBasisFunctions; ++j)
+            for (int j = 0; j < numberOfBasisFunctions; ++j)
             {
                 //normal_j phi_j is computed at point p, the result is stored in phiNormalJ.
                 phiNormalJ = face.basisFunctionUnitNormal(j);
@@ -194,14 +194,14 @@ public:
     LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(Base::PhysicalFace<DIM> &face) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero
-        const std::size_t numBasisFunctions = face.getFace()->getNrOfBasisFunctions();
+        const std::size_t numberOfBasisFunctions = face.getFace()->getNumberOfBasisFunctions();
         //Resize the integrandVal such that it contains as many rows as
         //the number of basisfunctions.
         LinearAlgebra::MiddleSizeVector& integrandVal = face.getResultVector();
         
         //Compute the value of the integrand
         //We have no rhs face integrals, so this is just 0.
-        for (std::size_t i = 0; i < numBasisFunctions; ++i)
+        for (std::size_t i = 0; i < numberOfBasisFunctions; ++i)
         {
             integrandVal[i] = 0;
         }

@@ -27,7 +27,7 @@ namespace TimeIntegration
     RK4_4::RK4_4()
     {
         order_ = 4;
-        numStages_ = 4;
+        numberOfStages_ = 4;
         totalVariationDiminishing_ = false;
         
         //make a_
@@ -58,7 +58,7 @@ namespace TimeIntegration
     
     std::size_t RK4_4::getNumberOfStages() const
     {
-        return numStages_;
+        return numberOfStages_;
     }
     
     bool RK4_4::getTotalVariationDiminishing() const

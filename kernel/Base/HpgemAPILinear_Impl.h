@@ -81,12 +81,12 @@ namespace Base
     (
      const std::size_t numberOfVariables,
      const std::size_t polynomialOrder,
-     const std::size_t globalNummberOfTimeIntegrationVectors,
+     const std::size_t globalNumberOfTimeIntegrationVectors,
      const std::size_t numberOfTimeLevels,
      const bool useSourceTerm,
      const bool useSourceTermAtBoundary
      ) :
-    HpgemAPISimplified<DIM>(numberOfVariables, polynomialOrder, globalNummberOfTimeIntegrationVectors, numberOfTimeLevels),
+    HpgemAPISimplified<DIM>(numberOfVariables, polynomialOrder, globalNumberOfTimeIntegrationVectors, numberOfTimeLevels),
     useSourceTerm_(useSourceTerm),
     useSourceTermAtBoundary_(useSourceTermAtBoundary),
     massMatrixID_(1),

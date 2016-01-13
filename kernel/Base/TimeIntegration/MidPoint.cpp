@@ -27,7 +27,7 @@ namespace TimeIntegration
     MidPoint::MidPoint()
     {
         order_ = 2;
-        numStages_ = 2;
+        numberOfStages_ = 2;
         totalVariationDiminishing_ = false;
         
         //make a_
@@ -52,7 +52,7 @@ namespace TimeIntegration
     
     std::size_t MidPoint::getNumberOfStages() const
     {
-        return numStages_;
+        return numberOfStages_;
     }
     
     bool MidPoint::getTotalVariationDiminishing() const

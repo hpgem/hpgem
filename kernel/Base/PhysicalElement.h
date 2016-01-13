@@ -532,9 +532,9 @@ namespace Base
         theElement_ = element;
         if(!hasElement)
         {
-            std::size_t numEntries = theElement_->getNumberOfBasisFunctions() * theElement_->getNumberOfUnknowns();
-            resultMatrix.resize(numEntries, numEntries);
-            resultVector.resize(numEntries);
+            std::size_t numberOfEntries = theElement_->getNumberOfBasisFunctions() * theElement_->getNumberOfUnknowns();
+            resultMatrix.resize(numberOfEntries, numberOfEntries);
+            resultVector.resize(numberOfEntries);
             basisFunctionValue.resize(theElement_->getNumberOfBasisFunctions());
             vectorBasisFunctionValue.resize(theElement_->getNumberOfBasisFunctions());
             basisFunctionDeriv_.resize(theElement_->getNumberOfBasisFunctions());

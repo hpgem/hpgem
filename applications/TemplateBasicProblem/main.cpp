@@ -70,7 +70,7 @@ public:
             description.topRight_[i] = 1;
             
             //Define elements in each direction.
-            description.numElementsInDIM_[i] = numberOfElementsPerDirection;
+            description.numberOfElementsInDIM_[i] = numberOfElementsPerDirection;
             
             //Choose the type of boundary conditions (PERIODIC or SOLID_WALL) for each direction.
             description.boundaryConditions_[i] = Base::BoundaryType::PERIODIC;

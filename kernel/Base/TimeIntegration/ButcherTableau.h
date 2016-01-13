@@ -41,7 +41,7 @@ namespace TimeIntegration
         virtual std::size_t getNumberOfStages() const = 0;
         std::size_t getNumStages()
         {
-          return getNumberOfStages();
+            return getNumberOfStages();
         }
         virtual bool getTotalVariationDiminishing() const = 0;
         virtual double getA(std::size_t i, std::size_t j) const = 0;

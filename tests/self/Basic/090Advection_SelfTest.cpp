@@ -72,7 +72,7 @@ public:
             description.bottomLeft_[i] = 0;
             description.topRight_[i] = 1;
             //Define elements in each direction.
-            description.numElementsInDIM_[i] = numberOfElementsPerDirection;
+            description.numberOfElementsInDIM_[i] = numberOfElementsPerDirection;
             
             //Choose whether you want periodic boundary conditions or other (solid wall)
             //boundary conditions.
@@ -90,14 +90,14 @@ public:
      const double time
      )
     {
-        std::size_t numBasisFuncs = element.getElement()->getNumberOfBasisFunctions();
+        std::size_t numberOfBasisFunctions = element.getElement()->getNumberOfBasisFunctions();
         LinearAlgebra::MiddleSizeVector&  result = element.getResultVector();
         LinearAlgebra::MiddleSizeVector::type functionValue = 0;
-        for(std::size_t j = 0; j < numBasisFuncs; ++j)
+        for(std::size_t j = 0; j < numberOfBasisFunctions; ++j)
         {
             functionValue += inputFunctionCoefficients(j) * element.basisFunction(j);
         }
-        for (std::size_t i = 0; i < numBasisFuncs; ++i)
+        for (std::size_t i = 0; i < numberOfBasisFunctions; ++i)
         {
             result(i) =  functionValue * (a * element.basisFunctionDeriv(i));
         }
@@ -130,9 +130,9 @@ public:
      )
     {
         //Get the number of basis functions of the elements at both sides.
-        std::size_t numTestFuncs = face.getFace()->getPtrElement(iSide)->getNumberOfBasisFunctions();
-        std::size_t numBasisFuncsLeft = face.getFace()->getPtrElementLeft()->getNumberOfBasisFunctions();
-        std::size_t numBasisFuncsRight = face.getFace()->getPtrElementRight()->getNumberOfBasisFunctions();
+        std::size_t numberOfTestFunctions = face.getFace()->getPtrElement(iSide)->getNumberOfBasisFunctions();
+        std::size_t numberOfBasisFunctionsLeft = face.getFace()->getPtrElementLeft()->getNumberOfBasisFunctions();
+        std::size_t numberOfBasisFunctionsRight = face.getFace()->getPtrElementRight()->getNumberOfBasisFunctions();
         
         //Resize the result to the correct size and set all elements to 0.
         LinearAlgebra::MiddleSizeVector integrandVal = face.getResultVector(iSide);
@@ -153,7 +153,7 @@ public:
             //Advection in the same direction as outward normal of left element:
         if (A > 1e-12)
         {
-            for(std::size_t j = 0; j < numBasisFuncsLeft; ++j)
+            for(std::size_t j = 0; j < numberOfBasisFunctionsLeft; ++j)
             {
                 jump += inputFunctionCoefficientsLeft(j) * face.basisFunction(Base::Side::LEFT, j);
             }
@@ -162,7 +162,7 @@ public:
             //Advection in the same direction as outward normal of right element:
         else if (A < -1e-12)
         {
-            for(std::size_t j = 0; j < numBasisFuncsRight; ++j)
+            for(std::size_t j = 0; j < numberOfBasisFunctionsRight; ++j)
             {
                 jump += inputFunctionCoefficientsRight(j) * face.basisFunction(Base::Side::RIGHT, j);
             }
@@ -171,11 +171,11 @@ public:
             //Advection orthogonal to normal:
         else if (std::abs(A) < 1e-12)
         {
-            for(std::size_t j = 0; j < numBasisFuncsLeft; ++j)
+            for(std::size_t j = 0; j < numberOfBasisFunctionsLeft; ++j)
             {
                 jump += inputFunctionCoefficientsLeft(j) * face.basisFunction(Base::Side::LEFT, j);
             }
-            for(std::size_t j = 0; j < numBasisFuncsRight; ++j)
+            for(std::size_t j = 0; j < numberOfBasisFunctionsRight; ++j)
             {
                 jump += inputFunctionCoefficientsRight(j) * face.basisFunction(Base::Side::RIGHT, j);
             }
@@ -183,7 +183,7 @@ public:
         }
         
         //Compute all entries of the integrand at this point:
-        for (std::size_t i = 0; i < numTestFuncs; ++i)
+        for (std::size_t i = 0; i < numberOfTestFunctions; ++i)
         {
             integrandVal(i) = -jump * face.basisFunction(iSide,i);
         }

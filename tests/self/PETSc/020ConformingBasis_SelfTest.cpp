@@ -53,7 +53,7 @@ public:
     }
     
     ///\brief set up the mesh
-    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override final
+    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numberOfElementPerDirection) override final
     {
         //describes a rectangular domain
         Base::RectangularMeshDescriptor<DIM> description;
@@ -67,7 +67,7 @@ public:
             //define how many elements there should be in the direction of dimension
             //At this stage, the mesh first consists of n^2 squares, and later these
             //squares can be divided in two triangles each if a triangular mesh is desired.
-            description.numElementsInDIM_[i] = n_;
+            description.numberOfElementsInDIM_[i] = n_;
             //define whether you have periodic boundary conditions or a solid wall in this direction.
             description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
         }
@@ -75,18 +75,18 @@ public:
         return description;
     }
     
-    void createMesh(const std::size_t numOfElementsPerDirection, const Base::MeshType meshType) override final
+    void createMesh(const std::size_t numberOfElementsPerDirection, const Base::MeshType meshType) override final
     {
-        const Base::RectangularMeshDescriptor<DIM> description = createMeshDescription(numOfElementsPerDirection);
+        const Base::RectangularMeshDescriptor<DIM> description = createMeshDescription(numberOfElementsPerDirection);
         
         // Set the number of Element/Face Matrices/Vectors.
-        std::size_t numOfElementMatrices = 2;   // Mass matrix and stiffness matrix
-        std::size_t numOfElementVectors = 1;    // Source term vector
-        std::size_t numOfFaceMatrices = 1;      // Stiffness matrix
-        std::size_t numOfFaceVectors = 1;       // Source term vector at boundary
+        std::size_t numberOfElementMatrices = 2;   // Mass matrix and stiffness matrix
+        std::size_t numberOfElementVectors = 1;    // Source term vector
+        std::size_t numberOfFaceMatrices = 1;      // Stiffness matrix
+        std::size_t numberOfFaceVectors = 1;       // Source term vector at boundary
         
         // Create mesh and set basis functions.
-        this->addMesh(description, meshType, numOfElementMatrices, numOfElementVectors, numOfFaceMatrices, numOfFaceVectors);
+        this->addMesh(description, meshType, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors);
         this->meshes_[0]->useDefaultConformingBasisFunctions();
         
         // Set the number of time integration vectors according to the size of the Butcher tableau.
@@ -101,15 +101,15 @@ public:
     LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(Base::PhysicalElement<DIM> &element) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero on this element.
-        const std::size_t numBasisFunctions = element.getElement()->getNrOfBasisFunctions();
+        const std::size_t numberOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
         
         //Create the integrandVal such that it contains as many rows and columns as
         //the number of basisfunctions.
         LinearAlgebra::MiddleSizeMatrix& integrandVal = element.getResultMatrix();
         
-        for (std::size_t i = 0; i < numBasisFunctions; ++i)
+        for (std::size_t i = 0; i < numberOfBasisFunctions; ++i)
         {
-            for (std::size_t j = 0; j < numBasisFunctions; ++j)
+            for (std::size_t j = 0; j < numberOfBasisFunctions; ++j)
             {
                 //Compute the value of gradient(phi_i).gradient(phi_j) at point p and
                 //store it at the appropriate place in the matrix integrandVal.

@@ -66,8 +66,8 @@ public:
         rectangularMesh.bottomLeft_[1] = 0;
         rectangularMesh.topRight_[0] = 1;
         rectangularMesh.topRight_[1] = 1;
-        rectangularMesh.numElementsInDIM_[0] = 8;
-        rectangularMesh.numElementsInDIM_[1] = 8;
+        rectangularMesh.numberOfElementsInDIM_[0] = 8;
+        rectangularMesh.numberOfElementsInDIM_[1] = 8;
         
         std::size_t id = addMesh(rectangularMesh);
         

@@ -62,7 +62,7 @@ public:
     }
 
     ///\brief set up the mesh
-    Base::RectangularMeshDescriptor<3> createMeshDescription(const std::size_t numOfElementPerDirection) override final
+    Base::RectangularMeshDescriptor<3> createMeshDescription(const std::size_t numberOfElementPerDirection) override final
     {
         //describes a rectangular domain
         Base::RectangularMeshDescriptor<3> description;
@@ -76,7 +76,7 @@ public:
             //define how many elements there should be in the direction of dimension
             //At this stage, the mesh first consists of n^2 squares, and later these
             //squares can be divided in two triangles each if a triangular mesh is desired.
-            description.numElementsInDIM_[i] = n;
+            description.numberOfElementsInDIM_[i] = n;
             //define whether you have periodic boundary conditions or a solid wall in this direction.
             description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
         }
@@ -88,7 +88,7 @@ public:
     LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(Base::PhysicalElement<3> &element) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero on this element.
-        const std::size_t numBasisFunctions = element.getElement()->getNrOfBasisFunctions();
+        const std::size_t numberOfBasisFunctions = element.getElement()->getNumberOfBasisFunctions();
 
         LinearAlgebra::SmallVector<3> phi_i, phi_j;
 
@@ -96,10 +96,10 @@ public:
         //the number of basisfunctions.
         LinearAlgebra::MiddleSizeMatrix& integrandVal = element.getResultMatrix();
 
-        for (std::size_t i = 0; i < numBasisFunctions; ++i)
+        for (std::size_t i = 0; i < numberOfBasisFunctions; ++i)
         {
             element.basisFunction(i, phi_i);
-            for (std::size_t j = 0; j < numBasisFunctions; ++j)
+            for (std::size_t j = 0; j < numberOfBasisFunctions; ++j)
             {
                 element.basisFunction(j, phi_j);
                 //Compute the value of curl(phi_i).curl(phi_j) - phi_i.phi_j at point p and
@@ -115,7 +115,7 @@ public:
     {
         //Get the number of basis functions, first of both sides of the face and
         //then only the basis functions associated with the left and right element.
-        std::size_t numBasisFunctions = face.getFace()->getNrOfBasisFunctions();
+        std::size_t numberOfBasisFunctions = face.getFace()->getNumberOfBasisFunctions();
 
         //Create the FaceMatrix integrandVal with the correct size.
         Base::FaceMatrix& integrandVal = face.getResultMatrix();
@@ -127,14 +127,14 @@ public:
         //This is necessary to check at which boundary we are if we are at a boundary face.
         const PointPhysicalT& pPhys = face.getPointPhysical();
 
-        for (int i = 0; i < numBasisFunctions; ++i)
+        for (int i = 0; i < numberOfBasisFunctions; ++i)
         {
             //normal_i phi_i is computed at point p, the result is stored in phiNormalI.
             face.basisFunctionUnitNormal(i, phiNormalI);
             //The gradient of basisfunction phi_i is computed at point p, the result is stored in phiDerivI.
             phiCurlI = face.basisFunctionCurl(i);
 
-            for (int j = 0; j < numBasisFunctions; ++j)
+            for (int j = 0; j < numberOfBasisFunctions; ++j)
             {
                 //normal_j phi_j is computed at point p, the result is stored in phiNormalJ.
                 face.basisFunctionUnitNormal(j, phiNormalJ);
@@ -221,12 +221,12 @@ public:
         std::vector<LinearAlgebra::SmallVector<3>> sourceTerm = getSourceTermVector(pPhys);
 
         // Get the number of basis functions.
-        const std::size_t numOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
+        const std::size_t numberOfBasisFunctions = element.getElement()->getNumberOfBasisFunctions();
         LinearAlgebra::SmallVector<3> functionValue;
 
         // Compute the product of the source term and all test functions.
         std::size_t iVB; // indices for both variable and basis function.
-        for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++)
+        for (std::size_t iB = 0; iB < numberOfBasisFunctions; iB++)
         {
             iVB = element.getElement()->convertToSingleIndex(iB, 0);
             element.basisFunction(iB, functionValue);
@@ -247,12 +247,12 @@ public:
         LinearAlgebra::SmallVector<3> functionValue;
 
         // Get the number of basis functions.
-        const std::size_t numOfBasisFunctions = element.getElement()->getNrOfBasisFunctions();
+        const std::size_t numberOfBasisFunctions = element.getElement()->getNumberOfBasisFunctions();
 
         // Compute the numerical solution.
         LinearAlgebra::SmallVector<3> numericalSolution;
         numericalSolution *= 0;
-        for(std::size_t jB = 0; jB < numOfBasisFunctions; jB++)
+        for(std::size_t jB = 0; jB < numberOfBasisFunctions; jB++)
         {
             std::size_t jVB = element.getElement()->convertToSingleIndex(jB, 0);
             element.basisFunction(jB, functionValue);

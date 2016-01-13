@@ -27,7 +27,7 @@ namespace TimeIntegration {
 RK2TVD::RK2TVD()
 {
     order_ = 2;
-    numStages_ = 2;
+    numberOfStages_ = 2;
     totalVariationDiminishing_ = true;
 
     //make a_
@@ -52,7 +52,7 @@ std::size_t RK2TVD::getOrder() const
 
 std::size_t RK2TVD::getNumberOfStages() const
 {
-    return numStages_;
+    return numberOfStages_;
 }
 
 bool RK2TVD::getTotalVariationDiminishing() const

@@ -34,7 +34,7 @@ namespace Base
     struct RectangularMeshDescriptor
     {
         RectangularMeshDescriptor()
-                : bottomLeft_(), topRight_(), numElementsInDIM_(DIM), boundaryConditions_(DIM)
+                : bottomLeft_(), topRight_(), numberOfElementsInDIM_(DIM), boundaryConditions_(DIM)
         {
         }
 
@@ -42,7 +42,9 @@ namespace Base
         Geometry::PointPhysical<DIM> topRight_;
 
         //The order of the dimensions are x = 0, y = 1, z = 2.
-        std::vector<std::size_t> numElementsInDIM_;
+        std::vector<std::size_t> numberOfElementsInDIM_;
+        ///\deprecated use numberOfElementsInDIM_ instead
+        std::vector<std::size_t>& numElementsInDIM_ = numberOfElementsInDIM_;
         std::vector<BoundaryType> boundaryConditions_;
     };
 

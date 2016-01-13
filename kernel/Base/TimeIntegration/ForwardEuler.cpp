@@ -27,7 +27,7 @@ namespace TimeIntegration
     ForwardEuler::ForwardEuler()
     {
         order_ = 1;
-        numStages_ = 1;
+        numberOfStages_ = 1;
         totalVariationDiminishing_ = true;
         
         //make a_
@@ -47,7 +47,7 @@ namespace TimeIntegration
     
     std::size_t ForwardEuler::getNumberOfStages() const
     {
-        return numStages_;
+        return numberOfStages_;
     }
     
     bool ForwardEuler::getTotalVariationDiminishing() const

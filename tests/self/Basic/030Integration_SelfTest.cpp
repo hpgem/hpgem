@@ -121,106 +121,106 @@ int main(int argc, char** argv)
     description3D.boundaryConditions_[1] = Base::BoundaryType::SOLID_WALL;
     description3D.boundaryConditions_[2] = Base::BoundaryType::SOLID_WALL;
     
-    description1D.numElementsInDIM_[0] = 2;
+    description1D.numberOfElementsInDIM_[0] = 2;
     
     Base::MeshManipulator<1> *test = new Base::MeshManipulator<1>(new Base::ConfigurationData(1, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test->createTriangularMesh(description1D.bottomLeft_, description1D.topRight_, description1D.numElementsInDIM_);
+    test->createTriangularMesh(description1D.bottomLeft_, description1D.topRight_, description1D.numberOfElementsInDIM_);
     
     testMesh(test);
     
     delete test;
     test = new Base::MeshManipulator<1>(new Base::ConfigurationData(1, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test->createRectangularMesh(description1D.bottomLeft_, description1D.topRight_, description1D.numElementsInDIM_);
+    test->createRectangularMesh(description1D.bottomLeft_, description1D.topRight_, description1D.numberOfElementsInDIM_);
     testMesh(test);
     
     delete test;
-    description1D.numElementsInDIM_[0] = 3;
+    description1D.numberOfElementsInDIM_[0] = 3;
     
     test = new Base::MeshManipulator<1>(new Base::ConfigurationData(1, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test->createTriangularMesh(description1D.bottomLeft_, description1D.topRight_, description1D.numElementsInDIM_);
+    test->createTriangularMesh(description1D.bottomLeft_, description1D.topRight_, description1D.numberOfElementsInDIM_);
     
     testMesh(test);
     
     delete test;
     test = new Base::MeshManipulator<1>(new Base::ConfigurationData(1, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test->createRectangularMesh(description1D.bottomLeft_, description1D.topRight_, description1D.numElementsInDIM_);
+    test->createRectangularMesh(description1D.bottomLeft_, description1D.topRight_, description1D.numberOfElementsInDIM_);
     testMesh(test);
     
     // dim 2
     
     delete test;
-    description2D.numElementsInDIM_[0] = 2;
-    description2D.numElementsInDIM_[1] = 3;
+    description2D.numberOfElementsInDIM_[0] = 2;
+    description2D.numberOfElementsInDIM_[1] = 3;
     
     Base::MeshManipulator<2> *test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test2->createTriangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
+    test2->createTriangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numberOfElementsInDIM_);
     
     testMesh(test2);
     
     delete test2;
     test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test2->createRectangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
+    test2->createRectangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numberOfElementsInDIM_);
     testMesh(test2);
     
     delete test2;
-    description2D.numElementsInDIM_[0] = 3;
-    description2D.numElementsInDIM_[1] = 2;
+    description2D.numberOfElementsInDIM_[0] = 3;
+    description2D.numberOfElementsInDIM_[1] = 2;
     
     test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test2->createTriangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
+    test2->createTriangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numberOfElementsInDIM_);
     
     testMesh(test2);
     
     delete test2;
     test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test2->createRectangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numElementsInDIM_);
+    test2->createRectangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numberOfElementsInDIM_);
     testMesh(test2);
     
     // dim 3
     
     delete test2;
-    description3D.numElementsInDIM_[0] = 2;
-    description3D.numElementsInDIM_[1] = 2;
-    description3D.numElementsInDIM_[2] = 3;
+    description3D.numberOfElementsInDIM_[0] = 2;
+    description3D.numberOfElementsInDIM_[1] = 2;
+    description3D.numberOfElementsInDIM_[2] = 3;
     
     Base::MeshManipulator<3> *test3 = new Base::MeshManipulator<3>(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test3->createTriangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
+    test3->createTriangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numberOfElementsInDIM_);
     
     testMesh(test3);
     
     delete test3;
     test3 = new Base::MeshManipulator<3>(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test3->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
+    test3->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numberOfElementsInDIM_);
     testMesh(test3);
     
     delete test3;
-    description3D.numElementsInDIM_[0] = 2;
-    description3D.numElementsInDIM_[1] = 3;
-    description3D.numElementsInDIM_[2] = 2;
+    description3D.numberOfElementsInDIM_[0] = 2;
+    description3D.numberOfElementsInDIM_[1] = 3;
+    description3D.numberOfElementsInDIM_[2] = 2;
     
     test3 = new Base::MeshManipulator<3>(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test3->createTriangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
-    
-    testMesh(test3);
-    
-    delete test3;
-    test3 = new Base::MeshManipulator<3>(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test3->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
-    testMesh(test3);
-    
-    delete test3;
-    description3D.numElementsInDIM_[0] = 3;
-    description3D.numElementsInDIM_[1] = 2;
-    description3D.numElementsInDIM_[2] = 2;
-    
-    test3 = new Base::MeshManipulator<3>(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test3->createTriangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
+    test3->createTriangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numberOfElementsInDIM_);
     
     testMesh(test3);
     
     delete test3;
     test3 = new Base::MeshManipulator<3>(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test3->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numElementsInDIM_);
+    test3->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numberOfElementsInDIM_);
+    testMesh(test3);
+    
+    delete test3;
+    description3D.numberOfElementsInDIM_[0] = 3;
+    description3D.numberOfElementsInDIM_[1] = 2;
+    description3D.numberOfElementsInDIM_[2] = 2;
+    
+    test3 = new Base::MeshManipulator<3>(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
+    test3->createTriangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numberOfElementsInDIM_);
+    
+    testMesh(test3);
+    
+    delete test3;
+    test3 = new Base::MeshManipulator<3>(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
+    test3->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numberOfElementsInDIM_);
     testMesh(test3);
 }
 
