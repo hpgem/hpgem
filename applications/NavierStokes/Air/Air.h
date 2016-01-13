@@ -48,11 +48,22 @@ public:
 
 	StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> computeFaceStateStruct(Base::PhysicalFace<DIM> &face, const LinearAlgebra::MiddleSizeVector &stateCoefficients, const Base::Side side, const double time) override final;
 
+	StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> computeBoundaryFaceStateStruct(const LinearAlgebra::MiddleSizeVector &stateBoundary, const double time) override final;
+
+
 	LinearAlgebra::MiddleSizeVector integrandSourceAtElement(Base::PhysicalElement<DIM> &element, const StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> &elementStateStruct, const double &time) override final;
 
 	LinearAlgebra::MiddleSizeVector getInitialSolution(const Geometry::PointPhysical<DIM> &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
 
 	LinearAlgebra::MiddleSizeVector getExactSolution(const Geometry::PointPhysical<DIM> &pPhys, const double &time, const std::size_t orderTimeDerivative) override final;
+
+	LinearAlgebra::MiddleSizeVector computeBoundaryState(Base::PhysicalFace<DIM> &face, const StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> faceStateStuctLeft, const double time) override final;
+
+	/// \brief Create a domain
+	Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override final;
+
+	/// \brief Output function. This fucntion gives the state as output, and additionally also the error if specified.
+	void registerVTKWriteFunctions();
 
 };
 

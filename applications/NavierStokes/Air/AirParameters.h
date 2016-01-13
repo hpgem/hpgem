@@ -37,7 +37,7 @@ const static double TEMPERATURE_REF = 1.0;	// [K]
 
 /// Dimensionless input parameters
 const static double MACH = 0.5;			// Rati o of wall velocity with speed of sound
-const static double REYNOLDS = 5000; 	// Ratio of inertia and viscous forces
+const static double REYNOLDS = 500; 	// Ratio of inertia and viscous forces
 
 /// Dimensionless groups
 const static double GAMMA = 1.4; 		// Ratio of specific heats cp/cv
@@ -54,6 +54,6 @@ const static double KAPPA_WALL = SPECIFIC_HEAT_PRESSURE*MU_WALL/PRANDTL;
 const static double SUTHERLAND_TEMPERATURE = THETA_S*TEMPERATURE_REF;
 
 /// Often used parameters:
-const static double VISCOSITY_SCALING = 1.0/REYNOLDS;
+const static double VISCOSITY_SCALING = 0.01;//1.0/REYNOLDS;
 
 #endif /* AIRPARAMETERS_H_ */

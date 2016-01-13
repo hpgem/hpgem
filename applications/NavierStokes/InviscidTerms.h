@@ -65,10 +65,10 @@ public:
     /// ***    External face integration functions     ***
     /// **************************************************
 
-   /* /// \brief Compute the integrand for the right hand side for the reference face corresponding to a external face.
- 	LinearAlgebra::MiddleSizeVector integrandAtBoundaryFace(Base::PhysicalFace<DIM> &face, const double &time, const LinearAlgebra::MiddleSizeVector &stateBoundary, double pressureBoundary, const LinearAlgebra::SmallVector<DIM> &unitNormalInternal);
-*/
-	/// **************************************************
+    /// \brief Compute the integrand for the right hand side for the reference face corresponding to a external face.
+  	LinearAlgebra::MiddleSizeVector integrandAtBoundaryFace(Base::PhysicalFace<DIM> &face, const StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> &faceStateStructBoundary, const StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> &faceStateStructLeft, const double &time);
+
+ 	/// **************************************************
     /// ***    Internal face integration functions     ***
     /// **************************************************
 

@@ -66,6 +66,15 @@ public:
 	{
 	}
 
+	/// \brief Constructor for a given dirichlet boundary state
+	StateCoefficientsStruct(
+			const LinearAlgebra::MiddleSizeVector &stateBoundary,
+			const double time) :
+				state_(stateBoundary),
+				partialState_(computePartialState<DIM,NUMBER_OF_VARIABLES>(state_))
+	{
+	}
+
 	virtual ~StateCoefficientsStruct()
 	{
 	}

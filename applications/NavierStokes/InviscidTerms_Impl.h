@@ -307,9 +307,6 @@ LinearAlgebra::MiddleSizeVector InviscidTerms<DIM,NUMBER_OF_VARIABLES>::computeR
 }
 
 /// \brief Compute the HLLC Flux function, based on Klaij et al. 2006
-//todo: write back into the compact form from the paper
-//todo: implement compute speed of sound
-//todo: this function still needs to be modified for the new structure
 template<std::size_t DIM, std::size_t NUMBER_OF_VARIABLES>
 LinearAlgebra::MiddleSizeVector InviscidTerms<DIM,NUMBER_OF_VARIABLES>::computeHLLCFluxFunction
 (
@@ -385,6 +382,10 @@ LinearAlgebra::MiddleSizeVector InviscidTerms<DIM,NUMBER_OF_VARIABLES>::computeH
 		stateIntermediateLeft(iD+1) +=  factorLeft*(pIntermediate - pressureLeft)*unitNormalLeft(iD);
 		stateIntermediateRight(iD+1) += factorRight*(pIntermediate - pressureRight)*unitNormalLeft(iD);
 	}
+	//TEMP energy addition: FIX THIS SHIT IN FUTURE
+	//todo: see line above
+	stateIntermediateLeft(DIM+1) += factorLeft*(pIntermediate*waveSpeedMiddle - pressureLeft*normalSpeedLeft);
+	stateIntermediateRight(DIM+1) += factorRight*(pIntermediate*waveSpeedMiddle - pressureRight*normalSpeedRight);
 
 	///compute normalFluxLeft and normalFluxRight
 	LinearAlgebra::MiddleSizeMatrix fluxMatrixLeft = faceStateStructLeft.getHyperbolicMatrix();
@@ -408,68 +409,45 @@ LinearAlgebra::MiddleSizeVector InviscidTerms<DIM,NUMBER_OF_VARIABLES>::computeH
 				 + (std::abs(waveSpeedRight) - std::abs(waveSpeedMiddle))*stateIntermediateRight - std::abs(waveSpeedRight)*stateRight);
 
 	return fluxFunction;
-
-/*	if (waveSpeedLeft >  0)
-	{
-
-		LinearAlgebra::MiddleSizeMatrix fluxMatrix = faceStateStructLeft.getHyperbolicMatrix();
-		LinearAlgebra::MiddleSizeVector solutionFlux(NUMBER_OF_VARIABLES);
-		for (std::size_t iV = 0; iV < NUMBER_OF_VARIABLES; iV++)
-		{
-			for (std::size_t iD = 0; iD < DIM; iD++)
-			{
-				solutionFlux(iV) += fluxMatrix(iV,iD)*unitNormalLeft(iD);
-			}
-		}
-		return solutionFlux;
-	}
-	else if ((waveSpeedLeft <= 0 ) && (waveSpeedMiddle > 0))
-	{
-		LinearAlgebra::MiddleSizeVector solutionFlux(NUMBER_OF_VARIABLES);
-		solutionFlux(0) = stateIntermediateLeft(0)*waveSpeedMiddle;
-		solutionFlux(1) = stateIntermediateLeft(1)*waveSpeedMiddle + pIntermediate*unitNormalLeft(0);
-		solutionFlux(2) = stateIntermediateLeft(2)*waveSpeedMiddle + pIntermediate*unitNormalLeft(1);
-
-		return solutionFlux;
-	}
-	else if ((waveSpeedMiddle <= 0 ) && (waveSpeedRight >= 0))
-	{
-		LinearAlgebra::MiddleSizeVector solutionFlux(NUMBER_OF_VARIABLES);
-		solutionFlux(0) = stateIntermediateRight(0)*waveSpeedMiddle;
-		solutionFlux(1) = stateIntermediateRight(1)*waveSpeedMiddle + pIntermediate*unitNormalLeft(0);
-		solutionFlux(2) = stateIntermediateRight(2)*waveSpeedMiddle + pIntermediate*unitNormalLeft(1);
-
-		return solutionFlux;
-	}
-	else if (waveSpeedRight < 0)
-	{
-		LinearAlgebra::MiddleSizeMatrix fluxMatrix = faceStateStructRight.getHyperbolicMatrix();
-		LinearAlgebra::MiddleSizeVector solutionFlux(NUMBER_OF_VARIABLES);
-		for (std::size_t iV = 0; iV < NUMBER_OF_VARIABLES; iV++)
-		{
-			for (std::size_t iD = 0; iD < DIM; iD++)
-			{
-				solutionFlux(iV) += fluxMatrix(iV,iD)*unitNormalLeft(iD);
-			}
-		}
-
-		return solutionFlux;
-	}
-	else
-	{
-		logger(ERROR, "Flux error");
-		LinearAlgebra::MiddleSizeVector fluxFunction(NUMBER_OF_VARIABLES);
-		return fluxFunction;
-	}*/
 }
 
 /// **************************************************
 /// ***    External face integration functions     ***
 /// **************************************************
 
-/* /// \brief Compute the integrand for the right hand side for the reference face corresponding to a external face.
- 	LinearAlgebra::MiddleSizeVector integrandAtBoundaryFace(Base::PhysicalFace<DIM> &face, const double &time, const LinearAlgebra::MiddleSizeVector &stateBoundary, double pressureBoundary, const LinearAlgebra::SmallVector<DIM> &unitNormalInternal);
- */
+/// \brief Compute the integrand for the right hand side for the reference face corresponding to a external face.
+template<std::size_t DIM, std::size_t NUMBER_OF_VARIABLES>
+LinearAlgebra::MiddleSizeVector InviscidTerms<DIM,NUMBER_OF_VARIABLES>::integrandAtBoundaryFace
+(
+ Base::PhysicalFace<DIM> &face,
+ const StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> &faceStateStructBoundary,
+ const StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> &faceStateStructLeft,
+ const double &time
+ )
+{
+
+	//todo: Add a switch to switch between types: i.e. full state/solidwall/inflow/outflow
+	//Get the number of basis functions
+	std::size_t numOfTestBasisFunctions = face.getPhysicalElement(Base::Side::LEFT).getNumberOfBasisFunctions();
+
+	LinearAlgebra::MiddleSizeVector integrand(NUMBER_OF_VARIABLES*numOfTestBasisFunctions);
+
+	LinearAlgebra::MiddleSizeVector flux = computeRoeFluxFunction(faceStateStructLeft, faceStateStructBoundary, face.getUnitNormalVector());
+
+	// Compute integrand on the reference element.
+	std::size_t iVB; // Index for both variable and basis function.
+	for (std::size_t iB = 0; iB < numOfTestBasisFunctions; iB++)
+	{
+		for (std::size_t iV = 0; iV < NUMBER_OF_VARIABLES; iV++) // Index for direction
+		{
+			iVB = face.getPhysicalElement(Base::Side::LEFT).convertToSingleIndex(iB, iV);
+			integrand(iVB) = -flux(iV)*face.basisFunction(Base::Side::LEFT, iB); // Minus sign because the integral is on the right hand side
+		}
+	}
+
+	return  integrand;
+}
+
 
 /// **************************************************
 /// ***    Internal face integration functions     ***
@@ -495,14 +473,8 @@ std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> Invis
 	std::size_t iVB;
 
 	//Compute left flux
-	LinearAlgebra::SmallVector<DIM> unitNormalLeft = face.getUnitNormalVector();
-	LinearAlgebra::MiddleSizeVector flux = computeHLLCFluxFunction(faceStateStructLeft, faceStateStructRight, unitNormalLeft);
-/*
-	LinearAlgebra::MiddleSizeVector fluxCorrect = computeRoeFluxFunction(faceStateStructLeft, faceStateStructRight, unitNormalLeft);
-
-	std::cout << "LLF flux: " << flux << std::endl;
-	std::cout << "Roe Flux: " << fluxCorrect << std::endl;
-*/
+	LinearAlgebra::SmallVector<DIM> unitNormalLeft = face.getUnitNormalVector(); //todo: remove this line
+	LinearAlgebra::MiddleSizeVector flux = computeRoeFluxFunction(faceStateStructLeft, faceStateStructRight, unitNormalLeft);
 
 	//Compute integrands
 	for (std::size_t iV = 0; iV < NUMBER_OF_VARIABLES; iV++) // Index for direction
