@@ -22,7 +22,6 @@
 #ifndef ____PhysGradientOfBasisFunction__
 #define ____PhysGradientOfBasisFunction__
 
-#include <iostream>
 #include "Logger.h"
 
 namespace LinearAlgebra
