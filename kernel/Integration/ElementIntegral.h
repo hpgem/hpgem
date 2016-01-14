@@ -25,6 +25,7 @@
 //------------------------------------------------------------------------------
 // Package includes:
 #include <functional>
+#include "Base/SerializationInclude.h"
 //------------------------------------------------------------------------------
 
 namespace Base
@@ -96,6 +97,14 @@ namespace Integration
         /// \brief Compute the integral on a reference element. IntegrandType needs to have the function LinearAlgebra::axpy() implemented.
         template<typename IntegrandType>
         IntegrandType referenceElementIntegral(const QuadratureRules::GaussQuadratureRule *ptrQdrRule, std::function<IntegrandType()> integrandFunction);
+
+        template <class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+            ar & useCache_;
+            ar & element_;
+            ///\todo IFCD: Is it necessary to save the element in the archive? I have no experience with useCache_ = true
+        }
 
     private:
         

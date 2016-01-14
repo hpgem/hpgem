@@ -27,6 +27,7 @@
 #include "Base/Face.h"
 #include "Base/HpgemAPIBase.h"
 #include "Base/RectangularMeshDescriptor.h"
+#include "Base/SerializationInclude.h"
 #include "Base/TimeIntegration/AllTimeIntegrators.h"
 #include "Integration/ElementIntegrandBase.h"
 #include "Integration/FaceIntegrandBase.h"
@@ -321,6 +322,21 @@ namespace Base
         
         /// \brief Solve the PDE, using a Runge-Kutta scheme.
         virtual bool solve(const double startTime, const double endTime, double dt, const std::size_t numberOfOutputFrames, bool doComputeError);
+
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+            ///\todo serialize base classes
+            ///\todo reconstruct VTKWrite functions
+            ar & solutionVectorId_;
+            ar & auxiliaryVectorIds_;
+            ar & outputFileName_;
+            ar & internalFileTitle_;
+            ar & solutionTitle_;
+            ar & variableNames_;
+            ar & elementIntegrator_;
+            ar & faceIntegrator_;
+        }
         
     protected:
         /// Butcher tableau for time integration. The integration method is assumed to be explicit.

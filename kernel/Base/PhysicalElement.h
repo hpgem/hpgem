@@ -168,6 +168,13 @@ namespace Base
         ///setters should only be needed internally
         void setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> >& transform);
 
+        template <class Archive>
+        void serialize(Archive &ar, const unsigned int version)
+        {
+            ///\todo Since this class is a wrapper around an Element, only the transformation has to be saved. IFCD: correct?
+            //ar & transform_;
+        }
+
     private:
 
         const Base::Element* theElement_;

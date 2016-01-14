@@ -201,6 +201,8 @@ namespace Base
         void serialize(Archive & ar, const unsigned int version) 
         {
             ///\todo serialize base classes
+
+            ar & boost::serialization::base_object< Base::HpgemAPISimplified<DIM> >(*this);
         }
         
     protected:

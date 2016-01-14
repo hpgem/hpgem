@@ -99,6 +99,15 @@ namespace Integration
         //template<typename IntegrandType>
         //IntegrandType referenceFaceIntegral(const QuadratureRules::GaussQuadratureRule *ptrQdrRule, std::function<IntegrandType()> integrandFunction) const;
 
+        template <class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+            ar & useCache_;
+            ar & internalFace_;
+            ar & boundaryFace_;
+            ///\todo IFCD: Is it necessary to save the face in the archive? I have no experience with useCache_ = true
+        }
+
     private:
         
         bool useCache_;

@@ -191,7 +191,7 @@ public:
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
     {
-        ar & boost::serialization::base_object<HpgemAPILinear<DIM>>(*this);
+        ar & boost::serialization::base_object<  Base::HpgemAPILinear<DIM> >(*this);
         ar & a;
     }
 private:

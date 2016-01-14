@@ -257,6 +257,13 @@ namespace Base
         void setPointReference(const Geometry::PointReference<DIM - 1>& point);
         void setFace(const Face* face);
         void setTransform(std::shared_ptr<CoordinateTransformation<DIM> >& transform);
+
+        template <class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+
+            ///\todo implement this function
+        }
     private:
         PhysicalElement<DIM> left, right;
         std::size_t nLeftBasisFunctions;
