@@ -93,6 +93,7 @@ template<std::size_t DIM, std::size_t NUMBER_OF_VARIABLES>
 LinearAlgebra::MiddleSizeVector ViscousTerms<DIM,NUMBER_OF_VARIABLES>::integrandAuxilliaryAtBoundaryFace
 (
  Base::PhysicalFace<DIM> &face,
+ const BoundaryType boundaryType,
  const StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> &faceStateStructBoundary,
  const StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> &faceStateStructLeft,
  const double &time
@@ -118,6 +119,12 @@ LinearAlgebra::MiddleSizeVector ViscousTerms<DIM,NUMBER_OF_VARIABLES>::integrand
 		}
 	}
 
+ 	//Set the energy flux to zero on the wall incase of an adiabatic wall
+ 	if (boundaryType == BoundaryType::ADIABATIC_WALL)
+ 	{
+ 		partialIntegrand(NUMBER_OF_VARIABLES -1) = 0.0;
+ 	}
+
 //	std::cout << "partialIntegrand: " << partialIntegrand << std::endl;
 
 	for (std::size_t iV = 0; iV < NUMBER_OF_VARIABLES; iV++)
@@ -138,6 +145,7 @@ template<std::size_t DIM, std::size_t NUMBER_OF_VARIABLES>
 LinearAlgebra::MiddleSizeVector ViscousTerms<DIM,NUMBER_OF_VARIABLES>::integrandViscousAtBoundaryFace
 (
  Base::PhysicalFace<DIM> &face,
+ const BoundaryType boundaryType,
  const StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> &faceStateStructBoundary,
  const StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> &faceStateStructLeft,
  const double &time
@@ -166,7 +174,6 @@ LinearAlgebra::MiddleSizeVector ViscousTerms<DIM,NUMBER_OF_VARIABLES>::integrand
 
  	//Compute flux
  	LinearAlgebra::MiddleSizeMatrix fluxBoundary = faceStateStructLeft.computeEllipticTensorMatrixContractionFast(stateNormalLeft) - faceStateStructBoundary.computeEllipticTensorMatrixContractionFast(stateNormalBoundary);
-
 
 /*	std::cout << "viscosity Boundary: " << faceStateStructBoundary.getViscosity() << std::endl;
 	std::cout << "viscosity left: " << faceStateStructLeft.getViscosity() << std::endl;

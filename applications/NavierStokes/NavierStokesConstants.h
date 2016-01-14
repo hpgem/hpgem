@@ -27,6 +27,7 @@ const static double ETA = 3.0;			//Lifting opererator coefficient
 const static double ETA_BOUNDARY = ETA/2.0; //Boundary lifting operator coefficient: todo: sort out the correct value
 const static double EPSILON = 1e-6; 	//Jacobian difference parameter
 
+enum class BoundaryType { ADIABATIC_WALL, INFLOW, OUTFLOW, FULL_STATE};
 
 
 #endif /* NAVIERSTOKESCONSTANTS_H_ */
