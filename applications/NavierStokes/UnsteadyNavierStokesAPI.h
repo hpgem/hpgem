@@ -72,14 +72,21 @@ public:
 	/// **************************************************
 	/// ***    external face integration functions     ***
 	/// **************************************************
-	/*
 
-	    /// \brief Compute the integrand for the right hand side for the face corresponding to an external face.
-	    	LinearAlgebra::MiddleSizeVector integrandRightHandSideOnFace(Base::PhysicalFace<DIM> &face, const double &time, const LinearAlgebra::MiddleSizeVector &stateCoefficients);
+	/// \brief Compute the dirichlet boundary condition on the face
+	virtual LinearAlgebra::MiddleSizeVector computeBoundaryState(Base::PhysicalFace<DIM> &face, const StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> faceStateStuctLeft, const double time)
+	{
+		logger(ERROR,"No boundary condition specificied on an external boundary.");
+		LinearAlgebra::MiddleSizeVector empty;
+		return empty;
+	}
 
-	    /// \brief Compute the right-hand side corresponding to an external face
-	    LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace(Base::Face *ptrFace, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time) override final;
-	*/
+	/// \brief Compute the integrand for the right hand side for the face corresponding to an external face.
+	LinearAlgebra::MiddleSizeVector integrandRightHandSideOnFace(Base::PhysicalFace<DIM> &face, const double &time, const LinearAlgebra::MiddleSizeVector &stateCoefficients);
+
+	/// \brief Compute the right-hand side corresponding to an external face
+	LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace(Base::Face *ptrFace, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time) override final;
+
 
 	/// **************************************************
 	/// ***    internal face integration functions     ***
@@ -124,12 +131,13 @@ public:
 	/// \brief This equation couples the constitutive relations to the Navier-Stokes API for a Face
 	virtual StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> computeFaceStateStruct(Base::PhysicalFace<DIM> &face, const LinearAlgebra::MiddleSizeVector &stateCoefficients, const Base::Side side, const double time) = 0;
 
+	/// \brief This equation couples the constitutive relations to the Navier-Stokes API for a Face
+	virtual StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> computeBoundaryFaceStateStruct(const LinearAlgebra::MiddleSizeVector &stateBoundary, const double time) = 0;
+
+
 	/// *****************************************
 	/// ***    		Various Functions         ***
 	/// *****************************************
-
-	/// \brief Create a domain
-	Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override final;
 
 	void tasksBeforeSolving() override final;
 
@@ -140,12 +148,16 @@ public:
 	/// \brief Shows the progress in the terminal as output
 	void showProgress(const double time, const std::size_t timeStepID) override final;
 
-private:
+protected:
 		/// \var Inviscid class, treating the inviscid part of the NS equations
 		InviscidTerms<DIM,NUMBER_OF_VARIABLES> inviscidTerms_;
 
 		/// \var Viscous class, treating the viscosity part of the NS equations
 		ViscousTerms<DIM,NUMBER_OF_VARIABLES> viscousTerms_;
+
+		/// \brief A slight hack to keep track of time for the output functions
+		//todo: Make this better
+		double time_;
 };
 
 #include "UnsteadyNavierStokesAPI_Impl.h"

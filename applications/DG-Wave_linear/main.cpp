@@ -62,11 +62,11 @@ public:
         {
             description.bottomLeft_[i] = 0;
             description.topRight_[i] = 1;
-            description.numElementsInDIM_[i] = n_;
+            description.numberOfElementsInDIM_[i] = n_;
             description.boundaryConditions_[i] = Base::BoundaryType::PERIODIC;
         }
         description.topRight_[DIM - 1] = -1;
-        description.numElementsInDIM_[DIM - 1] /= 8;
+        description.numberOfElementsInDIM_[DIM - 1] /= 8;
         description.boundaryConditions_[DIM - 1] = Base::BoundaryType::SOLID_WALL;
         addMesh(description, Base::MeshType::RECTANGULAR, 1, 1, 1, 1);
         setNumberOfTimeIntegrationVectorsGlobally(1);
@@ -85,9 +85,9 @@ public:
     public:
         void elementIntegrand(Base::PhysicalElement<DIM>& element, LinearAlgebra::MiddleSizeMatrix& ret) override final
         {
-            std::size_t numBasisFuns = element.getElement()->getNrOfBasisFunctions();
-            ret.resize(numBasisFuns * element.getElement()->getNrOfUnknowns(), numBasisFuns * element.getElement()->getNrOfUnknowns());
-            for (std::size_t i = 0; i < numBasisFuns; ++i)
+            std::size_t numberOfBasisFunctions = element.getElement()->getNumberOfBasisFunctions();
+            ret.resize(numberOfBasisFunctions * element.getElement()->getNumberOfUnknowns(), numberOfBasisFunctions * element.getElement()->getNumberOfUnknowns());
+            for (std::size_t i = 0; i < numberOfBasisFunctions; ++i)
             {
                 for (std::size_t j = 0; j <= i; ++j)
                 {
@@ -104,13 +104,13 @@ public:
     public:
         void faceIntegrand(Base::PhysicalFace<DIM>& face, LinearAlgebra::MiddleSizeMatrix& ret) override final
         {
-            std::size_t numBasisFuns = face.getFace()->getNrOfBasisFunctions();
-            ret.resize(numBasisFuns * face.getFace()->getPtrElementLeft()->getNrOfUnknowns(), numBasisFuns * face.getFace()->getPtrElementLeft()->getNrOfUnknowns());
-            for (std::size_t i = 0; i < numBasisFuns; ++i)
+            std::size_t numberOfBasisFunctions = face.getFace()->getNumberOfBasisFunctions();
+            ret.resize(numberOfBasisFunctions * face.getFace()->getPtrElementLeft()->getNumberOfUnknowns(), numberOfBasisFunctions * face.getFace()->getPtrElementLeft()->getNumberOfUnknowns());
+            for (std::size_t i = 0; i < numberOfBasisFunctions; ++i)
             {
-                for (std::size_t j = 0; j < numBasisFuns; ++j)
+                for (std::size_t j = 0; j < numberOfBasisFunctions; ++j)
                 { //the basis functions belonging to internal parameters are 0 on the free surface anyway.
-                    for(std::size_t k = 0; k < face.getFace()->getPtrElementLeft()->getNrOfUnknowns(); ++k)
+                    for(std::size_t k = 0; k < face.getFace()->getPtrElementLeft()->getNumberOfUnknowns(); ++k)
                     {
                         ret(face.getFace()->getPtrElementLeft()->convertToSingleIndex(i, k), face.getFace()->getPtrElementLeft()->convertToSingleIndex(j, k)) = face.basisFunction(i) * face.basisFunction(j);
                     }
@@ -147,10 +147,10 @@ public:
         void faceIntegrand(Base::PhysicalFace<DIM>& face, LinearAlgebra::MiddleSizeVector& ret) override final
         {
             const PointPhysicalT& pPhys = face.getPointPhysical();
-            ret.resize(2 * face.getFace()->getNrOfBasisFunctions());
+            ret.resize(2 * face.getFace()->getNumberOfBasisFunctions());
             LinearAlgebra::MiddleSizeVector data;
             initialConditions(pPhys, data);
-            for (std::size_t i = 0; i < face.getFace()->getNrOfBasisFunctions(); ++i)
+            for (std::size_t i = 0; i < face.getFace()->getNumberOfBasisFunctions(); ++i)
             {
                 ret(face.getFace()->getPtrElementLeft()->convertToSingleIndex(i, 0)) = face.basisFunction(i) * data[0] * 2;
                 ret(face.getFace()->getPtrElementLeft()->convertToSingleIndex(i, 1)) = face.basisFunction(i) * data[1] * 2;
@@ -235,7 +235,7 @@ public:
             }
             else
             {
-                result.resize(face->getNrOfBasisFunctions() * 2, face->getNrOfBasisFunctions() * 2);
+                result.resize(face->getNumberOfBasisFunctions() * 2, face->getNumberOfBasisFunctions() * 2);
                 for (std::size_t i = 0; i < result.size(); ++i)
                 {
                     result[i] = 0;
@@ -252,7 +252,7 @@ public:
         LinearAlgebra::MiddleSizeVector zero;
         for (Base::Element* element : meshes_[0]->getElementsList())
         {
-            zero.resize(element->getNrOfUnknowns() * element->getNrOfBasisFunctions());
+            zero.resize(element->getNumberOfUnknowns() * element->getNumberOfBasisFunctions());
             result = integral.integrate(element, &stifnessIntegrand);
             element->setElementMatrix(result);
             element->setTimeIntegrationVector(0, zero);
@@ -263,7 +263,7 @@ public:
     void getSurfaceIS(Utilities::GlobalPetscMatrix& S, IS* surface, IS* rest)
     {
         PointPhysicalT pPhys;
-        std::size_t numBasisFuns(0);
+        std::size_t numberOfBasisFunctions(0);
         std::vector<int> facePositions;
         for (const Base::Face* face : meshes_[0]->getFacesList())
         {
@@ -271,10 +271,10 @@ public:
             pPhys = face->referenceToPhysical(p);
             if (std::abs(pPhys[DIM - 1]) < 1e-9)
             {
-                S.getMatrixBCEntries(face, numBasisFuns, facePositions);
+                S.getMatrixBCEntries(face, numberOfBasisFunctions, facePositions);
             }
         }
-        ISCreateGeneral(PETSC_COMM_WORLD, numBasisFuns, facePositions.data(), PETSC_COPY_VALUES, surface);
+        ISCreateGeneral(PETSC_COMM_WORLD, numberOfBasisFunctions, facePositions.data(), PETSC_COPY_VALUES, surface);
         int totalFuncs;
         MatGetSize(S, &totalFuncs, PETSC_NULL);
         ISSortRemoveDups(*surface);

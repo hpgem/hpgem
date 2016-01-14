@@ -91,7 +91,7 @@ public:
             //define how many elements there should be in the direction of dimension
             //At this stage, the mesh first consists of n^2 squares, and later these
             //squares can be divided in two triangles each if a triangular mesh is desired.
-            description.numElementsInDIM_[i] = n_;
+            description.numberOfElementsInDIM_[i] = n_;
             //define whether you have periodic boundary conditions or a solid wall in this direction.
             description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
         }
@@ -110,16 +110,16 @@ public:
     LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(Base::PhysicalElement<DIM>& element) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero on this element.
-        const std::size_t numBasisFunctions = element.getElement()->getNrOfBasisFunctions();
-        logger(INFO, "%", numBasisFunctions);
+        const std::size_t numberOfBasisFunctions = element.getElement()->getNumberOfBasisFunctions();
+        logger(INFO, "%", numberOfBasisFunctions);
         
         //Create the integrandVal such that it contains as many rows and columns as
         //the number of basisfunctions.
         LinearAlgebra::MiddleSizeMatrix& integrandVal = element.getResultMatrix();
         
-        for (std::size_t i = 0; i < numBasisFunctions; ++i)
+        for (std::size_t i = 0; i < numberOfBasisFunctions; ++i)
         {
-            for (std::size_t j = 0; j < numBasisFunctions; ++j)
+            for (std::size_t j = 0; j < numberOfBasisFunctions; ++j)
             {
                 //Compute the value of gradient(phi_i).gradient(phi_j) at point p and
                 //store it at the appropriate place in the matrix integrandVal.
@@ -145,7 +145,7 @@ public:
     {
         //Get the number of basis functions, first of both sides of the face and
         //then only the basis functions associated with the left and right element.
-        std::size_t numBasisFunctions = face.getFace()->getNrOfBasisFunctions();
+        std::size_t numberOfBasisFunctions = face.getFace()->getNumberOfBasisFunctions();
         
         //Create the FaceMatrix integrandVal with the correct size.
         Base::FaceMatrix& integrandVal = face.getResultMatrix();
@@ -157,14 +157,14 @@ public:
         //This is necessary to check at which boundary we are if we are at a boundary face.
         const PointPhysicalT& pPhys = face.getPointPhysical();
         
-        for (std::size_t i = 0; i < numBasisFunctions; ++i)
+        for (std::size_t i = 0; i < numberOfBasisFunctions; ++i)
         {
             //normal_i phi_i is computed at point p, the result is stored in phiNormalI.
             phiNormalI = face.basisFunctionUnitNormal(i);
             //The gradient of basisfunction phi_i is computed at point p, the result is stored in phiDerivI.
             phiDerivI = face.basisFunctionDeriv(i);
             
-            for (std::size_t j = 0; j < numBasisFunctions; ++j)
+            for (std::size_t j = 0; j < numberOfBasisFunctions; ++j)
             {
                 //normal_j phi_j is computed at point p, the result is stored in phiNormalJ.
                 phiNormalJ = face.basisFunctionUnitNormal(j);
@@ -228,14 +228,14 @@ public:
     LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(Base::PhysicalFace<DIM>& face) override final
     {
         //Obtain the number of basisfunctions that are possibly non-zero
-        const std::size_t numBasisFunctions = face.getFace()->getNrOfBasisFunctions();
+        const std::size_t numberOfBasisFunctions = face.getFace()->getNumberOfBasisFunctions();
         //Resize the integrandVal such that it contains as many rows as
         //the number of basisfunctions.
-        LinearAlgebra::MiddleSizeVector integrandVal(numBasisFunctions);
+        LinearAlgebra::MiddleSizeVector integrandVal(numberOfBasisFunctions);
         
         //Compute the value of the integrand
         //We have no rhs face integrals, so this is just 0.
-        for (std::size_t i = 0; i < numBasisFunctions; ++i)
+        for (std::size_t i = 0; i < numberOfBasisFunctions; ++i)
         {
             integrandVal[i] = 0;
         }
@@ -272,7 +272,7 @@ private:
     double penalty_;
 };
     
-auto& numElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
+auto& numberOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
 auto& p = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
 ///Example of using the Laplace class.
 ///This implementation asks for commandline input arguments for the number of elements
@@ -291,10 +291,10 @@ int main(int argc, char **argv)
     variableNames.push_back("u");
 
     //Make the object test with n elements in each direction and polynomial order p.
-    PoissonTest test(DIM, numElements.getValue(), p.getValue());
+    PoissonTest test(DIM, numberOfElements.getValue(), p.getValue());
 
     //Create the mesh
-    test.createMesh(numElements.getValue(), meshType);
+    test.createMesh(numberOfElements.getValue(), meshType);
 
     // Set the names for the output file
     test.setOutputNames("output", "PoissonTest", "PoissonTest", variableNames);

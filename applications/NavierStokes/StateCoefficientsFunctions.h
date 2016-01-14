@@ -180,6 +180,8 @@
 				{
 						iVB = face.getPhysicalElement(iSide).convertToSingleIndex(iB,iV);
 						state(iV,iD) += stateCoefficients(iVB,iD)*face.basisFunction(iSide, iB); //basisFunction returns physical value
+/*						std::cout << "stateCoefficient[ " << iVB << "," << iD << "]: " << stateCoefficients(iVB,iD) << std::endl;
+						std::cout << "basisFunction[" << iB << "]: " << face.basisFunction(iSide, iB) << std::endl;*/
 				}
 			}
 

@@ -46,19 +46,19 @@ namespace TimeIntegration
         return theInstance;
     }
     
-    ButcherTableau* AllTimeIntegrators::getRule(std::size_t order, std::size_t numStages, bool totalVarationDiminishing)
+    ButcherTableau* AllTimeIntegrators::getRule(std::size_t order, std::size_t numberOfStages, bool totalVarationDiminishing)
     {
 
         for (ButcherTableau* rule : vecOfIntegrators_)
         {
         	//Check if the exact rule asked exists.
-            if (rule->getOrder() == order && rule->getNumberOfStages() == numStages && rule->getTotalVariationDiminishing() == totalVarationDiminishing)
+            if (rule->getOrder() == order && rule->getNumberOfStages() == numberOfStages && rule->getTotalVariationDiminishing() == totalVarationDiminishing)
             {
                 return rule;
             }
 
             // Relax the given TVD condition to find a rule that satisfies the order and stages
-            if( rule->getOrder() == order && rule->getNumberOfStages() == numStages && rule->getTotalVariationDiminishing() != totalVarationDiminishing )
+            if( rule->getOrder() == order && rule->getNumberOfStages() == numberOfStages && rule->getTotalVariationDiminishing() != totalVarationDiminishing )
             {
             	logger(WARN,"Warning: The TVD specification for your rule does not exist. Using an existing rule with the same order and stage instead. ");
             	return rule;

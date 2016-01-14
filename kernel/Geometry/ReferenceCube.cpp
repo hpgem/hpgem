@@ -165,7 +165,7 @@ namespace Geometry
     const MappingReferenceToReference<2>*
     ReferenceCube::getCodim2MappingPtr(const std::size_t lineIndex) const
     {
-        logger.assert(lineIndex < getNrOfCodim2Entities(), "Asked for line %, but a cube only has % lines", lineIndex, getNrOfCodim2Entities());
+        logger.assert(lineIndex < getNumberOfCodim2Entities(), "Asked for line %, but a cube only has % lines", lineIndex, getNumberOfCodim2Entities());
         return nullptr;
     }
     

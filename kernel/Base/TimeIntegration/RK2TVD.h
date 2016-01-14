@@ -49,7 +49,7 @@ namespace TimeIntegration
 		RK2TVD();
 
 		std::size_t order_;
-		std::size_t numStages_;
+		std::size_t numberOfStages_;
 		bool totalVariationDiminishing_;
 		std::vector<std::vector<double>> a_;
 		std::vector<double> b_;

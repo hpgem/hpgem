@@ -71,7 +71,7 @@ public:
             description.bottomLeft_[i] = 0;
             description.topRight_[i] = 1;
             //Define elements in each direction.
-            description.numElementsInDIM_[i] = numberOfElementsPerDirection;
+            description.numberOfElementsInDIM_[i] = numberOfElementsPerDirection;
             
             //Choose whether you want periodic boundary conditions or other (solid wall)
             //boundary conditions.
@@ -87,12 +87,11 @@ public:
     ///so you wont have to do any transformations yourself
     LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(Base::PhysicalElement<DIM>& element) override final
     {
-        std::size_t numBasisFuncs = element.getElement()->getNumberOfBasisFunctions();
+        std::size_t numberOfBasisFunctions = element.getElement()->getNumberOfBasisFunctions();
         LinearAlgebra::MiddleSizeMatrix&  result = element.getResultMatrix();
-        // logger(INFO, "%", numBasisFuncs);
-        for (std::size_t i = 0; i < numBasisFuncs; ++i)
+        for (std::size_t i = 0; i < numberOfBasisFunctions; ++i)
         {
-            for (std::size_t j = 0; j < numBasisFuncs; ++j)
+            for (std::size_t j = 0; j < numberOfBasisFunctions; ++j)
             {
                 result(j, i) = element.basisFunction(i) * (a * element.basisFunctionDeriv(j));
             }
@@ -115,7 +114,7 @@ public:
     {
         //Get the number of basis functions, first of both sides of the face and
         //then only the basis functions associated with the left and right element.
-        std::size_t numBasisFuncs = face.getFace()->getNumberOfBasisFunctions();
+        std::size_t numberOfBasisFunctions = face.getFace()->getNumberOfBasisFunctions();
         
         //Resize the result to the correct size and set all elements to 0.
         Base::FaceMatrix& integrandVal = face.getResultMatrix();
@@ -126,10 +125,10 @@ public:
         const double A = a * face.getUnitNormalVector();
         
         //Compute all entries of the integrand at this point:
-        for (std::size_t i = 0; i < numBasisFuncs; ++i)
+        for (std::size_t i = 0; i < numberOfBasisFunctions; ++i)
         {
             Base::Side sideBasisFunction = face.getFace()->getSide(i);
-            for (std::size_t j = 0; j < numBasisFuncs; ++j)
+            for (std::size_t j = 0; j < numberOfBasisFunctions; ++j)
             {
                 //Give the terms of the upwind flux.
                 //Advection in the same direction as outward normal of the left element:

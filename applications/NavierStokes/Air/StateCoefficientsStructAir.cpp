@@ -55,6 +55,20 @@ StateCoefficientsStructAir::StateCoefficientsStructAir(
 	ellipticTensor_ = this->computeEllipticTensor(partialState_, viscosity_);
 }
 
+//todo: NOTE viscosity is based on the stateJacobian, but it is not implemented for this case(!) Not sure how to resolve this issue yet
+StateCoefficientsStructAir::StateCoefficientsStructAir(
+		const LinearAlgebra::MiddleSizeVector &stateBoundary,
+		const double time) :
+		StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES>(stateBoundary, time)
+
+{
+	pressure_ = this->computePressure(state_);
+	speedOfSound_ = this->computeSpeedOfSound(state_, pressure_);
+	viscosity_ = this->computeViscosity(state_, partialState_, stateJacobian_, pressure_);
+	hyperbolicMatrix_ = this->computeHyperbolicMatrix(state_, pressure_);
+	ellipticTensor_ = this->computeEllipticTensor(partialState_, viscosity_);
+}
+
 StateCoefficientsStructAir::~StateCoefficientsStructAir()
 {
 }
@@ -75,14 +89,19 @@ double StateCoefficientsStructAir::computePressure(const LinearAlgebra::MiddleSi
 
 	double pressure = (GAMMA - 1)*(state(DIM + 1) - velocitySquared/(2*state(0)));
 
-	if (pressure < 0)
+	//std::cout << "======Computing pressure=====" << std::endl;
+	//std::cout << "state: " << state << std::endl;
+	//std::cout << "velocity squared: " << velocitySquared << std::endl;
+	
+
+	if (pressure <= 0)
 	{
 		std::cout << "Non-physical behaviour: pressure is zero" << std::endl;
 		std::exit(-1);
 	}
-
+	//std::cout << "real pressure: " << pressure << std::endl;
 	return pressure;
-}
+ }
 
 double StateCoefficientsStructAir::computeSpeedOfSound(const LinearAlgebra::MiddleSizeVector &state, const double pressure) const
 {
@@ -102,7 +121,7 @@ LinearAlgebra::MiddleSizeMatrix StateCoefficientsStructAir::computeHyperbolicMat
 			//Momentum flux: convection part
 			for (std::size_t iD2 = 0; iD2 < DIM; iD2++)
 			{
-				fluxMatrix(iD2 + 1,iD) = state(iD2 + 1)*state(iD+1)*densityInverse; // rho*u*u, rho*u*v, rho*u*w for iD2 = 0; rho*v*u*n1 etc for iD2 = 1
+				fluxMatrix(iD2 + 1,iD) = state(iD2 + 1)*state(iD+1)*densityInverse; // rho*u*u, rho*u*v, rho*u*w for iD2 = 0;
 			}
 
 			//Momentum flux: Add pressure part
@@ -118,12 +137,27 @@ LinearAlgebra::MiddleSizeMatrix StateCoefficientsStructAir::computeHyperbolicMat
 double StateCoefficientsStructAir::computeViscosity(const LinearAlgebra::MiddleSizeVector &state, const LinearAlgebra::MiddleSizeVector &partialState, const LinearAlgebra::MiddleSizeMatrix stateJacobian, const double pressure)
 {
 	double temperature = MACH*MACH*GAMMA*pressure/state(0);
-	return VISCOSITY_SCALING*(1+THETA_S)/(temperature + THETA_S)*std::pow(temperature,3.0/20);
+	
+/*
+ * http://ocw.mit.edu/courses/mathematics/18-102-introduction-to-functional-analysis-spring-2009/lecture-notes/
+	std::cout << "====Computing Viscosity====" << std::endl;
+	std::cout << "MACH: " << MACH << std::endl;
+	std::cout << "GAMMA: " << GAMMA << std::endl;
+	std::cout << "pressure: " << pressure << std::endl;
+	std::cout << "inverse density: " << 1.0/state(0) << std::endl;
+	std::cout << "ViscosityScaling: " << VISCOSITY_SCALING << std::endl;
+	std::cout << "temperature: " << temperature << std::endl;
+	std::cout << "viscosity: " << VISCOSITY_SCALING*(1+THETA_S)/(temperature + THETA_S)*std::pow(temperature,3.0/20) << std::endl;
+*/
+	//todo: VISCOSITY_SCALING has been altered for a test case with high viscosity (!!)
+	return VISCOSITY_SCALING;//*(1+THETA_S)/(temperature + THETA_S)*std::pow(temperature,3.0/20);
 }
 
 std::vector<LinearAlgebra::MiddleSizeMatrix> StateCoefficientsStructAir::computeEllipticTensor(const LinearAlgebra::MiddleSizeVector partialState, const double viscosity)
 {
 	//todo: Check if this also works correctly in 3D
+
+	//std::cout << "viscosity: " << viscosity << std::endl;
 
 	std::vector<LinearAlgebra::MiddleSizeMatrix> ellipticTensor_(DIM*DIM);
 	double velocityNormSquared = 0.0;
@@ -179,7 +213,7 @@ std::vector<LinearAlgebra::MiddleSizeMatrix> StateCoefficientsStructAir::compute
 			APartial1(DIM+1,iD2+1) *= partialState(iD2+1);
 		}
 
-		APartial1(DIM+1,0) = -(1.0/3.0)*partialState(iD+1)*partialState(iD+1) - viscosity*velocityNormSquared - thermalFactor*(partialState(DIM+1) - velocityNormSquared);
+		APartial1(DIM+1,0) = -(1.0/3.0)*viscosity*partialState(iD+1)*partialState(iD+1) - viscosity*velocityNormSquared - thermalFactor*(partialState(DIM+1) - velocityNormSquared);
 
 		//Divide by rho
 		APartial1 *= inverseRho;

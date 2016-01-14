@@ -29,12 +29,11 @@
 #endif
 
 #include "Logger.h"
+#include <iostream> //remove this after this API is official
+#include <fstream>  //remove this after this API is official
 
 namespace Base
 {
-	//todo: I have broken the butcher table thingy, fix this
-	//todo: Tomorrow add the Jacobian function and start the implementation of it
-	//todo: Butcher table is not required, remove this from the constructor
 	//todo: Possibly add restart from data file to create a p-multigrid solution strategy
 	//todo: Add function that can add setup functions to the solve function
 
@@ -45,7 +44,6 @@ namespace Base
 	(
 			const std::size_t numberOfVariables,
 			const std::size_t polynomialOrder,
-			const TimeIntegration::ButcherTableau * const ptrButcherTableau,
 			const bool computeBothFaces
 	) :
 	HpgemAPISimplified<DIM>(numberOfVariables, polynomialOrder, 4, 0, computeBothFaces),
@@ -77,6 +75,42 @@ namespace Base
         logger(VERBOSE, "Total number of elements: %", nElements);
     }
 
+    template<std::size_t DIM>
+	void HpgemAPINonLinearSteadyState<DIM>::computeJacobian()
+	{
+		//Compute new Jacobian element matrices for J(u)
+		for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
+		{
+			//Get the solution coefficients required for the calculation
+			LinearAlgebra::MiddleSizeVector &solutionCoefficients(ptrElement->getTimeIntegrationVector(this->solutionVectorId_));
+			//Calculate and store the matrix
+			ptrElement->setElementMatrix(computeJacobianAtElement(ptrElement, solutionCoefficients, 0), jacobianElementMatrixID_);
+
+		}
+
+		//Compute the local Jacobian Matrix: Face integrals
+		for (Base::Face *ptrFace : this->meshes_[0]->getFacesList())
+		{
+			//grab the coefficients
+			LinearAlgebra::MiddleSizeVector solutionCoefficientsLeft(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(this->solutionVectorId_));
+			LinearAlgebra::MiddleSizeVector solutionCoefficientsRight(ptrFace->getPtrElementRight()->getTimeIntegrationVector(this->solutionVectorId_));
+
+			//Calculate face Matrix
+			int numberOfDOFLeft = ptrFace->getPtrElement(Base::Side::LEFT)->getNumberOfBasisFunctions() * ptrFace->getPtrElement(Base::Side::LEFT)->getNumberOfUnknowns();
+			int numberOfDOFRight = ptrFace->getPtrElement(Base::Side::RIGHT)->getNumberOfBasisFunctions() * ptrFace->getPtrElement(Base::Side::RIGHT)->getNumberOfUnknowns();
+			Base::FaceMatrix faceMatrix(numberOfDOFLeft,numberOfDOFRight);
+			//Left element. Side indexes are: elementSide, derivativeSide
+			faceMatrix.setElementMatrix(computeJacobianAtFace(ptrFace, solutionCoefficientsLeft, solutionCoefficientsRight, 0, Base::Side::LEFT, Base::Side::LEFT), Base::Side::LEFT, Base::Side::LEFT);
+			faceMatrix.setElementMatrix(computeJacobianAtFace(ptrFace, solutionCoefficientsLeft, solutionCoefficientsRight, 0, Base::Side::LEFT, Base::Side::RIGHT), Base::Side::LEFT, Base::Side::RIGHT);
+			//Right element
+			faceMatrix.setElementMatrix(computeJacobianAtFace(ptrFace, solutionCoefficientsLeft, solutionCoefficientsRight, 0, Base::Side::RIGHT, Base::Side::LEFT), Base::Side::RIGHT, Base::Side::LEFT);
+			faceMatrix.setElementMatrix(computeJacobianAtFace(ptrFace, solutionCoefficientsLeft, solutionCoefficientsRight, 0, Base::Side::RIGHT, Base::Side::RIGHT), Base::Side::RIGHT, Base::Side::RIGHT);
+
+			//Store face Matrix
+			ptrFace->setFaceMatrix(faceMatrix, jacobianFaceMatrixID_); // time=0
+		}
+	}
+
 #if defined(HPGEM_USE_SUNDIALS)
 	//static int KINSol function required function to compute the right hand side.
 	//The user_data is recast into the API class and a corresponding memeber function is then called to compute the RHS
@@ -102,7 +136,6 @@ namespace Base
 		globalVector_->writeTimeIntegrationVector(this->solutionVectorId_);
 
 		//Compute RHS with the new data
-		//todo: mention that computeRightHandSide is very confusing on naming
 		//solutionCoefficients are stored at this->solutionVectorId_ (=0 by default) and the rhs at 1, the time = 0
 		this->computeRightHandSide(this->solutionVectorId_, this->solutionRHS_, 0);
 		//Set the correct N_Vector pointer
@@ -136,27 +169,105 @@ namespace Base
 		if (*new_u == true)
 		{
 			logger(INFO,"Computing new Jacobian Matrix.");
-			//Compute new Jacobian element matrices for J(u)
-			for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
-			{
-				//Get the solution coefficients required for the calculation
-				LinearAlgebra::MiddleSizeVector &solutionCoefficients(ptrElement->getTimeIntegrationVector(this->solutionVectorId_));
-				//Calculate and store the matrix
-				ptrElement->setElementMatrix(computeJacobianAtElement(ptrElement, solutionCoefficients, 0), jacobianElementMatrixID_);
-
-			}
-
-			//Compute the local Jacobian Matrix: Face integrals
-			for (Base::Face *ptrFace : this->meshes_[0]->getFacesList())
-			{
-				//grab the coefficients
-				LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(this->solutionVectorId_));
-				LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight(ptrFace->getPtrElementRight()->getTimeIntegrationVector(this->solutionVectorId_));
-				//Calculate and store the matrix
-				ptrFace->setFaceMatrix(computeJacobianAtFace(ptrFace, solutionCoefficientsLeft, solutionCoefficientsRight, 0), jacobianFaceMatrixID_); // time=0
-			}
+			computeJacobian();
 			//Set new_u to false since we have computed the new matrices
 			*new_u = false;
+
+			//DEBUG
+			 //todo: Move this to a function, that is there just for debug purposes
+			//Create a very awesome big matrix
+			LinearAlgebra::MiddleSizeMatrix matrix;
+			std::size_t totalNumberOfDOF = NV_LENGTH_S(u);
+			std::cout << "totalNumberOfDOF: " << totalNumberOfDOF << std::endl;
+			LinearAlgebra::MiddleSizeMatrix jacobianMatrixFull(totalNumberOfDOF,totalNumberOfDOF);
+			std::size_t numberOfDOFLocal;
+			std::size_t numberOfDOFNonLocal;
+			int startLocal; //startposition of the local element
+			int startNonLocal; //start position of the non local element
+			std::vector<int> startPositionsOfElementsInTheVector = globalVector_->getStartPositionsOfElementsInTheVector();
+
+			//Fill the very big awesome matrix
+			for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
+			{
+				//Add the element matrix
+				numberOfDOFLocal = ptrElement->getNrOfBasisFunctions()*ptrElement->getNrOfUnknowns();
+				matrix = ptrElement->getElementMatrix(jacobianElementMatrixID_);
+				startLocal = startPositionsOfElementsInTheVector[ptrElement->getID()];
+				for (std::size_t i = 0; i < numberOfDOFLocal; i++)
+				{
+					for (std::size_t j = 0; j < numberOfDOFLocal; j++)
+					{
+						jacobianMatrixFull(i + startLocal,j + startLocal) += matrix(i,j);
+					}
+				}
+
+				//Face matrices
+				for (const Base::Face *ptrFace : ptrElement->getFacesList())
+				{
+					Base::Side elementSide;
+					Base::Side neighbourElementSide;
+					//Check if current element is the left or the right element
+					if (ptrFace->getPtrElementLeft() == ptrElement)
+					{
+						elementSide = Base::Side::LEFT;
+						neighbourElementSide = Base::Side::RIGHT;
+					}
+					else
+					{
+						elementSide = Base::Side::RIGHT;
+						neighbourElementSide = Base::Side::LEFT;
+					}
+					numberOfDOFLocal = ptrFace->getPtrElement(elementSide)->getNrOfBasisFunctions()*ptrElement->getNrOfUnknowns();
+					numberOfDOFNonLocal = ptrFace->getPtrElement(neighbourElementSide)->getNrOfBasisFunctions()*ptrElement->getNrOfUnknowns();
+					startLocal = startPositionsOfElementsInTheVector[ptrFace->getPtrElement(elementSide)->getID()];
+					startNonLocal = startPositionsOfElementsInTheVector[ptrFace->getPtrElement(neighbourElementSide)->getID()];
+
+					//Compute local face contribution
+					matrix = ptrFace->getFaceMatrix(this->jacobianFaceMatrixID_).getElementMatrix(elementSide,elementSide);
+					for (std::size_t i = 0; i < numberOfDOFLocal; i++)
+					{
+						for (std::size_t j = 0; j < numberOfDOFLocal; j++)
+						{
+							jacobianMatrixFull(i + startLocal,j + startLocal) += matrix(i,j);
+						}
+					}
+
+
+					//Compute non local face contribution
+					matrix = ptrFace->getFaceMatrix(jacobianFaceMatrixID_).getElementMatrix(elementSide,neighbourElementSide);
+					for (std::size_t i = 0; i < numberOfDOFLocal; i++)
+					{
+						for (std::size_t j = 0; j < numberOfDOFNonLocal; j++)
+						{
+							jacobianMatrixFull(i + startLocal,j + startNonLocal) += matrix(i,j);
+						}
+					}
+
+
+				}
+
+			}
+
+			//Write matrix to file
+			remove("matrix");
+			std::ofstream myfile("matrix");
+			if (myfile.is_open())
+			{
+				for (std::size_t i = 0; i < totalNumberOfDOF; i++)
+				{
+					//print a line
+					for (std::size_t j = 0; j < totalNumberOfDOF-1; j++)
+					{
+						myfile << jacobianMatrixFull(i,j) << ",";
+					}
+					myfile << jacobianMatrixFull(i,totalNumberOfDOF-1);
+					myfile << "\n";
+				}
+			    myfile.close();
+			}
+			else cout << "Unable to open file";
+			std::exit(-1);
+			//DEBUG
 		}
 
 
@@ -164,7 +275,7 @@ namespace Base
 		//Put v in the hpGEM structure
 		globalVector_->setVector(v);
 		globalVector_->writeTimeIntegrationVector(this->VectorVID_);
-
+		//logger(INFO,"Computing new Jacobian multiplication.");
 		//Compute J(u) times v for every element and place it in the hpGEM structure
 		for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
 		{
@@ -176,9 +287,6 @@ namespace Base
 			matrix = ptrElement->getElementMatrix(jacobianElementMatrixID_);
 			vector = ptrElement->getTimeIntegrationVector(this->VectorVID_);
 			jTimesV += matrix*vector;
-			//std::cout << "==========" << std::endl;
-			//std::cout << "matrix element: " << matrix << std::endl;
-			//std::cout << "vector element: " << vector << std::endl;
 
 			//Face matrices
 			for (const Base::Face *ptrFace : ptrElement->getFacesList())
@@ -197,19 +305,16 @@ namespace Base
 					neighbourElementSide = Base::Side::LEFT;
 				}
 
+				//DIT IS EEN BUG?
 				//Compute local face contribution
 				matrix = ptrFace->getFaceMatrix(this->jacobianFaceMatrixID_).getElementMatrix(elementSide,elementSide);
 				vector = ptrFace->getPtrElement(elementSide)->getTimeIntegrationVector(this->VectorVID_);
 				jTimesV +=  matrix*vector ;
-				//std::cout << "matrix local: " << matrix << std::endl;
-				//std::cout << "vector local: " << vector << std::endl;
 
 				//Compute non local face contribution
 				matrix = ptrFace->getFaceMatrix(jacobianFaceMatrixID_).getElementMatrix(elementSide,neighbourElementSide);
 				vector = ptrFace->getPtrElement(neighbourElementSide)->getTimeIntegrationVector(this->VectorVID_);
 				jTimesV += matrix*vector;
-				//std::cout << "matrix non local: " << matrix << std::endl;
-				//std::cout << "vector non local: " << vector << std::endl;
 			}
 
 			//Set resulting vector
@@ -302,8 +407,13 @@ namespace Base
 		flag = KINInit(kmem, func, u);
 		logger.assert_always(flag >= 0, "Initialisation failed with flag %.", flag);
 
-		//Set FTOL
-		//flag = KINSetFuncNormTol(kmem, 1e-6);
+		//set number of iterations
+		flag = KINSetNumMaxIters(kmem, 8000);
+
+		//Set FTOL and STOL
+		flag = KINSetFuncNormTol(kmem, 1e-7);
+		flag = KINSetScaledStepTol(kmem, 1e-13);
+
 
 		//Set type of solver
 		//todo: Make a switch between different types of solver
@@ -320,7 +430,9 @@ namespace Base
 
 		//Set additional parameters
 
-		//Call the KINsol function
+        this->tasksBeforeSolving();
+
+		//Start solving
 		flag = KINSol(kmem, u, globalStrategy, scale, scale);
 		if ((flag == 0 ) || (flag == 1))
 		{
@@ -328,7 +440,8 @@ namespace Base
 		}
 		else
 		{
-			logger.assert(flag >= 0, "Failed to solve the problem with flag %.",flag);
+			logger(INFO,"No solution found0");
+			//logger.assert(flag >= 0, "Failed to solve the problem with flag %.",flag);
 		}
 
 		//Write final solution to VTK
@@ -345,7 +458,7 @@ namespace Base
 		double max = 0;
 		for (std::size_t i = 0; i < numberOfDOF; i++)
 		{
-			if (tempData[i] > max)
+			if (std::abs(tempData[i]) > max)
 			{
 				max = tempData[i];
 			}

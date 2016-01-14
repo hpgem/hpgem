@@ -45,6 +45,11 @@ public:
 			const double time
 			);
 
+	StateCoefficientsStructAir(
+			const LinearAlgebra::MiddleSizeVector &stateBoundary,
+			const double time
+			);
+
 	virtual ~StateCoefficientsStructAir();
 
 	/// ***************************************

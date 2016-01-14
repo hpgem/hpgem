@@ -66,7 +66,6 @@ namespace Base
 		(
 				const std::size_t numberOfUnknowns,
 				const std::size_t polynomialOrder,
-				const TimeIntegration::ButcherTableau * const ptrButcherTableau,
 				const bool computeBothFaces
 		);
 
@@ -74,6 +73,24 @@ namespace Base
 
         /// \brief Create the mesh.
         virtual void createMesh(const std::size_t numberOfElementsPerDirection, const Base::MeshType meshType) override;
+
+        void computeJacobian();
+
+		/// \brief This function computes the local and non-local Jacobian contributions from face i of the face integrals
+		virtual LinearAlgebra::MiddleSizeMatrix computeJacobianAtFace(Base::Face *ptrFace, LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight, const double time, const Base::Side elementSide, const Base::Side derivativeSide)
+		{
+            logger(ERROR, "No function computeJacobianFaceAtElement() implemented.");
+            LinearAlgebra::MiddleSizeMatrix jacobianAtFace;
+            return jacobianAtFace;
+		}
+
+		/// \brief This function computes the local Jacobian contributions from the element integrals
+		virtual LinearAlgebra::MiddleSizeMatrix computeJacobianAtElement(Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
+		{
+            logger(ERROR, "No function computeJacobianAtElement().");
+            LinearAlgebra::MiddleSizeMatrix jacobianAtElement(1,1);
+            return jacobianAtElement;
+		}
 
 #if defined(HPGEM_USE_SUNDIALS)
 		/// \brief This function is called by the Sundials library and then calls the function int computeRHS(N_Vector u, N_Vector fval);
@@ -90,25 +107,26 @@ namespace Base
 		int computeJacTimesVector(N_Vector v, N_Vector Jv, N_Vector u, booleantype *new_u);
 #endif
 
-		/// \brief This function computes the local and non-local Jacobian contributions from face i of the face integrals
-		virtual Base::FaceMatrix computeJacobianAtFace(Base::Face *ptrFace, LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight, const double time)
-		{
-            logger(ERROR, "No function computeJacobianFaceAtElement() implemented to compute the local and non local contributions from face integrals.");
-            Base::FaceMatrix jacobianAtFace;
-            return jacobianAtFace;
-		}
 
-		/// \brief This function computes the local Jacobian contributions from the element integrals
-		virtual LinearAlgebra::MiddleSizeMatrix computeJacobianAtElement(Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
-		{
-            logger(ERROR, "No function computeJacobianAtElement() implemented to compute the local contributions of the Jacobian matrix from element integrals.");
-            LinearAlgebra::MiddleSizeMatrix jacobianAtElement(1,1);
-            return jacobianAtElement;
-		}
 
 
 		/// \brief Solve the steady-state problem using Sundials
 		virtual bool solve(bool doComputeInitialCondition, bool doComputeError, bool doUseJacobian);
+
+	public:
+        /// \brief Location of the solutioncoefficients
+        const std::size_t solutionCoefficientsID_ = 0;
+        /// \brief Location of the computed RHS
+        const std::size_t solutionRHS_ = 1;
+        /// \brief Location of the jacobian times vector v in the solution
+        const std::size_t jTimesvecID_ = 2;
+        /// \brief Location of the vector V which will be multiplied by the jacobian matrices
+        const std::size_t VectorVID_ = 3;
+
+        /// \brief Location of the Jacobian Element Matrix in the elementMatrix vector
+        const std::size_t jacobianElementMatrixID_ = 0;
+        /// \brief Location of the faceMatrix
+        const std::size_t jacobianFaceMatrixID_ = 0;
 
     protected:
         /// Index to indicate where the vectors for the source terms for the elements are stored.
@@ -121,18 +139,6 @@ namespace Base
 
         /// \brief for Debugging purposes or curiousity. If the flag is true it will output intermediate solutions.
         bool doOutputIntermediateSolutions_ = true;
-
-        /// \brief Location of the computed RHS
-        const std::size_t solutionRHS_ = 1;
-        /// \brief Location of the jacobian times vector v in the solution
-        const std::size_t jTimesvecID_ = 2;
-        /// \brief Location of the vector V which will be multiplied by the jacobian matrices
-        const std::size_t VectorVID_ = 3;
-
-        /// \brief Location of the Jacobian Element Matrix in the elementMatrix vector
-        const std::size_t jacobianElementMatrixID_ = 0;
-        /// \brief Location of the faceMatrix
-        const std::size_t jacobianFaceMatrixID_ = 0;
 
 #if defined(HPGEM_USE_SUNDIALS)
         /// GlobalVector that performs operations on a given N_Vector. Either writes solutionCoefficients to the hpGEM data structure,

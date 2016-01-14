@@ -76,21 +76,21 @@ namespace LinearAlgebra
         return result;
     }
 
-    template<std::size_t numberOfRows, std::size_t numberColumns>
-    SmallVector<numberOfRows> SmallMatrix<numberOfRows, numberColumns>::operator *(SmallVector<numberColumns>& right) const
+    template<std::size_t numberOfRows, std::size_t numberOfColumns>
+    SmallVector<numberOfRows> SmallMatrix<numberOfRows, numberOfColumns>::operator *(SmallVector<numberOfColumns>& right) const
     {
         if (numberOfRows == 0)
         {
             logger(WARN, "Trying to multiply a vector with a matrix without any rows.");
             return SmallVector<numberOfRows>();
         }
-        if (numberColumns == 0)
+        if (numberOfColumns == 0)
         {
             logger(WARN, "Trying to multiply a vector with a matrix without any columns.");
             return SmallVector<numberOfRows>();
         }
         int nr = numberOfRows;
-        int nc = numberColumns;
+        int nc = numberOfColumns;
 
         int i_one = 1;
         double d_one = 1.0;

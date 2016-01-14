@@ -39,7 +39,7 @@ namespace TimeIntegration
     public:
         static AllTimeIntegrators& Instance();
 
-        ButcherTableau* getRule(std::size_t order, std::size_t numStages, bool TVD = false);
+        ButcherTableau* getRule(std::size_t order, std::size_t numberOfStages, bool TVD = false);
         
     private:
         AllTimeIntegrators();

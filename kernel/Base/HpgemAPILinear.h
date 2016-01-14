@@ -95,7 +95,7 @@ namespace Base
         (
          const std::size_t numberOfUnknowns,
          const std::size_t polynomialOrder,
-         const std::size_t globalNummberOfTimeIntegrationVectors,
+         const std::size_t globalNumberOfTimeIntegrationVectors,
          const std::size_t numberOfTimeLevels = 0,
          const bool useSourceTerm = false,
          const bool useSourceTermAtBoundary = false

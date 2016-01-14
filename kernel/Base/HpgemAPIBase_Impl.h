@@ -70,13 +70,13 @@ namespace Base
         
         if (meshType == MeshType::RECTANGULAR)
         {
-            mesh->createRectangularMesh(meshDscr.bottomLeft_, meshDscr.topRight_, meshDscr.numElementsInDIM_);
+            mesh->createRectangularMesh(meshDscr.bottomLeft_, meshDscr.topRight_, meshDscr.numberOfElementsInDIM_);
             mesh->getElementsList();
             meshes_.push_back(mesh);
         }
         else if (meshType == MeshType::TRIANGULAR)
         {
-            mesh->createTriangularMesh(meshDscr.bottomLeft_, meshDscr.topRight_, meshDscr.numElementsInDIM_);
+            mesh->createTriangularMesh(meshDscr.bottomLeft_, meshDscr.topRight_, meshDscr.numberOfElementsInDIM_);
             mesh->getElementsList();
             meshes_.push_back(mesh);
         }

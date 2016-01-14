@@ -27,7 +27,7 @@ namespace TimeIntegration {
 RK3TVD::RK3TVD()
 {
     order_ = 3;
-    numStages_ = 3;
+    numberOfStages_ = 3;
     totalVariationDiminishing_ = true;
 
     //make a_
@@ -56,7 +56,7 @@ std::size_t RK3TVD::getOrder() const
 
 std::size_t RK3TVD::getNumberOfStages() const
 {
-    return numStages_;
+    return numberOfStages_;
 }
 
 bool RK3TVD::getTotalVariationDiminishing() const
