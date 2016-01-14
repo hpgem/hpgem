@@ -103,7 +103,6 @@ namespace Integration
         {
             ar & useCache_;
             ar & element_;
-            ///\todo IFCD: Is it necessary to save the element in the archive? I have no experience with useCache_ = true
         }
 
     private:

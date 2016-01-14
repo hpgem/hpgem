@@ -174,7 +174,9 @@ namespace Base
         template <class Archive>
         void serialize(Archive &ar, const unsigned int version)
         {
-            ///\todo Since this class is a wrapper around an Element, only the transformation has to be saved. IFCD: correct?
+            ///\todo Since this class is a wrapper around an Element, only the transformation has to be saved. IFCD: However, I have no idea how to save it. It has no data.
+            ///If we just save transform_ with an empty serialize method in CoordinateTransformation, will it be okay?
+            ///Serializing transform_ leads to a "unregistered class - derived class not registered or exported" exception at the moment.
             //ar & transform_;
         }
 

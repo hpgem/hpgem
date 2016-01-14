@@ -26,6 +26,9 @@
 #include "LinearAlgebra/SmallVector.h"
 #include "PhysicalElement.h"
 #include "PhysicalFace.h"
+#include "Base/SerializationInclude.h"
+
+
 
 namespace Base
 {
@@ -92,8 +95,12 @@ namespace Base
             logger(ERROR, "Scaling integrands is not supported, please set a different transformation");
             return 0.;
         }
+
+        template <class Archive>
+        void serialize(Archive &ar, const unsigned int version)
+        {
+        }
     };
 }
-
 
 #endif /* COORDINATETRANSFORMATION_H_ */

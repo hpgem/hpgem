@@ -261,7 +261,8 @@ namespace Base
         void serialize(Archive & ar, const unsigned int version)
         {
 
-            ///\todo implement this function
+            ///\todo think about the coordinate transformation, currently getting an "unregistered class - derived class not registered or exported" exception
+            //ar & transform_;
         }
     private:
         PhysicalElement<DIM> left, right;
