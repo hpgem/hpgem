@@ -78,7 +78,7 @@ LinearAlgebra::MiddleSizeVector UnsteadyNavierStokesAPI<DIM,NUMBER_OF_VARIABLES>
 	LinearAlgebra::MiddleSizeVector integrandInviscid = inviscidTerms_.integrandAtElement(element, elementStateStruct, time);
 
 	//Compute viscous terms
-	//LinearAlgebra::MiddleSizeVector integrandViscous = viscousTerms_.integrandAtElement(element, elementStateStruct, time);
+	LinearAlgebra::MiddleSizeVector integrandViscous = viscousTerms_.integrandAtElement(element, elementStateStruct, time);
 
 	//Compute source terms
 	LinearAlgebra::MiddleSizeVector integrandSource = integrandSourceAtElement(element, elementStateStruct, time);
@@ -88,7 +88,7 @@ LinearAlgebra::MiddleSizeVector UnsteadyNavierStokesAPI<DIM,NUMBER_OF_VARIABLES>
 	std::cout << "Source: " << integrandSource << std::endl;
 	std::cout << "Viscous: " << integrandViscous << std::endl;*/
 
-	return integrandInviscid + integrandSource;// + integrandViscous;
+	return integrandInviscid + integrandSource + integrandViscous;
 }
 
 /// \brief Compute the right hand side on an element
@@ -120,24 +120,26 @@ LinearAlgebra::MiddleSizeVector UnsteadyNavierStokesAPI<DIM,NUMBER_OF_VARIABLES>
 	//todo: in future: return the boundary condition + if it is dirichlet or neumann
 	//NOTE: Jacobian information of a dirichlet boundary is not available (!!!!)
 	LinearAlgebra::MiddleSizeVector stateBoundary = computeBoundaryState(face, faceStateStructLeft, time);
+	BoundaryType boundaryType = computeBoundaryType(face);
+
 	//std::cout << "boundaryState: " << stateBoundary << std::endl;
 	StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> faceStateStructBoundary = computeBoundaryFaceStateStruct(stateBoundary, time);
 
 	//Compute inviscid terms
-	LinearAlgebra::MiddleSizeVector integrandInviscid = inviscidTerms_.integrandAtBoundaryFace(face, faceStateStructBoundary, faceStateStructLeft, time);
+	LinearAlgebra::MiddleSizeVector integrandInviscid = inviscidTerms_.integrandAtBoundaryFace(face, boundaryType, faceStateStructBoundary, faceStateStructLeft, time);
 
 	//Compute viscous terms
-	//LinearAlgebra::MiddleSizeVector integrandViscous = viscousTerms_.integrandViscousAtBoundaryFace(face, faceStateStructBoundary, faceStateStructLeft, time);
+	LinearAlgebra::MiddleSizeVector integrandViscous = viscousTerms_.integrandViscousAtBoundaryFace(face, boundaryType, faceStateStructBoundary, faceStateStructLeft, time);
 
 	//Compute support variable terms
-	//LinearAlgebra::MiddleSizeVector integrandAuxilliary = viscousTerms_.integrandAuxilliaryAtBoundaryFace(face, faceStateStructBoundary, faceStateStructLeft, time);
+	LinearAlgebra::MiddleSizeVector integrandAuxilliary = viscousTerms_.integrandAuxilliaryAtBoundaryFace(face, boundaryType, faceStateStructBoundary, faceStateStructLeft, time);
 
 /*		std::cout << "===External Face Integral===" << std::endl;
         std::cout << "inv: " << integrandInviscid << std::endl;
         std::cout << "vis: " << integrandViscous << std::endl;
         std::cout << "aux: " << integrandAuxilliary << std::endl;*/
 	
-	return  integrandInviscid;// + integrandViscous + integrandAuxilliary;
+	return  integrandInviscid + integrandViscous + integrandAuxilliary;
 }
 
 /// \brief Compute the right-hand side corresponding to an external face
@@ -190,10 +192,10 @@ std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> Unste
 	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrandsInviscid = inviscidTerms_.integrandsAtFace(face, faceStateStructLeft, faceStateStructRight, time);
 
 	//Compute viscous terms
-	//std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrandsViscous = viscousTerms_.integrandsViscousAtFace(face, faceStateStructLeft, faceStateStructRight, time);
+	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrandsViscous = viscousTerms_.integrandsViscousAtFace(face, faceStateStructLeft, faceStateStructRight, time);
 
 	//Compute support variable terms
-	//std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrandsAuxilliary = viscousTerms_.integrandsAuxilliaryAtFace(face, faceStateStructLeft, faceStateStructRight, time);
+	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrandsAuxilliary = viscousTerms_.integrandsAuxilliaryAtFace(face, faceStateStructLeft, faceStateStructRight, time);
 
 /*	std::cout << "===Internal Face Integral===" << std::endl;
 	std::cout << "integrandsInviscid Left: " << integrandsInviscid.first << std::endl;
@@ -205,8 +207,8 @@ std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> Unste
 
 	//combine all integrands into one pair
 	std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrands;
-	integrands.first = integrandsInviscid.first;// + integrandsViscous.first + integrandsAuxilliary.first;
-	integrands.second = integrandsInviscid.second;// + integrandsViscous.second + integrandsAuxilliary.second;
+	integrands.first = integrandsInviscid.first + integrandsViscous.first + integrandsAuxilliary.first;
+	integrands.second = integrandsInviscid.second + integrandsViscous.second + integrandsAuxilliary.second;
 
 	return  integrands;
 }
@@ -301,7 +303,7 @@ LinearAlgebra::MiddleSizeMatrix UnsteadyNavierStokesAPI<DIM,NUMBER_OF_VARIABLES>
 	//Compute auxilliary contribution
 	LinearAlgebra::MiddleSizeMatrix integrandAuxilliary = viscousTerms_.integrandJacobianAuxilliaryFace(face, faceStateStructLeft, faceStateStructRight, elementSide, derivativeSide);
 
-	return integrandInviscid + integrandViscous + 0.0*integrandAuxilliary;
+	return integrandInviscid + integrandViscous + integrandAuxilliary;
 }
 
 /// \brief This functions computes the Jacobian face matrix of element elementSide with respect to variables of derivativeSide

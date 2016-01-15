@@ -420,19 +420,35 @@ template<std::size_t DIM, std::size_t NUMBER_OF_VARIABLES>
 LinearAlgebra::MiddleSizeVector InviscidTerms<DIM,NUMBER_OF_VARIABLES>::integrandAtBoundaryFace
 (
  Base::PhysicalFace<DIM> &face,
+ const BoundaryType boundaryType,
  const StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> &faceStateStructBoundary,
  const StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> &faceStateStructLeft,
  const double &time
  )
 {
-
-	//todo: Add a switch to switch between types: i.e. full state/solidwall/inflow/outflow
 	//Get the number of basis functions
 	std::size_t numOfTestBasisFunctions = face.getPhysicalElement(Base::Side::LEFT).getNumberOfBasisFunctions();
 
 	LinearAlgebra::MiddleSizeVector integrand(NUMBER_OF_VARIABLES*numOfTestBasisFunctions);
 
-	LinearAlgebra::MiddleSizeVector flux = computeRoeFluxFunction(faceStateStructLeft, faceStateStructBoundary, face.getUnitNormalVector());
+	//Compute the flux. Based on the type of boundary condition this is either done exact, or using a flux function
+	LinearAlgebra::MiddleSizeVector flux(NUMBER_OF_VARIABLES);
+	if (boundaryType == BoundaryType::FULL_STATE)
+	{
+		 flux = computeRoeFluxFunction(faceStateStructLeft, faceStateStructBoundary, face.getUnitNormalVector());
+	}
+	else
+	{
+		//todo: move this part to a separate function
+		LinearAlgebra::MiddleSizeMatrix fluxMatrix = faceStateStructBoundary.getHyperbolicMatrix();
+		for (std::size_t iV = 0; iV < NUMBER_OF_VARIABLES; iV++)
+		{
+			for (std::size_t iD = 0; iD < DIM; iD++)
+			{
+				flux(iV) += fluxMatrix(iV,iD)*face.getUnitNormalVector()(iD);
+			}
+		}
+	}
 
 	// Compute integrand on the reference element.
 	std::size_t iVB; // Index for both variable and basis function.

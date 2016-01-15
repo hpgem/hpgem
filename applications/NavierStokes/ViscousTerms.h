@@ -53,10 +53,10 @@ public:
 	LinearAlgebra::MiddleSizeMatrix fluxAuxilliaryBoundary(Base::PhysicalFace<DIM> &face, const StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> &faceStateStructBoundary, const StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> &faceStateStructLeft, const double &time);
 
 	/// \brief Computes the auxilliary integrand at an internal face
-	LinearAlgebra::MiddleSizeVector integrandAuxilliaryAtBoundaryFace(Base::PhysicalFace<DIM> &face, const StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> &faceStateStructBoundary, const StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> &faceStateStructLeft, const double &time);
+	LinearAlgebra::MiddleSizeVector integrandAuxilliaryAtBoundaryFace(Base::PhysicalFace<DIM> &face, const BoundaryType boundaryType, const StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> &faceStateStructBoundary, const StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> &faceStateStructLeft, const double &time);
 
 	/// \brief Computes the viscous integral at the face, based on the viscous fluxes for an external face
-	LinearAlgebra::MiddleSizeVector integrandViscousAtBoundaryFace(Base::PhysicalFace<DIM> &face, const StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> &faceStateStructBoundary, const StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> &faceStateStructLeft, const double &time);
+	LinearAlgebra::MiddleSizeVector integrandViscousAtBoundaryFace(Base::PhysicalFace<DIM> &face, const BoundaryType boundaryType, const StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> &faceStateStructBoundary, const StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> &faceStateStructLeft, const double &time);
 
 	/// ***************************************************
     /// ***   External Stability Parameter functions    ***

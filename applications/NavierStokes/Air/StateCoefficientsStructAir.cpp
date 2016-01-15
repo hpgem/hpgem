@@ -136,6 +136,7 @@ LinearAlgebra::MiddleSizeMatrix StateCoefficientsStructAir::computeHyperbolicMat
 
 double StateCoefficientsStructAir::computeViscosity(const LinearAlgebra::MiddleSizeVector &state, const LinearAlgebra::MiddleSizeVector &partialState, const LinearAlgebra::MiddleSizeMatrix stateJacobian, const double pressure)
 {
+	//todo: this temperature definition is bullshit, see FlowBetweenPlates
 	double temperature = MACH*MACH*GAMMA*pressure/state(0);
 	
 /*

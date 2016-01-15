@@ -81,6 +81,14 @@ public:
 		return empty;
 	}
 
+	/// \brief Compute the type of boundary condition. i.e. inflow or full state. The flux is calculated differently for these various types
+	virtual BoundaryType computeBoundaryType(Base::PhysicalFace<DIM> &face)
+	{
+		logger(ERROR,"No boundary type condition specified on an external boundary.");
+		BoundaryType boundaryType = BoundaryType::ADIABATIC_WALL;
+		return boundaryType;
+	}
+
 	/// \brief Compute the integrand for the right hand side for the face corresponding to an external face.
 	LinearAlgebra::MiddleSizeVector integrandRightHandSideOnFace(Base::PhysicalFace<DIM> &face, const double &time, const LinearAlgebra::MiddleSizeVector &stateCoefficients);
 
