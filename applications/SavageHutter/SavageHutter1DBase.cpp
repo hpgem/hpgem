@@ -63,7 +63,7 @@ const LinearAlgebra::MiddleSizeVector SavageHutter1DBase::integrandRightHandSide
 const LinearAlgebra::MiddleSizeVector SavageHutter1DBase::integrandRightHandSideOnRefFace
 (Base::PhysicalFace<1>& face, const Base::Side &iSide, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft, const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight)
 {
-    const std::size_t numTestBasisFuncs = face.getPhysicalElement(iSide).getNumberOfBasisFunctions();
+    const std::size_t numberOfTestBasisFunctions = face.getPhysicalElement(iSide).getNumberOfBasisFunctions();
 
     //compute numerical solution at the left side and right side of this face
     const LinearAlgebra::MiddleSizeVector solutionLeft = Helpers::getSolution<1>(face.getPhysicalElement(Base::Side::LEFT), solutionCoefficientsLeft, numberOfVariables_);
@@ -73,7 +73,7 @@ const LinearAlgebra::MiddleSizeVector SavageHutter1DBase::integrandRightHandSide
 
     LinearAlgebra::MiddleSizeVector& integrand = face.getResultVector(iSide); // Integrand value based on n number of testbasisfunctions from element corresponding to side iSide
 
-    for (std::size_t iFun = 0; iFun < numTestBasisFuncs; ++iFun)
+    for (std::size_t iFun = 0; iFun < numberOfTestBasisFunctions; ++iFun)
     {
         for (std::size_t iVar = 0; iVar < numberOfVariables_; ++iVar)
         {
@@ -150,9 +150,9 @@ const LinearAlgebra::MiddleSizeVector SavageHutter1DBase::integrandRightHandSide
             {
                 const double uIn = solution[1] / solution[0];
                 const double invariantIn = uIn + 2 * std::sqrt(epsilon_ * std::cos(chuteAngle_) * solution[0]);
-                const double froudePrescribed = .75;
-                const double hOut = (invariantIn / (2 + froudePrescribed)) * (invariantIn / (2 + froudePrescribed)) / (epsilon_ * std::cos(chuteAngle_));
-                //double hOut = 0.5;
+                //const double froudePrescribed = .75;
+                //const double hOut = (invariantIn / (2 + froudePrescribed)) * (invariantIn / (2 + froudePrescribed)) / (epsilon_ * std::cos(chuteAngle_));
+                double hOut = 1.35;
                 const double uOut = invariantIn - 2 * std::sqrt(epsilon_ * std::cos(chuteAngle_) * hOut);
                 logger(DEBUG, "new h and u and F: %, %, %", hOut, uOut, uOut / std::sqrt(epsilon_ * std::cos(chuteAngle_) * hOut));
                 const auto stateNew = MiddleSizeVector({hOut, hOut * uOut});

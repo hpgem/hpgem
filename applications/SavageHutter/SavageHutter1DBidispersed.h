@@ -71,10 +71,13 @@ private:
     double computeFrictionExponentialBidispersed(const LinearAlgebra::MiddleSizeVector &numericalSolution);
 
     void tasksAfterTimeStep() override final;
+
+    void tasksAfterSolving() override final;
     
     ///shape factor of the velocity of the flow, 0<=alpha_<=1 . 
     ///This is a different alpha_ than in the basic application!
     double alpha_;
+    std::vector<double> maximumHeights_;
 };
 #endif	/* SAVAGEHUTTER1DBIDSIPERSED_H */
 

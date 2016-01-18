@@ -26,6 +26,8 @@
 void BidispersedLimiter::limit(Base::Element* element, LinearAlgebra::MiddleSizeVector& solutionCoefficients)
 {
     limitHeight(element, solutionCoefficients);
+    //limitSmallHeight(element, solutionCoefficients);
+    
     const LinearAlgebra::MiddleSizeVector averages = Helpers::computeAverageOfSolution(element, solutionCoefficients, elementIntegrator_);
     if (averages(0) + minH_ < averages(2))
     {
@@ -39,6 +41,7 @@ void BidispersedLimiter::limit(Base::Element* element, LinearAlgebra::MiddleSize
     {
         squeezeSmallHeight(element, solutionCoefficients);
     }
+    
 }
 
 void BidispersedLimiter::limitHeight(Base::Element* element, LinearAlgebra::MiddleSizeVector& solutionCoefficients)
@@ -108,4 +111,36 @@ double BidispersedLimiter::findSqueezeFactorSmallHeight(Base::Element* element, 
     //for now, just set the smallHeight to its average. This has to be solved in the future.
     //we want to fit the smallHeight between 0 and height, but I'm currently not sure how to do that or if it's even possible in the general case.
     return 0;
+}
+
+void BidispersedLimiter::limitSmallHeight(Base::Element* element, LinearAlgebra::MiddleSizeVector& solutionCoefficients)
+{
+    const double averageSmallHeight = Helpers::computeAverageOfSolution<1>(element, solutionCoefficients, elementIntegrator_)(2);
+    LinearAlgebra::MiddleSizeVector heightCoefficients;
+    if (averageSmallHeight < -minH_)
+    {
+        setSmallHeightToZero(element, solutionCoefficients);
+    }
+    else
+    {
+        const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0);
+        const double solutionLeft = element->getSolution(0, pRefL)(2);
+        const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
+        const double solutionRight = element->getSolution(0, pRefR)(2);
+
+        double slopeSmallHeight = std::min((solutionLeft + solutionRight) / 2, averageSmallHeight);
+
+        if (solutionRight < solutionLeft)
+        {
+            slopeSmallHeight *= -1;
+        }
+        std::function<double(const PointReferenceT&) > heightFun = [ = ] (const PointReferenceT & pRef){return averageSmallHeight + slopeSmallHeight * pRef[0];};
+        heightCoefficients = Helpers::projectOnBasisFuns<1>(element, heightFun, elementIntegrator_);
+        logger(DEBUG, "averages: %", Helpers::computeAverageOfSolution<1>(element, solutionCoefficients, elementIntegrator_));
+        for (std::size_t iFun = 0; iFun < element->getNumberOfBasisFunctions(); ++iFun)
+        {
+            std::size_t iVF = element->convertToSingleIndex(iFun, 2);
+            solutionCoefficients[iVF] = heightCoefficients[iFun];
+        }
+    }
 }

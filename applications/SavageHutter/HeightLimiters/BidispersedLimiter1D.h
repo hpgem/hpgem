@@ -38,6 +38,7 @@ public:
     void limit(Base::Element *element, LinearAlgebra::MiddleSizeVector &solutionCoeffiecients);
 private:
     void limitHeight(Base::Element *element, LinearAlgebra::MiddleSizeVector &solutionCoefficients);
+    void limitSmallHeight(Base::Element *element, LinearAlgebra::MiddleSizeVector &solutionCoefficients);
     void setSmallHeigthToHeight(Base::Element *element, LinearAlgebra::MiddleSizeVector &solutionCoefficients);
     void setSmallHeightToZero(Base::Element *element, LinearAlgebra::MiddleSizeVector &solutionCoefficients);
     void squeezeSmallHeight(Base::Element *element, LinearAlgebra::MiddleSizeVector &solutionCoefficients);

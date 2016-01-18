@@ -19,11 +19,8 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <fstream>
 #include "SavageHutter1DBidispersed.h"
-#include "HelperFunctions.h"
-#include "HeightLimiters/PositiveLayerLimiter.h"
-#include "SlopeLimiters/TvbLimiter1D.h"
-#include "SlopeLimiters/TvbLimiterWithDetector1D.h"
 #include "HeightLimiters/BidispersedLimiter1D.h"
 
 ///\details In this constructor, some of the parameters for the problem are set.
@@ -33,14 +30,15 @@ SavageHutter1DBidispersed::SavageHutter1DBidispersed(std::size_t polyOrder, std:
 : SavageHutter1DBase(3, polyOrder)
 {
     alpha_ = 0.5;
-    chuteAngle_ = M_PI / 180 *32.1284;
-    epsilon_ = .2;
+    chuteAngle_ = M_PI / 180 *30.0918;
+    epsilon_ = 1;
     const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
     inflowBC_ = getInitialSolution(pPhys, 0);    
     dryLimit_ = 1e-5;
+    maximumHeights_.push_back(0);
     
     std::vector<std::string> variableNames = {"h", "hu", "eta"};
-    setOutputNames("output1D", "SavageHutter", "SavageHutter", variableNames);
+    setOutputNames("output1DBidispersed", "SavageHutter", "SavageHutter", variableNames);
     
     createMesh(numberOfElements, Base::MeshType::RECTANGULAR);
 }
@@ -54,7 +52,7 @@ SavageHutter1DBidispersed::SavageHutter1DBidispersed(std::size_t polyOrder, std:
 ///faces. 
 Base::RectangularMeshDescriptor<1> SavageHutter1DBidispersed::createMeshDescription(const std::size_t numOfElementsPerDirection)
 {
-    const double endOfDomain = 200;
+    const double endOfDomain = 500;
     const Base::BoundaryType boundary = Base::BoundaryType::SOLID_WALL;
     return SavageHutter1DBase::createMeshDescription(numOfElementsPerDirection, endOfDomain, boundary);
 }
@@ -71,9 +69,9 @@ Base::RectangularMeshDescriptor<1> SavageHutter1DBidispersed::createMeshDescript
 
 void SavageHutter1DBidispersed::setInflowBC(double time)
 {
-    const double inflowTurnOnRate = 2;
-    const double hIn = 1 - std::exp(-inflowTurnOnRate * time);
-    const double uIn = .5;
+    const double inflowTurnOnRate = 1;
+    const double hIn = .5*(1 - std::exp(-inflowTurnOnRate * time));
+    const double uIn = .75;
     const double phiIn = .5;
     inflowBC_ = LinearAlgebra::MiddleSizeVector({hIn, hIn * uIn, hIn * phiIn});
 }
@@ -116,6 +114,13 @@ void SavageHutter1DBidispersed::registerVTKWriteFunctions()
             return std::real(element->getSolution(timeLevel, pRef)[2] / element->getSolution(timeLevel, pRef)[0]);
         return 0;
     }, "phi");
+
+    registerVTKWriteFunction([ = ](Base::Element* element, const Geometry::PointReference<1>& pRef, std::size_t timeLevel) -> double
+                             {
+                                 if (element->getSolution(timeLevel, pRef)[0] > 1e-5)
+                                     return std::real(element->getSolution(timeLevel, pRef)[1] / element->getSolution(timeLevel, pRef)[0]);
+                                 return 0;
+                             }, "u");
 }
 
 ///\details Compute the source term of the 1D shallow granular flow system, namely
@@ -145,7 +150,7 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DBidispersed::computeSourceTerm(con
 ///\details Compute the function f(h,hu) = {hu,  hu^2 + h^2/2 \epsilon \cos \theta, eta*u - (1-alpha)*eta*u*(1-eta/h)}
 LinearAlgebra::MiddleSizeVector SavageHutter1DBidispersed::computePhysicalFlux(const MiddleSizeVector &numericalSolution, const PointPhysicalT& pPhys)
 {
-    double h = numericalSolution(0);
+    const double h = numericalSolution(0);
     logger.assert(h > -1e-16, "Negative height (%)", h);
     const double hu = numericalSolution(1);
     const double smallHeight = numericalSolution(2);
@@ -203,6 +208,18 @@ void SavageHutter1DBidispersed::tasksAfterTimeStep()
         heightLimiter_->limit(element, solutionCoefficients);
     }
     this->synchronize(0);
+    double maximum = std::max(inflowBC_[0], maximumHeights_.back());
+    const auto &elementsList = meshes_[0]->getElementsList(Base::IteratorType::GLOBAL);
+    for (Base::Element* element : elementsList)
+    {
+        const PointReferenceT &pRef = element->getReferenceGeometry()->getCenter();
+        const double heightHere = element->getSolution(0,pRef)[0];
+        if ( heightHere> maximum)
+        {
+            maximum = heightHere;
+        }
+    }
+    maximumHeights_.push_back(maximum);
 }
 
 double SavageHutter1DBidispersed::computeFrictionExponentialBidispersed(const LinearAlgebra::MiddleSizeVector& numericalSolution)
@@ -222,4 +239,14 @@ double SavageHutter1DBidispersed::computeFrictionExponentialBidispersed(const Li
     const double frictionLarge = std::tan(delta1Large) + (std::tan(delta2Large) - std::tan(delta1Large))*std::exp(-std::pow(epsilon_ * h,(1.5))/u);
     
     return phi * frictionSmall + (1-phi) * frictionLarge;
+}
+
+void SavageHutter1DBidispersed::tasksAfterSolving()
+{
+    HpgemAPISimplified::tasksAfterSolving();
+    std::ofstream os("maximumHeights");
+    for (double d : maximumHeights_)
+    {
+        os << d << std::endl;
+    }
 }
