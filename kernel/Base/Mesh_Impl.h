@@ -127,24 +127,29 @@ namespace Base
     template<std::size_t DIM>
     Element* Mesh<DIM>::addElement(const std::vector<std::size_t>& globalNodeIndexes)
     {
-        elements_.addRootEntry(ElementFactory::instance().makeElement(globalNodeIndexes, nodeCoordinates_, elementCounter_));
+        Element* newElement = ElementFactory::instance().makeElement(globalNodeIndexes, nodeCoordinates_, elementCounter_);
+        elements_.addRootEntry(newElement);
         ++elementCounter_;
         hasToSplit_ = true;
-        return *(--elements_.end());
+        newElement->setPositionInTree((--elements_.end()).getTreeEntry());
+        return newElement;
     }
 
     template<std::size_t DIM>
     bool Mesh<DIM>::addFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo, Element* rightElementPtr, std::size_t rightElementLocalFaceNo, const Geometry::FaceType& faceType)
     {
+        Face* newFace = nullptr;
         logger.assert(leftElementPtr!=nullptr, "Invalid element passed");
         if (rightElementPtr == nullptr)
         {
-            faces_.addRootEntry(FaceFactory::instance().makeFace(leftElementPtr, leftElementLocalFaceNo, faceType, faceCounter_));
+            newFace = FaceFactory::instance().makeFace(leftElementPtr, leftElementLocalFaceNo, faceType, faceCounter_);
         }
         else
         {
-            faces_.addRootEntry(FaceFactory::instance().makeFace(leftElementPtr, leftElementLocalFaceNo, rightElementPtr, rightElementLocalFaceNo, faceCounter_));
+            newFace = FaceFactory::instance().makeFace(leftElementPtr, leftElementLocalFaceNo, rightElementPtr, rightElementLocalFaceNo, faceCounter_);
         }
+        faces_.addRootEntry(newFace);
+        newFace->setPositionInTree((--faces_.end()).getTreeEntry());
         ++faceCounter_;
         hasToSplit_ = true;
         return true;
@@ -153,7 +158,9 @@ namespace Base
     template<std::size_t DIM>
     void Mesh<DIM>::addEdge()
     {
-        edges_.addRootEntry(new Edge(edgeCounter_));
+        Edge* newEdge = new Edge(edgeCounter_);
+        edges_.addRootEntry(newEdge);
+        newEdge->setPositionInTree((--edges_.end()).getTreeEntry());
         ++edgeCounter_;
         hasToSplit_ = true;
     }

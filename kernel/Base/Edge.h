@@ -26,6 +26,7 @@
 #include <cstdlib>
 
 #include "Logger.h"
+#include "TreeEntry.h"
 
 namespace Base
 {
@@ -110,12 +111,22 @@ namespace Base
         {
             numberOfConformingDOFOnTheEdge_ = number;
         }
-        
+
+        void setPositionInTree(const TreeEntry<Edge*>* position) {
+            logger.assert(position->getData() == this, "Trying to set the position of another edge as this edge");
+            positionInTheTree_ = position;
+        }
+
+        const TreeEntry<Edge*>* getPositionInTree() const {
+            return positionInTheTree_;
+        }
     private:
 
         std::vector<Element*> elements_;
         std::vector<std::size_t> localEdgeNumbers_;
         std::vector<std::size_t> orientation_;
+
+        const TreeEntry<Edge*>* positionInTheTree_;
 
         std::size_t numberOfConformingDOFOnTheEdge_;
         std::size_t ID_;

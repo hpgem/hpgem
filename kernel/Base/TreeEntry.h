@@ -32,6 +32,40 @@ namespace Base
         SINGLELEVEL, ALLLEVEL, PREORDER, POSTORDER
     };
 
+    /**
+     * small wrapper to iterate over vectors of pointers where you shouldn't modify whatever is in the pointer
+     */
+    template<typename T>
+    class ConstIterableWrapper {
+    public:
+        ConstIterableWrapper(const std::vector<T*>& data)
+            : data(data)
+        {
+        }
+
+        typename std::vector<const T*>::const_iterator begin()
+        {
+            return data.begin();
+        }
+
+        typename std::vector<const T*>::const_iterator end()
+        {
+            return data.end();
+        }
+    private:
+        const std::vector<T*> data;
+    };
+
+    template<typename T>
+    struct PointerToConst {
+        using type = const T;
+    };
+
+    template<typename T>
+    struct PointerToConst<T*> {
+        using type = const typename PointerToConst<T>::type*;
+    };
+
     template<typename V, bool isConst>
     class TreeIterator;
     
@@ -63,6 +97,11 @@ namespace Base
             return data_;
         }
         
+        typename PointerToConst<V>::type getData() const
+        {
+            return data_;
+        }
+
         operator V()
         {
             return data_;
@@ -148,6 +187,12 @@ namespace Base
             return *siblings_;
         }
 
+        //! get the current number of siblings
+        ConstIterableWrapper<TreeEntry> getSiblings() const
+        {
+            return ConstIterableWrapper<TreeEntry>(*siblings_);
+        }
+
         //! true if this element is at the beginning of the list of siblings
         bool isFirstSibling() const
         {
@@ -169,7 +214,15 @@ namespace Base
         }
 
         //! get the entry that has this entry as one of its children
-        TreeEntry* getParent() const
+        TreeEntry* getParent()
+        {
+            logger.assert(!this->isRoot(), "root has no parents");
+            logger.assert(parent_ != nullptr, "no parent has been set for this entry");
+            return parent_;
+        }
+
+        //! get the entry that has this entry as one of its children
+        const TreeEntry* getParent() const
         {
             logger.assert(!this->isRoot(), "root has no parents");
             logger.assert(parent_ != nullptr, "no parent has been set for this entry");
@@ -183,21 +236,52 @@ namespace Base
         }
 
         //! get the child at the specified position in the list
-        TreeEntry* getChild(std::size_t childIndex) const
+        TreeEntry* getChild(std::size_t childIndex)
         {
             logger.assert(childIndex < children_.size(), "asked for the %th child, but there are only % children", childIndex, children_.size());
             return children_[childIndex];
         }
 
+        //! get the child at the specified position in the list
+        const TreeEntry* getChild(std::size_t childIndex) const
+        {
+            logger.assert(childIndex < children_.size(), "asked for the %th child, but there are only % children", childIndex, children_.size());
+            return children_[childIndex];
+        }
+
+        std::vector<TreeEntry*>& getChildren()
+        {
+            return children_;
+        }
+
+        ConstIterableWrapper<TreeEntry> getChildren() const
+        {
+            return ConstIterableWrapper<TreeEntry>(children_);
+        }
+
         //! get the child at index 0
-        TreeEntry* getFirstChild() const
+        TreeEntry* getFirstChild()
+        {
+            logger.assert(children_.size() > 0, "cannot get to the children of a leaf");
+            return children_.front();
+        }
+
+        //! get the child at index 0
+        const TreeEntry* getFirstChild() const
         {
             logger.assert(children_.size() > 0, "cannot get to the children of a leaf");
             return children_.front();
         }
 
         //! get the child at the end of the list
-        TreeEntry* getLastChild() const
+        TreeEntry* getLastChild()
+        {
+            logger.assert(children_.size() > 0, "cannot get to the children of a leaf");
+            return children_.back();
+        }
+
+        //! get the child at the end of the list
+        const TreeEntry* getLastChild() const
         {
             logger.assert(children_.size() > 0, "cannot get to the children of a leaf");
             return children_.back();
