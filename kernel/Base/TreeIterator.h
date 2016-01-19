@@ -147,6 +147,14 @@ namespace Base
             return *this;
         }
 
+        //NEVER write a non-const version of this routine. (non-const) Tree-entry allows you to do
+        //nasty things with your tree, such as create cycles or break parent/child symmetry
+        const TreeEntry<V>* getTreeEntry() const
+        {
+            logger.assert(ptr_ != end_, "cannot read from past-the-end position");
+            return *ptr_;
+        }
+
         reference operator*()
         {
             logger.assert(ptr_ != end_, "cannot read from past-the-end position");
@@ -156,7 +164,7 @@ namespace Base
         pointer operator->() const
         {
             logger.assert(ptr_ != end_, "cannot read from past-the-end position");
-            return &(**ptr_).getData();
+            return &(*ptr_)->getData();
         }
 
         TreeIterator& operator++()

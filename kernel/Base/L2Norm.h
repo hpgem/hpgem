@@ -34,7 +34,7 @@ namespace LinearAlgebra
 namespace Geometry
 {
     template<std::size_t DIM>
-    class PointPhysical;
+    class Point;
 }
 
 namespace Base
@@ -49,7 +49,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    double L2Norm(const Geometry::PointPhysical<DIM>& v)
+    double L2Norm(const Geometry::Point<DIM>& v)
     {
         double retSquared(0);
         for (std::size_t i = 0; i < v.size(); ++i)

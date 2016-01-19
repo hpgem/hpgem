@@ -27,6 +27,7 @@
 #include "Geometry/ElementGeometry.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "BasisFunctionSet.h"
+#include "TreeEntry.h"
 
 //#include "PhysGradientOfBasisFunction.h"//included after class definition due to cross dependencies (needed for templated function definition)
 //#include "PhysicalElement.h"//included after class definition due to cross dependencies (needed for templated function definition)
@@ -231,6 +232,15 @@ namespace Base
         const Base::BaseBasisFunction* getBasisFunction(std::size_t i) const;
 #endif
 
+        void setPositionInTree(const TreeEntry<Element*>* position) {
+            logger.assert(position->getData() == this, "Trying to set the position of another element as this element");
+            positionInTheTree_ = position;
+        }
+
+        const TreeEntry<Element*>* getPositionInTree() const {
+            return positionInTheTree_;
+        }
+
         /// Output operator.        
         friend std::ostream& operator<<(std::ostream& os, const Element& element);
         
@@ -244,6 +254,8 @@ namespace Base
         /// Vector of basis function sets. Usually you only need one basis function set.
         const CollectionOfBasisFunctionSets *basisFunctionSet_;
         
+        const TreeEntry<Element*>* positionInTheTree_;
+
         /// Identifier (index) of the element.
         std::size_t id_;
         

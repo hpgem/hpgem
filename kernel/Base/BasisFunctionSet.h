@@ -118,6 +118,7 @@ namespace Base
         return vecOfBasisFcn_[i]->eval(p);
     }
 
+    //DIM = 1 doesn't have e.g. evalDeriv2 so we have to manually implement the 4 special cases
     template<std::size_t DIM>
     double BasisFunctionSet::evalDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference<DIM>& p) const
     {

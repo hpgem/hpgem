@@ -28,6 +28,7 @@
 #include "Geometry/FaceGeometry.h"
 #include "Base/Element.h"
 #include "L2Norm.h"
+#include "TreeEntry.h"
 
 namespace QuadratureRules
 {
@@ -214,13 +215,23 @@ namespace Base
         
         /// \brief Convert the index of the basis (vector)function of the face (faceBasisFunctionId) to the index of the corresponding element basis (vector)function (elementBasisFunctionId).
         std::size_t getElementBasisFunctionId(std::size_t faceBasisFunctionId) const;
-        
+
+        void setPositionInTree(const TreeEntry<Face*>* position) {
+            logger.assert(position->getData() == this, "Trying to set the position of another face as this face");
+            positionInTheTree_ = position;
+        }
+
+        const TreeEntry<Face*>* getPositionInTree() const {
+            return positionInTheTree_;
+        }
     private:
         
 
         Element* elementLeft_;
         Element* elementRight_;
         const FaceQuadratureRule* quadratureRule_;
+
+        const TreeEntry<Face*>* positionInTheTree_;
 
         std::size_t numberOfConformingDOFOnTheFace_;
         std::size_t faceID_;

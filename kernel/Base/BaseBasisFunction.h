@@ -162,11 +162,16 @@ namespace Base
             return 0;
         }
 
+        virtual double evalDiv(const Geometry::PointReference<4>& p) const
+        {
+            logger(ERROR, "The divergence of a scalar valued basis function is not implemented. Perhaps you meant evalDeriv?");
+            return 0;
+        }
+
         virtual LinearAlgebra::SmallVector<1> evalDeriv(const Geometry::PointReference<1>& p) const;
         virtual LinearAlgebra::SmallVector<2> evalDeriv(const Geometry::PointReference<2>& p) const;
         virtual LinearAlgebra::SmallVector<3> evalDeriv(const Geometry::PointReference<3>& p) const;
         virtual LinearAlgebra::SmallVector<4> evalDeriv(const Geometry::PointReference<4>& p) const;
-        
     };
 
 }
