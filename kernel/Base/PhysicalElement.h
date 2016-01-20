@@ -174,10 +174,13 @@ namespace Base
         template <class Archive>
         void serialize(Archive &ar, const unsigned int version)
         {
-            ///\todo Since this class is a wrapper around an Element, only the transformation has to be saved. IFCD: However, I have no idea how to save it. It has no data.
-            ///If we just save transform_ with an empty serialize method in CoordinateTransformation, will it be okay?
-            ///Serializing transform_ leads to a "unregistered class - derived class not registered or exported" exception at the moment.
-            //ar & transform_;
+            ///Boost only allows to serialize types it knows about. Usually this is not a problem, but we have never written a subclass of
+            ///CoordinateTransformation before. It is also possible to register new types without writing them. If you want to use a new
+            ///coordinate transformation from the kernel with PhysicalElement you should also register it here. If you have an application-
+            ///specific coordinate transformation in your application, you should probably register it over there instead.
+            ///\todo think of a better solution
+            ar.template register_type<H1ConformingTransformation<DIM>>();
+            ar & transform_;
         }
 
     private:

@@ -25,6 +25,7 @@
 #include <cstdlib>
 #include "LinearAlgebra/SmallVector.h"
 #include "PhysicalElement.h"
+#include "SerializationInclude.h"
 
 namespace Base
 {
@@ -58,6 +59,12 @@ namespace Base
         double getIntegrandScaleFactor(PhysicalFace<DIM>& face) const override final
         {
             return face.getRelativeSurfaceArea();
+        }
+
+        template<typename Archive>
+        void serialize(Archive &ar, const unsigned int version)
+        {
+            ar & boost::serialization::base_object<CoordinateTransformation<DIM>>(*this);
         }
     };
 }
