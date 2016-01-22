@@ -23,12 +23,11 @@
 #define REFERENCETOREFERENCEM_H_
 
 #include "MappingInterface.h"
-#include "Geometry/PointReferenceFactory.h"
+#include "Geometry/PointReference.h"
 #include <map>
 
 namespace Geometry
 {
-    
     /*! \brief Intermediate ABC for reference space to reference space mappings.
 
      Mappings from and to reference space are used in two contexts:
@@ -49,34 +48,34 @@ namespace Geometry
     class MappingReferenceToReference : public MappingInterface<codim>
     {
     public:
-        virtual const PointReference<0 + codim>& transform(const Geometry::PointReference<0>&) const
+        virtual PointReference<0 + codim> transform(const Geometry::PointReference<0>&) const
         {
             logger(ERROR, "Passed a point of the wrong dimension");
-            return *PointReferenceFactory<0 + codim>::instance()->makePoint();
+            return PointReference<0 + codim>();
         }
 
-        virtual const PointReference<1 + codim>& transform(const Geometry::PointReference<1>&) const
+        virtual PointReference<1 + codim> transform(const Geometry::PointReference<1>&) const
         {
             logger(ERROR, "Passed a point of the wrong dimension");
-            return *PointReferenceFactory<1 + codim>::instance()->makePoint();
+            return PointReference<1 + codim>();
         }
 
-        virtual const PointReference<2 + codim>& transform(const Geometry::PointReference<2>&) const
+        virtual PointReference<2 + codim> transform(const Geometry::PointReference<2>&) const
         {
             logger(ERROR, "Passed a point of the wrong dimension");
-            return *PointReferenceFactory<2 + codim>::instance()->makePoint();
+            return PointReference<2 + codim>();
         }
 
-        virtual const PointReference<3 + codim>& transform(const Geometry::PointReference<3>&) const
+        virtual PointReference<3 + codim> transform(const Geometry::PointReference<3>&) const
         {
             logger(ERROR, "Passed a point of the wrong dimension");
-            return *PointReferenceFactory<3 + codim>::instance()->makePoint();
+            return PointReference<3 + codim>();
         }
 
-        virtual const PointReference<4 + codim>& transform(const Geometry::PointReference<4>&) const
+        virtual PointReference<4 + codim> transform(const Geometry::PointReference<4>&) const
         {
             logger(ERROR, "Passed a point of the wrong dimension");
-            return *PointReferenceFactory<4 + codim>::instance()->makePoint();
+            return PointReference<4 + codim>();
         }
 
     //protected:

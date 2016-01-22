@@ -24,6 +24,7 @@
 
 #include <cstdlib>
 #include "Logger.h"
+#include "Geometry/Jacobian.h"
 
 namespace Geometry
 {

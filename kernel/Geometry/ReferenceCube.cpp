@@ -40,15 +40,15 @@ namespace Geometry
     {
         name = "ReferenceCube";
         
-        points_[0] = PointReferenceFactory<3>::instance()->makePoint({-1., -1., -1.});
-        points_[1] = PointReferenceFactory<3>::instance()->makePoint({ 1., -1., -1.});
-        points_[2] = PointReferenceFactory<3>::instance()->makePoint({-1.,  1., -1.});
-        points_[3] = PointReferenceFactory<3>::instance()->makePoint({ 1.,  1., -1.});
-        points_[4] = PointReferenceFactory<3>::instance()->makePoint({-1., -1.,  1.});
-        points_[5] = PointReferenceFactory<3>::instance()->makePoint({ 1., -1.,  1.});
-        points_[6] = PointReferenceFactory<3>::instance()->makePoint({-1.,  1.,  1.});
-        points_[7] = PointReferenceFactory<3>::instance()->makePoint({ 1.,  1.,  1.});
-        center_ = PointReferenceFactory<3>::instance()->makePoint();
+        points_[0] = {-1., -1., -1.};
+        points_[1] = { 1., -1., -1.};
+        points_[2] = {-1.,  1., -1.};
+        points_[3] = { 1.,  1., -1.};
+        points_[4] = {-1., -1.,  1.};
+        points_[5] = { 1., -1.,  1.};
+        points_[6] = {-1.,  1.,  1.};
+        points_[7] = { 1.,  1.,  1.};
+        center_ = {0., 0., 0.};
         
         mappingsSquareToCube_[0] = &MappingToRefSquareToCube0::Instance();
         mappingsSquareToCube_[1] = &MappingToRefSquareToCube1::Instance();

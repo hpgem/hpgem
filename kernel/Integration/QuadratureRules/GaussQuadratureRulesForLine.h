@@ -54,7 +54,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[1];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<1>*> gp_;
+        std::vector<Geometry::PointReference<1>> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -82,7 +82,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[2];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<1>*> gp_;
+        std::vector<Geometry::PointReference<1>> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -110,7 +110,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[3];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<1>*> gp_;
+        std::vector<Geometry::PointReference<1>> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -138,7 +138,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[4];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<1>*> gp_;
+        std::vector<Geometry::PointReference<1>> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -166,7 +166,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[5];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<1>*> gp_;
+        std::vector<Geometry::PointReference<1>> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -194,7 +194,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[6];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<1>*> gp_;
+        std::vector<Geometry::PointReference<1>> gp_;
     };
 
 //---------------------------------------------------------------------------

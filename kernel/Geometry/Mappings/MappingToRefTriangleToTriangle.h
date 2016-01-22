@@ -53,7 +53,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefTriangleToTriangle0& Instance();
-        const PointReference<2>& transform(const Geometry::PointReference<2>& p1) const override final;
+        PointReference<2> transform(const Geometry::PointReference<2>& p1) const override final;
         Jacobian<2, 2> calcJacobian(const Geometry::PointReference<2>&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -70,7 +70,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefTriangleToTriangle1& Instance();
-        const PointReference<2>& transform(const Geometry::PointReference<2>& p1) const override final;
+        PointReference<2> transform(const Geometry::PointReference<2>& p1) const override final;
         Jacobian<2, 2> calcJacobian(const Geometry::PointReference<2>&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -87,7 +87,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefTriangleToTriangle2& Instance();
-        const PointReference<2>& transform(const Geometry::PointReference<2>& p1) const override final;
+        PointReference<2> transform(const Geometry::PointReference<2>& p1) const override final;
         Jacobian<2, 2> calcJacobian(const Geometry::PointReference<2>&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -104,7 +104,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefTriangleToTriangle3& Instance();
-        const PointReference<2>& transform(const Geometry::PointReference<2>& p1) const override final;
+        PointReference<2> transform(const Geometry::PointReference<2>& p1) const override final;
         Jacobian<2, 2> calcJacobian(const Geometry::PointReference<2>&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -121,7 +121,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefTriangleToTriangle4& Instance();
-        const PointReference<2>& transform(const Geometry::PointReference<2>& p1) const override final;
+        PointReference<2> transform(const Geometry::PointReference<2>& p1) const override final;
         Jacobian<2, 2> calcJacobian(const Geometry::PointReference<2>&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -138,7 +138,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefTriangleToTriangle5& Instance();
-        const PointReference<2>& transform(const Geometry::PointReference<2>& p1) const override final;
+        PointReference<2> transform(const Geometry::PointReference<2>& p1) const override final;
         Jacobian<2, 2> calcJacobian(const Geometry::PointReference<2>&) const override final;
         std::size_t getTargetDimension() const override final
         {

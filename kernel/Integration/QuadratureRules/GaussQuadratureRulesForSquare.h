@@ -60,7 +60,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[1];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<2>*> gp_;
+        std::vector<Geometry::PointReference<2>> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -94,7 +94,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[4];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<2>*> gp_;
+        std::vector<Geometry::PointReference<2>> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -128,7 +128,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[9];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<2>*> gp_;
+        std::vector<Geometry::PointReference<2>> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -162,7 +162,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[16];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<2>*> gp_;
+        std::vector<Geometry::PointReference<2>> gp_;
     };
 //---------------------------------------------------------------------------
     class C2_9_5 : public GaussQuadratureRule
@@ -195,7 +195,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[25];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<2>*> gp_;
+        std::vector<Geometry::PointReference<2>> gp_;
     };
 //---------------------------------------------------------------------------
     class C2_11_6 : public GaussQuadratureRule
@@ -228,7 +228,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[36];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<2>*> gp_;
+        std::vector<Geometry::PointReference<2>> gp_;
     };
 //---------------------------------------------------------------------------
 }// close namespace QuadratureRules

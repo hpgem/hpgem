@@ -61,7 +61,7 @@ int main()
     std::vector<Geometry::PointPhysical<1> > nodes1D;
     
     Geometry::PointPhysical<1> point1D, compare1D;
-    Geometry::Point<1> refPoint1D;
+    Geometry::PointReference<1> refPoint1D;
     
     pointIndexes.push_back(4);
     pointIndexes.push_back(6);
@@ -85,18 +85,18 @@ int main()
     
     for (refPoint1D[0] = -1.51; refPoint1D[0] < 1.51; refPoint1D[0] += 0.1)
     {
-        point1D = mapping1D.transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint1D));
-        logger.assert_always((rGeom.isInternalPoint(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint1D)) == isInternal1D(point1D)), "transform");
-        point1D = reinit1D.transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint1D));
-        logger.assert_always((rGeom.isInternalPoint(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint1D)) == isInternal1D(point1D)), "reinit");
+        point1D = mapping1D.transform((refPoint1D));
+        logger.assert_always((rGeom.isInternalPoint((refPoint1D)) == isInternal1D(point1D)), "transform");
+        point1D = reinit1D.transform((refPoint1D));
+        logger.assert_always((rGeom.isInternalPoint((refPoint1D)) == isInternal1D(point1D)), "reinit");
         
         refPoint1D[0] += -1.e-8;
-        compare1D = mapping1D.transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint1D));
+        compare1D = mapping1D.transform((refPoint1D));
         refPoint1D[0] += 2.e-8;
-        point1D = mapping1D.transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint1D));
+        point1D = mapping1D.transform((refPoint1D));
         
         refPoint1D[0] += -1e-8;
-        jac1D = mapping1D.calcJacobian(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint1D));
+        jac1D = mapping1D.calcJacobian((refPoint1D));
         logger.assert_always((std::abs(jac1D[0] - 5.e7 * (point1D[0] - compare1D[0])) < 1e-5), "jacobian"); //estimate is a bit rough, but should work for most mappings
     }
     
@@ -104,7 +104,7 @@ int main()
     {
         refPoint1D = rGeom.getReferenceNodeCoordinate(i);
         compare1D = pGeom.getLocalNodeCoordinates(i);
-        point1D = mapping1D.transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint1D));
+        point1D = mapping1D.transform((refPoint1D));
         logger.assert_always((std::abs(point1D[0] - compare1D[0]) < 1e-12), "transform");
     }
     
@@ -116,7 +116,7 @@ int main()
     std::vector<Geometry::PointPhysical<2> > nodes2D;
     
     Geometry::PointPhysical<2> point2D, compare2D;
-    Geometry::Point<2> refPoint2D;
+    Geometry::PointReference<2> refPoint2D;
     
     pointIndexes.push_back(12);
     pointIndexes.push_back(13);
@@ -150,28 +150,28 @@ int main()
     {
         for (refPoint2D[1] = -1.5188; refPoint2D[1] < 1.541; refPoint2D[1] += 0.2)
         {
-            point2D = mapping2D.transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint2D));
-            logger.assert_always(((rGeom2D.isInternalPoint(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint2D)) && isInternal2D(point2D)) || (!rGeom2D.isInternalPoint(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint2D)) && !isInternal2D(point2D))), "transform");
-            point2D = reinit2D.transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint2D));
-            logger.assert_always((rGeom2D.isInternalPoint(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint2D)) == isInternal2D(point2D)), "reinit");
+            point2D = mapping2D.transform((refPoint2D));
+            logger.assert_always(((rGeom2D.isInternalPoint((refPoint2D)) && isInternal2D(point2D)) || (!rGeom2D.isInternalPoint((refPoint2D)) && !isInternal2D(point2D))), "transform");
+            point2D = reinit2D.transform((refPoint2D));
+            logger.assert_always((rGeom2D.isInternalPoint((refPoint2D)) == isInternal2D(point2D)), "reinit");
             
             refPoint2D[0] += -1.e-8;
-            compare2D = mapping2D.transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint2D));
+            compare2D = mapping2D.transform((refPoint2D));
             refPoint2D[0] += 2.e-8;
-            point2D = mapping2D.transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint2D));
+            point2D = mapping2D.transform((refPoint2D));
             
             refPoint2D[0] += -1e-8;
-            jac2D = mapping2D.calcJacobian(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint2D));
+            jac2D = mapping2D.calcJacobian((refPoint2D));
             logger.assert_always((std::abs(jac2D[0] - 5.e7 * (point2D[0] - compare2D[0])) < 1e-5), "jacobian"); //estimate is a bit rough, but should work for most mappings
             logger.assert_always((std::abs(jac2D[1] - 5.e7 * (point2D[1] - compare2D[1])) < 1e-5), "jacobian"); //implementations are strongly recommended to be more accurate
                     
             refPoint2D[1] += -1.e-8;
-            compare2D = mapping2D.transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint2D));
+            compare2D = mapping2D.transform((refPoint2D));
             refPoint2D[1] += 2.e-8;
-            point2D = mapping2D.transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint2D));
+            point2D = mapping2D.transform((refPoint2D));
             
             refPoint2D[1] += -1e-8;
-            jac2D = mapping2D.calcJacobian(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint2D));
+            jac2D = mapping2D.calcJacobian((refPoint2D));
             logger.assert_always((std::abs(jac2D[2] - 5.e7 * (point2D[0] - compare2D[0])) < 1e-5), "jacobian");
             logger.assert_always((std::abs(jac2D[3] - 5.e7 * (point2D[1] - compare2D[1])) < 1e-5), "jacobian");
         }
@@ -181,7 +181,7 @@ int main()
     {
         refPoint2D = rGeom2D.getReferenceNodeCoordinate(i);
         compare2D = pGeom2D.getLocalNodeCoordinates(i);
-        point2D = mapping2D.transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint2D));
+        point2D = mapping2D.transform((refPoint2D));
         logger.assert_always((std::abs(point2D[0] - compare2D[0]) < 1e-12) && std::abs(point2D[1] - compare2D[1]) < 1e-12, "transform");
     }
     
@@ -193,7 +193,7 @@ int main()
     std::vector<Geometry::PointPhysical<3> > nodes3D;
     
     Geometry::PointPhysical<3> point3D, compare3D;
-    Geometry::Point<3> refPoint3D;
+    Geometry::PointReference<3> refPoint3D;
     
     pointIndexes.push_back(24);
     pointIndexes.push_back(27);
@@ -248,40 +248,40 @@ int main()
         {
             for (refPoint3D[2] = -1.5188; refPoint3D[2] < 1.541; refPoint3D[2] += 0.4)
             {
-                point3D = mapping3D.transform(*Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint3D));
-                logger.assert_always((rGeom3D.isInternalPoint(*Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint3D)) == isInternal3D(point3D)), "transform");
-                point3D = reinit3D.transform(*Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint3D));
-                logger.assert_always((rGeom3D.isInternalPoint(*Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint3D)) == isInternal3D(point3D)), "reinit");
+                point3D = mapping3D.transform((refPoint3D));
+                logger.assert_always((rGeom3D.isInternalPoint((refPoint3D)) == isInternal3D(point3D)), "transform");
+                point3D = reinit3D.transform((refPoint3D));
+                logger.assert_always((rGeom3D.isInternalPoint((refPoint3D)) == isInternal3D(point3D)), "reinit");
                 
                 refPoint3D[0] += -1.e-8;
-                compare3D = mapping3D.transform(*Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint3D));
+                compare3D = mapping3D.transform((refPoint3D));
                 refPoint3D[0] += 2.e-8;
-                point3D = mapping3D.transform(*Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint3D));
+                point3D = mapping3D.transform((refPoint3D));
                 
                 refPoint3D[0] += -1e-8;
-                jac3D = mapping3D.calcJacobian(*Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint3D));
+                jac3D = mapping3D.calcJacobian((refPoint3D));
                 logger.assert_always((std::abs(jac3D[0] - 5.e7 * (point3D[0] - compare3D[0])) < 1e-5), "jacobian"); //estimate is a bit rough, but should work for most mappings
                 logger.assert_always((std::abs(jac3D[1] - 5.e7 * (point3D[1] - compare3D[1])) < 1e-5), "jacobian"); //implementations are strongly recommended to be more accurate
                 logger.assert_always((std::abs(jac3D[2] - 5.e7 * (point3D[2] - compare3D[2])) < 1e-5), "jacobian");
                 
                 refPoint3D[1] += -1.e-8;
-                compare3D = mapping3D.transform(*Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint3D));
+                compare3D = mapping3D.transform((refPoint3D));
                 refPoint3D[1] += 2.e-8;
-                point3D = mapping3D.transform(*Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint3D));
+                point3D = mapping3D.transform((refPoint3D));
                 
                 refPoint3D[1] += -1e-8;
-                jac3D = mapping3D.calcJacobian(*Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint3D));
+                jac3D = mapping3D.calcJacobian((refPoint3D));
                 logger.assert_always((std::abs(jac3D[3] - 5.e7 * (point3D[0] - compare3D[0])) < 1e-5), "jacobian");
                 logger.assert_always((std::abs(jac3D[4] - 5.e7 * (point3D[1] - compare3D[1])) < 1e-5), "jacobian");
                 logger.assert_always((std::abs(jac3D[5] - 5.e7 * (point3D[2] - compare3D[2])) < 1e-5), "jacobian");
                 
                 refPoint3D[2] += -1.e-8;
-                compare3D = mapping3D.transform(*Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint3D));
+                compare3D = mapping3D.transform((refPoint3D));
                 refPoint3D[2] += 2.e-8;
-                point3D = mapping3D.transform(*Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint3D));
+                point3D = mapping3D.transform((refPoint3D));
                 
                 refPoint3D[2] += -1e-8;
-                jac3D = mapping3D.calcJacobian(*Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint3D));
+                jac3D = mapping3D.calcJacobian((refPoint3D));
                 logger.assert_always((std::abs(jac3D[6] - 5.e7 * (point3D[0] - compare3D[0])) < 1e-5), "jacobian");
                 logger.assert_always((std::abs(jac3D[7] - 5.e7 * (point3D[1] - compare3D[1])) < 1e-5), "jacobian");
                 logger.assert_always((std::abs(jac3D[8] - 5.e7 * (point3D[2] - compare3D[2])) < 1e-5), "jacobian");
@@ -293,7 +293,7 @@ int main()
     {
         refPoint3D = rGeom3D.getReferenceNodeCoordinate(i);
         compare3D = pGeom3D.getLocalNodeCoordinates(i);
-        point3D = mapping3D.transform(*Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint3D));
+        point3D = mapping3D.transform((refPoint3D));
         logger.assert_always((std::abs(point3D[0] - compare3D[0]) < 1e-12) && std::abs(point3D[1] - compare3D[1]) < 1e-12 && std::abs(point3D[2] - compare3D[2]) < 1e-12, "transform");
     }
     

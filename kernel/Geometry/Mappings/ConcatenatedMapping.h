@@ -55,10 +55,10 @@ namespace Geometry
         ConcatenatedMapping(const ConcatenatedMapping &other) = default;
                 
         //! Transformation is simply via the intermediate space.
-        const PointReference<1>& transform(const PointReference<0>& pIn) const override final;
-        const PointReference<2>& transform(const PointReference<1>& pIn) const override final;
-        const PointReference<3>& transform(const PointReference<2>& pIn) const override final;
-        const PointReference<4>& transform(const PointReference<3>& pIn) const override final;
+        PointReference<1> transform(const PointReference<0>& pIn) const override final;
+        PointReference<2> transform(const PointReference<1>& pIn) const override final;
+        PointReference<3> transform(const PointReference<2>& pIn) const override final;
+        PointReference<4> transform(const PointReference<3>& pIn) const override final;
 
         //! To compute the Jacobian, the two component ones have to multiplied.
         Jacobian<0, 1> calcJacobian(const PointReference<0>& p) const override final;
@@ -67,6 +67,11 @@ namespace Geometry
         Jacobian<3, 4> calcJacobian(const PointReference<3>& p) const override final;
 
         std::size_t getTargetDimension() const override final;
+
+        std::pair<const MappingReferenceToReference<0>*, const MappingReferenceToReference<1>*> getSubMaps() const
+        {
+            return {&map1_, &map2_};
+        }
 
     private:
         const MappingReferenceToReference<0>& map1_;

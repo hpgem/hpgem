@@ -32,7 +32,7 @@ namespace Integration
     //dim denotes the dimension of the ELEMENT here
     template<std::size_t DIM>
     template<typename ReturnTrait1>
-    ReturnTrait1 FaceIntegral<DIM>::integrate(const Base::Face* fa, FaceIntegrandBase<ReturnTrait1, DIM>* integrand, const QuadratureRules::GaussQuadratureRule* qdrRule)
+    ReturnTrait1 FaceIntegral<DIM>::integrate(const Base::Face* fa, FaceIntegrandBase<ReturnTrait1, DIM>* integrand, QuadratureRules::GaussQuadratureRule* qdrRule)
     {
         logger.assert(fa!=nullptr, "Invalid face detected");
         logger.assert(integrand!=nullptr, "Invalid integrand detected");
@@ -49,7 +49,7 @@ namespace Integration
     //dim denotes the dimension of the ELEMENT here
     template<std::size_t DIM>
     template<typename ReturnTrait1>
-    ReturnTrait1 FaceIntegral<DIM>::integrate(const Base::Face* fa, std::function<ReturnTrait1(Base::PhysicalFace<DIM>&)> integrandFunc, const QuadratureRules::GaussQuadratureRule* const qdrRule)
+    ReturnTrait1 FaceIntegral<DIM>::integrate(const Base::Face* fa, std::function<ReturnTrait1(Base::PhysicalFace<DIM>&)> integrandFunc, QuadratureRules::GaussQuadratureRule* qdrRule)
     {
         logger.assert(fa!=nullptr, "Invalid face detected");
         Base::PhysicalFace<DIM>* face_;
@@ -66,7 +66,7 @@ namespace Integration
         }
         face_->setFace(fa);
         //quadrature rule is allowed to be equal to nullptr!
-        const QuadratureRules::GaussQuadratureRule * const qdrRuleLoc = (qdrRule == nullptr ? fa->getGaussQuadratureRule() : qdrRule);
+        QuadratureRules::GaussQuadratureRule * qdrRuleLoc = (qdrRule == nullptr ? fa->getGaussQuadratureRule() : qdrRule);
         
         // check whether the GaussIntegrationRule is actually for the
         // Element's ReferenceGeometry
@@ -81,7 +81,8 @@ namespace Integration
         // Gauss quadrature point
         const Geometry::PointReference<DIM - 1>& p0 = qdrRuleLoc->getPoint(0);
         
-        face_->setPointReference(p0);
+        face_->setQuadratureRule(qdrRuleLoc);
+        //face_->setPointReference(p0);
         
         // first Gauss point;
         result = integrandFunc(*face_);
@@ -91,7 +92,8 @@ namespace Integration
         for (std::size_t i = 1; i < numberOfPoints; ++i)
         {
             const Geometry::PointReference<DIM - 1>& p = qdrRuleLoc->getPoint(i);
-            face_->setPointReference(p);
+            face_->setQuadraturePointIndex(i);
+            //face_->setPointReference(p);
             value = integrandFunc(*face_);
             
             //Y = alpha * X + Y
@@ -104,7 +106,7 @@ namespace Integration
     //dim denotes the dimension of the ELEMENT here
      template<std::size_t DIM>
      template<typename ReturnTrait1>
-     ReturnTrait1 FaceIntegral<DIM>::integratePair(const Base::Face* fa, std::function<ReturnTrait1(Base::PhysicalFace<DIM>&)> integrandFunc, const QuadratureRules::GaussQuadratureRule* const qdrRule)
+     ReturnTrait1 FaceIntegral<DIM>::integratePair(const Base::Face* fa, std::function<ReturnTrait1(Base::PhysicalFace<DIM>&)> integrandFunc, QuadratureRules::GaussQuadratureRule* qdrRule)
      {
          logger.assert(fa!=nullptr, "Invalid face detected");
          Base::PhysicalFace<DIM>* face_;
@@ -121,7 +123,7 @@ namespace Integration
          }
          face_->setFace(fa);
          //quadrature rule is allowed to be equal to nullptr!
-         const QuadratureRules::GaussQuadratureRule * const qdrRuleLoc = (qdrRule == nullptr ? fa->getGaussQuadratureRule() : qdrRule);
+         QuadratureRules::GaussQuadratureRule * qdrRuleLoc = (qdrRule == nullptr ? fa->getGaussQuadratureRule() : qdrRule);
 
          // check whether the GaussIntegrationRule is actually for the
          // Element's ReferenceGeometry
@@ -136,7 +138,8 @@ namespace Integration
          // Gauss quadrature point
          const Geometry::PointReference<DIM - 1>& p0 = qdrRuleLoc->getPoint(0);
 
-         face_->setPointReference(p0);
+         //face_->setPointReference(p0);
+         face_->setQuadratureRule(qdrRuleLoc);
 
          // first Gauss point;
          result = integrandFunc(*face_);
@@ -147,7 +150,8 @@ namespace Integration
          for (std::size_t i = 1; i < numberOfPoints; ++i)
          {
              const Geometry::PointReference<DIM - 1>& p = qdrRuleLoc->getPoint(i);
-             face_->setPointReference(p);
+             //face_->setPointReference(p);
+             face_->setQuadraturePointIndex(i);
              value = integrandFunc(*face_);
 
              //Y = alpha * X + Y

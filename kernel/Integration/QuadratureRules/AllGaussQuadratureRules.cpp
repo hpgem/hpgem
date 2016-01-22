@@ -103,11 +103,11 @@ namespace QuadratureRules
         return theInstance;
     }
     
-    void AllGaussQuadratureRules::addRule(const GaussQuadratureRule* rule)
+    void AllGaussQuadratureRules::addRule(GaussQuadratureRule* rule)
     {
         logger.assert(rule!=nullptr, "Invalid quadrature rule added");
-        std::vector<const GaussQuadratureRule*>& listForGeometry = listOfRules_[rule->forReferenceGeometry()];
-        std::vector<const GaussQuadratureRule*>::iterator it = listForGeometry.begin();
+        std::vector<GaussQuadratureRule*>& listForGeometry = listOfRules_[rule->forReferenceGeometry()];
+        std::vector<GaussQuadratureRule*>::iterator it = listForGeometry.begin();
         while (it != listForGeometry.end())
         {
             if ((*it)->order() < rule->order())
@@ -118,9 +118,9 @@ namespace QuadratureRules
         listForGeometry.insert(it, rule);
     }
     
-    const GaussQuadratureRule* AllGaussQuadratureRules::getRule(const Geometry::ReferenceGeometry* referenceGeometry, std::size_t order)
+    GaussQuadratureRule* AllGaussQuadratureRules::getRule(const Geometry::ReferenceGeometry* referenceGeometry, std::size_t order)
     {
-        for (const GaussQuadratureRule* rule : listOfRules_[referenceGeometry])
+        for (GaussQuadratureRule* rule : listOfRules_[referenceGeometry])
         {
             if (rule->order() >= order)
             {

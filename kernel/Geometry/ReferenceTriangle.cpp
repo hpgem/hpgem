@@ -58,10 +58,10 @@ namespace Geometry
         mappingsTriangleToTriangle_[4] = &MappingToRefTriangleToTriangle4::Instance(); // (x,y) -> (x,-y)
         mappingsTriangleToTriangle_[5] = &MappingToRefTriangleToTriangle5::Instance(); // (x,y) -> (-x,y)
         
-        points_[0] = PointReferenceFactory<2>::instance()->makePoint({0., 0.});
-        points_[1] = PointReferenceFactory<2>::instance()->makePoint({1., 0.});
-        points_[2] = PointReferenceFactory<2>::instance()->makePoint({0., 1.});
-        center_ = PointReferenceFactory<2>::instance()->makePoint({1./3., 1./3.});
+        points_[0] = {0., 0.};
+        points_[1] = {1., 0.};
+        points_[2] = {0., 1.};
+        center_ = {1./3., 1./3.};
     }
     
     bool ReferenceTriangle::isInternalPoint(const PointReference<2>& p) const

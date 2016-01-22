@@ -176,7 +176,7 @@ int main()
     LinearAlgebra::MiddleSizeVector testVector = elementRight.getTimeIntegrationVector(iVector);
     logger.assert_always(testVector == expansionCoefficients, "Expansion coefficients incorrect: % != %", testVector, expansionCoefficients);
     
-    const Geometry::PointReference<dimension>& pointReference = *Geometry::PointReferenceFactory<dimension>::instance()->makePoint(coords0);
+    const Geometry::PointReference<dimension>& pointReference{coords0};
     LinearAlgebra::MiddleSizeVector solutionVector = elementRight.getSolution(iVector, pointReference);
     for (iV = 0; iV < numberOfUnknowns; iV++)
     {

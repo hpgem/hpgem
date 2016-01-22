@@ -121,7 +121,7 @@ namespace Geometry
             return "Identity map";
         }
 
-        const PointReference<2>& refinementTransform(std::size_t subElementIndex, const PointReference<2>& p) const override final
+        PointReference<2> refinementTransform(std::size_t subElementIndex, const PointReference<2>& p) const override final
         {
             logger.assert(subElementIndex == 0, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             return p;
@@ -180,10 +180,10 @@ namespace Geometry
             return "split face 0";
         }
 
-        const PointReference<2>& refinementTransform(std::size_t subElementIndex, const PointReference<2>& p) const override final
+        PointReference<2> refinementTransform(std::size_t subElementIndex, const PointReference<2>& p) const override final
         {
             logger.assert(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
-            return *PointReferenceFactory<2>::instance()->makePoint({(p[0] + subElementIndex) / 2., p[1]});
+            return {(p[0] + subElementIndex) / 2., p[1]};
         }
 
         LinearAlgebra::SmallMatrix<2, 2> getRefinementMappingMatrixL(std::size_t subElementIndex, const PointReference<2>& p) const override final
@@ -246,10 +246,10 @@ namespace Geometry
             return "split face 1";
         }
 
-        const PointReference<2>& refinementTransform(std::size_t subElementIndex, const PointReference<2>& p) const override final
+        PointReference<2> refinementTransform(std::size_t subElementIndex, const PointReference<2>& p) const override final
         {
             logger.assert(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
-            return *PointReferenceFactory<2>::instance()->makePoint({p[0], (p[1] + subElementIndex) / 2.});
+            return {p[0], (p[1] + subElementIndex) / 2.};
         }
 
         LinearAlgebra::SmallMatrix<2, 2> getRefinementMappingMatrixL(std::size_t subElementIndex, const PointReference<2>& p) const override final
@@ -312,16 +312,16 @@ namespace Geometry
             return "split face 2";
         }
 
-        const PointReference<2>& refinementTransform(std::size_t subElementIndex, const PointReference<2>& p) const override final
+        PointReference<2> refinementTransform(std::size_t subElementIndex, const PointReference<2>& p) const override final
         {
             logger.assert(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             if(subElementIndex == 0)
             {
-                return *PointReferenceFactory<2>::instance()->makePoint({0.5 * p[0], 0.5 * p[0] + p[1]});
+                return {0.5 * p[0], 0.5 * p[0] + p[1]};
             }
             else
             {
-                return *PointReferenceFactory<2>::instance()->makePoint({p[0] + 0.5 * p[1], 0.5 * p[1]});
+                return {p[0] + 0.5 * p[1], 0.5 * p[1]};
             }
         }
 
@@ -401,18 +401,18 @@ namespace Geometry
             return "split all faces";
         }
 
-        const PointReference<2>& refinementTransform(std::size_t subElementIndex, const PointReference<2>& p) const override final
+        PointReference<2> refinementTransform(std::size_t subElementIndex, const PointReference<2>& p) const override final
         {
             switch(subElementIndex)
             {
             case 0:
-                return *PointReferenceFactory<2>::instance()->makePoint({0.5 * p[0], 0.5 * p[1]});
+                return {0.5 * p[0], 0.5 * p[1]};
             case 1:
-                return *PointReferenceFactory<2>::instance()->makePoint({0.5 + 0.5 * p[0], 0.5 * p[1]});
+                return {0.5 + 0.5 * p[0], 0.5 * p[1]};
             case 2:
-                return *PointReferenceFactory<2>::instance()->makePoint({0.5 * p[0], 0.5 + 0.5 * p[1]});
+                return {0.5 * p[0], 0.5 + 0.5 * p[1]};
             case 3:
-                return *PointReferenceFactory<2>::instance()->makePoint({0.5 - 0.5 * p[0], 0.5 - 0.5 * p[1]});
+                return {0.5 - 0.5 * p[0], 0.5 - 0.5 * p[1]};
             default:
                 logger(ERROR, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
                 return p;
@@ -515,16 +515,16 @@ namespace Geometry
             return "split to 3 quadrilaterals";
         }
 
-        const PointReference<2>& refinementTransform(std::size_t subElementIndex, const PointReference<2>& p) const override final
+        PointReference<2> refinementTransform(std::size_t subElementIndex, const PointReference<2>& p) const override final
         {
             switch(subElementIndex)
             {
             case 0:
-                return *PointReferenceFactory<2>::instance()->makePoint({(p[1] + 1.) * (5. + p[0]) / 24., (1. - p[0]) * (5. - p[1]) / 24.});
+                return {(p[1] + 1.) * (5. + p[0]) / 24., (1. - p[0]) * (5. - p[1]) / 24.};
             case 1:
-                return *PointReferenceFactory<2>::instance()->makePoint({((p[0] + 2.) * (2. - p[1]) + 3.) / 12., (p[1] + 1.) * (5. + p[0]) / 24.});
+                return {((p[0] + 2.) * (2. - p[1]) + 3.) / 12., (p[1] + 1.) * (5. + p[0]) / 24.};
             case 2:
-                return *PointReferenceFactory<2>::instance()->makePoint({(1. - p[0]) * (5. - p[1]) / 24., ((p[0] + 2.) * (2. - p[1]) + 3.) / 12.});
+                return {(1. - p[0]) * (5. - p[1]) / 24., ((p[0] + 2.) * (2. - p[1]) + 3.) / 12.};
             default:
                 logger(ERROR, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
                 return p;
@@ -615,14 +615,14 @@ namespace Geometry
             return "split to a triangle and a quadrilateral";
         }
 
-        const PointReference<2>& refinementTransform(std::size_t subElementIndex, const PointReference<2>& p) const override final
+        PointReference<2> refinementTransform(std::size_t subElementIndex, const PointReference<2>& p) const override final
         {
             switch(subElementIndex)
             {
             case 0:
-                return *PointReferenceFactory<2>::instance()->makePoint({(1. + p[0]) / 4., (p[1] + 1.) * (3. - p[0]) / 8.});
+                return {(1. + p[0]) / 4., (p[1] + 1.) * (3. - p[0]) / 8.};
             case 1:
-                return *PointReferenceFactory<2>::instance()->makePoint({(1. + p[0]) / 2., p[1] / 2.});
+                return {(1. + p[0]) / 2., p[1] / 2.};
             default:
                 logger(ERROR, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
                 return p;
@@ -706,14 +706,14 @@ namespace Geometry
             return "split to a triangle and a quadrilateral";
         }
 
-        const PointReference<2>& refinementTransform(std::size_t subElementIndex, const PointReference<2>& p) const override final
+        PointReference<2> refinementTransform(std::size_t subElementIndex, const PointReference<2>& p) const override final
         {
             switch(subElementIndex)
             {
             case 0:
-                return *PointReferenceFactory<2>::instance()->makePoint({(p[0] + 1.) * (3. - p[1]) / 8., (1. + p[1]) / 4.});
+                return {(p[0] + 1.) * (3. - p[1]) / 8., (1. + p[1]) / 4.};
             case 1:
-                return *PointReferenceFactory<2>::instance()->makePoint({p[0] / 2., (1 + p[1]) / 2.});
+                return {p[0] / 2., (1 + p[1]) / 2.};
             default:
                 logger(ERROR, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
                 return p;
@@ -797,14 +797,14 @@ namespace Geometry
             return "split to a triangle and a quadrilateral";
         }
 
-        const PointReference<2>& refinementTransform(std::size_t subElementIndex, const PointReference<2>& p) const override final
+        PointReference<2> refinementTransform(std::size_t subElementIndex, const PointReference<2>& p) const override final
         {
             switch(subElementIndex)
             {
             case 0:
-                return *PointReferenceFactory<2>::instance()->makePoint({p[0] / 2., p[1] / 2.});
+                return {p[0] / 2., p[1] / 2.};
             case 1:
-                return *PointReferenceFactory<2>::instance()->makePoint({(1. - p[1]) * (3. + p[0]) / 8., (1. + p[1]) * (3 + p[0]) / 8.});
+                return {(1. - p[1]) * (3. + p[0]) / 8., (1. + p[1]) * (3 + p[0]) / 8.};
             default:
                 logger(ERROR, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
                 return p;

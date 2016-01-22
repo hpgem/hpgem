@@ -35,6 +35,7 @@
 #include <vector>
 #include <iostream>
 #include <memory>
+#include <Integration/QuadratureRules/GaussQuadratureRule.h>
 
 namespace QuadratureRules
 {
@@ -91,7 +92,7 @@ namespace Base
         void setFaceBasisFunctionSet(std::size_t position, std::size_t localIndex);
 
         /// \brief Get a pointer to the quadrature rule used to do integration on this element.
-        const QuadratureRules::GaussQuadratureRule* getGaussQuadratureRule() const;
+        QuadratureRules::GaussQuadratureRule* getGaussQuadratureRule() const;
 
         std::vector<Base::ElementCacheData>& getVecCacheData();
 
@@ -99,9 +100,19 @@ namespace Base
         template<std::size_t DIM>
         double basisFunction(std::size_t i, const Geometry::PointReference<DIM>& p) const;
 
+        double basisFunction(std::size_t i, QuadratureRules::GaussQuadratureRule* quadratureRule, std::size_t quadraturePointIndex) const;
+
+        double basisFunction(std::size_t i, QuadratureRules::GaussQuadratureRule* quadratureRule, std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1> *map) const;
+
         /// \brief returns the value of the i-th basisfunction at point p in ret.
         template<std::size_t DIM>
         void basisFunction(std::size_t i, const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret) const;
+
+        template<std::size_t DIM>
+        void basisFunction(std::size_t i, QuadratureRules::GaussQuadratureRule* quadratureRule, std::size_t quadraturePointIndex, LinearAlgebra::SmallVector<DIM>& ret) const;
+
+        template<std::size_t DIM>
+        void basisFunction(std::size_t i, QuadratureRules::GaussQuadratureRule* quadratureRule, std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1> *map, LinearAlgebra::SmallVector<DIM>& ret) const;
 
         /// \brief Get the value of the derivative of the physical basisfunction (corresponding to index i) in the direction jDir at the physical point corresponding to reference point p.
         template<std::size_t DIM>
@@ -112,13 +123,29 @@ namespace Base
         template<std::size_t DIM>
         LinearAlgebra::SmallVector<DIM> basisFunctionDeriv(std::size_t i, const Geometry::PointReference<DIM>& p) const;
 
+        template<std::size_t DIM>
+        LinearAlgebra::SmallVector<DIM> basisFunctionDeriv(std::size_t i, QuadratureRules::GaussQuadratureRule* quadratureRule, std::size_t quadraturePointIndex) const;
+
+        template<std::size_t DIM>
+        LinearAlgebra::SmallVector<DIM> basisFunctionDeriv(std::size_t i, QuadratureRules::GaussQuadratureRule* quadratureRule, std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1> *map) const;
+
         /// \brief Returns the curl of the i-th basisfunction at point p in ret.
         template<std::size_t DIM>
         LinearAlgebra::SmallVector<DIM> basisFunctionCurl(std::size_t i, const Geometry::PointReference<DIM>& p) const;
 
+        template<std::size_t DIM>
+        LinearAlgebra::SmallVector<DIM> basisFunctionCurl(std::size_t i, QuadratureRules::GaussQuadratureRule* quadratureRule, std::size_t quadraturePointIndex) const;
+
+        template<std::size_t DIM>
+        LinearAlgebra::SmallVector<DIM> basisFunctionCurl(std::size_t i, QuadratureRules::GaussQuadratureRule* quadratureRule, std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1> *map) const;
+
         /// \brief Returns the divergence of the i-th basisfunction at point p in ret.
         template<std::size_t DIM>
         double basisFunctionDiv(std::size_t i, const Geometry::PointReference<DIM>& p) const;
+
+        double basisFunctionDiv(std::size_t i, QuadratureRules::GaussQuadratureRule* quadratureRule, std::size_t quadraturePointIndex) const;
+
+        double basisFunctionDiv(std::size_t i, QuadratureRules::GaussQuadratureRule* quadratureRule, std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1> *map) const;
 
         /// \brief Get the solution at the given timeLevel at the physical point corresponding to reference point p.
         /// \details This routine assumes the result of evaluating a basis function has to be transformed using the identity transformation
@@ -248,8 +275,10 @@ namespace Base
         ///Constructor that copies the data and geometry of the given ElementData and ElementGeometry.
         Element(const ElementData& otherData, const ElementGeometry& otherGeometry);
 
+        std::tuple<const BasisFunctionSet*, std::size_t> getBasisFunctionSetAndIndex(std::size_t index) const;
+
         /// Quadrature rule used to do the integration on this element.
-        const QuadratureRules::GaussQuadratureRule *quadratureRule_;
+        QuadratureRules::GaussQuadratureRule *quadratureRule_;
         
         /// Vector of basis function sets. Usually you only need one basis function set.
         const CollectionOfBasisFunctionSets *basisFunctionSet_;
@@ -333,143 +362,60 @@ namespace Base
         logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         logger.assert((jDir < p.size()), "Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
 
-        int basePosition(0);
-        for (int j : basisFunctionSetPositions_)
-        {
-            if (j != -1)
-            {
-                std::size_t n = basisFunctionSet_->at(j)->size();
-                if (i - basePosition < n)
-                {
-                    return basisFunctionSet_->at(j)->evalDeriv(i - basePosition, jDir, p);
-                }
-                else
-                {
-                    basePosition += n;
-                }
-            }
-        }
-        logger(ERROR, "This is not supposed to happen, please try again with assertions turned on");
-        return std::numeric_limits<double>::quiet_NaN();
+        const BasisFunctionSet *subSet;
+        std::size_t subIndex;
+        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        return subSet->evalDeriv(subIndex, jDir, p);
     }
 
     template<std::size_t DIM>
     double Element::basisFunction(std::size_t i, const Geometry::PointReference<DIM>& p) const
     {
         logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
-        const Base::BaseBasisFunction* function = nullptr;
-        for (int j : basisFunctionSetPositions_)
-        {
-            if (j != -1)
-            {
-                std::size_t n = basisFunctionSet_->at(j)->size();
-                if (i < n)
-                {
-                    function = basisFunctionSet_->at(j)->operator[](i);
-                    return p.getBasisFunctionValue(function);
-                }
-                else
-                {
-                    i -= n;
-                }
-            }
-        }
-        return p.getBasisFunctionValue(function);
+        const BasisFunctionSet *subSet;
+        std::size_t subIndex;
+        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        return subSet->eval(subIndex, p);
     }
 
     template<std::size_t DIM>
     void Element::basisFunction(std::size_t i, const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM>& ret) const
     {
         logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
-        int basePosition(0);
-        for (int j : basisFunctionSetPositions_)
-        {
-            if (j != -1)
-            {
-                std::size_t n = basisFunctionSet_->at(j)->size();
-                if (i - basePosition < n)
-                {
-                    basisFunctionSet_->at(j)->eval(i - basePosition, p, ret);
-                    return;
-                }
-                else
-                {
-                    basePosition += n;
-                }
-            }
-        }
+        const BasisFunctionSet *subSet;
+        std::size_t subIndex;
+        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        subSet->eval(subIndex, p, ret);
     }
 
     template<std::size_t DIM>
     LinearAlgebra::SmallVector<DIM> Element::basisFunctionCurl(std::size_t i, const Geometry::PointReference<DIM>& p) const
     {
         logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
-        int basePosition(0);
-        for (int j : basisFunctionSetPositions_)
-        {
-            if (j != -1)
-            {
-                std::size_t n = basisFunctionSet_->at(j)->size();
-                if (i - basePosition < n)
-                {
-                    return basisFunctionSet_->at(j)->evalCurl(i - basePosition, p);
-                }
-                else
-                {
-                    basePosition += n;
-                }
-            }
-        }
-        logger(ERROR, "This is not supposed to happen, please try again with assertions turned on");
-        return LinearAlgebra::SmallVector<DIM>();
+        const BasisFunctionSet *subSet;
+        std::size_t subIndex;
+        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        return subSet->evalCurl(subIndex, p);
     }
 
     template<std::size_t DIM>
     double Element::basisFunctionDiv(std::size_t i, const Geometry::PointReference<DIM>& p) const
     {
         logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
-        int basePosition(0);
-        for (int j : basisFunctionSetPositions_)
-        {
-            if (j != -1)
-            {
-                std::size_t n = basisFunctionSet_->at(j)->size();
-                if (i - basePosition < n)
-                {
-                    return basisFunctionSet_->at(j)->evalDiv(i - basePosition, p);
-                }
-                else
-                {
-                    basePosition += n;
-                }
-            }
-        }
-        logger(ERROR, "This is not supposed to happen, please try again with assertions turned on");
-        return 0;
+        const BasisFunctionSet *subSet;
+        std::size_t subIndex;
+        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        return subSet->evalDiv(subIndex, p);
     }
 
     template<std::size_t DIM>
     LinearAlgebra::SmallVector<DIM> Element::basisFunctionDeriv(std::size_t i, const Geometry::PointReference<DIM>& p) const
     {
         logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
-        int basePosition(0);
-        for (int j : basisFunctionSetPositions_)
-        {
-            if (j != -1)
-            {
-                std::size_t n = basisFunctionSet_->at(j)->size();
-                if (i - basePosition < n)
-                {
-                    return (*basisFunctionSet_->at(j))[i - basePosition]->evalDeriv(p);
-                }
-                else
-                {
-                    basePosition += n;
-                }
-            }
-        }
-        logger(ERROR, "It should not be possible to reach this line");
-        return LinearAlgebra::SmallVector<DIM>();
+        const BasisFunctionSet *subSet;
+        std::size_t subIndex;
+        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        return subSet->evalDeriv(subIndex, p);
     }
 
     template<std::size_t DIM>
@@ -556,6 +502,76 @@ namespace Base
             }
         }
         return solution;
+    }
+
+    template<std::size_t DIM>
+    void Element::basisFunction(std::size_t i, QuadratureRules::GaussQuadratureRule *quadratureRule,
+                                std::size_t quadraturePointIndex, LinearAlgebra::SmallVector<DIM> &ret) const
+    {
+        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
+        const BasisFunctionSet *subSet;
+        std::size_t subIndex;
+        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        quadratureRule->eval(subSet, subIndex, quadraturePointIndex, ret);
+    }
+
+    template<std::size_t DIM>
+    LinearAlgebra::SmallVector<DIM> Element::basisFunctionDeriv(std::size_t i,
+                                                                QuadratureRules::GaussQuadratureRule *quadratureRule,
+                                                                std::size_t quadraturePointIndex) const
+    {
+        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
+        const BasisFunctionSet *subSet;
+        std::size_t subIndex;
+        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        return quadratureRule->evalGrad(subSet, subIndex, quadraturePointIndex);
+    }
+
+    template<std::size_t DIM>
+    LinearAlgebra::SmallVector<DIM> Element::basisFunctionCurl(std::size_t i,
+                                                               QuadratureRules::GaussQuadratureRule *quadratureRule,
+                                                               std::size_t quadraturePointIndex) const
+    {
+        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
+        const BasisFunctionSet *subSet;
+        std::size_t subIndex;
+        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        return subSet->evalCurl<DIM>(subIndex, quadratureRule, quadraturePointIndex);
+    }
+
+    template<std::size_t DIM>
+    void Element::basisFunction(std::size_t i, QuadratureRules::GaussQuadratureRule *quadratureRule,
+                                std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1> *map, LinearAlgebra::SmallVector<DIM> &ret) const
+    {
+        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
+        const BasisFunctionSet *subSet;
+        std::size_t subIndex;
+        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        quadratureRule->eval(subSet, subIndex, quadraturePointIndex, map, ret);
+    }
+
+    template<std::size_t DIM>
+    LinearAlgebra::SmallVector<DIM> Element::basisFunctionDeriv(std::size_t i,
+                                                                QuadratureRules::GaussQuadratureRule *quadratureRule,
+                                                                std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1> *map) const
+    {
+        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
+        const BasisFunctionSet *subSet;
+        std::size_t subIndex;
+        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        return quadratureRule->evalGrad(subSet, subIndex, quadraturePointIndex, map);
+    }
+
+    template<std::size_t DIM>
+    LinearAlgebra::SmallVector<DIM> Element::basisFunctionCurl(std::size_t i,
+                                                               QuadratureRules::GaussQuadratureRule *quadratureRule,
+                                                               std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1> *map) const
+    {
+        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
+        const BasisFunctionSet *subSet;
+        std::size_t subIndex;
+        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        return subSet->evalCurl<DIM>(subIndex, quadratureRule, quadraturePointIndex, map);
     }
 }
 

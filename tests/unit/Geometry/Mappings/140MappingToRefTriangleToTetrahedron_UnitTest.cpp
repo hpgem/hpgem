@@ -34,8 +34,8 @@
 int main()
 {
     
-    Geometry::Point<2> refPoint;
-    Geometry::Point<3> point, compare;
+    Geometry::PointReference<2> refPoint;
+    Geometry::PointReference<3> point, compare;
     
     Geometry::ReferenceTetrahedron& eGeom = Geometry::ReferenceTetrahedron::Instance();
     Geometry::ReferenceTriangle& fGeom = Geometry::ReferenceTriangle::Instance();
@@ -53,27 +53,27 @@ int main()
     {
         for (refPoint[1] = -1.51; refPoint[1] < 1.51; refPoint[1] += 0.2)
         {
-            point = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
-            logger.assert_always((fGeom.isInternalPoint(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint)) == eGeom.isInternalPoint(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point))), "transform");
+            point = test->transform((refPoint));
+            logger.assert_always((fGeom.isInternalPoint((refPoint)) == eGeom.isInternalPoint((point))), "transform");
             
             refPoint[0] += -1.e-8;
-            compare = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+            compare = test->transform((refPoint));
             refPoint[0] += 2.e-8;
-            point = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+            point = test->transform((refPoint));
             
             refPoint[0] += -1e-8;
-            jac = test->calcJacobian(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+            jac = test->calcJacobian((refPoint));
             logger.assert_always((std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) < 1e-5), "jacobian"); //estimate is a bit rough, but should work for most mappings
             logger.assert_always((std::abs(jac[1] - 5.e7 * (point[1] - compare[1])) < 1e-5), "jacobian"); //implementations are very strongly recommended to be more accurate
             logger.assert_always((std::abs(jac[2] - 5.e7 * (point[2] - compare[2])) < 1e-5), "jacobian");
             
             refPoint[1] += -1.e-8;
-            compare = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+            compare = test->transform((refPoint));
             refPoint[1] += 2.e-8;
-            point = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+            point = test->transform((refPoint));
             
             refPoint[1] += -1e-8;
-            jac = test->calcJacobian(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+            jac = test->calcJacobian((refPoint));
             logger.assert_always((std::abs(jac[3] - 5.e7 * (point[0] - compare[0])) < 1e-5), "jacobian");
             logger.assert_always((std::abs(jac[4] - 5.e7 * (point[1] - compare[1])) < 1e-5), "jacobian");
             logger.assert_always((std::abs(jac[5] - 5.e7 * (point[2] - compare[2])) < 1e-5), "jacobian");
@@ -84,7 +84,7 @@ int main()
     {
         refPoint = fGeom.getReferenceNodeCoordinate(i);
         compare = eGeom.getReferenceNodeCoordinate(nodesAfterTransformation[i]);
-        point = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+        point = test->transform((refPoint));
         logger.assert_always((std::abs(point[0] - compare[0]) < 1e-12), "transform");
         logger.assert_always((std::abs(point[1] - compare[1]) < 1e-12), "transform");
         logger.assert_always((std::abs(point[2] - compare[2]) < 1e-12), "transform");
@@ -101,27 +101,27 @@ int main()
     {
         for (refPoint[1] = -1.51; refPoint[1] < 1.51; refPoint[1] += 0.2)
         {
-            point = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
-            logger.assert_always((fGeom.isInternalPoint(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint)) == eGeom.isInternalPoint(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point))), "transform");
+            point = test->transform((refPoint));
+            logger.assert_always((fGeom.isInternalPoint((refPoint)) == eGeom.isInternalPoint((point))), "transform");
             
             refPoint[0] += -1.e-8;
-            compare = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+            compare = test->transform((refPoint));
             refPoint[0] += 2.e-8;
-            point = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+            point = test->transform((refPoint));
             
             refPoint[0] += -1e-8;
-            jac = test->calcJacobian(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+            jac = test->calcJacobian((refPoint));
             logger.assert_always((std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) < 1e-5), "jacobian"); //estimate is a bit rough, but should work for most mappings
             logger.assert_always((std::abs(jac[1] - 5.e7 * (point[1] - compare[1])) < 1e-5), "jacobian"); //implementations are very strongly recommended to be more accurate
             logger.assert_always((std::abs(jac[2] - 5.e7 * (point[2] - compare[2])) < 1e-5), "jacobian");
             
             refPoint[1] += -1.e-8;
-            compare = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+            compare = test->transform((refPoint));
             refPoint[1] += 2.e-8;
-            point = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+            point = test->transform((refPoint));
             
             refPoint[1] += -1e-8;
-            jac = test->calcJacobian(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+            jac = test->calcJacobian((refPoint));
             logger.assert_always((std::abs(jac[3] - 5.e7 * (point[0] - compare[0])) < 1e-5), "jacobian");
             logger.assert_always((std::abs(jac[4] - 5.e7 * (point[1] - compare[1])) < 1e-5), "jacobian");
             logger.assert_always((std::abs(jac[5] - 5.e7 * (point[2] - compare[2])) < 1e-5), "jacobian");
@@ -132,7 +132,7 @@ int main()
     {
         refPoint = fGeom.getReferenceNodeCoordinate(i);
         compare = eGeom.getReferenceNodeCoordinate(nodesAfterTransformation[i]);
-        point = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+        point = test->transform((refPoint));
         logger.assert_always((std::abs(point[0] - compare[0]) < 1e-12), "transform");
         logger.assert_always((std::abs(point[1] - compare[1]) < 1e-12), "transform");
         logger.assert_always((std::abs(point[2] - compare[2]) < 1e-12), "transform");
@@ -149,27 +149,27 @@ int main()
     {
         for (refPoint[1] = -1.51; refPoint[1] < 1.51; refPoint[1] += 0.2)
         {
-            point = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
-            logger.assert_always((fGeom.isInternalPoint(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint)) == eGeom.isInternalPoint(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point))), "transform");
+            point = test->transform((refPoint));
+            logger.assert_always((fGeom.isInternalPoint((refPoint)) == eGeom.isInternalPoint((point))), "transform");
             
             refPoint[0] += -1.e-8;
-            compare = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+            compare = test->transform((refPoint));
             refPoint[0] += 2.e-8;
-            point = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+            point = test->transform((refPoint));
             
             refPoint[0] += -1e-8;
-            jac = test->calcJacobian(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+            jac = test->calcJacobian((refPoint));
             logger.assert_always((std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) < 1e-5), "jacobian"); //estimate is a bit rough, but should work for most mappings
             logger.assert_always((std::abs(jac[1] - 5.e7 * (point[1] - compare[1])) < 1e-5), "jacobian"); //implementations are very strongly recommended to be more accurate
             logger.assert_always((std::abs(jac[2] - 5.e7 * (point[2] - compare[2])) < 1e-5), "jacobian");
             
             refPoint[1] += -1.e-8;
-            compare = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+            compare = test->transform((refPoint));
             refPoint[1] += 2.e-8;
-            point = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+            point = test->transform((refPoint));
             
             refPoint[1] += -1e-8;
-            jac = test->calcJacobian(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+            jac = test->calcJacobian((refPoint));
             logger.assert_always((std::abs(jac[3] - 5.e7 * (point[0] - compare[0])) < 1e-5), "jacobian");
             logger.assert_always((std::abs(jac[4] - 5.e7 * (point[1] - compare[1])) < 1e-5), "jacobian");
             logger.assert_always((std::abs(jac[5] - 5.e7 * (point[2] - compare[2])) < 1e-5), "jacobian");
@@ -180,7 +180,7 @@ int main()
     {
         refPoint = fGeom.getReferenceNodeCoordinate(i);
         compare = eGeom.getReferenceNodeCoordinate(nodesAfterTransformation[i]);
-        point = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+        point = test->transform((refPoint));
         logger.assert_always((std::abs(point[0] - compare[0]) < 1e-12), "transform");
         logger.assert_always((std::abs(point[1] - compare[1]) < 1e-12), "transform");
         logger.assert_always((std::abs(point[2] - compare[2]) < 1e-12), "transform");
@@ -197,27 +197,27 @@ int main()
     {
         for (refPoint[1] = -1.51; refPoint[1] < 1.51; refPoint[1] += 0.2)
         {
-            point = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint)); //disabled due to accuracy issues
+            point = test->transform((refPoint)); //disabled due to accuracy issues
             //logger.assert_always(("transform",fGeom.isInternalPoint(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint))==eGeom.isInternalPoint(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point))));
             
             refPoint[0] += -1.e-8;
-            compare = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+            compare = test->transform((refPoint));
             refPoint[0] += 2.e-8;
-            point = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+            point = test->transform((refPoint));
             
             refPoint[0] += -1e-8;
-            jac = test->calcJacobian(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+            jac = test->calcJacobian((refPoint));
             logger.assert_always((std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) < 1e-5), "jacobian"); //estimate is a bit rough, but should work for most mappings
             logger.assert_always((std::abs(jac[1] - 5.e7 * (point[1] - compare[1])) < 1e-5), "jacobian"); //implementations are very strongly recommended to be more accurate
             logger.assert_always((std::abs(jac[2] - 5.e7 * (point[2] - compare[2])) < 1e-5), "jacobian");
             
             refPoint[1] += -1.e-8;
-            compare = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+            compare = test->transform((refPoint));
             refPoint[1] += 2.e-8;
-            point = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+            point = test->transform((refPoint));
             
             refPoint[1] += -1e-8;
-            jac = test->calcJacobian(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+            jac = test->calcJacobian((refPoint));
             logger.assert_always((std::abs(jac[3] - 5.e7 * (point[0] - compare[0])) < 1e-5), "jacobian");
             logger.assert_always((std::abs(jac[4] - 5.e7 * (point[1] - compare[1])) < 1e-5), "jacobian");
             logger.assert_always((std::abs(jac[5] - 5.e7 * (point[2] - compare[2])) < 1e-5), "jacobian");
@@ -228,7 +228,7 @@ int main()
     {
         refPoint = fGeom.getReferenceNodeCoordinate(i);
         compare = eGeom.getReferenceNodeCoordinate(nodesAfterTransformation[i]);
-        point = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
+        point = test->transform((refPoint));
         logger.assert_always((std::abs(point[0] - compare[0]) < 1e-12), "transform");
         logger.assert_always((std::abs(point[1] - compare[1]) < 1e-12), "transform");
         logger.assert_always((std::abs(point[2] - compare[2]) < 1e-12), "transform");

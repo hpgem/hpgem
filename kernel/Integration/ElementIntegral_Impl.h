@@ -48,7 +48,7 @@ namespace Integration
      */
     template<std::size_t DIM>
     template<typename ReturnTrait1>
-    ReturnTrait1 ElementIntegral<DIM>::integrate(const Base::Element* el, ElementIntegrandBase<ReturnTrait1, DIM>* integrand, const QuadratureRules::GaussQuadratureRule * const qdrRule)
+    ReturnTrait1 ElementIntegral<DIM>::integrate(const Base::Element* el, ElementIntegrandBase<ReturnTrait1, DIM>* integrand, QuadratureRules::GaussQuadratureRule *qdrRule)
     {
         logger.assert(el!=nullptr, "Invalid element detected");
         logger.assert(integrand!=nullptr, "Invalid integrand detected");
@@ -76,12 +76,12 @@ namespace Integration
     */
     template<std::size_t DIM>
     template<typename ReturnType>
-    ReturnType ElementIntegral<DIM>::integrate(const Base::Element* el, std::function<ReturnType(Base::PhysicalElement<DIM>&)> integrandFun, const QuadratureRules::GaussQuadratureRule * const qdrRule)
+    ReturnType ElementIntegral<DIM>::integrate(const Base::Element* el, std::function<ReturnType(Base::PhysicalElement<DIM>&)> integrandFun, QuadratureRules::GaussQuadratureRule * qdrRule)
     {
         logger.assert(el!=nullptr, "Invalid element detected");
         element_.setElement(el);
         //quadrature rule is allowed to be equal to nullptr!
-        const QuadratureRules::GaussQuadratureRule * const qdrRuleLoc = (qdrRule == nullptr ? el->getGaussQuadratureRule() : qdrRule);
+        QuadratureRules::GaussQuadratureRule *qdrRuleLoc = (qdrRule == nullptr ? el->getGaussQuadratureRule() : qdrRule);
         
         // check whether the GaussQuadratureRule is actually for the element's ReferenceGeometry
         logger.assert((qdrRuleLoc->forReferenceGeometry() == el->getReferenceGeometry()), "ElementIntegral: wrong geometry.");
@@ -93,10 +93,8 @@ namespace Integration
         std::size_t numberOfPoints = qdrRuleLoc->getNumberOfPoints();
         logger.assert(numberOfPoints > 0, "Did not get any points from qdrRuleLoc->getNumberOfPoints");
         
-        // Initialize Gauss quadrature point
-        const Geometry::PointReference<DIM>& p0 = qdrRuleLoc->getPoint(0);
-        
-        element_.setPointReference(p0);
+        element_.setQuadratureRule(qdrRuleLoc);
+        //element_.setPointReference(qdrRuleLoc->getPoint(0));
 
         // first Gauss point
         // first we calculate the jacobian, then compute the function value on one of
@@ -110,9 +108,8 @@ namespace Integration
         // add this value multiplied with jacobian and weight to result.
         for (std::size_t i = 1; i < numberOfPoints; ++i)
         {
-            
-            const Geometry::PointReference<DIM>& p = qdrRuleLoc->getPoint(i);
-            element_.setPointReference(p);
+            element_.setQuadraturePointIndex(i);
+            //element_.setPointReference(qdrRuleLoc->getPoint(i));
             value = integrandFun(element_);
             
             //axpy: Y = alpha * X + Y
@@ -143,12 +140,13 @@ namespace Integration
         std::size_t iPoint = 0; // Index for the quadrature points.
         
         const Geometry::PointReference<DIM>& pRef0 = ptrQdrRule->getPoint(iPoint);
-        element_.setPointReference(pRef0);
+        element_.setQuadratureRule(ptrQdrRule);
+        //element_.setPointReference(pRef0);
         IntegrandType integral(ptrQdrRule->weight(iPoint) * integrandFunction());
         for (iPoint = 1; iPoint < numberOfPoints; iPoint++)
         {
-            const Geometry::PointReference<DIM>& pRef = ptrQdrRule->getPoint(iPoint);
-            element_.setPointReference(pRef);
+            element_.setQuadraturePointIndex(iPoint);
+            //element_.setPointReference(ptrQdrRule->getPoint(iPoint));
             LinearAlgebra::axpy(ptrQdrRule->weight(iPoint), integrandFunction(), integral);
         }
         return integral;

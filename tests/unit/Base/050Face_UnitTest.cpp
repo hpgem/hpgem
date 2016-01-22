@@ -112,19 +112,19 @@ int main()
     
     logger.assert_always((test.getPtrElementLeft() == &element), "getElementPtr");
     
-    Geometry::Point<2> refPoint;
-    Geometry::Point<3> point3D;
+    Geometry::PointReference<2> refPoint;
+    Geometry::PointReference<3> point3D;
     for (std::size_t i = 0; i < basisFunctions->size(); ++i)
     {
         for (refPoint[0] = -1.5; refPoint[0] < 1.51; refPoint[0] += 0.2)
         {
             for (refPoint[1] = -1.5; refPoint[1] < 1.51; refPoint[1] += 0.2)
             {
-                point3D = test.mapRefFaceToRefElemL(*Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint));
-                logger.assert_always((test.basisFunction(i, *Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint)) == (*basisFunctions)[i]->eval(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D))), "basisFunctions");
-                logger.assert_always((test.basisFunctionDeriv(i, 0, *Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint)) == (*basisFunctions)[i]->evalDeriv0(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D))), "basisFunctions");
-                logger.assert_always((test.basisFunctionDeriv(i, 1, *Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint)) == (*basisFunctions)[i]->evalDeriv1(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D))), "basisFunctions");
-                logger.assert_always((test.basisFunctionDeriv(i, 2, *Geometry::PointReferenceFactory<2>::instance()->makePoint(refPoint)) == (*basisFunctions)[i]->evalDeriv2(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D))), "basisFunctions");
+                point3D = test.mapRefFaceToRefElemL((refPoint));
+                logger.assert_always((test.basisFunction(i, (refPoint)) == (*basisFunctions)[i]->eval((point3D))), "basisFunctions");
+                logger.assert_always((test.basisFunctionDeriv(i, 0, (refPoint)) == (*basisFunctions)[i]->evalDeriv0((point3D))), "basisFunctions");
+                logger.assert_always((test.basisFunctionDeriv(i, 1, (refPoint)) == (*basisFunctions)[i]->evalDeriv1((point3D))), "basisFunctions");
+                logger.assert_always((test.basisFunctionDeriv(i, 2, (refPoint)) == (*basisFunctions)[i]->evalDeriv2((point3D))), "basisFunctions");
             }
         }
     }

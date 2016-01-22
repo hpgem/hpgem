@@ -59,7 +59,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefSquareToSquare0& Instance();
-        const PointReference<2>& transform(const Geometry::PointReference<2>& p1) const override final;
+        PointReference<2> transform(const Geometry::PointReference<2>& p1) const override final;
         Jacobian<2, 2> calcJacobian(const Geometry::PointReference<2>&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -76,7 +76,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefSquareToSquare1& Instance();
-        const PointReference<2>& transform(const Geometry::PointReference<2>& p1) const override final;
+        PointReference<2> transform(const Geometry::PointReference<2>& p1) const override final;
         Jacobian<2, 2> calcJacobian(const Geometry::PointReference<2>&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -93,7 +93,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefSquareToSquare2& Instance();
-        const PointReference<2>& transform(const Geometry::PointReference<2>& p1) const override final;
+        PointReference<2> transform(const Geometry::PointReference<2>& p1) const override final;
         Jacobian<2, 2> calcJacobian(const Geometry::PointReference<2>&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -110,7 +110,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefSquareToSquare3& Instance();
-        const PointReference<2>& transform(const Geometry::PointReference<2>& p1) const override final;
+        PointReference<2> transform(const Geometry::PointReference<2>& p1) const override final;
         Jacobian<2, 2> calcJacobian(const Geometry::PointReference<2>&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -127,7 +127,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefSquareToSquare4& Instance();
-        const PointReference<2>& transform(const Geometry::PointReference<2>& p1) const override final;
+        PointReference<2> transform(const Geometry::PointReference<2>& p1) const override final;
         Jacobian<2, 2> calcJacobian(const Geometry::PointReference<2>&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -144,7 +144,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefSquareToSquare5& Instance();
-        const PointReference<2>& transform(const Geometry::PointReference<2>& p1) const override final;
+        PointReference<2> transform(const Geometry::PointReference<2>& p1) const override final;
         Jacobian<2, 2> calcJacobian(const Geometry::PointReference<2>&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -161,7 +161,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefSquareToSquare6& Instance();
-        const PointReference<2>& transform(const Geometry::PointReference<2>& p1) const override final;
+        PointReference<2> transform(const Geometry::PointReference<2>& p1) const override final;
         Jacobian<2, 2> calcJacobian(const Geometry::PointReference<2>&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -178,7 +178,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefSquareToSquare7& Instance();
-        const PointReference<2>& transform(const Geometry::PointReference<2>& p1) const override final;
+        PointReference<2> transform(const Geometry::PointReference<2>& p1) const override final;
         Jacobian<2, 2> calcJacobian(const Geometry::PointReference<2>&) const override final;
         std::size_t getTargetDimension() const override final
         {

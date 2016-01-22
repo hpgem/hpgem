@@ -19,12 +19,13 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Base
-{
 #include "CoordinateTransformation.h"
 
+namespace Base
+{
+
     template<std::size_t DIM>
-    inline double Base::PhysicalFace<DIM>::basisFunction(std::size_t i)
+    inline double PhysicalFace<DIM>::basisFunction(std::size_t i)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(i < nLeftBasisFunctions)
@@ -39,7 +40,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline double Base::PhysicalFace<DIM>::basisFunction(Side side, std::size_t i)
+    inline double PhysicalFace<DIM>::basisFunction(Side side, std::size_t i)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
@@ -54,7 +55,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline const LinearAlgebra::SmallVector<DIM>& Base::PhysicalFace<DIM>::basisFunctionDeriv(std::size_t i)
+    inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionDeriv(std::size_t i)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(i < nLeftBasisFunctions)
@@ -69,7 +70,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline const LinearAlgebra::SmallVector<DIM>& Base::PhysicalFace<DIM>::basisFunctionDeriv(Side side, std::size_t i)
+    inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionDeriv(Side side, std::size_t i)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
@@ -84,7 +85,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline const LinearAlgebra::SmallVector<DIM>& Base::PhysicalFace<DIM>::basisFunctionNormal(std::size_t i)
+    inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionNormal(std::size_t i)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(hasBasisFunctionNormal)
@@ -107,7 +108,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline const LinearAlgebra::SmallVector<DIM>& Base::PhysicalFace<DIM>::basisFunctionNormal(Side side, std::size_t i)
+    inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionNormal(Side side, std::size_t i)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
@@ -122,7 +123,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline const LinearAlgebra::SmallVector<DIM>& Base::PhysicalFace<DIM>::basisFunctionUnitNormal(std::size_t i)
+    inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionUnitNormal(std::size_t i)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(hasBasisFunctionUnitNormal)
@@ -145,7 +146,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline const LinearAlgebra::SmallVector<DIM>& Base::PhysicalFace<DIM>::basisFunctionUnitNormal(Side side, std::size_t i)
+    inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionUnitNormal(Side side, std::size_t i)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
@@ -160,7 +161,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline void Base::PhysicalFace<DIM>::basisFunction(std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
+    inline void PhysicalFace<DIM>::basisFunction(std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(i < nLeftBasisFunctions)
@@ -177,7 +178,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline void Base::PhysicalFace<DIM>::basisFunction(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
+    inline void PhysicalFace<DIM>::basisFunction(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
@@ -192,7 +193,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline const LinearAlgebra::SmallVector<DIM>& Base::PhysicalFace<DIM>::basisFunctionCurl(std::size_t i)
+    inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionCurl(std::size_t i)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(i < nLeftBasisFunctions)
@@ -207,7 +208,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline const LinearAlgebra::SmallVector<DIM>& Base::PhysicalFace<DIM>::basisFunctionCurl(Side side, std::size_t i)
+    inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionCurl(Side side, std::size_t i)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
@@ -222,7 +223,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline const double& Base::PhysicalFace<DIM>::basisFunctionDiv(std::size_t i)
+    inline const double& PhysicalFace<DIM>::basisFunctionDiv(std::size_t i)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(i < nLeftBasisFunctions)
@@ -237,7 +238,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline const double& Base::PhysicalFace<DIM>::basisFunctionDiv(Side side, std::size_t i)
+    inline const double& PhysicalFace<DIM>::basisFunctionDiv(Side side, std::size_t i)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
@@ -252,7 +253,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline void Base::PhysicalFace<DIM>::basisFunctionNormal(std::size_t i, LinearAlgebra::SmallVector<DIM>& result) //Needed for DGMax
+    inline void PhysicalFace<DIM>::basisFunctionNormal(std::size_t i, LinearAlgebra::SmallVector<DIM>& result) //Needed for DGMax
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(hasVectorBasisFunctionNormal)
@@ -278,7 +279,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline void Base::PhysicalFace<DIM>::basisFunctionNormal(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
+    inline void PhysicalFace<DIM>::basisFunctionNormal(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
@@ -293,7 +294,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline void Base::PhysicalFace<DIM>::basisFunctionUnitNormal(std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
+    inline void PhysicalFace<DIM>::basisFunctionUnitNormal(std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(hasVectorBasisFunctionUnitNormal)
@@ -320,7 +321,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline void Base::PhysicalFace<DIM>::basisFunctionUnitNormal(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
+    inline void PhysicalFace<DIM>::basisFunctionUnitNormal(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
@@ -335,7 +336,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline const LinearAlgebra::MiddleSizeVector& Base::PhysicalFace<DIM>::getSolution(Side side)
+    inline const LinearAlgebra::MiddleSizeVector& PhysicalFace<DIM>::getSolution(Side side)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
@@ -350,7 +351,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline void Base::PhysicalFace<DIM>::getSolution(Side side, std::vector<LinearAlgebra::SmallVector<DIM> >& result)
+    inline void PhysicalFace<DIM>::getSolution(Side side, std::vector<LinearAlgebra::SmallVector<DIM> >& result)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
@@ -365,7 +366,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline const std::vector<LinearAlgebra::SmallVector<DIM> >& Base::PhysicalFace<DIM>::getSolutionDeriv(Side side)
+    inline const std::vector<LinearAlgebra::SmallVector<DIM> >& PhysicalFace<DIM>::getSolutionDeriv(Side side)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
@@ -380,7 +381,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline const std::vector<LinearAlgebra::SmallVector<DIM> >& Base::PhysicalFace<DIM>::getSolutionCurl(Side side)
+    inline const std::vector<LinearAlgebra::SmallVector<DIM> >& PhysicalFace<DIM>::getSolutionCurl(Side side)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
@@ -395,7 +396,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline std::vector<LinearAlgebra::SmallVector<DIM> > Base::PhysicalFace<DIM>::getSolutionNormal(Side side)
+    inline std::vector<LinearAlgebra::SmallVector<DIM> > PhysicalFace<DIM>::getSolutionNormal(Side side)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
@@ -410,7 +411,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline std::vector<LinearAlgebra::SmallVector<DIM> > Base::PhysicalFace<DIM>::getSolutionUnitNormal(Side side)
+    inline std::vector<LinearAlgebra::SmallVector<DIM> > PhysicalFace<DIM>::getSolutionUnitNormal(Side side)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
@@ -425,33 +426,33 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline void Base::PhysicalFace<DIM>::getSolutionNormal(Side side, LinearAlgebra::SmallVector<DIM>& result)
+    inline void PhysicalFace<DIM>::getSolutionNormal(Side side, LinearAlgebra::SmallVector<DIM>& result)
     {
         logger(ERROR, "Not supported by Element yet");
     }
 
     template<std::size_t DIM>
-    inline void Base::PhysicalFace<DIM>::getSolutionUnitNormal(Side side, LinearAlgebra::SmallVector<DIM>& result)
+    inline void PhysicalFace<DIM>::getSolutionUnitNormal(Side side, LinearAlgebra::SmallVector<DIM>& result)
     {
         logger(ERROR, "Not supported by Element yet");
     }
 
     template<std::size_t DIM>
-    inline const Geometry::PointReference<DIM - 1>& Base::PhysicalFace<DIM>::getPointReference()
+    inline const Geometry::PointReference<DIM - 1>& PhysicalFace<DIM>::getPointReference()
     {
         logger.assert(hasPointReference, "Need a location to evaluate the data");
-        return *pointReference_;
+        return pointReference_;
     }
 
     template<std::size_t DIM>
-    inline const Geometry::PointPhysical<DIM>& Base::PhysicalFace<DIM>::getPointPhysical()
+    inline const Geometry::PointPhysical<DIM>& PhysicalFace<DIM>::getPointPhysical()
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         return left.getPointPhysical();
     }
 
     template<std::size_t DIM>
-    inline const LinearAlgebra::SmallVector<DIM>& Base::PhysicalFace<DIM>::getNormalVector()
+    inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::getNormalVector()
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(hasNormal)
@@ -461,13 +462,13 @@ namespace Base
         else
         {
             hasNormal = true;
-            normal = face_->getNormalVector(*pointReference_);
+            normal = face_->getNormalVector(pointReference_);
             return normal;
         }
     }
 
     template<std::size_t DIM>
-    inline const LinearAlgebra::SmallVector<DIM>& Base::PhysicalFace<DIM>::getUnitNormalVector()
+    inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::getUnitNormalVector()
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(hasUnitNormal)
@@ -483,7 +484,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline double Base::PhysicalFace<DIM>::getRelativeSurfaceArea()
+    inline double PhysicalFace<DIM>::getRelativeSurfaceArea()
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(hasNormalNorm)
@@ -499,7 +500,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline Base::FaceMatrix& Base::PhysicalFace<DIM>::getResultMatrix()
+    inline FaceMatrix& PhysicalFace<DIM>::getResultMatrix()
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         logger.assert(hasFaceMatrix, "Matrix has already been requested for this face/point combination");
@@ -508,7 +509,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline LinearAlgebra::MiddleSizeMatrix& Base::PhysicalFace<DIM>::getResultMatrix(Side iSide, Side jSide)
+    inline LinearAlgebra::MiddleSizeMatrix& PhysicalFace<DIM>::getResultMatrix(Side iSide, Side jSide)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(iSide == Side::LEFT)
@@ -542,7 +543,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline LinearAlgebra::MiddleSizeVector& Base::PhysicalFace<DIM>::getResultVector()
+    inline LinearAlgebra::MiddleSizeVector& PhysicalFace<DIM>::getResultVector()
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         logger.assert(hasFaceVector, "Vector has already been requested for this face/point combination");
@@ -551,7 +552,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline LinearAlgebra::MiddleSizeVector& Base::PhysicalFace<DIM>::getResultVector(Side side)
+    inline LinearAlgebra::MiddleSizeVector& PhysicalFace<DIM>::getResultVector(Side side)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
@@ -566,28 +567,28 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline bool Base::PhysicalFace<DIM>::isInternal()
+    inline bool PhysicalFace<DIM>::isInternal()
     {
         return isInternal_;
     }
 
     template<std::size_t DIM>
-    inline const Base::Face* Base::PhysicalFace<DIM>::getFace()
+    inline const Face* PhysicalFace<DIM>::getFace()
     {
         logger.assert(hasFace, "Need a location to evaluate the data");
         return face_;
     }
 
     template<std::size_t DIM>
-    inline const Base::CoordinateTransformation<DIM>* Base::PhysicalFace<DIM>::getTransform()
+    inline const CoordinateTransformation<DIM>* PhysicalFace<DIM>::getTransform()
     {
         return transform_.get();
     }
 
     template<std::size_t DIM>
-    inline void Base::PhysicalFace<DIM>::setPointReference(const Geometry::PointReference<DIM - 1>& point)
+    inline void PhysicalFace<DIM>::setPointReference(const Geometry::PointReference<DIM - 1>& point)
     {
-        pointReference_ = &point;
+        pointReference_ = point;
         hasPointReference = true;
         if(hasFace)
         {
@@ -632,7 +633,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline void Base::PhysicalFace<DIM>::setFace(const Face* face)
+    inline void PhysicalFace<DIM>::setFace(const Face* face)
     {
         logger.assert(isInternal_ == face->isInternal(), "This face is not supported by this physical face");
         face_ = face;
@@ -664,10 +665,10 @@ namespace Base
         }
         if(hasPointReference)
         {
-            left.setPointReference(face_->mapRefFaceToRefElemL(*pointReference_));
+            left.setPointReference(face_->mapRefFaceToRefElemL(pointReference_));
             if(isInternal_)
             {
-                right.setPointReference(face_->mapRefFaceToRefElemR(*pointReference_));
+                right.setPointReference(face_->mapRefFaceToRefElemR(pointReference_));
             }
         }
         //even if they are already computed, the information is now out of date
@@ -705,7 +706,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline void Base::PhysicalFace<DIM>::setTransform(std::shared_ptr<CoordinateTransformation<DIM> >& transform)
+    inline void PhysicalFace<DIM>::setTransform(std::shared_ptr<Base::CoordinateTransformation<DIM>>& transform)
     {
         transform_ = transform;
         left.setTransformation(transform);
@@ -742,5 +743,35 @@ namespace Base
         hasRightLeftMatrix = true;
         hasFaceMatrix = true;
         hasFaceVector = true;
+    }
+
+    template<std::size_t DIM>
+    inline void PhysicalFace<DIM>::setQuadratureRule(QuadratureRules::GaussQuadratureRule *rule)
+    {
+        mapToLeftElement = face_->refFaceToRefElemMapL();
+        left.setQuadratureRule(rule, mapToLeftElement.get());
+        if(isInternal())
+        {
+            mapToRightElement = face_->refFaceToRefElemMapR();
+            right.setQuadratureRule(rule, mapToRightElement.get());
+        }
+        quadratureRule_ = rule;
+        setQuadraturePointIndex(0);
+    }
+
+    template<std::size_t DIM>
+    inline void PhysicalFace<DIM>::setQuadraturePointIndex(std::size_t index)
+    {
+        setPointReference(quadratureRule_->getPoint(index));
+        //setPointReference tells the element that it is using a pointReference
+        //so we have to set the quadrature rule back. If this turns out to be slow
+        //resort to code duplication to prevent double work
+        left.setQuadratureRule(quadratureRule_, mapToLeftElement.get());
+        left.setQuadraturePointIndex(index);
+        if(isInternal())
+        {
+            right.setQuadratureRule(quadratureRule_, mapToRightElement.get());
+            right.setQuadraturePointIndex(index);
+        }
     }
 }

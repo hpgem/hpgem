@@ -32,7 +32,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefFaceToTriangularPrism0& Instance();
-        const PointReference<3>& transform(const Geometry::PointReference<2>& p1) const override final;
+        PointReference<3> transform(const Geometry::PointReference<2>& p1) const override final;
         Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -51,7 +51,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefFaceToTriangularPrism1& Instance();
-        const PointReference<3>& transform(const Geometry::PointReference<2>& p1) const override final;
+        PointReference<3> transform(const Geometry::PointReference<2>& p1) const override final;
         Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -70,7 +70,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefFaceToTriangularPrism2& Instance();
-        const PointReference<3>& transform(const Geometry::PointReference<2>& p1) const override final;
+        PointReference<3> transform(const Geometry::PointReference<2>& p1) const override final;
         Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -89,7 +89,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefFaceToTriangularPrism3& Instance();
-        const PointReference<3>& transform(const Geometry::PointReference<2>& p1) const override final;
+        PointReference<3> transform(const Geometry::PointReference<2>& p1) const override final;
         Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -108,7 +108,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefFaceToTriangularPrism4& Instance();
-        const PointReference<3>& transform(const Geometry::PointReference<2>& p1) const override final;
+        PointReference<3> transform(const Geometry::PointReference<2>& p1) const override final;
         Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const override final;
         std::size_t getTargetDimension() const override final
         {

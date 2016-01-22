@@ -33,7 +33,7 @@
 int main()
 {
     
-    Geometry::Point<1> refPoint, point, compare;
+    Geometry::PointReference<1> refPoint, point, compare;
     
     const Geometry::ReferenceLine& geom = Geometry::ReferenceLine::Instance();
     
@@ -47,16 +47,16 @@ int main()
     
     for (refPoint[0] = -2.8189; refPoint[0] < 3.141; refPoint[0] += 0.1)
     {
-        point = test->transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint));
-        logger.assert_always((geom.isInternalPoint(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint)) == geom.isInternalPoint(*Geometry::PointReferenceFactory<1>::instance()->makePoint(point))), "transform");
+        point = test->transform((refPoint));
+        logger.assert_always((geom.isInternalPoint((refPoint)) == geom.isInternalPoint((point))), "transform");
         
         refPoint[0] += -1.e-8;
-        compare = test->transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint));
+        compare = test->transform((refPoint));
         refPoint[0] += 2.e-8;
-        point = test->transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint));
+        point = test->transform((refPoint));
         
         refPoint[0] += -1e-8;
-        jac = test->calcJacobian(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint));
+        jac = test->calcJacobian((refPoint));
         logger.assert_always((std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) < 1e-5), "jacobian"); //estimate is a bit rough, but should work for most mappings
     }
     
@@ -64,7 +64,7 @@ int main()
     {
         refPoint = geom.getReferenceNodeCoordinate(i);
         compare = geom.getReferenceNodeCoordinate(nodesAfterTransformation[i]);
-        point = test->transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint));
+        point = test->transform((refPoint));
         logger.assert_always((std::abs(point[0] - compare[0]) < 1e-12), "transform");
     }
     
@@ -76,16 +76,16 @@ int main()
     
     for (refPoint[0] = -2.8189; refPoint[0] < 3.141; refPoint[0] += 0.1)
     {
-        point = test->transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint));
-        logger.assert_always((geom.isInternalPoint(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint)) == geom.isInternalPoint(*Geometry::PointReferenceFactory<1>::instance()->makePoint(point))), "transform");
+        point = test->transform((refPoint));
+        logger.assert_always((geom.isInternalPoint((refPoint)) == geom.isInternalPoint((point))), "transform");
         
         refPoint[0] += -1.e-8;
-        compare = test->transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint));
+        compare = test->transform((refPoint));
         refPoint[0] += 2.e-8;
-        point = test->transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint));
+        point = test->transform((refPoint));
         
         refPoint[0] += -1e-8;
-        jac = test->calcJacobian(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint));
+        jac = test->calcJacobian((refPoint));
         logger.assert_always((std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) < 1e-5), "jacobian"); //estimate is a bit rough, but should work for most mappings
     }
     
@@ -93,7 +93,7 @@ int main()
     {
         refPoint = geom.getReferenceNodeCoordinate(i);
         compare = geom.getReferenceNodeCoordinate(nodesAfterTransformation[i]);
-        point = test->transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint));
+        point = test->transform((refPoint));
         logger.assert_always((std::abs(point[0] - compare[0]) < 1e-12), "transform");
     }
     

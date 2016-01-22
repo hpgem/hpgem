@@ -46,11 +46,11 @@
 int main()
 {
     
-    Geometry::Point<0> point0D, compare0D, orig0D;
-    Geometry::Point<1> point1D, compare1D, orig1D;
-    Geometry::Point<2> point2D, compare2D, orig2D;
-    Geometry::Point<3> point3D, compare3D, orig3D;
-    Geometry::Point<4> point4D, compare4D, orig4D;
+    Geometry::PointReference<0> point0D, compare0D, orig0D;
+    Geometry::PointReference<1> point1D, compare1D, orig1D;
+    Geometry::PointReference<2> point2D, compare2D, orig2D;
+    Geometry::PointReference<3> point3D, compare3D, orig3D;
+    Geometry::PointReference<4> point4D, compare4D, orig4D;
     Geometry::ReferenceGeometry* source;
     Geometry::ReferenceGeometry* target;
     
@@ -66,16 +66,16 @@ int main()
     target = &Geometry::ReferenceLine::Instance();
     test = new Geometry::ConcatenatedMapping(Geometry::MappingToRefPointToPoint::Instance(), Geometry::MappingToRefPointToLine0::Instance());
     
-    point1D = test->transform(*Geometry::PointReferenceFactory<0>::instance()->makePoint(orig0D));
-    logger.assert_always((source->isInternalPoint(*Geometry::PointReferenceFactory<0>::instance()->makePoint(orig0D)) == target->isInternalPoint(*Geometry::PointReferenceFactory<1>::instance()->makePoint(point1D))), "transform");
+    point1D = test->transform((orig0D));
+    logger.assert_always((source->isInternalPoint((orig0D)) == target->isInternalPoint((point1D))), "transform");
     
-    jac = test->calcJacobian(*Geometry::PointReferenceFactory<0>::instance()->makePoint(orig0D));
+    jac = test->calcJacobian((orig0D));
     
     for (std::size_t i = 0; i < source->getNumberOfNodes(); ++i)
     {
         orig0D = source->getReferenceNodeCoordinate(i);
         compare1D = target->getReferenceNodeCoordinate(nodesAfterTransformation[i]);
-        point1D = test->transform(*Geometry::PointReferenceFactory<0>::instance()->makePoint(orig0D));
+        point1D = test->transform((orig0D));
     }
     
     logger.assert_always((test->getTargetDimension() == 1), "getTargetDimension");
@@ -93,16 +93,16 @@ int main()
     
     for (orig1D[0] = -2.8189; orig1D[0] < 3.141; orig1D[0] += 0.1)
     {
-        point2D = test->transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(orig1D));
-        logger.assert_always((source->isInternalPoint(*Geometry::PointReferenceFactory<1>::instance()->makePoint(orig1D)) == target->isInternalPoint(*Geometry::PointReferenceFactory<2>::instance()->makePoint(point2D))), "transform");
+        point2D = test->transform((orig1D));
+        logger.assert_always((source->isInternalPoint((orig1D)) == target->isInternalPoint((point2D))), "transform");
         
         orig1D[0] += -1.e-8;
-        compare2D = test->transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(orig1D));
+        compare2D = test->transform((orig1D));
         orig1D[0] += 2.e-8;
-        point2D = test->transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(orig1D));
+        point2D = test->transform((orig1D));
         
         orig1D[0] += -1e-8;
-        jac2 = test->calcJacobian(*Geometry::PointReferenceFactory<1>::instance()->makePoint(orig1D));
+        jac2 = test->calcJacobian((orig1D));
         logger.assert_always((std::abs(jac2[0] - 5.e7 * (point2D[0] - compare2D[0])) < 1e-5), "jacobian"); //estimate is a bit rough, but should work for most mappings
         logger.assert_always((std::abs(jac2[1] - 5.e7 * (point2D[1] - compare2D[1])) < 1e-5), "jacobian"); //implementations are very strongly recommended to be more accurate
     }
@@ -111,7 +111,7 @@ int main()
     {
         orig1D = source->getReferenceNodeCoordinate(i);
         compare2D = target->getReferenceNodeCoordinate(nodesAfterTransformation[i]);
-        point2D = test->transform(*Geometry::PointReferenceFactory<1>::instance()->makePoint(orig1D));
+        point2D = test->transform((orig1D));
         logger.assert_always((std::abs(point2D[0] - compare2D[0]) < 1e-12), "transform");
         logger.assert_always((std::abs(point2D[1] - compare2D[1]) < 1e-12), "transform");
     }
@@ -135,27 +135,27 @@ int main()
     {
         for (orig2D[1] = -1.51; orig2D[1] < 1.51; orig2D[1] += 0.2)
         {
-            point3D = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(orig2D));
-            logger.assert_always((source->isInternalPoint(*Geometry::PointReferenceFactory<2>::instance()->makePoint(orig2D)) == target->isInternalPoint(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D))), "transform");
+            point3D = test->transform((orig2D));
+            logger.assert_always((source->isInternalPoint((orig2D)) == target->isInternalPoint((point3D))), "transform");
             
             orig2D[0] += -1.e-8;
-            compare3D = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(orig2D));
+            compare3D = test->transform((orig2D));
             orig2D[0] += 2.e-8;
-            point3D = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(orig2D));
+            point3D = test->transform((orig2D));
             
             orig2D[0] += -1e-8;
-            jac3 = test->calcJacobian(*Geometry::PointReferenceFactory<2>::instance()->makePoint(orig2D));
+            jac3 = test->calcJacobian((orig2D));
             logger.assert_always((std::abs(jac3[0] - 5.e7 * (point3D[0] - compare3D[0])) < 1e-5), "jacobian"); //estimate is a bit rough, but should work for most mappings
             logger.assert_always((std::abs(jac3[1] - 5.e7 * (point3D[1] - compare3D[1])) < 1e-5), "jacobian"); //implementations are very strongly recommended to be more accurate
             logger.assert_always((std::abs(jac3[2] - 5.e7 * (point3D[2] - compare3D[2])) < 1e-5), "jacobian");
             
             orig2D[1] += -1.e-8;
-            compare3D = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(orig2D));
+            compare3D = test->transform((orig2D));
             orig2D[1] += 2.e-8;
-            point3D = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(orig2D));
+            point3D = test->transform((orig2D));
             
             orig2D[1] += -1e-8;
-            jac3 = test->calcJacobian(*Geometry::PointReferenceFactory<2>::instance()->makePoint(orig2D));
+            jac3 = test->calcJacobian((orig2D));
             logger.assert_always((std::abs(jac3[3] - 5.e7 * (point3D[0] - compare3D[0])) < 1e-5), "jacobian");
             logger.assert_always((std::abs(jac3[4] - 5.e7 * (point3D[1] - compare3D[1])) < 1e-5), "jacobian");
             logger.assert_always((std::abs(jac3[5] - 5.e7 * (point3D[2] - compare3D[2])) < 1e-5), "jacobian");
@@ -166,7 +166,7 @@ int main()
     {
         orig2D = source->getReferenceNodeCoordinate(i);
         compare3D = target->getReferenceNodeCoordinate(nodesAfterTransformation[i]);
-        point3D = test->transform(*Geometry::PointReferenceFactory<2>::instance()->makePoint(orig2D));
+        point3D = test->transform((orig2D));
         logger.assert_always((std::abs(point3D[0] - compare3D[0]) < 1e-12), "transform");
         logger.assert_always((std::abs(point3D[1] - compare3D[1]) < 1e-12), "transform");
         logger.assert_always((std::abs(point3D[2] - compare3D[2]) < 1e-12), "transform");
@@ -197,40 +197,40 @@ int main()
         {
             for (orig3D[2] = -1.51; orig3D[2] < 1.51; orig3D[2] += 0.8)
             {
-                point4D = test->transform(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
-                logger.assert_always((source->isInternalPoint(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D)) == target->isInternalPoint(*Geometry::PointReferenceFactory<4>::instance()->makePoint(point4D))), "transform");
+                point4D = test->transform((orig3D));
+                logger.assert_always((source->isInternalPoint((orig3D)) == target->isInternalPoint((point4D))), "transform");
                 
                 orig3D[0] += -1.e-8;
-                compare4D = test->transform(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
+                compare4D = test->transform((orig3D));
                 orig3D[0] += 2.e-8;
-                point4D = test->transform(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
+                point4D = test->transform((orig3D));
                 
                 orig3D[0] += -1e-8;
-                jac4 = test->calcJacobian(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
+                jac4 = test->calcJacobian((orig3D));
                 logger.assert_always((std::abs(jac4[0] - 5.e7 * (point4D[0] - compare4D[0])) < 1e-5), "jacobian"); //estimate is a bit rough, but should work for most mappings
                 logger.assert_always((std::abs(jac4[1] - 5.e7 * (point4D[1] - compare4D[1])) < 1e-5), "jacobian"); //implementations are very strongly recommended to be more accurate
                 logger.assert_always((std::abs(jac4[2] - 5.e7 * (point4D[2] - compare4D[2])) < 1e-5), "jacobian");
                 logger.assert_always((std::abs(jac4[3] - 5.e7 * (point4D[3] - compare4D[3])) < 1e-5), "jacobian");
                 
                 orig3D[1] += -1.e-8;
-                compare4D = test->transform(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
+                compare4D = test->transform((orig3D));
                 orig3D[1] += 2.e-8;
-                point4D = test->transform(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
+                point4D = test->transform((orig3D));
                 
                 orig3D[1] += -1e-8;
-                jac4 = test->calcJacobian(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
+                jac4 = test->calcJacobian((orig3D));
                 logger.assert_always((std::abs(jac4[4] - 5.e7 * (point4D[0] - compare4D[0])) < 1e-5), "jacobian");
                 logger.assert_always((std::abs(jac4[5] - 5.e7 * (point4D[1] - compare4D[1])) < 1e-5), "jacobian");
                 logger.assert_always((std::abs(jac4[6] - 5.e7 * (point4D[2] - compare4D[2])) < 1e-5), "jacobian");
                 logger.assert_always((std::abs(jac4[7] - 5.e7 * (point4D[3] - compare4D[3])) < 1e-5), "jacobian");
                 
                 orig3D[2] += -1.e-8;
-                compare4D = test->transform(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
+                compare4D = test->transform((orig3D));
                 orig3D[2] += 2.e-8;
-                point4D = test->transform(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
+                point4D = test->transform((orig3D));
                 
                 orig3D[2] += -1e-8;
-                jac4 = test->calcJacobian(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
+                jac4 = test->calcJacobian((orig3D));
                 logger.assert_always((std::abs(jac4[8] - 5.e7 * (point4D[0] - compare4D[0])) < 1e-5), "jacobian");
                 logger.assert_always((std::abs(jac4[9] - 5.e7 * (point4D[1] - compare4D[1])) < 1e-5), "jacobian");
                 logger.assert_always((std::abs(jac4[10] - 5.e7 * (point4D[2] - compare4D[2])) < 1e-5), "jacobian");
@@ -243,7 +243,7 @@ int main()
     {
         orig3D = source->getReferenceNodeCoordinate(i);
         compare4D = target->getReferenceNodeCoordinate(nodesAfterTransformation[i]);
-        point4D = test->transform(*Geometry::PointReferenceFactory<3>::instance()->makePoint(orig3D));
+        point4D = test->transform((orig3D));
         logger.assert_always((std::abs(point4D[0] - compare4D[0]) < 1e-12), "transform");
         logger.assert_always((std::abs(point4D[1] - compare4D[1]) < 1e-12), "transform");
         logger.assert_always((std::abs(point4D[2] - compare4D[2]) < 1e-12), "transform");

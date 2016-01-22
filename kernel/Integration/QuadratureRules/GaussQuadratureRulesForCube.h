@@ -66,7 +66,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[1];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<3>*> gp_;
+        std::vector<Geometry::PointReference<3>> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -94,7 +94,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[8];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<3>*> gp_;
+        std::vector<Geometry::PointReference<3>> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -122,7 +122,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[27];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<3>*> gp_;
+        std::vector<Geometry::PointReference<3>> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -150,7 +150,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[64];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<3>*> gp_;
+        std::vector<Geometry::PointReference<3>> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -178,7 +178,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[125]; //FIXME
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<3>*> gp_;
+        std::vector<Geometry::PointReference<3>> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -206,7 +206,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[216]; //FIXME
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<3>*> gp_;
+        std::vector<Geometry::PointReference<3>> gp_;
     };
 
 //---------------------------------------------------------------------------

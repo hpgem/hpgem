@@ -256,6 +256,10 @@ namespace Base
         void setPointReference(const Geometry::PointReference<DIM - 1>& point);
         void setFace(const Face* face);
         void setTransform(std::shared_ptr<CoordinateTransformation<DIM> >& transform);
+
+        void setQuadratureRule(QuadratureRules::GaussQuadratureRule *rule);
+        void setQuadraturePointIndex(std::size_t index);
+
     private:
         PhysicalElement<DIM> left, right;
         std::size_t nLeftBasisFunctions;
@@ -269,12 +273,16 @@ namespace Base
         std::vector<LinearAlgebra::SmallVector<DIM> > solutionUnitNormal_;
         std::vector<LinearAlgebra::SmallVector<DIM> > vectorSolutionUnitNormal_;
 
-        const Geometry::PointReference<DIM - 1>* pointReference_;
+        Geometry::PointReference<DIM - 1> pointReference_;
+        QuadratureRules::GaussQuadratureRule* quadratureRule_;
         const Face* face_;
         std::shared_ptr<CoordinateTransformation<DIM> > transform_;
         LinearAlgebra::SmallVector<DIM> normal;
         LinearAlgebra::SmallVector<DIM> unitNormal;
         double normalNorm;
+
+        //need to store this to keep it existing
+        std::shared_ptr<const Geometry::MappingReferenceToReference<1>> mapToLeftElement, mapToRightElement;
 
         FaceMatrix resultMatrix;
         LinearAlgebra::MiddleSizeMatrix leftRightMatrix, rightLeftMatrix;

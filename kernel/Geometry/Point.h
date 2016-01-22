@@ -39,6 +39,8 @@ namespace Geometry
 
         Point(const Point& other);
 
+        Point(std::initializer_list<double> data);
+
         Point(const LinearAlgebra::SmallVector<DIM>& coord);
 
         void setCoordinate(std::size_t n, const double& coord);
@@ -96,6 +98,9 @@ namespace Geometry
 
     template<std::size_t DIM>
     Point<DIM> operator*(const double& left, const Point<DIM>& right);
+
+    template<std::size_t DIM>
+    std::ostream& operator <<(std::ostream& os, const Point<DIM>& point);
 
 }
 

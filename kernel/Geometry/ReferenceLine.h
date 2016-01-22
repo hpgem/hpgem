@@ -53,7 +53,7 @@ namespace Geometry
 
         const PointReferenceBase& getCenter() const override final
         {
-            return *center_;
+            return center_;
         }
 
         std::size_t getNumberOfNodes() const override final
@@ -64,7 +64,7 @@ namespace Geometry
         const PointReferenceBase& getReferenceNodeCoordinate(const std::size_t& i) const override final
         {
             logger.assert(i < getNumberOfNodes(), "Asked for node %, but there are only % nodes", i, getNumberOfNodes());
-            return *points_[i];
+            return points_[i];
         }
 
         // ================================== Codimension 0 ========================================
@@ -115,9 +115,9 @@ namespace Geometry
         //! List of valid quadrature rules for this reference geometry
         std::vector<QuadratureRules::GaussQuadratureRule*> lstGaussQuadratureRules_;
         
-        std::vector<const PointReference<1>* > points_;
+        std::vector<PointReference<1> > points_;
 
-        const PointReference<1>* center_;
+        PointReference<1> center_;
 
     };
 }

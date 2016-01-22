@@ -113,7 +113,7 @@ int main()
     
     //check set*BasisFunctionSet without breaking preconditions...
     
-    Geometry::Point<3> point3D;
+    Geometry::PointReference<3> point3D;
     for (std::size_t i = 0; i < basisFunctions->size(); ++i)
     {
         for (point[0] = -1.5; point[0] < 1.51; point[0] += 0.6)
@@ -122,10 +122,10 @@ int main()
             {
                 for (point[2] = -1.5; point[2] < 1.51; point[2] += 0.8)
                 {
-                    logger.assert_always((test.basisFunction(i, *Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D)) == (*basisFunctions)[i]->eval(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D))), "basisFunctions");
-                    logger.assert_always((test.basisFunctionDeriv(i, 0, *Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D)) == (*basisFunctions)[i]->evalDeriv0(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D))), "basisFunctions");
-                    logger.assert_always((test.basisFunctionDeriv(i, 1, *Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D)) == (*basisFunctions)[i]->evalDeriv1(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D))), "basisFunctions");
-                    logger.assert_always((test.basisFunctionDeriv(i, 2, *Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D)) == (*basisFunctions)[i]->evalDeriv2(*Geometry::PointReferenceFactory<3>::instance()->makePoint(point3D))), "basisFunctions");
+                    logger.assert_always((test.basisFunction(i, (point3D)) == (*basisFunctions)[i]->eval((point3D))), "basisFunctions");
+                    logger.assert_always((test.basisFunctionDeriv(i, 0, (point3D)) == (*basisFunctions)[i]->evalDeriv0((point3D))), "basisFunctions");
+                    logger.assert_always((test.basisFunctionDeriv(i, 1, (point3D)) == (*basisFunctions)[i]->evalDeriv1((point3D))), "basisFunctions");
+                    logger.assert_always((test.basisFunctionDeriv(i, 2, (point3D)) == (*basisFunctions)[i]->evalDeriv2((point3D))), "basisFunctions");
                 }
             }
         }

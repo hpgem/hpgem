@@ -376,7 +376,7 @@ public:
     }
 
     template<Log LOGLEVEL, typename... Args>
-    typename std::enable_if<L < LOGLEVEL && HPGEM_LOGLEVEL < LOGLEVEL, void>::type
+    typename std::enable_if<(L < LOGLEVEL && HPGEM_LOGLEVEL < LOGLEVEL), void>::type
     operator()(const LL<LOGLEVEL> log, const char* format, Args&&... arg)
     {   
 

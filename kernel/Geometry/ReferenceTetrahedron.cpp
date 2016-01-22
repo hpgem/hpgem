@@ -45,11 +45,11 @@ namespace Geometry
     {
         name = "ReferenceTetrahedron";
         
-        points_[0] = PointReferenceFactory<3>::instance()->makePoint({0., 0., 0.});
-        points_[1] = PointReferenceFactory<3>::instance()->makePoint({1., 0., 0.});
-        points_[2] = PointReferenceFactory<3>::instance()->makePoint({0., 1., 0.});
-        points_[3] = PointReferenceFactory<3>::instance()->makePoint({0., 0., 1.});
-        center_ = PointReferenceFactory<3>::instance()->makePoint({1./4., 1./4., 1./4.});
+        points_[0] = {0., 0., 0.};
+        points_[1] = {1., 0., 0.};
+        points_[2] = {0., 1., 0.};
+        points_[3] = {0., 0., 1.};
+        center_ = {1./4., 1./4., 1./4.};
         
         mappingsTriangleToTetrahedron_[0] = &MappingToRefTriangleToTetrahedron0::Instance();
         mappingsTriangleToTetrahedron_[1] = &MappingToRefTriangleToTetrahedron1::Instance();

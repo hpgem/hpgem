@@ -37,7 +37,7 @@ int main()
 {
     ReferencePoint& test = ReferencePoint::Instance();
     
-    const Geometry::PointReference<0>& pTest = *Geometry::PointReferenceFactory<0>::instance()->makePoint();
+    Geometry::PointReference<0> pTest = {};
     
     //testing basic functionality
     

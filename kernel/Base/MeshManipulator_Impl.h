@@ -198,13 +198,6 @@ namespace Base
     template<std::size_t DIM>
     void MeshManipulator<DIM>::useDefaultDGBasisFunctions()
     {
-        for(std::shared_ptr<const Base::BasisFunctionSet> set : collBasisFSet_)
-        {
-            for(const Base::BaseBasisFunction* function : *set)
-            {
-                Geometry::PointReferenceFactory<DIM>::instance()->removeBasisFunctionData(function);
-            }
-        }
         collBasisFSet_.clear();
         std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > shapeToIndex;
         for(Element* element : getElementsList(IteratorType::GLOBAL))
@@ -260,13 +253,6 @@ namespace Base
     template<std::size_t DIM>
     void MeshManipulator<DIM>::useNedelecDGBasisFunctions()
     {
-        for(std::shared_ptr<const Base::BasisFunctionSet> set : collBasisFSet_)
-        {
-            for(const Base::BaseBasisFunction* function : *set)
-            {
-                Geometry::PointReferenceFactory<DIM>::instance()->removeBasisFunctionData(function);
-            }
-        }
         collBasisFSet_.clear();
         std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > shapeToIndex;
         for(Element* element : getElementsList(IteratorType::GLOBAL))
@@ -295,13 +281,6 @@ namespace Base
     template<std::size_t DIM>
     void MeshManipulator<DIM>::useAinsworthCoyleDGBasisFunctions()
     {
-        for(std::shared_ptr<const Base::BasisFunctionSet> set : collBasisFSet_)
-        {
-            for(const Base::BaseBasisFunction* function : *set)
-            {
-                Geometry::PointReferenceFactory<DIM>::instance()->removeBasisFunctionData(function);
-            }
-        }
         collBasisFSet_.clear();
         std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > shapeToIndex;
         for(Element* element : getElementsList(IteratorType::GLOBAL))
@@ -331,13 +310,6 @@ namespace Base
     void MeshManipulator<DIM>::useDefaultConformingBasisFunctions()
     {
         logger.assert(configData_->polynomialOrder_ > 0, "Basis function may not have an empty union of supporting elements. Use a DG basis function on a single element non-periodic mesh instead");
-        for(std::shared_ptr<const Base::BasisFunctionSet> set : collBasisFSet_)
-        {
-            for(const Base::BaseBasisFunction* function : *set)
-            {
-                Geometry::PointReferenceFactory<DIM>::instance()->removeBasisFunctionData(function);
-            }
-        }
         collBasisFSet_.clear();
         std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > shapeToElementIndex;
         std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > numberOfFaceSets;
@@ -570,23 +542,12 @@ namespace Base
     MeshManipulator<DIM>::~MeshManipulator()
     {        
         delete meshMover_;
-        for(std::shared_ptr<const Base::BasisFunctionSet> set : collBasisFSet_)
-        {
-            for(const Base::BaseBasisFunction* function : *set)
-            {
-                Geometry::PointReferenceFactory<DIM>::instance()->removeBasisFunctionData(function);
-            }
-        }
     }
 
     template<std::size_t DIM>
     void MeshManipulator<DIM>::setDefaultBasisFunctionSet(BasisFunctionSet* bFSet)
     {
         logger.assert(bFSet!=nullptr, "Invalid basis function set passed");
-        for(const Base::BaseBasisFunction* function : *collBasisFSet_[0])
-        {
-            Geometry::PointReferenceFactory<DIM>::instance()->removeBasisFunctionData(function);
-        }
         collBasisFSet_[0] = std::shared_ptr<const BasisFunctionSet>(bFSet);
         const_cast<ConfigurationData*>(configData_)->numberOfBasisFunctions_ = bFSet->size();
         for (Base::Face* face : getFacesList(IteratorType::GLOBAL))

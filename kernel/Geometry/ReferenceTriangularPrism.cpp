@@ -37,13 +37,13 @@ namespace Geometry
     {
         name = "ReferenceTriangularPrism";
         
-        points_[0] = PointReferenceFactory<3>::instance()->makePoint({0., 0., -1.});
-        points_[1] = PointReferenceFactory<3>::instance()->makePoint({1., 0., -1.});
-        points_[2] = PointReferenceFactory<3>::instance()->makePoint({0., 1., -1.});
-        points_[3] = PointReferenceFactory<3>::instance()->makePoint({0., 0.,  1.});
-        points_[4] = PointReferenceFactory<3>::instance()->makePoint({1., 0.,  1.});
-        points_[5] = PointReferenceFactory<3>::instance()->makePoint({0., 1.,  1.});
-        center_ = PointReferenceFactory<3>::instance()->makePoint({1./3., 1./3., 0.});
+        points_[0] = {0., 0., -1.};
+        points_[1] = {1., 0., -1.};
+        points_[2] = {0., 1., -1.};
+        points_[3] = {0., 0.,  1.};
+        points_[4] = {1., 0.,  1.};
+        points_[5] = {0., 1.,  1.};
+        center_ = {1./3., 1./3., 0.};
         
         mappingsFaceToTriangularPrism_[0] = &MappingToRefFaceToTriangularPrism0::Instance();
         mappingsFaceToTriangularPrism_[1] = &MappingToRefFaceToTriangularPrism1::Instance();

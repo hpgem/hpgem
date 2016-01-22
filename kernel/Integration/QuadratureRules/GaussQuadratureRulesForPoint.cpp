@@ -23,7 +23,6 @@
 #include "Geometry/ReferencePoint.h"
 #include "Geometry/PointReference.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
-#include "Geometry/PointReferenceFactory.h"
 #include "Logger.h"
 
 namespace QuadratureRules
@@ -39,7 +38,7 @@ namespace QuadratureRules
     {
         logger.assert(i == 0, "Cn0_inf_1: This quadrature rule only has one point!");
         //actually keep the point around while it is being used
-        return *gp_[0];
+        return gp_[0];
     }
     
     Cn0_inf_1::Cn0_inf_1()
@@ -47,7 +46,7 @@ namespace QuadratureRules
     {
         weight_[0] = 1;
         gp_.clear();
-        gp_.push_back(Geometry::PointReferenceFactory<0>::instance()->makePoint(0));
+        gp_.push_back({});
     }
 
 }

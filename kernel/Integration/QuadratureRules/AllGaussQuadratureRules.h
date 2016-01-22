@@ -44,9 +44,9 @@ namespace QuadratureRules
         static AllGaussQuadratureRules& instance();
 
         //it is possible to call this from an external location, but it is nicer to list all the rules inside this class
-        void addRule(const GaussQuadratureRule* rule);
+        void addRule(GaussQuadratureRule* rule);
 
-        const GaussQuadratureRule* getRule(const Geometry::ReferenceGeometry* referenceGeometry, std::size_t order);
+        GaussQuadratureRule* getRule(const Geometry::ReferenceGeometry* referenceGeometry, std::size_t order);
 
         AllGaussQuadratureRules(AllGaussQuadratureRules&) = delete;
         void operator=(AllGaussQuadratureRules&) = delete;
@@ -54,7 +54,7 @@ namespace QuadratureRules
     private:
         AllGaussQuadratureRules();
 
-        std::map<const Geometry::ReferenceGeometry*, std::vector<const GaussQuadratureRule*>> listOfRules_;
+        std::map<const Geometry::ReferenceGeometry*, std::vector<GaussQuadratureRule*>> listOfRules_;
     };
 
 }

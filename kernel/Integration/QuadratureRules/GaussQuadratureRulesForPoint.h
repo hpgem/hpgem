@@ -80,7 +80,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[1];
         Geometry::ReferenceGeometry * const refGeoPtr_;
-        std::vector<const Geometry::PointReference<0>*> gp_;
+        std::vector<Geometry::PointReference<0>> gp_;
     };
 
 } /* namespace QuadratureRules */

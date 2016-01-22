@@ -50,7 +50,7 @@ namespace Geometry
             return "Identity map";
         }
 
-        const PointReference<0>& refinementTransform(std::size_t subElementIndex, const PointReference<0>& p) const override final
+        PointReference<0> refinementTransform(std::size_t subElementIndex, const PointReference<0>& p) const override final
         {
             logger.assert(subElementIndex == 0, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             return p;

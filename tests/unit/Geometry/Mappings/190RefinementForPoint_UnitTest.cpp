@@ -25,16 +25,16 @@
 #include <iostream>
 
 int main(int argc, char** argv) {
-    Geometry::Point<0> refPoint;
-    Geometry::Point<0> point, compare;
+    Geometry::PointReference<0> refPoint;
+    Geometry::PointReference<0> point, compare;
     LinearAlgebra::SmallMatrix<0, 0> jac;
     for(const Geometry::RefinementMapping* test: {Geometry::RefinementMapForPoint0::instance()}) {
         std::cout << test->getName();
         for(std::size_t i = 0; i < test->getNumberOfSubElements(); ++i) {
-            point = test->refinementTransform(i, *Geometry::PointReferenceFactory<0>::instance()->makePoint(refPoint));
+            point = test->refinementTransform(i, (refPoint));
 
-            jac = test->getRefinementMappingMatrixL(i, *Geometry::PointReferenceFactory<0>::instance()->makePoint(refPoint));
-            jac = test->getRefinementMappingMatrixR(i, *Geometry::PointReferenceFactory<0>::instance()->makePoint(refPoint));
+            jac = test->getRefinementMappingMatrixL(i, (refPoint));
+            jac = test->getRefinementMappingMatrixR(i, (refPoint));
             for(std::size_t index : test->getSubElementLocalNodeIndices(i)) {
                 logger.assert_always(index < Geometry::ReferencePoint::Instance().getNumberOfNodes() + test->getNumberOfNewNodes(), "local index out of bounds");
             }

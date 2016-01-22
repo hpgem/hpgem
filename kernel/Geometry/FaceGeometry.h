@@ -239,17 +239,17 @@ namespace Geometry
         /** \brief Map a point in coordinates of the reference geometry of the face to
          *  the reference geometry of the left (L) element. */
         template<std::size_t DIM>
-        const PointReference<DIM + 1>& mapRefFaceToRefElemL(const PointReference<DIM>& pRefFace) const;
+        PointReference<DIM + 1> mapRefFaceToRefElemL(const PointReference<DIM>& pRefFace) const;
 
         /** \brief Map a point in coordinates of the reference geometry of the face to
          *  the reference geometry of the right (R) element. */
         template<std::size_t DIM>
-        const PointReference<DIM + 1>& mapRefFaceToRefElemR(const PointReference<DIM>& pRefFace) const;
+        PointReference<DIM + 1> mapRefFaceToRefElemR(const PointReference<DIM>& pRefFace) const;
 
         /** \brief Map from reference face coordinates on the left side to those on the
          *  right side. */
         template<std::size_t DIM>
-        const PointReference<DIM>& mapRefFaceToRefFace(const PointReference<DIM>& pIn) const;
+        PointReference<DIM> mapRefFaceToRefFace(const PointReference<DIM>& pIn) const;
         
         /// Get the normal vector corresponding to a given RefPoint
         template<std::size_t DIM>
@@ -304,7 +304,7 @@ namespace Geometry
     /*! Map a point in coordinates of the reference geometry of the face to
      *  the reference geometry of the left (L) element. */
     template<std::size_t DIM>
-    const PointReference<DIM + 1>& FaceGeometry::mapRefFaceToRefElemL(const PointReference<DIM>& pRefFace) const
+    PointReference<DIM + 1> FaceGeometry::mapRefFaceToRefElemL(const PointReference<DIM>& pRefFace) const
     {
         return leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(localFaceNumberLeft_)->transform(pRefFace);
     }
@@ -312,7 +312,7 @@ namespace Geometry
     /*! Map a point in coordinates of the reference geometry of the face to
      *  the reference geometry of the right (R) element. */
     template<std::size_t DIM>
-    const PointReference<DIM + 1>& FaceGeometry::mapRefFaceToRefElemR(const PointReference<DIM>& pRefFace) const
+    PointReference<DIM + 1> FaceGeometry::mapRefFaceToRefElemR(const PointReference<DIM>& pRefFace) const
     {
         // In the L function we have assumed the point pRefFace to be
         // given in coordinates of the system used by the reference face
@@ -328,7 +328,7 @@ namespace Geometry
     /*! Map from reference face coordinates on the left side to those on the
      *  right side. */
     template<std::size_t DIM>
-    const PointReference<DIM>& FaceGeometry::mapRefFaceToRefFace(const PointReference<DIM>& pIn) const
+    PointReference<DIM> FaceGeometry::mapRefFaceToRefFace(const PointReference<DIM>& pIn) const
     {
         return getReferenceGeometry()->getCodim0MappingPtr(faceToFaceMapIndex_)->transform(pIn);
     }

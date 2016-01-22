@@ -120,14 +120,14 @@ namespace Base
         /// \brief Create a quadrature for this face based on the quadrature rules of adjacent elements.
         void createQuadratureRules();
 
-        void setGaussQuadratureRule(const FaceQuadratureRule* quadratureRule)
+        void setGaussQuadratureRule(FaceQuadratureRule* quadratureRule)
         {
             logger.assert(quadratureRule!=nullptr, "Invalid quadrature rule passed");
             quadratureRule_ = quadratureRule;
         }
         
         /// \brief Get a pointer to the quadrature rule used to do integration on this face.
-        const FaceQuadratureRule* getGaussQuadratureRule() const
+        FaceQuadratureRule* getGaussQuadratureRule() const
         {
             return quadratureRule_;
         }
@@ -229,7 +229,7 @@ namespace Base
 
         Element* elementLeft_;
         Element* elementRight_;
-        const FaceQuadratureRule* quadratureRule_;
+        FaceQuadratureRule* quadratureRule_;
 
         const TreeEntry<Face*>* positionInTheTree_;
 

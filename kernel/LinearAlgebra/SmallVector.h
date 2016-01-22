@@ -77,9 +77,16 @@ namespace LinearAlgebra
         }
 
         SmallVector(const double array[])
-            : data_()
+                : data_()
         {
             std::copy(array, array + numberOfRows, data_.begin());
+        }
+
+        SmallVector(std::initializer_list<double> data)
+                : data_()
+        {
+            logger.assert(data.size() == numberOfRows, "provided array has size %, but should have size %", data.size(), numberOfRows);
+            std::copy(data.begin(), data.end(), data_.begin());
         }
 
         SmallVector& operator=(const SmallVector& right)

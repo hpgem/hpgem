@@ -25,8 +25,8 @@
 #include <iostream>
 
 int main(int argc, char** argv) {
-    Geometry::Point<3> refPoint;
-    Geometry::Point<3> point, compare;
+    Geometry::PointReference<3> refPoint;
+    Geometry::PointReference<3> point, compare;
     LinearAlgebra::SmallMatrix<3, 3> jac;
     for(const Geometry::RefinementMapping* test: {Geometry::RefinementMapForPyramid0::instance()}) {
         std::cout << test->getName();
@@ -37,41 +37,41 @@ int main(int argc, char** argv) {
                 {
                     for (refPoint[2] = -1.51; refPoint[2] < 1.51; refPoint[2] += 0.8)
                     {
-                        point = test->refinementTransform(i, *Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint));
+                        point = test->refinementTransform(i, (refPoint));
 
                         refPoint[0] += -1.e-8;
-                        compare = test->refinementTransform(i, *Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint));
+                        compare = test->refinementTransform(i, (refPoint));
                         refPoint[0] += 2.e-8;
-                        point = test->refinementTransform(i, *Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint));
+                        point = test->refinementTransform(i, (refPoint));
 
                         refPoint[0] += -1e-8;
-                        jac = test->getRefinementMappingMatrixL(i, *Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint));
+                        jac = test->getRefinementMappingMatrixL(i, (refPoint));
                         logger.assert_always((std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) < 1e-5), "jacobian"); //estimate is a bit rough, but should work for most mappings
                         logger.assert_always((std::abs(jac[1] - 5.e7 * (point[1] - compare[1])) < 1e-5), "jacobian"); //implementations are very strongly recommended to be more accurate
                         logger.assert_always((std::abs(jac[2] - 5.e7 * (point[2] - compare[2])) < 1e-5), "jacobian");
 
                         refPoint[1] += -1.e-8;
-                        compare = test->refinementTransform(i, *Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint));
+                        compare = test->refinementTransform(i, (refPoint));
                         refPoint[1] += 2.e-8;
-                        point = test->refinementTransform(i, *Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint));
+                        point = test->refinementTransform(i, (refPoint));
 
                         refPoint[1] += -1e-8;
-                        jac = test->getRefinementMappingMatrixL(i, *Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint));
+                        jac = test->getRefinementMappingMatrixL(i, (refPoint));
                         logger.assert_always((std::abs(jac[3] - 5.e7 * (point[0] - compare[0])) < 1e-5), "jacobian");
                         logger.assert_always((std::abs(jac[4] - 5.e7 * (point[1] - compare[1])) < 1e-5), "jacobian");
                         logger.assert_always((std::abs(jac[5] - 5.e7 * (point[2] - compare[2])) < 1e-5), "jacobian");
 
                         refPoint[2] += -1.e-8;
-                        compare = test->refinementTransform(i, *Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint));
+                        compare = test->refinementTransform(i, (refPoint));
                         refPoint[2] += 2.e-8;
-                        point = test->refinementTransform(i, *Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint));
+                        point = test->refinementTransform(i, (refPoint));
 
                         refPoint[2] += -1e-8;
-                        jac = test->getRefinementMappingMatrixL(i, *Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint));
+                        jac = test->getRefinementMappingMatrixL(i, (refPoint));
                         logger.assert_always((std::abs(jac[6] - 5.e7 * (point[0] - compare[0])) < 1e-5), "jacobian");
                         logger.assert_always((std::abs(jac[7] - 5.e7 * (point[1] - compare[1])) < 1e-5), "jacobian");
                         logger.assert_always((std::abs(jac[8] - 5.e7 * (point[2] - compare[2])) < 1e-5), "jacobian");
-                        jac *= test->getRefinementMappingMatrixR(i, *Geometry::PointReferenceFactory<3>::instance()->makePoint(refPoint));
+                        jac *= test->getRefinementMappingMatrixR(i, (refPoint));
                         logger.assert_always(std::abs(jac[0] - 1.) < 1e-12, "inverse of jacobian");
                         logger.assert_always(std::abs(jac[1] - 0.) < 1e-12, "inverse of jacobian");
                         logger.assert_always(std::abs(jac[2] - 0.) < 1e-12, "inverse of jacobian");
