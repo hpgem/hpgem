@@ -34,7 +34,7 @@ namespace Geometry
     {
     public:
         
-        PhysicalPyramid(const std::vector<std::size_t>&, std::vector<PointPhysical<3> >&);
+        PhysicalPyramid(const std::vector<std::size_t>&, std::vector<Geometry::PointPhysical<3> >&);
     };
 }
 #endif

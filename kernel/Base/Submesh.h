@@ -131,7 +131,7 @@ namespace Base
         friend Mesh<2>;
         friend Mesh<3>;
         friend Mesh<4>;
-        friend std::vector<Submesh>::allocator_type;
+        friend std::vector<Base::Submesh>::allocator_type;
 
         Submesh() = default;
         Submesh(const Submesh& orig) = delete;

@@ -156,7 +156,7 @@ namespace Base
         template<std::size_t DIM>
         double basisFunctionDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference<DIM>& p) const;
 
-        ///\brief The "all directions in one go"-edition of basisFunctionDeriv. Also applies the scaling gained from transforming to the reference element.
+        ///\brief The "all directions in one go"-edition of basisFunctionDeriv. Warning: contrary to some old implementations, this will NOT apply the scaling due to the transformation to a reference element
         template<std::size_t DIM>
         LinearAlgebra::SmallVector<DIM + 1> basisFunctionDeriv(std::size_t i, const Geometry::PointReference<DIM>& p) const;
 

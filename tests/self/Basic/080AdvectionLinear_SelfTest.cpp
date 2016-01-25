@@ -157,7 +157,7 @@ public:
         LinearAlgebra::MiddleSizeVector exactSolution(1);
         if(orderTimeDerivative == 0)
         {
-            PointPhysicalT displacement(a*time);
+            PointPhysicalT displacement{a*time};
             exactSolution(0) = getSolutionAtTimeZero(point - displacement);
             return exactSolution;
         }

@@ -43,7 +43,7 @@
 namespace Base
 {
         
-    Element::Element(const ElementData& otherData, const ElementGeometry& otherGeometry)
+    Element::Element(const ElementData& otherData, const Geometry::ElementGeometry& otherGeometry)
         :
         ElementGeometry(otherGeometry), ElementData(otherData)
     {        

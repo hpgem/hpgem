@@ -33,6 +33,7 @@
 #include "Geometry/PhysicalHexahedron.h"
 #include "Geometry/PointReference.h"
 #include "Geometry/Jacobian.h"
+#include "Base/L2Norm.h"
 #include <cmath>
 //transformations should map internal points to internal points, external points to external points
 //and nodes to nodes so construct the physical geometries such that this can be checked :(
@@ -94,10 +95,12 @@ int main()
         compare1D = mapping1D.transform((refPoint1D));
         refPoint1D[0] += 2.e-8;
         point1D = mapping1D.transform((refPoint1D));
-        
+
         refPoint1D[0] += -1e-8;
         jac1D = mapping1D.calcJacobian((refPoint1D));
         logger.assert_always((std::abs(jac1D[0] - 5.e7 * (point1D[0] - compare1D[0])) < 1e-5), "jacobian"); //estimate is a bit rough, but should work for most mappings
+        refPoint1D[0] += 1e-8;
+        logger.assert_always(Base::L2Norm(refPoint1D - mapping1D.inverseTransform(point1D)) < 1e-12, "inverse transformation(difference is %, point is %)", refPoint1D - mapping1D.inverseTransform(point1D), refPoint1D);
     }
     
     for (std::size_t i = 0; i < rGeom.getNumberOfNodes(); ++i)
@@ -174,6 +177,13 @@ int main()
             jac2D = mapping2D.calcJacobian((refPoint2D));
             logger.assert_always((std::abs(jac2D[2] - 5.e7 * (point2D[0] - compare2D[0])) < 1e-5), "jacobian");
             logger.assert_always((std::abs(jac2D[3] - 5.e7 * (point2D[1] - compare2D[1])) < 1e-5), "jacobian");
+            refPoint2D[1] += 1e-8;
+            //either the reference point and the inverse transform of its transform are both outside the square
+            //(but on potentially different locations; due to nonlinearities)
+            //or they are inside and on the same location
+            logger.assert_always((!rGeom2D.isInternalPoint(refPoint2D) && !rGeom2D.isInternalPoint(mapping2D.inverseTransform(point2D)))
+                                 || Base::L2Norm(refPoint2D - mapping2D.inverseTransform(point2D)) < 1e-12,
+                                 "inverse transformation, (distance is %, point is %)", refPoint2D - mapping2D.inverseTransform(point2D), refPoint2D);
         }
     }
     
@@ -285,6 +295,13 @@ int main()
                 logger.assert_always((std::abs(jac3D[6] - 5.e7 * (point3D[0] - compare3D[0])) < 1e-5), "jacobian");
                 logger.assert_always((std::abs(jac3D[7] - 5.e7 * (point3D[1] - compare3D[1])) < 1e-5), "jacobian");
                 logger.assert_always((std::abs(jac3D[8] - 5.e7 * (point3D[2] - compare3D[2])) < 1e-5), "jacobian");
+                refPoint3D[2] += 1e-8;
+                //either the reference point and the inverse transform of its transform are both outside the square
+                //(but on potentially different locations; due to nonlinearities)
+                //or they are inside and on the same location
+                logger.assert_always((!rGeom3D.isInternalPoint(refPoint3D) && !rGeom3D.isInternalPoint(mapping3D.inverseTransform(point3D)))
+                                     || Base::L2Norm(refPoint3D - mapping3D.inverseTransform(point3D)) < 1e-12,
+                                     "inverse transformation, (distance is %, point is %)", refPoint3D - mapping3D.inverseTransform(point3D), refPoint3D);
             }
         }
     }

@@ -705,6 +705,33 @@ namespace Base
     {
         theMesh_.addNode();
     }
+
+    template<std::size_t DIM>
+    std::tuple<Base::Element*, Geometry::PointReference<DIM>> MeshManipulator<DIM>::physicalToReference(Geometry::PointPhysical<DIM> pointPhysical) const
+    {
+        for(Base::Element* element : getElementsList(IteratorType::GLOBAL))
+        {
+            Geometry::PointReference<DIM> pointReference = element->physicalToReference(pointPhysical);
+            if(element->getReferenceGeometry()->isInternalPoint(pointReference))
+            {
+                return {element, pointReference};
+            }
+        }
+        logger(ERROR, "The point % lies outsize the domain", pointPhysical);
+        return {nullptr, {}};
+    }
+
+    template<std::size_t DIM>
+    void MeshManipulator<DIM>::addMeasurePoint(Geometry::PointPhysical<DIM> pointPhysical)
+    {
+        measurePoints_.push_back(physicalToReference(pointPhysical));
+    }
+
+    template<std::size_t DIM>
+    std::vector<std::tuple<Base::Element*, Geometry::PointReference<DIM>>> MeshManipulator<DIM>::getMeasurePoints() const
+    {
+        return measurePoints_;
+    }
 }
 
 template<std::size_t DIM>

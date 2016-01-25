@@ -55,6 +55,11 @@ namespace Geometry
                 : Point<DIM>(coord)
         {
         }
+
+        PointPhysical(std::initializer_list<double> data)
+                : Point<DIM>(data)
+        {
+        }
         
         PointPhysical operator*(double right) const
         {

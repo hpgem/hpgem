@@ -155,9 +155,9 @@ enum class Log
  * \brief Internally used to filter on loglevel.
  * Do not edit, as this is required for an optimised logger.
  */
-constexpr bool operator<=(const Log rhs, const Log lhs)
+constexpr bool operator<=(const Log lhs, const Log rhs)
 {
-    return ((static_cast<signed char>(rhs)) <= (static_cast<signed char>(lhs)));
+    return ((static_cast<signed char>(lhs)) <= (static_cast<signed char>(rhs)));
 }
 
 /*!
@@ -386,7 +386,7 @@ public:
     template<Log LOGLEVEL, typename... Args>
     void operator()(const LL<LOGLEVEL> log, std::string& format, Args&&... arg)
     {
-        (*this)(log, format.c_str(), arg...);
+        (*this)(log, format.c_str(), std::forward<Args>(arg)...);
     }
 
 
@@ -409,7 +409,7 @@ public:
     typename std::enable_if<(ASSERTS) && (sizeof...(Args) >= 0), void>::type
     assert(bool assertion, const char* format, Args&&... arg)
     {   
-        assert_always(assertion, format, arg...);
+        assert_always(assertion, format, std::forward<Args>(arg)...);
     }
     
     template<typename... Args>
@@ -421,7 +421,7 @@ public:
     template<typename... Args>
     void assert(bool assertion, const std::string format, Args&&... arg)
     {
-        assert(assertion, format.c_str(), arg...);
+        assert(assertion, format.c_str(), std::forward<Args>(arg)...);
     }
 
     template<typename... Args>
@@ -430,7 +430,7 @@ public:
         if (!assertion)
         {   
             std::stringstream msgstream;
-            createMessage(msgstream, format, arg...);
+            createMessage(msgstream, format, std::forward<Args>(arg)...);
             loggerOutput->onFatal(module, msgstream.str());
         }
 
@@ -439,7 +439,7 @@ public:
     template<typename... Args>
     void assert_always(bool assertion, const std::string format, Args&&... arg)
     {
-        assert_always(assertion, format.c_str(), arg...);
+        assert_always(assertion, format.c_str(), std::forward<Args>(arg)...);
     }
 
     /*!
@@ -452,7 +452,7 @@ public:
         if (loglevel <= L || loglevel <= HPGEM_LOGLEVEL)
         {   
             std::stringstream msgstream;
-            createMessage(msgstream, format.c_str(), arg...);
+            createMessage(msgstream, format.c_str(), std::forward<Args>(arg)...);
             if (loglevel <= Log::FATAL)
             {   
                 loggerOutput->onFatal(module, msgstream.str());
@@ -510,7 +510,7 @@ private:
 
         fmt++; //Consume the % sign
         msg << arg;
-        createMessage(msg, fmt, args...);//and recursively call ourselve / the method below.
+        createMessage(msg, fmt, std::forward<Args>(args)...);//and recursively call ourselve / the method below.
     }
 
     /*!

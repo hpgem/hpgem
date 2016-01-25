@@ -30,6 +30,7 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/Jacobian.h"
 #include <cmath>
+#include <Base/L2Norm.h>
 //transformations should map internal points to internal points, external points to external points
 //and nodes to nodes so construct the physical geometries such that this can be checked :(
 
@@ -141,6 +142,13 @@ int main()
                 logger.assert_always((std::abs(jac3D[6] - 5.e7 * (point3D[0] - compare3D[0])) < 1e-5), "jacobian");
                 logger.assert_always((std::abs(jac3D[7] - 5.e7 * (point3D[1] - compare3D[1])) < 1e-5), "jacobian");
                 logger.assert_always((std::abs(jac3D[8] - 5.e7 * (point3D[2] - compare3D[2])) < 1e-5), "jacobian");
+                refPoint3D[2] += 1e-8;
+                //either the reference point and the inverse transform of its transform are both outside the square
+                //(but on potentially different locations; due to nonlinearities)
+                //or they are inside and on the same location
+                logger.assert_always((!rGeom3D.isInternalPoint(refPoint3D) && !rGeom3D.isInternalPoint(mapping3D.inverseTransform(point3D)))
+                                     || Base::L2Norm(refPoint3D - mapping3D.inverseTransform(point3D)) < 1e-12,
+                                     "inverse transformation, (distance is %, point is %)", refPoint3D - mapping3D.inverseTransform(point3D), refPoint3D);
             }
         }
     }

@@ -144,7 +144,7 @@ namespace Base
         std::vector<CommandLineOptionBase*>& getCLOList();
         
         template<typename T>
-        typename std::enable_if<std::is_same<T, bool>::value, T>::type parse_argument(CLOParser& p)
+        typename std::enable_if<(std::is_same<T, bool>::value), T>::type parse_argument(CLOParser& p)
         {
             return true;
         }
@@ -183,7 +183,7 @@ namespace Base
         
 
         template<typename T>
-        typename std::enable_if<std::is_same<T, std::string>::value, T>::type parse_argument(CLOParser& p)
+        typename std::enable_if<(std::is_same<T, std::string>::value), T>::type parse_argument(CLOParser& p)
         {
             ++p;
             std::string copy = *p;
@@ -240,7 +240,7 @@ namespace Base
         
         bool hasArgument() override
         {
-            return std::is_same<T, bool>::value ? false : true;
+            return !std::is_same<T, bool>::value;
         }
         
     };

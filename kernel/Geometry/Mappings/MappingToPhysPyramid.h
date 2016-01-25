@@ -43,6 +43,8 @@ namespace Geometry
 
         PointPhysical<3> transform(const PointReference<3>&) const override final;
 
+        PointReference<3> inverseTransform(const PointPhysical<3>&) const override final;
+
         Jacobian<3, 3> calcJacobian(const PointReference<3>&) const override final;
 
         void reinit() override final;

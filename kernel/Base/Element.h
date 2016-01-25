@@ -273,7 +273,7 @@ namespace Base
         
     private:
         ///Constructor that copies the data and geometry of the given ElementData and ElementGeometry.
-        Element(const ElementData& otherData, const ElementGeometry& otherGeometry);
+        Element(const ElementData& otherData, const Geometry::ElementGeometry& otherGeometry);
 
         std::tuple<const BasisFunctionSet*, std::size_t> getBasisFunctionSetAndIndex(std::size_t index) const;
 

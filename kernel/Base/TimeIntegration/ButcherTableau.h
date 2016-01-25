@@ -26,9 +26,9 @@
 
 namespace TimeIntegration
 {
-    /** \brief Basic container for Butcher's tableaus.
+    /** \brief Basic container for Butcher's tableaux.
      *
-     *  Butcher tableaus are a tool to write down some numerical methods for solving 
+     *  Butcher tableaux are a tool to write down some numerical methods for solving
      *  ordinary differential equations compactly.
      *  Every tableau has a matrix a, vector b and vector c containing its coefficients.
      *  Furthermore, the order and the number of stages of the numerical method

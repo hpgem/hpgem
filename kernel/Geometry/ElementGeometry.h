@@ -111,6 +111,13 @@ namespace Geometry
         template<std::size_t DIM>
         PointPhysical<DIM> referenceToPhysical(const PointReference<DIM>& pointReference) const;
 
+        /// This routine is the inverse of referenceToPhysical. For elements where the mapping from the reference Element
+        /// is nonlinear (square, cube, triangularPrism and pyramid) there might be multiple valid reference points
+        /// some of which might be interior to the reference element. In this case a reference point is selected depending
+        /// on implementation details.
+        template<std::size_t DIM>
+        PointPhysical<DIM> physicalToReference(const PointReference<DIM>& pointReference) const;
+
         /// This method gets a PointReference and returns the corresponding jacobian of the
         /// referenceToPhysicalMapping.
         template<std::size_t DIM>

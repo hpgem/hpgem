@@ -47,7 +47,7 @@ class AdvectionTest : public Base::HpgemAPILinear<DIM>
 public:
     ///Constructor. Assign all private variables.
     AdvectionTest(std::size_t p) :
-    HpgemAPILinear<DIM>(1, p)
+    Base::HpgemAPILinear<DIM>(1, p)
     {
         //Choose the "direction" of the advection.
         //This cannot be implemented with iterators, and since the dimension is

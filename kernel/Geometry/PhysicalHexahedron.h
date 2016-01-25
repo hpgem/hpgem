@@ -33,7 +33,7 @@ namespace Geometry
     {
     public:
         
-        PhysicalHexahedron(const std::vector<std::size_t>&, std::vector<PointPhysical<3> > &);
+        PhysicalHexahedron(const std::vector<std::size_t>&, std::vector<Geometry::PointPhysical<3> > &);
     };
 
 }

@@ -389,6 +389,17 @@ namespace Base
         Mesh<DIM>& getMesh();
         const Mesh<DIM>& getMesh() const;
 
+        /// given a PointPhysical inside the domain, finds an Element and a ReferencePoint such that
+        /// Element::transform(PointReference) == PointPhysical
+        /// and Element::isInteriorPoint(PointReference)
+        std::tuple<Base::Element*, Geometry::PointReference<DIM>> physicalToReference(Geometry::PointPhysical<DIM>) const;
+
+        /// add a PointPhysical where the solution is to be sampled more than once over the course of the simulation
+        void addMeasurePoint(Geometry::PointPhysical<DIM>);
+
+        /// returns all locations that were registered as interesting
+        std::vector<std::tuple<Base::Element*, Geometry::PointReference<DIM>>> getMeasurePoints() const;
+
         
         //---------------------------------------------------------------------
     private:
@@ -415,6 +426,8 @@ namespace Base
 
         //when the mesh is updated, persistently store original node coordinates to see if retriangulation is in order
         std::vector<Geometry::PointPhysical<DIM> > oldNodeLocations_;
+
+        std::vector<std::tuple<Base::Element*, Geometry::PointReference<DIM>>> measurePoints_;
     };
     
 

@@ -34,7 +34,7 @@
 int main()
 { //The 0D case is mostly testing if there are any crashing functions
 
-    Geometry::PointReference<0> refPoint, point, compare;
+    Geometry::PointReference<0> refPoint, point;
     
     Geometry::ReferencePoint& geom = Geometry::ReferencePoint::Instance();
     
