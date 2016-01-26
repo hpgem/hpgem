@@ -116,7 +116,7 @@ namespace Geometry
         /// some of which might be interior to the reference element. In this case a reference point is selected depending
         /// on implementation details.
         template<std::size_t DIM>
-        PointPhysical<DIM> physicalToReference(const PointReference<DIM>& pointReference) const;
+        PointReference<DIM> physicalToReference(const PointPhysical<DIM>& pointPhysical) const;
 
         /// This method gets a PointReference and returns the corresponding jacobian of the
         /// referenceToPhysicalMapping.
@@ -164,6 +164,12 @@ namespace Geometry
     PointPhysical<DIM> ElementGeometry::referenceToPhysical(const PointReference<DIM>& pointReference) const
     {
         return referenceToPhysicalMapping_->transform(pointReference);
+    }
+
+    template<std::size_t DIM>
+    PointReference<DIM> ElementGeometry::physicalToReference(const PointPhysical<DIM> &pointPhysical) const
+    {
+        return referenceToPhysicalMapping_->inverseTransform(pointPhysical);
     }
 
     /// This method gets a PointReference and returns the corresponding Jacobian of the

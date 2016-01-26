@@ -392,13 +392,13 @@ namespace Base
         /// given a PointPhysical inside the domain, finds an Element and a ReferencePoint such that
         /// Element::transform(PointReference) == PointPhysical
         /// and Element::isInteriorPoint(PointReference)
-        std::tuple<Base::Element*, Geometry::PointReference<DIM>> physicalToReference(Geometry::PointPhysical<DIM>) const;
+        std::tuple<const Base::Element*, Geometry::PointReference<DIM>> physicalToReference(Geometry::PointPhysical<DIM>) const;
 
         /// add a PointPhysical where the solution is to be sampled more than once over the course of the simulation
         void addMeasurePoint(Geometry::PointPhysical<DIM>);
 
         /// returns all locations that were registered as interesting
-        std::vector<std::tuple<Base::Element*, Geometry::PointReference<DIM>>> getMeasurePoints() const;
+        const std::vector<std::tuple<const Base::Element*, Geometry::PointReference<DIM>>>& getMeasurePoints() const;
 
         
         //---------------------------------------------------------------------
@@ -415,6 +415,11 @@ namespace Base
 
         //!Construct the faces based on connectivity information about elements and nodes
         void edgeFactory();
+
+        //iterable should provide a begin() and an end() that return a TreeEntry<Element*>
+        // but concepts don't exist yet (will probably have to become an Iterable<TreeEntry<Element*>> once they do)
+        template<typename Iterable>
+        std::tuple<const Base::Element*, Geometry::PointReference<DIM>> physicalToReference_detail(Geometry::PointPhysical<DIM>, Iterable elementContainer) const;
         
         Mesh<DIM> theMesh_;
 
@@ -427,7 +432,7 @@ namespace Base
         //when the mesh is updated, persistently store original node coordinates to see if retriangulation is in order
         std::vector<Geometry::PointPhysical<DIM> > oldNodeLocations_;
 
-        std::vector<std::tuple<Base::Element*, Geometry::PointReference<DIM>>> measurePoints_;
+        std::vector<std::tuple<const Base::Element*, Geometry::PointReference<DIM>>> measurePoints_;
     };
     
 

@@ -707,18 +707,33 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    std::tuple<Base::Element*, Geometry::PointReference<DIM>> MeshManipulator<DIM>::physicalToReference(Geometry::PointPhysical<DIM> pointPhysical) const
+    std::tuple<const Base::Element*, Geometry::PointReference<DIM>> MeshManipulator<DIM>::physicalToReference(Geometry::PointPhysical<DIM> pointPhysical) const
     {
-        for(Base::Element* element : getElementsList(IteratorType::GLOBAL))
+        return physicalToReference_detail(pointPhysical, getElementsList(IteratorType::GLOBAL).getRootEntries());
+    }
+
+    template<std::size_t DIM>
+    template<typename Iterable>
+    std::tuple<const Base::Element*, Geometry::PointReference<DIM>> MeshManipulator<DIM>::physicalToReference_detail(Geometry::PointPhysical<DIM>pointPhysical, Iterable elementContainer) const
+    {
+        for(auto singleEntry : elementContainer)
         {
+            const Base::Element* element = singleEntry->getData();
             Geometry::PointReference<DIM> pointReference = element->physicalToReference(pointPhysical);
             if(element->getReferenceGeometry()->isInternalPoint(pointReference))
             {
-                return {element, pointReference};
+                if(singleEntry->hasChild())
+                {
+                    return physicalToReference_detail(pointPhysical, singleEntry->getChildren());
+                }
+                else
+                {
+                    return {element, pointReference};
+                }
             }
         }
         logger(ERROR, "The point % lies outsize the domain", pointPhysical);
-        return {nullptr, {}};
+        return std::tuple<Base::Element*, Geometry::PointReference<DIM>>{nullptr, {}};
     }
 
     template<std::size_t DIM>
@@ -728,7 +743,7 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    std::vector<std::tuple<Base::Element*, Geometry::PointReference<DIM>>> MeshManipulator<DIM>::getMeasurePoints() const
+    const std::vector<std::tuple<const Base::Element*, Geometry::PointReference<DIM>>>& MeshManipulator<DIM>::getMeasurePoints() const
     {
         return measurePoints_;
     }
