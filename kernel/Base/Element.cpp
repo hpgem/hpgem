@@ -239,7 +239,7 @@ namespace Base
             {
                 if (index - basePosition < basisFunctionSet_->at(j)->size())
                 {
-                    return {basisFunctionSet_->at(j).get(), index - basePosition};
+                    return std::tuple<const BasisFunctionSet*, std::size_t>{basisFunctionSet_->at(j).get(), index - basePosition};
                 }
                 else
                 {
