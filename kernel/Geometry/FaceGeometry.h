@@ -105,13 +105,17 @@ namespace Geometry
     ///FaceType provides a classification of faces. The following are distinguished
     ///WALL_BC: Domain boundary (default set by internal mesh generators)
     ///OPEN_BC: Domain boundary (can be set manually to signal a different boundary type)
+    ///REFINEMENT_BOUNDARY: At least one of the nodes of this face is a hanging node
+    ///i.e. it is an internal face, but on this refinement level there is an element only on one side
+    ///use coarsening to treat the flux for this face
+    ///due to technical reasons hpGEM will claim this is a boundary face, even though it is internal
     ///INTERNAL: an internal face with nothing special going on
     ///SUBDOMAIN_BOUNDARY: an internal face where the left element is not on the same processor as the right element
     ///PERIODIC_BC: an internal face where the left element and the right element do not agree on the physical coordinates (usually caused by connecting the mesh across a periodic boundary) (used e.g. when splitting the face to create two extra coordinates instead of one)
     ///PERIODIC_SUBDOMAIN_BC: a combination of SUBDOMAIN_BOUNDARY and PERIODIC_BC
     enum class FaceType
     {
-        OPEN_BC, WALL_BC, PERIODIC_BC, INTERNAL, SUBDOMAIN_BOUNDARY, PERIODIC_SUBDOMAIN_BC
+        OPEN_BC, WALL_BC, PERIODIC_BC, INTERNAL, SUBDOMAIN_BOUNDARY, PERIODIC_SUBDOMAIN_BC, REFINEMENT_BOUNDARY
     };
     
     //For sake of consistency, placed here.
@@ -137,6 +141,8 @@ namespace Geometry
             case FaceType::SUBDOMAIN_BOUNDARY:
                 out << "Subdomain boundary";
                 break;
+            case FaceType::REFINEMENT_BOUNDARY:
+                out << "Refined face with hanging node";
         }
         return out;
     }
