@@ -75,9 +75,53 @@ namespace Base
         {
             return 1.;
         }
+
+        template<typename Archive>
+        void serialize(Archive &ar, const unsigned int version)
+        {
+            ar & boost::serialization::base_object<CoordinateTransformation<DIM>>(*this);
+            ar & underlying_;
+        }
+
+        const CoordinateTransformation<DIM>* getUnderlying() const
+        {
+            return underlying_;
+        }
+
     private:
+
         CoordinateTransformation<DIM>* underlying_;
     };
+
+
+
+}
+
+///\todo Test this part
+namespace boost
+{
+    namespace serialization
+    {
+        template<class Archive, std::size_t DIM>
+        inline void save_construct_data(
+                Archive & ar, const Base::DoNotScaleIntegrands<DIM> * test, const unsigned int file_version)
+        {
+            // save data required to construct instance (for now cheat and acquire the info from somewhere else)
+            const Base::CoordinateTransformation<DIM>* underlying = test->getUnderlying();
+            ar << underlying;
+        }
+
+        template<class Archive, std::size_t DIM>
+        inline void load_construct_data(
+                Archive & ar, Base::DoNotScaleIntegrands<DIM> * t, const unsigned int file_version)
+        {
+            // retrieve data from archive required to construct new instance
+            Base::CoordinateTransformation<DIM>* underlying;
+            ar >> underlying;
+            // invoke inplace constructor to initialize instance of my_class
+            ::new(t)Base::DoNotScaleIntegrands<DIM>(underlying);
+        }
+    }
 }
 
 

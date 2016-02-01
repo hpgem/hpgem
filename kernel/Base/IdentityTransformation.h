@@ -25,6 +25,7 @@
 #include <cstdlib>
 #include "LinearAlgebra/SmallVector.h"
 #include "CoordinateTransformation.h"
+#include "SerializationInclude.h"
 
 namespace Base
 {
@@ -76,6 +77,12 @@ namespace Base
         {
             return 1.;
         }
+
+        /*template<typename Archive>
+        void serialize(Archive &ar, const unsigned int version)
+        {
+            ar & boost::serialization::base_object<CoordinateTransformation<DIM>>(*this);
+        }*/
     };
 }
 

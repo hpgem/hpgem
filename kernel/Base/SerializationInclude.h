@@ -23,12 +23,12 @@
 #define SERIALIZATIONINCLUDE_H
 #include <cstdlib>
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/assume_abstract.hpp>
 #include <boost/serialization/shared_ptr.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 #undef assert
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Base::CoordinateTransformation<DIM>);

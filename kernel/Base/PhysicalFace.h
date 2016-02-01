@@ -29,10 +29,20 @@
 namespace Base
 {
 
+    ///Forward declaration of all coordinate transformations.
+    ///\todo check if these can be circumvented
     template<std::size_t DIM>
     class CoordinateTransformation;
     template<std::size_t DIM>
     class H1ConformingTransformation;
+    template<std::size_t DIM>
+    class HCurlConformingTransformation;
+    template<std::size_t DIM>
+    class HDivConformingTransformation;
+    template<std::size_t DIM>
+    class DoNotScaleIntegrands;
+    template<std::size_t DIM>
+    class IdentityTransformation;
     
 
     //class is final as a reminder that there is no virtual destructor
@@ -260,9 +270,19 @@ namespace Base
         template <class Archive>
         void serialize(Archive & ar, const unsigned int version)
         {
+            ///Boost only allows to serialize types it knows about. Usually this is not a problem, but we have never written a subclass of
+            ///CoordinateTransformation before. It is also possible to register new types without writing them. If you want to use a new
+            ///coordinate transformation from the kernel with PhysicalElement you should also register it here. If you have an application-
+            ///specific coordinate transformation in your application, you should probably register it over there instead.
+            ///\todo think of a better solution
+            ar.template register_type<H1ConformingTransformation<DIM>>();
+            ar.template register_type<HCurlConformingTransformation<DIM>>();
+            ar.template register_type<HDivConformingTransformation<DIM>>();
+            ar.template register_type<DoNotScaleIntegrands<DIM>>();
+            ar.template register_type<IdentityTransformation<DIM>>();
 
-            ///\todo think about the coordinate transformation, currently getting an "unregistered class - derived class not registered or exported" exception
-            //ar & transform_;
+            ar & transform_;
+            ///\todo check if other data should be saved as well
         }
     private:
         PhysicalElement<DIM> left, right;

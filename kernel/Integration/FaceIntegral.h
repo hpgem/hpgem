@@ -105,7 +105,6 @@ namespace Integration
             ar & useCache_;
             ar & internalFace_;
             ar & boundaryFace_;
-            ///\todo IFCD: Is it necessary to save the face in the archive? I have no experience with useCache_ = true
         }
 
     private:

@@ -59,6 +59,12 @@ namespace Base
         {
             return face.getRelativeSurfaceArea();
         }
+
+        /*template<typename Archive>
+        void serialize(Archive &ar, const unsigned int version)
+        {
+            ar & boost::serialization::base_object<CoordinateTransformation<DIM>>(*this);
+        }*/
     };
 }
 

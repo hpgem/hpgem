@@ -28,6 +28,10 @@
 #include "Geometry/Jacobian.h"
 #include "CoordinateTransformation.h"
 #include "H1ConformingTransformation.h"
+#include "HCurlConformingTransformation.h"
+#include "HDivConformingTransformation.h"
+#include "DoNotScaleIntegrands.h"
+#include "IdentityTransformation.h"
 
 namespace Base
 {
@@ -180,6 +184,11 @@ namespace Base
             ///specific coordinate transformation in your application, you should probably register it over there instead.
             ///\todo think of a better solution
             ar.template register_type<H1ConformingTransformation<DIM>>();
+            ar.template register_type<HCurlConformingTransformation<DIM>>();
+            ar.template register_type<HDivConformingTransformation<DIM>>();
+            ar.template register_type<DoNotScaleIntegrands<DIM>>();
+            ar.template register_type<IdentityTransformation<DIM>>();
+
             ar & transform_;
         }
 
