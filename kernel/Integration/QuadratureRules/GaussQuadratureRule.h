@@ -23,6 +23,7 @@
 #define GaussQuadratureRule_h
 
 #include <string>
+#include <cstring>
 #include "Geometry/Mappings/ConcatenatedMapping.h"
 
 namespace Geometry
@@ -91,7 +92,7 @@ private:
         const Geometry::MappingReferenceToReference<1>* direct_;
         std::pair<const Geometry::MappingReferenceToReference<0>*, const Geometry::MappingReferenceToReference<1>*> indirect_;
 
-        pointerContainer(){memset(this, 0, sizeof(pointerContainer));}
+        pointerContainer(){std::memset(this, 0, sizeof(pointerContainer));}
     } data_;
 };
 
