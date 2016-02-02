@@ -165,7 +165,7 @@ public:
     double integrateErrorAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, double time) override final;
 
     /// \brief Compute the right-hand side corresponding to an element
-    LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time) override final;
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement(Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time) override final;
     
     /// \brief Compute the right-hand side corresponding to a boundary face
     LinearAlgebra::MiddleSizeVector computeRightHandSideAtFace

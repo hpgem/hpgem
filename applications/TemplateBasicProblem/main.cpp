@@ -105,7 +105,7 @@ public:
     LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement
     (
      Base::Element *ptrElement,
-     LinearAlgebra::MiddleSizeVector &solutionCoefficients,
+     const LinearAlgebra::MiddleSizeVector &solutionCoefficients,
      const double time
      ) override final
     {

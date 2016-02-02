@@ -48,7 +48,7 @@ void SavageHutterBase<DIM>::showProgress(const double time, const std::size_t ti
 
 /*********************Integrate over elements and faces************************/
 template <std::size_t DIM>
-LinearAlgebra::MiddleSizeVector SavageHutterBase<DIM>::computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
+LinearAlgebra::MiddleSizeVector SavageHutterBase<DIM>::computeRightHandSideAtElement(Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
 {
     // Define the integrand function for the right hand side for the reference element.
     const std::function < LinearAlgebra::MiddleSizeVector(Base::PhysicalElement<DIM>&) > integrandFunction = [ = ](Base::PhysicalElement<DIM>& element) -> LinearAlgebra::MiddleSizeVector

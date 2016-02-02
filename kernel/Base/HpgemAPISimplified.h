@@ -183,11 +183,11 @@ namespace Base
         /// \brief Compute the right-hand side corresponding to an element
         /// \todo Make a version in which the inputFunctionCoefficients are const
         virtual LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement
-        (
-         Base::Element *ptrElement,
-         LinearAlgebra::MiddleSizeVector &inputFunctionCoefficients,
-         const double time
-        )
+                (
+                        Base::Element *ptrElement,
+                        const LinearAlgebra::MiddleSizeVector &inputFunctionCoefficients,
+                        const double time
+                )
         {
             logger(ERROR, "No function for computing the right-hand side at an element implemented.");
             LinearAlgebra::MiddleSizeVector rightHandSideAtElement;

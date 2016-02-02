@@ -96,7 +96,7 @@ template<std::size_t DIM, std::size_t NUMBER_OF_VARIABLES>
 LinearAlgebra::MiddleSizeVector UnsteadyNavierStokesAPI<DIM,NUMBER_OF_VARIABLES>::computeRightHandSideAtElement
 (
  Base::Element *ptrElement,
- LinearAlgebra::MiddleSizeVector &solutionCoefficients,
+ const LinearAlgebra::MiddleSizeVector &solutionCoefficients,
  const double time)
 {
 	std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalElement<DIM> &)> integrandFunction = [=](Base::PhysicalElement<DIM>& element) -> LinearAlgebra::MiddleSizeVector

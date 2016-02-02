@@ -312,7 +312,7 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandRightHandSideOnRefElement(B
 }
 
 template<std::size_t DIM>
-LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
+LinearAlgebra::MiddleSizeVector Euler<DIM>::computeRightHandSideAtElement(Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
 {
 	std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalElement<DIM>&)> integrandFunction = [&](Base::PhysicalElement<DIM>& El) -> LinearAlgebra::MiddleSizeVector
 	    {   return this->integrandRightHandSideOnRefElement(El, time, solutionCoefficients);};

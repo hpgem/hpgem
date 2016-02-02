@@ -394,7 +394,7 @@ double AcousticWave<DIM>::integrateErrorAtElement(Base::Element *ptrElement, Lin
 }
 
 template<std::size_t DIM>
-LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
+LinearAlgebra::MiddleSizeVector AcousticWave<DIM>::computeRightHandSideAtElement(Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time)
 {
     // Define the integrand function for the right hand side for the reference element.
     std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalElement<DIM>&)> integrandFunction = [=](Base::PhysicalElement<DIM>& element) -> LinearAlgebra::MiddleSizeVector
