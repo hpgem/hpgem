@@ -485,7 +485,7 @@ LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::integrandRightHandSide
 
 }
 
-LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &stateCoefficients, const double time)
+LinearAlgebra::MiddleSizeVector CompressibleNavierStokes::computeRightHandSideAtElement(Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector &stateCoefficients, const double time)
 {
 	std::function<LinearAlgebra::MiddleSizeVector(Base::PhysicalElement<DIM> &)> integrandFunction = [=](Base::PhysicalElement<DIM>& element) -> LinearAlgebra::MiddleSizeVector
 	    {   return this->integrandRightHandSideOnElement(element, time, stateCoefficients);};

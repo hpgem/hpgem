@@ -136,7 +136,7 @@ private:
     virtual void setInflowBC(double time) {  }
     
     LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement(Base::Element *ptrElement, 
-    LinearAlgebra::MiddleSizeVector &solutionCoefficients, 
+    const LinearAlgebra::MiddleSizeVector &solutionCoefficients,
     const double time) override final;
 
     /// \brief Compute the right-hand side corresponding to an internal face

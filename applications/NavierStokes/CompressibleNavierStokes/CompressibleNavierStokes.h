@@ -79,7 +79,7 @@ public:
     LinearAlgebra::MiddleSizeVector integrandRightHandSideOnElement(Base::PhysicalElement<DIM>& element, const double &time, const LinearAlgebra::MiddleSizeVector &stateCoefficients);
 
     /// \brief Compute the right hand side on an element
-    LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement(Base::Element *ptrElement, LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time) override final;
+    LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement(Base::Element *ptrElement, const LinearAlgebra::MiddleSizeVector &solutionCoefficients, const double time) override final;
 
     /// *************************************************
     /// ***    face integration support functions     ***
