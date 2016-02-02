@@ -256,6 +256,12 @@ namespace Base
     }
 
     template<typename V>
+    ConstIterableWrapper<TreeEntry<V>> LevelTree<V>::getRootEntries() const
+    {
+        return ConstIterableWrapper<TreeEntry<V>>{entries_};
+    }
+
+    template<typename V>
     void LevelTree<V>::fillToLevel(std::size_t level)
     {
         maxLevel_ = std::max(level + 1, maxLevel_);

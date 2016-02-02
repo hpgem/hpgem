@@ -57,7 +57,7 @@ namespace Geometry
             return "Identity map";
         }
 
-        const PointReference<1>& refinementTransform(std::size_t subElementIndex, const PointReference<1>& p) const override final
+        PointReference<1> refinementTransform(std::size_t subElementIndex, const PointReference<1>& p) const override final
         {
             logger.assert(subElementIndex == 0, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             return p;
@@ -116,10 +116,10 @@ namespace Geometry
             return "split";
         }
 
-        const PointReference<1>& refinementTransform(std::size_t subElementIndex, const PointReference<1>& p) const override final
+        PointReference<1> refinementTransform(std::size_t subElementIndex, const PointReference<1>& p) const override final
         {
             logger.assert(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
-            return *PointReferenceFactory<1>::instance()->makePoint({p[0] / 2. + subElementIndex - 0.5});
+            return {p[0] / 2. + subElementIndex - 0.5};
         }
 
         LinearAlgebra::SmallMatrix<1, 1> getRefinementMappingMatrixL(std::size_t subElementIndex, const PointReference<1>& p) const override final

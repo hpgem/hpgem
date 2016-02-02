@@ -34,8 +34,8 @@ namespace Geometry
     {
         name = "ReferencePoint";
         mappingsPointToPoint_ = &MappingToRefPointToPoint::Instance();
-        points_[0] = Geometry::PointReferenceFactory<0>::instance()->makePoint(0);
-        center_ = Geometry::PointReferenceFactory<0>::instance()->makePoint(0);
+        points_[0] = {};
+        center_ = {};
     }
     
     bool ReferencePoint::isInternalPoint(const PointReference<0>& p) const

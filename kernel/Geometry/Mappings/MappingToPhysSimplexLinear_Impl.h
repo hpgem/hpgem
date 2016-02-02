@@ -41,6 +41,14 @@ Geometry::PointPhysical<DIM> Geometry::MappingToPhysSimplexLinear<DIM>::transfor
     return pointPhysical;
 }
 
+template<std::size_t DIM>
+Geometry::PointReference<DIM> Geometry::MappingToPhysSimplexLinear<DIM>::inverseTransform(const PointPhysical<DIM>& pointPhysical) const
+{
+    LinearAlgebra::SmallVector<DIM> offSet = (pointPhysical - geometry->getLocalNodeCoordinates(0)).getCoordinates();
+    calcJacobian({}).solve(offSet);
+    return PointReference<DIM>{offSet};
+}
+
 /*! The Jacobian results from the transform function by symbolic derivation. */
 template<std::size_t DIM>
 Geometry::Jacobian<DIM, DIM> Geometry::MappingToPhysSimplexLinear<DIM>::calcJacobian(const PointReference<DIM>& pointReference) const

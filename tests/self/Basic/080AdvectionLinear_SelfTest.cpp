@@ -111,7 +111,7 @@ public:
         
         //Check if the normal is in the same direction as the advection.
         const double A = a * face.getUnitNormalVector();
-        
+
         //Compute all entries of the integrand at this point:
         for (std::size_t i = 0; i < numberOfBasisFunctions; ++i)
         {
@@ -143,8 +143,7 @@ public:
     /// Define a solution at time zero.
     double getSolutionAtTimeZero(const PointPhysicalT& point)
     {
-        double solution;
-        solution = std::sin(2 * M_PI * point[0]);
+        double solution = std::sin(2 * M_PI * point[0]);
         for(std::size_t i=1; i<DIM; i++)
         {
             solution *= std::sin(2 * M_PI * point[i]);
@@ -158,7 +157,7 @@ public:
         LinearAlgebra::MiddleSizeVector exactSolution(1);
         if(orderTimeDerivative == 0)
         {
-            PointPhysicalT displacement(a*time);
+            PointPhysicalT displacement{a*time};
             exactSolution(0) = getSolutionAtTimeZero(point - displacement);
             return exactSolution;
         }
@@ -260,21 +259,21 @@ int main(int argc, char **argv)
         {
             AdvectionLinear<1> test(n[i], p[i], meshType);
             error = test.createAndSolve(T[i], nT[i]);
-            //std::cout << "Error: " << error << "\n";
+            logger(DEBUG, "Error: % (expected %)", error, errors[i]);
             logger.assert_always((std::abs(error - errors[i]) < 1e-8), "comparison to old results");
         }
         else if(dim[i] == 2)
         {
             AdvectionLinear<2> test(n[i], p[i], meshType);
             error = test.createAndSolve(T[i], nT[i]);
-            //std::cout << "Error: " << error << "\n";
+            logger(DEBUG, "Error: % (expected %)", error, errors[i]);
             logger.assert_always((std::abs(error - errors[i]) < 1e-8), "comparison to old results");
         }
         else
         {
             AdvectionLinear<3> test(n[i], p[i], meshType);
             error = test.createAndSolve(T[i], nT[i]);
-            //std::cout << "Error: " << error << "\n";
+            logger(DEBUG, "Error: % (expected %)", error, errors[i]);
             logger.assert_always((std::abs(error - errors[i]) < 1e-8), "comparison to old results");
         }
         

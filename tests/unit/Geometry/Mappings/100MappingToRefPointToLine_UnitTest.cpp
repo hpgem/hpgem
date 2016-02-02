@@ -34,8 +34,8 @@
 int main()
 {
     
-    Geometry::Point<0> refPoint;
-    Geometry::Point<1> point, compare;
+    Geometry::PointReference<0> refPoint;
+    Geometry::PointReference<1> point, compare;
     
     Geometry::ReferenceLine& eGeom = Geometry::ReferenceLine::Instance();
     Geometry::ReferencePoint& fGeom = Geometry::ReferencePoint::Instance();
@@ -47,16 +47,16 @@ int main()
     const Geometry::MappingReferenceToReference<1>* test = &Geometry::MappingToRefPointToLine0::Instance();
     nodesAfterTransformation[0] = 0;
     
-    point = test->transform(*Geometry::PointReferenceFactory<0>::instance()->makePoint(refPoint));
-    logger.assert_always((fGeom.isInternalPoint(*Geometry::PointReferenceFactory<0>::instance()->makePoint(refPoint)) == eGeom.isInternalPoint(*Geometry::PointReferenceFactory<1>::instance()->makePoint(point))), "transform");
+    point = test->transform((refPoint));
+    logger.assert_always((fGeom.isInternalPoint((refPoint)) == eGeom.isInternalPoint((point))), "transform");
     
-    jac = test->calcJacobian(*Geometry::PointReferenceFactory<0>::instance()->makePoint(refPoint));
+    jac = test->calcJacobian((refPoint));
     
     for (std::size_t i = 0; i < fGeom.getNumberOfNodes(); ++i)
     {
         refPoint = fGeom.getReferenceNodeCoordinate(i);
         compare = eGeom.getReferenceNodeCoordinate(nodesAfterTransformation[i]);
-        point = test->transform(*Geometry::PointReferenceFactory<0>::instance()->makePoint(refPoint));
+        point = test->transform((refPoint));
         logger.assert_always((std::abs(point[0] - compare[0]) < 1e-12), "transform");
     }
     
@@ -65,16 +65,16 @@ int main()
     test = &Geometry::MappingToRefPointToLine1::Instance();
     nodesAfterTransformation[0] = 1;
     
-    point = test->transform(*Geometry::PointReferenceFactory<0>::instance()->makePoint(refPoint));
-    logger.assert_always((fGeom.isInternalPoint(*Geometry::PointReferenceFactory<0>::instance()->makePoint(refPoint)) == eGeom.isInternalPoint(*Geometry::PointReferenceFactory<1>::instance()->makePoint(point))), "transform");
+    point = test->transform((refPoint));
+    logger.assert_always((fGeom.isInternalPoint((refPoint)) == eGeom.isInternalPoint((point))), "transform");
     
-    jac = test->calcJacobian(*Geometry::PointReferenceFactory<0>::instance()->makePoint(refPoint));
+    jac = test->calcJacobian((refPoint));
     
     for (std::size_t i = 0; i < fGeom.getNumberOfNodes(); ++i)
     {
         refPoint = fGeom.getReferenceNodeCoordinate(i);
         compare = eGeom.getReferenceNodeCoordinate(nodesAfterTransformation[i]);
-        point = test->transform(*Geometry::PointReferenceFactory<0>::instance()->makePoint(refPoint));
+        point = test->transform((refPoint));
     }
     
     logger.assert_always((test->getTargetDimension() == 1), "getTargetDimension");

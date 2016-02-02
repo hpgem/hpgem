@@ -51,14 +51,14 @@ int main(int argc, char** argv)
     //this test should also be effective in 1D , but 2D has 3x as much 'wrong' basis functions for only a little extra effort
     Base::ConfigurationData* config = new Base::ConfigurationData(2, 1, 1);
     Base::MeshManipulator<2> mesh(config);
-    Geometry::PointPhysical<2> bottomLeft(LinearAlgebra::SmallVector<2>{{0., 0.}});
-    Geometry::PointPhysical<2> topRight(LinearAlgebra::SmallVector<2>{{1., 1.}});
-    mesh.createRectangularMesh(bottomLeft, topRight, {{1, 1}});
+    Geometry::PointPhysical<2> bottomLeft{0., 0.};
+    Geometry::PointPhysical<2> topRight{1., 1.};
+    mesh.createRectangularMesh(bottomLeft, topRight, {1, 1});
     mesh.useDefaultDGBasisFunctions();
     for(Base::Element* element : mesh.getElementsList())
     {
         element->setNumberOfTimeIntegrationVectors(1);
-        element->setTimeIntegrationSubvector(0, 0, {{0., 1., 2., 3.}});
+        element->setTimeIntegrationSubvector(0, 0, {0., 1., 2., 3.});
     }
     testData(mesh);
     //increase the number of iterations if this test is failing inconsistently
@@ -67,7 +67,7 @@ int main(int argc, char** argv)
         mesh.useDefaultDGBasisFunctions();
         for(Base::Element* element : mesh.getElementsList())
         {
-            element->setTimeIntegrationSubvector(0, 0, {{0., 1., 2., 3.}});
+            element->setTimeIntegrationSubvector(0, 0, {0., 1., 2., 3.});
         }
         testData(mesh);
     }
@@ -77,7 +77,7 @@ int main(int argc, char** argv)
         mesh.useDefaultConformingBasisFunctions();
         for(Base::Element* element : mesh.getElementsList())
         {
-            element->setTimeIntegrationSubvector(0, 0, {{0., 1., 2., 3.}});
+            element->setTimeIntegrationSubvector(0, 0, {0., 1., 2., 3.});
         }
         testData(mesh);
     }

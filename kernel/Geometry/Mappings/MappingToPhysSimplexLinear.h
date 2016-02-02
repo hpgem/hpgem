@@ -58,6 +58,7 @@ namespace Geometry
             : MappingReferenceToPhysical(other){ }
 
         PointPhysical<DIM> transform(const PointReference<DIM>&) const override final;
+        PointReference<DIM> inverseTransform(const PointPhysical<DIM>&) const override final;
         Jacobian<DIM, DIM> calcJacobian(const PointReference<DIM>&) const override final;
         void reinit() override final;
         std::size_t getTargetDimension() const override final

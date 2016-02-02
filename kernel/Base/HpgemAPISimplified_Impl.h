@@ -281,7 +281,7 @@ namespace Base
         
         // Compute the error
         const LinearAlgebra::MiddleSizeVector error = exactSolution - numericalSolution;
-        
+
         // Compute the square of the l2 norm.
         for (std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; iV++)
         {
@@ -436,9 +436,7 @@ namespace Base
 #endif
         return maxError;
     }
-    
-    
-    /// \deprecated please use the other computeRightHandSide instead (freekjan:(@sjoerd) is this actually deprecated? sjoerd: I do not see why. This function is used in my private application)
+
     template<std::size_t DIM>
     void HpgemAPISimplified<DIM>::computeRightHandSide(const std::size_t inputVectorId, const std::size_t resultVectorId, const double time)
     {

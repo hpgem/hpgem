@@ -36,6 +36,12 @@ namespace Geometry
     }
 
     template<std::size_t DIM>
+    Point<DIM>::Point(std::initializer_list<double> data)
+            : coordinates_(data)
+    {
+    }
+
+    template<std::size_t DIM>
     Point<DIM>::Point(const Point<DIM>& other)
             : coordinates_(other.coordinates_)
     {
@@ -194,7 +200,7 @@ namespace Geometry
             else
                 os << point[i];
         }
-        os << "} ";
+        os << "}";
         return os;
     }
 

@@ -36,7 +36,7 @@ namespace Geometry
 
     }
     
-    const QuadratureRules::GaussQuadratureRule* ReferenceGeometry::getGaussQuadratureRule(std::size_t order) const
+    QuadratureRules::GaussQuadratureRule* ReferenceGeometry::getGaussQuadratureRule(std::size_t order) const
     {
         return QuadratureRules::AllGaussQuadratureRules::instance().getRule(this, order);
     }

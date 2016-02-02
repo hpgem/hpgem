@@ -24,6 +24,7 @@
 #include "Geometry/PhysicalGeometry.h"
 #include "Geometry/PointReference.h"
 #include "Geometry/Jacobian.h"
+#include "Base/L2Norm.h"
 
 namespace Geometry
 {
@@ -53,6 +54,11 @@ namespace Geometry
         return pointPhysical;
     }
     
+    PointReference<1> MappingToPhysHypercubeLinear<1>::inverseTransform(const PointPhysical<1>& pointPhysical) const
+    {
+        return {(pointPhysical[0] - mid) / slope};
+    }
+
     void MappingToPhysHypercubeLinear<1>::reinit()
     {
         PointPhysical<1> p0 = this->geometry->getLocalNodeCoordinates(0);
@@ -86,6 +92,7 @@ namespace Geometry
         logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
         reinit();
     }
+
     PointPhysical<2> MappingToPhysHypercubeLinear<2>::transform(const PointReference<2>& pointReference) const
     {
         PointPhysical<2> pointPhysical;
@@ -112,6 +119,23 @@ namespace Geometry
             pointPhysical.axpy(pointReference[0], a1);
         }
         return pointPhysical;
+    }
+
+    PointReference<2> MappingToPhysHypercubeLinear<2>::inverseTransform(const PointPhysical<2>& pointPhysical) const
+    {
+        Geometry::PointReference<2> result;
+        Geometry::PointPhysical<2> comparison = transform(result);
+        LinearAlgebra::SmallVector<2> correction;
+        double error = Base::L2Norm(pointPhysical - comparison);
+        while(error > 1e-14)
+        {
+            correction = (pointPhysical - comparison).getCoordinates();
+            calcJacobian(result).solve(correction);
+            result = PointReference<2>(result + correction);
+            comparison = transform(result);
+            error = Base::L2Norm(pointPhysical - comparison);
+        }
+        return result;
     }
     
     Jacobian<2, 2> MappingToPhysHypercubeLinear<2>::calcJacobian(const PointReference<2>& pointReference) const
@@ -188,6 +212,23 @@ namespace Geometry
         }
     }
     
+    PointReference<3> MappingToPhysHypercubeLinear<3>::inverseTransform(const PointPhysical<3>& pointPhysical) const
+    {
+        Geometry::PointReference<3> result;
+        Geometry::PointPhysical<3> comparison = transform(result);
+        LinearAlgebra::SmallVector<3> correction;
+        double error = Base::L2Norm(pointPhysical - comparison);
+        while(error > 1e-14)
+        {
+            correction = (pointPhysical - comparison).getCoordinates();
+            calcJacobian(result).solve(correction);
+            result = PointReference<3>(result + correction);
+            comparison = transform(result);
+            error = Base::L2Norm(pointPhysical - comparison);
+        }
+        return result;
+    }
+
     Jacobian<3, 3> MappingToPhysHypercubeLinear<3>::calcJacobian(const PointReference<3>& pR) const
     {
         Jacobian<3, 3> jacobian;
@@ -259,6 +300,23 @@ namespace Geometry
         return abar + pR[0] * a0 + pR[1] * a1 + pR[2] * a2 + pR[3] * a3;
     }
     
+    PointReference<4> MappingToPhysHypercubeLinear<4>::inverseTransform(const PointPhysical<4>& pointPhysical) const
+    {
+        Geometry::PointReference<4> result;
+        Geometry::PointPhysical<4> comparison = transform(result);
+        LinearAlgebra::SmallVector<4> correction;
+        double error = Base::L2Norm(pointPhysical - comparison);
+        while(error > 1e-14)
+        {
+            correction = (pointPhysical - comparison).getCoordinates();
+            calcJacobian(result).solve(correction);
+            result = PointReference<4>(result + correction);
+            comparison = transform(result);
+            error = Base::L2Norm(pointPhysical - comparison);
+        }
+        return result;
+    }
+
     Jacobian<4, 4> MappingToPhysHypercubeLinear<4>::calcJacobian(const PointReference<4>& pR) const
     {
         logger.assert(pR.size()==4, "Reference point has the wrong dimension");

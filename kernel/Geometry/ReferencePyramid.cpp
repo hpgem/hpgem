@@ -41,12 +41,12 @@ namespace Geometry
     {
         name = "ReferencePyramid";
         
-        points_[0] = PointReferenceFactory<3>::instance()->makePoint({ 0.,  0.,  1.});
-        points_[1] = PointReferenceFactory<3>::instance()->makePoint({-1., -1.,  0.});
-        points_[2] = PointReferenceFactory<3>::instance()->makePoint({ 1., -1.,  0.});
-        points_[3] = PointReferenceFactory<3>::instance()->makePoint({-1.,  1.,  0.});
-        points_[4] = PointReferenceFactory<3>::instance()->makePoint({ 1.,  1.,  0.});
-        center_ = PointReferenceFactory<3>::instance()->makePoint({0., 0., 1./4.});
+        points_[0] = { 0.,  0.,  1.};
+        points_[1] = {-1., -1.,  0.};
+        points_[2] = { 1., -1.,  0.};
+        points_[3] = {-1.,  1.,  0.};
+        points_[4] = { 1.,  1.,  0.};
+        center_ = {0., 0., 1./4.};
         
         mappingsFaceToPyramid_[0] = &MappingToRefFaceToPyramid0::Instance();
         mappingsFaceToPyramid_[1] = &MappingToRefFaceToPyramid1::Instance();

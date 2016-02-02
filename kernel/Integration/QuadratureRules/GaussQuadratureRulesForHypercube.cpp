@@ -64,7 +64,7 @@ namespace QuadratureRules
     Cn4_1_1::getPoint(std::size_t i) const
     {
         logger.assert(i < 1, "%::getPoint - wrong index!", name_);
-        return *gp_[i];
+        return gp_[i];
     }
 
     Geometry::ReferenceGeometry*
@@ -77,7 +77,7 @@ namespace QuadratureRules
     : name_("Cn4_1_1"), refGeoPtr_(&Geometry::ReferenceHypercube::Instance()), gp_(0)
     {
         weight_[0] = 16.0;
-        gp_.push_back(Geometry::PointReferenceFactory<4>::instance()->makePoint({0.0, 0.0, 0.0, 0.0}));
+        gp_.push_back({0.0, 0.0, 0.0, 0.0});
 
     }
 
@@ -118,7 +118,7 @@ namespace QuadratureRules
     Cn4_3_16::getPoint(std::size_t i) const
     {
         logger.assert(i < 16, "%::getPoint - wrong index!", name_);
-        return *gp_[i];
+        return gp_[i];
     }
 
     Geometry::ReferenceGeometry*
@@ -131,52 +131,52 @@ namespace QuadratureRules
     : name_("Cn4_3_4"), refGeoPtr_(&Geometry::ReferenceHypercube::Instance()), gp_(0)
     {
         weight_[0] = 1.0;
-        gp_.push_back(Geometry::PointReferenceFactory<4>::instance()->makePoint({-std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0}));
+        gp_.push_back({-std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0});
 
         weight_[1] = 1.0;
-        gp_.push_back(Geometry::PointReferenceFactory<4>::instance()->makePoint({+std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0}));
+        gp_.push_back({+std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0});
 
         weight_[2] = 1.0;
-        gp_.push_back(Geometry::PointReferenceFactory<4>::instance()->makePoint({-std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0}));
+        gp_.push_back({-std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0});
 
         weight_[3] = 1.0;
-        gp_.push_back(Geometry::PointReferenceFactory<4>::instance()->makePoint({+std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0}));
+        gp_.push_back({+std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0});
 
         weight_[4] = 1.0;
-        gp_.push_back(Geometry::PointReferenceFactory<4>::instance()->makePoint({-std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0}));
+        gp_.push_back({-std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0});
 
         weight_[5] = 1.0;
-        gp_.push_back(Geometry::PointReferenceFactory<4>::instance()->makePoint({+std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0}));
+        gp_.push_back({+std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0});
 
         weight_[6] = 1.0;
-        gp_.push_back(Geometry::PointReferenceFactory<4>::instance()->makePoint({-std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0}));
+        gp_.push_back({-std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0});
 
         weight_[7] = 1.0;
-        gp_.push_back(Geometry::PointReferenceFactory<4>::instance()->makePoint({+std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0}));
+        gp_.push_back({+std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0});
 
         weight_[8] = 1.0;
-        gp_.push_back(Geometry::PointReferenceFactory<4>::instance()->makePoint({-std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0}));
+        gp_.push_back({-std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0});
 
         weight_[9] = 1.0;
-        gp_.push_back(Geometry::PointReferenceFactory<4>::instance()->makePoint({+std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0}));
+        gp_.push_back({+std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0});
 
         weight_[10] = 1.0;
-        gp_.push_back(Geometry::PointReferenceFactory<4>::instance()->makePoint({-std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0}));
+        gp_.push_back({-std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0});
 
         weight_[11] = 1.0;
-        gp_.push_back(Geometry::PointReferenceFactory<4>::instance()->makePoint({+std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0}));
+        gp_.push_back({+std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0});
 
         weight_[12] = 1.0;
-        gp_.push_back(Geometry::PointReferenceFactory<4>::instance()->makePoint({-std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0}));
+        gp_.push_back({-std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0});
 
         weight_[13] = 1.0;
-        gp_.push_back(Geometry::PointReferenceFactory<4>::instance()->makePoint({+std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0}));
+        gp_.push_back({+std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0});
 
         weight_[14] = 1.0;
-        gp_.push_back(Geometry::PointReferenceFactory<4>::instance()->makePoint({-std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0}));
+        gp_.push_back({-std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0});
 
         weight_[15] = 1.0;
-        gp_.push_back(Geometry::PointReferenceFactory<4>::instance()->makePoint({+std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0}));
+        gp_.push_back({+std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0});
 
     }
     //---------------------------------------------------------------------------

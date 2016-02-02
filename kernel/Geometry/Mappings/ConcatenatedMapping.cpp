@@ -27,22 +27,22 @@
 namespace Geometry
 {
     
-    const PointReference<1>& ConcatenatedMapping::transform(const PointReference<0>& pIn) const
+    PointReference<1> ConcatenatedMapping::transform(const PointReference<0>& pIn) const
     {
         return map2_.transform(map1_.transform(pIn));
     }
 
-    const PointReference<2>& ConcatenatedMapping::transform(const PointReference<1>& pIn) const
+    PointReference<2> ConcatenatedMapping::transform(const PointReference<1>& pIn) const
     {
         return map2_.transform(map1_.transform(pIn));
     }
 
-    const PointReference<3>& ConcatenatedMapping::transform(const PointReference<2>& pIn) const
+    PointReference<3> ConcatenatedMapping::transform(const PointReference<2>& pIn) const
     {
         return map2_.transform(map1_.transform(pIn));
     }
 
-    const PointReference<4>& ConcatenatedMapping::transform(const PointReference<3>& pIn) const
+    PointReference<4> ConcatenatedMapping::transform(const PointReference<3>& pIn) const
     {
         return map2_.transform(map1_.transform(pIn));
     }

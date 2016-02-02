@@ -120,14 +120,14 @@ namespace Base
         /// \brief Create a quadrature for this face based on the quadrature rules of adjacent elements.
         void createQuadratureRules();
 
-        void setGaussQuadratureRule(const FaceQuadratureRule* quadratureRule)
+        void setGaussQuadratureRule(FaceQuadratureRule* quadratureRule)
         {
             logger.assert(quadratureRule!=nullptr, "Invalid quadrature rule passed");
             quadratureRule_ = quadratureRule;
         }
         
         /// \brief Get a pointer to the quadrature rule used to do integration on this face.
-        const FaceQuadratureRule* getGaussQuadratureRule() const
+        FaceQuadratureRule* getGaussQuadratureRule() const
         {
             return quadratureRule_;
         }
@@ -156,7 +156,7 @@ namespace Base
         template<std::size_t DIM>
         double basisFunctionDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference<DIM>& p) const;
 
-        ///\brief The "all directions in one go"-edition of basisFunctionDeriv. Also applies the scaling gained from transforming to the reference element.
+        ///\brief The "all directions in one go"-edition of basisFunctionDeriv. Warning: contrary to some old implementations, this will NOT apply the scaling due to the transformation to a reference element
         template<std::size_t DIM>
         LinearAlgebra::SmallVector<DIM + 1> basisFunctionDeriv(std::size_t i, const Geometry::PointReference<DIM>& p) const;
 
@@ -229,7 +229,7 @@ namespace Base
 
         Element* elementLeft_;
         Element* elementRight_;
-        const FaceQuadratureRule* quadratureRule_;
+        FaceQuadratureRule* quadratureRule_;
 
         const TreeEntry<Face*>* positionInTheTree_;
 

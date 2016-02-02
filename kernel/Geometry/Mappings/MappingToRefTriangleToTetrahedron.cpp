@@ -33,18 +33,10 @@ namespace Geometry
         return theInstance;
     }
     
-    const PointReference<3>& MappingToRefTriangleToTetrahedron0::transform(const Geometry::PointReference<2>& p1) const
+    PointReference<3> MappingToRefTriangleToTetrahedron0::transform(const Geometry::PointReference<2>& p1) const
     {
         logger.assert(p1.size()==2, "Reference point has the wrong dimension");
-        try
-        {
-            return *transformedCoordinates.at(&p1);
-        }
-        catch (std::out_of_range&)
-        {
-            const_cast<std::map<const PointReference<2>*, const PointReference<3>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<3>::instance()->makePoint({0., p1[1], p1[0]});
-            return *transformedCoordinates.at(&p1);
-        }
+        return {0., p1[1], p1[0]};
     }
     
     Jacobian<2, 3> MappingToRefTriangleToTetrahedron0::calcJacobian(const Geometry::PointReference<2>& p1) const
@@ -73,18 +65,10 @@ namespace Geometry
         return theInstance;
     }
     
-    const PointReference<3>& MappingToRefTriangleToTetrahedron1::transform(const Geometry::PointReference<2>& p1) const
+    PointReference<3> MappingToRefTriangleToTetrahedron1::transform(const Geometry::PointReference<2>& p1) const
     {
         logger.assert(p1.size()==2, "Reference point has the wrong dimension");
-        try
-        {
-            return *transformedCoordinates.at(&p1);
-        }
-        catch (std::out_of_range&)
-        {
-            const_cast<std::map<const PointReference<2>*, const PointReference<3>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<3>::instance()->makePoint({p1[0], 0., p1[1]});
-            return *transformedCoordinates.at(&p1);
-        }
+        return {p1[0], 0., p1[1]};
     }
     
     Jacobian<2, 3> MappingToRefTriangleToTetrahedron1::calcJacobian(const Geometry::PointReference<2>& p1) const
@@ -113,18 +97,10 @@ namespace Geometry
         return theInstance;
     }
     
-    const PointReference<3>& MappingToRefTriangleToTetrahedron2::transform(const Geometry::PointReference<2>& p1) const
+    PointReference<3> MappingToRefTriangleToTetrahedron2::transform(const Geometry::PointReference<2>& p1) const
     {
         logger.assert(p1.size()==2, "Reference point has the wrong dimension");
-        try
-        {
-            return *transformedCoordinates.at(&p1);
-        }
-        catch (std::out_of_range&)
-        {
-            const_cast<std::map<const PointReference<2>*, const PointReference<3>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<3>::instance()->makePoint({p1[1], p1[0], 0.});
-            return *transformedCoordinates.at(&p1);
-        }
+        return {p1[1], p1[0], 0.};
     }
     
     Jacobian<2, 3> MappingToRefTriangleToTetrahedron2::calcJacobian(const Geometry::PointReference<2>& p1) const
@@ -153,18 +129,10 @@ namespace Geometry
         return theInstance;
     }
     
-    const PointReference<3>& MappingToRefTriangleToTetrahedron3::transform(const Geometry::PointReference<2>& p1) const
+    PointReference<3> MappingToRefTriangleToTetrahedron3::transform(const Geometry::PointReference<2>& p1) const
     {
         logger.assert(p1.size()==2, "Reference point has the wrong dimension");
-        try
-        {
-            return *transformedCoordinates.at(&p1);
-        }
-        catch (std::out_of_range&)
-        {
-            const_cast<std::map<const PointReference<2>*, const PointReference<3>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<3>::instance()->makePoint({1. - p1[0] - p1[1], p1[0], p1[1]});
-            return *transformedCoordinates.at(&p1);
-        }
+        return {1. - p1[0] - p1[1], p1[0], p1[1]};
     }
     
     Jacobian<2, 3> MappingToRefTriangleToTetrahedron3::calcJacobian(const Geometry::PointReference<2>& p1) const

@@ -35,7 +35,7 @@ using LinearAlgebra::SmallVector;
 int main(int argc, char** argv)
 {
     //constructors
-    SmallVector<2> vec0{{0., 1.}}, vec1{{2., 3.}}, vec2{{4., 5.}}, vec3{{6., 7.}};
+    SmallVector<2> vec0{0., 1.}, vec1{2., 3.}, vec2{4., 5.}, vec3{6., 7.};
     SmallMatrix<3, 3> A0;
     SmallMatrix<2, 2> A22, count0({vec0, vec1}), count1({vec2, vec3}), copy(count0);
     SmallMatrix<2, 3> A23;

@@ -59,7 +59,7 @@ namespace Geometry
 
         const PointReferenceBase& getCenter() const override final
         {
-            return *center_;
+            return center_;
         }
 
         std::size_t getNumberOfNodes() const override final
@@ -70,7 +70,7 @@ namespace Geometry
         const PointReferenceBase& getReferenceNodeCoordinate(const std::size_t& i) const override final
         {
             logger.assert(i < getNumberOfNodes(), "Asked for node %, but there are only % nodes", i, getNumberOfNodes());
-            return *points_[i];
+            return points_[i];
         }
 
         using MappingCodimensions::getCodim0MappingPtr;
@@ -83,9 +83,9 @@ namespace Geometry
         /// Provided for consistency with other dimensions
         const MappingReferenceToReference<0>* mappingsPointToPoint_;
         
-        std::vector<const PointReference<0>* > points_;
+        std::vector<PointReference<0> > points_;
 
-        const PointReference<0>* center_;
+        PointReference<0> center_;
 
         ReferencePoint();
     };

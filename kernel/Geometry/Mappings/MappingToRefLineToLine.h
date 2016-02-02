@@ -43,7 +43,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefLineToLine0& Instance();
-        const PointReference<1>& transform(const Geometry::PointReference<1>& p1) const override final;
+        PointReference<1> transform(const Geometry::PointReference<1>& p1) const override final;
         Jacobian<1, 1> calcJacobian(const Geometry::PointReference<1>&) const override final;
         std::size_t getTargetDimension() const override final
         {
@@ -61,7 +61,7 @@ namespace Geometry
     {
     public:
         static const MappingToRefLineToLine1& Instance();
-        const PointReference<1>& transform(const Geometry::PointReference<1>& p1) const override final;
+        PointReference<1> transform(const Geometry::PointReference<1>& p1) const override final;
         Jacobian<1, 1> calcJacobian(const Geometry::PointReference<1>&) const override final;
         std::size_t getTargetDimension() const override final
         {

@@ -238,12 +238,10 @@ namespace Base
         std::size_t localProcessorID_;
 
         Submesh submeshes_;
-        //! List of all elements. 
-        //! \todo: this should be replaced by the mesh-tree structure
+        //! List of all elements.
         LevelTree<Element*> elements_;
 
-        //! List of all faces. 
-        //! \todo: this should be replaced by the mesh-tree structure
+        //! List of all faces.
         LevelTree<Face*> faces_;
 
         //! List of all edges.

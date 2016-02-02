@@ -21,7 +21,6 @@
 
 #include "BaseBasisFunction.h"
 
-#include "LinearAlgebra/MiddleSizeVector.h"
 #include "Geometry/PointReference.h"
 
 namespace Base

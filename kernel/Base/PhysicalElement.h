@@ -49,7 +49,7 @@ namespace Base
     public:
         PhysicalElement()
                 : transform_((new H1ConformingTransformation<DIM>())), hasPointReference(false),
-                  hasElement(false) // other data will get initialized when we have more info
+                  hasElement(false), hasQuadratureRule(false) // other data will get initialized when we have more info
         {
             hasElementMatrix = false;
             hasElementVector = false;
@@ -192,10 +192,24 @@ namespace Base
             ar & transform_;
         }
 
+        ///setters should only be needed internally
+        ///sets a quadrature rule that provides points in the element
+        void setQuadratureRule(QuadratureRules::GaussQuadratureRule *rule);
+
+        ///setters should only be needed internally
+        ///sets a quadrature rule that provides points on the face and a mapping that maps then into the element
+        void setQuadratureRule(QuadratureRules::GaussQuadratureRule *rule, const Geometry::MappingReferenceToReference<1> *map);
+
+        ///setters should only be needed internally
+        void setQuadraturePointIndex(std::size_t index);
+
     private:
 
         const Base::Element *theElement_;
-        const Geometry::PointReference<DIM> *pointReference_;
+        Geometry::PointReference<DIM> pointReference_;
+        QuadratureRules::GaussQuadratureRule *quadratureRule_;
+        const Geometry::MappingReferenceToReference<1> *faceToElementMap_;
+        std::size_t quadraturePointIndex_;
         std::shared_ptr<Base::CoordinateTransformation<DIM> > transform_;
 
         std::vector<double> basisFunctionValue;
@@ -218,7 +232,7 @@ namespace Base
         LinearAlgebra::MiddleSizeMatrix resultMatrix;
         LinearAlgebra::MiddleSizeVector resultVector;
 
-        bool hasPointReference, hasElement;
+        bool hasPointReference, hasElement, hasQuadratureRule, doesMapQuadraturePointFromFace;
 
         bool hasElementMatrix, hasElementVector;
         //did we already compute this?

@@ -24,7 +24,6 @@
 
 #include "Point.h"
 #include "PointReferenceBase.h"
-#include "PointReferenceFactory.h"
 #include "Base/BaseBasisFunction.h"
 
 #include <map>
@@ -32,38 +31,23 @@
 namespace Geometry
 {
     template<std::size_t DIM>
-    class PointReferenceFactory;
-
-    template<std::size_t DIM>
     class PointReference : public Point<DIM>, public PointReferenceBase
     {
     public:
-        void removeBasisFunctionData(const Base::BaseBasisFunction* function)
-        {
-            basisfunctionValues_.erase(function);
-            basisfunctionDerivatives_.erase(function);
-        }
 
-        double getBasisFunctionValue(const Base::BaseBasisFunction* function) const;
-        const LinearAlgebra::SmallVector<DIM>& getBasisFunctionDerivative(const Base::BaseBasisFunction* function) const;
-        //do not trust any other class to not create duplicates
-        friend PointReferenceFactory<DIM>;
-    private:
-        
         PointReference()
                 : Point<DIM>()
         {
         }
-        
-        //do not copy a pointReference, its memory address is used to quickly collect precomputed values of basis functions
-        PointReference(const PointReference& p) = delete;
-        PointReference(PointReference&& p) = delete;
+
+        PointReference(const PointReference& p) = default;
+        PointReference(PointReference&& p) = default;
 
         explicit PointReference(const Point<DIM>& p)
                 : Point<DIM>(p)
         {
         }
-        
+
         PointReference(std::initializer_list<double> data)
                 : Point<DIM>(data)
         {
@@ -73,18 +57,14 @@ namespace Geometry
                 : Point<DIM>(coords)
         {
         }
-        
+
         explicit PointReference(const LinearAlgebra::SmallVector<DIM>& coord)
                 : Point<DIM>(coord)
         {
         }
 
-        PointReference& operator =(const PointReference& rhs) = delete;
-        PointReference& operator =(PointReference&& rhs) = delete;
-
-        std::map<const Base::BaseBasisFunction*, double > basisfunctionValues_;
-        std::map<const Base::BaseBasisFunction*, LinearAlgebra::SmallVector<DIM> > basisfunctionDerivatives_;
-        
+        PointReference& operator =(const PointReference& rhs) = default;
+        PointReference& operator =(PointReference&& rhs) = default;
     };
 
     //PointReference operator*(double left, const PointReference& right);

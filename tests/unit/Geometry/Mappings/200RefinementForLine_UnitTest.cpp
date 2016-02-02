@@ -25,24 +25,24 @@
 #include <iostream>
 
 int main(int argc, char** argv) {
-    Geometry::Point<1> refPoint;
-    Geometry::Point<1> point, compare;
+    Geometry::PointReference<1> refPoint;
+    Geometry::PointReference<1> point, compare;
     LinearAlgebra::SmallMatrix<1, 1> jac;
     for(const Geometry::RefinementMapping* test: std::initializer_list<const Geometry::RefinementMapping*>{Geometry::RefinementMapForLine0::instance(), Geometry::RefinementMapForLine1::instance()}) {
         std::cout << test->getName();
         for(std::size_t i = 0; i < test->getNumberOfSubElements(); ++i) {
             for (refPoint[0] = -2.8189; refPoint[0] < 3.141; refPoint[0] += 0.1)
             {
-                point = test->refinementTransform(i, *Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint));
+                point = test->refinementTransform(i, (refPoint));
                 refPoint[0] += -1.e-8;
-                compare = test->refinementTransform(i, *Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint));
+                compare = test->refinementTransform(i, (refPoint));
                 refPoint[0] += 2.e-8;
-                point = test->refinementTransform(i, *Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint));
+                point = test->refinementTransform(i, (refPoint));
 
                 refPoint[0] += -1e-8;
-                jac = test->getRefinementMappingMatrixL(i, *Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint));
+                jac = test->getRefinementMappingMatrixL(i, (refPoint));
                 logger.assert_always((std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) < 1e-5), "jacobian"); //estimate is a bit rough, but should work for most mappings
-                jac *= test->getRefinementMappingMatrixR(i, *Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint));
+                jac *= test->getRefinementMappingMatrixR(i, (refPoint));
                 logger.assert_always(std::abs(jac[0] - 1.) < 1e-12, "inverse of jacobian");
             }
             for(std::size_t index : test->getSubElementLocalNodeIndices(i)) {

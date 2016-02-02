@@ -37,23 +37,23 @@ namespace Geometry
         
         ///reference element
         
-        points_[ 0] = PointReferenceFactory<4>::instance()->makePoint({-1., -1., -1., -1.});
-        points_[ 1] = PointReferenceFactory<4>::instance()->makePoint({ 1., -1., -1., -1.});
-        points_[ 2] = PointReferenceFactory<4>::instance()->makePoint({-1.,  1., -1., -1.});
-        points_[ 3] = PointReferenceFactory<4>::instance()->makePoint({ 1.,  1., -1., -1.});
-        points_[ 4] = PointReferenceFactory<4>::instance()->makePoint({-1., -1.,  1., -1.});
-        points_[ 5] = PointReferenceFactory<4>::instance()->makePoint({ 1., -1.,  1., -1.});
-        points_[ 6] = PointReferenceFactory<4>::instance()->makePoint({-1.,  1.,  1., -1.});
-        points_[ 7] = PointReferenceFactory<4>::instance()->makePoint({ 1.,  1.,  1., -1.});
-        points_[ 8] = PointReferenceFactory<4>::instance()->makePoint({-1., -1., -1.,  1.});
-        points_[ 9] = PointReferenceFactory<4>::instance()->makePoint({ 1., -1., -1.,  1.});
-        points_[10] = PointReferenceFactory<4>::instance()->makePoint({-1.,  1., -1.,  1.});
-        points_[11] = PointReferenceFactory<4>::instance()->makePoint({ 1.,  1., -1.,  1.});
-        points_[12] = PointReferenceFactory<4>::instance()->makePoint({-1., -1.,  1.,  1.});
-        points_[13] = PointReferenceFactory<4>::instance()->makePoint({ 1., -1.,  1.,  1.});
-        points_[14] = PointReferenceFactory<4>::instance()->makePoint({-1.,  1.,  1.,  1.});
-        points_[15] = PointReferenceFactory<4>::instance()->makePoint({ 1.,  1.,  1.,  1.});
-        center_ = PointReferenceFactory<4>::instance()->makePoint();
+        points_[ 0] = {-1., -1., -1., -1.};
+        points_[ 1] = { 1., -1., -1., -1.};
+        points_[ 2] = {-1.,  1., -1., -1.};
+        points_[ 3] = { 1.,  1., -1., -1.};
+        points_[ 4] = {-1., -1.,  1., -1.};
+        points_[ 5] = { 1., -1.,  1., -1.};
+        points_[ 6] = {-1.,  1.,  1., -1.};
+        points_[ 7] = { 1.,  1.,  1., -1.};
+        points_[ 8] = {-1., -1., -1.,  1.};
+        points_[ 9] = { 1., -1., -1.,  1.};
+        points_[10] = {-1.,  1., -1.,  1.};
+        points_[11] = { 1.,  1., -1.,  1.};
+        points_[12] = {-1., -1.,  1.,  1.};
+        points_[13] = { 1., -1.,  1.,  1.};
+        points_[14] = {-1.,  1.,  1.,  1.};
+        points_[15] = { 1.,  1.,  1.,  1.};
+        center_ = {0., 0., 0., 0.};
         
         mappingsCubeToHypercube_[0] = &MappingToRefCubeToHypercube0::Instance();
         mappingsCubeToHypercube_[1] = &MappingToRefCubeToHypercube1::Instance();

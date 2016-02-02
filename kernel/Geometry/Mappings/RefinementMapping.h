@@ -24,6 +24,7 @@
 #include <iostream>
 #include <string>
 #include "LinearAlgebra/SmallMatrix.h"
+#include "Geometry/PointReference.h"
 
 namespace Geometry
 {
@@ -38,31 +39,31 @@ namespace Geometry
         virtual std::string getName() const = 0;
         
         //! Transform a reference point using refinement mapping
-        virtual const PointReference<0>& refinementTransform(std::size_t subElementIdx, const PointReference<0>& p) const
+        virtual PointReference<0> refinementTransform(std::size_t subElementIdx, const PointReference<0>& p) const
         {
             logger(ERROR, "You passed a coordinate with the wrong dimension!");
             return p;
         }
 
-        virtual const PointReference<1>& refinementTransform(std::size_t subElementIdx, const PointReference<1>& p) const
+        virtual PointReference<1> refinementTransform(std::size_t subElementIdx, const PointReference<1>& p) const
         {
             logger(ERROR, "You passed a coordinate with the wrong dimension!");
             return p;
         }
 
-        virtual const PointReference<2>& refinementTransform(std::size_t subElementIdx, const PointReference<2>& p) const
+        virtual PointReference<2> refinementTransform(std::size_t subElementIdx, const PointReference<2>& p) const
         {
             logger(ERROR, "You passed a coordinate with the wrong dimension!");
             return p;
         }
 
-        virtual const PointReference<3>& refinementTransform(std::size_t subElementIdx, const PointReference<3>& p) const
+        virtual PointReference<3> refinementTransform(std::size_t subElementIdx, const PointReference<3>& p) const
         {
             logger(ERROR, "You passed a coordinate with the wrong dimension!");
             return p;
         }
 
-        virtual const PointReference<4>& refinementTransform(std::size_t subElementIdx, const PointReference<4>& p) const
+        virtual PointReference<4> refinementTransform(std::size_t subElementIdx, const PointReference<4>& p) const
         {
             logger(ERROR, "You passed a coordinate with the wrong dimension!");
             return p;

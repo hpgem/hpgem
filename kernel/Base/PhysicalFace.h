@@ -43,7 +43,7 @@ namespace Base
     class DoNotScaleIntegrands;
     template<std::size_t DIM>
     class IdentityTransformation;
-    
+
 
     //class is final as a reminder that there is no virtual destructor
     //note that none of the functions in here is marked const, because a PhysicalFace reserves the right to alter its internal state to optimize future repeated calls
@@ -284,6 +284,10 @@ namespace Base
             ar & transform_;
             ///\todo check if other data should be saved as well
         }
+
+        void setQuadratureRule(QuadratureRules::GaussQuadratureRule *rule);
+        void setQuadraturePointIndex(std::size_t index);
+
     private:
         PhysicalElement<DIM> left, right;
         std::size_t nLeftBasisFunctions;
@@ -297,12 +301,16 @@ namespace Base
         std::vector<LinearAlgebra::SmallVector<DIM> > solutionUnitNormal_;
         std::vector<LinearAlgebra::SmallVector<DIM> > vectorSolutionUnitNormal_;
 
-        const Geometry::PointReference<DIM - 1>* pointReference_;
+        Geometry::PointReference<DIM - 1> pointReference_;
+        QuadratureRules::GaussQuadratureRule* quadratureRule_;
         const Face* face_;
         std::shared_ptr<CoordinateTransformation<DIM> > transform_;
         LinearAlgebra::SmallVector<DIM> normal;
         LinearAlgebra::SmallVector<DIM> unitNormal;
         double normalNorm;
+
+        //need to store this to keep it existing
+        std::shared_ptr<const Geometry::MappingReferenceToReference<1>> mapToLeftElement, mapToRightElement;
 
         FaceMatrix resultMatrix;
         LinearAlgebra::MiddleSizeMatrix leftRightMatrix, rightLeftMatrix;

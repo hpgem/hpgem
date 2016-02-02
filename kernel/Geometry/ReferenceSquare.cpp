@@ -63,11 +63,11 @@ namespace Geometry
                 
         // We set the actual coordinates (see top comment for drawing).
         
-        points_[0] = PointReferenceFactory<2>::instance()->makePoint({-1., -1.});
-        points_[1] = PointReferenceFactory<2>::instance()->makePoint({ 1., -1.});
-        points_[2] = PointReferenceFactory<2>::instance()->makePoint({-1.,  1.});
-        points_[3] = PointReferenceFactory<2>::instance()->makePoint({ 1.,  1.});
-        center_ = PointReferenceFactory<2>::instance()->makePoint();
+        points_[0] = {-1., -1.};
+        points_[1] = { 1., -1.};
+        points_[2] = {-1.,  1.};
+        points_[3] = { 1.,  1.};
+        center_ = {0., 0.};
     }
     
     bool ReferenceSquare::isInternalPoint(const PointReference<2>& p) const

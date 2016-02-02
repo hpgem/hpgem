@@ -40,9 +40,9 @@ namespace Geometry
             referenceGeometryCodim1Ptr_(&ReferencePoint::Instance()), points_(2)
     {
         name = "ReferenceLine";
-        points_[0] = PointReferenceFactory<1>::instance()->makePoint({-1.});
-        points_[1] = PointReferenceFactory<1>::instance()->makePoint({ 1.});
-        center_ = PointReferenceFactory<1>::instance()->makePoint();
+        points_[0] = PointReference<1>{-1.};
+        points_[1] = PointReference<1>{ 1.};
+        center_ = PointReference<1>{0.};
         
         mappingsLineToLine_[0] = &MappingToRefLineToLine0::Instance();
         mappingsLineToLine_[1] = &MappingToRefLineToLine1::Instance();

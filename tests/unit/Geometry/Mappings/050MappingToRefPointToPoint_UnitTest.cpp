@@ -34,7 +34,7 @@
 int main()
 { //The 0D case is mostly testing if there are any crashing functions
 
-    Geometry::Point<0> refPoint, point, compare;
+    Geometry::PointReference<0> refPoint, point;
     
     Geometry::ReferencePoint& geom = Geometry::ReferencePoint::Instance();
     
@@ -42,15 +42,15 @@ int main()
     
     Geometry::Jacobian<0, 0> jac;
     
-    point = test->transform(*Geometry::PointReferenceFactory<0>::instance()->makePoint(refPoint));
-    logger.assert_always((geom.isInternalPoint(*Geometry::PointReferenceFactory<0>::instance()->makePoint(refPoint)) == geom.isInternalPoint(*Geometry::PointReferenceFactory<0>::instance()->makePoint(point))), "transform");
+    point = test->transform((refPoint));
+    logger.assert_always((geom.isInternalPoint((refPoint)) == geom.isInternalPoint((point))), "transform");
     
-    jac = test->calcJacobian(*Geometry::PointReferenceFactory<0>::instance()->makePoint(refPoint));
+    jac = test->calcJacobian((refPoint));
     
     for (std::size_t i = 0; i < geom.getNumberOfNodes(); ++i)
     {
         geom.getReferenceNodeCoordinate(i);
-        point = test->transform(*Geometry::PointReferenceFactory<0>::instance()->makePoint(refPoint));
+        point = test->transform((refPoint));
     }
     
     logger.assert_always((test->getTargetDimension() == 0), "getTargetDimension");

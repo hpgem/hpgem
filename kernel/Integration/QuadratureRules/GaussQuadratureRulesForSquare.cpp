@@ -62,7 +62,7 @@ namespace QuadratureRules
     Cn2_1_1::getPoint(std::size_t i) const
     {
         logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
-        return *gp_[i];
+        return gp_[i];
     }
     
     Geometry::ReferenceGeometry*
@@ -75,7 +75,7 @@ namespace QuadratureRules
             : name_("Cn2_1_1"), refGeoPtr_(&Geometry::ReferenceSquare::Instance()), gp_(0)
     {
         weight_[0] = (2.0) * (2.0);
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({0.0, 0.0}));
+        gp_.push_back({0.0, 0.0});
         
     }
     
@@ -110,7 +110,7 @@ namespace QuadratureRules
     Cn2_3_4::getPoint(std::size_t i) const
     {
         logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
-        return *gp_[i];
+        return gp_[i];
     }
     
     Geometry::ReferenceGeometry*
@@ -123,16 +123,16 @@ namespace QuadratureRules
             : name_("Cn2_3_4"), refGeoPtr_(&Geometry::ReferenceSquare::Instance()), gp_(0)
     {
         weight_[0] = (1.0) * (1.0);
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({-std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0}));
+        gp_.push_back({-std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0});
         
         weight_[1] = (1.0) * (1.0);
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({+std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0}));
+        gp_.push_back({+std::sqrt(3.0) / 3.0, -std::sqrt(3.0) / 3.0});
         
         weight_[2] = (1.0) * (1.0);
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({-std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0}));
+        gp_.push_back({-std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0});
         
         weight_[3] = (1.0) * (1.0);
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({+std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0}));
+        gp_.push_back({+std::sqrt(3.0) / 3.0, +std::sqrt(3.0) / 3.0});
         
     }
     
@@ -167,7 +167,7 @@ namespace QuadratureRules
     Cn2_5_9::getPoint(std::size_t i) const
     {
         logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
-        return *gp_[i];
+        return gp_[i];
     }
     
     Geometry::ReferenceGeometry*
@@ -180,31 +180,31 @@ namespace QuadratureRules
             : name_("Cn2_5_9"), refGeoPtr_(&Geometry::ReferenceSquare::Instance()), gp_(0)
     {
         weight_[0] = (5. / 9.) * (5. / 9.);
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({-std::sqrt(3.0 / 5.0), -std::sqrt(3.0 / 5.0)}));
+        gp_.push_back({-std::sqrt(3.0 / 5.0), -std::sqrt(3.0 / 5.0)});
         
         weight_[1] = (8. / 9.) * (5. / 9.);
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({0.0, -std::sqrt(3.0 / 5.0)}));
+        gp_.push_back({0.0, -std::sqrt(3.0 / 5.0)});
         
         weight_[2] = (5. / 9.) * (5. / 9.);
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({+std::sqrt(3.0 / 5.0), -std::sqrt(3.0 / 5.0)}));
+        gp_.push_back({+std::sqrt(3.0 / 5.0), -std::sqrt(3.0 / 5.0)});
         
         weight_[3] = (5. / 9.) * (8. / 9.);
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({-std::sqrt(3.0 / 5.0), 0.0}));
+        gp_.push_back({-std::sqrt(3.0 / 5.0), 0.0});
         
         weight_[4] = (8. / 9.) * (8. / 9.);
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({0.0, 0.0}));
+        gp_.push_back({0.0, 0.0});
         
         weight_[5] = (5. / 9.) * (8. / 9.);
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({+std::sqrt(3.0 / 5.0), 0.0}));
+        gp_.push_back({+std::sqrt(3.0 / 5.0), 0.0});
         
         weight_[6] = (5. / 9.) * (5. / 9.);
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({-std::sqrt(3.0 / 5.0), +std::sqrt(3.0 / 5.0)}));
+        gp_.push_back({-std::sqrt(3.0 / 5.0), +std::sqrt(3.0 / 5.0)});
         
         weight_[7] = (8. / 9.) * (5. / 9.);
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({0.0, +std::sqrt(3.0 / 5.0)}));
+        gp_.push_back({0.0, +std::sqrt(3.0 / 5.0)});
         
         weight_[8] = (5. / 9.) * (5. / 9.);
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({+std::sqrt(3.0 / 5.0), +std::sqrt(3.0 / 5.0)}));
+        gp_.push_back({+std::sqrt(3.0 / 5.0), +std::sqrt(3.0 / 5.0)});
         
     }
     
@@ -239,7 +239,7 @@ namespace QuadratureRules
     C2_7_4::getPoint(std::size_t i) const
     {
         logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
-        return *gp_[i];
+        return gp_[i];
     }
     
     Geometry::ReferenceGeometry*
@@ -252,52 +252,52 @@ namespace QuadratureRules
             : name_("C2_7_4"), refGeoPtr_(&Geometry::ReferenceSquare::Instance()), gp_(0)
     {
         weight_[0] = (59. + 6. * std::sqrt(30.)) / 216.;
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({+std::sqrt((15. - 2. * std::sqrt(30.)) / 35.), +std::sqrt((15. - 2. * std::sqrt(30.)) / 35.)}));
+        gp_.push_back({+std::sqrt((15. - 2. * std::sqrt(30.)) / 35.), +std::sqrt((15. - 2. * std::sqrt(30.)) / 35.)});
         
         weight_[1] = (59. + 6. * std::sqrt(30.)) / 216.;
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({-std::sqrt((15. - 2. * std::sqrt(30.)) / 35.), +std::sqrt((15. - 2. * std::sqrt(30.)) / 35.)}));
+        gp_.push_back({-std::sqrt((15. - 2. * std::sqrt(30.)) / 35.), +std::sqrt((15. - 2. * std::sqrt(30.)) / 35.)});
         
         weight_[2] = (59. + 6. * std::sqrt(30.)) / 216.;
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({+std::sqrt((15. - 2. * std::sqrt(30.)) / 35.), -std::sqrt((15. - 2. * std::sqrt(30.)) / 35.)}));
+        gp_.push_back({+std::sqrt((15. - 2. * std::sqrt(30.)) / 35.), -std::sqrt((15. - 2. * std::sqrt(30.)) / 35.)});
         
         weight_[3] = (59. + 6. * std::sqrt(30.)) / 216.;
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({-std::sqrt((15. - 2. * std::sqrt(30.)) / 35.), -std::sqrt((15. - 2. * std::sqrt(30.)) / 35.)}));
+        gp_.push_back({-std::sqrt((15. - 2. * std::sqrt(30.)) / 35.), -std::sqrt((15. - 2. * std::sqrt(30.)) / 35.)});
         
         weight_[4] = (59. - 6. * std::sqrt(30.)) / 216.;
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({+std::sqrt((15. + 2. * std::sqrt(30.)) / 35.), +std::sqrt((15. + 2. * std::sqrt(30.)) / 35.)}));
+        gp_.push_back({+std::sqrt((15. + 2. * std::sqrt(30.)) / 35.), +std::sqrt((15. + 2. * std::sqrt(30.)) / 35.)});
         
         weight_[5] = (59. - 6. * std::sqrt(30.)) / 216.;
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({-std::sqrt((15. + 2. * std::sqrt(30.)) / 35.), +std::sqrt((15. + 2. * std::sqrt(30.)) / 35.)}));
+        gp_.push_back({-std::sqrt((15. + 2. * std::sqrt(30.)) / 35.), +std::sqrt((15. + 2. * std::sqrt(30.)) / 35.)});
         
         weight_[6] = (59. - 6. * std::sqrt(30.)) / 216.;
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({+std::sqrt((15. + 2. * std::sqrt(30.)) / 35.), -std::sqrt((15. + 2. * std::sqrt(30.)) / 35.)}));
+        gp_.push_back({+std::sqrt((15. + 2. * std::sqrt(30.)) / 35.), -std::sqrt((15. + 2. * std::sqrt(30.)) / 35.)});
         
         weight_[7] = (59. - 6. * std::sqrt(30.)) / 216.;
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({-std::sqrt((15. + 2. * std::sqrt(30.)) / 35.), -std::sqrt((15. + 2. * std::sqrt(30.)) / 35.)}));
+        gp_.push_back({-std::sqrt((15. + 2. * std::sqrt(30.)) / 35.), -std::sqrt((15. + 2. * std::sqrt(30.)) / 35.)});
         
         weight_[8] = 49. / 216.;
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({+std::sqrt((15. - 2. * std::sqrt(30.)) / 35.), +std::sqrt((15. + 2. * std::sqrt(30.)) / 35.)}));
+        gp_.push_back({+std::sqrt((15. - 2. * std::sqrt(30.)) / 35.), +std::sqrt((15. + 2. * std::sqrt(30.)) / 35.)});
         
         weight_[9] = 49. / 216.;
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({-std::sqrt((15. - 2. * std::sqrt(30.)) / 35.), +std::sqrt((15. + 2. * std::sqrt(30.)) / 35.)}));
+        gp_.push_back({-std::sqrt((15. - 2. * std::sqrt(30.)) / 35.), +std::sqrt((15. + 2. * std::sqrt(30.)) / 35.)});
         
         weight_[10] = 49. / 216.;
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({+std::sqrt((15. - 2. * std::sqrt(30.)) / 35.), -std::sqrt((15. + 2. * std::sqrt(30.)) / 35.)}));
+        gp_.push_back({+std::sqrt((15. - 2. * std::sqrt(30.)) / 35.), -std::sqrt((15. + 2. * std::sqrt(30.)) / 35.)});
         
         weight_[11] = 49. / 216.;
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({-std::sqrt((15. - 2. * std::sqrt(30.)) / 35.), -std::sqrt((15. + 2. * std::sqrt(30.)) / 35.)}));
+        gp_.push_back({-std::sqrt((15. - 2. * std::sqrt(30.)) / 35.), -std::sqrt((15. + 2. * std::sqrt(30.)) / 35.)});
         
         weight_[12] = 49. / 216.;
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({+std::sqrt((15. + 2. * std::sqrt(30.)) / 35.), +std::sqrt((15. - 2. * std::sqrt(30.)) / 35.)}));
+        gp_.push_back({+std::sqrt((15. + 2. * std::sqrt(30.)) / 35.), +std::sqrt((15. - 2. * std::sqrt(30.)) / 35.)});
         
         weight_[13] = 49. / 216.;
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({-std::sqrt((15. + 2. * std::sqrt(30.)) / 35.), +std::sqrt((15. - 2. * std::sqrt(30.)) / 35.)}));
+        gp_.push_back({-std::sqrt((15. + 2. * std::sqrt(30.)) / 35.), +std::sqrt((15. - 2. * std::sqrt(30.)) / 35.)});
         
         weight_[14] = 49. / 216.;
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({+std::sqrt((15. + 2. * std::sqrt(30.)) / 35.), -std::sqrt((15. - 2. * std::sqrt(30.)) / 35.)}));
+        gp_.push_back({+std::sqrt((15. + 2. * std::sqrt(30.)) / 35.), -std::sqrt((15. - 2. * std::sqrt(30.)) / 35.)});
         
         weight_[15] = 49. / 216.;
-        gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({-std::sqrt((15. + 2. * std::sqrt(30.)) / 35.), -std::sqrt((15. - 2. * std::sqrt(30.)) / 35.)}));
+        gp_.push_back({-std::sqrt((15. + 2. * std::sqrt(30.)) / 35.), -std::sqrt((15. - 2. * std::sqrt(30.)) / 35.)});
         
     }
     
@@ -332,7 +332,7 @@ namespace QuadratureRules
     C2_9_5::getPoint(std::size_t i) const
     {
         logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
-        return *gp_[i];
+        return gp_[i];
     }
     
     Geometry::ReferenceGeometry*
@@ -351,7 +351,7 @@ namespace QuadratureRules
             for (std::size_t j = 0; j < ruleForLine.getNumberOfPoints(); ++j)
             {
                 weight_[position] = ruleForLine.weight(i) * ruleForLine.weight(j);
-                gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({static_cast<const Geometry::PointReference<1>&>(ruleForLine.getPoint(i))[0], static_cast<const Geometry::PointReference<1>&>(ruleForLine.getPoint(j))[0]}));
+                gp_.push_back({static_cast<const Geometry::PointReference<1>&>(ruleForLine.getPoint(i))[0], static_cast<const Geometry::PointReference<1>&>(ruleForLine.getPoint(j))[0]});
                 ++position;
             }
         }
@@ -389,7 +389,7 @@ namespace QuadratureRules
     C2_11_6::getPoint(std::size_t i) const
     {
         logger.assert(i < getNumberOfPoints(), "%::getPoint - wrong index!", name_);
-        return *gp_[i];
+        return gp_[i];
     }
     
     Geometry::ReferenceGeometry*
@@ -408,7 +408,7 @@ namespace QuadratureRules
             for (std::size_t j = 0; j < ruleForLine.getNumberOfPoints(); ++j)
             {
                 weight_[position] = ruleForLine.weight(i) * ruleForLine.weight(j);
-                gp_.push_back(Geometry::PointReferenceFactory<2>::instance()->makePoint({static_cast<const Geometry::PointReference<1>&>(ruleForLine.getPoint(i))[0], static_cast<const Geometry::PointReference<1>&>(ruleForLine.getPoint(j))[0]}));
+                gp_.push_back({static_cast<const Geometry::PointReference<1>&>(ruleForLine.getPoint(i))[0], static_cast<const Geometry::PointReference<1>&>(ruleForLine.getPoint(j))[0]});
                 ++position;
             }
         }

@@ -43,7 +43,7 @@
 namespace Base
 {
         
-    Element::Element(const ElementData& otherData, const ElementGeometry& otherGeometry)
+    Element::Element(const ElementData& otherData, const Geometry::ElementGeometry& otherGeometry)
         :
         ElementGeometry(otherGeometry), ElementData(otherData)
     {        
@@ -164,7 +164,7 @@ namespace Base
         quadratureRule_ = quadR;
     }
     
-    const QuadratureRules::GaussQuadratureRule* Element::getGaussQuadratureRule() const
+    QuadratureRules::GaussQuadratureRule* Element::getGaussQuadratureRule() const
     {
         return quadratureRule_;
     }
@@ -178,23 +178,10 @@ namespace Base
     const Base::BaseBasisFunction* Element::getBasisFunction(std::size_t i) const
     {
         logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
-        int basePosition = 0;
-        for (int j : basisFunctionSetPositions_)
-        {
-            if (j != -1)
-            {
-                if (i - basePosition < basisFunctionSet_->at(j)->size())
-                {
-                    return basisFunctionSet_->at(j)->operator[](i - basePosition);
-                }
-                else
-                {
-                    basePosition += basisFunctionSet_->at(j)->size();
-                }
-            }
-        }
-        logger(ERROR, "This is not supposed to happen, please try again with assertions turned on");
-        return nullptr;
+        const BasisFunctionSet *subSet;
+        std::size_t subIndex;
+        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        return (*subSet)[subIndex];
     }
 #endif
     
@@ -242,4 +229,65 @@ namespace Base
         return os;
     }
 
+    std::tuple<const BasisFunctionSet*, std::size_t> Element::getBasisFunctionSetAndIndex(size_t index) const
+    {
+        logger.assert(index<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", index, getNumberOfBasisFunctions());
+        int basePosition = 0;
+        for (int j : basisFunctionSetPositions_)
+        {
+            if (j != -1)
+            {
+                if (index - basePosition < basisFunctionSet_->at(j)->size())
+                {
+                    return std::tuple<const BasisFunctionSet*, std::size_t>{basisFunctionSet_->at(j).get(), index - basePosition};
+                }
+                else
+                {
+                    basePosition += basisFunctionSet_->at(j)->size();
+                }
+            }
+        }
+        logger(ERROR, "This is not supposed to be reachable");
+        return {};
+    }
+
+    double Element::basisFunction(std::size_t i, QuadratureRules::GaussQuadratureRule *quadratureRule,
+                                  std::size_t quadraturePointIndex) const
+    {
+        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
+        const BasisFunctionSet *subSet;
+        std::size_t subIndex;
+        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        return quadratureRule->eval(subSet, subIndex, quadraturePointIndex);
+    }
+
+    double Element::basisFunctionDiv(std::size_t i, QuadratureRules::GaussQuadratureRule *quadratureRule,
+                                     std::size_t quadraturePointIndex) const
+    {
+        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
+        const BasisFunctionSet *subSet;
+        std::size_t subIndex;
+        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        return quadratureRule->evalDiv(subSet, subIndex, quadraturePointIndex);
+    }
+
+    double Element::basisFunction(std::size_t i, QuadratureRules::GaussQuadratureRule *quadratureRule,
+                                  std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1> *map) const
+    {
+        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
+        const BasisFunctionSet *subSet;
+        std::size_t subIndex;
+        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        return quadratureRule->eval(subSet, subIndex, quadraturePointIndex, map);
+    }
+
+    double Element::basisFunctionDiv(std::size_t i, QuadratureRules::GaussQuadratureRule *quadratureRule,
+                                     std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1> *map) const
+    {
+        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
+        const BasisFunctionSet *subSet;
+        std::size_t subIndex;
+        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        return quadratureRule->evalDiv(subSet, subIndex, quadraturePointIndex, map);
+    }
 }

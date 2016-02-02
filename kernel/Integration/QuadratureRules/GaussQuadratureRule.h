@@ -23,13 +23,78 @@
 #define GaussQuadratureRule_h
 
 #include <string>
+#include <cstring>
+#include "Geometry/Mappings/ConcatenatedMapping.h"
 
 namespace Geometry
 {
     // forward declaration
     class ReferenceGeometry;
     class PointReferenceBase;
+    template<int CODIM>
+    class MappingReferenceToReference;
 }
+
+namespace Base
+{
+    class BasisFunctionSet;
+}
+
+///helper class intended to store face to element maps in a way that is usable by std::map (includes special treatment for concatenated mapping)
+class faceMapContainer {
+public:
+
+    faceMapContainer(const Geometry::MappingReferenceToReference<1>* map)
+    {
+        if(typeid(*map) == typeid(Geometry::ConcatenatedMapping)) {
+            isConcatenated_ = true;
+            auto concatenatedMap = static_cast<const Geometry::ConcatenatedMapping*>(map);
+            data_.indirect_ = concatenatedMap->getSubMaps();
+        }
+        else
+        {
+            isConcatenated_ = false;
+            data_.direct_ = map;
+        }
+    }
+
+    bool operator<(const faceMapContainer& RHS) const
+    {
+        if(!isConcatenated_)
+        {
+            if(RHS.isConcatenated_)
+            {
+                return true;
+            }
+            else
+            {
+                return data_.direct_ < RHS.data_.direct_;
+            }
+        }
+        else
+        {
+            if(RHS.isConcatenated_)
+            {
+                return data_.indirect_ < RHS.data_.indirect_;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+
+private:
+    //isConcatenated decides which field in the union is active
+    //if it is ever changed, also make sure to write to the union to activate the appropriate field
+    bool isConcatenated_;
+    union pointerContainer {
+        const Geometry::MappingReferenceToReference<1>* direct_;
+        std::pair<const Geometry::MappingReferenceToReference<0>*, const Geometry::MappingReferenceToReference<1>*> indirect_;
+
+        pointerContainer(){std::memset(this, 0, sizeof(pointerContainer));}
+    } data_;
+};
 
 namespace QuadratureRules
 {
@@ -71,7 +136,142 @@ namespace QuadratureRules
         //! Each rule also knows which ReferenceGeometry it is meant for.
         virtual Geometry::ReferenceGeometry* forReferenceGeometry() const = 0;
 
-        
+        ///tell the quadrature rule that a pointer to a basis function set is no longer suitable for quick lookup
+        void unregisterBasisFunctionSet(Base::BasisFunctionSet* set)
+        {
+            basisFunctionValues_.erase(set);
+            basisFunctionGrads_.erase(set);
+            basisFunctionCurls_.erase(set);
+            basisFunctionDivs_.erase(set);
+            faceBasisFunctionValues_.erase(set);
+            faceBasisFunctionGrads_.erase(set);
+            faceBasisFunctionCurls_.erase(set);
+            faceBasisFunctionDivs_.erase(set);
+        }
+
+        ///pre-evaluate a set of basisfunctions to speed up computation
+        double eval(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex);
+
+        ///pre-evaluate a set of basisfunctions to speed up computation. First maps the quadrature points to an element using the provided mapping
+        double eval(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1>* map);
+
+        ///pre-evaluate a set of basisfunctions to speed up computation
+        template<std::size_t DIM>
+        void eval(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex, LinearAlgebra::SmallVector<DIM>& result);
+
+        ///pre-evaluate a set of basisfunctions to speed up computation. First maps the quadrature points to an element using the provided mapping
+        template<std::size_t DIM>
+        void eval(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1>* map, LinearAlgebra::SmallVector<DIM>& result);
+
+        ///pre-evaluate the derivative of a set of basisfunctions to speed up computation
+        ///the result of this function should be assigned back into a smallvector of appropriate size
+        const LinearAlgebra::MiddleSizeVector& evalGrad(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex);
+
+        ///pre-evaluate the derivative of a set of basisfunctions to speed up computation. First maps the quadrature points to an element using the provided mapping
+        ///the result of this function should be assigned back into a smallvector of appropriate size
+        const LinearAlgebra::MiddleSizeVector& evalGrad(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1>* map);
+
+        ///pre-evaluate the curl of a set of basisfunctions to speed up computation
+        LinearAlgebra::SmallVector<3> evalCurl(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex);
+
+        ///pre-evaluate the curl of a set of basisfunctions to speed up computation. First maps the quadrature points to an element using the provided mapping
+        LinearAlgebra::SmallVector<3> evalCurl(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1>* map);
+
+        ///pre-evaluate the divergence of a set of basisfunctions to speed up computation
+        double evalDiv(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex);
+
+        ///pre-evaluate the divergence of a set of basisfunctions to speed up computation. First maps the quadrature points to an element using the provided mapping
+        double evalDiv(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1>* map);
+
+    private:
+        //this uses maps because if you can swap two vectors of vectors efficiently you lose the benefit of consecutive memory access anyway
+        //and there are relatively few entries created, but a lot of lookups so the allocation overhead is relatively minor
+        std::map<const Base::BasisFunctionSet*, std::vector<std::vector<double>>> basisFunctionValues_;
+        std::map<const Base::BasisFunctionSet*, std::vector<std::vector<LinearAlgebra::MiddleSizeVector>>> basisFunctionVectorValues_;
+        std::map<const Base::BasisFunctionSet*, std::vector<std::vector<LinearAlgebra::MiddleSizeVector>>> basisFunctionGrads_;
+        std::map<const Base::BasisFunctionSet*, std::vector<std::vector<LinearAlgebra::SmallVector<3>>>> basisFunctionCurls_;
+        std::map<const Base::BasisFunctionSet*, std::vector<std::vector<double>>> basisFunctionDivs_;
+        std::map<const Base::BasisFunctionSet*, std::map<faceMapContainer, std::vector<std::vector<double>>>> faceBasisFunctionValues_;
+        std::map<const Base::BasisFunctionSet*, std::map<faceMapContainer, std::vector<std::vector<LinearAlgebra::MiddleSizeVector>>>> faceBasisFunctionVectorValues_;
+        std::map<const Base::BasisFunctionSet*, std::map<faceMapContainer, std::vector<std::vector<LinearAlgebra::MiddleSizeVector>>>> faceBasisFunctionGrads_;
+        std::map<const Base::BasisFunctionSet*, std::map<faceMapContainer, std::vector<std::vector<LinearAlgebra::SmallVector<3>>>>> faceBasisFunctionCurls_;
+        std::map<const Base::BasisFunctionSet*, std::map<faceMapContainer, std::vector<std::vector<double>>>> faceBasisFunctionDivs_;
     };
-} // close namespace Integration
+}
+
+#include "Base/BasisFunctionSet.h"
+
+template<std::size_t DIM>
+inline void QuadratureRules::GaussQuadratureRule::eval(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex, LinearAlgebra::SmallVector<DIM>& result)
+{
+    logger.assert(set != nullptr, "Invalid basis function set passed");
+    logger.assert(dimension() == DIM, "Quadrature rule not for this dimension");
+    logger.assert(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
+    logger.assert(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex, set->size());
+    try
+    {
+        result = basisFunctionVectorValues_.at(set)[quadraturePointIndex][basisFunctionIndex];
+    }
+    catch(std::out_of_range&)
+    {
+        //we store smallVectors as middleSizeVectors so we dont have to template the quadrature rule, but this means we have to silence the efficiency warning
+        //efficiency is not a big issue here since we only do a heap allocation once per basis function per quadrature point for the entire computation
+        auto oldWarn = loggerOutput->onWarn;
+        loggerOutput->onWarn = [](std::string, std::string){};
+        set->registerQuadratureRule(this);
+        basisFunctionVectorValues_[set].resize(getNumberOfPoints());
+        for(std::size_t i = 0; i < getNumberOfPoints(); ++i)
+        {
+            basisFunctionVectorValues_[set][i].resize(set->size());
+            const Geometry::PointReference<DIM> &point = getPoint(i);
+            for (std::size_t j = 0; j < set->size(); ++j)
+            {
+                //borrow result for transferring the information; set to the appropriate value later
+                set->eval(j, point, result);
+                basisFunctionVectorValues_[set][i][j] = result;
+            }
+        }
+        loggerOutput->onWarn = oldWarn;
+        result = basisFunctionVectorValues_[set][quadraturePointIndex][basisFunctionIndex];
+    }
+}
+
+template<std::size_t DIM>
+inline void QuadratureRules::GaussQuadratureRule::eval(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1>* map, LinearAlgebra::SmallVector<DIM>& result)
+{
+    logger.assert(set != nullptr, "Invalid basis function set passed");
+    logger.assert(dimension() == DIM - 1, "Quadrature rule not for this dimension");
+    logger.assert(map != nullptr, "Invalid coordinate transformation passed");
+    logger.assert(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
+    logger.assert(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex, set->size());
+    auto containedMap = faceMapContainer(map);
+    try
+    {
+        result = faceBasisFunctionVectorValues_.at(set).at(containedMap)[quadraturePointIndex][basisFunctionIndex];
+    }
+    catch(std::out_of_range&)
+    {
+        //we store smallVectors as middleSizeVectors so we dont have to template the quadrature rule, but this means we have to silence the efficiency warning
+        //efficiency is not a big issue here since we only do a heap allocation once per basis function per quadrature point for the entire computation
+        auto oldWarn = loggerOutput->onWarn;
+        loggerOutput->onWarn = [](std::string, std::string){};
+        set->registerQuadratureRule(this);
+        faceBasisFunctionVectorValues_[set][containedMap].resize(getNumberOfPoints());
+        for(std::size_t i = 0; i < getNumberOfPoints(); ++i)
+        {
+            faceBasisFunctionVectorValues_[set][containedMap][i].resize(set->size());
+            const Geometry::PointReference<DIM - 1> &facePoint = getPoint(i);
+            const Geometry::PointReference<DIM> &point = map->transform(facePoint);
+            for (std::size_t j = 0; j < set->size(); ++j)
+            {
+                //borrow result for transferring the information; set to the appropriate value later
+                set->eval(j, point, result);
+                faceBasisFunctionVectorValues_[set][containedMap][i][j] = result;
+            }
+        }
+        loggerOutput->onWarn = oldWarn;
+        result = faceBasisFunctionVectorValues_[set][containedMap][quadraturePointIndex][basisFunctionIndex];
+    }
+}
+
 #endif

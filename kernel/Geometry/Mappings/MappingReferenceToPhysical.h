@@ -96,6 +96,30 @@ namespace Geometry
             logger(ERROR, "Passed a point of the wrong dimension");
             return PointPhysical<4>();
         }
+
+        virtual PointReference<1> inverseTransform(const PointPhysical<1>&) const
+        {
+            logger(ERROR, "Passed a point of the wrong dimension");
+            return {};
+        }
+
+        virtual PointReference<2> inverseTransform(const PointPhysical<2>&) const
+        {
+            logger(ERROR, "Passed a point of the wrong dimension");
+            return {};
+        }
+
+        virtual PointReference<3> inverseTransform(const PointPhysical<3>&) const
+        {
+            logger(ERROR, "Passed a point of the wrong dimension");
+            return {};
+        }
+
+        virtual PointReference<4> inverseTransform(const PointPhysical<4>&) const
+        {
+            logger(ERROR, "Passed a point of the wrong dimension");
+            return {};
+        }
         
         /// Recompute mapping after physical nodes have moved.
         /// Note that this typically has to be done for all elements, so make sure

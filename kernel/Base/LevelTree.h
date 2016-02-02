@@ -119,6 +119,8 @@ namespace Base
         //! Add children of an entry, making the children occupy a specific level. The parent will stretch to fill empty lower levels if necessary. Provided iterator must point into this tree.
         TreeIterator<V> addChild(TreeIterator<V> parentEl, const V& subEntry, std::size_t level);
 
+        ConstIterableWrapper<TreeEntry<V>> getRootEntries() const;
+
         //! Make all leaves occupy a specified level, stretching leaves to fill empty lower levels if necessary.
         void fillToLevel(std::size_t level);
 

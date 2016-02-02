@@ -19,6 +19,7 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <Base/L2Norm.h>
 #include "MappingToPhysTriangularPrism.h"
 
 #include "Geometry/PointPhysical.h"
@@ -66,6 +67,23 @@ namespace Geometry
         }
         return pP;
 #endif
+    }
+
+    PointReference<3> MappingToPhysTriangularPrism::inverseTransform(const PointPhysical<3>& pointPhysical) const
+    {
+        Geometry::PointReference<3> result;
+        Geometry::PointPhysical<3> comparison = transform(result);
+        LinearAlgebra::SmallVector<3> correction;
+        double error = Base::L2Norm(pointPhysical - comparison);
+        while(error > 1e-14)
+        {
+            correction = (pointPhysical - comparison).getCoordinates();
+            calcJacobian(result).solve(correction);
+            result = PointReference<3>(result + correction);
+            comparison = transform(result);
+            error = Base::L2Norm(pointPhysical - comparison);
+        }
+        return result;
     }
     
     Jacobian<3, 3> MappingToPhysTriangularPrism::calcJacobian(const PointReference<3>& pR) const

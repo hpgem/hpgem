@@ -35,18 +35,10 @@ namespace Geometry
         return theInstance;
     }
     
-    const PointReference<2>& MappingToRefLineToSquare0::transform(const Geometry::PointReference<1>& p1) const
+    PointReference<2> MappingToRefLineToSquare0::transform(const Geometry::PointReference<1>& p1) const
     {
         logger.assert(p1.size()==1, "Reference point has the wrong dimension");
-        try
-        {
-            return *transformedCoordinates.at(&p1);
-        }
-        catch (std::out_of_range&)
-        {
-            const_cast<std::map<const PointReference<1>*, const PointReference<2>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<2>::instance()->makePoint({p1[0], -1.});
-            return *transformedCoordinates.at(&p1);
-        }
+        return {p1[0], -1.};
     }
     
     Jacobian<1, 2> MappingToRefLineToSquare0::calcJacobian(const Geometry::PointReference<1>& p1) const
@@ -72,18 +64,10 @@ namespace Geometry
         return theInstance;
     }
     
-    const PointReference<2>& MappingToRefLineToSquare1::transform(const Geometry::PointReference<1>& p1) const
+    PointReference<2> MappingToRefLineToSquare1::transform(const Geometry::PointReference<1>& p1) const
     {
         logger.assert(p1.size()==1, "Reference point has the wrong dimension");
-        try
-        {
-            return *transformedCoordinates.at(&p1);
-        }
-        catch (std::out_of_range&)
-        {
-            const_cast<std::map<const PointReference<1>*, const PointReference<2>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<2>::instance()->makePoint({-1., p1[0]});
-            return *transformedCoordinates.at(&p1);
-        }
+        return {-1., p1[0]};
     }
     
     Jacobian<1, 2> MappingToRefLineToSquare1::calcJacobian(const Geometry::PointReference<1>& p1) const
@@ -109,18 +93,10 @@ namespace Geometry
         return theInstance;
     }
     
-    const PointReference<2>& MappingToRefLineToSquare2::transform(const Geometry::PointReference<1>& p1) const
+    PointReference<2> MappingToRefLineToSquare2::transform(const Geometry::PointReference<1>& p1) const
     {
         logger.assert(p1.size()==1, "Reference point has the wrong dimension");
-        try
-        {
-            return *transformedCoordinates.at(&p1);
-        }
-        catch (std::out_of_range&)
-        {
-            const_cast<std::map<const PointReference<1>*, const PointReference<2>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<2>::instance()->makePoint({1., p1[0]});
-            return *transformedCoordinates.at(&p1);
-        }
+        return {1., p1[0]};
     }
     
     Jacobian<1, 2> MappingToRefLineToSquare2::calcJacobian(const Geometry::PointReference<1>& p1) const
@@ -146,18 +122,10 @@ namespace Geometry
         return theInstance;
     }
     
-    const PointReference<2>& MappingToRefLineToSquare3::transform(const Geometry::PointReference<1>& p1) const
+    PointReference<2> MappingToRefLineToSquare3::transform(const Geometry::PointReference<1>& p1) const
     {
         logger.assert(p1.size()==1, "Reference point has the wrong dimension");
-        try
-        {
-            return *transformedCoordinates.at(&p1);
-        }
-        catch (std::out_of_range&)
-        {
-            const_cast<std::map<const PointReference<1>*, const PointReference<2>*>&>(transformedCoordinates)[&p1] = PointReferenceFactory<2>::instance()->makePoint({p1[0], 1.});
-            return *transformedCoordinates.at(&p1);
-        }
+        return {p1[0], 1.};
     }
     
     Jacobian<1, 2> MappingToRefLineToSquare3::calcJacobian(const Geometry::PointReference<1>& p1) const

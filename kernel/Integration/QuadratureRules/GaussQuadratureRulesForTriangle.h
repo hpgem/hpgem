@@ -55,7 +55,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[1];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<2>*> gp_;
+        std::vector<Geometry::PointReference<2>> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -83,7 +83,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[3];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<2>*> gp_;
+        std::vector<Geometry::PointReference<2>> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -111,7 +111,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[4];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<2>*> gp_;
+        std::vector<Geometry::PointReference<2>> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -139,7 +139,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[6];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<2>*> gp_;
+        std::vector<Geometry::PointReference<2>> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -167,7 +167,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[7];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<2>*> gp_;
+        std::vector<Geometry::PointReference<2>> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -195,7 +195,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[12];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<2>*> gp_;
+        std::vector<Geometry::PointReference<2>> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -223,7 +223,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[13];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<2>*> gp_;
+        std::vector<Geometry::PointReference<2>> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -251,7 +251,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[16];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<2>*> gp_;
+        std::vector<Geometry::PointReference<2>> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -279,7 +279,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[19];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<2>*> gp_;
+        std::vector<Geometry::PointReference<2>> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -307,7 +307,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[25];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<2>*> gp_;
+        std::vector<Geometry::PointReference<2>> gp_;
     };
     
 //---------------------------------------------------------------------------
@@ -335,7 +335,7 @@ namespace QuadratureRules
         const std::string name_;
         double weight_[28];
         Geometry::ReferenceGeometry* const refGeoPtr_;
-        std::vector<const Geometry::PointReference<2>*> gp_;
+        std::vector<Geometry::PointReference<2>> gp_;
     };
 
 //---------------------------------------------------------------------------

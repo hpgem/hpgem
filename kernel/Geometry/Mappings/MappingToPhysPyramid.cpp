@@ -26,6 +26,7 @@
 #include "Geometry/Jacobian.h"
 #include "Geometry/PointPhysical.h"
 #include <cmath>
+#include <Base/L2Norm.h>
 
 namespace Geometry
 {
@@ -62,6 +63,24 @@ namespace Geometry
         }
         return pP;
     }
+
+    PointReference<3> MappingToPhysPyramid::inverseTransform(const PointPhysical<3>& pointPhysical) const
+    {
+        Geometry::PointReference<3> result;
+        Geometry::PointPhysical<3> comparison = transform(result);
+        LinearAlgebra::SmallVector<3> correction;
+        double error = Base::L2Norm(pointPhysical - comparison);
+        while(error > 1e-14)
+        {
+            correction = (pointPhysical - comparison).getCoordinates();
+            calcJacobian(result).solve(correction);
+            result = PointReference<3>(result + correction);
+            comparison = transform(result);
+            error = Base::L2Norm(pointPhysical - comparison);
+        }
+        return result;
+    }
+
     Jacobian<3, 3> MappingToPhysPyramid::calcJacobian(const PointReference<3>& pR) const
     {
         logger.assert(pR.size()==3, "Reference point has the wrong dimension");

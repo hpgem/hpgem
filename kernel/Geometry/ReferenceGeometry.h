@@ -139,7 +139,7 @@ namespace Geometry
         // ================================== Quadrature rules =====================================
         
         /// \brief Get a valid quadrature for this geometry.
-        const QuadratureRules::GaussQuadratureRule* getGaussQuadratureRule(std::size_t order) const;
+        QuadratureRules::GaussQuadratureRule* getGaussQuadratureRule(std::size_t order) const;
         
     protected:
         ReferenceGeometry(std::size_t numberOfNodes, std::size_t DIM, const ReferenceGeometryType& geoT, std::initializer_list<double> center);
