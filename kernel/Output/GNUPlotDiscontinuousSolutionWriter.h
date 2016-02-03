@@ -43,8 +43,7 @@ namespace Output
     /// Example usage for Laplace problem: 
     /// DiscontinuousSolutionWriter testWriter(outStream, "title", "01", "u");
     /// testWriter.write(mesh);
-    /// Then open gnuplot and plot with the command: splot "output.dat"
-    /// Has only been tested for 2D geometries.
+    /// Then open gnuplot and plot with the command: plot "output.dat" every ::3 (1D) or splot "output.dat" (for 2D)
     template<std::size_t DIM>
     class GNUPlotDiscontinuousSolutionWriter
     {

@@ -81,17 +81,14 @@ namespace Output
         //make an iterator that can iterate over all nodes.
         TecplotPhysicalGeometryIterator& nodeIt = TecplotPhysicalGeometryIterator::Instance();
         
-        //construct the list of all elements.
-        const std::vector<Base::Element*>& elements = mesh->getElementsList();
-        
         //get the physical and reference coordinates of the first node of the first element.
         Geometry::PointPhysical<DIM> pPhys;
         
         //Element cycle, print physical coordinates:
-        for (typename std::vector<Base::Element*>::const_iterator eltIterator = elements.begin(); eltIterator != elements.end(); ++eltIterator)
+        for (Base::Element* elt : mesh->getElementsList())
         {
             // Tell the TecplotPhysicalGeometryIterator which shape is to be iterated next
-            nodeIt.acceptG((*eltIterator)->getPhysicalGeometry());
+            nodeIt.acceptG(elt->getPhysicalGeometry());
             
             // Cycle through nodes
             while (nodeIt.more())
@@ -100,11 +97,11 @@ namespace Output
                 
                 // For the solution data, write function of the user, however we pass a local
                 // coordinate of the current reference element
-                const Geometry::PointReference<DIM>& pRef = (*eltIterator)->getReferenceGeometry()->getReferenceNodeCoordinate(localNode);
+                const Geometry::PointReference<DIM>& pRef = elt->getReferenceGeometry()->getReferenceNodeCoordinate(localNode);
                 
                 // First write the (possibly reduced) coordinates of the point;
                 // note: PHYSICAL coordinates here!
-                pPhys = (*eltIterator)->referenceToPhysical(pRef);
+                pPhys = elt->referenceToPhysical(pRef);
                 
                 //write the physical coordinates of the point
                 for (std::size_t i = 0; i < nDimensionsToWrite_; ++i)
@@ -118,7 +115,7 @@ namespace Output
                 // function
                 output_.precision(8);
                 output_.width(16);
-                writeDataClass->writeOutput(*eltIterator, pRef, output_);
+                writeDataClass->writeOutput(elt, pRef, output_);
                 output_ << "\n";
                 
             } // end of 'nodes of element' loop
