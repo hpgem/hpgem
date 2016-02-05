@@ -248,7 +248,16 @@ public:
         this->createMesh(n_, meshType_);
         this->solve(0, finalTime, 1e-3, 0, false);
         std::ofstream outputFile(outputFileName);
-        Output::GNUPlotDiscontinuousSolutionWriter<DIM> gnuPlotDiscontinuousSolutionWriter(outputFile, "Advection for testing GNUPlotWriter", "01", "u");
+        std::string xNames;
+        if (DIM == 2)
+        {
+            xNames = "01";
+        }
+        else
+        {
+            xNames = "0";
+        }
+        Output::GNUPlotDiscontinuousSolutionWriter<DIM> gnuPlotDiscontinuousSolutionWriter(outputFile, "Advection for testing GNUPlotWriter", xNames, "u");
         gnuPlotDiscontinuousSolutionWriter.write(this->meshes_[0], this);
     }
 

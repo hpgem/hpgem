@@ -1,8 +1,5 @@
 include(${CMAKE_SOURCE_DIR}/conf/cmake/MasterMake.cmake)
 
-#temporary hack because I want to also test PETSc and GlobalAssembly
-include_directories(${PETSC_INCLUDES})
-
 #Part 1 : All cpp files will be made to exec files
 #########################################
 #Collect all the names of the cpp, note at the moment limited to demos, but will be fixed later
