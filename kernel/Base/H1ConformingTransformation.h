@@ -69,6 +69,11 @@ namespace Base
     };
 }
 
-
+///\todo can this be templated?
+BOOST_CLASS_EXPORT_KEY(Base::H1ConformingTransformation<0>);
+BOOST_CLASS_EXPORT_KEY(Base::H1ConformingTransformation<1>);
+BOOST_CLASS_EXPORT_KEY(Base::H1ConformingTransformation<2>);
+BOOST_CLASS_EXPORT_KEY(Base::H1ConformingTransformation<3>);
+BOOST_CLASS_EXPORT_KEY(Base::H1ConformingTransformation<4>);
 
 #endif /* H1CONFORMINGTRANSFORMATION_H_ */

@@ -125,5 +125,11 @@ namespace boost
 }
 
 
+BOOST_CLASS_EXPORT_KEY(Base::DoNotScaleIntegrands<0>);
+BOOST_CLASS_EXPORT_KEY(Base::DoNotScaleIntegrands<1>);
+BOOST_CLASS_EXPORT_KEY(Base::DoNotScaleIntegrands<2>);
+BOOST_CLASS_EXPORT_KEY(Base::DoNotScaleIntegrands<3>);
+BOOST_CLASS_EXPORT_KEY(Base::DoNotScaleIntegrands<4>);
+
 
 #endif /* DONOTSCALEINTEGRANDS_H_ */

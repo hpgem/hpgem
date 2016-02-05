@@ -275,7 +275,7 @@ namespace Base
             ///coordinate transformation from the kernel with PhysicalElement you should also register it here. If you have an application-
             ///specific coordinate transformation in your application, you should probably register it over there instead.
             ///\todo think of a better solution
-            ar.template register_type<H1ConformingTransformation<DIM>>();
+            //ar.template register_type<H1ConformingTransformation<DIM>>();
             ar.template register_type<HCurlConformingTransformation<DIM>>();
             ar.template register_type<HDivConformingTransformation<DIM>>();
             ar.template register_type<DoNotScaleIntegrands<DIM>>();

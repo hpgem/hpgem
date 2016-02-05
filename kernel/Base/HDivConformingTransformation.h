@@ -69,6 +69,11 @@ namespace Base
 }
 
 
+BOOST_CLASS_EXPORT_KEY(Base::HDivConformingTransformation<0>);
+BOOST_CLASS_EXPORT_KEY(Base::HDivConformingTransformation<1>);
+BOOST_CLASS_EXPORT_KEY(Base::HDivConformingTransformation<2>);
+BOOST_CLASS_EXPORT_KEY(Base::HDivConformingTransformation<3>);
+BOOST_CLASS_EXPORT_KEY(Base::HDivConformingTransformation<4>);
 
 
 #endif /* HDIVCONFORMINGTRANSFORMATION_H_ */

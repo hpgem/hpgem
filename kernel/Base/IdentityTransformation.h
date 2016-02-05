@@ -78,14 +78,19 @@ namespace Base
             return 1.;
         }
 
-        /*template<typename Archive>
+        template<typename Archive>
         void serialize(Archive &ar, const unsigned int version)
         {
             ar & boost::serialization::base_object<CoordinateTransformation<DIM>>(*this);
-        }*/
+        }
     };
 }
 
 
+BOOST_CLASS_EXPORT_KEY(Base::IdentityTransformation<0>);
+BOOST_CLASS_EXPORT_KEY(Base::IdentityTransformation<1>);
+BOOST_CLASS_EXPORT_KEY(Base::IdentityTransformation<2>);
+BOOST_CLASS_EXPORT_KEY(Base::IdentityTransformation<3>);
+BOOST_CLASS_EXPORT_KEY(Base::IdentityTransformation<4>);
 
 #endif /* IDENTITYTRANSFORMATION_H_ */
