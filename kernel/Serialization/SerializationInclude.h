@@ -33,6 +33,6 @@
 #undef assert
 
 
-#include "Base/SerializationCommands.h"
+#include "Serialization/SerializationCommands.h"
 #endif /* SERIALIZATIONINCLUDE_H */
 

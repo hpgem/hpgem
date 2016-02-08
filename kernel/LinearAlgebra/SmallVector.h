@@ -22,7 +22,7 @@
 #ifndef SMALLVECTOR_H_
 #define SMALLVECTOR_H_
 
-#include "Base/SerializationInclude.h"
+#include "Serialization/SerializationInclude.h"
 #include "Logger.h"
 #include <array>
 #include <cmath>

@@ -22,7 +22,7 @@
 #ifndef BaseLinearH
 #define BaseLinearH
 
-#include "Base/SerializationInclude.h"
+#include "Serialization/SerializationInclude.h"
 #include "Base/ConfigurationData.h"
 #include "Base/Element.h"
 #include "Base/Face.h"

@@ -27,7 +27,7 @@
 #include "Base/Face.h"
 #include "Base/HpgemAPIBase.h"
 #include "Base/RectangularMeshDescriptor.h"
-#include "Base/SerializationInclude.h"
+#include "Serialization/SerializationInclude.h"
 #include "Base/TimeIntegration/AllTimeIntegrators.h"
 #include "Integration/ElementIntegrandBase.h"
 #include "Integration/FaceIntegrandBase.h"

@@ -25,7 +25,7 @@
 #include <cstdlib>
 #include "LinearAlgebra/SmallVector.h"
 #include "PhysicalElement.h"
-#include "SerializationInclude.h"
+#include "Serialization/SerializationInclude.h"
 
 namespace Base
 {
@@ -70,7 +70,6 @@ namespace Base
 }
 
 ///\todo can this be templated?
-BOOST_CLASS_EXPORT_KEY(Base::H1ConformingTransformation<0>);
 BOOST_CLASS_EXPORT_KEY(Base::H1ConformingTransformation<1>);
 BOOST_CLASS_EXPORT_KEY(Base::H1ConformingTransformation<2>);
 BOOST_CLASS_EXPORT_KEY(Base::H1ConformingTransformation<3>);

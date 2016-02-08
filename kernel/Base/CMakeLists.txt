@@ -27,22 +27,22 @@ add_library(hpGEM_Base STATIC
 		CommandLineOptions.cpp
  		Element.cpp
  		ElementData.cpp
-                ElementFactory.cpp
+        ElementFactory.cpp
  		Face.cpp
  		FaceData.cpp
-                FaceFactory.cpp
+        FaceFactory.cpp
 		FaceMatrix.cpp
  		Edge.cpp
  		Node.cpp
 		HpgemAPISimplified.cpp
 		#miscellaneous required stuff
 		${hpGEM_SOURCE_DIR}/kernel/Base/MeshManipulatorBase.cpp
-                Submesh.cpp
-        	${hpGEM_SOURCE_DIR}/kernel/Base/AssembleBasisFunctionSet.cpp
+        Submesh.cpp
+        ${hpGEM_SOURCE_DIR}/kernel/Base/AssembleBasisFunctionSet.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Base/L2Norm.cpp
-                MpiContainer.cpp
+        MpiContainer.cpp
 		        
-        	${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions1DH1ConformingLine.cpp
+        ${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions1DH1ConformingLine.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions2DH1ConformingSquare.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions2DH1ConformingTriangle.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions3DH1ConformingCube.cpp
@@ -53,7 +53,7 @@ add_library(hpGEM_Base STATIC
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/helperFunctions.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/GlobalMatrix.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/GlobalVector.cpp
-		SerializationCommands.h)
+		)
 
 target_link_libraries(hpGEM_Base Output Geometry TimeIntegration boost_serialization)
 

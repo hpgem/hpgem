@@ -25,7 +25,7 @@
 #include <cstdlib>
 #include "LinearAlgebra/SmallVector.h"
 #include "CoordinateTransformation.h"
-#include "Base/SerializationInclude.h"
+#include "Serialization/SerializationInclude.h"
 
 namespace Base
 {
@@ -70,7 +70,6 @@ namespace Base
     };
 }
 
-BOOST_CLASS_EXPORT_KEY(Base::HCurlConformingTransformation<0>);
 BOOST_CLASS_EXPORT_KEY(Base::HCurlConformingTransformation<1>);
 BOOST_CLASS_EXPORT_KEY(Base::HCurlConformingTransformation<2>);
 BOOST_CLASS_EXPORT_KEY(Base::HCurlConformingTransformation<3>);

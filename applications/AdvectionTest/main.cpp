@@ -23,7 +23,7 @@
 #include <functional>
 #include <chrono>
 
-#include "Base/SerializationInclude.h"
+#include "Serialization/SerializationInclude.h"
 #include "Base/CommandLineOptions.h"
 #include "Base/ConfigurationData.h"
 #include "Base/Element.h"
@@ -199,8 +199,8 @@ private:
     LinearAlgebra::SmallVector<DIM> a;
 };
 
-auto& n = Base::register_argument<std::size_t>('n', "numelems", "Number of Elements", true);
-auto& p = Base::register_argument<std::size_t>('p', "poly", "Polynomial order", true);
+auto& n = Base::register_argument<std::size_t>('n', "numelems", "Number of Elements", false, 10);
+auto& p = Base::register_argument<std::size_t>('p', "poly", "Polynomial order", false, 1);
 
 template<class Archive>
 inline void save_construct_data(

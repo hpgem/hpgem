@@ -32,7 +32,6 @@
 #include "HDivConformingTransformation.h"
 #include "DoNotScaleIntegrands.h"
 #include "IdentityTransformation.h"
-#include "Base/SerializationInclude.h"
 
 namespace Base
 {
