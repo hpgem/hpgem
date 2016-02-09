@@ -29,6 +29,11 @@
 
 namespace Base
 {
+    namespace Detail
+    {
+        extern volatile int declareAVolatileVariableHere;
+        static int assignItToAStaticVariableHere = declareAVolatileVariableHere;
+    }
     ///the basic transformation that most users need (transforms functions and their derivatives in a conforming way)
     template<std::size_t DIM>
     class H1ConformingTransformation : public CoordinateTransformation<DIM>

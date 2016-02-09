@@ -21,6 +21,14 @@
 
 #include "Base/H1ConformingTransformation.h"
 
+///\todo please keep source files and their headers together
+namespace Base {
+    namespace Detail
+    {
+        volatile int declareAVolatileVariableHere = 0;
+    }
+}
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Base::H1ConformingTransformation<1>);
 BOOST_CLASS_EXPORT_IMPLEMENT(Base::H1ConformingTransformation<2>);
 BOOST_CLASS_EXPORT_IMPLEMENT(Base::H1ConformingTransformation<3>);
