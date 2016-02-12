@@ -288,7 +288,7 @@ public:
     /**
      * Wrapper for protected function in superclass
      */
-    MeshId addMesh(Base::MeshManipulator<DIM>* mesh);
+    std::size_t addMesh(Base::MeshManipulator<DIM>* mesh);
     
     /**
      * makes a matrix with the shifts
