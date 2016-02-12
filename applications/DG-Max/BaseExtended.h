@@ -43,7 +43,7 @@
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
 #include "petscksp.h"
-#include "MatrixAssembly.h"
+#include "matrixAssembly.h"
 #include "LinearAlgebra/SmallVector.h"
 #include "LinearAlgebra/MiddleSizeMatrix.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
