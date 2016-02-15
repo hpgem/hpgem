@@ -29,21 +29,14 @@
 
 namespace Base
 {
-    namespace Detail
-    {
-        extern volatile int declareAVolatileVariableHere;
-        static int assignItToAStaticVariableHere = declareAVolatileVariableHere;
-    }
+
     ///the basic transformation that most users need (transforms functions and their derivatives in a conforming way)
     template<std::size_t DIM>
     class H1ConformingTransformation : public CoordinateTransformation<DIM>
     {
     public:
         ///function values are not scaled, just evaluated using reference coordinates
-        double transform(double referenceData, PhysicalElement<DIM>& element) const override final
-        {
-            return referenceData;
-        }
+        double transform(double referenceData, PhysicalElement<DIM>& element) const override final;
 
         ///the chain rule is applied for the gradients, which results in pre-multiplying with the inverse transpose Jacobian
         LinearAlgebra::SmallVector<DIM> transformDeriv(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final
