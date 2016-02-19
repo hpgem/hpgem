@@ -28,10 +28,6 @@
 #include "Geometry/Jacobian.h"
 #include "CoordinateTransformation.h"
 #include "H1ConformingTransformation.h"
-#include "HCurlConformingTransformation.h"
-#include "HDivConformingTransformation.h"
-#include "DoNotScaleIntegrands.h"
-#include "IdentityTransformation.h"
 
 namespace Base
 {
@@ -47,13 +43,7 @@ namespace Base
     class PhysicalElement final
     {
     public:
-        PhysicalElement()
-                : transform_((new H1ConformingTransformation<DIM>())), hasPointReference(false),
-                  hasElement(false), hasQuadratureRule(false) // other data will get initialized when we have more info
-        {
-            hasElementMatrix = false;
-            hasElementVector = false;
-        }
+        PhysicalElement();
 
         PhysicalElement(const PhysicalElement &other) = delete;
 

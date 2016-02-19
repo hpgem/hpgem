@@ -23,12 +23,17 @@
 #define HCURLCONFORMINGTRANSFORMATION_H_
 
 #include <cstdlib>
-#include "LinearAlgebra/SmallVector.h"
 #include "CoordinateTransformation.h"
+#include "LinearAlgebra/SmallVector.h"
 #include "Serialization/SerializationInclude.h"
 
 namespace Base
 {
+    namespace Detail
+    {
+        extern volatile int volatileForHCurlConformingTransformation;
+        static int assignItToAStaticVariableHereCurl = volatileForHCurlConformingTransformation;
+    }
     ///transforms vector functions and their curl in a conforming way
     template<std::size_t DIM>
     class HCurlConformingTransformation : public CoordinateTransformation<DIM>

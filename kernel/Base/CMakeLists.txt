@@ -36,6 +36,7 @@ add_library(hpGEM_Base STATIC
  		Node.cpp
 		HpgemAPISimplified.cpp
         H1ConformingTransformation.cpp
+        #HCurlConformingTransformation.cpp
 		#miscellaneous required stuff
 		${hpGEM_SOURCE_DIR}/kernel/Base/MeshManipulatorBase.cpp
         Submesh.cpp

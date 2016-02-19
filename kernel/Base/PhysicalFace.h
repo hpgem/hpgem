@@ -25,6 +25,7 @@
 #include "PhysicalElement.h"
 #include "FaceMatrix.h"
 #include "Face.h"
+#include "H1ConformingTransformation.h"
 
 namespace Base
 {

@@ -21,6 +21,16 @@
 
 namespace Base
 {
+    template <std::size_t DIM>
+    PhysicalElement<DIM>::PhysicalElement()
+            : transform_((new H1ConformingTransformation<DIM>())), hasPointReference(false),
+              hasElement(false), hasQuadratureRule(false) // other data will get initialized when we have more info
+    {
+        hasElementMatrix = false;
+        hasElementVector = false;
+    }
+
+
     template<std::size_t DIM>
     inline double PhysicalElement<DIM>::basisFunction(std::size_t i)
     {

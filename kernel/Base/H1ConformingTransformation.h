@@ -23,8 +23,10 @@
 #define H1CONFORMINGTRANSFORMATION_H_
 
 #include <cstdlib>
+#include "CoordinateTransformation.h"
 #include "LinearAlgebra/SmallVector.h"
 #include "PhysicalElement.h"
+#include "PhysicalFace.h"
 #include "Serialization/SerializationInclude.h"
 
 namespace Base
@@ -34,6 +36,7 @@ namespace Base
         extern volatile int volatileForH1ConformingTransformation;
         static int assignItToAStaticVariableHere = volatileForH1ConformingTransformation;
     }
+
     ///the basic transformation that most users need (transforms functions and their derivatives in a conforming way)
     template<std::size_t DIM>
     class H1ConformingTransformation : public CoordinateTransformation<DIM>
