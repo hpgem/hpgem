@@ -20,7 +20,7 @@
  */
 
 #ifndef SAVAGEHUTTER2DBASIC_H
-#define	SAVAGEHUTTER2DBASIC_H
+#define    SAVAGEHUTTER2DBASIC_H
 
 #include "SavageHutter2DBase.h"
 
@@ -33,31 +33,36 @@ public:
     SavageHutter2DBasic(std::size_t polyOrder, std::size_t numberOfElements);
     
     ///\brief Create the description of the domain and the mesh.
-    Base::RectangularMeshDescriptor<2> createMeshDescription(const std::size_t numOfElementsPerDirection);
+    Base::RectangularMeshDescriptor<2> createMeshDescription(
+            const std::size_t numOfElementsPerDirection) override final;
     
     ///\brief Change the mesh such that a contraction is formed.
     void createContraction();
     
     ///\brief Put the initial solution in here.
-    LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
+    LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime,
+                                                       const std::size_t orderTimeDerivative = 0) override final;
     
     ///\brief Set which functions should be written in the VTK output file
-    void registerVTKWriteFunctions();
+    void registerVTKWriteFunctions() override final;
     
     ///\brief Construct the non-negativity limiter that will be used in this application.
-    HeightLimiter* createHeightLimiter() override final;
+    HeightLimiter *createHeightLimiter() override final;
     
     ///\brief Compute S in (h,hu,hv)_t + F(h,hu,hv)_x = S(h,hu,hv)
-    LinearAlgebra::MiddleSizeVector computeSourceTerm(const LinearAlgebra::MiddleSizeVector &numericalSolution, const PointPhysicalT& pPhys, const double time) override final;
+    LinearAlgebra::MiddleSizeVector computeSourceTerm(const LinearAlgebra::MiddleSizeVector &numericalSolution,
+                                                      const PointPhysicalT &pPhys, const double time) override final;
     
     ///\brief Compute F in (h,hu,hv)_t + F(h,hu,hv)_x = S(h,hu,hv)
-    LinearAlgebra::MiddleSizeVector computePhysicalFlux(const LinearAlgebra::MiddleSizeVector &numericalSolution);
+    LinearAlgebra::MiddleSizeVector computePhysicalFlux(
+            const LinearAlgebra::MiddleSizeVector &numericalSolution) override final;
     
     void tasksAfterSolving() override final;
 
     void tasksBeforeSolving() override final;
+
 private:
-   std::map<double, std::array<double, 3> > inputValues_;
+    std::map<double, std::array<double, 3> > inputValues_;
 };
 
 #endif	/* SAVAGEHUTTER2DBASIC_H */

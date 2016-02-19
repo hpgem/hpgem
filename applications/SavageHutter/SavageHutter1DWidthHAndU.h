@@ -20,49 +20,58 @@
  */
 
 #ifndef SAVAGEHUTTER1DWIDTHHANDU_H
-#define	SAVAGEHUTTER1DWIDTHHANDU_H
+#define    SAVAGEHUTTER1DWIDTHHANDU_H
 
 #include "SavageHutter1DBase.h"
 
 class SavageHutter1DWidthHAndU : public SavageHutter1DBase
 {
 public:
-        
+
     SavageHutter1DWidthHAndU(const std::size_t polyOrder, const std::size_t numberOfElements);
     
     ///\brief Create the description of the domain and the mesh.
-    Base::RectangularMeshDescriptor<1> createMeshDescription(const std::size_t numOfElementsPerDirection);
+    Base::RectangularMeshDescriptor<1> createMeshDescription(
+            const std::size_t numOfElementsPerDirection) override final;
     
     ///\brief Put the initial solution in here.
-    LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
+    LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime,
+                                                       const std::size_t orderTimeDerivative = 0) override final;
     
-    ///\brief Put the analytical solution of your system in here. If there is no analytical solution, put in anything and set the flag in main::solve to false.
-    LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0) override final;  
+    ///\brief Put the analytical solution of your system in here.
+    LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time,
+                                                     const std::size_t orderTimeDerivative = 0) override final;
     
     ///\brief Set which functions should be written in the VTK output file
-    void registerVTKWriteFunctions();
+    void registerVTKWriteFunctions() override final;
     
     ///\brief Construct the slope limiter that will be used in this application.
-    SlopeLimiter* createSlopeLimiter() override final;
+    SlopeLimiter *createSlopeLimiter() override final;
     
     ///\brief Construct the non-negativity limiter that will be used in this application.
-    HeightLimiter* createHeightLimiter() override final;
+    HeightLimiter *createHeightLimiter() override final;
     
     ///\brief Compute S in (h,hu)_t + F(h,hu)_x = S(h,hu)
-    LinearAlgebra::MiddleSizeVector computeSourceTerm(const LinearAlgebra::MiddleSizeVector &numericalSolution, const PointPhysicalT& pPhys, const double time) override final;
+    LinearAlgebra::MiddleSizeVector computeSourceTerm(const LinearAlgebra::MiddleSizeVector &numericalSolution,
+                                                      const PointPhysicalT &pPhys, const double time) override final;
     
     ///\brief Compute F in (h,hu)_t + F(h,hu)_x = S(h,hu)
-    LinearAlgebra::MiddleSizeVector computePhysicalFlux(const LinearAlgebra::MiddleSizeVector &numericalSolution, const PointPhysicalT& pPhys);
+    LinearAlgebra::MiddleSizeVector computePhysicalFlux(const LinearAlgebra::MiddleSizeVector &numericalSolution,
+                                                        const PointPhysicalT &pPhys) override final;
     
     ///\brief Define your boundary conditions here
-    LinearAlgebra::MiddleSizeVector computeGhostSolution(const LinearAlgebra::MiddleSizeVector &numericalSolution, const double normal, const double time, const PointPhysicalT & pPhys);
-    
+    LinearAlgebra::MiddleSizeVector computeGhostSolution(const LinearAlgebra::MiddleSizeVector &numericalSolution,
+                                                         const double normal, const double time,
+                                                         const PointPhysicalT &pPhys);
+
 private:
     double getWidth(const PointPhysicalT &pPhys);
     
     double computeFriction(const double h, const double u);
     
-    LinearAlgebra::MiddleSizeVector hllcFlux(const LinearAlgebra::MiddleSizeVector& numericalSolutionLeft, const LinearAlgebra::MiddleSizeVector& numericalSolutionRight, const double normal, Base::PhysicalFace<1> &face);
+    LinearAlgebra::MiddleSizeVector hllcFlux(const LinearAlgebra::MiddleSizeVector &numericalSolutionLeft,
+                                             const LinearAlgebra::MiddleSizeVector &numericalSolutionRight,
+                                             const double normal, Base::PhysicalFace<1> &face) override final;
     
 
 };

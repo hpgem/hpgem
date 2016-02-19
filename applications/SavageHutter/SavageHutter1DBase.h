@@ -20,7 +20,7 @@
  */
 
 #ifndef SAVAGEHUTTER1DBASE_H
-#define	SAVAGEHUTTER1DBASE_H
+#define    SAVAGEHUTTER1DBASE_H
 
 #include "SavageHutterBase.h"
 
@@ -32,46 +32,50 @@ public:
     using PointReferenceT = Geometry::PointReference<1>;
     using PointReferenceOnFaceT = Geometry::PointReference<0>;
     
-    SavageHutter1DBase(std::size_t numberOfVariables, std::size_t polyOrder) 
-    : SavageHutterBase(numberOfVariables, polyOrder){ }
+    SavageHutter1DBase(std::size_t numberOfVariables, std::size_t polyOrder)
+            : SavageHutterBase(numberOfVariables, polyOrder)
+    { }
     
-    virtual ~SavageHutter1DBase(){ }
-    
+    virtual ~SavageHutter1DBase()
+    { }
+
 protected:
-        
+
     /// \brief Create a description of the domain
-    Base::RectangularMeshDescriptor<1> createMeshDescription(const std::size_t numOfElementPerDirection, const double endOfDomain, const Base::BoundaryType boundary);
+    Base::RectangularMeshDescriptor<1> createMeshDescription(const std::size_t numOfElementPerDirection,
+                                                             const double endOfDomain,
+                                                             const Base::BoundaryType boundary);
     
     /// \brief Function to compute the integrand for the right hand side for the reference element.
     const LinearAlgebra::MiddleSizeVector integrandRightHandSideOnElement
-    (
-        Base::PhysicalElement<1> &element,
-        const double &time,
-        const LinearAlgebra::MiddleSizeVector &solutionCoefficients
-        ) override final;
+            (
+                    Base::PhysicalElement<1> &element,
+                    const double &time,
+                    const LinearAlgebra::MiddleSizeVector &solutionCoefficients
+            ) override final;
 
     /// \brief Function to compute the integrand for the right hand side for the reference face corresponding to a boundary face.
     const LinearAlgebra::MiddleSizeVector integrandRightHandSideOnRefFace
-    (
-        Base::PhysicalFace<1> &face,
-        const LinearAlgebra::MiddleSizeVector &solutionCoefficients,
-        const double &time
-        ) override final;
+            (
+                    Base::PhysicalFace<1> &face,
+                    const LinearAlgebra::MiddleSizeVector &solutionCoefficients,
+                    const double &time
+            ) override final;
 
     /// \brief Function to compute the integrand for the right hand side for the reference face corresponding to an internal face.
     const LinearAlgebra::MiddleSizeVector integrandRightHandSideOnRefFace
-    (
-        Base::PhysicalFace<1> &face,
-        const Base::Side &iSide,
-        const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
-        const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight
-        ) override final;
+            (
+                    Base::PhysicalFace<1> &face,
+                    const Base::Side &iSide,
+                    const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
+                    const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight
+            ) override final;
 
-    std::pair<LinearAlgebra::MiddleSizeVector,LinearAlgebra::MiddleSizeVector> integrandsAtFace(
-	Base::PhysicalFace<1> &face,
-	const double &time,
-	const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
-	const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight);
+    std::pair<LinearAlgebra::MiddleSizeVector, LinearAlgebra::MiddleSizeVector> integrandsAtFace(
+            Base::PhysicalFace<1> &face,
+            const double &time,
+            const LinearAlgebra::MiddleSizeVector &solutionCoefficientsLeft,
+            const LinearAlgebra::MiddleSizeVector &solutionCoefficientsRight) override final;
     
     ///\brief Compute the friction as in Weinhart et. al. (2012)
     ///\todo make the friction depend on h and u (or F) instead of numericalSolution
@@ -81,17 +85,25 @@ protected:
     double computeFrictionExponential(const LinearAlgebra::MiddleSizeVector &numericalSolution);
     
     ///\brief Compute the friction with \mu = \tan frictionAngle
-    double computeFrictionCoulomb(const LinearAlgebra::MiddleSizeVector &numericalSolution, const double &frictionAngle);
-    
+    double computeFrictionCoulomb(const LinearAlgebra::MiddleSizeVector &numericalSolution,
+                                  const double &frictionAngle);
+
 private:
-    virtual LinearAlgebra::MiddleSizeVector computePhysicalFlux(const LinearAlgebra::MiddleSizeVector &numericalSolution, const PointPhysicalT& pPhys) = 0;
-    virtual LinearAlgebra::MiddleSizeVector computeSourceTerm(const LinearAlgebra::MiddleSizeVector &numericalSolution, const PointPhysicalT &pPhys, const double time) = 0;
+    virtual LinearAlgebra::MiddleSizeVector computePhysicalFlux(
+            const LinearAlgebra::MiddleSizeVector &numericalSolution, const PointPhysicalT &pPhys) = 0;
+
+    virtual LinearAlgebra::MiddleSizeVector computeSourceTerm(const LinearAlgebra::MiddleSizeVector &numericalSolution,
+                                                              const PointPhysicalT &pPhys, const double time) = 0;
     
     ///\brief Compute the local Lax-Friedrichs flux for the two given numerical solutions across a face.
-    LinearAlgebra::MiddleSizeVector localLaxFriedrichsFlux(const LinearAlgebra::MiddleSizeVector &numericalSolutionLeft, const LinearAlgebra::MiddleSizeVector &NumericalSolutionRight, Base::PhysicalFace<1> &face);
+    LinearAlgebra::MiddleSizeVector localLaxFriedrichsFlux(const LinearAlgebra::MiddleSizeVector &numericalSolutionLeft,
+                                                           const LinearAlgebra::MiddleSizeVector &NumericalSolutionRight,
+                                                           Base::PhysicalFace<1> &face);
     
     ///\brief Compute the HLLC flux for the two given numerical solutions across a face.
-    virtual LinearAlgebra::MiddleSizeVector hllcFlux(const LinearAlgebra::MiddleSizeVector &numericalSolutionLeft, const LinearAlgebra::MiddleSizeVector &NumericalSolutionRight, const double normal, Base::PhysicalFace<1> &face);
+    virtual LinearAlgebra::MiddleSizeVector hllcFlux(const LinearAlgebra::MiddleSizeVector &numericalSolutionLeft,
+                                                     const LinearAlgebra::MiddleSizeVector &NumericalSolutionRight,
+                                                     const double normal, Base::PhysicalFace<1> &face);
     
 };
 

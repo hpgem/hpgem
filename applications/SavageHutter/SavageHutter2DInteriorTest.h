@@ -35,21 +35,24 @@ public:
     SavageHutter2DInteriorTest(std::size_t polyOrder, std::size_t numberOfElements);
 
     ///\brief Create the description of the domain and the mesh.
-    Base::RectangularMeshDescriptor<2> createMeshDescription(const std::size_t numOfElementsPerDirection);
+    Base::RectangularMeshDescriptor<2> createMeshDescription(
+            const std::size_t numOfElementsPerDirection) override final;
 
     ///\brief Put the initial solution in here.
-    LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
+    LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime,
+                                                       const std::size_t orderTimeDerivative = 0) override final;
 
     ///\brief Put the analytical solution of your system in here. If there is no analytical solution, put in anything and set the flag in main::solve to false.
-    LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0) override final;
+    LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time,
+                                                     const std::size_t orderTimeDerivative = 0) override final;
 
     ///\brief Compute S in (h,hu,hv)_t + F(h,hu,hv)_x = S(h,hu,hv)
-    LinearAlgebra::MiddleSizeVector computeSourceTerm(const LinearAlgebra::MiddleSizeVector &numericalSolution, const PointPhysicalT& pPhys, const double time) override final;
+    LinearAlgebra::MiddleSizeVector computeSourceTerm(const LinearAlgebra::MiddleSizeVector &numericalSolution,
+                                                      const PointPhysicalT &pPhys, const double time) override final;
 
     ///\brief Compute F in (h,hu,hv)_t + F(h,hu,hv)_x = S(h,hu,hv)
-    LinearAlgebra::MiddleSizeVector computePhysicalFlux(const LinearAlgebra::MiddleSizeVector &numericalSolution);
-
-private:
+    LinearAlgebra::MiddleSizeVector computePhysicalFlux(
+            const LinearAlgebra::MiddleSizeVector &numericalSolution) override final;
 
 };
 
