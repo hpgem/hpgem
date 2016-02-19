@@ -25,7 +25,7 @@
 #include "PhysicalElement.h"
 #include "FaceMatrix.h"
 #include "Face.h"
-#include "H1ConformingTransformation.h"
+#include "CoordinateTransformation.h"
 
 namespace Base
 {
@@ -55,14 +55,7 @@ namespace Base
     class PhysicalFace final
     {
     public:
-        PhysicalFace(bool forInternalFace)
-            : left(), right(), transform_((new H1ConformingTransformation<DIM>())), isInternal_(forInternalFace), hasPointReference(false), hasFace(false)  //other fields will be initialized when we have more information
-        {
-                hasFaceMatrix = false;
-                hasFaceVector = false;
-                hasLeftRightMatrix = false;
-                hasRightLeftMatrix = false;
-        }
+        PhysicalFace(bool forInternalFace);
 
         PhysicalFace(const PhysicalFace&) = delete;
         PhysicalFace(PhysicalFace&&) = delete;

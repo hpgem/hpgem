@@ -20,9 +20,20 @@
  */
 
 #include "CoordinateTransformation.h"
+#include "H1ConformingTransformation.h"
 
 namespace Base
 {
+
+    template <std::size_t DIM>
+    PhysicalFace<DIM>::PhysicalFace(bool forInternalFace)
+            : left(), right(), transform_((new H1ConformingTransformation<DIM>())), isInternal_(forInternalFace), hasPointReference(false), hasFace(false)  //other fields will be initialized when we have more information
+    {
+        hasFaceMatrix = false;
+        hasFaceVector = false;
+        hasLeftRightMatrix = false;
+        hasRightLeftMatrix = false;
+    }
 
     template<std::size_t DIM>
     inline double PhysicalFace<DIM>::basisFunction(std::size_t i)
