@@ -33,7 +33,7 @@ namespace Base
     ///Forward declaration of all coordinate transformations.
     ///\todo check if these can be circumvented
     template<std::size_t DIM>
-    class CoordinateTransformation;
+    class CoordinateTransformation;/*
     template<std::size_t DIM>
     class H1ConformingTransformation;
     template<std::size_t DIM>
@@ -43,7 +43,7 @@ namespace Base
     template<std::size_t DIM>
     class DoNotScaleIntegrands;
     template<std::size_t DIM>
-    class IdentityTransformation;
+    class IdentityTransformation;*/
 
 
     //class is final as a reminder that there is no virtual destructor
@@ -270,10 +270,10 @@ namespace Base
             ///specific coordinate transformation in your application, you should probably register it over there instead.
             ///\todo think of a better solution
             //ar.template register_type<H1ConformingTransformation<DIM>>();
-            ar.template register_type<HCurlConformingTransformation<DIM>>();
-            ar.template register_type<HDivConformingTransformation<DIM>>();
-            ar.template register_type<DoNotScaleIntegrands<DIM>>();
-            ar.template register_type<IdentityTransformation<DIM>>();
+            //ar.template register_type<HCurlConformingTransformation<DIM>>();
+            //ar.template register_type<HDivConformingTransformation<DIM>>();
+            //ar.template register_type<DoNotScaleIntegrands<DIM>>();
+            //ar.template register_type<IdentityTransformation<DIM>>();
 
             ar & transform_;
             ///\todo check if other data should be saved as well

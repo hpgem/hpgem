@@ -21,6 +21,9 @@
 
 namespace Base
 {
+    template<std::size_t DIM>
+    class H1ConformingTransformation;
+    
     template <std::size_t DIM>
     PhysicalElement<DIM>::PhysicalElement()
             : transform_((new H1ConformingTransformation<DIM>())), hasPointReference(false),

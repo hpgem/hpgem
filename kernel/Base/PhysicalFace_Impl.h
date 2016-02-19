@@ -24,6 +24,8 @@
 
 namespace Base
 {
+    template<std::size_t DIM>
+    class H1ConformingTransformation;
 
     template <std::size_t DIM>
     PhysicalFace<DIM>::PhysicalFace(bool forInternalFace)

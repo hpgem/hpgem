@@ -33,6 +33,8 @@ namespace Base
 {
     template<std::size_t DIM>
     class PhysicalFace;
+    template<std::size_t DIM>
+    class CoordinateTransformation;
 
     //class is final as a reminder that there is no virtual destructor
     //note that none of the functions in here is marked const, because a PhysicalElement reserves the right to alter its internal state to optimize future repeated calls
