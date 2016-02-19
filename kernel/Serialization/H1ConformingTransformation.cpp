@@ -21,13 +21,11 @@
 
 #include "Base/H1ConformingTransformation.h"
 
-
-namespace Base
-{
-    template<std::size_t DIM>
-    double H1ConformingTransformation<DIM>::transform(double referenceData, PhysicalElement<DIM> &element) const
+///\todo please keep source files and their headers together
+namespace Base {
+    namespace Detail
     {
-        return referenceData;
+        volatile int declareAVolatileVariableHere = 0;
     }
 }
 
