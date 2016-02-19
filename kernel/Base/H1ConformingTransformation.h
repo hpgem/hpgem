@@ -31,8 +31,8 @@ namespace Base
 {
     namespace Detail
     {
-        extern volatile int declareAVolatileVariableHere;
-        static int assignItToAStaticVariableHere = declareAVolatileVariableHere;
+        extern volatile int volatileForH1ConformingTransformation;
+        static int assignItToAStaticVariableHere = volatileForH1ConformingTransformation;
     }
     ///the basic transformation that most users need (transforms functions and their derivatives in a conforming way)
     template<std::size_t DIM>

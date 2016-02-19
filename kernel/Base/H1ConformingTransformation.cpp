@@ -21,11 +21,11 @@
 
 #include "Base/H1ConformingTransformation.h"
 
-///\todo please keep source files and their headers together
-namespace Base {
+namespace Base
+{
     namespace Detail
     {
-        volatile int declareAVolatileVariableHere = 0;
+        volatile int volatileForH1ConformingTransformation = 0;
     }
 }
 
