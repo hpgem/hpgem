@@ -305,7 +305,7 @@ int main(int argc, char **argv)
     std::chrono::duration<double> elapsed_seconds;
     
     // Define error
-    double error;
+    LinearAlgebra::MiddleSizeVector::type error;
     
     // Define mesh type
     Base::MeshType meshType;

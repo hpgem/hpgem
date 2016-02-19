@@ -454,7 +454,7 @@ hpGemUIExtentions::~hpGemUIExtentions()
     
 }
 
-Base::HpgemAPIBase<DIM>::MeshId hpGemUIExtentions::addMesh(Base::MeshManipulator<DIM>* mesh)
+std::size_t hpGemUIExtentions::addMesh(Base::MeshManipulator<DIM>* mesh)
 {
     meshes_.push_back(mesh);
     return meshes_.size() - 1;

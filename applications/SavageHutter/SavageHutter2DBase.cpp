@@ -142,7 +142,7 @@ const LinearAlgebra::MiddleSizeVector SavageHutter2DBase::integrandRightHandSide
 {
     double normalX = face.getUnitNormalVector()[0];
     double normalY = face.getUnitNormalVector()[1];
-    const std::size_t numBasisFuncs = face.getFace()->getNumberOfBasisFunctions();
+    const std::size_t numberOfBasisFunctions = face.getFace()->getNumberOfBasisFunctions();
 
     const PointReferenceOnFaceT& pRef = face.getPointReference();
     //note that at the boundary, the element is the left element by definition
@@ -158,7 +158,11 @@ const LinearAlgebra::MiddleSizeVector SavageHutter2DBase::integrandRightHandSide
             logger(DEBUG, "subcritical outflow");
             double uIn = solution[1] / solution[0];
             double invariantIn = uIn + 2 * std::sqrt(epsilon_ * std::cos(chuteAngle_) * solution[0]);
-            double hOut = 0.75;
+            double pseudoFroude = 1;
+            //double hOut = (invariantIn / (2+pseudoFroude)) * (invariantIn / (2+pseudoFroude)) / (epsilon_ * std::cos(chuteAngle_));
+            //double dischargeOut = 1;
+            //double hTest = solveCubicEquation(4*epsilon_*std::cos(chuteAngle_), -invariantIn * invariantIn, 2*invariantIn*dischargeOut, -dischargeOut*dischargeOut);
+            double hOut = 3.772;
             double uOut = invariantIn - 2 * std::sqrt(epsilon_ * std::cos(chuteAngle_) * hOut);
             auto stateNew = MiddleSizeVector({hOut, hOut * uOut, solution[2]}); //keep hv continuous
             flux = hllcFlux(solution, stateNew, face.getUnitNormalVector());
@@ -190,9 +194,9 @@ const LinearAlgebra::MiddleSizeVector SavageHutter2DBase::integrandRightHandSide
         flux = hllcFlux(solution, reflection, face.getUnitNormalVector());
     }
 
-    LinearAlgebra::MiddleSizeVector integrand(numberOfVariables_ * numBasisFuncs);
+    LinearAlgebra::MiddleSizeVector integrand(numberOfVariables_ * numberOfBasisFunctions);
 
-    for (std::size_t iFun = 0; iFun < numBasisFuncs; ++iFun)
+    for (std::size_t iFun = 0; iFun < numberOfBasisFunctions; ++iFun)
     {
         for (std::size_t iVar = 0; iVar < numberOfVariables_; ++iVar)
         {
