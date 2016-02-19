@@ -40,7 +40,7 @@ SavageHutterBase<DIM>::SavageHutterBase(std::size_t numberOfVariables, std::size
 template <std::size_t DIM>
 void SavageHutterBase<DIM>::showProgress(const double time, const std::size_t timeStepID)
 {
-    if (timeStepID % 1000 == 0)
+    if (timeStepID % 10000 == 0)
     {
         logger(INFO, "% time steps computed.", timeStepID);
     }

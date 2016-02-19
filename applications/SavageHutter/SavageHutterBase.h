@@ -165,7 +165,6 @@ private:
     void limitSolutionOuterLoop();
     void limitSolutionInnerLoop();
 
-
 };
 
 #include "SavageHutterBase_Impl.h"

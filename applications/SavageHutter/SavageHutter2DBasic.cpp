@@ -32,11 +32,11 @@
 SavageHutter2DBasic::SavageHutter2DBasic(std::size_t polyOrder, std::size_t numberOfElements) :
 SavageHutter2DBase(3, polyOrder)
 {
-    chuteAngle_ = M_PI / 180 * 29;
+    chuteAngle_ = M_PI / 180 * 29.6483997880436;
     epsilon_ = .1;
     const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
-    inflowBC_ = getInitialSolution(pPhys, 0);
-    inflowBC_ = LinearAlgebra::MiddleSizeVector({1, 0.00618, 0});
+    //inflowBC_ = getInitialSolution(pPhys, 0);
+    inflowBC_ = LinearAlgebra::MiddleSizeVector({1, 3 * std::sqrt(std::cos(chuteAngle_)*epsilon_*1), 0});
     logger(INFO, "inflow BC: %", inflowBC_);
     
     
@@ -86,19 +86,21 @@ void SavageHutter2DBasic::createContraction()
 LinearAlgebra::MiddleSizeVector SavageHutter2DBasic::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)
 {
     const double x = pPhys[0];
-    std::map<double, std::array<double, 3>>::iterator positionInMap = inputValues_.lower_bound(x);
+    /*std::map<double, std::array<double, 3>>::iterator positionInMap = inputValues_.lower_bound(x);
     std::array<double, 3> value =  positionInMap->second;
     logger(DEBUG, "initial conditions at x = %: %, %", x, value[0], value[1]);
-    return LinearAlgebra::MiddleSizeVector({value[0], value[1], value[2]});
-    /*double h = 1 - x / 10;
-    double hu = .03*h;
+    return LinearAlgebra::MiddleSizeVector({value[0], value[1], value[2]});*/
+    double h = 1;
+    double froudeIn = 3;
+    double hu = h * froudeIn * std::sqrt(std::cos(chuteAngle_)*epsilon_*h);
+    if (x > .5)
+    {
+        double u = hu/ h;
+        h = (-h + std::sqrt(h*h + 4 * u*u*h*2 / epsilon_/std::cos(chuteAngle_))) / 2;
+        logger(DEBUG, "h initial: %", h);
+    }
     const double hv = 0;
-    return MiddleSizeVector({h, hu, hv});*/
-}
-
-LinearAlgebra::MiddleSizeVector SavageHutter2DBasic::getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
-{
-    return MiddleSizeVector(3);
+    return MiddleSizeVector({h, hu, hv});
 }
 
 void SavageHutter2DBasic::registerVTKWriteFunctions()
@@ -177,7 +179,7 @@ LinearAlgebra::MiddleSizeVector SavageHutter2DBasic::computePhysicalFlux(const L
 
 void SavageHutter2DBasic::tasksAfterSolving()
 {
-    if (true)
+    if (false)
     {
         auto widthValues = widthAverage();
 
@@ -197,18 +199,22 @@ void SavageHutter2DBasic::tasksAfterSolving()
 void SavageHutter2DBasic::tasksBeforeSolving()
 {
     SavageHutterBase::tasksBeforeSolving();
-    //put values of initial conditions from text file in a map
-    std::ifstream inFile(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/applications/SavageHutter/initialConditionsGeneratedBy1DMatlab");
-    std::string line;
-    while(getline(inFile, line))
+    if (false)
     {
-        std::stringstream lineStream(line);
-        double x;
-        std::array<double, 2> hAndU;
-        std::array<double, 3> valuesForVariables;
-        lineStream >> x >> hAndU[0] >> hAndU[1];
-        valuesForVariables = {hAndU[0], hAndU[0]*hAndU[1], 0};
-        inputValues_[x] = valuesForVariables;
+        //put values of initial conditions from text file in a map
+        std::ifstream inFile(
+                Base::getCMAKE_hpGEM_SOURCE_DIR() + "/applications/SavageHutter/initialConditionsGeneratedBy1DMatlabWithShock.txt");
+        std::string line;
+        while (getline(inFile, line))
+        {
+            std::stringstream lineStream(line);
+            double x;
+            std::array<double, 2> hAndU;
+            std::array<double, 3> valuesForVariables;
+            lineStream >> x >> hAndU[0] >> hAndU[1];
+            valuesForVariables = {hAndU[0], hAndU[0] * hAndU[1], 0};
+            inputValues_[x] = valuesForVariables;
+        }
+        logger(INFO, "size of the map after reading: %", inputValues_.size());
     }
-    logger(INFO, "size of the map after reading: %", inputValues_.size());
 }

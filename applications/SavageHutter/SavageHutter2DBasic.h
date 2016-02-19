@@ -41,9 +41,6 @@ public:
     ///\brief Put the initial solution in here.
     LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;
     
-    ///\brief Put the analytical solution of your system in here. If there is no analytical solution, put in anything and set the flag in main::solve to false.
-    LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative = 0) override final;  
-    
     ///\brief Set which functions should be written in the VTK output file
     void registerVTKWriteFunctions();
     

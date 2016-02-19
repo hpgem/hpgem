@@ -44,7 +44,7 @@ int main(int argc, char **argv)
     logger.assert_always(startTime.getValue() <= endTime.getValue(), "start time must be before end time!");
     
     //Construct the problem
-    SavageHutter1DBidispersed problemDescriptor(polynomialOrder.getValue(), numberOfElements.getValue());
+    SavageHutter2DBasic problemDescriptor(polynomialOrder.getValue(), numberOfElements.getValue());
     
     // Start measuring elapsed time
     std::chrono::time_point<std::chrono::system_clock> startClock, endClock;
