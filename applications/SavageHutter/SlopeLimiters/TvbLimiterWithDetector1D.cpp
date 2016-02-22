@@ -21,6 +21,7 @@
 
 #include "TvbLimiterWithDetector1D.h"
 #include "HelperFunctions.h"
+#include "Base/Face.h"
 
 
 void TvbLimiterWithDetector1D::limitSlope(Base::Element *element)

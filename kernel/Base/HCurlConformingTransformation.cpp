@@ -20,12 +20,34 @@
  */
 
 #include "Base/HCurlConformingTransformation.h"
+#include "Base/PhysicalElement.h"
+#include "Base/PhysicalFace.h"
 
 namespace Base
 {
-    namespace Detail
+    template<std::size_t DIM>
+    LinearAlgebra::SmallVector<DIM> HCurlConformingTransformation<DIM>::transform(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM> &element) const
     {
-        volatile int volatileForHCurlConformingTransformation = 0;
+        element.getTransposeJacobian().solve(referenceData);
+        return referenceData;
+    }
+
+    template<std::size_t DIM>
+    LinearAlgebra::SmallVector<DIM> HCurlConformingTransformation<DIM>::transformCurl(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM> &element) const
+    {
+        return element.getJacobian() * referenceData / element.getJacobianDet();
+    }
+
+    template<std::size_t DIM>
+    double HCurlConformingTransformation<DIM>::getIntegrandScaleFactor(PhysicalElement<DIM> &element) const
+    {
+        return element.getJacobianAbsDet();
+    }
+
+    template<std::size_t DIM>
+    double HCurlConformingTransformation<DIM>::getIntegrandScaleFactor(PhysicalFace<DIM> &face) const
+    {
+        return face.getRelativeSurfaceArea();
     }
 }
 

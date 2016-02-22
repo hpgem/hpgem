@@ -26,6 +26,7 @@
 #include "Geometry/PointReference.h"
 #include "Integration/ElementIntegral.h"
 #include "Base/UserData.h"
+#include "Base/L2Norm.h"
 
 namespace Helpers
 {

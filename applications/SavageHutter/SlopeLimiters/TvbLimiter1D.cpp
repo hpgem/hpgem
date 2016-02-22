@@ -20,6 +20,7 @@
  */
 
 #include "TvbLimiter1D.h"
+#include "Base/Face.h"
 
 TvbLimiter1D::TvbLimiter1D(std::size_t numberOfVariables)  
     : SlopeLimiter(numberOfVariables)

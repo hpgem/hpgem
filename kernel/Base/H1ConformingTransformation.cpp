@@ -20,12 +20,35 @@
  */
 
 #include "Base/H1ConformingTransformation.h"
+#include "Base/PhysicalElement.h"
+#include "Base/PhysicalFace.h"
 
 namespace Base
 {
-    namespace Detail
+    template<std::size_t DIM>
+    double H1ConformingTransformation<DIM>::transform(double referenceData, PhysicalElement<DIM> &element) const
     {
-        volatile int volatileForH1ConformingTransformation = 0;
+        return referenceData;
+    }
+
+    template<std::size_t DIM>
+    LinearAlgebra::SmallVector<DIM> H1ConformingTransformation<DIM>::transformDeriv(
+            LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM> &element) const
+    {
+        element.getTransposeJacobian().solve(referenceData);
+        return referenceData;
+    }
+
+    template<std::size_t DIM>
+    double H1ConformingTransformation<DIM>::getIntegrandScaleFactor(PhysicalElement<DIM> &element) const
+    {
+        return element.getJacobianAbsDet();
+    }
+
+    template<std::size_t DIM>
+    double H1ConformingTransformation<DIM>::getIntegrandScaleFactor(PhysicalFace<DIM> &face) const
+    {
+        return face.getRelativeSurfaceArea();
     }
 }
 

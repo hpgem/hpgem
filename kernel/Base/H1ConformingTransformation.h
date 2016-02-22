@@ -25,17 +25,15 @@
 #include <cstdlib>
 #include "CoordinateTransformation.h"
 #include "LinearAlgebra/SmallVector.h"
-#include "PhysicalElement.h"
-#include "PhysicalFace.h"
 #include "Serialization/SerializationInclude.h"
 
 namespace Base
 {
-    namespace Detail
-    {
-        extern volatile int volatileForH1ConformingTransformation;
-        static int assignItToAStaticVariableHere = volatileForH1ConformingTransformation;
-    }
+    template<std::size_t DIM>
+    class PhysicalElement;
+
+    template<std::size_t DIM>
+    class PhysicalFace;
 
     ///the basic transformation that most users need (transforms functions and their derivatives in a conforming way)
     template<std::size_t DIM>
@@ -43,31 +41,18 @@ namespace Base
     {
     public:
         ///function values are not scaled, just evaluated using reference coordinates
-        double transform(double referenceData, PhysicalElement<DIM>& element) const override final
-        {
-            return referenceData;
-        }
+        double transform(double referenceData, PhysicalElement<DIM>& element) const override final;
 
         ///the chain rule is applied for the gradients, which results in pre-multiplying with the inverse transpose Jacobian
-        LinearAlgebra::SmallVector<DIM> transformDeriv(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final
-        {
-            element.getTransposeJacobian().solve(referenceData);
-            return referenceData;
-        }
+        LinearAlgebra::SmallVector<DIM> transformDeriv(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final;
 
         ///integrands for elements are multiplied by the absolute value of the determinant of the Jacobian
         ///to correct for the difference in volume
-        double getIntegrandScaleFactor(PhysicalElement<DIM>& element) const override final
-        {
-            return element.getJacobianAbsDet();
-        }
+        double getIntegrandScaleFactor(PhysicalElement<DIM>& element) const override final;
 
         ///integrands for faces are multiplied by the norm of the outward normal vector
         ///to correct for the difference in area
-        double getIntegrandScaleFactor(PhysicalFace<DIM>& face) const override final
-        {
-            return face.getRelativeSurfaceArea();
-        }
+        double getIntegrandScaleFactor(PhysicalFace<DIM>& face) const override final;
 
         template<typename Archive>
         void serialize(Archive &ar, const unsigned int version)

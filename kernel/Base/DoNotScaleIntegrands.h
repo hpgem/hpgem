@@ -24,6 +24,7 @@
 
 #include <cstdlib>
 #include "LinearAlgebra/SmallVector.h"
+#include "Base/CoordinateTransformation.h"
 
 namespace Base
 {

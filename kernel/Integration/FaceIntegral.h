@@ -24,6 +24,7 @@
 #include <functional>
 
 #include "Base/PhysicalElement.h"
+#include "Base/PhysicalFace.h"
 #include "Base/Face.h"
 
 namespace LinearAlgebra
