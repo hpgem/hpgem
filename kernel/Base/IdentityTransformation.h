@@ -36,46 +36,25 @@ namespace Base
     public:
 
         ///just do noting with the data
-        double transform(double referenceData, PhysicalElement<DIM>& element) const override final
-        {
-            return referenceData;
-        }
+        double transform(double referenceData, PhysicalElement<DIM>& element) const override final;
 
         ///just do noting with the data
-        LinearAlgebra::SmallVector<DIM> transform(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final
-        {
-            return referenceData;
-        }
+        LinearAlgebra::SmallVector<DIM> transform(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final;
 
         ///just do noting with the data
-        LinearAlgebra::SmallVector<DIM> transformDeriv(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final
-        {
-            return referenceData;
-        }
+        LinearAlgebra::SmallVector<DIM> transformDeriv(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final;
 
         ///just do noting with the data
-        double transformDiv(double referenceData, PhysicalElement<DIM>& element) const override final
-        {
-            return referenceData;
-        }
+        double transformDiv(double referenceData, PhysicalElement<DIM>& element) const override final;
 
         ///just do noting with the data
-        LinearAlgebra::SmallVector<DIM> transformCurl(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final
-        {
-            return referenceData;
-        }
+        LinearAlgebra::SmallVector<DIM> transformCurl(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final;
 
         ///just multiply by 1
-        double getIntegrandScaleFactor(PhysicalElement<DIM>& element) const override final
-        {
-            return 1.;
-        }
+        double getIntegrandScaleFactor(PhysicalElement<DIM>& element) const override final;
 
         ///just multiply by 1
-        double getIntegrandScaleFactor(PhysicalFace<DIM>& face) const override final
-        {
-            return 1.;
-        }
+        double getIntegrandScaleFactor(PhysicalFace<DIM>& face) const override final;
 
         template<typename Archive>
         void serialize(Archive &ar, const unsigned int version)
@@ -86,7 +65,6 @@ namespace Base
 }
 
 
-BOOST_CLASS_EXPORT_KEY(Base::IdentityTransformation<0>);
 BOOST_CLASS_EXPORT_KEY(Base::IdentityTransformation<1>);
 BOOST_CLASS_EXPORT_KEY(Base::IdentityTransformation<2>);
 BOOST_CLASS_EXPORT_KEY(Base::IdentityTransformation<3>);

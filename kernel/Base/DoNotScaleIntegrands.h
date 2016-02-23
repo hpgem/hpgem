@@ -42,40 +42,21 @@ namespace Base
             delete underlying_;
         }
 
-        double transform(double referenceData, PhysicalElement<DIM>& element) const override final
-        {
-            return underlying_->transform(referenceData, element);
-        }
+        double transform(double referenceData, PhysicalElement<DIM>& element) const override final;
 
-        LinearAlgebra::SmallVector<DIM> transform(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final
-        {
-            return underlying_->transform(referenceData, element);
-        }
+        LinearAlgebra::SmallVector<DIM> transform(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final;
 
-        LinearAlgebra::SmallVector<DIM> transformDeriv(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final
-        {
-            return underlying_->transformDeriv(referenceData, element);
-        }
+        LinearAlgebra::SmallVector<DIM> transformDeriv(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final;
 
-        double transformDiv(double referenceData, PhysicalElement<DIM>& element) const override final
-        {
-            return underlying_->transformDiv(referenceData, element);
-        }
+        double transformDiv(double referenceData, PhysicalElement<DIM>& element) const override final;
 
-        LinearAlgebra::SmallVector<DIM> transformCurl(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final
-        {
-            return underlying_->transformCurl(referenceData, element);
-        }
+        LinearAlgebra::SmallVector<DIM> transformCurl(LinearAlgebra::SmallVector<DIM> referenceData, PhysicalElement<DIM>& element) const override final;
 
-        double getIntegrandScaleFactor(PhysicalElement<DIM>& element) const override final
-        {
-            return 1.;
-        }
+        double getIntegrandScaleFactor(PhysicalElement<DIM>& element) const override final;
 
-        double getIntegrandScaleFactor(PhysicalFace<DIM>& face) const override final
-        {
-            return 1.;
-        }
+        double getIntegrandScaleFactor(PhysicalFace<DIM>& face) const override final;
+
+        const CoordinateTransformation<DIM>* getUnderlying() const;
 
         template<typename Archive>
         void serialize(Archive &ar, const unsigned int version)
@@ -84,10 +65,6 @@ namespace Base
             ar & underlying_;
         }
 
-        const CoordinateTransformation<DIM>* getUnderlying() const
-        {
-            return underlying_;
-        }
 
     private:
 
