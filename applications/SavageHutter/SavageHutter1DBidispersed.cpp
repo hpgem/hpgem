@@ -52,7 +52,7 @@ SavageHutter1DBidispersed::SavageHutter1DBidispersed(std::size_t polyOrder, std:
 ///faces. 
 Base::RectangularMeshDescriptor<1> SavageHutter1DBidispersed::createMeshDescription(const std::size_t numOfElementsPerDirection)
 {
-    const double endOfDomain = 500;
+    const double endOfDomain = 5;
     const Base::BoundaryType boundary = Base::BoundaryType::SOLID_WALL;
     return SavageHutter1DBase::createMeshDescription(numOfElementsPerDirection, endOfDomain, boundary);
 }
