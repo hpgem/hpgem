@@ -127,13 +127,18 @@ namespace Geometry
         Geometry::PointPhysical<2> comparison = transform(result);
         LinearAlgebra::SmallVector<2> correction;
         double error = Base::L2Norm(pointPhysical - comparison);
-        while(error > 1e-14)
+        std::size_t loop_count{0};
+        while(error > 1e-14 && loop_count++<100)
         {
             correction = (pointPhysical - comparison).getCoordinates();
             calcJacobian(result).solve(correction);
             result = PointReference<2>(result + correction);
             comparison = transform(result);
             error = Base::L2Norm(pointPhysical - comparison);
+        }
+        if(loop_count == 100)
+        {
+            return {std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN()};
         }
         return result;
     }
@@ -218,13 +223,18 @@ namespace Geometry
         Geometry::PointPhysical<3> comparison = transform(result);
         LinearAlgebra::SmallVector<3> correction;
         double error = Base::L2Norm(pointPhysical - comparison);
-        while(error > 1e-14)
+        std::size_t loop_count{0};
+        while(error > 1e-14 && loop_count++<100)
         {
             correction = (pointPhysical - comparison).getCoordinates();
             calcJacobian(result).solve(correction);
             result = PointReference<3>(result + correction);
             comparison = transform(result);
             error = Base::L2Norm(pointPhysical - comparison);
+        }
+        if(loop_count == 100)
+        {
+            return {std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN()};
         }
         return result;
     }
@@ -306,13 +316,18 @@ namespace Geometry
         Geometry::PointPhysical<4> comparison = transform(result);
         LinearAlgebra::SmallVector<4> correction;
         double error = Base::L2Norm(pointPhysical - comparison);
-        while(error > 1e-14)
+        std::size_t loop_count{0};
+        while(error > 1e-14 && loop_count++<100)
         {
             correction = (pointPhysical - comparison).getCoordinates();
             calcJacobian(result).solve(correction);
             result = PointReference<4>(result + correction);
             comparison = transform(result);
             error = Base::L2Norm(pointPhysical - comparison);
+        }
+        if(loop_count == 100)
+        {
+            return {std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN()};
         }
         return result;
     }
