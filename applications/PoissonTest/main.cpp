@@ -69,7 +69,27 @@ public:
     {
         penalty_ = 3 * n_ * p_ * (p_ + DIM - 1) + 1;
     }
-    
+
+    void createMesh(const std::size_t numberOfElementsPerDirection, const Base::MeshType meshType) override final
+    {
+        // Set the number of Element/Face Matrices/Vectors.
+        std::size_t numberOfElementMatrices = 2;   // Mass matrix and stiffness matrix
+        std::size_t numberOfElementVectors = 1;    // Source term vector
+        std::size_t numberOfFaceMatrices = 1;      // Stiffness matrix
+        std::size_t numberOfFaceVectors = 1;       // Source term vector at boundary
+
+        // Create mesh and set basis functions.
+        this->addMesh("Cylinder5.hyb", numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors);
+        this->meshes_[0]->useDefaultDGBasisFunctions();
+
+        // Set the number of time integration vectors according to the size of the Butcher tableau.
+        this->setNumberOfTimeIntegrationVectorsGlobally(this->globalNumberOfTimeIntegrationVectors_);
+
+        // Plot info about the mesh
+        std::size_t nElements = this->meshes_[0]->getNumberOfElements();
+        logger(VERBOSE, "Total number of elements: %", nElements);
+    }
+
     ///\brief set up the mesh
     ///
     ///In this example, we are going to make a domain [0,1]^2
@@ -111,7 +131,6 @@ public:
     {
         //Obtain the number of basisfunctions that are possibly non-zero on this element.
         const std::size_t numberOfBasisFunctions = element.getElement()->getNumberOfBasisFunctions();
-        logger(INFO, "%", numberOfBasisFunctions);
         
         //Create the integrandVal such that it contains as many rows and columns as
         //the number of basisfunctions.

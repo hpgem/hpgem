@@ -25,6 +25,7 @@
 #include <string>
 #include "LinearAlgebra/SmallMatrix.h"
 #include "Geometry/PointReference.h"
+#include "Geometry/ReferenceGeometry.h"
 
 namespace Geometry
 {
@@ -67,6 +68,46 @@ namespace Geometry
         {
             logger(ERROR, "You passed a coordinate with the wrong dimension!");
             return p;
+        }
+
+        ///you have to pass one reference point so the refinement mapping can get the dimension right
+        ///\todo think of a solution that doesn't need a dummy argument
+        virtual std::vector<PointReference<0>> getNewNodeLocations(const PointReference<0>&) const
+        {
+            logger(ERROR, "You passed a coordinate with the wrong dimension!");
+            return {};
+        }
+
+        ///you have to pass one reference point so the refinement mapping can get the dimension right
+        ///\todo think of a solution that doesn't need a dummy argument
+        virtual std::vector<PointReference<1>> getNewNodeLocations(const PointReference<1>&) const
+        {
+            logger(ERROR, "You passed a coordinate with the wrong dimension!");
+            return {};
+        }
+
+        ///you have to pass one reference point so the refinement mapping can get the dimension right
+        ///\todo think of a solution that doesn't need a dummy argument
+        virtual std::vector<PointReference<2>> getNewNodeLocations(const PointReference<2>&) const
+        {
+            logger(ERROR, "You passed a coordinate with the wrong dimension!");
+            return {};
+        }
+
+        ///you have to pass one reference point so the refinement mapping can get the dimension right
+        ///\todo think of a solution that doesn't need a dummy argument
+        virtual std::vector<PointReference<3>> getNewNodeLocations(const PointReference<3>&) const
+        {
+            logger(ERROR, "You passed a coordinate with the wrong dimension!");
+            return {};
+        }
+
+        ///you have to pass one reference point so the refinement mapping can get the dimension right
+        ///\todo think of a solution that doesn't need a dummy argument
+        virtual std::vector<PointReference<4>> getNewNodeLocations(const PointReference<4>&) const
+        {
+            logger(ERROR, "You passed a coordinate with the wrong dimension!");
+            return {};
         }
 
         //! Transformation matrix of this refinement when located on the LEFT side. This is also the jacobian of the refinementTransform
@@ -141,7 +182,17 @@ namespace Geometry
         //! \brief Assembly nodes for sub-element
         virtual std::vector<std::size_t> getSubElementLocalNodeIndices(std::size_t subElement) const = 0;
 
+        virtual Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const = 0;
+
+        virtual Geometry::ReferenceGeometry* getSubElementReferenceGeometry(std::size_t subElement) const = 0;
+
         virtual std::vector<const RefinementMapping*> getCodim1RefinementMaps() const = 0;
+
+        ///\brief returns the index of the sub-element and the local index of the specified subface in the sub-element
+        virtual std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(std::size_t face, std::size_t subFaceIndex) const = 0;
+
+        ///\brief return the nodes that belong on the refined face; in the ordering dictated by the refined face
+        virtual std::vector<std::size_t> getCodim1LocalNodeIndices(std::size_t localFaceNumber) const = 0;
     };
 }
 #endif

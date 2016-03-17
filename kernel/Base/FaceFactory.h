@@ -40,8 +40,8 @@ namespace Base
         FaceFactory(const FaceFactory &other) = delete;
         FaceFactory& operator=(const FaceFactory &other) = delete;
         
-        Face* makeFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo, Geometry::FaceType faceType, std::size_t faceID);
-        Face* makeFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo, Element* rightElementPtr, std::size_t rightElementLocalFaceNo, std::size_t faceID);
+        Face* makeFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo, Geometry::FaceType faceType);
+        Face* makeFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo, Element* rightElementPtr, std::size_t rightElementLocalFaceNo);
 
         void setNumberOfFaceMatrices(std::size_t matrices);
 

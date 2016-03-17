@@ -24,6 +24,7 @@
 
 #include "RefinementMapping.h"
 #include "Geometry/PointReference.h"
+#include "Geometry/ReferencePoint.h"
 
 namespace Geometry
 {
@@ -80,6 +81,22 @@ namespace Geometry
             return 1;
         }
 
+        Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const override final
+        {
+            return &Geometry::ReferencePoint::Instance();
+        }
+
+        Geometry::ReferenceGeometry* getSubElementReferenceGeometry(std::size_t subElement) const override final
+        {
+            logger.assert(subElement < getNumberOfSubElements(), "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
+            return &Geometry::ReferencePoint::Instance();
+        }
+
+        std::vector<PointReference<0>> getNewNodeLocations(const PointReference<0>&) const override final
+        {
+            return {};
+        }
+
         std::vector<std::size_t> getSubElementLocalNodeIndices(std::size_t subElementIndex) const override final
         {
             logger.assert(subElementIndex == 0, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
@@ -90,6 +107,19 @@ namespace Geometry
         {
             return std::vector<const RefinementMapping*>();
         }
+
+        std::vector<std::size_t> getCodim1LocalNodeIndices(std::size_t localFaceNumber) const override final
+        {
+            logger(ERROR, "Asked for face number %, but there are only 0 faces", localFaceNumber);
+            return {};
+        }
+
+        std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(std::size_t face, std::size_t subFaceIndex) const override final
+        {
+            logger(ERROR, "Asked for face number %, but there are only 0 faces", face);
+            return {};
+        }
+
     private:
         RefinementMapForPoint0() = default;
         RefinementMapForPoint0(const RefinementMapForPoint0&) = delete;

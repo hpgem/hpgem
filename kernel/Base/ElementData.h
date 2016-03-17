@@ -32,11 +32,11 @@ namespace LinearAlgebra
     class MiddleSizeVector;
 }
 
-struct UserElementData;
 
 namespace Base
 {
-    
+    struct UserData;
+
     class ElementData
     {
         
@@ -81,7 +81,7 @@ namespace Base
         LinearAlgebra::MiddleSizeVector::type getData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction) const;
         
         /// \brief Specify a time level index, a variable index and a basis function index, set the corresponding expansionCoefficient (double).
-        void setData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction, double val);
+        void setData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction, LinearAlgebra::MiddleSizeVector::type val);
          
         
         /// \brief Set the number of time integration vectors.
@@ -113,7 +113,7 @@ namespace Base
         LinearAlgebra::MiddleSizeVector::type getTimeIntegrationData(std::size_t timeIntegrationVectorId, std::size_t unknown, std::size_t basisFunction);
         
         /// \brief Set the value corresponding to the given time integration vector index, unknown (variable id) and basis function index
-        void setTimeIntegrationData(std::size_t timeIntegrationVectorId, std::size_t unknown, std::size_t basisFunction, double val);
+        void setTimeIntegrationData(std::size_t timeIntegrationVectorId, std::size_t unknown, std::size_t basisFunction, LinearAlgebra::MiddleSizeVector::type val);
         
         
         ///\deprecated Spelling mistake, please use getNumberOfUnknowns instead.
@@ -130,9 +130,9 @@ namespace Base
         ///Returns the number of basis functions that are non-zero inside this element
         std::size_t getNumberOfBasisFunctions() const;
 
-        void setUserData(UserElementData* data);
+        void setUserData(UserData* data) const;
 
-        UserElementData* getUserData() const;
+        UserData* getUserData() const;
 
         /// \brief Convert the index corresponding to the basis function (iBasisFunction) 
         /// and the index corresponding to the variable (iVar) to a single index.
@@ -174,7 +174,7 @@ namespace Base
 
         ///Stores polymorphic pointer to UserDefined Data, internally not used.
         ///Used only outside of the Kernel.
-        UserElementData* userData_;
+        mutable UserData* userData_;
 
         ///Stores element matrix(es) for this element
         std::vector<LinearAlgebra::MiddleSizeMatrix> elementMatrix_;

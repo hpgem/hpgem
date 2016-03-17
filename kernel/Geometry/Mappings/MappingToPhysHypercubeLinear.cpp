@@ -108,8 +108,8 @@ namespace Geometry
         }
         else
         {
-            logger(WARN, "In MappingToPhysHypercubeLinear<2>::transform, the "
-                    "given pointReference is not in the square [-1,1]x[-1,1]");
+            //logger(WARN, "In MappingToPhysHypercubeLinear<2>::transform, the "
+            //        "given pointReference is not in the square [-1,1]x[-1,1]");
             //In the part below, we compute: pointPhysical = a0 + pointReference[0] * a1
             //                   + pointReference[1] * (a2 + pointReference[0] * a12);
             pointPhysical = a2;

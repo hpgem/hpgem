@@ -27,6 +27,7 @@
 #include <petscmat.h>
 #endif
 #include <vector>
+#include <map>
 
 namespace Base
 {
@@ -70,10 +71,10 @@ namespace Utilities
     protected:
         
         int meshLevel_, elementMatrixID_, faceMatrixID_;
-        std::vector<int> startPositionsOfElementsInTheMatrix_;
-        std::vector<int> startPositionsOfFacesInTheMatrix_;
-        std::vector<int> startPositionsOfEdgesInTheMatrix_;
-        std::vector<int> startPositionsOfNodesInTheMatrix_;
+        std::map<std::size_t, int> startPositionsOfElementsInTheMatrix_;
+        std::map<std::size_t, int> startPositionsOfFacesInTheMatrix_;
+        std::map<std::size_t, int> startPositionsOfEdgesInTheMatrix_;
+        std::map<std::size_t, int> startPositionsOfNodesInTheMatrix_;
         Base::MeshManipulatorBase *theMesh_;
         
     };

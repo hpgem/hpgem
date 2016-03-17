@@ -186,10 +186,6 @@ namespace Utilities
         auto currentNodePosition = MPISendNodePositions.begin() + MPISendNodeStarts[rank];
 #endif
         std::size_t totalNumberOfDOF(0), DIM(theMesh_->dimension());
-        startPositionsOfElementsInTheVector_.resize(theMesh_->getNumberOfElements(Base::IteratorType::GLOBAL));
-        startPositionsOfFacesInTheVector_.resize(theMesh_->getNumberOfFaces(Base::IteratorType::GLOBAL));
-        startPositionsOfEdgesInTheVector_.resize(theMesh_->getNumberOfEdges(Base::IteratorType::GLOBAL));
-        startPositionsOfNodesInTheVector_.resize(theMesh_->getNumberOfNodes(Base::IteratorType::GLOBAL));
         for (Base::Element* element : theMesh_->getElementsList())
         {
 #ifdef HPGEM_USE_MPI

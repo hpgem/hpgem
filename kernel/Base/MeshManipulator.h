@@ -400,6 +400,18 @@ namespace Base
         /// returns all locations that were registered as interesting
         const std::vector<std::tuple<const Base::Element*, Geometry::PointReference<DIM>>>& getMeasurePoints() const;
 
+        /// returns all locations that were registered as interesting
+        std::vector<std::tuple<const Base::Element*, Geometry::PointReference<DIM>>>& getMeasurePoints();
+
+        ///\brief placeholder refinement driver
+        ///\details checks all elements on the current active level against the provided binary predicate. If it returns true
+        ///it will refine the element according to the provided mapping. Note that the predicate should at least return false
+        ///for elements that are already refined and for elements that have the wrong shape. Note also that you can do
+        ///multiple passes on the same level if you want different refinement mappings for different elements.
+        ///if you just want to refine every element on the level, you can omit the final argument.
+        ///If the relative sizes of the refined elements don't suit your needs, use the mesh mover to relocate the nodes
+        ///Note that doing so might render the coarse mesh useless, due to it using the old (incorrect) mapping
+        void refine(const Geometry::RefinementMapping* refinementMapping, std::function<bool(const Element*)> shouldRefine = [](const Element*){return true;});
         
         //---------------------------------------------------------------------
     private:

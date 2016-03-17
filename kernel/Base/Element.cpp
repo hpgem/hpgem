@@ -212,7 +212,7 @@ namespace Base
         edgesList_[localEdgeNumber] = edge;
     }
     
-    void Element::setNode(std::size_t localNodeNumber, const Node* node)
+    void Element::setNode(std::size_t localNodeNumber, Node* node)
     {
         logger.assert(node!=nullptr, "Invalid node passed");
         logger.assert(std::find(nodesList_.begin(), nodesList_.end(), node) == nodesList_.end(), "Trying to add node %, but it was already added", node->getID());

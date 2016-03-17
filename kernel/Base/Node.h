@@ -79,7 +79,10 @@ namespace Base
         Element* getElement(std::size_t i);
         const Element* getElement(std::size_t i) const;
 
-        const std::vector<Element*> getElements() const
+        ///get the root element that is the (indirect) parent of one of the adjacent elements
+        const Element* getRootElement() const;
+
+        const std::vector<Element*>& getElements() const
         {
             return elements_;
         }

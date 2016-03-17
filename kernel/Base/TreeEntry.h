@@ -24,36 +24,13 @@
 
 #include <iostream>
 #include "Logger.h"
+#include "ConstIterableWrapper.h"
 
 namespace Base
 {
     enum class TreeTraversalMethod
     {
         SINGLELEVEL, ALLLEVEL, PREORDER, POSTORDER
-    };
-
-    /**
-     * small wrapper to iterate over vectors of pointers where you shouldn't modify whatever is in the pointer
-     */
-    template<typename T>
-    class ConstIterableWrapper {
-    public:
-        ConstIterableWrapper(const std::vector<T*>& data)
-            : data(data)
-        {
-        }
-
-        typename std::vector<const T*>::const_iterator begin()
-        {
-            return data.begin();
-        }
-
-        typename std::vector<const T*>::const_iterator end()
-        {
-            return data.end();
-        }
-    private:
-        const std::vector<T*> data;
     };
 
     template<typename T>

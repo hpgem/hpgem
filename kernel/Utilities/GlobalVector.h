@@ -31,6 +31,8 @@
 #include "nvector/nvector_serial.h"
 #endif
 #include <vector>
+#include <map>
+
 namespace Base
 {
     class MeshManipulatorBase;
@@ -81,10 +83,10 @@ namespace Utilities
     protected:
         
         int meshLevel_, elementVectorID_, faceVectorID_;
-        std::vector<int> startPositionsOfElementsInTheVector_;
-        std::vector<int> startPositionsOfFacesInTheVector_;
-        std::vector<int> startPositionsOfEdgesInTheVector_;
-        std::vector<int> startPositionsOfNodesInTheVector_;
+        std::map<std::size_t, int> startPositionsOfElementsInTheVector_;
+        std::map<std::size_t, int> startPositionsOfFacesInTheVector_;
+        std::map<std::size_t, int> startPositionsOfEdgesInTheVector_;
+        std::map<std::size_t, int> startPositionsOfNodesInTheVector_;
         Base::MeshManipulatorBase *theMesh_;
         
     };

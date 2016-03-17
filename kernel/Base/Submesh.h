@@ -162,12 +162,10 @@ namespace Base
         //! signals the submesh to prepare for a redistribution (user has to make sure non-geometric data is also redistributed properly)
         void clear();
         
-        //! List of all elements. 
-        ///\todo: this should be replaced by the mesh-tree structure
+        //! List of all elements.
         LevelTree<Element*> elements_;
 
-        //! List of all faces. 
-        ///\todo: this should be replaced by the mesh-tree structure
+        //! List of all faces.
         //! This contains the list of all faces connected to at least one element in this sub-domain
         LevelTree<Face*> faces_;
 

@@ -130,7 +130,7 @@ namespace Base
     /// \param[in] unknown Index corresponding to the variable.
     /// \param[in] basisFunction Index corresponding to the basisFunction.
     /// \param[in] val Value to set the expansionCoeffient.
-    void ElementData::setData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction, double val)
+    void ElementData::setData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction, LinearAlgebra::MiddleSizeVector::type val)
     {
         logger.assert((timeLevel < timeLevels_ && unknown < numberOfUnknowns_ && basisFunction < numberOfBasisFunctions_), "Error: Asked for a time level, or unknown, greater than the amount of time levels");
         if(timeLevelDataVectors_[timeLevel].size() != numberOfUnknowns_ * numberOfBasisFunctions_)
@@ -298,7 +298,7 @@ namespace Base
         return timeIntegrationVectors_[timeIntegrationVectorId](convertToSingleIndex(basisFunction, unknown));
     }
     
-    void ElementData::setTimeIntegrationData(std::size_t timeIntegrationVectorId, std::size_t unknown, std::size_t basisFunction, double val)
+    void ElementData::setTimeIntegrationData(std::size_t timeIntegrationVectorId, std::size_t unknown, std::size_t basisFunction, LinearAlgebra::MiddleSizeVector::type val)
     {
         logger.assert(timeIntegrationVectorId < timeIntegrationVectors_.size(), "Asked for time integration vector %, but there are only % time integration vectors", timeIntegrationVectorId, timeIntegrationVectors_.size());
         
@@ -327,7 +327,7 @@ namespace Base
         return numberOfUnknowns_;
     }
     
-    void ElementData::setUserData(UserElementData* data)
+    void ElementData::setUserData(UserElementData* data) const
     {
         //the user may pass any kind of data he/she wants (including nullptr) even if this does not seem to make sense
         userData_ = data;

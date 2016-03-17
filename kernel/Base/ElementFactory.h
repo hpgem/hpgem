@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "Element.h"
+#include "GlobalUniqueIndex.h"
 
 namespace Geometry
 {
@@ -53,7 +54,7 @@ namespace Base
         
         //!provide the non-constant information and get an Element!
         template<std::size_t DIM>
-        Element* makeElement(const std::vector<std::size_t>& globalNodeIndexes, std::vector<Geometry::PointPhysical<DIM> >& points, std::size_t elementcounter);
+        Element* makeElement(const std::vector<std::size_t>& globalNodeIndexes, std::vector<Geometry::PointPhysical<DIM> >& points);
 
         //!mesh creation routines can use this to set their desired defaults
         void setCollectionOfBasisFunctionSets(const CollectionOfBasisFunctionSets *functions);
@@ -82,9 +83,9 @@ namespace Base
 
     //!provide the non-constant information and get an Element!
     template<std::size_t DIM>
-    Element* ElementFactory::makeElement(const std::vector<std::size_t>& globalNodeIndexes, std::vector<Geometry::PointPhysical<DIM> >& points, std::size_t elementcounter)
+    Element* ElementFactory::makeElement(const std::vector<std::size_t>& globalNodeIndexes, std::vector<Geometry::PointPhysical<DIM> >& points)
     {
-        return new Element(globalNodeIndexes, basisFunctionSets_, points, unknowns_, timeLevels_, (*basisFunctionSets_)[0]->size(), elementcounter, numberOfElementMatrices_, numberOfElementVectors_);
+        return new Element(globalNodeIndexes, basisFunctionSets_, points, unknowns_, timeLevels_, (*basisFunctionSets_)[0]->size(), GlobalUniqueIndex::instance().getElementIndex(), numberOfElementMatrices_, numberOfElementVectors_);
     }
 
 }

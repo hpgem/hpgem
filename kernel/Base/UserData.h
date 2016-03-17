@@ -22,13 +22,23 @@
 #ifndef _UserElementData_h
 #define _UserElementData_h
 
-///Just a place holder, for polymorphism
-struct UserElementData
-{
-};
+namespace Base {
+    ///Just a place holder, for polymorphism
+    struct UserData
+    {
+    };
 
-struct UserFaceData
-{
-};
+    ///\deprecated the only meaningful distinction between UserElementData and UserFaceData is the class that contains the pointer
+    using UserFaceData = UserData;
+
+    ///\deprecated the only meaningful distinction between UserElementData and UserFaceData is the class that contains the pointer
+    using UserElementData = UserData;
+}
+
+///\deprecated this is global scope
+using Base::UserElementData;
+
+///\deprecated this is global scope
+using Base::UserFaceData;
 
 #endif
