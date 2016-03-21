@@ -170,6 +170,7 @@ namespace Base
         template <class Archive>
         void serialize(Archive &ar, const unsigned int version)
         {
+            //restarting will make all information out of date and invalidate both the element and the coordinate
             ar & transform_;
         }
 

@@ -264,19 +264,8 @@ namespace Base
         template <class Archive>
         void serialize(Archive & ar, const unsigned int version)
         {
-            ///Boost only allows to serialize types it knows about. Usually this is not a problem, but we have never written a subclass of
-            ///CoordinateTransformation before. It is also possible to register new types without writing them. If you want to use a new
-            ///coordinate transformation from the kernel with PhysicalElement you should also register it here. If you have an application-
-            ///specific coordinate transformation in your application, you should probably register it over there instead.
-            ///\todo think of a better solution
-            //ar.template register_type<H1ConformingTransformation<DIM>>();
-            //ar.template register_type<HCurlConformingTransformation<DIM>>();
-            //ar.template register_type<HDivConformingTransformation<DIM>>();
-            //ar.template register_type<DoNotScaleIntegrands<DIM>>();
-            //ar.template register_type<IdentityTransformation<DIM>>();
-
+            //restarting will make all information out of date and invalidate both the element and the coordinate
             ar & transform_;
-            ///\todo check if other data should be saved as well
         }
 
         void setQuadratureRule(QuadratureRules::GaussQuadratureRule *rule);

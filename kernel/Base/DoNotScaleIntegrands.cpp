@@ -23,6 +23,8 @@
 
 namespace Base
 {
+    //the member functions of a class template can only be implemented in a source file if you explicitly instatiate all
+    //template version that will be needed. Luckily, we need to do so to deal with the serialization
 
     template<std::size_t DIM>
     double DoNotScaleIntegrands<DIM>::transform(double referenceData,

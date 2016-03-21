@@ -26,6 +26,9 @@
 #include "LinearAlgebra/SmallVector.h"
 #include "CoordinateTransformation.h"
 
+//it this case the implementation can be provided in a source file since the serialization stuff will, among other things,
+//make sure to explicitly instantiate the class templates that will be needed in the rest of hpGEM
+
 namespace Base
 {
     ///the identity transformation is meant for advanced users that need accurate control over how their data gets transformed

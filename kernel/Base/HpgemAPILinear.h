@@ -200,9 +200,8 @@ namespace Base
         template<class Archive>
         void serialize(Archive & ar, const unsigned int version) 
         {
-            ///\todo serialize base classes
-
             ar & boost::serialization::base_object< Base::HpgemAPISimplified<DIM> >(*this);
+            //const data members are set in the constructor
         }
         
     protected:
@@ -230,6 +229,7 @@ inline void save_construct_data(
     Archive & ar, const Base::HpgemAPILinear<DIM> * t, const unsigned int file_version)
 {
     // save data required to construct instance
+    ///\todo placeholder data
     ar << 100;
     ar << 1;
 }

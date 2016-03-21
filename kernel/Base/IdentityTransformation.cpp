@@ -25,6 +25,9 @@
 
 namespace Base
 {
+    //the member functions of a class template can only be implemented in a source file if you explicitly instatiate all
+    //template version that will be needed. Luckily, we need to do so to deal with the serialization
+
     ///just do noting with the data
     template<std::size_t DIM>
     double IdentityTransformation<DIM>::transform(double referenceData, PhysicalElement<DIM> &element) const

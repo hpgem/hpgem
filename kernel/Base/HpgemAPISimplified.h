@@ -36,6 +36,7 @@
 #include "Output/TecplotSingleElementWriter.h"
 #include "Output/VTKTimeDependentWriter.h"
 #include <functional>
+#include <Output/TecplotDiscontinuousSolutionWriter.h>
 
 namespace Integration
 {

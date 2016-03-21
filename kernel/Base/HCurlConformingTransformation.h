@@ -27,6 +27,9 @@
 #include "LinearAlgebra/SmallVector.h"
 #include "Serialization/SerializationInclude.h"
 
+//it this case the implementation can be provided in a source file since the serialization stuff will, among other things,
+//make sure to explicitly instantiate the class templates that will be needed in the rest of hpGEM
+
 namespace Base
 {
     ///transforms vector functions and their curl in a conforming way

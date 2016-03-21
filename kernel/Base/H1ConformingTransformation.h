@@ -35,6 +35,9 @@ namespace Base
     template<std::size_t DIM>
     class PhysicalFace;
 
+    //it this case the implementation can be provided in a source file since the serialization stuff will, among other things,
+    //make sure to explicitly instantiate the class templates that will be needed in the rest of hpGEM
+
     ///the basic transformation that most users need (transforms functions and their derivatives in a conforming way)
     template<std::size_t DIM>
     class H1ConformingTransformation : public CoordinateTransformation<DIM>
@@ -62,7 +65,6 @@ namespace Base
     };
 }
 
-///\todo can this be templated?
 BOOST_CLASS_EXPORT_KEY(Base::H1ConformingTransformation<1>);
 BOOST_CLASS_EXPORT_KEY(Base::H1ConformingTransformation<2>);
 BOOST_CLASS_EXPORT_KEY(Base::H1ConformingTransformation<3>);
