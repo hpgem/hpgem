@@ -152,18 +152,18 @@ namespace Base
     
     
     template<std::size_t DIM>
-    void HpgemAPIBase<DIM>::copyTimeIntegrationToTimeLevelData(std::size_t timeIntegrationVectorId, std::size_t timeLevel)
+    void HpgemAPIBase<DIM>::copyTimeIntegrationToTimeLevelData(std::size_t timeIntegrationVectorId, std::size_t timeLevel, std::size_t meshId)
     {
-        for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
+        for (Base::Element *ptrElement : this->meshes_[meshId]->getElementsList())
         {
             ptrElement->getTimeLevelDataVector(timeLevel) = ptrElement->getTimeIntegrationVector(timeIntegrationVectorId);
         }
     }
     
     template<std::size_t DIM>
-    void HpgemAPIBase<DIM>::copyTimeLevelToTimeIntegrationData(std::size_t timeLevel, std::size_t timeIntegrationVectorId)
+    void HpgemAPIBase<DIM>::copyTimeLevelToTimeIntegrationData(std::size_t timeLevel, std::size_t timeIntegrationVectorId, std::size_t meshId)
     {
-        for (Base::Element *ptrElement : this->meshes_[0]->getElementsList())
+        for (Base::Element *ptrElement : this->meshes_[meshId]->getElementsList())
         {
             ptrElement->getTimeIntegrationVector(timeIntegrationVectorId) = ptrElement->getTimeLevelDataVector(timeLevel);
         }

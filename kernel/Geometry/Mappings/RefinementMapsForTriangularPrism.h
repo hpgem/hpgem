@@ -27,6 +27,8 @@
 #include "RefinementMapsForTriangle.h"
 #include "RefinementMapsForSquare.h"
 #include "Geometry/PointReference.h"
+#include "Geometry/ReferenceCube.h"
+#include "Geometry/ReferenceTriangularPrism.h"
 
 namespace Geometry
 {
@@ -105,10 +107,10 @@ namespace Geometry
      *    | \ /   |     \       \
      *    |  /\ 3 o-------o-------o 4
      *    |/    \/       /8      /
-     *  7 o    /  \    /       /
+     *  7 o    /  \    /   1   /
      *    | \ /     \ /       /
      *    |  /\      /\      /
-     *    |/    \  /    \  /
+     *    |/ 0  \  /    \  /
      *  0 o-------o-------o 1
      *            6
      * (not split in the middle of 5)
@@ -176,9 +178,52 @@ namespace Geometry
             return std::vector<std::size_t>{0, 1, 2, 3, 4, 5};
         }
 
+        Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const override final
+        {
+            return &Geometry::ReferenceTriangularPrism::Instance();
+        }
+
+        Geometry::ReferenceGeometry* getSubElementReferenceGeometry(std::size_t subElement) const override final
+        {
+            logger.assert(subElement < getNumberOfSubElements(), "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
+            return &Geometry::ReferenceTriangularPrism::Instance();
+        }
+
+        std::vector<Geometry::PointReference<3>> getNewNodeLocations(const PointReference<3>&) const override final
+        {
+            return {};
+        }
+
         std::vector<const RefinementMapping*> getCodim1RefinementMaps() const override final
         {
             return std::vector<const RefinementMapping*>{RefinementMapForTriangle0::instance(), RefinementMapForTriangle0::instance(), RefinementMapForSquare0::instance(), RefinementMapForSquare0::instance(), RefinementMapForSquare0::instance()};
+        }
+
+        std::vector<std::size_t> getCodim1LocalNodeIndices(std::size_t localFaceNumber) const override final
+        {
+            switch(localFaceNumber)
+            {
+            case 0:
+                return {0, 2, 1};
+            case 1:
+                return {3, 4, 5};
+            case 2:
+                return {2, 0, 5, 3};
+            case 3:
+                return {0, 1, 3, 4};
+            case 4:
+                return {1, 2, 4, 5};
+            default:
+                logger(ERROR, "asked for Face %, but there are only % Faces", localFaceNumber, getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+                return {};
+            }
+        }
+
+        std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(std::size_t face, std::size_t subFaceIndex) const override final
+        {
+            logger.assert(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+            logger.assert(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
+            return std::make_tuple(0, face);
         }
     private:
         RefinementMapForTriangularPrism0() = default;
@@ -242,9 +287,67 @@ namespace Geometry
             }
         }
 
+        Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const override final
+        {
+            return &Geometry::ReferenceTriangularPrism::Instance();
+        }
+
+        Geometry::ReferenceGeometry* getSubElementReferenceGeometry(std::size_t subElement) const override final
+        {
+            logger.assert(subElement < getNumberOfSubElements(), "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
+            return &Geometry::ReferenceTriangularPrism::Instance();
+        }
+
+        std::vector<Geometry::PointReference<3>> getNewNodeLocations(const PointReference<3>&) const override final
+        {
+            return {{0.5, 0., -1.}, {0.5, 0., 1.}};
+        }
+
         std::vector<const RefinementMapping*> getCodim1RefinementMaps() const override final
         {
-            return std::vector<const RefinementMapping*>{RefinementMapForTriangle1::instance(), RefinementMapForTriangle1::instance(), RefinementMapForSquare0::instance(), RefinementMapForSquare1::instance(), RefinementMapForSquare0::instance()};
+            return std::vector<const RefinementMapping*>{RefinementMapForTriangle2::instance(), RefinementMapForTriangle1::instance(), RefinementMapForSquare0::instance(), RefinementMapForSquare1::instance(), RefinementMapForSquare0::instance()};
+        }
+
+        std::vector<std::size_t> getCodim1LocalNodeIndices(std::size_t localFaceNumber) const override final
+        {
+            switch(localFaceNumber)
+            {
+            case 0:
+                return {0, 2, 1, 6};
+            case 1:
+                return {3, 4, 5, 7};
+            case 2:
+                return {2, 0, 5, 3};
+            case 3:
+                return {0, 1, 3, 4, 6, 7};
+            case 4:
+                return {1, 2, 4, 5};
+            default:
+                logger(ERROR, "asked for Face %, but there are only % Faces", localFaceNumber, getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+                return {};
+            }
+        }
+
+        std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(std::size_t face, std::size_t subFaceIndex) const override final
+        {
+            logger.assert(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+            logger.assert(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
+            switch(face)
+            {
+            case 0:
+                return std::make_tuple(subFaceIndex, face);
+            case 1:
+                return std::make_tuple(subFaceIndex, face);
+            case 2:
+                return std::make_tuple(0, face);
+            case 3:
+                return std::make_tuple(subFaceIndex, face);
+            case 4:
+                return std::make_tuple(1, face);
+            default:
+                logger(ERROR, "something broke, please check the assertions");
+            }
+            return {};
         }
     private:
         RefinementMapForTriangularPrism1() = default;
@@ -308,9 +411,67 @@ namespace Geometry
             }
         }
 
+        Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const override final
+        {
+            return &Geometry::ReferenceTriangularPrism::Instance();
+        }
+
+        Geometry::ReferenceGeometry* getSubElementReferenceGeometry(std::size_t subElement) const override final
+        {
+            logger.assert(subElement < getNumberOfSubElements(), "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
+            return &Geometry::ReferenceTriangularPrism::Instance();
+        }
+
+        std::vector<Geometry::PointReference<3>> getNewNodeLocations(const PointReference<3>&) const override final
+        {
+            return {{0., 0.5, -1.}, {0., 0.5, 1.}};
+        }
+
         std::vector<const RefinementMapping*> getCodim1RefinementMaps() const override final
         {
-            return std::vector<const RefinementMapping*>{RefinementMapForTriangle2::instance(), RefinementMapForTriangle2::instance(), RefinementMapForSquare1::instance(), RefinementMapForSquare0::instance(), RefinementMapForSquare0::instance()};
+            return std::vector<const RefinementMapping*>{RefinementMapForTriangle1::instance(), RefinementMapForTriangle2::instance(), RefinementMapForSquare1::instance(), RefinementMapForSquare0::instance(), RefinementMapForSquare0::instance()};
+        }
+
+        std::vector<std::size_t> getCodim1LocalNodeIndices(std::size_t localFaceNumber) const override final
+        {
+            switch(localFaceNumber)
+            {
+            case 0:
+                return {0, 2, 1, 6};
+            case 1:
+                return {3, 4, 5, 7};
+            case 2:
+                return {2, 0, 5, 3, 6, 7};
+            case 3:
+                return {0, 1, 3, 4};
+            case 4:
+                return {1, 2, 4, 5};
+            default:
+                logger(ERROR, "asked for Face %, but there are only % Faces", localFaceNumber, getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+                return {};
+            }
+        }
+
+        std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(std::size_t face, std::size_t subFaceIndex) const override final
+        {
+            logger.assert(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+            logger.assert(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
+            switch(face)
+            {
+            case 0:
+                return std::make_tuple(subFaceIndex, face);
+            case 1:
+                return std::make_tuple(subFaceIndex, face);
+            case 2:
+                return std::make_tuple(subFaceIndex, face);
+            case 3:
+                return std::make_tuple(0, face);
+            case 4:
+                return std::make_tuple(1, face);
+            default:
+                logger(ERROR, "something broke, please check the assertions");
+            }
+            return {};
         }
     private:
         RefinementMapForTriangularPrism2() = default;
@@ -397,9 +558,67 @@ namespace Geometry
             }
         }
 
+        Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const override final
+        {
+            return &Geometry::ReferenceTriangularPrism::Instance();
+        }
+
+        Geometry::ReferenceGeometry* getSubElementReferenceGeometry(std::size_t subElement) const override final
+        {
+            logger.assert(subElement < getNumberOfSubElements(), "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
+            return &Geometry::ReferenceTriangularPrism::Instance();
+        }
+
+        std::vector<Geometry::PointReference<3>> getNewNodeLocations(const PointReference<3>&) const override final
+        {
+            return {{0.5, 0.5, -1.}, {0.5, 0.5, 1.}};
+        }
+
         std::vector<const RefinementMapping*> getCodim1RefinementMaps() const override final
         {
             return std::vector<const RefinementMapping*>{RefinementMapForTriangle3::instance(), RefinementMapForTriangle3::instance(), RefinementMapForSquare0::instance(), RefinementMapForSquare0::instance(), RefinementMapForSquare1::instance()};
+        }
+
+        std::vector<std::size_t> getCodim1LocalNodeIndices(std::size_t localFaceNumber) const override final
+        {
+            switch(localFaceNumber)
+            {
+            case 0:
+                return {0, 2, 1, 6};
+            case 1:
+                return {3, 4, 5, 7};
+            case 2:
+                return {2, 0, 5, 3};
+            case 3:
+                return {0, 1, 3, 4};
+            case 4:
+                return {1, 2, 4, 5, 6, 7};
+            default:
+                logger(ERROR, "asked for Face %, but there are only % Faces", localFaceNumber, getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+                return {};
+            }
+        }
+
+        std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(std::size_t face, std::size_t subFaceIndex) const override final
+        {
+            logger.assert(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+            logger.assert(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
+            switch(face)
+            {
+            case 0:
+                return std::make_tuple(subFaceIndex, face);
+            case 1:
+                return std::make_tuple(subFaceIndex, face);
+            case 2:
+                return std::make_tuple(0, face);
+            case 3:
+                return std::make_tuple(1, face);
+            case 4:
+                return std::make_tuple(subFaceIndex, face);
+            default:
+                logger(ERROR, "something broke, please check the assertions");
+            }
+            return {};
         }
     private:
         RefinementMapForTriangularPrism3() = default;
@@ -510,9 +729,83 @@ namespace Geometry
             }
         }
 
+        Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const override final
+        {
+            return &Geometry::ReferenceTriangularPrism::Instance();
+        }
+
+        Geometry::ReferenceGeometry* getSubElementReferenceGeometry(std::size_t subElement) const override final
+        {
+            logger.assert(subElement < getNumberOfSubElements(), "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
+            return &Geometry::ReferenceTriangularPrism::Instance();
+        }
+
+        std::vector<Geometry::PointReference<3>> getNewNodeLocations(const PointReference<3>&) const override final
+        {
+            return {{0.5, 0., -1.}, {0., 0.5, -1.}, {0.5, 0.5, -1.},
+                    {0.5, 0.,  1.}, {0., 0.5,  1.}, {0.5, 0.5,  1.}};
+        }
+
         std::vector<const RefinementMapping*> getCodim1RefinementMaps() const override final
         {
             return std::vector<const RefinementMapping*>{RefinementMapForTriangle4::instance(), RefinementMapForTriangle4::instance(), RefinementMapForSquare1::instance(), RefinementMapForSquare1::instance(), RefinementMapForSquare1::instance()};
+        }
+
+        std::vector<std::size_t> getCodim1LocalNodeIndices(std::size_t localFaceNumber) const override final
+        {
+            switch(localFaceNumber)
+            {
+            case 0:
+                return {0, 2, 1, 7,  6,  8};
+            case 1:
+                return {3, 4, 5, 9, 10, 11};
+            case 2:
+                return {2, 0, 5, 3,  7, 10};
+            case 3:
+                return {0, 1, 3, 4,  6,  9};
+            case 4:
+                return {1, 2, 4, 5,  8, 11};
+            default:
+                logger(ERROR, "asked for Face %, but there are only % Faces", localFaceNumber, getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+                return {};
+            }
+        }
+
+        std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(std::size_t face, std::size_t subFaceIndex) const override final
+        {
+            logger.assert(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+            logger.assert(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
+            switch(face)
+            {
+            case 0:
+                return std::make_tuple(subFaceIndex, face);
+            case 1:
+                return std::make_tuple(subFaceIndex, face);
+            case 2:
+            {
+                std::size_t elementIndex;
+                std::size_t faceIndex;
+                std::tie(elementIndex, faceIndex) = getCodim1RefinementMaps()[0]->getSubElementAndLocalFaceIndex(1, subFaceIndex);
+                return std::make_tuple(elementIndex, faceIndex + 2);
+            }
+            case 3:
+            {
+                std::size_t elementIndex;
+                std::size_t faceIndex;
+                std::tie(elementIndex, faceIndex) = getCodim1RefinementMaps()[0]->getSubElementAndLocalFaceIndex(0, subFaceIndex);
+                return std::make_tuple(elementIndex, faceIndex + 2);
+            }
+            case 4:
+            {
+                std::size_t elementIndex;
+                std::size_t faceIndex;
+                std::tie(elementIndex, faceIndex) = getCodim1RefinementMaps()[0]->getSubElementAndLocalFaceIndex(2, subFaceIndex);
+                return std::make_tuple(elementIndex, faceIndex + 2);
+            }
+            default:
+                logger(ERROR, "something broke, please check the assertions");
+            }
+            return {};
         }
     private:
         RefinementMapForTriangularPrism4() = default;
@@ -603,9 +896,67 @@ namespace Geometry
             }
         }
 
+        Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const override final
+        {
+            return &Geometry::ReferenceTriangularPrism::Instance();
+        }
+
+        Geometry::ReferenceGeometry* getSubElementReferenceGeometry(std::size_t subElement) const override final
+        {
+            logger.assert(subElement < getNumberOfSubElements(), "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
+            return &Geometry::ReferenceTriangularPrism::Instance();
+        }
+
+        std::vector<Geometry::PointReference<3>> getNewNodeLocations(const PointReference<3>&) const override final
+        {
+            return {{0., 0., 0.}, {0., 1., 0.}, {1., 0., 0.}};
+        }
+
         std::vector<const RefinementMapping*> getCodim1RefinementMaps() const override final
         {
             return std::vector<const RefinementMapping*>{RefinementMapForTriangle0::instance(), RefinementMapForTriangle0::instance(), RefinementMapForSquare2::instance(), RefinementMapForSquare2::instance(), RefinementMapForSquare2::instance()};
+        }
+
+        std::vector<std::size_t> getCodim1LocalNodeIndices(std::size_t localFaceNumber) const override final
+        {
+            switch(localFaceNumber)
+            {
+            case 0:
+                return {0, 2, 1};
+            case 1:
+                return {3, 4, 5};
+            case 2:
+                return {2, 0, 5, 3, 8, 6};
+            case 3:
+                return {0, 1, 3, 4, 6, 7};
+            case 4:
+                return {1, 2, 4, 5, 7, 8};
+            default:
+                logger(ERROR, "asked for Face %, but there are only % Faces", localFaceNumber, getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+                return {};
+            }
+        }
+
+        std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(std::size_t face, std::size_t subFaceIndex) const override final
+        {
+            logger.assert(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+            logger.assert(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
+            switch(face)
+            {
+            case 0:
+                return std::make_tuple(0, face);
+            case 1:
+                return std::make_tuple(1, face);
+            case 2:
+                return std::make_tuple(subFaceIndex, face);
+            case 3:
+                return std::make_tuple(subFaceIndex, face);
+            case 4:
+                return std::make_tuple(subFaceIndex, face);
+            default:
+                logger(ERROR, "something broke, please check the assertions");
+            }
+            return {};
         }
     private:
         RefinementMapForTriangularPrism5() = default;
@@ -709,9 +1060,83 @@ namespace Geometry
             }
         }
 
+        Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const override final
+        {
+            return &Geometry::ReferenceTriangularPrism::Instance();
+        }
+
+        Geometry::ReferenceGeometry* getSubElementReferenceGeometry(std::size_t subElement) const override final
+        {
+            logger.assert(subElement < getNumberOfSubElements(), "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
+            return &Geometry::ReferenceCube::Instance();
+        }
+
+        std::vector<Geometry::PointReference<3>> getNewNodeLocations(const PointReference<3>&) const override final
+        {
+            return {{0.5, 0., -1.}, {0., 0.5, -1.}, {0.5, 0.5, -1.}, {1./3., 1./3., -1.},
+                    {0.5, 0.,  1.}, {0., 0.5,  1.}, {0.5, 0.5,  1.}, {1./3., 1./3.,  1.}};
+        }
+
         std::vector<const RefinementMapping*> getCodim1RefinementMaps() const override final
         {
             return std::vector<const RefinementMapping*>{RefinementMapForTriangle5::instance(), RefinementMapForTriangle5::instance(), RefinementMapForSquare1::instance(), RefinementMapForSquare1::instance(), RefinementMapForSquare1::instance()};
+        }
+
+        std::vector<std::size_t> getCodim1LocalNodeIndices(std::size_t localFaceNumber) const override final
+        {
+            switch(localFaceNumber)
+            {
+            case 0:
+                return {0, 2, 1, 7, 6, 8, 9};
+            case 1:
+                return {3, 4, 5, 10, 11, 12, 13};
+            case 2:
+                return {2, 0, 5, 3, 7, 11};
+            case 3:
+                return {0, 1, 3, 4, 6, 10};
+            case 4:
+                return {1, 2, 4, 5, 8, 12};
+            default:
+                logger(ERROR, "asked for Face %, but there are only % Faces", localFaceNumber, getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+                return {};
+            }
+        }
+
+        std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(std::size_t face, std::size_t subFaceIndex) const override final
+        {
+            logger.assert(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+            logger.assert(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
+            switch(face)
+            {
+            case 0:
+                return std::make_tuple(subFaceIndex, face);
+            case 1:
+                return std::make_tuple(subFaceIndex, face);
+            case 2:
+            {
+                std::size_t elementIndex;
+                std::size_t faceIndex;
+                std::tie(elementIndex, faceIndex) = getCodim1RefinementMaps()[0]->getSubElementAndLocalFaceIndex(1, subFaceIndex);
+                return std::make_tuple(elementIndex, faceIndex + 2);
+            }
+            case 3:
+            {
+                std::size_t elementIndex;
+                std::size_t faceIndex;
+                std::tie(elementIndex, faceIndex) = getCodim1RefinementMaps()[0]->getSubElementAndLocalFaceIndex(0, subFaceIndex);
+                return std::make_tuple(elementIndex, faceIndex + 2);
+            }
+            case 4:
+            {
+                std::size_t elementIndex;
+                std::size_t faceIndex;
+                std::tie(elementIndex, faceIndex) = getCodim1RefinementMaps()[0]->getSubElementAndLocalFaceIndex(2, subFaceIndex);
+                return std::make_tuple(elementIndex, faceIndex + 2);
+            }
+            default:
+                logger(ERROR, "something broke, please check the assertions");
+            }
+            return {};
         }
     private:
         RefinementMapForTriangularPrism6() = default;
@@ -800,9 +1225,91 @@ namespace Geometry
             }
         }
 
+        Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const override final
+        {
+            return &Geometry::ReferenceTriangularPrism::Instance();
+        }
+
+        Geometry::ReferenceGeometry* getSubElementReferenceGeometry(std::size_t subElement) const override final
+        {
+            switch(subElement)
+            {
+            case 0:
+                return &Geometry::ReferenceCube::Instance();
+            case 1:
+                return &Geometry::ReferenceTriangularPrism::Instance();
+            default:
+                logger(ERROR, "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
+                return nullptr;
+            }
+        }
+
+        std::vector<Geometry::PointReference<3>> getNewNodeLocations(const PointReference<3>&) const override final
+        {
+            return {{0.5, 0., -1.}, {0.5, 0.5, -1.},
+                    {0.5, 0.,  1.}, {0.5, 0.5,  1.}};
+        }
+
         std::vector<const RefinementMapping*> getCodim1RefinementMaps() const override final
         {
-            return std::vector<const RefinementMapping*>{RefinementMapForTriangle6::instance(), RefinementMapForTriangle6::instance(), RefinementMapForSquare0::instance(), RefinementMapForSquare1::instance(), RefinementMapForSquare1::instance()};
+            return std::vector<const RefinementMapping*>{RefinementMapForTriangle7::instance(), RefinementMapForTriangle6::instance(), RefinementMapForSquare0::instance(), RefinementMapForSquare1::instance(), RefinementMapForSquare1::instance()};
+        }
+
+        std::vector<std::size_t> getCodim1LocalNodeIndices(std::size_t localFaceNumber) const override final
+        {
+            switch(localFaceNumber)
+            {
+            case 0:
+                return {0, 2, 1, 6, 7};
+            case 1:
+                return {3, 4, 5, 8, 9};
+            case 2:
+                return {2, 0, 5, 3};
+            case 3:
+                return {0, 1, 3, 4, 6, 8};
+            case 4:
+                return {1, 2, 4, 5, 7, 9};
+            default:
+                logger(ERROR, "asked for Face %, but there are only % Faces", localFaceNumber, getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+                return {};
+            }
+        }
+
+        std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(std::size_t face, std::size_t subFaceIndex) const override final
+        {
+            logger.assert(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+            logger.assert(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
+            switch(face)
+            {
+            case 0:
+                return std::make_tuple(subFaceIndex, face);
+            case 1:
+                return std::make_tuple(subFaceIndex, face);
+            case 2:
+            {
+                std::size_t elementIndex;
+                std::size_t faceIndex;
+                std::tie(elementIndex, faceIndex) = getCodim1RefinementMaps()[0]->getSubElementAndLocalFaceIndex(1, subFaceIndex);
+                return std::make_tuple(elementIndex, faceIndex + 2);
+            }
+            case 3:
+            {
+                std::size_t elementIndex;
+                std::size_t faceIndex;
+                std::tie(elementIndex, faceIndex) = getCodim1RefinementMaps()[0]->getSubElementAndLocalFaceIndex(0, subFaceIndex);
+                return std::make_tuple(elementIndex, faceIndex + 2);
+            }
+            case 4:
+            {
+                std::size_t elementIndex;
+                std::size_t faceIndex;
+                std::tie(elementIndex, faceIndex) = getCodim1RefinementMaps()[0]->getSubElementAndLocalFaceIndex(2, subFaceIndex);
+                return std::make_tuple(elementIndex, faceIndex + 2);
+            }
+            default:
+                logger(ERROR, "something broke, please check the assertions");
+            }
+            return {};
         }
     private:
         RefinementMapForTriangularPrism7() = default;
@@ -891,9 +1398,91 @@ namespace Geometry
             }
         }
 
+        Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const override final
+        {
+            return &Geometry::ReferenceTriangularPrism::Instance();
+        }
+
+        Geometry::ReferenceGeometry* getSubElementReferenceGeometry(std::size_t subElement) const override final
+        {
+            switch(subElement)
+            {
+            case 0:
+                return &Geometry::ReferenceCube::Instance();
+            case 1:
+                return &Geometry::ReferenceTriangularPrism::Instance();
+            default:
+                logger(ERROR, "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
+                return nullptr;
+            }
+        }
+
+        std::vector<Geometry::PointReference<3>> getNewNodeLocations(const PointReference<3>&) const override final
+        {
+            return {{0., 0.5, -1.}, {0.5, 0.5, -1.},
+                    {0., 0.5,  1.}, {0.5, 0.5,  1.}};
+        }
+
         std::vector<const RefinementMapping*> getCodim1RefinementMaps() const override final
         {
-            return std::vector<const RefinementMapping*>{RefinementMapForTriangle7::instance(), RefinementMapForTriangle7::instance(), RefinementMapForSquare1::instance(), RefinementMapForSquare0::instance(), RefinementMapForSquare1::instance()};
+            return std::vector<const RefinementMapping*>{RefinementMapForTriangle6::instance(), RefinementMapForTriangle7::instance(), RefinementMapForSquare1::instance(), RefinementMapForSquare0::instance(), RefinementMapForSquare1::instance()};
+        }
+
+        std::vector<std::size_t> getCodim1LocalNodeIndices(std::size_t localFaceNumber) const override final
+        {
+            switch(localFaceNumber)
+            {
+            case 0:
+                return {0, 2, 1, 6, 7};
+            case 1:
+                return {3, 4, 5, 8, 9};
+            case 2:
+                return {2, 0, 5, 3, 6, 8};
+            case 3:
+                return {0, 1, 3, 4};
+            case 4:
+                return {1, 2, 4, 5, 7, 9};
+            default:
+                logger(ERROR, "asked for Face %, but there are only % Faces", localFaceNumber, getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+                return {};
+            }
+        }
+
+        std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(std::size_t face, std::size_t subFaceIndex) const override final
+        {
+            logger.assert(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+            logger.assert(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
+            switch(face)
+            {
+            case 0:
+                return std::make_tuple(subFaceIndex, face);
+            case 1:
+                return std::make_tuple(subFaceIndex, face);
+            case 2:
+            {
+                std::size_t elementIndex;
+                std::size_t faceIndex;
+                std::tie(elementIndex, faceIndex) = getCodim1RefinementMaps()[0]->getSubElementAndLocalFaceIndex(1, subFaceIndex);
+                return std::make_tuple(elementIndex, faceIndex + 2);
+            }
+            case 3:
+            {
+                std::size_t elementIndex;
+                std::size_t faceIndex;
+                std::tie(elementIndex, faceIndex) = getCodim1RefinementMaps()[0]->getSubElementAndLocalFaceIndex(0, subFaceIndex);
+                return std::make_tuple(elementIndex, faceIndex + 2);
+            }
+            case 4:
+            {
+                std::size_t elementIndex;
+                std::size_t faceIndex;
+                std::tie(elementIndex, faceIndex) = getCodim1RefinementMaps()[0]->getSubElementAndLocalFaceIndex(2, subFaceIndex);
+                return std::make_tuple(elementIndex, faceIndex + 2);
+            }
+            default:
+                logger(ERROR, "something broke, please check the assertions");
+            }
+            return {};
         }
     private:
         RefinementMapForTriangularPrism8() = default;
@@ -982,9 +1571,91 @@ namespace Geometry
             }
         }
 
+        Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const override final
+        {
+            return &Geometry::ReferenceTriangularPrism::Instance();
+        }
+
+        Geometry::ReferenceGeometry* getSubElementReferenceGeometry(std::size_t subElement) const override final
+        {
+            switch(subElement)
+            {
+            case 0:
+                return &Geometry::ReferenceTriangularPrism::Instance();
+            case 1:
+                return &Geometry::ReferenceCube::Instance();
+            default:
+                logger(ERROR, "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
+                return nullptr;
+            }
+        }
+
+        std::vector<Geometry::PointReference<3>> getNewNodeLocations(const PointReference<3>&) const override final
+        {
+            return {{0.5, 0., -1.}, {0., 0.5, -1.},
+                    {0.5, 0.,  1.}, {0., 0.5,  1.}};
+        }
+
         std::vector<const RefinementMapping*> getCodim1RefinementMaps() const override final
         {
             return std::vector<const RefinementMapping*>{RefinementMapForTriangle8::instance(), RefinementMapForTriangle8::instance(), RefinementMapForSquare1::instance(), RefinementMapForSquare1::instance(), RefinementMapForSquare0::instance()};
+        }
+
+        std::vector<std::size_t> getCodim1LocalNodeIndices(std::size_t localFaceNumber) const override final
+        {
+            switch(localFaceNumber)
+            {
+            case 0:
+                return {0, 2, 1, 7, 6};
+            case 1:
+                return {3, 4, 5, 8, 9};
+            case 2:
+                return {2, 0, 5, 3, 7, 9};
+            case 3:
+                return {0, 1, 3, 4, 6, 8};
+            case 4:
+                return {1, 2, 4, 5};
+            default:
+                logger(ERROR, "asked for Face %, but there are only % Faces", localFaceNumber, getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+                return {};
+            }
+        }
+
+        std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(std::size_t face, std::size_t subFaceIndex) const override final
+        {
+            logger.assert(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+            logger.assert(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
+            switch(face)
+            {
+            case 0:
+                return std::make_tuple(subFaceIndex, face);
+            case 1:
+                return std::make_tuple(subFaceIndex, face);
+            case 2:
+            {
+                std::size_t elementIndex;
+                std::size_t faceIndex;
+                std::tie(elementIndex, faceIndex) = getCodim1RefinementMaps()[0]->getSubElementAndLocalFaceIndex(1, subFaceIndex);
+                return std::make_tuple(elementIndex, faceIndex + 2);
+            }
+            case 3:
+            {
+                std::size_t elementIndex;
+                std::size_t faceIndex;
+                std::tie(elementIndex, faceIndex) = getCodim1RefinementMaps()[0]->getSubElementAndLocalFaceIndex(0, subFaceIndex);
+                return std::make_tuple(elementIndex, faceIndex + 2);
+            }
+            case 4:
+            {
+                std::size_t elementIndex;
+                std::size_t faceIndex;
+                std::tie(elementIndex, faceIndex) = getCodim1RefinementMaps()[0]->getSubElementAndLocalFaceIndex(2, subFaceIndex);
+                return std::make_tuple(elementIndex, faceIndex + 2);
+            }
+            default:
+                logger(ERROR, "something broke, please check the assertions");
+            }
+            return {};
         }
     private:
         RefinementMapForTriangularPrism9() = default;

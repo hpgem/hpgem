@@ -82,10 +82,10 @@ namespace Base
         
     
         /// \brief Copy the data of a time integration vector to the data of a certain time level.
-        void copyTimeIntegrationToTimeLevelData(std::size_t timeIntegrationVectorId, std::size_t timeLevel);
+        void copyTimeIntegrationToTimeLevelData(std::size_t timeIntegrationVectorId, std::size_t timeLevel, std::size_t meshId = 0);
         
         /// \brief Copy the data of a time level to a time integration vector.
-        void copyTimeLevelToTimeIntegrationData(std::size_t timeLevel, std::size_t timeIntegrationVectorId);
+        void copyTimeLevelToTimeIntegrationData(std::size_t timeLevel, std::size_t timeIntegrationVectorId, std::size_t meshId = 0);
         
         
         std::size_t getNumberOfElements(std::size_t id) const

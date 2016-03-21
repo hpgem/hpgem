@@ -37,7 +37,7 @@ namespace Base
 {
     
     struct FaceCacheData;
-    class UserFaceData;
+    class UserData;
     
     class FaceData
     {
@@ -69,12 +69,12 @@ namespace Base
 
         std::vector<FaceCacheData>& getVecCacheData();
         
-        UserFaceData* getUserData() const
+        UserData* getUserData() const
         {
             return userData_;
         }
         
-        void setUserData(UserFaceData* data)
+        void setUserData(UserData* data)
         {
             //the user may pass any kind of data he/she wants (including nullptr) even if this does not seem to make sense
             userData_ = data;
@@ -106,7 +106,7 @@ namespace Base
     private:
         ///Stores polymorphic pointer to UserDefined Data, internally not used.
         ///Used only outside of the Kernel.
-        UserFaceData* userData_;
+        UserData* userData_;
         
         ///Stores face matrix(es) for this face.
         std::vector<FaceMatrix> faceMatrix_;

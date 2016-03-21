@@ -428,18 +428,18 @@ namespace Base
     template<std::size_t DIM>
     inline void PhysicalElement<DIM>::setElement(const Element* element)
     {
-        theElement_ = element;
-        if (!hasElement)
+        if (!hasElement || element->getNumberOfBasisFunctions() != theElement_->getNumberOfBasisFunctions())
         {
-            std::size_t numberOfEntries = theElement_->getNumberOfBasisFunctions() * theElement_->getNumberOfUnknowns();
+            std::size_t numberOfEntries = element->getNumberOfBasisFunctions() * element->getNumberOfUnknowns();
             resultMatrix.resize(numberOfEntries, numberOfEntries);
             resultVector.resize(numberOfEntries);
-            basisFunctionValue.resize(theElement_->getNumberOfBasisFunctions());
-            vectorBasisFunctionValue.resize(theElement_->getNumberOfBasisFunctions());
-            basisFunctionDeriv_.resize(theElement_->getNumberOfBasisFunctions());
-            basisFunctionCurl_.resize(theElement_->getNumberOfBasisFunctions());
-            basisFunctionDiv_.resize(theElement_->getNumberOfBasisFunctions());
+            basisFunctionValue.resize(element->getNumberOfBasisFunctions());
+            vectorBasisFunctionValue.resize(element->getNumberOfBasisFunctions());
+            basisFunctionDeriv_.resize(element->getNumberOfBasisFunctions());
+            basisFunctionCurl_.resize(element->getNumberOfBasisFunctions());
+            basisFunctionDiv_.resize(element->getNumberOfBasisFunctions());
         }
+        theElement_ = element;
         hasElement = true;
         //even if they are already computed, the information is now out of date
         hasFunctionValue = false;

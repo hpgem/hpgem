@@ -174,7 +174,7 @@ namespace Base
 
         void setEdge(std::size_t localEdgeNumber, const Edge* edge);
 
-        void setNode(std::size_t localNodeNumber, const Node* node);
+        void setNode(std::size_t localNodeNumber, Node* node);
 
         ///\deprecated Does not follow naming conventions, use getLocalNumberOfBasisFunctions instead
         std::size_t getLocalNrOfBasisFunctions() const
@@ -215,8 +215,14 @@ namespace Base
             logger.assert(localNodeNumber<getNumberOfNodes(), "Asked for node %, but there are only % nodes", localNodeNumber, getNumberOfNodes());
             return nodesList_[localNodeNumber];
         }
+
+        Node* getNode(std::size_t localNodeNumber)
+        {
+            logger.assert(localNodeNumber<getNumberOfNodes(), "Asked for node %, but there are only % nodes", localNodeNumber, getNumberOfNodes());
+            return nodesList_[localNodeNumber];
+        }
         
-        const std::vector<const Node*> getNodesList() const
+        const std::vector<Node*> getNodesList() const
         {
             return nodesList_;
         }
@@ -296,7 +302,7 @@ namespace Base
         
         std::vector<const Face*> facesList_;
         std::vector<const Edge*> edgesList_;
-        std::vector<const Node*> nodesList_;
+        std::vector<Node*> nodesList_;
 
         /// Degrees of freedom corresponding to this element. When using conforming basis functions only the basis functions with support on only this element are counted.
         std::size_t numberOfDOFinTheElement_;

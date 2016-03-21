@@ -108,16 +108,16 @@ namespace Base
         TreeIterator<V> addRootEntry(const V& newEl);
 
         //! Add children to an entry. Provided iterator must point into this tree.
-        void addChildren(TreeIterator<V> parentEl, const std::vector<V>& subEntries);
+        void addChildren(TreeIteratorConst<V> parentEl, const std::vector<V>& subEntries);
 
         //! Add children of an entry. Provided iterator must point into this tree.
-        TreeIterator<V> addChild(TreeIterator<V> parentEl, const V& subEntry);
+        TreeIterator<V> addChild(TreeIteratorConst<V> parentEl, const V& subEntry);
 
         //! Add children of an entry, making the children occupy a specific level. The parent will stretch to fill empty lower levels if necessary. Provided iterator must point into this tree.
-        void addChildren(TreeIterator<V> parentEl, const std::vector<V>& subEntries, std::size_t level);
+        void addChildren(TreeIteratorConst<V> parentEl, const std::vector<V>& subEntries, std::size_t level);
 
         //! Add children of an entry, making the children occupy a specific level. The parent will stretch to fill empty lower levels if necessary. Provided iterator must point into this tree.
-        TreeIterator<V> addChild(TreeIterator<V> parentEl, const V& subEntry, std::size_t level);
+        TreeIterator<V> addChild(TreeIteratorConst<V> parentEl, const V& subEntry, std::size_t level);
 
         ConstIterableWrapper<TreeEntry<V>> getRootEntries() const;
 

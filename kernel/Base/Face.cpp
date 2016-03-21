@@ -35,6 +35,7 @@
 #include "Node.h"
 #include "Geometry/PhysicalGeometry.h"
 #include "Geometry/PointPhysical.h"
+#include "TreeIterator.h"
 
 namespace Base
 {
@@ -227,5 +228,82 @@ namespace Base
             logger.assert(faceBasisFunctionId < nDOFLeft + (isInternal() ? getPtrElementRight()->getNumberOfUnknowns() * getPtrElementRight()->getNumberOfBasisFunctions() : 0), "The index for the face basis (vector)function (%) is larger than the number of basis (vector)functions at the adjacent elements (%)", faceBasisFunctionId, nDOFLeft + (isInternal() ? getPtrElementRight()->getNumberOfUnknowns() * getPtrElementRight()->getNumberOfBasisFunctions() : 0));
             return faceBasisFunctionId - nDOFLeft;
         }
+    }
+
+    void Face::addElement(Element *ptrElementR, std::size_t localFaceNumberR)
+    {
+        logger.assert(ptrElementR != nullptr, "Error: passing a boundary face to the constructor for internal faces!");
+        logger.assert(!isInternal(), "can only add an extra element if there is only one");
+        elementRight_ = ptrElementR;
+        rightElementGeom_ = ptrElementR;
+        localFaceNumberRight_ = localFaceNumberR;
+        //deliberatly bypass the check that boundary faces should remain boundary faces since this routine in intended
+        //to turn a subdomain boundary into a internal face
+        faceType_ = Geometry::FaceType::INTERNAL;
+        ptrElementR->setFace(localFaceNumberR, this);
+
+        std::vector<std::size_t> leftNodes, rightNodes;
+        std::vector<std::size_t> localLeftNodes = elementLeft_->getPhysicalGeometry()->getLocalFaceNodeIndices(localFaceNumberLeft());
+        std::vector<std::size_t> localRightNodes = ptrElementR->getPhysicalGeometry()->getLocalFaceNodeIndices(localFaceNumberR);
+        for (std::size_t i = 0; i < getReferenceGeometry()->getNumberOfNodes(); ++i)
+        {
+            leftNodes.push_back(elementLeft_->getNode(localLeftNodes[i])->getID());
+            rightNodes.push_back(ptrElementR->getNode(localRightNodes[i])->getID());
+            switch(elementLeft_->getGaussQuadratureRule()->dimension())
+            {
+            case 1:
+                //condition must be checked for all nodes because some of them could be in the corner of a rotational symmetry
+                if(Geometry::PointPhysical<1>(elementLeft_->getPhysicalGeometry()->getLocalNodeCoordinates(localLeftNodes[i])) !=
+                   Geometry::PointPhysical<1>(ptrElementR->getPhysicalGeometry()->getLocalNodeCoordinates(localRightNodes[i])))
+                {
+                    //no periodic_subdomain here because the mesh gets split after everything is constructed
+                    setFaceType(Geometry::FaceType::PERIODIC_BC);
+                }
+                break;
+            case 2:
+                //condition must be checked for all nodes because some of them could be in the corner of a rotational symmetry
+                if(Geometry::PointPhysical<2>(elementLeft_->getPhysicalGeometry()->getLocalNodeCoordinates(localLeftNodes[i])) !=
+                   Geometry::PointPhysical<2>(ptrElementR->getPhysicalGeometry()->getLocalNodeCoordinates(localRightNodes[i])))
+                {
+                    //no periodic_subdomain here because the mesh gets split after everything is constructed
+                    setFaceType(Geometry::FaceType::PERIODIC_BC);
+                }
+                break;
+            case 3:
+                //condition must be checked for all nodes because some of them could be in the corner of a rotational symmetry
+                if(Geometry::PointPhysical<3>(elementLeft_->getPhysicalGeometry()->getLocalNodeCoordinates(localLeftNodes[i])) !=
+                   Geometry::PointPhysical<3>(ptrElementR->getPhysicalGeometry()->getLocalNodeCoordinates(localRightNodes[i])))
+                {
+                    //no periodic_subdomain here because the mesh gets split after everything is constructed
+                    setFaceType(Geometry::FaceType::PERIODIC_BC);
+                }
+                break;
+            case 4:
+                //condition must be checked for all nodes because some of them could be in the corner of a rotational symmetry
+                if(Geometry::PointPhysical<4>(elementLeft_->getPhysicalGeometry()->getLocalNodeCoordinates(localLeftNodes[i])) !=
+                   Geometry::PointPhysical<4>(ptrElementR->getPhysicalGeometry()->getLocalNodeCoordinates(localRightNodes[i])))
+                {
+                    //no periodic_subdomain here because the mesh gets split after everything is constructed
+                    setFaceType(Geometry::FaceType::PERIODIC_BC);
+                }
+                break;
+            default:
+                logger(ERROR, "hpGEM does not support elements of dimension %", elementLeft_->getGaussQuadratureRule()->dimension());
+            }
+
+
+        }
+        initialiseFaceToFaceMapIndex(leftNodes, rightNodes);
+
+    }
+
+    Element *Face::getRootElement()
+    {
+        auto root = elementLeft_->getPositionInTree();
+        while(!root->isRoot())
+        {
+            root = root->getParent();
+        }
+        return *root->getIterator(TreeTraversalMethod::ALLLEVEL);
     }
 }

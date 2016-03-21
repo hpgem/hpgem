@@ -77,9 +77,12 @@ namespace Base
             return getNumberOfElements();
         }
 
-        std::size_t getNumberOfElements();
+        std::size_t getNumberOfElements() const;
         
         Element* getElement(std::size_t i);
+
+        ///get the root element that is the (indirect) parent of one of the adjacent elements
+        const Element* getRootElement() const;
         
         std::vector<Element*> getElements();
         

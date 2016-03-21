@@ -117,6 +117,9 @@ namespace Base
             }
         }
 
+        ///get the root element that is the (indirect) parent of one of the adjacent elements
+        Element* getRootElement();
+
         /// \brief Create a quadrature for this face based on the quadrature rules of adjacent elements.
         void createQuadratureRules();
 
@@ -215,6 +218,8 @@ namespace Base
         
         /// \brief Convert the index of the basis (vector)function of the face (faceBasisFunctionId) to the index of the corresponding element basis (vector)function (elementBasisFunctionId).
         std::size_t getElementBasisFunctionId(std::size_t faceBasisFunctionId) const;
+
+        void addElement(Element* ptrElementR, std::size_t localFaceNumberR);
 
         void setPositionInTree(const TreeEntry<Face*>* position) {
             logger.assert(position->getData() == this, "Trying to set the position of another face as this face");

@@ -25,6 +25,7 @@
 #include "Face.h"
 #include "FaceCacheData.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
+#include "GlobalUniqueIndex.h"
 
 namespace Base
 {
@@ -34,16 +35,16 @@ namespace Base
     {
     }
     
-    Face* FaceFactory::makeFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo, Geometry::FaceType faceType, std::size_t faceID)
+    Face* FaceFactory::makeFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo, Geometry::FaceType faceType)
     {
         logger.assert(leftElementPtr!=nullptr, "Invalid element passed");
-        return new Face(leftElementPtr, leftElementLocalFaceNo, faceType, faceID, numberOfFaceMatrices_, numberOfFaceVectors_);
+        return new Face(leftElementPtr, leftElementLocalFaceNo, faceType, GlobalUniqueIndex::instance().getFaceIndex(), numberOfFaceMatrices_, numberOfFaceVectors_);
     }
-    Face* FaceFactory::makeFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo, Element* rightElementPtr, std::size_t rightElementLocalFaceNo, std::size_t faceID)
+    Face* FaceFactory::makeFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo, Element* rightElementPtr, std::size_t rightElementLocalFaceNo)
     {
         logger.assert(leftElementPtr!=nullptr, "Invalid element passed");
         logger.assert(rightElementPtr!=nullptr, "This routine is intended for internal faces");
-        return new Face(leftElementPtr, leftElementLocalFaceNo, rightElementPtr, rightElementLocalFaceNo, faceID, numberOfFaceMatrices_, numberOfFaceVectors_);
+        return new Face(leftElementPtr, leftElementLocalFaceNo, rightElementPtr, rightElementLocalFaceNo, GlobalUniqueIndex::instance().getFaceIndex(), numberOfFaceMatrices_, numberOfFaceVectors_);
     }
     
     void FaceFactory::setNumberOfFaceMatrices(std::size_t matrices)

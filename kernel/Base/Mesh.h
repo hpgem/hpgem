@@ -65,7 +65,11 @@ namespace Base
 
         Element* addElement(const std::vector<std::size_t>& globalNodeIndexes);
 
+        void addSubElements(Base::Element* parent, const std::vector<Base::Element*> subElements);
+
         bool addFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo, Element* rightElementPtr, std::size_t rightElementLocalFaceNo, const Geometry::FaceType& faceType = Geometry::FaceType::WALL_BC);
+
+        void addSubFaces(const Base::Face* parent, const std::vector<Base::Face*> subFaces);
 
         void addEdge();
 
@@ -235,8 +239,6 @@ namespace Base
 
         bool hasToSplit_;
 
-        std::size_t localProcessorID_;
-
         Submesh submeshes_;
         //! List of all elements.
         LevelTree<Element*> elements_;
@@ -249,11 +251,6 @@ namespace Base
 
         //! List of all nodes. (connectivity-based location of vertices)
         std::vector<Node*> nodes_;
-
-        std::size_t elementCounter_;
-        std::size_t faceCounter_;
-        std::size_t edgeCounter_;
-        std::size_t nodeCounter_;
 
         //! Global vector of physical nodes. (physical location of vertices)
         std::vector<Geometry::PointPhysical<DIM> > nodeCoordinates_;

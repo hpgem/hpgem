@@ -49,3 +49,14 @@ std::size_t Base::Node::getNumberOfElements() const
 {
     return elements_.size();
 }
+
+const Base::Element *Base::Node::getRootElement() const
+{
+    logger.assert(getNumberOfElements() > 0, "Add at least one element before queriyng about neighbouring elements");
+    auto root = elements_[0]->getPositionInTree();
+    while(!root->isRoot())
+    {
+        root = root->getParent();
+    }
+    return root->getData();
+}

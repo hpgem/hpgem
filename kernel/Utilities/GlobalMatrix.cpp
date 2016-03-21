@@ -92,6 +92,7 @@ namespace Utilities
             }
         }
     }
+
 #if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
     
     GlobalPetscMatrix::GlobalPetscMatrix(Base::MeshManipulatorBase* theMesh, int elementMatrixID, int faceMatrixID)
@@ -290,10 +291,6 @@ namespace Utilities
         auto currentNodePosition = MPISendNodePositions.begin() + MPISendNodeStarts[rank];
 #endif
         std::size_t totalNumberOfDOF(0), DIM(theMesh_->dimension());
-        startPositionsOfElementsInTheMatrix_.assign(theMesh_->getNumberOfElements(Base::IteratorType::GLOBAL), -1);
-        startPositionsOfFacesInTheMatrix_.assign(theMesh_->getNumberOfFaces(Base::IteratorType::GLOBAL), -1);
-        startPositionsOfEdgesInTheMatrix_.assign(theMesh_->getNumberOfEdges(Base::IteratorType::GLOBAL), -1);
-        startPositionsOfNodesInTheMatrix_.assign(theMesh_->getNumberOfNodes(Base::IteratorType::GLOBAL), -1);
         for (Base::Element* element : theMesh_->getElementsList())
         {
 #ifdef HPGEM_USE_MPI
@@ -302,7 +299,6 @@ namespace Utilities
             ++currentElementNumber;
             ++currentElementPosition;
 #else
-            logger.assert(startPositionsOfElementsInTheMatrix_[element->getID()] == -1, "Duplicate element detected");
             startPositionsOfElementsInTheMatrix_[element->getID()] = totalNumberOfDOF;
 #endif
             totalNumberOfDOF += element->getLocalNumberOfBasisFunctions() * element->getNumberOfUnknowns();
@@ -318,7 +314,6 @@ namespace Utilities
                     ++currentFaceNumber;
                     ++currentFacePosition;
 #else
-                    logger.assert(startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()] == -1, "Duplicate face detected");
                     startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()] = totalNumberOfDOF;
 #endif
                     totalNumberOfDOF += element->getFace(i)->getLocalNumberOfBasisFunctions() * element->getNumberOfUnknowns();
@@ -337,7 +332,6 @@ namespace Utilities
                 ++currentFaceNumber;
                 ++currentFacePosition;
 #else
-                logger.assert(startPositionsOfFacesInTheMatrix_[face->getID()] == -1, "Duplicate face detected");
                 startPositionsOfFacesInTheMatrix_[face->getID()] = totalNumberOfDOF;
 #endif
                 totalNumberOfDOF += face->getLocalNumberOfBasisFunctions() * face->getPtrElementLeft()->getNumberOfUnknowns();
@@ -351,7 +345,6 @@ namespace Utilities
             ++currentEdgeNumber;
             ++currentEdgePosition;
 #else
-            logger.assert(startPositionsOfEdgesInTheMatrix_[edge->getID()] == -1, "Duplicate edge detected");
             startPositionsOfEdgesInTheMatrix_[edge->getID()] = totalNumberOfDOF;
 #endif
             totalNumberOfDOF += edge->getLocalNumberOfBasisFunctions() * edge->getElement(0)->getNumberOfUnknowns();
@@ -367,7 +360,6 @@ namespace Utilities
                 ++currentNodeNumber;
                 ++currentNodePosition;
 #else
-                logger.assert(startPositionsOfNodesInTheMatrix_[node->getID()] == -1, "Duplicate node detected");
                 startPositionsOfNodesInTheMatrix_[node->getID()] = totalNumberOfDOF;
 #endif
                 totalNumberOfDOF += node->getLocalNumberOfBasisFunctions() * node->getElement(0)->getNumberOfUnknowns();
@@ -436,7 +428,6 @@ namespace Utilities
                 offset = cumulativeDOF[currentDomain];
             }
             logger.assert(*currentElementNumber != std::numeric_limits<std::size_t>::max(), "currentElementNumber = -1");
-            logger.assert(startPositionsOfElementsInTheMatrix_[*currentElementNumber] == -1, "Duplicate element detected");
             startPositionsOfElementsInTheMatrix_[*currentElementNumber]=*currentElementPosition+offset;
         }
 
@@ -453,7 +444,6 @@ namespace Utilities
             }
             if (*currentFaceNumber != std::numeric_limits<std::size_t>::max())
             {
-                logger.assert(startPositionsOfFacesInTheMatrix_[*currentFaceNumber] == -1, "Duplicate face detected");
                 startPositionsOfFacesInTheMatrix_[*currentFaceNumber]=*currentFacePosition+offset;
             }
         }
@@ -470,7 +460,6 @@ namespace Utilities
                 offset = cumulativeDOF[currentDomain];
             }
             logger.assert(*currentEdgeNumber != std::numeric_limits<std::size_t>::max(), "currentEdgeNumber = -1");
-            logger.assert(startPositionsOfEdgesInTheMatrix_[*currentEdgeNumber] == -1, "Duplicate edge detected");
             startPositionsOfEdgesInTheMatrix_[*currentEdgeNumber]=*currentEdgePosition+offset;
         }
 
@@ -487,7 +476,6 @@ namespace Utilities
             }
             if (*currentNodeNumber != std::numeric_limits<std::size_t>::max())
             {
-                logger.assert(startPositionsOfNodesInTheMatrix_[*currentNodeNumber] == -1, "Duplicate node detected");
                 startPositionsOfNodesInTheMatrix_[*currentNodeNumber]=*currentNodePosition+offset;
             }
         }
@@ -497,15 +485,10 @@ namespace Utilities
         std::size_t MPIOffset = 0;
         std::size_t end = totalNumberOfDOF + 1;
 #endif
-        logger.assert(*std::min_element(startPositionsOfElementsInTheMatrix_.begin(), startPositionsOfElementsInTheMatrix_.end()) > -1, "Missing an element index");
-        logger.assert(*std::min_element(startPositionsOfFacesInTheMatrix_.begin(), startPositionsOfFacesInTheMatrix_.end()) > -1, "Missing a face index");
-        logger.assert(DIM < 3 || *std::min_element(startPositionsOfEdgesInTheMatrix_.begin(), startPositionsOfEdgesInTheMatrix_.end()) > -1, "Missing an edge index");
-        logger.assert(DIM < 2 || *std::min_element(startPositionsOfNodesInTheMatrix_.begin(), startPositionsOfNodesInTheMatrix_.end()) > -1, "Missing node index %", std::min_element(startPositionsOfElementsInTheMatrix_.begin(), startPositionsOfElementsInTheMatrix_.end()) - startPositionsOfElementsInTheMatrix_.begin());
-        //could be equal to totalNrOfDOF if there are no degrees of freedom accosiated with the element/face/w.e.
-        logger.assert(*std::max_element(startPositionsOfElementsInTheMatrix_.begin(), startPositionsOfElementsInTheMatrix_.end()) < end, "Start of entries for element % out of bounds (%, with only % total entries)", std::max_element(startPositionsOfElementsInTheMatrix_.begin(), startPositionsOfElementsInTheMatrix_.end()) - startPositionsOfElementsInTheMatrix_.begin(), *std::max_element(startPositionsOfElementsInTheMatrix_.begin(), startPositionsOfElementsInTheMatrix_.end()), end - 1);
-        logger.assert(*std::max_element(startPositionsOfFacesInTheMatrix_.begin(), startPositionsOfFacesInTheMatrix_.end()) < end, "Missing a face index");
-        logger.assert(DIM < 3 || *std::max_element(startPositionsOfEdgesInTheMatrix_.begin(), startPositionsOfEdgesInTheMatrix_.end()) < end, "Missing an edge index");
-        logger.assert(DIM < 2 || *std::max_element(startPositionsOfNodesInTheMatrix_.begin(), startPositionsOfNodesInTheMatrix_.end()) < end, "Missing a node index");
+        logger.assert(startPositionsOfElementsInTheMatrix_.size() == theMesh_->getNumberOfElements(Base::IteratorType::GLOBAL), "Missing an element");
+        logger.assert(startPositionsOfFacesInTheMatrix_.size() == theMesh_->getNumberOfFaces(Base::IteratorType::GLOBAL), "Missing a face");
+        logger.assert(DIM < 3 || startPositionsOfEdgesInTheMatrix_.size() == theMesh_->getNumberOfEdges(Base::IteratorType::GLOBAL), "Missing a edge");
+        logger.assert(DIM < 2 || startPositionsOfNodesInTheMatrix_.size() == theMesh_->getNumberOfNodes(Base::IteratorType::GLOBAL), "Missing a node");
         
         //now construct the only bit of data where PETSc expects a local numbering...
         std::vector<PetscInt> numberOfPositionsPerRow(totalNumberOfDOF, 0);

@@ -647,8 +647,7 @@ namespace Base
     inline void PhysicalFace<DIM>::setFace(const Face* face)
     {
         logger.assert(isInternal_ == face->isInternal(), "This face is not supported by this physical face");
-        face_ = face;
-        if(!hasFace)
+        if(!hasFace || face_->getNumberOfBasisFunctions() != face->getNumberOfBasisFunctions())
         {
             std::size_t leftCoefficients = face->getPtrElementLeft()->getNumberOfUnknowns() * face->getPtrElementLeft()->getNumberOfBasisFunctions();
             nLeftBasisFunctions = face->getPtrElementLeft()->getNumberOfBasisFunctions();
@@ -668,6 +667,7 @@ namespace Base
             basisFunctionUnitNormal_.resize(basisFunctions);
             vectorBasisFunctionUnitNormal_.resize(basisFunctions);
         }
+        face_ = face;
         hasFace = true;
         left.setElement(face->getPtrElementLeft());
         if(isInternal_)

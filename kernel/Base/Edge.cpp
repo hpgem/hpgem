@@ -45,7 +45,7 @@ namespace Base
         orientation_.push_back((indices[0] < indices[1] ? 0 : 1));
     }
     
-    std::size_t Edge::getNumberOfElements()
+    std::size_t Edge::getNumberOfElements() const
     {
         return elements_.size();
     }
@@ -59,6 +59,17 @@ namespace Base
     std::vector<Element*> Edge::getElements()
     {
         return elements_;
+    }
+
+    const Element *Edge::getRootElement() const
+    {
+        logger.assert(getNumberOfElements() > 0, "Add at least one element before queriyng about neighbouring elements");
+        auto root = elements_[0]->getPositionInTree();
+        while(!root->isRoot())
+        {
+            root = root->getParent();
+        }
+        return root->getData();
     }
 
 }

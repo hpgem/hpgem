@@ -64,7 +64,7 @@ namespace Base
     template<typename V>
     void LevelTree<V>::setSingleLevelTraversal(const std::size_t level)
     {
-        logger.assert(maxLevel_ > level, "Trying to iterate over level %, but there are only % levels", level, maxLevel_);
+        logger.assert((size() == 0 && level == 0) || maxLevel_ > level, "Trying to iterate over level %, but there are only % levels", level, maxLevel_);
         activeLevel_ = level;
         traversalMethod_ = TreeTraversalMethod::SINGLELEVEL;
     }
@@ -222,14 +222,14 @@ namespace Base
     }
 
     template<typename V>
-    void LevelTree<V>::addChildren(TreeIterator<V> parentEl, const std::vector<V>& subEntries)
+    void LevelTree<V>::addChildren(TreeIteratorConst<V> parentEl, const std::vector<V>& subEntries)
     {
         (*parentEl.ptr_)->addChildren(subEntries);
         maxLevel_ = std::max((*parentEl.ptr_)->getLastChild()->getDepth() + (*parentEl.ptr_)->getLastChild()->getLevel(), maxLevel_);
     }
 
     template<typename V>
-    TreeIterator<V> LevelTree<V>::addChild(TreeIterator<V> parentEl, const V& subEntry)
+    TreeIterator<V> LevelTree<V>::addChild(TreeIteratorConst<V> parentEl, const V& subEntry)
     {
         (*parentEl.ptr_)->addChild(subEntry);
         maxLevel_ = std::max((*parentEl.ptr_)->getLastChild()->getDepth() + (*parentEl.ptr_)->getLastChild()->getLevel(), maxLevel_);
@@ -237,7 +237,7 @@ namespace Base
     }
 
     template<typename V>
-    void LevelTree<V>::addChildren(TreeIterator<V> parentEl, const std::vector<V>& subEntries, std::size_t level)
+    void LevelTree<V>::addChildren(TreeIteratorConst<V> parentEl, const std::vector<V>& subEntries, std::size_t level)
     {
         logger.assert((*parentEl.ptr_)->getLevel() < level, "trying to at children at level %, but the parent lives at level %", level, (*parentEl.ptr_)->getLevel());
         (*parentEl.ptr_)->setDepth(level - (*parentEl.ptr_)->getLevel());
@@ -246,7 +246,7 @@ namespace Base
     }
 
     template<typename V>
-    TreeIterator<V> LevelTree<V>::addChild(TreeIterator<V> parentEl, const V& subEntry, std::size_t level)
+    TreeIterator<V> LevelTree<V>::addChild(TreeIteratorConst<V> parentEl, const V& subEntry, std::size_t level)
     {
         logger.assert((*parentEl.ptr_)->getLevel() < level, "trying to at children at level %, but the parent lives at level %", level, (*parentEl.ptr_)->getLevel());
         (*parentEl.ptr_)->setDepth(level - (*parentEl.ptr_)->getLevel());

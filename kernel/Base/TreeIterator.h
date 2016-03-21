@@ -426,7 +426,7 @@ namespace Base
         //might move to siblings if it can't find the appropriate level among descendants
         bool moveDownToLevelBegin(std::size_t level)
         {
-            while(!(ptr_ == end_) && (*ptr_)->getLevel() + depthCounter_ < level)
+            while(!(ptr_ == end_) && ((*ptr_)->getLevel() + depthCounter_) < level)
             {
                 moveToNextPreOrder();
             }
@@ -531,10 +531,6 @@ namespace Base
             if((*ptr_)->hasChild() || canIncreaseCounter())
             {
                 moveToChild(0);
-            }
-            else if(!(*ptr_)->isLastSibling())
-            {
-                ++ptr_;
             }
             else
             {

@@ -116,10 +116,11 @@ Output::VTKSpecificTimeWriter<DIM>::VTKSpecificTimeWriter(const std::string& bas
     localFile_ << "<VTKFile type=\"UnstructuredGrid\" version=\"0.1\" byte_order=\"" << (Detail::isBigEndian() ? "BigEndian" : "LittleEndian") << "\">" << std::endl;
     localFile_ << "  <UnstructuredGrid>" << std::endl;
     //the number of points is not an inherent quantity of the mesh, because we have to repeat nodes to allow discontinuous data
-    std::uint32_t totalElements {(std::uint32_t) mesh_->getElementsList().size()};
+    std::uint32_t totalElements = 0;
     for (Base::Element* element : mesh_->getElementsList())
     {
         totalPoints_ += element->getNumberOfNodes();
+        ++totalElements;
     }
     localFile_ << "    <Piece NumberOfPoints=\"" << totalPoints_ << "\" NumberOfCells=\"" << totalElements << "\">" << std::endl;
     localFile_ << "      <Points>" << std::endl;

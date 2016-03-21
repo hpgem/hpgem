@@ -34,7 +34,10 @@ namespace Base
 {
     
     /**
-     * Actually parses the arguments and uses the linked in CLO's
+     * Actually parses the arguments and uses the linked in CommandLineOptions
+     * Make sure to always call this function at the beginning of your program,
+     * It also does some other jobs which must be done at startup and cannot be done
+     * somewhere else
      * @param argc argc as specified by a main() call
      * @param argv argv as specified by a main() call
      */
