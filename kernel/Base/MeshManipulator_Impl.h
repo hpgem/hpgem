@@ -987,6 +987,9 @@ namespace Base
                                                      const Geometry::PointPhysical<DIM> &topRight,
                                                      const std::vector<std::size_t> &linearNoElements)
     {
+        getElementsList().setSingleLevelTraversal(0);
+        getElementsList(IteratorType::GLOBAL).setSingleLevelTraversal(0);
+
         logger.assert(bottomLeft.size() == topRight.size(), "The corners of the mesh must have the same dimension");
         logger.assert(bottomLeft.size() == configData_->dimension_, "The corners of the mesh have the wrong dimension");
         logger.assert(linearNoElements.size() ==
@@ -1146,6 +1149,9 @@ namespace Base
                                                     Geometry::PointPhysical<DIM> topRight,
                                                     const std::vector<std::size_t> &linearNoElements)
     {
+        getElementsList().setSingleLevelTraversal(0);
+        getElementsList(IteratorType::GLOBAL).setSingleLevelTraversal(0);
+
         logger.assert(bottomLeft.size() == topRight.size(), "The corners of the mesh must have the same dimension");
         logger.assert(bottomLeft.size() == configData_->dimension_, "The corners of the mesh have the wrong dimension");
         logger.assert(linearNoElements.size() ==
@@ -3787,7 +3793,7 @@ namespace Base
     template<std::size_t DIM>
     void MeshManipulator<DIM>::faceFactory()
     {
-        getFacesList(IteratorType::GLOBAL).setSingleLevelTraversal(0);
+        getFacesList(IteratorType::GLOBAL).setPreOrderTraversal();
         std::vector<std::size_t> nodeIndices;
         std::vector<Element *> candidates;
 
@@ -3893,6 +3899,7 @@ namespace Base
     template<std::size_t DIM>
     void MeshManipulator<DIM>::edgeFactory()
     {
+        getEdgesList(IteratorType::GLOBAL).setPreOrderTraversal();
         //'edges' in DIM 2 are actually nodes
         if (DIM != 2)
         {
