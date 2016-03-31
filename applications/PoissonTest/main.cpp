@@ -70,7 +70,7 @@ public:
         penalty_ = 3 * n_ * p_ * (p_ + DIM - 1) + 1;
     }
 
-    /*void createMesh(const std::size_t numberOfElementsPerDirection, const Base::MeshType meshType) override final
+    void createMesh(const std::size_t numberOfElementsPerDirection, const Base::MeshType meshType) override final
     {
         // Set the number of Element/Face Matrices/Vectors.
         std::size_t numberOfElementMatrices = 2;   // Mass matrix and stiffness matrix
@@ -79,8 +79,8 @@ public:
         std::size_t numberOfFaceVectors = 1;       // Source term vector at boundary
 
         // Create mesh and set basis functions.
-        this->addMesh("Cylinder5.hyb", numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors);
-        this->meshes_[0]->useDefaultDGBasisFunctions();
+        this->addMesh("cube_Test.hyb", numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors);
+        //this->meshes_[0]->useDefaultDGBasisFunctions();
 
         // Set the number of time integration vectors according to the size of the Butcher tableau.
         this->setNumberOfTimeIntegrationVectorsGlobally(this->globalNumberOfTimeIntegrationVectors_);
@@ -88,7 +88,7 @@ public:
         // Plot info about the mesh
         std::size_t nElements = this->meshes_[0]->getNumberOfElements();
         logger(VERBOSE, "Total number of elements: %", nElements);
-    }*/
+    }
 
     ///\brief set up the mesh
     ///
@@ -219,7 +219,7 @@ public:
     LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &p) override final
     {
         LinearAlgebra::MiddleSizeVector exactSolution(1);
-        exactSolution[0] = std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]);
+        exactSolution[0] = std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]) * std::cos(2 * M_PI * p[2]);
         return exactSolution;
     }
     
@@ -230,7 +230,7 @@ public:
     LinearAlgebra::MiddleSizeVector getSourceTerm(const PointPhysicalT &p) override final
     {
         LinearAlgebra::MiddleSizeVector sourceTerm(1);
-        sourceTerm[0] = (-8 * M_PI * M_PI) * std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]);
+        sourceTerm[0] = (-12 * M_PI * M_PI) * std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]) * std::cos(2 * M_PI * p[2]);
         return sourceTerm;
     }
     

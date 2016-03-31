@@ -50,6 +50,9 @@ void testRule(QuadratureRules::GaussQuadratureRule& test, std::size_t expectedOr
             const Geometry::PointReference<3>& point = test.getPoint(j);
             integrated += test.weight(j) * functions->eval(i, point);
         }
+        logger(INFO, "basisfunction %: integral equal to %", i, integrated);
+        std::cout.precision(14);
+        std::cout << integrated << std::endl;
         if (i < 4)
         {
             logger.assert_always((std::abs(integrated - 1. / 24.) < 1e-12), "integration");
@@ -274,6 +277,90 @@ void testRule(QuadratureRules::GaussQuadratureRule& test, std::size_t expectedOr
         {
             logger.assert_always((std::abs(integrated - 0.0000672472006580) < 1e-12), "integration");
         }
+        else if (i == 292 || i == 300 || i == 301 || i == 309 || i == 310 || i == 318 || i == 319 || i == 327)
+        {
+            logger.assert_always((std::abs(integrated - 5.14931664112e-05) < 1e-12), "integration");
+        }
+        else if (i == 293 || i == 299 || i == 302 || i == 308 || i == 311 || i == 317 || i == 320 || i == 326)
+        {
+            logger.assert_always((std::abs(integrated - 2.8582417092297e-05) < 1e-12), "integration");
+        }
+        else if (i == 294 || i == 298 || i == 303 || i == 307 || i == 312 || i == 316 || i == 321 || i == 325)
+        {
+            logger.assert_always((std::abs(integrated - 4.0844032070952e-05) < 1e-12), "integration");
+        }
+        else if (i == 295 || i == 297 || i == 304 || i == 306 || i == 313 || i == 315 || i == 322 || i == 324)
+        {
+            logger.assert_always((std::abs(integrated - 0.00029235353026667) < 1e-12), "integration");
+        }
+        else if (i == 296 || i == 305 || i == 314 || i == 323)
+        {
+            logger.assert_always((std::abs(integrated - 7.3784722222227e-05) < 1e-12), "integration");
+        }
+        else if (i == 329 || i == 361)
+        {
+            logger.assert_always((std::abs(integrated + 2.8185059836833e-05) < 1e-12), "integration");
+        }
+        else if (i == 330 || i == 358)
+        {
+            logger.assert_always((std::abs(integrated - 4.683069362493e-05) < 1e-12), "integration");
+        }
+        else if (i == 331 || i == 354)
+        {
+            logger.assert_always((std::abs(integrated + 1.8986467959551e-05) < 1e-12), "integration");
+        }
+        else if (i == 332 || i == 349)
+        {
+            logger.assert_always((std::abs(integrated - 1.8986467959551e-05) < 1e-12), "integration");
+        }
+        else if (i == 333 || i == 343)
+        {
+            logger.assert_always((std::abs(integrated + 4.683069362493e-05) < 1e-12), "integration");
+        }
+        else if (i == 334 || i == 336)
+        {
+            logger.assert_always((std::abs(integrated - 2.8185059836833e-05) < 1e-12), "integration");
+        }
+        else if (i == 338)
+        {
+            logger.assert_always((std::abs(integrated - 1.5213479827686e-05) < 1e-12), "integration");
+        }
+        else if (i == 339)
+        {
+            logger.assert_always((std::abs(integrated - 8.6382147622595e-07) < 1e-12), "integration");
+        }
+        else if (i == 340)
+        {
+            logger.assert_always((std::abs(integrated - 8.9569696700788e-06) < 1e-12), "integration");
+        }
+        else if (i == 344)
+        {
+            logger.assert_always((std::abs(integrated + 1.5213479827686e-05) < 1e-12), "integration");
+        }
+        else if (i == 346)
+        {
+            logger.assert_always((std::abs(integrated + 6.1166178806743e-06) < 1e-12), "integration");
+        }
+        else if (i == 347)
+        {
+            logger.assert_always((std::abs(integrated - 6.8580976727623e-06) < 1e-12), "integration");
+        }
+        else if (i == 350)
+        {
+            logger.assert_always((std::abs(integrated + 8.6382147622595e-07) < 1e-12), "integration");
+        }
+        else if (i == 351)
+        {
+            logger.assert_always((std::abs(integrated - 6.1166178806743e-06) < 1e-12), "integration");
+        }
+        else if (i == 355)
+        {
+            logger.assert_always((std::abs(integrated + 8.9569696700796e-06) < 1e-12), "integration");
+        }
+        else if (i == 356)
+        {
+            logger.assert_always((std::abs(integrated + 6.8580976727623e-06) < 1e-12), "integration");
+        }
         else
         {
             logger.assert_always((std::abs(integrated) < 1e-12), "integration");
@@ -296,8 +383,7 @@ int main()
     testRule(QuadratureRules::T3_7_31::Instance(), 7);
     testRule(QuadratureRules::T3_8_43::Instance(), 8);
     testRule(QuadratureRules::T3_9_53::Instance(), 9);
-    testRule(QuadratureRules::T3_10_126::Instance(), 10);
-    ///\todo implement 11th order quadrature
+    testRule(QuadratureRules::T3_10_126::Instance(), 11);
 
     return 0;
 }

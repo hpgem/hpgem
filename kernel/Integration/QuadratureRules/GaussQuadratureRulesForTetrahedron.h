@@ -282,6 +282,7 @@ namespace QuadratureRules
     };
     
 //---------------------------------------------------------------------------
+    //the class name lies, this is actually an 11th order rule
     class T3_10_126 : public GaussQuadratureRule
     {
     public:

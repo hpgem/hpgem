@@ -1001,7 +1001,7 @@ namespace QuadratureRules
     
     std::size_t T3_10_126::order() const
     {
-        return 10;
+        return 11;
     }
     
     std::size_t T3_10_126::dimension() const

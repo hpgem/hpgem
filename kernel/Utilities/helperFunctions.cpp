@@ -25,7 +25,8 @@
 #include "Geometry/PointReference.h"
 namespace Utilities
 {
-    
+
+    ///computes the lobatto polynomials. Excludes the (1-x*x) component
     double LobattoPolynomial(std::size_t degree, double x)
     {
         switch (degree)
@@ -49,10 +50,9 @@ namespace Utilities
             case 8:
                 return std::sqrt(19. / 2.) * ((((2431 * x * x - 4004) * x * x + 2002) * x * x - 308) * x * x + 7) / -64.;
             case 9:
-                logger(ERROR, "cannot find this degree.\n");\
-                break;
+                return std::sqrt(21. / 2.) * ((((4199 * x * x - 7956) * x * x + 4914) * x * x - 1092) * x * x + 63) * x / -64.;
             default:
-                logger(FATAL, "Lobatto polynomials of this order have not been implemented.\n");
+                return LegendrePolynomialDerivative(degree + 1, x);
         }
         //Be nice to the compiler and don't remove this.
         return 0;

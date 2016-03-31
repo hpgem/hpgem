@@ -50,6 +50,7 @@ void testRule(QuadratureRules::GaussQuadratureRule& test, std::size_t expectedOr
             const Geometry::PointReference<2>& point = test.getPoint(j);
             integrated += test.weight(j) * functions->eval(i, point);
         }
+        logger(INFO, "basisfunction %: integral equal to %", i, integrated);
         if (i < 3)
         {
             logger.assert_always((std::abs(integrated - 1. / 6.) < 1e-12), "integration");
@@ -162,6 +163,26 @@ void testRule(QuadratureRules::GaussQuadratureRule& test, std::size_t expectedOr
         {
             logger.assert_always((std::abs(integrated + 0.0000445921151835) < 1e-12), "integration");
         }
+        else if (i == 66 || i == 74)
+        {
+            logger.assert_always((std::abs(integrated - 0.00010922792875103) < 1e-12), "integration");
+        }
+        else if (i == 67 || i == 73)
+        {
+            logger.assert_always((std::abs(integrated - 6.6692306548705e-05) < 1e-12), "integration");
+        }
+        else if (i == 68 || i == 72)
+        {
+            logger.assert_always((std::abs(integrated + 5.5593265874347e-05) < 1e-12), "integration");
+        }
+        else if (i == 69 || i == 71)
+        {
+            logger.assert_always((std::abs(integrated - 0.0018449672212449) < 1e-12), "integration");
+        }
+        else if (i == 70)
+        {
+            logger.assert_always((std::abs(integrated - 0.00021701388888889) < 1e-12), "integration");
+        }
         else
         {
             logger.assert_always((std::abs(integrated) < 1e-12), "integration");
@@ -185,7 +206,7 @@ int main()
     testRule(QuadratureRules::T2_8_16::Instance(), 8);
     testRule(QuadratureRules::T2_9_19::Instance(), 9);
     testRule(QuadratureRules::T2_10_25::Instance(), 10);
-    testRule(QuadratureRules::T2_11_28::Instance(), 10); ///\BUG there are no 11th order polynomials yet...
+    testRule(QuadratureRules::T2_11_28::Instance(), 11);
             
     return 0;
 }

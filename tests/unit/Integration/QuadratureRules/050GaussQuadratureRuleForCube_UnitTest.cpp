@@ -85,7 +85,7 @@ int main()
     testRule(QuadratureRules::Cn3_5_9::Instance(), 5);
     testRule(QuadratureRules::C3_7_2::Instance(), 7);
     testRule(QuadratureRules::C3_9_2::Instance(), 9);
-    testRule(QuadratureRules::C3_11_2::Instance(), 10); ///\BUG there are no 11th order polynomials yet...
+    testRule(QuadratureRules::C3_11_2::Instance(), 11);
             
     return 0;
 }

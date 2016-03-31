@@ -26,19 +26,48 @@
 #include "MappingToRefCubeToCube.h"
 #include "MappingToRefSquareToCube.h"
 #include "MappingToRefTriangleToTetrahedron.h"
+#include "MappingToRefFaceToTriangularPrism.h"
+#include "MappingToRefFaceToPyramid.h"
 #include <typeinfo>
 #include <limits>
 
 namespace Geometry
 {
-    double OutwardNormalVectorSign(const MappingReferenceToReference<1>* const map)
+    double OutwardNormalVectorSign(const MappingReferenceToReference<1> *const map)
     {
-        logger.assert(map!=nullptr, "Invalid mapping passed");
-        if (typeid(*map) == typeid(const MappingToRefPointToLine0) || typeid(*map) == typeid(const MappingToRefLineToTriangle0) || typeid(*map) == typeid(const MappingToRefLineToTriangle2) || typeid(*map) == typeid(const MappingToRefLineToSquare0) || typeid(*map) == typeid(const MappingToRefLineToSquare2) || typeid(*map) == typeid(const MappingToRefSquareToCube0) || typeid(*map) == typeid(const MappingToRefSquareToCube2) || typeid(*map) == typeid(const MappingToRefSquareToCube4))
+        logger.assert(map != nullptr, "Invalid mapping passed");
+        if (typeid(*map) == typeid(const MappingToRefPointToLine0) ||
+            typeid(*map) == typeid(const MappingToRefLineToTriangle0) ||
+            typeid(*map) == typeid(const MappingToRefLineToTriangle2) ||
+            typeid(*map) == typeid(const MappingToRefLineToSquare0) ||
+            typeid(*map) == typeid(const MappingToRefLineToSquare2) ||
+            typeid(*map) == typeid(const MappingToRefSquareToCube0) ||
+            typeid(*map) == typeid(const MappingToRefSquareToCube2) ||
+            typeid(*map) == typeid(const MappingToRefSquareToCube4))
         {
             return -1;
         }
-        else if (typeid(*map) == typeid(const MappingToRefPointToLine1) || typeid(*map) == typeid(const MappingToRefLineToTriangle1) || typeid(*map) == typeid(const MappingToRefLineToSquare1) || typeid(*map) == typeid(const MappingToRefLineToSquare3) || typeid(*map) == typeid(const MappingToRefSquareToCube1) || typeid(*map) == typeid(const MappingToRefSquareToCube3) || typeid(*map) == typeid(const MappingToRefSquareToCube5) || typeid(*map) == typeid(const MappingToRefTriangleToTetrahedron0) || typeid(*map) == typeid(const MappingToRefTriangleToTetrahedron1) || typeid(*map) == typeid(const MappingToRefTriangleToTetrahedron2) || typeid(*map) == typeid(const MappingToRefTriangleToTetrahedron3))
+        else if (typeid(*map) == typeid(const MappingToRefPointToLine1) ||
+                 typeid(*map) == typeid(const MappingToRefLineToTriangle1) ||
+                 typeid(*map) == typeid(const MappingToRefLineToSquare1) ||
+                 typeid(*map) == typeid(const MappingToRefLineToSquare3) ||
+                 typeid(*map) == typeid(const MappingToRefSquareToCube1) ||
+                 typeid(*map) == typeid(const MappingToRefSquareToCube3) ||
+                 typeid(*map) == typeid(const MappingToRefSquareToCube5) ||
+                 typeid(*map) == typeid(const MappingToRefTriangleToTetrahedron0) ||
+                 typeid(*map) == typeid(const MappingToRefTriangleToTetrahedron1) ||
+                 typeid(*map) == typeid(const MappingToRefTriangleToTetrahedron2) ||
+                 typeid(*map) == typeid(const MappingToRefTriangleToTetrahedron3) ||
+                 typeid(*map) == typeid(const MappingToRefFaceToTriangularPrism0) ||
+                 typeid(*map) == typeid(const MappingToRefFaceToTriangularPrism1) ||
+                 typeid(*map) == typeid(const MappingToRefFaceToTriangularPrism2) ||
+                 typeid(*map) == typeid(const MappingToRefFaceToTriangularPrism3) ||
+                 typeid(*map) == typeid(const MappingToRefFaceToTriangularPrism4) ||
+                 typeid(*map) == typeid(const MappingToRefFaceToPyramid0) ||
+                 typeid(*map) == typeid(const MappingToRefFaceToPyramid1) ||
+                 typeid(*map) == typeid(const MappingToRefFaceToPyramid2) ||
+                 typeid(*map) == typeid(const MappingToRefFaceToPyramid3) ||
+                 typeid(*map) == typeid(const MappingToRefFaceToPyramid4))
         {
             return 1;
         }

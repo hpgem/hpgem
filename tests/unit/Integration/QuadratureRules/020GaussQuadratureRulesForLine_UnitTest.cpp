@@ -51,6 +51,7 @@ void testRule(QuadratureRules::GaussQuadratureRule& test, std::size_t expectedOr
             const Geometry::PointReference<1>& point = test.getPoint(j);
             integrated += test.weight(j) * functions->eval(i, point);
         }
+        logger(INFO, "basisfunction %: integral equal to %", i, integrated);
         if (i < 2)
         {
             logger.assert_always((std::abs(integrated - 1) < 1e-12), "integration");
@@ -77,7 +78,7 @@ int main()
     testRule(QuadratureRules::Cn1_5_3::Instance(), 5);
     testRule(QuadratureRules::C1_7_4::Instance(), 7);
     testRule(QuadratureRules::C1_9_5::Instance(), 9);
-    testRule(QuadratureRules::C1_11_6::Instance(), 10); ///\BUG there are no 11th order polynomials yet...
+    testRule(QuadratureRules::C1_11_6::Instance(), 11);
             
     return 0;
 }
