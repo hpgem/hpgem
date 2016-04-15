@@ -2720,7 +2720,7 @@ namespace Base
 
         faceFactory();
         edgeFactory();
-
+        getElementsList();
     }
 
 #ifdef HPGEM_USE_QHULL
