@@ -47,6 +47,7 @@ namespace Base
     extern CommandLineOption<double>& startTime;
     extern CommandLineOption<double>& endTime;
     extern CommandLineOption<double>& dt;
+    extern CommandLineOption<double>& error;
     extern CommandLineOption<std::size_t>& numberOfSnapshots;
     
     /// \brief Simplified Interface for solving PDE's.
@@ -97,7 +98,7 @@ namespace Base
         (
          const std::size_t numberOfUnknowns,
          const std::size_t polynomialOrder,
-         const TimeIntegration::ButcherTableau * const ptrButcherTableau = TimeIntegration::AllTimeIntegrators::Instance().getRule(4, 4),
+         const TimeIntegration::ButcherTableau * const ptrButcherTableau = TimeIntegration::AllTimeIntegrators::Instance().getRule(5, 7),
          const std::size_t numberOfTimeLevels = 0,
          const bool computeBothFaces = false
          );
@@ -260,6 +261,8 @@ namespace Base
         /// \brief scale and add a certain time integration vector and add it to another time integration vector.
         virtual void scaleAndAddVector(const std::size_t vectorToChangeId, const std::size_t vectorToAddId, const double scale);
 
+        virtual std::tuple<double, double> computeErrorAndNormOfUpdate(double dt);
+
         /// \brief Set the initial numerical solution (w at t=0).
         virtual void setInitialSolution(const std::size_t solutionVectorId, const double startTime, const std::size_t orderTimeDerivative);
 
@@ -268,9 +271,12 @@ namespace Base
 
         /// \brief Compute the time derivative for a given linear combination of solutions at different time levels.
         virtual void computeTimeDerivative(const std::vector<std::size_t> inputVectorIds, const std::vector<double> coefficientsInputVectors, const std::size_t resultVectorId, const double time);
-        
+
         /// \brief Compute one time step, using a Runge-Kutta scheme.
         virtual void computeOneTimeStep(double &time, const double dt);
+
+        /// \brief Compute one time step, using a Runge-Kutta scheme that has an error estimator.
+        virtual void computeOneTimeStep(double &time, const double maxRelativeError, const double dtMax);
         
         /// \brief Set output names.
         virtual void setOutputNames(std::string outputFileName, std::string internalFileTitle, std::string solutionTitle, std::vector<std::string> variableNames);

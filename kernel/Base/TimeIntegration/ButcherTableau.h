@@ -23,6 +23,7 @@
 #define	BUTCHERTABLEAU_HPP
 
 #include <vector>
+#include "Logger.h"
 
 namespace TimeIntegration
 {
@@ -47,9 +48,18 @@ namespace TimeIntegration
         virtual double getA(std::size_t i, std::size_t j) const = 0;
         virtual double getB(std::size_t i) const = 0;
         virtual double getC(std::size_t i) const = 0;
-        virtual ~ButcherTableau()
+        virtual bool hasErrorEstimate() const
         {
+            return false;
         }
+        ///returns an expansion coefficient ('b'), execpt this one is used to construct the error in the time derivative, rather than the time derivative
+        virtual double getErrorCoefficient(std::size_t i) const
+        {
+            logger.assert(!hasErrorEstimate(), "This butcher tableau promises to implement getErrorCoefficient, but fails to do so.");
+            logger(ERROR, "This Butcher tableau does not know how to estimate errors");
+            return 0.;
+        }
+        virtual ~ButcherTableau() = default;
     };
 }
 

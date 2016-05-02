@@ -110,7 +110,7 @@ namespace Base
         void setTimeIntegrationSubvector(std::size_t timeIntegrationVectorId, std::size_t unknown, LinearAlgebra::MiddleSizeVector val);
     
         /// \brief Return the value corresponding to the given time integration vector index, unknown (variable id) and basis function index
-        LinearAlgebra::MiddleSizeVector::type getTimeIntegrationData(std::size_t timeIntegrationVectorId, std::size_t unknown, std::size_t basisFunction);
+        LinearAlgebra::MiddleSizeVector::type getTimeIntegrationData(std::size_t timeIntegrationVectorId, std::size_t unknown, std::size_t basisFunction) const;
         
         /// \brief Set the value corresponding to the given time integration vector index, unknown (variable id) and basis function index
         void setTimeIntegrationData(std::size_t timeIntegrationVectorId, std::size_t unknown, std::size_t basisFunction, LinearAlgebra::MiddleSizeVector::type val);

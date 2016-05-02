@@ -23,6 +23,8 @@
 #include "ButcherTableau.h"
 #include "RK4Methods.h"
 #include "ForwardEuler.h"
+#include "DormandPrince.h"
+#include "BogackiShampine.h"
 #include "MidPoint.h"
 #include "RK2TVD.h"
 #include "RK3TVD.h"
@@ -37,6 +39,8 @@ namespace TimeIntegration
         vecOfIntegrators_.push_back(&RK2TVD::instance());
         vecOfIntegrators_.push_back(&RK3TVD::instance());
         vecOfIntegrators_.push_back(&RK4_4::instance());
+        vecOfIntegrators_.push_back(&DormandPrince::instance());
+        vecOfIntegrators_.push_back(&BogackiShampine::instance());
 
     }
     
@@ -56,13 +60,17 @@ namespace TimeIntegration
             {
                 return rule;
             }
+        }
+        for(ButcherTableau* rule : vecOfIntegrators_)
+        {
 
             // Relax the given TVD condition to find a rule that satisfies the order and stages
             if( rule->getOrder() == order && rule->getNumberOfStages() == numberOfStages && rule->getTotalVariationDiminishing() != totalVariationDiminishing)
             {
-            	logger(WARN,"Warning: The TVD specification for your rule does not exist. Using an existing rule with the same order and stage instead. ");
-            	return rule;
+                logger(WARN,"Warning: The TVD specification for your rule does not exist. Using an existing rule with the same order and stage instead. ");
+                return rule;
             }
+
         }
 
         logger(ERROR, "Could not find the Runge Kutta method you're looking for.");

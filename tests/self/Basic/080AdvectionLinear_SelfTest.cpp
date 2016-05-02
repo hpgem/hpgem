@@ -224,7 +224,7 @@ int main(int argc, char **argv)
         0.00236532,
         4.79497e-05,
         7.70023e-05,
-        0.00368729,
+        0.00368731,
         0.00187681,
         0.000534851,
         0.00053317
@@ -259,21 +259,21 @@ int main(int argc, char **argv)
         {
             AdvectionLinear<1> test(n[i], p[i], meshType);
             error = test.createAndSolve(T[i], nT[i]);
-            logger(DEBUG, "Error: % (expected %)", error, errors[i]);
+            logger(INFO, "Error: % (expected %)", error, errors[i]);
             logger.assert_always((std::abs(error - errors[i]) < 1e-8), "comparison to old results");
         }
         else if(dim[i] == 2)
         {
             AdvectionLinear<2> test(n[i], p[i], meshType);
             error = test.createAndSolve(T[i], nT[i]);
-            logger(DEBUG, "Error: % (expected %)", error, errors[i]);
+            logger(INFO, "Error: % (expected %)", error, errors[i]);
             logger.assert_always((std::abs(error - errors[i]) < 1e-8), "comparison to old results");
         }
         else
         {
             AdvectionLinear<3> test(n[i], p[i], meshType);
             error = test.createAndSolve(T[i], nT[i]);
-            logger(DEBUG, "Error: % (expected %)", error, errors[i]);
+            logger(INFO, "Error: % (expected %)", error, errors[i]);
             logger.assert_always((std::abs(error - errors[i]) < 1e-8), "comparison to old results");
         }
         

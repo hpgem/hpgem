@@ -40,8 +40,12 @@ RK2TVD::RK2TVD()
     //make b_ and c_
     b_ =
     {   0.5, 0.5};
+    //first order coefficients
+    //{1., 0.}
     c_ =
     {   0.0, 0.0};
+    error_ =
+    {  -0.5, 0.5};
 
 }
 
@@ -77,6 +81,13 @@ double RK2TVD::getC(std::size_t i) const
 {
     logger.assert(i<getNumberOfStages(), "Asked for stage %, but there are only % stages", i, getNumberOfStages());
     return c_[i];
+}
+
+double RK2TVD::getErrorCoefficient(std::size_t i) const
+{
+
+    logger.assert(i<getNumberOfStages(), "Asked for stage %, but there are only % stages", i, getNumberOfStages());
+    return error_[i];
 }
 
 } /* namespace Base */

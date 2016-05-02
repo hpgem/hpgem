@@ -571,6 +571,25 @@ namespace Base
     }
 
     template<std::size_t DIM>
+    std::tuple<double, double> HpgemAPISimplified<DIM>::computeErrorAndNormOfUpdate(double dt)
+    {
+        double error = 0.;
+        double norm = 0.;
+        for(Base::Element* element : this->meshes_[0]->getElementsList())
+        {
+            norm += Base::L2Norm(element->getTimeIntegrationVector(solutionVectorId_));
+            LinearAlgebra::MiddleSizeVector deviation(element->getNumberOfBasisFunctions() * element->getNumberOfUnknowns());
+            deviation *= 0.;
+            for(std::size_t i = 0; i < ptrButcherTableau_->getNumberOfStages(); ++i)
+            {
+                deviation += element->getTimeIntegrationVector(auxiliaryVectorIds_[i]) * dt * ptrButcherTableau_->getErrorCoefficient(i);
+            }
+            error += std::pow(Base::L2Norm(deviation), 2.);
+        }
+        return std::make_tuple(std::sqrt(error), norm);
+    }
+
+    template<std::size_t DIM>
     void HpgemAPISimplified<DIM>::setInitialSolution(const std::size_t solutionVectorId, const double initialTime, const std::size_t orderTimeDerivative)
     {
         integrateInitialSolution(solutionVectorId, initialTime, orderTimeDerivative);
@@ -627,7 +646,35 @@ namespace Base
         // Update the time.
         time += dt;
     }
-    
+
+    template<std::size_t DIM>
+    void HpgemAPISimplified<DIM>::computeOneTimeStep(double &time, const double maximumRelativeError,
+                                                     const double dtMax)
+    {
+        logger.assert(ptrButcherTableau_->hasErrorEstimate(), "Can only use an adaptive time step with an embedded butcher tableau");
+        static double dtEstimate = dt.getValue();
+        double dt = dtEstimate;
+        if(dt > dtMax) dt = dtMax;
+        double currentError = std::numeric_limits<double>::infinity();
+        double solutionNorm = 0;
+        //cancel division in the first iteration
+        dt *= 2.;
+        while(maximumRelativeError * solutionNorm < currentError || std::isinf(currentError))
+        {
+            dt /= 2.;
+            double timeCopy = time;
+
+            //do a step, except don't update the time yet (we may need to rewind if the error is too large)
+            computeOneTimeStep(timeCopy, dt);
+            std::tie(currentError, solutionNorm) = computeErrorAndNormOfUpdate(dt);
+        }
+        dtEstimate = 0.9 * dt * std::pow(maximumRelativeError/currentError * solutionNorm, 1./ptrButcherTableau_->getOrder());
+        logger(VERBOSE, "dt: %; new estimate: %", dt, dtEstimate);
+        time += dt;
+    }
+
+
+
     /// \param[in] outputFileName Name of the output file (minus extensions like .dat).
     /// \param[in] internalFileTitle Title of the file as used by Tecplot internally.
     /// \param[in] solutionTitle Title of the solution.
@@ -690,7 +737,7 @@ namespace Base
         
         // Create output files for Paraview.
         const std::string outputFileNameVTK = outputFileName_;
-        
+
         registerVTKWriteFunctions();
         Output::VTKTimeDependentWriter<DIM> VTKWriter(outputFileNameVTK, this->meshes_[0]);
         
@@ -718,6 +765,10 @@ namespace Base
         
         // Compute parameters for time integration
         const double T = finalTime - initialTime;     // Time interval
+        const double outputDt = T / numberOfOutputFrames;
+        double outputTime = outputDt + initialTime;
+
+        //prefer a constant time step for non-adaptive time-stepping
         std::size_t numberOfTimeSteps = std::ceil(T / dt);
         std::size_t numberOfTimeStepsForOutput;
         if (numberOfOutputFrames > 0)
@@ -731,11 +782,13 @@ namespace Base
             // Compute the number of timesteps after which to create an output frame.
             numberOfTimeStepsForOutput = (std::size_t) (numberOfTimeSteps / numberOfOutputFrames);
         }
-        else
+
+        //if the user wants an adaptive time step, the default of 0.01 for dt is silly
+        if(!::Base::dt.isUsed() && error.isUsed())
         {
-            // Set the number of timesteps after which to create an output frame higher then the total number of time steps.
-            numberOfTimeStepsForOutput = numberOfTimeSteps + 1;
+            dt = std::numeric_limits<double>::infinity();
         }
+        double maximumRelativeError = error.getValue();
         
         // Set the initial time.
         double time = initialTime;
@@ -751,25 +804,38 @@ namespace Base
         
         // Solve the system of PDE's.
         logger(INFO,"Solving the system of PDE's.");
-        logger(INFO, "dt: %.", dt);
-        logger(INFO, "Total number of time steps: %.", numberOfTimeSteps);
+        logger(INFO, "Maximum time step: %.", dt);
+        logger(INFO, "Maximum relative error: %.", maximumRelativeError);
+        logger(INFO, "Minimum number of time steps: %.", numberOfTimeSteps);
         if(numberOfOutputFrames > 0)
         {
-            logger(INFO, "Number of time steps for output: %.", numberOfTimeStepsForOutput);
+            logger(INFO, "Minimum number of time steps for output: %.", numberOfTimeStepsForOutput);
         }
-        for (std::size_t iT = 1; iT <= numberOfTimeSteps; iT++)
+        std::size_t actualNumberOfTimeSteps = 0;
+        while(time < finalTime - 1e-14)
         {
-            computeOneTimeStep(time, dt);
-            
-            if(numberOfOutputFrames > 0)
+            actualNumberOfTimeSteps++;
+            if(error.isUsed())
             {
-                if (iT % numberOfTimeStepsForOutput == 0)
-                {
-                    tecplotWriter.write(this->meshes_[0], solutionTitle_, false, this, time);
-                    VTKWrite(VTKWriter, time, solutionVectorId_);
-                }
+                computeOneTimeStep(time, maximumRelativeError, std::min(std::min(dt, outputTime - time), finalTime - time));
             }
-            showProgress(time, iT);
+            else
+            {
+                computeOneTimeStep(time, dt);
+            }
+
+            if (time > outputTime - 1e-12)
+            {
+                outputTime += outputDt;
+                tecplotWriter.write(this->meshes_[0], solutionTitle_, false, this, time);
+                VTKWrite(VTKWriter, time, solutionVectorId_);
+            }
+            showProgress(time, actualNumberOfTimeSteps);
+        }
+        logger(INFO, "Actual number of time steps: %.", actualNumberOfTimeSteps);
+        if(error.isUsed())
+        {
+            logger(INFO, "Maximal relative error induced by time stepping: %", std::pow(1. + maximumRelativeError, actualNumberOfTimeSteps) - 1.);
         }
         
         tasksAfterSolving();

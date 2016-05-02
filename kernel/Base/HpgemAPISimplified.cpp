@@ -28,6 +28,7 @@ namespace Base
     CommandLineOption<std::size_t>& numberOfSnapshots = Base::register_argument<std::size_t>(0, "nOutputFrames", "Number of frames to output", false, 1);
     CommandLineOption<double>& endTime = Base::register_argument<double>(0, "endTime", "end time of the simulation", false, 1);
     CommandLineOption<double>& startTime = Base::register_argument<double>(0, "startTime", "start time of the simulation", false, 0);
-    CommandLineOption<double>& dt = Base::register_argument<double>(0, "dt", "time step of the simulation", false, 0.01);
+    CommandLineOption<double>& dt = Base::register_argument<double>(0, "dt", "maximum time step of the simulation", false, 0.01);
+    CommandLineOption<double>& error = Base::register_argument<double>(0, "error", "maximum acceptable relative error per time step", false, std::numeric_limits<double>::infinity());
     CommandLineOption<std::string>& outputName = Base::register_argument<std::string>(0, "outFile", "Name of the output file (without extentions)", false, "output");
 }

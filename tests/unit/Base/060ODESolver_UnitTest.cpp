@@ -30,107 +30,136 @@ double executeOneTimeStep(const TimeIntegration::ButcherTableau *integrator, dou
     return newVal;
 }
 
+double executeOneTimeStep(const TimeIntegration::ButcherTableau *integrator, double u, double maximumRelativeError, double& dt, double dtMax)
+{
+    //estimate from previous time step
+    static double dtEstimate = dt;
+    dt = dtEstimate;
+    if(dt > dtMax)
+    {
+        dt = dtMax;
+    }
+    logger.assert(integrator->hasErrorEstimate(), "Cannot use dynamic time stepping if the butcher tableau has no error estimator");
+    double currentError = std::numeric_limits<double>::infinity();
+    double result = u;
+    //cancel first loop
+    dt *= 2.;
+    while (maximumRelativeError * std::abs(result) < currentError || std::isinf(currentError))
+    {
+        dt /= 2.;
+        std::vector<double> k;
+        //iterate over the stages of the Runge Kutta method, compute temporary solutions
+        for (std::size_t level = 0; level < integrator->getNumberOfStages(); ++level)
+        {
+            double kNew = u;
+            for (std::size_t i = 0; i < level; ++i)
+            {
+                kNew += integrator->getA(level, i) * k[i] * dt;
+            }
+            k.push_back(kNew);
+        }
+        result = u;
+        double difference = 0;
+        for (std::size_t i = 0; i < integrator->getNumberOfStages(); ++i)
+        {
+            result += dt * (integrator->getB(i)) * k[i];
+            difference += dt * integrator->getErrorCoefficient(i) * k[i];
+        }
+        currentError = std::abs(difference);
+    }
+    dtEstimate = 0.9 * dt * std::pow(maximumRelativeError/currentError * std::abs(result), 1./integrator->getOrder());
+    logger(INFO, "dt: %; new estimate: %", dt, dtEstimate);
+    return result;
+}
+
 int main()
 {
-    const TimeIntegration::ButcherTableau *integrator1 = TimeIntegration::AllTimeIntegrators::Instance().getRule(1, 1);
-    const TimeIntegration::ButcherTableau *integrator2 = TimeIntegration::AllTimeIntegrators::Instance().getRule(2, 2);
-    const TimeIntegration::ButcherTableau *integrator4 = TimeIntegration::AllTimeIntegrators::Instance().getRule(4, 4);
-    const TimeIntegration::ButcherTableau *integrator1Tvd = TimeIntegration::AllTimeIntegrators::Instance().getRule(1, 1, true);
-    const TimeIntegration::ButcherTableau *integrator2Tvd = TimeIntegration::AllTimeIntegrators::Instance().getRule(2, 2, true);
-    const TimeIntegration::ButcherTableau *integrator3Tvd = TimeIntegration::AllTimeIntegrators::Instance().getRule(3, 3, true);
-    
-    double dt = 0.04;
-    double u1 = 1;
-    double u2 = 1;
-    double u4 = 1;
-    double u1Tvd = 1;
-    double u2Tvd = 1;
-    double u3Tvd = 1;
-    for (double t = 0; t < 1; t += dt)
-    {
-        u1 = executeOneTimeStep(integrator1, u1, dt);
-        u2 = executeOneTimeStep(integrator2, u2, dt);
-        u4 = executeOneTimeStep(integrator4, u4, dt);
-        u1Tvd = executeOneTimeStep(integrator1Tvd, u1Tvd, dt);
-        u2Tvd = executeOneTimeStep(integrator2Tvd, u2Tvd, dt);
-        u3Tvd = executeOneTimeStep(integrator3Tvd, u3Tvd, dt);
-    }
-    
-    double error11 = std::abs(std::exp(1) - u1);
-    double error21 = std::abs(std::exp(1) - u2);
-    double error41 = std::abs(std::exp(1) - u4);
-    double error1Tvd1 = std::abs(std::exp(1) - u1Tvd);
-    double error2Tvd1 = std::abs(std::exp(1) - u2Tvd);
-    double error3Tvd1 = std::abs(std::exp(1) - u3Tvd);
-    
-    dt /= 2;
-    u1 = 1;
-    u2 = 1;
-    u4 = 1;
-    u1Tvd = 1;
-    u2Tvd = 1;
-    u3Tvd = 1;
-    for (double t = 0; t < 1; t += dt)
-    {
-        u1 = executeOneTimeStep(integrator1, u1, dt);
-        u2 = executeOneTimeStep(integrator2, u2, dt);
-        u4 = executeOneTimeStep(integrator4, u4, dt);
-        u1Tvd = executeOneTimeStep(integrator1, u1Tvd, dt);
-        u2Tvd = executeOneTimeStep(integrator2Tvd, u2Tvd, dt);
-        u3Tvd = executeOneTimeStep(integrator3Tvd, u3Tvd, dt);
-    }
-    
-    double error12 = std::abs(std::exp(1) - u1);
-    double error22 = std::abs(std::exp(1) - u2);
-    double error42 = std::abs(std::exp(1) - u4);
-    double error1Tvd2 = std::abs(std::exp(1) - u1Tvd);
-    double error2Tvd2 = std::abs(std::exp(1) - u2Tvd);
-    double error3Tvd2 = std::abs(std::exp(1) - u3Tvd);
-    
-    dt /= 2;
-    u1 = 1;
-    u2 = 1;
-    u4 = 1;
-    u1Tvd = 1;
-    u2Tvd = 1;
-    u3Tvd = 1;
-    for (double t = 0; t < 1; t += dt)
-    {
-        u1 = executeOneTimeStep(integrator1, u1, dt);
-        u2 = executeOneTimeStep(integrator2, u2, dt);
-        u4 = executeOneTimeStep(integrator4, u4, dt);
-        u1Tvd = executeOneTimeStep(integrator1Tvd, u1Tvd, dt);
-        u2Tvd = executeOneTimeStep(integrator2Tvd, u2Tvd, dt);
-        u3Tvd = executeOneTimeStep(integrator3Tvd, u3Tvd, dt);
-    }
-    
-    double error13 = std::abs(std::exp(1) - u1);
-    double error23 = std::abs(std::exp(1) - u2);
-    double error43 = std::abs(std::exp(1) - u4);
-    double error1Tvd3 = std::abs(std::exp(1) - u1Tvd);
-    double error2Tvd3 = std::abs(std::exp(1) - u2Tvd);
-    double error3Tvd3 = std::abs(std::exp(1) - u3Tvd);
-    
-    //the first order methods should return error1/error2 = 2
-    logger.assert_always(error11 / error12 > 1.5 && error11 / error12 < 2.5, "First order");
-    logger.assert_always(error12 / error13 > 1.5 && error12 / error13 < 2.5, "First order");
-    
-    logger.assert_always(error1Tvd1 / error1Tvd2 > 1.5 && error1Tvd1 / error1Tvd2 < 2.5, "First order");
-    logger.assert_always(error1Tvd2 / error1Tvd3 > 1.5 && error1Tvd2 / error1Tvd3 < 2.5, "First order");
+    std::vector<const TimeIntegration::ButcherTableau*> integrators{
+            TimeIntegration::AllTimeIntegrators::Instance().getRule(1, 1),
+            TimeIntegration::AllTimeIntegrators::Instance().getRule(2, 2),
+            TimeIntegration::AllTimeIntegrators::Instance().getRule(3, 4),
+            TimeIntegration::AllTimeIntegrators::Instance().getRule(4, 4),
+            TimeIntegration::AllTimeIntegrators::Instance().getRule(5, 7),
+            TimeIntegration::AllTimeIntegrators::Instance().getRule(1, 1, true),
+            TimeIntegration::AllTimeIntegrators::Instance().getRule(2, 2, true),
+            TimeIntegration::AllTimeIntegrators::Instance().getRule(3, 3, true)
+    };
 
-    //the second order methods should return error1/error2 = 4
-    logger.assert_always(error21 / error22 > 3.5 && error21 / error22 < 4.5, "Second order");
-    logger.assert_always(error22 / error23 > 3.5 && error22 / error23 < 4.5, "Second order");
-    
-    logger.assert_always(error2Tvd1 / error2Tvd2 > 3.5 && error2Tvd1 / error2Tvd2 < 4.5, "Second order");
-    logger.assert_always(error2Tvd2 / error2Tvd3 > 3.5 && error2Tvd2 / error2Tvd3 < 4.5, "Second order");
-
-    //the third order methods should return error1/error2 = 8
-    logger.assert_always(error3Tvd1 / error3Tvd2 > 7.5 && error3Tvd1 / error3Tvd2 < 8.5, "Second order");
-    logger.assert_always(error3Tvd2 / error3Tvd3 > 7.5 && error3Tvd2 / error3Tvd3 < 8.5, "Second order");
-
-    //the fourth order methods should return error1/error2 = 16
-    logger.assert_always(error41 / error42 > 15.5 && error41 / error42 < 16.5, "Fourth order");
-    logger.assert_always(error42 / error43 > 15.5 && error42 / error43 < 16.5, "Fourth order");
+    for(auto integrator : integrators)
+    {
+        double dt = 0.04;
+        double u = 1;
+        for(double t = 0; t < 1; t += dt)
+        {
+            u = executeOneTimeStep(integrator, u, dt);
+        }
+        double error1 = std::abs(std::exp(1.) - u);
+        dt /= 2.;
+        u = 1;
+        for(double t = 0; t < 1; t += dt)
+        {
+            u = executeOneTimeStep(integrator, u, dt);
+        }
+        double error2 = std::abs(std::exp(1.) - u);
+        dt /= 2.;
+        u = 1;
+        for(double t = 0; t < 1; t += dt)
+        {
+            u = executeOneTimeStep(integrator, u, dt);
+        }
+        double error3 = std::abs(std::exp(1.) - u);
+        double expectedRatio = std::pow(2., integrator->getOrder());
+        logger.assert_always(error1 / error2 > expectedRatio * 0.875 && error1 / error2 < expectedRatio * 1.25, "% stage% time integrator of order % (with ratio %)",
+                             integrator->getNumberOfStages(),
+                             integrator->getTotalVariationDiminishing()?" tvd":"",
+                             integrator->getOrder(), error1 / error2);
+        logger.assert_always(error2 / error3 > expectedRatio * 0.875 && error2 / error3 < expectedRatio * 1.25, "% stage% time integrator of order % (with ratio %)",
+                             integrator->getNumberOfStages(),
+                             integrator->getTotalVariationDiminishing()?" tvd":"",
+                             integrator->getOrder(), error2 / error3);
+        if(integrator->hasErrorEstimate())
+        {
+            double dtMax = 1.;
+            double maxError = std::numeric_limits<double>::infinity();
+            dt = 0.04;
+            u = 1;
+            double t = 0;
+            while(t < 1 - 1e-14)
+            {
+                double uOld = u;
+                u = executeOneTimeStep(integrator, u, maxError, dt, dtMax);
+                logger.assert_always(std::abs(uOld * std::exp(dt) - u) < maxError * std::abs(u), "% stage% time integrator of order % exceeded error tolerance (error was %, but should be < %)",
+                                     integrator->getNumberOfStages(),
+                                     integrator->getTotalVariationDiminishing()?" tvd":"",
+                                     integrator->getOrder(),std::abs(uOld * std::exp(dt) - u),maxError);
+                logger.assert_always(dt < dtMax + 1e-14, "% stage% time integrator of order % used a larger time step than the maximum allowed (time step was %, but should be < %)",
+                                     integrator->getNumberOfStages(),
+                                     integrator->getTotalVariationDiminishing()?" tvd":"",
+                                     integrator->getOrder(), dt, dtMax);
+                t += dt;
+                dtMax = 1 - t;
+            }
+            maxError = 1e-10;
+            dtMax = 1.;
+            dt = 0.04;
+            t = 0;
+            u = 1;
+            while(t < 1 - 1e-14)
+            {
+                double uOld = u;
+                u = executeOneTimeStep(integrator, u, maxError, dt, dtMax);
+                logger.assert_always(std::abs(uOld * std::exp(dt) - u) < maxError * std::abs(u), "% stage% time integrator of order % exceeded error tolerance (error was %, but should be < %)",
+                                     integrator->getNumberOfStages(),
+                                     integrator->getTotalVariationDiminishing()?" tvd":"",
+                                     integrator->getOrder(),std::abs(uOld * std::exp(dt) - u),maxError);
+                logger.assert_always(dt < dtMax + 1e-14, "% stage% time integrator of order % used a larger time step than the maximum allowed (time step was %, but should be < %)",
+                                     integrator->getNumberOfStages(),
+                                     integrator->getTotalVariationDiminishing()?" tvd":"",
+                                     integrator->getOrder(), dt, dtMax);
+                t += dt;
+                dtMax = 1 - t;
+            }
+        }
+    }
     return 0;
 }

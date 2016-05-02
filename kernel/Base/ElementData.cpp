@@ -290,7 +290,7 @@ namespace Base
         }
     }
     
-    LinearAlgebra::MiddleSizeVector::type ElementData::getTimeIntegrationData(std::size_t timeIntegrationVectorId, std::size_t unknown, std::size_t basisFunction)
+    LinearAlgebra::MiddleSizeVector::type ElementData::getTimeIntegrationData(std::size_t timeIntegrationVectorId, std::size_t unknown, std::size_t basisFunction) const
     {
         logger.assert(timeIntegrationVectorId < timeIntegrationVectors_.size(), "Asked for time integration vector %, but there are only % time integration vectors", timeIntegrationVectorId, timeIntegrationVectors_.size());
         logger.assert(timeIntegrationVectors_[timeIntegrationVectorId].size() == numberOfUnknowns_ * numberOfBasisFunctions_, "Size of time integration vector is %, but should be %.", timeIntegrationVectors_[timeIntegrationVectorId].size(), numberOfUnknowns_ * numberOfBasisFunctions_);
