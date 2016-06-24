@@ -185,7 +185,7 @@ namespace Base
     }
 #endif
     
-    void Element::setFace(std::size_t localFaceNumber, const Face* face)
+    void Element::setFace(std::size_t localFaceNumber, Face* face)
     {
         logger.assert(localFaceNumber < getNumberOfFaces(), "Asked for face %, but there are only % faces", localFaceNumber, getNumberOfFaces());
         logger.assert(face!=nullptr, "Invalid face passed");
@@ -200,7 +200,7 @@ namespace Base
         facesList_[localFaceNumber] = face;
     }
     
-    void Element::setEdge(std::size_t localEdgeNumber, const Edge* edge)
+    void Element::setEdge(std::size_t localEdgeNumber, Edge* edge)
     {
         logger.assert(localEdgeNumber < getNumberOfEdges(), "Asked for edge %, but there are only % edges", localEdgeNumber, getNumberOfEdges());
         logger.assert(edge!=nullptr, "Invalid edge passed");

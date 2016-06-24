@@ -170,9 +170,9 @@ namespace Base
         ///\todo not implemented
         void initialiseSolution(std::size_t timeLevel, std::size_t solutionId, const SolutionVector& solution);
                 
-        void setFace(std::size_t localFaceNumber, const Face* face);
+        void setFace(std::size_t localFaceNumber, Face* face);
 
-        void setEdge(std::size_t localEdgeNumber, const Edge* edge);
+        void setEdge(std::size_t localEdgeNumber, Edge* edge);
 
         void setNode(std::size_t localNodeNumber, Node* node);
 
@@ -188,24 +188,24 @@ namespace Base
             return numberOfDOFinTheElement_;
         }
         
-        const Face* getFace(std::size_t localFaceNumber) const
+        Face* getFace(std::size_t localFaceNumber) const
         {
             logger.assert(localFaceNumber<getNumberOfFaces(), "Asked for face %, but there are only % faces", localFaceNumber, getNumberOfFaces());
             return facesList_[localFaceNumber];
         }
         
-        const std::vector<const Face*> getFacesList() const
+        const std::vector<Face*> getFacesList() const
         {
             return facesList_;
         }
 
-        const Edge* getEdge(std::size_t localEdgeNumber) const
+        Edge* getEdge(std::size_t localEdgeNumber) const
         {
             logger.assert(localEdgeNumber<getNumberOfEdges(), "Asked for edge %, but there are only % edges", localEdgeNumber, getNumberOfEdges());
             return edgesList_[localEdgeNumber];
         }
         
-        const std::vector<const Edge*> getEdgesList() const
+        const std::vector<Edge*> getEdgesList() const
         {
             return edgesList_;
         }
@@ -300,8 +300,8 @@ namespace Base
         /// Indices of the basis function sets that are used.
         std::vector<int> basisFunctionSetPositions_;
         
-        std::vector<const Face*> facesList_;
-        std::vector<const Edge*> edgesList_;
+        std::vector<Face*> facesList_;
+        std::vector<Edge*> edgesList_;
         std::vector<Node*> nodesList_;
 
         /// Degrees of freedom corresponding to this element. When using conforming basis functions only the basis functions with support on only this element are counted.
