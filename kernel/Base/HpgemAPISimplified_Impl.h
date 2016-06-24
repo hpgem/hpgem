@@ -477,7 +477,7 @@ namespace Base
                 LinearAlgebra::MiddleSizeVector &inputFunctionCoefficients(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(inputVectorId));
                 LinearAlgebra::MiddleSizeVector &resultFunctionCoefficients(ptrFace->getPtrElementLeft()->getTimeIntegrationVector(resultVectorId));
                 
-                resultFunctionCoefficients = computeRightHandSideAtFace(ptrFace, inputFunctionCoefficients, time);
+                resultFunctionCoefficients += computeRightHandSideAtFace(ptrFace, inputFunctionCoefficients, time);
             }
         }
         
