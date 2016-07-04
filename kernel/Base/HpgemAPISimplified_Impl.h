@@ -212,7 +212,7 @@ namespace Base
         
         // Compute the initial solution.
         const LinearAlgebra::MiddleSizeVector initialSolution = getInitialSolution(pPhys, startTime, orderTimeDerivative);
-        
+
         // Get the number of basis functions.
         const std::size_t numberOfBasisFunctions = element.getNumberOfBasisFunctions();
         
@@ -586,6 +586,14 @@ namespace Base
             }
             error += std::pow(Base::L2Norm(deviation), 2.);
         }
+#ifdef HPGEM_USE_MPI
+        auto& communicator = MPIContainer::Instance();
+        ///\todo allreduce
+        communicator.reduce(error, MPI::SUM);
+        communicator.broadcast(error);
+        communicator.reduce(norm, MPI::SUM);
+        communicator.broadcast(norm);
+#endif
         return std::make_tuple(std::sqrt(error), norm);
     }
 
@@ -657,16 +665,22 @@ namespace Base
         if(dt > dtMax) dt = dtMax;
         double currentError = std::numeric_limits<double>::infinity();
         double solutionNorm = 0;
-        //cancel division in the first iteration
-        dt *= 2.;
         while(maximumRelativeError * solutionNorm < currentError || std::isinf(currentError))
         {
-            dt /= 2.;
             double timeCopy = time;
 
             //do a step, except don't update the time yet (we may need to rewind if the error is too large)
             computeOneTimeStep(timeCopy, dt);
             std::tie(currentError, solutionNorm) = computeErrorAndNormOfUpdate(dt);
+            if(maximumRelativeError * solutionNorm < currentError || std::isinf(currentError))
+            {
+                //should be rare enough to be more efficient than copying a back-up every time step
+                for (std::size_t jStage = 0; jStage < ptrButcherTableau_->getNumberOfStages(); jStage++)
+                {
+                    scaleAndAddVector(solutionVectorId_, auxiliaryVectorIds_[jStage], -dt * ptrButcherTableau_->getB(jStage));
+                }
+                dt = 0.8 * dt * std::pow(maximumRelativeError/currentError * solutionNorm, 1./ptrButcherTableau_->getOrder());
+            }
         }
         dtEstimate = 0.9 * dt * std::pow(maximumRelativeError/currentError * solutionNorm, 1./ptrButcherTableau_->getOrder());
         logger(VERBOSE, "dt: %; new estimate: %", dt, dtEstimate);

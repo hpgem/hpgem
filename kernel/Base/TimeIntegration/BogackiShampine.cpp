@@ -23,8 +23,8 @@
 
 TimeIntegration::BogackiShampine::BogackiShampine()
 {
-    order_ = 5;
-    numberOfStages_ = 7;
+    order_ = 3;
+    numberOfStages_ = 4;
     totalVariationDiminishing_ = false;
 
     //make a_

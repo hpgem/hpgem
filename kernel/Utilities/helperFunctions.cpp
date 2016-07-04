@@ -23,6 +23,7 @@
 
 #include <cmath>
 #include "Geometry/PointReference.h"
+
 namespace Utilities
 {
 

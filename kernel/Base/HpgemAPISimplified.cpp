@@ -20,6 +20,7 @@
  */
 
 #include "CommandLineOptions.h"
+#include <limits>
 
 namespace Base
 {

@@ -36,7 +36,7 @@
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
 #include "Logger.h"
 
-const static std::size_t DIM = 2;
+const static std::size_t DIM = 3;
 
 /// Linear advection equation du/dt + a[0] du/dx + a[1] du/dy = 0.
 /// This class is meant for testing purposes.
@@ -52,10 +52,12 @@ public:
         //Choose the "direction" of the advection.
         //This cannot be implemented with iterators, and since the dimension is
         //not always 2, this is the most generic way to write it.
-        for (std::size_t i = 0; i < DIM; ++i)
-        {
-            a[i] = 0.1 + 0.1 * i;
-        }
+        //for (std::size_t i = 0; i < DIM; ++i)
+        //{
+        //    a[i] = 0.1 + 0.1 * i;
+        //}
+        a[0] = 0.1;
+        a[2] = 0.3;
     }
     
     /// Create a mesh description
@@ -79,6 +81,29 @@ public:
         
         return description;
     }
+
+    void createMesh(const std::size_t numberOfElementsPerDirection, const Base::MeshType meshType) override final
+    {
+        const Base::RectangularMeshDescriptor<DIM> description = createMeshDescription(numberOfElementsPerDirection);
+
+        // Set the number of Element/Face Matrices/Vectors.
+        std::size_t numberOfElementMatrices = 2;
+        std::size_t numberOfElementVectors = 0;
+        std::size_t numberOfFaceMatrices = 1;
+        std::size_t numberOfFaceVectors = 0;
+
+        // Create mesh and set basis functions.
+        std::string name = std::string{"cube"} + std::to_string(numberOfElementsPerDirection) + std::string{".hyb"};
+        this->addMesh(name, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors);
+        //this->meshes_[0]->useDefaultDGBasisFunctions();
+
+        // Set the number of time integration vectors according to the size of the Butcher tableau.
+        this->setNumberOfTimeIntegrationVectorsGlobally(this->globalNumberOfTimeIntegrationVectors_);
+
+        // Plot info about the mesh
+        std::size_t numberOfElements = this->meshes_[0]->getNumberOfElements();
+        logger(VERBOSE, "Total number of elements: %", numberOfElements);
+    }
     
     ///Compute phi_i*(a.grad(phi_j)) on a reference point on an element for all
     ///basisfunctions phi_i and phi_j.
@@ -86,6 +111,7 @@ public:
     ///so you wont have to do any transformations yourself
     LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(Base::PhysicalElement<DIM>& element) override final
     {
+        logger.assert(element.getJacobianDet() > 0, "%", element.getElement());
         std::size_t numberOfBasisFunctions = element.getElement()->getNumberOfBasisFunctions();
         LinearAlgebra::MiddleSizeMatrix&  result = element.getResultMatrix();
         for (std::size_t i = 0; i < numberOfBasisFunctions; ++i)
@@ -154,7 +180,7 @@ public:
     /// Define a solution at time zero.
     double getSolutionAtTimeZero(const PointPhysicalT& point)
     {
-        return (std::sin(2 * M_PI * point[0]) * std::sin(2 * M_PI * point[1]));
+        return (std::sin(2 * M_PI * point[0]) * std::sin(2 * M_PI * point[1])) * std::sin(2 * M_PI * point[2]);
     }
     
     /// Define the exact solution. In this case that is \f$ u_0(\vec{x}-\vec{a}t) \f$, where \f$ u_0 \f$ is the solution at time zero.

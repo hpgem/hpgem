@@ -41,7 +41,7 @@
 #include "Base/CommandLineOptions.h"
 
     // Choose the dimension (1 or 2 or 3)
-const static std::size_t DIM = 3;
+const static std::size_t DIM = 2;
 
 ///\brief Test application that solves the Poisson equation.
 ///
@@ -70,7 +70,7 @@ public:
         penalty_ = 3 * n_ * p_ * (p_ + DIM - 1) + 1;
     }
 
-    void createMesh(const std::size_t numberOfElementsPerDirection, const Base::MeshType meshType) override final
+    /*void createMesh(const std::size_t numberOfElementsPerDirection, const Base::MeshType meshType) override final
     {
         // Set the number of Element/Face Matrices/Vectors.
         std::size_t numberOfElementMatrices = 2;   // Mass matrix and stiffness matrix
@@ -80,7 +80,7 @@ public:
 
         // Create mesh and set basis functions.
         this->addMesh("cube_Test.hyb", numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors);
-        //this->meshes_[0]->useDefaultDGBasisFunctions();
+        this->meshes_[0]->useDefaultConformingBasisFunctions();
 
         // Set the number of time integration vectors according to the size of the Butcher tableau.
         this->setNumberOfTimeIntegrationVectorsGlobally(this->globalNumberOfTimeIntegrationVectors_);
@@ -88,7 +88,7 @@ public:
         // Plot info about the mesh
         std::size_t nElements = this->meshes_[0]->getNumberOfElements();
         logger(VERBOSE, "Total number of elements: %", nElements);
-    }
+    }*/
 
     ///\brief set up the mesh
     ///
@@ -230,7 +230,8 @@ public:
     LinearAlgebra::MiddleSizeVector getSourceTerm(const PointPhysicalT &p) override final
     {
         LinearAlgebra::MiddleSizeVector sourceTerm(1);
-        sourceTerm[0] = (-12 * M_PI * M_PI) * std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]) * std::cos(2 * M_PI * p[2]);
+        //sourceTerm[0] = (-12 * M_PI * M_PI) * std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]) * std::cos(2 * M_PI * p[2]);
+        sourceTerm[0] = 10 * std::exp(-((p[0]-0.5) * (p[0]-0.5) + (p[1]-0.5) * (p[1]-0.5))/0.02);
         return sourceTerm;
     }
     
@@ -248,6 +249,7 @@ public:
     {
         //Obtain the number of basisfunctions that are possibly non-zero
         const std::size_t numberOfBasisFunctions = face.getFace()->getNumberOfBasisFunctions();
+        auto pPhys = face.getPointPhysical();
         //Resize the integrandVal such that it contains as many rows as
         //the number of basisfunctions.
         LinearAlgebra::MiddleSizeVector integrandVal(numberOfBasisFunctions);
@@ -256,7 +258,14 @@ public:
         //We have no rhs face integrals, so this is just 0.
         for (std::size_t i = 0; i < numberOfBasisFunctions; ++i)
         {
-            integrandVal[i] = 0;
+            if (std::abs(pPhys[1]) < 1e-9 || std::abs(pPhys[1] - 1.) < 1e-9)
+            {
+                integrandVal[i] = face.basisFunction(i) * sin(5 * pPhys[0]);
+            }
+            else
+            {
+                integrandVal[i] = 0;
+            }
         }
         
         return integrandVal;
