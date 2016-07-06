@@ -86,11 +86,18 @@ namespace Geometry
         return result;
     }
 
-    Jacobian<3, 3> MappingToPhysPyramid::calcJacobian(const PointReference<3>& pR) const
+    Jacobian<3, 3> MappingToPhysPyramid::calcJacobian(const PointReference<3>& pRarg) const
     {
+        auto pR = pRarg;
         logger.assert(pR.size()==3, "Reference point has the wrong dimension");
         Jacobian<3, 3> jacobian;
         std::vector<double> df_dxi0(5), df_dxi1(5), df_dxi2(5);
+
+
+        if(std::abs(pR[2] - 1) + std::abs(pR[0]) + std::abs(pR[1]) < 1e-14)
+        {
+            pR[2]-= 1e-10;
+        }
         
         const double dt6dx0 = pR[1] * pR[2] / (1. - pR[2]);
         const double dt6dx1 = pR[0] * pR[2] / (1. - pR[2]);

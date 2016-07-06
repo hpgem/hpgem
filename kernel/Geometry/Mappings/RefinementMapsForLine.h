@@ -68,14 +68,14 @@ namespace Geometry
         {
             logger.assert(subElementIndex == 0, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             //the bonus column is most likely {0, 1}
-            return 1;
+            return LinearAlgebra::SmallMatrix<1, 1>{1.};
         }
 
         LinearAlgebra::SmallMatrix<1, 1> getRefinementMappingMatrixR(std::size_t subElementIndex, const PointReference<1>& p) const override final
         {
             logger.assert(subElementIndex == 0, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             //the bonus column is most likely {0, 1}
-            return 1;
+            return LinearAlgebra::SmallMatrix<1, 1>{1.};
         }
 
         std::size_t getNumberOfNewNodes() const override final
@@ -164,14 +164,14 @@ namespace Geometry
         {
             logger.assert(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             //the bonus column is probably {-0.5 + subElementIndex, 1}
-            return 0.5;
+            return LinearAlgebra::SmallMatrix<1, 1>{0.5};
         }
 
         LinearAlgebra::SmallMatrix<1, 1> getRefinementMappingMatrixR(std::size_t subElementIndex, const PointReference<1>& p) const override final
         {
             logger.assert(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             //the bonus column is probably {1 - 2 * subElementIndex, 1}
-            return 2;
+            return LinearAlgebra::SmallMatrix<1, 1>{2.};
         }
 
         std::size_t getNumberOfNewNodes() const override final

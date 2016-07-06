@@ -41,7 +41,7 @@
 #include "Base/CommandLineOptions.h"
 
     // Choose the dimension (1 or 2 or 3)
-const static std::size_t DIM = 2;
+const static std::size_t DIM = 3;
 
 ///\brief Test application that solves the Poisson equation.
 ///
@@ -70,7 +70,7 @@ public:
         penalty_ = 3 * n_ * p_ * (p_ + DIM - 1) + 1;
     }
 
-    /*void createMesh(const std::size_t numberOfElementsPerDirection, const Base::MeshType meshType) override final
+    void createMesh(const std::size_t numberOfElementsPerDirection, const Base::MeshType meshType) override final
     {
         // Set the number of Element/Face Matrices/Vectors.
         std::size_t numberOfElementMatrices = 2;   // Mass matrix and stiffness matrix
@@ -79,7 +79,7 @@ public:
         std::size_t numberOfFaceVectors = 1;       // Source term vector at boundary
 
         // Create mesh and set basis functions.
-        this->addMesh("cube_Test.hyb", numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors);
+        this->addMesh("PIVModel.hyb", numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors);
         this->meshes_[0]->useDefaultConformingBasisFunctions();
 
         // Set the number of time integration vectors according to the size of the Butcher tableau.
@@ -88,7 +88,7 @@ public:
         // Plot info about the mesh
         std::size_t nElements = this->meshes_[0]->getNumberOfElements();
         logger(VERBOSE, "Total number of elements: %", nElements);
-    }*/
+    }
 
     ///\brief set up the mesh
     ///
@@ -199,10 +199,10 @@ public:
                     integrandVal(j, i) = -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI) / 2 + penalty_ * phiNormalI * phiNormalJ;
                 }
                 //Boundary face with Dirichlet boundary conditions:
-                else if (std::abs(pPhys[0]) < 1e-9 || std::abs(pPhys[0] - 1.) < 1e-9)
-                {
-                    integrandVal(j, i) = -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI) + penalty_ * phiNormalI * phiNormalJ * 2;
-                }
+                //else if (std::abs(pPhys[0]) < 1e-9 || std::abs(pPhys[0] - 1.) < 1e-9)
+                //{
+                //    integrandVal(j, i) = -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI) + penalty_ * phiNormalI * phiNormalJ * 2;
+                //}
                 //Boundary face with homogeneous Neumann boundary conditions:
                 else
                 {
@@ -230,8 +230,8 @@ public:
     LinearAlgebra::MiddleSizeVector getSourceTerm(const PointPhysicalT &p) override final
     {
         LinearAlgebra::MiddleSizeVector sourceTerm(1);
-        //sourceTerm[0] = (-12 * M_PI * M_PI) * std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]) * std::cos(2 * M_PI * p[2]);
-        sourceTerm[0] = 10 * std::exp(-((p[0]-0.5) * (p[0]-0.5) + (p[1]-0.5) * (p[1]-0.5))/0.02);
+        sourceTerm[0] = (-12 * M_PI * M_PI) * std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]) * std::cos(2 * M_PI * p[2]) * 0.;
+        //sourceTerm[0] = 10 * std::exp(-((p[0]-0.5) * (p[0]-0.5) + (p[1]-0.5) * (p[1]-0.5))/0.02);
         return sourceTerm;
     }
     
@@ -258,9 +258,13 @@ public:
         //We have no rhs face integrals, so this is just 0.
         for (std::size_t i = 0; i < numberOfBasisFunctions; ++i)
         {
-            if (std::abs(pPhys[1]) < 1e-9 || std::abs(pPhys[1] - 1.) < 1e-9)
+            if (std::abs(pPhys[0] + 1.e3) < 1e-9)
             {
-                integrandVal[i] = face.basisFunction(i) * sin(5 * pPhys[0]);
+                integrandVal[i] = -1.;
+            }
+            else if (std::abs(pPhys[0] - 3.e3) < 1e-9)
+            {
+                integrandVal[i] = 1.;
             }
             else
             {
@@ -269,6 +273,22 @@ public:
         }
         
         return integrandVal;
+    }
+
+    void tasksBeforeSolving() override final
+    {
+        Base::HpgemAPILinearSteadyState<DIM>::tasksBeforeSolving();
+        std::function<LinearAlgebra::SmallVector<DIM>(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> newFunction =
+                [](Base::Element* element, const Geometry::PointReference<DIM>& point, std::size_t timeLevel)->LinearAlgebra::SmallVector<DIM>
+                {
+                    if(std::isnan(Base::L2Norm(element->getSolutionGradient(timeLevel, point)[0])))
+                    {
+                        logger(INFO, "%", element->calcJacobian(point));
+                        logger(ERROR, "nan gradient detected at element % (type %) at point %", element->getID(), element->getReferenceGeometry()->getName(), point);
+                    }
+                    return element->getSolutionGradient(timeLevel, point)[0];
+                };
+        registerVTKWriteFunction(newFunction, "gradient");
     }
     
     ///\brief Write the output to an outputstream (file)

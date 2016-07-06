@@ -64,6 +64,7 @@
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
 #include "Utilities/BasisFunctions3DH1ConformingCube.h"
 #include "Utilities/BasisFunctions3DH1ConformingPrism.h"
+#include "Utilities/BasisFunctions3DH1ConformingPyramid.h"
 #include "Utilities/BasisFunctions3DH1ConformingTetrahedron.h"
 #include "Utilities/BasisFunctions3DNedelec.h"
 #include "Utilities/BasisFunctions3DAinsworthCoyle.h"
@@ -236,6 +237,9 @@ namespace Base
                     collBasisFSet_.emplace_back(Utilities::createDGBasisFunctionSet3DH1ConformingPrism(configData_->polynomialOrder_));
                     break;
                 case Geometry::ReferenceGeometryType::PYRAMID:
+                    shapeToIndex[Geometry::ReferenceGeometryType::PYRAMID] = collBasisFSet_.size();
+                    collBasisFSet_.emplace_back(Utilities::createDGBasisFunctionSet3DH1ConformingPyramid(configData_->polynomialOrder_));
+                    break;
                 case Geometry::ReferenceGeometryType::HYPERCUBE:
                     logger(ERROR, "No well-conditioned basis functions have been implemented for %s", element->getReferenceGeometry()->getName());
                     break;
@@ -458,6 +462,17 @@ namespace Base
                             numberOfEdgeSets[type] - 1;
                     break;
                 case Geometry::ReferenceGeometryType::PYRAMID:
+                    shapeToElementIndex[type] = collBasisFSet_.size();
+                    collBasisFSet_.emplace_back(Utilities::createInteriorBasisFunctionSet3DH1ConformingPyramid(configData_->polynomialOrder_));
+                    nodeSet = Utilities::createVertexBasisFunctionSet3DH1ConformingPyramid(configData_->polynomialOrder_);
+                    for (const Base::BasisFunctionSet *set : nodeSet)
+                    {
+                        collBasisFSet_.emplace_back(set);
+                    }
+                    numberOfFaceSets[type] = 0;
+                    numberOfEdgeSets[type] = 0;
+                    numberOfNodeSets[type] = collBasisFSet_.size() - shapeToElementIndex[type] - 1;
+                    break;
                 case Geometry::ReferenceGeometryType::HYPERCUBE:
                     logger(ERROR, "No well-conditioned basis functions have been implemented for %s", element->getReferenceGeometry()->getName());
                     break;

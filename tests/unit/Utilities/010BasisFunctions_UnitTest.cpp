@@ -28,6 +28,7 @@
 #include "Utilities/BasisFunctions3DH1ConformingCube.h"
 #include "Utilities/BasisFunctions3DH1ConformingTetrahedron.h"
 #include "Utilities/BasisFunctions3DH1ConformingPrism.h"
+#include "Utilities/BasisFunctions3DH1ConformingPyramid.h"
 #include "Utilities/BasisFunctions3DNedelec.h"
 #include "Utilities/BasisFunctions3DAinsworthCoyle.h"
 #include "Logger.h"
@@ -325,7 +326,7 @@ int main()
     }
     
     delete all3DbasisFunctions;
-    
+
     all3DbasisFunctions = Utilities::createDGBasisFunctionSet3DH1ConformingPrism(5);
     for (std::size_t i = 0; i < all3DbasisFunctions->size(); ++i)
     {
@@ -340,38 +341,86 @@ int main()
                     double x0 = test->eval((point3D));
                     point3D[0] += 2.e-8;
                     double x1 = test->eval((point3D));
-                    
+
                     point3D[0] += -1e-8;
                     ret3 = test->evalDeriv((point3D));
                     double derivative = test->evalDeriv0((point3D));
                     logger.assert_always((std::abs(ret3[0] - 5.e7 * (x1 - x0)) < 1e-5 || (L2Norm(ret3) > 1 && std::abs(ret3[0] - 5.e7 * (x1 - x0)) < 1e-5 * L2Norm(ret3))), "gradient");
                     logger.assert_always((std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 || (std::abs(derivative) > 1 && std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 * std::abs(derivative))), "derivative");
-                    
+
                     point3D[1] += -1.e-8;
                     x0 = test->eval((point3D));
                     point3D[1] += 2.e-8;
                     x1 = test->eval((point3D));
-                    
+
                     point3D[1] += -1e-8;
                     derivative = test->evalDeriv1((point3D));
                     logger.assert_always((std::abs(ret3[1] - 5.e7 * (x1 - x0)) < 1e-5 || (L2Norm(ret3) > 1 && std::abs(ret3[1] - 5.e7 * (x1 - x0)) < 1e-5 * L2Norm(ret3))), "gradient");
                     logger.assert_always((std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 || (std::abs(derivative) > 1 && std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 * std::abs(derivative))), "derivative");
-                    
+
                     point3D[2] += -1.e-8;
                     x0 = test->eval((point3D));
                     point3D[2] += 2.e-8;
                     x1 = test->eval((point3D));
-                    
+
                     point3D[2] += -1e-8;
                     derivative = test->evalDeriv2((point3D));
                     logger.assert_always((std::abs(ret3[2] - 5.e7 * (x1 - x0)) < 1e-5 || (L2Norm(ret3) > 1 && std::abs(ret3[2] - 5.e7 * (x1 - x0)) < 1e-5 * L2Norm(ret3))), "gradient");
                     logger.assert_always((std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 || (std::abs(derivative) > 1 && std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 * std::abs(derivative))), "derivative");
-                    
+
                 }
             }
         }
     }
-    
+
+    delete all3DbasisFunctions;
+
+    all3DbasisFunctions = Utilities::createDGBasisFunctionSet3DH1ConformingPyramid(1);
+    for (std::size_t i = 0; i < all3DbasisFunctions->size(); ++i)
+    {
+        const Base::BaseBasisFunction* test = (*all3DbasisFunctions)[i];
+        for (point3D[0] = -1.5; point3D[0] < 1.51; point3D[0] += 0.6)
+        {
+            for (point3D[1] = -1.5; point3D[1] < 1.51; point3D[1] += 0.6)
+            {
+                for (point3D[2] = -1.5; point3D[2] < 1.51; point3D[2] += 1.2)
+                {
+                    point3D[0] += -1.e-8;
+                    double x0 = test->eval((point3D));
+                    point3D[0] += 2.e-8;
+                    double x1 = test->eval((point3D));
+
+                    point3D[0] += -1e-8;
+                    ret3 = test->evalDeriv((point3D));
+                    double derivative = test->evalDeriv0((point3D));
+                    logger.assert_always((std::abs(ret3[0] - 5.e7 * (x1 - x0)) < 1e-5 || (L2Norm(ret3) > 1 && std::abs(ret3[0] - 5.e7 * (x1 - x0)) < 1e-5 * L2Norm(ret3))), "gradient");
+                    logger.assert_always((std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 || (std::abs(derivative) > 1 && std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 * std::abs(derivative))), "derivative");
+
+                    point3D[1] += -1.e-8;
+                    x0 = test->eval((point3D));
+                    point3D[1] += 2.e-8;
+                    x1 = test->eval((point3D));
+
+                    point3D[1] += -1e-8;
+                    derivative = test->evalDeriv1((point3D));
+                    logger.assert_always((std::abs(ret3[1] - 5.e7 * (x1 - x0)) < 1e-5 || (L2Norm(ret3) > 1 && std::abs(ret3[1] - 5.e7 * (x1 - x0)) < 1e-5 * L2Norm(ret3))), "gradient");
+                    logger.assert_always((std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 || (std::abs(derivative) > 1 && std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 * std::abs(derivative))), "derivative");
+
+                    point3D[2] += -1.e-8;
+                    x0 = test->eval((point3D));
+                    point3D[2] += 2.e-8;
+                    x1 = test->eval((point3D));
+
+                    point3D[2] += -1e-8;
+                    derivative = test->evalDeriv2((point3D));
+                    logger.assert_always((std::abs(ret3[2] - 5.e7 * (x1 - x0)) < 1e-5 || (L2Norm(ret3) > 1 && std::abs(ret3[2] - 5.e7 * (x1 - x0)) < 1e-5 * L2Norm(ret3))), "gradient");
+                    logger.assert_always((std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 || (std::abs(derivative) > 1 && std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 * std::abs(derivative))), "derivative");
+
+                }
+            }
+        }
+    }
+
     delete all3DbasisFunctions;
     
     return 0;

@@ -366,20 +366,20 @@ namespace Base
             VTKDoubleWrite_.push_back( {function, name});
         }
         
-        void registerVTKWriteFunction(std::function<LinearAlgebra::MiddleSizeVector(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> function, std::string name)
+        void registerVTKWriteFunction(std::function<LinearAlgebra::SmallVector<DIM>(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> function, std::string name)
         {
             VTKVectorWrite_.push_back( {function, name});
         }
         
-        void registerVTKWriteFunction(std::function<LinearAlgebra::MiddleSizeMatrix(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> function, std::string name)
+        void registerVTKWriteFunction(std::function<LinearAlgebra::SmallMatrix<DIM, DIM>(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> function, std::string name)
         {
             VTKMatrixWrite_.push_back( {function, name});
         }
         
     private:
         std::vector<std::pair<std::function<double(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)>, std::string> > VTKDoubleWrite_;
-        std::vector<std::pair<std::function<LinearAlgebra::MiddleSizeVector(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)>, std::string> > VTKVectorWrite_;
-        std::vector<std::pair<std::function<LinearAlgebra::MiddleSizeMatrix(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)>, std::string> > VTKMatrixWrite_;
+        std::vector<std::pair<std::function<LinearAlgebra::SmallVector<DIM>(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)>, std::string> > VTKVectorWrite_;
+        std::vector<std::pair<std::function<LinearAlgebra::SmallMatrix<DIM, DIM>(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)>, std::string> > VTKMatrixWrite_;
         
     };
 }

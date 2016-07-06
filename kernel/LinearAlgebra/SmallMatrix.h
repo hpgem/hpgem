@@ -49,7 +49,7 @@ namespace LinearAlgebra
         {
         }
 
-        SmallMatrix(const SmallVector<numberOfRows>& other)
+        explicit SmallMatrix(const SmallVector<numberOfRows>& other)
             : data_()
         {
             logger.assert(numberOfColumns == 1, "Trying to construct a matrix with more than 1 columns from a vector");
@@ -57,7 +57,7 @@ namespace LinearAlgebra
         }
 
         /// \brief Constructs a matrix of size n-rows by m-columns and initialises all entry to a constant
-        SmallMatrix(const double& c)
+        explicit SmallMatrix(const double& c)
             : data_()
         {
             data_.fill(c);

@@ -451,6 +451,8 @@ namespace Base
         std::size_t numberOfUnknows = ElementData::getNumberOfUnknowns();
         std::size_t numberOfBasisFunctions = ElementData::getNumberOfBasisFunctions();
         std::vector<LinearAlgebra::SmallVector<DIM> > solution(numberOfUnknows);
+        auto jacobean = getReferenceToPhysicalMap()->calcJacobian(p);
+        jacobean = jacobean.transpose();
 
         LinearAlgebra::MiddleSizeVector data = ElementData::getTimeIntegrationVector(timeIntegrationVectorId);
 
@@ -460,7 +462,9 @@ namespace Base
             for (std::size_t iB = 0; iB < numberOfBasisFunctions; ++iB)
             {
                 iVB = convertToSingleIndex(iB, iV);
-                solution[iV] += data(iVB) * basisFunctionDeriv(iB, p);
+                auto derivative = basisFunctionDeriv(iB, p);
+                jacobean.solve(derivative);
+                solution[iV] += data(iVB) * derivative;
             }
         }
         return solution;
