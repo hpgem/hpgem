@@ -183,8 +183,8 @@ namespace Base
     void FaceMatrix::setElementMatrix(const LinearAlgebra::MiddleSizeMatrix & elementMatrix, Side iSide, Side jSide)
     {
         // Check size of the elementMatrix.
-        logger.assert(elementMatrix.getNumberOfRows() == getNumberOfDegreesOfFreedom(iSide), "elementMatrix has the wrong size.");
-        logger.assert(elementMatrix.getNumberOfColumns() == getNumberOfDegreesOfFreedom(jSide), "elementMatrix has the wrong size.");
+        logger.assert(elementMatrix.getNumberOfRows() == getNumberOfDegreesOfFreedom(iSide), "elementMatrix has the wrong size. Number of rows is % instead of %.", elementMatrix.getNumberOfRows(), getNumberOfDegreesOfFreedom(iSide));
+        logger.assert(elementMatrix.getNumberOfColumns() == getNumberOfDegreesOfFreedom(jSide), "elementMatrix has the wrong size. Number of columns is % instead of %", elementMatrix.getNumberOfColumns(), getNumberOfDegreesOfFreedom(jSide));
         
         if (iSide == Side::LEFT)
         {

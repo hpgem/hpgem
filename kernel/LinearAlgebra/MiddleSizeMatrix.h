@@ -203,6 +203,9 @@ namespace LinearAlgebra
         /// is the input parameter. The result is returned in b.
         void solve(MiddleSizeVector& b) const;
         
+        /// \brief Computes the minimum norm solution to a real linear least squares problem.
+        void pseudoSolve(MiddleSizeVector& b, double rCond) const;
+        
         type* data();
         const type* data() const;
 

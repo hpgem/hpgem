@@ -50,7 +50,7 @@ namespace LinearAlgebra
         void dgetrf_(int* M, int *N, double* A, int* lda, int* IPIV, int* INFO);
         /// This is LU factorisation of the matrix A. This has been taken from LAPACK
         void zgetrf_(int* M, int *N, std::complex<double>* A, int* lda, int* IPIV, int* INFO);
-
+        
         /// This is the inverse calulation also from LAPACK. Calculates inverse if you pass it the LU factorisation.
         void dgetri_(int* N, double* A, int* lda, int* IPIV, double* WORK, int* lwork, int* INFO);
         /// This is the inverse calulation also from LAPACK. Calculates inverse if you pass it the LU factorisation.
@@ -60,6 +60,9 @@ namespace LinearAlgebra
         void dgesv_(int* N, int* NRHS, double* A, int* lda, int* IPIV, double* B, int* LDB, int* INFO);
         /// This is used for solve Ax=B for x. Again this is from LAPACK.
         void zgesv_(int* N, int* NRHS, std::complex<double>* A, int* lda, int* IPIV, std::complex<double>* B, int* LDB, int* INFO);
+        
+        /// This is a least squares solver, solving an over- or underdetermined system AX=B for X. It has been taken from LAPACK.
+        void dgelss_(int *m, int *n, int *nrhs, double *A, int *lda, double *B, int *ldb, double *s, double *rCond, int *rank, double *work, int *lWork, int *info);
     }
     
     MiddleSizeMatrix::MiddleSizeMatrix()
@@ -662,6 +665,23 @@ namespace LinearAlgebra
 #else
         dgesv_(&n, &nrhs, matThis.data(), &n, IPIV.data(), b.data(), &n, &info);
 #endif
+    }
+    
+    /// \details Computes the minimum norm solution to a real linear least squares problem: minimize 2-norm(| b - A*x |), using the singular value decomposition (SVD) of A. A is an M-by-N matrix which may be rank-deficient. The effective rank of A is determined by treating as zero those singular values which are less than rCond times the largest singular value. See dgelss function documentation of LAPACK for more details.
+    /// \param[in,out] b On entry its the right hand side b, while on exit it is the solution x.
+    /// \param[in] rCond Double precision value used to determine the effective rank of A. Singular values S(i) <= rCond*S(1) are treated as zero.
+    void MiddleSizeMatrix::pseudoSolve(MiddleSizeVector &b, double rCond) const
+    {
+        MiddleSizeMatrix A = *this;
+        int n = int(A.getNumberOfRows());
+        int nRHS = 1;
+        LinearAlgebra::MiddleSizeVector s(n);
+        int rank = 0;
+        int lWork = n*10;
+        LinearAlgebra::MiddleSizeVector work(lWork);
+        int info = 0;
+        
+        dgelss_(&n, &n, &nRHS, A.data(), &n, b.data(), &n, s.data(), &rCond, &rank, work.data(), &lWork, &info);
     }
     
     MiddleSizeMatrix::type* MiddleSizeMatrix::data()
