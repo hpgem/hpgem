@@ -25,7 +25,7 @@
 #include "ElementCacheData.h"
 #include <algorithm>
 
-void Base::Node::addElement(Element* element, std::size_t localNodeNumber)
+void Base::Node::addElement(Element *element, std::size_t localNodeNumber)
 {
     logger.assert(std::find(elements_.begin(), elements_.end(), element) == elements_.end(), "Trying to add the same Element (%) twice", *element);
     elements_.push_back(element);
@@ -33,13 +33,13 @@ void Base::Node::addElement(Element* element, std::size_t localNodeNumber)
     element->setNode(localNodeNumber, this);
 }
 
-Base::Element* Base::Node::getElement(std::size_t i)
+Base::Element * Base::Node::getElement(std::size_t i)
 {
     logger.assert(i < getNumberOfElements(), "asked for element %, but there are only % elements", i, getNumberOfElements());
     return elements_[i];
 }
 
-const Base::Element* Base::Node::getElement(std::size_t i) const
+const Base::Element * Base::Node::getElement(std::size_t i) const
 {
     logger.assert(i < getNumberOfElements(), "asked for element %, but there are only % elements", i, getNumberOfElements());
     return elements_[i];
@@ -60,3 +60,55 @@ const Base::Element *Base::Node::getRootElement() const
     }
     return root->getData();
 }
+
+const std::vector<Base::Face *> Base::Node::getFaces() const
+{
+    const std::vector<Base::Element *> &ptrElementsAtNode = elements_;
+    std::vector<Base::Face *> ptrFacesAtNode;
+    
+    std::size_t nElementsAtNode = ptrElementsAtNode.size();
+    for(std::size_t i=0; i<nElementsAtNode; i++)
+    {
+        std::size_t localNodeIndex = localNodeNumbers_[i];
+        
+        Geometry::PhysicalGeometryBase *ptrPhysicalGeometry = ptrElementsAtNode[i]->getPhysicalGeometry();
+        std::vector<Base::Face *> ptrFacesAtElement = ptrElementsAtNode[i]->getFacesList();
+        std::size_t nFacesAtElement = ptrFacesAtElement.size();
+        
+        for(std::size_t j=0; j<nFacesAtElement; j++)
+        {
+            bool faceIsInVector = false;
+            bool faceIsAtNode = false;
+            for(std::size_t k = 0; k<ptrFacesAtNode.size(); k++)
+            {
+                if(ptrFacesAtElement[j]->getID() == ptrFacesAtNode[k]->getID())
+                {
+                    faceIsInVector = true;
+                    break;
+                }
+            }
+            
+            if(!faceIsInVector)
+            {
+                std::vector<std::size_t> nodesAtFaceLocalIDs = ptrPhysicalGeometry->getLocalFaceNodeIndices(j);
+                std::size_t nNodesAtFace = nodesAtFaceLocalIDs.size();
+                for(std::size_t k=0; k<nNodesAtFace; k++)
+                {
+                    if(nodesAtFaceLocalIDs[k] == localNodeIndex)
+                    {
+                        faceIsAtNode = true;
+                    }
+                }
+                if(faceIsAtNode)
+                {
+                    ptrFacesAtNode.push_back(ptrFacesAtElement[j]);
+                }
+            }
+        }
+    }
+    
+    return ptrFacesAtNode;
+}
+
+
+

@@ -29,8 +29,8 @@
 
 namespace Base
 {
-    
     class Element;
+    class Face;
     
     /// \brief an identification token for vertices that is more likely to be the same when it should be then a PointPhysical
     /// \details Node is oblivious of its physical location, but gets its relevance from the fact that it can tell what elements
@@ -50,7 +50,7 @@ namespace Base
         //constructor of Node is deleted.
         Node(const Node &other) = delete;
 
-        void addElement(Element* element, std::size_t localNodeNumber);
+        void addElement(Element * element, std::size_t localNodeNumber);
 
         ///\deprecated Does not conform naming conventions, use getLocalNumberOfBasisFunctions instead
         std::size_t getLocalNrOfBasisFunctions() const
@@ -76,16 +76,19 @@ namespace Base
         
         std::size_t getNumberOfElements() const;
 
-        Element* getElement(std::size_t i);
-        const Element* getElement(std::size_t i) const;
+        Element * getElement(std::size_t i);
+        const Element * getElement(std::size_t i) const;
 
         ///get the root element that is the (indirect) parent of one of the adjacent elements
-        const Element* getRootElement() const;
+        const Element * getRootElement() const;
 
-        const std::vector<Element*>& getElements() const
+        const std::vector<Element *> & getElements() const
         {
             return elements_;
         }
+        
+        /// Returns a list of pointers to adjacent faces
+        const std::vector<Face *> getFaces() const;
         
         ///\deprecated Does not conform naming conventions, use getNodeNumber instead
         std::size_t getNodeNr(std::size_t i) const
