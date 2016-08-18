@@ -117,6 +117,9 @@ namespace Base
             }
         }
 
+        /// \brief Get a list of pointers to the adjacent nodes
+        const std::vector<Base::Node *> getNodesList() const;
+        
         ///get the root element that is the (indirect) parent of one of the adjacent elements
         Element* getRootElement();
 

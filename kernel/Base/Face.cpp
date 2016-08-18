@@ -306,4 +306,19 @@ namespace Base
         }
         return *root->getIterator(TreeTraversalMethod::ALLLEVEL);
     }
+    
+    const std::vector<Base::Node *> Face::getNodesList() const
+    {
+        std::vector<std::size_t> localFaceNodeIDs = elementLeft_->getPhysicalGeometry()->getLocalFaceNodeIndices(localFaceNumberLeft_);
+        std::size_t nNodesAtFace = localFaceNodeIDs.size();
+        
+        std::vector<Base::Node *> ptrNodesAtFace(nNodesAtFace);
+        for(std::size_t j=0; j<nNodesAtFace; j++)
+        {
+            std::size_t localNodeIndex = localFaceNodeIDs[j];
+            ptrNodesAtFace[j] = elementLeft_->getNode(localNodeIndex);
+        }
+        
+        return ptrNodesAtFace;
+    }
 }
