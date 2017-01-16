@@ -114,7 +114,7 @@ public:
         return result;
     }
 
-    //! Are they the same iterators? 
+    //! Are they the same iterators?
     bool operator==(const IteratorOverConst& other) const
     {
         inner == other.inner;

@@ -21,7 +21,14 @@
 #      # Make temporary files, run programs, etc, to determine FOO_INCLUDES and FOO_LIBRARIES
 #    endif (NOT foo_current)
 #
+# MULTIPASS_SOURCE_RUNS (Name INCLUDES LIBRARIES SOURCE RUNS LANGUAGE)
+#  Always runs the given test, use this when you need to re-run tests
+#  because parent variables have made old cache entries stale. The LANGUAGE
+#  variable is either C or CXX indicating which compiler the test should
+#  use.
 # MULTIPASS_C_SOURCE_RUNS (Name INCLUDES LIBRARIES SOURCE RUNS)
+#  DEPRECATED! This is only included for backwards compatability. Use
+#  the more general MULTIPASS_SOURCE_RUNS instead.
 #  Always runs the given test, use this when you need to re-run tests
 #  because parent variables have made old cache entries stale.
 
@@ -39,7 +46,7 @@ macro (FIND_PACKAGE_MULTIPASS _name _current)
       # The name of the stored value for the given state
       set (_stored_var PACKAGE_MULTIPASS_${_NAME}_${_state})
       if (NOT "${${_stored_var}}" STREQUAL "${${_NAME}_${_state}}")
-	set (_states_current "NO")
+        set (_states_current "NO")
       endif (NOT "${${_stored_var}}" STREQUAL "${${_NAME}_${_state}}")
       set (${_stored_var} "${${_NAME}_${_state}}" CACHE INTERNAL "Stored state for ${_name}." FORCE)
       list (REMOVE_AT _args 0)
@@ -54,25 +61,25 @@ macro (FIND_PACKAGE_MULTIPASS _name _current)
   endif (NOT ${_stored})
 
   set (${_current} ${_states_current})
-  if (NOT ${_current})
+  if (NOT ${_current} AND PACKAGE_MULTIPASS_${_name}_CALLED)
     message (STATUS "Clearing ${_name} dependent variables")
     # Clear all the dependent variables so that the module can reset them
     list (GET _args 0 _cmd)
     if (_cmd STREQUAL "DEPENDENTS")
       list (REMOVE_AT _args 0)
       foreach (dep ${_args})
-	set (${_NAME}_${dep} "NOTFOUND" CACHE INTERNAL "Cleared" FORCE)
+        set (${_NAME}_${dep} "NOTFOUND" CACHE INTERNAL "Cleared" FORCE)
       endforeach (dep)
     endif (_cmd STREQUAL "DEPENDENTS")
     set (${_NAME}_FOUND "NOTFOUND" CACHE INTERNAL "Cleared" FORCE)
-  endif (NOT ${_current})
+  endif ()
+  set (PACKAGE_MULTIPASS_${name}_CALLED YES CACHE INTERNAL "Private" FORCE)
 endmacro (FIND_PACKAGE_MULTIPASS)
 
 
-macro (MULTIPASS_C_SOURCE_RUNS name includes libraries source runs)
-  include (CheckCSourceRuns)
-  string (TOUPPER ${name} _NAME)
-  # This is a ridiculous hack.  CHECK_C_SOURCE_* thinks that if the
+macro (MULTIPASS_SOURCE_RUNS includes libraries source runs language)
+  include (Check${language}SourceRuns)
+  # This is a ridiculous hack.  CHECK_${language}_SOURCE_* thinks that if the
   # *name* of the return variable doesn't change, then the test does
   # not need to be re-run.  We keep an internal count which we
   # increment to guarantee that every test name is unique.  If we've
@@ -86,6 +93,14 @@ macro (MULTIPASS_C_SOURCE_RUNS name includes libraries source runs)
   set (testname MULTIPASS_TEST_${MULTIPASS_TEST_COUNT}_${runs})
   set (CMAKE_REQUIRED_INCLUDES ${includes})
   set (CMAKE_REQUIRED_LIBRARIES ${libraries})
-  check_c_source_runs ("${source}" ${testname}) 
+  if(${language} STREQUAL "C")
+    check_c_source_runs ("${source}" ${testname})
+  elseif(${language} STREQUAL "CXX")
+    check_cxx_source_runs ("${source}" ${testname})
+  endif()
   set (${runs} "${${testname}}")
+endmacro (MULTIPASS_SOURCE_RUNS)
+
+macro (MULTIPASS_C_SOURCE_RUNS includes libraries source runs)
+  multipass_source_runs("${includes}" "${libraries}" "${source}" ${runs} "C")
 endmacro (MULTIPASS_C_SOURCE_RUNS)
