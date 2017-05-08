@@ -20,4 +20,5 @@
 /nbproject
 /.cproject
 /.project
-/build
+/build*
+/.idea
