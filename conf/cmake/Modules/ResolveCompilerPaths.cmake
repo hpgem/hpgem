@@ -49,7 +49,7 @@ macro (RESOLVE_LIBRARIES LIBS LINK_LINE)
       # If it's a library path, add it to the list
       string (REGEX REPLACE "^-L" "" token ${token})
       string (REGEX REPLACE "//" "/" token ${token})
-      convert_cygwin_path(token)
+      #convert_cygwin_path(token)
       list (APPEND _directory_list ${token})
     elseif (token MATCHES "^(-l([^\" ]+|\"[^\"]+\")|[^\" ]+\\.(a|so|dll|lib))")
       # It's a library, resolve the path by looking in the list and then (by default) in system directories
@@ -63,7 +63,7 @@ macro (RESOLVE_LIBRARIES LIBS LINK_LINE)
         #separate into a path and a library name:
         string (REGEX MATCH "[^/]*\\.(a|so|dll|lib)$" libname ${token})
         string (REGEX MATCH ".*[^${libname}$]" libpath ${token})
-        convert_cygwin_path(libpath)
+        #convert_cygwin_path(libpath)
         set (_directory_list ${_directory_list} ${libpath})
         set (token ${libname})
       endif (token MATCHES "^/")
