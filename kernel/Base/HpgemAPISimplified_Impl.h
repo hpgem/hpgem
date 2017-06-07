@@ -577,14 +577,14 @@ namespace Base
         double norm = 0.;
         for(Base::Element* element : this->meshes_[0]->getElementsList())
         {
-            norm += Base::L2Norm(element->getTimeIntegrationVector(solutionVectorId_));
+            norm += std::real(Base::L2Norm(element->getTimeIntegrationVector(solutionVectorId_)));
             LinearAlgebra::MiddleSizeVector deviation(element->getNumberOfBasisFunctions() * element->getNumberOfUnknowns());
             deviation *= 0.;
             for(std::size_t i = 0; i < ptrButcherTableau_->getNumberOfStages(); ++i)
             {
                 deviation += element->getTimeIntegrationVector(auxiliaryVectorIds_[i]) * dt * ptrButcherTableau_->getErrorCoefficient(i);
             }
-            error += std::pow(Base::L2Norm(deviation), 2.);
+            error += std::real(std::pow(Base::L2Norm(deviation), 2.));
         }
 #ifdef HPGEM_USE_MPI
         auto& communicator = MPIContainer::Instance();

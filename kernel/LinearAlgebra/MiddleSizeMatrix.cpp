@@ -63,6 +63,7 @@ namespace LinearAlgebra
         
         /// This is a least squares solver, solving an over- or underdetermined system AX=B for X. It has been taken from LAPACK.
         void dgelss_(int *m, int *n, int *nrhs, double *A, int *lda, double *B, int *ldb, double *s, double *rCond, int *rank, double *work, int *lWork, int *info);
+        void zgelss_(int *m, int *n, int *nrhs, std::complex<double> *A, int *lda, std::complex<double> *B, int *ldb, double *s, double *rCond, int *rank, std::complex<double> *work, int *lWork, int *info);
     }
     
     MiddleSizeMatrix::MiddleSizeMatrix()
@@ -675,13 +676,16 @@ namespace LinearAlgebra
         MiddleSizeMatrix A = *this;
         int n = int(A.getNumberOfRows());
         int nRHS = 1;
-        LinearAlgebra::MiddleSizeVector s(n);
+        std::vector<double> s(n);
         int rank = 0;
         int lWork = n*10;
         LinearAlgebra::MiddleSizeVector work(lWork);
         int info = 0;
-        
+#ifdef HPGEM_USE_COMPLEX_PETSC        
+        zgelss_(&n, &n, &nRHS, A.data(), &n, b.data(), &n, s.data(), &rCond, &rank, work.data(), &lWork, &info);
+#else
         dgelss_(&n, &n, &nRHS, A.data(), &n, b.data(), &n, s.data(), &rCond, &rank, work.data(), &lWork, &info);
+#endif
     }
     
     MiddleSizeMatrix::type* MiddleSizeMatrix::data()
