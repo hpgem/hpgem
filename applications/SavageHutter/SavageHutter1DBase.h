@@ -38,9 +38,6 @@ public:
     virtual ~SavageHutter1DBase(){ }
     
 protected:
-        
-    /// \brief Create a description of the domain
-    Base::RectangularMeshDescriptor<1> createMeshDescription(const std::size_t numOfElementPerDirection, const double endOfDomain, const Base::BoundaryType boundary);
     
     /// \brief Function to compute the integrand for the right hand side for the reference element.
     const LinearAlgebra::MiddleSizeVector integrandRightHandSideOnElement

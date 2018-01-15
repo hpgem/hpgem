@@ -23,31 +23,21 @@
 #include "SavageHutter2DInteriorTest.h"
 #include "HeightLimiters/PositiveLayerLimiter.h"
 
-SavageHutter2DInteriorTest::SavageHutter2DInteriorTest(std::size_t polyOrder, std::size_t numberOfElements) :
+SavageHutter2DInteriorTest::SavageHutter2DInteriorTest(std::size_t polyOrder, std::string meshName) :
 SavageHutter2DBase(3, polyOrder)
 {
     chuteAngle_ = M_PI / 180 * 29;
     epsilon_ = .1;
-    const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
+    //const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
+    const PointPhysicalT pPhys = {0., 0.};
     inflowBC_ = getInitialSolution(pPhys, 0);
     
     
     std::vector<std::string> variableNames = {"h", "hu", "hv"};
     setOutputNames("output2D", "SavageHutter", "SavageHutter", variableNames);
     
-    createMesh(numberOfElements, Base::MeshType::RECTANGULAR);
+    readMesh(meshName);
     
-}
-
-Base::RectangularMeshDescriptor<2> SavageHutter2DInteriorTest::createMeshDescription(const std::size_t numberOfElementsPerDirection)
-{
-    const std::size_t nx = numberOfElementsPerDirection;
-    const std::size_t ny = numberOfElementsPerDirection;
-    const double xMax = 1;
-    const double yMax = 1;
-    const Base::BoundaryType xBoundary = Base::BoundaryType::PERIODIC;
-    const Base::BoundaryType yBoundary = Base::BoundaryType::PERIODIC;
-    return SavageHutter2DBase::createMeshDescription({nx, ny}, {xMax, yMax}, {xBoundary, yBoundary});
 }
 
 LinearAlgebra::MiddleSizeVector SavageHutter2DInteriorTest::getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative)

@@ -63,39 +63,9 @@ public:
     ///Lastly, construct the mesh with this number of elements and polynomial order.
     TutorialPoisson(const std::size_t n, const std::size_t p) :
     Base::HpgemAPILinearSteadyState<DIM>(1, p, true, true),
-    n_(n),
     p_(p)
     {
-        penalty_ = 3 * n_ * p_ * (p_ + DIM - 1) + 1;
-    }
-    
-    ///\brief set up the mesh  
-    ///
-    ///In this example, we are going to make a domain [0,1]^2
-    ///We define the domain, number of elements in each direction and whether or
-    ///no there are periodic boundary conditions. Then make a triangular mesh and 
-    ///generate the basisfunctions on the reference domain.
-    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numberOfElementsPerDirection) override final
-    {
-        //describes a rectangular domain
-        Base::RectangularMeshDescriptor<DIM> description;
-        
-        //this demo will use the square [0,1]^2
-        for (std::size_t i = 0; i < DIM; ++i)
-        {
-            //define the value of the bottom left corner in each dimension
-            description.bottomLeft_[i] = 0;
-            //define the value of the top right corner in each dimension
-            description.topRight_[i] = 1;
-            //define how many elements there should be in the direction of dimension
-            //At this stage, the mesh first consists of n^2 squares, and later these
-            //squares can be divided in two triangles each if a triangular mesh is desired.
-            description.numberOfElementsInDIM_[i] = n_;
-            //define whether you have periodic boundary conditions or a solid wall in this direction.
-            description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
-        }
-        
-        return description;
+        penalty_ = 3 * n * p_ * (p_ + DIM - 1) + 1;
     }
     
     ///\brief Compute the integrand for the stiffness matrix at the element.
@@ -255,7 +225,8 @@ private:
     double penalty_;
 };
 
-auto& numberOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
+auto& numberOfElements = Base::register_argument<std::size_t>('n', "numElems", "maximum number of elements per dimension", true);
+auto& meshName = Base::register_argument<std::string>('\0', "meshName", "name of the mesh file", true);
 auto& p = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
 ///Example of using the Laplace class. 
 ///This implementation asks for commandline input arguments for the number of elements
@@ -266,18 +237,17 @@ int main(int argc, char **argv)
 {
     Base::parse_options(argc, argv);
 
-    // Choose a mesh type (e.g. TRIANGULAR, RECTANGULAR).
-    const Base::MeshType meshType = Base::MeshType::TRIANGULAR;
-
     // Choose variable name(s). Since we have a scalar function, we only need to chooes one name.
     std::vector<std::string> variableNames;
     variableNames.push_back("u");
 
     //Make the object test with n elements in each direction and polynomial order p.
+    //because we want to compute a penalty parameter we have to repeat the number of elements that was used to create the mesh
+    //this can in principle be automated, but this would distract from the tutorial
     TutorialPoisson test(numberOfElements.getValue(), p.getValue());
 
     //Create the mesh
-    test.createMesh(numberOfElements.getValue(), meshType);
+    test.readMesh(meshName.getValue());
 
     // Set the names for the output file
     test.setOutputNames("output", "TutorialPoisson", "TutorialPoisson", variableNames);

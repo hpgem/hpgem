@@ -142,7 +142,11 @@ namespace Base
         virtual const std::vector<Node*>& getNodesList(IteratorType part = IteratorType::LOCAL) const = 0;
         
         virtual std::vector<Node*>& getNodesList(IteratorType part = IteratorType::LOCAL) = 0;
-                
+
+        virtual const std::map<int, std::vector<Element*> > & getPullElements() = 0;
+
+        virtual const std::map<int, std::vector<Element*> > & getPushElements() = 0;
+
         std::size_t dimension() const;
         
     protected:

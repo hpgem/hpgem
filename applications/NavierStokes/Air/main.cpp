@@ -25,7 +25,7 @@
 #include <chrono>
 #include <fstream>
 
-auto& numOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
+auto& name = Base::register_argument<std::string>('n', "meshName", "name of the mesh file", true);
 auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
 
 auto& numOfOutputFrames = Base::register_argument<std::size_t>('O', "numOfOutputFrames", "Number of frames to output", false, 100);
@@ -41,9 +41,6 @@ int main (int argc, char **argv){
 
     //Read input parameters
 	Base::parse_options(argc, argv);
-
-	//Set meshtype, RECTANGULAR OR TRIANGULAR
-    const Base::MeshType meshType = Base::MeshType::RECTANGULAR;
 
     //Select explicit integration method
     const TimeIntegration::ButcherTableau * const ptrButcherTableau = TimeIntegration::AllTimeIntegrators::Instance().getRule(3,3,true);
@@ -63,7 +60,7 @@ int main (int argc, char **argv){
     Air problem(numOfVariables, endTime.getValue(), polynomialOrder.getValue(), ptrButcherTableau, true);
 
     // Create the mesh, a simple square domain
-    problem.createMesh(numOfElements.getValue(), meshType);
+    problem.readMesh(name.getValue());
 
     // Solve the problem over time interval [startTime,endTime].
     problem.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numOfOutputFrames.getValue(), true);
@@ -90,7 +87,7 @@ int main (int argc, char **argv){
 	myFile << "Momentum y: " << errors(2) << std::endl;
 	myFile << "Total Energy: " << errors(3) << std::endl;
 	myFile << "p = " << polynomialOrder.getValue() << std::endl;
-	myFile << "n = " << numOfElements.getValue() << std::endl;
+	myFile << "Mesh name = " << name.getValue() << std::endl;
 	myFile << "=========END===========" << std::endl;
 	myFile.close();
 

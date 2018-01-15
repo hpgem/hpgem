@@ -46,15 +46,11 @@ namespace Base
 {
 
     template<std::size_t DIM>
-    Mesh<DIM>::Mesh()
-            : hasToSplit_(false)
-    {
-    }
+    Mesh<DIM>::Mesh() {}
 
     template<std::size_t DIM>
     Mesh<DIM>::Mesh(const Mesh& orig)
-            : hasToSplit_(true),
-        nodeCoordinates_(orig.nodeCoordinates_)
+            : nodeCoordinates_(orig.nodeCoordinates_)
     {
         logger(ERROR, "To be done again with the help of Boost::serialize");
         //Make elements. Note: each element gets a new unique ID
@@ -114,10 +110,7 @@ namespace Base
             ++edgeCounter_;
         }
         logger.assert(orig.edgeCounter_ == edgeCounter_, "In the copy constructor of Mesh,"
-            "there is a different number of nodes in the new Mesh than in the old one.");
-        
-        //call split() to make get...List() const to work with local iterators
-        split();*/
+            "there is a different number of nodes in the new Mesh than in the old one.");*/
     }
 
     template<std::size_t DIM>
@@ -129,9 +122,9 @@ namespace Base
     template<std::size_t DIM>
     Element* Mesh<DIM>::addElement(const std::vector<std::size_t>& globalNodeIndexes)
     {
+        //some users don't want to see their elements added locally so don't mess with the submesh here
         Element* newElement = ElementFactory::instance().makeElement(globalNodeIndexes, nodeCoordinates_);
         elements_.addRootEntry(newElement);
-        hasToSplit_ = true;
         newElement->setPositionInTree((--elements_.end()).getTreeEntry());
         return newElement;
     }
@@ -144,7 +137,6 @@ namespace Base
         {
             subElements[i]->setPositionInTree(parent->getPositionInTree()->getChild(i));
         }
-        hasToSplit_ = true;
     }
 
     template<std::size_t DIM>
@@ -162,7 +154,6 @@ namespace Base
         }
         faces_.addRootEntry(newFace);
         newFace->setPositionInTree((--faces_.end()).getTreeEntry());
-        hasToSplit_ = true;
         return true;
     }
 
@@ -174,240 +165,27 @@ namespace Base
         {
             subFaces[i]->setPositionInTree(parent->getPositionInTree()->getChild(i));
         }
-        hasToSplit_ = true;
     }
 
     template<std::size_t DIM>
-    void Mesh<DIM>::addEdge()
+    Edge* Mesh<DIM>::addEdge()
     {
         Edge* newEdge = new Edge(GlobalUniqueIndex::instance().getEdgeIndex());
         edges_.addRootEntry(newEdge);
         newEdge->setPositionInTree((--edges_.end()).getTreeEntry());
-        hasToSplit_ = true;
+        return newEdge;
     }
     
     template<std::size_t DIM>
     void Mesh<DIM>::addNodeCoordinate(Geometry::PointPhysical<DIM> node)
     {
         nodeCoordinates_.push_back(node);
-        //don't distribute the points here, it will confuse the elements
     }
     
     template<std::size_t DIM>
     void Mesh<DIM>::addNode()
     {
         nodes_.push_back(new Node(GlobalUniqueIndex::instance().getNodeIndex()));
-        hasToSplit_ = true;
-    }
-
-    template<std::size_t DIM>
-    void Mesh<DIM>::split()
-    {
-        //split the mesh
-        int pid = 0, elementsProcessed(0);
-        std::map<std::size_t, idx_t> contiguousPositionOfElement;
-        elements_.setSingleLevelTraversal(0);
-        for (Element* element : elements_)
-        {
-            contiguousPositionOfElement[element->getID()] = elementsProcessed++;
-        }
-#ifdef HPGEM_USE_MPI
-#ifdef HPGEM_USE_METIS
-        std::vector<idx_t> partition(elements_.size()); //output
-        pid = MPIContainer::Instance().getProcessorID();
-        idx_t nProcs = MPIContainer::Instance().getNumberOfProcessors();
-
-        if (pid == 0 && nProcs > 1)
-        {   
-            logger(INFO, "start of metis");
-
-            idx_t one = 1; //actually the number of constraints. This can be increased for example when we want to distribute an entire mesh tree in one go (while keeping each of the levels balanced) - increasing this number turns imbalance into a vector
-            idx_t numberOfElements = elements_.size();
-
-            //int mpiCommSize=4;
-            float imbalance = 1.001;//explicitly put the default for later manipulation
-            idx_t totalCutSize;//output
-            
-            std::vector<idx_t> xadj(numberOfElements + 1);//make sure not to put this data on the stack
-            std::vector<idx_t> adjncy(2 * faces_.size());//if this basic connectivity structure turns out to be very slow for conforming meshes, some improvements can be made
-            int connectionsUsed(0), xadjCounter(0);
-            for (Element* element : elements_)
-            {   
-                xadj[xadjCounter] = connectionsUsed;
-                xadjCounter++;
-                for (int i = 0; i < element->getReferenceGeometry()->getNumberOfCodim1Entities(); ++i)
-                {   
-                    const Face* face = element->getFace(i);
-                    if (face->isInternal())
-                    {   
-                        if (element == face->getPtrElementLeft())
-                        {   
-                            adjncy[connectionsUsed] = contiguousPositionOfElement[face->getPtrElementRight()->getID()];
-                            connectionsUsed++;
-                        }
-                        else
-                        {   
-                            adjncy[connectionsUsed] = contiguousPositionOfElement[face->getPtrElementLeft()->getID()];
-                            connectionsUsed++;
-                        }
-                    } //boundary faces don't generate connections
-                }
-            }
-            xadj[xadjCounter] = connectionsUsed;
-
-            idx_t metisOptions[METIS_NOPTIONS];
-            METIS_SetDefaultOptions(metisOptions);
-
-            metisOptions[METIS_OPTION_CTYPE] = METIS_CTYPE_SHEM;
-            metisOptions[METIS_OPTION_RTYPE] = METIS_RTYPE_FM;
-
-            //the empty arguments provide options for fine-tuning the weights of nodes, edges and processors, these are currently assumed to be the same
-            METIS_PartGraphKway(&numberOfElements, &one, xadj.data(), adjncy.data(), NULL, NULL, NULL, &nProcs, NULL, &imbalance, metisOptions, &totalCutSize, partition.data());
-            //mpiCommunicator.Bcast((void *)&partition[0],partition.size(),MPI::INT,0);//broadcast the computed partition to all the nodes
-            logger(INFO, "Done splitting mesh.");
-
-        }
-
-        MPIContainer::Instance().broadcast(partition, 0);
-#endif
-#else
-        std::vector<std::size_t> partition(elements_.size()); //output
-#endif
-        submeshes_.clear();
-        auto elementIterator = elements_.begin();
-        elementIterator.setSingleLevelTraversal(0);
-        for (auto targetIterator = partition.begin(); targetIterator != partition.end(); ++targetIterator, ++elementIterator)
-        {
-            if (pid == *targetIterator)
-            {
-                submeshes_.add(*elementIterator);
-            }
-        }
-        faces_.setSingleLevelTraversal(0);
-        for (Base::Face* face : faces_)
-        {
-            //Are we part of this face?
-            if (partition[contiguousPositionOfElement[face->getRootElement()->getID()]] == pid
-                || (face->isInternal() &&
-                    partition[contiguousPositionOfElement[face->getPtrElementRight()->getID()]] == pid))
-            {
-                //if we are a part of this face
-                submeshes_.add(face);
-
-                if (face->isInternal() && contiguousPositionOfElement[face->getPtrElementRight()->getID()] < elements_.size() &&
-                    (partition[contiguousPositionOfElement[face->getRootElement()->getID()]] !=
-                     partition[contiguousPositionOfElement[face->getPtrElementRight()->getID()]]))
-                {
-                    if (face->getFaceType() == Geometry::FaceType::INTERNAL)
-                    {
-                        face->setFaceType(Geometry::FaceType::SUBDOMAIN_BOUNDARY);
-                    }
-                    else if (face->getFaceType() == Geometry::FaceType::PERIODIC_BC)
-                    {
-                        face->setFaceType(Geometry::FaceType::PERIODIC_SUBDOMAIN_BC);
-                    }
-                    //else the facetype was already updated during a previous partitioning pass
-                    if (partition[contiguousPositionOfElement[face->getRootElement()->getID()]] == pid)
-                    {
-                        //don't send to yourself, ask the element on the other side what pid to sent to
-                        //use the private addPush and addPull because they are more efficient
-                        submeshes_.addPush(face->getRootElement(), partition[contiguousPositionOfElement[face->getPtrElementRight()->getID()]]);
-                        //if you receive, the source is the owner of the element
-                        submeshes_.addPull(face->getPtrElementRight(), partition[contiguousPositionOfElement[face->getPtrElementRight()->getID()]]);
-                    }
-                    else
-                    {
-                        submeshes_.addPush(face->getPtrElementRight(), partition[contiguousPositionOfElement[face->getRootElement()->getID()]]);
-                        submeshes_.addPull(face->getRootElement(), partition[contiguousPositionOfElement[face->getRootElement()->getID()]]);
-                    }
-                }
-            }
-        }
-        
-        //edges and nodes are only used to construct conforming basis-functions (i.e. GlobalAssembly))
-        if(edges_.size() > 0) edges_.setSingleLevelTraversal(0);
-        for (Base::Edge* edge : edges_)
-        {
-            if (partition[contiguousPositionOfElement[edge->getRootElement()->getID()]] == pid)
-            {
-                submeshes_.add(edge);
-            }
-        }
-        for (Base::Node* node : nodes_)
-        {
-            if (partition[contiguousPositionOfElement[node->getRootElement()->getID()]] == pid)
-            {
-                submeshes_.add(node);
-            }
-        }
-        elements_.setPreOrderTraversal();
-        submeshes_.getElementsList().setPreOrderTraversal();
-        auto subMeshElementIterator = submeshes_.getElementsList().begin();
-        for(elementIterator = elements_.begin(); subMeshElementIterator != submeshes_.getElementsList().end(); ++elementIterator)
-        {
-            if(*elementIterator == *subMeshElementIterator){
-                if (elementIterator.getTreeEntry()->hasChild())
-                {
-                    std::vector<Element *> children;
-                    auto childIterator = elementIterator;
-                    childIterator.setPreOrderTraversal();
-                    (++childIterator).setAllLevelTraversal();
-                    for (auto child : elementIterator.getTreeEntry()->getChildren())
-                    {
-                        children.push_back(*childIterator++);
-                    }
-                    submeshes_.getElementsList().addChildren(subMeshElementIterator, children);
-                }
-                ++subMeshElementIterator;
-            }
-        }
-        faces_.setPreOrderTraversal();
-        submeshes_.getFacesList().setPreOrderTraversal();
-        auto faceIterator = faces_.begin();
-        auto subMeshFaceIterator = submeshes_.getFacesList().begin();
-        for(; subMeshFaceIterator != submeshes_.getFacesList().end(); ++faceIterator)
-        {
-            if(*faceIterator == *subMeshFaceIterator)
-            {
-                if (faceIterator.getTreeEntry()->hasChild())
-                {
-                    std::vector<Face *> children;
-                    auto childIterator = faceIterator;
-                    childIterator.setPreOrderTraversal();
-                    (++childIterator).setAllLevelTraversal();
-                    for (auto child : faceIterator.getTreeEntry()->getChildren())
-                    {
-                        children.push_back(*childIterator++);
-                    }
-                    submeshes_.getFacesList().addChildren(subMeshFaceIterator, children);
-                }
-                ++subMeshFaceIterator;
-            }
-        }
-        edges_.setPreOrderTraversal();
-        submeshes_.getEdgesList().setPreOrderTraversal();
-        auto edgeIterator = edges_.begin();
-        auto subMeshEdgeIterator = submeshes_.getEdgesList().begin();
-        for(; subMeshEdgeIterator != submeshes_.getEdgesList().end(); ++edgeIterator)
-        {
-            if(*edgeIterator == *subMeshEdgeIterator)
-            {
-                if (edgeIterator.getTreeEntry()->hasChild())
-                {
-                    std::vector<Edge *> children;
-                    auto childIterator = edgeIterator;
-                    childIterator.setPreOrderTraversal();
-                    (++childIterator).setAllLevelTraversal();
-                    for (auto child : edgeIterator.getTreeEntry()->getChildren())
-                    {
-                        children.push_back(*childIterator++);
-                    }
-                    submeshes_.getEdgesList().addChildren(subMeshEdgeIterator, children);
-                }
-                ++subMeshEdgeIterator;
-            }
-        }
-        hasToSplit_ = false;
     }
 
     template<std::size_t DIM>
@@ -442,12 +220,11 @@ namespace Base
     {
         if (part == IteratorType::LOCAL)
         {
-            logger.assert_always(!hasToSplit_, "Please call getElementsList() on a modifiable mesh at least once"
-                    "\nbefore calling getElementsList() const");
             return submeshes_.getElementsList();
         }
         else
         {
+            logger(WARN, "getElementsList will only return elements this processor knows about (including shadow elements)");
             return elements_;
         }
     }
@@ -457,14 +234,11 @@ namespace Base
     {
         if (part == IteratorType::LOCAL)
         {
-            if (hasToSplit_)
-            {
-                split();
-            }
             return submeshes_.getElementsList();
         }
         else
         {
+            logger(WARN, "getElementsList will only return elements this processor knows about (including shadow elements)");
             return elements_;
         }
     }
@@ -474,12 +248,11 @@ namespace Base
     {
         if (part == IteratorType::LOCAL)
         {
-            logger.assert_always(!hasToSplit_, "Please call getFacesList() on a modifiable mesh at least once"
-                    "\nbefore calling getFacesList() const");
             return submeshes_.getFacesList();
         }
         else
         {
+            logger(WARN, "getFacesList will only return faces this processor knows about");
             return faces_;
         }
     }
@@ -489,14 +262,11 @@ namespace Base
     {
         if (part == IteratorType::LOCAL)
         {
-            if (hasToSplit_)
-            {
-                split();
-            }
             return submeshes_.getFacesList();
         }
         else
         {
+            logger(WARN, "getFacesList will only return faces this processor knows about");
             return faces_;
         }
     }
@@ -506,12 +276,11 @@ namespace Base
     {
         if (part == IteratorType::LOCAL)
         {
-            logger.assert_always(!hasToSplit_, "Please call getEdgesList() on a modifiable mesh at least once"
-                    "\nbefore calling getEdgesList() const");
             return submeshes_.getEdgesList();
         }
         else
         {
+            logger(WARN, "getEdgesList will only return edges this processor knows about");
             return edges_;
         }
     }
@@ -521,14 +290,11 @@ namespace Base
     {
         if (part == IteratorType::LOCAL)
         {
-            if (hasToSplit_)
-            {
-                split();
-            }
             return submeshes_.getEdgesList();
         }
         else
         {
+            logger(WARN, "getEdgesList will only return edges this processor knows about");
             return edges_;
         }
     }
@@ -538,12 +304,11 @@ namespace Base
     {
         if (part == IteratorType::LOCAL)
         {
-            logger.assert_always(!hasToSplit_, "Please call getNodesList() on a modifiable mesh at least once"
-                    "\nbefore calling getNodesList() const");
             return submeshes_.getNodesList();
         }
         else
         {
+            logger(WARN, "getNodesList will only return nodes this processor knows about");
             return nodes_;
         }
     }
@@ -553,14 +318,11 @@ namespace Base
     {
         if (part == IteratorType::LOCAL)
         {
-            if (hasToSplit_)
-            {
-                split();
-            }
             return submeshes_.getNodesList();
         }
         else
         {
+            logger(WARN, "getNodesList will only return nodes this processor knows about");
             return nodes_;
         }
     }
@@ -568,16 +330,12 @@ namespace Base
     template<std::size_t DIM>
     const std::vector<Geometry::PointPhysical<DIM> >& Mesh<DIM>::getNodeCoordinates() const
     {
-        //for historic reasons points_ is referenced directly during element 
-        //creation and therefore cannot be distributed
         return nodeCoordinates_;
     }
 
     template<std::size_t DIM>
     std::vector<Geometry::PointPhysical<DIM> >& Mesh<DIM>::getNodeCoordinates()
     {
-        //for historic reasons points_ is referenced directly during element 
-        //creation and therefore cannot be distributed
         return nodeCoordinates_;
     }
 

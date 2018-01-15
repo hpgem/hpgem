@@ -36,7 +36,7 @@
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
 #include "Logger.h"
 
-const static std::size_t DIM = 3;
+const static std::size_t DIM = 2;
 
 /// Linear advection equation du/dt + a[0] du/dx + a[1] du/dy = 0.
 /// This class is meant for testing purposes.
@@ -59,33 +59,9 @@ public:
         a[0] = 0.1;
         a[2] = 0.3;
     }
-    
-    /// Create a mesh description
-    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numberOfElementsPerDirection) override final
-    {
-        //describes a rectangular domain
-        Base::RectangularMeshDescriptor<DIM> description;
-        
-        //this demo will use the square [0,1]^2
-        for (std::size_t i = 0; i < DIM; ++i)
-        {
-            description.bottomLeft_[i] = 0;
-            description.topRight_[i] = 1;
-            //Define elements in each direction.
-            description.numberOfElementsInDIM_[i] = numberOfElementsPerDirection;
-            
-            //Choose whether you want periodic boundary conditions or other (solid wall)
-            //boundary conditions.
-            description.boundaryConditions_[i] = Base::BoundaryType::PERIODIC;
-        }
-        
-        return description;
-    }
 
-    void createMesh(const std::size_t numberOfElementsPerDirection, const Base::MeshType meshType) override final
+    void readMesh(const std::string meshName) override final
     {
-        const Base::RectangularMeshDescriptor<DIM> description = createMeshDescription(numberOfElementsPerDirection);
-
         // Set the number of Element/Face Matrices/Vectors.
         std::size_t numberOfElementMatrices = 2;
         std::size_t numberOfElementVectors = 0;
@@ -93,8 +69,7 @@ public:
         std::size_t numberOfFaceVectors = 0;
 
         // Create mesh and set basis functions.
-        std::string name = std::string{"cube"} + std::to_string(numberOfElementsPerDirection) + std::string{".hyb"};
-        this->addMesh(name, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors);
+        this->addMesh(meshName, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors);
         //this->meshes_[0]->useDefaultDGBasisFunctions();
 
         // Set the number of time integration vectors according to the size of the Butcher tableau.
@@ -213,15 +188,13 @@ private:
     LinearAlgebra::SmallVector<DIM> a;
 };
 
-auto& n = Base::register_argument<std::size_t>('n', "numelems", "Number of Elements", true);
+auto& name = Base::register_argument<std::string>('n', "meshName", "Name of the mesh file", true);
 auto& p = Base::register_argument<std::size_t>('p', "poly", "Polynomial order", true);
 
 ///Make the problem and solve it.
 int main(int argc, char **argv)
 {
     Base::parse_options(argc, argv);
-    // Choose a mesh type (e.g. TRIANGULAR, RECTANGULAR).
-    const Base::MeshType meshType = Base::MeshType::RECTANGULAR;
 
     // Choose variable name(s). Since we have a scalar function, we only need to choose one name.
     std::vector<std::string> variableNames;
@@ -231,7 +204,7 @@ int main(int argc, char **argv)
     AdvectionTest test(p.getValue());
 
     //Create the mesh
-    test.createMesh(n.getValue(), meshType);
+    test.readMesh(name.getValue());
 
     // Set the names for the output file
     test.setOutputNames("output", "AdvectionTest", "AdvectionTest", variableNames);

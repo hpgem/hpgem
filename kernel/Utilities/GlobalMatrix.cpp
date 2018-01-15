@@ -117,9 +117,12 @@ namespace Utilities
     
     GlobalPetscMatrix::operator Mat()
     {
-        if(HPGEM_LOGLEVEL==Log::DEBUG)
+        if(HPGEM_LOGLEVEL>=Log::DEBUG)
         {
+            MatChop(A_, 1e-13);
+            MatScale(A_, 24.);
             MatView(A_, PETSC_VIEWER_STDOUT_WORLD);
+            MatScale(A_, 1. / 24.);
         }
         return A_;
     }
@@ -192,6 +195,7 @@ namespace Utilities
             {
                 std::vector<PetscInt> positions = makePositionsInMatrix(element);
                 elementMatrix = element->getElementMatrix(elementMatrixID_);
+                logger(DEBUG, "%", elementMatrix * 24.);
                 ierr = MatSetValues(A_, positions.size(), positions.data(), positions.size(), positions.data(), elementMatrix.data(), ADD_VALUES);
                 CHKERRV(ierr);
             }
@@ -214,10 +218,11 @@ namespace Utilities
                     }
                 }
                 faceMatrix = face->getFaceMatrixMatrix(faceMatrixID_);
+                logger(DEBUG, "%", faceMatrix * 24.);
                 //work-around: both subdomains have the boundary face so by default it is added twice, but it should only be added once
                 if(face->getFaceType() == Geometry::FaceType::SUBDOMAIN_BOUNDARY || face->getFaceType() == Geometry::FaceType::PERIODIC_SUBDOMAIN_BC)
                 {
-                    faceMatrix *= 0.5;
+                    //faceMatrix *= 0.5;
                 }
                 ierr = MatSetValues(A_, positions.size(), positions.data(), positions.size(), positions.data(), faceMatrix.data(), ADD_VALUES);
                 CHKERRV(ierr);
@@ -231,160 +236,51 @@ namespace Utilities
     }
     
     ///\todo figure out a nice way to keep local data local
+    //debug note: GlobalPetscVector 'independently' chooses an ordering for the degrees of freedom, but hpGEM assumes both orderings to be the same
     void GlobalPetscMatrix::reAssemble()
     {
         MatDestroy(&A_);
-#ifdef HPGEM_USE_MPI
-        std::size_t n = Base::MPIContainer::Instance().getNumberOfProcessors();
-        //offset by one to put a 0 in front (type int, because MPI wants it to be int)
-        std::vector<int> MPISendElementCounts(n+1,0), MPISendFaceCounts(n+1,0), MPISendEdgeCounts(n+1,0), MPISendNodeCounts(n+1,0);
-
-        int rank = Base::MPIContainer::Instance().getProcessorID();
-
-        MPISendElementCounts[rank+1] = theMesh_->getNumberOfElements();
-        MPISendFaceCounts[rank+1] = theMesh_->getNumberOfFaces();
-        MPISendEdgeCounts[rank+1] = theMesh_->getNumberOfEdges();
-        MPISendNodeCounts[rank+1] = theMesh_->getNumberOfNodes();
-
-        //tell the rest of the processes how much info the others have
-        MPI::Intracomm& comm = Base::MPIContainer::Instance().getComm();
-        comm.Allgather(MPI_IN_PLACE,1,Base::Detail::toMPIType(*MPISendElementCounts.data()),MPISendElementCounts.data()+1,1,Base::Detail::toMPIType(*MPISendElementCounts.data()));
-        comm.Allgather(MPI_IN_PLACE,1,Base::Detail::toMPIType(*MPISendElementCounts.data()),MPISendFaceCounts.data()+1,1,Base::Detail::toMPIType(*MPISendElementCounts.data()));
-        comm.Allgather(MPI_IN_PLACE,1,Base::Detail::toMPIType(*MPISendElementCounts.data()),MPISendEdgeCounts.data()+1,1,Base::Detail::toMPIType(*MPISendElementCounts.data()));
-        comm.Allgather(MPI_IN_PLACE,1,Base::Detail::toMPIType(*MPISendElementCounts.data()),MPISendNodeCounts.data()+1,1,Base::Detail::toMPIType(*MPISendElementCounts.data()));
-
-        std::vector<int> MPISendElementStarts(n+1), MPISendFaceStarts(n+1), MPISendEdgeStarts(n+1), MPISendNodeStarts(n+1);
-
-        std::partial_sum(MPISendElementCounts.begin(), MPISendElementCounts.end(), MPISendElementStarts.begin());
-        std::partial_sum(MPISendFaceCounts.begin(), MPISendFaceCounts.end(), MPISendFaceStarts.begin());
-        std::partial_sum(MPISendEdgeCounts.begin(), MPISendEdgeCounts.end(), MPISendEdgeStarts.begin());
-        std::partial_sum(MPISendNodeCounts.begin(), MPISendNodeCounts.end(), MPISendNodeStarts.begin());
-
-        logger.assert(MPISendElementStarts.back()==theMesh_->getNumberOfElements(Base::IteratorType::GLOBAL),
-                "MPI does not see the right amount of elements");
-        logger.assert(MPISendFaceStarts.back()>=theMesh_->getNumberOfFaces(Base::IteratorType::GLOBAL),
-                "MPI does not see the right amount of faces");
-        logger.assert(MPISendEdgeStarts.back()==theMesh_->getNumberOfEdges(Base::IteratorType::GLOBAL),
-                "MPI does not see the right amount of edges");
-        logger.assert(MPISendNodeStarts.back()==theMesh_->getNumberOfNodes(Base::IteratorType::GLOBAL),
-                "MPI does not see the right amount of nodes");
-
-        //pack the computed data to send it using MPI
-        std::vector<std::size_t> MPISendElementNumbers(MPISendElementStarts.back(), std::numeric_limits<std::size_t>::max());
-        std::vector<std::size_t> MPISendFaceNumbers(MPISendFaceStarts.back(), std::numeric_limits<std::size_t>::max());
-        std::vector<std::size_t> MPISendEdgeNumbers(MPISendEdgeStarts.back(), std::numeric_limits<std::size_t>::max());
-        std::vector<std::size_t> MPISendNodeNumbers(MPISendNodeStarts.back(), std::numeric_limits<std::size_t>::max());
-
-        std::vector<std::size_t> MPISendElementPositions(MPISendElementStarts.back(), std::numeric_limits<std::size_t>::max());
-        std::vector<std::size_t> MPISendFacePositions(MPISendFaceStarts.back(), std::numeric_limits<std::size_t>::max());
-        std::vector<std::size_t> MPISendEdgePositions(MPISendEdgeStarts.back(), std::numeric_limits<std::size_t>::max());
-        std::vector<std::size_t> MPISendNodePositions(MPISendNodeStarts.back(), std::numeric_limits<std::size_t>::max());
-
-        auto currentElementNumber = MPISendElementNumbers.begin() + MPISendElementStarts[rank];
-        auto currentFaceNumber = MPISendFaceNumbers.begin() + MPISendFaceStarts[rank];
-        auto currentEdgeNumber = MPISendEdgeNumbers.begin() + MPISendEdgeStarts[rank];
-        auto currentNodeNumber = MPISendNodeNumbers.begin() + MPISendNodeStarts[rank];
-
-        auto currentElementPosition = MPISendElementPositions.begin() + MPISendElementStarts[rank];
-        auto currentFacePosition = MPISendFacePositions.begin() + MPISendFaceStarts[rank];
-        auto currentEdgePosition = MPISendEdgePositions.begin() + MPISendEdgeStarts[rank];
-        auto currentNodePosition = MPISendNodePositions.begin() + MPISendNodeStarts[rank];
-#endif
         std::size_t totalNumberOfDOF(0), DIM(theMesh_->dimension());
         for (Base::Element* element : theMesh_->getElementsList())
         {
-#ifdef HPGEM_USE_MPI
-            *currentElementNumber=element->getID();
-            *currentElementPosition=totalNumberOfDOF;
-            ++currentElementNumber;
-            ++currentElementPosition;
-#else
+            //for MPI simulations this is local numbering initially
+            //we do some communicating and renumbering later in the function
             startPositionsOfElementsInTheMatrix_[element->getID()] = totalNumberOfDOF;
-#endif
             totalNumberOfDOF += element->getLocalNumberOfBasisFunctions() * element->getNumberOfUnknowns();
-            for (std::size_t i = 0; i < element->getNumberOfFaces(); ++i)
+            for (Base::Face* face : element->getFacesList())
             {
-                //faces at the boundary of the subdomain should also be added only once, so add them here if the left element of the face is in the subdomain
-                if ((element->getFace(i)->getFaceType() == Geometry::FaceType::SUBDOMAIN_BOUNDARY || element->getFace(i)->getFaceType() == Geometry::FaceType::PERIODIC_SUBDOMAIN_BC)
-                        && element->getFace(i)->getPtrElementLeft() == element)
+                if (face->getPtrElementLeft() == element)
                 {
-#ifdef HPGEM_USE_MPI
-                    *currentFaceNumber=element->getFace(i)->getID();
-                    *currentFacePosition=totalNumberOfDOF;
-                    ++currentFaceNumber;
-                    ++currentFacePosition;
-#else
-                    startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()] = totalNumberOfDOF;
-#endif
-                    totalNumberOfDOF += element->getFace(i)->getLocalNumberOfBasisFunctions() * element->getNumberOfUnknowns();
+                    startPositionsOfFacesInTheMatrix_[face->getID()] = totalNumberOfDOF;
+                    totalNumberOfDOF += face->getLocalNumberOfBasisFunctions() * element->getNumberOfUnknowns();
                 }
                 
             }
-        }
-        for (Base::Face* face : theMesh_->getFacesList())
-        {
-            //skip faces at the subdomain boundary because we already treated them
-            if (face->getFaceType() != Geometry::FaceType::SUBDOMAIN_BOUNDARY && face->getFaceType() != Geometry::FaceType::PERIODIC_SUBDOMAIN_BC)
+            for (Base::Edge* edge : element->getEdgesList())
             {
-#ifdef HPGEM_USE_MPI
-                *currentFaceNumber=face->getID();
-                *currentFacePosition=totalNumberOfDOF;
-                ++currentFaceNumber;
-                ++currentFacePosition;
-#else
-                startPositionsOfFacesInTheMatrix_[face->getID()] = totalNumberOfDOF;
-#endif
-                totalNumberOfDOF += face->getLocalNumberOfBasisFunctions() * face->getPtrElementLeft()->getNumberOfUnknowns();
+                if(edge->getElement(0) == element) {
+                    startPositionsOfEdgesInTheMatrix_[edge->getID()] = totalNumberOfDOF;
+                    totalNumberOfDOF += edge->getLocalNumberOfBasisFunctions() * element->getNumberOfUnknowns();
+                }
             }
-        }
-        for (Base::Edge* edge : theMesh_->getEdgesList())
-        {
-#ifdef HPGEM_USE_MPI
-            *currentEdgeNumber=edge->getID();
-            *currentEdgePosition=totalNumberOfDOF;
-            ++currentEdgeNumber;
-            ++currentEdgePosition;
-#else
-            startPositionsOfEdgesInTheMatrix_[edge->getID()] = totalNumberOfDOF;
-#endif
-            totalNumberOfDOF += edge->getLocalNumberOfBasisFunctions() * edge->getElement(0)->getNumberOfUnknowns();
-        }
-        //DIM == 1 faces and nodes are the same entities, skip one of them
-        if (DIM > 1)
-        {
-            for (Base::Node* node : theMesh_->getNodesList())
+            //when DIM == 1 faces and nodes are the same entities, skip one of them
+            if (DIM > 1)
             {
-#ifdef HPGEM_USE_MPI
-                *currentNodeNumber=node->getID();
-                *currentNodePosition=totalNumberOfDOF;
-                ++currentNodeNumber;
-                ++currentNodePosition;
-#else
-                startPositionsOfNodesInTheMatrix_[node->getID()] = totalNumberOfDOF;
-#endif
-                totalNumberOfDOF += node->getLocalNumberOfBasisFunctions() * node->getElement(0)->getNumberOfUnknowns();
+                for (Base::Node* node : element->getNodesList())
+                {
+                    if(node->getElement(0) == element){
+                        startPositionsOfNodesInTheMatrix_[node->getID()] = totalNumberOfDOF;
+                        totalNumberOfDOF += node->getLocalNumberOfBasisFunctions() * element->getNumberOfUnknowns();
+                    }
+                }
             }
         }
         
 #ifdef HPGEM_USE_MPI
-        
-        logger.assert(currentElementNumber == MPISendElementNumbers.begin() + MPISendElementStarts[rank+1],
-                "MPI is not at the correct element.");
-        logger.assert(currentFaceNumber <= MPISendFaceNumbers.begin() + MPISendFaceStarts[rank+1],
-                "MPI is not at the correct face.");
-        logger.assert(currentEdgeNumber == MPISendEdgeNumbers.begin() + MPISendEdgeStarts[rank+1],
-                "MPI is not at the correct edge.");
-        logger.assert(currentNodeNumber == MPISendNodeNumbers.begin() + MPISendNodeStarts[rank+1] || DIM == 1,
-                "MPI is not at the correct node.");
-
-        logger.assert(currentElementPosition == MPISendElementPositions.begin() + MPISendElementStarts[rank+1],
-                "MPI is not at the correct element.");
-        logger.assert(currentFacePosition <= MPISendFacePositions.begin() + MPISendFaceStarts[rank+1],
-                "MPI is not at the correct face.");
-        logger.assert(currentEdgePosition == MPISendEdgePositions.begin() + MPISendEdgeStarts[rank+1],
-                "MPI is not at the correct edge.");
-        logger.assert(currentNodePosition == MPISendNodePositions.begin() + MPISendNodeStarts[rank+1] || DIM == 1,
-                "MPI is not at the correct node.");
+        auto& MPIInstance = Base::MPIContainer::Instance();
+        auto comm = MPIInstance.getComm();
+        std::size_t n = MPIInstance.getNumberOfProcessors();
+        std::size_t rank = MPIInstance.getProcessorID();
 
         //offset by one to insert a zero at the front
         std::vector<std::size_t> cumulativeDOF(n + 1);
@@ -393,102 +289,85 @@ namespace Utilities
         //communicate...
         comm.Allgather(MPI_IN_PLACE,0,Base::Detail::toMPIType(n),cumulativeDOF.data()+1,1,Base::Detail::toMPIType(n));
 
-        comm.Allgatherv(MPI_IN_PLACE,0,Base::Detail::toMPIType(n),MPISendElementNumbers.data(),MPISendElementCounts.data()+1,MPISendElementStarts.data(),Base::Detail::toMPIType(n));
-        comm.Allgatherv(MPI_IN_PLACE,0,Base::Detail::toMPIType(n),MPISendFaceNumbers.data(),MPISendFaceCounts.data()+1,MPISendFaceStarts.data(),Base::Detail::toMPIType(n));
-        comm.Allgatherv(MPI_IN_PLACE,0,Base::Detail::toMPIType(n),MPISendEdgeNumbers.data(),MPISendEdgeCounts.data()+1,MPISendEdgeStarts.data(),Base::Detail::toMPIType(n));
-        comm.Allgatherv(MPI_IN_PLACE,0,Base::Detail::toMPIType(n),MPISendNodeNumbers.data(),MPISendNodeCounts.data()+1,MPISendNodeStarts.data(),Base::Detail::toMPIType(n));
-
-        comm.Allgatherv(MPI_IN_PLACE,0,Base::Detail::toMPIType(n),MPISendElementPositions.data(),MPISendElementCounts.data()+1,MPISendElementStarts.data(),Base::Detail::toMPIType(n));
-        comm.Allgatherv(MPI_IN_PLACE,0,Base::Detail::toMPIType(n),MPISendFacePositions.data(),MPISendFaceCounts.data()+1,MPISendFaceStarts.data(),Base::Detail::toMPIType(n));
-        comm.Allgatherv(MPI_IN_PLACE,0,Base::Detail::toMPIType(n),MPISendEdgePositions.data(),MPISendEdgeCounts.data()+1,MPISendEdgeStarts.data(),Base::Detail::toMPIType(n));
-        comm.Allgatherv(MPI_IN_PLACE,0,Base::Detail::toMPIType(n),MPISendNodePositions.data(),MPISendNodeCounts.data()+1,MPISendNodeStarts.data(),Base::Detail::toMPIType(n));
-
         std::partial_sum(cumulativeDOF.begin(),cumulativeDOF.end(),cumulativeDOF.begin());
 
-        //and unpack the information
-        currentElementNumber = MPISendElementNumbers.begin();
-        currentFaceNumber = MPISendFaceNumbers.begin();
-        currentEdgeNumber = MPISendEdgeNumbers.begin();
-        currentNodeNumber = MPISendNodeNumbers.begin();
-
-        currentElementPosition = MPISendElementPositions.begin();
-        currentFacePosition = MPISendFacePositions.begin();
-        currentEdgePosition = MPISendEdgePositions.begin();
-        currentNodePosition = MPISendNodePositions.begin();
-
-        std::size_t currentDomain = 0;
-        auto startOFNextDomain = MPISendElementNumbers.begin() + MPISendElementCounts[currentDomain+1];
-        std::size_t offset = cumulativeDOF[currentDomain];
-        for(;currentElementNumber!=MPISendElementNumbers.end();++currentElementNumber,++currentElementPosition)
-        {   
-            if(currentElementNumber==startOFNextDomain)
-            {   
-                currentDomain++;
-                startOFNextDomain += MPISendElementCounts[currentDomain+1];
-                offset = cumulativeDOF[currentDomain];
-            }
-            logger.assert(*currentElementNumber != std::numeric_limits<std::size_t>::max(), "currentElementNumber = -1");
-            startPositionsOfElementsInTheMatrix_[*currentElementNumber]=*currentElementPosition+offset;
-        }
-
-        currentDomain = 0;
-        startOFNextDomain = MPISendFaceNumbers.begin() + MPISendFaceCounts[currentDomain+1];
-        offset = cumulativeDOF[currentDomain];
-        for(;currentFaceNumber!=MPISendFaceNumbers.end();++currentFaceNumber,++currentFacePosition)
-        {   
-            if(currentFaceNumber==startOFNextDomain)
-            {   
-                currentDomain++;
-                startOFNextDomain += MPISendFaceCounts[currentDomain+1];
-                offset = cumulativeDOF[currentDomain];
-            }
-            if (*currentFaceNumber != std::numeric_limits<std::size_t>::max())
-            {
-                startPositionsOfFacesInTheMatrix_[*currentFaceNumber]=*currentFacePosition+offset;
-            }
-        }
-
-        currentDomain = 0;
-        startOFNextDomain = MPISendEdgeNumbers.begin() + MPISendEdgeCounts[currentDomain+1];
-        offset = cumulativeDOF[currentDomain];
-        for(;currentEdgeNumber!=MPISendEdgeNumbers.end();++currentEdgeNumber,++currentEdgePosition)
-        {   
-            if(currentEdgeNumber==startOFNextDomain)
-            {   
-                currentDomain++;
-                startOFNextDomain += MPISendEdgeCounts[currentDomain+1];
-                offset = cumulativeDOF[currentDomain];
-            }
-            logger.assert(*currentEdgeNumber != std::numeric_limits<std::size_t>::max(), "currentEdgeNumber = -1");
-            startPositionsOfEdgesInTheMatrix_[*currentEdgeNumber]=*currentEdgePosition+offset;
-        }
-
-        currentDomain = 0;
-        startOFNextDomain = MPISendNodeNumbers.begin() + MPISendNodeCounts[currentDomain+1];
-        offset = cumulativeDOF[currentDomain];
-        for(;currentNodeNumber!=MPISendNodeNumbers.end();++currentNodeNumber,++currentNodePosition)
-        {   
-            if(currentNodeNumber==startOFNextDomain)
-            {   
-                currentDomain++;
-                startOFNextDomain += MPISendNodeCounts[currentDomain+1];
-                offset = cumulativeDOF[currentDomain];
-            }
-            if (*currentNodeNumber != std::numeric_limits<std::size_t>::max())
-            {
-                startPositionsOfNodesInTheMatrix_[*currentNodeNumber]=*currentNodePosition+offset;
-            }
-        }
         std::size_t MPIOffset = cumulativeDOF[rank];
         std::size_t end = cumulativeDOF[n] + 1;
+
+        for(auto element : theMesh_->getElementsList()) {
+            startPositionsOfElementsInTheMatrix_[element->getID()] += MPIOffset;
+            for(auto face : element->getFacesList()) {
+                if(face->getPtrElementLeft() == element) {
+                    startPositionsOfFacesInTheMatrix_[face->getID()] += MPIOffset;
+                }
+            }
+            for(auto edge : element->getEdgesList()) {
+                if(edge->getElement(0) == element) {
+                    startPositionsOfEdgesInTheMatrix_[edge->getID()] += MPIOffset;
+                }
+            }
+            if(DIM > 1) {
+                for(auto node : element->getNodesList()) {
+                    if(node->getElement(0) == element) {
+                        startPositionsOfNodesInTheMatrix_[node->getID()] += MPIOffset;
+                    }
+                }
+            }
+        }
+
+        for(auto entry : theMesh_->getPullElements()) {
+            int sourceProcessor = entry.first;
+            for(Base::Element* element : entry.second) {
+                //the id's of elements, faces edges and nodes are interleaved so all information can be communicated simulateously without tag collisions
+                MPIInstance.receive(startPositionsOfElementsInTheMatrix_[element->getID()], sourceProcessor, 4 * element->getID());
+                for(auto face : element->getFacesList()) {
+                    if(startPositionsOfFacesInTheMatrix_.count(face->getID()) == 0) {
+                        MPIInstance.receive(startPositionsOfFacesInTheMatrix_[face->getID()], sourceProcessor, 4 * face->getID() + 1);
+                    }
+                }
+                for(auto edge : element->getEdgesList()) {
+                    if(startPositionsOfEdgesInTheMatrix_.count(edge->getID()) == 0) {
+                        MPIInstance.receive(startPositionsOfEdgesInTheMatrix_[edge->getID()], sourceProcessor, 4 * edge->getID() + 2);
+                    }
+                }
+                if(DIM > 1) {
+                    for(auto node : element->getNodesList()) {
+                        if(startPositionsOfNodesInTheMatrix_.count(node->getID()) == 0) {
+                            MPIInstance.receive(startPositionsOfNodesInTheMatrix_[node->getID()], sourceProcessor, 4 * node->getID() + 3);
+                        }
+                    }
+                }
+            }
+        }
+        for(auto entry : theMesh_->getPushElements()) {
+            int targetProcessor = entry.first;
+            for(Base::Element* element : entry.second) {
+                //the id's of elements, faces edges and nodes are interleaved so all information can be communicated simulateously without tag collisions
+                MPIInstance.send(startPositionsOfElementsInTheMatrix_[element->getID()], targetProcessor, 4 * element->getID());
+                for(auto face : element->getFacesList()) {
+                    if(startPositionsOfFacesInTheMatrix_.count(face->getID()) == 1) {
+                        MPIInstance.send(startPositionsOfFacesInTheMatrix_[face->getID()], targetProcessor, 4 * face->getID() + 1);
+                    }
+                }
+                for(auto edge : element->getEdgesList()) {
+                    if(startPositionsOfEdgesInTheMatrix_.count(edge->getID()) == 1) {
+                        MPIInstance.send(startPositionsOfEdgesInTheMatrix_[edge->getID()], targetProcessor, 4 * edge->getID() + 2);
+                    }
+                }
+                if(DIM > 1) {
+                    for(auto node : element->getNodesList()) {
+                        if(startPositionsOfNodesInTheMatrix_.count(node->getID()) == 1) {
+                            MPIInstance.send(startPositionsOfNodesInTheMatrix_[node->getID()], targetProcessor, 4 * node->getID() + 3);
+                        }
+                    }
+                }
+            }
+        }
+        MPIInstance.sync();
 #else
         std::size_t MPIOffset = 0;
         std::size_t end = totalNumberOfDOF + 1;
 #endif
-        logger.assert(startPositionsOfElementsInTheMatrix_.size() == theMesh_->getNumberOfElements(Base::IteratorType::GLOBAL), "Missing an element");
-        logger.assert(startPositionsOfFacesInTheMatrix_.size() == theMesh_->getNumberOfFaces(Base::IteratorType::GLOBAL), "Missing a face");
-        logger.assert(DIM < 3 || startPositionsOfEdgesInTheMatrix_.size() == theMesh_->getNumberOfEdges(Base::IteratorType::GLOBAL), "Missing a edge");
-        logger.assert(DIM < 2 || startPositionsOfNodesInTheMatrix_.size() == theMesh_->getNumberOfNodes(Base::IteratorType::GLOBAL), "Missing a node");
         
         //now construct the only bit of data where PETSc expects a local numbering...
         std::vector<PetscInt> numberOfPositionsPerRow(totalNumberOfDOF, 0);
@@ -597,6 +476,10 @@ namespace Utilities
             if (numberOfPositionsPerRow[i] > totalNumberOfDOF)
             {
                 numberOfPositionsPerRow[i] = totalNumberOfDOF; //a row cant have more nonzero entries than the number of columns
+            }
+            if (numberOfPositionsPerRow[i] + offDiagonalPositionsPerRow[i] > totalNumberOfDOF)
+            {
+                offDiagonalPositionsPerRow[i] = totalNumberOfDOF - numberOfPositionsPerRow[i]; //a row cant have more nonzero entries than the number of columns
             }
         }
         

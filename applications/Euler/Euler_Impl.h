@@ -36,23 +36,6 @@ numOfVariables_(numOfVariables)
 {
 }
 
-/// \brief General mesh description
-template<std::size_t DIM>
-Base::RectangularMeshDescriptor<DIM> Euler<DIM>::createMeshDescription(const std::size_t numOfElementPerDirection)
-{
-    // Create the domain. In this case the domain is the square [0,1]^DIM and periodic.
-    Base::RectangularMeshDescriptor<DIM> description;
-    for (std::size_t i = 0; i < DIM; ++i)
-    {
-        description.bottomLeft_[i] = 0;
-        description.topRight_[i] = 1;
-        description.numElementsInDIM_[i] = numOfElementPerDirection;
-        description.boundaryConditions_[i] = Base::BoundaryType::PERIODIC;
-    }
-
-    return description;
-}
-
 /// *****************************************
 /// ***   Element integration functions   ***
 /// *****************************************

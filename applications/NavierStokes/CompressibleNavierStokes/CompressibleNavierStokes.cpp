@@ -44,23 +44,6 @@ viscousTerms_(*this)
 	std::cout << "Prandtl: " << prandtlNumber_ << std::endl;
 }
 
-/// \brief General mesh description
-Base::RectangularMeshDescriptor<DIM> CompressibleNavierStokes::createMeshDescription(const std::size_t numOfElementPerDirection)
-{
-    // Create the domain. In this case the domain is the square [0,1]^DIM and periodic.
-    Base::RectangularMeshDescriptor<DIM> description;
-    for (std::size_t i = 0; i < DIM_; ++i)
-    {
-        description.bottomLeft_[i] = 0;
-        description.topRight_[i] = 1.0;
-        description.numElementsInDIM_[i] = numOfElementPerDirection;
-    }
-    description.boundaryConditions_[0] = Base::BoundaryType::PERIODIC;
-    description.boundaryConditions_[1] = Base::BoundaryType::PERIODIC;
-
-    return description;
-}
-
 void CompressibleNavierStokes::setStabilityMassMatrix()
 {
 	//For a single element create the mass matrix: note this breaks down with p-refinement or limiters

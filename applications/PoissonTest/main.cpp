@@ -70,7 +70,7 @@ public:
         penalty_ = 3 * n_ * p_ * (p_ + DIM - 1) + 1;
     }
 
-    void createMesh(const std::size_t numberOfElementsPerDirection, const Base::MeshType meshType) override final
+    void readMesh(const std::string meshName) override final
     {
         // Set the number of Element/Face Matrices/Vectors.
         std::size_t numberOfElementMatrices = 2;   // Mass matrix and stiffness matrix
@@ -79,7 +79,7 @@ public:
         std::size_t numberOfFaceVectors = 1;       // Source term vector at boundary
 
         // Create mesh and set basis functions.
-        this->addMesh("PIVModel.hyb", numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors);
+        this->addMesh(meshName, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors);
         this->meshes_[0]->useDefaultConformingBasisFunctions();
 
         // Set the number of time integration vectors according to the size of the Butcher tableau.
@@ -88,35 +88,6 @@ public:
         // Plot info about the mesh
         std::size_t nElements = this->meshes_[0]->getNumberOfElements();
         logger(VERBOSE, "Total number of elements: %", nElements);
-    }
-
-    ///\brief set up the mesh
-    ///
-    ///In this example, we are going to make a domain [0,1]^2
-    ///We define the domain, number of elements in each direction and whether or
-    ///no there are periodic boundary conditions. Then make a triangular mesh and
-    ///generate the basisfunctions on the reference domain.
-    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numberOfElementsPerDirection) override final
-    {
-        //describes a rectangular domain
-        Base::RectangularMeshDescriptor<DIM> description;
-        
-        //this demo will use the square [0,1]^2
-        for (std::size_t i = 0; i < DIM; ++i)
-        {
-            //define the value of the bottom left corner in each dimension
-            description.bottomLeft_[i] = 0;
-            //define the value of the top right corner in each dimension
-            description.topRight_[i] = 1;
-            //define how many elements there should be in the direction of dimension
-            //At this stage, the mesh first consists of n^2 squares, and later these
-            //squares can be divided in two triangles each if a triangular mesh is desired.
-            description.numberOfElementsInDIM_[i] = n_;
-            //define whether you have periodic boundary conditions or a solid wall in this direction.
-            description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
-        }
-        
-        return description;
     }
     
     ///\brief Compute the integrand for the stiffness matrix at the element.
@@ -199,10 +170,10 @@ public:
                     integrandVal(j, i) = -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI) / 2 + penalty_ * phiNormalI * phiNormalJ;
                 }
                 //Boundary face with Dirichlet boundary conditions:
-                //else if (std::abs(pPhys[0]) < 1e-9 || std::abs(pPhys[0] - 1.) < 1e-9)
-                //{
-                //    integrandVal(j, i) = -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI) + penalty_ * phiNormalI * phiNormalJ * 2;
-                //}
+                else if (std::abs(pPhys[0]) < 1e-9 || std::abs(pPhys[0] - 1.) < 1e-9)
+                {
+                    integrandVal(j, i) = -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI) + penalty_ * phiNormalI * phiNormalJ * 2;
+                }
                 //Boundary face with homogeneous Neumann boundary conditions:
                 else
                 {
@@ -230,7 +201,7 @@ public:
     LinearAlgebra::MiddleSizeVector getSourceTerm(const PointPhysicalT &p) override final
     {
         LinearAlgebra::MiddleSizeVector sourceTerm(1);
-        sourceTerm[0] = (-12 * M_PI * M_PI) * std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]) * std::cos(2 * M_PI * p[2]) * 0.;
+        sourceTerm[0] = (-12 * M_PI * M_PI) * std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]) * std::cos(2 * M_PI * p[2]);
         //sourceTerm[0] = 10 * std::exp(-((p[0]-0.5) * (p[0]-0.5) + (p[1]-0.5) * (p[1]-0.5))/0.02);
         return sourceTerm;
     }
@@ -262,7 +233,7 @@ public:
             {
                 integrandVal[i] = -1.;
             }
-            else if (std::abs(pPhys[0] - 3.e3) < 1e-9)
+            else if (std::abs(pPhys[0] - 1.e3) < 1e-9)
             {
                 integrandVal[i] = 1.;
             }
@@ -319,7 +290,8 @@ private:
     ///to be greater than 3 * n_ * p_ * (p_ + DIM - 1) in order for the method to be stable.
     double penalty_;
 };
-    
+
+auto& meshName = Base::register_argument<std::string>('\0', "meshName", "name of the Mesh file", true);
 auto& numberOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
 auto& p = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
 ///Example of using the Laplace class.
@@ -342,7 +314,7 @@ int main(int argc, char **argv)
     PoissonTest test(DIM, numberOfElements.getValue(), p.getValue());
 
     //Create the mesh
-    test.createMesh(numberOfElements.getValue(), meshType);
+    test.readMesh(meshName.getValue());
 
     // Set the names for the output file
     test.setOutputNames("output", "PoissonTest", "PoissonTest", variableNames);

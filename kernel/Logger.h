@@ -479,6 +479,15 @@ public:
             }
         }
     }
+
+    template<typename T>
+    void suppressWarnings(T body) {
+        auto oldWarn = loggerOutput->onWarn;
+        loggerOutput->onWarn = [](std::string, std::string){};
+        body();
+        loggerOutput->onWarn = oldWarn;
+    }
+
 private:
     /*!
      * \brief Actual implementation to recursively replace all the '%' signs by

@@ -29,12 +29,13 @@
 #include "SavageHutter2DBasic.h"
 #include "HeightLimiters/PositiveLayerLimiter.h"
 
-SavageHutter2DBasic::SavageHutter2DBasic(std::size_t polyOrder, std::size_t numberOfElements) :
+SavageHutter2DBasic::SavageHutter2DBasic(std::size_t polyOrder, std::string meshName) :
 SavageHutter2DBase(3, polyOrder)
 {
     chuteAngle_ = M_PI / 180 * 29.6483997880436;
     epsilon_ = .1;
-    const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
+    //const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
+    const PointPhysicalT pPhys = {0., 0.};
     //inflowBC_ = getInitialSolution(pPhys, 0);
     inflowBC_ = LinearAlgebra::MiddleSizeVector({1, 3 * std::sqrt(std::cos(chuteAngle_)*epsilon_*1), 0});
     logger(INFO, "inflow BC: %", inflowBC_);
@@ -43,20 +44,9 @@ SavageHutter2DBase(3, polyOrder)
     std::vector<std::string> variableNames = {"h", "hu", "hv"};
     setOutputNames("output2D", "SavageHutter", "SavageHutter", variableNames);
     
-    createMesh(numberOfElements, Base::MeshType::RECTANGULAR);
+    readMesh(meshName);
     
     createContraction();
-}
-
-Base::RectangularMeshDescriptor<2> SavageHutter2DBasic::createMeshDescription(const std::size_t numberOfElementsPerDirection)
-{
-    const std::size_t nx = numberOfElementsPerDirection;
-    const std::size_t ny = 10;
-    const double xMax = 11;
-    const double yMax = 1;
-    const Base::BoundaryType xBoundary = Base::BoundaryType::SOLID_WALL;
-    const Base::BoundaryType yBoundary = Base::BoundaryType::SOLID_WALL;
-    return SavageHutter2DBase::createMeshDescription({nx, ny}, {xMax, yMax}, {xBoundary, yBoundary});
 }
 
 ///\details Transform the rectangle to a contracting geometry.

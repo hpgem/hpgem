@@ -22,6 +22,7 @@
 #include <cmath>
 #include <functional>
 #include <chrono>
+#include <CMakeDefinitions.h>
 
 #include "Base/ConfigurationData.h"
 #include "Base/Element.h"
@@ -47,37 +48,13 @@ public:
     using typename Base::HpgemAPIBase<DIM>::PointReferenceOnFaceT;
     
     ///Constructor. Assign all private variables.
-    Advection(const std::size_t n, const std::size_t p, const Base::MeshType meshType) :
-    Base::HpgemAPISimplified<DIM>(1, p),
-    n_(n),
-    meshType_(meshType)
+    Advection(const std::string fileName, const std::size_t p) :
+    Base::HpgemAPISimplified<DIM>(1, p), fileName(fileName)
     {
         for (std::size_t i = 0; i < DIM; ++i)
         {
             a[i] = 0.1 + 0.1 * i;
         }
-    }
-    
-    /// Create a mesh description
-    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numberOfElementsPerDirection) override final
-    {
-        //describes a rectangular domain
-        Base::RectangularMeshDescriptor<DIM> description;
-        
-        //this demo will use the square [0,1]^2
-        for (std::size_t i = 0; i < DIM; ++i)
-        {
-            description.bottomLeft_[i] = 0;
-            description.topRight_[i] = 1;
-            //Define elements in each direction.
-            description.numberOfElementsInDIM_[i] = numberOfElementsPerDirection;
-            
-            //Choose whether you want periodic boundary conditions or other (solid wall)
-            //boundary conditions.
-            description.boundaryConditions_[i] = Base::BoundaryType::PERIODIC;
-        }
-        
-        return description;
     }
     
     /// \brief Compute the integrand of the right-hand side associated with elements.
@@ -245,7 +222,8 @@ public:
     /// \brief Create a mesh, solve the problem and return the total error.
     void createSolveAndWrite(const double finalTime, const std::string &outputFileName)
     {
-        this->createMesh(n_, meshType_);
+        using namespace std::string_literals;
+        this->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + fileName);
         this->solve(0, finalTime, 1e-3, 0, false);
         std::ofstream outputFile(outputFileName);
         std::string xNames;
@@ -269,10 +247,7 @@ public:
     
 private:
     /// Number of elements per direction
-    std::size_t n_;
-    
-    /// Mesh type
-    Base::MeshType meshType_;
+    std::string fileName;
     
     ///Advective vector
     LinearAlgebra::SmallVector<DIM> a;
@@ -283,21 +258,13 @@ int main(int argc, char **argv)
 {
     Base::parse_options(argc, argv);
 
-
-    Base::MeshType meshType = Base::MeshType::TRIANGULAR;
-    Advection<1> test1T(10, 1, meshType);
-    test1T.createSolveAndWrite(.01, "GNUPlotWriterTestFile1DTriangular");
-
-    meshType = Base::MeshType::RECTANGULAR;
-    Advection<1> test1R(10, 1, meshType);
+    Advection<1> test1R("plottingMesh1.hpgem", 1);
     test1R.createSolveAndWrite(.01, "GNUPlotWriterTestFile1DRectangular");
 
-    meshType = Base::MeshType::TRIANGULAR;
-    Advection<2> test2T(10, 1, meshType);
+    Advection<2> test2T("plottingMesh2.hpgem", 1);
     test2T.createSolveAndWrite(.01, "GNUPlotWriterTestFile2DTriangular");
 
-    meshType = Base::MeshType::RECTANGULAR;
-    Advection<2> test2R(10, 1, meshType);
+    Advection<2> test2R("plottingMesh3.hpgem", 1);
     test2R.createSolveAndWrite(.01, "GNUPlotWriterTestFile2DRectangular");
 
     

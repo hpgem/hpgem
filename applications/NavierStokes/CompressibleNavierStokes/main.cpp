@@ -25,7 +25,7 @@
 #include <chrono>
 
 //todo: decide if choosing the dimension during run time is worth the design overhead
-auto& numberOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
+auto& name = Base::register_argument<std::string>('n', "meshName", "name of the mesh file", true);
 auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
 
 auto& numberOfOutputFrames = Base::register_argument<std::size_t>('O', "numOfOutputFrames", "Number of frames to output", false, 100);
@@ -45,8 +45,6 @@ int main (int argc, char **argv){
 	Base::parse_options(argc, argv);
 
 	//logger(WARN,"WARNING: Timestep is determined a priori. Stability Criteria might not be satisfied!");
-    // Set parameters for the PDE.
-    const Base::MeshType meshType = Base::MeshType::RECTANGULAR;
     const TimeIntegration::ButcherTableau * const ptrButcherTableau = TimeIntegration::AllTimeIntegrators::Instance().getRule(3,3,true);
 
     //Set variable names and number of parameters
@@ -66,7 +64,7 @@ int main (int argc, char **argv){
     CompressibleNavierStokes test(numOfVariables, endTime.getValue(), polynomialOrder.getValue(), ptrButcherTableau, true);
 
     // Create the mesh, a simple square domain
-    test.createMesh(numberOfElements.getValue(), meshType);
+    test.readMesh(name.getValue());
 
     // Sets the mass matrix required for the stability parameters in the viscous class. Slight hack. todo: improve this
     test.setStabilityMassMatrix();

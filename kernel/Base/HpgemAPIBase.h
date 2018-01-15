@@ -65,9 +65,6 @@ namespace Base
 
         /// \brief Gives the pointer of meshMoverBase class to mesh.
         virtual bool initialiseMeshMover(const MeshMoverBase<DIM>* meshMoverBase, std::size_t meshID);
-
-        /// Creating a mesh with in-house remesher.
-        std::size_t addMesh(const RectangularMeshDescriptor<DIM>& meshDescriptor, const MeshType& meshType = MeshType::RECTANGULAR, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0, std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
         
         /// Reading a mesh from a file, currently only Centaur is supported.
         std::size_t addMesh(const std::string& fileName, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0, std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);

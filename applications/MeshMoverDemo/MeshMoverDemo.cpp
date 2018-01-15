@@ -60,16 +60,7 @@ public:
     bool initialise()
     {
         
-        RectangularMeshDescriptor<2> rectangularMesh;
-        
-        rectangularMesh.bottomLeft_[0] = 0;
-        rectangularMesh.bottomLeft_[1] = 0;
-        rectangularMesh.topRight_[0] = 1;
-        rectangularMesh.topRight_[1] = 1;
-        rectangularMesh.numberOfElementsInDIM_[0] = 8;
-        rectangularMesh.numberOfElementsInDIM_[1] = 8;
-        
-        std::size_t id = addMesh(rectangularMesh);
+        std::size_t id = addMesh("mesh.hpgem");
         
         //Set up the move of the mesh; note that the mesh mover gets deleted in the mesh manipulator
         const MeshMover* meshMover = new MeshMover;

@@ -26,13 +26,14 @@
 ///\details In this constructor, some of the parameters for the problem are set.
 ///Most of these parameters are declared in SavageHutterBase, but since they are protected
 ///they can also be used here.
-SavageHutter1DBidispersed::SavageHutter1DBidispersed(std::size_t polyOrder, std::size_t numberOfElements)
+SavageHutter1DBidispersed::SavageHutter1DBidispersed(std::size_t polyOrder, std::string meshName)
 : SavageHutter1DBase(3, polyOrder)
 {
     alpha_ = 0.5;
     chuteAngle_ = M_PI / 180 *30.0918;
     epsilon_ = 1;
-    const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
+    //const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
+    const PointPhysicalT pPhys = {0.};
     inflowBC_ = getInitialSolution(pPhys, 0);    
     dryLimit_ = 1e-5;
     maximumHeights_.push_back(0);
@@ -40,21 +41,7 @@ SavageHutter1DBidispersed::SavageHutter1DBidispersed(std::size_t polyOrder, std:
     std::vector<std::string> variableNames = {"h", "hu", "eta"};
     setOutputNames("output1DBidispersed", "SavageHutter", "SavageHutter", variableNames);
     
-    createMesh(numberOfElements, Base::MeshType::RECTANGULAR);
-}
-
-///\details In this function, the mesh gets described. 
-///The domain is given by [0, endOfDomain], it consists of numberOfElementsPerDirection
-///elements (in this case lines) and has either periodic or non-periodic boundary
-///conditions. If the boundary conditions are not periodic, set the BoundaryType
-///in this function to Base::BoundaryType::SOLID_WALL and make sure that the function
-///SavageHutter1DBase::integrandRightHandSideOnRefFace is set correctly for boundary
-///faces. 
-Base::RectangularMeshDescriptor<1> SavageHutter1DBidispersed::createMeshDescription(const std::size_t numOfElementsPerDirection)
-{
-    const double endOfDomain = 5;
-    const Base::BoundaryType boundary = Base::BoundaryType::SOLID_WALL;
-    return SavageHutter1DBase::createMeshDescription(numOfElementsPerDirection, endOfDomain, boundary);
+    readMesh(meshName);
 }
 
 ///\details Gives the initial solution for the problem. One could also call getExactSolution

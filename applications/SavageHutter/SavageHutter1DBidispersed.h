@@ -38,10 +38,7 @@ class SavageHutter1DBidispersed : public SavageHutter1DBase
 {
 public:
     ///\brief Constructor: initialise parent classes and set parameters.
-    SavageHutter1DBidispersed(std::size_t polyOrder, std::size_t numberOfElements);
-    
-    ///\brief Create the description of the domain and the mesh.
-    Base::RectangularMeshDescriptor<1> createMeshDescription(const std::size_t numOfElementsPerDirection);
+    SavageHutter1DBidispersed(std::size_t polyOrder, std::string meshName);
     
     ///\brief Put the initial solution in here.
     LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime, const std::size_t orderTimeDerivative = 0) override final;

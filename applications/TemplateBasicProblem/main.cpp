@@ -58,27 +58,6 @@ public:
         logger(ERROR, "Remove this message. Make sure the constructor of this class is adapted to your purposes.");
     }
     
-    /// \brief Create a rectangular mesh description
-    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numberOfElementsPerDirection) override final
-    {
-        //describes a rectangular domain
-        Base::RectangularMeshDescriptor<DIM> description;
-        
-        for (std::size_t i = 0; i < configData_->dimension_; ++i)
-        {
-            description.bottomLeft_[i] = 0;
-            description.topRight_[i] = 1;
-            
-            //Define elements in each direction.
-            description.numberOfElementsInDIM_[i] = numberOfElementsPerDirection;
-            
-            //Choose the type of boundary conditions (PERIODIC or SOLID_WALL) for each direction.
-            description.boundaryConditions_[i] = Base::BoundaryType::PERIODIC;
-        }
-        
-        return description;
-    }
-    
     /// \brief Compute the real solution at a given point in space and time.
     LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative) override final
     {
@@ -175,7 +154,7 @@ public:
     
 };
 
-auto& numberOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
+auto& name = Base::register_argument<std::string>('n', "meshName", "name of the mesh file", true);
 auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
 
 int main(int argc, char **argv)
@@ -199,7 +178,7 @@ int main(int argc, char **argv)
     ExampleProblem problemSolver(numberOfVariables, polynomialOrder.getValue(), ptrButcherTableau);
 
     // Create the mesh
-    problemSolver.createMesh(numberOfElements.getValue(), meshType);
+    problemSolver.readMesh(name.getValue());
 
     // Set the names for the output file. Choose your own names.
     problemSolver.setOutputNames("output", "internalFileTitle", "solutionTitle", variableNames);

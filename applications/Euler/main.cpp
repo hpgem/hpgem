@@ -24,7 +24,7 @@
 #include <chrono>
 
 auto& dimension = Base::register_argument<std::size_t>('D', "dim", "number of dimensions in the problem");
-auto& numberOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
+auto& name = Base::register_argument<std::string>('n', "meshName", "name of the mesh file", true);
 auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
 
 auto& numberOfOutputFrames = Base::register_argument<std::size_t>('O', "numOfOutputFrames", "Number of frames to output", false, 1);
@@ -35,8 +35,6 @@ auto& dt = Base::register_argument<double>('d', "timeStepSize", "time step of th
 template<std::size_t DIM>
 void doThings()
 {
-    // Set parameters for the PDE.
-    const Base::MeshType meshType = Base::MeshType::TRIANGULAR;
     const TimeIntegration::ButcherTableau * const ptrButcherTableau = TimeIntegration::AllTimeIntegrators::Instance().getRule(2,2,true);
 
     // Calculate number of variables
@@ -45,7 +43,7 @@ void doThings()
     Euler<DIM> test(numOfVariables, endTime.getValue(), polynomialOrder.getValue(), ptrButcherTableau);
 
     // Create the mesh, a simple square domain
-    test.createMesh(numberOfElements.getValue(), meshType);
+    test.readMesh(name.getValue());
 
     // Solve the problem over time interval [startTime,endTime].
     test.solve(startTime.getValue(), endTime.getValue(), dt.getValue(), numberOfOutputFrames.getValue(), true);

@@ -22,21 +22,6 @@
 #include "SavageHutter2DBase.h"
 #include "HelperFunctions.h"
 
-Base::RectangularMeshDescriptor<2> SavageHutter2DBase::createMeshDescription(const std::array<std::size_t,2> numberOfElementsPerDirection, const std::array<double,2> endOfDomain, const std::array<Base::BoundaryType,2> boundaries)
-{
-    // Make a description of the domain [0,endOfDomain] with the correct boundary conditions and number of elements
-    Base::RectangularMeshDescriptor<2> description;
-    description.boundaryConditions_[0] = boundaries[0];
-    description.numElementsInDIM_[0] = numberOfElementsPerDirection[0];
-    description.bottomLeft_[0] = 0;
-    description.topRight_[0] = endOfDomain[0];
-    description.boundaryConditions_[1] = boundaries[1];
-    description.numElementsInDIM_[1] = numberOfElementsPerDirection[1];
-    description.bottomLeft_[1] = 0;
-    description.topRight_[1] = endOfDomain[1];
-    return description;
-}
-
 const LinearAlgebra::MiddleSizeVector SavageHutter2DBase::integrandRightHandSideOnElement
     (
         Base::PhysicalElement<2> &element,
@@ -332,8 +317,9 @@ std::vector<std::pair<double, LinearAlgebra::MiddleSizeVector>> SavageHutter2DBa
     
     //Since we're using a rectangular grid, we can get the number of nodes in x direction and y direction
     //The number of elements in x direction is given by the user in the commandline.
-    extern Base::CommandLineOption<std::size_t>& numberOfElements;
-    const std::size_t nodesInXDirection = numberOfElements.getValue() + 1;
+    //extern Base::CommandLineOption<std::size_t>& numberOfElements;
+    //const std::size_t nodesInXDirection = numberOfElements.getValue() + 1;
+    const std::size_t nodesInXDirection = 21;
     const std::size_t elementsInYDirection = this->meshes_[0]->getNumberOfElements(Base::IteratorType::GLOBAL) / (nodesInXDirection - 1);
     logger(DEBUG, "elements in y direction: % ", elementsInYDirection);
     

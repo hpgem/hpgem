@@ -88,7 +88,7 @@ namespace Base
         HpgemAPILinearSteadyState(const HpgemAPILinearSteadyState &other) = delete;
         
         /// \brief Create the mesh.
-        void createMesh(const std::size_t numberOfElementsPerDirection, const Base::MeshType meshType) override;
+        void readMesh(const std::string meshName) override;
         
         /// \brief Compute the exact solution at a given physical point.
         virtual LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT &pPhys)

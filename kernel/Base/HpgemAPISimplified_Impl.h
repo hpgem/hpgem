@@ -121,23 +121,21 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    void HpgemAPISimplified<DIM>::createMesh(const std::size_t numberOfElementsPerDirection, const Base::MeshType meshType)
+    void HpgemAPISimplified<DIM>::readMesh(std::string fileName)
     {
-        const Base::RectangularMeshDescriptor<DIM> description = createMeshDescription(numberOfElementsPerDirection);
-        
         // Set the number of Element/Face Matrices/Vectors.
         std::size_t numberOfElementMatrices = 0;
         std::size_t numberOfElementVectors = 0;
         std::size_t numberOfFaceMatrices = 0;
         std::size_t numberOfFaceVectors = 0;
-        
+
         // Create mesh and set basis functions.
-        this->addMesh(description, meshType, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors);
+        this->addMesh(fileName, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors);
         this->meshes_[0]->useDefaultDGBasisFunctions();
-        
+
         // Set the number of time integration vectors according to the size of the Butcher tableau.
         this->setNumberOfTimeIntegrationVectorsGlobally(this->globalNumberOfTimeIntegrationVectors_);
-        
+
         // Plot info about the mesh
         std::size_t numberOfElements = this->meshes_[0]->getNumberOfElements();
         logger(VERBOSE, "Total number of elements: %", numberOfElements);

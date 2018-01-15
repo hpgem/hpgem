@@ -120,39 +120,9 @@ void HEuler::printFullMatrixInfo(Mat& matrix, const string& name)
 
 bool HEuler::initialiseMesh()
 {
-    RectangularMeshDescriptor<3> rectangularMesh;
-    
     const HEulerConfigurationData* config = static_cast<const HEulerConfigurationData*>(configData_);
     
-    if (config->solutionType_ == HEulerConfigurationData::COMPRESSIBLE_WALLS || config->solutionType_ == HEulerConfigurationData::INCOMPRESSIBLE_WALLS)
-    {
-        rectangularMesh.boundaryConditions_[0] = Base::BoundaryType::SOLID_WALL;
-        rectangularMesh.boundaryConditions_[1] = Base::BoundaryType::SOLID_WALL;
-        rectangularMesh.boundaryConditions_[2] = Base::BoundaryType::SOLID_WALL;
-    }
-    else if (config->solutionType_ == HEulerConfigurationData::COMPRESSIBLE_PERIODIC || config->solutionType_ == HEulerConfigurationData::INCOMPRESSIBLE_PERIODIC)
-    {
-        rectangularMesh.boundaryConditions_[0] = Base::BoundaryType::PERIODIC;
-        rectangularMesh.boundaryConditions_[1] = Base::BoundaryType::PERIODIC;
-        rectangularMesh.boundaryConditions_[2] = Base::BoundaryType::PERIODIC;
-    }
-    else if (config->solutionType_ == HEulerConfigurationData::INCOMPRESSIBLE_ONETHIRDPERIODIC)
-    {
-        rectangularMesh.boundaryConditions_[0] = Base::BoundaryType::SOLID_WALL;
-        rectangularMesh.boundaryConditions_[1] = Base::BoundaryType::PERIODIC;
-        rectangularMesh.boundaryConditions_[2] = Base::BoundaryType::SOLID_WALL;
-    }
-    rectangularMesh.bottomLeft_[0] = 0;
-    rectangularMesh.bottomLeft_[1] = 0;
-    rectangularMesh.bottomLeft_[2] = 0;
-    rectangularMesh.topRight_[0] = config->lx_;
-    rectangularMesh.topRight_[1] = config->ly_;
-    rectangularMesh.topRight_[2] = config->lz_;
-    rectangularMesh.numElementsInDIM_[0] = config->nx_;
-    rectangularMesh.numElementsInDIM_[1] = config->ny_;
-    rectangularMesh.numElementsInDIM_[2] = config->nz_;
-    
-    std::size_t id = addMesh(rectangularMesh);
+    std::size_t id = addMesh("mesh.hpgem");
     
     HEulerGlobalVariables* globalData = static_cast<HEulerGlobalVariables*>(globalData_);
     

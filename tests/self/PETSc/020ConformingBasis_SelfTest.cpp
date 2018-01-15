@@ -29,6 +29,7 @@
 #include "Utilities/GlobalVector.h"
 
 #include "Logger.h"
+#include <CMakeDefinitions.h>
 
 //If this test ever breaks it is not a bad thing per se. However, once this breaks a thorough convergence analysis needs to be done.
 //If the results still show the theoretically optimal order of convergence, and you are convinced that your changes improved the code,
@@ -43,41 +44,17 @@ public:
     using typename Base::HpgemAPIBase<DIM>::PointReferenceT;
     using typename Base::HpgemAPIBase<DIM>::PointReferenceOnFaceT;
 
-    PoissonTest(const std::size_t n, const std::size_t p, const Base::MeshType meshType) :
+    PoissonTest(const std::string name, const std::size_t p) :
     Base::HpgemAPILinearSteadyState<DIM>(1, p, true, true),
-    n_(n),
     p_(p),
     totalError_(0)
     {
-        createMesh(n_, meshType);
+        using namespace std::string_literals;
+        readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + name);
     }
     
-    ///\brief set up the mesh
-    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numberOfElementPerDirection) override final
+    void readMesh(const std::string meshName) override final
     {
-        //describes a rectangular domain
-        Base::RectangularMeshDescriptor<DIM> description;
-        
-        for (std::size_t i = 0; i < DIM; ++i)
-        {
-            //define the value of the bottom left corner in each dimension
-            description.bottomLeft_[i] = 0;
-            //define the value of the top right corner in each dimension
-            description.topRight_[i] = 1;
-            //define how many elements there should be in the direction of dimension
-            //At this stage, the mesh first consists of n^2 squares, and later these
-            //squares can be divided in two triangles each if a triangular mesh is desired.
-            description.numberOfElementsInDIM_[i] = n_;
-            //define whether you have periodic boundary conditions or a solid wall in this direction.
-            description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
-        }
-        
-        return description;
-    }
-    
-    void createMesh(const std::size_t numberOfElementsPerDirection, const Base::MeshType meshType) override final
-    {
-        const Base::RectangularMeshDescriptor<DIM> description = createMeshDescription(numberOfElementsPerDirection);
         
         // Set the number of Element/Face Matrices/Vectors.
         std::size_t numberOfElementMatrices = 2;   // Mass matrix and stiffness matrix
@@ -86,7 +63,7 @@ public:
         std::size_t numberOfFaceVectors = 1;       // Source term vector at boundary
         
         // Create mesh and set basis functions.
-        this->addMesh(description, meshType, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors);
+        this->addMesh(meshName, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors);
         this->meshes_[0]->useDefaultConformingBasisFunctions();
         
         // Set the number of time integration vectors according to the size of the Butcher tableau.
@@ -272,63 +249,63 @@ int main(int argc, char** argv)
 {
     Base::parse_options(argc, argv);
     
-    PoissonTest<1> test0(1, 2, Base::MeshType::RECTANGULAR);
+    PoissonTest<1> test0("poissonMesh1.hpgem", 2);
     test0.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test0.getTotalError() - 0.48478776) < 1e-8), "comparison to old results");
     
-    PoissonTest<1> test1(2, 3, Base::MeshType::RECTANGULAR);
+    PoissonTest<1> test1("poissonMesh2.hpgem", 3);
     test1.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test1.getTotalError() - 0.02225892) < 1e-8), "comparison to old results");
     
-    PoissonTest<1> test2(4, 4, Base::MeshType::RECTANGULAR);
+    PoissonTest<1> test2("poissonMesh3.hpgem", 4);
     test2.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test2.getTotalError() - 0.00008248) < 1e-8), "comparison to old results");
     
-    PoissonTest<1> test3(8, 5, Base::MeshType::RECTANGULAR);
+    PoissonTest<1> test3("poissonMesh4.hpgem", 5);
     test3.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test3.getTotalError() - 0.00000008) < 1e-8), "comparison to old results");
     
-    PoissonTest<1> test4(16, 1, Base::MeshType::RECTANGULAR);
+    PoissonTest<1> test4("poissonMesh5.hpgem", 1);
     test4.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test4.getTotalError() - 0.00904309) < 1e-8), "comparison to old results");
     
-    PoissonTest<2> test5(1, 2, Base::MeshType::TRIANGULAR);
+    PoissonTest<2> test5("poissonMesh6.hpgem", 2);
     test5.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test5.getTotalError() - 0.21870166) < 1e-8), "comparison to old results");
     
-    PoissonTest<2> test6(2, 3, Base::MeshType::TRIANGULAR);
+    PoissonTest<2> test6("poissonMesh7.hpgem", 3);
     test6.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test6.getTotalError() - 0.02345377) < 1e-8), "comparison to old results");
     
-    PoissonTest<2> test7(4, 4, Base::MeshType::TRIANGULAR);
+    PoissonTest<2> test7("poissonMesh8.hpgem", 4);
     test7.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test7.getTotalError() - 0.00039351) < 1e-8), "comparison to old results");
     
-    PoissonTest<2> test8(8, 5, Base::MeshType::TRIANGULAR);
+    PoissonTest<2> test8("poissonMesh9.hpgem", 5);
     test8.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test8.getTotalError() - 0.00000066) < 1e-8), "comparison to old results");
     
-    PoissonTest<2> test9(16, 1, Base::MeshType::TRIANGULAR);
+    PoissonTest<2> test9("poissonMesh10.hpgem", 1);
     test9.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test9.getTotalError() - 0.00911139) < 1e-8), "comparison to old results");
     
-    PoissonTest<3> test10(1, 5, Base::MeshType::RECTANGULAR);
+    PoissonTest<3> test10("poissonMesh11.hpgem", 5);
     test10.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test10.getTotalError() - 0.0121718) < 1e-8), "comparison to old results");
 
-    PoissonTest<3> test11(2, 4, Base::MeshType::TRIANGULAR);
+    PoissonTest<3> test11("poissonMesh12.hpgem", 4);
     test11.solveSteadyStateWithPetsc(true);
-    logger.assert_always((std::abs(test11.getTotalError() - 0.0258013) < 1e-8), "comparison to old results");
+    logger.assert_always((std::abs(test11.getTotalError() - 0.00216138) < 1e-8), "comparison to old results");
 
-    PoissonTest<3> test12(4, 3, Base::MeshType::RECTANGULAR);
+    PoissonTest<3> test12("poissonMesh13.hpgem", 3);
     test12.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test12.getTotalError() - 0.000906667) < 1e-8), "comparison to old results");
 
-    PoissonTest<3> test13(8, 2, Base::MeshType::TRIANGULAR);
+    PoissonTest<3> test13("poissonMesh14.hpgem", 2);
     test13.solveSteadyStateWithPetsc(true);
-    logger.assert_always((std::abs(test13.getTotalError() - 0.00571684) < 1e-8), "comparison to old results");
+    logger.assert_always((std::abs(test13.getTotalError() - 0.00138552) < 1e-8), "comparison to old results");
 
-    PoissonTest<3> test14(16, 1, Base::MeshType::RECTANGULAR);
+    PoissonTest<3> test14("poissonMesh15.hpgem", 1);
     test14.solveSteadyStateWithPetsc(true);
     logger.assert_always((std::abs(test14.getTotalError() - 0.00454794) < 1e-8), "comparison to old results");
      

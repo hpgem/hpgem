@@ -27,6 +27,7 @@
 
 //interestingly, using memory debugging tools like libgmalloc.dylib or valgrind is more likely to fix the test than to point at the source of error
 
+#include <CMakeDefinitions.h>
 #include "Base/MeshManipulator.h"
 #include "Base/Element.h"
 #include "Base/ConfigurationData.h"
@@ -47,13 +48,12 @@ void testData(const Base::MeshManipulator<DIM>& mesh)
 
 int main(int argc, char** argv)
 {
+    using namespace std::string_literals;
     Base::parse_options(argc, argv);
     //this test should also be effective in 1D , but 2D has 3x as much 'wrong' basis functions for only a little extra effort
     Base::ConfigurationData* config = new Base::ConfigurationData(2, 1, 1);
     Base::MeshManipulator<2> mesh(config);
-    Geometry::PointPhysical<2> bottomLeft{0., 0.};
-    Geometry::PointPhysical<2> topRight{1., 1.};
-    mesh.createRectangularMesh(bottomLeft, topRight, {1, 1});
+    mesh.readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "2Dminimalmesh.hpgem"s);
     mesh.useDefaultDGBasisFunctions();
     for(Base::Element* element : mesh.getElementsList())
     {

@@ -55,6 +55,11 @@ add_library(hpGEM_Base STATIC
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/GlobalVector.cpp
         GlobalUniqueIndex.cpp ../Utilities/BasisFunctions3DH1ConformingPyramid.cpp)
 
+
+set(CURRENT_TARGET hpGEM_Base)
+include(${CMAKE_SOURCE_DIR}/conf/cmake/CLionFix.cmake)
+set(CURRENT_TARGET)
+
 target_link_libraries(hpGEM_Base Output Geometry TimeIntegration)
 
 set_target_properties(hpGEM_Base PROPERTIES POSITION_INDEPENDENT_CODE true)

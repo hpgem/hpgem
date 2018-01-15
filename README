@@ -15,6 +15,32 @@ $ make
 
 For detailled instructions and alternative options see http://www.hpgem.org/obtaining-the-code/downloading-and-installing-version-2.x
 
+== Use ==
+
+Doing a finite element simulation is a two step process. The first step is to create or convert a mesh to the native hpgem format and then use this mesh as input for your finite element simulation. This section will describe the preprocessor in more detail. For additional information on how to do the simulation please have a look at your preferred solver or the tutorial applications. At the moment the preprocessor can process centaur meshes and meshes in the native hpgem format. In addition it can mesh a rectangular domain based on a parametrized description of what the mesh should look like. We will first describe in words what this mesh description looks like and then provide some examples as illustration. 
+
+The first line of the description file contains the text "structured 1" (without quotes) followed by the dimension d of the domain. The next line contains d integers denoting the number of elements per dimension. The next two lines contain d floating point numbers denoting the lower left and upper right corners of the domain respectively. The next line contains either the word "rectangular" or the word "triangular" (both without quotes) the denote if you want a rectanular or a triangular mesh. A triangular mesh is formed by first generating a rectangular mesh and then splitting each element in either 2 triangles or 5 tetrahedra in an alternating fasion, depending on the dimension. It is not allowed to ask for a triangular mesh in 1 dimension. The last line contains d booleans with are true if the domain is periodic in that dimension or false if it is not. For periodic domains the simulation domain is assumed to cover 1 periodic repetitions of the actual domain. If you create a periodic triangular mesh, the directions that are periodic must contain an even number of elements or else the triangles can't alternate properly.
+
+For example if the input file contains the following:
+
+structured 1 3
+4 5 6
+0. 0. 0.
+1. 2. 3.5
+rectangular 
+false false false
+
+describes a mesh of 4x5x6 hexahedral elements on the nonperiodic domain [0, 1]x[0, 2]x[0, 3.5]
+
+structured 1 2
+7 8
+0. -3.14159265359
+1. 3.14159265359
+triangular
+false true
+
+describes a mesh of 7x8 triangular elements on the boundary of a cylinder with height 1 and radius 1. Note that it is ok to have 7 elements in the height-wise direction, but we must have an even number of elements in the circular direction to make the mesh fit properly.
+
 == Licence ==
 
  This file forms part of hpGEM. This package has been developed over a number of years by various people at the University of Twente and a full list of contributors can be found at

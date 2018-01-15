@@ -41,9 +41,6 @@ public:
 	 const TimeIntegration::ButcherTableau * const ptrButcherTableau
 	);
 
-    /// \brief Create a domain
-    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override;
-
 
     /// *****************************************
     /// ***   Element integration functions   ***

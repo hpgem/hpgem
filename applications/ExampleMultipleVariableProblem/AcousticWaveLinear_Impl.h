@@ -41,29 +41,6 @@ cInv_(1.0)
 }
 
 template<std::size_t DIM>
-Base::RectangularMeshDescriptor<DIM> AcousticWaveLinear<DIM>::createMeshDescription(const std::size_t numberOfElementsPerDirection)
-{
-    // Create the domain. In this case the domain is the square [0,1]^DIM and periodic.
-    Base::RectangularMeshDescriptor<DIM> description;
-    for (std::size_t i = 0; i < DIM; ++i)
-    {
-        description.bottomLeft_[i] = 0;
-        description.topRight_[i] = 1;
-        description.numElementsInDIM_[i] = numberOfElementsPerDirection;
-        if(i == 0)
-        {
-            description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
-        }
-        else
-        {
-            description.boundaryConditions_[i] = Base::BoundaryType::PERIODIC;
-        }
-    }
-    
-    return description;
-}
-
-template<std::size_t DIM>
 LinearAlgebra::MiddleSizeVector AcousticWaveLinear<DIM>::getExactSolution(const PointPhysicalT &pPhys, const double &time, const std::size_t orderTimeDerivative)
 {
     LinearAlgebra::MiddleSizeVector realSolution(numberOfVariables_);

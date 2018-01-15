@@ -120,6 +120,27 @@ namespace Base
             processPullRequests();
             return pushElements_;
         }
+
+        //! adds an element to this submesh
+        void add(Element* element);
+
+        //! adds a push or pull element. Make sure to add push elements after you fill the list of element belonging to this submesh
+        //! processorID is the 0 based index of the processor that will be communicated with about this element
+        void addPush(Element* element, int processorID);
+        void addPull(Element* element, int processorID);
+
+        //! adds a face to this submesh
+        //note that interfacial faces should appear in the submesh of both their left and right element
+        void add(Face* face);
+
+        //! adds an edge to this submesh
+        //note that interfacial edges should appear in the submeshes of one their adjacent elements
+        void add(Edge* edge);
+
+        //! adds a node to this submesh
+        //note that interfacial edges should appear in the submeshes of one their adjacent elements
+        void add(Node* node);
+
     private:
         //Design note: Mesh is a friend of this class, because we want mesh to
         //access all functionality of the Submesh, not because of mesh messing
@@ -136,28 +157,8 @@ namespace Base
         Submesh() = default;
         Submesh(const Submesh& orig) = delete;
 
-        //! adds an element to this submesh
-        void add(Element* element);
-
-        //! adds a push or pull element. Make sure to add push elements after you fill the list of element belonging to this submesh
-        //! processorID is the 0 based index of the processor that will be communicated with about this element
-        void addPush(Element* element, int processorID);
-        void addPull(Element* element, int processorID);
-
         //! looks up processor IDs for new pull requests and adds them to the lists of push and pull elements
         void processPullRequests();
-
-        //! adds a face to this submesh
-        //note that interfacial faces should appear in the submesh of both their left and right element
-        void add(Face* face);
-
-        //! adds an edge to this submesh
-        //note that interfacial edges should appear in the submeshes of one their adjacent elements
-        void add(Edge* edge);
-
-        //! adds a node to this submesh
-        //note that interfacial edges should appear in the submeshes of one their adjacent elements
-        void add(Node* node);
 
         //! signals the submesh to prepare for a redistribution (user has to make sure non-geometric data is also redistributed properly)
         void clear();

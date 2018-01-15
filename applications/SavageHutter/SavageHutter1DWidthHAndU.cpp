@@ -29,34 +29,21 @@
 ///\details In this constructor, some of the parameters for the problem are set.
 ///Most of these parameters are declared in SavageHutterBase, but since they are protected
 ///they can also be used here.
-SavageHutter1DWidthHAndU::SavageHutter1DWidthHAndU(std::size_t polyOrder, std::size_t numberOfElements)
+SavageHutter1DWidthHAndU::SavageHutter1DWidthHAndU(std::size_t polyOrder, std::string meshName)
 : SavageHutter1DBase(2, polyOrder)
 {
     chuteAngle_ = M_PI / 180 * 29.6484;
     epsilon_ = .1;
-    const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
+    //const PointPhysicalT &pPhys = createMeshDescription(1).bottomLeft_;
+    const PointPhysicalT pPhys = {0.};
     inflowBC_ = getInitialSolution(pPhys, 0);
     dryLimit_ = 1e-5;
     
     std::vector<std::string> variableNames = {"hW", "u"};
     setOutputNames("output1DWA", "SavageHutter", "SavageHutter", variableNames);
     
-    createMesh(numberOfElements, Base::MeshType::RECTANGULAR);
+    readMesh(meshName);
     
-}
-
-///\details In this function, the mesh gets described. 
-///The domain is given by [0, endOfDomain], it consists of numberOfElementsPerDirection
-///elements (in this case lines) and has either periodic or non-periodic boundary
-///conditions. If the boundary conditions are not periodic, set the BoundaryType
-///in this function to Base::BoundaryType::SOLID_WALL and make sure that the function
-///SavageHutter1DBase::integrandRightHandSideOnRefFace is set correctly for boundary
-///faces. The ghost solution on the boundary can be described with computeGhostSolution.
-Base::RectangularMeshDescriptor<1> SavageHutter1DWidthHAndU::createMeshDescription(const std::size_t numOfElementsPerDirection)
-{
-    const double endOfDomain = 6;
-    const Base::BoundaryType boundary = Base::BoundaryType::SOLID_WALL;
-    return SavageHutter1DBase::createMeshDescription(numOfElementsPerDirection, endOfDomain, boundary);
 }
 
 ///\details Gives the initial solution for the problem. One could also call getExactSolution

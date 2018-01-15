@@ -84,6 +84,7 @@ namespace Base
 
         /// idRangeBegin is the beginning of the range, from where the Element's ids should be assigned.
         /// In case of multiple meshes, one has to take care of empty intersection of those ranges!!!
+        //fixme: periodicity information is requested for legacy reasons, but ignored in the current mesh reader
         MeshManipulator(const ConfigurationData* configData, BoundaryType xPer = BoundaryType::SOLID_WALL, BoundaryType yPer = BoundaryType::SOLID_WALL, BoundaryType zPer = BoundaryType::SOLID_WALL, std::size_t orderOfFEM = 1, std::size_t idRangeBegin = 0, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0, std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
 
         MeshManipulator(const MeshManipulator& other);
@@ -128,7 +129,7 @@ namespace Base
 
         bool addFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo, Element* rightElementPtr, std::size_t rightElementLocalFaceNo, const Geometry::FaceType& faceType = Geometry::FaceType::WALL_BC);
 
-        void addEdge();
+        Edge* addEdge();
 
         void addNode();
 
@@ -238,21 +239,8 @@ namespace Base
         {
             return theMesh_.nodeColEnd(part);
         }
-        /// *****************Iteration through the Elements*******************
-        
-        void createRectangularMesh(const Geometry::PointPhysical<DIM>& BottomLeft, const Geometry::PointPhysical<DIM>& TopRight, const std::vector<std::size_t>& LinearNoElements);
 
-        /**
-         * Crates a mesh of simplices for the specified cube
-         * \param [in] BottomLeft the bottomleft corner of the cube
-         * \param [in] TopRight The topRight corner of the cube
-         * \param [in] LinearNoElements A vector detailing the amount of refinement you want per direction
-         * This routine generates the same mesh structure as createRectangularMesh, but then refines each of the cubes into
-         * (DIM-1)^2+1 tetrahedra
-         */
-        void createTriangularMesh(Geometry::PointPhysical<DIM> BottomLeft, Geometry::PointPhysical<DIM> TopRight, const std::vector<std::size_t>& LinearNoElements);
-
-        void readCentaurMesh(const std::string& filename);
+        void readMesh(const std::string& filename);
 
 #ifdef HPGEM_USE_QHULL
         /**
@@ -356,6 +344,14 @@ namespace Base
         {
             return theMesh_.getNodesList(part);
         }
+
+        const std::map<int, std::vector<Element*> > & getPullElements() {
+            return theMesh_.getPullElements();
+        }
+
+        const std::map<int, std::vector<Element*> > & getPushElements() {
+            return theMesh_.getPushElements();
+        }
         // ************************************************************************
         
         //! Changes the default set of basisFunctions for this mesh and all of its elements. Ignores any conforming basisFunctionset that may be linked to faces/edges/...
@@ -411,16 +407,11 @@ namespace Base
         ///if you just want to refine every element on the level, you can omit the final argument.
         ///If the relative sizes of the refined elements don't suit your needs, use the mesh mover to relocate the nodes
         ///Note that doing so might render the coarse mesh useless, due to it using the old (incorrect) mapping
-        void refine(const Geometry::RefinementMapping* refinementMapping, std::function<bool(const Element*)> shouldRefine = [](const Element*){return true;});
+        //since a correct default for shouldRefine requires information from refinementMapping it is set in the implementation
+        void refine(const Geometry::RefinementMapping* refinementMapping, std::function<bool(const Element*)> shouldRefine = nullptr);
         
         //---------------------------------------------------------------------
     private:
-        
-        //!Does the actual reading for 2D centaur meshes
-        void readCentaurMesh2D(std::ifstream& centaurFile);
-
-        //!Does the actual reading for 3D centaur meshes
-        void readCentaurMesh3D(std::ifstream& centaurFile);
 
         //!Construct the faces based on connectivity information about elements and nodes
         void faceFactory();

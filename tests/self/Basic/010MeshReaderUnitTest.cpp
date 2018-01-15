@@ -5,7 +5,7 @@
  This code is distributed using BSD 3-Clause License. A copy of which can found below.
  
  
- Copyright (c) 2014, University of Twente
+ Copyright (c) 2017, University of Twente
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -16,6 +16,27 @@
  
  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
  
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/*
+ This file forms part of hpGEM. This package has been developed over a number of years by various people at the University of Twente and a full list of contributors can be found at
+ http://hpgem.org/about-the-code/team
+
+ This code is distributed using BSD 3-Clause License. A copy of which can found below.
+
+
+ Copyright (c) 2014, University of Twente
+ All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+ 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+ 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+ 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
@@ -33,29 +54,11 @@
 
 using namespace std;
 
-class Dummy2
-{
-public:
-    Dummy2(){}
-    void operator()(const Base::Element* el, const Geometry::PointReference<2>& p, ostream& os)
-    {
-    }
-};
-
-class Dummy3
-{
-public:
-    Dummy3(){}
-    void operator()(const Base::Element* el, const Geometry::PointReference<3>& p, ostream& os)
-    {
-    }
-};
-
 template<std::size_t DIM>
-void testMesh(Base::MeshManipulator<DIM>* test)
+void testMesh(Base::MeshManipulator<DIM>* test, bool isPeriodic)
 {
     std::unordered_set<std::size_t> elementIDs, faceIDs, edgeIDs, nodeIDs;
-    std::cout << test->getElementsList(Base::IteratorType::GLOBAL).size() << std::endl;
+    logger.suppressWarnings([&](){std::cout << test->getElementsList(Base::IteratorType::GLOBAL).size() << std::endl;});
     std::cout << test->getElementsList(Base::IteratorType::LOCAL).size() << std::endl;
     for (Base::Element* element : test->getElementsList())
     {
@@ -89,22 +92,31 @@ void testMesh(Base::MeshManipulator<DIM>* test)
         logger.assert_always((faceIDs.find(face->getID()) == faceIDs.end()), "duplicate face ID");
         faceIDs.insert(face->getID());
         logger.assert_always((face->getPtrElementLeft()->getFace(face->localFaceNumberLeft()) == face), "element<->face matching");
-        if (face->isInternal())
+        if (!isPeriodic && face->isInternal())
         {
             std::vector<std::size_t> leftNodes(face->getReferenceGeometry()->getNumberOfNodes()), rightNodes(leftNodes);
             leftNodes = face->getPtrElementLeft()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberLeft());
             rightNodes = face->getPtrElementRight()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberRight());
-            for (std::size_t i = 0; i < leftNodes.size(); ++i)
-            {
+            logger.assert_always((leftNodes.size() == rightNodes.size()), "face positioning: inconsistent face size, % vs. %", leftNodes.size(), rightNodes.size());
+            for(unsigned long leftNode : leftNodes) {
+                std::cout << leftNode << " ";
+            }
+            std::cout << endl;
+            for(unsigned long rightNode : rightNodes) {
+                std::cout << rightNode << " ";
+            }
+            std::cout << endl;
+            for(unsigned long leftNode : leftNodes) {
                 bool found = false;
-                for (std::size_t j = 0; j < rightNodes.size(); ++j)
-                {
-                    found |= leftNodes[i] == rightNodes[j];
+                for(unsigned long rightNode : rightNodes) {
+                    found |= leftNode == rightNode;
                 }
                 logger.assert_always((found), "face positioning");
             }
-            logger.assert_always((leftNodes.size() == rightNodes.size()), "face positioning");
             logger.assert_always((face->getPtrElementRight()->getFace(face->localFaceNumberRight()) == face), "element<->face matching");
+        }
+        if(isPeriodic) {
+            logger.assert_always(face->isInternal(), "Boundary face detected in a periodic mesh");
         }
     }
     for (Base::Edge* edge : test->getEdgesList())
@@ -133,7 +145,7 @@ void testMesh(Base::MeshManipulator<DIM>* test)
                 {
                     found |= firstNodes[k] == otherNodes[j];
                 }
-                logger.assert_always((found), "edge positioning");
+                logger.assert_always(found || isPeriodic, "edge positioning");
             }
             logger.assert_always((firstNodes.size() == otherNodes.size()), "edge positioning");
         }
@@ -149,10 +161,10 @@ void testMesh(Base::MeshManipulator<DIM>* test)
         {
             logger.assert_always((node->getElement(i)->getNode(node->getNodeNumber(i)) == node), "element<->node matching");
             pOther = node->getElement(i)->getPhysicalGeometry()->getLocalNodeCoordinates(node->getNodeNumber(i));
-            logger.assert_always((pFirst == pOther), "node positioning");
+            logger.assert_always((pFirst == pOther) || isPeriodic, "node positioning");
         }
     }
-    logger.assert_always((test->getNumberOfNodes() == test->getNumberOfNodeCoordinates()), "total amount of grid points (%) is not equal to the number of nodes (%)",
+    logger.assert_always((test->getNumberOfNodes() == test->getNumberOfNodeCoordinates()) || isPeriodic, "total amount of grid points (%) is not equal to the number of nodes (%)",
                          test->getNumberOfNodeCoordinates(), test->getNumberOfNodes());
 }
 
@@ -160,98 +172,127 @@ void testMesh(Base::MeshManipulator<DIM>* test)
 //Also test the copy constructor of Mesh/MeshManipulator here after this test has been fixed.
 int main(int argc, char** argv)
 {
+    using namespace std::string_literals;
     Base::parse_options(argc, argv);
-    
-    
-    
-    Base::ConfigurationData config2(2, 1, 1);
-    
-    config2.numberOfUnknowns_       = 1;
-    config2.numberOfTimeLevels_     = 1;
-    config2.numberOfBasisFunctions_ = 1;
-    
-    Base::MeshManipulator<2> myTwoDDemoMesh(&config2, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL);
-    
-    std::stringstream filename;
-    
-    filename << Base::getCMAKE_hpGEM_SOURCE_DIR() << "/tests/files/square_Test.hyb";
-    
-    myTwoDDemoMesh.readCentaurMesh(filename.str());
-    
-    std::cout << myTwoDDemoMesh << std::endl;
-    testMesh(&myTwoDDemoMesh);
-    
-    std::ofstream file2D;
-    file2D.open ("Savedsquare_.dat");
-    
-    
-    Output::TecplotDiscontinuousSolutionWriter<2> out1(file2D,"QuadMinimum Test Mesh","01","x, y");
-    Dummy2 d2;
-    out1.write(&myTwoDDemoMesh,"holi",false, std::function<void(const Base::Element* el, const Geometry::PointReference<2>& p, ostream& os)>{d2});
-    
-    file2D.close();
-    
-    
-    
-    
-    
-    
-    //Next we test it for a 3D mesh generated using Centaur with SOLID WALL boundary conditions in all directions
-    Base::ConfigurationData config3(3, 1, 1);
-    
-    config3.numberOfUnknowns_       = 1;
-    config3.numberOfTimeLevels_     = 1;
-    config3.numberOfBasisFunctions_ = 1;
-    
-    Base::MeshManipulator<3> myThreeDDemoMesh(&config3, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL);
-    
-    std::stringstream filename3;
-    
-    filename3 << Base::getCMAKE_hpGEM_SOURCE_DIR() << "/tests/files/newCube.hyb";
-    
-    myThreeDDemoMesh.readCentaurMesh(filename3.str());
-    
-    std::cout << myThreeDDemoMesh << std::endl;
-    
-    testMesh(&myThreeDDemoMesh);
-    std::ofstream file3D;
-    file3D.open ("SavedCubeMesh.dat");
-    
-    
-    Output::TecplotDiscontinuousSolutionWriter<3> out3(file3D,"QuadMinimum Test Mesh","012","x, y, z");
-    Dummy3 d3;
-    out3.write(&myThreeDDemoMesh,"holi",false, std::function<void(const Base::Element* el, const Geometry::PointReference<3>& p, ostream& os)>{d3});
-    
-    file3D.close();
-    
-    
-    // Next we test it for 3D mesh generated using Centaur with Periodic Boundary Conditions     
-    Base::ConfigurationData config4(3, 1, 1);
-    
-    config4.numberOfUnknowns_       = 1;
-    config4.numberOfTimeLevels_     = 1;
-    config4.numberOfBasisFunctions_ = 1;
-    
-    Base::MeshManipulator<3> myThreeDDemoMesh2(&config4, Base::BoundaryType::PERIODIC, Base::BoundaryType::PERIODIC, Base::BoundaryType::PERIODIC);
-    
-    std::stringstream filename4;
-    
-    filename4 << Base::getCMAKE_hpGEM_SOURCE_DIR() << "/tests/files/Bragg_Test.hyb";
-    
-    myThreeDDemoMesh2.readCentaurMesh(filename4.str());
-    
-    std::cout << myThreeDDemoMesh2 << std::endl;
-    
-    testMesh(&myThreeDDemoMesh2);
-    std::ofstream file3D2;
-    file3D2.open ("SavedBraggMesh.dat");
-    
-    
-    Output::TecplotDiscontinuousSolutionWriter<3> out4(file3D2,"QuadMinimum Test Mesh","012","x, y, z");
-    Dummy3 d4;
-    out4.write(&myThreeDDemoMesh2,"holi",false, std::function<void(const Base::Element* el, const Geometry::PointReference<3>& p, ostream& os)>{d4});
-    
-    file3D2.close();
-    
-    
+
+    //1d
+
+    for(const std::string& baseFileName : {"1Drectangular1mesh"s, "1Drectangular2mesh"s}) {
+        Base::ConfigurationData config(1, 1, 1);
+
+        config.numberOfUnknowns_       = 1;
+        config.numberOfTimeLevels_     = 1;
+        config.numberOfBasisFunctions_ = 1;
+
+        Base::MeshManipulator<1> mesh(&config, Base::BoundaryType::SOLID_WALL);
+
+        std::stringstream filename;
+
+        filename << Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s << baseFileName << ".hpgem";
+
+        mesh.readMesh(filename.str());
+
+        std::cout << mesh << std::endl;
+        testMesh(&mesh, false);
+
+        std::ofstream outFile;
+        outFile.open (baseFileName + "_output.dat"s);
+
+
+        Output::TecplotDiscontinuousSolutionWriter<1> out(outFile,"1D Test Mesh","0","x");
+        out.write(&mesh,"holi",false, [](const Base::Element*, const Geometry::PointReference<1>&, ostream&){});
+
+        outFile.close();
+    }
+
+    //2d
+
+    for(const std::string& baseFileName : {"2Drectangular1mesh"s, "2Drectangular2mesh"s,
+                                           "2Dtriangular1mesh"s, "2Dtriangular2mesh"s,
+                                           "square_Test"s}) {
+        Base::ConfigurationData config(2, 1, 1);
+
+        config.numberOfUnknowns_       = 1;
+        config.numberOfTimeLevels_     = 1;
+        config.numberOfBasisFunctions_ = 1;
+
+        Base::MeshManipulator<2> mesh(&config, Base::BoundaryType::SOLID_WALL);
+
+        std::stringstream filename;
+
+        filename << Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s << baseFileName << ".hpgem";
+
+        mesh.readMesh(filename.str());
+
+        std::cout << mesh << std::endl;
+        testMesh(&mesh, false);
+
+        std::ofstream outFile;
+        outFile.open (baseFileName + "_output.dat"s);
+
+
+        Output::TecplotDiscontinuousSolutionWriter<2> out(outFile,"2D Test Mesh","01","x, y");
+        out.write(&mesh,"holi",false, [](const Base::Element*, const Geometry::PointReference<2>&, ostream&){});
+
+        outFile.close();
+    }
+
+    //3d
+
+    for(const std::string& baseFileName : {"3Drectangular1mesh"s, "3Drectangular2mesh"s, "3Drectangular3mesh"s,
+                                           "3Dtriangular1mesh"s, "3Dtriangular2mesh"s, "3Dtriangular3mesh"s}) {
+        Base::ConfigurationData config(3, 1, 1);
+
+        config.numberOfUnknowns_       = 1;
+        config.numberOfTimeLevels_     = 1;
+        config.numberOfBasisFunctions_ = 1;
+
+        Base::MeshManipulator<3> mesh(&config, Base::BoundaryType::SOLID_WALL);
+
+        std::stringstream filename;
+
+        filename << Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s << baseFileName << ".hpgem";
+
+        mesh.readMesh(filename.str());
+
+        std::cout << mesh << std::endl;
+        testMesh(&mesh, false);
+
+        std::ofstream outFile;
+        outFile.open (baseFileName + "_output.dat"s);
+
+
+        Output::TecplotDiscontinuousSolutionWriter<3> out(outFile,"3D Test Mesh","012","x, y, z");
+        out.write(&mesh,"holi",false, [](const Base::Element*, const Geometry::PointReference<3>&, ostream&){});
+
+        outFile.close();
+    }
+
+    for(const std::string& baseFileName : {"Bragg_Test"s, "newCube"s}) {
+        Base::ConfigurationData config(3, 1, 1);
+
+        config.numberOfUnknowns_       = 1;
+        config.numberOfTimeLevels_     = 1;
+        config.numberOfBasisFunctions_ = 1;
+
+        Base::MeshManipulator<3> mesh(&config, Base::BoundaryType::SOLID_WALL);
+
+        std::stringstream filename;
+
+        filename << Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s << baseFileName << ".hpgem";
+
+        mesh.readMesh(filename.str());
+
+        std::cout << mesh << std::endl;
+        testMesh(&mesh, true);
+
+        std::ofstream outFile;
+        outFile.open (baseFileName + "_output.dat"s);
+
+
+        Output::TecplotDiscontinuousSolutionWriter<3> out(outFile,"3D Test Mesh","012","x, y, z");
+        out.write(&mesh,"holi",false, [](const Base::Element*, const Geometry::PointReference<3>&, ostream&){});
+
+        outFile.close();
+    }
 }

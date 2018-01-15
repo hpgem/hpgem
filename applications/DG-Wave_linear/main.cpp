@@ -48,27 +48,15 @@ const std::size_t DIM = 2;
 class DGWave : public Base::HpgemAPIBase<DIM>, public Output::TecplotSingleElementWriter<DIM>
 {
 public:
-    DGWave(std::size_t n, std::size_t p)
-            : HpgemAPIBase<DIM>(new Base::GlobalData(), new Base::ConfigurationData(DIM, 2, p)), n_(n), p_(p)
+    DGWave(std::size_t p)
+            : HpgemAPIBase<DIM>(new Base::GlobalData(), new Base::ConfigurationData(DIM, 2, p)), p_(p)
     {
-        logger.assert_always(n > 7, "This application assumes there are at least 8 elements in the x-direction");
     }
     
     ///set up the mesh
     bool initialise()
     {
-        Base::RectangularMeshDescriptor<DIM> description;
-        for (std::size_t i = 0; i < DIM; ++i)
-        {
-            description.bottomLeft_[i] = 0;
-            description.topRight_[i] = 1;
-            description.numberOfElementsInDIM_[i] = n_;
-            description.boundaryConditions_[i] = Base::BoundaryType::PERIODIC;
-        }
-        description.topRight_[DIM - 1] = -1;
-        description.numberOfElementsInDIM_[DIM - 1] /= 8;
-        description.boundaryConditions_[DIM - 1] = Base::BoundaryType::SOLID_WALL;
-        addMesh(description, Base::MeshType::RECTANGULAR, 1, 1, 1, 1);
+        addMesh("mesh.hpgem", 1, 1, 1, 1);
         setNumberOfTimeIntegrationVectorsGlobally(1);
         meshes_[0]->setDefaultBasisFunctionSet(Utilities::createInteriorBasisFunctionSet2DH1Square(p_));
         std::vector<const Base::BasisFunctionSet*> bFsets;
@@ -347,12 +335,12 @@ public:
         Output::VTKTimeDependentWriter<DIM> paraWrite("output", meshes_[0]);
         
         //deal with initial conditions
-        double g(1.), dt(M_PI / n_ / 2);
+        double g(1.), dt(M_PI / 16);
         eta.constructFromTimeIntegrationVector(0, 0);
         phi.constructFromTimeIntegrationVector(0, 1);
 
         std::size_t numberOfSnapshots(65); //placeholder parameters
-        std::size_t numberOfTimeSteps(n_ / 8);
+        std::size_t numberOfTimeSteps(1);
         
         MatGetSubMatrix(M, isSurface, isSurface, MAT_INITIAL_MATRIX, &surfaceMass);
         MatDuplicate(surfaceMass, MAT_DO_NOT_COPY_VALUES, &swapSurfaceVars);
@@ -446,9 +434,6 @@ public:
     }
     
 private:
-    
-    //number of elements per cardinal direction
-    std::size_t n_;
 
     //polynomial order of the approximation
     std::size_t p_;
@@ -456,14 +441,12 @@ private:
 };
 
 double DGWave::t = 0;
-
-auto& n = Base::register_argument<std::size_t>('n', "numelems", "Number of Elements in the x-direction", true);
 auto& p = Base::register_argument<std::size_t>('p', "poly", "Polynomial order", true);
 
 int main(int argc, char **argv)
 {
     Base::parse_options(argc, argv);
-    DGWave test(n.getValue(), p.getValue());
+    DGWave test(p.getValue());
     test.initialise();
     test.solve();
     return 0;

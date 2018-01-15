@@ -31,7 +31,7 @@
 #include "SavageHutter1DWidthAveraged.h"
 #include "SavageHutter1DWidthHAndU.h"
 
-auto& numberOfElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", false, 20);
+auto& name = Base::register_argument<std::string>('n', "meshName", "name of the mesh file", true);
 auto& polynomialOrder = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", false, 1);
 auto& numberOfOutputFrames = Base::register_argument<std::size_t>('O', "numOfOutputFrames", "Number of frames to output", false, 100);
 auto& startTime = Base::register_argument<double>('S', "startTime", "start time of the simulation", false, 0.0);
@@ -44,7 +44,7 @@ int main(int argc, char **argv)
     logger.assert_always(startTime.getValue() <= endTime.getValue(), "start time must be before end time!");
     
     //Construct the problem
-    SavageHutter1DBidispersed problemDescriptor(polynomialOrder.getValue(), numberOfElements.getValue());
+    SavageHutter1DBidispersed problemDescriptor(polynomialOrder.getValue(), name.getValue());
     
     // Start measuring elapsed time
     std::chrono::time_point<std::chrono::system_clock> startClock, endClock;

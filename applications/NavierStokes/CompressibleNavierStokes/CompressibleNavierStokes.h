@@ -41,9 +41,6 @@ public:
 		const bool computeBothFaces
 	);
 
-    /// \brief Create a domain
-    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override;
-
     void setStabilityMassMatrix();
 
     /// \brief Computes pressure for a given state

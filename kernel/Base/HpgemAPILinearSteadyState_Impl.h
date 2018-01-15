@@ -69,9 +69,8 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    void HpgemAPILinearSteadyState<DIM>::createMesh(const std::size_t numberOfElementsPerDirection, const Base::MeshType meshType)
+    void HpgemAPILinearSteadyState<DIM>::readMesh(const std::string meshName)
     {
-        const Base::RectangularMeshDescriptor<DIM> description = this->createMeshDescription(numberOfElementsPerDirection);
         
         // Set the number of Element/Face Matrices/Vectors.
         std::size_t numberOfElementMatrices = 2;   // Mass matrix and stiffness matrix
@@ -80,7 +79,7 @@ namespace Base
         std::size_t numberOfFaceVectors = 1;       // Source term vector at boundary
 
         // Create mesh and set basis functions.
-        this->addMesh(description, meshType, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors);
+        this->addMesh(meshName, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors);
         this->meshes_[0]->useDefaultDGBasisFunctions();
         
         // Set the number of time integration vectors according to the size of the Butcher tableau.

@@ -1,0 +1,12 @@
+TITLE = "1D Test Mesh"
+VARIABLES = "x0", "x"
+ZONE T = "holi", STRANDID = 1, SOLUTIONTIME = 0, ZONETYPE = FELINESEG, DATAPACKING = POINT, N = 6         , E = 3         
+           0                
+    0.333333                
+    0.333333                
+    0.666667                
+    0.666667                
+           1                
+1 2 
+3 4 
+5 6 

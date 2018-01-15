@@ -31,6 +31,7 @@
 #include "unordered_set"
 #include "Logger.h"
 #include <cmath>
+#include <CMakeDefinitions.h>
 
 template<std::size_t DIM>
 void testMesh(Base::MeshManipulator<DIM>* test)
@@ -97,130 +98,82 @@ void testMesh(Base::MeshManipulator<DIM>* test)
 
 int main(int argc, char** argv)
 {
+    using namespace std::string_literals;
     Base::parse_options(argc, argv);
     // dim 1
-    Base::RectangularMeshDescriptor<1> description1D;
-    Base::RectangularMeshDescriptor<2> description2D;
-    Base::RectangularMeshDescriptor<3> description3D;
-    description1D.bottomLeft_[0] = 0;
-    description2D.bottomLeft_[0] = 0;
-    description2D.bottomLeft_[1] = 0;
-    description3D.bottomLeft_[0] = 0;
-    description3D.bottomLeft_[1] = 0;
-    description3D.bottomLeft_[2] = 0;
-    description1D.topRight_[0] = 1;
-    description2D.topRight_[0] = 1;
-    description2D.topRight_[1] = 1;
-    description3D.topRight_[0] = 1;
-    description3D.topRight_[1] = 1;
-    description3D.topRight_[2] = 1;
-    description1D.boundaryConditions_[0] = Base::BoundaryType::SOLID_WALL;
-    description2D.boundaryConditions_[0] = Base::BoundaryType::SOLID_WALL;
-    description2D.boundaryConditions_[1] = Base::BoundaryType::SOLID_WALL;
-    description3D.boundaryConditions_[0] = Base::BoundaryType::SOLID_WALL;
-    description3D.boundaryConditions_[1] = Base::BoundaryType::SOLID_WALL;
-    description3D.boundaryConditions_[2] = Base::BoundaryType::SOLID_WALL;
-    
-    description1D.numberOfElementsInDIM_[0] = 2;
-    
+
     Base::MeshManipulator<1> *test = new Base::MeshManipulator<1>(new Base::ConfigurationData(1, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test->createTriangularMesh(description1D.bottomLeft_, description1D.topRight_, description1D.numberOfElementsInDIM_);
-    
+    test->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "1Drectangular1mesh.hpgem"s);
+
     testMesh(test);
-    
+
     delete test;
     test = new Base::MeshManipulator<1>(new Base::ConfigurationData(1, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test->createRectangularMesh(description1D.bottomLeft_, description1D.topRight_, description1D.numberOfElementsInDIM_);
-    testMesh(test);
-    
-    delete test;
-    description1D.numberOfElementsInDIM_[0] = 3;
-    
-    test = new Base::MeshManipulator<1>(new Base::ConfigurationData(1, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test->createTriangularMesh(description1D.bottomLeft_, description1D.topRight_, description1D.numberOfElementsInDIM_);
-    
-    testMesh(test);
-    
-    delete test;
-    test = new Base::MeshManipulator<1>(new Base::ConfigurationData(1, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test->createRectangularMesh(description1D.bottomLeft_, description1D.topRight_, description1D.numberOfElementsInDIM_);
+    test->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "1Drectangular2mesh.hpgem"s);
     testMesh(test);
     
     // dim 2
     
     delete test;
-    description2D.numberOfElementsInDIM_[0] = 2;
-    description2D.numberOfElementsInDIM_[1] = 3;
     
     Base::MeshManipulator<2> *test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test2->createTriangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numberOfElementsInDIM_);
+    test2->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "2Dtriangular1mesh.hpgem"s);
     
     testMesh(test2);
     
     delete test2;
     test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test2->createRectangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numberOfElementsInDIM_);
+    test2->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "2Drectangular1mesh.hpgem"s);
     testMesh(test2);
     
     delete test2;
-    description2D.numberOfElementsInDIM_[0] = 3;
-    description2D.numberOfElementsInDIM_[1] = 2;
     
     test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test2->createTriangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numberOfElementsInDIM_);
+    test2->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "2Dtriangular2mesh.hpgem"s);
     
     testMesh(test2);
     
     delete test2;
     test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test2->createRectangularMesh(description2D.bottomLeft_, description2D.topRight_, description2D.numberOfElementsInDIM_);
+    test2->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "2Drectangular2mesh.hpgem"s);
     testMesh(test2);
     
     // dim 3
     
     delete test2;
-    description3D.numberOfElementsInDIM_[0] = 2;
-    description3D.numberOfElementsInDIM_[1] = 2;
-    description3D.numberOfElementsInDIM_[2] = 3;
     
     Base::MeshManipulator<3> *test3 = new Base::MeshManipulator<3>(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test3->createTriangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numberOfElementsInDIM_);
+    test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "3Dtriangular1mesh.hpgem"s);
     
     testMesh(test3);
     
     delete test3;
     test3 = new Base::MeshManipulator<3>(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test3->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numberOfElementsInDIM_);
+    test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "3Drectangular1mesh.hpgem"s);
     testMesh(test3);
     
     delete test3;
-    description3D.numberOfElementsInDIM_[0] = 2;
-    description3D.numberOfElementsInDIM_[1] = 3;
-    description3D.numberOfElementsInDIM_[2] = 2;
     
     test3 = new Base::MeshManipulator<3>(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test3->createTriangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numberOfElementsInDIM_);
-    
-    testMesh(test3);
-    
-    delete test3;
-    test3 = new Base::MeshManipulator<3>(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test3->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numberOfElementsInDIM_);
-    testMesh(test3);
-    
-    delete test3;
-    description3D.numberOfElementsInDIM_[0] = 3;
-    description3D.numberOfElementsInDIM_[1] = 2;
-    description3D.numberOfElementsInDIM_[2] = 2;
-    
-    test3 = new Base::MeshManipulator<3>(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test3->createTriangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numberOfElementsInDIM_);
+    test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "3Dtriangular2mesh.hpgem"s);
     
     testMesh(test3);
     
     delete test3;
     test3 = new Base::MeshManipulator<3>(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
-    test3->createRectangularMesh(description3D.bottomLeft_, description3D.topRight_, description3D.numberOfElementsInDIM_);
+    test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "3Drectangular2mesh.hpgem"s);
+    testMesh(test3);
+    
+    delete test3;
+    
+    test3 = new Base::MeshManipulator<3>(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
+    test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "3Dtriangular3mesh.hpgem"s);
+    
+    testMesh(test3);
+    
+    delete test3;
+    test3 = new Base::MeshManipulator<3>(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2, 0);
+    test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "3Drectangular3mesh.hpgem"s);
     testMesh(test3);
 }
 

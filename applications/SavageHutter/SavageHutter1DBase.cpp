@@ -22,17 +22,6 @@
 #include "HelperFunctions.h"
 #include <cmath>
 
-Base::RectangularMeshDescriptor<1> SavageHutter1DBase::createMeshDescription(const std::size_t numberOfElements, const double endOfDomain, const Base::BoundaryType boundary)
-{
-    // Make a description of the domain [0,endOfDomain] with the correct boundary conditions and number of elements
-    Base::RectangularMeshDescriptor<1> description;
-    description.boundaryConditions_[0] = boundary;
-    description.numElementsInDIM_[0] = numberOfElements;
-    description.bottomLeft_[0] = 0;
-    description.topRight_[0] = endOfDomain;
-    return description;
-}
-
 /// \details The integrand for the reference element is the same as the physical element, but scaled with the reference-to-physical element scale, which is the determinant of the jacobian of the reference-to-physical element mapping.
 const LinearAlgebra::MiddleSizeVector SavageHutter1DBase::integrandRightHandSideOnElement
 (Base::PhysicalElement<1> &element, const double &time, const LinearAlgebra::MiddleSizeVector &solutionCoefficients)

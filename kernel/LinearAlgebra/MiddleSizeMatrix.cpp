@@ -709,7 +709,7 @@ namespace LinearAlgebra
             os << "(";
             for (std::size_t j = 0; j < nCols; ++j)
             {
-                os << A(i, j) << "\t ";
+                os << A(i,j) << "\t ";
             }
             os << ")" << std::endl;
         }

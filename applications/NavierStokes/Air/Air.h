@@ -59,9 +59,6 @@ public:
 
 	LinearAlgebra::MiddleSizeVector computeBoundaryState(Base::PhysicalFace<DIM> &face, const StateCoefficientsStruct<DIM,NUMBER_OF_VARIABLES> faceStateStuctLeft, const double time) override final;
 
-	/// \brief Create a domain
-	Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numOfElementPerDirection) override final;
-
 	/// \brief Output function. This fucntion gives the state as output, and additionally also the error if specified.
 	void registerVTKWriteFunctions();
 

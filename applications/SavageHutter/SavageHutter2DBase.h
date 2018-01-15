@@ -44,11 +44,6 @@ public:
     }
 
 protected:
-
-    /// \brief Create a description of the domain
-    Base::RectangularMeshDescriptor<2> createMeshDescription(const std::array<std::size_t, 2> numOfElementPerDirection,
-                                                             const std::array<double, 2> endOfDomain,
-                                                             const std::array<Base::BoundaryType, 2> boundaries);
     
     /// \brief Function to compute the integrand for the right hand side for the reference element.
     const LinearAlgebra::MiddleSizeVector integrandRightHandSideOnElement

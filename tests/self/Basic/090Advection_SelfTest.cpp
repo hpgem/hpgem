@@ -22,6 +22,7 @@
 #include <cmath>
 #include <functional>
 #include <chrono>
+#include <CMakeDefinitions.h>
 
 #include "Base/CommandLineOptions.h"
 #include "Base/ConfigurationData.h"
@@ -49,37 +50,13 @@ public:
     using typename Base::HpgemAPIBase<DIM>::PointReferenceOnFaceT;
     
     ///Constructor. Assign all private variables.
-    Advection(const std::size_t n, const std::size_t p, const Base::MeshType meshType) :
-    Base::HpgemAPISimplified<DIM>(1, p),
-    n_(n),
-    meshType_(meshType)
+    Advection(const std::string fileType, const std::size_t p) :
+    Base::HpgemAPISimplified<DIM>(1, p), fileType(fileType)
     {
         for (std::size_t i = 0; i < DIM; ++i)
         {
             a[i] = 0.1 + 0.1 * i;
         }
-    }
-    
-    /// Create a mesh description
-    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numberOfElementsPerDirection) override final
-    {
-        //describes a rectangular domain
-        Base::RectangularMeshDescriptor<DIM> description;
-        
-        //this demo will use the square [0,1]^2
-        for (std::size_t i = 0; i < DIM; ++i)
-        {
-            description.bottomLeft_[i] = 0;
-            description.topRight_[i] = 1;
-            //Define elements in each direction.
-            description.numberOfElementsInDIM_[i] = numberOfElementsPerDirection;
-            
-            //Choose whether you want periodic boundary conditions or other (solid wall)
-            //boundary conditions.
-            description.boundaryConditions_[i] = Base::BoundaryType::PERIODIC;
-        }
-        
-        return description;
     }
     
     /// \brief Compute the integrand of the right-hand side associated with elements.
@@ -253,17 +230,13 @@ public:
      const std::size_t nT // number of time steps
     )
     {
-        this->createMesh(n_, meshType_);
+        this->readMesh(fileType);
         this->solve(0, T,  (T / nT), 0, false);
         return this->computeTotalError(this->solutionVectorId_, T);
     }
     
 private:
-    /// Number of elements per direction
-    std::size_t n_;
-    
-    /// Mesh type
-    Base::MeshType meshType_;
+    std::string fileType;
     
     ///Advective vector
     LinearAlgebra::SmallVector<DIM> a;
@@ -272,16 +245,15 @@ private:
 
 int main(int argc, char **argv)
 {
+    using namespace std::string_literals;
     Base::parse_options(argc, argv);
     
     // Define test parameters
     const std::size_t numberOfTests = 14;
     std::array<std::size_t, numberOfTests> dim = {1,1,1,1,1, 2,2,2,2,2, 3,3,3,3};
     std::array<std::size_t, numberOfTests> p = {1,2,3,4,5, 1,2,3,4,5, 1,2,3,4};
-    std::array<std::size_t, numberOfTests> n = {16,8,4,4,4, 16,8,4,4,4, 16,8,4,4};
     std::array<double, numberOfTests> T = {0.1,0.1,0.1,0.1,0.1, 0.1,0.1,0.1,0.1,0.1, 0.02,0.02,0.02,0.01};
     std::array<std::size_t, numberOfTests> nT = {10,10,10,10,10, 10,10,10,10,10, 2,2,2,1};
-    std::array<std::size_t, numberOfTests> shapeId = {1,0,1,0,1, 0,1,0,1,0, 1,0,1,0};
     std::array<double, numberOfTests> errors =
     {
         0.00322137,
@@ -307,42 +279,31 @@ int main(int argc, char **argv)
     // Define error
     LinearAlgebra::MiddleSizeVector::type error;
     
-    // Define mesh type
-    Base::MeshType meshType;
-    
     
     startClock = std::chrono::system_clock::now();
     
     // Perform tests
     for(std::size_t i=0; i<numberOfTests; i++)
     {
-        
-        if(shapeId[i] == 0)
-        {
-            meshType = Base::MeshType::TRIANGULAR;
-        }
-        else
-        {
-            meshType = Base::MeshType::RECTANGULAR;
-        }
+        std::string fileName = Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "advectionMesh"s + std::to_string(i + 1) + ".hpgem"s;
         
         if(dim[i] == 1)
         {
-            Advection<1> test(n[i], p[i], meshType);
+            Advection<1> test(fileName, p[i]);
             error = test.createAndSolve(T[i], nT[i]);
             std::cout << "Error: " << error << "\n";
             logger.assert_always((std::abs(error - errors[i]) < 1e-8), "comparison to old results");
         }
         else if(dim[i] == 2)
         {
-            Advection<2> test(n[i], p[i], meshType);
+            Advection<2> test(fileName, p[i]);
             error = test.createAndSolve(T[i], nT[i]);
             std::cout << "Error: " << error << "\n";
             logger.assert_always((std::abs(error - errors[i]) < 1e-8), "comparison to old results");
         }
         else
         {
-            Advection<3> test(n[i], p[i], meshType);
+            Advection<3> test(fileName, p[i]);
             error = test.createAndSolve(T[i], nT[i]);
             std::cout << "Error: " << error << "\n";
             logger.assert_always((std::abs(error - errors[i]) < 1e-8), "comparison to old results");

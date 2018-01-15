@@ -501,26 +501,6 @@ LinearAlgebra::MiddleSizeVector Air::computeBoundaryState(Base::PhysicalFace<DIM
 
 }
 
-/// \brief Create a domain
-Base::RectangularMeshDescriptor<DIM> Air::createMeshDescription
-(
- const std::size_t numOfElementPerDirection
- )
- {
-	// Create the domain. In this case the domain is the square [0,1]^DIM and periodic.
-	Base::RectangularMeshDescriptor<DIM> description;
-	for (std::size_t i = 0; i < DIM; ++i)
-	{
-		description.bottomLeft_[i] = 0;
-		description.topRight_[i] = 1.0;
-		description.numElementsInDIM_[i] = numOfElementPerDirection;
-	}
-	description.boundaryConditions_[0] = Base::BoundaryType::PERIODIC;
-	description.boundaryConditions_[1] = Base::BoundaryType::PERIODIC;
-
-	return description;
- }
-
 /// \brief Output function. This fucntion gives the state as output, and additionally also the error if specified.
 void Air::registerVTKWriteFunctions()
 {

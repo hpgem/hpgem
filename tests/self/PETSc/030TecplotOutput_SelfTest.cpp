@@ -28,6 +28,7 @@
 #include "petscksp.h"
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
+#include <CMakeDefinitions.h>
 
 //If this test ever breaks it is not a bad thing per se.
 //If the results are still readable by tecplot, and you are convinced that your changes improved the code,
@@ -37,37 +38,14 @@
 class PoissonTest : public Base::HpgemAPILinearSteadyState<2>
 {
 public:
-    PoissonTest(const std::size_t n, const std::size_t p, const Base::MeshType meshType) :
+    PoissonTest(const std::string name, const std::size_t p, const std::size_t n) :
     HpgemAPILinearSteadyState(1, p, true, true),
-    n_(n),
     p_(p),
     totalError_(0)
     {
-        penalty_ = 3 * n_ * p_ * (p_ + 2 - 1) + 1;
-        createMesh(n_, meshType);
-    }
-    
-    ///\brief set up the mesh
-    Base::RectangularMeshDescriptor<2> createMeshDescription(const std::size_t numberOfElementPerDirection) override final
-    {
-        //describes a rectangular domain
-        Base::RectangularMeshDescriptor<2> description;
-        
-        for (std::size_t i = 0; i < 2; ++i)
-        {
-            //define the value of the bottom left corner in each dimension
-            description.bottomLeft_[i] = 0;
-            //define the value of the top right corner in each dimension
-            description.topRight_[i] = 1;
-            //define how many elements there should be in the direction of dimension
-            //At this stage, the mesh first consists of n^2 squares, and later these
-            //squares can be divided in two triangles each if a triangular mesh is desired.
-            description.numberOfElementsInDIM_[i] = n_;
-            //define whether you have periodic boundary conditions or a solid wall in this direction.
-            description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
-        }
-        
-        return description;
+        using namespace std::string_literals;
+        penalty_ = 3 * n * p_ * (p_ + 2 - 1) + 1;
+        readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + name);
     }
     
     ///\brief Compute the integrand for the stiffness matrix at the element.
@@ -268,9 +246,6 @@ public:
     
 private:
     
-    ///number of elements per cardinal direction
-    int n_;
-    
     ///polynomial order of the approximation
     int p_;
     
@@ -289,7 +264,7 @@ int main(int argc, char** argv)
 {
     Base::parse_options(argc, argv);
     
-    PoissonTest test8(8, 5, Base::MeshType::TRIANGULAR);
+    PoissonTest test8("poissonMesh9.hpgem", 5, 8);
     test8.solveSteadyStateWithPetsc(true);
     //actual test is done by comparing output files
     return 0;

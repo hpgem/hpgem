@@ -116,15 +116,16 @@ namespace Base
         virtual ~HpgemAPISimplified() = default;
 
         /// \brief Create a mesh description
-        virtual Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numberOfElementPerDirection)
+        /// \deprecated The functionality to create meshes has been extracted to the preprocessor
+        [[deprecated]] virtual Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numberOfElementPerDirection) final
         {
-            logger(ERROR, "No routine for creating the domain implemented.");
+            logger(ERROR, "Please create your mesh using the Preprocessor");
             Base::RectangularMeshDescriptor<DIM> description;
             return description;
         }
-        
+
         /// \brief Create the mesh.
-        virtual void createMesh(const std::size_t numberOfElementsPerDirection, const Base::MeshType meshType);
+        virtual void readMesh(std::string fileName);
         
         
         /// \brief Compute the exact solution at a given point in space and time.

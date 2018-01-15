@@ -87,9 +87,6 @@ public:
      const std::size_t polynomialOrder,
      const TimeIntegration::ButcherTableau * const ptrButcherTableau
      );
-        
-    /// \brief Create a domain
-    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numberOfElementsPerDirection) override final;
 
     /// \brief Set the material parameter.
     /// \param[in] c Material parameter corresponding to the speed with which waves can propagate.

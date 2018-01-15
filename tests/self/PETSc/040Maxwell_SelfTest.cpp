@@ -29,6 +29,7 @@
 #include "Base/HCurlConformingTransformation.h"
 
 #include "Logger.h"
+#include <CMakeDefinitions.h>
 
 
 //If this test ever breaks it is not a bad thing per se. However, once this breaks a thorough convergence analysis needs to be done.
@@ -41,14 +42,14 @@ class MaxwellTest : public Base::HpgemAPILinearSteadyState<3>
 {
 public:
 
-    MaxwellTest(const std::size_t n, const std::size_t p, bool useNedelec) :
+    MaxwellTest(const std::string name, const std::size_t n, const std::size_t p, bool useNedelec) :
     Base::HpgemAPILinearSteadyState<3>(1, p, true, true),
-    n(n),
     p(p),
     totalError(0)
     {
+        using namespace std::string_literals;
         penalty = n * (p + 1) * (p + 3) + 1;
-        createMesh(n, Base::MeshType::TRIANGULAR);
+        readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + name);
         elementIntegrator_.setTransformation(std::shared_ptr<Base::CoordinateTransformation<3>>(new Base::HCurlConformingTransformation<3>));
         faceIntegrator_.setTransformation(std::shared_ptr<Base::CoordinateTransformation<3>>(new Base::HCurlConformingTransformation<3>));
         if(useNedelec)
@@ -59,29 +60,6 @@ public:
         {
             meshes_[0]->useAinsworthCoyleDGBasisFunctions();
         }
-    }
-
-    ///\brief set up the mesh
-    Base::RectangularMeshDescriptor<3> createMeshDescription(const std::size_t numberOfElementPerDirection) override final
-    {
-        //describes a rectangular domain
-        Base::RectangularMeshDescriptor<3> description;
-
-        for (std::size_t i = 0; i < 3; ++i)
-        {
-            //define the value of the bottom left corner in each dimension
-            description.bottomLeft_[i] = 0;
-            //define the value of the top right corner in each dimension
-            description.topRight_[i] = 1;
-            //define how many elements there should be in the direction of dimension
-            //At this stage, the mesh first consists of n^2 squares, and later these
-            //squares can be divided in two triangles each if a triangular mesh is desired.
-            description.numberOfElementsInDIM_[i] = n;
-            //define whether you have periodic boundary conditions or a solid wall in this direction.
-            description.boundaryConditions_[i] = Base::BoundaryType::SOLID_WALL;
-        }
-
-        return description;
     }
 
     ///\brief Compute the integrand for the stiffness matrix at the element.
@@ -329,35 +307,35 @@ private:
 int main(int argc, char** argv)
 {
     Base::parse_options(argc, argv);
-    MaxwellTest test0(1, 4, true);
+    MaxwellTest test0("maxwellMesh1.hpgem", 1, 4, true);
     test0.solveSteadyStateWithPetsc(true);
     logger.assert_always(std::abs(test0.getTotalError() - 0.03355038) < 1e-8, "comparison to old results");
 
-    MaxwellTest test1(2, 3, true);
+    MaxwellTest test1("maxwellMesh2.hpgem", 2, 3, true);
     test1.solveSteadyStateWithPetsc(true);
     logger.assert_always(std::abs(test1.getTotalError() - 0.01697762) < 1e-8, "comparison to old results");
 
-    MaxwellTest test2(4, 2, true);
+    MaxwellTest test2("maxwellMesh3.hpgem", 4, 2, true);
     test2.solveSteadyStateWithPetsc(true);
     logger.assert_always(std::abs(test2.getTotalError() - 0.02863282) < 1e-8, "comparison to old results");
 
-    MaxwellTest test3(8, 1, true);
+    MaxwellTest test3("maxwellMesh4.hpgem", 8, 1, true);
     test3.solveSteadyStateWithPetsc(true);
     logger.assert_always(std::abs(test3.getTotalError() - 0.1189594) < 1e-8, "comparison to old results");
 
-    MaxwellTest test4(1, 4, false);
+    MaxwellTest test4("maxwellMesh1.hpgem", 1, 4, false);
     test4.solveSteadyStateWithPetsc(true);
     logger.assert_always(std::abs(test4.getTotalError() - 0.02266147) < 1e-8, "comparison to old results");
 
-    MaxwellTest test5(2, 3, false);
+    MaxwellTest test5("maxwellMesh2.hpgem", 2, 3, false);
     test5.solveSteadyStateWithPetsc(true);
     logger.assert_always(std::abs(test5.getTotalError() - 0.00469313) < 1e-8, "comparison to old results");
 
-    MaxwellTest test6(4, 2, false);
+    MaxwellTest test6("maxwellMesh3.hpgem", 4, 2, false);
     test6.solveSteadyStateWithPetsc(true);
     logger.assert_always(std::abs(test6.getTotalError() - 0.00306707) < 1e-8, "comparison to old results");
 
-    MaxwellTest test7(8, 1, false);
+    MaxwellTest test7("maxwellMesh4.hpgem", 8, 1, false);
     test7.solveSteadyStateWithPetsc(true);
     logger.assert_always(std::abs(test7.getTotalError() - 0.00828368) < 1e-8, "comparison to old results");
 }

@@ -56,28 +56,6 @@ public:
         }
     }
     
-    /// Create a mesh description
-    Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numberOfElementsPerDirection) override final
-    {
-        //describes a rectangular domain
-        Base::RectangularMeshDescriptor<DIM> description;
-        
-        //this demo will use the square [0,1]^2
-        for (std::size_t i = 0; i < DIM; ++i)
-        {
-            description.bottomLeft_[i] = 0;
-            description.topRight_[i] = 1;
-            //Define elements in each direction.
-            description.numberOfElementsInDIM_[i] = numberOfElementsPerDirection;
-            
-            //Choose whether you want periodic boundary conditions or other (solid wall)
-            //boundary conditions.
-            description.boundaryConditions_[i] = Base::BoundaryType::PERIODIC;
-        }
-        
-        return description;
-    }
-    
     ///Compute phi_i*(a.grad(phi_j)) on an element for all
     ///basisfunctions phi_i and phi_j.
     ///hpGEM pretends the computations are done on a physical element (as opposed to a reference element), because this generally allows for easier expressions
@@ -174,15 +152,13 @@ private:
     LinearAlgebra::SmallVector<DIM> a;
 };
 
-auto& n = Base::register_argument<std::size_t>('n', "numelems", "Number of Elements", true);
+auto& name = Base::register_argument<std::string>('n', "meshName", "name of the mesh file", true);
 auto& p = Base::register_argument<std::size_t>('p', "poly", "Polynomial order", true);
 
 ///Make the problem and solve it.
 int main(int argc, char **argv)
 {
     Base::parse_options(argc, argv);
-    // Choose a mesh type (e.g. TRIANGULAR, RECTANGULAR).
-    const Base::MeshType meshType = Base::MeshType::RECTANGULAR;
 
     // Choose variable name(s). Since we have a scalar function, we only need to chooes one name.
     std::vector<std::string> variableNames;
@@ -191,8 +167,8 @@ int main(int argc, char **argv)
     //Construct our problem with n elements in every direction and polynomial order p
     TutorialAdvection test(p.getValue());
 
-    //Create the mesh
-    test.createMesh(n.getValue(), meshType);
+    //read the mesh
+    test.readMesh(name.getValue());
 
     // Set the names for the output file
     test.setOutputNames("output", "TutorialAdvection", "TutorialAdvection", variableNames);

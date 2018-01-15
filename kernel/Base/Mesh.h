@@ -71,7 +71,7 @@ namespace Base
 
         void addSubFaces(const Base::Face* parent, const std::vector<Base::Face*> subFaces);
 
-        void addEdge();
+        Edge* addEdge();
 
         void addNodeCoordinate(Geometry::PointPhysical<DIM> node);
 
@@ -229,15 +229,16 @@ namespace Base
         {
             return submeshes_;
         }
+
+        const std::map<int, std::vector<Element*> > & getPullElements() {
+            return submeshes_.getPullElements();
+        }
+
+        const std::map<int, std::vector<Element*> > & getPushElements() {
+            return submeshes_.getPushElements();
+        }
         
     private:
-        
-        //! 'distributes' the mesh across the nodes
-        //! this routine assumes all threads generated the mesh in the same way 
-        //! (so no randomness or thread dependence)
-        void split();
-
-        bool hasToSplit_;
 
         Submesh submeshes_;
         //! List of all elements.

@@ -28,11 +28,7 @@ class SavageHutter1DWidthHAndU : public SavageHutter1DBase
 {
 public:
 
-    SavageHutter1DWidthHAndU(const std::size_t polyOrder, const std::size_t numberOfElements);
-    
-    ///\brief Create the description of the domain and the mesh.
-    Base::RectangularMeshDescriptor<1> createMeshDescription(
-            const std::size_t numOfElementsPerDirection) override final;
+    SavageHutter1DWidthHAndU(const std::size_t polyOrder, const std::string meshName);
     
     ///\brief Put the initial solution in here.
     LinearAlgebra::MiddleSizeVector getInitialSolution(const PointPhysicalT &pPhys, const double &startTime,
