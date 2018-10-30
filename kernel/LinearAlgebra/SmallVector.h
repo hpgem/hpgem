@@ -242,6 +242,55 @@ namespace LinearAlgebra
             return *this * -1.;
         }
 
+        void set(double value)
+        {
+            for (int i = 0; i < numberOfRows; ++i)
+            {
+                data_[i] = value;
+            }
+        }
+
+        /// \brief Cross product for 2D and 3D vectors.
+        ///
+        /// Computes the tradition cross product for a right handed coordinate
+        /// system.
+        ///
+        /// Note, for 2D vectors this will return the value in the first
+        /// component of the vector with the second one zero.
+        /// \param other The second argument of the cross product.
+        /// \param result A vector to store the result in.
+        void crossProduct(const SmallVector& other, SmallVector& result) const;
+
+        SmallVector crossProduct(const SmallVector& other) const
+        {
+            SmallVector result;
+            crossProduct(other, result);
+            return result;
+        }
+
+        double l2NormSquared()
+        {
+            return this->operator*(*this);
+        }
+
+        double l2Norm()
+        {
+            return std::sqrt(l2NormSquared());
+        }
+
+        /// \brief Append a number to the vector.
+        ///
+        /// \param value The value to append
+        /// \return A new vector with the value appended to the values in this vector.
+        SmallVector<numberOfRows+1> append(double value)
+        {
+            SmallVector<numberOfRows+1> result;
+            for(std::size_t i = 0; i < numberOfRows; ++i)
+                result[i] = data_[i];
+            result[numberOfRows] = value;
+            return result;
+        }
+
     private:
         std::array<double, numberOfRows> data_;
 
@@ -264,6 +313,31 @@ namespace LinearAlgebra
         os << ")";
         return os;
     }
+
+    template<>
+    inline void SmallVector<2>::crossProduct(
+            const LinearAlgebra::SmallVector<2> &other, LinearAlgebra::SmallVector<2> &result) const
+    {
+        result[0] = data_[0] * other[1] - data_[1] * other[0];
+        result[1] = 0;
+    }
+
+    template<>
+    inline void SmallVector<3>::crossProduct(
+            const LinearAlgebra::SmallVector<3> &other, LinearAlgebra::SmallVector<3> &result) const
+    {
+        result[0] = data_[1] * other[2] - data_[2] * other[1];
+        result[1] = data_[2] * other[0] - data_[0] * other[2];
+        result[2] = data_[0] * other[1] - data_[1] * other[0];
+    }
+
+    template<std::size_t numberOfRows>
+    inline void SmallVector<numberOfRows>::crossProduct(
+            const LinearAlgebra::SmallVector<numberOfRows> &other, LinearAlgebra::SmallVector<numberOfRows> &result) const
+    {
+        logger.assert(false, "Cross product only defined for 2 and 3D vectors, not for % ", numberOfRows);
+    }
+
 #ifdef HPGEM_USE_COMPLEX_PETSC
     template<std::size_t nRows>
     MiddleSizeVector::MiddleSizeVector(const SmallVector<nRows>& other)

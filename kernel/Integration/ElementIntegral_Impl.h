@@ -102,7 +102,8 @@ namespace Integration
         // the jacobian and save it in result.
         
         result = integrandFun(element_);
-        result *= (qdrRuleLoc->weight(0) * element_.getTransformation()->getIntegrandScaleFactor(element_));
+        // We use the same quadrature rule for all unknowns.
+        result *= (qdrRuleLoc->weight(0) * element_.getTransformation(0)->getIntegrandScaleFactor(element_));
         
         // next Gauss points, again calculate the jacobian, value at gauss point and
         // add this value multiplied with jacobian and weight to result.
@@ -113,7 +114,7 @@ namespace Integration
             value = integrandFun(element_);
             
             //axpy: Y = alpha * X + Y
-            LinearAlgebra::axpy(qdrRuleLoc->weight(i) * element_.getTransformation()->getIntegrandScaleFactor(element_), value, result);
+            LinearAlgebra::axpy(qdrRuleLoc->weight(i) * element_.getTransformation(0)->getIntegrandScaleFactor(element_), value, result);
         }
         return result;
     }
@@ -192,17 +193,17 @@ namespace Integration
     {
 
     }
-
+    
     template<std::size_t DIM>
-    void ElementIntegral<DIM>::setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> > transform)
+    void ElementIntegral<DIM>::setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> > transform, std::size_t unknown)
     {
-        element_.setTransformation(transform);
+        element_.setTransformation(transform, unknown);
     }
-
+    
     template<std::size_t DIM>
-    Base::CoordinateTransformation<DIM>& ElementIntegral<DIM>::getTransformation()
+    Base::CoordinateTransformation<DIM>& ElementIntegral<DIM>::getTransformation(std::size_t unknown)
     {
-        return element_.getTransformation();
+        return element_.getTransformation(unknown);
     }
 
     template<std::size_t DIM>

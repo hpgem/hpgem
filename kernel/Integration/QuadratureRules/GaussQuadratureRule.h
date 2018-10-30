@@ -173,10 +173,10 @@ namespace QuadratureRules
 
         ///pre-evaluate the curl of a set of basisfunctions to speed up computation
         LinearAlgebra::SmallVector<3> evalCurl(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex);
-
+        LinearAlgebra::SmallVector<2> evalCurl2D(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex);
         ///pre-evaluate the curl of a set of basisfunctions to speed up computation. First maps the quadrature points to an element using the provided mapping
         LinearAlgebra::SmallVector<3> evalCurl(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1>* map);
-
+        LinearAlgebra::SmallVector<2> evalCurl2D(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1>* map);
         ///pre-evaluate the divergence of a set of basisfunctions to speed up computation
         double evalDiv(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex);
 
@@ -190,11 +190,13 @@ namespace QuadratureRules
         std::map<const Base::BasisFunctionSet*, std::vector<std::vector<LinearAlgebra::MiddleSizeVector>>> basisFunctionVectorValues_;
         std::map<const Base::BasisFunctionSet*, std::vector<std::vector<LinearAlgebra::MiddleSizeVector>>> basisFunctionGrads_;
         std::map<const Base::BasisFunctionSet*, std::vector<std::vector<LinearAlgebra::SmallVector<3>>>> basisFunctionCurls_;
+        std::map<const Base::BasisFunctionSet*, std::vector<std::vector<LinearAlgebra::SmallVector<2>>>> basisFunctionCurls2D_;
         std::map<const Base::BasisFunctionSet*, std::vector<std::vector<double>>> basisFunctionDivs_;
         std::map<const Base::BasisFunctionSet*, std::map<faceMapContainer, std::vector<std::vector<double>>>> faceBasisFunctionValues_;
         std::map<const Base::BasisFunctionSet*, std::map<faceMapContainer, std::vector<std::vector<LinearAlgebra::MiddleSizeVector>>>> faceBasisFunctionVectorValues_;
         std::map<const Base::BasisFunctionSet*, std::map<faceMapContainer, std::vector<std::vector<LinearAlgebra::MiddleSizeVector>>>> faceBasisFunctionGrads_;
         std::map<const Base::BasisFunctionSet*, std::map<faceMapContainer, std::vector<std::vector<LinearAlgebra::SmallVector<3>>>>> faceBasisFunctionCurls_;
+        std::map<const Base::BasisFunctionSet*, std::map<faceMapContainer, std::vector<std::vector<LinearAlgebra::SmallVector<2>>>>> faceBasisFunctionCurls2D_;
         std::map<const Base::BasisFunctionSet*, std::map<faceMapContainer, std::vector<std::vector<double>>>> faceBasisFunctionDivs_;
     };
 }

@@ -25,6 +25,7 @@
 
 #if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
 #include <petscmat.h>
+#include "GlobalIndexing.h"
 #endif
 #include <vector>
 #include <map>
@@ -66,16 +67,14 @@ namespace Utilities
         ///After this it assembles the matrix to put it back in a legal state
         virtual void reset()=0;
 
+        // Retrieve the global indices of all basis functions owned by the face, its edges and its nodes.
         void getMatrixBCEntries(const Base::Face* face, std::size_t& numberOfEntries, std::vector<int>& entries);
 
     protected:
         
         int meshLevel_, elementMatrixID_, faceMatrixID_;
-        std::map<std::size_t, int> startPositionsOfElementsInTheMatrix_;
-        std::map<std::size_t, int> startPositionsOfFacesInTheMatrix_;
-        std::map<std::size_t, int> startPositionsOfEdgesInTheMatrix_;
-        std::map<std::size_t, int> startPositionsOfNodesInTheMatrix_;
         Base::MeshManipulatorBase *theMesh_;
+        GlobalIndexing indexing_;
         
     };
 #if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
@@ -96,9 +95,10 @@ namespace Utilities
 
         void reAssemble();
 
-    private:
-        
-        std::vector<PetscInt> makePositionsInMatrix(const Base::Element*);
+        const GlobalIndexing& getGlobalIndex() const
+        {
+            return indexing_;
+        }
 
     private:
         

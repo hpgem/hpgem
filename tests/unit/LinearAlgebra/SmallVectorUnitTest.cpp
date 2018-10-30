@@ -25,9 +25,57 @@
 #include <cstdlib>
 #include <cmath>
 #include "LinearAlgebra/SmallVector.h"
+#include "LinearAlgebra/SmallMatrix.h"
 #include "Logger.h"
 
 using LinearAlgebra::SmallVector;
+
+void crossProductTests3D()
+{
+    SmallVector<3> x ({1, 0, 0}), y ({0, 1, 0}), z({0, 0, 1});
+
+    // Checking the orientation.
+    logger.assert_always((x.crossProduct(y) - z).l2Norm() < 1e-12, "Cross xy = z");
+    logger.assert_always((y.crossProduct(z) - x).l2Norm() < 1e-12, "Cross yz = x");
+    logger.assert_always((z.crossProduct(x) - y).l2Norm() < 1e-12, "Cross zx = y");
+
+    // Checking sign inversion
+    logger.assert_always((y.crossProduct(x) + z).l2Norm() < 1e-12, "Cross yx = -z");
+    logger.assert_always((z.crossProduct(y) + x).l2Norm() < 1e-12, "Cross zy = -x");
+    logger.assert_always((x.crossProduct(z) + y).l2Norm() < 1e-12, "Cross xz = -y");
+
+    // Checking parallel vectors
+    SmallVector<3> w ({1, 3, -1});
+    logger.assert_always(w.crossProduct(w).l2Norm() < 1e-12, "Cross: w x w = 0");
+    logger.assert_always(w.crossProduct(-2 * w).l2Norm() < 1e-12, "Cross: w x -2w = 0");
+
+    // Checking random example from internet
+    SmallVector<3> a ({3, -3, 1}), b ({4, 9, 2}), ab ({-15, -2, 39});
+    logger.assert_always((a.crossProduct(b) - ab).l2Norm() < 1e-12, "Cross example 1");
+
+    // Checking equivalence with the wedge stuff factor from SmallMatrix
+    LinearAlgebra::SmallMatrix<3, 2> stuff ({x, y});
+    logger.assert_always((x.crossProduct(y) - stuff.computeWedgeStuffVector()).l2Norm() < 1e-12, "cross equals matrix wedge stuff factor");
+
+    stuff = LinearAlgebra::SmallMatrix<3, 2>({a, b});
+    logger.assert_always((a.crossProduct(b) - stuff.computeWedgeStuffVector()).l2Norm() < 1e-12, "cross equals matrix wedge stuff factor");
+}
+
+void crossProductTests2D()
+{
+    SmallVector<2> x ({1, 0}), y ({0, 1});
+
+    // Checking basic unit vectors crosses
+    logger.assert_always((x.crossProduct(y) - x).l2Norm() < 1e-12, "Cross xy = 1");
+    logger.assert_always((y.crossProduct(x) + x).l2Norm() < 1e-12, "Cross yx = -1");
+    logger.assert_always(x.crossProduct(x).l2Norm() < 1e-12, "Cross xx = 0");
+
+    // Check that it matches with 3D cross products
+    SmallVector<2> a ({2, 4}), b({-3, 5});
+    SmallVector<2> abCross2 = a.crossProduct(b);
+    SmallVector<3> abCross3 = a.append(0).crossProduct(b.append(0));
+    logger.assert_always(std::abs(abCross2[0] - abCross3[2]) < 1e-12, "Cross in 2D and 3D match");
+}
 
 int main(int argc, char* argv[])
 {
@@ -149,6 +197,11 @@ int main(int argc, char* argv[])
 
 
     std::cout << pc2 << convenient << std::endl;
+
+    crossProductTests3D();
+    // Test 2D after 3D as it test the equivalence between 2D cross product and 3D crossproduct
+    crossProductTests2D();
+
     return 0;
 }
 

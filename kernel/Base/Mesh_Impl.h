@@ -183,9 +183,11 @@ namespace Base
     }
     
     template<std::size_t DIM>
-    void Mesh<DIM>::addNode()
+    Node* Mesh<DIM>::addNode()
     {
-        nodes_.push_back(new Node(GlobalUniqueIndex::instance().getNodeIndex()));
+        Node* node = new Node(GlobalUniqueIndex::instance().getNodeIndex());
+        nodes_.push_back(node);
+        return node;
     }
 
     template<std::size_t DIM>

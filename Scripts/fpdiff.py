@@ -50,9 +50,9 @@ def fpdiff(filename1,filename2,relative_error,small):
    F1=open(filename1);
  #If there has been an IO error fail
  except IOError:
-   print 
-   print "   [FAILED] : Unable to open the input file", filename1
-   print
+   print()
+   print("   [FAILED] : Unable to open the input file", filename1)
+   print()
 
  #read contents of file1 into a list and close
  tmpfile1 = F1.readlines(); F1.close()
@@ -66,9 +66,9 @@ def fpdiff(filename1,filename2,relative_error,small):
    F2=open(filename2);
  #If there has been an IO error, fail
  except IOError:
-   print
-   print "   [FAILED] : Unable to open the input file", filename2
-   print
+   print()
+   print("   [FAILED] : Unable to open the input file", filename2)
+   print()
 
  #read contents of file2 into a list and close
  tmpfile2 = F2.readlines(); F2.close()
@@ -97,9 +97,9 @@ def fpdiff(filename1,filename2,relative_error,small):
   count += 1
   #If we've run over the end of the file2, issue a warning and end the loop
   if count >= n:
-   print
-   print "Warning: files have different numbers of lines"
-   print "Results are for first", count, "lines of both files" 
+   print()
+   print("Warning: files have different numbers of lines")
+   print("Results are for first", count, "lines of both files" )
    nerr += 1
    break
   #Read the next line from file2
@@ -117,9 +117,9 @@ def fpdiff(filename1,filename2,relative_error,small):
 
    #If the number of fields is not the same, report it as an error
    if nfields1 != nfields2:
-     print "\n =====> line", count+1,": different number of fields"
-     print nfields1, "fields:", line1; 
-     print nfields2, "fields:", line2
+     print("\n =====> line", count+1,": different number of fields")
+     print(nfields1, "fields:", line1 )
+     print(nfields2, "fields:", line2)
      nerr += 1
      continue
     
@@ -181,9 +181,9 @@ def fpdiff(filename1,filename2,relative_error,small):
         outputline2 = stuff(outputline2," ",fieldlength)
        else:
         #Find the relative difference based on the largest number
-	#Note that this "minimises" the relative error (in some sense)
-	#but means that I don't have to separately trap the cases
-	#when x1, x2 are zero
+        #Note that this "minimises" the relative error (in some sense)
+        #but means that I don't have to separately trap the cases
+        #when x1, x2 are zero
         if math.fabs(x1) > math.fabs(x2) :
          diff = 100.0*(math.fabs(x1 - x2) / math.fabs(x1))
         else:
@@ -192,43 +192,43 @@ def fpdiff(filename1,filename2,relative_error,small):
         #If the relative error is smaller than the tolerance, that's fine
         if diff <= maxreld:
          #Put spaces into the error line
-	 outputline2 = stuff(outputline2," ",fieldlength)
+         outputline2 = stuff(outputline2," ",fieldlength)
         #Otherwise issue an error
         else:
          problem = 1
-	 nerr += 1
+         nerr += 1
          #Put the appropriate symbols into the error line 
          outputline2 = stuff(outputline2,"-",fieldlength)
    
    #If there has been any sort of error, print it
    if problem == 1:
     nline_error += 1
-    print "\n =====> line", count+1
-    print outputline1, "\n", outputline2, "\n", outputline3	
+    print("\n =====> line", count+1)
+    print(outputline1, "\n", outputline2, "\n", outputline3)
  
  #Final print out, once loop over lines is complete
  if nerr > 0: 
-  print
-  print "number of lines processed: ", count
-  print "number of lines containing errors: ", nline_error
-  print "number of errors: ", nerr
-  print "========================================================"
-  print "    Parameters used:"
-  print "        threshold for numerical zero : ", small
-  print "        maximum rel. difference [percent] : ", maxreld
-  print "    Legend: "
-  print "        *******  means differences in data type (string vs number)"
-  print "        -------  means real data exceeded the relative difference maximum" 
-  print "        %%%%%%%  means that two strings are different"
-  print "========================================================"
-  print
-  print "   [FAILED]"
-  print
+  print()
+  print("number of lines processed: ", count)
+  print("number of lines containing errors: ", nline_error)
+  print("number of errors: ", nerr)
+  print("========================================================")
+  print("    Parameters used:")
+  print("        threshold for numerical zero : ", small)
+  print("        maximum rel. difference [percent] : ", maxreld)
+  print("    Legend: ")
+  print("        *******  means differences in data type (string vs number)")
+  print("        -------  means real data exceeded the relative difference maximum" )
+  print("        %%%%%%%  means that two strings are different")
+  print("========================================================")
+  print()
+  print("   [FAILED]")
+  print()
  else:
-  print
-  print "   [OK] for fpdiff.py parameters: - max. rel. error = ",maxreld,"%"
-  print "                                  - numerical zero  = ",small
-  print
+  print()
+  print("   [OK] for fpdiff.py parameters: - max. rel. error = ",maxreld,"%")
+  print("                                  - numerical zero  = ",small)
+  print()
  return
 
 #What to do if this is run as a script, rather than loaded as a module
@@ -248,13 +248,13 @@ if __name__ == "__main__":
 
  #If we're out of range, issue a usage message 
  if narg < 2 or narg > 4:
-  print "\n      *********   ERROR   **********\n"
-  print "Must specify 2, 3 or 4 keywords on the command line. ",
-  print "You have specified", narg, "\n" 
-  print "   Proper usage:  "
-  print "         fpdiff file1 file2 [max_rel_diff_percent] [small]\n"
-  print "      *********  PROGRAM TERMINATING   ***********"
-  print "   [FAILED] "
+  print("\n      *********   ERROR   **********\n")
+  print("Must specify 2, 3 or 4 keywords on the command line. ",)
+  print("You have specified", narg, "\n" )
+  print("   Proper usage:  ")
+  print("         fpdiff file1 file2 [max_rel_diff_percent] [small]\n")
+  print("      *********  PROGRAM TERMINATING   ***********")
+  print("   [FAILED] ")
   assert 0
  
  #Read any optional arguments

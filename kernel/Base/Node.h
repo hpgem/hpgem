@@ -43,7 +43,7 @@ namespace Base
     public:
         
         explicit Node(std::size_t ID)
-            : elements_(), localNodeNumbers_(), numberOfConformingDOFOnTheNode_(0), ID_(ID) { }
+            : elements_(), localNodeNumbers_(), numberOfConformingDOFOnTheNode_(std::vector<std::size_t>(0, 0)), ID_(ID) { }
 
         //Since individual parts of the mesh should not be copied and there is no
         //need for a copy constructor of Node while copying a whole mesh, the copy
@@ -60,7 +60,25 @@ namespace Base
         
         std::size_t getLocalNumberOfBasisFunctions() const
         {
-            return numberOfConformingDOFOnTheNode_;
+            std::size_t number = numberOfConformingDOFOnTheNode_[0];
+            for(std::size_t index : numberOfConformingDOFOnTheNode_)
+                logger.assert(index == number, "number of basis functions is different for different unknown");
+            return numberOfConformingDOFOnTheNode_[0];
+        }
+        
+        std::size_t getLocalNumberOfBasisFunctions(std::size_t unknown) const
+        {
+            logger.assert(unknown < numberOfConformingDOFOnTheNode_.size(),
+                    "Asking for unknown % but there are only %", unknown, numberOfConformingDOFOnTheNode_.size());
+            return numberOfConformingDOFOnTheNode_[unknown];
+        }
+
+        std::size_t getTotalLocalNumberOfBasisFunctions() const
+        {
+            std::size_t result = 0;
+            for (auto nbasis : numberOfConformingDOFOnTheNode_)
+                result += nbasis;
+            return result;
         }
         
         std::size_t getID() const
@@ -103,9 +121,11 @@ namespace Base
             return localNodeNumbers_[i];
         }
         
-        void setLocalNumberOfBasisFunctions(std::size_t number)
+        void setLocalNumberOfBasisFunctions(std::size_t number, std::size_t unknown = 0)
         {
-            numberOfConformingDOFOnTheNode_ = number;
+            logger.assert(unknown < numberOfConformingDOFOnTheNode_.size(),
+                    "Setting unknown %, but there are only %", unknown, numberOfConformingDOFOnTheNode_.size());
+            numberOfConformingDOFOnTheNode_[unknown] = number;
         }
 
         void setLocalNrOfBasisFunctions(std::size_t number)
@@ -120,7 +140,7 @@ namespace Base
         std::vector<std::size_t> localNodeNumbers_;
 
         //number of basis-functions that are associated to this node (most likely 1(conforming) or 0(DG))
-        std::size_t numberOfConformingDOFOnTheNode_;
+        std::vector<std::size_t> numberOfConformingDOFOnTheNode_;
         std::size_t ID_;
     };
 

@@ -144,6 +144,12 @@ namespace Base
             return 0;
         }
 
+        virtual LinearAlgebra::SmallVector<2> evalCurl(const Geometry::PointReference<2>& p) const
+        {
+            logger(ERROR, "The curl of a scalar valued basis function is not implemented. Perhaps you meant evalDeriv?");
+            return LinearAlgebra::SmallVector<2>();
+        }
+        
         virtual LinearAlgebra::SmallVector<3> evalCurl(const Geometry::PointReference<3>& p) const
         {
             logger(ERROR, "The curl of a scalar valued basis function is not implemented. Perhaps you meant evalDeriv?");

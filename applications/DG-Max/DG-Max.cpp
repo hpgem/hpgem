@@ -22,204 +22,77 @@
 //this file should contain all relevant information about how the integrands look like and what problem is solved
 
 #define _USE_MATH_DEFINES
-#include <cstdlib>
-#include "Output/TecplotDiscontinuousSolutionWriter.h"
-#include "Output/TecplotPhysicalGeometryIterator.h"
-#include "LinearAlgebra/MiddleSizeVector.h"
-#include "LinearAlgebra/SmallVector.h"
-#include "BasisFunctionCollection_Curl.h"
-#include <iostream>
-#include "Base/L2Norm.h"
+
 #include "BaseExtended.h"
+
+#include <cstdlib>
+#include <iostream>
 #include "math.h"
 #include <ctime>
-#include "ElementInfos.h"
-#include "Base/HpgemAPISimplified.h"
-#include "Integration/FaceIntegral.h"
-#include "Integration/FaceIntegral_Impl.h"
-#include "Integration/ElementIntegral.h"
-#include "Integration/ElementIntegral_Impl.h"
-#include "Output/TecplotSingleElementWriter.h"
-#include "Geometry/PointPhysical.h"
-#include "Base/FaceCacheData.h"
-#include "Base/ElementCacheData.h"
-#include "Base/ConfigurationData.h"
-#include "Base/HCurlConformingTransformation.h"
-#include "Integration/ElementIntegrandBase.h"
-#include "Integration/FaceIntegrandBase.h"
-#include "Base/Face.h"
-#include "Base/Element.h"
-#include "LinearAlgebra/MiddleSizeMatrix.h"
-#include "Utilities/GlobalMatrix.h"
-#include "Utilities/GlobalVector.h"
-#include "petscksp.h"
-#include "matrixAssembly.h"
 
-using BaseMeshManipulatorT = Base::MeshManipulator<DIM>;
-using basisFunctionT = Base::threeDBasisFunction;
-using FaceIterator = Base::MeshManipulator<DIM>::FaceIterator;
+#include "DGMaxDim.h"
+
+#include "Algorithms/DGMaxEigenValue.h"
+#include "Algorithms/DGMaxHarmonic.h"
+#include "Algorithms/DGMaxTimeIntegration.h"
+#include "Algorithms/DivDGMaxEigenValue.h"
+#include "Algorithms/DivDGMaxHarmonic.h"
+
+#include "ProblemTypes/Harmonic/SampleHarmonicProblems.h"
+#include "ProblemTypes/Time/SampleTestProblems.h"
 
 /**
  * This class should provide problem specific information about the maxwell equations.
  */
 class DGMax : public hpGemUIExtentions
 {
-private:
-    
-    using PointPhysicalT = Geometry::PointPhysical<DIM>;
-    using ElementT = Base::Element;
-    using FaceT = Base::Face;
-
-    using FaceIterator = Base::MeshManipulatorBase::FaceIterator;
-
 public:
     
-    DGMax(MaxwellData* globalConfig, Base::ConfigurationData* elementConfig, MatrixAssembly* fill)
-            : hpGemUIExtentions(globalConfig, elementConfig, fill)
+    DGMax(Base::GlobalData * const globalConfig, Base::ConfigurationData* elementConfig)
+            : hpGemUIExtentions(globalConfig, elementConfig)
     {
     }
     
     /**
      * set up the mesh and complete initialisation of the global data and the configuration data
      */
-    
-    bool initialise()
+
+
+    void createCubeMesh(std::size_t subdivisions)
     {
-        int n = getData()->NumberOfIntervals_;
         Geometry::PointPhysical<DIM> bottomLeft, topRight;
-        std::vector<std::size_t> numElementsOneD(3);
-        bottomLeft[0] = 0;
-        bottomLeft[1] = 0;
-        bottomLeft[2] = 0;
-        topRight[0] = 1;
-        topRight[1] = 1;
-        topRight[2] = 1;
-        numElementsOneD[0] = n;
-        numElementsOneD[1] = n;
-        numElementsOneD[2] = n;
-        
-        // this is the old way of creating the mesh.
-        BaseMeshManipulatorT* mesh = new MyMeshManipulator(getConfigData(), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, getData()->PolynomialOrder_, 0, 2, 3, 1, 1, false);
-        
-        // this is the way the mesh is created in hpGEM.
-        //BaseMeshManipulatorT* mesh = new Base::MeshManipulator<3>(getConfigData(), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, getData()->PolynomialOrder_, 0, 2, 3, 1, 1);
+        std::vector<std::size_t> numElementsOneD (DIM);
+        // Configure each dimension of the unit cube/square
+        for (std::size_t i = 0; i < DIM; ++i) {
+            bottomLeft[i] = 0;
+            topRight[i] = 1;
+            numElementsOneD[i] = subdivisions;
+        }
+
+        auto mesh = new Base::MeshManipulator<DIM>(getConfigData(), Base::BoundaryType::PERIODIC,
+                                                   Base::BoundaryType::PERIODIC, Base::BoundaryType::PERIODIC, getConfigData()->polynomialOrder_, 0, 2, 3, 1, 1);
         mesh->createTriangularMesh(bottomLeft, topRight, numElementsOneD);
-        //mesh->useNedelecDGBasisFunctions();
-        //mesh->useAinsworthCoyleDGBasisFunctions();
-        const_cast<MaxwellData*>(getData())->numberOfUnknowns_ = (*mesh->elementColBegin())->getNrOfBasisFunctions();
-        setConfigData();
-        //mesh->readCentaurMesh("Cylinder3.hyb");
-        //mesh->readCentaurMesh("input_basic2.hyb");
-        //mesh->readCentaurMesh("Cube_final.hyb");
-        
+
+        for (Base::MeshManipulator<DIM>::ElementIterator it = mesh->elementColBegin(Base::IteratorType::GLOBAL); it != mesh->elementColEnd(Base::IteratorType::GLOBAL); ++it)
+        {
+            (*it)->setUserData(new ElementInfos(**it));
+        }
         addMesh(mesh);
-        setNumberOfTimeIntegrationVectorsGlobally(21);
-        const_cast<MaxwellData*>(getData())->numberOfUnknowns_ *= mesh->getElementsList().size();
+    }
+    
+    void createCentaurMesh(std::string fileName)
+    {
+        auto mesh = new Base::MeshManipulator<DIM>(getConfigData(), Base::BoundaryType::PERIODIC,
+                                                   Base::BoundaryType::PERIODIC, Base::BoundaryType::PERIODIC, getConfigData()->polynomialOrder_, 0, 2, 3, 1, 1);
+        mesh->readCentaurMesh(fileName);
+        addMesh(mesh);
         for (Base::MeshManipulator<DIM>::ElementIterator it = mesh->elementColBegin(); it != mesh->elementColEnd(); ++it)
         {
             (*it)->setUserData(new ElementInfos(**it));
         }
-        return true;
+        
     }
 };
-
-/**
- * Computes element contributions to the mass matrix i.e. phi_i * phi_j
- * returns the contibutions at this gauss point to the entire element matrix in one go
- */
-
-void MatrixAssemblyIP::CompleteElementIntegrationIP(hpGemUIExtentions* matrixContainer)
-{
-    LinearAlgebra::MiddleSizeMatrix matrix1(1, 1), matrix2(1, 1);
-    LinearAlgebra::MiddleSizeVector vector1(1), vector2(1), vector3(1);
-    Integration::ElementIntegral<DIM> elIntegral(false);
-    
-    elIntegral.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM>> (new Base::HCurlConformingTransformation<DIM>()));
-    for (hpGemUIExtentions::ElementIterator it = matrixContainer->elementColBegin(); it != matrixContainer->elementColEnd(); ++it)
-    {
-        matrix1.resize((*it)->getNrOfBasisFunctions(), (*it)->getNrOfBasisFunctions());
-        matrix1 = elIntegral.integrate<LinearAlgebra::MiddleSizeMatrix>((*it), &(matrixContainer->elementMassIntegrand));
-        if(matrixContainer->MHasToBeInverted_)
-        {
-            matrix1 = matrix1.inverse();
-        }
-        (*it)->setElementMatrix(matrix1, 0);
-        
-        matrix2.resize((*it)->getNrOfBasisFunctions(), (*it)->getNrOfBasisFunctions());
-        matrix2 = elIntegral.integrate<LinearAlgebra::MiddleSizeMatrix>((*it), &(matrixContainer->elementStiffnessIntegrand));
-        (*it)->setElementMatrix(matrix2, 1);
-        
-        vector1.resize((*it)->getNrOfBasisFunctions());
-        vector1 = elIntegral.integrate<LinearAlgebra::MiddleSizeVector>((*it), &(matrixContainer->initialConditionsIntegrand));
-        (*it)->setElementVector(vector1, 0);
-        
-        vector2.resize((*it)->getNrOfBasisFunctions());
-        vector2 = elIntegral.integrate<LinearAlgebra::MiddleSizeVector>((*it), &(matrixContainer->initialConditionsDerivIntegrand));
-        (*it)->setElementVector(vector2, 1);
-        
-        vector3.resize((*it)->getNrOfBasisFunctions());
-        vector3 = elIntegral.integrate<LinearAlgebra::MiddleSizeVector>((*it), &(matrixContainer->elementSpaceIntegrand));
-        (*it)->setElementVector(vector3, 2);
-        
-    }
-   
-}
-
-void MatrixAssemblyIP::CompleteFaceIntegrationIP(hpGemUIExtentions* matrixContainer)
-{
-    LinearAlgebra::MiddleSizeMatrix matrix(1, 1), matrix1(1, 1), matrix2(1, 1);
-    LinearAlgebra::MiddleSizeVector vector1(1);
-    Integration::FaceIntegral<DIM> faIntegral(false);
-    
-    faIntegral.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM>> (new Base::HCurlConformingTransformation<DIM>()));
-    for (hpGemUIExtentions::FaceIterator it = matrixContainer->faceColBegin(); it != matrixContainer->faceColEnd(); ++it)
-    {
-        
-        
-        if ((*it)->isInternal())
-        {
-            matrix1.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions() + (*it)->getPtrElementRight()->getNrOfBasisFunctions(), (*it)->getPtrElementLeft()->getNrOfBasisFunctions() + (*it)->getPtrElementRight()->getNrOfBasisFunctions());
-           
-        
-            matrix2.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions() + (*it)->getPtrElementRight()->getNrOfBasisFunctions(), (*it)->getPtrElementLeft()->getNrOfBasisFunctions() + (*it)->getPtrElementRight()->getNrOfBasisFunctions());
-            
-            matrix.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions() + (*it)->getPtrElementRight()->getNrOfBasisFunctions(), (*it)->getPtrElementLeft()->getNrOfBasisFunctions() + (*it)->getPtrElementRight()->getNrOfBasisFunctions());
-            
-            vector1.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions() + (*it)->getPtrElementRight()->getNrOfBasisFunctions());
-           
-        }
-        
-        else
-        {
-            matrix1.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions(), (*it)->getPtrElementLeft()->getNrOfBasisFunctions());
-            
-            matrix2.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions(), (*it)->getPtrElementLeft()->getNrOfBasisFunctions());
-            
-            matrix.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions(), (*it)->getPtrElementLeft()->getNrOfBasisFunctions());
-            
-            vector1.resize((*it)->getPtrElementLeft()->getNrOfBasisFunctions());
-            
-
-        }
-        matrix1 = faIntegral.integrate<LinearAlgebra::MiddleSizeMatrix>((*it), &(matrixContainer->faceStiffnessIntegrand));
-        matrix2 = faIntegral.integrate<LinearAlgebra::MiddleSizeMatrix>((*it), &(matrixContainer->faceStiffnessIntegrandIP));
-        matrix = matrix1 + matrix2;
-        (*it)->setFaceMatrix(matrix, 0);
-        vector1 = faIntegral.integrate<LinearAlgebra::MiddleSizeVector>((*it), &(matrixContainer->faceSpaceIntegrandIP));
-        (*it)->setFaceVector(vector1, 0);
-    }
-}
-
-void MatrixAssemblyIP::fillMatrices(hpGemUIExtentions* matrixContainer)
-{
-    
-    CompleteElementIntegrationIP(matrixContainer);
-    std::cout << "CompleteElementIntegrationIP done" << std::endl;
-    CompleteFaceIntegrationIP(matrixContainer);
-    std::cout << "CompleteFaceIntegrationIP done" << std::endl;
-    std::cout << "fillMatricesIP done" << std::endl;
-    
-}
 
 auto& numElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
 auto& p = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
@@ -231,37 +104,90 @@ int main(int argc, char** argv)
 {
     Base::parse_options(argc, argv);
     std::cout<<"This is the parallel version"<<std::endl;
-    
+
+    logger.assert( DIM >= 2 && DIM <= 3, "Can only handle 2D and 3D problems.");
+
     //set up timings
     time_t start, end, initialised, solved;
     time(&start);
     logger(INFO, "using % elements", std::pow(numElements.getValue(), 3) * 5);
     logger(INFO, "using polynomial order: %", p.getValue());
-    //set up problem and decide flux type 
-    DGMax problem(new MaxwellData(numElements.getValue(), p.getValue()), new Base::ConfigurationData(3, 1, p.getValue(), 1), new MatrixAssemblyIP);
+    logger(INFO, "Compiled to use % dimensions.", DIM);
+    //set up problem and decide flux type
+    //DGMax problem(new MaxwellData(numElements.getValue(), p.getValue()), new Base::ConfigurationData(DIM, 1, p.getValue(), 1), new MatrixAssemblyIP);
+    const std::size_t numberOfTimeLevels = 1;
+    Base::GlobalData* const globalData = new Base::GlobalData();
+    globalData->numberOfTimeLevels_ = numberOfTimeLevels;
+    // TODO: LC: this should be determined by the discretization, but this is
+    // currently not possible yet, as we get a dependency loop (discretization
+    // requires DGMax, which requires the configurationData, which would then
+    // require the discretization).
+    const std::size_t numberOfUnknowns = 2;
+    Base::ConfigurationData* const configData = new Base::ConfigurationData(DIM, numberOfUnknowns, p.getValue(), numberOfTimeLevels);
     try
     {
-        problem.initialise();
-        time(&initialised);
-        //choose what problem to solve
-        //problem.solveEigenvalues();
-        problem.solveHarmonic();
-        //problem.solveTimeDependent(false,true);
-        std::cout << "solved for Harmonic" << std::endl;
-        time(&solved);
-        char filename[] = "output.dat";
-        problem.makeOutput(filename); //Issue with parallelisation occurs in the makeOutput function
+        double stab = numElements.getValue() * (p.getValue() + 1) * (p.getValue() + 3);
+        DivDGMaxDiscretization::Stab divStab;
+        // Values from the Jelmer fix code.
+        divStab.stab1 = 100 * numElements.getValue() / sqrt(2.0);
+        // Note: for 2D harmonic it looks like that we need 10 instead of 0.01.
+        divStab.stab2 = 0.01 / (numElements.getValue() * sqrt(2.0));
+        divStab.stab3 = 10.0 * numElements.getValue() / sqrt(2.0);
+
+        DGMax base(globalData, configData);
+        base.createCubeMesh(numElements.getValue());
+        //base.createCentaurMesh(std::string("SmallIW_Mesh4000.hyb"));
+        //base.createCentaurMesh(std::string("BoxCylinder_Mesh6000.hyb"));
+        //TODO: LC: this does seem rather arbitrary and should probably be done by the solver
+        base.setNumberOfTimeIntegrationVectorsGlobally(21);
+
+        ///////////////////
+        // Harmonic code //
+        ///////////////////
+
+//        DGMaxHarmonic harmonicSolver (base);
+//        DivDGMaxHarmonic harmonicSolver (base);
+//
+//        SampleHarmonicProblems problem (SampleHarmonicProblems::SARMANY2010, 1);
+//        harmonicSolver.solve(problem, divStab);
+//        std::cout << "L2 error " << harmonicSolver.computeL2Error(problem) << std::endl;
+//        auto errors = harmonicSolver.computeError({DGMaxDiscretization::L2, DGMaxDiscretization::HCurl}, problem);
+//        std::cout << "L2 error    " << errors[DGMaxDiscretization::L2] << std::endl;
+//        std::cout << "HCurl error " << errors[DGMaxDiscretization::HCurl] << std::endl;
+
+
+        /////////////////////
+        // Eigenvalue code //
+        /////////////////////
+
+//        DGMaxEigenValue solver (base);
+        DivDGMaxEigenValue solver (base);
+        EigenValueProblem input;
+        solver.solve(input, divStab);
+
+        ///////////////////////////
+        // Time dependent solver //
+        ///////////////////////////
+
+//        DGMaxTimeIntegration timeSolver (base);
+//        SampleTestProblems testProblem (SampleTestProblems::SARMANY2013);
+//        TimeIntegrationParameters parameters;
+//        parameters.stab = stab;
+//        parameters.configureTraditional(DGMaxTimeIntegration::CO2, 1, p.getValue(), numElements.getValue());
+//        parameters.snapshotStride = 100;
+//        timeSolver.solve(testProblem, parameters);
+//
+//        timeSolver.writeTimeSnapshots("domokos.dat");
+//        timeSolver.printErrors({DGMaxDiscretization::L2, DGMaxDiscretization::HCurl}, testProblem);
+
+
         time(&end);
-        
-        //display timing data
-        std::cout << "Initialisation took " << difftime(initialised, start) << " seconds." << std::endl;
-        std::cout << "Solving the problem took " << difftime(solved, initialised) << " seconds." << std::endl;
-        std::cout << "The rest took " << difftime(end, solved) << " seconds." << std::endl;
-        
+        std::cout << "Spend " << (end - start) << "s" << std::endl;
     }
     catch (const char* message)
     {
         std::cout << message;
     }
+    // No need to clean globalData/configData, these are cleaned by the baseAPI.
     return 0;
 }

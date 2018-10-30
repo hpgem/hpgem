@@ -141,50 +141,89 @@ namespace Base
         /// \brief Get the value of the basis function (corresponding to index i) at the physical point corresponding to reference point p.
         template<std::size_t DIM>
         double basisFunction(std::size_t i, const Geometry::PointReference<DIM>& p) const;
-
+        template<std::size_t DIM>
+        double basisFunction(std::size_t i, const Geometry::PointReference<DIM>& p, std::size_t unknown) const;
+        
         ///\brief returns the value of the i-th basis function at point p in ret
         template<std::size_t DIM>
         void basisFunction(std::size_t i, const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM + 1>& ret) const;
-
+        template<std::size_t DIM>
+        void basisFunction(std::size_t i, const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM + 1>& ret, std::size_t unknown) const;
+        
         /// \brief Returns the value of the basis function (corresponding to element function index iBasisFunction) on the element at side iSide at the physical point corresponding to reference point p.
         template<std::size_t DIM>
         double basisFunction(Side iSide, std::size_t iBasisFunction, const Geometry::PointReference<DIM>& p) const;
+        template<std::size_t DIM>
+        double basisFunction(Side iSide, std::size_t iBasisFunction, const Geometry::PointReference<DIM>& p, std::size_t unknown) const;
         
         /// \brief Returns the value of the i-th basis function multiplied by the outward pointing normal vector. The value is computed at the physical point corresponding to reference point p.
         template<std::size_t DIM>
         LinearAlgebra::SmallVector<DIM + 1> basisFunctionNormal(std::size_t i, const LinearAlgebra::SmallVector<DIM + 1>& normal, const Geometry::PointReference<DIM>& p) const;
+        template<std::size_t DIM>
+        LinearAlgebra::SmallVector<DIM + 1> basisFunctionNormal(std::size_t i, const LinearAlgebra::SmallVector<DIM + 1>& normal, const Geometry::PointReference<DIM>& p, std::size_t unknown) const;
 
         /// \brief Returns the physical normal vector multiplied by the basis function (corresponding to element function index iBasisFunction) on the element at side iSide. The value is computed at the physical point corresponding to reference point p.
         template<std::size_t DIM>
         LinearAlgebra::SmallVector<DIM + 1> basisFunctionNormal(Side iSide, std::size_t iBasisFunction, const LinearAlgebra::SmallVector<DIM + 1>& normal, const Geometry::PointReference<DIM>& p) const;
-
+        template<std::size_t DIM>
+        LinearAlgebra::SmallVector<DIM + 1> basisFunctionNormal(Side iSide, std::size_t iBasisFunction, const LinearAlgebra::SmallVector<DIM + 1>& normal, const Geometry::PointReference<DIM>& p, std::size_t unknown) const;
+        
         /// \brief Returns the (physical) derivative in direction jDir of the physical basis function (corresponding to index i) at the physical point corresponding to reference point p.
         template<std::size_t DIM>
         double basisFunctionDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference<DIM>& p) const;
+        template<std::size_t DIM>
+        double basisFunctionDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference<DIM>& p, std::size_t unknown) const;
 
         ///\brief The "all directions in one go"-edition of basisFunctionDeriv. Warning: contrary to some old implementations, this will NOT apply the scaling due to the transformation to a reference element
         template<std::size_t DIM>
         LinearAlgebra::SmallVector<DIM + 1> basisFunctionDeriv(std::size_t i, const Geometry::PointReference<DIM>& p) const;
+        template<std::size_t DIM>
+        LinearAlgebra::SmallVector<DIM + 1> basisFunctionDeriv(std::size_t i, const Geometry::PointReference<DIM>& p, std::size_t unknown) const;
 
         /// \brief Returns the (physical) gradient of the physical basis function (corresponding to element function index iBasisFunction) on the element at side iSide. The gradient is computed at the physical point corresponding to reference point p.
         template<std::size_t DIM>
         LinearAlgebra::SmallVector<DIM + 1> basisFunctionDeriv(Side iSide, std::size_t iBasisFunction, const Geometry::PointReference<DIM>& p) const;
+        template<std::size_t DIM>
+        LinearAlgebra::SmallVector<DIM + 1> basisFunctionDeriv(Side iSide, std::size_t iBasisFunction, const Geometry::PointReference<DIM>& p, std::size_t unknown) const;
 
         /// \brief Returns the (physical) curl of the physical basis function (corresponding to index i) at the physical point corresponding to reference point p.
         template<std::size_t DIM>
         LinearAlgebra::SmallVector<DIM + 1> basisFunctionCurl(std::size_t i, const Geometry::PointReference<DIM>& p) const;
+        template<std::size_t DIM>
+        LinearAlgebra::SmallVector<DIM + 1> basisFunctionCurl(std::size_t i, const Geometry::PointReference<DIM>& p, std::size_t unknown) const;
 
         /// \brief Returns the sum of the number of basisfunctions of the adjacent elements.
         std::size_t getNumberOfBasisFunctions() const;
+        std::size_t getNumberOfBasisFunctions(std::size_t unknown) const;
 
         std::size_t getLocalNumberOfBasisFunctions() const
         {
-            return numberOfConformingDOFOnTheFace_;
+            std::size_t number = numberOfConformingDOFOnTheFace_[0];
+            for(std::size_t index : numberOfConformingDOFOnTheFace_)
+                logger.assert(index == number, "number of basis functions is different for different unknown");
+            return numberOfConformingDOFOnTheFace_[0];
         }
         
-        void setLocalNumberOfBasisFunctions(std::size_t number)
+        std::size_t getLocalNumberOfBasisFunctions(std::size_t unknown) const
         {
-            numberOfConformingDOFOnTheFace_ = number;
+            logger.assert(unknown < numberOfConformingDOFOnTheFace_.size(),
+                          "Asking for unknown % but there are only %", unknown, numberOfConformingDOFOnTheFace_.size());
+            return numberOfConformingDOFOnTheFace_[unknown];
+        }
+
+        std::size_t getTotalLocalNumberOfBasisFunctions() const
+        {
+            std::size_t result = 0;
+            for (auto nbasis : numberOfConformingDOFOnTheFace_)
+                result += nbasis;
+            return result;
+        }
+        
+        void setLocalNumberOfBasisFunctions(std::size_t number, std::size_t unknown = 0)
+        {
+            logger.assert(unknown < numberOfConformingDOFOnTheFace_.size(),
+                          "Setting for unknown % but there are only %", unknown, numberOfConformingDOFOnTheFace_.size());
+            numberOfConformingDOFOnTheFace_[unknown] = number;
         }
         
         ///\deprecated Does not conform naming conventions, use getNumberOfBasisFunctions instead.
@@ -241,7 +280,7 @@ namespace Base
 
         const TreeEntry<Face*>* positionInTheTree_;
 
-        std::size_t numberOfConformingDOFOnTheFace_;
+        std::vector<std::size_t> numberOfConformingDOFOnTheFace_;
         std::size_t faceID_;
     };
 }
@@ -262,6 +301,21 @@ namespace Base
             return getPtrElementRight()->basisFunction(i - numberOfBasisFuncs, mapRefFaceToRefElemR(p));
         }
     }
+    
+    template<std::size_t DIM>
+    double Face::basisFunction(std::size_t i, const Geometry::PointReference<DIM>& p, std::size_t unknown) const
+    {
+        logger.assert(i<getNumberOfBasisFunctions(unknown), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions(unknown));
+        std::size_t numberOfBasisFuncs = getPtrElementLeft()->getNumberOfBasisFunctions(unknown);
+        if (i < numberOfBasisFuncs)
+        {
+            return getPtrElementLeft()->basisFunction(i, mapRefFaceToRefElemL(p), unknown);
+        }
+        else
+        {
+            return getPtrElementRight()->basisFunction(i - numberOfBasisFuncs, mapRefFaceToRefElemR(p), unknown);
+        }
+    }
 
     template<std::size_t DIM>
     void Face::basisFunction(std::size_t i, const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM + 1>& ret) const
@@ -275,6 +329,21 @@ namespace Base
         else
         {
             getPtrElementRight()->basisFunction(i - n, mapRefFaceToRefElemR(p), ret);
+        }
+    }
+    
+    template<std::size_t DIM>
+    void Face::basisFunction(std::size_t i, const Geometry::PointReference<DIM>& p, LinearAlgebra::SmallVector<DIM + 1>& ret, std::size_t unknown) const
+    {
+        logger.assert(i<getNumberOfBasisFunctions(unknown), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions(unknown));
+        std::size_t n(getPtrElementLeft()->getNumberOfBasisFunctions(unknown));
+        if (i < n)
+        {
+            getPtrElementLeft()->basisFunction(i, mapRefFaceToRefElemL(p), ret, unknown);
+        }
+        else
+        {
+            getPtrElementRight()->basisFunction(i - n, mapRefFaceToRefElemR(p), ret, unknown);
         }
     }
 
@@ -296,6 +365,25 @@ namespace Base
             return getPtrElementRight()->basisFunction(iBasisFunction, mapRefFaceToRefElemR(p));
         }
     }
+    
+    /// \param[in] iSide The index corresponding to the side of the face.
+    /// \param[in] iBasisFunction The index corresponding to the basis function.
+    /// \param[in] p The reference point on the reference element.
+    template<std::size_t DIM>
+    double Face::basisFunction(Side iSide, std::size_t iBasisFunction, const Geometry::PointReference<DIM>& p, std::size_t unknown) const
+    {
+        if (iSide == Side::LEFT)
+        {
+            logger.assert(iBasisFunction < getPtrElementLeft()->getNumberOfBasisFunctions(unknown), "Asked for basis function %, but there are only % basis functions", iBasisFunction, getPtrElementLeft()->getNumberOfBasisFunctions(unknown));
+            return getPtrElementLeft()->basisFunction(iBasisFunction, mapRefFaceToRefElemL(p), unknown);
+        }
+        else
+        {
+            logger.assert(isInternal(), "boundary faces only have a \"left\" element");
+            logger.assert(iBasisFunction < getPtrElementRight()->getNumberOfBasisFunctions(unknown), "Asked for basis function %, but there are only % basis functions", iBasisFunction, getPtrElementRight()->getNumberOfBasisFunctions(unknown));
+            return getPtrElementRight()->basisFunction(iBasisFunction, mapRefFaceToRefElemR(p), unknown);
+        }
+    }
 
     template<std::size_t DIM>
     LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionNormal(std::size_t i, const LinearAlgebra::SmallVector<DIM + 1>& normal, const Geometry::PointReference<DIM>& p) const
@@ -312,6 +400,25 @@ namespace Base
         {
             ret = normal;
             ret *= -getPtrElementRight()->basisFunction(i - n, mapRefFaceToRefElemR(p)) / Base::L2Norm(normal);
+        }
+        return ret;
+    }
+    
+    template<std::size_t DIM>
+    LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionNormal(std::size_t i, const LinearAlgebra::SmallVector<DIM + 1>& normal, const Geometry::PointReference<DIM>& p, std::size_t unknown) const
+    {
+        logger.assert(i<getNumberOfBasisFunctions(unknown), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions(unknown));
+        LinearAlgebra::SmallVector<DIM + 1> ret;
+        std::size_t n = getPtrElementLeft()->getNumberOfBasisFunctions(unknown);
+        if (i < n)
+        {
+            ret = normal;
+            ret *= getPtrElementLeft()->basisFunction(i, mapRefFaceToRefElemL(p), unknown) / Base::L2Norm(normal);
+        }
+        else
+        {
+            ret = normal;
+            ret *= -getPtrElementRight()->basisFunction(i - n, mapRefFaceToRefElemR(p), unknown) / Base::L2Norm(normal);
         }
         return ret;
     }
@@ -335,6 +442,26 @@ namespace Base
             return -getPtrElementRight()->basisFunction(iBasisFunction, mapRefFaceToRefElemR(p)) * normal / Base::L2Norm(normal);
         }
     }
+    
+    /// \param[in] iSide The index corresponding to the side of the face.
+    /// \param[in] iBasisFunction The index corresponding to the basis function.
+    /// \param[in] normal The normal vector (pointing outwards with respect to the element on the left side).
+    /// \param[in] p The reference point on the reference element.
+    template<std::size_t DIM>
+    LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionNormal(Side iSide, std::size_t iBasisFunction, const LinearAlgebra::SmallVector<DIM + 1>& normal, const Geometry::PointReference<DIM>& p, std::size_t unknown) const
+    {
+        if (iSide == Side::LEFT)
+        {
+            logger.assert(iBasisFunction < getPtrElementLeft()->getNumberOfBasisFunctions(unknown), "Asked for basis function %, but there are only % basis functions", iBasisFunction, getPtrElementLeft()->getNumberOfBasisFunctions(unknown));
+            return getPtrElementLeft()->basisFunction(iBasisFunction, mapRefFaceToRefElemL(p), unknown) * normal / Base::L2Norm(normal);
+        }
+        else
+        {
+            logger.assert(isInternal(), "boundary faces only have a \"left\" element");
+            logger.assert(iBasisFunction < getPtrElementRight()->getNumberOfBasisFunctions(unknown), "Asked for basis function %, but there are only % basis functions", iBasisFunction, getPtrElementRight()->getNumberOfBasisFunctions(unknown));
+            return -getPtrElementRight()->basisFunction(iBasisFunction, mapRefFaceToRefElemR(p), unknown) * normal / Base::L2Norm(normal);
+        }
+    }
 
     template<std::size_t DIM>
     double Face::basisFunctionDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference<DIM>& p) const
@@ -350,6 +477,21 @@ namespace Base
             return getPtrElementRight()->basisFunctionDeriv(i - n, jDir, mapRefFaceToRefElemR(p));
         }
     }
+    
+    template<std::size_t DIM>
+    double Face::basisFunctionDeriv(std::size_t i, std::size_t jDir, const Geometry::PointReference<DIM>& p, std::size_t unknown) const
+    {
+        logger.assert(i<getNumberOfBasisFunctions(unknown), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions(unknown));
+        std::size_t n = getPtrElementLeft()->getNumberOfBasisFunctions(unknown);
+        if (i < n)
+        {
+            return getPtrElementLeft()->basisFunctionDeriv(i, jDir, mapRefFaceToRefElemL(p), unknown);
+        }
+        else
+        {
+            return getPtrElementRight()->basisFunctionDeriv(i - n, jDir, mapRefFaceToRefElemR(p), unknown);
+        }
+    }
 
     template<std::size_t DIM>
     LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionDeriv(std::size_t i, const Geometry::PointReference<DIM>& p) const
@@ -363,6 +505,21 @@ namespace Base
         else
         {
             return getPtrElementRight()->basisFunctionDeriv(i - n, mapRefFaceToRefElemR(p));
+        }
+    }
+    
+    template<std::size_t DIM>
+    LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionDeriv(std::size_t i, const Geometry::PointReference<DIM>& p, std::size_t unknown) const
+    {
+        logger.assert(i<getNumberOfBasisFunctions(unknown), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions(unknown));
+        std::size_t n = getPtrElementLeft()->getNumberOfBasisFunctions(unknown);
+        if (i < n)
+        {
+            return getPtrElementLeft()->basisFunctionDeriv(i, mapRefFaceToRefElemL(p), unknown);
+        }
+        else
+        {
+            return getPtrElementRight()->basisFunctionDeriv(i - n, mapRefFaceToRefElemR(p), unknown);
         }
     }
 
@@ -384,6 +541,25 @@ namespace Base
             return getPtrElementRight()->basisFunctionDeriv(iBasisFunction, mapRefFaceToRefElemR(p));
         }
     }
+    
+    /// \param[in] iSide The index corresponding to the side of the face.
+    /// \param[in] iBasisFunction The index corresponding to the basis function.
+    /// \param[in] p The reference point on the reference element.
+    template<std::size_t DIM>
+    LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionDeriv(Side iSide, std::size_t iBasisFunction, const Geometry::PointReference<DIM>& p, std::size_t unknown) const
+    {
+        if (iSide == Side::LEFT)
+        {
+            logger.assert(iBasisFunction < getPtrElementLeft()->getNumberOfBasisFunctions(unknown), "Asked for basis function %, but there are only % basis functions", iBasisFunction, getPtrElementLeft()->getNumberOfBasisFunctions(unknown));
+            return getPtrElementLeft()->basisFunctionDeriv(iBasisFunction, mapRefFaceToRefElemL(p), unknown);
+        }
+        else
+        {
+            logger.assert(isInternal(), "boundary faces only have a \"left\" element");
+            logger.assert(iBasisFunction < getPtrElementRight()->getNumberOfBasisFunctions(unknown), "Asked for basis function %, but there are only % basis functions", iBasisFunction, getPtrElementRight()->getNumberOfBasisFunctions(unknown));
+            return getPtrElementRight()->basisFunctionDeriv(iBasisFunction, mapRefFaceToRefElemR(p), unknown);
+        }
+    }
 
     template<std::size_t DIM>
     LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionCurl(std::size_t i, const Geometry::PointReference<DIM>& p) const
@@ -397,6 +573,21 @@ namespace Base
         else
         {
             return getPtrElementRight()->basisFunctionCurl(i - numberOfBasisFunctionsLeft, mapRefFaceToRefElemR(p));
+        }
+    }
+    
+    template<std::size_t DIM>
+    LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionCurl(std::size_t i, const Geometry::PointReference<DIM>& p, std::size_t unknown) const
+    {
+        logger.assert(i<getNumberOfBasisFunctions(unknown), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions(unknown));
+        std::size_t numberOfBasisFunctionsLeft = getPtrElementLeft()->getNumberOfBasisFunctions(unknown);
+        if (i < numberOfBasisFunctionsLeft)
+        {
+            return getPtrElementLeft()->basisFunctionCurl(i, mapRefFaceToRefElemL(p), unknown);
+        }
+        else
+        {
+            return getPtrElementRight()->basisFunctionCurl(i - numberOfBasisFunctionsLeft, mapRefFaceToRefElemR(p), unknown);
         }
     }
 }

@@ -41,7 +41,7 @@ namespace Base
     {
         
     public:
-        ElementData(std::size_t timeLevels, std::size_t numberOfUnkowns, std::size_t numberOfBasisFunctions, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0);
+        ElementData(std::size_t timeLevels, std::size_t numberOfUnknowns, std::size_t numberOfBasisFunctions, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0);
         
         ElementData(const ElementData& other);
 
@@ -87,7 +87,7 @@ namespace Base
         /// \brief Set the number of time integration vectors.
         void setNumberOfTimeIntegrationVectors(const std::size_t numberOfTimeIntegrationVectors)
         {
-            timeIntegrationVectors_.resize(numberOfTimeIntegrationVectors, LinearAlgebra::MiddleSizeVector(numberOfUnknowns_ * numberOfBasisFunctions_));
+            timeIntegrationVectors_.resize(numberOfTimeIntegrationVectors, LinearAlgebra::MiddleSizeVector(getTotalNumberOfBasisFunctions()));
         }
         
         /// \brief Get the number of time integration vectors.
@@ -124,11 +124,14 @@ namespace Base
 
         ///\deprecated Does not follow naming guidelines, use getNumberOfBasisFunctions instead.
         std::size_t getNrOfBasisFunctions() const;
+        std::size_t getNrOfBasisFunctions(std::size_t unknown) const;
 
         std::size_t getNumberOfUnknowns() const;
 
         ///Returns the number of basis functions that are non-zero inside this element
         std::size_t getNumberOfBasisFunctions() const;
+        std::size_t getNumberOfBasisFunctions(std::size_t unknown) const;
+        std::size_t getTotalNumberOfBasisFunctions() const;
 
         void setUserData(UserData* data) const;
 
@@ -140,11 +143,17 @@ namespace Base
         /// \param[in] iBasisFunction The index corresponding to the basisfunction.
         std::size_t convertToSingleIndex(std::size_t iBasisFunction, std::size_t iVar = 0) const
         {
-            return iVar * numberOfBasisFunctions_ + iBasisFunction;
+            std::size_t offset = 0;
+            for(std::size_t i = 0; i < iVar; ++i)
+            {
+                offset += numberOfBasisFunctions_[i];
+            }
+            return offset + iBasisFunction;
         }
         
     protected:
         void setNumberOfBasisFunctions(std::size_t number);
+        void setNumberOfBasisFunctions(std::size_t number, std::size_t unknown);
 
     private:
         /// The number of time levels. Multiple time levels can be used to store intermediate results, help variables and residues.
@@ -154,7 +163,7 @@ namespace Base
         std::size_t numberOfUnknowns_;
         
         /// The number of basis functions
-        std::size_t numberOfBasisFunctions_;
+        std::vector<std::size_t> numberOfBasisFunctions_;
 
         /// \brief Vectors of function coefficients of the solution at different time levels.
         /// \details The value timeLevelDataVectors_[iT](iVB) is the expansion

@@ -61,6 +61,11 @@ namespace Base
             return face.getRelativeSurfaceArea();
         }
     };
+
+    template<> inline LinearAlgebra::SmallVector<2> HCurlConformingTransformation<2>::transformCurl(LinearAlgebra::SmallVector<2> referenceData, PhysicalElement<2>& element) const
+    {
+        return referenceData / element.getJacobianDet();
+    }
 }
 
         

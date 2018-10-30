@@ -104,6 +104,7 @@ namespace Base
         /// such that the current solution stays the same. (Stored old solutions are not affected, but they may require a change back to the original basis functions before being
         /// usable again)
         void useDefaultDGBasisFunctions();
+        void useDefaultDGBasisFunctions(std::size_t unknown);
         
         /// \brief automatically creates Nedelec DG basis functions for tetrahedra.
         /// \details This function should be called after a mesh has been created to ensure basis functions exist for all types of elements needed.
@@ -124,6 +125,7 @@ namespace Base
         /// such that the current solution stays the same. (Stored old solutions are not affected, but they may require a change back to the original basis functions before being
         /// usable again)
         void useDefaultConformingBasisFunctions();
+        void useDefaultConformingBasisFunctions(std::size_t unknown);
 
         Element* addElement(const std::vector<std::size_t>& globalNodeIndexes);
 
@@ -239,6 +241,22 @@ namespace Base
         {
             return theMesh_.nodeColEnd(part);
         }
+        
+        /// *****************Iteration through the Elements*******************
+        
+        void createRectangularMesh(const Geometry::PointPhysical<DIM>& BottomLeft, const Geometry::PointPhysical<DIM>& TopRight, const std::vector<std::size_t>& LinearNoElements);
+
+        /**
+         * Crates a mesh of simplices for the specified cube
+         * \param [in] BottomLeft the bottomleft corner of the cube
+         * \param [in] TopRight The topRight corner of the cube
+         * \param [in] LinearNoElements A vector detailing the amount of refinement you want per direction
+         * This routine generates the same mesh structure as createRectangularMesh, but then refines each of the cubes into
+         * (DIM-1)^2+1 tetrahedra
+         */
+        void createTriangularMesh(Geometry::PointPhysical<DIM> BottomLeft, Geometry::PointPhysical<DIM> TopRight, const std::vector<std::size_t>& LinearNoElements);
+
+        void readCentaurMesh(const std::string& filename);
 
         void readMesh(const std::string& filename);
 
@@ -413,6 +431,12 @@ namespace Base
         //---------------------------------------------------------------------
     private:
 
+        //!Does the actual reading for 2D centaur meshes
+        void readCentaurMesh2D(std::ifstream& centaurFile);
+
+        //!Does the actual reading for 3D centaur meshes
+        void readCentaurMesh3D(std::ifstream& centaurFile);
+        
         //!Construct the faces based on connectivity information about elements and nodes
         void faceFactory();
 
@@ -436,6 +460,18 @@ namespace Base
         std::vector<Geometry::PointPhysical<DIM> > oldNodeLocations_;
 
         std::vector<std::tuple<const Base::Element*, Geometry::PointReference<DIM>>> measurePoints_;
+
+        /// \brief Parse a double (possibly white space prefixed) from an input
+        /// stream.
+        ///
+        /// This functions supports both the standard 3.2e+1 format and the
+        /// hex-float format (e.g. 0x1.fp+4). Unfortunately the c++ specification is
+        /// ambiguous on whether the latter should be parsable using istream and as
+        /// a result the gnu's c++ and clang differ in their interpretation and
+        /// implementation.
+        /// \param stream The stream to read from.
+        /// \return The resulting double
+        double readDouble(std::istream& stream) const;
     };
     
 

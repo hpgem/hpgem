@@ -43,6 +43,15 @@ namespace Base
         indices[0] = element->getPhysicalGeometry()->getNodeIndex(indices[0]);
         indices[1] = element->getPhysicalGeometry()->getNodeIndex(indices[1]);
         orientation_.push_back((indices[0] < indices[1] ? 0 : 1));
+        
+        if(numberOfConformingDOFOnTheEdge_.size() == 0)
+        {
+            numberOfConformingDOFOnTheEdge_.resize(element->getNumberOfUnknowns(), 0);
+        }
+        else
+        {
+            logger.assert(numberOfConformingDOFOnTheEdge_.size() == element->getNumberOfUnknowns(), "The element thinks there are % unknowns, but the edge thinks there are % unknowns", element->getNumberOfUnknowns(), numberOfConformingDOFOnTheEdge_.size());
+        }
     }
     
     std::size_t Edge::getNumberOfElements() const

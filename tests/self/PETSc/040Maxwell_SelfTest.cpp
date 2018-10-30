@@ -108,14 +108,14 @@ public:
         for (int i = 0; i < numberOfBasisFunctions; ++i)
         {
             //normal_i phi_i is computed at point p, the result is stored in phiNormalI.
-            face.basisFunctionUnitNormal(i, phiNormalI);
+            face.basisFunctionUnitNormalCross(i, phiNormalI);
             //The gradient of basisfunction phi_i is computed at point p, the result is stored in phiDerivI.
             phiCurlI = face.basisFunctionCurl(i);
 
             for (int j = 0; j < numberOfBasisFunctions; ++j)
             {
                 //normal_j phi_j is computed at point p, the result is stored in phiNormalJ.
-                face.basisFunctionUnitNormal(j, phiNormalJ);
+                face.basisFunctionUnitNormalCross(j, phiNormalJ);
                 //The gradient of basisfunction phi_j is computed at point p, the result is stored in phiDerivJ.
                 phiCurlJ = face.basisFunctionCurl(j);
 
@@ -180,7 +180,7 @@ public:
             LinearAlgebra::SmallVector<3> phi;
             for(std::size_t i = 0; i < face.getNumberOfBasisFunctions(); ++i)
             {
-                face.basisFunctionNormal(i, phi);
+                face.basisFunctionNormalCross(i, phi);
                 result[i] = -face.basisFunctionCurl(i) * normalValue + penalty * phi * normalValue;
             }
             return result;

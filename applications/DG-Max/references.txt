@@ -1,0 +1,3 @@
+sarmany2013ComputMathAppl
+  Sarmany, Botchev, van der Vegt "Time-integration methods for finite element
+  discretisations of the second-order Maxwell equation", Computers and Mathematics with Applications 65 (2013)

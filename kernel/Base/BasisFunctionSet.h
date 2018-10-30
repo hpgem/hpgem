@@ -356,6 +356,14 @@ namespace Base
     }
 
     template<>
+    inline LinearAlgebra::SmallVector<2> BasisFunctionSet::evalCurl(std::size_t i,
+                                                                          QuadratureRules::GaussQuadratureRule *elementQuadratureRule,
+                                                                          std::size_t quadraturePointIndex) const
+    {
+        return elementQuadratureRule->evalCurl2D(this, i, quadraturePointIndex);
+    }
+    
+    template<>
     inline LinearAlgebra::SmallVector<3> BasisFunctionSet::evalCurl(std::size_t i,
                                                                           QuadratureRules::GaussQuadratureRule *elementQuadratureRule,
                                                                           std::size_t quadraturePointIndex) const
@@ -380,6 +388,15 @@ namespace Base
                                                                           const Geometry::MappingReferenceToReference<1> *faceToElementMap) const
     {
         return faceQuadratureRule->evalCurl(this, i, quadraturePointIndex, faceToElementMap);
+    }
+
+    template <>
+    inline LinearAlgebra::SmallVector<2> BasisFunctionSet::evalCurl(std::size_t i,
+                                                                    QuadratureRules::GaussQuadratureRule *faceQuadratureRule,
+                                                                    std::size_t quadraturePointIndex,
+                                                                    const Geometry::MappingReferenceToReference<1> *faceToElementMap) const
+    {
+        return faceQuadratureRule->evalCurl2D(this, i, quadraturePointIndex, faceToElementMap);
     }
 
 }

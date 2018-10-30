@@ -31,6 +31,14 @@ void Base::Node::addElement(Element *element, std::size_t localNodeNumber)
     elements_.push_back(element);
     localNodeNumbers_.push_back(localNodeNumber);
     element->setNode(localNodeNumber, this);
+    if(numberOfConformingDOFOnTheNode_.size() == 0)
+    {
+        numberOfConformingDOFOnTheNode_.resize(element->getNumberOfUnknowns(), 0);
+    }
+    else
+    {
+        logger.assert(numberOfConformingDOFOnTheNode_.size() == element->getNumberOfUnknowns(), "The element thinks there are % unknowns, but the node thinks there are % unknowns", element->getNumberOfUnknowns(), numberOfConformingDOFOnTheNode_.size());
+    }
 }
 
 Base::Element * Base::Node::getElement(std::size_t i)

@@ -25,11 +25,18 @@
 //------------------------------------------------------------------------------
 // Package includes:
 #include <functional>
+#include <memory>
 //------------------------------------------------------------------------------
 
 namespace Base
 {
     class Element;
+
+    template<std::size_t DIM>
+    class PhysicalElement;
+
+    template<std::size_t DIM>
+    class CoordinateTransformation;
 }
 
 namespace QuadratureRules
@@ -79,9 +86,9 @@ namespace Integration
         void recomputeCacheOff();
 
         /// you can set the coordinate transformation that is to be used here, before calling integrate
-        void setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> > transform);
+        void setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> > transform, std::size_t unknown = 0);
 
-        Base::CoordinateTransformation<DIM>& getTransformation();
+        Base::CoordinateTransformation<DIM>& getTransformation(std::size_t unknown = 0);
 
         Base::PhysicalElement<DIM>& getPhysicalElement();
 

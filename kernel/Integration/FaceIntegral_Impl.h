@@ -86,7 +86,7 @@ namespace Integration
         
         // first Gauss point;
         result = integrandFunc(*face_);
-        result *= (qdrRuleLoc->weight(0) * face_->getTransform()->getIntegrandScaleFactor(*face_));
+        result *= (qdrRuleLoc->weight(0) * face_->getTransform(0)->getIntegrandScaleFactor(*face_));
         
         // next Gauss points
         for (std::size_t i = 1; i < numberOfPoints; ++i)
@@ -97,7 +97,7 @@ namespace Integration
             value = integrandFunc(*face_);
             
             //Y = alpha * X + Y
-            LinearAlgebra::axpy(qdrRuleLoc->weight(i) * face_->getTransform()->getIntegrandScaleFactor(*face_), value, result);
+            LinearAlgebra::axpy(qdrRuleLoc->weight(i) * face_->getTransform(0)->getIntegrandScaleFactor(*face_), value, result);
             
         }
         return result;
@@ -237,18 +237,18 @@ namespace Integration
     void FaceIntegral<DIM>::recomputeCacheOff()
     {
     }
-
+    
     template<std::size_t DIM>
-    void FaceIntegral<DIM>::setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> > transform)
+    void FaceIntegral<DIM>::setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> > transform, std::size_t unknown)
     {
-        internalFace_.setTransform(transform);
-        boundaryFace_.setTransform(transform);
+        internalFace_.setTransform(transform, unknown);
+        boundaryFace_.setTransform(transform, unknown);
     }
 
     template<std::size_t DIM>
-    Base::CoordinateTransformation<DIM>& FaceIntegral<DIM>::getTransformation()
+    Base::CoordinateTransformation<DIM>& FaceIntegral<DIM>::getTransformation(std::size_t unknown)
     {
-        return internalFace_.getTransform();
+        return internalFace_.getTransform(unknown);
     }
 
 }

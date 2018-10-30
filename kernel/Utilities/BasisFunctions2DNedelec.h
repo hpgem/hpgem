@@ -19,56 +19,41 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MATRIXASSEMBLY_HPP
-#define MATRIXASSEMBLY_HPP
+#ifndef BASISFUNCTIONS2DNEDELEC_H_
+#define BASISFUNCTIONS2DNEDELEC_H_
 
-#include "Integration/ElementIntegrandBase.h"
-#include "Integration/FaceIntegrandBase.h"
-#include "Base/HCurlConformingTransformation.h"
+#include "Base/BaseBasisFunction.h"
+#include <vector>
 
-
-#include "Base/Face.h"
-#include "Base/Element.h"
-#include "LinearAlgebra/MiddleSizeVector.h"
-#include "LinearAlgebra/SmallVector.h"
-
-class hpGemUIExtentions;
-class DGMax;
-
-class MatrixAssembly
+namespace Base
 {
-    
-public:
-    virtual void fillMatrices(hpGemUIExtentions* matrixContainer) = 0;
-};
+    class BasisFunctionSet;
+}
 
-class MatrixAssemblyIP : public MatrixAssembly
+namespace Geometry
 {
-    
-    //double stabCoeff_;
-    
-public:
-    //MatrixAssemblyIP(double stabCoeff):stabCoeff_(stabCoeff){}
-    MatrixAssemblyIP()
+    template<std::size_t DIM>
+    class PointReference;
+}
+
+namespace Utilities
+{  
+    //! Curl conforming Nedelec edge functions.
+    class BasisCurlEdgeNedelec2D : public Base::BaseBasisFunction
     {
-    }
-    
-    void fillMatrices(hpGemUIExtentions* matrixContainer);
-    void CompleteElementIntegrationIP(hpGemUIExtentions*);
-    void CompleteFaceIntegrationIP(hpGemUIExtentions*);
-    ~MatrixAssemblyIP();
-};
+    public:
+        BasisCurlEdgeNedelec2D(std::size_t degree1, std::size_t degree2, std::size_t localFirstVertex, std::size_t localSecondVertex);
+        
+	void eval(const Geometry::PointReference<2>& p, LinearAlgebra::SmallVector<2>& ret) const override;
 
-/*
- class MatrixAssemblyBR: public MatrixAssembly
- {
- double stabCoeff_;
- public:
- 
- MatrixAssemblyBR(double stabCoeff):stabCoeff_(stabCoeff()){}
- virtual void fillMatrices(hpGemUIExtentions* matrixContainer);
- };
- 
- */
+        LinearAlgebra::SmallVector<2> evalCurl(const Geometry::PointReference<2>& p) const override;
+        
+    private:
+        const std::size_t deg1,deg2,i,j;
+    };
+    
+    Base::BasisFunctionSet* createDGBasisFunctionSet2DNedelec(std::size_t order);
+}
 
 #endif
+

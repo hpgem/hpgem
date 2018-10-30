@@ -26,35 +26,15 @@
 #include "Base/UserData.h"
 #include "Base/Element.h"
 #include "Base/Face.h"
-#include "BasisFunctionCollection_Curl.h"
 #include "Base/GlobalData.h"
 #include "Geometry/Jacobian.h"
 
-
-//one there is a default way in hpGEM to configure code without haveing to recompile this and some other things should be grouped in another file
-/**
- * Stores some parameters that should be available everywhere.
- * Attributes need not be constant since this struct will be stored in a constant field.
- */
-struct MaxwellData : public Base::GlobalData
-{
-    double Sigma_; //allows for lossy media - untested except maybe by Domokos
-    static double StabCoeff_; //a_F for IP or 1+eta_F/4 for BR
-    int NumberOfIntervals_;
-    int PolynomialOrder_;
-    double StartTime_;
-    double EndTime_;
-
-    MaxwellData(int numberOfIntervals, int polynomialOrder);
-};
-
-
+#include "DGMaxDim.h"
 
 /**
  * store some usefull information that needs to be computed everytime at the beginning of an integrand
  * specialized for tetrahedra
  */
-
 
 class ElementInfos : public UserElementData
 {

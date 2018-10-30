@@ -27,6 +27,7 @@
 #include "Geometry/PointPhysical.h"
 #include "Geometry/Jacobian.h"
 #include "CoordinateTransformation.h"
+#include "Element.h"
 #include "H1ConformingTransformation.h"
 
 namespace Base
@@ -44,9 +45,11 @@ namespace Base
     {
     public:
         PhysicalElement()
-                : transform_((new H1ConformingTransformation<DIM>())), hasPointReference(false),
+                : hasPointReference(false),
                   hasElement(false), hasQuadratureRule(false) // other data will get initialized when we have more info
         {
+            std::shared_ptr<Base::CoordinateTransformation<DIM> > transform (new H1ConformingTransformation<DIM>{});
+            transform_.push_back(transform);
             hasElementMatrix = false;
             hasElementVector = false;
         }
@@ -57,21 +60,26 @@ namespace Base
 
         ///value of basis function i at the current reference point
         double basisFunction(std::size_t i);
+        double basisFunction(std::size_t i, std::size_t unknown);
 
         ///derivative of basis function i at the current reference point
         const LinearAlgebra::SmallVector<DIM> &basisFunctionDeriv(std::size_t i);
+        const LinearAlgebra::SmallVector<DIM> &basisFunctionDeriv(std::size_t i, std::size_t unknown);
 
 
         ///value of basis function i at the current reference point
         void basisFunction(std::size_t i, LinearAlgebra::SmallVector<DIM> &result);
+        void basisFunction(std::size_t i, LinearAlgebra::SmallVector<DIM> &result, std::size_t unknown);
 
         ///curl of basis function i at the current reference point
         const LinearAlgebra::SmallVector<DIM> &basisFunctionCurl(std::size_t i);
+        const LinearAlgebra::SmallVector<DIM> &basisFunctionCurl(std::size_t i, std::size_t unknown);
 
         ///divergence of basis function i at the current reference point
         const double &basisFunctionDiv(std::size_t i);
+        const double &basisFunctionDiv(std::size_t i, std::size_t unknown);
 
-
+        
         ///value of the solution at the current reference point at time level 0
         const LinearAlgebra::MiddleSizeVector &getSolution();
 
@@ -133,6 +141,16 @@ namespace Base
         {
             return theElement_->getNumberOfBasisFunctions();
         }
+        
+        std::size_t getNumberOfBasisFunctions(std::size_t unknown)
+        {
+            return theElement_->getNumberOfBasisFunctions(unknown);
+        }
+        
+        std::size_t getTotalNumberOfBasisFunctions()
+        {
+            return theElement_->getTotalNumberOfBasisFunctions();
+        }
 
         ///\deprecated Does not conform naming conventions, use getNumberOfUnknowns instead
         std::size_t getNumOfUnknowns()
@@ -161,6 +179,8 @@ namespace Base
 
         ///the transformation that was used to get from the reference element to the physical element (should only be needed internally)
         const Base::CoordinateTransformation<DIM> *getTransformation();
+        
+        const Base::CoordinateTransformation<DIM> *getTransformation(std::size_t unknown);
 
         ///setters should only be needed internally
         void setPointReference(const Geometry::PointReference<DIM> &point);
@@ -169,8 +189,8 @@ namespace Base
         void setElement(const Element *element);
 
         ///setters should only be needed internally
-        void setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> > &transform);
-
+        void setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> > &transform, std::size_t unknown = 0);
+        
         ///setters should only be needed internally
         ///sets a quadrature rule that provides points in the element
         void setQuadratureRule(QuadratureRules::GaussQuadratureRule *rule);
@@ -189,13 +209,13 @@ namespace Base
         QuadratureRules::GaussQuadratureRule *quadratureRule_;
         const Geometry::MappingReferenceToReference<1> *faceToElementMap_;
         std::size_t quadraturePointIndex_;
-        std::shared_ptr<Base::CoordinateTransformation<DIM> > transform_;
+        std::vector<std::shared_ptr<Base::CoordinateTransformation<DIM> > > transform_;
 
-        std::vector<double> basisFunctionValue;
-        std::vector<LinearAlgebra::SmallVector<DIM> > vectorBasisFunctionValue;
-        std::vector<LinearAlgebra::SmallVector<DIM> > basisFunctionDeriv_;
-        std::vector<LinearAlgebra::SmallVector<DIM> > basisFunctionCurl_;
-        std::vector<double> basisFunctionDiv_;
+        std::vector<std::vector<double> > basisFunctionValue;
+        std::vector<std::vector<LinearAlgebra::SmallVector<DIM> > > vectorBasisFunctionValue;
+        std::vector<std::vector<LinearAlgebra::SmallVector<DIM> > > basisFunctionDeriv_;
+        std::vector<std::vector<LinearAlgebra::SmallVector<DIM> > > basisFunctionCurl_;
+        std::vector<std::vector<double> > basisFunctionDiv_;
 
         LinearAlgebra::MiddleSizeVector solution;
         std::vector<LinearAlgebra::SmallVector<DIM> > vectorSolution;
@@ -215,7 +235,11 @@ namespace Base
 
         bool hasElementMatrix, hasElementVector;
         //did we already compute this?
-        bool hasFunctionValue, hasVectorFunctionValue, hasFunctionDeriv, hasFunctionCurl, hasFunctionDiv;
+        std::vector<bool> hasFunctionValue;
+        std::vector<bool> hasVectorFunctionValue;
+        std::vector<bool> hasFunctionDeriv;
+        std::vector<bool> hasFunctionCurl;
+        std::vector<bool> hasFunctionDiv;        
         bool hasSolution, hasVectorSolution, hasSolutionDeriv, hasSolutionCurl, hasSolutionDiv;
         bool hasPointPhysical, hasJacobian, hasTransposeJacobian, hasInverseTransposeJacobian, hasJacobianDet, hasJacobianAbsDet;
     };

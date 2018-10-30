@@ -45,14 +45,15 @@ namespace Base
     /// \details The user does not need to worry about the construction of faces. This is done by mesh-generators. For example the interface HpgemAPIBase can be used to create meshes.
     Face::Face(Element* ptrElemL, const std::size_t& localFaceNumberL, Element* ptrElemR, const std::size_t& localFaceNumberR, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
             : FaceGeometry(ptrElemL, localFaceNumberL, ptrElemR, localFaceNumberR),
-            FaceData(ptrElemL->getNumberOfBasisFunctions() * ptrElemL->getNumberOfUnknowns() + ptrElemR->getNumberOfBasisFunctions() * ptrElemR->getNumberOfUnknowns(), numberOfFaceMatrixes, numberOfFaceVectors), 
-            elementLeft_(ptrElemL), elementRight_(ptrElemR), numberOfConformingDOFOnTheFace_(0), faceID_(faceID)
+            FaceData(ptrElemL->getTotalNumberOfBasisFunctions() + ptrElemR->getTotalNumberOfBasisFunctions(), numberOfFaceMatrixes, numberOfFaceVectors), 
+            elementLeft_(ptrElemL), elementRight_(ptrElemR), numberOfConformingDOFOnTheFace_(std::vector<std::size_t>(1, 0)), faceID_(faceID)
     {
         logger.assert(ptrElemL != nullptr, "Invalid element passed");
         logger.assert(ptrElemR != nullptr, "Error: passing a boundary face to the constructor for internal faces!");
         createQuadratureRules();
         ptrElemL->setFace(localFaceNumberL, this);
         ptrElemR->setFace(localFaceNumberR, this);
+        numberOfConformingDOFOnTheFace_.resize(ptrElemL->getNumberOfUnknowns(), 0);
         
         std::vector<std::size_t> leftNodes, rightNodes;
         std::vector<std::size_t> localLeftNodes = ptrElemL->getPhysicalGeometry()->getLocalFaceNodeIndices(localFaceNumberL);
@@ -109,11 +110,12 @@ namespace Base
     }
     
     Face::Face(Element* ptrElemL, const std::size_t& localFaceNumberL, const Geometry::FaceType& faceType, std::size_t faceID, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
-            : FaceGeometry(ptrElemL, localFaceNumberL, faceType), FaceData(ptrElemL->getNumberOfBasisFunctions() * ptrElemL->getNumberOfUnknowns(), numberOfFaceMatrixes, numberOfFaceVectors), elementLeft_(ptrElemL), elementRight_(nullptr), numberOfConformingDOFOnTheFace_(0), faceID_(faceID)
+            : FaceGeometry(ptrElemL, localFaceNumberL, faceType), FaceData(ptrElemL->getTotalNumberOfBasisFunctions(), numberOfFaceMatrixes, numberOfFaceVectors), elementLeft_(ptrElemL), elementRight_(nullptr), numberOfConformingDOFOnTheFace_(std::vector<std::size_t>(1, 0)), faceID_(faceID)
     {
         logger.assert(ptrElemL != nullptr, "Invalid element passed");
         createQuadratureRules();
         ptrElemL->setFace(localFaceNumberL, this);
+        numberOfConformingDOFOnTheFace_.resize(ptrElemL->getNumberOfUnknowns(), 0);
     }
     
     Face::Face(const Face& other, Element* elementL, const std::size_t localFaceL, Element* elementR, const std::size_t localFaceR)
@@ -163,6 +165,19 @@ namespace Base
         }
     }
     
+    std::size_t Face::getNumberOfBasisFunctions(std::size_t unknown) const
+    {
+        // Check on unknown delegated to the Elements
+        if (isInternal())
+        {
+            return getPtrElementLeft()->getNumberOfBasisFunctions(unknown) + getPtrElementRight()->getNumberOfBasisFunctions(unknown);
+        }
+        else
+        {
+            return getPtrElementLeft()->getNumberOfBasisFunctions(unknown);
+        }
+    }
+    
     ///Get the time integration vectors from both elements and concatenate them.
     ///Note that we assume that the data is stored as column "vectors".
     LinearAlgebra::MiddleSizeVector Face::getTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t unknown) const
@@ -170,8 +185,8 @@ namespace Base
         LinearAlgebra::MiddleSizeVector resLeft = getPtrElementLeft()->getTimeIntegrationSubvector(timeIntegrationVectorId, unknown);
         if (isInternal())
         {
-            std::size_t numberOfBasisFunctions = getNumberOfBasisFunctions();
-            std::size_t numberOfBasisFunctionsLeft = getPtrElementLeft()->getNumberOfBasisFunctions();
+            std::size_t numberOfBasisFunctions = getNumberOfBasisFunctions(unknown);
+            std::size_t numberOfBasisFunctionsLeft = getPtrElementLeft()->getNumberOfBasisFunctions(unknown);
             resLeft.resize(numberOfBasisFunctions);
             LinearAlgebra::MiddleSizeVector resRight = getPtrElementRight()->getTimeIntegrationSubvector(timeIntegrationVectorId, unknown);
             for (std::size_t i = numberOfBasisFunctionsLeft; i < numberOfBasisFunctions; ++i)
@@ -190,42 +205,56 @@ namespace Base
         logger.assert(varId < getPtrElementLeft()->getNumberOfUnknowns(), "Asked for unknown %, but there are only % unknowns", varId, getPtrElementLeft()->getNumberOfUnknowns());
         if (side == Side::LEFT)
         {
-            logger.assert(scalarBasisFunctionId < getPtrElementLeft()->getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", scalarBasisFunctionId, getPtrElementLeft()->getNumberOfBasisFunctions());
-            return varId * getPtrElementLeft()->getNumberOfBasisFunctions() + scalarBasisFunctionId;
+            std::size_t number = 0;
+            for (std::size_t i = 0; i < varId; ++i)
+            {
+                number += getPtrElementLeft()->getNumberOfBasisFunctions(i);
+            }
+            logger.assert(scalarBasisFunctionId < getPtrElementLeft()->getNumberOfBasisFunctions(varId), "Asked for basis function %, but there are only % basis functions", scalarBasisFunctionId, getPtrElementLeft()->getNumberOfBasisFunctions(varId));
+            return (number + scalarBasisFunctionId);
         }
         else
         {
             logger.assert(isInternal(), "boundary faces only have a \"left\" element");
-            logger.assert(scalarBasisFunctionId < getPtrElementLeft()->getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", scalarBasisFunctionId, getPtrElementLeft()->getNumberOfBasisFunctions());
-            std::size_t nDOFLeft = getPtrElementLeft()->getNumberOfUnknowns() * getPtrElementLeft()->getNumberOfBasisFunctions();
-            return nDOFLeft + varId * getPtrElementRight()->getNumberOfBasisFunctions() + scalarBasisFunctionId;
+            std::size_t number = 0;
+            for (std::size_t i = 0; i < varId; ++i)
+            {
+                number += getPtrElementRight()->getNumberOfBasisFunctions(i);
+            }
+            logger.assert(scalarBasisFunctionId < getPtrElementRight()->getNumberOfBasisFunctions(varId), "Asked for basis function %, but there are only % basis functions", scalarBasisFunctionId, getPtrElementRight()->getNumberOfBasisFunctions(varId));
+            std::size_t nDOFLeft = getPtrElementLeft()->getTotalLocalNumberOfBasisFunctions();
+            return nDOFLeft + number + scalarBasisFunctionId;
         }
     }
     
     Side Face::getSide(std::size_t faceBasisFunctionId) const
     {
-        std::size_t nDOFLeft = getPtrElementLeft()->getNumberOfUnknowns() * getPtrElementLeft()->getNumberOfBasisFunctions();
+        std::size_t nDOFLeft = getPtrElementLeft()->getTotalNumberOfBasisFunctions();
         if(faceBasisFunctionId < nDOFLeft)
         {
             return Side::LEFT;
         }
         else
         {
-            logger.assert(faceBasisFunctionId < nDOFLeft + (isInternal() ? getPtrElementRight()->getNumberOfUnknowns() * getPtrElementRight()->getNumberOfBasisFunctions() : 0), "The index for the face basis (vector)function (%) is larger than the number of basis (vector)functions at the adjacent elements (%)", faceBasisFunctionId, nDOFLeft + (isInternal() ? getPtrElementRight()->getNumberOfUnknowns() * getPtrElementRight()->getNumberOfBasisFunctions() : 0));
+            logger.assert(faceBasisFunctionId < nDOFLeft + (isInternal() ? getPtrElementRight()->getTotalNumberOfBasisFunctions() : 0),
+                    "The index for the face basis (vector)function (%) is larger than the number of basis (vector)functions at the adjacent elements (%)",
+                    faceBasisFunctionId, nDOFLeft + (isInternal() ? getPtrElementRight()->getTotalNumberOfBasisFunctions() : 0));
             return Side::RIGHT;
         }
     }
     
     std::size_t Face::getElementBasisFunctionId(std::size_t faceBasisFunctionId) const
     {
-        std::size_t nDOFLeft = getPtrElementLeft()->getNumberOfUnknowns() * getPtrElementLeft()->getNumberOfBasisFunctions();
+        std::size_t nDOFLeft = getPtrElementLeft()->getTotalNumberOfBasisFunctions();
         if(faceBasisFunctionId < nDOFLeft)
         {
             return faceBasisFunctionId;
         }
         else
         {
-            logger.assert(faceBasisFunctionId < nDOFLeft + (isInternal() ? getPtrElementRight()->getNumberOfUnknowns() * getPtrElementRight()->getNumberOfBasisFunctions() : 0), "The index for the face basis (vector)function (%) is larger than the number of basis (vector)functions at the adjacent elements (%)", faceBasisFunctionId, nDOFLeft + (isInternal() ? getPtrElementRight()->getNumberOfUnknowns() * getPtrElementRight()->getNumberOfBasisFunctions() : 0));
+            logger.assert(faceBasisFunctionId < nDOFLeft + (isInternal() ? getPtrElementRight()->getTotalNumberOfBasisFunctions() : 0),
+                    "The index for the face basis (vector)function (%) is larger than the number of basis (vector)functions at the adjacent elements (%)",
+                    faceBasisFunctionId, nDOFLeft + (isInternal() ? getPtrElementRight()->getTotalNumberOfBasisFunctions() : 0));
             return faceBasisFunctionId - nDOFLeft;
         }
     }

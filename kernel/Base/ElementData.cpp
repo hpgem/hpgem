@@ -38,6 +38,9 @@ namespace Base
         logger(VERBOSE, "elementMatrix_ size %", elementMatrix_.size());
         logger(VERBOSE, "numberOfElementVectors %", numberOfElementVectors);
         logger(VERBOSE, "elementVector_ size = %", elementVector_.size());
+        numberOfBasisFunctions_.resize(numberOfUnknowns_);
+        for(std::size_t& index : numberOfBasisFunctions_)
+            index = numberOfBasisFunctions;
     }
     
     ElementData::ElementData(const ElementData& other) 
@@ -108,10 +111,22 @@ namespace Base
     
     void ElementData::setNumberOfBasisFunctions(std::size_t number)
     {
-        numberOfBasisFunctions_ = number;
+        for(std::size_t& index : numberOfBasisFunctions_)
+        {
+            index = number;
+        }
         for(auto& vector : timeIntegrationVectors_)
         {
-            vector.resize(numberOfUnknowns_ * numberOfBasisFunctions_);
+            vector.resize(getTotalNumberOfBasisFunctions());
+        }
+    }
+    
+    void ElementData::setNumberOfBasisFunctions(std::size_t number, std::size_t unknown)
+    {
+        numberOfBasisFunctions_[unknown] = number;
+        for(auto& vector : timeIntegrationVectors_)
+        {
+            vector.resize(getTotalNumberOfBasisFunctions());
         }
     }
     
@@ -120,10 +135,36 @@ namespace Base
         return getNumberOfBasisFunctions();
     }
     
+    std::size_t ElementData::getNrOfBasisFunctions(std::size_t unknown) const
+    {
+        return getNumberOfBasisFunctions(unknown);
+    }
+    
     std::size_t ElementData::getNumberOfBasisFunctions() const
     {
-        return numberOfBasisFunctions_;
+        std::size_t number = numberOfBasisFunctions_[0];
+        for(std::size_t index : numberOfBasisFunctions_)
+            logger.assert(index == number, "number of basis functions is different for different unknowns");
+        return numberOfBasisFunctions_[0];
     }
+    
+    std::size_t ElementData::getNumberOfBasisFunctions(std::size_t unknown) const
+    {
+        logger.assert(unknown < numberOfBasisFunctions_.size(),
+                      "Asking for unknown % but there are only %", unknown, numberOfBasisFunctions_.size());
+        return numberOfBasisFunctions_[unknown];
+    }
+    
+    std::size_t ElementData::getTotalNumberOfBasisFunctions() const
+    {
+        std::size_t number = 0;
+        for(std::size_t index : numberOfBasisFunctions_)
+        {
+            number += index;
+        }
+        return number;
+    }
+    
     
     
     /// \param[in] timeLevel Index corresponding to the time level.
@@ -132,10 +173,10 @@ namespace Base
     /// \param[in] val Value to set the expansionCoeffient.
     void ElementData::setData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction, LinearAlgebra::MiddleSizeVector::type val)
     {
-        logger.assert((timeLevel < timeLevels_ && unknown < numberOfUnknowns_ && basisFunction < numberOfBasisFunctions_), "Error: Asked for a time level, or unknown, greater than the amount of time levels");
-        if(timeLevelDataVectors_[timeLevel].size() != numberOfUnknowns_ * numberOfBasisFunctions_)
+        logger.assert((timeLevel < timeLevels_ && unknown < numberOfUnknowns_ && basisFunction < numberOfBasisFunctions_[unknown]), "Error: Asked for a time level, or unknown, greater than the amount of time levels");
+        if(timeLevelDataVectors_[timeLevel].size() != getTotalNumberOfBasisFunctions())
         {
-            timeLevelDataVectors_[timeLevel].resize(numberOfUnknowns_ * numberOfBasisFunctions_);
+            timeLevelDataVectors_[timeLevel].resize(getTotalNumberOfBasisFunctions());
         }
         timeLevelDataVectors_[timeLevel](convertToSingleIndex(basisFunction, unknown)) = val;
     }
@@ -145,8 +186,8 @@ namespace Base
     /// \param[in] basisFunction Index corresponding to the basisFunction.
     LinearAlgebra::MiddleSizeVector::type ElementData::getData(std::size_t timeLevel, std::size_t unknown, std::size_t basisFunction) const
     {
-        logger.assert((timeLevel < timeLevels_ && unknown < numberOfUnknowns_ && basisFunction < numberOfBasisFunctions_), "Error: Asked for a time level, or unknown, greater than the amount of time levels");
-        logger.assert(timeLevelDataVectors_[timeLevel].size() == numberOfUnknowns_ * numberOfBasisFunctions_, "Wrong number of expansion coefficients.");
+        logger.assert((timeLevel < timeLevels_ && unknown < numberOfUnknowns_ && basisFunction < numberOfBasisFunctions_[unknown]), "Error: Asked for a time level, or unknown, greater than the amount of time levels");
+        logger.assert(timeLevelDataVectors_[timeLevel].size() == getTotalNumberOfBasisFunctions(), "Wrong number of expansion coefficients.");
         return timeLevelDataVectors_[timeLevel](convertToSingleIndex(basisFunction, unknown));
     }
 
@@ -156,11 +197,11 @@ namespace Base
     /// \param[in] val Vector of values to set the expansionCoeffient corresponding to the given unknown and time level.
     void ElementData::setTimeLevelData(std::size_t timeLevel, std::size_t unknown, const LinearAlgebra::MiddleSizeVector& val)
     {
-        logger.assert(val.size() == numberOfBasisFunctions_, "data vector has the wrong size");
+        logger.assert(val.size() == numberOfBasisFunctions_[unknown], "data vector has the wrong size");
         logger.assert((timeLevel < timeLevels_ && unknown < numberOfUnknowns_), "Error: Asked for a time level, or unknown, greater than the amount of time levels");
-        if(timeLevelDataVectors_[timeLevel].size() != numberOfUnknowns_ * numberOfBasisFunctions_)
+        if(timeLevelDataVectors_[timeLevel].size() != getTotalNumberOfBasisFunctions())
         {
-            timeLevelDataVectors_[timeLevel].resize(numberOfUnknowns_ * numberOfBasisFunctions_);
+            timeLevelDataVectors_[timeLevel].resize(getTotalNumberOfBasisFunctions());
         }
 
         for(std::size_t iB = 0; iB < val.size(); ++iB) // iB = iBasisFunction
@@ -171,7 +212,10 @@ namespace Base
 
     void ElementData::setTimeLevelData(std::size_t timeLevel, const LinearAlgebra::MiddleSizeVector& val)
     {
-        logger.assert(val.size() == numberOfBasisFunctions_, "data vector has the wrong size");
+        std::size_t number = numberOfBasisFunctions_[0];
+        for(std::size_t index : numberOfBasisFunctions_)
+            logger.assert(index == number, "number of basis functions is different for different unknown");
+        logger.assert(val.size() == number, "data vector has the wrong size");
         logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there are only % time levels", timeLevel, timeLevels_);
         setTimeLevelData(timeLevel, 0, val);
     }
@@ -183,8 +227,8 @@ namespace Base
     {
         logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there are only % time levels", timeLevel, timeLevels_);
 
-        LinearAlgebra::MiddleSizeVector timeLevelData(numberOfBasisFunctions_);
-        for(std::size_t iB = 0; iB < numberOfBasisFunctions_; iB++) // iB = iBasisFunction
+        LinearAlgebra::MiddleSizeVector timeLevelData(numberOfBasisFunctions_[unknown]);
+        for(std::size_t iB = 0; iB < numberOfBasisFunctions_[unknown]; iB++) // iB = iBasisFunction
         {
             timeLevelData(iB) = timeLevelDataVectors_[timeLevel](convertToSingleIndex(iB, unknown));
         }
@@ -195,14 +239,14 @@ namespace Base
     /// \param[in] val Vector of values to set the expansionCoeffient corresponding to the given unknown and time level.
     void ElementData::setTimeLevelDataVector(std::size_t timeLevel, LinearAlgebra::MiddleSizeVector &val)
     {
-        logger.assert(val.size() == numberOfBasisFunctions_ * numberOfUnknowns_, "data vector has the wrong size");
+        logger.assert(val.size() == getTotalNumberOfBasisFunctions(), "data vector has the wrong size");
         logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there"
                       " are only % time levels", timeLevel, timeLevels_);
         // The vector can be of dimension 0 if it hasn't been used before, 
         // therefore it must be resized first.
-        if(timeLevelDataVectors_[timeLevel].size() != numberOfUnknowns_ * numberOfBasisFunctions_)
+        if(timeLevelDataVectors_[timeLevel].size() != getTotalNumberOfBasisFunctions())
         {
-            timeLevelDataVectors_[timeLevel].resize(numberOfUnknowns_ * numberOfBasisFunctions_);
+            timeLevelDataVectors_[timeLevel].resize(getTotalNumberOfBasisFunctions());
         }
         timeLevelDataVectors_[timeLevel] = val;
     }
@@ -212,7 +256,7 @@ namespace Base
     const LinearAlgebra::MiddleSizeVector &ElementData::getTimeLevelDataVector(std::size_t timeLevel) const
     {
         logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there are only % time levels", timeLevel, timeLevels_);
-        logger.assert(timeLevelDataVectors_[timeLevel].size() == numberOfUnknowns_ * numberOfBasisFunctions_, "Wrong number of expansion coefficients.");
+        logger.assert(timeLevelDataVectors_[timeLevel].size() == getTotalNumberOfBasisFunctions(), "Wrong number of expansion coefficients.");
         return timeLevelDataVectors_[timeLevel];
     }
     
@@ -221,9 +265,9 @@ namespace Base
         logger.assert(timeLevel < timeLevels_, "Asked for time level %, but there are only % time levels", timeLevel, timeLevels_);
         // The vector can be of dimension 0 if it hasn't been used before, 
         // therefore it must be resized first.
-        if(timeLevelDataVectors_[timeLevel].size() != numberOfUnknowns_ * numberOfBasisFunctions_)
+        if(timeLevelDataVectors_[timeLevel].size() != getTotalNumberOfBasisFunctions())
         {
-            timeLevelDataVectors_[timeLevel].resize(numberOfUnknowns_ * numberOfBasisFunctions_);
+            timeLevelDataVectors_[timeLevel].resize(getTotalNumberOfBasisFunctions());
         }
         return timeLevelDataVectors_[timeLevel];
     }
@@ -233,27 +277,27 @@ namespace Base
     const LinearAlgebra::MiddleSizeVector &ElementData::getTimeIntegrationVector(std::size_t timeIntegrationVectorId) const
     {
         logger.assert(timeIntegrationVectorId < timeIntegrationVectors_.size(), "Asked for time integration vector %, but there are only % time integration vectors", timeIntegrationVectorId, timeIntegrationVectors_.size());
-        logger.assert(timeIntegrationVectors_[timeIntegrationVectorId].size() == numberOfUnknowns_ * numberOfBasisFunctions_, "Size of time integration vector is %, but should be %.", timeIntegrationVectors_[timeIntegrationVectorId].size(), numberOfUnknowns_ * numberOfBasisFunctions_);
+        logger.assert(timeIntegrationVectors_[timeIntegrationVectorId].size() == getTotalNumberOfBasisFunctions(), "Size of time integration vector is %, but should be %.", timeIntegrationVectors_[timeIntegrationVectorId].size(), getTotalNumberOfBasisFunctions());
         return timeIntegrationVectors_[timeIntegrationVectorId];
     }
     
     LinearAlgebra::MiddleSizeVector &ElementData::getTimeIntegrationVector(std::size_t timeIntegrationVectorId)
     {
         logger.assert(timeIntegrationVectorId < timeIntegrationVectors_.size(), "Asked for time integration vector %, but there are only % time integration vectors", timeIntegrationVectorId, timeIntegrationVectors_.size());
-        logger.assert(timeIntegrationVectors_[timeIntegrationVectorId].size() == numberOfUnknowns_ * numberOfBasisFunctions_, "Size of time integration vector is %, but should be %.", timeIntegrationVectors_[timeIntegrationVectorId].size(), numberOfUnknowns_ * numberOfBasisFunctions_);
+        logger.assert(timeIntegrationVectors_[timeIntegrationVectorId].size() == getTotalNumberOfBasisFunctions(), "Size of time integration vector is %, but should be %.", timeIntegrationVectors_[timeIntegrationVectorId].size(), getTotalNumberOfBasisFunctions());
         return timeIntegrationVectors_[timeIntegrationVectorId];
     }
     
     void ElementData::setTimeIntegrationVector(std::size_t timeIntegrationVectorId, LinearAlgebra::MiddleSizeVector &val)
     {
         logger.assert(timeIntegrationVectorId < timeIntegrationVectors_.size(), "Asked for time integration vector %, but there are only % time integration vectors", timeIntegrationVectorId, timeIntegrationVectors_.size());
-        logger.assert(val.size() == numberOfUnknowns_ * numberOfBasisFunctions_, "Size of the vector with which to set the time integration vector is %, but should be %", val.size(), numberOfBasisFunctions_);
+        logger.assert(val.size() == getTotalNumberOfBasisFunctions(), "Size of the vector with which to set the time integration vector is %, but should be %", val.size(), getTotalNumberOfBasisFunctions());
         
         // The vector can be of dimension 0 if it hasn't been used before,
         // therefore it must be resized first.
-        if(timeIntegrationVectors_[timeIntegrationVectorId].size() != numberOfUnknowns_ * numberOfBasisFunctions_)
+        if(timeIntegrationVectors_[timeIntegrationVectorId].size() != getTotalNumberOfBasisFunctions())
         {
-            timeIntegrationVectors_[timeIntegrationVectorId].resize(numberOfUnknowns_ * numberOfBasisFunctions_);
+            timeIntegrationVectors_[timeIntegrationVectorId].resize(getTotalNumberOfBasisFunctions());
         }
         timeIntegrationVectors_[timeIntegrationVectorId] = val;
     }
@@ -261,11 +305,13 @@ namespace Base
     /// \details Return a vector of size numberOfBasisFunctions_ that corresponds to the given unknown (variable id). Let u be the complete vector corresponding to the timeIntegrationVectorId and let u_iV be the subvector that is returned, where iV = unknown. Then u_iV satisfies u_iV(iB) = u(iVB) where iVB = convertToSingleIndex(iB,iV) for all 0 <= iB < numberOfBasisFunctions_.
     const LinearAlgebra::MiddleSizeVector ElementData::getTimeIntegrationSubvector(std::size_t timeIntegrationVectorId, std::size_t unknown) const
     {
+        logger.assert(unknown < numberOfUnknowns_,
+                      "Asking for unknown % but there are only %", unknown, numberOfUnknowns_);
         logger.assert(timeIntegrationVectorId < timeIntegrationVectors_.size(), "Asked for time integration vector %, but there are only % time integration vectors", timeIntegrationVectorId, timeIntegrationVectors_.size());
-        logger.assert(timeIntegrationVectors_[timeIntegrationVectorId].size() == numberOfUnknowns_ * numberOfBasisFunctions_, "Size of time integration vector is %, but should be %.", timeIntegrationVectors_[timeIntegrationVectorId].size(), numberOfUnknowns_ * numberOfBasisFunctions_);
+        logger.assert(timeIntegrationVectors_[timeIntegrationVectorId].size() == getTotalNumberOfBasisFunctions(), "Size of time integration vector is %, but should be %.", timeIntegrationVectors_[timeIntegrationVectorId].size(), getTotalNumberOfBasisFunctions());
         
-        LinearAlgebra::MiddleSizeVector timeIntegrationSubvector(numberOfBasisFunctions_);
-        for(std::size_t iB = 0; iB < numberOfBasisFunctions_; iB++) // iB = iBasisFunction
+        LinearAlgebra::MiddleSizeVector timeIntegrationSubvector(numberOfBasisFunctions_[unknown]);
+        for(std::size_t iB = 0; iB < numberOfBasisFunctions_[unknown]; iB++) // iB = iBasisFunction
         {
             timeIntegrationSubvector(iB) = timeIntegrationVectors_[timeIntegrationVectorId](convertToSingleIndex(iB, unknown));
         }
@@ -276,15 +322,15 @@ namespace Base
     void ElementData::setTimeIntegrationSubvector(std::size_t timeIntegrationVectorId, std::size_t unknown, LinearAlgebra::MiddleSizeVector val)
     {
         logger.assert(timeIntegrationVectorId < timeIntegrationVectors_.size(), "Asked for time integration vector %, but there are only % time integration vectors", timeIntegrationVectorId, timeIntegrationVectors_.size());
-        logger.assert(val.size() == numberOfBasisFunctions_, "Size of the vector with which to set a subvector of the time integration vector is %, but should be %", val.size(), numberOfBasisFunctions_);
+        logger.assert(val.size() == numberOfBasisFunctions_[unknown], "Size of the vector with which to set a subvector of the time integration vector is %, but should be %", val.size(), numberOfBasisFunctions_[unknown]);
         
         // The vector can be of dimension 0 if it hasn't been used before,
         // therefore it must be resized first.
-        if(timeIntegrationVectors_[timeIntegrationVectorId].size() != numberOfUnknowns_ * numberOfBasisFunctions_)
+        if(timeIntegrationVectors_[timeIntegrationVectorId].size() != getTotalNumberOfBasisFunctions())
         {
-            timeIntegrationVectors_[timeIntegrationVectorId].resize(numberOfUnknowns_ * numberOfBasisFunctions_);
+            timeIntegrationVectors_[timeIntegrationVectorId].resize(getTotalNumberOfBasisFunctions());
         }
-        for(std::size_t iB = 0; iB < numberOfBasisFunctions_; iB++) // iB = iBasisFunction
+        for(std::size_t iB = 0; iB < numberOfBasisFunctions_[unknown]; iB++) // iB = iBasisFunction
         {
             timeIntegrationVectors_[timeIntegrationVectorId](convertToSingleIndex(iB, unknown)) = val(iB);
         }
@@ -293,7 +339,7 @@ namespace Base
     LinearAlgebra::MiddleSizeVector::type ElementData::getTimeIntegrationData(std::size_t timeIntegrationVectorId, std::size_t unknown, std::size_t basisFunction) const
     {
         logger.assert(timeIntegrationVectorId < timeIntegrationVectors_.size(), "Asked for time integration vector %, but there are only % time integration vectors", timeIntegrationVectorId, timeIntegrationVectors_.size());
-        logger.assert(timeIntegrationVectors_[timeIntegrationVectorId].size() == numberOfUnknowns_ * numberOfBasisFunctions_, "Size of time integration vector is %, but should be %.", timeIntegrationVectors_[timeIntegrationVectorId].size(), numberOfUnknowns_ * numberOfBasisFunctions_);
+        logger.assert(timeIntegrationVectors_[timeIntegrationVectorId].size() == getTotalNumberOfBasisFunctions(), "Size of time integration vector is %, but should be %.", timeIntegrationVectors_[timeIntegrationVectorId].size(), getTotalNumberOfBasisFunctions());
         
         return timeIntegrationVectors_[timeIntegrationVectorId](convertToSingleIndex(basisFunction, unknown));
     }
@@ -304,9 +350,9 @@ namespace Base
         
         // The vector can be of dimension 0 if it hasn't been used before,
         // therefore it must be resized first.
-        if(timeIntegrationVectors_[timeIntegrationVectorId].size() != numberOfUnknowns_ * numberOfBasisFunctions_)
+        if(timeIntegrationVectors_[timeIntegrationVectorId].size() != getTotalNumberOfBasisFunctions())
         {
-            timeIntegrationVectors_[timeIntegrationVectorId].resize(numberOfUnknowns_ * numberOfBasisFunctions_);
+            timeIntegrationVectors_[timeIntegrationVectorId].resize(getTotalNumberOfBasisFunctions());
         }
         timeIntegrationVectors_[timeIntegrationVectorId](convertToSingleIndex(basisFunction, unknown)) = val;
     }

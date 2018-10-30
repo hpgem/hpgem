@@ -29,6 +29,12 @@
 
 namespace Base
 {
+    // Due to recursive includes these need a forward defined
+    template<std::size_t DIM>
+    class PhysicalElement;
+    template<std::size_t DIM>
+    class PhysicalFace;
+
     ///Base class for coordinate transformations. Coordinate transformations are used internally to rewrite the integral
     ///expressions in the physical domain as integral expressions on reference elements. By default the expressions are
     ///rewritten using a H1-conforming transformation. (Roughly speaking, H1 is the space where functions and their gradients

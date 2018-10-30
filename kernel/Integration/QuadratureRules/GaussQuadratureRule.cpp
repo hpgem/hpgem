@@ -327,6 +327,41 @@ LinearAlgebra::SmallVector<3> QuadratureRules::GaussQuadratureRule::evalCurl(con
     }
 }
 
+LinearAlgebra::SmallVector<2> QuadratureRules::GaussQuadratureRule::evalCurl2D(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex)
+{
+    logger.assert(set != nullptr, "Invalid basis function set passed");
+    logger.assert(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
+    logger.assert(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex, set->size());
+    try
+    {
+        return basisFunctionCurls2D_.at(set)[quadraturePointIndex][basisFunctionIndex];
+    }
+    catch(std::out_of_range&)
+    {
+        set->registerQuadratureRule(this);
+        basisFunctionCurls2D_[set].resize(getNumberOfPoints());
+        for(std::size_t i = 0; i < getNumberOfPoints(); ++i)
+        {
+            basisFunctionCurls2D_[set][i].resize(set->size());
+            switch(dimension())
+            {
+            case 2:
+            {
+                const Geometry::PointReference<2>& point2D = getPoint(i);
+                for(std::size_t j = 0; j < set->size(); ++j)
+                {
+                    basisFunctionCurls2D_[set][i][j] = set->evalCurl(j, point2D);
+                }
+            }
+                break;
+            default:
+                logger(ERROR, "curl is only defined in R^2");
+            }
+        }
+        return basisFunctionCurls2D_[set][quadraturePointIndex][basisFunctionIndex];
+    }
+}
+
 LinearAlgebra::SmallVector<3> QuadratureRules::GaussQuadratureRule::evalCurl(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1>* map)
 {
     logger.assert(set != nullptr, "Invalid basis function set passed");
@@ -362,6 +397,44 @@ LinearAlgebra::SmallVector<3> QuadratureRules::GaussQuadratureRule::evalCurl(con
             }
         }
         return faceBasisFunctionCurls_[set][containedMap][quadraturePointIndex][basisFunctionIndex];
+    }
+}
+
+LinearAlgebra::SmallVector<2> QuadratureRules::GaussQuadratureRule::evalCurl2D(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1>* map)
+{
+    logger.assert(set != nullptr, "Invalid basis function set passed");
+    logger.assert(map != nullptr, "Invalid coordinate transformation passed");
+    logger.assert(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
+    logger.assert(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex, set->size());
+    auto containedMap = faceMapContainer(map);
+    try
+    {
+        return faceBasisFunctionCurls2D_.at(set).at(containedMap)[quadraturePointIndex][basisFunctionIndex];
+    }
+    catch(std::out_of_range&)
+    {
+        set->registerQuadratureRule(this);
+        faceBasisFunctionCurls2D_[set][containedMap].resize(getNumberOfPoints());
+        for(std::size_t i = 0; i < getNumberOfPoints(); ++i)
+        {
+            faceBasisFunctionCurls2D_[set][containedMap][i].resize(set->size());
+            switch(dimension())
+            {
+            case 1:
+            {
+                const Geometry::PointReference<1>& facePoint1D = getPoint(i);
+                const Geometry::PointReference<2>& point2D = map->transform(facePoint1D);
+                for(std::size_t j = 0; j < set->size(); ++j)
+                {
+                    faceBasisFunctionCurls2D_[set][containedMap][i][j] = set->evalCurl(j, point2D);
+                }
+            }
+                break;
+            default:
+                logger(ERROR, "curl is only defined in R^2", dimension());
+            }
+        }
+        return faceBasisFunctionCurls2D_[set][containedMap][quadraturePointIndex][basisFunctionIndex];
     }
 }
 

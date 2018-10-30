@@ -21,7 +21,6 @@
 
 #define USE_MATH_DEFINES
 #include "kspaceData.h"
-#include "BasisFunctionCollection_Curl.h"
 #include "Base/L2Norm.h"
 #include "Geometry/PointPhysical.h"
 #include "Logger.h"

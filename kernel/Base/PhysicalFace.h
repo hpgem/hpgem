@@ -45,8 +45,10 @@ namespace Base
     {
     public:
         PhysicalFace(bool forInternalFace)
-            : left(), right(), transform_((new H1ConformingTransformation<DIM>())), isInternal_(forInternalFace), hasPointReference(false), hasFace(false)  //other fields will be initialized when we have more information
+            : left(), right(), isInternal_(forInternalFace), hasPointReference(false), hasFace(false)  //other fields will be initialized when we have more information
         {
+                std::shared_ptr<Base::CoordinateTransformation<DIM> > transform(new H1ConformingTransformation<DIM>{});
+                transform_.push_back(transform);
                 hasFaceMatrix = false;
                 hasFaceVector = false;
                 hasLeftRightMatrix = false;
@@ -58,67 +60,85 @@ namespace Base
 
         ///value of basis function i at the current reference point; indexing functions in the right element after functions in the left element
         double basisFunction(std::size_t i);
+        double basisFunction(std::size_t i, std::size_t unknown);
 
         ///value of basis function i at the current reference point; indexing the left and the right element separately
         double basisFunction(Side side, std::size_t i);
-
+        double basisFunction(Side side, std::size_t i, std::size_t unknown);
+        
         ///derivative of basis function i at the current reference point; indexing functions in the right element after functions in the left element
         const LinearAlgebra::SmallVector<DIM>& basisFunctionDeriv(std::size_t i);
+        const LinearAlgebra::SmallVector<DIM>& basisFunctionDeriv(std::size_t i, std::size_t unknown);
 
         ///derivative of basis function i at the current reference point; indexing the left and the right element separately
         const LinearAlgebra::SmallVector<DIM>& basisFunctionDeriv(Side side, std::size_t i);
-
+        const LinearAlgebra::SmallVector<DIM>& basisFunctionDeriv(Side side, std::size_t i, std::size_t unknown);
+        
         ///value of basis function i multiplied by the normal vector at the current reference point; indexing functions in the right element after functions in the left element
         /// \details this normal vector includes a scaling by the surface area of the face
         const LinearAlgebra::SmallVector<DIM>& basisFunctionNormal(std::size_t i);
+        const LinearAlgebra::SmallVector<DIM>& basisFunctionNormal(std::size_t i, std::size_t unknown);
 
         ///value of basis function i multiplied by the normal vector at the current reference point; indexing the left and the right element separately
         /// \details this normal vector includes a scaling by the surface area of the face
         const LinearAlgebra::SmallVector<DIM>& basisFunctionNormal(Side side, std::size_t i);
-
+        const LinearAlgebra::SmallVector<DIM>& basisFunctionNormal(Side side, std::size_t i, std::size_t unknown);
+        
         ///value of basis function i multiplied by the normal vector at the current reference point; indexing functions in the right element after functions in the left element
         /// \details does not do any scaling so you probably have to scale the integrand separately
         const LinearAlgebra::SmallVector<DIM>& basisFunctionUnitNormal(std::size_t i);
-
+        const LinearAlgebra::SmallVector<DIM>& basisFunctionUnitNormal(std::size_t i, std::size_t unknown);
+        
         ///value of basis function i multiplied by the normal vector at the current reference point; indexing the left and the right element separately
         /// \details does not do any scaling so you probably have to scale the integrand separately
         const LinearAlgebra::SmallVector<DIM>& basisFunctionUnitNormal(Side side, std::size_t i);
+        const LinearAlgebra::SmallVector<DIM>& basisFunctionUnitNormal(Side side, std::size_t i, std::size_t unknown);
 
-
+        
         ///value of basis function i at the current reference point; indexing functions in the right element after functions in the left element
         void basisFunction(std::size_t i, LinearAlgebra::SmallVector<DIM>& result);
+        void basisFunction(std::size_t i, LinearAlgebra::SmallVector<DIM>& result, std::size_t unknown);
 
         ///value of basis function i at the current reference point; indexing the left and the right element separately
         void basisFunction(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result);
+        void basisFunction(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result, std::size_t unknown);
 
         ///curl of basis function i at the current reference point; indexing functions in the right element after functions in the left element
         const LinearAlgebra::SmallVector<DIM>& basisFunctionCurl(std::size_t i);
+        const LinearAlgebra::SmallVector<DIM>& basisFunctionCurl(std::size_t i, std::size_t unknown);
 
         ///curl of basis function i at the current reference point; indexing the left and the right element separately
         const LinearAlgebra::SmallVector<DIM>& basisFunctionCurl(Side side, std::size_t i);
+        const LinearAlgebra::SmallVector<DIM>& basisFunctionCurl(Side side, std::size_t i, std::size_t unknown);
 
         ///divergence of basis function i at the current reference point; indexing functions in the right element after functions in the left element
         const double& basisFunctionDiv(std::size_t i);
+        const double& basisFunctionDiv(std::size_t i, std::size_t unknown);
 
         ///divergence of basis function i at the current reference point; indexing the left and the right element separately
         const double& basisFunctionDiv(Side side, std::size_t i);
+        const double& basisFunctionDiv(Side side, std::size_t i, std::size_t unknown);
 
         ///value of basis function i multiplied by the normal vector at the current reference point; indexing functions in the right element after functions in the left element
         /// \details this normal vector includes a scaling by the surface area of the face
-        void basisFunctionNormal(std::size_t i, LinearAlgebra::SmallVector<DIM>& result);
+        void basisFunctionNormalCross(std::size_t i, LinearAlgebra::SmallVector<DIM>& result);
+        void basisFunctionNormalCross(std::size_t i, LinearAlgebra::SmallVector<DIM>& result, std::size_t unknown);
 
         ///value of basis function i multiplied by the normal vector at the current reference point; indexing the left and the right element separately
         /// \details this normal vector includes a scaling by the surface area of the face
-        void basisFunctionNormal(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result);
+        void basisFunctionNormalCross(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result);
+        void basisFunctionNormalCross(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result, std::size_t unknown);
 
         ///value of basis function i multiplied by the normal vector at the current reference point; indexing functions in the right element after functions in the left element
         /// \details does not do any scaling so you probably have to scale the integrand separately
-        void basisFunctionUnitNormal(std::size_t i, LinearAlgebra::SmallVector<DIM>& result);
+        void basisFunctionUnitNormalCross(std::size_t i, LinearAlgebra::SmallVector<DIM>& result);
+        void basisFunctionUnitNormalCross(std::size_t i, LinearAlgebra::SmallVector<DIM>& result, std::size_t unknown);
 
         ///value of basis function i multiplied by the normal vector at the current reference point; indexing the left and the right element separately
         /// \details does not do any scaling so you probably have to scale the integrand separately
-        void basisFunctionUnitNormal(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result);
-
+        void basisFunctionUnitNormalCross(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result);
+        void basisFunctionUnitNormalCross(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result, std::size_t unknown);
+        
 
         ///the trace of the solution
         const LinearAlgebra::MiddleSizeVector& getSolution(Side side);
@@ -195,6 +215,11 @@ namespace Base
             return face_->getNumberOfBasisFunctions();
         }
         
+        std::size_t getNumberOfBasisFunctions(std::size_t unknown)
+        {
+            return face_->getNumberOfBasisFunctions(unknown);
+        }
+        
         ///\deprecated Does not conform naming conventions, use getNumberOfUnknowns instead
         std::size_t getNumOfUnknowns()
         {
@@ -252,22 +277,23 @@ namespace Base
 
         ///getTransform should only be needed internally
         const CoordinateTransformation<DIM>* getTransform();
+        const CoordinateTransformation<DIM> *getTransform(std::size_t unknown);
 
         void setPointReference(const Geometry::PointReference<DIM - 1>& point);
         void setFace(const Face* face);
-        void setTransform(std::shared_ptr<CoordinateTransformation<DIM> >& transform);
+        void setTransform(std::shared_ptr<CoordinateTransformation<DIM> > &transform, std::size_t unknown = 0);
 
         void setQuadratureRule(QuadratureRules::GaussQuadratureRule *rule);
         void setQuadraturePointIndex(std::size_t index);
 
     private:
         PhysicalElement<DIM> left, right;
-        std::size_t nLeftBasisFunctions;
+        std::vector<std::size_t> nLeftBasisFunctions;
 
-        std::vector<LinearAlgebra::SmallVector<DIM> > basisFunctionNormal_;
-        std::vector<LinearAlgebra::SmallVector<DIM> > vectorBasisFunctionNormal_;
-        std::vector<LinearAlgebra::SmallVector<DIM> > basisFunctionUnitNormal_;
-        std::vector<LinearAlgebra::SmallVector<DIM> > vectorBasisFunctionUnitNormal_;
+        std::vector<std::vector<LinearAlgebra::SmallVector<DIM> > > basisFunctionNormal_;
+        std::vector<std::vector<LinearAlgebra::SmallVector<DIM> > > vectorBasisFunctionNormal_;
+        std::vector<std::vector<LinearAlgebra::SmallVector<DIM> > > basisFunctionUnitNormal_;
+        std::vector<std::vector<LinearAlgebra::SmallVector<DIM> > > vectorBasisFunctionUnitNormal_;
         std::vector<LinearAlgebra::SmallVector<DIM> > solutionNormal_;
         std::vector<LinearAlgebra::SmallVector<DIM> > vectorSolutionNormal_;
         std::vector<LinearAlgebra::SmallVector<DIM> > solutionUnitNormal_;
@@ -276,7 +302,7 @@ namespace Base
         Geometry::PointReference<DIM - 1> pointReference_;
         QuadratureRules::GaussQuadratureRule* quadratureRule_;
         const Face* face_;
-        std::shared_ptr<CoordinateTransformation<DIM> > transform_;
+        std::vector<std::shared_ptr<CoordinateTransformation<DIM> > > transform_;
         LinearAlgebra::SmallVector<DIM> normal;
         LinearAlgebra::SmallVector<DIM> unitNormal;
         double normalNorm;
@@ -291,7 +317,7 @@ namespace Base
         bool isInternal_, hasPointReference, hasFace;
 
         bool hasFaceMatrix, hasFaceVector, hasLeftRightMatrix, hasRightLeftMatrix;
-        bool hasBasisFunctionNormal, hasBasisFunctionUnitNormal, hasVectorBasisFunctionNormal, hasVectorBasisFunctionUnitNormal;
+        std::vector<bool> hasBasisFunctionNormal, hasBasisFunctionUnitNormal, hasVectorBasisFunctionNormal, hasVectorBasisFunctionUnitNormal;
         bool hasSolutionNormal, hasSolutionUnitNormal, hasVectorSolutionNormal, hasVectorSolutionUnitNormal;
         bool hasNormal, hasUnitNormal, hasNormalNorm;
     };

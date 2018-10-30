@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.3)
 project (hpGEM C CXX Fortran)
 
 set(hpGEM_VERSION_MAJOR 2)
@@ -239,7 +239,7 @@ if(hpGEM_USE_QHULL)
 endif()
 
 if (hpGEM_USE_PETSC OR hpGEM_USE_COMPLEX_PETSC)
-	set(PETSC_ARCH "NOTFOUND" CACHE STRING "PETSc arch string should be set be the user; he will know this if he has installed PETSc")
+	set(PETSC_ARCH "" CACHE STRING "PETSc arch string should be set be the user; he will know this if he has installed PETSc")
 	set(hpGEM_LOGLEVEL "DEFAULT" CACHE STRING "Verbosity of hpGEM. Default is recommended.")
 endif()
 

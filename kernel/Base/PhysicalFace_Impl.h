@@ -28,14 +28,29 @@ namespace Base
     inline double PhysicalFace<DIM>::basisFunction(std::size_t i)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
-        if(i < nLeftBasisFunctions)
+        if(i < nLeftBasisFunctions[0])
         {
             return left.basisFunction(i);
         }
         else
         {
             logger.assert(isInternal_, "basis function index out of bounds");
-            return right.basisFunction(i - nLeftBasisFunctions);
+            return right.basisFunction(i - nLeftBasisFunctions[0]);
+        }
+    }
+    
+    template<std::size_t DIM>
+    inline double PhysicalFace<DIM>::basisFunction(std::size_t i, std::size_t unknown)
+    {
+        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        if(i < nLeftBasisFunctions[unknown])
+        {
+            return left.basisFunction(i, unknown);
+        }
+        else
+        {
+            logger.assert(isInternal_, "basis function index out of bounds");
+            return right.basisFunction(i - nLeftBasisFunctions[unknown], unknown);
         }
     }
 
@@ -53,19 +68,48 @@ namespace Base
             return right.basisFunction(i);
         }
     }
+    
+    template<std::size_t DIM>
+    inline double PhysicalFace<DIM>::basisFunction(Side side, std::size_t i, std::size_t unknown)
+    {
+        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        if(side == Side::LEFT)
+        {
+            return left.basisFunction(i, unknown);
+        }
+        else
+        {
+            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            return right.basisFunction(i, unknown);
+        }
+    }
 
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionDeriv(std::size_t i)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
-        if(i < nLeftBasisFunctions)
+        if(i < nLeftBasisFunctions[0])
         {
             return left.basisFunctionDeriv(i);
         }
         else
         {
             logger.assert(isInternal_, "basis function index out of bounds");
-            return right.basisFunctionDeriv(i - nLeftBasisFunctions);
+            return right.basisFunctionDeriv(i - nLeftBasisFunctions[0]);
+        }
+    }
+    template<std::size_t DIM>
+    inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionDeriv(std::size_t i, std::size_t unknown)
+    {
+        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        if(i < nLeftBasisFunctions[unknown])
+        {
+            return left.basisFunctionDeriv(i, unknown);
+        }
+        else
+        {
+            logger.assert(isInternal_, "basis function index out of bounds");
+            return right.basisFunctionDeriv(i - nLeftBasisFunctions[unknown], unknown);
         }
     }
 
@@ -84,26 +128,68 @@ namespace Base
         }
     }
 
+
+    template<std::size_t DIM>
+    inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionDeriv(Side side, std::size_t i, std::size_t unknown)
+    {
+        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        if(side == Side::LEFT)
+        {
+            return left.basisFunctionDeriv(i, unknown);
+        }
+        else
+        {
+            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            return right.basisFunctionDeriv(i, unknown);
+        }
+    }
+
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionNormal(std::size_t i)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
-        if(hasBasisFunctionNormal)
+        if(hasBasisFunctionNormal[0])
         {
-            return basisFunctionNormal_[i];
+            return basisFunctionNormal_[0][i];
         }
         else
         {
-            hasBasisFunctionNormal = true;
+            hasBasisFunctionNormal[0] = true;
             for(std::size_t j = 0; j < face_->getNumberOfBasisFunctions(); ++j)
             {
-                basisFunctionNormal_[j] = getNormalVector() * basisFunction(j);
-                if(j >= nLeftBasisFunctions)
+                basisFunctionNormal_[0][j] = getNormalVector() * basisFunction(j);
+                if(j >= nLeftBasisFunctions[0])
                 {
-                    basisFunctionNormal_[j] *= -1.;
+                    basisFunctionNormal_[0][j] *= -1.;
                 }
             }
-            return basisFunctionNormal_[i];
+            return basisFunctionNormal_[0][i];
+        }
+    }
+
+    
+    template<std::size_t DIM>
+    inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionNormal(std::size_t i, std::size_t unknown)
+    {
+        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert(unknown < face_->getPtrElementLeft()->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
+        if(hasBasisFunctionNormal[unknown])
+        {
+            return basisFunctionNormal_[unknown][i];
+        }
+        else
+        {
+            hasBasisFunctionNormal[unknown] = true;
+            
+            for(std::size_t j = 0; j < face_->getNumberOfBasisFunctions(unknown); ++j)
+            {
+                basisFunctionNormal_[unknown][j] = getNormalVector() * basisFunction(j);
+                if(j >= nLeftBasisFunctions[unknown])
+                {
+                    basisFunctionNormal_[unknown][j] *= -1.;
+                }
+            }
+            return basisFunctionNormal_[unknown][i];
         }
     }
 
@@ -118,7 +204,22 @@ namespace Base
         else
         {
             logger.assert(isInternal_, "cannot find the right element for a boundary face");
-            return basisFunctionNormal(i + nLeftBasisFunctions);
+            return basisFunctionNormal(i + nLeftBasisFunctions[0]);
+        }
+    }
+    
+    template<std::size_t DIM>
+    inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionNormal(Side side, std::size_t i, std::size_t unknown)
+    {
+        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        if(side == Side::LEFT)
+        {
+            return basisFunctionNormal(i, unknown);
+        }
+        else
+        {
+            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            return basisFunctionNormal(i + nLeftBasisFunctions[unknown], unknown);
         }
     }
 
@@ -126,22 +227,49 @@ namespace Base
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionUnitNormal(std::size_t i)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
-        if(hasBasisFunctionUnitNormal)
+        if(hasBasisFunctionUnitNormal[0])
         {
-            return basisFunctionUnitNormal_[i];
+            return basisFunctionUnitNormal_[0][i];
         }
         else
         {
-            hasBasisFunctionUnitNormal = true;
+            hasBasisFunctionUnitNormal[0] = true;
             for(std::size_t j = 0; j < face_->getNumberOfBasisFunctions(); ++j)
             {
-                basisFunctionUnitNormal_[j] = getUnitNormalVector() * basisFunction(j);
-                if(j >= nLeftBasisFunctions)
+                basisFunctionUnitNormal_[0][j] = getUnitNormalVector() * basisFunction(j);
+                if(j >= nLeftBasisFunctions[0])
                 {
-                    basisFunctionUnitNormal_[j] *= -1.;
+                    basisFunctionUnitNormal_[0][j] *= -1.;
                 }
             }
-            return basisFunctionUnitNormal_[i];
+            return basisFunctionUnitNormal_[0][i];
+        }
+    }
+    
+
+    template<std::size_t DIM>
+    inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionUnitNormal(std::size_t i, std::size_t unknown)
+    {
+        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        
+        logger.assert(unknown < face_->getPtrElementLeft()->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
+        if(hasBasisFunctionUnitNormal[unknown])
+        {
+            return basisFunctionUnitNormal_[unknown][i];
+        }
+        else
+        {
+            hasBasisFunctionUnitNormal[unknown] = true;
+            
+            for(std::size_t j = 0; j < face_->getNumberOfBasisFunctions(unknown); ++j)
+            {
+                basisFunctionUnitNormal_[unknown][j] = getUnitNormalVector() * basisFunction(j);
+                if(j >= nLeftBasisFunctions[unknown])
+                {
+                    basisFunctionUnitNormal_[unknown][j] *= -1.;
+                }
+            }
+            return basisFunctionUnitNormal_[unknown][i];
         }
     }
 
@@ -156,7 +284,22 @@ namespace Base
         else
         {
             logger.assert(isInternal_, "cannot find the right element for a boundary face");
-            return basisFunctionUnitNormal(i + nLeftBasisFunctions);
+            return basisFunctionUnitNormal(i + nLeftBasisFunctions[0]);
+        }
+    }
+
+    template<std::size_t DIM>
+    inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionUnitNormal(Side side, std::size_t i, std::size_t unknown)
+    {
+        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        if(side == Side::LEFT)
+        {
+            return basisFunctionUnitNormal(i, unknown);
+        }
+        else
+        {
+            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            return basisFunctionUnitNormal(i + nLeftBasisFunctions[unknown], unknown);
         }
     }
 
@@ -164,7 +307,7 @@ namespace Base
     inline void PhysicalFace<DIM>::basisFunction(std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
-        if(i < nLeftBasisFunctions)
+        if(i < nLeftBasisFunctions[0])
         {
             left.basisFunction(i, result);
             return;
@@ -172,7 +315,23 @@ namespace Base
         else
         {
             logger.assert(isInternal_, "basis function index out of bounds");
-            right.basisFunction(i - nLeftBasisFunctions, result);
+            right.basisFunction(i - nLeftBasisFunctions[0], result);
+            return;
+        }
+    }
+    template<std::size_t DIM>
+    inline void PhysicalFace<DIM>::basisFunction(std::size_t i, LinearAlgebra::SmallVector<DIM>& result, std::size_t unknown)
+    {
+        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        if(i < nLeftBasisFunctions[unknown])
+        {
+            left.basisFunction(i, result, unknown);
+            return;
+        }
+        else
+        {
+            logger.assert(isInternal_, "basis function index out of bounds");
+            right.basisFunction(i - nLeftBasisFunctions[unknown], result, unknown);
             return;
         }
     }
@@ -191,19 +350,49 @@ namespace Base
             right.basisFunction(i, result);
         }
     }
+    
+    template<std::size_t DIM>
+    inline void PhysicalFace<DIM>::basisFunction(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result, std::size_t unknown)
+    {
+        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        if(side == Side::LEFT)
+        {
+            left.basisFunction(i, result, unknown);
+        }
+        else
+        {
+            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            right.basisFunction(i, result, unknown);
+        }
+    }
 
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionCurl(std::size_t i)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
-        if(i < nLeftBasisFunctions)
+        if(i < nLeftBasisFunctions[0])
         {
             return left.basisFunctionCurl(i);
         }
         else
         {
             logger.assert(isInternal_, "basis function index out of bounds");
-            return right.basisFunctionCurl(i - nLeftBasisFunctions);
+            return right.basisFunctionCurl(i - nLeftBasisFunctions[0]);
+        }
+    }
+    
+    template<std::size_t DIM>
+    inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionCurl(std::size_t i, std::size_t unknown)
+    {
+        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        if(i < nLeftBasisFunctions[unknown])
+        {
+            return left.basisFunctionCurl(i, unknown);
+        }
+        else
+        {
+            logger.assert(isInternal_, "basis function index out of bounds");
+            return right.basisFunctionCurl(i - nLeftBasisFunctions[unknown], unknown);
         }
     }
 
@@ -221,19 +410,49 @@ namespace Base
             return right.basisFunctionCurl(i);
         }
     }
+    template<std::size_t DIM>
+    inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionCurl(Side side, std::size_t i, std::size_t unknown)
+    {
+        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        if(side == Side::LEFT)
+        {
+            return left.basisFunctionCurl(i, unknown);
+        }
+        else
+        {
+            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            return right.basisFunctionCurl(i, unknown);
+        }
+    }
 
     template<std::size_t DIM>
     inline const double& PhysicalFace<DIM>::basisFunctionDiv(std::size_t i)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
-        if(i < nLeftBasisFunctions)
+        if(i < nLeftBasisFunctions[0])
         {
             return left.basisFunctionDiv(i);
         }
         else
         {
             logger.assert(isInternal_, "basis function index out of bounds");
-            return right.basisFunctionDiv(i - nLeftBasisFunctions);
+            return right.basisFunctionDiv(i - nLeftBasisFunctions[0]);
+        }
+    }
+
+    
+    template<std::size_t DIM>
+    inline const double& PhysicalFace<DIM>::basisFunctionDiv(std::size_t i, std::size_t unknown)
+    {
+        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        if(i < nLeftBasisFunctions[unknown])
+        {
+            return left.basisFunctionDiv(i, unknown);
+        }
+        else
+        {
+            logger.assert(isInternal_, "basis function index out of bounds");
+            return right.basisFunctionDiv(i - nLeftBasisFunctions[unknown], unknown);
         }
     }
 
@@ -253,33 +472,77 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    inline void PhysicalFace<DIM>::basisFunctionNormal(std::size_t i, LinearAlgebra::SmallVector<DIM>& result) //Needed for DGMax
+    inline const double& PhysicalFace<DIM>::basisFunctionDiv(Side side, std::size_t i, std::size_t unknown)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
-        if(hasVectorBasisFunctionNormal)
+        if(side == Side::LEFT)
         {
-            result = vectorBasisFunctionNormal_[i];
+            return left.basisFunctionDiv(i, unknown);
+        }
+        else
+        {
+            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            return right.basisFunctionDiv(i, unknown);
+        }
+    }
+
+    template<std::size_t DIM>
+    inline void PhysicalFace<DIM>::basisFunctionNormalCross(std::size_t i, LinearAlgebra::SmallVector<DIM>& result) //Needed for DGMax
+    {
+        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        if(hasVectorBasisFunctionNormal[0])
+        {
+            result = vectorBasisFunctionNormal_[0][i];
             return;
         }
         else
         {
-            hasVectorBasisFunctionNormal = true;
+            hasVectorBasisFunctionNormal[0] = true;
             for(std::size_t j = 0; j < face_->getNumberOfBasisFunctions(); ++j)
             {
                 basisFunction(j, result);
-                vectorBasisFunctionNormal_[j] = LinearAlgebra::SmallMatrix<DIM, DIM - 1>{{getNormalVector(), result}}.computeWedgeStuffVector();
-                if(j >= nLeftBasisFunctions)
+                vectorBasisFunctionNormal_[0][j] = LinearAlgebra::SmallMatrix<DIM, DIM - 1>{{getNormalVector(), result}}.computeWedgeStuffVector();
+                if(j >= nLeftBasisFunctions[0])
                 {
-                    vectorBasisFunctionNormal_[j] *= -1.;
+                    vectorBasisFunctionNormal_[0][j] *= -1.;
                 }
             }
-            result = vectorBasisFunctionNormal_[i];
+            result = vectorBasisFunctionNormal_[0][i];
             return;
         }
     }
 
     template<std::size_t DIM>
-    inline void PhysicalFace<DIM>::basisFunctionNormal(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
+    inline void PhysicalFace<DIM>::basisFunctionNormalCross(std::size_t i, LinearAlgebra::SmallVector<DIM>& result, std::size_t unknown) //Needed for DGMax
+    {
+        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+       
+        logger.assert(unknown < face_->getPtrElementLeft()->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
+        if(hasVectorBasisFunctionNormal[unknown])
+        {
+            result = vectorBasisFunctionNormal_[unknown][i];
+            return;
+        }
+        else
+        {
+            hasVectorBasisFunctionNormal[unknown] = true;
+            
+            for(std::size_t j = 0; j < face_->getNumberOfBasisFunctions(unknown); ++j)
+            {
+                basisFunction(j, result, unknown);
+                vectorBasisFunctionNormal_[unknown][j] = LinearAlgebra::SmallMatrix<DIM, DIM - 1>{{getNormalVector(), result}}.computeWedgeStuffVector();
+                if(j >= nLeftBasisFunctions[unknown])
+                {
+                    vectorBasisFunctionNormal_[unknown][j] *= -1.;
+                }
+            }
+            result = vectorBasisFunctionNormal_[unknown][i];
+            return;
+        }
+    }
+
+    template<std::size_t DIM>
+    inline void PhysicalFace<DIM>::basisFunctionNormalCross(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
@@ -289,39 +552,107 @@ namespace Base
         else
         {
             logger.assert(isInternal_, "cannot find the right element for a boundary face");
-            return basisFunctionNormal(i + nLeftBasisFunctions, result);
+            return basisFunctionNormal(i + nLeftBasisFunctions[0], result);
+        }
+    }
+
+    
+    template<std::size_t DIM>
+    inline void PhysicalFace<DIM>::basisFunctionNormalCross(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result, std::size_t unknown)
+    {
+        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        if(side == Side::LEFT)
+        {
+            return basisFunctionNormal(i, result, unknown);
+        }
+        else
+        {
+            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            return basisFunctionNormal(i + nLeftBasisFunctions[unknown], result, unknown);
         }
     }
 
     template<std::size_t DIM>
-    inline void PhysicalFace<DIM>::basisFunctionUnitNormal(std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
+    inline void PhysicalFace<DIM>::basisFunctionUnitNormalCross(std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
-        if(hasVectorBasisFunctionUnitNormal)
+        if(hasVectorBasisFunctionUnitNormal[0])
         {
-            result = vectorBasisFunctionUnitNormal_[i];
+            result = vectorBasisFunctionUnitNormal_[0][i];
             return;
         }
         else
         {
-            hasVectorBasisFunctionUnitNormal = true;
+            hasVectorBasisFunctionUnitNormal[0] = true;
             for(std::size_t j = 0; j < face_->getNumberOfBasisFunctions(); ++j)
             {
                 basisFunction(j, result);
-                vectorBasisFunctionUnitNormal_[j] = LinearAlgebra::SmallMatrix<DIM, DIM - 1>{{getUnitNormalVector(), result}}.computeWedgeStuffVector();
-                if(j >= nLeftBasisFunctions)
+                switch (DIM)
                 {
-                    vectorBasisFunctionUnitNormal_[j] *= -1.; //current
-
+                  case 2 :
+                    {
+                        LinearAlgebra::SmallVector<DIM> tangentialUnitVector;
+                        tangentialUnitVector = LinearAlgebra::SmallMatrix<DIM, DIM - 1>{{getUnitNormalVector()}}.computeWedgeStuffVector();
+                        vectorBasisFunctionUnitNormal_[0][j][0] = tangentialUnitVector * result;
+                        vectorBasisFunctionUnitNormal_[0][j][1] = 0.0;
+                    }
+                    break;
+                  default :
+                    vectorBasisFunctionUnitNormal_[0][j] = LinearAlgebra::SmallMatrix<DIM, DIM - 1>{{getUnitNormalVector(), result}}.computeWedgeStuffVector();
+                }
+                if(j >= nLeftBasisFunctions[0])
+                {
+                    vectorBasisFunctionUnitNormal_[0][j] *= -1.; //current
+                    
                 }
             }
-            result = vectorBasisFunctionUnitNormal_[i];
+            result = vectorBasisFunctionUnitNormal_[0][i];
             return;
         }
     }
 
     template<std::size_t DIM>
-    inline void PhysicalFace<DIM>::basisFunctionUnitNormal(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
+    inline void PhysicalFace<DIM>::basisFunctionUnitNormalCross(std::size_t i, LinearAlgebra::SmallVector<DIM>& result, std::size_t unknown)
+    {
+        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert(unknown < face_->getPtrElementLeft()->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
+        if(hasVectorBasisFunctionUnitNormal[unknown])
+        {
+            result = vectorBasisFunctionUnitNormal_[unknown][i];
+            return;
+        }
+        else
+        {
+            hasVectorBasisFunctionUnitNormal[unknown] = true;
+            for(std::size_t j = 0; j < face_->getNumberOfBasisFunctions(unknown); ++j)
+            {
+                basisFunction(j, result, unknown);
+                switch (DIM)
+                {
+                  case 2 :
+                    {
+                        LinearAlgebra::SmallVector<DIM> tangentialUnitVector;
+                        tangentialUnitVector = LinearAlgebra::SmallMatrix<DIM, DIM - 1>{{getUnitNormalVector()}}.computeWedgeStuffVector();
+                        vectorBasisFunctionUnitNormal_[unknown][j][0] = tangentialUnitVector * result;
+                        vectorBasisFunctionUnitNormal_[unknown][j][1] = 0.0;
+                        break;
+                    }
+                  default :
+                    vectorBasisFunctionUnitNormal_[unknown][j] = LinearAlgebra::SmallMatrix<DIM, DIM - 1>{{getUnitNormalVector(), result}}.computeWedgeStuffVector();
+                }
+                if(j >= nLeftBasisFunctions[unknown])
+                {
+                    vectorBasisFunctionUnitNormal_[unknown][j] *= -1.; //current
+                    
+                }
+            }
+            result = vectorBasisFunctionUnitNormal_[unknown][i];
+            return;
+        }
+    }
+
+    template<std::size_t DIM>
+    inline void PhysicalFace<DIM>::basisFunctionUnitNormalCross(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
     {
         logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
@@ -331,7 +662,21 @@ namespace Base
         else
         {
             logger.assert(isInternal_, "cannot find the right element for a boundary face");
-            return basisFunctionUnitNormal(i + nLeftBasisFunctions, result);
+            return basisFunctionUnitNormal(i + nLeftBasisFunctions[0], result);
+        }
+    }
+    template<std::size_t DIM>
+    inline void PhysicalFace<DIM>::basisFunctionUnitNormalCross(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result, std::size_t unknown)
+    {
+        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        if(side == Side::LEFT)
+        {
+            return basisFunctionUnitNormal(i, result, unknown);
+        }
+        else
+        {
+            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            return basisFunctionUnitNormal(i + nLeftBasisFunctions[unknown], result, unknown);
         }
     }
 
@@ -582,7 +927,15 @@ namespace Base
     template<std::size_t DIM>
     inline const CoordinateTransformation<DIM>* PhysicalFace<DIM>::getTransform()
     {
-        return transform_.get();
+        for(std::size_t i = 1; i < transform_.size(); ++i)
+            logger.assert(transform_[0] == transform_[i], "Different unknowns have different coordinate transformation, call getTransformation for a given unknown");
+        return transform_[0].get();
+    }
+    
+    template<std::size_t DIM>
+    inline const CoordinateTransformation<DIM>* PhysicalFace<DIM>::getTransform(std::size_t unknown)
+    {
+        return transform_[unknown].get();
     }
 
     template<std::size_t DIM>
@@ -599,10 +952,11 @@ namespace Base
             }
         }
         //even if they are already computed, the information is now out of date
-        hasBasisFunctionNormal = false;
-        hasBasisFunctionUnitNormal = false;
-        hasVectorBasisFunctionNormal = false;
-        hasVectorBasisFunctionUnitNormal = false;
+        std::size_t unknowns = face_->getPtrElementLeft()->getNumberOfUnknowns();
+        hasBasisFunctionNormal.assign(unknowns, false);
+        hasBasisFunctionUnitNormal.assign(unknowns, false);
+        hasVectorBasisFunctionNormal.assign(unknowns, false);
+        hasVectorBasisFunctionUnitNormal.assign(unknowns, false);
         hasSolutionNormal = false;
         hasSolutionUnitNormal = false;
         hasVectorSolutionNormal = false;
@@ -636,25 +990,42 @@ namespace Base
     inline void PhysicalFace<DIM>::setFace(const Face* face)
     {
         logger.assert(isInternal_ == face->isInternal(), "This face is not supported by this physical face");
-        if(!hasFace || face_->getNumberOfBasisFunctions() != face->getNumberOfBasisFunctions())
+        std::size_t numberOfUnknowns = face->getPtrElementLeft()->getNumberOfUnknowns();
+        if(!hasFace)
         {
-            std::size_t leftCoefficients = face->getPtrElementLeft()->getNumberOfUnknowns() * face->getPtrElementLeft()->getNumberOfBasisFunctions();
-            nLeftBasisFunctions = face->getPtrElementLeft()->getNumberOfBasisFunctions();
-            std::size_t rightCoefficients = 0;
-            std::size_t basisFunctions = face->getPtrElementLeft()->getNumberOfBasisFunctions();
+            std::size_t leftCoefficients = face->getPtrElementLeft()->getTotalNumberOfBasisFunctions();
+            nLeftBasisFunctions.resize(numberOfUnknowns);
+            basisFunctionNormal_.resize(numberOfUnknowns);
+            vectorBasisFunctionNormal_.resize(numberOfUnknowns);
+            basisFunctionUnitNormal_.resize(numberOfUnknowns);
+            vectorBasisFunctionUnitNormal_.resize(numberOfUnknowns);
+            std::size_t rightCoefficients = 0;            
+            for(std::size_t i = 0; i < numberOfUnknowns; ++i)
+            {
+                std::size_t numBasis = face->getPtrElementLeft()->getNumberOfBasisFunctions(i);
+                basisFunctionNormal_[i].resize(numBasis);
+                vectorBasisFunctionNormal_[i].resize(numBasis);
+                basisFunctionUnitNormal_[i].resize(numBasis);
+                vectorBasisFunctionUnitNormal_[i].resize(numBasis);
+                nLeftBasisFunctions[i] = numBasis;
+            }
             if(isInternal_)
             {
-                basisFunctions += face->getPtrElementRight()->getNumberOfBasisFunctions();
-                rightCoefficients = face->getPtrElementRight()->getNumberOfUnknowns() * face->getPtrElementRight()->getNumberOfBasisFunctions();
+                rightCoefficients = face->getPtrElementRight()->getTotalNumberOfBasisFunctions();
+                // We assume that in the left and right element the number of unknowns is equal.
+                for(std::size_t i = 0; i < face->getPtrElementRight()->getNumberOfUnknowns(); ++i)
+                {
+                    std::size_t numBasis = face->getPtrElementLeft()->getNumberOfBasisFunctions(i) + face->getPtrElementRight()->getNumberOfBasisFunctions(i);
+                    basisFunctionNormal_[i].resize(numBasis);
+                    vectorBasisFunctionNormal_[i].resize(numBasis);
+                    basisFunctionUnitNormal_[i].resize(numBasis);
+                    vectorBasisFunctionUnitNormal_[i].resize(numBasis);
+                }
             }
             resultMatrix.resize(leftCoefficients, rightCoefficients);
             leftRightMatrix.resize(leftCoefficients, rightCoefficients);
             rightLeftMatrix.resize(rightCoefficients, leftCoefficients);
             resultVector.resize(leftCoefficients + rightCoefficients);
-            basisFunctionNormal_.resize(basisFunctions);
-            vectorBasisFunctionNormal_.resize(basisFunctions);
-            basisFunctionUnitNormal_.resize(basisFunctions);
-            vectorBasisFunctionUnitNormal_.resize(basisFunctions);
         }
         face_ = face;
         hasFace = true;
@@ -672,10 +1043,10 @@ namespace Base
             }
         }
         //even if they are already computed, the information is now out of date
-        hasBasisFunctionNormal = false;
-        hasBasisFunctionUnitNormal = false;
-        hasVectorBasisFunctionNormal = false;
-        hasVectorBasisFunctionUnitNormal = false;
+        hasBasisFunctionNormal.assign(numberOfUnknowns, false);
+        hasBasisFunctionUnitNormal.assign(numberOfUnknowns, false);
+        hasVectorBasisFunctionNormal.assign(numberOfUnknowns, false);
+        hasVectorBasisFunctionUnitNormal.assign(numberOfUnknowns, false);
         hasSolutionNormal = false;
         hasSolutionUnitNormal = false;
         hasVectorSolutionNormal = false;
@@ -705,24 +1076,32 @@ namespace Base
         hasFaceVector = true;
     }
 
+    
     template<std::size_t DIM>
-    inline void PhysicalFace<DIM>::setTransform(std::shared_ptr<Base::CoordinateTransformation<DIM>>& transform)
+    inline void PhysicalFace<DIM>::setTransform(std::shared_ptr<Base::CoordinateTransformation<DIM>>& transform, std::size_t unknown)
     {
-        transform_ = transform;
-        left.setTransformation(transform);
-        if(isInternal_)
+        if (transform_.size() <= unknown)
         {
-            right.setTransformation(transform);
+            // We should not need to resize when we know the exact number of unknowns.
+            logger.assert(!hasFace, "Resizing with a face");
+            transform_.resize(unknown + 1);
         }
-        //even if they are already computed, the information is now out of date
-        hasBasisFunctionNormal = false;
-        hasBasisFunctionUnitNormal = false;
-        hasVectorBasisFunctionNormal = false;
-        hasVectorBasisFunctionUnitNormal = false;
+        transform_[unknown] = transform;
+        left.setTransformation(transform, unknown);
+        if (isInternal_)
+        {
+            right.setTransformation(transform, unknown);
+        }
+
+        hasBasisFunctionNormal.assign(hasBasisFunctionNormal.size(), false);
+        hasBasisFunctionUnitNormal.assign(hasBasisFunctionUnitNormal.size(), false);
+        hasVectorBasisFunctionNormal.assign(hasVectorBasisFunctionNormal.size(), false);
+        hasVectorBasisFunctionUnitNormal.assign(hasVectorBasisFunctionUnitNormal.size(), false);
         hasSolutionNormal = false;
         hasSolutionUnitNormal = false;
         hasVectorSolutionNormal = false;
         hasVectorSolutionUnitNormal = false;
+        
         if(!hasFaceMatrix)
         {
             resultMatrix *= 0;

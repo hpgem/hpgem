@@ -49,46 +49,69 @@ namespace Utilities
     void GlobalMatrix::getMatrixBCEntries(const Base::Face* face, std::size_t& numberOfEntries, std::vector<int>& entries)
     {
         logger.assert(face!=nullptr, "Invalid face passed");
-        for(std::size_t index = 0; index < face->getPtrElementLeft()->getNumberOfUnknowns(); ++index)
+        // Face basis functions
+        std::size_t nFaceBasisLocal = face->getTotalLocalNumberOfBasisFunctions();
+        std::size_t nUnknowns = face->getPtrElementLeft()->getNumberOfUnknowns();
+        for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
         {
-            std::size_t number = face->getLocalNumberOfBasisFunctions();
-            numberOfEntries += number;
-            for (std::size_t i = 0; i < number; ++i)
+            std::size_t nBasis = face->getLocalNumberOfBasisFunctions(unknown);
+            int elementBasis0 = indexing_.getGlobalIndex(face, unknown);
+            for (std::size_t basisId = 0; basisId < nBasis; ++basisId)
             {
-                entries.push_back(startPositionsOfFacesInTheMatrix_[face->getID()] + i + index * number);
+                entries.push_back(elementBasis0 + basisId);
             }
-            std::vector<std::size_t> nodeEntries = face->getPtrElementLeft()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberLeft());
-            std::vector<std::size_t> edgeIndex(2);
-            for (std::size_t i = 0; i < face->getPtrElementLeft()->getNumberOfEdges(); ++i)
+            numberOfEntries += nBasis;
+        }
+        // Edges around the face
+
+        std::vector<std::size_t> nodeEntries = face->getPtrElementLeft()->getPhysicalGeometry()->getGlobalFaceNodeIndices(face->localFaceNumberLeft());
+        std::vector<std::size_t> edgeIndex(2);
+        for (std::size_t i = 0; i < face->getPtrElementLeft()->getNumberOfEdges(); ++i)
+        {
+            edgeIndex = face->getPtrElementLeft()->getReferenceGeometry()->getCodim2EntityLocalIndices(i);
+            edgeIndex[0] = face->getPtrElementLeft()->getPhysicalGeometry()->getNodeIndex(edgeIndex[0]);
+            edgeIndex[1] = face->getPtrElementLeft()->getPhysicalGeometry()->getNodeIndex(edgeIndex[1]);
+            bool firstFound(false), secondFound(false);
+            for (std::size_t j = 0; j < nodeEntries.size(); ++j)
             {
-                edgeIndex = face->getPtrElementLeft()->getReferenceGeometry()->getCodim2EntityLocalIndices(i);
-                edgeIndex[0] = face->getPtrElementLeft()->getPhysicalGeometry()->getNodeIndex(edgeIndex[0]);
-                edgeIndex[1] = face->getPtrElementLeft()->getPhysicalGeometry()->getNodeIndex(edgeIndex[1]);
-                bool firstFound(false), secondFound(false);
-                for (std::size_t j = 0; j < nodeEntries.size(); ++j)
+                if (nodeEntries[j] == edgeIndex[0])
+                    firstFound = true;
+                if (nodeEntries[j] == edgeIndex[1])
+                    secondFound = true;
+            }
+            if (firstFound && secondFound)
+            {
+                const Base::Edge* edge = face->getPtrElementLeft()->getEdge(i);
+                for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
                 {
-                    if (nodeEntries[j] == edgeIndex[0])
-                        firstFound = true;
-                    if (nodeEntries[j] == edgeIndex[1])
-                        secondFound = true;
-                }
-                if (firstFound && secondFound)
-                {
-                    number = face->getPtrElementLeft()->getEdge(i)->getLocalNumberOfBasisFunctions();
-                    numberOfEntries += number;
-                    for (std::size_t j = 0; j < number; ++j)
+                    std::size_t nEdgeBasis = edge->getLocalNumberOfBasisFunctions(unknown);
+                    int edgeBasis0 = indexing_.getGlobalIndex(edge, unknown);
+                    for (std::size_t basisId = 0; basisId < nEdgeBasis; ++basisId)
                     {
-                        entries.push_back(startPositionsOfEdgesInTheMatrix_[face->getPtrElementLeft()->getEdge(i)->getID()] + j + index * number);
+                        entries.push_back(edgeBasis0 + basisId);
                     }
+                    numberOfEntries += nEdgeBasis;
                 }
             }
-            nodeEntries = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(face->localFaceNumberLeft());
+        }
+        // Nodes around the face
+        if (theMesh_->dimension() > 1)
+        {
+            nodeEntries = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(
+                    face->localFaceNumberLeft());
             for (std::size_t i : nodeEntries)
             {
-                number = face->getPtrElementLeft()->getNode(i)->getLocalNumberOfBasisFunctions();
-                numberOfEntries += number;
-                for (std::size_t j = 0; j < number; ++j)
-                    entries.push_back(startPositionsOfNodesInTheMatrix_[face->getPtrElementLeft()->getNode(i)->getID()] + j + index * number);
+                const Base::Node *node = face->getPtrElementLeft()->getNode(i);
+                for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
+                {
+                    std::size_t nNodeBasis = node->getLocalNumberOfBasisFunctions(unknown);
+                    int nodeBasis0 = indexing_.getGlobalIndex(node, unknown);
+                    for (std::size_t basisId = 0; basisId < nNodeBasis; ++basisId)
+                    {
+                        entries.push_back(nodeBasis0 + basisId);
+                    }
+                    numberOfEntries += nNodeBasis;
+                }
             }
         }
     }
@@ -127,61 +150,6 @@ namespace Utilities
         return A_;
     }
     
-    std::vector<PetscInt> GlobalPetscMatrix::makePositionsInMatrix(const Base::Element* element)
-    {
-        logger.assert(element!=nullptr, "Invalid element passed");
-        //we need storage for the amount of basis functions to return
-        std::vector<PetscInt> positions(element->getNumberOfBasisFunctions() * element->getNumberOfUnknowns());
-        
-        auto pos = positions.begin();
-        for(std::size_t index = 0; index < element->getNumberOfUnknowns(); ++index)
-        {
-            std::size_t numberOfElementBasisFunctions = element->getLocalNumberOfBasisFunctions();
-            //First step: construct ids for the functions of the current element itself
-            for (std::size_t i = 0; i < numberOfElementBasisFunctions; ++i)
-            {
-                *pos = i + startPositionsOfElementsInTheMatrix_[element->getID()] + index * numberOfElementBasisFunctions;
-                pos++;
-            }
-
-            //Push forward our iterator
-            std::size_t numberOfFaces = element->getPhysicalGeometry()->getNumberOfFaces();
-            for (std::size_t i = 0; i < numberOfFaces; ++i)
-            {
-                std::size_t numberOfFaceBasisFunctions = element->getFace(i)->getLocalNumberOfBasisFunctions();
-                for (std::size_t j = 0; j < numberOfFaceBasisFunctions; ++j)
-                {
-                    *pos = j + startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()] + index * numberOfFaceBasisFunctions;
-                    pos++;
-                }
-            }
-
-            std::size_t numberOfEdges = element->getNumberOfEdges();
-            for (std::size_t i = 0; i < numberOfEdges; ++i)
-            {
-                std::size_t numberOfEdgeBasisFunctions = element->getEdge(i)->getLocalNumberOfBasisFunctions();
-                for (std::size_t j = 0; j < numberOfEdgeBasisFunctions; ++j)
-                {
-                    *pos = j + startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()] + index * numberOfEdgeBasisFunctions;
-                    pos++;
-                }
-            }
-
-            std::size_t numberOfNodes = element->getNumberOfNodes();
-            for (std::size_t i = 0; i < numberOfNodes; ++i)
-            {
-                std::size_t numberOfNodeBasisFunctions = element->getNode(i)->getLocalNumberOfBasisFunctions();
-                for (std::size_t j = 0; j < numberOfNodeBasisFunctions; ++j)
-                {
-                    *pos = j + startPositionsOfNodesInTheMatrix_[element->getNode(i)->getID()] + index * numberOfNodeBasisFunctions;
-                    pos++;
-                }
-            }
-        }
-        logger.assert(pos == positions.end(), "Not all positions are processed.");
-        return positions;
-    }
-    
     void GlobalPetscMatrix::reset()
     {
         int ierr = MatZeroEntries(A_);
@@ -191,12 +159,13 @@ namespace Utilities
         
         if (elementMatrixID_ >= 0)
         {
+            std::vector<PetscInt> localToGlobal;
             for (Base::Element* element : theMesh_->getElementsList())
             {
-                std::vector<PetscInt> positions = makePositionsInMatrix(element);
+                indexing_.getGlobalIndices(element, localToGlobal);
                 elementMatrix = element->getElementMatrix(elementMatrixID_);
                 logger(DEBUG, "%", elementMatrix * 24.);
-                ierr = MatSetValues(A_, positions.size(), positions.data(), positions.size(), positions.data(), elementMatrix.data(), ADD_VALUES);
+                ierr = MatSetValues(A_, localToGlobal.size(), localToGlobal.data(), localToGlobal.size(), localToGlobal.data(), elementMatrix.data(), ADD_VALUES);
                 CHKERRV(ierr);
             }
         }
@@ -205,18 +174,10 @@ namespace Utilities
         
         if (faceMatrixID_ >= 0)
         {
+            std::vector<PetscInt> localToGlobal;
             for (Base::Face* face : theMesh_->getFacesList())
             {
-                std::vector<PetscInt> positions = makePositionsInMatrix(face->getPtrElementLeft());
-                if (face->isInternal())
-                {
-                    std::vector<PetscInt> rightPositions = makePositionsInMatrix(face->getPtrElementRight());
-                    positions.reserve(positions.size() + rightPositions.size());
-                    for (auto& a : rightPositions)
-                    {
-                        positions.push_back(a);
-                    }
-                }
+                indexing_.getGlobalIndices(face, localToGlobal);
                 faceMatrix = face->getFaceMatrixMatrix(faceMatrixID_);
                 logger(DEBUG, "%", faceMatrix * 24.);
                 //work-around: both subdomains have the boundary face so by default it is added twice, but it should only be added once
@@ -224,7 +185,7 @@ namespace Utilities
                 {
                     //faceMatrix *= 0.5;
                 }
-                ierr = MatSetValues(A_, positions.size(), positions.data(), positions.size(), positions.data(), faceMatrix.data(), ADD_VALUES);
+                ierr = MatSetValues(A_, localToGlobal.size(), localToGlobal.data(), localToGlobal.size(), localToGlobal.data(), faceMatrix.data(), ADD_VALUES);
                 CHKERRV(ierr);
             }
         }
@@ -239,174 +200,77 @@ namespace Utilities
     //debug note: GlobalPetscVector 'independently' chooses an ordering for the degrees of freedom, but hpGEM assumes both orderings to be the same
     void GlobalPetscMatrix::reAssemble()
     {
-        MatDestroy(&A_);
-        std::size_t totalNumberOfDOF(0), DIM(theMesh_->dimension());
-        for (Base::Element* element : theMesh_->getElementsList())
-        {
-            //for MPI simulations this is local numbering initially
-            //we do some communicating and renumbering later in the function
-            startPositionsOfElementsInTheMatrix_[element->getID()] = totalNumberOfDOF;
-            totalNumberOfDOF += element->getLocalNumberOfBasisFunctions() * element->getNumberOfUnknowns();
-            for (Base::Face* face : element->getFacesList())
-            {
-                if (face->getPtrElementLeft() == element)
-                {
-                    startPositionsOfFacesInTheMatrix_[face->getID()] = totalNumberOfDOF;
-                    totalNumberOfDOF += face->getLocalNumberOfBasisFunctions() * element->getNumberOfUnknowns();
-                }
-                
-            }
-            for (Base::Edge* edge : element->getEdgesList())
-            {
-                if(edge->getElement(0) == element) {
-                    startPositionsOfEdgesInTheMatrix_[edge->getID()] = totalNumberOfDOF;
-                    totalNumberOfDOF += edge->getLocalNumberOfBasisFunctions() * element->getNumberOfUnknowns();
-                }
-            }
-            //when DIM == 1 faces and nodes are the same entities, skip one of them
-            if (DIM > 1)
-            {
-                for (Base::Node* node : element->getNodesList())
-                {
-                    if(node->getElement(0) == element){
-                        startPositionsOfNodesInTheMatrix_[node->getID()] = totalNumberOfDOF;
-                        totalNumberOfDOF += node->getLocalNumberOfBasisFunctions() * element->getNumberOfUnknowns();
-                    }
-                }
-            }
-        }
-        
-#ifdef HPGEM_USE_MPI
-        auto& MPIInstance = Base::MPIContainer::Instance();
-        auto comm = MPIInstance.getComm();
-        std::size_t n = MPIInstance.getNumberOfProcessors();
-        std::size_t rank = MPIInstance.getProcessorID();
+        PetscErrorCode  ierr = MatDestroy(&A_);
+        CHKERRV(ierr);
 
-        //offset by one to insert a zero at the front
-        std::vector<std::size_t> cumulativeDOF(n + 1);
-        cumulativeDOF[rank+1]=totalNumberOfDOF;
+        indexing_.reset(theMesh_, GlobalIndexing::BLOCKED_PROCESSOR);
 
-        //communicate...
-        comm.Allgather(MPI_IN_PLACE,0,Base::Detail::toMPIType(n),cumulativeDOF.data()+1,1,Base::Detail::toMPIType(n));
+        const std::size_t totalNumberOfDOF = indexing_.getNumberOfLocalBasisFunctions();
+        const std::size_t nUnknowns = indexing_.getNumberOfUnknowns();
 
-        std::partial_sum(cumulativeDOF.begin(),cumulativeDOF.end(),cumulativeDOF.begin());
-
-        std::size_t MPIOffset = cumulativeDOF[rank];
-        std::size_t end = cumulativeDOF[n] + 1;
-
-        for(auto element : theMesh_->getElementsList()) {
-            startPositionsOfElementsInTheMatrix_[element->getID()] += MPIOffset;
-            for(auto face : element->getFacesList()) {
-                if(face->getPtrElementLeft() == element) {
-                    startPositionsOfFacesInTheMatrix_[face->getID()] += MPIOffset;
-                }
-            }
-            for(auto edge : element->getEdgesList()) {
-                if(edge->getElement(0) == element) {
-                    startPositionsOfEdgesInTheMatrix_[edge->getID()] += MPIOffset;
-                }
-            }
-            if(DIM > 1) {
-                for(auto node : element->getNodesList()) {
-                    if(node->getElement(0) == element) {
-                        startPositionsOfNodesInTheMatrix_[node->getID()] += MPIOffset;
-                    }
-                }
-            }
-        }
-
-        for(auto entry : theMesh_->getPullElements()) {
-            int sourceProcessor = entry.first;
-            for(Base::Element* element : entry.second) {
-                //the id's of elements, faces edges and nodes are interleaved so all information can be communicated simulateously without tag collisions
-                MPIInstance.receive(startPositionsOfElementsInTheMatrix_[element->getID()], sourceProcessor, 4 * element->getID());
-                for(auto face : element->getFacesList()) {
-                    if(startPositionsOfFacesInTheMatrix_.count(face->getID()) == 0) {
-                        MPIInstance.receive(startPositionsOfFacesInTheMatrix_[face->getID()], sourceProcessor, 4 * face->getID() + 1);
-                    }
-                }
-                for(auto edge : element->getEdgesList()) {
-                    if(startPositionsOfEdgesInTheMatrix_.count(edge->getID()) == 0) {
-                        MPIInstance.receive(startPositionsOfEdgesInTheMatrix_[edge->getID()], sourceProcessor, 4 * edge->getID() + 2);
-                    }
-                }
-                if(DIM > 1) {
-                    for(auto node : element->getNodesList()) {
-                        if(startPositionsOfNodesInTheMatrix_.count(node->getID()) == 0) {
-                            MPIInstance.receive(startPositionsOfNodesInTheMatrix_[node->getID()], sourceProcessor, 4 * node->getID() + 3);
-                        }
-                    }
-                }
-            }
-        }
-        for(auto entry : theMesh_->getPushElements()) {
-            int targetProcessor = entry.first;
-            for(Base::Element* element : entry.second) {
-                //the id's of elements, faces edges and nodes are interleaved so all information can be communicated simulateously without tag collisions
-                MPIInstance.send(startPositionsOfElementsInTheMatrix_[element->getID()], targetProcessor, 4 * element->getID());
-                for(auto face : element->getFacesList()) {
-                    if(startPositionsOfFacesInTheMatrix_.count(face->getID()) == 1) {
-                        MPIInstance.send(startPositionsOfFacesInTheMatrix_[face->getID()], targetProcessor, 4 * face->getID() + 1);
-                    }
-                }
-                for(auto edge : element->getEdgesList()) {
-                    if(startPositionsOfEdgesInTheMatrix_.count(edge->getID()) == 1) {
-                        MPIInstance.send(startPositionsOfEdgesInTheMatrix_[edge->getID()], targetProcessor, 4 * edge->getID() + 2);
-                    }
-                }
-                if(DIM > 1) {
-                    for(auto node : element->getNodesList()) {
-                        if(startPositionsOfNodesInTheMatrix_.count(node->getID()) == 1) {
-                            MPIInstance.send(startPositionsOfNodesInTheMatrix_[node->getID()], targetProcessor, 4 * node->getID() + 3);
-                        }
-                    }
-                }
-            }
-        }
-        MPIInstance.sync();
-#else
-        std::size_t MPIOffset = 0;
-        std::size_t end = totalNumberOfDOF + 1;
-#endif
-        
         //now construct the only bit of data where PETSc expects a local numbering...
         std::vector<PetscInt> numberOfPositionsPerRow(totalNumberOfDOF, 0);
         std::vector<PetscInt> offDiagonalPositionsPerRow(totalNumberOfDOF, 0);
         
         for (Base::Element* element : theMesh_->getElementsList())
         {
-            for (int j = 0; j < element->getLocalNumberOfBasisFunctions() * element->getNumberOfUnknowns(); ++j)
+            std::size_t nElementBasisTotal = element->getTotalNumberOfBasisFunctions();
+
+            for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
             {
-                numberOfPositionsPerRow[startPositionsOfElementsInTheMatrix_[element->getID()] + j - MPIOffset] += element->getNumberOfBasisFunctions() * element->getNumberOfUnknowns();
+                // Note, we assume here that the basis functions for a single
+                // unknown are laid out consecutively.
+                std::size_t localIndex0 = indexing_.getProcessorLocalIndex(element, unknown);
+                for (std::size_t basisId = 0; basisId < element->getLocalNumberOfBasisFunctions(unknown); ++basisId)
+                {
+                    numberOfPositionsPerRow[localIndex0 + basisId] += nElementBasisTotal;
+                }
             }
+
             for (int i = 0; i < element->getReferenceGeometry()->getNumberOfCodim1Entities(); ++i)
             {
                 //conforming contributions
-                for (int j = 0; j < element->getFace(i)->getLocalNumberOfBasisFunctions() * element->getNumberOfUnknowns(); ++j)
+                for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
                 {
-                    if(startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()] + j < totalNumberOfDOF + MPIOffset && MPIOffset < startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()] + j + 1)
+                    // Note, we assume here that the basis functions for a single
+                    // unknown are laid out consecutively.
+                    const Base::Face* face = element->getFace(i);
+                    std::size_t localIndex0 = indexing_.getProcessorLocalIndex(face, unknown);
+                    for (std::size_t basisId = 0; basisId < face->getLocalNumberOfBasisFunctions(unknown); ++basisId)
                     {
-                        numberOfPositionsPerRow[startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()] + j - MPIOffset] += element->getNumberOfBasisFunctions() * element->getNumberOfUnknowns();
+                        numberOfPositionsPerRow[localIndex0 + basisId] += nElementBasisTotal;
                     }
                 }
             }
             for (int i = 0; i < element->getNumberOfEdges(); ++i)
             {
-                for (int j = 0; j < element->getEdge(i)->getLocalNumberOfBasisFunctions() * element->getNumberOfUnknowns(); ++j)
+                for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
                 {
-                    if(startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()] + j < totalNumberOfDOF + MPIOffset && MPIOffset < startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()] + j + 1)
+                    // Note, we assume here that the basis functions for a single
+                    // unknown are laid out consecutively.
+                    const Base::Edge* edge = element->getEdge(i);
+                    int localIndex0 = indexing_.getProcessorLocalIndex(edge, unknown);
+                    for (std::size_t basisId = 0; basisId < edge->getLocalNumberOfBasisFunctions(unknown); ++basisId)
                     {
-                        numberOfPositionsPerRow[startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()] + j - MPIOffset] += element->getNumberOfBasisFunctions() * element->getNumberOfUnknowns();
+                        numberOfPositionsPerRow[localIndex0 + basisId] += nElementBasisTotal;
                     }
                 }
             }
-            for (int i = 0; i < element->getNumberOfNodes(); ++i)
+            if (theMesh_->dimension() > 1)
             {
-                for (int j = 0; j < element->getNode(i)->getLocalNumberOfBasisFunctions() * element->getNumberOfUnknowns(); ++j)
+                for (int i = 0; i < element->getNumberOfNodes(); ++i)
                 {
-                    if(startPositionsOfNodesInTheMatrix_[element->getNode(i)->getID()] + j < totalNumberOfDOF + MPIOffset && MPIOffset < startPositionsOfNodesInTheMatrix_[element->getNode(i)->getID()] + j + 1)
+                    for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
                     {
-                        numberOfPositionsPerRow[startPositionsOfNodesInTheMatrix_[element->getNode(i)->getID()] + j - MPIOffset] += element->getNumberOfBasisFunctions() * element->getNumberOfUnknowns();
+                        // Note, we assume here that the basis functions for a single
+                        // unknown are laid out consecutively.
+                        const Base::Node *node = element->getNode(i);
+                        int localIndex0 = indexing_.getProcessorLocalIndex(node, unknown);
+                        for (std::size_t basisId = 0;
+                             basisId < node->getLocalNumberOfBasisFunctions(unknown); ++basisId)
+                        {
+                            numberOfPositionsPerRow[localIndex0 + basisId] += nElementBasisTotal;
+                        }
                     }
                 }
             }
@@ -416,56 +280,96 @@ namespace Utilities
         {
             if(face->isInternal())
             {
-                std::vector<int>& changeVec = (face->getFaceType() == Geometry::FaceType::SUBDOMAIN_BOUNDARY || face->getFaceType() == Geometry::FaceType::PERIODIC_SUBDOMAIN_BC) ? offDiagonalPositionsPerRow : numberOfPositionsPerRow;
+                // Choose the correct vector to modify.
+                std::vector<int>& changeVec = (face->getFaceType() == Geometry::FaceType::SUBDOMAIN_BOUNDARY || face->getFaceType() == Geometry::FaceType::PERIODIC_SUBDOMAIN_BC)
+                        ? offDiagonalPositionsPerRow : numberOfPositionsPerRow;
                 std::size_t nDuplicates = 0;
                 std::vector<int> duplicates;
                 getMatrixBCEntries(face, nDuplicates, duplicates);
+
                 for(Base::Element* element : {face->getPtrElementLeft(), face->getPtrElementRight()})
                 {
-                    for (int j = 0; j < element->getLocalNumberOfBasisFunctions() * element->getNumberOfUnknowns(); ++j)
+                    std::size_t nElementBasisTotal = element->getTotalNumberOfBasisFunctions();
+                    if (indexing_.isLocallyOwned(element, 0))
                     {
-                        if(startPositionsOfElementsInTheMatrix_[element->getID()] + j < totalNumberOfDOF + MPIOffset && MPIOffset < startPositionsOfElementsInTheMatrix_[element->getID()] + j + 1)
+                        for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
                         {
-                            changeVec[startPositionsOfElementsInTheMatrix_[element->getID()] + j - MPIOffset] += element->getNumberOfBasisFunctions() * element->getNumberOfUnknowns() - nDuplicates;
+                            // Note, we assume here that the basis functions for a single
+                            // unknown are laid out consecutively.
+                            std::size_t localIndex0 = indexing_.getProcessorLocalIndex(element, unknown);
+                            for (std::size_t basisId = 0;
+                                 basisId < element->getLocalNumberOfBasisFunctions(unknown); ++basisId)
+                            {
+                                changeVec[localIndex0 + basisId] += nElementBasisTotal - nDuplicates;
+                            }
                         }
                     }
                     for (int i = 0; i < element->getReferenceGeometry()->getNumberOfCodim1Entities(); ++i)
                     {
-                        //conforming contributions
-                        for (int j = 0; j < element->getFace(i)->getLocalNumberOfBasisFunctions() * element->getNumberOfUnknowns(); ++j)
+                        const Base::Face* face = element->getFace(i);
+                        if (!indexing_.isLocallyOwned(face, 0))
                         {
-                            if(startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()] + j < totalNumberOfDOF + MPIOffset && MPIOffset < startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()] + j + 1)
+                            //conforming contributions
+                            for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
                             {
-                                changeVec[startPositionsOfFacesInTheMatrix_[element->getFace(i)->getID()] + j - MPIOffset] += element->getNumberOfBasisFunctions() * element->getNumberOfUnknowns() - nDuplicates;
+                                // Note, we assume here that the basis functions for a single
+                                // unknown are laid out consecutively.
+                                int localIndex0 = indexing_.getProcessorLocalIndex(face, unknown);
+                                for (std::size_t basisId = 0;
+                                     basisId < face->getLocalNumberOfBasisFunctions(unknown); ++basisId)
+                                {
+                                    changeVec[localIndex0 + basisId] += nElementBasisTotal - nDuplicates;
+                                }
                             }
                         }
                     }
                     for (int i = 0; i < element->getNumberOfEdges(); ++i)
                     {
-                        for (int j = 0; j < element->getEdge(i)->getLocalNumberOfBasisFunctions() * element->getNumberOfUnknowns(); ++j)
+                        const Base::Edge* edge = element->getEdge(i);
+                        if (!indexing_.isLocallyOwned(edge, 0))
                         {
-                            if(startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()] + j < totalNumberOfDOF + MPIOffset && MPIOffset < startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()] + j + 1)
+                            for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
                             {
-                                changeVec[startPositionsOfEdgesInTheMatrix_[element->getEdge(i)->getID()] + j - MPIOffset] += element->getNumberOfBasisFunctions() * element->getNumberOfUnknowns() - nDuplicates;
+                                // Note, we assume here that the basis functions for a single
+                                // unknown are laid out consecutively.
+                                int localIndex0 = indexing_.getProcessorLocalIndex(edge, unknown);
+                                for (std::size_t basisId = 0;
+                                     basisId < edge->getLocalNumberOfBasisFunctions(unknown); ++basisId)
+                                {
+                                    changeVec[localIndex0 + basisId] += nElementBasisTotal - nDuplicates;
+                                }
                             }
                         }
                     }
-                    for (int i = 0; i < element->getNumberOfNodes(); ++i)
+                    if (theMesh_->dimension() > 1)
                     {
-                        for (int j = 0; j < element->getNode(i)->getLocalNumberOfBasisFunctions() * element->getNumberOfUnknowns(); ++j)
+                        for (int i = 0; i < element->getNumberOfNodes(); ++i)
                         {
-                            if(startPositionsOfNodesInTheMatrix_[element->getNode(i)->getID()] + j < totalNumberOfDOF + MPIOffset && MPIOffset < startPositionsOfNodesInTheMatrix_[element->getNode(i)->getID()] + j + 1)
+                            const Base::Node *node = element->getNode(i);
+                            if (!indexing_.isLocallyOwned(node, 0))
                             {
-                                changeVec[startPositionsOfNodesInTheMatrix_[element->getNode(i)->getID()] + j - MPIOffset] += element->getNumberOfBasisFunctions() * element->getNumberOfUnknowns() - nDuplicates;
+                                for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
+                                {
+                                    // Note, we assume here that the basis functions for a single
+                                    // unknown are laid out consecutively.
+                                    int localIndex0 = indexing_.getProcessorLocalIndex(node, unknown);
+                                    for (std::size_t basisId = 0;
+                                         basisId < node->getLocalNumberOfBasisFunctions(unknown); ++basisId)
+                                    {
+                                        changeVec[localIndex0 + basisId] += nElementBasisTotal - nDuplicates;
+                                    }
+                                }
                             }
                         }
                     }
                 }
-                for(std::size_t i : duplicates)
+                for(int globalIndex : duplicates)
                 {
-                    if(i < totalNumberOfDOF + MPIOffset && MPIOffset < i + 1)
+                    int localIndex = indexing_.globalToProcessorLocalIndex(globalIndex);
+                    if (localIndex != -1)
                     {
-                        changeVec[i-MPIOffset] -= face->getPtrElementLeft()->getNumberOfBasisFunctions() * face->getPtrElementLeft()->getNumberOfUnknowns() - nDuplicates;
+                        changeVec[localIndex] -= face->getPtrElementLeft()->getTotalNumberOfBasisFunctions()
+                                - nDuplicates;
                     }
                 }
             }
@@ -483,7 +387,7 @@ namespace Utilities
             }
         }
         
-        int ierr = MatCreateAIJ(PETSC_COMM_WORLD, totalNumberOfDOF, totalNumberOfDOF, PETSC_DETERMINE, PETSC_DETERMINE, -1, numberOfPositionsPerRow.data(), 0, offDiagonalPositionsPerRow.data(), &A_);
+        ierr = MatCreateAIJ(PETSC_COMM_WORLD, totalNumberOfDOF, totalNumberOfDOF, PETSC_DETERMINE, PETSC_DETERMINE, -1, numberOfPositionsPerRow.data(), 0, offDiagonalPositionsPerRow.data(), &A_);
         CHKERRV(ierr);
         MatSetOption(A_, MAT_KEEP_NONZERO_PATTERN, PETSC_TRUE); //performance
         MatSetOption(A_, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE); //the estimate is known to be wrong for mixed element cases and conforming parallel cases

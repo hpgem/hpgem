@@ -13,7 +13,6 @@ add_executable( DG-Max.out
                 DG-Max.cpp
                 ElementInfos.cpp
                 kspaceData.cpp
-                BasisFunctionCollection_Curl.cpp
                 BaseExtended.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotPhysicalGeometryIterator.cpp		
 		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotDiscontinuousSolutionWriter_Impl.h		  
@@ -21,6 +20,16 @@ add_executable( DG-Max.out
 		${hpGEM_SOURCE_DIR}/kernel/Base/AssembleBasisFunctionSet.cpp
                 ${hpGEM_SOURCE_DIR}/kernel/Integration/QuadratureRules/AllGaussQuadratureRules.cpp
                 ${hpGEM_SOURCE_DIR}/kernel/Base/L2Norm.cpp
+                Algorithms/DGMaxEigenValue.cpp
+                Algorithms/DGMaxDiscretization.cpp
+                Algorithms/DGMaxTimeIntegration.cpp
+                Algorithms/DGMaxHarmonic.cpp
+                Algorithms/DivDGMaxDiscretization.cpp
+                Algorithms/DivDGMaxEigenValue.cpp
+                Algorithms/DivDGMaxHarmonic.cpp
+                ProblemTypes/Harmonic/SampleHarmonicProblems.cpp
+                ProblemTypes/Time/DummyTestProblem.cpp
+                ProblemTypes/Time/SampleTestProblems.cpp
       		)
 target_link_libraries(DG-Max.out Output ${PETSC_LIBRARIES} ${SLEPC_LIBRARIES} )
 

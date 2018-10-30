@@ -45,7 +45,7 @@ namespace Base
     public:
         
         explicit Edge(std::size_t ID)
-                : numberOfConformingDOFOnTheEdge_(0), ID_(ID)
+                : numberOfConformingDOFOnTheEdge_(std::vector<std::size_t>(0, 0)), ID_(ID)
         {
         }     
                 
@@ -57,7 +57,28 @@ namespace Base
 
         std::size_t getLocalNumberOfBasisFunctions() const
         {
-            return numberOfConformingDOFOnTheEdge_;
+            std::size_t number = numberOfConformingDOFOnTheEdge_[0];
+            for(std::size_t index : numberOfConformingDOFOnTheEdge_)
+                logger.assert(index == number, "number of basis functions is different for different unknown");
+            return numberOfConformingDOFOnTheEdge_[0];
+        }
+        
+        std::size_t getLocalNumberOfBasisFunctions(std::size_t unknown) const
+        {
+            // TODO: LC, numberOfConformingDOFOnTheNode_ might be smaller than
+            // the number of unknowns (as that is not known here). Thus we might
+            // index beyond the number of unknowns.
+            if (unknown >= numberOfConformingDOFOnTheEdge_.size())
+                return 0;
+            return numberOfConformingDOFOnTheEdge_[unknown];
+        }
+
+        std::size_t getTotalLocalNumberOfBasisFunctions() const
+        {
+            std::size_t result = 0;
+            for (auto nbasis : numberOfConformingDOFOnTheEdge_)
+                result += nbasis;
+            return result;
         }
 
         ///\deprecated Does not conform naming conventions, use getLocalNumberOfBasisFunctions instead
@@ -110,9 +131,11 @@ namespace Base
             setLocalNumberOfBasisFunctions(number);
         }
         
-        void setLocalNumberOfBasisFunctions(std::size_t number)
+        void setLocalNumberOfBasisFunctions(std::size_t number, std::size_t unknown = 0)
         {
-            numberOfConformingDOFOnTheEdge_ = number;
+            logger.assert(unknown < numberOfConformingDOFOnTheEdge_.size(),
+                    "Setting unknown % but there are only %", unknown, numberOfConformingDOFOnTheEdge_.size());
+            numberOfConformingDOFOnTheEdge_[unknown] = number;
         }
 
         void setPositionInTree(const TreeEntry<Edge*>* position) {
@@ -131,7 +154,7 @@ namespace Base
 
         const TreeEntry<Edge*>* positionInTheTree_;
 
-        std::size_t numberOfConformingDOFOnTheEdge_;
+        std::vector<std::size_t> numberOfConformingDOFOnTheEdge_;
         std::size_t ID_;
     };
 

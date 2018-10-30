@@ -75,7 +75,7 @@ namespace Base
 
         void addNodeCoordinate(Geometry::PointPhysical<DIM> node);
 
-        void addNode();
+        Node* addNode();
 
         void clear();
 

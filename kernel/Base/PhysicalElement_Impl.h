@@ -25,65 +25,133 @@ namespace Base
     inline double PhysicalElement<DIM>::basisFunction(std::size_t i)
     {
         logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
-        if (hasFunctionValue)
+        if (hasFunctionValue[0])
         {
-            return basisFunctionValue[i];
+            return basisFunctionValue[0][i];
         }
         else
         {
-            hasFunctionValue = true;
+            hasFunctionValue[0] = true;
             for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions(); ++j)
             {
                 if (hasQuadratureRule)
                 {
                     if (doesMapQuadraturePointFromFace)
                     {
-                        basisFunctionValue[j] = transform_->transform(theElement_->basisFunction(j, quadratureRule_, quadraturePointIndex_, faceToElementMap_), *this);
+                        basisFunctionValue[0][j] = transform_[0]->transform(theElement_->basisFunction(j, quadratureRule_, quadraturePointIndex_, faceToElementMap_), *this);
                     }
                     else
                     {
-                        basisFunctionValue[j] = transform_->transform(theElement_->basisFunction(j, quadratureRule_, quadraturePointIndex_), *this);
+                        basisFunctionValue[0][j] = transform_[0]->transform(theElement_->basisFunction(j, quadratureRule_, quadraturePointIndex_), *this);
                     }
                 }
                 else
                 {
-                    basisFunctionValue[j] = transform_->transform(theElement_->basisFunction(j, pointReference_), *this);
+                    basisFunctionValue[0][j] = transform_[0]->transform(theElement_->basisFunction(j, pointReference_), *this);
                 }
             }
-            return basisFunctionValue[i];
+            return basisFunctionValue[0][i];
         }
     }
-
+    
+    template<std::size_t DIM>
+    inline double PhysicalElement<DIM>::basisFunction(std::size_t i, std::size_t unknown)
+    {
+        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert(unknown < theElement_->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
+        if (hasFunctionValue[unknown])
+        {
+            return basisFunctionValue[unknown][i];
+        }
+        else
+        {
+            hasFunctionValue[unknown] = true;
+            for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions(unknown); ++j)
+            {
+                if (hasQuadratureRule)
+                {
+                    if (doesMapQuadraturePointFromFace)
+                    {
+                        basisFunctionValue[unknown][j] = transform_[unknown]->transform(theElement_->basisFunction(j, quadratureRule_, quadraturePointIndex_, faceToElementMap_, unknown), *this);
+                    }
+                    else
+                    {
+                        basisFunctionValue[unknown][j] = transform_[unknown]->transform(theElement_->basisFunction(j, quadratureRule_, quadraturePointIndex_, unknown), *this);
+                    }
+                }
+                else
+                {
+                    basisFunctionValue[unknown][j] = transform_[unknown]->transform(theElement_->basisFunction(j, pointReference_, unknown), *this);
+                }
+            }
+            return basisFunctionValue[unknown][i];
+        }
+    }
+    
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalElement<DIM>::basisFunctionDeriv(std::size_t i)
     {
         logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
-        if (hasFunctionDeriv)
+        if (hasFunctionDeriv[0])
         {
-            return basisFunctionDeriv_[i];
+            return basisFunctionDeriv_[0][i];
         }
         else
         {
-            hasFunctionDeriv = true;
+            hasFunctionDeriv[0] = true;
             for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions(); ++j)
             {
                 if (hasQuadratureRule)
                 {
                     if (doesMapQuadraturePointFromFace)
                     {
-                        basisFunctionDeriv_[j] = transform_->transformDeriv(theElement_->basisFunctionDeriv<DIM>(j, quadratureRule_, quadraturePointIndex_, faceToElementMap_), *this);
+                        basisFunctionDeriv_[0][j] = transform_[0]->transformDeriv(theElement_->basisFunctionDeriv<DIM>(j, quadratureRule_, quadraturePointIndex_, faceToElementMap_), *this);
                     }
                     else
                     {
-                        basisFunctionDeriv_[j] = transform_->transformDeriv(theElement_->basisFunctionDeriv<DIM>(j, quadratureRule_, quadraturePointIndex_), *this);
+                        basisFunctionDeriv_[0][j] = transform_[0]->transformDeriv(theElement_->basisFunctionDeriv<DIM>(j, quadratureRule_, quadraturePointIndex_), *this);
                     }
                 }
                 else
                 {
-                    basisFunctionDeriv_[j] = transform_->transformDeriv(theElement_->basisFunctionDeriv(j, pointReference_), *this);
+                    basisFunctionDeriv_[0][j] = transform_[0]->transformDeriv(theElement_->basisFunctionDeriv(j, pointReference_), *this);
                 }
             }
-            return basisFunctionDeriv_[i];
+            return basisFunctionDeriv_[0][i];
+        }
+    }
+    
+    template<std::size_t DIM>
+    inline const LinearAlgebra::SmallVector<DIM>& PhysicalElement<DIM>::basisFunctionDeriv(std::size_t i, std::size_t unknown)
+    {
+        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert(unknown < theElement_->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
+        if (hasFunctionDeriv[unknown])
+        {
+            return basisFunctionDeriv_[unknown][i];
+        }
+        else
+        {
+            hasFunctionDeriv[unknown] = true;
+            for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions(unknown); ++j)
+            {
+                if (hasQuadratureRule)
+                {
+                    if (doesMapQuadraturePointFromFace)
+                    {
+                        basisFunctionDeriv_[unknown][j] = transform_[unknown]->transformDeriv(theElement_->basisFunctionDeriv<DIM>(j, quadratureRule_, quadraturePointIndex_, faceToElementMap_, unknown), *this);
+                    }
+                    else
+                    {
+                        basisFunctionDeriv_[unknown][j] = transform_[unknown]->transformDeriv(theElement_->basisFunctionDeriv<DIM>(j, quadratureRule_, quadraturePointIndex_, unknown), *this);
+                    }
+                }
+                else
+                {
+                    basisFunctionDeriv_[unknown][j] = transform_[unknown]->transformDeriv(theElement_->basisFunctionDeriv(j, pointReference_, unknown), *this);
+                }
+            }
+            return basisFunctionDeriv_[unknown][i];
         }
     }
 
@@ -91,35 +159,72 @@ namespace Base
     inline void PhysicalElement<DIM>::basisFunction(std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
     {
         logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
-        if (hasVectorFunctionValue)
+        if (hasVectorFunctionValue[0])
         {
-            result = vectorBasisFunctionValue[i];
+            result = vectorBasisFunctionValue[0][i];
         }
         else
         {
-            hasVectorFunctionValue = true;
+            hasVectorFunctionValue[0] = true;
             for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions(); ++j)
             {
                 if(hasQuadratureRule)
                 {
                     if (doesMapQuadraturePointFromFace)
                     {
-                        theElement_->basisFunction(j, quadratureRule_, quadraturePointIndex_, faceToElementMap_, vectorBasisFunctionValue[j]);
-                        vectorBasisFunctionValue[j] = transform_->transform(vectorBasisFunctionValue[j], *this);
+                        theElement_->basisFunction(j, quadratureRule_, quadraturePointIndex_, faceToElementMap_, vectorBasisFunctionValue[0][j]);
+                        vectorBasisFunctionValue[0][j] = transform_[0]->transform(vectorBasisFunctionValue[0][j], *this);
                     }
                     else
                     {
-                        theElement_->basisFunction(j, quadratureRule_, quadraturePointIndex_, vectorBasisFunctionValue[j]);
-                        vectorBasisFunctionValue[j] = transform_->transform(vectorBasisFunctionValue[j], *this);
+                        theElement_->basisFunction(j, quadratureRule_, quadraturePointIndex_, vectorBasisFunctionValue[0][j]);
+                        vectorBasisFunctionValue[0][j] = transform_[0]->transform(vectorBasisFunctionValue[0][j], *this);
                     }
                 }
                 else
                 {
-                    theElement_->basisFunction(j, pointReference_, vectorBasisFunctionValue[j]);
-                    vectorBasisFunctionValue[j] = transform_->transform(vectorBasisFunctionValue[j], *this);
+                    theElement_->basisFunction(j, pointReference_, vectorBasisFunctionValue[0][j]);
+                    vectorBasisFunctionValue[0][j] = transform_[0]->transform(vectorBasisFunctionValue[0][j], *this);
                 }
             }
-            result = vectorBasisFunctionValue[i];
+            result = vectorBasisFunctionValue[0][i];
+        }
+    }
+    
+    template<std::size_t DIM>
+    inline void PhysicalElement<DIM>::basisFunction(std::size_t i, LinearAlgebra::SmallVector<DIM>& result, std::size_t unknown)
+    {
+        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert(unknown < theElement_->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
+        if (hasVectorFunctionValue[unknown])
+        {
+            result = vectorBasisFunctionValue[unknown][i];
+        }
+        else
+        {
+            hasVectorFunctionValue[unknown] = true;
+            for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions(unknown); ++j)
+            {
+                if(hasQuadratureRule)
+                {
+                    if (doesMapQuadraturePointFromFace)
+                    {
+                        theElement_->basisFunction(j, quadratureRule_, quadraturePointIndex_, faceToElementMap_, vectorBasisFunctionValue[unknown][j], unknown);
+                        vectorBasisFunctionValue[unknown][j] = transform_[unknown]->transform(vectorBasisFunctionValue[unknown][j], *this);
+                    }
+                    else
+                    {
+                        theElement_->basisFunction(j, quadratureRule_, quadraturePointIndex_, vectorBasisFunctionValue[unknown][j], unknown);
+                        vectorBasisFunctionValue[unknown][j] = transform_[unknown]->transform(vectorBasisFunctionValue[unknown][j], *this);
+                    }
+                }
+                else
+                {
+                    theElement_->basisFunction(j, pointReference_, vectorBasisFunctionValue[unknown][j], unknown);
+                    vectorBasisFunctionValue[unknown][j] = transform_[unknown]->transform(vectorBasisFunctionValue[unknown][j], *this);
+                }
+            }
+            result = vectorBasisFunctionValue[unknown][i];
         }
     }
 
@@ -127,32 +232,66 @@ namespace Base
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalElement<DIM>::basisFunctionCurl(std::size_t i)
     {
         logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
-        if (hasFunctionCurl)
+        if (hasFunctionCurl[0])
         {
-            return basisFunctionCurl_[i];
+            return basisFunctionCurl_[0][i];
         }
         else
         {
-            hasFunctionCurl = true;
+            hasFunctionCurl[0] = true;
             for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions(); ++j)
             {
                 if(hasQuadratureRule)
                 {
                     if (doesMapQuadraturePointFromFace)
                     {
-                        basisFunctionCurl_[j] = transform_->transformCurl(theElement_->basisFunctionCurl<DIM>(j, quadratureRule_, quadraturePointIndex_, faceToElementMap_), *this);
+                        basisFunctionCurl_[0][j] = transform_[0]->transformCurl(theElement_->basisFunctionCurl<DIM>(j, quadratureRule_, quadraturePointIndex_, faceToElementMap_), *this);
                     }
                     else
                     {
-                        basisFunctionCurl_[j] = transform_->transformCurl(theElement_->basisFunctionCurl<DIM>(j, quadratureRule_, quadraturePointIndex_), *this);
+                        basisFunctionCurl_[0][j] = transform_[0]->transformCurl(theElement_->basisFunctionCurl<DIM>(j, quadratureRule_, quadraturePointIndex_), *this);
                     }
                 }
                 else
                 {
-                    basisFunctionCurl_[j] = transform_->transformCurl(theElement_->basisFunctionCurl(j, pointReference_), *this);
+                    basisFunctionCurl_[0][j] = transform_[0]->transformCurl(theElement_->basisFunctionCurl(j, pointReference_), *this);
                 }
             }
-            return basisFunctionCurl_[i];
+            return basisFunctionCurl_[0][i];
+        }
+    }
+    
+    template<std::size_t DIM>
+    inline const LinearAlgebra::SmallVector<DIM>& PhysicalElement<DIM>::basisFunctionCurl(std::size_t i, std::size_t unknown)
+    {
+        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert(unknown < theElement_->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
+        if (hasFunctionCurl[unknown])
+        {
+            return basisFunctionCurl_[unknown][i];
+        }
+        else
+        {
+            hasFunctionCurl[unknown] = true;
+            for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions(unknown); ++j)
+            {
+                if(hasQuadratureRule)
+                {
+                    if (doesMapQuadraturePointFromFace)
+                    {
+                        basisFunctionCurl_[unknown][j] = transform_[unknown]->transformCurl(theElement_->basisFunctionCurl<DIM>(j, quadratureRule_, quadraturePointIndex_, faceToElementMap_, unknown), *this);
+                    }
+                    else
+                    {
+                        basisFunctionCurl_[unknown][j] = transform_[unknown]->transformCurl(theElement_->basisFunctionCurl<DIM>(j, quadratureRule_, quadraturePointIndex_, unknown), *this);
+                    }
+                }
+                else
+                {
+                    basisFunctionCurl_[unknown][j] = transform_[unknown]->transformCurl(theElement_->basisFunctionCurl(j, pointReference_, unknown), *this);
+                }
+            }
+            return basisFunctionCurl_[unknown][i];
         }
     }
 
@@ -160,32 +299,65 @@ namespace Base
     inline const double& PhysicalElement<DIM>::basisFunctionDiv(std::size_t i)
     {
         logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
-        if (hasFunctionDiv)
+        if (hasFunctionDiv[0])
         {
-            return basisFunctionDiv_[i];
+            return basisFunctionDiv_[0][i];
         }
         else
         {
-            hasFunctionDiv = true;
+            hasFunctionDiv[0] = true;
             for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions(); ++j)
             {
                 if(hasQuadratureRule)
                 {
                     if (doesMapQuadraturePointFromFace)
                     {
-                        basisFunctionDiv_[j] = transform_->transformDiv(theElement_->basisFunctionDiv(j, quadratureRule_, quadraturePointIndex_, faceToElementMap_), *this);
+                        basisFunctionDiv_[0][j] = transform_[0]->transformDiv(theElement_->basisFunctionDiv(j, quadratureRule_, quadraturePointIndex_, faceToElementMap_), *this);
                     }
                     else
                     {
-                        basisFunctionDiv_[j] = transform_->transformDiv(theElement_->basisFunctionDiv(j, quadratureRule_, quadraturePointIndex_), *this);
+                        basisFunctionDiv_[0][j] = transform_[0]->transformDiv(theElement_->basisFunctionDiv(j, quadratureRule_, quadraturePointIndex_), *this);
                     }
                 }
                 else
                 {
-                    basisFunctionDiv_[j] = transform_->transformDiv(theElement_->basisFunctionDiv(j, pointReference_), *this);
+                    basisFunctionDiv_[0][j] = transform_[0]->transformDiv(theElement_->basisFunctionDiv(j, pointReference_), *this);
                 }
             }
-            return basisFunctionDiv_[i];
+            return basisFunctionDiv_[0][i];
+        }
+    }
+    
+    template<std::size_t DIM>
+    inline const double& PhysicalElement<DIM>::basisFunctionDiv(std::size_t i, std::size_t unknown)
+    {
+        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
+        if (hasFunctionDiv[unknown])
+        {
+            return basisFunctionDiv_[unknown][i];
+        }
+        else
+        {
+            hasFunctionDiv[unknown] = true;
+            for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions(unknown); ++j)
+            {
+                if(hasQuadratureRule)
+                {
+                    if (doesMapQuadraturePointFromFace)
+                    {
+                        basisFunctionDiv_[unknown][j] = transform_[unknown]->transformDiv(theElement_->basisFunctionDiv(j, quadratureRule_, quadraturePointIndex_, faceToElementMap_, unknown), *this);
+                    }
+                    else
+                    {
+                        basisFunctionDiv_[unknown][j] = transform_[unknown]->transformDiv(theElement_->basisFunctionDiv(j, quadratureRule_, quadraturePointIndex_, unknown), *this);
+                    }
+                }
+                else
+                {
+                    basisFunctionDiv_[unknown][j] = transform_[unknown]->transformDiv(theElement_->basisFunctionDiv(j, pointReference_, unknown), *this);
+                }
+            }
+            return basisFunctionDiv_[unknown][i];
         }
     }
 
@@ -374,7 +546,16 @@ namespace Base
     template<std::size_t DIM>
     inline const Base::CoordinateTransformation<DIM>* PhysicalElement<DIM>::getTransformation()
     {
-        return transform_.get();
+        for(std::size_t i = 1; i < transform_.size(); ++i)
+            logger.assert(transform_[0] == transform_[i], "Different unknowns have different coordinate transformation, call getTransformation for a given unknown");
+        return transform_[0].get();
+    }
+    
+    template<std::size_t DIM>
+    inline const Base::CoordinateTransformation<DIM>* PhysicalElement<DIM>::getTransformation(std::size_t unknown)
+    {
+        logger.assert(unknown < theElement_->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
+        return transform_[unknown].get();
     }
 
     template<std::size_t DIM>
@@ -384,11 +565,12 @@ namespace Base
         hasQuadratureRule = false;
         hasPointReference = true;
         //even if they are already computed, the information is now out of date
-        hasFunctionValue = false;
-        hasVectorFunctionValue = false;
-        hasFunctionDeriv = false;
-        hasFunctionCurl = false;
-        hasFunctionDiv = false;
+        std::size_t unknowns = theElement_->getNumberOfUnknowns();
+        hasFunctionValue.assign(unknowns, false);
+        hasVectorFunctionValue.assign(unknowns, false);
+        hasFunctionDeriv.assign(unknowns, false);
+        hasFunctionCurl.assign(unknowns, false);
+        hasFunctionDiv.assign(unknowns, false);
         hasSolution = false;
         hasVectorSolution = false;
         hasSolutionDeriv = false;
@@ -415,25 +597,36 @@ namespace Base
     template<std::size_t DIM>
     inline void PhysicalElement<DIM>::setElement(const Element* element)
     {
-        if (!hasElement || element->getNumberOfBasisFunctions() != theElement_->getNumberOfBasisFunctions())
+        if (!hasElement || element->getTotalNumberOfBasisFunctions() != theElement_->getTotalNumberOfBasisFunctions())
         {
-            std::size_t numberOfEntries = element->getNumberOfBasisFunctions() * element->getNumberOfUnknowns();
+            basisFunctionValue.resize(element->getNumberOfUnknowns());
+            vectorBasisFunctionValue.resize(element->getNumberOfUnknowns());
+            basisFunctionDeriv_.resize(element->getNumberOfUnknowns());
+            basisFunctionCurl_.resize(element->getNumberOfUnknowns());
+            basisFunctionDiv_.resize(element->getNumberOfUnknowns());
+            std::size_t numberOfEntries = 0;
+            for(std::size_t i = 0; i < element->getNumberOfUnknowns(); ++i)
+            {
+                numberOfEntries += element->getNumberOfBasisFunctions(i);
+                basisFunctionValue[i].resize(element->getNumberOfBasisFunctions(i));
+                vectorBasisFunctionValue[i].resize(element->getNumberOfBasisFunctions(i));
+                basisFunctionDeriv_[i].resize(element->getNumberOfBasisFunctions(i));
+                basisFunctionCurl_[i].resize(element->getNumberOfBasisFunctions(i));
+                basisFunctionDiv_[i].resize(element->getNumberOfBasisFunctions(i));
+            }
             resultMatrix.resize(numberOfEntries, numberOfEntries);
             resultVector.resize(numberOfEntries);
-            basisFunctionValue.resize(element->getNumberOfBasisFunctions());
-            vectorBasisFunctionValue.resize(element->getNumberOfBasisFunctions());
-            basisFunctionDeriv_.resize(element->getNumberOfBasisFunctions());
-            basisFunctionCurl_.resize(element->getNumberOfBasisFunctions());
-            basisFunctionDiv_.resize(element->getNumberOfBasisFunctions());
         }
         theElement_ = element;
         hasElement = true;
         //even if they are already computed, the information is now out of date
-        hasFunctionValue = false;
-        hasVectorFunctionValue = false;
-        hasFunctionDeriv = false;
-        hasFunctionCurl = false;
-        hasFunctionDiv = false;
+        std::size_t unknowns = theElement_->getNumberOfUnknowns();
+
+        hasFunctionValue.assign(unknowns, false);
+        hasVectorFunctionValue.assign(unknowns, false);
+        hasFunctionDeriv.assign(unknowns, false);
+        hasFunctionCurl.assign(unknowns, false);
+        hasFunctionDiv.assign(unknowns, false);
         hasSolution = false;
         hasVectorSolution = false;
         hasSolutionDeriv = false;
@@ -456,17 +649,27 @@ namespace Base
         hasElementMatrix = true;
         hasElementVector = true;
     }
-
+    
     template<std::size_t DIM>
-    inline void PhysicalElement<DIM>::setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> >& transform)
+    inline void PhysicalElement<DIM>::setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> >& transform, std::size_t unknown)
     {
-        transform_ = transform;
+        if (transform_.size() <= unknown)
+        {
+            // We should not need to resize when we know the exact number of unknowns.
+            logger.assert(!hasElement, "Resizing the transform with an element");
+            // Grow the transform vector automatically as we do not know how big it should be.
+            transform_.resize(unknown + 1);
+        }
+        transform_[unknown] = transform;
         //even if they are already computed, the information is now out of date
-        hasFunctionValue = false;
-        hasVectorFunctionValue = false;
-        hasFunctionDeriv = false;
-        hasFunctionCurl = false;
-        hasFunctionDiv = false;
+        // Note that if there is no element, the setElement will resize them
+        // to the correct size. When there is an element this will just clear
+        // the current values.
+        hasFunctionValue.assign(hasFunctionValue.size(), false);
+        hasVectorFunctionValue.assign(hasVectorFunctionValue.size(), false);
+        hasFunctionDeriv.assign(hasFunctionDeriv.size(), false);
+        hasFunctionCurl.assign(hasFunctionCurl.size(), false);
+        hasFunctionDiv.assign(hasFunctionDiv.size(), false);
         hasSolution = false;
         hasVectorSolution = false;
         hasSolutionDeriv = false;

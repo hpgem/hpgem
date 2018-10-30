@@ -55,6 +55,7 @@ namespace Utilities
     
     GlobalPetscVector::GlobalPetscVector(Base::MeshManipulatorBase* theMesh, int elementVectorID, int faceVectorID)
             : GlobalVector(theMesh, elementVectorID, faceVectorID)
+            , indexing_() // Will be initialized by reset().
     {
         logger.assert(theMesh!=nullptr, "Invalid mesh passed");
         PetscBool petscRuns;
@@ -82,193 +83,14 @@ namespace Utilities
         }
         return b_;
     }
-    
-    std::vector<PetscInt> GlobalPetscVector::makePositionsInVector(const Base::Element* element)
-    {
-        logger.assert(element!=nullptr, "invalid element passed");
-        //we need storage for the amount of basis functions to return
-        std::vector<PetscInt> positions(element->getNumberOfBasisFunctions() * element->getNumberOfUnknowns());
-        
-        auto pos = positions.begin();
-        for(std::size_t index = 0; index < element->getNumberOfUnknowns(); ++index)
-        {
-            std::size_t numberOfElementBasisFunctions = element->getLocalNumberOfBasisFunctions();
-            //First step: construct ids for the functions of the current element itself
-            for (std::size_t i = 0; i < numberOfElementBasisFunctions; ++i)
-            {
-                *pos = i + startPositionsOfElementsInTheVector_[element->getID()] + index * numberOfElementBasisFunctions;
-                pos++;
-            }
-
-            //Push forward our iterator
-            std::size_t numberOfFaces = element->getPhysicalGeometry()->getNumberOfFaces();
-            for (std::size_t i = 0; i < numberOfFaces; ++i)
-            {
-                std::size_t numberOfFaceBasisFunctions = element->getFace(i)->getLocalNumberOfBasisFunctions();
-                for (std::size_t j = 0; j < numberOfFaceBasisFunctions; ++j)
-                {
-                    *pos = j + startPositionsOfFacesInTheVector_[element->getFace(i)->getID()] + index * numberOfFaceBasisFunctions;
-                    pos++;
-                }
-            }
-
-            std::size_t numberOfEdges = element->getNumberOfEdges();
-            for (std::size_t i = 0; i < numberOfEdges; ++i)
-            {
-                std::size_t numberOfEdgeBasisFunctions = element->getEdge(i)->getLocalNumberOfBasisFunctions();
-                for (std::size_t j = 0; j < numberOfEdgeBasisFunctions; ++j)
-                {
-                    *pos = j + startPositionsOfEdgesInTheVector_[element->getEdge(i)->getID()] + index * numberOfEdgeBasisFunctions;
-                    pos++;
-                }
-            }
-
-            std::size_t numberOfNodes = element->getNumberOfNodes();
-            for (std::size_t i = 0; i < numberOfNodes; ++i)
-            {
-                std::size_t numberOfNodeBasisFunctions = element->getNode(i)->getLocalNumberOfBasisFunctions();
-                for (std::size_t j = 0; j < numberOfNodeBasisFunctions; ++j)
-                {
-                    *pos = j + startPositionsOfNodesInTheVector_[element->getNode(i)->getID()] + index * numberOfNodeBasisFunctions;
-                    pos++;
-                }
-            }
-        }
-        logger.assert(pos == positions.end(), "GlobalVector: did not process all elements correctly");
-        return positions;
-    }
 
     //debug note: GlobalPetscMatrix 'independently' chooses an ordering for the degrees of freedom, but hpGEM assumes both orderings to be the same
     void GlobalPetscVector::reset()
     {
         int ierr = VecDestroy(&b_);
-        std::size_t totalNumberOfDOF(0), DIM(theMesh_->dimension());
-        for (Base::Element* element : theMesh_->getElementsList())
-        {
-            //for MPI simulations this is local numbering initially
-            //we do some communicating and renumbering later in the function
-            startPositionsOfElementsInTheVector_[element->getID()] = totalNumberOfDOF;
-            totalNumberOfDOF += element->getLocalNumberOfBasisFunctions() * element->getNumberOfUnknowns();
-            for (Base::Face* face : element->getFacesList())
-            {
-                if (face->getPtrElementLeft() == element)
-                {
-                    startPositionsOfFacesInTheVector_[face->getID()] = totalNumberOfDOF;
-                    totalNumberOfDOF += face->getLocalNumberOfBasisFunctions() * element->getNumberOfUnknowns();
-                }
-
-            }
-            for (Base::Edge* edge : element->getEdgesList())
-            {
-                if(edge->getElement(0) == element) {
-                    startPositionsOfEdgesInTheVector_[edge->getID()] = totalNumberOfDOF;
-                    totalNumberOfDOF += edge->getLocalNumberOfBasisFunctions() * element->getNumberOfUnknowns();
-                }
-            }
-            //when DIM == 1 faces and nodes are the same entities, skip one of them
-            if (DIM > 1)
-            {
-                for (Base::Node* node : element->getNodesList())
-                {
-                    if(node->getElement(0) == element){
-                        startPositionsOfNodesInTheVector_[node->getID()] = totalNumberOfDOF;
-                        totalNumberOfDOF += node->getLocalNumberOfBasisFunctions() * element->getNumberOfUnknowns();
-                    }
-                }
-            }
-        }
-
-#ifdef HPGEM_USE_MPI
-        auto& MPIInstance = Base::MPIContainer::Instance();
-        auto comm = MPIInstance.getComm();
-        std::size_t n = MPIInstance.getNumberOfProcessors();
-        std::size_t rank = MPIInstance.getProcessorID();
-
-        //offset by one to insert a zero at the front
-        std::vector<std::size_t> cumulativeDOF(n + 1);
-        cumulativeDOF[rank+1]=totalNumberOfDOF;
-
-        //communicate...
-        comm.Allgather(MPI_IN_PLACE,0,Base::Detail::toMPIType(n),cumulativeDOF.data()+1,1,Base::Detail::toMPIType(n));
-
-        std::partial_sum(cumulativeDOF.begin(),cumulativeDOF.end(),cumulativeDOF.begin());
-
-        std::size_t MPIOffset = cumulativeDOF[rank];
-        std::size_t end = cumulativeDOF[n] + 1;
-
-        for(auto element : theMesh_->getElementsList()) {
-            startPositionsOfElementsInTheVector_[element->getID()] += MPIOffset;
-            for(auto face : element->getFacesList()) {
-                if(face->getPtrElementLeft() == element) {
-                    startPositionsOfFacesInTheVector_[face->getID()] += MPIOffset;
-                }
-            }
-            for(auto edge : element->getEdgesList()) {
-                if(edge->getElement(0) == element) {
-                    startPositionsOfEdgesInTheVector_[edge->getID()] += MPIOffset;
-                }
-            }
-            if(DIM > 1) {
-                for(auto node : element->getNodesList()) {
-                    if(node->getElement(0) == element) {
-                        startPositionsOfNodesInTheVector_[node->getID()] += MPIOffset;
-                    }
-                }
-            }
-        }
-
-        for(auto entry : theMesh_->getPullElements()) {
-            int sourceProcesor = entry.first;
-            for(Base::Element* element : entry.second) {
-                //the id's of elements, faces edges and nodes are interleaved so all information can be communicated simulateously without tag collisions
-                MPIInstance.receive(startPositionsOfElementsInTheVector_[element->getID()], sourceProcesor, 4 * element->getID());
-                for(auto face : element->getFacesList()) {
-                    if(startPositionsOfFacesInTheVector_.count(face->getID()) == 0) {
-                        MPIInstance.receive(startPositionsOfFacesInTheVector_[face->getID()], sourceProcesor, 4 * face->getID() + 1);
-                    }
-                }
-                for(auto edge : element->getEdgesList()) {
-                    if(startPositionsOfEdgesInTheVector_.count(edge->getID()) == 0) {
-                        MPIInstance.receive(startPositionsOfEdgesInTheVector_[edge->getID()], sourceProcesor, 4 * edge->getID() + 2);
-                    }
-                }
-                if(DIM > 1) {
-                    for(auto node : element->getNodesList()) {
-                        if(startPositionsOfNodesInTheVector_.count(node->getID()) == 0) {
-                            MPIInstance.receive(startPositionsOfNodesInTheVector_[node->getID()], sourceProcesor, 4 * node->getID() + 3);
-                        }
-                    }
-                }
-            }
-        }
-        for(auto entry : theMesh_->getPushElements()) {
-            int targetProcesor = entry.first;
-            for(Base::Element* element : entry.second) {
-                //the id's of elements, faces edges and nodes are interleaved so all information can be communicated simulateously without tag collisions
-                MPIInstance.send(startPositionsOfElementsInTheVector_[element->getID()], targetProcesor, 4 * element->getID());
-                for(auto face : element->getFacesList()) {
-                    if(startPositionsOfFacesInTheVector_.count(face->getID()) == 1) {
-                        MPIInstance.send(startPositionsOfFacesInTheVector_[face->getID()], targetProcesor, 4 * face->getID() + 1);
-                    }
-                }
-                for(auto edge : element->getEdgesList()) {
-                    if(startPositionsOfEdgesInTheVector_.count(edge->getID()) == 1) {
-                        MPIInstance.send(startPositionsOfEdgesInTheVector_[edge->getID()], targetProcesor, 4 * edge->getID() + 2);
-                    }
-                }
-                if(DIM > 1) {
-                    for(auto node : element->getNodesList()) {
-                        if(startPositionsOfNodesInTheVector_.count(node->getID()) == 1) {
-                            MPIInstance.send(startPositionsOfNodesInTheVector_[node->getID()], targetProcesor, 4 * node->getID() + 3);
-                        }
-                    }
-                }
-            }
-        }
-        MPIInstance.sync();
-#endif
-
-        ierr = VecCreateMPI(PETSC_COMM_WORLD, totalNumberOfDOF, PETSC_DETERMINE, &b_);
+        CHKERRV(ierr);
+        indexing_.reset(theMesh_, GlobalIndexing::BLOCKED_PROCESSOR);
+        ierr = VecCreateMPI(PETSC_COMM_WORLD, indexing_.getNumberOfLocalBasisFunctions(), PETSC_DETERMINE, &b_);
         CHKERRV(ierr);
     }
     
@@ -277,37 +99,30 @@ namespace Utilities
         reset();
         
         LinearAlgebra::MiddleSizeVector elementVector;
+        std::vector<PetscInt> elementToGlobal (0);
         
         if (elementVectorID_ >= 0)
         {
             for (Base::Element* element : theMesh_->getElementsList())
             {
-                std::vector<PetscInt> positions = makePositionsInVector(element);
+                indexing_.getGlobalIndices(element, elementToGlobal);
                 elementVector = element->getElementVector(elementVectorID_);
-                int ierr = VecSetValues(b_, positions.size(), positions.data(), elementVector.data(), ADD_VALUES);
+                int ierr = VecSetValues(b_, elementToGlobal.size(), elementToGlobal.data(), elementVector.data(), ADD_VALUES);
                 CHKERRV(ierr);
                 
             }
         }
         
         LinearAlgebra::MiddleSizeVector faceVector;
-        
+        std::vector<PetscInt> faceToGlobal (0);
         if (faceVectorID_ >= 0)
         {
             for (Base::Face* face : theMesh_->getFacesList())
             {
-                std::vector<PetscInt> positions = makePositionsInVector(face->getPtrElementLeft());
-                if (face->isInternal())
-                {
-                    std::vector<PetscInt> rightPositions = makePositionsInVector(face->getPtrElementRight());
-                    positions.reserve(positions.size() + rightPositions.size());
-                    for (auto& a : rightPositions)
-                    {
-                        positions.push_back(a);
-                    }
-                }
+                faceToGlobal.clear();
+                indexing_.getGlobalIndices(face, faceToGlobal);
                 faceVector = face->getFaceVector(faceVectorID_);
-                int ierr = VecSetValues(b_, positions.size(), positions.data(), faceVector.data(), ADD_VALUES);
+                int ierr = VecSetValues(b_, faceToGlobal.size(), faceToGlobal.data(), faceVector.data(), ADD_VALUES);
                 CHKERRV(ierr);
             }
         }
@@ -322,23 +137,28 @@ namespace Utilities
         reset();
         
         LinearAlgebra::MiddleSizeVector elementData;
+        std::vector<PetscInt> localToGlobal;
         for (Base::Element* element : theMesh_->getElementsList())
         {
-            std::size_t numberOfBasisFunctions = element->getNumberOfBasisFunctions();
-            std::vector<PetscInt> positions = makePositionsInVector(element);
-            elementData.resize(numberOfBasisFunctions * element->getNumberOfUnknowns());
-            for (std::size_t i = 0; i < numberOfBasisFunctions; ++i)
+            indexing_.getGlobalIndices(element, localToGlobal);
+            elementData.resize(element->getTotalNumberOfBasisFunctions());
+            for(std::size_t j = 0; j < element->getNumberOfUnknowns(); ++j)
             {
-                elementData[element->convertToSingleIndex(i, solutionVar)] = element->getTimeIntegrationData(timeIntegrationVectorId, solutionVar, i);
-                for(std::size_t j = 0; j < element->getNumberOfUnknowns(); ++j)
+                for (std::size_t i = 0; i < element->getNumberOfBasisFunctions(j); ++i)
                 {
-                    if(j != solutionVar)
+
+                    if(j == solutionVar)
                     {
-                        positions[element->convertToSingleIndex(i, j)] = -1;
+                        elementData[element->convertToSingleIndex(i, solutionVar)] = element->getTimeIntegrationData(timeIntegrationVectorId, solutionVar, i);
                     }
+                    else
+                    {
+                        localToGlobal[element->convertToSingleIndex(i, j)] = -1;
+                    }
+
                 }
             }
-            int ierr = VecSetValues(b_, numberOfBasisFunctions * element->getNumberOfUnknowns(), positions.data(), elementData.data(), INSERT_VALUES);
+            int ierr = VecSetValues(b_, localToGlobal.size(), localToGlobal.data(), elementData.data(), INSERT_VALUES);
             CHKERRV(ierr);
         }
         
@@ -352,11 +172,12 @@ namespace Utilities
         reset();
 
         LinearAlgebra::MiddleSizeVector elementData;
+        std::vector<PetscInt> localToGlobal;
         for (Base::Element* element : theMesh_->getElementsList())
         {
-            std::size_t numberOfBasisFunctions = element->getNumberOfBasisFunctions();
-            std::vector<PetscInt> positions = makePositionsInVector(element);
-            int ierr = VecSetValues(b_, numberOfBasisFunctions * element->getNumberOfUnknowns(), positions.data(), element->getTimeIntegrationVector(timeIntegrationVectorId).data(), INSERT_VALUES);
+            std::size_t numberOfBasisFunctions = element->getTotalNumberOfBasisFunctions();
+            indexing_.getGlobalIndices(element, localToGlobal);
+            int ierr = VecSetValues(b_, numberOfBasisFunctions, localToGlobal.data(), element->getTimeIntegrationVector(timeIntegrationVectorId).data(), INSERT_VALUES);
             CHKERRV(ierr);
         }
 
@@ -380,12 +201,13 @@ namespace Utilities
         std::size_t totalPositions = 0;
         for(Base::Element* element : theMesh_->getElementsList())
         {
-            totalPositions += element->getNumberOfBasisFunctions() * element->getNumberOfUnknowns();
+            totalPositions += element->getTotalNumberOfBasisFunctions();
         }
         positions.reserve(totalPositions);
+        std::vector<PetscInt> newPositions;
         for (Base::Element* element : theMesh_->getElementsList())
         {
-            std::vector<PetscInt> newPositions = makePositionsInVector(element);
+            indexing_.getGlobalIndices(element, newPositions);
             for (auto& a : newPositions)
             {
                 positions.push_back(a);
@@ -407,31 +229,39 @@ namespace Utilities
         for (Base::MeshManipulatorBase::ElementIterator it = theMesh_->elementColBegin(); it != theMesh_->elementColEnd(); ++it)
         {
         	//Create vector for the local data that has to be written
-            LinearAlgebra::MiddleSizeVector localData((*it)->getNumberOfBasisFunctions() * (*it)->getNumberOfUnknowns());
+            LinearAlgebra::MiddleSizeVector localData((*it)->getTotalNumberOfBasisFunctions());
             std::size_t runningTotal = 0;
             for(std::size_t index = 0; index < (*it)->getNumberOfUnknowns(); ++index) // for every variable iV
             {
-                for(std::size_t i = 0; i < (*it)->getLocalNumberOfBasisFunctions(); ++i) // Get the local basis functions of the element
+                std::size_t nElementBasis = (*it)->getLocalNumberOfBasisFunctions(index);
+                int elementBasis0 = indexing_.getGlobalIndex((*it), index);
+                for(std::size_t i = 0; i < nElementBasis; ++i) // Get the local basis functions of the element
                 {
                 	//Copy the values from data to the localData and update the running number
-                    localData[runningTotal] = std::real(data[startPositionsOfElementsInTheVector_[(*it)->getID()] + i + index * (*it)->getLocalNumberOfBasisFunctions()]);
+                    localData[runningTotal] = std::real(data[elementBasis0 + i]);
                     ++runningTotal;
                 }
+
                 for (std::size_t i = 0; i < (*it)->getPhysicalGeometry()->getNumberOfFaces(); ++i) // for all faces of the element
                 {
-                    for (std::size_t j = 0; j < (*it)->getFace(i)->getLocalNumberOfBasisFunctions(); ++j) // get local basis functions of a face
+                    std::size_t nFaceBasis = (*it)->getFace(i)->getLocalNumberOfBasisFunctions(index);
+                    int faceBasis0 = indexing_.getGlobalIndex((*it)->getFace(i), index);
+                    for (std::size_t j = 0; j < nFaceBasis; ++j) // get local basis functions of a face
                     {
                     	//Copy the values from data to the localData and update the running number
-                        localData[runningTotal] = std::real(data[startPositionsOfFacesInTheVector_[(*it)->getFace(i)->getID()] + j + index * (*it)->getFace(i)->getLocalNumberOfBasisFunctions()]);
+                        localData[runningTotal] = std::real(data[faceBasis0 + j]);
                         ++runningTotal;
                     }
                 }
                 for (std::size_t i = 0; i < (*it)->getNumberOfEdges(); ++i) // For all edges of the element
                 {
-                    for (std::size_t j = 0; j < (*it)->getEdge(i)->getLocalNumberOfBasisFunctions(); ++j) //Get the local basis function of an edge
+                    std::size_t nEdgeBasis = (*it)->getEdge(i)->getLocalNumberOfBasisFunctions(index);
+                    int edgeBasis0 = indexing_.getGlobalIndex((*it)->getEdge(i), index);
+                    for (std::size_t j = 0; j < nEdgeBasis; ++j) //Get the local basis function of an edge
                     {
                     	//Copy the values from data to the localData and update the running number
-                        localData[runningTotal] = std::real(data[startPositionsOfEdgesInTheVector_[(*it)->getEdge(i)->getID()] + j + index * (*it)->getEdge(i)->getLocalNumberOfBasisFunctions()]);
+
+                        localData[runningTotal] = std::real(data[edgeBasis0 + j]);
                         ++runningTotal;
                     }
                 }
@@ -439,10 +269,12 @@ namespace Utilities
                 {
                     for (std::size_t i = 0; i < (*it)->getNumberOfNodes(); ++i) //For all nodes
                     {
-                        for (std::size_t j = 0; j < (*it)->getNode(i)->getLocalNumberOfBasisFunctions(); ++j) //Get the local number of basis function of a node
+                        std::size_t nNodeBasis = (*it)->getNode(i)->getLocalNumberOfBasisFunctions(index);
+                        int nodeBasis0 = indexing_.getGlobalIndex((*it)->getNode(i), index);
+                        for (std::size_t j = 0; j < nNodeBasis; ++j) //Get the local number of basis function of a node
                         {
                         	//Copy the values from data to the localData and update the running number
-                            localData[runningTotal] = std::real(data[startPositionsOfNodesInTheVector_[(*it)->getNode(i)->getID()] + j + index * (*it)->getNode(i)->getLocalNumberOfBasisFunctions()]);
+                            localData[runningTotal] = std::real(data[nodeBasis0 + j]);
                             ++runningTotal;
                         }
                     }
@@ -472,13 +304,14 @@ namespace Utilities
         std::size_t totalPositions = 0;
         for(Base::Element* element : theMesh_->getElementsList())
         {
-            totalPositions += element->getNumberOfBasisFunctions() * element->getNumberOfUnknowns();
+            totalPositions += element->getTotalNumberOfBasisFunctions();
         }
         positions.reserve(totalPositions);
+        std::vector<PetscInt> localPositions;
         for (Base::Element* element : theMesh_->getElementsList())
         {
-            std::vector<PetscInt> newPositions = makePositionsInVector(element);
-            for (auto& a : newPositions)
+            indexing_.getGlobalIndices(element, localPositions);
+            for (auto& a : localPositions)
             {
                 positions.push_back(a);
             }
@@ -497,28 +330,35 @@ namespace Utilities
         CHKERRV(ierr);
         for (Base::MeshManipulatorBase::ElementIterator it = theMesh_->elementColBegin(); it != theMesh_->elementColEnd(); ++it)
         {
-            LinearAlgebra::MiddleSizeVector localData((*it)->getNumberOfBasisFunctions() * (*it)->getNumberOfUnknowns());
+            LinearAlgebra::MiddleSizeVector localData((*it)->getTotalNumberOfBasisFunctions());
             std::size_t runningTotal = 0;
             for(std::size_t index = 0; index < (*it)->getNumberOfUnknowns(); ++index)
             {
-                for(std::size_t i = 0; i < (*it)->getLocalNumberOfBasisFunctions(); ++i)
+                std::size_t nElementBasis = (*it)->getLocalNumberOfBasisFunctions(index);
+                int elementBasis0 = indexing_.getGlobalIndex((*it), index);
+                for(std::size_t i = 0; i < nElementBasis; ++i)
                 {
-                    localData[runningTotal] = std::real(data[startPositionsOfElementsInTheVector_[(*it)->getID()] + i + index * (*it)->getLocalNumberOfBasisFunctions()]);
+                    localData[runningTotal] = std::real(data[elementBasis0 + i]);
                     ++runningTotal;
                 }
+
                 for (std::size_t i = 0; i < (*it)->getPhysicalGeometry()->getNumberOfFaces(); ++i)
                 {
-                    for (std::size_t j = 0; j < (*it)->getFace(i)->getLocalNumberOfBasisFunctions(); ++j)
+                    std::size_t nFaceBasis = (*it)->getFace(i)->getLocalNumberOfBasisFunctions(index);
+                    int faceBasis0 = indexing_.getGlobalIndex((*it)->getFace(i), index);
+                    for (std::size_t j = 0; j < nFaceBasis; ++j)
                     {
-                        localData[runningTotal] = std::real(data[startPositionsOfFacesInTheVector_[(*it)->getFace(i)->getID()] + j + index * (*it)->getFace(i)->getLocalNumberOfBasisFunctions()]);
+                        localData[runningTotal] = std::real(data[faceBasis0 + j]);
                         ++runningTotal;
                     }
                 }
                 for (std::size_t i = 0; i < (*it)->getNumberOfEdges(); ++i)
                 {
-                    for (std::size_t j = 0; j < (*it)->getEdge(i)->getLocalNumberOfBasisFunctions(); ++j)
+                    std::size_t nEdgeBasis = (*it)->getEdge(i)->getLocalNumberOfBasisFunctions(index);
+                    int edgeBasis0 = indexing_.getGlobalIndex((*it)->getEdge(i), index);
+                    for (std::size_t j = 0; j < nEdgeBasis; ++j)
                     {
-                        localData[runningTotal] = std::real(data[startPositionsOfEdgesInTheVector_[(*it)->getEdge(i)->getID()] + j + index * (*it)->getEdge(i)->getLocalNumberOfBasisFunctions()]);
+                        localData[runningTotal] = std::real(data[edgeBasis0 + j]);
                         ++runningTotal;
                     }
                 }
@@ -526,9 +366,11 @@ namespace Utilities
                 {
                     for (std::size_t i = 0; i < (*it)->getNumberOfNodes(); ++i)
                     {
-                        for (std::size_t j = 0; j < (*it)->getNode(i)->getLocalNumberOfBasisFunctions(); ++j)
+                        std::size_t nNodeBasis = (*it)->getNode(i)->getLocalNumberOfBasisFunctions(index);
+                        int nodeBasis0 = indexing_.getGlobalIndex((*it)->getNode(i), index);
+                        for (std::size_t j = 0; j < nNodeBasis; ++j)
                         {
-                            localData[runningTotal] = std::real(data[startPositionsOfNodesInTheVector_[(*it)->getNode(i)->getID()] + j + index * (*it)->getNode(i)->getLocalNumberOfBasisFunctions()]);
+                            localData[runningTotal] = std::real(data[nodeBasis0 + j]);
                             ++runningTotal;
                         }
                     }
