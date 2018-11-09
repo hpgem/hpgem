@@ -97,8 +97,8 @@ namespace Integration
         template<class ReturnTrait1>
         ReturnTrait1 integrate(const Base::Element* el, ElementIntegrandBase<ReturnTrait1, DIM>* integrand, QuadratureRules::GaussQuadratureRule * qdrRule = nullptr);
 
-        template<class ReturnType>
-        ReturnType integrate(const Base::Element* el, std::function<ReturnType(Base::PhysicalElement<DIM>&)> integrand, QuadratureRules::GaussQuadratureRule * qdrRule = nullptr);
+        template<class FunctionType>
+        std::result_of_t<FunctionType(Base::PhysicalElement<DIM>&)> integrate(const Base::Element* el, FunctionType integrand, QuadratureRules::GaussQuadratureRule * qdrRule = nullptr);
 
         /// \brief Compute the integral on a reference element. IntegrandType needs to have the function LinearAlgebra::axpy() implemented.
         template<typename IntegrandType>

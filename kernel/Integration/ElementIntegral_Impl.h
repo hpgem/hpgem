@@ -75,9 +75,11 @@ namespace Integration
     the passed element will be used.
     */
     template<std::size_t DIM>
-    template<typename ReturnType>
-    ReturnType ElementIntegral<DIM>::integrate(const Base::Element* el, std::function<ReturnType(Base::PhysicalElement<DIM>&)> integrandFun, QuadratureRules::GaussQuadratureRule * qdrRule)
+    template<typename FunctionType>
+    std::result_of_t<FunctionType(Base::PhysicalElement<DIM>&)> ElementIntegral<DIM>::integrate(const Base::Element* el, FunctionType integrandFun, QuadratureRules::GaussQuadratureRule * qdrRule)
     {
+        using ReturnType = std::result_of_t<FunctionType(Base::PhysicalElement<DIM>&)>;
+
         logger.assert(el!=nullptr, "Invalid element detected");
         element_.setElement(el);
         //quadrature rule is allowed to be equal to nullptr!

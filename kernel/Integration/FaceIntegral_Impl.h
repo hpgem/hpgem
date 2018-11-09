@@ -48,9 +48,11 @@ namespace Integration
     
     //dim denotes the dimension of the ELEMENT here
     template<std::size_t DIM>
-    template<typename ReturnTrait1>
-    ReturnTrait1 FaceIntegral<DIM>::integrate(const Base::Face* fa, std::function<ReturnTrait1(Base::PhysicalFace<DIM>&)> integrandFunc, QuadratureRules::GaussQuadratureRule* qdrRule)
+    template<typename FunctionType>
+    std::result_of_t<FunctionType(Base::PhysicalFace<DIM>&)> FaceIntegral<DIM>::integrate(const Base::Face* fa, FunctionType integrandFunc, QuadratureRules::GaussQuadratureRule* qdrRule)
     {
+        using ReturnTrait1 = std::result_of_t<FunctionType(Base::PhysicalFace<DIM>&)>;
+
         logger.assert(fa!=nullptr, "Invalid face detected");
         Base::PhysicalFace<DIM>* face_;
         //treat internal and boundary faces separately to prevent permanent resizing of the relevant data structures
@@ -105,9 +107,11 @@ namespace Integration
     
     //dim denotes the dimension of the ELEMENT here
      template<std::size_t DIM>
-     template<typename ReturnTrait1>
-     ReturnTrait1 FaceIntegral<DIM>::integratePair(const Base::Face* fa, std::function<ReturnTrait1(Base::PhysicalFace<DIM>&)> integrandFunc, QuadratureRules::GaussQuadratureRule* qdrRule)
+     template<typename FunctionType>
+     std::result_of_t<FunctionType(Base::PhysicalFace<DIM>&)> FaceIntegral<DIM>::integratePair(const Base::Face* fa, FunctionType integrandFunc, QuadratureRules::GaussQuadratureRule* qdrRule)
      {
+         using ReturnTrait1 = std::result_of_t<FunctionType(Base::PhysicalFace<DIM>&)>;
+
          logger.assert(fa!=nullptr, "Invalid face detected");
          Base::PhysicalFace<DIM>* face_;
          //treat internal and boundary faces separately to prevent permanent resizing of the relevant data structures

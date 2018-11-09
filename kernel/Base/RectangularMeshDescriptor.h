@@ -26,6 +26,7 @@
 #include <vector>
 
 #include "Geometry/PointPhysical.h"
+#include "GlobalNamespaceBase.h"
 
 namespace Base
 {
