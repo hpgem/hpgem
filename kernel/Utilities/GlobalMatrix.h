@@ -25,8 +25,8 @@
 
 #if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
 #include <petscmat.h>
-#include "GlobalIndexing.h"
 #endif
+#include "GlobalIndexing.h"
 #include <vector>
 #include <map>
 

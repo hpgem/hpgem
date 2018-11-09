@@ -26,11 +26,11 @@
 #include "LinearAlgebra/MiddleSizeVector.h"
 #if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
 #include "petscvec.h"
-#include "GlobalIndexing.h"
 #endif
 #if defined(HPGEM_USE_SUNDIALS)
 #include "nvector/nvector_serial.h"
 #endif
+#include "GlobalIndexing.h"
 #include <vector>
 #include <map>
 
