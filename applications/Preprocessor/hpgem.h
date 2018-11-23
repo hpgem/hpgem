@@ -39,6 +39,7 @@ namespace Preprocessor {
 
         virtual Range<std::vector<std::vector<double>>> getNodeCoordinates() = 0;
         virtual Range<std::vector<std::size_t>> getElements() = 0;
+        virtual std::size_t getDimension() = 0;
     protected:
         PrivateReader() = default;
     };
@@ -52,6 +53,9 @@ namespace Preprocessor {
         }
         Range<std::vector<std::size_t>> getElements() {
             return impl->getElements();
+        }
+        std::size_t getDimension() {
+            return impl->getDimension();
         }
     private:
         std::shared_ptr<PrivateReader> impl{nullptr};

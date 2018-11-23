@@ -31,6 +31,9 @@ namespace Preprocessor {
         operator bool&(){
             return data;
         }
+        operator const bool&() const{
+            return data;
+        }
     };
 
     class StructuredReader : public PrivateReader {
@@ -187,6 +190,10 @@ namespace Preprocessor {
             return {first, std::move(increment), totalNumberOfElements};
         }
 
+        std::size_t getDimension() override {
+            return isPeriodic.size();
+        }
+
     private:
         std::ifstream hpgemFile;
         std::vector<std::size_t> numberOfElements;
@@ -257,6 +264,10 @@ namespace Preprocessor {
             std::vector<std::size_t> start;
             increment(start);
             return {start, std::move(increment), numberOfElements};
+        }
+
+        std::size_t getDimension() override {
+            return dimension;
         }
 
     private:

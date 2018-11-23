@@ -32,7 +32,7 @@
 
 auto& inputFileName = Base::register_argument<std::string>('\0', "inFile", "Name of your input file", true);
 auto& fileType = Base::register_argument<std::string>('\0', "type", "Type of the file; only needed if this cant be deduced from the extention", false);
-auto& dimension = Base::register_argument<std::size_t>('d', "dimension", "The dimension mentioned in the input file", true);
+auto& dimension = Base::register_argument<std::size_t>('d', "dimension", "deprecated - The dimension mentioned in the input file", false);
 auto& targetMpiCount = Base::register_argument<std::size_t>('n', "MPICount", "Target number of processors", false, 1);
 
 template<std::size_t dimension>
@@ -91,18 +91,30 @@ int main(int argc, char** argv) {
         std::transform(fileName.begin(), fileName.end(), fileName.begin(), tolower);
         std::size_t nameSize = fileName.size();
         if((fileType.isUsed() && fileType.getValue() == "hpgem") || (!fileType.isUsed() && fileName.compare(nameSize - 6, 6, ".hpgem") == 0)) {
-            if(dimension.getValue() == 1) {
-                processMesh(Preprocessor::readFile<1>(Preprocessor::HpgemReader(inputFileName.getValue())));
-            } else if(dimension.getValue() == 2) {
-                processMesh(Preprocessor::readFile<2>(Preprocessor::HpgemReader(inputFileName.getValue())));
+            auto hpgemFile = Preprocessor::HpgemReader(inputFileName.getValue());
+            if(dimension.isUsed()) {
+                logger.assert_always(dimension.getValue() == hpgemFile.getDimension(), "The input file reports being for dimension %, but the code was started for dimension %", hpgemFile.getDimension(), dimension.getValue());
+            }
+            if(hpgemFile.getDimension() == 1) {
+                processMesh(Preprocessor::readFile<1>(std::move(hpgemFile)));
+            } else if(hpgemFile.getDimension() == 2) {
+                processMesh(Preprocessor::readFile<2>(std::move(hpgemFile)));
+            } else if(hpgemFile.getDimension() == 3){
+                processMesh(Preprocessor::readFile<3>(std::move(hpgemFile)));
             } else {
-                processMesh(Preprocessor::readFile<3>(Preprocessor::HpgemReader(inputFileName.getValue())));
+                logger(ERROR, "Dimension % is not supported", hpgemFile.getDimension());
             }
         } else if((fileType.isUsed() && fileType.getValue() == "centaur") || (!fileType.isUsed() && fileName.compare(nameSize - 4, 4, ".hyb") == 0)) {
-            if(dimension.getValue() == 2) {
-                processMesh(Preprocessor::readFile<2>(Preprocessor::CentaurReader(inputFileName.getValue())));
+            auto centaurFile = Preprocessor::CentaurReader(inputFileName.getValue());
+            if(dimension.isUsed()) {
+                logger.assert_always(dimension.getValue() == centaurFile.getDimension(), "The input file reports being for dimension %, but the code was started for dimension %", centaurFile.getDimension(), dimension.getValue());
+            }
+            if(centaurFile.getDimension() == 2) {
+                processMesh(Preprocessor::readFile<2>(std::move(centaurFile)));
+            } else if(centaurFile.getDimension() == 3){
+                processMesh(Preprocessor::readFile<3>(std::move(centaurFile)));
             } else {
-                processMesh(Preprocessor::readFile<3>(Preprocessor::CentaurReader(inputFileName.getValue())));
+                logger(ERROR, "Centaur file should not be able to have dimension %", centaurFile.getDimension());
             }
         } else {
             logger(ERROR, "Don't know what to do with this file");
