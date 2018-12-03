@@ -50,7 +50,7 @@ void DGMaxDiscretization::computeElementIntegrands(Base::MeshManipulator<DIM>& m
 
         //TODO: Are these resizes needed, as the content seems to be overwritten by the integral.
         massMatrix.resize(numberOfBasisFunctions, numberOfBasisFunctions);
-        massMatrix = elIntegral.integrate<LinearAlgebra::MiddleSizeMatrix>((*it),
+        massMatrix = elIntegral.integrate((*it),
                 [&](Base::PhysicalElement<DIM>& element) {
             LinearAlgebra::MiddleSizeMatrix res;
             elementMassMatrix(element, res);
@@ -63,7 +63,7 @@ void DGMaxDiscretization::computeElementIntegrands(Base::MeshManipulator<DIM>& m
         (*it)->setElementMatrix(massMatrix, MASS_MATRIX_ID);
 
         stiffnessMatrix.resize(numberOfBasisFunctions, numberOfBasisFunctions);
-        stiffnessMatrix = elIntegral.integrate<LinearAlgebra::MiddleSizeMatrix>((*it),
+        stiffnessMatrix = elIntegral.integrate((*it),
                 [&](Base::PhysicalElement<DIM>& element) {
             LinearAlgebra::MiddleSizeMatrix res;
             elementStiffnessMatrix(element, res);
@@ -75,7 +75,7 @@ void DGMaxDiscretization::computeElementIntegrands(Base::MeshManipulator<DIM>& m
         initialConditionVector.resize(numberOfBasisFunctions);
         if (initialCondition)
         {
-            initialConditionVector = elIntegral.integrate<LinearAlgebra::MiddleSizeVector>((*it),
+            initialConditionVector = elIntegral.integrate((*it),
                     [&](Base::PhysicalElement<DIM> &element) {
                 LinearAlgebra::MiddleSizeVector res;
                 elementInnerProduct(element,
@@ -89,7 +89,7 @@ void DGMaxDiscretization::computeElementIntegrands(Base::MeshManipulator<DIM>& m
         initialConditionDerivativeVector.resize(numberOfBasisFunctions);
         if (initialConditionDerivative)
         {
-            initialConditionDerivativeVector = elIntegral.integrate<LinearAlgebra::MiddleSizeVector>((*it),
+            initialConditionDerivativeVector = elIntegral.integrate((*it),
                     [&](Base::PhysicalElement<DIM> &element) {
                 LinearAlgebra::MiddleSizeVector res;
                 elementInnerProduct(element,
@@ -103,7 +103,7 @@ void DGMaxDiscretization::computeElementIntegrands(Base::MeshManipulator<DIM>& m
         elementVector.resize(numberOfBasisFunctions);
         if (sourceTerm)
         {
-            elementVector = elIntegral.integrate<LinearAlgebra::MiddleSizeVector>((*it),
+            elementVector = elIntegral.integrate((*it),
                     [&](Base::PhysicalElement<DIM>& element) {
                 LinearAlgebra::MiddleSizeVector res;
                 elementInnerProduct(element, sourceTerm, res); // Source  term
@@ -140,7 +140,7 @@ void DGMaxDiscretization::computeFaceIntegrals(
         boundaryFaceVector.resize(numberOfBasisFunctions);
 
         // Compute the actual face  integrals.
-        stiffnessFaceMatrix = faIntegral.integrate<LinearAlgebra::MiddleSizeMatrix>((*it), [&](Base::PhysicalFace<DIM>& face) {
+        stiffnessFaceMatrix = faIntegral.integrate((*it), [&](Base::PhysicalFace<DIM>& face) {
             LinearAlgebra::MiddleSizeMatrix res;
             faceMatrix(face, res);
             LinearAlgebra::MiddleSizeMatrix temp;
@@ -152,7 +152,7 @@ void DGMaxDiscretization::computeFaceIntegrals(
 
         if (boundaryCondition)
         {
-            boundaryFaceVector = faIntegral.integrate<LinearAlgebra::MiddleSizeVector>((*it), [&](Base::PhysicalFace<DIM> &face) {
+            boundaryFaceVector = faIntegral.integrate((*it), [&](Base::PhysicalFace<DIM> &face) {
                 LinearAlgebra::MiddleSizeVector res;
                 faceVector(face, boundaryCondition, res, stab);
                 return res;
@@ -374,7 +374,7 @@ std::map<DGMaxDiscretization::NormType, double> DGMaxDiscretization::computeErro
 
     for (Base::MeshManipulator<DIM>::ElementIterator it = mesh.elementColBegin(); it != mesh.elementColEnd(); ++it)
     {
-        LinearAlgebra::SmallVector<2> errors = elIntegral.integrate<LinearAlgebra::SmallVector<2>>((*it),
+        LinearAlgebra::SmallVector<2> errors = elIntegral.integrate((*it),
                 [&](Base::PhysicalElement<DIM>& el) {
             return elementErrorIntegrand(el, dgWanted || hcurlWanted, timeVector, electricField, electricFieldCurl);
         });
@@ -391,7 +391,7 @@ std::map<DGMaxDiscretization::NormType, double> DGMaxDiscretization::computeErro
         faIntegral.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> >(new Base::HCurlConformingTransformation<DIM>()));
         for (Base::MeshManipulator<DIM>::FaceIterator it = mesh.faceColBegin(); it != mesh.faceColEnd(); ++it)
         {
-            dgNorm += faIntegral.integrate<double>(*it,
+            dgNorm += faIntegral.integrate(*it,
                     [&](Base::PhysicalFace<DIM>& face) {
                 return faceErrorIntegrand(face, timeVector, electricField);
             });

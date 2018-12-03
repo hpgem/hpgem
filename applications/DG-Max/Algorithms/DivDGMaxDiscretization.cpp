@@ -58,7 +58,7 @@ void DivDGMaxDiscretization::computeElementIntegrands(
 
         //mass matrix
         massMatrix.resize(totalDoFs, totalDoFs);
-        massMatrix = elementIntegral.integrate<LinearAlgebra::MiddleSizeMatrix>((*it),
+        massMatrix = elementIntegral.integrate((*it),
                 [&](Base::PhysicalElement<DIM>& element) {
             LinearAlgebra::MiddleSizeMatrix result;
             elementMassMatrix(element, result);
@@ -71,7 +71,7 @@ void DivDGMaxDiscretization::computeElementIntegrands(
         (*it)->setElementMatrix(massMatrix, ELEMENT_MASS_MATRIX_ID);
 
         stiffnessMatrix.resize(totalDoFs, totalDoFs);
-        stiffnessMatrix = elementIntegral.integrate<LinearAlgebra::MiddleSizeMatrix>((*it),
+        stiffnessMatrix = elementIntegral.integrate((*it),
                 [&](Base::PhysicalElement<DIM>& element) {
             LinearAlgebra::MiddleSizeMatrix result, temp;
             elementStiffnessMatrix(element, result);
@@ -95,7 +95,7 @@ void DivDGMaxDiscretization::computeElementIntegrands(
         if (sourceTerm)
         {
             sourceVector.resize(totalDoFs);
-            sourceVector = elementIntegral.integrate<LinearAlgebra::MiddleSizeVector>((*it),
+            sourceVector = elementIntegral.integrate((*it),
                     [&](Base::PhysicalElement<DIM>& element) {
                 LinearAlgebra::MiddleSizeVector result;
                 elementSourceVector(element, sourceTerm, result);
@@ -134,7 +134,7 @@ void DivDGMaxDiscretization::computeFaceIntegrals(
         faceMatrix.resize(totalDoFs, totalDoFs);
         faceVector.resize(totalDoFs);
 
-        faceMatrix = faceIntegral.integrate<LinearAlgebra::MiddleSizeMatrix>((*it),
+        faceMatrix = faceIntegral.integrate((*it),
                 [&] (Base::PhysicalFace<DIM>& face) {
             LinearAlgebra::MiddleSizeMatrix result, temp;
             faceStiffnessMatrix1(face, result);
@@ -160,7 +160,7 @@ void DivDGMaxDiscretization::computeFaceIntegrals(
 
         if (boundaryCondition)
         {
-            faceVector = faceIntegral.integrate<LinearAlgebra::MiddleSizeVector>((*it),
+            faceVector = faceIntegral.integrate((*it),
                     [&](Base::PhysicalFace<DIM> &face) {
                 LinearAlgebra::MiddleSizeVector result;
                 faceBoundaryVector(face, boundaryCondition, result, stab.stab1);
@@ -648,7 +648,7 @@ double DivDGMaxDiscretization::computeL2Error(
     double error = 0;
     for (Base::MeshManipulator<DIM>::ElementIterator it = mesh.elementColBegin(); it != mesh.elementColEnd(); ++it)
     {
-        error += elIntegral.integrate<double> ((*it),
+        error += elIntegral.integrate ((*it),
                 [&](Base::PhysicalElement<DIM> &el) {
             return elementErrorIntegrand(el, timeVector, electricField);
         });
