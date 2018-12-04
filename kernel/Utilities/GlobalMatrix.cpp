@@ -154,6 +154,8 @@ namespace Utilities
     {
         int ierr = MatZeroEntries(A_);
         CHKERRV(ierr);
+        ierr = MatSetOption(A_, MAT_ROW_ORIENTED, PETSC_FALSE);
+        CHKERRV(ierr);
         
         LinearAlgebra::MiddleSizeMatrix elementMatrix;
         
@@ -189,7 +191,10 @@ namespace Utilities
                 CHKERRV(ierr);
             }
         }
-        
+
+        ierr = MatSetOption(A_, MAT_ROW_ORIENTED, PETSC_TRUE);
+        CHKERRV(ierr);
+
         ierr = MatAssemblyBegin(A_, MAT_FINAL_ASSEMBLY);
         ierr = MatAssemblyEnd(A_, MAT_FINAL_ASSEMBLY);
         
@@ -394,6 +399,17 @@ namespace Utilities
         ierr = MatSetUp(A_);
         CHKERRV(ierr);
         reset();
+    }
+
+    void GlobalPetscMatrix::printMatInfo(MatInfoType type, std::ostream &stream)
+    {
+        MatInfo info;
+        PetscErrorCode error = MatGetInfo(A_, type, &info);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+        stream
+            << "Blocksize " << info.block_size
+            << ", Nonzero " << info.nz_used << " used " << info.nz_unneeded << " unused."
+            << " Assembled " << info.assemblies << " mallocs " << info.mallocs<<std::endl;
     }
 #endif
 }
