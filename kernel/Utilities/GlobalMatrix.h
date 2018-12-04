@@ -95,8 +95,6 @@ namespace Utilities
 
         void reAssemble();
 
-        void printMatInfo(MatInfoType type, std::ostream& stream);
-
         const GlobalIndexing& getGlobalIndex() const
         {
             return indexing_;

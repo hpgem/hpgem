@@ -238,7 +238,7 @@ namespace Utilities
                 for(std::size_t i = 0; i < nElementBasis; ++i) // Get the local basis functions of the element
                 {
                 	//Copy the values from data to the localData and update the running number
-                    localData[runningTotal] = data[elementBasis0 + i];
+                    localData[runningTotal] = std::real(data[elementBasis0 + i]);
                     ++runningTotal;
                 }
 
@@ -249,7 +249,7 @@ namespace Utilities
                     for (std::size_t j = 0; j < nFaceBasis; ++j) // get local basis functions of a face
                     {
                     	//Copy the values from data to the localData and update the running number
-                        localData[runningTotal] = data[faceBasis0 + j];
+                        localData[runningTotal] = std::real(data[faceBasis0 + j]);
                         ++runningTotal;
                     }
                 }
@@ -261,7 +261,7 @@ namespace Utilities
                     {
                     	//Copy the values from data to the localData and update the running number
 
-                        localData[runningTotal] = data[edgeBasis0 + j];
+                        localData[runningTotal] = std::real(data[edgeBasis0 + j]);
                         ++runningTotal;
                     }
                 }
@@ -274,7 +274,7 @@ namespace Utilities
                         for (std::size_t j = 0; j < nNodeBasis; ++j) //Get the local number of basis function of a node
                         {
                         	//Copy the values from data to the localData and update the running number
-                            localData[runningTotal] = data[nodeBasis0 + j];
+                            localData[runningTotal] = std::real(data[nodeBasis0 + j]);
                             ++runningTotal;
                         }
                     }
