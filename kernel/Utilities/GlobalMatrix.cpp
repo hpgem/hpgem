@@ -400,6 +400,17 @@ namespace Utilities
         CHKERRV(ierr);
         reset();
     }
+
+    void GlobalPetscMatrix::printMatInfo(MatInfoType type, std::ostream &stream)
+    {
+        MatInfo info;
+        PetscErrorCode error = MatGetInfo(A_, type, &info);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+        stream
+            << "Blocksize " << info.block_size
+            << ", Nonzero " << info.nz_used << " used " << info.nz_unneeded << " unused."
+            << " Assembled " << info.assemblies << " mallocs " << info.mallocs<<std::endl;
+    }
 #endif
 }
 
