@@ -75,6 +75,9 @@ public:
             const Base::Element* element, const Geometry::PointReference<DIM>& point,
             const LinearAlgebra::MiddleSizeVector& coefficients) const;
 
+    double computePotential(const Base::Element* element, const Geometry::PointReference<DIM>& point,
+            const LinearAlgebra::MiddleSizeVector& coefficients) const;
+
 private:
     // Element part of matrix M, with zero matrices around it
     void elementMassMatrix(Base::PhysicalElement<DIM>& el , LinearAlgebra::MiddleSizeMatrix& ret) const;
