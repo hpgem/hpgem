@@ -154,6 +154,8 @@ namespace Utilities
     {
         int ierr = MatZeroEntries(A_);
         CHKERRV(ierr);
+        ierr = MatSetOption(A_, MAT_ROW_ORIENTED, PETSC_FALSE);
+        CHKERRV(ierr);
         
         LinearAlgebra::MiddleSizeMatrix elementMatrix;
         
@@ -189,7 +191,10 @@ namespace Utilities
                 CHKERRV(ierr);
             }
         }
-        
+
+        ierr = MatSetOption(A_, MAT_ROW_ORIENTED, PETSC_TRUE);
+        CHKERRV(ierr);
+
         ierr = MatAssemblyBegin(A_, MAT_FINAL_ASSEMBLY);
         ierr = MatAssemblyEnd(A_, MAT_FINAL_ASSEMBLY);
         
