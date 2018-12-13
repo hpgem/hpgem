@@ -57,6 +57,30 @@ namespace Preprocessor {
 
             std::array<std::vector<stackVector<std::size_t>>, dimension> adjacentShapes;
             std::vector<const ElementShape<entityDimension>*> entityShapes;
+            
+            template<std::size_t SUB_DIM>
+            std::vector<const ElementShape<SUB_DIM>*>& getEntityShapes()
+            {
+                return EntityData<SUB_DIM, dimension>::entityShapes;
+            }
+
+            template<std::size_t SUB_DIM>
+            const std::vector<const ElementShape<SUB_DIM>*>& getEntityShapes() const
+            {
+                return EntityData<SUB_DIM, dimension>::entityShapes;
+            }
+
+            template<std::size_t SUB_DIM>
+            std::array<std::vector<stackVector<std::size_t>>, dimension>& getAdjacentShapes()
+            {
+                return this->EntityData<SUB_DIM, dimension>::adjacentShapes;
+            }
+
+            template<std::size_t SUB_DIM>
+            const std::array<std::vector<stackVector<std::size_t>>, dimension>& getAdjacentShapes() const
+            {
+                return EntityData<SUB_DIM, dimension>::adjacentShapes;
+            }
         };
 
         template<std::size_t dimension>
@@ -81,6 +105,30 @@ namespace Preprocessor {
 
             std::array<std::vector<stackVector<std::size_t>>, dimension> adjacentShapes;
             std::vector<const ElementShape<0>*> entityShapes;
+
+            template<std::size_t SUB_DIM>
+            std::vector<const ElementShape<SUB_DIM>*>& getEntityShapes()
+            {
+                return EntityData<SUB_DIM, dimension>::entityShapes;
+            }
+
+            template<std::size_t SUB_DIM>
+            std::array<std::vector<stackVector<std::size_t>>, dimension>& getAdjacentShapes()
+            {
+                return this->EntityData<SUB_DIM, dimension>::adjacentShapes;
+            }
+
+            template<std::size_t SUB_DIM>
+            const std::vector<const ElementShape<SUB_DIM>*>& getEntityShapes() const
+            {
+                return EntityData<SUB_DIM, dimension>::entityShapes;
+            }
+
+            template<std::size_t SUB_DIM>
+            const std::array<std::vector<stackVector<std::size_t>>, dimension>& getAdjacentShapes() const
+            {
+                return this->EntityData<SUB_DIM, dimension>::adjacentShapes;
+            }
         };
     }
 

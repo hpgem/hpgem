@@ -42,6 +42,18 @@ namespace Preprocessor {
         template<std::size_t entityDimension, std::size_t dimension = entityDimension>
         struct MeshEntities: public MeshEntities<entityDimension - 1, dimension> {
             std::vector<MeshEntity<entityDimension, dimension>> data;
+
+            template <std::size_t SUB_DIM>
+            std::vector<MeshEntity<SUB_DIM, dimension>>& getData()
+            {
+                return MeshEntities<SUB_DIM, dimension>::data;
+            }
+
+            template <std::size_t SUB_DIM>
+            const std::vector<MeshEntity<SUB_DIM, dimension>>& getData() const
+            {
+                return MeshEntities<SUB_DIM, dimension>::data;
+            }
         };
 
         template<std::size_t dimension>
@@ -405,7 +417,7 @@ namespace Preprocessor {
         //do the elements bounded by this 'face' know this
         template<std::size_t d>
         bool checkEntities(tag<d>) const {
-            for(auto entity : otherEntities.template MeshEntities<d, dimension>::data) {
+            for(auto entity : otherEntities.template getData<d>()) {
                 for(std::size_t i = 0; i < entity.getNumberOfElements(); ++i) {
                     if(entity != entity.getElement(i).template getIncidentEntity<d>(entity.getLocalIndex(i))) {
                         logger(ERROR, "This %-dimensional shape is adjacent to an element that is not bounded by this shape", d);
@@ -416,7 +428,7 @@ namespace Preprocessor {
             return checkEntities(tag<d - 1>{});
         }
         bool checkEntities(tag<0>) const {
-            for(auto entity : otherEntities.template MeshEntities<0, dimension>::data) {
+            for(auto entity : otherEntities.template getData<0>()) {
                 for(std::size_t i = 0; i < entity.getNumberOfElements(); ++i) {
                     if(entity != entity.getElement(i).template getIncidentEntity<0>(entity.getLocalIndex(i))) {
                         logger(ERROR, "This %-dimensional shape is adjacent to an element that is not bounded by this shape", 0);
@@ -434,14 +446,14 @@ namespace Preprocessor {
 
         template<std::size_t d>
         void copyEntities(tag<d>) {
-            for(auto& entity : otherEntities.template MeshEntities<d, dimension>::data) {
+            for(auto& entity : otherEntities.template getData<d>()) {
                 entity.mesh = this;
             }
             copyEntities(tag<d-1>{});
 
         }
         void copyEntities(tag<0>) {
-            for(auto& entity : otherEntities.template MeshEntities<0, dimension>::data) {
+            for(auto& entity : otherEntities.template getData<0>()) {
                 entity.mesh = this;
             }
         }
@@ -451,8 +463,8 @@ namespace Preprocessor {
 
         template<std::size_t entityDimension>
         std::size_t newEntity() {
-            std::size_t newIndex = otherEntities.template MeshEntities<entityDimension, dimension>::data.size();
-            otherEntities.template MeshEntities<entityDimension, dimension>::data.push_back({this, newIndex});
+            std::size_t newIndex = otherEntities.template getData<entityDimension>().size();
+            otherEntities.template getData<entityDimension>().push_back({this, newIndex});
             return newIndex;
         }
 

@@ -243,7 +243,7 @@ namespace Preprocessor {
     std::vector<MeshEntity<(entityDimension<0?entityDimension+dimension:entityDimension), dimension>>& Mesh<dimension>::getEntities() {
         static_assert(entityDimension + dimension >= 0, "The requested codimension is too high for the dimension of this element");
         constexpr std::size_t actualDimension = (entityDimension<0?entityDimension+dimension:entityDimension);
-        return otherEntities.template MeshEntities<actualDimension, dimension>::data;
+        return otherEntities.template getData<actualDimension>();
     };
 
     template<std::size_t dimension>
@@ -251,7 +251,7 @@ namespace Preprocessor {
     const std::vector<MeshEntity<(entityDimension<0?entityDimension+dimension:entityDimension), dimension>>& Mesh<dimension>::getEntities() const {
         static_assert(entityDimension + dimension >= 0, "The requested codimension is too high for the dimension of this element");
         constexpr std::size_t actualDimension = (entityDimension<0?entityDimension+dimension:entityDimension);
-        return otherEntities.template MeshEntities<actualDimension, dimension>::data;
+        return otherEntities.template getData<actualDimension>();
     }
 
     template<std::size_t dimension>
@@ -266,15 +266,15 @@ namespace Preprocessor {
 
     template<std::size_t dimension>
     void Mesh<dimension>::setNumberOfNodes(std::size_t number) {
-        if(number < otherEntities.template MeshEntities<0, dimension>::data.size()) {
-            otherEntities.template MeshEntities<0, dimension>::data.resize(number);
-        } else addNodes(number - otherEntities.template MeshEntities<0, dimension>::data.size());
+        if(number < otherEntities.template getData<0>().size()) {
+            otherEntities.template getData<0>().resize(number);
+        } else addNodes(number - otherEntities.template getData<0>().size());
     }
 
     template<std::size_t dimension>
     void Mesh<dimension>::addNode() {
-        std::size_t newIndex = otherEntities.template MeshEntities<0, dimension>::data.size();
-        otherEntities.template MeshEntities<0, dimension>::data.push_back({this, newIndex});
+        std::size_t newIndex = otherEntities.template getData<0>().size();
+        otherEntities.template getData<0>().push_back({this, newIndex});
     }
 
     template<std::size_t dimension>
@@ -300,11 +300,11 @@ namespace Preprocessor {
             newElement.addNode(nodeID, coordinateID);
         }
         elementsList.push_back(newElement);
-        otherEntities.template MeshEntities<dimension, dimension>::data.push_back(newElement);
+        otherEntities.template getData<dimension>().push_back(newElement);
         for(std::size_t i = 0; i < nodeCoordinateIDs.size(); ++i) {
             auto coordinateID = nodeCoordinateIDs[i];
             std::size_t nodeID = coordinates[coordinateID].nodeIndex;
-            otherEntities.template MeshEntities<0, dimension>::data[nodeID].addElement(elementID, i);
+            otherEntities.template getData<0>()[nodeID].addElement(elementID, i);
         }
         fixElement(elementsList.back(), tag<dimension - 1>{});
     }
@@ -352,7 +352,7 @@ namespace Preprocessor {
         logger.assert_always(candidates.size() < 2, "mesh data is not consistent");
         std::size_t entityIndex = (candidates.size() == 1?candidates[0]:newEntity<d>());
         element.template addEntity<d>(entityIndex);
-        otherEntities.template MeshEntities<d, dimension>::data[entityIndex].addElement(element.getGlobalIndex(), index);
+        otherEntities.template getData<d>()[entityIndex].addElement(element.getGlobalIndex(), index);
     }
 
     template<std::size_t dimension>
