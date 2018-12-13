@@ -23,6 +23,9 @@
 #define HPGEM_CUSTOMITERATOR_H
 
 #include<cstddef>
+#include <limits>
+#include <memory>
+
 #include<iterator>
 #include<functional>
 #include<utility>

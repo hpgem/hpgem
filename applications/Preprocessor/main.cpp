@@ -21,6 +21,7 @@
 
 //this executable only links against a limited part of the hpGEM kernel, don't expect all functionality to be available
 #include <metis.h>
+#include <chrono>
 #include <random>
 #include "Base/CommandLineOptions.h"
 #include "Base/MpiContainer.h"

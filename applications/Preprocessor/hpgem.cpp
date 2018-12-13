@@ -21,7 +21,7 @@
 
 #include <array>
 #include "hpgem.h"
-#include "logger.h"
+#include "Logger.h"
 
 namespace Preprocessor {
 
