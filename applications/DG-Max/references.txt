@@ -1,3 +1,11 @@
 sarmany2013ComputMathAppl
   Sarmany, Botchev, van der Vegt "Time-integration methods for finite element
   discretisations of the second-order Maxwell equation", Computers and Mathematics with Applications 65 (2013)
+
+Lu2016JSciComput
+  Lu, Cesmelioglu, van der Vegt "Discontinuous Galerkin Approximations for
+  Computing Electromagnetic Bloch Modes in Photonic Crystals", Journal of Scientific Computing 70 (2017)
+
+Devashish2017PhD
+  Devashish, "3D periodic photonic nanostructures with disrupted symmetries" PhD thesis
+  https://doi.org/10.3990/1.9789036544542

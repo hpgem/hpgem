@@ -152,7 +152,8 @@ void DivDGMaxDiscretization::computeFaceIntegrals(
 
             temp *= 0; // Reset the variable;
             faceStiffnessScalarMatrix4(face, temp, stab.stab3);
-            result += temp;
+            // Note the matrix contribution is -C.
+            result -= temp;
             // Reset no longer needed.
             return result;
         });
@@ -610,6 +611,7 @@ void DivDGMaxDiscretization::faceStiffnessScalarMatrix4(
         const double& phiPi = phiP[i];
         for (std::size_t j = i; j < totalPDoFs; ++j)
         {
+            // Note, positive here. The minus for the C matrix is added in computeFaceIntegrals7.
             const double entry = stab3 * phiP[j] * phiPi;
             const std::size_t jIndex = indices[j];
             ret(iIndex, jIndex) = entry;

@@ -27,11 +27,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 /// \brief Discontinuous Galerkin discretization for Maxwell, where the
 /// divergence constraint (div E = 0) is part of the discretization.
 ///
-// TODO: Write a better introduction on the discretization_ used
-// Should include that we can split the problem matrices into four parts A, B,
-// C and M. Which for example combine to form a eigen value problem
-// [ A  B ] [u] = λ [ M 0 ] [u]
-// [ BT C ] [p]     [ 0 0 ] [p]
+/// This implementation is based on chapter 5 of Devashish2017PhD, and similar
+/// to for example Lu2016JSciComput. It decomposes E = u + grad p, forming a
+/// mixed system (for eigenvalue problems) of the form
+/// [ A   B ] [u] = λ [ M 0 ] [u]
+/// [ BT -C ] [p]     [ 0 0 ] [p]
+///
+/// Where A corresponds to the curl-curl operator, B the coupling between
+/// u and p, and C is a stabilization term. The matrix M is the mass
+/// matrix, corresponding to the omega^2 E term in the timeharmonic
+/// formulation.
 class DivDGMaxDiscretization
 {
 public:
@@ -79,27 +84,26 @@ public:
             const LinearAlgebra::MiddleSizeVector& coefficients) const;
 
 private:
-    // Element part of matrix M, with zero matrices around it
+    /// Element part of matrix M, with zero matrices around it (u, v)
     void elementMassMatrix(Base::PhysicalElement<DIM>& el , LinearAlgebra::MiddleSizeMatrix& ret) const;
-    // Stiffness matrix, TODO: Is this the real stiffness or is this more something like curl-stiffness?
-    // Element part of matrix A, with zeros around it
+    /// Element part of matrix A, with zeros around it,  (curl u, curl v)
     void elementStiffnessMatrix(Base::PhysicalElement<DIM>& el , LinearAlgebra::MiddleSizeMatrix& ret) const;
-    // Element part of matrix B and B^T, with zeros around it
+    /// Element part of matrix B and B^T, with zeros around it (- grad p, eps v)
     void elementScalarVectorCoupling(Base::PhysicalElement<DIM>& el , LinearAlgebra::MiddleSizeMatrix& ret) const;
 
-    // The source vector for harmonic problems.
+    /// The source vector for harmonic problems.
     void elementSourceVector(Base::PhysicalElement<DIM>& el,
             const InputFunction &source, LinearAlgebra::MiddleSizeVector& ret) const;
 
-    // The part [[v]]_t {{mu^{-1} curl u}} + [[u]]_t {{mu^{-1} curl v}} of the stiffness integrand.
+    /// The part -[[v]]_t {{mu^{-1} curl u}} - [[u]]_t {{mu^{-1} curl v}} of the stiffness integrand.
     void faceStiffnessMatrix1(Base::PhysicalFace<DIM>& fa, LinearAlgebra::MiddleSizeMatrix& ret) const;
-    // The tangential stability term stab * [[u]]_T [[v]]_T part of the stiffness integrand
+    /// The tangential stability term stab * [[u]]_T [[v]]_T part of the stiffness integrand
     void faceStiffnessMatrix2(Base::PhysicalFace<DIM>& fa, LinearAlgebra::MiddleSizeMatrix& ret, double stab1) const;
-    // The normal stability term stab [[eps u]]_N [[eps v]]_N
+    /// The normal stability term stab [[eps u]]_N [[eps v]]_N
     void faceStiffnessMatrix3(Base::PhysicalFace<DIM>& fa, LinearAlgebra::MiddleSizeMatrix& ret, double stab2) const;
-    // The face part of B and B^T, [[p]]_N {{eps v}}
+    /// The face part of B and B^T, [[p]]_N {{eps v}}
     void faceScalarVectorCoupling(Base::PhysicalFace<DIM>& fa, LinearAlgebra::MiddleSizeMatrix& ret) const;
-    // Matrix C, stab [[p]]_N [[q]]_n
+    /// Matrix C, stab [[p]]_N [[q]]_n, note that C itself has a minus contribution.
     void faceStiffnessScalarMatrix4(Base::PhysicalFace<DIM>& fa, LinearAlgebra::MiddleSizeMatrix& ret, double stab3) const;
 
     void faceBoundaryVector(Base::PhysicalFace<DIM>& fa, const FaceInputFunction &boundaryValue,
