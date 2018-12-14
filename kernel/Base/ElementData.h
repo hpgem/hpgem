@@ -143,6 +143,8 @@ namespace Base
         /// \param[in] iBasisFunction The index corresponding to the basisfunction.
         std::size_t convertToSingleIndex(std::size_t iBasisFunction, std::size_t iVar = 0) const
         {
+            logger.assert(iVar < getNumberOfUnknowns(), "This element has only % unknowns, but you ask for unknown %", getNumberOfUnknowns(), iVar);
+            logger.assert(iBasisFunction < getNumberOfBasisFunctions(iVar), "This unknown has only % basis functions in this element, but you asked for basis function %", getNumberOfBasisFunctions(iVar), iBasisFunction);
             std::size_t offset = 0;
             for(std::size_t i = 0; i < iVar; ++i)
             {
