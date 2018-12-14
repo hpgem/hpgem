@@ -3422,8 +3422,6 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
                     edgeIsInPartition = true;
                     auto edge = addEdge();
                     for(std::size_t k = 0; k < globalElementIndices.size(); ++k) {
-                        //only the elements connected by faces will act as shadow elements, so some of the elements
-                        //connected to the edge might not be generated locally
                         if(actualElement[globalElementIndices[k]]) {
                             edge->addElement(actualElement[globalElementIndices[k]], localEdgeNumbers[k]);
                         }
