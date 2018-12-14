@@ -67,7 +67,7 @@ namespace Geometry
     
     bool ReferenceHypercube::isInternalPoint(const PointReference<4>& p) const
     {
-        logger.assert(p.size()==4, "The dimension of the point is wrong");
+        logger.assert_debug(p.size() == 4, "The dimension of the point is wrong");
         return ((p[0] >= -1.) && (p[0] <= 1.) && (p[1] >= -1.) && (p[1] <= 1.) && (p[2] >= -1.) && (p[2] <= 1.) && (p[3] >= -1.) && (p[3] <= 1.));
     }
     
@@ -106,20 +106,20 @@ namespace Geometry
     const MappingReferenceToReference<1>*
     ReferenceHypercube::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
-        logger.assert((faceIndex < 8), "ERROR: ReferenceHypercube::getCodim1MappingPtr requested face index does not exist.\n");
+        logger.assert_debug((faceIndex < 8), "ERROR: ReferenceHypercube::getCodim1MappingPtr requested face index does not exist.\n");
         return mappingsCubeToHypercube_[faceIndex];
     }
     
     const ReferenceGeometry*
     ReferenceHypercube::getCodim1ReferenceGeometry(const std::size_t faceIndex) const
     {
-        logger.assert(faceIndex < 8, "You requested face %, but it does not exist", faceIndex);
+        logger.assert_debug(faceIndex < 8, "You requested face %, but it does not exist", faceIndex);
         return referenceGeometryCodim1Ptr_;
     }
     
     std::vector<std::size_t> ReferenceHypercube::getCodim1EntityLocalIndices(const std::size_t i) const
     {
-        logger.assert((i<8), "ERROR: ReferenceHypercube::getCodim1EntityLocalIndices requested face index does not exist.\n");
+        logger.assert_debug((i < 8), "ERROR: ReferenceHypercube::getCodim1EntityLocalIndices requested face index does not exist.\n");
         return std::vector<std::size_t>(localNodeIndexes_[i], localNodeIndexes_[i] + 8);
         
     }
@@ -137,13 +137,13 @@ namespace Geometry
     const ReferenceGeometry*
     ReferenceHypercube::getCodim2ReferenceGeometry(const std::size_t e) const
     {
-        logger.assert((e < 24), "ERROR: ReferenceHypercube::getCodim2ReferenceGeometry requested side index does not exist.\n");
+        logger.assert_debug((e < 24), "ERROR: ReferenceHypercube::getCodim2ReferenceGeometry requested side index does not exist.\n");
         return referenceGeometryCodim2Ptr_;
     }
     
     std::vector<std::size_t> ReferenceHypercube::getCodim2EntityLocalIndices(const std::size_t i) const
     {
-        logger.assert((i < 24), "ReferenceHypercube::getCodim2EntityLocalIndices: not implemented.\n");
+        logger.assert_debug((i < 24), "ReferenceHypercube::getCodim2EntityLocalIndices: not implemented.\n");
         logger(ERROR, "ReferenceHypercube::getCodim2EntityLocalIndices requested side index does not exist.\n");
         std::vector<std::size_t> dummy(1);
         return dummy;
@@ -153,7 +153,7 @@ namespace Geometry
     
     std::vector<std::size_t> ReferenceHypercube::getCodim3EntityLocalIndices(const std::size_t i) const
     {
-        logger.assert((i < 32), "ReferenceHypercube::getCodim3EntityLocalIndices not implemented.\n");
+        logger.assert_debug((i < 32), "ReferenceHypercube::getCodim3EntityLocalIndices not implemented.\n");
         logger(ERROR, "ReferenceHypercube::getCodim2EntityLocalIndices requested side index does not exist.\n");
         std::vector<std::size_t> dummy(1);
         return dummy;

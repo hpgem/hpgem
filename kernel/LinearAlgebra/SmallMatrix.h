@@ -52,7 +52,7 @@ namespace LinearAlgebra
         explicit SmallMatrix(const SmallVector<numberOfRows>& other)
             : data_()
         {
-            logger.assert(numberOfColumns == 1, "Trying to construct a matrix with more than 1 columns from a vector");
+            logger.assert_debug(numberOfColumns == 1, "Trying to construct a matrix with more than 1 columns from a vector");
             std::copy(other.data(), other.data() + numberOfRows, data_.begin());
         }
 
@@ -66,7 +66,7 @@ namespace LinearAlgebra
         SmallMatrix(const std::initializer_list<SmallVector<numberOfRows>>& entries)
             : data_()
         {
-            logger.assert(entries.size() == numberOfColumns, "expected a matrix with % columns, but got a matrix with % columns", numberOfColumns, entries.size());
+            logger.assert_debug(entries.size() == numberOfColumns, "expected a matrix with % columns, but got a matrix with % columns", numberOfColumns, entries.size());
             std::size_t column = 0;
             for(const SmallVector<numberOfRows>& entrie : entries) {
                 for(std::size_t i = 0; i < numberOfRows; ++i) {
@@ -87,8 +87,8 @@ namespace LinearAlgebra
         SmallMatrix(const MiddleSizeMatrix& other)
             : data_()
         {
-            logger.assert(other.getNumberOfRows() == numberOfRows, "expected a matrix with % rows, but got a matrix with % rows", numberOfRows, other.getNumberOfRows());
-            logger.assert(other.getNumberOfColumns() == numberOfColumns, "expected a matrix with % columns, but got a matrix with % columns", numberOfColumns, other.getNumberOfColumns());
+            logger.assert_debug(other.getNumberOfRows() == numberOfRows, "expected a matrix with % rows, but got a matrix with % rows", numberOfRows, other.getNumberOfRows());
+            logger.assert_debug(other.getNumberOfColumns() == numberOfColumns, "expected a matrix with % columns, but got a matrix with % columns", numberOfColumns, other.getNumberOfColumns());
             for(std::size_t i = 0; i < numberOfRows * numberOfColumns; ++i)
             {
                 data_[i] = std::real(other[i]);
@@ -117,29 +117,29 @@ namespace LinearAlgebra
         /// \brief defines the operator (n,m) to access the element on row n and column m
         double& operator()(std::size_t n, std::size_t m)
         {
-            logger.assert(n < numberOfRows, "Requested row number % for a matrix with only % rows", n, numberOfRows);
-            logger.assert(m < numberOfColumns, "Requested column number % for a matrix with only % columns", m, numberOfColumns);
+            logger.assert_debug(n < numberOfRows, "Requested row number % for a matrix with only % rows", n, numberOfRows);
+            logger.assert_debug(m < numberOfColumns, "Requested column number % for a matrix with only % columns", m, numberOfColumns);
             return data_[n + m * numberOfRows];
         }
 
         /// \brief defines the operator (n,m) to access the element on row n and column m
         const double& operator()(std::size_t n, std::size_t m) const
         {
-            logger.assert(n < numberOfRows, "Requested row number % for a matrix with only % rows", n, numberOfRows);
-            logger.assert(m < numberOfColumns, "Requested column number % for a matrix with only % columns", m, numberOfColumns);
+            logger.assert_debug(n < numberOfRows, "Requested row number % for a matrix with only % rows", n, numberOfRows);
+            logger.assert_debug(m < numberOfColumns, "Requested column number % for a matrix with only % columns", m, numberOfColumns);
             return data_[n + m * numberOfRows];
         }
 
         /// \brief Access the n linear element in the matrix.
         double& operator[](const std::size_t n)
         {
-            logger.assert(n < numberOfRows * numberOfColumns, "Requested entry % for a matrix with only % entries", n, numberOfRows * numberOfColumns);
+            logger.assert_debug(n < numberOfRows * numberOfColumns, "Requested entry % for a matrix with only % entries", n, numberOfRows * numberOfColumns);
             return data_[n];
         }
 
         const double& operator[](const std::size_t n) const
         {
-            logger.assert(n < numberOfRows * numberOfColumns, "Requested entry % for a matrix with only % entries", n, numberOfRows * numberOfColumns);
+            logger.assert_debug(n < numberOfRows * numberOfColumns, "Requested entry % for a matrix with only % entries", n, numberOfRows * numberOfColumns);
             return data_[n];
         }
 
@@ -276,14 +276,14 @@ namespace LinearAlgebra
         /// \brief get the j^th column
         SmallVector<numberOfRows> getColumn(std::size_t j) const
         {
-            logger.assert(j < numberOfColumns, "Asked for column %, but there are only % columns", j, numberOfColumns);
+            logger.assert_debug(j < numberOfColumns, "Asked for column %, but there are only % columns", j, numberOfColumns);
             return SmallVector<numberOfRows>(data() + j * numberOfRows);
         }
 
         /// \brief get the i^th row
         SmallVector<numberOfColumns> getRow(std::size_t i) const
         {
-            logger.assert(i < numberOfRows, "Asked for row %, but there are only % rows", i, numberOfRows);
+            logger.assert_debug(i < numberOfRows, "Asked for row %, but there are only % rows", i, numberOfRows);
             SmallVector<numberOfColumns> result;
             for(std::size_t j = 0; j < numberOfColumns; ++j)
             {

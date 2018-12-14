@@ -63,10 +63,10 @@ namespace LinearAlgebra
         SmallVector(const MiddleSizeVector& other)
             : data_()
         {
-            logger.assert(other.size() == numberOfRows, "Cannot construct a vector of size % from a vector of size %", numberOfRows, other.size());
+            logger.assert_debug(other.size() == numberOfRows, "Cannot construct a vector of size % from a vector of size %", numberOfRows, other.size());
             for(std::size_t i = 0; i < numberOfRows; ++i)
             {
-                logger.assert(std::abs(other[i] - std::real(other[i])) < 1e-9, "trying to construct a real vector from a vector with nonzero complex component");
+                logger.assert_debug(std::abs(other[i] - std::real(other[i])) < 1e-9, "trying to construct a real vector from a vector with nonzero complex component");
                 data_[i] = std::real(other[i]);
             }
         }
@@ -85,7 +85,7 @@ namespace LinearAlgebra
         SmallVector(std::initializer_list<double> data)
                 : data_()
         {
-            logger.assert(data.size() == numberOfRows, "provided array has size %, but should have size %", data.size(), numberOfRows);
+            logger.assert_debug(data.size() == numberOfRows, "provided array has size %, but should have size %", data.size(), numberOfRows);
             std::copy(data.begin(), data.end(), data_.begin());
         }
 
@@ -201,25 +201,25 @@ namespace LinearAlgebra
 
         double& operator[](std::size_t n)
         {
-            logger.assert(n < numberOfRows, "Requested entry %, but there are only % entries", n, numberOfRows);
+            logger.assert_debug(n < numberOfRows, "Requested entry %, but there are only % entries", n, numberOfRows);
             return data_[n];
         }
 
         const double& operator[](std::size_t n) const
         {
-            logger.assert(n < numberOfRows, "Requested entry %, but there are only % entries", n, numberOfRows);
+            logger.assert_debug(n < numberOfRows, "Requested entry %, but there are only % entries", n, numberOfRows);
             return data_[n];
         }
 
         double& operator()(std::size_t n)
         {
-            logger.assert(n < numberOfRows, "Requested entry %, but there are only % entries", n, numberOfRows);
+            logger.assert_debug(n < numberOfRows, "Requested entry %, but there are only % entries", n, numberOfRows);
             return data_[n];
         }
 
         const double& operator()(std::size_t n) const
         {
-            logger.assert(n < numberOfRows, "Requested entry %, but there are only % entries", n, numberOfRows);
+            logger.assert_debug(n < numberOfRows, "Requested entry %, but there are only % entries", n, numberOfRows);
             return data_[n];
         }
 
@@ -335,7 +335,7 @@ namespace LinearAlgebra
     inline void SmallVector<numberOfRows>::crossProduct(
             const LinearAlgebra::SmallVector<numberOfRows> &other, LinearAlgebra::SmallVector<numberOfRows> &result) const
     {
-        logger.assert(false, "Cross product only defined for 2 and 3D vectors, not for % ", numberOfRows);
+        logger.assert_debug(false, "Cross product only defined for 2 and 3D vectors, not for % ", numberOfRows);
     }
 
 #ifdef HPGEM_USE_COMPLEX_PETSC
@@ -346,7 +346,7 @@ namespace LinearAlgebra
         logger(WARN, "Constructing middle size vector from small vector, consider using small vectors everywhere for fixed length vectors of size <= 4");
         for(std::size_t i = 0; i < nRows; ++i)
         {
-            logger.assert(std::abs(other[i] - std::real(other[i])) < 1e-9, "attempting to construct a real vector from a vector with a complex part");
+            logger.assert_debug(std::abs(other[i] - std::real(other[i])) < 1e-9, "attempting to construct a real vector from a vector with a complex part");
             data_[i] = std::real(other[i]);
         }
     }

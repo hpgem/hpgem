@@ -117,7 +117,7 @@ HeightLimiter* SavageHutter2DBasic::createHeightLimiter()
 
 LinearAlgebra::MiddleSizeVector SavageHutter2DBasic::computeSourceTerm(const LinearAlgebra::MiddleSizeVector &numericalSolution, const PointPhysicalT& pPhys, const double time)
 {
-    logger.assert(chuteAngle_ < M_PI / 2, "Angle must be in radians, not degrees!");
+    logger.assert_debug(chuteAngle_ < M_PI / 2, "Angle must be in radians, not degrees!");
     const double h = numericalSolution(0);
     const double hu = numericalSolution(1);
     const double hv = numericalSolution(2);
@@ -146,7 +146,7 @@ LinearAlgebra::MiddleSizeVector SavageHutter2DBasic::computeSourceTerm(const Lin
 LinearAlgebra::MiddleSizeVector SavageHutter2DBasic::computePhysicalFlux(const LinearAlgebra::MiddleSizeVector &numericalSolution)
 {
     const double h = numericalSolution(0);
-    logger.assert(h > -1e-16, "Negative height (%)", h);
+    logger.assert_debug(h > -1e-16, "Negative height (%)", h);
     double hu = numericalSolution(1);
     double hv = numericalSolution(2);
     double u = 0;

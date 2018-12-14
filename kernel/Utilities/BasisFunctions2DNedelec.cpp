@@ -55,8 +55,8 @@ namespace Utilities
     BasisCurlEdgeNedelec2D::BasisCurlEdgeNedelec2D(std::size_t degree1, std::size_t degree2, std::size_t localFirstVertex, std::size_t localSecondVertex)
             : deg1(degree1), deg2(degree2), i(localFirstVertex), j(localSecondVertex)
     {
-        logger.assert(deg1 < 1 && deg2 < 1, "2D Nedelec basis functions only implemented for p = 1");
-        logger.assert(i < 3 && j < 3, "A triangle only has 3 nodes");
+        logger.assert_debug(deg1 < 1 && deg2 < 1, "2D Nedelec basis functions only implemented for p = 1");
+        logger.assert_debug(i < 3 && j < 3, "A triangle only has 3 nodes");
     }
     
     void BasisCurlEdgeNedelec2D::eval(const Geometry::PointReference<2>& p, LinearAlgebra::SmallVector<2>& ret) const 
@@ -91,7 +91,7 @@ namespace Utilities
     
     Base::BasisFunctionSet* createDGBasisFunctionSet2DNedelec(std::size_t order)
     {
-        logger.assert(order < 2, "2D Nedelec basis functions only implemented for p = 1");
+        logger.assert_debug(order < 2, "2D Nedelec basis functions only implemented for p = 1");
         Base::BasisFunctionSet* bFset = new Base::BasisFunctionSet(order);
         bFset->addBasisFunction(new BasisCurlEdgeNedelec2D(0,0,0,1));
         bFset->addBasisFunction(new BasisCurlEdgeNedelec2D(0,0,0,2));

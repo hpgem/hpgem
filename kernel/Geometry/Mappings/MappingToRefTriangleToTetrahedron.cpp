@@ -35,13 +35,13 @@ namespace Geometry
     
     PointReference<3> MappingToRefTriangleToTetrahedron0::transform(const Geometry::PointReference<2>& p1) const
     {
-        logger.assert(p1.size()==2, "Reference point has the wrong dimension");
+        logger.assert_debug(p1.size() == 2, "Reference point has the wrong dimension");
         return {0., p1[1], p1[0]};
     }
     
     Jacobian<2, 3> MappingToRefTriangleToTetrahedron0::calcJacobian(const Geometry::PointReference<2>& p1) const
     {
-        logger.assert(p1.size()==2, "Reference point has the wrong dimension");
+        logger.assert_debug(p1.size() == 2, "Reference point has the wrong dimension");
         Jacobian<2, 3> jacobian;
         jacobian(0, 0) = 0.0;
         jacobian(1, 0) = 0.0;
@@ -67,13 +67,13 @@ namespace Geometry
     
     PointReference<3> MappingToRefTriangleToTetrahedron1::transform(const Geometry::PointReference<2>& p1) const
     {
-        logger.assert(p1.size()==2, "Reference point has the wrong dimension");
+        logger.assert_debug(p1.size() == 2, "Reference point has the wrong dimension");
         return {p1[0], 0., p1[1]};
     }
     
     Jacobian<2, 3> MappingToRefTriangleToTetrahedron1::calcJacobian(const Geometry::PointReference<2>& p1) const
     {
-        logger.assert(p1.size()==2, "Reference point has the wrong dimension");
+        logger.assert_debug(p1.size() == 2, "Reference point has the wrong dimension");
         Jacobian<2, 3> jacobian;
         jacobian(0, 0) = 1.0;
         jacobian(1, 0) = 0.0;
@@ -99,13 +99,13 @@ namespace Geometry
     
     PointReference<3> MappingToRefTriangleToTetrahedron2::transform(const Geometry::PointReference<2>& p1) const
     {
-        logger.assert(p1.size()==2, "Reference point has the wrong dimension");
+        logger.assert_debug(p1.size() == 2, "Reference point has the wrong dimension");
         return {p1[1], p1[0], 0.};
     }
     
     Jacobian<2, 3> MappingToRefTriangleToTetrahedron2::calcJacobian(const Geometry::PointReference<2>& p1) const
     {
-        logger.assert(p1.size()==2, "Reference point has the wrong dimension");
+        logger.assert_debug(p1.size() == 2, "Reference point has the wrong dimension");
         Jacobian<2, 3> jacobian;
         jacobian(0, 0) = 0.0;
         jacobian(1, 0) = 1.0;
@@ -131,13 +131,13 @@ namespace Geometry
     
     PointReference<3> MappingToRefTriangleToTetrahedron3::transform(const Geometry::PointReference<2>& p1) const
     {
-        logger.assert(p1.size()==2, "Reference point has the wrong dimension");
+        logger.assert_debug(p1.size() == 2, "Reference point has the wrong dimension");
         return {1. - p1[0] - p1[1], p1[0], p1[1]};
     }
     
     Jacobian<2, 3> MappingToRefTriangleToTetrahedron3::calcJacobian(const Geometry::PointReference<2>& p1) const
     {
-        logger.assert(p1.size()==2, "Reference point has the wrong dimension");
+        logger.assert_debug(p1.size() == 2, "Reference point has the wrong dimension");
         Jacobian<2, 3> jacobian;
         jacobian(0, 0) = -1.0;
         jacobian(1, 0) = 1.0;

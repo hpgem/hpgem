@@ -62,7 +62,7 @@ void Base::FaceData::setFaceMatrix(const LinearAlgebra::MiddleSizeMatrix& matrix
     }
     
     // Check if the input matrix is square.
-    logger.assert(matrix.getNumberOfRows() == matrix.getNumberOfColumns(), "FaceMatrix is not square.");
+    logger.assert_debug(matrix.getNumberOfRows() == matrix.getNumberOfColumns(), "FaceMatrix is not square.");
     
     std::size_t nDOFLeft = std::size_t(matrix.getNumberOfRows() / 2);
     std::size_t nDOFRight = matrix.getNumberOfRows() - nDOFLeft;
@@ -92,7 +92,7 @@ void Base::FaceData::setFaceMatrix(const Base::FaceMatrix &faceMatrix, std::size
 LinearAlgebra::MiddleSizeMatrix Base::FaceData::getFaceMatrixMatrix(std::size_t matrixID) const
 {
     // Check if there are enough faces matrices stored.
-    logger.assert(matrixID < faceMatrix_.size(), "Not enough face matrices stored.");
+    logger.assert_debug(matrixID < faceMatrix_.size(), "Not enough face matrices stored.");
     
     return faceMatrix_[matrixID].getEntireMatrix();
 }
@@ -101,7 +101,7 @@ LinearAlgebra::MiddleSizeMatrix Base::FaceData::getFaceMatrixMatrix(std::size_t 
 const Base::FaceMatrix & Base::FaceData::getFaceMatrix(std::size_t matrixID) const
 {
     // Check if there are enough faces matrices stored.
-    logger.assert(matrixID < faceMatrix_.size(), "Not enough face matrices stored.");
+    logger.assert_debug(matrixID < faceMatrix_.size(), "Not enough face matrices stored.");
     
     return faceMatrix_[matrixID];
 }
@@ -119,7 +119,7 @@ void Base::FaceData::setFaceVector(const LinearAlgebra::MiddleSizeVector& vector
 
 LinearAlgebra::MiddleSizeVector Base::FaceData::getFaceVector(std::size_t vectorID) const
 {
-    logger.assert(vectorID < faceVector_.size(), "insufficient face vectors stored");
+    logger.assert_debug(vectorID < faceVector_.size(), "insufficient face vectors stored");
     return faceVector_[vectorID];
 }
 

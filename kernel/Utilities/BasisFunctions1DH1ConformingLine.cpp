@@ -72,7 +72,7 @@ namespace Utilities
     
     Base::BasisFunctionSet* createInteriorBasisFunctionSet1DH1Line(std::size_t polynomialOrder)
     {
-        logger.assert(polynomialOrder > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
+        logger.assert_debug(polynomialOrder > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         Base::BasisFunctionSet* result(new Base::BasisFunctionSet(polynomialOrder));
         for (std::size_t i = 0; i + 2 <= polynomialOrder; ++i)
         {
@@ -83,7 +83,7 @@ namespace Utilities
     
     std::vector<const Base::OrientedBasisFunctionSet*> createVertexBasisFunctionSet1DH1Line(std::size_t polynomialOrder)
     {
-        logger.assert(polynomialOrder > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
+        logger.assert_debug(polynomialOrder > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::OrientedBasisFunctionSet*> result;
         Base::OrientedBasisFunctionSet* set(new Base::OrientedBasisFunctionSet(polynomialOrder, 0, 0));
         set->addBasisFunction(new BasisFunction1DVertexLine(0));

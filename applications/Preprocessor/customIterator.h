@@ -410,7 +410,7 @@ namespace Preprocessor {
         template<typename S, typename = std::enable_if_t<Detail::Contains<std::decay_t<S>, std::decay_t<Iterators>...>::value>>
         operator S() {
             return forward([](auto* data) {
-                logger.assert(typeid(S) == typeid(*data), "Can only convert to active iterator");
+                logger.assert_debug(typeid(S) == typeid(*data), "Can only convert to active iterator");
                 return reinterpret_cast<S&>(*data);
             });
         };
@@ -483,7 +483,7 @@ namespace Preprocessor {
         }
 
         std::ptrdiff_t operator-(const hybridIterator& other) const {
-            logger.assert(active == other.active, "You cannot compare two pointers into different ranges");
+            logger.assert_debug(active == other.active, "You cannot compare two pointers into different ranges");
             return forward([other](auto* data) {
                 return other.forward([data](auto* otherData) {
                     return Detail::difference(data, otherData);

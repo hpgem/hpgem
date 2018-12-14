@@ -29,12 +29,12 @@ SampleHarmonicProblems::SampleHarmonicProblems(SampleHarmonicProblems::Problem p
     {
       case CONSTANT:
         {
-            logger.assert(std::abs(omega_) > 1e-3,
+            logger.assert_debug(std::abs(omega_) > 1e-3,
                     "Given omega is very close to the eigenvalue 0.");
         }
       case SARMANY2010:
         {
-            logger.assert(std::abs(omega_*omega_ - 2*M_PI*M_PI) > 1e-1,
+            logger.assert_debug(std::abs(omega_*omega_ - 2*M_PI*M_PI) > 1e-1,
                     "Given omega^2 is very close to the eigenvalue 2 pi^2.");
             break;
         }
@@ -50,7 +50,7 @@ double SampleHarmonicProblems::omega() const
       case SARMANY2010:
         return omega_;
       default:
-        logger.assert(false, "Not implemented for this problem.");
+        logger.assert_debug(false, "Not implemented for this problem.");
         return -1;
     }
 }
@@ -71,7 +71,7 @@ void SampleHarmonicProblems::exactSolution(
             break;
         }
       default:
-        logger.assert(false, "Not implemented for this problem.");
+        logger.assert_debug(false, "Not implemented for this problem.");
     }
 }
 
@@ -95,7 +95,7 @@ void SampleHarmonicProblems::exactSolutionCurl(
             break;
         }
       default:
-        logger.assert(false, "Not implemented for this problem.");
+        logger.assert_debug(false, "Not implemented for this problem.");
     }
 }
 
@@ -116,7 +116,7 @@ void SampleHarmonicProblems::sourceTerm(
             break;
         }
       default:
-        logger.assert(false, "Not implemented for this problem.");
+        logger.assert_debug(false, "Not implemented for this problem.");
     }
 }
 
@@ -132,6 +132,6 @@ void SampleHarmonicProblems::sarmanyx(
     }
     else
     {
-        logger.assert(DIM == 3, "Sarmany test case only works in 3D.");
+        logger.assert_debug(DIM == 3, "Sarmany test case only works in 3D.");
     }
 }

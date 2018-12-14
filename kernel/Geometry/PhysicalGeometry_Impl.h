@@ -29,28 +29,28 @@ namespace Geometry
     template<std::size_t DIM>
     const PointPhysicalBase& PhysicalGeometry<DIM>::getLocalNodeCoordinates(const std::size_t localIndex) const
     {
-        logger.assert(localIndex < getNumberOfNodes(), "Asked for local index %, but this geometry only has % nodes",localIndex,getNumberOfNodes());
+        logger.assert_debug(localIndex < getNumberOfNodes(), "Asked for local index %, but this geometry only has % nodes",localIndex,getNumberOfNodes());
         return (nodeCoordinates_)[globalNodeIndexes_[localIndex]];
     }
 
     template<std::size_t DIM>
     const PointPhysicalBase& PhysicalGeometry<DIM>::getGlobalNodeCoordinates(const std::size_t globalIndex) const
     {
-        logger.assert(globalIndex < nodeCoordinates_.size(), "Asked for global index %, but there are only % nodes",globalIndex,getNumberOfNodes());
+        logger.assert_debug(globalIndex < nodeCoordinates_.size(), "Asked for global index %, but there are only % nodes",globalIndex,getNumberOfNodes());
         return (nodeCoordinates_)[globalIndex];
     }
 
     template<std::size_t DIM>
     PointPhysicalBase& PhysicalGeometry<DIM>::getLocalNodeCoordinates(const std::size_t localIndex)
     {
-        logger.assert(localIndex < getNumberOfNodes(), "Asked for local index %, but this geometry only has % nodes",localIndex,getNumberOfNodes());
+        logger.assert_debug(localIndex < getNumberOfNodes(), "Asked for local index %, but this geometry only has % nodes",localIndex,getNumberOfNodes());
         return (nodeCoordinates_)[globalNodeIndexes_[localIndex]];
     }
 
     template<std::size_t DIM>
     PointPhysicalBase& PhysicalGeometry<DIM>::getGlobalNodeCoordinates(const std::size_t globalIndex)
     {
-        logger.assert(globalIndex < nodeCoordinates_.size(), "Asked for global index %, but there are only % nodes",globalIndex,getNumberOfNodes());
+        logger.assert_debug(globalIndex < nodeCoordinates_.size(), "Asked for global index %, but there are only % nodes",globalIndex,getNumberOfNodes());
         return (nodeCoordinates_)[globalIndex];
     }
 

@@ -46,7 +46,7 @@ namespace Utilities
         BasisFunction1DVertexLine(std::size_t node)
                 : nodePosition_(2 * static_cast<int>(node) - 1)
         {
-            logger.assert(node < 2, "A line only has 2 nodes");
+            logger.assert_debug(node < 2, "A line only has 2 nodes");
         }
         
         double eval(const Geometry::PointReference<1>& p) const;

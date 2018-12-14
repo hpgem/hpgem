@@ -62,7 +62,7 @@ namespace Geometry
         PhysicalGeometry(const std::vector<std::size_t>& globalNodeIndexes, std::vector<PointPhysical<DIM> >& nodes, const ReferenceGeometry * const refG)
                 : PhysicalGeometryBase(globalNodeIndexes, refG), nodeCoordinates_(nodes)
         {
-            logger.assert(refG!=nullptr, "Invalid reference geometry passed");
+            logger.assert_debug(refG!=nullptr, "Invalid reference geometry passed");
         }
                 
         PhysicalGeometry(const PhysicalGeometry& other) = delete;
@@ -82,14 +82,14 @@ namespace Geometry
         /// \brief Given a global index, returns a pointer to the corresponding point.
         PointPhysicalBase* getNodeCoordinatePtr(const std::size_t globalIndex)
         {
-            logger.assert(globalIndex < nodeCoordinates_.size(),"This mesh does not contain a node with index %",globalIndex);
+            logger.assert_debug(globalIndex < nodeCoordinates_.size(),"This mesh does not contain a node with index %",globalIndex);
             return &(nodeCoordinates_[globalIndex]);
         }
         
         /// \brief Given a global index, returns a pointer to the corresponding point.
         const PointPhysicalBase* getNodeCoordinatePtr(const std::size_t globalIndex) const
         {
-            logger.assert(globalIndex < nodeCoordinates_.size(),"This mesh does not contain a node with index %",globalIndex);
+            logger.assert_debug(globalIndex < nodeCoordinates_.size(),"This mesh does not contain a node with index %",globalIndex);
             return &(nodeCoordinates_[globalIndex]);
         }        
         
@@ -108,14 +108,14 @@ namespace Geometry
         /// \deprecated Not consistent with naming convention, please use getNodeCoordinatePtr
         const PointPhysicalBase* getNodePtr(const std::size_t globalIndex) const
         {
-            logger.assert(globalIndex < nodeCoordinates_.size(),"This mesh does not contain a node with index %",globalIndex);
+            logger.assert_debug(globalIndex < nodeCoordinates_.size(),"This mesh does not contain a node with index %",globalIndex);
             return &(nodeCoordinates_[globalIndex]);
         }
         
         ///\deprecated Not consistent with naming convention, please use getNodeCoordinatePtr
         PointPhysicalBase* getNodePtr(const std::size_t globalIndex)
         {
-            logger.assert(globalIndex < nodeCoordinates_.size(),"This mesh does not contain a node with index %",globalIndex);
+            logger.assert_debug(globalIndex < nodeCoordinates_.size(),"This mesh does not contain a node with index %",globalIndex);
             return &(nodeCoordinates_[globalIndex]);
         }
         

@@ -76,7 +76,8 @@ namespace LinearAlgebra
     MiddleSizeMatrix::MiddleSizeMatrix(const std::size_t n, const std::size_t m)
             : data_(n * m), numberOfRows_(n), numberOfColumns_(m)
     {
-        logger.assert(n <= std::numeric_limits<int>::max() && m <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for matrices that are this large");
+        logger.assert_debug(n <= std::numeric_limits<int>::max() && m <= std::numeric_limits<int>::max(),
+                            "Dense linear algebra is not supported on this system for matrices that are this large");
     }
     
     /// \param[in]  n The number of rows the matrix will have
@@ -94,7 +95,8 @@ namespace LinearAlgebra
 #endif
                     numberOfRows_(n), numberOfColumns_(m)
     {
-        logger.assert(n <= std::numeric_limits<int>::max() && m <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for matrices that are this large");
+        logger.assert_debug(n <= std::numeric_limits<int>::max() && m <= std::numeric_limits<int>::max(),
+                            "Dense linear algebra is not supported on this system for matrices that are this large");
     }
     
     /// \param[in] Matrix A i.e. the matrix to be copies.
@@ -111,7 +113,8 @@ namespace LinearAlgebra
     MiddleSizeMatrix::MiddleSizeMatrix(const MiddleSizeVector& list)
             : data_(list.data(), list.data() + list.size()), numberOfRows_(list.size()), numberOfColumns_(1)
     {
-        logger.assert(list.size() <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for matrices that are this large");
+        logger
+        .assert_debug(list.size() <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for matrices that are this large");
     }
 
     MiddleSizeMatrix::MiddleSizeMatrix(std::initializer_list<MiddleSizeMatrix> list)
@@ -119,10 +122,11 @@ namespace LinearAlgebra
     {
         for(MiddleSizeMatrix mat : list)
         {
-            logger.assert(numberOfRows_ == mat.getNumberOfRows(), "Can only construct a matrix from vectors of the same size");
+            logger.assert_debug(numberOfRows_ == mat.getNumberOfRows(), "Can only construct a matrix from vectors of the same size");
             numberOfColumns_ += mat.getNumberOfColumns();
         }
-        logger.assert(numberOfRows_ <= std::numeric_limits<int>::max() && numberOfColumns_ <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for matrices that are this large");
+        logger.assert_debug(numberOfRows_ <= std::numeric_limits<int>::max() && numberOfColumns_ <= std::numeric_limits<int>::max(),
+                            "Dense linear algebra is not supported on this system for matrices that are this large");
         data_.resize(numberOfRows_ * numberOfColumns_);
         auto inserter = data_.begin();
         for(MiddleSizeMatrix mat : list)
@@ -137,13 +141,13 @@ namespace LinearAlgebra
     /// \details Recall that the matrix is stored in fortran style i.e. columns first and then rows
     MiddleSizeMatrix::type& MiddleSizeMatrix::operator[](const std::size_t n)
     {
-        logger.assert(n < data_.size(), "Requested entry % for a matrix with only % entries", n, data_.size());
+        logger.assert_debug(n < data_.size(), "Requested entry % for a matrix with only % entries", n, data_.size());
         return data_[n];
     }
     
     const MiddleSizeMatrix::type& MiddleSizeMatrix::operator[](const std::size_t n) const
     {
-        logger.assert(n < data_.size(), "Requested entry % for a matrix with only % entries", n, data_.size());
+        logger.assert_debug(n < data_.size(), "Requested entry % for a matrix with only % entries", n, data_.size());
         return data_[n];
     }
     
@@ -152,7 +156,7 @@ namespace LinearAlgebra
     MiddleSizeMatrix& MiddleSizeMatrix::operator+=(const MiddleSizeMatrix& other)
     {
         //Make sure the matrices are the same size
-        logger.assert(size() == other.size() && numberOfColumns_ == other.numberOfColumns_, "Dimensions of matrices are not the same.");
+        logger.assert_debug(size() == other.size() && numberOfColumns_ == other.numberOfColumns_, "Dimensions of matrices are not the same.");
         
         //add the matrices element-wise
         for (std::size_t i = 0; i < size(); ++i)
@@ -166,7 +170,7 @@ namespace LinearAlgebra
     MiddleSizeMatrix& MiddleSizeMatrix::operator-=(const MiddleSizeMatrix& other)
     {
         //Make sure the matrices are the same size
-        logger.assert(size() == other.size() && numberOfColumns_ == other.numberOfColumns_, "Dimensions of matrices are not the same.");
+        logger.assert_debug(size() == other.size() && numberOfColumns_ == other.numberOfColumns_, "Dimensions of matrices are not the same.");
 
         //add the matrices element-wise
         for (std::size_t i = 0; i < size(); ++i)
@@ -231,7 +235,7 @@ namespace LinearAlgebra
      */
     MiddleSizeVector MiddleSizeMatrix::operator*(MiddleSizeVector& right) const
     {
-        logger.assert(numberOfColumns_ == right.size(), "Matrix-vector multiplication with mismatching sizes");
+        logger.assert_debug(numberOfColumns_ == right.size(), "Matrix-vector multiplication with mismatching sizes");
         
         if (numberOfRows_ == 0)
         {
@@ -267,7 +271,7 @@ namespace LinearAlgebra
      */
     MiddleSizeVector MiddleSizeMatrix::operator*(MiddleSizeVector& right)
     {
-        logger.assert(numberOfColumns_ == right.size(), "Matrix-vector multiplication with mismatching sizes");
+        logger.assert_debug(numberOfColumns_ == right.size(), "Matrix-vector multiplication with mismatching sizes");
 
         if (numberOfRows_ == 0)
         {
@@ -307,7 +311,7 @@ namespace LinearAlgebra
      */
     MiddleSizeMatrix MiddleSizeMatrix::operator*(const MiddleSizeMatrix &other)
     {
-        logger.assert(numberOfColumns_ == other.numberOfRows_, "Inner dimensions not equal.");
+        logger.assert_debug(numberOfColumns_ == other.numberOfRows_, "Inner dimensions not equal.");
 
         if (numberOfColumns_ == 0)
         {
@@ -336,8 +340,8 @@ namespace LinearAlgebra
     
     MiddleSizeMatrix MiddleSizeMatrix::operator*(const MiddleSizeMatrix &other) const
     {
-        
-        logger.assert(numberOfColumns_ == other.numberOfRows_, "Inner dimensions are not the same.");
+
+        logger.assert_debug(numberOfColumns_ == other.numberOfRows_, "Inner dimensions are not the same.");
 
         if (numberOfColumns_ == 0)
         {
@@ -429,7 +433,7 @@ namespace LinearAlgebra
     ///evaluation of the determinant is easy and can be inserted directly.
     MiddleSizeVector MiddleSizeMatrix::computeWedgeStuffVector() const
     {
-        logger.assert(numberOfColumns_ == numberOfRows_ - 1, "Matrix has wrong dimensions to construct the wedge stuff vector");
+        logger.assert_debug(numberOfColumns_ == numberOfRows_ - 1, "Matrix has wrong dimensions to construct the wedge stuff vector");
         MiddleSizeVector result(numberOfRows_);
         
         switch (numberOfRows_)
@@ -466,8 +470,8 @@ namespace LinearAlgebra
     {
         
         int size = numberOfRows_ * numberOfColumns_;
-        logger.assert(numberOfRows_ == x.numberOfRows_, "Dimensions are not the same.");
-        logger.assert(numberOfColumns_ == x.numberOfColumns_, "Dimensions are not the same.");
+        logger.assert_debug(numberOfRows_ == x.numberOfRows_, "Dimensions are not the same.");
+        logger.assert_debug(numberOfColumns_ == x.numberOfColumns_, "Dimensions are not the same.");
         int i_one = 1;
         
 #ifdef HPGEM_USE_COMPLEX_PETSC
@@ -482,7 +486,8 @@ namespace LinearAlgebra
     /// \param[in] m the number of columns in the new matrix
     void MiddleSizeMatrix::resize(std::size_t n, std::size_t m)
     {
-        logger.assert(n <= std::numeric_limits<int>::max() && m <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for matrices that are this large");
+        logger.assert_debug(n <= std::numeric_limits<int>::max() && m <= std::numeric_limits<int>::max(),
+                            "Dense linear algebra is not supported on this system for matrices that are this large");
         numberOfRows_ = n;
         numberOfColumns_ = m;
         if (n * m != data_.size())
@@ -495,8 +500,9 @@ namespace LinearAlgebra
     /// \todo Find a more elegant way to do this.
     void MiddleSizeMatrix::concatenate(const MiddleSizeMatrix& other)
     {
-        logger.assert(numberOfColumns_ == other.numberOfColumns_, "Number of columns is not the same.");
-        logger.assert(numberOfRows_+other.numberOfRows_ <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for matrices that are this large");
+        logger.assert_debug(numberOfColumns_ == other.numberOfColumns_, "Number of columns is not the same.");
+        logger.assert_debug(numberOfRows_ + other.numberOfRows_ <= std::numeric_limits<int>::max(),
+                            "Dense linear algebra is not supported on this system for matrices that are this large");
         
 #ifdef LA_STL_VECTOR
         std::vector<type> data_new(numberOfColumns_ * (numberOfRows_ + other.numberOfRows_));
@@ -542,7 +548,7 @@ namespace LinearAlgebra
     
     LinearAlgebra::MiddleSizeVector MiddleSizeMatrix::getColumn(std::size_t j) const
     {
-        logger.assert(j < numberOfColumns_, "Requested column %, but there are only % columns", j, numberOfColumns_);
+        logger.assert_debug(j < numberOfColumns_, "Requested column %, but there are only % columns", j, numberOfColumns_);
         LinearAlgebra::MiddleSizeVector ret(numberOfRows_);
         for (std::size_t i = 0; i < numberOfRows_; ++i)
         {
@@ -553,7 +559,7 @@ namespace LinearAlgebra
     
     LinearAlgebra::MiddleSizeVector MiddleSizeMatrix::getRow(std::size_t i) const
     {
-        logger.assert(i < numberOfRows_, "Requested row %, but there are only % rows", i, numberOfRows_);
+        logger.assert_debug(i < numberOfRows_, "Requested row %, but there are only % rows", i, numberOfRows_);
         LinearAlgebra::MiddleSizeVector ret(numberOfColumns_);
         for (std::size_t j = 0; j < numberOfColumns_; ++j)
         {
@@ -587,7 +593,7 @@ namespace LinearAlgebra
     /// \param[out] result this is the inverse of the current matrix
     MiddleSizeMatrix MiddleSizeMatrix::inverse() const
     {
-        logger.assert(numberOfRows_ == numberOfColumns_, "Cannot invert a non-square matrix");
+        logger.assert_debug(numberOfRows_ == numberOfColumns_, "Cannot invert a non-square matrix");
         MiddleSizeMatrix result = (*this);
         
         int nr = numberOfRows_;
@@ -630,8 +636,8 @@ namespace LinearAlgebra
     /// \param[in,out] B. On enter is B in Ax=B and on exit is x.
     void MiddleSizeMatrix::solve(MiddleSizeMatrix& B) const
     {
-        logger.assert(numberOfRows_ == numberOfColumns_, "can only solve for square matrixes");
-        logger.assert(numberOfRows_ == B.numberOfRows_, "size of the RHS does not match the size of the matrix");
+        logger.assert_debug(numberOfRows_ == numberOfColumns_, "can only solve for square matrixes");
+        logger.assert_debug(numberOfRows_ == B.numberOfRows_, "size of the RHS does not match the size of the matrix");
         
         int n = numberOfRows_;
         int nrhs = B.getNumberOfColumns();
@@ -650,8 +656,8 @@ namespace LinearAlgebra
 
     void MiddleSizeMatrix::solve(MiddleSizeVector& b) const
     {
-        logger.assert(numberOfRows_ == numberOfColumns_, "can only solve for square matrixes");
-        logger.assert(numberOfRows_ == b.size(), "size of the RHS does not match the size of the matrix");
+        logger.assert_debug(numberOfRows_ == numberOfColumns_, "can only solve for square matrixes");
+        logger.assert_debug(numberOfRows_ == b.size(), "size of the RHS does not match the size of the matrix");
         
         int n = numberOfRows_;
         int nrhs = 1;
@@ -727,7 +733,7 @@ namespace LinearAlgebra
 
     MiddleSizeVector operator*(MiddleSizeVector& left, MiddleSizeMatrix& right)
     {
-        logger.assert(right.getNumberOfRows() == left.size(), "Matrix-vector multiplication with mismatching sizes");
+        logger.assert_debug(right.getNumberOfRows() == left.size(), "Matrix-vector multiplication with mismatching sizes");
 
         if (right.getNumberOfColumns() == 0)
         {

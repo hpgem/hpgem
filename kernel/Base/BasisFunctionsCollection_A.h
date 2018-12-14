@@ -39,12 +39,12 @@ namespace Base
     {
         double eval(const Geometry::PointReference<1>& p) const override final
         {
-            logger.assert(p.size()==1, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 1, "Reference point has incorrect dimension");
             return 1;
         }
         double evalDeriv0(const Geometry::PointReference<1>& p) const override final
         {
-            logger.assert(p.size()==1, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 1, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -54,12 +54,12 @@ namespace Base
     {
         double eval(const Geometry::PointReference<1>& p) const override final
         {
-            logger.assert(p.size()==1, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 1, "Reference point has incorrect dimension");
             return p[0];
         }
         double evalDeriv0(const Geometry::PointReference<1>& p) const override final
         {
-            logger.assert(p.size()==1, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 1, "Reference point has incorrect dimension");
             return 1.;
         }
     };
@@ -69,12 +69,12 @@ namespace Base
     {
         double eval(const Geometry::PointReference<1>& p) const override final
         {
-            logger.assert(p.size()==1, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 1, "Reference point has incorrect dimension");
             return p[0] * p[0];
         }
         double evalDeriv0(const Geometry::PointReference<1>& p) const override final
         {
-            logger.assert(p.size()==1, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 1, "Reference point has incorrect dimension");
             return 2. * p[0];
         }
     };
@@ -84,12 +84,12 @@ namespace Base
     {
         double eval(const Geometry::PointReference<1>& p) const override final
         {
-            logger.assert(p.size()==1, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 1, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0];
         }
         double evalDeriv0(const Geometry::PointReference<1>& p) const override final
         {
-            logger.assert(p.size()==1, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 1, "Reference point has incorrect dimension");
             return 3. * p[0] * p[0];
         }
     };
@@ -99,12 +99,12 @@ namespace Base
     {
         double eval(const Geometry::PointReference<1>& p) const override final
         {
-            logger.assert(p.size()==1, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 1, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[0];
         }
         double evalDeriv0(const Geometry::PointReference<1>& p) const override final
         {
-            logger.assert(p.size()==1, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 1, "Reference point has incorrect dimension");
             return 4. * p[0] * p[0] * p[0];
         }
     };
@@ -114,12 +114,12 @@ namespace Base
     {
         double eval(const Geometry::PointReference<1>& p) const override final
         {
-            logger.assert(p.size()==1, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 1, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[0] * p[0];
         }
         double evalDeriv0(const Geometry::PointReference<1>& p) const override final
         {
-            logger.assert(p.size()==1, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 1, "Reference point has incorrect dimension");
             return 5. * p[0] * p[0] * p[0] * p[0];
         }
     };
@@ -132,17 +132,17 @@ namespace Base
     {
         double eval(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 1;
         }
         double evalDeriv0(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -152,17 +152,17 @@ namespace Base
     {
         double eval(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[0];
         }
         double evalDeriv0(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 1.;
         }
         double evalDeriv1(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -172,17 +172,17 @@ namespace Base
     {
         double eval(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[1];
         }
         double evalDeriv0(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 1.;
         }
     };
@@ -192,17 +192,17 @@ namespace Base
     {
         double eval(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[0] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[1];
         }
         double evalDeriv1(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[0];
         }
     };
@@ -212,17 +212,17 @@ namespace Base
     {
         double eval(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[0] * p[0];
         }
         double evalDeriv0(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 2. * p[0];
         }
         double evalDeriv1(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -232,17 +232,17 @@ namespace Base
     {
         double eval(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[1] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 2. * p[1];
         }
     };
@@ -252,17 +252,17 @@ namespace Base
     {
         double eval(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1];
         }
         double evalDeriv1(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[0] * p[0];
         }
     };
@@ -272,17 +272,17 @@ namespace Base
     {
         double eval(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[0] * p[1] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[1] * p[1];
         }
         double evalDeriv1(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1];
         }
     };
@@ -292,17 +292,17 @@ namespace Base
     {
         double eval(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0];
         }
         double evalDeriv0(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 3. * p[0] * p[0];
         }
         double evalDeriv1(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -312,17 +312,17 @@ namespace Base
     {
         double eval(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 3. * p[1] * p[1];
         }
     };
@@ -332,17 +332,17 @@ namespace Base
     {
         double eval(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 3. * p[0] * p[0] * p[1];
         }
         double evalDeriv1(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0];
         }
     };
@@ -352,17 +352,17 @@ namespace Base
     {
         double eval(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[1] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1] * p[1];
         }
         double evalDeriv1(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 2. * p[0] * p[0] * p[1];
         }
     };
@@ -372,17 +372,17 @@ namespace Base
     {
         double eval(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[0] * p[1] * p[1] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1];
         }
         double evalDeriv1(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 3. * p[0] * p[1] * p[1];
         }
     };
@@ -392,17 +392,17 @@ namespace Base
     {
         double eval(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[0];
         }
         double evalDeriv0(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 4. * p[0] * p[0] * p[0];
         }
         double evalDeriv1(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -412,17 +412,17 @@ namespace Base
     {
         double eval(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 4. * p[1] * p[1] * p[1];
         }
     };
@@ -432,17 +432,17 @@ namespace Base
     {
         double eval(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[0] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 4. * p[0] * p[0] * p[0] * p[1];
         }
         double evalDeriv1(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[0];
         }
     };
@@ -452,17 +452,17 @@ namespace Base
     {
         double eval(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[1] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 3. * p[0] * p[0] * p[1] * p[1];
         }
         double evalDeriv1(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 2. * p[0] * p[0] * p[0] * p[1];
         }
     };
@@ -472,17 +472,17 @@ namespace Base
     {
         double eval(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[1] * p[1] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1] * p[1] * p[1];
         }
         double evalDeriv1(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 3. * p[0] * p[0] * p[1] * p[1];
         }
     };
@@ -492,17 +492,17 @@ namespace Base
     {
         double eval(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[0] * p[1] * p[1] * p[1] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[1];
         }
         double evalDeriv1(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 4. * p[0] * p[1] * p[1] * p[1];
         }
     };
@@ -512,17 +512,17 @@ namespace Base
     {
         double eval(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[0] * p[0];
         }
         double evalDeriv0(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 5. * p[0] * p[0] * p[0] * p[0];
         }
         double evalDeriv1(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -532,17 +532,17 @@ namespace Base
     {
         double eval(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[1] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<2>& p) const override final
         {
-            logger.assert(p.size()==2, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 2, "Reference point has incorrect dimension");
             return 5. * p[1] * p[1] * p[1] * p[1];
         }
     };
@@ -555,22 +555,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 1;
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -580,22 +580,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 1.;
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -605,22 +605,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 1.;
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -630,22 +630,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 1.;
         }
     };
@@ -655,22 +655,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -680,22 +680,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[2];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0];
         }
     };
@@ -705,22 +705,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[2];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1];
         }
     };
@@ -729,22 +729,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[1] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1] * p[2];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[2];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[1];
         }
     };
@@ -753,22 +753,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[0];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -778,22 +778,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[1];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -803,22 +803,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[2] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[2];
         }
     };
@@ -828,22 +828,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -853,22 +853,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[2];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0];
         }
     };
@@ -878,22 +878,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[1] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1] * p[1];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -903,22 +903,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[2] * p[1] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[1] * p[2];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1] * p[1];
         }
     };
@@ -928,22 +928,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[2] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[2] * p[2];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[2];
         }
     };
@@ -953,22 +953,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1] * p[2] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[2] * p[2];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[1] * p[2];
         }
     };
@@ -978,22 +978,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 3. * p[0] * p[0];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -1003,22 +1003,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 3. * p[1] * p[1];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -1028,22 +1028,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 3. * p[2] * p[2];
         }
     };
@@ -1053,22 +1053,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[1] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1] * p[2];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[2];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[1];
         }
     };
@@ -1078,22 +1078,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[1] * p[1] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[2];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1] * p[2];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[1] * p[1];
         }
     };
@@ -1103,22 +1103,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[1] * p[2] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1] * p[2] * p[2];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[2] * p[2];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1] * p[2];
         }
     };
@@ -1128,22 +1128,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 3. * p[0] * p[0] * p[1];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -1153,22 +1153,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 3. * p[0] * p[0] * p[2];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0];
         }
     };
@@ -1178,22 +1178,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[0];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 3. * p[1] * p[1] * p[0];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -1203,22 +1203,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 3. * p[1] * p[1] * p[2];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1];
         }
     };
@@ -1228,22 +1228,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2] * p[0];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 3. * p[2] * p[2] * p[0];
         }
     };
@@ -1253,22 +1253,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 3. * p[2] * p[2] * p[1];
         }
     };
@@ -1278,22 +1278,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[1] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1] * p[1];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[0] * p[1];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -1303,22 +1303,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[2] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[1] * p[2] * p[2];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[1] * p[1] * p[2];
         }
     };
@@ -1328,22 +1328,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[2] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[2] * p[2];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[0] * p[2];
         }
     };
@@ -1353,22 +1353,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[0];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 4. * p[0] * p[0] * p[0];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -1378,22 +1378,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 4. * p[1] * p[1] * p[1];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -1403,22 +1403,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 4. * p[2] * p[2] * p[2];
         }
     };
@@ -1428,22 +1428,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[1] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 3. * p[0] * p[0] * p[1] * p[2];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[2];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[1];
         }
     };
@@ -1453,22 +1453,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[1] * p[1] * p[1] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[2];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 3. * p[0] * p[1] * p[1] * p[2];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[1] * p[1] * p[1];
         }
     };
@@ -1478,22 +1478,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[1] * p[2] * p[2] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1] * p[2] * p[2] * p[2];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[2] * p[2] * p[2];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 3. * p[0] * p[1] * p[2] * p[2];
         }
     };
@@ -1503,22 +1503,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[1] * p[1] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1] * p[1] * p[2];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[0] * p[1] * p[2];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[1] * p[1];
         }
     };
@@ -1528,22 +1528,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[1] * p[2] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1] * p[2] * p[2];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[2] * p[2];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[0] * p[1] * p[2];
         }
     };
@@ -1553,22 +1553,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[1] * p[1] * p[2] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[2] * p[2];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1] * p[2] * p[2];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[1] * p[1] * p[2];
         }
     };
@@ -1578,22 +1578,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[0] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 4. * p[0] * p[0] * p[0] * p[1];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[0];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -1603,22 +1603,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[0] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 4. * p[0] * p[0] * p[0] * p[2];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[0];
         }
     };
@@ -1628,22 +1628,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[1] * p[0];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[1];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 4. * p[1] * p[1] * p[1] * p[0];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -1653,22 +1653,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[1] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 4. * p[1] * p[1] * p[1] * p[2];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[1];
         }
     };
@@ -1678,22 +1678,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2] * p[2] * p[0];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2] * p[2];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 4. * p[2] * p[2] * p[2] * p[0];
         }
     };
@@ -1703,22 +1703,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2] * p[2] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2] * p[2];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 4. * p[2] * p[2] * p[2] * p[1];
         }
     };
@@ -1728,22 +1728,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[1] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 3. * p[0] * p[0] * p[1] * p[1];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[0] * p[0] * p[1];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -1753,22 +1753,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[2] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 3. * p[0] * p[0] * p[2] * p[2];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[0] * p[0] * p[0] * p[2];
         }
     };
@@ -1778,22 +1778,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[0] * p[0];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[1] * p[1] * p[1] * p[0];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 3. * p[1] * p[1] * p[0] * p[0];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -1803,22 +1803,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[2] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 3. * p[1] * p[1] * p[2] * p[2];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[1] * p[1] * p[1] * p[2];
         }
     };
@@ -1828,22 +1828,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2] * p[0] * p[0];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[2] * p[2] * p[2] * p[0];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 3. * p[2] * p[2] * p[0] * p[0];
         }
     };
@@ -1853,22 +1853,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2] * p[1] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 2. * p[2] * p[2] * p[2] * p[1];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 3. * p[2] * p[2] * p[1] * p[1];
         }
     };
@@ -1878,22 +1878,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[0] * p[0] * p[0] * p[0] * p[0];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 5. * p[0] * p[0] * p[0] * p[0];
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -1903,22 +1903,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[1] * p[1] * p[1] * p[1] * p[1];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 5. * p[1] * p[1] * p[1] * p[1];
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
     };
@@ -1928,22 +1928,22 @@ namespace Base
     {
         double eval(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return p[2] * p[2] * p[2] * p[2] * p[2];
         }
         double evalDeriv0(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv1(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 0.;
         }
         double evalDeriv2(const Geometry::PointReference<3>& p) const override final
         {
-            logger.assert(p.size()==3, "Reference point has incorrect dimension");
+            logger.assert_debug(p.size() == 3, "Reference point has incorrect dimension");
             return 5. * p[2] * p[2] * p[2] * p[2];
         }
     };

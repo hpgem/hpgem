@@ -206,10 +206,13 @@ namespace QuadratureRules
 template<std::size_t DIM>
 inline void QuadratureRules::GaussQuadratureRule::eval(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex, LinearAlgebra::SmallVector<DIM>& result)
 {
-    logger.assert(set != nullptr, "Invalid basis function set passed");
-    logger.assert(dimension() == DIM, "Quadrature rule not for this dimension");
-    logger.assert(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
-    logger.assert(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex, set->size());
+    logger.assert_debug(set != nullptr, "Invalid basis function set passed");
+    logger.assert_debug(dimension() == DIM, "Quadrature rule not for this dimension");
+    logger
+    .assert_debug(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
+    logger
+    .assert_debug(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex,
+                  set->size());
     try
     {
         result = basisFunctionVectorValues_.at(set)[quadraturePointIndex][basisFunctionIndex];
@@ -241,11 +244,14 @@ inline void QuadratureRules::GaussQuadratureRule::eval(const Base::BasisFunction
 template<std::size_t DIM>
 inline void QuadratureRules::GaussQuadratureRule::eval(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1>* map, LinearAlgebra::SmallVector<DIM>& result)
 {
-    logger.assert(set != nullptr, "Invalid basis function set passed");
-    logger.assert(dimension() == DIM - 1, "Quadrature rule not for this dimension");
-    logger.assert(map != nullptr, "Invalid coordinate transformation passed");
-    logger.assert(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
-    logger.assert(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex, set->size());
+    logger.assert_debug(set != nullptr, "Invalid basis function set passed");
+    logger.assert_debug(dimension() == DIM - 1, "Quadrature rule not for this dimension");
+    logger.assert_debug(map != nullptr, "Invalid coordinate transformation passed");
+    logger
+    .assert_debug(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
+    logger
+    .assert_debug(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex,
+                  set->size());
     auto containedMap = faceMapContainer(map);
     try
     {

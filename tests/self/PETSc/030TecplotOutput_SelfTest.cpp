@@ -228,7 +228,9 @@ public:
             totalError_ = totalError;
             logger(INFO, "Total error: %.", totalError);
             LinearAlgebra::MiddleSizeVector maxError = computeMaxError(solutionVectorId_, 0);
-            logger.assert(maxError.size() == configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)", maxError.size(), configData_->numberOfUnknowns_);
+            logger
+            .assert_debug(maxError.size() == configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)", maxError.size(),
+                          configData_->numberOfUnknowns_);
             for(std::size_t iV = 0; iV < configData_->numberOfUnknowns_; iV ++)
             {
                 logger(INFO, "Maximum error %: %", variableNames_[iV], maxError(iV));

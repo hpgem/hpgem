@@ -135,14 +135,14 @@ namespace Base
         //! set the number of levels this entry resides in.
         void setDepth(std::size_t depth)
         {
-            logger.assert(depth > 0, "a node cannot occupy no levels");
+            logger.assert_debug(depth > 0, "a node cannot occupy no levels");
             depth_ = depth;
         }
 
         //! modify the number of levels this entry resides in, increasing or decreasing by the specified amount
         void shiftDepth(int increment)
         {
-            logger.assert(-increment < depth_, "a node cannot occupy no levels");
+            logger.assert_debug(-increment < depth_, "a node cannot occupy no levels");
             depth_ += increment;
         }
 
@@ -185,7 +185,7 @@ namespace Base
         //! give this entry a new set of siblings (and a new position in the new set)
         void setSiblings(std::size_t siblingIndex, std::vector<TreeEntry*>* siblings)
         {
-            logger.assert((*siblings)[siblingIndex] == this, "this sibling is not in the indicated position in the vector of siblings");
+            logger.assert_debug((*siblings)[siblingIndex] == this, "this sibling is not in the indicated position in the vector of siblings");
             siblingIndex_ = siblingIndex;
             siblings_ = siblings;
         }
@@ -193,16 +193,16 @@ namespace Base
         //! get the entry that has this entry as one of its children
         TreeEntry* getParent()
         {
-            logger.assert(!this->isRoot(), "root has no parents");
-            logger.assert(parent_ != nullptr, "no parent has been set for this entry");
+            logger.assert_debug(!this->isRoot(), "root has no parents");
+            logger.assert_debug(parent_ != nullptr, "no parent has been set for this entry");
             return parent_;
         }
 
         //! get the entry that has this entry as one of its children
         const TreeEntry* getParent() const
         {
-            logger.assert(!this->isRoot(), "root has no parents");
-            logger.assert(parent_ != nullptr, "no parent has been set for this entry");
+            logger.assert_debug(!this->isRoot(), "root has no parents");
+            logger.assert_debug(parent_ != nullptr, "no parent has been set for this entry");
             return parent_;
         }
 
@@ -215,14 +215,14 @@ namespace Base
         //! get the child at the specified position in the list
         TreeEntry* getChild(std::size_t childIndex)
         {
-            logger.assert(childIndex < children_.size(), "asked for the %th child, but there are only % children", childIndex, children_.size());
+            logger.assert_debug(childIndex < children_.size(), "asked for the %th child, but there are only % children", childIndex, children_.size());
             return children_[childIndex];
         }
 
         //! get the child at the specified position in the list
         const TreeEntry* getChild(std::size_t childIndex) const
         {
-            logger.assert(childIndex < children_.size(), "asked for the %th child, but there are only % children", childIndex, children_.size());
+            logger.assert_debug(childIndex < children_.size(), "asked for the %th child, but there are only % children", childIndex, children_.size());
             return children_[childIndex];
         }
 
@@ -239,28 +239,28 @@ namespace Base
         //! get the child at index 0
         TreeEntry* getFirstChild()
         {
-            logger.assert(children_.size() > 0, "cannot get to the children of a leaf");
+            logger.assert_debug(children_.size() > 0, "cannot get to the children of a leaf");
             return children_.front();
         }
 
         //! get the child at index 0
         const TreeEntry* getFirstChild() const
         {
-            logger.assert(children_.size() > 0, "cannot get to the children of a leaf");
+            logger.assert_debug(children_.size() > 0, "cannot get to the children of a leaf");
             return children_.front();
         }
 
         //! get the child at the end of the list
         TreeEntry* getLastChild()
         {
-            logger.assert(children_.size() > 0, "cannot get to the children of a leaf");
+            logger.assert_debug(children_.size() > 0, "cannot get to the children of a leaf");
             return children_.back();
         }
 
         //! get the child at the end of the list
         const TreeEntry* getLastChild() const
         {
-            logger.assert(children_.size() > 0, "cannot get to the children of a leaf");
+            logger.assert_debug(children_.size() > 0, "cannot get to the children of a leaf");
             return children_.back();
         }
 

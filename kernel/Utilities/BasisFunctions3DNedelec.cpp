@@ -67,7 +67,7 @@ namespace Utilities
     BasisCurlEdgeNedelec::BasisCurlEdgeNedelec(std::size_t degree1, std::size_t degree2, std::size_t localFirstVertex, std::size_t localSecondVertex)
             : deg1(degree1), deg2(degree2), i(localFirstVertex), j(localSecondVertex)
     {
-        logger.assert(i < 4 && j < 4, "A tetrahedron only has 4 nodes");
+        logger.assert_debug(i < 4 && j < 4, "A tetrahedron only has 4 nodes");
     }
     
     void BasisCurlEdgeNedelec::eval(const Geometry::PointReference<3>& p, LinearAlgebra::SmallVector<3>& ret) const 
@@ -105,7 +105,7 @@ namespace Utilities
     BasisCurlFace1Nedelec::BasisCurlFace1Nedelec(std::size_t degree1, std::size_t degree2, std::size_t degree3, std::size_t localOpposingVertex)
         : deg1(degree1), deg2(degree2), deg3(degree3), d(localOpposingVertex)
     {
-        logger.assert(d < 4, "A tetrahedron only has 4 nodes");
+        logger.assert_debug(d < 4, "A tetrahedron only has 4 nodes");
         a=0;
         if(d==a)
         {
@@ -169,7 +169,7 @@ namespace Utilities
     BasisCurlFace2Nedelec::BasisCurlFace2Nedelec(std::size_t degree1, std::size_t degree2, std::size_t degree3, std::size_t localOpposingVertex)
             : deg1(degree1), deg2(degree2), deg3(degree3), d(localOpposingVertex)
     {
-        logger.assert(d < 4, "A tetrahedron only has 4 nodes");
+        logger.assert_debug(d < 4, "A tetrahedron only has 4 nodes");
         a=0;
         if(d==a)
         {

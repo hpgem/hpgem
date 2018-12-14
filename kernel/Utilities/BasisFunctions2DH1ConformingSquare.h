@@ -46,7 +46,7 @@ namespace Utilities
         BasisFunction2DVertexSquare(std::size_t node)
                 : nodePosition0_((static_cast<int>(node) % 2) * 2 - 1), nodePosition1_((static_cast<int>(node) / 2) * 2 - 1)
         {
-            logger.assert(node < 4, "A square only has 4 nodes");
+            logger.assert_debug(node < 4, "A square only has 4 nodes");
         }
         
         double eval(const Geometry::PointReference<2>& p) const;

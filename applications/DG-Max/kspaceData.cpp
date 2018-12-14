@@ -140,7 +140,7 @@ bool KspaceData::hasNextPoint()
 LinearAlgebra::NumericalVector& KspaceData::nextPoint()
 {
     //make sure the user is really done at this k-point
-    logger.assert(omegaAtKpoints_.size() > current_, "");
+    logger.assert_debug(omegaAtKpoints_.size() > current_, "");
     std::cout << current_++ << std::endl;
     if (functionValuesAtKpoints_.size() < current_)
     {
@@ -173,7 +173,7 @@ void KspaceData::setFunctionValues(std::vector<LinearAlgebra::NumericalVector>& 
 
 void KspaceData::getIntegral(double omega, LinearAlgebra::NumericalVector& result)
 {
-    logger.assert(omegaAtKpoints_.size() == kpoints_.size(), "");
+    logger.assert_debug(omegaAtKpoints_.size() == kpoints_.size(), "");
     if (functionValuesAtKpoints_.size() <= current_)
     {
         LinearAlgebra::NumericalVector one(1);

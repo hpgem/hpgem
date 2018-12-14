@@ -83,8 +83,8 @@ namespace Output
     template<std::size_t DIM>
     void TecplotDiscontinuousSolutionWriter<DIM>::write(const Base::MeshManipulator<DIM>* mesh, const std::string& zoneTitle, const bool sameGeometry, TecplotSingleElementWriter<DIM>* writeDataClass, const double time)
     {
-        logger.assert(mesh!=nullptr, "Invalid mesh passed to this writer");
-        logger.assert(writeDataClass!=nullptr, "Invalid write class passed");
+        logger.assert_debug(mesh!=nullptr, "Invalid mesh passed to this writer");
+        logger.assert_debug(writeDataClass!=nullptr, "Invalid write class passed");
         std::function<void(const Base::Element*, const Geometry::PointReference<DIM>&, std::ostream&)> function =
         [=](const Base::Element* el, const Geometry::PointReference<DIM>& pR, std::ostream& os){
             writeDataClass->writeToTecplotFile(el,pR,os);
@@ -114,7 +114,7 @@ namespace Output
     template<std::size_t DIM>
     void TecplotDiscontinuousSolutionWriter<DIM>::write(const Base::MeshManipulator<DIM>* mesh, const std::string& zoneTitle, const bool sameGeometry, std::function<void(const Base::Element*, const Geometry::PointReference<DIM>&, std::ostream&)>writeDataFun, const double time)
     {
-        logger.assert(mesh!=nullptr, "Invalid mesh passed to this writer");
+        logger.assert_debug(mesh!=nullptr, "Invalid mesh passed to this writer");
         //assertion is technically checking internal state, but the writability of the filesystem may change outside the influence of this class
         logger.assert_always(output_.good(), "Something is not so good about the output stream");
         

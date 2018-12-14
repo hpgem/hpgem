@@ -53,22 +53,22 @@ namespace Geometry
     FaceGeometry::FaceGeometry(ElementGeometry* ptrElemL, const std::size_t& localFaceNumberL, ElementGeometry* ptrElemR, const std::size_t& localFaceNumberR)
             : leftElementGeom_(ptrElemL), rightElementGeom_(ptrElemR), localFaceNumberLeft_(localFaceNumberL), localFaceNumberRight_(localFaceNumberR), faceToFaceMapIndex_(Geometry::MAXSIZET), faceType_(FaceType::INTERNAL)
     {
-        logger.assert(ptrElemL!=nullptr, "Invalid main element passed");
-        logger.assert(ptrElemR!=nullptr, "This constructor is intended for internal faces");
+        logger.assert_debug(ptrElemL != nullptr, "Invalid main element passed");
+        logger.assert_debug(ptrElemR != nullptr, "This constructor is intended for internal faces");
     }
     
     //! Constructor for boundary faces.
     FaceGeometry::FaceGeometry(ElementGeometry* ptrElemL, const std::size_t& localFaceNumberL, const FaceType& boundaryLabel)
             : leftElementGeom_(ptrElemL), rightElementGeom_(nullptr), localFaceNumberLeft_(localFaceNumberL), localFaceNumberRight_(Geometry::MAXSIZET), faceToFaceMapIndex_(0), faceType_(boundaryLabel)
     {
-        logger.assert(ptrElemL!=nullptr, "Invalid main element passed");
+        logger.assert_debug(ptrElemL != nullptr, "Invalid main element passed");
     }
     
     FaceGeometry::FaceGeometry(const FaceGeometry& other, 
                                ElementGeometry* ptrElemL, const std::size_t& localFaceNumberL, 
                                ElementGeometry* ptrElemRight, const std::size_t& localFaceNumberR) 
     {
-        logger.assert(ptrElemL!=nullptr, "Invalid main element passed");
+        logger.assert_debug(ptrElemL != nullptr, "Invalid main element passed");
         leftElementGeom_ = ptrElemL;
         rightElementGeom_ = ptrElemRight;
         localFaceNumberLeft_ = localFaceNumberL;
@@ -104,7 +104,7 @@ namespace Geometry
     //finding node numbers here is way to hard, leave that to someplace else
     void FaceGeometry::initialiseFaceToFaceMapIndex(const std::vector<std::size_t>& leftNodes, const std::vector<std::size_t>& rightNodes)
     {
-        logger.assert(leftNodes.size()==rightNodes.size(), "Inconsistent amount of nodes for left and right face");
+        logger.assert_debug(leftNodes.size() == rightNodes.size(), "Inconsistent amount of nodes for left and right face");
         faceToFaceMapIndex_ = getReferenceGeometry()->getCodim0MappingIndex(leftNodes, rightNodes);
     }
     
@@ -113,12 +113,12 @@ namespace Geometry
         if (faceType_ == FaceType::INTERNAL || faceType_ == FaceType::PERIODIC_BC || faceType_ == FaceType::SUBDOMAIN_BOUNDARY || faceType_ == FaceType::PERIODIC_SUBDOMAIN_BC)
         {
             ///\todo move this assertion to the unit test
-            logger.assert(rightElementGeom_ != nullptr, "There is no right element, so no internal face.");
+            logger.assert_debug(rightElementGeom_ != nullptr, "There is no right element, so no internal face.");
             return true;
         }
         else
         {
-            logger.assert(rightElementGeom_ == nullptr, "There is a right element, so no boundary face.");
+            logger.assert_debug(rightElementGeom_ == nullptr, "There is a right element, so no boundary face.");
             return false;
         }
     }

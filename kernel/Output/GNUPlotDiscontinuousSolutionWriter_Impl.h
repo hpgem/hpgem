@@ -63,12 +63,12 @@ namespace Output
     template<std::size_t DIM>
     void GNUPlotDiscontinuousSolutionWriter<DIM>::write(const Base::MeshManipulator<DIM>* mesh, SingleElementWriter<DIM>* writeDataClass)
     {
-        logger.assert(mesh!=nullptr, "Invalid mesh passed to this writer");
-        logger.assert(writeDataClass!=nullptr, "Invalid write class passed");
+        logger.assert_debug(mesh!=nullptr, "Invalid mesh passed to this writer");
+        logger.assert_debug(writeDataClass!=nullptr, "Invalid write class passed");
         
-        //First assert that we have defined the correct number of dimensions in 
+        //First assert_debug that we have defined the correct number of dimensions in 
         //the constructor.
-        logger.assert(mesh->dimension() == nDimensionsToWrite_, "Expected % dimensions, but got % dimensions.", mesh->dimension(), nDimensionsToWrite_);
+        logger.assert_debug(mesh->dimension() == nDimensionsToWrite_, "Expected % dimensions, but got % dimensions.", mesh->dimension(), nDimensionsToWrite_);
         
         //Write how many elements there are in this simulation.
         //It would be nice to also display the polynomial order here.

@@ -32,7 +32,7 @@ namespace Geometry
     MappingToPhysTriangularPrism::MappingToPhysTriangularPrism(const PhysicalGeometry<3>* const physicalGeometry)
             : MappingReferenceToPhysical(physicalGeometry)
     {
-        logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
+        logger.assert_debug(physicalGeometry != nullptr, "Invalid physical geometry passed");
         reinit();
     }
     

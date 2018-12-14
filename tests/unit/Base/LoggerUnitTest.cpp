@@ -52,10 +52,10 @@ int main(int argc, char** argv)
     logger(WARN, "Custom logger! % + % = %, %!", 3, 5, 3 + 5, "yay");
 
     //for testing blatant assumptions about the state of the code
-    logger.assert(true, "Test %", 3);
+    logger.assert_debug(true, "Test %", 3);
     
     //normal logger will only crash the program in debug mode, use with care
-    log.assert(false, "Test %", 4);
+    log.assert_debug(false, "Test %", 4);
 
     //for testing blatant assumptions when it is necessary to check again in release mode
     //(for example, opening files, processing command line input, running unit tests, ...)

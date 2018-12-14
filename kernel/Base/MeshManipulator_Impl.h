@@ -30,8 +30,8 @@
 #include "libqhullcpp/QhullVertex.h"
 #include "libqhullcpp/QhullVertexSet.h"
 #include "libqhullcpp/Qhull.h"
-//QHull uses assert internally, but the macro definition causes conflicts with the rest of hpGEM
-#undef assert
+//QHull uses assert_debug internally, but the macro definition causes conflicts with the rest of hpGEM
+#undef assert_debug
 #endif
 
 #include "MeshManipulator.h"
@@ -261,7 +261,8 @@ namespace Base
     void MeshManipulator<DIM>::useDefaultDGBasisFunctions(std::size_t unknown)
     {
         //collBasisFSet_.clear();
-        logger.assert(unknown > 0, "useDefaultDGBasisFunctions(std::size_t unknown) will not clear collBasisFSet_ of the default basis functions. Use useDefaultBasisFunctions() instead for the zeroth unknown.");
+        logger.assert_debug(unknown > 0,
+                            "useDefaultDGBasisFunctions(std::size_t unknown) will not clear collBasisFSet_ of the default basis functions. Use useDefaultBasisFunctions() instead for the zeroth unknown.");
         std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > shapeToIndex;
         for (Element *element : getElementsList(IteratorType::GLOBAL))
         {
@@ -379,8 +380,9 @@ namespace Base
     template<std::size_t DIM>
     void MeshManipulator<DIM>::useDefaultConformingBasisFunctions()
     {
-        logger.assert(configData_->polynomialOrder_ >
-                      0, "Basis function may not have an empty union of supporting elements. Use a DG basis function on a single element non-periodic mesh instead");
+        logger.assert_debug(configData_->polynomialOrder_ >
+                            0,
+                            "Basis function may not have an empty union of supporting elements. Use a DG basis function on a single element non-periodic mesh instead");
         collBasisFSet_.clear();
         std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > shapeToElementIndex;
         std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > numberOfFaceSets;
@@ -558,8 +560,8 @@ namespace Base
             for (std::size_t i = shapeToElementIndex[type] + 1;
                  i < shapeToElementIndex[type] + numberOfFaceSets[type] + 1; ++i)
             {
-                logger.assert(typeid(*collBasisFSet_[i]) ==
-                              typeid(const OrientedBasisFunctionSet), "This is not supposed to happen");
+                logger.assert_debug(typeid(*collBasisFSet_[i]) ==
+                                    typeid(const OrientedBasisFunctionSet), "This is not supposed to happen");
                 if (static_cast<const OrientedBasisFunctionSet *>(collBasisFSet_[i].get())->checkOrientation(0, faceNumber))
                 {
                     face->getPtrElementLeft()->setFaceBasisFunctionSet(i, faceNumber);
@@ -575,8 +577,8 @@ namespace Base
                 for (std::size_t i = shapeToElementIndex[type] + 1;
                      i < shapeToElementIndex[type] + numberOfFaceSets[type] + 1; ++i)
                 {
-                    logger.assert(typeid(*collBasisFSet_[i]) ==
-                                  typeid(const OrientedBasisFunctionSet), "This is not supposed to happen");
+                    logger.assert_debug(typeid(*collBasisFSet_[i]) ==
+                                        typeid(const OrientedBasisFunctionSet), "This is not supposed to happen");
                     if (static_cast<const OrientedBasisFunctionSet *>(collBasisFSet_[i].get())->checkOrientation(orientation, faceNumber))
                     {
                         face->getPtrElementRight()->setFaceBasisFunctionSet(i, faceNumber);
@@ -595,8 +597,8 @@ namespace Base
                 for (std::size_t j = shapeToElementIndex[type] + numberOfFaceSets[type] + 1;
                      j < shapeToElementIndex[type] + numberOfFaceSets[type] + numberOfEdgeSets[type] + 1; ++j)
                 {
-                    logger.assert(typeid(*collBasisFSet_[j]) ==
-                                  typeid(const OrientedBasisFunctionSet), "This is not supposed to happen");
+                    logger.assert_debug(typeid(*collBasisFSet_[j]) ==
+                                        typeid(const OrientedBasisFunctionSet), "This is not supposed to happen");
                     if (static_cast<const OrientedBasisFunctionSet *>(collBasisFSet_[j].get())->checkOrientation(orientation, edgeNumber))
                     {
                         element->setEdgeBasisFunctionSet(j, edgeNumber);
@@ -630,8 +632,9 @@ namespace Base
     template<std::size_t DIM>
     void MeshManipulator<DIM>::useDefaultConformingBasisFunctions(std::size_t unknown)
     {
-        logger.assert(configData_->polynomialOrder_ >
-                      0, "Basis function may not have an empty union of supporting elements. Use a DG basis function on a single element non-periodic mesh instead");
+        logger.assert_debug(configData_->polynomialOrder_ >
+                            0,
+                            "Basis function may not have an empty union of supporting elements. Use a DG basis function on a single element non-periodic mesh instead");
         //collBasisFSet_.clear();
         std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > shapeToElementIndex;
         std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > numberOfFaceSets;
@@ -810,8 +813,8 @@ namespace Base
             for (std::size_t i = shapeToElementIndex[type] + 1;
                  i < shapeToElementIndex[type] + numberOfFaceSets[type] + 1; ++i)
             {
-                logger.assert(typeid(*collBasisFSet_[i]) ==
-                              typeid(const OrientedBasisFunctionSet), "This is not supposed to happen");
+                logger.assert_debug(typeid(*collBasisFSet_[i]) ==
+                                    typeid(const OrientedBasisFunctionSet), "This is not supposed to happen");
                 if (static_cast<const OrientedBasisFunctionSet *>(collBasisFSet_[i].get())->checkOrientation(0, faceNumber))
                 {
                     face->getPtrElementLeft()->setFaceBasisFunctionSet(i, faceNumber, unknown);
@@ -828,8 +831,8 @@ namespace Base
                 for (std::size_t i = shapeToElementIndex[type] + 1;
                      i < shapeToElementIndex[type] + numberOfFaceSets[type] + 1; ++i)
                 {
-                    logger.assert(typeid(*collBasisFSet_[i]) ==
-                                  typeid(const OrientedBasisFunctionSet), "This is not supposed to happen");
+                    logger.assert_debug(typeid(*collBasisFSet_[i]) ==
+                                        typeid(const OrientedBasisFunctionSet), "This is not supposed to happen");
                     if (static_cast<const OrientedBasisFunctionSet *>(collBasisFSet_[i].get())->checkOrientation(orientation, faceNumber))
                     {
                         face->getPtrElementRight()->setFaceBasisFunctionSet(i, faceNumber, unknown);
@@ -849,8 +852,8 @@ namespace Base
                 for (std::size_t j = shapeToElementIndex[type] + numberOfFaceSets[type] + 1;
                      j < shapeToElementIndex[type] + numberOfFaceSets[type] + numberOfEdgeSets[type] + 1; ++j)
                 {
-                    logger.assert(typeid(*collBasisFSet_[j]) ==
-                                  typeid(const OrientedBasisFunctionSet), "This is not supposed to happen");
+                    logger.assert_debug(typeid(*collBasisFSet_[j]) ==
+                                        typeid(const OrientedBasisFunctionSet), "This is not supposed to happen");
                     if (static_cast<const OrientedBasisFunctionSet *>(collBasisFSet_[j].get())->checkOrientation(orientation, edgeNumber))
                     {
                         element->setEdgeBasisFunctionSet(j, edgeNumber, unknown);
@@ -892,9 +895,9 @@ namespace Base
             : MeshManipulatorBase(config, xPer, yPer, zPer, orderOfFEM, idRangeBegin, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors),
               meshMover_(nullptr)
     {
-        logger.assert(DIM == config->dimension_, "Invalid configuration passed");
-        logger.assert(orderOfFEM == config->polynomialOrder_, "Inconsistent redundant information passed");
-        logger.assert(idRangeBegin == 0, "c++ starts counting at 0");
+        logger.assert_debug(DIM == config->dimension_, "Invalid configuration passed");
+        logger.assert_debug(orderOfFEM == config->polynomialOrder_, "Inconsistent redundant information passed");
+        logger.assert_debug(idRangeBegin == 0, "c++ starts counting at 0");
         createDefaultBasisFunctions(orderOfFEM);
         const_cast<ConfigurationData *>(configData_)->numberOfBasisFunctions_ = collBasisFSet_[0]->size();
     }
@@ -915,7 +918,7 @@ namespace Base
     template<std::size_t DIM>
     void MeshManipulator<DIM>::setDefaultBasisFunctionSet(BasisFunctionSet *bFSet)
     {
-        logger.assert(bFSet != nullptr, "Invalid basis function set passed");
+        logger.assert_debug(bFSet != nullptr, "Invalid basis function set passed");
         collBasisFSet_[0] = std::shared_ptr<const BasisFunctionSet>(bFSet);
         const_cast<ConfigurationData *>(configData_)->numberOfBasisFunctions_ = bFSet->size();
         for (Base::Face *face : getFacesList(IteratorType::GLOBAL))
@@ -943,7 +946,7 @@ namespace Base
         std::size_t firstNewEntry = collBasisFSet_.size();
         for (const BasisFunctionSet *set : bFsets)
         {
-            logger.assert(set != nullptr, "Invalid basis function set detected");
+            logger.assert_debug(set != nullptr, "Invalid basis function set detected");
             collBasisFSet_.emplace_back(set);
         }
         for (Node *node : getNodesList())
@@ -965,7 +968,7 @@ namespace Base
         std::size_t firstNewEntry = collBasisFSet_.size();
         for (const BasisFunctionSet *set : bFsets)
         {
-            logger.assert(set != nullptr, "Invalid basis function set detected");
+            logger.assert_debug(set != nullptr, "Invalid basis function set detected");
             collBasisFSet_.emplace_back(set);
         }
         for (Face *face : getFacesList())
@@ -1002,7 +1005,7 @@ namespace Base
         std::size_t firstNewEntry = collBasisFSet_.size();
         for (const BasisFunctionSet *set : bFsets)
         {
-            logger.assert(set != nullptr, "Invalid basis function set detected");
+            logger.assert_debug(set != nullptr, "Invalid basis function set detected");
             collBasisFSet_.emplace_back(set);
         }
         logger(DEBUG, "In MeshManipulator::addEdgeBasisFunctionSet: ");
@@ -1030,10 +1033,10 @@ namespace Base
     Base::Element *
     MeshManipulator<DIM>::addElement(const std::vector<std::size_t> &globalNodeIndexes)
     {
-        logger.assert([&]() -> bool {
-            for (std::size_t i = 0; i < globalNodeIndexes.size(); ++i)
-                for (std::size_t j = 0; j < i; ++j)
-                    if (globalNodeIndexes[i] == globalNodeIndexes[j])
+        logger.assert_debug([&]() -> bool {
+            for(std::size_t i = 0; i < globalNodeIndexes.size(); ++i)
+                for(std::size_t j = 0; j < i; ++j)
+                    if(globalNodeIndexes[i] == globalNodeIndexes[j])
                         return false;
             return true;
         }(), "Trying to pass the same node twice");
@@ -1065,7 +1068,7 @@ namespace Base
                                        Element *rightElementPtr, std::size_t rightElementLocalFaceNo,
                                        const Geometry::FaceType &faceType)
     {
-        logger.assert(leftElementPtr != nullptr, "Invalid element passed");
+        logger.assert_debug(leftElementPtr != nullptr, "Invalid element passed");
         //rightElementPtr may be nullptr for boundary faces
         auto result = theMesh_.addFace(leftElementPtr, leftElementLocalFaceNo, rightElementPtr, rightElementLocalFaceNo, faceType);
         if(result) logger.suppressWarnings([this](){theMesh_.getSubmesh().add(*(--theMesh_.getFacesList(Base::IteratorType::GLOBAL).end()));});
@@ -1195,10 +1198,11 @@ namespace Base
         {
             if (shouldRefine(element))
             {
-                logger.assert(element->getRefinementMap() ==
-                              nullptr, "Element was already refined, refine the children instead");
-                logger.assert(element->getReferenceGeometry() ==
-                              refinementMapping->getBigElementReferenceGeometry(), "The mapping is intended for %s, but the element is a %", refinementMapping->getBigElementReferenceGeometry()->getName(), element->getReferenceGeometry()->getName());
+                logger.assert_debug(element->getRefinementMap() ==
+                                    nullptr, "Element was already refined, refine the children instead");
+                logger.assert_debug(element->getReferenceGeometry() ==
+                                    refinementMapping->getBigElementReferenceGeometry(), "The mapping is intended for %s, but the element is a %",
+                                    refinementMapping->getBigElementReferenceGeometry()->getName(), element->getReferenceGeometry()->getName());
 
                 auto newReferenceNodes = refinementMapping->getNewNodeLocations(Geometry::PointReference<DIM>{});
                 std::vector<std::size_t> globalPointIndices(
@@ -1338,10 +1342,11 @@ namespace Base
         getElementsList().setSingleLevelTraversal(0);
         getElementsList(IteratorType::GLOBAL).setSingleLevelTraversal(0);
 
-        logger.assert(bottomLeft.size() == topRight.size(), "The corners of the mesh must have the same dimension");
-        logger.assert(bottomLeft.size() == configData_->dimension_, "The corners of the mesh have the wrong dimension");
-        logger.assert(linearNoElements.size() ==
-                      configData_->dimension_, "There are amounts of elements spicified in % dimensions, but there are % dimensions", linearNoElements.size(), configData_->dimension_);
+        logger.assert_debug(bottomLeft.size() == topRight.size(), "The corners of the mesh must have the same dimension");
+        logger.assert_debug(bottomLeft.size() == configData_->dimension_, "The corners of the mesh have the wrong dimension");
+        logger.assert_debug(linearNoElements.size() ==
+                            configData_->dimension_, "There are amounts of elements spicified in % dimensions, but there are % dimensions",
+                            linearNoElements.size(), configData_->dimension_);
         //set to correct value in case some other meshmanipulator changed things
         ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
         ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrices_);
@@ -1351,8 +1356,8 @@ namespace Base
         FaceFactory::instance().setNumberOfFaceMatrices(numberOfFaceMatrices_);
         FaceFactory::instance().setNumberOfFaceVectors(numberOfFaceVectors_);
 
-        logger.assert(linearNoElements.size() ==
-                      DIM, "The number of Linear Intervals has to map the size of the problem and current it does not");
+        logger.assert_debug(linearNoElements.size() ==
+                            DIM, "The number of Linear Intervals has to map the size of the problem and current it does not");
         std::vector<bool> periodicDIM;
         for (std::size_t i = 0; i < DIM; ++i)
         {
@@ -1562,10 +1567,11 @@ namespace Base
         getElementsList().setSingleLevelTraversal(0);
         getElementsList(IteratorType::GLOBAL).setSingleLevelTraversal(0);
 
-        logger.assert(bottomLeft.size() == topRight.size(), "The corners of the mesh must have the same dimension");
-        logger.assert(bottomLeft.size() == configData_->dimension_, "The corners of the mesh have the wrong dimension");
-        logger.assert(linearNoElements.size() ==
-                      configData_->dimension_, "There are amounts of elements specified in % dimensions, but there are % dimensions", linearNoElements.size(), configData_->dimension_);
+        logger.assert_debug(bottomLeft.size() == topRight.size(), "The corners of the mesh must have the same dimension");
+        logger.assert_debug(bottomLeft.size() == configData_->dimension_, "The corners of the mesh have the wrong dimension");
+        logger.assert_debug(linearNoElements.size() ==
+                            configData_->dimension_, "There are amounts of elements specified in % dimensions, but there are % dimensions",
+                            linearNoElements.size(), configData_->dimension_);
         //set to correct value in case some other meshmanipulator changed things
         ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
         ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrices_);
@@ -1576,15 +1582,18 @@ namespace Base
         FaceFactory::instance().setNumberOfFaceVectors(numberOfFaceVectors_);
 
         //Stage 0 : Check for required requirements
-        logger.assert(linearNoElements.size() ==
-                      DIM, "The number of Linear Intervals has to map the size of the problem and current it does not");
+        logger.assert_debug(linearNoElements.size() ==
+                            DIM, "The number of Linear Intervals has to map the size of the problem and current it does not");
 
-        logger.assert(!(DIM == 3 && periodicX_ && linearNoElements[0] % 2 ==
-                                                  1), "The 3D triangular grid generator can't handle an odd amount of elements in the periodic dimension X");
-        logger.assert(!(DIM == 3 && periodicY_ && linearNoElements[1] % 2 ==
-                                                  1), "The 3D triangular grid generator can't handle an odd amount of elements in the periodic dimension Y");
-        logger.assert(!(DIM == 3 && periodicZ_ && linearNoElements[2] % 2 ==
-                                                  1), "The 3D triangular grid generator can't handle an odd amount of elements in the periodic dimension Z");
+        logger.assert_debug(!(DIM == 3 && periodicX_ && linearNoElements[0] % 2 ==
+                                                        1),
+                            "The 3D triangular grid generator can't handle an odd amount of elements in the periodic dimension X");
+        logger.assert_debug(!(DIM == 3 && periodicY_ && linearNoElements[1] % 2 ==
+                                                        1),
+                            "The 3D triangular grid generator can't handle an odd amount of elements in the periodic dimension Y");
+        logger.assert_debug(!(DIM == 3 && periodicZ_ && linearNoElements[2] % 2 ==
+                                                        1),
+                            "The 3D triangular grid generator can't handle an odd amount of elements in the periodic dimension Z");
 
         //place the boundary conditions together in a vector.
         std::vector<bool> periodicDIM;
@@ -1796,13 +1805,13 @@ namespace Base
                 Element *newElement = addElement(globalNodeCoordinateID[i]);
                 for (std::size_t j = 0; j < globalNodeID[i].size(); ++j)
                 {
-                    logger.assert(i <
-                                  globalNodeID.size(), "Requested node %, while there are only %", i, globalNodeID.size());
-                    logger.assert(j <
-                                  globalNodeID[i].size(), "Requested element %, but this node only has %.", j, globalNodeID[i].size());
-                    logger.assert(globalNodeID[i][j] <
-                                  totalNumberOfNodes, "Requested node %, while there are only %", globalNodeID[i][j], totalNumberOfNodes);
-                    logger.assert(nodes.size() == totalNumberOfNodes, "Number of vertices is wrong.");
+                    logger.assert_debug(i <
+                                        globalNodeID.size(), "Requested node %, while there are only %", i, globalNodeID.size());
+                    logger.assert_debug(j <
+                                        globalNodeID[i].size(), "Requested element %, but this node only has %.", j, globalNodeID[i].size());
+                    logger.assert_debug(globalNodeID[i][j] <
+                                        totalNumberOfNodes, "Requested node %, while there are only %", globalNodeID[i][j], totalNumberOfNodes);
+                    logger.assert_debug(nodes.size() == totalNumberOfNodes, "Number of vertices is wrong.");
                     nodes[globalNodeID[i][j]]->addElement(newElement, j);
                 }
             }
@@ -2932,7 +2941,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
 
         centaurFile.read(reinterpret_cast<char *>(&sizeOfLine), sizeof(sizeOfLine));
         centaurFile.read(reinterpret_cast<char *>(&numberOfPanels), sizeof(numberOfPanels));
-        logger.assert(numberOfPanels == facesForEachCentaurPanel.size(), "Not enough faces in centaur file");
+        logger.assert_debug(numberOfPanels == facesForEachCentaurPanel.size(), "Not enough faces in centaur file");
         centaurFile.read(reinterpret_cast<char *>(&checkInt), sizeof(checkInt));
         logger.assert_always(checkInt == sizeOfLine && centaurFile.good(), "Error in centaur file.");
 
@@ -2961,7 +2970,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
 
         centaurFile.read(reinterpret_cast<char *>(&sizeOfLine), sizeof(sizeOfLine));
         centaurFile.read(reinterpret_cast<char *>(&numberOfBoundaryGroups), sizeof(numberOfBoundaryGroups));
-        logger.assert(numberOfBoundaryGroups == facesForEachBoundaryGroup.size(), "Not enough boundary groups in centaur file");
+        logger.assert_debug(numberOfBoundaryGroups == facesForEachBoundaryGroup.size(), "Not enough boundary groups in centaur file");
         centaurFile.read(reinterpret_cast<char *>(&checkInt), sizeof(checkInt));
         logger.assert_always(checkInt == sizeOfLine && centaurFile.good(), "Error in centaur file.");
 
@@ -3469,7 +3478,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
     {
         //impossible to create a mesh with more fixed nodes that total nodes
         //note that when equality is met, this will only do a delaunay triangulation
-        logger.assert(fixedPoints.size() <= TotalNoNodes, "Cannot create a mesh with more fixed nodes than total nodes");
+        logger.assert_debug(fixedPoints.size() <= TotalNoNodes, "Cannot create a mesh with more fixed nodes than total nodes");
         
         //set to correct value in case some other meshmanipulator changed things
         ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
@@ -3481,7 +3490,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
         FaceFactory::instance().setNumberOfFaceVectors(numberOfFaceVectors_);
         
         //periodic unstructured mesh generation not yet implemented
-        logger.assert(!(periodicX_ || periodicY_ || periodicZ_), "Unstructured mesh generator does not support periodic boundaries");
+        logger.assert_debug(!(periodicX_ || periodicY_ || periodicZ_), "Unstructured mesh generator does not support periodic boundaries");
         
         //guess the required distance between two nodes
         double dist = std::pow(double(TotalNoNodes), -1. / double(dimension()));
@@ -3497,7 +3506,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
         Geometry::PointPhysical<DIM> nextPoint = BottomLeft;
         for (std::size_t i = 0; i < fixedPoints.size(); ++i)
         {
-            logger.assert(domainDescription(fixedPoints[i]) < 1e-10, "One of the fixed points is outside of the domain");
+            logger.assert_debug(domainDescription(fixedPoints[i]) < 1e-10, "One of the fixed points is outside of the domain");
             theMesh_.addNode();
             theMesh_.addNodeCoordinate(fixedPoints[i]);
         }
@@ -3520,9 +3529,9 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
         }
         std::size_t nFixedPoints = fixedPoints.size();
         //there are not enough points to do a triangulation
-        logger.assert(DIM < nFixedPoints, "Could not construct enough points for the initial triangulation");
+        logger.assert_debug(DIM < nFixedPoints, "Could not construct enough points for the initial triangulation");
         //there is inherent rounding down in the gridding and some nodes are outside the domain (so they are discarded)
-        logger.assert(hpGEMCoordinates.size() <= TotalNoNodes, "Constructed too many nodes");
+        logger.assert_debug(hpGEMCoordinates.size() <= TotalNoNodes, "Constructed too many nodes");
         
         while (hpGEMCoordinates.size() < TotalNoNodes)
         {
@@ -3549,7 +3558,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
                     std::vector<std::size_t> pointIndices;
                     for (auto vertex : triangle.vertices())
                     {
-                        logger.assert(vertex.point().id() >= 0, "QHull breaks our assumptions on indexes");
+                        logger.assert_debug(vertex.point().id() >= 0, "QHull breaks our assumptions on indexes");
                         center += hpGEMCoordinates[vertex.point().id()];
                         pointIndices.push_back(vertex.point().id());
                     }
@@ -3591,7 +3600,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
                 else
                 {
                     //cannot deliberately construct tangled meshes
-                    logger.assert(newLength > 0, "Found an edge that is supposed to have a negative length");
+                    logger.assert_debug(newLength > 0, "Found an edge that is supposed to have a negative length");
                     knownLengths.insert( {newLength, i});
                 }
             }
@@ -3666,7 +3675,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
             }
             
             //all regions of the domain where elements are allowed to be as large as possible must be connected to regions where relativeEdgeLength provides a limitation
-            logger.assert(!std::isnan(totalexpectedLength) && !std::isinf(totalexpectedLength), "could not infer edge sizes for the entirety of the domain");
+            logger.assert_debug(!std::isnan(totalexpectedLength) && !std::isinf(totalexpectedLength), "could not infer edge sizes for the entirety of the domain");
             
             //sort the centers of the edges such that the centers of the large edges are indexed first
             //note that in this case the inverse measure is computed, because that will result in a more natural force computation later on
@@ -3950,7 +3959,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
             }
             
             //all regions of the domain where elements are allowed to be as large as possible must be connected to regions where relativeEdgeLength provides a limitation
-            logger.assert(!std::isnan(totalexpectedLength) && !std::isinf(totalexpectedLength), "Could not infer edge sizes for the entirety of the domain");
+            logger.assert_debug(!std::isnan(totalexpectedLength) && !std::isinf(totalexpectedLength), "Could not infer edge sizes for the entirety of the domain");
         }
         std::size_t counter = 0;
         double maxMovement = std::numeric_limits<double>::infinity();
@@ -4017,7 +4026,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
                     while (pairingIterator != periodicPairing.end() && pairingIterator->first == i)
                     {
                         logger(DEBUG, "periodic pair: % % ", pairingIterator->first, pairingIterator->second);
-                        logger.assert(Base::L2Norm(duplicatePeriodic(theMesh_.getNodeCoordinates()[pairingIterator->first]) - theMesh_.getNodeCoordinates()[pairingIterator->second]) < 1e-9, "periodic pair is not moving simulateously");
+                        logger.assert_debug(Base::L2Norm(duplicatePeriodic(theMesh_.getNodeCoordinates()[pairingIterator->first]) - theMesh_.getNodeCoordinates()[pairingIterator->second]) < 1e-9, "periodic pair is not moving simulateously");
                         vertexIndex[pairingIterator->second] = currentNodeNumber;
                         ++pairingIterator;
                     }
@@ -4031,9 +4040,9 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
                 logger(DEBUG, "periodic pairs end");
                 
                 //all periodic boundary pairs are used
-                logger.assert(pairingIterator == periodicPairing.end(), "Somehow missed some periodic pair");
+                logger.assert_debug(pairingIterator == periodicPairing.end(), "Somehow missed some periodic pair");
                 //the actual amount of vertices and the assigned amount of vertices match
-                logger.assert(currentNodeNumber == theMesh_.getNumberOfNodes(IteratorType::GLOBAL), "Missed some node indexes");
+                logger.assert_debug(currentNodeNumber == theMesh_.getNumberOfNodes(IteratorType::GLOBAL), "Missed some node indexes");
 
                 qHullCoordinates.reserveCoordinates(DIM * theMesh_.getNumberOfNodeCoordinates());
                 for(Geometry::PointPhysical<DIM>& point : theMesh_.getNodeCoordinates())
@@ -4053,7 +4062,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
                         bool shouldConnect = false;
                         for (auto vertexIt1 = triangle.vertices().begin(); vertexIt1 != triangle.vertices().end(); ++vertexIt1)
                         {
-                            logger.assert((*vertexIt1).point().id() >= 0, "QHull breaks our assumptions on indexes");
+                            logger.assert_debug((*vertexIt1).point().id() >= 0, "QHull breaks our assumptions on indexes");
                             logger(DEBUG, "% % %", shouldConnect, vertexIndex[(*vertexIt1).point().id()], *vertexIt1);
                             center += oldNodeLocations_[(*vertexIt1).point().id()];
                             pointIndices.push_back((*vertexIt1).point().id());
@@ -4091,7 +4100,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
                             }
                         }
                     }
-                    logger.assert(node->getNumberOfElements() > 0, "There is an node without any elements connected to it");
+                    logger.assert_debug(node->getNumberOfElements() > 0, "There is an node without any elements connected to it");
                 }
                 edgeFactory();
                 faceFactory();
@@ -4253,7 +4262,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
                     Node* node = theMesh_.getNodesList(IteratorType::GLOBAL)[i];
                     Geometry::PointPhysical<DIM>& point = theMesh_.getNodeCoordinates()[node->getElement(0)->getPhysicalGeometry()->getNodeIndex(node->getNodeNumber(0))];
                     point += 0.1 * std::get<1>(*moveIterator);
-                    logger.assert(!(std::isnan(point[0])), "%", i);
+                    logger.assert_debug(!(std::isnan(point[0])), "%", i);
                     bool isPeriodic = false;
                     std::map<std::size_t, bool> hasMoved {};
                     hasMoved[node->getElement(0)->getPhysicalGeometry()->getNodeIndex(node->getNodeNumber(0))] = true;
@@ -4586,7 +4595,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
                     //boundary face
                     if (candidates.size() == 1)
                     {
-                        logger.assert(candidates[0] == element, "dropped the original element");
+                        logger.assert_debug(candidates[0] == element, "dropped the original element");
                         addFace(element, i, nullptr, 0, Geometry::FaceType::WALL_BC);
                     }
                     if (candidates.size() == 2)
@@ -4616,14 +4625,14 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
                             }
                             if (match)
                             {
-                                logger.assert(!matchFound, "Found two opposing faces for face % "
-                                                      " of element % in opposing element %.", i, element->getID(), other->getID());
+                                logger.assert_debug(!matchFound, "Found two opposing faces for face % "
+                                                                 " of element % in opposing element %.", i, element->getID(), other->getID());
                                 addFace(element, i, other, j);
                                 matchFound = true;
                             }
                         }
-                        logger.assert(matchFound, "Could not find matching face for face % "
-                                "of element % in opposing element %.", i, element->getID(), other->getID());
+                        logger.assert_debug(matchFound, "Could not find matching face for face % "
+                                                        "of element % in opposing element %.", i, element->getID(), other->getID());
                     }
                 }
             }
@@ -4660,7 +4669,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
                         auto &rightElements = element->getNode(nodeList[1])->getElements();
                         std::set_intersection(leftElements.begin(), leftElements.end(), rightElements.begin(), rightElements.end(), std::back_inserter(candidates), [](
                                 Element *a, Element *b) { return a->getID() < b->getID(); });
-                        logger.assert(candidates.size() > 0, "current element is not adjacent to its own edges");
+                        logger.assert_debug(candidates.size() > 0, "current element is not adjacent to its own edges");
                         addEdge();
                         nodes[0] = element->getNode(nodeList[0]);
                         nodes[1] = element->getNode(nodeList[1]);

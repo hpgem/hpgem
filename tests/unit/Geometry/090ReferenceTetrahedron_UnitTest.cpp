@@ -185,7 +185,7 @@ int main()
     logger.assert_always((test.getGaussQuadratureRule(7)->order() >= 7), "quadrature rules");
     logger.assert_always((test.getGaussQuadratureRule(9)->order() >= 9), "quadrature rules");
     ///\todo implement more quadrature rules
-    //assert(("quadrature rules",test.getGaussQuadratureRule(11)->order()>=11));
+    //assert_debug(("quadrature rules",test.getGaussQuadratureRule(11)->order()>=11));
     
     //testing functionality of abstract parent classes
     

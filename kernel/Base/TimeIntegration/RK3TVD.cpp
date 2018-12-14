@@ -66,20 +66,20 @@ bool RK3TVD::getTotalVariationDiminishing() const
 
 double RK3TVD::getA(std::size_t i, std::size_t j) const
 {
-    logger.assert(i<getNumberOfStages(), "Asked for stage %, but there are only % stages", i, getNumberOfStages());
-    logger.assert(j<i, "Asked for implicit coefficient %, but this is an explicit butcher tableau", j);
+    logger.assert_debug(i < getNumberOfStages(), "Asked for stage %, but there are only % stages", i, getNumberOfStages());
+    logger.assert_debug(j < i, "Asked for implicit coefficient %, but this is an explicit butcher tableau", j);
     return a_[i][j];
 }
 
 double RK3TVD::getB(std::size_t i) const
 {
-    logger.assert(i<getNumberOfStages(), "Asked for stage %, but there are only % stages", i, getNumberOfStages());
+    logger.assert_debug(i < getNumberOfStages(), "Asked for stage %, but there are only % stages", i, getNumberOfStages());
     return b_[i];
 }
 
 double RK3TVD::getC(std::size_t i) const
 {
-    logger.assert(i<getNumberOfStages(), "Asked for stage %, but there are only % stages", i, getNumberOfStages());
+    logger.assert_debug(i < getNumberOfStages(), "Asked for stage %, but there are only % stages", i, getNumberOfStages());
     return c_[i];
 }
 

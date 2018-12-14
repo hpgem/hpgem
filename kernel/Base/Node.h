@@ -62,14 +62,14 @@ namespace Base
         {
             std::size_t number = numberOfConformingDOFOnTheNode_[0];
             for(std::size_t index : numberOfConformingDOFOnTheNode_)
-                logger.assert(index == number, "number of basis functions is different for different unknown");
+                logger.assert_debug(index == number, "number of basis functions is different for different unknown");
             return numberOfConformingDOFOnTheNode_[0];
         }
         
         std::size_t getLocalNumberOfBasisFunctions(std::size_t unknown) const
         {
-            logger.assert(unknown < numberOfConformingDOFOnTheNode_.size(),
-                    "Asking for unknown % but there are only %", unknown, numberOfConformingDOFOnTheNode_.size());
+            logger.assert_debug(unknown < numberOfConformingDOFOnTheNode_.size(),
+                                "Asking for unknown % but there are only %", unknown, numberOfConformingDOFOnTheNode_.size());
             return numberOfConformingDOFOnTheNode_[unknown];
         }
 
@@ -117,14 +117,14 @@ namespace Base
         ///Get the local node number for this node at the given element.
         std::size_t getNodeNumber(std::size_t i) const
         {
-            logger.assert(i < getNumberOfElements(), "Asked for element %, but there are only % elements", i, getNumberOfElements());
+            logger.assert_debug(i < getNumberOfElements(), "Asked for element %, but there are only % elements", i, getNumberOfElements());
             return localNodeNumbers_[i];
         }
         
         void setLocalNumberOfBasisFunctions(std::size_t number, std::size_t unknown = 0)
         {
-            logger.assert(unknown < numberOfConformingDOFOnTheNode_.size(),
-                    "Setting unknown %, but there are only %", unknown, numberOfConformingDOFOnTheNode_.size());
+            logger.assert_debug(unknown < numberOfConformingDOFOnTheNode_.size(),
+                                "Setting unknown %, but there are only %", unknown, numberOfConformingDOFOnTheNode_.size());
             numberOfConformingDOFOnTheNode_[unknown] = number;
         }
 

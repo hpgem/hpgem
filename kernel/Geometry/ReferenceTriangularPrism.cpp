@@ -54,7 +54,7 @@ namespace Geometry
     
     bool ReferenceTriangularPrism::isInternalPoint(const PointReference<3>& p) const
     {
-        logger.assert(p.size()==3, "The dimension of the reference point is incorrect");
+        logger.assert_debug(p.size() == 3, "The dimension of the reference point is incorrect");
         return ((-1. <= p[2]) && (1. >= p[2]) && (p[0] >= 0.) && (p[0] <= 1.) && (p[1] >= 0.) && (p[1] <= 1. - p[0]));
     }
     
@@ -129,7 +129,7 @@ namespace Geometry
     const MappingReferenceToReference<1>*
     ReferenceTriangularPrism::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
-        logger.assert((faceIndex < 5), "Asked for a square point index larger than 3. There are only 4 nodes in a square!.\n");
+        logger.assert_debug((faceIndex < 5), "Asked for a square point index larger than 3. There are only 4 nodes in a square!.\n");
         return mappingsFaceToTriangularPrism_[faceIndex];
     }
     
@@ -137,14 +137,14 @@ namespace Geometry
     
     std::vector<std::size_t> ReferenceTriangularPrism::getCodim2EntityLocalIndices(const std::size_t edgeIndex) const
     {
-        logger.assert((edgeIndex < 9), "ReferenceTriangularPrism::getCodim2EntityLocalIndices Index out of range. T.p has only 9 edges.\n");
+        logger.assert_debug((edgeIndex < 9), "ReferenceTriangularPrism::getCodim2EntityLocalIndices Index out of range. T.p has only 9 edges.\n");
         return std::vector<std::size_t>(localNodesOnEdge_[edgeIndex], localNodesOnEdge_[edgeIndex] + 2);
     }
     
     const ReferenceGeometry*
     ReferenceTriangularPrism::getCodim2ReferenceGeometry(const std::size_t edgeIndex) const
     {
-        logger.assert((edgeIndex < 9), "ReferenceTriangularPrism::getCodim2ReferenceGeometry Index out of range. T.p has only 9 edges.\n");
+        logger.assert_debug((edgeIndex < 9), "ReferenceTriangularPrism::getCodim2ReferenceGeometry Index out of range. T.p has only 9 edges.\n");
         return referenceGeometryCodim2Ptr_;
     }
     
@@ -159,7 +159,7 @@ namespace Geometry
     
     std::vector<std::size_t> ReferenceTriangularPrism::getCodim3EntityLocalIndices(const std::size_t nodeIndex) const
     {
-        logger.assert((nodeIndex < 6), "ReferenceTriangularPrism::Index out of range. TP has only 6 nodes.\n");
+        logger.assert_debug((nodeIndex < 6), "ReferenceTriangularPrism::Index out of range. TP has only 6 nodes.\n");
         return std::vector<std::size_t>(1, nodeIndex);
     }
 }

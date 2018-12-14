@@ -293,7 +293,7 @@ void DGMaxTimeIntegration::writeTimeSnapshots(std::string fileName) const
     }
     else
     {
-        logger.assert(false, "Only supporting 2D and 3D Maxwell");
+        logger.assert_debug(false, "Only supporting 2D and 3D Maxwell");
     }
     Output::TecplotDiscontinuousSolutionWriter<DIM> tecplotWriter(fileWriter, "The electric field", dimensions,
                                                                   variables);

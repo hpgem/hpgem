@@ -61,7 +61,7 @@ public:
             case DG:
                 return "DG";
             default:
-                logger.assert(false, "Unknown norm type %", norm);
+                logger.assert_debug(false, "Unknown norm type %", norm);
                 return "Unknown";
         }
     }

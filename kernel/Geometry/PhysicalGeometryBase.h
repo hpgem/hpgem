@@ -63,7 +63,7 @@ namespace Geometry
         PhysicalGeometryBase(const std::vector<std::size_t>& globalNodeIndexes, const ReferenceGeometry * const refG)
                 : globalNodeIndexes_(globalNodeIndexes), referenceGeometry_(refG)
         {
-            logger.assert(refG!=nullptr, "Invalid reference geometry passed");
+            logger.assert_debug(refG!=nullptr, "Invalid reference geometry passed");
         }
                 
         PhysicalGeometryBase(const PhysicalGeometryBase& other) = delete;
@@ -84,7 +84,7 @@ namespace Geometry
         /// \brief Given a local index relative to globalNodeIndexes_, return the global node index.
         std::size_t getNodeIndex(std::size_t localIndex) const
         {
-            logger.assert(localIndex < getNumberOfNodes(), "Asked for local index %, but this geometry only has % nodes",localIndex,getNumberOfNodes());
+            logger.assert_debug(localIndex < getNumberOfNodes(), "Asked for local index %, but this geometry only has % nodes",localIndex,getNumberOfNodes());
             return globalNodeIndexes_[localIndex];
         }
         
@@ -115,7 +115,7 @@ namespace Geometry
         /// \brief Given a local face index, return the global indices of the entities contained on that face.
         std::vector<std::size_t> getGlobalFaceNodeIndices(const std::size_t i) const
         {
-            logger.assert(i < getNumberOfFaces(), "Asked for face %, but there are only % faces", i, getNumberOfFaces());
+            logger.assert_debug(i < getNumberOfFaces(), "Asked for face %, but there are only % faces", i, getNumberOfFaces());
             std::vector<std::size_t> result = getLocalFaceNodeIndices(i);
             for(std::size_t j = 0; j < result.size(); ++j)
             {
@@ -127,7 +127,7 @@ namespace Geometry
         /// \brief Given a local face index, return the local indices of the entities contained on that face.
         std::vector<std::size_t> getLocalFaceNodeIndices(const std::size_t i) const
         {
-            logger.assert(i < getNumberOfFaces(), "Asked for face %, but there are only % faces", i, getNumberOfFaces());
+            logger.assert_debug(i < getNumberOfFaces(), "Asked for face %, but there are only % faces", i, getNumberOfFaces());
             return referenceGeometry_->getCodim1EntityLocalIndices(i);
         }
         

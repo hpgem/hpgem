@@ -69,7 +69,7 @@ namespace Geometry
     
     bool ReferenceCube::isInternalPoint(const PointReference<3>& p) const
     {
-        logger.assert(p.size()==3, "Passed a point with the wrong dimension");
+        logger.assert_debug(p.size() == 3, "Passed a point with the wrong dimension");
         return ((p[0] >= -1.) && (p[0] <= 1.) && (p[1] >= -1.) && (p[1] <= 1.) && (p[2] >= -1.) && (p[2] <= 1.));
     }
     
@@ -134,7 +134,7 @@ namespace Geometry
     const MappingReferenceToReference<0>*
     ReferenceCube::getCodim0MappingPtr(const std::size_t i) const
     {
-        logger.assert((i < 8), "ERROR: Cube50.\n");
+        logger.assert_debug((i < 8), "ERROR: Cube50.\n");
         return mappingsCubeToCube_[i];
     }
     
@@ -143,20 +143,20 @@ namespace Geometry
     const MappingReferenceToReference<1>*
     ReferenceCube::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
-        logger.assert((faceIndex < 6), "Cube100.\n");
+        logger.assert_debug((faceIndex < 6), "Cube100.\n");
         return mappingsSquareToCube_[faceIndex];
     }
     
     const ReferenceGeometry*
     ReferenceCube::getCodim1ReferenceGeometry(const std::size_t e) const
     {
-        logger.assert((e < 8), "Cube150.\n");
+        logger.assert_debug((e < 8), "Cube150.\n");
         return referenceGeometryCodim1Ptr_;
     }
     
     std::vector<std::size_t> ReferenceCube::getCodim1EntityLocalIndices(const std::size_t i) const
     {
-        logger.assert((i < 6), "Cube75.\n");
+        logger.assert_debug((i < 6), "Cube75.\n");
         return std::vector<std::size_t>(localNodeIndexes_[i], localNodeIndexes_[i] + 4);
     }
     
@@ -165,20 +165,20 @@ namespace Geometry
     const MappingReferenceToReference<2>*
     ReferenceCube::getCodim2MappingPtr(const std::size_t lineIndex) const
     {
-        logger.assert(lineIndex < getNumberOfCodim2Entities(), "Asked for line %, but a cube only has % lines", lineIndex, getNumberOfCodim2Entities());
+        logger.assert_debug(lineIndex < getNumberOfCodim2Entities(), "Asked for line %, but a cube only has % lines", lineIndex, getNumberOfCodim2Entities());
         return nullptr;
     }
     
     const ReferenceGeometry*
     ReferenceCube::getCodim2ReferenceGeometry(const std::size_t e) const
     {
-        logger.assert((e < 12), "Cube150.\n");
+        logger.assert_debug((e < 12), "Cube150.\n");
         return referenceGeometryCodim2Ptr_;
     }
     
     std::vector<std::size_t> ReferenceCube::getCodim2EntityLocalIndices(const std::size_t i) const
     {
-        logger.assert((i < 12), "Cube200.\n");
+        logger.assert_debug((i < 12), "Cube200.\n");
         return std::vector<std::size_t>(localNodesOnEdge_[i], localNodesOnEdge_[i] + 2);
     }
 }

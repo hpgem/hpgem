@@ -485,14 +485,14 @@ namespace Preprocessor {
         for(auto nodeCoordinates : file.getNodeCoordinates()) {
             result.addNode();
             for(auto coordinate : nodeCoordinates) {
-                logger.assert(coordinate.size() == dimension, "The coordinates read by this reader have the wrong dimension");
+                logger.assert_debug(coordinate.size() == dimension, "The coordinates read by this reader have the wrong dimension");
                 result.addNodeCoordinate(result.getNumberOfNodes() - 1, coordinate.data());
             }
         }
         for(auto element : file.getElements()) {
             result.addElement(element);
         }
-        logger.assert(result.isValid(), "Unspecified problem with the mesh");
+        logger.assert_debug(result.isValid(), "Unspecified problem with the mesh");
         return result;
     };
 }

@@ -31,10 +31,6 @@
 #define HPGEM_LOGLEVEL Log::DEFAULT
 #endif
 
-#ifdef assert
-#error You included assert before the logger. Please use logger.assert() instead.
-#endif
-
 #ifdef HPGEM_FORCE_ASSERTS
 #define HPGEM_ASSERTS true
 #else
@@ -407,21 +403,21 @@ public:
     //the conversion from "" to a std::sting is so slow, it takes 50% of the total run time for a release build...
     template<typename... Args>
     typename std::enable_if<(ASSERTS) && (sizeof...(Args) >= 0), void>::type
-    assert(bool assertion, const char* format, Args&&... arg)
+    assert_debug(bool assertion, const char* format, Args&& ... arg)
     {   
         assert_always(assertion, format, std::forward<Args>(arg)...);
     }
     
     template<typename... Args>
     typename std::enable_if<!((ASSERTS) && sizeof...(Args) >= 0), void>::type
-    assert(bool assertion, const char* format, Args&&... arg)
+    assert_debug(bool assertion, const char* format, Args&& ... arg)
     {   
     }
     
     template<typename... Args>
-    void assert(bool assertion, const std::string format, Args&&... arg)
+    void assert_debug(bool assertion, const std::string format, Args&& ... arg)
     {
-        assert(assertion, format.c_str(), std::forward<Args>(arg)...);
+        assert_debug(assertion, format.c_str(), std::forward<Args>(arg)...);
     }
 
     template<typename... Args>
@@ -571,7 +567,7 @@ extern Logger<HPGEM_LOGLEVEL> logger;
 
 //just emptying the functions is not sufficiently aggressive in disabling the actual (costly) comparison
 #if !HPGEM_ASSERTS
-#define assert(e,...) assert(true,"")
+#define assert_debug(e,...) assert_debug(true,"")
 #endif
         
 #endif

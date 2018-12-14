@@ -75,11 +75,11 @@ namespace Base
 
     void Element::setDefaultBasisFunctionSet(std::size_t position, std::size_t unknown)
     {
-        logger.assert(unknown < getNumberOfUnknowns(), "Setting unknown % but there are only %",
-                unknown, getNumberOfUnknowns());
-        logger.assert(position < basisFunctionSet_->size(), "Not enough basis function sets passed");
-        logger.assert(unknown < getNumberOfUnknowns(),
-                "Setting basis function for unknown % with number of unknowns %", unknown, getNumberOfUnknowns());
+        logger.assert_debug(unknown < getNumberOfUnknowns(), "Setting unknown % but there are only %",
+                            unknown, getNumberOfUnknowns());
+        logger.assert_debug(position < basisFunctionSet_->size(), "Not enough basis function sets passed");
+        logger.assert_debug(unknown < getNumberOfUnknowns(),
+                            "Setting basis function for unknown % with number of unknowns %", unknown, getNumberOfUnknowns());
         basisFunctionSetPositions_[unknown].resize(1, -1);
         basisFunctionSetPositions_[unknown][0] = position;
         std::size_t numberOfBasisFunctions(0);
@@ -95,12 +95,12 @@ namespace Base
     
     void Element::setFaceBasisFunctionSet(std::size_t position, std::size_t localFaceIndex, std::size_t unknown)
     {
-        logger.assert(unknown < getNumberOfUnknowns(), "Setting unknown % but there are only %",
-                      unknown, getNumberOfUnknowns());
-        logger.assert(position < basisFunctionSet_->size(), "Not enough basis function sets passed");
-        logger.assert(unknown < getNumberOfUnknowns(),
-                      "Setting basis function for unknown % with number of unknowns %", unknown, getNumberOfUnknowns());
-        logger.assert(localFaceIndex < getNumberOfFaces(), "Asked for face %, but there are only % faces", localFaceIndex, getNumberOfFaces());
+        logger.assert_debug(unknown < getNumberOfUnknowns(), "Setting unknown % but there are only %",
+                            unknown, getNumberOfUnknowns());
+        logger.assert_debug(position < basisFunctionSet_->size(), "Not enough basis function sets passed");
+        logger.assert_debug(unknown < getNumberOfUnknowns(),
+                            "Setting basis function for unknown % with number of unknowns %", unknown, getNumberOfUnknowns());
+        logger.assert_debug(localFaceIndex < getNumberOfFaces(), "Asked for face %, but there are only % faces", localFaceIndex, getNumberOfFaces());
         if (basisFunctionSetPositions_[unknown].size() < 1 + getNumberOfFaces())
         {
             basisFunctionSetPositions_[unknown].resize(1 + getNumberOfFaces(), -1);
@@ -117,12 +117,12 @@ namespace Base
     
     void Element::setEdgeBasisFunctionSet(std::size_t position, std::size_t localEdgeIndex, std::size_t unknown)
     {
-        logger.assert(unknown < getNumberOfUnknowns(), "Setting unknown % but there are only %",
-                      unknown, getNumberOfUnknowns());
-        logger.assert(position < basisFunctionSet_->size(), "Not enough basis function sets passed");
-        logger.assert(unknown < getNumberOfUnknowns(),
-                      "Setting basis function for unknown % with number of unknowns %", unknown, getNumberOfUnknowns());
-        logger.assert(localEdgeIndex < getNumberOfEdges(), "Asked for edge %, but there are only % edges", localEdgeIndex, getNumberOfEdges());
+        logger.assert_debug(unknown < getNumberOfUnknowns(), "Setting unknown % but there are only %",
+                            unknown, getNumberOfUnknowns());
+        logger.assert_debug(position < basisFunctionSet_->size(), "Not enough basis function sets passed");
+        logger.assert_debug(unknown < getNumberOfUnknowns(),
+                            "Setting basis function for unknown % with number of unknowns %", unknown, getNumberOfUnknowns());
+        logger.assert_debug(localEdgeIndex < getNumberOfEdges(), "Asked for edge %, but there are only % edges", localEdgeIndex, getNumberOfEdges());
         if (basisFunctionSetPositions_[unknown].size() < 1 + getNumberOfFaces() + getNumberOfEdges())
         {
             basisFunctionSetPositions_[unknown].resize(1 + getNumberOfFaces() + getNumberOfEdges(), -1);
@@ -139,12 +139,12 @@ namespace Base
     
     void Element::setVertexBasisFunctionSet(std::size_t position, std::size_t localNodeIndex, std::size_t unknown)
     {
-        logger.assert(unknown < getNumberOfUnknowns(), "Setting unknown % but there are only %",
-                      unknown, getNumberOfUnknowns());
-        logger.assert(position < basisFunctionSet_->size(), "Not enough basis function sets passed");
-        logger.assert(unknown < getNumberOfUnknowns(),
-                      "Setting basis function for unknown % with number of unknowns %", unknown, getNumberOfUnknowns());
-        logger.assert(localNodeIndex < getNumberOfNodes(), "Asked for node %, but there are only % nodes", localNodeIndex, getNumberOfNodes());
+        logger.assert_debug(unknown < getNumberOfUnknowns(), "Setting unknown % but there are only %",
+                            unknown, getNumberOfUnknowns());
+        logger.assert_debug(position < basisFunctionSet_->size(), "Not enough basis function sets passed");
+        logger.assert_debug(unknown < getNumberOfUnknowns(),
+                            "Setting basis function for unknown % with number of unknowns %", unknown, getNumberOfUnknowns());
+        logger.assert_debug(localNodeIndex < getNumberOfNodes(), "Asked for node %, but there are only % nodes", localNodeIndex, getNumberOfNodes());
         if (basisFunctionSetPositions_[unknown].size() < 1 + getNumberOfFaces() + getNumberOfEdges() + getNumberOfNodes())
         {
             basisFunctionSetPositions_[unknown].resize(1 + getNumberOfFaces() + getNumberOfEdges() + getNumberOfNodes(), -1);
@@ -183,7 +183,7 @@ namespace Base
     
     void Element::setGaussQuadratureRule(QuadratureRules::GaussQuadratureRule* const quadR)
     {
-        logger.assert(quadR!=nullptr, "Invalid quadrature rule passed");
+        logger.assert_debug(quadR != nullptr, "Invalid quadrature rule passed");
         quadratureRule_ = quadR;
     }
     
@@ -200,7 +200,7 @@ namespace Base
 #ifndef NDEBUG
     const Base::BaseBasisFunction* Element::getBasisFunction(std::size_t i) const
     {
-        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
+        logger.assert_debug(i < getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
         std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
@@ -210,11 +210,11 @@ namespace Base
     
     void Element::setFace(std::size_t localFaceNumber, Face* face)
     {
-        logger.assert(localFaceNumber < getNumberOfFaces(), "Asked for face %, but there are only % faces", localFaceNumber, getNumberOfFaces());
-        logger.assert(face!=nullptr, "Invalid face passed");
-        logger.assert((face->getPtrElementLeft() == this && face->localFaceNumberLeft() == localFaceNumber) 
-                || (face->getPtrElementRight() == this && face->localFaceNumberRight() == localFaceNumber),
-                      "You are only allowed to set a face to a local face index that matches");
+        logger.assert_debug(localFaceNumber < getNumberOfFaces(), "Asked for face %, but there are only % faces", localFaceNumber, getNumberOfFaces());
+        logger.assert_debug(face != nullptr, "Invalid face passed");
+        logger.assert_debug((face->getPtrElementLeft() == this && face->localFaceNumberLeft() == localFaceNumber)
+                            || (face->getPtrElementRight() == this && face->localFaceNumberRight() == localFaceNumber),
+                            "You are only allowed to set a face to a local face index that matches");
         if (facesList_.size() < localFaceNumber + 1)
         {
             logger(WARN, "Resizing the facesList, since it's smaller(%) than to localFaceNumber + 1(%)", facesList_.size(), localFaceNumber + 1);
@@ -225,8 +225,8 @@ namespace Base
     
     void Element::setEdge(std::size_t localEdgeNumber, Edge* edge)
     {
-        logger.assert(localEdgeNumber < getNumberOfEdges(), "Asked for edge %, but there are only % edges", localEdgeNumber, getNumberOfEdges());
-        logger.assert(edge!=nullptr, "Invalid edge passed");
+        logger.assert_debug(localEdgeNumber < getNumberOfEdges(), "Asked for edge %, but there are only % edges", localEdgeNumber, getNumberOfEdges());
+        logger.assert_debug(edge != nullptr, "Invalid edge passed");
         //This if-statement is needed, since it could happen in 4D
         if (edgesList_.size() < localEdgeNumber + 1)
         {
@@ -237,9 +237,10 @@ namespace Base
     
     void Element::setNode(std::size_t localNodeNumber, Node* node)
     {
-        logger.assert(node!=nullptr, "Invalid node passed");
-        logger.assert(std::find(nodesList_.begin(), nodesList_.end(), node) == nodesList_.end(), "Trying to add node %, but it was already added", node->getID());
-        logger.assert(localNodeNumber < getNumberOfNodes(), "Asked for node %, but there are only % nodes", localNodeNumber, getNumberOfNodes());
+        logger.assert_debug(node != nullptr, "Invalid node passed");
+        logger.assert_debug(std::find(nodesList_.begin(), nodesList_.end(), node) == nodesList_.end(), "Trying to add node %, but it was already added",
+                            node->getID());
+        logger.assert_debug(localNodeNumber < getNumberOfNodes(), "Asked for node %, but there are only % nodes", localNodeNumber, getNumberOfNodes());
         nodesList_[localNodeNumber] = node;
     }
 
@@ -254,7 +255,8 @@ namespace Base
 
     std::tuple<const BasisFunctionSet*, std::size_t> Element::getBasisFunctionSetAndIndex(size_t index) const
     {
-        logger.assert(index<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", index, getNumberOfBasisFunctions());
+        logger.assert_debug(index < getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", index,
+                            getNumberOfBasisFunctions());
         int basePosition = 0;
         for (int j : basisFunctionSetPositions_[0])
         {
@@ -276,7 +278,8 @@ namespace Base
     
     std::tuple<const BasisFunctionSet*, std::size_t> Element::getBasisFunctionSetAndIndex(size_t index, std::size_t unknown) const
     {
-        logger.assert(index<getNumberOfBasisFunctions(unknown), "Asked for basis function %, but there are only % basis functions", index, getNumberOfBasisFunctions(unknown));
+        logger.assert_debug(index < getNumberOfBasisFunctions(unknown), "Asked for basis function %, but there are only % basis functions", index,
+                            getNumberOfBasisFunctions(unknown));
         int basePosition = 0;
         for (int j : basisFunctionSetPositions_[unknown])
         {
@@ -299,7 +302,7 @@ namespace Base
     double Element::basisFunction(std::size_t i, QuadratureRules::GaussQuadratureRule *quadratureRule,
                                   std::size_t quadraturePointIndex) const
     {
-        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
+        logger.assert_debug(i < getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
         std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
@@ -309,7 +312,8 @@ namespace Base
     double Element::basisFunction(std::size_t i, QuadratureRules::GaussQuadratureRule *quadratureRule,
                                   std::size_t quadraturePointIndex, std::size_t unknown) const
     {
-        logger.assert(i<getNumberOfBasisFunctions(unknown), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions(unknown));
+        logger.assert_debug(i < getNumberOfBasisFunctions(unknown), "Asked for basis function %, but there are only % basis functions", i,
+                            getNumberOfBasisFunctions(unknown));
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
         std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i, unknown);
@@ -319,7 +323,7 @@ namespace Base
     double Element::basisFunctionDiv(std::size_t i, QuadratureRules::GaussQuadratureRule *quadratureRule,
                                      std::size_t quadraturePointIndex) const
     {
-        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
+        logger.assert_debug(i < getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
         std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
@@ -329,7 +333,8 @@ namespace Base
     double Element::basisFunctionDiv(std::size_t i, QuadratureRules::GaussQuadratureRule *quadratureRule,
                                      std::size_t quadraturePointIndex, std::size_t unknown) const
     {
-        logger.assert(i<getNumberOfBasisFunctions(unknown), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions(unknown));
+        logger.assert_debug(i < getNumberOfBasisFunctions(unknown), "Asked for basis function %, but there are only % basis functions", i,
+                            getNumberOfBasisFunctions(unknown));
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
         std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i, unknown);
@@ -339,7 +344,7 @@ namespace Base
     double Element::basisFunction(std::size_t i, QuadratureRules::GaussQuadratureRule *quadratureRule,
                                   std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1> *map) const
     {
-        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
+        logger.assert_debug(i < getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
         std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
@@ -349,7 +354,8 @@ namespace Base
     double Element::basisFunction(std::size_t i, QuadratureRules::GaussQuadratureRule *quadratureRule,
                                   std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1> *map, std::size_t unknown) const
     {
-        logger.assert(i<getNumberOfBasisFunctions(unknown), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions(unknown));
+        logger.assert_debug(i < getNumberOfBasisFunctions(unknown), "Asked for basis function %, but there are only % basis functions", i,
+                            getNumberOfBasisFunctions(unknown));
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
         std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i, unknown);
@@ -359,7 +365,7 @@ namespace Base
     double Element::basisFunctionDiv(std::size_t i, QuadratureRules::GaussQuadratureRule *quadratureRule,
                                      std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1> *map) const
     {
-        logger.assert(i<getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
+        logger.assert_debug(i < getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
         std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
@@ -369,7 +375,8 @@ namespace Base
     double Element::basisFunctionDiv(std::size_t i, QuadratureRules::GaussQuadratureRule *quadratureRule,
                                      std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1> *map, std::size_t unknown) const
     {
-        logger.assert(i<getNumberOfBasisFunctions(unknown), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions(unknown));
+        logger.assert_debug(i < getNumberOfBasisFunctions(unknown), "Asked for basis function %, but there are only % basis functions", i,
+                            getNumberOfBasisFunctions(unknown));
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
         std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i, unknown);

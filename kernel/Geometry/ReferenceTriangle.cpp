@@ -66,7 +66,7 @@ namespace Geometry
     
     bool ReferenceTriangle::isInternalPoint(const PointReference<2>& p) const
     {
-        logger.assert(p.size()==2, "The dimension of the reference point is incorrect");
+        logger.assert_debug(p.size() == 2, "The dimension of the reference point is incorrect");
         return ((p[0] >= 0.) && (p[0] <= 1.) && (p[1] >= 0.) && (p[1] <= 1. - p[0]));
     }
     
@@ -124,25 +124,25 @@ namespace Geometry
     const MappingReferenceToReference<0>*
     ReferenceTriangle::getCodim0MappingPtr(const std::size_t i) const
     {
-        logger.assert((i < 6), "ERROR: Asked for a mappingTriangleToTriangle larger than 5. There are only 6.\n");
+        logger.assert_debug((i < 6), "ERROR: Asked for a mappingTriangleToTriangle larger than 5. There are only 6.\n");
         return mappingsTriangleToTriangle_[i];
     }
     // ================================== Codimension 1 ============================================
     std::vector<std::size_t> ReferenceTriangle::getCodim1EntityLocalIndices(const std::size_t faceIndex) const
     {
-        logger.assert(faceIndex < 3, "A triangle has only 3 edges, while edge % is requested", faceIndex);
+        logger.assert_debug(faceIndex < 3, "A triangle has only 3 edges, while edge % is requested", faceIndex);
         return std::vector<std::size_t>(localNodeIndexes_[faceIndex], localNodeIndexes_[faceIndex] + 2);
     }
     
     const ReferenceGeometry* ReferenceTriangle::getCodim1ReferenceGeometry(const std::size_t faceIndex) const
     {
-        logger.assert((faceIndex < 3), "ERROR: Asked for a triangle face index larger than 2. There are only 3 faces in a triangle.\n");
+        logger.assert_debug((faceIndex < 3), "ERROR: Asked for a triangle face index larger than 2. There are only 3 faces in a triangle.\n");
         return referenceGeometryCodim1Ptr_;
     }
     const MappingReferenceToReference<1>*
     ReferenceTriangle::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
-        logger.assert((faceIndex < 3), "ERROR: Asked for a triangle point index larger than 3. There are only 3 nodes in a triangle.\n");
+        logger.assert_debug((faceIndex < 3), "ERROR: Asked for a triangle point index larger than 3. There are only 3 nodes in a triangle.\n");
         return mappingsLineToTriangle_[faceIndex];
     }
     

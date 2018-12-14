@@ -86,7 +86,7 @@ public:
     ///so you wont have to do any transformations yourself
     LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(Base::PhysicalElement<DIM>& element) override final
     {
-        logger.assert(element.getJacobianDet() > 0, "%", element.getElement());
+        logger.assert_debug(element.getJacobianDet() > 0, "%", element.getElement());
         std::size_t numberOfBasisFunctions = element.getElement()->getNumberOfBasisFunctions();
         LinearAlgebra::MiddleSizeMatrix&  result = element.getResultMatrix();
         for (std::size_t i = 0; i < numberOfBasisFunctions; ++i)

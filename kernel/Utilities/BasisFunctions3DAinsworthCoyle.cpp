@@ -67,7 +67,7 @@ namespace Utilities
     BasisCurlEdgeAinsworthCoyle::BasisCurlEdgeAinsworthCoyle(std::size_t degree, std::size_t localFirstVertex, std::size_t localSecondVertex)
             : deg(degree), o(localFirstVertex), i(localSecondVertex)
     {
-        logger.assert(i < 4 && o < 4, "A tetrahedron only has 4 nodes");
+        logger.assert_debug(i < 4 && o < 4, "A tetrahedron only has 4 nodes");
     }
     
     void BasisCurlEdgeAinsworthCoyle::eval(const Geometry::PointReference<3>& p, LinearAlgebra::SmallVector<3>& ret) const
@@ -143,7 +143,7 @@ namespace Utilities
     BasisCurlEdgeFaceAinsworthCoyle::BasisCurlEdgeFaceAinsworthCoyle(std::size_t degree, std::size_t localOpposingVertex, std::size_t localSpecialVertex)
         : deg(degree), c(localSpecialVertex)
     {
-        logger.assert(c < 4, "A tetrahedron only has 4 nodes");
+        logger.assert_debug(c < 4, "A tetrahedron only has 4 nodes");
         a = 0;
         //find the edge (a,b) this functions is based on
         while (c == a || localOpposingVertex == a)

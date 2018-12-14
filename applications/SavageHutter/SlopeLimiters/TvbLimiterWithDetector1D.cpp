@@ -151,8 +151,8 @@ void TvbLimiterWithDetector1D::limitWithMinMod(Base::Element* element, const std
     const LinearAlgebra::MiddleSizeVector &solutionCoefficients = element->getTimeIntegrationVector(0);
     const PointReferenceT &pRefL = element->getReferenceGeometry()->getReferenceNodeCoordinate(0); 
     const PointReferenceT &pRefR = element->getReferenceGeometry()->getReferenceNodeCoordinate(1);
-    logger.assert(std::abs(-1  - pRefL[0]) < 1e-10, "xi_L != -1");    
-    logger.assert(std::abs(1 - pRefR[0]) < 1e-10, "xi_R != 1");
+    logger.assert_debug(std::abs(-1 - pRefL[0]) < 1e-10, "xi_L != -1");
+    logger.assert_debug(std::abs(1 - pRefR[0]) < 1e-10, "xi_R != 1");
     
     //this does not work for first boundary, probably also not for triangular mesh.
     //maybe write getNeighbour(face)?
@@ -168,7 +168,9 @@ void TvbLimiterWithDetector1D::limitWithMinMod(Base::Element* element, const std
         return; //for now, just don't use the limiter here...
 
     //check if left is indeed of the left side of right //TODO: this may be false for general meshes (or may even examine the same node twice)
-    logger.assert((PointPhysicalT(elemL->getPhysicalGeometry()->getLocalNodeCoordinates(0)))[0] < PointPhysicalT(elemR->getPhysicalGeometry()->getLocalNodeCoordinates(0))[0], "elements left/right in wrong order");
+    logger.assert_debug(
+    (PointPhysicalT(elemL->getPhysicalGeometry()->getLocalNodeCoordinates(0)))[0] < PointPhysicalT(elemR->getPhysicalGeometry()->getLocalNodeCoordinates(0))[0],
+    "elements left/right in wrong order");
 
     const double uPlus = element->getSolution(0, pRefR)[iVar];
     const double uMinus = element->getSolution(0, pRefL)[iVar];

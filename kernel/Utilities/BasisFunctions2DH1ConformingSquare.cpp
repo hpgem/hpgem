@@ -51,9 +51,9 @@ namespace Utilities
     BasisFunction2DFaceSquare_0::BasisFunction2DFaceSquare_0(std::size_t node0, std::size_t node1, std::size_t polynomialOrder)
             : polynomialOrder_(polynomialOrder)
     {
-        logger.assert(node0 < 4, "A square only has 4 nodes");
-        logger.assert(node1 < 4, "A square only has 4 nodes");
-        logger.assert((node0 + node1) % 2 == 1, "please use BasisFunction2DFaceSquare_1 for edges that are aligned vertically");
+        logger.assert_debug(node0 < 4, "A square only has 4 nodes");
+        logger.assert_debug(node1 < 4, "A square only has 4 nodes");
+        logger.assert_debug((node0 + node1) % 2 == 1, "please use BasisFunction2DFaceSquare_1 for edges that are aligned vertically");
         mirroring_ = (node0 > node1) ? -1 : 1;
         edgePosition_ = (node0 + node1 < 3) ? -1 : 1;
     }
@@ -76,9 +76,9 @@ namespace Utilities
     BasisFunction2DFaceSquare_1::BasisFunction2DFaceSquare_1(std::size_t node0, std::size_t node1, std::size_t polynomialOrder)
             : polynomialOrder_(polynomialOrder)
     {
-        logger.assert(node0 < 4, "A square only has 4 nodes");
-        logger.assert(node1 < 4, "A square only has 4 nodes");
-        logger.assert((node0 + node1) % 2 == 0, "please use BasisFunction2DFaceSquare_0 for edges that are aligned horizontally");
+        logger.assert_debug(node0 < 4, "A square only has 4 nodes");
+        logger.assert_debug(node1 < 4, "A square only has 4 nodes");
+        logger.assert_debug((node0 + node1) % 2 == 0, "please use BasisFunction2DFaceSquare_0 for edges that are aligned horizontally");
         mirroring_ = (node0 > node1) ? -1 : 1;
         edgePosition_ = (node0 + node1 < 3) ? -1 : 1;
     }
@@ -143,7 +143,7 @@ namespace Utilities
     
     Base::BasisFunctionSet* createInteriorBasisFunctionSet2DH1Square(std::size_t order)
     {
-        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
+        logger.assert_debug(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         Base::BasisFunctionSet* result(new Base::BasisFunctionSet(order));
         for (std::size_t i = 0; i + 2 <= order; ++i)
         {
@@ -157,7 +157,7 @@ namespace Utilities
     
     std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet2DH1Square(std::size_t order)
     {
-        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
+        logger.assert_debug(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::BasisFunctionSet*> result;
         Base::BasisFunctionSet* set;
         for (std::size_t i = 0; i < 4; ++i)
@@ -171,7 +171,7 @@ namespace Utilities
     
     std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet2DH1Square(std::size_t order)
     {
-        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
+        logger.assert_debug(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::OrientedBasisFunctionSet*> result;
         Geometry::ReferenceSquare& square = Geometry::ReferenceSquare::Instance();
         Base::OrientedBasisFunctionSet* set;

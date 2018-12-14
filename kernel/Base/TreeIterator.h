@@ -151,25 +151,25 @@ namespace Base
         //nasty things with your tree, such as create cycles or break parent/child symmetry
         const TreeEntry<V>* getTreeEntry() const
         {
-            logger.assert(ptr_ != end_, "cannot read from past-the-end position");
+            logger.assert_debug(ptr_ != end_, "cannot read from past-the-end position");
             return *ptr_;
         }
 
         reference operator*()
         {
-            logger.assert(ptr_ != end_, "cannot read from past-the-end position");
+            logger.assert_debug(ptr_ != end_, "cannot read from past-the-end position");
             return (*ptr_)->getData();
         }
         
         pointer operator->() const
         {
-            logger.assert(ptr_ != end_, "cannot read from past-the-end position");
+            logger.assert_debug(ptr_ != end_, "cannot read from past-the-end position");
             return &(*ptr_)->getData();
         }
 
         TreeIterator& operator++()
         {
-            logger.assert(ptr_ != end_, "illegal to increment an iterator when it is already equal to end()");
+            logger.assert_debug(ptr_ != end_, "illegal to increment an iterator when it is already equal to end()");
             switch (traversalMethod_)
             {
                 case TreeTraversalMethod::ALLLEVEL:
@@ -219,7 +219,7 @@ namespace Base
         
         TreeIterator operator++(int) // postinc
         {
-            logger.assert(ptr_ != end_, "illegal to increment an iterator when it is already equal to end()");
+            logger.assert_debug(ptr_ != end_, "illegal to increment an iterator when it is already equal to end()");
             TreeIterator tmp(*this);
             ++*this;
             return (tmp);
@@ -340,13 +340,13 @@ namespace Base
 
         void increaseCounter()
         {
-            logger.assert(canIncreaseCounter(), "Tree iterator was asked to increase the depth counter, while this is currently impossible");
+            logger.assert_debug(canIncreaseCounter(), "Tree iterator was asked to increase the depth counter, while this is currently impossible");
             ++depthCounter_;
         }
 
         void decreaseCounter()
         {
-            logger.assert(canDecreaseCounter(), "Tree iterator was asked to decrease the depth counter, while this is currently impossible");
+            logger.assert_debug(canDecreaseCounter(), "Tree iterator was asked to decrease the depth counter, while this is currently impossible");
             --depthCounter_;
         }
 
@@ -358,14 +358,14 @@ namespace Base
         //! Move the iterator to the parent
         void moveToParent()
         {
-            logger.assert(ptr_ != end_, "cannot move to the parent of the past the end iterator");
+            logger.assert_debug(ptr_ != end_, "cannot move to the parent of the past the end iterator");
             if (canDecreaseCounter())
             {
                 decreaseCounter();
             }
             else
             {
-                logger.assert(!(*ptr_)->isRoot(), "cannot move to the parent of the root node");
+                logger.assert_debug(!(*ptr_)->isRoot(), "cannot move to the parent of the root node");
                 *this = (*ptr_)->getParent()->getIterator(traversalMethod_);
                 setMaxDepthCounter();
             }
@@ -375,14 +375,14 @@ namespace Base
         //! Move the iterator to a child
         void moveToChild(std::size_t iChild = 0)
         {
-            logger.assert(ptr_ != end_, "cannot move to the children of the past the end iterator");
+            logger.assert_debug(ptr_ != end_, "cannot move to the children of the past the end iterator");
             if (canIncreaseCounter())
             {
                 increaseCounter();
             }
             else
             {
-                logger.assert((*ptr_)->hasChild(), "cannot move to the child of a leaf node");
+                logger.assert_debug((*ptr_)->hasChild(), "cannot move to the child of a leaf node");
                 *this = (*ptr_)->getChild(iChild)->getIterator(traversalMethod_);
                 //depthcounter is automatically 0
             }
@@ -416,7 +416,7 @@ namespace Base
 
         void moveUpToLevel(std::size_t level)
         {
-            logger.assert(ptr_ != end_, "cannot move up from the past-the-end iterator");
+            logger.assert_debug(ptr_ != end_, "cannot move up from the past-the-end iterator");
             while((*ptr_)->getLevel() + depthCounter_ > level)
             {
                 moveToParent();
@@ -447,7 +447,7 @@ namespace Base
         //! move to next node on the same level
         void moveToNextOnLevel()
         {
-            logger.assert(ptr_ != end_, "can only increment dereferenceable iterators");
+            logger.assert_debug(ptr_ != end_, "can only increment dereferenceable iterators");
             //if we can't move to the next, this should be the last one
             TreeIterator backup = *this;
             std::size_t level = (*ptr_)->getLevel() + depthCounter_;
@@ -495,7 +495,7 @@ namespace Base
                 while((*ptr_)->isFirstSibling())
                 {
                     //move up until we can go to the previous
-                    logger.assert(!(*ptr_)->isRoot(), "cannot move to previous from the first element");
+                    logger.assert_debug(!(*ptr_)->isRoot(), "cannot move to previous from the first element");
                     moveToParent();
                 }
                 --ptr_;
@@ -527,7 +527,7 @@ namespace Base
         //! move to next node in the pre-order traversal
         void moveToNextPreOrder()
         {
-            logger.assert(ptr_ != end_, "can only increment dereferenceable iterators");
+            logger.assert_debug(ptr_ != end_, "can only increment dereferenceable iterators");
             if((*ptr_)->hasChild() || canIncreaseCounter())
             {
                 moveToChild(0);
@@ -564,7 +564,7 @@ namespace Base
             }
             else
             {
-                logger.assert(!(*ptr_)->isRoot() || depthCounter_ > 0, "may not decrement the first entrty of a container");
+                logger.assert_debug(!(*ptr_)->isRoot() || depthCounter_ > 0, "may not decrement the first entrty of a container");
                 moveToParent();
             }
         }
@@ -572,7 +572,7 @@ namespace Base
         //! move to next node in the post-order traversal
         void moveToNextPostOrder()
         {
-            logger.assert(ptr_ != end_, "can only increment dereferenceable iterators");
+            logger.assert_debug(ptr_ != end_, "can only increment dereferenceable iterators");
             if (!(*ptr_)->isLastSibling() && depthCounter_ == 0)
             {
                 ++ptr_;
@@ -595,7 +595,7 @@ namespace Base
         void moveToPreviousPostOrder()
         {
             //we have the function anyway, might as well use it
-            logger.assert(hasPreviousPostOrder(), "decrementing an iterator to the beginning of a range is undefined behaviour, please don't do that.");
+            logger.assert_debug(hasPreviousPostOrder(), "decrementing an iterator to the beginning of a range is undefined behaviour, please don't do that.");
             if(ptr_ != end_ && ((*ptr_)->hasChild() || canIncreaseCounter()))
             {
                 moveToChild((*ptr_)->getNumberOfChildren() - 1);
@@ -633,7 +633,7 @@ namespace Base
 
         void moveToNextMultiLevel()
         {
-            logger.assert(ptr_ != end_, "iterator has to be dereferenceable to be incrementable");
+            logger.assert_debug(ptr_ != end_, "iterator has to be dereferenceable to be incrementable");
             moveToNextOnLevel();
             if(ptr_ == end_)
             {
@@ -653,7 +653,7 @@ namespace Base
             else
             {
                 std::size_t level = (*ptr_)->getLevel() + depthCounter_;
-                logger.assert(level > 0, "Cannot move to the previous from the first entry in the range");
+                logger.assert_debug(level > 0, "Cannot move to the previous from the first entry in the range");
                 moveToLastOnLevel(level - 1);
             }
         }

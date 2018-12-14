@@ -56,14 +56,14 @@ namespace QuadratureRules
     double
     Cn4_1_1::weight(std::size_t i) const
     {
-        logger.assert(i < 1, "%::weight - wrong index!", name_);
+        logger.assert_debug(i < 1, "%::weight - wrong index!", name_);
         return weight_[i];
     }
 
     const Geometry::PointReferenceBase&
     Cn4_1_1::getPoint(std::size_t i) const
     {
-        logger.assert(i < 1, "%::getPoint - wrong index!", name_);
+        logger.assert_debug(i < 1, "%::getPoint - wrong index!", name_);
         return gp_[i];
     }
 
@@ -110,14 +110,14 @@ namespace QuadratureRules
     double
     Cn4_3_16::weight(std::size_t i) const
     {
-        logger.assert(i < 16, "%::weight - wrong index!", name_);
+        logger.assert_debug(i < 16, "%::weight - wrong index!", name_);
         return weight_[i];
     }
 
     const Geometry::PointReferenceBase&
     Cn4_3_16::getPoint(std::size_t i) const
     {
-        logger.assert(i < 16, "%::getPoint - wrong index!", name_);
+        logger.assert_debug(i < 16, "%::getPoint - wrong index!", name_);
         return gp_[i];
     }
 

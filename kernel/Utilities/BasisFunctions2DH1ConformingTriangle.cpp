@@ -119,7 +119,7 @@ namespace Utilities
     
     Base::BasisFunctionSet* createInteriorBasisFunctionSet2DH1Triangle(std::size_t order)
     {
-        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
+        logger.assert_debug(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         Base::BasisFunctionSet* result(new Base::BasisFunctionSet(order));
         for (std::size_t i = 0; i + 3 <= order; ++i)
         {
@@ -133,7 +133,7 @@ namespace Utilities
     
     std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet2DH1Triangle(std::size_t order)
     {
-        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
+        logger.assert_debug(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::BasisFunctionSet*> result;
         Base::BasisFunctionSet* set;
         for (std::size_t i = 0; i < 3; ++i)
@@ -147,7 +147,7 @@ namespace Utilities
     
     std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet2DH1Triangle(std::size_t order)
     {
-        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
+        logger.assert_debug(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::OrientedBasisFunctionSet*> result;
         Base::OrientedBasisFunctionSet* set;
         Geometry::ReferenceTriangle& triangle = Geometry::ReferenceTriangle::Instance();

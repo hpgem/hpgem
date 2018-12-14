@@ -103,7 +103,7 @@ struct TimeIntegrationParameters
                 timeStepSize = 0.3 / ((2 * polynomialOrder + 1) * numberOfElements);
                 break;
             default:
-                logger.assert(false, "unknown time integration method %", method);
+                logger.assert_debug(false, "unknown time integration method %", method);
         }
         numberOfSteps = (std::size_t) std::ceil(endTime/timeStepSize);
     }

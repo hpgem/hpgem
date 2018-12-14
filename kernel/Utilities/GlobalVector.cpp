@@ -48,7 +48,7 @@ namespace Utilities
     GlobalVector::GlobalVector(Base::MeshManipulatorBase* theMesh, int elementVectorID, int faceVectorID)
             : meshLevel_(-2), elementVectorID_(elementVectorID), faceVectorID_(faceVectorID), startPositionsOfElementsInTheVector_(), theMesh_(theMesh)
     {
-        logger.assert(theMesh!=nullptr, "Invalid mesh passed");
+        logger.assert_debug(theMesh != nullptr, "Invalid mesh passed");
     }
     
 #if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
@@ -57,10 +57,10 @@ namespace Utilities
             : GlobalVector(theMesh, elementVectorID, faceVectorID)
             , indexing_() // Will be initialized by reset().
     {
-        logger.assert(theMesh!=nullptr, "Invalid mesh passed");
+        logger.assert_debug(theMesh != nullptr, "Invalid mesh passed");
         PetscBool petscRuns;
         PetscInitialized(&petscRuns);
-        logger.assert(petscRuns == PETSC_TRUE, "Early call, firstly the command line arguments should be parsed");
+        logger.assert_debug(petscRuns == PETSC_TRUE, "Early call, firstly the command line arguments should be parsed");
         VecCreateSeq(PETSC_COMM_SELF, 1, &b_);
         
         reset();
@@ -281,7 +281,7 @@ namespace Utilities
                 }
             }
             //Put the localData in the element
-            logger.assert(localData.size() == runningTotal, "not enough info to fill the vector");
+            logger.assert_debug(localData.size() == runningTotal, "not enough info to fill the vector");
             (*it)->setTimeIntegrationVector(timeIntegrationVectorId, localData);
         }
         ierr = VecRestoreArray(localB, &data);
@@ -376,7 +376,7 @@ namespace Utilities
                     }
                 }
             }
-            logger.assert(localData.size() == runningTotal, "not enough info to fill the vector");
+            logger.assert_debug(localData.size() == runningTotal, "not enough info to fill the vector");
             LinearAlgebra::MiddleSizeVector singleUnknownData((*it)->getNumberOfBasisFunctions());
             for(std::size_t i = 0; i < (*it)->getNumberOfBasisFunctions(); ++i)
             {
@@ -397,7 +397,7 @@ namespace Utilities
     GlobalSundialsVector::GlobalSundialsVector(Base::MeshManipulatorBase* theMesh, int elementVectorID, int faceVectorID)
             : GlobalVector(theMesh, elementVectorID, faceVectorID)
     {
-        logger.assert(theMesh!=nullptr, "Invalid mesh passed");
+        logger.assert_debug(theMesh!=nullptr, "Invalid mesh passed");
         //b_ = N_VNew_Serial(1); //Create a temporary placeholder vector
         reset();
     }
@@ -525,7 +525,7 @@ namespace Utilities
                         }
                     }
                 }
-                logger.assert(localData.size() == runningTotal, "not enough info to fill the vector");
+                logger.assert_debug(localData.size() == runningTotal, "not enough info to fill the vector");
             }
     }
 
@@ -632,7 +632,7 @@ namespace Utilities
                 }
             }
             //Put the localData in the element
-            logger.assert(localData.size() == runningTotal, "not enough info to fill the vector");
+            logger.assert_debug(localData.size() == runningTotal, "not enough info to fill the vector");
             element->setTimeIntegrationVector(timeIntegrationVectorId, localData);
         }
     }

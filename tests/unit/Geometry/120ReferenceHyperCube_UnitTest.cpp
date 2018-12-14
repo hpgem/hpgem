@@ -322,10 +322,10 @@ int main()
     
     logger.assert_always((test.getGaussQuadratureRule(3)->order() >= 3), "quadrature rules");
     ///\todo implement more quadrature rules
-    //assert(("quadrature rules",test.getGaussQuadratureRule(5)->order()>=5));
-    //assert(("quadrature rules",test.getGaussQuadratureRule(7)->order()>=7));
-    //assert(("quadrature rules",test.getGaussQuadratureRule(9)->order()>=9));
-    //assert(("quadrature rules",test.getGaussQuadratureRule(11)->order()>=11));
+    //assert_debug(("quadrature rules",test.getGaussQuadratureRule(5)->order()>=5));
+    //assert_debug(("quadrature rules",test.getGaussQuadratureRule(7)->order()>=7));
+    //assert_debug(("quadrature rules",test.getGaussQuadratureRule(9)->order()>=9));
+    //assert_debug(("quadrature rules",test.getGaussQuadratureRule(11)->order()>=11));
     
     //testing functionality of abstract parent classes
     

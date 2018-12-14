@@ -34,7 +34,7 @@ namespace Geometry
     double Jacobian<dimFrom, dimTo>::determinant() const
     {
         
-        logger.assert(dimFrom == dimTo, "Jacobian should be square to have a determinant!");
+        logger.assert_debug(dimFrom == dimTo, "Jacobian should be square to have a determinant!");
         
         switch (dimFrom)
         {

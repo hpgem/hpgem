@@ -58,7 +58,7 @@ namespace Preprocessor {
     std::size_t MeshEntity<dimension, gridDimension>::getLocalIndex(const Element<gridDimension>& element) const {
         for(std::size_t i = 0; i < elementIDs.size(); ++i) {
             if(getElement(i).getGlobalIndex() == element.getGlobalIndex()) {
-                logger.assert(getElement(i) == element, "Two different elements got the same index");
+                logger.assert_debug(getElement(i) == element, "Two different elements got the same index");
                 return localIDs[i];
             }
         }

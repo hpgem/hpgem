@@ -193,11 +193,11 @@ namespace Geometry
         {
             //select a proper type based on the number of nodes a reference geometry should have
             case 2:
-                logger.assert(DIM==1, "This Dimension does not contain entities with 2 nodes");
+                logger.assert_debug(DIM == 1, "This Dimension does not contain entities with 2 nodes");
                 logger(VERBOSE, "ElementGeometry created a reference line.");
                 return &ReferenceLine::Instance();
             case 3:
-                logger.assert(DIM==2, "This Dimension does not contain entities with 3 nodes");
+                logger.assert_debug(DIM == 2, "This Dimension does not contain entities with 3 nodes");
                 logger(VERBOSE, "ElementGeometry created a reference triangle.");
                 return &ReferenceTriangle::Instance();
             case 4:
@@ -217,19 +217,19 @@ namespace Geometry
                 }
                 break;
             case 5:
-                logger.assert(DIM==3, "This Dimension does not contain entities with 5 nodes");
+                logger.assert_debug(DIM == 3, "This Dimension does not contain entities with 5 nodes");
                 logger(VERBOSE, "ElementGeometry created a reference pyramid.");
                 return &ReferencePyramid::Instance();
             case 6:
-                logger.assert(DIM==3, "This Dimension does not contain entities with 6 nodes");
+                logger.assert_debug(DIM == 3, "This Dimension does not contain entities with 6 nodes");
                 logger(VERBOSE, "ElementGeometry created a reference triangular prism.");
                 return &ReferenceTriangularPrism::Instance();
             case 8:
-                logger.assert(DIM==3, "This Dimension does not contain entities with 8 nodes");
+                logger.assert_debug(DIM == 3, "This Dimension does not contain entities with 8 nodes");
                 logger(VERBOSE, "ElementGeometry created a reference cube.");
                 return &ReferenceCube::Instance();
             case 16:
-                logger.assert(DIM==4, "This Dimension does not contain entities with 16 nodes");
+                logger.assert_debug(DIM == 4, "This Dimension does not contain entities with 16 nodes");
                 logger(VERBOSE, "ElementGeometry created a reference hypercube.");
                 return &ReferenceHypercube::Instance();
             default:
@@ -242,7 +242,7 @@ namespace Geometry
     PhysicalGeometry<DIM> *
     ElementGeometry::createPhysicalGeometry(const std::vector<std::size_t>& globalNodeIndexes, std::vector<PointPhysical<DIM> >& nodes, const ReferenceGeometry * const geo)
     {
-        logger.assert(geo!=nullptr, "Invalid reference geometry passed");
+        logger.assert_debug(geo != nullptr, "Invalid reference geometry passed");
         return new PhysicalGeometry<DIM>(globalNodeIndexes, nodes, geo);
     }
 
@@ -258,8 +258,8 @@ namespace Geometry
     inline MappingReferenceToPhysical *
     ElementGeometry::createMappings(std::size_t size, const PhysicalGeometry<1> * const pGeo)
     {
-        logger.assert(pGeo!=nullptr, "Invalid physical geometry passed");
-        logger.assert(size == 2, "1D can only map to a line");
+        logger.assert_debug(pGeo != nullptr, "Invalid physical geometry passed");
+        logger.assert_debug(size == 2, "1D can only map to a line");
         logger(VERBOSE, "ElementGeometry created a mapping for a line.");
         return new Geometry::MappingToPhysHypercubeLinear<1>(pGeo);
     }
@@ -268,7 +268,7 @@ namespace Geometry
     inline MappingReferenceToPhysical *
     ElementGeometry::createMappings(std::size_t size, const PhysicalGeometry<2> * const pGeo)
     {
-        logger.assert(pGeo!=nullptr, "Invalid physical geometry passed");
+        logger.assert_debug(pGeo != nullptr, "Invalid physical geometry passed");
         switch (size)
         {
             case 3:
@@ -286,7 +286,7 @@ namespace Geometry
     inline MappingReferenceToPhysical *
     ElementGeometry::createMappings(std::size_t size, const PhysicalGeometry<3> * const pGeo)
     {
-        logger.assert(pGeo!=nullptr, "Invalid physical geometry passed");
+        logger.assert_debug(pGeo != nullptr, "Invalid physical geometry passed");
         switch (size)
         {
             case 4:
@@ -310,8 +310,8 @@ namespace Geometry
     inline MappingReferenceToPhysical *
     ElementGeometry::createMappings(std::size_t size, const PhysicalGeometry<4> * const pGeo)
     {
-        logger.assert(pGeo!=nullptr, "Invalid physical geometry passed");
-        logger.assert(size == 16, "4D can only map to a hypercube");
+        logger.assert_debug(pGeo != nullptr, "Invalid physical geometry passed");
+        logger.assert_debug(size == 16, "4D can only map to a hypercube");
         logger(VERBOSE, "ElementGeometry created a mapping for a hypercube.");
         return new Geometry::MappingToPhysHypercubeLinear<4>(pGeo);
     }

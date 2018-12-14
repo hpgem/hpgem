@@ -54,7 +54,7 @@ void SampleTestProblems::initialConditionDerivative(const Geometry::PointPhysica
             break;
         }
       default:
-        logger.assert(false, "Unknown problem");
+        logger.assert_debug(false, "Unknown problem");
     }
 }
 
@@ -85,7 +85,7 @@ void SampleTestProblems::sourceTermRef(const Geometry::PointPhysical<DIM> &point
             break;
         }
       default:
-        logger.assert(false, "Unknown problem");
+        logger.assert_debug(false, "Unknown problem");
     }
 }
 
@@ -117,7 +117,7 @@ void SampleTestProblems::exactSolution(const Geometry::PointPhysical<DIM> &point
             break;
         }
       default:
-        logger.assert(false, "Unknown problem");
+        logger.assert_debug(false, "Unknown problem");
     }
 }
 
@@ -146,12 +146,12 @@ void SampleTestProblems::exactSolutionCurl(const Geometry::PointPhysical<DIM> &p
             }
             else
             {
-                logger.assert(false, "Sarmany problem is restricted to 3D.");
+                logger.assert_debug(false, "Sarmany problem is restricted to 3D.");
             }
             break;
         }
       default:
-        logger.assert(false, "Unknown problem");
+        logger.assert_debug(false, "Unknown problem");
     }
 }
 
@@ -168,7 +168,7 @@ double SampleTestProblems::referenceTimeBoundary() const
       case SARMANY2013:
         return 0.0;
       default:
-        logger.assert(false, "Unknown problem");
+        logger.assert_debug(false, "Unknown problem");
         return 0;
     }
 }
@@ -187,7 +187,7 @@ double SampleTestProblems::timeScalingBoundary(double t) const
         // Division by three to ensure that at 0 it is 1.
         return (cos(t) + cos(t/2) + cos(t/3)) / 3.0;
       default:
-        logger.assert(false, "Unknown problem");
+        logger.assert_debug(false, "Unknown problem");
         return 0;
     }
 }
@@ -208,7 +208,7 @@ double SampleTestProblems::timeScalingSource(double t) const
             return (p22 - 1) * cos(t) + (p22 - 1/4.0) * cos(t/2) + (p22 - 1/9.0) * cos(t/3);
         }
       default:
-        logger.assert(false, "Unknown problem");
+        logger.assert_debug(false, "Unknown problem");
         return 0;
     }
 }
@@ -236,6 +236,6 @@ void SampleTestProblems::sarmany2013x(const Geometry::PointPhysical<DIM> &point,
     }
     else
     {
-        logger.assert(DIM == 3, "Sarmany test case only works in 3D.");
+        logger.assert_debug(DIM == 3, "Sarmany test case only works in 3D.");
     }
 }

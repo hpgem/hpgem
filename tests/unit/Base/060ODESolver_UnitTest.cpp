@@ -40,7 +40,7 @@ double executeOneTimeStep(const TimeIntegration::ButcherTableau *integrator, dou
     {
         dt = dtMax;
     }
-    logger.assert(integrator->hasErrorEstimate(), "Cannot use dynamic time stepping if the butcher tableau has no error estimator");
+    logger.assert_debug(integrator->hasErrorEstimate(), "Cannot use dynamic time stepping if the butcher tableau has no error estimator");
     double currentError = std::numeric_limits<double>::infinity();
     double result = u;
     //cancel first loop

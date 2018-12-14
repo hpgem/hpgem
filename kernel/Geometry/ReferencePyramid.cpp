@@ -57,7 +57,7 @@ namespace Geometry
     
     bool ReferencePyramid::isInternalPoint(const PointReference<3>& p) const
     {
-        logger.assert(p.size()==3, "The reference point has the wrong dimension");
+        logger.assert_debug(p.size() == 3, "The reference point has the wrong dimension");
         return ((0. <= p[2]) && (1. >= p[2]) && (std::abs(p[0]) <= (1. - p[2])) && (std::abs(p[1]) <= (1. - p[2])));
     }
     
@@ -95,14 +95,14 @@ namespace Geometry
     const MappingReferenceToReference<1>*
     ReferencePyramid::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
-        logger.assert((faceIndex < 5), "ReferencePyramid::getCodim1MappingPtr Index out of range. Only 5 faces for pyramid.\n");
+        logger.assert_debug((faceIndex < 5), "ReferencePyramid::getCodim1MappingPtr Index out of range. Only 5 faces for pyramid.\n");
         return mappingsFaceToPyramid_[faceIndex];
     }
     
     const ReferenceGeometry*
     ReferencePyramid::getCodim1ReferenceGeometry(const std::size_t faceIndex) const
     {
-        logger.assert((faceIndex < 5), "ReferencePyramid::getCodim1ReferenceGeometry Index out of range. Only 5 faces for pyramid.\n");
+        logger.assert_debug((faceIndex < 5), "ReferencePyramid::getCodim1ReferenceGeometry Index out of range. Only 5 faces for pyramid.\n");
         if (faceIndex == 0)
                 return referenceGeometryCodim1SquarePtr_;
             else
@@ -111,7 +111,7 @@ namespace Geometry
     
     std::vector<std::size_t> ReferencePyramid::getCodim1EntityLocalIndices(const std::size_t faceIndex) const
     {
-        logger.assert((faceIndex < 5), "ReferencePyramid::getCodim1EntityLocalIndices Index out of range. Only 5 faces for pyramid.\n");
+        logger.assert_debug((faceIndex < 5), "ReferencePyramid::getCodim1EntityLocalIndices Index out of range. Only 5 faces for pyramid.\n");
         if (faceIndex == 0)
             {
                 return std::vector<std::size_t>(localNodeIndexes_[faceIndex], localNodeIndexes_[faceIndex] + 4);
@@ -134,13 +134,13 @@ namespace Geometry
     const ReferenceGeometry*
     ReferencePyramid::getCodim2ReferenceGeometry(const std::size_t edgeIndex) const
     {
-        logger.assert((edgeIndex < 8), "ReferencePyramid::getCodim2ReferenceGeometry Index out of range. Only 8 edges in pyramid.\n");
+        logger.assert_debug((edgeIndex < 8), "ReferencePyramid::getCodim2ReferenceGeometry Index out of range. Only 8 edges in pyramid.\n");
        return referenceGeometryCodim2Ptr_;
     }
     
     std::vector<std::size_t> ReferencePyramid::getCodim2EntityLocalIndices(const std::size_t edgeIndex) const
     {
-        logger.assert((edgeIndex < 8), "ReferencePyramid::getCodim1EntityLocalIndices Index out of range. Only 8 edges in pyramid.\n");
+        logger.assert_debug((edgeIndex < 8), "ReferencePyramid::getCodim1EntityLocalIndices Index out of range. Only 8 edges in pyramid.\n");
         return std::vector<std::size_t>(localNodesOnEdge_[edgeIndex], localNodesOnEdge_[edgeIndex] + 2);
     }
     
@@ -148,7 +148,7 @@ namespace Geometry
     
     std::vector<std::size_t> ReferencePyramid::getCodim3EntityLocalIndices(const std::size_t nodeIndex) const
     {
-        logger.assert((nodeIndex < 5), "ReferencePyramid::getCodim3EntityLocalIndices Index out of range. Pyramid has 5 nodes.\n");
+        logger.assert_debug((nodeIndex < 5), "ReferencePyramid::getCodim3EntityLocalIndices Index out of range. Pyramid has 5 nodes.\n");
         return std::vector<std::size_t>(1, nodeIndex);
     }
 }

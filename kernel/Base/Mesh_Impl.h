@@ -59,7 +59,7 @@ namespace Base
             elements_.addRootEntry(element->copyWithoutFacesEdgesNodes());
             ++elementCounter_;
         }
-        logger.assert(orig.elementCounter_ == elementCounter_, "In the copy constructor of Mesh,"
+        logger.assert_debug(orig.elementCounter_ == elementCounter_, "In the copy constructor of Mesh,"
             "there is a different number of elements in the new Mesh than in the old one.");
         
         //Make nodes and couple them with elements
@@ -67,7 +67,7 @@ namespace Base
         {
             nodes_.push_back(new Node(node->getID()));
             std::vector<Element*> nodeElements = node->getElements();
-            logger.assert(nodeElements.size() > 0, "There are no elements at this node.");
+            logger.assert_debug(nodeElements.size() > 0, "There are no elements at this node.");
             for(std::size_t i = 0; i < nodeElements.size(); ++i)
             {
                 std::size_t id = nodeElements[i]->getID();
@@ -75,7 +75,7 @@ namespace Base
             }
             ++nodeCounter_;
         }
-        logger.assert(orig.nodeCounter_ == nodeCounter_, "In the copy constructor of Mesh,"
+        logger.assert_debug(orig.nodeCounter_ == nodeCounter_, "In the copy constructor of Mesh,"
             "there is a different number of nodes in the new Mesh than in the old one.");
         
         //Make faces and couple them with elements
@@ -93,7 +93,7 @@ namespace Base
             faces_.addRootEntry(new Face(*face, elLeft, idOnLeft, elRight, idOnRight));
             ++faceCounter_;
         }
-        logger.assert(orig.faceCounter_ == faceCounter_, "In the copy constructor of Mesh,"
+        logger.assert_debug(orig.faceCounter_ == faceCounter_, "In the copy constructor of Mesh,"
             "there is a different number of faces in the new Mesh than in the old one.");
         
         //Make nodes and couple them with elements
@@ -101,7 +101,7 @@ namespace Base
         {
             edges_.addRootEntry(new Edge(edge->getID()));
             std::vector<Element*> edgeElements = edge->getElements();
-            logger.assert(edgeElements.size() > 0, "There are no elements at this edge.");
+            logger.assert_debug(edgeElements.size() > 0, "There are no elements at this edge.");
             for(std::size_t i = 0; i < edgeElements.size(); ++i)
             {
                 std::size_t id = edgeElements[i]->getID();
@@ -109,7 +109,7 @@ namespace Base
             }
             ++edgeCounter_;
         }
-        logger.assert(orig.edgeCounter_ == edgeCounter_, "In the copy constructor of Mesh,"
+        logger.assert_debug(orig.edgeCounter_ == edgeCounter_, "In the copy constructor of Mesh,"
             "there is a different number of nodes in the new Mesh than in the old one.");*/
     }
 
@@ -143,7 +143,7 @@ namespace Base
     bool Mesh<DIM>::addFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo, Element* rightElementPtr, std::size_t rightElementLocalFaceNo, const Geometry::FaceType& faceType)
     {
         Face* newFace = nullptr;
-        logger.assert(leftElementPtr!=nullptr, "Invalid element passed");
+        logger.assert_debug(leftElementPtr != nullptr, "Invalid element passed");
         if (rightElementPtr == nullptr)
         {
             newFace = FaceFactory::instance().makeFace(leftElementPtr, leftElementLocalFaceNo, faceType);

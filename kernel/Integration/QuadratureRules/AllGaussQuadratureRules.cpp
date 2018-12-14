@@ -105,7 +105,7 @@ namespace QuadratureRules
     
     void AllGaussQuadratureRules::addRule(GaussQuadratureRule* rule)
     {
-        logger.assert(rule!=nullptr, "Invalid quadrature rule added");
+        logger.assert_debug(rule != nullptr, "Invalid quadrature rule added");
         std::vector<GaussQuadratureRule*>& listForGeometry = listOfRules_[rule->forReferenceGeometry()];
         std::vector<GaussQuadratureRule*>::iterator it = listForGeometry.begin();
         while (it != listForGeometry.end())

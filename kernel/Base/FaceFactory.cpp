@@ -37,13 +37,13 @@ namespace Base
     
     Face* FaceFactory::makeFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo, Geometry::FaceType faceType)
     {
-        logger.assert(leftElementPtr!=nullptr, "Invalid element passed");
+        logger.assert_debug(leftElementPtr != nullptr, "Invalid element passed");
         return new Face(leftElementPtr, leftElementLocalFaceNo, faceType, GlobalUniqueIndex::instance().getFaceIndex(), numberOfFaceMatrices_, numberOfFaceVectors_);
     }
     Face* FaceFactory::makeFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo, Element* rightElementPtr, std::size_t rightElementLocalFaceNo)
     {
-        logger.assert(leftElementPtr!=nullptr, "Invalid element passed");
-        logger.assert(rightElementPtr!=nullptr, "This routine is intended for internal faces");
+        logger.assert_debug(leftElementPtr != nullptr, "Invalid element passed");
+        logger.assert_debug(rightElementPtr != nullptr, "This routine is intended for internal faces");
         return new Face(leftElementPtr, leftElementLocalFaceNo, rightElementPtr, rightElementLocalFaceNo, GlobalUniqueIndex::instance().getFaceIndex(), numberOfFaceMatrices_, numberOfFaceVectors_);
     }
     

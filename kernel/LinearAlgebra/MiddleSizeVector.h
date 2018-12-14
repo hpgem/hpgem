@@ -111,19 +111,19 @@ namespace LinearAlgebra
 
         const type& operator[](std::size_t n) const
         {
-            logger.assert(n < data_.size(), "Requested entry %, but there are only % entries", n, data_.size());
+            logger.assert_debug(n < data_.size(), "Requested entry %, but there are only % entries", n, data_.size());
             return data_[n];
         }
         
         type& operator()(std::size_t n)
         {
-            logger.assert(n < data_.size(), "Requested entry %, but there are only % entries", n, data_.size());
+            logger.assert_debug(n < data_.size(), "Requested entry %, but there are only % entries", n, data_.size());
             return data_[n];
         }
         
         const type& operator()(std::size_t n) const
         {
-            logger.assert(n < data_.size(), "Requested entry %, but there are only % entries", n, data_.size());
+            logger.assert_debug(n < data_.size(), "Requested entry %, but there are only % entries", n, data_.size());
             return data_[n];
         }
         

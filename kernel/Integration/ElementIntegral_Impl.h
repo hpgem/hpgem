@@ -50,8 +50,8 @@ namespace Integration
     template<typename ReturnTrait1>
     ReturnTrait1 ElementIntegral<DIM>::integrate(const Base::Element* el, ElementIntegrandBase<ReturnTrait1, DIM>* integrand, QuadratureRules::GaussQuadratureRule *qdrRule)
     {
-        logger.assert(el!=nullptr, "Invalid element detected");
-        logger.assert(integrand!=nullptr, "Invalid integrand detected");
+        logger.assert_debug(el!=nullptr, "Invalid element detected");
+        logger.assert_debug(integrand!=nullptr, "Invalid integrand detected");
         //quadrature rule is allowed to be equal to nullptr!
         std::function<ReturnTrait1(Base::PhysicalElement<DIM>&)> integrandFun = [=](Base::PhysicalElement<DIM>& el)-> ReturnTrait1
         {   
@@ -80,20 +80,20 @@ namespace Integration
     {
         using ReturnType = std::result_of_t<FunctionType(Base::PhysicalElement<DIM>&)>;
 
-        logger.assert(el!=nullptr, "Invalid element detected");
+        logger.assert_debug(el!=nullptr, "Invalid element detected");
         element_.setElement(el);
         //quadrature rule is allowed to be equal to nullptr!
         QuadratureRules::GaussQuadratureRule *qdrRuleLoc = (qdrRule == nullptr ? el->getGaussQuadratureRule() : qdrRule);
         
         // check whether the GaussQuadratureRule is actually for the element's ReferenceGeometry
-        logger.assert((qdrRuleLoc->forReferenceGeometry() == el->getReferenceGeometry()), "ElementIntegral: wrong geometry.");
+        logger.assert_debug((qdrRuleLoc->forReferenceGeometry() == el->getReferenceGeometry()), "ElementIntegral: wrong geometry.");
         
         // value returned by the integrand
         ReturnType value, result;
         
         // number of Gauss quadrature points
         std::size_t numberOfPoints = qdrRuleLoc->getNumberOfPoints();
-        logger.assert(numberOfPoints > 0, "Did not get any points from qdrRuleLoc->getNumberOfPoints");
+        logger.assert_debug(numberOfPoints > 0, "Did not get any points from qdrRuleLoc->getNumberOfPoints");
         
         element_.setQuadratureRule(qdrRuleLoc);
         //element_.setPointReference(qdrRuleLoc->getPoint(0));

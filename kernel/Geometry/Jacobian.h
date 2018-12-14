@@ -58,7 +58,7 @@ namespace Geometry
         //version for computeNormalVector (RefFace->RefElem->PhysElem)
         Jacobian<dimFrom - 1, dimFrom> multiplyJacobiansInto(const Jacobian<dimFrom - 1, dimFrom>& jac2)
         {
-            logger.assert(dimFrom == dimTo, "One of the matrixes must be square");
+            logger.assert_debug(dimFrom == dimTo, "One of the matrixes must be square");
             return this->operator*(jac2);
         }
 

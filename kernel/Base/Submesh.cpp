@@ -33,37 +33,37 @@ namespace Base
 {
     void Submesh::add(Element* element)
     {
-        logger.assert(element!=nullptr, "Invalid element passed");
+        logger.assert_debug(element != nullptr, "Invalid element passed");
         elements_.addRootEntry(element);
     }
     
     void Submesh::addPush(Element* element, int processorID)
     {
-        logger.assert(element!=nullptr, "Invalid element passed");
+        logger.assert_debug(element != nullptr, "Invalid element passed");
         pushElements_[processorID].push_back(element);
     }
     
     void Submesh::addPull(Element* element, int processorID)
     {
-        logger.assert(element!=nullptr, "Invalid element passed");
+        logger.assert_debug(element != nullptr, "Invalid element passed");
         pullElements_[processorID].push_back(element);
     }
     
     void Submesh::add(Face* face)
     {
-        logger.assert(face!=nullptr, "Invalid face passed");
+        logger.assert_debug(face != nullptr, "Invalid face passed");
         faces_.addRootEntry(face);
     }
     
     void Submesh::add(Edge* edge)
     {
-        logger.assert(edge!=nullptr, "Invalid edge passed");
+        logger.assert_debug(edge != nullptr, "Invalid edge passed");
         edges_.addRootEntry(edge);
     }
     
     void Submesh::add(Node* node)
     {
-        logger.assert(node!=nullptr, "Invalid node passed");
+        logger.assert_debug(node != nullptr, "Invalid node passed");
         nodes_.push_back(node);
     }
     
@@ -159,7 +159,7 @@ namespace Base
                 for(;pushIterator!=recieveBuffer.begin() + cumulativeNumberOfRecieveElements[i+1];++pushIterator)
                 {
                     auto candidate = std::find_if(elements_.begin(), elements_.end(), [&](Element* a){return a->getID() == *pushIterator;});
-                    logger.assert(candidate != elements_.end(), "element with ID % does not belong here", *pushIterator);
+                    logger.assert_debug(candidate != elements_.end(), "element with ID % does not belong here", *pushIterator);
                     addPush(*candidate, i);
                 }
             }

@@ -34,7 +34,7 @@ namespace Geometry
     MappingToPhysHypercubeLinear<1>::MappingToPhysHypercubeLinear(const PhysicalGeometry<1>* const & physicalGeometry)
             : MappingReferenceToPhysical(physicalGeometry)
     {
-        logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
+        logger.assert_debug(physicalGeometry != nullptr, "Invalid physical geometry passed");
         mid = slope = 0.0;
         reinit();
     }
@@ -89,7 +89,7 @@ namespace Geometry
     MappingToPhysHypercubeLinear<2>::MappingToPhysHypercubeLinear(const PhysicalGeometry<2>* const & physicalGeometry)
             : MappingReferenceToPhysical(physicalGeometry)
     {
-        logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
+        logger.assert_debug(physicalGeometry != nullptr, "Invalid physical geometry passed");
         reinit();
     }
 
@@ -145,7 +145,7 @@ namespace Geometry
     
     Jacobian<2, 2> MappingToPhysHypercubeLinear<2>::calcJacobian(const PointReference<2>& pointReference) const
     {
-        logger.assert(pointReference.size()==2, "Reference point has the wrong dimension");
+        logger.assert_debug(pointReference.size() == 2, "Reference point has the wrong dimension");
         Jacobian<2, 2> jacobian;
         jacobian(0, 0) = a1[0] + pointReference[1] * a12[0];
         jacobian(0, 1) = a2[0] + pointReference[0] * a12[0];
@@ -200,7 +200,7 @@ namespace Geometry
     MappingToPhysHypercubeLinear<3>::MappingToPhysHypercubeLinear(const PhysicalGeometry<3>* const & physicalGeometry)
             : MappingReferenceToPhysical(physicalGeometry)
     {
-        logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
+        logger.assert_debug(physicalGeometry != nullptr, "Invalid physical geometry passed");
         reinit();
     }
     
@@ -286,7 +286,7 @@ namespace Geometry
     
     bool MappingToPhysHypercubeLinear<3>::isValidPoint(const PointReference<3>& pointReference) const
     {
-        logger.assert(pointReference.size()==3, "Reference point has the wrong dimension");
+        logger.assert_debug(pointReference.size() == 3, "Reference point has the wrong dimension");
         if ((pointReference[0] < -1.) || (pointReference[0] > 1.) || (pointReference[1] < -1.) || (pointReference[1] > 1.) || (pointReference[2] < -1.) || (pointReference[2] > 1.))
             return false;
         else
@@ -300,13 +300,13 @@ namespace Geometry
     MappingToPhysHypercubeLinear<4>::MappingToPhysHypercubeLinear(const PhysicalGeometry<4>* const & physicalGeometry)
             : MappingReferenceToPhysical(physicalGeometry)
     {
-        logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
+        logger.assert_debug(physicalGeometry != nullptr, "Invalid physical geometry passed");
         reinit();
     }
     
     PointPhysical<4> MappingToPhysHypercubeLinear<4>::transform(const PointReference<4>& pR) const
     {
-        logger.assert(pR.size()==4, "Reference point has the wrong dimension");
+        logger.assert_debug(pR.size() == 4, "Reference point has the wrong dimension");
         return abar + pR[0] * a0 + pR[1] * a1 + pR[2] * a2 + pR[3] * a3;
     }
     
@@ -334,7 +334,7 @@ namespace Geometry
 
     Jacobian<4, 4> MappingToPhysHypercubeLinear<4>::calcJacobian(const PointReference<4>& pR) const
     {
-        logger.assert(pR.size()==4, "Reference point has the wrong dimension");
+        logger.assert_debug(pR.size() == 4, "Reference point has the wrong dimension");
         Jacobian<4, 4> jacobian;
         for (std::size_t i = 0; i < 4; ++i)
         {
@@ -371,7 +371,7 @@ namespace Geometry
     
     bool MappingToPhysHypercubeLinear<4>::isValidPoint(const PointReference<4>& pointReference) const
     {
-        logger.assert(pointReference.size()==4, "Reference point has the wrong dimension");
+        logger.assert_debug(pointReference.size() == 4, "Reference point has the wrong dimension");
         if ((pointReference[0] < -1.) || (pointReference[0] > 1.) || (pointReference[1] < -1.) || (pointReference[1] > 1.) || (pointReference[2] < -1.) || (pointReference[2] > 1.) || (pointReference[3] < -1.) || (pointReference[3] > 1.))
             return false;
         else

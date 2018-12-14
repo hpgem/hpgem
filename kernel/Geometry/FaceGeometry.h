@@ -226,12 +226,12 @@ namespace Geometry
             {
                 //isInternal checks that faceType_ is appropriate for an internal face, so we should update faceType_ first to make the assertion work
                 faceType_ = newFace;
-                logger.assert(isInternal(), "This face should be internal (%)", newFace);
+                logger.assert_debug(isInternal(), "This face should be internal (%)", newFace);
             }
             else
             {
                 faceType_ = newFace;
-                logger.assert(!isInternal(), "This face should not be internal (%)", newFace);
+                logger.assert_debug(!isInternal(), "This face should not be internal (%)", newFace);
             }
         }
         

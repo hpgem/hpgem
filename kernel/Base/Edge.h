@@ -59,7 +59,7 @@ namespace Base
         {
             std::size_t number = numberOfConformingDOFOnTheEdge_[0];
             for(std::size_t index : numberOfConformingDOFOnTheEdge_)
-                logger.assert(index == number, "number of basis functions is different for different unknown");
+                logger.assert_debug(index == number, "number of basis functions is different for different unknown");
             return numberOfConformingDOFOnTheEdge_[0];
         }
         
@@ -115,13 +115,13 @@ namespace Base
 
         std::size_t getEdgeNumber(std::size_t i)
         {
-            logger.assert(i < getNumberOfElements(), "Asked for element %, but there are only % elements", i, getNumberOfElements());
+            logger.assert_debug(i < getNumberOfElements(), "Asked for element %, but there are only % elements", i, getNumberOfElements());
             return localEdgeNumbers_[i];
         }
         
         std::size_t getOrientation(std::size_t i)
         {
-            logger.assert(i < getNumberOfElements(), "Asked for element %, but there are only % elements", i, getNumberOfElements());
+            logger.assert_debug(i < getNumberOfElements(), "Asked for element %, but there are only % elements", i, getNumberOfElements());
             return orientation_[i];
         }
         
@@ -133,13 +133,13 @@ namespace Base
         
         void setLocalNumberOfBasisFunctions(std::size_t number, std::size_t unknown = 0)
         {
-            logger.assert(unknown < numberOfConformingDOFOnTheEdge_.size(),
-                    "Setting unknown % but there are only %", unknown, numberOfConformingDOFOnTheEdge_.size());
+            logger.assert_debug(unknown < numberOfConformingDOFOnTheEdge_.size(),
+                                "Setting unknown % but there are only %", unknown, numberOfConformingDOFOnTheEdge_.size());
             numberOfConformingDOFOnTheEdge_[unknown] = number;
         }
 
         void setPositionInTree(const TreeEntry<Edge*>* position) {
-            logger.assert(position->getData() == this, "Trying to set the position of another edge as this edge");
+            logger.assert_debug(position->getData() == this, "Trying to set the position of another edge as this edge");
             positionInTheTree_ = position;
         }
 

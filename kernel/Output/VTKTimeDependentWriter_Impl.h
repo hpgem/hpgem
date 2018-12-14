@@ -29,7 +29,7 @@ template<std::size_t DIM>
 Output::VTKTimeDependentWriter<DIM>::VTKTimeDependentWriter(std::string baseFileName, Base::MeshManipulator<DIM>* mesh)
         : baseName_(baseFileName), mesh_(mesh), currentFile_(nullptr), time_(0), numberOfFilesWritten_(0)
 {
-    logger.assert(mesh!=nullptr,"Invalid mesh passed");
+    logger.assert_debug(mesh!=nullptr,"Invalid mesh passed");
     std::size_t id = Base::MPIContainer::Instance().getProcessorID();
     if (id == 0)
     {
@@ -91,7 +91,7 @@ void Output::VTKTimeDependentWriter<DIM>::write(std::function<dataType(Base::Ele
         time_ = time;
         timelevel_ = timelevel;
     }
-    logger.assert(timelevel == timelevel_, "Timelevel isn't as expected. % != %", timelevel, timelevel_);
+    logger.assert_debug(timelevel == timelevel_, "Timelevel isn't as expected. % != %", timelevel, timelevel_);
     currentFile_->write(f, name);
 }
 

@@ -170,7 +170,7 @@ namespace Utilities
     
     Base::BasisFunctionSet* createInteriorBasisFunctionSet3DH1Tetrahedron(std::size_t order)
     {
-        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
+        logger.assert_debug(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         Base::BasisFunctionSet* result = new Base::BasisFunctionSet(order);
         for (std::size_t i = 0; i + 4 <= order; ++i)
         {
@@ -187,7 +187,7 @@ namespace Utilities
     
     std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet3DH1Tetrahedron(std::size_t order)
     {
-        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
+        logger.assert_debug(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::BasisFunctionSet*> result;
         Base::BasisFunctionSet* set;
         for (std::size_t i = 0; i < 4; ++i)
@@ -201,7 +201,7 @@ namespace Utilities
     
     std::vector<const Base::OrientedBasisFunctionSet*> createEdgeBasisFunctionSet3DH1Tetrahedron(std::size_t order)
     {
-        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
+        logger.assert_debug(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::OrientedBasisFunctionSet*> result;
         Base::OrientedBasisFunctionSet* set;
         Geometry::ReferenceTetrahedron& tetrahedron = Geometry::ReferenceTetrahedron::Instance();
@@ -227,7 +227,7 @@ namespace Utilities
     
     std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet3DH1Tetrahedron(std::size_t order)
     {
-        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
+        logger.assert_debug(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::OrientedBasisFunctionSet*> result;
         Base::OrientedBasisFunctionSet* set;
         Geometry::ReferenceTetrahedron& tetrahedron = Geometry::ReferenceTetrahedron::Instance();

@@ -195,7 +195,7 @@ const LinearAlgebra::MiddleSizeVector SavageHutter2DBase::integrandRightHandSide
 
 LinearAlgebra::MiddleSizeVector SavageHutter2DBase::localLaxFriedrichsFlux(const LinearAlgebra::MiddleSizeVector& numericalSolutionLeft, const LinearAlgebra::MiddleSizeVector& numericalSolutionRight,const LinearAlgebra::SmallVector<2>& normal)
 {
-    logger.assert(std::abs(Base::L2Norm(normal) - 1) < 1e-16, "LLF flux needs a unit normal vector");
+    logger.assert_debug(std::abs(Base::L2Norm(normal) - 1) < 1e-16, "LLF flux needs a unit normal vector");
     const double hLeft = numericalSolutionLeft[0];
     const double hRight = numericalSolutionRight[0];
     double uLeft = 0;
@@ -244,7 +244,7 @@ LinearAlgebra::MiddleSizeVector SavageHutter2DBase::localLaxFriedrichsFlux(const
 ///The HLLC flux is an approximate Riemann solver
 LinearAlgebra::MiddleSizeVector SavageHutter2DBase::hllcFlux(const LinearAlgebra::MiddleSizeVector& numericalSolutionLeft, const LinearAlgebra::MiddleSizeVector& numericalSolutionRight, const LinearAlgebra::SmallVector<2>& normal)
 {
-    logger.assert(std::abs(Base::L2Norm(normal)-1) < 1e-14, "hllc flux needs unit normal vector");
+    logger.assert_debug(std::abs(Base::L2Norm(normal) - 1) < 1e-14, "hllc flux needs unit normal vector");
     const double nx = normal[0];
     const double ny = normal[1];
     const double hLeft = numericalSolutionLeft[0];
@@ -386,7 +386,7 @@ std::vector<std::pair<double, LinearAlgebra::MiddleSizeVector>> SavageHutter2DBa
 
     if(world_rank == 0)
     {
-        logger.assert(totals.size() == globalSolutions.size(), "wrong size");
+        logger.assert_debug(totals.size() == globalSolutions.size(), "wrong size");
         for(std::size_t i = 0; i < globalSolutions.size(); ++i)
         {
             totals[i].second = globalSolutions[i];
@@ -403,7 +403,7 @@ std::vector<std::pair<double, LinearAlgebra::MiddleSizeVector>> SavageHutter2DBa
         logger(INFO, "x: %, average: %", val.first, val.second);        
     }
     //just make sure we did not forget any points or that points that are the same have been put in different rows
-    logger.assert(totals.size() == nodesInXDirection, "wrong number of points in vector of width-averaging");
+        logger.assert_debug(totals.size() == nodesInXDirection, "wrong number of points in vector of width-averaging");
 #ifdef HPGEM_USE_MPI
     }
 #endif     

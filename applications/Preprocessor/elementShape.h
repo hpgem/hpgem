@@ -152,7 +152,7 @@ namespace Preprocessor {
         template<typename... Args>
         ElementShape(Args... args) : shapeData(args...) {
             completeSubShapes(tag<dimension - 1>{}, tag<dimension - 1>{});
-            logger.assert(checkShape(), "Input generated an inconsistent shape");
+            logger.assert_debug(checkShape(), "Input generated an inconsistent shape");
         }
 
 
@@ -300,8 +300,8 @@ namespace Preprocessor {
 
         template<int entityDimension>
         ShapeType<entityDimension> getBoundaryShape(std::size_t entityIndex) const {
-            logger.assert(entityDimension == 0, "A point is not bounded by shapes of other dimensions");
-            logger.assert(entityIndex == 0, "A point consists of only 1 shape, but you asked for shape %", entityIndex);
+            logger.assert_debug(entityDimension == 0, "A point is not bounded by shapes of other dimensions");
+            logger.assert_debug(entityIndex == 0, "A point consists of only 1 shape, but you asked for shape %", entityIndex);
             return *this;
         }
 
@@ -311,8 +311,8 @@ namespace Preprocessor {
          */
         template<int entityDimension, int targetDimension>
         stackVector<std::size_t> getAdjacentEntities(std::size_t entityIndex) const {
-            logger.assert(entityDimension == 0, "A point is not bounded by shapes of other dimensions");
-            logger.assert(entityIndex == 0, "A point consists of only 1 shape, but you asked for shape %", entityIndex);
+            logger.assert_debug(entityDimension == 0, "A point is not bounded by shapes of other dimensions");
+            logger.assert_debug(entityIndex == 0, "A point consists of only 1 shape, but you asked for shape %", entityIndex);
             if(targetDimension == 0) return {0}; else return {};
         };
 

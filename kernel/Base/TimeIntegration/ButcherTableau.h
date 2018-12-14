@@ -55,7 +55,7 @@ namespace TimeIntegration
         ///returns an expansion coefficient ('b'), execpt this one is used to construct the error in the time derivative, rather than the time derivative
         virtual double getErrorCoefficient(std::size_t i) const
         {
-            logger.assert(!hasErrorEstimate(), "This butcher tableau promises to implement getErrorCoefficient, but fails to do so.");
+            logger.assert_debug(!hasErrorEstimate(), "This butcher tableau promises to implement getErrorCoefficient, but fails to do so.");
             logger(ERROR, "This Butcher tableau does not know how to estimate errors");
             return 0.;
         }

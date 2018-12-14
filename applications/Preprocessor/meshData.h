@@ -51,24 +51,24 @@ namespace Preprocessor {
         ~MeshData() = default;
 
         dataType& operator[](std::size_t i) {
-            logger.assert(i < mesh->template getNumberOfEntities<associatedDimension>(), "There is not enough data in the mesh");
+            logger.assert_debug(i < mesh->template getNumberOfEntities<associatedDimension>(), "There is not enough data in the mesh");
             data_.resize(mesh->template getNumberOfEntities<associatedDimension>());
             return data_[i];
         }
 
         dataType operator[](std::size_t i) const {
-            logger.assert(i < mesh->template getNumberOfEntities<associatedDimension>(), "There is not enough data in the mesh");
+            logger.assert_debug(i < mesh->template getNumberOfEntities<associatedDimension>(), "There is not enough data in the mesh");
             if(i < data_.size()) return data_[i];
             return dataType{};
         }
 
         dataType& operator[](const MeshEntity<associatedDimension, meshDimension>& entity) {
-            logger.assert(mesh == entity.getMesh(), "The entity does not belong to this mesh");
+            logger.assert_debug(mesh == entity.getMesh(), "The entity does not belong to this mesh");
             return (*this)[entity.getGlobalIndex()];
         }
 
         dataType operator[](const MeshEntity<associatedDimension, meshDimension>& entity) const{
-            logger.assert(mesh == entity.getMesh(), "The entity does not belong to this mesh");
+            logger.assert_debug(mesh == entity.getMesh(), "The entity does not belong to this mesh");
             return (*this)[entity.getGlobalIndex()];
         }
 
@@ -106,12 +106,12 @@ namespace Preprocessor {
         ~PartialData() = default;
 
         dataType& operator[](std::size_t i) {
-            logger.assert(i < mesh->template getNumberOfEntities<associatedDimension>(), "There is not enough data in the mesh");
+            logger.assert_debug(i < mesh->template getNumberOfEntities<associatedDimension>(), "There is not enough data in the mesh");
             return data_[i];
         }
 
         dataType operator[](std::size_t i) const {
-            logger.assert(i < mesh->template getNumberOfEntities<associatedDimension>(), "There is not enough data in the mesh");
+            logger.assert_debug(i < mesh->template getNumberOfEntities<associatedDimension>(), "There is not enough data in the mesh");
             try {
                 return data_.at(i);
             } catch (std::out_of_range&) {
@@ -120,12 +120,12 @@ namespace Preprocessor {
         }
 
         dataType& operator[](const MeshEntity<associatedDimension, meshDimension>& entity) {
-            logger.assert(mesh == entity.getMesh(), "The entity does not belong to this mesh");
+            logger.assert_debug(mesh == entity.getMesh(), "The entity does not belong to this mesh");
             return (*this)[entity.getGlobalIndex()];
         }
 
         dataType operator[](const MeshEntity<associatedDimension, meshDimension>& entity) const{
-            logger.assert(mesh == entity.getMesh(), "The entity does not belong to this mesh");
+            logger.assert_debug(mesh == entity.getMesh(), "The entity does not belong to this mesh");
             return (*this)[entity.getGlobalIndex()];
         }
 

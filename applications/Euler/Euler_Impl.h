@@ -251,7 +251,7 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::integrandRightHandSideOnRefElement(B
 	}
 	pressureTerm = (gamma_ -1)*(qSolution(DIM+1) - 0.5*q1Inverse*(pressureTerm)); // (gamma-1)*rho*(e- (u^2 + v^2 + w^2)/2)
 
-	logger.assert(pressureTerm > 0, "Negative pressure.");
+	logger.assert_debug(pressureTerm > 0, "Negative pressure.");
 
 	// Compute the integrand for all equations
 	for (std::size_t iB = 0; iB < numOfBasisFunctions; iB++) // For every basis function

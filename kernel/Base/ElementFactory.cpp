@@ -36,8 +36,8 @@ namespace Base
     //!mesh creation routines can use this to set their desired defaults
     void ElementFactory::setCollectionOfBasisFunctionSets(const CollectionOfBasisFunctionSets * functions)
     {
-        logger.assert(functions!=nullptr, "Invalid basis function set passed");
-        logger.assert(functions->size()>0, "Not enough basis functions passed");
+        logger.assert_debug(functions != nullptr, "Invalid basis function set passed");
+        logger.assert_debug(functions->size() > 0, "Not enough basis functions passed");
         basisFunctionSets_ = functions;
     }
     

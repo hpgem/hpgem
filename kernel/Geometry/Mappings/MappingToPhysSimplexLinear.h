@@ -50,7 +50,7 @@ namespace Geometry
         MappingToPhysSimplexLinear(const PhysicalGeometry<DIM>* const & pG)
                 : MappingReferenceToPhysical(pG)
         {
-            logger.assert(pG!=nullptr, "Invalid physical geometry passed");
+            logger.assert_debug(pG!=nullptr, "Invalid physical geometry passed");
             reinit();
         }
                 

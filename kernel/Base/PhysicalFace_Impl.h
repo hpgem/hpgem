@@ -27,14 +27,14 @@ namespace Base
     template<std::size_t DIM>
     inline double PhysicalFace<DIM>::basisFunction(std::size_t i)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(i < nLeftBasisFunctions[0])
         {
             return left.basisFunction(i);
         }
         else
         {
-            logger.assert(isInternal_, "basis function index out of bounds");
+            logger.assert_debug(isInternal_, "basis function index out of bounds");
             return right.basisFunction(i - nLeftBasisFunctions[0]);
         }
     }
@@ -42,14 +42,14 @@ namespace Base
     template<std::size_t DIM>
     inline double PhysicalFace<DIM>::basisFunction(std::size_t i, std::size_t unknown)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(i < nLeftBasisFunctions[unknown])
         {
             return left.basisFunction(i, unknown);
         }
         else
         {
-            logger.assert(isInternal_, "basis function index out of bounds");
+            logger.assert_debug(isInternal_, "basis function index out of bounds");
             return right.basisFunction(i - nLeftBasisFunctions[unknown], unknown);
         }
     }
@@ -57,14 +57,14 @@ namespace Base
     template<std::size_t DIM>
     inline double PhysicalFace<DIM>::basisFunction(Side side, std::size_t i)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
         {
             return left.basisFunction(i);
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             return right.basisFunction(i);
         }
     }
@@ -72,14 +72,14 @@ namespace Base
     template<std::size_t DIM>
     inline double PhysicalFace<DIM>::basisFunction(Side side, std::size_t i, std::size_t unknown)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
         {
             return left.basisFunction(i, unknown);
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             return right.basisFunction(i, unknown);
         }
     }
@@ -87,28 +87,28 @@ namespace Base
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionDeriv(std::size_t i)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(i < nLeftBasisFunctions[0])
         {
             return left.basisFunctionDeriv(i);
         }
         else
         {
-            logger.assert(isInternal_, "basis function index out of bounds");
+            logger.assert_debug(isInternal_, "basis function index out of bounds");
             return right.basisFunctionDeriv(i - nLeftBasisFunctions[0]);
         }
     }
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionDeriv(std::size_t i, std::size_t unknown)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(i < nLeftBasisFunctions[unknown])
         {
             return left.basisFunctionDeriv(i, unknown);
         }
         else
         {
-            logger.assert(isInternal_, "basis function index out of bounds");
+            logger.assert_debug(isInternal_, "basis function index out of bounds");
             return right.basisFunctionDeriv(i - nLeftBasisFunctions[unknown], unknown);
         }
     }
@@ -116,14 +116,14 @@ namespace Base
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionDeriv(Side side, std::size_t i)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
         {
             return left.basisFunctionDeriv(i);
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             return right.basisFunctionDeriv(i);
         }
     }
@@ -132,14 +132,14 @@ namespace Base
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionDeriv(Side side, std::size_t i, std::size_t unknown)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
         {
             return left.basisFunctionDeriv(i, unknown);
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             return right.basisFunctionDeriv(i, unknown);
         }
     }
@@ -147,7 +147,7 @@ namespace Base
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionNormal(std::size_t i)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(hasBasisFunctionNormal[0])
         {
             return basisFunctionNormal_[0][i];
@@ -171,8 +171,8 @@ namespace Base
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionNormal(std::size_t i, std::size_t unknown)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
-        logger.assert(unknown < face_->getPtrElementLeft()->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(unknown < face_->getPtrElementLeft()->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
         if(hasBasisFunctionNormal[unknown])
         {
             return basisFunctionNormal_[unknown][i];
@@ -196,14 +196,14 @@ namespace Base
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionNormal(Side side, std::size_t i)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
         {
             return basisFunctionNormal(i);
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             return basisFunctionNormal(i + nLeftBasisFunctions[0]);
         }
     }
@@ -211,14 +211,14 @@ namespace Base
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionNormal(Side side, std::size_t i, std::size_t unknown)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
         {
             return basisFunctionNormal(i, unknown);
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             return basisFunctionNormal(i + nLeftBasisFunctions[unknown], unknown);
         }
     }
@@ -226,7 +226,7 @@ namespace Base
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionUnitNormal(std::size_t i)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(hasBasisFunctionUnitNormal[0])
         {
             return basisFunctionUnitNormal_[0][i];
@@ -250,9 +250,9 @@ namespace Base
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionUnitNormal(std::size_t i, std::size_t unknown)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
-        
-        logger.assert(unknown < face_->getPtrElementLeft()->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
+
+        logger.assert_debug(unknown < face_->getPtrElementLeft()->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
         if(hasBasisFunctionUnitNormal[unknown])
         {
             return basisFunctionUnitNormal_[unknown][i];
@@ -276,14 +276,14 @@ namespace Base
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionUnitNormal(Side side, std::size_t i)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
         {
             return basisFunctionUnitNormal(i);
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             return basisFunctionUnitNormal(i + nLeftBasisFunctions[0]);
         }
     }
@@ -291,14 +291,14 @@ namespace Base
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionUnitNormal(Side side, std::size_t i, std::size_t unknown)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
         {
             return basisFunctionUnitNormal(i, unknown);
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             return basisFunctionUnitNormal(i + nLeftBasisFunctions[unknown], unknown);
         }
     }
@@ -306,7 +306,7 @@ namespace Base
     template<std::size_t DIM>
     inline void PhysicalFace<DIM>::basisFunction(std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(i < nLeftBasisFunctions[0])
         {
             left.basisFunction(i, result);
@@ -314,7 +314,7 @@ namespace Base
         }
         else
         {
-            logger.assert(isInternal_, "basis function index out of bounds");
+            logger.assert_debug(isInternal_, "basis function index out of bounds");
             right.basisFunction(i - nLeftBasisFunctions[0], result);
             return;
         }
@@ -322,7 +322,7 @@ namespace Base
     template<std::size_t DIM>
     inline void PhysicalFace<DIM>::basisFunction(std::size_t i, LinearAlgebra::SmallVector<DIM>& result, std::size_t unknown)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(i < nLeftBasisFunctions[unknown])
         {
             left.basisFunction(i, result, unknown);
@@ -330,7 +330,7 @@ namespace Base
         }
         else
         {
-            logger.assert(isInternal_, "basis function index out of bounds");
+            logger.assert_debug(isInternal_, "basis function index out of bounds");
             right.basisFunction(i - nLeftBasisFunctions[unknown], result, unknown);
             return;
         }
@@ -339,14 +339,14 @@ namespace Base
     template<std::size_t DIM>
     inline void PhysicalFace<DIM>::basisFunction(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
         {
             left.basisFunction(i, result);
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             right.basisFunction(i, result);
         }
     }
@@ -354,14 +354,14 @@ namespace Base
     template<std::size_t DIM>
     inline void PhysicalFace<DIM>::basisFunction(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result, std::size_t unknown)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
         {
             left.basisFunction(i, result, unknown);
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             right.basisFunction(i, result, unknown);
         }
     }
@@ -369,14 +369,14 @@ namespace Base
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionCurl(std::size_t i)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(i < nLeftBasisFunctions[0])
         {
             return left.basisFunctionCurl(i);
         }
         else
         {
-            logger.assert(isInternal_, "basis function index out of bounds");
+            logger.assert_debug(isInternal_, "basis function index out of bounds");
             return right.basisFunctionCurl(i - nLeftBasisFunctions[0]);
         }
     }
@@ -384,14 +384,14 @@ namespace Base
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionCurl(std::size_t i, std::size_t unknown)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(i < nLeftBasisFunctions[unknown])
         {
             return left.basisFunctionCurl(i, unknown);
         }
         else
         {
-            logger.assert(isInternal_, "basis function index out of bounds");
+            logger.assert_debug(isInternal_, "basis function index out of bounds");
             return right.basisFunctionCurl(i - nLeftBasisFunctions[unknown], unknown);
         }
     }
@@ -399,28 +399,28 @@ namespace Base
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionCurl(Side side, std::size_t i)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
         {
             return left.basisFunctionCurl(i);
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             return right.basisFunctionCurl(i);
         }
     }
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::basisFunctionCurl(Side side, std::size_t i, std::size_t unknown)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
         {
             return left.basisFunctionCurl(i, unknown);
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             return right.basisFunctionCurl(i, unknown);
         }
     }
@@ -428,14 +428,14 @@ namespace Base
     template<std::size_t DIM>
     inline const double& PhysicalFace<DIM>::basisFunctionDiv(std::size_t i)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(i < nLeftBasisFunctions[0])
         {
             return left.basisFunctionDiv(i);
         }
         else
         {
-            logger.assert(isInternal_, "basis function index out of bounds");
+            logger.assert_debug(isInternal_, "basis function index out of bounds");
             return right.basisFunctionDiv(i - nLeftBasisFunctions[0]);
         }
     }
@@ -444,14 +444,14 @@ namespace Base
     template<std::size_t DIM>
     inline const double& PhysicalFace<DIM>::basisFunctionDiv(std::size_t i, std::size_t unknown)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(i < nLeftBasisFunctions[unknown])
         {
             return left.basisFunctionDiv(i, unknown);
         }
         else
         {
-            logger.assert(isInternal_, "basis function index out of bounds");
+            logger.assert_debug(isInternal_, "basis function index out of bounds");
             return right.basisFunctionDiv(i - nLeftBasisFunctions[unknown], unknown);
         }
     }
@@ -459,14 +459,14 @@ namespace Base
     template<std::size_t DIM>
     inline const double& PhysicalFace<DIM>::basisFunctionDiv(Side side, std::size_t i)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
         {
             return left.basisFunctionDiv(i);
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             return right.basisFunctionDiv(i);
         }
     }
@@ -474,14 +474,14 @@ namespace Base
     template<std::size_t DIM>
     inline const double& PhysicalFace<DIM>::basisFunctionDiv(Side side, std::size_t i, std::size_t unknown)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
         {
             return left.basisFunctionDiv(i, unknown);
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             return right.basisFunctionDiv(i, unknown);
         }
     }
@@ -489,7 +489,7 @@ namespace Base
     template<std::size_t DIM>
     inline void PhysicalFace<DIM>::basisFunctionNormalCross(std::size_t i, LinearAlgebra::SmallVector<DIM>& result) //Needed for DGMax
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(hasVectorBasisFunctionNormal[0])
         {
             result = vectorBasisFunctionNormal_[0][i];
@@ -515,9 +515,9 @@ namespace Base
     template<std::size_t DIM>
     inline void PhysicalFace<DIM>::basisFunctionNormalCross(std::size_t i, LinearAlgebra::SmallVector<DIM>& result, std::size_t unknown) //Needed for DGMax
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
-       
-        logger.assert(unknown < face_->getPtrElementLeft()->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
+
+        logger.assert_debug(unknown < face_->getPtrElementLeft()->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
         if(hasVectorBasisFunctionNormal[unknown])
         {
             result = vectorBasisFunctionNormal_[unknown][i];
@@ -544,14 +544,14 @@ namespace Base
     template<std::size_t DIM>
     inline void PhysicalFace<DIM>::basisFunctionNormalCross(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
         {
             return basisFunctionNormal(i, result);
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             return basisFunctionNormal(i + nLeftBasisFunctions[0], result);
         }
     }
@@ -560,14 +560,14 @@ namespace Base
     template<std::size_t DIM>
     inline void PhysicalFace<DIM>::basisFunctionNormalCross(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result, std::size_t unknown)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
         {
             return basisFunctionNormal(i, result, unknown);
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             return basisFunctionNormal(i + nLeftBasisFunctions[unknown], result, unknown);
         }
     }
@@ -575,7 +575,7 @@ namespace Base
     template<std::size_t DIM>
     inline void PhysicalFace<DIM>::basisFunctionUnitNormalCross(std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(hasVectorBasisFunctionUnitNormal[0])
         {
             result = vectorBasisFunctionUnitNormal_[0][i];
@@ -614,8 +614,8 @@ namespace Base
     template<std::size_t DIM>
     inline void PhysicalFace<DIM>::basisFunctionUnitNormalCross(std::size_t i, LinearAlgebra::SmallVector<DIM>& result, std::size_t unknown)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
-        logger.assert(unknown < face_->getPtrElementLeft()->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(unknown < face_->getPtrElementLeft()->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
         if(hasVectorBasisFunctionUnitNormal[unknown])
         {
             result = vectorBasisFunctionUnitNormal_[unknown][i];
@@ -654,28 +654,28 @@ namespace Base
     template<std::size_t DIM>
     inline void PhysicalFace<DIM>::basisFunctionUnitNormalCross(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
         {
             return basisFunctionUnitNormal(i, result);
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             return basisFunctionUnitNormal(i + nLeftBasisFunctions[0], result);
         }
     }
     template<std::size_t DIM>
     inline void PhysicalFace<DIM>::basisFunctionUnitNormalCross(Side side, std::size_t i, LinearAlgebra::SmallVector<DIM>& result, std::size_t unknown)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
         {
             return basisFunctionUnitNormal(i, result, unknown);
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             return basisFunctionUnitNormal(i + nLeftBasisFunctions[unknown], result, unknown);
         }
     }
@@ -683,14 +683,14 @@ namespace Base
     template<std::size_t DIM>
     inline const LinearAlgebra::MiddleSizeVector& PhysicalFace<DIM>::getSolution(Side side)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
         {
             return left.getSolution();
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             return right.getSolution();
         }
     }
@@ -698,14 +698,14 @@ namespace Base
     template<std::size_t DIM>
     inline void PhysicalFace<DIM>::getSolution(Side side, std::vector<LinearAlgebra::SmallVector<DIM> >& result)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
         {
             return left.getSolution(result);
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             return right.getSolution(result);
         }
     }
@@ -713,14 +713,14 @@ namespace Base
     template<std::size_t DIM>
     inline const std::vector<LinearAlgebra::SmallVector<DIM> >& PhysicalFace<DIM>::getSolutionDeriv(Side side)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
         {
             return left.getSolutionDeriv();
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             return right.getSolutionDeriv();
         }
     }
@@ -728,14 +728,14 @@ namespace Base
     template<std::size_t DIM>
     inline const std::vector<LinearAlgebra::SmallVector<DIM> >& PhysicalFace<DIM>::getSolutionCurl(Side side)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
         {
             return left.getSolutionCurl();
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             return right.getSolutionCurl();
         }
     }
@@ -743,14 +743,14 @@ namespace Base
     template<std::size_t DIM>
     inline std::vector<LinearAlgebra::SmallVector<DIM> > PhysicalFace<DIM>::getSolutionNormal(Side side)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
         {
             return getNormalVector() * left.getSolution();
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             return -getNormalVector() * right.getSolution();
         }
     }
@@ -758,14 +758,14 @@ namespace Base
     template<std::size_t DIM>
     inline std::vector<LinearAlgebra::SmallVector<DIM> > PhysicalFace<DIM>::getSolutionUnitNormal(Side side)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
         {
             return getUnitNormalVector() * left.getSolution();
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             return -getUnitNormalVector() * right.getSolution();
         }
     }
@@ -785,21 +785,21 @@ namespace Base
     template<std::size_t DIM>
     inline const Geometry::PointReference<DIM - 1>& PhysicalFace<DIM>::getPointReference()
     {
-        logger.assert(hasPointReference, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference, "Need a location to evaluate the data");
         return pointReference_;
     }
 
     template<std::size_t DIM>
     inline const Geometry::PointPhysical<DIM>& PhysicalFace<DIM>::getPointPhysical()
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         return left.getPointPhysical();
     }
 
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::getNormalVector()
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(hasNormal)
         {
             return normal;
@@ -815,7 +815,7 @@ namespace Base
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalFace<DIM>::getUnitNormalVector()
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(hasUnitNormal)
         {
             return unitNormal;
@@ -831,7 +831,7 @@ namespace Base
     template<std::size_t DIM>
     inline double PhysicalFace<DIM>::getRelativeSurfaceArea()
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(hasNormalNorm)
         {
             return normalNorm;
@@ -847,8 +847,8 @@ namespace Base
     template<std::size_t DIM>
     inline FaceMatrix& PhysicalFace<DIM>::getResultMatrix()
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
-        logger.assert(hasFaceMatrix, "Matrix has already been requested for this face/point combination");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasFaceMatrix, "Matrix has already been requested for this face/point combination");
         hasFaceMatrix = false;
         return resultMatrix;
     }
@@ -856,7 +856,7 @@ namespace Base
     template<std::size_t DIM>
     inline LinearAlgebra::MiddleSizeMatrix& PhysicalFace<DIM>::getResultMatrix(Side iSide, Side jSide)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(iSide == Side::LEFT)
         {
             if(jSide == Side::LEFT)
@@ -865,18 +865,18 @@ namespace Base
             }
             else
             {
-                logger.assert(isInternal_, "cannot find the right element for a boundary face");
-                logger.assert(hasLeftRightMatrix, "Matrix has already been requested for this face/point combination");
+                logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
+                logger.assert_debug(hasLeftRightMatrix, "Matrix has already been requested for this face/point combination");
                 hasLeftRightMatrix = false;
                 return leftRightMatrix;
             }
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             if(jSide == Side::LEFT)
             {
-                logger.assert(hasRightLeftMatrix, "Matrix has already been requested for this face/point combination");
+                logger.assert_debug(hasRightLeftMatrix, "Matrix has already been requested for this face/point combination");
                 hasRightLeftMatrix = false;
                 return rightLeftMatrix;
             }
@@ -890,8 +890,8 @@ namespace Base
     template<std::size_t DIM>
     inline LinearAlgebra::MiddleSizeVector& PhysicalFace<DIM>::getResultVector()
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
-        logger.assert(hasFaceVector, "Vector has already been requested for this face/point combination");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasFaceVector, "Vector has already been requested for this face/point combination");
         hasFaceVector = false;
         return resultVector;
     }
@@ -899,14 +899,14 @@ namespace Base
     template<std::size_t DIM>
     inline LinearAlgebra::MiddleSizeVector& PhysicalFace<DIM>::getResultVector(Side side)
     {
-        logger.assert(hasPointReference && hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasFace, "Need a location to evaluate the data");
         if(side == Side::LEFT)
         {
             return left.getResultVector();
         }
         else
         {
-            logger.assert(isInternal_, "cannot find the right element for a boundary face");
+            logger.assert_debug(isInternal_, "cannot find the right element for a boundary face");
             return right.getResultVector();
         }
     }
@@ -920,7 +920,7 @@ namespace Base
     template<std::size_t DIM>
     inline const Face* PhysicalFace<DIM>::getFace()
     {
-        logger.assert(hasFace, "Need a location to evaluate the data");
+        logger.assert_debug(hasFace, "Need a location to evaluate the data");
         return face_;
     }
 
@@ -928,7 +928,8 @@ namespace Base
     inline const CoordinateTransformation<DIM>* PhysicalFace<DIM>::getTransform()
     {
         for(std::size_t i = 1; i < transform_.size(); ++i)
-            logger.assert(transform_[0] == transform_[i], "Different unknowns have different coordinate transformation, call getTransformation for a given unknown");
+            logger.assert_debug(transform_[0] == transform_[i],
+                                "Different unknowns have different coordinate transformation, call getTransformation for a given unknown");
         return transform_[0].get();
     }
     
@@ -989,7 +990,7 @@ namespace Base
     template<std::size_t DIM>
     inline void PhysicalFace<DIM>::setFace(const Face* face)
     {
-        logger.assert(isInternal_ == face->isInternal(), "This face is not supported by this physical face");
+        logger.assert_debug(isInternal_ == face->isInternal(), "This face is not supported by this physical face");
         std::size_t numberOfUnknowns = face->getPtrElementLeft()->getNumberOfUnknowns();
         if(!hasFace)
         {
@@ -1083,7 +1084,7 @@ namespace Base
         if (transform_.size() <= unknown)
         {
             // We should not need to resize when we know the exact number of unknowns.
-            logger.assert(!hasFace, "Resizing with a face");
+            logger.assert_debug(!hasFace, "Resizing with a face");
             transform_.resize(unknown + 1);
         }
         transform_[unknown] = transform;

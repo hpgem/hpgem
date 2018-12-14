@@ -87,16 +87,16 @@ namespace LinearAlgebra
         /// \brief defines the operator (n,m) to access the element on row n and column m        
         type& operator()(std::size_t n, std::size_t m)
         {
-            logger.assert(n < numberOfRows_, "Requested row number % for a matrix with only % rows", n, numberOfRows_);
-            logger.assert(m < numberOfColumns_, "Requested column number % for a matrix with only % columns", m, numberOfColumns_);
+            logger.assert_debug(n < numberOfRows_, "Requested row number % for a matrix with only % rows", n, numberOfRows_);
+            logger.assert_debug(m < numberOfColumns_, "Requested column number % for a matrix with only % columns", m, numberOfColumns_);
             return data_[n + m * numberOfRows_];
         }
         
         /// \brief defines the operator (n,m) to access the element on row n and column m        
         const type& operator()(std::size_t n, std::size_t m) const
         {
-            logger.assert(n < numberOfRows_, "Requested row number % for a matrix with only % rows", n, numberOfRows_);
-            logger.assert(m < numberOfColumns_, "Requested column number % for a matrix with only % columns", m, numberOfColumns_);
+            logger.assert_debug(n < numberOfRows_, "Requested row number % for a matrix with only % rows", n, numberOfRows_);
+            logger.assert_debug(m < numberOfColumns_, "Requested column number % for a matrix with only % columns", m, numberOfColumns_);
             return data_[n + m * numberOfRows_];
         }
         

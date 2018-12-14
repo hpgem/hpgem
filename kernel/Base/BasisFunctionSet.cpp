@@ -59,7 +59,7 @@ namespace Base
     
     void BasisFunctionSet::addBasisFunction(BaseBasisFunction* bf)
     {
-        logger.assert(bf!=nullptr, "Invalid basis function passed");
+        logger.assert_debug(bf != nullptr, "Invalid basis function passed");
         vecOfBasisFcn_.push_back(bf);
         while (!registeredRules_.empty())
         {

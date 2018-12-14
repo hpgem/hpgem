@@ -64,7 +64,7 @@ namespace Base
     template<typename V>
     void LevelTree<V>::setSingleLevelTraversal(const std::size_t level)
     {
-        logger.assert((size() == 0 && level == 0) || maxLevel_ > level, "Trying to iterate over level %, but there are only % levels", level, maxLevel_);
+        logger.assert_debug((size() == 0 && level == 0) || maxLevel_ > level, "Trying to iterate over level %, but there are only % levels", level, maxLevel_);
         activeLevel_ = level;
         traversalMethod_ = TreeTraversalMethod::SINGLELEVEL;
     }
@@ -91,7 +91,7 @@ namespace Base
     template<typename V>
     void LevelTree<V>::setTraversalMethod(TreeTraversalMethod method)
     {
-        logger.assert(method != TreeTraversalMethod::SINGLELEVEL, "need to provide a level to traverse");
+        logger.assert_debug(method != TreeTraversalMethod::SINGLELEVEL, "need to provide a level to traverse");
         traversalMethod_ = method;
     }
     
@@ -239,7 +239,8 @@ namespace Base
     template<typename V>
     void LevelTree<V>::addChildren(TreeIteratorConst<V> parentEl, const std::vector<V>& subEntries, std::size_t level)
     {
-        logger.assert((*parentEl.ptr_)->getLevel() < level, "trying to at children at level %, but the parent lives at level %", level, (*parentEl.ptr_)->getLevel());
+        logger.assert_debug((*parentEl.ptr_)->getLevel() < level, "trying to at children at level %, but the parent lives at level %", level,
+                            (*parentEl.ptr_)->getLevel());
         (*parentEl.ptr_)->setDepth(level - (*parentEl.ptr_)->getLevel());
         (*parentEl.ptr_)->addChildren(subEntries);
         maxLevel_ = std::max((*parentEl.ptr_)->getLastChild()->getDepth() + (*parentEl.ptr_)->getLastChild()->getLevel(), maxLevel_);
@@ -248,7 +249,8 @@ namespace Base
     template<typename V>
     TreeIterator<V> LevelTree<V>::addChild(TreeIteratorConst<V> parentEl, const V& subEntry, std::size_t level)
     {
-        logger.assert((*parentEl.ptr_)->getLevel() < level, "trying to at children at level %, but the parent lives at level %", level, (*parentEl.ptr_)->getLevel());
+        logger.assert_debug((*parentEl.ptr_)->getLevel() < level, "trying to at children at level %, but the parent lives at level %", level,
+                            (*parentEl.ptr_)->getLevel());
         (*parentEl.ptr_)->setDepth(level - (*parentEl.ptr_)->getLevel());
         (*parentEl.ptr_)->addChild(subEntry);
         maxLevel_ = std::max((*parentEl.ptr_)->getLastChild()->getDepth() + (*parentEl.ptr_)->getLastChild()->getLevel(), maxLevel_);
@@ -282,7 +284,7 @@ namespace Base
     template<typename V>
     TreeIterator<V> LevelTree<V>::beginLevel(std::size_t level)
     {
-        logger.assert(maxLevel_ > level, "Trying to iterate over level %, but there are only % levels", level, maxLevel_);
+        logger.assert_debug(maxLevel_ > level, "Trying to iterate over level %, but there are only % levels", level, maxLevel_);
         return entries_.front()->getIterator(TreeTraversalMethod::SINGLELEVEL, level);
     }
     

@@ -64,9 +64,9 @@ namespace Utilities
         BasisFunction3DEdgePrism_0(std::size_t node0, std::size_t node1, std::size_t polynomialOrder)
                 : edgePosition_((static_cast<int>(node0) / 3) * 2 - 1), node0_(node0 % 3), node1_(node1 % 3), polynomialOrder_(polynomialOrder)
         {
-            logger.assert(node0 < 6, "A triangular prism only has 6 nodes");
-            logger.assert(node1 < 6, "A triangular prism only has 6 nodes");
-            logger.assert(node0 / 3 == node1 / 3, "Nodes % and % do not form an edge connected to a triangular face");
+            logger.assert_debug(node0 < 6, "A triangular prism only has 6 nodes");
+            logger.assert_debug(node1 < 6, "A triangular prism only has 6 nodes");
+            logger.assert_debug(node0 / 3 == node1 / 3, "Nodes % and % do not form an edge connected to a triangular face");
         }
         
         double eval(const Geometry::PointReference<3>& p) const;

@@ -105,7 +105,7 @@ int main(int argc, char** argv)
     Base::parse_options(argc, argv);
     std::cout<<"This is the parallel version"<<std::endl;
 
-    logger.assert( DIM >= 2 && DIM <= 3, "Can only handle 2D and 3D problems.");
+    logger.assert_debug( DIM >= 2 && DIM <= 3, "Can only handle 2D and 3D problems.");
 
     //set up timings
     time_t start, end, initialised, solved;

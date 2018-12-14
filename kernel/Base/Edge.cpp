@@ -35,7 +35,7 @@ namespace Base
 
     void Edge::addElement(Element* element, std::size_t edgeNumber)
     {
-        logger.assert(element!=nullptr, "Invalid element detected");
+        logger.assert_debug(element != nullptr, "Invalid element detected");
         elements_.push_back(element);
         localEdgeNumbers_.push_back(edgeNumber);
         element->setEdge(edgeNumber, this);
@@ -50,7 +50,9 @@ namespace Base
         }
         else
         {
-            logger.assert(numberOfConformingDOFOnTheEdge_.size() == element->getNumberOfUnknowns(), "The element thinks there are % unknowns, but the edge thinks there are % unknowns", element->getNumberOfUnknowns(), numberOfConformingDOFOnTheEdge_.size());
+            logger.assert_debug(numberOfConformingDOFOnTheEdge_.size() == element->getNumberOfUnknowns(),
+                                "The element thinks there are % unknowns, but the edge thinks there are % unknowns", element->getNumberOfUnknowns(),
+                                numberOfConformingDOFOnTheEdge_.size());
         }
     }
     
@@ -61,7 +63,7 @@ namespace Base
     
     Element* Edge::getElement(std::size_t i)
     {
-        logger.assert(i < getNumberOfElements(), "Asked for element %, but there are only % elements", i, getNumberOfElements());
+        logger.assert_debug(i < getNumberOfElements(), "Asked for element %, but there are only % elements", i, getNumberOfElements());
         return elements_[i];
     }
     
@@ -72,7 +74,7 @@ namespace Base
 
     const Element *Edge::getRootElement() const
     {
-        logger.assert(getNumberOfElements() > 0, "Add at least one element before queriyng about neighbouring elements");
+        logger.assert_debug(getNumberOfElements() > 0, "Add at least one element before queriyng about neighbouring elements");
         auto root = elements_[0]->getPositionInTree();
         while(!root->isRoot())
         {

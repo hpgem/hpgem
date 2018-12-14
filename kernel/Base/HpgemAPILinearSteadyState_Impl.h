@@ -191,7 +191,8 @@ namespace Base
             LinearAlgebra::MiddleSizeVector::type totalError = this->computeTotalError(this->solutionVectorId_, 0);
             logger(INFO, "Total error: %.", totalError);
             LinearAlgebra::MiddleSizeVector maxError = this->computeMaxError(this->solutionVectorId_, 0);
-            logger.assert(maxError.size() == this->configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)", maxError.size(), this->configData_->numberOfUnknowns_);
+            logger.assert_debug(maxError.size() == this->configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)",
+                                maxError.size(), this->configData_->numberOfUnknowns_);
             for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; iV ++)
             {
                 logger(INFO, "Maximum error %: %", this->variableNames_[iV], maxError(iV));

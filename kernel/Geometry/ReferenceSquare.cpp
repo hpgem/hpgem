@@ -72,7 +72,7 @@ namespace Geometry
     
     bool ReferenceSquare::isInternalPoint(const PointReference<2>& p) const
     {
-        logger.assert(p.size()==2, "The passed reference point has the wrong dimension");
+        logger.assert_debug(p.size() == 2, "The passed reference point has the wrong dimension");
         return ((p[0] >= -1.) && (p[0] <= 1.) && (p[1] >= -1.) && (p[1] <= 1.));
     }
     
@@ -143,25 +143,25 @@ namespace Geometry
     const MappingReferenceToReference<0>*
     ReferenceSquare::getCodim0MappingPtr(const std::size_t i) const
     {
-        logger.assert((i < 8), "ERROR: Asked for a mappingSquareToSquare larger than 7. There are only 8.\n");
+        logger.assert_debug((i < 8), "ERROR: Asked for a mappingSquareToSquare larger than 7. There are only 8.\n");
         return mappingsSquareToSquare_[i];
     }
     // ================================== Codimension 1 ============================================
     std::vector<std::size_t> ReferenceSquare::getCodim1EntityLocalIndices(const std::size_t faceIndex) const
     {
-        logger.assert(faceIndex < 4, "ERROR: A square has only 4 edges, while edge % is requested", faceIndex);
+        logger.assert_debug(faceIndex < 4, "ERROR: A square has only 4 edges, while edge % is requested", faceIndex);
         return std::vector<std::size_t>(localNodeIndexes_[faceIndex], localNodeIndexes_[faceIndex] + 2);
     }
     
     const ReferenceGeometry* ReferenceSquare::getCodim1ReferenceGeometry(const std::size_t faceIndex) const
     {
-        logger.assert((faceIndex < 4), "ERROR: Asked for a square face index larger than 3. There are only 4 faces in a square.\n");
+        logger.assert_debug((faceIndex < 4), "ERROR: Asked for a square face index larger than 3. There are only 4 faces in a square.\n");
         return referenceGeometryCodim1Ptr_;
     }
     const MappingReferenceToReference<1>*
     ReferenceSquare::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
-        logger.assert((faceIndex < 4), "ERROR: Asked for a square point index larger than 3. There are only 4 nodes in a square.\n");
+        logger.assert_debug((faceIndex < 4), "ERROR: Asked for a square point index larger than 3. There are only 4 nodes in a square.\n");
         return mappingsLineToSquare_[faceIndex];
     }
     

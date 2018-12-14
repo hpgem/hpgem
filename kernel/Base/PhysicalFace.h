@@ -247,7 +247,7 @@ namespace Base
             }
             else
             {
-                logger.assert(isInternal(), "This physical face is meant for boundaries and can only see left elements");
+                logger.assert_debug(isInternal(), "This physical face is meant for boundaries and can only see left elements");
                 return right;
             }
         }
@@ -257,7 +257,7 @@ namespace Base
         {
             if(side == Base::Side::LEFT)
             {
-                logger.assert(isInternal(), "This physical face is meant for boundaries and can only see left elements");
+                logger.assert_debug(isInternal(), "This physical face is meant for boundaries and can only see left elements");
                 return right;
             }
             else

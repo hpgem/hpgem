@@ -46,13 +46,13 @@ namespace LinearAlgebra
     MiddleSizeVector::MiddleSizeVector(std::size_t m)
             : data_(m)
     {
-        logger.assert(m <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for vectors that are this large");
+        logger.assert_debug(m <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for vectors that are this large");
     }
     
     MiddleSizeVector::MiddleSizeVector(std::initializer_list<type> l)
             : data_(l)
     {
-        logger.assert(l.size() <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for vectors that are this large");
+        logger.assert_debug(l.size() <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for vectors that are this large");
     }
 
     MiddleSizeVector::MiddleSizeVector(const MiddleSizeVector& other)
@@ -78,7 +78,7 @@ namespace LinearAlgebra
     
     void MiddleSizeVector::resize(std::size_t size)
     {
-        logger.assert(size <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for vectors that are this large");
+        logger.assert_debug(size <= std::numeric_limits<int>::max(), "Dense linear algebra is not supported on this system for vectors that are this large");
         if (size != data_.size())
         {
             data_.resize(size);
@@ -100,7 +100,7 @@ namespace LinearAlgebra
     MiddleSizeVector MiddleSizeVector::operator+(const MiddleSizeVector& right) const
     {
         MiddleSizeVector result(*this);
-        logger.assert(data_.size() == right.data_.size(), "Vectors don't have the same size");
+        logger.assert_debug(data_.size() == right.data_.size(), "Vectors don't have the same size");
 #ifdef LA_STL_VECTOR
         for (std::size_t i = 0; i < data_.size(); i++)
             result.data_[i] += right.data_[i];
@@ -114,7 +114,7 @@ namespace LinearAlgebra
     MiddleSizeVector MiddleSizeVector::operator-(const MiddleSizeVector& right) const
     {
         MiddleSizeVector result(*this);
-        logger.assert(data_.size() == right.data_.size(), "Vectors don't have the same size");
+        logger.assert_debug(data_.size() == right.data_.size(), "Vectors don't have the same size");
 #ifdef LA_STL_VECTOR
         for (std::size_t i = 0; i < data_.size(); i++)
             result.data_[i] -= right.data_[i];
@@ -140,7 +140,7 @@ namespace LinearAlgebra
     MiddleSizeVector::type MiddleSizeVector::operator*(const MiddleSizeVector& right) const
     {
         ///\todo replace with BLAS
-        logger.assert(data_.size() == right.data_.size(), "Vectors don't have equal length.");
+        logger.assert_debug(data_.size() == right.data_.size(), "Vectors don't have equal length.");
 #ifdef LA_STL_VECTOR
         type sum = 0;
         for (std::size_t i = 0; i < data_.size(); i++)
@@ -172,7 +172,7 @@ namespace LinearAlgebra
     
     void MiddleSizeVector::axpy(type a, const MiddleSizeVector& x)
     {
-        logger.assert(x.size() == data_.size(), "Vectors dont have the same size");
+        logger.assert_debug(x.size() == data_.size(), "Vectors dont have the same size");
         int size = data_.size();
         
         int i_one = 1;
@@ -221,7 +221,7 @@ namespace LinearAlgebra
     
     MiddleSizeVector& MiddleSizeVector::operator+=(const MiddleSizeVector& right)
     {
-        logger.assert(data_.size() == right.data_.size(), "Vectors don't have the same size");
+        logger.assert_debug(data_.size() == right.data_.size(), "Vectors don't have the same size");
 #ifdef LA_STL_VECTOR
         for (std::size_t i = 0; i < data_.size(); i++)
             data_[i] += right.data_[i];
@@ -233,7 +233,7 @@ namespace LinearAlgebra
     
     MiddleSizeVector& MiddleSizeVector::operator-=(const MiddleSizeVector& right)
     {
-        logger.assert(data_.size() == right.data_.size(), "Vectors don't have the same size");
+        logger.assert_debug(data_.size() == right.data_.size(), "Vectors don't have the same size");
 #ifdef LA_STL_VECTOR
         for (std::size_t i = 0; i < data_.size(); i++)
             data_[i] -= right.data_[i];
@@ -257,7 +257,7 @@ namespace LinearAlgebra
     
     MiddleSizeVector::type& MiddleSizeVector::operator[](std::size_t n)
     {
-        logger.assert(n < data_.size(), "Requested entry %, but there are only % entries", n, data_.size());
+        logger.assert_debug(n < data_.size(), "Requested entry %, but there are only % entries", n, data_.size());
         return data_[n];
     }
     

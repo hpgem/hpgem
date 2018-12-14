@@ -33,13 +33,13 @@ namespace Geometry
     MappingToPhysPyramid::MappingToPhysPyramid(const PhysicalGeometry<3>* const physicalGeometry)
         : MappingReferenceToPhysical(physicalGeometry)
     {
-        logger.assert(physicalGeometry!=nullptr, "Invalid physical geometry passed");
+        logger.assert_debug(physicalGeometry != nullptr, "Invalid physical geometry passed");
         reinit();
     }
     
     PointPhysical<3> MappingToPhysPyramid::transform(const PointReference<3>& pR) const
     {
-        logger.assert(pR.size()==3, "Reference point has the wrong dimension");
+        logger.assert_debug(pR.size() == 3, "Reference point has the wrong dimension");
         PointPhysical<3> pP;
         const double t1 = pR[0] * pR[1];
         const double t2 = pR[0] * pR[1] * pR[2] / (1 - pR[2] + 1e-50); //prevents trouble at the tip of the pyramid
@@ -89,7 +89,7 @@ namespace Geometry
     Jacobian<3, 3> MappingToPhysPyramid::calcJacobian(const PointReference<3>& pRarg) const
     {
         auto pR = pRarg;
-        logger.assert(pR.size()==3, "Reference point has the wrong dimension");
+        logger.assert_debug(pR.size() == 3, "Reference point has the wrong dimension");
         Jacobian<3, 3> jacobian;
         std::vector<double> df_dxi0(5), df_dxi1(5), df_dxi2(5);
 
@@ -158,7 +158,7 @@ namespace Geometry
     
     bool MappingToPhysPyramid::isValidPoint(const PointReference<3>& pointReference) const
     {
-        logger.assert(pointReference.size()==3, "Reference point has the wrong dimension");
+        logger.assert_debug(pointReference.size() == 3, "Reference point has the wrong dimension");
         static const double eps = 1.e-14;
         const double z = pointReference[2];
         if ((std::abs(pointReference[0]) <= 1. - z + eps) && (std::abs(pointReference[1]) <= 1. - z + eps) && (z >= 0. - eps) && (z <= 1. + eps))

@@ -46,31 +46,31 @@ std::enable_if_t<(entityDimension >= 0 && entityDimension < dimension), std::siz
 template<std::size_t dimension>
 template<int entityDimension>
 auto Preprocessor::ElementShape<dimension>::getBoundaryShape(std::size_t entityIndex) const -> std::enable_if_t<(entityDimension < 0), const ShapeType<entityDimension>*> {
-    logger.assert(entityDimension + dimension >= 0, "This shape is not bounded by shapes of dimension %", entityDimension + dimension);
+    logger.assert_debug(entityDimension + dimension >= 0, "This shape is not bounded by shapes of dimension %", entityDimension + dimension);
     return getBoundaryShape<entityDimension + dimension>(entityIndex);
 }
 
 template<std::size_t dimension>
 template<int entityDimension>
 auto Preprocessor::ElementShape<dimension>::getBoundaryShape(std::size_t entityIndex) const -> std::enable_if_t<(entityDimension >= dimension), const ShapeType<entityDimension>*> {
-    logger.assert(entityDimension == dimension, "This shape is not bounded by shapes of dimension %");
-    logger.assert(entityIndex == 0, "This shape is bounded by only 1 shapes of dimension %, but you asked for shape %", dimension, entityIndex);
+    logger.assert_debug(entityDimension == dimension, "This shape is not bounded by shapes of dimension %");
+    logger.assert_debug(entityIndex == 0, "This shape is bounded by only 1 shapes of dimension %, but you asked for shape %", dimension, entityIndex);
     return *this;
 }
 
 template<std::size_t dimension>
 template<int entityDimension>
 auto Preprocessor::ElementShape<dimension>::getBoundaryShape(std::size_t entityIndex) const -> std::enable_if_t<(entityDimension >= 0 && entityDimension < dimension), const ShapeType<entityDimension>*> {
-    logger.assert(entityIndex < getNumberOfEntities<entityDimension>(),
-                  "This shape is bounded by only % shapes of dimension %, but you asked for shape %",
-                  getNumberOfEntities<entityDimension>(), entityDimension, entityIndex);
+    logger.assert_debug(entityIndex < getNumberOfEntities<entityDimension>(),
+                        "This shape is bounded by only % shapes of dimension %, but you asked for shape %",
+                        getNumberOfEntities<entityDimension>(), entityDimension, entityIndex);
     return shapeData.template getEntityShapes<entityDimension>()[entityIndex];
 }
 
 template<std::size_t dimension>
 template<int entityDimension, int targetDimension>
 std::enable_if_t<(entityDimension < 0), Preprocessor::stackVector<std::size_t>> Preprocessor::ElementShape<dimension>::getAdjacentEntities(std::size_t entityIndex) const {
-    logger.assert(entityDimension + dimension >= 0, "This shape is not bounded by shapes of dimension %", entityDimension + dimension);
+    logger.assert_debug(entityDimension + dimension >= 0, "This shape is not bounded by shapes of dimension %", entityDimension + dimension);
     return getAdjacentEntities<entityDimension + dimension, targetDimension>(entityIndex);
 }
 
@@ -84,8 +84,9 @@ std::enable_if_t<(targetDimension < 0 && entityDimension >= 0), Preprocessor::st
 template<std::size_t dimension>
 template<int entityDimension, int targetDimension>
 std::enable_if_t<(entityDimension >= 0 && targetDimension >= 0 && (entityDimension >= dimension || targetDimension >= dimension)), Preprocessor::stackVector<std::size_t>> Preprocessor::ElementShape<dimension>::getAdjacentEntities(std::size_t entityIndex) const {
-    logger.assert(entityDimension <= dimension, "This shape is not bounded by shapes of dimension %", entityDimension + dimension);
-    logger.assert(entityIndex < getNumberOfEntities<entityDimension>(), "This shape is bounded by only % shapes of dimension %, but you asked for shape %",
+    logger.assert_debug(entityDimension <= dimension, "This shape is not bounded by shapes of dimension %", entityDimension + dimension);
+    logger
+    .assert_debug(entityIndex < getNumberOfEntities<entityDimension>(), "This shape is bounded by only % shapes of dimension %, but you asked for shape %",
                   getNumberOfEntities<entityDimension>(), dimension, entityIndex);
     if(targetDimension > dimension) return {};
     if(targetDimension == dimension) return {0};
@@ -99,7 +100,8 @@ template<std::size_t dimension>
 template<int entityDimension, int targetDimension>
 std::enable_if_t<(entityDimension >= 0 && entityDimension < dimension && targetDimension >= 0 && targetDimension < dimension), Preprocessor::stackVector<std::size_t>>
 Preprocessor::ElementShape<dimension>::getAdjacentEntities(std::size_t entityIndex) const {
-    logger.assert(entityIndex < getNumberOfEntities<entityDimension>(), "This shape is bounded by only % shapes of dimension %, but you asked for shape %",
+    logger
+    .assert_debug(entityIndex < getNumberOfEntities<entityDimension>(), "This shape is bounded by only % shapes of dimension %, but you asked for shape %",
                   getNumberOfEntities<entityDimension>(), dimension, entityIndex);
     return shapeData.template getAdjacentShapes<entityDimension>()[targetDimension][entityIndex];
 }

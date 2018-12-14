@@ -419,13 +419,13 @@ namespace Base
 		//todo: Make a switch between different types of solver
 		maxl = 15;
 		flag = KINSpgmr(kmem, maxl);
-		logger.assert(flag >= 0, "Failed to attach GMRS solver.");
+		logger.assert_debug(flag >= 0, "Failed to attach GMRS solver.");
 
 		//Set jacobian times vector function, if specified
 		if (doUseJacobian == true)
 		{
 			flag = KINSpilsSetJacTimesVecFn(kmem, jtimes);
-			logger.assert(flag >= 0, "Failed to attach jtimes function to KINSol.");
+			logger.assert_debug(flag >= 0, "Failed to attach jtimes function to KINSol.");
 		}
 
 		//Set additional parameters
@@ -441,7 +441,7 @@ namespace Base
 		else
 		{
 			logger(INFO,"No solution found0");
-			//logger.assert(flag >= 0, "Failed to solve the problem with flag %.",flag);
+			//logger.assert_debug(flag >= 0, "Failed to solve the problem with flag %.",flag);
 		}
 
 		//Write final solution to VTK
@@ -472,7 +472,7 @@ namespace Base
             LinearAlgebra::MiddleSizeVector::type totalError = this->computeTotalError(this->solutionVectorId_, 0);
             logger(INFO, "Total error: %.", totalError);
             LinearAlgebra::MiddleSizeVector maxError = this->computeMaxError(this->solutionVectorId_, 0);
-            logger.assert(maxError.size() == this->configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)", maxError.size(), this->configData_->numberOfUnknowns_);
+            logger.assert_debug(maxError.size() == this->configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)", maxError.size(), this->configData_->numberOfUnknowns_);
             for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; iV ++)
             {
                 logger(INFO, "Maximum error %: %", this->variableNames_[iV], maxError(iV));

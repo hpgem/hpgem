@@ -91,7 +91,7 @@ namespace Geometry
     const MappingReferenceToReference<0>*
     ReferenceLine::getCodim0MappingPtr(const std::size_t i) const
     {
-        logger.assert((i < 2), "ERROR: Asked for a mappingSquareToSquare larger than 7. There are only 8!");
+        logger.assert_debug((i < 2), "ERROR: Asked for a mappingSquareToSquare larger than 7. There are only 8!");
         return mappingsLineToLine_[i];
     }
     
@@ -99,19 +99,19 @@ namespace Geometry
     
     std::vector<std::size_t> ReferenceLine::getCodim1EntityLocalIndices(const std::size_t faceIndex) const
     {
-        logger.assert(faceIndex < 2, "A line has only 2 endpoints, while endpoint % is requested", faceIndex);
+        logger.assert_debug(faceIndex < 2, "A line has only 2 endpoints, while endpoint % is requested", faceIndex);
         return std::vector<std::size_t>(localNodeIndexes_[faceIndex], localNodeIndexes_[faceIndex] + 1);
     }
     
     const ReferenceGeometry* ReferenceLine::getCodim1ReferenceGeometry(const std::size_t faceIndex) const
     {
-        logger.assert((faceIndex < 2), "ERROR: Asked for a line face index larger than 1. There are only 2 'faces' in a line!");
+        logger.assert_debug((faceIndex < 2), "ERROR: Asked for a line face index larger than 1. There are only 2 'faces' in a line!");
         return referenceGeometryCodim1Ptr_;
     }
     const MappingReferenceToReference<1>*
     ReferenceLine::getCodim1MappingPtr(const std::size_t faceIndex) const
     {
-        logger.assert((faceIndex < 2), "ERROR: Asked for a square point index larger than 3. There are only 4 nodes in a square!.\n");
+        logger.assert_debug((faceIndex < 2), "ERROR: Asked for a square point index larger than 3. There are only 4 nodes in a square!.\n");
         return mappingsPointToLine_[faceIndex];
 
     }

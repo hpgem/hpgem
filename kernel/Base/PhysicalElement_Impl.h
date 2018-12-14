@@ -24,7 +24,7 @@ namespace Base
     template<std::size_t DIM>
     inline double PhysicalElement<DIM>::basisFunction(std::size_t i)
     {
-        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasElement, "Need a location to evaluate the data");
         if (hasFunctionValue[0])
         {
             return basisFunctionValue[0][i];
@@ -57,8 +57,8 @@ namespace Base
     template<std::size_t DIM>
     inline double PhysicalElement<DIM>::basisFunction(std::size_t i, std::size_t unknown)
     {
-        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
-        logger.assert(unknown < theElement_->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
+        logger.assert_debug(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert_debug(unknown < theElement_->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
         if (hasFunctionValue[unknown])
         {
             return basisFunctionValue[unknown][i];
@@ -91,7 +91,7 @@ namespace Base
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalElement<DIM>::basisFunctionDeriv(std::size_t i)
     {
-        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasElement, "Need a location to evaluate the data");
         if (hasFunctionDeriv[0])
         {
             return basisFunctionDeriv_[0][i];
@@ -124,8 +124,8 @@ namespace Base
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalElement<DIM>::basisFunctionDeriv(std::size_t i, std::size_t unknown)
     {
-        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
-        logger.assert(unknown < theElement_->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
+        logger.assert_debug(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert_debug(unknown < theElement_->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
         if (hasFunctionDeriv[unknown])
         {
             return basisFunctionDeriv_[unknown][i];
@@ -158,7 +158,7 @@ namespace Base
     template<std::size_t DIM>
     inline void PhysicalElement<DIM>::basisFunction(std::size_t i, LinearAlgebra::SmallVector<DIM>& result)
     {
-        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasElement, "Need a location to evaluate the data");
         if (hasVectorFunctionValue[0])
         {
             result = vectorBasisFunctionValue[0][i];
@@ -194,8 +194,8 @@ namespace Base
     template<std::size_t DIM>
     inline void PhysicalElement<DIM>::basisFunction(std::size_t i, LinearAlgebra::SmallVector<DIM>& result, std::size_t unknown)
     {
-        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
-        logger.assert(unknown < theElement_->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
+        logger.assert_debug(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert_debug(unknown < theElement_->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
         if (hasVectorFunctionValue[unknown])
         {
             result = vectorBasisFunctionValue[unknown][i];
@@ -231,7 +231,7 @@ namespace Base
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalElement<DIM>::basisFunctionCurl(std::size_t i)
     {
-        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasElement, "Need a location to evaluate the data");
         if (hasFunctionCurl[0])
         {
             return basisFunctionCurl_[0][i];
@@ -264,8 +264,8 @@ namespace Base
     template<std::size_t DIM>
     inline const LinearAlgebra::SmallVector<DIM>& PhysicalElement<DIM>::basisFunctionCurl(std::size_t i, std::size_t unknown)
     {
-        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
-        logger.assert(unknown < theElement_->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
+        logger.assert_debug(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert_debug(unknown < theElement_->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
         if (hasFunctionCurl[unknown])
         {
             return basisFunctionCurl_[unknown][i];
@@ -298,7 +298,7 @@ namespace Base
     template<std::size_t DIM>
     inline const double& PhysicalElement<DIM>::basisFunctionDiv(std::size_t i)
     {
-        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasElement, "Need a location to evaluate the data");
         if (hasFunctionDiv[0])
         {
             return basisFunctionDiv_[0][i];
@@ -331,7 +331,7 @@ namespace Base
     template<std::size_t DIM>
     inline const double& PhysicalElement<DIM>::basisFunctionDiv(std::size_t i, std::size_t unknown)
     {
-        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasElement, "Need a location to evaluate the data");
         if (hasFunctionDiv[unknown])
         {
             return basisFunctionDiv_[unknown][i];
@@ -364,7 +364,7 @@ namespace Base
     template<std::size_t DIM>
     inline const LinearAlgebra::MiddleSizeVector& PhysicalElement<DIM>::getSolution()
     {
-        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasElement, "Need a location to evaluate the data");
         if (hasSolution)
         {
             return solution;
@@ -380,7 +380,7 @@ namespace Base
     template<std::size_t DIM>
     inline const std::vector<LinearAlgebra::SmallVector<DIM> >& PhysicalElement<DIM>::getSolutionDeriv()
     {
-        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasElement, "Need a location to evaluate the data");
         if (hasSolutionDeriv)
         {
             return solutionDeriv;
@@ -418,14 +418,14 @@ namespace Base
     template<std::size_t DIM>
     inline const Geometry::PointReference<DIM>& PhysicalElement<DIM>::getPointReference()
     {
-        logger.assert(hasPointReference, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference, "Need a location to evaluate the data");
         return pointReference_;
     }
 
     template<std::size_t DIM>
     inline const Geometry::PointPhysical<DIM>& PhysicalElement<DIM>::getPointPhysical()
     {
-        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasElement, "Need a location to evaluate the data");
         if (hasPointPhysical)
         {
             return pointPhysical;
@@ -441,7 +441,7 @@ namespace Base
     template<std::size_t DIM>
     inline const Geometry::Jacobian<DIM, DIM>& PhysicalElement<DIM>::getJacobian()
     {
-        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasElement, "Need a location to evaluate the data");
         if (hasJacobian)
         {
             return jacobian;
@@ -457,7 +457,7 @@ namespace Base
     template<std::size_t DIM>
     inline const Geometry::Jacobian<DIM, DIM>& PhysicalElement<DIM>::getInverseTransposeJacobian()
     {
-        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasElement, "Need a location to evaluate the data");
         if (hasInverseTransposeJacobian)
         {
             return inverseTransposeJacobian;
@@ -473,7 +473,7 @@ namespace Base
     template<std::size_t DIM>
     inline const Geometry::Jacobian<DIM, DIM>& PhysicalElement<DIM>::getTransposeJacobian()
     {
-        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasElement, "Need a location to evaluate the data");
         if (hasTransposeJacobian)
         {
             return transposeJacobian;
@@ -489,7 +489,7 @@ namespace Base
     template<std::size_t DIM>
     inline double PhysicalElement<DIM>::getJacobianAbsDet()
     {
-        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasElement, "Need a location to evaluate the data");
         if (hasJacobianAbsDet)
         {
             return jacobianAbsDet;
@@ -505,7 +505,7 @@ namespace Base
     template<std::size_t DIM>
     inline double PhysicalElement<DIM>::getJacobianDet()
     {
-        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert_debug(hasPointReference && hasElement, "Need a location to evaluate the data");
         if (hasJacobianDet)
         {
             return jacobianDet;
@@ -521,8 +521,8 @@ namespace Base
     template<std::size_t DIM>
     inline LinearAlgebra::MiddleSizeMatrix& PhysicalElement<DIM>::getResultMatrix()
     {
-        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
-        logger.assert(hasElementMatrix, "Can only provide the matrix once per coordinate");
+        logger.assert_debug(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert_debug(hasElementMatrix, "Can only provide the matrix once per coordinate");
         hasElementMatrix = false;
         return resultMatrix;
     }
@@ -530,8 +530,8 @@ namespace Base
     template<std::size_t DIM>
     inline LinearAlgebra::MiddleSizeVector& PhysicalElement<DIM>::getResultVector()
     {
-        logger.assert(hasPointReference && hasElement, "Need a location to evaluate the data");
-        logger.assert(hasElementVector, "Can only provide the vector once per coordinate");
+        logger.assert_debug(hasPointReference && hasElement, "Need a location to evaluate the data");
+        logger.assert_debug(hasElementVector, "Can only provide the vector once per coordinate");
         hasElementVector = false;
         return resultVector;
     }
@@ -539,7 +539,7 @@ namespace Base
     template<std::size_t DIM>
     inline const Base::Element* PhysicalElement<DIM>::getElement()
     {
-        logger.assert(hasElement, "Need a location to evaluate the data");
+        logger.assert_debug(hasElement, "Need a location to evaluate the data");
         return theElement_;
     }
 
@@ -547,14 +547,15 @@ namespace Base
     inline const Base::CoordinateTransformation<DIM>* PhysicalElement<DIM>::getTransformation()
     {
         for(std::size_t i = 1; i < transform_.size(); ++i)
-            logger.assert(transform_[0] == transform_[i], "Different unknowns have different coordinate transformation, call getTransformation for a given unknown");
+            logger.assert_debug(transform_[0] == transform_[i],
+                                "Different unknowns have different coordinate transformation, call getTransformation for a given unknown");
         return transform_[0].get();
     }
     
     template<std::size_t DIM>
     inline const Base::CoordinateTransformation<DIM>* PhysicalElement<DIM>::getTransformation(std::size_t unknown)
     {
-        logger.assert(unknown < theElement_->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
+        logger.assert_debug(unknown < theElement_->getNumberOfUnknowns(), "Unknown % does not exist", unknown);
         return transform_[unknown].get();
     }
 
@@ -656,7 +657,7 @@ namespace Base
         if (transform_.size() <= unknown)
         {
             // We should not need to resize when we know the exact number of unknowns.
-            logger.assert(!hasElement, "Resizing the transform with an element");
+            logger.assert_debug(!hasElement, "Resizing the transform with an element");
             // Grow the transform vector automatically as we do not know how big it should be.
             transform_.resize(unknown + 1);
         }
@@ -709,7 +710,7 @@ namespace Base
     template<std::size_t DIM>
     inline void PhysicalElement<DIM>::setQuadraturePointIndex(std::size_t index)
     {
-        logger.assert(hasQuadratureRule, "It only makes sense to index into a quadrature rule if you set one first");
+        logger.assert_debug(hasQuadratureRule, "It only makes sense to index into a quadrature rule if you set one first");
         quadraturePointIndex_ = index;
         if(doesMapQuadraturePointFromFace)
         {

@@ -32,8 +32,8 @@ namespace Base
     MPIContainer::MPIContainer()
     {
 #ifdef HPGEM_USE_MPI
-        logger.assert(MPI::Is_initialized(), "Please initialise MPI first before"
-            " calling the constructor of MPIContainer");
+        logger.assert_debug(MPI::Is_initialized(), "Please initialise MPI first before"
+                                                   " calling the constructor of MPIContainer");
         MPI::Group groupID=MPI::COMM_WORLD.Get_group();
         communicator_=MPI::COMM_WORLD.Create( groupID );
         processorID_=communicator_.Get_rank();

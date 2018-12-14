@@ -30,8 +30,8 @@
 #include "libqhullcpp/QhullVertex.h"
 #include "libqhullcpp/QhullVertexSet.h"
 #include "libqhullcpp/Qhull.h"
-//QHull uses assert internally, but the macro definition causes conflicts with the rest of hpGEM
-#undef assert
+//QHull uses assert_debug internally, but the macro definition causes conflicts with the rest of hpGEM
+#undef assert_debug
 #endif
 
 #include "MeshManipulator.h"
@@ -82,9 +82,9 @@ namespace Base
     MeshManipulatorBase::MeshManipulatorBase(const ConfigurationData* config, BoundaryType xPer, BoundaryType yPer, BoundaryType zPer, std::size_t orderOfFEM, std::size_t idRangeBegin, std::size_t numberOfElementMatrices, std::size_t numberOfElementVectors, std::size_t numberOfFaceMatrtices, std::size_t numberOfFaceVectors)
             : configData_(config), numberOfElementMatrices_(numberOfElementMatrices), numberOfFaceMatrices_(numberOfFaceMatrtices), numberOfElementVectors_(numberOfElementVectors), numberOfFaceVectors_(numberOfFaceVectors)
     {
-        logger.assert(config!=nullptr, "Invalid configuration passed");
-        logger.assert(orderOfFEM==config->polynomialOrder_, "Inconsistent redundant information passed");
-        logger.assert(idRangeBegin==0, "c++ starts counting at 0");
+        logger.assert_debug(config != nullptr, "Invalid configuration passed");
+        logger.assert_debug(orderOfFEM == config->polynomialOrder_, "Inconsistent redundant information passed");
+        logger.assert_debug(idRangeBegin == 0, "c++ starts counting at 0");
         logger(INFO, "******Mesh creation started!**************");
         std::size_t DIM = configData_->dimension_;
         periodicX_ = (xPer == BoundaryType::PERIODIC);

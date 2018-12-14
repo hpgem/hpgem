@@ -34,7 +34,7 @@ namespace Utilities
     
     BasisFunction3DVertexPrism::BasisFunction3DVertexPrism(std::size_t node)
     {
-        logger.assert(node < 6, "A triangular prism only has 6 nodes");
+        logger.assert_debug(node < 6, "A triangular prism only has 6 nodes");
         nodePosition_ = (static_cast<int>(node) / 3) * 2 - 1;
         node_ = node % 3;
     }
@@ -85,9 +85,9 @@ namespace Utilities
     BasisFunction3DEdgePrism_1::BasisFunction3DEdgePrism_1(std::size_t node0, std::size_t node1, std::size_t polynomialOrder)
             : node_(node0 % 3), polynomialOrder_(polynomialOrder)
     {
-        logger.assert(node0 < 6, "A triangular prism only has 6 nodes");
-        logger.assert(node1 < 6, "A triangular prism only has 6 nodes");
-        logger.assert(node0 % 3 == node1 % 3, "This edge is aligned next to a triangular face");
+        logger.assert_debug(node0 < 6, "A triangular prism only has 6 nodes");
+        logger.assert_debug(node1 < 6, "A triangular prism only has 6 nodes");
+        logger.assert_debug(node0 % 3 == node1 % 3, "This edge is aligned next to a triangular face");
         mirroring_ = node0 < node1 ? -1 : 1;
     }
     
@@ -114,11 +114,11 @@ namespace Utilities
     BasisFunction3DFacePrism_0::BasisFunction3DFacePrism_0(std::size_t node0, std::size_t node1, std::size_t node2, std::size_t polynomialOrder0, std::size_t polynomialOrder1)
             : polynomialOrder0_(polynomialOrder0), polynomialOrder1_(polynomialOrder1), node0_(node0 % 3), node1_(node1 % 3), node2_(node2 % 3)
     {
-        logger.assert(node0 < 6, "A triangular prism only has 6 nodes");
-        logger.assert(node1 < 6, "A triangular prism only has 6 nodes");
-        logger.assert(node2 < 6, "A triangular prism only has 6 nodes");
-        logger.assert(node0 / 3 == node1 / 3, "This is not a triangular face");
-        logger.assert(node0 / 3 == node2 / 3, "This is not a triangular face");
+        logger.assert_debug(node0 < 6, "A triangular prism only has 6 nodes");
+        logger.assert_debug(node1 < 6, "A triangular prism only has 6 nodes");
+        logger.assert_debug(node2 < 6, "A triangular prism only has 6 nodes");
+        logger.assert_debug(node0 / 3 == node1 / 3, "This is not a triangular face");
+        logger.assert_debug(node0 / 3 == node2 / 3, "This is not a triangular face");
         facePosition_ = (static_cast<int>(node0) / 3) * 2 - 1;
     }
     
@@ -153,9 +153,9 @@ namespace Utilities
     BasisFunction3DFacePrism_1::BasisFunction3DFacePrism_1(std::size_t node0, std::size_t node1, std::size_t node2, std::size_t polynomialOrder0, std::size_t polynomialOrder1)
             : node0_(node0 % 3)
     {
-        logger.assert(node0 < 6, "A triangular prism only has 6 nodes");
-        logger.assert(node1 < 6, "A triangular prism only has 6 nodes");
-        logger.assert(node2 < 6, "A triangular prism only has 6 nodes");
+        logger.assert_debug(node0 < 6, "A triangular prism only has 6 nodes");
+        logger.assert_debug(node1 < 6, "A triangular prism only has 6 nodes");
+        logger.assert_debug(node2 < 6, "A triangular prism only has 6 nodes");
         if (node1 % 3 == node0_)
         {
             mirroring_ = node0 < node1 ? -1 : 1;
@@ -288,7 +288,7 @@ namespace Utilities
     
     Base::BasisFunctionSet* createInteriorBasisFunctionSet3DH1ConformingPrism(std::size_t order)
     {
-        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
+        logger.assert_debug(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         Base::BasisFunctionSet* result = new Base::BasisFunctionSet(order);
         for (std::size_t i = 0; i + 3 <= order; ++i)
         {
@@ -305,7 +305,7 @@ namespace Utilities
     
     std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet3DH1ConformingPrism(std::size_t order)
     {
-        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
+        logger.assert_debug(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::BasisFunctionSet*> result;
         Base::BasisFunctionSet* set;
         for (std::size_t i = 0; i < 6; ++i)
@@ -319,7 +319,7 @@ namespace Utilities
     
     std::vector<const Base::OrientedBasisFunctionSet*> createEdgeBasisFunctionSet3DH1ConformingPrism(std::size_t order)
     {
-        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
+        logger.assert_debug(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::OrientedBasisFunctionSet*> result;
         Base::OrientedBasisFunctionSet* set;
         Geometry::ReferenceTriangularPrism& prism = Geometry::ReferenceTriangularPrism::Instance();
@@ -361,7 +361,7 @@ namespace Utilities
     
     std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet3DH1ConformingPrism(std::size_t order)
     {
-        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
+        logger.assert_debug(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::OrientedBasisFunctionSet*> result;
         Base::OrientedBasisFunctionSet* set;
         Geometry::ReferenceTriangularPrism& prism = Geometry::ReferenceTriangularPrism::Instance();

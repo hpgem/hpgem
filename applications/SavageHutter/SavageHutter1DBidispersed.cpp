@@ -114,7 +114,7 @@ void SavageHutter1DBidispersed::registerVTKWriteFunctions()
 ///h(\sin\theta - \mu\sign(u)\cos\theta).
 LinearAlgebra::MiddleSizeVector SavageHutter1DBidispersed::computeSourceTerm(const LinearAlgebra::MiddleSizeVector& numericalSolution, const PointPhysicalT& pPhys, const double time)
 {
-    logger.assert(chuteAngle_ < M_PI, "Angle must be in radians, not degrees!");
+    logger.assert_debug(chuteAngle_ < M_PI, "Angle must be in radians, not degrees!");
     const double h = numericalSolution(0);
     double sourceX;
     if (h > dryLimit_)
@@ -138,7 +138,7 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DBidispersed::computeSourceTerm(con
 LinearAlgebra::MiddleSizeVector SavageHutter1DBidispersed::computePhysicalFlux(const MiddleSizeVector &numericalSolution, const PointPhysicalT& pPhys)
 {
     const double h = numericalSolution(0);
-    logger.assert(h > -1e-16, "Negative height (%)", h);
+    logger.assert_debug(h > -1e-16, "Negative height (%)", h);
     const double hu = numericalSolution(1);
     const double smallHeight = numericalSolution(2);
     MiddleSizeVector flux(3);
@@ -164,10 +164,10 @@ double SavageHutter1DBidispersed::computeFrictionBidispersed(const LinearAlgebra
 {
     
     const double h = numericalSolution[0];
-    logger.assert(h > 0, "Can't compute friction if the height is too small."); 
+    logger.assert_debug(h > 0, "Can't compute friction if the height is too small.");
     const double u = numericalSolution(1) / h;
     const double phi = numericalSolution(2) / h;
-    logger.assert(phi > -1e-10 && (phi - 1) < 1e-10, "the fraction of small particles should be between 0 and 1");
+    logger.assert_debug(phi > -1e-10 && (phi - 1) < 1e-10, "the fraction of small particles should be between 0 and 1");
     const double F = u / std::sqrt(epsilon_ * std::cos(chuteAngle_) * h);
     
     double delta1 = 17.518 / 180 * M_PI;
@@ -212,7 +212,7 @@ void SavageHutter1DBidispersed::tasksAfterTimeStep()
 double SavageHutter1DBidispersed::computeFrictionExponentialBidispersed(const LinearAlgebra::MiddleSizeVector& numericalSolution)
 {
     const double h = numericalSolution(0);
-    logger.assert(h > 0, "Height to small to compute friction");
+    logger.assert_debug(h > 0, "Height to small to compute friction");
     const double u = numericalSolution(1) / h;
     const double phi = numericalSolution(2) / h;
     

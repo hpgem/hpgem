@@ -30,13 +30,13 @@ namespace QuadratureRules
     
     double Cn0_inf_1::weight(std::size_t i) const
     {
-        logger.assert(i == 0, "Cn0_inf_1: This quadrature rule only has one point!");
+        logger.assert_debug(i == 0, "Cn0_inf_1: This quadrature rule only has one point!");
         return weight_[0];
     }
     
     const Geometry::PointReferenceBase& Cn0_inf_1::getPoint(std::size_t i) const
     {
-        logger.assert(i == 0, "Cn0_inf_1: This quadrature rule only has one point!");
+        logger.assert_debug(i == 0, "Cn0_inf_1: This quadrature rule only has one point!");
         //actually keep the point around while it is being used
         return gp_[0];
     }

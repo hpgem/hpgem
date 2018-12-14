@@ -50,7 +50,7 @@ add_custom_target(fullTest
 #This section is about the logger, debugging and other stuff
 ################################################################################
 
-#==========[ Assert Config ]============
+#==========[ assert_debug Config ]============
 set(hpGEM_DISABLE_ASSERTS OFF CACHE BOOL "Disables asserts - use at your own risk!")
 mark_as_advanced( FORCE hpGEM_DISABLE_ASSERTS )
 if (hpGEM_DISABLE_ASSERTS)

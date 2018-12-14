@@ -122,7 +122,7 @@ void SavageHutter1DWidthAveraged::registerVTKWriteFunctions()
 ///are defined in the class SavageHutter1DBase.
 LinearAlgebra::MiddleSizeVector SavageHutter1DWidthAveraged::computeSourceTerm(const LinearAlgebra::MiddleSizeVector& numericalSolution, const PointPhysicalT& pPhys, const double time)
 {
-    logger.assert(chuteAngle_ < M_PI, "Angle must be in radians, not degrees!");    
+    logger.assert_debug(chuteAngle_ < M_PI, "Angle must be in radians, not degrees!");
     const double width = getWidth(pPhys)[0];
     const double widthChange = getWidth(pPhys)[1];
     const double h = numericalSolution(0) / width;

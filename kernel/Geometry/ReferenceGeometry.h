@@ -125,8 +125,9 @@ namespace Geometry
 
         std::size_t getLocalNodeIndexFromFaceAndIndexOnFace(std::size_t face, std::size_t node) const
         {
-            logger.assert(face < getNumberOfCodim1Entities(), "Asked for face %, but there are only % faces", face, getNumberOfCodim1Entities());
-            logger.assert(node < getCodim1ReferenceGeometry(face)->getNumberOfNodes(), "Asked for node %, but there are only % nodes", node, getCodim1ReferenceGeometry(face)->getNumberOfNodes());
+            logger.assert_debug(face < getNumberOfCodim1Entities(), "Asked for face %, but there are only % faces", face, getNumberOfCodim1Entities());
+            logger.assert_debug(node < getCodim1ReferenceGeometry(face)->getNumberOfNodes(), "Asked for node %, but there are only % nodes", node,
+                                getCodim1ReferenceGeometry(face)->getNumberOfNodes());
             return getCodim1EntityLocalIndices(face)[node];
         }
 

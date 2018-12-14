@@ -27,7 +27,7 @@
 
 void Base::Node::addElement(Element *element, std::size_t localNodeNumber)
 {
-    logger.assert(std::find(elements_.begin(), elements_.end(), element) == elements_.end(), "Trying to add the same Element (%) twice", *element);
+    logger.assert_debug(std::find(elements_.begin(), elements_.end(), element) == elements_.end(), "Trying to add the same Element (%) twice", *element);
     elements_.push_back(element);
     localNodeNumbers_.push_back(localNodeNumber);
     element->setNode(localNodeNumber, this);
@@ -37,19 +37,21 @@ void Base::Node::addElement(Element *element, std::size_t localNodeNumber)
     }
     else
     {
-        logger.assert(numberOfConformingDOFOnTheNode_.size() == element->getNumberOfUnknowns(), "The element thinks there are % unknowns, but the node thinks there are % unknowns", element->getNumberOfUnknowns(), numberOfConformingDOFOnTheNode_.size());
+        logger.assert_debug(numberOfConformingDOFOnTheNode_.size() == element->getNumberOfUnknowns(),
+                            "The element thinks there are % unknowns, but the node thinks there are % unknowns", element->getNumberOfUnknowns(),
+                            numberOfConformingDOFOnTheNode_.size());
     }
 }
 
 Base::Element * Base::Node::getElement(std::size_t i)
 {
-    logger.assert(i < getNumberOfElements(), "asked for element %, but there are only % elements", i, getNumberOfElements());
+    logger.assert_debug(i < getNumberOfElements(), "asked for element %, but there are only % elements", i, getNumberOfElements());
     return elements_[i];
 }
 
 const Base::Element * Base::Node::getElement(std::size_t i) const
 {
-    logger.assert(i < getNumberOfElements(), "asked for element %, but there are only % elements", i, getNumberOfElements());
+    logger.assert_debug(i < getNumberOfElements(), "asked for element %, but there are only % elements", i, getNumberOfElements());
     return elements_[i];
 }
 
@@ -60,7 +62,7 @@ std::size_t Base::Node::getNumberOfElements() const
 
 const Base::Element *Base::Node::getRootElement() const
 {
-    logger.assert(getNumberOfElements() > 0, "Add at least one element before queriyng about neighbouring elements");
+    logger.assert_debug(getNumberOfElements() > 0, "Add at least one element before queriyng about neighbouring elements");
     auto root = elements_[0]->getPositionInTree();
     while(!root->isRoot())
     {

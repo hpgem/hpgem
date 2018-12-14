@@ -28,7 +28,7 @@
 template<std::size_t DIM>
 void Base::ElementCacheData::operator ()(const Element* el, const Geometry::PointReference<DIM>& p)
 {
-    logger.assert(el!=nullptr, "Invalid element passed");
+    logger.assert_debug(el != nullptr, "Invalid element passed");
     Geometry::Jacobian<DIM, DIM> jac = el->calcJacobian(p);
     absDetJac_ = std::abs(jac.determinant());
     

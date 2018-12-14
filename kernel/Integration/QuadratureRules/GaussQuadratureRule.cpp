@@ -24,9 +24,12 @@
 
 double QuadratureRules::GaussQuadratureRule::eval(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex)
 {
-    logger.assert(set != nullptr, "Invalid basis function set passed");
-    logger.assert(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
-    logger.assert(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex, set->size());
+    logger.assert_debug(set != nullptr, "Invalid basis function set passed");
+    logger
+    .assert_debug(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
+    logger
+    .assert_debug(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex,
+                  set->size());
     try
     {
         return basisFunctionValues_.at(set)[quadraturePointIndex][basisFunctionIndex];
@@ -86,10 +89,13 @@ double QuadratureRules::GaussQuadratureRule::eval(const Base::BasisFunctionSet* 
 
 double QuadratureRules::GaussQuadratureRule::eval(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1>* map)
 {
-    logger.assert(set != nullptr, "Invalid basis function set passed");
-    logger.assert(map != nullptr, "Invalid coordinate transformation passed");
-    logger.assert(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
-    logger.assert(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex, set->size());
+    logger.assert_debug(set != nullptr, "Invalid basis function set passed");
+    logger.assert_debug(map != nullptr, "Invalid coordinate transformation passed");
+    logger
+    .assert_debug(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
+    logger
+    .assert_debug(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex,
+                  set->size());
     auto containedMap = faceMapContainer(map);
     try
     {
@@ -154,9 +160,12 @@ double QuadratureRules::GaussQuadratureRule::eval(const Base::BasisFunctionSet* 
 
 const LinearAlgebra::MiddleSizeVector& QuadratureRules::GaussQuadratureRule::evalGrad(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex)
 {
-    logger.assert(set != nullptr, "Invalid basis function set passed");
-    logger.assert(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
-    logger.assert(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex, set->size());
+    logger.assert_debug(set != nullptr, "Invalid basis function set passed");
+    logger
+    .assert_debug(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
+    logger
+    .assert_debug(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex,
+                  set->size());
     try
     {
         return basisFunctionGrads_.at(set)[quadraturePointIndex][basisFunctionIndex];
@@ -221,10 +230,13 @@ const LinearAlgebra::MiddleSizeVector& QuadratureRules::GaussQuadratureRule::eva
 
 const LinearAlgebra::MiddleSizeVector& QuadratureRules::GaussQuadratureRule::evalGrad(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1>* map)
 {
-    logger.assert(set != nullptr, "Invalid basis function set passed");
-    logger.assert(map != nullptr, "Invalid coordinate transformation passed");
-    logger.assert(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
-    logger.assert(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex, set->size());
+    logger.assert_debug(set != nullptr, "Invalid basis function set passed");
+    logger.assert_debug(map != nullptr, "Invalid coordinate transformation passed");
+    logger
+    .assert_debug(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
+    logger
+    .assert_debug(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex,
+                  set->size());
     auto containedMap = faceMapContainer(map);
     try
     {
@@ -294,9 +306,12 @@ const LinearAlgebra::MiddleSizeVector& QuadratureRules::GaussQuadratureRule::eva
 
 LinearAlgebra::SmallVector<3> QuadratureRules::GaussQuadratureRule::evalCurl(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex)
 {
-    logger.assert(set != nullptr, "Invalid basis function set passed");
-    logger.assert(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
-    logger.assert(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex, set->size());
+    logger.assert_debug(set != nullptr, "Invalid basis function set passed");
+    logger
+    .assert_debug(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
+    logger
+    .assert_debug(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex,
+                  set->size());
     try
     {
         return basisFunctionCurls_.at(set)[quadraturePointIndex][basisFunctionIndex];
@@ -329,9 +344,12 @@ LinearAlgebra::SmallVector<3> QuadratureRules::GaussQuadratureRule::evalCurl(con
 
 LinearAlgebra::SmallVector<2> QuadratureRules::GaussQuadratureRule::evalCurl2D(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex)
 {
-    logger.assert(set != nullptr, "Invalid basis function set passed");
-    logger.assert(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
-    logger.assert(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex, set->size());
+    logger.assert_debug(set != nullptr, "Invalid basis function set passed");
+    logger
+    .assert_debug(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
+    logger
+    .assert_debug(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex,
+                  set->size());
     try
     {
         return basisFunctionCurls2D_.at(set)[quadraturePointIndex][basisFunctionIndex];
@@ -364,10 +382,13 @@ LinearAlgebra::SmallVector<2> QuadratureRules::GaussQuadratureRule::evalCurl2D(c
 
 LinearAlgebra::SmallVector<3> QuadratureRules::GaussQuadratureRule::evalCurl(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1>* map)
 {
-    logger.assert(set != nullptr, "Invalid basis function set passed");
-    logger.assert(map != nullptr, "Invalid coordinate transformation passed");
-    logger.assert(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
-    logger.assert(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex, set->size());
+    logger.assert_debug(set != nullptr, "Invalid basis function set passed");
+    logger.assert_debug(map != nullptr, "Invalid coordinate transformation passed");
+    logger
+    .assert_debug(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
+    logger
+    .assert_debug(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex,
+                  set->size());
     auto containedMap = faceMapContainer(map);
     try
     {
@@ -402,10 +423,13 @@ LinearAlgebra::SmallVector<3> QuadratureRules::GaussQuadratureRule::evalCurl(con
 
 LinearAlgebra::SmallVector<2> QuadratureRules::GaussQuadratureRule::evalCurl2D(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1>* map)
 {
-    logger.assert(set != nullptr, "Invalid basis function set passed");
-    logger.assert(map != nullptr, "Invalid coordinate transformation passed");
-    logger.assert(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
-    logger.assert(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex, set->size());
+    logger.assert_debug(set != nullptr, "Invalid basis function set passed");
+    logger.assert_debug(map != nullptr, "Invalid coordinate transformation passed");
+    logger
+    .assert_debug(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
+    logger
+    .assert_debug(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex,
+                  set->size());
     auto containedMap = faceMapContainer(map);
     try
     {
@@ -440,9 +464,12 @@ LinearAlgebra::SmallVector<2> QuadratureRules::GaussQuadratureRule::evalCurl2D(c
 
 double QuadratureRules::GaussQuadratureRule::evalDiv(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex)
 {
-    logger.assert(set != nullptr, "Invalid basis function set passed");
-    logger.assert(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
-    logger.assert(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex, set->size());
+    logger.assert_debug(set != nullptr, "Invalid basis function set passed");
+    logger
+    .assert_debug(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
+    logger
+    .assert_debug(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex,
+                  set->size());
     try
     {
         return basisFunctionDivs_.at(set)[quadraturePointIndex][basisFunctionIndex];
@@ -493,10 +520,13 @@ double QuadratureRules::GaussQuadratureRule::evalDiv(const Base::BasisFunctionSe
 
 double QuadratureRules::GaussQuadratureRule::evalDiv(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex, std::size_t quadraturePointIndex, const Geometry::MappingReferenceToReference<1>* map)
 {
-    logger.assert(set != nullptr, "Invalid basis function set passed");
-    logger.assert(map != nullptr, "Invalid coordinate transformation passed");
-    logger.assert(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
-    logger.assert(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex, set->size());
+    logger.assert_debug(set != nullptr, "Invalid basis function set passed");
+    logger.assert_debug(map != nullptr, "Invalid coordinate transformation passed");
+    logger
+    .assert_debug(quadraturePointIndex < getNumberOfPoints(), "Asked for point %, but this rule only has % points", quadraturePointIndex, getNumberOfPoints());
+    logger
+    .assert_debug(basisFunctionIndex < set->size(), "Asked for basis function %, but the provided basis function set only has % points", basisFunctionIndex,
+                  set->size());
     auto containedMap = faceMapContainer(map);
     try
     {

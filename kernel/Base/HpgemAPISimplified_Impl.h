@@ -324,7 +324,7 @@ namespace Base
 #endif
         communicator.onlyOnOneProcessor({[&]()
         {
-            logger.assert(std::abs(std::imag(localError)) < 1e-12, "The computed error has an imaginary component");
+            logger.assert_debug(std::abs(std::imag(localError)) < 1e-12, "The computed error has an imaginary component");
             if (std::real(localError) >= 0)
             {
                 error = std::sqrt(localError);
@@ -394,8 +394,10 @@ namespace Base
     {
         for(std::size_t i = 0; i < len; i++)
         {
-            logger.assert(std::abs(std::imag(reinterpret_cast<LinearAlgebra::MiddleSizeVector::type*>(inout)[i]))<1e-12, "can only do this for complex numbers");
-            logger.assert(std::abs(std::imag(reinterpret_cast<const LinearAlgebra::MiddleSizeVector::type*>(in)[i]))<1e-12, "can only do this for complex numbers");
+            logger.assert_debug(std::abs(std::imag(reinterpret_cast<LinearAlgebra::MiddleSizeVector::type*>(inout)[i])) < 1e-12,
+                                "can only do this for complex numbers");
+            logger.assert_debug(std::abs(std::imag(reinterpret_cast<const LinearAlgebra::MiddleSizeVector::type*>(in)[i])) < 1e-12,
+                                "can only do this for complex numbers");
             reinterpret_cast<LinearAlgebra::MiddleSizeVector::type*>(inout)[i] = std::max(std::real(reinterpret_cast<LinearAlgebra::MiddleSizeVector::type*>(inout)[i]), std::real(reinterpret_cast<const LinearAlgebra::MiddleSizeVector::type*>(in)[i]));
         }
     }
@@ -485,8 +487,8 @@ namespace Base
     template<std::size_t DIM>
     LinearAlgebra::MiddleSizeVector HpgemAPISimplified<DIM>::getLinearCombinationOfVectors(const Base::Element *ptrElement, const std::vector<std::size_t> inputVectorIds, const std::vector<double> coefficientsInputVectors)
     {
-        logger.assert(inputVectorIds.size() == coefficientsInputVectors.size(), "Number of time levels and number of coefficients should be the same.");
-        logger.assert(inputVectorIds.size() > 0, "Number of time levels should be bigger than zero.");
+        logger.assert_debug(inputVectorIds.size() == coefficientsInputVectors.size(), "Number of time levels and number of coefficients should be the same.");
+        logger.assert_debug(inputVectorIds.size() > 0, "Number of time levels should be bigger than zero.");
         
         LinearAlgebra::MiddleSizeVector linearCombination(ptrElement->getTimeIntegrationVector(inputVectorIds[0]));
         linearCombination *= coefficientsInputVectors[0];
@@ -657,7 +659,7 @@ namespace Base
     void HpgemAPISimplified<DIM>::computeOneTimeStep(double &time, const double maximumRelativeError,
                                                      const double dtMax)
     {
-        logger.assert(ptrButcherTableau_->hasErrorEstimate(), "Can only use an adaptive time step with an embedded butcher tableau");
+        logger.assert_debug(ptrButcherTableau_->hasErrorEstimate(), "Can only use an adaptive time step with an embedded butcher tableau");
         static double dtEstimate = dt.getValue();
         double dt = dtEstimate;
         if(dt > dtMax) dt = dtMax;
@@ -697,7 +699,9 @@ namespace Base
         outputFileName_ = outputFileName;
         internalFileTitle_ = internalFileTitle;
         solutionTitle_ = solutionTitle;
-        logger.assert(variableNames_.size() == this->configData_->numberOfUnknowns_, "Number of variable names (%) is not equal to the number of variables (%)", variableNames_.size(), this->configData_->numberOfUnknowns_);
+        logger
+        .assert_debug(variableNames_.size() == this->configData_->numberOfUnknowns_, "Number of variable names (%) is not equal to the number of variables (%)",
+                      variableNames_.size(), this->configData_->numberOfUnknowns_);
         variableNames_ = variableNames;
     }
 
@@ -858,7 +862,8 @@ namespace Base
             const LinearAlgebra::MiddleSizeVector::type totalError = computeTotalError(solutionVectorId_, finalTime);
             logger(INFO, "Total error: %.", totalError);
             const LinearAlgebra::MiddleSizeVector maxError = computeMaxError(solutionVectorId_, finalTime);
-            logger.assert(maxError.size() == this->configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)", maxError.size(), this->configData_->numberOfUnknowns_);
+            logger.assert_debug(maxError.size() == this->configData_->numberOfUnknowns_, "Size of maxError (%) not equal to the number of variables (%)",
+                                maxError.size(), this->configData_->numberOfUnknowns_);
             for(std::size_t iV = 0; iV < this->configData_->numberOfUnknowns_; iV ++)
             {
                 logger(INFO, "Maximum error %: %", variableNames_[iV], maxError(iV));

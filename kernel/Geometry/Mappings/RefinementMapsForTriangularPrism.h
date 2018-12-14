@@ -144,20 +144,20 @@ namespace Geometry
 
         PointReference<3> refinementTransform(std::size_t subElementIndex, const PointReference<3>& p) const override final
         {
-            logger.assert(subElementIndex == 0, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElementIndex == 0, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             return p;
         }
 
         LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixL(std::size_t subElementIndex, const PointReference<3>& p) const override final
         {
-            logger.assert(subElementIndex == 0, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElementIndex == 0, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             //the bonus column is most likely {0, 0, 0, 1}
             return LinearAlgebra::SmallMatrix<3, 3>{{{{1., 0., 0.}}, {{0., 1., 0.}}, {{0., 0., 1.}}}};
         }
 
         LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixR(std::size_t subElementIndex, const PointReference<3>& p) const override final
         {
-            logger.assert(subElementIndex == 0, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElementIndex == 0, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             //the bonus column is most likely {0, 0, 0, 1}
             return LinearAlgebra::SmallMatrix<3, 3>{{{{1., 0., 0.}}, {{0., 1., 0.}}, {{0., 0., 1.}}}};
         }
@@ -174,7 +174,7 @@ namespace Geometry
 
         std::vector<std::size_t> getSubElementLocalNodeIndices(std::size_t subElementIndex) const override final
         {
-            logger.assert(subElementIndex == 0, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElementIndex == 0, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             return std::vector<std::size_t>{0, 1, 2, 3, 4, 5};
         }
 
@@ -185,7 +185,7 @@ namespace Geometry
 
         Geometry::ReferenceGeometry* getSubElementReferenceGeometry(std::size_t subElement) const override final
         {
-            logger.assert(subElement < getNumberOfSubElements(), "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElement < getNumberOfSubElements(), "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
             return &Geometry::ReferenceTriangularPrism::Instance();
         }
 
@@ -221,8 +221,8 @@ namespace Geometry
 
         std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(std::size_t face, std::size_t subFaceIndex) const override final
         {
-            logger.assert(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
-            logger.assert(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
+            logger.assert_debug(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+            logger.assert_debug(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
             return std::make_tuple(0, face);
         }
     private:
@@ -246,20 +246,20 @@ namespace Geometry
 
         PointReference<3> refinementTransform(std::size_t subElementIndex, const PointReference<3>& p) const override final
         {
-            logger.assert(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             return {(p[0] + subElementIndex) / 2., p[1], p[2]};
         }
 
         LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixL(std::size_t subElementIndex, const PointReference<3>& p) const override final
         {
-            logger.assert(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             //the bonus column is probably {subElementIndex / 2, 0, 0, 1}
             return LinearAlgebra::SmallMatrix<3, 3>{{{{0.5, 0., 0.}}, {{0., 1., 0.}}, {{0., 0., 1.}}}};
         }
 
         LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixR(std::size_t subElementIndex, const PointReference<3>& p) const override final
         {
-            logger.assert(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             //the bonus column is most likely {-subelementIndex, 0, 0, 1}
             return LinearAlgebra::SmallMatrix<3, 3>{{{{2., 0., 0.}}, {{0., 1., 0.}}, {{0., 0., 1.}}}};
         }
@@ -276,7 +276,7 @@ namespace Geometry
 
         std::vector<std::size_t> getSubElementLocalNodeIndices(std::size_t subElementIndex) const override final
         {
-            logger.assert(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             if(subElementIndex == 0)
             {
                 return std::vector<std::size_t>{0, 6, 2, 3, 7, 5};
@@ -294,7 +294,7 @@ namespace Geometry
 
         Geometry::ReferenceGeometry* getSubElementReferenceGeometry(std::size_t subElement) const override final
         {
-            logger.assert(subElement < getNumberOfSubElements(), "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElement < getNumberOfSubElements(), "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
             return &Geometry::ReferenceTriangularPrism::Instance();
         }
 
@@ -330,8 +330,8 @@ namespace Geometry
 
         std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(std::size_t face, std::size_t subFaceIndex) const override final
         {
-            logger.assert(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
-            logger.assert(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
+            logger.assert_debug(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+            logger.assert_debug(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
             switch(face)
             {
             case 0:
@@ -370,20 +370,20 @@ namespace Geometry
 
         PointReference<3> refinementTransform(std::size_t subElementIndex, const PointReference<3>& p) const override final
         {
-            logger.assert(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             return {p[0], (p[1] + subElementIndex) / 2., p[2]};
         }
 
         LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixL(std::size_t subElementIndex, const PointReference<3>& p) const override final
         {
-            logger.assert(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             //the bonus column is probably {subElementIndex / 2, 0, 0, 1}
             return LinearAlgebra::SmallMatrix<3, 3>{{{{1., 0., 0.}}, {{0., 0.5, 0.}}, {{0., 0., 1.}}}};
         }
 
         LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixR(std::size_t subElementIndex, const PointReference<3>& p) const override final
         {
-            logger.assert(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             //the bonus column is most likely {-subelementIndex, 0, 0, 1}
             return LinearAlgebra::SmallMatrix<3, 3>{{{{1., 0., 0.}}, {{0., 2., 0.}}, {{0., 0., 1.}}}};
         }
@@ -400,7 +400,7 @@ namespace Geometry
 
         std::vector<std::size_t> getSubElementLocalNodeIndices(std::size_t subElementIndex) const override final
         {
-            logger.assert(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             if(subElementIndex == 0)
             {
                 return std::vector<std::size_t>{0, 1, 6, 3, 4, 7};
@@ -418,7 +418,7 @@ namespace Geometry
 
         Geometry::ReferenceGeometry* getSubElementReferenceGeometry(std::size_t subElement) const override final
         {
-            logger.assert(subElement < getNumberOfSubElements(), "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElement < getNumberOfSubElements(), "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
             return &Geometry::ReferenceTriangularPrism::Instance();
         }
 
@@ -454,8 +454,8 @@ namespace Geometry
 
         std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(std::size_t face, std::size_t subFaceIndex) const override final
         {
-            logger.assert(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
-            logger.assert(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
+            logger.assert_debug(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+            logger.assert_debug(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
             switch(face)
             {
             case 0:
@@ -494,7 +494,7 @@ namespace Geometry
 
         PointReference<3> refinementTransform(std::size_t subElementIndex, const PointReference<3>& p) const override final
         {
-            logger.assert(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             if(subElementIndex == 0)
             {
                 return {0.5 * p[0], 0.5 * p[0] + p[1], p[2]};
@@ -507,7 +507,7 @@ namespace Geometry
 
         LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixL(std::size_t subElementIndex, const PointReference<3>& p) const override final
         {
-            logger.assert(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             if(subElementIndex == 0)
             {
                 //the bonus column might be {0, 0, 0, 1}
@@ -522,7 +522,7 @@ namespace Geometry
 
         LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixR(std::size_t subElementIndex, const PointReference<3>& p) const override final
         {
-            logger.assert(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             if(subElementIndex == 0)
             {
                 //the bonus column might be {0, 0, 0, 1}
@@ -547,7 +547,7 @@ namespace Geometry
 
         std::vector<std::size_t> getSubElementLocalNodeIndices(std::size_t subElementIndex) const override final
         {
-            logger.assert(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElementIndex < 2, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             if(subElementIndex == 0)
             {
                 return std::vector<std::size_t>{0, 6, 2, 3, 7, 5};
@@ -565,7 +565,7 @@ namespace Geometry
 
         Geometry::ReferenceGeometry* getSubElementReferenceGeometry(std::size_t subElement) const override final
         {
-            logger.assert(subElement < getNumberOfSubElements(), "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElement < getNumberOfSubElements(), "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
             return &Geometry::ReferenceTriangularPrism::Instance();
         }
 
@@ -601,8 +601,8 @@ namespace Geometry
 
         std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(std::size_t face, std::size_t subFaceIndex) const override final
         {
-            logger.assert(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
-            logger.assert(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
+            logger.assert_debug(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+            logger.assert_debug(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
             switch(face)
             {
             case 0:
@@ -736,7 +736,7 @@ namespace Geometry
 
         Geometry::ReferenceGeometry* getSubElementReferenceGeometry(std::size_t subElement) const override final
         {
-            logger.assert(subElement < getNumberOfSubElements(), "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElement < getNumberOfSubElements(), "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
             return &Geometry::ReferenceTriangularPrism::Instance();
         }
 
@@ -773,8 +773,8 @@ namespace Geometry
 
         std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(std::size_t face, std::size_t subFaceIndex) const override final
         {
-            logger.assert(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
-            logger.assert(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
+            logger.assert_debug(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+            logger.assert_debug(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
             switch(face)
             {
             case 0:
@@ -903,7 +903,7 @@ namespace Geometry
 
         Geometry::ReferenceGeometry* getSubElementReferenceGeometry(std::size_t subElement) const override final
         {
-            logger.assert(subElement < getNumberOfSubElements(), "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElement < getNumberOfSubElements(), "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
             return &Geometry::ReferenceTriangularPrism::Instance();
         }
 
@@ -939,8 +939,8 @@ namespace Geometry
 
         std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(std::size_t face, std::size_t subFaceIndex) const override final
         {
-            logger.assert(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
-            logger.assert(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
+            logger.assert_debug(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+            logger.assert_debug(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
             switch(face)
             {
             case 0:
@@ -1067,7 +1067,7 @@ namespace Geometry
 
         Geometry::ReferenceGeometry* getSubElementReferenceGeometry(std::size_t subElement) const override final
         {
-            logger.assert(subElement < getNumberOfSubElements(), "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElement < getNumberOfSubElements(), "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
             return &Geometry::ReferenceCube::Instance();
         }
 
@@ -1104,8 +1104,8 @@ namespace Geometry
 
         std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(std::size_t face, std::size_t subFaceIndex) const override final
         {
-            logger.assert(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
-            logger.assert(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
+            logger.assert_debug(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+            logger.assert_debug(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
             switch(face)
             {
             case 0:
@@ -1277,8 +1277,8 @@ namespace Geometry
 
         std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(std::size_t face, std::size_t subFaceIndex) const override final
         {
-            logger.assert(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
-            logger.assert(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
+            logger.assert_debug(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+            logger.assert_debug(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
             switch(face)
             {
             case 0:
@@ -1450,8 +1450,8 @@ namespace Geometry
 
         std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(std::size_t face, std::size_t subFaceIndex) const override final
         {
-            logger.assert(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
-            logger.assert(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
+            logger.assert_debug(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+            logger.assert_debug(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
             switch(face)
             {
             case 0:
@@ -1623,8 +1623,8 @@ namespace Geometry
 
         std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(std::size_t face, std::size_t subFaceIndex) const override final
         {
-            logger.assert(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
-            logger.assert(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
+            logger.assert_debug(face < getBigElementReferenceGeometry()->getNumberOfCodim1Entities(), "asked for Face %, but the % has only % faces", face, getName(), getBigElementReferenceGeometry()->getNumberOfCodim1Entities());
+            logger.assert_debug(subFaceIndex < getCodim1RefinementMaps()[face]->getNumberOfSubElements(), "asked for subFace %, but the % has only % subFaces", subFaceIndex, getCodim1RefinementMaps()[face]->getName(), getCodim1RefinementMaps()[face]->getNumberOfSubElements());
             switch(face)
             {
             case 0:

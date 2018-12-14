@@ -35,7 +35,7 @@ namespace Geometry
 {
     double OutwardNormalVectorSign(const MappingReferenceToReference<1> *const map)
     {
-        logger.assert(map != nullptr, "Invalid mapping passed");
+        logger.assert_debug(map != nullptr, "Invalid mapping passed");
         if (typeid(*map) == typeid(const MappingToRefPointToLine0) ||
             typeid(*map) == typeid(const MappingToRefLineToTriangle0) ||
             typeid(*map) == typeid(const MappingToRefLineToTriangle2) ||

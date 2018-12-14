@@ -37,7 +37,7 @@ namespace Utilities
 
     void GlobalIndexing::getGlobalIndices(const Base::Element *element, std::size_t offset, std::vector<int> &indices)
     {
-        logger.assert(element != nullptr, "Null pointer as element");
+        logger.assert_debug(element != nullptr, "Null pointer as element");
         indices.resize(offset + element->getTotalNumberOfBasisFunctions());
 
         std::size_t localBasisIndex = offset;
@@ -87,7 +87,7 @@ namespace Utilities
             }
         }
 
-        logger.assert(localBasisIndex == indices.size(), "Not all basis functions have been assigned an index.");
+        logger.assert_debug(localBasisIndex == indices.size(), "Not all basis functions have been assigned an index.");
     }
 
     void GlobalIndexing::getGlobalIndices(const Base::Face *face, std::vector<int> &indices)
@@ -106,7 +106,7 @@ namespace Utilities
             meshDimension = mesh->dimension();
             // We do not support empty meshes as we do not know the number of unknowns,
             // nor is it sensible to create an empty indexing_ for it.
-            logger.assert(mesh->elementColBegin() != mesh->elementColEnd(), "Empty mesh not supported.");
+            logger.assert_debug(mesh->elementColBegin() != mesh->elementColEnd(), "Empty mesh not supported.");
             // Note as seen below do we assume that the number of unknowns is the same for each element, face, etc.
             numberOfUnknowns_ = (*mesh->elementColBegin())->getNumberOfUnknowns();
             offsets.clear();
@@ -123,7 +123,7 @@ namespace Utilities
                     constructBlocked(*mesh, false);
                     break;
                 default:
-                    logger.assert(false, "Unknown index layout %", layout);
+                    logger.assert_debug(false, "Unknown index layout %", layout);
             }
         }
         else
@@ -417,8 +417,8 @@ namespace Utilities
 
     void GlobalIndexing::Offsets::setOffset(int globalOffset, int localOffset, int numberOfBasisFunctions)
     {
-        logger.assert(localOffset >= 0, "Negative local offset");
-        logger.assert(globalOffset >= 0, "Negative global offset");
+        logger.assert_debug(localOffset >= 0, "Negative local offset");
+        logger.assert_debug(globalOffset >= 0, "Negative global offset");
         this->localOffset_ = localOffset;
         this->blockStart_ = globalOffset;
         this->numberOfBasisFunctionsInBlock_ = numberOfBasisFunctions;

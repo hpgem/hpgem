@@ -35,13 +35,13 @@ namespace Geometry
     
     PointReference<4> MappingToRefCubeToHypercube0::transform(const Geometry::PointReference<3>& p1) const
     {
-        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        logger.assert_debug(p1.size() == 3, "Reference point has the wrong dimension");
         return {p1[0], p1[1], p1[2], -1.};
     }
     
     Jacobian<3, 4> MappingToRefCubeToHypercube0::calcJacobian(const Geometry::PointReference<3>& p1) const
     {
-        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        logger.assert_debug(p1.size() == 3, "Reference point has the wrong dimension");
         Jacobian<3, 4> jacobian;
         jacobian(0, 0) = 1.0;
         jacobian(1, 0) = 0.0;
@@ -74,13 +74,13 @@ namespace Geometry
     
     PointReference<4> MappingToRefCubeToHypercube1::transform(const Geometry::PointReference<3>& p1) const
     {
-        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        logger.assert_debug(p1.size() == 3, "Reference point has the wrong dimension");
         return {p1[0], p1[1], -1., p1[2]};
     }
     
     Jacobian<3, 4> MappingToRefCubeToHypercube1::calcJacobian(const Geometry::PointReference<3>& p1) const
     {
-        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        logger.assert_debug(p1.size() == 3, "Reference point has the wrong dimension");
         Jacobian<3, 4> jacobian;
         jacobian(0, 0) = 1.0;
         jacobian(1, 0) = 0.0;
@@ -113,13 +113,13 @@ namespace Geometry
     
     PointReference<4> MappingToRefCubeToHypercube2::transform(const Geometry::PointReference<3>& p1) const
     {
-        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        logger.assert_debug(p1.size() == 3, "Reference point has the wrong dimension");
         return {p1[0], -1., p1[1], p1[2]};
     }
     
     Jacobian<3, 4> MappingToRefCubeToHypercube2::calcJacobian(const Geometry::PointReference<3>& p1) const
     {
-        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        logger.assert_debug(p1.size() == 3, "Reference point has the wrong dimension");
         Jacobian<3, 4> jacobian;
         jacobian(0, 0) = 1.0;
         jacobian(1, 0) = 0.0;
@@ -152,13 +152,13 @@ namespace Geometry
     
     PointReference<4> MappingToRefCubeToHypercube3::transform(const Geometry::PointReference<3>& p1) const
     {
-        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        logger.assert_debug(p1.size() == 3, "Reference point has the wrong dimension");
         return {-1., p1[0], p1[1], p1[2]};
     }
     
     Jacobian<3, 4> MappingToRefCubeToHypercube3::calcJacobian(const Geometry::PointReference<3>& p1) const
     {
-        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        logger.assert_debug(p1.size() == 3, "Reference point has the wrong dimension");
         Jacobian<3, 4> jacobian;
         jacobian(0, 0) = 0.0;
         jacobian(1, 0) = 1.0;
@@ -191,13 +191,13 @@ namespace Geometry
     
     PointReference<4> MappingToRefCubeToHypercube4::transform(const Geometry::PointReference<3>& p1) const
     {
-        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        logger.assert_debug(p1.size() == 3, "Reference point has the wrong dimension");
         return {1., p1[0], p1[1], p1[2]};
     }
     
     Jacobian<3, 4> MappingToRefCubeToHypercube4::calcJacobian(const Geometry::PointReference<3>& p1) const
     {
-        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        logger.assert_debug(p1.size() == 3, "Reference point has the wrong dimension");
         Jacobian<3, 4> jacobian;
         jacobian(0, 0) = 0.0;
         jacobian(1, 0) = 1.0;
@@ -230,13 +230,13 @@ namespace Geometry
     
     PointReference<4> MappingToRefCubeToHypercube5::transform(const Geometry::PointReference<3>& p1) const
     {
-        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        logger.assert_debug(p1.size() == 3, "Reference point has the wrong dimension");
         return {p1[0], 1., p1[1], p1[2]};
     }
     
     Jacobian<3, 4> MappingToRefCubeToHypercube5::calcJacobian(const Geometry::PointReference<3>& p1) const
     {
-        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        logger.assert_debug(p1.size() == 3, "Reference point has the wrong dimension");
         Jacobian<3, 4> jacobian;
         jacobian(0, 0) = 1.0;
         jacobian(1, 0) = 0.0;
@@ -269,13 +269,13 @@ namespace Geometry
     
     PointReference<4> MappingToRefCubeToHypercube6::transform(const Geometry::PointReference<3>& p1) const
     {
-        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        logger.assert_debug(p1.size() == 3, "Reference point has the wrong dimension");
         return {p1[0], p1[1], 1., p1[2]};
     }
     
     Jacobian<3, 4> MappingToRefCubeToHypercube6::calcJacobian(const Geometry::PointReference<3>& p1) const
     {
-        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        logger.assert_debug(p1.size() == 3, "Reference point has the wrong dimension");
         Jacobian<3, 4> jacobian;
         jacobian(0, 0) = 1.0;
         jacobian(1, 0) = 0.0;
@@ -308,13 +308,13 @@ namespace Geometry
     
     PointReference<4> MappingToRefCubeToHypercube7::transform(const Geometry::PointReference<3>& p1) const
     {
-        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        logger.assert_debug(p1.size() == 3, "Reference point has the wrong dimension");
         return {p1[0], p1[1], p1[2], 1.};
     }
     
     Jacobian<3, 4> MappingToRefCubeToHypercube7::calcJacobian(const Geometry::PointReference<3>& p1) const
     {
-        logger.assert(p1.size()==3, "Reference point has the wrong dimension");
+        logger.assert_debug(p1.size() == 3, "Reference point has the wrong dimension");
         Jacobian<3, 4> jacobian;
         jacobian(0, 0) = 1.0;
         jacobian(1, 0) = 0.0;

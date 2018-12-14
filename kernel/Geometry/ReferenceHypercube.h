@@ -58,7 +58,7 @@ namespace Geometry
 
         const PointReferenceBase& getReferenceNodeCoordinate(const std::size_t& i) const override final
         {
-            logger.assert(i < getNumberOfNodes(), "Asked for node %, but there are only % nodes", i, getNumberOfNodes());
+            logger.assert_debug(i < getNumberOfNodes(), "Asked for node %, but there are only % nodes", i, getNumberOfNodes());
             return points_[i];
         }
 

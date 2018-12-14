@@ -57,7 +57,7 @@ namespace Base
         /// synchronization steps where possible
         void addPullElement(Element* element)
         {
-            logger.assert(element!=nullptr, "Invalid element passed");
+            logger.assert_debug(element != nullptr, "Invalid element passed");
             if(!std::binary_search(otherPulls_.begin(), otherPulls_.end(), element, [](Element* a, Element* b)->bool{return a->getID() < b->getID();}))
             {
                 otherPulls_.push_back(element);

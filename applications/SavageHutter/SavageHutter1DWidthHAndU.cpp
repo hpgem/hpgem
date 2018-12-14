@@ -115,7 +115,7 @@ void SavageHutter1DWidthHAndU::registerVTKWriteFunctions()
 ///are defined in the class SavageHutter1DBase.
 LinearAlgebra::MiddleSizeVector SavageHutter1DWidthHAndU::computeSourceTerm(const LinearAlgebra::MiddleSizeVector& numericalSolution, const PointPhysicalT& pPhys, const double time)
 {
-    logger.assert(chuteAngle_ < M_PI, "Angle must be in radians, not degrees!");
+    logger.assert_debug(chuteAngle_ < M_PI, "Angle must be in radians, not degrees!");
     const double h = numericalSolution(0);
     const double u = numericalSolution(1);
     double mu = computeFriction(h, u);

@@ -34,8 +34,8 @@ namespace Integration
     template<typename ReturnTrait1>
     ReturnTrait1 FaceIntegral<DIM>::integrate(const Base::Face* fa, FaceIntegrandBase<ReturnTrait1, DIM>* integrand, QuadratureRules::GaussQuadratureRule* qdrRule)
     {
-        logger.assert(fa!=nullptr, "Invalid face detected");
-        logger.assert(integrand!=nullptr, "Invalid integrand detected");
+        logger.assert_debug(fa!=nullptr, "Invalid face detected");
+        logger.assert_debug(integrand!=nullptr, "Invalid integrand detected");
         //quadrature rule is allowed to be equal to nullptr!
         std::function<ReturnTrait1(Base::PhysicalFace<DIM>&)> integrandFunc = [=](Base::PhysicalFace<DIM>& face)
         {   
@@ -53,7 +53,7 @@ namespace Integration
     {
         using ReturnTrait1 = std::result_of_t<FunctionType(Base::PhysicalFace<DIM>&)>;
 
-        logger.assert(fa!=nullptr, "Invalid face detected");
+        logger.assert_debug(fa!=nullptr, "Invalid face detected");
         Base::PhysicalFace<DIM>* face_;
         //treat internal and boundary faces separately to prevent permanent resizing of the relevant data structures
         if(fa->isInternal())
@@ -72,7 +72,7 @@ namespace Integration
         
         // check whether the GaussIntegrationRule is actually for the
         // Element's ReferenceGeometry
-        logger.assert((qdrRuleLoc->forReferenceGeometry() == fa->getReferenceGeometry()), "FaceIntegral: " + qdrRuleLoc->getName() + " rule is not for THIS ReferenceGeometry!");
+        logger.assert_debug((qdrRuleLoc->forReferenceGeometry() == fa->getReferenceGeometry()), "FaceIntegral: " + qdrRuleLoc->getName() + " rule is not for THIS ReferenceGeometry!");
         
         // value returned by the integrand
         ReturnTrait1 value, result;
@@ -112,7 +112,7 @@ namespace Integration
      {
          using ReturnTrait1 = std::result_of_t<FunctionType(Base::PhysicalFace<DIM>&)>;
 
-         logger.assert(fa!=nullptr, "Invalid face detected");
+         logger.assert_debug(fa!=nullptr, "Invalid face detected");
          Base::PhysicalFace<DIM>* face_;
          //treat internal and boundary faces separately to prevent permanent resizing of the relevant data structures
          if(fa->isInternal())
@@ -131,7 +131,7 @@ namespace Integration
 
          // check whether the GaussIntegrationRule is actually for the
          // Element's ReferenceGeometry
-         logger.assert((qdrRuleLoc->forReferenceGeometry() == fa->getReferenceGeometry()), "FaceIntegral: " + qdrRuleLoc->getName() + " rule is not for THIS ReferenceGeometry!");
+         logger.assert_debug((qdrRuleLoc->forReferenceGeometry() == fa->getReferenceGeometry()), "FaceIntegral: " + qdrRuleLoc->getName() + " rule is not for THIS ReferenceGeometry!");
 
          // value returned by the integrand
          ReturnTrait1 value, result;

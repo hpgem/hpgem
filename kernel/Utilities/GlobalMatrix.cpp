@@ -43,12 +43,12 @@ namespace Utilities
     GlobalMatrix::GlobalMatrix(Base::MeshManipulatorBase* theMesh, int elementMatrixID, int faceMatrixID)
             : meshLevel_(-2), elementMatrixID_(elementMatrixID), faceMatrixID_(faceMatrixID), theMesh_(theMesh)
     {
-        logger.assert(theMesh!=nullptr,"Invalid mesh passed");
+        logger.assert_debug(theMesh != nullptr, "Invalid mesh passed");
     }
     
     void GlobalMatrix::getMatrixBCEntries(const Base::Face* face, std::size_t& numberOfEntries, std::vector<int>& entries)
     {
-        logger.assert(face!=nullptr, "Invalid face passed");
+        logger.assert_debug(face != nullptr, "Invalid face passed");
         // Face basis functions
         std::size_t nFaceBasisLocal = face->getTotalLocalNumberOfBasisFunctions();
         std::size_t nUnknowns = face->getPtrElementLeft()->getNumberOfUnknowns();
@@ -121,10 +121,10 @@ namespace Utilities
     GlobalPetscMatrix::GlobalPetscMatrix(Base::MeshManipulatorBase* theMesh, int elementMatrixID, int faceMatrixID)
             : GlobalMatrix(theMesh, elementMatrixID, faceMatrixID)
     {
-        logger.assert(theMesh!=nullptr, "Invalid mesh passed");
+        logger.assert_debug(theMesh != nullptr, "Invalid mesh passed");
         PetscBool petscRuns;
         PetscInitialized(&petscRuns);
-        logger.assert(petscRuns == PETSC_TRUE, "Early call, firstly the command line arguments should be parsed");
+        logger.assert_debug(petscRuns == PETSC_TRUE, "Early call, firstly the command line arguments should be parsed");
         //temporary
         MatCreateSeqAIJ(PETSC_COMM_SELF, 1, 1, 1, PETSC_NULL, &A_);
         

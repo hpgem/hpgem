@@ -34,7 +34,7 @@ namespace Utilities
     
     BasisFunction3DVertexCube::BasisFunction3DVertexCube(std::size_t node)
     {
-        logger.assert(node < 8, "A cube only has 8 nodes");
+        logger.assert_debug(node < 8, "A cube only has 8 nodes");
         nodePosition0_ = (static_cast<int>(node) % 2) * 2 - 1;
         nodePosition1_ = ((static_cast<int>(node) / 2) % 2) * 2 - 1;
         nodePosition2_ = (static_cast<int>(node) / 4) * 2 - 1;
@@ -63,10 +63,10 @@ namespace Utilities
     BasisFunction3DEdgeCube_0::BasisFunction3DEdgeCube_0(std::size_t node0, std::size_t node1, std::size_t polynomialOrder)
             : polynomialOrder_(polynomialOrder)
     {
-        logger.assert(node0 < 8, "A cube only has 8 nodes");
-        logger.assert(node1 < 8, "A cube only has 8 nodes");
-        logger.assert(node0 / 4 == node1 / 4, "This class is intended for edges aligned in the x-direction");
-        logger.assert((node0 / 2) % 2 == (node1 / 2) % 2, "This class is intended for edges aligned in the x-direction");
+        logger.assert_debug(node0 < 8, "A cube only has 8 nodes");
+        logger.assert_debug(node1 < 8, "A cube only has 8 nodes");
+        logger.assert_debug(node0 / 4 == node1 / 4, "This class is intended for edges aligned in the x-direction");
+        logger.assert_debug((node0 / 2) % 2 == (node1 / 2) % 2, "This class is intended for edges aligned in the x-direction");
         edgePosition1_ = ((static_cast<int>(node0) / 2) % 2) * 2 - 1;
         edgePosition2_ = (static_cast<int>(node0) / 4) * 2 - 1;
         mirroring_ = node0 < node1 ? 1 : -1;
@@ -95,10 +95,10 @@ namespace Utilities
     BasisFunction3DEdgeCube_1::BasisFunction3DEdgeCube_1(std::size_t node0, std::size_t node1, std::size_t polynomialOrder)
             : polynomialOrder_(polynomialOrder)
     {
-        logger.assert(node0 < 8, "A cube only has 8 nodes");
-        logger.assert(node1 < 8, "A cube only has 8 nodes");
-        logger.assert(node0 / 4 == node1 / 4, "This class is intended for edges aligned in the y-direction");
-        logger.assert(node0 % 2 == node1 % 2, "This class is intended for edges aligned in the y-direction");
+        logger.assert_debug(node0 < 8, "A cube only has 8 nodes");
+        logger.assert_debug(node1 < 8, "A cube only has 8 nodes");
+        logger.assert_debug(node0 / 4 == node1 / 4, "This class is intended for edges aligned in the y-direction");
+        logger.assert_debug(node0 % 2 == node1 % 2, "This class is intended for edges aligned in the y-direction");
         edgePosition0_ = (static_cast<int>(node0) % 2) * 2 - 1;
         edgePosition2_ = (static_cast<int>(node0) / 4) * 2 - 1;
         mirroring_ = node0 < node1 ? 1 : -1;
@@ -127,10 +127,10 @@ namespace Utilities
     BasisFunction3DEdgeCube_2::BasisFunction3DEdgeCube_2(std::size_t node0, std::size_t node1, std::size_t polynomialOrder)
             : polynomialOrder_(polynomialOrder)
     {
-        logger.assert(node0 < 8, "A cube only has 8 nodes");
-        logger.assert(node1 < 8, "A cube only has 8 nodes");
-        logger.assert(node0 % 2 == node1 % 2, "This class is intended for edges aligned in the z-direction");
-        logger.assert((node0 / 2) % 2 == (node1 / 2) % 2, "This class is intended for edges aligned in the z-direction");
+        logger.assert_debug(node0 < 8, "A cube only has 8 nodes");
+        logger.assert_debug(node1 < 8, "A cube only has 8 nodes");
+        logger.assert_debug(node0 % 2 == node1 % 2, "This class is intended for edges aligned in the z-direction");
+        logger.assert_debug((node0 / 2) % 2 == (node1 / 2) % 2, "This class is intended for edges aligned in the z-direction");
         edgePosition0_ = (static_cast<int>(node0) % 2) * 2 - 1;
         edgePosition1_ = ((static_cast<int>(node0) / 2) % 2) * 2 - 1;
         mirroring_ = node0 < node1 ? 1 : -1;
@@ -159,11 +159,11 @@ namespace Utilities
     BasisFunction3DFaceCube_0::BasisFunction3DFaceCube_0(std::size_t node0, std::size_t node1, std::size_t node2, std::size_t polynomialOrder1, std::size_t polynomialOrder2)
             : polynomialOrder1_(polynomialOrder1), polynomialOrder2_(polynomialOrder2)
     {
-        logger.assert(node0 < 8, "A cube only has 8 nodes");
-        logger.assert(node1 < 8, "A cube only has 8 nodes");
-        logger.assert(node2 < 8, "A cube only has 8 nodes");
-        logger.assert(node0 % 2 == node1 % 2, "This class is intended for faces aligned in the x-direction");
-        logger.assert(node0 % 2 == node2 % 2, "This class is intended for faces aligned in the x-direction");
+        logger.assert_debug(node0 < 8, "A cube only has 8 nodes");
+        logger.assert_debug(node1 < 8, "A cube only has 8 nodes");
+        logger.assert_debug(node2 < 8, "A cube only has 8 nodes");
+        logger.assert_debug(node0 % 2 == node1 % 2, "This class is intended for faces aligned in the x-direction");
+        logger.assert_debug(node0 % 2 == node2 % 2, "This class is intended for faces aligned in the x-direction");
         mirroring1_ = node0 < node1 ? 1 : -1; //choices about mirroring need only be consistent for one face
         mirroring2_ = node0 < node2 ? 1 : -1;
         facePosition_ = (static_cast<int>(node0) % 2) * 2 - 1;
@@ -187,11 +187,11 @@ namespace Utilities
     BasisFunction3DFaceCube_1::BasisFunction3DFaceCube_1(std::size_t node0, std::size_t node1, std::size_t node2, std::size_t polynomialOrder0, std::size_t polynomialOrder2)
             : polynomialOrder0_(polynomialOrder0), polynomialOrder2_(polynomialOrder2)
     {
-        logger.assert(node0 < 8, "A cube only has 8 nodes");
-        logger.assert(node1 < 8, "A cube only has 8 nodes");
-        logger.assert(node2 < 8, "A cube only has 8 nodes");
-        logger.assert((node0 / 2) % 2 == (node1 / 2) % 2, "This class is intended for faces aligned in the y-direction");
-        logger.assert((node0 / 2) % 2 == (node2 / 2) % 2, "This class is intended for faces aligned in the y-direction");
+        logger.assert_debug(node0 < 8, "A cube only has 8 nodes");
+        logger.assert_debug(node1 < 8, "A cube only has 8 nodes");
+        logger.assert_debug(node2 < 8, "A cube only has 8 nodes");
+        logger.assert_debug((node0 / 2) % 2 == (node1 / 2) % 2, "This class is intended for faces aligned in the y-direction");
+        logger.assert_debug((node0 / 2) % 2 == (node2 / 2) % 2, "This class is intended for faces aligned in the y-direction");
         mirroring0_ = node0 < node1 ? 1 : -1;
         mirroring2_ = node0 < node2 ? 1 : -1;
         facePosition_ = ((static_cast<int>(node0) / 2) % 2) * 2 - 1;
@@ -220,11 +220,11 @@ namespace Utilities
     BasisFunction3DFaceCube_2::BasisFunction3DFaceCube_2(std::size_t node0, std::size_t node1, std::size_t node2, std::size_t polynomialOrder0, std::size_t polynomialOrder1)
             : polynomialOrder0_(polynomialOrder0), polynomialOrder1_(polynomialOrder1)
     {
-        logger.assert(node0 < 8, "A cube only has 8 nodes");
-        logger.assert(node1 < 8, "A cube only has 8 nodes");
-        logger.assert(node2 < 8, "A cube only has 8 nodes");
-        logger.assert(node0 / 4 == node1 / 4, "This class is intended for faces aligned in the x-direction");
-        logger.assert(node0 / 4 == node2 / 4, "This class is intended for faces aligned in the x-direction");
+        logger.assert_debug(node0 < 8, "A cube only has 8 nodes");
+        logger.assert_debug(node1 < 8, "A cube only has 8 nodes");
+        logger.assert_debug(node2 < 8, "A cube only has 8 nodes");
+        logger.assert_debug(node0 / 4 == node1 / 4, "This class is intended for faces aligned in the x-direction");
+        logger.assert_debug(node0 / 4 == node2 / 4, "This class is intended for faces aligned in the x-direction");
         mirroring0_ = node0 < node1 ? 1 : -1;
         mirroring1_ = node0 < node2 ? 1 : -1;
         facePosition_ = (static_cast<int>(node0) / 4) * 2 - 1;
@@ -346,7 +346,7 @@ namespace Utilities
     
     Base::BasisFunctionSet* createInteriorBasisFunctionSet3DH1Cube(std::size_t order)
     {
-        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
+        logger.assert_debug(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         Base::BasisFunctionSet* result(new Base::BasisFunctionSet(order));
         for (std::size_t i = 0; i + 2 <= order; ++i)
         {
@@ -363,7 +363,7 @@ namespace Utilities
     
     std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet3DH1Cube(std::size_t order)
     {
-        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
+        logger.assert_debug(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::BasisFunctionSet*> result;
         Base::BasisFunctionSet* set;
         Geometry::ReferenceCube& cube = Geometry::ReferenceCube::Instance();
@@ -378,7 +378,7 @@ namespace Utilities
     
     std::vector<const Base::OrientedBasisFunctionSet*> createEdgeBasisFunctionSet3DH1Cube(std::size_t order)
     {
-        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
+        logger.assert_debug(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::OrientedBasisFunctionSet*> result;
         Base::OrientedBasisFunctionSet* set;
         Geometry::ReferenceCube& cube = Geometry::ReferenceCube::Instance();
@@ -436,7 +436,7 @@ namespace Utilities
     
     std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet3DH1Cube(std::size_t order)
     {
-        logger.assert(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
+        logger.assert_debug(order > 0, "Trying to create a conforming, constant basis function set, did you mean the constant solution?");
         std::vector<const Base::OrientedBasisFunctionSet*> result;
         Base::OrientedBasisFunctionSet* set;
         Geometry::ReferenceCube& cube = Geometry::ReferenceCube::Instance();

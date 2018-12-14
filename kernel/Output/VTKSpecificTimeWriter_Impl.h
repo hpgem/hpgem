@@ -75,7 +75,7 @@ Output::VTKSpecificTimeWriter<DIM>::VTKSpecificTimeWriter(const std::string& bas
                                                      std::size_t timelevel)
         : totalPoints_(0), mesh_(mesh), timelevel_(timelevel)
 {
-    logger.assert(mesh!=nullptr,"Invalid mesh passed");
+    logger.assert_debug(mesh!=nullptr,"Invalid mesh passed");
     std::size_t id = Base::MPIContainer::Instance().getProcessorID();
     std::uint32_t totalData;
     if (id == 0)

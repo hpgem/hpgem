@@ -53,20 +53,20 @@ namespace Geometry
 
         PointReference<0> refinementTransform(std::size_t subElementIndex, const PointReference<0>& p) const override final
         {
-            logger.assert(subElementIndex == 0, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElementIndex == 0, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             return p;
         }
 
         LinearAlgebra::SmallMatrix<0, 0> getRefinementMappingMatrixL(std::size_t subElementIndex, const PointReference<0>& p) const override final
         {
-            logger.assert(subElementIndex == 0, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElementIndex == 0, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             //the bonus column is most likely {1}
             return LinearAlgebra::SmallMatrix<0, 0>();
         }
 
         LinearAlgebra::SmallMatrix<0, 0> getRefinementMappingMatrixR(std::size_t subElementIndex, const PointReference<0>& p) const override final
         {
-            logger.assert(subElementIndex == 0, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElementIndex == 0, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             //the bonus column is most likely {1}
             return LinearAlgebra::SmallMatrix<0, 0>();
         }
@@ -88,7 +88,7 @@ namespace Geometry
 
         Geometry::ReferenceGeometry* getSubElementReferenceGeometry(std::size_t subElement) const override final
         {
-            logger.assert(subElement < getNumberOfSubElements(), "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElement < getNumberOfSubElements(), "asked for subElement %, but the % has only % subElements", subElement, getName(), getNumberOfSubElements());
             return &Geometry::ReferencePoint::Instance();
         }
 
@@ -99,7 +99,7 @@ namespace Geometry
 
         std::vector<std::size_t> getSubElementLocalNodeIndices(std::size_t subElementIndex) const override final
         {
-            logger.assert(subElementIndex == 0, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
+            logger.assert_debug(subElementIndex == 0, "asked for subElement %, but the % has only % subElements", subElementIndex, getName(), getNumberOfSubElements());
             return std::vector<std::size_t>(1, 0);
         }
 

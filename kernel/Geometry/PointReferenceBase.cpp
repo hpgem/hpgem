@@ -27,61 +27,61 @@ namespace Geometry
 
     PointReferenceBase::operator PointReference<0>&()
     {
-        logger.assert(typeid(*this)==typeid(PointReference<0>), "Trying to convert to a point of the wrong dimension");
+        logger.assert_debug(typeid(*this) == typeid(PointReference<0>), "Trying to convert to a point of the wrong dimension");
         return static_cast<PointReference<0>& >(*this);
     }
 
     PointReferenceBase::operator PointReference<1>&()
     {
-        logger.assert(typeid(*this)==typeid(PointReference<1>), "Trying to convert to a point of the wrong dimension");
+        logger.assert_debug(typeid(*this) == typeid(PointReference<1>), "Trying to convert to a point of the wrong dimension");
         return static_cast<PointReference<1>& >(*this);
     }
 
     PointReferenceBase::operator PointReference<2>&()
     {
-        logger.assert(typeid(*this)==typeid(PointReference<2>), "Trying to convert to a point of the wrong dimension");
+        logger.assert_debug(typeid(*this) == typeid(PointReference<2>), "Trying to convert to a point of the wrong dimension");
         return static_cast<PointReference<2>& >(*this);
     }
 
     PointReferenceBase::operator PointReference<3>&()
     {
-        logger.assert(typeid(*this)==typeid(PointReference<3>), "Trying to convert to a point of the wrong dimension");
+        logger.assert_debug(typeid(*this) == typeid(PointReference<3>), "Trying to convert to a point of the wrong dimension");
         return static_cast<PointReference<3>& >(*this);
     }
 
     PointReferenceBase::operator PointReference<4>&()
     {
-        logger.assert(typeid(*this)==typeid(PointReference<4>), "Trying to convert to a point of the wrong dimension");
+        logger.assert_debug(typeid(*this) == typeid(PointReference<4>), "Trying to convert to a point of the wrong dimension");
         return static_cast<PointReference<4>& >(*this);
     }
 
     PointReferenceBase::operator const PointReference<0>&() const
     {
-        logger.assert(typeid(*this)==typeid(PointReference<0>), "Trying to convert to a point of the wrong dimension");
+        logger.assert_debug(typeid(*this) == typeid(PointReference<0>), "Trying to convert to a point of the wrong dimension");
         return static_cast<const PointReference<0>& >(*this);
     }
 
     PointReferenceBase::operator const PointReference<1>&() const
     {
-        logger.assert(typeid(*this)==typeid(PointReference<1>), "Trying to convert to a point of the wrong dimension");
+        logger.assert_debug(typeid(*this) == typeid(PointReference<1>), "Trying to convert to a point of the wrong dimension");
         return static_cast<const PointReference<1>& >(*this);
     }
 
     PointReferenceBase::operator const PointReference<2>&() const
     {
-        logger.assert(typeid(*this)==typeid(PointReference<2>), "Trying to convert to a point of the wrong dimension");
+        logger.assert_debug(typeid(*this) == typeid(PointReference<2>), "Trying to convert to a point of the wrong dimension");
         return static_cast<const PointReference<2>& >(*this);
     }
 
     PointReferenceBase::operator const PointReference<3>&() const
     {
-        logger.assert(typeid(*this)==typeid(PointReference<3>), "Trying to convert to a point of the wrong dimension");
+        logger.assert_debug(typeid(*this) == typeid(PointReference<3>), "Trying to convert to a point of the wrong dimension");
         return static_cast<const PointReference<3>& >(*this);
     }
 
     PointReferenceBase::operator const PointReference<4>&() const
     {
-        logger.assert(typeid(*this)==typeid(PointReference<4>), "Trying to convert to a point of the wrong dimension");
+        logger.assert_debug(typeid(*this) == typeid(PointReference<4>), "Trying to convert to a point of the wrong dimension");
         return static_cast<const PointReference<4>& >(*this);
     }
 }

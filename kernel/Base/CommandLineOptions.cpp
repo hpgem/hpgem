@@ -72,7 +72,7 @@ bool Base::parse_isDone()
 }
 void Base::parse_options(int argc, char** argv)
 {
-    logger.assert(!hasParsed, "Arguments have already been parsed");
+    logger.assert_debug(!hasParsed, "Arguments have already been parsed");
 #ifdef HPGEM_USE_MPI
     
     if (!MPI::Is_initialized())

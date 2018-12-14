@@ -181,8 +181,9 @@ public:
     template<typename T>
     typename std::enable_if<!std::is_scalar<T>::value, void>::type
     send(T& t, int to, int tag)
-    {   
-        logger.assert(to < getNumberOfProcessors(), "trying to send to processor %, but there are only % processors available", to, getNumberOfProcessors());
+    {
+        logger
+        .assert_debug(to < getNumberOfProcessors(), "trying to send to processor %, but there are only % processors available", to, getNumberOfProcessors());
         if(to == getProcessorID())
         {
             logger(WARN, "sending data to self!");
@@ -206,7 +207,8 @@ public:
     typename std::enable_if<std::is_scalar<T>::value, void>::type
     send(T& t, int to, int tag)
     {
-        logger.assert(to < getNumberOfProcessors(), "trying to send to processor %, but there are only % processors available", to, getNumberOfProcessors());
+        logger
+        .assert_debug(to < getNumberOfProcessors(), "trying to send to processor %, but there are only % processors available", to, getNumberOfProcessors());
         if(to == getProcessorID())
         {
             logger(WARN, "sending data to self!");
@@ -227,7 +229,8 @@ public:
     typename std::enable_if<std::is_scalar<T>::value, void>::type
     send(std::complex<T>& t, int to, int tag)
     {
-        logger.assert(to < getNumberOfProcessors(), "trying to send to processor %, but there are only % processors available", to, getNumberOfProcessors());
+        logger
+        .assert_debug(to < getNumberOfProcessors(), "trying to send to processor %, but there are only % processors available", to, getNumberOfProcessors());
         if(to == getProcessorID())
         {
             logger(WARN, "sending data to self!");
@@ -247,8 +250,9 @@ public:
     template<typename T>
     typename std::enable_if<!std::is_scalar<T>::value, void>::type
     receive(T& t, int from, int tag)
-    {   
-        logger.assert(from < getNumberOfProcessors(), "trying to receive from processor %, but there are only % processors available", from, getNumberOfProcessors());
+    {
+        logger.assert_debug(from < getNumberOfProcessors(), "trying to receive from processor %, but there are only % processors available", from,
+                            getNumberOfProcessors());
         if(from == getProcessorID())
         {
             logger(WARN, "getting data from self!");
@@ -272,7 +276,8 @@ public:
     typename std::enable_if<std::is_scalar<T>::value, void>::type
     receive(T& t, int from, int tag)
     {
-        logger.assert(from < getNumberOfProcessors(), "trying from receive from processor %, but there are only % processors available", from, getNumberOfProcessors());
+        logger.assert_debug(from < getNumberOfProcessors(), "trying from receive from processor %, but there are only % processors available", from,
+                            getNumberOfProcessors());
         if(from == getProcessorID())
         {
             logger(WARN, "getting data from self!");
@@ -293,7 +298,8 @@ public:
     typename std::enable_if<std::is_scalar<T>::value, void>::type
     receive(std::complex<T>& t, int from, int tag)
     {
-        logger.assert(from < getNumberOfProcessors(), "trying to receive from processor %, but there are only % processors available", from, getNumberOfProcessors());
+        logger.assert_debug(from < getNumberOfProcessors(), "trying to receive from processor %, but there are only % processors available", from,
+                            getNumberOfProcessors());
         if(from == getProcessorID())
         {
             logger(WARN, "getting data from self!");

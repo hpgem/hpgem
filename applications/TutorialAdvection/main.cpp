@@ -134,7 +134,7 @@ public:
     /// Note that this function can be used to compute time derivatives of the initial conditions, but for the advection equations this does not make sense
     LinearAlgebra::MiddleSizeVector getExactSolution(const PointPhysicalT& point, const double &time, const std::size_t orderTimeDerivative) override final
     {
-        logger.assert(orderTimeDerivative == 0, "No exact solution for order time derivative % implemented");
+        logger.assert_debug(orderTimeDerivative == 0, "No exact solution for order time derivative % implemented");
         LinearAlgebra::MiddleSizeVector result(1);
         result[0] = getSolutionAtTimeZero(point - a * time );
         return result;

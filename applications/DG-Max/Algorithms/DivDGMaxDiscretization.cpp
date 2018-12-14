@@ -84,12 +84,12 @@ void DivDGMaxDiscretization::computeElementIntegrands(
 
         if (initialCondition)
         {
-            logger.assert(false, "Initial condition integration not ported yet.");
+            logger.assert_debug(false, "Initial condition integration not ported yet.");
         }
 
         if (initialConditionDerivative)
         {
-            logger.assert(false, "Initial condition derivative integration not ported yet.");
+            logger.assert_debug(false, "Initial condition derivative integration not ported yet.");
         }
 
         if (sourceTerm)

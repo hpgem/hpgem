@@ -34,7 +34,7 @@ namespace Utilities {
     BasisFunction3DVertexPyramid::BasisFunction3DVertexPyramid(std::size_t node)
         : node_(node)
     {
-        logger.assert(node < 5, "A pyramid only has 5 nodes");
+        logger.assert_debug(node < 5, "A pyramid only has 5 nodes");
     }
 
     double BasisFunction3DVertexPyramid::eval(const Geometry::PointReference<3> &p) const
@@ -134,7 +134,7 @@ namespace Utilities {
 
     Base::BasisFunctionSet* createDGBasisFunctionSet3DH1ConformingPyramid(std::size_t order)
     {
-        logger.assert(order < 2, "Only linear basis functions have been implemented so far");
+        logger.assert_debug(order < 2, "Only linear basis functions have been implemented so far");
         auto result = new Base::BasisFunctionSet(order);
         if(order == 1)
         {
@@ -153,13 +153,13 @@ namespace Utilities {
 
     Base::BasisFunctionSet* createInteriorBasisFunctionSet3DH1ConformingPyramid(std::size_t order)
     {
-        logger.assert(order == 1, "Only linear basis functions have been implemented so far");
+        logger.assert_debug(order == 1, "Only linear basis functions have been implemented so far");
         return new Base::BasisFunctionSet(order);
     }
 
     std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet3DH1ConformingPyramid(std::size_t order)
     {
-        logger.assert(order == 1, "Only linear basis functions have been implemented so far");
+        logger.assert_debug(order == 1, "Only linear basis functions have been implemented so far");
         auto result = std::vector<const Base::BasisFunctionSet*>{};
         for(std::size_t i = 0; i < 5; ++i)
         {
@@ -172,7 +172,7 @@ namespace Utilities {
 
     std::vector<const Base::OrientedBasisFunctionSet*> createEdgeBasisFunctionSet3DH1ConformingPyramid(std::size_t order)
     {
-        logger.assert(order == 1, "Only linear basis functions have been implemented so far");
+        logger.assert_debug(order == 1, "Only linear basis functions have been implemented so far");
         auto result = std::vector<const Base::OrientedBasisFunctionSet*>{};
         for(std::size_t i = 0; i < 8; ++i)
         {
@@ -184,7 +184,7 @@ namespace Utilities {
 
     std::vector<const Base::OrientedBasisFunctionSet*> createFaceBasisFunctionSet3DH1ConformingPyramid(std::size_t order)
     {
-        logger.assert(order == 1, "Only linear basis functions have been implemented so far");
+        logger.assert_debug(order == 1, "Only linear basis functions have been implemented so far");
         auto result = std::vector<const Base::OrientedBasisFunctionSet*>{};
         for(std::size_t i = 0; i < 8; ++i)
         {

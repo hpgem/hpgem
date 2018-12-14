@@ -124,35 +124,35 @@ namespace Utilities
         /// \return The global index of the basis function.
         int getGlobalIndex(const Base::Element* element, std::size_t unknown) const
         {
-            logger.assert(unknown < numberOfUnknowns_, "No such unknown %", unknown);
+            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
             // TODO: Remove the basis function argument from all functions, as we lay them out sequentially.
             const auto basisStart = offsets[unknown].elementOffsets_.find(element->getID());
-            logger.assert(basisStart != offsets[unknown].elementOffsets_.end(),
-                    "No indices known for element %", element->getID());
+            logger.assert_debug(basisStart != offsets[unknown].elementOffsets_.end(),
+                                "No indices known for element %", element->getID());
             return basisStart->second;
         }
         int getGlobalIndex(const Base::Face* face, std::size_t unknown) const
         {
-            logger.assert(unknown < numberOfUnknowns_, "No such unknown %", unknown);
+            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
             const auto basisStart = offsets[unknown].faceOffsets_.find(face->getID());
-            logger.assert(basisStart != offsets[unknown].faceOffsets_.end(),
-                          "No indices known for face %", face->getID());
+            logger.assert_debug(basisStart != offsets[unknown].faceOffsets_.end(),
+                                "No indices known for face %", face->getID());
             return basisStart->second;
         }
         int getGlobalIndex(const Base::Edge* edge, std::size_t unknown) const
         {
-            logger.assert(unknown < numberOfUnknowns_, "No such unknown %", unknown);
+            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
             const auto basisStart = offsets[unknown].edgeOffsets_.find(edge->getID());
-            logger.assert(basisStart != offsets[unknown].edgeOffsets_.end(),
-                          "No indices known for edge %", edge->getID());
+            logger.assert_debug(basisStart != offsets[unknown].edgeOffsets_.end(),
+                                "No indices known for edge %", edge->getID());
             return basisStart->second;
         }
         int getGlobalIndex(const Base::Node* node, std::size_t unknown) const
         {
-            logger.assert(unknown < numberOfUnknowns_, "No such unknown %", unknown);
+            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
             const auto basisStart = offsets[unknown].nodeOffsets_.find(node->getID());
-            logger.assert(basisStart != offsets[unknown].nodeOffsets_.end(),
-                          "No indices known for node %", node->getID());
+            logger.assert_debug(basisStart != offsets[unknown].nodeOffsets_.end(),
+                                "No indices known for node %", node->getID());
             return basisStart->second;
         }
 
@@ -166,39 +166,39 @@ namespace Utilities
         /// given element for the given unknown.
         int getProcessorLocalIndex(const Base::Element *element, std::size_t unknown) const
         {
-            logger.assert(unknown < numberOfUnknowns_, "No such unknown %", unknown);
+            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
             const Offsets& offset = offsets[unknown];
             const auto basisStart = offset.elementOffsets_.find(element->getID());
-            logger.assert(basisStart != offset.elementOffsets_.end(),
-                    "No indices known for element %", element->getID());
+            logger.assert_debug(basisStart != offset.elementOffsets_.end(),
+                                "No indices known for element %", element->getID());
             return basisStart->second - offset.blockStart_ + offset.localOffset_;
         }
 
         int getProcessorLocalIndex(const Base::Face *face, std::size_t unknown) const
         {
-            logger.assert(unknown < numberOfUnknowns_, "No such unknown %", unknown);
+            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
             const Offsets& offset = offsets[unknown];
             const auto basisStart = offset.faceOffsets_.find(face->getID());
-            logger.assert(basisStart != offset.faceOffsets_.end(),
-                          "No indices known for face %", face->getID());
+            logger.assert_debug(basisStart != offset.faceOffsets_.end(),
+                                "No indices known for face %", face->getID());
             return basisStart->second - offset.blockStart_ + offset.localOffset_;
         }
         int getProcessorLocalIndex(const Base::Edge *edge, std::size_t unknown) const
         {
-            logger.assert(unknown < numberOfUnknowns_, "No such unknown %", unknown);
+            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
             const Offsets& offset = offsets[unknown];
             const auto basisStart = offset.edgeOffsets_.find(edge->getID());
-            logger.assert(basisStart != offset.edgeOffsets_.end(),
-                          "No indices known for edge %", edge->getID());
+            logger.assert_debug(basisStart != offset.edgeOffsets_.end(),
+                                "No indices known for edge %", edge->getID());
             return basisStart->second - offset.blockStart_ + offset.localOffset_;
         }
         int getProcessorLocalIndex(const Base::Node *node, std::size_t unknown) const
         {
-            logger.assert(unknown < numberOfUnknowns_, "No such unknown %", unknown);
+            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
             const Offsets& offset = offsets[unknown];
             const auto basisStart = offset.nodeOffsets_.find(node->getID());
-            logger.assert(basisStart != offset.nodeOffsets_.end(),
-                          "No indices known for node %", node->getID());
+            logger.assert_debug(basisStart != offset.nodeOffsets_.end(),
+                                "No indices known for node %", node->getID());
             return basisStart->second - offset.blockStart_ + offset.localOffset_;
         }
 
@@ -221,11 +221,11 @@ namespace Utilities
 
         bool isLocallyOwned(const Base::Element* element, std::size_t unknown) const
         {
-            logger.assert(unknown < numberOfUnknowns_, "No such unknown %", unknown);
+            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
             const Offsets& offset = offsets[unknown];
             const auto basisStart = offset.elementOffsets_.find(element->getID());
-            logger.assert(basisStart != offset.elementOffsets_.end(),
-                          "No indices available for element %", element->getID() );
+            logger.assert_debug(basisStart != offset.elementOffsets_.end(),
+                                "No indices available for element %", element->getID());
             int globalId = basisStart->second;
             return offset.owns(globalId);
         }
@@ -236,33 +236,33 @@ namespace Utilities
             // did. However, this seems a crazy waste of energy as we should be able
             // to determine if a face/edge/node is locally owned or not without all
             // the extra information about the unknown.
-            logger.assert(unknown < numberOfUnknowns_, "No such unknown %", unknown);
+            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
             const Offsets& offset = offsets[unknown];
             const auto basisStart = offset.faceOffsets_.find(face->getID());
-            logger.assert(basisStart != offset.faceOffsets_.end(),
-                    "No indices available for face %", face->getID() );
+            logger.assert_debug(basisStart != offset.faceOffsets_.end(),
+                                "No indices available for face %", face->getID());
             int globalId = basisStart->second;
             return offset.owns(globalId);
         }
 
         bool isLocallyOwned(const Base::Edge* edge, std::size_t unknown) const
         {
-            logger.assert(unknown < numberOfUnknowns_, "No such unknown %", unknown);
+            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
             const Offsets& offset = offsets[unknown];
             const auto basisStart = offset.edgeOffsets_.find(edge->getID());
-            logger.assert(basisStart != offset.edgeOffsets_.end(),
-                          "No indices available for edge %", edge->getID() );
+            logger.assert_debug(basisStart != offset.edgeOffsets_.end(),
+                                "No indices available for edge %", edge->getID());
             int globalId = basisStart->second;
             return offset.owns(globalId);
         }
 
         bool isLocallyOwned(const Base::Node* node, std::size_t unknown) const
         {
-            logger.assert(unknown < numberOfUnknowns_, "No such unknown %", unknown);
+            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
             const Offsets& offset = offsets[unknown];
             const auto basisStart = offset.nodeOffsets_.find(node->getID());
-            logger.assert(basisStart != offset.nodeOffsets_.end(),
-                          "No indices available for node %", node->getID() );
+            logger.assert_debug(basisStart != offset.nodeOffsets_.end(),
+                                "No indices available for node %", node->getID());
             int globalId = basisStart->second;
             return offset.owns(globalId);
         }

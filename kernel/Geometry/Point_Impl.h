@@ -143,7 +143,7 @@ namespace Geometry
     template<std::size_t DIM>
     double Point<DIM>::getCoordinate(std::size_t n) const
     {
-        logger.assert(n < size(), "In Point::getCoordinate, entry % is requested while the dimension is %", n, size());
+        logger.assert_debug(n < size(), "In Point::getCoordinate, entry % is requested while the dimension is %", n, size());
         return coordinates_[n];
     }
 
@@ -157,7 +157,7 @@ namespace Geometry
     template<std::size_t DIM>
     void Point<DIM>::setCoordinate(std::size_t n, const double& coord)
     {
-        logger.assert(n < size(), "In Point::setCoordinate, trying to set entry % while the dimension is %", n, size());
+        logger.assert_debug(n < size(), "In Point::setCoordinate, trying to set entry % while the dimension is %", n, size());
         coordinates_[n] = coord;
     }
 
@@ -170,14 +170,14 @@ namespace Geometry
     template<std::size_t DIM>
     double& Point<DIM>::operator [](std::size_t n)
     { 
-        logger.assert(n < size(), "In Point::operator[], entry % is requested while the dimension is %", n, size());
+        logger.assert_debug(n < size(), "In Point::operator[], entry % is requested while the dimension is %", n, size());
         return coordinates_[n];
     }
 
     template<std::size_t DIM>
     const double& Point<DIM>::operator [](std::size_t n) const
     {
-        logger.assert(n < size(), "In Point::operator[] const, entry % is requested while the dimension is %", n, size());
+        logger.assert_debug(n < size(), "In Point::operator[] const, entry % is requested while the dimension is %", n, size());
         return coordinates_[n];
     }
 

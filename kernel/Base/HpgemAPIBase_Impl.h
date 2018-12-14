@@ -89,7 +89,9 @@ namespace Base
         {
             for (Base::Element *ptrElement : it.second)
             {
-                logger.assert(ptrElement->getTimeIntegrationVector(timeIntegrationVectorId).size() == ptrElement->getTotalNumberOfBasisFunctions() , "Size of time integration vector % is wrong: % instead of %.", timeIntegrationVectorId, ptrElement->getTimeIntegrationVector(timeIntegrationVectorId).size(), ptrElement->getTotalNumberOfBasisFunctions());
+                logger.assert_debug(ptrElement->getTimeIntegrationVector(timeIntegrationVectorId).size() == ptrElement->getTotalNumberOfBasisFunctions(),
+                                    "Size of time integration vector % is wrong: % instead of %.", timeIntegrationVectorId,
+                                    ptrElement->getTimeIntegrationVector(timeIntegrationVectorId).size(), ptrElement->getTotalNumberOfBasisFunctions());
 
                 Base::MPIContainer::Instance().receive(ptrElement->getTimeIntegrationVector(timeIntegrationVectorId), it.first, ptrElement->getID());
             }
@@ -98,7 +100,9 @@ namespace Base
         {
             for (Base::Element *ptrElement : it.second)
             {
-                logger.assert(ptrElement->getTimeIntegrationVector(timeIntegrationVectorId).size() == ptrElement->getTotalNumberOfBasisFunctions(), "Size of time integration vector % is wrong: % instead of %.", timeIntegrationVectorId, ptrElement->getTimeIntegrationVector(timeIntegrationVectorId).size(), ptrElement->getTotalNumberOfBasisFunctions());
+                logger.assert_debug(ptrElement->getTimeIntegrationVector(timeIntegrationVectorId).size() == ptrElement->getTotalNumberOfBasisFunctions(),
+                                    "Size of time integration vector % is wrong: % instead of %.", timeIntegrationVectorId,
+                                    ptrElement->getTimeIntegrationVector(timeIntegrationVectorId).size(), ptrElement->getTotalNumberOfBasisFunctions());
 
                 Base::MPIContainer::Instance().send(ptrElement->getTimeIntegrationVector(timeIntegrationVectorId), it.first, ptrElement->getID());
             }
