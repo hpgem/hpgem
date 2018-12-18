@@ -30,8 +30,6 @@
 #include "libqhullcpp/QhullVertex.h"
 #include "libqhullcpp/QhullVertexSet.h"
 #include "libqhullcpp/Qhull.h"
-//QHull uses assert_debug internally, but the macro definition causes conflicts with the rest of hpGEM
-#undef assert_debug
 #endif
 
 #include "MeshManipulator.h"
