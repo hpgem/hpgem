@@ -86,7 +86,7 @@ public:
                                                    Base::BoundaryType::PERIODIC, Base::BoundaryType::PERIODIC, getConfigData()->polynomialOrder_, 0, 2, 3, 1, 1);
         mesh->readCentaurMesh(fileName);
         addMesh(mesh);
-        for (Base::MeshManipulator<DIM>::ElementIterator it = mesh->elementColBegin(); it != mesh->elementColEnd(); ++it)
+        for (Base::MeshManipulator<DIM>::ElementIterator it = mesh->elementColBegin(Base::IteratorType::GLOBAL); it != mesh->elementColEnd(Base::IteratorType::GLOBAL); ++it)
         {
             (*it)->setUserData(new ElementInfos(**it));
         }

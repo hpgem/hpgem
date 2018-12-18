@@ -416,7 +416,13 @@ std::vector<Base::Face*> DivDGMaxEigenValue::findPeriodicBoundaryFaces() const
         // the mesh (for example, one on the top and the other on the bottom).
         // As this should be zero for internal faces and of the size of the mesh
         // for boundary faces, we can use a very sloppy bound.
-        if (Base::L2Norm(boundaryFaceShift(*it)) > 1e-3)
+
+        // FIXME: The parallel meshes from the preprocessor contain 'boundary
+        //  faces' for the ghost cells. These cells are probably there because
+        //  the other side of the face is on the inside of the neighbouring
+        //  domain, which is an element that is not known to 'this' processor.
+        //  Note, the same hack is used in DGMaxEigenvalue
+        if ((*it)->isInternal() && Base::L2Norm(boundaryFaceShift(*it)) > 1e-3)
         {
             result.emplace_back(*it);
         }
