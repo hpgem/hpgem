@@ -148,7 +148,7 @@ namespace Preprocessor {
         std::vector<MeshEntity<(d<0?d+gridDimension:d), gridDimension>> getIncidenceList() const;
 
         template<int d>
-        stackVector<std::size_t> getIncidenceListAsIndices() const;
+        std::vector<std::size_t> getIncidenceListAsIndices() const;
 
         template<int d>
         std::size_t getNumberOfIncidentEntities() const {
@@ -177,8 +177,8 @@ namespace Preprocessor {
 
         Mesh<gridDimension>* mesh;
         std::size_t entityID = std::numeric_limits<std::size_t>::max();
-        stackVector<std::size_t, Detail::exp2(dimension)> elementIDs;
-        stackVector<std::size_t, Detail::exp2(dimension)> localIDs;
+        std::vector<std::size_t> elementIDs;
+        std::vector<std::size_t> localIDs;
     };
 
     /**
@@ -229,7 +229,7 @@ namespace Preprocessor {
         std::vector<MeshEntity<(d<0?d+dimension:d), dimension>> getIncidenceList(const MeshEntity<entityDimension, dimension>& entity) const;
 
         template<int d, std::size_t entityDimension>
-        stackVector<std::size_t> getIncidenceListAsIndices(const MeshEntity<entityDimension, dimension>& entity) const;
+        std::vector<std::size_t> getIncidenceListAsIndices(const MeshEntity<entityDimension, dimension>& entity) const;
 
     private:
         friend Mesh<dimension>;

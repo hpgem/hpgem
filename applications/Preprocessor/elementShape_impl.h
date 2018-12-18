@@ -69,21 +69,21 @@ auto Preprocessor::ElementShape<dimension>::getBoundaryShape(std::size_t entityI
 
 template<std::size_t dimension>
 template<int entityDimension, int targetDimension>
-std::enable_if_t<(entityDimension < 0), Preprocessor::stackVector<std::size_t>> Preprocessor::ElementShape<dimension>::getAdjacentEntities(std::size_t entityIndex) const {
+std::enable_if_t<(entityDimension < 0), std::vector<std::size_t>> Preprocessor::ElementShape<dimension>::getAdjacentEntities(std::size_t entityIndex) const {
     logger.assert_debug(entityDimension + dimension >= 0, "This shape is not bounded by shapes of dimension %", entityDimension + dimension);
     return getAdjacentEntities<entityDimension + dimension, targetDimension>(entityIndex);
 }
 
 template<std::size_t dimension>
 template<int entityDimension, int targetDimension>
-std::enable_if_t<(targetDimension < 0 && entityDimension >= 0), Preprocessor::stackVector<std::size_t>> Preprocessor::ElementShape<dimension>::getAdjacentEntities(std::size_t entityIndex) const {
+std::enable_if_t<(targetDimension < 0 && entityDimension >= 0), std::vector<std::size_t>> Preprocessor::ElementShape<dimension>::getAdjacentEntities(std::size_t entityIndex) const {
     if(targetDimension + dimension < 0) return {};
     return getAdjacentEntities<entityDimension, targetDimension + dimension>(entityIndex);
 }
 
 template<std::size_t dimension>
 template<int entityDimension, int targetDimension>
-std::enable_if_t<(entityDimension >= 0 && targetDimension >= 0 && (entityDimension >= dimension || targetDimension >= dimension)), Preprocessor::stackVector<std::size_t>> Preprocessor::ElementShape<dimension>::getAdjacentEntities(std::size_t entityIndex) const {
+std::enable_if_t<(entityDimension >= 0 && targetDimension >= 0 && (entityDimension >= dimension || targetDimension >= dimension)), std::vector<std::size_t>> Preprocessor::ElementShape<dimension>::getAdjacentEntities(std::size_t entityIndex) const {
     logger.assert_debug(entityDimension <= dimension, "This shape is not bounded by shapes of dimension %", entityDimension + dimension);
     logger
     .assert_debug(entityIndex < getNumberOfEntities<entityDimension>(), "This shape is bounded by only % shapes of dimension %, but you asked for shape %",
@@ -91,14 +91,14 @@ std::enable_if_t<(entityDimension >= 0 && targetDimension >= 0 && (entityDimensi
     if(targetDimension > dimension) return {};
     if(targetDimension == dimension) return {0};
     std::size_t amount = getNumberOfEntities<targetDimension>();
-    stackVector<std::size_t> result(amount);
+    std::vector<std::size_t> result(amount);
     std::iota(result.begin(), result.end(), 0);
     return result;
 }
 
 template<std::size_t dimension>
 template<int entityDimension, int targetDimension>
-std::enable_if_t<(entityDimension >= 0 && entityDimension < dimension && targetDimension >= 0 && targetDimension < dimension), Preprocessor::stackVector<std::size_t>>
+std::enable_if_t<(entityDimension >= 0 && entityDimension < dimension && targetDimension >= 0 && targetDimension < dimension), std::vector<std::size_t>>
 Preprocessor::ElementShape<dimension>::getAdjacentEntities(std::size_t entityIndex) const {
     logger
     .assert_debug(entityIndex < getNumberOfEntities<entityDimension>(), "This shape is bounded by only % shapes of dimension %, but you asked for shape %",
@@ -109,10 +109,10 @@ Preprocessor::ElementShape<dimension>::getAdjacentEntities(std::size_t entityInd
 
 template<std::size_t dimension>
 template<std::size_t d, std::size_t shapeDimension>
-bool Preprocessor::ElementShape<dimension>::checkSingleShape(const ElementShape<shapeDimension>* boundingShape, stackVector<std::size_t> boundaryNodes, std::size_t currentIndex, tag<d>) const {
+bool Preprocessor::ElementShape<dimension>::checkSingleShape(const ElementShape<shapeDimension>* boundingShape, std::vector<std::size_t> boundaryNodes, std::size_t currentIndex, tag<d>) const {
     for(std::size_t i = 0; i < boundingShape->template getNumberOfEntities<d>(); ++i) {
         auto localNodes = boundingShape->template getAdjacentEntities<d, 0>(i);
-        stackVector<std::size_t> cellNodes(localNodes.size());
+        std::vector<std::size_t> cellNodes(localNodes.size());
         for(std::size_t j = 0; j < localNodes.size(); ++j) {
             cellNodes[j] = boundaryNodes[localNodes[j]];
         }
@@ -140,10 +140,10 @@ bool Preprocessor::ElementShape<dimension>::checkSingleShape(const ElementShape<
 
 template<std::size_t dimension>
 template<std::size_t shapeDimension>
-bool Preprocessor::ElementShape<dimension>::checkSingleShape(const ElementShape <shapeDimension>* boundingShape, stackVector <std::size_t> boundaryNodes, std::size_t currentIndex, tag <0>) const {
+bool Preprocessor::ElementShape<dimension>::checkSingleShape(const ElementShape <shapeDimension>* boundingShape, std::vector <std::size_t> boundaryNodes, std::size_t currentIndex, tag <0>) const {
     for(std::size_t i = 0; i < boundingShape->template getNumberOfEntities<0>(); ++i) {
         auto localNodes = boundingShape->template getAdjacentEntities<0, 0>(i);
-        stackVector<std::size_t> cellNodes(localNodes.size());
+        std::vector<std::size_t> cellNodes(localNodes.size());
         for(std::size_t j = 0; j < localNodes.size(); ++j) {
             cellNodes[j] = boundaryNodes[localNodes[j]];
         }
@@ -227,16 +227,16 @@ void Preprocessor::ElementShape<dimension>::completeSubShapes(tag<entityDimensio
     shapeData.template getAdjacentShapes<entityDimension>()[targetDimension].resize(getNumberOfEntities<entityDimension>());
     for(std::size_t entityIndex = 0; entityIndex < getNumberOfEntities<entityDimension>(); ++entityIndex) {
         if(targetDimension < entityDimension) {
-            stackVector <std::size_t> result;
+            std::vector <std::size_t> result;
             //if the shape is topologically consistent the ordering of the nodes does not matter
             //example: a square has 4 nodes, so it has 6 pairs of nodes; 4 of which correspond to edges and the other 2
             //are diagonals. Since the edges of a cube always are the edges of their bounding squares and never a diagonal
             //we just need to check if an edge of the cube has both bounding nodes as bounding nodes of the square
             //and we don't have to check if they are diagonally across from eachother
-            stackVector <std::size_t> adjacentNodes = getAdjacentEntities<entityDimension, 0>(entityIndex);
+            std::vector <std::size_t> adjacentNodes = getAdjacentEntities<entityDimension, 0>(entityIndex);
             std::sort(adjacentNodes.begin(), adjacentNodes.end());
             const auto& candidates = shapeData.template getAdjacentShapes<targetDimension>()[0];
-            stackVector <std::size_t> candidate;
+            std::vector <std::size_t> candidate;
             for(std::size_t i = 0; i < candidates.size(); ++i) {
                 candidate = candidates[i];
                 std::sort(candidate.begin(), candidate.end());
@@ -250,11 +250,11 @@ void Preprocessor::ElementShape<dimension>::completeSubShapes(tag<entityDimensio
             shapeData.template getAdjacentShapes<entityDimension>()[targetDimension][entityIndex] = {entityIndex};
         }
         if(targetDimension > entityDimension) {
-            stackVector <std::size_t> result;
-            stackVector <std::size_t> adjacentNodes = getAdjacentEntities<entityDimension, 0>(entityIndex);
+            std::vector <std::size_t> result;
+            std::vector <std::size_t> adjacentNodes = getAdjacentEntities<entityDimension, 0>(entityIndex);
             std::sort(adjacentNodes.begin(), adjacentNodes.end());
             const auto& candidates = shapeData.template getAdjacentShapes<targetDimension>()[0];
-            stackVector <std::size_t> candidate;
+            std::vector <std::size_t> candidate;
             for(std::size_t i = 0; i < candidates.size(); ++i) {
                 candidate = candidates[i];
                 std::sort(candidate.begin(), candidate.end());

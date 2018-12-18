@@ -37,7 +37,7 @@ namespace Preprocessor {
         template<std::size_t entityDimension, std::size_t dimension>
         struct EntityData: public EntityData<entityDimension - 1, dimension> {
             template<typename... superArgs>
-            EntityData(std::vector<stackVector<std::size_t>> adjacentNodes,
+            EntityData(std::vector<std::vector<std::size_t>> adjacentNodes,
                        std::vector<const ElementShape<entityDimension>*> entityShapes, superArgs... args) :
                        EntityData<entityDimension - 1, dimension>(args...), adjacentShapes(), entityShapes(entityShapes) {
                 adjacentShapes[0] = adjacentNodes;
@@ -55,9 +55,9 @@ namespace Preprocessor {
 
             EntityData& operator=(EntityData&&) noexcept = default;
 
-            std::array<std::vector<stackVector<std::size_t>>, dimension> adjacentShapes;
+            std::array<std::vector<std::vector<std::size_t>>, dimension> adjacentShapes;
             std::vector<const ElementShape<entityDimension>*> entityShapes;
-            
+
             template<std::size_t SUB_DIM>
             std::vector<const ElementShape<SUB_DIM>*>& getEntityShapes()
             {
@@ -71,13 +71,13 @@ namespace Preprocessor {
             }
 
             template<std::size_t SUB_DIM>
-            std::array<std::vector<stackVector<std::size_t>>, dimension>& getAdjacentShapes()
+            std::array<std::vector<std::vector<std::size_t>>, dimension>& getAdjacentShapes()
             {
                 return this->EntityData<SUB_DIM, dimension>::adjacentShapes;
             }
 
             template<std::size_t SUB_DIM>
-            const std::array<std::vector<stackVector<std::size_t>>, dimension>& getAdjacentShapes() const
+            const std::array<std::vector<std::vector<std::size_t>>, dimension>& getAdjacentShapes() const
             {
                 return EntityData<SUB_DIM, dimension>::adjacentShapes;
             }
@@ -85,7 +85,7 @@ namespace Preprocessor {
 
         template<std::size_t dimension>
         struct EntityData<0, dimension> {
-            EntityData(std::vector<stackVector<std::size_t>> adjacentNodes,
+            EntityData(std::vector<std::vector<std::size_t>> adjacentNodes,
                        std::vector<const ElementShape<0>*> entityShapes):
                        adjacentShapes(), entityShapes(entityShapes) {
                 adjacentShapes[0] = adjacentNodes;
@@ -103,7 +103,7 @@ namespace Preprocessor {
 
             EntityData& operator=(EntityData&&) noexcept = default;
 
-            std::array<std::vector<stackVector<std::size_t>>, dimension> adjacentShapes;
+            std::array<std::vector<std::vector<std::size_t>>, dimension> adjacentShapes;
             std::vector<const ElementShape<0>*> entityShapes;
 
             template<std::size_t SUB_DIM>
@@ -113,7 +113,7 @@ namespace Preprocessor {
             }
 
             template<std::size_t SUB_DIM>
-            std::array<std::vector<stackVector<std::size_t>>, dimension>& getAdjacentShapes()
+            std::array<std::vector<std::vector<std::size_t>>, dimension>& getAdjacentShapes()
             {
                 return this->EntityData<SUB_DIM, dimension>::adjacentShapes;
             }
@@ -125,7 +125,7 @@ namespace Preprocessor {
             }
 
             template<std::size_t SUB_DIM>
-            const std::array<std::vector<stackVector<std::size_t>>, dimension>& getAdjacentShapes() const
+            const std::array<std::vector<std::vector<std::size_t>>, dimension>& getAdjacentShapes() const
             {
                 return this->EntityData<SUB_DIM, dimension>::adjacentShapes;
             }
@@ -180,7 +180,7 @@ namespace Preprocessor {
         }
 
         template<int entityDimension>
-        stackVector<std::size_t> getNodesOfEntity(std::size_t entityIndex) const {
+        std::vector<std::size_t> getNodesOfEntity(std::size_t entityIndex) const {
             return getAdjacentEntities<entityDimension, 0>(entityIndex);
         }
 
@@ -206,16 +206,16 @@ namespace Preprocessor {
          * negative, it will be taken with respect to the full shape
          */
         template<int entityDimension, int targetDimension>
-        std::enable_if_t<(entityDimension < 0), stackVector<std::size_t>> getAdjacentEntities(std::size_t entityIndex) const;
+        std::enable_if_t<(entityDimension < 0), std::vector<std::size_t>> getAdjacentEntities(std::size_t entityIndex) const;
         template<int entityDimension, int targetDimension>
-        std::enable_if_t<(targetDimension < 0 && entityDimension >= 0), stackVector<std::size_t>> getAdjacentEntities(std::size_t entityIndex) const;
+        std::enable_if_t<(targetDimension < 0 && entityDimension >= 0), std::vector<std::size_t>> getAdjacentEntities(std::size_t entityIndex) const;
 
         template<int entityDimension, int targetDimension>
-        std::enable_if_t<(entityDimension >= 0 && targetDimension >= 0 && (entityDimension >= dimension || targetDimension >= dimension)), stackVector<std::size_t>>
+        std::enable_if_t<(entityDimension >= 0 && targetDimension >= 0 && (entityDimension >= dimension || targetDimension >= dimension)), std::vector<std::size_t>>
         getAdjacentEntities(std::size_t entityIndex) const;
 
         template<int entityDimension, int targetDimension>
-        std::enable_if_t<(entityDimension >= 0 && entityDimension < dimension && targetDimension >= 0 && targetDimension < dimension), stackVector<std::size_t>>
+        std::enable_if_t<(entityDimension >= 0 && entityDimension < dimension && targetDimension >= 0 && targetDimension < dimension), std::vector<std::size_t>>
         getAdjacentEntities(std::size_t entityIndex) const;
 
         bool checkShape() const {
@@ -225,10 +225,10 @@ namespace Preprocessor {
     private:
 
         template<std::size_t d, std::size_t shapeDimension>
-        bool checkSingleShape(const ElementShape<shapeDimension>* boundingShape, stackVector<std::size_t> boundaryNodes, std::size_t currentIndex, tag<d>) const;
+        bool checkSingleShape(const ElementShape<shapeDimension>* boundingShape, std::vector<std::size_t> boundaryNodes, std::size_t currentIndex, tag<d>) const;
 
         template<std::size_t shapeDimension>
-        bool checkSingleShape(const ElementShape<shapeDimension>* boundingShape, stackVector<std::size_t> boundaryNodes, std::size_t currentIndex, tag<0>) const;
+        bool checkSingleShape(const ElementShape<shapeDimension>* boundingShape, std::vector<std::size_t> boundaryNodes, std::size_t currentIndex, tag<0>) const;
 
         template<std::size_t d>
         bool checkBoundaryShape(tag<d>) const;
@@ -286,7 +286,7 @@ namespace Preprocessor {
         }
 
         template<int entityDimension>
-        stackVector<std::size_t> getNodesOfEntity(std::size_t entityIndex) const {
+        std::vector<std::size_t> getNodesOfEntity(std::size_t entityIndex) const {
             return getAdjacentEntities<entityDimension, 0>(entityIndex);
         }
 
@@ -310,7 +310,7 @@ namespace Preprocessor {
          * negative, it will be taken with respect to the full shape
          */
         template<int entityDimension, int targetDimension>
-        stackVector<std::size_t> getAdjacentEntities(std::size_t entityIndex) const {
+        std::vector<std::size_t> getAdjacentEntities(std::size_t entityIndex) const {
             logger.assert_debug(entityDimension == 0, "A point is not bounded by shapes of other dimensions");
             logger.assert_debug(entityIndex == 0, "A point consists of only 1 shape, but you asked for shape %", entityIndex);
             if(targetDimension == 0) return {0}; else return {};
@@ -325,23 +325,23 @@ namespace Preprocessor {
     //note when debugging new shapes: invoking the logger during static initialisation can be a bit messy
     //so you may need to use a debugger to see the error message
     const ElementShape<0> point{};
-    const ElementShape<1> line(std::vector<stackVector<std::size_t>>{{0}, {1}}, std::vector<const ElementShape<0>*>{&point, &point});
-    const ElementShape<2> triangle(std::vector<stackVector<std::size_t>>{{0, 1}, {0, 2}, {1, 2}}, std::vector<const ElementShape<1>*>{&line, &line, &line},
-                                   std::vector<stackVector<std::size_t>>{{0}, {1}, {2}}, std::vector<const ElementShape<0>*>{&point, &point, &point});
-    const ElementShape<2> square(std::vector<stackVector<std::size_t>>{{0, 1}, {0, 2}, {1, 3}, {2, 3}}, std::vector<const ElementShape<1>*>{&line, &line, &line, &line},
-                                 std::vector<stackVector<std::size_t>>{{0}, {1}, {2}, {3}}, std::vector<const ElementShape<0>*>{&point, &point, &point, &point});
-    const ElementShape<3> tetrahedron(std::vector<stackVector<std::size_t>>{{0, 3, 2}, {0, 1, 3}, {0, 2, 1}, {1, 2, 3}}, std::vector<const ElementShape<2>*>{&triangle, &triangle, &triangle, &triangle},
-                                      std::vector<stackVector<std::size_t>>{{0, 1}, {0, 2}, {0, 3}, {2, 3}, {1, 3}, {1, 2}}, std::vector<const ElementShape<1>*>{&line, &line, &line, &line, &line, &line},
-                                      std::vector<stackVector<std::size_t>>{{0}, {1}, {2}, {3}}, std::vector<const ElementShape<0>*>{&point, &point, &point, &point});
-    const ElementShape<3> cube(std::vector<stackVector<std::size_t>>{{0, 1, 2, 3}, {0, 1, 4, 5}, {0, 2, 4, 6}, {1, 3, 5, 7}, {2, 3, 6, 7}, {4, 5, 6, 7}}, std::vector<const ElementShape<2>*>{&square, &square, &square, &square, &square, &square},
-                               std::vector<stackVector<std::size_t>>{{0, 1}, {2, 3}, {4, 5}, {6, 7}, {0, 2}, {1, 3}, {4, 6}, {5, 7}, {0, 4}, {1, 5}, {2, 6}, {3, 7}}, std::vector<const ElementShape<1>*>{&line, &line, &line, &line, &line, &line, &line, &line, &line, &line, &line, &line},
-                               std::vector<stackVector<std::size_t>>{{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}}, std::vector<const ElementShape<0>*>{&point, &point, &point, &point, &point, &point, &point, &point});
-    const ElementShape<3> triangularPrism(std::vector<stackVector<std::size_t>>{{0, 2, 1}, {3, 4, 5}, {2, 0, 5, 3}, {0, 1, 3, 4}, {1, 2, 4, 5}}, std::vector<const ElementShape<2>*>{&triangle, &triangle, &square, &square, &square},
-                                          std::vector<stackVector<std::size_t>>{{0, 1}, {0, 2}, {1, 2}, {3, 4}, {3, 5}, {4, 5}, {0, 3}, {1, 4}, {2, 5}}, std::vector<const ElementShape<1>*>{&line, &line, &line, &line, &line, &line, &line, &line, &line},
-                                          std::vector<stackVector<std::size_t>>{{0}, {1}, {2}, {3}, {4}, {5}}, std::vector<const ElementShape<0>*>{&point, &point, &point, &point, &point, &point});
-    const ElementShape<3> pyramid(std::vector<stackVector<std::size_t>>{{3, 4, 1, 2}, {3, 1, 0}, {2, 4, 0}, {1, 2, 0}, {4, 3, 0}}, std::vector<const ElementShape<2>*>{&square, &triangle, &triangle, &triangle, &triangle},
-                                  std::vector<stackVector<std::size_t>>{{0, 1}, {0, 2}, {0, 3}, {0, 4}, {1, 2}, {2, 4}, {4, 3}, {3, 1}}, std::vector<const ElementShape<1>*>{&line, &line, &line, &line, &line, &line, &line, &line},
-                                  std::vector<stackVector<std::size_t>>{{0}, {1}, {2}, {3}, {4}}, std::vector<const ElementShape<0>*>{&point, &point, &point, &point, &point});
+    const ElementShape<1> line(std::vector<std::vector<std::size_t>>{{0}, {1}}, std::vector<const ElementShape<0>*>{&point, &point});
+    const ElementShape<2> triangle(std::vector<std::vector<std::size_t>>{{0, 1}, {0, 2}, {1, 2}}, std::vector<const ElementShape<1>*>{&line, &line, &line},
+                                   std::vector<std::vector<std::size_t>>{{0}, {1}, {2}}, std::vector<const ElementShape<0>*>{&point, &point, &point});
+    const ElementShape<2> square(std::vector<std::vector<std::size_t>>{{0, 1}, {0, 2}, {1, 3}, {2, 3}}, std::vector<const ElementShape<1>*>{&line, &line, &line, &line},
+                                 std::vector<std::vector<std::size_t>>{{0}, {1}, {2}, {3}}, std::vector<const ElementShape<0>*>{&point, &point, &point, &point});
+    const ElementShape<3> tetrahedron(std::vector<std::vector<std::size_t>>{{0, 3, 2}, {0, 1, 3}, {0, 2, 1}, {1, 2, 3}}, std::vector<const ElementShape<2>*>{&triangle, &triangle, &triangle, &triangle},
+                                      std::vector<std::vector<std::size_t>>{{0, 1}, {0, 2}, {0, 3}, {2, 3}, {1, 3}, {1, 2}}, std::vector<const ElementShape<1>*>{&line, &line, &line, &line, &line, &line},
+                                      std::vector<std::vector<std::size_t>>{{0}, {1}, {2}, {3}}, std::vector<const ElementShape<0>*>{&point, &point, &point, &point});
+    const ElementShape<3> cube(std::vector<std::vector<std::size_t>>{{0, 1, 2, 3}, {0, 1, 4, 5}, {0, 2, 4, 6}, {1, 3, 5, 7}, {2, 3, 6, 7}, {4, 5, 6, 7}}, std::vector<const ElementShape<2>*>{&square, &square, &square, &square, &square, &square},
+                               std::vector<std::vector<std::size_t>>{{0, 1}, {2, 3}, {4, 5}, {6, 7}, {0, 2}, {1, 3}, {4, 6}, {5, 7}, {0, 4}, {1, 5}, {2, 6}, {3, 7}}, std::vector<const ElementShape<1>*>{&line, &line, &line, &line, &line, &line, &line, &line, &line, &line, &line, &line},
+                               std::vector<std::vector<std::size_t>>{{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}}, std::vector<const ElementShape<0>*>{&point, &point, &point, &point, &point, &point, &point, &point});
+    const ElementShape<3> triangularPrism(std::vector<std::vector<std::size_t>>{{0, 2, 1}, {3, 4, 5}, {2, 0, 5, 3}, {0, 1, 3, 4}, {1, 2, 4, 5}}, std::vector<const ElementShape<2>*>{&triangle, &triangle, &square, &square, &square},
+                                          std::vector<std::vector<std::size_t>>{{0, 1}, {0, 2}, {1, 2}, {3, 4}, {3, 5}, {4, 5}, {0, 3}, {1, 4}, {2, 5}}, std::vector<const ElementShape<1>*>{&line, &line, &line, &line, &line, &line, &line, &line, &line},
+                                          std::vector<std::vector<std::size_t>>{{0}, {1}, {2}, {3}, {4}, {5}}, std::vector<const ElementShape<0>*>{&point, &point, &point, &point, &point, &point});
+    const ElementShape<3> pyramid(std::vector<std::vector<std::size_t>>{{3, 4, 1, 2}, {3, 1, 0}, {2, 4, 0}, {1, 2, 0}, {4, 3, 0}}, std::vector<const ElementShape<2>*>{&square, &triangle, &triangle, &triangle, &triangle},
+                                  std::vector<std::vector<std::size_t>>{{0, 1}, {0, 2}, {0, 3}, {0, 4}, {1, 2}, {2, 4}, {4, 3}, {3, 1}}, std::vector<const ElementShape<1>*>{&line, &line, &line, &line, &line, &line, &line, &line},
+                                  std::vector<std::vector<std::size_t>>{{0}, {1}, {2}, {3}, {4}}, std::vector<const ElementShape<0>*>{&point, &point, &point, &point, &point});
 
     template<std::size_t dimension>
     const std::vector<const ElementShape<dimension>*> defaultShapes;

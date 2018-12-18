@@ -84,7 +84,7 @@ namespace Preprocessor {
 
     template<std::size_t dimension, std::size_t gridDimension>
     template<int d>
-    stackVector<std::size_t> MeshEntity<dimension, gridDimension>::getIncidenceListAsIndices() const {
+    std::vector<std::size_t> MeshEntity<dimension, gridDimension>::getIncidenceListAsIndices() const {
         static_assert(d + dimension >= 0, "The codimension you are interested in is too high for the dimension of this object");
         if(d < 0) {
             return getIncidenceListAsIndices<(d<0?d+gridDimension:d)>();
@@ -92,15 +92,15 @@ namespace Preprocessor {
         if(d == dimension) {
             return {getGlobalIndex()};
         } else if(d == gridDimension) {
-            return stackVector<std::size_t>(elementIDs.begin(), elementIDs.end());
+            return std::vector<std::size_t>(elementIDs.begin(), elementIDs.end());
         } else if(d < dimension) {
             //easy case: all adjacent entities of this dimension are adjacent to all adjacent elements
             return getElement(0).template getIncidenceListAsIndices<d>(*this);
         } else {
-            stackVector<std::size_t> result;
+            std::vector<std::size_t> result;
             for(auto elementID : elementIDs) {
                 const auto& element = mesh->getElement(elementID);
-                stackVector<std::size_t> newEntries = element.template getIncidenceListAsIndices<d>(*this);
+                std::vector<std::size_t> newEntries = element.template getIncidenceListAsIndices<d>(*this);
                 result.insert(result.end(), newEntries.begin(), newEntries.end());
             }
             std::sort(result.begin(), result.end());
@@ -175,11 +175,11 @@ namespace Preprocessor {
 
     template<std::size_t dimension>
     template<int d, std::size_t entityDimension>
-    stackVector<std::size_t> Element<dimension>::getIncidenceListAsIndices(const MeshEntity<entityDimension, dimension>& entity) const {
+    std::vector<std::size_t> Element<dimension>::getIncidenceListAsIndices(const MeshEntity<entityDimension, dimension>& entity) const {
         static_assert(d + dimension >= 0, "The requested codimension is too high for the dimension of this element");
         constexpr std::size_t actualDimension = (d<0?d+dimension:d);
         if(incidenceLists[actualDimension].size() < referenceGeometry->template getNumberOfEntities<actualDimension>()) return {};
-        stackVector<std::size_t> result = referenceGeometry->template getAdjacentEntities<entityDimension, actualDimension>(entity.getLocalIndex(*this));
+        std::vector<std::size_t> result = referenceGeometry->template getAdjacentEntities<entityDimension, actualDimension>(entity.getLocalIndex(*this));
         for(auto& index : result) {
             index = incidenceLists[actualDimension][index];
         }
@@ -335,7 +335,7 @@ namespace Preprocessor {
     template<std::size_t dimension>
     template<std::size_t d>
     void Mesh<dimension>::fixEntity(Element<dimension>& element, std::size_t index) {
-        stackVector<std::size_t> localNodeIndices = element.referenceGeometry->template getAdjacentEntities<d, 0>(index);
+        std::vector<std::size_t> localNodeIndices = element.referenceGeometry->template getAdjacentEntities<d, 0>(index);
         for(auto& nodeIndex : localNodeIndices) {
             nodeIndex = element.template getIncidentEntity<0>(nodeIndex).getGlobalIndex();
         }
@@ -344,7 +344,7 @@ namespace Preprocessor {
         for(std::size_t i = 1; i < localNodeIndices.size(); ++i) {
             auto newElements = getNodes()[localNodeIndices[i]].template getIncidenceListAsIndices<d>();
             std::sort(newElements.begin(), newElements.end());
-            stackVector<std::size_t> temp;
+            std::vector<std::size_t> temp;
             temp.reserve(std::max(candidates.size(), newElements.size()));
             std::set_intersection(candidates.begin(), candidates.end(), newElements.begin(), newElements.end(), std::back_inserter(temp));
             candidates = std::move(temp);

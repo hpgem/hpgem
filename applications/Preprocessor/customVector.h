@@ -37,6 +37,9 @@ namespace Preprocessor {
      * @tparam T value type to be stored. T should not manage a limited resource
      * @tparam N number of values that should be storable internally
      * if the size of the vector regularly crosses the in-place threshold performance will degrade
+     *
+     * Note, currently unused (and replaced by std::vector) as the iterator does not compile with
+     * gcc.
      */
     template<typename T, std::size_t N = 8>
     class stackVector {

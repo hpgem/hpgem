@@ -354,6 +354,12 @@ namespace Preprocessor {
         return range.end();
     }
 
+    /// An union of iterators that have the same element type.
+    ///
+    /// Unfortunately the move constructor and move-assignment operator give
+    /// errors in gcc, therefore it is not currently used.
+    /// \tparam T The element type
+    /// \tparam Iterators The types of the iterators
     template<typename T, typename... Iterators>
     class hybridIterator {
         template<std::size_t I, typename... Ts>
