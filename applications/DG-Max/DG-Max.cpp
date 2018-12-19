@@ -80,11 +80,11 @@ public:
         addMesh(mesh);
     }
     
-    void createCentaurMesh(std::string fileName)
+    void readMesh(std::string fileName)
     {
         auto mesh = new Base::MeshManipulator<DIM>(getConfigData(), Base::BoundaryType::PERIODIC,
                                                    Base::BoundaryType::PERIODIC, Base::BoundaryType::PERIODIC, getConfigData()->polynomialOrder_, 0, 2, 3, 1, 1);
-        mesh->readCentaurMesh(fileName);
+        mesh->readMesh(fileName);
         addMesh(mesh);
         for (Base::MeshManipulator<DIM>::ElementIterator it = mesh->elementColBegin(Base::IteratorType::GLOBAL); it != mesh->elementColEnd(Base::IteratorType::GLOBAL); ++it)
         {
@@ -96,6 +96,7 @@ public:
 
 auto& numElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
 auto& p = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
+auto& meshFile = Base::register_argument<std::string>('m', "meshFile", "The hpgem meshfile to use", false);
 
 /**
  * main routine. Suggested usage: make a problem, solve it, tell the user your results.
@@ -135,7 +136,16 @@ int main(int argc, char** argv)
         divStab.stab3 = 10.0 * numElements.getValue() / sqrt(2.0);
 
         DGMax base(globalData, configData);
-        base.createCubeMesh(numElements.getValue());
+
+        if (meshFile.isUsed())
+        {
+            base.readMesh(meshFile.getValue());
+        }
+        else
+        {
+            // Temporary fall back for easy testing.
+            base.createCubeMesh(numElements.getValue());
+        }
         //base.createCentaurMesh(std::string("SmallIW_Mesh4000.hyb"));
         //base.createCentaurMesh(std::string("BoxCylinder_Mesh6000.hyb"));
         //TODO: LC: this does seem rather arbitrary and should probably be done by the solver
