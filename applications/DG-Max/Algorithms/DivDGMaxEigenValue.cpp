@@ -39,7 +39,7 @@ void DivDGMaxEigenValue::solve(EigenValueProblem input, DivDGMaxDiscretization::
 
     PetscErrorCode error;
     std::cout << "finding a bunch of eigenvalues" << std::endl;
-    discretization.initializeBasisFunctions(*base_.getMesh(0));
+    discretization.initializeBasisFunctions(*base_.getMesh(0), base_.getConfigData());
     discretization.computeElementIntegrands(
             *base_.getMesh(0),
             false,

@@ -26,8 +26,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "Integration/FaceIntegral.h"
 
 
-void DivDGMaxDiscretization::initializeBasisFunctions(Base::MeshManipulator<DIM> &mesh)
+void DivDGMaxDiscretization::initializeBasisFunctions(Base::MeshManipulator<DIM> &mesh,
+        const Base::ConfigurationData* configData)
 {
+    // We would like to configure the number of unknowns here, but this is
+    // unfortunately not possible, as it is configured at the creation of
+    // the mesh. The best we can do is check if it is configured correctly.
+    logger.assert_always(configData->numberOfUnknowns_ == 2, "DivDGMax expects 2 unknowns but got %",
+            configData->numberOfUnknowns_);
     //TODO: This needs the additional unknown id.
     mesh.useNedelecDGBasisFunctions();
     mesh.useDefaultDGBasisFunctions(1);

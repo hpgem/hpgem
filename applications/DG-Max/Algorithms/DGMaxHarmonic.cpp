@@ -32,7 +32,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 DGMaxHarmonic::DGMaxHarmonic(hpGemUIExtentions &base)
         : base_ (base)
 {
-    discretization.initializeBasisFunctions(*(base_.getMesh(0)));
+    discretization.initializeBasisFunctions(*(base_.getMesh(0)), base_.getConfigData());
 }
 
 void DGMaxHarmonic::solve(const HarmonicProblem &harmonicProblem, double stab)

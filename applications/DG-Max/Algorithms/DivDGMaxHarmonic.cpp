@@ -37,7 +37,7 @@ void DivDGMaxHarmonic::solve(const HarmonicProblem &input, DivDGMaxDiscretizatio
 {
     PetscErrorCode error;
 
-    discretization_.initializeBasisFunctions(*base_.getMesh(0));
+    discretization_.initializeBasisFunctions(*base_.getMesh(0), base_.getConfigData());
     discretization_.computeElementIntegrands(
             *base_.getMesh(0),
             false,

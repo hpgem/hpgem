@@ -41,7 +41,7 @@ public:
     using FaceInputFunction = std::function<void(const PointPhysicalT &, Base::PhysicalFace<DIM>&, LinearAlgebra::SmallVector<DIM>&)>;
     using TimeFunction = std::function<void(const PointPhysicalT &, double, LinearAlgebra::SmallVector<DIM>&)>;
 
-    void initializeBasisFunctions(Base::MeshManipulator<DIM>& mesh);
+    void initializeBasisFunctions(Base::MeshManipulator<DIM>& mesh, const Base::ConfigurationData* configData);
 
     void computeElementIntegrands(Base::MeshManipulator<DIM>& mesh, bool invertMassMatrix,
                                   const InputFunction& sourceTerm,

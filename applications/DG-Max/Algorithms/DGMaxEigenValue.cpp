@@ -36,7 +36,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 DGMaxEigenValue::DGMaxEigenValue(hpGemUIExtentions &base)
     : base_ (base)
 {
-    discretization_.initializeBasisFunctions(*(base_.getMesh(0)));
+    discretization_.initializeBasisFunctions(*(base_.getMesh(0)), base_.getConfigData());
 }
 
 EPS DGMaxEigenValue::createEigenSolver()

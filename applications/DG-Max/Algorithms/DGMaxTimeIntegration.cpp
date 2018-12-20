@@ -29,7 +29,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 DGMaxTimeIntegration::DGMaxTimeIntegration(hpGemUIExtentions &base)
     : base_(base), discretization(), snapshotTime (nullptr)
 {
-    discretization.initializeBasisFunctions(*(base_.getMesh(0)));
+    discretization.initializeBasisFunctions(*(base_.getMesh(0)), base_.getConfigData());
 }
 
 DGMaxTimeIntegration::~DGMaxTimeIntegration()

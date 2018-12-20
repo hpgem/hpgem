@@ -27,8 +27,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "Integration/ElementIntegral.h"
 #include "Integration/FaceIntegral.h"
 
-void DGMaxDiscretization::initializeBasisFunctions(Base::MeshManipulator<DIM> &mesh)
+void DGMaxDiscretization::initializeBasisFunctions(Base::MeshManipulator<DIM> &mesh, const Base::ConfigurationData* configData)
 {
+    // We would like to configure the number of unknowns here, but this is
+    // unfortunately not possible, as it is configured at the creation of
+    // the mesh. The best we can do is check if it is configured correctly.
+    logger.assert_always(configData->numberOfUnknowns_ == 1, "DGMax expects 1 unknown but got %",
+            configData->numberOfUnknowns_);
     mesh.useNedelecDGBasisFunctions();
     // TODO: This should probably also be exposed by using a constructor parameter.
     //mesh.useAinsworthCoyleDGBasisFunctions();
