@@ -173,7 +173,7 @@ void DGMaxEigenValue::solve(const EigenValueProblem& input, double stab)
         rightNumbers[i] = i;
     }
     // Last id used for offsetting leftNumber/rightNumber
-    PetscInt lastLeftId = 0, lastRightId = 0;
+    PetscInt lastLeftOffset = 0, lastRightOffset = 0;
 
     std::size_t maxStep = 0;
     if (DIM == 2)
@@ -230,18 +230,20 @@ void DGMaxEigenValue::solve(const EigenValueProblem& input, double stab)
         {
             LinearAlgebra::SmallVector<DIM> shift = boundaryFaceShift(face);
             double kshift = k * shift;
-            PetscInt leftId = face->getPtrElementLeft()->getID(),
-                     rightId = face->getPtrElementRight()->getID();
             //Skip entries with no noticeable shift
             if (std::abs(kshift) > 1e-12)
             {
                 // Compute the global dof-indices for the degrees of freedoms on both
                 // sides of the face. Additionally we have to undo the offset from the
                 // previous boundary face, hence the lastLeft/RightId.
-                leftNumbers += (leftId - lastLeftId) * degreesOfFreedomPerElement;
-                rightNumbers += (rightId - lastRightId) * degreesOfFreedomPerElement;
-                lastLeftId = leftId;
-                lastRightId = rightId;
+
+                PetscInt leftOffset = massMatrix.getGlobalIndex().getGlobalIndex(face->getPtrElementLeft(), 0);
+                PetscInt rightOffset = massMatrix.getGlobalIndex().getGlobalIndex(face->getPtrElementRight(), 0);
+
+                leftNumbers += leftOffset - lastLeftOffset;
+                rightNumbers += rightOffset - lastRightOffset;
+                lastLeftOffset = leftOffset;
+                lastRightOffset = rightOffset;
                 // Retrieve, shift and reinsert the matrix elements.
                 error = MatGetValues(product, degreesOfFreedomPerElement, &leftNumbers[0], degreesOfFreedomPerElement, &rightNumbers[0], &lrblockvalues[0]);
                 CHKERRABORT(PETSC_COMM_WORLD, error);
