@@ -158,6 +158,11 @@ void DGMaxEigenValue::solve(const EigenValueProblem& input, double stab)
     // position of the face. Therefore the factor exp(i k x)
 
     std::vector<Base::Face*> periodicBoundaryFaces = findPeriodicBoundaryFaces();
+    unsigned long maxBoundaryFaces = periodicBoundaryFaces.size();
+    // We need to know the maximum number of boundary faces on any node
+    MPI_Allreduce(MPI_IN_PLACE, &maxBoundaryFaces, 1, MPI_UNSIGNED_LONG, MPI_MAX, PETSC_COMM_WORLD);
+
+
     // Assume that the number of basis functions is constant over all the elements.
     std::size_t degreesOfFreedomPerElement = (*base_.getMesh(0)->elementColBegin())->getNumberOfBasisFunctions();
 
@@ -226,10 +231,26 @@ void DGMaxEigenValue::solve(const EigenValueProblem& input, double stab)
         CHKERRABORT(PETSC_COMM_WORLD, error);
 
 
-        for (Base::Face* face : periodicBoundaryFaces)
+        // To match the AssemblyBegin and AssemblyEnd of Mat, we need to call
+        // them the same number of times on each node. The current, slightly
+        // inefficient approach is to call it max(BF_i) times, with BF_i the
+        // number of boundary faces on node i. This can be further optimized
+        // taking into account that not all boundary faces need a shift, and by
+        // shifting multiple boundary faces in one step. But that is for a later
+        // optimization round.
+        auto faceIter = periodicBoundaryFaces.begin();
+        for(unsigned long j = 0; j < maxBoundaryFaces; ++j)
         {
-            LinearAlgebra::SmallVector<DIM> shift = boundaryFaceShift(face);
-            double kshift = k * shift;
+            double kshift = 0;
+            Base::Face* face;
+            while (faceIter != periodicBoundaryFaces.end() && std::abs(kshift) <= 1e-12)
+            {
+                LinearAlgebra::SmallVector<DIM> shift = boundaryFaceShift(*faceIter);
+                kshift = k * shift;
+                // Store before using.
+                face = *faceIter;
+                faceIter++;
+            }
             //Skip entries with no noticeable shift
             if (std::abs(kshift) > 1e-12)
             {
@@ -255,11 +276,11 @@ void DGMaxEigenValue::solve(const EigenValueProblem& input, double stab)
                 CHKERRABORT(PETSC_COMM_WORLD, error);
                 error = MatSetValues(product, degreesOfFreedomPerElement, &rightNumbers[0], degreesOfFreedomPerElement, &leftNumbers[0], &rlblockvalues[0], INSERT_VALUES);
                 CHKERRABORT(PETSC_COMM_WORLD, error);
-                error = MatAssemblyBegin(product, MAT_FINAL_ASSEMBLY);
-                CHKERRABORT(PETSC_COMM_WORLD, error);
-                error = MatAssemblyEnd(product, MAT_FINAL_ASSEMBLY);
-                CHKERRABORT(PETSC_COMM_WORLD, error);
             }
+            error = MatAssemblyBegin(product, MAT_FINAL_ASSEMBLY);
+            CHKERRABORT(PETSC_COMM_WORLD, error);
+            error = MatAssemblyEnd(product, MAT_FINAL_ASSEMBLY);
+            CHKERRABORT(PETSC_COMM_WORLD, error);
         }
 
         //outputs 'old' data

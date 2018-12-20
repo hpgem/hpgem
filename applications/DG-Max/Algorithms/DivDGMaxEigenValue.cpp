@@ -64,6 +64,10 @@ void DivDGMaxEigenValue::solve(EigenValueProblem input, DivDGMaxDiscretization::
     ///////////////////////////////////////
 
     const std::vector<Base::Face*> boundaryFaces = findPeriodicBoundaryFaces();
+    unsigned long maxBoundaryFaces = boundaryFaces.size();
+    // We need to know the maximum number of boundary faces on any node
+    MPI_Allreduce(MPI_IN_PLACE, &maxBoundaryFaces, 1, MPI_UNSIGNED_LONG, MPI_MAX, PETSC_COMM_WORLD);
+
     // Implicitly assume that each element has the same number of DOFs
     std::size_t dofsUPerElement = (*base_.getMesh(0)->elementColBegin())->getNumberOfBasisFunctions(0),
                 dofsPPerElement = (*base_.getMesh(0)->elementColBegin())->getNumberOfBasisFunctions(1),
@@ -219,10 +223,27 @@ void DivDGMaxEigenValue::solve(EigenValueProblem input, DivDGMaxDiscretization::
         //error = MatDiagonalScale(stiffnessMatrix, waveVecConjugate, waveVec);
         //CHKERRABORT(PETSC_COMM_WORLD, error);
 
-        for (Base::Face* face : boundaryFaces)
+
+        // To match the AssemblyBegin and AssemblyEnd of Mat, we need to call
+        // them the same number of times on each node. The current, slightly
+        // inefficient approach is to call it max(BF_i) times, with BF_i the
+        // number of boundary faces on node i. This can be further optimized
+        // taking into account that not all boundary faces need a shift, and by
+        // shifting multiple boundary faces in one step. But that is for a later
+        // optimization round.
+        auto faceIter = boundaryFaces.begin();
+        for(unsigned long j = 0; j < maxBoundaryFaces; ++j)
         {
-            LinearAlgebra::SmallVector<DIM> shift = boundaryFaceShift(face);
-            double kshift = k * shift;
+            double kshift = 0;
+            Base::Face* face;
+            while (faceIter != boundaryFaces.end() && std::abs(kshift) <= 1e-12)
+            {
+                LinearAlgebra::SmallVector<DIM> shift = boundaryFaceShift(*faceIter);
+                kshift = k * shift;
+                // Store before using.
+                face = *faceIter;
+                faceIter++;
+            }
             if (std::abs(kshift) > 1e-12)
             {
                 PetscInt leftUOffset = massMatrix.getGlobalIndex().getGlobalIndex(face->getPtrElementLeft(), 0);
@@ -278,12 +299,12 @@ void DivDGMaxEigenValue::solve(EigenValueProblem input, DivDGMaxDiscretization::
                                          &leftNumbers[0], &rlBlockValues[0], INSERT_VALUES);
                     CHKERRABORT(PETSC_COMM_WORLD, error);
                 }
-                // Reassemble.
-                error = MatAssemblyBegin(stiffnessMatrix, MAT_FINAL_ASSEMBLY);
-                CHKERRABORT(PETSC_COMM_WORLD, error);
-                error = MatAssemblyEnd(stiffnessMatrix, MAT_FINAL_ASSEMBLY);
-                CHKERRABORT(PETSC_COMM_WORLD, error);
             }
+            // Reassemble.
+            error = MatAssemblyBegin(stiffnessMatrix, MAT_FINAL_ASSEMBLY);
+            CHKERRABORT(PETSC_COMM_WORLD, error);
+            error = MatAssemblyEnd(stiffnessMatrix, MAT_FINAL_ASSEMBLY);
+            CHKERRABORT(PETSC_COMM_WORLD, error);
         }
 
         error = EPSSetOperators(eigenSolver, massMatrix, stiffnessMatrix);
