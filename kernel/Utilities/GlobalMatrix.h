@@ -96,6 +96,7 @@ namespace Utilities
         void reAssemble();
 
         void printMatInfo(MatInfoType type, std::ostream& stream);
+        void writeMatlab(std::string& fileName);
 
         const GlobalIndexing& getGlobalIndex() const
         {

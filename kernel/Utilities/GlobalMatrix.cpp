@@ -409,6 +409,21 @@ namespace Utilities
             << ", Nonzero " << info.nz_used << " used " << info.nz_unneeded << " unused."
             << " Assembled " << info.assemblies << " mallocs " << info.mallocs<<std::endl;
     }
+
+    void GlobalPetscMatrix::writeMatlab(std::string &fileName)
+    {
+        PetscViewer viewer;
+        PetscErrorCode err;
+
+        err = PetscViewerASCIIOpen(PETSC_COMM_WORLD, fileName.c_str(), &viewer);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+        err = PetscViewerPushFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+        err = MatView(A_, viewer);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+        err = PetscViewerDestroy(&viewer);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+    }
 #endif
 }
 
