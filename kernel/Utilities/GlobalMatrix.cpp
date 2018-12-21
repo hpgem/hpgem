@@ -185,11 +185,6 @@ namespace Utilities
                 indexing_.getGlobalIndices(face, localToGlobal);
                 faceMatrix = face->getFaceMatrixMatrix(faceMatrixID_);
                 logger(DEBUG, "%", faceMatrix * 24.);
-                //work-around: both subdomains have the boundary face so by default it is added twice, but it should only be added once
-                if(face->getFaceType() == Geometry::FaceType::SUBDOMAIN_BOUNDARY || face->getFaceType() == Geometry::FaceType::PERIODIC_SUBDOMAIN_BC)
-                {
-                    //faceMatrix *= 0.5;
-                }
                 ierr = MatSetValues(A_, localToGlobal.size(), localToGlobal.data(), localToGlobal.size(), localToGlobal.data(), faceMatrix.data(), ADD_VALUES);
                 CHKERRV(ierr);
             }
