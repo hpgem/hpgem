@@ -68,7 +68,7 @@ namespace Base
             std::size_t numberOfTimeLevels, 
             std::size_t numberOfBasisFunctions, 
             std::size_t id,
-            bool owning,
+            bool owning = true,
             std::size_t numberOfElementMatrices = 0, 
             std::size_t numberOfElementVectors = 0, 
             const std::vector<int>& basisFunctionSetPositions = std::vector<int>(1, 0));

@@ -1480,7 +1480,7 @@ namespace Base
                     globalNodeID[i] += nodeNdId[iDIM] * numberOfNodesInEachSubspace[iDIM];
                 }
             }
-            Element *newElement = addElement(globalNodeCoordinateID);
+            Element *newElement = addElement(globalNodeCoordinateID, false);
             for (std::size_t i = 0; i < globalNodeID.size(); ++i)
             {
                 nodesList[globalNodeID[i]]->addElement(newElement, i);
@@ -1506,6 +1506,7 @@ namespace Base
             {
                 // We own the element so add it to the submesh.
                 theMesh_.getSubmesh().add(element);
+                element->setOwnedByCurrentProcessor(true);
                 for (std::size_t i = 0; i < numProcessors; ++i)
                 {
                     // Note, normally we would like to only distribute the
@@ -2018,7 +2019,7 @@ namespace Base
                     globalNodeIndexes[j] = globalNodeIndexes[j] - 1;
                     globalNodeIndexesSizeT[j] = static_cast<std::size_t>(globalNodeIndexes[j]);
                 }
-                Base::Element* element = addElement(globalNodeIndexesSizeT);
+                Base::Element* element = addElement(globalNodeIndexesSizeT, true);
                 elementslist.push_back(element);
                 theMesh_.getSubmesh().add(element);
                 
@@ -2066,7 +2067,7 @@ namespace Base
                     globalNodeIndexesSizeT[j] = static_cast<std::size_t>(globalNodeIndexes[j]);
                 }
 
-                Base::Element* element = addElement(globalNodeIndexesSizeT);
+                Base::Element* element = addElement(globalNodeIndexesSizeT, true);
                 elementslist.push_back(element);
                 theMesh_.getSubmesh().add(element);
                 std::size_t id = elementslist.back()->getID();
@@ -2529,7 +2530,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
                     globalNodeIndexesSizeT[j] = static_cast<std::size_t>(globalNodeIndexes[j]);
                 }
 
-                Base::Element *newElement = addElement(globalNodeIndexesSizeT);
+                Base::Element *newElement = addElement(globalNodeIndexesSizeT, true);
                 tempElementVector.push_back(newElement);
                 theMesh_.getSubmesh().add(newElement);
 
@@ -2586,7 +2587,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
                 globalNodeIndexesSizeT[j] = static_cast<std::size_t>(globalNodeIndexes[j]);
             }
 
-            Base::Element *newElement = addElement(globalNodeIndexesSizeT);
+            Base::Element *newElement = addElement(globalNodeIndexesSizeT, true);
             tempElementVector.push_back(newElement);
             theMesh_.getSubmesh().add(newElement);
 
@@ -2685,7 +2686,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
                     globalNodeIndexesSizeT[j] = static_cast<std::size_t>(globalNodeIndexes[j]);
                 }
 
-                Base::Element *newElement = addElement(globalNodeIndexesSizeT);
+                Base::Element *newElement = addElement(globalNodeIndexesSizeT, true);
                 tempElementVector.push_back(newElement);
                 theMesh_.getSubmesh().add(newElement);
 
@@ -2741,7 +2742,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
                 globalNodeIndexesSizeT[j] = static_cast<std::size_t>(globalNodeIndexes[j]);
             }
 
-            Base::Element *newElement = addElement(globalNodeIndexesSizeT);
+            Base::Element *newElement = addElement(globalNodeIndexesSizeT, true);
             tempElementVector.push_back(newElement);
             theMesh_.getSubmesh().add(newElement);
             logger(DEBUG, "%", *newElement);
