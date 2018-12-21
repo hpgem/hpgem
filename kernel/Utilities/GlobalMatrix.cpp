@@ -179,6 +179,9 @@ namespace Utilities
             std::vector<PetscInt> localToGlobal;
             for (Base::Face* face : theMesh_->getFacesList())
             {
+                if (!face->isOwnedByCurrentProcessor())
+                    continue;
+
                 indexing_.getGlobalIndices(face, localToGlobal);
                 faceMatrix = face->getFaceMatrixMatrix(faceMatrixID_);
                 logger(DEBUG, "%", faceMatrix * 24.);

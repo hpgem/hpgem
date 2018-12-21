@@ -67,7 +67,8 @@ namespace Base
             std::size_t numberOfUnkowns, 
             std::size_t numberOfTimeLevels, 
             std::size_t numberOfBasisFunctions, 
-            std::size_t id, 
+            std::size_t id,
+            bool owning,
             std::size_t numberOfElementMatrices = 0, 
             std::size_t numberOfElementVectors = 0, 
             const std::vector<int>& basisFunctionSetPositions = std::vector<int>(1, 0));
@@ -329,12 +330,21 @@ namespace Base
             return positionInTheTree_;
         }
 
+
+        /// \brief Adjust the ownership flag of this Element.
+        ///
+        /// Note that this does not change the topology as adminstrated in Mesh
+        /// and Submesh. The information there should be updated separately.
+        /// \param owned Whether this element is owned or not by the current processor.
+        void setOwnedByCurrentProcessor(bool owned);
+        bool isOwnedByCurrentProcessor() const;
+
         /// Output operator.        
         friend std::ostream& operator<<(std::ostream& os, const Element& element);
         
     private:
         ///Constructor that copies the data and geometry of the given ElementData and ElementGeometry.
-        Element(const ElementData& otherData, const Geometry::ElementGeometry& otherGeometry);
+        Element(bool owned, const ElementData& otherData, const Geometry::ElementGeometry& otherGeometry);
 
         std::tuple<const BasisFunctionSet*, std::size_t> getBasisFunctionSetAndIndex(std::size_t index) const;
         std::tuple<const BasisFunctionSet*, std::size_t> getBasisFunctionSetAndIndex(std::size_t index, std::size_t unknown) const;
@@ -365,7 +375,9 @@ namespace Base
         
         /// Vector of data which the user might want to store. For example determinants of the Jacobian for each quadrature point.
         std::vector<Base::ElementCacheData> vecCacheData_;
-        
+
+        /// Whether the current processor owns this element.
+        bool owned_;
     };
 }
 #include "PhysGradientOfBasisFunction.h"
@@ -381,13 +393,14 @@ namespace Base
                      std::size_t numberOfTimeLevels,
                      std::size_t numberOfBasisFuncs,
                      std::size_t id,
+                     bool owned,
                      std::size_t numberOfElementMatrices,
                      std::size_t numberOfElementVectors,
                      const std::vector<int>& basisFunctionSetPositions)
             : ElementGeometry(globalNodeIndexes, allNodes),
         ElementData(numberOfTimeLevels, numberOfUnknowns, numberOfBasisFuncs, numberOfElementMatrices, numberOfElementVectors),
         quadratureRule_(nullptr), basisFunctionSet_(basisFunctionSet),
-        id_(id), vecCacheData_()
+        id_(id), vecCacheData_(), owned_(owned)
     {
         logger.assert_debug(basisFunctionSet != nullptr, "Invalid basis function set passed");
         logger.assert_debug(basisFunctionSet->size() > 0, "Not enough basis function sets passed");

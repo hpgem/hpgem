@@ -120,5 +120,10 @@ const std::vector<Base::Face *> Base::Node::getFaces() const
     return ptrFacesAtNode;
 }
 
+bool Base::Node::isOwnedByCurrentProcessor() const
+{
+    return elements_.size() > 0 && elements_[0]->isOwnedByCurrentProcessor();
+}
+
 
 

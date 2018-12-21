@@ -146,6 +146,8 @@ namespace Base
         const TreeEntry<Edge*>* getPositionInTree() const {
             return positionInTheTree_;
         }
+
+        bool isOwnedByCurrentProcessor() const;
     private:
 
         std::vector<Element*> elements_;

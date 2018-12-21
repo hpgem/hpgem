@@ -271,6 +271,11 @@ namespace Base
         const TreeEntry<Face*>* getPositionInTree() const {
             return positionInTheTree_;
         }
+
+        bool isOwnedByCurrentProcessor() const
+        {
+            return elementLeft_ != nullptr && elementLeft_->isOwnedByCurrentProcessor();
+        }
     private:
         
 

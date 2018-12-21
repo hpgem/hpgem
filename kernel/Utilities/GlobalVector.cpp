@@ -119,6 +119,9 @@ namespace Utilities
         {
             for (Base::Face* face : theMesh_->getFacesList())
             {
+                if (!face->isOwnedByCurrentProcessor())
+                    continue;
+
                 faceToGlobal.clear();
                 indexing_.getGlobalIndices(face, faceToGlobal);
                 faceVector = face->getFaceVector(faceVectorID_);

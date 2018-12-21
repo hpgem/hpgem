@@ -133,6 +133,8 @@ namespace Base
             setLocalNumberOfBasisFunctions(number);
         }
 
+        bool isOwnedByCurrentProcessor() const;
+
     private:
         
         //provide information to map back to a unique corner of the element

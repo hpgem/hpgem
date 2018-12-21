@@ -63,7 +63,7 @@ namespace Base
         
         ~Mesh();
 
-        Element* addElement(const std::vector<std::size_t>& globalNodeIndexes);
+        Element* addElement(const std::vector<std::size_t>& globalNodeIndexes, bool owning);
 
         void addSubElements(Base::Element* parent, const std::vector<Base::Element*> subElements);
 

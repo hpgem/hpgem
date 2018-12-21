@@ -83,4 +83,9 @@ namespace Base
         return root->getData();
     }
 
+    bool Edge::isOwnedByCurrentProcessor() const
+    {
+        return elements_.size() > 0 && elements_[0]->isOwnedByCurrentProcessor();
+    }
+
 }

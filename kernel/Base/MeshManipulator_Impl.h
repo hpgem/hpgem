@@ -1029,7 +1029,7 @@ namespace Base
 
     template<std::size_t DIM>
     Base::Element *
-    MeshManipulator<DIM>::addElement(const std::vector<std::size_t> &globalNodeIndexes)
+    MeshManipulator<DIM>::addElement(const std::vector<std::size_t> &globalNodeIndexes, bool owning)
     {
         logger.assert_debug([&]() -> bool {
             for(std::size_t i = 0; i < globalNodeIndexes.size(); ++i)
@@ -1038,7 +1038,7 @@ namespace Base
                         return false;
             return true;
         }(), "Trying to pass the same node twice");
-        auto result =  theMesh_.addElement(globalNodeIndexes);
+        auto result =  theMesh_.addElement(globalNodeIndexes, owning);
         return result;
     }
 
@@ -1800,7 +1800,8 @@ namespace Base
 
             for (std::size_t i = 0; i < numberOfTrianglesPerRectangle; ++i)
             {
-                Element *newElement = addElement(globalNodeCoordinateID[i]);
+                // TODO: Fix
+                Element *newElement = addElement(globalNodeCoordinateID[i], false);
                 for (std::size_t j = 0; j < globalNodeID[i].size(); ++j)
                 {
                     logger.assert_debug(i <
@@ -1834,6 +1835,7 @@ namespace Base
             if (owner == rank)
             {
                 // We own the element so add it to the submesh.
+                element->setOwnedByCurrentProcessor(true);
                 theMesh_.getSubmesh().add(element);
                 for (std::size_t i = 0; i < numProcessors; ++i)
                 {
@@ -3336,7 +3338,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
             input >> partition;
             Base::Element* element = nullptr;
             if(partition == MPIContainer::Instance().getProcessorID()) {
-                element = addElement(coordinateIndices);
+                element = addElement(coordinateIndices, true);
                 actualElement[i] = element;
                 getMesh().getSubmesh().add(element);
             }
@@ -3346,7 +3348,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
                 std::size_t shadowPartition;
                 input >> shadowPartition;
                 if(shadowPartition == MPIContainer::Instance().getProcessorID()) {
-                    element = addElement(coordinateIndices);
+                    element = addElement(coordinateIndices, false);
                     actualElement[i] = element;
                     getMesh().getSubmesh().addPull(element, partition);
                 }

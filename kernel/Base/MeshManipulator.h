@@ -127,7 +127,7 @@ namespace Base
         void useDefaultConformingBasisFunctions();
         void useDefaultConformingBasisFunctions(std::size_t unknown);
 
-        Element* addElement(const std::vector<std::size_t>& globalNodeIndexes);
+        Element* addElement(const std::vector<std::size_t>& globalNodeIndexes, bool owning);
 
         bool addFace(Element* leftElementPtr, std::size_t leftElementLocalFaceNo, Element* rightElementPtr, std::size_t rightElementLocalFaceNo, const Geometry::FaceType& faceType = Geometry::FaceType::WALL_BC);
 
