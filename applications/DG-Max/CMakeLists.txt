@@ -11,6 +11,7 @@ if(hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
 
 add_executable( DG-Max.out
                 DG-Max.cpp
+				DGMaxLogger.cpp
                 ElementInfos.cpp
                 kspaceData.cpp
                 BaseExtended.cpp

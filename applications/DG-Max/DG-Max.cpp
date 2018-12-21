@@ -31,6 +31,7 @@
 #include <ctime>
 
 #include "DGMaxDim.h"
+#include "DGMaxLogger.h"
 
 #include "Algorithms/DGMaxEigenValue.h"
 #include "Algorithms/DGMaxHarmonic.h"
@@ -98,22 +99,45 @@ auto& numElements = Base::register_argument<std::size_t>('n', "numElems", "numbe
 auto& p = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
 auto& meshFile = Base::register_argument<std::string>('m', "meshFile", "The hpgem meshfile to use", false);
 
+void printArguments(int argc, char** argv)
+{
+#ifdef HPGEM_USE_MPI
+    int rank;
+    int size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    logAll([&](){DGMaxLogger(INFO, "Proc %/%", rank, size);});
+#endif
+    if (!loggingSuppressed())
+    {
+        std::stringstream stream;
+        stream << "Program arguments: " << std::endl;
+        for(int i = 0; i < argc; ++i)
+        {
+            if (i != 0) stream << " ";
+            stream << argv[i];
+        }
+        std::string message = stream.str();
+        DGMaxLogger(INFO, message);
+        DGMaxLogger(INFO, "Using DGMax for % dimensions.", DIM);
+    }
+}
+
 /**
  * main routine. Suggested usage: make a problem, solve it, tell the user your results.
  */
 int main(int argc, char** argv)
 {
     Base::parse_options(argc, argv);
-    std::cout<<"This is the parallel version"<<std::endl;
+    initDGMaxLogging();
+    printArguments(argc, argv);
 
-    logger.assert_debug( DIM >= 2 && DIM <= 3, "Can only handle 2D and 3D problems.");
+
+    DGMaxLogger.assert_debug( DIM >= 2 && DIM <= 3, "Can only handle 2D and 3D problems.");
 
     //set up timings
     time_t start, end, initialised, solved;
     time(&start);
-    logger(INFO, "using % elements", std::pow(numElements.getValue(), 3) * 5);
-    logger(INFO, "using polynomial order: %", p.getValue());
-    logger(INFO, "Compiled to use % dimensions.", DIM);
     //set up problem and decide flux type
     //DGMax problem(new MaxwellData(numElements.getValue(), p.getValue()), new Base::ConfigurationData(DIM, 1, p.getValue(), 1), new MatrixAssemblyIP);
     const std::size_t numberOfTimeLevels = 1;
@@ -192,11 +216,11 @@ int main(int argc, char** argv)
 
 
         time(&end);
-        std::cout << "Spend " << (end - start) << "s" << std::endl;
+        DGMaxLogger(INFO, "DGMax finished in %s", end - start);
     }
     catch (const char* message)
     {
-        std::cout << message;
+        DGMaxLogger(ERROR, message);
     }
     // No need to clean globalData/configData, these are cleaned by the baseAPI.
     return 0;

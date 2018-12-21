@@ -21,6 +21,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "DivDGMaxEigenValue.h"
 
+#include "../DGMaxLogger.h"
+
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
 
@@ -54,11 +56,9 @@ void DivDGMaxEigenValue::solve(EigenValueProblem input, DivDGMaxDiscretization::
     Utilities::GlobalPetscMatrix
         massMatrix(base_.getMesh(0), DivDGMaxDiscretization::ELEMENT_MASS_MATRIX_ID, -1),
         stiffnessMatrix(base_.getMesh(0), DivDGMaxDiscretization::ELEMENT_STIFFNESS_MATRIX_ID, DivDGMaxDiscretization::FACE_STIFFNESS_MATRIX_ID);
-    std::cout << "GlobalPetscMatrix initialised" << std::endl;
+    DGMaxLogger(VERBOSE, "Mass and stiffness matrices assembled");
     Utilities::GlobalPetscVector globalVector(base_.getMesh(0), -1, -1);
-    std::cout << "globalVector initialised" << std::endl;
-    globalVector.assemble();
-    std::cout << "globalVector assembled" << std::endl;
+    DGMaxLogger(VERBOSE, "Dummy vector assembled");
 
     // Setup the boundary block shifting //
     ///////////////////////////////////////
@@ -95,6 +95,10 @@ void DivDGMaxEigenValue::solve(EigenValueProblem input, DivDGMaxDiscretization::
 
     // Last ids used for offsetting
     PetscInt lastLeftUOffset = 0, lastLeftPOffset = 0, lastRightUOffset = 0, lastRightPOffset = 0;
+    DGMaxLogger(VERBOSE, "Initialized boundary shifting");
+
+    // Setting up eigenvalue solver //
+    //////////////////////////////////
 
     EPS eigenSolver;
     error = EPSCreate(PETSC_COMM_WORLD, &eigenSolver);
@@ -121,11 +125,10 @@ void DivDGMaxEigenValue::solve(EigenValueProblem input, DivDGMaxDiscretization::
     error = EPSSetFromOptions(eigenSolver);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     //everything that is set in the code, but after this line overrides the comand-line options
-    // SH 180212
-    //error = EPSSolve(eigenSolver_);
-    std::cout << "EPSSolve for k=0" << std::endl;
+    DGMaxLogger(VERBOSE, "Eigenvalue solver configured");
 
-    CHKERRABORT(PETSC_COMM_WORLD, error);
+    // Storage vectors //
+    /////////////////////
 
     Vec *eigenVectors;
     eigenVectors = new Vec[NUMBER_OF_EIGEN_VECTORS]; //a few extra in case SLEPc finds more than the requested amount of eigenvalues
@@ -138,22 +141,23 @@ void DivDGMaxEigenValue::solve(EigenValueProblem input, DivDGMaxDiscretization::
     CHKERRABORT(PETSC_COMM_WORLD, error);
     error = VecSetUp(waveVec);
     CHKERRABORT(PETSC_COMM_WORLD, error);
+    DGMaxLogger(VERBOSE, "Storage vectors assembled");
 
     LinearAlgebra::SmallVector<DIM> k;
     k[0] = M_PI / 20.0;
     k[1] = 0;
 
-    makeShiftMatrix(k, stiffnessMatrix.getGlobalIndex(), waveVec);
-    error = VecAssemblyBegin(waveVec);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    error = VecAssemblyEnd(waveVec);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    error = VecDuplicate(waveVec, &waveVecConjugate);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    error = VecCopy(waveVec, waveVecConjugate);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    error = VecConjugate(waveVecConjugate);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
+//    makeShiftMatrix(k, stiffnessMatrix.getGlobalIndex(), waveVec);
+//    error = VecAssemblyBegin(waveVec);
+//    CHKERRABORT(PETSC_COMM_WORLD, error);
+//    error = VecAssemblyEnd(waveVec);
+//    CHKERRABORT(PETSC_COMM_WORLD, error);
+//    error = VecDuplicate(waveVec, &waveVecConjugate);
+//    CHKERRABORT(PETSC_COMM_WORLD, error);
+//    error = VecCopy(waveVec, waveVecConjugate);
+//    CHKERRABORT(PETSC_COMM_WORLD, error);
+//    error = VecConjugate(waveVecConjugate);
+//    CHKERRABORT(PETSC_COMM_WORLD, error);
 
     std::size_t outputId = 0;
     std::size_t maxSteps;
@@ -168,53 +172,48 @@ void DivDGMaxEigenValue::solve(EigenValueProblem input, DivDGMaxDiscretization::
     // For testing
 //    maxSteps = 21;
 
-    error = EPSSolve(eigenSolver);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-
     std::vector<std::vector<PetscScalar>> eigenvalues (maxSteps);
-    // The discretization_ is not correct for k = 0.
-    //extractEigenvalues(eigenSolver, eigenvalues[0]);
 
-
+    DGMaxLogger(INFO, "Starting k-vector walk");
     for (int i = 1; i < maxSteps; ++i)
     {
-        std::cout << i << "/60" << std::endl;
+        DGMaxLogger(INFO, "Solving for k-vector %/%", i, maxSteps-1);
 
         if (i == 21)
         {
             //these are only increments, actually this make the wavevector move from pi,0,0 to pi,pi,0
             k[0] = 0;
             k[1] = M_PI / 20.;
-            //recompute the shifts
-            makeShiftMatrix(k, stiffnessMatrix.getGlobalIndex(), waveVec);
-            error = VecAssemblyBegin(waveVec);
-            CHKERRABORT(PETSC_COMM_WORLD, error);
-            error = VecAssemblyEnd(waveVec);
-            CHKERRABORT(PETSC_COMM_WORLD, error);
-            error = VecCopy(waveVec, waveVecConjugate);
-            CHKERRABORT(PETSC_COMM_WORLD, error);
-            error = VecConjugate(waveVecConjugate);
-            CHKERRABORT(PETSC_COMM_WORLD, error);
+//            //recompute the shifts
+//            makeShiftMatrix(k, stiffnessMatrix.getGlobalIndex(), waveVec);
+//            error = VecAssemblyBegin(waveVec);
+//            CHKERRABORT(PETSC_COMM_WORLD, error);
+//            error = VecAssemblyEnd(waveVec);
+//            CHKERRABORT(PETSC_COMM_WORLD, error);
+//            error = VecCopy(waveVec, waveVecConjugate);
+//            CHKERRABORT(PETSC_COMM_WORLD, error);
+//            error = VecConjugate(waveVecConjugate);
+//            CHKERRABORT(PETSC_COMM_WORLD, error);
         }
         else if (i == 41)
         {
             //these are only increments, actually this make the wavevector move from pi,pi,0 to pi,pi,pi
             k[1] = 0;
             k[2] = M_PI / 20.;
-            //recompute the shifts
-            makeShiftMatrix(k, stiffnessMatrix.getGlobalIndex(), waveVec);
-            error = VecAssemblyBegin(waveVec);
-            CHKERRABORT(PETSC_COMM_WORLD, error);
-            error = VecAssemblyEnd(waveVec);
-            CHKERRABORT(PETSC_COMM_WORLD, error);
-            error = VecCopy(waveVec, waveVecConjugate);
-            CHKERRABORT(PETSC_COMM_WORLD, error);
-            error = VecConjugate(waveVecConjugate);
-            CHKERRABORT(PETSC_COMM_WORLD, error);
+//            //recompute the shifts
+//            makeShiftMatrix(k, stiffnessMatrix.getGlobalIndex(), waveVec);
+//            error = VecAssemblyBegin(waveVec);
+//            CHKERRABORT(PETSC_COMM_WORLD, error);
+//            error = VecAssemblyEnd(waveVec);
+//            CHKERRABORT(PETSC_COMM_WORLD, error);
+//            error = VecCopy(waveVec, waveVecConjugate);
+//            CHKERRABORT(PETSC_COMM_WORLD, error);
+//            error = VecConjugate(waveVecConjugate);
+//            CHKERRABORT(PETSC_COMM_WORLD, error);
         }
         // SH 180216 turned this off
         //error = EPSGetInvariantSubspace(eigenSolver_, eigenVectors); //Must be put after EPSSolve?
-        CHKERRABORT(PETSC_COMM_WORLD, error);
+        //CHKERRABORT(PETSC_COMM_WORLD, error);
         // SH 180221
         // error = MatDiagonalScale(product, waveVec, waveVecConjugate);
         //error = MatDiagonalScale(massMatrix, waveVec, waveVecConjugate);
@@ -231,6 +230,7 @@ void DivDGMaxEigenValue::solve(EigenValueProblem input, DivDGMaxDiscretization::
         // taking into account that not all boundary faces need a shift, and by
         // shifting multiple boundary faces in one step. But that is for a later
         // optimization round.
+        DGMaxLogger(VERBOSE, "Starting boundary k-shift for max % faces", maxBoundaryFaces);
         auto faceIter = boundaryFaces.begin();
         for(unsigned long j = 0; j < maxBoundaryFaces; ++j)
         {
@@ -315,7 +315,7 @@ void DivDGMaxEigenValue::solve(EigenValueProblem input, DivDGMaxDiscretization::
             error = EPSSetInitialSpace(eigenSolver, converged, eigenVectors);
             CHKERRABORT(PETSC_COMM_WORLD, error);
         }
-        std::cout << k << std::endl;
+        DGMaxLogger(INFO, "Setting up solve for k-vector %/%", i, maxSteps-1);
         error = EPSSetUp(eigenSolver);
         CHKERRABORT(PETSC_COMM_WORLD, error);
 
@@ -325,15 +325,18 @@ void DivDGMaxEigenValue::solve(EigenValueProblem input, DivDGMaxDiscretization::
         //EPSSetFromOptions(eigenSolver_);
         //CHKERRABORT(PETSC_COMM_WORLD);
 
+        DGMaxLogger(INFO, "Solving for k-vector %/%", i, maxSteps-1);
         error = EPSSolve(eigenSolver);
         CHKERRABORT(PETSC_COMM_WORLD, error);
+
         extractEigenvalues(eigenSolver, eigenvalues[i]);
-        //Jelmer: To plot Eigenvectors:
         error = EPSGetEigenvector(eigenSolver, 0, globalVector, NULL);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
         //globalVector.writeTimeIntegrationVector(outputId);
         outputId++;
 
     }
+    DGMaxLogger(INFO, "Finished k-vector walk");
 
     error = EPSDestroy(&eigenSolver);
     CHKERRABORT(PETSC_COMM_WORLD, error);
@@ -411,7 +414,7 @@ void DivDGMaxEigenValue::extractEigenvalues(const EPS &solver, std::vector<Petsc
         result[i] = eigenvalue;
     }
 
-    logger(INFO, "Number of eigenvalues:  %.", result.size());
+    DGMaxLogger(INFO, "Number of eigenvalues:  %.", result.size());
     // Sort eigenvalues in descending order with respect to the real part of the
     // eigenvalue and using the imaginary part as tie breaker.
     // Note descending, as this gives ascending values for the frequency.
