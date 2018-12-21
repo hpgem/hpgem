@@ -242,8 +242,9 @@ namespace Base
             return theMesh_.nodeColEnd(part);
         }
         
-        /// *****************Iteration through the Elements*******************
-        
+        //  *****************Iteration through the Elements*******************
+
+        [[deprecated("This will not work optimally for parallel computations use the preprocessor instead")]]
         void createRectangularMesh(const Geometry::PointPhysical<DIM>& BottomLeft, const Geometry::PointPhysical<DIM>& TopRight, const std::vector<std::size_t>& LinearNoElements);
 
         /**
@@ -251,13 +252,18 @@ namespace Base
          * \param [in] BottomLeft the bottomleft corner of the cube
          * \param [in] TopRight The topRight corner of the cube
          * \param [in] LinearNoElements A vector detailing the amount of refinement you want per direction
-         * This routine generates the same mesh structure as createRectangularMesh, but then refines each of the cubes into
+         * \details This routine generates the same mesh structure as createRectangularMesh, but then refines each of the cubes into
          * (DIM-1)^2+1 tetrahedra
          */
+        [[deprecated("This will not work optimally for parallel computations use the preprocessor instead")]]
         void createTriangularMesh(Geometry::PointPhysical<DIM> BottomLeft, Geometry::PointPhysical<DIM> TopRight, const std::vector<std::size_t>& LinearNoElements);
 
+        [[deprecated("This will not work optimally for parallel computations use the preprocessor instead")]]
         void readCentaurMesh(const std::string& filename);
 
+        /**
+         * load a mesh that was generated and partitioned by the preprocessor
+         */
         void readMesh(const std::string& filename);
 
 #ifdef HPGEM_USE_QHULL
