@@ -115,7 +115,7 @@ namespace Geometry
     ///PERIODIC_SUBDOMAIN_BC: a combination of SUBDOMAIN_BOUNDARY and PERIODIC_BC
     enum class FaceType
     {
-        OPEN_BC, WALL_BC, PERIODIC_BC, INTERNAL, SUBDOMAIN_BOUNDARY, PERIODIC_SUBDOMAIN_BC, REFINEMENT_BOUNDARY
+        OPEN_BC, WALL_BC, PERIODIC_BC, INTERNAL, SUBDOMAIN_BOUNDARY, PERIODIC_SUBDOMAIN_BC, REFINEMENT_BOUNDARY, PARTIAL_FACE
     };
     
     //For sake of consistency, placed here.
@@ -143,6 +143,9 @@ namespace Geometry
                 break;
             case FaceType::REFINEMENT_BOUNDARY:
                 out << "Refined face with hanging node";
+                break;
+            case FaceType::PARTIAL_FACE:
+                out << "Nonlocal face adjacent to only one shadow element";
         }
         return out;
     }

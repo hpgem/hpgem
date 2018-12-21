@@ -3396,10 +3396,10 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
                     } else {
                         if(actualElement[globalElementIndices[0]] == nullptr) {
                             logger.assert_always(actualElement[globalElementIndices[1]] != nullptr, "local face is bounded by nonlocal element");
-                            addFace(actualElement[globalElementIndices[1]], localFaceNumbers[1], nullptr, 0, Geometry::FaceType::WALL_BC);
+                            addFace(actualElement[globalElementIndices[1]], localFaceNumbers[1], nullptr, 0, Geometry::FaceType::PARTIAL_FACE);
                         } else if(actualElement[globalElementIndices[1]] == nullptr) {
                             logger.assert_always(actualElement[globalElementIndices[0]] != nullptr, "local face is bounded by nonlocal element");
-                            addFace(actualElement[globalElementIndices[0]], localFaceNumbers[0], nullptr, 0, Geometry::FaceType::WALL_BC);
+                            addFace(actualElement[globalElementIndices[0]], localFaceNumbers[0], nullptr, 0, Geometry::FaceType::PARTIAL_FACE);
                         } else {
                             addFace(actualElement[globalElementIndices[0]], localFaceNumbers[0], actualElement[globalElementIndices[1]], localFaceNumbers[1]);
                         }
