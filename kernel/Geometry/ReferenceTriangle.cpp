@@ -41,10 +41,8 @@ namespace Geometry
     std::size_t ReferenceTriangle::localNodeIndexes_[3][2] = { {0, 1}, {0, 2}, {1, 2}};
     
     ReferenceTriangle::ReferenceTriangle()
-            : ReferenceGeometry(3, 2, ReferenceGeometryType::TRIANGLE, {1./3., 1./3.}), referenceGeometryCodim1Ptr_(&ReferenceLine::Instance()), points_(3)
+            : ReferenceGeometry(ReferenceGeometryType::TRIANGLE, "ReferenceTriangle"), referenceGeometryCodim1Ptr_(&ReferenceLine::Instance()), points_(3)
     {
-        name = "ReferenceTriangle";
-        
         // See MappingLineToTriangle.h for further info.                   Ref.Line->Ref.Tr.Side
         mappingsLineToTriangle_[0] = &MappingToRefLineToTriangle0::Instance(); // x -> 0:((1+x)/2,0)
         mappingsLineToTriangle_[1] = &MappingToRefLineToTriangle1::Instance(); // x -> 1:(0,(1+x)/2)

@@ -30,8 +30,8 @@ namespace Geometry
     
     
 
-    ReferenceGeometry::ReferenceGeometry(std::size_t numberOfNodes, std::size_t DIM, const ReferenceGeometryType& geoT, std::initializer_list<double> center)
-            : geometryType_(geoT)
+    ReferenceGeometry::ReferenceGeometry(const ReferenceGeometryType& geoT, std::string name)
+            : geometryType_(geoT), name_ (name)
     {
 
     }

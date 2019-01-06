@@ -36,10 +36,8 @@ namespace Geometry
     std::size_t ReferenceCube::localNodesOnEdge_[12][2] = { {0, 1}, {2, 3}, {4, 5}, {6, 7}, {0, 2}, {1, 3}, {4, 6}, {5, 7}, {0, 4}, {1, 5}, {2, 6}, {3, 7}, };
     
     ReferenceCube::ReferenceCube()
-            : ReferenceGeometry(8, 3, ReferenceGeometryType::CUBE, {0., 0., 0.}), referenceGeometryCodim1Ptr_(&ReferenceSquare::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance()), points_(8)
+            : ReferenceGeometry(ReferenceGeometryType::CUBE, "ReferenceCube"), referenceGeometryCodim1Ptr_(&ReferenceSquare::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance()), points_(8)
     {
-        name = "ReferenceCube";
-        
         points_[0] = {-1., -1., -1.};
         points_[1] = { 1., -1., -1.};
         points_[2] = {-1.,  1., -1.};

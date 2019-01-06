@@ -30,9 +30,8 @@ namespace Geometry
      *
      */
     ReferencePoint::ReferencePoint()
-            : ReferenceGeometry(1, 0, ReferenceGeometryType::POINT, {}), points_(1)
+            : ReferenceGeometry(ReferenceGeometryType::POINT, "ReferencePoint"), points_(1)
     {
-        name = "ReferencePoint";
         mappingsPointToPoint_ = &MappingToRefPointToPoint::Instance();
         points_[0] = {};
         center_ = {};

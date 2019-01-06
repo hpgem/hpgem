@@ -134,7 +134,7 @@ namespace Geometry
         /// \brief For debugging and checkpointing: a human-readable name.
         std::string getName() const
         {
-            return name;
+            return name_;
         }
 
         // ================================== Quadrature rules =====================================
@@ -143,12 +143,12 @@ namespace Geometry
         QuadratureRules::GaussQuadratureRule* getGaussQuadratureRule(std::size_t order) const;
         
     protected:
-        ReferenceGeometry(std::size_t numberOfNodes, std::size_t DIM, const ReferenceGeometryType& geoT, std::initializer_list<double> center);
+        ReferenceGeometry(const ReferenceGeometryType& geo, std::string name);
 
         /// An identifier of the type of referenceGeometry, that some say shouldn't be used.
         const ReferenceGeometryType geometryType_;
 
-        std::string name;
+        const std::string name_;
         
     };
 
