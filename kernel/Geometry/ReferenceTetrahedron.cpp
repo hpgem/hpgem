@@ -41,14 +41,8 @@ namespace Geometry
     
     ReferenceTetrahedron::ReferenceTetrahedron()
             : /// Tetrahedron has four nodes 3D + 1
-            ReferenceGeometry(ReferenceGeometryType::TETRAHEDRON, "ReferenceTetrahedron"), referenceGeometryCodim1Ptr_(&ReferenceTriangle::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance()), points_(4)
+            ReferenceSimplex(ReferenceGeometryType::TETRAHEDRON, "ReferenceTetrahedron"), referenceGeometryCodim1Ptr_(&ReferenceTriangle::Instance()), referenceGeometryCodim2Ptr_(&ReferenceLine::Instance())
     {
-        points_[0] = {0., 0., 0.};
-        points_[1] = {1., 0., 0.};
-        points_[2] = {0., 1., 0.};
-        points_[3] = {0., 0., 1.};
-        center_ = {1./4., 1./4., 1./4.};
-        
         mappingsTriangleToTetrahedron_[0] = &MappingToRefTriangleToTetrahedron0::Instance();
         mappingsTriangleToTetrahedron_[1] = &MappingToRefTriangleToTetrahedron1::Instance();
         mappingsTriangleToTetrahedron_[2] = &MappingToRefTriangleToTetrahedron2::Instance();
@@ -59,21 +53,6 @@ namespace Geometry
     {
         logger.assert_debug(p.size() == 3, "The dimension of the reference point is incorrect");
         return ((p[0] >= 0.) && (p[0] <= 1.) && (p[1] >= 0.) && (p[1] <= 1. - p[0]) && (p[2] >= 0.) && (p[2] <= 1. - p[0] - p[1]));
-    }
-    
-    std::ostream& operator<<(std::ostream& os, const ReferenceTetrahedron& tetra)
-    {
-        os << tetra.getName() << " =( ";
-        auto it = tetra.points_.begin();
-        auto end = tetra.points_.end();
-        
-        for (; it != end; ++it)
-        {
-            os << (*it) << '\t';
-        }
-        os << ')' << std::endl;
-        
-        return os;
     }
     
     // ================================== Codimension 0 ============================================

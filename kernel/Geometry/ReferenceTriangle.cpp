@@ -41,7 +41,7 @@ namespace Geometry
     std::size_t ReferenceTriangle::localNodeIndexes_[3][2] = { {0, 1}, {0, 2}, {1, 2}};
     
     ReferenceTriangle::ReferenceTriangle()
-            : ReferenceGeometry(ReferenceGeometryType::TRIANGLE, "ReferenceTriangle"), referenceGeometryCodim1Ptr_(&ReferenceLine::Instance()), points_(3)
+            : ReferenceSimplex(ReferenceGeometryType::TRIANGLE, "ReferenceTriangle"), referenceGeometryCodim1Ptr_(&ReferenceLine::Instance())
     {
         // See MappingLineToTriangle.h for further info.                   Ref.Line->Ref.Tr.Side
         mappingsLineToTriangle_[0] = &MappingToRefLineToTriangle0::Instance(); // x -> 0:((1+x)/2,0)
@@ -55,11 +55,6 @@ namespace Geometry
         mappingsTriangleToTriangle_[3] = &MappingToRefTriangleToTriangle3::Instance(); // (x,y) -> (y,x)
         mappingsTriangleToTriangle_[4] = &MappingToRefTriangleToTriangle4::Instance(); // (x,y) -> (x,-y)
         mappingsTriangleToTriangle_[5] = &MappingToRefTriangleToTriangle5::Instance(); // (x,y) -> (-x,y)
-        
-        points_[0] = {0., 0.};
-        points_[1] = {1., 0.};
-        points_[2] = {0., 1.};
-        center_ = {1./3., 1./3.};
     }
     
     bool ReferenceTriangle::isInternalPoint(const PointReference<2>& p) const
@@ -67,21 +62,7 @@ namespace Geometry
         logger.assert_debug(p.size() == 2, "The dimension of the reference point is incorrect");
         return ((p[0] >= 0.) && (p[0] <= 1.) && (p[1] >= 0.) && (p[1] <= 1. - p[0]));
     }
-    
-    std::ostream& operator<<(std::ostream& os, const ReferenceTriangle& triangle)
-    {
-        os << triangle.getName() << " =( ";
-        auto it = triangle.points_.begin();
-        auto end = triangle.points_.end();
-        
-        for (; it != end; ++it)
-        {
-            os << (*it) << ' ';
-        }
-        os << ')' << std::endl;
-        
-        return os;
-    }
+
     // ================================== Codimension 0 ============================================
     std::size_t ReferenceTriangle::getCodim0MappingIndex(const std::vector<std::size_t>& list1, const std::vector<std::size_t>& list2) const
     {

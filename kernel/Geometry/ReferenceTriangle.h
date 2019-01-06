@@ -22,7 +22,7 @@
 #ifndef ____ReferenceTriangle__
 #define ____ReferenceTriangle__
 
-#include "ReferenceGeometry.h"
+#include "ReferenceSimplex_Impl.h"
 
 #include <iostream>
 #include <vector>
@@ -39,7 +39,7 @@ namespace Geometry
      *   (0,0) 0---0---1 (1,0)
      *
      */
-    class ReferenceTriangle : public ReferenceGeometry
+    class ReferenceTriangle : public ReferenceSimplex<2>
     {
     public:
         
@@ -53,25 +53,6 @@ namespace Geometry
 
         /// /see (see ReferenceGeometry.h)
         bool isInternalPoint(const PointReference<2>& point) const override final;
-        
-        /// Output routine.
-        friend std::ostream& operator<<(std::ostream& os, const ReferenceTriangle& point);
-
-        const PointReferenceBase& getCenter() const override final
-        {
-            return center_;
-        }
-
-        std::size_t getNumberOfNodes() const override final
-        {
-            return 3;
-        }
-
-        const PointReferenceBase& getReferenceNodeCoordinate(const std::size_t& i) const override final
-        {
-            logger.assert_debug(i < getNumberOfNodes(), "Asked for node %, but there are only % nodes", i, getNumberOfNodes());
-            return points_[i];
-        }
 
         // ================================== Codimension 0 ========================================
         
@@ -134,10 +115,6 @@ namespace Geometry
 
         //! List of valid quadrature rules for this reference geometry
         std::vector<QuadratureRules::GaussQuadratureRule*> lstGaussQuadratureRules_;
-
-        std::vector<PointReference<2> > points_;
-
-        PointReference<2> center_;
     };
 
 }

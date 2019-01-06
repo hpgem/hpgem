@@ -191,7 +191,20 @@ int main()
     
     logger.assert_always((test.getNumberOfNodes() == 4), "number of nodes");
     logger.assert_always((test.getGeometryType() == Geometry::ReferenceGeometryType::TETRAHEDRON), "type of geometry");
-    
+
+    // testing the barycentric coordinates
+    for(std::size_t i = 0; i < test.getNumberOfNodes(); ++i)
+    {
+        LinearAlgebra::SmallVector<4> bcoords = test.baryCentricCoordinates(test.getReferenceNodeCoordinate(i));
+        LinearAlgebra::SmallVector<4> refbcoord;
+        refbcoord.set(0);
+        refbcoord[i] = 1;
+        logger.assert_always((bcoords - refbcoord).l2Norm() < 1e-12, "Incorrect barycentric coordinate %", i);
+    }
+    LinearAlgebra::SmallVector<4> refbcoord ({1./4., 1./4., 1./4., 1./4.});
+    logger.assert_always((refbcoord - test.baryCentricCoordinates(test.getCenter())).l2Norm() < 1e-12,
+                         "Incorrect barycentric coordinates for the centre");
+
     return (0);
     
     ///\todo testing that the refinement maps behave exactly like the forwarded calls of this class

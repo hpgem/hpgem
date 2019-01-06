@@ -24,7 +24,7 @@
 
 #include <iostream>
 
-#include "ReferenceGeometry.h"
+#include "ReferenceSimplex_Impl.h"
 #include <vector>
 
 namespace Geometry
@@ -39,7 +39,7 @@ namespace Geometry
      * 0 o--------o 1
      *
      */
-    class ReferenceTetrahedron : public ReferenceGeometry
+    class ReferenceTetrahedron : public ReferenceSimplex<3>
     {
     public:
         static ReferenceTetrahedron& Instance()
@@ -52,25 +52,7 @@ namespace Geometry
         
         //! (see ReferenceGeometry.h)
         bool isInternalPoint(const PointReference<3>& point) const override final;
-        
-        /// Output routine.
-        friend std::ostream& operator<<(std::ostream& os, const ReferenceTetrahedron& point);
 
-        const PointReferenceBase& getCenter() const override final
-        {
-            return center_;
-        }
-
-        std::size_t getNumberOfNodes() const override final
-        {
-            return 4;
-        }
-
-        const PointReferenceBase& getReferenceNodeCoordinate(const std::size_t& i) const override final
-        {
-            logger.assert_debug(i < getNumberOfNodes(), "Asked for node %, but there are only % nodes", i, getNumberOfNodes());
-            return points_[i];
-        }
 
         // ================================== Codimension 0 ========================================
         
@@ -146,10 +128,6 @@ namespace Geometry
 
         //! List of valid quadrature rules for this reference geometry
         std::vector<QuadratureRules::GaussQuadratureRule*> lstGaussQuadratureRules_;
-
-        std::vector<PointReference<3> > points_;
-
-        PointReference<3> center_;
     };
 }
 
