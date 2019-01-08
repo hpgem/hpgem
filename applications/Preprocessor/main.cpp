@@ -20,7 +20,12 @@
  */
 
 //this executable only links against a limited part of the hpGEM kernel, don't expect all functionality to be available
+#ifdef HPGEM_USE_METIS
 #include <metis.h>
+#else
+#include <cstddef>
+using idx_t=std::size_t;
+#endif
 #include <chrono>
 #include <random>
 #include "Base/CommandLineOptions.h"
@@ -41,6 +46,7 @@ void processMesh(Preprocessor::Mesh<dimension> mesh) {
     Preprocessor::MeshData<idx_t, dimension, dimension> partitionID(&mesh);
     idx_t numberOfProcessors = targetMpiCount.getValue();
     if(numberOfProcessors > 1) {
+#ifdef HPGEM_USE_METIS
         idx_t numberOfConstraints = 1;
         idx_t numberOfElements = mesh.getNumberOfElements();
         float imbalance = 1.001;
@@ -73,6 +79,9 @@ void processMesh(Preprocessor::Mesh<dimension> mesh) {
         metisOptions[METIS_OPTION_RTYPE] = METIS_RTYPE_FM;
         metisOptions[METIS_OPTION_SEED] = seed;
         METIS_PartGraphKway(&numberOfElements, &numberOfConstraints, xadj.data(), adjncy.data(), NULL, NULL, NULL, &numberOfProcessors, NULL, &imbalance, metisOptions, &totalCutSize, partitionID.data());
+#else
+        logger(ERROR, "Please install metis if you want to generate a distributed mesh");
+#endif
     }
     Preprocessor::outputMesh(mesh, partitionID, numberOfProcessors);
 }
