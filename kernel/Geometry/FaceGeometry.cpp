@@ -52,6 +52,7 @@ namespace Geometry
     ///before actually using the FaceGeometry.
     FaceGeometry::FaceGeometry(ElementGeometry* ptrElemL, const std::size_t& localFaceNumberL, ElementGeometry* ptrElemR, const std::size_t& localFaceNumberR)
             : leftElementGeom_(ptrElemL), rightElementGeom_(ptrElemR), localFaceNumberLeft_(localFaceNumberL), localFaceNumberRight_(localFaceNumberR), faceToFaceMapIndex_(Geometry::MAXSIZET), faceType_(FaceType::INTERNAL)
+            , diameter_ (-1)
     {
         logger.assert_debug(ptrElemL != nullptr, "Invalid main element passed");
         logger.assert_debug(ptrElemR != nullptr, "This constructor is intended for internal faces");
@@ -60,13 +61,15 @@ namespace Geometry
     //! Constructor for boundary faces.
     FaceGeometry::FaceGeometry(ElementGeometry* ptrElemL, const std::size_t& localFaceNumberL, const FaceType& boundaryLabel)
             : leftElementGeom_(ptrElemL), rightElementGeom_(nullptr), localFaceNumberLeft_(localFaceNumberL), localFaceNumberRight_(Geometry::MAXSIZET), faceToFaceMapIndex_(0), faceType_(boundaryLabel)
+            , diameter_ (-1)
     {
         logger.assert_debug(ptrElemL != nullptr, "Invalid main element passed");
     }
     
     FaceGeometry::FaceGeometry(const FaceGeometry& other, 
                                ElementGeometry* ptrElemL, const std::size_t& localFaceNumberL, 
-                               ElementGeometry* ptrElemRight, const std::size_t& localFaceNumberR) 
+                               ElementGeometry* ptrElemRight, const std::size_t& localFaceNumberR)
+       : diameter_(other.diameter_)
     {
         logger.assert_debug(ptrElemL != nullptr, "Invalid main element passed");
         leftElementGeom_ = ptrElemL;
@@ -120,6 +123,47 @@ namespace Geometry
         {
             logger.assert_debug(rightElementGeom_ == nullptr, "There is a right element, so no boundary face.");
             return false;
+        }
+    }
+
+    template<std::size_t DIM>
+    double computeFaceDiameter(const FaceGeometry& face)
+    {
+        const ElementGeometry* element = face.getElementGLeft();
+        std::vector<std::size_t> localFaceNodeIDs
+                = element->getPhysicalGeometry()->getLocalFaceNodeIndices(face.localFaceNumberLeft());
+        Geometry::PointPhysical<DIM> p, diam;
+        double result = 0;
+        for(std::size_t i = 0; i < localFaceNodeIDs.size() - 1; ++i)
+        {
+            p = element->getPhysicalGeometry()->getLocalNodeCoordinates(localFaceNodeIDs[i]);
+            for(std::size_t j = i + 1; j < localFaceNodeIDs.size(); ++j)
+            {
+                diam = p - element->getPhysicalGeometry()->getLocalNodeCoordinates(localFaceNodeIDs[j]);
+                result = std::max(result, diam.getCoordinates().l2NormSquared());
+            }
+        }
+        return std::sqrt(result);
+    }
+
+    double FaceGeometry::computeDiameter() const
+    {
+
+        std::size_t dimension = getElementGLeft()->getReferenceGeometry()->getDimension();
+        switch (dimension)
+        {
+            case 1:
+                // Faces in 1D are points -> give diameter 1.
+                return 1;
+            case 2:
+                return computeFaceDiameter<2>(*this);
+            case 3:
+                return computeFaceDiameter<3>(*this);
+            case 4:
+                return computeFaceDiameter<4>(*this);
+            default:
+                logger.assert_always(false, "Diameter not implemented in this dimension");
+                return -1;
         }
     }
 

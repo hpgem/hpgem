@@ -47,7 +47,8 @@ int main()
     std::vector<Geometry::PointPhysical<3> > nodes;
     
     Geometry::PointPhysical<3> point;
-    
+
+    //Cube
     pointIndexes.push_back(4);
     pointIndexes.push_back(7);
     pointIndexes.push_back(10);
@@ -97,7 +98,9 @@ int main()
     std::vector<std::shared_ptr<const Base::BasisFunctionSet>> vectorOfFunctions(1, std::shared_ptr<Base::BasisFunctionSet>(basisFunctions));
     
     Base::Element element(pointIndexes, &vectorOfFunctions, nodes, 3, 14, basisFunctions->size(), 18);
-    
+
+    // Face 4 of the cube, local node indices 2,3,6,7 -> points 10,11,14,15
+    // (3.5, 4.6, 5.4), (6.7, 2.8, 5.7), (3.5, 4.6, 7.4), (6.7, 2,8, 7.7)
     Base::Face test(&element, 4, Geometry::FaceType::WALL_BC, 3);
     
     logger.assert_always((test.getGaussQuadratureRule() != nullptr), "quadrature rule");
@@ -128,7 +131,11 @@ int main()
             }
         }
     }
-    
+
+    // Expected diam: sqrt(18.77) ~ 4.3324
+    double diam = (nodes[10] - nodes[15]).getCoordinates().l2Norm();
+    logger.assert_always(std::abs(test.getDiameter() - diam) < 1e-12, "getDiameter");
+
     return 0;
 }
 

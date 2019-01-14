@@ -288,6 +288,15 @@ namespace Geometry
         /// \brief Returns true if the face is internal and false otherwise.
         bool isInternal() const;
 
+        double getDiameter() const
+        {
+            if (diameter_ < 0)
+            {
+                diameter_ = computeDiameter();
+            }
+            return diameter_;
+        }
+
     protected:
         
         /// pointer to the left element geometry
@@ -307,6 +316,11 @@ namespace Geometry
         
         /// Type of face (internal, boundary, ...)
         FaceType faceType_;
+
+        double computeDiameter() const;
+
+        // mutable to allow late initialization
+        mutable double diameter_;
         
     };
 
