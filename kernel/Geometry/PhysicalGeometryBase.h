@@ -31,7 +31,6 @@
 
 namespace Geometry
 {
-    class ReferenceGeometry;
     template<std::size_t DIM>
     class PointPhysical;
 
@@ -61,7 +60,7 @@ namespace Geometry
         /// \brief Constructor gets indexes of the nodes, a reference to the node container, and a pointer to the corresponding reference geometry.
         //placeholder constructor for the refinement map; could also default to the identity map
         PhysicalGeometryBase(const std::vector<std::size_t>& globalNodeIndexes, const ReferenceGeometry * const refG)
-                : globalNodeIndexes_(globalNodeIndexes), referenceGeometry_(refG)
+                : globalNodeIndexes_(globalNodeIndexes), referenceGeometry_(refG), diameter_(-1)
         {
             logger.assert_debug(refG!=nullptr, "Invalid reference geometry passed");
         }
@@ -162,6 +161,16 @@ namespace Geometry
             
             return os;
         }
+
+        /// \brief Diameter of the physical geometry
+        /// \return The diameter
+        double getDiameter() const
+        {
+            if (diameter_ < 0) {
+                diameter_ = computeDiameter();
+            }
+            return diameter_;
+        }
         
     protected:
 
@@ -169,6 +178,11 @@ namespace Geometry
         std::vector<std::size_t> globalNodeIndexes_;
 
         const ReferenceGeometry * const referenceGeometry_;
+    private:
+        double computeDiameter() const;
+
+        // Mutable for late initialization
+        mutable double diameter_;
     };
 
 }
