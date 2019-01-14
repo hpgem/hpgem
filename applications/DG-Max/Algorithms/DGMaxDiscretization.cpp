@@ -255,6 +255,7 @@ void DGMaxDiscretization::faceMatrix(Base::PhysicalFace<DIM>& fa, LinearAlgebra:
 void DGMaxDiscretization::facePenaltyMatrix(Base::PhysicalFace<DIM>& fa, LinearAlgebra::MiddleSizeMatrix& ret, double stab) const
 {
     const Base::Face* face = fa.getFace();
+    double diameter = face->getDiameter();
 
 
     std::size_t M = face->getPtrElementLeft()->getNrOfBasisFunctions();
@@ -272,7 +273,7 @@ void DGMaxDiscretization::facePenaltyMatrix(Base::PhysicalFace<DIM>& fa, LinearA
         {
             fa.basisFunctionUnitNormalCross(j, phi_j);
 
-            ret(i, j) = stab * (phi_i * phi_j);
+            ret(i, j) = stab/diameter * (phi_i * phi_j);
             ret(j, i) = ret(i, j);
         }
     }
@@ -295,6 +296,7 @@ void DGMaxDiscretization::faceVector(Base::PhysicalFace<DIM>& fa, const FaceInpu
     }
     else
     {
+        double diameter = face->getDiameter();
         const ElementT* left = face->getPtrElementLeft();
         const Geometry::PointReference<DIM>& PLeft = face->mapRefFaceToRefElemL(p);
 
@@ -314,7 +316,7 @@ void DGMaxDiscretization::faceVector(Base::PhysicalFace<DIM>& fa, const FaceInpu
 
             phi_curl = fa.basisFunctionCurl(i);
 
-            ret(i) = -(phi_curl * val) + stab * (phi * val);
+            ret(i) = -(phi_curl * val) + stab/diameter * (phi * val);
         }
     }
 

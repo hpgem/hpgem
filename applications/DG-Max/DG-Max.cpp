@@ -95,7 +95,7 @@ public:
     }
 };
 
-auto& numElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
+auto& numElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", false, 0);
 auto& p = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
 auto& meshFile = Base::register_argument<std::string>('m', "meshFile", "The hpgem meshfile to use", false);
 auto& numEigenvalues = Base::register_argument<std::size_t>('e', "eigenvalues", "The number of eigenvalues to compute", false, 24);
@@ -134,7 +134,9 @@ int main(int argc, char** argv)
     printArguments(argc, argv);
 
 
-    DGMaxLogger.assert_debug( DIM >= 2 && DIM <= 3, "Can only handle 2D and 3D problems.");
+    DGMaxLogger.assert_always( DIM >= 2 && DIM <= 3, "Can only handle 2D and 3D problems.");
+    DGMaxLogger.assert_always(numElements.isUsed() || meshFile.isUsed(),
+            "DGMax requires either a mesh file or a number of elements");
 
     //set up timings
     time_t start, end, initialised, solved;
@@ -152,13 +154,13 @@ int main(int argc, char** argv)
     Base::ConfigurationData* const configData = new Base::ConfigurationData(DIM, numberOfUnknowns, p.getValue(), numberOfTimeLevels);
     try
     {
-        double stab = numElements.getValue() * (p.getValue() + 1) * (p.getValue() + 3);
+        double stab = (p.getValue() + 1) * (p.getValue() + 3);
         DivDGMaxDiscretization::Stab divStab;
         // Values from the Jelmer fix code.
-        divStab.stab1 = 100 * numElements.getValue() / sqrt(2.0);
+        divStab.stab1 = 100;
         // Note: for 2D harmonic it looks like that we need 10 instead of 0.01.
-        divStab.stab2 = 0.01 / (numElements.getValue() * sqrt(2.0));
-        divStab.stab3 = 10.0 * numElements.getValue() / sqrt(2.0);
+        divStab.stab2 = 0.01;
+        divStab.stab3 = 10.0;
 
         DGMax base(globalData, configData);
 
