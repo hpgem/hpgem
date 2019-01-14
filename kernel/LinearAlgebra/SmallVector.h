@@ -268,12 +268,12 @@ namespace LinearAlgebra
             return result;
         }
 
-        double l2NormSquared()
+        double l2NormSquared() const
         {
             return this->operator*(*this);
         }
 
-        double l2Norm()
+        double l2Norm() const
         {
             return std::sqrt(l2NormSquared());
         }
