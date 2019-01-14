@@ -146,7 +146,7 @@ void DivDGMaxEigenValue::solve(EigenValueProblem input, DivDGMaxDiscretization::
     DGMaxLogger(VERBOSE, "Storage vectors assembled");
 
     LinearAlgebra::SmallVector<DIM> k;
-    k[0] = 4*M_PI / 20.0;
+    k[0] = M_PI / 20.0;
     k[1] = 0;
 
 //    makeShiftMatrix(k, stiffnessMatrix.getGlobalIndex(), waveVec);
@@ -308,12 +308,7 @@ void DivDGMaxEigenValue::solve(EigenValueProblem input, DivDGMaxDiscretization::
             error = MatAssemblyEnd(stiffnessMatrix, MAT_FINAL_ASSEMBLY);
             CHKERRABORT(PETSC_COMM_WORLD, error);
         }
-
-        std::string filename = "Mconstraint.m";
-        massMatrix.writeMatlab(filename);
-        filename = "Sconstraint.m";
-        stiffnessMatrix.writeMatlab(filename);
-        return;
+        
         error = EPSSetOperators(eigenSolver, massMatrix, stiffnessMatrix);
         CHKERRABORT(PETSC_COMM_WORLD, error);
         // SH 180212
