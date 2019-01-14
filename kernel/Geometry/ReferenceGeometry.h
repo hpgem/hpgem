@@ -55,6 +55,30 @@ namespace Geometry
         POINT, LINE, TRIANGLE, SQUARE, TETRAHEDRON, PYRAMID, CUBE, TRIANGULARPRISM, HYPERCUBE
     };
 
+    static std::size_t referenceGeometryTypeDimension(ReferenceGeometryType type)
+    {
+        switch (type)
+        {
+            case ReferenceGeometryType::POINT:
+                return 0;
+            case ReferenceGeometryType::LINE:
+                return 1;
+            case ReferenceGeometryType::TRIANGLE:
+            case ReferenceGeometryType::SQUARE:
+                return 2;
+            case ReferenceGeometryType::TETRAHEDRON:
+            case ReferenceGeometryType::PYRAMID:
+            case ReferenceGeometryType::CUBE:
+            case ReferenceGeometryType::TRIANGULARPRISM:
+                return 3;
+            case ReferenceGeometryType::HYPERCUBE:
+                return 4;
+            default:
+                logger.assert_always(false, "referenceGeometryTypeDimension not implemented for this type.");
+                return -1;
+        }
+    }
+
     /*! \class ReferenceGeometry
      * \brief ReferenceGeometry stores a the information of a unitary geometry where the integration is made.
      * \details
@@ -135,6 +159,17 @@ namespace Geometry
         std::string getName() const
         {
             return name_;
+        }
+
+        /// \brief The dimensionality of this reference geometry.
+        ///
+        /// Note, this gives the dimension of the reference geometry, the
+        /// physical geometry to which it corresponds might be in a higher
+        /// dimension. For example for the line that is an edge of a square.
+        /// \return The dimension of this reference geometry.
+        std::size_t getDimension() const
+        {
+            return referenceGeometryTypeDimension(geometryType_);
         }
 
         // ================================== Quadrature rules =====================================
