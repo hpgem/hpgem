@@ -98,6 +98,7 @@ public:
 auto& numElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", true);
 auto& p = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
 auto& meshFile = Base::register_argument<std::string>('m', "meshFile", "The hpgem meshfile to use", false);
+auto& numEigenvalues = Base::register_argument<std::size_t>('e', "eigenvalues", "The number of eigenvalues to compute", false, 24);
 
 void printArguments(int argc, char** argv)
 {
@@ -197,7 +198,7 @@ int main(int argc, char** argv)
 //        DGMaxEigenValue solver (base);
         DivDGMaxEigenValue solver (base);
         EigenValueProblem input;
-        solver.solve(input, divStab);
+        solver.solve(input, divStab, numEigenvalues.getValue());
 
         ///////////////////////////
         // Time dependent solver //

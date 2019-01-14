@@ -79,8 +79,11 @@ void DGMaxEigenValue::initializeMatrices(double stab)
     discretization_.computeFaceIntegrals(*(base_.getMesh(0)), nullptr, stab);
 }
 
-void DGMaxEigenValue::solve(const EigenValueProblem& input, double stab)
+void DGMaxEigenValue::solve(const EigenValueProblem& input, double stab, std::size_t numberOfEigenvalues)
 {
+    // Sometimes the solver finds more eigenvalues & vectors than requested, so
+    // reserve some extra space for them.
+    const PetscInt numberOfEigenVectors = std::max(2 * numberOfEigenvalues, numberOfEigenvalues + 10);
 
     PetscErrorCode error;
     EPS eigenSolver = createEigenSolver();
@@ -109,13 +112,12 @@ void DGMaxEigenValue::solve(const EigenValueProblem& input, double stab)
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
     //Setup the EPS eigen value solver of SLEPC to find the eigenvalues of `product`.
-    const PetscInt NUMBER_OF_EIGEN_VALUES = 24;
     error = EPSSetOperators(eigenSolver, product, NULL);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     error = EPSSetUp(eigenSolver);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     // TODO: It seems that it should use PETSC_DEFAULT instead of PETSC_DECIDE.
-    error = EPSSetDimensions(eigenSolver, NUMBER_OF_EIGEN_VALUES, PETSC_DEFAULT, PETSC_DEFAULT);
+    error = EPSSetDimensions(eigenSolver, numberOfEigenvalues, PETSC_DEFAULT, PETSC_DEFAULT);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
     // Setup is done, solve for the eigenvalues.
@@ -123,9 +125,8 @@ void DGMaxEigenValue::solve(const EigenValueProblem& input, double stab)
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
     // Setup eigen vector storage
-    const std::size_t NUMBER_OF_EIGEN_VECTORS = 40; //a few extra in case SLEPc finds more than the requested amount of eigenvalues
-    Vec *eigenVectors = new Vec[NUMBER_OF_EIGEN_VECTORS];
-    error = VecDuplicateVecs(sampleGlobalVector, NUMBER_OF_EIGEN_VECTORS, &eigenVectors);
+    Vec *eigenVectors = new Vec[numberOfEigenVectors];
+    error = VecDuplicateVecs(sampleGlobalVector, numberOfEigenVectors, &eigenVectors);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
     // Setup initial wave vector and its conjugate.

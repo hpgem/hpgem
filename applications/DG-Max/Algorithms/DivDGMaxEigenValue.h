@@ -37,7 +37,7 @@ class DivDGMaxEigenValue
 public:
 
     DivDGMaxEigenValue(hpGemUIExtentions& base);
-    void solve(EigenValueProblem input, DivDGMaxDiscretization::Stab);
+    void solve(EigenValueProblem input, DivDGMaxDiscretization::Stab, std::size_t numberOfEigenvalues);
 
 private:
 

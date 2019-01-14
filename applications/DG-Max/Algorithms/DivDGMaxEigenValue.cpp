@@ -35,9 +35,11 @@ DivDGMaxEigenValue::DivDGMaxEigenValue(hpGemUIExtentions& base)
 {
 }
 
-void DivDGMaxEigenValue::solve(EigenValueProblem input, DivDGMaxDiscretization::Stab stab)
+void DivDGMaxEigenValue::solve(EigenValueProblem input, DivDGMaxDiscretization::Stab stab, std::size_t numberOfEigenvalues)
 {
-    const PetscInt NUMBER_OF_EIGEN_VALUES = 24, NUMBER_OF_EIGEN_VECTORS = 40;
+    // Sometimes the solver finds more eigenvalues & vectors than requested, so
+    // reserve some extra space for them.
+    const PetscInt numberOfEigenVectors = std::max(2 * numberOfEigenvalues, numberOfEigenvalues + 10);
 
     PetscErrorCode error;
     std::cout << "finding a bunch of eigenvalues" << std::endl;
@@ -112,7 +114,7 @@ void DivDGMaxEigenValue::solve(EigenValueProblem input, DivDGMaxDiscretization::
     // SH 180212
     //error = EPSSetUp(eigenSolver_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
-    error = EPSSetDimensions(eigenSolver, NUMBER_OF_EIGEN_VALUES, PETSC_DECIDE, PETSC_DECIDE);
+    error = EPSSetDimensions(eigenSolver, numberOfEigenvalues, PETSC_DECIDE, PETSC_DECIDE);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
     // As the stiffness and mass matrix are switched (i.e. M u = lambda S u),
@@ -131,8 +133,8 @@ void DivDGMaxEigenValue::solve(EigenValueProblem input, DivDGMaxDiscretization::
     /////////////////////
 
     Vec *eigenVectors;
-    eigenVectors = new Vec[NUMBER_OF_EIGEN_VECTORS]; //a few extra in case SLEPc finds more than the requested amount of eigenvalues
-    error = VecDuplicateVecs(globalVector, NUMBER_OF_EIGEN_VECTORS, &eigenVectors);
+    eigenVectors = new Vec[numberOfEigenVectors]; //a few extra in case SLEPc finds more than the requested amount of eigenvalues
+    error = VecDuplicateVecs(globalVector, numberOfEigenVectors, &eigenVectors);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     int converged = 0;
 
@@ -144,7 +146,7 @@ void DivDGMaxEigenValue::solve(EigenValueProblem input, DivDGMaxDiscretization::
     DGMaxLogger(VERBOSE, "Storage vectors assembled");
 
     LinearAlgebra::SmallVector<DIM> k;
-    k[0] = M_PI / 20.0;
+    k[0] = 4*M_PI / 20.0;
     k[1] = 0;
 
 //    makeShiftMatrix(k, stiffnessMatrix.getGlobalIndex(), waveVec);
@@ -307,6 +309,11 @@ void DivDGMaxEigenValue::solve(EigenValueProblem input, DivDGMaxDiscretization::
             CHKERRABORT(PETSC_COMM_WORLD, error);
         }
 
+        std::string filename = "Mconstraint.m";
+        massMatrix.writeMatlab(filename);
+        filename = "Sconstraint.m";
+        stiffnessMatrix.writeMatlab(filename);
+        return;
         error = EPSSetOperators(eigenSolver, massMatrix, stiffnessMatrix);
         CHKERRABORT(PETSC_COMM_WORLD, error);
         // SH 180212
