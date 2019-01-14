@@ -49,6 +49,7 @@ int main()
     }
     
     PhysicalLine test(pointIndexes, nodes);
+    // The line is now from 1.4 to 1.7
     
     std::cout << test;
     
@@ -93,7 +94,9 @@ int main()
     logger.assert_always((test.getNumberOfFaces() == 2), "getNumberOfFaces");
     
     logger.assert_always((test.getRefGeometry() == &Geometry::ReferenceLine::Instance()), "getRefGeometry");
-    
+
+    logger.assert_always(std::abs(test.getDiameter() - 0.3) < 1e-12, "getDiameter");
+
     return 0;
 }
 

@@ -60,7 +60,12 @@ int main()
     point[1] = 2.4;
     point[2] = 5.4;
     nodes.push_back(point);
-    
+
+    // point 4 = (1.4, 2.4, 3.4)
+    // point 7 = (1.7, 2.7, 3.7)
+    // point 10 = (3.5, 4.6, 5.4)
+    // point 11 = (1.4, 2.4, 5.4)
+
     PhysicalTetrahedron test(pointIndexes, nodes);
     
     std::cout << test;
@@ -132,7 +137,10 @@ int main()
     logger.assert_always((test.getNumberOfFaces() == 4), "getNumberOfFaces");
     
     logger.assert_always((test.getRefGeometry() == &Geometry::ReferenceTetrahedron::Instance()), "getRefGeometry");
-    
+
+    LinearAlgebra::SmallVector<3> diam = nodes[4].getCoordinates() - nodes[10].getCoordinates();
+    logger.assert_always(std::abs(test.getDiameter() - diam.l2Norm()) < 1e-12, "getDiameter");
+
     return 0;
 }
 

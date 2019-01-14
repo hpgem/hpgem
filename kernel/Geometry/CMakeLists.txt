@@ -41,6 +41,7 @@ add_library(Geometry SHARED
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ElementGeometry.cpp
  		${hpGEM_SOURCE_DIR}/kernel/Geometry/FaceGeometry.cpp
         # Physical geometries
+		${hpGEM_SOURCE_DIR}/kernel/Geometry/PhysicalGeometryBase.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/PhysicalLine.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/PhysicalTriangle.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/PhysicalQuadrilateral.cpp
