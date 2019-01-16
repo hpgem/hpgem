@@ -35,11 +35,12 @@ DivDGMaxEigenValue::DivDGMaxEigenValue(hpGemUIExtentions& base)
 {
 }
 
-void DivDGMaxEigenValue::solve(EigenValueProblem input, DivDGMaxDiscretization::Stab stab, std::size_t numberOfEigenvalues)
+void DivDGMaxEigenValue::solve(EigenValueProblem<DIM> input, DivDGMaxDiscretization::Stab stab, std::size_t numberOfEigenvalues)
 {
     // Sometimes the solver finds more eigenvalues & vectors than requested, so
     // reserve some extra space for them.
     const PetscInt numberOfEigenVectors = std::max(2 * numberOfEigenvalues, numberOfEigenvalues + 10);
+    const KSpacePath<DIM>& kpath = input.getPath();
 
     PetscErrorCode error;
     std::cout << "finding a bunch of eigenvalues" << std::endl;
@@ -145,11 +146,9 @@ void DivDGMaxEigenValue::solve(EigenValueProblem input, DivDGMaxDiscretization::
     CHKERRABORT(PETSC_COMM_WORLD, error);
     DGMaxLogger(VERBOSE, "Storage vectors assembled");
 
-    LinearAlgebra::SmallVector<DIM> k;
-    k[0] = M_PI / 20.0;
-    k[1] = 0;
+    LinearAlgebra::SmallVector<DIM> dk = kpath.dk(1);
 
-//    makeShiftMatrix(k, stiffnessMatrix.getGlobalIndex(), waveVec);
+//    makeShiftMatrix(dk, stiffnessMatrix.getGlobalIndex(), waveVec);
 //    error = VecAssemblyBegin(waveVec);
 //    CHKERRABORT(PETSC_COMM_WORLD, error);
 //    error = VecAssemblyEnd(waveVec);
@@ -162,15 +161,7 @@ void DivDGMaxEigenValue::solve(EigenValueProblem input, DivDGMaxDiscretization::
 //    CHKERRABORT(PETSC_COMM_WORLD, error);
 
     std::size_t outputId = 0;
-    std::size_t maxSteps;
-    if (DIM == 2)
-    {
-        maxSteps = 41;
-    }
-    else if (DIM == 3)
-    {
-        maxSteps = 61;
-    }
+    std::size_t maxSteps = 1 + kpath.totalNumberOfSteps();
     // For testing
 //    maxSteps = 21;
 
@@ -181,27 +172,9 @@ void DivDGMaxEigenValue::solve(EigenValueProblem input, DivDGMaxDiscretization::
     {
         DGMaxLogger(INFO, "Solving for k-vector %/%", i, maxSteps-1);
 
-        if (i == 21)
+        if(kpath.dkDidChange(i))
         {
-            //these are only increments, actually this make the wavevector move from pi,0,0 to pi,pi,0
-            k[0] = 0;
-            k[1] = M_PI / 20.;
-//            //recompute the shifts
-//            makeShiftMatrix(k, stiffnessMatrix.getGlobalIndex(), waveVec);
-//            error = VecAssemblyBegin(waveVec);
-//            CHKERRABORT(PETSC_COMM_WORLD, error);
-//            error = VecAssemblyEnd(waveVec);
-//            CHKERRABORT(PETSC_COMM_WORLD, error);
-//            error = VecCopy(waveVec, waveVecConjugate);
-//            CHKERRABORT(PETSC_COMM_WORLD, error);
-//            error = VecConjugate(waveVecConjugate);
-//            CHKERRABORT(PETSC_COMM_WORLD, error);
-        }
-        else if (i == 41)
-        {
-            //these are only increments, actually this make the wavevector move from pi,pi,0 to pi,pi,pi
-            k[1] = 0;
-            k[2] = M_PI / 20.;
+            dk = kpath.dk(i);
 //            //recompute the shifts
 //            makeShiftMatrix(k, stiffnessMatrix.getGlobalIndex(), waveVec);
 //            error = VecAssemblyBegin(waveVec);
@@ -241,7 +214,7 @@ void DivDGMaxEigenValue::solve(EigenValueProblem input, DivDGMaxDiscretization::
             while (faceIter != boundaryFaces.end() && std::abs(kshift) <= 1e-12)
             {
                 LinearAlgebra::SmallVector<DIM> shift = boundaryFaceShift(*faceIter);
-                kshift = k * shift;
+                kshift = dk * shift;
                 // Store before using.
                 face = *faceIter;
                 faceIter++;

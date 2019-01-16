@@ -23,10 +23,23 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define PROBLEMTYPES_EIGENVALUEPROBLEM_h
 
 #include "../DGMaxDim.h"
+#include "../Utils/KSpacePath.h"
 
+template<std::size_t DIM>
 class EigenValueProblem
 {
+public:
+    EigenValueProblem(KSpacePath<DIM>& path)
+        : path_ (path)
+    {
+    }
 
+    const KSpacePath<DIM>& getPath() const
+    {
+        return path_;
+    }
+private:
+    KSpacePath<DIM>& path_;
 };
 
 

@@ -199,7 +199,8 @@ int main(int argc, char** argv)
 
 //        DGMaxEigenValue solver (base);
         DivDGMaxEigenValue solver (base);
-        EigenValueProblem input;
+        KSpacePath<DIM> path = KSpacePath<DIM>::cubePath(20);
+        EigenValueProblem<DIM> input(path);
         solver.solve(input, divStab, numEigenvalues.getValue());
 
         ///////////////////////////

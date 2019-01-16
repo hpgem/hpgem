@@ -79,11 +79,12 @@ void DGMaxEigenValue::initializeMatrices(double stab)
     discretization_.computeFaceIntegrals(*(base_.getMesh(0)), nullptr, stab);
 }
 
-void DGMaxEigenValue::solve(const EigenValueProblem& input, double stab, std::size_t numberOfEigenvalues)
+void DGMaxEigenValue::solve(const EigenValueProblem<DIM>& input, double stab, std::size_t numberOfEigenvalues)
 {
     // Sometimes the solver finds more eigenvalues & vectors than requested, so
     // reserve some extra space for them.
     const PetscInt numberOfEigenVectors = std::max(2 * numberOfEigenvalues, numberOfEigenvalues + 10);
+    const KSpacePath<DIM>& kpath = input.getPath();
 
     PetscErrorCode error;
     EPS eigenSolver = createEigenSolver();
@@ -137,14 +138,9 @@ void DGMaxEigenValue::solve(const EigenValueProblem& input, double stab, std::si
     error = VecSetUp(waveVec);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
-    LinearAlgebra::SmallVector<DIM> k;
-    k[0] = M_PI / 20.;
-    k[1] = 0;
-    if (DIM == 3)
-    {
-        k[2] = 0;
-    }
-    makeShiftMatrix(*(base_.getMesh(0)), massMatrix.getGlobalIndex(), k, waveVec);
+    LinearAlgebra::SmallVector<DIM> dk = kpath.dk(1);
+
+    makeShiftMatrix(*(base_.getMesh(0)), massMatrix.getGlobalIndex(), dk, waveVec);
     error = VecDuplicate(waveVec, &waveVecConjugate);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     error = VecCopy(waveVec, waveVecConjugate);
@@ -181,14 +177,7 @@ void DGMaxEigenValue::solve(const EigenValueProblem& input, double stab, std::si
     // Last id used for offsetting leftNumber/rightNumber
     PetscInt lastLeftOffset = 0, lastRightOffset = 0;
 
-    std::size_t maxStep = 0;
-    if (DIM == 2)
-    {
-        maxStep = 41;
-    } else if (DIM == 3)
-    {
-        maxStep = 61;
-    }
+    std::size_t maxStep = kpath.totalNumberOfSteps() + 1;
     // For testing
     // maxStep = 21;
 
@@ -202,25 +191,11 @@ void DGMaxEigenValue::solve(const EigenValueProblem& input, double stab, std::si
     for (int i = 1; i < maxStep; ++i)
     {
         std::cout << "Computing eigenvalues for k-point " << i << std::endl;
-        // On steps 21 and 41 change the direction. Note that this gives 20 steps in each of the three directions
-        if (i == 21)
+        if (kpath.dkDidChange(i))
         {
-            //these are only increments, actually this make the wavevector move from pi,0,0 to pi,pi,0
-            k[0] = 0;
-            k[1] = M_PI / 20.;
-
+            dk = kpath.dk(i);
             //recompute the shifts
-            makeShiftMatrix(*(base_.getMesh(0)), massMatrix.getGlobalIndex(), k, waveVec);
-            error = VecCopy(waveVec, waveVecConjugate);
-            CHKERRABORT(PETSC_COMM_WORLD, error);
-            error = VecConjugate(waveVecConjugate);
-            CHKERRABORT(PETSC_COMM_WORLD, error);
-        }
-        else if (i == 41)
-        {
-            k[1] = 0;
-            k[2] = M_PI / 20.;
-            makeShiftMatrix(*(base_.getMesh(0)), massMatrix.getGlobalIndex(), k, waveVec);
+            makeShiftMatrix(*(base_.getMesh(0)), massMatrix.getGlobalIndex(), dk, waveVec);
             error = VecCopy(waveVec, waveVecConjugate);
             CHKERRABORT(PETSC_COMM_WORLD, error);
             error = VecConjugate(waveVecConjugate);
@@ -247,7 +222,7 @@ void DGMaxEigenValue::solve(const EigenValueProblem& input, double stab, std::si
             while (faceIter != periodicBoundaryFaces.end() && std::abs(kshift) <= 1e-12)
             {
                 LinearAlgebra::SmallVector<DIM> shift = boundaryFaceShift(*faceIter);
-                kshift = k * shift;
+                kshift = dk * shift;
                 // Store before using.
                 face = *faceIter;
                 faceIter++;

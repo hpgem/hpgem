@@ -31,6 +31,7 @@ add_executable( DG-Max.out
                 ProblemTypes/Harmonic/SampleHarmonicProblems.cpp
                 ProblemTypes/Time/DummyTestProblem.cpp
                 ProblemTypes/Time/SampleTestProblems.cpp
+                Utils/KSpacePath.cpp
       		)
 target_link_libraries(DG-Max.out Output ${PETSC_LIBRARIES} ${SLEPC_LIBRARIES} )
 
