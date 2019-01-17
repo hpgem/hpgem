@@ -29,17 +29,25 @@ template<std::size_t DIM>
 class EigenValueProblem
 {
 public:
-    EigenValueProblem(KSpacePath<DIM>& path)
-        : path_ (path)
+    EigenValueProblem(KSpacePath<DIM>& path, std::size_t numberOfEigenvalues)
+        : path_ (path), numberOfEigenvalues_ (numberOfEigenvalues)
     {
     }
 
+    /// \brief The path through K-space to scan.
     const KSpacePath<DIM>& getPath() const
     {
         return path_;
     }
+
+    /// \brief Requested number of eigenvalues per k-point
+    std::size_t getNumberOfEigenvalues() const
+    {
+        return numberOfEigenvalues_;
+    }
 private:
     KSpacePath<DIM>& path_;
+    std::size_t numberOfEigenvalues_;
 };
 
 

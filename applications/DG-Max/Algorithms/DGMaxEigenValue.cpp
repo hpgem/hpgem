@@ -79,10 +79,11 @@ void DGMaxEigenValue::initializeMatrices(double stab)
     discretization_.computeFaceIntegrals(*(base_.getMesh(0)), nullptr, stab);
 }
 
-void DGMaxEigenValue::solve(const EigenValueProblem<DIM>& input, double stab, std::size_t numberOfEigenvalues)
+void DGMaxEigenValue::solve(const EigenValueProblem<DIM>& input, double stab)
 {
     // Sometimes the solver finds more eigenvalues & vectors than requested, so
     // reserve some extra space for them.
+    std::size_t numberOfEigenvalues = input.getNumberOfEigenvalues();
     const PetscInt numberOfEigenVectors = std::max(2 * numberOfEigenvalues, numberOfEigenvalues + 10);
     const KSpacePath<DIM>& kpath = input.getPath();
 

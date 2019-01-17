@@ -38,7 +38,7 @@ class DGMaxEigenValue
 public:
 
     DGMaxEigenValue(hpGemUIExtentions& base);
-    void solve(const EigenValueProblem<DIM>& input, double stab, std::size_t numberOfEigenvalues);
+    void solve(const EigenValueProblem<DIM>& input, double stab);
     // TODO: A nice wrapper of EPS that does RAII would be nicer
     EPS createEigenSolver();
     void destroyEigenSolver(EPS& eps);

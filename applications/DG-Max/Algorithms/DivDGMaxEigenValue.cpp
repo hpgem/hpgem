@@ -35,10 +35,11 @@ DivDGMaxEigenValue::DivDGMaxEigenValue(hpGemUIExtentions& base)
 {
 }
 
-void DivDGMaxEigenValue::solve(EigenValueProblem<DIM> input, DivDGMaxDiscretization::Stab stab, std::size_t numberOfEigenvalues)
+void DivDGMaxEigenValue::solve(EigenValueProblem<DIM> input, DivDGMaxDiscretization::Stab stab)
 {
     // Sometimes the solver finds more eigenvalues & vectors than requested, so
     // reserve some extra space for them.
+    std::size_t numberOfEigenvalues = input.getNumberOfEigenvalues();
     const PetscInt numberOfEigenVectors = std::max(2 * numberOfEigenvalues, numberOfEigenvalues + 10);
     const KSpacePath<DIM>& kpath = input.getPath();
 
