@@ -20,13 +20,15 @@ LinearAlgebra::SmallVector<DIM> KSpacePath<DIM>::k(std::size_t index) const
     logger.assert_debug(index <= totalNumberOfSteps(), "Index % is larger than the number of steps", index, totalNumberOfSteps());
     if (index % steps_ == 0)
     {
-        return points_[index % steps_];
+        return points_[index / steps_];
     }
     else
     {
+        // Linear interpolation
         std::size_t pointOffset = index / steps_;
         std::size_t stepOffset = index % steps_;
-        return (points_[pointOffset+1] - points_[pointOffset]) * (1.0 * stepOffset / steps_);
+        double alpha = 1.0 * stepOffset / steps_;
+        return alpha * points_[pointOffset+1] + (1-alpha) * points_[pointOffset];
     }
 }
 
