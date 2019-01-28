@@ -35,6 +35,15 @@ public:
     /// \return Whether dk(index-1) != dk(index).
     bool dkDidChange(std::size_t index) const;
 
+    /// \return The number of corner points in this k-space walk.
+    std::size_t numberOfCornerPoints() const;
+
+    /// \brief Corner point of this walk through k-space
+    ///
+    /// \param index The corner index.
+    /// \return The indexed-corner point
+    KPoint kcorner(std::size_t index) const;
+
     /// \brief Construct a path consisting of a single point.
     /// \param point The point to walk to.
     /// \return A KSpacePath with two points, the origin and the given point,

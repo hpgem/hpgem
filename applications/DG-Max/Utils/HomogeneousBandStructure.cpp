@@ -3,7 +3,7 @@
 
 #include "LinearAlgebra/SmallMatrix.h"
 
-#include <set>
+#include <queue>
 
 template<std::size_t DIM>
 HomogeneousBandStructure<DIM>::HomogeneousBandStructure(
@@ -31,110 +31,84 @@ bool next(std::array<int, DIM>& arr, int min, int max)
 }
 
 template<std::size_t DIM>
+using Basis = std::array<LinearAlgebra::SmallVector<DIM>, DIM>;
+
+template<std::size_t DIM>
 struct LatticePoint
 {
-    double frequency_;
-    std::array<int, DIM> coords_;
+    LatticePoint() = default;
 
-    LatticePoint(std::array<int, DIM> coords,
-            const std::array<LinearAlgebra::SmallVector<DIM>, DIM>& lattice,
-            const LinearAlgebra::SmallVector<DIM>& kpoint, double permitivity)
+    LatticePoint(std::array<int, DIM> coords)
             : coords_ (coords)
-    {
-        LinearAlgebra::SmallVector<DIM> latticePoint;
-        for(std::size_t i = 0; i < DIM; ++i)
-        {
-            latticePoint += lattice[i] * coords[i];
-        }
-        // omega = c |klat - kpoint| / n = \klat - kpoint| / sqrt(mu eps eps_r)
-        // where we take eps = 1, mu = 1
-        frequency_ = (kpoint - latticePoint).l2Norm() / std::sqrt(permitivity);
-    }
+    {}
 
     LatticePoint(const LatticePoint<DIM>& other) = default;
     LatticePoint(LatticePoint<DIM>&& other) noexcept = default;
 
-    void addNeighbours(std::set<LatticePoint<DIM>>& queue,
-            const std::array<LinearAlgebra::SmallVector<DIM>, DIM>& lattice,
-            const LinearAlgebra::SmallVector<DIM>& kpoint,
-            double permittivity)
+    LatticePoint<DIM>& operator =(const LatticePoint<DIM>& other) = default;
+    LatticePoint<DIM>& operator =(LatticePoint<DIM>&& other) noexcept = default;
+
+    bool operator==  (const LatticePoint<DIM>& other) const
     {
-        std::array<int, DIM> offsets;
-        std::array<int, DIM> newCoords;
-        offsets.fill(-1);
-        // Iterate over all offsets.
+        return coords_ == other.coords_;
+    }
+
+    // Lexicographic order
+    bool operator < (const LatticePoint<DIM>& other) const
+    {
+        return coords_ < other.coords_;
+    }
+
+    std::vector<LatticePoint> getNeighbours() const
+    {
+        std::array<int, DIM> offset, ncoords;
+        offset.fill(-1);
+
+        std::vector<LatticePoint> result;
+        result.reserve(std::round(std::pow(3, DIM) - 1));
+
         do
         {
-            // We need an offset, not offsets = {0,..,0}, which is the same as
-            // the current lattice point
-            bool allZero = true;
+            bool zeroOffset = true;
             for(std::size_t i = 0; i < DIM; ++i)
             {
-                allZero &= offsets[i] == 0;
-                newCoords[i] = offsets[i] + coords_[i];
+                zeroOffset &= offset[i] == 0;
+                ncoords[i] = coords_[i] + offset[i];
             }
-            if(allZero)
+            if (zeroOffset)
             {
                 continue;
             }
-            LatticePoint<DIM> toAdd(newCoords, lattice, kpoint, permittivity);
-            if(toAdd.frequency_ > frequency_)
-            {
-                // Prevent adding the same point multiple times
-                // Could be improved by using frequency_
-                auto i = queue.begin();
-                for(; i != queue.end(); ++i)
-                {
-                    if(i->matchesCoordinates(toAdd))
-                        break;
-                }
-                if(i == queue.end())
-                {
-                    queue.insert(toAdd);
-                }
-            }
-        } while(next(offsets, -1, 1));
+            result.emplace_back(ncoords);
+        }
+        while(next(offset, -1, 1));
+        return result;
     }
 
-    bool matchesCoordinates(LatticePoint<DIM>& other) const
+    LinearAlgebra::SmallVector<DIM> k(Basis<DIM>& basis) const
     {
+        LinearAlgebra::SmallVector<DIM> result;
+        result.set(0);
         for(std::size_t i = 0; i < DIM; ++i)
         {
-            if(coords_[i] != other.coords_[i])
-                return false;
+            result += coords_[i] * basis[i];
         }
-        return true;
+        return result;
     }
 
-    bool operator < (const LatticePoint<DIM>& other) const
-    {
-        if (frequency_ != other.frequency_)
-        {
-            return frequency_ < other.frequency_;
-        }
-        // Coordinate wise
-        for(std::size_t i = 0; i < DIM; ++i)
-        {
-            if(coords_[i] != other.coords_[i])
-                return coords_[i] < other.coords_[i];
-        }
-        return false;
-    }
-};
-
-template<std::size_t DIM>
-std::map<double, std::size_t> HomogeneousBandStructure<DIM>::computeSpectrum(
-        LinearAlgebra::SmallVector<DIM> kpoint, int numberOfModes)
-{
-    std::set<LatticePoint<DIM>> queue;
+    static std::vector<LatticePoint> getNearestNeighbours(
+            const LinearAlgebra::SmallVector<DIM>& kpoint,
+            const Basis<DIM>& reciprocalBasis)
     {
         // Insert initial points.
+        std::vector<LatticePoint> result;
+        result.reserve(1 << (DIM + 1));
         LinearAlgebra::SmallMatrix<DIM, DIM> basis;
         for(std::size_t vecId = 0; vecId < DIM; ++vecId)
         {
             for(std::size_t coordId = 0; coordId < DIM; ++coordId)
             {
-                basis(coordId, vecId) = reciprocalVectors_[vecId][coordId];
+                basis(coordId, vecId) = reciprocalBasis[vecId][coordId];
             }
         }
         LinearAlgebra::SmallVector<DIM> coords = kpoint;
@@ -152,8 +126,35 @@ std::map<double, std::size_t> HomogeneousBandStructure<DIM>::computeSpectrum(
             {
                 icoords[i] = coords[i] + offset[i];
             }
-            queue.emplace(icoords, reciprocalVectors_, kpoint, permittivity_);
+            result.emplace_back(icoords);
         } while(next(offset, -1, 1));
+        return result;
+    }
+
+private:
+    std::array<int, DIM> coords_;
+};
+
+
+template<std::size_t DIM>
+std::map<double, std::size_t> HomogeneousBandStructure<DIM>::computeSpectrum(
+        LinearAlgebra::SmallVector<DIM> kpoint, int numberOfModes)
+{
+    // Using this order so that points are first ordered by frequency.
+    using Key = std::tuple<double, LatticePoint<DIM>>;
+
+    // Abusing a set as priority queue, so that we can check if points have
+    // already been entered into it.
+    std::set<Key> queue;
+    {
+        std::vector<LatticePoint<DIM>> points
+                = LatticePoint<DIM>::getNearestNeighbours(kpoint, reciprocalVectors_);
+        for(LatticePoint<DIM>& p : points)
+        {
+            LinearAlgebra::SmallVector<DIM> dk = p.k(reciprocalVectors_) - kpoint;
+            double frequency = dk.l2Norm() / std::sqrt(permittivity_);
+            queue.emplace(frequency, p);
+        }
     }
 
 
@@ -165,21 +166,22 @@ std::map<double, std::size_t> HomogeneousBandStructure<DIM>::computeSpectrum(
     double maxFrequency = 0;
     while(!queue.empty())
     {
+        LatticePoint<DIM> point;
+        double frequency;
         // Retrieve the lowest element
         auto next = queue.begin();
-        LatticePoint<DIM> point = *next;
+        std::tie(frequency, point) = *next;
         queue.erase(next);
 
         // To ensure we get the right multiplicity we need to keep going even if
         // we already added 'numberOfModes'. However, as queue is ordered by
         // frequency, we can stop if we go beyond maxFrequency.
-        if(frequencies.size() >= numberOfModes && point.frequency_ > maxFrequency + 1e-5)
+        if(frequencies.size() >= numberOfModes && frequency > maxFrequency + 1e-5)
         {
             // Everything added.
             break;
         }
         // Insert in the frequency table
-        double frequency = point.frequency_;
         maxFrequency = frequency;
         frequencies.emplace_back(frequency);
         // Two polarization modes for 3D
@@ -195,7 +197,30 @@ std::map<double, std::size_t> HomogeneousBandStructure<DIM>::computeSpectrum(
 
         if(frequencies.size() < numberOfModes)
         {
-            point.addNeighbours(queue, reciprocalVectors_, kpoint, permittivity_);
+            for(LatticePoint<DIM> n : point.getNeighbours())
+            {
+                double neighbourFrequency = (n.k(reciprocalVectors_) - kpoint).l2Norm()
+                        / std::sqrt(permittivity_);
+                if(neighbourFrequency > frequency)
+                {
+                    // Prevent double insertion by checking if the neighbour is
+                    // already in the queue. We explicitly check the
+                    // coordinates, as the frequency is a floating point number.
+                    bool found = false;
+                    for(auto iter = queue.begin(); iter != queue.end(); ++iter)
+                    {
+                        if(std::get<1>(*iter) == n)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if(!found)
+                    {
+                        queue.emplace(neighbourFrequency, n);
+                    }
+                }
+            }
         }
 
     }
@@ -215,6 +240,100 @@ std::map<double, std::size_t> HomogeneousBandStructure<DIM>::computeSpectrum(
             }
             result[frequency] = count;
         }
+    }
+    return result;
+}
+
+double intervalDist(double x, double xmin, double xmax)
+{
+    logger.assert_debug(xmin <= xmax, "xmin should not be more than xmax");
+    if(x < xmin)
+    {
+        return xmin - x;
+    }
+    else if (x < xmax)
+    {
+        return 0;
+    }
+    else
+    {
+        return x - xmax;
+    }
+}
+
+template<std::size_t DIM>
+std::vector<typename HomogeneousBandStructure<DIM>::Line> HomogeneousBandStructure<DIM>::computeLines(
+        LinearAlgebra::SmallVector<DIM> point1,
+        LinearAlgebra::SmallVector<DIM> point2, double maxFrequency)
+{
+    const double l = (point1 - point2).l2Norm();
+    LinearAlgebra::SmallVector<DIM> kdir = point2 - point1;
+    kdir /= kdir.l2Norm();
+
+    // Set of points that are considered (either in the queue or were in the
+    // queue at some previous point).
+    std::set<LatticePoint<DIM>> considered;
+    // Queue of points that still have to be processed.
+    std::queue<LatticePoint<DIM>> queue;
+    // Identify the resulting lines/modes by the two coordinates, x,y
+    // and associate with it the multiplicity.
+    std::map<LinearAlgebra::SmallVector<2>, std::size_t> modes;
+
+    for(LatticePoint<DIM> n : LatticePoint<DIM>::getNearestNeighbours(point1, reciprocalVectors_))
+    {
+        considered.emplace(n);
+        queue.emplace(n);
+    }
+    while (!queue.empty())
+    {
+        LatticePoint<DIM> p = queue.front();
+        queue.pop();
+        // Compute the relevant parameters
+        LinearAlgebra::SmallVector<DIM> dk = point1 - p.k(reciprocalVectors_);
+        // See documentation in header for the interpretation of these values
+        double x = dk * kdir;
+        double y = (dk - x * kdir).l2Norm();
+        // Compute the minimum frequency on this part of the line for filtering
+        // lattice points which are above the maxFrequency
+        // Note that x=0 corresponds to k1, and x=-l corresponds to k2.
+        double xmin = intervalDist(x, -l, 0);
+        double fmin = std::sqrt(xmin * xmin + y * y) / std::sqrt(permittivity_);
+        if(fmin > maxFrequency)
+        {
+            continue;
+        }
+        // Add the point to the result
+        LinearAlgebra::SmallVector<2> newMode ({x,y});
+        bool added = false;
+        for(auto& mode : modes)
+        {
+            if((mode.first - newMode).l2NormSquared() < 1e-10)
+            {
+                mode.second++;
+                added = true;
+            }
+        }
+        if(!added)
+        {
+            modes[newMode] = 1;
+        }
+
+        for(LatticePoint<DIM> n : p.getNeighbours())
+        {
+            // Enqueue those neighbours that have not already been visited.
+            if(considered.find(n) != considered.end())
+            {
+                continue;
+            }
+            queue.push(n);
+            considered.emplace(n);
+        }
+    }
+    // construct the result
+    std::vector<Line> result;
+    for(auto& mode : modes)
+    {
+        result.emplace_back(l, mode.first[0], mode.first[1], permittivity_, mode.second);
     }
     return result;
 }

@@ -58,6 +58,19 @@ bool KSpacePath<DIM>::dkDidChange(std::size_t index) const
     return index == 0 || (index - 1) % steps_ == 0;
 }
 
+template<std::size_t DIM>
+std::size_t KSpacePath<DIM>::numberOfCornerPoints() const
+{
+    return points_.size();
+}
+
+template<std::size_t DIM>
+typename KSpacePath<DIM>::KPoint KSpacePath<DIM>::kcorner(std::size_t index) const
+{
+    logger.assert_debug(index >= 0 && index < points_.size(), "Invalid index");
+    return points_[index];
+}
+
 template <std::size_t DIM>
 KSpacePath<DIM> KSpacePath<DIM>::singleStepPath(KSpacePath<DIM>::KPoint point)
 {
