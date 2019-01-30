@@ -393,6 +393,11 @@ void DivDGMaxDiscretization::faceStiffnessMatrix2(
     std::size_t totalPDoFs = face->getPtrElementLeft()->getNumberOfBasisFunctions(1);
     std::size_t leftUDoFs = totalUDoFs;
     std::size_t leftPDoFs = totalPDoFs;
+    const double epsilonLeft = static_cast<ElementInfos*>(face->getPtrElementLeft()->getUserData())->epsilon_;
+    const double epsilonRight = face->isInternal()
+                                ? (static_cast<ElementInfos*>(face->getPtrElementRight()->getUserData())->epsilon_)
+                                : 0; // If no right face is present this will not be used.
+    double epsmin = std::min(epsilonLeft, epsilonRight);
     if(face->isInternal())
     {
         totalUDoFs = face->getPtrElementLeft()->getNumberOfBasisFunctions(0) + face->getPtrElementRight()->getNumberOfBasisFunctions(0);
@@ -423,7 +428,7 @@ void DivDGMaxDiscretization::faceStiffnessMatrix2(
         for (std::size_t j = 0; j < totalUDoFs; ++j)
         {
             const std::size_t jIndex = indices[j];
-            double entry = stab/diameter * (phiNormalCross[i] * phiNormalCross[j]);
+            double entry = stab/(diameter * epsmin) * (phiNormalCross[i] * phiNormalCross[j]);
             ret(iIndex, jIndex) = entry;
             ret(jIndex, iIndex) = entry;
         }
@@ -656,6 +661,12 @@ void DivDGMaxDiscretization::faceBoundaryVector(
         const PointElementReferenceT& PLeft = face->mapRefFaceToRefElemL(p);
         const PointPhysicalT PPhys = face->getPtrElementLeft()->referenceToPhysical(PLeft);
 
+        const double epsilonLeft = static_cast<ElementInfos*>(face->getPtrElementLeft()->getUserData())->epsilon_;
+        const double epsilonRight = face->isInternal()
+                                    ? (static_cast<ElementInfos*>(face->getPtrElementRight()->getUserData())->epsilon_)
+                                    : 0; // If no right face is present this will not be used.
+        double epsmin = std::min(epsilonLeft, epsilonRight);
+
         LinearAlgebra::SmallVector<DIM> val, phi_curl;
         LinearAlgebra::SmallVector<DIM> phi;
         boundaryValue(PPhys, fa, val);
@@ -668,7 +679,7 @@ void DivDGMaxDiscretization::faceBoundaryVector(
         {
             fa.basisFunctionUnitNormalCross(i, phi, 0);
             phi_curl = fa.basisFunctionCurl(i, 0);
-            ret(i) = stab1/diameter * (phi * val) - (phi_curl * val);
+            ret(i) = stab1/(diameter * epsmin) * (phi * val) - (phi_curl * val);
         }
 
     }
