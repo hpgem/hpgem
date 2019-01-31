@@ -30,12 +30,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <valarray>
 
+
 DivDGMaxEigenValue::DivDGMaxEigenValue(hpGemUIExtentions& base)
     : base_ (base)
 {
 }
 
-void DivDGMaxEigenValue::solve(EigenValueProblem<DIM> input, DivDGMaxDiscretization::Stab stab)
+DivDGMaxEigenValue::Result DivDGMaxEigenValue::solve(
+        EigenValueProblem<DIM> input, DivDGMaxDiscretization::Stab stab)
 {
     // Sometimes the solver finds more eigenvalues & vectors than requested, so
     // reserve some extra space for them.
@@ -316,29 +318,9 @@ void DivDGMaxEigenValue::solve(EigenValueProblem<DIM> input, DivDGMaxDiscretizat
 
     error = EPSDestroy(&eigenSolver);
     CHKERRABORT(PETSC_COMM_WORLD, error);
-
-    if (Base::MPIContainer::Instance().getProcessorID() == 0)
-    {
-        // Shows eigenvalues:
-        for (std::size_t kPoint = 0; kPoint < maxSteps; kPoint++)
-        {
-            std::cout << "k-point " << kPoint << std::endl;
-            for (PetscScalar eigenvalue : eigenvalues[kPoint])
-            {
-                std::cout << eigenvalue << std::endl;
-            }
-        }
-        // Printing table of real parts
-        for (std::size_t kPoint = 0; kPoint < maxSteps; kPoint++)
-        {
-            std::cout << kPoint;
-            for (PetscScalar eigenValue : eigenvalues[kPoint])
-            {
-                std::cout << "\t" << std::sqrt(double(1.0) / eigenValue.real());
-            }
-            std::cout << std::endl;
-        }
-    }
+    
+    Result result (input, eigenvalues);
+    return result;
 }
 
 void DivDGMaxEigenValue::makeShiftMatrix(LinearAlgebra::SmallVector<DIM>& direction, const Utilities::GlobalIndexing& index, Vec& waveVecMatrix)
@@ -439,4 +421,29 @@ LinearAlgebra::SmallVector<DIM> DivDGMaxEigenValue::boundaryFaceShift(const Base
     const PointPhysicalT pRightPhys = face->getPtrElementRight()
             ->referenceToPhysical(face->mapRefFaceToRefElemR(p));
     return pLeftPhys.getCoordinates() - pRightPhys.getCoordinates();
+}
+
+
+DivDGMaxEigenValue::Result::Result(
+        EigenValueProblem<DIM> problem,
+        std::vector<std::vector<PetscScalar>> eigenvalues)
+    : problem_ (problem)
+    , eigenvalues_ (eigenvalues)
+{}
+
+const EigenValueProblem<DIM>& DivDGMaxEigenValue::Result::originalProblem() const
+{
+    return problem_;
+}
+
+const std::vector<double> DivDGMaxEigenValue::Result::frequencies(std::size_t point) const
+{
+    logger.assert_always(point >= 0 && point < problem_.getPath().totalNumberOfSteps()
+        , "Invalid point");
+    std::vector<double> frequencies (eigenvalues_[point].size());
+    for(std::size_t i = 0; i < frequencies.size(); ++i)
+    {
+        frequencies[i] = std::sqrt(1.0 / eigenvalues_[point][i].real());
+    }
+    return frequencies;
 }

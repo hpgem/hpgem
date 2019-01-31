@@ -32,12 +32,26 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <petscvec.h>
 #include <slepceps.h>
 
+#include "ProblemTypes/BaseEigenvalueResult.h"
+
 class DivDGMaxEigenValue
 {
 public:
 
+    class Result : public BaseEigenvalueResult<DIM>
+    {
+    public:
+        Result(EigenValueProblem<DIM> problem,
+                std::vector<std::vector<PetscScalar>> eigenvalues);
+        const EigenValueProblem<DIM>& originalProblem() const final;
+        const std::vector<double> frequencies(std::size_t point) const final;
+    private:
+        const EigenValueProblem<DIM> problem_;
+        const std::vector<std::vector<PetscScalar>> eigenvalues_;
+    };
+
     DivDGMaxEigenValue(hpGemUIExtentions& base);
-    void solve(EigenValueProblem<DIM> input, DivDGMaxDiscretization::Stab);
+    Result solve(EigenValueProblem<DIM> input, DivDGMaxDiscretization::Stab);
 
 private:
 
