@@ -22,7 +22,7 @@ public:
     /// \param kpoint A point in the First Brillouin zone
     /// \param numberOfModes The number of modes to include (including multiplicity)
     /// \return A listing of the modes with their multiplicities
-    std::map<double, std::size_t> computeSpectrum(LinearAlgebra::SmallVector<DIM> kpoint, int numberOfModes);
+    std::map<double, std::size_t> computeSpectrum(LinearAlgebra::SmallVector<DIM> kpoint, int numberOfModes) const;
 
     /// \brief A dispersion line in a band structure between two points in k-space
     ///
@@ -44,16 +44,37 @@ public:
         ///
         /// \param interpolation Interpolation constant (k = k1 + a(k2 - k1))
         /// \return The frequency of this band at the specified point.
-        double frequency(double interpolation)
+        double frequency(double interpolation) const
         {
             double x0 = l_*interpolation + x_;
             return std::sqrt(y_*y_ +x0*x0) / std::sqrt(permittivity_);
         }
         /// \return Multiplicity without taking into account the polarization
-        std::size_t multiplicity()
+        std::size_t multiplicity() const
         {
             return multiplicity_;
         }
+
+        double getL() const
+        {
+            return l_;
+        }
+
+        double getX() const
+        {
+            return x_;
+        }
+
+        double getY() const
+        {
+            return y_;
+        }
+
+        double getPermittivity() const
+        {
+            return permittivity_;
+        }
+
 
     private:
         // The frequency omega for a band at point k is defined as
@@ -122,10 +143,10 @@ public:
         std::size_t multiplicity_;
     };
 
-    std::vector<Line> computeLines(LinearAlgebra::SmallVector<DIM> point1, LinearAlgebra::SmallVector<DIM> point2, double maxFrequency);
+    std::vector<Line> computeLines(LinearAlgebra::SmallVector<DIM> point1, LinearAlgebra::SmallVector<DIM> point2, double maxFrequency) const;
 
 private:
-    std::array<LinearAlgebra::SmallVector<DIM>, DIM> reciprocalVectors_;
+    const std::array<LinearAlgebra::SmallVector<DIM>, DIM> reciprocalVectors_;
     double permittivity_;
 };
 

@@ -4,6 +4,7 @@
 #include "LinearAlgebra/SmallMatrix.h"
 
 #include <queue>
+#include <iostream>
 
 template<std::size_t DIM>
 HomogeneousBandStructure<DIM>::HomogeneousBandStructure(
@@ -85,7 +86,7 @@ struct LatticePoint
         return result;
     }
 
-    LinearAlgebra::SmallVector<DIM> k(Basis<DIM>& basis) const
+    LinearAlgebra::SmallVector<DIM> k(const Basis<DIM>& basis) const
     {
         LinearAlgebra::SmallVector<DIM> result;
         result.set(0);
@@ -111,20 +112,20 @@ struct LatticePoint
                 basis(coordId, vecId) = reciprocalBasis[vecId][coordId];
             }
         }
-        LinearAlgebra::SmallVector<DIM> coords = kpoint;
-        basis.solve(coords);
+        LinearAlgebra::SmallVector<DIM> realCoords = kpoint;
+        basis.solve(realCoords);
         // We now have the coordinates in terms of the reciprocal lattice.
         // So add the nearest neighbours to this point
-        std::array<int, DIM> rcoords, offset, icoords;
+        std::array<int, DIM> roundedCoords, offset, icoords;
         offset.fill(-1);
         for(std::size_t i = 0; i < DIM; ++i)
         {
-            rcoords[i] = std::round(coords[i]);
+            roundedCoords[i] = std::round(realCoords[i]);
         }
         do {
             for(std::size_t i = 0; i < DIM; ++i)
             {
-                icoords[i] = coords[i] + offset[i];
+                icoords[i] = roundedCoords[i] + offset[i];
             }
             result.emplace_back(icoords);
         } while(next(offset, -1, 1));
@@ -138,7 +139,7 @@ private:
 
 template<std::size_t DIM>
 std::map<double, std::size_t> HomogeneousBandStructure<DIM>::computeSpectrum(
-        LinearAlgebra::SmallVector<DIM> kpoint, int numberOfModes)
+        LinearAlgebra::SmallVector<DIM> kpoint, int numberOfModes) const
 {
     // Using this order so that points are first ordered by frequency.
     using Key = std::tuple<double, LatticePoint<DIM>>;
@@ -264,7 +265,7 @@ double intervalDist(double x, double xmin, double xmax)
 template<std::size_t DIM>
 std::vector<typename HomogeneousBandStructure<DIM>::Line> HomogeneousBandStructure<DIM>::computeLines(
         LinearAlgebra::SmallVector<DIM> point1,
-        LinearAlgebra::SmallVector<DIM> point2, double maxFrequency)
+        LinearAlgebra::SmallVector<DIM> point2, double maxFrequency) const
 {
     const double l = (point1 - point2).l2Norm();
     LinearAlgebra::SmallVector<DIM> kdir = point2 - point1;
