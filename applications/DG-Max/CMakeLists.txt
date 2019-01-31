@@ -33,6 +33,7 @@ add_executable( DG-Max.out
                 ProblemTypes/Time/SampleTestProblems.cpp
                 Utils/KSpacePath.cpp
                 Utils/HomogeneousBandStructure.cpp
+                Utils/BandstructureGNUPlot.cpp
       		)
 target_link_libraries(DG-Max.out Output ${PETSC_LIBRARIES} ${SLEPC_LIBRARIES} )
 
