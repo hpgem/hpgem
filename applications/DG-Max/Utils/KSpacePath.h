@@ -51,8 +51,9 @@ public:
     static KSpacePath<DIM> singleStepPath(KPoint point);
     /// \brief Create the standard high-symmetry point path for a cube.
     /// \param steps The number of steps in each direction.
+    /// \param back Whether to return to the gamma point.
     /// \return The path for the cube
-    static KSpacePath<DIM> cubePath(std::size_t steps);
+    static KSpacePath<DIM> cubePath(std::size_t steps, bool back = false);
 
 private:
     const std::vector<KPoint> points_;

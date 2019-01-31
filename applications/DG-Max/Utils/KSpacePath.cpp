@@ -43,7 +43,7 @@ LinearAlgebra::SmallVector<DIM> KSpacePath<DIM>::dk(std::size_t index) const
     }
     else
     {
-        std::size_t pointOffset = index / steps_;
+        std::size_t pointOffset = (index-1) / steps_;
         return (points_[pointOffset+1] - points_[pointOffset]) / steps_;
     }
 }
@@ -82,12 +82,16 @@ KSpacePath<DIM> KSpacePath<DIM>::singleStepPath(KSpacePath<DIM>::KPoint point)
 
 //TODO: This does not really seem nice.
 template <std::size_t DIM>
-KSpacePath<DIM> KSpacePath<DIM>::cubePath(std::size_t steps)
+KSpacePath<DIM> KSpacePath<DIM>::cubePath(std::size_t steps, bool back)
 {
-    std::vector<KSpacePath<DIM>::KPoint> points (DIM+1);
+    std::vector<KSpacePath<DIM>::KPoint> points (DIM + (back ? 2 : 1));
     KSpacePath<DIM>::KPoint point;
     // 0
     points[0] = point;
+    if(back)
+    {
+        points[DIM + 1] = point;
+    }
     // (pi, 0, 0)
     point[0] = M_PI;
     points[1] = point;
