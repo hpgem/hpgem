@@ -186,10 +186,10 @@ namespace Base
         
 
         template<typename T>
-        typename std::enable_if<(std::is_same<T, std::string>::value), T>::type parse_argument(CLOParser& p)
+        typename std::enable_if<(std::is_constructible<T, const char*>::value) && !std::is_same<T, bool>::value, T>::type parse_argument(CLOParser& p)
         {
             ++p;
-            std::string copy = *p;
+            T copy(*p);
             return copy;
         }
     } // namespace Detail
