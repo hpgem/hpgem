@@ -23,6 +23,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define ALGORITHMS_DGMAXEIGENVALUE_h
 
 #include "../ProblemTypes/EigenValueProblem.h"
+#include "../ProblemTypes/BaseEigenvalueResult.h"
 
 #include "../BaseExtended.h"
 #include "DGMaxDiscretization.h"
@@ -37,8 +38,20 @@ class DGMaxEigenValue
 
 public:
 
+    class Result : public BaseEigenvalueResult<DIM>
+    {
+    public:
+        Result(EigenValueProblem<DIM> problem, std::vector<std::vector<PetscScalar>> values);
+        const EigenValueProblem<DIM>& originalProblem() const final;
+        const std::vector<double> frequencies(std::size_t point) const final;
+
+    private:
+        const EigenValueProblem<DIM> problem_;
+        const std::vector<std::vector<PetscScalar>> eigenvalues_;
+    };
+
     DGMaxEigenValue(hpGemUIExtentions& base);
-    void solve(const EigenValueProblem<DIM>& input, double stab);
+    Result solve(const EigenValueProblem<DIM>& input, double stab);
     // TODO: A nice wrapper of EPS that does RAII would be nicer
     EPS createEigenSolver();
     void destroyEigenSolver(EPS& eps);

@@ -79,7 +79,8 @@ void DGMaxEigenValue::initializeMatrices(double stab)
     discretization_.computeFaceIntegrals(*(base_.getMesh(0)), nullptr, stab);
 }
 
-void DGMaxEigenValue::solve(const EigenValueProblem<DIM>& input, double stab)
+DGMaxEigenValue::Result DGMaxEigenValue::solve(
+        const EigenValueProblem<DIM>& input, double stab)
 {
     // Sometimes the solver finds more eigenvalues & vectors than requested, so
     // reserve some extra space for them.
@@ -284,28 +285,6 @@ void DGMaxEigenValue::solve(const EigenValueProblem<DIM>& input, double stab)
     // Cleanup
     // Assembly of the eigen value vector
 
-    for (std::size_t kPoint = 0; kPoint < maxStep; kPoint++)
-    {
-        std::cout << "k-point " << kPoint << "/" << maxStep << std::endl;
-        for (PetscScalar eigenValue : eigenvalues[kPoint])
-        {
-            std::cout << eigenValue << std::endl;
-        }
-    }
-
-    std::cout << "Real parts for plotting band structure." << std::endl;
-    // Table form for plotting
-    for (std::size_t kPoint = 0; kPoint < maxStep; kPoint++)
-    {
-        std::cout << kPoint;
-        for (PetscScalar eigenvalue : eigenvalues[kPoint])
-        {
-            std::cout << "\t" << std::sqrt(eigenvalue.real());
-        }
-        std::cout << std::endl;
-    }
-
-
     error = EPSGetInvariantSubspace(eigenSolver, eigenVectors);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
@@ -321,6 +300,9 @@ void DGMaxEigenValue::solve(const EigenValueProblem<DIM>& input, double stab)
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
     destroyEigenSolver(eigenSolver);
+
+    Result result (input, eigenvalues);
+    return result;
 }
 
 void DGMaxEigenValue::extractEigenValues(const EPS &solver, std::vector<PetscScalar> &result)
@@ -418,4 +400,32 @@ void DGMaxEigenValue::makeShiftMatrix(const Base::MeshManipulator<DIM>& mesh, co
     CHKERRABORT(PETSC_COMM_WORLD, err);
     VecAssemblyEnd(waveVecMatrix);
     CHKERRABORT(PETSC_COMM_WORLD, err);
+}
+
+DGMaxEigenValue::Result::Result(
+        EigenValueProblem<DIM> problem, std::vector<std::vector<PetscScalar>> values)
+    : problem_ (problem)
+    , eigenvalues_ (values)
+{
+    logger.assert_always(problem.getPath().totalNumberOfSteps() == values.size(),
+        "Eigenvalues are not provided for each k-point.");
+}
+
+const EigenValueProblem<DIM>& DGMaxEigenValue::Result::originalProblem() const
+{
+    return problem_;
+}
+
+const std::vector<double> DGMaxEigenValue::Result::frequencies(std::size_t point) const
+{
+    logger.assert_debug(point >= 0 && point < problem_.getPath().totalNumberOfSteps(),
+        "Point number outside of valid range for the path");
+
+    std::vector<double> result;
+    result.reserve(eigenvalues_[point].size());
+    for(PetscScalar eigenvalue : eigenvalues_[point])
+    {
+        result.emplace_back(std::sqrt(eigenvalue.real()));
+    }
+    return result;
 }
