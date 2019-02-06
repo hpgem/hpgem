@@ -164,7 +164,7 @@ DivDGMaxEigenValue::Result DivDGMaxEigenValue::solve(
 //    CHKERRABORT(PETSC_COMM_WORLD, error);
 
     std::size_t outputId = 0;
-    std::size_t maxSteps = 1 + kpath.totalNumberOfSteps();
+    std::size_t maxSteps = kpath.totalNumberOfSteps();
     // For testing
 //    maxSteps = 21;
 
