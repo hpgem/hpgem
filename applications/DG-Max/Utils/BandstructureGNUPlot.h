@@ -3,7 +3,7 @@
 #define HPGEM_GNUOUTPUT_H
 
 #include "KSpacePath.h"
-#include "HomogeneousBandStructure.h"
+#include "BandStructure.h"
 #include "ProblemTypes/BaseEigenvalueResult.h"
 
 #include <string>
@@ -17,16 +17,39 @@ class BandstructureGNUPlot
 public:
     BandstructureGNUPlot(const KSpacePath<DIM>& path,
             const std::vector<std::string>& pointNames,
-            const HomogeneousBandStructure<DIM>& structure,
+            const BandStructure<DIM>& structure,
             const BaseEigenvalueResult<DIM>* computedSpectrum = nullptr);
     void plot(std::string fileName);
 private:
-    std::string band(const typename HomogeneousBandStructure<DIM>::Line& line,
+
+    struct Line
+    {
+        Line(std::string styling, std::string title, std::string data)
+                : styling_ (styling)
+                , data_ (data)
+                , title_ (title)
+                , deduplicate_ (false)
+                , priority_ (0)
+        {}
+
+        std::string styling_;
+        std::string data_;
+        std::string title_;
+        bool deduplicate_;
+        int priority_;
+
+        bool operator == (const Line& other)
+        {
+            return this == &other;
+        }
+    };
+
+    Line band(const typename BandStructure<DIM>::LineSet& line, std::size_t lineIndex,
         double x1, double x2, bool titled);
 
     std::map<int, std::vector<std::tuple<double, double>>> groupSpectrum();
 
-    const HomogeneousBandStructure<DIM>& structure_;
+    const BandStructure<DIM>& structure_;
     const BaseEigenvalueResult<DIM>* computedSpectrum_;
     const KSpacePath<DIM>& path_;
     const std::vector<std::string>& pointNames_;

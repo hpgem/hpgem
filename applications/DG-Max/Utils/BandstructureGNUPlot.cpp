@@ -7,11 +7,12 @@
 #include <sstream>
 #include <set>
 
+
 template <std::size_t DIM>
 BandstructureGNUPlot<DIM>::BandstructureGNUPlot(
         const KSpacePath<DIM> &path,
         const std::vector<std::string>& pointNames,
-        const HomogeneousBandStructure<DIM>& structure,
+        const BandStructure<DIM>& structure,
         const BaseEigenvalueResult<DIM>* computedSpectrum)
     : path_ (path)
     , pointNames_ (pointNames)
@@ -31,7 +32,7 @@ BandstructureGNUPlot<DIM>::BandstructureGNUPlot(
 template <std::size_t DIM>
 void BandstructureGNUPlot<DIM>::plot(std::string fileName)
 {
-    const double maxFreq = 16;
+    const double maxFreq = M_PI;
 
     std::ofstream out (fileName);
     // Header
@@ -68,6 +69,23 @@ void BandstructureGNUPlot<DIM>::plot(std::string fileName)
         }
         out << ")" << std::endl;
     }
+    // Set y-label
+    out << "set ylabel \"Reduced frequency\"" << std::endl;
+
+
+    std::vector<Line> gnulines;
+
+
+    for(std::size_t i = 1; i < path_.numberOfCornerPoints(); ++i)
+    {
+        std::unique_ptr<typename BandStructure<DIM>::LineSet> lines =
+                structure_.computeLines(path_.kcorner(i-1), path_.kcorner(i), maxFreq);
+        for(std::size_t j = 0; j < lines->numberOfLines(); ++j)
+        {
+            Line pline = band(*lines, j, xpoints[i-1], xpoints[i], "");
+            gnulines.emplace_back(pline);
+        }
+    }
 
     // Frequency data
     std::map<int, std::vector<std::tuple<double, double>>> points;
@@ -75,59 +93,18 @@ void BandstructureGNUPlot<DIM>::plot(std::string fileName)
     {
         points = groupSpectrum();
 
-        out << "$bandpoints << EOD" << std::endl;
         for(auto& ps : points)
         {
+            std::ostringstream data;
+            std::ostringstream title;
+            std::ostringstream style;
+
             for(auto p : ps.second)
             {
-                out << std::get<0>(p) << " " << std::get<1>(p) << std::endl;
+                data << std::get<0>(p) << " " << std::get<1>(p) << std::endl;
             }
-            // Dataset separation
-            out << std::endl;
-            out << std::endl;
-        }
+            data << std::endl;
 
-        out << "EOD" << std::endl;
-    }
-
-
-    // Plot the actual structure
-    std::map<std::size_t, std::vector<std::string>> results;
-    std::set<std::size_t> hasKey;
-    out << "plot sample ";
-    for(std::size_t i = 1; i < path_.numberOfCornerPoints(); ++i)
-    {
-        std::vector<typename HomogeneousBandStructure<DIM>::Line> lines =
-                structure_.computeLines(path_.kcorner(i-1), path_.kcorner(i), maxFreq);
-        for(auto& line : lines)
-        {
-            std::size_t multiplicity = line.multiplicity();
-            std::vector<std::string>& resultBin = results[multiplicity];
-            bool title = resultBin.empty();
-            resultBin.emplace_back(band(line, xpoints[i-1], xpoints[i], title));
-        }
-    }
-    bool first = true;
-    for(auto& bin : results)
-    {
-        for(auto& line : bin.second)
-        {
-            if(first)
-            {
-                first = false;
-            }
-            else
-            {
-                out << ",\\" << std::endl << "  ";
-            }
-            out << line;
-        }
-    }
-    if(computedSpectrum_ != nullptr)
-    {
-        int index = 0;
-        for(auto& ps : points)
-        {
             int difference = ps.first;
             int pointType;
             if (difference < 0)
@@ -137,18 +114,83 @@ void BandstructureGNUPlot<DIM>::plot(std::string fileName)
             else
                 pointType = 7; // 'o'
 
-            out << ",\\" << std::endl
-                << "  $bandpoints index " << index
-                << " with points pointtype " << pointType;
+            style << "points pointtype " << pointType;
             if(difference == 0)
             {
                 // the points are rather big for something that is correct so
                 // reduce their size a bit.
-                out << " pointsize 0.3";
+                style << " pointsize 0.3";
             }
-            out << " linecolor " << std::abs(difference) + 1
-                << " title \"" << difference << "\"";
-            index++;
+            style << " linecolor " << std::abs(difference) + 1;
+            title << '"' << difference << '"';
+            gnulines.emplace_back(style.str(), title.str(), data.str());
+            gnulines.back().priority_ = difference;
+        }
+    }
+
+
+    out << "$data << EOD" << std::endl;
+    for(auto& line : gnulines)
+    {
+        // data should be ended with a newline internally.
+        out << line.data_ << std::endl << std::endl;
+    }
+    out << "EOD" << std::endl;
+
+    // Plot the actual structure
+    out << "plot ";
+    bool first = true;
+    int index = 0;
+
+    // Group everything by priority
+
+    std::map<int, std::vector<Line*>> plotOrder;
+    for(Line& line : gnulines)
+    {
+        std::vector<Line*>& plines = plotOrder[line.priority_];
+        plines.emplace_back(&line);
+    }
+
+    // For deduplication of the titles, note that we do not consider style.
+    std::set<std::string> titles;
+
+    for(auto& plines : plotOrder)
+    {
+        for(Line* line : plines.second)
+        {
+            bool title = true;
+            if(line->deduplicate_)
+            {
+                if(titles.find(line->title_) == titles.end())
+                {
+                    titles.emplace(line->title_);
+                }
+                else
+                {
+                    title = false;
+                }
+            }
+
+            if (!first)
+            {
+                out << ",\\" << std::endl << "  ";
+            }
+            else
+            {
+                first = false;
+            }
+            int index = std::find(gnulines.begin(), gnulines.end(), *line) - gnulines.begin();
+
+            out << "$data index " << index
+                << " with " << line->styling_;
+            if (title)
+            {
+                out << " title " << line->title_;
+            }
+            else
+            {
+                out << " notitle";
+            }
         }
     }
     out << std::endl;
@@ -156,36 +198,36 @@ void BandstructureGNUPlot<DIM>::plot(std::string fileName)
 }
 
 template<std::size_t DIM>
-std::string BandstructureGNUPlot<DIM>::band(
-        const typename HomogeneousBandStructure<DIM>::Line &line,
+typename BandstructureGNUPlot<DIM>::Line BandstructureGNUPlot<DIM>::band(
+        const typename BandStructure<DIM>::LineSet &line, std::size_t lineIndex,
         double x1, double x2, bool titled)
 {
-    double x = line.getX();
-    double y = line.getY();
-    double l = line.getL();
-    std::ostringstream out;
+    std::ostringstream data;
+    std::ostringstream title;
+    std::ostringstream style;
 
-    // print the range
-    out << "[" << x1 << ":" << x2 << "]";
-    // actual function
-    // - xpoints to correct for the offset on the x-axis,
-    // +x from the actual shape
-    out << " sqrt((x + " << (x - x1) << ")**2 + " << y*y << ")";
-    std::size_t multiplicity = line.multiplicity();
-
-    if(!titled)
+    // TODO: Magic number of points
+    const std::size_t POINTS = 81;
+    const double dx = (x2 - x1) / (POINTS -1);
+    for(std::size_t i = 0; i < POINTS; ++i)
     {
-        out << " notitle";
+        double x = i * dx + x1;
+        double f = line.frequency(lineIndex, i / (POINTS - 1.0));
+        data << x << " " << f << std::endl;
     }
-    else
+    std::size_t multiplicity = line.multiplicity(lineIndex);
+    title << '"' << line.lineTitle(lineIndex) << '"';
+    int dashType = line.lineType(lineIndex);
+    if(dashType == -1)
     {
-        out << " title \"" << multiplicity << '"';
+        dashType = (1 + (multiplicity - 0) / 8);
     }
 
-    // mult + 1 so 0 can also have its unique color, which is used in the
-    // computed spectrum.
-    out << " linecolor " << (multiplicity + 1) << " dashtype " << (1 + (multiplicity - 1) / 8);
-    return out.str();
+    style << "lines linecolor " << (multiplicity + 1) << " dashtype " << dashType;
+    Line result (style.str(), title.str(), data.str());
+    result.deduplicate_ = true;
+    result.priority_ = multiplicity - 100;
+    return result;
 }
 
 // Find the element whose neighbour is nearest to the given value

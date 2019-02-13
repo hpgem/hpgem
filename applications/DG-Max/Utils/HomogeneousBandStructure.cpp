@@ -1,7 +1,7 @@
 
 #include "HomogeneousBandStructure.h"
+#include "BandstructureUtils.h"
 
-#include "LinearAlgebra/SmallMatrix.h"
 
 #include <queue>
 #include <iostream>
@@ -13,133 +13,10 @@ HomogeneousBandStructure<DIM>::HomogeneousBandStructure(
         , permittivity_ (permittivity)
 {}
 
-template<std::size_t DIM>
-bool next(std::array<int, DIM>& arr, int min, int max)
-{
-    for(std::size_t i = 0; i < DIM; ++i)
-    {
-        if(arr[i] < max)
-        {
-            arr[i]++;
-            return true;
-        }
-        else
-        {
-            arr[i] = min;
-        }
-    }
-    return false;
-}
-
-template<std::size_t DIM>
-using Basis = std::array<LinearAlgebra::SmallVector<DIM>, DIM>;
-
-template<std::size_t DIM>
-struct LatticePoint
-{
-    LatticePoint() = default;
-
-    LatticePoint(std::array<int, DIM> coords)
-            : coords_ (coords)
-    {}
-
-    LatticePoint(const LatticePoint<DIM>& other) = default;
-    LatticePoint(LatticePoint<DIM>&& other) noexcept = default;
-
-    LatticePoint<DIM>& operator =(const LatticePoint<DIM>& other) = default;
-    LatticePoint<DIM>& operator =(LatticePoint<DIM>&& other) noexcept = default;
-
-    bool operator==  (const LatticePoint<DIM>& other) const
-    {
-        return coords_ == other.coords_;
-    }
-
-    // Lexicographic order
-    bool operator < (const LatticePoint<DIM>& other) const
-    {
-        return coords_ < other.coords_;
-    }
-
-    std::vector<LatticePoint> getNeighbours() const
-    {
-        std::array<int, DIM> offset, ncoords;
-        offset.fill(-1);
-
-        std::vector<LatticePoint> result;
-        result.reserve(std::round(std::pow(3, DIM) - 1));
-
-        do
-        {
-            bool zeroOffset = true;
-            for(std::size_t i = 0; i < DIM; ++i)
-            {
-                zeroOffset &= offset[i] == 0;
-                ncoords[i] = coords_[i] + offset[i];
-            }
-            if (zeroOffset)
-            {
-                continue;
-            }
-            result.emplace_back(ncoords);
-        }
-        while(next(offset, -1, 1));
-        return result;
-    }
-
-    LinearAlgebra::SmallVector<DIM> k(const Basis<DIM>& basis) const
-    {
-        LinearAlgebra::SmallVector<DIM> result;
-        result.set(0);
-        for(std::size_t i = 0; i < DIM; ++i)
-        {
-            result += coords_[i] * basis[i];
-        }
-        return result;
-    }
-
-    static std::vector<LatticePoint> getNearestNeighbours(
-            const LinearAlgebra::SmallVector<DIM>& kpoint,
-            const Basis<DIM>& reciprocalBasis)
-    {
-        // Insert initial points.
-        std::vector<LatticePoint> result;
-        result.reserve(1 << (DIM + 1));
-        LinearAlgebra::SmallMatrix<DIM, DIM> basis;
-        for(std::size_t vecId = 0; vecId < DIM; ++vecId)
-        {
-            for(std::size_t coordId = 0; coordId < DIM; ++coordId)
-            {
-                basis(coordId, vecId) = reciprocalBasis[vecId][coordId];
-            }
-        }
-        LinearAlgebra::SmallVector<DIM> realCoords = kpoint;
-        basis.solve(realCoords);
-        // We now have the coordinates in terms of the reciprocal lattice.
-        // So add the nearest neighbours to this point
-        std::array<int, DIM> roundedCoords, offset, icoords;
-        offset.fill(-1);
-        for(std::size_t i = 0; i < DIM; ++i)
-        {
-            roundedCoords[i] = std::round(realCoords[i]);
-        }
-        do {
-            for(std::size_t i = 0; i < DIM; ++i)
-            {
-                icoords[i] = roundedCoords[i] + offset[i];
-            }
-            result.emplace_back(icoords);
-        } while(next(offset, -1, 1));
-        return result;
-    }
-
-private:
-    std::array<int, DIM> coords_;
-};
-
 
 template<std::size_t DIM>
 std::map<double, std::size_t> HomogeneousBandStructure<DIM>::computeSpectrum(
-        LinearAlgebra::SmallVector<DIM> kpoint, int numberOfModes) const
+        LinearAlgebra::SmallVector<DIM> kpoint, double maxFrequency) const
 {
     // Using this order so that points are first ordered by frequency.
     using Key = std::tuple<double, LatticePoint<DIM>>;
@@ -154,6 +31,9 @@ std::map<double, std::size_t> HomogeneousBandStructure<DIM>::computeSpectrum(
         {
             LinearAlgebra::SmallVector<DIM> dk = p.k(reciprocalVectors_) - kpoint;
             double frequency = dk.l2Norm() / std::sqrt(permittivity_);
+            if(frequency > maxFrequency)
+                continue;
+
             queue.emplace(frequency, p);
         }
     }
@@ -162,9 +42,7 @@ std::map<double, std::size_t> HomogeneousBandStructure<DIM>::computeSpectrum(
     // Coordinates of the reciprocal lattice point with respect to the
     // reciprocal lattice basis of reciprocalVectors_.
     std::vector<double> frequencies;
-    frequencies.reserve(numberOfModes + 16ul);
 
-    double maxFrequency = 0;
     while(!queue.empty())
     {
         LatticePoint<DIM> point;
@@ -174,16 +52,7 @@ std::map<double, std::size_t> HomogeneousBandStructure<DIM>::computeSpectrum(
         std::tie(frequency, point) = *next;
         queue.erase(next);
 
-        // To ensure we get the right multiplicity we need to keep going even if
-        // we already added 'numberOfModes'. However, as queue is ordered by
-        // frequency, we can stop if we go beyond maxFrequency.
-        if(frequencies.size() >= numberOfModes && frequency > maxFrequency + 1e-5)
-        {
-            // Everything added.
-            break;
-        }
         // Insert in the frequency table
-        maxFrequency = frequency;
         frequencies.emplace_back(frequency);
         // Two polarization modes for 3D
         if (DIM > 2)
@@ -196,74 +65,37 @@ std::map<double, std::size_t> HomogeneousBandStructure<DIM>::computeSpectrum(
             frequencies.emplace_back(frequency);
         }
 
-        if(frequencies.size() < numberOfModes)
+        for(LatticePoint<DIM> n : point.getNeighbours())
         {
-            for(LatticePoint<DIM> n : point.getNeighbours())
+            double neighbourFrequency = (n.k(reciprocalVectors_) - kpoint).l2Norm()
+                    / std::sqrt(permittivity_);
+            if(neighbourFrequency > frequency && neighbourFrequency < maxFrequency)
             {
-                double neighbourFrequency = (n.k(reciprocalVectors_) - kpoint).l2Norm()
-                        / std::sqrt(permittivity_);
-                if(neighbourFrequency > frequency)
+                // Prevent double insertion by checking if the neighbour is
+                // already in the queue. We explicitly check the
+                // coordinates, as the frequency is a floating point number.
+                bool found = false;
+                for(auto iter = queue.begin(); iter != queue.end(); ++iter)
                 {
-                    // Prevent double insertion by checking if the neighbour is
-                    // already in the queue. We explicitly check the
-                    // coordinates, as the frequency is a floating point number.
-                    bool found = false;
-                    for(auto iter = queue.begin(); iter != queue.end(); ++iter)
+                    if(std::get<1>(*iter) == n)
                     {
-                        if(std::get<1>(*iter) == n)
-                        {
-                            found = true;
-                            break;
-                        }
+                        found = true;
+                        break;
                     }
-                    if(!found)
-                    {
-                        queue.emplace(neighbourFrequency, n);
-                    }
+                }
+                if(!found)
+                {
+                    queue.emplace(neighbourFrequency, n);
                 }
             }
         }
-
     }
     // group the results
-    std::map<double, std::size_t> result;
-    {
-        auto iter = frequencies.begin();
-        while(iter != frequencies.end())
-        {
-            double frequency = *iter;
-            std::size_t count = 1;
-            iter++;
-            while(iter != frequencies.end() && std::abs(*iter - frequency) < 1e-5)
-            {
-                count++;
-                iter++;
-            }
-            result[frequency] = count;
-        }
-    }
-    return result;
-}
-
-double intervalDist(double x, double xmin, double xmax)
-{
-    logger.assert_debug(xmin <= xmax, "xmin should not be more than xmax");
-    if(x < xmin)
-    {
-        return xmin - x;
-    }
-    else if (x < xmax)
-    {
-        return 0;
-    }
-    else
-    {
-        return x - xmax;
-    }
+    return group(frequencies, 1e-5);
 }
 
 template<std::size_t DIM>
-std::vector<typename HomogeneousBandStructure<DIM>::Line> HomogeneousBandStructure<DIM>::computeLines(
+std::unique_ptr<typename BandStructure<DIM>::LineSet> HomogeneousBandStructure<DIM>::computeLines(
         LinearAlgebra::SmallVector<DIM> point1,
         LinearAlgebra::SmallVector<DIM> point2, double maxFrequency) const
 {
@@ -331,10 +163,10 @@ std::vector<typename HomogeneousBandStructure<DIM>::Line> HomogeneousBandStructu
         }
     }
     // construct the result
-    std::vector<Line> result;
+    std::unique_ptr<LineSet> result (new LineSet(l, permittivity_));
     for(auto& mode : modes)
     {
-        result.emplace_back(l, mode.first[0], mode.first[1], permittivity_, mode.second);
+        result->addLine(mode.first[0], mode.first[1], mode.second);
     }
     return result;
 }
