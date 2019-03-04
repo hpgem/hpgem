@@ -46,12 +46,14 @@ namespace Preprocessor {
             template <std::size_t SUB_DIM>
             std::vector<MeshEntity<SUB_DIM, dimension>>& getData()
             {
+                static_assert(SUB_DIM <= entityDimension, "Requested data is not available in this entity");
                 return MeshEntities<SUB_DIM, dimension>::data;
             }
 
             template <std::size_t SUB_DIM>
             const std::vector<MeshEntity<SUB_DIM, dimension>>& getData() const
             {
+                static_assert(SUB_DIM <= entityDimension, "Requested data is not available in this entity");
                 return MeshEntities<SUB_DIM, dimension>::data;
             }
         };
@@ -59,6 +61,20 @@ namespace Preprocessor {
         template<std::size_t dimension>
         struct MeshEntities<0, dimension> {
             std::vector<MeshEntity<0, dimension>> data;
+
+            template<std::size_t SUB_DIM>
+            std::vector<MeshEntity<0, dimension>>& getData()
+            {
+                static_assert(SUB_DIM == 0, "Requested data is not available in this entity");
+                return data;
+            }
+
+            template<std::size_t SUB_DIM>
+            const std::vector<MeshEntity<0, dimension>>& getData() const
+            {
+                static_assert(SUB_DIM == 0, "Requested data is not available in this entity");
+                return data;
+            }
         };
 
         constexpr std::size_t exp2(std::size_t power) {
@@ -208,6 +224,7 @@ namespace Preprocessor {
         }
 
         LinearAlgebra::SmallVector<dimension> getCoordinate(std::size_t localIndex) const;
+        std::size_t getCoordinateIndex(std::size_t localIndex) const;
 
         std::vector<LinearAlgebra::SmallVector<dimension>> getCoordinatesList() const;
 
@@ -230,6 +247,9 @@ namespace Preprocessor {
 
         template<int d, std::size_t entityDimension>
         std::vector<std::size_t> getIncidenceListAsIndices(const MeshEntity<entityDimension, dimension>& entity) const;
+
+        template<int d, std::size_t entityDimension>
+        std::vector<std::size_t> getLocalIncidenceListAsIndices(const MeshEntity<entityDimension, dimension>& entity) const;
 
     private:
         friend Mesh<dimension>;
@@ -480,7 +500,7 @@ namespace Preprocessor {
     //for use with file readers that can 'guess' the correct numbering of the node coordinates
     //file readers that don't do this should overload this function
     template<std::size_t dimension, typename file_t>
-    Mesh<dimension> readFile(file_t file) {
+    Mesh<dimension> readFile(file_t& file) {
         Mesh<dimension> result;
         for(auto nodeCoordinates : file.getNodeCoordinates()) {
             result.addNode();

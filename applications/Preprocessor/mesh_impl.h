@@ -136,6 +136,11 @@ namespace Preprocessor {
     }
 
     template<std::size_t dimension>
+    std::size_t Element<dimension>::getCoordinateIndex(std::size_t localIndex) const {
+        return globalCoordinateIndices[localIndex];
+    }
+
+    template<std::size_t dimension>
     std::vector<LinearAlgebra::SmallVector<dimension>> Element<dimension>::getCoordinatesList() const {
         std::vector<LinearAlgebra::SmallVector<dimension>> result;
         result.reserve(referenceGeometry->getNumberOfNodes());
@@ -176,13 +181,20 @@ namespace Preprocessor {
     template<std::size_t dimension>
     template<int d, std::size_t entityDimension>
     std::vector<std::size_t> Element<dimension>::getIncidenceListAsIndices(const MeshEntity<entityDimension, dimension>& entity) const {
+        auto result = getLocalIncidenceListAsIndices<d>(entity);
+        for(auto& index : result) {
+            index = incidenceLists[(d<0?d+dimension:d)][index];
+        }
+        return result;
+    }
+
+    template<std::size_t dimension>
+    template<int d, std::size_t entityDimension>
+    std::vector<std::size_t> Element<dimension>::getLocalIncidenceListAsIndices(const MeshEntity<entityDimension, dimension>& entity) const {
         static_assert(d + dimension >= 0, "The requested codimension is too high for the dimension of this element");
         constexpr std::size_t actualDimension = (d<0?d+dimension:d);
         if(incidenceLists[actualDimension].size() < referenceGeometry->template getNumberOfEntities<actualDimension>()) return {};
         std::vector<std::size_t> result = referenceGeometry->template getAdjacentEntities<entityDimension, actualDimension>(entity.getLocalIndex(*this));
-        for(auto& index : result) {
-            index = incidenceLists[actualDimension][index];
-        }
         return result;
     }
 

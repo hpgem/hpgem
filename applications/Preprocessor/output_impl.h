@@ -67,13 +67,16 @@ namespace Detail {
 
 template<typename indexType, std::size_t dimension>
 void Preprocessor::outputMesh(Mesh<dimension>& mesh, MeshData<indexType, dimension, dimension> partitions, std::size_t numberOfPartitions) {
+    if(mesh.getNumberOfNodes() == 0) {
+        logger(WARN, "outputting empty mesh");
+    }
     std::ofstream output(outputFileName.getValue());
     output << std::hexfloat;
     output << "mesh 1" << std::endl;
     output << mesh.getNumberOfNodes() << " " << mesh.getNumberOfElements() << " " << dimension;
     printOtherEntityCounts(output, mesh, ::Detail::tag<dimension - 1>{});
     output << std::endl;
-    std::size_t reservedSpace = std::log10(mesh.getNumberOfNodes()) + 2;
+    std::size_t reservedSpace = std::max(std::log10(mesh.getNumberOfNodes()), 0.) + 2;
     std::string whiteSpace(reservedSpace, ' ');
     output << numberOfPartitions << " ";
     auto partitionInformation = output.tellp();

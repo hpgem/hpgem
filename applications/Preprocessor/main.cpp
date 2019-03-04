@@ -106,11 +106,11 @@ int main(int argc, char** argv) {
                 logger.assert_always(dimension.getValue() == hpgemFile.getDimension(), "The input file reports being for dimension %, but the code was started for dimension %", hpgemFile.getDimension(), dimension.getValue());
             }
             if(hpgemFile.getDimension() == 1) {
-                processMesh(Preprocessor::readFile<1>(std::move(hpgemFile)));
+                processMesh(Preprocessor::readFile<1>(hpgemFile));
             } else if(hpgemFile.getDimension() == 2) {
-                processMesh(Preprocessor::readFile<2>(std::move(hpgemFile)));
+                processMesh(Preprocessor::readFile<2>(hpgemFile));
             } else if(hpgemFile.getDimension() == 3){
-                processMesh(Preprocessor::readFile<3>(std::move(hpgemFile)));
+                processMesh(Preprocessor::readFile<3>(hpgemFile));
             } else {
                 logger(ERROR, "Dimension % is not supported", hpgemFile.getDimension());
             }
@@ -120,9 +120,9 @@ int main(int argc, char** argv) {
                 logger.assert_always(dimension.getValue() == centaurFile.getDimension(), "The input file reports being for dimension %, but the code was started for dimension %", centaurFile.getDimension(), dimension.getValue());
             }
             if(centaurFile.getDimension() == 2) {
-                processMesh(Preprocessor::readFile<2>(std::move(centaurFile)));
+                processMesh(Preprocessor::readFile<2>(centaurFile));
             } else if(centaurFile.getDimension() == 3){
-                processMesh(Preprocessor::readFile<3>(std::move(centaurFile)));
+                processMesh(Preprocessor::readFile<3>(centaurFile));
             } else {
                 logger(ERROR, "Centaur file should not be able to have dimension %", centaurFile.getDimension());
             }

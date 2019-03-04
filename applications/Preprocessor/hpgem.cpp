@@ -194,6 +194,18 @@ namespace Preprocessor {
             return isPeriodic.size();
         }
 
+        std::size_t getTargetProcessorCount() override {
+            return 1;
+        }
+
+        Range<std::size_t> getProcessorBindings() override {
+            std::size_t numberOfElements = 1;
+            for(auto count : this->numberOfElements) {
+                numberOfElements *= count;
+            }
+            return {0UL, [](std::size_t& next){next = 0UL;}, numberOfElements};
+        }
+
     private:
         std::ifstream hpgemFile;
         std::vector<std::size_t> numberOfElements;
@@ -215,7 +227,8 @@ namespace Preprocessor {
             coordinateIDs.resize(numberOfNodes);
             //we are not interested in information about faces, edges or entities of dimension 2
             this->hpgemFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            //the line we actually want to skip (partitioning info)
+            this->hpgemFile >> targetProcessorCount;
+            //we are not interested in how the nodes are split across the partitions
             this->hpgemFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             nodesStart = this->hpgemFile.tellg();
             for(std::size_t i = 0; i < numberOfNodes; ++i) {
@@ -270,6 +283,26 @@ namespace Preprocessor {
             return dimension;
         }
 
+        std::size_t getTargetProcessorCount() override {
+            return targetProcessorCount;
+        }
+
+        Range<std::size_t> getProcessorBindings() override {
+            hpgemFile.seekg(elementsStart);
+            auto increment = [this](std::size_t& next) mutable {
+                std::size_t numberOfNodes, ignore;
+                hpgemFile >> numberOfNodes;
+                for(std::size_t i = 0; i < numberOfNodes; ++i) {
+                    hpgemFile >> ignore >> ignore;
+                }
+                hpgemFile >> next;
+                hpgemFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            };
+            std::size_t start;
+            increment(start);
+            return {start, std::move(increment), numberOfElements};
+        }
+
     private:
         std::ifstream hpgemFile;
         std::ifstream::pos_type nodesStart;
@@ -277,6 +310,7 @@ namespace Preprocessor {
         std::size_t numberOfNodes;
         std::size_t numberOfElements;
         std::size_t dimension;
+        std::size_t targetProcessorCount;
         std::vector<std::vector<std::size_t>> coordinateIDs;
     };
 

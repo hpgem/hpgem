@@ -17,8 +17,17 @@ add_executable(Preprocessor.out
                ../../kernel/Base/CommandLineOptions.cpp
                ../../kernel/Base/MpiContainer.cpp)
 
-set_property(TARGET Preprocessor.out PROPERTY CXX_STANDARD 14)
+add_executable(ExtractSurface.out
+               extractSurface.cpp
+               centaur.cpp
+               hpgem.cpp
+               ../../kernel/Logger.cpp
+               ../../kernel/Base/CommandLineOptions.cpp
+               ../../kernel/Base/MpiContainer.cpp)
+
 set(CURRENT_TARGET Preprocessor.out)
+include(${CMAKE_SOURCE_DIR}/conf/cmake/CLionFix.cmake)
+set(CURRENT_TARGET ExtractSurface.out)
 include(${CMAKE_SOURCE_DIR}/conf/cmake/CLionFix.cmake)
 set(CURRENT_TARGET)
 
@@ -28,16 +37,20 @@ if(hpGEM_USE_MPI)
     set( DEP_COMPILE_FLAGS "${DEP_COMPILE_FLAGS} ${MPI_COMPILE_FLAGS}" )
     set( DEP_LINKER_FLAGS "${DEP_LINKER_FLAGS} ${MPI_LINK_FLAGS}")
     target_link_libraries(Preprocessor.out "${MPI_LIBRARIES}")
+    target_link_libraries(ExtractSurface.out "${MPI_LIBRARIES}")
 endif()
 
 if(hpGEM_USE_METIS)
     target_link_libraries(Preprocessor.out "${METIS_LIBRARIES}")
+    target_link_libraries(ExtractSurface.out "${METIS_LIBRARIES}")
 endif()
 
 if(hpGEM_USE_PETSC OR hpGEM_USE_COMPLEX_PETSC)
     target_link_libraries(Preprocessor.out "${PETSC_LIBRARIES}")
+    target_link_libraries(ExtractSurface.out "${PETSC_LIBRARIES}")
 endif()
 
 if(hpGEM_USE_SLEPC)
     target_link_libraries(Preprocessor.out "${SLEPC_LIBRARIES}")
+    target_link_libraries(ExtractSurface.out "${SLEPC_LIBRARIES}")
 endif()

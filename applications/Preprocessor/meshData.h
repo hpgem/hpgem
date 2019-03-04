@@ -93,7 +93,7 @@ namespace Preprocessor {
         PartialData(const PartialData&) = default;
 
         /**
-         * MeshData gives the additional guarantee that moved-from MeshDatas are still associated with their mesh after moving
+         * PartialData gives the additional guarantee that moved-from PartialDatas are still associated with their mesh after moving
          */
         PartialData(PartialData&& other) noexcept : mesh(other.mesh), data_(std::move(other.data_)) {}
 
