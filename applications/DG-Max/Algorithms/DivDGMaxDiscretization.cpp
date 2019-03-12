@@ -393,11 +393,7 @@ void DivDGMaxDiscretization::faceStiffnessMatrix2(
     std::size_t totalPDoFs = face->getPtrElementLeft()->getNumberOfBasisFunctions(1);
     std::size_t leftUDoFs = totalUDoFs;
     std::size_t leftPDoFs = totalPDoFs;
-    const double epsilonLeft = static_cast<ElementInfos*>(face->getPtrElementLeft()->getUserData())->epsilon_;
-    const double epsilonRight = face->isInternal()
-                                ? (static_cast<ElementInfos*>(face->getPtrElementRight()->getUserData())->epsilon_)
-                                : 0; // If no right face is present this will not be used.
-    double epsmin = std::min(epsilonLeft, epsilonRight);
+
     if(face->isInternal())
     {
         totalUDoFs = face->getPtrElementLeft()->getNumberOfBasisFunctions(0) + face->getPtrElementRight()->getNumberOfBasisFunctions(0);
@@ -428,7 +424,8 @@ void DivDGMaxDiscretization::faceStiffnessMatrix2(
         for (std::size_t j = 0; j < totalUDoFs; ++j)
         {
             const std::size_t jIndex = indices[j];
-            double entry = stab/(diameter * epsmin) * (phiNormalCross[i] * phiNormalCross[j]);
+            // Possibly scale with mu^{-1} in the future
+            double entry = stab/(diameter) * (phiNormalCross[i] * phiNormalCross[j]);
             ret(iIndex, jIndex) = entry;
             ret(jIndex, iIndex) = entry;
         }
@@ -454,6 +451,8 @@ void DivDGMaxDiscretization::faceStiffnessMatrix3(Base::PhysicalFace<DIM> &fa, L
         //}
         ret.resize(totalUDoFs + totalPDoFs, totalUDoFs + totalPDoFs);
         ElementInfos* leftInfo = static_cast<ElementInfos*>(face->getPtrElementLeft()->getUserData());
+
+        const double epsmax = std::max(leftInfo->epsilon_, rightInfo->epsilon_);
 
 
         LinearAlgebra::SmallVector<DIM> normal = fa.getUnitNormalVector();
@@ -484,7 +483,8 @@ void DivDGMaxDiscretization::faceStiffnessMatrix3(Base::PhysicalFace<DIM> &fa, L
             for (std::size_t j = i; j < totalUDoFs; ++j)
             {
                 const std::size_t jIndex = indices[j];
-                double entry = diameter * stab2 * phiNormalEpsilon[i] * phiNormalEpsilon[j];
+                //TODO: Scaling
+                double entry = diameter * stab2/epsmax * phiNormalEpsilon[i] * phiNormalEpsilon[j];
                 ret(iIndex, jIndex) = entry;
                 ret(jIndex, iIndex) = entry;
             }
@@ -507,7 +507,7 @@ void DivDGMaxDiscretization::faceScalarVectorCoupling(
     const double epsilonLeft = static_cast<ElementInfos*>(face->getPtrElementLeft()->getUserData())->epsilon_;
     const double epsilonRight = face->isInternal()
             ? (static_cast<ElementInfos*>(face->getPtrElementRight()->getUserData())->epsilon_)
-            : 0; // If no right face is present this will not be used.
+            : 1.0; // If no right face is present this will not be used.
     // From the averaging terms.
     double averageFactor = face->isInternal() ? 0.5 : 1;
 
@@ -593,10 +593,19 @@ void DivDGMaxDiscretization::faceStiffnessScalarMatrix4(
     const std::size_t leftUDoFs = totalUDoFs;
     const std::size_t leftPDoFs = totalPDoFs;
 
+    const double epsilonLeft = static_cast<ElementInfos*>(face->getPtrElementLeft()->getUserData())->epsilon_;
+
+    double epsmax;
     if (face->isInternal())
     {
         totalUDoFs += face->getPtrElementRight()->getNumberOfBasisFunctions(0);
         totalPDoFs += face->getPtrElementRight()->getNumberOfBasisFunctions(1);
+        const double epsilonRight = static_cast<ElementInfos*>(face->getPtrElementRight()->getUserData())->epsilon_;
+        epsmax = std::max(epsilonLeft, epsilonRight);
+    }
+    else
+    {
+        epsmax = epsilonLeft;
     }
     ret.resize(totalUDoFs + totalPDoFs, totalUDoFs + totalPDoFs);
 
@@ -626,7 +635,7 @@ void DivDGMaxDiscretization::faceStiffnessScalarMatrix4(
         for (std::size_t j = i; j < totalPDoFs; ++j)
         {
             // Note, positive here. The minus for the C matrix is added in computeFaceIntegrals7.
-            const double entry = stab3/diameter * phiP[j] * phiPi;
+            const double entry = stab3/diameter*epsmax * phiP[j] * phiPi;
             const std::size_t jIndex = indices[j];
             ret(iIndex, jIndex) = entry;
             ret(jIndex, iIndex) = entry;
@@ -661,12 +670,6 @@ void DivDGMaxDiscretization::faceBoundaryVector(
         const PointElementReferenceT& PLeft = face->mapRefFaceToRefElemL(p);
         const PointPhysicalT PPhys = face->getPtrElementLeft()->referenceToPhysical(PLeft);
 
-        const double epsilonLeft = static_cast<ElementInfos*>(face->getPtrElementLeft()->getUserData())->epsilon_;
-        const double epsilonRight = face->isInternal()
-                                    ? (static_cast<ElementInfos*>(face->getPtrElementRight()->getUserData())->epsilon_)
-                                    : 0; // If no right face is present this will not be used.
-        double epsmin = std::min(epsilonLeft, epsilonRight);
-
         LinearAlgebra::SmallVector<DIM> val, phi_curl;
         LinearAlgebra::SmallVector<DIM> phi;
         boundaryValue(PPhys, fa, val);
@@ -679,7 +682,8 @@ void DivDGMaxDiscretization::faceBoundaryVector(
         {
             fa.basisFunctionUnitNormalCross(i, phi, 0);
             phi_curl = fa.basisFunctionCurl(i, 0);
-            ret(i) = stab1/(diameter * epsmin) * (phi * val) - (phi_curl * val);
+            // Scale with mu^{-1} in the future
+            ret(i) = stab1/(diameter) * (phi * val) - (phi_curl * val);
         }
 
     }
