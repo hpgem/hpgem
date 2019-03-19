@@ -33,13 +33,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
 
-DGMaxEigenValue::DGMaxEigenValue(hpGemUIExtentions &base)
+template<std::size_t DIM>
+DGMaxEigenValue<DIM>::DGMaxEigenValue(hpGemUIExtentions<DIM> &base)
     : base_ (base)
 {
     discretization_.initializeBasisFunctions(*(base_.getMesh(0)), base_.getConfigData());
 }
 
-EPS DGMaxEigenValue::createEigenSolver()
+template<std::size_t DIM>
+EPS DGMaxEigenValue<DIM>::createEigenSolver()
 {
     EPS solver;
     PetscErrorCode err = EPSCreate(PETSC_COMM_WORLD, &solver);
@@ -66,20 +68,23 @@ EPS DGMaxEigenValue::createEigenSolver()
     return solver;
 }
 
-void DGMaxEigenValue::destroyEigenSolver(EPS& eps)
+template<std::size_t DIM>
+void DGMaxEigenValue<DIM>::destroyEigenSolver(EPS& eps)
 {
     PetscErrorCode err = EPSDestroy(&eps);
     CHKERRABORT(PETSC_COMM_WORLD, err);
 }
 
-void DGMaxEigenValue::initializeMatrices(double stab)
+template<std::size_t DIM>
+void DGMaxEigenValue<DIM>::initializeMatrices(double stab)
 {
     //TODO: Which of these InputFunctions are needed?
     discretization_.computeElementIntegrands(*(base_.getMesh(0)), true, nullptr, nullptr, nullptr);
     discretization_.computeFaceIntegrals(*(base_.getMesh(0)), nullptr, stab);
 }
 
-DGMaxEigenValue::Result DGMaxEigenValue::solve(
+template<std::size_t DIM>
+typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
         const EigenValueProblem<DIM>& input, double stab)
 {
     // Sometimes the solver finds more eigenvalues & vectors than requested, so
@@ -101,8 +106,8 @@ DGMaxEigenValue::Result DGMaxEigenValue::solve(
 //    base_.assembler->fillMatrices(&base_);
     initializeMatrices(stab);
 
-    Utilities::GlobalPetscMatrix massMatrix(base_.getMesh(0), DGMaxDiscretization::MASS_MATRIX_ID, -1),
-            stiffnessMatrix(base_.getMesh(0), DGMaxDiscretization::STIFFNESS_MATRIX_ID, DGMaxDiscretization::FACE_MATRIX_ID);
+    Utilities::GlobalPetscMatrix massMatrix(base_.getMesh(0), DGMaxDiscretization<DIM>::MASS_MATRIX_ID, -1),
+            stiffnessMatrix(base_.getMesh(0), DGMaxDiscretization<DIM>::STIFFNESS_MATRIX_ID, DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
     std::cout << "GlobalPetscMatrix initialised" << std::endl;
     Utilities::GlobalPetscVector
             sampleGlobalVector(base_.getMesh(0), -1, -1);
@@ -305,7 +310,8 @@ DGMaxEigenValue::Result DGMaxEigenValue::solve(
     return result;
 }
 
-void DGMaxEigenValue::extractEigenValues(const EPS &solver, std::vector<PetscScalar> &result)
+template<std::size_t DIM>
+void DGMaxEigenValue<DIM>::extractEigenValues(const EPS &solver, std::vector<PetscScalar> &result)
 {
     const double ZERO_TOLLERANCE = 1e-10;
 
@@ -340,7 +346,8 @@ void DGMaxEigenValue::extractEigenValues(const EPS &solver, std::vector<PetscSca
     });
 }
 
-std::vector<Base::Face*> DGMaxEigenValue::findPeriodicBoundaryFaces() const
+template<std::size_t DIM>
+std::vector<Base::Face*> DGMaxEigenValue<DIM>::findPeriodicBoundaryFaces() const
 {
     std::vector<Base::Face*> result;
     for (Base::TreeIterator<Base::Face*> it = base_.getMesh(0)->faceColBegin(); it != base_.getMesh(0)->faceColEnd(); ++it)
@@ -363,28 +370,31 @@ std::vector<Base::Face*> DGMaxEigenValue::findPeriodicBoundaryFaces() const
     return result;
 }
 
-LinearAlgebra::SmallVector<DIM> DGMaxEigenValue::boundaryFaceShift(const Base::Face *face) const
+template<std::size_t DIM>
+LinearAlgebra::SmallVector<DIM> DGMaxEigenValue<DIM>::boundaryFaceShift(const Base::Face *face) const
 {
     logger.assert_always(face->isInternal(), "Internal face boundary");
-    const PointFaceReferenceT& p = face->getReferenceGeometry()->getCenter();
-    const PointPhysicalT pLeftPhys = face->getPtrElementLeft()
+    const Geometry::PointReference<DIM-1>& p = face->getReferenceGeometry()->getCenter();
+    const Geometry::PointPhysical<DIM> pLeftPhys = face->getPtrElementLeft()
             ->referenceToPhysical(face->mapRefFaceToRefElemL(p));
-    const PointPhysicalT pRightPhys = face->getPtrElementRight()
+    const Geometry::PointPhysical<DIM> pRightPhys = face->getPtrElementRight()
             ->referenceToPhysical(face->mapRefFaceToRefElemR(p));
     return pLeftPhys.getCoordinates() - pRightPhys.getCoordinates();
 }
 
-void DGMaxEigenValue::makeShiftMatrix(const Base::MeshManipulator<DIM>& mesh, const Utilities::GlobalIndexing& indexing,
+template<std::size_t DIM>
+void DGMaxEigenValue<DIM>::makeShiftMatrix(const Base::MeshManipulator<DIM>& mesh, const Utilities::GlobalIndexing& indexing,
                                        const LinearAlgebra::SmallVector<DIM>& direction, Vec& waveVecMatrix) const
 {
     PetscErrorCode err = 0;
-    for (Base::MeshManipulator<DIM>::ConstElementIterator it = mesh.elementColBegin(); it != mesh.elementColEnd(); ++it)
+    for (typename Base::MeshManipulator<DIM>::ConstElementIterator it = mesh.elementColBegin();
+            it != mesh.elementColEnd(); ++it)
     {
         // Note this implicitly assumes we only uses DGBasisFunctions
         const std::size_t basisOffset = indexing.getGlobalIndex(*it, 0);
         for (int j = 0; j < (*it)->getNrOfBasisFunctions(); ++j)
         {
-            PointPhysicalT centerPhys;
+            Geometry::PointPhysical<DIM> centerPhys;
             const Geometry::PointReference<DIM>& center = (*it)->getReferenceGeometry()->getCenter();
             centerPhys = (*it)->referenceToPhysical(center);
             //this extra accuracy is probably irrelevant and a lot of extra ugly to get it working
@@ -402,7 +412,8 @@ void DGMaxEigenValue::makeShiftMatrix(const Base::MeshManipulator<DIM>& mesh, co
     CHKERRABORT(PETSC_COMM_WORLD, err);
 }
 
-DGMaxEigenValue::Result::Result(
+template<std::size_t DIM>
+DGMaxEigenValue<DIM>::Result::Result(
         EigenValueProblem<DIM> problem, std::vector<std::vector<PetscScalar>> values)
     : problem_ (problem)
     , eigenvalues_ (values)
@@ -411,12 +422,14 @@ DGMaxEigenValue::Result::Result(
         "Eigenvalues are not provided for each k-point.");
 }
 
-const EigenValueProblem<DIM>& DGMaxEigenValue::Result::originalProblem() const
+template<std::size_t DIM>
+const EigenValueProblem<DIM>& DGMaxEigenValue<DIM>::Result::originalProblem() const
 {
     return problem_;
 }
 
-const std::vector<double> DGMaxEigenValue::Result::frequencies(std::size_t point) const
+template<std::size_t DIM>
+const std::vector<double> DGMaxEigenValue<DIM>::Result::frequencies(std::size_t point) const
 {
     logger.assert_debug(point >= 0 && point < problem_.getPath().totalNumberOfSteps(),
         "Point number outside of valid range for the path");
@@ -429,3 +442,6 @@ const std::vector<double> DGMaxEigenValue::Result::frequencies(std::size_t point
     }
     return result;
 }
+
+template class DGMaxEigenValue<2>;
+template class DGMaxEigenValue<3>;

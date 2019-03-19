@@ -24,7 +24,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "../TimeIntegrationProblem.h"
 
-class SampleTestProblems : public ExactSeparableTimeIntegrationProblem
+template<std::size_t DIM>
+class SampleTestProblems : public ExactSeparableTimeIntegrationProblem<DIM>
 {
 public:
 

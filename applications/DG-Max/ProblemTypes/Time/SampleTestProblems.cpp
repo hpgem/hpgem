@@ -21,11 +21,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "SampleTestProblems.h"
 
-SampleTestProblems::SampleTestProblems(SampleTestProblems::Problem problem)
+template<std::size_t DIM>
+SampleTestProblems<DIM>::SampleTestProblems(SampleTestProblems<DIM>::Problem problem)
     : problem_ (problem)
 {}
 
-void SampleTestProblems::initialConditionDerivative(const Geometry::PointPhysical<DIM> &point,
+template<std::size_t DIM>
+void SampleTestProblems<DIM>::initialConditionDerivative(const Geometry::PointPhysical<DIM> &point,
                                                     LinearAlgebra::SmallVector<DIM> &result) const
 {
     switch (problem_)
@@ -58,7 +60,8 @@ void SampleTestProblems::initialConditionDerivative(const Geometry::PointPhysica
     }
 }
 
-void SampleTestProblems::sourceTermRef(const Geometry::PointPhysical<DIM> &point,
+template<std::size_t DIM>
+void SampleTestProblems<DIM>::sourceTermRef(const Geometry::PointPhysical<DIM> &point,
                                     LinearAlgebra::SmallVector<DIM> &result) const
 {
     switch (problem_)
@@ -89,7 +92,8 @@ void SampleTestProblems::sourceTermRef(const Geometry::PointPhysical<DIM> &point
     }
 }
 
-void SampleTestProblems::exactSolution(const Geometry::PointPhysical<DIM> &point, double t,
+template<std::size_t DIM>
+void SampleTestProblems<DIM>::exactSolution(const Geometry::PointPhysical<DIM> &point, double t,
                                        LinearAlgebra::SmallVector<DIM> &result) const
 {
     switch (problem_)
@@ -121,7 +125,8 @@ void SampleTestProblems::exactSolution(const Geometry::PointPhysical<DIM> &point
     }
 }
 
-void SampleTestProblems::exactSolutionCurl(const Geometry::PointPhysical<DIM> &point, double t,
+template<std::size_t DIM>
+void SampleTestProblems<DIM>::exactSolutionCurl(const Geometry::PointPhysical<DIM> &point, double t,
                                            LinearAlgebra::SmallVector<DIM> &result) const
 {
     switch (problem_)
@@ -155,7 +160,8 @@ void SampleTestProblems::exactSolutionCurl(const Geometry::PointPhysical<DIM> &p
     }
 }
 
-double SampleTestProblems::referenceTimeBoundary() const
+template<std::size_t DIM>
+double SampleTestProblems<DIM>::referenceTimeBoundary() const
 {
     switch (problem_)
     {
@@ -173,7 +179,8 @@ double SampleTestProblems::referenceTimeBoundary() const
     }
 }
 
-double SampleTestProblems::timeScalingBoundary(double t) const
+template<std::size_t DIM>
+double SampleTestProblems<DIM>::timeScalingBoundary(double t) const
 {
     switch (problem_)
     {
@@ -192,7 +199,8 @@ double SampleTestProblems::timeScalingBoundary(double t) const
     }
 }
 
-double SampleTestProblems::timeScalingSource(double t) const
+template<std::size_t DIM>
+double SampleTestProblems<DIM>::timeScalingSource(double t) const
 {
     switch (problem_)
     {
@@ -213,7 +221,8 @@ double SampleTestProblems::timeScalingSource(double t) const
     }
 }
 
-void SampleTestProblems::sinx(const Geometry::PointPhysical<DIM> &point,
+template<std::size_t DIM>
+void SampleTestProblems<DIM>::sinx(const Geometry::PointPhysical<DIM> &point,
                               LinearAlgebra::SmallVector<DIM> &result) const
 {
     for (int i = 0; i < DIM; ++i)
@@ -224,7 +233,8 @@ void SampleTestProblems::sinx(const Geometry::PointPhysical<DIM> &point,
     }
 }
 
-void SampleTestProblems::sarmany2013x(const Geometry::PointPhysical<DIM> &point,
+template<std::size_t DIM>
+void SampleTestProblems<DIM>::sarmany2013x(const Geometry::PointPhysical<DIM> &point,
                                       LinearAlgebra::SmallVector<DIM> &result) const
 {
     if (DIM == 3)
@@ -239,3 +249,6 @@ void SampleTestProblems::sarmany2013x(const Geometry::PointPhysical<DIM> &point,
         logger.assert_debug(DIM == 3, "Sarmany test case only works in 3D.");
     }
 }
+
+template class SampleTestProblems<2>;
+template class SampleTestProblems<3>;

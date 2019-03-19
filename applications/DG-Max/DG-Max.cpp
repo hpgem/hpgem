@@ -30,7 +30,6 @@
 #include "math.h"
 #include <ctime>
 
-#include "DGMaxDim.h"
 #include "DGMaxLogger.h"
 
 #include "Algorithms/DGMaxEigenValue.h"
@@ -47,12 +46,13 @@
 /**
  * This class should provide problem specific information about the maxwell equations.
  */
-class DGMax : public hpGemUIExtentions
+template<std::size_t DIM>
+class DGMax : public hpGemUIExtentions<DIM>
 {
 public:
     
     DGMax(Base::GlobalData * const globalConfig, Base::ConfigurationData* elementConfig)
-            : hpGemUIExtentions(globalConfig, elementConfig)
+            : hpGemUIExtentions<DIM>(globalConfig, elementConfig)
     {
     }
     
@@ -72,24 +72,28 @@ public:
             numElementsOneD[i] = subdivisions;
         }
 
-        auto mesh = new Base::MeshManipulator<DIM>(getConfigData(), Base::BoundaryType::PERIODIC,
-                                                   Base::BoundaryType::PERIODIC, Base::BoundaryType::PERIODIC, getConfigData()->polynomialOrder_, 0, 2, 3, 1, 1);
+        auto mesh = new Base::MeshManipulator<DIM>(this->getConfigData(), Base::BoundaryType::PERIODIC,
+                                                   Base::BoundaryType::PERIODIC, Base::BoundaryType::PERIODIC,
+                                                   this->getConfigData()->polynomialOrder_, 0, 2, 3, 1, 1);
         mesh->createTriangularMesh(bottomLeft, topRight, numElementsOneD);
 
-        for (Base::MeshManipulator<DIM>::ElementIterator it = mesh->elementColBegin(Base::IteratorType::GLOBAL); it != mesh->elementColEnd(Base::IteratorType::GLOBAL); ++it)
+        for (typename Base::MeshManipulator<DIM>::ElementIterator it = mesh->elementColBegin(Base::IteratorType::GLOBAL);
+                it != mesh->elementColEnd(Base::IteratorType::GLOBAL); ++it)
         {
             (*it)->setUserData(new ElementInfos(**it));
         }
-        addMesh(mesh);
+        this->addMesh(mesh);
     }
     
     void readMesh(std::string fileName)
     {
-        auto mesh = new Base::MeshManipulator<DIM>(getConfigData(), Base::BoundaryType::PERIODIC,
-                                                   Base::BoundaryType::PERIODIC, Base::BoundaryType::PERIODIC, getConfigData()->polynomialOrder_, 0, 2, 3, 1, 1);
+        auto mesh = new Base::MeshManipulator<DIM>(this->getConfigData(), Base::BoundaryType::PERIODIC,
+                                                   Base::BoundaryType::PERIODIC, Base::BoundaryType::PERIODIC,
+                                                   this->getConfigData()->polynomialOrder_, 0, 2, 3, 1, 1);
         mesh->readMesh(fileName);
-        addMesh(mesh);
-        for (Base::MeshManipulator<DIM>::ElementIterator it = mesh->elementColBegin(Base::IteratorType::GLOBAL); it != mesh->elementColEnd(Base::IteratorType::GLOBAL); ++it)
+        this->addMesh(mesh);
+        for (typename Base::MeshManipulator<DIM>::ElementIterator it = mesh->elementColBegin(Base::IteratorType::GLOBAL);
+                it != mesh->elementColEnd(Base::IteratorType::GLOBAL); ++it)
         {
             (*it)->setUserData(new ElementInfos(**it));
         }
@@ -101,6 +105,9 @@ auto& numElements = Base::register_argument<std::size_t>('n', "numElems", "numbe
 auto& p = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
 auto& meshFile = Base::register_argument<std::string>('m', "meshFile", "The hpgem meshfile to use", false);
 auto& numEigenvalues = Base::register_argument<std::size_t>('e', "eigenvalues", "The number of eigenvalues to compute", false, 24);
+
+//Temporary
+const std::size_t DIM = 2;
 
 void printArguments(int argc, char** argv)
 {
@@ -157,14 +164,14 @@ int main(int argc, char** argv)
     try
     {
         double stab = (p.getValue() + 1) * (p.getValue() + 3);
-        DivDGMaxDiscretization::Stab divStab;
+        DivDGMaxDiscretization<DIM>::Stab divStab;
         // Values from the Jelmer fix code.
         divStab.stab1 = 100;
         // Note: for 2D harmonic it looks like that we need 10 instead of 0.01.
         divStab.stab2 = 0.01;
         divStab.stab3 = 10.0;
 
-        DGMax base(globalData, configData);
+        DGMax<DIM> base(globalData, configData);
 
         if (meshFile.isUsed())
         {
@@ -200,10 +207,10 @@ int main(int argc, char** argv)
         /////////////////////
 
 //        DGMaxEigenValue solver (base);
-        DivDGMaxEigenValue solver (base);
+        DivDGMaxEigenValue<DIM> solver (base);
         KSpacePath<DIM> path = KSpacePath<DIM>::cubePath(20);
         EigenValueProblem<DIM> input(path, numEigenvalues.getValue());
-        DivDGMaxEigenValue::Result result = solver.solve(input, divStab);
+        DivDGMaxEigenValue<DIM>::Result result = solver.solve(input, divStab);
         if (Base::MPIContainer::Instance().getProcessorID() == 0)
         {
             result.printFrequencies();

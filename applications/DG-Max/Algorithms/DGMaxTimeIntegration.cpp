@@ -26,13 +26,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
 
-DGMaxTimeIntegration::DGMaxTimeIntegration(hpGemUIExtentions &base)
+template<std::size_t DIM>
+DGMaxTimeIntegration<DIM>::DGMaxTimeIntegration(hpGemUIExtentions<DIM> &base)
     : base_(base), discretization(), snapshotTime (nullptr)
 {
     discretization.initializeBasisFunctions(*(base_.getMesh(0)), base_.getConfigData());
 }
 
-DGMaxTimeIntegration::~DGMaxTimeIntegration()
+template<std::size_t DIM>
+DGMaxTimeIntegration<DIM>::~DGMaxTimeIntegration()
 {
     if (snapshotTime != nullptr)
     {
@@ -40,7 +42,9 @@ DGMaxTimeIntegration::~DGMaxTimeIntegration()
     }
 }
 
-void DGMaxTimeIntegration::solve(const SeparableTimeIntegrationProblem& input, TimeIntegrationParameters parameters)
+template<std::size_t DIM>
+void DGMaxTimeIntegration<DIM>::solve(const SeparableTimeIntegrationProblem<DIM>& input,
+        TimeIntegrationParameters<DIM> parameters)
 {
     //TODO: It might be better to separate some parts of the CO2 and CO4 algorithm
     using namespace std::placeholders;
@@ -58,26 +62,26 @@ void DGMaxTimeIntegration::solve(const SeparableTimeIntegrationProblem& input, T
     std::cout << "doing a time dependent simulation" << std::endl;
     discretization.computeElementIntegrands(
             *(base_.getMesh(0)), true,
-            std::bind(&SeparableTimeIntegrationProblem::sourceTermRef, std::ref(input), _1, _2),
-            std::bind(&TimeIntegrationProblem::initialCondition, std::ref(input), _1, _2),
-            std::bind(&TimeIntegrationProblem::initialConditionDerivative, std::ref(input), _1, _2)
+            std::bind(&SeparableTimeIntegrationProblem<DIM>::sourceTermRef, std::ref(input), _1, _2),
+            std::bind(&TimeIntegrationProblem<DIM>::initialCondition, std::ref(input), _1, _2),
+            std::bind(&TimeIntegrationProblem<DIM>::initialConditionDerivative, std::ref(input), _1, _2)
     );
 
     discretization.computeFaceIntegrals(
             *(base_.getMesh(0)),
-            std::bind(&SeparableTimeIntegrationProblem::boundaryConditionRef, std::ref(input), _1, _2, _3),
+            std::bind(&SeparableTimeIntegrationProblem<DIM>::boundaryConditionRef, std::ref(input), _1, _2, _3),
             parameters.stab
     );
 //    MHasToBeInverted_ = true;
 //    assembler->fillMatrices(this);
 
-    Utilities::GlobalPetscMatrix massMatrix(base_.getMesh(0), DGMaxDiscretization::MASS_MATRIX_ID, -1),
-            stiffnessMatrix(base_.getMesh(0), DGMaxDiscretization::STIFFNESS_MATRIX_ID, DGMaxDiscretization::FACE_MATRIX_ID);
+    Utilities::GlobalPetscMatrix massMatrix(base_.getMesh(0), DGMaxDiscretization<DIM>::MASS_MATRIX_ID, -1),
+            stiffnessMatrix(base_.getMesh(0), DGMaxDiscretization<DIM>::STIFFNESS_MATRIX_ID, DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
     std::cout << "GlobalPetscMatrix initialised" << std::endl;
-    Utilities::GlobalPetscVector resultVector(base_.getMesh(0), DGMaxDiscretization::INITIAL_CONDITION_VECTOR_ID, -1),
-            derivative(base_.getMesh(0), DGMaxDiscretization::INITIAL_CONDITION_DERIVATIVE_VECTOR_ID, -1),
-            rhsBoundary(base_.getMesh(0), -1, DGMaxDiscretization::FACE_VECTOR_ID),
-            rhsSource(base_.getMesh(0), DGMaxDiscretization::SOURCE_TERM_VECTOR_ID, -1);
+    Utilities::GlobalPetscVector resultVector(base_.getMesh(0), DGMaxDiscretization<DIM>::INITIAL_CONDITION_VECTOR_ID, -1),
+            derivative(base_.getMesh(0), DGMaxDiscretization<DIM>::INITIAL_CONDITION_DERIVATIVE_VECTOR_ID, -1),
+            rhsBoundary(base_.getMesh(0), -1, DGMaxDiscretization<DIM>::FACE_VECTOR_ID),
+            rhsSource(base_.getMesh(0), DGMaxDiscretization<DIM>::SOURCE_TERM_VECTOR_ID, -1);
     std::cout << "GlobalPetscVector initialised" << std::endl;
     resultVector.assemble();
     std::cout << "resultVector assembled" << std::endl;
@@ -232,7 +236,8 @@ void DGMaxTimeIntegration::solve(const SeparableTimeIntegrationProblem& input, T
     numberOfSnapshots = snapshotIndex;
 }
 
-void DGMaxTimeIntegration::getCoeffCO4(LinearAlgebra::SmallVector<6>& alpha,
+template<std::size_t DIM>
+void DGMaxTimeIntegration<DIM>::getCoeffCO4(LinearAlgebra::SmallVector<6>& alpha,
                                     LinearAlgebra::SmallVector<6>& beta,
                                     LinearAlgebra::SmallVector<6>& alpha_sum,
                                     LinearAlgebra::SmallVector<6>& beta_sum,
@@ -274,7 +279,8 @@ void DGMaxTimeIntegration::getCoeffCO4(LinearAlgebra::SmallVector<6>& alpha,
     return;
 }
 
-void DGMaxTimeIntegration::writeTimeSnapshots(std::string fileName) const
+template<std::size_t DIM>
+void DGMaxTimeIntegration<DIM>::writeTimeSnapshots(std::string fileName) const
 {
     std::ofstream fileWriter;
     fileWriter.open(fileName);
@@ -306,7 +312,8 @@ void DGMaxTimeIntegration::writeTimeSnapshots(std::string fileName) const
     fileWriter.close();
 }
 
-void DGMaxTimeIntegration::writeTimeLevel(
+template<std::size_t DIM>
+void DGMaxTimeIntegration<DIM>::writeTimeLevel(
         Output::TecplotDiscontinuousSolutionWriter<DIM> & writer, std::size_t timeLevel, bool firstLevel) const
 {
     std::stringstream zoneName ("t=");
@@ -335,17 +342,19 @@ void DGMaxTimeIntegration::writeTimeLevel(
     });
 }
 
-void DGMaxTimeIntegration::printErrors(
-        const std::vector<DGMaxDiscretization::NormType>& norms, const DGMaxDiscretization::TimeFunction& exactField,
-        const DGMaxDiscretization::TimeFunction& exactCurl) const
+template<std::size_t DIM>
+void DGMaxTimeIntegration<DIM>::printErrors(
+        const std::vector<typename DGMaxDiscretization<DIM>::NormType>& norms,
+        const typename DGMaxDiscretization<DIM>::TimeFunction& exactField,
+        const typename DGMaxDiscretization<DIM>::TimeFunction& exactCurl) const
 {
-    using NormType = DGMaxDiscretization::NormType;
+    using NormType = typename DGMaxDiscretization<DIM>::NormType;
     std::set<NormType> normSet;
 
     std::cout << "t";
     for (auto norm : norms)
     {
-        std::cout << "\t" << DGMaxDiscretization::normName(norm);
+        std::cout << "\t" << DGMaxDiscretization<DIM>::normName(norm);
         normSet.emplace(norm);
     }
     std::cout << std::endl;
@@ -369,12 +378,16 @@ void DGMaxTimeIntegration::printErrors(
 
 }
 
-void DGMaxTimeIntegration::printErrors(
-        const std::vector<DGMaxDiscretization::NormType> &norms,
-        const ExactTimeIntegrationProblem& problem) const
+template<std::size_t DIM>
+void DGMaxTimeIntegration<DIM>::printErrors(
+        const std::vector<typename DGMaxDiscretization<DIM>::NormType> &norms,
+        const ExactTimeIntegrationProblem<DIM>& problem) const
 {
     printErrors(norms,
-            std::bind(&ExactTimeIntegrationProblem::exactSolution, std::ref(problem), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
-            std::bind(&ExactTimeIntegrationProblem::exactSolutionCurl, std::ref(problem), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
+            std::bind(&ExactTimeIntegrationProblem<DIM>::exactSolution, std::ref(problem), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
+            std::bind(&ExactTimeIntegrationProblem<DIM>::exactSolutionCurl, std::ref(problem), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)
     );
 }
+
+template class DGMaxTimeIntegration<2>;
+template class DGMaxTimeIntegration<3>;

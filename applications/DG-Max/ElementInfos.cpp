@@ -25,7 +25,9 @@
 #include "Geometry/PointPhysical.h"
 #include "Base/ElementCacheData.h"
 #include "Base/FaceCacheData.h"
-#include "DGMaxDim.h"
+
+template<std::size_t DIM>
+double computeEpsilon(const Base::Element& element);
 
 // Jelmer: Select the case you are want to use. Note that for certain cases diameters can differ.
 // Vacuum Case:         SetEpsilon = 0;
@@ -36,39 +38,56 @@
 int SetEpsilon = 0;
 ElementInfos::ElementInfos(const Base::Element& element)
 {
-
-    const Geometry::PointReference<DIM>& p = element.getReferenceGeometry()->getCenter();
-    Geometry::PointPhysical<DIM> pPhys = element.referenceToPhysical(p);
+    std::size_t elementDim = element.getReferenceGeometry()->getDimension();
+    switch(elementDim)
+    {
+        case 2:
+            epsilon_ = computeEpsilon<2>(element);
+            break;
+        case 3:
+            epsilon_ = computeEpsilon<3>(element);
+            break;
+        default:
+            logger.assert_always(false, "Not implemented for dimension {}", elementDim);
+            break;
+    }
     
     //Jelmer: Checking the global index and coordinates of each element
     //c = c + 1;
     //std::cout << "Element with global index " << c << " has corresponding coordinates " << pPhys << "\n";
-    
+}
+
+template<std::size_t DIM>
+double computeEpsilon(const Base::Element& element)
+{
+    const Geometry::PointReference<DIM>& p = element.getReferenceGeometry()->getCenter();
+    Geometry::PointPhysical<DIM> pPhys = element.referenceToPhysical(p);
+
     if(SetEpsilon == 0)
     {// Vacuum Case
-        epsilon_=1;
+        return 1;
     }
     else if (SetEpsilon == 1)
     {//Bragg Stack
         if(pPhys[0]<0.5)
         {
-            epsilon_ = 13;
+            return 13;
         }
         else
         {
-            epsilon_=1;
+            return 1;
         }
     }
     else if (SetEpsilon == 2)
     {//Cylinder Case with radius 0.2a
         if((pPhys[0]-0.5)*(pPhys[0]-0.5) + (pPhys[1]-0.5)*(pPhys[1]-0.5) <= 0.2 * 0.2)
         {
-            epsilon_ = 13;
+            return 13;
             //std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << " " << epsilon_ << "\n";
         }
         else
         {
-            epsilon_ = 1;
+            return 1;
             //std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << " " << epsilon_ << "\n";
         }
     }
@@ -76,26 +95,26 @@ ElementInfos::ElementInfos(const Base::Element& element)
     {//Cube in Cuboid Case with width of pilars of 0.1a
         if(pPhys[0] < 0.1 || pPhys[0] > 0.9 || pPhys[1] < 0.1 || pPhys[1] > 0.9)
         {
-            epsilon_ = 1;
+            return 1;
             //std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << " " << epsilon_ << "\n";
 
         }
         else
         {
-            epsilon_ = 13;
+            return 13;
             //std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << " " << epsilon_ << "\n";
 
         }
     }
-    
+
     else if (SetEpsilon == 4)
     {//Inverse Woodpile
-     //here y has length 10, whereas the lenght of x and y are length(y)/sqrt(2) = 7.07. The first three circles, 2 halves and 1 whole circle, are in x,y plane. The second set of circles, 4 quarters and 1 whole, is in the y,z plane. Diameter of cylinders are 0.19a.
+        //here y has length 10, whereas the lenght of x and y are length(y)/sqrt(2) = 7.07. The first three circles, 2 halves and 1 whole circle, are in x,y plane. The second set of circles, 4 quarters and 1 whole, is in the y,z plane. Diameter of cylinders are 0.19a.
         /*
         if((pPhys[0]-0.3535)*(pPhys[0]-0.3535) + (pPhys[1]-0.75)*(pPhys[1]-0.75) <= 0.19*0.19    ||
            (pPhys[0]-0.707)*(pPhys[0]-0.707) + (pPhys[1]-0.25)*(pPhys[1]-0.25) <= 0.19*0.19      ||
            (pPhys[0])*(pPhys[0]) + (pPhys[1]-0.25)*(pPhys[1]-0.25) <= 0.19*0.19                  ||
-    
+
            (pPhys[2]-0.3535)*(pPhys[2]-0.3535) + (pPhys[1]-0.5)*(pPhys[1]-0.5) <= 0.19*0.19      ||
            (pPhys[2])*(pPhys[2]) + (pPhys[1])*(pPhys[1]) <= 0.19*0.19                            ||
            (pPhys[2])*(pPhys[2]) + (pPhys[1]-1)*(pPhys[1]-1) <= 0.19*0.19                        ||
@@ -111,33 +130,30 @@ ElementInfos::ElementInfos(const Base::Element& element)
             std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << " " << epsilon_ << "\n";
         }
          */
-        
-         if((pPhys[2]-0.3535)*(pPhys[2]-0.3535) + (pPhys[1]-0.5)*(pPhys[1]-0.5) <= 0.19*0.19       ||
-         (pPhys[2]-0.707)*(pPhys[2]-0.707) + (pPhys[1])*(pPhys[1]) <= 0.19*0.19                    ||
-         (pPhys[2]-0.707)*(pPhys[2]-0.707) + (pPhys[1]-1)*(pPhys[1]-1) <= 0.19*0.19                ||
-         (pPhys[2])*(pPhys[2]) + (pPhys[1])*(pPhys[1]) <= 0.19*0.19                                ||
-         (pPhys[2])*(pPhys[2]) + (pPhys[1]-1)*(pPhys[1]-1) <= 0.19*0.19                            ||
-         
-         (pPhys[0]-0.3535)*(pPhys[0]-0.3535) + (pPhys[1]-0.75)*(pPhys[1]-0.75) <= 0.19*0.19        ||
-         (pPhys[0])*(pPhys[0]) + (pPhys[1]-0.25)*(pPhys[1]-0.25) <= 0.19*0.19                      ||
-         (pPhys[0]-0.707)*(pPhys[0]-0.707) + (pPhys[1]-0.25)*(pPhys[1]-0.25) <= 0.19*0.19)
-         {
-         epsilon_ = 1;
-         //std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << " " << epsilon_ << "\n";
-         }
-         else
-         {
-         epsilon_ = 13;
-         //std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << " " << epsilon_ << "\n";
-         }
-        
+
+        if((pPhys[2]-0.3535)*(pPhys[2]-0.3535) + (pPhys[1]-0.5)*(pPhys[1]-0.5) <= 0.19*0.19       ||
+           (pPhys[2]-0.707)*(pPhys[2]-0.707) + (pPhys[1])*(pPhys[1]) <= 0.19*0.19                    ||
+           (pPhys[2]-0.707)*(pPhys[2]-0.707) + (pPhys[1]-1)*(pPhys[1]-1) <= 0.19*0.19                ||
+           (pPhys[2])*(pPhys[2]) + (pPhys[1])*(pPhys[1]) <= 0.19*0.19                                ||
+           (pPhys[2])*(pPhys[2]) + (pPhys[1]-1)*(pPhys[1]-1) <= 0.19*0.19                            ||
+
+           (pPhys[0]-0.3535)*(pPhys[0]-0.3535) + (pPhys[1]-0.75)*(pPhys[1]-0.75) <= 0.19*0.19        ||
+           (pPhys[0])*(pPhys[0]) + (pPhys[1]-0.25)*(pPhys[1]-0.25) <= 0.19*0.19                      ||
+           (pPhys[0]-0.707)*(pPhys[0]-0.707) + (pPhys[1]-0.25)*(pPhys[1]-0.25) <= 0.19*0.19)
+        {
+            return 1;
+            //std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << " " << epsilon_ << "\n";
+        }
+        else
+        {
+            return 13;
+            //std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << " " << epsilon_ << "\n";
+        }
+
     }
     else
     {
         std::cout << "Incorrect value for SetEpsilon" << "\n";
+        return 1.0;
     }
-    
-    Jacobian_ = element.calcJacobian(p);
-    determinant_ = Jacobian_.determinant();
 }
-

@@ -24,6 +24,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "../BaseExtended.h"
 
+template<std::size_t DIM>
 class DGMaxDiscretization
 {
 public:
@@ -37,6 +38,7 @@ public:
     static const std::size_t FACE_MATRIX_ID = 0;
     static const std::size_t FACE_VECTOR_ID = 0;
 
+    using PointPhysicalT = Geometry::PointPhysical<DIM>;
     using InputFunction = std::function<void(const PointPhysicalT &, LinearAlgebra::SmallVector<DIM>&)>;
     using FaceInputFunction = std::function<void(const PointPhysicalT &, Base::PhysicalFace<DIM>&, LinearAlgebra::SmallVector<DIM>&)>;
     using TimeFunction = std::function<void(const PointPhysicalT &, double, LinearAlgebra::SmallVector<DIM>&)>;

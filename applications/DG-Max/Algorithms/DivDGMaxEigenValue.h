@@ -34,6 +34,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "ProblemTypes/BaseEigenvalueResult.h"
 
+template<std::size_t DIM>
 class DivDGMaxEigenValue
 {
 public:
@@ -50,8 +51,8 @@ public:
         const std::vector<std::vector<PetscScalar>> eigenvalues_;
     };
 
-    DivDGMaxEigenValue(hpGemUIExtentions& base);
-    Result solve(EigenValueProblem<DIM> input, DivDGMaxDiscretization::Stab);
+    DivDGMaxEigenValue(hpGemUIExtentions<DIM>& base);
+    Result solve(EigenValueProblem<DIM> input, typename DivDGMaxDiscretization<DIM>::Stab);
 
 private:
 
@@ -63,8 +64,8 @@ private:
     std::vector<Base::Face*> findPeriodicBoundaryFaces() const;
     LinearAlgebra::SmallVector<DIM> boundaryFaceShift(const Base::Face *face) const;
 
-    hpGemUIExtentions& base_;
-    DivDGMaxDiscretization discretization;
+    hpGemUIExtentions<DIM>& base_;
+    DivDGMaxDiscretization<DIM> discretization;
 };
 
 

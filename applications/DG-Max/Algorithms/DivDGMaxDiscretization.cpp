@@ -70,7 +70,8 @@ FaceDoFInfo getFaceDoFInfo(const Base::Face& face)
 }
 
 
-void DivDGMaxDiscretization::initializeBasisFunctions(Base::MeshManipulator<DIM> &mesh,
+template<std::size_t DIM>
+void DivDGMaxDiscretization<DIM>::initializeBasisFunctions(Base::MeshManipulator<DIM> &mesh,
         const Base::ConfigurationData* configData)
 {
     // We would like to configure the number of unknowns here, but this is
@@ -83,11 +84,12 @@ void DivDGMaxDiscretization::initializeBasisFunctions(Base::MeshManipulator<DIM>
     mesh.useDefaultDGBasisFunctions(1);
 }
 
-void DivDGMaxDiscretization::computeElementIntegrands(
+template<std::size_t DIM>
+void DivDGMaxDiscretization<DIM>::computeElementIntegrands(
         Base::MeshManipulator<DIM> &mesh, bool invertMassMatrix,
-        const DivDGMaxDiscretization::InputFunction &sourceTerm,
-        const DivDGMaxDiscretization::InputFunction &initialCondition,
-        const DivDGMaxDiscretization::InputFunction &initialConditionDerivative) const
+        const DivDGMaxDiscretization<DIM>::InputFunction &sourceTerm,
+        const DivDGMaxDiscretization<DIM>::InputFunction &initialCondition,
+        const DivDGMaxDiscretization<DIM>::InputFunction &initialConditionDerivative) const
 {
     //TODO: Add initial condition integration.
     LinearAlgebra::MiddleSizeMatrix massMatrix(2, 2),  stiffnessMatrix(2, 2);
@@ -100,7 +102,8 @@ void DivDGMaxDiscretization::computeElementIntegrands(
     elementIntegral.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM>> (new Base::HCurlConformingTransformation<DIM>()), 0);
     elementIntegral.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM>> (new Base::H1ConformingTransformation<DIM>()), 1);
 
-    for (hpGemUIExtentions::ElementIterator it = mesh.elementColBegin(); it != mesh.elementColEnd(); ++it)
+    for (typename hpGemUIExtentions<DIM>::ElementIterator it = mesh.elementColBegin();
+            it != mesh.elementColEnd(); ++it)
     {
         totalUDoFs = (*it)->getNumberOfBasisFunctions(0);
         totalPDoFs = (*it)->getNumberOfBasisFunctions(1);
@@ -157,9 +160,10 @@ void DivDGMaxDiscretization::computeElementIntegrands(
     }
 }
 
-void DivDGMaxDiscretization::computeFaceIntegrals(
+template<std::size_t DIM>
+void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
         Base::MeshManipulator<DIM> &mesh,
-        DivDGMaxDiscretization::FaceInputFunction boundaryCondition,
+        DivDGMaxDiscretization<DIM>::FaceInputFunction boundaryCondition,
         Stab stab) const
 {
     LinearAlgebra::MiddleSizeMatrix faceMatrix(2, 2);
@@ -169,7 +173,8 @@ void DivDGMaxDiscretization::computeFaceIntegrals(
     faceIntegral.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM>> (new Base::HCurlConformingTransformation<DIM>()), 0);
     faceIntegral.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM>> (new Base::H1ConformingTransformation<DIM>()), 1);
 
-    for (hpGemUIExtentions::FaceIterator it = mesh.faceColBegin(); it != mesh.faceColEnd(); ++it)
+    for (typename hpGemUIExtentions<DIM>::FaceIterator it = mesh.faceColBegin();
+            it != mesh.faceColEnd(); ++it)
     {
 
         std::size_t totalDoFs = 0;
@@ -241,7 +246,8 @@ void DivDGMaxDiscretization::computeFaceIntegrals(
 
 }
 
-LinearAlgebra::SmallVector<DIM> DivDGMaxDiscretization::computeField (
+template<std::size_t DIM>
+LinearAlgebra::SmallVector<DIM> DivDGMaxDiscretization<DIM>::computeField (
         const Base::Element *element, const Geometry::PointReference<DIM> &point,
         const LinearAlgebra::MiddleSizeVector &coefficients) const
 {
@@ -273,7 +279,8 @@ LinearAlgebra::SmallVector<DIM> DivDGMaxDiscretization::computeField (
     return result;
 }
 
-double DivDGMaxDiscretization::computePotential(
+template<std::size_t DIM>
+double DivDGMaxDiscretization<DIM>::computePotential(
         const Base::Element *element, const Geometry::PointReference<DIM> &point,
         const LinearAlgebra::MiddleSizeVector &coefficients) const
 {
@@ -300,7 +307,8 @@ double DivDGMaxDiscretization::computePotential(
     return result;
 }
 
-void DivDGMaxDiscretization::elementMassMatrix(Base::PhysicalElement<DIM> &el,
+template<std::size_t DIM>
+void DivDGMaxDiscretization<DIM>::elementMassMatrix(Base::PhysicalElement<DIM> &el,
                                                LinearAlgebra::MiddleSizeMatrix &ret) const
 {
     const Base::Element* element = el.getElement();
@@ -321,7 +329,8 @@ void DivDGMaxDiscretization::elementMassMatrix(Base::PhysicalElement<DIM> &el,
     }
 }
 
-void DivDGMaxDiscretization::elementStiffnessMatrix(Base::PhysicalElement<DIM> &el,
+template<std::size_t DIM>
+void DivDGMaxDiscretization<DIM>::elementStiffnessMatrix(Base::PhysicalElement<DIM> &el,
                                                     LinearAlgebra::MiddleSizeMatrix &ret) const
 {
     const Base::Element* element = el.getElement();
@@ -342,7 +351,8 @@ void DivDGMaxDiscretization::elementStiffnessMatrix(Base::PhysicalElement<DIM> &
     }
 }
 
-void DivDGMaxDiscretization::elementScalarVectorCoupling(Base::PhysicalElement<DIM> &el,
+template<std::size_t DIM>
+void DivDGMaxDiscretization<DIM>::elementScalarVectorCoupling(Base::PhysicalElement<DIM> &el,
                                                          LinearAlgebra::MiddleSizeMatrix &ret) const
 {
     const Base::Element* element = el.getElement();
@@ -368,7 +378,8 @@ void DivDGMaxDiscretization::elementScalarVectorCoupling(Base::PhysicalElement<D
     }
 }
 
-void DivDGMaxDiscretization::elementSourceVector(
+template<std::size_t DIM>
+void DivDGMaxDiscretization<DIM>::elementSourceVector(
         Base::PhysicalElement<DIM> &el,
         const InputFunction &source,
         LinearAlgebra::MiddleSizeVector &ret) const
@@ -390,7 +401,8 @@ void DivDGMaxDiscretization::elementSourceVector(
     }
 }
 
-void DivDGMaxDiscretization::faceStiffnessMatrix1(
+template<std::size_t DIM>
+void DivDGMaxDiscretization<DIM>::faceStiffnessMatrix1(
         Base::PhysicalFace<DIM> &fa,
         LinearAlgebra::MiddleSizeMatrix &ret) const
 {
@@ -445,7 +457,8 @@ void DivDGMaxDiscretization::faceStiffnessMatrix1(
     }
 }
 
-void DivDGMaxDiscretization::faceStiffnessMatrix2(
+template<std::size_t DIM>
+void DivDGMaxDiscretization<DIM>::faceStiffnessMatrix2(
         Base::PhysicalFace<DIM> &fa, LinearAlgebra::MiddleSizeMatrix &ret,
         double stab) const
 {
@@ -494,7 +507,8 @@ void DivDGMaxDiscretization::faceStiffnessMatrix2(
     }
 }
 
-void DivDGMaxDiscretization::faceStiffnessMatrix3(Base::PhysicalFace<DIM> &fa, LinearAlgebra::MiddleSizeMatrix &ret,
+template<std::size_t DIM>
+void DivDGMaxDiscretization<DIM>::faceStiffnessMatrix3(Base::PhysicalFace<DIM> &fa, LinearAlgebra::MiddleSizeMatrix &ret,
                                                   double stab2) const
 {
     // TODO: Cleanup.
@@ -558,7 +572,8 @@ void DivDGMaxDiscretization::faceStiffnessMatrix3(Base::PhysicalFace<DIM> &fa, L
     }
 }
 
-void DivDGMaxDiscretization::faceScalarVectorCoupling(
+template<std::size_t DIM>
+void DivDGMaxDiscretization<DIM>::faceScalarVectorCoupling(
         Base::PhysicalFace<DIM> &fa,
         LinearAlgebra::MiddleSizeMatrix &ret) const
 {
@@ -642,7 +657,8 @@ void DivDGMaxDiscretization::faceScalarVectorCoupling(
     }
 }
 
-void DivDGMaxDiscretization::faceStiffnessScalarMatrix4(
+template<std::size_t DIM>
+void DivDGMaxDiscretization<DIM>::faceStiffnessScalarMatrix4(
         Base::PhysicalFace<DIM> &fa,
         LinearAlgebra::MiddleSizeMatrix &ret, double stab3) const
 {
@@ -705,8 +721,8 @@ void DivDGMaxDiscretization::faceStiffnessScalarMatrix4(
     }
 }
 
-
-LinearAlgebra::MiddleSizeMatrix DivDGMaxDiscretization::computeFaceVectorMassMatrix(
+template<std::size_t DIM>
+LinearAlgebra::MiddleSizeMatrix DivDGMaxDiscretization<DIM>::computeFaceVectorMassMatrix(
         typename Base::MeshManipulator<DIM>::FaceIterator rawFace) const
 {
     Integration::ElementIntegral<DIM> elementIntegral(false);
@@ -764,7 +780,8 @@ LinearAlgebra::MiddleSizeMatrix DivDGMaxDiscretization::computeFaceVectorMassMat
     return result;
 }
 
-LinearAlgebra::MiddleSizeMatrix DivDGMaxDiscretization::computeFaceScalarMassMatrix(
+template<std::size_t DIM>
+LinearAlgebra::MiddleSizeMatrix DivDGMaxDiscretization<DIM>::computeFaceScalarMassMatrix(
         typename Base::MeshManipulator<DIM>::FaceIterator rawFace) const
 {
     Integration::ElementIntegral<DIM> elementIntegral(false);
@@ -823,7 +840,8 @@ LinearAlgebra::MiddleSizeMatrix DivDGMaxDiscretization::computeFaceScalarMassMat
     return result;
 }
 
-LinearAlgebra::MiddleSizeMatrix DivDGMaxDiscretization::computeScalarLiftProjector(
+template<std::size_t DIM>
+LinearAlgebra::MiddleSizeMatrix DivDGMaxDiscretization<DIM>::computeScalarLiftProjector(
         typename Base::MeshManipulator<DIM>::FaceIterator rawFace) const
 {
     Integration::FaceIntegral<DIM> faceIntegral(false);
@@ -852,7 +870,8 @@ LinearAlgebra::MiddleSizeMatrix DivDGMaxDiscretization::computeScalarLiftProject
     });
 }
 
-LinearAlgebra::MiddleSizeMatrix DivDGMaxDiscretization::computeVectorLiftProjector(
+template<std::size_t DIM>
+LinearAlgebra::MiddleSizeMatrix DivDGMaxDiscretization<DIM>::computeVectorLiftProjector(
         typename Base::MeshManipulator<DIM>::FaceIterator rawFace) const
 {
     Integration::FaceIntegral<DIM> faceIntegral(false);
@@ -879,7 +898,8 @@ LinearAlgebra::MiddleSizeMatrix DivDGMaxDiscretization::computeVectorLiftProject
     });
 }
 
-LinearAlgebra::MiddleSizeMatrix DivDGMaxDiscretization::computeVectorNormalLiftProjector(
+template<std::size_t DIM>
+LinearAlgebra::MiddleSizeMatrix DivDGMaxDiscretization<DIM>::computeVectorNormalLiftProjector(
         typename Base::MeshManipulator<DIM>::FaceIterator rawFace) const
 {
     Integration::FaceIntegral<DIM> faceIntegral(false);
@@ -962,7 +982,8 @@ void distributeFaceMatrix(FaceDoFInfo faceInfo, bool vector,
     }
 }
 
-LinearAlgebra::MiddleSizeMatrix DivDGMaxDiscretization::brezziFluxBilinearTerm(
+template<std::size_t DIM>
+LinearAlgebra::MiddleSizeMatrix DivDGMaxDiscretization<DIM>::brezziFluxBilinearTerm(
         typename Base::MeshManipulator<DIM>::FaceIterator rawFace,
         Stab stab) const
 {
@@ -1049,9 +1070,10 @@ LinearAlgebra::MiddleSizeMatrix DivDGMaxDiscretization::brezziFluxBilinearTerm(
     return result;
 }
 
-void DivDGMaxDiscretization::faceBoundaryVector(
+template<std::size_t DIM>
+void DivDGMaxDiscretization<DIM>::faceBoundaryVector(
         Base::PhysicalFace<DIM>& fa,
-        const DivDGMaxDiscretization::FaceInputFunction &boundaryValue,
+        const DivDGMaxDiscretization<DIM>::FaceInputFunction &boundaryValue,
         LinearAlgebra::MiddleSizeVector &ret, Stab stab) const
 {
     const Base::Face* face = fa.getFace();
@@ -1073,7 +1095,7 @@ void DivDGMaxDiscretization::faceBoundaryVector(
     else
     {
         double diameter = face->getDiameter();
-        const PointElementReferenceT& PLeft = face->mapRefFaceToRefElemL(p);
+        const Geometry::PointReference<DIM>& PLeft = face->mapRefFaceToRefElemL(p);
         const PointPhysicalT PPhys = face->getPtrElementLeft()->referenceToPhysical(PLeft);
 
         LinearAlgebra::SmallVector<DIM> val, phi_curl;
@@ -1100,9 +1122,10 @@ void DivDGMaxDiscretization::faceBoundaryVector(
     }
 }
 
-LinearAlgebra::MiddleSizeVector DivDGMaxDiscretization::brezziFluxBoundaryVector(
+template<std::size_t DIM>
+LinearAlgebra::MiddleSizeVector DivDGMaxDiscretization<DIM>::brezziFluxBoundaryVector(
         typename Base::MeshManipulator<DIM>::FaceIterator rawFace,
-        const DivDGMaxDiscretization::FaceInputFunction &boundaryValue, DivDGMaxDiscretization::Stab stab) const
+        const DivDGMaxDiscretization<DIM>::FaceInputFunction &boundaryValue, DivDGMaxDiscretization<DIM>::Stab stab) const
 {
     FaceDoFInfo faceInfo = getFaceDoFInfo(**rawFace);
     if (faceInfo.internal)
@@ -1133,7 +1156,7 @@ LinearAlgebra::MiddleSizeVector DivDGMaxDiscretization::brezziFluxBoundaryVector
         // Compute boundary value
         const Base::Face* baseFace = face.getFace();
         const Geometry::PointReference<DIM - 1>& p = face.getPointReference();
-        const PointElementReferenceT& PLeft = baseFace->mapRefFaceToRefElemL(p);
+        const Geometry::PointReference<DIM>& PLeft = baseFace->mapRefFaceToRefElemL(p);
         const PointPhysicalT PPhys = baseFace->getPtrElementLeft()->referenceToPhysical(PLeft);
         LinearAlgebra::SmallVector<DIM> val;
         boundaryValue(PPhys, face, val);
@@ -1158,9 +1181,11 @@ LinearAlgebra::MiddleSizeVector DivDGMaxDiscretization::brezziFluxBoundaryVector
     return result;
 }
 
-double DivDGMaxDiscretization::computeL2Error(
+template<std::size_t DIM>
+double DivDGMaxDiscretization<DIM>::computeL2Error(
+
         Base::MeshManipulator<DIM> &mesh, std::size_t timeVector,
-        const DivDGMaxDiscretization::InputFunction &electricField) const
+        const DivDGMaxDiscretization<DIM>::InputFunction &electricField) const
 {
     Integration::ElementIntegral<DIM> elIntegral(false);
     elIntegral.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM>>(
@@ -1169,7 +1194,8 @@ double DivDGMaxDiscretization::computeL2Error(
             new Base::H1ConformingTransformation<DIM>()), 1);
 
     double error = 0;
-    for (Base::MeshManipulator<DIM>::ElementIterator it = mesh.elementColBegin(); it != mesh.elementColEnd(); ++it)
+    for (typename Base::MeshManipulator<DIM>::ElementIterator it = mesh.elementColBegin();
+            it != mesh.elementColEnd(); ++it)
     {
         error += elIntegral.integrate ((*it),
                 [&](Base::PhysicalElement<DIM> &el) {
@@ -1179,9 +1205,10 @@ double DivDGMaxDiscretization::computeL2Error(
     return std::sqrt(error);
 }
 
-double DivDGMaxDiscretization::elementErrorIntegrand(
+template<std::size_t DIM>
+double DivDGMaxDiscretization<DIM>::elementErrorIntegrand(
         Base::PhysicalElement<DIM> &el, std::size_t timeVector,
-        const DivDGMaxDiscretization::InputFunction &exactValues) const
+        const DivDGMaxDiscretization<DIM>::InputFunction &exactValues) const
 {
     const Base::Element* element = el.getElement();
     const Geometry::PointPhysical<DIM>& pPhys = el.getPointPhysical();
@@ -1203,3 +1230,6 @@ double DivDGMaxDiscretization::elementErrorIntegrand(
 
     return error.l2NormSquared();
 }
+
+template class DivDGMaxDiscretization<2>;
+template class DivDGMaxDiscretization<3>;

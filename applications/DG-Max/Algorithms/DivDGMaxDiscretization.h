@@ -37,6 +37,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 /// u and p, and C is a stabilization term. The matrix M is the mass
 /// matrix, corresponding to the omega^2 E term in the timeharmonic
 /// formulation.
+template<std::size_t DIM>
 class DivDGMaxDiscretization
 {
 public:
@@ -84,6 +85,7 @@ public:
     };
 
     // See notes in DGMaxDiscretization
+    using PointPhysicalT = Geometry::PointPhysical<DIM>;
     using InputFunction = std::function<void(const PointPhysicalT &, LinearAlgebra::SmallVector<DIM>&)>;
     using FaceInputFunction = std::function<void(const PointPhysicalT &, Base::PhysicalFace<DIM>&, LinearAlgebra::SmallVector<DIM>&)>;
 

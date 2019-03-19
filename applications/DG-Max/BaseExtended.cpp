@@ -25,8 +25,9 @@
 
 #include <cmath>
 
-hpGemUIExtentions::hpGemUIExtentions(Base::GlobalData * const globalConfig, Base::ConfigurationData* elementConfig)
-        : HpgemAPIBase(globalConfig, elementConfig)
+template<std::size_t DIM>
+hpGemUIExtentions<DIM>::hpGemUIExtentions(Base::GlobalData * const globalConfig, Base::ConfigurationData* elementConfig)
+        : Base::HpgemAPIBase<DIM>(globalConfig, elementConfig)
 {
     PetscErrorCode ierr_;
 #if PETSC_VERSION_GE(3, 7, 0)
@@ -38,7 +39,8 @@ hpGemUIExtentions::hpGemUIExtentions(Base::GlobalData * const globalConfig, Base
 
 }
 
-hpGemUIExtentions::~hpGemUIExtentions()
+template<std::size_t DIM>
+hpGemUIExtentions<DIM>::~hpGemUIExtentions()
 {
 
     PetscErrorCode ierr_;
@@ -53,25 +55,31 @@ hpGemUIExtentions::~hpGemUIExtentions()
 
 }
 
-std::size_t hpGemUIExtentions::addMesh(Base::MeshManipulator<DIM>* mesh)
+template<std::size_t DIM>
+std::size_t hpGemUIExtentions<DIM>::addMesh(Base::MeshManipulator<DIM>* mesh)
 {
-    meshes_.push_back(mesh);
-    return meshes_.size() - 1;
+    this->meshes_.push_back(mesh);
+    return this->meshes_.size() - 1;
 }
 
 
-Base::MeshManipulator<DIM> * hpGemUIExtentions::getMesh(std::size_t meshId)
+template<std::size_t DIM>
+Base::MeshManipulator<DIM> * hpGemUIExtentions<DIM>::getMesh(std::size_t meshId)
 {
-    return meshes_[meshId];
+    return this->meshes_[meshId];
 }
 
-const Base::ConfigurationData* hpGemUIExtentions::getConfigData()
+template<std::size_t DIM>
+const Base::ConfigurationData* hpGemUIExtentions<DIM>::getConfigData()
 {
-    return configData_;
+    return this->configData_;
 }
+
+template class hpGemUIExtentions<2>;
+template class hpGemUIExtentions<3>;
 
 /* See solveDOS() in baseExtended.h for motivation of commenting out.
-void hpGemUIExtentions::LDOSIntegrand(Base::PhysicalElement<DIM>& element, double &ret)
+void hpGemUIExtentions<DIM>::LDOSIntegrand(Base::PhysicalElement<DIM>& element, double &ret)
 { //currently LDOS is computed by evaluation at a point so integrand is a bit of a misnomer
     //ElementInfos* info = static_cast<ElementInfos*>(const_cast<ElementT*>(element)->getUserData());
     LinearAlgebra::SmallVector<DIM> Phi, PhiRealI, PhiRealJ, PhiImagI, PhiImagJ;
@@ -98,7 +106,7 @@ void hpGemUIExtentions::LDOSIntegrand(Base::PhysicalElement<DIM>& element, doubl
     //cout<<ret<<std::endl;
 }
 
-void hpGemUIExtentions::makeFunctionValue(Vec eigenVector, LinearAlgebra::MiddleSizeVector& result)
+void hpGemUIExtentions<DIM>::makeFunctionValue(Vec eigenVector, LinearAlgebra::MiddleSizeVector& result)
 {
     Vec scaledVec;
     double partialResult;
@@ -143,7 +151,7 @@ void hpGemUIExtentions::makeFunctionValue(Vec eigenVector, LinearAlgebra::Middle
 */
 
 // See baseExtended.h
-//void hpGemUIExtentions::exportMatrixes()
+//void hpGemUIExtentions<DIM>::exportMatrixes()
 //{
 //    std::cout << "genereting Matlab scripts to load the matrixes" << std::endl;
 //    MHasToBeInverted_ = false;
@@ -161,7 +169,7 @@ void hpGemUIExtentions::makeFunctionValue(Vec eigenVector, LinearAlgebra::Middle
 
 
 /*
-void hpGemUIExtentions::solveDOS()
+void hpGemUIExtentions<DIM>::solveDOS()
 {
     std::cout << "finding the local density of states" << std::endl;
     const MaxwellData* actualdata = getData();

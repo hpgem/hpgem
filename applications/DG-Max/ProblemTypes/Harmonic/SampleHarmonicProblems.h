@@ -24,7 +24,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "../HarmonicProblem.h"
 
-class SampleHarmonicProblems : public ExactHarmonicProblem
+template<std::size_t DIM>
+class SampleHarmonicProblems : public ExactHarmonicProblem<DIM>
 {
 public:
 

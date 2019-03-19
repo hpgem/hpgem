@@ -27,20 +27,21 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "DivDGMaxDiscretization.h"
 
+template<std::size_t DIM>
 class DivDGMaxHarmonic
 {
 
 public:
-    DivDGMaxHarmonic(hpGemUIExtentions& base);
+    DivDGMaxHarmonic(hpGemUIExtentions<DIM>& base);
 
-    void solve(const HarmonicProblem& input, DivDGMaxDiscretization::Stab stab);
+    void solve(const HarmonicProblem<DIM>& input, typename DivDGMaxDiscretization<DIM>::Stab stab);
     void writeTec(std::string fileName) const;
     // TODO: Error computation and tec-plot writing
-    double computeL2Error(const DivDGMaxDiscretization::InputFunction& exactSolution) const;
-    double computeL2Error(const ExactHarmonicProblem& problem) const;
+    double computeL2Error(const typename DivDGMaxDiscretization<DIM>::InputFunction& exactSolution) const;
+    double computeL2Error(const ExactHarmonicProblem<DIM>& problem) const;
 private:
-    hpGemUIExtentions& base_;
-    DivDGMaxDiscretization discretization_;
+    hpGemUIExtentions<DIM>& base_;
+    DivDGMaxDiscretization<DIM> discretization_;
 };
 
 

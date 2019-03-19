@@ -21,7 +21,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "DummyTestProblem.h"
 
-void DummyTestProblem::initialConditionDerivative(const Geometry::PointPhysical<DIM> &point,
+template<std::size_t DIM>
+void DummyTestProblem<DIM>::initialConditionDerivative(const Geometry::PointPhysical<DIM> &point,
                                                   LinearAlgebra::SmallVector<DIM> &result) const
 {
     for (std::size_t i = 0; i < DIM; i++)
@@ -30,7 +31,8 @@ void DummyTestProblem::initialConditionDerivative(const Geometry::PointPhysical<
     }
 }
 
-void DummyTestProblem::exactSolution(const Geometry::PointPhysical<DIM> &p, double t,
+template<std::size_t DIM>
+void DummyTestProblem<DIM>::exactSolution(const Geometry::PointPhysical<DIM> &p, double t,
                                      LinearAlgebra::SmallVector<DIM> &ret) const
 {
     //TODO: Code literaly copied, no verification
@@ -53,7 +55,8 @@ void DummyTestProblem::exactSolution(const Geometry::PointPhysical<DIM> &p, doub
     // 	   ret[2]=0;
 }
 
-void DummyTestProblem::exactSolutionCurl(const Geometry::PointPhysical<DIM> &p, double t,
+template<std::size_t DIM>
+void DummyTestProblem<DIM>::exactSolutionCurl(const Geometry::PointPhysical<DIM> &p, double t,
                                          LinearAlgebra::SmallVector<DIM> &ret) const
 {
     //TODO: Code literaly copied, no verification
@@ -75,12 +78,14 @@ void DummyTestProblem::exactSolutionCurl(const Geometry::PointPhysical<DIM> &p, 
     //          ret[0]=0;ret[1]=0;ret[2]=0;
 }
 
-double DummyTestProblem::timeScalingBoundary(double t) const
+template<std::size_t DIM>
+double DummyTestProblem<DIM>::timeScalingBoundary(double t) const
 {
     return 1.0; // for comparison with Freekjan's report. The 1.0 is not physically meaningful. The source term is actually 0.0, but we want to avoid division by zero in timedependent code.
 }
 
-void DummyTestProblem::sourceTermRef(const Geometry::PointPhysical<DIM> &point,
+template<std::size_t DIM>
+void DummyTestProblem<DIM>::sourceTermRef(const Geometry::PointPhysical<DIM> &point,
                                      LinearAlgebra::SmallVector<DIM> &result) const
 {
     exactSolution(point, 0, result);
@@ -94,7 +99,11 @@ void DummyTestProblem::sourceTermRef(const Geometry::PointPhysical<DIM> &point,
     //ret[2] = 0.0;
 }
 
-double DummyTestProblem::timeScalingSource(double t) const
+template<std::size_t DIM>
+double DummyTestProblem<DIM>::timeScalingSource(double t) const
 {
     return 0;
 }
+
+template class DummyTestProblem<2>;
+template class DummyTestProblem<3>;

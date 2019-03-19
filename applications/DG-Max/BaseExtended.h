@@ -26,7 +26,6 @@
 
 #include "Base/MeshManipulator.h"
 #include "Base/HpgemAPIBase.h"
-#include "DGMaxDim.h"
 
 //#include <Base/Norm2.h>
 #include <fstream>
@@ -35,21 +34,21 @@
 #include "ElementInfos.h"
 #include "Base/Element.h"
 
-
-using PointPhysicalT = Geometry::PointPhysical<DIM>;
-using PointElementReferenceT = Geometry::PointReference<DIM>;
-using PointFaceReferenceT = Geometry::PointReference<DIM-1>;
-
-using ElementT = Base::Element;
-using FaceT = Base::Face;
-
 /**
  * This class provides some significant extentions to HpgemUI that may also be useful for other problems
  */
+template<std::size_t DIM>
 class hpGemUIExtentions : public Base::HpgemAPIBase<DIM>
 {
     
 public:
+//
+//    using PointPhysicalT = Geometry::PointPhysical<DIM>;
+//    using PointElementReferenceT = Geometry::PointReference<DIM>;
+//    using PointFaceReferenceT = Geometry::PointReference<DIM-1>;
+//
+//    using ElementT = Base::Element;
+//    using FaceT = Base::Face;
 
     //! gives read-only acces to the configuration data
     const Base::ConfigurationData* getConfigData();

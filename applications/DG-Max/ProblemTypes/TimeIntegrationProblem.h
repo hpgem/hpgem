@@ -26,8 +26,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "Geometry/PointPhysical.h"
 #include "LinearAlgebra/SmallVector.h"
 
-#include "../DGMaxDim.h"
-
 /// \brief Problem to intergrate a given starting field in time
 ///
 /// This solves the standard time dependent problem
@@ -37,6 +35,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 /// The code assumes that mu = 1
 // TODO: Do we assume that div J = 0, mu = 1, use eps in the solver?
 // Assume sigma = 0?
+template<std::size_t DIM>
 class TimeIntegrationProblem
 {
 public:
@@ -89,7 +88,8 @@ public:
 /// with a test function 'v' (e.g. (G, v)) can be rewritten as Tg(t) (Xg(x), v).
 /// The latter inner product is time independent and can thus be computed once
 /// and then rescaled to obtain the value at different time.
-class SeparableTimeIntegrationProblem : virtual public TimeIntegrationProblem
+template<std::size_t DIM>
+class SeparableTimeIntegrationProblem : virtual public TimeIntegrationProblem<DIM>
 {
 public:
     /// \brief The time independent boundary field (Xg)
@@ -126,7 +126,8 @@ public:
 ///
 /// Using this solution we can directly implement the boundary and initial
 /// condition (only the field, not its time derivative).
-class ExactTimeIntegrationProblem : virtual public TimeIntegrationProblem
+template<std::size_t DIM>
+class ExactTimeIntegrationProblem : virtual public TimeIntegrationProblem<DIM>
 {
 public:
     /// \brief Analytical solution to the problem.
@@ -150,14 +151,15 @@ public:
 
 /// \brief An time integration problem that has both separable source and
 /// boundary terms and has an exact solution.
-class ExactSeparableTimeIntegrationProblem : public ExactTimeIntegrationProblem, public SeparableTimeIntegrationProblem
+template<std::size_t DIM>
+class ExactSeparableTimeIntegrationProblem : public ExactTimeIntegrationProblem<DIM>, public SeparableTimeIntegrationProblem<DIM>
 {
 
     void boundaryConditionRef(const Geometry::PointPhysical<DIM>& point,
             Base::PhysicalFace<DIM>& face, LinearAlgebra::SmallVector<DIM>& result) const final
     {
         LinearAlgebra::SmallVector<DIM> values;
-        exactSolution(point, referenceTimeBoundary(), values);
+        this->exactSolution(point, referenceTimeBoundary(), values);
         LinearAlgebra::SmallVector<DIM> normal = face.getUnitNormalVector();
         normal.crossProduct(values, result);
     }
@@ -168,7 +170,7 @@ class ExactSeparableTimeIntegrationProblem : public ExactTimeIntegrationProblem,
         // Note, both the Exact and Separable problems override
         // boundaryCondition, thus we have to tell the compiler which is the one
         // that we want to use for a problem that is both separable and exact.
-        SeparableTimeIntegrationProblem::boundaryCondition(point, t, face, result);
+        SeparableTimeIntegrationProblem<DIM>::boundaryCondition(point, t, face, result);
     }
 
     /// \brief Time used to compute `boundaryConditionRef`.

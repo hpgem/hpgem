@@ -29,9 +29,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "DGMaxDiscretization.h"
 #include "../BaseExtended.h"
 
+template<std::size_t DIM>
 struct TimeIntegrationParameters;
 
 /// \brief TimeIntegrationProblem solver using the tradition DGMax discretization
+template <std::size_t DIM>
 class DGMaxTimeIntegration
 {
 
@@ -41,14 +43,15 @@ public:
         CO2, CO4
     };
 
-    DGMaxTimeIntegration(hpGemUIExtentions& base);
+    DGMaxTimeIntegration(hpGemUIExtentions<DIM>& base);
     ~DGMaxTimeIntegration();
-    void solve(const SeparableTimeIntegrationProblem& input, TimeIntegrationParameters parameters);
+    void solve(const SeparableTimeIntegrationProblem<DIM>& input, TimeIntegrationParameters<DIM> parameters);
     void writeTimeSnapshots(std::string fileName) const;
-    void printErrors(const std::vector<DGMaxDiscretization::NormType>& norms,
-            const DGMaxDiscretization::TimeFunction& exactField, const DGMaxDiscretization::TimeFunction& exactCurl) const;
-    void printErrors(const std::vector<DGMaxDiscretization::NormType>& norms,
-            const ExactTimeIntegrationProblem& problem) const;
+    void printErrors(const std::vector<typename DGMaxDiscretization<DIM>::NormType>& norms,
+            const typename DGMaxDiscretization<DIM>::TimeFunction& exactField,
+            const typename DGMaxDiscretization<DIM>::TimeFunction& exactCurl) const;
+    void printErrors(const std::vector<typename DGMaxDiscretization<DIM>::NormType>& norms,
+            const ExactTimeIntegrationProblem<DIM>& problem) const;
 private:
 
     /// \brief Coefficients for the CO4 algorithm.
@@ -57,17 +60,18 @@ private:
                      LinearAlgebra::SmallVector<6>& scale0, LinearAlgebra::SmallVector<6>& scale1) const;
     void writeTimeLevel(Output::TecplotDiscontinuousSolutionWriter<DIM>& writer,
                         std::size_t timeLevel, bool firstLevel) const;
-    hpGemUIExtentions& base_;
-    DGMaxDiscretization discretization;
+    hpGemUIExtentions<DIM>& base_;
+    DGMaxDiscretization<DIM> discretization;
     // TODO: This should be output of the solver, not a local variable.
     double * snapshotTime;
     std::size_t numberOfSnapshots;
 };
 
+template<std::size_t DIM>
 struct TimeIntegrationParameters
 {
     /// \brief The integration method to use.
-    DGMaxTimeIntegration::IntegrationMethod method;
+    typename DGMaxTimeIntegration<DIM>::IntegrationMethod method;
     /// \brief The stability parameter to use
     double stab;
 
@@ -91,15 +95,16 @@ struct TimeIntegrationParameters
     /// \param endTime  The end time
     /// \param polynomialOrder The order of the elements used.
     /// \param numberOfElements The number per dimension of the unit cube.
-    void configureTraditional(DGMaxTimeIntegration::IntegrationMethod method, double endTime, std::size_t polynomialOrder, std::size_t numberOfElements)
+    void configureTraditional(typename DGMaxTimeIntegration<DIM>::IntegrationMethod method,
+            double endTime, std::size_t polynomialOrder, std::size_t numberOfElements)
     {
         this->method = method;
         switch (method)
         {
-            case DGMaxTimeIntegration::CO2:
+            case DGMaxTimeIntegration<DIM>::CO2:
                 timeStepSize = 0.05 / ((2 * polynomialOrder + 1) * numberOfElements);
                 break;
-            case DGMaxTimeIntegration::CO4:
+            case DGMaxTimeIntegration<DIM>::CO4:
                 timeStepSize = 0.3 / ((2 * polynomialOrder + 1) * numberOfElements);
                 break;
             default:

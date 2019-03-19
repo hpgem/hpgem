@@ -31,13 +31,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <valarray>
 
 
-DivDGMaxEigenValue::DivDGMaxEigenValue(hpGemUIExtentions& base)
+template<std::size_t DIM>
+DivDGMaxEigenValue<DIM>::DivDGMaxEigenValue(hpGemUIExtentions<DIM>& base)
     : base_ (base)
 {
 }
 
-DivDGMaxEigenValue::Result DivDGMaxEigenValue::solve(
-        EigenValueProblem<DIM> input, DivDGMaxDiscretization::Stab stab)
+template<std::size_t DIM>
+typename DivDGMaxEigenValue<DIM>::Result DivDGMaxEigenValue<DIM>::solve(
+        EigenValueProblem<DIM> input, typename DivDGMaxDiscretization<DIM>::Stab stab)
 {
     // Sometimes the solver finds more eigenvalues & vectors than requested, so
     // reserve some extra space for them.
@@ -60,8 +62,8 @@ DivDGMaxEigenValue::Result DivDGMaxEigenValue::solve(
     );
 
     Utilities::GlobalPetscMatrix
-        massMatrix(base_.getMesh(0), DivDGMaxDiscretization::ELEMENT_MASS_MATRIX_ID, -1),
-        stiffnessMatrix(base_.getMesh(0), DivDGMaxDiscretization::ELEMENT_STIFFNESS_MATRIX_ID, DivDGMaxDiscretization::FACE_STIFFNESS_MATRIX_ID);
+        massMatrix(base_.getMesh(0), DivDGMaxDiscretization<DIM>::ELEMENT_MASS_MATRIX_ID, -1),
+        stiffnessMatrix(base_.getMesh(0), DivDGMaxDiscretization<DIM>::ELEMENT_STIFFNESS_MATRIX_ID, DivDGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID);
     DGMaxLogger(VERBOSE, "Mass and stiffness matrices assembled");
     Utilities::GlobalPetscVector globalVector(base_.getMesh(0), -1, -1);
     DGMaxLogger(VERBOSE, "Dummy vector assembled");
@@ -323,15 +325,16 @@ DivDGMaxEigenValue::Result DivDGMaxEigenValue::solve(
     return result;
 }
 
-void DivDGMaxEigenValue::makeShiftMatrix(LinearAlgebra::SmallVector<DIM>& direction, const Utilities::GlobalIndexing& index, Vec& waveVecMatrix)
+template<std::size_t DIM>
+void DivDGMaxEigenValue<DIM>::makeShiftMatrix(LinearAlgebra::SmallVector<DIM>& direction, const Utilities::GlobalIndexing& index, Vec& waveVecMatrix)
 {
     PetscErrorCode error;
 
-    for (Base::MeshManipulator<DIM>::ElementIterator it = base_.getMesh(0)->elementColBegin();
+    for (typename Base::MeshManipulator<DIM>::ElementIterator it = base_.getMesh(0)->elementColBegin();
             it != base_.getMesh(0)->elementColEnd(); ++it)
     {
-        PointPhysicalT centerPhys;
-        const PointElementReferenceT& center = (*it)->getReferenceGeometry()->getCenter();
+        Geometry::PointPhysical<DIM> centerPhys;
+        const Geometry::PointReference<DIM>& center = (*it)->getReferenceGeometry()->getCenter();
         centerPhys = (*it)->referenceToPhysical(center);
         PetscScalar shift = exp(std::complex<double>(0, direction * centerPhys.getCoordinates()));
 
@@ -351,7 +354,8 @@ void DivDGMaxEigenValue::makeShiftMatrix(LinearAlgebra::SmallVector<DIM>& direct
     }
 }
 
-void DivDGMaxEigenValue::extractEigenvalues(const EPS &solver, std::vector<PetscScalar> &result) const
+template<std::size_t DIM>
+void DivDGMaxEigenValue<DIM>::extractEigenvalues(const EPS &solver, std::vector<PetscScalar> &result) const
 {
     int converged;
     PetscErrorCode err;
@@ -385,7 +389,8 @@ void DivDGMaxEigenValue::extractEigenvalues(const EPS &solver, std::vector<Petsc
     });
 }
 
-std::vector<Base::Face*> DivDGMaxEigenValue::findPeriodicBoundaryFaces() const
+template<std::size_t DIM>
+std::vector<Base::Face*> DivDGMaxEigenValue<DIM>::findPeriodicBoundaryFaces() const
 {
     std::vector<Base::Face*> result;
     for (Base::TreeIterator<Base::Face*> it = base_.getMesh(0)->faceColBegin(); it != base_.getMesh(0)->faceColEnd(); ++it)
@@ -412,31 +417,35 @@ std::vector<Base::Face*> DivDGMaxEigenValue::findPeriodicBoundaryFaces() const
     return result;
 }
 
-LinearAlgebra::SmallVector<DIM> DivDGMaxEigenValue::boundaryFaceShift(const Base::Face *face) const
+template<std::size_t DIM>
+LinearAlgebra::SmallVector<DIM> DivDGMaxEigenValue<DIM>::boundaryFaceShift(const Base::Face *face) const
 {
     logger.assert_always(face->isInternal(), "Internal face boundary");
-    const PointFaceReferenceT& p = face->getReferenceGeometry()->getCenter();
-    const PointPhysicalT pLeftPhys = face->getPtrElementLeft()
+    const Geometry::PointReference<DIM-1>& p = face->getReferenceGeometry()->getCenter();
+    const Geometry::PointPhysical<DIM> pLeftPhys = face->getPtrElementLeft()
             ->referenceToPhysical(face->mapRefFaceToRefElemL(p));
-    const PointPhysicalT pRightPhys = face->getPtrElementRight()
+    const Geometry::PointPhysical<DIM> pRightPhys = face->getPtrElementRight()
             ->referenceToPhysical(face->mapRefFaceToRefElemR(p));
     return pLeftPhys.getCoordinates() - pRightPhys.getCoordinates();
 }
 
 
-DivDGMaxEigenValue::Result::Result(
+template<std::size_t DIM>
+DivDGMaxEigenValue<DIM>::Result::Result(
         EigenValueProblem<DIM> problem,
         std::vector<std::vector<PetscScalar>> eigenvalues)
     : problem_ (problem)
     , eigenvalues_ (eigenvalues)
 {}
 
-const EigenValueProblem<DIM>& DivDGMaxEigenValue::Result::originalProblem() const
+template<std::size_t DIM>
+const EigenValueProblem<DIM>& DivDGMaxEigenValue<DIM>::Result::originalProblem() const
 {
     return problem_;
 }
 
-const std::vector<double> DivDGMaxEigenValue::Result::frequencies(std::size_t point) const
+template<std::size_t DIM>
+const std::vector<double> DivDGMaxEigenValue<DIM>::Result::frequencies(std::size_t point) const
 {
     logger.assert_always(point >= 0 && point < problem_.getPath().totalNumberOfSteps()
         , "Invalid point");
@@ -447,3 +456,6 @@ const std::vector<double> DivDGMaxEigenValue::Result::frequencies(std::size_t po
     }
     return frequencies;
 }
+
+template class DivDGMaxEigenValue<2>;
+template class DivDGMaxEigenValue<3>;

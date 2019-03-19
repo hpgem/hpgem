@@ -29,7 +29,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 /// to separate files. Your milage may vary on the quality and correctness of
 /// the problems that are in the implementation comments.
 /// TODO: Cleanup the implementation to make all problems accessiblea
-class DummyTestProblem : public ExactSeparableTimeIntegrationProblem
+template<std::size_t DIM>
+class DummyTestProblem : public ExactSeparableTimeIntegrationProblem<DIM>
 {
     void initialConditionDerivative (const Geometry::PointPhysical<DIM>& point, LinearAlgebra::SmallVector<DIM>& result) const override;
 

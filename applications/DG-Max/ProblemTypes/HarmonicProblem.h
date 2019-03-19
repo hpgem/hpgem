@@ -26,7 +26,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "Base/PhysicalFace.h"
 #include "LinearAlgebra/SmallVector.h"
 
-#include "DGMaxDim.h"
 
 /// \brief Harmonic maxwell problem.
 ///
@@ -43,6 +42,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ///
 /// For more information, see for example section 5.2.1 of Devashish's thesis.
 ///
+template<std::size_t DIM>
 class HarmonicProblem
 {
 public:
@@ -53,8 +53,8 @@ public:
             Base::PhysicalFace<DIM>& face,  LinearAlgebra::SmallVector<DIM>& result) const = 0;
 };
 
-
-class ExactHarmonicProblem : public HarmonicProblem
+template<std::size_t DIM>
+class ExactHarmonicProblem : public HarmonicProblem<DIM>
 {
 public:
     virtual void exactSolution(const Geometry::PointPhysical<DIM>& point, LinearAlgebra::SmallVector<DIM>& result) const = 0;

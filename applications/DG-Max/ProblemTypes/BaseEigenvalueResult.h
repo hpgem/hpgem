@@ -2,7 +2,6 @@
 #ifndef HPGEM_BASEEIGENVALUEOUTPUT_H
 #define HPGEM_BASEEIGENVALUEOUTPUT_H
 
-#include "DGMaxDim.h"
 #include "EigenValueProblem.h"
 
 template<std::size_t DIM>

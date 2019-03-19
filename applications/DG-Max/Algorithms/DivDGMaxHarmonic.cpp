@@ -28,12 +28,13 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <iostream>
 #include <petscksp.h>
 
-
-DivDGMaxHarmonic::DivDGMaxHarmonic(hpGemUIExtentions &base)
+template<std::size_t DIM>
+DivDGMaxHarmonic<DIM>::DivDGMaxHarmonic(hpGemUIExtentions<DIM> &base)
     : base_ (base)
 {}
 
-void DivDGMaxHarmonic::solve(const HarmonicProblem &input, DivDGMaxDiscretization::Stab stab)
+template<std::size_t DIM>
+void DivDGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM> &input, typename DivDGMaxDiscretization<DIM>::Stab stab)
 {
     PetscErrorCode error;
 
@@ -41,21 +42,21 @@ void DivDGMaxHarmonic::solve(const HarmonicProblem &input, DivDGMaxDiscretizatio
     discretization_.computeElementIntegrands(
             *base_.getMesh(0),
             false,
-            std::bind(&HarmonicProblem::sourceTerm, std::ref(input), std::placeholders::_1, std::placeholders::_2),
+            std::bind(&HarmonicProblem<DIM>::sourceTerm, std::ref(input), std::placeholders::_1, std::placeholders::_2),
             nullptr,
             nullptr
     );
     discretization_.computeFaceIntegrals(
             *base_.getMesh(0),
-            std::bind(&HarmonicProblem::boundaryCondition, std::ref(input),
+            std::bind(&HarmonicProblem<DIM>::boundaryCondition, std::ref(input),
                     std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
             stab
     );
 
-    Utilities::GlobalPetscMatrix massMatrix (base_.getMesh(0), DivDGMaxDiscretization::ELEMENT_MASS_MATRIX_ID, -1),
-        stiffnessMatrix (base_.getMesh(0), DivDGMaxDiscretization::ELEMENT_STIFFNESS_MATRIX_ID, DivDGMaxDiscretization::FACE_STIFFNESS_MATRIX_ID);
+    Utilities::GlobalPetscMatrix massMatrix (base_.getMesh(0), DivDGMaxDiscretization<DIM>::ELEMENT_MASS_MATRIX_ID, -1),
+        stiffnessMatrix (base_.getMesh(0), DivDGMaxDiscretization<DIM>::ELEMENT_STIFFNESS_MATRIX_ID, DivDGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID);
     Utilities::GlobalPetscVector
-            rhs (base_.getMesh(0), DivDGMaxDiscretization::ELEMENT_SOURCE_VECTOR_ID, DivDGMaxDiscretization::FACE_BOUNDARY_VECTOR_ID),
+            rhs (base_.getMesh(0), DivDGMaxDiscretization<DIM>::ELEMENT_SOURCE_VECTOR_ID, DivDGMaxDiscretization<DIM>::FACE_BOUNDARY_VECTOR_ID),
             result (base_.getMesh(0), -1, -1);
 
     rhs.assemble();
@@ -93,7 +94,8 @@ void DivDGMaxHarmonic::solve(const HarmonicProblem &input, DivDGMaxDiscretizatio
     CHKERRABORT(PETSC_COMM_WORLD, error);
 }
 
-void DivDGMaxHarmonic::writeTec(std::string fileName) const
+template<std::size_t DIM>
+void DivDGMaxHarmonic<DIM>::writeTec(std::string fileName) const
 {
     std::ofstream fileWriter;
     fileWriter.open(fileName);
@@ -114,16 +116,21 @@ void DivDGMaxHarmonic::writeTec(std::string fileName) const
     fileWriter.close();
 }
 
-double DivDGMaxHarmonic::computeL2Error(const DivDGMaxDiscretization::InputFunction& exactSolution) const
+template<std::size_t DIM>
+double DivDGMaxHarmonic<DIM>::computeL2Error(const typename DivDGMaxDiscretization<DIM>::InputFunction& exactSolution) const
 {
     return discretization_.computeL2Error(*base_.getMesh(0), 0, exactSolution);
 }
 
-double DivDGMaxHarmonic::computeL2Error(const ExactHarmonicProblem &problem) const
+template<std::size_t DIM>
+double DivDGMaxHarmonic<DIM>::computeL2Error(const ExactHarmonicProblem<DIM> &problem) const
 {
     return computeL2Error(
-            std::bind(&ExactHarmonicProblem::exactSolution, std::ref(problem),
+            std::bind(&ExactHarmonicProblem<DIM>::exactSolution, std::ref(problem),
                     std::placeholders::_1, std::placeholders::_2)
     );
 }
+
+template class DivDGMaxHarmonic<2>;
+template class DivDGMaxHarmonic<3>;
 

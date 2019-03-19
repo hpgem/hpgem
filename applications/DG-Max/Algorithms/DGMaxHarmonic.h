@@ -28,28 +28,29 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "DGMaxDiscretization.h"
 
 /// \brief Solver for a harmonic problem to find the fields.
+template<std::size_t DIM>
 class DGMaxHarmonic
 {
 public:
-    explicit DGMaxHarmonic(hpGemUIExtentions& base);
-    void solve(const HarmonicProblem& harmonicProblem, double stab);
+    explicit DGMaxHarmonic(hpGemUIExtentions<DIM>& base);
+    void solve(const HarmonicProblem<DIM>& harmonicProblem, double stab);
 
-    std::map<DGMaxDiscretization::NormType, double> computeError(
-            const std::set<DGMaxDiscretization::NormType>& norms,
-            const DGMaxDiscretization::InputFunction& exactSolution,
-            const DGMaxDiscretization::InputFunction& exactSolutionCurl
+    std::map<typename DGMaxDiscretization<DIM>::NormType, double> computeError(
+            const typename std::set<typename DGMaxDiscretization<DIM>::NormType>& norms,
+            const typename DGMaxDiscretization<DIM>::InputFunction& exactSolution,
+            const typename DGMaxDiscretization<DIM>::InputFunction& exactSolutionCurl
     ) const;
 
-    std::map<DGMaxDiscretization::NormType, double> computeError(
-            const std::set<DGMaxDiscretization::NormType>& norms,
-            const ExactHarmonicProblem& problem
+    std::map<typename DGMaxDiscretization<DIM>::NormType, double> computeError(
+            const std::set<typename DGMaxDiscretization<DIM>::NormType>& norms,
+            const ExactHarmonicProblem<DIM>& problem
     ) const;
 
     void writeTec(std::string fileName) const;
 
 private:
-    hpGemUIExtentions& base_;
-    DGMaxDiscretization discretization;
+    hpGemUIExtentions<DIM>& base_;
+    DGMaxDiscretization<DIM> discretization;
 };
 
 

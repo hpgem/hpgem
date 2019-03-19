@@ -28,36 +28,37 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
 
-
-DGMaxHarmonic::DGMaxHarmonic(hpGemUIExtentions &base)
+template<std::size_t DIM>
+DGMaxHarmonic<DIM>::DGMaxHarmonic(hpGemUIExtentions<DIM> &base)
         : base_ (base)
 {
     discretization.initializeBasisFunctions(*(base_.getMesh(0)), base_.getConfigData());
 }
 
-void DGMaxHarmonic::solve(const HarmonicProblem &harmonicProblem, double stab)
+template<std::size_t DIM>
+void DGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM> &harmonicProblem, double stab)
 {
     PetscErrorCode error;
     std::cout << "finding a time-harmonic solution" << std::endl;
     discretization.computeElementIntegrands(
             *(base_.getMesh(0)),
             false,
-            std::bind(&HarmonicProblem::sourceTerm, std::ref(harmonicProblem), std::placeholders::_1, std::placeholders::_2),
+            std::bind(&HarmonicProblem<DIM>::sourceTerm, std::ref(harmonicProblem), std::placeholders::_1, std::placeholders::_2),
             nullptr, nullptr // No initial values
     );
     discretization.computeFaceIntegrals(
             *(base_.getMesh(0)),
-            std::bind(&HarmonicProblem::boundaryCondition, std::ref(harmonicProblem), std::placeholders::_1,
+            std::bind(&HarmonicProblem<DIM>::boundaryCondition, std::ref(harmonicProblem), std::placeholders::_1,
                     std::placeholders::_2, std::placeholders::_3),
             stab
     );
 
-    Utilities::GlobalPetscMatrix massMatrix(base_.getMesh(0), DGMaxDiscretization::MASS_MATRIX_ID, -1),
-            stiffnessMatrix(base_.getMesh(0), DGMaxDiscretization::STIFFNESS_MATRIX_ID, DGMaxDiscretization::FACE_MATRIX_ID);
+    Utilities::GlobalPetscMatrix massMatrix(base_.getMesh(0), DGMaxDiscretization<DIM>::MASS_MATRIX_ID, -1),
+            stiffnessMatrix(base_.getMesh(0), DGMaxDiscretization<DIM>::STIFFNESS_MATRIX_ID, DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
     std::cout << "GlobalPetscMatrix initialised" << std::endl;
     Utilities::GlobalPetscVector
             resultVector(base_.getMesh(0), -1, -1), // The vector that we will use for the solution, initialize it with zeros.
-            rhsVector(base_.getMesh(0), DGMaxDiscretization::SOURCE_TERM_VECTOR_ID, DGMaxDiscretization::FACE_VECTOR_ID);
+            rhsVector(base_.getMesh(0), DGMaxDiscretization<DIM>::SOURCE_TERM_VECTOR_ID, DGMaxDiscretization<DIM>::FACE_VECTOR_ID);
     std::cout << "GlobalPetscVector initialised" << std::endl;
     resultVector.assemble();
     std::cout << "resultVector assembled" << std::endl;
@@ -112,10 +113,11 @@ void DGMaxHarmonic::solve(const HarmonicProblem &harmonicProblem, double stab)
     resultVector.writeTimeIntegrationVector(0); //DOUBTFUL
 }
 
-std::map<DGMaxDiscretization::NormType, double> DGMaxHarmonic::computeError(
-        const std::set<DGMaxDiscretization::NormType>& norms,
-        const DGMaxDiscretization::InputFunction& exactSolution,
-        const DGMaxDiscretization::InputFunction& exactSolutionCurl) const
+template<std::size_t DIM>
+std::map<typename DGMaxDiscretization<DIM>::NormType, double> DGMaxHarmonic<DIM>::computeError(
+        const std::set<typename DGMaxDiscretization<DIM>::NormType>& norms,
+        const typename DGMaxDiscretization<DIM>::InputFunction& exactSolution,
+        const typename DGMaxDiscretization<DIM>::InputFunction& exactSolutionCurl) const
 {
     //Note, this only works by grace of distributing the solution as timeIntegrationVector
     return discretization.computeError(
@@ -127,17 +129,19 @@ std::map<DGMaxDiscretization::NormType, double> DGMaxHarmonic::computeError(
     );
 }
 
-std::map<DGMaxDiscretization::NormType, double> DGMaxHarmonic::computeError(
-        const std::set<DGMaxDiscretization::NormType> &norms, const ExactHarmonicProblem &problem) const
+template<std::size_t DIM>
+std::map<typename DGMaxDiscretization<DIM>::NormType, double> DGMaxHarmonic<DIM>::computeError(
+        const std::set<typename DGMaxDiscretization<DIM>::NormType> &norms, const ExactHarmonicProblem<DIM> &problem) const
 {
     return computeError(
             norms,
-            std::bind(&ExactHarmonicProblem::exactSolution, std::ref(problem), std::placeholders::_1, std::placeholders::_2),
-            std::bind(&ExactHarmonicProblem::exactSolutionCurl, std::ref(problem), std::placeholders::_1, std::placeholders::_2)
+            std::bind(&ExactHarmonicProblem<DIM>::exactSolution, std::ref(problem), std::placeholders::_1, std::placeholders::_2),
+            std::bind(&ExactHarmonicProblem<DIM>::exactSolutionCurl, std::ref(problem), std::placeholders::_1, std::placeholders::_2)
     );
 }
 
-void DGMaxHarmonic::writeTec(std::string fileName) const
+template<std::size_t DIM>
+void DGMaxHarmonic<DIM>::writeTec(std::string fileName) const
 {
     std::ofstream fileWriter;
     fileWriter.open(fileName);
@@ -166,3 +170,6 @@ void DGMaxHarmonic::writeTec(std::string fileName) const
 
     fileWriter.close();
 }
+
+template class DGMaxHarmonic<2>;
+template class DGMaxHarmonic<3>;

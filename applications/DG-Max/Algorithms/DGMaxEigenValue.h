@@ -33,6 +33,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <slepceps.h>
 
 //TODO: It might be better to call this differently
+template<std::size_t DIM>
 class DGMaxEigenValue
 {
 
@@ -50,7 +51,7 @@ public:
         const std::vector<std::vector<PetscScalar>> eigenvalues_;
     };
 
-    DGMaxEigenValue(hpGemUIExtentions& base);
+    DGMaxEigenValue(hpGemUIExtentions<DIM>& base);
     Result solve(const EigenValueProblem<DIM>& input, double stab);
     // TODO: A nice wrapper of EPS that does RAII would be nicer
     EPS createEigenSolver();
@@ -67,8 +68,8 @@ private:
     std::vector<Base::Face*> findPeriodicBoundaryFaces() const;
     LinearAlgebra::SmallVector<DIM> boundaryFaceShift(const Base::Face *face) const;
 
-    hpGemUIExtentions& base_;
-    DGMaxDiscretization discretization_;
+    hpGemUIExtentions<DIM>& base_;
+    DGMaxDiscretization<DIM> discretization_;
 };
 
 

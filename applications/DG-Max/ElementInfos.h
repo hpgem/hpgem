@@ -29,8 +29,6 @@
 #include "Base/GlobalData.h"
 #include "Geometry/Jacobian.h"
 
-#include "DGMaxDim.h"
-
 /**
  * store some usefull information that needs to be computed everytime at the beginning of an integrand
  * specialized for tetrahedra
@@ -39,8 +37,6 @@
 class ElementInfos : public UserElementData
 {
 public:
-    double determinant_;
-    Geometry::Jacobian<DIM, DIM> Jacobian_, inverse_;
     double epsilon_;
 
     ElementInfos(const Base::Element& element);

@@ -21,7 +21,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "SampleHarmonicProblems.h"
 
-SampleHarmonicProblems::SampleHarmonicProblems(SampleHarmonicProblems::Problem problem, double omega)
+template<std::size_t DIM>
+SampleHarmonicProblems<DIM>::SampleHarmonicProblems(SampleHarmonicProblems<DIM>::Problem problem, double omega)
     : problem_ (problem), omega_ (omega)
 {
     // Note: the tolerances here are just a guess.
@@ -41,7 +42,8 @@ SampleHarmonicProblems::SampleHarmonicProblems(SampleHarmonicProblems::Problem p
     }
 }
 
-double SampleHarmonicProblems::omega() const
+template<std::size_t DIM>
+double SampleHarmonicProblems<DIM>::omega() const
 {
     switch (problem_)
     {
@@ -55,7 +57,8 @@ double SampleHarmonicProblems::omega() const
     }
 }
 
-void SampleHarmonicProblems::exactSolution(
+template<std::size_t DIM>
+void SampleHarmonicProblems<DIM>::exactSolution(
         const Geometry::PointPhysical<DIM> &point, LinearAlgebra::SmallVector<DIM> &result) const
 {
     switch (problem_)
@@ -75,7 +78,8 @@ void SampleHarmonicProblems::exactSolution(
     }
 }
 
-void SampleHarmonicProblems::exactSolutionCurl(
+template<std::size_t DIM>
+void SampleHarmonicProblems<DIM>::exactSolutionCurl(
         const Geometry::PointPhysical<DIM> &point, LinearAlgebra::SmallVector<DIM> &result) const
 {
     switch (problem_)
@@ -99,7 +103,8 @@ void SampleHarmonicProblems::exactSolutionCurl(
     }
 }
 
-void SampleHarmonicProblems::sourceTerm(
+template<std::size_t DIM>
+void SampleHarmonicProblems<DIM>::sourceTerm(
         const Geometry::PointPhysical<DIM> &point, LinearAlgebra::SmallVector<DIM> &result) const
 {
     switch (problem_)
@@ -120,7 +125,8 @@ void SampleHarmonicProblems::sourceTerm(
     }
 }
 
-void SampleHarmonicProblems::sarmanyx(
+template<std::size_t DIM>
+void SampleHarmonicProblems<DIM>::sarmanyx(
         const Geometry::PointPhysical<DIM> &point, LinearAlgebra::SmallVector<DIM> &result) const
 {
     if (DIM == 3)
@@ -135,3 +141,6 @@ void SampleHarmonicProblems::sarmanyx(
         logger.assert_debug(DIM == 3, "Sarmany test case only works in 3D.");
     }
 }
+
+template class SampleHarmonicProblems<2>;
+template class SampleHarmonicProblems<3>;
