@@ -49,6 +49,11 @@ public:
     static const std::size_t FACE_STIFFNESS_MATRIX_ID = 0;
     static const std::size_t FACE_BOUNDARY_VECTOR_ID = 0;
 
+    enum class FluxType
+    {
+        IP, BREZZI
+    };
+
     struct Stab
     {
         /// \brief Stabilization parameter for the tangential part of u/v.
@@ -57,6 +62,25 @@ public:
         double stab2;
         /// \brief Stabilization parameter for p/q.
         double stab3;
+        /// Numerical flux and stabilization to use for the tangential part of u/v (vector part)
+        FluxType fluxType1 = FluxType::IP;
+        /// Numerical flux and stabilization to use for the normal part of u/v (vector part)
+        FluxType fluxType2 = FluxType::IP;
+        /// Numerical flux and stabilization to use for p/q (scalar part)
+        FluxType fluxType3 = FluxType::IP;
+
+        bool hasFlux(FluxType flux)
+        {
+            return fluxType1 == flux || fluxType2 == flux || fluxType3 == flux;
+        }
+
+        void setAllFluxeTypes(FluxType type)
+        {
+            fluxType1 = type;
+            fluxType2 = type;
+            fluxType3 = type;
+        }
+
     };
 
     // See notes in DGMaxDiscretization
@@ -106,8 +130,77 @@ private:
     /// Matrix C, stab [[p]]_N [[q]]_n, note that C itself has a minus contribution.
     void faceStiffnessScalarMatrix4(Base::PhysicalFace<DIM>& fa, LinearAlgebra::MiddleSizeMatrix& ret, double stab3) const;
 
+    LinearAlgebra::MiddleSizeMatrix brezziFluxBilinearTerm(typename Base::MeshManipulator<DIM>::FaceIterator rawFace,
+                                                           Stab stab) const;
+
+    /// \brief Compute mass matrix for vector components on elements adjacent to a face
+    ///
+    /// Computes the mass matrix corresponding to the vector valued basis
+    /// functions for the element(s) adjacent to the face. For an internal face
+    /// the result is a block diagonal matrix with the two mass matrices for the
+    /// separate elements.
+    ///
+    /// Note that the resulting matrix only contains the degrees of freedom for
+    /// the vector valued basis functions.
+    /// \param rawFace The face to compute the local mass matrix for
+    /// \return The mass matrix
+    LinearAlgebra::MiddleSizeMatrix computeFaceVectorMassMatrix(
+            typename Base::MeshManipulator<DIM>::FaceIterator rawFace) const;
+
+    /// \brief Compute mass matrix for scalar basis functions on elements adjacent to a face
+    ///
+    /// Same as computeFaceVectorMassMatrix but for the scalar basis functions.
+    /// \param rawFace The face to compute the matrix forr
+    /// \return The mass matrix
+    LinearAlgebra::MiddleSizeMatrix computeFaceScalarMassMatrix(
+            typename Base::MeshManipulator<DIM>::FaceIterator rawFace) const;
+
+
+    /// \brief Compute projection matrix of the jump of the scalar basis functions
+    ///     for the lift operator.
+    ///
+    /// Compute the projection matrix
+    ///   R_{ij} = integral_F p_j n.{{u_i}} dS
+    /// with p_j the scalar basis functions, u_i the vector valued ones and n
+    /// the outward pointing normal to the element on which p_j has support.
+    ///
+    /// This term is needed for the implementation of the lifting operator for
+    /// the Brezzi fluxes.
+    /// \param rawFace The face to compute it on
+    /// \return The (dofs u) by (dofs p) projection matrix.
+    LinearAlgebra::MiddleSizeMatrix computeScalarLiftProjector(typename Base::MeshManipulator<DIM>::FaceIterator rawFace) const;
+
+    /// \brief Compute the projection matrix of the tangential jump of the vector
+    ///   basis functions for the lifting operator.
+    ///
+    /// Compute the projection matrix
+    ///   R_{ij} = integral_F (n x u_j) {{u_i}} dS
+    /// with u_i, u_j the vector basis functions and n the outward pointing normal
+    ///   to the element on which u_j has support.
+    /// \param rawFace The face to compute it on
+    /// \return The (dofs u)^2 projection matrix.
+    LinearAlgebra::MiddleSizeMatrix computeVectorLiftProjector(typename Base::MeshManipulator<DIM>::FaceIterator rawFace) const;
+
+    /// \brief Compute the projection matrix for the normal part of the
+    ///         vector basis functions in the lifting operators.
+    ///
+    /// Compute the projection matrix
+    ///   S_{ij} = integral_F [[epsilon u_j]]_n {{p_i}} dS
+    /// with u_j and p_i the basis functions for the vector part and scalar part
+    /// and epsilon is the permittivity.
+    ///
+    /// \param rawFace The face to compute it on
+    /// \return The (dofs p) by (dofs u) projection matrix.
+    LinearAlgebra::MiddleSizeMatrix computeVectorNormalLiftProjector(
+            typename Base::MeshManipulator<DIM>::FaceIterator rawFace) const;
+
     void faceBoundaryVector(Base::PhysicalFace<DIM>& fa, const FaceInputFunction &boundaryValue,
-                            LinearAlgebra::MiddleSizeVector &ret, double stab1) const;
+                            LinearAlgebra::MiddleSizeVector &ret, Stab stab) const;
+
+    /// Compute contribution of the brezzi flux to the face vector on the boundary
+    LinearAlgebra::MiddleSizeVector brezziFluxBoundaryVector(
+            typename Base::MeshManipulator<DIM>::FaceIterator rawFace,
+            const FaceInputFunction &boundaryValue, Stab stab) const;
 
     double elementErrorIntegrand(Base::PhysicalElement<DIM> &el, std::size_t timeVector,
             const InputFunction& exactValues) const;
