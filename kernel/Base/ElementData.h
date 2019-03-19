@@ -41,7 +41,7 @@ namespace Base
     {
         
     public:
-        ElementData(std::size_t timeLevels, std::size_t numberOfUnknowns, std::size_t numberOfBasisFunctions, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0);
+        ElementData(std::size_t timeLevels, std::size_t numberOfUnknowns, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0);
         
         ElementData(const ElementData& other);
 

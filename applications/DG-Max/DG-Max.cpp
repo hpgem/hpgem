@@ -74,7 +74,7 @@ public:
 
         auto mesh = new Base::MeshManipulator<DIM>(this->getConfigData(), Base::BoundaryType::PERIODIC,
                                                    Base::BoundaryType::PERIODIC, Base::BoundaryType::PERIODIC,
-                                                   this->getConfigData()->polynomialOrder_, 0, 2, 3, 1, 1);
+                                                   this->getConfigData()->polynomialOrder_, 2, 3, 1, 1);
         mesh->createTriangularMesh(bottomLeft, topRight, numElementsOneD);
 
         for (typename Base::MeshManipulator<DIM>::ElementIterator it = mesh->elementColBegin(Base::IteratorType::GLOBAL);
@@ -89,7 +89,7 @@ public:
     {
         auto mesh = new Base::MeshManipulator<DIM>(this->getConfigData(), Base::BoundaryType::PERIODIC,
                                                    Base::BoundaryType::PERIODIC, Base::BoundaryType::PERIODIC,
-                                                   this->getConfigData()->polynomialOrder_, 0, 2, 3, 1, 1);
+                                                   this->getConfigData()->polynomialOrder_, 2, 3, 1, 1);
         mesh->readMesh(fileName);
         this->addMesh(mesh);
         for (typename Base::MeshManipulator<DIM>::ElementIterator it = mesh->elementColBegin(Base::IteratorType::GLOBAL);

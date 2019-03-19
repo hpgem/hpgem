@@ -77,12 +77,11 @@
 namespace Base
 {
 
-    MeshManipulatorBase::MeshManipulatorBase(const ConfigurationData* config, BoundaryType xPer, BoundaryType yPer, BoundaryType zPer, std::size_t orderOfFEM, std::size_t idRangeBegin, std::size_t numberOfElementMatrices, std::size_t numberOfElementVectors, std::size_t numberOfFaceMatrtices, std::size_t numberOfFaceVectors)
+    MeshManipulatorBase::MeshManipulatorBase(const ConfigurationData* config, BoundaryType xPer, BoundaryType yPer, BoundaryType zPer, std::size_t orderOfFEM, std::size_t numberOfElementMatrices, std::size_t numberOfElementVectors, std::size_t numberOfFaceMatrtices, std::size_t numberOfFaceVectors)
             : configData_(config), numberOfElementMatrices_(numberOfElementMatrices), numberOfFaceMatrices_(numberOfFaceMatrtices), numberOfElementVectors_(numberOfElementVectors), numberOfFaceVectors_(numberOfFaceVectors)
     {
-        logger.assert_debug(config != nullptr, "Invalid configuration passed");
-        logger.assert_debug(orderOfFEM == config->polynomialOrder_, "Inconsistent redundant information passed");
-        logger.assert_debug(idRangeBegin == 0, "c++ starts counting at 0");
+        logger.assert_debug(config!=nullptr, "Invalid configuration passed");
+        logger.assert_debug(orderOfFEM==config->polynomialOrder_, "Inconsistent redundant information passed");
         logger(INFO, "******Mesh creation started!**************");
         std::size_t DIM = configData_->dimension_;
         periodicX_ = (xPer == BoundaryType::PERIODIC);

@@ -96,8 +96,8 @@ int main()
     Base::AssembleBasisFunctionSet_3D_Ord3_A1(*basisFunctions);
     
     std::vector<std::shared_ptr<const Base::BasisFunctionSet>> vectorOfFunctions(1, std::shared_ptr<Base::BasisFunctionSet>(basisFunctions));
-    
-    Base::Element element(pointIndexes, &vectorOfFunctions, nodes, 3, 14, basisFunctions->size(), 18);
+
+    Base::Element element(pointIndexes, &vectorOfFunctions, nodes, 3, 14, 18);
 
     // Face 4 of the cube, local node indices 2,3,6,7 -> points 10,11,14,15
     // (3.5, 4.6, 5.4), (6.7, 2.8, 5.7), (3.5, 4.6, 7.4), (6.7, 2,8, 7.7)

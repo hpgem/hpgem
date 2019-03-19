@@ -85,7 +85,7 @@ namespace Base
     template<std::size_t DIM>
     Element* ElementFactory::makeElement(const std::vector<std::size_t>& globalNodeIndexes, std::vector<Geometry::PointPhysical<DIM> >& points, bool owning)
     {
-        return new Element(globalNodeIndexes, basisFunctionSets_, points, unknowns_, timeLevels_, (*basisFunctionSets_)[0]->size(), GlobalUniqueIndex::instance().getElementIndex(), owning, numberOfElementMatrices_, numberOfElementVectors_);
+        return new Element(globalNodeIndexes, basisFunctionSets_, points, unknowns_, timeLevels_, GlobalUniqueIndex::instance().getElementIndex(), owning, numberOfElementMatrices_, numberOfElementVectors_);
     }
 
 }

@@ -108,8 +108,8 @@ int main()
     std::vector<std::shared_ptr<const Base::BasisFunctionSet>> *pBasisFunctionSetVector = &basisFunctionSetVector;
     
     std::cout << "Build elements.\n";
-    Base::Element elementLeft(pointIndicesLeft, pBasisFunctionSetVector, pointsPhysical, numberOfUnknowns, 0, numberOfBasisFunctions, elementIdLeft);
-    Base::Element elementRight(pointIndicesRight, pBasisFunctionSetVector, pointsPhysical, numberOfUnknowns, 0, numberOfBasisFunctions, elementIdRight);
+    Base::Element elementLeft(pointIndicesLeft, pBasisFunctionSetVector, pointsPhysical, numberOfUnknowns, 0, elementIdLeft);
+    Base::Element elementRight(pointIndicesRight, pBasisFunctionSetVector, pointsPhysical, numberOfUnknowns, 0, elementIdRight);
     
     std::cout << "Build nodes.\n";
     Base::Node node0(0);

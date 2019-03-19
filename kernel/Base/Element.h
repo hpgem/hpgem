@@ -65,8 +65,7 @@ namespace Base
             const CollectionOfBasisFunctionSets *basisFunctionSet, 
             std::vector<Geometry::PointPhysical<DIM> >& allNodes, 
             std::size_t numberOfUnkowns, 
-            std::size_t numberOfTimeLevels, 
-            std::size_t numberOfBasisFunctions, 
+            std::size_t numberOfTimeLevels,
             std::size_t id,
             bool owning = true,
             std::size_t numberOfElementMatrices = 0, 
@@ -391,14 +390,13 @@ namespace Base
                      std::vector<Geometry::PointPhysical<DIM> >& allNodes,
                      std::size_t numberOfUnknowns,
                      std::size_t numberOfTimeLevels,
-                     std::size_t numberOfBasisFuncs,
                      std::size_t id,
                      bool owned,
                      std::size_t numberOfElementMatrices,
                      std::size_t numberOfElementVectors,
                      const std::vector<int>& basisFunctionSetPositions)
             : ElementGeometry(globalNodeIndexes, allNodes),
-        ElementData(numberOfTimeLevels, numberOfUnknowns, numberOfBasisFuncs, numberOfElementMatrices, numberOfElementVectors),
+        ElementData(numberOfTimeLevels, numberOfUnknowns, numberOfElementMatrices, numberOfElementVectors),
         quadratureRule_(nullptr), basisFunctionSet_(basisFunctionSet),
         id_(id), vecCacheData_(), owned_(owned)
     {
@@ -429,7 +427,6 @@ namespace Base
                     numberOfBasisFunctions[i] += basisFunctionSet_->at(basisFunctionSetPositions_[i][j])->size();
                 }
             }
-            logger.assert_debug(numberOfBasisFunctions[i] == numberOfBasisFuncs, "Redundant argument set to the wrong value");
             setNumberOfBasisFunctions(numberOfBasisFunctions[i], i);
             setQuadratureRulesWithOrder(orderCoeff_ * basisFunctionSet_->at(basisFunctionSetPositions_[i][0])->getOrder() + 1);
             numberOfDOFinTheElement_[i] = basisFunctionSet_->at(basisFunctionSetPositions_[i][0])->size();

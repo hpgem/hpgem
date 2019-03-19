@@ -99,7 +99,7 @@ int main()
     
     std::vector<std::shared_ptr<const Base::BasisFunctionSet>> vectorOfFunctions(1, std::shared_ptr<const Base::BasisFunctionSet>(basisFunctions));
     
-    Base::Element test(pointIndexes, &vectorOfFunctions, nodes, 3, 14, basisFunctions->size(), 18);
+    Base::Element test(pointIndexes, &vectorOfFunctions, nodes, 3, 14, 18);
     
     logger.assert_always((test.getGaussQuadratureRule() != nullptr), "quadrature rule");
     

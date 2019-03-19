@@ -30,17 +30,15 @@
 
 namespace Base
 {
-    ElementData::ElementData(std::size_t timeLevels, std::size_t numberOfUnknowns, std::size_t numberOfBasisFunctions, std::size_t numberOfElementMatrixes, std::size_t numberOfElementVectors)
-            : timeLevels_(timeLevels), numberOfUnknowns_(numberOfUnknowns), numberOfBasisFunctions_(numberOfBasisFunctions), timeLevelDataVectors_(timeLevels_), userData_(nullptr), elementMatrix_(numberOfElementMatrixes), elementVector_(numberOfElementVectors)
+    ElementData::ElementData(std::size_t timeLevels, std::size_t numberOfUnknowns, std::size_t numberOfElementMatrixes, std::size_t numberOfElementVectors)
+            : timeLevels_(timeLevels), numberOfUnknowns_(numberOfUnknowns), numberOfBasisFunctions_(numberOfUnknowns_), timeLevelDataVectors_(timeLevels_), userData_(nullptr), elementMatrix_(numberOfElementMatrixes), elementVector_(numberOfElementVectors)
     {
         logger(VERBOSE, "In constructor of ElementData: ");
         logger(VERBOSE, "numberOfElementMatrixes %", numberOfElementMatrixes);
         logger(VERBOSE, "elementMatrix_ size %", elementMatrix_.size());
         logger(VERBOSE, "numberOfElementVectors %", numberOfElementVectors);
         logger(VERBOSE, "elementVector_ size = %", elementVector_.size());
-        numberOfBasisFunctions_.resize(numberOfUnknowns_);
-        for(std::size_t& index : numberOfBasisFunctions_)
-            index = numberOfBasisFunctions;
+        // Setting numberOfBasisFunctions is left to the parent (Element)
     }
     
     ElementData::ElementData(const ElementData& other) 

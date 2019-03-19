@@ -887,15 +887,14 @@ namespace Base
 
     template<std::size_t DIM>
     MeshManipulator<DIM>::MeshManipulator(const ConfigurationData *config, BoundaryType xPer, BoundaryType yPer,
-                                          BoundaryType zPer, std::size_t orderOfFEM, std::size_t idRangeBegin,
+                                          BoundaryType zPer, std::size_t orderOfFEM,
                                           std::size_t numberOfElementMatrices, std::size_t numberOfElementVectors,
                                           std::size_t numberOfFaceMatrices, std::size_t numberOfFaceVectors)
-            : MeshManipulatorBase(config, xPer, yPer, zPer, orderOfFEM, idRangeBegin, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors),
+            : MeshManipulatorBase(config, xPer, yPer, zPer, orderOfFEM, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors),
               meshMover_(nullptr)
     {
         logger.assert_debug(DIM == config->dimension_, "Invalid configuration passed");
         logger.assert_debug(orderOfFEM == config->polynomialOrder_, "Inconsistent redundant information passed");
-        logger.assert_debug(idRangeBegin == 0, "c++ starts counting at 0");
         createDefaultBasisFunctions(orderOfFEM);
         const_cast<ConfigurationData *>(configData_)->numberOfBasisFunctions_ = collBasisFSet_[0]->size();
     }
