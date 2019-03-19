@@ -202,12 +202,43 @@ namespace LinearAlgebra
         /// \brief solves Ax=b where A is the current matrix and NumericalVector b 
         /// is the input parameter. The result is returned in b.
         void solve(MiddleSizeVector& b) const;
-        
+
+        /// \brief Computes the Cholesky decomposition in place.
+        ///
+        /// Computes the Cholesky decomposition L*L^H = A of this matrix (A),
+        /// assuming but not checking that this matrix is Hermtian positive
+        /// definite. The contents of this matrix is overwritten with the
+        /// lower triangular part of the Cholesky decomposition.
+        void cholesky();
+
+        /// \brief Solve a system (L*L^H)*X = B after Cholesky decomposition
+        ///
+        /// Solves the system (L^H *L)*X = B, where L is a lower triangular
+        /// matrix such as obtained from cholesky(). This is not checked.
+        /// \param B The rhs and result matrix.
+        void solveCholesky(MiddleSizeMatrix &B) const;
+
+        /// \brief Solve the system L*x = B
+        ///
+        /// Solve the system L*x = B, where L is the current matrix that is
+        /// assumed to be lower triangular.
+        ///
+        /// \param B The right hand side, that will be overwritten by the
+        /// solution.
+        void solveLowerTriangular(MiddleSizeMatrix &B) const;
+
         /// \brief Computes the minimum norm solution to a real linear least squares problem.
         void pseudoSolve(MiddleSizeVector& b, double rCond) const;
         
         type* data();
         const type* data() const;
+
+        /// \brief Checks if the matrix is Hermitian up to a tolerance
+        ///
+        /// \param tol Difference of absolute magnitude larger than this is seen
+        ///   as non hermitian.
+        /// \return Whether the matrix is hermitian up to the specified tolerance
+        bool isHermitian(double tol) const;
 
     private:
         /// The actually data of the matrix class

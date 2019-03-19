@@ -60,7 +60,20 @@ namespace LinearAlgebra
         void dgesv_(int* N, int* NRHS, double* A, int* lda, int* IPIV, double* B, int* LDB, int* INFO);
         /// This is used for solve Ax=B for x. Again this is from LAPACK.
         void zgesv_(int* N, int* NRHS, std::complex<double>* A, int* lda, int* IPIV, std::complex<double>* B, int* LDB, int* INFO);
-        
+
+        /// Compute Cholesky decomposition of a Hermitian positive definite matrix
+        void dpotrf_(const char* uplo, int* n, double* A, int* lda, int* info);
+        void zpotrf_(const char* uplo, int* n, std::complex<double>* A, int* lda, int* info);
+        /// Solve a linear system Ax = B using a previously obtained Cholesky decomposition.
+        void dpotrs_(const char* uplo, int* n, int* nrhs, double* A, int* lda, double* B, int* ldb, int* info);
+        void zpotrs_(const char* uplo, int* n, int* nrhs, std::complex<double>* A, int* lda, std::complex<double>* B, int* ldb, int* info);
+
+        /// Solvers for triangular matrix, e.g. Lx = B
+        void dtrsm_(const char* side, const char* uplo, const char* transa, const char* diag, int* m, int* n,
+                    double* alpha, double* A, int* lda, double* B, int* ldb);
+        void ztrsm_(const char* side, const char* uplo, const char* transa, const char* diag, int* m, int* n,
+                std::complex<double>* alpha, std::complex<double>* A, int* lda, std::complex<double>* B, int* ldb);
+
         /// This is a least squares solver, solving an over- or underdetermined system AX=B for X. It has been taken from LAPACK.
         void dgelss_(int *m, int *n, int *nrhs, double *A, int *lda, double *B, int *ldb, double *s, double *rCond, int *rank, double *work, int *lWork, int *info);
         void zgelss_(int *m, int *n, int *nrhs, std::complex<double> *A, int *lda, std::complex<double> *B, int *ldb, double *s, double *rCond, int *rank, std::complex<double> *work, int *lWork, int *info);
@@ -673,7 +686,56 @@ namespace LinearAlgebra
         dgesv_(&n, &nrhs, matThis.data(), &n, IPIV.data(), b.data(), &n, &info);
 #endif
     }
-    
+
+    void MiddleSizeMatrix::cholesky()
+    {
+        logger.assert_debug(numberOfRows_ == numberOfColumns_, "Can only decompose square matrixes");
+        int n = numberOfRows_;
+        int info;
+
+#ifdef HPGEM_USE_COMPLEX_PETSC
+        zpotrf_("L", &n, data(), &n, &info);
+#else
+        dpotrf_("L", &n, data(), &n, &info);
+#endif
+        logger.assert_debug(info == 0, "Error in Cholesky decomposition info=%", info);
+    }
+
+    void MiddleSizeMatrix::solveCholesky(LinearAlgebra::MiddleSizeMatrix &B) const
+    {
+        logger.assert_debug(numberOfRows_ == numberOfColumns_, "can only solve for square matrixes");
+        logger.assert_debug(numberOfRows_ == B.numberOfRows_, "size of the RHS does not match the size of the matrix");
+
+        int n = numberOfRows_;
+        int info;
+        int nrhs = B.getNumberOfColumns();
+        MiddleSizeMatrix matThis = *this; // Mutable copy.
+#ifdef HPGEM_USE_COMPLEX_PETSC
+        zpotrs_("L", &n, &nrhs, matThis.data(), &n, B.data(), &n, &info);
+#else
+        dpotrs_("L", &n, &nrhs, matThis.data(), &n, B.data(), &n, &info);
+#endif
+        logger.assert_always(info == 0, "Error in solving using decomposition.");
+
+    }
+
+    void MiddleSizeMatrix::solveLowerTriangular(LinearAlgebra::MiddleSizeMatrix &B) const
+    {
+        logger.assert_debug(numberOfRows_ == numberOfColumns_, "can only solve for square matrixes");
+        logger.assert_debug(numberOfRows_ == B.numberOfRows_, "size of the RHS does not match the size of the matrix");
+
+        int n = numberOfRows_;
+        int nrhs = B.getNumberOfColumns();
+        MiddleSizeMatrix matThis = *this; // Mutable copy.
+#ifdef HPGEM_USE_COMPLEX_PETSC
+        std::complex<double> alpha (1);
+        ztrsm_("L", "L", "N", "N", &n, &nrhs, &alpha, matThis.data(), &n, B.data(), &n);
+#else
+        double alpha;
+        dtrsm_("L", "L", "N", "N", &n, &nrhs, &alpha, matThis.data(), &n, B.data(), &n);
+#endif
+    }
+
     /// \details Computes the minimum norm solution to a real linear least squares problem: minimize 2-norm(| b - A*x |), using the singular value decomposition (SVD) of A. A is an M-by-N matrix which may be rank-deficient. The effective rank of A is determined by treating as zero those singular values which are less than rCond times the largest singular value. See dgelss function documentation of LAPACK for more details.
     /// \param[in,out] b On entry its the right hand side b, while on exit it is the solution x.
     /// \param[in] rCond Double precision value used to determine the effective rank of A. Singular values S(i) <= rCond*S(1) are treated as zero.
@@ -757,5 +819,26 @@ namespace LinearAlgebra
         dgemv_("T", &nr, &nc, &d_one, right.data(), &nr, left.data(), &i_one, &d_zero, result.data(), &i_one);
 #endif
         return result;
+    }
+
+    bool MiddleSizeMatrix::isHermitian(double tol) const
+    {
+        if (numberOfRows_ != numberOfColumns_)
+        {
+            logger(WARN, "Different number of rows and columns");
+            return false;
+        }
+        for(std::size_t i = 0; i < numberOfRows_; ++i)
+        {
+            for(std::size_t j = i; j < numberOfColumns_; ++j)
+            {
+                std::complex<double> diff = std::conj((*this)(i,j)) - (*this)(j,i);
+                if(std::norm(diff) > tol * tol)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }
