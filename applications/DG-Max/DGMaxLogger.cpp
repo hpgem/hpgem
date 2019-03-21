@@ -1,5 +1,6 @@
 
 #include "DGMaxLogger.h"
+#include <iostream>
 
 #ifdef HPGEM_USE_MPI
 #include <mpi.h>
