@@ -386,6 +386,7 @@ namespace Base
         std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > numberOfFaceSets;
         std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > numberOfEdgeSets;
         std::unordered_map<Geometry::ReferenceGeometryType, std::size_t, EnumHash<Geometry::ReferenceGeometryType> > numberOfNodeSets;
+        logger.suppressWarnings([&](){
         for (Element *element : getElementsList(IteratorType::GLOBAL))
         {
             try
@@ -624,7 +625,7 @@ namespace Base
                                                                         nodeNumber]->size());
                 }
             }
-        }
+        }});
     }
     
     template<std::size_t DIM>
@@ -3366,8 +3367,10 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
             }
         }
 
-        getFacesList(IteratorType::GLOBAL).setPreOrderTraversal();
-        getEdgesList(IteratorType::GLOBAL).setPreOrderTraversal();
+        logger.suppressWarnings([&]() {
+            getFacesList(IteratorType::GLOBAL).setPreOrderTraversal();
+            getEdgesList(IteratorType::GLOBAL).setPreOrderTraversal();
+        });
 
         for(std::size_t i = 0; i < numberOfFaces; ++i) {
             std::size_t localNumberOfFaces;
