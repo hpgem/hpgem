@@ -26,6 +26,7 @@ add_library(hpGEM_Base STATIC
  		BaseBasisFunction.cpp	  
 		CommandLineOptions.cpp
  		Element.cpp
+		ElementBasisFunctions.cpp
  		ElementData.cpp
                 ElementFactory.cpp
  		Face.cpp

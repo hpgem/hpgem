@@ -36,6 +36,7 @@
 #include <iostream>
 #include <memory>
 #include <Integration/QuadratureRules/GaussQuadratureRule.h>
+#include <Base/ElementBasisFunctions.h>
 
 namespace QuadratureRules
 {
@@ -69,8 +70,7 @@ namespace Base
             std::size_t id,
             bool owning = true,
             std::size_t numberOfElementMatrices = 0, 
-            std::size_t numberOfElementVectors = 0, 
-            const std::vector<int>& basisFunctionSetPositions = std::vector<int>(1, 0));
+            std::size_t numberOfElementVectors = 0);
 
         Element(const Element &other) = delete;
         Element& operator=(const Element &other) = delete;
@@ -246,25 +246,17 @@ namespace Base
         ///return the number of basis functions that are associated with this element only. This always includes functions with compact support on the interior of the element and DG basis function, but never include conforming basis functions that are nonzero on a face, edge or node
         std::size_t getLocalNumberOfBasisFunctions() const
         {
-            std::size_t number = numberOfDOFinTheElement_[0];
-            for(std::size_t index : numberOfDOFinTheElement_)
-                logger.assert_debug(index == number, "local number of basis functions is different for different unknown");
-            return numberOfDOFinTheElement_[0];
+            return basisFunctions_.getNumberOfLocalBasisFunctions();
         }
         
         std::size_t getLocalNumberOfBasisFunctions(std::size_t unknown) const
         {
-            return numberOfDOFinTheElement_[unknown];
+            return basisFunctions_.getNumberOfLocalBasisFunctions(unknown);
         }
         
         std::size_t getTotalLocalNumberOfBasisFunctions() const
         {
-            std::size_t number = 0;
-            for(std::size_t index : numberOfDOFinTheElement_)
-            {
-                number += index;
-            }
-            return number;
+            return basisFunctions_.getTotalLocalNumberOfBasisFunctions();
         }
         
         Face* getFace(std::size_t localFaceNumber) const
@@ -369,14 +361,8 @@ namespace Base
         ///Constructor that copies the data and geometry of the given ElementData and ElementGeometry.
         Element(bool owned, const ElementData& otherData, const Geometry::ElementGeometry& otherGeometry);
 
-        std::tuple<const BasisFunctionSet*, std::size_t> getBasisFunctionSetAndIndex(std::size_t index) const;
-        std::tuple<const BasisFunctionSet*, std::size_t> getBasisFunctionSetAndIndex(std::size_t index, std::size_t unknown) const;
-
         /// Quadrature rule used to do the integration on this element.
         QuadratureRules::GaussQuadratureRule *quadratureRule_;
-        
-        /// Vector of basis function sets. Usually you only need one basis function set.
-        const CollectionOfBasisFunctionSets *basisFunctionSet_;
         
         const TreeEntry<Element*>* positionInTheTree_;
 
@@ -385,19 +371,15 @@ namespace Base
         
         /// Constant that describes a relation between the polynomial order of the basis function set and the accuracy of the quadrature rule.
         std::size_t orderCoeff_;
-        
-        /// Indices of the basis function sets that are used.
-        std::vector<std::vector<int> > basisFunctionSetPositions_;
-        
+
         std::vector<Face*> facesList_;
         std::vector<Edge*> edgesList_;
         std::vector<Node*> nodesList_;
 
-        /// Degrees of freedom corresponding to this element. When using conforming basis functions only the basis functions with support on only this element are counted.
-        std::vector<std::size_t> numberOfDOFinTheElement_;
-        
         /// Vector of data which the user might want to store. For example determinants of the Jacobian for each quadrature point.
         std::vector<Base::ElementCacheData> vecCacheData_;
+
+        ElementBasisFunctions basisFunctions_;
 
         /// Whether the current processor owns this element.
         bool owned_;
@@ -417,44 +399,27 @@ namespace Base
                      std::size_t id,
                      bool owned,
                      std::size_t numberOfElementMatrices,
-                     std::size_t numberOfElementVectors,
-                     const std::vector<int>& basisFunctionSetPositions)
+                     std::size_t numberOfElementVectors)
             : ElementGeometry(globalNodeIndexes, allNodes),
         ElementData(numberOfTimeLevels, numberOfUnknowns, numberOfElementMatrices, numberOfElementVectors),
-        quadratureRule_(nullptr), basisFunctionSet_(basisFunctionSet),
-        id_(id), vecCacheData_(), owned_(owned)
+        quadratureRule_(nullptr), //basisFunctionSet_(basisFunctionSet),
+        id_(id), vecCacheData_(), owned_(owned),
+        basisFunctions_ (basisFunctionSet, numberOfUnknowns)
     {
         logger.assert_debug(basisFunctionSet != nullptr, "Invalid basis function set passed");
         logger.assert_debug(basisFunctionSet->size() > 0, "Not enough basis function sets passed");
         logger(VERBOSE, "numberOfElementMatrices: %", numberOfElementMatrices);
         logger(VERBOSE, "numberOfElementVectors: %", numberOfElementVectors);
-        
-        basisFunctionSetPositions_.resize(numberOfUnknowns);
-        for(std::size_t i = 0; i < numberOfUnknowns; ++i)
-        {
-            basisFunctionSetPositions_[i] = basisFunctionSetPositions;
-        }
 
         orderCoeff_ = 2; // for safety
-        std::vector<std::size_t> numberOfBasisFunctions = std::vector<std::size_t>(numberOfUnknowns, 0);
-        numberOfDOFinTheElement_.resize(numberOfUnknowns);
+        basisFunctions_.validatePositions();
+
         for (std::size_t i = 0; i < numberOfUnknowns; ++i)
         {
-            for (std::size_t j = 0; j < basisFunctionSetPositions_[i].size(); ++j)
-            {
-                //basisFunctionSetPositions_ may be set to the special value -1 for the empty set, so this must be an integer comparison
-                logger.assert_debug(basisFunctionSetPositions_[i][j] < static_cast<int>(basisFunctionSet->size()), "Not enough basis function sets passed");
-                logger.assert_debug(basisFunctionSetPositions_[i][j] == -1 || basisFunctionSet->at(basisFunctionSetPositions_[i][j]) != nullptr,
-                                    "Invalid basis function set passed");
-                if(basisFunctionSetPositions_[i][j] != -1)
-                {
-                    numberOfBasisFunctions[i] += basisFunctionSet_->at(basisFunctionSetPositions_[i][j])->size();
-                }
-            }
-            setNumberOfBasisFunctions(numberOfBasisFunctions[i], i);
-            setQuadratureRulesWithOrder(orderCoeff_ * basisFunctionSet_->at(basisFunctionSetPositions_[i][0])->getOrder() + 1);
-            numberOfDOFinTheElement_[i] = basisFunctionSet_->at(basisFunctionSetPositions_[i][0])->size();
+            setNumberOfBasisFunctions(basisFunctions_.getNumberOfBasisFunctions(i), i);
         }
+
+        setQuadratureRulesWithOrder(orderCoeff_ * basisFunctions_.getMaximumOrder());
         facesList_.assign(getReferenceGeometry()->getNumberOfCodim1Entities(), nullptr);
         if (getReferenceGeometry()->getNumberOfCodim3Entities() > 0)
         {
@@ -471,7 +436,7 @@ namespace Base
 
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
-        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
         return subSet->evalDeriv(subIndex, jDir, p);
     }
     
@@ -484,7 +449,7 @@ namespace Base
 
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
-        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i, unknown);
+        std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);
         return subSet->evalDeriv(subIndex, jDir, p);
     }
 
@@ -494,7 +459,7 @@ namespace Base
         logger.assert_debug(i < getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
-        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
         return subSet->eval(subIndex, p);
     }
     
@@ -505,7 +470,7 @@ namespace Base
                             getNumberOfBasisFunctions(unknown));
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
-        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i, unknown);
+        std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);
         return subSet->eval(subIndex, p);
     }
 
@@ -515,7 +480,7 @@ namespace Base
         logger.assert_debug(i < getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
-        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
         subSet->eval(subIndex, p, ret);
     }
     
@@ -526,7 +491,7 @@ namespace Base
                             getNumberOfBasisFunctions(unknown));
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
-        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i, unknown);
+        std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);
         subSet->eval(subIndex, p, ret);
     }
 
@@ -536,7 +501,7 @@ namespace Base
         logger.assert_debug(i < getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
-        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
         return subSet->evalCurl(subIndex, p);
     }
     
@@ -547,7 +512,7 @@ namespace Base
                             getNumberOfBasisFunctions(unknown));
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
-        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i, unknown);
+        std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);
         return subSet->evalCurl(subIndex, p);
     }
 
@@ -557,7 +522,7 @@ namespace Base
         logger.assert_debug(i < getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
-        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
         return subSet->evalDiv(subIndex, p);
     }
     
@@ -568,7 +533,7 @@ namespace Base
                             getNumberOfBasisFunctions(unknown));
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
-        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i, unknown);
+        std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);
         return subSet->evalDiv(subIndex, p);
     }
 
@@ -578,7 +543,7 @@ namespace Base
         logger.assert_debug(i < getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
-        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
         return subSet->evalDeriv(subIndex, p);
     }
     
@@ -589,7 +554,7 @@ namespace Base
                             getNumberOfBasisFunctions(unknown));
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
-        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i, unknown);
+        std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);
         return subSet->evalDeriv(subIndex, p);
     }
 
@@ -694,7 +659,7 @@ namespace Base
         logger.assert_debug(i < getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
-        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
         quadratureRule->eval(subSet, subIndex, quadraturePointIndex, ret);
     }
     
@@ -706,7 +671,7 @@ namespace Base
                             getNumberOfBasisFunctions(unknown));
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
-        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i, unknown);
+        std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);
         quadratureRule->eval(subSet, subIndex, quadraturePointIndex, ret);
     }
 
@@ -718,7 +683,7 @@ namespace Base
         logger.assert_debug(i < getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
-        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
         return quadratureRule->evalGrad(subSet, subIndex, quadraturePointIndex);
     }
     
@@ -731,7 +696,7 @@ namespace Base
                             getNumberOfBasisFunctions(unknown));
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
-        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i, unknown);
+        std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);
         return quadratureRule->evalGrad(subSet, subIndex, quadraturePointIndex);
     }
 
@@ -743,7 +708,7 @@ namespace Base
         logger.assert_debug(i < getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
-        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
         return subSet->evalCurl<DIM>(subIndex, quadratureRule, quadraturePointIndex);
     }
     
@@ -756,7 +721,7 @@ namespace Base
                             getNumberOfBasisFunctions(unknown));
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
-        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i, unknown);
+        std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);
         return subSet->evalCurl<DIM>(subIndex, quadratureRule, quadraturePointIndex);
     }
 
@@ -767,7 +732,7 @@ namespace Base
         logger.assert_debug(i < getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
-        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
         quadratureRule->eval(subSet, subIndex, quadraturePointIndex, map, ret);
     }
     
@@ -779,7 +744,7 @@ namespace Base
                             getNumberOfBasisFunctions(unknown));
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
-        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i, unknown);
+        std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);
         quadratureRule->eval(subSet, subIndex, quadraturePointIndex, map, ret);
     }
 
@@ -791,7 +756,7 @@ namespace Base
         logger.assert_debug(i < getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
-        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
         return quadratureRule->evalGrad(subSet, subIndex, quadraturePointIndex, map);
     }
     
@@ -804,7 +769,7 @@ namespace Base
                             getNumberOfBasisFunctions(unknown));
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
-        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i, unknown);
+        std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);
         return quadratureRule->evalGrad(subSet, subIndex, quadraturePointIndex, map);
     }
 
@@ -816,7 +781,7 @@ namespace Base
         logger.assert_debug(i < getNumberOfBasisFunctions(), "Asked for basis function %, but there are only % basis functions", i, getNumberOfBasisFunctions());
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
-        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i);
+        std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
         return subSet->evalCurl<DIM>(subIndex, quadratureRule, quadraturePointIndex, map);
     }
     
@@ -829,7 +794,7 @@ namespace Base
                             getNumberOfBasisFunctions(unknown));
         const BasisFunctionSet *subSet;
         std::size_t subIndex;
-        std::tie(subSet, subIndex) = getBasisFunctionSetAndIndex(i, unknown);
+        std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);
         return subSet->evalCurl<DIM>(subIndex, quadratureRule, quadraturePointIndex, map);
     }
 }
