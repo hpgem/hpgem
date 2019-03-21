@@ -85,11 +85,35 @@ namespace Base
 
         void setGaussQuadratureRule(QuadratureRules::GaussQuadratureRule * const quadR);
 
-        void setDefaultBasisFunctionSet(std::size_t position, std::size_t unknown = 0);
+        void setDefaultBasisFunctionSet(std::size_t position) {
+            for(std::size_t unknown = 0; unknown < getNumberOfUnknowns(); ++unknown) {
+                setDefaultBasisFunctionSet(position, unknown);
+            }
+        }
 
-        void setVertexBasisFunctionSet(std::size_t position, std::size_t localIndex, std::size_t unknown = 0);
-        void setEdgeBasisFunctionSet(std::size_t position, std::size_t localIndex, std::size_t unknown = 0);
-        void setFaceBasisFunctionSet(std::size_t position, std::size_t localIndex, std::size_t unknown = 0);
+        void setDefaultBasisFunctionSet(std::size_t position, std::size_t unknown);
+
+        void setVertexBasisFunctionSet(std::size_t position, std::size_t localIndex) {
+            for(std::size_t unknown = 0; unknown < getNumberOfUnknowns(); ++unknown) {
+                setVertexBasisFunctionSet(position, localIndex, unknown);
+            }
+        }
+
+        void setVertexBasisFunctionSet(std::size_t position, std::size_t localIndex, std::size_t unknown);
+
+        void setEdgeBasisFunctionSet(std::size_t position, std::size_t localIndex) {
+            for(std::size_t unknown = 0; unknown < getNumberOfUnknowns(); ++unknown) {
+                setEdgeBasisFunctionSet(position, localIndex, unknown);
+            }
+        }
+        void setEdgeBasisFunctionSet(std::size_t position, std::size_t localIndex, std::size_t unknown);
+
+        void setFaceBasisFunctionSet(std::size_t position, std::size_t localIndex) {
+            for(std::size_t unknown = 0; unknown < getNumberOfUnknowns(); ++unknown) {
+                setFaceBasisFunctionSet(position, localIndex, unknown);
+            }
+        }
+        void setFaceBasisFunctionSet(std::size_t position, std::size_t localIndex, std::size_t unknown);
 
         /// \brief Get a pointer to the quadrature rule used to do integration on this element.
         QuadratureRules::GaussQuadratureRule* getGaussQuadratureRule() const;

@@ -130,8 +130,14 @@ namespace Base
         {
             setLocalNumberOfBasisFunctions(number);
         }
+
+        void setLocalNumberOfBasisFunctions(std::size_t number) {
+            for(std::size_t unknown = 0; unknown < numberOfConformingDOFOnTheEdge_.size(); ++unknown) {
+                setLocalNumberOfBasisFunctions(number, unknown);
+            }
+        }
         
-        void setLocalNumberOfBasisFunctions(std::size_t number, std::size_t unknown = 0)
+        void setLocalNumberOfBasisFunctions(std::size_t number, std::size_t unknown)
         {
             logger.assert_debug(unknown < numberOfConformingDOFOnTheEdge_.size(),
                                 "Setting unknown % but there are only %", unknown, numberOfConformingDOFOnTheEdge_.size());

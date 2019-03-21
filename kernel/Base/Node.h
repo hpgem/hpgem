@@ -120,8 +120,14 @@ namespace Base
             logger.assert_debug(i < getNumberOfElements(), "Asked for element %, but there are only % elements", i, getNumberOfElements());
             return localNodeNumbers_[i];
         }
+
+        void setLocalNumberOfBasisFunctions(std::size_t number) {
+            for(std::size_t unknown = 0; unknown < numberOfConformingDOFOnTheNode_.size(); ++unknown) {
+                setLocalNumberOfBasisFunctions(number, unknown);
+            }
+        }
         
-        void setLocalNumberOfBasisFunctions(std::size_t number, std::size_t unknown = 0)
+        void setLocalNumberOfBasisFunctions(std::size_t number, std::size_t unknown)
         {
             logger.assert_debug(unknown < numberOfConformingDOFOnTheNode_.size(),
                                 "Setting unknown %, but there are only %", unknown, numberOfConformingDOFOnTheNode_.size());
