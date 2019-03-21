@@ -74,7 +74,7 @@ public:
 
         auto mesh = new Base::MeshManipulator<DIM>(this->getConfigData(), Base::BoundaryType::PERIODIC,
                                                    Base::BoundaryType::PERIODIC, Base::BoundaryType::PERIODIC,
-                                                   this->getConfigData()->polynomialOrder_, 2, 3, 1, 1);
+                                                   2, 3, 1, 1);
         mesh->createTriangularMesh(bottomLeft, topRight, numElementsOneD);
 
         for (typename Base::MeshManipulator<DIM>::ElementIterator it = mesh->elementColBegin(Base::IteratorType::GLOBAL);
@@ -89,7 +89,7 @@ public:
     {
         auto mesh = new Base::MeshManipulator<DIM>(this->getConfigData(), Base::BoundaryType::PERIODIC,
                                                    Base::BoundaryType::PERIODIC, Base::BoundaryType::PERIODIC,
-                                                   this->getConfigData()->polynomialOrder_, 2, 3, 1, 1);
+                                                   2, 3, 1, 1);
         mesh->readMesh(fileName);
         this->addMesh(mesh);
         for (typename Base::MeshManipulator<DIM>::ElementIterator it = mesh->elementColBegin(Base::IteratorType::GLOBAL);
@@ -160,7 +160,7 @@ int main(int argc, char** argv)
     // requires DGMax, which requires the configurationData, which would then
     // require the discretization).
     const std::size_t numberOfUnknowns = 2;
-    Base::ConfigurationData* const configData = new Base::ConfigurationData(DIM, numberOfUnknowns, p.getValue(), numberOfTimeLevels);
+    Base::ConfigurationData* const configData = new Base::ConfigurationData(DIM, numberOfUnknowns, numberOfTimeLevels);
     try
     {
         double stab = (p.getValue() + 1) * (p.getValue() + 3);
@@ -191,11 +191,11 @@ int main(int argc, char** argv)
         // Harmonic code //
         ///////////////////
 
-//        DGMaxHarmonic harmonicSolver (base);
+//        DGMaxHarmonic harmonicSolver (base, p.getValue());
 //        DivDGMaxHarmonic harmonicSolver (base);
 //
 //        SampleHarmonicProblems problem (SampleHarmonicProblems::SARMANY2010, 1);
-//        harmonicSolver.solve(problem, divStab);
+//        harmonicSolver.solve(problem, divStab, p.getValue());
 //        std::cout << "L2 error " << harmonicSolver.computeL2Error(problem) << std::endl;
 //        auto errors = harmonicSolver.computeError({DGMaxDiscretization::L2, DGMaxDiscretization::HCurl}, problem);
 //        std::cout << "L2 error    " << errors[DGMaxDiscretization::L2] << std::endl;
@@ -206,11 +206,11 @@ int main(int argc, char** argv)
         // Eigenvalue code //
         /////////////////////
 
-//        DGMaxEigenValue solver (base);
+//        DGMaxEigenValue solver (base, p.getValue());
         DivDGMaxEigenValue<DIM> solver (base);
         KSpacePath<DIM> path = KSpacePath<DIM>::cubePath(20);
         EigenValueProblem<DIM> input(path, numEigenvalues.getValue());
-        DivDGMaxEigenValue<DIM>::Result result = solver.solve(input, divStab);
+        DivDGMaxEigenValue<DIM>::Result result = solver.solve(input, divStab, p.getValue());
         if (Base::MPIContainer::Instance().getProcessorID() == 0)
         {
             result.printFrequencies();

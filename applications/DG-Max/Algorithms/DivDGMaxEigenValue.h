@@ -52,7 +52,7 @@ public:
     };
 
     DivDGMaxEigenValue(hpGemUIExtentions<DIM>& base);
-    Result solve(EigenValueProblem<DIM> input, typename DivDGMaxDiscretization<DIM>::Stab);
+    Result solve(EigenValueProblem<DIM> input, typename DivDGMaxDiscretization<DIM>::Stab, std::size_t order);
 
 private:
 

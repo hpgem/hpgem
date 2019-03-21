@@ -34,11 +34,12 @@ DivDGMaxHarmonic<DIM>::DivDGMaxHarmonic(hpGemUIExtentions<DIM> &base)
 {}
 
 template<std::size_t DIM>
-void DivDGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM> &input, typename DivDGMaxDiscretization<DIM>::Stab stab)
+void DivDGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM> &input, typename DivDGMaxDiscretization<DIM>::Stab stab,
+                                  std::size_t order)
 {
     PetscErrorCode error;
 
-    discretization_.initializeBasisFunctions(*base_.getMesh(0), base_.getConfigData());
+    discretization_.initializeBasisFunctions(*base_.getMesh(0), base_.getConfigData(), order);
     discretization_.computeElementIntegrands(
             *base_.getMesh(0),
             false,

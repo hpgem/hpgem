@@ -32,7 +32,7 @@ template<std::size_t DIM>
 class DGMaxHarmonic
 {
 public:
-    explicit DGMaxHarmonic(hpGemUIExtentions<DIM>& base);
+    explicit DGMaxHarmonic(hpGemUIExtentions<DIM>& base, std::size_t order);
     void solve(const HarmonicProblem<DIM>& harmonicProblem, double stab);
 
     std::map<typename DGMaxDiscretization<DIM>::NormType, double> computeError(

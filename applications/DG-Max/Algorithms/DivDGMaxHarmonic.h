@@ -34,7 +34,7 @@ class DivDGMaxHarmonic
 public:
     DivDGMaxHarmonic(hpGemUIExtentions<DIM>& base);
 
-    void solve(const HarmonicProblem<DIM>& input, typename DivDGMaxDiscretization<DIM>::Stab stab);
+    void solve(const HarmonicProblem<DIM>& input, typename DivDGMaxDiscretization<DIM>::Stab stab, std::size_t order);
     void writeTec(std::string fileName) const;
     // TODO: Error computation and tec-plot writing
     double computeL2Error(const typename DivDGMaxDiscretization<DIM>::InputFunction& exactSolution) const;

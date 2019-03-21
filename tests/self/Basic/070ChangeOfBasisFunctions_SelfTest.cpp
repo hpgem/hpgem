@@ -51,10 +51,10 @@ int main(int argc, char** argv)
     using namespace std::string_literals;
     Base::parse_options(argc, argv);
     //this test should also be effective in 1D , but 2D has 3x as much 'wrong' basis functions for only a little extra effort
-    Base::ConfigurationData* config = new Base::ConfigurationData(2, 1, 1);
+    Base::ConfigurationData* config = new Base::ConfigurationData(2, 1);
     Base::MeshManipulator<2> mesh(config);
     mesh.readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "2Dminimalmesh.hpgem"s);
-    mesh.useDefaultDGBasisFunctions();
+    mesh.useDefaultDGBasisFunctions(1);
     for(Base::Element* element : mesh.getElementsList())
     {
         element->setNumberOfTimeIntegrationVectors(1);
@@ -64,7 +64,7 @@ int main(int argc, char** argv)
     //increase the number of iterations if this test is failing inconsistently
     for(std::size_t i = 0; i < 1000; ++i)
     {
-        mesh.useDefaultDGBasisFunctions();
+        mesh.useDefaultDGBasisFunctions(1);
         for(Base::Element* element : mesh.getElementsList())
         {
             element->setTimeIntegrationSubvector(0, 0, {0., 1., 2., 3.});
@@ -74,7 +74,7 @@ int main(int argc, char** argv)
     //for a single element conforming basis functions happen to be the same
     for(std::size_t i = 0; i < 1000; ++i)
     {
-        mesh.useDefaultConformingBasisFunctions();
+        mesh.useDefaultConformingBasisFunctions(1);
         for(Base::Element* element : mesh.getElementsList())
         {
             element->setTimeIntegrationSubvector(0, 0, {0., 1., 2., 3.});

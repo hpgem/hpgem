@@ -34,10 +34,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "Utilities/GlobalVector.h"
 
 template<std::size_t DIM>
-DGMaxEigenValue<DIM>::DGMaxEigenValue(hpGemUIExtentions<DIM> &base)
+DGMaxEigenValue<DIM>::DGMaxEigenValue(hpGemUIExtentions<DIM> &base, std::size_t order)
     : base_ (base)
 {
-    discretization_.initializeBasisFunctions(*(base_.getMesh(0)), base_.getConfigData());
+    discretization_.initializeBasisFunctions(*(base_.getMesh(0)), base_.getConfigData(), order);
 }
 
 template<std::size_t DIM>

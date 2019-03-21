@@ -72,7 +72,7 @@ FaceDoFInfo getFaceDoFInfo(const Base::Face& face)
 
 template<std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::initializeBasisFunctions(Base::MeshManipulator<DIM> &mesh,
-        const Base::ConfigurationData* configData)
+        const Base::ConfigurationData* configData, std::size_t order)
 {
     // We would like to configure the number of unknowns here, but this is
     // unfortunately not possible, as it is configured at the creation of
@@ -80,8 +80,8 @@ void DivDGMaxDiscretization<DIM>::initializeBasisFunctions(Base::MeshManipulator
     logger.assert_always(configData->numberOfUnknowns_ == 2, "DivDGMax expects 2 unknowns but got %",
             configData->numberOfUnknowns_);
     //TODO: This needs the additional unknown id.
-    mesh.useNedelecDGBasisFunctions();
-    mesh.useDefaultDGBasisFunctions(1);
+    mesh.useNedelecDGBasisFunctions(order);
+    mesh.useDefaultDGBasisFunctions(order, 1);
 }
 
 template<std::size_t DIM>

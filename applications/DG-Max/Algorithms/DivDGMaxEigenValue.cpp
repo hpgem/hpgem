@@ -39,7 +39,7 @@ DivDGMaxEigenValue<DIM>::DivDGMaxEigenValue(hpGemUIExtentions<DIM>& base)
 
 template<std::size_t DIM>
 typename DivDGMaxEigenValue<DIM>::Result DivDGMaxEigenValue<DIM>::solve(
-        EigenValueProblem<DIM> input, typename DivDGMaxDiscretization<DIM>::Stab stab)
+        EigenValueProblem<DIM> input, typename DivDGMaxDiscretization<DIM>::Stab stab, std::size_t order)
 {
     // Sometimes the solver finds more eigenvalues & vectors than requested, so
     // reserve some extra space for them.
@@ -49,7 +49,7 @@ typename DivDGMaxEigenValue<DIM>::Result DivDGMaxEigenValue<DIM>::solve(
 
     PetscErrorCode error;
     std::cout << "finding a bunch of eigenvalues" << std::endl;
-    discretization.initializeBasisFunctions(*base_.getMesh(0), base_.getConfigData());
+    discretization.initializeBasisFunctions(*base_.getMesh(0), base_.getConfigData(), order);
     discretization.computeElementIntegrands(
             *base_.getMesh(0),
             false,

@@ -43,7 +43,7 @@ public:
         CO2, CO4
     };
 
-    DGMaxTimeIntegration(hpGemUIExtentions<DIM>& base);
+    DGMaxTimeIntegration(hpGemUIExtentions<DIM>& base, std::size_t order);
     ~DGMaxTimeIntegration();
     void solve(const SeparableTimeIntegrationProblem<DIM>& input, TimeIntegrationParameters<DIM> parameters);
     void writeTimeSnapshots(std::string fileName) const;

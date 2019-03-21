@@ -107,7 +107,7 @@ namespace Base
 
         // Create mesh and set basis functions.
         this->addMesh(fileName, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors);
-        this->meshes_[0]->useDefaultDGBasisFunctions();
+        this->meshes_[0]->useDefaultDGBasisFunctions(this->polynomialOrder_);
         
         // Set the number of time integration vectors according to the size of the Butcher tableau.
         this->setNumberOfTimeIntegrationVectorsGlobally(this->globalNumberOfTimeIntegrationVectors_);

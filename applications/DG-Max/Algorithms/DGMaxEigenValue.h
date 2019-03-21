@@ -51,7 +51,7 @@ public:
         const std::vector<std::vector<PetscScalar>> eigenvalues_;
     };
 
-    DGMaxEigenValue(hpGemUIExtentions<DIM>& base);
+    DGMaxEigenValue(hpGemUIExtentions<DIM>& base, std::size_t order);
     Result solve(const EigenValueProblem<DIM>& input, double stab);
     // TODO: A nice wrapper of EPS that does RAII would be nicer
     EPS createEigenSolver();

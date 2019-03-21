@@ -360,6 +360,9 @@ namespace Base
         /// Compute integrands for the test functions on each sides of the face simultaneously (true) or separately (false)
         const bool computeBothFaces_;
 
+        /// Order of the basis functions used.
+        std::size_t polynomialOrder_;
+
         /// \brief Define how the solution should be written in the VTK files.
         /// \details For an example of using this function, see the application 'TutorialAdvection'.
         void registerVTKWriteFunction(std::function<double(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)> function, std::string name)

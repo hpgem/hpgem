@@ -54,11 +54,11 @@ public:
         faceIntegrator_.setTransformation(std::shared_ptr<Base::CoordinateTransformation<3>>(new Base::HCurlConformingTransformation<3>));
         if(useNedelec)
         {
-            meshes_[0]->useNedelecDGBasisFunctions();
+            meshes_[0]->useNedelecDGBasisFunctions(p);
         }
         else
         {
-            meshes_[0]->useAinsworthCoyleDGBasisFunctions();
+            meshes_[0]->useAinsworthCoyleDGBasisFunctions(p);
         }
     }
 

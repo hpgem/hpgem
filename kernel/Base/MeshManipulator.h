@@ -83,7 +83,7 @@ namespace Base
         using FaceIterator = TreeIterator<Face*>;*/
 
         //fixme: periodicity information is requested for legacy reasons, but ignored in the current mesh reader
-        MeshManipulator(const ConfigurationData* configData, BoundaryType xPer = BoundaryType::SOLID_WALL, BoundaryType yPer = BoundaryType::SOLID_WALL, BoundaryType zPer = BoundaryType::SOLID_WALL, std::size_t orderOfFEM = 1, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0, std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
+        MeshManipulator(const ConfigurationData* configData, BoundaryType xPer = BoundaryType::SOLID_WALL, BoundaryType yPer = BoundaryType::SOLID_WALL, BoundaryType zPer = BoundaryType::SOLID_WALL, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0, std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
 
         MeshManipulator(const MeshManipulator& other);
 
@@ -100,16 +100,16 @@ namespace Base
         /// It is allowed to change the basis function during a computation, but you have to re-initialise the expansion coefficients, since they are expected to change
         /// such that the current solution stays the same. (Stored old solutions are not affected, but they may require a change back to the original basis functions before being
         /// usable again)
-        void useDefaultDGBasisFunctions();
-        void useDefaultDGBasisFunctions(std::size_t unknown);
+        void useDefaultDGBasisFunctions(std::size_t order);
+        void useDefaultDGBasisFunctions(std::size_t order, std::size_t unknown);
         
         /// \brief automatically creates Nedelec DG basis functions for tetrahedra.
         /// \details This function should be called after a mesh has been created to ensure basis functions exist for all types of elements needed.
-        void useNedelecDGBasisFunctions();
+        void useNedelecDGBasisFunctions(std::size_t order);
         
         /// \brief automatically creates Ainsworth-Coyle DG basis functions for tetrahedra.
         /// \details This function should be called after a mesh has been created to ensure basis functions exist for all types of elements needed.
-        void useAinsworthCoyleDGBasisFunctions();
+        void useAinsworthCoyleDGBasisFunctions(std::size_t order);
         
         /// \brief automatically creates conforming basis functions, even for mixed meshes
         /// \details For p=1, this creates a nodal basis function set associated with the mesh nodes.
@@ -121,8 +121,8 @@ namespace Base
         /// It is allowed to change the basis function during a computation, but you have to re-initialise the expansion coefficients, since they are expected to change
         /// such that the current solution stays the same. (Stored old solutions are not affected, but they may require a change back to the original basis functions before being
         /// usable again)
-        void useDefaultConformingBasisFunctions();
-        void useDefaultConformingBasisFunctions(std::size_t unknown);
+        void useDefaultConformingBasisFunctions(std::size_t order);
+        void useDefaultConformingBasisFunctions(std::size_t order, std::size_t unknown);
 
         Element* addElement(const std::vector<std::size_t>& globalNodeIndexes, bool owning);
 

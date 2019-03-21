@@ -178,7 +178,7 @@ int main(int argc, char** argv)
     //1d
 
     for(const std::string& baseFileName : {"1Drectangular1mesh"s, "1Drectangular2mesh"s}) {
-        Base::ConfigurationData config(1, 1, 1);
+        Base::ConfigurationData config(1, 1);
 
         config.numberOfUnknowns_       = 1;
         config.numberOfTimeLevels_     = 1;
@@ -210,7 +210,7 @@ int main(int argc, char** argv)
     for(const std::string& baseFileName : {"2Drectangular1mesh"s, "2Drectangular2mesh"s,
                                            "2Dtriangular1mesh"s, "2Dtriangular2mesh"s,
                                            "square_Test"s}) {
-        Base::ConfigurationData config(2, 1, 1);
+        Base::ConfigurationData config(2, 1);
 
         config.numberOfUnknowns_       = 1;
         config.numberOfTimeLevels_     = 1;
@@ -241,7 +241,7 @@ int main(int argc, char** argv)
 
     for(const std::string& baseFileName : {"3Drectangular1mesh"s, "3Drectangular2mesh"s, "3Drectangular3mesh"s,
                                            "3Dtriangular1mesh"s, "3Dtriangular2mesh"s, "3Dtriangular3mesh"s}) {
-        Base::ConfigurationData config(3, 1, 1);
+        Base::ConfigurationData config(3, 1);
 
         config.numberOfUnknowns_       = 1;
         config.numberOfTimeLevels_     = 1;
@@ -269,7 +269,7 @@ int main(int argc, char** argv)
     }
 
     for(const std::string& baseFileName : {"Bragg_Test"s, "newCube"s}) {
-        Base::ConfigurationData config(3, 1, 1);
+        Base::ConfigurationData config(3, 1);
 
         config.numberOfUnknowns_       = 1;
         config.numberOfTimeLevels_     = 1;

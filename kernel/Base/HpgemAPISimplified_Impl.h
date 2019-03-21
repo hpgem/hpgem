@@ -66,12 +66,13 @@ namespace Base
      const std::size_t numberOfTimeLevels,
      const bool computeBothFaces
      ) :
-    HpgemAPIBase<DIM>(new Base::GlobalData, new Base::ConfigurationData(DIM, numberOfVariables, polynomialOrder,  numberOfTimeLevels)),
+    HpgemAPIBase<DIM>(new Base::GlobalData, new Base::ConfigurationData(DIM, numberOfVariables, numberOfTimeLevels)),
     ptrButcherTableau_(ptrButcherTableau),
     outputFileName_("output"),
     internalFileTitle_("output"),
     solutionTitle_("solution"),
-    computeBothFaces_(computeBothFaces)
+    computeBothFaces_(computeBothFaces),
+    polynomialOrder_(polynomialOrder)
     {
         this->globalNumberOfTimeIntegrationVectors_ = ptrButcherTableau->getNumberOfStages() + 1;
         solutionVectorId_ = 0;
@@ -100,12 +101,13 @@ namespace Base
      const std::size_t numberOfTimeLevels,
      const bool computeBothFaces
      ) :
-    HpgemAPIBase<DIM>(new Base::GlobalData, new Base::ConfigurationData(DIM, numberOfVariables, polynomialOrder,  numberOfTimeLevels)),
+    HpgemAPIBase<DIM>(new Base::GlobalData, new Base::ConfigurationData(DIM, numberOfVariables, numberOfTimeLevels)),
     ptrButcherTableau_(nullptr),
     outputFileName_("output"),
     internalFileTitle_("output"),
     solutionTitle_("solution"),
-    computeBothFaces_(computeBothFaces)
+    computeBothFaces_(computeBothFaces),
+    polynomialOrder_ (polynomialOrder)
     {
         this->globalNumberOfTimeIntegrationVectors_ = globalNumberOfTimeIntegrationVectors;
         solutionVectorId_ = 0;
@@ -131,7 +133,7 @@ namespace Base
 
         // Create mesh and set basis functions.
         this->addMesh(fileName, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors);
-        this->meshes_[0]->useDefaultDGBasisFunctions();
+        this->meshes_[0]->useDefaultDGBasisFunctions(this->polynomialOrder_);
 
         // Set the number of time integration vectors according to the size of the Butcher tableau.
         this->setNumberOfTimeIntegrationVectorsGlobally(this->globalNumberOfTimeIntegrationVectors_);

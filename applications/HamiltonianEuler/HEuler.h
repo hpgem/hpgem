@@ -136,7 +136,7 @@ struct HEulerConfigurationData : public ConfigurationData
     };
 
     HEulerConfigurationData(unsigned int numberOfUnknowns, unsigned int numberOfBasisFunctions, unsigned int numberOfTimeLevels = 1, const string& fileName = "in.txt", SolutionType type = COMPRESSIBLE_PERIODIC)
-            : ConfigurationData(3, numberOfUnknowns, 2, numberOfTimeLevels = 1), solutionType_(type)
+            : ConfigurationData(3, numberOfUnknowns), solutionType_(type)
     {
         /// reading from a file
         theta_ = 0.5;

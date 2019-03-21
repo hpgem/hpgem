@@ -29,8 +29,8 @@ namespace Base
     struct ConfigurationData
     {
         
-        ConfigurationData(std::size_t DIMension, std::size_t numberOfUnknowns, std::size_t polynomialOrder, std::size_t numberOfTimeLevels = 0)
-                : dimension_(DIMension), numberOfUnknowns_(numberOfUnknowns), numberOfTimeLevels_(numberOfTimeLevels), polynomialOrder_(polynomialOrder)
+        ConfigurationData(std::size_t DIMension, std::size_t numberOfUnknowns, size_t numberOfTimeLevels = 0)
+                : dimension_(DIMension), numberOfUnknowns_(numberOfUnknowns), numberOfTimeLevels_(numberOfTimeLevels)
         {
         }
         
@@ -46,7 +46,6 @@ namespace Base
         ///Number may be incorrect even when it is the same for all elements and all unknowns
         std::size_t numberOfBasisFunctions_;
         std::size_t numberOfTimeLevels_;
-        std::size_t polynomialOrder_;
     };
 }
 

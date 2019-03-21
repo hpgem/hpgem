@@ -27,10 +27,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "Utilities/GlobalVector.h"
 
 template<std::size_t DIM>
-DGMaxTimeIntegration<DIM>::DGMaxTimeIntegration(hpGemUIExtentions<DIM> &base)
+DGMaxTimeIntegration<DIM>::DGMaxTimeIntegration(hpGemUIExtentions<DIM> &base, std::size_t order)
     : base_(base), discretization(), snapshotTime (nullptr)
 {
-    discretization.initializeBasisFunctions(*(base_.getMesh(0)), base_.getConfigData());
+    discretization.initializeBasisFunctions(*(base_.getMesh(0)), base_.getConfigData(), order);
 }
 
 template<std::size_t DIM>
