@@ -162,15 +162,17 @@ Output::VTKSpecificTimeWriter<DIM>::VTKSpecificTimeWriter(const std::string& bas
         index[i] = i;
         
     }
-    localFile_ << Detail::toBase64((void*) index.data(), totalData) << std::endl;
+    if(totalPoints_ > 0) localFile_ << Detail::toBase64((void*) index.data(), totalData) << std::endl;
     localFile_ << "        </DataArray>" << std::endl;
     localFile_ << "        <DataArray type=\"UInt32\" Name=\"offsets\" format=\"binary\">" << std::endl;
     totalData = totalElements * sizeof(totalElements);
-    localFile_ << "          " << Detail::toBase64((void*) &totalData, sizeof(totalElements)) << Detail::toBase64((void*) (cumulativeNodesPerElement.data() + 1), totalData) << std::endl;
+    localFile_ << "          " << Detail::toBase64((void*) &totalData, sizeof(totalElements));
+    if(totalData > 0) localFile_ << Detail::toBase64((void*) (cumulativeNodesPerElement.data() + 1), totalData) << std::endl;
     localFile_ << "        </DataArray>" << std::endl;
     localFile_ << "        <DataArray type=\"UInt8\" Name=\"types\" format=\"binary\">" << std::endl;
     totalData = totalElements * sizeof(VTKElementName);
-    localFile_ << "          " << Detail::toBase64((void*) &totalData, sizeof(totalElements)) << Detail::toBase64((void*) elementTypes.data(), totalData) << std::endl;
+    localFile_ << "          " << Detail::toBase64((void*) &totalData, sizeof(totalElements));
+    if(totalData > 0) localFile_ << Detail::toBase64((void*) elementTypes.data(), totalData) << std::endl;
     localFile_ << "        </DataArray>" << std::endl;
     localFile_ << "      </Cells>" << std::endl;
     localFile_ << "      <PointData>" << std::endl;
@@ -220,7 +222,8 @@ void Output::VTKSpecificTimeWriter<DIM>::write(std::function<double(Base::Elemen
         }
     }
     std::uint32_t totalData = sizeof(double) * data.size();
-    localFile_ << "        " << Detail::toBase64((void*) &totalData, sizeof(totalPoints_)) << Detail::toBase64((void*) data.data(), totalData) << std::endl;
+    localFile_ << "        " << Detail::toBase64((void*) &totalData, sizeof(totalPoints_));
+    if(totalData > 0) localFile_ << Detail::toBase64((void*) data.data(), totalData) << std::endl;
     localFile_ << "      </DataArray>" << std::endl;
 }
 
