@@ -95,7 +95,7 @@ public:
 namespace Base
 {
     template<std::size_t DIM>
-    void MeshManipulator<DIM>::createDefaultBasisFunctions(std::size_t order)
+    void MeshManipulator<DIM>::useMonomialBasisFunctions(std::size_t order)
     {
         Base::BasisFunctionSet *bFset1 = new Base::BasisFunctionSet(order);
         switch (configData_->dimension_)
@@ -190,11 +190,16 @@ namespace Base
         default:
             logger(ERROR, "No basisfunctions exist in this dimension");
         }
-        if (collBasisFSet_.size() == 0)
-        {
-            collBasisFSet_.resize(1);
-        }
+        collBasisFSet_.resize(1);
         collBasisFSet_[0] = std::shared_ptr<const BasisFunctionSet>(bFset1);
+        // Register them all for usage
+        for(Element *element : getElementsList(IteratorType::GLOBAL))
+        {
+            for(std::size_t unknown = 0; unknown < configData_->numberOfUnknowns_; ++unknown)
+            {
+                element->setDefaultBasisFunctionSet(0, unknown);
+            }
+        }
     }
 
     template<std::size_t DIM>
@@ -896,8 +901,6 @@ namespace Base
     {
         logger.assert_debug(DIM == config->dimension_, "Invalid configuration passed");
         logger.assert_debug(orderOfFEM == config->polynomialOrder_, "Inconsistent redundant information passed");
-        createDefaultBasisFunctions(orderOfFEM);
-        const_cast<ConfigurationData *>(configData_)->numberOfBasisFunctions_ = collBasisFSet_[0]->size();
     }
 
     template<std::size_t DIM>

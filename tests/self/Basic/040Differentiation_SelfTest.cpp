@@ -123,6 +123,8 @@ int main(int argc, char** argv)
     //1D triangular meshes dont exist
     Base::MeshManipulator<1> *test = new Base::MeshManipulator<1>(new Base::ConfigurationData(1, 1, 2, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2);
     test->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "1Drectangular1mesh.hpgem"s);
+
+    test->useMonomialBasisFunctions(2);
     testMesh(test);
     //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
     test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet1DH1Line(2));
@@ -134,6 +136,8 @@ int main(int argc, char** argv)
     delete test;
     test = new Base::MeshManipulator<1>(new Base::ConfigurationData(1, 1, 2, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2);
     test->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "1Drectangular2mesh.hpgem"s);
+
+    test->useMonomialBasisFunctions(2);
     testMesh(test);
     //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
     test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet1DH1Line(2));
@@ -147,7 +151,8 @@ int main(int argc, char** argv)
     
     Base::MeshManipulator<2> *test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 2, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2);
     test2->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "2Dtriangular1mesh.hpgem"s);
-    
+
+    test2->useMonomialBasisFunctions(2);
     testMesh(test2);
     //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
     test2->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(2));
@@ -158,6 +163,8 @@ int main(int argc, char** argv)
     delete test2;
     test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 2, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2);
     test2->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "2Drectangular1mesh.hpgem"s);
+
+    test2->useMonomialBasisFunctions(2);
     testMesh(test2);
     //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
     test2->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Square(2));
@@ -169,7 +176,8 @@ int main(int argc, char** argv)
     
     test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 2, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2);
     test2->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "2Dtriangular2mesh.hpgem"s);
-    
+
+    test2->useMonomialBasisFunctions(2);
     testMesh(test2);
     //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
     test2->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(2));
@@ -180,6 +188,8 @@ int main(int argc, char** argv)
     delete test2;
     test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 2, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2);
     test2->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "2Drectangular2mesh.hpgem"s);
+
+    test2->useMonomialBasisFunctions(2);
     testMesh(test2);
     //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
     test2->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Square(2));
@@ -193,7 +203,8 @@ int main(int argc, char** argv)
     Base::ConfigurationData* configData = new Base::ConfigurationData(3, 1, 3, 1);
     Base::MeshManipulator<3> *test3 = new Base::MeshManipulator<3>(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 3);
     test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "3Dtriangular1mesh.hpgem"s);
-    
+
+    test3->useMonomialBasisFunctions(3);
     testMesh(test3);
     //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
     test3->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(3));
@@ -207,6 +218,8 @@ int main(int argc, char** argv)
     configData = new Base::ConfigurationData(3, 1, 2, 1);
     test3 = new Base::MeshManipulator<3>(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2);
     test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "3Drectangular1mesh.hpgem"s);
+
+    test3->useMonomialBasisFunctions(2);
     testMesh(test3);
     //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
     test3->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(2));
@@ -220,7 +233,8 @@ int main(int argc, char** argv)
     configData = new Base::ConfigurationData(3, 1, 3, 1);
     test3 = new Base::MeshManipulator<3>(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 3);
     test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "3Dtriangular2mesh.hpgem"s);
-    
+
+    test3->useMonomialBasisFunctions(3);
     testMesh(test3);
     //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
     test3->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(3));
@@ -234,6 +248,8 @@ int main(int argc, char** argv)
     configData = new Base::ConfigurationData(3, 1, 2, 1);
     test3 = new Base::MeshManipulator<3>(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2);
     test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "3Drectangular2mesh.hpgem"s);
+
+    test3->useMonomialBasisFunctions(2);
     testMesh(test3);
     //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
     test3->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(2));
@@ -247,7 +263,8 @@ int main(int argc, char** argv)
     configData = new Base::ConfigurationData(3, 1, 3, 1);
     test3 = new Base::MeshManipulator<3>(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 3);
     test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "3Dtriangular3mesh.hpgem"s);
-    
+
+    test3->useMonomialBasisFunctions(3);
     testMesh(test3);
     //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
     test3->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(3));
@@ -261,6 +278,8 @@ int main(int argc, char** argv)
     configData = new Base::ConfigurationData(3, 1, 2, 1);
     test3 = new Base::MeshManipulator<3>(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2);
     test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "3Drectangular3mesh.hpgem"s);
+
+    test3->useMonomialBasisFunctions(2);
     testMesh(test3);
     //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
     test3->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(2));

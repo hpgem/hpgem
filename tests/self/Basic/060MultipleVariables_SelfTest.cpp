@@ -110,6 +110,14 @@ int main()
     std::cout << "Build elements.\n";
     Base::Element elementLeft(pointIndicesLeft, pBasisFunctionSetVector, pointsPhysical, numberOfUnknowns, 0, elementIdLeft);
     Base::Element elementRight(pointIndicesRight, pBasisFunctionSetVector, pointsPhysical, numberOfUnknowns, 0, elementIdRight);
+    // Register basis functions
+    for(Base::Element* element : {&elementLeft, &elementRight})
+    {
+        for(std::size_t unknown = 0; unknown < numberOfUnknowns; ++unknown)
+        {
+            element->setDefaultBasisFunctionSet(0, unknown);
+        }
+    }
     
     std::cout << "Build nodes.\n";
     Base::Node node0(0);

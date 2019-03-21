@@ -65,21 +65,17 @@ namespace Base
             : sets_ (nullptr), setPositions_()
         {}
 
-        /// \brief Legacy constructor, associating each unknown with the very
-        /// first basisFunctionSet
+
+        /// \brief Constructor that sets the collection of basisFunctionSets and
+        ///   number of unknowns without assigning basis functions.
         ///
-        /// Constructor that uses the given basisFunctionSet's, to conform to
-        /// legacy behaviour we associate with each unknown the first
-        /// basisFunctionSet with the element itself (i.e. only local support)
+        /// Note unlike the legacy behavior there is no association made between
+        /// basis functions in the set and any of the unknowns.
         /// \param sets The set of basisFunctionSet's
         /// \param numberOfUnknowns The number of unknowns.
         ElementBasisFunctions(const CollectionOfBasisFunctionSets *sets, std::size_t numberOfUnknowns)
             : sets_ (sets), setPositions_ (numberOfUnknowns)
         {
-            for(std::size_t i = 0; i < numberOfUnknowns; ++i)
-            {
-                setPositions_[i] = std::vector<int>(1,0);
-            }
         }
 
         // Ensure all standard functions are present

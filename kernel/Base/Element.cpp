@@ -117,13 +117,40 @@ namespace Base
     
     void Element::setQuadratureRulesWithOrder(std::size_t quadrROrder)
     {
+        bool changed = false;
         if (quadratureRule_ == nullptr)
         {
             quadratureRule_ = Geometry::ElementGeometry::referenceGeometry_->getGaussQuadratureRule(quadrROrder);
+            changed = true;
         }
         else if(quadrROrder > quadratureRule_->order())
         {
             quadratureRule_ = Geometry::ElementGeometry::referenceGeometry_->getGaussQuadratureRule(quadrROrder);
+            changed = true;
+        }
+        // The quadrature orders of the faces are assigned when they are created
+        // based on the current quadrature order on its neighbouring elements.
+        // If the quadrature order changes on this element it probably also has
+        // to change on the face.
+        if(changed)
+        {
+            for(std::size_t i = 0; i < facesList_.size(); ++i)
+            {
+                Face* face = facesList_[i];
+                if(face != nullptr)
+                {
+                    QuadratureRules::GaussQuadratureRule* rule = face->getGaussQuadratureRule();
+                    std::size_t currentOrder = rule == nullptr ? 0 : rule->order();
+                    if(quadrROrder > currentOrder)
+                    {
+                        face->setGaussQuadratureRule(
+                                this->getReferenceGeometry()
+                                    ->getCodim1ReferenceGeometry(i)
+                                    ->getGaussQuadratureRule(quadrROrder)
+                        );
+                    }
+                }
+            }
         }
     }
     

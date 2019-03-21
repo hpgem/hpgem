@@ -31,6 +31,7 @@ int main()
     {
         ElementBasisFunctions empty; // Empty basis function set
         logger.assert_always(0 == empty.getTotalLocalNumberOfBasisFunctions(), "Expecting zero local basis functions");
+        empty.validatePositions();
     }
 
     // Test case for testing with basis functions
@@ -45,7 +46,7 @@ int main()
         ElementBasisFunctions almostEmpty(&sets, UNKNOWNS);
         for (std::size_t i = 0; i < UNKNOWNS; ++i)
         {
-            almostEmpty.clearBasisFunctionPosition(i);
+            almostEmpty.validatePositions();
             logger.assert_always(0 == almostEmpty.getNumberOfLocalBasisFunctions(i), "Expecting no local basis functions");
             logger.assert_always(0 == almostEmpty.getNumberOfBasisFunctions(i), "Expecting no basis functions");
         }
@@ -55,6 +56,7 @@ int main()
 
         // Register the basis function as first basis function for second unknown
         almostEmpty.registerBasisFunctionPosition(1, 0, 0);
+        almostEmpty.validatePositions();
         logger.assert_always(set->size() == almostEmpty.getNumberOfBasisFunctions(1),
                 "Matching basis function count");
         logger.assert_always(set->size() == almostEmpty.getNumberOfLocalBasisFunctions(1),
@@ -85,7 +87,7 @@ int main()
         ElementBasisFunctions filled(&sets, UNKNOWNS);
         for(std::size_t i = 0; i < UNKNOWNS; ++i)
         {
-            filled.clearBasisFunctionPosition(i);
+            filled.validatePositions();
         }
         filled.registerBasisFunctionPosition(0, 0, 0); // set for unknown 0
         filled.registerBasisFunctionPosition(1, 0, 1); // secondSet for unknown 1

@@ -90,9 +90,8 @@ namespace Base
         virtual ~MeshManipulator();
 
         /// creates some cheap, easy to construct basis function set (monomials) to use as a placeholder
-        /// \bug this function needs to exist because elements must have a set of basis functions at all time
-        /// so the result of this function is passed to the constructor of Element
-        void createDefaultBasisFunctions(std::size_t order);
+        /// Note that they usually result in very badly conditioned matrices.
+        void useMonomialBasisFunctions(std::size_t order);
 
         /// \brief automatically creates the DG basis function set most appropriate for the shape of the element and sets that set as the basis function set to use
         /// \details This function takes the default conforming basis functions and cuts them off at element boundaries. The resulting basis functions have much better

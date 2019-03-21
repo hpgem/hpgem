@@ -29,17 +29,28 @@ namespace Base
     void ElementBasisFunctions::validatePositions() const
     {
         std::size_t unknowns = getNumberOfUnknowns();
-        std::size_t numberOfSets = sets_->size();
-        for (std::size_t i = 0; i < unknowns; ++i)
+        if(sets_ != nullptr)
         {
-            for (std::size_t j = 0; j < setPositions_[i].size(); ++j)
+            std::size_t numberOfSets = sets_->size();
+            for (std::size_t i = 0; i < unknowns; ++i)
             {
-                int position = setPositions_[i][j];
-                if (position != -1) // -1 is used to signal the empty set
+                for (std::size_t j = 0; j < setPositions_[i].size(); ++j)
                 {
-                    logger.assert_debug(position < numberOfSets, "Invalid position");
-                    logger.assert_debug(sets_->at(position) != nullptr, "Null pointer set");
+                    int position = setPositions_[i][j];
+                    if (position != -1) // -1 is used to signal the empty set
+                    {
+                        logger.assert_debug(position < numberOfSets, "Invalid position");
+                        logger.assert_debug(sets_->at(position) != nullptr, "Null pointer set");
+                    }
                 }
+            }
+        }
+        else
+        {
+            // No basis function set, there should be no positions
+            for(std::size_t i = 0; i < unknowns; ++i)
+            {
+                logger.assert_debug(setPositions_[i].empty(), "Index without basis function set to index into");
             }
         }
     }

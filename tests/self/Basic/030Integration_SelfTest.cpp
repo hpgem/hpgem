@@ -105,11 +105,13 @@ int main(int argc, char** argv)
     Base::MeshManipulator<1> *test = new Base::MeshManipulator<1>(new Base::ConfigurationData(1, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2);
     test->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "1Drectangular1mesh.hpgem"s);
 
+    test->useMonomialBasisFunctions(2);
     testMesh(test);
 
     delete test;
     test = new Base::MeshManipulator<1>(new Base::ConfigurationData(1, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2);
     test->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "1Drectangular2mesh.hpgem"s);
+    test->useMonomialBasisFunctions(2);
     testMesh(test);
     
     // dim 2
@@ -118,24 +120,30 @@ int main(int argc, char** argv)
     
     Base::MeshManipulator<2> *test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2);
     test2->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "2Dtriangular1mesh.hpgem"s);
-    
+
+    test->useMonomialBasisFunctions(2);
     testMesh(test2);
     
     delete test2;
     test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2);
     test2->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "2Drectangular1mesh.hpgem"s);
+
+    test->useMonomialBasisFunctions(2);
     testMesh(test2);
     
     delete test2;
     
     test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2);
     test2->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "2Dtriangular2mesh.hpgem"s);
-    
+
+    test->useMonomialBasisFunctions(2);
     testMesh(test2);
     
     delete test2;
     test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2);
     test2->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "2Drectangular2mesh.hpgem"s);
+
+    test->useMonomialBasisFunctions(2);
     testMesh(test2);
     
     // dim 3
@@ -144,36 +152,47 @@ int main(int argc, char** argv)
     
     Base::MeshManipulator<3> *test3 = new Base::MeshManipulator<3>(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2);
     test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "3Dtriangular1mesh.hpgem"s);
-    
+
+    test3->useMonomialBasisFunctions(2);
     testMesh(test3);
     
     delete test3;
     test3 = new Base::MeshManipulator<3>(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2);
     test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "3Drectangular1mesh.hpgem"s);
+
+    test3->useMonomialBasisFunctions(2);
     testMesh(test3);
     
     delete test3;
     
     test3 = new Base::MeshManipulator<3>(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2);
     test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "3Dtriangular2mesh.hpgem"s);
-    
+
+    test3->useMonomialBasisFunctions(2);
     testMesh(test3);
     
     delete test3;
     test3 = new Base::MeshManipulator<3>(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2);
     test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "3Drectangular2mesh.hpgem"s);
+
+    test3->useMonomialBasisFunctions(2);
     testMesh(test3);
     
     delete test3;
     
     test3 = new Base::MeshManipulator<3>(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2);
     test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "3Dtriangular3mesh.hpgem"s);
-    
+
+    test3->useMonomialBasisFunctions(2);
     testMesh(test3);
     
     delete test3;
     test3 = new Base::MeshManipulator<3>(new Base::ConfigurationData(3, 1, 2, 0), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, 2);
     test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "3Drectangular3mesh.hpgem"s);
+
+    test3->useMonomialBasisFunctions(2);
     testMesh(test3);
+
+    delete test3;
 }
 

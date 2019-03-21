@@ -100,6 +100,11 @@ int main()
     std::vector<std::shared_ptr<const Base::BasisFunctionSet>> vectorOfFunctions(1, std::shared_ptr<const Base::BasisFunctionSet>(basisFunctions));
     
     Base::Element test(pointIndexes, &vectorOfFunctions, nodes, 3, 14, 18);
+    // Register the basis function for use for each of the three coordinates
+    for(std::size_t i = 0; i < 3; ++i)
+    {
+        test.setDefaultBasisFunctionSet(0, i);
+    }
     
     logger.assert_always((test.getGaussQuadratureRule() != nullptr), "quadrature rule");
     

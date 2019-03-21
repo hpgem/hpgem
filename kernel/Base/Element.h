@@ -407,7 +407,6 @@ namespace Base
         basisFunctions_ (basisFunctionSet, numberOfUnknowns)
     {
         logger.assert_debug(basisFunctionSet != nullptr, "Invalid basis function set passed");
-        logger.assert_debug(basisFunctionSet->size() > 0, "Not enough basis function sets passed");
         logger(VERBOSE, "numberOfElementMatrices: %", numberOfElementMatrices);
         logger(VERBOSE, "numberOfElementVectors: %", numberOfElementVectors);
 
