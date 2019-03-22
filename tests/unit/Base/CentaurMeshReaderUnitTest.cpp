@@ -170,7 +170,7 @@ int main(int argc, char** argv)
     config2.numberOfTimeLevels_     = 1;
     config2.numberOfBasisFunctions_ = 1;
     
-    Base::MeshManipulator<2> myTwoDDemoMesh(&config2, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL);
+    Base::MeshManipulator<2> myTwoDDemoMesh(&config2);
     
     std::stringstream filename;
     
@@ -203,7 +203,7 @@ int main(int argc, char** argv)
     config3.numberOfTimeLevels_     = 1;
     config3.numberOfBasisFunctions_ = 1;
     
-    Base::MeshManipulator<3> myThreeDDemoMesh(&config3, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL);
+    Base::MeshManipulator<3> myThreeDDemoMesh(&config3);
     
     std::stringstream filename3;
     
@@ -233,7 +233,7 @@ int main(int argc, char** argv)
     config4.numberOfTimeLevels_     = 1;
     config4.numberOfBasisFunctions_ = 1;
     
-    Base::MeshManipulator<3> myThreeDDemoMesh2(&config4, Base::BoundaryType::PERIODIC, Base::BoundaryType::PERIODIC, Base::BoundaryType::PERIODIC);
+    Base::MeshManipulator<3> myThreeDDemoMesh2(&config4);
     
     std::stringstream filename4;
     

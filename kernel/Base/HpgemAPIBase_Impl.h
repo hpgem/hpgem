@@ -65,8 +65,8 @@ namespace Base
     std::size_t HpgemAPIBase<DIM>::addMesh(const std::string& fileName, std::size_t numberOfElementMatrixes, std::size_t numberOfElementVectors, std::size_t numberOfFaceMatrixes, std::size_t numberOfFaceVectors)
     {
         std::size_t numberOfMeshes = meshes_.size();
-        MeshManipulator<DIM>* mesh = new MeshManipulator<DIM>(configData_, BoundaryType::SOLID_WALL, BoundaryType::SOLID_WALL, BoundaryType::SOLID_WALL, numberOfElementMatrixes, numberOfElementVectors, numberOfFaceMatrixes, numberOfFaceVectors);
-        mesh->readMesh(fileName);                             //boundary information (^) is ignored
+        MeshManipulator<DIM>* mesh = new MeshManipulator<DIM>(configData_, numberOfElementMatrixes, numberOfElementVectors, numberOfFaceMatrixes, numberOfFaceVectors);
+        mesh->readMesh(fileName);
         mesh->getElementsList();
         meshes_.push_back(mesh);
         logger(INFO, "HpgemAPIBase::addMesh read a mesh.");

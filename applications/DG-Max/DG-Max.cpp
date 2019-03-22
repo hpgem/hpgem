@@ -65,6 +65,7 @@ public:
     {
         Geometry::PointPhysical<DIM> bottomLeft, topRight;
         std::vector<std::size_t> numElementsOneD (DIM);
+        std::vector<bool> periodic(DIM, true);
         // Configure each dimension of the unit cube/square
         for (std::size_t i = 0; i < DIM; ++i) {
             bottomLeft[i] = 0;
@@ -72,10 +73,9 @@ public:
             numElementsOneD[i] = subdivisions;
         }
 
-        auto mesh = new Base::MeshManipulator<DIM>(this->getConfigData(), Base::BoundaryType::PERIODIC,
-                                                   Base::BoundaryType::PERIODIC, Base::BoundaryType::PERIODIC,
+        auto mesh = new Base::MeshManipulator<DIM>(this->getConfigData(),
                                                    2, 3, 1, 1);
-        mesh->createTriangularMesh(bottomLeft, topRight, numElementsOneD);
+        mesh->createTriangularMesh(bottomLeft, topRight, numElementsOneD, periodic);
 
         for (typename Base::MeshManipulator<DIM>::ElementIterator it = mesh->elementColBegin(Base::IteratorType::GLOBAL);
                 it != mesh->elementColEnd(Base::IteratorType::GLOBAL); ++it)
@@ -87,8 +87,7 @@ public:
     
     void readMesh(std::string fileName)
     {
-        auto mesh = new Base::MeshManipulator<DIM>(this->getConfigData(), Base::BoundaryType::PERIODIC,
-                                                   Base::BoundaryType::PERIODIC, Base::BoundaryType::PERIODIC,
+        auto mesh = new Base::MeshManipulator<DIM>(this->getConfigData(),
                                                    2, 3, 1, 1);
         mesh->readMesh(fileName);
         this->addMesh(mesh);

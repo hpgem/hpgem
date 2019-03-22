@@ -35,7 +35,7 @@ namespace Base
     struct RectangularMeshDescriptor
     {
         RectangularMeshDescriptor()
-                : bottomLeft_(), topRight_(), numberOfElementsInDIM_(DIM), boundaryConditions_(DIM)
+                : bottomLeft_(), topRight_(), numberOfElementsInDIM_(DIM)
         {
         }
 
@@ -46,7 +46,6 @@ namespace Base
         std::vector<std::size_t> numberOfElementsInDIM_;
         ///\deprecated use numberOfElementsInDIM_ instead
         std::vector<std::size_t>& numElementsInDIM_ = numberOfElementsInDIM_;
-        std::vector<BoundaryType> boundaryConditions_;
     };
 
 }

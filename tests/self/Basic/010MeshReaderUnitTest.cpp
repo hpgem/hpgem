@@ -184,7 +184,7 @@ int main(int argc, char** argv)
         config.numberOfTimeLevels_     = 1;
         config.numberOfBasisFunctions_ = 1;
 
-        Base::MeshManipulator<1> mesh(&config, Base::BoundaryType::SOLID_WALL);
+        Base::MeshManipulator<1> mesh(&config);
 
         std::stringstream filename;
 
@@ -216,7 +216,7 @@ int main(int argc, char** argv)
         config.numberOfTimeLevels_     = 1;
         config.numberOfBasisFunctions_ = 1;
 
-        Base::MeshManipulator<2> mesh(&config, Base::BoundaryType::SOLID_WALL);
+        Base::MeshManipulator<2> mesh(&config);
 
         std::stringstream filename;
 
@@ -247,7 +247,7 @@ int main(int argc, char** argv)
         config.numberOfTimeLevels_     = 1;
         config.numberOfBasisFunctions_ = 1;
 
-        Base::MeshManipulator<3> mesh(&config, Base::BoundaryType::SOLID_WALL);
+        Base::MeshManipulator<3> mesh(&config);
 
         std::stringstream filename;
 
@@ -275,7 +275,7 @@ int main(int argc, char** argv)
         config.numberOfTimeLevels_     = 1;
         config.numberOfBasisFunctions_ = 1;
 
-        Base::MeshManipulator<3> mesh(&config, Base::BoundaryType::SOLID_WALL);
+        Base::MeshManipulator<3> mesh(&config);
 
         std::stringstream filename;
 

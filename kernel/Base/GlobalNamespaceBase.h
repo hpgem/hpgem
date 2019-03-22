@@ -28,12 +28,6 @@ namespace Base
     {
         RECTANGULAR, TRIANGULAR
     };
-    
-    
-    enum class BoundaryType
-    {
-        SOLID_WALL, PERIODIC
-    };
 
 }
 

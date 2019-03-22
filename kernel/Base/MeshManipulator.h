@@ -83,7 +83,7 @@ namespace Base
         using FaceIterator = TreeIterator<Face*>;*/
 
         //fixme: periodicity information is requested for legacy reasons, but ignored in the current mesh reader
-        MeshManipulator(const ConfigurationData* configData, BoundaryType xPer = BoundaryType::SOLID_WALL, BoundaryType yPer = BoundaryType::SOLID_WALL, BoundaryType zPer = BoundaryType::SOLID_WALL, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0, std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
+        MeshManipulator(const ConfigurationData* configData, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0, std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
 
         MeshManipulator(const MeshManipulator& other);
 
@@ -242,7 +242,9 @@ namespace Base
         //  *****************Iteration through the Elements*******************
 
         [[deprecated("This will not work optimally for parallel computations use the preprocessor instead")]]
-        void createRectangularMesh(const Geometry::PointPhysical<DIM>& BottomLeft, const Geometry::PointPhysical<DIM>& TopRight, const std::vector<std::size_t>& LinearNoElements);
+        void createRectangularMesh(const Geometry::PointPhysical<DIM>& BottomLeft, const Geometry::PointPhysical<DIM>& TopRight,
+                const std::vector<std::size_t>& LinearNoElements,
+                const std::vector<bool>& periodic);
 
         /**
          * Crates a mesh of simplices for the specified cube
@@ -253,7 +255,9 @@ namespace Base
          * (DIM-1)^2+1 tetrahedra
          */
         [[deprecated("This will not work optimally for parallel computations use the preprocessor instead")]]
-        void createTriangularMesh(Geometry::PointPhysical<DIM> BottomLeft, Geometry::PointPhysical<DIM> TopRight, const std::vector<std::size_t>& LinearNoElements);
+        void createTriangularMesh(Geometry::PointPhysical<DIM> BottomLeft, Geometry::PointPhysical<DIM> TopRight,
+                const std::vector<std::size_t>& LinearNoElements,
+                const std::vector<bool>& periodic);
 
         [[deprecated("This will not work optimally for parallel computations use the preprocessor instead")]]
         void readCentaurMesh(const std::string& filename);

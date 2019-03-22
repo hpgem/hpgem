@@ -889,11 +889,10 @@ namespace Base
     }
 
     template<std::size_t DIM>
-    MeshManipulator<DIM>::MeshManipulator(const ConfigurationData *config, BoundaryType xPer, BoundaryType yPer,
-                                          BoundaryType zPer,
+    MeshManipulator<DIM>::MeshManipulator(const ConfigurationData *config,
                                           std::size_t numberOfElementMatrices, std::size_t numberOfElementVectors,
                                           std::size_t numberOfFaceMatrices, std::size_t numberOfFaceVectors)
-            : MeshManipulatorBase(config, DIM, xPer, yPer, zPer, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors),
+            : MeshManipulatorBase(config, DIM, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors),
               meshMover_(nullptr)
     {
     }
@@ -1333,7 +1332,8 @@ namespace Base
     template<std::size_t DIM>
     void MeshManipulator<DIM>::createRectangularMesh(const Geometry::PointPhysical<DIM> &bottomLeft,
                                                      const Geometry::PointPhysical<DIM> &topRight,
-                                                     const std::vector<std::size_t> &linearNoElements)
+                                                     const std::vector<std::size_t> &linearNoElements,
+                                                     const std::vector<bool>& periodic)
     {
         getElementsList().setSingleLevelTraversal(0);
         getElementsList(IteratorType::GLOBAL).setSingleLevelTraversal(0);
@@ -1354,16 +1354,8 @@ namespace Base
 
         logger.assert_debug(linearNoElements.size() ==
                             DIM, "The number of Linear Intervals has to map the size of the problem and current it does not");
-        std::vector<bool> periodicDIM;
-        for (std::size_t i = 0; i < DIM; ++i)
-        {
-            if (i == 0)
-                periodicDIM.push_back(periodicX_);
-            if (i == 1)
-                periodicDIM.push_back(periodicY_);
-            if (i == 2)
-                periodicDIM.push_back(periodicZ_);
-        }
+        logger.assert_debug(periodic.size() == DIM,
+                "Boundary conditions for the wrong number of dimensions");
         //Stage 1 : Precompute some required values;
         ///////
 
@@ -1387,7 +1379,7 @@ namespace Base
         std::size_t totalNumberOfNodeCoordinates, totalNumberOfNodes, totalNumberOfElements, numberOfNodesPerElement;
 
         totalNumberOfNodeCoordinates = (linearNoElements[0] + 1);
-        totalNumberOfNodes = (linearNoElements[0] + (periodicDIM[0] ? 0 : 1));
+        totalNumberOfNodes = (linearNoElements[0] + (periodic[0] ? 0 : 1));
 
         totalNumberOfElements = (linearNoElements[0]);
 
@@ -1397,7 +1389,7 @@ namespace Base
         for (std::size_t iDIM = 1; iDIM < DIM; ++iDIM)
         {
             totalNumberOfNodeCoordinates *= (linearNoElements[iDIM] + 1);
-            totalNumberOfNodes *= (linearNoElements[iDIM] + (periodicDIM[iDIM] ? 0 : 1));
+            totalNumberOfNodes *= (linearNoElements[iDIM] + (periodic[iDIM] ? 0 : 1));
             totalNumberOfElements *= (linearNoElements[iDIM]);
             numberOfNodesPerElement *= 2;
 
@@ -1406,7 +1398,7 @@ namespace Base
             numberOfNodeCoordinatesInEachSubspace[iDIM] =
                     numberOfNodeCoordinatesInEachSubspace[iDIM - 1] * (linearNoElements[iDIM - 1] + 1);
             numberOfNodesInEachSubspace[iDIM] = numberOfNodesInEachSubspace[iDIM - 1] *
-                                                (linearNoElements[iDIM - 1] + (periodicDIM[iDIM - 1] ? 0 : 1));
+                                                (linearNoElements[iDIM - 1] + (periodic[iDIM - 1] ? 0 : 1));
         }
 
         //temp point for storing the node locations
@@ -1462,7 +1454,7 @@ namespace Base
                 {
                     nodeCoordinateNdId[iDIM] = elementNdId[iDIM] + ((i & powerOf2) != 0);
                     nodeNdId[iDIM] = elementNdId[iDIM] + ((i & powerOf2) != 0);
-                    if ((nodeNdId[iDIM] >= linearNoElements[iDIM]) && (periodicDIM[iDIM] == true))
+                    if ((nodeNdId[iDIM] >= linearNoElements[iDIM]) && (periodic[iDIM] == true))
                     {
                         nodeNdId[iDIM] = 0;
                     }
@@ -1559,7 +1551,8 @@ namespace Base
     template<std::size_t DIM>
     void MeshManipulator<DIM>::createTriangularMesh(Geometry::PointPhysical<DIM> bottomLeft,
                                                     Geometry::PointPhysical<DIM> topRight,
-                                                    const std::vector<std::size_t> &linearNoElements)
+                                                    const std::vector<std::size_t> &linearNoElements,
+                                                    const std::vector<bool> &periodic)
     {
         getElementsList().setSingleLevelTraversal(0);
         getElementsList(IteratorType::GLOBAL).setSingleLevelTraversal(0);
@@ -1581,28 +1574,19 @@ namespace Base
         //Stage 0 : Check for required requirements
         logger.assert_debug(linearNoElements.size() ==
                             DIM, "The number of Linear Intervals has to map the size of the problem and current it does not");
+        logger.assert_debug(periodic.size() == DIM,
+                "Boundary information for wrong dimension");
 
-        logger.assert_debug(!(DIM == 3 && periodicX_ && linearNoElements[0] % 2 ==
+        logger.assert_debug(!(DIM == 3 && periodic[0] && linearNoElements[0] % 2 ==
                                                         1),
                             "The 3D triangular grid generator can't handle an odd amount of elements in the periodic dimension X");
-        logger.assert_debug(!(DIM == 3 && periodicY_ && linearNoElements[1] % 2 ==
+        logger.assert_debug(!(DIM == 3 && periodic[1] && linearNoElements[1] % 2 ==
                                                         1),
                             "The 3D triangular grid generator can't handle an odd amount of elements in the periodic dimension Y");
-        logger.assert_debug(!(DIM == 3 && periodicZ_ && linearNoElements[2] % 2 ==
+        logger.assert_debug(!(DIM == 3 && periodic[2] && linearNoElements[2] % 2 ==
                                                         1),
                             "The 3D triangular grid generator can't handle an odd amount of elements in the periodic dimension Z");
 
-        //place the boundary conditions together in a vector.
-        std::vector<bool> periodicDIM;
-        periodicDIM.push_back(periodicX_);
-        if (DIM > 1)
-        {
-            periodicDIM.push_back(periodicY_);
-        }
-        if (DIM > 2)
-        {
-            periodicDIM.push_back(periodicZ_);
-        }
 
         //Stage 1 : Precompute some required values
 
@@ -1624,7 +1608,7 @@ namespace Base
         std::size_t numberOfTrianglesPerRectangle, totalNumberOfNodes;
 
         totalNumberOfNodeCoordinates = (linearNoElements[0] + 1);
-        totalNumberOfNodes = (linearNoElements[0] + (periodicDIM[0] ? 0 : 1));
+        totalNumberOfNodes = (linearNoElements[0] + (periodic[0] ? 0 : 1));
         //'elements' in this counter denote groups of trianglesPerRectangle elements
         totalNumberOfElements = (linearNoElements[0]);
         numberOfNodesPerElement = 2;
@@ -1636,7 +1620,7 @@ namespace Base
         for (std::size_t idim = 1; idim < DIM; ++idim)
         {
             totalNumberOfNodeCoordinates *= (linearNoElements[idim] + 1);
-            totalNumberOfNodes *= (linearNoElements[idim] + (periodicDIM[idim] ? 0 : 1));
+            totalNumberOfNodes *= (linearNoElements[idim] + (periodic[idim] ? 0 : 1));
             totalNumberOfElements *= (linearNoElements[idim]);
             numberOfNodesPerElement += 1;
             numberOfNodesPerGroup *= 2;
@@ -1646,7 +1630,7 @@ namespace Base
             numberOfNodeCoordinatesInEachSubspace[idim] =
                     numberOfNodeCoordinatesInEachSubspace[idim - 1] * (linearNoElements[idim - 1] + 1);
             numberOfNodesInEachSubspace[idim] = numberOfNodesInEachSubspace[idim - 1] *
-                                                (linearNoElements[idim - 1] + (periodicDIM[idim - 1] ? 0 : 1));
+                                                (linearNoElements[idim - 1] + (periodic[idim - 1] ? 0 : 1));
         }
 
         Geometry::PointPhysical<DIM> x;
@@ -1707,7 +1691,7 @@ namespace Base
                     {
                         nodeCoordinateNdId[idim] = elementNdId[idim] + ((i & powerOf2) != 0);
                         nodeNdId[idim] = elementNdId[idim] + ((i & powerOf2) != 0);
-                        if (nodeNdId[idim] >= linearNoElements[idim] && periodicDIM[idim])
+                        if (nodeNdId[idim] >= linearNoElements[idim] && periodic[idim])
                             nodeNdId[idim] = 0;
                         powerOf2 *= 2;
                     }
@@ -1720,7 +1704,7 @@ namespace Base
                         powerOf2 /= 2;
                         nodeCoordinateNdId[idim] = elementNdId[idim] + (((i ^ rotate) & powerOf2) != 0);
                         nodeNdId[idim] = elementNdId[idim] + (((i ^ rotate) & powerOf2) != 0);
-                        if (nodeNdId[idim] >= linearNoElements[idim] && periodicDIM[idim])
+                        if (nodeNdId[idim] >= linearNoElements[idim] && periodic[idim])
                             nodeNdId[idim] = 0;
                     }
                 }
