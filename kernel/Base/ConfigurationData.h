@@ -29,8 +29,8 @@ namespace Base
     struct ConfigurationData
     {
         
-        ConfigurationData(std::size_t DIMension, std::size_t numberOfUnknowns, size_t numberOfTimeLevels = 0)
-                : dimension_(DIMension), numberOfUnknowns_(numberOfUnknowns), numberOfTimeLevels_(numberOfTimeLevels)
+        ConfigurationData(std::size_t numberOfUnknowns, size_t numberOfTimeLevels = 0)
+                : numberOfUnknowns_(numberOfUnknowns), numberOfTimeLevels_(numberOfTimeLevels)
         {
         }
         
@@ -39,7 +39,6 @@ namespace Base
         ConfigurationData& operator=(const ConfigurationData &other) = default;
         
         //in some cases it is convenient to have non-template-based access to the dimension
-        const std::size_t dimension_;
         std::size_t numberOfUnknowns_;
 
         ///\deprecated the number of basis functions per element may depend on the element and/or on the unknown and cannot be represented as a constant for the entire mesh.

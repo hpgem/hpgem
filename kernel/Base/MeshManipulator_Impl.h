@@ -98,7 +98,7 @@ namespace Base
     void MeshManipulator<DIM>::useMonomialBasisFunctions(std::size_t order)
     {
         Base::BasisFunctionSet *bFset1 = new Base::BasisFunctionSet(order);
-        switch (configData_->dimension_)
+        switch (DIM)
         {
         case 1:
             switch (order)
@@ -893,10 +893,9 @@ namespace Base
                                           BoundaryType zPer,
                                           std::size_t numberOfElementMatrices, std::size_t numberOfElementVectors,
                                           std::size_t numberOfFaceMatrices, std::size_t numberOfFaceVectors)
-            : MeshManipulatorBase(config, xPer, yPer, zPer, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors),
+            : MeshManipulatorBase(config, DIM, xPer, yPer, zPer, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors),
               meshMover_(nullptr)
     {
-        logger.assert_debug(DIM == config->dimension_, "Invalid configuration passed");
     }
 
     template<std::size_t DIM>
@@ -1340,10 +1339,10 @@ namespace Base
         getElementsList(IteratorType::GLOBAL).setSingleLevelTraversal(0);
 
         logger.assert_debug(bottomLeft.size() == topRight.size(), "The corners of the mesh must have the same dimension");
-        logger.assert_debug(bottomLeft.size() == configData_->dimension_, "The corners of the mesh have the wrong dimension");
+        logger.assert_debug(bottomLeft.size() == DIM, "The corners of the mesh have the wrong dimension");
         logger.assert_debug(linearNoElements.size() ==
-                            configData_->dimension_, "There are amounts of elements spicified in % dimensions, but there are % dimensions",
-                            linearNoElements.size(), configData_->dimension_);
+                            DIM, "There are amounts of elements spicified in % dimensions, but there are % dimensions",
+                            linearNoElements.size(), DIM);
         //set to correct value in case some other meshmanipulator changed things
         ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
         ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrices_);
@@ -1566,10 +1565,10 @@ namespace Base
         getElementsList(IteratorType::GLOBAL).setSingleLevelTraversal(0);
 
         logger.assert_debug(bottomLeft.size() == topRight.size(), "The corners of the mesh must have the same dimension");
-        logger.assert_debug(bottomLeft.size() == configData_->dimension_, "The corners of the mesh have the wrong dimension");
+        logger.assert_debug(bottomLeft.size() == DIM, "The corners of the mesh have the wrong dimension");
         logger.assert_debug(linearNoElements.size() ==
-                            configData_->dimension_, "There are amounts of elements specified in % dimensions, but there are % dimensions",
-                            linearNoElements.size(), configData_->dimension_);
+                            DIM, "There are amounts of elements specified in % dimensions, but there are % dimensions",
+                            linearNoElements.size(), DIM);
         //set to correct value in case some other meshmanipulator changed things
         ElementFactory::instance().setCollectionOfBasisFunctionSets(&collBasisFSet_);
         ElementFactory::instance().setNumberOfMatrices(numberOfElementMatrices_);
@@ -1905,7 +1904,7 @@ namespace Base
         logger.assert_always(centaurFile.is_open(), "Cannot open Centaur meshfile.");
         logger.assert_always(centaurFile.good(), "Something is not so good about this mesh");
 
-        switch (configData_->dimension_)
+        switch (DIM)
         {
         case 2:
             readCentaurMesh2D(centaurFile);
@@ -1914,7 +1913,7 @@ namespace Base
             readCentaurMesh3D(centaurFile);
             break;
         default:
-            logger(ERROR, "Centaur mesh reader has not been implemented in this DIMension (%)", configData_->dimension_);
+            logger(ERROR, "Centaur mesh reader has not been implemented in this DIMension (%)", DIM);
         }
 
         //Finally close the file

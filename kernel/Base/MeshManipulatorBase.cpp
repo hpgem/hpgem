@@ -77,16 +77,15 @@
 namespace Base
 {
 
-    MeshManipulatorBase::MeshManipulatorBase(const ConfigurationData* config, BoundaryType xPer, BoundaryType yPer, BoundaryType zPer, std::size_t numberOfElementMatrices, std::size_t numberOfElementVectors, std::size_t numberOfFaceMatrtices, std::size_t numberOfFaceVectors)
-            : configData_(config), numberOfElementMatrices_(numberOfElementMatrices), numberOfFaceMatrices_(numberOfFaceMatrtices), numberOfElementVectors_(numberOfElementVectors), numberOfFaceVectors_(numberOfFaceVectors)
+    MeshManipulatorBase::MeshManipulatorBase(const ConfigurationData* config, std::size_t dimension, BoundaryType xPer, BoundaryType yPer, BoundaryType zPer, std::size_t numberOfElementMatrices, std::size_t numberOfElementVectors, std::size_t numberOfFaceMatrtices, std::size_t numberOfFaceVectors)
+            : configData_(config), dimension_ (dimension), numberOfElementMatrices_(numberOfElementMatrices), numberOfFaceMatrices_(numberOfFaceMatrtices), numberOfElementVectors_(numberOfElementVectors), numberOfFaceVectors_(numberOfFaceVectors)
     {
         logger.assert_debug(config!=nullptr, "Invalid configuration passed");
         logger(INFO, "******Mesh creation started!**************");
-        std::size_t DIM = configData_->dimension_;
         periodicX_ = (xPer == BoundaryType::PERIODIC);
         periodicY_ = (yPer == BoundaryType::PERIODIC);
         periodicZ_ = (zPer == BoundaryType::PERIODIC);
-        for (std::size_t i = 0; i < DIM; ++i)
+        for (std::size_t i = 0; i < dimension_; ++i)
         {
             if (i == 0)
                 logger(INFO, "Boundaries: % in X direction", (periodicX_ ? "Periodic  " : "Solid Wall"));
@@ -102,13 +101,8 @@ namespace Base
     }
     
     MeshManipulatorBase::MeshManipulatorBase(const MeshManipulatorBase& other)
-            : configData_(other.configData_), periodicX_(other.periodicX_), periodicY_(other.periodicY_), periodicZ_(other.periodicZ_),
+            : configData_(other.configData_), dimension_(other.dimension_), periodicX_(other.periodicX_), periodicY_(other.periodicY_), periodicZ_(other.periodicZ_),
             numberOfElementMatrices_(other.numberOfElementMatrices_), numberOfFaceMatrices_(other.numberOfFaceMatrices_), numberOfElementVectors_(other.numberOfElementVectors_), numberOfFaceVectors_(other.numberOfFaceVectors_)
     {        
-    }
-    
-    std::size_t MeshManipulatorBase::dimension() const
-    {
-        return configData_->dimension_;
     }
 }

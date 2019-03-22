@@ -49,7 +49,7 @@ class DGWave : public Base::HpgemAPIBase<DIM>, public Output::TecplotSingleEleme
 {
 public:
     DGWave(std::size_t p)
-            : HpgemAPIBase<DIM>(new Base::GlobalData(), new Base::ConfigurationData(DIM, 2)), p_(p)
+            : HpgemAPIBase<DIM>(new Base::GlobalData(), new Base::ConfigurationData(2)), p_(p)
     {
     }
     

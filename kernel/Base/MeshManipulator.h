@@ -430,7 +430,7 @@ namespace Base
         ///Note that doing so might render the coarse mesh useless, due to it using the old (incorrect) mapping
         //since a correct default for shouldRefine requires information from refinementMapping it is set in the implementation
         void refine(const Geometry::RefinementMapping* refinementMapping, std::function<bool(const Element*)> shouldRefine = nullptr);
-        
+
         //---------------------------------------------------------------------
     private:
 

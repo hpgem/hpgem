@@ -106,7 +106,7 @@ int main(int argc, char **argv)
     
     GlobalData* globalData = new GlobalData();
     
-    ConfigurationData* config = new ConfigurationData(2, 1, 1);
+    ConfigurationData* config = new ConfigurationData(1, 1);
     
     config->numberOfUnknowns_ = 1;
     config->numberOfTimeLevels_ = 1;

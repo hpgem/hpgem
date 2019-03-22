@@ -136,7 +136,7 @@ namespace Base
 #endif
         std::string outputFileNameTecplot = outputFileName + ".dat";
         std::string dimensionsToWrite = "";
-        for(std::size_t i = 0; i < this->configData_->dimension_; i++)
+        for(std::size_t i = 0; i < DIM; i++)
         {
             dimensionsToWrite = dimensionsToWrite + std::to_string(i);
         }

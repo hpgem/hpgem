@@ -66,7 +66,7 @@ namespace Base
      const std::size_t numberOfTimeLevels,
      const bool computeBothFaces
      ) :
-    HpgemAPIBase<DIM>(new Base::GlobalData, new Base::ConfigurationData(DIM, numberOfVariables, numberOfTimeLevels)),
+    HpgemAPIBase<DIM>(new Base::GlobalData, new Base::ConfigurationData(numberOfVariables, numberOfTimeLevels)),
     ptrButcherTableau_(ptrButcherTableau),
     outputFileName_("output"),
     internalFileTitle_("output"),
@@ -101,7 +101,7 @@ namespace Base
      const std::size_t numberOfTimeLevels,
      const bool computeBothFaces
      ) :
-    HpgemAPIBase<DIM>(new Base::GlobalData, new Base::ConfigurationData(DIM, numberOfVariables, numberOfTimeLevels)),
+    HpgemAPIBase<DIM>(new Base::GlobalData, new Base::ConfigurationData(numberOfVariables, numberOfTimeLevels)),
     ptrButcherTableau_(nullptr),
     outputFileName_("output"),
     internalFileTitle_("output"),
@@ -767,7 +767,7 @@ namespace Base
 #endif
         const std::string outputFileNameTecplot = outputFileName + ".dat";
         std::string dimensionsToWrite = "";
-        for(std::size_t i = 0; i < this->configData_->dimension_; i++)
+        for(std::size_t i = 0; i < DIM; i++)
         {
             dimensionsToWrite = dimensionsToWrite + std::to_string(i);
         }

@@ -164,7 +164,7 @@ int main(int argc, char** argv)
     
     
     
-    Base::ConfigurationData config2(2, 1);
+    Base::ConfigurationData config2(1);
     
     config2.numberOfUnknowns_       = 1;
     config2.numberOfTimeLevels_     = 1;
@@ -197,7 +197,7 @@ int main(int argc, char** argv)
     
     
     //Next we test it for a 3D mesh generated using Centaur with SOLID WALL boundary conditions in all directions
-    Base::ConfigurationData config3(3, 1);
+    Base::ConfigurationData config3(1);
     
     config3.numberOfUnknowns_       = 1;
     config3.numberOfTimeLevels_     = 1;
@@ -227,7 +227,7 @@ int main(int argc, char** argv)
     
     // Next we test it for 3D mesh generated using Centaur with Periodic Boundary Conditions and containing hexahedrons as well
     
-    Base::ConfigurationData config4(3, 1);
+    Base::ConfigurationData config4(1);
     
     config4.numberOfUnknowns_       = 1;
     config4.numberOfTimeLevels_     = 1;

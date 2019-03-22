@@ -160,7 +160,7 @@ int main(int argc, char** argv)
     // requires DGMax, which requires the configurationData, which would then
     // require the discretization).
     const std::size_t numberOfUnknowns = 2;
-    Base::ConfigurationData* const configData = new Base::ConfigurationData(DIM, numberOfUnknowns, numberOfTimeLevels);
+    Base::ConfigurationData* const configData = new Base::ConfigurationData(numberOfUnknowns, numberOfTimeLevels);
     try
     {
         double stab = (p.getValue() + 1) * (p.getValue() + 3);

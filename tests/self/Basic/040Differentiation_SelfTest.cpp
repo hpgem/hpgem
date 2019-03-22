@@ -121,7 +121,7 @@ int main(int argc, char** argv)
     // dim 1
 
     //1D triangular meshes dont exist
-    Base::MeshManipulator<1> *test = new Base::MeshManipulator<1>(new Base::ConfigurationData(1, 1, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL);
+    Base::MeshManipulator<1> *test = new Base::MeshManipulator<1>(new Base::ConfigurationData(1, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL);
     test->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "1Drectangular1mesh.hpgem"s);
 
     test->useMonomialBasisFunctions(2);
@@ -134,7 +134,7 @@ int main(int argc, char** argv)
     
     //somewhere a lookup-table does not get cleaned when a meshManipulator is deleted
     delete test;
-    test = new Base::MeshManipulator<1>(new Base::ConfigurationData(1, 1, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL);
+    test = new Base::MeshManipulator<1>(new Base::ConfigurationData(1, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL);
     test->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "1Drectangular2mesh.hpgem"s);
 
     test->useMonomialBasisFunctions(2);
@@ -149,7 +149,7 @@ int main(int argc, char** argv)
     
     delete test;
     
-    Base::MeshManipulator<2> *test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL);
+    Base::MeshManipulator<2> *test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(1, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL);
     test2->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "2Dtriangular1mesh.hpgem"s);
 
     test2->useMonomialBasisFunctions(2);
@@ -161,7 +161,7 @@ int main(int argc, char** argv)
     testMesh(test2);
     
     delete test2;
-    test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL);
+    test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(1, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL);
     test2->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "2Drectangular1mesh.hpgem"s);
 
     test2->useMonomialBasisFunctions(2);
@@ -174,7 +174,7 @@ int main(int argc, char** argv)
     
     delete test2;
     
-    test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL);
+    test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(1, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL);
     test2->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "2Dtriangular2mesh.hpgem"s);
 
     test2->useMonomialBasisFunctions(2);
@@ -186,7 +186,7 @@ int main(int argc, char** argv)
     testMesh(test2);
     
     delete test2;
-    test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(2, 1, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL);
+    test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(1, 1), Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL);
     test2->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "2Drectangular2mesh.hpgem"s);
 
     test2->useMonomialBasisFunctions(2);
@@ -200,7 +200,7 @@ int main(int argc, char** argv)
     
     delete test2;
     
-    Base::ConfigurationData* configData = new Base::ConfigurationData(3, 1, 1);
+    Base::ConfigurationData* configData = new Base::ConfigurationData(1, 1);
     Base::MeshManipulator<3> *test3 = new Base::MeshManipulator<3>(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL);
     test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "3Dtriangular1mesh.hpgem"s);
 
@@ -215,7 +215,7 @@ int main(int argc, char** argv)
     delete test3;
     delete configData;
     
-    configData = new Base::ConfigurationData(3, 1, 1);
+    configData = new Base::ConfigurationData(1, 1);
     test3 = new Base::MeshManipulator<3>(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL);
     test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "3Drectangular1mesh.hpgem"s);
 
@@ -230,7 +230,7 @@ int main(int argc, char** argv)
     delete test3;
     delete configData;
     
-    configData = new Base::ConfigurationData(3, 1, 1);
+    configData = new Base::ConfigurationData(1, 1);
     test3 = new Base::MeshManipulator<3>(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL);
     test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "3Dtriangular2mesh.hpgem"s);
 
@@ -245,7 +245,7 @@ int main(int argc, char** argv)
     delete test3;
     delete configData;
     
-    configData = new Base::ConfigurationData(3, 1, 1);
+    configData = new Base::ConfigurationData(1, 1);
     test3 = new Base::MeshManipulator<3>(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL);
     test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "3Drectangular2mesh.hpgem"s);
 
@@ -260,7 +260,7 @@ int main(int argc, char** argv)
     delete test3;
     delete configData;
     
-    configData = new Base::ConfigurationData(3, 1, 1);
+    configData = new Base::ConfigurationData(1, 1);
     test3 = new Base::MeshManipulator<3>(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL);
     test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "3Dtriangular3mesh.hpgem"s);
 
@@ -275,7 +275,7 @@ int main(int argc, char** argv)
     delete test3;
     delete configData;
     
-    configData = new Base::ConfigurationData(3, 1, 1);
+    configData = new Base::ConfigurationData(1, 1);
     test3 = new Base::MeshManipulator<3>(configData, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL, Base::BoundaryType::SOLID_WALL);
     test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "3Drectangular3mesh.hpgem"s);
 

@@ -74,7 +74,7 @@ namespace Base
 
         /// idRangeBegin is the beginning of the range, from where the Element's ids should be assigned.
         /// In case of multiple meshes, one has to take care of empty intersection of those ranges!!!
-        MeshManipulatorBase(const ConfigurationData* configData, BoundaryType xPer = BoundaryType::SOLID_WALL, BoundaryType yPer = BoundaryType::SOLID_WALL, BoundaryType zPer = BoundaryType::SOLID_WALL, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0, std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
+        MeshManipulatorBase(const ConfigurationData* configData, std::size_t dimension, BoundaryType xPer = BoundaryType::SOLID_WALL, BoundaryType yPer = BoundaryType::SOLID_WALL, BoundaryType zPer = BoundaryType::SOLID_WALL, std::size_t numberOfElementMatrixes = 0, std::size_t numberOfElementVectors = 0, std::size_t numberOfFaceMatrixes = 0, std::size_t numberOfFaceVectors = 0);
 
         MeshManipulatorBase(const MeshManipulatorBase& other);
 
@@ -147,7 +147,10 @@ namespace Base
 
         virtual const std::map<int, std::vector<Element*> > & getPushElements() = 0;
 
-        std::size_t dimension() const;
+        std::size_t dimension() const
+        {
+            return dimension_;
+        }
         
     protected:
 
@@ -165,6 +168,7 @@ namespace Base
         std::size_t numberOfFaceMatrices_;
         std::size_t numberOfElementVectors_;
         std::size_t numberOfFaceVectors_;
+        const std::size_t dimension_;
     };
     
 
