@@ -21,9 +21,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "DivDGMaxDiscretization.h"
 
+#include "Base/MeshManipulator.h"
 #include "Base/HCurlConformingTransformation.h"
 #include "Integration/ElementIntegral.h"
 #include "Integration/FaceIntegral.h"
+
+#include "ElementInfos.h"
 
 // Utility function
 struct FaceDoFInfo
@@ -71,14 +74,14 @@ FaceDoFInfo getFaceDoFInfo(const Base::Face& face)
 
 
 template<std::size_t DIM>
-void DivDGMaxDiscretization<DIM>::initializeBasisFunctions(Base::MeshManipulator<DIM> &mesh,
-        const Base::ConfigurationData* configData, std::size_t order)
+void DivDGMaxDiscretization<DIM>::initializeBasisFunctions(Base::MeshManipulator<DIM> &mesh, std::size_t order)
 {
     // We would like to configure the number of unknowns here, but this is
     // unfortunately not possible, as it is configured at the creation of
     // the mesh. The best we can do is check if it is configured correctly.
-    logger.assert_always(configData->numberOfUnknowns_ == 2, "DivDGMax expects 2 unknowns but got %",
-            configData->numberOfUnknowns_);
+    std::size_t unknowns = mesh.getConfigData()->numberOfUnknowns_;
+    logger.assert_always(unknowns == 2, "DivDGMax expects 2 unknowns but got %",
+            unknowns);
     //TODO: This needs the additional unknown id.
     mesh.useNedelecDGBasisFunctions(order);
     mesh.useDefaultDGBasisFunctions(order, 1);
@@ -102,7 +105,7 @@ void DivDGMaxDiscretization<DIM>::computeElementIntegrands(
     elementIntegral.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM>> (new Base::HCurlConformingTransformation<DIM>()), 0);
     elementIntegral.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM>> (new Base::H1ConformingTransformation<DIM>()), 1);
 
-    for (typename hpGemUIExtentions<DIM>::ElementIterator it = mesh.elementColBegin();
+    for (typename Base::MeshManipulator<DIM>::ElementIterator it = mesh.elementColBegin();
             it != mesh.elementColEnd(); ++it)
     {
         totalUDoFs = (*it)->getNumberOfBasisFunctions(0);
@@ -173,7 +176,7 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
     faceIntegral.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM>> (new Base::HCurlConformingTransformation<DIM>()), 0);
     faceIntegral.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM>> (new Base::H1ConformingTransformation<DIM>()), 1);
 
-    for (typename hpGemUIExtentions<DIM>::FaceIterator it = mesh.faceColBegin();
+    for (typename Base::MeshManipulator<DIM>::FaceIterator it = mesh.faceColBegin();
             it != mesh.faceColEnd(); ++it)
     {
 

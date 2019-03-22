@@ -29,15 +29,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <petscvec.h>
 #include <slepceps.h>
 
+#include "Base/MeshManipulator.h"
 #include "LinearAlgebra/SmallVector.h"
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
 
 template<std::size_t DIM>
-DGMaxEigenValue<DIM>::DGMaxEigenValue(hpGemUIExtentions<DIM> &base, std::size_t order)
-    : base_ (base)
+DGMaxEigenValue<DIM>::DGMaxEigenValue(Base::MeshManipulator<DIM> &mesh, std::size_t order)
+    : mesh_ (mesh)
 {
-    discretization_.initializeBasisFunctions(*(base_.getMesh(0)), base_.getConfigData(), order);
+    discretization_.initializeBasisFunctions(mesh_, order);
 }
 
 template<std::size_t DIM>
@@ -79,8 +80,8 @@ template<std::size_t DIM>
 void DGMaxEigenValue<DIM>::initializeMatrices(double stab)
 {
     //TODO: Which of these InputFunctions are needed?
-    discretization_.computeElementIntegrands(*(base_.getMesh(0)), true, nullptr, nullptr, nullptr);
-    discretization_.computeFaceIntegrals(*(base_.getMesh(0)), nullptr, stab);
+    discretization_.computeElementIntegrands(mesh_, true, nullptr, nullptr, nullptr);
+    discretization_.computeFaceIntegrals(mesh_, nullptr, stab);
 }
 
 template<std::size_t DIM>
@@ -106,11 +107,11 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
 //    base_.assembler->fillMatrices(&base_);
     initializeMatrices(stab);
 
-    Utilities::GlobalPetscMatrix massMatrix(base_.getMesh(0), DGMaxDiscretization<DIM>::MASS_MATRIX_ID, -1),
-            stiffnessMatrix(base_.getMesh(0), DGMaxDiscretization<DIM>::STIFFNESS_MATRIX_ID, DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
+    Utilities::GlobalPetscMatrix massMatrix(&mesh_, DGMaxDiscretization<DIM>::MASS_MATRIX_ID, -1),
+            stiffnessMatrix(&mesh_, DGMaxDiscretization<DIM>::STIFFNESS_MATRIX_ID, DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
     std::cout << "GlobalPetscMatrix initialised" << std::endl;
     Utilities::GlobalPetscVector
-            sampleGlobalVector(base_.getMesh(0), -1, -1);
+            sampleGlobalVector(&mesh_, -1, -1);
     std::cout << "GlobalPetscVector initialised" << std::endl;
     sampleGlobalVector.assemble();
     std::cout << "sampleGlobalVector assembled" << std::endl;
@@ -147,7 +148,7 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
 
     LinearAlgebra::SmallVector<DIM> dk = kpath.dk(1);
 
-    makeShiftMatrix(*(base_.getMesh(0)), massMatrix.getGlobalIndex(), dk, waveVec);
+    makeShiftMatrix(mesh_, massMatrix.getGlobalIndex(), dk, waveVec);
     error = VecDuplicate(waveVec, &waveVecConjugate);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     error = VecCopy(waveVec, waveVecConjugate);
@@ -168,7 +169,7 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
 
 
     // Assume that the number of basis functions is constant over all the elements.
-    std::size_t degreesOfFreedomPerElement = (*base_.getMesh(0)->elementColBegin())->getNumberOfBasisFunctions();
+    std::size_t degreesOfFreedomPerElement = (*mesh_.elementColBegin())->getNumberOfBasisFunctions();
 
     // Storage for shifting the boundary blocks
     std::valarray<PetscScalar> lrblockvalues(degreesOfFreedomPerElement * degreesOfFreedomPerElement);
@@ -202,7 +203,7 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
         {
             dk = kpath.dk(i);
             //recompute the shifts
-            makeShiftMatrix(*(base_.getMesh(0)), massMatrix.getGlobalIndex(), dk, waveVec);
+            makeShiftMatrix(mesh_, massMatrix.getGlobalIndex(), dk, waveVec);
             error = VecCopy(waveVec, waveVecConjugate);
             CHKERRABORT(PETSC_COMM_WORLD, error);
             error = VecConjugate(waveVecConjugate);
@@ -350,7 +351,7 @@ template<std::size_t DIM>
 std::vector<Base::Face*> DGMaxEigenValue<DIM>::findPeriodicBoundaryFaces() const
 {
     std::vector<Base::Face*> result;
-    for (Base::TreeIterator<Base::Face*> it = base_.getMesh(0)->faceColBegin(); it != base_.getMesh(0)->faceColEnd(); ++it)
+    for (Base::TreeIterator<Base::Face*> it = mesh_.faceColBegin(); it != mesh_.faceColEnd(); ++it)
     {
         // To check if the face is on a periodic boundary we compare the
         // coordinates of the center of the face according to the elements on

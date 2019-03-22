@@ -27,10 +27,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "Utilities/GlobalVector.h"
 
 template<std::size_t DIM>
-DGMaxTimeIntegration<DIM>::DGMaxTimeIntegration(hpGemUIExtentions<DIM> &base, std::size_t order)
-    : base_(base), discretization(), snapshotTime (nullptr)
+DGMaxTimeIntegration<DIM>::DGMaxTimeIntegration(Base::MeshManipulator<DIM> &mesh, std::size_t order)
+    : mesh_(mesh), discretization(), snapshotTime (nullptr)
 {
-    discretization.initializeBasisFunctions(*(base_.getMesh(0)), base_.getConfigData(), order);
+    discretization.initializeBasisFunctions(mesh_, order);
 }
 
 template<std::size_t DIM>
@@ -55,33 +55,36 @@ void DGMaxTimeIntegration<DIM>::solve(const SeparableTimeIntegrationProblem<DIM>
         snapshotTime = nullptr;
     }
     snapshotTime = new double[parameters.numberOfSnapshots()];
-    base_.setNumberOfTimeIntegrationVectorsGlobally(parameters.numberOfSnapshots());
+    for(Base::Element* element : mesh_.getElementsList(Base::IteratorType::GLOBAL))
+    {
+        element->setNumberOfTimeIntegrationVectors(parameters.numberOfSnapshots());
+    }
 
     PetscErrorCode error;
 
     std::cout << "doing a time dependent simulation" << std::endl;
     discretization.computeElementIntegrands(
-            *(base_.getMesh(0)), true,
+            mesh_, true,
             std::bind(&SeparableTimeIntegrationProblem<DIM>::sourceTermRef, std::ref(input), _1, _2),
             std::bind(&TimeIntegrationProblem<DIM>::initialCondition, std::ref(input), _1, _2),
             std::bind(&TimeIntegrationProblem<DIM>::initialConditionDerivative, std::ref(input), _1, _2)
     );
 
     discretization.computeFaceIntegrals(
-            *(base_.getMesh(0)),
+            mesh_,
             std::bind(&SeparableTimeIntegrationProblem<DIM>::boundaryConditionRef, std::ref(input), _1, _2, _3),
             parameters.stab
     );
 //    MHasToBeInverted_ = true;
 //    assembler->fillMatrices(this);
 
-    Utilities::GlobalPetscMatrix massMatrix(base_.getMesh(0), DGMaxDiscretization<DIM>::MASS_MATRIX_ID, -1),
-            stiffnessMatrix(base_.getMesh(0), DGMaxDiscretization<DIM>::STIFFNESS_MATRIX_ID, DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
+    Utilities::GlobalPetscMatrix massMatrix(&mesh_, DGMaxDiscretization<DIM>::MASS_MATRIX_ID, -1),
+            stiffnessMatrix(&mesh_, DGMaxDiscretization<DIM>::STIFFNESS_MATRIX_ID, DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
     std::cout << "GlobalPetscMatrix initialised" << std::endl;
-    Utilities::GlobalPetscVector resultVector(base_.getMesh(0), DGMaxDiscretization<DIM>::INITIAL_CONDITION_VECTOR_ID, -1),
-            derivative(base_.getMesh(0), DGMaxDiscretization<DIM>::INITIAL_CONDITION_DERIVATIVE_VECTOR_ID, -1),
-            rhsBoundary(base_.getMesh(0), -1, DGMaxDiscretization<DIM>::FACE_VECTOR_ID),
-            rhsSource(base_.getMesh(0), DGMaxDiscretization<DIM>::SOURCE_TERM_VECTOR_ID, -1);
+    Utilities::GlobalPetscVector resultVector(&mesh_, DGMaxDiscretization<DIM>::INITIAL_CONDITION_VECTOR_ID, -1),
+            derivative(&mesh_, DGMaxDiscretization<DIM>::INITIAL_CONDITION_DERIVATIVE_VECTOR_ID, -1),
+            rhsBoundary(&mesh_, -1, DGMaxDiscretization<DIM>::FACE_VECTOR_ID),
+            rhsSource(&mesh_, DGMaxDiscretization<DIM>::SOURCE_TERM_VECTOR_ID, -1);
     std::cout << "GlobalPetscVector initialised" << std::endl;
     resultVector.assemble();
     std::cout << "resultVector assembled" << std::endl;
@@ -318,7 +321,7 @@ void DGMaxTimeIntegration<DIM>::writeTimeLevel(
 {
     std::stringstream zoneName ("t=");
     zoneName << snapshotTime[timeLevel];
-    writer.write(base_.getMesh(0), zoneName.str(), !firstLevel,
+    writer.write(&mesh_, zoneName.str(), !firstLevel,
                  [&](const Base::Element* element, const Geometry::PointReference<DIM>& point, std::ostream& stream) {
         const LinearAlgebra::MiddleSizeVector coefficients = element->getTimeIntegrationVector(timeLevel);
         LinearAlgebra::SmallVector<DIM> electricField = discretization.computeField(element, point, coefficients);
@@ -363,7 +366,7 @@ void DGMaxTimeIntegration<DIM>::printErrors(
     {
         double time = snapshotTime[level];
         std::map<NormType, double> normValues = discretization.computeError(
-            *(base_.getMesh(0)), level,
+            mesh_, level,
             std::bind(exactField, std::placeholders::_1, time, std::placeholders::_2),
             std::bind(exactCurl, std::placeholders::_1, time, std::placeholders::_2),
             normSet

@@ -14,7 +14,6 @@ add_executable( DG-Max.out
 				DGMaxLogger.cpp
                 ElementInfos.cpp
                 kspaceData.cpp
-                BaseExtended.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotPhysicalGeometryIterator.cpp		
 		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotDiscontinuousSolutionWriter_Impl.h		  
 		#miscellaneous required stuff

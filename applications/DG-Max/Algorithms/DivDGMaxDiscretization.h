@@ -22,7 +22,28 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef ALGORITHMS_DIVDGMAXDISCRETIZATION_h
 #define ALGORITHMS_DIVDGMAXDISCRETIZATION_h
 
-#include "../BaseExtended.h"
+#include <functional>
+#include <memory>
+
+#include "Base/MeshManipulator.h"
+
+// Forward definitions
+namespace Base
+{
+    template<std::size_t>
+    class PhysicalElement;
+    template<std::size_t DIM>
+    class PhysicalFace;
+}
+
+namespace LinearAlgebra
+{
+    class MiddleSizeMatrix;
+    class MiddleSizeVector;
+
+    template<std::size_t DIM>
+    class SmallVector;
+}
 
 /// \brief Discontinuous Galerkin discretization for Maxwell, where the
 /// divergence constraint (div E = 0) is part of the discretization.
@@ -89,7 +110,7 @@ public:
     using InputFunction = std::function<void(const PointPhysicalT &, LinearAlgebra::SmallVector<DIM>&)>;
     using FaceInputFunction = std::function<void(const PointPhysicalT &, Base::PhysicalFace<DIM>&, LinearAlgebra::SmallVector<DIM>&)>;
 
-    void initializeBasisFunctions(Base::MeshManipulator<DIM> &mesh, const Base::ConfigurationData* configData, std::size_t order);
+    void initializeBasisFunctions(Base::MeshManipulator<DIM> &mesh, std::size_t order);
 
     void computeElementIntegrands(Base::MeshManipulator<DIM>& mesh, bool invertMassMatrix,
                                   const InputFunction& sourceTerm,

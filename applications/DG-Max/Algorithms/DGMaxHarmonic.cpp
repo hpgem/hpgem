@@ -29,10 +29,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "Utilities/GlobalVector.h"
 
 template<std::size_t DIM>
-DGMaxHarmonic<DIM>::DGMaxHarmonic(hpGemUIExtentions<DIM> &base, std::size_t order)
-        : base_ (base)
+DGMaxHarmonic<DIM>::DGMaxHarmonic(Base::MeshManipulator<DIM>& mesh, std::size_t order)
+        : mesh_ (mesh)
 {
-    discretization.initializeBasisFunctions(*(base_.getMesh(0)), base_.getConfigData(), order);
+    discretization.initializeBasisFunctions(mesh_, order);
 }
 
 template<std::size_t DIM>
@@ -41,24 +41,24 @@ void DGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM> &harmonicProblem, doub
     PetscErrorCode error;
     std::cout << "finding a time-harmonic solution" << std::endl;
     discretization.computeElementIntegrands(
-            *(base_.getMesh(0)),
+            mesh_,
             false,
             std::bind(&HarmonicProblem<DIM>::sourceTerm, std::ref(harmonicProblem), std::placeholders::_1, std::placeholders::_2),
             nullptr, nullptr // No initial values
     );
     discretization.computeFaceIntegrals(
-            *(base_.getMesh(0)),
+            mesh_,
             std::bind(&HarmonicProblem<DIM>::boundaryCondition, std::ref(harmonicProblem), std::placeholders::_1,
                     std::placeholders::_2, std::placeholders::_3),
             stab
     );
 
-    Utilities::GlobalPetscMatrix massMatrix(base_.getMesh(0), DGMaxDiscretization<DIM>::MASS_MATRIX_ID, -1),
-            stiffnessMatrix(base_.getMesh(0), DGMaxDiscretization<DIM>::STIFFNESS_MATRIX_ID, DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
+    Utilities::GlobalPetscMatrix massMatrix(&mesh_, DGMaxDiscretization<DIM>::MASS_MATRIX_ID, -1),
+            stiffnessMatrix(&mesh_, DGMaxDiscretization<DIM>::STIFFNESS_MATRIX_ID, DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
     std::cout << "GlobalPetscMatrix initialised" << std::endl;
     Utilities::GlobalPetscVector
-            resultVector(base_.getMesh(0), -1, -1), // The vector that we will use for the solution, initialize it with zeros.
-            rhsVector(base_.getMesh(0), DGMaxDiscretization<DIM>::SOURCE_TERM_VECTOR_ID, DGMaxDiscretization<DIM>::FACE_VECTOR_ID);
+            resultVector(&mesh_, -1, -1), // The vector that we will use for the solution, initialize it with zeros.
+            rhsVector(&mesh_, DGMaxDiscretization<DIM>::SOURCE_TERM_VECTOR_ID, DGMaxDiscretization<DIM>::FACE_VECTOR_ID);
     std::cout << "GlobalPetscVector initialised" << std::endl;
     resultVector.assemble();
     std::cout << "resultVector assembled" << std::endl;
@@ -121,7 +121,7 @@ std::map<typename DGMaxDiscretization<DIM>::NormType, double> DGMaxHarmonic<DIM>
 {
     //Note, this only works by grace of distributing the solution as timeIntegrationVector
     return discretization.computeError(
-            *(base_.getMesh(0)),
+            mesh_,
             0, // The abused time vector
             exactSolution,
             exactSolutionCurl,
@@ -151,7 +151,7 @@ void DGMaxHarmonic<DIM>::writeTec(std::string fileName) const
     logger.log(Log::WARN, "The magnetic field output is incorrectly computed.");
 
     std::string zoneName ("field"); // Dummy
-    tecplotWriter.write(base_.getMesh(0), zoneName, false,
+    tecplotWriter.write(&mesh_, zoneName, false,
         [&](const Base::Element* element, const Geometry::PointReference<DIM>& point, std::ostream& stream) {
 
         const LinearAlgebra::MiddleSizeVector coefficients = element->getTimeIntegrationVector(0);

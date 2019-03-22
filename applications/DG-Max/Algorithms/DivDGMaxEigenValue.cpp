@@ -32,8 +32,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 
 template<std::size_t DIM>
-DivDGMaxEigenValue<DIM>::DivDGMaxEigenValue(hpGemUIExtentions<DIM>& base)
-    : base_ (base)
+DivDGMaxEigenValue<DIM>::DivDGMaxEigenValue(Base::MeshManipulator<DIM>& mesh)
+    : mesh_ (mesh)
 {
 }
 
@@ -49,23 +49,23 @@ typename DivDGMaxEigenValue<DIM>::Result DivDGMaxEigenValue<DIM>::solve(
 
     PetscErrorCode error;
     std::cout << "finding a bunch of eigenvalues" << std::endl;
-    discretization.initializeBasisFunctions(*base_.getMesh(0), base_.getConfigData(), order);
+    discretization.initializeBasisFunctions(mesh_, order);
     discretization.computeElementIntegrands(
-            *base_.getMesh(0),
+            mesh_,
             false,
             nullptr, nullptr, nullptr
     );
     discretization.computeFaceIntegrals(
-            *base_.getMesh(0),
+            mesh_,
             nullptr,
             stab
     );
 
     Utilities::GlobalPetscMatrix
-        massMatrix(base_.getMesh(0), DivDGMaxDiscretization<DIM>::ELEMENT_MASS_MATRIX_ID, -1),
-        stiffnessMatrix(base_.getMesh(0), DivDGMaxDiscretization<DIM>::ELEMENT_STIFFNESS_MATRIX_ID, DivDGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID);
+        massMatrix(&mesh_, DivDGMaxDiscretization<DIM>::ELEMENT_MASS_MATRIX_ID, -1),
+        stiffnessMatrix(&mesh_, DivDGMaxDiscretization<DIM>::ELEMENT_STIFFNESS_MATRIX_ID, DivDGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID);
     DGMaxLogger(VERBOSE, "Mass and stiffness matrices assembled");
-    Utilities::GlobalPetscVector globalVector(base_.getMesh(0), -1, -1);
+    Utilities::GlobalPetscVector globalVector(&mesh_, -1, -1);
     DGMaxLogger(VERBOSE, "Dummy vector assembled");
 
     // Setup the boundary block shifting //
@@ -77,8 +77,8 @@ typename DivDGMaxEigenValue<DIM>::Result DivDGMaxEigenValue<DIM>::solve(
     MPI_Allreduce(MPI_IN_PLACE, &maxBoundaryFaces, 1, MPI_UNSIGNED_LONG, MPI_MAX, PETSC_COMM_WORLD);
 
     // Implicitly assume that each element has the same number of DOFs
-    std::size_t dofsUPerElement = (*base_.getMesh(0)->elementColBegin())->getNumberOfBasisFunctions(0),
-                dofsPPerElement = (*base_.getMesh(0)->elementColBegin())->getNumberOfBasisFunctions(1),
+    std::size_t dofsUPerElement = (*(mesh_.elementColBegin()))->getNumberOfBasisFunctions(0),
+                dofsPPerElement = (*(mesh_.elementColBegin()))->getNumberOfBasisFunctions(1),
                 totalDofsPerElement = dofsUPerElement + dofsPPerElement;
     // Storage for shifting
     std::valarray<PetscScalar> lrBlockValues (totalDofsPerElement * totalDofsPerElement);
@@ -330,8 +330,8 @@ void DivDGMaxEigenValue<DIM>::makeShiftMatrix(LinearAlgebra::SmallVector<DIM>& d
 {
     PetscErrorCode error;
 
-    for (typename Base::MeshManipulator<DIM>::ElementIterator it = base_.getMesh(0)->elementColBegin();
-            it != base_.getMesh(0)->elementColEnd(); ++it)
+    for (typename Base::MeshManipulator<DIM>::ElementIterator it = mesh_.elementColBegin();
+            it != mesh_.elementColEnd(); ++it)
     {
         Geometry::PointPhysical<DIM> centerPhys;
         const Geometry::PointReference<DIM>& center = (*it)->getReferenceGeometry()->getCenter();
@@ -393,7 +393,7 @@ template<std::size_t DIM>
 std::vector<Base::Face*> DivDGMaxEigenValue<DIM>::findPeriodicBoundaryFaces() const
 {
     std::vector<Base::Face*> result;
-    for (Base::TreeIterator<Base::Face*> it = base_.getMesh(0)->faceColBegin(); it != base_.getMesh(0)->faceColEnd(); ++it)
+    for (Base::TreeIterator<Base::Face*> it = mesh_.faceColBegin(); it != mesh_.faceColEnd(); ++it)
     {
         // To check if the face is on a periodic boundary we compare the
         // coordinates of the center of the face according to the elements on

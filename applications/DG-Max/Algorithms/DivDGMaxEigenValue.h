@@ -23,7 +23,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define ALGORITHMS_DIVDGMAXEIGENVALUE_H
 
 #include "DivDGMaxDiscretization.h"
-#include "../BaseExtended.h"
 #include "../ProblemTypes/EigenValueProblem.h"
 
 #include "Utilities/GlobalIndexing.h"
@@ -51,7 +50,7 @@ public:
         const std::vector<std::vector<PetscScalar>> eigenvalues_;
     };
 
-    DivDGMaxEigenValue(hpGemUIExtentions<DIM>& base);
+    DivDGMaxEigenValue(Base::MeshManipulator<DIM>& mesh);
     Result solve(EigenValueProblem<DIM> input, typename DivDGMaxDiscretization<DIM>::Stab, std::size_t order);
 
 private:
@@ -64,7 +63,7 @@ private:
     std::vector<Base::Face*> findPeriodicBoundaryFaces() const;
     LinearAlgebra::SmallVector<DIM> boundaryFaceShift(const Base::Face *face) const;
 
-    hpGemUIExtentions<DIM>& base_;
+    Base::MeshManipulator<DIM>& mesh_;
     DivDGMaxDiscretization<DIM> discretization;
 };
 

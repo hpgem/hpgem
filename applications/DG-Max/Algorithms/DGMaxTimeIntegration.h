@@ -27,7 +27,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../ProblemTypes/TimeIntegrationProblem.h"
 
 #include "DGMaxDiscretization.h"
-#include "../BaseExtended.h"
 
 template<std::size_t DIM>
 struct TimeIntegrationParameters;
@@ -43,7 +42,7 @@ public:
         CO2, CO4
     };
 
-    DGMaxTimeIntegration(hpGemUIExtentions<DIM>& base, std::size_t order);
+    DGMaxTimeIntegration(Base::MeshManipulator<DIM>& mesh, std::size_t order);
     ~DGMaxTimeIntegration();
     void solve(const SeparableTimeIntegrationProblem<DIM>& input, TimeIntegrationParameters<DIM> parameters);
     void writeTimeSnapshots(std::string fileName) const;
@@ -60,7 +59,7 @@ private:
                      LinearAlgebra::SmallVector<6>& scale0, LinearAlgebra::SmallVector<6>& scale1) const;
     void writeTimeLevel(Output::TecplotDiscontinuousSolutionWriter<DIM>& writer,
                         std::size_t timeLevel, bool firstLevel) const;
-    hpGemUIExtentions<DIM>& base_;
+    Base::MeshManipulator<DIM>& mesh_;
     DGMaxDiscretization<DIM> discretization;
     // TODO: This should be output of the solver, not a local variable.
     double * snapshotTime;

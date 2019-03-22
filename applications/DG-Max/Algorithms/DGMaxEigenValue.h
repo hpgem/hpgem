@@ -25,7 +25,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "../ProblemTypes/EigenValueProblem.h"
 #include "../ProblemTypes/BaseEigenvalueResult.h"
 
-#include "../BaseExtended.h"
 #include "DGMaxDiscretization.h"
 
 #include "Utilities/GlobalIndexing.h"
@@ -51,7 +50,7 @@ public:
         const std::vector<std::vector<PetscScalar>> eigenvalues_;
     };
 
-    DGMaxEigenValue(hpGemUIExtentions<DIM>& base, std::size_t order);
+    DGMaxEigenValue(Base::MeshManipulator<DIM>& mesh, std::size_t order);
     Result solve(const EigenValueProblem<DIM>& input, double stab);
     // TODO: A nice wrapper of EPS that does RAII would be nicer
     EPS createEigenSolver();
@@ -68,7 +67,7 @@ private:
     std::vector<Base::Face*> findPeriodicBoundaryFaces() const;
     LinearAlgebra::SmallVector<DIM> boundaryFaceShift(const Base::Face *face) const;
 
-    hpGemUIExtentions<DIM>& base_;
+    Base::MeshManipulator<DIM>& mesh_;
     DGMaxDiscretization<DIM> discretization_;
 };
 

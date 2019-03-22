@@ -151,6 +151,11 @@ namespace Base
         {
             return dimension_;
         }
+
+        const ConfigurationData* getConfigData()
+        {
+            return configData_;
+        }
         
     protected:
 

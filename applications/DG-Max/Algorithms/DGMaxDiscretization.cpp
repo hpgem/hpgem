@@ -24,17 +24,20 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <complex>
 
 #include "Base/HCurlConformingTransformation.h"
+#include "Base/MeshManipulator.h"
 #include "Integration/ElementIntegral.h"
 #include "Integration/FaceIntegral.h"
 
+#include "ElementInfos.h"
+
 template<std::size_t DIM>
-void DGMaxDiscretization<DIM>::initializeBasisFunctions(Base::MeshManipulator<DIM> &mesh, const Base::ConfigurationData* configData, std::size_t order)
+void DGMaxDiscretization<DIM>::initializeBasisFunctions(Base::MeshManipulator<DIM> &mesh, std::size_t order)
 {
     // We would like to configure the number of unknowns here, but this is
     // unfortunately not possible, as it is configured at the creation of
     // the mesh. The best we can do is check if it is configured correctly.
-    logger.assert_always(configData->numberOfUnknowns_ == 1, "DGMax expects 1 unknown but got %",
-            configData->numberOfUnknowns_);
+    std::size_t unknowns = mesh.getConfigData()->numberOfUnknowns_;
+    logger.assert_always(unknowns == 1, "DGMax expects 1 unknown but got %", unknowns);
     mesh.useNedelecDGBasisFunctions(order);
     // TODO: This should probably also be exposed by using a constructor parameter.
     //mesh.useAinsworthCoyleDGBasisFunctions();
@@ -51,7 +54,7 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(Base::MeshManipulator<DI
     Integration::ElementIntegral<DIM> elIntegral(false);
 
     elIntegral.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM>> (new Base::HCurlConformingTransformation<DIM>()));
-    for (typename hpGemUIExtentions<DIM>::ElementIterator it = mesh.elementColBegin();
+    for (typename Base::MeshManipulator<DIM>::ElementIterator it = mesh.elementColBegin();
             it != mesh.elementColEnd(); ++it)
     {
         std::size_t numberOfBasisFunctions = (*it)->getNumberOfBasisFunctions();
@@ -135,7 +138,7 @@ void DGMaxDiscretization<DIM>::computeFaceIntegrals(
     Integration::FaceIntegral<DIM> faIntegral(false);
 
     faIntegral.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM>> (new Base::HCurlConformingTransformation<DIM>()));
-    for (typename hpGemUIExtentions<DIM>::FaceIterator it = mesh.faceColBegin();
+    for (typename Base::MeshManipulator<DIM>::FaceIterator it = mesh.faceColBegin();
             it != mesh.faceColEnd(); ++it)
     {
 

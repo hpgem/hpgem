@@ -22,7 +22,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #ifndef ALGORITHMS_DIVDGMAXHARMONIC_h
 #define ALGORITHMS_DIVDGMAXHARMONIC_h
 
-#include "../BaseExtended.h"
 #include "../ProblemTypes/HarmonicProblem.h"
 
 #include "DivDGMaxDiscretization.h"
@@ -32,7 +31,7 @@ class DivDGMaxHarmonic
 {
 
 public:
-    DivDGMaxHarmonic(hpGemUIExtentions<DIM>& base);
+    DivDGMaxHarmonic(Base::MeshManipulator<DIM>& mesh);
 
     void solve(const HarmonicProblem<DIM>& input, typename DivDGMaxDiscretization<DIM>::Stab stab, std::size_t order);
     void writeTec(std::string fileName) const;
@@ -40,7 +39,7 @@ public:
     double computeL2Error(const typename DivDGMaxDiscretization<DIM>::InputFunction& exactSolution) const;
     double computeL2Error(const ExactHarmonicProblem<DIM>& problem) const;
 private:
-    hpGemUIExtentions<DIM>& base_;
+    Base::MeshManipulator<DIM>& mesh_;
     DivDGMaxDiscretization<DIM> discretization_;
 };
 

@@ -23,14 +23,15 @@
 
 #define _USE_MATH_DEFINES
 
-#include "BaseExtended.h"
-
 #include <cstdlib>
 #include <iostream>
 #include "math.h"
 #include <ctime>
 
+#include "Base/CommandLineOptions.h"
+
 #include "DGMaxLogger.h"
+#include "ElementInfos.h"
 
 #include "Algorithms/DGMaxEigenValue.h"
 #include "Algorithms/DGMaxHarmonic.h"
@@ -43,62 +44,46 @@
 #include "Utils/HomogeneousBandStructure.h"
 #include "Utils/BandstructureGNUPlot.h"
 
-/**
- * This class should provide problem specific information about the maxwell equations.
- */
+
 template<std::size_t DIM>
-class DGMax : public hpGemUIExtentions<DIM>
+std::unique_ptr<Base::MeshManipulator<DIM>> createCubeMesh(std::size_t subdivisions, Base::ConfigurationData* configData)
 {
-public:
-    
-    DGMax(Base::GlobalData * const globalConfig, Base::ConfigurationData* elementConfig)
-            : hpGemUIExtentions<DIM>(globalConfig, elementConfig)
-    {
+    Geometry::PointPhysical<DIM> bottomLeft, topRight;
+    std::vector<std::size_t> numElementsOneD (DIM);
+    std::vector<bool> periodic(DIM, true);
+    // Configure each dimension of the unit cube/square
+    for (std::size_t i = 0; i < DIM; ++i) {
+        bottomLeft[i] = 0;
+        topRight[i] = 1;
+        numElementsOneD[i] = subdivisions;
     }
-    
-    /**
-     * set up the mesh and complete initialisation of the global data and the configuration data
-     */
 
+    auto mesh = std::unique_ptr<Base::MeshManipulator<DIM>>(
+            new Base::MeshManipulator<DIM>(configData, 2, 3, 1, 1));
+    mesh->createTriangularMesh(bottomLeft, topRight, numElementsOneD, periodic);
 
-    void createCubeMesh(std::size_t subdivisions)
+    for (typename Base::MeshManipulator<DIM>::ElementIterator it = mesh->elementColBegin(Base::IteratorType::GLOBAL);
+         it != mesh->elementColEnd(Base::IteratorType::GLOBAL); ++it)
     {
-        Geometry::PointPhysical<DIM> bottomLeft, topRight;
-        std::vector<std::size_t> numElementsOneD (DIM);
-        std::vector<bool> periodic(DIM, true);
-        // Configure each dimension of the unit cube/square
-        for (std::size_t i = 0; i < DIM; ++i) {
-            bottomLeft[i] = 0;
-            topRight[i] = 1;
-            numElementsOneD[i] = subdivisions;
-        }
-
-        auto mesh = new Base::MeshManipulator<DIM>(this->getConfigData(),
-                                                   2, 3, 1, 1);
-        mesh->createTriangularMesh(bottomLeft, topRight, numElementsOneD, periodic);
-
-        for (typename Base::MeshManipulator<DIM>::ElementIterator it = mesh->elementColBegin(Base::IteratorType::GLOBAL);
-                it != mesh->elementColEnd(Base::IteratorType::GLOBAL); ++it)
-        {
-            (*it)->setUserData(new ElementInfos(**it));
-        }
-        this->addMesh(mesh);
+        (*it)->setUserData(new ElementInfos(**it));
     }
-    
-    void readMesh(std::string fileName)
+    return mesh;
+}
+
+template<std::size_t DIM>
+std::unique_ptr<Base::MeshManipulator<DIM>> readMesh(std::string fileName, Base::ConfigurationData* configData)
+{
+    auto mesh = std::unique_ptr<Base::MeshManipulator<DIM>>(
+            new Base::MeshManipulator<DIM>(configData, 2, 3, 1, 1));
+    mesh->readMesh(fileName);
+    for (typename Base::MeshManipulator<DIM>::ElementIterator it = mesh->elementColBegin(Base::IteratorType::GLOBAL);
+         it != mesh->elementColEnd(Base::IteratorType::GLOBAL); ++it)
     {
-        auto mesh = new Base::MeshManipulator<DIM>(this->getConfigData(),
-                                                   2, 3, 1, 1);
-        mesh->readMesh(fileName);
-        this->addMesh(mesh);
-        for (typename Base::MeshManipulator<DIM>::ElementIterator it = mesh->elementColBegin(Base::IteratorType::GLOBAL);
-                it != mesh->elementColEnd(Base::IteratorType::GLOBAL); ++it)
-        {
-            (*it)->setUserData(new ElementInfos(**it));
-        }
-        
+        (*it)->setUserData(new ElementInfos(**it));
     }
-};
+    return mesh;
+}
+
 
 auto& numElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", false, 0);
 auto& p = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
@@ -170,21 +155,20 @@ int main(int argc, char** argv)
         divStab.stab2 = 0.01;
         divStab.stab3 = 10.0;
 
-        DGMax<DIM> base(globalData, configData);
-
+        std::unique_ptr<Base::MeshManipulator<DIM>> mesh;
         if (meshFile.isUsed())
         {
-            base.readMesh(meshFile.getValue());
+            mesh = readMesh<DIM>(meshFile.getValue(), configData);
         }
         else
         {
             // Temporary fall back for easy testing.
-            base.createCubeMesh(numElements.getValue());
+            mesh = createCubeMesh<DIM>(numElements.getValue(), configData);
         }
         //base.createCentaurMesh(std::string("SmallIW_Mesh4000.hyb"));
         //base.createCentaurMesh(std::string("BoxCylinder_Mesh6000.hyb"));
         //TODO: LC: this does seem rather arbitrary and should probably be done by the solver
-        base.setNumberOfTimeIntegrationVectorsGlobally(21);
+
 
         ///////////////////
         // Harmonic code //
@@ -206,7 +190,7 @@ int main(int argc, char** argv)
         /////////////////////
 
 //        DGMaxEigenValue solver (base, p.getValue());
-        DivDGMaxEigenValue<DIM> solver (base);
+        DivDGMaxEigenValue<DIM> solver (*mesh);
         KSpacePath<DIM> path = KSpacePath<DIM>::cubePath(20);
         EigenValueProblem<DIM> input(path, numEigenvalues.getValue());
         DivDGMaxEigenValue<DIM>::Result result = solver.solve(input, divStab, p.getValue());

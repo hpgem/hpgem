@@ -29,8 +29,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <petscksp.h>
 
 template<std::size_t DIM>
-DivDGMaxHarmonic<DIM>::DivDGMaxHarmonic(hpGemUIExtentions<DIM> &base)
-    : base_ (base)
+DivDGMaxHarmonic<DIM>::DivDGMaxHarmonic(Base::MeshManipulator<DIM> &mesh)
+    : mesh_ (mesh)
 {}
 
 template<std::size_t DIM>
@@ -39,26 +39,26 @@ void DivDGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM> &input, typename Di
 {
     PetscErrorCode error;
 
-    discretization_.initializeBasisFunctions(*base_.getMesh(0), base_.getConfigData(), order);
+    discretization_.initializeBasisFunctions(mesh_, order);
     discretization_.computeElementIntegrands(
-            *base_.getMesh(0),
+            mesh_,
             false,
             std::bind(&HarmonicProblem<DIM>::sourceTerm, std::ref(input), std::placeholders::_1, std::placeholders::_2),
             nullptr,
             nullptr
     );
     discretization_.computeFaceIntegrals(
-            *base_.getMesh(0),
+            mesh_,
             std::bind(&HarmonicProblem<DIM>::boundaryCondition, std::ref(input),
                     std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
             stab
     );
 
-    Utilities::GlobalPetscMatrix massMatrix (base_.getMesh(0), DivDGMaxDiscretization<DIM>::ELEMENT_MASS_MATRIX_ID, -1),
-        stiffnessMatrix (base_.getMesh(0), DivDGMaxDiscretization<DIM>::ELEMENT_STIFFNESS_MATRIX_ID, DivDGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID);
+    Utilities::GlobalPetscMatrix massMatrix (&mesh_, DivDGMaxDiscretization<DIM>::ELEMENT_MASS_MATRIX_ID, -1),
+        stiffnessMatrix (&mesh_, DivDGMaxDiscretization<DIM>::ELEMENT_STIFFNESS_MATRIX_ID, DivDGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID);
     Utilities::GlobalPetscVector
-            rhs (base_.getMesh(0), DivDGMaxDiscretization<DIM>::ELEMENT_SOURCE_VECTOR_ID, DivDGMaxDiscretization<DIM>::FACE_BOUNDARY_VECTOR_ID),
-            result (base_.getMesh(0), -1, -1);
+            rhs (&mesh_, DivDGMaxDiscretization<DIM>::ELEMENT_SOURCE_VECTOR_ID, DivDGMaxDiscretization<DIM>::FACE_BOUNDARY_VECTOR_ID),
+            result (&mesh_, -1, -1);
 
     rhs.assemble();
 
@@ -104,7 +104,7 @@ void DivDGMaxHarmonic<DIM>::writeTec(std::string fileName) const
             (fileWriter, "Electric field", "012", "E0,E1,E2");
 
     std::string zoneName ("field"); // Dummy
-    tecplotWriter.write(base_.getMesh(0), zoneName, false,
+    tecplotWriter.write(&mesh_, zoneName, false,
             [&] (const Base::Element* element, const Geometry::PointReference<DIM>& point, std::ostream& stream) {
         const LinearAlgebra::MiddleSizeVector coefficients = element->getTimeIntegrationVector(0);
         LinearAlgebra::SmallVector<DIM> electricField = discretization_.computeField(element, point, coefficients);
@@ -120,7 +120,7 @@ void DivDGMaxHarmonic<DIM>::writeTec(std::string fileName) const
 template<std::size_t DIM>
 double DivDGMaxHarmonic<DIM>::computeL2Error(const typename DivDGMaxDiscretization<DIM>::InputFunction& exactSolution) const
 {
-    return discretization_.computeL2Error(*base_.getMesh(0), 0, exactSolution);
+    return discretization_.computeL2Error(mesh_, 0, exactSolution);
 }
 
 template<std::size_t DIM>
