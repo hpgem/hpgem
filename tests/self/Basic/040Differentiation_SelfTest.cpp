@@ -20,7 +20,6 @@
  */
 
 #include "Base/MeshManipulator.h"
-#include "Base/RectangularMeshDescriptor.h"
 #include "Integration/ElementIntegral.h"
 #include "Integration/ElementIntegrandBase.h"
 

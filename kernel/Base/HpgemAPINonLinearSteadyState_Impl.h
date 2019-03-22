@@ -53,29 +53,6 @@ namespace Base
 	}
 
     template<std::size_t DIM>
-    void HpgemAPINonLinearSteadyState<DIM>::createMesh(const std::size_t numberOfElementsPerDirection, const Base::MeshType meshType)
-    {
-        const Base::RectangularMeshDescriptor<DIM> description = this->createMeshDescription(numberOfElementsPerDirection);
-
-        // Set the number of Element/Face Matrices/Vectors.
-        std::size_t numberOfElementMatrices = 1; // A sub matrix for the Jacobian, results from the element integral
-        std::size_t numberOfElementVectors = 0;
-        std::size_t numberOfFaceMatrices = 1; // A sub matrix for the Jacobian, results from the face integral
-        std::size_t numberOfFaceVectors = 0;
-
-        // Create mesh and set basis functions.
-        this->addMesh(description, meshType, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors);
-        this->meshes_[0]->useDefaultDGBasisFunctions();
-
-        // Set the number of time integration vectors according to the size of the Butcher tableau.
-        this->setNumberOfTimeIntegrationVectorsGlobally(this->globalNumberOfTimeIntegrationVectors_);
-
-        // Plot info about the mesh
-        std::size_t nElements = this->meshes_[0]->getNumberOfElements();
-        logger(VERBOSE, "Total number of elements: %", nElements);
-    }
-
-    template<std::size_t DIM>
 	void HpgemAPINonLinearSteadyState<DIM>::computeJacobian()
 	{
 		//Compute new Jacobian element matrices for J(u)

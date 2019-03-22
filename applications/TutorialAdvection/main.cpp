@@ -26,7 +26,6 @@
 #include "Base/Element.h"
 #include "Base/Face.h"
 #include "Base/HpgemAPILinear.h"
-#include "Base/RectangularMeshDescriptor.h"
 #include "Integration/ElementIntegral.h"
 #include "Integration/FaceIntegral.h"
 #include "Output/TecplotDiscontinuousSolutionWriter.h"

@@ -23,7 +23,7 @@ using std::string;
 #include "Integration/FaceIntegrandBase.h"
 #include "Base/FaceCacheData.h"
 #include "Base/ElementCacheData.h"
-using Base::RectangularMeshDescriptor;
+
 using Base::HpgemAPIBase;
 using Base::GlobalData;
 using Base::ConfigurationData;

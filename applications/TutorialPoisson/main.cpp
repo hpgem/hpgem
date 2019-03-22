@@ -35,7 +35,6 @@
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
 #include "Geometry/ReferenceTetrahedron.h"
 #include "Base/Element.h"
-#include "Base/RectangularMeshDescriptor.h"
 #include "Integration/ElementIntegral.h"
 #include "Base/CommandLineOptions.h"
 

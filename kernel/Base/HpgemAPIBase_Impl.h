@@ -23,7 +23,6 @@
 
 #include "Base/Element.h"
 
-#include "RectangularMeshDescriptor.h"
 #include "Geometry/PointPhysical.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "ElementCacheData.h"

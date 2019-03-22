@@ -22,7 +22,6 @@
 //Validates that the mesh contains no gaps or overlaps and that integration works properly by integrating a
 //series of (non-)linear functions over the entire domain.
 #include "Base/MeshManipulator.h"
-#include "Base/RectangularMeshDescriptor.h"
 #include "Integration/ElementIntegral.h"
 #include "Base/ConfigurationData.h"
 #include "Base/ElementCacheData.h"

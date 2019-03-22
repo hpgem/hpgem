@@ -20,7 +20,6 @@
  */
 
 #include "Base/HpgemAPIBase.h"
-#include "Base/RectangularMeshDescriptor.h"
 #include "MeshMover.h"
 #include "Base/GlobalData.h"
 #include "Base/ConfigurationData.h"
@@ -28,7 +27,6 @@
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
 #include "Output/TecplotPhysicalGeometryIterator.h"
 #include "Output/VTKSpecificTimeWriter.h"
-using Base::RectangularMeshDescriptor;
 using Base::ConfigurationData;
 using Base::GlobalData;
 

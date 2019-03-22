@@ -26,7 +26,6 @@
 #include "Base/Element.h"
 #include "Base/Face.h"
 #include "Base/HpgemAPILinear.h"
-#include "Base/RectangularMeshDescriptor.h"
 #include "Base/TimeIntegration/AllTimeIntegrators.h"
 #include "Integration/ElementIntegrandBase.h"
 #include "Integration/FaceIntegrandBase.h"

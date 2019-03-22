@@ -26,7 +26,6 @@
 #include "Base/Element.h"
 #include "Base/Face.h"
 #include "Base/HpgemAPIBase.h"
-#include "Base/RectangularMeshDescriptor.h"
 #include "Base/TimeIntegration/AllTimeIntegrators.h"
 #include "Integration/ElementIntegrandBase.h"
 #include "Integration/FaceIntegrandBase.h"
@@ -114,15 +113,6 @@ namespace Base
         
         HpgemAPISimplified(const HpgemAPISimplified &other) = delete;
         virtual ~HpgemAPISimplified() = default;
-
-        /// \brief Create a mesh description
-        /// \deprecated The functionality to create meshes has been extracted to the preprocessor
-        [[deprecated]] virtual Base::RectangularMeshDescriptor<DIM> createMeshDescription(const std::size_t numberOfElementPerDirection) final
-        {
-            logger(ERROR, "Please create your mesh using the Preprocessor");
-            Base::RectangularMeshDescriptor<DIM> description;
-            return description;
-        }
 
         /// \brief Create the mesh.
         virtual void readMesh(std::string fileName);

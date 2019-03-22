@@ -26,7 +26,6 @@
 #include "Base/Element.h"
 #include "Base/Face.h"
 #include "Base/MpiContainer.h"
-#include "Base/RectangularMeshDescriptor.h"
 #include "Base/TimeIntegration/AllTimeIntegrators.h"
 #include "Geometry/PointReference.h"
 #include "Integration/ElementIntegral.h"

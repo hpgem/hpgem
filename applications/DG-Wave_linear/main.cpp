@@ -29,7 +29,6 @@
 #include "Integration/FaceIntegral.h"
 #include "Integration/ElementIntegral.h"
 #include "Base/GlobalData.h"
-#include "Base/RectangularMeshDescriptor.h"
 #include "Base/ConfigurationData.h"
 #include "Base/Element.h"
 #include "Base/Face.h"

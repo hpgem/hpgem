@@ -24,8 +24,6 @@
 #endif
 
 #include "HEuler.h"
-#include "Base/RectangularMeshDescriptor.h"
-
 HEuler::HEuler(HEulerGlobalVariables* global, const HEulerConfigurationData* config)
         : Base::HpgemAPIBase<3>(global, config), P_(), Q_()
 {

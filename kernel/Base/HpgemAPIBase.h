@@ -28,14 +28,11 @@
 #include "GlobalNamespaceBase.h"
 #include "CommandLineOptions.h"
 #include "GlobalData.h"
-#include "RectangularMeshDescriptor.h"
 
 namespace Base
 {
     template<std::size_t DIM>
     class MeshMoverBase;
-    template<std::size_t DIM>
-    struct RectangularMeshDescriptor;
     struct GlobalData;
     struct ConfigurationData;
 
