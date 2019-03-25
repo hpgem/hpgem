@@ -50,6 +50,9 @@ int main(int argc, char** argv)
     initDGMaxLogging();
     DGMax::printArguments(argc, argv);
 
+    time_t start, end;
+    time(&start);
+
     const std::size_t dimension = d.getValue();
     try
     {
@@ -75,6 +78,8 @@ int main(int argc, char** argv)
         DGMaxLogger(ERROR, message);
         exit(1);
     }
+    time(&end);
+    DGMaxLogger(INFO, "Runtime %s", end - start);
     return 0;
 }
 
@@ -121,7 +126,7 @@ KSpacePath<DIM> parsePath()
             point[i] = std::stod(pointString.substr(start, end - start));
             start = end + 1;// Skip the comma itself
         }
-        if(start != pointString.length())
+        if(start != pointString.length() + 1)
         {
             throw std::invalid_argument("Too many coordinates for a reciprocal point");
         }
