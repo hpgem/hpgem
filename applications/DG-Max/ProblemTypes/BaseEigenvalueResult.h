@@ -4,6 +4,9 @@
 
 #include "EigenValueProblem.h"
 
+#include <iostream>
+#include <fstream>
+
 template<std::size_t DIM>
 class BaseEigenvalueResult
 {
@@ -13,17 +16,30 @@ public:
     virtual const EigenValueProblem<DIM>& originalProblem()  const = 0;
     virtual const std::vector<double> frequencies(std::size_t point)  const = 0;
 
-    void printFrequencies()
+    void writeFrequencies(std::string fileName) const
+    {
+        std::ofstream file;
+        file.open(fileName);
+        writeFrequencies(file, ',');
+        file.close();
+    }
+
+    void printFrequencies() const
+    {
+        writeFrequencies(std::cout, '\t');
+    }
+
+    void writeFrequencies(std::ostream& stream, char separator) const
     {
         for(std::size_t i = 0; i < originalProblem().getPath().totalNumberOfSteps(); ++i)
         {
             std::vector<double> freqs = frequencies(i);
-            std::cout << i;
+            stream << i;
             for(double& freq : freqs)
             {
-                std::cout << "\t" << freq;
+                stream << separator << freq;
             }
-            std::cout << std::endl;
+            stream << std::endl;
         }
     }
 };

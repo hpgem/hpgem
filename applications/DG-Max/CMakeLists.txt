@@ -6,37 +6,47 @@ if(hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
  
     include_directories(${PETSC_INCLUDES})
 
-#############################################################
+	# DG-Max library #
+	##################
+
+	add_library(DGMax-lib STATIC
+		ElementInfos.cpp
+		DGMaxLogger.cpp
+		kspaceData.cpp
+        DGMaxProgramUtils.cpp
+
+		Algorithms/DGMaxEigenValue.cpp
+		Algorithms/DGMaxDiscretization.cpp
+		Algorithms/DGMaxTimeIntegration.cpp
+		Algorithms/DGMaxHarmonic.cpp
+		Algorithms/DivDGMaxDiscretization.cpp
+		Algorithms/DivDGMaxEigenValue.cpp
+		Algorithms/DivDGMaxHarmonic.cpp
+
+		ProblemTypes/Harmonic/SampleHarmonicProblems.cpp
+		ProblemTypes/Time/DummyTestProblem.cpp
+		ProblemTypes/Time/SampleTestProblems.cpp
+		Utils/BandstructureGNUPlot.cpp
+		Utils/BandstructureUtils.cpp
+		Utils/HomogeneousBandStructure.cpp
+		Utils/BraggStackBandstructure.cpp
+		Utils/KSpacePath.cpp
+	)
+
+	target_link_libraries(DGMax-lib Output ${PETSC_LIBRARIES} ${SLEPC_LIBRARIES} )
 
 
-add_executable( DG-Max.out
-                DG-Max.cpp
-				DGMaxLogger.cpp
-                ElementInfos.cpp
-                kspaceData.cpp
-		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotPhysicalGeometryIterator.cpp		
-		${hpGEM_SOURCE_DIR}/kernel/Output/TecplotDiscontinuousSolutionWriter_Impl.h		  
-		#miscellaneous required stuff
-		${hpGEM_SOURCE_DIR}/kernel/Base/AssembleBasisFunctionSet.cpp
-                ${hpGEM_SOURCE_DIR}/kernel/Integration/QuadratureRules/AllGaussQuadratureRules.cpp
-                ${hpGEM_SOURCE_DIR}/kernel/Base/L2Norm.cpp
-                Algorithms/DGMaxEigenValue.cpp
-                Algorithms/DGMaxDiscretization.cpp
-                Algorithms/DGMaxTimeIntegration.cpp
-                Algorithms/DGMaxHarmonic.cpp
-                Algorithms/DivDGMaxDiscretization.cpp
-                Algorithms/DivDGMaxEigenValue.cpp
-                Algorithms/DivDGMaxHarmonic.cpp
-                ProblemTypes/Harmonic/SampleHarmonicProblems.cpp
-                ProblemTypes/Time/DummyTestProblem.cpp
-                ProblemTypes/Time/SampleTestProblems.cpp
-                Utils/KSpacePath.cpp
-                Utils/HomogeneousBandStructure.cpp
-				Utils/BraggStackBandstructure.cpp
-                Utils/BandstructureGNUPlot.cpp
-				Utils/BandstructureUtils.cpp
-      		)
-target_link_libraries(DG-Max.out Output ${PETSC_LIBRARIES} ${SLEPC_LIBRARIES} )
+	# Actual DG-Max program #
+	#########################
+	add_executable(DG-Max.out
+		DG-Max.cpp
+	)
+
+	target_link_libraries(DG-Max.out DGMax-lib)
+
+	# Add additional programs #
+	###########################
+	add_subdirectory(Programs)
 
 else() 
 	add_custom_target(DG-Max.out 
