@@ -228,6 +228,7 @@ typename DivDGMaxDiscretization<DIM>::Stab parsePenaltyParmaters()
             result.fluxType1 = useBrezzi[0] ? FLUX::BREZZI : FLUX::IP;
             result.fluxType2 = useBrezzi[1] ? FLUX::BREZZI : FLUX::IP;
             result.fluxType3 = useBrezzi[2] ? FLUX::BREZZI : FLUX::IP;
+            logger(INFO, "Using fluxes and stabilization: %", result);
             return result;
         }
         else

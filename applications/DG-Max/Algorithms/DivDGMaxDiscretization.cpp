@@ -1234,5 +1234,43 @@ double DivDGMaxDiscretization<DIM>::elementErrorIntegrand(
     return error.l2NormSquared();
 }
 
+template<std::size_t DIM>
+char fluxName(typename DivDGMaxDiscretization<DIM>::FluxType f)
+{
+    switch (f)
+    {
+        case DivDGMaxDiscretization<DIM>::FluxType::BREZZI:
+            return 'b';
+        case DivDGMaxDiscretization<DIM>::FluxType::IP:
+            return 'i';
+        default:
+            logger.assert_always(false, "Unknown flux type.");
+            return '0';
+    }
+}
+
+template<std::size_t DIM>
+std::ostream& printStab(std::ostream& os,
+                         const typename DivDGMaxDiscretization<DIM>::Stab& stab)
+{
+    os << "Stab{"
+        << fluxName<DIM>(stab.fluxType1) << "=" << stab.stab1 << ", "
+        << fluxName<DIM>(stab.fluxType2) << "=" << stab.stab2 << ", "
+        << fluxName<DIM>(stab.fluxType3) << "=" << stab.stab3
+        << "}";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os,
+                         typename DivDGMaxDiscretization<2>::Stab& stab)
+{
+    return printStab<2>(os, stab);
+}
+std::ostream& operator<<(std::ostream& os,
+                         typename DivDGMaxDiscretization<3>::Stab& stab)
+{
+    return printStab<3>(os, stab);
+}
+
 template class DivDGMaxDiscretization<2>;
 template class DivDGMaxDiscretization<3>;

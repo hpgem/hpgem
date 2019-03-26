@@ -229,5 +229,11 @@ private:
             const InputFunction& exactValues) const;
 };
 
+// TODO: Deduction fails for a templated variant, hence using explicit versions here
+
+std::ostream& operator<<(std::ostream& os,
+                         typename DivDGMaxDiscretization<2>::Stab& stab);
+std::ostream& operator<<(std::ostream& os,
+                         typename DivDGMaxDiscretization<3>::Stab& stab);
 
 #endif //ALGORITHMS_DIVDGMAXDISCRETIZATION_h
