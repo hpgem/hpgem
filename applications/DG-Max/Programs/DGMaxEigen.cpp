@@ -91,6 +91,7 @@ void runWithDimension()
     // 2 unknowns, 1 time level
     Base::ConfigurationData configData(2, 1);
     auto mesh = DGMax::readMesh<DIM>(meshFile.getValue(), &configData);
+    logger(INFO, "Loaded mesh % with % local elements", meshFile.getValue(), mesh->getNumberOfElements());
     DivDGMaxEigenValue<DIM> solver(*mesh);
     // TODO: Parameterize
     KSpacePath<DIM> path = parsePath<DIM>();
@@ -176,7 +177,7 @@ typename DivDGMaxDiscretization<DIM>::Stab parsePenaltyParmaters()
             while(input.size() > index)
             {
                 char c = input[index];
-                if(std::isdigit(c) || c == '.')
+                if(std::isdigit(c) || c == '.' || c == '-' || c == 'e')
                 {
                     index++;
                 }
