@@ -94,15 +94,20 @@ int main(int argc, char** argv)
         divStab.stab2 = 0.01;
         divStab.stab3 = 10.0;
 
+        auto epsilon = [&](const Geometry::PointPhysical<DIM>& p) {
+            // TODO: Hardcoded structure
+            return jelmerStructure(p, 0);
+        };
+
         std::unique_ptr<Base::MeshManipulator<DIM>> mesh;
         if (meshFile.isUsed())
         {
-            mesh = DGMax::readMesh<DIM>(meshFile.getValue(), configData);
+            mesh = DGMax::readMesh<DIM>(meshFile.getValue(), configData, epsilon);
         }
         else
         {
             // Temporary fall back for easy testing.
-            mesh = DGMax::createCubeMesh<DIM>(numElements.getValue(), configData);
+            mesh = DGMax::createCubeMesh<DIM>(numElements.getValue(), configData, epsilon);
         }
         //base.createCentaurMesh(std::string("SmallIW_Mesh4000.hyb"));
         //base.createCentaurMesh(std::string("BoxCylinder_Mesh6000.hyb"));

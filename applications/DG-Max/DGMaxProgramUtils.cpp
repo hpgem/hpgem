@@ -32,7 +32,8 @@ namespace DGMax
     }
 
     template<std::size_t DIM>
-    std::unique_ptr<Base::MeshManipulator<DIM>> createCubeMesh(std::size_t subdivisions, Base::ConfigurationData* configData)
+    std::unique_ptr<Base::MeshManipulator<DIM>> createCubeMesh(std::size_t subdivisions,
+            Base::ConfigurationData* configData, ElementInfos::EpsilonFunc<DIM> epsilon)
     {
         Geometry::PointPhysical<DIM> bottomLeft, topRight;
         std::vector<std::size_t> numElementsOneD (DIM);
@@ -51,13 +52,14 @@ namespace DGMax
         for (typename Base::MeshManipulator<DIM>::ElementIterator it = mesh->elementColBegin(Base::IteratorType::GLOBAL);
              it != mesh->elementColEnd(Base::IteratorType::GLOBAL); ++it)
         {
-            (*it)->setUserData(new ElementInfos(**it));
+            (*it)->setUserData(ElementInfos::createStructure<DIM>(**it, epsilon));
         }
         return mesh;
     }
 
     template<std::size_t DIM>
-    std::unique_ptr<Base::MeshManipulator<DIM>> readMesh(std::string fileName, Base::ConfigurationData* configData)
+    std::unique_ptr<Base::MeshManipulator<DIM>> readMesh(std::string fileName, Base::ConfigurationData* configData,
+            ElementInfos::EpsilonFunc<DIM> epsilon)
     {
         auto mesh = std::unique_ptr<Base::MeshManipulator<DIM>>(
                 new Base::MeshManipulator<DIM>(configData, 2, 3, 1, 1));
@@ -65,7 +67,7 @@ namespace DGMax
         for (typename Base::MeshManipulator<DIM>::ElementIterator it = mesh->elementColBegin(Base::IteratorType::GLOBAL);
              it != mesh->elementColEnd(Base::IteratorType::GLOBAL); ++it)
         {
-            (*it)->setUserData(new ElementInfos(**it));
+            (*it)->setUserData(ElementInfos::createStructure<DIM>(**it, epsilon));
         }
         return mesh;
     }
@@ -73,13 +75,13 @@ namespace DGMax
 
     // Explicit instantiation of the 2,3D versions.
     template
-    std::unique_ptr<Base::MeshManipulator<2>> createCubeMesh(std::size_t subdivisions, Base::ConfigurationData* configData);
+    std::unique_ptr<Base::MeshManipulator<2>> createCubeMesh(std::size_t, Base::ConfigurationData*, ElementInfos::EpsilonFunc<2>);
     template
-    std::unique_ptr<Base::MeshManipulator<3>> createCubeMesh(std::size_t subdivisions, Base::ConfigurationData* configData);
+    std::unique_ptr<Base::MeshManipulator<3>> createCubeMesh(std::size_t, Base::ConfigurationData*, ElementInfos::EpsilonFunc<3>);
     template
-    std::unique_ptr<Base::MeshManipulator<2>> readMesh(std::string fileName, Base::ConfigurationData* configData);
+    std::unique_ptr<Base::MeshManipulator<2>> readMesh(std::string, Base::ConfigurationData*, ElementInfos::EpsilonFunc<2>);
     template
-    std::unique_ptr<Base::MeshManipulator<3>> readMesh(std::string fileName, Base::ConfigurationData* configData);
+    std::unique_ptr<Base::MeshManipulator<3>> readMesh(std::string, Base::ConfigurationData*, ElementInfos::EpsilonFunc<3>);
 
 
 }

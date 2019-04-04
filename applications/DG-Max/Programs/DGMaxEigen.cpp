@@ -37,6 +37,9 @@ auto& pparams = Base::register_argument<std::string>('a', "penalty",
 auto& d = Base::register_argument<std::size_t>('d', "dimension",
         "The dimension of the problem", true);
 
+auto& structure = Base::register_argument<std::size_t>('\0', "structure",
+        "Structure to use", false, 0);
+
 template<std::size_t DIM>
 void runWithDimension();
 template<std::size_t DIM>
@@ -90,7 +93,10 @@ void runWithDimension()
 
     // 2 unknowns, 1 time level
     Base::ConfigurationData configData(2, 1);
-    auto mesh = DGMax::readMesh<DIM>(meshFile.getValue(), &configData);
+    auto mesh = DGMax::readMesh<DIM>(meshFile.getValue(), &configData, [&](const Geometry::PointPhysical<DIM>& p) {
+        // TODO: Hardcoded structure
+        return jelmerStructure(p, structure.getValue());
+    });
     logger(INFO, "Loaded mesh % with % local elements", meshFile.getValue(), mesh->getNumberOfElements());
     DivDGMaxEigenValue<DIM> solver(*mesh);
     // TODO: Parameterize

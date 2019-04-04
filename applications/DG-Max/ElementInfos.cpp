@@ -27,47 +27,34 @@
 #include "Base/FaceCacheData.h"
 
 template<std::size_t DIM>
-double computeEpsilon(const Base::Element& element);
+double computeEpsilon(const Base::Element& element, std::size_t structureType);
 
-// Jelmer: Select the case you are want to use. Note that for certain cases diameters can differ.
-// Vacuum Case:         SetEpsilon = 0;
-// Bragg Stack:         SetEpsilon = 1;
-// Cylinder Case:       SetEpsilon = 2;
-// Cube in Cuboid case: SetEpsilon = 3;
-// Inverse Woodpile:    SetEpsilon = 4;
-int SetEpsilon = 0;
-ElementInfos::ElementInfos(const Base::Element& element)
+
+
+ElementInfos::ElementInfos(double epsilon)
+    : epsilon_ (epsilon)
+{}
+
+template<std::size_t DIM>
+ElementInfos* ElementInfos::createStructure(
+        const Base::Element &element,
+        std::function<double(const Geometry::PointPhysical<DIM> &)> epsilon)
 {
-    std::size_t elementDim = element.getReferenceGeometry()->getDimension();
-    switch(elementDim)
-    {
-        case 2:
-            epsilon_ = computeEpsilon<2>(element);
-            break;
-        case 3:
-            epsilon_ = computeEpsilon<3>(element);
-            break;
-        default:
-            logger.assert_always(false, "Not implemented for dimension {}", elementDim);
-            break;
-    }
-    
-    //Jelmer: Checking the global index and coordinates of each element
-    //c = c + 1;
-    //std::cout << "Element with global index " << c << " has corresponding coordinates " << pPhys << "\n";
+    logger.assert_debug(element.getReferenceGeometry()->getDimension() == DIM,
+            "Incorrect dimension");
+    const Geometry::PointReference<DIM>& p = element.getReferenceGeometry()->getCenter();
+    Geometry::PointPhysical<DIM> pPhys = element.referenceToPhysical(p);
+    return new ElementInfos(epsilon(pPhys));
 }
 
 template<std::size_t DIM>
-double computeEpsilon(const Base::Element& element)
+double jelmerStructure(const Geometry::PointPhysical<DIM>& pPhys, std::size_t structureType)
 {
-    const Geometry::PointReference<DIM>& p = element.getReferenceGeometry()->getCenter();
-    Geometry::PointPhysical<DIM> pPhys = element.referenceToPhysical(p);
-
-    if(SetEpsilon == 0)
+    if(structureType == 0)
     {// Vacuum Case
         return 1;
     }
-    else if (SetEpsilon == 1)
+    else if (structureType == 1)
     {//Bragg Stack
         if(pPhys[0]<0.5)
         {
@@ -78,7 +65,7 @@ double computeEpsilon(const Base::Element& element)
             return 1;
         }
     }
-    else if (SetEpsilon == 2)
+    else if (structureType == 2)
     {//Cylinder Case with radius 0.2a
         if((pPhys[0]-0.5)*(pPhys[0]-0.5) + (pPhys[1]-0.5)*(pPhys[1]-0.5) <= 0.2 * 0.2)
         {
@@ -91,7 +78,7 @@ double computeEpsilon(const Base::Element& element)
             //std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << " " << epsilon_ << "\n";
         }
     }
-    else if (SetEpsilon == 3)
+    else if (structureType == 3)
     {//Cube in Cuboid Case with width of pilars of 0.1a
         if(pPhys[0] < 0.1 || pPhys[0] > 0.9 || pPhys[1] < 0.1 || pPhys[1] > 0.9)
         {
@@ -107,9 +94,11 @@ double computeEpsilon(const Base::Element& element)
         }
     }
 
-    else if (SetEpsilon == 4)
+    else if (structureType == 4)
     {//Inverse Woodpile
-        //here y has length 10, whereas the lenght of x and y are length(y)/sqrt(2) = 7.07. The first three circles, 2 halves and 1 whole circle, are in x,y plane. The second set of circles, 4 quarters and 1 whole, is in the y,z plane. Diameter of cylinders are 0.19a.
+        //here y has length 10, whereas the lenght of x and y are length(y)/sqrt(2) = 7.07.
+        // The first three circles, 2 halves and 1 whole circle, are in x,y plane.
+        // The second set of circles, 4 quarters and 1 whole, is in the y,z plane. Diameter of cylinders are 0.19a.
         /*
         if((pPhys[0]-0.3535)*(pPhys[0]-0.3535) + (pPhys[1]-0.75)*(pPhys[1]-0.75) <= 0.19*0.19    ||
            (pPhys[0]-0.707)*(pPhys[0]-0.707) + (pPhys[1]-0.25)*(pPhys[1]-0.25) <= 0.19*0.19      ||
@@ -157,3 +146,17 @@ double computeEpsilon(const Base::Element& element)
         return 1.0;
     }
 }
+
+// Instantiate
+template
+ElementInfos* ElementInfos::createStructure(const Base::Element&,
+        std::function<double(const Geometry::PointPhysical<2> &)> epsilon);
+template
+ElementInfos* ElementInfos::createStructure(
+        const Base::Element&,
+        std::function<double(const Geometry::PointPhysical<3> &)> epsilon);
+
+template
+double jelmerStructure(const Geometry::PointPhysical<2>&, std::size_t);
+template
+double jelmerStructure(const Geometry::PointPhysical<3>&, std::size_t);

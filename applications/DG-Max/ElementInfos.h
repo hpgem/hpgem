@@ -34,12 +34,32 @@
  * specialized for tetrahedra
  */
 
+namespace Geometry
+{
+    template<std::size_t DIM>
+    class PointPhysical;
+}
+
 class ElementInfos : public UserElementData
 {
 public:
-    double epsilon_;
+    template<std::size_t DIM>
+    using EpsilonFunc = std::function<double(const Geometry::PointPhysical<DIM>&)>;
 
-    ElementInfos(const Base::Element& element);
+    const double epsilon_;
+    ElementInfos(double epsilon);
+
+    template<std::size_t DIM>
+    static ElementInfos* createStructure(const Base::Element& element, EpsilonFunc<DIM> epsilon);
 };
+
+// Jelmer: Select the case you are want to use. Note that for certain cases diameters can differ.
+// Vacuum Case:         SetEpsilon = 0;
+// Bragg Stack:         SetEpsilon = 1;
+// Cylinder Case:       SetEpsilon = 2;
+// Cube in Cuboid case: SetEpsilon = 3;
+// Inverse Woodpile:    SetEpsilon = 4;
+template<std::size_t DIM>
+double jelmerStructure(const Geometry::PointPhysical<DIM>& point, std::size_t structure);
 
 #endif  
