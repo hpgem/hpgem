@@ -17,10 +17,14 @@ auto& p = Base::register_argument<std::size_t>('p', "order",
 auto& numEigenvalues = Base::register_argument<std::size_t>('e', "eigenvalues",
         "The number of eigenvalues to compute", false, 24);
 
-// Compute a single point --point 1,0.5,0
-// Which corresponds to the point pi, 0.5pi, 0 in k-space
-auto& pointMode = Base::register_argument<std::string>('\0', "point",
-        "Compute only this single k-space-point", false);
+// Compute a single point --point 1,0.5,0 or a path of points
+// [steps@]0,0:1,0:1,1
+// Which corresponds to the point pi, 0.5pi, 0 in k-space and a path from 0,0
+// via pi,0 to pi,pi in kspace taking each time "steps" steps, for each line,
+// (excluding first point, including last).
+// Untested with anything else than 0.0 as the first point of a path
+auto& pointMode = Base::register_argument<std::string>('\0', "points",
+        "Compute a single point in or a set of lines through k-space", false);
 
 // Number of steps to take in the k-space walk along the cube edge
 // e.g. --steps 20
@@ -110,6 +114,37 @@ void runWithDimension()
     }
 }
 
+/// Parse DIM comma separated numbers as the coordinates of a point.
+/// \tparam DIM The dimension of the point
+/// \param pointString The string containing the point coordinates
+/// \param start The starting index in pointString
+/// \param point The point (out)
+/// \return The first index in pointString after the number.
+template<std::size_t DIM>
+std::size_t parsePoint(const std::string& pointString, std::size_t start, LinearAlgebra::SmallVector<DIM>& point)
+{
+    for(std::size_t i = 0; i < DIM; ++i)
+    {
+        if(start >= pointString.size())
+        {
+            throw std::invalid_argument("Not enough coordinates for a reciprocal point");
+        }
+        std::size_t len = 0;
+        point[i] = std::stod(pointString.substr(start), &len);
+        if(len == 0)
+        {
+            throw std::invalid_argument("No value parsed");
+        }
+        start += len;
+        if(i < DIM - 1)
+        {
+            // Skip the comma, space, whatever that ended the point
+            start++;
+        }
+    }
+    return start;
+}
+
 template<std::size_t DIM>
 KSpacePath<DIM> parsePath()
 {
@@ -117,29 +152,46 @@ KSpacePath<DIM> parsePath()
     {
         const std::string& pointString = pointMode.getValue();
         typename KSpacePath<DIM>::KPoint point;
-        std::size_t start = 0;
-        // Parse DIM comma separated values
-        for(std::size_t i = 0; i < DIM; ++i)
+        std::size_t index = 0; // Current parsing index
+
+        std::size_t steps = 1;
+        // Check if the string starts with number@, to denote step count
+        std::size_t atIndex = pointString.find_first_of('@');
+        if(atIndex != std::string::npos)
         {
-            if(start >= pointString.size())
+            std::size_t len = 0;
+            steps = std::stoul(pointString, &len);
+            index = atIndex + 1; // Start parsing points after the @
+            if(len != atIndex)
             {
-                throw std::invalid_argument("Not enough coordinates for a reciprocal point");
+                throw std::invalid_argument("Left between number of steps and '@'");
             }
-            std::size_t end = pointString.find_first_of(',', start);
-            if(end == std::string::npos)
-            {
-                end = pointString.length();
-            }
-            point[i] = std::stod(pointString.substr(start, end - start));
-            start = end + 1;// Skip the comma itself
         }
-        if(start != pointString.length() + 1)
+
+        // Parse a string of points
+        std::vector<LinearAlgebra::SmallVector<DIM>> points;
+        while(index < pointString.length())
         {
-            throw std::invalid_argument("Too many coordinates for a reciprocal point");
+            LinearAlgebra::SmallVector<DIM> point;
+            index = parsePoint(pointString, index, point);
+            point *= M_PI; // Treat it as reduced point
+            points.push_back(point);
+            // Strip character if needed
+            while (index < pointString.length()
+                && (std::isspace(pointString[index])  // Allow spaces, just as sto*-functions
+                   || pointString[index] == ':')) // Allow colon separation for readability
+            {
+                index++;
+            }
         }
-        // Treat it as reduced coordinate.
-        point *= M_PI;
-        return KSpacePath<DIM>::singleStepPath(point);
+        // Simplify single point mode.
+        if(points.size() == 1)
+        {
+            points.emplace_back(points[0]);
+            points[0] *= 0;
+        }
+
+        return KSpacePath<DIM>(points, steps);
     }
     else
     {
