@@ -1,6 +1,7 @@
 
 #include "DGMaxLogger.h"
 #include <iostream>
+#include <iomanip>
 
 #ifdef HPGEM_USE_MPI
 #include <mpi.h>
@@ -8,17 +9,26 @@
 
 Logger<HPGEM_LOGLEVEL> DGMaxLogger("DGMax");
 
-static int rank = 0;
+static int commRank = 0;
+// Base 10 logarithm of the commsize, rounded up. This is the number of digits needed.
+static int log10CommSize = 1;
 static bool logAllEnabled = false;
+static time_t initTime;
 
 static void printMessage(std::string module, std::string msg)
 {
-    std::cout << "Proc " << rank << " " << module << ": " << msg << std::endl;
+    time_t currentTime;
+    time(&currentTime);
+    time_t relTime = currentTime - initTime;
+    std::cout << '[' << std::setw(4) << relTime << ']';
+
+    std::cout << "@" << std::setw(log10CommSize) << commRank;
+    std::cout << " " << module << ": " << msg << std::endl;
 }
 
 static void printMessage0(std::string module, std::string msg)
 {
-    if (rank == 0 || logAllEnabled)
+    if (commRank == 0 || logAllEnabled)
     {
         printMessage(std::move(module), std::move(msg));
     }
@@ -33,13 +43,21 @@ void logAll(std::function<void()> log)
 
 bool loggingSuppressed()
 {
-    return rank != 0 && !logAllEnabled;
+    return commRank != 0 && !logAllEnabled;
 }
 
 void initDGMaxLogging()
 {
+    time(&initTime);
 #ifdef HPGEM_USE_MPI
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_rank(MPI_COMM_WORLD, &commRank);
+    int commSize;
+    MPI_Comm_size(MPI_COMM_WORLD, &commSize);
+    while(commSize > 1)
+    {
+        log10CommSize++;
+        commSize /= 10;
+    }
 #endif
     static LoggerOutput output = {
             // Keep the error as original, it prints stacktraces.

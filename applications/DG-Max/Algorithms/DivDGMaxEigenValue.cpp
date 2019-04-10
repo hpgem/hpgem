@@ -48,7 +48,7 @@ typename DivDGMaxEigenValue<DIM>::Result DivDGMaxEigenValue<DIM>::solve(
     const KSpacePath<DIM>& kpath = input.getPath();
 
     PetscErrorCode error;
-    std::cout << "finding a bunch of eigenvalues" << std::endl;
+    DGMaxLogger(INFO, "Starting assembly");
     discretization.initializeBasisFunctions(mesh_, order);
     discretization.computeElementIntegrands(
             mesh_,
@@ -64,9 +64,9 @@ typename DivDGMaxEigenValue<DIM>::Result DivDGMaxEigenValue<DIM>::solve(
     Utilities::GlobalPetscMatrix
         massMatrix(&mesh_, DivDGMaxDiscretization<DIM>::ELEMENT_MASS_MATRIX_ID, -1),
         stiffnessMatrix(&mesh_, DivDGMaxDiscretization<DIM>::ELEMENT_STIFFNESS_MATRIX_ID, DivDGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID);
-    DGMaxLogger(VERBOSE, "Mass and stiffness matrices assembled");
+    DGMaxLogger(INFO, "Mass and stiffness matrices assembled");
     Utilities::GlobalPetscVector globalVector(&mesh_, -1, -1);
-    DGMaxLogger(VERBOSE, "Dummy vector assembled");
+    DGMaxLogger(INFO, "Dummy vector assembled");
 
     // Setup the boundary block shifting //
     ///////////////////////////////////////
@@ -75,6 +75,7 @@ typename DivDGMaxEigenValue<DIM>::Result DivDGMaxEigenValue<DIM>::solve(
     unsigned long maxBoundaryFaces = boundaryFaces.size();
     // We need to know the maximum number of boundary faces on any node
     MPI_Allreduce(MPI_IN_PLACE, &maxBoundaryFaces, 1, MPI_UNSIGNED_LONG, MPI_MAX, PETSC_COMM_WORLD);
+    DGMaxLogger(INFO, "Max local number of periodic boundary faces: %", maxBoundaryFaces);
 
     // Implicitly assume that each element has the same number of DOFs
     std::size_t dofsUPerElement = (*(mesh_.elementColBegin()))->getNumberOfBasisFunctions(0),
@@ -108,6 +109,7 @@ typename DivDGMaxEigenValue<DIM>::Result DivDGMaxEigenValue<DIM>::solve(
     // Setting up eigenvalue solver //
     //////////////////////////////////
 
+    DGMaxLogger(INFO, "Configuring Eigenvalue solver");
     EPS eigenSolver;
     error = EPSCreate(PETSC_COMM_WORLD, &eigenSolver);
     CHKERRABORT(PETSC_COMM_WORLD, error);
@@ -133,7 +135,7 @@ typename DivDGMaxEigenValue<DIM>::Result DivDGMaxEigenValue<DIM>::solve(
     error = EPSSetFromOptions(eigenSolver);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     //everything that is set in the code, but after this line overrides the comand-line options
-    DGMaxLogger(VERBOSE, "Eigenvalue solver configured");
+    DGMaxLogger(INFO, "Eigenvalue solver configured");
 
     // Storage vectors //
     /////////////////////
@@ -149,7 +151,7 @@ typename DivDGMaxEigenValue<DIM>::Result DivDGMaxEigenValue<DIM>::solve(
     CHKERRABORT(PETSC_COMM_WORLD, error);
     error = VecSetUp(waveVec);
     CHKERRABORT(PETSC_COMM_WORLD, error);
-    DGMaxLogger(VERBOSE, "Storage vectors assembled");
+    DGMaxLogger(INFO, "Storage vectors assembled");
 
     LinearAlgebra::SmallVector<DIM> dk = kpath.dk(1);
 
