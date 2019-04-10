@@ -410,7 +410,7 @@ namespace Utilities
             << " Assembled " << info.assemblies << " mallocs " << info.mallocs<<std::endl;
     }
 
-    void GlobalPetscMatrix::writeMatlab(std::string &fileName)
+    void GlobalPetscMatrix::writeMatlab(const std::string &fileName)
     {
         PetscViewer viewer;
         PetscErrorCode err;
