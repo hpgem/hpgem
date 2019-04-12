@@ -68,6 +68,7 @@ namespace Base
             std::size_t numberOfUnkowns, 
             std::size_t numberOfTimeLevels,
             std::size_t id,
+            std::size_t owner,
             bool owning = true,
             std::size_t numberOfElementMatrices = 0, 
             std::size_t numberOfElementVectors = 0);
@@ -350,16 +351,18 @@ namespace Base
         ///
         /// Note that this does not change the topology as adminstrated in Mesh
         /// and Submesh. The information there should be updated separately.
+        /// \param owner The process owning this element.
         /// \param owned Whether this element is owned or not by the current processor.
-        void setOwnedByCurrentProcessor(bool owned);
+        void setOwnedByCurrentProcessor(std::size_t owner, bool owned);
         bool isOwnedByCurrentProcessor() const;
+        std::size_t getOwner() const;
 
         /// Output operator.        
         friend std::ostream& operator<<(std::ostream& os, const Element& element);
         
     private:
         ///Constructor that copies the data and geometry of the given ElementData and ElementGeometry.
-        Element(bool owned, const ElementData& otherData, const Geometry::ElementGeometry& otherGeometry);
+        Element(std::size_t owner, bool owned, const ElementData& otherData, const Geometry::ElementGeometry& otherGeometry);
 
         /// Quadrature rule used to do the integration on this element.
         QuadratureRules::GaussQuadratureRule *quadratureRule_;
@@ -383,6 +386,8 @@ namespace Base
 
         /// Whether the current processor owns this element.
         bool owned_;
+        // MPI rank of the owning processor
+        std::size_t owner_;
     };
 }
 #include "PhysGradientOfBasisFunction.h"
@@ -397,13 +402,13 @@ namespace Base
                      std::size_t numberOfUnknowns,
                      std::size_t numberOfTimeLevels,
                      std::size_t id,
-                     bool owned,
+                     std::size_t owner, bool owned,
                      std::size_t numberOfElementMatrices,
                      std::size_t numberOfElementVectors)
             : ElementGeometry(globalNodeIndexes, allNodes),
         ElementData(numberOfTimeLevels, numberOfUnknowns, numberOfElementMatrices, numberOfElementVectors),
         quadratureRule_(nullptr), //basisFunctionSet_(basisFunctionSet),
-        id_(id), vecCacheData_(), owned_(owned),
+        id_(id), vecCacheData_(), owner_ (owner), owned_(owned),
         basisFunctions_ (basisFunctionSet, numberOfUnknowns)
     {
         logger.assert_debug(basisFunctionSet != nullptr, "Invalid basis function set passed");

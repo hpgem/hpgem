@@ -43,8 +43,8 @@
 namespace Base
 {
         
-    Element::Element(bool owned, const ElementData& otherData, const Geometry::ElementGeometry& otherGeometry)
-        : owned_ (owned),
+    Element::Element(std::size_t owner, bool owned, const ElementData& otherData, const Geometry::ElementGeometry& otherGeometry)
+        : owner_ (owner), owned_ (owned),
         ElementGeometry(otherGeometry), ElementData(otherData)
     {        
     }
@@ -52,7 +52,7 @@ namespace Base
     Element* Element::copyWithoutFacesEdgesNodes()
     {
         //Make a new element with the data and geometry of this element
-        Element* newElement = new Element(this->owned_, *this, *this);
+        Element* newElement = new Element(this->owner_, this->owned_, *this, *this);
         
         //copy the pointers to singletons
         newElement->quadratureRule_ = quadratureRule_;
@@ -310,13 +310,19 @@ namespace Base
         return quadratureRule->evalDiv(subSet, subIndex, quadraturePointIndex, map);
     }
 
-    void Element::setOwnedByCurrentProcessor(bool owned)
+    void Element::setOwnedByCurrentProcessor(std::size_t owner, bool owned)
     {
+        owner_ = owner;
         owned_ = owned;
     }
 
     bool Element::isOwnedByCurrentProcessor() const
     {
         return owned_;
+    }
+
+    std::size_t Element::getOwner() const
+    {
+        return owner_;
     }
 }

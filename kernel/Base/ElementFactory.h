@@ -54,7 +54,8 @@ namespace Base
         
         //!provide the non-constant information and get an Element!
         template<std::size_t DIM>
-        Element* makeElement(const std::vector<std::size_t>& globalNodeIndexes, std::vector<Geometry::PointPhysical<DIM> >& points, bool owning);
+        Element* makeElement(const std::vector<std::size_t>& globalNodeIndexes, std::vector<Geometry::PointPhysical<DIM> >& points,
+                std::size_t owner, bool owning);
 
         //!mesh creation routines can use this to set their desired defaults
         void setCollectionOfBasisFunctionSets(const CollectionOfBasisFunctionSets *functions);
@@ -83,9 +84,9 @@ namespace Base
 
     //!provide the non-constant information and get an Element!
     template<std::size_t DIM>
-    Element* ElementFactory::makeElement(const std::vector<std::size_t>& globalNodeIndexes, std::vector<Geometry::PointPhysical<DIM> >& points, bool owning)
+    Element* ElementFactory::makeElement(const std::vector<std::size_t>& globalNodeIndexes, std::vector<Geometry::PointPhysical<DIM> >& points, std::size_t owner, bool owning)
     {
-        return new Element(globalNodeIndexes, basisFunctionSets_, points, unknowns_, timeLevels_, GlobalUniqueIndex::instance().getElementIndex(), owning, numberOfElementMatrices_, numberOfElementVectors_);
+        return new Element(globalNodeIndexes, basisFunctionSets_, points, unknowns_, timeLevels_, GlobalUniqueIndex::instance().getElementIndex(), owner, owning, numberOfElementMatrices_, numberOfElementVectors_);
     }
 
 }

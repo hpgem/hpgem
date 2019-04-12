@@ -1026,7 +1026,7 @@ namespace Base
 
     template<std::size_t DIM>
     Base::Element *
-    MeshManipulator<DIM>::addElement(const std::vector<std::size_t> &globalNodeIndexes, bool owning)
+    MeshManipulator<DIM>::addElement(const std::vector<std::size_t> &globalNodeIndexes, std::size_t owner, bool owning)
     {
         logger.assert_debug([&]() -> bool {
             for(std::size_t i = 0; i < globalNodeIndexes.size(); ++i)
@@ -1035,7 +1035,7 @@ namespace Base
                         return false;
             return true;
         }(), "Trying to pass the same node twice");
-        auto result =  theMesh_.addElement(globalNodeIndexes, owning);
+        auto result =  theMesh_.addElement(globalNodeIndexes, owner, owning);
         return result;
     }
 
@@ -1492,11 +1492,11 @@ namespace Base
         {
             elementIndices[element] = elIndex;
             std::size_t owner = elIndex / elementsPerProc;
+            element->setOwnedByCurrentProcessor(owner, owner == rank);
             if (owner == rank)
             {
                 // We own the element so add it to the submesh.
                 theMesh_.getSubmesh().add(element);
-                element->setOwnedByCurrentProcessor(true);
                 for (std::size_t i = 0; i < numProcessors; ++i)
                 {
                     // Note, normally we would like to only distribute the
@@ -1784,7 +1784,7 @@ namespace Base
             for (std::size_t i = 0; i < numberOfTrianglesPerRectangle; ++i)
             {
                 // TODO: Fix
-                Element *newElement = addElement(globalNodeCoordinateID[i], false);
+                Element *newElement = addElement(globalNodeCoordinateID[i], 0, false);
                 for (std::size_t j = 0; j < globalNodeID[i].size(); ++j)
                 {
                     logger.assert_debug(i <
@@ -1815,10 +1815,10 @@ namespace Base
         {
             elementIndices[element] = elIndex;
             std::size_t owner = elIndex / elementsPerProc;
+            element->setOwnedByCurrentProcessor(owner, owner == rank);
             if (owner == rank)
             {
                 // We own the element so add it to the submesh.
-                element->setOwnedByCurrentProcessor(true);
                 theMesh_.getSubmesh().add(element);
                 for (std::size_t i = 0; i < numProcessors; ++i)
                 {
@@ -3321,7 +3321,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
             input >> partition;
             Base::Element* element = nullptr;
             if(partition == MPIContainer::Instance().getProcessorID()) {
-                element = addElement(coordinateIndices, true);
+                element = addElement(coordinateIndices, partition, true);
                 actualElement[i] = element;
                 getMesh().getSubmesh().add(element);
             }
@@ -3331,7 +3331,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
                 std::size_t shadowPartition;
                 input >> shadowPartition;
                 if(shadowPartition == MPIContainer::Instance().getProcessorID()) {
-                    element = addElement(coordinateIndices, false);
+                    element = addElement(coordinateIndices, partition, false);
                     actualElement[i] = element;
                     getMesh().getSubmesh().addPull(element, partition);
                 }
