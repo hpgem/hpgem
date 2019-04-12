@@ -68,7 +68,7 @@ namespace Base
             std::size_t numberOfUnkowns, 
             std::size_t numberOfTimeLevels,
             std::size_t id,
-            std::size_t owner,
+            std::size_t owner= 0,
             bool owning = true,
             std::size_t numberOfElementMatrices = 0, 
             std::size_t numberOfElementVectors = 0);
