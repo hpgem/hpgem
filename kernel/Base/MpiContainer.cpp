@@ -30,12 +30,14 @@ namespace Base
 {
     namespace Detail
     {
+#ifdef HPGEM_USE_MPI
         MPI_Datatype  matchSizeInternal(int typeclass, int size)
         {
             MPI_Datatype type;
             (void) MPI_Type_match_size(typeclass, size, &type);
             return type;
         }
+#endif
     }
 
     
