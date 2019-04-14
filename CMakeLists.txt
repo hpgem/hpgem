@@ -202,7 +202,8 @@ endif()
 
 if(hpGEM_USE_MPI)
     FIND_PACKAGE(MPI REQUIRED)
-    add_definitions(-DHPGEM_USE_MPI)
+    # Add OMPI_SKIP_MPICXX to exclude the deprecated c++ bindings of MPI
+    add_definitions(-DHPGEM_USE_MPI -DOMPI_SKIP_MPICXX)
     include_directories(${MPI_CXX_INCLUDE_PATH})
     if(NOT MPI_FOUND)
         message(FATAL_ERROR "The option you have chosen requires mpi and you do not have this installed. Please install")

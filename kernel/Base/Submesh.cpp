@@ -88,10 +88,14 @@ namespace Base
             MPIContainer& container = MPIContainer::Instance();
             std::size_t n = container.getNumberOfProcessors();
             std::size_t rank = container.getProcessorID();
+            MPI_Comm comm = container.getComm();
+
             std::vector<int> numberOfElements(n + 1, 0), cumulativeNumberOfElements(n + 1);
-            auto& comm = container.getComm();
             numberOfElements[rank+1] = elements_.size()+1;
-            comm.Allgather(MPI_IN_PLACE, 1, Base::Detail::toMPIType(*numberOfElements.data()), numberOfElements.data()+1, 1, Base::Detail::toMPIType(*numberOfElements.data()));
+            // Note with inplace the first 3 arguments are ignored
+            MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL, numberOfElements.data()+1, 1,
+                    Detail::toMPIType(*numberOfElements.data()), comm);
+
             std::partial_sum(numberOfElements.begin(), numberOfElements.end(), cumulativeNumberOfElements.begin());
             std::vector<std::size_t> elementIDs(cumulativeNumberOfElements[n]);
             auto IDIterator = elementIDs.begin() + cumulativeNumberOfElements[rank];
@@ -103,7 +107,8 @@ namespace Base
             //sentinel
             *IDIterator = std::numeric_limits<std::size_t>::max();
             std::sort(elementIDs.begin() + cumulativeNumberOfElements[rank], elementIDs.begin() + cumulativeNumberOfElements[rank+1]);
-            comm.Allgatherv(MPI_IN_PLACE, 0, Base::Detail::toMPIType(n), elementIDs.data(), numberOfElements.data()+1 ,cumulativeNumberOfElements.data(), Base::Detail::toMPIType(n));
+            MPI_Allgatherv(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL, elementIDs.data(), numberOfElements.data()+1,
+                    cumulativeNumberOfElements.data(), Detail::toMPIType(n), comm);
 
             //insert pull requests
             std::vector<std::vector<std::size_t>::iterator> searchIterators(n);
@@ -147,12 +152,14 @@ namespace Base
             }
             std::vector<int> cumulativeNumberOfSendElements(n + 1), cumulativeNumberOfRecieveElements(n + 1);
             std::partial_sum(numberOfSendElements.begin(), numberOfSendElements.end(), cumulativeNumberOfSendElements.begin());
-            comm.Alltoall(numberOfSendElements.data()+1, 1, Base::Detail::toMPIType(*numberOfElements.data()),
-                          numberOfRecieveElements.data()+1, 1, Base::Detail::toMPIType(*numberOfElements.data()));
+            MPI_Alltoall(numberOfSendElements.data()+1, 1, Base::Detail::toMPIType(*numberOfElements.data()),
+                         numberOfRecieveElements.data()+1, 1, Base::Detail::toMPIType(*numberOfElements.data()),
+                         comm);
             std::partial_sum(numberOfRecieveElements.begin(), numberOfRecieveElements.end(), cumulativeNumberOfRecieveElements.begin());
             std::vector<std::size_t> recieveBuffer(cumulativeNumberOfRecieveElements[n]);
-            comm.Alltoallv(sendBuffer.data(), numberOfSendElements.data()+1, cumulativeNumberOfSendElements.data(), Base::Detail::toMPIType(n),
-                           recieveBuffer.data(), numberOfRecieveElements.data()+1, cumulativeNumberOfRecieveElements.data(), Base::Detail::toMPIType(n));
+            MPI_Alltoallv(sendBuffer.data(), numberOfSendElements.data()+1, cumulativeNumberOfSendElements.data(), Base::Detail::toMPIType(n),
+                           recieveBuffer.data(), numberOfRecieveElements.data()+1, cumulativeNumberOfRecieveElements.data(), Base::Detail::toMPIType(n),
+                           comm);
             auto pushIterator = recieveBuffer.begin();
             for(std::size_t i = 0; i < n; ++i)
             {

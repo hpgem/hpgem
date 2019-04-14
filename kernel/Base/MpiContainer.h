@@ -45,28 +45,32 @@ namespace Base
     //and MPI::Datatype::commit here
     //static_assert(false, "Undefined Datatype");
 //}
+
+        // From old MPI c++ wrapper MPI::Datatype::Match_size;
+        MPI_Datatype matchSizeInternal(int typeclass, int size);
+
         //convert integral data to the corresponding MPI type
         template<typename T>
-        typename std::enable_if<std::is_integral<T>::value, MPI::Datatype>::type
+        typename std::enable_if<std::is_integral<T>::value, MPI_Datatype>::type
         toMPIType(T t)
         {
-            return MPI::Datatype::Match_size(MPI_TYPECLASS_INTEGER,sizeof(T));
+            return matchSizeInternal(MPI_TYPECLASS_INTEGER, sizeof(t));
         }
 
         //convert floating point data to the corresponding MPI type
         template<typename T>
-        typename std::enable_if<std::is_floating_point<T>::value, MPI::Datatype>::type
+        typename std::enable_if<std::is_floating_point<T>::value, MPI_Datatype>::type
         toMPIType(T t)
         {
-            return MPI::Datatype::Match_size(MPI_TYPECLASS_REAL,sizeof(T));
+            return matchSizeInternal(MPI_TYPECLASS_REAL, sizeof(t));
         }
 
         //convert complex data to the corresponding MPI type
         template<typename T>
-        typename std::enable_if<std::is_floating_point<T>::value, MPI::Datatype>::type
+        typename std::enable_if<std::is_floating_point<T>::value, MPI_Datatype>::type
         toMPIType(std::complex<T> t)
         {
-            return MPI::Datatype::Match_size(MPI_TYPECLASS_COMPLEX,sizeof(std::complex<T>));
+            return matchSizeInternal(MPI_TYPECLASS_COMPLEX, sizeof(std::complex<T>));
         }
     
 #endif // HPGEM_USE_MPI
@@ -122,9 +126,10 @@ public:
     void sync()
     {
 #if HPGEM_USE_MPI
-        MPI::Request::Waitall(pending_.size(),pending_.data());
+
+        MPI_Waitall(pending_.size(), pending_.data(), MPI_STATUS_IGNORE);
         pending_.clear();
-        communicator_.Barrier();
+        MPI_Barrier(communicator_);
 #endif
         //we are automatically synced if there is no MPI
     }
@@ -139,7 +144,8 @@ public:
 #if HPGEM_USE_MPI
         if(t.size() > 0)
         {
-            communicator_.Bcast(t.data(), t.size(), Detail::toMPIType(*t.data()), id);
+            // No error checking as errors are fatal
+            MPI_Bcast(t.data(), t.size(), Detail::toMPIType(*t.data()), id, communicator_);
         }
 #endif
         //we are the only processor if there is no MPI
@@ -153,7 +159,9 @@ public:
     broadcast(T& t, int id = 0)
     {
 #if HPGEM_USE_MPI
-        communicator_.Bcast(&t, 1, Detail::toMPIType(t), id);
+        // No error checking as errors are fatal
+        MPI_Bcast(&t, 1, Detail::toMPIType(t), id, communicator_);
+
 #endif
         //we are the only processor if there is no MPI
     }
@@ -166,7 +174,8 @@ public:
     broadcast(std::complex<T>& t, int id = 0)
     {
 #if HPGEM_USE_MPI
-        communicator_.Bcast(&t, 1, Detail::toMPIType(t), id);
+        // No error checking as errors are fatal
+        MPI_Bcast(&t, 1, Detail::toMPIType(t), id, communicator_);
 #endif
         //we are the only processor if there is no MPI
     }
@@ -191,7 +200,7 @@ public:
 #if HPGEM_USE_MPI
         if(t.size() > 0)
         {
-            pending_.push_back(communicator_.Isend(t.data(), t.size(), Detail::toMPIType(*t.data()), to, tag ));
+            sendWrapper(t.data(), t.size, Detail::toMPIType(*t.data()), to, tag);
         }
 #endif
     }
@@ -214,7 +223,7 @@ public:
             logger(WARN, "sending data to self!");
         }
 #if HPGEM_USE_MPI
-        pending_.push_back(communicator_.Isend(&t, 1, Detail::toMPIType(t), to, tag ));
+        sendWrapper(&t, 1, Detail::toMPIType(t), to, tag);
 #endif
     }
 
@@ -236,7 +245,7 @@ public:
             logger(WARN, "sending data to self!");
         }
 #if HPGEM_USE_MPI
-        pending_.push_back(communicator_.Isend(&t, 1, Detail::toMPIType(t), to, tag ));
+        sendWrapper(&t, 1, Detail::toMPIType(t), to, tag);
 #endif
     }
 
@@ -260,7 +269,7 @@ public:
 #if HPGEM_USE_MPI
         if(t.size() > 0)
         {
-            pending_.push_back(communicator_.Irecv((void *)t.data(), t.size(), Detail::toMPIType(*t.data()), from, tag ));
+            receiveWrapper((void *)t.data(), t.size(), Detail::toMPIType(*t.data()), from, tag);
         }
 #endif
     }
@@ -283,7 +292,7 @@ public:
             logger(WARN, "getting data from self!");
         }
 #if HPGEM_USE_MPI
-        pending_.push_back(communicator_.Irecv((void *)&t, 1, Detail::toMPIType(t), from, tag ));
+        receiveWrapper((void *)&t, 1, Detail::toMPIType(t), from, tag );
 #endif
     }
 
@@ -305,7 +314,7 @@ public:
             logger(WARN, "getting data from self!");
         }
 #if HPGEM_USE_MPI
-        pending_.push_back(communicator_.Irecv((void *)&t, 1, Detail::toMPIType(t), from, tag ));
+        receiveWrapper((void *)&t, 1, Detail::toMPIType(t), from, tag);
 #endif
     }
 
@@ -313,81 +322,67 @@ public:
 
     ///make sure a vector of data gets collected on one processor. This routine should be called by all processes.
     ///The process that does the recieving is specified by id, the others will do the sending
-    ///the MPI::OP parameter specifies how the data is to be treated to make it fit in one slot
+    ///the MPI_Op parameter specifies how the data is to be treated to make it fit in one slot
     ///popular options include MPI::MAX, MPI::MIN, MPI::SUM and MPI::PROD to keep the
     ///maximum, the minimum, take the sum or the product respectively. Note that operations are only defined where they
     ///make sense for the used data type
     template<typename T>
     typename std::enable_if<!std::is_scalar<T>::value, void>::type
-    reduce(T& t, MPI::Op operation, int id = 0)
+    reduce(T& t, MPI_Op operation, int id = 0)
     {
         if(t.size() > 0)
         {
-            if(id == getProcessorID())
-            {
-                communicator_.Reduce(MPI::IN_PLACE, t.data(), t.size(), Detail::toMPIType(*t.data()), operation, id);
-            }
-            else
-            {
-                communicator_.Reduce(t.data(), nullptr, t.size(), Detail::toMPIType(*t.data()), operation, id);
-            }
+            reduceWrapper(t.data(), t.size(), Detail::toMPIType(*t.data()), operation, id);
         }
     }
 
     ///make sure a scalar gets collected on one processor. This routine should be called by all processes.
     ///The process that does the recieving is specified by id, the others will do the sending
-    ///the MPI::OP parameter specifies how the data is to be treated to make it fit in one slot
+    ///the MPI_Op parameter specifies how the data is to be treated to make it fit in one slot
     ///popular options include MPI::MAX, MPI::MIN, MPI::SUM and MPI::PROD to keep the
     ///maximum, the minimum, take the sum or the product respectively. Note that operations are only defined where they
     ///make sense for the used data type
     template<typename T>
     typename std::enable_if<std::is_scalar<T>::value, void>::type
-    reduce(T& t, MPI::Op operation, int id = 0)
+    reduce(T& t, MPI_Op operation, int id = 0)
     {
-        if(id == getProcessorID())
-        {
-            communicator_.Reduce(MPI::IN_PLACE, &t, 1, Detail::toMPIType(t), operation, id);
-        }
-        else
-        {
-            communicator_.Reduce(&t, nullptr, 1, Detail::toMPIType(t), operation, id);
-        }
+        reduceWrapper(&t, 1, Detail::toMPIType(t), operation, id);
     }
 
     ///make sure a vector of data gets collected on one processor. This routine should be called by all processes.
     ///The process that does the recieving is specified by id, the others will do the sending
-    ///the MPI::Op parameter specifies how the data is to be treated to make it fit in one slot
+    ///the MPI_Op parameter specifies how the data is to be treated to make it fit in one slot
     ///popular options include MPI::SUM and MPI::PROD to take the
     ///sum or the product respectively. Note that operations are only defined where they
     ///make sense for the used data type
     template<typename T>
     typename std::enable_if<std::is_scalar<T>::value, void>::type
-    reduce(std::complex<T>& t, MPI::Op operation, int id = 0)
+    reduce(std::complex<T>& t, MPI_Op operation, int id = 0)
     {
-        if(id == getProcessorID())
-        {
-            communicator_.Reduce(MPI::IN_PLACE, &t, 1, Detail::toMPIType(t), operation, id);
-        }
-        else
-        {
-            communicator_.Reduce(&t, nullptr, 1, Detail::toMPIType(t), operation, id);
-        }
+        reduceWrapper(&t, 1, Detail::toMPIType(t), operation, id);
     }
 
     ///retrieve a communicator for use in direct MPI calls. Please be aware that an unspecified amount of resources,
     ///such as asynchronous communication tags, is already in use by hpGEM
-    MPI::Intracomm& getComm();
+    MPI_Comm& getComm();
 #endif
     
 private:
     MPIContainer();
     MPIContainer(const MPIContainer& orig) = delete;
 
-    std::size_t processorID_;
-    std::size_t numberOfProcessors_;
 #ifdef HPGEM_USE_MPI
-    std::vector<MPI::Request> pending_;
-    MPI::Intracomm communicator_;
+        void sendWrapper(const void *buf, int count, MPI_Datatype datatype, int dest, int tag);
+        void receiveWrapper(void *buf, int count, MPI_Datatype datatype, int source, int tag);
+        void reduceWrapper(void *buffer, int count, MPI_Datatype datatype, MPI_Op op, int root);
+#endif
+
+    // Conforming with MPI types.
+    int processorID_;
+    int numberOfProcessors_;
+#ifdef HPGEM_USE_MPI
+    std::vector<MPI_Request> pending_;
+    MPI_Comm communicator_;
 #endif
     
 };

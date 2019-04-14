@@ -20,7 +20,7 @@
  */
 
 #include "CommandLineOptions.h"
-#include "MpiContainer.h"
+//#include "MpiContainer.h"
 #include "Logger.h"
 #include <cstring>
 
@@ -74,20 +74,23 @@ void Base::parse_options(int argc, char** argv)
 {
     logger.assert_debug(!hasParsed, "Arguments have already been parsed");
 #ifdef HPGEM_USE_MPI
-    
-    if (!MPI::Is_initialized())
+
+    int init;
+    MPI_Initialized(&init);
+
+    if (init == 0)
     {   
         //somebody might have been kind enough to actually
         //initialize MPI for us... so yeah. Let's prevent
         //initializing it twice, as this will end in chaos and mayhem
-        MPI::Init(argc, argv);
+        MPI_Init(&argc, &argv);;
 
         //We should call MPI::Finalize() when we quit. As we have no
         //clue when people are actually going to call this, we just
         //register an on-exit handler.
         std::atexit([]()
                 {   
-                    MPI::Finalize();
+                    MPI_Finalize();
                 });
     }
 
@@ -119,8 +122,7 @@ void Base::parse_options(int argc, char** argv)
             //if we know mpi exists make sure PETSc based communication does not happen on COMM_WORLD
             //communicating on COMM_WORLD is a bad idea if you are a library and are not sure who else might use MPI
             //(PETSc CLAIMS this is not needed, but also does not provide this safeguard itself)
-            MPI::Group groupID = MPI::COMM_WORLD.Get_group();
-            PETSC_COMM_WORLD = MPI::COMM_WORLD.Create(groupID);
+            MPI_Comm_dup(MPI_COMM_WORLD, &PETSC_COMM_WORLD);
 #endif
 #ifdef HPGEM_USE_SLEPC
             SlepcInitialize(&argc, &argv, PETSC_NULL, "PETSc help\n");

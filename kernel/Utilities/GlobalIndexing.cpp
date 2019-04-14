@@ -198,8 +198,8 @@ namespace Utilities
         std::vector<std::size_t> globalOffset(n + 1);
         globalOffset[0] = 0;
         globalOffset[rank + 1] = localBasisFunctions_;
-        mpiInstance.getComm().Allgather(MPI_IN_PLACE, 0, Base::Detail::toMPIType(n),
-                                        globalOffset.data() + 1, 1, Base::Detail::toMPIType(n));
+        MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
+                      globalOffset.data() + 1, 1, Base::Detail::toMPIType(n), mpiInstance.getComm());
         std::partial_sum(globalOffset.begin(), globalOffset.end(), globalOffset.begin());
 
         std::size_t mpiOffset = globalOffset[rank];
@@ -284,8 +284,8 @@ namespace Utilities
                 std::vector<std::size_t> globalOffset(n + 1);
                 globalOffset[0] = baseOffset;
                 globalOffset[rank + 1] = numberOfBasisFunctions[unknown];
-                mpiInstance.getComm().Allgather(MPI_IN_PLACE, 0, Base::Detail::toMPIType(n),
-                                                globalOffset.data() + 1, 1, Base::Detail::toMPIType(n));
+                MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
+                              globalOffset.data() + 1, 1, Base::Detail::toMPIType(n), mpiInstance.getComm());
                 std::partial_sum(globalOffset.begin(), globalOffset.end(), globalOffset.begin());
 
                 std::size_t mpiOffset = globalOffset[rank];
@@ -302,9 +302,10 @@ namespace Utilities
             std::vector<std::size_t> globalOffset(n + 1);
             globalOffset[0] = 0;
             globalOffset[rank+1] = localBasisFunctions_;
-            mpiInstance.getComm().Allgather(
-                    MPI_IN_PLACE, 0, Base::Detail::toMPIType(n),
-                    globalOffset.data() + 1, 1, Base::Detail::toMPIType(n));
+            MPI_Allgather(
+                    MPI_IN_PLACE, 0, MPI_DATATYPE_NULL,
+                    globalOffset.data() + 1, 1, Base::Detail::toMPIType(n),
+                    mpiInstance.getComm());
             std::partial_sum(globalOffset.begin(), globalOffset.end(), globalOffset.begin());
             std::size_t localOffset = 0;
             for (std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)

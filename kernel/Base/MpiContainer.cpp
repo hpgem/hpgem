@@ -28,16 +28,36 @@
 
 namespace Base
 {
+    namespace Detail
+    {
+        MPI_Datatype  matchSizeInternal(int typeclass, int size)
+        {
+            MPI_Datatype type;
+            (void) MPI_Type_match_size(typeclass, size, &type);
+            return type;
+        }
+    }
+
     
     MPIContainer::MPIContainer()
     {
 #ifdef HPGEM_USE_MPI
-        logger.assert_debug(MPI::Is_initialized(), "Please initialise MPI first before"
-                                                   " calling the constructor of MPIContainer");
-        MPI::Group groupID=MPI::COMM_WORLD.Get_group();
-        communicator_=MPI::COMM_WORLD.Create( groupID );
-        processorID_=communicator_.Get_rank();
-        numberOfProcessors_=communicator_.Get_size();
+
+        int flag;
+        MPI_Initialized(&flag); // No error
+        logger.assert_debug(flag != 0, "Please initialise MPI first before"
+                                       " calling the constructor of MPIContainer");
+        // TODO: There are plenty of places where we use the world comm
+        // this should be replaced by this comm.
+
+        // Assume that we can clone the world comm without error.
+        MPI_Comm_dup(MPI_COMM_WORLD, &communicator_);
+        // Make sure that errors are fatal, thus absolving us from checking for
+        // the return codes.
+        MPI_Comm_set_errhandler(communicator_, MPI_ERRORS_ARE_FATAL);
+        // Cache some useful information
+        MPI_Comm_rank(communicator_, &processorID_);
+        MPI_Comm_size(communicator_, &numberOfProcessors_);
 #else
         numberOfProcessors_ = 1;
         processorID_ = 0;
@@ -55,10 +75,42 @@ namespace Base
     }
 
 #ifdef HPGEM_USE_MPI
-MPI::Intracomm& MPIContainer::getComm()
-{   
-    return communicator_;
-}
+
+    void MPIContainer::sendWrapper(const void *buf, int count, MPI_Datatype datatype, int dest, int tag)
+    {
+        pending_.emplace_back();
+        MPI_Request* request = &*(pending_.end()-1);
+        MPI_Isend(buf, count, datatype, dest, tag, communicator_, request);
+    }
+
+    void MPIContainer::receiveWrapper(void *buf, int count, MPI_Datatype datatype, int source, int tag)
+    {
+        pending_.emplace_back();
+        MPI_Request* request = &*(pending_.end()-1);
+        MPI_Irecv(buf, count, datatype, source, tag, communicator_, request);
+    }
+
+    void MPIContainer::reduceWrapper(void *buffer, int count, MPI_Datatype datatype,
+                       MPI_Op op, int root)
+    {
+        void *sendBuffer, *receiveBuffer;
+        if (root == processorID_)
+        {
+            sendBuffer = MPI_IN_PLACE;
+            receiveBuffer = buffer;
+        }
+        else
+        {
+            sendBuffer = buffer;
+            receiveBuffer = nullptr;
+        }
+        MPI_Reduce(sendBuffer, receiveBuffer, count, datatype, op, root, communicator_);
+    }
+
+    MPI_Comm& MPIContainer::getComm()
+    {
+        return communicator_;
+    }
 #endif
 
 }
