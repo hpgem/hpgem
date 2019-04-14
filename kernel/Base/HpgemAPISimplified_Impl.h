@@ -321,7 +321,7 @@ namespace Base
         
         MPIContainer& communicator = MPIContainer::Instance();
 #ifdef HPGEM_USE_MPI
-        communicator.reduce(localError, MPI::SUM);
+        communicator.reduce(localError, MPI_SUM);
 #endif
         communicator.onlyOnOneProcessor({[&]()
         {
@@ -391,9 +391,10 @@ namespace Base
     }
 
 #ifdef HPGEM_USE_MPI
-    inline void computeMPIMaximum(const void* in, void* inout, int len, const MPI::Datatype& type)
+    // Note typesignature is rather liberal because it is passed to MPI_Op_create
+    inline void computeMPIMaximum(void* in, void* inout, int* len, MPI_Datatype* type)
     {
-        for(std::size_t i = 0; i < len; i++)
+        for(std::size_t i = 0; i < *len; i++)
         {
             logger.assert_debug(std::abs(std::imag(reinterpret_cast<LinearAlgebra::MiddleSizeVector::type*>(inout)[i])) < 1e-12,
                                 "can only do this for complex numbers");
@@ -430,8 +431,8 @@ namespace Base
         
 #ifdef HPGEM_USE_MPI
         auto& comm = MPIContainer::Instance();
-        MPI::Op myMax;
-        myMax.Init(computeMPIMaximum,true);
+        MPI_Op myMax;
+        MPI_Op_create(computeMPIMaximum, true, &myMax);
         comm.reduce(maxError, myMax);
         comm.broadcast(maxError);
 #endif
@@ -590,9 +591,9 @@ namespace Base
 #ifdef HPGEM_USE_MPI
         auto& communicator = MPIContainer::Instance();
         ///\todo allreduce
-        communicator.reduce(error, MPI::SUM);
+        communicator.reduce(error, MPI_SUM);
         communicator.broadcast(error);
-        communicator.reduce(norm, MPI::SUM);
+        communicator.reduce(norm, MPI_SUM);
         communicator.broadcast(norm);
 #endif
         return std::make_tuple(std::sqrt(error), norm);

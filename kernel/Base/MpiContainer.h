@@ -200,7 +200,7 @@ public:
 #if HPGEM_USE_MPI
         if(t.size() > 0)
         {
-            sendWrapper(t.data(), t.size, Detail::toMPIType(*t.data()), to, tag);
+            sendWrapper(t.data(), t.size(), Detail::toMPIType(*t.data()), to, tag);
         }
 #endif
     }
