@@ -154,6 +154,11 @@ namespace Base
         }
 
         bool isOwnedByCurrentProcessor() const;
+
+        /// The element owning this edge, only valid if the edge is owned by the
+        /// current processor
+        Element* getOwningElement() const;
+
     private:
 
         std::vector<Element*> elements_;

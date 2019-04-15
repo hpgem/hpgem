@@ -88,4 +88,11 @@ namespace Base
         return elements_.size() > 0 && elements_[0]->isOwnedByCurrentProcessor();
     }
 
+    Element* Edge::getOwningElement() const
+    {
+        logger.assert_debug(isOwnedByCurrentProcessor(),
+                            "Owning element is only accurate when owned by the current processor");
+        return elements_.empty() ? nullptr : elements_[0];
+    }
+
 }

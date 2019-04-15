@@ -141,6 +141,10 @@ namespace Base
 
         bool isOwnedByCurrentProcessor() const;
 
+        /// The element owning this node, only valid if the node is owned by the
+        /// current processor
+        Element* getOwningElement() const;
+
     private:
         
         //provide information to map back to a unique corner of the element

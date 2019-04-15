@@ -283,7 +283,10 @@ namespace Utilities
         
         for(Base::Face* face : theMesh_->getFacesList())
         {
-            if(face->isInternal())
+            if(face->isInternal()
+                    && (face->getPtrElementLeft()->isOwnedByCurrentProcessor()
+                        || face->getPtrElementRight()->isOwnedByCurrentProcessor()
+                    ))
             {
                 // Choose the correct vector to modify.
                 std::vector<int>& changeVec = (face->getFaceType() == Geometry::FaceType::SUBDOMAIN_BOUNDARY || face->getFaceType() == Geometry::FaceType::PERIODIC_SUBDOMAIN_BC)

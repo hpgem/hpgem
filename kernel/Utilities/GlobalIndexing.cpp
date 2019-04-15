@@ -327,91 +327,397 @@ namespace Utilities
         communicatePushPullElements(mesh);
     }
 
+#ifdef HPGEM_USE_MPI
+
+    void GlobalIndexing::createInitialMessage(
+            const std::vector<Base::Element*>& elements,
+            std::vector<std::size_t> &message,
+            std::size_t targetProcessor,
+            std::set<std::size_t>& secondRoundTags) const
+    {
+        // For format see processMessage method
+        for(Base::Element *element : elements)
+        {
+            elementMessage(element->getID(), message);
+
+            for (auto face : element->getFacesList())
+            {
+                if (face->isOwnedByCurrentProcessor())
+                {
+                    // Prevent sending it for both sides of the face by only
+                    // sending it on the owning element side.
+                    if(face->getOwningElement() == element)
+                    {
+                        faceMessage(face->getID(), message);
+                    }
+                }
+                // As the pushElements are all owned by the current processor
+                // and the face is not owned by the current processor, we know
+                // that the left element must exist and belong to a different
+                // processor.
+                else if(face->getPtrElementLeft()->getOwner() != targetProcessor)
+                {
+                    secondRoundTags.insert(4*face->getID() + 1);
+                }
+            }
+
+            // Same for edge, nodes
+            for (auto edge : element->getEdgesList())
+            {
+                if (edge->isOwnedByCurrentProcessor())
+                {
+                    if(edge->getOwningElement() == element)
+                    {
+                        edgeMessage(edge->getID(), message);
+                    }
+                }
+                else
+                {
+                    bool targetIsNeighbour = false;
+                    for(Base::Element *edgeElem : edge->getElements())
+                    {
+                        if(edgeElem->getOwner() == targetProcessor)
+                        {
+                            targetIsNeighbour = true;
+                            break;
+                        }
+                    }
+                    if(!targetIsNeighbour)
+                    {
+                        secondRoundTags.insert(4*edge->getID() + 2);
+                    }
+                }
+            }
+
+            if (meshDimension > 1)
+            {
+                for (auto node : element->getNodesList())
+                {
+                    if (node->isOwnedByCurrentProcessor())
+                    {
+                        if(node->getOwningElement())
+                        {
+                            nodeMessage(node->getID(), message);
+                        }
+                    }
+                    else
+                    {
+                        bool targetIsNeighbour = false;
+                        for(Base::Element* nodeElem : node->getElements())
+                        {
+                            if(nodeElem->getOwner() == targetProcessor)
+                            {
+                                targetIsNeighbour = true;
+                                break;
+                            }
+                        }
+                        if(!targetIsNeighbour)
+                        {
+                            secondRoundTags.insert(4*node->getID() + 3);
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+
+    void GlobalIndexing::createSecondMessage(const std::set<std::size_t> &tags, std::vector<std::size_t> &message) const
+    {
+        // For format see the processMessage method
+        message.clear();
+        for(std::size_t tag : tags)
+        {
+            switch (tag % 4)
+            {
+                case 1:
+                    faceMessage(tag/4, message);
+                    break;
+                case 2:
+                    edgeMessage(tag/4, message);
+                    break;
+                case 3:
+                    nodeMessage(tag/4, message);
+                    break;
+                default:
+                    logger.assert_always(false, "Invalid tag");
+            }
+        }
+    }
+
+    void GlobalIndexing::elementMessage(std::size_t elementId, std::vector<std::size_t> &message) const
+    {
+        message.emplace_back(4*elementId);
+        for(std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
+        {
+            message.emplace_back(offsets.at(unknown).elementOffsets_.at(elementId));
+        }
+    }
+
+    void GlobalIndexing::faceMessage(std::size_t faceId, std::vector<std::size_t> &message) const
+    {
+        message.emplace_back(4*faceId+1);
+        for(std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
+        {
+            message.emplace_back(offsets.at(unknown).faceOffsets_.at(faceId));
+        }
+    }
+
+    void GlobalIndexing::edgeMessage(std::size_t edgeId, std::vector<std::size_t> &message) const
+    {
+        message.emplace_back(4*edgeId+2);
+        for(std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
+        {
+            message.emplace_back(offsets.at(unknown).edgeOffsets_.at(edgeId));
+        }
+    }
+
+    void GlobalIndexing::nodeMessage(std::size_t nodeId, std::vector<std::size_t> &message) const
+    {
+        message.emplace_back(4*nodeId+3);
+        for(std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
+        {
+            message.emplace_back(offsets.at(unknown).nodeOffsets_.at(nodeId));
+        }
+    }
+
+    void GlobalIndexing::processMessage(const std::vector<std::size_t> &message, std::size_t count)
+    {
+        // The body of the message in the first and second round share the same
+        // format. They consist of multiple parts, where each part consists of
+        //  - A tag, identifying the geometric object (element, face, etc.)
+        //    which the next information is about.
+        //  - numberOfUnknowns_ global indices for the geometric object in
+        //    order of the unknown.
+        // The tags are four times the id of the object plus 0 for elements 1
+        // for faces, 2 for edges and 3 for nodes. This ensures that all tags
+        // uniquely identify a geometric object without having to communicate
+        // before hand.
+
+        logger.assert_debug(count % (1+numberOfUnknowns_) == 0,
+                            "Incorrect message of size %", count);
+        for(std::size_t offset = 0; offset < count; offset+=(1+numberOfUnknowns_))
+        {
+            std::size_t tag = message[offset];
+            std::size_t id = tag / 4;
+            switch (tag % 4)
+            {
+                case 0:
+                    for(std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
+                        offsets[unknown].elementOffsets_[id] = message[offset + 1 + unknown];
+                    break;
+                case 1:
+                    for(std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
+                        offsets[unknown].faceOffsets_[id] = message[offset + 1 + unknown];
+                    break;
+                case 2:
+                    for(std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
+                        offsets[unknown].edgeOffsets_[id] = message[offset + 1 + unknown];
+                    break;
+                case 3:
+                    for(std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
+                        offsets[unknown].nodeOffsets_[id] = message[offset + 1 + unknown];
+                    break;
+                default:
+                    logger.assert_always(false, "Error invalid tag %", tag);
+            }
+        }
+    }
+
+    std::size_t GlobalIndexing::probeAndReceive(std::vector<std::size_t> &receiveMessage) const
+    {
+        auto &mpiInstance = Base::MPIContainer::Instance();
+        // Sample type
+        MPI_Datatype mpiType;
+        {
+            std::size_t sample = 1;
+            mpiType = Base::Detail::toMPIType(sample);
+        }
+
+        // Probe the message size
+        MPI_Status status;
+        MPI_Probe(MPI_ANY_SOURCE, 0, mpiInstance.getComm(), &status);
+        // Make place for the messages
+        int count;
+        MPI_Get_count(&status, mpiType, & count);
+
+        // To prevent unnecessary (de)allocation we only grow the message
+        // vector, its size is therefore only an upper bound on the message
+        // size.
+        if(count > receiveMessage.size())
+            receiveMessage.resize(count);
+        // Actual receive
+        MPI_Recv(receiveMessage.data(), count, mpiType,
+                 status.MPI_SOURCE, 0, mpiInstance.getComm(), MPI_STATUS_IGNORE);
+        return count;
+    }
+
+#endif
+
+
     void GlobalIndexing::communicatePushPullElements(Base::MeshManipulatorBase &mesh)
     {
 #ifdef HPGEM_USE_MPI
+        // The global indices on ghost elements, faces, etc. are only known on
+        // their owning processor. This method communicates these to all the
+        // neighbouring processors. This is achieved in two rounds.
+        //
+        // In the first round, we communicate the global indices of all elements
+        // in the pushElements list, along with all the global indices of the
+        // faces, edges and nodes that border such elements and are available
+        // (i.e. are owned by the current processor). We then receive the same
+        // information from other processor for our own ghost elements.
+        //
+        // After this first round we all the information about the ghost
+        // elements, but the information of the enclosing faces, edges and nodes
+        // can be missing. Consider as example the following line
+        //
+        //    [0]---0---[0]---1---[1]---2---[2]
+        //
+        // Where for each of the three line segments (elements) and each node
+        // (in brackets) the owning processor is marked. Processor two has only
+        // part of the line:
+        //
+        //              [0]---1---[1]---2---[2]
+        //
+        // Where the element owned by processor 1 is a ghost element. After the
+        // first transfer round the globalIndices for the element and node
+        // belonging to processor 1 are communicated to processor 2, but the
+        // index for the node owned by processor 0 is not, as it does not belong
+        // to processor 1, nor is there a ghost element from processor 0
+        // communicating the information. Hence we need a second round.
+        //
+        // In the second round we communicate the global indices of faces, edges
+        // and nodes that:
+        //  - border an element in the pushElements list;
+        //  - are not owned by the current processor;
+        //  - are not adjacent to an element that is owned by the target
+        //    processor.
+        // As we own all the elements in the pushElements list, we do have this
+        // information after round one. Furthermore, we reduce the amount of
+        // messages as much as possible with the second two conditions, for which
+        // the target processor has already received the information in round one.
+        // After sending the information we again receive and process the
+        // information send from the other processors.
+
+
+        // Setup //
+        ///////////
         auto &mpiInstance = Base::MPIContainer::Instance();
-        // Push/pull boundary elements
-        for (std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
+        // Number of messages in the first round
+        std::size_t firstRoundSends = mesh.getPushElements().size();
+        std::vector<MPI_Request> sendRequests (firstRoundSends);
+        // As we do asynchronous sending we need to keep the message available
+        // till after the send finishes. We therefore store a vector of the raw
+        // messages here.
+        std::vector<std::vector<std::size_t>> sendMessages (firstRoundSends);
+        // For each target processor, the set of tags that need to be send in
+        // the second round.
+        std::map<std::size_t, std::set<std::size_t>> secondRound;
+
+        MPI_Datatype mpiType;
+        {
+            std::size_t sample = 1;
+            mpiType = Base::Detail::toMPIType(sample);
+        }
+
+        // First round - sending //
+        ///////////////////////////
+        std::size_t index = 0;
+        for(const auto& entry : mesh.getPushElements())
+        {
+            int targetProcessor = entry.first;
+
+            auto& message = sendMessages[index];
+            auto& secondRoundTags = secondRound[targetProcessor];
+
+            createInitialMessage(entry.second, message, targetProcessor, secondRoundTags);
+            bool needsSecondRound = !secondRoundTags.empty();
+            // Append to the message whether we need a second round.
+            if (needsSecondRound)
+            {
+                message.emplace_back(1);
+            }
+            else
+            {
+                message.emplace_back(0);
+                // Prevent second round message
+                secondRound.erase(targetProcessor);
+            }
+            // Actual sending
+            MPI_Request& request = sendRequests[index];
+            MPI_Isend(message.data(), message.size(), mpiType,
+                    targetProcessor, 0, mpiInstance.getComm(), &request);
+            ++index;
+        }
+
+        // First round - receive //
+        ///////////////////////////
+        std::size_t numReceives = mesh.getPullElements().size();
+        // Storage for the receiving message
+        std::vector<std::size_t> receiveMessage;
+        // Counter the number of messages to receive in the second round
+        std::size_t secondRoundReceives = 0;
+        for(std::size_t receiveId = 0; receiveId < numReceives; ++receiveId)
+        {
+            int count = probeAndReceive(receiveMessage);
+            // Process and remove the tag for whether or not a second round will be send
+            if(receiveMessage[count - 1])
+                ++secondRoundReceives;
+            --count;
+            // Process the message
+            processMessage(receiveMessage, count);
+        }
+
+        // First round - closing //
+        ///////////////////////////
+
+        // Await finish of all requests to prevent early cleanup of
+        // the sendMessages vector.
+        MPI_Waitall(sendRequests.size(), sendRequests.data(), MPI_STATUSES_IGNORE);
+        sendRequests.clear();
+        // We need to ensure that all processes have finished receiving.
+        // Otherwise a race condition might occur where a message from the
+        // second round is received by another processor expecting first round
+        // messages.
+        MPI_Barrier(mpiInstance.getComm());
+
+
+        // Second round - sending //
+        ////////////////////////////
+        index = 0;
+        for(auto& entry : secondRound)
+        {
+            // Reuse the message storage space from first round, preventing
+            // extra allocation.
+            std::vector<std::size_t>& sendMessage = sendMessages[index++];
+            sendMessage.clear();
+            createSecondMessage(entry.second, sendMessage);
+            sendRequests.emplace_back();
+            MPI_Request& request = sendRequests[sendRequests.size() - 1];
+            MPI_Isend(sendMessage.data(), sendMessage.size(), mpiType,
+                      entry.first, 0, mpiInstance.getComm(), &request);
+        }
+
+        // Second round - receiving //
+        //////////////////////////////
+        for(std::size_t receiveId = 0; receiveId < secondRoundReceives; ++receiveId)
         {
 
-            for (auto entry : mesh.getPullElements())
-            {
-                int sourceProcessor = entry.first;
-                for (Base::Element *element : entry.second)
-                {
-                    //the id's of elements, faces edges and nodes are interleaved so all information can be communicated simulateously without tag collisions
+            int count = probeAndReceive(receiveMessage);
+            processMessage(receiveMessage, count);
 
-                    mpiInstance.receive(offsets[unknown].elementOffsets_[element->getID()], sourceProcessor,
-                                        4 * element->getID());
-                    for (auto face : element->getFacesList())
-                    {
-                        if (offsets[unknown].faceOffsets_.count(face->getID()) == 0)
-                        {
-                            mpiInstance.receive(offsets[unknown].faceOffsets_[face->getID()], sourceProcessor,
-                                                4 * face->getID() + 1);
-                        }
-                    }
-                    for (auto edge : element->getEdgesList())
-                    {
-                        if (offsets[unknown].edgeOffsets_.count(edge->getID()) == 0)
-                        {
-                            mpiInstance.receive(offsets[unknown].edgeOffsets_[edge->getID()], sourceProcessor,
-                                                4 * edge->getID() + 2);
-                        }
-                    }
-                    if (meshDimension > 1)
-                    {
-                        for (auto node : element->getNodesList())
-                        {
-                            if (offsets[unknown].nodeOffsets_.count(node->getID()) == 0)
-                            {
-                                mpiInstance.receive(offsets[unknown].nodeOffsets_[node->getID()], sourceProcessor,
-                                                    4 * node->getID() + 3);
-                            }
-                        }
-                    }
-                }
-            }
-            for (auto entry : mesh.getPushElements())
-            {
-                int targetProcessor = entry.first;
-                for (Base::Element *element : entry.second)
-                {
-                    //the id's of elements, faces edges and nodes are interleaved so all information can be communicated simultaneously without tag collisions
-                    mpiInstance.send(offsets[unknown].elementOffsets_[element->getID()], targetProcessor,
-                                     4 * element->getID());
-                    for (auto face : element->getFacesList())
-                    {
-                        if (offsets[unknown].faceOffsets_.count(face->getID()) == 1)
-                        {
-                            mpiInstance.send(offsets[unknown].faceOffsets_[face->getID()], targetProcessor,
-                                             4 * face->getID() + 1);
-                        }
-                    }
-                    for (auto edge : element->getEdgesList())
-                    {
-                        if (offsets[unknown].edgeOffsets_.count(edge->getID()) == 1)
-                        {
-                            mpiInstance.send(offsets[unknown].edgeOffsets_[edge->getID()], targetProcessor,
-                                             4 * edge->getID() + 2);
-                        }
-                    }
-                    if (meshDimension > 1)
-                    {
-                        for (auto node : element->getNodesList())
-                        {
-                            if (offsets[unknown].nodeOffsets_.count(node->getID()) == 1)
-                            {
-                                mpiInstance.send(offsets[unknown].nodeOffsets_[node->getID()], targetProcessor,
-                                                 4 * node->getID() + 3);
-                            }
-                        }
-                    }
-                }
-            }
-            mpiInstance.sync();
+
         }
+
+        // Second round - closing //
+        ////////////////////////////
+
+        // Await the completion sending all messages
+        MPI_Waitall(sendRequests.size(), sendRequests.data(), MPI_STATUSES_IGNORE);
+        sendRequests.clear();
+        // Prevent interference by ensuring that all communication has finished.
+        MPI_Barrier(mpiInstance.getComm());
 #endif
     }
 

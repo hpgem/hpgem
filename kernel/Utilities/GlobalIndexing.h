@@ -239,8 +239,8 @@ namespace Utilities
             logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
             const Offsets& offset = offsets[unknown];
             const auto basisStart = offset.faceOffsets_.find(face->getID());
-            logger.assert_debug(basisStart != offset.faceOffsets_.end(),
-                                "No indices available for face %", face->getID());
+            if (basisStart == offset.faceOffsets_.end())
+                return false;
             int globalId = basisStart->second;
             return offset.owns(globalId);
         }
@@ -250,8 +250,8 @@ namespace Utilities
             logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
             const Offsets& offset = offsets[unknown];
             const auto basisStart = offset.edgeOffsets_.find(edge->getID());
-            logger.assert_debug(basisStart != offset.edgeOffsets_.end(),
-                                "No indices available for edge %", edge->getID());
+            if(basisStart == offset.edgeOffsets_.end())
+                return false;
             int globalId = basisStart->second;
             return offset.owns(globalId);
         }
@@ -261,8 +261,8 @@ namespace Utilities
             logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
             const Offsets& offset = offsets[unknown];
             const auto basisStart = offset.nodeOffsets_.find(node->getID());
-            logger.assert_debug(basisStart != offset.nodeOffsets_.end(),
-                                "No indices available for node %", node->getID());
+            if(basisStart == offset.nodeOffsets_.end())
+                return false;
             int globalId = basisStart->second;
             return offset.owns(globalId);
         }
@@ -338,6 +338,45 @@ namespace Utilities
         /// elements (element owned by the neighbouring processor).
         /// \param mesh The mesh, needed for the push/pull partners.
         void communicatePushPullElements(Base::MeshManipulatorBase& mesh);
+
+#ifdef HPGEM_USE_MPI
+        // Helper methods for communicatePushPullElements
+
+        /// \brief Write message for the first round
+        ///
+        /// \param elements The elements from the push list
+        /// \param message The vector to write the message in
+        /// \param targetProcessor The processor to which the message will be
+        ///        send
+        /// \param secondRoundTags The tags for the elements to send in the
+        ///        second round.
+        void createInitialMessage(
+                const std::vector<Base::Element*>& elements,
+                std::vector<std::size_t>& message,
+                std::size_t targetProcessor,
+                std::set<std::size_t>& secondRoundTags)  const;
+        /// \brief Write the message for the second round
+        /// \param tags The tags to send
+        /// \param message The vector to write the message to.
+        void createSecondMessage(const std::set<std::size_t>& tags, std::vector<std::size_t>& message)  const;
+        void elementMessage(std::size_t elementId, std::vector<std::size_t>& message) const;
+        void faceMessage(std::size_t faceId, std::vector<std::size_t>& message) const;
+        void edgeMessage(std::size_t edgeId, std::vector<std::size_t>& message) const;
+        void nodeMessage(std::size_t nodeId, std::vector<std::size_t>& message) const;
+
+        /// Process a message
+        ///
+        /// \param message Storage with the message
+        /// \param count The length of the message (in element s of message)
+        void processMessage(const std::vector<std::size_t>& message, std::size_t count);
+
+        /// Use MPI_Probe and MPI_Recv to receive a variable size message
+        /// \param receiveMessage The storage for receiving the message, may
+        ///        grow to accommodate the message. Will not be shrunk to
+        ///        prevent unnecessary (de)allocations
+        /// \return The length of the message.
+        std::size_t probeAndReceive(std::vector<std::size_t>& receiveMessage) const;
+#endif
 
         /// \brief Same as getGlobalIndices(const Base::Element *, std::vector<int>)
         /// but offsetting the place in the indices vector used for the output.
