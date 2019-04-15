@@ -239,8 +239,8 @@ namespace Utilities
             logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
             const Offsets& offset = offsets[unknown];
             const auto basisStart = offset.faceOffsets_.find(face->getID());
-            if (basisStart == offset.faceOffsets_.end())
-                return false;
+            logger.assert_debug(basisStart != offset.faceOffsets_.end(),
+                                "No indices available for face %", face->getID());
             int globalId = basisStart->second;
             return offset.owns(globalId);
         }
@@ -250,8 +250,8 @@ namespace Utilities
             logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
             const Offsets& offset = offsets[unknown];
             const auto basisStart = offset.edgeOffsets_.find(edge->getID());
-            if(basisStart == offset.edgeOffsets_.end())
-                return false;
+            logger.assert_debug(basisStart != offset.edgeOffsets_.end(),
+                                "No indices available for edge %", edge->getID());
             int globalId = basisStart->second;
             return offset.owns(globalId);
         }
@@ -261,8 +261,8 @@ namespace Utilities
             logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
             const Offsets& offset = offsets[unknown];
             const auto basisStart = offset.nodeOffsets_.find(node->getID());
-            if(basisStart == offset.nodeOffsets_.end())
-                return false;
+            logger.assert_debug(basisStart != offset.nodeOffsets_.end(),
+                                "No indices available for node %", node->getID());
             int globalId = basisStart->second;
             return offset.owns(globalId);
         }
@@ -338,20 +338,6 @@ namespace Utilities
         /// elements (element owned by the neighbouring processor).
         /// \param mesh The mesh, needed for the push/pull partners.
         void communicatePushPullElements(Base::MeshManipulatorBase& mesh);
-
-#ifdef HPGEM_USE_MPI
-        // Helper methods for communicatePushPullElements
-        void createInitialMessage(
-                const std::vector<Base::Element*>& elements,
-                std::vector<std::size_t>& message,
-                std::size_t targetProcessor,
-                std::vector<std::size_t>& secondRoundTags);
-        void elementMessage(std::size_t elementId, std::vector<std::size_t>& message);
-        void faceMessage(std::size_t faceId, std::vector<std::size_t>& message);
-        void edgeMessage(std::size_t edgeId, std::vector<std::size_t>& message);
-        void nodeMessage(std::size_t nodeId, std::vector<std::size_t>& message);
-        void processMessage(std::vector<std::size_t>& message, std::size_t count);
-#endif
 
         /// \brief Same as getGlobalIndices(const Base::Element *, std::vector<int>)
         /// but offsetting the place in the indices vector used for the output.

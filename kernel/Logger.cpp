@@ -39,12 +39,6 @@
 #include <cstdlib>
 #include <iostream>
 #include <csignal>
-
-#if HPGEM_USE_MPI
-
-#include <mpi.h>
-#endif
-
 /*
  *  We need these to actually exists. These are used as tags in the template metaprogramming for
  *  the Logger class.
@@ -76,15 +70,7 @@ static void printMessage(std::string module, std::string msg)
 // [[noreturn]] indicates this function may not return
 [[noreturn]] static void printError(std::string module, std::string msg)
 {
-    // Ensure that all output is visible.
-    std::cout << std::flush;
-    std::cerr << "Module " << module;
-#if HPGEM_USE_MPI
-    int rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    std::cerr << " proc " << rank;
-#endif
-    std::cerr << ":\n" << msg << std::endl;
+    std::cerr << "Module " << module << ":\n" << msg << std::endl;
 #ifdef HPGEM_STACKTRACE_ENABLE
     std::cerr << "\n-----------------[Stack Trace]-----------------\n";
     
