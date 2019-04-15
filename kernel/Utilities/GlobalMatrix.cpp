@@ -238,6 +238,8 @@ namespace Utilities
                     // Note, we assume here that the basis functions for a single
                     // unknown are laid out consecutively.
                     const Base::Face* face = element->getFace(i);
+                    if (!indexing_.isLocallyOwned(face, unknown))
+                        continue;
                     std::size_t localIndex0 = indexing_.getProcessorLocalIndex(face, unknown);
                     for (std::size_t basisId = 0; basisId < face->getLocalNumberOfBasisFunctions(unknown); ++basisId)
                     {
@@ -310,7 +312,7 @@ namespace Utilities
                     for (int i = 0; i < element->getReferenceGeometry()->getNumberOfCodim1Entities(); ++i)
                     {
                         const Base::Face* face = element->getFace(i);
-                        if (!indexing_.isLocallyOwned(face, 0))
+                        if (indexing_.isLocallyOwned(face, 0))
                         {
                             //conforming contributions
                             for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
@@ -329,7 +331,7 @@ namespace Utilities
                     for (int i = 0; i < element->getNumberOfEdges(); ++i)
                     {
                         const Base::Edge* edge = element->getEdge(i);
-                        if (!indexing_.isLocallyOwned(edge, 0))
+                        if (indexing_.isLocallyOwned(edge, 0))
                         {
                             for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
                             {
@@ -349,7 +351,7 @@ namespace Utilities
                         for (int i = 0; i < element->getNumberOfNodes(); ++i)
                         {
                             const Base::Node *node = element->getNode(i);
-                            if (!indexing_.isLocallyOwned(node, 0))
+                            if (indexing_.isLocallyOwned(node, 0))
                             {
                                 for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
                                 {
