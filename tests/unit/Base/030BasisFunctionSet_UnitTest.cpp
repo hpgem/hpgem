@@ -22,19 +22,21 @@
 //naming convention: <Digit><ClassName>_UnitTest.cpp where <Digit> is a number that will make sure
 //the unit tests are ordered such that the first failing unit test indicate the culprit class and
 //other 'unit' tests may assume correct execution of all prior unit tests
-#include "Base/AssembleBasisFunctionSet.h"
+#include "Utilities/BasisFunctionsMonomials.h"
 
 #include "Base/BasisFunctionSet.h"
 #include "Geometry/PointReference.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "Base/BaseBasisFunction.h"
+
 #include "Logger.h"
 
 int main()
 {
     
     Base::BasisFunctionSet all1DbasisFunctions(5);
-    Base::AssembleBasisFunctionSet_1D_Ord5_A0(all1DbasisFunctions);
+
+    Utilities::assembleMonomialBasisFunctions1D(all1DbasisFunctions, 5);
     Geometry::PointReference<1> point1D;
     for (std::size_t i = 0; i < all1DbasisFunctions.size(); ++i)
     {
@@ -47,7 +49,7 @@ int main()
     }
     
     Base::BasisFunctionSet all2DbasisFunctions(5);
-    Base::AssembleBasisFunctionSet_2D_Ord5_A0(all2DbasisFunctions);
+    Utilities::assembleMonomialBasisFunctions2D(all2DbasisFunctions, 5);
     Geometry::PointReference<2> point2D;
     for (std::size_t i = 0; i < all2DbasisFunctions.size(); ++i)
     {
@@ -64,7 +66,7 @@ int main()
     }
     
     Base::BasisFunctionSet all3DbasisFunctions(5);
-    Base::AssembleBasisFunctionSet_3D_Ord5_A0(all3DbasisFunctions);
+    Utilities::assembleMonomialBasisFunctions3D(all3DbasisFunctions, 5);
     Geometry::PointReference<3> point3D;
     for (std::size_t i = 0; i < all3DbasisFunctions.size(); ++i)
     {

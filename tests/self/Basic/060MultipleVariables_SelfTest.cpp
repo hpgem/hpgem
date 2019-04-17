@@ -29,7 +29,7 @@
 
 #include <iostream>
 
-#include "Base/AssembleBasisFunctionSet.h"
+#include "Utilities/BasisFunctionsMonomials.h"
 #include "Base/BasisFunctionSet.h"
 #include "Base/Element.h"
 #include "Base/Face.h"
@@ -102,7 +102,7 @@ int main()
     pointsPhysical.push_back(point5);
     
     Base::BasisFunctionSet* basisFunctionSet = new Base::BasisFunctionSet(basisFunctionOrder);
-    AssembleBasisFunctionSet_2D_Ord1_A0(*basisFunctionSet);
+    Utilities::assembleMonomialBasisFunctions2D(*basisFunctionSet, 1);
     std::vector<std::shared_ptr<const Base::BasisFunctionSet>> basisFunctionSetVector(1);
     basisFunctionSetVector[0] = std::shared_ptr<const Base::BasisFunctionSet>(basisFunctionSet);
     std::vector<std::shared_ptr<const Base::BasisFunctionSet>> *pBasisFunctionSetVector = &basisFunctionSetVector;

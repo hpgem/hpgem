@@ -42,7 +42,6 @@
 #include "Element.h"
 #include "Face.h"
 #include "MeshMoverBase.h"
-#include "AssembleBasisFunctionSet.h"
 #include "OrientedBasisFunctionSet.h"
 #include "Geometry/PointPhysical.h"
 #include "Geometry/ReferenceSquare.h"
@@ -67,6 +66,7 @@
 #include "Utilities/BasisFunctions3DH1ConformingTetrahedron.h"
 #include "Utilities/BasisFunctions3DNedelec.h"
 #include "Utilities/BasisFunctions3DAinsworthCoyle.h"
+#include "Utilities/BasisFunctionsMonomials.h"
 #include "Logger.h"
 
 #include <algorithm>
@@ -101,88 +101,17 @@ namespace Base
         switch (DIM)
         {
         case 1:
-            switch (order)
-            {
-            case 0:
-                Base::AssembleBasisFunctionSet_1D_Ord0_A0(*bFset1);
-                break;
-            case 1:
-                Base::AssembleBasisFunctionSet_1D_Ord1_A0(*bFset1);
-                break;
-            case 2:
-                Base::AssembleBasisFunctionSet_1D_Ord2_A0(*bFset1);
-                break;
-            case 3:
-                Base::AssembleBasisFunctionSet_1D_Ord3_A0(*bFset1);
-                break;
-            case 4:
-                Base::AssembleBasisFunctionSet_1D_Ord4_A0(*bFset1);
-                break;
-            case 5:
-                Base::AssembleBasisFunctionSet_1D_Ord5_A0(*bFset1);
-                break;
-            default:
-                logger(WARN, "WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2");
-                delete bFset1;
-                bFset1 = new Base::BasisFunctionSet(2);
-                Base::AssembleBasisFunctionSet_1D_Ord2_A0(*bFset1);
-            }
+            Utilities::assembleMonomialBasisFunctions1D(*bFset1, order);
             break;
         case 2:
-            switch (order)
-            {
-            case 0:
-                Base::AssembleBasisFunctionSet_2D_Ord0_A0(*bFset1);
-                break;
-            case 1:
-                Base::AssembleBasisFunctionSet_2D_Ord1_A0(*bFset1);
-                break;
-            case 2:
-                Base::AssembleBasisFunctionSet_2D_Ord2_A1(*bFset1);
-                break;
-            case 3:
-                Base::AssembleBasisFunctionSet_2D_Ord3_A1(*bFset1);
-                break;
-            case 4:
-                Base::AssembleBasisFunctionSet_2D_Ord4_A1(*bFset1);
-                break;
-            case 5:
-                Base::AssembleBasisFunctionSet_2D_Ord5_A1(*bFset1);
-                break;
-            default:
-                logger(WARN, "WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2");
-                delete bFset1;
-                bFset1 = new Base::BasisFunctionSet(2);
-                Base::AssembleBasisFunctionSet_2D_Ord2_A1(*bFset1);
-            }
+            Utilities::assembleMonomialBasisFunctions2D(*bFset1, order);
             break;
         case 3:
-            switch (order)
-            {
-            case 0:
-                Base::AssembleBasisFunctionSet_3D_Ord0_A0(*bFset1);
-                break;
-            case 1:
-                Base::AssembleBasisFunctionSet_3D_Ord1_A0(*bFset1);
-                break;
-            case 2:
-                Base::AssembleBasisFunctionSet_3D_Ord2_A1(*bFset1);
-                break;
-            case 3:
-                Base::AssembleBasisFunctionSet_3D_Ord3_A1(*bFset1);
-                break;
-            case 4:
-                Base::AssembleBasisFunctionSet_3D_Ord4_A1(*bFset1);
-                break;
-            case 5:
-                Base::AssembleBasisFunctionSet_3D_Ord5_A1(*bFset1);
-                break;
-            default:
-                logger(WARN, "WARNING: No default basisFunction sets have been defined for this polynomial order; defaulting to 2");
-                delete bFset1;
-                bFset1 = new Base::BasisFunctionSet(2);
-                Base::AssembleBasisFunctionSet_3D_Ord2_A1(*bFset1);
-            }
+
+            Utilities::assembleMonomialBasisFunctions3D(*bFset1, order);
+            break;
+        case 4:
+            Utilities::assembleMonomialBasisFunctions4D(*bFset1, order);
             break;
         default:
             logger(ERROR, "No basisfunctions exist in this dimension");
@@ -914,6 +843,8 @@ namespace Base
     void MeshManipulator<DIM>::setDefaultBasisFunctionSet(BasisFunctionSet *bFSet)
     {
         logger.assert_debug(bFSet != nullptr, "Invalid basis function set passed");
+        if(collBasisFSet_.size() == 0)
+            collBasisFSet_.resize(1);
         collBasisFSet_[0] = std::shared_ptr<const BasisFunctionSet>(bFSet);
         const_cast<ConfigurationData *>(configData_)->numberOfBasisFunctions_ = bFSet->size();
         for (Base::Face *face : getFacesList(IteratorType::GLOBAL))

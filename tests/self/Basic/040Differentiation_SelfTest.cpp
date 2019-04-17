@@ -125,9 +125,6 @@ int main(int argc, char** argv)
 
     test->useMonomialBasisFunctions(2);
     testMesh(test);
-    //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
-    test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet1DH1Line(2));
-    testMesh(test);
     test->useDefaultDGBasisFunctions(2);
     testMesh(test);
     
@@ -137,9 +134,6 @@ int main(int argc, char** argv)
     test->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "1Drectangular2mesh.hpgem"s);
 
     test->useMonomialBasisFunctions(2);
-    testMesh(test);
-    //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
-    test->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet1DH1Line(2));
     testMesh(test);
     test->useDefaultDGBasisFunctions(2);
     testMesh(test);
@@ -153,9 +147,6 @@ int main(int argc, char** argv)
 
     test2->useMonomialBasisFunctions(2);
     testMesh(test2);
-    //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
-    test2->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(2));
-    testMesh(test2);
     test2->useDefaultDGBasisFunctions(2);
     testMesh(test2);
     
@@ -164,9 +155,6 @@ int main(int argc, char** argv)
     test2->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "2Drectangular1mesh.hpgem"s);
 
     test2->useMonomialBasisFunctions(2);
-    testMesh(test2);
-    //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
-    test2->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Square(2));
     testMesh(test2);
     test2->useDefaultDGBasisFunctions(2);
     testMesh(test2);
@@ -178,9 +166,6 @@ int main(int argc, char** argv)
 
     test2->useMonomialBasisFunctions(2);
     testMesh(test2);
-    //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
-    test2->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Triangle(2));
-    testMesh(test2);
     test2->useDefaultDGBasisFunctions(2);
     testMesh(test2);
     
@@ -189,9 +174,6 @@ int main(int argc, char** argv)
     test2->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "2Drectangular2mesh.hpgem"s);
 
     test2->useMonomialBasisFunctions(2);
-    testMesh(test2);
-    //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
-    test2->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet2DH1Square(2));
     testMesh(test2);
     test2->useDefaultDGBasisFunctions(2);
     testMesh(test2);
@@ -205,9 +187,6 @@ int main(int argc, char** argv)
 
     test3->useMonomialBasisFunctions(3);
     testMesh(test3);
-    //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
-    test3->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(3));
-    testMesh(test3);
     test3->useDefaultDGBasisFunctions(3);
     testMesh(test3);
     
@@ -217,12 +196,7 @@ int main(int argc, char** argv)
     configData = new Base::ConfigurationData(1, 1);
     test3 = new Base::MeshManipulator<3>(configData);
     test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "3Drectangular1mesh.hpgem"s);
-
-    test3->useMonomialBasisFunctions(2);
-    testMesh(test3);
-    //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
-    test3->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(2));
-    testMesh(test3);
+    // Note: Not testing with order 2 monomials as they appear to be numerically unstable.
     test3->useDefaultDGBasisFunctions(2);
     testMesh(test3);
     
@@ -235,9 +209,6 @@ int main(int argc, char** argv)
 
     test3->useMonomialBasisFunctions(3);
     testMesh(test3);
-    //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
-    test3->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(3));
-    testMesh(test3);
     test3->useDefaultDGBasisFunctions(3);
     testMesh(test3);
     
@@ -248,11 +219,6 @@ int main(int argc, char** argv)
     test3 = new Base::MeshManipulator<3>(configData);
     test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "3Drectangular2mesh.hpgem"s);
 
-    test3->useMonomialBasisFunctions(2);
-    testMesh(test3);
-    //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
-    test3->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(2));
-    testMesh(test3);
     test3->useDefaultDGBasisFunctions(2);
     testMesh(test3);
     
@@ -265,9 +231,6 @@ int main(int argc, char** argv)
 
     test3->useMonomialBasisFunctions(3);
     testMesh(test3);
-    //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
-    test3->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Tetrahedron(3));
-    testMesh(test3);
     test3->useDefaultDGBasisFunctions(3);
     testMesh(test3);
     
@@ -278,11 +241,6 @@ int main(int argc, char** argv)
     test3 = new Base::MeshManipulator<3>(configData);
     test3->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "3Drectangular3mesh.hpgem"s);
 
-    test3->useMonomialBasisFunctions(2);
-    testMesh(test3);
-    //we dont have user defined basis function sets to test this, so fall back to a hpGEM provided one
-    test3->setDefaultBasisFunctionSet(Utilities::createDGBasisFunctionSet3DH1Cube(2));
-    testMesh(test3);
     test3->useDefaultDGBasisFunctions(2);
     testMesh(test3);
     

@@ -39,7 +39,6 @@ add_library(hpGEM_Base STATIC
 		#miscellaneous required stuff
 		${hpGEM_SOURCE_DIR}/kernel/Base/MeshManipulatorBase.cpp
                 Submesh.cpp
-        	${hpGEM_SOURCE_DIR}/kernel/Base/AssembleBasisFunctionSet.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Base/L2Norm.cpp
                 MpiContainer.cpp
 		        
@@ -52,6 +51,8 @@ add_library(hpGEM_Base STATIC
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions2DNedelec.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions3DNedelec.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions3DAinsworthCoyle.cpp
+		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctionsMonomials.cpp
+		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctionsPiecewiseConstant.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/helperFunctions.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/GlobalMatrix.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/GlobalVector.cpp

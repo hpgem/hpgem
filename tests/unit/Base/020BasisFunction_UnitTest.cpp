@@ -30,7 +30,7 @@
 //Testing derivatives is much easier since it relies on using the same numerical approximation for all basis-function over and over again
 //(but of course this is not as accurate as the actual derivative should be) -FB
 
-#include "Base/AssembleBasisFunctionSet.h"
+#include "Utilities/BasisFunctionsMonomials.h"
 
 #include "Base/BasisFunctionSet.h"
 #include "Geometry/PointReference.h"
@@ -45,7 +45,7 @@ int main()
     // 1D
     
     Base::BasisFunctionSet all1DbasisFunctions(5); //WARNING: this breaks the ordering of the unit tests, but it is basically the only way to collect all basisfunctions in an indexable way
-    Base::AssembleBasisFunctionSet_1D_Ord5_A0(all1DbasisFunctions);
+    Utilities::assembleMonomialBasisFunctions1D(all1DbasisFunctions, 5);
     Geometry::PointReference<1> point1D;
     LinearAlgebra::SmallVector<1> ret;
     for (std::size_t i = 0; i < all1DbasisFunctions.size(); ++i)
@@ -68,7 +68,7 @@ int main()
     // 2D
     
     Base::BasisFunctionSet all2DbasisFunctions(5); //WARNING: this breaks the ordering of the unit tests, but it is basically the only way to collect all basisfunctions in an indexable way
-    Base::AssembleBasisFunctionSet_2D_Ord5_A1(all2DbasisFunctions);
+    Utilities::assembleMonomialBasisFunctions2D(all2DbasisFunctions, 5);
     Geometry::PointReference<2> point2D;
     LinearAlgebra::SmallVector<2> ret2;
     for (std::size_t i = 0; i < all2DbasisFunctions.size(); ++i)
@@ -104,7 +104,7 @@ int main()
     //3D
     
     Base::BasisFunctionSet all3DbasisFunctions(5); //WARNING: this breaks the ordering of the unit tests, but it is basically the only way to collect all basisfunctions in an indexable way
-    Base::AssembleBasisFunctionSet_3D_Ord5_A1(all3DbasisFunctions);
+    Utilities::assembleMonomialBasisFunctions3D(all3DbasisFunctions, 5);
     Geometry::PointReference<3> point3D;
     LinearAlgebra::SmallVector<3> ret3;
     for (std::size_t i = 0; i < all3DbasisFunctions.size(); ++i)

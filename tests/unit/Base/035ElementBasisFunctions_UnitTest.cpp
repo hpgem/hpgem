@@ -21,7 +21,7 @@
  */
 
 #include "Base/ElementBasisFunctions.h"
-#include "Base/AssembleBasisFunctionSet.h"
+#include "Utilities/BasisFunctionsMonomials.h"
 #include "Logger.h"
 
 int main()
@@ -36,7 +36,7 @@ int main()
 
     // Test case for testing with basis functions
     std::shared_ptr<BasisFunctionSet> set = std::make_shared<BasisFunctionSet> (3);
-    AssembleBasisFunctionSet_3D_Ord3_A1(*set);
+    Utilities::assembleMonomialBasisFunctions3D(*set, 3);
     ElementBasisFunctions::CollectionOfBasisFunctionSets sets;
     sets.emplace_back(set);
 
@@ -80,7 +80,7 @@ int main()
     {
         // Adding secondary lower order basis functions
         std::shared_ptr<BasisFunctionSet> secondSet = std::make_shared<BasisFunctionSet> (1);
-        AssembleBasisFunctionSet_3D_Ord1_A1(*secondSet);
+        Utilities::assembleMonomialBasisFunctions3D(*secondSet, 1);
         sets.emplace_back(secondSet);
 
         const std::size_t UNKNOWNS = 2;

@@ -28,7 +28,7 @@
 #include "Logger.h"
 
 //only uses the constant basis functions
-#include "BasisFunctionsCollection_A.h"
+#include "BasisFunctionsPiecewiseConstant.h"
 
 namespace Utilities
 {
@@ -136,7 +136,7 @@ namespace Utilities
         }
         else
         {
-            result->addBasisFunction(new Base::Basis_A0_2D);
+            addPiecewiseConstantBasisFunction2D(*result);
         }
         return result;
     }

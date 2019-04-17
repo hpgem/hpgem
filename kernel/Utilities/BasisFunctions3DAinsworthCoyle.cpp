@@ -25,9 +25,6 @@
 #include "Geometry/ReferenceTetrahedron.h"
 #include "Geometry/PointReference.h"
 
-//only uses the constant basis functions
-#include "BasisFunctionsCollection_A.h"
-
 
 namespace Utilities
 {

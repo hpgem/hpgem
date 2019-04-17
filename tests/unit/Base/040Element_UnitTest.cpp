@@ -33,7 +33,7 @@
 #include <typeinfo>
 #include <typeindex>
 
-#include "Base/AssembleBasisFunctionSet.h"
+#include "Utilities/BasisFunctionsMonomials.h"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForCube.h"
 #include "Geometry/PointPhysical.h"
 #include "Base/BasisFunctionSet.h"
@@ -94,8 +94,8 @@ int main()
     nodes.push_back(point);
     
     Base::BasisFunctionSet* basisFunctions = new Base::BasisFunctionSet(3);
-    
-    Base::AssembleBasisFunctionSet_3D_Ord3_A1(*basisFunctions);
+
+    Utilities::assembleMonomialBasisFunctions3D(*basisFunctions, 3);
     
     std::vector<std::shared_ptr<const Base::BasisFunctionSet>> vectorOfFunctions(1, std::shared_ptr<const Base::BasisFunctionSet>(basisFunctions));
     

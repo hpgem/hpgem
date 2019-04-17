@@ -43,7 +43,6 @@
 #include "PhysicalElement.h"
 #include "Face.h"
 #include "MeshMoverBase.h"
-#include "AssembleBasisFunctionSet.h"
 #include "OrientedBasisFunctionSet.h"
 #include "Geometry/PointPhysical.h"
 #include "Geometry/ReferenceSquare.h"
