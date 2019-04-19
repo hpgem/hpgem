@@ -395,7 +395,8 @@ template<std::size_t DIM>
 std::vector<Base::Face*> DivDGMaxEigenValue<DIM>::findPeriodicBoundaryFaces() const
 {
     std::vector<Base::Face*> result;
-    for (Base::TreeIterator<Base::Face*> it = mesh_.faceColBegin(); it != mesh_.faceColEnd(); ++it)
+    auto end = mesh_.faceColEnd();
+    for (Base::TreeIterator<Base::Face*> it = mesh_.faceColBegin(); it != end; ++it)
     {
         // To check if the face is on a periodic boundary we compare the
         // coordinates of the center of the face according to the elements on

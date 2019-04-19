@@ -54,8 +54,9 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(Base::MeshManipulator<DI
     Integration::ElementIntegral<DIM> elIntegral(false);
 
     elIntegral.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM>> (new Base::HCurlConformingTransformation<DIM>()));
+    auto end = mesh.elementColEnd();
     for (typename Base::MeshManipulator<DIM>::ElementIterator it = mesh.elementColBegin();
-            it != mesh.elementColEnd(); ++it)
+            it != end; ++it)
     {
         std::size_t numberOfBasisFunctions = (*it)->getNumberOfBasisFunctions();
 
@@ -138,8 +139,9 @@ void DGMaxDiscretization<DIM>::computeFaceIntegrals(
     Integration::FaceIntegral<DIM> faIntegral(false);
 
     faIntegral.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM>> (new Base::HCurlConformingTransformation<DIM>()));
+    auto end = mesh.faceColEnd();
     for (typename Base::MeshManipulator<DIM>::FaceIterator it = mesh.faceColBegin();
-            it != mesh.faceColEnd(); ++it)
+            it != end; ++it)
     {
 
         // Resize all the matrices and vectors;
@@ -396,8 +398,9 @@ std::map<typename DGMaxDiscretization<DIM>::NormType, double> DGMaxDiscretizatio
     bool hcurlWanted = norms.find(NormType::HCurl) != norms.end();
     bool dgWanted = norms.find(NormType::DG) != norms.end();
 
+    auto end = mesh.elementColEnd();
     for (typename Base::MeshManipulator<DIM>::ElementIterator it = mesh.elementColBegin();
-            it != mesh.elementColEnd(); ++it)
+            it != end; ++it)
     {
         LinearAlgebra::SmallVector<2> errors = elIntegral.integrate((*it),
                 [&](Base::PhysicalElement<DIM>& el) {
@@ -414,8 +417,9 @@ std::map<typename DGMaxDiscretization<DIM>::NormType, double> DGMaxDiscretizatio
     {
         Integration::FaceIntegral<DIM> faIntegral(false);
         faIntegral.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> >(new Base::HCurlConformingTransformation<DIM>()));
+        auto end = mesh.faceColEnd();
         for (typename Base::MeshManipulator<DIM>::FaceIterator it = mesh.faceColBegin();
-                it != mesh.faceColEnd(); ++it)
+                it != end; ++it)
         {
             dgNorm += faIntegral.integrate(*it,
                     [&](Base::PhysicalFace<DIM>& face) {

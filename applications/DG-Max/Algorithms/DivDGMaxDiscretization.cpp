@@ -105,8 +105,9 @@ void DivDGMaxDiscretization<DIM>::computeElementIntegrands(
     elementIntegral.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM>> (new Base::HCurlConformingTransformation<DIM>()), 0);
     elementIntegral.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM>> (new Base::H1ConformingTransformation<DIM>()), 1);
 
+    auto end = mesh.elementColEnd();
     for (typename Base::MeshManipulator<DIM>::ElementIterator it = mesh.elementColBegin();
-            it != mesh.elementColEnd(); ++it)
+            it != end; ++it)
     {
         totalUDoFs = (*it)->getNumberOfBasisFunctions(0);
         totalPDoFs = (*it)->getNumberOfBasisFunctions(1);
@@ -176,8 +177,9 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
     faceIntegral.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM>> (new Base::HCurlConformingTransformation<DIM>()), 0);
     faceIntegral.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM>> (new Base::H1ConformingTransformation<DIM>()), 1);
 
+    auto end = mesh.faceColEnd();
     for (typename Base::MeshManipulator<DIM>::FaceIterator it = mesh.faceColBegin();
-            it != mesh.faceColEnd(); ++it)
+            it != end; ++it)
     {
 
         std::size_t totalDoFs = 0;
@@ -1197,8 +1199,9 @@ double DivDGMaxDiscretization<DIM>::computeL2Error(
             new Base::H1ConformingTransformation<DIM>()), 1);
 
     double error = 0;
+    auto end = mesh.elementColEnd();
     for (typename Base::MeshManipulator<DIM>::ElementIterator it = mesh.elementColBegin();
-            it != mesh.elementColEnd(); ++it)
+            it != end; ++it)
     {
         error += elIntegral.integrate ((*it),
                 [&](Base::PhysicalElement<DIM> &el) {
