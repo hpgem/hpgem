@@ -166,6 +166,9 @@ namespace Utilities
             {
                 indexing_.getGlobalIndices(element, localToGlobal);
                 elementMatrix = element->getElementMatrix(elementMatrixID_);
+                logger.assert_debug(elementMatrix.getNumberOfRows() == elementMatrix.getNumberOfColumns()
+                    && elementMatrix.getNumberOfRows() == localToGlobal.size(),
+                    "Incorrect element matrix size");
                 logger(DEBUG, "%", elementMatrix * 24.);
                 ierr = MatSetValues(A_, localToGlobal.size(), localToGlobal.data(), localToGlobal.size(), localToGlobal.data(), elementMatrix.data(), ADD_VALUES);
                 CHKERRV(ierr);
@@ -184,6 +187,9 @@ namespace Utilities
 
                 indexing_.getGlobalIndices(face, localToGlobal);
                 faceMatrix = face->getFaceMatrixMatrix(faceMatrixID_);
+                logger.assert_debug(faceMatrix.getNumberOfRows() == faceMatrix.getNumberOfColumns()
+                                    && faceMatrix.getNumberOfRows() == localToGlobal.size(),
+                                    "Incorrect face matrix size");
                 logger(DEBUG, "%", faceMatrix * 24.);
                 ierr = MatSetValues(A_, localToGlobal.size(), localToGlobal.data(), localToGlobal.size(), localToGlobal.data(), faceMatrix.data(), ADD_VALUES);
                 CHKERRV(ierr);

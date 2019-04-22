@@ -107,6 +107,8 @@ namespace Utilities
             {
                 indexing_.getGlobalIndices(element, elementToGlobal);
                 elementVector = element->getElementVector(elementVectorID_);
+                logger.assert_debug(elementVector.size() == elementToGlobal.size(),
+                        "Incorrectly sized element vector.");
                 int ierr = VecSetValues(b_, elementToGlobal.size(), elementToGlobal.data(), elementVector.data(), ADD_VALUES);
                 CHKERRV(ierr);
                 
@@ -125,6 +127,8 @@ namespace Utilities
                 faceToGlobal.clear();
                 indexing_.getGlobalIndices(face, faceToGlobal);
                 faceVector = face->getFaceVector(faceVectorID_);
+                logger.assert_debug(faceVector.size() == faceToGlobal.size(),
+                        "Incorrectly sized face vector");
                 int ierr = VecSetValues(b_, faceToGlobal.size(), faceToGlobal.data(), faceVector.data(), ADD_VALUES);
                 CHKERRV(ierr);
             }
