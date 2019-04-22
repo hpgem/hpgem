@@ -35,10 +35,15 @@ namespace Utilities
         reset(mesh, layout);
     }
 
-    void GlobalIndexing::getGlobalIndices(const Base::Element *element, std::size_t offset, std::vector<int> &indices)
+    std::size_t GlobalIndexing::getGlobalIndices(const Base::Element *element, std::size_t offset, std::vector<int> &indices)
     {
         logger.assert_debug(element != nullptr, "Null pointer as element");
-        indices.resize(offset + element->getTotalNumberOfBasisFunctions());
+        // Make sure we have enough space
+        std::size_t totalBasisFunctions = element->getTotalNumberOfBasisFunctions();
+        if(offset + totalBasisFunctions > indices.size())
+        {
+            indices.resize(offset + totalBasisFunctions);
+        }
 
         std::size_t localBasisIndex = offset;
         for (std::size_t unknown = 0; unknown < element->getNumberOfUnknowns(); ++unknown)
@@ -87,16 +92,23 @@ namespace Utilities
             }
         }
 
-        logger.assert_debug(localBasisIndex == indices.size(), "Not all basis functions have been assigned an index.");
+        logger.assert_debug(localBasisIndex == offset + element->getTotalNumberOfBasisFunctions(),
+                "Not all basis functions have been assigned an index.");
+        return localBasisIndex;
     }
 
     void GlobalIndexing::getGlobalIndices(const Base::Face *face, std::vector<int> &indices)
     {
-        getGlobalIndices(face->getPtrElementLeft(), indices);
+        std::size_t size;
+        size = getGlobalIndices(face->getPtrElementLeft(), 0, indices);
         if (face->isInternal())
         {
-            getGlobalIndices(face->getPtrElementRight(), indices.size(), indices);
+            size = getGlobalIndices(face->getPtrElementRight(), size, indices);
         }
+        // Note this will resize when using mixed geometry faces and when
+        // switching from boundary to internal faces. This is an unfortunate
+        // consequence from having an easy function signature for use.
+        indices.resize(size);
     }
 
     void GlobalIndexing::reset(Base::MeshManipulatorBase *mesh, Layout layout)

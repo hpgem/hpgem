@@ -248,7 +248,8 @@ namespace Utilities
         /// \param indices The mapping.
         void getGlobalIndices(const Base::Element *element, std::vector<int>& indices)
         {
-            getGlobalIndices(element, 0, indices);
+            std::size_t size = getGlobalIndices(element, 0, indices);
+            indices.resize(size);
         }
 
         /// \brief Retrieve the global indices associated with the basis
@@ -335,7 +336,8 @@ namespace Utilities
         /// \param element The element to construct the mapping for
         /// \param offset The index where to place the first global id in indices.
         /// \param indices The mapping.
-        void getGlobalIndices(const Base::Element *element, std::size_t offset, std::vector<int> &indices);
+        /// \return The number of global indices in the `indices` vector that are used.
+        std::size_t getGlobalIndices(const Base::Element *element, std::size_t offset, std::vector<int> &indices);
 
         /// \brief Helper structure to store the information for a single unknown.
         ///
