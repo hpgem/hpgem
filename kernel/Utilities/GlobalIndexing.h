@@ -219,54 +219,6 @@ namespace Utilities
             return -1;
         }
 
-        bool isLocallyOwned(const Base::Element* element, std::size_t unknown) const
-        {
-            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
-            const Offsets& offset = offsets[unknown];
-            const auto basisStart = offset.elementOffsets_.find(element->getID());
-            logger.assert_debug(basisStart != offset.elementOffsets_.end(),
-                                "No indices available for element %", element->getID());
-            int globalId = basisStart->second;
-            return offset.owns(globalId);
-        }
-
-        bool isLocallyOwned(const Base::Face* face, std::size_t unknown) const
-        {
-            //TODO: The implementation of these functions mimics what GlobalMatrix
-            // did. However, this seems a crazy waste of energy as we should be able
-            // to determine if a face/edge/node is locally owned or not without all
-            // the extra information about the unknown.
-            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
-            const Offsets& offset = offsets[unknown];
-            const auto basisStart = offset.faceOffsets_.find(face->getID());
-            if (basisStart == offset.faceOffsets_.end())
-                return false;
-            int globalId = basisStart->second;
-            return offset.owns(globalId);
-        }
-
-        bool isLocallyOwned(const Base::Edge* edge, std::size_t unknown) const
-        {
-            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
-            const Offsets& offset = offsets[unknown];
-            const auto basisStart = offset.edgeOffsets_.find(edge->getID());
-            if(basisStart == offset.edgeOffsets_.end())
-                return false;
-            int globalId = basisStart->second;
-            return offset.owns(globalId);
-        }
-
-        bool isLocallyOwned(const Base::Node* node, std::size_t unknown) const
-        {
-            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
-            const Offsets& offset = offsets[unknown];
-            const auto basisStart = offset.nodeOffsets_.find(node->getID());
-            if(basisStart == offset.nodeOffsets_.end())
-                return false;
-            int globalId = basisStart->second;
-            return offset.owns(globalId);
-        }
-
         std::size_t getNumberOfLocalBasisFunctions() const
         {
             return localBasisFunctions_;

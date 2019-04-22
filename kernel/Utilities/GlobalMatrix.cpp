@@ -238,7 +238,7 @@ namespace Utilities
                     // Note, we assume here that the basis functions for a single
                     // unknown are laid out consecutively.
                     const Base::Face* face = element->getFace(i);
-                    if (!indexing_.isLocallyOwned(face, unknown))
+                    if (!face->isOwnedByCurrentProcessor())
                         continue;
                     std::size_t localIndex0 = indexing_.getProcessorLocalIndex(face, unknown);
                     for (std::size_t basisId = 0; basisId < face->getLocalNumberOfBasisFunctions(unknown); ++basisId)
@@ -298,7 +298,7 @@ namespace Utilities
                 for(Base::Element* element : {face->getPtrElementLeft(), face->getPtrElementRight()})
                 {
                     std::size_t nElementBasisTotal = element->getTotalNumberOfBasisFunctions();
-                    if (indexing_.isLocallyOwned(element, 0))
+                    if (element->isOwnedByCurrentProcessor())
                     {
                         for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
                         {
@@ -315,7 +315,7 @@ namespace Utilities
                     for (int i = 0; i < element->getReferenceGeometry()->getNumberOfCodim1Entities(); ++i)
                     {
                         const Base::Face* face = element->getFace(i);
-                        if (indexing_.isLocallyOwned(face, 0))
+                        if (face->isOwnedByCurrentProcessor())
                         {
                             //conforming contributions
                             for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
@@ -334,7 +334,7 @@ namespace Utilities
                     for (int i = 0; i < element->getNumberOfEdges(); ++i)
                     {
                         const Base::Edge* edge = element->getEdge(i);
-                        if (indexing_.isLocallyOwned(edge, 0))
+                        if (edge->isOwnedByCurrentProcessor())
                         {
                             for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
                             {
@@ -354,7 +354,7 @@ namespace Utilities
                         for (int i = 0; i < element->getNumberOfNodes(); ++i)
                         {
                             const Base::Node *node = element->getNode(i);
-                            if (indexing_.isLocallyOwned(node, 0))
+                            if (node->isOwnedByCurrentProcessor())
                             {
                                 for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
                                 {

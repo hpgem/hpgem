@@ -41,7 +41,7 @@ namespace Base
 {
     /*! Compute the 2 norm of a vector. */
     LinearAlgebra::MiddleSizeVector::type L2Norm(const LinearAlgebra::MiddleSizeVector&);
-    
+
     template<std::size_t DIM>
     double L2Norm(const LinearAlgebra::SmallVector<DIM>& v)
     {

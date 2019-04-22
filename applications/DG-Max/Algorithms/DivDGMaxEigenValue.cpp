@@ -246,8 +246,8 @@ typename DivDGMaxEigenValue<DIM>::Result DivDGMaxEigenValue<DIM>::solve(
                 lastRightUOffset = rightUOffset;
                 lastRightPOffset = rightPOffset;
 
-                bool ownLeft = stiffnessMatrix.getGlobalIndex().isLocallyOwned(face->getPtrElementLeft(), 0);
-                bool ownRight = stiffnessMatrix.getGlobalIndex().isLocallyOwned(face->getPtrElementRight(), 0);
+                bool ownLeft = face->isOwnedByCurrentProcessor();
+                bool ownRight = face->isOwnedByCurrentProcessor();
 
                 // Note that we interleave the left and right code to first do
                 // the gets and then the sets and finally the assembly on the
