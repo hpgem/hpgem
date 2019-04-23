@@ -79,7 +79,7 @@ public:
 
         // Create mesh and set basis functions.
         this->addMesh(meshName, numberOfElementMatrices, numberOfElementVectors, numberOfFaceMatrices, numberOfFaceVectors);
-        this->meshes_[0]->useDefaultConformingBasisFunctions();
+        this->meshes_[0]->useDefaultConformingBasisFunctions(p_);
 
         // Set the number of time integration vectors according to the size of the Butcher tableau.
         this->setNumberOfTimeIntegrationVectorsGlobally(this->globalNumberOfTimeIntegrationVectors_);
