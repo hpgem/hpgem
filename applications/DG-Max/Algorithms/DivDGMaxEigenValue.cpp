@@ -246,8 +246,8 @@ typename DivDGMaxEigenValue<DIM>::Result DivDGMaxEigenValue<DIM>::solve(
                 lastRightUOffset = rightUOffset;
                 lastRightPOffset = rightPOffset;
 
-                bool ownLeft = face->isOwnedByCurrentProcessor();
-                bool ownRight = face->isOwnedByCurrentProcessor();
+                bool ownLeft = face->getPtrElementLeft()->isOwnedByCurrentProcessor();
+                bool ownRight = face->getPtrElementRight()->isOwnedByCurrentProcessor();
 
                 // Note that we interleave the left and right code to first do
                 // the gets and then the sets and finally the assembly on the
