@@ -120,14 +120,14 @@ int main(int argc, char** argv)
     Base::MeshManipulator<2> *test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(1));
     test2->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "2Dtriangular1mesh.hpgem"s);
 
-    test->useMonomialBasisFunctions(2);
+    test2->useMonomialBasisFunctions(2);
     testMesh(test2);
     
     delete test2;
     test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(1));
     test2->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "2Drectangular1mesh.hpgem"s);
 
-    test->useMonomialBasisFunctions(2);
+    test2->useMonomialBasisFunctions(2);
     testMesh(test2);
     
     delete test2;
@@ -135,14 +135,14 @@ int main(int argc, char** argv)
     test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(1));
     test2->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "2Dtriangular2mesh.hpgem"s);
 
-    test->useMonomialBasisFunctions(2);
+    test2->useMonomialBasisFunctions(2);
     testMesh(test2);
     
     delete test2;
     test2 = new Base::MeshManipulator<2>(new Base::ConfigurationData(1));
     test2->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + "2Drectangular2mesh.hpgem"s);
 
-    test->useMonomialBasisFunctions(2);
+    test2->useMonomialBasisFunctions(2);
     testMesh(test2);
     
     // dim 3
