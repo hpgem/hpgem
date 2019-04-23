@@ -380,7 +380,7 @@ std::vector<std::pair<double, LinearAlgebra::MiddleSizeVector>> SavageHutter2DBa
         LinearAlgebra::MiddleSizeVector v = solutions[i];
         logger(DEBUG, "v pointer: %, v: %", v.data(), v);
         logger(DEBUG, "pointer to global solutions: %", globalSolutions[i].data());
-        comm.Reduce(v.data(), globalSolutions[i].data(), v.size(), Base::Detail::toMPIType(*v.data()), MPI::SUM, 0);
+        MPI_Reduce(v.data(), globalSolutions[i].data(), v.size(), Base::Detail::toMPIType(*v.data()), MPI_SUM, 0, comm);
     }
     logger(DEBUG, "I'm still here!");
 
