@@ -226,7 +226,7 @@ namespace Base
         }
         else
         {
-            logger(WARN, "getElementsList will only return elements this processor knows about (including shadow elements)");
+//            logger(WARN, "getElementsList will only return elements this processor knows about (including shadow elements)");
             return elements_;
         }
     }
@@ -240,7 +240,7 @@ namespace Base
         }
         else
         {
-            logger(WARN, "getElementsList will only return elements this processor knows about (including shadow elements)");
+//            logger(WARN, "getElementsList will only return elements this processor knows about (including shadow elements)");
             return elements_;
         }
     }
@@ -254,7 +254,7 @@ namespace Base
         }
         else
         {
-            logger(WARN, "getFacesList will only return faces this processor knows about");
+//            logger(WARN, "getFacesList will only return faces this processor knows about");
             return faces_;
         }
     }
@@ -268,7 +268,7 @@ namespace Base
         }
         else
         {
-            logger(WARN, "getFacesList will only return faces this processor knows about");
+//            logger(WARN, "getFacesList will only return faces this processor knows about");
             return faces_;
         }
     }
@@ -282,7 +282,7 @@ namespace Base
         }
         else
         {
-            logger(WARN, "getEdgesList will only return edges this processor knows about");
+//            logger(WARN, "getEdgesList will only return edges this processor knows about");
             return edges_;
         }
     }
@@ -296,7 +296,7 @@ namespace Base
         }
         else
         {
-            logger(WARN, "getEdgesList will only return edges this processor knows about");
+//            logger(WARN, "getEdgesList will only return edges this processor knows about");
             return edges_;
         }
     }
@@ -310,7 +310,7 @@ namespace Base
         }
         else
         {
-            logger(WARN, "getNodesList will only return nodes this processor knows about");
+//            logger(WARN, "getNodesList will only return nodes this processor knows about");
             return nodes_;
         }
     }
@@ -324,7 +324,7 @@ namespace Base
         }
         else
         {
-            logger(WARN, "getNodesList will only return nodes this processor knows about");
+//            logger(WARN, "getNodesList will only return nodes this processor knows about");
             return nodes_;
         }
     }

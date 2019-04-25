@@ -6,6 +6,11 @@
 #include "DGMaxLogger.h"
 #include "ElementInfos.h"
 
+#ifdef HPGEM_USE_MPI
+// In case of MPI it is usefull to know where each process is located
+#include <unistd.h>
+#endif
+
 namespace DGMax
 {
     void printArguments(int argc, char** argv)
@@ -15,7 +20,19 @@ namespace DGMax
         int size;
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
         MPI_Comm_size(MPI_COMM_WORLD, &size);
-        logAll([&](){DGMaxLogger(INFO, "Proc %/%", rank, size);});
+        // Apperently a HOST_NAME_MAX macro is defined on linux, but requires
+        // quite a bit of macro fiddling, with the standard value of 64. Instead
+        // we define it here, with a +1 for the null termination of the string.
+        const std::size_t HOSTNAMEMAX = 65;
+        char hostname[HOSTNAMEMAX];
+        int ierr = gethostname(hostname, HOSTNAMEMAX);
+        if (ierr == -1)
+        {
+            std::cerr << "Hostname error" << std::endl;
+            // Almost surely a too long hostname, make sure it is null-terminated
+            hostname[HOSTNAMEMAX-1] = '\0';
+        }
+        logAll([&](){DGMaxLogger(INFO, "Proc %/% on %", rank, size, hostname);});
 #endif
         if (!loggingSuppressed())
         {
