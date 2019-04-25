@@ -40,6 +40,10 @@
 #include <iostream>
 #include <csignal>
 
+#ifdef HPGEM_USE_MPI
+// For including the MPI rank in the information
+#include <mpi.h>
+#endif
 
 /*
  *  We need these to actually exists. These are used as tags in the template metaprogramming for
@@ -59,13 +63,25 @@ Logger<HPGEM_LOGLEVEL> logger("hpGEM Kernel");
 // Default implementation for logging basic information 
 static void printInfo(std::string module, std::string msg)
 {
+#ifdef HPGEM_USE_MPI
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    std::cout << "[" << rank << "]:" << msg << std::endl;
+#else
     std::cout << msg << std::endl;
+#endif
 }
 
 // Default implementation for logging warnings / messages 
 static void printMessage(std::string module, std::string msg)
 {
+#ifdef HPGEM_USE_MPI
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    std::cout << "[" << rank << "] Module " << module << ":\n" << msg << std::endl;
+#else
     std::cout << "Module " << module << ":\n" << msg << std::endl;
+#endif
 }
 
 // Default implementation for logging errors / fatals 
@@ -74,7 +90,15 @@ static void printMessage(std::string module, std::string msg)
 {
     // Ensure that all output is visible.
     std::cout << std::flush;
+#ifdef HPGEM_USE_MPI
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    std::cerr << "[" << rank << "] Module " << module << ":\n" << msg << std::endl;
+#else
     std::cerr << "Module " << module << ":\n" << msg << std::endl;
+#endif
+
+
 #ifdef HPGEM_STACKTRACE_ENABLE
     std::cerr << "\n-----------------[Stack Trace]-----------------\n";
     

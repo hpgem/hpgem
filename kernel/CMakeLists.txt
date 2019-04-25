@@ -5,6 +5,10 @@ if( hpGEM_STACKTRACE_DEMANGLE )
   target_link_libraries(Logger dl)
 endif()
 
+if( hpGEM_USE_MPI )
+  target_link_libraries(Logger "${MPI_LIBRARIES}")
+endif()
+
 add_subdirectory(LinearAlgebra)
 add_subdirectory(Geometry)
 add_subdirectory(Integration)
