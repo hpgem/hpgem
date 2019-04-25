@@ -128,7 +128,7 @@ namespace Utilities
             // TODO: Remove the basis function argument from all functions, as we lay them out sequentially.
             const auto basisStart = offsets[unknown].elementOffsets_.find(element->getID());
             logger.assert_debug(basisStart != offsets[unknown].elementOffsets_.end(),
-                                "No indices known for element %", element->getID());
+                                "No indices known for element %:%", element->getID(), unknown);
             return basisStart->second;
         }
         int getGlobalIndex(const Base::Face* face, std::size_t unknown) const
@@ -136,7 +136,7 @@ namespace Utilities
             logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
             const auto basisStart = offsets[unknown].faceOffsets_.find(face->getID());
             logger.assert_debug(basisStart != offsets[unknown].faceOffsets_.end(),
-                                "No indices known for face %", face->getID());
+                                "No indices known for face %:%", face->getID(), unknown);
             return basisStart->second;
         }
         int getGlobalIndex(const Base::Edge* edge, std::size_t unknown) const
@@ -144,7 +144,7 @@ namespace Utilities
             logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
             const auto basisStart = offsets[unknown].edgeOffsets_.find(edge->getID());
             logger.assert_debug(basisStart != offsets[unknown].edgeOffsets_.end(),
-                                "No indices known for edge %", edge->getID());
+                                "No indices known for edge %:%", edge->getID(), unknown);
             return basisStart->second;
         }
         int getGlobalIndex(const Base::Node* node, std::size_t unknown) const
@@ -152,7 +152,7 @@ namespace Utilities
             logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
             const auto basisStart = offsets[unknown].nodeOffsets_.find(node->getID());
             logger.assert_debug(basisStart != offsets[unknown].nodeOffsets_.end(),
-                                "No indices known for node %", node->getID());
+                                "No indices known for node %:%", node->getID(), unknown);
             return basisStart->second;
         }
 
@@ -272,6 +272,11 @@ namespace Utilities
         /// \param face The face to construct the mapping for.
         /// \param indices The mapping.
         void getGlobalIndices(const Base::Face *face, std::vector<int>& indices);
+
+        /// Verify that the index is complete (i.e. all global indices are available)
+        /// Only works when assert_debug is available
+        /// \param mesh The mesh for which this indexing was created.
+        void verifyCompleteIndex(const Base::MeshManipulatorBase& mesh) const;
 
     private:
 

@@ -339,6 +339,49 @@ namespace Utilities
         communicatePushPullElements(mesh);
     }
 
+    void GlobalIndexing::verifyCompleteIndex(const Base::MeshManipulatorBase &mesh) const
+    {
+        for( const Base::Element *element : mesh.getElementsList(Base::IteratorType::GLOBAL))
+        {
+            for(std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
+            {
+                // Internally checks if it is present
+                getGlobalIndex(element, unknown);
+            }
+        }
+
+        for( const Base::Face *face : mesh.getFacesList(Base::IteratorType::GLOBAL))
+        {
+            for(std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
+            {
+                // Internally checks if it is present
+                getGlobalIndex(face, unknown);
+            }
+        }
+
+        for( const Base::Edge *edge : mesh.getEdgesList(Base::IteratorType::GLOBAL))
+        {
+            for(std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
+            {
+                // Internally checks if it is present
+                getGlobalIndex(edge, unknown);
+            }
+        }
+
+        if (meshDimension > 1)
+        {
+            for (const Base::Node *node : mesh.getNodesList(Base::IteratorType::GLOBAL))
+            {
+                for (std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
+                {
+                    // Internally checks if it is present
+                    getGlobalIndex(node, unknown);
+                }
+            }
+        }
+    }
+
+
 #ifdef HPGEM_USE_MPI
 
     void GlobalIndexing::createInitialMessage(
@@ -347,6 +390,15 @@ namespace Utilities
             std::size_t targetProcessor,
             std::set<std::size_t>& secondRoundTags) const
     {
+        // To prevent sending information for faces, edges and nodes more than
+        // once, we store their tags. Alternatively we could do something
+        // similar by asking face->getOwningElement() == element, except that
+        // this fails when the owning element is not a ghost element of the
+        // targetProcessor. Instead of compensating for the case, we take the
+        // easier approach of storing the message tags of all faces, edges and
+        // nodes that have already been send.
+        std::set<std::size_t> sendTags;
+
         // For format see processMessage method
         for(Base::Element *element : elements)
         {
@@ -354,11 +406,12 @@ namespace Utilities
 
             for (auto face : element->getFacesList())
             {
+                std::size_t tag = 4*face->getID() + 1;
                 if (face->isOwnedByCurrentProcessor())
                 {
                     // Prevent sending it for both sides of the face by only
-                    // sending it on the owning element side.
-                    if(face->getOwningElement() == element)
+                    // sending it if the tag was actually inserted
+                    if(sendTags.insert(tag).second)
                     {
                         faceMessage(face->getID(), message);
                     }
@@ -369,16 +422,17 @@ namespace Utilities
                 // processor.
                 else if(face->getPtrElementLeft()->getOwner() != targetProcessor)
                 {
-                    secondRoundTags.insert(4*face->getID() + 1);
+                    secondRoundTags.insert(tag);
                 }
             }
 
             // Same for edge, nodes
             for (auto edge : element->getEdgesList())
             {
+                std::size_t tag = 4*edge->getID() + 2;
                 if (edge->isOwnedByCurrentProcessor())
                 {
-                    if(edge->getOwningElement() == element)
+                    if(sendTags.insert(tag).second)
                     {
                         edgeMessage(edge->getID(), message);
                     }
@@ -396,7 +450,7 @@ namespace Utilities
                     }
                     if(!targetIsNeighbour)
                     {
-                        secondRoundTags.insert(4*edge->getID() + 2);
+                        secondRoundTags.insert(tag);
                     }
                 }
             }
@@ -405,9 +459,10 @@ namespace Utilities
             {
                 for (auto node : element->getNodesList())
                 {
+                    std::size_t tag = 4*node->getID()+3;
                     if (node->isOwnedByCurrentProcessor())
                     {
-                        if(node->getOwningElement())
+                        if(sendTags.insert(tag).second)
                         {
                             nodeMessage(node->getID(), message);
                         }
@@ -425,7 +480,7 @@ namespace Utilities
                         }
                         if(!targetIsNeighbour)
                         {
-                            secondRoundTags.insert(4*node->getID() + 3);
+                            secondRoundTags.insert(tag);
                         }
                     }
 
@@ -730,6 +785,9 @@ namespace Utilities
         sendRequests.clear();
         // Prevent interference by ensuring that all communication has finished.
         MPI_Barrier(mpiInstance.getComm());
+
+        // Verify that everything is complete
+        verifyCompleteIndex(mesh);
 #endif
     }
 
