@@ -1,6 +1,6 @@
 include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 
-if(hpGEM_USE_PETSC OR hpGEM_USE_COMPLEX_PETSC)
+if(hpGEM_USE_ANY_PETSC)
     include_directories(${PETSC_INCLUDES})
 endif()
 
@@ -45,7 +45,7 @@ if(hpGEM_USE_METIS)
     target_link_libraries(ExtractSurface.out "${METIS_LIBRARIES}")
 endif()
 
-if(hpGEM_USE_PETSC OR hpGEM_USE_COMPLEX_PETSC)
+if(hpGEM_USE_ANY_PETSC)
     target_link_libraries(Preprocessor.out "${PETSC_LIBRARIES}")
     target_link_libraries(ExtractSurface.out "${PETSC_LIBRARIES}")
 endif()

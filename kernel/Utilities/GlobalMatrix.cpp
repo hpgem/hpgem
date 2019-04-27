@@ -116,7 +116,7 @@ namespace Utilities
         }
     }
 
-#if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
+#if defined(HPGEM_USE_ANY_PETSC)
     
     GlobalPetscMatrix::GlobalPetscMatrix(Base::MeshManipulatorBase* theMesh, int elementMatrixID, int faceMatrixID)
             : GlobalMatrix(theMesh, elementMatrixID, faceMatrixID)

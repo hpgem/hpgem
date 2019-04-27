@@ -134,8 +134,8 @@ option(hpGEM_BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API docum
 option(hpGEM_USE_METIS "Include metis this will enable parallel computation" OFF)
 option(hpGEM_USE_MPI "Include mpi this will enable parallel computation" OFF)
 option(hpGEM_USE_QHULL "Include QHull this will allow unstructured mesh generation and r-refinement" OFF)
-option(hpGEM_USE_PETSC "Include PETSC this is required for GlobalAssemble" OFF)
-option(hpGEM_USE_COMPLEX_PETSC "Include a more complex version of PETSc instead" OFF)
+option(hpGEM_USE_PETSC "Include PETSC with real numbers, which is required for assembling a global system" OFF)
+option(hpGEM_USE_COMPLEX_PETSC "Include PETSc with complex numbers" OFF)
 option(hpGEM_USE_SLEPC "Include SLEPC this is needed for some applications" OFF)
 option(hpGEM_USE_EXTERNAL_BLAS "Try to use a version of BLAS optimised for your system" ON)
 option(hpGEM_USE_SUNDIALS "Include SUNDIALS containing robust time integrators and nonlinear solvers" OFF)
@@ -230,37 +230,36 @@ endif()
 if (hpGEM_USE_PETSC OR hpGEM_USE_COMPLEX_PETSC)
 	set(PETSC_ARCH "" CACHE STRING "PETSc arch string should be set be the user; he will know this if he has installed PETSc")
 	set(hpGEM_LOGLEVEL "DEFAULT" CACHE STRING "Verbosity of hpGEM. Default is recommended.")
-endif()
 
-if(hpGEM_USE_PETSC) 
-    if(hpGEM_USE_COMPLEX_PETSC)
+    if (hpGEM_USE_PETSC AND hpGEM_USE_COMPLEX_PETSC)
         message(FATAL_ERROR "The options 'hpGEM_USE_PETSC' and 'hpGEM_USE_COMPLEX_PETSC' are mutually exclusive, please disable one of them")
     endif()
-        enable_language(C)
-	FIND_PACKAGE(PETSc REQUIRED COMPONENTS CXX)
-        add_definitions(-DHPGEM_USE_PETSC)
-        if (NOT PETSC_FOUND)
-		message(FATAL_ERROR
-			"The option you have choosen requires PETSc and you do not have this installed. Please install")
-	endif()
 
-#endif PETSc required
-endif()
+    enable_language(C)
+    find_package(PETSc REQUIRED COMPONENTS CXX)
 
-if(hpGEM_USE_COMPLEX_PETSC)
-    if(hpGEM_USE_PETSC)
-        message(FATAL_ERROR "The options 'hpGEM_USE_PETSC' and 'hpGEM_USE_COMPLEX_PETSC' are mutually exclusive, please disable one of them")
+    # Check whether we found a petsc with complex or real numbers
+    include(CheckSymbolExists)
+    check_symbol_exists(PETSC_USE_COMPLEX petscconf.h PETSC_IS_COMPLEX)
+
+    set(hpGEM_USE_ANY_PETSC ON "A version of PETSc has been configured")
+
+    # Check if this matches with what the user expects
+    if (PETSC_IS_COMPLEX)
+        if (hpGEM_USE_PETSC)
+            message(FATAL_ERROR "Requested PETSc with real numbers, found one with complex numbers")
+        endif()
+        add_definitions(-DHPGEM_USE_COMPLEX_PETSC -DHPGEM_USE_ANY_PETSC)
+
+    else()
+        if (hpGEM_USE_COMPLEX_PETSC)
+            message(FATAL_ERROR "Requested PETSc with complex numbers, found one with real numbers")
+        endif()
+        add_definitions(-DHPGEM_USE_PETSC -DHPGEM_USE_ANY_PETSC)
     endif()
-        enable_language(C)
-	FIND_PACKAGE(PETSc REQUIRED COMPONENTS CXX)
-        add_definitions(-DHPGEM_USE_COMPLEX_PETSC)
-        if (NOT PETSC_FOUND)
-		message(FATAL_ERROR
-			"The option you have choosen requires PETSc and you do not have this installed. Please install")
-	endif()
-
-#endif PETSc required
-endif()
+else()
+    set(hpGEM_USE_ANY_PETSC OFF "No version of PETSc has been configured")
+endif() # Petsc
 
 if(hpGEM_USE_SLEPC)
         enable_language(C)

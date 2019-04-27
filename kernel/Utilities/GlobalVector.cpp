@@ -35,7 +35,7 @@
 #include "Geometry/PointReference.h"
 #include <Logger.h>
 #include <numeric>
-#if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
+#if defined(HPGEM_USE_ANY_PETSC)
     #include "petscis.h"
 #endif
 #if defined(HPGEM_USE_SUNDIALS)
@@ -51,7 +51,7 @@ namespace Utilities
         logger.assert_debug(theMesh != nullptr, "Invalid mesh passed");
     }
     
-#if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
+#if defined(HPGEM_USE_ANY_PETSC)
     
     GlobalPetscVector::GlobalPetscVector(Base::MeshManipulatorBase* theMesh, int elementVectorID, int faceVectorID)
             : GlobalVector(theMesh, elementVectorID, faceVectorID)

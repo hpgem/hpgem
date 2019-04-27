@@ -189,7 +189,7 @@ public:
     
     void solveSteadyStateWithPetsc(bool doComputeError) override final
     {
-#if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
+#if defined(HPGEM_USE_ANY_PETSC)
         // Create and Store things before solving the problem.
         this->tasksBeforeSolving();
         

@@ -40,7 +40,7 @@
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
 
-#if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
+#if defined(HPGEM_USE_ANY_PETSC)
     #include "petscksp.h"
 #endif
 
@@ -120,7 +120,7 @@ namespace Base
     template<std::size_t DIM>
     void HpgemAPILinearSteadyState<DIM>::solveSteadyStateWithPetsc(bool doComputeError)
     {
-#if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
+#if defined(HPGEM_USE_ANY_PETSC)
         // Create output files for Paraview.
         std::string outputFileNameVTK = this->outputFileName_;
         

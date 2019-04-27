@@ -24,7 +24,7 @@
 #define GLOBALVECTOR_HPP_
 
 #include "LinearAlgebra/MiddleSizeVector.h"
-#if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
+#if defined(HPGEM_USE_ANY_PETSC)
 #include "petscvec.h"
 #endif
 #if defined(HPGEM_USE_SUNDIALS)
@@ -92,7 +92,7 @@ namespace Utilities
         
     };
     
-#if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
+#if defined(HPGEM_USE_ANY_PETSC)
     ///\bug this class depends on PETSc and is likely to cause naming conflicts between the c and c++ standard libraries (workaround: make sure to include all other needed hpGEM headers before including this header)
     class GlobalPetscVector : public GlobalVector
     {

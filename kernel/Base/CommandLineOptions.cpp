@@ -28,11 +28,7 @@
 #include <mpi.h>
 #endif
 
-#ifdef HPGEM_USE_PETSC
-#include <petscsys.h>
-#endif
-
-#ifdef HPGEM_USE_COMPLEX_PETSC
+#ifdef HPGEM_ANY_PETSC
 #include <petscsys.h>
 #endif
 
@@ -111,7 +107,7 @@ void Base::parse_options(int argc, char** argv)
     argc -= count;
     argv += count;
     
-#if defined(HPGEM_USE_PETSC) || defined(HPGEM_USE_COMPLEX_PETSC)
+#if defined(HPGEM_USE_ANY_PETSC)
     //block so variables can be created without affecting the rest of the function
     {
         PetscBool initialised;
