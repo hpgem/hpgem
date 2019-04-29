@@ -28,7 +28,7 @@
 #include <mpi.h>
 #endif
 
-#ifdef HPGEM_ANY_PETSC
+#ifdef HPGEM_USE_ANY_PETSC
 #include <petscsys.h>
 #endif
 
