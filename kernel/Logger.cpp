@@ -42,6 +42,7 @@
 
 #ifdef HPGEM_USE_MPI
 // For including the MPI rank in the information
+// The logger interfaces directly with MPI to prevent cyclic dependencies
 #include <mpi.h>
 #endif
 
@@ -64,9 +65,15 @@ Logger<HPGEM_LOGLEVEL> logger("hpGEM Kernel");
 static void printInfo(std::string module, std::string msg)
 {
 #ifdef HPGEM_USE_MPI
-    int rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    std::cout << "[" << rank << "]:" << msg << std::endl;
+    int runs;
+    MPI_Initialized(&runs);
+    if(runs == 0) {
+        std::cout << msg << std::endl;
+    } else {
+        int rank;
+        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        std::cout << "[" << rank << "]:" << msg << std::endl;
+    }
 #else
     std::cout << msg << std::endl;
 #endif
@@ -76,9 +83,15 @@ static void printInfo(std::string module, std::string msg)
 static void printMessage(std::string module, std::string msg)
 {
 #ifdef HPGEM_USE_MPI
-    int rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    std::cout << "[" << rank << "] Module " << module << ":\n" << msg << std::endl;
+    int runs;
+    MPI_Initialized(&runs);
+    if(runs == 0) {
+        std::cout << "Module " << module << ":\n" << msg << std::endl;
+    } else {
+        int rank;
+        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        std::cout << "[" << rank << "] Module " << module << ":\n" << msg << std::endl;
+    }
 #else
     std::cout << "Module " << module << ":\n" << msg << std::endl;
 #endif
@@ -91,9 +104,15 @@ static void printMessage(std::string module, std::string msg)
     // Ensure that all output is visible.
     std::cout << std::flush;
 #ifdef HPGEM_USE_MPI
-    int rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    std::cerr << "[" << rank << "] Module " << module << ":\n" << msg << std::endl;
+    int runs;
+    MPI_Initialized(&runs);
+    if(runs == 0) {
+        std::cerr << "Module " << module << ":\n" << msg << std::endl;
+    } else {
+        int rank;
+        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        std::cerr << "[" << rank << "] Module " << module << ":\n" << msg << std::endl;
+    }
 #else
     std::cerr << "Module " << module << ":\n" << msg << std::endl;
 #endif
