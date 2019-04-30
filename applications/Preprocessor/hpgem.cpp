@@ -250,7 +250,7 @@ namespace Preprocessor {
                 for(auto& coordinate : next) {
                     coordinateIDs[currentNode].push_back(processedNodes++);
                     for(std::size_t i = 0; i < dimension; ++i) {
-                        hpgemFile >> coordinate[i];
+                        coordinate[i] = readDouble(hpgemFile);
                     }
                 }
                 currentNode++;
@@ -304,6 +304,46 @@ namespace Preprocessor {
         }
 
     private:
+
+        double readDouble(std::istream& input) const
+        {
+            const int BUFFER_LENGTH = 50;
+            char buffer[BUFFER_LENGTH];
+
+            while (isspace(input.peek()))
+                input.get();
+            // Read the input.
+            int c = input.get();
+            int bufferIndex = 0;
+            // bufferIndex+1 to keep place to add an \0
+            while (c != -1 && !isspace(c) && bufferIndex+1 < BUFFER_LENGTH)
+            {
+                buffer[bufferIndex] = (char)c;
+                bufferIndex++;
+                c = input.get();
+            }
+            // The last read character was not part of the number, so put
+            // it back. Of course at EOF (-1) we should not put it back.
+            if (c != -1)
+            {
+                input.unget();
+            }
+            // Add the null-terminator to get a valid c-string
+            buffer[bufferIndex] = '\0';
+            double result = 0;
+            if(bufferIndex > 2 && buffer[0] == '0' && (buffer[1] == 'x' || buffer[1] == 'X'))
+            {
+                // Resort to sscanf for hex float parsing, as it is (one of) the only
+                // functions that can do this.
+                sscanf(buffer, "%la", &result);
+            }
+            else
+            {
+                result = strtod(buffer, nullptr);
+            }
+            return result;
+        }
+
         std::ifstream hpgemFile;
         std::ifstream::pos_type nodesStart;
         std::ifstream::pos_type elementsStart;
