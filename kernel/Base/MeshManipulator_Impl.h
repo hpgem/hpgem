@@ -4635,8 +4635,8 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
         // Read the input.
         int c = input.get();
         int bufferIndex = 0;
-        // BUFFER_LENGTH+1 to keep place to add an \0
-        while (c != -1 && !isspace(c) && bufferIndex < BUFFER_LENGTH+1)
+        // bufferIndex+1 to keep place to add an \0
+        while (c != -1 && !isspace(c) && bufferIndex+1 < BUFFER_LENGTH)
         {
             buffer[bufferIndex] = (char)c;
             bufferIndex++;
