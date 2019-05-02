@@ -82,13 +82,15 @@ namespace Base
     {
         //without MPI this routine promises to do nothing
 #ifdef HPGEM_USE_MPI
-        if(otherPulls_.size() > 0)
+        bool hasToWork = otherPulls_.size() > 0;
+        MPIContainer& container = MPIContainer::Instance();
+        std::size_t n = container.getNumberOfProcessors();
+        std::size_t rank = container.getProcessorID();
+        MPI_Comm comm = container.getComm();
+        MPI_Allreduce(MPI_IN_PLACE, &hasToWork, 1, Detail::toMPIType(hasToWork), MPI_LOR, comm);
+        if(hasToWork)
         {
             //reconstruct element->processor mapping
-            MPIContainer& container = MPIContainer::Instance();
-            std::size_t n = container.getNumberOfProcessors();
-            std::size_t rank = container.getProcessorID();
-            MPI_Comm comm = container.getComm();
 
             std::vector<int> numberOfElements(n + 1, 0), cumulativeNumberOfElements(n + 1);
             numberOfElements[rank+1] = elements_.size()+1;
