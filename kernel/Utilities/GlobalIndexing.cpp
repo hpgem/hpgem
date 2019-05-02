@@ -118,9 +118,19 @@ namespace Utilities
             meshDimension = mesh->dimension();
             // We do not support empty meshes as we do not know the number of unknowns,
             // nor is it sensible to create an empty indexing_ for it.
+            // But we do support meshes that have empty submeshes
+#ifndef HPGEM_USE_MPI
             logger.assert_debug(mesh->elementColBegin() != mesh->elementColEnd(), "Empty mesh not supported.");
             // Note as seen below do we assume that the number of unknowns is the same for each element, face, etc.
             numberOfUnknowns_ = (*mesh->elementColBegin())->getNumberOfUnknowns();
+#else
+            if(mesh->elementColBegin() == mesh->elementColEnd()) {
+                numberOfUnknowns_ = 0;
+            } else {
+                numberOfUnknowns_ = (*mesh->elementColBegin())->getNumberOfUnknowns();
+            }
+            MPI_Allreduce(MPI_IN_PLACE, &numberOfUnknowns_, 1, Base::Detail::toMPIType(numberOfUnknowns_), MPI_MAX, Base::MPIContainer::Instance().getComm());
+#endif
             offsets.clear();
             offsets.resize(numberOfUnknowns_);
             switch (layout)
