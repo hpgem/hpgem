@@ -260,6 +260,8 @@ namespace Utilities
                     // Note, we assume here that the basis functions for a single
                     // unknown are laid out consecutively.
                     const Base::Edge* edge = element->getEdge(i);
+                    if (!edge->isOwnedByCurrentProcessor())
+                        continue;
                     int localIndex0 = indexing_.getProcessorLocalIndex(edge, unknown);
                     for (std::size_t basisId = 0; basisId < edge->getLocalNumberOfBasisFunctions(unknown); ++basisId)
                     {
@@ -276,6 +278,8 @@ namespace Utilities
                         // Note, we assume here that the basis functions for a single
                         // unknown are laid out consecutively.
                         const Base::Node *node = element->getNode(i);
+                        if (!node->isOwnedByCurrentProcessor())
+                            continue;
                         int localIndex0 = indexing_.getProcessorLocalIndex(node, unknown);
                         for (std::size_t basisId = 0;
                              basisId < node->getLocalNumberOfBasisFunctions(unknown); ++basisId)
