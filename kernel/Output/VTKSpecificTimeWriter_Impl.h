@@ -103,11 +103,12 @@ Output::VTKSpecificTimeWriter<DIM>::VTKSpecificTimeWriter(const std::string& bas
             {
                 fileName = fileName.substr(fileName.find_last_of('/') + 1);
             }
-            masterFile_ << "    <Piece Source=\"" << fileName << i << ".vtu\"/>" << std::endl;
+            masterFile_ << "    <Piece Source=\"" << fileName << "." << i << ".vtu\"/>" << std::endl;
         }
         masterFile_ << "    <PPointData>" << std::endl;
     }
-    localFile_.open(baseName + std::to_string(id) + ".vtu");
+    using namespace std::string_literals;
+    localFile_.open(baseName + "."s + std::to_string(id) + ".vtu");
     if (!localFile_.good())
     {
         logger(ERROR, "failed to open local paraview output file %.vtu, part of the output will not be written", baseName);
