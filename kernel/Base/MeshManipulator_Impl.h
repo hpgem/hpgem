@@ -1049,7 +1049,7 @@ namespace Base
                 }
                 else
                 {
-                    return {element, pointReference};
+                    return std::make_tuple(element, pointReference);
                 }
             }
         }
