@@ -1,10 +1,6 @@
 add_library(Logger SHARED Logger.cpp)
 set_target_properties(Logger PROPERTIES POSITION_INDEPENDENT_CODE true)
 
-if( hpGEM_STACKTRACE_DEMANGLE )
-  target_link_libraries(Logger dl)
-endif()
-
 if( hpGEM_USE_MPI )
   target_link_libraries(Logger "${MPI_LIBRARIES}")
 endif()
