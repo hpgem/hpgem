@@ -125,7 +125,7 @@ if (hpGEM_STACKTRACE_ENABLE)
 endif()
 if (hpGEM_STACKTRACE_DEMANGLE)
   add_definitions(-DHPGEM_STACKTRACE_DEMANGLE)
-  add_link_options(-ldl)
+  link_libraries(dl)
 endif()
 
 #This section is about the build of documentation#
