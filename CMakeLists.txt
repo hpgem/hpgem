@@ -4,8 +4,19 @@ project (hpGEM C CXX Fortran)
 set(hpGEM_VERSION_MAJOR 2)
 set(hpGEM_VERSION_MINOR 0)
 
+## Set CMAKE options
+
 #Directory were the external cmake modules are stored
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/conf/cmake/Modules/")
+
+#Make the default build release is this in what a normal user wants
+###################################################################
+if(NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE "Release" CACHE
+			STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
+	set_property( CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Release Debug RelWithDebInfo MinSizeRel )
+endif(NOT CMAKE_BUILD_TYPE)
+
 
 #allow dynamically locating dynamic libraries if cmake and the OS support it
 if(${CMAKE_VERSION} VERSION_GREATER 2.8.12)
@@ -14,32 +25,21 @@ endif()
 
 enable_testing()
 
+
+
+
 #Here is the check for CXX14 support : We now use some features of this, so turn it on if possible
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 14)
 
 
 
-
-#This section generates a configuration file that contains the CMake varibles#
-#############################################
-
-configure_file(${hpGEM_SOURCE_DIR}/conf/cmake/CMakeDefinitions.conf ${hpGEM_SOURCE_DIR}/conf/cmake/CMakeDefinitions.h ESCAPE_QUOTES)
-include_directories(${hpGEM_SOURCE_DIR}/conf/cmake/)
-
-
-#Make the default build release is this in what a normal user wants
-###################################################################
-if(NOT CMAKE_BUILD_TYPE)
-	        set(CMAKE_BUILD_TYPE "Release" CACHE 
-		STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
-        set_property( CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Release Debug RelWithDebInfo MinSizeRel )
-endif(NOT CMAKE_BUILD_TYPE)
-
-#Add the custom target make fullTest, that clean and check the whole build system
+################################################################################
+####### CUSTOM TARGETS
 #################################################################################
+# Add the custom target make fullTest, that clean and check the whole build system
 add_custom_target(fullTest
-	        COMMAND make rebuild_cache      
+		COMMAND make rebuild_cache
 		COMMAND make clean
 		COMMAND make
 		COMMAND make test
@@ -101,8 +101,20 @@ endif()
 include(conf/cmake/ConfigureOptionalDependencies.cmake)
 
 
+################################################################################
+####### EXPOSE CMAKE VARIABLES
+################################################################################
 
+# Make a header file which can contain relevant cmake variables
+configure_file(
+		${hpGEM_SOURCE_DIR}/conf/cmake/CMakeDefinitions.conf
+		${hpGEM_SOURCE_DIR}/conf/cmake/CMakeDefinitions.h ESCAPE_QUOTES)
+# And ensure it is included by the targets
+include_directories(${hpGEM_SOURCE_DIR}/conf/cmake/)
 
+################################################################################
+####### KERNEL, TESTS, APPLICATIONS
+################################################################################
 add_subdirectory(kernel)
 add_subdirectory(tests)
 add_subdirectory(applications)
