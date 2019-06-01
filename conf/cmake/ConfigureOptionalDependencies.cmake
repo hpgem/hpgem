@@ -48,6 +48,7 @@ if (hpGEM_USE_PETSC OR hpGEM_USE_COMPLEX_PETSC)
         if (hpGEM_USE_PETSC)
             message(FATAL_ERROR "Requested PETSc with real numbers, found one with complex numbers")
         endif()
+        # TODO: This should be moved
         add_definitions(-DHPGEM_USE_COMPLEX_PETSC -DHPGEM_USE_ANY_PETSC)
 
     else()
@@ -56,6 +57,19 @@ if (hpGEM_USE_PETSC OR hpGEM_USE_COMPLEX_PETSC)
         endif()
         add_definitions(-DHPGEM_USE_PETSC -DHPGEM_USE_ANY_PETSC)
     endif()
+    # Create target for easy linking
+    if(PETSC_FOUND)
+        add_library(PETSc::PETSc INTERFACE IMPORTED)
+        target_include_directories(PETSc::PETSc INTERFACE ${PETSC_INCLUDES})
+        target_link_libraries(PETSc::PETSc INTERFACE ${PETSC_LIBRARIES})
+        if(PETSC_IS_COMPLEX)
+            target_compile_definitions(PETSc::PETSc INTERFACE -DHPGEM_USE_COMPLEX_PETSC -DHPGEM_USE_ANY_PETSC)
+        else()
+            target_compile_definitions(PETSc::PETSc INTERFACE -DHPGEM_USE_PETSC -DHPGEM_USE_ANY_PETSC)
+        endif()
+
+    endif()
+
 else()
     set(hpGEM_USE_ANY_PETSC OFF)
 endif() # Petsc
@@ -71,6 +85,12 @@ if(hpGEM_USE_SLEPC)
     if(NOT SLEPC_FOUND)
         message(FATAL_ERROR
                 "The option you have chosen requires SLEPc and you do not have this installed. Please install")
+    endif()
+    # Create target for easy linking
+    if(SLEPC_FOUND)
+        add_library(SLEPc::SLEPc INTERFACE IMPORTED)
+        target_include_directories(SLEPc::SLEPc INTERFACE ${SLEPC_INCLUDE_DIRS})
+        target_link_libraries(SLEPc::SLEPc INTERFACE ${SLEPC_LIBRARIES})
     endif()
 endif()
 
