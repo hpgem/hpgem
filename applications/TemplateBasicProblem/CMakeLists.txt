@@ -1,4 +1,3 @@
-include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 
 #First declare the rules that will form the executable tests#
 #############################################################
@@ -18,5 +17,5 @@ if(NOT hpGEM_USE_COMPLEX_PETSC)
           		)
 #and here                    |
 #                            V
-    target_link_libraries(ExampleProblem.out hpGEM_Base Output)
+    target_link_libraries(ExampleProblem.out HPGEM::HPGEM)
 endif()

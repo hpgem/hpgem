@@ -1,5 +1,3 @@
-include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
-
 #When hpGEM is configured to interact with a complex build of PETSc some of its internal data
 #structures will also use complex numbers. This is why applications that don't need PETSc
 #are disabled for this case. If you need to interact with complex PETSc, make sure the code
@@ -21,6 +19,6 @@ add_executable(SavageHutter.out
 	SlopeLimiters/TvbLimiterWithDetector1D.cpp
 	main.cpp
 )
-target_link_libraries(SavageHutter.out hpGEM_Base Output)
+target_link_libraries(SavageHutter.out HPGEM::HPGEM)
 
 endif()

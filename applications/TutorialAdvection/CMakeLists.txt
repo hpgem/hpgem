@@ -1,4 +1,3 @@
-include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 
 #First declare the rules that will form the executable tests#
 #############################################################
@@ -6,5 +5,5 @@ include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 add_executable(TutorialAdvection.out 
 		main.cpp
       		)
-target_link_libraries(TutorialAdvection.out hpGEM_Base Output)
+target_link_libraries(TutorialAdvection.out HPGEM::HPGEM)
 
