@@ -5,14 +5,6 @@ if(hpGEM_USE_METIS)
   include_directories(${METIS_INCLUDE_DIR})
 endif()
 
-if(hpGEM_USE_ANY_PETSC)
-  include_directories(${PETSC_INCLUDES})
-endif()
-
-if(hpGEM_USE_SLEPC)
-  include_directories(${SLEPC_INCLUDE_DIRS})
-endif()
-
 if(hpGEM_USE_QHULL)
   include_directories(${QHULL_INCLUDE_DIR})
 endif()
@@ -83,11 +75,11 @@ target_link_libraries(hpGEM_Base "${METIS_LIBRARIES}")
 endif()
 
 if(hpGEM_USE_ANY_PETSC)
-target_link_libraries(hpGEM_Base "${PETSC_LIBRARIES}")
+	target_link_libraries(hpGEM_Base PETSc::PETSc)
 endif()
 
 if(hpGEM_USE_SLEPC)
-target_link_libraries(hpGEM_Base "${SLEPC_LIBRARIES}")
+	target_link_libraries(hpGEM_Base SLEPc::SLEPc)
 endif()
 
 if(hpGEM_USE_QHULL)
