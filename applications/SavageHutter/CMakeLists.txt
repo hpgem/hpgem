@@ -6,10 +6,8 @@ include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 #compiles both with PETSc turned on and PETSc turned off.
 if(NOT hpGEM_USE_COMPLEX_PETSC)
 
-add_subdirectory(SlopeLimiters)
-add_subdirectory(HeightLimiters)
-
 add_executable(SavageHutter.out
+	HeightLimiters/BidispersedLimiter1D.cpp
     HelperFunctions.cpp
     SavageHutter1DBasic.cpp
     SavageHutter1DBidispersed.cpp
@@ -19,8 +17,10 @@ add_executable(SavageHutter.out
     SavageHutter2DInteriorTest.cpp
     SavageHutter1DBase.cpp
     SavageHutter2DBase.cpp
-		main.cpp
-      		)
-target_link_libraries(SavageHutter.out hpGEM_Base Output SlopeLimiters HeightLimiters)
+	SlopeLimiters/TvbLimiter1D.cpp
+	SlopeLimiters/TvbLimiterWithDetector1D.cpp
+	main.cpp
+)
+target_link_libraries(SavageHutter.out hpGEM_Base Output)
 
 endif()
