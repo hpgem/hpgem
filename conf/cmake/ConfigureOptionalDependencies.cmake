@@ -7,6 +7,15 @@ if(hpGEM_USE_MPI)
     if(NOT MPI_FOUND)
         message(FATAL_ERROR "The option you have chosen requires mpi and you do not have this installed. Please install")
     endif()
+    # Create target for easy linking
+    if(NOT TARGET MPI::MPI_CXX)
+        # Note, from CMAKE 3.9 there is a proper target defined
+        add_library(MPI::MPI_CXX INTERFACE IMPORTED)
+        target_include_directories(MPI::MPI_CXX INTERFACE ${MPI_CXX_INCLUDE_PATH})
+        target_link_libraries(MPI::MPI_CXX INTERFACE "${MPI_CXX_LIBRARIES}")
+        target_compile_options(MPI::MPI_CXX INTERFACE "${MPI_CXX_COMPILE_FLAGS}")
+        target_link_options(MPI::MPI_CXX INTERFACE "${MPI_CXX_LINK_FLAGS}")
+    endif()
 endif()
 
 if(hpGEM_USE_METIS)
@@ -16,6 +25,10 @@ if(hpGEM_USE_METIS)
     if(NOT METIS_FOUND)
         message(FATAL_ERROR "The option you have chosen requires metis and you do not have this installed. Please install")
     endif()
+    # Create target for easy linking
+    add_library(METIS::METIS INTERFACE IMPORTED)
+    target_include_directories(METIS::METIS INTERFACE "${METIS_INCLUDE_DIR}")
+    target_link_libraries(METIS::METIS INTERFACE "${METIS_LIBRARIES}")
 endif()
 
 if(hpGEM_USE_QHULL)
@@ -23,6 +36,14 @@ if(hpGEM_USE_QHULL)
     add_definitions(-DHPGEM_USE_QHULL)
     if(NOT QHULL_FOUND)
         message(FATAL_ERROR "The option you have chosen requires QHull and you do not have this installed. Please install")
+    endif()
+    # Create target for easy linking
+    add_library(QHULL::QHULL INTERFACE IMPORTED)
+    target_include_directories(QHULL::QHULL INTERFACE "${QHULL_INCLUDE_DIR}")
+    if(CMAKE_BUILD_TYPE MATCHES "Debug")
+        target_link_libraries(QHULL::QHULL INTERFACE "${QHULL_DEBUG_LIBRARIES}")
+    else()
+        target_link_libraries(QHULL::QHULL INTERFACE "${QHULL_LIBRARIES}")
     endif()
 endif()
 
@@ -121,4 +142,15 @@ if(hpGEM_USE_SUNDIALS)
         message(FATAL_ERROR
                 "The option you have choosen requires SUNDIALS and you do not have this installed. Please install")
     endif()
+
+    # Create target for easy linking
+    add_library(SUNDIALS::SUNDIALS INTERFACE IMPORTED)
+    target_include_directories(SUNDIALS::SUNDIALS ${SUNDIALS_INCLUDE_DIR})
+    target_link_libraries(SUNDIALS::SUNDIALS
+        INTERFACE
+            "${SUNDIALS_LIB_sundials_cvodes}"
+            "${SUNDIALS_LIB_sundials_idas}"
+            "${SUNDIALS_LIB_sundials_kinsol}"
+            "${SUNDIALS_LIB_sundials_nvecserial}"
+    )
 endif()
