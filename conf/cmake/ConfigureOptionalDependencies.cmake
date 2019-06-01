@@ -41,7 +41,7 @@ if (hpGEM_USE_PETSC OR hpGEM_USE_COMPLEX_PETSC)
     include(CheckSymbolExists)
     check_symbol_exists(PETSC_USE_COMPLEX petscconf.h PETSC_IS_COMPLEX)
 
-    set(hpGEM_USE_ANY_PETSC ON "A version of PETSc has been configured")
+    set(hpGEM_USE_ANY_PETSC ON)
 
     # Check if this matches with what the user expects
     if (PETSC_IS_COMPLEX)
@@ -57,7 +57,7 @@ if (hpGEM_USE_PETSC OR hpGEM_USE_COMPLEX_PETSC)
         add_definitions(-DHPGEM_USE_PETSC -DHPGEM_USE_ANY_PETSC)
     endif()
 else()
-    set(hpGEM_USE_ANY_PETSC OFF "No version of PETSc has been configured")
+    set(hpGEM_USE_ANY_PETSC OFF)
 endif() # Petsc
 
 if(hpGEM_USE_SLEPC)
