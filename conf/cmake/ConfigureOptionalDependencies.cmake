@@ -120,6 +120,11 @@ if(hpGEM_USE_EXTERNAL_BLAS)
     if(NOT BLAS_FOUND)
         message(SYSTEM "Could not find external BLAS, using reference implementation instead")
         set(hpGEM_USE_EXTERNAL_BLAS OFF CACHE BOOL "Try to use a version of BLAS optimised for your system" FORCE)
+    else()
+        # Linking target
+        add_library(BLAS::BLAS INTERFACE IMPORTED)
+        target_link_libraries(BLAS::BLAS INTERFACE "${BLAS_LIBRARIES}")
+        target_link_options(BLAS::BLAS INTERFACE "${BLAS_LINKER_FLAGS}")
     endif()
 endif()
 
@@ -128,6 +133,11 @@ if(hpGEM_USE_EXTERNAL_LAPACK)
     if(NOT LAPACK_FOUND)
         message(SYSTEM "Could not find external LAPACK, using reference implementation instead")
         set(hpGEM_USE_EXTERNAL_LAPACK OFF CACHE BOOL "Try to use a version of LAPACK optimised for your system" FORCE)
+    else()
+        # Linking target
+        add_library(LAPACK::LAPACK INTERFACE IMPORTED)
+        target_link_libraries(LAPACK::LAPACK INTERFACE "${LAPACK_LIBRARIES}")
+        target_link_options(LAPACK::LAPACK INTERFACE "${LAPACK_LINKER_FLAGS}")
     endif()
 endif()
 
