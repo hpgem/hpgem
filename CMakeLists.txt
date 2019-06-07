@@ -92,7 +92,7 @@ if(hpGEM_BUILD_DOCUMENTATION)
 endif()
 
 # Find all the optional dependencies
-include(conf/cmake/ConfigureOptionalDependencies.cmake)
+include(conf/cmake/ConfigureDependencies.cmake)
 
 
 ################################################################################
