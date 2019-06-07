@@ -59,12 +59,6 @@ option(hpGEM_USE_COMPLEX_PETSC "Include PETSc with complex numbers" OFF)
 option(hpGEM_USE_SLEPC "Include SLEPC this is needed for some applications" OFF)
 option(hpGEM_USE_SUNDIALS "Include SUNDIALS containing robust time integrators and nonlinear solvers" OFF)
 
-# By default use system BLAS, LAPACK
-option(hpGEM_USE_EXTERNAL_BLAS "Try to use a version of BLAS optimised for your system" ON)
-option(hpGEM_USE_EXTERNAL_LAPACK "Try to use a version of LAPACK optimised for your system" ON)
-mark_as_advanced(hpGEM_USE_EXTERNAL_BLAS) # These should only be used in special cases
-mark_as_advanced(hpGEM_USE_EXTERNAL_LAPACK) # These should only be used in special cases
-
 # Old option (partially broken) to use valarray in the linear algebra classes
 option(hpGEM_USE_STL_VECTOR_FOR_LA "Will swap the internal storage of the linear algebra from being based on valarray to STL vector" ON)
 mark_as_advanced(hpGEM_USE_STL_VECTOR_FOR_LA)
