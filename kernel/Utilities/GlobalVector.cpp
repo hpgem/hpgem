@@ -96,7 +96,8 @@ namespace Utilities
     
     void GlobalPetscVector::assemble()
     {
-        reset();
+        //reset();
+        VecZeroEntries(b_);
         
         LinearAlgebra::MiddleSizeVector elementVector;
         std::vector<PetscInt> elementToGlobal (0);
