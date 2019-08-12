@@ -62,7 +62,8 @@ namespace Base
         if(unknown == LEGACY_BEHAVIOUR)
         {
             // Indirectly asserts constant dofs
-            getNumberOfBasisFunctions();
+            logger.assert_debug(index < getNumberOfBasisFunctions(), "Asked for basis function % but there are only %", index,
+                                getNumberOfBasisFunctions(unknown));
             unknown = 0;
         }
         // Actual selection of the basis function
