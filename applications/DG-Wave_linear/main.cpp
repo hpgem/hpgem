@@ -306,10 +306,11 @@ public:
     {
         PetscInt n;
         MatGetSize(swap, &n, PETSC_NULL);
-        for(std::size_t i = 0; i < n-1; i+=2)
-        {
-            MatSetValue(swap, i, i+1, 1., INSERT_VALUES);
-            MatSetValue(swap, i+1, i, 1., INSERT_VALUES);
+        if(n > 0) {
+            for(std::size_t i = 0; i < static_cast<std::size_t>(n - 1); i += 2) {
+                MatSetValue(swap, i, i + 1, 1., INSERT_VALUES);
+                MatSetValue(swap, i + 1, i, 1., INSERT_VALUES);
+            }
         }
         MatAssemblyBegin(swap, MAT_FINAL_ASSEMBLY);
         MatAssemblyEnd(swap, MAT_FINAL_ASSEMBLY);

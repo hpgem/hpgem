@@ -209,9 +209,6 @@ public:
     }
     
 private:
-    
-    ///number of elements per cardinal direction
-    std::size_t n_;
 
     ///polynomial order of the approximation
     std::size_t p_;

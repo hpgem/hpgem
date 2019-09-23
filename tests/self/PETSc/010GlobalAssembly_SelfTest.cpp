@@ -92,14 +92,14 @@ public:
         //This is necessary to check at which boundary we are if we are at a boundary face.
         const PointPhysicalT& pPhys = face.getPointPhysical();
         
-        for (int i = 0; i < numberOfBasisFunctions; ++i)
+        for (std::size_t i = 0; i < numberOfBasisFunctions; ++i)
         {
             //normal_i phi_i is computed at point p, the result is stored in phiNormalI.
             phiNormalI = face.basisFunctionUnitNormal(i);
             //The gradient of basisfunction phi_i is computed at point p, the result is stored in phiDerivI.
             phiDerivI = face.basisFunctionDeriv(i);
             
-            for (int j = 0; j < numberOfBasisFunctions; ++j)
+            for (std::size_t j = 0; j < numberOfBasisFunctions; ++j)
             {
                 //normal_j phi_j is computed at point p, the result is stored in phiNormalJ.
                 phiNormalJ = face.basisFunctionUnitNormal(j);

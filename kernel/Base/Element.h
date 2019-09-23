@@ -408,8 +408,8 @@ namespace Base
             : ElementGeometry(globalNodeIndexes, allNodes),
         ElementData(numberOfTimeLevels, numberOfUnknowns, numberOfElementMatrices, numberOfElementVectors),
         quadratureRule_(nullptr), //basisFunctionSet_(basisFunctionSet),
-        id_(id), vecCacheData_(), owner_ (owner), owned_(owned),
-        basisFunctions_ (basisFunctionSet, numberOfUnknowns)
+        id_(id), vecCacheData_(), basisFunctions_ (basisFunctionSet, numberOfUnknowns),
+        owned_(owned), owner_ (owner)
     {
         logger.assert_debug(basisFunctionSet != nullptr, "Invalid basis function set passed");
         logger(VERBOSE, "numberOfElementMatrices: %", numberOfElementMatrices);

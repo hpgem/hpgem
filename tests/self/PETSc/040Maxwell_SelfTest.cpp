@@ -44,7 +44,6 @@ public:
 
     MaxwellTest(const std::string name, const std::size_t n, const std::size_t p, bool useNedelec) :
     Base::HpgemAPILinearSteadyState<3>(1, p, true, true),
-    p(p),
     totalError(0)
     {
         using namespace std::string_literals;
@@ -105,14 +104,14 @@ public:
         //This is necessary to check at which boundary we are if we are at a boundary face.
         const PointPhysicalT& pPhys = face.getPointPhysical();
 
-        for (int i = 0; i < numberOfBasisFunctions; ++i)
+        for (std::size_t i = 0; i < numberOfBasisFunctions; ++i)
         {
             //normal_i phi_i is computed at point p, the result is stored in phiNormalI.
             face.basisFunctionUnitNormalCross(i, phiNormalI);
             //The gradient of basisfunction phi_i is computed at point p, the result is stored in phiDerivI.
             phiCurlI = face.basisFunctionCurl(i);
 
-            for (int j = 0; j < numberOfBasisFunctions; ++j)
+            for (std::size_t j = 0; j < numberOfBasisFunctions; ++j)
             {
                 //normal_j phi_j is computed at point p, the result is stored in phiNormalJ.
                 face.basisFunctionUnitNormalCross(j, phiNormalJ);
@@ -297,8 +296,6 @@ public:
 
 private:
 
-    std::size_t n;
-    std::size_t p;
     LinearAlgebra::MiddleSizeVector::type totalError;
     double penalty;
 };

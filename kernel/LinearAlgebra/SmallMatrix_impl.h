@@ -198,7 +198,7 @@ namespace LinearAlgebra
     {
         int nr = numberOfRows;
         int nc = numberOfColumns;
-        int nPivot = std::min(numberOfRows, numberOfColumns);
+        constexpr int nPivot = std::min(numberOfRows, numberOfColumns);
         int iPivot[nPivot];
 
         SmallMatrix result(*this);
@@ -249,7 +249,7 @@ namespace LinearAlgebra
         int nr = numberOfRows;
         int nc = numberOfColumns;
 
-        int nPivot = numberOfRows;
+        constexpr int nPivot = numberOfRows;
         int iPivot[nPivot];
 
         int info = 0;

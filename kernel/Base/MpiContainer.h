@@ -90,7 +90,7 @@ public:
     }
     
     ///get the unique identifier associated with this processor
-    std::size_t getProcessorID();
+    int getProcessorID();
     
     ///\deprecated Does not conform naming conventions, use getNumberOfProcessors instead
     std::size_t getNumProcessors()
@@ -99,7 +99,7 @@ public:
     }
     
     ///get the total number of processors participating in this simulation
-    std::size_t getNumberOfProcessors();
+    int getNumberOfProcessors();
 
     ///pass a function that only has to be executed on one processor (that is not processor 0)
     ///this function cannot return anything, but it is allowed to alter its arguments
@@ -366,10 +366,11 @@ public:
     ///such as asynchronous communication tags, is already in use by hpGEM
     MPI_Comm& getComm();
 #endif
-    
+
+        MPIContainer(const MPIContainer& orig) = delete;
+
 private:
     MPIContainer();
-    MPIContainer(const MPIContainer& orig) = delete;
 
 #ifdef HPGEM_USE_MPI
         void sendWrapper(const void *buf, int count, MPI_Datatype datatype, int dest, int tag);

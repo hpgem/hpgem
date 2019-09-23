@@ -24,7 +24,7 @@
 
 namespace Base {
     ///Just a place holder, for polymorphism
-    struct UserData
+    class UserData
     {
     };
 

@@ -35,7 +35,7 @@ namespace LinearAlgebra
 
 namespace Base
 {
-    struct UserData;
+    class UserData;
 
     class ElementData
     {

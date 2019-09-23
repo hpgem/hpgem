@@ -156,9 +156,9 @@ namespace Base
         /// Check if the unknown is valid.
         /// \param unknown The unknown to test
         /// \param allowAbsent Whether to allow -1 for the unknown being absent (legacy handling)
-        void assertValidUnknown(std::size_t unknown, bool allowAbsent) const
+        void assertValidUnknown(long unknown, bool allowAbsent) const
         {
-            logger.assert_debug(unknown < getNumberOfUnknowns() || (allowAbsent && unknown == -1),
+            logger.assert_debug(unknown < static_cast<long>(getNumberOfUnknowns()) || (allowAbsent && unknown == -1),
                     "Invalid unknown %, there are only % unknowns", unknown, getNumberOfUnknowns()
             );
         }

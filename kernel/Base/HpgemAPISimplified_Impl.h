@@ -394,7 +394,8 @@ namespace Base
     // Note typesignature is rather liberal because it is passed to MPI_Op_create
     inline void computeMPIMaximum(void* in, void* inout, int* len, MPI_Datatype* type)
     {
-        for(std::size_t i = 0; i < *len; i++)
+        logger.assert_debug(*len >= 0, "MPI wants to create the piecewise maximum of two vectors of size %", len);
+        for(std::size_t i = 0; i < static_cast<std::size_t>(*len); i++)
         {
             logger.assert_debug(std::abs(std::imag(reinterpret_cast<LinearAlgebra::MiddleSizeVector::type*>(inout)[i])) < 1e-12,
                                 "can only do this for complex numbers");

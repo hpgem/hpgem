@@ -236,7 +236,7 @@ namespace Utilities
                 }
             }
 
-            for (int i = 0; i < element->getReferenceGeometry()->getNumberOfCodim1Entities(); ++i)
+            for (std::size_t i = 0; i < element->getReferenceGeometry()->getNumberOfCodim1Entities(); ++i)
             {
                 //conforming contributions
                 for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
@@ -253,7 +253,7 @@ namespace Utilities
                     }
                 }
             }
-            for (int i = 0; i < element->getNumberOfEdges(); ++i)
+            for (std::size_t i = 0; i < element->getNumberOfEdges(); ++i)
             {
                 for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
                 {
@@ -271,7 +271,7 @@ namespace Utilities
             }
             if (theMesh_->dimension() > 1)
             {
-                for (int i = 0; i < element->getNumberOfNodes(); ++i)
+                for (std::size_t i = 0; i < element->getNumberOfNodes(); ++i)
                 {
                     for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
                     {
@@ -322,7 +322,7 @@ namespace Utilities
                             }
                         }
                     }
-                    for (int i = 0; i < element->getReferenceGeometry()->getNumberOfCodim1Entities(); ++i)
+                    for (std::size_t i = 0; i < element->getReferenceGeometry()->getNumberOfCodim1Entities(); ++i)
                     {
                         const Base::Face* face = element->getFace(i);
                         if (face->isOwnedByCurrentProcessor())
@@ -341,7 +341,7 @@ namespace Utilities
                             }
                         }
                     }
-                    for (int i = 0; i < element->getNumberOfEdges(); ++i)
+                    for (std::size_t i = 0; i < element->getNumberOfEdges(); ++i)
                     {
                         const Base::Edge* edge = element->getEdge(i);
                         if (edge->isOwnedByCurrentProcessor())
@@ -361,7 +361,7 @@ namespace Utilities
                     }
                     if (theMesh_->dimension() > 1)
                     {
-                        for (int i = 0; i < element->getNumberOfNodes(); ++i)
+                        for (std::size_t i = 0; i < element->getNumberOfNodes(); ++i)
                         {
                             const Base::Node *node = element->getNode(i);
                             if (node->isOwnedByCurrentProcessor())
@@ -393,13 +393,15 @@ namespace Utilities
             }
         }
 
-        for (int i = 0; i < totalNumberOfDOF; ++i)
+        for (std::size_t i = 0; i < totalNumberOfDOF; ++i)
         {
-            if (numberOfPositionsPerRow[i] > totalNumberOfDOF)
+            logger.assert_debug(numberOfPositionsPerRow[i] >= 0, "PETSc wants to make a matrix with % nonzero entries on row %", numberOfPositionsPerRow[i], i);
+            if (static_cast<std::size_t>(numberOfPositionsPerRow[i]) > totalNumberOfDOF)
             {
                 numberOfPositionsPerRow[i] = totalNumberOfDOF; //a row cant have more nonzero entries than the number of columns
             }
-            if (numberOfPositionsPerRow[i] + offDiagonalPositionsPerRow[i] > totalNumberOfDOF)
+            logger.assert_debug(offDiagonalPositionsPerRow[i] >= 0, "PETSc wants to make a matrix with % nonzero entries on row %", offDiagonalPositionsPerRow[i], i);
+            if (static_cast<std::size_t>(numberOfPositionsPerRow[i] + offDiagonalPositionsPerRow[i]) > totalNumberOfDOF)
             {
                 offDiagonalPositionsPerRow[i] = totalNumberOfDOF - numberOfPositionsPerRow[i]; //a row cant have more nonzero entries than the number of columns
             }

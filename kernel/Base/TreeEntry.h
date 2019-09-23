@@ -53,7 +53,7 @@ namespace Base
     public:
         //! create a new entry without siblings
         TreeEntry(const V& data, std::size_t level = 0, std::size_t depth = 1)
-            : data_(data), level_(level), depth_(depth), parent_(nullptr), siblingIndex_(0), siblings_(nullptr)
+            : data_(data), level_(level), depth_(depth), siblingIndex_(0), siblings_(nullptr), parent_(nullptr)
         {
         }
 

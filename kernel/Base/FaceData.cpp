@@ -30,7 +30,7 @@
 #include "Logger.h"
 
 Base::FaceData::FaceData(std::size_t numberOfDOF, std::size_t numberOfFaceMatrices, std::size_t numberOfFaceVectors)
-        : faceMatrix_(numberOfFaceMatrices), faceVector_(numberOfFaceVectors), userData_(nullptr)
+        : userData_(nullptr), faceMatrix_(numberOfFaceMatrices), faceVector_(numberOfFaceVectors)
 {
     logger(VERBOSE, "In FaceData constructor:");
     logger(VERBOSE, "numberOfFaceMatrices = %", numberOfFaceMatrices);

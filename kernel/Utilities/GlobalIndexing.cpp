@@ -27,7 +27,7 @@ namespace Utilities
 {
 
     GlobalIndexing::GlobalIndexing()
-            : numberOfUnknowns_(0), offsets(0), localBasisFunctions_(0), meshDimension(0)
+            : offsets(0), numberOfUnknowns_(0), localBasisFunctions_(0), meshDimension(0)
     {}
 
     GlobalIndexing::GlobalIndexing(Base::MeshManipulatorBase *mesh, Layout layout)
@@ -617,11 +617,12 @@ namespace Utilities
         // Make place for the messages
         int count;
         MPI_Get_count(&status, mpiType, & count);
+        logger.assert_debug(count >= 0, "expected to receive a message of more than % integers", count);
 
         // To prevent unnecessary (de)allocation we only grow the message
         // vector, its size is therefore only an upper bound on the message
         // size.
-        if(count > receiveMessage.size())
+        if(static_cast<std::size_t>(count) > receiveMessage.size())
             receiveMessage.resize(count);
         // Actual receive
         MPI_Recv(receiveMessage.data(), count, mpiType,

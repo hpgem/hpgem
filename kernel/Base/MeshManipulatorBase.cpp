@@ -77,7 +77,7 @@ namespace Base
 {
 
     MeshManipulatorBase::MeshManipulatorBase(const ConfigurationData* config, std::size_t dimension, std::size_t numberOfElementMatrices, std::size_t numberOfElementVectors, std::size_t numberOfFaceMatrtices, std::size_t numberOfFaceVectors)
-            : configData_(config), dimension_ (dimension), numberOfElementMatrices_(numberOfElementMatrices), numberOfFaceMatrices_(numberOfFaceMatrtices), numberOfElementVectors_(numberOfElementVectors), numberOfFaceVectors_(numberOfFaceVectors)
+            : configData_(config), numberOfElementMatrices_(numberOfElementMatrices), numberOfFaceMatrices_(numberOfFaceMatrtices), numberOfElementVectors_(numberOfElementVectors), numberOfFaceVectors_(numberOfFaceVectors), dimension_ (dimension)
     {
         logger.assert_debug(config!=nullptr, "Invalid configuration passed");
         logger(INFO, "******Mesh creation started!**************");
@@ -86,8 +86,8 @@ namespace Base
     }
     
     MeshManipulatorBase::MeshManipulatorBase(const MeshManipulatorBase& other)
-            : configData_(other.configData_), dimension_(other.dimension_), periodicX_(other.periodicX_), periodicY_(other.periodicY_), periodicZ_(other.periodicZ_),
-            numberOfElementMatrices_(other.numberOfElementMatrices_), numberOfFaceMatrices_(other.numberOfFaceMatrices_), numberOfElementVectors_(other.numberOfElementVectors_), numberOfFaceVectors_(other.numberOfFaceVectors_)
+            : configData_(other.configData_), periodicX_(other.periodicX_), periodicY_(other.periodicY_), periodicZ_(other.periodicZ_),
+            numberOfElementMatrices_(other.numberOfElementMatrices_), numberOfFaceMatrices_(other.numberOfFaceMatrices_), numberOfElementVectors_(other.numberOfElementVectors_), numberOfFaceVectors_(other.numberOfFaceVectors_), dimension_(other.dimension_)
     {        
     }
 }

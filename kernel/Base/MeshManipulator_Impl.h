@@ -2721,8 +2721,9 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
 
         std::vector<HalfFaceDescription> boundarFaces(numberOfBoundaryFaces);
         std::vector<std::vector<std::uint32_t> > facesForEachCentaurPanel(0);
-        //old centaur files use 7 entries to describe the face
-        std::uint32_t nodalDescriptionOfTheFace[centaurFileType > 3 ? 8 : 7];
+        std::uint32_t nodalDescriptionOfTheFace[8];
+        //the other entries are guaranteed to be initialized later on
+        nodalDescriptionOfTheFace[7] = 0;
         std::uint32_t panelNumber, ijunk;
         centaurFile.read(reinterpret_cast<char *>(&checkInt), sizeof(checkInt));
         logger.assert_always(checkInt == sizeOfLine && centaurFile.good(), "Error in centaur file.");
@@ -2740,7 +2741,8 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
                 centaurFile.read(reinterpret_cast<char *>(&sizeOfLine), sizeof(sizeOfLine));
             }
 
-            centaurFile.read(reinterpret_cast<char *>(&nodalDescriptionOfTheFace[0]), sizeof(nodalDescriptionOfTheFace));
+            //old centaur files use 7 entries to describe the face
+            centaurFile.read(reinterpret_cast<char *>(&nodalDescriptionOfTheFace[0]), (centaurFileType > 3 ? 8 : 7) * sizeof(uint32_t));
 
             for(auto& index : nodalDescriptionOfTheFace)
             {
@@ -2751,12 +2753,6 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
             boundarFaces[i].nodesList[0] = nodalDescriptionOfTheFace[0];
             boundarFaces[i].nodesList[1] = nodalDescriptionOfTheFace[1];
             boundarFaces[i].nodesList[2] = nodalDescriptionOfTheFace[2];
-
-            for (auto id : nodalDescriptionOfTheFace)
-            {
-                logger(DEBUG, "% @ %", id, getNodeCoordinates()[id]);
-            }
-            logger(DEBUG, ""/*line intentionally left blank*/);
 
             //three nodes will uniquely determine the face
             auto &firstNodeList = listOfElementsForEachNode[nodalDescriptionOfTheFace[0]];
@@ -3187,11 +3183,14 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
         if(DIM > 2) input >> numberOfEdges;
         std::size_t numberOfPartitions, localNumberOfNodes;
         input >> numberOfPartitions;
-        for(std::size_t i = 0; i < MPIContainer::Instance().getProcessorID() + 1; ++i) {
+        logger.assert_debug(MPIContainer::Instance().getProcessorID()>= 0, "We got assigned processor ID % by MPI (expected >=0)", MPIContainer::Instance().getProcessorID());
+        std::size_t processorID = MPIContainer::Instance().getProcessorID();
+        for(std::size_t i = 0; i < processorID + 1; ++i) {
             input >> localNumberOfNodes;
         }
         input.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        logger.assert_always(numberOfPartitions == MPIContainer::Instance().getNumberOfProcessors(), "This mesh is targeting % parallel threads, but you are running on % threads, please rerun the preprocessor first", numberOfPartitions, MPIContainer::Instance().getNumberOfProcessors());
+        logger.assert_debug(MPIContainer::Instance().getNumberOfProcessors() >= 0, "MPI thinks we are running only on % processors", MPIContainer::Instance().getNumberOfProcessors());
+        logger.assert_always(numberOfPartitions == static_cast<std::size_t>(MPIContainer::Instance().getNumberOfProcessors()), "This mesh is targeting % parallel threads, but you are running on % threads, please rerun the preprocessor first", numberOfPartitions, MPIContainer::Instance().getNumberOfProcessors());
 
         std::size_t processedNodes = 0;
         std::map<std::size_t, std::size_t> localNodeIndex;
@@ -3207,7 +3206,8 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
             for(std::size_t j = 0; j < nodePartitions && !present; ++j) {
                 std::size_t partition;
                 input >> partition;
-                if(partition == MPIContainer::Instance().getProcessorID()) {
+                //getProcessorID is already nonnegative according to preceding check
+                if(partition == processorID) {
                     input.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                     startOfCoordinates[i] = getNumberOfNodeCoordinates();
                     localNodeIndex[i] = processedNodes++;
@@ -3251,7 +3251,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
             std::size_t partition;
             input >> partition;
             Base::Element* element = nullptr;
-            if(partition == MPIContainer::Instance().getProcessorID()) {
+            if(partition == processorID) {
                 element = addElement(coordinateIndices, partition, true);
                 actualElement[i] = element;
                 getMesh().getSubmesh().add(element);
@@ -3261,12 +3261,12 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
             for(std::size_t j = 0; j < numberOfShadowPartitions; ++j) {
                 std::size_t shadowPartition;
                 input >> shadowPartition;
-                if(shadowPartition == MPIContainer::Instance().getProcessorID()) {
+                if(shadowPartition == processorID) {
                     element = addElement(coordinateIndices, partition, false);
                     actualElement[i] = element;
                     getMesh().getSubmesh().addPull(element, partition);
                 }
-                if(partition == MPIContainer::Instance().getProcessorID()) {
+                if(partition == processorID) {
                     getMesh().getSubmesh().addPush(element, shadowPartition);
                 }
             }
@@ -3303,7 +3303,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
             for(std::size_t j = 0; j < numberOfPartitions; ++j) {
                 std::size_t partition;
                 input >> partition;
-                if(partition == MPIContainer::Instance().getProcessorID()) {
+                if(partition == processorID) {
                     faceIsInPartition = true;
                     if(localNumberOfFaces == 1) {
                         logger.assert_always(actualElement[globalElementIndices[0]] != nullptr, "local face is bounded by nonlocal element");
@@ -3343,7 +3343,7 @@ void MeshManipulator<DIM>::readCentaurMesh3D(std::ifstream &centaurFile)
             for(std::size_t j = 0; j < numberOfPartitions; ++j) {
                 std::size_t partition;
                 input >> partition;
-                if(partition == MPIContainer::Instance().getProcessorID()) {
+                if(partition == processorID) {
                     edgeIsInPartition = true;
                     auto edge = addEdge();
                     for(std::size_t k = 0; k < globalElementIndices.size(); ++k) {

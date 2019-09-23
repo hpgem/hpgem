@@ -39,7 +39,8 @@ namespace Base
                     int position = setPositions_[i][j];
                     if (position != -1) // -1 is used to signal the empty set
                     {
-                        logger.assert_debug(position < numberOfSets, "Invalid position");
+                        logger.assert_debug(position >= 0, "Invalid position");
+                        logger.assert_debug(static_cast<std::size_t>(position) < numberOfSets, "Invalid position");
                         logger.assert_debug(sets_->at(position) != nullptr, "Null pointer set");
                     }
                 }

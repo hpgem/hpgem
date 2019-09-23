@@ -44,8 +44,7 @@ namespace Base
 {
         
     Element::Element(std::size_t owner, bool owned, const ElementData& otherData, const Geometry::ElementGeometry& otherGeometry)
-        : owner_ (owner), owned_ (owned),
-        ElementGeometry(otherGeometry), ElementData(otherData)
+        : ElementGeometry(otherGeometry), ElementData(otherData), owned_ (owned), owner_ (owner)
     {        
     }
     

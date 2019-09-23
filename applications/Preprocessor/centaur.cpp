@@ -108,7 +108,7 @@ namespace Preprocessor {
         auto increment = [=, currentLine = std::move(currentLine)](std::vector<std::vector<double>>& next) mutable {
             if(remainderThisLine == 0) {
                 remainderThisLine = nodesOnLine;
-                currentLine = std::move(readLine());
+                currentLine = readLine();
             }
             auto position = boundaryConnections.find(index);
             //skip over boundary nodes that are already processed
@@ -139,7 +139,7 @@ namespace Preprocessor {
                 for(auto offset : Range<int>{static_cast<int>(position->second[1]) - static_cast<int>(position->second[0]),
                                         difference_generator(position->second), position->second.size() - 1}) {
                     logger.assert_always(offset > 0, "Need to skip % positions", offset);
-                    while(offset > remainderThisLine) {
+                    while(static_cast<uint32_t>(offset) > remainderThisLine) {
                         currentLine = readLine();
                         offset -= remainderThisLine;
                         remainderThisLine = nodesOnLine;

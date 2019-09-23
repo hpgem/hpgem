@@ -216,8 +216,8 @@ namespace Preprocessor {
         ActionIterator(const ActionIterator&) = delete;
 
         ActionIterator(ActionIterator&& other) noexcept
-                : sentinel(other.sentinel), value(std::move(other.value)), increment(std::move(other.increment)),
-                  remaining(other.remaining), valid(std::move(other.valid)) {
+                : sentinel(other.sentinel), increment(std::move(other.increment)), valid(std::move(other.valid)),
+                  value(std::move(other.value)), remaining(other.remaining) {
             if(remaining > 0) {
                 valid = [this](const T&) {return remaining > 0;};
             }
@@ -243,13 +243,13 @@ namespace Preprocessor {
         //!construct a general iterator from an initial value, a function that can increment the iterator
         //!(find a next value, given a value) and a predicate that is false when the end is reached
         ActionIterator(T first, MoveFunction<void(T&)>&& increment, MoveFunction<bool(const T&)>&& valid)
-                : sentinel(false), value(first), increment(std::move(increment)), valid(std::move(valid)) {
+                : sentinel(false), increment(std::move(increment)), valid(std::move(valid)), value(first) {
         };
 
         //!construct a general iterator that will take n steps from an initial value and a function that can increment the iterator
         //
         ActionIterator(T first, MoveFunction<void(T&)>&& increment, std::size_t n)
-                : sentinel(false), value(first), increment(std::move(increment)), remaining(n), valid([this](const T&) {return remaining > 0;}) {
+                : sentinel(false), increment(std::move(increment)), valid([this](const T&) {return remaining > 0;}), value(first), remaining(n) {
         };
 
         reference operator*() {

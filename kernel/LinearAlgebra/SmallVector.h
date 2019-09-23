@@ -244,7 +244,7 @@ namespace LinearAlgebra
 
         void set(double value)
         {
-            for (int i = 0; i < numberOfRows; ++i)
+            for (std::size_t i = 0; i < numberOfRows; ++i)
             {
                 data_[i] = value;
             }
