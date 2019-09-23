@@ -24,7 +24,6 @@
 #include "Base/MeshManipulator.h"
 #include "Integration/ElementIntegral.h"
 #include "Base/ConfigurationData.h"
-#include "Base/ElementCacheData.h"
 #include "Base/MeshMoverBase.h"
 #include "Geometry/Mappings/MappingReferenceToPhysical.h"
 #include "Base/CommandLineOptions.h"
@@ -91,7 +90,7 @@ void testMesh(Base::MeshManipulator<DIM>* test)
             }
         }
     } trilinear;
-    Integration::ElementIntegral<DIM> elIntegral(false);
+    Integration::ElementIntegral<DIM> elIntegral;
     double total = 0;
     double result;
     for (Base::Element* element : test->getElementsList())

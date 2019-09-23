@@ -24,7 +24,6 @@
 #include "FaceData.h"
 #include <iostream>
 
-#include "FaceCacheData.h"
 #include "LinearAlgebra/MiddleSizeMatrix.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "Logger.h"
@@ -41,7 +40,7 @@ Base::FaceData::FaceData(std::size_t numberOfDOF, std::size_t numberOfFaceMatric
 }
 
 Base::FaceData::FaceData(const FaceData& other)
-: vecCacheData_(other.vecCacheData_), userData_(other.userData_), faceMatrix_(other.faceMatrix_),
+: userData_(other.userData_), faceMatrix_(other.faceMatrix_),
     faceVector_(other.faceVector_), residual_(other.residual_)
 {
 }
@@ -141,9 +140,4 @@ std::size_t Base::FaceData::getNumberOfFaceMatrices() const
 std::size_t Base::FaceData::getNumberOfFaceVectors() const
 {
     return faceVector_.size();
-}
-
-std::vector<Base::FaceCacheData>& Base::FaceData::getVecCacheData()
-{
-    return vecCacheData_;
 }

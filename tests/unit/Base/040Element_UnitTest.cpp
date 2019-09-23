@@ -38,7 +38,6 @@
 #include "Geometry/PointPhysical.h"
 #include "Base/BasisFunctionSet.h"
 #include "Geometry/PointReference.h"
-#include "Base/ElementCacheData.h"
 #include "LinearAlgebra/MiddleSizeMatrix.h"
 #include "Base/BaseBasisFunction.h"
 #include "Logger.h"

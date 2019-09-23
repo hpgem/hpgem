@@ -24,7 +24,6 @@
 #include "Geometry/Jacobian.h"
 #include "Element.h"
 #include "Geometry/ReferenceGeometry.h"
-#include "ElementCacheData.h"
 
 namespace Utilities
 {

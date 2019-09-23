@@ -36,8 +36,6 @@
 #include "Base/BasisFunctionSet.h"
 #include "Base/Element.h"
 #include "Geometry/PointReference.h"
-#include "Base/FaceCacheData.h"
-#include "Base/ElementCacheData.h"
 #include "Base/BaseBasisFunction.h"
 
 int main()

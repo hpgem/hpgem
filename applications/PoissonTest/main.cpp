@@ -24,8 +24,6 @@
 #include <chrono>
 
 #include "Base/HpgemAPILinearSteadyState.h"
-#include "Base/ElementCacheData.h"
-#include "Base/FaceCacheData.h"
 #include "Output/GNUPlotDiscontinuousSolutionWriter.h"
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
 #include "Utilities/BasisFunctions2DH1ConformingSquare.h"

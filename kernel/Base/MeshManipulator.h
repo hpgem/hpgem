@@ -27,7 +27,6 @@
 
 #include "Geometry/FaceGeometry.h"
 #include "PhysicalElement.h"
-#include "FaceCacheData.h"
 #include "Mesh.h"
 #include "GlobalNamespaceBase.h"
 #include "BasisFunctionSet.h"

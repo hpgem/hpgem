@@ -119,7 +119,7 @@ namespace Base
         /// \brief Get a pointer to the quadrature rule used to do integration on this element.
         QuadratureRules::GaussQuadratureRule* getGaussQuadratureRule() const;
 
-        std::vector<Base::ElementCacheData>& getVecCacheData();
+        //std::vector<Base::ElementCacheData>& getVecCacheData();
 
         /// \brief Get the value of the basis function (corresponding to index i) at the physical point corresponding to reference point p.
         template<std::size_t DIM>
@@ -379,9 +379,6 @@ namespace Base
         std::vector<Edge*> edgesList_;
         std::vector<Node*> nodesList_;
 
-        /// Vector of data which the user might want to store. For example determinants of the Jacobian for each quadrature point.
-        std::vector<Base::ElementCacheData> vecCacheData_;
-
         ElementBasisFunctions basisFunctions_;
 
         /// Whether the current processor owns this element.
@@ -407,8 +404,8 @@ namespace Base
                      std::size_t numberOfElementVectors)
             : ElementGeometry(globalNodeIndexes, allNodes),
         ElementData(numberOfTimeLevels, numberOfUnknowns, numberOfElementMatrices, numberOfElementVectors),
-        quadratureRule_(nullptr), //basisFunctionSet_(basisFunctionSet),
-        id_(id), vecCacheData_(), basisFunctions_ (basisFunctionSet, numberOfUnknowns),
+        quadratureRule_(nullptr),
+        id_(id), basisFunctions_ (basisFunctionSet, numberOfUnknowns),
         owned_(owned), owner_ (owner)
     {
         logger.assert_debug(basisFunctionSet != nullptr, "Invalid basis function set passed");

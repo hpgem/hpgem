@@ -34,8 +34,6 @@
 #include "Base/Face.h"
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
 #include "Output/VTKTimeDependentWriter.h"
-#include "Base/ElementCacheData.h"
-#include "Base/FaceCacheData.h"
 #include <cmath>
 
 #include "Utilities/GlobalMatrix.h"
@@ -206,7 +204,7 @@ public:
     //assumes that 'all' means 'all relevant'; computes the mass matrix at the free surface
     void doAllFaceIntegration()
     {
-        Integration::FaceIntegral<DIM> integral(false);
+        Integration::FaceIntegral<DIM> integral;
         PointPhysicalT pPhys;
         LinearAlgebra::MiddleSizeMatrix result;
         LinearAlgebra::MiddleSizeVector initialconditions;
@@ -234,7 +232,7 @@ public:
 
     void doAllElementIntegration()
     {
-        Integration::ElementIntegral<DIM> integral(false);
+        Integration::ElementIntegral<DIM> integral;
         LinearAlgebra::MiddleSizeMatrix result;
         LinearAlgebra::MiddleSizeVector zero;
         for (Base::Element* element : meshes_[0]->getElementsList())
@@ -270,7 +268,7 @@ public:
 
     void printError()
     {
-        Integration::FaceIntegral<DIM> integral(false);
+        Integration::FaceIntegral<DIM> integral;
         LinearAlgebra::MiddleSizeVector totalError(2), contribution(2);
         for (Base::Face* face : meshes_[0]->getFacesList())
         {
@@ -284,8 +282,8 @@ public:
 
     void computeEnergy()
     {
-        Integration::ElementIntegral<DIM> elIntegral(false);
-        Integration::FaceIntegral<DIM> faIntegral(false);
+        Integration::ElementIntegral<DIM> elIntegral;
+        Integration::FaceIntegral<DIM> faIntegral;
         LinearAlgebra::MiddleSizeVector totalEnergy(1), contribution(1);
         for (Base::Face* face : meshes_[0]->getFacesList())
         {

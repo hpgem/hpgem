@@ -23,7 +23,6 @@
 #include "PhysicalElement.h"
 #include "FaceFactory.h"
 #include "Face.h"
-#include "FaceCacheData.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "GlobalUniqueIndex.h"
 

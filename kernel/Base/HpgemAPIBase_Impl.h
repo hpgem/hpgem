@@ -25,8 +25,6 @@
 
 #include "Geometry/PointPhysical.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
-#include "ElementCacheData.h"
-#include "FaceCacheData.h"
 #include "ConfigurationData.h"
 
 namespace Base

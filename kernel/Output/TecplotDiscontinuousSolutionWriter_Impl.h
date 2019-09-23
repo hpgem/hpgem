@@ -28,8 +28,6 @@
 #include "Geometry/PhysicalGeometry.h"
 #include "Geometry/ReferenceGeometry.h"
 #include "TecplotSingleElementWriter.h"
-#include "Base/ElementCacheData.h"
-#include "Base/FaceCacheData.h"
 
 namespace Output
 {

@@ -66,8 +66,6 @@ namespace Base
         void setFaceVector(const LinearAlgebra::MiddleSizeVector& vector, std::size_t vectorID = 0);
 
         LinearAlgebra::MiddleSizeVector getFaceVector(std::size_t vectorID = 0) const;
-
-        std::vector<FaceCacheData>& getVecCacheData();
         
         UserData* getUserData() const
         {
@@ -98,10 +96,6 @@ namespace Base
         {
             return getNumberOfFaceVectors();
         }
-        
-    protected:
-        /// Vector of data which the user might want to store. For example determinants of the Jacobian for each quadrature point.
-        std::vector<FaceCacheData> vecCacheData_;
 
     private:
         ///Stores polymorphic pointer to UserDefined Data, internally not used.

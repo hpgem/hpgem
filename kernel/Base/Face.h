@@ -304,10 +304,7 @@ namespace Base
         std::vector<std::size_t> numberOfConformingDOFOnTheFace_;
         std::size_t faceID_;
     };
-}
-#include "FaceCacheData.h"
-namespace Base
-{
+
     template<std::size_t DIM>
     double Face::basisFunction(std::size_t i, const Geometry::PointReference<DIM>& p) const
     {

@@ -33,7 +33,6 @@
 #include "Utilities/BasisFunctions3DH1ConformingTetrahedron.h"
 #include "Base/ConfigurationData.h"
 #include "Base/L2Norm.h"
-#include "Base/ElementCacheData.h"
 #include "Base/CommandLineOptions.h"
 #include <cmath>
 #include <CMakeDefinitions.h>
@@ -89,7 +88,7 @@ void testMesh(Base::MeshManipulator<DIM>* test)
     } integrating;
     
     std::cout.precision(14);
-    Integration::ElementIntegral<DIM> elIntegral(false);
+    Integration::ElementIntegral<DIM> elIntegral;
     double total = 0;
     double result;
     LinearAlgebra::MiddleSizeVector  expansion;

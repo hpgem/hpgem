@@ -158,8 +158,7 @@ namespace Integration
 
     //! \brief Construct an ElementIntegral with cache on.
     template<std::size_t DIM>
-    ElementIntegral<DIM>::ElementIntegral(bool useCache)
-            : useCache_(useCache)
+    ElementIntegral<DIM>::ElementIntegral()
     {
     }
 
@@ -167,33 +166,6 @@ namespace Integration
     template<std::size_t DIM>
     ElementIntegral<DIM>::~ElementIntegral()
     {
-    }
-    //! \brief Start caching (geometry) information now.
-    template<std::size_t DIM>
-    void ElementIntegral<DIM>::cacheOn()
-    {
-        useCache_ = true;
-    }
-
-    //! \brief Stop using cache.
-    template<std::size_t DIM>
-    void ElementIntegral<DIM>::cacheOff()
-    {
-        useCache_ = false;
-    }
-
-    //! \brief Set recompute the cache ON.
-    template<std::size_t DIM>
-    void ElementIntegral<DIM>::recomputeCacheOn()
-    {
-
-    }
-
-    //! \brief Set recompute the cache OFF.
-    template<std::size_t DIM>
-    void ElementIntegral<DIM>::recomputeCacheOff()
-    {
-
     }
     
     template<std::size_t DIM>

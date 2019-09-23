@@ -57,24 +57,13 @@ namespace Integration
     {
     public:
         //! \brief Construct an FaceIntegral with cache on.
-        FaceIntegral(bool useCache = false);
+        FaceIntegral();
         
         ///! \brief Copy constructor should not be used and is therefore deleted.
         FaceIntegral(const FaceIntegral &other) = delete;
 
         //! \brief Free the memory used for the data storage.
         ~FaceIntegral();
-
-        //! \brief Start caching (geometry) information now.
-        void cacheOn();
-
-        //! \brief Stop using cache.
-        void cacheOff();
-        //! \brief Stop using cache.
-        void recomputeCacheOn();
-
-        //! \brief Stop using cache.
-        void recomputeCacheOff();
 
         /// you can set the coordinate transformation that is to be used here, before calling integrate
         void setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> > transform, std::size_t unknown = 0);
@@ -100,8 +89,6 @@ namespace Integration
         //IntegrandType referenceFaceIntegral(const QuadratureRules::GaussQuadratureRule *ptrQdrRule, std::function<IntegrandType()> integrandFunction) const;
 
     private:
-        
-        bool useCache_;
 
         Base::PhysicalFace<DIM> internalFace_;
         Base::PhysicalFace<DIM> boundaryFace_;

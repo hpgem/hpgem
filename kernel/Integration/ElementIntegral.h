@@ -65,25 +65,13 @@ namespace Integration
     {
     public:
         
-        //! \brief Construct an ElementIntegral, either with or without cache.
-        ElementIntegral(bool useCache = false);
+        //! \brief Construct an ElementIntegral.
+        ElementIntegral();
 
         //! \brief Class destructor
         ~ ElementIntegral();
         
         ElementIntegral(const ElementIntegral &other) = delete;
-
-        //! \brief Start caching (geometry) information now.
-        void cacheOn();
-
-        //! \brief Stop using cache. This routine is not required to delete any stored data.
-        void cacheOff();
-
-        //! \brief Set recompute the cache ON.
-        void recomputeCacheOn();
-
-        //! \brief Set recompute the cache OFF.
-        void recomputeCacheOff();
 
         /// you can set the coordinate transformation that is to be used here, before calling integrate
         void setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> > transform, std::size_t unknown = 0);
@@ -105,8 +93,6 @@ namespace Integration
         IntegrandType referenceElementIntegral(const QuadratureRules::GaussQuadratureRule *ptrQdrRule, std::function<IntegrandType()> integrandFunction);
 
     private:
-        
-        bool useCache_;
 
         Base::PhysicalElement<DIM> element_;
     };

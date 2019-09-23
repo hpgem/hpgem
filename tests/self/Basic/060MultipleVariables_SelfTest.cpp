@@ -33,7 +33,6 @@
 #include "Base/BasisFunctionSet.h"
 #include "Base/Element.h"
 #include "Base/Face.h"
-#include "Base/FaceCacheData.h"
 #include "Base/Node.h"
 #include "Geometry/PointPhysical.h"
 #include "Geometry/PointReference.h"

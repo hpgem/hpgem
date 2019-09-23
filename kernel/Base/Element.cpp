@@ -22,14 +22,12 @@
 #include "Element.h"
 #include "PhysGradientOfBasisFunction.h"
 #include "Edge.h"
-#include "FaceCacheData.h"
 #include "Face.h"
 
 #include "BasisFunctionSet.h"
 #include "Geometry/PhysicalGeometry.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "Geometry/PointPhysical.h"
-#include "ElementCacheData.h"
 #include "Geometry/ReferenceGeometry.h"
 #include "Geometry/PointReference.h"
 #include "Logger.h"
@@ -60,7 +58,6 @@ namespace Base
         //copy other data
         newElement->id_ = id_;
         newElement->orderCoeff_ = orderCoeff_;
-        newElement->vecCacheData_ = vecCacheData_;
         
         //allocate memory for nodesList, facesList and edgesList
         newElement->nodesList_.resize(getNumberOfNodes());
@@ -162,11 +159,6 @@ namespace Base
     QuadratureRules::GaussQuadratureRule* Element::getGaussQuadratureRule() const
     {
         return quadratureRule_;
-    }
-    
-    std::vector<Base::ElementCacheData>& Element::getVecCacheData()
-    {
-        return vecCacheData_;
     }
     
 #ifndef NDEBUG

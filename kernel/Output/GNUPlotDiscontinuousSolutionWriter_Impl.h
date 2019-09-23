@@ -29,7 +29,6 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/PhysicalGeometry.h"
 #include "Geometry/ReferenceGeometry.h"
-#include "Base/ElementCacheData.h"
 
 namespace Output
 {

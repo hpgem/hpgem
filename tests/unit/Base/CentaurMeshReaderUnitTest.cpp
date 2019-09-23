@@ -28,8 +28,6 @@
 #include "CMakeDefinitions.h"
 #include <sstream>
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
-#include "Base/ElementCacheData.h"
-#include "Base/FaceCacheData.h"
 
 using namespace std;
 

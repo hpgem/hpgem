@@ -47,8 +47,6 @@
 #include "Geometry/ReferenceSquare.h"
 #include "Geometry/GlobalNamespaceGeometry.h"
 #include "Geometry/PointReference.h"
-#include "ElementCacheData.h"
-#include "FaceCacheData.h"
 #include "BaseBasisFunction.h"
 #include "Geometry/Mappings/MappingReferenceToPhysical.h"
 #include "ElementFactory.h"

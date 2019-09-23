@@ -25,9 +25,7 @@
 #include "Element.h"
 #include "Face.h"
 #include "Edge.h"
-#include "Geometry/PointPhysical.h" 
-#include "FaceCacheData.h"
-#include "ElementCacheData.h"
+#include "Geometry/PointPhysical.h"
 
 namespace Base
 {

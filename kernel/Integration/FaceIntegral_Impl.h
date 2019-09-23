@@ -205,40 +205,14 @@ namespace Integration
 
     //! \brief Construct an FaceIntegral with cache on.
     template<std::size_t DIM>
-    FaceIntegral<DIM>::FaceIntegral(bool useCache)
-            : useCache_(useCache), internalFace_(true), boundaryFace_(false)
+    FaceIntegral<DIM>::FaceIntegral()
+            : internalFace_(true), boundaryFace_(false)
     {
     }
 
     //! \brief Free the memory used for the data storage.
     template<std::size_t DIM>
     FaceIntegral<DIM>::~FaceIntegral()
-    {
-    }
-
-    //! \brief Start caching (geometry) information now.
-    template<std::size_t DIM>
-    void FaceIntegral<DIM>::cacheOn()
-    {
-        useCache_ = true;
-    }
-
-    //! \brief Stop using cache.
-    template<std::size_t DIM>
-    void FaceIntegral<DIM>::cacheOff()
-    {
-        useCache_ = false;
-    }
-
-    //! \brief Force a recomputation of the cache, the next time it is needed
-    template<std::size_t DIM>
-    void FaceIntegral<DIM>::recomputeCacheOn()
-    {
-    }
-
-    //! \brief Stop forcing a recomputation of the cache
-    template<std::size_t DIM>
-    void FaceIntegral<DIM>::recomputeCacheOff()
     {
     }
     

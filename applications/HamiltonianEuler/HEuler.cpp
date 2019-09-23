@@ -635,8 +635,7 @@ void HEuler::createIncompressibleSystem()
 //	timer t0;
 //	std::cout << t0.elapsed() << " - : Element Integration started\n";
     ElementIntegralData gradMass;
-    bool useCache = false;
-    ElementIntegralT elIntegral(useCache);
+    ElementIntegralT elIntegral;
     using Integrand = void (HEuler::*)(Base::PhysicalElement<3>&, ElementIntegralData&);
     Integrand gradMassInteg = &HEuler::elementIntegrand;
     
@@ -742,7 +741,7 @@ void HEuler::createIncompressibleSystem()
     fData.resize(nb);
     //using FaceIntegrand =  void  (HEuler::*)(const FaceT*, const PointPhysicalT& normal , const PointReferenceOnTheFaceT&, FluxData&);
     //FaceIntegrand faceInteg = &HEuler::faceIntegrand;
-    FaceIntegralT faceIntegral(useCache);
+    FaceIntegralT faceIntegral;
     
     for (ConstFaceIterator citFe = faceColBegin(); citFe != faceColEnd(); ++citFe)
     {
@@ -1128,8 +1127,7 @@ void HEuler::createCompressibleSystem()
     cout.flush();
     
     ElementIntegralData gradMass;
-    bool useCache = false;
-    ElementIntegralT elIntegral(useCache);
+    ElementIntegralT elIntegral;
     using Integrand = void (HEuler::*)(Base::PhysicalElement<3>&, ElementIntegralData&);
     Integrand gradMassInteg = &HEuler::elementIntegrand;
     
@@ -1196,7 +1194,7 @@ void HEuler::createCompressibleSystem()
     fData.resize(nb);
     //using FaceIntegrand =  void  (HEuler::*)(const FaceT*, const PointPhysicalT& normal , const PointReferenceOnTheFaceT&, FluxData&);
     //FaceIntegrand faceInteg = &HEuler::faceIntegrand;
-    FaceIntegralT faceIntegral(useCache);
+    FaceIntegralT faceIntegral;
     
     for (ConstFaceIterator citFe = faceColBegin(); citFe != faceColEnd(); ++citFe)
     {
@@ -1410,9 +1408,7 @@ void HEuler::initialConditions()
     
     HEulerElementData* elemData;
     
-    bool useCache = false;
-    
-    ElementIntegralT elIntegral(useCache);
+    ElementIntegralT elIntegral;
     
     using Integrand = void (HEuler::*)(const Base::Element* , const PointReferenceT&, LinearAlgebra::MiddleSizeMatrix&);
     //Integrand massMatrixIntegrand = &HEuler::calculateMassMatrix;

@@ -22,7 +22,6 @@
 #include "Node.h"
 #include "Element.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
-#include "ElementCacheData.h"
 #include <algorithm>
 
 void Base::Node::addElement(Element *element, std::size_t localNodeNumber)

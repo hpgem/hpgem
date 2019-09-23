@@ -23,7 +23,6 @@
 #include "Element.h"
 #include "Geometry/PointPhysical.h"
 #include "BasisFunctionSet.h"
-#include "ElementCacheData.h"
 
 namespace Base
 {

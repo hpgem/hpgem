@@ -32,8 +32,6 @@
 #include "Geometry/PointPhysical.h"
 #include "Geometry/ReferenceGeometry.h"
 #include "Geometry/PointReference.h"
-#include "FaceCacheData.h"
-#include "ElementCacheData.h"
 
 #ifdef HPGEM_USE_METIS
 #include <metis.h>

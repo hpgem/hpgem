@@ -37,7 +37,6 @@
 #include "Geometry/ReferenceTriangularPrism.h"
 #include "Geometry/ReferencePyramid.h"
 #include "Geometry/PointReference.h"
-#include "Base/ElementCacheData.h"
 #include "base64.h"
 #include "VTKElementOrdering.h"
 #include <vector>
