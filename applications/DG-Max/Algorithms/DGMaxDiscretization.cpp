@@ -51,7 +51,7 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(Base::MeshManipulator<DI
 {
     LinearAlgebra::MiddleSizeMatrix massMatrix(1, 1), stiffnessMatrix(1, 1);
     LinearAlgebra::MiddleSizeVector initialConditionVector(1), initialConditionDerivativeVector(1), elementVector(1);
-    Integration::ElementIntegral<DIM> elIntegral(false);
+    Integration::ElementIntegral<DIM> elIntegral;
 
     elIntegral.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM>> (new Base::HCurlConformingTransformation<DIM>()));
     auto end = mesh.elementColEnd();
@@ -136,7 +136,7 @@ void DGMaxDiscretization<DIM>::computeFaceIntegrals(
 {
     LinearAlgebra::MiddleSizeMatrix stiffnessFaceMatrix(0, 0);
     LinearAlgebra::MiddleSizeVector boundaryFaceVector(1);
-    Integration::FaceIntegral<DIM> faIntegral(false);
+    Integration::FaceIntegral<DIM> faIntegral;
 
     faIntegral.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM>> (new Base::HCurlConformingTransformation<DIM>()));
     auto end = mesh.faceColEnd();
@@ -391,7 +391,7 @@ std::map<typename DGMaxDiscretization<DIM>::NormType, double> DGMaxDiscretizatio
     double l2Norm = 0;
     double hCurlNorm = 0;
     // Setup the element integration.
-    Integration::ElementIntegral<DIM> elIntegral(false);
+    Integration::ElementIntegral<DIM> elIntegral;
     elIntegral.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM>>(new Base::HCurlConformingTransformation<DIM>()));
 
     bool l2Wanted = norms.find(NormType::L2) != norms.end();
@@ -415,7 +415,7 @@ std::map<typename DGMaxDiscretization<DIM>::NormType, double> DGMaxDiscretizatio
 
     if (dgWanted)
     {
-        Integration::FaceIntegral<DIM> faIntegral(false);
+        Integration::FaceIntegral<DIM> faIntegral;
         faIntegral.setTransformation(std::shared_ptr<Base::CoordinateTransformation<DIM> >(new Base::HCurlConformingTransformation<DIM>()));
         auto end = mesh.faceColEnd();
         for (typename Base::MeshManipulator<DIM>::FaceIterator it = mesh.faceColBegin();

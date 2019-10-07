@@ -23,8 +23,6 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferenceGeometry.h"
 #include "Geometry/PointPhysical.h"
-#include "Base/ElementCacheData.h"
-#include "Base/FaceCacheData.h"
 
 template<std::size_t DIM>
 double computeEpsilon(const Base::Element& element, std::size_t structureType);
