@@ -1,21 +1,21 @@
 <Fancy ascII logo goes here>
 
-== hpGEM ==
+# hpGEM
 
 hpGEM is a c++ partial differential equation solver. It is intended for Discontinuous Galerkin Finite Element Methods, but can also do normal (conforming) Finite Element Methods and Finite Volume.
 
-== Installation ==
+## Installation
 
 For a quick, basic installation do
 
-$ mkdir ../hpGEM_build
-$ cd ../hpGEM_build
-$ cmake ../trunk
-$ make
+> mkdir ../hpGEM_build
+> cd ../hpGEM_build
+> cmake ../trunk
+> make
 
 For detailled instructions and alternative options see http://www.hpgem.org/obtaining-the-code/downloading-and-installing-version-2.x
 
-== Use ==
+## Use
 
 Doing a finite element simulation is a two step process. The first step is to create or convert a mesh to the native hpgem format and then use this mesh as input for your finite element simulation. This section will describe the preprocessor in more detail. For additional information on how to do the simulation please have a look at your preferred solver or the tutorial applications. At the moment the preprocessor can process centaur meshes and meshes in the native hpgem format. In addition it can mesh a rectangular domain based on a parametrized description of what the mesh should look like. We will first describe in words what this mesh description looks like and then provide some examples as illustration. 
 
@@ -23,25 +23,25 @@ The first line of the description file contains the text "structured 1" (without
 
 For example if the input file contains the following:
 
-structured 1 3
-4 5 6
-0. 0. 0.
-1. 2. 3.5
-rectangular 
-false false false
+> structured 1 3
+> 4 5 6
+> 0. 0. 0.
+> 1. 2. 3.5
+> rectangular
+> false false false
 
 describes a mesh of 4x5x6 hexahedral elements on the nonperiodic domain [0, 1]x[0, 2]x[0, 3.5]
 
-structured 1 2
-7 8
-0. -3.14159265359
-1. 3.14159265359
-triangular
-false true
+> structured 1 2
+> 7 8
+> 0. -3.14159265359
+> 1. 3.14159265359
+> triangular
+> false true
 
 describes a mesh of 7x8 triangular elements on the boundary of a cylinder with height 1 and radius 1. Note that it is ok to have 7 elements in the height-wise direction, but we must have an even number of elements in the circular direction to make the mesh fit properly.
 
-== Licence ==
+## Licence
 
  This file forms part of hpGEM. This package has been developed over a number of years by various people at the University of Twente and a full list of contributors can be found at
  http://hpgem.org/about-the-code/team
@@ -62,15 +62,15 @@ describes a mesh of 7x8 triangular elements on the boundary of a cylinder with h
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  
-== Contact ==
+## Contact
  
 For questions, comments, requests and bug reports, send an e-mail to support@hpgem.org
  
-== More information ==
+## More information
  
 More information is available on the website: http://www.hpgem.org
 
-== FAQ ==
+## FAQ
 
 Q: How do I use hpGEM?
 A: There are a few tutorials provided in the applications folder.
@@ -86,6 +86,3 @@ A: CMake cannot automatically detect new applications. Please use generate in cm
 
 Q: hpGEM is slow!
 A: hpGEM is used by users of highly varying background and with highly varying programming skills. For this reason the (default) Debug configuration is extra paranoid about making sure all functions are used as intended. This safeguard drastically slows down computation. Setting CMAKE_BUILD_TYPE to Release disables these safeguards and enables compiler optimisations. It is recommended that you validate that your application is working as intended before doing this.
-
-Q: I tried to compile my code using -Wall or -Weverything because I am paranoid, but now it doesn't compile at all
-A: -Wall and -Weverything override the -std=c++11 flag. Manually set it again after -Wall or -Weverything to re-enable c++11 features
