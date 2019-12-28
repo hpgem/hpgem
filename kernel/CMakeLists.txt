@@ -31,7 +31,3 @@ target_link_libraries(HPGEM
 )
 
 add_library(HPGEM::HPGEM ALIAS HPGEM)
-
-
-
-
