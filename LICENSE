@@ -1,4 +1,6 @@
-This code is distributed using BSD 3-Clause License. A copy of which can found below.
+hpGEM is distributed using BSD 3-Clause License. A copy of which can found
+below. Some cmake modules are based on external sources, see those files for
+their copyright licenses.
 
 Copyright (c) 2014, University of Twente
 All rights reserved.
