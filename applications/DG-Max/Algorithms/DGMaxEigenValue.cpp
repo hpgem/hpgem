@@ -185,7 +185,7 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
     // Last id used for offsetting leftNumber/rightNumber
     PetscInt lastLeftOffset = 0, lastRightOffset = 0;
 
-    std::size_t maxStep = kpath.totalNumberOfSteps() + 1;
+    std::size_t maxStep = kpath.totalNumberOfSteps();
     // For testing
     // maxStep = 21;
 
@@ -270,7 +270,7 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
         //outputs 'old' data
         if (i % 20 == 1)
         {
-            sampleGlobalVector.writeTimeIntegrationVector(measureAmount);
+            //sampleGlobalVector.writeTimeIntegrationVector(measureAmount);
             measureAmount++;
         }
 
@@ -294,7 +294,7 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
     error = EPSGetInvariantSubspace(eigenSolver, eigenVectors);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
-    sampleGlobalVector.writeTimeIntegrationVector(measureAmount);
+    //sampleGlobalVector.writeTimeIntegrationVector(measureAmount);
 
     error = VecDestroy(&waveVec);
     CHKERRABORT(PETSC_COMM_WORLD, error);
