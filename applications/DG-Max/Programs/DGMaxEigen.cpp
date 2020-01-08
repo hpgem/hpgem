@@ -186,12 +186,6 @@ KSpacePath<DIM> parsePath()
     if(pointMode.isUsed())
     {
         DGMax::PointPath<DIM> path = DGMax::parsePath<DIM>(pointMode.getValue());
-        // Make single point mode easier by automatically inserting 0,0 at the start
-        if(path.points_.size() == 1)
-        {
-            path.points_.emplace_back(path.points_[0]);
-            path.points_[0] *= 0;
-        }
         // Compensate for factor of pi in the reciprocal lattice
         for(std::size_t i = 0; i < path.points_.size(); ++i)
         {
