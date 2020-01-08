@@ -117,10 +117,14 @@ namespace DGMax
                 throw std::invalid_argument("Not enough coordinates for a reciprocal point");
             }
             std::size_t len = 0;
-            point[i] = std::stod(pointString.substr(start), &len);
-            if(len == 0)
+            try
             {
-                throw std::invalid_argument("No value parsed");
+                point[i] = std::stod(pointString.substr(start), &len);
+            }
+            catch (const std::invalid_argument&)
+            {
+                // No parse, i.e. len == 0
+                throw std::invalid_argument("Number point parsing failed at '" + pointString.substr(start) + "', expected a coordinate");
             }
             start += len;
             if(i < DIM - 1)
