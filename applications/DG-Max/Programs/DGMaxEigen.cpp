@@ -185,48 +185,24 @@ KSpacePath<DIM> parsePath()
 {
     if(pointMode.isUsed())
     {
-        const std::string& pointString = pointMode.getValue();
-        typename KSpacePath<DIM>::KPoint point;
-        std::size_t index = 0; // Current parsing index
-
-        std::size_t steps = 1;
-        // Check if the string starts with number@, to denote step count
-        std::size_t atIndex = pointString.find_first_of('@');
-        if(atIndex != std::string::npos)
+        DGMax::PointPath<DIM> path = DGMax::parsePath<DIM>(pointMode.getValue());
+        // Make single point mode easier by automatically inserting 0,0 at the start
+        if(path.points_.size() == 1)
         {
-            std::size_t len = 0;
-            steps = std::stoul(pointString, &len);
-            index = atIndex + 1; // Start parsing points after the @
-            if(len != atIndex)
-            {
-                throw std::invalid_argument("Left between number of steps and '@'");
-            }
+            path.points_.emplace_back(path.points_[0]);
+            path.points_[0] *= 0;
         }
-
-        // Parse a string of points
-        std::vector<LinearAlgebra::SmallVector<DIM>> points;
-        while(index < pointString.length())
+        // Compensate for factor of pi in the reciprocal lattice
+        for(std::size_t i = 0; i < path.points_.size(); ++i)
         {
-            LinearAlgebra::SmallVector<DIM> point;
-            index = parsePoint(pointString, index, point);
-            point *= M_PI; // Treat it as reduced point
-            points.push_back(point);
-            // Strip character if needed
-            while (index < pointString.length()
-                && (std::isspace(pointString[index])  // Allow spaces, just as sto*-functions
-                   || pointString[index] == ':')) // Allow colon separation for readability
-            {
-                index++;
-            }
+            path.points_[i] *= M_PI;
         }
-        // Simplify single point mode.
-        if(points.size() == 1)
+        // Default steps to 1.
+        if(path.steps_ < 0)
         {
-            points.emplace_back(points[0]);
-            points[0] *= 0;
+            path.steps_ = 1;
         }
-
-        return KSpacePath<DIM>(points, steps);
+        return KSpacePath<DIM>(path.points_, (std::size_t) path.steps_);
     }
     else
     {
