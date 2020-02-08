@@ -313,9 +313,9 @@ namespace Utilities
                 std::size_t mpiOffset = globalOffset[rank];
 
                 offsets[unknown].setOffset(mpiOffset, localBaseOffset, numberOfBasisFunctions[unknown]);
-                // globalOffset[n+1] contains the sum of all the basis functions for
+                // globalOffset[n] contains the sum of all the basis functions for
                 // this unknown plus those for previous unknowns.
-                baseOffset = globalOffset[n + 1];
+                baseOffset = globalOffset[n];
                 localBaseOffset += numberOfBasisFunctions[unknown];
             }
         }
