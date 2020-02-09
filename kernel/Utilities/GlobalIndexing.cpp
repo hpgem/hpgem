@@ -35,7 +35,7 @@ namespace Utilities
         reset(mesh, layout);
     }
 
-    std::size_t GlobalIndexing::getGlobalIndices(const Base::Element *element, std::size_t offset, std::vector<int> &indices)
+    std::size_t GlobalIndexing::getGlobalIndices(const Base::Element *element, std::size_t offset, std::vector<int> &indices) const
     {
         logger.assert_debug(element != nullptr, "Null pointer as element");
         // Make sure we have enough space
@@ -97,7 +97,7 @@ namespace Utilities
         return localBasisIndex;
     }
 
-    void GlobalIndexing::getGlobalIndices(const Base::Face *face, std::vector<int> &indices)
+    void GlobalIndexing::getGlobalIndices(const Base::Face *face, std::vector<int> &indices) const
     {
         std::size_t size;
         size = getGlobalIndices(face->getPtrElementLeft(), 0, indices);
