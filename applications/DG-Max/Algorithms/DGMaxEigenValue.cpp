@@ -133,16 +133,27 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
     {
         MatNullSpace nullspace;
         MatGetNullSpace(product, &nullspace);
+        DGMaxLogger(INFO, "Null Space assembled");
 
-        const Vec *nullvecs;
-        
-        PetscInt nvecs;
-        PetscBool has_const;
-        MatNullSpaceGetVecs(nullspace, &has_const, &nvecs, &nullvecs);
-        
-        Vec *B = const_cast<Vec*>(nullvecs);
-        error = EPSSetDeflationSpace(eigenSolver, nvecs, B);
-        CHKERRABORT(PETSC_COMM_WORLD, error);
+        if (!nullspace) {
+            DGMaxLogger(INFO, "Operator dos not have a null space");
+            MatNullSpaceCreate(PETSC_COMM_WORLD, PETSC_TRUE, 0, 0, &nullspace);
+            MatSetNullSpace(product, nullspace);
+            MatNullSpaceDestroy(&nullspace);
+        }
+
+        else {
+
+            const Vec *nullvecs;
+            PetscInt nvecs;
+            PetscBool has_const;
+            MatNullSpaceGetVecs(nullspace, &has_const, &nvecs, &nullvecs);
+            DGMaxLogger(INFO, "Vectors of the Null Space extraced");
+
+            Vec *B = const_cast<Vec*>(nullvecs);
+            // error = EPSSetDeflationSpace(eigenSolver, nvecs, B);
+            CHKERRABORT(PETSC_COMM_WORLD, error);
+        }
     }
 
     error = EPSSetUp(eigenSolver);
