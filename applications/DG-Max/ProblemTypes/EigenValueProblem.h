@@ -44,6 +44,7 @@ public:
     {
         return numberOfEigenvalues_;
     }
+
 private:
     KSpacePath<DIM>& path_;
     std::size_t numberOfEigenvalues_;

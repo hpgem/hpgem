@@ -49,13 +49,18 @@ EPS DGMaxEigenValue<DIM>::createEigenSolver()
     PetscErrorCode err = EPSCreate(PETSC_COMM_WORLD, &solver);
     CHKERRABORT(PETSC_COMM_WORLD, err);
 
+    // problem type
     err = EPSSetProblemType(solver, EPS_NHEP);
     CHKERRABORT(PETSC_COMM_WORLD, err);
+
+    // target 
     err = EPSSetWhichEigenpairs(solver, EPS_TARGET_REAL);
     CHKERRABORT(PETSC_COMM_WORLD, err);
+
+    
     // Note, this is to find the bottom band, which should run from omega = 0 to pi (Gamma-X)
     // Thus eigen values 0 to pi^2
-//    double target = 2 * M_PI * M_PI;
+    // double target = 2 * M_PI * M_PI;
     double target = 40; // Original target used in the older codes.
     err = EPSSetTarget(solver, target);
     CHKERRABORT(PETSC_COMM_WORLD, err);
@@ -87,7 +92,7 @@ void DGMaxEigenValue<DIM>::initializeMatrices(double stab)
 
 template<std::size_t DIM>
 typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
-        const EigenValueProblem<DIM>& input, double stab)
+        const EigenValueProblem<DIM>& input, double stab, bool useDeflation)
 {
     // Sometimes the solver finds more eigenvalues & vectors than requested, so
     // reserve some extra space for them.
@@ -123,6 +128,23 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
     //Setup the EPS eigen value solver of SLEPC to find the eigenvalues of `product`.
     error = EPSSetOperators(eigenSolver, product, NULL);
     CHKERRABORT(PETSC_COMM_WORLD, error);
+
+    if(useDeflation)
+    {
+        MatNullSpace nullspace;
+        MatGetNullSpace(product, &nullspace);
+
+        const Vec *nullvecs;
+        
+        PetscInt nvecs;
+        PetscBool has_const;
+        MatNullSpaceGetVecs(nullspace, &has_const, &nvecs, &nullvecs);
+        
+        Vec *B = const_cast<Vec*>(nullvecs);
+        error = EPSSetDeflationSpace(eigenSolver, nvecs, B);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+    }
+
     error = EPSSetUp(eigenSolver);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     // TODO: It seems that it should use PETSC_DEFAULT instead of PETSC_DECIDE.

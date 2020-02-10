@@ -51,7 +51,7 @@ public:
     };
 
     DGMaxEigenValue(Base::MeshManipulator<DIM>& mesh, std::size_t order);
-    Result solve(const EigenValueProblem<DIM>& input, double stab);
+    Result solve(const EigenValueProblem<DIM>& input, double stab, bool useDeflation);
     // TODO: A nice wrapper of EPS that does RAII would be nicer
     EPS createEigenSolver();
     void destroyEigenSolver(EPS& eps);

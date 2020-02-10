@@ -22,6 +22,9 @@ auto& method = Base::register_argument<std::string>('\0', "method",
         "The method to be used, either 'DGMAX' or 'DIVDGMAX' (default)",
         false, "DIVDGMAX");
 
+auto& useDeflation = Base::register_argument<bool>('\0',"use_deflation",
+        "Use deflation space method", false, false);
+
 // Compute a single point --point 1,0.5,0 or a path of points
 // [steps@]0,0:1,0:1,1
 // Which corresponds to the point pi, 0.5pi, 0 in k-space and a path from 0,0
@@ -124,6 +127,7 @@ void runWithDimension()
     // TODO: Parameterize
     KSpacePath<DIM> path = parsePath<DIM>();
     EigenValueProblem<DIM> input(path, numEigenvalues.getValue());
+
     // Method dependent solving
     if (useDivDGMax)
     {
@@ -140,7 +144,7 @@ void runWithDimension()
     {
         DGMaxEigenValue<DIM> solver (*mesh, p.getValue());
         const double stab = parseDGMaxPenaltyParameter();
-        typename DGMaxEigenValue<DIM>::Result result = solver.solve(input, stab);
+        typename DGMaxEigenValue<DIM>::Result result = solver.solve(input, stab, useDeflation.getValue());
         if (Base::MPIContainer::Instance().getProcessorID() == 0)
         {
             result.printFrequencies();
