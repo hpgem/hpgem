@@ -129,30 +129,6 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
     error = EPSSetOperators(eigenSolver, product, NULL);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
-    if(useDeflation)
-    {
-        MatNullSpace nullspace;
-        MatGetNullSpace(product, &nullspace);
-        DGMaxLogger(INFO, "Null Space assembled");
-
-        if (!nullspace) {
-            DGMaxLogger(INFO, "Operator dos not have a null space");
-        }
-
-        else {
-
-            const Vec *nullvecs;
-            PetscInt nvecs;
-            PetscBool has_const;
-            MatNullSpaceGetVecs(nullspace, &has_const, &nvecs, &nullvecs);
-            DGMaxLogger(INFO, "Vectors of the Null Space extraced");
-
-            Vec *B = const_cast<Vec*>(nullvecs);
-            // error = EPSSetDeflationSpace(eigenSolver, nvecs, B);
-            CHKERRABORT(PETSC_COMM_WORLD, error);
-        }
-    }
-
     error = EPSSetUp(eigenSolver);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     // TODO: It seems that it should use PETSC_DEFAULT instead of PETSC_DECIDE.
@@ -301,6 +277,13 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
 
         error = EPSSetOperators(eigenSolver, product, NULL);
         CHKERRABORT(PETSC_COMM_WORLD, error);
+
+
+        if(useDeflation)
+        {
+            setDeflationSpace(eigenSolver, product);
+        }
+
         if (i > 0)
         {
             // Use solution of previous time as starting point for the next one.
@@ -335,6 +318,34 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
 
     Result result (input, eigenvalues);
     return result;
+}
+
+template<std::size_t DIM>
+void DGMaxEigenValue<DIM>::setDeflationSpace(EPS &solver, const Mat &mat) const
+{
+    // Set the deflation space of eigensolver using the null space of mat
+
+    PetscErrorCode error;
+    MatNullSpace nullspace;
+    MatGetNearNullSpace(mat, &nullspace);
+    DGMaxLogger(INFO, "Null Space assembled");
+
+    if (!nullspace) {
+        DGMaxLogger(INFO, "Operator dos not have a null space");
+    }
+
+    else {
+
+        const Vec *nullvecs;
+        PetscInt nvecs;
+        PetscBool has_const;
+        MatNullSpaceGetVecs(nullspace, &has_const, &nvecs, &nullvecs);
+        DGMaxLogger(INFO, "Vectors of the Null Space extraced");
+
+        Vec *B = const_cast<Vec*>(nullvecs);
+        error = EPSSetDeflationSpace(solver, nvecs, B);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+    }
 }
 
 template<std::size_t DIM>
