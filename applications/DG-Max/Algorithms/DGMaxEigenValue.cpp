@@ -137,9 +137,6 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
 
         if (!nullspace) {
             DGMaxLogger(INFO, "Operator dos not have a null space");
-            MatNullSpaceCreate(PETSC_COMM_WORLD, PETSC_TRUE, 0, 0, &nullspace);
-            MatSetNullSpace(product, nullspace);
-            MatNullSpaceDestroy(&nullspace);
         }
 
         else {
