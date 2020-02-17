@@ -51,10 +51,14 @@ int main(int argc, char** argv)
     using namespace std::string_literals;
     Base::parse_options(argc, argv);
     //this test should also be effective in 1D , but 2D has 3x as much 'wrong' basis functions for only a little extra effort
-    Base::ConfigurationData* config = new Base::ConfigurationData(1);
+    // Note, only using the first unknown of the 2, but having multiple to see nothing fails when having multiple
+    // unknowns.
+    Base::ConfigurationData* config = new Base::ConfigurationData(2);
     Base::MeshManipulator<2> mesh(config);
     mesh.readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s  + "2Dminimalmesh.hpgem"s);
     mesh.useDefaultDGBasisFunctions(1);
+    // Use different BF for the second unknown.
+    mesh.useDefaultConformingBasisFunctions(1,1);
     for(Base::Element* element : mesh.getElementsList())
     {
         element->setNumberOfTimeIntegrationVectors(1);
