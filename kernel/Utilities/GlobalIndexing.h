@@ -246,7 +246,7 @@ namespace Utilities
         ///
         /// \param element The element to construct the mapping for.
         /// \param indices The mapping.
-        void getGlobalIndices(const Base::Element *element, std::vector<int>& indices)
+        void getGlobalIndices(const Base::Element *element, std::vector<int>& indices) const
         {
             std::size_t size = getGlobalIndices(element, 0, indices);
             indices.resize(size);
@@ -256,7 +256,7 @@ namespace Utilities
         /// functions that are associated with element.
         ///
         /// \see getGlobalIndices(const Base::Element, std::vector<int>)
-        std::vector<int> getGlobalIndices(const Base::Element *element)
+        std::vector<int> getGlobalIndices(const Base::Element *element) const
         {
             std::vector<int> result;
             getGlobalIndices(element, result);
@@ -271,7 +271,7 @@ namespace Utilities
         /// same order as used in the FaceMatrix.
         /// \param face The face to construct the mapping for.
         /// \param indices The mapping.
-        void getGlobalIndices(const Base::Face *face, std::vector<int>& indices);
+        void getGlobalIndices(const Base::Face *face, std::vector<int>& indices) const;
 
         /// Verify that the index is complete (i.e. all global indices are available)
         /// Only works when assert_debug is available
@@ -342,7 +342,7 @@ namespace Utilities
         /// \param offset The index where to place the first global id in indices.
         /// \param indices The mapping.
         /// \return The number of global indices in the `indices` vector that are used.
-        std::size_t getGlobalIndices(const Base::Element *element, std::size_t offset, std::vector<int> &indices);
+        std::size_t getGlobalIndices(const Base::Element *element, std::size_t offset, std::vector<int> &indices) const;
 
         /// \brief Helper structure to store the information for a single unknown.
         ///
