@@ -3,6 +3,7 @@
 
 #include "Logger.h"
 
+#include "map"
 #include "Base/Element.h"
 #include "Base/MeshManipulatorBase.h"
 #include "Utilities/GlobalIndexing.h"
@@ -16,16 +17,17 @@ namespace Utilities
 
     struct SparsityEstimator::Workspace
     {
-        /// DoFs owned by the current processor
-        std::set<std::size_t> owned;
-        // DoFs not owned by the current processor
-        std::set<std::size_t> notOwned;
+        /// DoFs owned by the current processor. Stored as (dof, size) where dof is the
+        /// first dof of an element, face, etc.
+        std::map<std::size_t, std::size_t> owned;
+        // Same as #owned, but for the DoFs not owned by the current processor
+        std::map<std::size_t, std::size_t> notOwned;
 
         // Number of unknowns
         std::size_t nUnknowns;
 
         /// Get a reference to either the owned or notOwned DoF set.
-        std::set<std::size_t>& getDoFs(bool owning)
+        std::map<std::size_t, std::size_t>& getDoFs(bool owning)
         {
             return owning ? owned : notOwned;
         }
@@ -42,14 +44,21 @@ namespace Utilities
             const GEOM* geom, const Workspace &workspace,
             std::vector<int> &nonZeroPerRowOwned, std::vector<int> &nonZeroPerRowNonOwned) const
     {
+        std::size_t ownedSize = 0;
+        std::size_t notOwnedSize = 0;
+        for (auto iter : workspace.owned)
+            ownedSize += iter.second;
+        for (auto iter : workspace.notOwned)
+            notOwnedSize += iter.second;
+
         for (std::size_t unknown = 0; unknown < workspace.nUnknowns; ++unknown)
         {
             std::size_t offset = indexing_.getGlobalIndex(geom, unknown);
             std::size_t nbasis = geom->getLocalNumberOfBasisFunctions(unknown);
             for (std::size_t i = 0; i < nbasis; ++i)
             {
-                nonZeroPerRowOwned[i + offset] = workspace.owned.size();
-                nonZeroPerRowNonOwned[i + offset] = workspace.notOwned.size();
+                nonZeroPerRowOwned[i + offset] = ownedSize;
+                nonZeroPerRowNonOwned[i + offset] = notOwnedSize;
             }
         }
     }
@@ -185,42 +194,42 @@ namespace Utilities
         const std::size_t unknowns = element->getNumberOfUnknowns();
         {
             // For the element
-            std::set<std::size_t> &toChange = workspace.getDoFs(element->isOwnedByCurrentProcessor());
+            std::map<std::size_t, std::size_t> &toChange = workspace.getDoFs(element->isOwnedByCurrentProcessor());
             for (std::size_t unknown = 0; unknown < unknowns; ++unknown)
             {
                 const std::size_t offset = indexing_.getGlobalIndex(element, unknown);
                 const std::size_t localBasisFunctions = element->getLocalNumberOfBasisFunctions(unknown);
-                for (std::size_t i = 0; i < localBasisFunctions; ++i)
+                if (localBasisFunctions > 0)
                 {
-                    toChange.insert(offset + i);
+                    toChange[offset] = localBasisFunctions;
                 }
             }
         }
         // For the faces
         for (const Base::Face* face : element->getFacesList())
         {
-            std::set<std::size_t>& toChange = workspace.getDoFs(face->isOwnedByCurrentProcessor());
+            std::map<std::size_t, std::size_t>& toChange = workspace.getDoFs(face->isOwnedByCurrentProcessor());
             for (std::size_t unknown = 0; unknown < unknowns; ++unknown)
             {
                 const std::size_t offset = indexing_.getGlobalIndex(face, unknown);
                 const std::size_t localBasisFunctions = face->getLocalNumberOfBasisFunctions(unknown);
-                for (std::size_t i = 0; i < localBasisFunctions; ++i)
+                if (localBasisFunctions > 0)
                 {
-                    toChange.insert(offset + i);
+                    toChange[offset] = localBasisFunctions;
                 }
             }
         }
         // For the edges
         for (const Base::Edge* edge : element->getEdgesList())
         {
-            std::set<std::size_t>& toChange = workspace.getDoFs(edge->isOwnedByCurrentProcessor());
+            std::map<std::size_t, std::size_t>& toChange = workspace.getDoFs(edge->isOwnedByCurrentProcessor());
             for (std::size_t unknown = 0; unknown < unknowns; ++unknown)
             {
                 const std::size_t offset = indexing_.getGlobalIndex(edge, unknown);
                 const std::size_t localBasisFunctions = edge->getLocalNumberOfBasisFunctions(unknown);
-                for (std::size_t i = 0; i < localBasisFunctions; ++i)
+                if (localBasisFunctions > 0)
                 {
-                    toChange.insert(offset + i);
+                    toChange[offset] = localBasisFunctions;
                 }
             }
         }
@@ -230,14 +239,14 @@ namespace Utilities
             // For the edges
             for (const Base::Node* node : element->getNodesList())
             {
-                std::set<std::size_t>& toChange = workspace.getDoFs(node->isOwnedByCurrentProcessor());
+                std::map<std::size_t, std::size_t>& toChange = workspace.getDoFs(node->isOwnedByCurrentProcessor());
                 for (std::size_t unknown = 0; unknown < unknowns; ++unknown)
                 {
                     const std::size_t offset = indexing_.getGlobalIndex(node, unknown);
                     const std::size_t localBasisFunctions = node->getLocalNumberOfBasisFunctions(unknown);
-                    for (std::size_t i = 0; i < localBasisFunctions; ++i)
+                    if (localBasisFunctions > 0)
                     {
-                        toChange.insert(offset + i);
+                        toChange[offset] = localBasisFunctions;
                     }
                 }
             }
