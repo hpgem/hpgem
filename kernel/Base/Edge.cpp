@@ -65,7 +65,12 @@ namespace Base
         logger.assert_debug(i < getNumberOfElements(), "Asked for element %, but there are only % elements", i, getNumberOfElements());
         return elements_[i];
     }
-    
+
+    const std::vector<Element*> Edge::getElements() const
+    {
+        return elements_;
+    }
+
     std::vector<Element*> Edge::getElements()
     {
         return elements_;

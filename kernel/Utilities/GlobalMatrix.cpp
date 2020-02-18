@@ -202,7 +202,230 @@ namespace Utilities
         
         CHKERRV(ierr);
     }
-    
+
+    /// Compute the global DoFs that have support on an element like. Unlike
+    /// getGlobalIndices from GlobalIndexing the dofs are here split into those owned by
+    /// the current processor and those that are not.
+    void addLocalBasisFunctions(const Base::Element* element, std::size_t dim, const GlobalIndexing& indexing,
+            std::set<std::size_t>& owned, std::set<std::size_t>& notOwned)
+    {
+        logger.assert_debug(element->isOwnedByCurrentProcessor(), "Non owned element");
+        const std::size_t unknowns = element->getNumberOfUnknowns();
+        {
+            // For the element
+            std::set<std::size_t> &toChange = element->isOwnedByCurrentProcessor() ? owned : notOwned;
+            for (std::size_t unknown = 0; unknown < unknowns; ++unknown)
+            {
+                const std::size_t offset = indexing.getGlobalIndex(element, unknown);
+                const std::size_t localBasisFunctions = element->getLocalNumberOfBasisFunctions(unknown);
+                for (std::size_t i = 0; i < localBasisFunctions; ++i)
+                {
+                    toChange.insert(offset + i);
+                }
+            }
+        }
+        // For the faces
+        for (const Base::Face* face : element->getFacesList())
+        {
+            std::set<std::size_t>& toChange = face->isOwnedByCurrentProcessor() ? owned : notOwned;
+            for (std::size_t unknown = 0; unknown < unknowns; ++unknown)
+            {
+                const std::size_t offset = indexing.getGlobalIndex(face, unknown);
+                const std::size_t localBasisFunctions = face->getLocalNumberOfBasisFunctions(unknown);
+                for (std::size_t i = 0; i < localBasisFunctions; ++i)
+                {
+                    toChange.insert(offset + i);
+                }
+            }
+        }
+        // For the edges
+        for (const Base::Edge* edge : element->getEdgesList())
+        {
+            std::set<std::size_t>& toChange = edge->isOwnedByCurrentProcessor() ? owned : notOwned;
+            for (std::size_t unknown = 0; unknown < unknowns; ++unknown)
+            {
+                const std::size_t offset = indexing.getGlobalIndex(edge, unknown);
+                const std::size_t localBasisFunctions = edge->getLocalNumberOfBasisFunctions(unknown);
+                for (std::size_t i = 0; i < localBasisFunctions; ++i)
+                {
+                    toChange.insert(offset + i);
+                }
+            }
+        }
+        // For the nodes
+        if (dim > 1)
+        {
+            // For the edges
+            for (const Base::Node* node : element->getNodesList())
+            {
+                std::set<std::size_t>& toChange = node->isOwnedByCurrentProcessor() ? owned : notOwned;
+                for (std::size_t unknown = 0; unknown < unknowns; ++unknown)
+                {
+                    const std::size_t offset = indexing.getGlobalIndex(node, unknown);
+                    const std::size_t localBasisFunctions = node->getLocalNumberOfBasisFunctions(unknown);
+                    for (std::size_t i = 0; i < localBasisFunctions; ++i)
+                    {
+                        toChange.insert(offset + i);
+                    }
+                }
+            }
+        }
+    }
+
+    void computeConnectivity(Base::MeshManipulatorBase& mesh, GlobalIndexing& indexing,
+            std::vector<PetscInt>& nonZerosPerRowDiag, std::vector<PetscInt>& nonZerosPerRowOffDiag)
+    {
+        const std::size_t totalNumberOfDoF = indexing.getNumberOfLocalBasisFunctions();
+        const std::size_t nUknowns = indexing.getNumberOfUnknowns();
+        // Starting position, all zeros
+        nonZerosPerRowDiag.assign(totalNumberOfDoF, 0);
+        nonZerosPerRowOffDiag.assign(totalNumberOfDoF, 0);
+        // Sets of global indices of owned and unowned DoFs. By using sets these are automatically deduplicated.
+        std::set<std::size_t> localDoFs;
+        std::set<std::size_t> nonLocalDoFs;
+
+        for (const Base::Element* element : mesh.getElementsList())
+        {
+            localDoFs.clear();
+            nonLocalDoFs.clear();
+            // Add local basis functions
+            addLocalBasisFunctions(element, mesh.dimension(), indexing, localDoFs, nonLocalDoFs);
+
+            // Face-face coupling
+            for(const Base::Face* face : element->getFacesList())
+            {
+                if (!face->isInternal())
+                    continue;
+                const Base::Element* other = face->getPtrElementLeft() == element
+                        ? face->getPtrElementRight() : face->getPtrElementLeft();
+                addLocalBasisFunctions(other, mesh.dimension(), indexing, localDoFs, nonLocalDoFs);
+            }
+
+            // With all the global indices counted, allocate them.
+            for (std::size_t unknown = 0; unknown < nUknowns; ++unknown)
+            {
+                std::size_t offset = indexing.getGlobalIndex(element, unknown);
+                std::size_t nbasis = element->getLocalNumberOfBasisFunctions(unknown);
+                for (std::size_t i = 0; i < nbasis; ++i)
+                {
+                    nonZerosPerRowDiag[i + offset] = localDoFs.size();
+                    nonZerosPerRowOffDiag[i + offset] = nonLocalDoFs.size();
+                }
+            }
+        }
+        // Faces
+        for (const Base::Face* face : mesh.getFacesList())
+        {
+            logger.assert_debug(face->isOwnedByCurrentProcessor(), "Non owned face");
+            localDoFs.clear();
+            nonLocalDoFs.clear();
+            std::vector<const Base::Element*> faceElements = {face->getPtrElementLeft()};
+            if (face->isInternal())
+                faceElements.push_back(face->getPtrElementRight());
+            // Compute all DoFs such that either have support on the elements adjacent to
+            // the face, or have support on one of the faces of the adjacent elements.
+            for (const Base::Element* element : faceElements)
+            {
+                // Add basis functions from the left/right element
+                addLocalBasisFunctions(element, mesh.dimension(), indexing, localDoFs, nonLocalDoFs);
+                // Loop over all adjacent faces
+                for (const Base::Face* otherFace : element->getFacesList())
+                {
+                    if (otherFace == face)
+                        continue; // Both left & right element of the original face are already visited
+                    if (!face->isInternal())
+                        continue;
+                    const Base::Element* otherElement = face->getPtrElementLeft() == element
+                            ? face->getPtrElementRight() : face->getPtrElementLeft();
+                    // The basis function from the face may couple through any other face of the elements adjacent to
+                    // the face
+                    addLocalBasisFunctions(otherElement, mesh.dimension(), indexing, localDoFs, nonLocalDoFs);
+                }
+            }
+            // Store the information
+            for (std::size_t unknown = 0; unknown < nUknowns; ++unknown)
+            {
+                const std::size_t offset = indexing.getGlobalIndex(face, unknown);
+                const std::size_t nbasis = face->getLocalNumberOfBasisFunctions(unknown);
+                for (std::size_t i = 0; i < nbasis; ++i)
+                {
+                    nonZerosPerRowDiag[offset + i] = localDoFs.size();
+                    nonZerosPerRowOffDiag[offset + i] = nonLocalDoFs.size();
+                }
+            }
+        }
+        // Edges
+        for (const Base::Edge* edge : mesh.getEdgesList())
+        {
+            logger.assert_debug(edge->isOwnedByCurrentProcessor(), "Non owned edge");
+            localDoFs.clear();
+            nonLocalDoFs.clear();
+            // Compute all DoFs such that either have support on the elements adjacent to
+            // the edge, or have support on one of the faces of the adjacent elements.
+            for (const Base::Element* element : edge->getElements())
+            {
+                // Add basis functions that have support on the adjacent element
+                addLocalBasisFunctions(element, mesh.dimension(), indexing, localDoFs, nonLocalDoFs);
+                // Loop over the adjacent elements
+                for (const Base::Face* face : element->getFacesList())
+                {
+                    if (!face->isInternal())
+                        continue;
+                    const Base::Element* otherElement = face->getPtrElementLeft() == element
+                            ? face->getPtrElementRight() : face->getPtrElementLeft();
+                    addLocalBasisFunctions(otherElement, mesh.dimension(), indexing, localDoFs, nonLocalDoFs);
+                }
+            }
+            // Store the information
+            for (std::size_t unknown = 0; unknown < nUknowns; ++unknown)
+            {
+                const std::size_t offset = indexing.getGlobalIndex(edge, unknown);
+                const std::size_t nbasis = edge->getLocalNumberOfBasisFunctions(unknown);
+                for (std::size_t i = 0; i < nbasis; ++i)
+                {
+                    nonZerosPerRowDiag[offset + i] = localDoFs.size();
+                    nonZerosPerRowOffDiag[offset + i] = nonLocalDoFs.size();
+                }
+            }
+        }
+        // Nodes
+        if (mesh.dimension() > 1)
+        {
+            for (const Base::Node* node : mesh.getNodesList())
+            {
+                logger.assert_debug(node->isOwnedByCurrentProcessor(), "Non owned node");
+                localDoFs.clear();
+                nonLocalDoFs.clear();
+                // Compute all DoFs such that either have support on the elements adjacent to
+                // the face, or have support on one of the faces of the adjacent elements.
+                for (const Base::Element* element : node->getElements())
+                {
+                    addLocalBasisFunctions(element, mesh.dimension(), indexing, localDoFs, nonLocalDoFs);
+                    // Loop over the adjacent faces
+                    for (const Base::Face* face : element->getFacesList())
+                    {
+                        if (!face->isInternal())
+                            continue;
+                        const Base::Element* otherElement = face->getPtrElementLeft() == element
+                                                            ? face->getPtrElementRight() : face->getPtrElementLeft();
+                        addLocalBasisFunctions(otherElement, mesh.dimension(), indexing, localDoFs, nonLocalDoFs);
+                    }
+                }
+                // Store the information
+                for (std::size_t unknown = 0; unknown < nUknowns; ++unknown)
+                {
+                    const std::size_t offset = indexing.getGlobalIndex(node, unknown);
+                    const std::size_t nbasis = node->getLocalNumberOfBasisFunctions(unknown);
+                    for (std::size_t i = 0; i < nbasis; ++i)
+                    {
+                        nonZerosPerRowDiag[offset + i] = localDoFs.size();
+                        nonZerosPerRowOffDiag[offset + i] = nonLocalDoFs.size();
+                    }
+                }
+            }
+        }
+    }
+
     ///\todo figure out a nice way to keep local data local
     //debug note: GlobalPetscVector 'independently' chooses an ordering for the degrees of freedom, but hpGEM assumes both orderings to be the same
     void GlobalPetscMatrix::reAssemble()
@@ -218,197 +441,16 @@ namespace Utilities
         //now construct the only bit of data where PETSc expects a local numbering...
         std::vector<PetscInt> numberOfPositionsPerRow(totalNumberOfDOF, 0);
         std::vector<PetscInt> offDiagonalPositionsPerRow(totalNumberOfDOF, 0);
-        
-        for (Base::Element* element : theMesh_->getElementsList())
-        {
-            std::size_t nElementBasisTotal = element->getTotalNumberOfBasisFunctions();
-
-            for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
-            {
-                // Note, we assume here that the basis functions for a single
-                // unknown are laid out consecutively.
-                std::size_t localIndex0 = indexing_.getProcessorLocalIndex(element, unknown);
-                for (std::size_t basisId = 0; basisId < element->getLocalNumberOfBasisFunctions(unknown); ++basisId)
-                {
-                    numberOfPositionsPerRow[localIndex0 + basisId] += nElementBasisTotal;
-                }
-            }
-
-            for (std::size_t i = 0; i < element->getReferenceGeometry()->getNumberOfCodim1Entities(); ++i)
-            {
-                //conforming contributions
-                for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
-                {
-                    // Note, we assume here that the basis functions for a single
-                    // unknown are laid out consecutively.
-                    const Base::Face* face = element->getFace(i);
-                    if (!face->isOwnedByCurrentProcessor())
-                        continue;
-                    std::size_t localIndex0 = indexing_.getProcessorLocalIndex(face, unknown);
-                    for (std::size_t basisId = 0; basisId < face->getLocalNumberOfBasisFunctions(unknown); ++basisId)
-                    {
-                        numberOfPositionsPerRow[localIndex0 + basisId] += nElementBasisTotal;
-                    }
-                }
-            }
-            for (std::size_t i = 0; i < element->getNumberOfEdges(); ++i)
-            {
-                for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
-                {
-                    // Note, we assume here that the basis functions for a single
-                    // unknown are laid out consecutively.
-                    const Base::Edge* edge = element->getEdge(i);
-                    if (!edge->isOwnedByCurrentProcessor())
-                        continue;
-                    int localIndex0 = indexing_.getProcessorLocalIndex(edge, unknown);
-                    for (std::size_t basisId = 0; basisId < edge->getLocalNumberOfBasisFunctions(unknown); ++basisId)
-                    {
-                        numberOfPositionsPerRow[localIndex0 + basisId] += nElementBasisTotal;
-                    }
-                }
-            }
-            if (theMesh_->dimension() > 1)
-            {
-                for (std::size_t i = 0; i < element->getNumberOfNodes(); ++i)
-                {
-                    for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
-                    {
-                        // Note, we assume here that the basis functions for a single
-                        // unknown are laid out consecutively.
-                        const Base::Node *node = element->getNode(i);
-                        if (!node->isOwnedByCurrentProcessor())
-                            continue;
-                        int localIndex0 = indexing_.getProcessorLocalIndex(node, unknown);
-                        for (std::size_t basisId = 0;
-                             basisId < node->getLocalNumberOfBasisFunctions(unknown); ++basisId)
-                        {
-                            numberOfPositionsPerRow[localIndex0 + basisId] += nElementBasisTotal;
-                        }
-                    }
-                }
-            }
-        }
-        
-        for(Base::Face* face : theMesh_->getFacesList())
-        {
-            if(face->isInternal()
-                    && (face->getPtrElementLeft()->isOwnedByCurrentProcessor()
-                        || face->getPtrElementRight()->isOwnedByCurrentProcessor()
-                    ))
-            {
-                // Choose the correct vector to modify.
-                std::vector<int>& changeVec = (face->getFaceType() == Geometry::FaceType::SUBDOMAIN_BOUNDARY || face->getFaceType() == Geometry::FaceType::PERIODIC_SUBDOMAIN_BC)
-                        ? offDiagonalPositionsPerRow : numberOfPositionsPerRow;
-                std::size_t nDuplicates = 0;
-                std::vector<int> duplicates;
-                getMatrixBCEntries(face, nDuplicates, duplicates);
-
-                for(Base::Element* element : {face->getPtrElementLeft(), face->getPtrElementRight()})
-                {
-                    std::size_t nElementBasisTotal = element->getTotalNumberOfBasisFunctions();
-                    if (element->isOwnedByCurrentProcessor())
-                    {
-                        for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
-                        {
-                            // Note, we assume here that the basis functions for a single
-                            // unknown are laid out consecutively.
-                            std::size_t localIndex0 = indexing_.getProcessorLocalIndex(element, unknown);
-                            for (std::size_t basisId = 0;
-                                 basisId < element->getLocalNumberOfBasisFunctions(unknown); ++basisId)
-                            {
-                                changeVec[localIndex0 + basisId] += nElementBasisTotal - nDuplicates;
-                            }
-                        }
-                    }
-                    for (std::size_t i = 0; i < element->getReferenceGeometry()->getNumberOfCodim1Entities(); ++i)
-                    {
-                        const Base::Face* face = element->getFace(i);
-                        if (face->isOwnedByCurrentProcessor())
-                        {
-                            //conforming contributions
-                            for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
-                            {
-                                // Note, we assume here that the basis functions for a single
-                                // unknown are laid out consecutively.
-                                int localIndex0 = indexing_.getProcessorLocalIndex(face, unknown);
-                                for (std::size_t basisId = 0;
-                                     basisId < face->getLocalNumberOfBasisFunctions(unknown); ++basisId)
-                                {
-                                    changeVec[localIndex0 + basisId] += nElementBasisTotal - nDuplicates;
-                                }
-                            }
-                        }
-                    }
-                    for (std::size_t i = 0; i < element->getNumberOfEdges(); ++i)
-                    {
-                        const Base::Edge* edge = element->getEdge(i);
-                        if (edge->isOwnedByCurrentProcessor())
-                        {
-                            for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
-                            {
-                                // Note, we assume here that the basis functions for a single
-                                // unknown are laid out consecutively.
-                                int localIndex0 = indexing_.getProcessorLocalIndex(edge, unknown);
-                                for (std::size_t basisId = 0;
-                                     basisId < edge->getLocalNumberOfBasisFunctions(unknown); ++basisId)
-                                {
-                                    changeVec[localIndex0 + basisId] += nElementBasisTotal - nDuplicates;
-                                }
-                            }
-                        }
-                    }
-                    if (theMesh_->dimension() > 1)
-                    {
-                        for (std::size_t i = 0; i < element->getNumberOfNodes(); ++i)
-                        {
-                            const Base::Node *node = element->getNode(i);
-                            if (node->isOwnedByCurrentProcessor())
-                            {
-                                for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
-                                {
-                                    // Note, we assume here that the basis functions for a single
-                                    // unknown are laid out consecutively.
-                                    int localIndex0 = indexing_.getProcessorLocalIndex(node, unknown);
-                                    for (std::size_t basisId = 0;
-                                         basisId < node->getLocalNumberOfBasisFunctions(unknown); ++basisId)
-                                    {
-                                        changeVec[localIndex0 + basisId] += nElementBasisTotal - nDuplicates;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                for(int globalIndex : duplicates)
-                {
-                    int localIndex = indexing_.globalToProcessorLocalIndex(globalIndex);
-                    if (localIndex != -1)
-                    {
-                        changeVec[localIndex] -= face->getPtrElementLeft()->getTotalNumberOfBasisFunctions()
-                                - nDuplicates;
-                    }
-                }
-            }
-        }
-
-        for (std::size_t i = 0; i < totalNumberOfDOF; ++i)
-        {
-            logger.assert_debug(numberOfPositionsPerRow[i] >= 0, "PETSc wants to make a matrix with % nonzero entries on row %", numberOfPositionsPerRow[i], i);
-            if (static_cast<std::size_t>(numberOfPositionsPerRow[i]) > totalNumberOfDOF)
-            {
-                numberOfPositionsPerRow[i] = totalNumberOfDOF; //a row cant have more nonzero entries than the number of columns
-            }
-            logger.assert_debug(offDiagonalPositionsPerRow[i] >= 0, "PETSc wants to make a matrix with % nonzero entries on row %", offDiagonalPositionsPerRow[i], i);
-            if (static_cast<std::size_t>(numberOfPositionsPerRow[i] + offDiagonalPositionsPerRow[i]) > totalNumberOfDOF)
-            {
-                offDiagonalPositionsPerRow[i] = totalNumberOfDOF - numberOfPositionsPerRow[i]; //a row cant have more nonzero entries than the number of columns
-            }
-        }
+        computeConnectivity(*theMesh_, indexing_, numberOfPositionsPerRow, offDiagonalPositionsPerRow);
         
         ierr = MatCreateAIJ(PETSC_COMM_WORLD, totalNumberOfDOF, totalNumberOfDOF, PETSC_DETERMINE, PETSC_DETERMINE, -1, numberOfPositionsPerRow.data(), 0, offDiagonalPositionsPerRow.data(), &A_);
         CHKERRV(ierr);
         MatSetOption(A_, MAT_KEEP_NONZERO_PATTERN, PETSC_TRUE); //performance
-        MatSetOption(A_, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE); //the estimate is known to be wrong for mixed element cases and conforming parallel cases
+        // While the estimates should be correct, the zeroing of a row without anything on the diagonal will cause an
+        // error with the previous option but without the following.
+        MatSetOption(A_, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE);
+        // Enable the following to test that no new allocations were needed
+        // MatSetOption(A_, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_TRUE);
         ierr = MatSetUp(A_);
         CHKERRV(ierr);
         reset();
