@@ -41,7 +41,17 @@ namespace Utilities
         void addElementDoFs(const Base::Element* element, Workspace& workspace) const;
 
 
-        /// The mesh for the sparisity estimate
+        /// Write the DoF count for an Element, Face, etc. to the sparsity estimate vector
+        /// \tparam GEOM The Element, Face, etc. type
+        /// \param geom The Element, Face, etc. which supports the basis functions for which to write the DoF count.
+        /// \param workspace The workspace with DoF counts
+        /// \param nonZeroPerRowOwned see computeSparsityEstimate(std::vector<int>&, std::vector<int>&)
+        /// \param nonZeroPerRowNonOwned see computeSparsityEstimate(std::vector<int>&, std::vector<int>&)
+        template<typename GEOM>
+        void writeDoFCount(const GEOM* geom, const Workspace& workspace,
+                std::vector<int>& nonZeroPerRowOwned, std::vector<int>& nonZeroPerRowNonOwned) const;
+
+        /// The mesh for the sparsity estimate
         const Base::MeshManipulatorBase& mesh_;
         /// The indexing for the basis functions
         const GlobalIndexing& indexing_;

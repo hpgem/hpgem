@@ -21,6 +21,9 @@ namespace Utilities
         // DoFs not owned by the current processor
         std::set<std::size_t> notOwned;
 
+        // Number of unknowns
+        std::size_t nUnknowns;
+
         /// Get a reference to either the owned or notOwned DoF set.
         std::set<std::size_t>& getDoFs(bool owning)
         {
@@ -34,6 +37,23 @@ namespace Utilities
         }
     };
 
+    template<typename GEOM>
+    void SparsityEstimator::writeDoFCount(
+            const GEOM* geom, const Workspace &workspace,
+            std::vector<int> &nonZeroPerRowOwned, std::vector<int> &nonZeroPerRowNonOwned) const
+    {
+        for (std::size_t unknown = 0; unknown < workspace.nUnknowns; ++unknown)
+        {
+            std::size_t offset = indexing_.getGlobalIndex(geom, unknown);
+            std::size_t nbasis = geom->getLocalNumberOfBasisFunctions(unknown);
+            for (std::size_t i = 0; i < nbasis; ++i)
+            {
+                nonZeroPerRowOwned[i + offset] = workspace.owned.size();
+                nonZeroPerRowNonOwned[i + offset] = workspace.notOwned.size();
+            }
+        }
+    }
+
     void SparsityEstimator::computeSparsityEstimate(
             std::vector<int> &nonZeroPerRowOwned,
             std::vector<int> &nonZeroPerRowNonOwned) const
@@ -41,6 +61,7 @@ namespace Utilities
         const std::size_t totalNumberOfDoF = indexing_.getNumberOfLocalBasisFunctions();
         const std::size_t nUknowns = indexing_.getNumberOfUnknowns();
         Workspace workspace;
+        workspace.nUnknowns = nUknowns;
 
         // Resize and initialize with error data
         nonZeroPerRowOwned.assign(totalNumberOfDoF, -1);
@@ -71,21 +92,14 @@ namespace Utilities
             {
                 if (!face->isInternal())
                     continue;
-                const Base::Element* other = face->getPtrElementLeft() == element
-                                             ? face->getPtrElementRight() : face->getPtrElementLeft();
+                const Base::Element* other = face->getPtrOtherElement(element);
                 addElementDoFs(other, workspace);
             }
 
             // With all the global indices counted, allocate them.
             for (std::size_t unknown = 0; unknown < nUknowns; ++unknown)
             {
-                std::size_t offset = indexing_.getGlobalIndex(element, unknown);
-                std::size_t nbasis = element->getLocalNumberOfBasisFunctions(unknown);
-                for (std::size_t i = 0; i < nbasis; ++i)
-                {
-                    nonZeroPerRowOwned[i + offset] = workspace.owned.size();
-                    nonZeroPerRowNonOwned[i + offset] = workspace.notOwned.size();
-                }
+                writeDoFCount(element, workspace, nonZeroPerRowOwned, nonZeroPerRowNonOwned);
             }
         }
         // Faces
@@ -107,24 +121,14 @@ namespace Utilities
                         continue; // Both left & right element of the original face are already visited
                     if (!face->isInternal())
                         continue;
-                    const Base::Element* otherElement = face->getPtrElementLeft() == element
-                                                        ? face->getPtrElementRight() : face->getPtrElementLeft();
+                    const Base::Element* otherElement = face->getPtrOtherElement(element);
                     // The basis function from the face may couple through any other face of the elements adjacent to
                     // the face
                     addElementDoFs(otherElement, workspace);
                 }
             }
             // Store the information
-            for (std::size_t unknown = 0; unknown < nUknowns; ++unknown)
-            {
-                const std::size_t offset = indexing_.getGlobalIndex(face, unknown);
-                const std::size_t nbasis = face->getLocalNumberOfBasisFunctions(unknown);
-                for (std::size_t i = 0; i < nbasis; ++i)
-                {
-                    nonZeroPerRowOwned[i + offset] = workspace.owned.size();
-                    nonZeroPerRowNonOwned[i + offset] = workspace.notOwned.size();
-                }
-            }
+            writeDoFCount(face, workspace, nonZeroPerRowOwned, nonZeroPerRowNonOwned);
         }
         // Edges
         for (const Base::Edge* edge : mesh_.getEdgesList())
@@ -140,22 +144,12 @@ namespace Utilities
                 {
                     if (!face->isInternal())
                         continue;
-                    const Base::Element* otherElement = face->getPtrElementLeft() == element
-                                                        ? face->getPtrElementRight() : face->getPtrElementLeft();
+                    const Base::Element* otherElement = face->getPtrOtherElement(element);
                     addElementDoFs(otherElement, workspace);
                 }
             }
             // Store the information
-            for (std::size_t unknown = 0; unknown < nUknowns; ++unknown)
-            {
-                const std::size_t offset = indexing_.getGlobalIndex(edge, unknown);
-                const std::size_t nbasis = edge->getLocalNumberOfBasisFunctions(unknown);
-                for (std::size_t i = 0; i < nbasis; ++i)
-                {
-                    nonZeroPerRowOwned[i + offset] = workspace.owned.size();
-                    nonZeroPerRowNonOwned[i + offset] = workspace.notOwned.size();
-                }
-            }
+            writeDoFCount(edge, workspace, nonZeroPerRowOwned, nonZeroPerRowNonOwned);
         }
         // Nodes
         if (mesh_.dimension() > 1)
@@ -173,22 +167,12 @@ namespace Utilities
                     {
                         if (!face->isInternal())
                             continue;
-                        const Base::Element* otherElement = face->getPtrElementLeft() == element
-                                                            ? face->getPtrElementRight() : face->getPtrElementLeft();
+                        const Base::Element* otherElement = face->getPtrOtherElement(element);
                         addElementDoFs(otherElement, workspace);
                     }
                 }
                 // Store the information
-                for (std::size_t unknown = 0; unknown < nUknowns; ++unknown)
-                {
-                    const std::size_t offset = indexing_.getGlobalIndex(node, unknown);
-                    const std::size_t nbasis = node->getLocalNumberOfBasisFunctions(unknown);
-                    for (std::size_t i = 0; i < nbasis; ++i)
-                    {
-                        nonZeroPerRowOwned[i + offset] = workspace.owned.size();
-                        nonZeroPerRowNonOwned[i + offset] = workspace.notOwned.size();
-                    }
-                }
+                writeDoFCount(node, workspace, nonZeroPerRowOwned, nonZeroPerRowNonOwned);
             }
         }
     }
