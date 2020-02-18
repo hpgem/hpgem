@@ -21,6 +21,7 @@
 
 #include "Base/MpiContainer.h"
 #include "GlobalMatrix.h"
+#include "SparsityEstimator.h"
 #include <vector>
 #include "Base/MeshManipulatorBase.h"
 #include "Base/Edge.h"
@@ -203,230 +204,6 @@ namespace Utilities
         CHKERRV(ierr);
     }
 
-    /// Compute the global DoFs that have support on an element like. Unlike
-    /// getGlobalIndices from GlobalIndexing the dofs are here split into those owned by
-    /// the current processor and those that are not.
-    void addLocalBasisFunctions(const Base::Element* element, std::size_t dim, const GlobalIndexing& indexing,
-            std::set<std::size_t>& owned, std::set<std::size_t>& notOwned)
-    {
-        logger.assert_debug(element->isOwnedByCurrentProcessor(), "Non owned element");
-        const std::size_t unknowns = element->getNumberOfUnknowns();
-        {
-            // For the element
-            std::set<std::size_t> &toChange = element->isOwnedByCurrentProcessor() ? owned : notOwned;
-            for (std::size_t unknown = 0; unknown < unknowns; ++unknown)
-            {
-                const std::size_t offset = indexing.getGlobalIndex(element, unknown);
-                const std::size_t localBasisFunctions = element->getLocalNumberOfBasisFunctions(unknown);
-                for (std::size_t i = 0; i < localBasisFunctions; ++i)
-                {
-                    toChange.insert(offset + i);
-                }
-            }
-        }
-        // For the faces
-        for (const Base::Face* face : element->getFacesList())
-        {
-            std::set<std::size_t>& toChange = face->isOwnedByCurrentProcessor() ? owned : notOwned;
-            for (std::size_t unknown = 0; unknown < unknowns; ++unknown)
-            {
-                const std::size_t offset = indexing.getGlobalIndex(face, unknown);
-                const std::size_t localBasisFunctions = face->getLocalNumberOfBasisFunctions(unknown);
-                for (std::size_t i = 0; i < localBasisFunctions; ++i)
-                {
-                    toChange.insert(offset + i);
-                }
-            }
-        }
-        // For the edges
-        for (const Base::Edge* edge : element->getEdgesList())
-        {
-            std::set<std::size_t>& toChange = edge->isOwnedByCurrentProcessor() ? owned : notOwned;
-            for (std::size_t unknown = 0; unknown < unknowns; ++unknown)
-            {
-                const std::size_t offset = indexing.getGlobalIndex(edge, unknown);
-                const std::size_t localBasisFunctions = edge->getLocalNumberOfBasisFunctions(unknown);
-                for (std::size_t i = 0; i < localBasisFunctions; ++i)
-                {
-                    toChange.insert(offset + i);
-                }
-            }
-        }
-        // For the nodes
-        if (dim > 1)
-        {
-            // For the edges
-            for (const Base::Node* node : element->getNodesList())
-            {
-                std::set<std::size_t>& toChange = node->isOwnedByCurrentProcessor() ? owned : notOwned;
-                for (std::size_t unknown = 0; unknown < unknowns; ++unknown)
-                {
-                    const std::size_t offset = indexing.getGlobalIndex(node, unknown);
-                    const std::size_t localBasisFunctions = node->getLocalNumberOfBasisFunctions(unknown);
-                    for (std::size_t i = 0; i < localBasisFunctions; ++i)
-                    {
-                        toChange.insert(offset + i);
-                    }
-                }
-            }
-        }
-    }
-
-    void computeConnectivity(Base::MeshManipulatorBase& mesh, GlobalIndexing& indexing,
-            std::vector<PetscInt>& nonZerosPerRowDiag, std::vector<PetscInt>& nonZerosPerRowOffDiag)
-    {
-        const std::size_t totalNumberOfDoF = indexing.getNumberOfLocalBasisFunctions();
-        const std::size_t nUknowns = indexing.getNumberOfUnknowns();
-        // Starting position, all zeros
-        nonZerosPerRowDiag.assign(totalNumberOfDoF, 0);
-        nonZerosPerRowOffDiag.assign(totalNumberOfDoF, 0);
-        // Sets of global indices of owned and unowned DoFs. By using sets these are automatically deduplicated.
-        std::set<std::size_t> localDoFs;
-        std::set<std::size_t> nonLocalDoFs;
-
-        for (const Base::Element* element : mesh.getElementsList())
-        {
-            localDoFs.clear();
-            nonLocalDoFs.clear();
-            // Add local basis functions
-            addLocalBasisFunctions(element, mesh.dimension(), indexing, localDoFs, nonLocalDoFs);
-
-            // Face-face coupling
-            for(const Base::Face* face : element->getFacesList())
-            {
-                if (!face->isInternal())
-                    continue;
-                const Base::Element* other = face->getPtrElementLeft() == element
-                        ? face->getPtrElementRight() : face->getPtrElementLeft();
-                addLocalBasisFunctions(other, mesh.dimension(), indexing, localDoFs, nonLocalDoFs);
-            }
-
-            // With all the global indices counted, allocate them.
-            for (std::size_t unknown = 0; unknown < nUknowns; ++unknown)
-            {
-                std::size_t offset = indexing.getGlobalIndex(element, unknown);
-                std::size_t nbasis = element->getLocalNumberOfBasisFunctions(unknown);
-                for (std::size_t i = 0; i < nbasis; ++i)
-                {
-                    nonZerosPerRowDiag[i + offset] = localDoFs.size();
-                    nonZerosPerRowOffDiag[i + offset] = nonLocalDoFs.size();
-                }
-            }
-        }
-        // Faces
-        for (const Base::Face* face : mesh.getFacesList())
-        {
-            logger.assert_debug(face->isOwnedByCurrentProcessor(), "Non owned face");
-            localDoFs.clear();
-            nonLocalDoFs.clear();
-            std::vector<const Base::Element*> faceElements = {face->getPtrElementLeft()};
-            if (face->isInternal())
-                faceElements.push_back(face->getPtrElementRight());
-            // Compute all DoFs such that either have support on the elements adjacent to
-            // the face, or have support on one of the faces of the adjacent elements.
-            for (const Base::Element* element : faceElements)
-            {
-                // Add basis functions from the left/right element
-                addLocalBasisFunctions(element, mesh.dimension(), indexing, localDoFs, nonLocalDoFs);
-                // Loop over all adjacent faces
-                for (const Base::Face* otherFace : element->getFacesList())
-                {
-                    if (otherFace == face)
-                        continue; // Both left & right element of the original face are already visited
-                    if (!face->isInternal())
-                        continue;
-                    const Base::Element* otherElement = face->getPtrElementLeft() == element
-                            ? face->getPtrElementRight() : face->getPtrElementLeft();
-                    // The basis function from the face may couple through any other face of the elements adjacent to
-                    // the face
-                    addLocalBasisFunctions(otherElement, mesh.dimension(), indexing, localDoFs, nonLocalDoFs);
-                }
-            }
-            // Store the information
-            for (std::size_t unknown = 0; unknown < nUknowns; ++unknown)
-            {
-                const std::size_t offset = indexing.getGlobalIndex(face, unknown);
-                const std::size_t nbasis = face->getLocalNumberOfBasisFunctions(unknown);
-                for (std::size_t i = 0; i < nbasis; ++i)
-                {
-                    nonZerosPerRowDiag[offset + i] = localDoFs.size();
-                    nonZerosPerRowOffDiag[offset + i] = nonLocalDoFs.size();
-                }
-            }
-        }
-        // Edges
-        for (const Base::Edge* edge : mesh.getEdgesList())
-        {
-            logger.assert_debug(edge->isOwnedByCurrentProcessor(), "Non owned edge");
-            localDoFs.clear();
-            nonLocalDoFs.clear();
-            // Compute all DoFs such that either have support on the elements adjacent to
-            // the edge, or have support on one of the faces of the adjacent elements.
-            for (const Base::Element* element : edge->getElements())
-            {
-                // Add basis functions that have support on the adjacent element
-                addLocalBasisFunctions(element, mesh.dimension(), indexing, localDoFs, nonLocalDoFs);
-                // Loop over the adjacent elements
-                for (const Base::Face* face : element->getFacesList())
-                {
-                    if (!face->isInternal())
-                        continue;
-                    const Base::Element* otherElement = face->getPtrElementLeft() == element
-                            ? face->getPtrElementRight() : face->getPtrElementLeft();
-                    addLocalBasisFunctions(otherElement, mesh.dimension(), indexing, localDoFs, nonLocalDoFs);
-                }
-            }
-            // Store the information
-            for (std::size_t unknown = 0; unknown < nUknowns; ++unknown)
-            {
-                const std::size_t offset = indexing.getGlobalIndex(edge, unknown);
-                const std::size_t nbasis = edge->getLocalNumberOfBasisFunctions(unknown);
-                for (std::size_t i = 0; i < nbasis; ++i)
-                {
-                    nonZerosPerRowDiag[offset + i] = localDoFs.size();
-                    nonZerosPerRowOffDiag[offset + i] = nonLocalDoFs.size();
-                }
-            }
-        }
-        // Nodes
-        if (mesh.dimension() > 1)
-        {
-            for (const Base::Node* node : mesh.getNodesList())
-            {
-                logger.assert_debug(node->isOwnedByCurrentProcessor(), "Non owned node");
-                localDoFs.clear();
-                nonLocalDoFs.clear();
-                // Compute all DoFs such that either have support on the elements adjacent to
-                // the face, or have support on one of the faces of the adjacent elements.
-                for (const Base::Element* element : node->getElements())
-                {
-                    addLocalBasisFunctions(element, mesh.dimension(), indexing, localDoFs, nonLocalDoFs);
-                    // Loop over the adjacent faces
-                    for (const Base::Face* face : element->getFacesList())
-                    {
-                        if (!face->isInternal())
-                            continue;
-                        const Base::Element* otherElement = face->getPtrElementLeft() == element
-                                                            ? face->getPtrElementRight() : face->getPtrElementLeft();
-                        addLocalBasisFunctions(otherElement, mesh.dimension(), indexing, localDoFs, nonLocalDoFs);
-                    }
-                }
-                // Store the information
-                for (std::size_t unknown = 0; unknown < nUknowns; ++unknown)
-                {
-                    const std::size_t offset = indexing.getGlobalIndex(node, unknown);
-                    const std::size_t nbasis = node->getLocalNumberOfBasisFunctions(unknown);
-                    for (std::size_t i = 0; i < nbasis; ++i)
-                    {
-                        nonZerosPerRowDiag[offset + i] = localDoFs.size();
-                        nonZerosPerRowOffDiag[offset + i] = nonLocalDoFs.size();
-                    }
-                }
-            }
-        }
-    }
-
-    ///\todo figure out a nice way to keep local data local
     //debug note: GlobalPetscVector 'independently' chooses an ordering for the degrees of freedom, but hpGEM assumes both orderings to be the same
     void GlobalPetscMatrix::reAssemble()
     {
@@ -439,9 +216,10 @@ namespace Utilities
         const std::size_t nUnknowns = indexing_.getNumberOfUnknowns();
 
         //now construct the only bit of data where PETSc expects a local numbering...
-        std::vector<PetscInt> numberOfPositionsPerRow(totalNumberOfDOF, 0);
-        std::vector<PetscInt> offDiagonalPositionsPerRow(totalNumberOfDOF, 0);
-        computeConnectivity(*theMesh_, indexing_, numberOfPositionsPerRow, offDiagonalPositionsPerRow);
+        std::vector<PetscInt> numberOfPositionsPerRow;
+        std::vector<PetscInt> offDiagonalPositionsPerRow;
+        SparsityEstimator estimator (*theMesh_, indexing_);
+        estimator.computeSparsityEstimate(numberOfPositionsPerRow, offDiagonalPositionsPerRow);
         
         ierr = MatCreateAIJ(PETSC_COMM_WORLD, totalNumberOfDOF, totalNumberOfDOF, PETSC_DETERMINE, PETSC_DETERMINE, -1, numberOfPositionsPerRow.data(), 0, offDiagonalPositionsPerRow.data(), &A_);
         CHKERRV(ierr);
