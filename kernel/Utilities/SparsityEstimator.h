@@ -31,7 +31,10 @@ namespace Utilities
         ///     locally owned basis functions.
         /// \param nonZeroPerRowNonOwned [out] Per local DoF the number of non zero columns
         ///     from non locally owned basis functions.
-        void computeSparsityEstimate(std::vector<int>& nonZeroPerRowOwned, std::vector<int>& nonZeroPerRowNonOwned) const;
+        /// \param includeFaceCoupling [in] Include coupling through face matrices
+        void computeSparsityEstimate(std::vector<int>& nonZeroPerRowOwned,
+                std::vector<int>& nonZeroPerRowNonOwned,
+                bool includeFaceCoupling = true) const;
 
     private:
         /// Workspace variables for the computation

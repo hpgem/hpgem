@@ -65,7 +65,8 @@ namespace Utilities
 
     void SparsityEstimator::computeSparsityEstimate(
             std::vector<int> &nonZeroPerRowOwned,
-            std::vector<int> &nonZeroPerRowNonOwned) const
+            std::vector<int> &nonZeroPerRowNonOwned,
+            bool includeFaceCoupling) const
     {
         const std::size_t totalNumberOfDoF = indexing_.getNumberOfLocalBasisFunctions();
         const std::size_t nUknowns = indexing_.getNumberOfUnknowns();
@@ -97,12 +98,15 @@ namespace Utilities
             addElementDoFs(element, workspace);
 
             // Face matrix coupling with the element on the other side of the face
-            for(const Base::Face* face : element->getFacesList())
+            if (includeFaceCoupling)
             {
-                if (!face->isInternal())
-                    continue;
-                const Base::Element* other = face->getPtrOtherElement(element);
-                addElementDoFs(other, workspace);
+                for (const Base::Face *face : element->getFacesList())
+                {
+                    if (!face->isInternal())
+                        continue;
+                    const Base::Element *other = face->getPtrOtherElement(element);
+                    addElementDoFs(other, workspace);
+                }
             }
 
             // With all the global indices counted, allocate them.
@@ -124,6 +128,8 @@ namespace Utilities
                 // DoFs from supporting element
                 addElementDoFs(element, workspace);
                 // Face matrix coupling with the element on the other side of the face
+                if (!includeFaceCoupling)
+                    continue;
                 for (const Base::Face* otherFace : element->getFacesList())
                 {
                     if (otherFace == face)
@@ -149,6 +155,8 @@ namespace Utilities
                 // DoFs from supporting element
                 addElementDoFs(element, workspace);
                 // Face matrix coupling with the element on the other side of the face
+                if (!includeFaceCoupling)
+                    continue;
                 for (const Base::Face* face : element->getFacesList())
                 {
                     if (!face->isInternal())
@@ -172,6 +180,8 @@ namespace Utilities
                     // DoFs from the supporting element
                     addElementDoFs(element, workspace);
                     // Face matrix coupling with the element on the other side of the face
+                    if (!includeFaceCoupling)
+                        continue;
                     for (const Base::Face* face : element->getFacesList())
                     {
                         if (!face->isInternal())

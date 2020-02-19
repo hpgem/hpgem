@@ -29,6 +29,25 @@
 
 using Layout = Utilities::GlobalIndexing::Layout;
 
+struct TestConfiguration
+{
+    TestConfiguration(Layout layout, bool faceCoupling)
+        : layout_ (layout), faceCoupling_ (faceCoupling)
+    {}
+
+    Layout layout_;
+    bool faceCoupling_;
+};
+
+TestConfiguration TEST_CONFIGURATIONS[] = {
+        TestConfiguration(Layout::SEQUENTIAL, false),
+        TestConfiguration(Layout::SEQUENTIAL, true),
+        TestConfiguration(Layout::BLOCKED_PROCESSOR, false),
+        TestConfiguration(Layout::BLOCKED_PROCESSOR, true),
+        TestConfiguration(Layout::BLOCKED_GLOBAL, false),
+        TestConfiguration(Layout::BLOCKED_GLOBAL, true),
+};
+
 void testWithDGBasis(std::size_t unknowns, std::string meshFile)
 {
     Base::ConfigurationData config (unknowns);
@@ -46,13 +65,13 @@ void testWithDGBasis(std::size_t unknowns, std::string meshFile)
         mesh.useDefaultDGBasisFunctions(unknown, unknown);
     }
 
-    for (Layout layout : {Layout::SEQUENTIAL, Layout::BLOCKED_PROCESSOR, Layout::BLOCKED_GLOBAL})
+    for (TestConfiguration configuration : TEST_CONFIGURATIONS)
     {
-        Utilities::GlobalIndexing indexing(&mesh, layout);
+        Utilities::GlobalIndexing indexing(&mesh, configuration.layout_);
         Utilities::SparsityEstimator estimator(mesh, indexing);
 
         std::vector<int> owned, nonOwned;
-        estimator.computeSparsityEstimate(owned, nonOwned);
+        estimator.computeSparsityEstimate(owned, nonOwned, configuration.faceCoupling_);
         logger.assert_always(owned.size() == indexing.getNumberOfLocalBasisFunctions(), "Wrong size owned");
         logger.assert_always(nonOwned.size() == indexing.getNumberOfLocalBasisFunctions(), "Wrong size owned");
 
@@ -60,19 +79,22 @@ void testWithDGBasis(std::size_t unknowns, std::string meshFile)
         {
             std::size_t numberOfOwnDoFs = element->getTotalLocalNumberOfBasisFunctions();
             std::size_t numberOfNonOwnDoFs = 0;
-            for (const Base::Face *face : element->getFacesList())
+            // Skip face loop if there is no face coupling
+            if (configuration.faceCoupling_)
             {
-                if (face->getFaceType() == Geometry::FaceType::SUBDOMAIN_BOUNDARY
-                    || face->getFaceType() == Geometry::FaceType::PERIODIC_SUBDOMAIN_BC)
+                for (const Base::Face *face : element->getFacesList())
                 {
-                    numberOfNonOwnDoFs += face->getPtrOtherElement(element)->getTotalLocalNumberOfBasisFunctions();
-                }
-                else if (face->isInternal())
-                {
-                    numberOfOwnDoFs += face->getPtrOtherElement(element)->getTotalLocalNumberOfBasisFunctions();
+                    if (face->getFaceType() == Geometry::FaceType::SUBDOMAIN_BOUNDARY
+                        || face->getFaceType() == Geometry::FaceType::PERIODIC_SUBDOMAIN_BC)
+                    {
+                        numberOfNonOwnDoFs += face->getPtrOtherElement(element)->getTotalLocalNumberOfBasisFunctions();
+                    }
+                    else if (face->isInternal())
+                    {
+                        numberOfOwnDoFs += face->getPtrOtherElement(element)->getTotalLocalNumberOfBasisFunctions();
+                    }
                 }
             }
-
             for (std::size_t unknown = 0; unknown < unknowns; ++unknown)
             {
                 // Check for each of the basis functions
@@ -111,15 +133,15 @@ void testConformingWith1DMesh()
     filename << Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s << "1Drectangular2mesh"s << ".hpgem";
     mesh.readMesh(filename.str());
 
-    mesh.useDefaultConformingBasisFunctions(2);
+    mesh.useDefaultConformingBasisFunctions(3);
 
-    for (Layout layout : {Layout::SEQUENTIAL, Layout::BLOCKED_PROCESSOR, Layout::BLOCKED_GLOBAL})
+    for (TestConfiguration configuration : TEST_CONFIGURATIONS)
     {
-        Utilities::GlobalIndexing indexing(&mesh, layout);
+        Utilities::GlobalIndexing indexing(&mesh, configuration.layout_);
         Utilities::SparsityEstimator estimator(mesh, indexing);
 
         std::vector<int> owned, nonOwned;
-        estimator.computeSparsityEstimate(owned, nonOwned);
+        estimator.computeSparsityEstimate(owned, nonOwned, configuration.faceCoupling_);
         logger.assert_always(owned.size() == indexing.getNumberOfLocalBasisFunctions(), "Wrong size owned");
         logger.assert_always(nonOwned.size() == indexing.getNumberOfLocalBasisFunctions(), "Wrong size owned");
 
@@ -135,7 +157,9 @@ void testConformingWith1DMesh()
             for (const Base::Face * face : element->getFacesList())
             {
                 selectByOwner(face, numberOfOwnDoFs, numberOfNonOwnDoFs) += face->getTotalLocalNumberOfBasisFunctions();
-                if (!face->isInternal())
+                // If there is no face at the other side or we do not couple through the face matrix
+                // skip the computation of the DoFs on the other side
+                if (!face->isInternal() || !configuration.faceCoupling_)
                     continue;
                 // The neighbouring element
                 const Base::Element* otherElement = face->getPtrOtherElement(element);
@@ -182,7 +206,7 @@ void testConformingWith1DMesh()
                 selectByOwner(otherFace, numberOfOwnDoFs, numberOfNonOwnDoFs)
                     += otherFace->getTotalLocalNumberOfBasisFunctions();
                 // Next element
-                if (!otherFace->isInternal())
+                if (!otherFace->isInternal() || !configuration.faceCoupling_)
                     continue;
                 const Base::Element* nextElement = otherFace->getPtrOtherElement(element);
                 selectByOwner(nextElement, numberOfOwnDoFs, numberOfNonOwnDoFs)
