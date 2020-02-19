@@ -151,13 +151,15 @@ namespace Base
         
         // Create and Store things before solving the problem.
         tasksBeforeSolving();
-        
+
+        Utilities::GlobalIndexing indexing (HpgemAPIBase<DIM>::meshes_[0]);
         // Solve the linear problem
         //Assemble the matrix A of the system Ax = b.
-        Utilities::GlobalPetscMatrix A(HpgemAPIBase<DIM>::meshes_[0], this->stiffnessElementMatrixID_, this->stiffnessFaceMatrixID_);
+        Utilities::GlobalPetscMatrix A(HpgemAPIBase<DIM>::meshes_[0], indexing, this->stiffnessElementMatrixID_, this->stiffnessFaceMatrixID_);
         MatScale(A,-1);
         //Declare the vectors x and b of the system Ax = b.
-        Utilities::GlobalPetscVector b(HpgemAPIBase<DIM>::meshes_[0], sourceElementVectorID_, sourceFaceVectorID_), x(HpgemAPIBase<DIM>::meshes_[0]);
+        Utilities::GlobalPetscVector b(HpgemAPIBase<DIM>::meshes_[0], indexing, sourceElementVectorID_, sourceFaceVectorID_),
+            x(HpgemAPIBase<DIM>::meshes_[0], indexing);
 
         //Assemble the vector b. This is needed because Petsc assumes you don't know
         //yet whether a vector is a variable or right-hand side the moment it is

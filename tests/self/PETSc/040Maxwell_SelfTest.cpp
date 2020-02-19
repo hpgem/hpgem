@@ -255,11 +255,13 @@ public:
         this->tasksBeforeSolving();
 
         // Solve the linear problem
+        Utilities::GlobalIndexing indexing (this->meshes_[0]);
         //Assemble the matrix A of the system Ax = b.
-        Utilities::GlobalPetscMatrix A(this->meshes_[0], this->stiffnessElementMatrixID_, this->stiffnessFaceMatrixID_);
+        Utilities::GlobalPetscMatrix A(this->meshes_[0], indexing, this->stiffnessElementMatrixID_, this->stiffnessFaceMatrixID_);
         MatScale(A,-1);
         //Declare the vectors x and b of the system Ax = b.
-        Utilities::GlobalPetscVector b(this->meshes_[0], this->sourceElementVectorID_, this->sourceFaceVectorID_), x(this->meshes_[0]);
+        Utilities::GlobalPetscVector b(this->meshes_[0], indexing, this->sourceElementVectorID_, this->sourceFaceVectorID_),
+            x(this->meshes_[0], indexing);
 
         //Assemble the vector b. This is needed because Petsc assumes you don't know
         //yet whether a vector is a variable or right-hand side the moment it is

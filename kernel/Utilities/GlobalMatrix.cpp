@@ -38,13 +38,18 @@
 
 namespace Utilities
 {
-    
-    GlobalMatrix::GlobalMatrix(Base::MeshManipulatorBase* theMesh, int elementMatrixID, int faceMatrixID)
-            : meshLevel_(-2), elementMatrixID_(elementMatrixID), faceMatrixID_(faceMatrixID), theMesh_(theMesh)
+
+    GlobalMatrix::GlobalMatrix(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& indexing
+            , int elementMatrixID, int faceMatrixID)
+            : meshLevel_(-2)
+            , indexing_ (indexing)
+            , elementMatrixID_(elementMatrixID)
+            , faceMatrixID_(faceMatrixID)
+            , theMesh_(theMesh)
     {
         logger.assert_debug(theMesh != nullptr, "Invalid mesh passed");
     }
-    
+
     void GlobalMatrix::getMatrixBCEntries(const Base::Face* face, std::size_t& numberOfEntries, std::vector<int>& entries)
     {
         logger.assert_debug(face != nullptr, "Invalid face passed");
@@ -116,9 +121,10 @@ namespace Utilities
     }
 
 #if defined(HPGEM_USE_ANY_PETSC)
-    
-    GlobalPetscMatrix::GlobalPetscMatrix(Base::MeshManipulatorBase* theMesh, int elementMatrixID, int faceMatrixID)
-            : GlobalMatrix(theMesh, elementMatrixID, faceMatrixID)
+
+    GlobalPetscMatrix::GlobalPetscMatrix(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& indexing,
+            int elementMatrixID, int faceMatrixID)
+            : GlobalMatrix(theMesh, indexing, elementMatrixID, faceMatrixID)
     {
         logger.assert_debug(theMesh != nullptr, "Invalid mesh passed");
         PetscBool petscRuns;
@@ -126,17 +132,18 @@ namespace Utilities
         logger.assert_debug(petscRuns == PETSC_TRUE, "Early call, firstly the command line arguments should be parsed");
         //temporary
         MatCreateSeqAIJ(PETSC_COMM_SELF, 1, 1, 1, PETSC_NULL, &A_);
-        
-        reAssemble();
+
+        createMat();
+        assemble();
     }
-    
+
     GlobalPetscMatrix::~GlobalPetscMatrix()
     {
         int ierr = MatDestroy(&A_);
         //giving error about Petsc has generated inconsistent data and likely memory corruption in heap
         CHKERRV(ierr);
     }
-    
+
     GlobalPetscMatrix::operator Mat()
     {
         if(HPGEM_LOGLEVEL>=Log::DEBUG)
@@ -148,34 +155,60 @@ namespace Utilities
         }
         return A_;
     }
-    
-    void GlobalPetscMatrix::reset()
+
+    void GlobalPetscMatrix::createMat()
+    {
+        PetscErrorCode  ierr = MatDestroy(&A_);
+        CHKERRV(ierr);
+
+        const std::size_t totalNumberOfDOF = indexing_.getNumberOfLocalBasisFunctions();
+        const std::size_t nUnknowns = indexing_.getNumberOfUnknowns();
+
+        //now construct the only bit of data where PETSc expects a local numbering...
+        std::vector<PetscInt> numberOfPositionsPerRow;
+        std::vector<PetscInt> offDiagonalPositionsPerRow;
+        SparsityEstimator estimator (*theMesh_, indexing_);
+        estimator.computeSparsityEstimate(numberOfPositionsPerRow, offDiagonalPositionsPerRow, faceMatrixID_ >= 0);
+
+        ierr = MatCreateAIJ(PETSC_COMM_WORLD, totalNumberOfDOF, totalNumberOfDOF, PETSC_DETERMINE, PETSC_DETERMINE, -1, numberOfPositionsPerRow.data(), 0, offDiagonalPositionsPerRow.data(), &A_);
+        CHKERRV(ierr);
+        MatSetOption(A_, MAT_KEEP_NONZERO_PATTERN, PETSC_TRUE); //performance
+        // While the estimates should be correct, the zeroing of a row without anything on the diagonal will cause an
+        // error with the previous option but without the following.
+        MatSetOption(A_, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE);
+        // Enable the following to test that no new allocations were needed
+        // MatSetOption(A_, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_TRUE);
+        ierr = MatSetUp(A_);
+        CHKERRV(ierr);
+    }
+
+
+    void GlobalPetscMatrix::assemble()
     {
         int ierr = MatZeroEntries(A_);
         CHKERRV(ierr);
+        // MediumSizeMatrix uses column oriented storage
         ierr = MatSetOption(A_, MAT_ROW_ORIENTED, PETSC_FALSE);
         CHKERRV(ierr);
-        
-        LinearAlgebra::MiddleSizeMatrix elementMatrix;
-        
         if (elementMatrixID_ >= 0)
         {
             std::vector<PetscInt> localToGlobal;
             for (Base::Element* element : theMesh_->getElementsList())
             {
                 indexing_.getGlobalIndices(element, localToGlobal);
-                elementMatrix = element->getElementMatrix(elementMatrixID_);
-                logger.assert_debug(elementMatrix.getNumberOfRows() == elementMatrix.getNumberOfColumns()
-                    && elementMatrix.getNumberOfRows() == localToGlobal.size(),
-                    "Incorrect element matrix size");
-                logger(DEBUG, "%", elementMatrix * 24.);
-                ierr = MatSetValues(A_, localToGlobal.size(), localToGlobal.data(), localToGlobal.size(), localToGlobal.data(), elementMatrix.data(), ADD_VALUES);
+                const LinearAlgebra::MiddleSizeMatrix& localMatrix = element->getElementMatrix(elementMatrixID_);
+                logger.assert_debug(localMatrix.getNumberOfRows() == localMatrix.getNumberOfColumns()
+                                    && localMatrix.getNumberOfRows() == localToGlobal.size(),
+                                    "Incorrect element matrix size");
+                ierr = MatSetValues(A_,
+                        localToGlobal.size(), localToGlobal.data(),
+                        localToGlobal.size(), localToGlobal.data(),
+                        localMatrix.data(), ADD_VALUES);
                 CHKERRV(ierr);
             }
         }
-        
+
         LinearAlgebra::MiddleSizeMatrix faceMatrix;
-        
         if (faceMatrixID_ >= 0)
         {
             std::vector<PetscInt> localToGlobal;
@@ -189,49 +222,19 @@ namespace Utilities
                 logger.assert_debug(faceMatrix.getNumberOfRows() == faceMatrix.getNumberOfColumns()
                                     && faceMatrix.getNumberOfRows() == localToGlobal.size(),
                                     "Incorrect face matrix size");
-                logger(DEBUG, "%", faceMatrix * 24.);
                 ierr = MatSetValues(A_, localToGlobal.size(), localToGlobal.data(), localToGlobal.size(), localToGlobal.data(), faceMatrix.data(), ADD_VALUES);
                 CHKERRV(ierr);
             }
         }
-
+        // Reset the matrix to row oriented storage
         ierr = MatSetOption(A_, MAT_ROW_ORIENTED, PETSC_TRUE);
         CHKERRV(ierr);
 
+        // Matrix assembly
         ierr = MatAssemblyBegin(A_, MAT_FINAL_ASSEMBLY);
+        CHKERRV(ierr);
         ierr = MatAssemblyEnd(A_, MAT_FINAL_ASSEMBLY);
-        
         CHKERRV(ierr);
-    }
-
-    //debug note: GlobalPetscVector 'independently' chooses an ordering for the degrees of freedom, but hpGEM assumes both orderings to be the same
-    void GlobalPetscMatrix::reAssemble()
-    {
-        PetscErrorCode  ierr = MatDestroy(&A_);
-        CHKERRV(ierr);
-
-        indexing_.reset(theMesh_, GlobalIndexing::BLOCKED_PROCESSOR);
-
-        const std::size_t totalNumberOfDOF = indexing_.getNumberOfLocalBasisFunctions();
-        const std::size_t nUnknowns = indexing_.getNumberOfUnknowns();
-
-        //now construct the only bit of data where PETSc expects a local numbering...
-        std::vector<PetscInt> numberOfPositionsPerRow;
-        std::vector<PetscInt> offDiagonalPositionsPerRow;
-        SparsityEstimator estimator (*theMesh_, indexing_);
-        estimator.computeSparsityEstimate(numberOfPositionsPerRow, offDiagonalPositionsPerRow);
-        
-        ierr = MatCreateAIJ(PETSC_COMM_WORLD, totalNumberOfDOF, totalNumberOfDOF, PETSC_DETERMINE, PETSC_DETERMINE, -1, numberOfPositionsPerRow.data(), 0, offDiagonalPositionsPerRow.data(), &A_);
-        CHKERRV(ierr);
-        MatSetOption(A_, MAT_KEEP_NONZERO_PATTERN, PETSC_TRUE); //performance
-        // While the estimates should be correct, the zeroing of a row without anything on the diagonal will cause an
-        // error with the previous option but without the following.
-        MatSetOption(A_, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE);
-        // Enable the following to test that no new allocations were needed
-        // MatSetOption(A_, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_TRUE);
-        ierr = MatSetUp(A_);
-        CHKERRV(ierr);
-        reset();
     }
 
     void GlobalPetscMatrix::printMatInfo(MatInfoType type, std::ostream &stream)

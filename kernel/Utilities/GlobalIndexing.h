@@ -110,7 +110,7 @@ namespace Utilities
 
 
         GlobalIndexing();
-        GlobalIndexing(Base::MeshManipulatorBase* mesh, Layout layout);
+        GlobalIndexing(Base::MeshManipulatorBase* mesh, Layout layout = BLOCKED_PROCESSOR);
 
         /// \brief Recreate the mapping for a new mesh.
         ///
