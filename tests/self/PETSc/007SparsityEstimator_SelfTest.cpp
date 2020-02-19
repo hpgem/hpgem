@@ -29,6 +29,7 @@
 
 using Layout = Utilities::GlobalIndexing::Layout;
 
+/// Test configuration with GlobalIndexing layout and whether to include face coupling.
 struct TestConfiguration
 {
     TestConfiguration(Layout layout, bool faceCoupling)
@@ -48,6 +49,104 @@ TestConfiguration TEST_CONFIGURATIONS[] = {
         TestConfiguration(Layout::BLOCKED_GLOBAL, true),
 };
 
+/// Check that the estimate holds for the DoFs related to part of the geometry
+/// \tparam GEOM The type of geometry part (Element, Face, etc.)
+/// \param geom The geometry part
+/// \param indexing The index to find the local indices for the geometry part
+/// \param owned The sparsity estimate (number of non zero DoFs in each row) for the owned DoFs.
+/// \param nonOwned The sparsity estimate (number of non zero DoFs in each row) for the non owned DoFs.
+/// \param expectedOwned The expected sparsity estimate for the owned DoFs
+/// \param expectedNonOnwed The expected sparsity estimate for the non owned DoFs.
+template<typename GEOM>
+void check(GEOM geom, const Utilities::GlobalIndexing& indexing,
+           std::vector<int>& owned, std::vector<int>& nonOwned, std::size_t expectedOwned, std::size_t expectedNonOnwed)
+{
+    for (std::size_t unknown = 0; unknown < indexing.getNumberOfUnknowns(); ++unknown)
+    {
+        // Check for each of the basis functions
+        std::size_t dof = indexing.getProcessorLocalIndex(geom, unknown);
+        for (std::size_t dofOff = 0; dofOff < geom->getLocalNumberOfBasisFunctions(unknown); ++dofOff)
+        {
+            logger.assert_always(owned[dof + dofOff] == expectedOwned,
+                    "Expected % owned non zero entries but got %",
+                    expectedOwned, owned[dof + dofOff]);
+            logger.assert_always(nonOwned[dof + dofOff] == expectedNonOnwed,
+                    "Expected % non owned non zero entries but got %",
+                    expectedNonOnwed, nonOwned[dof + dofOff]);
+        }
+    }
+}
+
+/// Select an object based on whether the geometrical object is owned or not
+/// \tparam GEOM The type of geometrical object (Element, Face, etc.)
+/// \tparam T The type of object to be selected
+/// \param geom The geometrical object that is either owned or not
+/// \param owned The value to return when owned
+/// \param nonOwned The value to return when not owned.
+/// \return Either owned or nonOwned
+template<typename GEOM, typename T>
+T& selectByOwner(const GEOM* geom, T& owned, T& nonOwned)
+{
+    if(geom->isOwnedByCurrentProcessor())
+        return owned;
+    else
+        return nonOwned;
+}
+
+/// Storage for geometrical objects.
+struct GeomStorage
+{
+    std::set<const Base::Element*> elements;
+    std::set<const Base::Face*> faces;
+    std::set<const Base::Edge*> edges;
+    std::set<const Base::Node*> nodes;
+
+    void addAroundElement(const Base::Element* element)
+    {
+        elements.insert(element);
+        for (auto* face : element->getFacesList())
+            faces.insert(face);
+        for (auto* edge : element->getEdgesList())
+            edges.insert(edge);
+        for (auto* node : element->getNodesList())
+            nodes.insert(node);
+    }
+
+    void addAroundFace(const Base::Face* face)
+    {
+        addAroundElement(face->getPtrElementLeft());
+        if (face->isInternal())
+            addAroundElement(face->getPtrElementRight());
+    }
+    void addArroundEdge(const Base::Edge* edge)
+    {
+        for (const Base::Element* element : edge->getElements())
+            addAroundElement(element);
+    }
+    void addAroundNode(const Base::Node* node)
+    {
+        for (const Base::Element* element : node->getElements())
+            addAroundElement(element);
+    }
+
+    std::size_t countBasisFunctions()
+    {
+        // Assumes everything is locally owned
+        std::size_t basisFunctions = 0;
+        for (const Base::Element* element : elements)
+            basisFunctions += element->getTotalLocalNumberOfBasisFunctions();
+        for (const Base::Face* face : faces)
+            basisFunctions += face->getTotalLocalNumberOfBasisFunctions();
+        for (const Base::Edge* edge : edges)
+            basisFunctions += edge->getTotalLocalNumberOfBasisFunctions();
+        for (const Base::Node* node : nodes)
+            basisFunctions += node->getTotalLocalNumberOfBasisFunctions();
+        return basisFunctions;
+    }
+};
+
+
+/// Test with DG basis, which has the (dis)advantage that all basis functions are confined to an element
 void testWithDGBasis(std::size_t unknowns, std::string meshFile)
 {
     Base::ConfigurationData config (unknowns);
@@ -95,31 +194,9 @@ void testWithDGBasis(std::size_t unknowns, std::string meshFile)
                     }
                 }
             }
-            for (std::size_t unknown = 0; unknown < unknowns; ++unknown)
-            {
-                // Check for each of the basis functions
-                std::size_t dof = indexing.getProcessorLocalIndex(element, unknown);
-                for (std::size_t dofOff = 0; dofOff < element->getLocalNumberOfBasisFunctions(unknown); ++dofOff)
-                {
-                    logger.assert_always(owned[dof + dofOff] == numberOfOwnDoFs,
-                            "Expected % owned non zero entries but got %",
-                            numberOfOwnDoFs, owned[dof + dofOff]);
-                    logger.assert_always(nonOwned[dof + dofOff] == numberOfNonOwnDoFs,
-                            "Expected % non owned non zero entries but got %",
-                            numberOfNonOwnDoFs, nonOwned[dof + dofOff]);
-                }
-            }
+            check(element, indexing, owned, nonOwned, numberOfOwnDoFs, numberOfNonOwnDoFs);
         }
     }
-}
-
-template<typename GEOM, typename T>
-T& selectByOwner(const GEOM* geom, T& owned, T& nonOwned)
-{
-    if(geom->isOwnedByCurrentProcessor())
-        return owned;
-    else
-        return nonOwned;
 }
 
 
@@ -170,21 +247,7 @@ void testConformingWith1DMesh()
                 selectByOwner(otherFace, numberOfOwnDoFs, numberOfNonOwnDoFs)
                     += otherFace->getTotalLocalNumberOfBasisFunctions();
             }
-            // Check
-            for (std::size_t unknown = 0; unknown < indexing.getNumberOfUnknowns(); ++unknown)
-            {
-                // Check for each of the basis functions
-                std::size_t dof = indexing.getProcessorLocalIndex(element, unknown);
-                for (std::size_t dofOff = 0; dofOff < element->getLocalNumberOfBasisFunctions(unknown); ++dofOff)
-                {
-                    logger.assert_always(owned[dof + dofOff] == numberOfOwnDoFs,
-                            "Expected % owned non zero entries but got %",
-                            numberOfOwnDoFs, owned[dof + dofOff]);
-                    logger.assert_always(nonOwned[dof + dofOff] == numberOfNonOwnDoFs,
-                            "Expected % non owned non zero entries but got %",
-                            numberOfNonOwnDoFs, nonOwned[dof + dofOff]);
-                }
-            }
+            check(element, indexing, owned, nonOwned, numberOfOwnDoFs, numberOfNonOwnDoFs);
         }
         // Check for Face based DoFs
         for (const Base::Face* face : mesh.getFacesList())
@@ -215,22 +278,61 @@ void testConformingWith1DMesh()
                 selectByOwner(nextFace, numberOfOwnDoFs, numberOfNonOwnDoFs)
                     += nextFace->getTotalLocalNumberOfBasisFunctions();
             }
-            // Check
-            for (std::size_t unknown = 0; unknown < indexing.getNumberOfUnknowns(); ++unknown)
-            {
-                // Check for each of the basis functions
-                std::size_t dof = indexing.getProcessorLocalIndex(face, unknown);
-                for (std::size_t dofOff = 0; dofOff < face->getLocalNumberOfBasisFunctions(unknown); ++dofOff)
-                {
-                    logger.assert_always(owned[dof + dofOff] == numberOfOwnDoFs,
-                            "Expected % owned non zero entries but got %",
-                            numberOfOwnDoFs, owned[dof + dofOff]);
-                    logger.assert_always(nonOwned[dof + dofOff] == numberOfNonOwnDoFs,
-                            "Expected % non owned non zero entries but got %",
-                            numberOfNonOwnDoFs, nonOwned[dof + dofOff]);
-                }
-            }
+            check(face, indexing, owned, nonOwned, numberOfOwnDoFs, numberOfNonOwnDoFs);
         }
+    }
+}
+
+void testMassOnly(std::size_t unknowns)
+{
+    Base::ConfigurationData config (unknowns);
+    Base::MeshManipulator<3> mesh (&config);
+
+    using namespace std::string_literals;
+    std::stringstream filename;
+    filename << Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s << "3Drectangular2mesh"s << ".hpgem";
+    mesh.readMesh(filename.str());
+
+    // Sufficiently high to have connections everywhere
+    mesh.useDefaultConformingBasisFunctions(4);
+
+    // Sparsity estimate
+    Utilities::GlobalIndexing indexing(&mesh, Layout::SEQUENTIAL);
+    Utilities::SparsityEstimator estimator(mesh, indexing);
+
+    std::vector<int> owned, nonOwned;
+    // No face-face coupling
+    estimator.computeSparsityEstimate(owned, nonOwned, false);
+    logger.assert_always(owned.size() == indexing.getNumberOfLocalBasisFunctions(), "Wrong size owned");
+    logger.assert_always(nonOwned.size() == indexing.getNumberOfLocalBasisFunctions(), "Wrong size owned");
+
+    for (const Base::Element* element : mesh.getElementsList())
+    {
+        GeomStorage storage;
+        storage.addAroundElement(element);
+        std::size_t numDofs = storage.countBasisFunctions();
+        check(element, indexing, owned, nonOwned, numDofs, 0);
+    }
+    for (const Base::Face* face : mesh.getFacesList())
+    {
+        GeomStorage storage;
+        storage.addAroundFace(face);
+        std::size_t numDofs = storage.countBasisFunctions();
+        check(face, indexing, owned, nonOwned, numDofs, 0);
+    }
+    for (const Base::Edge* edge : mesh.getEdgesList())
+    {
+        GeomStorage storage;
+        storage.addArroundEdge(edge);
+        std::size_t numDofs = storage.countBasisFunctions();
+        check(edge, indexing, owned, nonOwned, numDofs, 0);
+    }
+    for (const Base::Node* node : mesh.getNodesList())
+    {
+        GeomStorage storage;
+        storage.addAroundNode(node);
+        std::size_t numDofs = storage.countBasisFunctions();
+        check(node, indexing, owned, nonOwned, numDofs, 0);
     }
 }
 
@@ -244,4 +346,7 @@ int main(int argc, char** argv)
     testWithDGBasis(1, "3Dtriangular1mesh"s);
 
     testConformingWith1DMesh();
+
+    testMassOnly(1);
+    testMassOnly(3);
 }
