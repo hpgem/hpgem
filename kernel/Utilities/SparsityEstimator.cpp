@@ -128,9 +128,9 @@ namespace Utilities
                 {
                     if (otherFace == face)
                         continue; // Both left & right element of the original face are already visited
-                    if (!face->isInternal())
+                    if (!otherFace->isInternal())
                         continue;
-                    const Base::Element* otherElement = face->getPtrOtherElement(element);
+                    const Base::Element* otherElement = otherFace->getPtrOtherElement(element);
                     // The basis function from the face may couple through any other face of the elements adjacent to
                     // the face
                     addElementDoFs(otherElement, workspace);
