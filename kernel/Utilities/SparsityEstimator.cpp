@@ -10,9 +10,11 @@
 
 namespace Utilities
 {
-    SparsityEstimator::SparsityEstimator(const Base::MeshManipulatorBase &mesh, const GlobalIndexing &indexing)
+    SparsityEstimator::SparsityEstimator(const Base::MeshManipulatorBase &mesh,
+            const GlobalIndexing &rowindexing, const GlobalIndexing &columnindexing)
         : mesh_ (mesh)
-        , indexing_ (indexing)
+        , rowIndexing_ (rowindexing)
+        , columnIndexing_ (columnindexing)
     {}
 
     struct SparsityEstimator::Workspace
@@ -22,9 +24,6 @@ namespace Utilities
         std::map<std::size_t, std::size_t> owned;
         // Same as #owned, but for the DoFs not owned by the current processor
         std::map<std::size_t, std::size_t> notOwned;
-
-        // Number of unknowns
-        std::size_t nUnknowns;
 
         /// Get a reference to either the owned or notOwned DoF set.
         std::map<std::size_t, std::size_t>& getDoFs(bool owning)
@@ -51,9 +50,9 @@ namespace Utilities
         for (auto iter : workspace.notOwned)
             notOwnedSize += iter.second;
 
-        for (std::size_t unknown = 0; unknown < workspace.nUnknowns; ++unknown)
+        for (std::size_t unknown : rowIndexing_.getIncludedUnknowns())
         {
-            std::size_t offset = indexing_.getGlobalIndex(geom, unknown);
+            std::size_t offset = rowIndexing_.getGlobalIndex(geom, unknown);
             std::size_t nbasis = geom->getLocalNumberOfBasisFunctions(unknown);
             for (std::size_t i = 0; i < nbasis; ++i)
             {
@@ -68,10 +67,8 @@ namespace Utilities
             std::vector<int> &nonZeroPerRowNonOwned,
             bool includeFaceCoupling) const
     {
-        const std::size_t totalNumberOfDoF = indexing_.getNumberOfLocalBasisFunctions();
-        const std::size_t nUknowns = indexing_.getNumberOfUnknowns();
+        const std::size_t totalNumberOfDoF = rowIndexing_.getNumberOfLocalBasisFunctions();
         Workspace workspace;
-        workspace.nUnknowns = nUknowns;
 
         // Resize and initialize with error data
         nonZeroPerRowOwned.assign(totalNumberOfDoF, -1);
@@ -110,10 +107,7 @@ namespace Utilities
             }
 
             // With all the global indices counted, allocate them.
-            for (std::size_t unknown = 0; unknown < nUknowns; ++unknown)
-            {
-                writeDoFCount(element, workspace, nonZeroPerRowOwned, nonZeroPerRowNonOwned);
-            }
+            writeDoFCount(element, workspace, nonZeroPerRowOwned, nonZeroPerRowNonOwned);
         }
         // Faces
         for (const Base::Face* face : mesh_.getFacesList())
@@ -201,13 +195,12 @@ namespace Utilities
             Workspace &workspace) const
     {
         logger.assert_debug(element->isOwnedByCurrentProcessor(), "Element is not owned by processor");
-        const std::size_t unknowns = element->getNumberOfUnknowns();
         {
             // For the element
             std::map<std::size_t, std::size_t> &toChange = workspace.getDoFs(element->isOwnedByCurrentProcessor());
-            for (std::size_t unknown = 0; unknown < unknowns; ++unknown)
+            for (std::size_t unknown : columnIndexing_.getIncludedUnknowns())
             {
-                const std::size_t offset = indexing_.getGlobalIndex(element, unknown);
+                const std::size_t offset = columnIndexing_.getGlobalIndex(element, unknown);
                 const std::size_t localBasisFunctions = element->getLocalNumberOfBasisFunctions(unknown);
                 if (localBasisFunctions > 0)
                 {
@@ -219,9 +212,9 @@ namespace Utilities
         for (const Base::Face* face : element->getFacesList())
         {
             std::map<std::size_t, std::size_t>& toChange = workspace.getDoFs(face->isOwnedByCurrentProcessor());
-            for (std::size_t unknown = 0; unknown < unknowns; ++unknown)
+            for (std::size_t unknown : columnIndexing_.getIncludedUnknowns())
             {
-                const std::size_t offset = indexing_.getGlobalIndex(face, unknown);
+                const std::size_t offset = columnIndexing_.getGlobalIndex(face, unknown);
                 const std::size_t localBasisFunctions = face->getLocalNumberOfBasisFunctions(unknown);
                 if (localBasisFunctions > 0)
                 {
@@ -233,9 +226,9 @@ namespace Utilities
         for (const Base::Edge* edge : element->getEdgesList())
         {
             std::map<std::size_t, std::size_t>& toChange = workspace.getDoFs(edge->isOwnedByCurrentProcessor());
-            for (std::size_t unknown = 0; unknown < unknowns; ++unknown)
+            for (std::size_t unknown : columnIndexing_.getIncludedUnknowns())
             {
-                const std::size_t offset = indexing_.getGlobalIndex(edge, unknown);
+                const std::size_t offset = columnIndexing_.getGlobalIndex(edge, unknown);
                 const std::size_t localBasisFunctions = edge->getLocalNumberOfBasisFunctions(unknown);
                 if (localBasisFunctions > 0)
                 {
@@ -250,9 +243,9 @@ namespace Utilities
             for (const Base::Node* node : element->getNodesList())
             {
                 std::map<std::size_t, std::size_t>& toChange = workspace.getDoFs(node->isOwnedByCurrentProcessor());
-                for (std::size_t unknown = 0; unknown < unknowns; ++unknown)
+                for (std::size_t unknown : columnIndexing_.getIncludedUnknowns())
                 {
-                    const std::size_t offset = indexing_.getGlobalIndex(node, unknown);
+                    const std::size_t offset = columnIndexing_.getGlobalIndex(node, unknown);
                     const std::size_t localBasisFunctions = node->getLocalNumberOfBasisFunctions(unknown);
                     if (localBasisFunctions > 0)
                     {

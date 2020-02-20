@@ -21,10 +21,19 @@ namespace Utilities
     class SparsityEstimator
     {
     public:
-        /// Construct a SparsityEstimator
+        /// Construct a SparsityEstimator with the same GlobalIndexing for rows and columns
         /// \param mesh  The mesh
         /// \param indexing The indexing for the basis functions
-        SparsityEstimator(const Base::MeshManipulatorBase& mesh, const GlobalIndexing& indexing);
+        SparsityEstimator(const Base::MeshManipulatorBase& mesh, const GlobalIndexing& indexing)
+            : SparsityEstimator(mesh, indexing, indexing)
+        {}
+
+        /// Construct a sparsity estimator with possibly different indices for the rows and columns.
+        /// \param mesh
+        /// \param rowIndexing
+        /// \param columnIndexing
+        SparsityEstimator(const Base::MeshManipulatorBase& mesh,
+                const GlobalIndexing& rowIndexing, const GlobalIndexing& columnIndexing);
 
         /// Compute the sparsity estimate
         /// \param nonZeroPerRowOwned [out] Per local DoF the number of non zero columns from
@@ -56,8 +65,10 @@ namespace Utilities
 
         /// The mesh for the sparsity estimate
         const Base::MeshManipulatorBase& mesh_;
-        /// The indexing for the basis functions
-        const GlobalIndexing& indexing_;
+        /// The indexing for the basis functions on the rows of the matrix
+        const GlobalIndexing& rowIndexing_;
+        /// The indexing for the basis functions on the columns of the matrix
+        const GlobalIndexing& columnIndexing_;
     };
 }
 

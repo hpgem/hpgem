@@ -242,6 +242,11 @@ namespace Utilities
             return numberOfUnknowns_;
         }
 
+        std::size_t getNumberOfIncludedUnknowns() const
+        {
+            return usedUnknowns_.size();
+        }
+
         /// \brief Retrieve the global indices associated with the basis
         /// functions that are associated with element.
         ///

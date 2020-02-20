@@ -40,6 +40,8 @@ struct TestConfiguration
     bool faceCoupling_;
 };
 
+Layout TEST_LAYOUTS[] = {Layout::SEQUENTIAL, Layout::BLOCKED_PROCESSOR, Layout::BLOCKED_GLOBAL};
+
 TestConfiguration TEST_CONFIGURATIONS[] = {
         TestConfiguration(Layout::SEQUENTIAL, false),
         TestConfiguration(Layout::SEQUENTIAL, true),
@@ -61,7 +63,7 @@ template<typename GEOM>
 void check(GEOM geom, const Utilities::GlobalIndexing& indexing,
            std::vector<int>& owned, std::vector<int>& nonOwned, std::size_t expectedOwned, std::size_t expectedNonOnwed)
 {
-    for (std::size_t unknown = 0; unknown < indexing.getNumberOfUnknowns(); ++unknown)
+    for (std::size_t unknown : indexing.getIncludedUnknowns())
     {
         // Check for each of the basis functions
         std::size_t dof = indexing.getProcessorLocalIndex(geom, unknown);
@@ -336,6 +338,73 @@ void testMassOnly(std::size_t unknowns)
     }
 }
 
+void testRowColumnDifference(std::string meshFile)
+{
+    // Test where the GlobalIndexing for the rows and columns differ.
+    Base::ConfigurationData config (2);
+    Base::MeshManipulator<3> mesh (&config);
+
+    using namespace std::string_literals;
+    std::stringstream filename;
+    filename << Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s << meshFile << ".hpgem";
+    mesh.readMesh(filename.str());
+
+    // Note different types of basis functions for both DoFs.
+    mesh.useDefaultDGBasisFunctions(2);
+    mesh.useDefaultConformingBasisFunctions(4, 1);
+
+    for (Layout layout : TEST_LAYOUTS)
+    {
+        std::vector<std::size_t> dgUnknown ({0}), cgUnknown ({1});
+        Utilities::GlobalIndexing indexing0(&mesh, layout, &dgUnknown);
+        Utilities::GlobalIndexing indexing1(&mesh, layout, &cgUnknown);
+        {
+            // Rows are DG, columns are CG, no face coupling.
+            // The row for each element consists of the number of CG basis functions with support on the element.
+
+            Utilities::SparsityEstimator estimator(mesh, indexing0, indexing1);
+
+            std::vector<int> owned, nonOwned;
+            estimator.computeSparsityEstimate(owned, nonOwned, false);
+            logger.assert_always(owned.size() == indexing0.getNumberOfLocalBasisFunctions(), "Wrong size owned");
+            logger.assert_always(nonOwned.size() == indexing0.getNumberOfLocalBasisFunctions(), "Wrong size owned");
+            for (const Base::Element* element : mesh.getElementsList())
+            {
+                check(element, indexing0, owned, nonOwned, element->getNumberOfBasisFunctions(1), 0);
+            }
+        }
+        {
+            // Rows are CG, Columns are DG, no face coupling.
+            // The row for each CG basis functions should contain the number of DG basis
+            // functions on the elements on which the CG function has support.
+            Utilities::SparsityEstimator estimator (mesh, indexing1, indexing0);
+            std::vector<int> owned, nonOwned;
+            estimator.computeSparsityEstimate(owned, nonOwned, false);
+            logger.assert_always(owned.size() == indexing1.getNumberOfLocalBasisFunctions(), "Wrong size owned");
+            logger.assert_always(nonOwned.size() == indexing1.getNumberOfLocalBasisFunctions(), "Wrong size owned");
+
+            std::size_t dgDoFsperElement = (*mesh.elementColBegin())->getNumberOfBasisFunctions(0);
+            for (const Base::Element* element : mesh.getElementsList())
+            {
+                check(element, indexing1, owned, nonOwned, dgDoFsperElement, 0);
+            }
+            for (const Base::Face* face : mesh.getFacesList())
+            {
+                std::size_t expectedDoFs = face->isInternal() ? 2*dgDoFsperElement : dgDoFsperElement;
+                check(face, indexing1, owned, nonOwned, expectedDoFs, 0);
+            }
+            for (const Base::Edge* edge : mesh.getEdgesList())
+            {
+                check(edge, indexing1, owned, nonOwned, edge->getNumberOfElements() * dgDoFsperElement, 0);
+            }
+            for (const Base::Node* node : mesh.getNodesList())
+            {
+                check(node, indexing1, owned, nonOwned, node->getNumberOfElements() * dgDoFsperElement, 0);
+            }
+        }
+    }
+}
+
 int main(int argc, char** argv)
 {
     using namespace std::string_literals;
@@ -349,4 +418,7 @@ int main(int argc, char** argv)
 
     testMassOnly(1);
     testMassOnly(3);
+
+    testRowColumnDifference("3Drectangular1mesh"s);
+    testRowColumnDifference("3Dtriangular1mesh"s);
 }
