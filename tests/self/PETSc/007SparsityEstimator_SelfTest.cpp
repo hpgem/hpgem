@@ -103,47 +103,76 @@ struct GeomStorage
     std::set<const Base::Edge*> edges;
     std::set<const Base::Node*> nodes;
 
-    void addAroundElement(const Base::Element* element)
+    /// \brief Add the Element and all its faces, edges and nodes
+    ///
+    /// \param element The element to add
+    /// \param neighbours Whether to include the neighbouring elements and their faces, edges and nodes
+    void addGeometryAround(const Base::Element* element, bool neighbours = false)
     {
         elements.insert(element);
         for (auto* face : element->getFacesList())
+        {
             faces.insert(face);
+            if (face->isInternal() && neighbours)
+            {
+                addGeometryAround(face->getPtrOtherElement(element), false);
+            }
+        }
         for (auto* edge : element->getEdgesList())
             edges.insert(edge);
         for (auto* node : element->getNodesList())
             nodes.insert(node);
     }
 
-    void addAroundFace(const Base::Face* face)
+    void addGeometryAround(const Base::Face* face, bool secondNeighbours = false)
     {
-        addAroundElement(face->getPtrElementLeft());
+        addGeometryAround(face->getPtrElementLeft(), secondNeighbours);
         if (face->isInternal())
-            addAroundElement(face->getPtrElementRight());
+            addGeometryAround(face->getPtrElementRight(), secondNeighbours);
     }
-    void addArroundEdge(const Base::Edge* edge)
+    void addGeometryAround(const Base::Edge* edge, bool secondNeighbours = false)
     {
         for (const Base::Element* element : edge->getElements())
-            addAroundElement(element);
+            addGeometryAround(element, secondNeighbours);
     }
-    void addAroundNode(const Base::Node* node)
+    void addGeometryAround(const Base::Node* node, bool secondNeighbours = false)
     {
         for (const Base::Element* element : node->getElements())
-            addAroundElement(element);
+            addGeometryAround(element, secondNeighbours);
     }
 
-    std::size_t countBasisFunctions()
+    std::size_t countBasisFunctions(std::vector<std::size_t>* unknowns = nullptr)
     {
         // Assumes everything is locally owned
-        std::size_t basisFunctions = 0;
-        for (const Base::Element* element : elements)
-            basisFunctions += element->getTotalLocalNumberOfBasisFunctions();
-        for (const Base::Face* face : faces)
-            basisFunctions += face->getTotalLocalNumberOfBasisFunctions();
-        for (const Base::Edge* edge : edges)
-            basisFunctions += edge->getTotalLocalNumberOfBasisFunctions();
-        for (const Base::Node* node : nodes)
-            basisFunctions += node->getTotalLocalNumberOfBasisFunctions();
-        return basisFunctions;
+        if (unknowns == nullptr)
+        {
+            std::size_t basisFunctions = 0;
+            for (const Base::Element *element : elements)
+                basisFunctions += element->getTotalLocalNumberOfBasisFunctions();
+            for (const Base::Face *face : faces)
+                basisFunctions += face->getTotalLocalNumberOfBasisFunctions();
+            for (const Base::Edge *edge : edges)
+                basisFunctions += edge->getTotalLocalNumberOfBasisFunctions();
+            for (const Base::Node *node : nodes)
+                basisFunctions += node->getTotalLocalNumberOfBasisFunctions();
+            return basisFunctions;
+        }
+        else
+        {
+            std::size_t basisFunctions = 0;
+            for (std::size_t unknown : *unknowns)
+            {
+                for (const Base::Element *element : elements)
+                    basisFunctions += element->getLocalNumberOfBasisFunctions(unknown);
+                for (const Base::Face *face : faces)
+                    basisFunctions += face->getLocalNumberOfBasisFunctions(unknown);
+                for (const Base::Edge *edge : edges)
+                    basisFunctions += edge->getLocalNumberOfBasisFunctions(unknown);
+                for (const Base::Node *node : nodes)
+                    basisFunctions += node->getLocalNumberOfBasisFunctions(unknown);
+            }
+            return basisFunctions;
+        }
     }
 };
 
@@ -311,28 +340,28 @@ void testMassOnly(std::size_t unknowns)
     for (const Base::Element* element : mesh.getElementsList())
     {
         GeomStorage storage;
-        storage.addAroundElement(element);
+        storage.addGeometryAround(element);
         std::size_t numDofs = storage.countBasisFunctions();
         check(element, indexing, owned, nonOwned, numDofs, 0);
     }
     for (const Base::Face* face : mesh.getFacesList())
     {
         GeomStorage storage;
-        storage.addAroundFace(face);
+        storage.addGeometryAround(face);
         std::size_t numDofs = storage.countBasisFunctions();
         check(face, indexing, owned, nonOwned, numDofs, 0);
     }
     for (const Base::Edge* edge : mesh.getEdgesList())
     {
         GeomStorage storage;
-        storage.addArroundEdge(edge);
+        storage.addGeometryAround(edge);
         std::size_t numDofs = storage.countBasisFunctions();
         check(edge, indexing, owned, nonOwned, numDofs, 0);
     }
     for (const Base::Node* node : mesh.getNodesList())
     {
         GeomStorage storage;
-        storage.addAroundNode(node);
+        storage.addGeometryAround(node);
         std::size_t numDofs = storage.countBasisFunctions();
         check(node, indexing, owned, nonOwned, numDofs, 0);
     }
@@ -358,6 +387,7 @@ void testRowColumnDifference(std::string meshFile)
         std::vector<std::size_t> dgUnknown ({0}), cgUnknown ({1});
         Utilities::GlobalIndexing indexing0(&mesh, layout, &dgUnknown);
         Utilities::GlobalIndexing indexing1(&mesh, layout, &cgUnknown);
+        Utilities::GlobalIndexing indexing01(&mesh, layout);
         {
             // Rows are DG, columns are CG, no face coupling.
             // The row for each element consists of the number of CG basis functions with support on the element.
@@ -400,6 +430,57 @@ void testRowColumnDifference(std::string meshFile)
             for (const Base::Node* node : mesh.getNodesList())
             {
                 check(node, indexing1, owned, nonOwned, node->getNumberOfElements() * dgDoFsperElement, 0);
+            }
+        }
+
+        // Testing with face-connections
+        {
+            // Rows are DG, columns are DG+CG, face coupling.
+            // The row count is the sum of functions with support on the element or on the
+            // adjacent elements.
+            Utilities::SparsityEstimator estimator(mesh, indexing0, indexing01);
+            std::vector<int> owned, nonOwned;
+            estimator.computeSparsityEstimate(owned, nonOwned, true);
+            logger.assert_always(owned.size() == indexing0.getNumberOfLocalBasisFunctions(), "Wrong size owned");
+            logger.assert_always(nonOwned.size() == indexing0.getNumberOfLocalBasisFunctions(), "Wrong size owned");
+            for (const Base::Element* element : mesh.getElementsList())
+            {
+                GeomStorage storage;
+                storage.addGeometryAround(element, true);
+                check(element, indexing0, owned, nonOwned, storage.countBasisFunctions(), 0);
+            }
+        }
+        {
+            // Rows all, columns DG, face coupling
+            // Basically counts the number of elements on which the element has support
+            Utilities::SparsityEstimator estimator(mesh, indexing01, indexing0);
+            std::vector<int> owned, nonOwned;
+            estimator.computeSparsityEstimate(owned, nonOwned, true);
+            logger.assert_always(owned.size() == indexing01.getNumberOfLocalBasisFunctions(), "Wrong size owned");
+            logger.assert_always(nonOwned.size() == indexing01.getNumberOfLocalBasisFunctions(), "Wrong size owned");
+            for (const Base::Element* element : mesh.getElementsList())
+            {
+                GeomStorage storage;
+                storage.addGeometryAround(element, true);
+                check(element, indexing01, owned, nonOwned, storage.countBasisFunctions(&dgUnknown), 0);
+            }
+            for (const Base::Face* face : mesh.getFacesList())
+            {
+                GeomStorage storage;
+                storage.addGeometryAround(face, true);
+                check(face, indexing01, owned, nonOwned, storage.countBasisFunctions(&dgUnknown), 0);
+            }
+            for (const Base::Edge* edge : mesh.getEdgesList())
+            {
+                GeomStorage storage;
+                storage.addGeometryAround(edge, true);
+                check(edge, indexing01, owned, nonOwned, storage.countBasisFunctions(&dgUnknown), 0);
+            }
+            for (const Base::Node* node : mesh.getNodesList())
+            {
+                GeomStorage storage;
+                storage.addGeometryAround(node, true);
+                check(node, indexing01, owned, nonOwned, storage.countBasisFunctions(&dgUnknown), 0);
             }
         }
     }
