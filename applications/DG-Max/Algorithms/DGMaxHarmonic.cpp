@@ -53,12 +53,13 @@ void DGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM> &harmonicProblem, doub
             stab
     );
 
-    Utilities::GlobalPetscMatrix massMatrix(&mesh_, DGMaxDiscretization<DIM>::MASS_MATRIX_ID, -1),
-            stiffnessMatrix(&mesh_, DGMaxDiscretization<DIM>::STIFFNESS_MATRIX_ID, DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
+    Utilities::GlobalIndexing indexing(&mesh_);
+    Utilities::GlobalPetscMatrix massMatrix(&mesh_, indexing, DGMaxDiscretization<DIM>::MASS_MATRIX_ID, -1),
+            stiffnessMatrix(&mesh_, indexing, DGMaxDiscretization<DIM>::STIFFNESS_MATRIX_ID, DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
     std::cout << "GlobalPetscMatrix initialised" << std::endl;
     Utilities::GlobalPetscVector
-            resultVector(&mesh_, -1, -1), // The vector that we will use for the solution, initialize it with zeros.
-            rhsVector(&mesh_, DGMaxDiscretization<DIM>::SOURCE_TERM_VECTOR_ID, DGMaxDiscretization<DIM>::FACE_VECTOR_ID);
+            resultVector(&mesh_, indexing, -1, -1), // The vector that we will use for the solution, initialize it with zeros.
+            rhsVector(&mesh_, indexing, DGMaxDiscretization<DIM>::SOURCE_TERM_VECTOR_ID, DGMaxDiscretization<DIM>::FACE_VECTOR_ID);
     std::cout << "GlobalPetscVector initialised" << std::endl;
     resultVector.assemble();
     std::cout << "resultVector assembled" << std::endl;

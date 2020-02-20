@@ -107,11 +107,12 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
 //    base_.assembler->fillMatrices(&base_);
     initializeMatrices(stab);
 
-    Utilities::GlobalPetscMatrix massMatrix(&mesh_, DGMaxDiscretization<DIM>::MASS_MATRIX_ID, -1),
-            stiffnessMatrix(&mesh_, DGMaxDiscretization<DIM>::STIFFNESS_MATRIX_ID, DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
+    Utilities::GlobalIndexing indexing (&mesh_);
+    Utilities::GlobalPetscMatrix massMatrix(&mesh_, indexing, DGMaxDiscretization<DIM>::MASS_MATRIX_ID, -1),
+            stiffnessMatrix(&mesh_, indexing, DGMaxDiscretization<DIM>::STIFFNESS_MATRIX_ID, DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
     std::cout << "GlobalPetscMatrix initialised" << std::endl;
     Utilities::GlobalPetscVector
-            sampleGlobalVector(&mesh_, -1, -1);
+            sampleGlobalVector(&mesh_, indexing, -1, -1);
     std::cout << "GlobalPetscVector initialised" << std::endl;
     sampleGlobalVector.assemble();
     std::cout << "sampleGlobalVector assembled" << std::endl;

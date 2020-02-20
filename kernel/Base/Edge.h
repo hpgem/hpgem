@@ -104,8 +104,9 @@ namespace Base
 
         ///get the root element that is the (indirect) parent of one of the adjacent elements
         const Element* getRootElement() const;
-        
+
         std::vector<Element*> getElements();
+        const std::vector<Element*> getElements() const;
         
         ///\deprecated Does not conform naming conventions, use getEdgeNumber instead
         std::size_t getEdgeNr(std::size_t i)

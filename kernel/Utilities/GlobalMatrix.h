@@ -57,15 +57,10 @@ namespace Utilities
         GlobalMatrix(const GlobalMatrix &other) = delete;
         
         ///constructs the global matrix and performs element assembly
-        GlobalMatrix(Base::MeshManipulatorBase* theMesh, int elementMatrixID, int faceMatrixID);
+        GlobalMatrix(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& indexing, int elementMatrixID, int faceMatrixID);
 
-        ///signals the matrix that (some) element matrixes have changed and that the matrix can be assembled again
-        ///also used after mesh refinement to make sure the global matrix reflects the changes in the mesh
-        virtual void reAssemble()=0;
-
-        ///cleans out all the entries, putting them back to 0 - keeps the non-zero strucure of the matrix however.
-        ///After this it assembles the matrix to put it back in a legal state
-        virtual void reset()=0;
+        /// \brief Assemble the matrix from elements and faces
+        virtual void assemble() = 0;
 
         // Retrieve the global indices of all basis functions owned by the face, its edges and its nodes.
         void getMatrixBCEntries(const Base::Face* face, std::size_t& numberOfEntries, std::vector<int>& entries);
@@ -73,8 +68,8 @@ namespace Utilities
     protected:
         
         int meshLevel_, elementMatrixID_, faceMatrixID_;
-        Base::MeshManipulatorBase *theMesh_;
-        GlobalIndexing indexing_;
+        const Base::MeshManipulatorBase *theMesh_;
+        const GlobalIndexing& indexing_;
         
     };
 #if defined(HPGEM_USE_ANY_PETSC)
@@ -88,12 +83,12 @@ namespace Utilities
         ///\bug need a better way to provide an interface to the supported Mat routines AND to other routines that need a Mat (like KSPSetOperators()) (but not stuff like MatDestroy())
         operator Mat();
 
-        GlobalPetscMatrix(Base::MeshManipulatorBase* theMesh, int elementMatrixID, int faceMatrixID = -1);
-        ~GlobalPetscMatrix();
+        GlobalPetscMatrix(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& indexing, \
+                int elementMatrixID, int faceMatrixID = -1);
+        ~GlobalPetscMatrix() override ;
 
-        void reset();
 
-        void reAssemble();
+        virtual void assemble() override ;
 
         void printMatInfo(MatInfoType type, std::ostream& stream);
         void writeMatlab(const std::string& fileName);
@@ -104,7 +99,9 @@ namespace Utilities
         }
 
     private:
-        
+
+        void createMat();
+
         Mat A_;
     };
 #endif

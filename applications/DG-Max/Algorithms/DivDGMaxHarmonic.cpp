@@ -54,11 +54,12 @@ void DivDGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM> &input, typename Di
             stab
     );
 
-    Utilities::GlobalPetscMatrix massMatrix (&mesh_, DivDGMaxDiscretization<DIM>::ELEMENT_MASS_MATRIX_ID, -1),
-        stiffnessMatrix (&mesh_, DivDGMaxDiscretization<DIM>::ELEMENT_STIFFNESS_MATRIX_ID, DivDGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID);
+    Utilities::GlobalIndexing indexing (&mesh_);
+    Utilities::GlobalPetscMatrix massMatrix (&mesh_, indexing, DivDGMaxDiscretization<DIM>::ELEMENT_MASS_MATRIX_ID, -1),
+        stiffnessMatrix (&mesh_, indexing, DivDGMaxDiscretization<DIM>::ELEMENT_STIFFNESS_MATRIX_ID, DivDGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID);
     Utilities::GlobalPetscVector
-            rhs (&mesh_, DivDGMaxDiscretization<DIM>::ELEMENT_SOURCE_VECTOR_ID, DivDGMaxDiscretization<DIM>::FACE_BOUNDARY_VECTOR_ID),
-            result (&mesh_, -1, -1);
+            rhs (&mesh_, indexing, DivDGMaxDiscretization<DIM>::ELEMENT_SOURCE_VECTOR_ID, DivDGMaxDiscretization<DIM>::FACE_BOUNDARY_VECTOR_ID),
+            result (&mesh_, indexing, -1, -1);
 
     rhs.assemble();
 

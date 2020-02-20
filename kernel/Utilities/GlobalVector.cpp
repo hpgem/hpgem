@@ -43,17 +43,23 @@
 namespace Utilities
 {
     
-    GlobalVector::GlobalVector(Base::MeshManipulatorBase* theMesh, int elementVectorID, int faceVectorID)
-            : meshLevel_(-2), elementVectorID_(elementVectorID), faceVectorID_(faceVectorID), startPositionsOfElementsInTheVector_(), theMesh_(theMesh)
+    GlobalVector::GlobalVector(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& indexing
+            , int elementVectorID, int faceVectorID)
+            : meshLevel_(-2)
+            , theMesh_(theMesh)
+            , indexing_ (indexing)
+            , elementVectorID_(elementVectorID)
+            , faceVectorID_(faceVectorID)
+            , startPositionsOfElementsInTheVector_()
     {
         logger.assert_debug(theMesh != nullptr, "Invalid mesh passed");
     }
     
 #if defined(HPGEM_USE_ANY_PETSC)
     
-    GlobalPetscVector::GlobalPetscVector(Base::MeshManipulatorBase* theMesh, int elementVectorID, int faceVectorID)
-            : GlobalVector(theMesh, elementVectorID, faceVectorID)
-            , indexing_() // Will be initialized by reset().
+    GlobalPetscVector::GlobalPetscVector(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& indexing
+                , int elementVectorID, int faceVectorID)
+            : GlobalVector(theMesh, indexing, elementVectorID, faceVectorID)
     {
         logger.assert_debug(theMesh != nullptr, "Invalid mesh passed");
         PetscBool petscRuns;
@@ -61,7 +67,8 @@ namespace Utilities
         logger.assert_debug(petscRuns == PETSC_TRUE, "Early call, firstly the command line arguments should be parsed");
         VecCreateSeq(PETSC_COMM_SELF, 1, &b_);
         
-        reset();
+        createVec();
+        assemble();
     }
     
     GlobalPetscVector::~GlobalPetscVector()
@@ -82,22 +89,24 @@ namespace Utilities
         return b_;
     }
 
-    //debug note: GlobalPetscMatrix 'independently' chooses an ordering for the degrees of freedom, but hpGEM assumes both orderings to be the same
-    void GlobalPetscVector::reset()
+    void GlobalPetscVector::createVec()
     {
         int ierr = VecDestroy(&b_);
         CHKERRV(ierr);
-        indexing_.reset(theMesh_, GlobalIndexing::BLOCKED_PROCESSOR);
         ierr = VecCreateMPI(PETSC_COMM_WORLD, indexing_.getNumberOfLocalBasisFunctions(), PETSC_DETERMINE, &b_);
+        CHKERRV(ierr);
+    }
+
+    void GlobalPetscVector::zeroVector()
+    {
+        int ierr = VecZeroEntries(b_);
         CHKERRV(ierr);
     }
     
     void GlobalPetscVector::assemble()
     {
-        //reset();
-        VecZeroEntries(b_);
-        
-        LinearAlgebra::MiddleSizeVector elementVector;
+        zeroVector();
+
         std::vector<PetscInt> elementToGlobal (0);
         
         if (elementVectorID_ >= 0)
@@ -105,7 +114,7 @@ namespace Utilities
             for (Base::Element* element : theMesh_->getElementsList())
             {
                 indexing_.getGlobalIndices(element, elementToGlobal);
-                elementVector = element->getElementVector(elementVectorID_);
+                const LinearAlgebra::MiddleSizeVector& elementVector = element->getElementVector(elementVectorID_);
                 logger.assert_debug(elementVector.size() == elementToGlobal.size(),
                         "Incorrectly sized element vector.");
                 int ierr = VecSetValues(b_, elementToGlobal.size(), elementToGlobal.data(), elementVector.data(), ADD_VALUES);
@@ -140,8 +149,8 @@ namespace Utilities
     
     void GlobalPetscVector::constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t solutionVar)
     {
-        reset();
-        
+        zeroVector();
+
         LinearAlgebra::MiddleSizeVector elementData;
         std::vector<PetscInt> localToGlobal;
         for (Base::Element* element : theMesh_->getElementsList())
@@ -175,7 +184,7 @@ namespace Utilities
     
     void GlobalPetscVector::constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId)
     {
-        reset();
+        zeroVector();
 
         LinearAlgebra::MiddleSizeVector elementData;
         std::vector<PetscInt> localToGlobal;
@@ -232,7 +241,7 @@ namespace Utilities
         int ierr = VecGetArray(localB, &data);
         CHKERRV(ierr);
         //Question: wat doet deze lijn
-        for (Base::MeshManipulatorBase::ElementIterator it = theMesh_->elementColBegin(); it != theMesh_->elementColEnd(); ++it)
+        for (Base::MeshManipulatorBase::ConstElementIterator it = theMesh_->elementColBegin(); it != theMesh_->elementColEnd(); ++it)
         {
         	//Create vector for the local data that has to be written
             LinearAlgebra::MiddleSizeVector localData((*it)->getTotalNumberOfBasisFunctions());
@@ -334,7 +343,7 @@ namespace Utilities
 
         int ierr = VecGetArray(localB, &data);
         CHKERRV(ierr);
-        for (Base::MeshManipulatorBase::ElementIterator it = theMesh_->elementColBegin(); it != theMesh_->elementColEnd(); ++it)
+        for (Base::MeshManipulatorBase::ConstElementIterator it = theMesh_->elementColBegin(); it != theMesh_->elementColEnd(); ++it)
         {
             LinearAlgebra::MiddleSizeVector localData((*it)->getTotalNumberOfBasisFunctions());
             std::size_t runningTotal = 0;

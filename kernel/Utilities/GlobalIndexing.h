@@ -111,7 +111,7 @@ namespace Utilities
 
 
         GlobalIndexing();
-        GlobalIndexing(Base::MeshManipulatorBase* mesh, Layout layout, const std::vector<std::size_t>* unknowns = nullptr);
+        GlobalIndexing(Base::MeshManipulatorBase* mesh, Layout layout = BLOCKED_PROCESSOR, const std::vector<std::size_t>* unknowns = nullptr);
 
         /// \brief Recreate the mapping for a new mesh.
         ///

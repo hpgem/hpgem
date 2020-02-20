@@ -90,6 +90,24 @@ namespace Base
         {
             return elementRight_;
         }
+
+        /// Obtain a pointer to the other element of the face.
+        /// \param element A pointer to either the left or right element.
+        /// \return The pointer to the other element.
+        Element* getPtrOtherElement(const Element* element)
+        {
+            logger.assert_debug(element == elementLeft_ || element == elementRight_,
+                    "Not an element to this face");
+            return (element == elementLeft_) ? elementRight_ : elementLeft_;
+        }
+
+        /// see getPtrOtherElement(const Element*)
+        const Element* getPtrOtherElement(const Element* element) const
+        {
+            logger.assert_debug(element == elementLeft_ || element == elementRight_,
+                    "Not an element to this face");
+            return (element == elementLeft_) ? elementRight_ : elementLeft_;
+        }
         
         /// \brief Return the pointer to the element on side iSide.
         const Element* getPtrElement(Side iSide) const

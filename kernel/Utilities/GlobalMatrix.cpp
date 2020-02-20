@@ -21,6 +21,7 @@
 
 #include "Base/MpiContainer.h"
 #include "GlobalMatrix.h"
+#include "SparsityEstimator.h"
 #include <vector>
 #include "Base/MeshManipulatorBase.h"
 #include "Base/Edge.h"
@@ -37,13 +38,18 @@
 
 namespace Utilities
 {
-    
-    GlobalMatrix::GlobalMatrix(Base::MeshManipulatorBase* theMesh, int elementMatrixID, int faceMatrixID)
-            : meshLevel_(-2), elementMatrixID_(elementMatrixID), faceMatrixID_(faceMatrixID), theMesh_(theMesh)
+
+    GlobalMatrix::GlobalMatrix(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& indexing
+            , int elementMatrixID, int faceMatrixID)
+            : meshLevel_(-2)
+            , indexing_ (indexing)
+            , elementMatrixID_(elementMatrixID)
+            , faceMatrixID_(faceMatrixID)
+            , theMesh_(theMesh)
     {
         logger.assert_debug(theMesh != nullptr, "Invalid mesh passed");
     }
-    
+
     void GlobalMatrix::getMatrixBCEntries(const Base::Face* face, std::size_t& numberOfEntries, std::vector<int>& entries)
     {
         logger.assert_debug(face != nullptr, "Invalid face passed");
@@ -115,9 +121,10 @@ namespace Utilities
     }
 
 #if defined(HPGEM_USE_ANY_PETSC)
-    
-    GlobalPetscMatrix::GlobalPetscMatrix(Base::MeshManipulatorBase* theMesh, int elementMatrixID, int faceMatrixID)
-            : GlobalMatrix(theMesh, elementMatrixID, faceMatrixID)
+
+    GlobalPetscMatrix::GlobalPetscMatrix(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& indexing,
+            int elementMatrixID, int faceMatrixID)
+            : GlobalMatrix(theMesh, indexing, elementMatrixID, faceMatrixID)
     {
         logger.assert_debug(theMesh != nullptr, "Invalid mesh passed");
         PetscBool petscRuns;
@@ -125,17 +132,18 @@ namespace Utilities
         logger.assert_debug(petscRuns == PETSC_TRUE, "Early call, firstly the command line arguments should be parsed");
         //temporary
         MatCreateSeqAIJ(PETSC_COMM_SELF, 1, 1, 1, PETSC_NULL, &A_);
-        
-        reAssemble();
+
+        createMat();
+        assemble();
     }
-    
+
     GlobalPetscMatrix::~GlobalPetscMatrix()
     {
         int ierr = MatDestroy(&A_);
         //giving error about Petsc has generated inconsistent data and likely memory corruption in heap
         CHKERRV(ierr);
     }
-    
+
     GlobalPetscMatrix::operator Mat()
     {
         if(HPGEM_LOGLEVEL>=Log::DEBUG)
@@ -147,34 +155,60 @@ namespace Utilities
         }
         return A_;
     }
-    
-    void GlobalPetscMatrix::reset()
+
+    void GlobalPetscMatrix::createMat()
+    {
+        PetscErrorCode  ierr = MatDestroy(&A_);
+        CHKERRV(ierr);
+
+        const std::size_t totalNumberOfDOF = indexing_.getNumberOfLocalBasisFunctions();
+        const std::size_t nUnknowns = indexing_.getNumberOfUnknowns();
+
+        //now construct the only bit of data where PETSc expects a local numbering...
+        std::vector<PetscInt> numberOfPositionsPerRow;
+        std::vector<PetscInt> offDiagonalPositionsPerRow;
+        SparsityEstimator estimator (*theMesh_, indexing_);
+        estimator.computeSparsityEstimate(numberOfPositionsPerRow, offDiagonalPositionsPerRow, faceMatrixID_ >= 0);
+
+        ierr = MatCreateAIJ(PETSC_COMM_WORLD, totalNumberOfDOF, totalNumberOfDOF, PETSC_DETERMINE, PETSC_DETERMINE, -1, numberOfPositionsPerRow.data(), 0, offDiagonalPositionsPerRow.data(), &A_);
+        CHKERRV(ierr);
+        MatSetOption(A_, MAT_KEEP_NONZERO_PATTERN, PETSC_TRUE); //performance
+        // While the estimates should be correct, the zeroing of a row without anything on the diagonal will cause an
+        // error with the previous option but without the following.
+        MatSetOption(A_, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE);
+        // Enable the following to test that no new allocations were needed
+        // MatSetOption(A_, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_TRUE);
+        ierr = MatSetUp(A_);
+        CHKERRV(ierr);
+    }
+
+
+    void GlobalPetscMatrix::assemble()
     {
         int ierr = MatZeroEntries(A_);
         CHKERRV(ierr);
+        // MediumSizeMatrix uses column oriented storage
         ierr = MatSetOption(A_, MAT_ROW_ORIENTED, PETSC_FALSE);
         CHKERRV(ierr);
-        
-        LinearAlgebra::MiddleSizeMatrix elementMatrix;
-        
         if (elementMatrixID_ >= 0)
         {
             std::vector<PetscInt> localToGlobal;
             for (Base::Element* element : theMesh_->getElementsList())
             {
                 indexing_.getGlobalIndices(element, localToGlobal);
-                elementMatrix = element->getElementMatrix(elementMatrixID_);
-                logger.assert_debug(elementMatrix.getNumberOfRows() == elementMatrix.getNumberOfColumns()
-                    && elementMatrix.getNumberOfRows() == localToGlobal.size(),
-                    "Incorrect element matrix size");
-                logger(DEBUG, "%", elementMatrix * 24.);
-                ierr = MatSetValues(A_, localToGlobal.size(), localToGlobal.data(), localToGlobal.size(), localToGlobal.data(), elementMatrix.data(), ADD_VALUES);
+                const LinearAlgebra::MiddleSizeMatrix& localMatrix = element->getElementMatrix(elementMatrixID_);
+                logger.assert_debug(localMatrix.getNumberOfRows() == localMatrix.getNumberOfColumns()
+                                    && localMatrix.getNumberOfRows() == localToGlobal.size(),
+                                    "Incorrect element matrix size");
+                ierr = MatSetValues(A_,
+                        localToGlobal.size(), localToGlobal.data(),
+                        localToGlobal.size(), localToGlobal.data(),
+                        localMatrix.data(), ADD_VALUES);
                 CHKERRV(ierr);
             }
         }
-        
+
         LinearAlgebra::MiddleSizeMatrix faceMatrix;
-        
         if (faceMatrixID_ >= 0)
         {
             std::vector<PetscInt> localToGlobal;
@@ -188,230 +222,19 @@ namespace Utilities
                 logger.assert_debug(faceMatrix.getNumberOfRows() == faceMatrix.getNumberOfColumns()
                                     && faceMatrix.getNumberOfRows() == localToGlobal.size(),
                                     "Incorrect face matrix size");
-                logger(DEBUG, "%", faceMatrix * 24.);
                 ierr = MatSetValues(A_, localToGlobal.size(), localToGlobal.data(), localToGlobal.size(), localToGlobal.data(), faceMatrix.data(), ADD_VALUES);
                 CHKERRV(ierr);
             }
         }
-
+        // Reset the matrix to row oriented storage
         ierr = MatSetOption(A_, MAT_ROW_ORIENTED, PETSC_TRUE);
         CHKERRV(ierr);
 
+        // Matrix assembly
         ierr = MatAssemblyBegin(A_, MAT_FINAL_ASSEMBLY);
+        CHKERRV(ierr);
         ierr = MatAssemblyEnd(A_, MAT_FINAL_ASSEMBLY);
-        
         CHKERRV(ierr);
-    }
-    
-    ///\todo figure out a nice way to keep local data local
-    //debug note: GlobalPetscVector 'independently' chooses an ordering for the degrees of freedom, but hpGEM assumes both orderings to be the same
-    void GlobalPetscMatrix::reAssemble()
-    {
-        PetscErrorCode  ierr = MatDestroy(&A_);
-        CHKERRV(ierr);
-
-        indexing_.reset(theMesh_, GlobalIndexing::BLOCKED_PROCESSOR);
-
-        const std::size_t totalNumberOfDOF = indexing_.getNumberOfLocalBasisFunctions();
-        const std::size_t nUnknowns = indexing_.getNumberOfUnknowns();
-
-        //now construct the only bit of data where PETSc expects a local numbering...
-        std::vector<PetscInt> numberOfPositionsPerRow(totalNumberOfDOF, 0);
-        std::vector<PetscInt> offDiagonalPositionsPerRow(totalNumberOfDOF, 0);
-        
-        for (Base::Element* element : theMesh_->getElementsList())
-        {
-            std::size_t nElementBasisTotal = element->getTotalNumberOfBasisFunctions();
-
-            for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
-            {
-                // Note, we assume here that the basis functions for a single
-                // unknown are laid out consecutively.
-                std::size_t localIndex0 = indexing_.getProcessorLocalIndex(element, unknown);
-                for (std::size_t basisId = 0; basisId < element->getLocalNumberOfBasisFunctions(unknown); ++basisId)
-                {
-                    numberOfPositionsPerRow[localIndex0 + basisId] += nElementBasisTotal;
-                }
-            }
-
-            for (std::size_t i = 0; i < element->getReferenceGeometry()->getNumberOfCodim1Entities(); ++i)
-            {
-                //conforming contributions
-                for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
-                {
-                    // Note, we assume here that the basis functions for a single
-                    // unknown are laid out consecutively.
-                    const Base::Face* face = element->getFace(i);
-                    if (!face->isOwnedByCurrentProcessor())
-                        continue;
-                    std::size_t localIndex0 = indexing_.getProcessorLocalIndex(face, unknown);
-                    for (std::size_t basisId = 0; basisId < face->getLocalNumberOfBasisFunctions(unknown); ++basisId)
-                    {
-                        numberOfPositionsPerRow[localIndex0 + basisId] += nElementBasisTotal;
-                    }
-                }
-            }
-            for (std::size_t i = 0; i < element->getNumberOfEdges(); ++i)
-            {
-                for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
-                {
-                    // Note, we assume here that the basis functions for a single
-                    // unknown are laid out consecutively.
-                    const Base::Edge* edge = element->getEdge(i);
-                    if (!edge->isOwnedByCurrentProcessor())
-                        continue;
-                    int localIndex0 = indexing_.getProcessorLocalIndex(edge, unknown);
-                    for (std::size_t basisId = 0; basisId < edge->getLocalNumberOfBasisFunctions(unknown); ++basisId)
-                    {
-                        numberOfPositionsPerRow[localIndex0 + basisId] += nElementBasisTotal;
-                    }
-                }
-            }
-            if (theMesh_->dimension() > 1)
-            {
-                for (std::size_t i = 0; i < element->getNumberOfNodes(); ++i)
-                {
-                    for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
-                    {
-                        // Note, we assume here that the basis functions for a single
-                        // unknown are laid out consecutively.
-                        const Base::Node *node = element->getNode(i);
-                        if (!node->isOwnedByCurrentProcessor())
-                            continue;
-                        int localIndex0 = indexing_.getProcessorLocalIndex(node, unknown);
-                        for (std::size_t basisId = 0;
-                             basisId < node->getLocalNumberOfBasisFunctions(unknown); ++basisId)
-                        {
-                            numberOfPositionsPerRow[localIndex0 + basisId] += nElementBasisTotal;
-                        }
-                    }
-                }
-            }
-        }
-        
-        for(Base::Face* face : theMesh_->getFacesList())
-        {
-            if(face->isInternal()
-                    && (face->getPtrElementLeft()->isOwnedByCurrentProcessor()
-                        || face->getPtrElementRight()->isOwnedByCurrentProcessor()
-                    ))
-            {
-                // Choose the correct vector to modify.
-                std::vector<int>& changeVec = (face->getFaceType() == Geometry::FaceType::SUBDOMAIN_BOUNDARY || face->getFaceType() == Geometry::FaceType::PERIODIC_SUBDOMAIN_BC)
-                        ? offDiagonalPositionsPerRow : numberOfPositionsPerRow;
-                std::size_t nDuplicates = 0;
-                std::vector<int> duplicates;
-                getMatrixBCEntries(face, nDuplicates, duplicates);
-
-                for(Base::Element* element : {face->getPtrElementLeft(), face->getPtrElementRight()})
-                {
-                    std::size_t nElementBasisTotal = element->getTotalNumberOfBasisFunctions();
-                    if (element->isOwnedByCurrentProcessor())
-                    {
-                        for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
-                        {
-                            // Note, we assume here that the basis functions for a single
-                            // unknown are laid out consecutively.
-                            std::size_t localIndex0 = indexing_.getProcessorLocalIndex(element, unknown);
-                            for (std::size_t basisId = 0;
-                                 basisId < element->getLocalNumberOfBasisFunctions(unknown); ++basisId)
-                            {
-                                changeVec[localIndex0 + basisId] += nElementBasisTotal - nDuplicates;
-                            }
-                        }
-                    }
-                    for (std::size_t i = 0; i < element->getReferenceGeometry()->getNumberOfCodim1Entities(); ++i)
-                    {
-                        const Base::Face* face = element->getFace(i);
-                        if (face->isOwnedByCurrentProcessor())
-                        {
-                            //conforming contributions
-                            for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
-                            {
-                                // Note, we assume here that the basis functions for a single
-                                // unknown are laid out consecutively.
-                                int localIndex0 = indexing_.getProcessorLocalIndex(face, unknown);
-                                for (std::size_t basisId = 0;
-                                     basisId < face->getLocalNumberOfBasisFunctions(unknown); ++basisId)
-                                {
-                                    changeVec[localIndex0 + basisId] += nElementBasisTotal - nDuplicates;
-                                }
-                            }
-                        }
-                    }
-                    for (std::size_t i = 0; i < element->getNumberOfEdges(); ++i)
-                    {
-                        const Base::Edge* edge = element->getEdge(i);
-                        if (edge->isOwnedByCurrentProcessor())
-                        {
-                            for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
-                            {
-                                // Note, we assume here that the basis functions for a single
-                                // unknown are laid out consecutively.
-                                int localIndex0 = indexing_.getProcessorLocalIndex(edge, unknown);
-                                for (std::size_t basisId = 0;
-                                     basisId < edge->getLocalNumberOfBasisFunctions(unknown); ++basisId)
-                                {
-                                    changeVec[localIndex0 + basisId] += nElementBasisTotal - nDuplicates;
-                                }
-                            }
-                        }
-                    }
-                    if (theMesh_->dimension() > 1)
-                    {
-                        for (std::size_t i = 0; i < element->getNumberOfNodes(); ++i)
-                        {
-                            const Base::Node *node = element->getNode(i);
-                            if (node->isOwnedByCurrentProcessor())
-                            {
-                                for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
-                                {
-                                    // Note, we assume here that the basis functions for a single
-                                    // unknown are laid out consecutively.
-                                    int localIndex0 = indexing_.getProcessorLocalIndex(node, unknown);
-                                    for (std::size_t basisId = 0;
-                                         basisId < node->getLocalNumberOfBasisFunctions(unknown); ++basisId)
-                                    {
-                                        changeVec[localIndex0 + basisId] += nElementBasisTotal - nDuplicates;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                for(int globalIndex : duplicates)
-                {
-                    int localIndex = indexing_.globalToProcessorLocalIndex(globalIndex);
-                    if (localIndex != -1)
-                    {
-                        changeVec[localIndex] -= face->getPtrElementLeft()->getTotalNumberOfBasisFunctions()
-                                - nDuplicates;
-                    }
-                }
-            }
-        }
-
-        for (std::size_t i = 0; i < totalNumberOfDOF; ++i)
-        {
-            logger.assert_debug(numberOfPositionsPerRow[i] >= 0, "PETSc wants to make a matrix with % nonzero entries on row %", numberOfPositionsPerRow[i], i);
-            if (static_cast<std::size_t>(numberOfPositionsPerRow[i]) > totalNumberOfDOF)
-            {
-                numberOfPositionsPerRow[i] = totalNumberOfDOF; //a row cant have more nonzero entries than the number of columns
-            }
-            logger.assert_debug(offDiagonalPositionsPerRow[i] >= 0, "PETSc wants to make a matrix with % nonzero entries on row %", offDiagonalPositionsPerRow[i], i);
-            if (static_cast<std::size_t>(numberOfPositionsPerRow[i] + offDiagonalPositionsPerRow[i]) > totalNumberOfDOF)
-            {
-                offDiagonalPositionsPerRow[i] = totalNumberOfDOF - numberOfPositionsPerRow[i]; //a row cant have more nonzero entries than the number of columns
-            }
-        }
-        
-        ierr = MatCreateAIJ(PETSC_COMM_WORLD, totalNumberOfDOF, totalNumberOfDOF, PETSC_DETERMINE, PETSC_DETERMINE, -1, numberOfPositionsPerRow.data(), 0, offDiagonalPositionsPerRow.data(), &A_);
-        CHKERRV(ierr);
-        MatSetOption(A_, MAT_KEEP_NONZERO_PATTERN, PETSC_TRUE); //performance
-        MatSetOption(A_, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE); //the estimate is known to be wrong for mixed element cases and conforming parallel cases
-        ierr = MatSetUp(A_);
-        CHKERRV(ierr);
-        reset();
     }
 
     void GlobalPetscMatrix::printMatInfo(MatInfoType type, std::ostream &stream)
