@@ -28,6 +28,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <petscmat.h>
 #include <petscvec.h>
 #include <slepceps.h>
+#include <DGMaxLogger.h>
 
 #include "Base/MeshManipulator.h"
 #include "LinearAlgebra/SmallVector.h"
@@ -97,7 +98,6 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
     PetscErrorCode error;
     EPS eigenSolver = createEigenSolver();
 
-    std::cout << "finding a bunch of eigenvalues" << std::endl;
     int measureAmount = 0;
 
     //For IP-DG solving a general eigenproblem is slightly faster,
@@ -107,15 +107,16 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
 //    base_.assembler->fillMatrices(&base_);
     initializeMatrices(stab);
 
+
     Utilities::GlobalIndexing indexing (&mesh_);
     Utilities::GlobalPetscMatrix massMatrix(&mesh_, indexing, DGMaxDiscretization<DIM>::MASS_MATRIX_ID, -1),
             stiffnessMatrix(&mesh_, indexing, DGMaxDiscretization<DIM>::STIFFNESS_MATRIX_ID, DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
-    std::cout << "GlobalPetscMatrix initialised" << std::endl;
+    DGMaxLogger(INFO, "GlobalPetscMatrix initialised");
     Utilities::GlobalPetscVector
             sampleGlobalVector(&mesh_, indexing, -1, -1);
-    std::cout << "GlobalPetscVector initialised" << std::endl;
+    DGMaxLogger(INFO, "GlobalPetscVector initialised");
     sampleGlobalVector.assemble();
-    std::cout << "sampleGlobalVector assembled" << std::endl;
+    DGMaxLogger(INFO, "sampleGlobalVector assembled");
 
     Mat product;
     error = MatMatMult(massMatrix, stiffnessMatrix, MAT_INITIAL_MATRIX, 1.0, &product);
@@ -130,10 +131,6 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
     error = EPSSetDimensions(eigenSolver, numberOfEigenvalues, PETSC_DEFAULT, PETSC_DEFAULT);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
-    // Setup is done, solve for the eigenvalues.
-    error = EPSSolve(eigenSolver);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-
     // Setup eigen vector storage
     Vec *eigenVectors = new Vec[numberOfEigenVectors];
     error = VecDuplicateVecs(sampleGlobalVector, numberOfEigenVectors, &eigenVectors);
@@ -146,10 +143,6 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
     CHKERRABORT(PETSC_COMM_WORLD, error);
     error = VecSetUp(waveVec);
     CHKERRABORT(PETSC_COMM_WORLD, error);
-
-    LinearAlgebra::SmallVector<DIM> dk = kpath.dk(1);
-
-    makeShiftMatrix(mesh_, massMatrix.getGlobalIndex(), dk, waveVec);
     error = VecDuplicate(waveVec, &waveVecConjugate);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     error = VecCopy(waveVec, waveVecConjugate);
@@ -186,22 +179,17 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
     // Last id used for offsetting leftNumber/rightNumber
     PetscInt lastLeftOffset = 0, lastRightOffset = 0;
 
-    std::size_t maxStep = kpath.totalNumberOfSteps() + 1;
-    // For testing
-    // maxStep = 21;
+    LinearAlgebra::SmallVector<DIM> dk; // Step in k-space from previous solve
+    std::size_t maxStep = kpath.totalNumberOfSteps();
 
     std::vector<std::vector<PetscScalar>> eigenvalues (maxStep);
 
-    extractEigenValues(eigenSolver, eigenvalues[0]);
-    // extractEigenValues removes all zero eigen values. This is not correct for
-    // k = 0, where 0 is a physically interesting eigenvalue.
-    eigenvalues[0].insert(eigenvalues[0].begin(), 0);
-
-    for (int i = 1; i < maxStep; ++i)
+    for (int i = 0; i < maxStep; ++i)
     {
-        std::cout << "Computing eigenvalues for k-point " << i << std::endl;
+        DGMaxLogger(INFO, "Computing eigenvalues for k-point %/%", i+1, maxStep);
         if (kpath.dkDidChange(i))
         {
+
             dk = kpath.dk(i);
             //recompute the shifts
             makeShiftMatrix(mesh_, massMatrix.getGlobalIndex(), dk, waveVec);
@@ -210,8 +198,16 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
             error = VecConjugate(waveVecConjugate);
             CHKERRABORT(PETSC_COMM_WORLD, error);
         }
-        error = EPSGetInvariantSubspace(eigenSolver, eigenVectors);
-        CHKERRABORT(PETSC_COMM_WORLD, error);
+        int converged;
+        if (i > 0)
+        {
+            // Extract solutions from previous iteration, needs to be done before
+            // changing the matrices for the new k-vector.
+            error = EPSGetInvariantSubspace(eigenSolver, eigenVectors);
+            CHKERRABORT(PETSC_COMM_WORLD, error);
+            error = EPSGetConverged(eigenSolver, &converged);
+            CHKERRABORT(PETSC_COMM_WORLD, error);
+        }
         error = MatDiagonalScale(product, waveVec, waveVecConjugate);
         CHKERRABORT(PETSC_COMM_WORLD, error);
 
@@ -271,17 +267,18 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
         //outputs 'old' data
         if (i % 20 == 1)
         {
-            sampleGlobalVector.writeTimeIntegrationVector(measureAmount);
+            //sampleGlobalVector.writeTimeIntegrationVector(measureAmount);
             measureAmount++;
         }
 
-        int converged;
-        error = EPSGetConverged(eigenSolver, &converged);
-        CHKERRABORT(PETSC_COMM_WORLD, error);
         error = EPSSetOperators(eigenSolver, product, NULL);
         CHKERRABORT(PETSC_COMM_WORLD, error);
-        error = EPSSetInitialSpace(eigenSolver, converged, eigenVectors);
-        CHKERRABORT(PETSC_COMM_WORLD, error);
+        if (i > 0)
+        {
+            // Use solution of previous time as starting point for the next one.
+            error = EPSSetInitialSpace(eigenSolver, converged, eigenVectors);
+            CHKERRABORT(PETSC_COMM_WORLD, error);
+        }
         error = EPSSetUp(eigenSolver);
         CHKERRABORT(PETSC_COMM_WORLD, error);
         error = EPSSolve(eigenSolver);
@@ -295,7 +292,7 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
     error = EPSGetInvariantSubspace(eigenSolver, eigenVectors);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
-    sampleGlobalVector.writeTimeIntegrationVector(measureAmount);
+    //sampleGlobalVector.writeTimeIntegrationVector(measureAmount);
 
     error = VecDestroy(&waveVec);
     CHKERRABORT(PETSC_COMM_WORLD, error);

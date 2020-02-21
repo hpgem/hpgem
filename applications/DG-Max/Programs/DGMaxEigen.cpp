@@ -5,6 +5,7 @@
 #include "DGMaxLogger.h"
 #include "DGMaxProgramUtils.h"
 #include "Algorithms/DivDGMaxEigenValue.h"
+#include "Algorithms/DGMaxEigenValue.h"
 
 
 // File name of the mesh file, e.g. -m mesh.hpgem
@@ -16,6 +17,10 @@ auto& p = Base::register_argument<std::size_t>('p', "order",
 // Number of eigenvalues to compute, e.g. -e 40
 auto& numEigenvalues = Base::register_argument<std::size_t>('e', "eigenvalues",
         "The number of eigenvalues to compute", false, 24);
+
+auto& method = Base::register_argument<std::string>('\0', "method",
+        "The method to be used, either 'DGMAX' or 'DIVDGMAX' (default)",
+        false, "DIVDGMAX");
 
 // Compute a single point --point 1,0.5,0 or a path of points
 // [steps@]0,0:1,0:1,1
@@ -46,6 +51,7 @@ auto& structure = Base::register_argument<std::size_t>('\0', "structure",
 
 template<std::size_t DIM>
 void runWithDimension();
+double parseDGMaxPenaltyParameter();
 template<std::size_t DIM>
 typename DivDGMaxDiscretization<DIM>::Stab parsePenaltyParmaters();
 template<std::size_t DIM>
@@ -93,24 +99,53 @@ int main(int argc, char** argv)
 template<std::size_t DIM>
 void runWithDimension()
 {
-    typename DivDGMaxDiscretization<DIM>::Stab stab = parsePenaltyParmaters<DIM>();
-
+    bool useDivDGMax;
     // 2 unknowns, 1 time level
-    Base::ConfigurationData configData(2, 1);
+    if (method.getValue() == "DGMAX")
+    {
+        useDivDGMax = false;
+    }
+    else if (method.getValue() == "DIVDGMAX")
+    {
+        useDivDGMax = true;
+    }
+    else
+    {
+        logger(ERROR, "Invalid method {}, should be either DGMAX or DIVDGMAX", method.getValue());
+        return;
+    }
+
+    Base::ConfigurationData configData(useDivDGMax ? 2 : 1, 1);
     auto mesh = DGMax::readMesh<DIM>(meshFile.getValue(), &configData, [&](const Geometry::PointPhysical<DIM>& p) {
         // TODO: Hardcoded structure
         return jelmerStructure(p, structure.getValue());
     });
     logger(INFO, "Loaded mesh % with % local elements", meshFile.getValue(), mesh->getNumberOfElements());
-    DivDGMaxEigenValue<DIM> solver(*mesh);
     // TODO: Parameterize
     KSpacePath<DIM> path = parsePath<DIM>();
     EigenValueProblem<DIM> input(path, numEigenvalues.getValue());
-    typename DivDGMaxEigenValue<DIM>::Result result = solver.solve(input, stab, p.getValue());
-    if (Base::MPIContainer::Instance().getProcessorID() == 0)
+    // Method dependent solving
+    if (useDivDGMax)
     {
-        result.printFrequencies();
-        result.writeFrequencies("frequencies.csv");
+        DivDGMaxEigenValue<DIM> solver(*mesh);
+        typename DivDGMaxDiscretization<DIM>::Stab stab = parsePenaltyParmaters<DIM>();
+        typename DivDGMaxEigenValue<DIM>::Result result = solver.solve(input, stab, p.getValue());
+        if (Base::MPIContainer::Instance().getProcessorID() == 0)
+        {
+            result.printFrequencies();
+            result.writeFrequencies("frequencies.csv");
+        }
+    }
+    else
+    {
+        DGMaxEigenValue<DIM> solver (*mesh, p.getValue());
+        const double stab = parseDGMaxPenaltyParameter();
+        typename DGMaxEigenValue<DIM>::Result result = solver.solve(input, stab);
+        if (Base::MPIContainer::Instance().getProcessorID() == 0)
+        {
+            result.printFrequencies();
+            result.writeFrequencies("frequencies.csv");
+        }
     }
 }
 
@@ -151,12 +186,6 @@ KSpacePath<DIM> parsePath()
     if(pointMode.isUsed())
     {
         DGMax::PointPath<DIM> path = DGMax::parsePath<DIM>(pointMode.getValue());
-        // Make single point mode easier by automatically inserting 0,0 at the start
-        if(path.points_.size() == 1)
-        {
-            path.points_.emplace_back(path.points_[0]);
-            path.points_[0] *= 0;
-        }
         // Compensate for factor of pi in the reciprocal lattice
         for(std::size_t i = 0; i < path.points_.size(); ++i)
         {
@@ -176,6 +205,32 @@ KSpacePath<DIM> parsePath()
             logger(INFO, "Using default number of steps %", steps.getValue());
         }
         return KSpacePath<DIM>::cubePath(steps.getValue(), false);
+    }
+}
+
+double parseDGMaxPenaltyParameter()
+{
+    if (pparams.isUsed())
+    {
+        std::size_t idx;
+        try
+        {
+            double value = std::stod(pparams.getValue(), &idx);
+            if (idx != pparams.getValue().size())
+            {
+                throw std::invalid_argument("Invalid stabilization parameter, should be a single number for DGMAX");
+            }
+            return value;
+        }
+        catch (const std::invalid_argument&)
+        {
+            throw std::invalid_argument("Invalid stabilization parameter, should be a single number for DGMAX");
+        }
+    }
+    else
+    {
+        // Default
+        return 100;
     }
 }
 

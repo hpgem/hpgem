@@ -51,7 +51,7 @@ LinearAlgebra::SmallVector<DIM> KSpacePath<DIM>::dk(std::size_t index) const
 template <std::size_t DIM>
 bool KSpacePath<DIM>::dkDidChange(std::size_t index) const
 {
-    logger.assert_debug(index != 0, "dk is not valid at -1 or 0");
+    logger.assert_always(index < totalNumberOfSteps(), "Index {} larger than total number of steps ", index, totalNumberOfSteps());
     // When arriving at point a point for indices 0, steps_, 2steps_, etc.
     // so at 1, steps_ +1, 2steps_ + 1 we change direction. Additionally
     // for index == 0 dk is not valid, so we mark it as changed
@@ -74,8 +74,8 @@ typename KSpacePath<DIM>::KPoint KSpacePath<DIM>::kcorner(std::size_t index) con
 template <std::size_t DIM>
 KSpacePath<DIM> KSpacePath<DIM>::singleStepPath(KSpacePath<DIM>::KPoint point)
 {
-    std::vector<KSpacePath<DIM>::KPoint> points (2);
-    points[1] = point;
+    std::vector<KSpacePath<DIM>::KPoint> points (1);
+    points[0] = point;
     KSpacePath<DIM> path (points, 1);
     return path;
 }
