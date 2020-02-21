@@ -175,9 +175,9 @@ typename DivDGMaxEigenValue<DIM>::Result DivDGMaxEigenValue<DIM>::solve(
     std::vector<std::vector<PetscScalar>> eigenvalues (maxSteps);
 
     DGMaxLogger(INFO, "Starting k-vector walk");
-    for (int i = 1; i < maxSteps; ++i)
+    for (int i = 0; i < maxSteps; ++i)
     {
-        DGMaxLogger(INFO, "Solving for k-vector %/%", i, maxSteps-1);
+        DGMaxLogger(INFO, "Solving for k-vector %/%", i+1, maxSteps);
 
         if(kpath.dkDidChange(i))
         {
@@ -297,7 +297,7 @@ typename DivDGMaxEigenValue<DIM>::Result DivDGMaxEigenValue<DIM>::solve(
             error = EPSSetInitialSpace(eigenSolver, converged, eigenVectors);
             CHKERRABORT(PETSC_COMM_WORLD, error);
         }
-        DGMaxLogger(INFO, "Setting up solve for k-vector %/%", i, maxSteps-1);
+        DGMaxLogger(INFO, "Setting up solve for k-vector %/%", i+1, maxSteps);
         error = EPSSetUp(eigenSolver);
         CHKERRABORT(PETSC_COMM_WORLD, error);
 
@@ -307,7 +307,7 @@ typename DivDGMaxEigenValue<DIM>::Result DivDGMaxEigenValue<DIM>::solve(
         //EPSSetFromOptions(eigenSolver_);
         //CHKERRABORT(PETSC_COMM_WORLD);
 
-        DGMaxLogger(INFO, "Solving for k-vector %/%", i, maxSteps-1);
+        DGMaxLogger(INFO, "Solving for k-vector %/%", i+1, maxSteps);
         error = EPSSolve(eigenSolver);
         CHKERRABORT(PETSC_COMM_WORLD, error);
 
