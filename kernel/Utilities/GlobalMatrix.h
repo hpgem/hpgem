@@ -57,19 +57,23 @@ namespace Utilities
         GlobalMatrix(const GlobalMatrix &other) = delete;
         
         ///constructs the global matrix and performs element assembly
-        GlobalMatrix(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& indexing, int elementMatrixID, int faceMatrixID);
+        GlobalMatrix(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& rowIndexing,
+                const GlobalIndexing& columnIndexing, int elementMatrixID, int faceMatrixID);
 
         /// \brief Assemble the matrix from elements and faces
         virtual void assemble() = 0;
 
         // Retrieve the global indices of all basis functions owned by the face, its edges and its nodes.
+        // Indices are with respect to the rows of the matrix.
         void getMatrixBCEntries(const Base::Face* face, std::size_t& numberOfEntries, std::vector<int>& entries);
 
     protected:
         
         int meshLevel_, elementMatrixID_, faceMatrixID_;
         const Base::MeshManipulatorBase *theMesh_;
-        const GlobalIndexing& indexing_;
+        const GlobalIndexing& rowIndexing_, columnIndexing_;
+        /// Whether the row and column index are the physically same object
+        const bool symmetricIndexing_;
         
     };
 #if defined(HPGEM_USE_ANY_PETSC)
@@ -83,8 +87,12 @@ namespace Utilities
         ///\bug need a better way to provide an interface to the supported Mat routines AND to other routines that need a Mat (like KSPSetOperators()) (but not stuff like MatDestroy())
         operator Mat();
 
-        GlobalPetscMatrix(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& indexing, \
-                int elementMatrixID, int faceMatrixID = -1);
+        GlobalPetscMatrix(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& indexing,
+                int elementMatrixID, int faceMatrixID = -1)
+                : GlobalPetscMatrix(theMesh, indexing, indexing, elementMatrixID, faceMatrixID)
+        {}
+        GlobalPetscMatrix(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& rowIndexing, \
+                const GlobalIndexing& columnIndexing, int elementMatrixID, int faceMatrixID = -1);
         ~GlobalPetscMatrix() override ;
 
 
@@ -95,7 +103,7 @@ namespace Utilities
 
         const GlobalIndexing& getGlobalIndex() const
         {
-            return indexing_;
+            return rowIndexing_;
         }
 
     private:
