@@ -105,7 +105,11 @@ namespace Utilities
             }
         }
 
-        logger.assert_debug(localBasisIndex == offset + element->getTotalNumberOfBasisFunctions(),
+        std::size_t expectedNumberOfBasisFunctions = 0;
+        for (std::size_t unknown : usedUnknowns_)
+            expectedNumberOfBasisFunctions += element->getNumberOfBasisFunctions(unknown);
+
+        logger.assert_debug(localBasisIndex == offset + expectedNumberOfBasisFunctions,
                 "Not all basis functions have been assigned an index.");
         return localBasisIndex;
     }
