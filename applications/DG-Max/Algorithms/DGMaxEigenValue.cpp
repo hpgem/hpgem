@@ -87,6 +87,210 @@ void DGMaxEigenValue<DIM>::initializeMatrices(double stab)
 }
 
 template<std::size_t DIM>
+class KShift;
+
+struct KShiftStorage
+{
+    /// Global indices of the rows
+    std::vector<PetscInt> rowIndex_;
+    /// Global indices of the columns
+    std::vector<PetscInt> colIndex_;
+    /// The values to be inserted
+    std::vector<std::complex<double>> values_;
+};
+
+template<std::size_t DIM>
+struct KShift
+{
+private:
+    /// First global index for the rows
+    const std::size_t startRowIndex_;
+    /// The number of subsequent rows
+    const std::size_t lengthRowIndex_;
+    /// First global index for the columns
+    const std::size_t startColIndex_;
+    /// The number of subsequent columns
+    const std::size_t lengthColIndex_;
+    /// Whether the hermitian counter part also needs to be shifted
+    const bool hermitian_;
+    /// Distance between the two sides for the shift
+    const LinearAlgebra::SmallVector<DIM> dx_;
+    /// Block that needs to be shifted and inserted
+    const LinearAlgebra::MiddleSizeMatrix block1_;
+    /// Block that needs to be shifted and inserted for the hermitian part.
+    const LinearAlgebra::MiddleSizeMatrix block2_;
+public:
+    KShift (std::size_t startRowIndex, std::size_t lengthRowIndex,
+            std::size_t startColIndex, std::size_t lengthColIndex,
+            bool hermitian, const LinearAlgebra::SmallVector<DIM>& dx,
+            const LinearAlgebra::MiddleSizeMatrix& block1, const LinearAlgebra::MiddleSizeMatrix& block2)
+        : startRowIndex_ (startRowIndex), lengthRowIndex_ (lengthRowIndex)
+        , startColIndex_ (startColIndex), lengthColIndex_ (lengthColIndex)
+        , hermitian_ (hermitian), dx_ (dx)
+        , block1_ (block1), block2_ (block2)
+    {}
+
+    /// Create a KShift for a Periodic boundary face
+    ///
+    /// \param face The face
+    /// \param indexing The indexing used in the matrix
+    /// \param dx The difference x_L - x_R, where x_L is the position of the face from the
+    ///     left element and x_R that as seen from the right.
+    /// \return The corresponding shift.
+    static KShift<DIM> faceShift(const Base::Face* face,
+            const Utilities::GlobalIndexing& indexing, LinearAlgebra::SmallVector<DIM> dx)
+    {
+
+        // Element that this processor owns
+        const Base::Element* ownedElement = face->getPtrElementLeft();
+        // Element that this processor might own (owned == hermitian_)
+        const Base::Element* otherElement;
+        Base::Side ownedElementSide, otherElementSide;
+        bool hermitian;
+        if (!ownedElement->isOwnedByCurrentProcessor())
+        {
+            otherElement = ownedElement;
+            ownedElement = face->getPtrElementRight();
+            ownedElementSide = Base::Side::RIGHT;
+            otherElementSide = Base::Side::LEFT;
+            hermitian = false;
+        }
+        else
+        {
+            otherElement = face->getPtrElementRight();
+            ownedElementSide = Base::Side::LEFT;
+            otherElementSide = Base::Side::RIGHT;
+            hermitian = otherElement->isOwnedByCurrentProcessor();
+        }
+        {
+            // Rows are scaled by e^(ikx) and columns by e^(-ikx) where x is the centre
+            // of the element owning the row/column. As the matrices are inserted from
+            // scratch we need to add this factor.
+            Geometry::PointPhysical<DIM> centerPhys;
+            const Geometry::PointReference<DIM>& center1 = ownedElement->getReferenceGeometry()->getCenter();
+            centerPhys = ownedElement->referenceToPhysical(center1);
+            // Owned element corresponds to the rows -> +x
+            dx += centerPhys.getCoordinates();
+            const Geometry::PointReference<DIM>& center2 = otherElement->getReferenceGeometry()->getCenter();
+            centerPhys = otherElement->referenceToPhysical(center2);
+            // The other element is for the columns -> -x
+            dx -= centerPhys.getCoordinates();
+        }
+
+        const Base::FaceMatrix& faceMatrix = face->getFaceMatrix(DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
+        LinearAlgebra::MiddleSizeMatrix block1, block2;
+        // Note ordering, we need the block where the rows are from the ownedElement. The
+        // rows correspond to the test functions, hence ownedElementSide as first
+        // argument.
+        block1 = faceMatrix.getElementMatrix(ownedElementSide, otherElementSide);
+        block2 = faceMatrix.getElementMatrix(otherElementSide, ownedElementSide);
+        // The stiffness matrix is premultiplied by the (inverse) mass matrix. Thus
+        // multiply by the mass matrix of the element corresponding to the rows.
+        block1 = ownedElement->getElementMatrix(DGMaxDiscretization<DIM>::MASS_MATRIX_ID) * block1;
+        block2 = otherElement->getElementMatrix(DGMaxDiscretization<DIM>::MASS_MATRIX_ID) * block2;
+        KShift result (
+                indexing.getGlobalIndex(ownedElement, 0), ownedElement->getNumberOfBasisFunctions(0),
+                indexing.getGlobalIndex(otherElement, 0), otherElement->getNumberOfBasisFunctions(0),
+                hermitian, dx,
+                block1, block2
+        );
+        return result;
+    }
+
+    bool shiftNeeded(LinearAlgebra::SmallVector<DIM> k) const
+    {
+        return std::abs(dx_ * k) > 1e-12;
+    }
+
+    /// Shift the block in the given matrix
+    void shift(LinearAlgebra::SmallVector<DIM> k, KShiftStorage& storage, Mat mat) const
+    {
+        if (shiftNeeded(k))
+        {
+            setupShift(storage);
+            insertShiftedBlock(k*dx_, false, storage, mat);
+            if (hermitian_)
+            {
+                insertShiftedBlock(k * dx_, true, storage, mat);
+            }
+        }
+    }
+
+private:
+    /// Setup the storage for shifing
+    void setupShift(KShiftStorage& storage) const
+    {
+        // Setup the indices
+        if (storage.rowIndex_.size() < lengthRowIndex_)
+        {
+            storage.rowIndex_.resize(lengthRowIndex_);
+        }
+        if (storage.colIndex_.size() < lengthColIndex_)
+        {
+            storage.colIndex_.resize(lengthColIndex_);
+        }
+        for (PetscInt i = 0; i < lengthRowIndex_; ++i)
+        {
+            storage.rowIndex_[i] = i + startRowIndex_;
+        }
+        for (PetscInt i = 0; i < lengthColIndex_; ++i)
+        {
+            storage.colIndex_[i] = i + startColIndex_;
+        }
+        // Ensure that there are enough entries
+        std::size_t entries = lengthRowIndex_ * lengthColIndex_;
+        if (storage.values_.size() < entries)
+        {
+            storage.values_.resize(entries);
+        }
+    }
+
+    /// Insert the shifted block into the matrix
+    ///
+    /// \param kshift The shift k*dx.
+    /// \param hermitianPart Whether to insert the Hermitian transposed block (true) or the normal one.
+    /// \param storage The storage space to use (prepared with setupShift(KShiftStorage&))
+    /// \param mat The matrix to insert into
+    void insertShiftedBlock(double kshift, bool hermitianPart, KShiftStorage& storage, Mat mat) const
+    {
+        const std::complex<double> phase = exp(std::complex<double>(0, hermitianPart ? -kshift : kshift));
+        // Copy data to temp matrix
+        const LinearAlgebra::MiddleSizeMatrix& block = hermitianPart ? block2_ : block1_;
+        for (std::size_t i = 0; i < block.size(); ++i)
+        {
+            storage.values_[i] = phase * block[i];
+        }
+
+        PetscErrorCode err;
+#ifdef HPGEM_ASSERTS
+        // Check if the matrix is column oriented, as MiddleSizeMatrix stores it in
+        // column order.
+        PetscBool isRowOriented = PETSC_FALSE;
+        //TODO: Does not seem to do anything
+        err = MatGetOption(mat, MAT_ROW_ORIENTED, &isRowOriented);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+        logger.assert_debug(isRowOriented == PETSC_FALSE, "Requires column orientation");
+#endif
+        if (!hermitianPart)
+        {
+            err = MatSetValues(mat,
+                    lengthRowIndex_, storage.rowIndex_.data(),
+                    lengthColIndex_, storage.colIndex_.data(),
+                    storage.values_.data(), INSERT_VALUES);
+        }
+        else
+        {
+            err = MatSetValues(mat,
+                    lengthColIndex_, storage.colIndex_.data(),
+                    lengthRowIndex_, storage.rowIndex_.data(),
+                    storage.values_.data(), INSERT_VALUES);
+        }
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+    }
+};
+
+
+template<std::size_t DIM>
 typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
         const EigenValueProblem<DIM>& input, double stab)
 {
@@ -155,31 +359,7 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
     // Setup the boundary block shifting //
     ///////////////////////////////////////
 
-    // For each periodic boundary face the elements L and R disagree on the
-    // position of the face. Therefore the factor exp(i k x)
-
-    std::vector<Base::Face*> periodicBoundaryFaces = findPeriodicBoundaryFaces();
-    unsigned long maxBoundaryFaces = periodicBoundaryFaces.size();
-    // We need to know the maximum number of boundary faces on any node
-    MPI_Allreduce(MPI_IN_PLACE, &maxBoundaryFaces, 1, MPI_UNSIGNED_LONG, MPI_MAX, PETSC_COMM_WORLD);
-
-
-    // Assume that the number of basis functions is constant over all the elements.
-    std::size_t degreesOfFreedomPerElement = (*mesh_.elementColBegin())->getNumberOfBasisFunctions(0);
-
-    // Storage for shifting the boundary blocks
-    std::valarray<PetscScalar> lrblockvalues(degreesOfFreedomPerElement * degreesOfFreedomPerElement);
-    std::valarray<PetscScalar> rlblockvalues(degreesOfFreedomPerElement * degreesOfFreedomPerElement);
-
-    std::valarray<PetscInt> leftNumbers (degreesOfFreedomPerElement);
-    std::valarray<PetscInt> rightNumbers (degreesOfFreedomPerElement);
-    for(PetscInt i = 0; i < degreesOfFreedomPerElement; ++i)
-    {
-        leftNumbers[i] = i;
-        rightNumbers[i] = i;
-    }
-    // Last id used for offsetting leftNumber/rightNumber
-    PetscInt lastLeftOffset = 0, lastRightOffset = 0;
+    const std::vector<KShift<DIM>> periodicShifts = findPeriodicShifts(indexing);
 
     LinearAlgebra::SmallVector<DIM> dk; // Step in k-space from previous solve
     std::size_t maxStep = kpath.totalNumberOfSteps();
@@ -214,57 +394,24 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
         CHKERRABORT(PETSC_COMM_WORLD, error);
 
 
-        // To match the AssemblyBegin and AssemblyEnd of Mat, we need to call
-        // them the same number of times on each node. The current, slightly
-        // inefficient approach is to call it max(BF_i) times, with BF_i the
-        // number of boundary faces on node i. This can be further optimized
-        // taking into account that not all boundary faces need a shift, and by
-        // shifting multiple boundary faces in one step. But that is for a later
-        // optimization round.
-        auto faceIter = periodicBoundaryFaces.begin();
-        for(unsigned long j = 0; j < maxBoundaryFaces; ++j)
+        // Change to column orientation of MiddleSizeMatrix
+        error = MatSetOption(product, MAT_ROW_ORIENTED, PETSC_FALSE);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+        KShiftStorage storage;
+        LinearAlgebra::SmallVector<DIM> k = kpath.k(i);
+        for (const KShift<DIM>& toShift : periodicShifts)
         {
-            double kshift = 0;
-            Base::Face* face;
-            while (faceIter != periodicBoundaryFaces.end() && std::abs(kshift) <= 1e-12)
-            {
-                LinearAlgebra::SmallVector<DIM> shift = boundaryFaceShift(*faceIter);
-                kshift = dk * shift;
-                // Store before using.
-                face = *faceIter;
-                faceIter++;
-            }
-            //Skip entries with no noticeable shift
-            if (std::abs(kshift) > 1e-12)
-            {
-                // Compute the global dof-indices for the degrees of freedoms on both
-                // sides of the face. Additionally we have to undo the offset from the
-                // previous boundary face, hence the lastLeft/RightId.
-
-                PetscInt leftOffset = massMatrix.getGlobalIndex().getGlobalIndex(face->getPtrElementLeft(), 0);
-                PetscInt rightOffset = massMatrix.getGlobalIndex().getGlobalIndex(face->getPtrElementRight(), 0);
-
-                leftNumbers += leftOffset - lastLeftOffset;
-                rightNumbers += rightOffset - lastRightOffset;
-                lastLeftOffset = leftOffset;
-                lastRightOffset = rightOffset;
-                // Retrieve, shift and reinsert the matrix elements.
-                error = MatGetValues(product, degreesOfFreedomPerElement, &leftNumbers[0], degreesOfFreedomPerElement, &rightNumbers[0], &lrblockvalues[0]);
-                CHKERRABORT(PETSC_COMM_WORLD, error);
-                error = MatGetValues(product, degreesOfFreedomPerElement, &rightNumbers[0], degreesOfFreedomPerElement, &leftNumbers[0], &rlblockvalues[0]);
-                CHKERRABORT(PETSC_COMM_WORLD, error);
-                lrblockvalues *= exp(std::complex<double>(0,  kshift));
-                rlblockvalues *= exp(std::complex<double>(0, -kshift));
-                error = MatSetValues(product, degreesOfFreedomPerElement, &leftNumbers[0], degreesOfFreedomPerElement, &rightNumbers[0], &lrblockvalues[0], INSERT_VALUES);
-                CHKERRABORT(PETSC_COMM_WORLD, error);
-                error = MatSetValues(product, degreesOfFreedomPerElement, &rightNumbers[0], degreesOfFreedomPerElement, &leftNumbers[0], &rlblockvalues[0], INSERT_VALUES);
-                CHKERRABORT(PETSC_COMM_WORLD, error);
-            }
-            error = MatAssemblyBegin(product, MAT_FINAL_ASSEMBLY);
-            CHKERRABORT(PETSC_COMM_WORLD, error);
-            error = MatAssemblyEnd(product, MAT_FINAL_ASSEMBLY);
-            CHKERRABORT(PETSC_COMM_WORLD, error);
+            toShift.shift(k, storage, product);
         }
+        // Go back to the default row orientation
+        error = MatSetOption(product, MAT_ROW_ORIENTED, PETSC_TRUE);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+
+        // Assembly after inserts from face-phase-shifts
+        error = MatAssemblyBegin(product, MAT_FINAL_ASSEMBLY);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+        error = MatAssemblyEnd(product, MAT_FINAL_ASSEMBLY);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
 
         //outputs 'old' data
         if (i % 20 == 1)
@@ -366,6 +513,31 @@ std::vector<Base::Face*> DGMaxEigenValue<DIM>::findPeriodicBoundaryFaces() const
         if ((*it)->isInternal() && Base::L2Norm(boundaryFaceShift(*it)) > 1e-3)
         {
             result.emplace_back(*it);
+        }
+    }
+    return result;
+}
+
+template<std::size_t DIM>
+std::vector<KShift<DIM>> DGMaxEigenValue<DIM>::findPeriodicShifts(const Utilities::GlobalIndexing& indexing) const
+{
+    std::vector<KShift<DIM>> result;
+    for (Base::TreeIterator<Base::Face*> it = mesh_.faceColBegin(); it != mesh_.faceColEnd(); ++it)
+    {
+        // To check if the face is on a periodic boundary we compare the
+        // coordinates of the center of the face according to the elements on
+        // each side of the face. For an internal face both elements touch in
+        // the mesh, so they should give the same coordinates. For a periodic
+        // boundary face, they should differ as they are on different sides of
+        // the mesh (for example, one on the top and the other on the bottom).
+        // As this should be zero for internal faces and of the size of the mesh
+        // for boundary faces, we can use a very sloppy bound.
+
+        LinearAlgebra::SmallVector<DIM> dx = boundaryFaceShift(*it);
+        // TODO: temporary fix for internal faces, see DivDGMaxEigenvalue
+        if ((*it)->isInternal() && dx.l2Norm() > 1e-3)
+        {
+            result.emplace_back(KShift<DIM>::faceShift(*it, indexing, dx));
         }
     }
     return result;

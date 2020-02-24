@@ -31,6 +31,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include <slepceps.h>
 
+/// Implementation structure for the k-shifted boundary
+template<std::size_t DIM>
+struct KShift;
+
 //TODO: It might be better to call this differently
 template<std::size_t DIM>
 class DGMaxEigenValue
@@ -64,6 +68,7 @@ private:
 
     void extractEigenValues(const EPS& solver, std::vector<PetscScalar>& result);
 
+    std::vector<KShift<DIM>> findPeriodicShifts(const Utilities::GlobalIndexing& indexing) const;
     std::vector<Base::Face*> findPeriodicBoundaryFaces() const;
     LinearAlgebra::SmallVector<DIM> boundaryFaceShift(const Base::Face *face) const;
 
