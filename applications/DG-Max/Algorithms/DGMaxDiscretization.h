@@ -65,6 +65,7 @@ public:
 
     static const std::size_t MASS_MATRIX_ID = 0;
     static const std::size_t STIFFNESS_MATRIX_ID = 1;
+    static const std::size_t PROJECTOR_MATRIX_ID = 2;
     static const std::size_t INITIAL_CONDITION_VECTOR_ID = 0;
     static const std::size_t INITIAL_CONDITION_DERIVATIVE_VECTOR_ID = 1;
     static const std::size_t SOURCE_TERM_VECTOR_ID = 2;
@@ -76,6 +77,10 @@ public:
     using InputFunction = std::function<void(const PointPhysicalT &, LinearAlgebra::SmallVector<DIM>&)>;
     using FaceInputFunction = std::function<void(const PointPhysicalT &, Base::PhysicalFace<DIM>&, LinearAlgebra::SmallVector<DIM>&)>;
     using TimeFunction = std::function<void(const PointPhysicalT &, double, LinearAlgebra::SmallVector<DIM>&)>;
+
+    DGMaxDiscretization(bool includeProjector = false)
+        : includeProjector_ (includeProjector)
+    {}
 
     void initializeBasisFunctions(Base::MeshManipulator<DIM>& mesh, std::size_t order);
 
@@ -113,11 +118,13 @@ public:
             const Base::Element* element, const Geometry::PointReference<DIM>& p,
             const LinearAlgebra::MiddleSizeVector& coefficients) const;
 
+
 private:
     // Mass matrix of the element
     void elementMassMatrix(Base::PhysicalElement<DIM>& el , LinearAlgebra::MiddleSizeMatrix& ret) const;
     // Stiffness matrix, TODO: Is this the real stiffness or is this more something like curl-stiffness?
     void elementStiffnessMatrix(Base::PhysicalElement<DIM>& el , LinearAlgebra::MiddleSizeMatrix& ret) const;
+    void elementProjectorMatrix(Base::PhysicalElement<DIM>& el , LinearAlgebra::MiddleSizeMatrix& ret) const;
     // Element vector integrand for the source term
     void elementInnerProduct(Base::PhysicalElement<DIM> &el, const InputFunction &function,
                              LinearAlgebra::MiddleSizeVector &ret) const;
@@ -135,6 +142,8 @@ private:
                                                      std::size_t timeVector,
                                                      InputFunction exactValues, InputFunction curlValues) const;
     double faceErrorIntegrand(Base::PhysicalFace<DIM>& fa, std::size_t timeVector, InputFunction exactValue) const;
+
+    const bool includeProjector_;
 };
 
 

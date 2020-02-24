@@ -38,6 +38,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 template<std::size_t DIM>
 DGMaxEigenValue<DIM>::DGMaxEigenValue(Base::MeshManipulator<DIM> &mesh, std::size_t order)
     : mesh_ (mesh)
+    , discretization_ (false)
 {
     discretization_.initializeBasisFunctions(mesh_, order);
 }
@@ -108,7 +109,8 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
     initializeMatrices(stab);
 
 
-    Utilities::GlobalIndexing indexing (&mesh_);
+    std::vector<std::size_t> efieldUnknowns ({0});
+    Utilities::GlobalIndexing indexing (&mesh_, Utilities::GlobalIndexing::BLOCKED_PROCESSOR, &efieldUnknowns);
     Utilities::GlobalPetscMatrix massMatrix(indexing, DGMaxDiscretization<DIM>::MASS_MATRIX_ID, -1),
             stiffnessMatrix(indexing, DGMaxDiscretization<DIM>::STIFFNESS_MATRIX_ID, DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
     DGMaxLogger(INFO, "GlobalPetscMatrix initialised");
@@ -163,7 +165,7 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
 
 
     // Assume that the number of basis functions is constant over all the elements.
-    std::size_t degreesOfFreedomPerElement = (*mesh_.elementColBegin())->getNumberOfBasisFunctions();
+    std::size_t degreesOfFreedomPerElement = (*mesh_.elementColBegin())->getNumberOfBasisFunctions(0);
 
     // Storage for shifting the boundary blocks
     std::valarray<PetscScalar> lrblockvalues(degreesOfFreedomPerElement * degreesOfFreedomPerElement);
