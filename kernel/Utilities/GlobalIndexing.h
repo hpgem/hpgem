@@ -244,7 +244,7 @@ namespace Utilities
 
         std::size_t getNumberOfIncludedUnknowns() const
         {
-            return usedUnknowns_.size();
+            return includedUknowns_.size();
         }
 
         /// \brief Retrieve the global indices associated with the basis
@@ -308,7 +308,7 @@ namespace Utilities
         /// A vector of the unknowns that are included in the index.
         const std::vector<std::size_t>& getIncludedUnknowns() const
         {
-            return usedUnknowns_;
+            return includedUknowns_;
         }
 
 
@@ -466,7 +466,7 @@ namespace Utilities
         /// Dimension of the mesh.
         std::size_t meshDimension;
         /// Ordered list of the unknowns in use
-        std::vector<std::size_t> usedUnknowns_;
+        std::vector<std::size_t> includedUknowns_;
     };
 }
 

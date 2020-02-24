@@ -106,7 +106,7 @@ namespace Utilities
         }
 
         std::size_t expectedNumberOfBasisFunctions = 0;
-        for (std::size_t unknown : usedUnknowns_)
+        for (std::size_t unknown : includedUknowns_)
             expectedNumberOfBasisFunctions += element->getNumberOfBasisFunctions(unknown);
 
         logger.assert_debug(localBasisIndex == offset + expectedNumberOfBasisFunctions,
@@ -165,15 +165,15 @@ namespace Utilities
                                          unknown, numberOfUnknowns_);
                     offsets[unknown].includedInIndex_ = true;
                 }
-                usedUnknowns_ = *unknowns;
-                std::sort(usedUnknowns_.begin(), usedUnknowns_.end());
+                includedUknowns_ = *unknowns;
+                std::sort(includedUknowns_.begin(), includedUknowns_.end());
             }
             else
             {
-                usedUnknowns_.resize(numberOfUnknowns_);
+                includedUknowns_.resize(numberOfUnknowns_);
                 for (std::size_t i = 0; i < numberOfUnknowns_; ++i)
                 {
-                    usedUnknowns_[i] = i;
+                    includedUknowns_[i] = i;
                 }
             }
             switch (layout)
@@ -205,7 +205,7 @@ namespace Utilities
         std::size_t index = 0;
         for (Base::Element *element : mesh.getElementsList())
         {
-            for (std::size_t unknown : usedUnknowns_)
+            for (std::size_t unknown : includedUknowns_)
             {
                 offsets[unknown].elementOffsets_[element->getID()] = index;
                 index += element->getLocalNumberOfBasisFunctions(unknown);
@@ -215,7 +215,7 @@ namespace Utilities
             {
                 if (face->getPtrElementLeft() == element)
                 {
-                    for (std::size_t unknown : usedUnknowns_)
+                    for (std::size_t unknown : includedUknowns_)
                     {
                         offsets[unknown].faceOffsets_[face->getID()] = index;
                         index += face->getLocalNumberOfBasisFunctions(unknown);
@@ -227,7 +227,7 @@ namespace Utilities
             {
                 if (edge->getElement(0) == element)
                 {
-                    for (std::size_t unknown : usedUnknowns_)
+                    for (std::size_t unknown : includedUknowns_)
                     {
                         offsets[unknown].edgeOffsets_[edge->getID()] = index;
                         index += edge->getLocalNumberOfBasisFunctions(unknown);
@@ -241,7 +241,7 @@ namespace Utilities
                 {
                     if (node->getElement(0) == element)
                     {
-                        for (std::size_t unknown : usedUnknowns_)
+                        for (std::size_t unknown : includedUknowns_)
                         {
                             offsets[unknown].nodeOffsets_[node->getID()] = index;
                             index += node->getLocalNumberOfBasisFunctions(unknown);
@@ -289,7 +289,7 @@ namespace Utilities
         // Number the local basis functions for each unknown by 0...Nu-1, where Nu
         // is the number of local basis functions for this unknown.
         //
-        for (std::size_t unknown : usedUnknowns_)
+        for (std::size_t unknown : includedUknowns_)
         {
             Offsets& offset = offsets[unknown];
             std::size_t index = 0;
@@ -343,7 +343,7 @@ namespace Utilities
         std::size_t localBaseOffset = 0;
         if (global)
         {
-            for (std::size_t unknown : usedUnknowns_)
+            for (std::size_t unknown : includedUknowns_)
             {
                 // Compute a the offsets needed to make the local ids unique
                 std::vector<std::size_t> globalOffset(n + 1);
@@ -373,7 +373,7 @@ namespace Utilities
                     mpiInstance.getComm());
             std::partial_sum(globalOffset.begin(), globalOffset.end(), globalOffset.begin());
             std::size_t localOffset = 0;
-            for (std::size_t unknown : usedUnknowns_)
+            for (std::size_t unknown : includedUknowns_)
             {
                 offsets[unknown].setOffset(globalOffset[rank] + localOffset, localOffset,
                         numberOfBasisFunctions[unknown]);
@@ -383,7 +383,7 @@ namespace Utilities
 #else
         // Compute the offsets for all the unknowns
         std::size_t offset = 0;
-        for (std::size_t unknown : usedUnknowns_)
+        for (std::size_t unknown : includedUknowns_)
         {
             offsets[unknown].setOffset(offset, offset, numberOfBasisFunctions[unknown]);
             offset += numberOfBasisFunctions[unknown];
@@ -410,7 +410,7 @@ namespace Utilities
         // Verify the used unknowns
         for( const Base::Element *element : mesh.getElementsList(Base::IteratorType::GLOBAL))
         {
-            for(std::size_t unknown : usedUnknowns_)
+            for(std::size_t unknown : includedUknowns_)
             {
                 // Internally checks if it is present
                 getGlobalIndex(element, unknown);
@@ -419,7 +419,7 @@ namespace Utilities
 
         for( const Base::Face *face : mesh.getFacesList(Base::IteratorType::GLOBAL))
         {
-            for(std::size_t unknown : usedUnknowns_)
+            for(std::size_t unknown : includedUknowns_)
             {
                 // Internally checks if it is present
                 getGlobalIndex(face, unknown);
@@ -428,7 +428,7 @@ namespace Utilities
 
         for( const Base::Edge *edge : mesh.getEdgesList(Base::IteratorType::GLOBAL))
         {
-            for(std::size_t unknown : usedUnknowns_)
+            for(std::size_t unknown : includedUknowns_)
             {
                 // Internally checks if it is present
                 getGlobalIndex(edge, unknown);
@@ -439,7 +439,7 @@ namespace Utilities
         {
             for (const Base::Node *node : mesh.getNodesList(Base::IteratorType::GLOBAL))
             {
-                for (std::size_t unknown : usedUnknowns_)
+                for (std::size_t unknown : includedUknowns_)
                 {
                     // Internally checks if it is present
                     getGlobalIndex(node, unknown);
@@ -582,7 +582,7 @@ namespace Utilities
     void GlobalIndexing::elementMessage(std::size_t elementId, std::vector<std::size_t> &message) const
     {
         message.emplace_back(4*elementId);
-        for(std::size_t unknown : usedUnknowns_)
+        for(std::size_t unknown : includedUknowns_)
         {
             message.emplace_back(offsets.at(unknown).elementOffsets_.at(elementId));
         }
@@ -591,7 +591,7 @@ namespace Utilities
     void GlobalIndexing::faceMessage(std::size_t faceId, std::vector<std::size_t> &message) const
     {
         message.emplace_back(4*faceId+1);
-        for(std::size_t unknown : usedUnknowns_)
+        for(std::size_t unknown : includedUknowns_)
         {
             message.emplace_back(offsets.at(unknown).faceOffsets_.at(faceId));
         }
@@ -600,7 +600,7 @@ namespace Utilities
     void GlobalIndexing::edgeMessage(std::size_t edgeId, std::vector<std::size_t> &message) const
     {
         message.emplace_back(4*edgeId+2);
-        for(std::size_t unknown : usedUnknowns_)
+        for(std::size_t unknown : includedUknowns_)
         {
             if (!offsets[unknown].includedInIndex_)
                 continue;
@@ -611,7 +611,7 @@ namespace Utilities
     void GlobalIndexing::nodeMessage(std::size_t nodeId, std::vector<std::size_t> &message) const
     {
         message.emplace_back(4*nodeId+3);
-        for(std::size_t unknown : usedUnknowns_)
+        for(std::size_t unknown : includedUknowns_)
         {
             if (!offsets[unknown].includedInIndex_)
                 continue;
@@ -641,19 +641,19 @@ namespace Utilities
             switch (tag % 4)
             {
                 case 0:
-                    for(std::size_t unknown : usedUnknowns_)
+                    for(std::size_t unknown : includedUknowns_)
                         offsets[unknown].elementOffsets_[id] = message[offset + 1 + unknown];
                     break;
                 case 1:
-                    for(std::size_t unknown : usedUnknowns_)
+                    for(std::size_t unknown : includedUknowns_)
                         offsets[unknown].faceOffsets_[id] = message[offset + 1 + unknown];
                     break;
                 case 2:
-                    for(std::size_t unknown : usedUnknowns_)
+                    for(std::size_t unknown : includedUknowns_)
                         offsets[unknown].edgeOffsets_[id] = message[offset + 1 + unknown];
                     break;
                 case 3:
-                    for(std::size_t unknown : usedUnknowns_)
+                    for(std::size_t unknown : includedUknowns_)
                         offsets[unknown].nodeOffsets_[id] = message[offset + 1 + unknown];
                     break;
                 default:
