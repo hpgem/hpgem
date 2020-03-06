@@ -495,30 +495,6 @@ void DGMaxEigenValue<DIM>::extractEigenValues(const EPS &solver, std::vector<Pet
 }
 
 template<std::size_t DIM>
-std::vector<Base::Face*> DGMaxEigenValue<DIM>::findPeriodicBoundaryFaces() const
-{
-    std::vector<Base::Face*> result;
-    for (Base::TreeIterator<Base::Face*> it = mesh_.faceColBegin(); it != mesh_.faceColEnd(); ++it)
-    {
-        // To check if the face is on a periodic boundary we compare the
-        // coordinates of the center of the face according to the elements on
-        // each side of the face. For an internal face both elements touch in
-        // the mesh, so they should give the same coordinates. For a periodic
-        // boundary face, they should differ as they are on different sides of
-        // the mesh (for example, one on the top and the other on the bottom).
-        // As this should be zero for internal faces and of the size of the mesh
-        // for boundary faces, we can use a very sloppy bound.
-
-        // TODO: temporary fix for internal faces, see DivDGMaxEigenvalue
-        if ((*it)->isInternal() && Base::L2Norm(boundaryFaceShift(*it)) > 1e-3)
-        {
-            result.emplace_back(*it);
-        }
-    }
-    return result;
-}
-
-template<std::size_t DIM>
 std::vector<KShift<DIM>> DGMaxEigenValue<DIM>::findPeriodicShifts(const Utilities::GlobalIndexing& indexing) const
 {
     std::vector<KShift<DIM>> result;

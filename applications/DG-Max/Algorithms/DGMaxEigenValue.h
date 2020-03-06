@@ -69,7 +69,6 @@ private:
     void extractEigenValues(const EPS& solver, std::vector<PetscScalar>& result);
 
     std::vector<KShift<DIM>> findPeriodicShifts(const Utilities::GlobalIndexing& indexing) const;
-    std::vector<Base::Face*> findPeriodicBoundaryFaces() const;
     LinearAlgebra::SmallVector<DIM> boundaryFaceShift(const Base::Face *face) const;
 
     Base::MeshManipulator<DIM>& mesh_;
