@@ -56,6 +56,26 @@ namespace Base
         }
     }
 
+    std::size_t ElementBasisFunctions::getBasisFunctionOffset(std::size_t unknown, std::size_t place) const
+    {
+        logger.assert_debug(unknown < getNumberOfUnknowns(), "Unknown % is larger than the number of unknowns %",
+                unknown, getNumberOfUnknowns());
+        if (setPositions_[unknown].size() <= place)
+        {
+            return 0;
+        }
+        std::size_t offset = 0;
+        for (std::size_t i = 0; i < place; ++i)
+        {
+            int position = setPositions_[unknown][i];
+            if (position != -1)
+            {
+                offset += (*sets_)[position]->size();
+            }
+        }
+        return offset;
+    }
+
     std::pair<const BasisFunctionSet*, std::size_t> ElementBasisFunctions::getBasisFunctionSetAndIndex(
             size_t index, size_t unknown) const
     {
