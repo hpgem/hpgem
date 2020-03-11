@@ -115,7 +115,7 @@ void runWithDimension()
         return;
     }
 
-    Base::ConfigurationData configData(useDivDGMax ? 2 : 1, 1);
+    Base::ConfigurationData configData(useDivDGMax ? 2 : 2, 1);
     auto mesh = DGMax::readMesh<DIM>(meshFile.getValue(), &configData, [&](const Geometry::PointPhysical<DIM>& p) {
         // TODO: Hardcoded structure
         return jelmerStructure(p, structure.getValue());
