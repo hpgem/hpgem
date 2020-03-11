@@ -1,11 +1,6 @@
-include_directories(. ${hpGEM_SOURCE_DIR}/kernel/ ${PETSC_INCLUDES} ${SLEPC_INCLUDE_DIRS} ${hpGEM_SOURCE_DIR})
-
 
 #First declare the rules that will form the executable tests#
 if(hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
- 
-    include_directories(${PETSC_INCLUDES})
-
 	# DG-Max library #
 	##################
 
@@ -32,9 +27,15 @@ if(hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
 		Utils/BraggStackBandstructure.cpp
 		Utils/KSpacePath.cpp
 	)
-
-	target_link_libraries(DGMax-lib Output ${PETSC_LIBRARIES} ${SLEPC_LIBRARIES} )
-
+	# TODO: Lacking source/include separation
+	target_include_directories(DGMax-lib
+		PUBLIC
+			${CMAKE_CURRENT_SOURCE_DIR}
+	)
+	target_link_libraries(DGMax-lib
+		PUBLIC
+			HPGEM::HPGEM PETSc::PETSc SLEPc::SLEPc
+	)
 
 	# Actual DG-Max program #
 	#########################
