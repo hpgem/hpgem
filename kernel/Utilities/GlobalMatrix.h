@@ -57,7 +57,7 @@ namespace Utilities
         GlobalMatrix(const GlobalMatrix &other) = delete;
         
         ///constructs the global matrix and performs element assembly
-        GlobalMatrix(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& indexing, int elementMatrixID, int faceMatrixID);
+        GlobalMatrix(const GlobalIndexing& indexing, int elementMatrixID, int faceMatrixID);
 
         /// \brief Assemble the matrix from elements and faces
         virtual void assemble() = 0;
@@ -68,7 +68,6 @@ namespace Utilities
     protected:
         
         int meshLevel_, elementMatrixID_, faceMatrixID_;
-        const Base::MeshManipulatorBase *theMesh_;
         const GlobalIndexing& indexing_;
         
     };
@@ -83,8 +82,7 @@ namespace Utilities
         ///\bug need a better way to provide an interface to the supported Mat routines AND to other routines that need a Mat (like KSPSetOperators()) (but not stuff like MatDestroy())
         operator Mat();
 
-        GlobalPetscMatrix(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& indexing, \
-                int elementMatrixID, int faceMatrixID = -1);
+        GlobalPetscMatrix(const GlobalIndexing& indexing, int elementMatrixID, int faceMatrixID = -1);
         ~GlobalPetscMatrix() override ;
 
 

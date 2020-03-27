@@ -167,7 +167,7 @@ void testWithDGBasis(std::size_t unknowns, std::string meshFile)
     for (TestConfiguration configuration : TEST_CONFIGURATIONS)
     {
         Utilities::GlobalIndexing indexing(&mesh, configuration.layout_);
-        Utilities::SparsityEstimator estimator(mesh, indexing);
+        Utilities::SparsityEstimator estimator(indexing);
 
         std::vector<int> owned, nonOwned;
         estimator.computeSparsityEstimate(owned, nonOwned, configuration.faceCoupling_);
@@ -215,7 +215,7 @@ void testConformingWith1DMesh()
     for (TestConfiguration configuration : TEST_CONFIGURATIONS)
     {
         Utilities::GlobalIndexing indexing(&mesh, configuration.layout_);
-        Utilities::SparsityEstimator estimator(mesh, indexing);
+        Utilities::SparsityEstimator estimator(indexing);
 
         std::vector<int> owned, nonOwned;
         estimator.computeSparsityEstimate(owned, nonOwned, configuration.faceCoupling_);
@@ -298,7 +298,7 @@ void testMassOnly(std::size_t unknowns)
 
     // Sparsity estimate
     Utilities::GlobalIndexing indexing(&mesh, Layout::SEQUENTIAL);
-    Utilities::SparsityEstimator estimator(mesh, indexing);
+    Utilities::SparsityEstimator estimator(indexing);
 
     std::vector<int> owned, nonOwned;
     // No face-face coupling

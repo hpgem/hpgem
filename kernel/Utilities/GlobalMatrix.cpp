@@ -39,15 +39,13 @@
 namespace Utilities
 {
 
-    GlobalMatrix::GlobalMatrix(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& indexing
+    GlobalMatrix::GlobalMatrix(const GlobalIndexing& indexing
             , int elementMatrixID, int faceMatrixID)
             : meshLevel_(-2)
             , indexing_ (indexing)
             , elementMatrixID_(elementMatrixID)
             , faceMatrixID_(faceMatrixID)
-            , theMesh_(theMesh)
     {
-        logger.assert_debug(theMesh != nullptr, "Invalid mesh passed");
     }
 
     void GlobalMatrix::getMatrixBCEntries(const Base::Face* face, std::size_t& numberOfEntries, std::vector<int>& entries)
@@ -99,7 +97,7 @@ namespace Utilities
             }
         }
         // Nodes around the face
-        if (theMesh_->dimension() > 1)
+        if (indexing_.getMesh()->dimension() > 1)
         {
             nodeEntries = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(
                     face->localFaceNumberLeft());
@@ -122,11 +120,10 @@ namespace Utilities
 
 #if defined(HPGEM_USE_ANY_PETSC)
 
-    GlobalPetscMatrix::GlobalPetscMatrix(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& indexing,
+    GlobalPetscMatrix::GlobalPetscMatrix(const GlobalIndexing& indexing,
             int elementMatrixID, int faceMatrixID)
-            : GlobalMatrix(theMesh, indexing, elementMatrixID, faceMatrixID)
+            : GlobalMatrix(indexing, elementMatrixID, faceMatrixID)
     {
-        logger.assert_debug(theMesh != nullptr, "Invalid mesh passed");
         PetscBool petscRuns;
         PetscInitialized(&petscRuns);
         logger.assert_debug(petscRuns == PETSC_TRUE, "Early call, firstly the command line arguments should be parsed");
@@ -167,7 +164,8 @@ namespace Utilities
         //now construct the only bit of data where PETSc expects a local numbering...
         std::vector<PetscInt> numberOfPositionsPerRow;
         std::vector<PetscInt> offDiagonalPositionsPerRow;
-        SparsityEstimator estimator (*theMesh_, indexing_);
+        logger.assert_always(indexing_.getMesh() != nullptr, "Null mesh");
+        SparsityEstimator estimator (indexing_);
         estimator.computeSparsityEstimate(numberOfPositionsPerRow, offDiagonalPositionsPerRow, faceMatrixID_ >= 0);
 
         ierr = MatCreateAIJ(PETSC_COMM_WORLD, totalNumberOfDOF, totalNumberOfDOF, PETSC_DETERMINE, PETSC_DETERMINE, -1, numberOfPositionsPerRow.data(), 0, offDiagonalPositionsPerRow.data(), &A_);
@@ -187,13 +185,19 @@ namespace Utilities
     {
         int ierr = MatZeroEntries(A_);
         CHKERRV(ierr);
+
+        const Base::MeshManipulatorBase* mesh = indexing_.getMesh();
+        if (mesh == nullptr)
+        {
+            return;
+        }
         // MediumSizeMatrix uses column oriented storage
         ierr = MatSetOption(A_, MAT_ROW_ORIENTED, PETSC_FALSE);
         CHKERRV(ierr);
         if (elementMatrixID_ >= 0)
         {
             std::vector<PetscInt> localToGlobal;
-            for (Base::Element* element : theMesh_->getElementsList())
+            for (Base::Element* element : mesh->getElementsList())
             {
                 indexing_.getGlobalIndices(element, localToGlobal);
                 const LinearAlgebra::MiddleSizeMatrix& localMatrix = element->getElementMatrix(elementMatrixID_);
@@ -212,7 +216,7 @@ namespace Utilities
         if (faceMatrixID_ >= 0)
         {
             std::vector<PetscInt> localToGlobal;
-            for (Base::Face* face : theMesh_->getFacesList())
+            for (Base::Face* face : mesh->getFacesList())
             {
                 if (!face->isOwnedByCurrentProcessor())
                     continue;

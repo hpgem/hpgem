@@ -27,11 +27,17 @@ namespace Utilities
 {
 
     GlobalIndexing::GlobalIndexing()
-            : offsets(0), numberOfUnknowns_(0), localBasisFunctions_(0), meshDimension(0)
+            // Layout does not matter
+            : GlobalIndexing(nullptr, Layout::SEQUENTIAL)
     {}
 
     GlobalIndexing::GlobalIndexing(Base::MeshManipulatorBase *mesh, Layout layout)
+        : mesh_ (nullptr)
+        , localBasisFunctions_ (0)
+        , offsets_ (0)
+        , numberOfUnknowns_ (0)
     {
+        // Actual initialization
         reset(mesh, layout);
     }
 
@@ -77,7 +83,7 @@ namespace Utilities
                 }
             }
 
-            if (meshDimension > 1)
+            if (mesh_->dimension() > 1)
             {
                 std::size_t numberOfNodes = element->getNumberOfNodes();
                 for (std::size_t node = 0; node < numberOfNodes; node++)
@@ -113,36 +119,36 @@ namespace Utilities
 
     void GlobalIndexing::reset(Base::MeshManipulatorBase *mesh, Layout layout)
     {
-        if (mesh != nullptr)
+        mesh_ = mesh;
+        if (mesh_ != nullptr)
         {
-            meshDimension = mesh->dimension();
             // We do not support empty meshes as we do not know the number of unknowns,
             // nor is it sensible to create an empty indexing_ for it.
             // But we do support meshes that have empty submeshes
 #ifndef HPGEM_USE_MPI
             logger.assert_debug(mesh->elementColBegin() != mesh->elementColEnd(), "Empty mesh not supported.");
             // Note as seen below do we assume that the number of unknowns is the same for each element, face, etc.
-            numberOfUnknowns_ = (*mesh->elementColBegin())->getNumberOfUnknowns();
+            numberOfUnknowns_ = (*mesh_->elementColBegin())->getNumberOfUnknowns();
 #else
-            if(mesh->elementColBegin() == mesh->elementColEnd()) {
+            if(mesh_->elementColBegin() == mesh_->elementColEnd()) {
                 numberOfUnknowns_ = 0;
             } else {
-                numberOfUnknowns_ = (*mesh->elementColBegin())->getNumberOfUnknowns();
+                numberOfUnknowns_ = (*mesh_->elementColBegin())->getNumberOfUnknowns();
             }
             MPI_Allreduce(MPI_IN_PLACE, &numberOfUnknowns_, 1, Base::Detail::toMPIType(numberOfUnknowns_), MPI_MAX, Base::MPIContainer::Instance().getComm());
 #endif
-            offsets.clear();
-            offsets.resize(numberOfUnknowns_);
+            offsets_.clear();
+            offsets_.resize(numberOfUnknowns_);
             switch (layout)
             {
                 case SEQUENTIAL:
-                    constructUnblocked(*mesh);
+                    constructUnblocked();
                     break;
                 case BLOCKED_GLOBAL:
-                    constructBlocked(*mesh, true);
+                    constructBlocked(true);
                     break;
                 case BLOCKED_PROCESSOR:
-                    constructBlocked(*mesh, false);
+                    constructBlocked(false);
                     break;
                 default:
                     logger.assert_debug(false, "Unknown index layout %", layout);
@@ -150,21 +156,21 @@ namespace Utilities
         }
         else
         {
-            meshDimension = 0;
+            localBasisFunctions_ = 0;
             numberOfUnknowns_ = 0;
-            offsets.clear();
+            offsets_.clear();
         }
     }
 
-    void GlobalIndexing::constructUnblocked(Base::MeshManipulatorBase &mesh)
+    void GlobalIndexing::constructUnblocked()
     {
         // Construct local ordering.
         std::size_t index = 0;
-        for (Base::Element *element : mesh.getElementsList())
+        for (Base::Element *element : mesh_->getElementsList())
         {
             for (std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
             {
-                offsets[unknown].elementOffsets_[element->getID()] = index;
+                offsets_[unknown].elementOffsets_[element->getID()] = index;
                 index += element->getLocalNumberOfBasisFunctions(unknown);
             }
 
@@ -174,7 +180,7 @@ namespace Utilities
                 {
                     for (std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
                     {
-                        offsets[unknown].faceOffsets_[face->getID()] = index;
+                        offsets_[unknown].faceOffsets_[face->getID()] = index;
                         index += face->getLocalNumberOfBasisFunctions(unknown);
                     }
                 }
@@ -186,13 +192,13 @@ namespace Utilities
                 {
                     for (std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
                     {
-                        offsets[unknown].edgeOffsets_[edge->getID()] = index;
+                        offsets_[unknown].edgeOffsets_[edge->getID()] = index;
                         index += edge->getLocalNumberOfBasisFunctions(unknown);
                     }
                 }
             }
             // Faces and nodes are the same in 1D
-            if (meshDimension > 1)
+            if (mesh_->dimension() > 1)
             {
                 for (Base::Node *node : element->getNodesList())
                 {
@@ -200,7 +206,7 @@ namespace Utilities
                     {
                         for (std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
                         {
-                            offsets[unknown].nodeOffsets_[node->getID()] = index;
+                            offsets_[unknown].nodeOffsets_[node->getID()] = index;
                             index += node->getLocalNumberOfBasisFunctions(unknown);
                         }
                     }
@@ -228,18 +234,18 @@ namespace Utilities
 
         for (std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
         {
-            offsets[unknown].setOffset(mpiOffset, 0, localBasisFunctions_);
+            offsets_[unknown].setOffset(mpiOffset, 0, localBasisFunctions_);
         }
 #else
         for (std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
         {
-            offsets[unknown].setOffset(0, 0, localBasisFunctions_);
+            offsets_[unknown].setOffset(0, 0, localBasisFunctions_);
         }
 #endif
-        communicatePushPullElements(mesh);
+        communicatePushPullElements();
     }
 
-    void GlobalIndexing::constructBlocked(Base::MeshManipulatorBase &mesh, bool global)
+    void GlobalIndexing::constructBlocked(bool global)
     {
         std::vector<size_t> numberOfBasisFunctions(numberOfUnknowns_);
         localBasisFunctions_ = 0;
@@ -250,16 +256,16 @@ namespace Utilities
         for (std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
         {
             std::size_t index = 0;
-            for (Base::Element *element : mesh.getElementsList())
+            for (Base::Element *element : mesh_->getElementsList())
             {
-                offsets[unknown].elementOffsets_[element->getID()] = index;
+                offsets_[unknown].elementOffsets_[element->getID()] = index;
                 index += element->getLocalNumberOfBasisFunctions(unknown);
 
                 for (Base::Face *face : element->getFacesList())
                 {
                     if (face->getPtrElementLeft() == element)
                     {
-                        offsets[unknown].faceOffsets_[face->getID()] = index;
+                        offsets_[unknown].faceOffsets_[face->getID()] = index;
                         index += face->getLocalNumberOfBasisFunctions(unknown);
                     }
                 }
@@ -268,18 +274,18 @@ namespace Utilities
                 {
                     if (edge->getElement(0) == element)
                     {
-                        offsets[unknown].edgeOffsets_[edge->getID()] = index;
+                        offsets_[unknown].edgeOffsets_[edge->getID()] = index;
                         index += edge->getLocalNumberOfBasisFunctions(unknown);
                     }
                 }
                 // Faces and nodes are the same in 1D
-                if (meshDimension > 1)
+                if (mesh_->dimension() > 1)
                 {
                     for (Base::Node *node : element->getNodesList())
                     {
                         if (node->getElement(0) == element)
                         {
-                            offsets[unknown].nodeOffsets_[node->getID()] = index;
+                            offsets_[unknown].nodeOffsets_[node->getID()] = index;
                             index += node->getLocalNumberOfBasisFunctions(unknown);
                         }
                     }
@@ -312,7 +318,7 @@ namespace Utilities
 
                 std::size_t mpiOffset = globalOffset[rank];
 
-                offsets[unknown].setOffset(mpiOffset, localBaseOffset, numberOfBasisFunctions[unknown]);
+                offsets_[unknown].setOffset(mpiOffset, localBaseOffset, numberOfBasisFunctions[unknown]);
                 // globalOffset[n] contains the sum of all the basis functions for
                 // this unknown plus those for previous unknowns.
                 baseOffset = globalOffset[n];
@@ -332,8 +338,8 @@ namespace Utilities
             std::size_t localOffset = 0;
             for (std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
             {
-                offsets[unknown].setOffset(globalOffset[rank] + localOffset, localOffset,
-                        numberOfBasisFunctions[unknown]);
+                offsets_[unknown].setOffset(globalOffset[rank] + localOffset, localOffset,
+                                            numberOfBasisFunctions[unknown]);
                 localOffset += numberOfBasisFunctions[unknown];
             }
         }
@@ -342,16 +348,16 @@ namespace Utilities
         std::size_t offset = 0;
         for (std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
         {
-            offsets[unknown].setOffset(offset, offset, numberOfBasisFunctions[unknown]);
+            offsets_[unknown].setOffset(offset, offset, numberOfBasisFunctions[unknown]);
             offset += numberOfBasisFunctions[unknown];
         }
 #endif
-        communicatePushPullElements(mesh);
+        communicatePushPullElements();
     }
 
-    void GlobalIndexing::verifyCompleteIndex(const Base::MeshManipulatorBase &mesh) const
+    void GlobalIndexing::verifyCompleteIndex() const
     {
-        for( const Base::Element *element : mesh.getElementsList(Base::IteratorType::GLOBAL))
+        for( const Base::Element *element : mesh_->getElementsList(Base::IteratorType::GLOBAL))
         {
             for(std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
             {
@@ -360,7 +366,7 @@ namespace Utilities
             }
         }
 
-        for( const Base::Face *face : mesh.getFacesList(Base::IteratorType::GLOBAL))
+        for( const Base::Face *face : mesh_->getFacesList(Base::IteratorType::GLOBAL))
         {
             for(std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
             {
@@ -369,7 +375,7 @@ namespace Utilities
             }
         }
 
-        for( const Base::Edge *edge : mesh.getEdgesList(Base::IteratorType::GLOBAL))
+        for( const Base::Edge *edge : mesh_->getEdgesList(Base::IteratorType::GLOBAL))
         {
             for(std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
             {
@@ -378,9 +384,9 @@ namespace Utilities
             }
         }
 
-        if (meshDimension > 1)
+        if (mesh_->dimension() > 1)
         {
-            for (const Base::Node *node : mesh.getNodesList(Base::IteratorType::GLOBAL))
+            for (const Base::Node *node : mesh_->getNodesList(Base::IteratorType::GLOBAL))
             {
                 for (std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
                 {
@@ -465,7 +471,7 @@ namespace Utilities
                 }
             }
 
-            if (meshDimension > 1)
+            if (mesh_->dimension() > 1)
             {
                 for (auto node : element->getNodesList())
                 {
@@ -527,7 +533,7 @@ namespace Utilities
         message.emplace_back(4*elementId);
         for(std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
         {
-            message.emplace_back(offsets.at(unknown).elementOffsets_.at(elementId));
+            message.emplace_back(offsets_.at(unknown).elementOffsets_.at(elementId));
         }
     }
 
@@ -536,7 +542,7 @@ namespace Utilities
         message.emplace_back(4*faceId+1);
         for(std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
         {
-            message.emplace_back(offsets.at(unknown).faceOffsets_.at(faceId));
+            message.emplace_back(offsets_.at(unknown).faceOffsets_.at(faceId));
         }
     }
 
@@ -545,7 +551,7 @@ namespace Utilities
         message.emplace_back(4*edgeId+2);
         for(std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
         {
-            message.emplace_back(offsets.at(unknown).edgeOffsets_.at(edgeId));
+            message.emplace_back(offsets_.at(unknown).edgeOffsets_.at(edgeId));
         }
     }
 
@@ -554,7 +560,7 @@ namespace Utilities
         message.emplace_back(4*nodeId+3);
         for(std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
         {
-            message.emplace_back(offsets.at(unknown).nodeOffsets_.at(nodeId));
+            message.emplace_back(offsets_.at(unknown).nodeOffsets_.at(nodeId));
         }
     }
 
@@ -581,19 +587,19 @@ namespace Utilities
             {
                 case 0:
                     for(std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
-                        offsets[unknown].elementOffsets_[id] = message[offset + 1 + unknown];
+                        offsets_[unknown].elementOffsets_[id] = message[offset + 1 + unknown];
                     break;
                 case 1:
                     for(std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
-                        offsets[unknown].faceOffsets_[id] = message[offset + 1 + unknown];
+                        offsets_[unknown].faceOffsets_[id] = message[offset + 1 + unknown];
                     break;
                 case 2:
                     for(std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
-                        offsets[unknown].edgeOffsets_[id] = message[offset + 1 + unknown];
+                        offsets_[unknown].edgeOffsets_[id] = message[offset + 1 + unknown];
                     break;
                 case 3:
                     for(std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
-                        offsets[unknown].nodeOffsets_[id] = message[offset + 1 + unknown];
+                        offsets_[unknown].nodeOffsets_[id] = message[offset + 1 + unknown];
                     break;
                 default:
                     logger.assert_always(false, "Error invalid tag %", tag);
@@ -633,7 +639,7 @@ namespace Utilities
 #endif
 
 
-    void GlobalIndexing::communicatePushPullElements(Base::MeshManipulatorBase &mesh)
+    void GlobalIndexing::communicatePushPullElements()
     {
 #ifdef HPGEM_USE_MPI
         // The global indices on ghost elements, faces, etc. are only known on
@@ -683,7 +689,7 @@ namespace Utilities
         ///////////
         auto &mpiInstance = Base::MPIContainer::Instance();
         // Number of messages in the first round
-        std::size_t firstRoundSends = mesh.getPushElements().size();
+        std::size_t firstRoundSends = mesh_->getPushElements().size();
         std::vector<MPI_Request> sendRequests (firstRoundSends);
         // As we do asynchronous sending we need to keep the message available
         // till after the send finishes. We therefore store a vector of the raw
@@ -702,7 +708,7 @@ namespace Utilities
         // First round - sending //
         ///////////////////////////
         std::size_t index = 0;
-        for(const auto& entry : mesh.getPushElements())
+        for(const auto& entry : mesh_->getPushElements())
         {
             int targetProcessor = entry.first;
 
@@ -731,7 +737,7 @@ namespace Utilities
 
         // First round - receive //
         ///////////////////////////
-        std::size_t numReceives = mesh.getPullElements().size();
+        std::size_t numReceives = mesh_->getPullElements().size();
         // Storage for the receiving message
         std::vector<std::size_t> receiveMessage;
         // Counter the number of messages to receive in the second round
@@ -798,7 +804,7 @@ namespace Utilities
         MPI_Barrier(mpiInstance.getComm());
 
         // Verify that everything is complete
-        verifyCompleteIndex(mesh);
+        verifyCompleteIndex();
 #endif
     }
 

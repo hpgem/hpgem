@@ -59,7 +59,7 @@ namespace Utilities
         
         ///construct the global vector does not do assembly by default
         ///because some vectors (like the solution of the linear problem) are filled by external means
-        GlobalVector(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& indexing, int elementVectorID = 0, int faceVectorID = 0);
+        GlobalVector(const GlobalIndexing& indexing, int elementVectorID = 0, int faceVectorID = 0);
 
         ///for post-processing: puts the solution in the time integration vector of the elements
         ///it is faster to write all data in one go instead of using this routine
@@ -85,7 +85,6 @@ namespace Utilities
         std::map<std::size_t, int> startPositionsOfFacesInTheVector_;
         std::map<std::size_t, int> startPositionsOfEdgesInTheVector_;
         std::map<std::size_t, int> startPositionsOfNodesInTheVector_;
-        const Base::MeshManipulatorBase *theMesh_;
         const GlobalIndexing& indexing_;
         
     };
@@ -102,7 +101,7 @@ namespace Utilities
         ///\bug need a better way to provide an interface to the supported Mat routines AND to other routines that need a Mat (like KSPSolve())
         operator Vec();
 
-        GlobalPetscVector(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& indexing, int elementVectorID = 0, int faceVectorID = 0);
+        GlobalPetscVector(const GlobalIndexing& indexing, int elementVectorID = 0, int faceVectorID = 0);
         ~GlobalPetscVector();
 
         void writeTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t variable);

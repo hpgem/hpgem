@@ -192,11 +192,11 @@ public:
         // Solve the linear problem
         Utilities::GlobalIndexing indexing (HpgemAPIBase::meshes_[0]);
         //Assemble the matrix A of the system Ax = b.
-        Utilities::GlobalPetscMatrix A(HpgemAPIBase::meshes_[0], indexing, stiffnessElementMatrixID_, stiffnessFaceMatrixID_);
+        Utilities::GlobalPetscMatrix A(indexing, stiffnessElementMatrixID_, stiffnessFaceMatrixID_);
         MatScale(A,-1);
         //Declare the vectors x and b of the system Ax = b.
-        Utilities::GlobalPetscVector b(HpgemAPIBase::meshes_[0], indexing, sourceElementVectorID_, sourceFaceVectorID_),
-            x(HpgemAPIBase::meshes_[0], indexing);
+        Utilities::GlobalPetscVector b(indexing, sourceElementVectorID_, sourceFaceVectorID_),
+            x(indexing);
         
         //Assemble the vector b. This is needed because Petsc assumes you don't know
         //yet whether a vector is a variable or right-hand side the moment it is

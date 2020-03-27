@@ -22,9 +22,8 @@ namespace Utilities
     {
     public:
         /// Construct a SparsityEstimator
-        /// \param mesh  The mesh
         /// \param indexing The indexing for the basis functions
-        SparsityEstimator(const Base::MeshManipulatorBase& mesh, const GlobalIndexing& indexing);
+        SparsityEstimator(const GlobalIndexing& indexing);
 
         /// Compute the sparsity estimate
         /// \param nonZeroPerRowOwned [out] Per local DoF the number of non zero columns from
@@ -54,8 +53,6 @@ namespace Utilities
         void writeDoFCount(const GEOM* geom, const Workspace& workspace,
                 std::vector<int>& nonZeroPerRowOwned, std::vector<int>& nonZeroPerRowNonOwned) const;
 
-        /// The mesh for the sparsity estimate
-        const Base::MeshManipulatorBase& mesh_;
         /// The indexing for the basis functions
         const GlobalIndexing& indexing_;
     };

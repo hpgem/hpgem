@@ -43,25 +43,22 @@
 namespace Utilities
 {
     
-    GlobalVector::GlobalVector(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& indexing
+    GlobalVector::GlobalVector(const GlobalIndexing& indexing
             , int elementVectorID, int faceVectorID)
             : meshLevel_(-2)
-            , theMesh_(theMesh)
             , indexing_ (indexing)
             , elementVectorID_(elementVectorID)
             , faceVectorID_(faceVectorID)
             , startPositionsOfElementsInTheVector_()
     {
-        logger.assert_debug(theMesh != nullptr, "Invalid mesh passed");
     }
     
 #if defined(HPGEM_USE_ANY_PETSC)
     
-    GlobalPetscVector::GlobalPetscVector(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& indexing
+    GlobalPetscVector::GlobalPetscVector(const GlobalIndexing& indexing
                 , int elementVectorID, int faceVectorID)
-            : GlobalVector(theMesh, indexing, elementVectorID, faceVectorID)
+            : GlobalVector(indexing, elementVectorID, faceVectorID)
     {
-        logger.assert_debug(theMesh != nullptr, "Invalid mesh passed");
         PetscBool petscRuns;
         PetscInitialized(&petscRuns);
         logger.assert_debug(petscRuns == PETSC_TRUE, "Early call, firstly the command line arguments should be parsed");
@@ -107,11 +104,17 @@ namespace Utilities
     {
         zeroVector();
 
+        const Base::MeshManipulatorBase* mesh = indexing_.getMesh();
+        if (mesh == nullptr)
+        {
+            return;
+        }
+
         std::vector<PetscInt> elementToGlobal (0);
         
         if (elementVectorID_ >= 0)
         {
-            for (Base::Element* element : theMesh_->getElementsList())
+            for (Base::Element* element : mesh->getElementsList())
             {
                 indexing_.getGlobalIndices(element, elementToGlobal);
                 const LinearAlgebra::MiddleSizeVector& elementVector = element->getElementVector(elementVectorID_);
@@ -127,7 +130,7 @@ namespace Utilities
         std::vector<PetscInt> faceToGlobal (0);
         if (faceVectorID_ >= 0)
         {
-            for (Base::Face* face : theMesh_->getFacesList())
+            for (Base::Face* face : mesh->getFacesList())
             {
                 if (!face->isOwnedByCurrentProcessor())
                     continue;
@@ -151,9 +154,12 @@ namespace Utilities
     {
         zeroVector();
 
+        const Base::MeshManipulatorBase* mesh = indexing_.getMesh();
+        logger.assert_always(mesh != nullptr, "No mesh to for the GlobalVector");
+
         LinearAlgebra::MiddleSizeVector elementData;
         std::vector<PetscInt> localToGlobal;
-        for (Base::Element* element : theMesh_->getElementsList())
+        for (Base::Element* element : mesh->getElementsList())
         {
             indexing_.getGlobalIndices(element, localToGlobal);
             elementData.resize(element->getTotalNumberOfBasisFunctions());
@@ -185,10 +191,12 @@ namespace Utilities
     void GlobalPetscVector::constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId)
     {
         zeroVector();
+        const Base::MeshManipulatorBase* mesh = indexing_.getMesh();
+        logger.assert_always(mesh != nullptr, "No mesh to for the GlobalVector");
 
         LinearAlgebra::MiddleSizeVector elementData;
         std::vector<PetscInt> localToGlobal;
-        for (Base::Element* element : theMesh_->getElementsList())
+        for (Base::Element* element : mesh->getElementsList())
         {
             std::size_t numberOfBasisFunctions = element->getTotalNumberOfBasisFunctions();
             indexing_.getGlobalIndices(element, localToGlobal);
@@ -211,16 +219,19 @@ namespace Utilities
         VecScatterCreateToAll(b_, &scatter, &localB);
         //we dont need the scatter context, just the vector
         VecScatterDestroy(&scatter);
-        
+
+        const Base::MeshManipulatorBase* mesh = indexing_.getMesh();
+        logger.assert_always(mesh != nullptr, "No mesh to for the GlobalVector");
+
         std::vector<PetscInt> positions;
         std::size_t totalPositions = 0;
-        for(Base::Element* element : theMesh_->getElementsList())
+        for(Base::Element* element : mesh->getElementsList())
         {
             totalPositions += element->getTotalNumberOfBasisFunctions();
         }
         positions.reserve(totalPositions);
         std::vector<PetscInt> newPositions;
-        for (Base::Element* element : theMesh_->getElementsList())
+        for (Base::Element* element : mesh->getElementsList())
         {
             indexing_.getGlobalIndices(element, newPositions);
             for (auto& a : newPositions)
@@ -241,7 +252,7 @@ namespace Utilities
         int ierr = VecGetArray(localB, &data);
         CHKERRV(ierr);
         //Question: wat doet deze lijn
-        for (Base::MeshManipulatorBase::ConstElementIterator it = theMesh_->elementColBegin(); it != theMesh_->elementColEnd(); ++it)
+        for (Base::MeshManipulatorBase::ConstElementIterator it = mesh->elementColBegin(); it != mesh->elementColEnd(); ++it)
         {
         	//Create vector for the local data that has to be written
             LinearAlgebra::MiddleSizeVector localData((*it)->getTotalNumberOfBasisFunctions());
@@ -280,7 +291,7 @@ namespace Utilities
                         ++runningTotal;
                     }
                 }
-                if (theMesh_->dimension() > 1) // There are no nodes in a 1D problem
+                if (mesh->dimension() > 1) // There are no nodes in a 1D problem
                 {
                     for (std::size_t i = 0; i < (*it)->getNumberOfNodes(); ++i) //For all nodes
                     {
@@ -315,15 +326,18 @@ namespace Utilities
         //we dont need the scatter context, just the vector
         VecScatterDestroy(&scatter);
 
+        const Base::MeshManipulatorBase* mesh = indexing_.getMesh();
+        logger.assert_always(mesh != nullptr, "No mesh to for the GlobalVector");
+
         std::vector<PetscInt> positions;
         std::size_t totalPositions = 0;
-        for(Base::Element* element : theMesh_->getElementsList())
+        for(Base::Element* element : mesh->getElementsList())
         {
             totalPositions += element->getTotalNumberOfBasisFunctions();
         }
         positions.reserve(totalPositions);
         std::vector<PetscInt> localPositions;
-        for (Base::Element* element : theMesh_->getElementsList())
+        for (Base::Element* element : mesh->getElementsList())
         {
             indexing_.getGlobalIndices(element, localPositions);
             for (auto& a : localPositions)
@@ -343,7 +357,7 @@ namespace Utilities
 
         int ierr = VecGetArray(localB, &data);
         CHKERRV(ierr);
-        for (Base::MeshManipulatorBase::ConstElementIterator it = theMesh_->elementColBegin(); it != theMesh_->elementColEnd(); ++it)
+        for (Base::MeshManipulatorBase::ConstElementIterator it = mesh->elementColBegin(); it != mesh->elementColEnd(); ++it)
         {
             LinearAlgebra::MiddleSizeVector localData((*it)->getTotalNumberOfBasisFunctions());
             std::size_t runningTotal = 0;
@@ -377,7 +391,7 @@ namespace Utilities
                         ++runningTotal;
                     }
                 }
-                if (theMesh_->dimension() > 1)
+                if (mesh->dimension() > 1)
                 {
                     for (std::size_t i = 0; i < (*it)->getNumberOfNodes(); ++i)
                     {

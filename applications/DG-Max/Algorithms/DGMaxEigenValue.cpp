@@ -108,11 +108,11 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
     initializeMatrices(stab);
 
     Utilities::GlobalIndexing indexing (&mesh_);
-    Utilities::GlobalPetscMatrix massMatrix(&mesh_, indexing, DGMaxDiscretization<DIM>::MASS_MATRIX_ID, -1),
-            stiffnessMatrix(&mesh_, indexing, DGMaxDiscretization<DIM>::STIFFNESS_MATRIX_ID, DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
+    Utilities::GlobalPetscMatrix massMatrix(indexing, DGMaxDiscretization<DIM>::MASS_MATRIX_ID, -1),
+            stiffnessMatrix(indexing, DGMaxDiscretization<DIM>::STIFFNESS_MATRIX_ID, DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
     std::cout << "GlobalPetscMatrix initialised" << std::endl;
     Utilities::GlobalPetscVector
-            sampleGlobalVector(&mesh_, indexing, -1, -1);
+            sampleGlobalVector(indexing, -1, -1);
     std::cout << "GlobalPetscVector initialised" << std::endl;
     sampleGlobalVector.assemble();
     std::cout << "sampleGlobalVector assembled" << std::endl;
@@ -149,7 +149,7 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
 
     LinearAlgebra::SmallVector<DIM> dk = kpath.dk(1);
 
-    makeShiftMatrix(mesh_, massMatrix.getGlobalIndex(), dk, waveVec);
+    makeShiftMatrix(massMatrix.getGlobalIndex(), dk, waveVec);
     error = VecDuplicate(waveVec, &waveVecConjugate);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     error = VecCopy(waveVec, waveVecConjugate);
@@ -204,7 +204,7 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
         {
             dk = kpath.dk(i);
             //recompute the shifts
-            makeShiftMatrix(mesh_, massMatrix.getGlobalIndex(), dk, waveVec);
+            makeShiftMatrix(massMatrix.getGlobalIndex(), dk, waveVec);
             error = VecCopy(waveVec, waveVecConjugate);
             CHKERRABORT(PETSC_COMM_WORLD, error);
             error = VecConjugate(waveVecConjugate);
@@ -385,12 +385,13 @@ LinearAlgebra::SmallVector<DIM> DGMaxEigenValue<DIM>::boundaryFaceShift(const Ba
 }
 
 template<std::size_t DIM>
-void DGMaxEigenValue<DIM>::makeShiftMatrix(const Base::MeshManipulator<DIM>& mesh, const Utilities::GlobalIndexing& indexing,
+void DGMaxEigenValue<DIM>::makeShiftMatrix(const Utilities::GlobalIndexing& indexing,
                                        const LinearAlgebra::SmallVector<DIM>& direction, Vec& waveVecMatrix) const
 {
+    const Base::MeshManipulatorBase* mesh = indexing.getMesh();
     PetscErrorCode err = 0;
-    for (typename Base::MeshManipulator<DIM>::ConstElementIterator it = mesh.elementColBegin();
-            it != mesh.elementColEnd(); ++it)
+    for (typename Base::MeshManipulator<DIM>::ConstElementIterator it = mesh->elementColBegin();
+            it != mesh->elementColEnd(); ++it)
     {
         // Note this implicitly assumes we only uses DGBasisFunctions
         const std::size_t basisOffset = indexing.getGlobalIndex(*it, 0);

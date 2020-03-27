@@ -10,9 +10,8 @@
 
 namespace Utilities
 {
-    SparsityEstimator::SparsityEstimator(const Base::MeshManipulatorBase &mesh, const GlobalIndexing &indexing)
-        : mesh_ (mesh)
-        , indexing_ (indexing)
+    SparsityEstimator::SparsityEstimator(const GlobalIndexing &indexing)
+        : indexing_ (indexing)
     {}
 
     struct SparsityEstimator::Workspace
@@ -91,7 +90,7 @@ namespace Utilities
         // For efficiency purposes we do not traverse each basis function separately,
         // instead we compute it for all basis functions of a single element/face/etc.
 
-        for (const Base::Element* element : mesh_.getElementsList())
+        for (const Base::Element* element : indexing_.getMesh()->getElementsList())
         {
             workspace.clear();
             // Add local basis functions
@@ -116,7 +115,7 @@ namespace Utilities
             }
         }
         // Faces
-        for (const Base::Face* face : mesh_.getFacesList())
+        for (const Base::Face* face : indexing_.getMesh()->getFacesList())
         {
             logger.assert_debug(face->isOwnedByCurrentProcessor(), "Face not owned by current processor");
             workspace.clear();
@@ -146,7 +145,7 @@ namespace Utilities
             writeDoFCount(face, workspace, nonZeroPerRowOwned, nonZeroPerRowNonOwned);
         }
         // Edges
-        for (const Base::Edge* edge : mesh_.getEdgesList())
+        for (const Base::Edge* edge : indexing_.getMesh()->getEdgesList())
         {
             logger.assert_debug(edge->isOwnedByCurrentProcessor(), "Non owned edge");
             workspace.clear();
@@ -169,9 +168,9 @@ namespace Utilities
             writeDoFCount(edge, workspace, nonZeroPerRowOwned, nonZeroPerRowNonOwned);
         }
         // Nodes
-        if (mesh_.dimension() > 1)
+        if (indexing_.getMesh()->dimension() > 1)
         {
-            for (const Base::Node* node : mesh_.getNodesList())
+            for (const Base::Node* node : indexing_.getMesh()->getNodesList())
             {
                 logger.assert_debug(node->isOwnedByCurrentProcessor(), "Non owned node");
                 workspace.clear();
@@ -244,7 +243,7 @@ namespace Utilities
             }
         }
         // For the nodes
-        if (mesh_.dimension() > 1)
+        if (indexing_.getMesh()->dimension() > 1)
         {
             // For the edges
             for (const Base::Node* node : element->getNodesList())
