@@ -95,6 +95,35 @@ struct KShiftStorage
     std::vector<std::complex<double>> values_;
 };
 
+
+template<std::size_t DIM>
+Geometry::PointPhysical<DIM> getCoordinate(const Base::Element* element, const Base::Node* node)
+{
+    return element->getPhysicalGeometry()->getLocalNodeCoordinates(element->getLocalId(node));
+}
+
+template<std::size_t DIM>
+Geometry::PointPhysical<DIM> getCoordinate(const Base::Element* element, const Base::Edge* edge)
+{
+    std::size_t localEdgeId = element->getLocalId(edge);
+    std::vector<std::size_t> nodeIds = element->getReferenceGeometry()->getCodim2EntityLocalIndices(localEdgeId);
+    const Geometry::PointPhysical<DIM> n1 = element->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIds[0]);
+    const Geometry::PointPhysical<DIM> n2 = element->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIds[1]);
+    return 0.5*(n1 + n2);
+}
+
+template<std::size_t DIM>
+Geometry::PointPhysical<DIM> getCoordinate(const Base::Element* element, const Base::Face* face)
+{
+    bool isLeft = face->getPtrElementLeft() == element;
+    logger.assert_debug(isLeft || face->getPtrElementRight() == element, "Not a neighbouring element");
+    const Geometry::PointReference<DIM-1> faceCenter = face->getReferenceGeometry()->getCenter();
+    const Geometry::PointReference<DIM> elementFaceCenter = isLeft
+            ? face->mapRefFaceToRefElemL(faceCenter)
+            : face->mapRefFaceToRefElemR(faceCenter);
+    return element->referenceToPhysical(elementFaceCenter);
+}
+
 template<std::size_t DIM>
 struct KShift
 {
@@ -204,48 +233,83 @@ public:
     {
         logger.assert_debug(node->isOwnedByCurrentProcessor(), "Not owned by current processor");
 
-        // For the non hermitian block
-        LinearAlgebra::MiddleSizeMatrix emptyMatrix;
-
-
         // Associate the node with an element that owns it
         const Base::Element* owningElement = node->getOwningElement();
-        const Geometry::PointPhysical<DIM> owningNodeCoord
-            = owningElement->getPhysicalGeometry()->getLocalNodeCoordinates(owningElement->getLocalId(node));
+        const Geometry::PointPhysical<DIM> owningCoord = getCoordinate<DIM>(owningElement, node);
 
-        std::size_t numberOfNodeBasisFunctions = node->getLocalNumberOfBasisFunctions(1);
         for (const Base::Element* element : node->getElements())
         {
-            std::size_t localNodeIndex = element->getLocalId(node);
-            const Geometry::PointPhysical<DIM> elementNodeCoord
-                = element->getPhysicalGeometry()->getLocalNodeCoordinates(localNodeIndex);
-            // TODO Check why, currently only checked in MATLAB
-            LinearAlgebra::SmallVector<DIM> dx = owningNodeCoord.getCoordinates() - elementNodeCoord.getCoordinates();
-            if (dx.l2Norm() > 1e-12)
-            {
-                // Difference in coordinates for the node => shift is needed
-                std::size_t numberOfElementBasisFunctions = element->getLocalNumberOfBasisFunctions(0);
-                LinearAlgebra::MiddleSizeMatrix matrix (numberOfNodeBasisFunctions, numberOfElementBasisFunctions);
-                const LinearAlgebra::MiddleSizeMatrix& originalMatrix
+            addElementProjectorShift(node, owningCoord, element, projectorIndex, indexing, out);
+        }
+    }
+
+    static void addEdgeProjectorShifts(const Base::Edge* edge,
+                                       const Utilities::GlobalIndexing& projectorIndex,
+                                       const Utilities::GlobalIndexing& indexing, std::vector<KShift<DIM>>& out)
+    {
+        logger.assert_debug(edge->isOwnedByCurrentProcessor(), "Not owned by current processor");
+
+        // Associate the node with an element that owns it
+        const Base::Element* owningElement = edge->getOwningElement();
+        const Geometry::PointPhysical<DIM> owningCoord = getCoordinate<DIM>(owningElement, edge);
+
+        for (const Base::Element* element : edge->getElements())
+        {
+            addElementProjectorShift(edge, owningCoord, element, projectorIndex, indexing, out);
+        }
+    }
+
+    static void addFaceProjectorShifts(const Base::Face* face,
+                                       const Utilities::GlobalIndexing& projectorIndex,
+                                       const Utilities::GlobalIndexing& indexing, std::vector<KShift<DIM>>& out)
+    {
+        logger.assert_debug(face->isOwnedByCurrentProcessor(), "Not owned by current processor");
+
+        // Associate the node with an element that owns it
+        const Base::Element* owningElement = face->getPtrElementLeft();
+        const Geometry::PointPhysical<DIM> owningCoord = getCoordinate<DIM>(owningElement, face);
+
+        addElementProjectorShift(face, owningCoord, face->getPtrElementRight(), projectorIndex, indexing, out);
+    }
+
+    template<typename GEOM>
+    static void addElementProjectorShift(
+            const GEOM* geom, const Geometry::PointPhysical<DIM>& owningCoord,
+            const Base::Element* element,
+            const Utilities::GlobalIndexing& projectorIndex,
+            const Utilities::GlobalIndexing& indexing, std::vector<KShift<DIM>>& out)
+    {
+        const Geometry::PointPhysical<DIM> elementCoord = getCoordinate<DIM>(element, geom);
+        // TODO Check why, currently only checked in MATLAB
+        LinearAlgebra::SmallVector<DIM> dx = owningCoord.getCoordinates() - elementCoord.getCoordinates();
+        if (dx.l2Norm() > 1e-12)
+        {
+            std::size_t numProjectorDoF = geom->getLocalNumberOfBasisFunctions(1);
+
+            // Difference in coordinates for the node => shift is needed
+            std::size_t numSolutionDoF = element->getLocalNumberOfBasisFunctions(0);
+            LinearAlgebra::MiddleSizeMatrix matrix (numProjectorDoF, numSolutionDoF);
+            const LinearAlgebra::MiddleSizeMatrix& originalMatrix
                     = element->getElementMatrix(DGMaxDiscretization<DIM>::PROJECTOR_MATRIX_ID);
 
-                // Offset
-                std::size_t localOffset = element->getNodeBasisFunctionOffset(localNodeIndex, 1);
-                for (std::size_t i = 0; i < numberOfNodeBasisFunctions; ++i)
+            // Offset
+            std::size_t localOffset = element->getBasisFunctionOffset(geom, 1);
+            for (std::size_t i = 0; i < numProjectorDoF; ++i)
+            {
+                for (std::size_t j = 0; j < numSolutionDoF; ++j)
                 {
-                    for (std::size_t j = 0; j < numberOfElementBasisFunctions; ++j)
-                    {
-                        matrix(i, j) = originalMatrix(i + localOffset, j);
-                    }
+                    matrix(i, j) = originalMatrix(i + localOffset, j);
                 }
-                PetscInt globalNodeIndex = projectorIndex.getGlobalIndex(node, 1);
-                PetscInt globalElementIndex = indexing.getGlobalIndex(element, 0);
-                out.emplace_back(
-                        globalNodeIndex, numberOfNodeBasisFunctions,
-                        globalElementIndex, numberOfElementBasisFunctions,
-                        false, dx, matrix, emptyMatrix);
-
             }
+            PetscInt globalProjectorIndex = projectorIndex.getGlobalIndex(geom, 1);
+            PetscInt globalElementIndex = indexing.getGlobalIndex(element, 0);
+            // Nothing on the Hermitian block
+            LinearAlgebra::MiddleSizeMatrix emptyMatrix;
+            out.emplace_back(
+                    globalProjectorIndex, numProjectorDoF,
+                    globalElementIndex, numSolutionDoF,
+                    false, dx, matrix, emptyMatrix);
+
         }
     }
 
@@ -584,6 +648,7 @@ std::vector<KShift<DIM>> DGMaxEigenValue<DIM>::findProjectorPeriodicShifts(
     std::vector<KShift<DIM>> result;
     //TODO: Case without projector
 
+    std::set<const Base::Edge*> boundaryEdges;
     std::set<const Base::Node*> boundaryNodes;
     for (Base::TreeIterator<Base::Face*> it = mesh_.faceColBegin(); it != mesh_.faceColEnd(); ++it)
     {
@@ -591,16 +656,44 @@ std::vector<KShift<DIM>> DGMaxEigenValue<DIM>::findProjectorPeriodicShifts(
         LinearAlgebra::SmallVector<DIM> dx = boundaryFaceShift(*it);
         if ((*it)->isInternal() && dx.l2Norm() > 1e-3)
         {
-            (*it)->getNodesList();
             for (const Base::Node* node : (*it)->getNodesList())
             {
                 boundaryNodes.emplace(node);
+            }
+
+            KShift<DIM>::addFaceProjectorShifts(*it, projectorIndex, indexing, result);
+            // There is no direct edge list for a face, instead we need to recover it from one of
+            // the neighbouring elements.
+            const Base::Element* element = (*it)->getPtrElementLeft();
+            const Geometry::ReferenceGeometry* referenceGeometry = element->getReferenceGeometry();
+            std::vector<std::size_t> nodeIds (
+                    referenceGeometry->getCodim1EntityLocalIndices(element->getLocalId(*it))
+            );
+            std::vector<std::size_t> edgeNodeIds;
+            for (std::size_t i = 0; i < element->getNumberOfEdges(); ++i)
+            {
+                edgeNodeIds = referenceGeometry->getCodim2EntityLocalIndices(i);
+                bool found1 (false);
+                bool found2 (false);
+                for (std::size_t j = 0; j < nodeIds.size(); ++j)
+                {
+                    found1 |= nodeIds[j] == edgeNodeIds[0];
+                    found2 |= nodeIds[j] == edgeNodeIds[1];
+                }
+                if (found1 && found2)
+                {
+                    boundaryEdges.emplace(element->getEdge(i));
+                }
             }
         }
     }
     for (const Base::Node* node : boundaryNodes)
     {
         KShift<DIM>::addNodeProjectorShifts(node, projectorIndex, indexing, result);
+    }
+    for (const Base::Edge* edge : boundaryEdges)
+    {
+        KShift<DIM>::addEdgeProjectorShifts(edge, projectorIndex, indexing, result);
     }
     return result;
 }
@@ -627,7 +720,7 @@ void DGMaxEigenValue<DIM>::makeShiftMatrix(const Utilities::GlobalIndexing& inde
     {
         // Note this implicitly assumes we only uses DGBasisFunctions
         const std::size_t basisOffset = indexing.getGlobalIndex(*it, 0);
-        for (int j = 0; j < (*it)->getNrOfBasisFunctions(); ++j)
+        for (int j = 0; j < (*it)->getNrOfBasisFunctions(0); ++j)
         {
             Geometry::PointPhysical<DIM> centerPhys;
             const Geometry::PointReference<DIM>& center = (*it)->getReferenceGeometry()->getCenter();

@@ -340,6 +340,21 @@ namespace Base
             return std::numeric_limits<std::size_t>::max();
         }
 
+        std::size_t getBasisFunctionOffset(const Base::Face* face, std::size_t unknown) const
+        {
+            return getFaceBasisFunctionOffset(getLocalId(face), unknown);
+        }
+
+        std::size_t getBasisFunctionOffset(const Base::Edge* edge, std::size_t unknown) const
+        {
+            return getEdgeBasisFunctionOffset(getLocalId(edge), unknown);
+        }
+
+        std::size_t getBasisFunctionOffset(const Base::Node* node, std::size_t unknown) const
+        {
+            return getNodeBasisFunctionOffset(getLocalId(node), unknown);
+        }
+
         std::size_t getFaceBasisFunctionOffset(std::size_t localFaceId, std::size_t unknown) const
         {
             return basisFunctions_.getBasisFunctionOffset(unknown, 1+localFaceId);

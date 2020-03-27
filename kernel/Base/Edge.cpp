@@ -66,6 +66,12 @@ namespace Base
         return elements_[i];
     }
 
+    const Element* Edge::getElement(std::size_t i) const
+    {
+        logger.assert_debug(i < getNumberOfElements(), "Asked for element %, but there are only % elements", i, getNumberOfElements());
+        return elements_[i];
+    }
+
     const std::vector<Element*> Edge::getElements() const
     {
         return elements_;
