@@ -62,7 +62,7 @@ namespace Utilities
         PetscBool petscRuns;
         PetscInitialized(&petscRuns);
         logger.assert_debug(petscRuns == PETSC_TRUE, "Early call, firstly the command line arguments should be parsed");
-        VecCreateSeq(PETSC_COMM_SELF, 1, &b_);
+        VecCreateSeq(PETSC_COMM_SELF, 0, &b_);
         
         createVec();
         assemble();
@@ -107,6 +107,7 @@ namespace Utilities
         const Base::MeshManipulatorBase* mesh = indexing_.getMesh();
         if (mesh == nullptr)
         {
+            // Without any mesh there is nothing to assemble
             return;
         }
 
@@ -192,7 +193,11 @@ namespace Utilities
     {
         zeroVector();
         const Base::MeshManipulatorBase* mesh = indexing_.getMesh();
-        logger.assert_always(mesh != nullptr, "No mesh to for the GlobalVector");
+        if (mesh == nullptr)
+        {
+            logger(WARN, "Construction from time integration vector without a mesh");
+            return;
+        }
 
         LinearAlgebra::MiddleSizeVector elementData;
         std::vector<PetscInt> localToGlobal;

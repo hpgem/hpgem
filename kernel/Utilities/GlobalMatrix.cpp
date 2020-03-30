@@ -51,6 +51,12 @@ namespace Utilities
     void GlobalMatrix::getMatrixBCEntries(const Base::Face* face, std::size_t& numberOfEntries, std::vector<int>& entries)
     {
         logger.assert_debug(face != nullptr, "Invalid face passed");
+        if (indexing_.getMesh() == nullptr)
+        {
+            entries.clear();
+            numberOfEntries = 0;
+            return;
+        }
         // Face basis functions
         std::size_t nFaceBasisLocal = face->getTotalLocalNumberOfBasisFunctions();
         std::size_t nUnknowns = face->getPtrElementLeft()->getNumberOfUnknowns();
@@ -127,8 +133,9 @@ namespace Utilities
         PetscBool petscRuns;
         PetscInitialized(&petscRuns);
         logger.assert_debug(petscRuns == PETSC_TRUE, "Early call, firstly the command line arguments should be parsed");
-        //temporary
-        MatCreateSeqAIJ(PETSC_COMM_SELF, 1, 1, 1, PETSC_NULL, &A_);
+
+        // Dummy call to always have an valid matrix in A_.
+        MatCreateSeqAIJ(PETSC_COMM_SELF, 0, 0, 0, PETSC_NULL, &A_);
 
         createMat();
         assemble();
@@ -158,26 +165,42 @@ namespace Utilities
         PetscErrorCode  ierr = MatDestroy(&A_);
         CHKERRV(ierr);
 
-        const std::size_t totalNumberOfDOF = indexing_.getNumberOfLocalBasisFunctions();
-        const std::size_t nUnknowns = indexing_.getNumberOfUnknowns();
-
-        //now construct the only bit of data where PETSc expects a local numbering...
-        std::vector<PetscInt> numberOfPositionsPerRow;
-        std::vector<PetscInt> offDiagonalPositionsPerRow;
-        logger.assert_always(indexing_.getMesh() != nullptr, "Null mesh");
-        SparsityEstimator estimator (indexing_);
-        estimator.computeSparsityEstimate(numberOfPositionsPerRow, offDiagonalPositionsPerRow, faceMatrixID_ >= 0);
-
-        ierr = MatCreateAIJ(PETSC_COMM_WORLD, totalNumberOfDOF, totalNumberOfDOF, PETSC_DETERMINE, PETSC_DETERMINE, -1, numberOfPositionsPerRow.data(), 0, offDiagonalPositionsPerRow.data(), &A_);
+        // Create matrix
+        ierr = MatCreate(PETSC_COMM_WORLD, &A_);
         CHKERRV(ierr);
+        ierr = MatSetType(A_, MATMPIAIJ);
+        CHKERRV(ierr);
+
+        // Set sizes based on indexing
+        const std::size_t totalNumberOfDOF = indexing_.getNumberOfLocalBasisFunctions();
+        MatSetSizes(A_, totalNumberOfDOF, totalNumberOfDOF, PETSC_DETERMINE, PETSC_DETERMINE);
+
+        if (indexing_.getMesh() != nullptr)
+        {
+            std::vector<PetscInt> numberOfPositionsPerRow;
+            std::vector<PetscInt> offDiagonalPositionsPerRow;
+            logger.assert_always(indexing_.getMesh() != nullptr, "Null mesh");
+            SparsityEstimator estimator (indexing_);
+            estimator.computeSparsityEstimate(numberOfPositionsPerRow, offDiagonalPositionsPerRow,
+                    faceMatrixID_ >= 0);
+            // Zeros are passed for the ignored arguments.
+            ierr = MatMPIAIJSetPreallocation(A_, 0, numberOfPositionsPerRow.data(), 0, offDiagonalPositionsPerRow.data());
+            CHKERRV(ierr);
+        }
+        else
+        {
+            logger.assert_always(totalNumberOfDOF == 0, "Degrees of freedom without a mesh");
+            ierr = MatMPIAIJSetPreallocation(A_, 0, nullptr, 0, nullptr);
+            CHKERRV(ierr);
+        }
+
+        // Most options can only be set after the preallocation is done
         MatSetOption(A_, MAT_KEEP_NONZERO_PATTERN, PETSC_TRUE); //performance
         // While the estimates should be correct, the zeroing of a row without anything on the diagonal will cause an
         // error with the previous option but without the following.
         MatSetOption(A_, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE);
         // Enable the following to test that no new allocations were needed
         // MatSetOption(A_, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_TRUE);
-        ierr = MatSetUp(A_);
-        CHKERRV(ierr);
     }
 
 
@@ -189,6 +212,7 @@ namespace Utilities
         const Base::MeshManipulatorBase* mesh = indexing_.getMesh();
         if (mesh == nullptr)
         {
+            // Empty matrix, nothing to assemble
             return;
         }
         // MediumSizeMatrix uses column oriented storage

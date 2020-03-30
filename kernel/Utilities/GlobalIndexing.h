@@ -230,6 +230,9 @@ namespace Utilities
         }
 
         // Note, non const references as we do not own the Mesh, we just hold a reference to it.
+        /// \brief The mesh that for which this GlobalIndex is build
+        ///
+        /// \return The mesh, or null if none.
         Base::MeshManipulatorBase* getMesh() const
         {
             return mesh_;

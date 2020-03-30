@@ -69,6 +69,15 @@ namespace Utilities
     {
         const std::size_t totalNumberOfDoF = indexing_.getNumberOfLocalBasisFunctions();
         const std::size_t nUknowns = indexing_.getNumberOfUnknowns();
+        if (indexing_.getMesh() == nullptr)
+        {
+            nonZeroPerRowOwned.clear();
+            nonZeroPerRowOwned.resize(totalNumberOfDoF, 0);
+            nonZeroPerRowNonOwned.clear();
+            nonZeroPerRowNonOwned.resize(totalNumberOfDoF, 0);
+            return;
+        }
+
         Workspace workspace;
         workspace.nUnknowns = nUknowns;
 

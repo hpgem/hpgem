@@ -336,6 +336,17 @@ void testMassOnly(std::size_t unknowns)
     }
 }
 
+void testEmptyIndex()
+{
+    // Test with an empty GlobalIndex
+    Utilities::GlobalIndexing emptyIndex;
+    Utilities::SparsityEstimator estimator(emptyIndex);
+    std::vector<int> owned, nonOwned;
+    estimator.computeSparsityEstimate(owned, nonOwned);
+    logger.assert_always(owned.empty(), "Non empty owned estimate with empty index");
+    logger.assert_always(nonOwned.empty(), "Non empty non owned estimate with empty index");
+}
+
 int main(int argc, char** argv)
 {
     using namespace std::string_literals;
@@ -349,4 +360,6 @@ int main(int argc, char** argv)
 
     testMassOnly(1);
     testMassOnly(3);
+
+    testEmptyIndex();
 }
