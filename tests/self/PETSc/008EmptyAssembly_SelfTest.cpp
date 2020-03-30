@@ -20,6 +20,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 */
 
 #include <Base/CommandLineOptions.h>
+#include <Base/ConfigurationData.h>
+#include <Base/MeshManipulator.h>
+#include <CMakeDefinitions.h>
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
 
@@ -53,10 +56,48 @@ void testWithEmptyIndex()
     emptyVector.assemble();
 }
 
+void testReinit()
+{
+    using namespace Utilities;
+    GlobalIndexing indexing;
+    GlobalPetscMatrix matrix(indexing, -1);
+    GlobalPetscVector vector(indexing, -1, -1);
+
+    // Load any mesh.
+    Base::ConfigurationData data(1); // 1 unknown
+    Base::MeshManipulator<1> * mesh = new Base::MeshManipulator<1>(&data);
+    using namespace std::string_literals;
+    mesh->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/poissonMesh1.hpgem"s);
+
+    // Associate some basis functions with the elements so that there will be DoFs
+    mesh->useDefaultDGBasisFunctions(0);
+
+    // Reinit everything
+    indexing.reset(mesh, GlobalIndexing::Layout::SEQUENTIAL); // Layout does not matter
+    matrix.reinit();
+    vector.reinit();
+
+    // Now the matrix and vector should have rows & columns
+    {
+        PetscErrorCode ierr;
+        PetscInt rows, cols;
+        ierr = MatGetSize(matrix, &rows, &cols);
+        CHKERRV(ierr);
+        logger.assert_always(rows > 0, "No rows after matrix reinit");
+        logger.assert_always(cols > 0, "No columns after matrix reinit");
+
+        ierr = VecGetSize(vector, &rows);
+        CHKERRV(ierr);
+        logger.assert_always(rows > 0, "No rows after vector reinit");
+    }
+
+}
+
 int main(int argc, char** argv)
 {
     Base::parse_options(argc, argv);
 
     testWithEmptyIndex();
+    testReinit();
     return 0;
 }

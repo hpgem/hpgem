@@ -59,6 +59,12 @@ namespace Utilities
         ///constructs the global matrix and performs element assembly
         GlobalMatrix(const GlobalIndexing& indexing, int elementMatrixID, int faceMatrixID);
 
+        /// \brief Reinitialize the matrix
+        ///
+        /// Reinitialize the matrix to match the current state of the local
+        /// matrices and the GlobalIndex.
+        virtual void reinit() = 0;
+
         /// \brief Assemble the matrix from elements and faces
         virtual void assemble() = 0;
 
@@ -86,7 +92,9 @@ namespace Utilities
         ~GlobalPetscMatrix() override ;
 
 
-        virtual void assemble() override ;
+        virtual void assemble() override;
+
+        void reinit() override;
 
         void printMatInfo(MatInfoType type, std::ostream& stream);
         void writeMatlab(const std::string& fileName);

@@ -64,8 +64,7 @@ namespace Utilities
         logger.assert_debug(petscRuns == PETSC_TRUE, "Early call, firstly the command line arguments should be parsed");
         VecCreateSeq(PETSC_COMM_SELF, 0, &b_);
         
-        createVec();
-        assemble();
+        reinit();
     }
     
     GlobalPetscVector::~GlobalPetscVector()
@@ -98,6 +97,12 @@ namespace Utilities
     {
         int ierr = VecZeroEntries(b_);
         CHKERRV(ierr);
+    }
+
+    void GlobalPetscVector::reinit()
+    {
+        createVec();
+        assemble();
     }
     
     void GlobalPetscVector::assemble()

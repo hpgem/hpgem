@@ -137,8 +137,7 @@ namespace Utilities
         // Dummy call to always have an valid matrix in A_.
         MatCreateSeqAIJ(PETSC_COMM_SELF, 0, 0, 0, PETSC_NULL, &A_);
 
-        createMat();
-        assemble();
+        reinit();
     }
 
     GlobalPetscMatrix::~GlobalPetscMatrix()
@@ -159,6 +158,13 @@ namespace Utilities
         }
         return A_;
     }
+
+    void GlobalPetscMatrix::reinit()
+    {
+        createMat();
+        assemble();
+    }
+
 
     void GlobalPetscMatrix::createMat()
     {

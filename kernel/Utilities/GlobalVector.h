@@ -75,6 +75,12 @@ namespace Utilities
         ///collect data from a time integration vector instead of element vectors and face vectors
         virtual void constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId)=0;
 
+        /// \brief Reinitialize the vector
+        ///
+        /// Reinitialize the vector to match the current state of the local
+        /// vectors and the GlobalIndex.
+        virtual void reinit() = 0;
+
         ///(re-)collects element vectors and boundary information into this vector
         virtual void assemble()=0;
 
@@ -101,13 +107,16 @@ namespace Utilities
         ///\bug need a better way to provide an interface to the supported Mat routines AND to other routines that need a Mat (like KSPSolve())
         operator Vec();
 
-        GlobalPetscVector(const GlobalIndexing& indexing, int elementVectorID = 0, int faceVectorID = 0);
-        ~GlobalPetscVector();
+        explicit GlobalPetscVector(const GlobalIndexing& indexing, int elementVectorID = 0, int faceVectorID = 0);
+        ~GlobalPetscVector() override;
 
-        void writeTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t variable);
-        void constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t variable);
-        void writeTimeIntegrationVector(std::size_t timeIntegrationVectorId);
-        void constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId);
+        void writeTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t variable) override;
+        void constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t variable) override;
+        void writeTimeIntegrationVector(std::size_t timeIntegrationVectorId) override;
+        void constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId) override;
+
+
+        void reinit() override;
 
         void assemble() override;
 
