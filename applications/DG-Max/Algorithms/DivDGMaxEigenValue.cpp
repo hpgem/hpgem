@@ -63,10 +63,10 @@ typename DivDGMaxEigenValue<DIM>::Result DivDGMaxEigenValue<DIM>::solve(
 
     Utilities::GlobalIndexing indexing (&mesh_);
     Utilities::GlobalPetscMatrix
-        massMatrix(&mesh_, indexing, DivDGMaxDiscretization<DIM>::ELEMENT_MASS_MATRIX_ID, -1),
-        stiffnessMatrix(&mesh_, indexing, DivDGMaxDiscretization<DIM>::ELEMENT_STIFFNESS_MATRIX_ID, DivDGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID);
+        massMatrix(indexing, DivDGMaxDiscretization<DIM>::ELEMENT_MASS_MATRIX_ID, -1),
+        stiffnessMatrix(indexing, DivDGMaxDiscretization<DIM>::ELEMENT_STIFFNESS_MATRIX_ID, DivDGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID);
     DGMaxLogger(INFO, "Mass and stiffness matrices assembled");
-    Utilities::GlobalPetscVector globalVector(&mesh_, indexing, -1, -1);
+    Utilities::GlobalPetscVector globalVector(indexing, -1, -1);
     DGMaxLogger(INFO, "Dummy vector assembled");
 
     // Setup the boundary block shifting //

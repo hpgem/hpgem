@@ -198,7 +198,7 @@ void testWithDGBasis(std::size_t unknowns, std::string meshFile)
     for (TestConfiguration configuration : TEST_CONFIGURATIONS)
     {
         Utilities::GlobalIndexing indexing(&mesh, configuration.layout_);
-        Utilities::SparsityEstimator estimator(mesh, indexing);
+        Utilities::SparsityEstimator estimator(indexing);
 
         std::vector<int> owned, nonOwned;
         estimator.computeSparsityEstimate(owned, nonOwned, configuration.faceCoupling_);
@@ -246,7 +246,7 @@ void testConformingWith1DMesh()
     for (TestConfiguration configuration : TEST_CONFIGURATIONS)
     {
         Utilities::GlobalIndexing indexing(&mesh, configuration.layout_);
-        Utilities::SparsityEstimator estimator(mesh, indexing);
+        Utilities::SparsityEstimator estimator(indexing);
 
         std::vector<int> owned, nonOwned;
         estimator.computeSparsityEstimate(owned, nonOwned, configuration.faceCoupling_);
@@ -329,7 +329,7 @@ void testMassOnly(std::size_t unknowns)
 
     // Sparsity estimate
     Utilities::GlobalIndexing indexing(&mesh, Layout::SEQUENTIAL);
-    Utilities::SparsityEstimator estimator(mesh, indexing);
+    Utilities::SparsityEstimator estimator(indexing);
 
     std::vector<int> owned, nonOwned;
     // No face-face coupling
@@ -370,8 +370,8 @@ void testMassOnly(std::size_t unknowns)
 void testRowColumnDifference(std::string meshFile)
 {
     // Test where the GlobalIndexing for the rows and columns differ.
-    Base::ConfigurationData config (2);
-    Base::MeshManipulator<3> mesh (&config);
+    Base::ConfigurationData config(2);
+    Base::MeshManipulator<3> mesh(&config);
 
     using namespace std::string_literals;
     std::stringstream filename;
@@ -384,7 +384,7 @@ void testRowColumnDifference(std::string meshFile)
 
     for (Layout layout : TEST_LAYOUTS)
     {
-        std::vector<std::size_t> dgUnknown ({0}), cgUnknown ({1});
+        std::vector<std::size_t> dgUnknown({0}), cgUnknown({1});
         Utilities::GlobalIndexing indexing0(&mesh, layout, &dgUnknown);
         Utilities::GlobalIndexing indexing1(&mesh, layout, &cgUnknown);
         Utilities::GlobalIndexing indexing01(&mesh, layout);
@@ -392,13 +392,13 @@ void testRowColumnDifference(std::string meshFile)
             // Rows are DG, columns are CG, no face coupling.
             // The row for each element consists of the number of CG basis functions with support on the element.
 
-            Utilities::SparsityEstimator estimator(mesh, indexing0, indexing1);
+            Utilities::SparsityEstimator estimator(indexing0, indexing1);
 
             std::vector<int> owned, nonOwned;
             estimator.computeSparsityEstimate(owned, nonOwned, false);
             logger.assert_always(owned.size() == indexing0.getNumberOfLocalBasisFunctions(), "Wrong size owned");
             logger.assert_always(nonOwned.size() == indexing0.getNumberOfLocalBasisFunctions(), "Wrong size owned");
-            for (const Base::Element* element : mesh.getElementsList())
+            for (const Base::Element *element : mesh.getElementsList())
             {
                 check(element, indexing0, owned, nonOwned, element->getNumberOfBasisFunctions(1), 0);
             }
@@ -407,27 +407,27 @@ void testRowColumnDifference(std::string meshFile)
             // Rows are CG, Columns are DG, no face coupling.
             // The row for each CG basis functions should contain the number of DG basis
             // functions on the elements on which the CG function has support.
-            Utilities::SparsityEstimator estimator (mesh, indexing1, indexing0);
+            Utilities::SparsityEstimator estimator(indexing1, indexing0);
             std::vector<int> owned, nonOwned;
             estimator.computeSparsityEstimate(owned, nonOwned, false);
             logger.assert_always(owned.size() == indexing1.getNumberOfLocalBasisFunctions(), "Wrong size owned");
             logger.assert_always(nonOwned.size() == indexing1.getNumberOfLocalBasisFunctions(), "Wrong size owned");
 
             std::size_t dgDoFsperElement = (*mesh.elementColBegin())->getNumberOfBasisFunctions(0);
-            for (const Base::Element* element : mesh.getElementsList())
+            for (const Base::Element *element : mesh.getElementsList())
             {
                 check(element, indexing1, owned, nonOwned, dgDoFsperElement, 0);
             }
-            for (const Base::Face* face : mesh.getFacesList())
+            for (const Base::Face *face : mesh.getFacesList())
             {
-                std::size_t expectedDoFs = face->isInternal() ? 2*dgDoFsperElement : dgDoFsperElement;
+                std::size_t expectedDoFs = face->isInternal() ? 2 * dgDoFsperElement : dgDoFsperElement;
                 check(face, indexing1, owned, nonOwned, expectedDoFs, 0);
             }
-            for (const Base::Edge* edge : mesh.getEdgesList())
+            for (const Base::Edge *edge : mesh.getEdgesList())
             {
                 check(edge, indexing1, owned, nonOwned, edge->getNumberOfElements() * dgDoFsperElement, 0);
             }
-            for (const Base::Node* node : mesh.getNodesList())
+            for (const Base::Node *node : mesh.getNodesList())
             {
                 check(node, indexing1, owned, nonOwned, node->getNumberOfElements() * dgDoFsperElement, 0);
             }
@@ -438,12 +438,12 @@ void testRowColumnDifference(std::string meshFile)
             // Rows are DG, columns are DG+CG, face coupling.
             // The row count is the sum of functions with support on the element or on the
             // adjacent elements.
-            Utilities::SparsityEstimator estimator(mesh, indexing0, indexing01);
+            Utilities::SparsityEstimator estimator(indexing0, indexing01);
             std::vector<int> owned, nonOwned;
             estimator.computeSparsityEstimate(owned, nonOwned, true);
             logger.assert_always(owned.size() == indexing0.getNumberOfLocalBasisFunctions(), "Wrong size owned");
             logger.assert_always(nonOwned.size() == indexing0.getNumberOfLocalBasisFunctions(), "Wrong size owned");
-            for (const Base::Element* element : mesh.getElementsList())
+            for (const Base::Element *element : mesh.getElementsList())
             {
                 GeomStorage storage;
                 storage.addGeometryAround(element, true);
@@ -453,30 +453,30 @@ void testRowColumnDifference(std::string meshFile)
         {
             // Rows all, columns DG, face coupling
             // Basically counts the number of elements on which the element has support
-            Utilities::SparsityEstimator estimator(mesh, indexing01, indexing0);
+            Utilities::SparsityEstimator estimator(indexing01, indexing0);
             std::vector<int> owned, nonOwned;
             estimator.computeSparsityEstimate(owned, nonOwned, true);
             logger.assert_always(owned.size() == indexing01.getNumberOfLocalBasisFunctions(), "Wrong size owned");
             logger.assert_always(nonOwned.size() == indexing01.getNumberOfLocalBasisFunctions(), "Wrong size owned");
-            for (const Base::Element* element : mesh.getElementsList())
+            for (const Base::Element *element : mesh.getElementsList())
             {
                 GeomStorage storage;
                 storage.addGeometryAround(element, true);
                 check(element, indexing01, owned, nonOwned, storage.countBasisFunctions(&dgUnknown), 0);
             }
-            for (const Base::Face* face : mesh.getFacesList())
+            for (const Base::Face *face : mesh.getFacesList())
             {
                 GeomStorage storage;
                 storage.addGeometryAround(face, true);
                 check(face, indexing01, owned, nonOwned, storage.countBasisFunctions(&dgUnknown), 0);
             }
-            for (const Base::Edge* edge : mesh.getEdgesList())
+            for (const Base::Edge *edge : mesh.getEdgesList())
             {
                 GeomStorage storage;
                 storage.addGeometryAround(edge, true);
                 check(edge, indexing01, owned, nonOwned, storage.countBasisFunctions(&dgUnknown), 0);
             }
-            for (const Base::Node* node : mesh.getNodesList())
+            for (const Base::Node *node : mesh.getNodesList())
             {
                 GeomStorage storage;
                 storage.addGeometryAround(node, true);
@@ -484,6 +484,17 @@ void testRowColumnDifference(std::string meshFile)
             }
         }
     }
+}
+
+void testEmptyIndex()
+{
+    // Test with an empty GlobalIndex
+    Utilities::GlobalIndexing emptyIndex;
+    Utilities::SparsityEstimator estimator(emptyIndex);
+    std::vector<int> owned, nonOwned;
+    estimator.computeSparsityEstimate(owned, nonOwned);
+    logger.assert_always(owned.empty(), "Non empty owned estimate with empty index");
+    logger.assert_always(nonOwned.empty(), "Non empty non owned estimate with empty index");
 }
 
 int main(int argc, char** argv)
@@ -502,4 +513,6 @@ int main(int argc, char** argv)
 
     testRowColumnDifference("3Drectangular1mesh"s);
     testRowColumnDifference("3Dtriangular1mesh"s);
+
+    testEmptyIndex();
 }

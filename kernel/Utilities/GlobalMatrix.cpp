@@ -39,8 +39,8 @@
 namespace Utilities
 {
 
-    GlobalMatrix::GlobalMatrix(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& rowIndexing
-            , const GlobalIndexing& columnIndexing, int elementMatrixID, int faceMatrixID)
+    GlobalMatrix::GlobalMatrix(const GlobalIndexing& rowIndexing, const GlobalIndexing& columnIndexing
+            , int elementMatrixID, int faceMatrixID)
             : meshLevel_(-2)
             , rowIndexing_ (rowIndexing)
             , columnIndexing_ (columnIndexing)
@@ -48,15 +48,20 @@ namespace Utilities
             // Use pointer comparison to see if the row & colum indices are the same
             , symmetricIndexing_ (&rowIndexing == &columnIndexing)
             , faceMatrixID_(faceMatrixID)
-            , theMesh_(theMesh)
-
     {
-        logger.assert_debug(theMesh != nullptr, "Invalid mesh passed");
+        logger.assert_always(columnIndexing.getMesh() == rowIndexing.getMesh(),
+                "Row and column indexing based on different meshes.");
     }
 
     void GlobalMatrix::getMatrixBCEntries(const Base::Face* face, std::size_t& numberOfEntries, std::vector<int>& entries)
     {
         logger.assert_debug(face != nullptr, "Invalid face passed");
+        if (rowIndexing_.getMesh() == nullptr)
+        {
+            entries.clear();
+            numberOfEntries = 0;
+            return;
+        }
         // Face basis functions
         const std::vector<std::size_t>& unknowns = rowIndexing_.getIncludedUnknowns();
         for (std::size_t unknown : unknowns)
@@ -102,7 +107,7 @@ namespace Utilities
             }
         }
         // Nodes around the face
-        if (theMesh_->dimension() > 1)
+        if (rowIndexing_.getMesh()->dimension() > 1)
         {
             nodeEntries = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(
                     face->localFaceNumberLeft());
@@ -125,19 +130,18 @@ namespace Utilities
 
 #if defined(HPGEM_USE_ANY_PETSC)
 
-    GlobalPetscMatrix::GlobalPetscMatrix(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& rowIndexing,
+    GlobalPetscMatrix::GlobalPetscMatrix(const GlobalIndexing& rowIndexing,
             const GlobalIndexing& columnIndexing, int elementMatrixID, int faceMatrixID)
-            : GlobalMatrix(theMesh, rowIndexing, columnIndexing, elementMatrixID, faceMatrixID)
+            : GlobalMatrix(rowIndexing, columnIndexing, elementMatrixID, faceMatrixID)
     {
-        logger.assert_debug(theMesh != nullptr, "Invalid mesh passed");
         PetscBool petscRuns;
         PetscInitialized(&petscRuns);
         logger.assert_debug(petscRuns == PETSC_TRUE, "Early call, firstly the command line arguments should be parsed");
-        //temporary
-        MatCreateSeqAIJ(PETSC_COMM_SELF, 1, 1, 1, PETSC_NULL, &A_);
 
-        createMat();
-        assemble();
+        // Dummy call to always have an valid matrix in A_.
+        MatCreateSeqAIJ(PETSC_COMM_SELF, 0, 0, 0, PETSC_NULL, &A_);
+
+        reinit();
     }
 
     GlobalPetscMatrix::~GlobalPetscMatrix()
@@ -159,30 +163,58 @@ namespace Utilities
         return A_;
     }
 
+    void GlobalPetscMatrix::reinit()
+    {
+        logger.assert_always(rowIndexing_.getMesh() == columnIndexing_.getMesh(),
+                "Row and column indexing from different meshes");
+        createMat();
+        assemble();
+    }
+
+
     void GlobalPetscMatrix::createMat()
     {
         PetscErrorCode  ierr = MatDestroy(&A_);
         CHKERRV(ierr);
 
+        // Create matrix
+        ierr = MatCreate(PETSC_COMM_WORLD, &A_);
+        CHKERRV(ierr);
+        ierr = MatSetType(A_, MATMPIAIJ);
+        CHKERRV(ierr);
+
+        // Set sizes based on indexing
         const std::size_t numberOfLocalRows = rowIndexing_.getNumberOfLocalBasisFunctions();
         const std::size_t numberOfLocalColumns = columnIndexing_.getNumberOfLocalBasisFunctions();
+        MatSetSizes(A_, numberOfLocalRows, numberOfLocalColumns, PETSC_DETERMINE, PETSC_DETERMINE);
 
-        //now construct the only bit of data where PETSc expects a local numbering...
-        std::vector<PetscInt> numberOfPositionsPerRow;
-        std::vector<PetscInt> offDiagonalPositionsPerRow;
-        SparsityEstimator estimator (*theMesh_, rowIndexing_, columnIndexing_);
-        estimator.computeSparsityEstimate(numberOfPositionsPerRow, offDiagonalPositionsPerRow, faceMatrixID_ >= 0);
+        if (rowIndexing_.getMesh() != nullptr)
+        {
+            std::vector<PetscInt> numberOfPositionsPerRow;
+            std::vector<PetscInt> offDiagonalPositionsPerRow;
+            logger.assert_always(rowIndexing_.getMesh() != nullptr, "Null mesh");
+            SparsityEstimator estimator (rowIndexing_, columnIndexing_);
+            estimator.computeSparsityEstimate(numberOfPositionsPerRow, offDiagonalPositionsPerRow,
+                    faceMatrixID_ >= 0);
+            // Zeros are passed for the ignored arguments.
+            ierr = MatMPIAIJSetPreallocation(A_, 0, numberOfPositionsPerRow.data(), 0, offDiagonalPositionsPerRow.data());
+            CHKERRV(ierr);
+        }
+        else
+        {
+            logger.assert_always(numberOfLocalRows == 0 && numberOfLocalColumns == 0,
+                    "Degrees of freedom without a mesh");
+            ierr = MatMPIAIJSetPreallocation(A_, 0, nullptr, 0, nullptr);
+            CHKERRV(ierr);
+        }
 
-        ierr = MatCreateAIJ(PETSC_COMM_WORLD, numberOfLocalRows, numberOfLocalColumns, PETSC_DETERMINE, PETSC_DETERMINE, -1, numberOfPositionsPerRow.data(), 0, offDiagonalPositionsPerRow.data(), &A_);
-        CHKERRV(ierr);
+        // Most options can only be set after the preallocation is done
         MatSetOption(A_, MAT_KEEP_NONZERO_PATTERN, PETSC_TRUE); //performance
         // While the estimates should be correct, the zeroing of a row without anything on the diagonal will cause an
         // error with the previous option but without the following.
         MatSetOption(A_, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE);
         // Enable the following to test that no new allocations were needed
         // MatSetOption(A_, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_TRUE);
-        ierr = MatSetUp(A_);
-        CHKERRV(ierr);
     }
 
 
@@ -190,6 +222,13 @@ namespace Utilities
     {
         int ierr = MatZeroEntries(A_);
         CHKERRV(ierr);
+
+        const Base::MeshManipulatorBase* mesh = rowIndexing_.getMesh();
+        if (mesh == nullptr)
+        {
+            // Empty matrix, nothing to assemble
+            return;
+        }
         // MediumSizeMatrix uses column oriented storage
         ierr = MatSetOption(A_, MAT_ROW_ORIENTED, PETSC_FALSE);
         CHKERRV(ierr);
@@ -199,7 +238,7 @@ namespace Utilities
             std::vector<PetscInt> localToGlobalColumn;
             const std::vector<PetscInt>& localToGlobalColumnRef
                 = symmetricIndexing_ ? localToGlobalRow : localToGlobalColumn;
-            for (Base::Element* element : theMesh_->getElementsList())
+            for (Base::Element* element : mesh->getElementsList())
             {
                 rowIndexing_.getGlobalIndices(element, localToGlobalRow);
                 if (!symmetricIndexing_)
@@ -225,7 +264,7 @@ namespace Utilities
             std::vector<PetscInt> localToGlobalColumn;
             const std::vector<PetscInt>& localToGlobalColumnRef
                     = symmetricIndexing_ ? localToGlobalRow : localToGlobalColumn;
-            for (Base::Face* face : theMesh_->getFacesList())
+            for (Base::Face* face : mesh->getFacesList())
             {
                 if (!face->isOwnedByCurrentProcessor())
                     continue;

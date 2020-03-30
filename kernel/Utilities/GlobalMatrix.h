@@ -57,8 +57,14 @@ namespace Utilities
         GlobalMatrix(const GlobalMatrix &other) = delete;
         
         ///constructs the global matrix and performs element assembly
-        GlobalMatrix(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& rowIndexing,
+        GlobalMatrix(const GlobalIndexing& rowIndexing,
                 const GlobalIndexing& columnIndexing, int elementMatrixID, int faceMatrixID);
+
+        /// \brief Reinitialize the matrix
+        ///
+        /// Reinitialize the matrix to match the current state of the local
+        /// matrices and the GlobalIndex.
+        virtual void reinit() = 0;
 
         /// \brief Assemble the matrix from elements and faces
         virtual void assemble() = 0;
@@ -70,11 +76,9 @@ namespace Utilities
     protected:
         
         int meshLevel_, elementMatrixID_, faceMatrixID_;
-        const Base::MeshManipulatorBase *theMesh_;
         const GlobalIndexing& rowIndexing_, columnIndexing_;
         /// Whether the row and column index are the physically same object
         const bool symmetricIndexing_;
-        
     };
 #if defined(HPGEM_USE_ANY_PETSC)
     ///\bug this class depends on PETSc and is likely to cause naming conflicts between the c and c++ standard libraries (workaround: make sure to include all other needed hpGEM headers before including this header)
@@ -87,16 +91,20 @@ namespace Utilities
         ///\bug need a better way to provide an interface to the supported Mat routines AND to other routines that need a Mat (like KSPSetOperators()) (but not stuff like MatDestroy())
         operator Mat();
 
-        GlobalPetscMatrix(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& indexing,
+        GlobalPetscMatrix(const GlobalIndexing& indexing,
                 int elementMatrixID, int faceMatrixID = -1)
-                : GlobalPetscMatrix(theMesh, indexing, indexing, elementMatrixID, faceMatrixID)
+                : GlobalPetscMatrix(indexing, indexing, elementMatrixID, faceMatrixID)
         {}
-        GlobalPetscMatrix(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& rowIndexing, \
+
+        GlobalPetscMatrix(const GlobalIndexing& rowIndexing,
                 const GlobalIndexing& columnIndexing, int elementMatrixID, int faceMatrixID = -1);
+
         ~GlobalPetscMatrix() override ;
 
 
-        virtual void assemble() override ;
+        virtual void assemble() override;
+
+        void reinit() override;
 
         void printMatInfo(MatInfoType type, std::ostream& stream);
         void writeMatlab(const std::string& fileName);

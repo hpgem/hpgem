@@ -181,12 +181,12 @@ public:
         Utilities::GlobalIndexing indexing (this->meshes_[0]);
         //Assemble the matrix A of the system Ax = b.
         //The special value -1 is used to indicate there is no face matrix (since there is no flux in the conforming case)
-        Utilities::GlobalPetscMatrix A(this->meshes_[0], indexing, this->stiffnessElementMatrixID_, -1);
+        Utilities::GlobalPetscMatrix A(indexing, this->stiffnessElementMatrixID_, -1);
         MatScale(A,-1);
         //Declare the vectors x and b of the system Ax = b.
         //The special value -1 is used to indicate there is no face matrix (since there is no flux in the conforming case)
-        Utilities::GlobalPetscVector b(this->meshes_[0], indexing, this->sourceElementVectorID_, -1),
-            x(this->meshes_[0], indexing);
+        Utilities::GlobalPetscVector b(indexing, this->sourceElementVectorID_, -1),
+            x(indexing);
         
         //Assemble the vector b. This is needed because Petsc assumes you don't know
         //yet whether a vector is a variable or right-hand side the moment it is

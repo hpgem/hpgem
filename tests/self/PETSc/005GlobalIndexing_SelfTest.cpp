@@ -92,7 +92,7 @@ void checkLocal(const GEOM* geom, Base::MeshManipulator<DIM>& mesh,
 template<std::size_t DIM>
 void checkIndex(Base::MeshManipulator<DIM>& mesh, Utilities::GlobalIndexing& index, Layout layout)
 {
-    index.verifyCompleteIndex(mesh);
+    index.verifyCompleteIndex();
     std::size_t numberOfUnknowns = index.getNumberOfUnknowns();
     std::size_t numberOfBasisFunctions = index.getNumberOfLocalBasisFunctions();
     // Remove check when numberOfUnknowns is not in configData

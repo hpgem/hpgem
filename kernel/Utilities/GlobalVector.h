@@ -59,7 +59,7 @@ namespace Utilities
         
         ///construct the global vector does not do assembly by default
         ///because some vectors (like the solution of the linear problem) are filled by external means
-        GlobalVector(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& indexing, int elementVectorID = 0, int faceVectorID = 0);
+        GlobalVector(const GlobalIndexing& indexing, int elementVectorID = 0, int faceVectorID = 0);
 
         ///for post-processing: puts the solution in the time integration vector of the elements
         ///it is faster to write all data in one go instead of using this routine
@@ -75,6 +75,12 @@ namespace Utilities
         ///collect data from a time integration vector instead of element vectors and face vectors
         virtual void constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId)=0;
 
+        /// \brief Reinitialize the vector
+        ///
+        /// Reinitialize the vector to match the current state of the local
+        /// vectors and the GlobalIndex.
+        virtual void reinit() = 0;
+
         ///(re-)collects element vectors and boundary information into this vector
         virtual void assemble()=0;
 
@@ -85,7 +91,6 @@ namespace Utilities
         std::map<std::size_t, int> startPositionsOfFacesInTheVector_;
         std::map<std::size_t, int> startPositionsOfEdgesInTheVector_;
         std::map<std::size_t, int> startPositionsOfNodesInTheVector_;
-        const Base::MeshManipulatorBase *theMesh_;
         const GlobalIndexing& indexing_;
         
     };
@@ -102,13 +107,16 @@ namespace Utilities
         ///\bug need a better way to provide an interface to the supported Mat routines AND to other routines that need a Mat (like KSPSolve())
         operator Vec();
 
-        GlobalPetscVector(const Base::MeshManipulatorBase* theMesh, const GlobalIndexing& indexing, int elementVectorID = 0, int faceVectorID = 0);
-        ~GlobalPetscVector();
+        explicit GlobalPetscVector(const GlobalIndexing& indexing, int elementVectorID = 0, int faceVectorID = 0);
+        ~GlobalPetscVector() override;
 
-        void writeTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t variable);
-        void constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t variable);
-        void writeTimeIntegrationVector(std::size_t timeIntegrationVectorId);
-        void constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId);
+        void writeTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t variable) override;
+        void constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId, std::size_t variable) override;
+        void writeTimeIntegrationVector(std::size_t timeIntegrationVectorId) override;
+        void constructFromTimeIntegrationVector(std::size_t timeIntegrationVectorId) override;
+
+
+        void reinit() override;
 
         void assemble() override;
 
