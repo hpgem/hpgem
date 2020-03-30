@@ -76,7 +76,8 @@ namespace Utilities
     protected:
         
         int meshLevel_, elementMatrixID_, faceMatrixID_;
-        const GlobalIndexing& rowIndexing_, columnIndexing_;
+        const GlobalIndexing &rowIndexing_;
+        const GlobalIndexing &columnIndexing_;
         /// Whether the row and column index are the physically same object
         const bool symmetricIndexing_;
     };

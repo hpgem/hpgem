@@ -37,7 +37,7 @@ namespace Utilities
         : GlobalIndexing()
     {
         // Actual initialization
-        reset(mesh, layout);
+        reset(mesh, layout, unknowns);
     }
 
     std::size_t GlobalIndexing::getGlobalIndices(const Base::Element *element, std::size_t offset, std::vector<int> &indices) const
