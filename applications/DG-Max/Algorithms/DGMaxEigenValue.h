@@ -56,15 +56,9 @@ public:
 
     DGMaxEigenValue(Base::MeshManipulator<DIM>& mesh, std::size_t order);
     Result solve(const EigenValueProblem<DIM>& input, double stab);
-    // TODO: A nice wrapper of EPS that does RAII would be nicer
-    EPS createEigenSolver();
-    void destroyEigenSolver(EPS& eps);
-
 
 private:
     void initializeMatrices(double stab);
-    void makeShiftMatrix(const Utilities::GlobalIndexing& indexing,
-                         const LinearAlgebra::SmallVector<DIM>& direction, Vec& waveVecMatrix) const;
 
     void extractEigenValues(const EPS& solver, std::vector<PetscScalar>& result);
 

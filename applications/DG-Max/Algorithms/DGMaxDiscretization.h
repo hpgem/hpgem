@@ -58,11 +58,10 @@ namespace Geometry
     class PointPhysical;
 }
 
-template<std::size_t DIM>
-class DGMaxDiscretization
+/// Dimension independent constants of DGMaxDiscretization
+class DGMaxDiscretizationBase
 {
 public:
-
     static const std::size_t MASS_MATRIX_ID = 0;
     static const std::size_t STIFFNESS_MATRIX_ID = 1;
     static const std::size_t PROJECTOR_MATRIX_ID = 2;
@@ -73,6 +72,13 @@ public:
     static const std::size_t FACE_MATRIX_ID = 0;
     static const std::size_t FACE_VECTOR_ID = 0;
 
+    enum NormType { L2, HCurl, DG};
+};
+
+template<std::size_t DIM>
+class DGMaxDiscretization : public DGMaxDiscretizationBase
+{
+public:
     using PointPhysicalT = Geometry::PointPhysical<DIM>;
     using InputFunction = std::function<void(const PointPhysicalT &, LinearAlgebra::SmallVector<DIM>&)>;
     using FaceInputFunction = std::function<void(const PointPhysicalT &, Base::PhysicalFace<DIM>&, LinearAlgebra::SmallVector<DIM>&)>;
@@ -90,7 +96,6 @@ public:
                                   const InputFunction& initialConditionDerivative) const;
     void computeFaceIntegrals(Base::MeshManipulator<DIM>& mesh, const FaceInputFunction& boundaryCondition, double stab) const;
 
-    enum NormType { L2, HCurl, DG};
     static std::string normName(NormType norm)
     {
         switch (norm)
