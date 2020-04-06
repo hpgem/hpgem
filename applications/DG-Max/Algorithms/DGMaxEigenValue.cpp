@@ -192,6 +192,7 @@ struct SolverWorkspace
         , projectorMatrix_ (projectorIndex_, fieldIndex_, DGMaxDiscretizationBase::PROJECTOR_MATRIX_ID, -1)
         , sampleVector_ (fieldIndex_, -1, -1)
         , tempProjectorVector_ (projectorIndex_, -1 , -1)
+        , setupHasBeenRun_ (false)
     {
     }
 
@@ -249,6 +250,9 @@ struct SolverWorkspace
     PetscInt convergedEigenValues_;
     Vec *eigenVectors_;
     PetscInt numberOfEigenVectors_;
+
+    // Setup has been run at least once, to allow reusing matrices
+    bool setupHasBeenRun_;
 
 private:
     void initMatrices();
@@ -441,13 +445,12 @@ void SolverWorkspace::setupSolver(std::size_t numberOfEigenvalues)
     CHKERRABORT(PETSC_COMM_WORLD, error);
     DGMaxLogger(INFO, "Solver setup completed");
 
-    // TODO: Leaking stiffness
     Mat projectionH;
     error = MatHermitianTranspose(projectorMatrix_, MAT_INITIAL_MATRIX, &projectionH);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
-
-    error = MatMatMatMult(projectorMatrix_, massMatrix_, projectionH, MAT_INITIAL_MATRIX, PETSC_DEFAULT, &projectionStiffness_);
+    MatReuse reuse = setupHasBeenRun_ ? MAT_REUSE_MATRIX : MAT_INITIAL_MATRIX;
+    error = MatMatMatMult(projectorMatrix_, massMatrix_, projectionH, reuse, PETSC_DEFAULT, &projectionStiffness_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     error = KSPSetOperators(projectionSolver_, projectionStiffness_, projectionStiffness_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
@@ -456,6 +459,8 @@ void SolverWorkspace::setupSolver(std::size_t numberOfEigenvalues)
     error = MatDestroy(&projectionH);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     DGMaxLogger(INFO, "Projection solver setup completed");
+    // Mark as setup for future calls
+    setupHasBeenRun_ = true;
 }
 
 void SolverWorkspace::extractEigenVectors()
