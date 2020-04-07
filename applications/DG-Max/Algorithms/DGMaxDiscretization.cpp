@@ -53,11 +53,14 @@ void DGMaxDiscretization<DIM>::initializeBasisFunctions(Base::MeshManipulator<DI
 }
 
 template<std::size_t DIM>
-void DGMaxDiscretization<DIM>::computeElementIntegrands(Base::MeshManipulator<DIM>& mesh, bool invertMassMatrix,
+void DGMaxDiscretization<DIM>::computeElementIntegrands(Base::MeshManipulator<DIM>& mesh, MassMatrixHandling massMatrixHandling,
                                                    const InputFunction& sourceTerm,
                                                    const InputFunction& initialCondition,
                                                    const InputFunction& initialConditionDerivative) const
 {
+    bool anyFuncPresent = sourceTerm || initialCondition || initialConditionDerivative;
+    logger.assert_always(!anyFuncPresent || massMatrixHandling != RESCALE,
+            "Mass matrix rescale with input functions is not implemented");
     LinearAlgebra::MiddleSizeMatrix massMatrix(1, 1), stiffnessMatrix(1, 1),
         projectorMatrix (0,0);
     LinearAlgebra::MiddleSizeVector initialConditionVector(1), initialConditionDerivativeVector(1), elementVector(1);
@@ -85,9 +88,18 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(Base::MeshManipulator<DI
             elementMassMatrix(element, res);
             return res;
         });
-        if(invertMassMatrix)
+        switch (massMatrixHandling)
         {
-            massMatrix = massMatrix.inverse();
+            case DGMaxDiscretizationBase::NORMAL:
+                break;
+            case DGMaxDiscretizationBase::INVERT:
+                massMatrix = massMatrix.inverse();
+                break;
+            case DGMaxDiscretizationBase::RESCALE:
+                massMatrix.cholesky();
+                break;
+            default:
+                logger.assert_always(false, "Not implemented mass matrix handling");
         }
         (*it)->setElementMatrix(massMatrix, MASS_MATRIX_ID);
 
@@ -98,7 +110,32 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(Base::MeshManipulator<DI
             elementStiffnessMatrix(element, res);
             return res;
         });
+        if (massMatrixHandling == DGMaxDiscretizationBase::RESCALE)
+        {
+            // Compute L^{-1} S L^{-H}, where S is the stiffness matrix and
+            // LL^H is the mass matrix.
+            LinearAlgebra::MiddleSizeMatrix original = stiffnessMatrix;
+            massMatrix.solveLowerTriangular(stiffnessMatrix, true);
+            massMatrix.solveLowerTriangular(stiffnessMatrix, false);
+            // Zero upper part
+            for (std::size_t i = 0; i < massMatrix.getNumberOfRows(); ++i)
+            {
+                for (std::size_t j = 0; j < massMatrix.getNumberOfRows(); ++j)
+                {
+                    if (j >= i)
+                        continue;
+                    massMatrix(j, i) = 0.0;
+                }
+            }
+            LinearAlgebra::MiddleSizeMatrix reconstruction;
+            reconstruction = massMatrix * stiffnessMatrix;
+            LinearAlgebra::MiddleSizeMatrix massTrans = massMatrix.transpose();
+            reconstruction = reconstruction * massTrans;
+//            std::cout << reconstruction - original << std::endl;
+
+        }
         (*it)->setElementMatrix(stiffnessMatrix, STIFFNESS_MATRIX_ID);
+//        logger.assert_always(stiffnessMatrix.isHermitian(0), "Non hermitian");
 
         if (includeProjector_)
         {
@@ -110,6 +147,13 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(Base::MeshManipulator<DI
                 elementProjectorMatrix(element, res);
                 return res;
             });
+
+            if (massMatrixHandling == DGMaxDiscretizationBase::RESCALE)
+            {
+                // Compute B L^{-H}, where B is the projector matrix and L is
+                // the Cholesky factor of the mass matrix.
+                massMatrix.solveLowerTriangular(projectorMatrix, false);
+            }
 
             (*it)->setElementMatrix(projectorMatrix, PROJECTOR_MATRIX_ID);
         }
@@ -162,10 +206,15 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(Base::MeshManipulator<DI
 
 template<std::size_t DIM>
 void DGMaxDiscretization<DIM>::computeFaceIntegrals(
-        Base::MeshManipulator<DIM>& mesh, const DGMaxDiscretization<DIM>::FaceInputFunction& boundaryCondition,
+        Base::MeshManipulator<DIM>& mesh, MassMatrixHandling massMatrixHandling, const DGMaxDiscretization<DIM>::FaceInputFunction& boundaryCondition,
         double stab) const
 {
+    logger.assert_always(massMatrixHandling != RESCALE || !boundaryCondition,
+            "Rescale not implemented in combination with boundary conditions");
+
     LinearAlgebra::MiddleSizeMatrix stiffnessFaceMatrix(0, 0);
+    // Mass matrix for the face, already Cholesky factored.
+    LinearAlgebra::MiddleSizeMatrix massMatrix (0, 0);
     LinearAlgebra::MiddleSizeVector boundaryFaceVector(1);
     Integration::FaceIntegral<DIM> faIntegral;
 
@@ -194,10 +243,51 @@ void DGMaxDiscretization<DIM>::computeFaceIntegrals(
             res += temp;
             return res;
         });
+        if (massMatrixHandling == DGMaxDiscretizationBase::RESCALE)
+        {
+            massMatrix.resize(numberOfBasisFunctions, numberOfBasisFunctions);
+            const LinearAlgebra::MiddleSizeMatrix& leftMassMat
+                = (*it)->getPtrElementLeft()->getElementMatrix(MASS_MATRIX_ID);
+            std::size_t leftRows = leftMassMat.getNumberOfRows();
+            // Copy lower triagonal part
+            for(std::size_t i = 0; i < leftRows; ++i)
+            {
+                for (std::size_t j = i; j < leftRows; ++j)
+                {
+                    massMatrix(j, i) = leftMassMat(j, i);
+                }
+            }
+            if ((*it)->isInternal())
+            {
+                const LinearAlgebra::MiddleSizeMatrix& rightMassMat
+                    = (*it)->getPtrElementRight()->getElementMatrix(MASS_MATRIX_ID);
+                std::size_t rightRows = rightMassMat.getNumberOfRows();
+                // Copy lower triagonal part, now offset by leftRows.
+                for(std::size_t i = 0; i < rightRows; ++i)
+                {
+                    for (std::size_t j = i; j < rightRows; ++j)
+                    {
+                        massMatrix(leftRows + j, leftRows + i) = rightMassMat(j, i);
+                    }
+                }
+            }
+            LinearAlgebra::MiddleSizeMatrix original = stiffnessFaceMatrix;
+            // Rescaling
+            massMatrix.solveLowerTriangular(stiffnessFaceMatrix, false);
+            massMatrix.solveLowerTriangular(stiffnessFaceMatrix, true);
+            // Testing
+//            LinearAlgebra::MiddleSizeMatrix reconstruction = stiffnessFaceMatrix;
+//            reconstruction = massMatrix * reconstruction;
+//            LinearAlgebra::MiddleSizeMatrix massTranspose = massMatrix.transpose();
+//            reconstruction = reconstruction * massTranspose;
+//            std::cout << original - reconstruction << std::endl;
+        }
         (*it)->setFaceMatrix(stiffnessFaceMatrix, FACE_MATRIX_ID);
 
         if (boundaryCondition)
         {
+            // NOTE: No check on rescaling, as the face vector is zero when
+            // there is no boundaryCondition.
             boundaryFaceVector = faIntegral.integrate((*it), [&](Base::PhysicalFace<DIM> &face) {
                 LinearAlgebra::MiddleSizeVector res;
                 faceVector(face, boundaryCondition, res, stab);

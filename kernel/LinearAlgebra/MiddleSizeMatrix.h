@@ -206,9 +206,10 @@ namespace LinearAlgebra
         /// \brief Computes the Cholesky decomposition in place.
         ///
         /// Computes the Cholesky decomposition L*L^H = A of this matrix (A),
-        /// assuming but not checking that this matrix is Hermtian positive
+        /// assuming but not checking that this matrix is Hermitian positive
         /// definite. The contents of this matrix is overwritten with the
-        /// lower triangular part of the Cholesky decomposition.
+        /// lower triangular part of the Cholesky decomposition. The strictly
+        /// upper triangular part is left untouched.
         void cholesky();
 
         /// \brief Solve a system (L*L^H)*X = B after Cholesky decomposition
@@ -218,14 +219,16 @@ namespace LinearAlgebra
         /// \param B The rhs and result matrix.
         void solveCholesky(MiddleSizeMatrix &B) const;
 
-        /// \brief Solve the system L*x = B
+        /// \brief Solve the system L*X = B or X*L^H = B
         ///
-        /// Solve the system L*x = B, where L is the current matrix that is
-        /// assumed to be lower triangular.
+        /// Solve the system L*X = B or X*L^H = B, where L is the current matrix
+        /// that is assumed to be lower triangular. The strictly upper triagonal
+        /// part of the matrix is not referenced.
         ///
         /// \param B The right hand side, that will be overwritten by the
         /// solution.
-        void solveLowerTriangular(MiddleSizeMatrix &B) const;
+        /// \param left whether to solve L*X = B (true) or X*L^H = B (false)
+        void solveLowerTriangular(MiddleSizeMatrix &B, bool left = true) const;
 
         /// \brief Computes the minimum norm solution to a real linear least squares problem.
         void pseudoSolve(MiddleSizeVector& b, double rCond) const;

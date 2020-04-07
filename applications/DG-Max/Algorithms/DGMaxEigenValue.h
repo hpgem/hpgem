@@ -35,9 +35,27 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 template<std::size_t DIM>
 struct KShift;
 
+class DGMaxEigenvalueBase
+{
+public:
+    struct SolverConfig
+    {
+        SolverConfig()
+            : useHermitian_ (true)
+            , stab_ (100)
+        {};
+
+        /// Reformulate the generalized eigenvalue in a Hermitian or non Hermitian way.
+        // Note, directly influences the storage of the stored matrices.
+        bool useHermitian_;
+        /// Stabilization parameter (will be rescaled based on facet size).
+        double stab_;
+    };
+};
+
 //TODO: It might be better to call this differently
 template<std::size_t DIM>
-class DGMaxEigenValue
+class DGMaxEigenValue : public DGMaxEigenvalueBase
 {
 
 public:
@@ -55,14 +73,15 @@ public:
     };
 
     DGMaxEigenValue(Base::MeshManipulator<DIM>& mesh, std::size_t order);
-    Result solve(const EigenValueProblem<DIM>& input, double stab);
+    Result solve(const EigenValueProblem<DIM>& input, SolverConfig stab);
 
 private:
-    void initializeMatrices(double stab);
+    void initializeMatrices(SolverConfig config);
 
     void extractEigenValues(const EPS& solver, std::vector<PetscScalar>& result);
 
-    std::vector<KShift<DIM>> findPeriodicShifts(const Utilities::GlobalIndexing& indexing) const;
+    std::vector<KShift<DIM>> findPeriodicShifts(const Utilities::GlobalIndexing& indexing,
+            SolverConfig config) const;
     std::vector<KShift<DIM>> findProjectorPeriodicShifts(const Utilities::GlobalIndexing& projectorIndex,
             const Utilities::GlobalIndexing& indexing) const;
     LinearAlgebra::SmallVector<DIM> boundaryFaceShift(const Base::Face *face) const;

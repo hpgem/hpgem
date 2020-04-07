@@ -44,11 +44,13 @@ DGMaxEigenValue<DIM>::DGMaxEigenValue(Base::MeshManipulator<DIM> &mesh, std::siz
 }
 
 template<std::size_t DIM>
-void DGMaxEigenValue<DIM>::initializeMatrices(double stab)
+void DGMaxEigenValue<DIM>::initializeMatrices(SolverConfig config)
 {
-    //TODO: Which of these InputFunctions are needed?
-    discretization_.computeElementIntegrands(mesh_, true, nullptr, nullptr, nullptr);
-    discretization_.computeFaceIntegrals(mesh_, nullptr, stab);
+    auto massMatrixHandling = config.useHermitian_
+            ? DGMaxDiscretizationBase::RESCALE
+            : DGMaxDiscretizationBase::INVERT;
+    discretization_.computeElementIntegrands(mesh_, massMatrixHandling, nullptr, nullptr, nullptr);
+    discretization_.computeFaceIntegrals(mesh_, massMatrixHandling, nullptr, config.stab_);
 }
 
 /// Storage space for KShift
@@ -99,9 +101,11 @@ public:
     /// \param indexing The indexing used in the matrix
     /// \param dx The difference x_L - x_R, where x_L is the position of the face from the
     ///     left element and x_R that as seen from the right.
+    /// \param config Configuration of the solver
     /// \return The corresponding shift.
     static KShift<DIM> faceShift(const Base::Face* face,
-            const Utilities::GlobalIndexing& indexing, LinearAlgebra::SmallVector<DIM> dx);
+            const Utilities::GlobalIndexing& indexing, LinearAlgebra::SmallVector<DIM> dx,
+            DGMaxEigenvalueBase::SolverConfig config);
 
     /// Create KShift-s for basis functions associated with a specific node for
     /// the projector matrix.
@@ -183,8 +187,9 @@ private:
 /// Workspace area for the solver
 struct SolverWorkspace
 {
-    SolverWorkspace()
-        : mesh_ (nullptr)
+    SolverWorkspace(DGMaxEigenvalueBase::SolverConfig config)
+        : config_ (config)
+        , mesh_ (nullptr)
         , fieldIndex_ (nullptr)
         , projectorIndex_ (nullptr)
         , stiffnessMatrix_ (fieldIndex_, DGMaxDiscretizationBase::STIFFNESS_MATRIX_ID, DGMaxDiscretizationBase::FACE_MATRIX_ID)
@@ -217,6 +222,8 @@ struct SolverWorkspace
 
     /// Cleanup
     void cleanup();
+
+    DGMaxEigenvalueBase::SolverConfig config_;
 
     Base::MeshManipulatorBase *mesh_;
     Utilities::GlobalIndexing fieldIndex_;
@@ -266,6 +273,13 @@ private:
     void shiftMatrix(Mat mat, const std::vector<KShift<DIM>> &shifts, const LinearAlgebra::SmallVector<DIM> &k);
     void shellMultiply(Vec in, Vec out);
     static void staticShellMultiply(Mat mat, Vec in, Vec out);
+
+    /// Helper function for getting the Stiffness matrix to use as basis in the
+    /// eigenvalue problem.
+    Mat getActualStiffnessMatrix()
+    {
+        return config_.useHermitian_ ? stiffnessMatrix_ : product_;
+    }
 };
 
 void SolverWorkspace::init(Base::MeshManipulatorBase *mesh, std::size_t numberOfEigenvectors)
@@ -296,9 +310,13 @@ void SolverWorkspace::initMatrices()
     tempProjectorVector_.reinit();
 
     // Initialize the product matrix
-    PetscErrorCode error;
-    error = MatMatMult(massMatrix_, stiffnessMatrix_, MAT_INITIAL_MATRIX, 1.0, &product_);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
+    // TODO: Unused in the rescaled version
+    if (!config_.useHermitian_)
+    {
+        PetscErrorCode error;
+        error = MatMatMult(massMatrix_, stiffnessMatrix_, MAT_INITIAL_MATRIX, 1.0, &product_);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+    }
 }
 
 void SolverWorkspace::initShell()
@@ -331,7 +349,7 @@ void SolverWorkspace::staticShellMultiply(Mat mat, Vec in, Vec out)
 void SolverWorkspace::shellMultiply(Vec in, Vec out)
 {
     PetscErrorCode error;
-    error = MatMult(product_, in, out);
+    error = MatMult(getActualStiffnessMatrix(), in, out);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     project(out);
 }
@@ -343,7 +361,7 @@ void SolverWorkspace::project(Vec vec)
     // where
     //   B is the projectionMatrix,
     //   C is projectionStiffness and
-    //   M is the inverse mass matrix.
+    //   M is the inverse mass matrix (only needed for the non Hermitian case)
     // The inverse of M is stored in massMatrix, while C^{-1} is done through
     // the KSP object 'projectorSolver_'
     PetscErrorCode error;
@@ -363,12 +381,22 @@ void SolverWorkspace::project(Vec vec)
     // be subtracted from u. By multiplying it by -1, we can later uses MatMultAdd
     error = VecScale(tempProjectorVector_, -1.0);
     CHKERRABORT(PETSC_COMM_WORLD, error);
-    // v = B^H (-t)
-    error = MatMultHermitianTranspose(projectorMatrix_, tempProjectorVector_, sampleVector_);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    // Finally compute u + M^{-1}v
-    error = MatMultAdd(massMatrix_, sampleVector_, vec, vec);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
+    if (config_.useHermitian_)
+    {
+        // No need to multiply with the mass matrix in the Hermitian case
+        // u = u + B^H (-t)
+        error = MatMultHermitianTransposeAdd(projectorMatrix_, tempProjectorVector_, vec, vec);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+    }
+    else
+    {
+        // v = B^H (-t)
+        error = MatMultHermitianTranspose(projectorMatrix_, tempProjectorVector_, sampleVector_);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+        // Finally compute u + M^{-1}v
+        error = MatMultAdd(massMatrix_, sampleVector_, vec, vec);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+    }
 
 //    // Diagnostics
 //    PetscReal correctionNorm, newProjectionNorm;
@@ -400,19 +428,43 @@ void SolverWorkspace::initShiftVectors()
     CHKERRABORT(PETSC_COMM_WORLD, error);
 }
 
+PetscErrorCode compareEigen(PetscScalar ar, PetscScalar ai, PetscScalar br, PetscScalar bi, PetscInt *res, void *ctx)
+{
+    const double cutOff = M_PI * M_PI * 0.9*0.9;
+    // Documentation is unclear on whether ai and bi are zero.
+    double res1 = std::norm(ar) + std::norm(ai);
+    double res2 = std::norm(br) + std::norm(bi);
+    if (res1 < cutOff)
+//        res1 = (cutOff*cutOff)/res1;
+        res1 = cutOff * std::exp(cutOff/res1);
+    if (res2 < cutOff)
+//        res2 = (cutOff*cutOff)/res2;
+        res2 = cutOff * std::exp(cutOff/res2);
+    if (res1 < res2) {
+        (*res) = -1;
+    } else if (res2 < res1) {
+        (*res) = 1;
+    } else {
+        (*res) = 0;
+    }
+    return 0;
+}
+
 void SolverWorkspace::initSolver()
 {
     PetscErrorCode err = EPSCreate(PETSC_COMM_WORLD, &solver_);
     CHKERRABORT(PETSC_COMM_WORLD, err);
 
-    err = EPSSetProblemType(solver_, EPS_NHEP);
+    err = EPSSetProblemType(solver_, config_.useHermitian_ ? EPS_HEP : EPS_NHEP);
     CHKERRABORT(PETSC_COMM_WORLD, err);
-    err = EPSSetWhichEigenpairs(solver_, EPS_SMALLEST_REAL);
-    CHKERRABORT(PETSC_COMM_WORLD, err);
+//    err = EPSSetWhichEigenpairs(solver_, EPS_SMALLEST_REAL);
+//    CHKERRABORT(PETSC_COMM_WORLD, err);
+    err = EPSSetWhichEigenpairs(solver_, EPS_TARGET_REAL);
+    err = EPSSetEigenvalueComparison(solver_, compareEigen, nullptr);
     // Note, this is to find the bottom band, which should run from omega = 0 to pi (Gamma-X)
     // Thus eigen values 0 to pi^2
 //    double target = 2 * M_PI * M_PI;
-    double target = 40; // Original target used in the older codes.
+    double target = 10; // Original target used in the older codes.
     err = EPSSetTarget(solver_, target);
     CHKERRABORT(PETSC_COMM_WORLD, err);
 
@@ -450,8 +502,17 @@ void SolverWorkspace::setupSolver(std::size_t numberOfEigenvalues)
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
     MatReuse reuse = setupHasBeenRun_ ? MAT_REUSE_MATRIX : MAT_INITIAL_MATRIX;
-    error = MatMatMatMult(projectorMatrix_, massMatrix_, projectionH, reuse, PETSC_DEFAULT, &projectionStiffness_);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
+    if (config_.useHermitian_)
+    {
+        // No mass matrix needed.
+        error = MatMatMult(projectorMatrix_, projectionH, reuse, PETSC_DEFAULT, &projectionStiffness_);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+    }
+    else
+    {
+        error = MatMatMatMult(projectorMatrix_, massMatrix_, projectionH, reuse, PETSC_DEFAULT, &projectionStiffness_);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+    }
     error = KSPSetOperators(projectionSolver_, projectionStiffness_, projectionStiffness_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     error = KSPSetUp(projectionSolver_);
@@ -513,7 +574,7 @@ void SolverWorkspace::shift(const std::vector<KShift<DIM>> &stiffnessMatrixShift
         const LinearAlgebra::SmallVector<DIM> &k)
 {
     // Maybe move to KShift as static function
-    shiftMatrix(product_, stiffnessMatrixShifts, k);
+    shiftMatrix(getActualStiffnessMatrix(), stiffnessMatrixShifts, k);
     shiftMatrix(projectorMatrix_, projectorShifts, k);
 }
 
@@ -574,8 +635,11 @@ void SolverWorkspace::cleanup()
     error = MatDestroy(&shell_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     //always clean up after you are done
-    error = MatDestroy(&product_);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
+    if (!config_.useHermitian_)
+    {
+        error = MatDestroy(&product_);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+    }
 }
 
 // Helpers for KShift //
@@ -634,7 +698,8 @@ KShift<DIM>::KShift (PetscInt startRowIndex, PetscInt lengthRowIndex,
 
 template<std::size_t DIM>
 KShift<DIM> KShift<DIM>::faceShift(const Base::Face* face,
-                             const Utilities::GlobalIndexing& indexing, LinearAlgebra::SmallVector<DIM> dx)
+        const Utilities::GlobalIndexing& indexing, LinearAlgebra::SmallVector<DIM> dx,
+        DGMaxEigenvalueBase::SolverConfig config)
 {
 
     // Element that this processor owns
@@ -681,10 +746,13 @@ KShift<DIM> KShift<DIM>::faceShift(const Base::Face* face,
     // argument.
     block1 = faceMatrix.getElementMatrix(ownedElementSide, otherElementSide);
     block2 = faceMatrix.getElementMatrix(otherElementSide, ownedElementSide);
-    // The stiffness matrix is premultiplied by the (inverse) mass matrix. Thus
-    // multiply by the mass matrix of the element corresponding to the rows.
-    block1 = ownedElement->getElementMatrix(DGMaxDiscretization<DIM>::MASS_MATRIX_ID) * block1;
-    block2 = otherElement->getElementMatrix(DGMaxDiscretization<DIM>::MASS_MATRIX_ID) * block2;
+    if (!config.useHermitian_)
+    {
+        // The stiffness matrix is premultiplied by the (inverse) mass matrix. Thus
+        // multiply by the mass matrix of the element corresponding to the rows.
+        block1 = ownedElement->getElementMatrix(DGMaxDiscretization<DIM>::MASS_MATRIX_ID) * block1;
+        block2 = otherElement->getElementMatrix(DGMaxDiscretization<DIM>::MASS_MATRIX_ID) * block2;
+    }
     KShift<DIM> result (
             indexing.getGlobalIndex(ownedElement, 0), ownedElement->getNumberOfBasisFunctions(0),
             indexing.getGlobalIndex(otherElement, 0), otherElement->getNumberOfBasisFunctions(0),
@@ -826,15 +894,15 @@ void KShift<DIM>::insertShiftedBlock(double kshift, bool hermitianPart, KShiftSt
 
 template<std::size_t DIM>
 typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
-        const EigenValueProblem<DIM>& input, double stab)
+        const EigenValueProblem<DIM>& input, SolverConfig config)
 {
     const std::size_t numberOfEigenvalues = input.getNumberOfEigenvalues();
     const KSpacePath<DIM>& kpath = input.getPath();
 
     PetscErrorCode error;
-    initializeMatrices(stab);
+    initializeMatrices(config);
 
-    SolverWorkspace workspace;
+    SolverWorkspace workspace (config);
     // Leave a bit room for extra converged eigenvectors
     workspace.init(&mesh_, std::max(2 * numberOfEigenvalues, numberOfEigenvalues + 10));
 
@@ -842,7 +910,7 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
     // Setup the boundary block shifting //
     ///////////////////////////////////////
 
-    const std::vector<KShift<DIM>> periodicShifts = findPeriodicShifts(workspace.fieldIndex_);
+    const std::vector<KShift<DIM>> periodicShifts = findPeriodicShifts(workspace.fieldIndex_, config);
     const std::vector<KShift<DIM>> projectorShifts = findProjectorPeriodicShifts(workspace.projectorIndex_, workspace.fieldIndex_);
 
     LinearAlgebra::SmallVector<DIM> dk; // Step in k-space from previous solve
@@ -951,7 +1019,8 @@ void DGMaxEigenValue<DIM>::extractEigenValues(const EPS &solver, std::vector<Pet
 }
 
 template<std::size_t DIM>
-std::vector<KShift<DIM>> DGMaxEigenValue<DIM>::findPeriodicShifts(const Utilities::GlobalIndexing& indexing) const
+std::vector<KShift<DIM>> DGMaxEigenValue<DIM>::findPeriodicShifts(const Utilities::GlobalIndexing& indexing,
+        SolverConfig config) const
 {
     std::vector<KShift<DIM>> result;
     for (Base::TreeIterator<Base::Face*> it = mesh_.faceColBegin(); it != mesh_.faceColEnd(); ++it)
@@ -969,7 +1038,7 @@ std::vector<KShift<DIM>> DGMaxEigenValue<DIM>::findPeriodicShifts(const Utilitie
         // TODO: temporary fix for internal faces, see DivDGMaxEigenvalue
         if ((*it)->isInternal() && dx.l2Norm() > 1e-3)
         {
-            result.emplace_back(KShift<DIM>::faceShift(*it, indexing, dx));
+            result.emplace_back(KShift<DIM>::faceShift(*it, indexing, dx, config));
         }
     }
     return result;

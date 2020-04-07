@@ -64,7 +64,7 @@ void DGMaxTimeIntegration<DIM>::solve(const SeparableTimeIntegrationProblem<DIM>
 
     std::cout << "doing a time dependent simulation" << std::endl;
     discretization.computeElementIntegrands(
-            mesh_, true,
+            mesh_, DGMaxDiscretizationBase::INVERT,
             std::bind(&SeparableTimeIntegrationProblem<DIM>::sourceTermRef, std::ref(input), _1, _2),
             std::bind(&TimeIntegrationProblem<DIM>::initialCondition, std::ref(input), _1, _2),
             std::bind(&TimeIntegrationProblem<DIM>::initialConditionDerivative, std::ref(input), _1, _2)
@@ -72,6 +72,7 @@ void DGMaxTimeIntegration<DIM>::solve(const SeparableTimeIntegrationProblem<DIM>
 
     discretization.computeFaceIntegrals(
             mesh_,
+            DGMaxDiscretizationBase::INVERT,
             std::bind(&SeparableTimeIntegrationProblem<DIM>::boundaryConditionRef, std::ref(input), _1, _2, _3),
             parameters.stab
     );

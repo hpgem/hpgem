@@ -140,7 +140,10 @@ void runWithDimension()
     {
         DGMaxEigenValue<DIM> solver (*mesh, p.getValue());
         const double stab = parseDGMaxPenaltyParameter();
-        typename DGMaxEigenValue<DIM>::Result result = solver.solve(input, stab);
+        DGMaxEigenvalueBase::SolverConfig config;
+        config.stab_ = stab;
+        config.useHermitian_ = true;
+        typename DGMaxEigenValue<DIM>::Result result = solver.solve(input, config);
         if (Base::MPIContainer::Instance().getProcessorID() == 0)
         {
             result.printFrequencies();

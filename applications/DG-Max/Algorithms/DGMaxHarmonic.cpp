@@ -42,12 +42,13 @@ void DGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM> &harmonicProblem, doub
     std::cout << "finding a time-harmonic solution" << std::endl;
     discretization.computeElementIntegrands(
             mesh_,
-            false,
+            DGMaxDiscretizationBase::NORMAL,
             std::bind(&HarmonicProblem<DIM>::sourceTerm, std::ref(harmonicProblem), std::placeholders::_1, std::placeholders::_2),
             nullptr, nullptr // No initial values
     );
     discretization.computeFaceIntegrals(
             mesh_,
+            DGMaxDiscretizationBase::NORMAL,
             std::bind(&HarmonicProblem<DIM>::boundaryCondition, std::ref(harmonicProblem), std::placeholders::_1,
                     std::placeholders::_2, std::placeholders::_3),
             stab

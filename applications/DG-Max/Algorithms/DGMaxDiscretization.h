@@ -73,6 +73,17 @@ public:
     static const std::size_t FACE_VECTOR_ID = 0;
 
     enum NormType { L2, HCurl, DG};
+
+    enum MassMatrixHandling
+    {
+        /// Compute the mass matrix
+        NORMAL,
+        /// Compute the inverse of the mass matrix
+        INVERT,
+        /// Rescale the stiffness and projector matrices using the Cholesky
+        /// decomposition of the mass matrix.
+        RESCALE
+    };
 };
 
 template<std::size_t DIM>
@@ -90,11 +101,11 @@ public:
 
     void initializeBasisFunctions(Base::MeshManipulator<DIM>& mesh, std::size_t order);
 
-    void computeElementIntegrands(Base::MeshManipulator<DIM>& mesh, bool invertMassMatrix,
+    void computeElementIntegrands(Base::MeshManipulator<DIM>& mesh, MassMatrixHandling massMatrix,
                                   const InputFunction& sourceTerm,
                                   const InputFunction& initialCondition,
                                   const InputFunction& initialConditionDerivative) const;
-    void computeFaceIntegrals(Base::MeshManipulator<DIM>& mesh, const FaceInputFunction& boundaryCondition, double stab) const;
+    void computeFaceIntegrals(Base::MeshManipulator<DIM>& mesh, MassMatrixHandling massMatrix, const FaceInputFunction& boundaryCondition, double stab) const;
 
     static std::string normName(NormType norm)
     {

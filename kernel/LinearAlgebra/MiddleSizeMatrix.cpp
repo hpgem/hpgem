@@ -719,20 +719,45 @@ namespace LinearAlgebra
 
     }
 
-    void MiddleSizeMatrix::solveLowerTriangular(LinearAlgebra::MiddleSizeMatrix &B) const
+    void MiddleSizeMatrix::solveLowerTriangular(LinearAlgebra::MiddleSizeMatrix &B, bool left) const
     {
         logger.assert_debug(numberOfRows_ == numberOfColumns_, "can only solve for square matrixes");
-        logger.assert_debug(numberOfRows_ == B.numberOfRows_, "size of the RHS does not match the size of the matrix");
+        if (left)
+        {
+            logger.assert_debug(numberOfRows_ == B.numberOfRows_,
+                    "size of the RHS does not match the size of the matrix");
+        }
+        else
+        {
+            logger.assert_debug(numberOfColumns_ == B.numberOfColumns_,
+                    "size of RHS does not match the size of the matrix");
+        }
 
-        int n = numberOfRows_;
-        int nrhs = B.getNumberOfColumns();
+        int m = B.numberOfRows_;
+        int n = B.numberOfColumns_;
+        int lda = numberOfRows_; // == numberOfColumns
+        int ldb = m;
         MiddleSizeMatrix matThis = *this; // Mutable copy.
 #ifdef HPGEM_USE_COMPLEX_PETSC
         std::complex<double> alpha (1);
-        ztrsm_("L", "L", "N", "N", &n, &nrhs, &alpha, matThis.data(), &n, B.data(), &n);
+        if (left)
+        {
+            ztrsm_("L", "L", "N", "N", &m, &n, &alpha, matThis.data(), &lda, B.data(), &ldb);
+        }
+        else
+        {
+            ztrsm_("R", "L", "C", "N", &m, &n, &alpha, matThis.data(), &lda, B.data(), &ldb);
+        }
 #else
-        double alpha;
-        dtrsm_("L", "L", "N", "N", &n, &nrhs, &alpha, matThis.data(), &n, B.data(), &n);
+        double alpha (1);
+        if (left)
+        {
+            dtrsm_("L", "L", "N", "N", &m, &n, &alpha, matThis.data(), &lda, B.data(), &ldb);
+        }
+        else
+        {
+            dtrsm_("R", "L", "C", "N", &m, &n, &alpha, matThis.data(), &lda, B.data(), &ldb);
+        }
 #endif
     }
 
