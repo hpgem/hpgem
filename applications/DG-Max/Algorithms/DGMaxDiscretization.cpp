@@ -345,6 +345,7 @@ void DGMaxDiscretization<DIM>::elementProjectorMatrix(
         LinearAlgebra::MiddleSizeMatrix &ret) const
 {
     const Base::Element* element = el.getElement();
+    double epsilon = static_cast<ElementInfos*>(element->getUserData())->epsilon_;
     const std::size_t dofU = element->getNumberOfBasisFunctions(0);
     const std::size_t dofP = element->getNumberOfBasisFunctions(1);
     ret.resize(dofP, dofU);
@@ -354,7 +355,7 @@ void DGMaxDiscretization<DIM>::elementProjectorMatrix(
         el.basisFunction(i, phiU, 0);
         for (std::size_t j = 0; j < dofP; ++j)
         {
-            ret(j, i) = phiU * el.basisFunctionDeriv(j, 1);
+            ret(j, i) = epsilon*phiU * el.basisFunctionDeriv(j, 1);
         }
     }
 }
