@@ -117,15 +117,18 @@ public:
     /// \param out The vector to which to add the create KShifts
     static void addNodeProjectorShifts(const Base::Node* node,
             const Utilities::GlobalIndexing& projectorIndex,
-            const Utilities::GlobalIndexing& indexing, std::vector<KShift<DIM>>& out);
+            const Utilities::GlobalIndexing& indexing,
+            const DGMaxEigenvalueBase::SolverConfig& config, std::vector<KShift<DIM>>& out);
 
     static void addEdgeProjectorShifts(const Base::Edge* edge,
             const Utilities::GlobalIndexing& projectorIndex,
-            const Utilities::GlobalIndexing& indexing, std::vector<KShift<DIM>>& out);
+            const Utilities::GlobalIndexing& indexing,
+            const DGMaxEigenvalueBase::SolverConfig& config, std::vector<KShift<DIM>>& out);
 
     static void addFaceProjectorShifts(const Base::Face* face,
             const Utilities::GlobalIndexing& projectorIndex,
-            const Utilities::GlobalIndexing& indexing, std::vector<KShift<DIM>>& out);
+            const Utilities::GlobalIndexing& indexing,
+            const DGMaxEigenvalueBase::SolverConfig& config, std::vector<KShift<DIM>>& out);
 
     /// Helper function to create a projector KShift for the projector basis
     /// functions associated with geom (node, edge, face) and the field basis
@@ -135,7 +138,8 @@ public:
             const GEOM* geom, const Geometry::PointPhysical<DIM>& owningCoord,
             const Base::Element* element,
             const Utilities::GlobalIndexing& projectorIndex,
-            const Utilities::GlobalIndexing& indexing, std::vector<KShift<DIM>>& out);
+            const Utilities::GlobalIndexing& indexing,
+            const DGMaxEigenvalueBase::SolverConfig& config, std::vector<KShift<DIM>>& out);
 
     /// Check for a k-vector if a phase factor is incurred.
     bool shiftNeeded(LinearAlgebra::SmallVector<DIM> k) const
@@ -225,6 +229,13 @@ struct SolverWorkspace
     /// Cleanup
     void cleanup();
 
+    /// Helper function for getting the Stiffness matrix to use as basis in the
+    /// eigenvalue problem.
+    Mat getActualStiffnessMatrix()
+    {
+        return config_.useHermitian_ ? stiffnessMatrix_ : product_;
+    }
+
     DGMaxEigenvalueBase::SolverConfig config_;
     const bool useProjector_;
 
@@ -276,13 +287,6 @@ private:
     void shiftMatrix(Mat mat, const std::vector<KShift<DIM>> &shifts, const LinearAlgebra::SmallVector<DIM> &k);
     void shellMultiply(Vec in, Vec out);
     static void staticShellMultiply(Mat mat, Vec in, Vec out);
-
-    /// Helper function for getting the Stiffness matrix to use as basis in the
-    /// eigenvalue problem.
-    Mat getActualStiffnessMatrix()
-    {
-        return config_.useHermitian_ ? stiffnessMatrix_ : product_;
-    }
 };
 
 void SolverWorkspace::init(Base::MeshManipulatorBase *mesh, std::size_t numberOfEigenvectors)
@@ -747,20 +751,21 @@ KShift<DIM> KShift<DIM>::faceShift(const Base::Face* face,
         hermitian = otherElement->isOwnedByCurrentProcessor();
     }
     // Disabled to reduce complexity in implementing the projector.
-//        {
-//            // Rows are scaled by e^(ikx) and columns by e^(-ikx) where x is the centre
-//            // of the element owning the row/column. As the matrices are inserted from
-//            // scratch we need to add this factor.
-//            Geometry::PointPhysical<DIM> centerPhys;
-//            const Geometry::PointReference<DIM>& center1 = ownedElement->getReferenceGeometry()->getCenter();
-//            centerPhys = ownedElement->referenceToPhysical(center1);
-//            // Owned element corresponds to the rows -> +x
-//            dx += centerPhys.getCoordinates();
-//            const Geometry::PointReference<DIM>& center2 = otherElement->getReferenceGeometry()->getCenter();
-//            centerPhys = otherElement->referenceToPhysical(center2);
-//            // The other element is for the columns -> -x
-//            dx -= centerPhys.getCoordinates();
-//        }
+    if (config.useShifts_)
+    {
+        // Rows are scaled by e^(ikx) and columns by e^(-ikx) where x is the centre
+        // of the element owning the row/column. As the matrices are inserted from
+        // scratch we need to add this factor.
+        Geometry::PointPhysical<DIM> centerPhys;
+        const Geometry::PointReference<DIM>& center1 = ownedElement->getReferenceGeometry()->getCenter();
+        centerPhys = ownedElement->referenceToPhysical(center1);
+        // Owned element corresponds to the rows -> +x
+        dx += centerPhys.getCoordinates();
+        const Geometry::PointReference<DIM>& center2 = otherElement->getReferenceGeometry()->getCenter();
+        centerPhys = otherElement->referenceToPhysical(center2);
+        // The other element is for the columns -> -x
+        dx -= centerPhys.getCoordinates();
+    }
 
     const Base::FaceMatrix& faceMatrix = face->getFaceMatrix(DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
     LinearAlgebra::MiddleSizeMatrix block1, block2;
@@ -788,7 +793,8 @@ KShift<DIM> KShift<DIM>::faceShift(const Base::Face* face,
 template<std::size_t DIM>
 void KShift<DIM>::addFaceProjectorShifts(const Base::Face* face,
         const Utilities::GlobalIndexing& projectorIndex,
-        const Utilities::GlobalIndexing& indexing, std::vector<KShift<DIM>>& out)
+        const Utilities::GlobalIndexing& indexing,
+        const DGMaxEigenvalueBase::SolverConfig& config, std::vector<KShift<DIM>>& out)
 {
     logger.assert_debug(face->isOwnedByCurrentProcessor(), "Not owned by current processor");
 
@@ -796,13 +802,15 @@ void KShift<DIM>::addFaceProjectorShifts(const Base::Face* face,
     const Base::Element* owningElement = face->getPtrElementLeft();
     const Geometry::PointPhysical<DIM> owningCoord = getCoordinate<DIM>(owningElement, face);
 
-    addElementProjectorShift(face, owningCoord, face->getPtrElementRight(), projectorIndex, indexing, out);
+    addElementProjectorShift(face, owningCoord, face->getPtrElementRight(), projectorIndex, indexing, config, out);
 }
 
 template<std::size_t DIM>
 void KShift<DIM>::addEdgeProjectorShifts(const Base::Edge* edge,
         const Utilities::GlobalIndexing& projectorIndex,
-        const Utilities::GlobalIndexing& indexing, std::vector<KShift<DIM>>& out)
+        const Utilities::GlobalIndexing& indexing,
+        const DGMaxEigenvalueBase::SolverConfig& config,
+        std::vector<KShift<DIM>>& out)
 {
     logger.assert_debug(edge->isOwnedByCurrentProcessor(), "Not owned by current processor");
 
@@ -812,14 +820,16 @@ void KShift<DIM>::addEdgeProjectorShifts(const Base::Edge* edge,
 
     for (const Base::Element* element : edge->getElements())
     {
-        addElementProjectorShift(edge, owningCoord, element, projectorIndex, indexing, out);
+        addElementProjectorShift(edge, owningCoord, element, projectorIndex, indexing, config, out);
     }
 }
 
 template<std::size_t DIM>
 void KShift<DIM>::addNodeProjectorShifts(const Base::Node* node,
         const Utilities::GlobalIndexing& projectorIndex,
-        const Utilities::GlobalIndexing& indexing, std::vector<KShift<DIM>>& out)
+        const Utilities::GlobalIndexing& indexing,
+        const DGMaxEigenvalueBase::SolverConfig& config,
+        std::vector<KShift<DIM>>& out)
 {
     logger.assert_debug(node->isOwnedByCurrentProcessor(), "Not owned by current processor");
 
@@ -829,7 +839,7 @@ void KShift<DIM>::addNodeProjectorShifts(const Base::Node* node,
 
     for (const Base::Element* element : node->getElements())
     {
-        addElementProjectorShift(node, owningCoord, element, projectorIndex, indexing, out);
+        addElementProjectorShift(node, owningCoord, element, projectorIndex, indexing, config, out);
     }
 }
 
@@ -839,13 +849,23 @@ void KShift<DIM>::addElementProjectorShift(
         const GEOM* geom, const Geometry::PointPhysical<DIM>& owningCoord,
         const Base::Element* element,
         const Utilities::GlobalIndexing& projectorIndex,
-        const Utilities::GlobalIndexing& indexing, std::vector<KShift<DIM>>& out)
+        const Utilities::GlobalIndexing& indexing,
+        const DGMaxEigenvalueBase::SolverConfig& config, std::vector<KShift<DIM>>& out)
 {
     const Geometry::PointPhysical<DIM> elementCoord = getCoordinate<DIM>(element, geom);
     // TODO Check why, currently only checked in MATLAB
     LinearAlgebra::SmallVector<DIM> dx = owningCoord.getCoordinates() - elementCoord.getCoordinates();
     if (dx.l2Norm() > 1e-12)
     {
+        const Geometry::PointReference<DIM>& center = element->getReferenceGeometry()->getCenter();
+        if (config.useShifts_)
+        {
+            // Rescaling of the columns, as the shifts for the field basis functions
+            // are e^{-ikx}. Where the convention is used that the trial basis
+            // functions use the - sign.
+            dx -= element->referenceToPhysical(center).getCoordinates();
+        }
+
         std::size_t numProjectorDoF = geom->getLocalNumberOfBasisFunctions(1);
 
         // Difference in coordinates for the node => shift is needed
@@ -934,7 +954,8 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
     ///////////////////////////////////////
 
     const std::vector<KShift<DIM>> periodicShifts = findPeriodicShifts(workspace.fieldIndex_, config);
-    const std::vector<KShift<DIM>> projectorShifts = findProjectorPeriodicShifts(workspace.projectorIndex_, workspace.fieldIndex_);
+    const std::vector<KShift<DIM>> projectorShifts = findProjectorPeriodicShifts(
+            workspace.projectorIndex_, workspace.fieldIndex_, config);
 
     LinearAlgebra::SmallVector<DIM> dk; // Step in k-space from previous solve
     std::size_t maxStep = kpath.totalNumberOfSteps();
@@ -952,28 +973,56 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
         {
             workspace.extractEigenVectors();
         }
-        // Disabled to reduce complexity in implementing projection.
-//        error = MatDiagonalScale(product, waveVec, waveVecConjugate);
-//        CHKERRABORT(PETSC_COMM_WORLD, error);
+        if (config.useShifts_)
+        {
+            error = MatDiagonalScale(workspace.getActualStiffnessMatrix(),
+                    workspace.waveVec_, workspace.waveVecConjugate_);
+            CHKERRABORT(PETSC_COMM_WORLD, error);
+            //TODO: Check
+            error = MatDiagonalScale(workspace.projectorMatrix_,
+                                     nullptr, workspace.waveVecConjugate_);
+            CHKERRABORT(PETSC_COMM_WORLD, error);
+        }
 
         workspace.shift(periodicShifts, projectorShifts, kpath.k(i));
 
         workspace.setupSolver(numberOfEigenvalues);
 
+        PetscInt usableInitialVectors;
         if (i == 0)
         {
             DGMaxLogger(INFO, "Generating initial vector");
             error = VecSetRandom(workspace.eigenVectors_[0], nullptr);
             CHKERRABORT(PETSC_COMM_WORLD, error);
+            usableInitialVectors = 1;
+        }
+        else
+        {
+            DGMaxLogger(INFO, "Combining previous eigen vectors");
+            for (PetscInt j = 1; j < workspace.convergedEigenValues_; ++j)
+            {
+                // Some eigenvalue solvers only uses a single starting vector.
+                // Mix the eigenvalue spaces from the previous k-point in the
+                // hope that these are rich in the eigenvectors for the next
+                // space.
+                error = VecAYPX(workspace.eigenVectors_[0], 1, workspace.eigenVectors_[j]);
+                CHKERRABORT(PETSC_COMM_WORLD, error);
+            }
+            // Add all previous eigenvectors to the eigenvalue solver, even
+            // if they are not all used.
+            usableInitialVectors = workspace.convergedEigenValues_;
         }
         if (useProjector_)
         {
-            workspace.project(workspace.eigenVectors_[0]);
+            for (std::size_t j = 0; j < usableInitialVectors; ++j)
+            {
+                workspace.project(workspace.eigenVectors_[j]);
+            }
             DGMaxLogger(INFO, "Projected initial vector");
         }
 
         // Use solution of previous time as starting point for the next one.
-        error = EPSSetInitialSpace(workspace.solver_, 1, workspace.eigenVectors_);
+        error = EPSSetInitialSpace(workspace.solver_, workspace.convergedEigenValues_, workspace.eigenVectors_);
         CHKERRABORT(PETSC_COMM_WORLD, error);
 
         DGMaxLogger(INFO, "Solving eigenvalue problem");
@@ -1075,7 +1124,8 @@ std::vector<KShift<DIM>> DGMaxEigenValue<DIM>::findPeriodicShifts(const Utilitie
 
 template<std::size_t DIM>
 std::vector<KShift<DIM>> DGMaxEigenValue<DIM>::findProjectorPeriodicShifts(
-        const Utilities::GlobalIndexing& projectorIndex, const Utilities::GlobalIndexing& indexing) const
+        const Utilities::GlobalIndexing& projectorIndex, const Utilities::GlobalIndexing& indexing,
+        SolverConfig config) const
 {
     std::vector<KShift<DIM>> result;
     if (!useProjector_)
@@ -1096,7 +1146,7 @@ std::vector<KShift<DIM>> DGMaxEigenValue<DIM>::findProjectorPeriodicShifts(
                 boundaryNodes.emplace(node);
             }
 
-            KShift<DIM>::addFaceProjectorShifts(*it, projectorIndex, indexing, result);
+            KShift<DIM>::addFaceProjectorShifts(*it, projectorIndex, indexing, config, result);
             // There is no direct edge list for a face, instead we need to recover it from one of
             // the neighbouring elements.
             const Base::Element* element = (*it)->getPtrElementLeft();
@@ -1124,11 +1174,11 @@ std::vector<KShift<DIM>> DGMaxEigenValue<DIM>::findProjectorPeriodicShifts(
     }
     for (const Base::Node* node : boundaryNodes)
     {
-        KShift<DIM>::addNodeProjectorShifts(node, projectorIndex, indexing, result);
+        KShift<DIM>::addNodeProjectorShifts(node, projectorIndex, indexing, config, result);
     }
     for (const Base::Edge* edge : boundaryEdges)
     {
-        KShift<DIM>::addEdgeProjectorShifts(edge, projectorIndex, indexing, result);
+        KShift<DIM>::addEdgeProjectorShifts(edge, projectorIndex, indexing, config, result);
     }
     return result;
 }

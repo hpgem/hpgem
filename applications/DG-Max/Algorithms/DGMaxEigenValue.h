@@ -42,12 +42,16 @@ public:
     {
         SolverConfig()
             : useHermitian_ (true)
+            , useShifts_ (false)
             , stab_ (100)
         {};
 
         /// Reformulate the generalized eigenvalue in a Hermitian or non Hermitian way.
         // Note, directly influences the storage of the stored matrices.
         bool useHermitian_;
+        /// Use shifted basis functions, where each of them has the shift e^{ikx},
+        /// where x is the center of the element.
+        bool useShifts_;
         /// Stabilization parameter (will be rescaled based on facet size).
         double stab_;
     };
@@ -83,7 +87,7 @@ private:
     std::vector<KShift<DIM>> findPeriodicShifts(const Utilities::GlobalIndexing& indexing,
             SolverConfig config) const;
     std::vector<KShift<DIM>> findProjectorPeriodicShifts(const Utilities::GlobalIndexing& projectorIndex,
-            const Utilities::GlobalIndexing& indexing) const;
+            const Utilities::GlobalIndexing& indexing, SolverConfig config) const;
     LinearAlgebra::SmallVector<DIM> boundaryFaceShift(const Base::Face *face) const;
 
     Base::MeshManipulator<DIM>& mesh_;
