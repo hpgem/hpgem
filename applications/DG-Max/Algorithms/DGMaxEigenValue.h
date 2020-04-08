@@ -72,7 +72,7 @@ public:
         const std::vector<std::vector<PetscScalar>> eigenvalues_;
     };
 
-    DGMaxEigenValue(Base::MeshManipulator<DIM>& mesh, std::size_t order);
+    DGMaxEigenValue(Base::MeshManipulator<DIM>& mesh, std::size_t order, bool useProjector = true);
     Result solve(const EigenValueProblem<DIM>& input, SolverConfig stab);
 
 private:
@@ -88,6 +88,8 @@ private:
 
     Base::MeshManipulator<DIM>& mesh_;
     DGMaxDiscretization<DIM> discretization_;
+    /// Use a projector to remove the kernel of the stiffness matrix
+    const bool useProjector_;
 };
 
 

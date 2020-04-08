@@ -26,7 +26,8 @@ namespace DGMax
     template<std::size_t DIM>
     std::unique_ptr<Base::MeshManipulator<DIM>>
             readMesh(std::string fileName, Base::ConfigurationData *configData,
-                    ElementInfos::EpsilonFunc<DIM> epsilonFunc);
+                    ElementInfos::EpsilonFunc<DIM> epsilonFunc,
+                    std::size_t numberOfElementMatrices = 2);
 
 
     /// A path in either real or reciprocal space

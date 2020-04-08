@@ -19,7 +19,7 @@ auto& numEigenvalues = Base::register_argument<std::size_t>('e', "eigenvalues",
         "The number of eigenvalues to compute", false, 24);
 
 auto& method = Base::register_argument<std::string>('\0', "method",
-        "The method to be used, either 'DGMAX' or 'DIVDGMAX' (default)",
+        "The method to be used, either 'DGMAX', 'DGMAX_PROJECT' or 'DIVDGMAX' (default)",
         false, "DIVDGMAX");
 
 // Compute a single point --point 1,0.5,0 or a path of points
@@ -99,27 +99,40 @@ int main(int argc, char** argv)
 template<std::size_t DIM>
 void runWithDimension()
 {
-    bool useDivDGMax;
+    bool useDivDGMax = true;
+    bool useProjector = false;
+    std::size_t numberOfElementMatrices = 2;
+    std::size_t unknowns = 0;
     // 2 unknowns, 1 time level
     if (method.getValue() == "DGMAX")
     {
         useDivDGMax = false;
+        unknowns = 1;
+    }
+    else if (method.getValue() == "DGMAX_PROJECT")
+    {
+        useDivDGMax = false;
+        useProjector = true;
+        unknowns = 2;
+        // 1 more is needed for the projector operator
+        numberOfElementMatrices = 3;
     }
     else if (method.getValue() == "DIVDGMAX")
     {
         useDivDGMax = true;
+        unknowns = 2;
     }
     else
     {
-        logger(ERROR, "Invalid method {}, should be either DGMAX or DIVDGMAX", method.getValue());
+        logger(ERROR, "Invalid method {}, should be either DGMAX, DGMAX_PROJECT or DIVDGMAX", method.getValue());
         return;
     }
 
-    Base::ConfigurationData configData(useDivDGMax ? 2 : 2, 1);
+    Base::ConfigurationData configData(unknowns, 1);
     auto mesh = DGMax::readMesh<DIM>(meshFile.getValue(), &configData, [&](const Geometry::PointPhysical<DIM>& p) {
         // TODO: Hardcoded structure
         return jelmerStructure(p, structure.getValue());
-    });
+    }, numberOfElementMatrices);
     logger(INFO, "Loaded mesh % with % local elements", meshFile.getValue(), mesh->getNumberOfElements());
     // TODO: Parameterize
     KSpacePath<DIM> path = parsePath<DIM>();
@@ -138,7 +151,7 @@ void runWithDimension()
     }
     else
     {
-        DGMaxEigenValue<DIM> solver (*mesh, p.getValue());
+        DGMaxEigenValue<DIM> solver (*mesh, p.getValue(), useProjector);
         const double stab = parseDGMaxPenaltyParameter();
         DGMaxEigenvalueBase::SolverConfig config;
         config.stab_ = stab;

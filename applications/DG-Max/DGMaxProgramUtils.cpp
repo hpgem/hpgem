@@ -76,10 +76,10 @@ namespace DGMax
 
     template<std::size_t DIM>
     std::unique_ptr<Base::MeshManipulator<DIM>> readMesh(std::string fileName, Base::ConfigurationData* configData,
-            ElementInfos::EpsilonFunc<DIM> epsilon)
+            ElementInfos::EpsilonFunc<DIM> epsilon, std::size_t numberOfElementMatrices)
     {
         auto mesh = std::unique_ptr<Base::MeshManipulator<DIM>>(
-                new Base::MeshManipulator<DIM>(configData, 2, 3, 1, 1));
+                new Base::MeshManipulator<DIM>(configData, numberOfElementMatrices, 3, 1, 1));
         mesh->readMesh(fileName);
         for (typename Base::MeshManipulator<DIM>::ElementIterator it = mesh->elementColBegin(Base::IteratorType::GLOBAL);
              it != mesh->elementColEnd(Base::IteratorType::GLOBAL); ++it)
@@ -96,9 +96,9 @@ namespace DGMax
     template
     std::unique_ptr<Base::MeshManipulator<3>> createCubeMesh(std::size_t, Base::ConfigurationData*, ElementInfos::EpsilonFunc<3>);
     template
-    std::unique_ptr<Base::MeshManipulator<2>> readMesh(std::string, Base::ConfigurationData*, ElementInfos::EpsilonFunc<2>);
+    std::unique_ptr<Base::MeshManipulator<2>> readMesh(std::string, Base::ConfigurationData*, ElementInfos::EpsilonFunc<2>, std::size_t);
     template
-    std::unique_ptr<Base::MeshManipulator<3>> readMesh(std::string, Base::ConfigurationData*, ElementInfos::EpsilonFunc<3>);
+    std::unique_ptr<Base::MeshManipulator<3>> readMesh(std::string, Base::ConfigurationData*, ElementInfos::EpsilonFunc<3>, std::size_t);
 
     /// Parse DIM comma separated numbers as the coordinates of a point.
     /// \tparam DIM The dimension of the point

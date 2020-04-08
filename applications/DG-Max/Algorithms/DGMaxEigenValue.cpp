@@ -36,9 +36,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include "Utilities/GlobalVector.h"
 
 template<std::size_t DIM>
-DGMaxEigenValue<DIM>::DGMaxEigenValue(Base::MeshManipulator<DIM> &mesh, std::size_t order)
+DGMaxEigenValue<DIM>::DGMaxEigenValue(Base::MeshManipulator<DIM> &mesh, std::size_t order, bool useProjector)
     : mesh_ (mesh)
-    , discretization_ (true)
+    , useProjector_ (useProjector)
+    , discretization_ (useProjector)
 {
     discretization_.initializeBasisFunctions(mesh_, order);
 }
@@ -187,8 +188,9 @@ private:
 /// Workspace area for the solver
 struct SolverWorkspace
 {
-    SolverWorkspace(DGMaxEigenvalueBase::SolverConfig config)
+    SolverWorkspace(DGMaxEigenvalueBase::SolverConfig config, bool useProjector)
         : config_ (config)
+        , useProjector_ (useProjector)
         , mesh_ (nullptr)
         , fieldIndex_ (nullptr)
         , projectorIndex_ (nullptr)
@@ -224,6 +226,7 @@ struct SolverWorkspace
     void cleanup();
 
     DGMaxEigenvalueBase::SolverConfig config_;
+    const bool useProjector_;
 
     Base::MeshManipulatorBase *mesh_;
     Utilities::GlobalIndexing fieldIndex_;
@@ -297,20 +300,24 @@ void SolverWorkspace::init(Base::MeshManipulatorBase *mesh, std::size_t numberOf
 void SolverWorkspace::initMatrices()
 {
     std::vector<std::size_t> fieldUnknowns ({0});
-    std::vector<std::size_t> projectorUnknowns ({1});
     fieldIndex_.reset(mesh_, Utilities::GlobalIndexing::Layout::BLOCKED_PROCESSOR, &fieldUnknowns);
-    projectorIndex_.reset(mesh_, Utilities::GlobalIndexing::Layout::BLOCKED_PROCESSOR, &projectorUnknowns);
+
 
     // Reinit matrices after indices have be updated
     // This also assembles them from the local matrices.
     stiffnessMatrix_.reinit();
     massMatrix_.reinit();
-    projectorMatrix_.reinit();
     sampleVector_.reinit();
-    tempProjectorVector_.reinit();
+
+    if (useProjector_)
+    {
+        std::vector<std::size_t> projectorUnknowns({1});
+        projectorIndex_.reset(mesh_, Utilities::GlobalIndexing::Layout::BLOCKED_PROCESSOR, &projectorUnknowns);
+        projectorMatrix_.reinit();
+        tempProjectorVector_.reinit();
+    }
 
     // Initialize the product matrix
-    // TODO: Unused in the rescaled version
     if (!config_.useHermitian_)
     {
         PetscErrorCode error;
@@ -326,16 +333,19 @@ void SolverWorkspace::initShell()
     error = MatCreateShell(PETSC_COMM_WORLD, rows, rows, PETSC_DETERMINE, PETSC_DETERMINE, this, &shell_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     error = MatShellSetOperation(shell_, MATOP_MULT, (void(*)(void)) staticShellMultiply);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    error = KSPCreate(PETSC_COMM_WORLD, &projectionSolver_);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    error = KSPSetType(projectionSolver_, KSPPREONLY);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    PC pc;
-    error = KSPGetPC(projectionSolver_, &pc);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    error = PCSetType(pc, PCLU);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
+    if (useProjector_)
+    {
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+        error = KSPCreate(PETSC_COMM_WORLD, &projectionSolver_);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+        error = KSPSetType(projectionSolver_, KSPPREONLY);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+        PC pc;
+        error = KSPGetPC(projectionSolver_, &pc);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+        error = PCSetType(pc, PCLU);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+    }
 }
 
 void SolverWorkspace::staticShellMultiply(Mat mat, Vec in, Vec out)
@@ -351,11 +361,15 @@ void SolverWorkspace::shellMultiply(Vec in, Vec out)
     PetscErrorCode error;
     error = MatMult(getActualStiffnessMatrix(), in, out);
     CHKERRABORT(PETSC_COMM_WORLD, error);
-    project(out);
+    if (useProjector_)
+    {
+        project(out);
+    }
 }
 
 void SolverWorkspace::project(Vec vec)
 {
+    logger.assert_always(useProjector_, "Projecting without projector");
     // Projection P of a vector u, this is
     // P u = u - M^{-1} * B^H * C^{-1} * B * u
     // where
@@ -497,29 +511,32 @@ void SolverWorkspace::setupSolver(std::size_t numberOfEigenvalues)
     CHKERRABORT(PETSC_COMM_WORLD, error);
     DGMaxLogger(INFO, "Solver setup completed");
 
-    Mat projectionH;
-    error = MatHermitianTranspose(projectorMatrix_, MAT_INITIAL_MATRIX, &projectionH);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
+    if (useProjector_)
+    {
+        Mat projectionH;
+        error = MatHermitianTranspose(projectorMatrix_, MAT_INITIAL_MATRIX, &projectionH);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
 
-    MatReuse reuse = setupHasBeenRun_ ? MAT_REUSE_MATRIX : MAT_INITIAL_MATRIX;
-    if (config_.useHermitian_)
-    {
-        // No mass matrix needed.
-        error = MatMatMult(projectorMatrix_, projectionH, reuse, PETSC_DEFAULT, &projectionStiffness_);
+        MatReuse reuse = setupHasBeenRun_ ? MAT_REUSE_MATRIX : MAT_INITIAL_MATRIX;
+        if (config_.useHermitian_)
+        {
+            // No mass matrix needed.
+            error = MatMatMult(projectorMatrix_, projectionH, reuse, PETSC_DEFAULT, &projectionStiffness_);
+            CHKERRABORT(PETSC_COMM_WORLD, error);
+        } else
+        {
+            error = MatMatMatMult(projectorMatrix_, massMatrix_, projectionH, reuse, PETSC_DEFAULT,
+                                  &projectionStiffness_);
+            CHKERRABORT(PETSC_COMM_WORLD, error);
+        }
+        error = KSPSetOperators(projectionSolver_, projectionStiffness_, projectionStiffness_);
         CHKERRABORT(PETSC_COMM_WORLD, error);
-    }
-    else
-    {
-        error = MatMatMatMult(projectorMatrix_, massMatrix_, projectionH, reuse, PETSC_DEFAULT, &projectionStiffness_);
+        error = KSPSetUp(projectionSolver_);
         CHKERRABORT(PETSC_COMM_WORLD, error);
+        error = MatDestroy(&projectionH);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+        DGMaxLogger(INFO, "Projection solver setup completed");
     }
-    error = KSPSetOperators(projectionSolver_, projectionStiffness_, projectionStiffness_);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    error = KSPSetUp(projectionSolver_);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    error = MatDestroy(&projectionH);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    DGMaxLogger(INFO, "Projection solver setup completed");
     // Mark as setup for future calls
     setupHasBeenRun_ = true;
 }
@@ -575,7 +592,10 @@ void SolverWorkspace::shift(const std::vector<KShift<DIM>> &stiffnessMatrixShift
 {
     // Maybe move to KShift as static function
     shiftMatrix(getActualStiffnessMatrix(), stiffnessMatrixShifts, k);
-    shiftMatrix(projectorMatrix_, projectorShifts, k);
+    if (useProjector_)
+    {
+        shiftMatrix(projectorMatrix_, projectorShifts, k);
+    }
 }
 
 template<std::size_t DIM>
@@ -623,10 +643,13 @@ void SolverWorkspace::cleanup()
     error = EPSDestroy(&solver_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
-    error = KSPDestroy(&projectionSolver_);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    error = MatDestroy(&projectionStiffness_);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
+    if (useProjector_)
+    {
+        error = KSPDestroy(&projectionSolver_);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+        error = MatDestroy(&projectionStiffness_);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+    }
 
     error = VecDestroy(&waveVec_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
@@ -902,7 +925,7 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
     PetscErrorCode error;
     initializeMatrices(config);
 
-    SolverWorkspace workspace (config);
+    SolverWorkspace workspace (config, useProjector_);
     // Leave a bit room for extra converged eigenvectors
     workspace.init(&mesh_, std::max(2 * numberOfEigenvalues, numberOfEigenvalues + 10));
 
@@ -943,8 +966,11 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
             error = VecSetRandom(workspace.eigenVectors_[0], nullptr);
             CHKERRABORT(PETSC_COMM_WORLD, error);
         }
-        workspace.project(workspace.eigenVectors_[0]);
-        DGMaxLogger(INFO, "Projected initial vector");
+        if (useProjector_)
+        {
+            workspace.project(workspace.eigenVectors_[0]);
+            DGMaxLogger(INFO, "Projected initial vector");
+        }
 
         // Use solution of previous time as starting point for the next one.
         error = EPSSetInitialSpace(workspace.solver_, 1, workspace.eigenVectors_);
@@ -959,21 +985,24 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
 
     workspace.extractEigenVectors();
     // Diagnostics
-    std::cout << "Test projection on results" << std::endl;
-    for (PetscInt i = 0; i < workspace.convergedEigenValues_; ++i)
+    if (useProjector_)
     {
-        // Diagnostics on the projection operator. Theoretically we have
-        // Bu == 0 <=> lambda != 0. For each of the eigenpairs (u,lambda) we
-        // test whether Bu == 0 <=> lambda != 0 holds approximately.
-        PetscScalar eigenValue;
-        error = EPSGetEigenpair(workspace.solver_, i, &eigenValue, nullptr, workspace.eigenVectors_[i], nullptr);
-        CHKERRABORT(PETSC_COMM_WORLD, error);
-        std::cout << "Eigenvalue " << i << ":\t" << std::abs(eigenValue) << "\t" << eigenValue << std::endl;
-        bool isPracticallyZero = std::abs(eigenValue) < 1e-5;
-        PetscReal normB;
-        MatMult(workspace.projectorMatrix_, workspace.eigenVectors_[i], workspace.tempProjectorVector_);
-        VecNorm(workspace.tempProjectorVector_, NORM_2, &normB);
-        std::cout << "\t Bu=" << normB << " expected " << (isPracticallyZero ? "!=" : "==") << " 0" << std::endl;
+        std::cout << "Test projection on results" << std::endl;
+        for (PetscInt i = 0; i < workspace.convergedEigenValues_; ++i)
+        {
+            // Diagnostics on the projection operator. Theoretically we have
+            // Bu == 0 <=> lambda != 0. For each of the eigenpairs (u,lambda) we
+            // test whether Bu == 0 <=> lambda != 0 holds approximately.
+            PetscScalar eigenValue;
+            error = EPSGetEigenpair(workspace.solver_, i, &eigenValue, nullptr, workspace.eigenVectors_[i], nullptr);
+            CHKERRABORT(PETSC_COMM_WORLD, error);
+            std::cout << "Eigenvalue " << i << ":\t" << std::abs(eigenValue) << "\t" << eigenValue << std::endl;
+            bool isPracticallyZero = std::abs(eigenValue) < 1e-5;
+            PetscReal normB;
+            MatMult(workspace.projectorMatrix_, workspace.eigenVectors_[i], workspace.tempProjectorVector_);
+            VecNorm(workspace.tempProjectorVector_, NORM_2, &normB);
+            std::cout << "\t Bu=" << normB << " expected " << (isPracticallyZero ? "!=" : "==") << " 0" << std::endl;
+        }
     }
 
     workspace.cleanup();
@@ -1049,7 +1078,10 @@ std::vector<KShift<DIM>> DGMaxEigenValue<DIM>::findProjectorPeriodicShifts(
         const Utilities::GlobalIndexing& projectorIndex, const Utilities::GlobalIndexing& indexing) const
 {
     std::vector<KShift<DIM>> result;
-    //TODO: Case without projector
+    if (!useProjector_)
+    {
+        return result;
+    }
 
     std::set<const Base::Edge*> boundaryEdges;
     std::set<const Base::Node*> boundaryNodes;
