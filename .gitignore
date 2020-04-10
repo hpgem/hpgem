@@ -18,6 +18,9 @@ nbproject/
 ## CLion
 .idea
 
+## vscode
+.vscode
+
 # Temporary files
 *~
 *.#*
