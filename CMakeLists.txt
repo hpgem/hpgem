@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.3)
+cmake_minimum_required (VERSION 3.10)
 project (hpGEM C CXX Fortran)
 
 set(hpGEM_VERSION_MAJOR 2)
@@ -19,11 +19,15 @@ endif(NOT CMAKE_BUILD_TYPE)
 
 
 #allow dynamically locating dynamic libraries if cmake and the OS support it
-if(${CMAKE_VERSION} VERSION_GREATER 2.8.12)
-    set(CMAKE_MACOSX_RPATH 1)
+set(CMAKE_MACOSX_RPATH 1)
+
+
+# Enable testing via flag
+option(ENABLE_TESTING "Build and copy testing stuff" OFF)
+if(ENABLE_TESTING)
+  enable_testing()
 endif()
 
-enable_testing()
 
 
 
@@ -110,6 +114,11 @@ include_directories(${hpGEM_SOURCE_DIR}/conf/cmake/)
 ####### KERNEL, TESTS, APPLICATIONS
 ################################################################################
 add_subdirectory(kernel)
-add_subdirectory(tests)
+if(ENABLE_TESTING)
+	add_subdirectory(tests)
+endif()
 add_subdirectory(applications)
+
+include(FeatureSummary)
+feature_summary(INCLUDE_QUIET_PACKAGES WHAT ALL)
 
