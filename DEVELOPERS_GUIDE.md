@@ -32,6 +32,80 @@ Please add the following text to each top each source file:
 >THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A >PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT >LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT >(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 >*/
 
+### Formatting
+
+The code is formatted using [clang-format](https://clang.llvm.org/docs/ClangFormat.html) using the Google formatting conventions. The appropriate ``.clang-format`` is in the main directory. 
+
+
+### General Recommendations
+
+- Any violation to the guide is allowed if it enhances readability.
+
+### Naming Conventions
+
+- File names must be of the form ``FileName``.
+- Directory names must be of the form ``DirectoryName``.
+- Names representing types must be in mixed case starting with upper case, i.e. ``TypeName``.
+- Variable names must be in mixed case starting with lower case, i.e. ``variableName``.
+- Named constants (including enumeration values) must be all uppercase using underscore to separate words.
+- Names representing methods or functions must be verbs and written in mixed case starting with lower case, i.e. ``functionName``.
+- Names representing Classes must be of the form ``ClassName``.
+- Names representing template types should be a single uppercase letter.
+- Private class variables should have ``_`` suffix.
+- Never use identifiers which begin with one or two underscores (`_' or `__'). In most cases those variables are used in imported libraries.
+- Plural form should be used on names representing a collection of objects.
+- A variable with a large scope should have a long name.
+- Choose variable names that suggest the usage.
+- The prefix ``numberOf`` should be used for variables representing a number of objects.
+- The suffix ``Id`` should be used for variables representing an entity number.
+- The prefix ``is`` or ``do`` or ``use`` or conjugations thereof should be used for boolean variables and methods.
+- Negated boolean variable names must be avoided.
+
+### Files
+
+- C++ header files should have the extension ``.h``.
+- Source files should have the extension ``.cpp``.
+- Application files should have the extension ``.cpp``.
+- Implementation files of templated classes should have the extension ``_Impl.h`` and be included at the end of the header file.
+- Large source files can be split in multiple files by using the same name, then an ``_`` and a description of its usage.
+- A class should be declared in a header file and defined in a source file where the name of the files match the name of the class.
+- All definitions should reside in source files.
+- Special characters like TAB and page break must be avoided.
+- Header files must contain an include guard. The name convention resembles the location of the file inside the source tree. (all capitals i.e. BASE_ELEMENT_HPP)
+- Include statements must be located at the top of a file only; except for template class implementations.
+
+### Statements
+
+- The parts of a class must be sorted public, protected and private.
+- Within the parts, methods should go before variables.
+- Use the ``explicit`` keyword for single argument constructors.
+- Type conversions must always be done explicitly, never rely on implicit type conversion. The only exception is upcasting, which may be done implicitly or explicitly.
+- For every ``new``, there must be a ``delete`` in the same class. If the ``delete`` is in another class, it must be documented carefully with both the ``new`` and ``delete``.
+- Variables must never have dual meaning.
+- Multiple variables should not be declared on the same line; except for the primitive data types e.g. ``int``.
+- Use of global variables should be minimized.
+- Class variables should never be declared public.
+- C++ pointers and references should have their reference symbol next to the name rather than to the type, i.e. ``Element *element``.
+- Implicit test for 0 should not be used other than for boolean variables.
+- Variables should be declared in the smallest scope possible.
+- Only loop control statements must be included in the ``for()`` construction.
+- Range based for-loops are preferred over other types of for-loops. For example, a for-loop over vector vec can look like ``for ( double d: vec) { }``.
+- Loop variables should be initialized immediately before the loop.
+- Do-while loops can be avoided.
+- The use of ``break`` and ``continue`` in loops should be avoided, go for readability.
+- The form ``while (true)`` should be used for infinite loops.
+- In cases of an if-statement, the nominal case should be put in the if-part and the exception in the else-part.
+- Floating point constants should always be written with decimal point and at least one decimal. (i.e. ``x = 0.0``).
+- Use ``nullptr`` instead of ``NULL`` or ``0``.
+- Try to avoid smart pointers. If a smart pointer is necessary, use unique_ptr or shared_ptr.
+- Use the type ``std::size_t`` for non-negative integer variables.
+- Encapsulate global variables and constants, enumerated types, and type definitions in a class or namespace.
+- The ``auto``-keyword for type declaration is only allowed if it is instantly clear what the type is.
+- When using a template, use typename T and NOT class T.
+- Avoid using ``typename`` as a return specifier.
+- Try to avoid ``typedef`` for type definitions. Use the ``using``-keyword if either the type is likely to change, or the typename is very long. This should be done in the class declaration and not globally.
+- Avoid returning by final function argument (for example ``void myFun (int a, int b, Matrix mat)`` for computing mat).
+
 
 
 ## About assertions
