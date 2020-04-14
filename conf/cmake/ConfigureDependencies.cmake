@@ -43,8 +43,9 @@ if(hpGEM_USE_METIS)
     include_directories(${METIS_INCLUDE_DIR})
     # Create target for easy linking
     add_library(METIS::METIS INTERFACE IMPORTED)
-    target_include_directories(METIS::METIS INTERFACE "${METIS_INCLUDE_DIR}")
-    target_link_libraries(METIS::METIS INTERFACE "${METIS_LIBRARIES}")
+    set_target_properties(METIS::METIS PROPERTIES 
+    INTERFACE_LINK_LIBRARIES "${METIS_LIBRARIES}"
+    INTERFACE_INCLUDE_DIRECTORIES "${METIS_INCLUDE_DIR}")
 endif()
 
 if(hpGEM_USE_QHULL)
@@ -135,22 +136,12 @@ if(hpGEM_USE_SUNDIALS)
     if(hpGEM_USE_MPI)
         message(FATAL_ERROR "SUNDIALS is only serial (for now)")
     endif()
-    #enable_language(C)
-    FIND_PACKAGE(SUNDIALS QUIET)
+    FIND_PACKAGE(SUNDIALS REQUIRED)
     add_definitions(-DHPGEM_USE_SUNDIALS)
-    if(NOT SUNDIALS_FOUND)
-        message(FATAL_ERROR
-                "The option you have choosen requires SUNDIALS and you do not have this installed. Please install")
-    endif()
-
     # Create target for easy linking
     add_library(SUNDIALS::SUNDIALS INTERFACE IMPORTED)
-    target_include_directories(SUNDIALS::SUNDIALS ${SUNDIALS_INCLUDE_DIR})
-    target_link_libraries(SUNDIALS::SUNDIALS
-        INTERFACE
-            "${SUNDIALS_LIB_sundials_cvodes}"
-            "${SUNDIALS_LIB_sundials_idas}"
-            "${SUNDIALS_LIB_sundials_kinsol}"
-            "${SUNDIALS_LIB_sundials_nvecserial}"
-    )
+
+    set_target_properties(SUNDIALS::SUNDIALS PROPERTIES 
+        INTERFACE_LINK_LIBRARIES  "${SUNDIALS_LIB_sundials_cvodes};${SUNDIALS_LIB_sundials_idas};${SUNDIALS_LIB_sundials_kinsol};${SUNDIALS_LIB_sundials_nvecserial}"
+        INTERFACE_INCLUDE_DIRECTORIES "${SUNDIALS_INCLUDE_DIR}")
 endif()
