@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.10)
-project (hpGEM C CXX Fortran)
+project (hpGEM C CXX)
 
 set(hpGEM_VERSION_MAJOR 2)
 set(hpGEM_VERSION_MINOR 0)
@@ -121,4 +121,3 @@ add_subdirectory(applications)
 
 include(FeatureSummary)
 feature_summary(INCLUDE_QUIET_PACKAGES WHAT ALL)
-
