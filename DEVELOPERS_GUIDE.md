@@ -91,7 +91,7 @@ The code is formatted using [clang-format](https://clang.llvm.org/docs/ClangForm
 - Only loop control statements must be included in the ``for()`` construction.
 - Range based for-loops are preferred over other types of for-loops. For example, a for-loop over vector vec can look like ``for ( double d: vec) { }``.
 - Loop variables should be initialized immediately before the loop.
-- Do-while loops can be avoided.
+- Do-while loops should be avoided.
 - The use of ``break`` and ``continue`` in loops should be avoided, go for readability.
 - The form ``while (true)`` should be used for infinite loops.
 - In cases of an if-statement, the nominal case should be put in the if-part and the exception in the else-part.
@@ -199,4 +199,3 @@ considerations for performance critical applications and improving speed for the
 
 Q: This bit of code seems like it is wasteful to me
 A: Did you have a look at a profiler already? Did you read the section about performance optimisations already?
-
