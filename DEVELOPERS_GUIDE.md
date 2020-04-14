@@ -101,7 +101,7 @@ The code is formatted using [clang-format](https://clang.llvm.org/docs/ClangForm
 - Use the type ``std::size_t`` for non-negative integer variables.
 - Encapsulate global variables and constants, enumerated types, and type definitions in a class or namespace.
 - The ``auto``-keyword for type declaration is only allowed if it is instantly clear what the type is.
-- When using a template, use typename T and NOT class T.
+- When using a template, use ``typename T`` and NOT ``class T``.
 - Avoid using ``typename`` as a return specifier.
 - Try to avoid ``typedef`` for type definitions. Use the ``using``-keyword if either the type is likely to change, or the typename is very long. This should be done in the class declaration and not globally.
 - Avoid returning by final function argument (for example ``void myFun (int a, int b, Matrix mat)`` for computing mat).
