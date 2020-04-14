@@ -16,6 +16,8 @@ if(LAPACK_FOUND AND NOT TARGET LAPACK::LAPACK)
     set_target_properties(BLAS::BLAS PROPERTIES INTERFACE_LINK_LIBRARIES  "${LAPACK_LIBRARIES}" INTERFACE_LINK_FLAGS "${LAPACK_LINKER_FLAGS}" )
 endif()
 
+
+
 ### OPTIONAL DEPENDENCIES ###
 #############################
 
@@ -50,11 +52,14 @@ if(hpGEM_USE_QHULL)
     add_definitions(-DHPGEM_USE_QHULL)
     # Create target for easy linking
     add_library(QHULL::QHULL INTERFACE IMPORTED)
-    target_include_directories(QHULL::QHULL INTERFACE "${QHULL_INCLUDE_DIR}")
     if(CMAKE_BUILD_TYPE MATCHES "Debug")
-        target_link_libraries(QHULL::QHULL INTERFACE "${QHULL_DEBUG_LIBRARIES}")
+        set_target_properties(QHULL::QHULL PROPERTIES 
+        INTERFACE_LINK_LIBRARIES "${QHULL_DEBUG_LIBRARIES}" 
+        INTERFACE_INCLUDE_DIRECTORIES "${QHULL_INCLUDE_DIR}")
     else()
-        target_link_libraries(QHULL::QHULL INTERFACE "${QHULL_LIBRARIES}")
+        set_target_properties(QHULL::QHULL PROPERTIES 
+        INTERFACE_LINK_LIBRARIES "${QHULL_LIBRARIES}" 
+        INTERFACE_INCLUDE_DIRECTORIES "${QHULL_INCLUDE_DIR}")
     endif()
 endif()
 
