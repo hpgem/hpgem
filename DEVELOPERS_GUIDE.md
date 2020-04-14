@@ -70,7 +70,7 @@ The code is formatted using [clang-format](https://clang.llvm.org/docs/ClangForm
 - Large source files can be split in multiple files by using the same name, then an ``_`` and a description of its usage.
 - A class should be declared in a header file and defined in a source file where the name of the files match the name of the class.
 - All definitions should reside in source files.
-- Special characters like TAB and page break must be avoided.
+- Use spaces for indenting, the use of tab should be avoided.
 - Header files must contain an include guard. The name convention resembles the location of the file inside the source tree. (all capitals i.e. BASE_ELEMENT_HPP)
 - Include statements must be located at the top of a file only; except for template class implementations.
 
@@ -199,5 +199,4 @@ considerations for performance critical applications and improving speed for the
 
 Q: This bit of code seems like it is wasteful to me
 A: Did you have a look at a profiler already? Did you read the section about performance optimisations already?
-
 
