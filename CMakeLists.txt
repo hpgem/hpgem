@@ -122,4 +122,3 @@ add_subdirectory(applications)
 
 include(FeatureSummary)
 feature_summary(INCLUDE_QUIET_PACKAGES WHAT ALL)
-
