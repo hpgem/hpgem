@@ -209,26 +209,6 @@ show :
   # Extract include paths and libraries from compile command line
   resolve_includes (petsc_includes_all "${petsc_cpp_line}")
 
-  #on windows we need to make sure we're linking against the right
-  #runtime library
-  if (WIN32)
-    if (petsc_cc_flags MATCHES "-MT")
-      set(using_md False)
-      foreach(flag_var
-          CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
-          CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
-          CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
-          CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-        if(${flag_var} MATCHES "/MD")
-          set(using_md True)
-        endif(${flag_var} MATCHES "/MD")
-      endforeach(flag_var)
-      if(${using_md} MATCHES "True")
-        message(WARNING "PETSc was built with /MT, but /MD is currently set.
- See http://www.cmake.org/Wiki/CMake_FAQ#How_can_I_build_my_MSVC_application_with_a_static_runtime.3F")
-      endif(${using_md} MATCHES "True")
-    endif (petsc_cc_flags MATCHES "-MT")
-  endif (WIN32)
 
   include (CorrectWindowsPaths)
   convert_cygwin_path(petsc_lib_dir)

@@ -22,19 +22,8 @@ endif()
 #############################
 
 if(hpGEM_USE_MPI)
-    FIND_PACKAGE(MPI REQUIRED)
-    # Add OMPI_SKIP_MPICXX to exclude the deprecated c++ bindings of MPI
-    add_definitions(-DHPGEM_USE_MPI -DOMPI_SKIP_MPICXX)
-    # Create target for easy linking
-    if(NOT TARGET MPI::MPI_CXX)
-        # Note, from CMAKE 3.9 there is a proper target defined
-        add_library(MPI::MPI_CXX INTERFACE IMPORTED)
-        set_target_properties(MPI::MPI_CXX PROPERTIES 
-        INTERFACE_LINK_LIBRARIES "${MPI_CXX_LIBRARIES}" 
-        INTERFACE_COMPILE_OPTIONS "${MPI_CXX_COMPILE_FLAGS}"
-        INTERFACE_LINK_OPTIONS "${MPI_CXX_LINK_FLAGS}" 
-        INTERFACE_INCLUDE_DIRECTORIES "${MPI_CXX_INCLUDE_PATH}")
-    endif()
+    FIND_PACKAGE(MPI REQUIRED COMPONENTS CXX)
+    add_definitions(-DHPGEM_USE_MPI)
 endif()
 
 if(hpGEM_USE_METIS)
@@ -64,20 +53,28 @@ if(hpGEM_USE_QHULL)
     endif()
 endif()
 
+
+find_package(PkgConfig REQUIRED) 
+
 if (hpGEM_USE_PETSC OR hpGEM_USE_COMPLEX_PETSC)
-    set(PETSC_ARCH "" CACHE STRING "PETSc arch string should be set be the user; he will know this if he has installed PETSc")
     set(hpGEM_LOGLEVEL "DEFAULT" CACHE STRING "Verbosity of hpGEM. Default is recommended.")
 
     if (hpGEM_USE_PETSC AND hpGEM_USE_COMPLEX_PETSC)
         message(FATAL_ERROR "The options 'hpGEM_USE_PETSC' and 'hpGEM_USE_COMPLEX_PETSC' are mutually exclusive, please disable one of them")
     endif()
 
-    enable_language(C)
-    find_package(PETSc REQUIRED COMPONENTS CXX)
-
+   # find_package via pkg config
+    pkg_check_modules(PETSC_PKG REQUIRED IMPORTED_TARGET PETSc)
     # Check whether we found a petsc with complex or real numbers
     include(CheckSymbolExists)
-    check_symbol_exists(PETSC_USE_COMPLEX petscconf.h PETSC_IS_COMPLEX)
+
+    foreach(petsc_include_dir ${PETSC_PKG_INCLUDE_DIRS})
+        set(petsc_petscconf_path "${petsc_include_dir}/petscconf.h")
+        if(EXISTS "${petsc_petscconf_path}")
+            check_symbol_exists(PETSC_USE_COMPLEX ${petsc_petscconf_path} PETSC_IS_COMPLEX)
+            check_symbol_exists(PETSC_ARCH ${petsc_petscconf_path} PETSC_ARCH)
+        endif()
+    endforeach()
 
     set(hpGEM_USE_ANY_PETSC ON)
 
@@ -96,14 +93,21 @@ if (hpGEM_USE_PETSC OR hpGEM_USE_COMPLEX_PETSC)
         add_definitions(-DHPGEM_USE_PETSC -DHPGEM_USE_ANY_PETSC)
     endif()
     # Create target for easy linking
-    if(PETSC_FOUND)
+    if(PETSC_PKG_FOUND)
         add_library(PETSc::PETSc INTERFACE IMPORTED)
-        target_include_directories(PETSc::PETSc INTERFACE "${PETSC_INCLUDES}")
-        target_link_libraries(PETSc::PETSc INTERFACE "${PETSC_LIBRARIES}")
+
         if(PETSC_IS_COMPLEX)
-            target_compile_definitions(PETSc::PETSc INTERFACE -DHPGEM_USE_COMPLEX_PETSC -DHPGEM_USE_ANY_PETSC)
+            set_target_properties(PETSc::PETSc PROPERTIES 
+            INTERFACE_LINK_LIBRARIES "${PETSC_PKG_LIBRARIES}" 
+            INTERFACE_INCLUDE_DIRECTORIES "${PETSC_PKG_INCLUDE_DIRS}"
+            INTERFACE_LINK_FLAGS "${PETSC_PKG_LDFLAGS}"
+            INTERFACE_COMPILE_DEFINITIONS "${HPGEM_USE_COMPLEX_PETSC};${HPGEM_USE_ANY_PETSC}")      
         else()
-            target_compile_definitions(PETSc::PETSc INTERFACE -DHPGEM_USE_PETSC -DHPGEM_USE_ANY_PETSC)
+            set_target_properties(PETSc::PETSc PROPERTIES 
+            INTERFACE_LINK_LIBRARIES "${PETSC_PKG_LIBRARIES}" 
+            INTERFACE_INCLUDE_DIRECTORIES "${PETSC_PKG_INCLUDE_DIRS}"
+            INTERFACE_LINK_FLAGS "${PETSC_PKG_LDFLAGS}"
+            INTERFACE_COMPILE_DEFINITIONS "${HPGEM_USE_PETSC};${HPGEM_USE_ANY_PETSC}")
         endif()
 
     endif()
@@ -113,22 +117,37 @@ else()
 endif() # Petsc
 
 if(hpGEM_USE_SLEPC)
-    enable_language(C)
-    if(NOT hpGEM_USE_PETSC AND NOT hpGEM_USE_COMPLEX_PETSC)
+
+
+    if(NOT hpGEM_USE_ANY_PETSC)
         message(FATAL_ERROR
                 "SLEPc depends on PETSc, please also enable PETSc support")
     endif()
-    FIND_PACKAGE(SLEPc REQUIRED)
-    add_definitions(-DHPGEM_USE_SLEPC)
-    if(NOT SLEPC_FOUND)
-        message(FATAL_ERROR
-                "The option you have chosen requires SLEPc and you do not have this installed. Please install")
+    pkg_check_modules(SLEPC_PKG REQUIRED IMPORTED_TARGET SLEPc)
+
+    include(CheckSymbolExists)
+
+    foreach(slepc_include_dir ${SLEPC_PKG_INCLUDE_DIRS})
+        set(slepc_slepcconf_path "${slepc_include_dir}/slepcconf.h")
+        if(EXISTS "${slepc_slepcconf_path}")
+            check_symbol_exists(SLEPC_PETSC_ARCH ${petsc_petscconf_path} SLEPC_PETSC_ARCH)
+        endif()
+    endforeach()
+
+    if(NOT(SLEPC_PETSC_ARCH STREQUAL PETSC_ARCH))
+        message(FATAL_ERROR "SLEPc ARCH and PETsc architecture differ.")
     endif()
+
+
+    add_definitions(-DHPGEM_USE_SLEPC)
     # Create target for easy linking
-    if(SLEPC_FOUND)
+    if(SLEPC_PKG_FOUND)
         add_library(SLEPc::SLEPc INTERFACE IMPORTED)
-        target_include_directories(SLEPc::SLEPc INTERFACE "${SLEPC_INCLUDE_DIRS}")
-        target_link_libraries(SLEPc::SLEPc INTERFACE "${SLEPC_LIBRARIES}")
+        set_target_properties(SLEPc::SLEPc PROPERTIES
+        INTERFACE_LINK_LIBRARIES "${SLEPC_PKG_LIBRARIES}" 
+        INTERFACE_INCLUDE_DIRECTORIES "${SLEPC_PKG_INCLUDE_DIRS}"
+        INTERFACE_LINK_FLAGS "${SLEPC_PKG_LDFLAGS}"
+        )
     endif()
 endif()
 
