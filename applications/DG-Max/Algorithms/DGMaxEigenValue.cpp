@@ -521,15 +521,22 @@ void SolverWorkspace::setupSolver(std::size_t numberOfEigenvalues)
         error = MatHermitianTranspose(projectorMatrix_, MAT_INITIAL_MATRIX, &projectionH);
         CHKERRABORT(PETSC_COMM_WORLD, error);
 
-        MatReuse reuse = setupHasBeenRun_ ? MAT_REUSE_MATRIX : MAT_INITIAL_MATRIX;
+        if (setupHasBeenRun_)
+        {
+            // Note MAT_REUSE_MATRIX has been used in the following matrix
+            // creation but caused segfaults. Probably from slighly different
+            // sparsity patterns.
+            error = MatDestroy(&projectionStiffness_);
+            CHKERRABORT(PETSC_COMM_WORLD, error);
+        }
         if (config_.useHermitian_)
         {
             // No mass matrix needed.
-            error = MatMatMult(projectorMatrix_, projectionH, reuse, PETSC_DEFAULT, &projectionStiffness_);
+            error = MatMatMult(projectorMatrix_, projectionH, MAT_INITIAL_MATRIX, PETSC_DEFAULT, &projectionStiffness_);
             CHKERRABORT(PETSC_COMM_WORLD, error);
         } else
         {
-            error = MatMatMatMult(projectorMatrix_, massMatrix_, projectionH, reuse, PETSC_DEFAULT,
+            error = MatMatMatMult(projectorMatrix_, massMatrix_, projectionH, MAT_INITIAL_MATRIX, PETSC_DEFAULT,
                                   &projectionStiffness_);
             CHKERRABORT(PETSC_COMM_WORLD, error);
         }
