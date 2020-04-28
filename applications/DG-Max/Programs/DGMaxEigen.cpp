@@ -156,6 +156,7 @@ void runWithDimension()
         DGMaxEigenvalueBase::SolverConfig config;
         config.stab_ = stab;
         config.useHermitian_ = true;
+        config.shiftFactor_ = 0;
         typename DGMaxEigenValue<DIM>::Result result = solver.solve(input, config);
         if (Base::MPIContainer::Instance().getProcessorID() == 0)
         {

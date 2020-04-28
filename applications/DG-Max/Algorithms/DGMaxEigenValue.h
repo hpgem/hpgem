@@ -42,18 +42,26 @@ public:
     {
         SolverConfig()
             : useHermitian_ (true)
-            , useShifts_ (false)
+            , shiftFactor_ (0)
             , stab_ (100)
         {};
 
         /// Reformulate the generalized eigenvalue in a Hermitian or non Hermitian way.
         // Note, directly influences the storage of the stored matrices.
         bool useHermitian_;
-        /// Use shifted basis functions, where each of them has the shift e^{ikx},
-        /// where x is the center of the element.
-        bool useShifts_;
+        /// Use shifted basis functions, where each of them has the shift e^{i a k x},
+        /// where x is the center of the element, k is the point in reciprocal
+        /// space and a is this shift factor
+        double shiftFactor_;
         /// Stabilization parameter (will be rescaled based on facet size).
         double stab_;
+
+        /// Whether the config uses shifts
+        bool usesShifts() const
+        {
+            // Allow for arbitrary small shifts
+            return shiftFactor_ != 0.0;
+        }
     };
 };
 

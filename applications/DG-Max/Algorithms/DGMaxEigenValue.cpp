@@ -612,6 +612,11 @@ void SolverWorkspace::shift(const std::vector<KShift<DIM>> &stiffnessMatrixShift
 template<std::size_t DIM>
 void SolverWorkspace::updateShiftVectors(const LinearAlgebra::SmallVector<DIM> &dk)
 {
+    if (config_.usesShifts())
+    {
+        return;
+    }
+
     auto* mesh = fieldIndex_.getMesh();
     PetscErrorCode err = 0;
     auto end = mesh->elementColEnd();
@@ -626,7 +631,7 @@ void SolverWorkspace::updateShiftVectors(const LinearAlgebra::SmallVector<DIM> &
             centerPhys = (*it)->referenceToPhysical(center);
             //this extra accuracy is probably irrelevant and a lot of extra ugly to get it working
 
-            double imPart = dk * centerPhys.getCoordinates();
+            double imPart = dk * centerPhys.getCoordinates() * config_.shiftFactor_;
             PetscScalar value = exp(std::complex<double>(0, imPart));
             // Note this seems inefficient to call this function for each value.
             err = VecSetValue(waveVec_, basisOffset + j, value, INSERT_VALUES);
@@ -758,7 +763,7 @@ KShift<DIM> KShift<DIM>::faceShift(const Base::Face* face,
         hermitian = otherElement->isOwnedByCurrentProcessor();
     }
     // Disabled to reduce complexity in implementing the projector.
-    if (config.useShifts_)
+    if (config.usesShifts()) // Allow for arbitrary small shifts
     {
         // Rows are scaled by e^(ikx) and columns by e^(-ikx) where x is the centre
         // of the element owning the row/column. As the matrices are inserted from
@@ -767,11 +772,11 @@ KShift<DIM> KShift<DIM>::faceShift(const Base::Face* face,
         const Geometry::PointReference<DIM>& center1 = ownedElement->getReferenceGeometry()->getCenter();
         centerPhys = ownedElement->referenceToPhysical(center1);
         // Owned element corresponds to the rows -> +x
-        dx += centerPhys.getCoordinates();
+        dx += centerPhys.getCoordinates() * config.shiftFactor_;
         const Geometry::PointReference<DIM>& center2 = otherElement->getReferenceGeometry()->getCenter();
         centerPhys = otherElement->referenceToPhysical(center2);
         // The other element is for the columns -> -x
-        dx -= centerPhys.getCoordinates();
+        dx -= centerPhys.getCoordinates() * config.shiftFactor_;
     }
 
     const Base::FaceMatrix& faceMatrix = face->getFaceMatrix(DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
@@ -865,12 +870,12 @@ void KShift<DIM>::addElementProjectorShift(
     if (dx.l2Norm() > 1e-12)
     {
         const Geometry::PointReference<DIM>& center = element->getReferenceGeometry()->getCenter();
-        if (config.useShifts_)
+        if (config.usesShifts()) // Allow for arbitrary small shifts
         {
             // Rescaling of the columns, as the shifts for the field basis functions
             // are e^{-ikx}. Where the convention is used that the trial basis
             // functions use the - sign.
-            dx -= element->referenceToPhysical(center).getCoordinates();
+            dx -= element->referenceToPhysical(center).getCoordinates() * config.shiftFactor_;
         }
 
         std::size_t numProjectorDoF = geom->getLocalNumberOfBasisFunctions(1);
@@ -980,7 +985,7 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
         {
             workspace.extractEigenVectors();
         }
-        if (config.useShifts_)
+        if (config.usesShifts())
         {
             error = MatDiagonalScale(workspace.getActualStiffnessMatrix(),
                     workspace.waveVec_, workspace.waveVecConjugate_);
