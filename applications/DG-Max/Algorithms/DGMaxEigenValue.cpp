@@ -286,7 +286,7 @@ private:
     template<std::size_t DIM>
     void shiftMatrix(Mat mat, const std::vector<KShift<DIM>> &shifts, const LinearAlgebra::SmallVector<DIM> &k);
     void shellMultiply(Vec in, Vec out);
-    static void staticShellMultiply(Mat mat, Vec in, Vec out);
+    static PetscErrorCode staticShellMultiply(Mat mat, Vec in, Vec out);
 };
 
 void SolverWorkspace::init(Base::MeshManipulatorBase *mesh, std::size_t numberOfEigenvectors)
@@ -352,12 +352,15 @@ void SolverWorkspace::initShell()
     }
 }
 
-void SolverWorkspace::staticShellMultiply(Mat mat, Vec in, Vec out)
+PetscErrorCode SolverWorkspace::staticShellMultiply(Mat mat, Vec in, Vec out)
 {
+    PetscErrorCode error;
     // TODO Check if the context is correct
     SolverWorkspace* workspace;
-    MatShellGetContext(mat, &workspace);
+    error = MatShellGetContext(mat, &workspace);
+    CHKERRABORT(PETSC_COMM_WORLD, error);
     workspace->shellMultiply(in, out);
+    return 0;
 }
 
 void SolverWorkspace::shellMultiply(Vec in, Vec out)
@@ -612,7 +615,7 @@ void SolverWorkspace::shift(const std::vector<KShift<DIM>> &stiffnessMatrixShift
 template<std::size_t DIM>
 void SolverWorkspace::updateShiftVectors(const LinearAlgebra::SmallVector<DIM> &dk)
 {
-    if (config_.usesShifts())
+    if (!config_.usesShifts())
     {
         return;
     }
@@ -762,8 +765,7 @@ KShift<DIM> KShift<DIM>::faceShift(const Base::Face* face,
         otherElementSide = Base::Side::RIGHT;
         hermitian = otherElement->isOwnedByCurrentProcessor();
     }
-    // Disabled to reduce complexity in implementing the projector.
-    if (config.usesShifts()) // Allow for arbitrary small shifts
+    if (config.usesShifts())
     {
         // Rows are scaled by e^(ikx) and columns by e^(-ikx) where x is the centre
         // of the element owning the row/column. As the matrices are inserted from
@@ -870,7 +872,7 @@ void KShift<DIM>::addElementProjectorShift(
     if (dx.l2Norm() > 1e-12)
     {
         const Geometry::PointReference<DIM>& center = element->getReferenceGeometry()->getCenter();
-        if (config.usesShifts()) // Allow for arbitrary small shifts
+        if (config.usesShifts())
         {
             // Rescaling of the columns, as the shifts for the field basis functions
             // are e^{-ikx}. Where the convention is used that the trial basis
@@ -991,8 +993,11 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
                     workspace.waveVec_, workspace.waveVecConjugate_);
             CHKERRABORT(PETSC_COMM_WORLD, error);
             //TODO: Check
-            error = MatDiagonalScale(workspace.projectorMatrix_,
-                                     nullptr, workspace.waveVecConjugate_);
+            if (workspace.useProjector_)
+            {
+                error = MatDiagonalScale(workspace.projectorMatrix_,
+                                         nullptr, workspace.waveVecConjugate_);
+            }
             CHKERRABORT(PETSC_COMM_WORLD, error);
         }
 
