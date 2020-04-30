@@ -74,8 +74,14 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(Base::MeshManipulator<DI
         ), 1);
     }
 
-    auto end = mesh.elementColEnd();
-    for (typename Base::MeshManipulator<DIM>::ElementIterator it = mesh.elementColBegin();
+    // Using the Global iterator as:
+    //  - The projector needs to integration over all elements on which the
+    //    conforming basis functions have support
+    //  - Rescaling the stiffness face matrices (either here or later) requires
+    //    the element mass matrices on both sides of the faces, including the
+    //    ghost elements that share a face with a non ghost element.
+    auto end = mesh.elementColEnd(Base::IteratorType::GLOBAL);
+    for (typename Base::MeshManipulator<DIM>::ElementIterator it = mesh.elementColBegin(Base::IteratorType::GLOBAL);
             it != end; ++it)
     {
         std::size_t numberOfBasisFunctions = (*it)->getNumberOfBasisFunctions(0);
@@ -127,12 +133,6 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(Base::MeshManipulator<DI
                     massMatrix(j, i) = 0.0;
                 }
             }
-            LinearAlgebra::MiddleSizeMatrix reconstruction;
-            reconstruction = massMatrix * stiffnessMatrix;
-            LinearAlgebra::MiddleSizeMatrix massTrans = massMatrix.transpose();
-            reconstruction = reconstruction * massTrans;
-//            std::cout << reconstruction - original << std::endl;
-
         }
         (*it)->setElementMatrix(stiffnessMatrix, STIFFNESS_MATRIX_ID);
 //        logger.assert_always(stiffnessMatrix.isHermitian(0), "Non hermitian");
@@ -246,6 +246,7 @@ void DGMaxDiscretization<DIM>::computeFaceIntegrals(
         if (massMatrixHandling == DGMaxDiscretizationBase::RESCALE)
         {
             massMatrix.resize(numberOfBasisFunctions, numberOfBasisFunctions);
+            massMatrix *= 0.0; // Clear the contents
             const LinearAlgebra::MiddleSizeMatrix& leftMassMat
                 = (*it)->getPtrElementLeft()->getElementMatrix(MASS_MATRIX_ID);
             std::size_t leftRows = leftMassMat.getNumberOfRows();
@@ -275,12 +276,6 @@ void DGMaxDiscretization<DIM>::computeFaceIntegrals(
             // Rescaling
             massMatrix.solveLowerTriangular(stiffnessFaceMatrix, false);
             massMatrix.solveLowerTriangular(stiffnessFaceMatrix, true);
-            // Testing
-//            LinearAlgebra::MiddleSizeMatrix reconstruction = stiffnessFaceMatrix;
-//            reconstruction = massMatrix * reconstruction;
-//            LinearAlgebra::MiddleSizeMatrix massTranspose = massMatrix.transpose();
-//            reconstruction = reconstruction * massTranspose;
-//            std::cout << original - reconstruction << std::endl;
         }
         (*it)->setFaceMatrix(stiffnessFaceMatrix, FACE_MATRIX_ID);
 
