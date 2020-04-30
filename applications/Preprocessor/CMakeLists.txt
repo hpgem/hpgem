@@ -1,13 +1,5 @@
 include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 
-if(hpGEM_USE_ANY_PETSC)
-    include_directories(${PETSC_INCLUDES})
-endif()
-
-if(hpGEM_USE_SLEPC)
-    include_directories(${SLEPC_INCLUDE_DIRS})
-endif()
-
 #the preprocessor does not perform floating poing arithmetic, so it doesn't need special Petsc/not petsc guards
 add_executable(Preprocessor.out
                main.cpp
@@ -31,26 +23,22 @@ set(CURRENT_TARGET ExtractSurface.out)
 include(${CMAKE_SOURCE_DIR}/conf/cmake/CLionFix.cmake)
 set(CURRENT_TARGET)
 
-target_link_libraries(Preprocessor.out ${METIS_LIBRARIES})
-
 if(hpGEM_USE_MPI)
-    set( DEP_COMPILE_FLAGS "${DEP_COMPILE_FLAGS} ${MPI_COMPILE_FLAGS}" )
-    set( DEP_LINKER_FLAGS "${DEP_LINKER_FLAGS} ${MPI_LINK_FLAGS}")
-    target_link_libraries(Preprocessor.out "${MPI_LIBRARIES}")
-    target_link_libraries(ExtractSurface.out "${MPI_LIBRARIES}")
+    target_link_libraries(Preprocessor.out MPI::MPI_CXX)
+    target_link_libraries(ExtractSurface.out MPI::MPI_CXX)
 endif()
 
 if(hpGEM_USE_METIS)
-    target_link_libraries(Preprocessor.out "${METIS_LIBRARIES}")
-    target_link_libraries(ExtractSurface.out "${METIS_LIBRARIES}")
+    target_link_libraries(Preprocessor.out METIS::METIS)
+    target_link_libraries(ExtractSurface.out METIS::METIS)
 endif()
 
 if(hpGEM_USE_ANY_PETSC)
-    target_link_libraries(Preprocessor.out "${PETSC_LIBRARIES}")
-    target_link_libraries(ExtractSurface.out "${PETSC_LIBRARIES}")
+    target_link_libraries(Preprocessor.out PETSc::PETSc)
+    target_link_libraries(ExtractSurface.out PETSc::PETSc)
 endif()
 
 if(hpGEM_USE_SLEPC)
-    target_link_libraries(Preprocessor.out "${SLEPC_LIBRARIES}")
-    target_link_libraries(ExtractSurface.out "${SLEPC_LIBRARIES}")
+    target_link_libraries(Preprocessor.out SLEPc::SLEPc)
+    target_link_libraries(ExtractSurface.out SLEPc::SLEPc)
 endif()

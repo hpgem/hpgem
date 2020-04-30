@@ -126,7 +126,7 @@ namespace Utilities
         /// \return The global index of the basis function.
         int getGlobalIndex(const Base::Element* element, std::size_t unknown) const
         {
-            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
+            logger.assert_debug(unknown < totalNumberOfUnknowns_, "No such unknown %", unknown);
             const Offsets& offset = offsets_[unknown];
             logger.assert_debug(offset.includedInIndex_, "Unknown not included % in the index", unknown);
             const auto basisStart = offset.elementOffsets_.find(element->getID());
@@ -136,7 +136,7 @@ namespace Utilities
         }
         int getGlobalIndex(const Base::Face* face, std::size_t unknown) const
         {
-            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
+            logger.assert_debug(unknown < totalNumberOfUnknowns_, "No such unknown %", unknown);
             const Offsets& offset = offsets_[unknown];
             logger.assert_debug(offset.includedInIndex_, "Unknown not included % in the index", unknown);
             const auto basisStart = offset.faceOffsets_.find(face->getID());
@@ -146,7 +146,7 @@ namespace Utilities
         }
         int getGlobalIndex(const Base::Edge* edge, std::size_t unknown) const
         {
-            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
+            logger.assert_debug(unknown < totalNumberOfUnknowns_, "No such unknown %", unknown);
             const Offsets& offset = offsets_[unknown];
             logger.assert_debug(offset.includedInIndex_, "Unknown not included % in the index", unknown);
             const auto basisStart = offset.edgeOffsets_.find(edge->getID());
@@ -156,7 +156,7 @@ namespace Utilities
         }
         int getGlobalIndex(const Base::Node* node, std::size_t unknown) const
         {
-            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
+            logger.assert_debug(unknown < totalNumberOfUnknowns_, "No such unknown %", unknown);
             const Offsets& offset = offsets_[unknown];
             logger.assert_debug(offset.includedInIndex_, "Unknown not included % in the index", unknown);
             const auto basisStart = offset.nodeOffsets_.find(node->getID());
@@ -175,7 +175,7 @@ namespace Utilities
         /// given element for the given unknown.
         int getProcessorLocalIndex(const Base::Element *element, std::size_t unknown) const
         {
-            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
+            logger.assert_debug(unknown < totalNumberOfUnknowns_, "No such unknown %", unknown);
             const Offsets& offset = offsets_[unknown];
             logger.assert_debug(offset.includedInIndex_, "Unknown not included % in the index", unknown);
             const auto basisStart = offset.elementOffsets_.find(element->getID());
@@ -186,7 +186,7 @@ namespace Utilities
 
         int getProcessorLocalIndex(const Base::Face *face, std::size_t unknown) const
         {
-            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
+            logger.assert_debug(unknown < totalNumberOfUnknowns_, "No such unknown %", unknown);
             const Offsets& offset = offsets_[unknown];
             logger.assert_debug(offset.includedInIndex_, "Unknown not included % in the index", unknown);
             const auto basisStart = offset.faceOffsets_.find(face->getID());
@@ -196,7 +196,7 @@ namespace Utilities
         }
         int getProcessorLocalIndex(const Base::Edge *edge, std::size_t unknown) const
         {
-            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
+            logger.assert_debug(unknown < totalNumberOfUnknowns_, "No such unknown %", unknown);
             const Offsets& offset = offsets_[unknown];
             logger.assert_debug(offset.includedInIndex_, "Unknown not included % in the index", unknown);
             const auto basisStart = offset.edgeOffsets_.find(edge->getID());
@@ -206,7 +206,7 @@ namespace Utilities
         }
         int getProcessorLocalIndex(const Base::Node *node, std::size_t unknown) const
         {
-            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
+            logger.assert_debug(unknown < totalNumberOfUnknowns_, "No such unknown %", unknown);
             const Offsets& offset = offsets_[unknown];
             logger.assert_debug(offset.includedInIndex_, "Unknown not included % in the index", unknown);
             const auto basisStart = offset.nodeOffsets_.find(node->getID());
@@ -221,7 +221,7 @@ namespace Utilities
         /// \return The local index or -1 if it is not locally owned.
         int globalToProcessorLocalIndex(int globalIndex) const
         {
-            for (std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
+            for (std::size_t unknown = 0; unknown < totalNumberOfUnknowns_; ++unknown)
             {
                 const Offsets& offset = offsets_[unknown];
                 if (offset.owns(globalIndex))
@@ -237,9 +237,12 @@ namespace Utilities
             return localBasisFunctions_;
         }
 
-        std::size_t getNumberOfUnknowns() const
+        /// The total number of unknowns in the mesh. For partial indices this
+        /// includes those unknowns that are not included.
+        /// \return The total number of unknowns.
+        std::size_t getTotalNumberOfUnknowns() const
         {
-            return numberOfUnknowns_;
+            return totalNumberOfUnknowns_;
         }
 
         std::size_t getNumberOfIncludedUnknowns() const
@@ -309,7 +312,7 @@ namespace Utilities
         /// \return Whether it is included
         bool isIncludedInIndex(std::size_t unknown) const
         {
-            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
+            logger.assert_debug(unknown < totalNumberOfUnknowns_, "No such unknown %", unknown);
             return offsets_[unknown].includedInIndex_;
         }
 
@@ -466,9 +469,12 @@ namespace Utilities
         };
         /// Offsets for each of the unknowns
         std::vector<Offsets> offsets_;
-        std::size_t numberOfUnknowns_;
+        /// The total number of unknowns in the mesh
+        std::size_t totalNumberOfUnknowns_;
         /// Total number of local basis functions over all the unknowns.
         std::size_t localBasisFunctions_;
+        /// Total number of basis functions over all unknowns and processors;
+        std::size_t globalNumberOfBasisFunctions_;
         /// Ordered list of the unknowns in use
         std::vector<std::size_t> includedUknowns_;
         /// The mesh, non const because of the push/pull elements in the mesh.

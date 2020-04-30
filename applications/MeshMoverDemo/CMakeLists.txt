@@ -1,7 +1,5 @@
-include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
-
-add_executable(MeshMoverDemo.out 
+add_executable(MeshMoverDemo.out
             MeshMoverDemo.cpp
 	    )
 
-target_link_libraries(MeshMoverDemo.out Output)                
+target_link_libraries(MeshMoverDemo.out HPGEM::HPGEM)
