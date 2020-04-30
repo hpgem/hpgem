@@ -43,7 +43,7 @@ template<std::size_t DIM, typename GEOM>
 void checkLocal(const GEOM* geom, Base::MeshManipulator<DIM>& mesh,
         Utilities::GlobalIndexing& index, Layout layout, IndexStore& indexStore)
 {
-    std::size_t numberOfUnknowns = index.getNumberOfUnknowns();
+    std::size_t numberOfUnknowns = index.getTotalNumberOfUnknowns();
     std::size_t numberOfBasisFunctions = index.getNumberOfLocalBasisFunctions();
 
     // Last index of previous unknown with basis functions.
@@ -93,7 +93,7 @@ template<std::size_t DIM>
 void checkIndex(Base::MeshManipulator<DIM>& mesh, Utilities::GlobalIndexing& index, Layout layout)
 {
     index.verifyCompleteIndex();
-    std::size_t numberOfUnknowns = index.getNumberOfUnknowns();
+    std::size_t numberOfUnknowns = index.getTotalNumberOfUnknowns();
     std::size_t numberOfBasisFunctions = index.getNumberOfLocalBasisFunctions();
     // Remove check when numberOfUnknowns is not in configData
     logger.assert_always(numberOfUnknowns == mesh.getConfigData()->numberOfUnknowns_, "Matching unknown count");

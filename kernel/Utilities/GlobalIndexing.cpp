@@ -30,7 +30,8 @@ namespace Utilities
             : mesh_ (nullptr)
             , localBasisFunctions_ (0)
             , offsets_ (0)
-            , numberOfUnknowns_ (0)
+            , totalNumberOfUnknowns_ (0)
+            , globalNumberOfBasisFunctions_ (0)
     {}
 
     GlobalIndexing::GlobalIndexing(Base::MeshManipulatorBase *mesh, Layout layout, const std::vector<std::size_t>* unknowns)
@@ -44,6 +45,8 @@ namespace Utilities
     {
         logger.assert_debug(element != nullptr, "Null pointer as element");
         const std::size_t numberOfUnknowns = element->getNumberOfUnknowns();
+        logger.assert_debug(numberOfUnknowns == totalNumberOfUnknowns_,
+                "Inconsistent number of unknowns");
         // Make sure we have enough space
         std::size_t totalBasisFunctions = 0;
         for (std::size_t i = 0; i < numberOfUnknowns; ++i)
@@ -144,20 +147,20 @@ namespace Utilities
 #ifndef HPGEM_USE_MPI
             logger.assert_debug(mesh_->elementColBegin() != mesh_->elementColEnd(), "Empty mesh not supported.");
             // Note as seen below do we assume that the number of unknowns is the same for each element, face, etc.
-            numberOfUnknowns_ = (*mesh_->elementColBegin())->getNumberOfUnknowns();
+            totalNumberOfUnknowns_ = (*mesh_->elementColBegin())->getNumberOfUnknowns();
 #else
             if(mesh_->elementColBegin() == mesh_->elementColEnd()) {
-                numberOfUnknowns_ = 0;
+                totalNumberOfUnknowns_ = 0;
             } else {
-                numberOfUnknowns_ = (*mesh_->elementColBegin())->getNumberOfUnknowns();
+                totalNumberOfUnknowns_ = (*mesh_->elementColBegin())->getNumberOfUnknowns();
             }
-            MPI_Allreduce(MPI_IN_PLACE, &numberOfUnknowns_, 1, Base::Detail::toMPIType(numberOfUnknowns_), MPI_MAX, Base::MPIContainer::Instance().getComm());
+            MPI_Allreduce(MPI_IN_PLACE, &totalNumberOfUnknowns_, 1, Base::Detail::toMPIType(totalNumberOfUnknowns_), MPI_MAX, Base::MPIContainer::Instance().getComm());
 #endif
 
             offsets_.clear();
-            offsets_.resize(numberOfUnknowns_);
+            offsets_.resize(totalNumberOfUnknowns_);
             // Setup which unknowns are used
-            for (std::size_t i = 0; i < numberOfUnknowns_; ++i)
+            for (std::size_t i = 0; i < totalNumberOfUnknowns_; ++i)
             {
                 // Default to true if no subset is requested.
                 offsets_[i].includedInIndex_ = (unknowns == nullptr);
@@ -167,8 +170,8 @@ namespace Utilities
             {
                 logger.assert_always(unknowns->size() > 0, "Building index with no unknowns is not (yet) supported");
                 for (std::size_t unknown : *unknowns) {
-                    logger.assert_always(unknown < numberOfUnknowns_, "Can not include unknown % as there are only %",
-                                         unknown, numberOfUnknowns_);
+                    logger.assert_always(unknown < totalNumberOfUnknowns_, "Can not include unknown % as there are only %",
+                                         unknown, totalNumberOfUnknowns_);
                     offsets_[unknown].includedInIndex_ = true;
                 }
                 includedUknowns_ = *unknowns;
@@ -176,8 +179,8 @@ namespace Utilities
             }
             else
             {
-                includedUknowns_.resize(numberOfUnknowns_);
-                for (std::size_t i = 0; i < numberOfUnknowns_; ++i)
+                includedUknowns_.resize(totalNumberOfUnknowns_);
+                for (std::size_t i = 0; i < totalNumberOfUnknowns_; ++i)
                 {
                     includedUknowns_[i] = i;
                 }
@@ -200,7 +203,7 @@ namespace Utilities
         else
         {
             localBasisFunctions_ = 0;
-            numberOfUnknowns_ = 0;
+            totalNumberOfUnknowns_ = 0;
             offsets_.clear();
         }
     }
@@ -276,8 +279,11 @@ namespace Utilities
         std::partial_sum(globalOffset.begin(), globalOffset.end(), globalOffset.begin());
 
         mpiOffset = globalOffset[rank];
+        globalNumberOfBasisFunctions_ = globalOffset[n];
+#else
+        globalNumberOfBasisFunctions_ = localBasisFunctions_;
 #endif
-        for (std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
+        for (std::size_t unknown = 0; unknown < totalNumberOfUnknowns_; ++unknown)
         {
             Offsets& offset = offsets_[unknown];
             if (!offset.includedInIndex_)
@@ -289,7 +295,7 @@ namespace Utilities
 
     void GlobalIndexing::constructBlocked(bool global)
     {
-        std::vector<size_t> numberOfBasisFunctions(numberOfUnknowns_);
+        std::vector<size_t> numberOfBasisFunctions(totalNumberOfUnknowns_);
         localBasisFunctions_ = 0;
 
         // Number the local basis functions for each unknown by 0...Nu-1, where Nu
@@ -366,6 +372,10 @@ namespace Utilities
                 // this unknown plus those for previous unknowns.
                 baseOffset = globalOffset[n];
                 localBaseOffset += numberOfBasisFunctions[unknown];
+                // On the last itteration globalOffset[n] contains the number of basis functions
+                // for all previous unknowns and the current unknown for processors with rank < n,
+                // thus the global number of basis functions.
+                globalNumberOfBasisFunctions_ = globalOffset[n];
             }
         }
         else
@@ -381,10 +391,12 @@ namespace Utilities
             std::size_t localOffset = 0;
             for (std::size_t unknown : includedUknowns_)
             {
+                logger(INFO, "Setting offset for unknown % at %", unknown, globalOffset[rank] + localOffset);
                 offsets_[unknown].setOffset(globalOffset[rank] + localOffset, localOffset,
                                             numberOfBasisFunctions[unknown]);
                 localOffset += numberOfBasisFunctions[unknown];
             }
+            globalNumberOfBasisFunctions_ = globalOffset[n];
         }
 #else
         // Compute the offsets for all the unknowns
@@ -394,6 +406,7 @@ namespace Utilities
             offsets_[unknown].setOffset(offset, offset, numberOfBasisFunctions[unknown]);
             offset += numberOfBasisFunctions[unknown];
         }
+        globalNumberOfBasisFunctions_ = offset;
 #endif
         communicatePushPullElements();
     }
@@ -401,7 +414,7 @@ namespace Utilities
     void GlobalIndexing::verifyCompleteIndex() const
     {
         // Check basic consistency for unused unknowns
-        for (std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
+        for (std::size_t unknown = 0; unknown < totalNumberOfUnknowns_; ++unknown)
         {
             if (offsets_[unknown].includedInIndex_)
                 continue;
@@ -419,7 +432,11 @@ namespace Utilities
             for(std::size_t unknown : includedUknowns_)
             {
                 // Internally checks if it is present
-                getGlobalIndex(element, unknown);
+                std::size_t offset = getGlobalIndex(element, unknown);
+                // Check if the offset is not too large
+                logger.assert_debug(element->getLocalNumberOfBasisFunctions(unknown) + offset <= globalNumberOfBasisFunctions_,
+                    "Element basis function index out of range % + % > %",
+                    offset, element->getLocalNumberOfBasisFunctions(unknown), globalNumberOfBasisFunctions_);
             }
         }
 
@@ -428,7 +445,10 @@ namespace Utilities
             for(std::size_t unknown : includedUknowns_)
             {
                 // Internally checks if it is present
-                getGlobalIndex(face, unknown);
+                std::size_t offset = getGlobalIndex(face, unknown);
+                logger.assert_debug(face->getLocalNumberOfBasisFunctions(unknown) + offset <= globalNumberOfBasisFunctions_,
+                        "Face basis function index out of range % + % > %",
+                        offset, face->getLocalNumberOfBasisFunctions(unknown), globalNumberOfBasisFunctions_);
             }
         }
 
@@ -437,7 +457,10 @@ namespace Utilities
             for(std::size_t unknown : includedUknowns_)
             {
                 // Internally checks if it is present
-                getGlobalIndex(edge, unknown);
+                std::size_t offset = getGlobalIndex(edge, unknown);
+                logger.assert_debug(edge->getLocalNumberOfBasisFunctions(unknown) + offset <= globalNumberOfBasisFunctions_,
+                        "Edge basis function index out of range % + % > %",
+                        offset,  edge->getLocalNumberOfBasisFunctions(unknown), globalNumberOfBasisFunctions_);
             }
         }
 
@@ -448,7 +471,10 @@ namespace Utilities
                 for (std::size_t unknown : includedUknowns_)
                 {
                     // Internally checks if it is present
-                    getGlobalIndex(node, unknown);
+                    std::size_t offset = getGlobalIndex(node, unknown);
+                    logger.assert_debug(node->getLocalNumberOfBasisFunctions(unknown) + offset <= globalNumberOfBasisFunctions_,
+                            "Node basis function index out of range % + % > %",
+                            offset + node->getLocalNumberOfBasisFunctions(unknown), globalNumberOfBasisFunctions_);
                 }
             }
         }
@@ -638,29 +664,32 @@ namespace Utilities
         // uniquely identify a geometric object without having to communicate
         // before hand.
 
-        logger.assert_debug(count % (1+numberOfUnknowns_) == 0,
+        std::size_t numberOfIncludedUnknowns = includedUknowns_.size();
+
+        logger.assert_debug(count % (1+numberOfIncludedUnknowns) == 0,
                             "Incorrect message of size %", count);
-        for(std::size_t offset = 0; offset < count; offset+=(1+numberOfUnknowns_))
+        for(std::size_t offset = 0; offset < count; offset+=(1+numberOfIncludedUnknowns))
         {
             std::size_t tag = message[offset];
             std::size_t id = tag / 4;
+            std::size_t unknownIndex = 1;
             switch (tag % 4)
             {
                 case 0:
                     for(std::size_t unknown : includedUknowns_)
-                        offsets_[unknown].elementOffsets_[id] = message[offset + 1 + unknown];
+                        offsets_[unknown].elementOffsets_[id] = message[offset + (unknownIndex++)];
                     break;
                 case 1:
                     for(std::size_t unknown : includedUknowns_)
-                        offsets_[unknown].faceOffsets_[id] = message[offset + 1 + unknown];
+                        offsets_[unknown].faceOffsets_[id] = message[offset + (unknownIndex++)];
                     break;
                 case 2:
                     for(std::size_t unknown : includedUknowns_)
-                        offsets_[unknown].edgeOffsets_[id] = message[offset + 1 + unknown];
+                        offsets_[unknown].edgeOffsets_[id] = message[offset + (unknownIndex++)];
                     break;
                 case 3:
                     for(std::size_t unknown : includedUknowns_)
-                        offsets_[unknown].nodeOffsets_[id] = message[offset + 1 + unknown];
+                        offsets_[unknown].nodeOffsets_[id] = message[offset + (unknownIndex++)];
                     break;
                 default:
                     logger.assert_always(false, "Error invalid tag %", tag);
