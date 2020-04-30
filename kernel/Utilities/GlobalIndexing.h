@@ -234,7 +234,7 @@ namespace Utilities
 
         std::size_t getNumberOfLocalBasisFunctions() const
         {
-            return localBasisFunctions_;
+            return localNumberOfBasisFunctions_;
         }
 
         /// The total number of unknowns in the mesh. For partial indices this
@@ -247,7 +247,7 @@ namespace Utilities
 
         std::size_t getNumberOfIncludedUnknowns() const
         {
-            return includedUknowns_.size();
+            return includedUnknowns_.size();
         }
 
         // Note, non const references as we do not own the Mesh, we just hold a reference to it.
@@ -319,7 +319,7 @@ namespace Utilities
         /// A vector of the unknowns that are included in the index.
         const std::vector<std::size_t>& getIncludedUnknowns() const
         {
-            return includedUknowns_;
+            return includedUnknowns_;
         }
 
 
@@ -472,11 +472,11 @@ namespace Utilities
         /// The total number of unknowns in the mesh
         std::size_t totalNumberOfUnknowns_;
         /// Total number of local basis functions over all the unknowns.
-        std::size_t localBasisFunctions_;
+        std::size_t localNumberOfBasisFunctions_;
         /// Total number of basis functions over all unknowns and processors;
         std::size_t globalNumberOfBasisFunctions_;
         /// Ordered list of the unknowns in use
-        std::vector<std::size_t> includedUknowns_;
+        std::vector<std::size_t> includedUnknowns_;
         /// The mesh, non const because of the push/pull elements in the mesh.
         Base::MeshManipulatorBase* mesh_;
     };
