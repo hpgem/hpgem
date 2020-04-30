@@ -29,10 +29,6 @@ if(ENABLE_TESTING)
   enable_testing()
 endif()
 
-
-
-
-
 #Here is the check for CXX14 support : We now use some features of this, so turn it on if possible
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 14)
