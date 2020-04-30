@@ -303,6 +303,7 @@ void SolverWorkspace::init(Base::MeshManipulatorBase *mesh, std::size_t numberOf
 
 void SolverWorkspace::initMatrices()
 {
+    DGMaxLogger(INFO, "DGMaxEigenvalue workspace init start");
     std::vector<std::size_t> fieldUnknowns ({0});
     fieldIndex_.reset(mesh_, Utilities::GlobalIndexing::Layout::BLOCKED_PROCESSOR, &fieldUnknowns);
 
@@ -320,7 +321,6 @@ void SolverWorkspace::initMatrices()
         projectorMatrix_.reinit();
         tempProjectorVector_.reinit();
     }
-
     // Initialize the product matrix
     if (!config_.useHermitian_)
     {
@@ -328,6 +328,7 @@ void SolverWorkspace::initMatrices()
         error = MatMatMult(massMatrix_, stiffnessMatrix_, MAT_INITIAL_MATRIX, 1.0, &product_);
         CHKERRABORT(PETSC_COMM_WORLD, error);
     }
+    DGMaxLogger(INFO, "DGMaxEigenvalue workspace init finished");
 }
 
 void SolverWorkspace::initShell()
@@ -1118,7 +1119,8 @@ std::vector<KShift<DIM>> DGMaxEigenValue<DIM>::findPeriodicShifts(const Utilitie
         SolverConfig config) const
 {
     std::vector<KShift<DIM>> result;
-    for (Base::TreeIterator<Base::Face*> it = mesh_.faceColBegin(); it != mesh_.faceColEnd(); ++it)
+    auto end = mesh_.faceColEnd(Base::IteratorType::GLOBAL);
+    for (Base::TreeIterator<Base::Face*> it = mesh_.faceColBegin(Base::IteratorType::GLOBAL); it != end; ++it)
     {
         // To check if the face is on a periodic boundary we compare the
         // coordinates of the center of the face according to the elements on
@@ -1129,12 +1131,28 @@ std::vector<KShift<DIM>> DGMaxEigenValue<DIM>::findPeriodicShifts(const Utilitie
         // As this should be zero for internal faces and of the size of the mesh
         // for boundary faces, we can use a very sloppy bound.
 
-        LinearAlgebra::SmallVector<DIM> dx = boundaryFaceShift(*it);
-        // TODO: temporary fix for internal faces, see DivDGMaxEigenvalue
-        if ((*it)->isInternal() && dx.l2Norm() > 1e-3)
+        // With ghost faces some faces may not have two elements associated with
+        // them. Calculating the boundary shift for these faces is not needed
+        // nor possible, so skip them.
+        if (!(*it)->isInternal())
         {
-            result.emplace_back(KShift<DIM>::faceShift(*it, indexing, dx, config));
+            continue;
         }
+        LinearAlgebra::SmallVector<DIM> dx = boundaryFaceShift(*it);
+        if (dx.l2Norm() < 1e-3)
+        {
+            continue;
+        }
+        if (!(*it)->getPtrElementLeft()->isOwnedByCurrentProcessor()
+            && !(*it)->getPtrElementRight()->isOwnedByCurrentProcessor())
+        {
+            // For each face two blocks need to be 'shifted' in the stiffness
+            // matrix (that are Hermitian counterparts). Each processor only
+            // shifts the rows in the matrix that it owns. Shifting for a face
+            // is thus only necessary when owning an element to either side.
+            continue;
+        }
+        result.emplace_back(KShift<DIM>::faceShift(*it, indexing, dx, config));
     }
     return result;
 }
@@ -1154,16 +1172,26 @@ std::vector<KShift<DIM>> DGMaxEigenValue<DIM>::findProjectorPeriodicShifts(
     std::set<const Base::Node*> boundaryNodes;
     for (Base::TreeIterator<Base::Face*> it = mesh_.faceColBegin(); it != mesh_.faceColEnd(); ++it)
     {
-        // Same idea as for the periodic faces
+        if (!(*it)->isInternal())
+            continue;
+        // Same idea as for the periodic faces.
         LinearAlgebra::SmallVector<DIM> dx = boundaryFaceShift(*it);
-        if ((*it)->isInternal() && dx.l2Norm() > 1e-3)
+        if (dx.l2Norm() > 1e-3)
         {
+            // Look for faces, edges and nodes which have projector DoFs that
+            // are owned by the current processor and thus need to be shifted.
             for (const Base::Node* node : (*it)->getNodesList())
             {
-                boundaryNodes.emplace(node);
+                if (node->isOwnedByCurrentProcessor())
+                {
+                    KShift<DIM>::addNodeProjectorShifts(node, projectorIndex, indexing, config, result);
+                }
             }
 
-            KShift<DIM>::addFaceProjectorShifts(*it, projectorIndex, indexing, config, result);
+            if ((*it)->isOwnedByCurrentProcessor())
+            {
+                KShift<DIM>::addFaceProjectorShifts(*it, projectorIndex, indexing, config, result);
+            }
             // There is no direct edge list for a face, instead we need to recover it from one of
             // the neighbouring elements.
             const Base::Element* element = (*it)->getPtrElementLeft();
@@ -1182,20 +1210,12 @@ std::vector<KShift<DIM>> DGMaxEigenValue<DIM>::findProjectorPeriodicShifts(
                     found1 |= nodeIds[j] == edgeNodeIds[0];
                     found2 |= nodeIds[j] == edgeNodeIds[1];
                 }
-                if (found1 && found2)
+                if (found1 && found2 && element->getEdge(i)->isOwnedByCurrentProcessor())
                 {
-                    boundaryEdges.emplace(element->getEdge(i));
+                    KShift<DIM>::addEdgeProjectorShifts(element->getEdge(i), projectorIndex, indexing, config, result);
                 }
             }
         }
-    }
-    for (const Base::Node* node : boundaryNodes)
-    {
-        KShift<DIM>::addNodeProjectorShifts(node, projectorIndex, indexing, config, result);
-    }
-    for (const Base::Edge* edge : boundaryEdges)
-    {
-        KShift<DIM>::addEdgeProjectorShifts(edge, projectorIndex, indexing, config, result);
     }
     return result;
 }
