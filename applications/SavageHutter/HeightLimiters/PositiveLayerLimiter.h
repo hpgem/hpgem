@@ -24,7 +24,7 @@
 #include "HeightLimiter.h"
 
 #include "Integration/ElementIntegral.h"
-#include "HelperFunctions.h"
+#include "../HelperFunctions.h"
 
 
 template <std::size_t DIM>

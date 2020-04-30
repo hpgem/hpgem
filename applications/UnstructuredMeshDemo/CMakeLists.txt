@@ -1,5 +1,3 @@
-include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
-
 #First declare the rules that will form the executable tests#
 #############################################################
 
@@ -11,6 +9,6 @@ if(hpGEM_USE_QHULL)
 add_executable(rotor.out
 		app1.cpp
       		)
-target_link_libraries(rotor.out hpGEM_Base Output)
+target_link_libraries(rotor.out HPGEM::HPGEM)
 
 endif()
