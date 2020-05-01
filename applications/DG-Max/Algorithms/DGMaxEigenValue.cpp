@@ -48,7 +48,7 @@ template<std::size_t DIM>
 void DGMaxEigenValue<DIM>::initializeMatrices(SolverConfig config)
 {
     auto massMatrixHandling = config.useHermitian_
-            ? DGMaxDiscretizationBase::RESCALE
+            ? DGMaxDiscretizationBase::ORTHOGONALIZE
             : DGMaxDiscretizationBase::INVERT;
     discretization_.computeElementIntegrands(mesh_, massMatrixHandling, nullptr, nullptr, nullptr);
     discretization_.computeFaceIntegrals(mesh_, massMatrixHandling, nullptr, config.stab_);

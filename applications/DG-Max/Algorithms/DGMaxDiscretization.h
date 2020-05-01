@@ -80,9 +80,11 @@ public:
         NORMAL,
         /// Compute the inverse of the mass matrix
         INVERT,
-        /// Rescale the stiffness and projector matrices using the Cholesky
-        /// decomposition of the mass matrix.
-        RESCALE
+        /// Compute the Cholesky decomposition LL^H = M of the mass matrix and
+        /// use this to rescale the stiffness matrix and mass matrix.
+        /// Effectively this is an orthogonalization of the basis functions with
+        /// respect to the innerproduct defined by the mass matrix.
+        ORTHOGONALIZE
     };
 };
 

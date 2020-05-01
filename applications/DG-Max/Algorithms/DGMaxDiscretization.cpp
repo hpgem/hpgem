@@ -59,7 +59,7 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(Base::MeshManipulator<DI
                                                    const InputFunction& initialConditionDerivative) const
 {
     bool anyFuncPresent = sourceTerm || initialCondition || initialConditionDerivative;
-    logger.assert_always(!anyFuncPresent || massMatrixHandling != RESCALE,
+    logger.assert_always(!anyFuncPresent || massMatrixHandling != ORTHOGONALIZE,
             "Mass matrix rescale with input functions is not implemented");
     LinearAlgebra::MiddleSizeMatrix massMatrix(1, 1), stiffnessMatrix(1, 1),
         projectorMatrix (0,0);
@@ -101,7 +101,7 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(Base::MeshManipulator<DI
             case DGMaxDiscretizationBase::INVERT:
                 massMatrix = massMatrix.inverse();
                 break;
-            case DGMaxDiscretizationBase::RESCALE:
+            case DGMaxDiscretizationBase::ORTHOGONALIZE:
                 massMatrix.cholesky();
                 break;
             default:
@@ -116,7 +116,7 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(Base::MeshManipulator<DI
             elementStiffnessMatrix(element, res);
             return res;
         });
-        if (massMatrixHandling == DGMaxDiscretizationBase::RESCALE)
+        if (massMatrixHandling == DGMaxDiscretizationBase::ORTHOGONALIZE)
         {
             // Compute L^{-1} S L^{-H}, where S is the stiffness matrix and
             // LL^H is the mass matrix.
@@ -148,7 +148,7 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(Base::MeshManipulator<DI
                 return res;
             });
 
-            if (massMatrixHandling == DGMaxDiscretizationBase::RESCALE)
+            if (massMatrixHandling == DGMaxDiscretizationBase::ORTHOGONALIZE)
             {
                 // Compute B L^{-H}, where B is the projector matrix and L is
                 // the Cholesky factor of the mass matrix.
@@ -209,7 +209,7 @@ void DGMaxDiscretization<DIM>::computeFaceIntegrals(
         Base::MeshManipulator<DIM>& mesh, MassMatrixHandling massMatrixHandling, const DGMaxDiscretization<DIM>::FaceInputFunction& boundaryCondition,
         double stab) const
 {
-    logger.assert_always(massMatrixHandling != RESCALE || !boundaryCondition,
+    logger.assert_always(massMatrixHandling != ORTHOGONALIZE || !boundaryCondition,
             "Rescale not implemented in combination with boundary conditions");
 
     LinearAlgebra::MiddleSizeMatrix stiffnessFaceMatrix(0, 0);
@@ -243,7 +243,7 @@ void DGMaxDiscretization<DIM>::computeFaceIntegrals(
             res += temp;
             return res;
         });
-        if (massMatrixHandling == DGMaxDiscretizationBase::RESCALE)
+        if (massMatrixHandling == DGMaxDiscretizationBase::ORTHOGONALIZE)
         {
             massMatrix.resize(numberOfBasisFunctions, numberOfBasisFunctions);
             massMatrix *= 0.0; // Clear the contents
