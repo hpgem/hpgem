@@ -123,19 +123,20 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(Base::MeshManipulator<DI
             LinearAlgebra::MiddleSizeMatrix original = stiffnessMatrix;
             massMatrix.solveLowerTriangular(stiffnessMatrix, true);
             massMatrix.solveLowerTriangular(stiffnessMatrix, false);
-            // Zero upper part
-            for (std::size_t i = 0; i < massMatrix.getNumberOfRows(); ++i)
+            // Due to rounding errors the matrix might be slightly non Hermitian,
+            // fix this by replacing S by 0.5(S + S^H).
+            for (std::size_t i = 0; i < stiffnessMatrix.getNumberOfRows(); ++i)
             {
-                for (std::size_t j = 0; j < massMatrix.getNumberOfRows(); ++j)
+                stiffnessMatrix(i, i) = std::real(stiffnessMatrix(i, i));
+                for (std::size_t j = i; j < stiffnessMatrix.getNumberOfColumns(); ++j)
                 {
-                    if (j >= i)
-                        continue;
-                    massMatrix(j, i) = 0.0;
+                    std::complex<double> upper = 0.5 * (stiffnessMatrix(i, j) + std::conj(stiffnessMatrix(j, i)));
+                    stiffnessMatrix(i, j) = upper;
+                    stiffnessMatrix(j, i) = std::conj(upper);
                 }
             }
         }
         (*it)->setElementMatrix(stiffnessMatrix, STIFFNESS_MATRIX_ID);
-//        logger.assert_always(stiffnessMatrix.isHermitian(0), "Non hermitian");
 
         if (includeProjector_)
         {
