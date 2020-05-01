@@ -52,11 +52,15 @@ describes a mesh of 7x8 triangular elements on the boundary of a cylinder with h
  
 ## Contact
  
-For questions, comments, requests and bug reports, send an e-mail to support@hpgem.org
+For questions, comments, requests and bug reports, send an e-mail to support@hpgem.org or open an issue [here](https://github.com/hpgem/hpgem/issues).
  
 ## More information
  
 More information is available on the website: http://www.hpgem.org
+
+## Contributing
+
+Contributions are very welcome, please open an issue [here](https://github.com/hpgem/hpgem/issues) before submitting a Pull-Request, for larger changes. So that they can be discussed. You find more information in the [Developers Guide](https://github.com/hpgem/hpgem/blob/master/DEVELOPERS_GUIDE.md).
 
 ## FAQ
 
