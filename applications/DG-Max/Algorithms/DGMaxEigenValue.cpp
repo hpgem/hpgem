@@ -1184,7 +1184,7 @@ std::vector<KShift<DIM>> DGMaxEigenValue<DIM>::findProjectorPeriodicShifts(
             {
                 if (node->isOwnedByCurrentProcessor())
                 {
-                    KShift<DIM>::addNodeProjectorShifts(node, projectorIndex, indexing, config, result);
+                    boundaryNodes.emplace(node);
                 }
             }
 
@@ -1212,11 +1212,22 @@ std::vector<KShift<DIM>> DGMaxEigenValue<DIM>::findProjectorPeriodicShifts(
                 }
                 if (found1 && found2 && element->getEdge(i)->isOwnedByCurrentProcessor())
                 {
-                    KShift<DIM>::addEdgeProjectorShifts(element->getEdge(i), projectorIndex, indexing, config, result);
+                    boundaryEdges.emplace(element->getEdge(i));
                 }
             }
         }
     }
+
+    // Now that all boundary nodes and edges have been de-duplicated, add their shifts.
+    for (const Base::Node *node : boundaryNodes)
+    {
+        KShift<DIM>::addNodeProjectorShifts(node, projectorIndex, indexing, config, result);
+    }
+    for (const Base::Edge *edge : boundaryEdges)
+    {
+        KShift<DIM>::addEdgeProjectorShifts(edge, projectorIndex, indexing, config, result);
+    }
+
     return result;
 }
 
