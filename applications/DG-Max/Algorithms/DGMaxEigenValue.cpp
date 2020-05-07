@@ -753,11 +753,18 @@ KShift<DIM> KShift<DIM>::faceShift(const Base::Face* face,
     bool hermitian;
     if (!ownedElement->isOwnedByCurrentProcessor())
     {
+        // Switch the role of owned & other element so that the owned element is
+        // actually owned.
         otherElement = ownedElement;
         ownedElement = face->getPtrElementRight();
         ownedElementSide = Base::Side::RIGHT;
         otherElementSide = Base::Side::LEFT;
+        // The Hermitian block is not shifted on this processor but on the owner
+        // of the otherElement.
         hermitian = false;
+        // dx is the jump in coordinate to go from other->owned, swapping owned
+        // and other means that we get the inverse jump.
+        dx *= -1.0;
     }
     else
     {
@@ -766,6 +773,7 @@ KShift<DIM> KShift<DIM>::faceShift(const Base::Face* face,
         otherElementSide = Base::Side::RIGHT;
         hermitian = otherElement->isOwnedByCurrentProcessor();
     }
+    logger.assert_debug(ownedElement->isOwnedByCurrentProcessor(), "Not owning either side of the face!");
     if (config.usesShifts())
     {
         // Rows are scaled by e^(ikx) and columns by e^(-ikx) where x is the centre
