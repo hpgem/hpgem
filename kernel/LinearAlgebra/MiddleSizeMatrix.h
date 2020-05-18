@@ -24,11 +24,7 @@
 
 // System includes
 #include <iostream>
-#ifdef LA_STL_VECTOR
 #include <vector>
-#else
-#include <valarray>
-#endif
 
 #include "MiddleSizeVector.h"
 #include <complex>
@@ -48,7 +44,6 @@ namespace LinearAlgebra
     ///     0   2 
     ///     1   3
     /// Examples for the implementation are given in the unit test (../tests/unit/LinearAlgebra/MatrixUnitTest).
-    /// \bug valarray does not compile, since data() is not defined on it
     /// implement fall-back routines for matrices that are too large. Note that in this situation dense data storage may not be the best option
     class MiddleSizeMatrix
     {
@@ -242,12 +237,8 @@ namespace LinearAlgebra
 
     private:
         /// The actually data of the matrix class
-#ifdef LA_STL_VECTOR
         std::vector<type> data_;
-#else
-#error "valarray is broken, please turn on hpGEM_USE_STL_VECTOR_FOR_LA"
-        std::valarray<type> data_;
-#endif
+
         
         /// Stores the number of rows of the matrix
         std::size_t numberOfRows_;
