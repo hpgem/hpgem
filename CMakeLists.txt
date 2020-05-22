@@ -1,5 +1,5 @@
-cmake_minimum_required (VERSION 3.3)
-project (hpGEM C CXX Fortran)
+cmake_minimum_required (VERSION 3.10)
+project (hpGEM C CXX)
 
 set(hpGEM_VERSION_MAJOR 2)
 set(hpGEM_VERSION_MINOR 0)
@@ -7,8 +7,9 @@ set(hpGEM_VERSION_MINOR 0)
 ## Set CMAKE options
 
 #Directory were the external cmake modules are stored
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/conf/cmake/Modules/")
 
+
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/conf/cmake/Modules/")
 #Make the default build release is this in what a normal user wants
 ###################################################################
 if(NOT CMAKE_BUILD_TYPE)
@@ -19,14 +20,14 @@ endif(NOT CMAKE_BUILD_TYPE)
 
 
 #allow dynamically locating dynamic libraries if cmake and the OS support it
-if(${CMAKE_VERSION} VERSION_GREATER 2.8.12)
-    set(CMAKE_MACOSX_RPATH 1)
+set(CMAKE_MACOSX_RPATH 1)
+
+
+# Enable testing via flag
+option(ENABLE_TESTING "Build and copy testing stuff" OFF)
+if(ENABLE_TESTING)
+  enable_testing()
 endif()
-
-enable_testing()
-
-
-
 
 #Here is the check for CXX14 support : We now use some features of this, so turn it on if possible
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -99,6 +100,13 @@ include_directories(${hpGEM_SOURCE_DIR}/conf/cmake/)
 ####### KERNEL, TESTS, APPLICATIONS
 ################################################################################
 add_subdirectory(kernel)
-add_subdirectory(tests)
+if(ENABLE_TESTING)
+	add_subdirectory(tests)
+endif()
 add_subdirectory(applications)
 
+
+
+
+include(FeatureSummary)
+feature_summary(INCLUDE_QUIET_PACKAGES WHAT ALL)
