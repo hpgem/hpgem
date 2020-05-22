@@ -7,7 +7,7 @@ set(hpGEM_VERSION_MINOR 0)
 ## Set CMAKE options
 
 #Directory were the external cmake modules are stored
-
+include(FeatureSummary)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/conf/cmake/Modules/")
 #Make the default build release is this in what a normal user wants
@@ -25,6 +25,7 @@ set(CMAKE_MACOSX_RPATH 1)
 
 # Enable testing via flag
 option(ENABLE_TESTING "Build and copy testing stuff" OFF)
+add_feature_info(ENABLE_TESTING ENABLE_TESTING "Build and copy testing stuff")
 if(ENABLE_TESTING)
   enable_testing()
 endif()
@@ -52,13 +53,21 @@ add_custom_target(fullTest
 
 # Optional dependencies
 option(hpGEM_BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
+add_feature_info(hpGEM_BUILD_DOCUMENTATION hpGEM_BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation")
 option(hpGEM_USE_METIS "Include metis this will enable parallel computation" OFF)
+add_feature_info(hpGEM_USE_METIS hpGEM_USE_METIS "Include metis this will enable parallel computation")
 option(hpGEM_USE_MPI "Include mpi this will enable parallel computation" OFF)
+add_feature_info(hpGEM_USE_MPI hpGEM_USE_MPI "Include mpi this will enable parallel computation")
 option(hpGEM_USE_QHULL "Include QHull this will allow unstructured mesh generation and r-refinement" OFF)
+add_feature_info(hpGEM_USE_QHULL hpGEM_USE_QHULL "Include QHull this will allow unstructured mesh generation and r-refinement")
 option(hpGEM_USE_PETSC "Include PETSC with real numbers, which is required for assembling a global system" OFF)
+add_feature_info(hpGEM_USE_PETSC hpGEM_USE_PETSC "Include PETSC with real numbers, which is required for assembling a global system")
 option(hpGEM_USE_COMPLEX_PETSC "Include PETSc with complex numbers" OFF)
+add_feature_info(hpGEM_USE_COMPLEX_PETSC hpGEM_USE_COMPLEX_PETSC "Include PETSc with complex numbers")
 option(hpGEM_USE_SLEPC "Include SLEPC this is needed for some applications" OFF)
+add_feature_info(hpGEM_USE_SLEPC hpGEM_USE_SLEPC "Include SLEPC this is needed for some applications")
 option(hpGEM_USE_SUNDIALS "Include SUNDIALS containing robust time integrators and nonlinear solvers" OFF)
+add_feature_info(hpGEM_USE_SUNDIALS hpGEM_USE_SUNDIALS "Include SUNDIALS containing robust time integrators and nonlinear solvers")
 
 
 ################################################################################
@@ -108,5 +117,5 @@ add_subdirectory(applications)
 
 
 
-include(FeatureSummary)
+
 feature_summary(INCLUDE_QUIET_PACKAGES WHAT ALL)
