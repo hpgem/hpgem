@@ -22,14 +22,10 @@
 #ifndef MIDDLESIZEVECTOR_H_
 #define MIDDLESIZEVECTOR_H_
 
-//This is derived from valarray or vector so import that information
+
 #include "Logger.h"
-#ifdef LA_STL_VECTOR
 #include <vector>
 #include <cmath>
-#else
-#include <valarray>
-#endif
 #include <iostream>
 #include <complex>
 
@@ -94,7 +90,6 @@ namespace LinearAlgebra
 
         /// This function is dangerous to use, since it compares doubles without 
         /// a tolerance interval to see if they are equal.
-        /// Needs fixing if someone wants to use valarray.
         bool operator==(const MiddleSizeVector& right) const;
 
         /// This function is dangerous to use, since it compares doubles without
@@ -143,11 +138,9 @@ namespace LinearAlgebra
         }
 
     private:
-#ifdef LA_STL_VECTOR
+
         std::vector<type> data_;
-#else
-        std::valarray<type> data_;
-#endif
+
         
     };
 
