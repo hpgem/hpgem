@@ -1,3 +1,5 @@
+![Basic CI](https://github.com/JensWehner/hpgem/workflows/Basic%20CI/badge.svg)
+
 <Fancy ascII logo goes here>
 
 # hpGEM
@@ -8,10 +10,10 @@ hpGEM is a c++ partial differential equation solver. It is intended for Disconti
 
 For a quick, basic installation do
 
-> mkdir ../hpGEM_build
-> cd ../hpGEM_build
-> cmake ../trunk
-> make
+> mkdir build
+> cd build
+> cmake ..
+> make 
 
 For detailled instructions and alternative options see http://www.hpgem.org/obtaining-the-code/downloading-and-installing-version-2.x
 
