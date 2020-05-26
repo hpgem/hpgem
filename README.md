@@ -1,4 +1,8 @@
-![Basic CI](https://github.com/JensWehner/hpgem/workflows/Basic%20CI/badge.svg)
+![Basic CI](https://github.com/JensWehner/hpgem/workflows/Basic%20CI/badge.svg) 
+
+[![codecov](https://codecov.io/gh/JensWehner/hpgem/branch/master/graph/badge.svg)](https://codecov.io/gh/JensWehner/hpgem)
+
+
 
 <Fancy ascII logo goes here>
 
