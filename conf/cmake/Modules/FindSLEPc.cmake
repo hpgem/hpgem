@@ -11,10 +11,9 @@ list(APPEND CMAKE_PREFIX_PATH "${SLEPC_DIR}/${PETSC_ARCH}")
 pkg_check_modules(SLEPc_PKG SLEPc)
 
 find_path(SLEPc_INCLUDE_DIR slepc.h HINTS ${SLEPc_PKG_INCLUDE_DIRS})
-find_path(SLEPc_INCLUDE_DIR2 slepcconf.h HINTS ${PETSC_PKG_INCLUDE_DIRS})
+find_path(SLEPc_INCLUDE_DIR2 slepcconf.h HINTS ${SLEPc_PKG_INCLUDE_DIRS})
 list(APPEND SLEPc_INCLUDE_DIR "${SLEPc_INCLUDE_DIR2}")
 find_library(SLEPc_LIBRARY NAMES slepc HINTS ${SLEPc_PKG_LIBRARY_DIRS} )
-
 include(FindPackageHandleStandardArgs)
 # handle the QUIETLY and REQUIRED arguments and set SLEPc_FOUND to TRUE
 # if all listed variables are TRUE
