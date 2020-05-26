@@ -14,6 +14,7 @@ jobs:
       matrix:
         mpi: [ ON, OFF ] 
         compiler: [gcc, clang]
+        BUILD_TYPE : [Debug, Release]
     steps:
     - uses: actions/checkout@v2 
     - name: blaslapack
@@ -21,7 +22,7 @@ jobs:
     - name: configure
       env:
         CC: ${{ matrix.compiler }}
-      run: cmake -H. -Bbuild -DhpGEM_USE_MPI=${{ matrix.mpi }} -DENABLE_TESTING=ON
+      run: cmake -H. -Bbuild -DhpGEM_USE_MPI=${{ matrix.mpi }} -DENABLE_TESTING=ON -DCMAKEBUILD_TYPE=${{ matrix.BUILD_TYPE }}
     - name: make
       run: cmake --build build -- -j4
     - name: test
