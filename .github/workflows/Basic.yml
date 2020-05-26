@@ -13,11 +13,14 @@ jobs:
     strategy:
       matrix:
         mpi: [ ON, OFF ] 
+        compiler: [gcc, clang]
     steps:
     - uses: actions/checkout@v2 
     - name: blaslapack
       run: sudo apt install libblas-dev liblapack-dev libopenmpi-dev
     - name: configure
+      env:
+        CC: ${{ matrix.compiler }}
       run: cmake -H. -Bbuild -DhpGEM_USE_MPI=${{ matrix.mpi }} -DENABLE_TESTING=ON
     - name: make
       run: cmake --build build -- -j4
