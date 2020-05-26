@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: Basic CI
 
 on:
   push:
@@ -10,13 +10,15 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        mpi: [ ON, OFF ] 
     steps:
     - uses: actions/checkout@v2 
-    - name: dependencies
-      run: sudo apt install libblas-dev liblapack-dev 
+    - name: blaslapack
+      run: sudo apt install libblas-dev liblapack-dev libopenmpi-dev
     - name: configure
-      run: cmake -H. -Bbuild 
+      run: cmake -H. -Bbuild -DhpGEM_USE_MPI=${{ matrix.mpi }}
     - name: make
       run: cmake --build build -- -j4
     - name: test
