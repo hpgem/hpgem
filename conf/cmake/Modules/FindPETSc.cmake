@@ -10,11 +10,12 @@
 #
 
 find_package(PkgConfig)
-
+list(APPEND CMAKE_PREFIX_PATH "${PETSC_DIR}/${PETSC_ARCH}")
 pkg_check_modules(PETSC_PKG PETSc)
 
 find_path(PETSc_INCLUDE_DIR petsc.h HINTS ${PETSC_PKG_INCLUDE_DIRS})
-
+find_path(PETSc_INCLUDE_DIR2 petscconf.h HINTS ${PETSC_PKG_INCLUDE_DIRS})
+list(APPEND PETSc_INCLUDE_DIR "${PETSc_INCLUDE_DIR2}")
 find_library(PETSc_LIBRARY NAMES petsc HINTS ${PETSC_PKG_LIBRARY_DIRS} )
 
 include(FindPackageHandleStandardArgs)
@@ -23,12 +24,15 @@ include(FindPackageHandleStandardArgs)
 
 find_package_handle_standard_args(PETSc DEFAULT_MSG PETSc_LIBRARY PETSc_INCLUDE_DIR )
 
+message(STATUS "${PETSc_INCLUDE_DIR}")
+
 if (PETSc_FOUND)
   include(CheckSymbolExists)
   foreach(petsc_dir ${PETSc_INCLUDE_DIR})
       
       set(petsc_petscconf_path "${petsc_dir}/petscconf.h")
       if(EXISTS "${petsc_petscconf_path}")
+          set(CMAKE_REQUIRED_QUIET 1)
           check_symbol_exists(PETSC_USE_COMPLEX ${petsc_petscconf_path} PETSc_IS_COMPLEX)
           file(STRINGS ${petsc_petscconf_path} _contents REGEX "#define PETSC_ARCH[ \\t]+")
           if(_contents)

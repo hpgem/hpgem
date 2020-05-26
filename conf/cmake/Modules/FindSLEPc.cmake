@@ -7,11 +7,12 @@
 #  SLEPc_ARCH         - Compiler switches for using SLEPc
 
 find_package(PkgConfig)
-
+list(APPEND CMAKE_PREFIX_PATH "${SLEPC_DIR}/${PETSC_ARCH}")
 pkg_check_modules(SLEPc_PKG SLEPc)
 
 find_path(SLEPc_INCLUDE_DIR slepc.h HINTS ${SLEPc_PKG_INCLUDE_DIRS})
-
+find_path(SLEPc_INCLUDE_DIR2 slepcconf.h HINTS ${PETSC_PKG_INCLUDE_DIRS})
+list(APPEND SLEPc_INCLUDE_DIR "${SLEPc_INCLUDE_DIR2}")
 find_library(SLEPc_LIBRARY NAMES slepc HINTS ${SLEPc_PKG_LIBRARY_DIRS} )
 
 include(FindPackageHandleStandardArgs)
@@ -22,14 +23,13 @@ find_package_handle_standard_args(SLEPc DEFAULT_MSG SLEPc_LIBRARY SLEPc_INCLUDE_
 if (SLEPc_FOUND)
   include(CheckSymbolExists)
   foreach(SLEPc_dir ${SLEPc_INCLUDE_DIR})
-      
       set(SLEPc_SLEPcconf_path "${SLEPc_dir}/slepcconf.h")
       if(EXISTS "${SLEPc_SLEPcconf_path}")
         file(STRINGS ${SLEPc_SLEPcconf_path} _contents REGEX "#define SLEPC_PETSC_ARCH[ \\t]+")
-      if(_contents)
-          string(REGEX REPLACE ".*#define SLEPC_PETSC_ARCH[ \\t]+\"?([^\\t \"]+)\"?" "\\1" SLEPc_ARCH "${_contents}")
-          message(STATUS "${SLEPc_ARCH}")
-      endif()
+          if(_contents)
+            string(REGEX REPLACE ".*#define SLEPC_PETSC_ARCH[ \\t]+\"?([^\\t \"]+)\"?" "\\1" SLEPc_ARCH "${_contents}")
+            message(STATUS "${SLEPc_ARCH}")
+          endif()
       endif()
   endforeach()
 endif ()
