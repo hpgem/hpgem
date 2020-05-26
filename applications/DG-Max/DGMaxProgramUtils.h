@@ -20,11 +20,6 @@ namespace DGMax
 
     template<std::size_t DIM>
     std::unique_ptr<Base::MeshManipulator<DIM>>
-            createCubeMesh(std::size_t subdivisions, Base::ConfigurationData *configData,
-                    ElementInfos::EpsilonFunc<DIM> epsilonFunc);
-
-    template<std::size_t DIM>
-    std::unique_ptr<Base::MeshManipulator<DIM>>
             readMesh(std::string fileName, Base::ConfigurationData *configData,
                     ElementInfos::EpsilonFunc<DIM> epsilonFunc);
 
