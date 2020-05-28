@@ -65,16 +65,12 @@ namespace LinearAlgebra
     {
     }
     
-#ifdef LA_STL_VECTOR
+
     MiddleSizeVector::MiddleSizeVector(const type array[], std::size_t size)
             : data_(array, array + size)
     {
     }
-#else
-    MiddleSizeVector::MiddleSizeVector(const type array[], std::size_t size)
-    : data_(array, size)
-    {}
-#endif
+
     
     void MiddleSizeVector::resize(std::size_t size)
     {
@@ -101,12 +97,8 @@ namespace LinearAlgebra
     {
         MiddleSizeVector result(*this);
         logger.assert_debug(data_.size() == right.data_.size(), "Vectors don't have the same size");
-#ifdef LA_STL_VECTOR
         for (std::size_t i = 0; i < data_.size(); i++)
             result.data_[i] += right.data_[i];
-#else
-        result.data_+=right.data_;
-#endif
         
         return result;
     }
@@ -115,24 +107,16 @@ namespace LinearAlgebra
     {
         MiddleSizeVector result(*this);
         logger.assert_debug(data_.size() == right.data_.size(), "Vectors don't have the same size");
-#ifdef LA_STL_VECTOR
         for (std::size_t i = 0; i < data_.size(); i++)
             result.data_[i] -= right.data_[i];
-#else
-        result.data_-=right.data_;
-#endif
         return result;
     }
     
     MiddleSizeVector MiddleSizeVector::operator*(const type& right) const
     {
         MiddleSizeVector result(*this);
-#ifdef LA_STL_VECTOR
         for (type& d : result.data_)
             d *= right;
-#else
-        result.data_*=right;
-#endif
         
         return result;
     }
@@ -141,25 +125,17 @@ namespace LinearAlgebra
     {
         ///\todo replace with BLAS
         logger.assert_debug(data_.size() == right.data_.size(), "Vectors don't have equal length.");
-#ifdef LA_STL_VECTOR
         type sum = 0;
         for (std::size_t i = 0; i < data_.size(); i++)
             sum += data_[i] * right.data_[i];
         return sum;
-#else
-        return (data_*right.data_).sum();
-#endif
     }
     
     MiddleSizeVector& MiddleSizeVector::operator/=(const type& right)
     {
-#ifdef LA_STL_VECTOR
+
         for (type& d : data_)
             d /= right;
-#else
-        data_/=right;
-#endif
-        
         return *this;
     }
     
@@ -222,36 +198,23 @@ namespace LinearAlgebra
     MiddleSizeVector& MiddleSizeVector::operator+=(const MiddleSizeVector& right)
     {
         logger.assert_debug(data_.size() == right.data_.size(), "Vectors don't have the same size");
-#ifdef LA_STL_VECTOR
         for (std::size_t i = 0; i < data_.size(); i++)
             data_[i] += right.data_[i];
-#else
-        data_+=right.data_;
-#endif
         return *this;
     }
     
     MiddleSizeVector& MiddleSizeVector::operator-=(const MiddleSizeVector& right)
     {
         logger.assert_debug(data_.size() == right.data_.size(), "Vectors don't have the same size");
-#ifdef LA_STL_VECTOR
         for (std::size_t i = 0; i < data_.size(); i++)
             data_[i] -= right.data_[i];
-        
-#else
-        data_-=right.data_;
-#endif
         return *this;
     }
     
     MiddleSizeVector& MiddleSizeVector::operator*=(const type& right)
     {
-#ifdef LA_STL_VECTOR
         for (type& d : data_)
             d *= right;
-#else
-        data_*=right;
-#endif
         return *this;
     }
     

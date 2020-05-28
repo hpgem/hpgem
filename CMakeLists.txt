@@ -59,17 +59,6 @@ option(hpGEM_USE_COMPLEX_PETSC "Include PETSc with complex numbers" OFF)
 option(hpGEM_USE_SLEPC "Include SLEPC this is needed for some applications" OFF)
 option(hpGEM_USE_SUNDIALS "Include SUNDIALS containing robust time integrators and nonlinear solvers" OFF)
 
-# Old option (partially broken) to use valarray in the linear algebra classes
-option(hpGEM_USE_STL_VECTOR_FOR_LA "Will swap the internal storage of the linear algebra from being based on valarray to STL vector" ON)
-mark_as_advanced(hpGEM_USE_STL_VECTOR_FOR_LA)
-if(hpGEM_USE_STL_VECTOR_FOR_LA)
-	add_definitions(-DLA_STL_VECTOR)
-endif(hpGEM_USE_STL_VECTOR_FOR_LA)
-if (NOT hpGEM_USE_STL_VECTOR_FOR_LA)
-	message (FATAL_ERROR
-		"Val array is no longer support; please select use hpGEM_USE_STK_VECTOR_FOR_LA")
-endif()
-
 
 ################################################################################
 ####### LOGGER CONFIGURATION
