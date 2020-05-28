@@ -108,7 +108,7 @@ class GaussQuadratureRule {
     GaussQuadratureRule() = default;
     GaussQuadratureRule(const GaussQuadratureRule& other) = delete;
 
-    virtual ~GaussQuadratureRule() {}
+    virtual ~GaussQuadratureRule() = default;
 
     //! Return the name of the quadrature.
     virtual std::string getName() const = 0;

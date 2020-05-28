@@ -575,7 +575,7 @@ class stackVector {
         std::vector<T> vector;
         std::array<T, N> array;
         U() : array(std::array<T, N>()){};
-        ~U(){};
+        ~U()= default;;
     } data_;
 };
 

@@ -59,7 +59,7 @@ using idx_t = std::size_t;
 namespace Base {
 
 template <std::size_t DIM>
-Mesh<DIM>::Mesh() {}
+Mesh<DIM>::Mesh() = default;
 
 template <std::size_t DIM>
 Mesh<DIM>::Mesh(const Mesh& orig) : nodeCoordinates_(orig.nodeCoordinates_) {

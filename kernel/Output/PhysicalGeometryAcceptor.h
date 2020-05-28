@@ -62,7 +62,7 @@ class PhysicalGeometryAcceptor {
     virtual void acceptTriangleGeometry(
         const Geometry::PhysicalGeometryBase*) = 0;
     virtual void acceptLineGeometry(const Geometry::PhysicalGeometryBase*) = 0;
-    virtual ~PhysicalGeometryAcceptor() {}
+    virtual ~PhysicalGeometryAcceptor() = default;
 };
 }  // namespace Output
 #endif

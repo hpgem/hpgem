@@ -78,7 +78,7 @@ Jacobian<3, 4> MappingToRefCubeToHypercube0::calcJacobian(
     return jacobian;
 }
 
-MappingToRefCubeToHypercube0::MappingToRefCubeToHypercube0() {}
+MappingToRefCubeToHypercube0::MappingToRefCubeToHypercube0() = default;
 
 // ~~~ index 1
 // ~~~==============================================================================
@@ -117,7 +117,7 @@ Jacobian<3, 4> MappingToRefCubeToHypercube1::calcJacobian(
     return jacobian;
 }
 
-MappingToRefCubeToHypercube1::MappingToRefCubeToHypercube1() {}
+MappingToRefCubeToHypercube1::MappingToRefCubeToHypercube1() = default;
 
 // ~~~ index 2
 // ~~~==============================================================================
@@ -156,7 +156,7 @@ Jacobian<3, 4> MappingToRefCubeToHypercube2::calcJacobian(
     return jacobian;
 }
 
-MappingToRefCubeToHypercube2::MappingToRefCubeToHypercube2() {}
+MappingToRefCubeToHypercube2::MappingToRefCubeToHypercube2() = default;
 
 // ~~~ index 3
 // ~~~==============================================================================
@@ -195,7 +195,7 @@ Jacobian<3, 4> MappingToRefCubeToHypercube3::calcJacobian(
     return jacobian;
 }
 
-MappingToRefCubeToHypercube3::MappingToRefCubeToHypercube3() {}
+MappingToRefCubeToHypercube3::MappingToRefCubeToHypercube3() = default;
 
 // ~~~ index 4
 // ~~~==============================================================================
@@ -234,7 +234,7 @@ Jacobian<3, 4> MappingToRefCubeToHypercube4::calcJacobian(
     return jacobian;
 }
 
-MappingToRefCubeToHypercube4::MappingToRefCubeToHypercube4() {}
+MappingToRefCubeToHypercube4::MappingToRefCubeToHypercube4() = default;
 
 // ~~~ index 5
 // ~~~==============================================================================
@@ -273,7 +273,7 @@ Jacobian<3, 4> MappingToRefCubeToHypercube5::calcJacobian(
     return jacobian;
 }
 
-MappingToRefCubeToHypercube5::MappingToRefCubeToHypercube5() {}
+MappingToRefCubeToHypercube5::MappingToRefCubeToHypercube5() = default;
 
 // ~~~ index 6
 // ~~~==============================================================================
@@ -312,7 +312,7 @@ Jacobian<3, 4> MappingToRefCubeToHypercube6::calcJacobian(
     return jacobian;
 }
 
-MappingToRefCubeToHypercube6::MappingToRefCubeToHypercube6() {}
+MappingToRefCubeToHypercube6::MappingToRefCubeToHypercube6() = default;
 
 // ~~~ index 7
 // ~~~==============================================================================
@@ -351,5 +351,5 @@ Jacobian<3, 4> MappingToRefCubeToHypercube7::calcJacobian(
     return jacobian;
 }
 
-MappingToRefCubeToHypercube7::MappingToRefCubeToHypercube7() {}
+MappingToRefCubeToHypercube7::MappingToRefCubeToHypercube7() = default;
 }  // namespace Geometry

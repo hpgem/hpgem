@@ -55,11 +55,7 @@ FaceMatrix::FaceMatrix(const std::size_t nDOFLeft, const std::size_t nDOFRight)
 
 /// \param[in] other FaceMatrix that will be copied to construct a new
 /// FaceMatrix.
-FaceMatrix::FaceMatrix(const FaceMatrix &other)
-    : M_LeftLeft_(other.M_LeftLeft_),
-      M_LeftRight_(other.M_LeftRight_),
-      M_RightLeft_(other.M_RightLeft_),
-      M_RightRight_(other.M_RightRight_) {}
+FaceMatrix::FaceMatrix(const FaceMatrix &other) = default;
 
 // Operators
 /// \param[in] iSide Side of the adjacent element to consider the test function.
@@ -135,13 +131,7 @@ LinearAlgebra::MiddleSizeMatrix::type &FaceMatrix::operator()(std::size_t i,
 }
 
 /// \param[in] other FaceMatrix that is being copied.
-FaceMatrix &FaceMatrix::operator=(const FaceMatrix &other) {
-    M_LeftLeft_ = other.M_LeftLeft_;
-    M_LeftRight_ = other.M_LeftRight_;
-    M_RightLeft_ = other.M_RightLeft_;
-    M_RightRight_ = other.M_RightRight_;
-    return *this;
-}
+FaceMatrix &FaceMatrix::operator=(const FaceMatrix &other) = default;
 
 /// \param[in] other FaceMatrix that is being added.
 FaceMatrix &FaceMatrix::operator+=(const FaceMatrix &other) {

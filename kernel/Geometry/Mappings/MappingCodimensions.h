@@ -155,7 +155,7 @@ class MappingCodimensions {
         return dummy;
     }
 
-    virtual ~MappingCodimensions() {}
+    virtual ~MappingCodimensions() = default;
 };
 }  // namespace Geometry
 #endif

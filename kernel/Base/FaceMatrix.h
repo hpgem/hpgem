@@ -59,7 +59,7 @@ namespace Base {
 class FaceMatrix {
    public:
     // Constructors
-    FaceMatrix() {}
+    FaceMatrix() = default;
 
     FaceMatrix(const std::size_t nDOFLeft, const std::size_t nDOFRight);
 

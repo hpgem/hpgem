@@ -51,7 +51,7 @@ using Base::GlobalData;
 // MeshMoverExampleProblem
 class Dummy : public Output::TecplotSingleElementWriter<2> {
    public:
-    Dummy() {}
+    Dummy() = default;
     void writeToTecplotFile(const Base::Element* el,
                             const Geometry::PointReference<2>& p,
                             std::ostream& os) override {}

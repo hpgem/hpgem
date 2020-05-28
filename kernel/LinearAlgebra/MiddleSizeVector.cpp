@@ -70,8 +70,7 @@ MiddleSizeVector::MiddleSizeVector(std::initializer_list<type> l) : data_(l) {
                         "for vectors that are this large");
 }
 
-MiddleSizeVector::MiddleSizeVector(const MiddleSizeVector& other)
-    : data_(other.data_) {}
+MiddleSizeVector::MiddleSizeVector(const MiddleSizeVector& other) = default;
 
 MiddleSizeVector::MiddleSizeVector(MiddleSizeVector&& other)
     : data_(std::move(other.data_)) {}
@@ -88,10 +87,7 @@ void MiddleSizeVector::resize(std::size_t size) {
     }
 }
 
-MiddleSizeVector& MiddleSizeVector::operator=(const MiddleSizeVector& right) {
-    data_ = right.data_;
-    return *this;
-}
+MiddleSizeVector& MiddleSizeVector::operator=(const MiddleSizeVector& right) = default;
 
 MiddleSizeVector& MiddleSizeVector::operator=(
     const std::initializer_list<type> l) {

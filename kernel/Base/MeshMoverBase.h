@@ -66,7 +66,7 @@ class MeshMoverBase {
     MeshMoverBase() = default;
     MeshMoverBase(const MeshMoverBase& other) = default;
 
-    virtual ~MeshMoverBase() {}
+    virtual ~MeshMoverBase() = default;
 
     /// This pure virtual function should be implemented in the Problem that
     /// needs moving meshes, and is called by MeshManipulator on every point.

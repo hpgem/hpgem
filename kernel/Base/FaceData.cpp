@@ -57,11 +57,7 @@ Base::FaceData::FaceData(std::size_t numberOfDOF,
     logger(VERBOSE, "faceVector_ size = %", faceVector_.size());
 }
 
-Base::FaceData::FaceData(const FaceData& other)
-    : userData_(other.userData_),
-      faceMatrix_(other.faceMatrix_),
-      faceVector_(other.faceVector_),
-      residual_(other.residual_) {}
+Base::FaceData::FaceData(const FaceData& other) = default;
 
 /// \param[in] matrix The standard matrix used to set the FaceMatrix.
 /// \param[in] matrixID The index to specify which FaceMatrix should be set.

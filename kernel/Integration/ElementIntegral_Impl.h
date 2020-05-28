@@ -205,11 +205,11 @@ IntegrandType ElementIntegral<DIM>::referenceElementIntegral(
 
 //! \brief Construct an ElementIntegral with cache on.
 template <std::size_t DIM>
-ElementIntegral<DIM>::ElementIntegral() {}
+ElementIntegral<DIM>::ElementIntegral() = default;
 
 //! \brief Class destructor
 template <std::size_t DIM>
-ElementIntegral<DIM>::~ElementIntegral() {}
+ElementIntegral<DIM>::~ElementIntegral() = default;
 
 template <std::size_t DIM>
 void ElementIntegral<DIM>::setTransformation(
