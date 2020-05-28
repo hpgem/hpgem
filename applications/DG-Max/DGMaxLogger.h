@@ -9,4 +9,4 @@ void initDGMaxLogging();
 void logAll(std::function<void()> log);
 bool loggingSuppressed();
 
-#endif //HPGEM_DGMAXLOGGER_H
+#endif  // HPGEM_DGMAXLOGGER_H

@@ -4,11 +4,9 @@
 
 #include "LinearAlgebra/SmallVector.h"
 
-template<std::size_t DIM>
-class KSpacePath
-{
-public:
-
+template <std::size_t DIM>
+class KSpacePath {
+   public:
     using KPoint = LinearAlgebra::SmallVector<DIM>;
 
     /// Construct a path in k-space from a set of points and the amount of steps
@@ -24,9 +22,9 @@ public:
     KPoint k(std::size_t index) const;
     /// \brief The step between the indexed k vector and previous vector.
     ///
-    /// This will be the value of k(index) - k(index-1), for index == 0 it will be k(0).
-    /// \param index The index of the step.
-    /// \return The step in k space.
+    /// This will be the value of k(index) - k(index-1), for index == 0 it will
+    /// be k(0). \param index The index of the step. \return The step in k
+    /// space.
     KPoint dk(std::size_t index) const;
 
     /// \brief Whether dk did change from index-1 to index.
@@ -55,10 +53,9 @@ public:
     /// \return The path for the cube
     static KSpacePath<DIM> cubePath(std::size_t steps, bool back = false);
 
-private:
+   private:
     const std::vector<KPoint> points_;
     const std::size_t steps_;
 };
 
-
-#endif //UTILS_KSPACEPATH_h
+#endif  // UTILS_KSPACEPATH_h

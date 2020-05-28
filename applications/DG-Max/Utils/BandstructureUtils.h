@@ -16,7 +16,7 @@
 /// \param min The minimum value of the entries
 /// \param max The maximum value of the entries
 /// \return Whether a next array is available
-template<std::size_t DIM>
+template <std::size_t DIM>
 bool next(std::array<int, DIM>& arr, int min, int max);
 
 /// \brief Compute distance to an interval
@@ -35,38 +35,30 @@ double intervalDist(double x, double xmin, double xmax);
 std::map<double, std::size_t> group(std::vector<double> vect, double tolerance);
 
 /// \brief Lattice coordinates
-template<std::size_t DIM>
-struct LatticePoint
-{
+template <std::size_t DIM>
+struct LatticePoint {
     using Basis = std::array<LinearAlgebra::SmallVector<DIM>, DIM>;
 
     LatticePoint() = default;
 
-    LatticePoint(std::array<int, DIM> coords)
-            : coords_ (coords)
-    {}
+    LatticePoint(std::array<int, DIM> coords) : coords_(coords) {}
 
     LatticePoint(const LatticePoint<DIM>& other) = default;
     LatticePoint(LatticePoint<DIM>&& other) noexcept = default;
 
-    LatticePoint<DIM>& operator =(const LatticePoint<DIM>& other) = default;
-    LatticePoint<DIM>& operator =(LatticePoint<DIM>&& other) noexcept = default;
+    LatticePoint<DIM>& operator=(const LatticePoint<DIM>& other) = default;
+    LatticePoint<DIM>& operator=(LatticePoint<DIM>&& other) noexcept = default;
 
-    bool operator== (const LatticePoint<DIM>& other) const
-    {
+    bool operator==(const LatticePoint<DIM>& other) const {
         return coords_ == other.coords_;
     }
 
     // Lexicographic order
-    bool operator < (const LatticePoint<DIM>& other) const
-    {
+    bool operator<(const LatticePoint<DIM>& other) const {
         return coords_ < other.coords_;
     }
 
-    int operator[] (int index) const
-    {
-        return coords_[index];
-    }
+    int operator[](int index) const { return coords_[index]; }
 
     std::vector<LatticePoint> getNeighbours() const;
 
@@ -80,11 +72,11 @@ struct LatticePoint
     /// \param reciprocalBasis The basis of the reciprocal lattice
     /// \return The points in kspace that are close
     static std::vector<LatticePoint> getNearestNeighbours(
-            const LinearAlgebra::SmallVector<DIM>& kpoint,
-            const Basis& reciprocalBasis);
+        const LinearAlgebra::SmallVector<DIM>& kpoint,
+        const Basis& reciprocalBasis);
 
-private:
+   private:
     std::array<int, DIM> coords_;
 };
 
-#endif //HPGEM_BANDSTRUCTUREUTILS_H
+#endif  // HPGEM_BANDSTRUCTUREUTILS_H

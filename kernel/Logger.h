@@ -1,22 +1,39 @@
 /*
- This file forms part of hpGEM. This package has been developed over a number of years by various people at the University of Twente and a full list of contributors can be found at
- http://hpgem.org/about-the-code/team
- 
- This code is distributed using BSD 3-Clause License. A copy of which can found below.
- 
- 
+ This file forms part of hpGEM. This package has been developed over a number of
+ years by various people at the University of Twente and a full list of
+ contributors can be found at http://hpgem.org/about-the-code/team
+
+ This code is distributed using BSD 3-Clause License. A copy of which can found
+ below.
+
+
  Copyright (c) 2014, University of Twente
  All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
+
+ 1. Redistributions of source code must retain the above copyright notice, this
+ list of conditions and the following disclaimer.
+
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the documentation
+ and/or other materials provided with the distribution.
+
+ 3. Neither the name of the copyright holder nor the names of its contributors
+ may be used to endorse or promote products derived from this software without
+ specific prior written permission.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #ifndef LOGGER_H
@@ -47,7 +64,7 @@
 
 /* IMPLEMENTATION DETAIL
  *    - by dducks
- * 
+ *
  * A brief explanation how this class works. Beware, there is black magic
  * going on here.
  *
@@ -72,11 +89,11 @@
  * deduced.
  *
  * Based on these two rules, we now need not a value per loglevel, but a type.
- * Therefore we use tagging, in which we use the class LL with a template argument
- * to create the different tags. Our loglevel, the enum class Log, is considered
- * to be a valid non-type template parameter - it must be either integral, enum
- * (which is integral) or a pointer - so we can use it to tag a class to create
- * diffent types.
+ * Therefore we use tagging, in which we use the class LL with a template
+ * argument to create the different tags. Our loglevel, the enum class Log, is
+ * considered to be a valid non-type template parameter - it must be either
+ * integral, enum (which is integral) or a pointer - so we can use it to tag a
+ * class to create diffent types.
  *
  * Now, our Logger instance has a template argument which is the loglevel
  * associated with our Logger; anything of lesser priority is ignored; It
@@ -126,8 +143,8 @@
  * function body is empty, this code is very, very likely to not emit any
  * instructions at all. If you don't give arguments which have only non-const
  * functions, the function call can be considered invariant which means it
- * can completely be taken out, in the case it's a seperate function it just lowers
- * the cost.
+ * can completely be taken out, in the case it's a seperate function it just
+ * lowers the cost.
  *
  * As said, black magic below.
  * END OF IMPLEMENTATION DETAIL
@@ -141,18 +158,21 @@
  *
  * Please, use the tags FATAL/ERROR/etc without class/enum/namespace instead.
  */
-enum class Log
-    : signed char
-    {   
-        FATAL = -20, ERROR = -15, WARN = -10, INFO = -5, DEFAULT = 0, VERBOSE = 5, DEBUG = 10
+enum class Log : signed char {
+    FATAL = -20,
+    ERROR = -15,
+    WARN = -10,
+    INFO = -5,
+    DEFAULT = 0,
+    VERBOSE = 5,
+    DEBUG = 10
 };
 
 /*!
  * \brief Internally used to filter on loglevel.
  * Do not edit, as this is required for an optimised logger.
  */
-constexpr bool operator<=(const Log lhs, const Log rhs)
-{
+constexpr bool operator<=(const Log lhs, const Log rhs) {
     return ((static_cast<signed char>(lhs)) <= (static_cast<signed char>(rhs)));
 }
 
@@ -168,9 +188,8 @@ constexpr bool operator<=(const Log lhs, const Log rhs)
  * They may also throw any exception to allow code to gracefully
  * recover.
  */
-class LoggerOutput
-{
-public:
+class LoggerOutput {
+   public:
     std::function<void(std::string, std::string)> onFatal;
     std::function<void(std::string, std::string)> onError;
     std::function<void(std::string, std::string)> onWarn;
@@ -190,7 +209,8 @@ public:
 extern LoggerOutput* loggerOutput;
 
 // Forward declaration..
-template<Log L = Log::DEFAULT, bool ASSERTS = HPGEM_ASSERTS> class Logger;
+template <Log L = Log::DEFAULT, bool ASSERTS = HPGEM_ASSERTS>
+class Logger;
 
 /*!
  * \brief Tag for template metaprogramming
@@ -201,10 +221,9 @@ template<Log L = Log::DEFAULT, bool ASSERTS = HPGEM_ASSERTS> class Logger;
  * Please, don't change it at all nor give it
  * any members.
  */
-template<Log Level>
-class LL
-{
-public:
+template <Log Level>
+class LL {
+   public:
 };
 
 /*!
@@ -214,9 +233,9 @@ public:
  */
 /*!
  * \brief Fatal log level
- * 
- * Fatal, as in, the program has suffered from the worst possible failure and there is no
- * way it can gracefully recover.
+ *
+ * Fatal, as in, the program has suffered from the worst possible failure and
+ * there is no way it can gracefully recover.
  *
  * Example: No memory allocations possible
  *
@@ -251,7 +270,8 @@ extern LL<Log::WARN> WARN;
  * \brief Info log level
  *
  * Useful information, small oddities found which should be of no real effect
- * to the user. Also information about the current state and progress of the program.
+ * to the user. Also information about the current state and progress of the
+ * program.
  *
  * Example: Finished inserting particles.
  *
@@ -261,14 +281,15 @@ extern LL<Log::INFO> INFO;
 /*!
  * \brief Default log level
  *
- * Only useful for defining the loglevel of the logger itself. Should not actually be used.
+ * Only useful for defining the loglevel of the logger itself. Should not
+ * actually be used.
  */
 extern LL<Log::DEFAULT> DEFAULT;
 /*!
  * \brief Verbose information
  *
- * Information which is not useful to anybody except those looking for weird behaviour
- * and statistics. These should however still be clear in meaning.
+ * Information which is not useful to anybody except those looking for weird
+ * behaviour and statistics. These should however still be clear in meaning.
  *
  * Example: Inserted 381 particles in Insertion Boundary #1.
  *
@@ -278,9 +299,9 @@ extern LL<Log::VERBOSE> VERBOSE;
 /*!
  * \brief Debug information
  *
- * Only used for internal development. Can be very cryptic, as it is only meant for finding
- * bugs / oddities by the internal development team.
- * 
+ * Only used for internal development. Can be very cryptic, as it is only meant
+ * for finding bugs / oddities by the internal development team.
+ *
  * Example: Collission found between Particle #38201 and Wall #5
  *
  * Default behaviour: ignore.
@@ -291,41 +312,34 @@ extern LL<Log::DEBUG> DEBUG;
  * \brief Logger
  *
  * \arg L The log level. Messages of higher level are ignored
- * 
+ *
  * Usage: logger(FATAL, "Error in (here) because % < %!\n", var1, var2);
  *
  * Define custom loggers by:
  * #ifndef HG_LOGLEVEL_CUSTOMMOD
  * #define HG_LOGLEVEL_CUSTOMMOD Log::Debug
  * #endif
- * Logger<HG_LOGLEVEL_CUSTOMMOD> customLogger; 
+ * Logger<HG_LOGLEVEL_CUSTOMMOD> customLogger;
  */
-template<Log L, bool ASSERTS>
-class Logger
-{
-private:
+template <Log L, bool ASSERTS>
+class Logger {
+   private:
     /*!
      * \brief The module name of this actual logger
      */
     const std::string module;
 
-public:
-    
+   public:
     /*!
      * \brief constructor
      * \arg name The name in this module used in output messages.
      */
-    Logger(const std::string name)
-            : module(name)
-    {
-    }
+    Logger(const std::string name) : module(name) {}
     /*!
      * \brief destructor
      */
-    ~Logger()
-    {
-    }
-    
+    ~Logger() {}
+
     /*
      *
      * \brief Log implementation of this function
@@ -336,55 +350,42 @@ public:
      * loglevel parameter of the Logger itself.
      *
      * \arg log Loglevel, either FATAL, ERROR, WARN, INFO, VERBOSE, DEBUG
-     * \arg format Message format, where % can be used as a placeholder for arguments.
-     * \arg arg... Any arguments which needs to be replaced.
+     * \arg format Message format, where % can be used as a placeholder for
+     * arguments. \arg arg... Any arguments which needs to be replaced.
      */
-    template<Log LOGLEVEL, typename ... Args>
-    typename std::enable_if<!((L < LOGLEVEL) && (HPGEM_LOGLEVEL < LOGLEVEL)), void>::type
-    operator()(const LL<LOGLEVEL> log, const char* format, Args&&... arg)
-    {   
+    template <Log LOGLEVEL, typename... Args>
+    typename std::enable_if<!((L < LOGLEVEL) && (HPGEM_LOGLEVEL < LOGLEVEL)),
+                            void>::type
+        operator()(const LL<LOGLEVEL> log, const char* format, Args&&... arg) {
         std::stringstream msgstream;
         createMessage(msgstream, format, arg...);
-        if (LOGLEVEL <= Log::FATAL)
-        {   
+        if (LOGLEVEL <= Log::FATAL) {
             loggerOutput->onFatal(module, msgstream.str());
-        }
-        else if (LOGLEVEL <= Log::ERROR)
-        {   
+        } else if (LOGLEVEL <= Log::ERROR) {
             loggerOutput->onError(module, msgstream.str());
-        }
-        else if (LOGLEVEL <= Log::WARN)
-        {   
+        } else if (LOGLEVEL <= Log::WARN) {
             loggerOutput->onWarn(module, msgstream.str());
-        }
-        else if (LOGLEVEL <= Log::INFO)
-        {   
+        } else if (LOGLEVEL <= Log::INFO) {
             loggerOutput->onInfo(module, msgstream.str());
-        }
-        else if (LOGLEVEL <= Log::VERBOSE)
-        {   
+        } else if (LOGLEVEL <= Log::VERBOSE) {
             loggerOutput->onVerbose(module, msgstream.str());
-        }
-        else
-        {   
+        } else {
             loggerOutput->onDebug(module, msgstream.str());
         }
     }
 
-    template<Log LOGLEVEL, typename... Args>
-    typename std::enable_if<(L < LOGLEVEL && HPGEM_LOGLEVEL < LOGLEVEL), void>::type
-    operator()(const LL<LOGLEVEL> log, const char* format, Args&&... arg)
-    {   
+    template <Log LOGLEVEL, typename... Args>
+    typename std::enable_if<(L < LOGLEVEL && HPGEM_LOGLEVEL < LOGLEVEL),
+                            void>::type
+        operator()(const LL<LOGLEVEL> log, const char* format, Args&&... arg) {}
 
-    }
-
-    //std::string is sometimes convenient, but always slow, so where possible, don't convert the const char* to a string before converting it back
-    template<Log LOGLEVEL, typename... Args>
-    void operator()(const LL<LOGLEVEL> log, std::string& format, Args&&... arg)
-    {
+    // std::string is sometimes convenient, but always slow, so where possible,
+    // don't convert the const char* to a string before converting it back
+    template <Log LOGLEVEL, typename... Args>
+    void operator()(const LL<LOGLEVEL> log, std::string& format,
+                    Args&&... arg) {
         (*this)(log, format.c_str(), std::forward<Args>(arg)...);
     }
-
 
     /*
      *
@@ -395,46 +396,39 @@ public:
      * and will be send to loggerOuptput->onFatal.
      *
      * \arg assertion An assertion, which must be true
-     * \arg format Message format, where % can be used as a placeholder for arguments.
-     * \arg arg... Any arguments which needs to be replaced.
+     * \arg format Message format, where % can be used as a placeholder for
+     * arguments. \arg arg... Any arguments which needs to be replaced.
      */
 
-    
-    //the conversion from "" to a std::sting is so slow, it takes 50% of the total run time for a release build...
-    template<typename... Args>
+    // the conversion from "" to a std::sting is so slow, it takes 50% of the
+    // total run time for a release build...
+    template <typename... Args>
     typename std::enable_if<(ASSERTS) && (sizeof...(Args) >= 0), void>::type
-    assert_debug(bool assertion, const char* format, Args&& ... arg)
-    {   
+        assert_debug(bool assertion, const char* format, Args&&... arg) {
         assert_always(assertion, format, std::forward<Args>(arg)...);
     }
-    
-    template<typename... Args>
+
+    template <typename... Args>
     typename std::enable_if<!((ASSERTS) && sizeof...(Args) >= 0), void>::type
-    assert_debug(bool assertion, const char* format, Args&& ... arg)
-    {   
-    }
-    
-    template<typename... Args>
-    void assert_debug(bool assertion, const std::string format, Args&& ... arg)
-    {
+        assert_debug(bool assertion, const char* format, Args&&... arg) {}
+
+    template <typename... Args>
+    void assert_debug(bool assertion, const std::string format, Args&&... arg) {
         assert_debug(assertion, format.c_str(), std::forward<Args>(arg)...);
     }
 
-    template<typename... Args>
-    void assert_always(bool assertion, const char* format, Args&&... arg)
-    {   
-        if (!assertion)
-        {   
+    template <typename... Args>
+    void assert_always(bool assertion, const char* format, Args&&... arg) {
+        if (!assertion) {
             std::stringstream msgstream;
             createMessage(msgstream, format, std::forward<Args>(arg)...);
             loggerOutput->onFatal(module, msgstream.str());
         }
-
     }
-    
-    template<typename... Args>
-    void assert_always(bool assertion, const std::string format, Args&&... arg)
-    {
+
+    template <typename... Args>
+    void assert_always(bool assertion, const std::string format,
+                       Args&&... arg) {
         assert_always(assertion, format.c_str(), std::forward<Args>(arg)...);
     }
 
@@ -442,115 +436,96 @@ public:
      * \brief Oldskool log method.
      * \deprecated Use operator() instead.
      */
-    template<typename... Args>
-    void log(const Log loglevel, const std::string& format, Args&&... arg)
-    {   
-        if (loglevel <= L || loglevel <= HPGEM_LOGLEVEL)
-        {   
+    template <typename... Args>
+    void log(const Log loglevel, const std::string& format, Args&&... arg) {
+        if (loglevel <= L || loglevel <= HPGEM_LOGLEVEL) {
             std::stringstream msgstream;
-            createMessage(msgstream, format.c_str(), std::forward<Args>(arg)...);
-            if (loglevel <= Log::FATAL)
-            {   
+            createMessage(msgstream, format.c_str(),
+                          std::forward<Args>(arg)...);
+            if (loglevel <= Log::FATAL) {
                 loggerOutput->onFatal(module, msgstream.str());
-            }
-            else if (loglevel <= Log::ERROR)
-            {   
+            } else if (loglevel <= Log::ERROR) {
                 loggerOutput->onError(module, msgstream.str());
-            }
-            else if (loglevel <= Log::WARN)
-            {   
+            } else if (loglevel <= Log::WARN) {
                 loggerOutput->onWarn(module, msgstream.str());
-            }
-            else if (loglevel <= Log::INFO)
-            {   
+            } else if (loglevel <= Log::INFO) {
                 loggerOutput->onInfo(module, msgstream.str());
-            }
-            else if (loglevel <= Log::VERBOSE)
-            {   
+            } else if (loglevel <= Log::VERBOSE) {
                 loggerOutput->onVerbose(module, msgstream.str());
-            }
-            else
-            {   
+            } else {
                 loggerOutput->onDebug(module, msgstream.str());
             }
         }
     }
 
-    template<typename T>
+    template <typename T>
     void suppressWarnings(T body) {
         auto oldWarn = loggerOutput->onWarn;
-        loggerOutput->onWarn = [](std::string, std::string){};
+        loggerOutput->onWarn = [](std::string, std::string) {};
         body();
         loggerOutput->onWarn = oldWarn;
     }
 
-private:
+   private:
     /*!
      * \brief Actual implementation to recursively replace all the '%' signs by
      * actual values.
      */
-    template<typename Arg1, typename... Args>
-    void createMessage(std::stringstream& msg, const char* fmt,
-    Arg1&& arg, Args&&... args)
-    {   
+    template <typename Arg1, typename... Args>
+    void createMessage(std::stringstream& msg, const char* fmt, Arg1&& arg,
+                       Args&&... args) {
         bool doSkipNext = false;
-        while (*fmt != '%' || doSkipNext)
-        {   
-            //Make sure we're not running past the end of our formatting string.
-            if (*fmt == '\0')
-            return;
+        while (*fmt != '%' || doSkipNext) {
+            // Make sure we're not running past the end of our formatting
+            // string.
+            if (*fmt == '\0') return;
 
-            if (*fmt == '\\'&& !doSkipNext)
-            { //Escape for the %sign
+            if (*fmt == '\\' && !doSkipNext) {  // Escape for the %sign
                 doSkipNext = true;
                 fmt++;
-            }
-            else
-            {   
+            } else {
                 msg << *fmt;
                 fmt++;
                 doSkipNext = false;
             }
         }
 
-        fmt++; //Consume the % sign
+        fmt++;  // Consume the % sign
         msg << arg;
-        createMessage(msg, fmt, std::forward<Args>(args)...);//and recursively call ourselve / the method below.
+        createMessage(
+            msg, fmt,
+            std::forward<Args>(args)...);  // and recursively call ourselve /
+                                           // the method below.
     }
 
     /*!
      * \brief Terminating case / argument call
      */
-    template<typename Arg1>
-    void createMessage(std::stringstream& msg, const char* fmt, Arg1&& arg)
-    {   
+    template <typename Arg1>
+    void createMessage(std::stringstream& msg, const char* fmt, Arg1&& arg) {
         bool doSkipNext = false;
-        while (*fmt != '%' || doSkipNext)
-        {   
-            if (*fmt == '\0') // End of string
-            return;
+        while (*fmt != '%' || doSkipNext) {
+            if (*fmt == '\0')  // End of string
+                return;
 
-            if (*fmt == '\\' && !doSkipNext)
-            { //Escape for the %sign and the \sign
+            if (*fmt == '\\' && !doSkipNext) {  // Escape for the %sign and the
+                                                // \sign
                 doSkipNext = true;
                 fmt++;
-            }
-            else
-            { //invoke the replacement
+            } else {  // invoke the replacement
                 msg << *fmt;
                 fmt++;
                 doSkipNext = false;
             }
         }
-        fmt++; //Consume the % sign
+        fmt++;  // Consume the % sign
         msg << arg << fmt;
     }
 
     /*!
      * \brief Terminating case / no argument call
      */
-    void createMessage(std::stringstream& msg, const char* message)
-    {   
+    void createMessage(std::stringstream& msg, const char* message) {
         msg << message;
     }
 };
@@ -565,9 +540,10 @@ private:
  */
 extern Logger<HPGEM_LOGLEVEL> logger;
 
-//just emptying the functions is not sufficiently aggressive in disabling the actual (costly) comparison
+// just emptying the functions is not sufficiently aggressive in disabling the
+// actual (costly) comparison
 #if !HPGEM_ASSERTS
-#define assert_debug(e,...) assert_debug(true,"")
+#define assert_debug(e, ...) assert_debug(true, "")
 #endif
-        
+
 #endif

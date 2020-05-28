@@ -22,130 +22,115 @@ using std::string;
 #include "Integration/ElementIntegrandBase.h"
 #include "Integration/FaceIntegrandBase.h"
 
-using Base::HpgemAPIBase;
-using Base::GlobalData;
 using Base::ConfigurationData;
+using Base::GlobalData;
+using Base::HpgemAPIBase;
 using namespace Base;
 
 const unsigned int DIM = 3;
 
 using VectorOfMatrices = std::vector<LinearAlgebra::MiddleSizeMatrix>;
-struct ElementIntegralData
-{
-    //optimize later!
-    ElementIntegralData operator*=(const double& scalar)
-    {
+struct ElementIntegralData {
+    // optimize later!
+    ElementIntegralData operator*=(const double& scalar) {
         xGrad_ *= scalar;
         yGrad_ *= scalar;
         zGrad_ *= scalar;
         return *this;
     }
-    void axpy(double a, const ElementIntegralData& x)
-    {
+    void axpy(double a, const ElementIntegralData& x) {
         xGrad_.axpy(a, x.xGrad_);
         yGrad_.axpy(a, x.yGrad_);
         zGrad_.axpy(a, x.zGrad_);
     }
-    
+
     LinearAlgebra::MiddleSizeMatrix xGrad_;
     LinearAlgebra::MiddleSizeMatrix yGrad_;
     LinearAlgebra::MiddleSizeMatrix zGrad_;
 };
 
-struct FluxData
-{
-    void resize(std::size_t nb)
-    {
+struct FluxData {
+    void resize(std::size_t nb) {
         left_.resize(nb);
         right_.resize(nb);
-        
-        for (unsigned int i = 0; i < nb; ++i)
-        {
+
+        for (unsigned int i = 0; i < nb; ++i) {
             LinearAlgebra::MiddleSizeMatrix& left = left_[i];
             LinearAlgebra::MiddleSizeMatrix& right = right_[i];
-            
+
             left.resize(12, nb);
             right.resize(12, nb);
         }
-        
     }
-    
-    void print()
-    {
+
+    void print() {
         cout << "left=" << endl;
-        for (unsigned int n = 0; n < left_.size(); ++n)
-        {
+        for (unsigned int n = 0; n < left_.size(); ++n) {
             cout << "n=" << n << ", " << left_[n] << endl;
         }
-        
+
         cout << "right=" << endl;
-        for (unsigned int n = 0; n < right_.size(); ++n)
-        {
+        for (unsigned int n = 0; n < right_.size(); ++n) {
             cout << "n=" << n << ", " << right_[n] << endl;
         }
-        
     }
-    FluxData operator*=(const double& scalar)
-    {
-        for (unsigned int n = 0; n < left_.size(); ++n)
-        {
+    FluxData operator*=(const double& scalar) {
+        for (unsigned int n = 0; n < left_.size(); ++n) {
             left_[n] *= scalar;
             right_[n] *= scalar;
         }
         return *this;
     }
-    void axpy(double a, const FluxData& x)
-    {
-        for (unsigned int n = 0; n < left_.size(); ++n)
-        {
+    void axpy(double a, const FluxData& x) {
+        for (unsigned int n = 0; n < left_.size(); ++n) {
             left_[n].axpy(a, x.left_[n]);
             right_[n].axpy(a, x.right_[n]);
         }
     }
-    
+
     VectorOfMatrices left_;
     VectorOfMatrices right_;
 };
 
-struct HEulerElementData : public UserElementData
-{
+struct HEulerElementData : public UserElementData {
     HEulerElementData(unsigned int ndof)
-            : massMatrix_(ndof, ndof), invMassMatrix_(ndof, ndof)
-    {
-    }
-    
+        : massMatrix_(ndof, ndof), invMassMatrix_(ndof, ndof) {}
+
     LinearAlgebra::MiddleSizeMatrix massMatrix_;
     LinearAlgebra::MiddleSizeMatrix invMassMatrix_;
 };
 
-struct HEulerGlobalVariables : public GlobalData
-{
+struct HEulerGlobalVariables : public GlobalData {
     unsigned int nElements_;
     Mat DivergenceFreeMatrix_;
 
     double dt_;
 };
 
-struct HEulerConfigurationData : public ConfigurationData
-{
-    enum SolutionType
-    {
-        INCOMPRESSIBLE_WALLS, INCOMPRESSIBLE_ONETHIRDPERIODIC, INCOMPRESSIBLE_PERIODIC, COMPRESSIBLE_WALLS, COMPRESSIBLE_PERIODIC
+struct HEulerConfigurationData : public ConfigurationData {
+    enum SolutionType {
+        INCOMPRESSIBLE_WALLS,
+        INCOMPRESSIBLE_ONETHIRDPERIODIC,
+        INCOMPRESSIBLE_PERIODIC,
+        COMPRESSIBLE_WALLS,
+        COMPRESSIBLE_PERIODIC
     };
 
-    HEulerConfigurationData(unsigned int numberOfUnknowns, unsigned int numberOfBasisFunctions, unsigned int numberOfTimeLevels = 1, const string& fileName = "in.txt", SolutionType type = COMPRESSIBLE_PERIODIC)
-            : ConfigurationData(numberOfUnknowns), solutionType_(type)
-    {
+    HEulerConfigurationData(unsigned int numberOfUnknowns,
+                            unsigned int numberOfBasisFunctions,
+                            unsigned int numberOfTimeLevels = 1,
+                            const string& fileName = "in.txt",
+                            SolutionType type = COMPRESSIBLE_PERIODIC)
+        : ConfigurationData(numberOfUnknowns), solutionType_(type) {
         /// reading from a file
         theta_ = 0.5;
         numOfPeriods_ = 10;
         numOfTimeStepInOnePeriod_ = 100;
         numOfPeriodsInOnePlotStep_ = 10;
         onePeriod_ = 1;
-        
     }
-    
-public:
+
+   public:
     SolutionType solutionType_;
 
     unsigned int nx_;
@@ -164,31 +149,38 @@ public:
     double onePeriod_;
 };
 
-class HEuler : public HpgemAPIBase<3>, public Integration::ElementIntegrandBase<ElementIntegralData, 3>, public Integration::FaceIntegrandBase<FluxData, 3>, public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeMatrix, 3>
-{
-public:
+class HEuler
+    : public HpgemAPIBase<3>,
+      public Integration::ElementIntegrandBase<ElementIntegralData, 3>,
+      public Integration::FaceIntegrandBase<FluxData, 3>,
+      public Integration::ElementIntegrandBase<LinearAlgebra::MiddleSizeMatrix,
+                                               3> {
+   public:
     using ElementIntegralT = Integration::ElementIntegral<3>;
     using FaceIntegralT = Integration::FaceIntegral<3>;
     using ExactSolutionT = ExactSolutionBase;
     using PointReferenceOnTheFaceT = PointReference<2>;
 
-    
-public:
-    HEuler(HEulerGlobalVariables* global, const HEulerConfigurationData* config);
+   public:
+    HEuler(HEulerGlobalVariables* global,
+           const HEulerConfigurationData* config);
 
     ~HEuler();
-public:
-    
+
+   public:
     void printFullMatrixInfo(Mat& matrix, const string& name);
 
     bool initialiseMesh();
 
-    ///calculates mass matrix
-    void elementIntegrand(Base::PhysicalElement<3>& el, LinearAlgebra::MiddleSizeMatrix& massMatrix);
+    /// calculates mass matrix
+    void elementIntegrand(Base::PhysicalElement<3>& el,
+                          LinearAlgebra::MiddleSizeMatrix& massMatrix);
 
-    void calculateLocalEnergy(Base::PhysicalElement<3>& el, double& returnValue);
+    void calculateLocalEnergy(Base::PhysicalElement<3>& el,
+                              double& returnValue);
 
-    void elementIntegrand(Base::PhysicalElement<3>& el, ElementIntegralData& returnObject);
+    void elementIntegrand(Base::PhysicalElement<3>& el,
+                          ElementIntegralData& returnObject);
 
     void faceIntegrand(Base::PhysicalFace<3>& el, FluxData& ret);
 
@@ -203,19 +195,20 @@ public:
 
     void output(double time = 0.0);
 
-private:
-    ///utilities
+   private:
+    /// utilities
     void outputMatrix(Mat& matrix, const string& name);
     void outputMatrix(const Mat& matrix, const string& name) const;
 
     void outputVectorMatlab(Vec& vec, const string& name);
     void outputVectorMatlab(const Vec& vec, const string& name) const;
 
-    void correctInitialProjectionOfVelocity(const Vec& UInit, Vec& UCorrected) const;
+    void correctInitialProjectionOfVelocity(const Vec& UInit,
+                                            Vec& UCorrected) const;
 
     void calculatePressure(const Mat& A, const Mat& Ah, const Vec& UCorrected);
 
-private:
+   private:
     ExactSolutionT* exactSolution_;
     Mat P_;
     Mat Q_;
