@@ -55,6 +55,10 @@ endif()
 
 
 if (hpGEM_USE_PETSC OR hpGEM_USE_COMPLEX_PETSC)
+
+    if(NOT hpGEM_USE_MPI)
+        message(FATAL_ERROR "If you want to use PETSc please enable MPI, i.e '-DhpGEM_USE_MPI=ON'")
+    endif()
     set(hpGEM_LOGLEVEL "DEFAULT" CACHE STRING "Verbosity of hpGEM. Default is recommended.")
 
     if (hpGEM_USE_PETSC AND hpGEM_USE_COMPLEX_PETSC)
