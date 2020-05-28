@@ -107,11 +107,13 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
 //    base_.assembler->fillMatrices(&base_);
     initializeMatrices(stab);
 
-    Utilities::GlobalPetscMatrix massMatrix(&mesh_, DGMaxDiscretization<DIM>::MASS_MATRIX_ID, -1),
-            stiffnessMatrix(&mesh_, DGMaxDiscretization<DIM>::STIFFNESS_MATRIX_ID, DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
+
+    Utilities::GlobalIndexing indexing (&mesh_);
+    Utilities::GlobalPetscMatrix massMatrix(indexing, DGMaxDiscretization<DIM>::MASS_MATRIX_ID, -1),
+            stiffnessMatrix(indexing, DGMaxDiscretization<DIM>::STIFFNESS_MATRIX_ID, DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
     DGMaxLogger(INFO, "GlobalPetscMatrix initialised");
     Utilities::GlobalPetscVector
-            sampleGlobalVector(&mesh_, -1, -1);
+            sampleGlobalVector(indexing, -1, -1);
     DGMaxLogger(INFO, "GlobalPetscVector initialised");
     sampleGlobalVector.assemble();
     DGMaxLogger(INFO, "sampleGlobalVector assembled");
@@ -190,7 +192,7 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
 
             dk = kpath.dk(i);
             //recompute the shifts
-            makeShiftMatrix(mesh_, massMatrix.getGlobalIndex(), dk, waveVec);
+            makeShiftMatrix(massMatrix.getGlobalIndex(), dk, waveVec);
             error = VecCopy(waveVec, waveVecConjugate);
             CHKERRABORT(PETSC_COMM_WORLD, error);
             error = VecConjugate(waveVecConjugate);
@@ -380,12 +382,12 @@ LinearAlgebra::SmallVector<DIM> DGMaxEigenValue<DIM>::boundaryFaceShift(const Ba
 }
 
 template<std::size_t DIM>
-void DGMaxEigenValue<DIM>::makeShiftMatrix(const Base::MeshManipulator<DIM>& mesh, const Utilities::GlobalIndexing& indexing,
+void DGMaxEigenValue<DIM>::makeShiftMatrix(const Utilities::GlobalIndexing& indexing,
                                        const LinearAlgebra::SmallVector<DIM>& direction, Vec& waveVecMatrix) const
 {
     PetscErrorCode err = 0;
-    for (typename Base::MeshManipulator<DIM>::ConstElementIterator it = mesh.elementColBegin();
-            it != mesh.elementColEnd(); ++it)
+    for (typename Base::MeshManipulator<DIM>::ConstElementIterator it = mesh_.elementColBegin();
+            it != mesh_.elementColEnd(); ++it)
     {
         // Note this implicitly assumes we only uses DGBasisFunctions
         const std::size_t basisOffset = indexing.getGlobalIndex(*it, 0);

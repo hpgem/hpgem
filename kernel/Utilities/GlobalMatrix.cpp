@@ -38,23 +38,36 @@
 
 namespace Utilities
 {
-    
-    GlobalMatrix::GlobalMatrix(Base::MeshManipulatorBase* theMesh, int elementMatrixID, int faceMatrixID)
-            : meshLevel_(-2), elementMatrixID_(elementMatrixID), faceMatrixID_(faceMatrixID), theMesh_(theMesh)
+
+    GlobalMatrix::GlobalMatrix(const GlobalIndexing& rowIndexing, const GlobalIndexing& columnIndexing
+            , int elementMatrixID, int faceMatrixID)
+            : meshLevel_(-2)
+            , rowIndexing_ (rowIndexing)
+            , columnIndexing_ (columnIndexing)
+            , elementMatrixID_(elementMatrixID)
+            // Use pointer comparison to see if the row & colum indices are the same
+            , symmetricIndexing_ (&rowIndexing == &columnIndexing)
+            , faceMatrixID_(faceMatrixID)
     {
-        logger.assert_debug(theMesh != nullptr, "Invalid mesh passed");
+        logger.assert_always(columnIndexing.getMesh() == rowIndexing.getMesh(),
+                "Row and column indexing based on different meshes.");
     }
-    
+
     void GlobalMatrix::getMatrixBCEntries(const Base::Face* face, std::size_t& numberOfEntries, std::vector<int>& entries)
     {
         logger.assert_debug(face != nullptr, "Invalid face passed");
+        if (rowIndexing_.getMesh() == nullptr)
+        {
+            entries.clear();
+            numberOfEntries = 0;
+            return;
+        }
         // Face basis functions
-        std::size_t nFaceBasisLocal = face->getTotalLocalNumberOfBasisFunctions();
-        std::size_t nUnknowns = face->getPtrElementLeft()->getNumberOfUnknowns();
-        for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
+        const std::vector<std::size_t>& unknowns = rowIndexing_.getIncludedUnknowns();
+        for (std::size_t unknown : unknowns)
         {
             std::size_t nBasis = face->getLocalNumberOfBasisFunctions(unknown);
-            int elementBasis0 = indexing_.getGlobalIndex(face, unknown);
+            int elementBasis0 = rowIndexing_.getGlobalIndex(face, unknown);
             for (std::size_t basisId = 0; basisId < nBasis; ++basisId)
             {
                 entries.push_back(elementBasis0 + basisId);
@@ -81,10 +94,10 @@ namespace Utilities
             if (firstFound && secondFound)
             {
                 const Base::Edge* edge = face->getPtrElementLeft()->getEdge(i);
-                for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
+                for (std::size_t unknown : unknowns)
                 {
                     std::size_t nEdgeBasis = edge->getLocalNumberOfBasisFunctions(unknown);
-                    int edgeBasis0 = indexing_.getGlobalIndex(edge, unknown);
+                    int edgeBasis0 = rowIndexing_.getGlobalIndex(edge, unknown);
                     for (std::size_t basisId = 0; basisId < nEdgeBasis; ++basisId)
                     {
                         entries.push_back(edgeBasis0 + basisId);
@@ -94,17 +107,17 @@ namespace Utilities
             }
         }
         // Nodes around the face
-        if (theMesh_->dimension() > 1)
+        if (rowIndexing_.getMesh()->dimension() > 1)
         {
             nodeEntries = face->getPtrElementLeft()->getPhysicalGeometry()->getLocalFaceNodeIndices(
                     face->localFaceNumberLeft());
             for (std::size_t i : nodeEntries)
             {
                 const Base::Node *node = face->getPtrElementLeft()->getNode(i);
-                for (std::size_t unknown = 0; unknown < nUnknowns; ++unknown)
+                for (std::size_t unknown : unknowns)
                 {
                     std::size_t nNodeBasis = node->getLocalNumberOfBasisFunctions(unknown);
-                    int nodeBasis0 = indexing_.getGlobalIndex(node, unknown);
+                    int nodeBasis0 = rowIndexing_.getGlobalIndex(node, unknown);
                     for (std::size_t basisId = 0; basisId < nNodeBasis; ++basisId)
                     {
                         entries.push_back(nodeBasis0 + basisId);
@@ -116,27 +129,28 @@ namespace Utilities
     }
 
 #if defined(HPGEM_USE_ANY_PETSC)
-    
-    GlobalPetscMatrix::GlobalPetscMatrix(Base::MeshManipulatorBase* theMesh, int elementMatrixID, int faceMatrixID)
-            : GlobalMatrix(theMesh, elementMatrixID, faceMatrixID)
+
+    GlobalPetscMatrix::GlobalPetscMatrix(const GlobalIndexing& rowIndexing,
+            const GlobalIndexing& columnIndexing, int elementMatrixID, int faceMatrixID)
+            : GlobalMatrix(rowIndexing, columnIndexing, elementMatrixID, faceMatrixID)
     {
-        logger.assert_debug(theMesh != nullptr, "Invalid mesh passed");
         PetscBool petscRuns;
         PetscInitialized(&petscRuns);
         logger.assert_debug(petscRuns == PETSC_TRUE, "Early call, firstly the command line arguments should be parsed");
-        //temporary
-        MatCreateSeqAIJ(PETSC_COMM_SELF, 1, 1, 1, PETSC_NULL, &A_);
-        
-        reAssemble();
+
+        // Dummy call to always have an valid matrix in A_.
+        MatCreateSeqAIJ(PETSC_COMM_SELF, 0, 0, 0, PETSC_NULL, &A_);
+
+        reinit();
     }
-    
+
     GlobalPetscMatrix::~GlobalPetscMatrix()
     {
         int ierr = MatDestroy(&A_);
         //giving error about Petsc has generated inconsistent data and likely memory corruption in heap
         CHKERRV(ierr);
     }
-    
+
     GlobalPetscMatrix::operator Mat()
     {
         if(HPGEM_LOGLEVEL>=Log::DEBUG)
@@ -148,90 +162,138 @@ namespace Utilities
         }
         return A_;
     }
-    
-    void GlobalPetscMatrix::reset()
+
+    void GlobalPetscMatrix::reinit()
     {
-        int ierr = MatZeroEntries(A_);
-        CHKERRV(ierr);
-        ierr = MatSetOption(A_, MAT_ROW_ORIENTED, PETSC_FALSE);
-        CHKERRV(ierr);
-        
-        LinearAlgebra::MiddleSizeMatrix elementMatrix;
-        
-        if (elementMatrixID_ >= 0)
-        {
-            std::vector<PetscInt> localToGlobal;
-            for (Base::Element* element : theMesh_->getElementsList())
-            {
-                indexing_.getGlobalIndices(element, localToGlobal);
-                elementMatrix = element->getElementMatrix(elementMatrixID_);
-                logger.assert_debug(elementMatrix.getNumberOfRows() == elementMatrix.getNumberOfColumns()
-                    && elementMatrix.getNumberOfRows() == localToGlobal.size(),
-                    "Incorrect element matrix size");
-                logger(DEBUG, "%", elementMatrix * 24.);
-                ierr = MatSetValues(A_, localToGlobal.size(), localToGlobal.data(), localToGlobal.size(), localToGlobal.data(), elementMatrix.data(), ADD_VALUES);
-                CHKERRV(ierr);
-            }
-        }
-        
-        LinearAlgebra::MiddleSizeMatrix faceMatrix;
-        
-        if (faceMatrixID_ >= 0)
-        {
-            std::vector<PetscInt> localToGlobal;
-            for (Base::Face* face : theMesh_->getFacesList())
-            {
-                if (!face->isOwnedByCurrentProcessor())
-                    continue;
-
-                indexing_.getGlobalIndices(face, localToGlobal);
-                faceMatrix = face->getFaceMatrixMatrix(faceMatrixID_);
-                logger.assert_debug(faceMatrix.getNumberOfRows() == faceMatrix.getNumberOfColumns()
-                                    && faceMatrix.getNumberOfRows() == localToGlobal.size(),
-                                    "Incorrect face matrix size");
-                logger(DEBUG, "%", faceMatrix * 24.);
-                ierr = MatSetValues(A_, localToGlobal.size(), localToGlobal.data(), localToGlobal.size(), localToGlobal.data(), faceMatrix.data(), ADD_VALUES);
-                CHKERRV(ierr);
-            }
-        }
-
-        ierr = MatSetOption(A_, MAT_ROW_ORIENTED, PETSC_TRUE);
-        CHKERRV(ierr);
-
-        ierr = MatAssemblyBegin(A_, MAT_FINAL_ASSEMBLY);
-        ierr = MatAssemblyEnd(A_, MAT_FINAL_ASSEMBLY);
-        
-        CHKERRV(ierr);
+        logger.assert_always(rowIndexing_.getMesh() == columnIndexing_.getMesh(),
+                "Row and column indexing from different meshes");
+        createMat();
+        assemble();
     }
 
-    //debug note: GlobalPetscVector 'independently' chooses an ordering for the degrees of freedom, but hpGEM assumes both orderings to be the same
-    void GlobalPetscMatrix::reAssemble()
+
+    void GlobalPetscMatrix::createMat()
     {
         PetscErrorCode  ierr = MatDestroy(&A_);
         CHKERRV(ierr);
 
-        indexing_.reset(theMesh_, GlobalIndexing::BLOCKED_PROCESSOR);
-
-        const std::size_t totalNumberOfDOF = indexing_.getNumberOfLocalBasisFunctions();
-        const std::size_t nUnknowns = indexing_.getNumberOfUnknowns();
-
-        //now construct the only bit of data where PETSc expects a local numbering...
-        std::vector<PetscInt> numberOfPositionsPerRow;
-        std::vector<PetscInt> offDiagonalPositionsPerRow;
-        SparsityEstimator estimator (*theMesh_, indexing_);
-        estimator.computeSparsityEstimate(numberOfPositionsPerRow, offDiagonalPositionsPerRow);
-        
-        ierr = MatCreateAIJ(PETSC_COMM_WORLD, totalNumberOfDOF, totalNumberOfDOF, PETSC_DETERMINE, PETSC_DETERMINE, -1, numberOfPositionsPerRow.data(), 0, offDiagonalPositionsPerRow.data(), &A_);
+        // Create matrix
+        ierr = MatCreate(PETSC_COMM_WORLD, &A_);
         CHKERRV(ierr);
+        ierr = MatSetType(A_, MATMPIAIJ);
+        CHKERRV(ierr);
+
+        // Set sizes based on indexing
+        const std::size_t numberOfLocalRows = rowIndexing_.getNumberOfLocalBasisFunctions();
+        const std::size_t numberOfLocalColumns = columnIndexing_.getNumberOfLocalBasisFunctions();
+        MatSetSizes(A_, numberOfLocalRows, numberOfLocalColumns, PETSC_DETERMINE, PETSC_DETERMINE);
+
+        if (rowIndexing_.getMesh() != nullptr)
+        {
+            std::vector<PetscInt> numberOfPositionsPerRow;
+            std::vector<PetscInt> offDiagonalPositionsPerRow;
+            logger.assert_always(rowIndexing_.getMesh() != nullptr, "Null mesh");
+            SparsityEstimator estimator (rowIndexing_, columnIndexing_);
+            estimator.computeSparsityEstimate(numberOfPositionsPerRow, offDiagonalPositionsPerRow,
+                    faceMatrixID_ >= 0);
+            // Zeros are passed for the ignored arguments.
+            ierr = MatMPIAIJSetPreallocation(A_, 0, numberOfPositionsPerRow.data(), 0, offDiagonalPositionsPerRow.data());
+            CHKERRV(ierr);
+        }
+        else
+        {
+            logger.assert_always(numberOfLocalRows == 0 && numberOfLocalColumns == 0,
+                    "Degrees of freedom without a mesh");
+            ierr = MatMPIAIJSetPreallocation(A_, 0, nullptr, 0, nullptr);
+            CHKERRV(ierr);
+        }
+
+        // Most options can only be set after the preallocation is done
         MatSetOption(A_, MAT_KEEP_NONZERO_PATTERN, PETSC_TRUE); //performance
         // While the estimates should be correct, the zeroing of a row without anything on the diagonal will cause an
         // error with the previous option but without the following.
         MatSetOption(A_, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE);
         // Enable the following to test that no new allocations were needed
         // MatSetOption(A_, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_TRUE);
-        ierr = MatSetUp(A_);
+    }
+
+
+    void GlobalPetscMatrix::assemble()
+    {
+        int ierr = MatZeroEntries(A_);
         CHKERRV(ierr);
-        reset();
+
+        const Base::MeshManipulatorBase* mesh = rowIndexing_.getMesh();
+        if (mesh == nullptr)
+        {
+            // Empty matrix, nothing to assemble
+            return;
+        }
+        // MediumSizeMatrix uses column oriented storage
+        ierr = MatSetOption(A_, MAT_ROW_ORIENTED, PETSC_FALSE);
+        CHKERRV(ierr);
+        if (elementMatrixID_ >= 0)
+        {
+            std::vector<PetscInt> localToGlobalRow;
+            std::vector<PetscInt> localToGlobalColumn;
+            const std::vector<PetscInt>& localToGlobalColumnRef
+                = symmetricIndexing_ ? localToGlobalRow : localToGlobalColumn;
+            for (Base::Element* element : mesh->getElementsList())
+            {
+                rowIndexing_.getGlobalIndices(element, localToGlobalRow);
+                if (!symmetricIndexing_)
+                {
+                    columnIndexing_.getGlobalIndices(element, localToGlobalColumn);
+                }
+                const LinearAlgebra::MiddleSizeMatrix& localMatrix = element->getElementMatrix(elementMatrixID_);
+                logger.assert_debug(localMatrix.getNumberOfRows() == localToGlobalRow.size()
+                                    && localMatrix.getNumberOfColumns() == localToGlobalColumnRef.size(),
+                                    "Incorrect element matrix size");
+                ierr = MatSetValues(A_,
+                        localToGlobalRow.size(), localToGlobalRow.data(),
+                        localToGlobalColumnRef.size(), localToGlobalColumnRef.data(),
+                        localMatrix.data(), ADD_VALUES);
+                CHKERRV(ierr);
+            }
+        }
+
+        LinearAlgebra::MiddleSizeMatrix faceMatrix;
+        if (faceMatrixID_ >= 0)
+        {
+            std::vector<PetscInt> localToGlobalRow;
+            std::vector<PetscInt> localToGlobalColumn;
+            const std::vector<PetscInt>& localToGlobalColumnRef
+                    = symmetricIndexing_ ? localToGlobalRow : localToGlobalColumn;
+            for (Base::Face* face : mesh->getFacesList())
+            {
+                if (!face->isOwnedByCurrentProcessor())
+                    continue;
+
+                rowIndexing_.getGlobalIndices(face, localToGlobalRow);
+                if (!symmetricIndexing_)
+                {
+                    columnIndexing_.getGlobalIndices(face, localToGlobalColumn);
+                }
+                faceMatrix = face->getFaceMatrixMatrix(faceMatrixID_);
+                logger.assert_debug(faceMatrix.getNumberOfRows() == localToGlobalRow.size()
+                                    && faceMatrix.getNumberOfColumns() == localToGlobalColumnRef.size(),
+                                    "Incorrect face matrix size");
+                ierr = MatSetValues(A_,
+                        localToGlobalRow.size(), localToGlobalRow.data(),
+                        localToGlobalColumnRef.size(), localToGlobalColumnRef.data(),
+                        faceMatrix.data(), ADD_VALUES);
+                CHKERRV(ierr);
+            }
+        }
+        // Reset the matrix to row oriented storage
+        ierr = MatSetOption(A_, MAT_ROW_ORIENTED, PETSC_TRUE);
+        CHKERRV(ierr);
+
+        // Matrix assembly
+        ierr = MatAssemblyBegin(A_, MAT_FINAL_ASSEMBLY);
+        CHKERRV(ierr);
+        ierr = MatAssemblyEnd(A_, MAT_FINAL_ASSEMBLY);
+        CHKERRV(ierr);
     }
 
     void GlobalPetscMatrix::printMatInfo(MatInfoType type, std::ostream &stream)

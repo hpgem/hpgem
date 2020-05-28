@@ -57,25 +57,29 @@ namespace Utilities
         GlobalMatrix(const GlobalMatrix &other) = delete;
         
         ///constructs the global matrix and performs element assembly
-        GlobalMatrix(Base::MeshManipulatorBase* theMesh, int elementMatrixID, int faceMatrixID);
+        GlobalMatrix(const GlobalIndexing& rowIndexing,
+                const GlobalIndexing& columnIndexing, int elementMatrixID, int faceMatrixID);
 
-        ///signals the matrix that (some) element matrixes have changed and that the matrix can be assembled again
-        ///also used after mesh refinement to make sure the global matrix reflects the changes in the mesh
-        virtual void reAssemble()=0;
+        /// \brief Reinitialize the matrix
+        ///
+        /// Reinitialize the matrix to match the current state of the local
+        /// matrices and the GlobalIndex.
+        virtual void reinit() = 0;
 
-        ///cleans out all the entries, putting them back to 0 - keeps the non-zero strucure of the matrix however.
-        ///After this it assembles the matrix to put it back in a legal state
-        virtual void reset()=0;
+        /// \brief Assemble the matrix from elements and faces
+        virtual void assemble() = 0;
 
         // Retrieve the global indices of all basis functions owned by the face, its edges and its nodes.
+        // Indices are with respect to the rows of the matrix.
         void getMatrixBCEntries(const Base::Face* face, std::size_t& numberOfEntries, std::vector<int>& entries);
 
     protected:
         
         int meshLevel_, elementMatrixID_, faceMatrixID_;
-        Base::MeshManipulatorBase *theMesh_;
-        GlobalIndexing indexing_;
-        
+        const GlobalIndexing &rowIndexing_;
+        const GlobalIndexing &columnIndexing_;
+        /// Whether the row and column index are the physically same object
+        const bool symmetricIndexing_;
     };
 #if defined(HPGEM_USE_ANY_PETSC)
     ///\bug this class depends on PETSc and is likely to cause naming conflicts between the c and c++ standard libraries (workaround: make sure to include all other needed hpGEM headers before including this header)
@@ -88,23 +92,33 @@ namespace Utilities
         ///\bug need a better way to provide an interface to the supported Mat routines AND to other routines that need a Mat (like KSPSetOperators()) (but not stuff like MatDestroy())
         operator Mat();
 
-        GlobalPetscMatrix(Base::MeshManipulatorBase* theMesh, int elementMatrixID, int faceMatrixID = -1);
-        ~GlobalPetscMatrix();
+        GlobalPetscMatrix(const GlobalIndexing& indexing,
+                int elementMatrixID, int faceMatrixID = -1)
+                : GlobalPetscMatrix(indexing, indexing, elementMatrixID, faceMatrixID)
+        {}
 
-        void reset();
+        GlobalPetscMatrix(const GlobalIndexing& rowIndexing,
+                const GlobalIndexing& columnIndexing, int elementMatrixID, int faceMatrixID = -1);
 
-        void reAssemble();
+        ~GlobalPetscMatrix() override ;
+
+
+        virtual void assemble() override;
+
+        void reinit() override;
 
         void printMatInfo(MatInfoType type, std::ostream& stream);
         void writeMatlab(const std::string& fileName);
 
         const GlobalIndexing& getGlobalIndex() const
         {
-            return indexing_;
+            return rowIndexing_;
         }
 
     private:
-        
+
+        void createMat();
+
         Mat A_;
     };
 #endif

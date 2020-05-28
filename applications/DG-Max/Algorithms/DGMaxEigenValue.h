@@ -59,7 +59,7 @@ public:
 
 private:
     void initializeMatrices(double stab);
-    void makeShiftMatrix(const Base::MeshManipulator<DIM>& mesh, const Utilities::GlobalIndexing& indexing,
+    void makeShiftMatrix(const Utilities::GlobalIndexing& indexing,
                          const LinearAlgebra::SmallVector<DIM>& direction, Vec& waveVecMatrix) const;
 
     void extractEigenValues(const EPS& solver, std::vector<PetscScalar>& result);

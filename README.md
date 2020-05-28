@@ -1,4 +1,4 @@
-![Basic CI](https://github.com/JensWehner/hpgem/workflows/Basic%20CI/badge.svg) [![codecov](https://codecov.io/gh/JensWehner/hpgem/branch/master/graph/badge.svg)](https://codecov.io/gh/JensWehner/hpgem)
+![Basic CI](https://github.com/hpgem/hpgem/workflows/Basic%20CI/badge.svg) [![codecov](https://codecov.io/gh/hpgem/hpgem/branch/master/graph/badge.svg)](https://codecov.io/gh/hpgem/hpgem)
 
 
 

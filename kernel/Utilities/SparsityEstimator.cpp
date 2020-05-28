@@ -10,9 +10,10 @@
 
 namespace Utilities
 {
-    SparsityEstimator::SparsityEstimator(const Base::MeshManipulatorBase &mesh, const GlobalIndexing &indexing)
-        : mesh_ (mesh)
-        , indexing_ (indexing)
+    SparsityEstimator::SparsityEstimator(
+            const GlobalIndexing &rowindexing, const GlobalIndexing &columnindexing)
+        : rowIndexing_ (rowindexing)
+        , columnIndexing_ (columnindexing)
     {}
 
     struct SparsityEstimator::Workspace
@@ -22,9 +23,6 @@ namespace Utilities
         std::map<std::size_t, std::size_t> owned;
         // Same as #owned, but for the DoFs not owned by the current processor
         std::map<std::size_t, std::size_t> notOwned;
-
-        // Number of unknowns
-        std::size_t nUnknowns;
 
         /// Get a reference to either the owned or notOwned DoF set.
         std::map<std::size_t, std::size_t>& getDoFs(bool owning)
@@ -44,6 +42,8 @@ namespace Utilities
             const GEOM* geom, const Workspace &workspace,
             std::vector<int> &nonZeroPerRowOwned, std::vector<int> &nonZeroPerRowNonOwned) const
     {
+        logger.assert_debug(geom->isOwnedByCurrentProcessor(),
+                "Can not assign sparsity estimate for nonowned geometrical parts");
         std::size_t ownedSize = 0;
         std::size_t notOwnedSize = 0;
         for (auto iter : workspace.owned)
@@ -51,10 +51,18 @@ namespace Utilities
         for (auto iter : workspace.notOwned)
             notOwnedSize += iter.second;
 
-        for (std::size_t unknown = 0; unknown < workspace.nUnknowns; ++unknown)
+        for (std::size_t unknown : rowIndexing_.getIncludedUnknowns())
         {
-            std::size_t offset = indexing_.getGlobalIndex(geom, unknown);
+            std::size_t offset = rowIndexing_.getProcessorLocalIndex(geom, unknown);
             std::size_t nbasis = geom->getLocalNumberOfBasisFunctions(unknown);
+
+            logger.assert_debug(offset + nbasis <= nonZeroPerRowOwned.size(),
+                    "Indexing error index % is larger than size %",
+                    offset + nbasis, nonZeroPerRowOwned.size());
+            logger.assert_debug(offset + nbasis <= nonZeroPerRowNonOwned.size(),
+                    "Indexing error index % is larger than size %",
+                    offset + nbasis, nonZeroPerRowNonOwned.size());
+
             for (std::size_t i = 0; i < nbasis; ++i)
             {
                 nonZeroPerRowOwned[i + offset] = ownedSize;
@@ -63,15 +71,40 @@ namespace Utilities
         }
     }
 
+    /// Test whether a geometrical object has DoF associated with it.
+    ///
+    /// \tparam GEOM The type of geometry
+    /// \param geom The geometrical object
+    /// \param unknowns The unknows to check
+    /// \return  Whether any of these unknowns has a DoF for the object.
+    template<typename GEOM>
+    bool hasLocalDoFs(const GEOM *geom, const std::vector<std::size_t>& unknowns)
+    {
+        for (const std::size_t& unknown : unknowns)
+        {
+            if (geom->getLocalNumberOfBasisFunctions(unknown > 0))
+                return true;
+        }
+        return false;
+    }
+
     void SparsityEstimator::computeSparsityEstimate(
             std::vector<int> &nonZeroPerRowOwned,
             std::vector<int> &nonZeroPerRowNonOwned,
             bool includeFaceCoupling) const
     {
-        const std::size_t totalNumberOfDoF = indexing_.getNumberOfLocalBasisFunctions();
-        const std::size_t nUknowns = indexing_.getNumberOfUnknowns();
+        logger(VERBOSE, "Computing sparsity estimate for mesh %", rowIndexing_.getMesh());
+        const std::size_t totalNumberOfDoF = rowIndexing_.getNumberOfLocalBasisFunctions();
+        if (rowIndexing_.getMesh() == nullptr)
+        {
+            nonZeroPerRowOwned.clear();
+            nonZeroPerRowOwned.resize(totalNumberOfDoF, 0);
+            nonZeroPerRowNonOwned.clear();
+            nonZeroPerRowNonOwned.resize(totalNumberOfDoF, 0);
+            return;
+        }
+
         Workspace workspace;
-        workspace.nUnknowns = nUknowns;
 
         // Resize and initialize with error data
         nonZeroPerRowOwned.assign(totalNumberOfDoF, -1);
@@ -91,8 +124,15 @@ namespace Utilities
         // For efficiency purposes we do not traverse each basis function separately,
         // instead we compute it for all basis functions of a single element/face/etc.
 
-        for (const Base::Element* element : mesh_.getElementsList())
+        for (const Base::Element* element : rowIndexing_.getMesh()->getElementsList())
         {
+            if (!hasLocalDoFs(element, rowIndexing_.getIncludedUnknowns()))
+            {
+                // If there are no DoFs associated with this element, then then
+                // there are no rows in the matrix for this element and there is
+                // nothing to count.
+                continue;
+            }
             workspace.clear();
             // Add local basis functions
             addElementDoFs(element, workspace);
@@ -110,15 +150,20 @@ namespace Utilities
             }
 
             // With all the global indices counted, allocate them.
-            for (std::size_t unknown = 0; unknown < nUknowns; ++unknown)
-            {
-                writeDoFCount(element, workspace, nonZeroPerRowOwned, nonZeroPerRowNonOwned);
-            }
+            writeDoFCount(element, workspace, nonZeroPerRowOwned, nonZeroPerRowNonOwned);
         }
+        logger(VERBOSE, "Sparsity pattern for Element DoFs computed");
         // Faces
-        for (const Base::Face* face : mesh_.getFacesList())
+        for (const Base::Face* face : rowIndexing_.getMesh()->getFacesList())
         {
-            logger.assert_debug(face->isOwnedByCurrentProcessor(), "Face not owned by current processor");
+            if (!face->isOwnedByCurrentProcessor() || !hasLocalDoFs(face, rowIndexing_.getIncludedUnknowns()))
+            {
+                // If the face is not owned by the current processor, then it
+                // does not have any rows in the matrix on this processor. The
+                // number of non zero entries in the corresponding row does not
+                // need to be estimated on this processor.
+                continue;
+            }
             workspace.clear();
             std::vector<const Base::Element*> faceElements = {face->getPtrElementLeft()};
             if (face->isInternal())
@@ -130,6 +175,19 @@ namespace Utilities
                 // Face matrix coupling with the element on the other side of the face
                 if (!includeFaceCoupling)
                     continue;
+                // Face coupling with conforming elements can couple DoFs that
+                // only have shared support on the face between two elements.
+                // For a DoF that is defined on a subdomain boundary face, it
+                // has support on a ghost cell and all the faces of the ghost
+                // cell. As there is only a single layer of ghost cells, we do
+                // in general not have the element on the other side of the
+                // faces of this ghost cell. Therefore, it is not possible to
+                // know how many basis functions have support on this face.
+                //
+                // The only way I can currently see around this is to add
+                // another layer of ghost cells.
+                logger.assert_always(element->isOwnedByCurrentProcessor(),
+                        "Face coupling with conforming basis functions on distributed meshes is not supported");
                 for (const Base::Face* otherFace : element->getFacesList())
                 {
                     if (otherFace == face)
@@ -145,10 +203,14 @@ namespace Utilities
             // Store the information
             writeDoFCount(face, workspace, nonZeroPerRowOwned, nonZeroPerRowNonOwned);
         }
+        logger(VERBOSE, "Sparsity pattern for Face DoFs computed");
         // Edges
-        for (const Base::Edge* edge : mesh_.getEdgesList())
+        for (const Base::Edge* edge : rowIndexing_.getMesh()->getEdgesList())
         {
-            logger.assert_debug(edge->isOwnedByCurrentProcessor(), "Non owned edge");
+            if (!edge->isOwnedByCurrentProcessor() || !hasLocalDoFs(edge, rowIndexing_.getIncludedUnknowns()))
+            {
+                continue;
+            }
             workspace.clear();
             for (const Base::Element* element : edge->getElements())
             {
@@ -157,6 +219,9 @@ namespace Utilities
                 // Face matrix coupling with the element on the other side of the face
                 if (!includeFaceCoupling)
                     continue;
+                // See remark for face based DoFs
+                logger.assert_always(element->isOwnedByCurrentProcessor(),
+                        "Face coupling with conforming basis functions on distributed meshes is not supported");
                 for (const Base::Face* face : element->getFacesList())
                 {
                     if (!face->isInternal())
@@ -168,12 +233,16 @@ namespace Utilities
             // Store the information
             writeDoFCount(edge, workspace, nonZeroPerRowOwned, nonZeroPerRowNonOwned);
         }
+        logger(VERBOSE, "Sparsity pattern for Edge DoFs computed");
         // Nodes
-        if (mesh_.dimension() > 1)
+        if (rowIndexing_.getMesh()->dimension() > 1)
         {
-            for (const Base::Node* node : mesh_.getNodesList())
+            for (const Base::Node* node : rowIndexing_.getMesh()->getNodesList())
             {
-                logger.assert_debug(node->isOwnedByCurrentProcessor(), "Non owned node");
+                if (!node->isOwnedByCurrentProcessor() || !hasLocalDoFs(node, rowIndexing_.getIncludedUnknowns()))
+                {
+                    continue;
+                }
                 workspace.clear();
                 for (const Base::Element* element : node->getElements())
                 {
@@ -182,6 +251,9 @@ namespace Utilities
                     // Face matrix coupling with the element on the other side of the face
                     if (!includeFaceCoupling)
                         continue;
+                    // See remark for face based DoFs
+                    logger.assert_always(element->isOwnedByCurrentProcessor(),
+                            "Face coupling with conforming basis functions on distributed meshes is not supported");
                     for (const Base::Face* face : element->getFacesList())
                     {
                         if (!face->isInternal())
@@ -193,6 +265,7 @@ namespace Utilities
                 // Store the information
                 writeDoFCount(node, workspace, nonZeroPerRowOwned, nonZeroPerRowNonOwned);
             }
+            logger(VERBOSE, "Sparsity pattern for Node DoFs computed");
         }
     }
 
@@ -200,14 +273,12 @@ namespace Utilities
             const Base::Element *element,
             Workspace &workspace) const
     {
-        logger.assert_debug(element->isOwnedByCurrentProcessor(), "Element is not owned by processor");
-        const std::size_t unknowns = element->getNumberOfUnknowns();
         {
             // For the element
             std::map<std::size_t, std::size_t> &toChange = workspace.getDoFs(element->isOwnedByCurrentProcessor());
-            for (std::size_t unknown = 0; unknown < unknowns; ++unknown)
+            for (std::size_t unknown : columnIndexing_.getIncludedUnknowns())
             {
-                const std::size_t offset = indexing_.getGlobalIndex(element, unknown);
+                const std::size_t offset = columnIndexing_.getGlobalIndex(element, unknown);
                 const std::size_t localBasisFunctions = element->getLocalNumberOfBasisFunctions(unknown);
                 if (localBasisFunctions > 0)
                 {
@@ -219,9 +290,9 @@ namespace Utilities
         for (const Base::Face* face : element->getFacesList())
         {
             std::map<std::size_t, std::size_t>& toChange = workspace.getDoFs(face->isOwnedByCurrentProcessor());
-            for (std::size_t unknown = 0; unknown < unknowns; ++unknown)
+            for (std::size_t unknown : columnIndexing_.getIncludedUnknowns())
             {
-                const std::size_t offset = indexing_.getGlobalIndex(face, unknown);
+                const std::size_t offset = columnIndexing_.getGlobalIndex(face, unknown);
                 const std::size_t localBasisFunctions = face->getLocalNumberOfBasisFunctions(unknown);
                 if (localBasisFunctions > 0)
                 {
@@ -233,9 +304,9 @@ namespace Utilities
         for (const Base::Edge* edge : element->getEdgesList())
         {
             std::map<std::size_t, std::size_t>& toChange = workspace.getDoFs(edge->isOwnedByCurrentProcessor());
-            for (std::size_t unknown = 0; unknown < unknowns; ++unknown)
+            for (std::size_t unknown : columnIndexing_.getIncludedUnknowns())
             {
-                const std::size_t offset = indexing_.getGlobalIndex(edge, unknown);
+                const std::size_t offset = columnIndexing_.getGlobalIndex(edge, unknown);
                 const std::size_t localBasisFunctions = edge->getLocalNumberOfBasisFunctions(unknown);
                 if (localBasisFunctions > 0)
                 {
@@ -244,15 +315,15 @@ namespace Utilities
             }
         }
         // For the nodes
-        if (mesh_.dimension() > 1)
+        if (rowIndexing_.getMesh()->dimension() > 1)
         {
             // For the edges
             for (const Base::Node* node : element->getNodesList())
             {
                 std::map<std::size_t, std::size_t>& toChange = workspace.getDoFs(node->isOwnedByCurrentProcessor());
-                for (std::size_t unknown = 0; unknown < unknowns; ++unknown)
+                for (std::size_t unknown : columnIndexing_.getIncludedUnknowns())
                 {
-                    const std::size_t offset = indexing_.getGlobalIndex(node, unknown);
+                    const std::size_t offset = columnIndexing_.getGlobalIndex(node, unknown);
                     const std::size_t localBasisFunctions = node->getLocalNumberOfBasisFunctions(unknown);
                     if (localBasisFunctions > 0)
                     {

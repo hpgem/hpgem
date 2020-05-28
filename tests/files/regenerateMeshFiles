@@ -1,55 +1,38 @@
 #!/bin/bash
 
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile 1Drectangular1source.hpgem --outFile 1Drectangular1mesh.hpgem -d 1
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile 1Drectangular2source.hpgem --outFile 1Drectangular2mesh.hpgem -d 1
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile 2Drectangular1source.hpgem --outFile 2Drectangular1mesh.hpgem -d 2
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile 2Drectangular2source.hpgem --outFile 2Drectangular2mesh.hpgem -d 2
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile 2Dminimalsource.hpgem --outFile 2Dminimalmesh.hpgem -d 2
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile 3Drectangular1source.hpgem --outFile 3Drectangular1mesh.hpgem -d 3
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile 3Drectangular2source.hpgem --outFile 3Drectangular2mesh.hpgem -d 3
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile 3Drectangular3source.hpgem --outFile 3Drectangular3mesh.hpgem -d 3
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile 2Dtriangular1source.hpgem --outFile 2Dtriangular1mesh.hpgem -d 2
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile 2Dtriangular2source.hpgem --outFile 2Dtriangular2mesh.hpgem -d 2
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile 3Dtriangular1source.hpgem --outFile 3Dtriangular1mesh.hpgem -d 3
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile 3Dtriangular2source.hpgem --outFile 3Dtriangular2mesh.hpgem -d 3
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile 3Dtriangular3source.hpgem --outFile 3Dtriangular3mesh.hpgem -d 3 
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile Bragg_Test.hyb --outFile Bragg_Test.hpgem -d 3
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile newCube.hyb --outFile newCube.hpgem -d 3
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile square_Test.hyb --outFile square_Test.hpgem -d 2
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile advectionSource1.hpgem --outFile advectionMesh1.hpgem -d 1
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile advectionSource2.hpgem --outFile advectionMesh2.hpgem -d 1
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile advectionSource3.hpgem --outFile advectionMesh3.hpgem -d 1
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile advectionSource4.hpgem --outFile advectionMesh4.hpgem -d 1
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile advectionSource5.hpgem --outFile advectionMesh5.hpgem -d 1
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile advectionSource6.hpgem --outFile advectionMesh6.hpgem -d 2
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile advectionSource7.hpgem --outFile advectionMesh7.hpgem -d 2
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile advectionSource8.hpgem --outFile advectionMesh8.hpgem -d 2
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile advectionSource9.hpgem --outFile advectionMesh9.hpgem -d 2
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile advectionSource10.hpgem --outFile advectionMesh10.hpgem -d 2
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile advectionSource11.hpgem --outFile advectionMesh11.hpgem -d 3
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile advectionSource12.hpgem --outFile advectionMesh12.hpgem -d 3
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile advectionSource13.hpgem --outFile advectionMesh13.hpgem -d 3
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile advectionSource14.hpgem --outFile advectionMesh14.hpgem -d 3
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile plottingSource1.hpgem --outFile plottingMesh1.hpgem -d 1
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile plottingSource2.hpgem --outFile plottingMesh2.hpgem -d 2
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile plottingSource3.hpgem --outFile plottingMesh3.hpgem -d 2
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile poissonSource1.hpgem --outFile poissonMesh1.hpgem -d 1
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile poissonSource2.hpgem --outFile poissonMesh2.hpgem -d 1
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile poissonSource3.hpgem --outFile poissonMesh3.hpgem -d 1
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile poissonSource4.hpgem --outFile poissonMesh4.hpgem -d 1
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile poissonSource5.hpgem --outFile poissonMesh5.hpgem -d 1
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile poissonSource6.hpgem --outFile poissonMesh6.hpgem -d 2
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile poissonSource7.hpgem --outFile poissonMesh7.hpgem -d 2
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile poissonSource8.hpgem --outFile poissonMesh8.hpgem -d 2
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile poissonSource9.hpgem --outFile poissonMesh9.hpgem -d 2
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile poissonSource10.hpgem --outFile poissonMesh10.hpgem -d 2
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile poissonSource11.hpgem --outFile poissonMesh11.hpgem -d 3
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile poissonSource12.hpgem --outFile poissonMesh12.hpgem -d 3
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile poissonSource13.hpgem --outFile poissonMesh13.hpgem -d 3
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile poissonSource14.hpgem --outFile poissonMesh14.hpgem -d 3
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile poissonSource15.hpgem --outFile poissonMesh15.hpgem -d 3
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile poissonSource15.hpgem --outFile poissonMesh15.hpgem -d 3
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile maxwellSource1.hpgem --outFile maxwellMesh1.hpgem -d 3
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile maxwellSource2.hpgem --outFile maxwellMesh2.hpgem -d 3
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile maxwellSource3.hpgem --outFile maxwellMesh3.hpgem -d 3
-~/opt/hpGEM_meshBuild/applications/Preprocessor/Preprocessor.out --inFile maxwellSource4.hpgem --outFile maxwellMesh4.hpgem -d 3
+# Script to regenerate all meshes for tests based on the the source files in the
+# 'sources' directory. It should be invoked as `regenerateMeshFiles [PREPROCESSOR]`.
+
+if [ "$#" -ne 1 ];
+then
+  echo "Error expected the path to the preprocessor as argument"
+  exit 1
+fi
+if [ ! -x "$1" ]
+then
+  echo "Can not execute the preprocessor at '$1'"
+  exit 1
+fi
+
+PREPROCESSOR="$1"
+
+# Structured meshes generated by the preprocessor
+for meshSource in sources/*.hpgem
+do
+  echo "Meshing ${meshSource}"
+  filename=$(basename -- "$meshSource")
+  # Name munching
+  filename=${filename/source/mesh};
+  filename=${filename/Source/Mesh};
+  "$PREPROCESSOR" --inFile "$meshSource" --outFile "$filename"
+done
+
+# Centaur meshes
+for meshSource in sources/*.hyb
+do
+  echo "Meshing ${meshSource}"
+  filename=$(basename -- "$meshSource")
+  # Replacing extension hyb -> hpgem
+  filename="${filename%hyb}hpgem"
+  "$PREPROCESSOR" --inFile "$meshSource" --outFile "$filename"
+done

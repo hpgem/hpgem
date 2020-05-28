@@ -36,7 +36,8 @@ namespace Utilities
     ///
     /// This is the mapping between the local indices on geometrical objects used
     /// for basis functions and the globally unique indices. The latter are usually
-    /// used for constructing the global matrices and vectors.
+    /// used for constructing the global matrices and vectors. Optionally only some
+    /// of the unknowns can be included in the index.
     ///
     /// This class defines an equivalence between three ways of addressing the same
     /// basis function:
@@ -93,7 +94,7 @@ namespace Utilities
     /// functions for unknown 0, then followed by those of unknown 1, etc. The
     /// BLOCKED_GLOBAL applies this method to all basis functions on all the
     /// processors, thereby creating indices for block matrices and vectors. The
-    /// BLOCKED_PROCESSOR only applies this proces to the basis functions on a single
+    /// BLOCKED_PROCESSOR only applies this process to the basis functions on a single
     /// processor. The basis functions for different processors are then laid out
     /// sequentially, thus all basis functions of processor 0 before those of
     /// processor 1.
@@ -110,13 +111,14 @@ namespace Utilities
 
 
         GlobalIndexing();
-        GlobalIndexing(Base::MeshManipulatorBase* mesh, Layout layout);
+        explicit GlobalIndexing(Base::MeshManipulatorBase* mesh, Layout layout = BLOCKED_PROCESSOR, const std::vector<std::size_t>* unknowns = nullptr);
 
         /// \brief Recreate the mapping for a new mesh.
         ///
         /// \param mesh The new  mesh
         /// \param blocked Whether to construct a blocked mapping.
-        void reset(Base::MeshManipulatorBase* mesh, Layout layout);
+        /// \param unknowns The subset of unknowns to include (nullptr = all)
+        void reset(Base::MeshManipulatorBase* mesh, Layout layout, const std::vector<std::size_t>* unknowns = nullptr);
 
         /// \brief Lookup the global index of the 0-th basis function local to an element.
         /// \param element The element of the basis function
@@ -124,34 +126,41 @@ namespace Utilities
         /// \return The global index of the basis function.
         int getGlobalIndex(const Base::Element* element, std::size_t unknown) const
         {
-            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
-            // TODO: Remove the basis function argument from all functions, as we lay them out sequentially.
-            const auto basisStart = offsets[unknown].elementOffsets_.find(element->getID());
-            logger.assert_debug(basisStart != offsets[unknown].elementOffsets_.end(),
+            logger.assert_debug(unknown < totalNumberOfUnknowns_, "No such unknown %", unknown);
+            const Offsets& offset = offsets_[unknown];
+            logger.assert_debug(offset.includedInIndex_, "Unknown not included % in the index", unknown);
+            const auto basisStart = offset.elementOffsets_.find(element->getID());
+            logger.assert_debug(basisStart != offsets_[unknown].elementOffsets_.end(),
                                 "No indices known for element %:%", element->getID(), unknown);
             return basisStart->second;
         }
         int getGlobalIndex(const Base::Face* face, std::size_t unknown) const
         {
-            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
-            const auto basisStart = offsets[unknown].faceOffsets_.find(face->getID());
-            logger.assert_debug(basisStart != offsets[unknown].faceOffsets_.end(),
+            logger.assert_debug(unknown < totalNumberOfUnknowns_, "No such unknown %", unknown);
+            const Offsets& offset = offsets_[unknown];
+            logger.assert_debug(offset.includedInIndex_, "Unknown not included % in the index", unknown);
+            const auto basisStart = offset.faceOffsets_.find(face->getID());
+            logger.assert_debug(basisStart != offsets_[unknown].faceOffsets_.end(),
                                 "No indices known for face %:%", face->getID(), unknown);
             return basisStart->second;
         }
         int getGlobalIndex(const Base::Edge* edge, std::size_t unknown) const
         {
-            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
-            const auto basisStart = offsets[unknown].edgeOffsets_.find(edge->getID());
-            logger.assert_debug(basisStart != offsets[unknown].edgeOffsets_.end(),
+            logger.assert_debug(unknown < totalNumberOfUnknowns_, "No such unknown %", unknown);
+            const Offsets& offset = offsets_[unknown];
+            logger.assert_debug(offset.includedInIndex_, "Unknown not included % in the index", unknown);
+            const auto basisStart = offset.edgeOffsets_.find(edge->getID());
+            logger.assert_debug(basisStart != offsets_[unknown].edgeOffsets_.end(),
                                 "No indices known for edge %:%", edge->getID(), unknown);
             return basisStart->second;
         }
         int getGlobalIndex(const Base::Node* node, std::size_t unknown) const
         {
-            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
-            const auto basisStart = offsets[unknown].nodeOffsets_.find(node->getID());
-            logger.assert_debug(basisStart != offsets[unknown].nodeOffsets_.end(),
+            logger.assert_debug(unknown < totalNumberOfUnknowns_, "No such unknown %", unknown);
+            const Offsets& offset = offsets_[unknown];
+            logger.assert_debug(offset.includedInIndex_, "Unknown not included % in the index", unknown);
+            const auto basisStart = offset.nodeOffsets_.find(node->getID());
+            logger.assert_debug(basisStart != offsets_[unknown].nodeOffsets_.end(),
                                 "No indices known for node %:%", node->getID(), unknown);
             return basisStart->second;
         }
@@ -166,8 +175,9 @@ namespace Utilities
         /// given element for the given unknown.
         int getProcessorLocalIndex(const Base::Element *element, std::size_t unknown) const
         {
-            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
-            const Offsets& offset = offsets[unknown];
+            logger.assert_debug(unknown < totalNumberOfUnknowns_, "No such unknown %", unknown);
+            const Offsets& offset = offsets_[unknown];
+            logger.assert_debug(offset.includedInIndex_, "Unknown not included % in the index", unknown);
             const auto basisStart = offset.elementOffsets_.find(element->getID());
             logger.assert_debug(basisStart != offset.elementOffsets_.end(),
                                 "No indices known for element %", element->getID());
@@ -176,8 +186,9 @@ namespace Utilities
 
         int getProcessorLocalIndex(const Base::Face *face, std::size_t unknown) const
         {
-            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
-            const Offsets& offset = offsets[unknown];
+            logger.assert_debug(unknown < totalNumberOfUnknowns_, "No such unknown %", unknown);
+            const Offsets& offset = offsets_[unknown];
+            logger.assert_debug(offset.includedInIndex_, "Unknown not included % in the index", unknown);
             const auto basisStart = offset.faceOffsets_.find(face->getID());
             logger.assert_debug(basisStart != offset.faceOffsets_.end(),
                                 "No indices known for face %", face->getID());
@@ -185,8 +196,9 @@ namespace Utilities
         }
         int getProcessorLocalIndex(const Base::Edge *edge, std::size_t unknown) const
         {
-            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
-            const Offsets& offset = offsets[unknown];
+            logger.assert_debug(unknown < totalNumberOfUnknowns_, "No such unknown %", unknown);
+            const Offsets& offset = offsets_[unknown];
+            logger.assert_debug(offset.includedInIndex_, "Unknown not included % in the index", unknown);
             const auto basisStart = offset.edgeOffsets_.find(edge->getID());
             logger.assert_debug(basisStart != offset.edgeOffsets_.end(),
                                 "No indices known for edge %", edge->getID());
@@ -194,8 +206,9 @@ namespace Utilities
         }
         int getProcessorLocalIndex(const Base::Node *node, std::size_t unknown) const
         {
-            logger.assert_debug(unknown < numberOfUnknowns_, "No such unknown %", unknown);
-            const Offsets& offset = offsets[unknown];
+            logger.assert_debug(unknown < totalNumberOfUnknowns_, "No such unknown %", unknown);
+            const Offsets& offset = offsets_[unknown];
+            logger.assert_debug(offset.includedInIndex_, "Unknown not included % in the index", unknown);
             const auto basisStart = offset.nodeOffsets_.find(node->getID());
             logger.assert_debug(basisStart != offset.nodeOffsets_.end(),
                                 "No indices known for node %", node->getID());
@@ -208,9 +221,9 @@ namespace Utilities
         /// \return The local index or -1 if it is not locally owned.
         int globalToProcessorLocalIndex(int globalIndex) const
         {
-            for (std::size_t unknown = 0; unknown < numberOfUnknowns_; ++unknown)
+            for (std::size_t unknown = 0; unknown < totalNumberOfUnknowns_; ++unknown)
             {
-                const Offsets& offset = offsets[unknown];
+                const Offsets& offset = offsets_[unknown];
                 if (offset.owns(globalIndex))
                 {
                     return globalIndex - offset.blockStart_ + offset.localOffset_;
@@ -221,12 +234,29 @@ namespace Utilities
 
         std::size_t getNumberOfLocalBasisFunctions() const
         {
-            return localBasisFunctions_;
+            return localNumberOfBasisFunctions_;
         }
 
-        std::size_t getNumberOfUnknowns() const
+        /// The total number of unknowns in the mesh. For partial indices this
+        /// includes those unknowns that are not included.
+        /// \return The total number of unknowns.
+        std::size_t getTotalNumberOfUnknowns() const
         {
-            return numberOfUnknowns_;
+            return totalNumberOfUnknowns_;
+        }
+
+        std::size_t getNumberOfIncludedUnknowns() const
+        {
+            return includedUnknowns_.size();
+        }
+
+        // Note, non const references as we do not own the Mesh, we just hold a reference to it.
+        /// \brief The mesh that for which this GlobalIndex is build
+        ///
+        /// \return The mesh, or null if none.
+        Base::MeshManipulatorBase* getMesh() const
+        {
+            return mesh_;
         }
 
         /// \brief Retrieve the global indices associated with the basis
@@ -275,17 +305,32 @@ namespace Utilities
 
         /// Verify that the index is complete (i.e. all global indices are available)
         /// Only works when assert_debug is available
-        /// \param mesh The mesh for which this indexing was created.
-        void verifyCompleteIndex(const Base::MeshManipulatorBase& mesh) const;
+        void verifyCompleteIndex() const;
+
+        /// Check whether a certain unknown is included in the index.
+        /// \param unknown The unknown to check
+        /// \return Whether it is included
+        bool isIncludedInIndex(std::size_t unknown) const
+        {
+            logger.assert_debug(unknown < totalNumberOfUnknowns_, "No such unknown %", unknown);
+            return offsets_[unknown].includedInIndex_;
+        }
+
+        /// A vector of the unknowns that are included in the index.
+        const std::vector<std::size_t>& getIncludedUnknowns() const
+        {
+            return includedUnknowns_;
+        }
+
+
 
     private:
 
         /// Construct the indexing with a blocked layout
-        /// \param mesh The mesh to base the index on
         /// \param global Whether to use BlockedGlobal layout (true) or
         /// BlockedProcessor (false)
-        void constructBlocked(Base::MeshManipulatorBase& mesh, bool global);
-        void constructUnblocked(Base::MeshManipulatorBase& mesh);
+        void constructBlocked(bool global);
+        void constructUnblocked();
 
         /// \brief Communicate transfer the global indices for locally owned
         /// basis functions with the push/pull partners.
@@ -294,8 +339,7 @@ namespace Utilities
         /// owned basis functions to the neighbour processors, so that they also
         /// know the global indices for the basis functions on their shadow
         /// elements (element owned by the neighbouring processor).
-        /// \param mesh The mesh, needed for the push/pull partners.
-        void communicatePushPullElements(Base::MeshManipulatorBase& mesh);
+        void communicatePushPullElements();
 
 #ifdef HPGEM_USE_MPI
         // Helper methods for communicatePushPullElements
@@ -346,7 +390,8 @@ namespace Utilities
 
         /// \brief Helper structure to store the information for a single unknown.
         ///
-        /// This helper structure stores two pieces of information:
+        /// This helper structure stores two pieces of information for included
+        /// unknowns:
         ///
         ///  - The offsets for the first basis function owned by geometrical objects
         ///    (as indexed by their ID). Thus given the id I of a element we can
@@ -393,11 +438,13 @@ namespace Utilities
         struct Offsets
         {
             /// The global index G, the start of the block with indices.
-            int blockStart_;
+            int blockStart_ = 0;
             /// The local offset L
-            int localOffset_;
+            int localOffset_ = 0;
             /// Number of basis functions N in this block
-            int numberOfBasisFunctionsInBlock_;
+            int numberOfBasisFunctionsInBlock_ = 0;
+            /// Whether or not this unknown is included in the GlobalIndexing
+            bool includedInIndex_ = false;
             /// Mapping between the element id and the global id of the first basis
             /// function, note these contain both offsets for owned geometrical
             /// objects and for objects on the boundary.
@@ -410,18 +457,28 @@ namespace Utilities
             /// \param localOffset The local offset
             /// \param numberOfBasisFunctions The number of basis functions in the block
             void setOffset(int globalOffset, int localOffset, int numberOfBasisFunctions);
+            /// Check if the global index falls within the block described by this
+            /// Offset. Note that there may be multiple blocks in which the same global
+            /// index falls when using SEQUENTIAL mode. If the Offset is not included in
+            /// the index then the result is false.
             bool owns(int globalIndex) const
             {
-                return blockStart_ <= globalIndex && globalIndex < blockStart_ + numberOfBasisFunctionsInBlock_;
+                return includedInIndex_
+                       && blockStart_ <= globalIndex && globalIndex < blockStart_ + numberOfBasisFunctionsInBlock_;
             }
         };
         /// Offsets for each of the unknowns
-        std::vector<Offsets> offsets;
-        std::size_t numberOfUnknowns_;
+        std::vector<Offsets> offsets_;
+        /// The total number of unknowns in the mesh
+        std::size_t totalNumberOfUnknowns_;
         /// Total number of local basis functions over all the unknowns.
-        std::size_t localBasisFunctions_;
-        /// Dimension of the mesh.
-        std::size_t meshDimension;
+        std::size_t localNumberOfBasisFunctions_;
+        /// Total number of basis functions over all unknowns and processors;
+        std::size_t globalNumberOfBasisFunctions_;
+        /// Ordered list of the unknowns in use
+        std::vector<std::size_t> includedUnknowns_;
+        /// The mesh, non const because of the push/pull elements in the mesh.
+        Base::MeshManipulatorBase* mesh_;
     };
 }
 
