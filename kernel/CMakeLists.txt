@@ -2,7 +2,7 @@ add_library(Logger SHARED Logger.cpp)
 set_target_properties(Logger PROPERTIES POSITION_INDEPENDENT_CODE true)
 
 if( hpGEM_USE_MPI )
-  target_link_libraries(Logger "${MPI_LIBRARIES}")
+  target_link_libraries(Logger PRIVATE MPI::MPI_CXX)
 endif()
 
 add_subdirectory(LinearAlgebra)
