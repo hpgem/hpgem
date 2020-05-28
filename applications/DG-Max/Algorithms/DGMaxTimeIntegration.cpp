@@ -78,13 +78,14 @@ void DGMaxTimeIntegration<DIM>::solve(const SeparableTimeIntegrationProblem<DIM>
 //    MHasToBeInverted_ = true;
 //    assembler->fillMatrices(this);
 
-    Utilities::GlobalPetscMatrix massMatrix(&mesh_, DGMaxDiscretization<DIM>::MASS_MATRIX_ID, -1),
-            stiffnessMatrix(&mesh_, DGMaxDiscretization<DIM>::STIFFNESS_MATRIX_ID, DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
+    Utilities::GlobalIndexing indexing (&mesh_, Utilities::GlobalIndexing::BLOCKED_PROCESSOR);
+    Utilities::GlobalPetscMatrix massMatrix(indexing, DGMaxDiscretization<DIM>::MASS_MATRIX_ID, -1),
+            stiffnessMatrix(indexing, DGMaxDiscretization<DIM>::STIFFNESS_MATRIX_ID, DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
     std::cout << "GlobalPetscMatrix initialised" << std::endl;
-    Utilities::GlobalPetscVector resultVector(&mesh_, DGMaxDiscretization<DIM>::INITIAL_CONDITION_VECTOR_ID, -1),
-            derivative(&mesh_, DGMaxDiscretization<DIM>::INITIAL_CONDITION_DERIVATIVE_VECTOR_ID, -1),
-            rhsBoundary(&mesh_, -1, DGMaxDiscretization<DIM>::FACE_VECTOR_ID),
-            rhsSource(&mesh_, DGMaxDiscretization<DIM>::SOURCE_TERM_VECTOR_ID, -1);
+    Utilities::GlobalPetscVector resultVector(indexing, DGMaxDiscretization<DIM>::INITIAL_CONDITION_VECTOR_ID, -1),
+            derivative(indexing, DGMaxDiscretization<DIM>::INITIAL_CONDITION_DERIVATIVE_VECTOR_ID, -1),
+            rhsBoundary(indexing, -1, DGMaxDiscretization<DIM>::FACE_VECTOR_ID),
+            rhsSource(indexing, DGMaxDiscretization<DIM>::SOURCE_TERM_VECTOR_ID, -1);
     std::cout << "GlobalPetscVector initialised" << std::endl;
     resultVector.assemble();
     std::cout << "resultVector assembled" << std::endl;

@@ -319,9 +319,10 @@ public:
         std::cout.precision(14);
         doAllElementIntegration();
         doAllFaceIntegration();
-        
-        Utilities::GlobalPetscVector eta(meshes_[0]), phi(meshes_[0]);
-        Utilities::GlobalPetscMatrix M(meshes_[0], -1, 0), S(meshes_[0], 0, -1);
+
+        Utilities::GlobalIndexing indexing (meshes_[0]);
+        Utilities::GlobalPetscVector eta(indexing), phi(indexing);
+        Utilities::GlobalPetscMatrix M(indexing, -1, 0), S(indexing, 0, -1);
         Vec phiS, phiOther, etaActually, interiorRHS, surfaceRHS, surfaceExtra;
         Mat surfaceMass, interiorStifness, surfaceStifness, mixStifness, backStiffness, swapSurfaceVars;
         
