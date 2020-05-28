@@ -188,12 +188,9 @@ void MappingToPhysTriangularPrism::reinit() {
 
 bool MappingToPhysTriangularPrism::isValidPoint(
     const PointReference<3>& pointReference) const {
-    if ((0. <= pointReference[0]) && (pointReference[0] <= 1.) &&
+    return (0. <= pointReference[0]) && (pointReference[0] <= 1.) &&
         (0. <= pointReference[1]) && (pointReference[1] <= 1.) &&
         (pointReference[0] + pointReference[1] - 1. <= 1.e-16) &&
-        (pointReference[2] >= -1.) && (pointReference[2] <= 1.))
-        return true;
-    
-        return false;
+        (pointReference[2] >= -1.) && (pointReference[2] <= 1.);
 }
 }  // namespace Geometry

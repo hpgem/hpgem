@@ -85,10 +85,7 @@ void MappingToPhysHypercubeLinear<1>::reinit() {
 
 bool MappingToPhysHypercubeLinear<1>::isValidPoint(
     const PointReference<1>& pointReference) const {
-    if ((pointReference[0] < -1.) || (pointReference[0] > 1.))
-        return false;
-    
-        return true;
+    return !((pointReference[0] < -1.) || (pointReference[0] > 1.));
 }
 
 Jacobian<1, 1> MappingToPhysHypercubeLinear<1>::calcJacobian(
@@ -203,11 +200,8 @@ void MappingToPhysHypercubeLinear<2>::reinit() {
 
 bool MappingToPhysHypercubeLinear<2>::isValidPoint(
     const PointReference<2>& pointReference) const {
-    if ((pointReference[0] < -1.) || (pointReference[0] > 1.) ||
-        (pointReference[1] < -1.) || (pointReference[1] > 1.))
-        return false;
-    
-        return true;
+    return !((pointReference[0] < -1.) || (pointReference[0] > 1.) ||
+        (pointReference[1] < -1.) || (pointReference[1] > 1.));
 }
 
 // =============================================================================================
@@ -312,12 +306,9 @@ bool MappingToPhysHypercubeLinear<3>::isValidPoint(
     const PointReference<3>& pointReference) const {
     logger.assert_debug(pointReference.size() == 3,
                         "Reference point has the wrong dimension");
-    if ((pointReference[0] < -1.) || (pointReference[0] > 1.) ||
+    return !((pointReference[0] < -1.) || (pointReference[0] > 1.) ||
         (pointReference[1] < -1.) || (pointReference[1] > 1.) ||
-        (pointReference[2] < -1.) || (pointReference[2] > 1.))
-        return false;
-    
-        return true;
+        (pointReference[2] < -1.) || (pointReference[2] > 1.));
 }
 
 // =============================================================================================
@@ -418,12 +409,9 @@ bool MappingToPhysHypercubeLinear<4>::isValidPoint(
     const PointReference<4>& pointReference) const {
     logger.assert_debug(pointReference.size() == 4,
                         "Reference point has the wrong dimension");
-    if ((pointReference[0] < -1.) || (pointReference[0] > 1.) ||
+    return !((pointReference[0] < -1.) || (pointReference[0] > 1.) ||
         (pointReference[1] < -1.) || (pointReference[1] > 1.) ||
         (pointReference[2] < -1.) || (pointReference[2] > 1.) ||
-        (pointReference[3] < -1.) || (pointReference[3] > 1.))
-        return false;
-    
-        return true;
+        (pointReference[3] < -1.) || (pointReference[3] > 1.));
 }
 }  // namespace Geometry
