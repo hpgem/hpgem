@@ -129,8 +129,9 @@ SmallVector<numberOfRows> SmallMatrix<numberOfRows, numberOfColumns>::operator*(
 
 template <std::size_t numberOfRows, std::size_t numberOfColumns>
 template <std::size_t K>
-SmallMatrix<numberOfRows, K> SmallMatrix<numberOfRows, numberOfColumns>::
-    operator*(const SmallMatrix<numberOfColumns, K>& other) {
+SmallMatrix<numberOfRows, K>
+    SmallMatrix<numberOfRows, numberOfColumns>::operator*(
+        const SmallMatrix<numberOfColumns, K>& other) {
     int i = numberOfRows;
     int j = numberOfColumns;
     int k = K;
@@ -156,8 +157,9 @@ SmallMatrix<numberOfRows, K> SmallMatrix<numberOfRows, numberOfColumns>::
 
 template <std::size_t numberOfRows, std::size_t numberOfColumns>
 template <std::size_t K>
-SmallMatrix<numberOfRows, K> SmallMatrix<numberOfRows, numberOfColumns>::
-    operator*(const SmallMatrix<numberOfColumns, K>& other) const {
+SmallMatrix<numberOfRows, K>
+    SmallMatrix<numberOfRows, numberOfColumns>::operator*(
+        const SmallMatrix<numberOfColumns, K>& other) const {
     int i = numberOfRows;
     int j = numberOfColumns;
     int k = K;
