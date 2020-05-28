@@ -240,27 +240,6 @@ namespace Base
         
         //  *****************Iteration through the Elements*******************
 
-        [[deprecated("This will not work optimally for parallel computations use the preprocessor instead")]]
-        void createRectangularMesh(const Geometry::PointPhysical<DIM>& BottomLeft, const Geometry::PointPhysical<DIM>& TopRight,
-                const std::vector<std::size_t>& LinearNoElements,
-                const std::vector<bool>& periodic);
-
-        /**
-         * Crates a mesh of simplices for the specified cube
-         * \param [in] BottomLeft the bottomleft corner of the cube
-         * \param [in] TopRight The topRight corner of the cube
-         * \param [in] LinearNoElements A vector detailing the amount of refinement you want per direction
-         * \details This routine generates the same mesh structure as createRectangularMesh, but then refines each of the cubes into
-         * (DIM-1)^2+1 tetrahedra
-         */
-        [[deprecated("This will not work optimally for parallel computations use the preprocessor instead")]]
-        void createTriangularMesh(Geometry::PointPhysical<DIM> BottomLeft, Geometry::PointPhysical<DIM> TopRight,
-                const std::vector<std::size_t>& LinearNoElements,
-                const std::vector<bool>& periodic);
-
-        [[deprecated("This will not work optimally for parallel computations use the preprocessor instead")]]
-        void readCentaurMesh(const std::string& filename);
-
         /**
          * load a mesh that was generated and partitioned by the preprocessor
          */
@@ -436,12 +415,6 @@ namespace Base
 
         //---------------------------------------------------------------------
     private:
-
-        //!Does the actual reading for 2D centaur meshes
-        void readCentaurMesh2D(std::ifstream& centaurFile);
-
-        //!Does the actual reading for 3D centaur meshes
-        void readCentaurMesh3D(std::ifstream& centaurFile);
         
         //!Construct the faces based on connectivity information about elements and nodes
         void faceFactory();
