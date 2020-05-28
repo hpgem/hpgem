@@ -120,7 +120,8 @@ std::vector<std::size_t>
     }
     if (d == dimension) {
         return {getGlobalIndex()};
-    } if (d == gridDimension) {
+    }
+    if (d == gridDimension) {
         return std::vector<std::size_t>(elementIDs.begin(), elementIDs.end());
     } else if (d < dimension) {
         // easy case: all adjacent entities of this dimension are adjacent to

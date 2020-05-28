@@ -75,15 +75,14 @@ class faceMapContainer {
         if (!isConcatenated_) {
             if (RHS.isConcatenated_) {
                 return true;
-            } 
-                return data_.direct_ < RHS.data_.direct_;
-            
+            }
+            return data_.direct_ < RHS.data_.direct_;
+
         } else {
             if (RHS.isConcatenated_) {
                 return data_.indirect_ < RHS.data_.indirect_;
-            } 
-                return false;
-            
+            }
+            return false;
         }
     }
 

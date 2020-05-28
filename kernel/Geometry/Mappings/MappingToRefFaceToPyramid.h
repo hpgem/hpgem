@@ -49,8 +49,7 @@ class MappingToRefFaceToPyramid0 : public MappingReferenceToReference<1> {
     static const MappingToRefFaceToPyramid0& Instance();
     PointReference<3> transform(
         const Geometry::PointReference<2>& p1) const final;
-    Jacobian<2, 3> calcJacobian(
-        const Geometry::PointReference<2>&) const final;
+    Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const final;
     std::size_t getTargetDimension() const final { return 3; }
     MappingToRefFaceToPyramid0(const MappingToRefFaceToPyramid0&) = delete;
     MappingToRefFaceToPyramid0& operator=(const MappingToRefFaceToPyramid0&) =
@@ -70,8 +69,7 @@ class MappingToRefFaceToPyramid1 : public MappingReferenceToReference<1> {
     static const MappingToRefFaceToPyramid1& Instance();
     PointReference<3> transform(
         const Geometry::PointReference<2>& p1) const final;
-    Jacobian<2, 3> calcJacobian(
-        const Geometry::PointReference<2>&) const final;
+    Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const final;
     std::size_t getTargetDimension() const final { return 3; }
     MappingToRefFaceToPyramid1(const MappingToRefFaceToPyramid1&) = delete;
     MappingToRefFaceToPyramid1& operator=(const MappingToRefFaceToPyramid1&) =
@@ -91,8 +89,7 @@ class MappingToRefFaceToPyramid2 : public MappingReferenceToReference<1> {
     static const MappingToRefFaceToPyramid2& Instance();
     PointReference<3> transform(
         const Geometry::PointReference<2>& p1) const final;
-    Jacobian<2, 3> calcJacobian(
-        const Geometry::PointReference<2>&) const final;
+    Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const final;
     std::size_t getTargetDimension() const final { return 3; }
     MappingToRefFaceToPyramid2(const MappingToRefFaceToPyramid2&) = delete;
     MappingToRefFaceToPyramid1& operator=(const MappingToRefFaceToPyramid2&) =
@@ -112,8 +109,7 @@ class MappingToRefFaceToPyramid3 : public MappingReferenceToReference<1> {
     static const MappingToRefFaceToPyramid3& Instance();
     PointReference<3> transform(
         const Geometry::PointReference<2>& p1) const final;
-    Jacobian<2, 3> calcJacobian(
-        const Geometry::PointReference<2>&) const final;
+    Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const final;
     std::size_t getTargetDimension() const final { return 3; }
     MappingToRefFaceToPyramid3(const MappingToRefFaceToPyramid3&) = delete;
     MappingToRefFaceToPyramid3& operator=(const MappingToRefFaceToPyramid3&) =
@@ -133,8 +129,7 @@ class MappingToRefFaceToPyramid4 : public MappingReferenceToReference<1> {
     static const MappingToRefFaceToPyramid4& Instance();
     PointReference<3> transform(
         const Geometry::PointReference<2>& p1) const final;
-    Jacobian<2, 3> calcJacobian(
-        const Geometry::PointReference<2>&) const final;
+    Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const final;
     std::size_t getTargetDimension() const final { return 3; }
     MappingToRefFaceToPyramid4(const MappingToRefFaceToPyramid4&) = delete;
     MappingToRefFaceToPyramid4& operator=(const MappingToRefFaceToPyramid4&) =

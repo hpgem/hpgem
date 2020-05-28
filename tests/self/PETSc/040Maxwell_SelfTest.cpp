@@ -200,22 +200,21 @@ class MaxwellTest : public Base::HpgemAPILinearSteadyState<3> {
         Base::PhysicalFace<3> &face) final {
         if (face.getFace()->isInternal()) {
             return face.getResultVector();
-        } 
-            LinearAlgebra::MiddleSizeVector &result = face.getResultVector();
-            PointPhysicalT pPhys = face.getPointPhysical();
-            LinearAlgebra::SmallVector<3> value = boundaryConditions(pPhys)[0];
-            LinearAlgebra::SmallVector<3> normalValue =
-                LinearAlgebra::SmallMatrix<3, 2>{
-                    {face.getUnitNormalVector(), value}}
-                    .computeWedgeStuffVector();
-            LinearAlgebra::SmallVector<3> phi;
-            for (std::size_t i = 0; i < face.getNumberOfBasisFunctions(); ++i) {
-                face.basisFunctionNormalCross(i, phi);
-                result[i] = -face.basisFunctionCurl(i) * normalValue +
-                            penalty * phi * normalValue;
-            }
-            return result;
-        
+        }
+        LinearAlgebra::MiddleSizeVector &result = face.getResultVector();
+        PointPhysicalT pPhys = face.getPointPhysical();
+        LinearAlgebra::SmallVector<3> value = boundaryConditions(pPhys)[0];
+        LinearAlgebra::SmallVector<3> normalValue =
+            LinearAlgebra::SmallMatrix<3, 2>{
+                {face.getUnitNormalVector(), value}}
+                .computeWedgeStuffVector();
+        LinearAlgebra::SmallVector<3> phi;
+        for (std::size_t i = 0; i < face.getNumberOfBasisFunctions(); ++i) {
+            face.basisFunctionNormalCross(i, phi);
+            result[i] = -face.basisFunctionCurl(i) * normalValue +
+                        penalty * phi * normalValue;
+        }
+        return result;
     }
 
     LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtElement(

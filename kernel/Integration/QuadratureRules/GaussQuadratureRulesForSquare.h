@@ -64,8 +64,7 @@ class Cn2_1_1 : public GaussQuadratureRule {
 
     double weight(std::size_t i) const final;
 
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
 
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
@@ -97,8 +96,7 @@ class Cn2_3_4 : public GaussQuadratureRule {
 
     double weight(std::size_t i) const final;
 
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
 
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
@@ -130,8 +128,7 @@ class Cn2_5_9 : public GaussQuadratureRule {
 
     double weight(std::size_t i) const final;
 
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
 
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
@@ -163,8 +160,7 @@ class C2_7_4 : public GaussQuadratureRule {
 
     double weight(std::size_t i) const final;
 
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
 
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
@@ -195,8 +191,7 @@ class C2_9_5 : public GaussQuadratureRule {
 
     double weight(std::size_t i) const final;
 
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
 
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
@@ -227,8 +222,7 @@ class C2_11_6 : public GaussQuadratureRule {
 
     double weight(std::size_t i) const final;
 
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
 
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 

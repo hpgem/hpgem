@@ -138,24 +138,23 @@ double baricentric_3D(std::size_t node, const Geometry::PointReference<3>& p) {
     logger.assert_debug(node < 4, "Function is intended for simplex");
     if (node == 0) {
         return 1 - p[0] - p[1] - p[2];
-    } 
-        return p[node - 1];
-    
+    }
+    return p[node - 1];
 }
 
 double baricentric_2D(std::size_t node, const Geometry::PointReference<2>& p) {
     logger.assert_debug(node < 3, "Function is intended for simplex");
     if (node == 0) {
         return 1 - p[0] - p[1];
-    } 
-        return p[node - 1];
-    
+    }
+    return p[node - 1];
 }
 
 double baricentricDeriv(std::size_t node, std::size_t direction) {
     if (node == 0) {
         return -1;
-    } if (node == direction + 1) {
+    }
+    if (node == direction + 1) {
         return 1;
     } else {
         return 0;

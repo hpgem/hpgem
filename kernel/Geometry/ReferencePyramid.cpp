@@ -132,10 +132,9 @@ const ReferenceGeometry* ReferencePyramid::getCodim1ReferenceGeometry(
     logger.assert_debug((faceIndex < 5),
                         "ReferencePyramid::getCodim1ReferenceGeometry Index "
                         "out of range. Only 5 faces for pyramid.\n");
-    if (faceIndex == 0)
-        return referenceGeometryCodim1SquarePtr_;
-    
-        return referenceGeometryCodim1TrianglePtr_;
+    if (faceIndex == 0) return referenceGeometryCodim1SquarePtr_;
+
+    return referenceGeometryCodim1TrianglePtr_;
 }
 
 std::vector<std::size_t> ReferencePyramid::getCodim1EntityLocalIndices(
@@ -146,10 +145,9 @@ std::vector<std::size_t> ReferencePyramid::getCodim1EntityLocalIndices(
     if (faceIndex == 0) {
         return std::vector<std::size_t>(localNodeIndexes_[faceIndex],
                                         localNodeIndexes_[faceIndex] + 4);
-    } 
-        return std::vector<std::size_t>(localNodeIndexes_[faceIndex],
-                                        localNodeIndexes_[faceIndex] + 3);
-    
+    }
+    return std::vector<std::size_t>(localNodeIndexes_[faceIndex],
+                                    localNodeIndexes_[faceIndex] + 3);
 }
 
 // ================================== Codimension 2

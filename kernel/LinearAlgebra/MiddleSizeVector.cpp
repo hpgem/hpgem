@@ -87,7 +87,8 @@ void MiddleSizeVector::resize(std::size_t size) {
     }
 }
 
-MiddleSizeVector& MiddleSizeVector::operator=(const MiddleSizeVector& right) = default;
+MiddleSizeVector& MiddleSizeVector::operator=(const MiddleSizeVector& right) =
+    default;
 
 MiddleSizeVector& MiddleSizeVector::operator=(
     const std::initializer_list<type> l) {

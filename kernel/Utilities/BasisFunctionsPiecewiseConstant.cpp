@@ -49,8 +49,7 @@ class PiecewiseConstant1 : public Base::BaseBasisFunction {
         return 1.0;
     }
 
-    double evalDeriv0(
-        const Geometry::PointReference<1>& p) const final {
+    double evalDeriv0(const Geometry::PointReference<1>& p) const final {
         return 0.0;
     }
 };
@@ -65,13 +64,11 @@ class PiecewiseConstant2 : public Base::BaseBasisFunction {
         return 1.0;
     }
 
-    double evalDeriv0(
-        const Geometry::PointReference<2>& p) const final {
+    double evalDeriv0(const Geometry::PointReference<2>& p) const final {
         return 0.0;
     }
 
-    double evalDeriv1(
-        const Geometry::PointReference<2>& p) const final {
+    double evalDeriv1(const Geometry::PointReference<2>& p) const final {
         return 0.0;
     }
 };
@@ -86,18 +83,15 @@ class PiecewiseConstant3 : public Base::BaseBasisFunction {
         return 1.0;
     }
 
-    double evalDeriv0(
-        const Geometry::PointReference<3>& p) const final {
+    double evalDeriv0(const Geometry::PointReference<3>& p) const final {
         return 0.0;
     }
 
-    double evalDeriv1(
-        const Geometry::PointReference<3>& p) const final {
+    double evalDeriv1(const Geometry::PointReference<3>& p) const final {
         return 0.0;
     }
 
-    double evalDeriv2(
-        const Geometry::PointReference<3>& p) const final {
+    double evalDeriv2(const Geometry::PointReference<3>& p) const final {
         return 0.0;
     }
 };
@@ -112,23 +106,19 @@ class PiecewiseConstant4 : public Base::BaseBasisFunction {
         return 1.0;
     }
 
-    double evalDeriv0(
-        const Geometry::PointReference<4>& p) const final {
+    double evalDeriv0(const Geometry::PointReference<4>& p) const final {
         return 0.0;
     }
 
-    double evalDeriv1(
-        const Geometry::PointReference<4>& p) const final {
+    double evalDeriv1(const Geometry::PointReference<4>& p) const final {
         return 0.0;
     }
 
-    double evalDeriv2(
-        const Geometry::PointReference<4>& p) const final {
+    double evalDeriv2(const Geometry::PointReference<4>& p) const final {
         return 0.0;
     }
 
-    double evalDeriv3(
-        const Geometry::PointReference<4>& p) const final {
+    double evalDeriv3(const Geometry::PointReference<4>& p) const final {
         return 0.0;
     }
 };

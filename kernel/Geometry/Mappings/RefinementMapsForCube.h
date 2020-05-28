@@ -222,8 +222,7 @@ class RefinementMapForCube0 : public RefinementMapping {
     std::string getName() const final { return "Identity map"; }
 
     PointReference<3> refinementTransform(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         logger.assert_debug(
             subElementIndex == 0,
             "asked for subElement %, but the % has only % subElements",
@@ -232,8 +231,7 @@ class RefinementMapForCube0 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixL(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         logger.assert_debug(
             subElementIndex == 0,
             "asked for subElement %, but the % has only % subElements",
@@ -244,8 +242,7 @@ class RefinementMapForCube0 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixR(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         logger.assert_debug(
             subElementIndex == 0,
             "asked for subElement %, but the % has only % subElements",
@@ -268,8 +265,7 @@ class RefinementMapForCube0 : public RefinementMapping {
         return std::vector<std::size_t>{0, 1, 2, 3, 4, 5, 6, 7};
     }
 
-    Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const final {
+    Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const final {
         return &Geometry::ReferenceCube::Instance();
     }
 
@@ -353,8 +349,7 @@ class RefinementMapForCube1 : public RefinementMapping {
     std::string getName() const final { return "vertical split"; }
 
     PointReference<3> refinementTransform(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return {(p[0] - 1.) / 2., p[1], p[2]};
@@ -370,8 +365,7 @@ class RefinementMapForCube1 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixL(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column should be {-0.5, 0, 0, 1}
@@ -391,8 +385,7 @@ class RefinementMapForCube1 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixR(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column should be {1, 0, 0, 1}
@@ -431,8 +424,7 @@ class RefinementMapForCube1 : public RefinementMapping {
         }
     }
 
-    Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const final {
+    Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const final {
         return &Geometry::ReferenceCube::Instance();
     }
 
@@ -532,8 +524,7 @@ class RefinementMapForCube2 : public RefinementMapping {
     std::string getName() const final { return "horizontal split"; }
 
     PointReference<3> refinementTransform(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return {p[0], (p[1] - 1.) / 2., p[2]};
@@ -549,8 +540,7 @@ class RefinementMapForCube2 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixL(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column should be {0, -0.5, 0, 1}
@@ -570,8 +560,7 @@ class RefinementMapForCube2 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixR(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column should be {0, 1, 0, 1}
@@ -610,8 +599,7 @@ class RefinementMapForCube2 : public RefinementMapping {
         }
     }
 
-    Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const final {
+    Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const final {
         return &Geometry::ReferenceCube::Instance();
     }
 
@@ -711,8 +699,7 @@ class RefinementMapForCube3 : public RefinementMapping {
     std::string getName() const final { return "2way split"; }
 
     PointReference<3> refinementTransform(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return {p[0], p[1], (p[2] - 1.) / 2.};
@@ -728,8 +715,7 @@ class RefinementMapForCube3 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixL(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column should be {0, 0, -0.5, 1}
@@ -749,8 +735,7 @@ class RefinementMapForCube3 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixR(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column should be {0, 0, 1, 1}
@@ -789,8 +774,7 @@ class RefinementMapForCube3 : public RefinementMapping {
         }
     }
 
-    Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const final {
+    Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const final {
         return &Geometry::ReferenceCube::Instance();
     }
 
@@ -890,8 +874,7 @@ class RefinementMapForCube4 : public RefinementMapping {
     std::string getName() const final { return "4way split"; }
 
     PointReference<3> refinementTransform(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return {(p[0] - 1.) / 2., (p[1] - 1.) / 2., p[2]};
@@ -911,8 +894,7 @@ class RefinementMapForCube4 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixL(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column should be {-0.5, -0.5, 0, 1}
@@ -940,8 +922,7 @@ class RefinementMapForCube4 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixR(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column should be {1, 1, 0, 1}
@@ -972,8 +953,7 @@ class RefinementMapForCube4 : public RefinementMapping {
 
     std::size_t getNumberOfSubElements() const final { return 4; }
 
-    Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const final {
+    Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const final {
         return &Geometry::ReferenceCube::Instance();
     }
 
@@ -1095,8 +1075,7 @@ class RefinementMapForCube5 : public RefinementMapping {
     std::string getName() const final { return "4way split"; }
 
     PointReference<3> refinementTransform(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return {(p[0] - 1.) / 2., p[1], (p[2] - 1.) / 2.};
@@ -1116,8 +1095,7 @@ class RefinementMapForCube5 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixL(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column should be {-0.5, 0, -0.5, 1}
@@ -1145,8 +1123,7 @@ class RefinementMapForCube5 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixR(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column should be {1, 0, 1, 1}
@@ -1197,8 +1174,7 @@ class RefinementMapForCube5 : public RefinementMapping {
         }
     }
 
-    Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const final {
+    Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const final {
         return &Geometry::ReferenceCube::Instance();
     }
 
@@ -1300,8 +1276,7 @@ class RefinementMapForCube6 : public RefinementMapping {
     std::string getName() const final { return "4way split"; }
 
     PointReference<3> refinementTransform(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return {p[0], (p[1] - 1.) / 2., (p[2] - 1.) / 2.};
@@ -1321,8 +1296,7 @@ class RefinementMapForCube6 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixL(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column should be {0, -0.5, -0.5, 1}
@@ -1350,8 +1324,7 @@ class RefinementMapForCube6 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixR(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column should be {0, 1, 1, 1}
@@ -1402,8 +1375,7 @@ class RefinementMapForCube6 : public RefinementMapping {
         }
     }
 
-    Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const final {
+    Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const final {
         return &Geometry::ReferenceCube::Instance();
     }
 
@@ -1505,8 +1477,7 @@ class RefinementMapForCube7 : public RefinementMapping {
     std::string getName() const final { return "8way split"; }
 
     PointReference<3> refinementTransform(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return {(p[0] - 1.) / 2., (p[1] - 1.) / 2., (p[2] - 1.) / 2.};
@@ -1534,8 +1505,7 @@ class RefinementMapForCube7 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixL(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column should be {-0.5, -0.5, -0.5, 1}
@@ -1579,8 +1549,7 @@ class RefinementMapForCube7 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixR(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column should be {1, 1, 1, 1}
@@ -1655,8 +1624,7 @@ class RefinementMapForCube7 : public RefinementMapping {
         }
     }
 
-    Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const final {
+    Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const final {
         return &Geometry::ReferenceCube::Instance();
     }
 

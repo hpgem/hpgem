@@ -70,8 +70,7 @@ class Cn0_inf_1 : public QuadratureRules::GaussQuadratureRule {
 
     double weight(std::size_t i) const final;
 
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
 
     Geometry::ReferenceGeometry* forReferenceGeometry() const final {
         return refGeoPtr_;

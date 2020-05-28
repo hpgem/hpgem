@@ -60,8 +60,7 @@ class TriPrism_1_1 : public GaussQuadratureRule {
     std::size_t dimension() const final;
     std::size_t getNumberOfPoints() const final;
     double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
@@ -87,8 +86,7 @@ class TriPrism_3_8 : public GaussQuadratureRule {
     std::size_t dimension() const final;
     std::size_t getNumberOfPoints() const final;
     double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
@@ -114,8 +112,7 @@ class TriPrism_5_21 : public GaussQuadratureRule {
     std::size_t dimension() const final;
     std::size_t getNumberOfPoints() const final;
     double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
@@ -141,8 +138,7 @@ class TriPrism_7_64 : public GaussQuadratureRule {
     std::size_t dimension() const final;
     std::size_t getNumberOfPoints() const final;
     double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:

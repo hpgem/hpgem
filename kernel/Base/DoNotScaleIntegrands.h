@@ -83,13 +83,11 @@ class DoNotScaleIntegrands : public CoordinateTransformation<DIM> {
         return underlying_->transformCurl(referenceData, element);
     }
 
-    double getIntegrandScaleFactor(
-        PhysicalElement<DIM>& element) const final {
+    double getIntegrandScaleFactor(PhysicalElement<DIM>& element) const final {
         return 1.;
     }
 
-    double getIntegrandScaleFactor(
-        PhysicalFace<DIM>& face) const final {
+    double getIntegrandScaleFactor(PhysicalFace<DIM>& face) const final {
         return 1.;
     }
 

@@ -63,12 +63,13 @@ double jelmerStructure(const Geometry::PointPhysical<DIM>& pPhys,
                        std::size_t structureType) {
     if (structureType == 0) {  // Vacuum Case
         return 1;
-    } if (structureType == 1) {  // Bragg Stack
+    }
+    if (structureType == 1) {  // Bragg Stack
         if (pPhys[0] < 0.5) {
             return 13;
-        } 
-            return 1;
-        
+        }
+        return 1;
+
     } else if (structureType == 2) {  // Cylinder Case with radius 0.2a
         if ((pPhys[0] - 0.5) * (pPhys[0] - 0.5) +
                 (pPhys[1] - 0.5) * (pPhys[1] - 0.5) <=
@@ -76,11 +77,11 @@ double jelmerStructure(const Geometry::PointPhysical<DIM>& pPhys,
             return 13;
             // std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << "
             // " << epsilon_ << "\n";
-        } 
-            return 1;
-            // std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << "
-            // " << epsilon_ << "\n";
-        
+        }
+        return 1;
+        // std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << "
+        // " << epsilon_ << "\n";
+
     } else if (structureType == 3) {  // Cube in Cuboid Case with width of
                                       // pilars of 0.1a
         if (pPhys[0] < 0.1 || pPhys[0] > 0.9 || pPhys[1] < 0.1 ||
@@ -88,12 +89,11 @@ double jelmerStructure(const Geometry::PointPhysical<DIM>& pPhys,
             return 1;
             // std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << "
             // " << epsilon_ << "\n";
+        }
+        return 13;
+        // std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << "
+        // " << epsilon_ << "\n";
 
-        } 
-            return 13;
-            // std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << "
-            // " << epsilon_ << "\n";
-        
     }
 
     else if (structureType == 4) {  // Inverse Woodpile
@@ -152,11 +152,10 @@ double jelmerStructure(const Geometry::PointPhysical<DIM>& pPhys,
             return 1;
             // std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << "
             // " << epsilon_ << "\n";
-        } 
-            return 13;
-            // std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << "
-            // " << epsilon_ << "\n";
-        
+        }
+        return 13;
+        // std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << "
+        // " << epsilon_ << "\n";
 
     } else {
         std::cout << "Incorrect value for SetEpsilon"

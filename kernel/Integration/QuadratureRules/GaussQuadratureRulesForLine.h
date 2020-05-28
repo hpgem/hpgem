@@ -59,8 +59,7 @@ class Cn1_1_1 : public GaussQuadratureRule {
     std::size_t dimension() const final;
     std::size_t getNumberOfPoints() const final;
     double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
@@ -86,8 +85,7 @@ class Cn1_3_2 : public GaussQuadratureRule {
     std::size_t dimension() const final;
     std::size_t getNumberOfPoints() const final;
     double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
@@ -113,8 +111,7 @@ class Cn1_5_3 : public GaussQuadratureRule {
     std::size_t dimension() const final;
     std::size_t getNumberOfPoints() const final;
     double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
@@ -140,8 +137,7 @@ class C1_7_4 : public GaussQuadratureRule {
     std::size_t dimension() const final;
     std::size_t getNumberOfPoints() const final;
     double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
@@ -167,8 +163,7 @@ class C1_9_5 : public GaussQuadratureRule {
     std::size_t dimension() const final;
     std::size_t getNumberOfPoints() const final;
     double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
@@ -194,8 +189,7 @@ class C1_11_6 : public GaussQuadratureRule {
     std::size_t dimension() const final;
     std::size_t getNumberOfPoints() const final;
     double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:

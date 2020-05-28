@@ -59,30 +59,28 @@ inline double PhysicalElement<DIM>::basisFunction(std::size_t i) {
                         "Need a location to evaluate the data");
     if (hasFunctionValue[0]) {
         return basisFunctionValue[0][i];
-    } 
-        hasFunctionValue[0] = true;
-        for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions();
-             ++j) {
-            if (hasQuadratureRule) {
-                if (doesMapQuadraturePointFromFace) {
-                    basisFunctionValue[0][j] = transform_[0]->transform(
-                        theElement_->basisFunction(j, quadratureRule_,
-                                                   quadraturePointIndex_,
-                                                   faceToElementMap_),
-                        *this);
-                } else {
-                    basisFunctionValue[0][j] = transform_[0]->transform(
-                        theElement_->basisFunction(j, quadratureRule_,
-                                                   quadraturePointIndex_),
-                        *this);
-                }
+    }
+    hasFunctionValue[0] = true;
+    for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions(); ++j) {
+        if (hasQuadratureRule) {
+            if (doesMapQuadraturePointFromFace) {
+                basisFunctionValue[0][j] = transform_[0]->transform(
+                    theElement_->basisFunction(j, quadratureRule_,
+                                               quadraturePointIndex_,
+                                               faceToElementMap_),
+                    *this);
             } else {
                 basisFunctionValue[0][j] = transform_[0]->transform(
-                    theElement_->basisFunction(j, pointReference_), *this);
+                    theElement_->basisFunction(j, quadratureRule_,
+                                               quadraturePointIndex_),
+                    *this);
             }
+        } else {
+            basisFunctionValue[0][j] = transform_[0]->transform(
+                theElement_->basisFunction(j, pointReference_), *this);
         }
-        return basisFunctionValue[0][i];
-    
+    }
+    return basisFunctionValue[0][i];
 }
 
 template <std::size_t DIM>
@@ -94,34 +92,29 @@ inline double PhysicalElement<DIM>::basisFunction(std::size_t i,
                         "Unknown % does not exist", unknown);
     if (hasFunctionValue[unknown]) {
         return basisFunctionValue[unknown][i];
-    } 
-        hasFunctionValue[unknown] = true;
-        for (std::size_t j = 0;
-             j < theElement_->getNumberOfBasisFunctions(unknown); ++j) {
-            if (hasQuadratureRule) {
-                if (doesMapQuadraturePointFromFace) {
-                    basisFunctionValue[unknown][j] =
-                        transform_[unknown]->transform(
-                            theElement_->basisFunction(
-                                j, quadratureRule_, quadraturePointIndex_,
-                                faceToElementMap_, unknown),
-                            *this);
-                } else {
-                    basisFunctionValue[unknown][j] =
-                        transform_[unknown]->transform(
-                            theElement_->basisFunction(j, quadratureRule_,
-                                                       quadraturePointIndex_,
-                                                       unknown),
-                            *this);
-                }
+    }
+    hasFunctionValue[unknown] = true;
+    for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions(unknown);
+         ++j) {
+        if (hasQuadratureRule) {
+            if (doesMapQuadraturePointFromFace) {
+                basisFunctionValue[unknown][j] = transform_[unknown]->transform(
+                    theElement_->basisFunction(j, quadratureRule_,
+                                               quadraturePointIndex_,
+                                               faceToElementMap_, unknown),
+                    *this);
             } else {
                 basisFunctionValue[unknown][j] = transform_[unknown]->transform(
-                    theElement_->basisFunction(j, pointReference_, unknown),
+                    theElement_->basisFunction(j, quadratureRule_,
+                                               quadraturePointIndex_, unknown),
                     *this);
             }
+        } else {
+            basisFunctionValue[unknown][j] = transform_[unknown]->transform(
+                theElement_->basisFunction(j, pointReference_, unknown), *this);
         }
-        return basisFunctionValue[unknown][i];
-    
+    }
+    return basisFunctionValue[unknown][i];
 }
 
 template <std::size_t DIM>
@@ -131,30 +124,28 @@ inline const LinearAlgebra::SmallVector<DIM>&
                         "Need a location to evaluate the data");
     if (hasFunctionDeriv[0]) {
         return basisFunctionDeriv_[0][i];
-    } 
-        hasFunctionDeriv[0] = true;
-        for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions();
-             ++j) {
-            if (hasQuadratureRule) {
-                if (doesMapQuadraturePointFromFace) {
-                    basisFunctionDeriv_[0][j] = transform_[0]->transformDeriv(
-                        theElement_->basisFunctionDeriv<DIM>(
-                            j, quadratureRule_, quadraturePointIndex_,
-                            faceToElementMap_),
-                        *this);
-                } else {
-                    basisFunctionDeriv_[0][j] = transform_[0]->transformDeriv(
-                        theElement_->basisFunctionDeriv<DIM>(
-                            j, quadratureRule_, quadraturePointIndex_),
-                        *this);
-                }
+    }
+    hasFunctionDeriv[0] = true;
+    for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions(); ++j) {
+        if (hasQuadratureRule) {
+            if (doesMapQuadraturePointFromFace) {
+                basisFunctionDeriv_[0][j] = transform_[0]->transformDeriv(
+                    theElement_->basisFunctionDeriv<DIM>(j, quadratureRule_,
+                                                         quadraturePointIndex_,
+                                                         faceToElementMap_),
+                    *this);
             } else {
                 basisFunctionDeriv_[0][j] = transform_[0]->transformDeriv(
-                    theElement_->basisFunctionDeriv(j, pointReference_), *this);
+                    theElement_->basisFunctionDeriv<DIM>(j, quadratureRule_,
+                                                         quadraturePointIndex_),
+                    *this);
             }
+        } else {
+            basisFunctionDeriv_[0][j] = transform_[0]->transformDeriv(
+                theElement_->basisFunctionDeriv(j, pointReference_), *this);
         }
-        return basisFunctionDeriv_[0][i];
-    
+    }
+    return basisFunctionDeriv_[0][i];
 }
 
 template <std::size_t DIM>
@@ -167,36 +158,34 @@ inline const LinearAlgebra::SmallVector<DIM>&
                         "Unknown % does not exist", unknown);
     if (hasFunctionDeriv[unknown]) {
         return basisFunctionDeriv_[unknown][i];
-    } 
-        hasFunctionDeriv[unknown] = true;
-        for (std::size_t j = 0;
-             j < theElement_->getNumberOfBasisFunctions(unknown); ++j) {
-            if (hasQuadratureRule) {
-                if (doesMapQuadraturePointFromFace) {
-                    basisFunctionDeriv_[unknown][j] =
-                        transform_[unknown]->transformDeriv(
-                            theElement_->basisFunctionDeriv<DIM>(
-                                j, quadratureRule_, quadraturePointIndex_,
-                                faceToElementMap_, unknown),
-                            *this);
-                } else {
-                    basisFunctionDeriv_[unknown][j] =
-                        transform_[unknown]->transformDeriv(
-                            theElement_->basisFunctionDeriv<DIM>(
-                                j, quadratureRule_, quadraturePointIndex_,
-                                unknown),
-                            *this);
-                }
+    }
+    hasFunctionDeriv[unknown] = true;
+    for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions(unknown);
+         ++j) {
+        if (hasQuadratureRule) {
+            if (doesMapQuadraturePointFromFace) {
+                basisFunctionDeriv_[unknown][j] =
+                    transform_[unknown]->transformDeriv(
+                        theElement_->basisFunctionDeriv<DIM>(
+                            j, quadratureRule_, quadraturePointIndex_,
+                            faceToElementMap_, unknown),
+                        *this);
             } else {
                 basisFunctionDeriv_[unknown][j] =
                     transform_[unknown]->transformDeriv(
-                        theElement_->basisFunctionDeriv(j, pointReference_,
-                                                        unknown),
+                        theElement_->basisFunctionDeriv<DIM>(
+                            j, quadratureRule_, quadraturePointIndex_, unknown),
                         *this);
             }
+        } else {
+            basisFunctionDeriv_[unknown][j] =
+                transform_[unknown]->transformDeriv(
+                    theElement_->basisFunctionDeriv(j, pointReference_,
+                                                    unknown),
+                    *this);
         }
-        return basisFunctionDeriv_[unknown][i];
-    
+    }
+    return basisFunctionDeriv_[unknown][i];
 }
 
 template <std::size_t DIM>
@@ -286,30 +275,28 @@ inline const LinearAlgebra::SmallVector<DIM>&
                         "Need a location to evaluate the data");
     if (hasFunctionCurl[0]) {
         return basisFunctionCurl_[0][i];
-    } 
-        hasFunctionCurl[0] = true;
-        for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions();
-             ++j) {
-            if (hasQuadratureRule) {
-                if (doesMapQuadraturePointFromFace) {
-                    basisFunctionCurl_[0][j] = transform_[0]->transformCurl(
-                        theElement_->basisFunctionCurl<DIM>(
-                            j, quadratureRule_, quadraturePointIndex_,
-                            faceToElementMap_),
-                        *this);
-                } else {
-                    basisFunctionCurl_[0][j] = transform_[0]->transformCurl(
-                        theElement_->basisFunctionCurl<DIM>(
-                            j, quadratureRule_, quadraturePointIndex_),
-                        *this);
-                }
+    }
+    hasFunctionCurl[0] = true;
+    for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions(); ++j) {
+        if (hasQuadratureRule) {
+            if (doesMapQuadraturePointFromFace) {
+                basisFunctionCurl_[0][j] = transform_[0]->transformCurl(
+                    theElement_->basisFunctionCurl<DIM>(j, quadratureRule_,
+                                                        quadraturePointIndex_,
+                                                        faceToElementMap_),
+                    *this);
             } else {
                 basisFunctionCurl_[0][j] = transform_[0]->transformCurl(
-                    theElement_->basisFunctionCurl(j, pointReference_), *this);
+                    theElement_->basisFunctionCurl<DIM>(j, quadratureRule_,
+                                                        quadraturePointIndex_),
+                    *this);
             }
+        } else {
+            basisFunctionCurl_[0][j] = transform_[0]->transformCurl(
+                theElement_->basisFunctionCurl(j, pointReference_), *this);
         }
-        return basisFunctionCurl_[0][i];
-    
+    }
+    return basisFunctionCurl_[0][i];
 }
 
 template <std::size_t DIM>
@@ -322,36 +309,32 @@ inline const LinearAlgebra::SmallVector<DIM>&
                         "Unknown % does not exist", unknown);
     if (hasFunctionCurl[unknown]) {
         return basisFunctionCurl_[unknown][i];
-    } 
-        hasFunctionCurl[unknown] = true;
-        for (std::size_t j = 0;
-             j < theElement_->getNumberOfBasisFunctions(unknown); ++j) {
-            if (hasQuadratureRule) {
-                if (doesMapQuadraturePointFromFace) {
-                    basisFunctionCurl_[unknown][j] =
-                        transform_[unknown]->transformCurl(
-                            theElement_->basisFunctionCurl<DIM>(
-                                j, quadratureRule_, quadraturePointIndex_,
-                                faceToElementMap_, unknown),
-                            *this);
-                } else {
-                    basisFunctionCurl_[unknown][j] =
-                        transform_[unknown]->transformCurl(
-                            theElement_->basisFunctionCurl<DIM>(
-                                j, quadratureRule_, quadraturePointIndex_,
-                                unknown),
-                            *this);
-                }
+    }
+    hasFunctionCurl[unknown] = true;
+    for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions(unknown);
+         ++j) {
+        if (hasQuadratureRule) {
+            if (doesMapQuadraturePointFromFace) {
+                basisFunctionCurl_[unknown][j] =
+                    transform_[unknown]->transformCurl(
+                        theElement_->basisFunctionCurl<DIM>(
+                            j, quadratureRule_, quadraturePointIndex_,
+                            faceToElementMap_, unknown),
+                        *this);
             } else {
                 basisFunctionCurl_[unknown][j] =
                     transform_[unknown]->transformCurl(
-                        theElement_->basisFunctionCurl(j, pointReference_,
-                                                       unknown),
+                        theElement_->basisFunctionCurl<DIM>(
+                            j, quadratureRule_, quadraturePointIndex_, unknown),
                         *this);
             }
+        } else {
+            basisFunctionCurl_[unknown][j] = transform_[unknown]->transformCurl(
+                theElement_->basisFunctionCurl(j, pointReference_, unknown),
+                *this);
         }
-        return basisFunctionCurl_[unknown][i];
-    
+    }
+    return basisFunctionCurl_[unknown][i];
 }
 
 template <std::size_t DIM>
@@ -360,30 +343,28 @@ inline const double& PhysicalElement<DIM>::basisFunctionDiv(std::size_t i) {
                         "Need a location to evaluate the data");
     if (hasFunctionDiv[0]) {
         return basisFunctionDiv_[0][i];
-    } 
-        hasFunctionDiv[0] = true;
-        for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions();
-             ++j) {
-            if (hasQuadratureRule) {
-                if (doesMapQuadraturePointFromFace) {
-                    basisFunctionDiv_[0][j] = transform_[0]->transformDiv(
-                        theElement_->basisFunctionDiv(j, quadratureRule_,
-                                                      quadraturePointIndex_,
-                                                      faceToElementMap_),
-                        *this);
-                } else {
-                    basisFunctionDiv_[0][j] = transform_[0]->transformDiv(
-                        theElement_->basisFunctionDiv(j, quadratureRule_,
-                                                      quadraturePointIndex_),
-                        *this);
-                }
+    }
+    hasFunctionDiv[0] = true;
+    for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions(); ++j) {
+        if (hasQuadratureRule) {
+            if (doesMapQuadraturePointFromFace) {
+                basisFunctionDiv_[0][j] = transform_[0]->transformDiv(
+                    theElement_->basisFunctionDiv(j, quadratureRule_,
+                                                  quadraturePointIndex_,
+                                                  faceToElementMap_),
+                    *this);
             } else {
                 basisFunctionDiv_[0][j] = transform_[0]->transformDiv(
-                    theElement_->basisFunctionDiv(j, pointReference_), *this);
+                    theElement_->basisFunctionDiv(j, quadratureRule_,
+                                                  quadraturePointIndex_),
+                    *this);
             }
+        } else {
+            basisFunctionDiv_[0][j] = transform_[0]->transformDiv(
+                theElement_->basisFunctionDiv(j, pointReference_), *this);
         }
-        return basisFunctionDiv_[0][i];
-    
+    }
+    return basisFunctionDiv_[0][i];
 }
 
 template <std::size_t DIM>
@@ -393,36 +374,32 @@ inline const double& PhysicalElement<DIM>::basisFunctionDiv(
                         "Need a location to evaluate the data");
     if (hasFunctionDiv[unknown]) {
         return basisFunctionDiv_[unknown][i];
-    } 
-        hasFunctionDiv[unknown] = true;
-        for (std::size_t j = 0;
-             j < theElement_->getNumberOfBasisFunctions(unknown); ++j) {
-            if (hasQuadratureRule) {
-                if (doesMapQuadraturePointFromFace) {
-                    basisFunctionDiv_[unknown][j] =
-                        transform_[unknown]->transformDiv(
-                            theElement_->basisFunctionDiv(
-                                j, quadratureRule_, quadraturePointIndex_,
-                                faceToElementMap_, unknown),
-                            *this);
-                } else {
-                    basisFunctionDiv_[unknown][j] =
-                        transform_[unknown]->transformDiv(
-                            theElement_->basisFunctionDiv(j, quadratureRule_,
-                                                          quadraturePointIndex_,
-                                                          unknown),
-                            *this);
-                }
+    }
+    hasFunctionDiv[unknown] = true;
+    for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions(unknown);
+         ++j) {
+        if (hasQuadratureRule) {
+            if (doesMapQuadraturePointFromFace) {
+                basisFunctionDiv_[unknown][j] =
+                    transform_[unknown]->transformDiv(
+                        theElement_->basisFunctionDiv(
+                            j, quadratureRule_, quadraturePointIndex_,
+                            faceToElementMap_, unknown),
+                        *this);
             } else {
                 basisFunctionDiv_[unknown][j] =
                     transform_[unknown]->transformDiv(
-                        theElement_->basisFunctionDiv(j, pointReference_,
-                                                      unknown),
+                        theElement_->basisFunctionDiv(
+                            j, quadratureRule_, quadraturePointIndex_, unknown),
                         *this);
             }
+        } else {
+            basisFunctionDiv_[unknown][j] = transform_[unknown]->transformDiv(
+                theElement_->basisFunctionDiv(j, pointReference_, unknown),
+                *this);
         }
-        return basisFunctionDiv_[unknown][i];
-    
+    }
+    return basisFunctionDiv_[unknown][i];
 }
 
 template <std::size_t DIM>
@@ -432,11 +409,10 @@ inline const LinearAlgebra::MiddleSizeVector&
                         "Need a location to evaluate the data");
     if (hasSolution) {
         return solution;
-    } 
-        hasSolution = true;
-        solution = theElement_->getSolution(0, *this);
-        return solution;
-    
+    }
+    hasSolution = true;
+    solution = theElement_->getSolution(0, *this);
+    return solution;
 }
 
 template <std::size_t DIM>
@@ -446,11 +422,10 @@ inline const std::vector<LinearAlgebra::SmallVector<DIM> >&
                         "Need a location to evaluate the data");
     if (hasSolutionDeriv) {
         return solutionDeriv;
-    } 
-        hasSolutionDeriv = true;
-        solutionDeriv = theElement_->getSolutionGradient(0, *this);
-        return solutionDeriv;
-    
+    }
+    hasSolutionDeriv = true;
+    solutionDeriv = theElement_->getSolutionGradient(0, *this);
+    return solutionDeriv;
 }
 
 template <std::size_t DIM>
@@ -491,11 +466,10 @@ inline const Geometry::PointPhysical<DIM>&
                         "Need a location to evaluate the data");
     if (hasPointPhysical) {
         return pointPhysical;
-    } 
-        hasPointPhysical = true;
-        pointPhysical = theElement_->referenceToPhysical(pointReference_);
-        return pointPhysical;
-    
+    }
+    hasPointPhysical = true;
+    pointPhysical = theElement_->referenceToPhysical(pointReference_);
+    return pointPhysical;
 }
 
 template <std::size_t DIM>
@@ -504,11 +478,10 @@ inline const Geometry::Jacobian<DIM, DIM>& PhysicalElement<DIM>::getJacobian() {
                         "Need a location to evaluate the data");
     if (hasJacobian) {
         return jacobian;
-    } 
-        hasJacobian = true;
-        jacobian = theElement_->calcJacobian(pointReference_);
-        return jacobian;
-    
+    }
+    hasJacobian = true;
+    jacobian = theElement_->calcJacobian(pointReference_);
+    return jacobian;
 }
 
 template <std::size_t DIM>
@@ -518,11 +491,10 @@ inline const Geometry::Jacobian<DIM, DIM>&
                         "Need a location to evaluate the data");
     if (hasInverseTransposeJacobian) {
         return inverseTransposeJacobian;
-    } 
-        hasInverseTransposeJacobian = true;
-        inverseTransposeJacobian = getTransposeJacobian().inverse();
-        return inverseTransposeJacobian;
-    
+    }
+    hasInverseTransposeJacobian = true;
+    inverseTransposeJacobian = getTransposeJacobian().inverse();
+    return inverseTransposeJacobian;
 }
 
 template <std::size_t DIM>
@@ -532,11 +504,10 @@ inline const Geometry::Jacobian<DIM, DIM>&
                         "Need a location to evaluate the data");
     if (hasTransposeJacobian) {
         return transposeJacobian;
-    } 
-        hasTransposeJacobian = true;
-        transposeJacobian = getJacobian().transpose();
-        return transposeJacobian;
-    
+    }
+    hasTransposeJacobian = true;
+    transposeJacobian = getJacobian().transpose();
+    return transposeJacobian;
 }
 
 template <std::size_t DIM>
@@ -545,11 +516,10 @@ inline double PhysicalElement<DIM>::getJacobianAbsDet() {
                         "Need a location to evaluate the data");
     if (hasJacobianAbsDet) {
         return jacobianAbsDet;
-    } 
-        hasJacobianAbsDet = true;
-        jacobianAbsDet = std::abs(getJacobianDet());
-        return jacobianAbsDet;
-    
+    }
+    hasJacobianAbsDet = true;
+    jacobianAbsDet = std::abs(getJacobianDet());
+    return jacobianAbsDet;
 }
 
 template <std::size_t DIM>
@@ -558,11 +528,10 @@ inline double PhysicalElement<DIM>::getJacobianDet() {
                         "Need a location to evaluate the data");
     if (hasJacobianDet) {
         return jacobianDet;
-    } 
-        hasJacobianDet = true;
-        jacobianDet = getJacobian().determinant();
-        return jacobianDet;
-    
+    }
+    hasJacobianDet = true;
+    jacobianDet = getJacobian().determinant();
+    return jacobianDet;
 }
 
 template <std::size_t DIM>

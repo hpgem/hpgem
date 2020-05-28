@@ -197,18 +197,15 @@ class StructuredReader : public PrivateReader {
                 // emulates nested loops over all dimensions, for an unknown
                 // amount of dimensions
                 for (std::size_t i = 0; i < loopIndices.size(); ++i) {
-                    for (auto & cornersOfTriangle : cornersOfTriangles) {
-                        for (unsigned long & k : cornersOfTriangle) {
-                            k =
-                                rotate[k];
+                    for (auto& cornersOfTriangle : cornersOfTriangles) {
+                        for (unsigned long& k : cornersOfTriangle) {
+                            k = rotate[k];
                         }
                     }
                     if (++loopIndices[i] < numberOfElements[i]) return;
-                    for (auto & cornersOfTriangle : cornersOfTriangles) {
-                        for (unsigned long & k : cornersOfTriangle) {
-                            if (loopIndices[i] % 2 == 1)
-                                k =
-                                    rotate[k];
+                    for (auto& cornersOfTriangle : cornersOfTriangles) {
+                        for (unsigned long& k : cornersOfTriangle) {
+                            if (loopIndices[i] % 2 == 1) k = rotate[k];
                         }
                     }
                     loopIndices[i] = 0;

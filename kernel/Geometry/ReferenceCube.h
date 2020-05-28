@@ -72,9 +72,7 @@ class ReferenceCube : public ReferenceGeometry {
     friend std::ostream& operator<<(std::ostream& os,
                                     const ReferenceCube& cube);
 
-    const PointReferenceBase& getCenter() const final {
-        return center_;
-    }
+    const PointReferenceBase& getCenter() const final { return center_; }
 
     std::size_t getNumberOfNodes() const final { return 8; }
 

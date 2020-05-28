@@ -150,7 +150,7 @@ class PhysicalGeometryBase {
                             "Asked for face %, but there are only % faces", i,
                             getNumberOfFaces());
         std::vector<std::size_t> result = getLocalFaceNodeIndices(i);
-        for (unsigned long & j : result) {
+        for (unsigned long& j : result) {
             j = getNodeIndex(j);
         }
         return result;

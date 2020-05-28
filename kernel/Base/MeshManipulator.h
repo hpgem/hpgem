@@ -210,11 +210,13 @@ class MeshManipulator : public MeshManipulatorBase {
         return theMesh_.elementColEnd(part);
     }
 
-    ElementIterator elementColBegin(IteratorType part = IteratorType::LOCAL) override {
+    ElementIterator elementColBegin(
+        IteratorType part = IteratorType::LOCAL) override {
         return theMesh_.elementColBegin(part);
     }
 
-    ElementIterator elementColEnd(IteratorType part = IteratorType::LOCAL) override {
+    ElementIterator elementColEnd(
+        IteratorType part = IteratorType::LOCAL) override {
         return theMesh_.elementColEnd(part);
     }
 
@@ -228,7 +230,8 @@ class MeshManipulator : public MeshManipulatorBase {
         return theMesh_.faceColEnd(part);
     }
 
-    FaceIterator faceColBegin(IteratorType part = IteratorType::LOCAL) override {
+    FaceIterator faceColBegin(
+        IteratorType part = IteratorType::LOCAL) override {
         return theMesh_.faceColBegin(part);
     }
 
@@ -246,11 +249,13 @@ class MeshManipulator : public MeshManipulatorBase {
         return theMesh_.edgeColEnd(part);
     }
 
-    TreeIterator<Edge*> edgeColBegin(IteratorType part = IteratorType::LOCAL) override {
+    TreeIterator<Edge*> edgeColBegin(
+        IteratorType part = IteratorType::LOCAL) override {
         return theMesh_.edgeColBegin(part);
     }
 
-    TreeIterator<Edge*> edgeColEnd(IteratorType part = IteratorType::LOCAL) override {
+    TreeIterator<Edge*> edgeColEnd(
+        IteratorType part = IteratorType::LOCAL) override {
         return theMesh_.edgeColEnd(part);
     }
 
@@ -418,7 +423,8 @@ class MeshManipulator : public MeshManipulatorBase {
     }
 
     //! Get non-const list of faces
-    LevelTree<Face*>& getFacesList(IteratorType part = IteratorType::LOCAL) override {
+    LevelTree<Face*>& getFacesList(
+        IteratorType part = IteratorType::LOCAL) override {
         return theMesh_.getFacesList(part);
     }
 
@@ -427,7 +433,8 @@ class MeshManipulator : public MeshManipulatorBase {
         return theMesh_.getEdgesList(part);
     }
 
-    LevelTree<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL) override {
+    LevelTree<Edge*>& getEdgesList(
+        IteratorType part = IteratorType::LOCAL) override {
         return theMesh_.getEdgesList(part);
     }
 
@@ -436,7 +443,8 @@ class MeshManipulator : public MeshManipulatorBase {
         return theMesh_.getNodesList(part);
     }
 
-    std::vector<Node*>& getNodesList(IteratorType part = IteratorType::LOCAL) override {
+    std::vector<Node*>& getNodesList(
+        IteratorType part = IteratorType::LOCAL) override {
         return theMesh_.getNodesList(part);
     }
 

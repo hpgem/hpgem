@@ -71,8 +71,7 @@ class MappingToRefTriangleToTriangle0 : public MappingReferenceToReference<0> {
     static const MappingToRefTriangleToTriangle0& Instance();
     PointReference<2> transform(
         const Geometry::PointReference<2>& p1) const final;
-    Jacobian<2, 2> calcJacobian(
-        const Geometry::PointReference<2>&) const final;
+    Jacobian<2, 2> calcJacobian(const Geometry::PointReference<2>&) const final;
     std::size_t getTargetDimension() const final { return 2; }
     MappingToRefTriangleToTriangle0(const MappingToRefTriangleToTriangle0&) =
         delete;
@@ -91,8 +90,7 @@ class MappingToRefTriangleToTriangle1 : public MappingReferenceToReference<0> {
     static const MappingToRefTriangleToTriangle1& Instance();
     PointReference<2> transform(
         const Geometry::PointReference<2>& p1) const final;
-    Jacobian<2, 2> calcJacobian(
-        const Geometry::PointReference<2>&) const final;
+    Jacobian<2, 2> calcJacobian(const Geometry::PointReference<2>&) const final;
     std::size_t getTargetDimension() const final { return 2; }
     MappingToRefTriangleToTriangle1(const MappingToRefTriangleToTriangle1&) =
         delete;
@@ -111,8 +109,7 @@ class MappingToRefTriangleToTriangle2 : public MappingReferenceToReference<0> {
     static const MappingToRefTriangleToTriangle2& Instance();
     PointReference<2> transform(
         const Geometry::PointReference<2>& p1) const final;
-    Jacobian<2, 2> calcJacobian(
-        const Geometry::PointReference<2>&) const final;
+    Jacobian<2, 2> calcJacobian(const Geometry::PointReference<2>&) const final;
     std::size_t getTargetDimension() const final { return 2; }
     MappingToRefTriangleToTriangle2(const MappingToRefTriangleToTriangle2&) =
         delete;
@@ -131,8 +128,7 @@ class MappingToRefTriangleToTriangle3 : public MappingReferenceToReference<0> {
     static const MappingToRefTriangleToTriangle3& Instance();
     PointReference<2> transform(
         const Geometry::PointReference<2>& p1) const final;
-    Jacobian<2, 2> calcJacobian(
-        const Geometry::PointReference<2>&) const final;
+    Jacobian<2, 2> calcJacobian(const Geometry::PointReference<2>&) const final;
     std::size_t getTargetDimension() const final { return 2; }
     MappingToRefTriangleToTriangle3(const MappingToRefTriangleToTriangle3&) =
         delete;
@@ -151,8 +147,7 @@ class MappingToRefTriangleToTriangle4 : public MappingReferenceToReference<0> {
     static const MappingToRefTriangleToTriangle4& Instance();
     PointReference<2> transform(
         const Geometry::PointReference<2>& p1) const final;
-    Jacobian<2, 2> calcJacobian(
-        const Geometry::PointReference<2>&) const final;
+    Jacobian<2, 2> calcJacobian(const Geometry::PointReference<2>&) const final;
     std::size_t getTargetDimension() const final { return 2; }
     MappingToRefTriangleToTriangle4(const MappingToRefTriangleToTriangle4&) =
         delete;
@@ -171,8 +166,7 @@ class MappingToRefTriangleToTriangle5 : public MappingReferenceToReference<0> {
     static const MappingToRefTriangleToTriangle5& Instance();
     PointReference<2> transform(
         const Geometry::PointReference<2>& p1) const final;
-    Jacobian<2, 2> calcJacobian(
-        const Geometry::PointReference<2>&) const final;
+    Jacobian<2, 2> calcJacobian(const Geometry::PointReference<2>&) const final;
     std::size_t getTargetDimension() const final { return 2; }
     MappingToRefTriangleToTriangle5(const MappingToRefTriangleToTriangle5&) =
         delete;

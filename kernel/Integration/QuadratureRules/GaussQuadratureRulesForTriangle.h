@@ -60,8 +60,7 @@ class Tn2_1_1 : public GaussQuadratureRule {
     std::size_t dimension() const final;
     std::size_t getNumberOfPoints() const final;
     double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
@@ -87,8 +86,7 @@ class Tn2_2_3 : public GaussQuadratureRule {
     std::size_t dimension() const final;
     std::size_t getNumberOfPoints() const final;
     double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
@@ -114,8 +112,7 @@ class Tn2_3_4 : public GaussQuadratureRule {
     std::size_t dimension() const final;
     std::size_t getNumberOfPoints() const final;
     double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
@@ -141,8 +138,7 @@ class Tn2_4_6 : public GaussQuadratureRule {
     std::size_t dimension() const final;
     std::size_t getNumberOfPoints() const final;
     double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
@@ -168,8 +164,7 @@ class T2_5_7 : public GaussQuadratureRule {
     std::size_t dimension() const final;
     std::size_t getNumberOfPoints() const final;
     double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
@@ -195,8 +190,7 @@ class T2_6_12 : public GaussQuadratureRule {
     std::size_t dimension() const final;
     std::size_t getNumberOfPoints() const final;
     double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
@@ -222,8 +216,7 @@ class T2_7_13 : public GaussQuadratureRule {
     std::size_t dimension() const final;
     std::size_t getNumberOfPoints() const final;
     double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
@@ -249,8 +242,7 @@ class T2_8_16 : public GaussQuadratureRule {
     std::size_t dimension() const final;
     std::size_t getNumberOfPoints() const final;
     double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
@@ -276,8 +268,7 @@ class T2_9_19 : public GaussQuadratureRule {
     std::size_t dimension() const final;
     std::size_t getNumberOfPoints() const final;
     double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
@@ -303,8 +294,7 @@ class T2_10_25 : public GaussQuadratureRule {
     std::size_t dimension() const final;
     std::size_t getNumberOfPoints() const final;
     double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
@@ -330,8 +320,7 @@ class T2_11_28 : public GaussQuadratureRule {
     std::size_t dimension() const final;
     std::size_t getNumberOfPoints() const final;
     double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:

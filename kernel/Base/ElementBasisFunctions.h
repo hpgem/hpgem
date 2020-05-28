@@ -206,7 +206,8 @@ inline std::size_t ElementBasisFunctions::getNumberOfBasisFunctions(
             }
         }
         return total;
-    } if (getNumberOfUnknowns() != 0) {
+    }
+    if (getNumberOfUnknowns() != 0) {
         // Legacy
         std::size_t dofs = getNumberOfBasisFunctions(0);
         for (std::size_t i = 1; i < getNumberOfUnknowns(); ++i) {
@@ -227,9 +228,8 @@ inline std::size_t ElementBasisFunctions::getNumberOfLocalBasisFunctions(
     if (unknown != LEGACY_BEHAVIOUR) {
         if (setPositions_[unknown].empty() || setPositions_[unknown][0] == -1) {
             return 0;
-        } 
-            return sets_->at(setPositions_[unknown][0])->size();
-        
+        }
+        return sets_->at(setPositions_[unknown][0])->size();
 
     } else if (getNumberOfUnknowns() != 0) {
         // Legacy behaviour

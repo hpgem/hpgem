@@ -66,8 +66,7 @@ class MappingToPhysHypercubeLinear<1> : public MappingReferenceToPhysical {
     MappingToPhysHypercubeLinear(const MappingToPhysHypercubeLinear<1> &other) =
         default;
     PointPhysical<1> transform(const PointReference<1> &) const final;
-    PointReference<1> inverseTransform(
-        const PointPhysical<1> &) const final;
+    PointReference<1> inverseTransform(const PointPhysical<1> &) const final;
     Jacobian<1, 1> calcJacobian(const PointReference<1> &) const final;
     void reinit() final;
     std::size_t getTargetDimension() const final { return 1; }
@@ -87,8 +86,7 @@ class MappingToPhysHypercubeLinear<2> : public MappingReferenceToPhysical {
     MappingToPhysHypercubeLinear(const MappingToPhysHypercubeLinear<2> &other) =
         default;
     PointPhysical<2> transform(const PointReference<2> &) const final;
-    PointReference<2> inverseTransform(
-        const PointPhysical<2> &) const final;
+    PointReference<2> inverseTransform(const PointPhysical<2> &) const final;
     Jacobian<2, 2> calcJacobian(const PointReference<2> &) const final;
     void reinit() final;
     std::size_t getTargetDimension() const final { return 2; }
@@ -108,8 +106,7 @@ class MappingToPhysHypercubeLinear<3> : public MappingReferenceToPhysical {
     MappingToPhysHypercubeLinear(const MappingToPhysHypercubeLinear<3> &other) =
         default;
     PointPhysical<3> transform(const PointReference<3> &) const final;
-    PointReference<3> inverseTransform(
-        const PointPhysical<3> &) const final;
+    PointReference<3> inverseTransform(const PointPhysical<3> &) const final;
     Jacobian<3, 3> calcJacobian(const PointReference<3> &) const final;
     void reinit() final;
     std::size_t getTargetDimension() const final { return 3; }
@@ -129,8 +126,7 @@ class MappingToPhysHypercubeLinear<4> : public MappingReferenceToPhysical {
     MappingToPhysHypercubeLinear(const MappingToPhysHypercubeLinear<4> &other) =
         default;
     PointPhysical<4> transform(const PointReference<4> &) const final;
-    PointReference<4> inverseTransform(
-        const PointPhysical<4> &) const final;
+    PointReference<4> inverseTransform(const PointPhysical<4> &) const final;
     Jacobian<4, 4> calcJacobian(const PointReference<4> &) const final;
     void reinit() final;
     std::size_t getTargetDimension() const final { return 4; }

@@ -66,8 +66,7 @@ class MappingToRefTriangleToTetrahedron0
     static const MappingToRefTriangleToTetrahedron0& Instance();
     PointReference<3> transform(
         const Geometry::PointReference<2>& p1) const final;
-    Jacobian<2, 3> calcJacobian(
-        const Geometry::PointReference<2>&) const final;
+    Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const final;
     std::size_t getTargetDimension() const final { return 3; }
     MappingToRefTriangleToTetrahedron0(
         const MappingToRefTriangleToTetrahedron0&) = delete;
@@ -89,8 +88,7 @@ class MappingToRefTriangleToTetrahedron1
     static const MappingToRefTriangleToTetrahedron1& Instance();
     PointReference<3> transform(
         const Geometry::PointReference<2>& p1) const final;
-    Jacobian<2, 3> calcJacobian(
-        const Geometry::PointReference<2>&) const final;
+    Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const final;
     std::size_t getTargetDimension() const final { return 3; }
     MappingToRefTriangleToTetrahedron1(
         const MappingToRefTriangleToTetrahedron1&) = delete;
@@ -112,8 +110,7 @@ class MappingToRefTriangleToTetrahedron2
     static const MappingToRefTriangleToTetrahedron2& Instance();
     PointReference<3> transform(
         const Geometry::PointReference<2>& p1) const final;
-    Jacobian<2, 3> calcJacobian(
-        const Geometry::PointReference<2>&) const final;
+    Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const final;
     std::size_t getTargetDimension() const final { return 3; }
     MappingToRefTriangleToTetrahedron2(
         const MappingToRefTriangleToTetrahedron2&) = delete;
@@ -135,8 +132,7 @@ class MappingToRefTriangleToTetrahedron3
     static const MappingToRefTriangleToTetrahedron3& Instance();
     PointReference<3> transform(
         const Geometry::PointReference<2>& p1) const final;
-    Jacobian<2, 3> calcJacobian(
-        const Geometry::PointReference<2>&) const final;
+    Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const final;
     std::size_t getTargetDimension() const final { return 3; }
     MappingToRefTriangleToTetrahedron3(
         const MappingToRefTriangleToTetrahedron3&) = delete;

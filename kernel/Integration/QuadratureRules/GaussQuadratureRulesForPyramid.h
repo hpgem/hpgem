@@ -59,8 +59,7 @@ class Pyramid_1_4 : public GaussQuadratureRule {
     std::size_t dimension() const final;
     std::size_t getNumberOfPoints() const final;
     double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
@@ -86,8 +85,7 @@ class Pyramid_3_16 : public GaussQuadratureRule {
     std::size_t dimension() const final;
     std::size_t getNumberOfPoints() const final;
     double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
@@ -113,8 +111,7 @@ class Pyramid_5_36 : public GaussQuadratureRule {
     std::size_t dimension() const final;
     std::size_t getNumberOfPoints() const final;
     double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
@@ -140,8 +137,7 @@ class Pyramid_7_48 : public GaussQuadratureRule {
     std::size_t dimension() const final;
     std::size_t getNumberOfPoints() const final;
     double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
     Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:

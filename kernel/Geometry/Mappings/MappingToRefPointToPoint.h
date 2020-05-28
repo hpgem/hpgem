@@ -61,8 +61,7 @@ class MappingToRefPointToPoint
     static const MappingToRefPointToPoint& Instance();
     PointReference<0> transform(
         const Geometry::PointReference<0>& p1) const final;
-    Jacobian<0, 0> calcJacobian(
-        const Geometry::PointReference<0>&) const final;
+    Jacobian<0, 0> calcJacobian(const Geometry::PointReference<0>&) const final;
     std::size_t getTargetDimension() const final { return 0; }
     MappingToRefPointToPoint(const MappingToRefPointToPoint&) = delete;
     MappingToRefPointToPoint& operator=(const MappingToRefPointToPoint&) =

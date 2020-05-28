@@ -171,17 +171,15 @@ class stackVector {
     T& operator[](std::size_t p) {
         if (size_ <= N) {
             return data_.array[p];
-        } 
-            return data_.vector[p];
-        
+        }
+        return data_.vector[p];
     }
 
     const T& operator[](std::size_t p) const {
         if (size_ <= N) {
             return data_.array[p];
-        } 
-            return data_.vector[p];
-        
+        }
+        return data_.vector[p];
     }
 
     T& front() { return (*this)[0]; }
@@ -195,113 +193,99 @@ class stackVector {
     T* data() noexcept {
         if (size_ <= N) {
             return data_.array.data();
-        } 
-            return data_.vector.data();
-        
+        }
+        return data_.vector.data();
     }
 
     const T* data() const noexcept {
         if (size_ <= N) {
             return data_.array.data();
-        } 
-            return data_.vector.data();
-        
+        }
+        return data_.vector.data();
     }
 
     iterator begin() noexcept {
         if (size_ <= N) {
             return iterator{data_.array.begin()};
-        } 
-            return iterator{data_.vector.begin()};
-        
+        }
+        return iterator{data_.vector.begin()};
     }
 
     const_iterator begin() const noexcept {
         if (size_ <= N) {
             return const_iterator{data_.array.begin()};
-        } 
-            return const_iterator{data_.vector.begin()};
-        
+        }
+        return const_iterator{data_.vector.begin()};
     }
 
     const_iterator cbegin() const noexcept {
         if (size_ <= N) {
             return const_iterator{data_.array.cbegin()};
-        } 
-            return const_iterator{data_.vector.cbegin()};
-        
+        }
+        return const_iterator{data_.vector.cbegin()};
     }
 
     iterator end() noexcept {
         if (size_ <= N) {
             return iterator{data_.array.begin() + size_};
-        } 
-            return iterator{data_.vector.end()};
-        
+        }
+        return iterator{data_.vector.end()};
     }
 
     const_iterator end() const noexcept {
         if (size_ <= N) {
             return const_iterator{data_.array.begin() + size_};
-        } 
-            return const_iterator{data_.vector.end()};
-        
+        }
+        return const_iterator{data_.vector.end()};
     }
 
     const_iterator cend() const noexcept {
         if (size_ <= N) {
             return const_iterator{data_.array.cbegin() + size_};
-        } 
-            return const_iterator{data_.vector.cend()};
-        
+        }
+        return const_iterator{data_.vector.cend()};
     }
 
     reverse_iterator rbegin() noexcept {
         if (size_ <= N) {
             return reverse_iterator{data_.array.rend() - size_};
-        } 
-            return reverse_iterator{data_.vector.rbegin()};
-        
+        }
+        return reverse_iterator{data_.vector.rbegin()};
     }
 
     const_reverse_iterator rbegin() const noexcept {
         if (size_ <= N) {
             return const_reverse_iterator{data_.array.rend() - size_};
-        } 
-            return const_reverse_iterator{data_.vector.rbegin()};
-        
+        }
+        return const_reverse_iterator{data_.vector.rbegin()};
     }
 
     const_reverse_iterator crbegin() const noexcept {
         if (size_ <= N) {
             return const_reverse_iterator{data_.array.crend() - size_};
-        } 
-            return const_reverse_iterator{data_.vector.crbegin()};
-        
+        }
+        return const_reverse_iterator{data_.vector.crbegin()};
     }
 
     reverse_iterator rend() noexcept {
         if (size_ <= N) {
             return reverse_iterator{data_.array.rend()};
-        } 
-            return reverse_iterator{data_.vector.rend()};
-        
+        }
+        return reverse_iterator{data_.vector.rend()};
     }
 
     const_reverse_iterator rend() const noexcept {
         if (size_ <= N) {
             return const_reverse_iterator{data_.array.rend()};
-        } 
-            return const_reverse_iterator{data_.vector.rend()};
-        
+        }
+        return const_reverse_iterator{data_.vector.rend()};
     }
 
     const_reverse_iterator crend() const noexcept {
         if (size_ <= N) {
             return const_reverse_iterator{data_.array.crend()};
-        } 
-            return const_reverse_iterator{data_.vector.crend()};
-        
+        }
+        return const_reverse_iterator{data_.vector.crend()};
     }
 
     bool empty() const noexcept { return size_ == 0; }
@@ -323,9 +307,8 @@ class stackVector {
     std::size_t capacity() const noexcept {
         if (size_ <= N) {
             return vector_limit;
-        } 
-            return data_.vector.capacity();
-        
+        }
+        return data_.vector.capacity();
     }
 
     void shrink_to_fit() {
@@ -358,7 +341,8 @@ class stackVector {
             std::size_t distance = position - data_.array.begin();
             data_.array[distance] = std::move(value);
             return iterator{data_.array.begin() + distance};
-        } if (size_ == N) {
+        }
+        if (size_ == N) {
             std::vector<T> new_data;
             new_data.reserve(vector_limit);
             new_data.insert(new_data.end(), data_.array.begin(), position);
@@ -390,20 +374,19 @@ class stackVector {
                     data_.array[distance + i] = value;
                 }
                 return iterator{data_.array.begin() + distance};
-            } 
-                std::vector<T> new_data;
-                new_data.reserve(vector_limit);
-                new_data.insert(new_data.end(), cbegin(), position);
-                iterator result = new_data.insert(new_data.end(), count, value);
-                std::size_t distance =
-                    std::distance({new_data.begin()}, result);
-                new_data.insert(new_data.end(), position, cend());
-                data_.array.~array();
-                new (&data_.vector) std::vector<T>(std::move(new_data));
-                size_ += count;
-                result = data_.vector.begin() + distance;
-                return result;
-            
+            }
+            std::vector<T> new_data;
+            new_data.reserve(vector_limit);
+            new_data.insert(new_data.end(), cbegin(), position);
+            iterator result = new_data.insert(new_data.end(), count, value);
+            std::size_t distance = std::distance({new_data.begin()}, result);
+            new_data.insert(new_data.end(), position, cend());
+            data_.array.~array();
+            new (&data_.vector) std::vector<T>(std::move(new_data));
+            size_ += count;
+            result = data_.vector.begin() + distance;
+            return result;
+
         } else {
             size_ += count;
             return iterator{data_.vector.insert(position, count, value)};
@@ -421,20 +404,19 @@ class stackVector {
                 std::size_t distance = position - cbegin();
                 std::copy(first, last, data_.array.begin() + distance);
                 return iterator{data_.array.begin() + distance};
-            } 
-                std::vector<T> new_data;
-                new_data.reserve(vector_limit);
-                new_data.insert(new_data.end(), cbegin(), position);
-                iterator result = new_data.insert(new_data.end(), first, last);
-                std::size_t distance =
-                    std::distance({new_data.begin()}, result);
-                new_data.insert(new_data.end(), position, cend());
-                data_.array.~array();
-                new (&data_.vector) std::vector<T>(std::move(new_data));
-                size_ += count;
-                result = data_.vector.begin() + distance;
-                return result;
-            
+            }
+            std::vector<T> new_data;
+            new_data.reserve(vector_limit);
+            new_data.insert(new_data.end(), cbegin(), position);
+            iterator result = new_data.insert(new_data.end(), first, last);
+            std::size_t distance = std::distance({new_data.begin()}, result);
+            new_data.insert(new_data.end(), position, cend());
+            data_.array.~array();
+            new (&data_.vector) std::vector<T>(std::move(new_data));
+            size_ += count;
+            result = data_.vector.begin() + distance;
+            return result;
+
         } else {
             size_ += count;
             return iterator{data_.vector.insert(position, first, last)};
@@ -453,21 +435,20 @@ class stackVector {
                 std::copy(ilist.begin(), ilist.end(),
                           data_.array.begin() + distance);
                 return iterator{data_.array.begin() + distance};
-            } 
-                std::vector<T> new_data;
-                new_data.reserve(vector_limit);
-                new_data.insert(new_data.end(), data_.array.begin(), position);
-                iterator result = new_data.insert(data_.vector.end(), ilist);
-                std::size_t distance =
-                    std::distance(data_.vector.begin(), result);
-                new_data.insert(new_data.end(), position,
-                                data_.array.begin() + size_);
-                data_.array.~array();
-                new (&data_.vector) std::vector<T>(std::move(new_data));
-                size_ += count;
-                result = data_.vector.begin() + distance;
-                return result;
-            
+            }
+            std::vector<T> new_data;
+            new_data.reserve(vector_limit);
+            new_data.insert(new_data.end(), data_.array.begin(), position);
+            iterator result = new_data.insert(data_.vector.end(), ilist);
+            std::size_t distance = std::distance(data_.vector.begin(), result);
+            new_data.insert(new_data.end(), position,
+                            data_.array.begin() + size_);
+            data_.array.~array();
+            new (&data_.vector) std::vector<T>(std::move(new_data));
+            size_ += count;
+            result = data_.vector.begin() + distance;
+            return result;
+
         } else {
             size_ += count;
             return iterator{data_.vector.insert(position, ilist)};
@@ -490,7 +471,8 @@ class stackVector {
             if (count > 0) std::copy(last, cend(), result);
             size_ -= count;
             return result;
-        } if (size_ - count <= N) {
+        }
+        if (size_ - count <= N) {
             std::size_t first_offset = std::distance(cbegin(), first);
             std::size_t last_offset = std::distance(cbegin(), last);
             std::vector<T> old_data = std::move(data_.vector);
@@ -575,7 +557,8 @@ class stackVector {
         std::vector<T> vector;
         std::array<T, N> array;
         U() : array(std::array<T, N>()){};
-        ~U()= default;;
+        ~U() = default;
+        ;
     } data_;
 };
 

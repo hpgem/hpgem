@@ -1261,9 +1261,8 @@ std::tuple<const Base::Element *, Geometry::PointReference<DIM>>
             if (singleEntry->hasChild()) {
                 return physicalToReference_detail(pointPhysical,
                                                   singleEntry->getChildren());
-            } 
-                return std::make_tuple(element, pointReference);
-            
+            }
+            return std::make_tuple(element, pointReference);
         }
     }
     throw "The point % lies outsize the subdomain managed by this thread";

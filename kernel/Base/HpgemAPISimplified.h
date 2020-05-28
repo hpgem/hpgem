@@ -387,8 +387,8 @@ class HpgemAPISimplified : public HpgemAPIBase<DIM>,
 
     /// \brief Write output to a tecplot file.
     void writeToTecplotFile(const Element *ptrElement,
-                                    const PointReferenceT &pRef,
-                                    std::ostream &out) override;
+                            const PointReferenceT &pRef,
+                            std::ostream &out) override;
 
     virtual void VTKWrite(Output::VTKTimeDependentWriter<DIM> &out, double t,
                           std::size_t timeIntegrationVectorId) {

@@ -324,10 +324,9 @@ class ElementShape<0> {
      */
     template <int entityDimension>
     std::size_t getNumberOfEntities() const {
-        if (entityDimension == 0)
-            return 1;
-        
-            return 0;
+        if (entityDimension == 0) return 1;
+
+        return 0;
     }
 
     template <int entityDimension>
@@ -357,10 +356,9 @@ class ElementShape<0> {
             entityIndex == 0,
             "A point consists of only 1 shape, but you asked for shape %",
             entityIndex);
-        if (targetDimension == 0)
-            return {0};
-        
-            return {};
+        if (targetDimension == 0) return {0};
+
+        return {};
     };
 
     // points are hardcoded to be correct

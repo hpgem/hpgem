@@ -131,8 +131,7 @@ std::size_t ReferenceSquare::getCodim0MappingIndex(
     const std::vector<std::size_t>& list2) const {
     if (list1.size() == 4 && list2.size() == 4) {
         if (list1[0] == list2[0]) {
-            if (list1[1] == list2[1])
-                return 0;
+            if (list1[1] == list2[1]) return 0;
             if (list1[3] == list2[3])
                 return 7;
             else
@@ -140,8 +139,7 @@ std::size_t ReferenceSquare::getCodim0MappingIndex(
                        "reference square indexes were given in impossible "
                        "order.\n");
         } else if (list1[0] == list2[1]) {
-            if (list1[1] == list2[0])
-                return 5;
+            if (list1[1] == list2[0]) return 5;
             if (list1[1] == list2[3])
                 return 3;
             else
@@ -149,8 +147,7 @@ std::size_t ReferenceSquare::getCodim0MappingIndex(
                        "reference square indexes were given in impossible "
                        "order.\n");
         } else if (list1[0] == list2[2]) {
-            if (list1[2] == list2[0])
-                return 4;
+            if (list1[2] == list2[0]) return 4;
             if (list1[2] == list2[3])
                 return 1;
             else
@@ -158,8 +155,7 @@ std::size_t ReferenceSquare::getCodim0MappingIndex(
                        "reference square indexes were given in impossible "
                        "order.\n");
         } else {
-            if (list1[1] == list2[1])
-                return 6;
+            if (list1[1] == list2[1]) return 6;
             if (list1[1] == list2[2])
                 return 2;
             else

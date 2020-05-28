@@ -75,9 +75,7 @@ class ReferencePoint : public ReferenceGeometry {
     const MappingReferenceToReference<0>* getCodim0MappingPtr(
         const std::size_t a) const final;
 
-    const PointReferenceBase& getCenter() const final {
-        return center_;
-    }
+    const PointReferenceBase& getCenter() const final { return center_; }
 
     std::size_t getNumberOfNodes() const final { return 1; }
 

@@ -97,7 +97,8 @@ struct MeshEntities<0, dimension> {
 constexpr std::size_t exp2(std::size_t power) {
     if (power == 0) {
         return 1;
-    } if ((power / 2) * 2 == power) {
+    }
+    if ((power / 2) * 2 == power) {
         return exp2(power / 2) * exp2(power / 2);
     } else {
         return 2 * exp2(power - 1);

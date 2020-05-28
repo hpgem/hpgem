@@ -108,5 +108,6 @@ MeshManipulatorBase::MeshManipulatorBase(const ConfigurationData* config,
     logger(VERBOSE, "numberOfFaceVectors = %", numberOfFaceVectors);
 }
 
-MeshManipulatorBase::MeshManipulatorBase(const MeshManipulatorBase& other) = default;
+MeshManipulatorBase::MeshManipulatorBase(const MeshManipulatorBase& other) =
+    default;
 }  // namespace Base

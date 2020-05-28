@@ -48,8 +48,7 @@ class HomogeneousBandStructure : public BandStructure<DIM> {
         /// \param line The line number
         /// \param interpolation Interpolation constant (k = k1 + a(k2 - k1))
         /// \return The frequency of this band at the specified point.
-        double frequency(std::size_t line,
-                                 double interpolation) const final {
+        double frequency(std::size_t line, double interpolation) const final {
             double x0 = l_ * interpolation + xs_[line];
             double y = ys_[line];
             return std::sqrt(y * y + x0 * x0) / std::sqrt(permittivity_);

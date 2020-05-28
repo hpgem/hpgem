@@ -66,9 +66,7 @@ class ReferenceLine : public ReferenceGeometry {
     friend std::ostream& operator<<(std::ostream& os,
                                     const ReferenceLine& point);
 
-    const PointReferenceBase& getCenter() const final {
-        return center_;
-    }
+    const PointReferenceBase& getCenter() const final { return center_; }
 
     std::size_t getNumberOfNodes() const final { return 2; }
 

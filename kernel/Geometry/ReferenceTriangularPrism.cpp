@@ -127,7 +127,8 @@ std::vector<std::size_t> ReferenceTriangularPrism::getCodim1EntityLocalIndices(
     if (faceIndex < 2) {
         return std::vector<std::size_t>(localNodeIndexes_[faceIndex],
                                         localNodeIndexes_[faceIndex] + 3);
-    } if (faceIndex < 5) {
+    }
+    if (faceIndex < 5) {
         return std::vector<std::size_t>(localNodeIndexes_[faceIndex],
                                         localNodeIndexes_[faceIndex] + 4);
     } else {
@@ -143,7 +144,8 @@ const ReferenceGeometry* ReferenceTriangularPrism::getCodim1ReferenceGeometry(
     const std::size_t faceIndex) const {
     if (faceIndex < 2) {
         return referenceGeometryCodim1TrianglePtr_;
-    } if (faceIndex < 5) {
+    }
+    if (faceIndex < 5) {
         return referenceGeometryCodim1SquarePtr_;
     } else {
         logger(ERROR,

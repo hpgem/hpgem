@@ -71,8 +71,7 @@ class RefinementMapForLine0 : public RefinementMapping {
     std::string getName() const final { return "Identity map"; }
 
     PointReference<1> refinementTransform(
-        std::size_t subElementIndex,
-        const PointReference<1>& p) const final {
+        std::size_t subElementIndex, const PointReference<1>& p) const final {
         logger.assert_debug(
             subElementIndex == 0,
             "asked for subElement %, but the % has only % subElements",
@@ -81,8 +80,7 @@ class RefinementMapForLine0 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<1, 1> getRefinementMappingMatrixL(
-        std::size_t subElementIndex,
-        const PointReference<1>& p) const final {
+        std::size_t subElementIndex, const PointReference<1>& p) const final {
         logger.assert_debug(
             subElementIndex == 0,
             "asked for subElement %, but the % has only % subElements",
@@ -92,8 +90,7 @@ class RefinementMapForLine0 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<1, 1> getRefinementMappingMatrixR(
-        std::size_t subElementIndex,
-        const PointReference<1>& p) const final {
+        std::size_t subElementIndex, const PointReference<1>& p) const final {
         logger.assert_debug(
             subElementIndex == 0,
             "asked for subElement %, but the % has only % subElements",
@@ -115,8 +112,7 @@ class RefinementMapForLine0 : public RefinementMapping {
         return std::vector<std::size_t>{0, 1};
     }
 
-    Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const final {
+    Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const final {
         return &Geometry::ReferenceLine::Instance();
     }
 
@@ -188,8 +184,7 @@ class RefinementMapForLine1 : public RefinementMapping {
     std::string getName() const final { return "split"; }
 
     PointReference<1> refinementTransform(
-        std::size_t subElementIndex,
-        const PointReference<1>& p) const final {
+        std::size_t subElementIndex, const PointReference<1>& p) const final {
         logger.assert_debug(
             subElementIndex < 2,
             "asked for subElement %, but the % has only % subElements",
@@ -198,8 +193,7 @@ class RefinementMapForLine1 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<1, 1> getRefinementMappingMatrixL(
-        std::size_t subElementIndex,
-        const PointReference<1>& p) const final {
+        std::size_t subElementIndex, const PointReference<1>& p) const final {
         logger.assert_debug(
             subElementIndex < 2,
             "asked for subElement %, but the % has only % subElements",
@@ -209,8 +203,7 @@ class RefinementMapForLine1 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<1, 1> getRefinementMappingMatrixR(
-        std::size_t subElementIndex,
-        const PointReference<1>& p) const final {
+        std::size_t subElementIndex, const PointReference<1>& p) const final {
         logger.assert_debug(
             subElementIndex < 2,
             "asked for subElement %, but the % has only % subElements",
@@ -231,13 +224,11 @@ class RefinementMapForLine1 : public RefinementMapping {
             subElementIndex, getName(), getNumberOfSubElements());
         if (subElementIndex == 0) {
             return std::vector<std::size_t>{0, 2};
-        } 
-            return std::vector<std::size_t>{2, 1};
-        
+        }
+        return std::vector<std::size_t>{2, 1};
     }
 
-    Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const final {
+    Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const final {
         return &Geometry::ReferenceLine::Instance();
     }
 

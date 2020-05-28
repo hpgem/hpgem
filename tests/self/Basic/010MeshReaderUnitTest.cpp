@@ -194,7 +194,7 @@ void testMesh(Base::MeshManipulator<DIM>* test, bool isPeriodic) {
         firstNodes = edge->getElement(0)
                          ->getReferenceGeometry()
                          ->getCodim2EntityLocalIndices(edge->getEdgeNumber(0));
-        for (unsigned long & firstNode : firstNodes) {
+        for (unsigned long& firstNode : firstNodes) {
             firstNode =
                 edge->getElement(0)->getPhysicalGeometry()->getNodeIndex(
                     firstNode);
@@ -207,7 +207,7 @@ void testMesh(Base::MeshManipulator<DIM>* test, bool isPeriodic) {
                 edge->getElement(i)
                     ->getReferenceGeometry()
                     ->getCodim2EntityLocalIndices(edge->getEdgeNumber(i));
-            for (unsigned long & otherNode : otherNodes) {
+            for (unsigned long& otherNode : otherNodes) {
                 otherNode =
                     edge->getElement(i)->getPhysicalGeometry()->getNodeIndex(
                         otherNode);

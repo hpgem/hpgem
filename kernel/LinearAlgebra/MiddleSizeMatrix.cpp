@@ -458,7 +458,8 @@ MiddleSizeMatrix& MiddleSizeMatrix::operator=(const type& c) {
 
 /// \param[in] Matrix : this is the matrix of the right hand side of the
 /// assignment
-MiddleSizeMatrix& MiddleSizeMatrix::operator=(const MiddleSizeMatrix& right) = default;
+MiddleSizeMatrix& MiddleSizeMatrix::operator=(const MiddleSizeMatrix& right) =
+    default;
 
 MiddleSizeMatrix& MiddleSizeMatrix::operator=(MiddleSizeMatrix&& right) {
     data_ = std::move(right.data_);

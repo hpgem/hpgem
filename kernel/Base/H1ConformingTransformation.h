@@ -68,15 +68,13 @@ class H1ConformingTransformation : public CoordinateTransformation<DIM> {
 
     /// integrands for elements are multiplied by the absolute value of the
     /// determinant of the Jacobian to correct for the difference in volume
-    double getIntegrandScaleFactor(
-        PhysicalElement<DIM>& element) const final {
+    double getIntegrandScaleFactor(PhysicalElement<DIM>& element) const final {
         return element.getJacobianAbsDet();
     }
 
     /// integrands for faces are multiplied by the norm of the outward normal
     /// vector to correct for the difference in area
-    double getIntegrandScaleFactor(
-        PhysicalFace<DIM>& face) const final {
+    double getIntegrandScaleFactor(PhysicalFace<DIM>& face) const final {
         return face.getRelativeSurfaceArea();
     }
 };

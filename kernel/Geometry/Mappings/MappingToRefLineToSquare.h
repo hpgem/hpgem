@@ -74,8 +74,7 @@ class MappingToRefLineToSquare0 : public MappingReferenceToReference<1> {
     static const MappingToRefLineToSquare0& Instance();
     PointReference<2> transform(
         const Geometry::PointReference<1>& p1) const final;
-    Jacobian<1, 2> calcJacobian(
-        const Geometry::PointReference<1>&) const final;
+    Jacobian<1, 2> calcJacobian(const Geometry::PointReference<1>&) const final;
     std::size_t getTargetDimension() const final { return 2; }
     MappingToRefLineToSquare0(const MappingToRefLineToSquare0&);
     MappingToRefLineToSquare0& operator=(const MappingToRefLineToSquare0&);
@@ -92,8 +91,7 @@ class MappingToRefLineToSquare1 : public MappingReferenceToReference<1> {
     static const MappingToRefLineToSquare1& Instance();
     PointReference<2> transform(
         const Geometry::PointReference<1>& p1) const final;
-    Jacobian<1, 2> calcJacobian(
-        const Geometry::PointReference<1>&) const final;
+    Jacobian<1, 2> calcJacobian(const Geometry::PointReference<1>&) const final;
     std::size_t getTargetDimension() const final { return 2; }
     MappingToRefLineToSquare1(const MappingToRefLineToSquare1&) = delete;
     MappingToRefLineToSquare1& operator=(const MappingToRefLineToSquare1&) =
@@ -111,8 +109,7 @@ class MappingToRefLineToSquare2 : public MappingReferenceToReference<1> {
     static const MappingToRefLineToSquare2& Instance();
     PointReference<2> transform(
         const Geometry::PointReference<1>& p1) const final;
-    Jacobian<1, 2> calcJacobian(
-        const Geometry::PointReference<1>&) const final;
+    Jacobian<1, 2> calcJacobian(const Geometry::PointReference<1>&) const final;
     std::size_t getTargetDimension() const final { return 2; }
     MappingToRefLineToSquare2(const MappingToRefLineToSquare2&) = delete;
     MappingToRefLineToSquare1& operator=(const MappingToRefLineToSquare2&) =
@@ -130,8 +127,7 @@ class MappingToRefLineToSquare3 : public MappingReferenceToReference<1> {
     static const MappingToRefLineToSquare3& Instance();
     PointReference<2> transform(
         const Geometry::PointReference<1>& p1) const final;
-    Jacobian<1, 2> calcJacobian(
-        const Geometry::PointReference<1>&) const final;
+    Jacobian<1, 2> calcJacobian(const Geometry::PointReference<1>&) const final;
     std::size_t getTargetDimension() const final { return 2; }
     MappingToRefLineToSquare3(const MappingToRefLineToSquare3&) = delete;
     MappingToRefLineToSquare3& operator=(const MappingToRefLineToSquare3&) =

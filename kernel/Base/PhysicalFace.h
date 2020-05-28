@@ -325,12 +325,11 @@ class PhysicalFace final {
     PhysicalElement<DIM>& getPhysicalElement(Base::Side side) {
         if (side == Base::Side::LEFT) {
             return left;
-        } 
-            logger.assert_debug(isInternal(),
-                                "This physical face is meant for boundaries "
-                                "and can only see left elements");
-            return right;
-        
+        }
+        logger.assert_debug(isInternal(),
+                            "This physical face is meant for boundaries "
+                            "and can only see left elements");
+        return right;
     }
 
     /// provides access to the element on the opposite side of iSide.
@@ -340,9 +339,8 @@ class PhysicalFace final {
                                 "This physical face is meant for boundaries "
                                 "and can only see left elements");
             return right;
-        } 
-            return left;
-        
+        }
+        return left;
     }
 
     /// get the index of the face

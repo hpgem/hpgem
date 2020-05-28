@@ -373,9 +373,8 @@ void DGMaxEigenValue<DIM>::extractEigenValues(
               [](const PetscScalar& a, const PetscScalar& b) {
                   if (a.real() != b.real()) {
                       return a.real() < b.real();
-                  } 
-                      return a.imag() < b.imag();
-                  
+                  }
+                  return a.imag() < b.imag();
               });
 }
 

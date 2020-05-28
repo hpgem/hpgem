@@ -180,8 +180,7 @@ class RefinementMapForTriangularPrism0 : public RefinementMapping {
     std::string getName() const final { return "Identity map"; }
 
     PointReference<3> refinementTransform(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         logger.assert_debug(
             subElementIndex == 0,
             "asked for subElement %, but the % has only % subElements",
@@ -190,8 +189,7 @@ class RefinementMapForTriangularPrism0 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixL(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         logger.assert_debug(
             subElementIndex == 0,
             "asked for subElement %, but the % has only % subElements",
@@ -202,8 +200,7 @@ class RefinementMapForTriangularPrism0 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixR(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         logger.assert_debug(
             subElementIndex == 0,
             "asked for subElement %, but the % has only % subElements",
@@ -226,8 +223,7 @@ class RefinementMapForTriangularPrism0 : public RefinementMapping {
         return std::vector<std::size_t>{0, 1, 2, 3, 4, 5};
     }
 
-    Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const final {
+    Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const final {
         return &Geometry::ReferenceTriangularPrism::Instance();
     }
 
@@ -309,8 +305,7 @@ class RefinementMapForTriangularPrism1 : public RefinementMapping {
     std::string getName() const final { return "split in 2"; }
 
     PointReference<3> refinementTransform(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         logger.assert_debug(
             subElementIndex < 2,
             "asked for subElement %, but the % has only % subElements",
@@ -319,8 +314,7 @@ class RefinementMapForTriangularPrism1 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixL(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         logger.assert_debug(
             subElementIndex < 2,
             "asked for subElement %, but the % has only % subElements",
@@ -331,8 +325,7 @@ class RefinementMapForTriangularPrism1 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixR(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         logger.assert_debug(
             subElementIndex < 2,
             "asked for subElement %, but the % has only % subElements",
@@ -354,13 +347,11 @@ class RefinementMapForTriangularPrism1 : public RefinementMapping {
             subElementIndex, getName(), getNumberOfSubElements());
         if (subElementIndex == 0) {
             return std::vector<std::size_t>{0, 6, 2, 3, 7, 5};
-        } 
-            return std::vector<std::size_t>{6, 1, 2, 7, 4, 5};
-        
+        }
+        return std::vector<std::size_t>{6, 1, 2, 7, 4, 5};
     }
 
-    Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const final {
+    Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const final {
         return &Geometry::ReferenceTriangularPrism::Instance();
     }
 
@@ -456,8 +447,7 @@ class RefinementMapForTriangularPrism2 : public RefinementMapping {
     std::string getName() const final { return "split in 2"; }
 
     PointReference<3> refinementTransform(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         logger.assert_debug(
             subElementIndex < 2,
             "asked for subElement %, but the % has only % subElements",
@@ -466,8 +456,7 @@ class RefinementMapForTriangularPrism2 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixL(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         logger.assert_debug(
             subElementIndex < 2,
             "asked for subElement %, but the % has only % subElements",
@@ -478,8 +467,7 @@ class RefinementMapForTriangularPrism2 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixR(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         logger.assert_debug(
             subElementIndex < 2,
             "asked for subElement %, but the % has only % subElements",
@@ -501,13 +489,11 @@ class RefinementMapForTriangularPrism2 : public RefinementMapping {
             subElementIndex, getName(), getNumberOfSubElements());
         if (subElementIndex == 0) {
             return std::vector<std::size_t>{0, 1, 6, 3, 4, 7};
-        } 
-            return std::vector<std::size_t>{6, 1, 2, 7, 4, 5};
-        
+        }
+        return std::vector<std::size_t>{6, 1, 2, 7, 4, 5};
     }
 
-    Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const final {
+    Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const final {
         return &Geometry::ReferenceTriangularPrism::Instance();
     }
 
@@ -603,22 +589,19 @@ class RefinementMapForTriangularPrism3 : public RefinementMapping {
     std::string getName() const final { return "split in 2"; }
 
     PointReference<3> refinementTransform(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         logger.assert_debug(
             subElementIndex < 2,
             "asked for subElement %, but the % has only % subElements",
             subElementIndex, getName(), getNumberOfSubElements());
         if (subElementIndex == 0) {
             return {0.5 * p[0], 0.5 * p[0] + p[1], p[2]};
-        } 
-            return {p[0] + 0.5 * p[1], 0.5 * p[1], p[2]};
-        
+        }
+        return {p[0] + 0.5 * p[1], 0.5 * p[1], p[2]};
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixL(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         logger.assert_debug(
             subElementIndex < 2,
             "asked for subElement %, but the % has only % subElements",
@@ -627,16 +610,14 @@ class RefinementMapForTriangularPrism3 : public RefinementMapping {
             // the bonus column might be {0, 0, 0, 1}
             return LinearAlgebra::SmallMatrix<3, 3>{
                 {{{0.5, 0.5, 0.}}, {{0., 1., 0.}}, {{0., 0., 1.}}}};
-        } 
-            // the bonus column might be {0, 0, 0, 1}
-            return LinearAlgebra::SmallMatrix<3, 3>{
-                {{{1., 0., 0.}}, {{0.5, 0.5, 0.}}, {{0., 0., 1.}}}};
-        
+        }
+        // the bonus column might be {0, 0, 0, 1}
+        return LinearAlgebra::SmallMatrix<3, 3>{
+            {{{1., 0., 0.}}, {{0.5, 0.5, 0.}}, {{0., 0., 1.}}}};
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixR(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         logger.assert_debug(
             subElementIndex < 2,
             "asked for subElement %, but the % has only % subElements",
@@ -645,11 +626,10 @@ class RefinementMapForTriangularPrism3 : public RefinementMapping {
             // the bonus column might be {0, 0, 0, 1}
             return LinearAlgebra::SmallMatrix<3, 3>{
                 {{{2., -1., 0.}}, {{0., 1., 0.}}, {{0., 0., 1.}}}};
-        } 
-            // the bonus column might be {0, 0, 0, 1}
-            return LinearAlgebra::SmallMatrix<3, 3>{
-                {{{1., 0., 0.}}, {{-1., 2., 0.}}, {{0., 0., 1.}}}};
-        
+        }
+        // the bonus column might be {0, 0, 0, 1}
+        return LinearAlgebra::SmallMatrix<3, 3>{
+            {{{1., 0., 0.}}, {{-1., 2., 0.}}, {{0., 0., 1.}}}};
     }
 
     std::size_t getNumberOfNewNodes() const final { return 2; }
@@ -664,13 +644,11 @@ class RefinementMapForTriangularPrism3 : public RefinementMapping {
             subElementIndex, getName(), getNumberOfSubElements());
         if (subElementIndex == 0) {
             return std::vector<std::size_t>{0, 6, 2, 3, 7, 5};
-        } 
-            return std::vector<std::size_t>{0, 1, 6, 3, 4, 7};
-        
+        }
+        return std::vector<std::size_t>{0, 1, 6, 3, 4, 7};
     }
 
-    Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const final {
+    Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const final {
         return &Geometry::ReferenceTriangularPrism::Instance();
     }
 
@@ -766,8 +744,7 @@ class RefinementMapForTriangularPrism4 : public RefinementMapping {
     std::string getName() const final { return "split in 4"; }
 
     PointReference<3> refinementTransform(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return {0.5 * p[0], 0.5 * p[1], p[2]};
@@ -787,8 +764,7 @@ class RefinementMapForTriangularPrism4 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixL(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column might be {0, 0, 0, 1}
@@ -816,8 +792,7 @@ class RefinementMapForTriangularPrism4 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixR(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column might be {0, 0, 0, 1}
@@ -868,8 +843,7 @@ class RefinementMapForTriangularPrism4 : public RefinementMapping {
         }
     }
 
-    Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const final {
+    Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const final {
         return &Geometry::ReferenceTriangularPrism::Instance();
     }
 
@@ -984,8 +958,7 @@ class RefinementMapForTriangularPrism5 : public RefinementMapping {
     std::string getName() const final { return "split in 2"; }
 
     PointReference<3> refinementTransform(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return {p[0], p[1], 0.5 * p[2] - 0.5};
@@ -1001,8 +974,7 @@ class RefinementMapForTriangularPrism5 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixL(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column might be {0, 0, -0.5, 1}
@@ -1022,8 +994,7 @@ class RefinementMapForTriangularPrism5 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixR(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column might be {0, 0, 1, 1}
@@ -1062,8 +1033,7 @@ class RefinementMapForTriangularPrism5 : public RefinementMapping {
         }
     }
 
-    Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const final {
+    Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const final {
         return &Geometry::ReferenceTriangularPrism::Instance();
     }
 
@@ -1159,8 +1129,7 @@ class RefinementMapForTriangularPrism6 : public RefinementMapping {
     std::string getName() const final { return "split in 3"; }
 
     PointReference<3> refinementTransform(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return {(p[1] + 1.) * (5. + p[0]) / 24.,
@@ -1181,8 +1150,7 @@ class RefinementMapForTriangularPrism6 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixL(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column should be {5./24., 5./24, 0, 1}
@@ -1212,8 +1180,7 @@ class RefinementMapForTriangularPrism6 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixR(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return LinearAlgebra::SmallMatrix<3, 3>{
@@ -1267,8 +1234,7 @@ class RefinementMapForTriangularPrism6 : public RefinementMapping {
         }
     }
 
-    Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const final {
+    Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const final {
         return &Geometry::ReferenceTriangularPrism::Instance();
     }
 
@@ -1386,8 +1352,7 @@ class RefinementMapForTriangularPrism7 : public RefinementMapping {
     }
 
     PointReference<3> refinementTransform(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return {(1. + p[0]) / 4., (p[1] + 1.) * (3. - p[0]) / 8., p[2]};
@@ -1403,8 +1368,7 @@ class RefinementMapForTriangularPrism7 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixL(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column should be {.25, .375, 0, 1}
@@ -1426,8 +1390,7 @@ class RefinementMapForTriangularPrism7 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixR(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return LinearAlgebra::SmallMatrix<3, 3>{
@@ -1466,8 +1429,7 @@ class RefinementMapForTriangularPrism7 : public RefinementMapping {
         }
     }
 
-    Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const final {
+    Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const final {
         return &Geometry::ReferenceTriangularPrism::Instance();
     }
 
@@ -1590,8 +1552,7 @@ class RefinementMapForTriangularPrism8 : public RefinementMapping {
     }
 
     PointReference<3> refinementTransform(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return {(p[0] + 1.) * (3. - p[1]) / 8., (1. + p[1]) / 4., p[2]};
@@ -1607,8 +1568,7 @@ class RefinementMapForTriangularPrism8 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixL(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column should be {.375, .25, 0, 1}
@@ -1630,8 +1590,7 @@ class RefinementMapForTriangularPrism8 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixR(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return LinearAlgebra::SmallMatrix<3, 3>{
@@ -1670,8 +1629,7 @@ class RefinementMapForTriangularPrism8 : public RefinementMapping {
         }
     }
 
-    Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const final {
+    Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const final {
         return &Geometry::ReferenceTriangularPrism::Instance();
     }
 
@@ -1794,8 +1752,7 @@ class RefinementMapForTriangularPrism9 : public RefinementMapping {
     }
 
     PointReference<3> refinementTransform(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return {p[0] / 2., p[1] / 2., p[2]};
@@ -1812,8 +1769,7 @@ class RefinementMapForTriangularPrism9 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixL(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column should be {0, 0, 0, 1}
@@ -1835,8 +1791,7 @@ class RefinementMapForTriangularPrism9 : public RefinementMapping {
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixR(
-        std::size_t subElementIndex,
-        const PointReference<3>& p) const final {
+        std::size_t subElementIndex, const PointReference<3>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return LinearAlgebra::SmallMatrix<3, 3>{
@@ -1875,8 +1830,7 @@ class RefinementMapForTriangularPrism9 : public RefinementMapping {
         }
     }
 
-    Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const final {
+    Geometry::ReferenceGeometry* getBigElementReferenceGeometry() const final {
         return &Geometry::ReferenceTriangularPrism::Instance();
     }
 

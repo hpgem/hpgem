@@ -54,7 +54,9 @@ template <std::size_t DIM>
 void move(Base::MeshManipulator<DIM>* mesh) {
     class : public Base::MeshMoverBase<DIM> {
        public:
-        void movePoint(Geometry::PointPhysical<DIM>& p) const override { p *= 2; }
+        void movePoint(Geometry::PointPhysical<DIM>& p) const override {
+            p *= 2;
+        }
     } mover;
     for (Geometry::PointPhysical<DIM>& node : mesh->getNodeCoordinates()) {
         mover.movePoint(node);
