@@ -222,8 +222,8 @@ class Face final : public Geometry::FaceGeometry, public FaceData {
                               std::size_t unknown) const;
 
     ///\brief The "all directions in one go"-edition of basisFunctionDeriv.
-    ///Warning: contrary to some old implementations, this will NOT apply the
-    ///scaling due to the transformation to a reference element
+    /// Warning: contrary to some old implementations, this will NOT apply the
+    /// scaling due to the transformation to a reference element
     template <std::size_t DIM>
     LinearAlgebra::SmallVector<DIM + 1> basisFunctionDeriv(
         std::size_t i, const Geometry::PointReference<DIM>& p) const;
@@ -299,19 +299,19 @@ class Face final : public Geometry::FaceGeometry, public FaceData {
     }
 
     ///\deprecated Does not conform naming conventions, use
-    ///getNumberOfBasisFunctions instead.
+    /// getNumberOfBasisFunctions instead.
     std::size_t getNrOfBasisFunctions() const {
         return getNumberOfBasisFunctions();
     }
 
     ///\deprecated Does not conform naming conventions, use
-    ///getLocalNumberOfBasisFunctions instead.
+    /// getLocalNumberOfBasisFunctions instead.
     std::size_t getLocalNrOfBasisFunctions() const {
         return getLocalNumberOfBasisFunctions();
     }
 
     ///\deprecated Does not conform naming conventions, use
-    ///setLocalNumberOfBasisFunctions instead.
+    /// setLocalNumberOfBasisFunctions instead.
     void setLocalNrOfBasisFunctions(std::size_t number) {
         setLocalNumberOfBasisFunctions(number);
     }

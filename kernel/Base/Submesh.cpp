@@ -126,8 +126,9 @@ void Submesh::processPullRequests() {
         // insert pull requests
         std::vector<std::vector<std::size_t>::iterator> searchIterators(n);
         // warning: this maps the pid where the data is to be pushed from to
-        // element id (this is the processor the data is to be pushed to; usually
-        //this works the other way around)
+        // element id (this is the processor the data is to be pushed to;
+        // usually
+        // this works the other way around)
         std::vector<std::vector<std::size_t> > newPushes(n);
         for (std::size_t i = 0; i < n; ++i) {
             searchIterators[i] =

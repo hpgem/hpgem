@@ -170,7 +170,7 @@ double StateCoefficientsStructAir::computeViscosity(
     // todo: VISCOSITY_SCALING has been altered for a test case with high
     // viscosity (!!)
     return VISCOSITY_SCALING;  //*(1+THETA_S)/(temperature +
-                               //THETA_S)*std::pow(temperature,3.0/20);
+                               // THETA_S)*std::pow(temperature,3.0/20);
 }
 
 std::vector<LinearAlgebra::MiddleSizeMatrix>

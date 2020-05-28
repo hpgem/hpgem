@@ -96,13 +96,13 @@ class SavageHutterBase : public Base::HpgemAPISimplified<DIM> {
 
     ///\brief Creates an empty slope limiter.
     ///\details This function creates an empty slope limiter, but can be
-    ///overwritten by an application in order to create the slope limiter you
+    /// overwritten by an application in order to create the slope limiter you
     /// want. This is not available yet in 2D.
     virtual SlopeLimiter *createSlopeLimiter() { return new EmptySlopeLimiter; }
 
     ///\brief Creates an empty height limiter.
     ///\details This function creates an empty height limiter, but can be
-    ///overwritten by an application in order to create the non-negativity
+    /// overwritten by an application in order to create the non-negativity
     /// limiter you want.
     virtual HeightLimiter *createHeightLimiter() {
         return new EmptyHeightLimiter;

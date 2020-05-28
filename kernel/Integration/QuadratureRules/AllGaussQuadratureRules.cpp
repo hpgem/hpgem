@@ -92,7 +92,7 @@ AllGaussQuadratureRules::AllGaussQuadratureRules() {
     addRule(&Pyramid_5_36::Instance());
     addRule(&Pyramid_7_48::Instance());
     //*************************TETRAHEDRON
-    //QUADRATURES*****************************
+    // QUADRATURES*****************************
     addRule(&Tn3_1_1::Instance());
     addRule(&Tn3_2_4::Instance());
     addRule(&Tn3_3_5::Instance());
@@ -104,13 +104,13 @@ AllGaussQuadratureRules::AllGaussQuadratureRules() {
     addRule(&T3_9_53::Instance());
     addRule(&T3_10_126::Instance());
     //*************************TRIANGULARPRISM
-    //QUADRATURES*****************************
+    // QUADRATURES*****************************
     addRule(&TriPrism_1_1::Instance());
     addRule(&TriPrism_3_8::Instance());
     addRule(&TriPrism_5_21::Instance());
     addRule(&TriPrism_7_64::Instance());
     //*************************HYPERCUBE
-    //QUADRATURES*****************************
+    // QUADRATURES*****************************
     addRule(&Cn4_1_1::Instance());
     addRule(&Cn4_3_16::Instance());
 }

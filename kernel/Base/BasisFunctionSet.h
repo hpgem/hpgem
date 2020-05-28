@@ -85,13 +85,13 @@ class BasisFunctionSet {
     double eval(std::size_t i, const Geometry::PointReference<DIM> &p) const;
 
     ///\evaluate basis function i at a point needed for a quadrature rule, where
-    ///the quadrature rule is meant for integrating over an element
+    /// the quadrature rule is meant for integrating over an element
     double eval(std::size_t i,
                 QuadratureRules::GaussQuadratureRule *elementQuadratureRule,
                 std::size_t quadraturePointIndex) const;
 
     ///\evaluate basis function i at a point needed for a quadrature rule, where
-    ///the quadrature rule is meant for integrating over a face
+    /// the quadrature rule is meant for integrating over a face
     double eval(
         std::size_t i, QuadratureRules::GaussQuadratureRule *faceQuadratureRule,
         std::size_t quadraturePointIndex,
@@ -103,7 +103,7 @@ class BasisFunctionSet {
               LinearAlgebra::SmallVector<DIM> &ret) const;
 
     ///\evaluate basis function i at a point needed for a quadrature rule, where
-    ///the quadrature rule is meant for integrating over an element
+    /// the quadrature rule is meant for integrating over an element
     template <std::size_t DIM>
     void eval(std::size_t i,
               QuadratureRules::GaussQuadratureRule *elementQuadratureRule,
@@ -111,7 +111,7 @@ class BasisFunctionSet {
               LinearAlgebra::SmallVector<DIM> &result) const;
 
     ///\evaluate basis function i at a point needed for a quadrature rule, where
-    ///the quadrature rule is meant for integrating over a face
+    /// the quadrature rule is meant for integrating over a face
     template <std::size_t DIM>
     void eval(std::size_t i,
               QuadratureRules::GaussQuadratureRule *faceQuadratureRule,
@@ -128,8 +128,8 @@ class BasisFunctionSet {
         std::size_t i, const Geometry::PointReference<DIM> &p) const;
 
     ///\evaluate the gradient of basis function i at a point needed for a
-    ///quadrature rule, where the quadrature rule is meant for integrating over
-    ///an element
+    /// quadrature rule, where the quadrature rule is meant for integrating over
+    /// an element
     template <std::size_t DIM>
     LinearAlgebra::SmallVector<DIM> evalDeriv(
         std::size_t i,
@@ -137,8 +137,8 @@ class BasisFunctionSet {
         std::size_t quadraturePointIndex) const;
 
     ///\evaluate the gradient of basis function i at a point needed for a
-    ///quadrature rule, where the quadrature rule is meant for integrating over
-    ///a face
+    /// quadrature rule, where the quadrature rule is meant for integrating over
+    /// a face
     template <std::size_t DIM>
     LinearAlgebra::SmallVector<DIM> evalDeriv(
         std::size_t i, QuadratureRules::GaussQuadratureRule *faceQuadratureRule,
@@ -151,7 +151,7 @@ class BasisFunctionSet {
         std::size_t i, const Geometry::PointReference<DIM> &p) const;
 
     ///\evaluate the curl of basis function i at a point needed for a quadrature
-    ///rule, where the quadrature rule is meant for integrating over an element
+    /// rule, where the quadrature rule is meant for integrating over an element
     template <std::size_t DIM>
     LinearAlgebra::SmallVector<DIM> evalCurl(
         std::size_t i,
@@ -159,7 +159,7 @@ class BasisFunctionSet {
         std::size_t quadraturePointIndex) const;
 
     ///\evaluate the curl of basis function i at a point needed for a quadrature
-    ///rule, where the quadrature rule is meant for integrating over a face
+    /// rule, where the quadrature rule is meant for integrating over a face
     template <std::size_t DIM>
     LinearAlgebra::SmallVector<DIM> evalCurl(
         std::size_t i, QuadratureRules::GaussQuadratureRule *faceQuadratureRule,
@@ -171,15 +171,15 @@ class BasisFunctionSet {
     double evalDiv(std::size_t i, const Geometry::PointReference<DIM> &p) const;
 
     ///\evaluate the divergence of basis function i at a point needed for a
-    ///quadrature rule, where the quadrature rule is meant for integrating over
-    ///an element
+    /// quadrature rule, where the quadrature rule is meant for integrating over
+    /// an element
     double evalDiv(std::size_t i,
                    QuadratureRules::GaussQuadratureRule *elementQuadratureRule,
                    std::size_t quadraturePointIndex) const;
 
     ///\evaluate the divergence of basis function i at a point needed for a
-    ///quadrature rule, where the quadrature rule is meant for integrating over
-    ///a face
+    /// quadrature rule, where the quadrature rule is meant for integrating over
+    /// a face
     double evalDiv(
         std::size_t i, QuadratureRules::GaussQuadratureRule *faceQuadratureRule,
         std::size_t quadraturePointIndex,

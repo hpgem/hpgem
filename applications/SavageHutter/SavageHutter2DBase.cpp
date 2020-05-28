@@ -390,7 +390,7 @@ double SavageHutter2DBase::computeFriction(
 }
 
 ///\details function that computes the width-average of the solution by simply
-///adding
+/// adding
 /// the values of all elements and then divide by the number of nodes that have
 /// been added. Finally, each point is multiplied by the width of the chute at
 /// that point.

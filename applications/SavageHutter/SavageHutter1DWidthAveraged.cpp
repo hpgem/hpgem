@@ -60,7 +60,7 @@ SavageHutter1DWidthAveraged::SavageHutter1DWidthAveraged(std::size_t polyOrder,
 }
 
 ///\details Gives the initial solution for the problem. One could also call
-///getExactSolution here to get the analytical solution at the start time.
+/// getExactSolution here to get the analytical solution at the start time.
 LinearAlgebra::MiddleSizeVector SavageHutter1DWidthAveraged::getInitialSolution(
     const PointPhysicalT& pPhys, const double& startTime,
     const std::size_t orderTimeDerivative) {
@@ -75,7 +75,7 @@ LinearAlgebra::MiddleSizeVector SavageHutter1DWidthAveraged::getInitialSolution(
 }
 
 ///\details Gives the exact (analytical) solution for the test problem. This
-///function is not necessary, unless the last flag in main::solve has been set
+/// function is not necessary, unless the last flag in main::solve has been set
 /// to true.
 LinearAlgebra::MiddleSizeVector SavageHutter1DWidthAveraged::getExactSolution(
     const PointPhysicalT& pPhys, const double& time,
@@ -102,7 +102,7 @@ SlopeLimiter* SavageHutter1DWidthAveraged::createSlopeLimiter() {
 }
 
 ///\details Constructs the non-negativity limiter, available non-negativity
-///limiters can be found in the folder HeightLimiters.
+/// limiters can be found in the folder HeightLimiters.
 HeightLimiter* SavageHutter1DWidthAveraged::createHeightLimiter() {
     return new EmptyHeightLimiter;
 }
@@ -138,10 +138,10 @@ void SavageHutter1DWidthAveraged::registerVTKWriteFunctions() {
 }
 
 ///\details Compute the source term of the 1D shallow granular flow system,
-///namely h(\sin\theta - \mu\sign(u)\cos\theta). It is important to note here
-/// that one can choose between a Coulomb-type friction law, a Pouliquen friction
-/// law as can be found in Weinhart et. al. (2012) or an exponential form for the
-/// friction. The respective functions are defined in the class
+/// namely h(\sin\theta - \mu\sign(u)\cos\theta). It is important to note here
+/// that one can choose between a Coulomb-type friction law, a Pouliquen
+/// friction law as can be found in Weinhart et. al. (2012) or an exponential
+/// form for the friction. The respective functions are defined in the class
 /// SavageHutter1DBase.
 LinearAlgebra::MiddleSizeVector SavageHutter1DWidthAveraged::computeSourceTerm(
     const LinearAlgebra::MiddleSizeVector& numericalSolution,

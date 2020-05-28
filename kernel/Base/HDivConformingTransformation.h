@@ -49,8 +49,8 @@ template <std::size_t DIM>
 class HDivConformingTransformation : public CoordinateTransformation<DIM> {
    public:
     /// transform functions as if they are the curl of some other function. This
-    /// will exactly map the kernel of the physical div-operator to the kernel of
-    /// the reference div-operator.
+    /// will exactly map the kernel of the physical div-operator to the kernel
+    /// of the reference div-operator.
     LinearAlgebra::SmallVector<DIM> transform(
         LinearAlgebra::SmallVector<DIM> referenceData,
         PhysicalElement<DIM>& element) const override final {

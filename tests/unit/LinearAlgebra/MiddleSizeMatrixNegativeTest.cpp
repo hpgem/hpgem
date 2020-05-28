@@ -398,7 +398,7 @@ int main(int argc, char** argv) {
     MiddleSizeVector vec3D0{0., 1., 2.}, vec3D1{3., 4., 5.},
         vec3D2{0., -1., 2.};
     ///\todo test that the norm of the 3D wedge stuff vector equals the area of
-    ///the triangle formed by nodes {0, 0, 0}, v1 and v2
+    /// the triangle formed by nodes {0, 0, 0}, v1 and v2
     logger.assert_always(
         std::abs(
             (MiddleSizeMatrix({vec3D0, vec3D1}).computeWedgeStuffVector()) *
@@ -432,7 +432,7 @@ int main(int argc, char** argv) {
     MiddleSizeVector vec4D0{0., 1., 2., 3.}, vec4D1{4., 5., 6., 7.},
         vec4D2{0., -1., 2., -3.}, vec4D3{0., -1., -2., 3.};
     ///\todo test that the norm of the 4D wedge stuff vector equals the area of
-    ///the tetrahedron formed by nodes {0, 0, 0}, v1 and v2 and v3
+    /// the tetrahedron formed by nodes {0, 0, 0}, v1 and v2 and v3
     logger.assert_always(std::abs((MiddleSizeMatrix({vec4D0, vec4D1, vec4D2})
                                        .computeWedgeStuffVector()) *
                                   vec4D0) < 1e-12,

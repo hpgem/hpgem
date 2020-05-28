@@ -47,7 +47,7 @@ namespace Base {
 
 ///\brief Base for a class that can move the grid.
 ///\details To move the grid, this class provides the purely virtual function
-///movePoint that moves each point in the mesh separately. This function needs
+/// movePoint that moves each point in the mesh separately. This function needs
 /// to be implemented by the application developer. To use this class, it is
 /// usually easiest to call the function MeshManipulator::move(), which calls
 /// movePoint for all points in that mesh. After a mesh has been moved, the

@@ -38,8 +38,8 @@
 
 // naming convention: <Digit><ClassName>_UnitTest.cpp where <Digit> is a number
 // that will make sure the unit tests are ordered such that the first failing
-// unit test indicate the culprit class and other 'unit' tests may assume correct
-// execution of all prior unit tests
+// unit test indicate the culprit class and other 'unit' tests may assume
+// correct execution of all prior unit tests
 #include "Geometry/ReferencePyramid.h"
 #include "Geometry/ReferenceSquare.h"
 #include "Geometry/ReferenceLine.h"
@@ -110,7 +110,7 @@ int main() {
     }
 
     pTest = test.getCenter();  ///\BUG it is not very clear to me where the
-                               ///center of a pyramid lies
+                               /// center of a pyramid lies
     logger.assert_always(
         (test.isInternalPoint((pTest)) && std::abs(pTest[0]) < 1e-12 &&
          std::abs(pTest[1]) < 1e-12) &&
@@ -360,5 +360,5 @@ int main() {
         "type of geometry");
 
     ///\todo testing that the refinement maps behave exactly like the forwarded
-    ///calls of this class
+    /// calls of this class
 }

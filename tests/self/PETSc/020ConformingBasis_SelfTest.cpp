@@ -52,8 +52,8 @@
 // breaks a thorough convergence analysis needs to be done. If the results still
 // show the theoretically optimal order of convergence, and you are convinced
 // that your changes improved the code, you should change the numbers in this
-// test to reflect the updated result. Always confer with other developers if you
-// do this.
+// test to reflect the updated result. Always confer with other developers if
+// you do this.
 
 /// \brief Class for solving the Poisson problem using HpgemAPILinearSteadyState
 /// and conforming basis functions.
@@ -173,9 +173,9 @@ class PoissonTest : public Base::HpgemAPILinearSteadyState<DIM> {
     // This routine alters the matrix such that it can deal with conforming
     // boundaries. It assumes correct boundary values are provided in its third
     // argument (the rest of the vector can be garbage) and that the second
-    // vector will be used as the RHS of a linear system solve it clears the rows
-    // corresponding to the boudary nodes to have only a 1 on the diagonal and
-    // sets the RHS to the appropriate value
+    // vector will be used as the RHS of a linear system solve it clears the
+    // rows corresponding to the boudary nodes to have only a 1 on the diagonal
+    // and sets the RHS to the appropriate value
     void insertDirichletBoundary(Utilities::GlobalPetscMatrix& A,
                                  Utilities::GlobalPetscVector& b,
                                  Utilities::GlobalPetscVector& x) {

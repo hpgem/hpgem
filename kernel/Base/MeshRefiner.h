@@ -48,7 +48,7 @@ namespace Base {
 //   - list of Elements and levelTree  (two different entities?)
 //   - list of Faces and levelTree  (two different entities?)
 ///\deprecated This should not even compile, please do not try to use it in it's
-///current state.
+/// current state.
 class MeshRefiner {
    public:
     MeshRefiner();

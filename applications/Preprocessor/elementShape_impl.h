@@ -347,12 +347,12 @@ void Preprocessor::ElementShape<dimension>::completeSubShapes(
             std::vector<std::size_t> result;
             // if the shape is topologically consistent the ordering of the
             // nodes does not matter example: a square has 4 nodes, so it has 6
-            // pairs of nodes; 4 of which correspond to edges and the other 2 are
-            // diagonals. Since the edges of a cube always are the edges of their
-            // bounding squares and never a diagonal we just need to check if an
-            // edge of the cube has both bounding nodes as bounding nodes of the
-            // square and we don't have to check if they are diagonally across
-            // from eachother
+            // pairs of nodes; 4 of which correspond to edges and the other 2
+            // are diagonals. Since the edges of a cube always are the edges of
+            // their bounding squares and never a diagonal we just need to check
+            // if an edge of the cube has both bounding nodes as bounding nodes
+            // of the square and we don't have to check if they are diagonally
+            // across from eachother
             std::vector<std::size_t> adjacentNodes =
                 getAdjacentEntities<entityDimension, 0>(entityIndex);
             std::sort(adjacentNodes.begin(), adjacentNodes.end());

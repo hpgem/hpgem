@@ -181,8 +181,8 @@ class ElementShape {
 
     // if (entityDimension >= 0) ElementShape<entityDimension>
     // else if(entityDimension + dimension >= 0) ElementShape<entityDimension +
-    // dimension> //codim case else ElementShape<0> //make the compiler not crash
-    // while we invoke the logger
+    // dimension> //codim case else ElementShape<0> //make the compiler not
+    // crash while we invoke the logger
     template <int entityDimension>
     using ShapeType = const ElementShape<(
         entityDimension < 0
@@ -304,8 +304,8 @@ class ElementShape<0> {
 
     // if (entityDimension >= 0) ElementShape<entityDimension>
     // else if(entityDimension + dimension >= 0) ElementShape<entityDimension +
-    // dimension> //codim case else ElementShape<0> //make the compiler not crash
-    // while we invoke the logger
+    // dimension> //codim case else ElementShape<0> //make the compiler not
+    // crash while we invoke the logger
     template <int entityDimension>
     using ShapeType = ElementShape<0>;
 
@@ -368,8 +368,8 @@ class ElementShape<0> {
 };
 
 // note when debugging new shapes: invoking the logger during static
-// initialisation can be a bit messy so you may need to use a debugger to see the
-// error message
+// initialisation can be a bit messy so you may need to use a debugger to see
+// the error message
 const ElementShape<0> point{};
 const ElementShape<1> line(std::vector<std::vector<std::size_t>>{{0}, {1}},
                            std::vector<const ElementShape<0>*>{&point, &point});

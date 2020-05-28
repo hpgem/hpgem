@@ -74,7 +74,7 @@ class Node {
     void addElement(Element *element, std::size_t localNodeNumber);
 
     ///\deprecated Does not conform naming conventions, use
-    ///getLocalNumberOfBasisFunctions instead
+    /// getLocalNumberOfBasisFunctions instead
     std::size_t getLocalNrOfBasisFunctions() const {
         return getLocalNumberOfBasisFunctions();
     }
@@ -104,7 +104,7 @@ class Node {
     std::size_t getID() const { return ID_; }
 
     ///\deprecated Does not conform naming conventions, use getNumberOfElements
-    ///instead
+    /// instead
     std::size_t getNrOfElements() const { return getNumberOfElements(); }
 
     std::size_t getNumberOfElements() const;
@@ -122,7 +122,7 @@ class Node {
     const std::vector<Face *> getFaces() const;
 
     ///\deprecated Does not conform naming conventions, use getNodeNumber
-    ///instead
+    /// instead
     std::size_t getNodeNr(std::size_t i) const { return getNodeNumber(i); }
 
     /// Get the local node number for this node at the given element.

@@ -184,8 +184,8 @@ class GaussQuadratureRule {
 
     /// pre-evaluate the derivative of a set of basisfunctions to speed up
     /// computation. First maps the quadrature points to an element using the
-    /// provided mapping the result of this function should be assigned back into
-    /// a smallvector of appropriate size
+    /// provided mapping the result of this function should be assigned back
+    /// into a smallvector of appropriate size
     const LinearAlgebra::MiddleSizeVector& evalGrad(
         const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex,
         std::size_t quadraturePointIndex,
@@ -293,9 +293,9 @@ inline void QuadratureRules::GaussQuadratureRule::eval(
     } catch (std::out_of_range&) {
         // we store smallVectors as middleSizeVectors so we dont have to
         // template the quadrature rule, but this means we have to silence the
-        // efficiency warning efficiency is not a big issue here since we only do
-        // a heap allocation once per basis function per quadrature point for the
-        // entire computation
+        // efficiency warning efficiency is not a big issue here since we only
+        // do a heap allocation once per basis function per quadrature point for
+        // the entire computation
         auto oldWarn = loggerOutput->onWarn;
         loggerOutput->onWarn = [](std::string, std::string) {};
         set->registerQuadratureRule(this);
@@ -341,9 +341,9 @@ inline void QuadratureRules::GaussQuadratureRule::eval(
     } catch (std::out_of_range&) {
         // we store smallVectors as middleSizeVectors so we dont have to
         // template the quadrature rule, but this means we have to silence the
-        // efficiency warning efficiency is not a big issue here since we only do
-        // a heap allocation once per basis function per quadrature point for the
-        // entire computation
+        // efficiency warning efficiency is not a big issue here since we only
+        // do a heap allocation once per basis function per quadrature point for
+        // the entire computation
         auto oldWarn = loggerOutput->onWarn;
         loggerOutput->onWarn = [](std::string, std::string) {};
         set->registerQuadratureRule(this);

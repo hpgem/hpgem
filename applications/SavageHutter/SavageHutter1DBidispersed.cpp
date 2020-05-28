@@ -63,7 +63,7 @@ SavageHutter1DBidispersed::SavageHutter1DBidispersed(std::size_t polyOrder,
 }
 
 ///\details Gives the initial solution for the problem. One could also call
-///getExactSolution here to get the analytical solution at the start time.
+/// getExactSolution here to get the analytical solution at the start time.
 LinearAlgebra::MiddleSizeVector SavageHutter1DBidispersed::getInitialSolution(
     const PointPhysicalT& pPhys, const double& startTime,
     const std::size_t orderTimeDerivative) {
@@ -82,7 +82,7 @@ void SavageHutter1DBidispersed::setInflowBC(double time) {
 }
 
 ///\details Gives the exact (analytical) solution for the test problem. This
-///function is not necessary, unless the last flag in main::solve has been set
+/// function is not necessary, unless the last flag in main::solve has been set
 /// to true.
 LinearAlgebra::MiddleSizeVector SavageHutter1DBidispersed::getExactSolution(
     const PointPhysicalT& pPhys, const double& time,
@@ -102,7 +102,7 @@ SlopeLimiter* SavageHutter1DBidispersed::createSlopeLimiter() {
 }
 
 ///\details Constructs the non-negativity limiter, available non-negativity
-///limiters can be found in the folder HeightLimiters.
+/// limiters can be found in the folder HeightLimiters.
 HeightLimiter* SavageHutter1DBidispersed::createHeightLimiter() {
     return new BidispersedLimiter(1e-5);
 }
@@ -135,7 +135,7 @@ void SavageHutter1DBidispersed::registerVTKWriteFunctions() {
 }
 
 ///\details Compute the source term of the 1D shallow granular flow system,
-///namely h(\sin\theta - \mu\sign(u)\cos\theta).
+/// namely h(\sin\theta - \mu\sign(u)\cos\theta).
 LinearAlgebra::MiddleSizeVector SavageHutter1DBidispersed::computeSourceTerm(
     const LinearAlgebra::MiddleSizeVector& numericalSolution,
     const PointPhysicalT& pPhys, const double time) {

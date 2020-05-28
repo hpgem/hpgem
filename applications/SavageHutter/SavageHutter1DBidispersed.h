@@ -42,14 +42,15 @@
 #include "SavageHutter1DBase.h"
 
 ///\brief Class to solve the bidispersed Savage-Hutter equations with
-///segregation equation. \details The idea is that almost everything you want to
-///change in your application can be changed in this class: the domain, initial
+/// segregation equation. \details The idea is that almost everything you want
+/// to change in your application can be changed in this class: the domain,
+/// initial
 /// solution, parameter values and output functions are all described in this
 /// class. It is also possible to construct the different limiters here.
-/// Furthermore, you can choose here between the different types of friction that
-/// are given in SavageHutter1DBase. The other function in here is
+/// Furthermore, you can choose here between the different types of friction
+/// that are given in SavageHutter1DBase. The other function in here is
 /// computePhysicalFlux, which is the function F in (h,hu)_t + F(h,hu)_x =
-///S(h,hu). This is described here because it is different for this system than
+/// S(h,hu). This is described here because it is different for this system than
 /// for example for the basic system or the width-averaged system This system is
 /// not stable, so this application is not usable yet.
 class SavageHutter1DBidispersed : public SavageHutter1DBase {
@@ -63,8 +64,8 @@ class SavageHutter1DBidispersed : public SavageHutter1DBase {
         const std::size_t orderTimeDerivative = 0) override final;
 
     ///\brief Put the analytical solution of your system in here. If there is no
-    ///analytical solution, put in anything and set the flag in main::solve to
-    ///false.
+    /// analytical solution, put in anything and set the flag in main::solve to
+    /// false.
     LinearAlgebra::MiddleSizeVector getExactSolution(
         const PointPhysicalT &pPhys, const double &time,
         const std::size_t orderTimeDerivative = 0) override final;
@@ -76,7 +77,7 @@ class SavageHutter1DBidispersed : public SavageHutter1DBase {
     SlopeLimiter *createSlopeLimiter() override final;
 
     ///\brief Construct the non-negativity limiter that will be used in this
-    ///application.
+    /// application.
     HeightLimiter *createHeightLimiter() override final;
 
     ///\brief Compute S in (h,hu)_t + F(h,hu)_x = S(h,hu)

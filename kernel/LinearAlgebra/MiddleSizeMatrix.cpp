@@ -476,8 +476,8 @@ MiddleSizeMatrix& MiddleSizeMatrix::operator=(MiddleSizeMatrix&& right) {
 }
 
 ///\return NumericalVector : The answer is return in this vector which is
-///created by this function call \details This is the computeWedgeStuffVector
-///magic taken directly from hpGEM version 1.0 Here we repeat the orginal
+/// created by this function call \details This is the computeWedgeStuffVector
+/// magic taken directly from hpGEM version 1.0 Here we repeat the orginal
 /// commment from hpGEM 1.0 Compute the wedge product to find a vector which
 /// completes the vectors in the columns of the Jacobian matrix to a basis.
 

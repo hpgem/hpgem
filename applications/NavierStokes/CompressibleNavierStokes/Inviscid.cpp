@@ -87,7 +87,7 @@ LinearAlgebra::MiddleSizeVector Inviscid::integrandAtElement(
             integrand(iVB) +=
                 state(iD + 1) *
                 gradientBasisFunction(iD);  //(iD); // rho*u*d(phi)/dx +
-                                            //rho*v*d(phi)/dy
+                                            // rho*v*d(phi)/dy
 
             for (std::size_t jD = 0; jD < instance_.DIM_; jD++) {
                 // Momentum integrand

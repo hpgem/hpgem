@@ -535,7 +535,7 @@ void HEuler::calculatePressure(const Mat& A, const Mat& Ah,
     }
     //*********************************************************************************************************************************
     //*************************************Calculate lambda directly
-    //END******************************************************************
+    // END******************************************************************
 
     PetscScalar* XTEMP = new PetscScalar[N];
     PetscScalar* XTEMP1 = new PetscScalar[Nl];
@@ -649,10 +649,10 @@ void HEuler::createIncompressibleSystem() {
     MatCreateSeqAIJ(PETSC_COMM_SELF, Nl, Nl, 1 * nb, PETSC_NULL, &sMInv);
     MatCreateSeqAIJ(PETSC_COMM_SELF, Nl, Nl, 1 * nb, PETSC_NULL, &Ml);
 
-    // MatCreateSeqAIJ(PETSC_COMM_SELF, 	N, 		N,    	1*nb, 			PETSC_NULL,
-    // &M); MatCreateSeqAIJ(PETSC_COMM_SELF, 	N1, 	N1,    	(3*7)*nb,
-    // PETSC_NULL, &A); MatCreateSeqAIJ(PETSC_COMM_SELF, 	N1, 	3*N,
-    // (3*7+7)*nb, 			PETSC_NULL, &Ah);
+    // MatCreateSeqAIJ(PETSC_COMM_SELF, 	N, 		N,    	1*nb,
+    // PETSC_NULL, &M); MatCreateSeqAIJ(PETSC_COMM_SELF, 	N1, 	N1,
+    // (3*7)*nb, PETSC_NULL, &A); MatCreateSeqAIJ(PETSC_COMM_SELF, 	N1,
+    // 3*N, (3*7+7)*nb, 			PETSC_NULL, &Ah);
 
     MatCreateSeqAIJ(PETSC_COMM_SELF, Nu + Nv + Nw, Nu + Nv + Nw, 12 * nb,
                     PETSC_NULL, &C);
@@ -716,8 +716,8 @@ void HEuler::createIncompressibleSystem() {
             //			Lambda phi_i(i);
             //			integrateOverElement(*itM, phi_i, tempInteg);
             //
-            //			VecSetValue(gv.LambdaConstraint_, pos1, tempInteg[0],
-            //INSERT_VALUES);///int_/Omega{Lambda}=0 constraint
+            //			VecSetValue(gv.LambdaConstraint_, pos1,
+            // tempInteg[0], INSERT_VALUES);///int_/Omega{Lambda}=0 constraint
         }
 
         for (unsigned int j = 0; j < nb; ++j) {
@@ -1103,8 +1103,8 @@ void HEuler::createIncompressibleSystem() {
     //        //
     //        // 	for (int i =0; i<Nl;++i)
     //        // 	{
-    //        // 		MatSetValue(gv.P_, 	N+Nl,  N+i,    lambdaCons[i],
-    //        ADD_VALUES);
+    //        // 		MatSetValue(gv.P_, 	N+Nl,  N+i,
+    //        lambdaCons[i], ADD_VALUES);
     //        // 		MatSetValue(gv.Q_, 	N+Nl,  N+i,    0,
     //        ADD_VALUES);
     //        // 	}
@@ -1179,7 +1179,7 @@ void HEuler::createIncompressibleSystem() {
     std::cout << " - : Finished Creating matrix P !\n";
     //*********************************************************************************************************************************
     //*************************************Calculate lambda directly
-    //BEGIN******************************************************************
+    // BEGIN******************************************************************
 
     // outputMatrix(gv.DivergenceFreeMatrix_, "DIV.txt");
     // outputMatrix(gv.P_, "P.txt");
@@ -1800,13 +1800,13 @@ void HEuler::solve() {
         cout << "construct proper rightHandside" << endl;
 
         ///##########################construct proper
-        ///rightHandside#####################
+        /// rightHandside#####################
         ///***********************************************************************************
         MatMult(Q_, UExact, RHS);
 
         ///***********************************************************************************
         ///***************************construct proper
-        ///rightHandside**************************
+        /// rightHandside**************************
 
         cout << "Finalizing vector creation" << endl;
 

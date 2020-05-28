@@ -99,14 +99,14 @@ class SavageHutter2DBase : public SavageHutterBase<2> {
         const PointPhysicalT &pPhys, const double time) = 0;
 
     ///\brief Compute the local Lax-Friedrichs flux for the two given numerical
-    ///solutions across a face.
+    /// solutions across a face.
     LinearAlgebra::MiddleSizeVector localLaxFriedrichsFlux(
         const LinearAlgebra::MiddleSizeVector &numericalSolutionLeft,
         const LinearAlgebra::MiddleSizeVector &NumericalSolutionRight,
         const LinearAlgebra::SmallVector<2> &normal);
 
     ///\brief Compute the HLLC flux for the two given numerical solutions across
-    ///a face.
+    /// a face.
     LinearAlgebra::MiddleSizeVector hllcFlux(
         const LinearAlgebra::MiddleSizeVector &numericalSolutionLeft,
         const LinearAlgebra::MiddleSizeVector &NumericalSolutionRight,

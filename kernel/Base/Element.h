@@ -47,7 +47,7 @@
 #include "TreeEntry.h"
 
 //#include "PhysGradientOfBasisFunction.h"//included after class definition due
-//to cross dependencies (needed for templated function definition) #include
+// to cross dependencies (needed for templated function definition) #include
 //"PhysicalElement.h"//included after class definition due to cross dependencies
 //(needed for templated function definition)
 
@@ -362,7 +362,7 @@ class Element final : public Geometry::ElementGeometry, public ElementData {
     void setNode(std::size_t localNodeNumber, Node* node);
 
     ///\deprecated Does not follow naming conventions, use
-    ///getLocalNumberOfBasisFunctions instead
+    /// getLocalNumberOfBasisFunctions instead
     std::size_t getLocalNrOfBasisFunctions() const {
         return getLocalNumberOfBasisFunctions();
     }
@@ -422,15 +422,15 @@ class Element final : public Geometry::ElementGeometry, public ElementData {
     const std::vector<Node*> getNodesList() const { return nodesList_; }
 
     ///\deprecated Does not follow naming conventions, use getNumberOfFaces
-    ///instead
+    /// instead
     std::size_t getNrOfFaces() const { return getNumberOfFaces(); }
 
     ///\deprecated Does not follow naming conventions, use getNumberOfEdges
-    ///instead
+    /// instead
     std::size_t getNrOfEdges() const { return getNumberOfEdges(); }
 
     ///\deprecated Does not follow naming conventions, use getNumberOfNodes
-    ///instead
+    /// instead
     std::size_t getNrOfNodes() const { return getNumberOfNodes(); }
 
     std::size_t getNumberOfFaces() const { return facesList_.size(); }
@@ -438,8 +438,8 @@ class Element final : public Geometry::ElementGeometry, public ElementData {
     std::size_t getNumberOfEdges() const { return edgesList_.size(); }
 
     ///\todo This function overwrites the non-virtual function in
-    ///ElementGeometry. Either remove this function, rename one of the two
-    ///functions or make the one in ElementGeometry virtual
+    /// ElementGeometry. Either remove this function, rename one of the two
+    /// functions or make the one in ElementGeometry virtual
     std::size_t getNumberOfNodes() const { return nodesList_.size(); }
 
 #ifndef NDEBUG

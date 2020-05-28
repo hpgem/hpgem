@@ -38,8 +38,8 @@
 
 // naming convention: <Digit><ClassName>_UnitTest.cpp where <Digit> is a number
 // that will make sure the unit tests are ordered such that the first failing
-// unit test indicate the culprit class and other 'unit' tests may assume correct
-// execution of all prior unit tests
+// unit test indicate the culprit class and other 'unit' tests may assume
+// correct execution of all prior unit tests
 
 // I can only check that basisFunctions return finite numbers for some of the
 // points that you can pass to them actually validating the correct
@@ -49,7 +49,7 @@
 // basisfunctions so some assurance can be gained from the entire test suite.
 // Testing derivatives is much easier since it relies on using the same
 // numerical approximation for all basis-function over and over again (but of
-//course this is not as accurate as the actual derivative should be) -FB
+// course this is not as accurate as the actual derivative should be) -FB
 
 #include "Utilities/BasisFunctionsMonomials.h"
 

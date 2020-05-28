@@ -38,8 +38,8 @@
 
 // naming convention: <Digit><ClassName>_UnitTest.cpp where <Digit> is a number
 // that will make sure the unit tests are ordered such that the first failing
-// unit test indicate the culprit class and other 'unit' tests may assume correct
-// execution of all prior unit tests
+// unit test indicate the culprit class and other 'unit' tests may assume
+// correct execution of all prior unit tests
 #include "Integration/QuadratureRules/GaussQuadratureRulesForTriangularPrism.h"
 #include "Logger.h"
 #include <typeinfo>

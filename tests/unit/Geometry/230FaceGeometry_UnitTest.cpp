@@ -38,8 +38,8 @@
 
 // naming convention: <Digit><ClassName>_UnitTest.cpp where <Digit> is a number
 // that will make sure the unit tests are ordered such that the first failing
-// unit test indicate the culprit class and other 'unit' tests may assume correct
-// execution of all prior unit tests
+// unit test indicate the culprit class and other 'unit' tests may assume
+// correct execution of all prior unit tests
 #include "Geometry/FaceGeometry.h"
 #include "Logger.h"
 
@@ -127,8 +127,8 @@ int main() {
         logger.assert_always(
             (std::abs(compare1Dphys[0] - point1Dphys[0]) < 1e-12),
             "referenceToPhysical");  // probably indirectly verified already,
-                                     // but this is the most important feature of
-                                     // a face
+                                     // but this is the most important feature
+                                     // of a face
         point1D = test->refFaceToRefElemMapR()->transform((orig1D));
         logger.assert_always((std::abs(compare1D[0] - point1D[0]) < 1e-12),
                              "refFaceToRefElemMapR");
@@ -234,8 +234,8 @@ int main() {
         logger.assert_always(
             (std::abs(compare2Dphys[0] - point2Dphys[0]) < 1e-12),
             "referenceToPhysical");  // probably indirectly verified already,
-                                     // but this is the most important feature of
-                                     // a face
+                                     // but this is the most important feature
+                                     // of a face
         logger.assert_always(
             (std::abs(compare2Dphys[1] - point2Dphys[1]) < 1e-12),
             "referenceToPhysical");

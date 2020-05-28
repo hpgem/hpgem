@@ -50,8 +50,8 @@ class Point {
     Point();
 
     ///\deprecated Because this Point ctr will truncate and take
-    ///sizeof(dimension) points and will not give any warning. If possible, use
-    ///Point(LinearAlgebra::SmallVector<DIM>&) instead.
+    /// sizeof(dimension) points and will not give any warning. If possible, use
+    /// Point(LinearAlgebra::SmallVector<DIM>&) instead.
     Point(double coords[]);
 
     Point(const Point& other);

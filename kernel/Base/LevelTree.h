@@ -73,7 +73,7 @@ class LevelTree {
 
     //! Number of trees in the LevelTree
     //!\note could also recursively descend the trees to return the size
-    //!including children if this is more intuitive
+    //! including children if this is more intuitive
     std::size_t size() const;
 
     //! highest level that contains an element

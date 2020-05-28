@@ -39,7 +39,7 @@
 #include "../HelperFunctions.h"
 
 ///\details Limit the solution by changing the solution coefficients that are
-///given to this function.
+/// given to this function.
 template <std::size_t DIM>
 void AverageValuesNonNegativeLimiter<DIM>::limit(
     Base::Element *element,

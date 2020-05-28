@@ -52,10 +52,10 @@ class H1ConformingTransformation;
 
 // class is final as a reminder that there is no virtual destructor
 // note that none of the functions in here is marked const, because a
-// PhysicalFace reserves the right to alter its internal state to optimize future
-// repeated calls note that names in this class match the names in Face unless
-// this makes no sense when you use a physical face in the kernel be careful to
-// avoid infinite recursion
+// PhysicalFace reserves the right to alter its internal state to optimize
+// future repeated calls note that names in this class match the names in Face
+// unless this makes no sense when you use a physical face in the kernel be
+// careful to avoid infinite recursion
 ///\todo generalize implementation to support the cached data
 template <std::size_t DIM>
 class PhysicalFace final {
@@ -291,7 +291,7 @@ class PhysicalFace final {
     bool isInternal();
 
     ///\deprecated Does not conform naming conventions, use
-    ///getNumberOfBasisFunctions instead
+    /// getNumberOfBasisFunctions instead
     std::size_t getNumOfBasisFunctions() { return getNumberOfBasisFunctions(); }
 
     /// get the total number of basis functions that might be nonzero on the
@@ -305,7 +305,7 @@ class PhysicalFace final {
     }
 
     ///\deprecated Does not conform naming conventions, use getNumberOfUnknowns
-    ///instead
+    /// instead
     std::size_t getNumOfUnknowns() { return getNumberOfUnknowns(); }
 
     /// get the number of variables present in the problem

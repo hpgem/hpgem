@@ -99,16 +99,16 @@ class GlobalMatrix {
 };
 #if defined(HPGEM_USE_ANY_PETSC)
 ///\bug this class depends on PETSc and is likely to cause naming conflicts
-///between the c and c++ standard libraries (workaround: make sure to include
-///all other needed hpGEM headers before including this header)
+/// between the c and c++ standard libraries (workaround: make sure to include
+/// all other needed hpGEM headers before including this header)
 class GlobalPetscMatrix : public GlobalMatrix {
 
    public:
     /// for now provides implicit conversion to Mat (the PETSc matrix type)
     /// this needs a special function because deriving from Mat appears to be
     /// illegal \bug need a better way to provide an interface to the supported
-    ///Mat routines AND to other routines that need a Mat (like
-    ///KSPSetOperators()) (but not stuff like MatDestroy())
+    /// Mat routines AND to other routines that need a Mat (like
+    /// KSPSetOperators()) (but not stuff like MatDestroy())
     operator Mat();
 
     GlobalPetscMatrix(const GlobalIndexing& indexing, int elementMatrixID,

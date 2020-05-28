@@ -46,7 +46,7 @@
 #include "Base/TreeEntry.h"
 
 //========================================================= Here is the main
-//function
+// function
 int main() {
     Base::LevelTree<std::size_t> testBalancedBinary, testSingleRoot,
         testMultiRoot;

@@ -38,8 +38,8 @@
 
 // naming convention: <Digit><ClassName>_UnitTest.cpp where <Digit> is a number
 // that will make sure the unit tests are ordered such that the first failing
-// unit test indicate the culprit class and other 'unit' tests may assume correct
-// execution of all prior unit tests
+// unit test indicate the culprit class and other 'unit' tests may assume
+// correct execution of all prior unit tests
 #include "Geometry/ReferenceCube.h"
 #include "Geometry/ReferenceSquare.h"
 #include "Geometry/ReferenceLine.h"
@@ -565,5 +565,5 @@ int main() {
         "type of geometry");
 
     ///\todo testing that the refinement maps behave exactly like the forwarded
-    ///calls of this class
+    /// calls of this class
 }

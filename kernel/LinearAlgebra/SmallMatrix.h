@@ -279,7 +279,7 @@ class SmallMatrix {
     std::size_t getNumberOfRows() const { return numberOfRows; }
 
     ///\deprecated Does not conform naming convention, please use
-    ///getNumberOfRows instead.
+    /// getNumberOfRows instead.
     std::size_t getNRows() const { return getNumberOfRows(); }
 
     /// \brief Get the number of columns

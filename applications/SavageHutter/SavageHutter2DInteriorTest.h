@@ -55,8 +55,8 @@ class SavageHutter2DInteriorTest : public SavageHutter2DBase {
         const std::size_t orderTimeDerivative = 0) override final;
 
     ///\brief Put the analytical solution of your system in here. If there is no
-    ///analytical solution, put in anything and set the flag in main::solve to
-    ///false.
+    /// analytical solution, put in anything and set the flag in main::solve to
+    /// false.
     LinearAlgebra::MiddleSizeVector getExactSolution(
         const PointPhysicalT &pPhys, const double &time,
         const std::size_t orderTimeDerivative = 0) override final;

@@ -99,8 +99,8 @@ class AdvectionTest : public Base::HpgemAPILinear<DIM> {
     /// Compute phi_i*(a.grad(phi_j)) on a reference point on an element for all
     /// basisfunctions phi_i and phi_j.
     /// You pass the reference point to the basisfunctions. Internally the
-    /// basisfunctions will be mapped to the physical element so you wont have to
-    /// do any transformations yourself
+    /// basisfunctions will be mapped to the physical element so you wont have
+    /// to do any transformations yourself
     LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(
         Base::PhysicalElement<DIM>& element) override final {
         logger.assert_debug(element.getJacobianDet() > 0, "%",
@@ -127,13 +127,13 @@ class AdvectionTest : public Base::HpgemAPILinear<DIM> {
     /// type of boundary condition. This function will compute these integrands
     /// for all basisfunctions phi_i and phi_j on a certain face at a reference
     /// point p. Then the integral can later be computed with appropriate
-    /// (Gauss-)quadrature rules. The resulting matrix of values is then given in
-    /// the matrix integrandVal, to which we passed a reference when calling it.
-    /// Please note that you pass a reference point to the basisfunctions and
-    /// the transformations are done internally. The class FaceMatrix consists of
-    /// four element matrices for internal faces and one element matrix for faces
-    /// on the boundary. Each element matrix corresponds to a pair of two
-    /// adjacent elements of the face.
+    /// (Gauss-)quadrature rules. The resulting matrix of values is then given
+    /// in the matrix integrandVal, to which we passed a reference when calling
+    /// it. Please note that you pass a reference point to the basisfunctions
+    /// and the transformations are done internally. The class FaceMatrix
+    /// consists of four element matrices for internal faces and one element
+    /// matrix for faces on the boundary. Each element matrix corresponds to a
+    /// pair of two adjacent elements of the face.
     Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(
         Base::PhysicalFace<DIM>& face) override final {
         // Get the number of basis functions, first of both sides of the face

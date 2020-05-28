@@ -458,7 +458,7 @@ class DGWave : public Base::HpgemAPIBase<DIM>,
                 MatMult(swapSurfaceVars, etaActually, surfaceRHS);
                 VecAXPY(phiS, -g * dt / 2,
                         surfaceRHS);  //(can in principle be combined with final
-                                      //step, but this makes output easier)
+                                      // step, but this makes output easier)
                 MatMult(mixStifness, phiS, interiorRHS);
                 VecScale(interiorRHS, -1);
                 KSPSolve(interior, interiorRHS, phiOther);

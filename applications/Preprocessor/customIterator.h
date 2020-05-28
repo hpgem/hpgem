@@ -285,8 +285,9 @@ class ActionIterator {
     }
 
     //! construct a general iterator from an initial value, a function that can
-    //! increment the iterator (find a next value, given a value) and a predicate
-    //!that is false when the end is reached
+    //! increment the iterator (find a next value, given a value) and a
+    //! predicate
+    //! that is false when the end is reached
     ActionIterator(T first, MoveFunction<void(T&)>&& increment,
                    MoveFunction<bool(const T&)>&& valid)
         : sentinel(false),

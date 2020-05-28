@@ -51,7 +51,8 @@
 
 namespace Base {
 // todo: Possibly add restart from data file to create a p-multigrid solution
-// strategy todo: Add function that can add setup functions to the solve function
+// strategy todo: Add function that can add setup functions to the solve
+// function
 
 // note: compute error is always on, compute both faces is always on
 template <std::size_t DIM>
@@ -479,7 +480,8 @@ bool HpgemAPINonLinearSteadyState<DIM>::solve(bool doComputeInitialCondition,
     globalVector_->setVector(temp);
     // Pass the new solution back to KINsol
     globalVector_->constructFromTimeIntegrationVector(1);  // 1 corresponds to
-                                                           // the resultId vector
+                                                           // the resultId
+                                                           // vector
     double *tempData = NV_DATA_S(temp);
     double max = 0;
     for (std::size_t i = 0; i < numberOfDOF; i++) {

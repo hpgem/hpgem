@@ -13,7 +13,7 @@
 
 namespace Output {
 ///\brief given a local node index in the node ordering VTK uses, return the
-///local node index in hpGEM numbering
+/// local node index in hpGEM numbering
 inline std::size_t tohpGEMOrdering(std::size_t VTKIndex,
                                    const Geometry::ReferenceGeometry* shape) {
     logger.assert_debug(VTKIndex < shape->getNumberOfNodes(),

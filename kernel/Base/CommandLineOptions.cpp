@@ -130,10 +130,10 @@ void Base::parse_options(int argc, char** argv) {
         if (initialised == PETSC_FALSE) {
 #ifdef HPGEM_USE_MPI
             // if we know mpi exists make sure PETSc based communication does
-            // not happen on COMM_WORLD communicating on COMM_WORLD is a bad idea
-            // if you are a library and are not sure who else might use MPI
+            // not happen on COMM_WORLD communicating on COMM_WORLD is a bad
+            // idea if you are a library and are not sure who else might use MPI
             //(PETSc CLAIMS this is not needed, but also does not provide this
-            //safeguard itself)
+            // safeguard itself)
             MPI_Comm_dup(MPI_COMM_WORLD, &PETSC_COMM_WORLD);
 #endif
 #ifdef HPGEM_USE_SLEPC

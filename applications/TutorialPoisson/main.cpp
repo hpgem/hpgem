@@ -272,8 +272,8 @@ auto& p = Base::register_argument<std::size_t>(
 /// This implementation asks for commandline input arguments for the number of
 /// elements in each direction and the polynomial order. Then make the object
 /// test, initialise it with the input parameters and solve it. PetscInitialize
-/// and PetscFinalize are necessary since we need to use the library PETSc in the
-/// solve routine.
+/// and PetscFinalize are necessary since we need to use the library PETSc in
+/// the solve routine.
 int main(int argc, char** argv) {
     Base::parse_options(argc, argv);
 

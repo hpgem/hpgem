@@ -167,11 +167,11 @@ class ElementData {
     std::size_t getNrOfUnknows() const;
 
     ///\deprecated Does not follow naming guidelines, use getNumberOfUnknowns
-    ///instead.
+    /// instead.
     std::size_t getNrOfUnknowns() const;
 
     ///\deprecated Does not follow naming guidelines, use
-    ///getNumberOfBasisFunctions instead.
+    /// getNumberOfBasisFunctions instead.
     std::size_t getNrOfBasisFunctions() const;
     std::size_t getNrOfBasisFunctions(std::size_t unknown) const;
 

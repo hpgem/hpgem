@@ -72,8 +72,8 @@ std::vector<LinearAlgebra::MiddleSizeMatrix> Viscous::computeATensor(
     const LinearAlgebra::MiddleSizeVector &partialState,
     const double viscosity) {
     // todo: note that the kinetic velocity must be computed for a wide range of
-    // problems. Fix this. todo: remove the kinetic velocity in this computation.
-    // todo: Check if this also works correctly in 3D
+    // problems. Fix this. todo: remove the kinetic velocity in this
+    // computation. todo: Check if this also works correctly in 3D
 
     std::vector<LinearAlgebra::MiddleSizeMatrix> ATensor(instance_.DIM_ *
                                                          instance_.DIM_);
@@ -436,8 +436,8 @@ LinearAlgebra::MiddleSizeVector Viscous::integrandViscousAtFace(
     std::size_t iVB;
 
     // Note this can be done more efficient, compute A times the velocities
-    // first; do the addition and finally multiply by normal state vector However
-    // this is only a boundary term and I am being lazy for now
+    // first; do the addition and finally multiply by normal state vector
+    // However this is only a boundary term and I am being lazy for now
     LinearAlgebra::MiddleSizeMatrix stateNormalLeft(instance_.numOfVariables_,
                                                     instance_.DIM_);
     LinearAlgebra::MiddleSizeMatrix stateNormalBoundary(

@@ -52,10 +52,10 @@ template <std::size_t DIM>
 class PhysicalFace;
 
 /// Base class for coordinate transformations. Coordinate transformations are
-/// used internally to rewrite the integral expressions in the physical domain as
-/// integral expressions on reference elements. By default the expressions are
-/// rewritten using a H1-conforming transformation. (Roughly speaking, H1 is the
-/// space where functions and their gradients are well behaved). If you need
+/// used internally to rewrite the integral expressions in the physical domain
+/// as integral expressions on reference elements. By default the expressions
+/// are rewritten using a H1-conforming transformation. (Roughly speaking, H1 is
+/// the space where functions and their gradients are well behaved). If you need
 /// something different for your application you can set one of the provided
 /// alternatives before evaluating the integrals or provide your own
 /// transformation. All functions are implemented to generate errors so
@@ -117,7 +117,7 @@ class CoordinateTransformation {
 
     /// provide a scaling that will be applied to the entire integrand when
     /// integrating over elements (typically this will be the absolute value of
-    ///the determinant of the Jacobian)
+    /// the determinant of the Jacobian)
     virtual double getIntegrandScaleFactor(
         PhysicalElement<DIM>& element) const {
         logger(ERROR,
@@ -129,7 +129,7 @@ class CoordinateTransformation {
     /// provide a scaling that will be applied to the entire integrand when
     /// integrating over faces
     ///(in hpGEM, this will typically be the norm of the (non-unit) outward
-    ///pointing normal vector)
+    /// pointing normal vector)
     virtual double getIntegrandScaleFactor(PhysicalFace<DIM>& face) const {
         logger(ERROR,
                "Scaling integrands is not supported, please set a different "

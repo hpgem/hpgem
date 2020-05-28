@@ -83,7 +83,7 @@ class SavageHutter1DBase : public SavageHutterBase<1> {
 
     ///\brief Compute the friction as in Weinhart et. al. (2012)
     ///\todo make the friction depend on h and u (or F) instead of
-    ///numericalSolution
+    /// numericalSolution
     double computeFriction(
         const LinearAlgebra::MiddleSizeVector &numericalSolution);
 
@@ -105,14 +105,14 @@ class SavageHutter1DBase : public SavageHutterBase<1> {
         const PointPhysicalT &pPhys, const double time) = 0;
 
     ///\brief Compute the local Lax-Friedrichs flux for the two given numerical
-    ///solutions across a face.
+    /// solutions across a face.
     LinearAlgebra::MiddleSizeVector localLaxFriedrichsFlux(
         const LinearAlgebra::MiddleSizeVector &numericalSolutionLeft,
         const LinearAlgebra::MiddleSizeVector &NumericalSolutionRight,
         Base::PhysicalFace<1> &face);
 
     ///\brief Compute the HLLC flux for the two given numerical solutions across
-    ///a face.
+    /// a face.
     virtual LinearAlgebra::MiddleSizeVector hllcFlux(
         const LinearAlgebra::MiddleSizeVector &numericalSolutionLeft,
         const LinearAlgebra::MiddleSizeVector &NumericalSolutionRight,

@@ -104,7 +104,7 @@ class MPIContainer {
     int getProcessorID();
 
     ///\deprecated Does not conform naming conventions, use
-    ///getNumberOfProcessors instead
+    /// getNumberOfProcessors instead
     std::size_t getNumProcessors() { return getNumberOfProcessors(); }
 
     /// get the total number of processors participating in this simulation
@@ -146,8 +146,8 @@ class MPIContainer {
 
     /// make sure a vector of information is available on all processors
     /// participating in this simulation all processors must call this function.
-    /// The processor specified by the identifier id will do the sending the rest
-    /// will do the recieving
+    /// The processor specified by the identifier id will do the sending the
+    /// rest will do the recieving
     template <typename T>
     typename std::enable_if<!std::is_scalar<T>::value, void>::type broadcast(
         T& t, int id = 0) {
@@ -191,14 +191,15 @@ class MPIContainer {
     }
 
     /// asynchronously send a vector to some other processor. This process must
-    /// call sync before the buffer can be used again. the recieving process must
-    /// call recieve with appropriate parameters and then call sync before it can
-    /// use the data \param t the data \param to the processor to recieve the
-    ///information \param tag an identifier for this specific send request. This
-    ///must be unique among all send requests between the previous
+    /// call sync before the buffer can be used again. the recieving process
+    /// must call recieve with appropriate parameters and then call sync before
+    /// it can use the data \param t the data \param to the processor to recieve
+    /// the
+    /// information \param tag an identifier for this specific send request.
+    /// This must be unique among all send requests between the previous
     /// synchronisation step and the next one. Exactly one recieve request must
-    /// also provide this tag and it must be done on the process specified by the
-    /// 'to' parameter
+    /// also provide this tag and it must be done on the process specified by
+    /// the 'to' parameter
     template <typename T>
     typename std::enable_if<!std::is_scalar<T>::value, void>::type send(
         T& t, int to, int tag) {
@@ -218,14 +219,15 @@ class MPIContainer {
     }
 
     /// asynchronously send a scalar to some other processor. This process must
-    /// call sync before the buffer can be used again. the recieving process must
-    /// call recieve with appropriate parameters and then call sync before it can
-    /// use the data \param t the data \param to the processor to recieve the
-    ///information \param tag an identifier for this specific send request. This
-    ///must be unique among all send requests between the previous
+    /// call sync before the buffer can be used again. the recieving process
+    /// must call recieve with appropriate parameters and then call sync before
+    /// it can use the data \param t the data \param to the processor to recieve
+    /// the
+    /// information \param tag an identifier for this specific send request.
+    /// This must be unique among all send requests between the previous
     /// synchronisation step and the next one. Exactly one recieve request must
-    /// also provide this tag and it must be done on the process specified by the
-    /// 'to' parameter
+    /// also provide this tag and it must be done on the process specified by
+    /// the 'to' parameter
     template <typename T>
     typename std::enable_if<std::is_scalar<T>::value, void>::type send(
         T& t, int to, int tag) {
@@ -242,14 +244,15 @@ class MPIContainer {
     }
 
     /// asynchronously send a scalar to some other processor. This process must
-    /// call sync before the buffer can be used again. the recieving process must
-    /// call recieve with appropriate parameters and then call sync before it can
-    /// use the data \param t the data \param to the processor to recieve the
-    ///information \param tag an identifier for this specific send request. This
-    ///must be unique among all send requests between the previous
+    /// call sync before the buffer can be used again. the recieving process
+    /// must call recieve with appropriate parameters and then call sync before
+    /// it can use the data \param t the data \param to the processor to recieve
+    /// the
+    /// information \param tag an identifier for this specific send request.
+    /// This must be unique among all send requests between the previous
     /// synchronisation step and the next one. Exactly one recieve request must
-    /// also provide this tag and it must be done on the process specified by the
-    /// 'to' parameter
+    /// also provide this tag and it must be done on the process specified by
+    /// the 'to' parameter
     template <typename T>
     typename std::enable_if<std::is_scalar<T>::value, void>::type send(
         std::complex<T>& t, int to, int tag) {
@@ -267,10 +270,11 @@ class MPIContainer {
 
     /// asynchronously receive a vector from some other processor. This process
     /// must call sync before it can use the data. the sending process must call
-    /// send with appropriate parameters and then call sync to allow this process
-    /// to finish the sync \param t the data \param from the processor that sends
-    ///the information \param tag an identifier for this specific receive
-    ///request. This must be unique among all receive requests between the
+    /// send with appropriate parameters and then call sync to allow this
+    /// process to finish the sync \param t the data \param from the processor
+    /// that sends
+    /// the information \param tag an identifier for this specific receive
+    /// request. This must be unique among all receive requests between the
     /// previous synchronisation step and the next one. Exactly one send request
     /// must also provide this tag and it must be done on the process specified
     /// by the 'from' parameter
@@ -294,10 +298,11 @@ class MPIContainer {
 
     /// asynchronously receive a scalar from some other processor. This process
     /// must call sync before it can use the data. the sending process must call
-    /// send with appropriate parameters and then call sync to allow this process
-    /// to finish the sync \param t the data \param from the processor that sends
-    ///the information \param tag an identifier for this specific receive
-    ///request. This must be unique among all receive requests between the
+    /// send with appropriate parameters and then call sync to allow this
+    /// process to finish the sync \param t the data \param from the processor
+    /// that sends
+    /// the information \param tag an identifier for this specific receive
+    /// request. This must be unique among all receive requests between the
     /// previous synchronisation step and the next one. Exactly one send request
     /// must also provide this tag and it must be done on the process specified
     /// by the 'from' parameter
@@ -318,10 +323,11 @@ class MPIContainer {
 
     /// asynchronously receive a scalar from some other processor. This process
     /// must call sync before it can use the data. the sending process must call
-    /// send with appropriate parameters and then call sync to allow this process
-    /// to finish the sync \param t the data \param from the processor that sends
-    ///the information \param tag an identifier for this specific receive
-    ///request. This must be unique among all receive requests between the
+    /// send with appropriate parameters and then call sync to allow this
+    /// process to finish the sync \param t the data \param from the processor
+    /// that sends
+    /// the information \param tag an identifier for this specific receive
+    /// request. This must be unique among all receive requests between the
     /// previous synchronisation step and the next one. Exactly one send request
     /// must also provide this tag and it must be done on the process specified
     /// by the 'from' parameter
@@ -343,8 +349,8 @@ class MPIContainer {
 #ifdef HPGEM_USE_MPI
 
     /// make sure a vector of data gets collected on one processor. This routine
-    /// should be called by all processes. The process that does the recieving is
-    /// specified by id, the others will do the sending the MPI_Op parameter
+    /// should be called by all processes. The process that does the recieving
+    /// is specified by id, the others will do the sending the MPI_Op parameter
     /// specifies how the data is to be treated to make it fit in one slot
     /// popular options include MPI::MAX, MPI::MIN, MPI::SUM and MPI::PROD to
     /// keep the maximum, the minimum, take the sum or the product respectively.
@@ -374,8 +380,8 @@ class MPIContainer {
     }
 
     /// make sure a vector of data gets collected on one processor. This routine
-    /// should be called by all processes. The process that does the recieving is
-    /// specified by id, the others will do the sending the MPI_Op parameter
+    /// should be called by all processes. The process that does the recieving
+    /// is specified by id, the others will do the sending the MPI_Op parameter
     /// specifies how the data is to be treated to make it fit in one slot
     /// popular options include MPI::SUM and MPI::PROD to take the
     /// sum or the product respectively. Note that operations are only defined

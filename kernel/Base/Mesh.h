@@ -60,8 +60,8 @@ class Face;
 class Element;
 
 ///\brief select if you want to iterate over the local part of the mesh or the
-///whole mesh \bug mesh information is inherently linked to data and geometric
-///information, but the last two are
+/// whole mesh \bug mesh information is inherently linked to data and geometric
+/// information, but the last two are
 /// only computed/updated locally and not communicated back even when you
 /// iterate oven the whole mesh
 enum class IteratorType { LOCAL, GLOBAL };

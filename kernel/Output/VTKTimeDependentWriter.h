@@ -50,8 +50,8 @@ namespace Output {
 ///\brief writes steady state data or a single time level
 ///
 /// this produces multiple files, you do not have to append anything, just load
-/// the .pvd into paraview once you have written at time x, with timelevel n, you
-/// must remain using timelevel n for time x once you write at time y, where
+/// the .pvd into paraview once you have written at time x, with timelevel n,
+/// you must remain using timelevel n for time x once you write at time y, where
 /// y!=x, you can no longer write to time x also I'm not sure if VTK allows
 /// negative time steps, so be careful with those If you thing this class
 /// produces too much output files, use an existing folder as part of your
@@ -79,7 +79,7 @@ class VTKTimeDependentWriter final {
         const std::string& name, double time, std::size_t timelevel = 0);
 
     ///\brief do not copy the writer to prevent havoc when destructing all the
-    ///copies
+    /// copies
     VTKTimeDependentWriter(const VTKTimeDependentWriter& orig) = delete;
     VTKTimeDependentWriter operator=(const VTKTimeDependentWriter& orig) =
         delete;

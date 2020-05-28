@@ -50,7 +50,7 @@ void TvbLimiter1D::limitSlope(Base::Element *element) {
 }
 
 ///\details Doing it the DG way for p=1 does not lead to conservation of mass,
-///so for now, do it the FVM way. Don't look at the slope in this element at
+/// so for now, do it the FVM way. Don't look at the slope in this element at
 /// all, just at the averages of this element and the adjacent elements. We also
 /// assume that we limit only once per time step. Lastly, it is assumed that the
 /// first two basis functions are the nodal basis functions

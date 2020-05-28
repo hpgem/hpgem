@@ -68,8 +68,8 @@ class SmallVector {
     SmallVector(const SmallVector& other) : data_(other.data_) {}
 
     // this constructor is implicit because both vector types should allow for
-    // the same mathematical operations, with the only potential difference being
-    // in the implementation
+    // the same mathematical operations, with the only potential difference
+    // being in the implementation
     SmallVector(const MiddleSizeVector& other) : data_() {
         logger.assert_debug(
             other.size() == numberOfRows,

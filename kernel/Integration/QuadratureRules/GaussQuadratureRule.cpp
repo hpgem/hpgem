@@ -187,9 +187,9 @@ const LinearAlgebra::MiddleSizeVector&
     } catch (std::out_of_range&) {
         // we store smallVectors as middleSizeVectors so we dont have to
         // template the quadrature rule, but this means we have to silence the
-        // efficiency warning efficiency is not a big issue here since we only do
-        // a heap allocation once per basis function per quadrature point for the
-        // entire computation
+        // efficiency warning efficiency is not a big issue here since we only
+        // do a heap allocation once per basis function per quadrature point for
+        // the entire computation
         auto oldWarn = loggerOutput->onWarn;
         loggerOutput->onWarn = [](std::string, std::string) {};
         set->registerQuadratureRule(this);
@@ -260,9 +260,9 @@ const LinearAlgebra::MiddleSizeVector&
     } catch (std::out_of_range&) {
         // we store smallVectors as middleSizeVectors so we dont have to
         // template the quadrature rule, but this means we have to silence the
-        // efficiency warning efficiency is not a big issue here since we only do
-        // a heap allocation once per basis function per quadrature point for the
-        // entire computation
+        // efficiency warning efficiency is not a big issue here since we only
+        // do a heap allocation once per basis function per quadrature point for
+        // the entire computation
         auto oldWarn = loggerOutput->onWarn;
         loggerOutput->onWarn = [](std::string, std::string) {};
         set->registerQuadratureRule(this);

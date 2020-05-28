@@ -49,7 +49,7 @@ class ReferencePoint;
 namespace QuadratureRules {
 
 ///'Quadrature rule' for a single point is always exact (and just does an
-///evaluation)
+/// evaluation)
 class Cn0_inf_1 : public QuadratureRules::GaussQuadratureRule {
    public:
     static Cn0_inf_1& Instance() {

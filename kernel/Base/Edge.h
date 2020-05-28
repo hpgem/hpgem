@@ -92,7 +92,7 @@ class Edge {
     }
 
     ///\deprecated Does not conform naming conventions, use
-    ///getLocalNumberOfBasisFunctions instead
+    /// getLocalNumberOfBasisFunctions instead
     std::size_t getLocalNrOfBasisFunctions() const {
         return getLocalNumberOfBasisFunctions();
     }
@@ -100,7 +100,7 @@ class Edge {
     std::size_t getID() const { return ID_; }
 
     ///\deprecated Does not conform naming conventions, use getNumberOfElements
-    ///instead
+    /// instead
     std::size_t getNrOfElements() { return getNumberOfElements(); }
 
     std::size_t getNumberOfElements() const;
@@ -115,7 +115,7 @@ class Edge {
     const std::vector<Element*> getElements() const;
 
     ///\deprecated Does not conform naming conventions, use getEdgeNumber
-    ///instead
+    /// instead
     std::size_t getEdgeNr(std::size_t i) { return getEdgeNumber(i); }
 
     std::size_t getEdgeNumber(std::size_t i) {
@@ -135,7 +135,7 @@ class Edge {
     }
 
     ///\deprecated Does not conform naming conventions, use
-    ///setLocalNumberOfBasisFunctions instead
+    /// setLocalNumberOfBasisFunctions instead
     void setLocalNrOfBasisFunctions(std::size_t number) {
         setLocalNumberOfBasisFunctions(number);
     }

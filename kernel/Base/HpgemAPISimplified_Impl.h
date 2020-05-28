@@ -61,7 +61,7 @@
 namespace Base {
 
 ///\bug Workaround for Bug 60352 in (at least) gcc 4.8.2 (should read auto&
-///numberOfSnapshots = ...)
+/// numberOfSnapshots = ...)
 extern CommandLineOption<std::size_t> &numberOfSnapshots;
 extern CommandLineOption<double> &endTime;
 extern CommandLineOption<double> &startTime;

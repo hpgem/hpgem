@@ -134,7 +134,7 @@ class PhysicalGeometry : public PhysicalGeometryBase {
     }
 
     ///\deprecated Not consistent with naming convention, please use
-    ///getNodeCoordinatePtr
+    /// getNodeCoordinatePtr
     PointPhysicalBase* getNodePtr(const std::size_t globalIndex) {
         logger.assert_debug(globalIndex < nodeCoordinates_.size(),
                             "This mesh does not contain a node with index %",

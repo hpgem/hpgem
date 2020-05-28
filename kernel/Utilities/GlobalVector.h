@@ -90,8 +90,8 @@ class GlobalVector {
         std::size_t timeIntegrationVectorId) = 0;
 
     /// collect data from a time integration vector instead of element vectors
-    /// and face vectors it is faster to read all data in one go instead of using
-    /// this routine
+    /// and face vectors it is faster to read all data in one go instead of
+    /// using this routine
     virtual void constructFromTimeIntegrationVector(
         std::size_t timeIntegrationVectorId, std::size_t variable) = 0;
 
@@ -120,8 +120,8 @@ class GlobalVector {
 
 #if defined(HPGEM_USE_ANY_PETSC)
 ///\bug this class depends on PETSc and is likely to cause naming conflicts
-///between the c and c++ standard libraries (workaround: make sure to include
-///all other needed hpGEM headers before including this header)
+/// between the c and c++ standard libraries (workaround: make sure to include
+/// all other needed hpGEM headers before including this header)
 class GlobalPetscVector : public GlobalVector {
 
    public:
@@ -129,8 +129,8 @@ class GlobalPetscVector : public GlobalVector {
     /// this needs a special function because deriving from Mat appears to be
     /// illegal this class handles the data management itself, please DON'T pass
     /// it to functions like MatDestroy or MatCreate \bug need a better way to
-    ///provide an interface to the supported Mat routines AND to other routines
-    ///that need a Mat (like KSPSolve())
+    /// provide an interface to the supported Mat routines AND to other routines
+    /// that need a Mat (like KSPSolve())
     operator Vec();
 
     explicit GlobalPetscVector(const GlobalIndexing& indexing,

@@ -98,7 +98,7 @@ class FaceMatrix {
     }
 
     ///\deprecated Does not conform naming conventions, use
-    ///getNumberOfDegreesOfFreedom instead
+    /// getNumberOfDegreesOfFreedom instead
     std::size_t getNrOfDegreesOfFreedom(Side iSide) const {
         return getNumberOfDegreesOfFreedom(iSide);
     }

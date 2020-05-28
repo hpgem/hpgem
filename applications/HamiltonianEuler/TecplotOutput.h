@@ -36,21 +36,24 @@ class TecplotWriteFunction : public Output::TecplotSingleElementWriter<3> {
     //
     // 	double exactSolutionU(const PhysSpacePoint<dim>& pPhys)
     // 	{
-    // 		return (std::sqrt(3)*std::cos(2*pi*(pPhys[0] + pPhys[1] + pPhys[2]) +
-    // std::sqrt(3)*currTime/3)+3*sin(2*pi*(pPhys[0] + pPhys[1] + pPhys[2])  +
+    // 		return (std::sqrt(3)*std::cos(2*pi*(pPhys[0] + pPhys[1] +
+    // pPhys[2])
+    // + std::sqrt(3)*currTime/3)+3*sin(2*pi*(pPhys[0] + pPhys[1] + pPhys[2])  +
     // std::sqrt(3)*currTime/3))/pi/2;
     // 	}
     //
     // 	double exactSolutionV(const PhysSpacePoint<dim>& pPhys)
     // 	{
-    // 		return (std::sqrt(3)*std::cos(2*pi*(pPhys[0] + pPhys[1] + pPhys[2]) +
-    // std::sqrt(3)*currTime/3)-3*sin(2*pi*(pPhys[0] + pPhys[1] + pPhys[2])  +
+    // 		return (std::sqrt(3)*std::cos(2*pi*(pPhys[0] + pPhys[1] +
+    // pPhys[2])
+    // + std::sqrt(3)*currTime/3)-3*sin(2*pi*(pPhys[0] + pPhys[1] + pPhys[2])  +
     // std::sqrt(3)*currTime/3))/pi/2;
     // 	}
     //
     // 	double exactSolutionW(const PhysSpacePoint<dim>& pPhys)
     // 	{
-    // 		return -(2*std::sqrt(3)*std::cos(2*pi*(pPhys[0] + pPhys[1] + pPhys[2])
+    // 		return -(2*std::sqrt(3)*std::cos(2*pi*(pPhys[0] + pPhys[1] +
+    // pPhys[2])
     // + std::sqrt(3)*currTime/3))/pi/2;
     // 	}
 
@@ -99,10 +102,11 @@ class TecplotWriteFunction : public Output::TecplotSingleElementWriter<3> {
         //
         PointPhysical<3> pPhys = element->referenceToPhysical(pRef);
         //
-        uExact = velocity_->getU(pPhys, time_);       // exactSolutionU(pPhys);
-        vExact = velocity_->getV(pPhys, time_);       // exactSolutionV(pPhys);
-        wExact = velocity_->getW(pPhys, time_);       // exactSolutionW(pPhys);/
-        lambdaExact = velocity_->getP(pPhys, time_);  // exactSolutionP(pPhys);//
+        uExact = velocity_->getU(pPhys, time_);  // exactSolutionU(pPhys);
+        vExact = velocity_->getV(pPhys, time_);  // exactSolutionV(pPhys);
+        wExact = velocity_->getW(pPhys, time_);  // exactSolutionW(pPhys);/
+        lambdaExact =
+            velocity_->getP(pPhys, time_);  // exactSolutionP(pPhys);//
         //
         //
         os << u << "\t" << uExact << "\t" << (u - uExact) << "\t" << v << "\t"

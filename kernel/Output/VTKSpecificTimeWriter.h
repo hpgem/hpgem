@@ -86,7 +86,7 @@ class VTKSpecificTimeWriter final {
         const std::string& name);
 
     ///\brief do not copy the writer to prevent havoc when destructing all the
-    ///copies
+    /// copies
     VTKSpecificTimeWriter(const VTKSpecificTimeWriter& orig) = delete;
     VTKSpecificTimeWriter operator=(const VTKSpecificTimeWriter& orig) = delete;
 

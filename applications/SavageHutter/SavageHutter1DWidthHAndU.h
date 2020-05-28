@@ -63,7 +63,7 @@ class SavageHutter1DWidthHAndU : public SavageHutter1DBase {
     SlopeLimiter *createSlopeLimiter() override final;
 
     ///\brief Construct the non-negativity limiter that will be used in this
-    ///application.
+    /// application.
     HeightLimiter *createHeightLimiter() override final;
 
     ///\brief Compute S in (h,hu)_t + F(h,hu)_x = S(h,hu)

@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
         std::exit(0);
     };
     //(operator[], operator() and size() don't have a stand-alone test, but are
-    //used throughout the test in multiple assertions
+    // used throughout the test in multiple assertions
 
     // various constructors
     LinearAlgebra::MiddleSizeVector::type data[] = {1., 2., 3.};

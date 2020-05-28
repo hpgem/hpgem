@@ -424,7 +424,7 @@ Base::BasisFunctionSet* createDGBasisFunctionSet3DNedelec(std::size_t order) {
         bFset->addBasisFunction(new BasisCurlEdgeNedelec(l, m, 1, 3));
         bFset->addBasisFunction(new BasisCurlEdgeNedelec(l, m, 1, 2));
         //	    std::cout<<"constructed edge functions with
-        //p="<<p<<std::endl;
+        // p="<<p<<std::endl;
     }
     if (order > 1) {
         for (std::size_t l = 0; l + 2 <= order; ++l) {
@@ -439,7 +439,8 @@ Base::BasisFunctionSet* createDGBasisFunctionSet3DNedelec(std::size_t order) {
                 bFset->addBasisFunction(new BasisCurlFace2Nedelec(l, m, n, 2));
                 bFset->addBasisFunction(new BasisCurlFace2Nedelec(l, m, n, 3));
                 //	    std::cout<<"constructed face functions and face
-                //based interior functions with l="<<l<<" and m="<<m<<std::endl;
+                // based interior functions with l="<<l<<" and
+                // m="<<m<<std::endl;
             }
         }
     }
@@ -455,7 +456,7 @@ Base::BasisFunctionSet* createDGBasisFunctionSet3DNedelec(std::size_t order) {
                     bFset->addBasisFunction(
                         new BasisCurlinterior3Nedelec(l, m, n, o));
                     //	    std::cout<<"constructed interior functions with
-                    //l="<<l<<" and m="<<m<<" and n="<<n<<std::endl;
+                    // l="<<l<<" and m="<<m<<" and n="<<n<<std::endl;
                 }
             }
         }

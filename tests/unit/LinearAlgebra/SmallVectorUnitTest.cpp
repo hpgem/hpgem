@@ -108,7 +108,7 @@ void crossProductTests2D() {
 
 int main(int argc, char* argv[]) {
     //(operator[], operator() and size() don't have a stand-alone test, but are
-    //used throughout the test in multiple assertions
+    // used throughout the test in multiple assertions
 
     // various constructors
     double data[] = {1., 2., 3.};

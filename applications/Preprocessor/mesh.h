@@ -150,8 +150,8 @@ class MeshEntity {
     std::size_t getGlobalIndex() const;
 
     // note: this will return a vector of MeshEntities. To access individual
-    // elements, call getElement(0) on the element or call getElement i for all i
-    // on this entity
+    // elements, call getElement(0) on the element or call getElement i for all
+    // i on this entity
     std::vector<MeshEntity<gridDimension, gridDimension>> getElementsList()
         const {
         return getIncidenceList<gridDimension>();
@@ -264,8 +264,9 @@ class Element : public MeshEntity<dimension, dimension> {
 
     // get entities adjacent to both this element and the passed entity
     // e.g. adjacent faces of this element that are adjacent to the specified
-    // node or edges adjacent to the element (by passing *this) the passed entity
-    // must be adjacent to this element according to the zero argument version
+    // node or edges adjacent to the element (by passing *this) the passed
+    // entity must be adjacent to this element according to the zero argument
+    // version
     template <int d, std::size_t entityDimension>
     std::vector<MeshEntity<(d < 0 ? d + dimension : d), dimension>>
         getIncidenceList(

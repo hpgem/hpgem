@@ -702,8 +702,8 @@ LinearAlgebra::MiddleSizeMatrix
                     gradientBasisFunction = element.basisFunctionDeriv(iB1);
                     // iVB1 gives the value in the residual integrand vector
                     // corresponding to equation V1 and basisfunction B1 iVB2
-                    // gives the value in the coefficient vector corresponding to
-                    // state value V2 and basisfunction B2
+                    // gives the value in the coefficient vector corresponding
+                    // to state value V2 and basisfunction B2
                     for (std::size_t iD = 0; iD < DIM; iD++) {
                         integrand(iVB1, iVB2) +=
                             fluxDifference(iV1, iD) * gradientBasisFunction(iD);

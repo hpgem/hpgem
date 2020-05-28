@@ -51,9 +51,9 @@
 // breaks a thorough convergence analysis needs to be done. If the results still
 // show the theoretically optimal order of convergence, and you are convinced
 // that your changes improved the code, you should change the numbers in this
-// test to reflect the updated result. Always confer with other developers if you
-// do this. Note that the nedelec basis functions only converge with order p for
-// the l2norm. They DO converge optimally for the Hcurl norm.
+// test to reflect the updated result. Always confer with other developers if
+// you do this. Note that the nedelec basis functions only converge with order p
+// for the l2norm. They DO converge optimally for the Hcurl norm.
 
 /// \brief Class for solving the Poisson problem using
 /// HpgemAPILinearSteadyState.

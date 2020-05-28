@@ -151,9 +151,9 @@ class PoissonTest : public Base::HpgemAPILinearSteadyState<DIM> {
     /// type of boundary condition. This function will compute these integrands
     /// for all basisfunctions phi_i and phi_j on a certain face at a reference
     /// point p. Then the integral can later be computed with appropriate
-    /// (Gauss-)quadrature rules. The resulting matrix of values is then given in
-    /// the matrix integrandVal, which is returned. Please note that you pass a
-    /// reference point to the basisfunctions and the transformations are done
+    /// (Gauss-)quadrature rules. The resulting matrix of values is then given
+    /// in the matrix integrandVal, which is returned. Please note that you pass
+    /// a reference point to the basisfunctions and the transformations are done
     /// internally.
     Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(
         Base::PhysicalFace<DIM>& face) override final {
@@ -342,8 +342,8 @@ auto& p = Base::register_argument<std::size_t>(
 /// This implementation asks for commandline input arguments for the number of
 /// elements in each direction and the polynomial order. Then make the object
 /// test, initialise it with the input parameters and solve it. PetscInitialize
-/// and PetscFinalize are necessary since we need to use the library PETSc in the
-/// solve routine.
+/// and PetscFinalize are necessary since we need to use the library PETSc in
+/// the solve routine.
 int main(int argc, char** argv) {
     Base::parse_options(argc, argv);
 

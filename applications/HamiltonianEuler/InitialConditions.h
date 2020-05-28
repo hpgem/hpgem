@@ -187,13 +187,13 @@ class InitialVelocityConstructorTaylor : public ExactSolutionBase {
 //         ifstream rPrime("rPrimeCoeff.txt");;
 //
 // 		std::copy(IstreamIterator(p),      IstreamIterator(),
-// std::back_inserter(pAlpha_)); 		std::copy(IstreamIterator(pPrime),
+// std::back_inserter(pAlpha_)); std::copy(IstreamIterator(pPrime),
 // IstreamIterator(), std::back_inserter(pPrimeAlpha_));
 // 		std::copy(IstreamIterator(q),      IstreamIterator(),
-// std::back_inserter(qAlpha_)); 		std::copy(IstreamIterator(qPrime),
+// std::back_inserter(qAlpha_)); std::copy(IstreamIterator(qPrime),
 // IstreamIterator(), std::back_inserter(qPrimeAlpha_));
 // 		std::copy(IstreamIterator(r),      IstreamIterator(),
-// std::back_inserter(rAlpha_)); 		std::copy(IstreamIterator(rPrime),
+// std::back_inserter(rAlpha_)); std::copy(IstreamIterator(rPrime),
 // IstreamIterator(), std::back_inserter(rPrimeAlpha_));
 //
 //         cout <<"Check the coefficients of P"<<endl;
@@ -319,19 +319,23 @@ class InitialVelocityConstructorTaylor : public ExactSolutionBase {
 // 			lPrime = antiSymmetricPrime_[i].second;
 //
 // 			s1 += (pAlpha_[i]*sigma_*cos(sigma_*t)*(epsilon(k,
-// l)*oneOverNu(k, l)*((k)/lx_)*sin((k*pi*x)/lx_)*cos((l*pi*y)/ly_))); 			s1 +=
+// l)*oneOverNu(k, l)*((k)/lx_)*sin((k*pi*x)/lx_)*cos((l*pi*y)/ly_)));
+// s1 +=
 // -(pPrimeAlpha_[i]*sigma_*sin(sigma_*t)*(epsilon(kPrime,
 // lPrime)*oneOverNu(kPrime,
-// lPrime)*((kPrime)/lx_)*sin((kPrime*pi*x)/lx_)*cos((lPrime*pi*y)/ly_))); 			s1 +=
+// lPrime)*((kPrime)/lx_)*sin((kPrime*pi*x)/lx_)*cos((lPrime*pi*y)/ly_)));
+// s1 +=
 // -(qAlpha_[i]*sigma_*cos(sigma_*t)*(2*oneOverNu(k,
 // l)*((l)/ly_)*sin((k*pi*x)/lx_)*cos((l*pi*y)/ly_))); 			s1 +=
 // (qPrimeAlpha_[i]*sigma_*sin(sigma_*t)*(2*oneOverNu(kPrime,
 // lPrime)*((lPrime)/ly_)*sin((kPrime*pi*x)/lx_)*cos((lPrime*pi*y)/ly_)));
 //
-// 			s1 += -(pAlpha_[i]*sin(sigma_*t)*(epsilon(k, l)*oneOverNu(k,
-// l)*((l)/ly_)*cos((k*pi*x)/lx_)*sin((l*pi*y)/ly_))); 			s1 +=
+// 			s1 += -(pAlpha_[i]*sin(sigma_*t)*(epsilon(k,
+// l)*oneOverNu(k, l)*((l)/ly_)*cos((k*pi*x)/lx_)*sin((l*pi*y)/ly_)));
+// s1 +=
 // -(pPrimeAlpha_[i]*cos(sigma_*t)*(epsilon(kPrime, lPrime)*oneOverNu(kPrime,
-// lPrime)*((lPrime)/ly_)*cos((kPrime*pi*x)/lx_)*sin((lPrime*pi*y)/ly_))); 			s1 +=
+// lPrime)*((lPrime)/ly_)*cos((kPrime*pi*x)/lx_)*sin((lPrime*pi*y)/ly_)));
+// s1 +=
 // -(qAlpha_[i]*sin(sigma_*t)*(2*oneOverNu(k,
 // l)*((k)/lx_)*cos((k*pi*x)/lx_)*sin((l*pi*y)/ly_))); 			s1 +=
 // -(qPrimeAlpha_[i]*cos(sigma_*t)*(2*oneOverNu(kPrime,
@@ -366,22 +370,25 @@ class InitialVelocityConstructorTaylor : public ExactSolutionBase {
 //
 // 			sx1 += (pAlpha_[i]*sigma_*cos(sigma_*t)*(epsilon(k,
 // l)*oneOverNu(k,
-// l)*((k*pi)/lx_)*((k)/lx_)*cos((k*pi*x)/lx_)*cos((l*pi*y)/ly_))); 			sx1 +=
+// l)*((k*pi)/lx_)*((k)/lx_)*cos((k*pi*x)/lx_)*cos((l*pi*y)/ly_)));
+// sx1 +=
 // -(pPrimeAlpha_[i]*sigma_*sin(sigma_*t)*(epsilon(kPrime,
 // lPrime)*oneOverNu(kPrime,
 // lPrime)*((kPrime)/lx_)*((kPrime*pi)/lx_)*cos((kPrime*pi*x)/lx_)*cos((lPrime*pi*y)/ly_)));
 // 			sx1 += -(qAlpha_[i]*sigma_*cos(sigma_*t)*(2*oneOverNu(k,
-// l)*((l)/ly_)*((k*pi)/lx_)*cos((k*pi*x)/lx_)*cos((l*pi*y)/ly_))); 			sx1 +=
-// (qPrimeAlpha_[i]*sigma_*sin(sigma_*t)*(2*oneOverNu(kPrime,
+// l)*((l)/ly_)*((k*pi)/lx_)*cos((k*pi*x)/lx_)*cos((l*pi*y)/ly_)));
+// sx1 += (qPrimeAlpha_[i]*sigma_*sin(sigma_*t)*(2*oneOverNu(kPrime,
 // lPrime)*((lPrime)/ly_)*((kPrime*pi)/lx_)*cos((kPrime*pi*x)/lx_)*cos((lPrime*pi*y)/ly_)));
 //
-// 			sx1 += (pAlpha_[i]*sin(sigma_*t)*(epsilon(k, l)*oneOverNu(k,
-// l)*((l)/ly_)*((k*pi)/lx_)*sin((k*pi*x)/lx_)*sin((l*pi*y)/ly_))); 			sx1 +=
-// (pPrimeAlpha_[i]*cos(sigma_*t)*(epsilon(kPrime, lPrime)*oneOverNu(kPrime,
+// 			sx1 += (pAlpha_[i]*sin(sigma_*t)*(epsilon(k,
+// l)*oneOverNu(k,
+// l)*((l)/ly_)*((k*pi)/lx_)*sin((k*pi*x)/lx_)*sin((l*pi*y)/ly_)));
+// sx1 += (pPrimeAlpha_[i]*cos(sigma_*t)*(epsilon(kPrime,
+// lPrime)*oneOverNu(kPrime,
 // lPrime)*((lPrime)/ly_)*((kPrime*pi)/lx_)*sin((kPrime*pi*x)/lx_)*sin((lPrime*pi*y)/ly_)));
 // 			sx1 += (qAlpha_[i]*sin(sigma_*t)*(2*oneOverNu(k,
-// l)*((k)/lx_)*(k*pi)/lx_)*sin((k*pi*x)/lx_)*sin((l*pi*y)/ly_)); 			sx1 +=
-// (qPrimeAlpha_[i]*cos(sigma_*t)*(2*oneOverNu(kPrime,
+// l)*((k)/lx_)*(k*pi)/lx_)*sin((k*pi*x)/lx_)*sin((l*pi*y)/ly_));
+// sx1 += (qPrimeAlpha_[i]*cos(sigma_*t)*(2*oneOverNu(kPrime,
 // lPrime)*((kPrime)/lx_)*((kPrime*pi)/lx_)*sin((kPrime*pi*x)/lx_)*sin((lPrime*pi*y)/ly_)));
 //
 // 			sx1 +=
@@ -414,19 +421,23 @@ class InitialVelocityConstructorTaylor : public ExactSolutionBase {
 // 			lPrime = antiSymmetricPrime_[i].second;
 //
 // 			s2 += (pAlpha_[i]*sigma_*cos(sigma_*t)*(epsilon(k,
-// l)*oneOverNu(k, l)*((l)/ly_)*cos((k*pi*x)/lx_)*sin((l*pi*y)/ly_))); 			s2 +=
+// l)*oneOverNu(k, l)*((l)/ly_)*cos((k*pi*x)/lx_)*sin((l*pi*y)/ly_)));
+// s2 +=
 // -(pPrimeAlpha_[i]*sigma_*sin(sigma_*t)*(epsilon(kPrime,
 // lPrime)*oneOverNu(kPrime,
-// lPrime)*((lPrime)/ly_)*cos((kPrime*pi*x)/lx_)*sin((lPrime*pi*y)/ly_))); 			s2 +=
-// (qAlpha_[i]*sigma_*cos(sigma_*t)*(2*oneOverNu(k,
-// l)*((kPrime)/lx_)*cos((k*pi*x)/lx_)*cos((l*pi*y)/ly_))); 			s2 +=
+// lPrime)*((lPrime)/ly_)*cos((kPrime*pi*x)/lx_)*sin((lPrime*pi*y)/ly_)));
+// s2 += (qAlpha_[i]*sigma_*cos(sigma_*t)*(2*oneOverNu(k,
+// l)*((kPrime)/lx_)*cos((k*pi*x)/lx_)*cos((l*pi*y)/ly_))); s2
+// +=
 // -(qPrimeAlpha_[i]*sigma_*sin(sigma_*t)*(2*oneOverNu(kPrime,
 // lPrime)*((kPrime)/lx_)*cos((kPrime*pi*x)/lx_)*sin((lPrime*pi*y)/ly_)));
 //
-// 			s2 += (pAlpha_[i]*sin(sigma_*t)*(epsilon(k, l)*oneOverNu(k,
-// l)*((k)/lx_)*sin((k*pi*x)/lx_)*cos((l*pi*y)/ly_))); 			s2 +=
-// (pPrimeAlpha_[i]*cos(sigma_*t)*(epsilon(kPrime, lPrime)*oneOverNu(kPrime,
-// lPrime)*((kPrime)/lx_)*sin((kPrime*pi*x)/lx_)*cos((lPrime*pi*y)/ly_))); 			s2 +=
+// 			s2 += (pAlpha_[i]*sin(sigma_*t)*(epsilon(k,
+// l)*oneOverNu(k, l)*((k)/lx_)*sin((k*pi*x)/lx_)*cos((l*pi*y)/ly_)));
+// s2 += (pPrimeAlpha_[i]*cos(sigma_*t)*(epsilon(kPrime,
+// lPrime)*oneOverNu(kPrime,
+// lPrime)*((kPrime)/lx_)*sin((kPrime*pi*x)/lx_)*cos((lPrime*pi*y)/ly_)));
+// s2 +=
 // -(qAlpha_[i]*sin(sigma_*t)*(2*oneOverNu(k,
 // l)*((l)/ly_)*sin((k*pi*x)/lx_)*cos((l*pi*y)/ly_))); 			s2 +=
 // -(qPrimeAlpha_[i]*cos(sigma_*t)*(2*oneOverNu(kPrime,
@@ -461,28 +472,32 @@ class InitialVelocityConstructorTaylor : public ExactSolutionBase {
 //
 // 			s2 += (pAlpha_[i]*sigma_*cos(sigma_*t)*(epsilon(k,
 // l)*oneOverNu(k,
-// l)*((l)/ly_)*((l*pi)/ly_)*cos((k*pi*x)/lx_)*cos((l*pi*y)/ly_))); 			s2 +=
+// l)*((l)/ly_)*((l*pi)/ly_)*cos((k*pi*x)/lx_)*cos((l*pi*y)/ly_)));
+// s2 +=
 // -(pPrimeAlpha_[i]*sigma_*sin(sigma_*t)*(epsilon(kPrime,
 // lPrime)*oneOverNu(kPrime,
 // lPrime)*((lPrime)/ly_)*((lPrime*pi*y)/ly_)*cos((kPrime*pi*x)/lx_)*cos((lPrime*pi*y)/ly_)));
 // 			s2 += -(qAlpha_[i]*sigma_*cos(sigma_*t)*(2*oneOverNu(k,
-// l)*((kPrime)/lx_)*((l*pi*y)/ly_)*cos((k*pi*x)/lx_)*sin((l*pi*y)/ly_))); 			s2 +=
+// l)*((kPrime)/lx_)*((l*pi*y)/ly_)*cos((k*pi*x)/lx_)*sin((l*pi*y)/ly_)));
+// s2 +=
 // -(qPrimeAlpha_[i]*sigma_*sin(sigma_*t)*(2*oneOverNu(kPrime,
 // lPrime)*((kPrime)/lx_)*((lPrime*pi*y)/ly_)*cos((kPrime*pi*x)/lx_)*cos((lPrime*pi*y)/ly_)));
 //
-// 			s2 += -(pAlpha_[i]*sin(sigma_*t)*(epsilon(k, l)*oneOverNu(k,
-// l)*((k)/lx_)*((l*pi*y)/ly_)*sin((k*pi*x)/lx_)*sin((l*pi*y)/ly_))); 			s2 +=
+// 			s2 += -(pAlpha_[i]*sin(sigma_*t)*(epsilon(k,
+// l)*oneOverNu(k,
+// l)*((k)/lx_)*((l*pi*y)/ly_)*sin((k*pi*x)/lx_)*sin((l*pi*y)/ly_)));
+// s2 +=
 // -(pPrimeAlpha_[i]*cos(sigma_*t)*(epsilon(kPrime, lPrime)*oneOverNu(kPrime,
 // lPrime)*((kPrime)/lx_)*((lPrime*pi*y)/ly_)*sin((kPrime*pi*x)/lx_)*sin((lPrime*pi*y)/ly_)));
 // 			s2 += (qAlpha_[i]*sin(sigma_*t)*(2*oneOverNu(k,
-// l)*((l)/ly_)*((lPrime*pi*y)/ly_)*sin((k*pi*x)/lx_)*sin((l*pi*y)/ly_))); 			s2 +=
-// (qPrimeAlpha_[i]*cos(sigma_*t)*(2*oneOverNu(kPrime,
+// l)*((l)/ly_)*((lPrime*pi*y)/ly_)*sin((k*pi*x)/lx_)*sin((l*pi*y)/ly_)));
+// s2 += (qPrimeAlpha_[i]*cos(sigma_*t)*(2*oneOverNu(kPrime,
 // lPrime)*((lPrime)/ly_)*((lPrime*pi*y)/ly_)*sin((kPrime*pi*x)/lx_)*sin((lPrime*pi*y)/ly_)));
 //
 // 			s2 +=
 // lz_/pi*sigma_*sigma_*rAlpha_[i]*cos(sigma_*t)*(epsilon(k,
-// l)*l/ly_*((lPrime*pi*y)/ly_)*cos((k*pi*x)/lx_)*cos((l*pi*y)/ly_)); 			s2 +=
-// lz_/pi*sigma_*sigma_*rPrimeAlpha_[i]*sin(sigma_*t)*(epsilon(kPrime,
+// l)*l/ly_*((lPrime*pi*y)/ly_)*cos((k*pi*x)/lx_)*cos((l*pi*y)/ly_));
+// s2 += lz_/pi*sigma_*sigma_*rPrimeAlpha_[i]*sin(sigma_*t)*(epsilon(kPrime,
 // lPrime)*lPrime/ly_*((lPrime*pi*y)/ly_)*cos((kPrime*pi*x)/lx_)*cos((lPrime*pi*y)/ly_));
 // 		}
 // 		s2 = s2 *lz_*cos(pi*z/lz_);

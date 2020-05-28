@@ -95,7 +95,7 @@
 #include <typeinfo>
 
 //(crude) fix for pre-c++14 limitations of std::hash: just use the std::hash of
-//the underlying type
+// the underlying type
 template <typename T>
 class EnumHash {
     // cause a compile error if someone uses this for non-enum types
@@ -1241,8 +1241,8 @@ std::tuple<const Base::Element *, Geometry::PointReference<DIM>>
                                           getElementsList().getRootEntries());
     } catch (const char *message) {
         ///\todo MPI applications might be unable to use this routine
-        ///effectively, should we wrap the message in a proper std::exception
-        ///and retrow instead?
+        /// effectively, should we wrap the message in a proper std::exception
+        /// and retrow instead?
         logger(ERROR, message, pointPhysical);
     }
 }
@@ -1898,7 +1898,7 @@ void MeshManipulator<DIM>::createUnstructuredMesh(
 
         // create the triangulation, pass "d" for delaunay
         //"QJ" because there are likely to be groups of more that (d+1)
-        //cocircular nodes in a regular grid, so joggle them up a bit
+        // cocircular nodes in a regular grid, so joggle them up a bit
         orgQhull::Qhull triangulation;
         triangulation.runQhull(qHullCoordinates, "d Qbb Qx Qc Qt");
 
@@ -1956,8 +1956,8 @@ void MeshManipulator<DIM>::createUnstructuredMesh(
 
         // if the desired relative edge length is not known everywhere, slowly
         // make them larger because apparently the user is not interested in
-        // controlling edge lengths for this part but sudden enlargement leads to
-        // a bad mesh quality
+        // controlling edge lengths for this part but sudden enlargement leads
+        // to a bad mesh quality
         if (needsExpansion) {
             // iterate over all nodes, sorted by edge lengths
             for (std::pair<double, std::size_t> entry : knownLengths) {
@@ -2070,8 +2070,8 @@ void MeshManipulator<DIM>::createUnstructuredMesh(
 
         // sort the centers of the edges such that the centers of the large
         // edges are indexed first note that in this case the inverse measure is
-        // computed, because that will result in a more natural force computation
-        // later on
+        // computed, because that will result in a more natural force
+        // computation later on
         std::multimap<double, Geometry::PointPhysical<DIM>> centerPoints;
         if (DIM == 1) {
             // the algorithm is mostly dimension independent, but the data type
@@ -2227,8 +2227,8 @@ void MeshManipulator<DIM>::createUnstructuredMesh(
 }
 
 ///\bug Assumes a DG basis function set is used. (Workaround: set the basis
-///function set again after calling this routine if you are using something
-///conforming)
+/// function set again after calling this routine if you are using something
+/// conforming)
 template <std::size_t DIM>
 void MeshManipulator<DIM>::updateMesh(
     std::function<double(Geometry::PointPhysical<DIM>)> domainDescription,
@@ -2830,8 +2830,8 @@ void MeshManipulator<DIM>::updateMesh(
                 // there are too many all edges should be squeezed a little if
                 // the algorithm is to work correctly so pretend the volume
                 // is 1.4 times as large remember to scale back from a volume
-                // measure to a length measure the non-linearity makes everything
-                // slightly more robust
+                // measure to a length measure the non-linearity makes
+                // everything slightly more robust
                 double length = (expectedLength[element->getNode(0)->getID()] +
                                  expectedLength[element->getNode(1)->getID()]) /
                                 currentLength[element->getID()] * 1.4 *

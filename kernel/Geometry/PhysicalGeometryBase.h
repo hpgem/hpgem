@@ -167,7 +167,7 @@ class PhysicalGeometryBase {
     }
 
     ///\deprecated Does not conform naming conventions, use getNumberOfFaces
-    ///instead
+    /// instead
     std::size_t getNrOfFaces() const { return getNumberOfFaces(); }
 
     /// \brief Returns the number of faces via a call to

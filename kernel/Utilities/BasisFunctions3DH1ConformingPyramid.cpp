@@ -61,8 +61,8 @@ double BasisFunction3DVertexPyramid::eval(
             // the basisfunctions should be bilinear on the bottom (z=0)
             // and linear on the other faces dus to conformance requirements
             // so on the triangular faces one of the components of the tensor
-            // product should either be 0 or be divided away the triangular faces
-            // are x=1-z; -x=1-z; y=1-z; -y=1-z
+            // product should either be 0 or be divided away the triangular
+            // faces are x=1-z; -x=1-z; y=1-z; -y=1-z
         case 1:
             return (1 - p[2] - p[0]) * (1 - p[2] - p[1]) / 4 /
                    (1 - p[2] + 1e-50);

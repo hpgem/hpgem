@@ -44,11 +44,11 @@ namespace Base {
 class UserData {};
 
 ///\deprecated the only meaningful distinction between UserElementData and
-///UserFaceData is the class that contains the pointer
+/// UserFaceData is the class that contains the pointer
 using UserFaceData = UserData;
 
 ///\deprecated the only meaningful distinction between UserElementData and
-///UserFaceData is the class that contains the pointer
+/// UserFaceData is the class that contains the pointer
 using UserElementData = UserData;
 }  // namespace Base
 

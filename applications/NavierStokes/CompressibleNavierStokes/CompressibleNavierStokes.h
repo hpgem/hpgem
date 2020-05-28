@@ -118,8 +118,8 @@ class CompressibleNavierStokes : public Base::HpgemAPISimplified<DIM> {
 
     /// \brief Compute state at a face
     // LinearAlgebra::MiddleSizeVector
-    // computeStateOnFace(Base::PhysicalFace<DIM> &face, const Base::Side &iSide,
-    // LinearAlgebra::MiddleSizeVector &stateCoefficients);
+    // computeStateOnFace(Base::PhysicalFace<DIM> &face, const Base::Side
+    // &iSide, LinearAlgebra::MiddleSizeVector &stateCoefficients);
 
     /// \brief Compute state Jacobian on face
     LinearAlgebra::MiddleSizeMatrix computeStateJacobianAtFace(

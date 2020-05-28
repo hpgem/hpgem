@@ -43,13 +43,13 @@
 
 ///\brief Class to solve the basic Savage-Hutter equations in 1D.
 ///\details The idea is that almost everything you want to change in your
-///application can be changed in this class: the domain, initial solution,
+/// application can be changed in this class: the domain, initial solution,
 /// parameter values and output functions are all described in this class. It is
 /// also possible to construct the different limiters here. Furthermore, you can
 /// choose here between the different types of friction that are given in
 /// SavageHutter1DBase. The other function in here is computePhysicalFlux, which
 /// is the function F in (h,hu)_t + F(h,hu)_x = S(h,hu). This is described here
-///because it is different for this system than for example for the standard
+/// because it is different for this system than for example for the standard
 /// system and the bidispersed system
 class SavageHutter1DWidthAveraged : public SavageHutter1DBase {
    public:
@@ -73,7 +73,7 @@ class SavageHutter1DWidthAveraged : public SavageHutter1DBase {
     SlopeLimiter *createSlopeLimiter() override final;
 
     ///\brief Construct the non-negativity limiter that will be used in this
-    ///application.
+    /// application.
     HeightLimiter *createHeightLimiter() override final;
 
     ///\brief Compute S in (h,hu)_t + F(h,hu)_x = S(h,hu)

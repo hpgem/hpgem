@@ -58,7 +58,7 @@ class SavageHutter2DBasic : public SavageHutter2DBase {
     void registerVTKWriteFunctions() override final;
 
     ///\brief Construct the non-negativity limiter that will be used in this
-    ///application.
+    /// application.
     HeightLimiter *createHeightLimiter() override final;
 
     ///\brief Compute S in (h,hu,hv)_t + F(h,hu,hv)_x = S(h,hu,hv)

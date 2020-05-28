@@ -52,7 +52,7 @@ namespace Output {
 ///@param[in] output             The output stream you want to write to
 ///@param[in] fileTitle          The title of your file/plot
 ///@param[in] dimensionsToWrite  Names of the variables, for example "01" gives
-///x0 and x1
+/// x0 and x1
 ///@param[in] resultVariableName Names of the dependent variable, for example
 ///"position" or "u"
 template <std::size_t DIM>

@@ -37,7 +37,7 @@
  */
 
 //#define hpGEM_INCLUDE_PETSC_SUPPORT//temporarily activating this definition
-//makes development easier on some IDEs
+// makes development easier on some IDEs
 
 #include <cmath>
 

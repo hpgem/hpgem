@@ -55,9 +55,9 @@ class CoordinateTransformation;
 // class is final as a reminder that there is no virtual destructor
 // note that none of the functions in here is marked const, because a
 // PhysicalElement reserves the right to alter its internal state to optimize
-// future repeated calls note that names in this class match the names in Element
-// unless this makes no sense when you use a physical element in the kernel be
-// careful to avoid infinite recursion
+// future repeated calls note that names in this class match the names in
+// Element unless this makes no sense when you use a physical element in the
+// kernel be careful to avoid infinite recursion
 ///\todo generalize implementation to support the cached data
 template <std::size_t DIM>
 class PhysicalElement final {
@@ -133,21 +133,21 @@ class PhysicalElement final {
 
     /// a middle size square matrix of size nBasisFunctions x nUnknowns
     ///\details this gets zeroed out every time the reference point is changed
-    ///and is only resized by the physical element upon construction, so this
-    ///could also be used for matrixes of different size
+    /// and is only resized by the physical element upon construction, so this
+    /// could also be used for matrixes of different size
     LinearAlgebra::MiddleSizeMatrix &getResultMatrix();
 
     /// a middle size vector of size nBasisFunctions x nUnknowns
     ///\details this gets zeroed out every time the reference point is changed
-    ///and is only resized by the physical element upon construction, so this
-    ///could also be used for vectors of different size
+    /// and is only resized by the physical element upon construction, so this
+    /// could also be used for vectors of different size
     LinearAlgebra::MiddleSizeVector &getResultVector();
 
     /// the element (elements have extra functions for users that need them)
     const Base::Element *getElement();
 
     ///\deprecated Does not conform naming conventions, use
-    ///getNumberOfBasisFunctions instead
+    /// getNumberOfBasisFunctions instead
     std::size_t getNumOfBasisFunctions() { return getNumberOfBasisFunctions(); }
 
     /// the number of basis functions that are nonzero in the element
@@ -164,7 +164,7 @@ class PhysicalElement final {
     }
 
     ///\deprecated Does not conform naming conventions, use getNumberOfUnknowns
-    ///instead
+    /// instead
     std::size_t getNumOfUnknowns() { return getNumberOfUnknowns(); }
 
     /// the number of unknowns present in the problem

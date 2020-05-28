@@ -193,7 +193,8 @@ LinearAlgebra::MiddleSizeVector
     // It however takes a more sophisticated function of computing a 4th rank
     // tensor with a vector and is not very important at the moment.
     // Compute state times normal matrix for the Left face, this is the same as
-    // for the Right side todo: move this to the StateCoefficientsFunctions class
+    // for the Right side todo: move this to the StateCoefficientsFunctions
+    // class
     LinearAlgebra::MiddleSizeMatrix stateNormalBoundary(NUMBER_OF_VARIABLES,
                                                         DIM);
     LinearAlgebra::MiddleSizeMatrix stateNormalLeft(NUMBER_OF_VARIABLES, DIM);
@@ -399,7 +400,8 @@ LinearAlgebra::MiddleSizeMatrix
 
     // std::cout << "==============" << std::endl;
     // std::cout << "State Left: " << faceStateStructLeft.getState() <<
-    // std::endl; std::cout << "State Right: " << faceStateStructRight.getState()
+    // std::endl; std::cout << "State Right: " <<
+    // faceStateStructRight.getState()
     // << std::endl; std::cout << "stabilityParameters: " << stabilityParameters
     // << std::endl;
 
@@ -493,7 +495,8 @@ std::pair<LinearAlgebra::MiddleSizeVector, LinearAlgebra::MiddleSizeVector>
     std::size_t iVB;
 
     // Compute state times normal matrix for the Left face, this is the same as
-    // for the Right side todo: move this to the StateCoefficientsFunctions class
+    // for the Right side todo: move this to the StateCoefficientsFunctions
+    // class
     LinearAlgebra::MiddleSizeMatrix stateNormalLeft(NUMBER_OF_VARIABLES, DIM);
     LinearAlgebra::MiddleSizeVector stateDifferenceLeft;
     stateDifferenceLeft =
@@ -713,8 +716,8 @@ LinearAlgebra::MiddleSizeMatrix
     // std::cout << "MassMatrix: " << stabilityMassMatrix_ << std::endl;
 
     //	std::cout << "size matrix: " << stabilityMassMatrix_.getNRows() <<
-    //std::endl; 	std::cout << "size vector: " << rhsLeft.getNRows() <<
-    //std::endl;
+    // std::endl; 	std::cout << "size vector: " << rhsLeft.getNRows() <<
+    // std::endl;
 
     // std::cout << "========COMPUTING RHSRIGHT STABILITY========" << std::endl;
     // Compute stability parameters on the Right side

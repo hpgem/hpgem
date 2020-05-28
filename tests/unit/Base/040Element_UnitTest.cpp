@@ -40,8 +40,8 @@
 
 // naming convention: <Digit><ClassName>_UnitTest.cpp where <Digit> is a number
 // that will make sure the unit tests are ordered such that the first failing
-// unit test indicate the culprit class and other 'unit' tests may assume correct
-// execution of all prior unit tests
+// unit test indicate the culprit class and other 'unit' tests may assume
+// correct execution of all prior unit tests
 
 // A lot of the functionality of Element, Face and Edge only makes sense if they
 // are embedded in a larger mesh that is completely set up Setting up a testing
@@ -134,7 +134,7 @@ int main() {
     const QuadratureRules::GaussQuadratureRule& rule =
         *test.getGaussQuadratureRule();
     ///\todo figure out why the '::Instance' alters the typeid (it also alters
-    ///the hash_code of the typeid)
+    /// the hash_code of the typeid)
     logger.assert_always(
         (typeid(rule) == typeid(QuadratureRules::Cn3_3_4::Instance())),
         "setQuadratureRule");

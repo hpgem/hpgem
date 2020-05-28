@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
 
     // for testing blatant assumptions when it is necessary to check again in
     // release mode (for example, opening files, processing command line input,
-    //running unit tests, ...)
+    // running unit tests, ...)
     logger.assert_always(true, "Test %", 5);
 
     // will test even when turned off
@@ -84,8 +84,8 @@ int main(int argc, char** argv) {
 
     // test if the string parser works correctly (\ tends to accumulate
     // exponentially as the amount of escape layers grows) note that placing \%
-    // in a string is technically implementation defined behaviour (to be avoided
-    // in portable code) (§2.14.3.3 of the c++11 standard draft)
+    // in a string is technically implementation defined behaviour (to be
+    // avoided in portable code) (§2.14.3.3 of the c++11 standard draft)
     loggerOutput->onDebug = logTestMessage;
     log(DEBUG,
         "If you don't like \\\\\\\\\\%, it is also possible to escape the \\%, "

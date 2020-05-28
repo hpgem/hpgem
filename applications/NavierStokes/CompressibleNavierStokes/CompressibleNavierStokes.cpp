@@ -604,8 +604,8 @@ LinearAlgebra::MiddleSizeMatrix
 /// corresponding to an external face.
 // This function is written for the Couette type flow, a plate at top and a
 // plate at bottom The state is reconstructed based on the plate's temperature
-// and movement speed, and therefore this is a dirichlet type of BC It is handled
-// like an internal element.
+// and movement speed, and therefore this is a dirichlet type of BC It is
+// handled like an internal element.
 LinearAlgebra::MiddleSizeVector
     CompressibleNavierStokes::integrandRightHandSideOnFace(
         Base::PhysicalFace<DIM> &face, const double &time,

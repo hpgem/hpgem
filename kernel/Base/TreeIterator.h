@@ -461,8 +461,8 @@ class TreeIterator {
             depthCounter_ = 0;
             if (!moveDownToLevelBegin(level)) {
                 // moveDownToLevelBegin will automatically try to move to the
-                // next sibling and/or up to another parent if it fails initially
-                // so if it fails this was the last on the level
+                // next sibling and/or up to another parent if it fails
+                // initially so if it fails this was the last on the level
                 *this = backup;
                 ++ptr_;
             } else {
@@ -478,7 +478,7 @@ class TreeIterator {
             --ptr_;
         } else {
             //--begin() is undefined so we don't have to care about restoring
-            //the current position
+            // the current position
             std::size_t level = (*ptr_)->getLevel() + depthCounter_;
             while ((*ptr_)->isFirstSibling()) {
                 // move up until we can go to the previous

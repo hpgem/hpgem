@@ -43,7 +43,7 @@
 #include "Integration/ElementIntegral.h"
 
 ////\brief Limiter that limits both the height and the height of the small
-///particles in 1D This class is still under construction, use at your own
+/// particles in 1D This class is still under construction, use at your own
 /// peril.
 class BidispersedLimiter : public HeightLimiter {
    public:

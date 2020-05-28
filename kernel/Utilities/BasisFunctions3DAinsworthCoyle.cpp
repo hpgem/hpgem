@@ -215,8 +215,8 @@ BasisCurlFaceAinsworthCoyle::BasisCurlFaceAinsworthCoyle(
         c++;
     }
     // lets the tangent always point to vertex b in the rest of this class
-    if (direction == 2) {  // this also swaps the use of l and m in the
-                           // ainsworth definition
+    if (direction == 2) {      // this also swaps the use of l and m in the
+                               // ainsworth definition
         std::size_t temp = c;  // but that should be inconsequential
         c = b;
         b = temp;
@@ -425,7 +425,7 @@ Base::BasisFunctionSet* createDGBasisFunctionSet3DAinsworthCoyle(
         bFset->addBasisFunction(new BasisCurlEdgeAinsworthCoyle(p, 1, 3));
         bFset->addBasisFunction(new BasisCurlEdgeAinsworthCoyle(p, 1, 2));
         //	    std::cout<<"constructed edge functions with
-        //p="<<p<<std::endl;
+        // p="<<p<<std::endl;
     }
     for (std::size_t p = 2; p <= order; ++p) {
         // constructor takes first the degree of the function the the vertex
@@ -443,7 +443,7 @@ Base::BasisFunctionSet* createDGBasisFunctionSet3DAinsworthCoyle(
         bFset->addBasisFunction(new BasisCurlEdgeFaceAinsworthCoyle(p, 0, 2));
         bFset->addBasisFunction(new BasisCurlEdgeFaceAinsworthCoyle(p, 0, 3));
         //	    std::cout<<"constructed edge based face functions with
-        //p="<<p<<std::endl;
+        // p="<<p<<std::endl;
     }
     for (std::size_t l = 0; l + 3 <= order; ++l) {
         for (std::size_t m = 0; m + l + 3 <= order; ++m) {
@@ -477,7 +477,7 @@ Base::BasisFunctionSet* createDGBasisFunctionSet3DAinsworthCoyle(
             bFset->addBasisFunction(
                 new BasisCurlFaceinteriorAinsworthCoyle(l, m, 0));
             //	    std::cout<<"constructed face functions and face based
-            //interior functions with l="<<l<<" and m="<<m<<std::endl;
+            // interior functions with l="<<l<<" and m="<<m<<std::endl;
         }
     }
     for (std::size_t l = 0; l + 4 <= order; ++l) {
@@ -493,7 +493,7 @@ Base::BasisFunctionSet* createDGBasisFunctionSet3DAinsworthCoyle(
                 bFset->addBasisFunction(
                     new BasisCurlinteriorAinsworthCoyle(l, m, n, 3));
                 //	    std::cout<<"constructed interior functions with
-                //l="<<l<<" and m="<<m<<" and n="<<n<<std::endl;
+                // l="<<l<<" and m="<<m<<" and n="<<n<<std::endl;
             }
         }
     }

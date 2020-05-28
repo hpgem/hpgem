@@ -71,8 +71,8 @@ class TutorialAdvection : public Base::HpgemAPILinear<DIM> {
     /// Compute phi_i*(a.grad(phi_j)) on an element for all
     /// basisfunctions phi_i and phi_j.
     /// hpGEM pretends the computations are done on a physical element (as
-    /// opposed to a reference element), because this generally allows for easier
-    /// expressions
+    /// opposed to a reference element), because this generally allows for
+    /// easier expressions
     LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(
         Base::PhysicalElement<DIM>& element) override final {
         // we access the actual element to find the number of basis functions

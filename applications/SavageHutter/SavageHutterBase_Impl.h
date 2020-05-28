@@ -54,7 +54,7 @@ SavageHutterBase<DIM>::SavageHutterBase(std::size_t numberOfVariables,
       time_(0) {}
 
 ///\details Show the number of time steps that have been computed on the
-///console.
+/// console.
 template <std::size_t DIM>
 void SavageHutterBase<DIM>::showProgress(const double time,
                                          const std::size_t timeStepID) {
@@ -213,7 +213,8 @@ void SavageHutterBase<DIM>::limitSolutionOuterLoop() {
 }
 
 ///\details Compute the minimum height by checking the vertices of the element
-///and the Gauss quadrature points in the element. While this does not guarantee
+/// and the Gauss quadrature points in the element. While this does not
+/// guarantee
 /// to give the best result, it gives a good estimate.
 template <std::size_t DIM>
 const double SavageHutterBase<DIM>::getMinimumHeight(

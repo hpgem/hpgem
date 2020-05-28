@@ -240,7 +240,7 @@ Output::VTKSpecificTimeWriter<DIM>::~VTKSpecificTimeWriter() {
         masterFile_ << "    </PPointData>" << std::endl;
         masterFile_ << "    <PPoints>" << std::endl;
         ///\bug assumes all compilers map double to the 64 bit IEEE-754 floating
-        ///point data type
+        /// point data type
         masterFile_
             << "      <PDataArray type=\"Float64\" NumberOfComponents=\"3\"/>"
             << std::endl;

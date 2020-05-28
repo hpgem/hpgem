@@ -104,13 +104,13 @@ class FaceData {
     std::size_t getNumberOfFaceVectors() const;
 
     ///\deprecated Does not follow the naming convention, use
-    ///getNumberOfFaceMatrices instead.
+    /// getNumberOfFaceMatrices instead.
     std::size_t getNumberFaceMatrices() const {
         return getNumberOfFaceMatrices();
     }
 
     ///\deprecated Does not follow the naming convention, use
-    ///getNumberOfFaceVectors instead.
+    /// getNumberOfFaceVectors instead.
     std::size_t getNumberFaceVectors() const {
         return getNumberOfFaceVectors();
     }

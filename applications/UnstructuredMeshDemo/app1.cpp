@@ -141,8 +141,8 @@ class SimpleDemoProblem : public Base::HpgemAPIBase<DIM> {
 
         // numElementsInDIM is a lie, the total number of nodes will end up
         // being the product of these contributions it is still a useful way to
-        // make estimates for element sizes in terms of quantities used elsewhere
-        // in hpGEM
+        // make estimates for element sizes in terms of quantities used
+        // elsewhere in hpGEM
         rectangularMesh.numElementsInDIM_[0] = 32;
         rectangularMesh.numElementsInDIM_[1] = 16;
         rectangularMesh.boundaryConditions_[0] = Base::BoundaryType::SOLID_WALL;
@@ -164,10 +164,10 @@ class SimpleDemoProblem : public Base::HpgemAPIBase<DIM> {
                 // despite the nomenclature here, it is possible to fix the
                 // location of any or all nodes in the domain if you fix all
                 // nodes, the algorithm will construct a mesh based on the
-                // Delaunay triangulation of these nodes it is recommended to fix
-                // at least all concave corners. The algorithm also cannot deal
-                // robustly with very sharp corners or very small features, you
-                // will be warned if it is recommended to fix nodes in the
+                // Delaunay triangulation of these nodes it is recommended to
+                // fix at least all concave corners. The algorithm also cannot
+                // deal robustly with very sharp corners or very small features,
+                // you will be warned if it is recommended to fix nodes in the
                 // vicinity of these alternatively small features might be
                 // smoothed away by the algorithm
                 corners.push_back(newPoint);
@@ -264,8 +264,8 @@ class SimpleDemoProblem : public Base::HpgemAPIBase<DIM> {
                         newPoint[0] = temp;
                         if (domain(newPoint) > 1e-10) {
                             // some basic trigonometry to keep a point of the
-                            // intersection of the rotor and the boundary instead
-                            // of outside the domain
+                            // intersection of the rotor and the boundary
+                            // instead of outside the domain
                             double offset =
                                 (1. - std::cos(t)) / 2. / std::sin(t);
                             if (newPoint[0] < 0. || newPoint[0] > 1.) {

@@ -38,8 +38,8 @@
 
 // naming convention: <Digit><ClassName>_UnitTest.cpp where <Digit> is a number
 // that will make sure the unit tests are ordered such that the first failing
-// unit test indicate the culprit class and other 'unit' tests may assume correct
-// execution of all prior unit tests
+// unit test indicate the culprit class and other 'unit' tests may assume
+// correct execution of all prior unit tests
 #include "Geometry/Mappings/MappingToPhysTriangularPrism.h"
 #include "Logger.h"
 
@@ -194,7 +194,8 @@ int main() {
                 refPoint3D[2] += 1e-8;
                 // either the reference point and the inverse transform of its
                 // transform are both outside the square (but on potentially
-                //different locations; due to nonlinearities) or they are inside
+                // different locations; due to nonlinearities) or they are
+                // inside
                 // and on the same location
                 logger.assert_always(
                     (!rGeom3D.isInternalPoint(refPoint3D) &&
