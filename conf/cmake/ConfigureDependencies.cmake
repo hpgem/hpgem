@@ -67,7 +67,7 @@ if (hpGEM_USE_PETSC OR hpGEM_USE_COMPLEX_PETSC)
 
     if(NOT PETSc_ARCH)
         message(WARNING "NO PETSc architecture found")
-
+    endif()
     # Check if this matches with what the user expects
     if (PETSc_IS_COMPLEX)
         if (hpGEM_USE_PETSC)
