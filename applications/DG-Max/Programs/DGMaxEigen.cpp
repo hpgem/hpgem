@@ -183,12 +183,12 @@ KSpacePath<DIM> parsePath() {
             path.steps_ = 1;
         }
         return KSpacePath<DIM>(path.points_, (std::size_t)path.steps_);
-    } else {
+    } 
         if (!steps.isUsed()) {
             logger(INFO, "Using default number of steps %", steps.getValue());
         }
         return KSpacePath<DIM>::cubePath(steps.getValue(), false);
-    }
+    
 }
 
 double parseDGMaxPenaltyParameter() {
@@ -291,9 +291,9 @@ typename DivDGMaxDiscretization<DIM>::Stab parsePenaltyParmaters() {
             result.fluxType3 = useBrezzi[2] ? FLUX::BREZZI : FLUX::IP;
             logger(INFO, "Using fluxes and stabilization: %", result);
             return result;
-        } else {
+        } 
             throw std::invalid_argument("Invalid stabilization parameter");
-        }
+        
     } else {
         // Default values
         typename DivDGMaxDiscretization<DIM>::Stab stab;

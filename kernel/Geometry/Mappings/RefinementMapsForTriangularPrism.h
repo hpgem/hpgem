@@ -354,9 +354,9 @@ class RefinementMapForTriangularPrism1 : public RefinementMapping {
             subElementIndex, getName(), getNumberOfSubElements());
         if (subElementIndex == 0) {
             return std::vector<std::size_t>{0, 6, 2, 3, 7, 5};
-        } else {
+        } 
             return std::vector<std::size_t>{6, 1, 2, 7, 4, 5};
-        }
+        
     }
 
     Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
@@ -501,9 +501,9 @@ class RefinementMapForTriangularPrism2 : public RefinementMapping {
             subElementIndex, getName(), getNumberOfSubElements());
         if (subElementIndex == 0) {
             return std::vector<std::size_t>{0, 1, 6, 3, 4, 7};
-        } else {
+        } 
             return std::vector<std::size_t>{6, 1, 2, 7, 4, 5};
-        }
+        
     }
 
     Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
@@ -611,9 +611,9 @@ class RefinementMapForTriangularPrism3 : public RefinementMapping {
             subElementIndex, getName(), getNumberOfSubElements());
         if (subElementIndex == 0) {
             return {0.5 * p[0], 0.5 * p[0] + p[1], p[2]};
-        } else {
+        } 
             return {p[0] + 0.5 * p[1], 0.5 * p[1], p[2]};
-        }
+        
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixL(
@@ -627,11 +627,11 @@ class RefinementMapForTriangularPrism3 : public RefinementMapping {
             // the bonus column might be {0, 0, 0, 1}
             return LinearAlgebra::SmallMatrix<3, 3>{
                 {{{0.5, 0.5, 0.}}, {{0., 1., 0.}}, {{0., 0., 1.}}}};
-        } else {
+        } 
             // the bonus column might be {0, 0, 0, 1}
             return LinearAlgebra::SmallMatrix<3, 3>{
                 {{{1., 0., 0.}}, {{0.5, 0.5, 0.}}, {{0., 0., 1.}}}};
-        }
+        
     }
 
     LinearAlgebra::SmallMatrix<3, 3> getRefinementMappingMatrixR(
@@ -645,11 +645,11 @@ class RefinementMapForTriangularPrism3 : public RefinementMapping {
             // the bonus column might be {0, 0, 0, 1}
             return LinearAlgebra::SmallMatrix<3, 3>{
                 {{{2., -1., 0.}}, {{0., 1., 0.}}, {{0., 0., 1.}}}};
-        } else {
+        } 
             // the bonus column might be {0, 0, 0, 1}
             return LinearAlgebra::SmallMatrix<3, 3>{
                 {{{1., 0., 0.}}, {{-1., 2., 0.}}, {{0., 0., 1.}}}};
-        }
+        
     }
 
     std::size_t getNumberOfNewNodes() const override final { return 2; }
@@ -664,9 +664,9 @@ class RefinementMapForTriangularPrism3 : public RefinementMapping {
             subElementIndex, getName(), getNumberOfSubElements());
         if (subElementIndex == 0) {
             return std::vector<std::size_t>{0, 6, 2, 3, 7, 5};
-        } else {
+        } 
             return std::vector<std::size_t>{0, 1, 6, 3, 4, 7};
-        }
+        
     }
 
     Geometry::ReferenceGeometry* getBigElementReferenceGeometry()

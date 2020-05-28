@@ -93,7 +93,7 @@ class FaceMatrix {
     std::size_t getNumberOfDegreesOfFreedom(Side iSide) const {
         if (iSide == Side::LEFT)
             return M_LeftLeft_.getNumberOfRows();
-        else
+        
             return M_RightRight_.getNumberOfRows();
     }
 

@@ -299,9 +299,9 @@ class RefinementMapForTriangle1 : public RefinementMapping {
             subElementIndex, getName(), getNumberOfSubElements());
         if (subElementIndex == 0) {
             return std::vector<std::size_t>{0, 3, 2};
-        } else {
+        } 
             return std::vector<std::size_t>{3, 1, 2};
-        }
+        
     }
 
     Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
@@ -433,9 +433,9 @@ class RefinementMapForTriangle2 : public RefinementMapping {
             subElementIndex, getName(), getNumberOfSubElements());
         if (subElementIndex == 0) {
             return std::vector<std::size_t>{0, 1, 3};
-        } else {
+        } 
             return std::vector<std::size_t>{3, 1, 2};
-        }
+        
     }
 
     Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
@@ -532,9 +532,9 @@ class RefinementMapForTriangle3 : public RefinementMapping {
             subElementIndex, getName(), getNumberOfSubElements());
         if (subElementIndex == 0) {
             return {0.5 * p[0], 0.5 * p[0] + p[1]};
-        } else {
+        } 
             return {p[0] + 0.5 * p[1], 0.5 * p[1]};
-        }
+        
     }
 
     LinearAlgebra::SmallMatrix<2, 2> getRefinementMappingMatrixL(
@@ -547,10 +547,10 @@ class RefinementMapForTriangle3 : public RefinementMapping {
         if (subElementIndex == 0) {
             // the bonus column might be {0, 0, 1}
             return LinearAlgebra::SmallMatrix<2, 2>{{{{0.5, 0.5}}, {{0., 1.}}}};
-        } else {
+        } 
             // the bonus column might be {0, 0, 1}
             return LinearAlgebra::SmallMatrix<2, 2>{{{{1., 0.}}, {{0.5, 0.5}}}};
-        }
+        
     }
 
     LinearAlgebra::SmallMatrix<2, 2> getRefinementMappingMatrixR(
@@ -563,10 +563,10 @@ class RefinementMapForTriangle3 : public RefinementMapping {
         if (subElementIndex == 0) {
             // the bonus column might be {0, 0, 1}
             return LinearAlgebra::SmallMatrix<2, 2>{{{{2., -1.}}, {{0., 1.}}}};
-        } else {
+        } 
             // the bonus column might be {0, 0, 1}
             return LinearAlgebra::SmallMatrix<2, 2>{{{{1., 0.}}, {{-1., 2.}}}};
-        }
+        
     }
 
     std::size_t getNumberOfNewNodes() const override final { return 1; }
@@ -581,9 +581,9 @@ class RefinementMapForTriangle3 : public RefinementMapping {
             subElementIndex, getName(), getNumberOfSubElements());
         if (subElementIndex == 0) {
             return std::vector<std::size_t>{0, 1, 3};
-        } else {
+        } 
             return std::vector<std::size_t>{0, 3, 2};
-        }
+        
     }
 
     Geometry::ReferenceGeometry* getBigElementReferenceGeometry()

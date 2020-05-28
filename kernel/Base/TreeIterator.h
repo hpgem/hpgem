@@ -261,12 +261,12 @@ class TreeIterator {
         if (ptr_ != end_ && traversalMethod_ == i.traversalMethod_ &&
             i.ptr_ != i.end_) {
             return *ptr_ == *i.ptr_;
-        } else {
+        } 
             // a == b implies ++a == ++b, and --a == --b implies a == b, but the
             // reverses are not required and having one end() for all
             // treeTraversalMethods is easier
             return ptr_ == end_ && i.ptr_ == i.end_;
-        }
+        
     }
 
     //! Are they different iterators?
@@ -501,7 +501,7 @@ class TreeIterator {
     bool hasPreviousOnLevel() {
         if (ptr_ == end_ || !(*ptr_)->isFirstSibling()) {
             return true;
-        } else {
+        } 
             std::size_t level = (*ptr_)->getLevel() + depthCounter_;
             TreeIterator duplicate = *this;
             while (!(*duplicate.ptr_)->isRoot() &&
@@ -510,7 +510,7 @@ class TreeIterator {
             }
             return !(*duplicate.ptr_)->isFirstSibling() &&
                    (--duplicate).moveDownToLevelEnd(level);
-        }
+        
     }
 
     //! move to next node in the pre-order traversal
@@ -589,14 +589,14 @@ class TreeIterator {
         if (ptr_ == end_ || (*ptr_)->hasChild() || !(*ptr_)->isFirstSibling() ||
             canIncreaseCounter()) {
             return true;
-        } else {
+        } 
             TreeIterator duplicate = *this;
             while (!(*duplicate.ptr_)->isRoot() &&
                    (*duplicate.ptr_)->isFirstSibling()) {
                 duplicate.moveToParent();
             }
             return !(*duplicate.ptr_)->isFirstSibling();
-        }
+        
     }
 
     void moveToNextMultiLevel() {

@@ -61,7 +61,7 @@ double OutwardNormalVectorSign(
         typeid(*map) == typeid(const MappingToRefSquareToCube2) ||
         typeid(*map) == typeid(const MappingToRefSquareToCube4)) {
         return -1;
-    } else if (typeid(*map) == typeid(const MappingToRefPointToLine1) ||
+    } if (typeid(*map) == typeid(const MappingToRefPointToLine1) ||
                typeid(*map) == typeid(const MappingToRefLineToTriangle1) ||
                typeid(*map) == typeid(const MappingToRefLineToSquare1) ||
                typeid(*map) == typeid(const MappingToRefLineToSquare3) ||

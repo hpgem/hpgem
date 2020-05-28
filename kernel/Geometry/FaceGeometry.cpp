@@ -161,11 +161,11 @@ bool FaceGeometry::isInternal() const {
         logger.assert_debug(rightElementGeom_ != nullptr,
                             "There is no right element, so no internal face.");
         return true;
-    } else {
+    } 
         logger.assert_debug(rightElementGeom_ == nullptr,
                             "There is a right element, so no boundary face.");
         return false;
-    }
+    
 }
 
 template <std::size_t DIM>

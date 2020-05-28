@@ -87,7 +87,7 @@ bool MappingToPhysHypercubeLinear<1>::isValidPoint(
     const PointReference<1>& pointReference) const {
     if ((pointReference[0] < -1.) || (pointReference[0] > 1.))
         return false;
-    else
+    
         return true;
 }
 
@@ -206,7 +206,7 @@ bool MappingToPhysHypercubeLinear<2>::isValidPoint(
     if ((pointReference[0] < -1.) || (pointReference[0] > 1.) ||
         (pointReference[1] < -1.) || (pointReference[1] > 1.))
         return false;
-    else
+    
         return true;
 }
 
@@ -228,11 +228,11 @@ PointPhysical<3> MappingToPhysHypercubeLinear<3>::transform(
     if (isValidPoint(pR)) {
         return a0 + pR[0] * (a1 + pR[1] * (a12 + pR[2] * a123) + pR[2] * a13) +
                pR[1] * (a2 + pR[2] * a23) + pR[2] * a3;
-    } else {
+    } 
         // ERROR
         return a0 + pR[0] * (a1 + pR[1] * (a12 + pR[2] * a123) + pR[2] * a13) +
                pR[1] * (a2 + pR[2] * a23) + pR[2] * a3;
-    }
+    
 }
 
 PointReference<3> MappingToPhysHypercubeLinear<3>::inverseTransform(
@@ -316,7 +316,7 @@ bool MappingToPhysHypercubeLinear<3>::isValidPoint(
         (pointReference[1] < -1.) || (pointReference[1] > 1.) ||
         (pointReference[2] < -1.) || (pointReference[2] > 1.))
         return false;
-    else
+    
         return true;
 }
 
@@ -423,7 +423,7 @@ bool MappingToPhysHypercubeLinear<4>::isValidPoint(
         (pointReference[2] < -1.) || (pointReference[2] > 1.) ||
         (pointReference[3] < -1.) || (pointReference[3] > 1.))
         return false;
-    else
+    
         return true;
 }
 }  // namespace Geometry

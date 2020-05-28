@@ -90,7 +90,7 @@ std::size_t ReferenceLine::getCodim0MappingIndex(
     if (list1.size() == 2 && list2.size() == 2) {
         if (list1[0] == list2[0])
             return 0;
-        else
+        
             return 1;
     } else {
         logger(ERROR,

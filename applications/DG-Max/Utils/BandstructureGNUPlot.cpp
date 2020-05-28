@@ -215,7 +215,7 @@ typename std::map<double, T>::iterator findNearest(std::map<double, T>& map,
         // No entry greater than value, so the last element is the nearest
         iter--;
         return iter;
-    } else if (iter == map.begin()) {
+    } if (iter == map.begin()) {
         // value is smaller than the smallest entry in the map
         return iter;
     } else {
@@ -224,9 +224,9 @@ typename std::map<double, T>::iterator findNearest(std::map<double, T>& map,
         prev--;
         if (std::abs(iter->first - value) < std::abs(prev->first - value)) {
             return iter;
-        } else {
+        } 
             return prev;
-        }
+        
     }
 }
 
@@ -236,7 +236,7 @@ double separation(const std::map<double, T>& map,
                   const typename std::map<double, T>::iterator iter) {
     if (map.size() <= 1) {
         return std::numeric_limits<double>::infinity();
-    } else {
+    } 
         double sep = std::numeric_limits<double>::infinity();
         if (iter != map.begin()) {
             auto prev = iter;
@@ -249,7 +249,7 @@ double separation(const std::map<double, T>& map,
             sep = std::min(sep, std::abs(next->first - iter->first));
         }
         return sep;
-    }
+    
 }
 
 template <std::size_t DIM>

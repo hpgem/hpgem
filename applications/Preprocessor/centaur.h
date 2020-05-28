@@ -58,7 +58,7 @@ class CentaurReader {
     std::size_t getDimension() {
         if (centaurFileType > 0)
             return 3;
-        else
+        
             return 2;
     }
 

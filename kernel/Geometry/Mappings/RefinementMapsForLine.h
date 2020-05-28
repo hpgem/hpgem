@@ -231,9 +231,9 @@ class RefinementMapForLine1 : public RefinementMapping {
             subElementIndex, getName(), getNumberOfSubElements());
         if (subElementIndex == 0) {
             return std::vector<std::size_t>{0, 2};
-        } else {
+        } 
             return std::vector<std::size_t>{2, 1};
-        }
+        
     }
 
     Geometry::ReferenceGeometry* getBigElementReferenceGeometry()

@@ -178,9 +178,9 @@ bool MappingToPhysPyramid::isValidPoint(
         (std::abs(pointReference[1]) <= 1. - z + eps) && (z >= 0. - eps) &&
         (z <= 1. + eps)) {
         return true;
-    } else {
+    } 
         return false;
-    }
+    
 }
 
 }  // namespace Geometry

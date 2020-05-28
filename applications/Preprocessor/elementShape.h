@@ -326,7 +326,7 @@ class ElementShape<0> {
     std::size_t getNumberOfEntities() const {
         if (entityDimension == 0)
             return 1;
-        else
+        
             return 0;
     }
 
@@ -359,7 +359,7 @@ class ElementShape<0> {
             entityIndex);
         if (targetDimension == 0)
             return {0};
-        else
+        
             return {};
     };
 

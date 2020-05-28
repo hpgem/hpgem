@@ -118,22 +118,22 @@ std::size_t ReferenceCube::getCodim0MappingIndex(
         if ((list1[0] == list2[0]) && (list1[4] == list2[4])) {
             if ((list1[1] == list2[1]))
                 return 0;
-            else
+            
                 return 7;
         } else if ((list1[0] == list2[1]) && (list1[4] == list2[5])) {
             if (list1[1] == list2[0])
                 return 5;
-            else
+            
                 return 3;
         } else if ((list1[0] == list2[2]) && (list1[4] == list2[6])) {
             if (list1[2] == list2[0])
                 return 4;
-            else
+            
                 return 1;
         } else if ((list1[0] == list2[3]) && (list1[4] == list2[7])) {
             if ((list1[1] == list2[1]))
                 return 6;
-            else
+            
                 return 2;
         }
     } else {

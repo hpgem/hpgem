@@ -200,7 +200,7 @@ class MaxwellTest : public Base::HpgemAPILinearSteadyState<3> {
         Base::PhysicalFace<3> &face) override final {
         if (face.getFace()->isInternal()) {
             return face.getResultVector();
-        } else {
+        } 
             LinearAlgebra::MiddleSizeVector &result = face.getResultVector();
             PointPhysicalT pPhys = face.getPointPhysical();
             LinearAlgebra::SmallVector<3> value = boundaryConditions(pPhys)[0];
@@ -215,7 +215,7 @@ class MaxwellTest : public Base::HpgemAPILinearSteadyState<3> {
                             penalty * phi * normalValue;
             }
             return result;
-        }
+        
     }
 
     LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtElement(

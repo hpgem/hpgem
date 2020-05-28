@@ -86,9 +86,9 @@ std::pair<const BasisFunctionSet*, std::size_t>
             std::size_t size = sets_->at(setIndex)->size();
             if (index < size) {
                 return std::make_pair(sets_->at(setIndex).get(), index);
-            } else {
+            } 
                 index -= size;
-            }
+            
         }
     }
     logger.assert_always(false,

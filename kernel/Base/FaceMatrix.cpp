@@ -82,15 +82,15 @@ LinearAlgebra::MiddleSizeMatrix::type &FaceMatrix::operator()(
     if (iSide == Side::LEFT) {
         if (jSide == Side::LEFT) {
             return M_LeftLeft_(iVarBasisFunction, jVarBasisFunction);
-        } else {
+        } 
             return M_LeftRight_(iVarBasisFunction, jVarBasisFunction);
-        }
+        
     } else {
         if (jSide == Side::LEFT) {
             return M_RightLeft_(iVarBasisFunction, jVarBasisFunction);
-        } else {
+        } 
             return M_RightRight_(iVarBasisFunction, jVarBasisFunction);
-        }
+        
     }
 }
 
@@ -122,15 +122,15 @@ LinearAlgebra::MiddleSizeMatrix::type &FaceMatrix::operator()(std::size_t i,
     if (i < nDOFLeft) {
         if (j < nDOFLeft) {
             return M_LeftLeft_(i, j);
-        } else {
+        } 
             return M_LeftRight_(i, j - nDOFLeft);
-        }
+        
     } else {
         if (j < nDOFLeft) {
             return M_RightLeft_(i - nDOFLeft, j);
-        } else {
+        } 
             return M_RightRight_(i - nDOFLeft, j - nDOFLeft);
-        }
+        
     }
 }
 
@@ -181,15 +181,15 @@ const LinearAlgebra::MiddleSizeMatrix &FaceMatrix::getElementMatrix(
     if (iSide == Side::LEFT) {
         if (jSide == Side::LEFT) {
             return M_LeftLeft_;
-        } else {
+        } 
             return M_LeftRight_;
-        }
+        
     } else {
         if (jSide == Side::LEFT) {
             return M_RightLeft_;
-        } else {
+        } 
             return M_RightRight_;
-        }
+        
     }
 }
 

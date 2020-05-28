@@ -455,10 +455,10 @@ int BraggStackBandstructure::LineSet::lineType(std::size_t line) const {
     if (mode.second < mode.first->teModes_) {
         // TE Mode
         return 1;
-    } else {
+    } 
         // TM Mode
         return 2;
-    }
+    
 }
 
 std::string BraggStackBandstructure::LineSet::lineTitle(

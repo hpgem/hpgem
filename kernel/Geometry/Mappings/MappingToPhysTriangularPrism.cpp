@@ -193,7 +193,7 @@ bool MappingToPhysTriangularPrism::isValidPoint(
         (pointReference[0] + pointReference[1] - 1. <= 1.e-16) &&
         (pointReference[2] >= -1.) && (pointReference[2] <= 1.))
         return true;
-    else
+    
         return false;
 }
 }  // namespace Geometry

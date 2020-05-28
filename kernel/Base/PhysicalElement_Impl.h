@@ -59,7 +59,7 @@ inline double PhysicalElement<DIM>::basisFunction(std::size_t i) {
                         "Need a location to evaluate the data");
     if (hasFunctionValue[0]) {
         return basisFunctionValue[0][i];
-    } else {
+    } 
         hasFunctionValue[0] = true;
         for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions();
              ++j) {
@@ -82,7 +82,7 @@ inline double PhysicalElement<DIM>::basisFunction(std::size_t i) {
             }
         }
         return basisFunctionValue[0][i];
-    }
+    
 }
 
 template <std::size_t DIM>
@@ -94,7 +94,7 @@ inline double PhysicalElement<DIM>::basisFunction(std::size_t i,
                         "Unknown % does not exist", unknown);
     if (hasFunctionValue[unknown]) {
         return basisFunctionValue[unknown][i];
-    } else {
+    } 
         hasFunctionValue[unknown] = true;
         for (std::size_t j = 0;
              j < theElement_->getNumberOfBasisFunctions(unknown); ++j) {
@@ -121,7 +121,7 @@ inline double PhysicalElement<DIM>::basisFunction(std::size_t i,
             }
         }
         return basisFunctionValue[unknown][i];
-    }
+    
 }
 
 template <std::size_t DIM>
@@ -131,7 +131,7 @@ inline const LinearAlgebra::SmallVector<DIM>&
                         "Need a location to evaluate the data");
     if (hasFunctionDeriv[0]) {
         return basisFunctionDeriv_[0][i];
-    } else {
+    } 
         hasFunctionDeriv[0] = true;
         for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions();
              ++j) {
@@ -154,7 +154,7 @@ inline const LinearAlgebra::SmallVector<DIM>&
             }
         }
         return basisFunctionDeriv_[0][i];
-    }
+    
 }
 
 template <std::size_t DIM>
@@ -167,7 +167,7 @@ inline const LinearAlgebra::SmallVector<DIM>&
                         "Unknown % does not exist", unknown);
     if (hasFunctionDeriv[unknown]) {
         return basisFunctionDeriv_[unknown][i];
-    } else {
+    } 
         hasFunctionDeriv[unknown] = true;
         for (std::size_t j = 0;
              j < theElement_->getNumberOfBasisFunctions(unknown); ++j) {
@@ -196,7 +196,7 @@ inline const LinearAlgebra::SmallVector<DIM>&
             }
         }
         return basisFunctionDeriv_[unknown][i];
-    }
+    
 }
 
 template <std::size_t DIM>
@@ -286,7 +286,7 @@ inline const LinearAlgebra::SmallVector<DIM>&
                         "Need a location to evaluate the data");
     if (hasFunctionCurl[0]) {
         return basisFunctionCurl_[0][i];
-    } else {
+    } 
         hasFunctionCurl[0] = true;
         for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions();
              ++j) {
@@ -309,7 +309,7 @@ inline const LinearAlgebra::SmallVector<DIM>&
             }
         }
         return basisFunctionCurl_[0][i];
-    }
+    
 }
 
 template <std::size_t DIM>
@@ -322,7 +322,7 @@ inline const LinearAlgebra::SmallVector<DIM>&
                         "Unknown % does not exist", unknown);
     if (hasFunctionCurl[unknown]) {
         return basisFunctionCurl_[unknown][i];
-    } else {
+    } 
         hasFunctionCurl[unknown] = true;
         for (std::size_t j = 0;
              j < theElement_->getNumberOfBasisFunctions(unknown); ++j) {
@@ -351,7 +351,7 @@ inline const LinearAlgebra::SmallVector<DIM>&
             }
         }
         return basisFunctionCurl_[unknown][i];
-    }
+    
 }
 
 template <std::size_t DIM>
@@ -360,7 +360,7 @@ inline const double& PhysicalElement<DIM>::basisFunctionDiv(std::size_t i) {
                         "Need a location to evaluate the data");
     if (hasFunctionDiv[0]) {
         return basisFunctionDiv_[0][i];
-    } else {
+    } 
         hasFunctionDiv[0] = true;
         for (std::size_t j = 0; j < theElement_->getNumberOfBasisFunctions();
              ++j) {
@@ -383,7 +383,7 @@ inline const double& PhysicalElement<DIM>::basisFunctionDiv(std::size_t i) {
             }
         }
         return basisFunctionDiv_[0][i];
-    }
+    
 }
 
 template <std::size_t DIM>
@@ -393,7 +393,7 @@ inline const double& PhysicalElement<DIM>::basisFunctionDiv(
                         "Need a location to evaluate the data");
     if (hasFunctionDiv[unknown]) {
         return basisFunctionDiv_[unknown][i];
-    } else {
+    } 
         hasFunctionDiv[unknown] = true;
         for (std::size_t j = 0;
              j < theElement_->getNumberOfBasisFunctions(unknown); ++j) {
@@ -422,7 +422,7 @@ inline const double& PhysicalElement<DIM>::basisFunctionDiv(
             }
         }
         return basisFunctionDiv_[unknown][i];
-    }
+    
 }
 
 template <std::size_t DIM>
@@ -432,11 +432,11 @@ inline const LinearAlgebra::MiddleSizeVector&
                         "Need a location to evaluate the data");
     if (hasSolution) {
         return solution;
-    } else {
+    } 
         hasSolution = true;
         solution = theElement_->getSolution(0, *this);
         return solution;
-    }
+    
 }
 
 template <std::size_t DIM>
@@ -446,11 +446,11 @@ inline const std::vector<LinearAlgebra::SmallVector<DIM> >&
                         "Need a location to evaluate the data");
     if (hasSolutionDeriv) {
         return solutionDeriv;
-    } else {
+    } 
         hasSolutionDeriv = true;
         solutionDeriv = theElement_->getSolutionGradient(0, *this);
         return solutionDeriv;
-    }
+    
 }
 
 template <std::size_t DIM>
@@ -491,11 +491,11 @@ inline const Geometry::PointPhysical<DIM>&
                         "Need a location to evaluate the data");
     if (hasPointPhysical) {
         return pointPhysical;
-    } else {
+    } 
         hasPointPhysical = true;
         pointPhysical = theElement_->referenceToPhysical(pointReference_);
         return pointPhysical;
-    }
+    
 }
 
 template <std::size_t DIM>
@@ -504,11 +504,11 @@ inline const Geometry::Jacobian<DIM, DIM>& PhysicalElement<DIM>::getJacobian() {
                         "Need a location to evaluate the data");
     if (hasJacobian) {
         return jacobian;
-    } else {
+    } 
         hasJacobian = true;
         jacobian = theElement_->calcJacobian(pointReference_);
         return jacobian;
-    }
+    
 }
 
 template <std::size_t DIM>
@@ -518,11 +518,11 @@ inline const Geometry::Jacobian<DIM, DIM>&
                         "Need a location to evaluate the data");
     if (hasInverseTransposeJacobian) {
         return inverseTransposeJacobian;
-    } else {
+    } 
         hasInverseTransposeJacobian = true;
         inverseTransposeJacobian = getTransposeJacobian().inverse();
         return inverseTransposeJacobian;
-    }
+    
 }
 
 template <std::size_t DIM>
@@ -532,11 +532,11 @@ inline const Geometry::Jacobian<DIM, DIM>&
                         "Need a location to evaluate the data");
     if (hasTransposeJacobian) {
         return transposeJacobian;
-    } else {
+    } 
         hasTransposeJacobian = true;
         transposeJacobian = getJacobian().transpose();
         return transposeJacobian;
-    }
+    
 }
 
 template <std::size_t DIM>
@@ -545,11 +545,11 @@ inline double PhysicalElement<DIM>::getJacobianAbsDet() {
                         "Need a location to evaluate the data");
     if (hasJacobianAbsDet) {
         return jacobianAbsDet;
-    } else {
+    } 
         hasJacobianAbsDet = true;
         jacobianAbsDet = std::abs(getJacobianDet());
         return jacobianAbsDet;
-    }
+    
 }
 
 template <std::size_t DIM>
@@ -558,11 +558,11 @@ inline double PhysicalElement<DIM>::getJacobianDet() {
                         "Need a location to evaluate the data");
     if (hasJacobianDet) {
         return jacobianDet;
-    } else {
+    } 
         hasJacobianDet = true;
         jacobianDet = getJacobian().determinant();
         return jacobianDet;
-    }
+    
 }
 
 template <std::size_t DIM>

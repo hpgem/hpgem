@@ -225,13 +225,13 @@ class Advection : public Base::HpgemAPISimplified<DIM>,
             PointPhysicalT displacement{a * time};
             exactSolution(0) = getSolutionAtTimeZero(point - displacement);
             return exactSolution;
-        } else {
+        } 
             logger(ERROR,
                    "No exact solution for order time derivative % implemented",
                    orderTimeDerivative);
             exactSolution(0) = 0;
             return exactSolution;
-        }
+        
     }
 
     /// Define the initial conditions. In this case it is just the exact

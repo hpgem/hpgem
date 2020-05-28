@@ -219,9 +219,9 @@ std::size_t Face::getNumberOfBasisFunctions() const {
     if (isInternal()) {
         return getPtrElementLeft()->getNumberOfBasisFunctions() +
                getPtrElementRight()->getNumberOfBasisFunctions();
-    } else {
+    } 
         return getPtrElementLeft()->getNumberOfBasisFunctions();
-    }
+    
 }
 
 std::size_t Face::getNumberOfBasisFunctions(std::size_t unknown) const {
@@ -229,9 +229,9 @@ std::size_t Face::getNumberOfBasisFunctions(std::size_t unknown) const {
     if (isInternal()) {
         return getPtrElementLeft()->getNumberOfBasisFunctions(unknown) +
                getPtrElementRight()->getNumberOfBasisFunctions(unknown);
-    } else {
+    } 
         return getPtrElementLeft()->getNumberOfBasisFunctions(unknown);
-    }
+    
 }
 
 /// Get the time integration vectors from both elements and concatenate them.
@@ -279,7 +279,7 @@ std::size_t Face::convertToSingleIndex(Side side,
             scalarBasisFunctionId,
             getPtrElementLeft()->getNumberOfBasisFunctions(varId));
         return (number + scalarBasisFunctionId);
-    } else {
+    } 
         logger.assert_debug(isInternal(),
                             "boundary faces only have a \"left\" element");
         std::size_t number = 0;
@@ -295,7 +295,7 @@ std::size_t Face::convertToSingleIndex(Side side,
         std::size_t nDOFLeft =
             getPtrElementLeft()->getTotalLocalNumberOfBasisFunctions();
         return nDOFLeft + number + scalarBasisFunctionId;
-    }
+    
 }
 
 Side Face::getSide(std::size_t faceBasisFunctionId) const {
@@ -303,7 +303,7 @@ Side Face::getSide(std::size_t faceBasisFunctionId) const {
         getPtrElementLeft()->getTotalNumberOfBasisFunctions();
     if (faceBasisFunctionId < nDOFLeft) {
         return Side::LEFT;
-    } else {
+    } 
         logger.assert_debug(
             faceBasisFunctionId <
                 nDOFLeft + (isInternal()
@@ -319,7 +319,7 @@ Side Face::getSide(std::size_t faceBasisFunctionId) const {
                      ? getPtrElementRight()->getTotalNumberOfBasisFunctions()
                      : 0));
         return Side::RIGHT;
-    }
+    
 }
 
 std::size_t Face::getElementBasisFunctionId(
@@ -328,7 +328,7 @@ std::size_t Face::getElementBasisFunctionId(
         getPtrElementLeft()->getTotalNumberOfBasisFunctions();
     if (faceBasisFunctionId < nDOFLeft) {
         return faceBasisFunctionId;
-    } else {
+    } 
         logger.assert_debug(
             faceBasisFunctionId <
                 nDOFLeft + (isInternal()
@@ -344,7 +344,7 @@ std::size_t Face::getElementBasisFunctionId(
                      ? getPtrElementRight()->getTotalNumberOfBasisFunctions()
                      : 0));
         return faceBasisFunctionId - nDOFLeft;
-    }
+    
 }
 
 void Face::addElement(Element* ptrElementR, std::size_t localFaceNumberR) {

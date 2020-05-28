@@ -262,9 +262,9 @@ class RefinementMapForSquare1 : public RefinementMapping {
             subElementIndex, getName(), getNumberOfSubElements());
         if (subElementIndex == 0) {
             return std::vector<std::size_t>{0, 4, 2, 5};
-        } else {
+        } 
             return std::vector<std::size_t>{4, 1, 5, 3};
-        }
+        
     }
 
     Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
@@ -400,9 +400,9 @@ class RefinementMapForSquare2 : public RefinementMapping {
             subElementIndex, getName(), getNumberOfSubElements());
         if (subElementIndex == 0) {
             return std::vector<std::size_t>{0, 1, 4, 5};
-        } else {
+        } 
             return std::vector<std::size_t>{4, 5, 2, 3};
-        }
+        
     }
 
     Geometry::ReferenceGeometry* getBigElementReferenceGeometry()

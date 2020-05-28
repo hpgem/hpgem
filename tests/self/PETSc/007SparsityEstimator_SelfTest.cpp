@@ -108,7 +108,7 @@ template <typename GEOM, typename T>
 T& selectByOwner(const GEOM* geom, T& owned, T& nonOwned) {
     if (geom->isOwnedByCurrentProcessor())
         return owned;
-    else
+    
         return nonOwned;
 }
 
@@ -169,7 +169,7 @@ struct GeomStorage {
             for (const Base::Node* node : nodes)
                 basisFunctions += node->getTotalLocalNumberOfBasisFunctions();
             return basisFunctions;
-        } else {
+        } 
             std::size_t basisFunctions = 0;
             for (std::size_t unknown : *unknowns) {
                 for (const Base::Element* element : elements)
@@ -186,7 +186,7 @@ struct GeomStorage {
                         node->getLocalNumberOfBasisFunctions(unknown);
             }
             return basisFunctions;
-        }
+        
     }
 };
 
