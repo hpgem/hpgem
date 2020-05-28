@@ -46,8 +46,7 @@ void ElementBasisFunctions::validatePositions() const {
     if (sets_ != nullptr) {
         std::size_t numberOfSets = sets_->size();
         for (std::size_t i = 0; i < unknowns; ++i) {
-            for (std::size_t j = 0; j < setPositions_[i].size(); ++j) {
-                int position = setPositions_[i][j];
+            for (int position : setPositions_[i]) {
                 if (position != -1)  // -1 is used to signal the empty set
                 {
                     logger.assert_debug(position >= 0, "Invalid position");

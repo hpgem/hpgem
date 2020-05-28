@@ -488,8 +488,7 @@ std::pair<const BraggStackBandstructure::LineSet::MultiMode*, std::size_t>
     BraggStackBandstructure::LineSet::findMode(std::size_t line) const {
     logger.assert_debug(line >= 0 && line <= numberOfLines(),
                         "Invalid line number");
-    for (std::size_t i = 0; i < multiModes_.size(); ++i) {
-        const MultiMode& multiMode = multiModes_[i];
+    for (const auto & multiMode : multiModes_) {
         if (line < multiMode.teModes_ + multiMode.tmModes_) {
             return std::make_pair(&multiMode, line);
         }

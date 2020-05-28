@@ -194,10 +194,10 @@ void testMesh(Base::MeshManipulator<DIM>* test, bool isPeriodic) {
         firstNodes = edge->getElement(0)
                          ->getReferenceGeometry()
                          ->getCodim2EntityLocalIndices(edge->getEdgeNumber(0));
-        for (std::size_t i = 0; i < firstNodes.size(); ++i) {
-            firstNodes[i] =
+        for (unsigned long & firstNode : firstNodes) {
+            firstNode =
                 edge->getElement(0)->getPhysicalGeometry()->getNodeIndex(
-                    firstNodes[i]);
+                    firstNode);
         }
         for (std::size_t i = 1; i < edge->getNumberOfElements(); ++i) {
             logger.assert_always(
@@ -207,15 +207,15 @@ void testMesh(Base::MeshManipulator<DIM>* test, bool isPeriodic) {
                 edge->getElement(i)
                     ->getReferenceGeometry()
                     ->getCodim2EntityLocalIndices(edge->getEdgeNumber(i));
-            for (std::size_t j = 0; j < otherNodes.size(); ++j) {
-                otherNodes[j] =
+            for (unsigned long & otherNode : otherNodes) {
+                otherNode =
                     edge->getElement(i)->getPhysicalGeometry()->getNodeIndex(
-                        otherNodes[j]);
+                        otherNode);
             }
-            for (std::size_t k = 0; k < firstNodes.size(); ++k) {
+            for (unsigned long firstNode : firstNodes) {
                 bool found = false;
-                for (std::size_t j = 0; j < otherNodes.size(); ++j) {
-                    found |= firstNodes[k] == otherNodes[j];
+                for (unsigned long otherNode : otherNodes) {
+                    found |= firstNode == otherNode;
                 }
                 logger.assert_always(found || isPeriodic, "edge positioning");
             }

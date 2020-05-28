@@ -71,8 +71,7 @@ int main() {
     Utilities::assembleMonomialBasisFunctions1D(all1DbasisFunctions, 5);
     Geometry::PointReference<1> point1D;
     LinearAlgebra::SmallVector<1> ret;
-    for (std::size_t i = 0; i < all1DbasisFunctions.size(); ++i) {
-        const Base::BaseBasisFunction* test = all1DbasisFunctions[i];
+    for (auto test : all1DbasisFunctions) {
         for (point1D[0] = -1.5; point1D[0] < 1.51; point1D[0] += 0.1) {
             point1D[0] += -1.e-8;
             double x0 = test->eval((point1D));
@@ -98,8 +97,7 @@ int main() {
     Utilities::assembleMonomialBasisFunctions2D(all2DbasisFunctions, 5);
     Geometry::PointReference<2> point2D;
     LinearAlgebra::SmallVector<2> ret2;
-    for (std::size_t i = 0; i < all2DbasisFunctions.size(); ++i) {
-        const Base::BaseBasisFunction* test = all2DbasisFunctions[i];
+    for (auto test : all2DbasisFunctions) {
         for (point2D[0] = -1.5; point2D[0] < 1.51; point2D[0] += 0.3) {
             for (point2D[1] = -1.5; point2D[1] < 1.51; point2D[1] += 0.3) {
                 point2D[0] += -1.e-8;
@@ -139,8 +137,7 @@ int main() {
     Utilities::assembleMonomialBasisFunctions3D(all3DbasisFunctions, 5);
     Geometry::PointReference<3> point3D;
     LinearAlgebra::SmallVector<3> ret3;
-    for (std::size_t i = 0; i < all3DbasisFunctions.size(); ++i) {
-        const Base::BaseBasisFunction* test = all3DbasisFunctions[i];
+    for (auto test : all3DbasisFunctions) {
         for (point3D[0] = -1.5; point3D[0] < 1.51; point3D[0] += 0.6) {
             for (point3D[1] = -1.5; point3D[1] < 1.51; point3D[1] += 0.7) {
                 for (point3D[2] = -1.5; point3D[2] < 1.51; point3D[2] += 0.8) {

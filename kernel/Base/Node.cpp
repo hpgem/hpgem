@@ -105,9 +105,9 @@ const std::vector<Base::Face *> Base::Node::getFaces() const {
         for (std::size_t j = 0; j < nFacesAtElement; j++) {
             bool faceIsInVector = false;
             bool faceIsAtNode = false;
-            for (std::size_t k = 0; k < ptrFacesAtNode.size(); k++) {
+            for (auto & k : ptrFacesAtNode) {
                 if (ptrFacesAtElement[j]->getID() ==
-                    ptrFacesAtNode[k]->getID()) {
+                    k->getID()) {
                     faceIsInVector = true;
                     break;
                 }
