@@ -66,7 +66,7 @@ if (hpGEM_USE_PETSC OR hpGEM_USE_COMPLEX_PETSC)
     set(hpGEM_USE_ANY_PETSC ON)
 
     if(NOT PETSc_ARCH)
-        message(WARNING "NO PETSc architecture found")
+        message(WARNING "NO PETSc architecture found. This can happen, if you manually install them using a prefix and on some distributions")
     endif()
     # Check if this matches with what the user expects
     if (PETSc_IS_COMPLEX)
@@ -94,10 +94,10 @@ if(hpGEM_USE_SLEPC)
 
     FIND_PACKAGE(SLEPc REQUIRED)
     if(NOT SLEPc_ARCH)
-        message(WARNING "NO SLEPc architecture found")
+        message(WARNING "NO SLEPc architecture found. This can happen, if you manually install them using a prefix and on some distributions")
     endif()
     if(NOT(SLEPc_ARCH STREQUAL PETSc_ARCH))
-        message(WARNING "SLEPc and PETSc architecture differ. ${SLEPc_ARCH} vs ${PETSc_ARCH}")
+        message(WARNING "SLEPc and PETSc architecture differ. '${SLEPc_ARCH}' vs '${PETSc_ARCH}'. This can happen if you manually install them.")
     endif()
 
     add_definitions(-DHPGEM_USE_SLEPC)
