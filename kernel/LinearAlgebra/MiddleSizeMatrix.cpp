@@ -101,11 +101,7 @@ namespace LinearAlgebra
     /// matrix called A with entries equal to 2.
     MiddleSizeMatrix::MiddleSizeMatrix(const std::size_t n, const std::size_t m, const type& c)
             :
-#ifdef LA_STL_VECTOR
                     data_(n * m, c),
-#else
-                    data_(c, n*m),
-#endif
                     numberOfRows_(n), numberOfColumns_(m)
     {
         logger.assert_debug(n <= std::numeric_limits<int>::max() && m <= std::numeric_limits<int>::max(),
@@ -203,12 +199,8 @@ namespace LinearAlgebra
     /// \return Matrix
     MiddleSizeMatrix& MiddleSizeMatrix::operator*=(const type &scalar)
     {
-#ifdef LA_STL_VECTOR
         for (type& d : data_)
             d *= scalar;
-#else
-        data_ *= scalar;
-#endif
         return *this;
     }
 
@@ -216,12 +208,8 @@ namespace LinearAlgebra
     /// \return Matrix
     MiddleSizeMatrix& MiddleSizeMatrix::operator/=(const type& scalar)
     {
-#ifdef LA_STL_VECTOR
         for (type& d : data_)
             d /= scalar;
-#else
-        data_/=scalar;
-#endif
         return *this;
     }
 
@@ -408,11 +396,7 @@ namespace LinearAlgebra
             numberOfColumns_ = 1;
             data_.resize(1);
         }
-#ifdef LA_STL_VECTOR
         data_[0] = c;
-#else
-        data_=c;
-#endif
         return *this;
     }
     
@@ -517,11 +501,7 @@ namespace LinearAlgebra
         logger.assert_debug(numberOfRows_ + other.numberOfRows_ <= std::numeric_limits<int>::max(),
                             "Dense linear algebra is not supported on this system for matrices that are this large");
         
-#ifdef LA_STL_VECTOR
         std::vector<type> data_new(numberOfColumns_ * (numberOfRows_ + other.numberOfRows_));
-#else
-        std::valarray<type> data_new(numberOfColumns_ * (numberOfRows_ + other.numberOfRows_));
-#endif
         
         for (std::size_t col = 0; col < numberOfColumns_; ++col)
         {
