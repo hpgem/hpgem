@@ -45,12 +45,12 @@
 namespace Utilities {
 class PiecewiseConstant1 : public Base::BaseBasisFunction {
    public:
-    double eval(const Geometry::PointReference<1>& p) const override final {
+    double eval(const Geometry::PointReference<1>& p) const final {
         return 1.0;
     }
 
     double evalDeriv0(
-        const Geometry::PointReference<1>& p) const override final {
+        const Geometry::PointReference<1>& p) const final {
         return 0.0;
     }
 };
@@ -61,17 +61,17 @@ void addPiecewiseConstantBasisFunction1D(Base::BasisFunctionSet& set) {
 
 class PiecewiseConstant2 : public Base::BaseBasisFunction {
    public:
-    double eval(const Geometry::PointReference<2>& p) const override final {
+    double eval(const Geometry::PointReference<2>& p) const final {
         return 1.0;
     }
 
     double evalDeriv0(
-        const Geometry::PointReference<2>& p) const override final {
+        const Geometry::PointReference<2>& p) const final {
         return 0.0;
     }
 
     double evalDeriv1(
-        const Geometry::PointReference<2>& p) const override final {
+        const Geometry::PointReference<2>& p) const final {
         return 0.0;
     }
 };
@@ -82,22 +82,22 @@ void addPiecewiseConstantBasisFunction2D(Base::BasisFunctionSet& set) {
 
 class PiecewiseConstant3 : public Base::BaseBasisFunction {
    public:
-    double eval(const Geometry::PointReference<3>& p) const override final {
+    double eval(const Geometry::PointReference<3>& p) const final {
         return 1.0;
     }
 
     double evalDeriv0(
-        const Geometry::PointReference<3>& p) const override final {
+        const Geometry::PointReference<3>& p) const final {
         return 0.0;
     }
 
     double evalDeriv1(
-        const Geometry::PointReference<3>& p) const override final {
+        const Geometry::PointReference<3>& p) const final {
         return 0.0;
     }
 
     double evalDeriv2(
-        const Geometry::PointReference<3>& p) const override final {
+        const Geometry::PointReference<3>& p) const final {
         return 0.0;
     }
 };
@@ -108,27 +108,27 @@ void addPiecewiseConstantBasisFunction3D(Base::BasisFunctionSet& set) {
 
 class PiecewiseConstant4 : public Base::BaseBasisFunction {
    public:
-    double eval(const Geometry::PointReference<4>& p) const override final {
+    double eval(const Geometry::PointReference<4>& p) const final {
         return 1.0;
     }
 
     double evalDeriv0(
-        const Geometry::PointReference<4>& p) const override final {
+        const Geometry::PointReference<4>& p) const final {
         return 0.0;
     }
 
     double evalDeriv1(
-        const Geometry::PointReference<4>& p) const override final {
+        const Geometry::PointReference<4>& p) const final {
         return 0.0;
     }
 
     double evalDeriv2(
-        const Geometry::PointReference<4>& p) const override final {
+        const Geometry::PointReference<4>& p) const final {
         return 0.0;
     }
 
     double evalDeriv3(
-        const Geometry::PointReference<4>& p) const override final {
+        const Geometry::PointReference<4>& p) const final {
         return 0.0;
     }
 };

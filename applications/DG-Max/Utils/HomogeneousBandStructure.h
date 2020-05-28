@@ -24,7 +24,7 @@ class HomogeneousBandStructure : public BandStructure<DIM> {
     /// \param kpoint A point in the First Brillouin zone
     /// \param maxFrequency The maximum frequency of the mode
     /// \return A listing of the modes with their multiplicities
-    virtual std::map<double, std::size_t> computeSpectrum(
+    std::map<double, std::size_t> computeSpectrum(
         LinearAlgebra::SmallVector<DIM> kpoint,
         double maxFrequency) const final;
 
@@ -48,14 +48,14 @@ class HomogeneousBandStructure : public BandStructure<DIM> {
         /// \param line The line number
         /// \param interpolation Interpolation constant (k = k1 + a(k2 - k1))
         /// \return The frequency of this band at the specified point.
-        virtual double frequency(std::size_t line,
+        double frequency(std::size_t line,
                                  double interpolation) const final {
             double x0 = l_ * interpolation + xs_[line];
             double y = ys_[line];
             return std::sqrt(y * y + x0 * x0) / std::sqrt(permittivity_);
         }
         /// \return Multiplicity without taking into account the polarization
-        virtual std::size_t multiplicity(std::size_t line) const final {
+        std::size_t multiplicity(std::size_t line) const final {
             return multiplicities_[line];
         }
 
@@ -67,7 +67,7 @@ class HomogeneousBandStructure : public BandStructure<DIM> {
             multiplicities_.emplace_back(multiplicity);
         }
 
-        virtual std::size_t numberOfLines() const final { return xs_.size(); }
+        std::size_t numberOfLines() const final { return xs_.size(); }
 
        private:
         // The frequency omega for a band at point k is defined as
@@ -137,7 +137,7 @@ class HomogeneousBandStructure : public BandStructure<DIM> {
         std::vector<std::size_t> multiplicities_;
     };
 
-    virtual std::unique_ptr<typename BandStructure<DIM>::LineSet> computeLines(
+    std::unique_ptr<typename BandStructure<DIM>::LineSet> computeLines(
         LinearAlgebra::SmallVector<DIM> point1,
         LinearAlgebra::SmallVector<DIM> point2,
         double maxFrequency) const final;

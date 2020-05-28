@@ -54,7 +54,7 @@ template <std::size_t DIM>
 void move(Base::MeshManipulator<DIM>* mesh) {
     class : public Base::MeshMoverBase<DIM> {
        public:
-        void movePoint(Geometry::PointPhysical<DIM>& p) const { p *= 2; }
+        void movePoint(Geometry::PointPhysical<DIM>& p) const override { p *= 2; }
     } mover;
     for (Geometry::PointPhysical<DIM>& node : mesh->getNodeCoordinates()) {
         mover.movePoint(node);
@@ -69,14 +69,14 @@ void testMesh(Base::MeshManipulator<DIM>* test) {
     move(test);
     class : public Integration::ElementIntegrandBase<double, DIM> {
         void elementIntegrand(Base::PhysicalElement<DIM>& element,
-                              double& ret) {
+                              double& ret) override {
             ret = 1;
         }
     } one;
 
     class : public Integration::ElementIntegrandBase<double, DIM> {
         void elementIntegrand(Base::PhysicalElement<DIM>& element,
-                              double& ret) {
+                              double& ret) override {
             ret = 0;
             const Geometry::PointPhysical<DIM>& pPhys =
                 element.getPointPhysical();
@@ -87,7 +87,7 @@ void testMesh(Base::MeshManipulator<DIM>* test) {
     } linear;
     class : public Integration::ElementIntegrandBase<double, DIM> {
         void elementIntegrand(Base::PhysicalElement<DIM>& element,
-                              double& ret) {
+                              double& ret) override {
             ret = 1;
             const Geometry::PointPhysical<DIM>& pPhys =
                 element.getPointPhysical();

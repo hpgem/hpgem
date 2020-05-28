@@ -113,7 +113,7 @@ const MappingReferenceToReference<0>* ReferencePyramid::getCodim0MappingPtr(
     logger(FATAL,
            "ReferencePyramid::getCodim0MappingIndex: there are no Codim0 "
            "mappings for Pyramid.\n");
-    return 0;
+    return nullptr;
 }
 
 // ================================== Codimension 1
@@ -158,7 +158,7 @@ std::vector<std::size_t> ReferencePyramid::getCodim1EntityLocalIndices(
 const MappingReferenceToReference<2>* ReferencePyramid::getCodim2MappingPtr(
     const std::size_t edgeIndex) const {
     logger(ERROR, "There are no edge to pyramid mappings. \n");
-    return 0;
+    return nullptr;
 }
 
 const ReferenceGeometry* ReferencePyramid::getCodim2ReferenceGeometry(

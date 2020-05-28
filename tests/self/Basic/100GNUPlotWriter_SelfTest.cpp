@@ -98,7 +98,7 @@ class Advection : public Base::HpgemAPISimplified<DIM>,
     LinearAlgebra::MiddleSizeVector computeRightHandSideAtElement(
         Base::Element *ptrElement,
         const LinearAlgebra::MiddleSizeVector &inputFunctionCoefficients,
-        const double time) override final {
+        const double time) final {
         // Define a function for the integrand of the right hand side at the
         // element.
         std::function<LinearAlgebra::MiddleSizeVector(
@@ -189,7 +189,7 @@ class Advection : public Base::HpgemAPISimplified<DIM>,
         Base::Face *ptrFace, const Base::Side iSide,
         LinearAlgebra::MiddleSizeVector &inputFunctionCoefficientsLeft,
         LinearAlgebra::MiddleSizeVector &inputFunctionCoefficientsRight,
-        const double time) override final {
+        const double time) final {
         // Define a function for the integrand of the right hand side at the
         // face.
         std::function<LinearAlgebra::MiddleSizeVector(
@@ -219,7 +219,7 @@ class Advection : public Base::HpgemAPISimplified<DIM>,
     /// zero.
     LinearAlgebra::MiddleSizeVector getExactSolution(
         const PointPhysicalT &point, const double &time,
-        const std::size_t orderTimeDerivative) override final {
+        const std::size_t orderTimeDerivative) final {
         LinearAlgebra::MiddleSizeVector exactSolution(1);
         if (orderTimeDerivative == 0) {
             PointPhysicalT displacement{a * time};
@@ -238,7 +238,7 @@ class Advection : public Base::HpgemAPISimplified<DIM>,
     /// solution at the start time.
     LinearAlgebra::MiddleSizeVector getInitialSolution(
         const PointPhysicalT &point, const double &startTime,
-        const std::size_t orderTimeDerivative) override final {
+        const std::size_t orderTimeDerivative) final {
         return getExactSolution(point, startTime, orderTimeDerivative);
     }
 

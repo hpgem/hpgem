@@ -54,14 +54,14 @@ void testMesh(Base::MeshManipulator<DIM>* test) {
 
     class : public Integration::ElementIntegrandBase<double, DIM> {
         void elementIntegrand(Base::PhysicalElement<DIM>& element,
-                              double& ret) {
+                              double& ret) override {
             ret = 1.;
         }
     } one;
 
     class : public Integration::ElementIntegrandBase<double, DIM> {
         void elementIntegrand(Base::PhysicalElement<DIM>& element,
-                              double& ret) {
+                              double& ret) override {
             ret = 0;
             const Geometry::PointPhysical<DIM>& pPhys =
                 element.getPointPhysical();
@@ -73,7 +73,7 @@ void testMesh(Base::MeshManipulator<DIM>* test) {
 
     class : public Integration::ElementIntegrandBase<double, DIM> {
         void elementIntegrand(Base::PhysicalElement<DIM>& element,
-                              double& ret) {
+                              double& ret) override {
             ret = 1;
             const Geometry::PointPhysical<DIM>& pPhys =
                 element.getPointPhysical();

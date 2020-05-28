@@ -71,25 +71,25 @@ class ConcatenatedMapping : public MappingReferenceToReference<1> {
 
     //! Transformation is simply via the intermediate space.
     PointReference<1> transform(
-        const PointReference<0>& pIn) const override final;
+        const PointReference<0>& pIn) const final;
     PointReference<2> transform(
-        const PointReference<1>& pIn) const override final;
+        const PointReference<1>& pIn) const final;
     PointReference<3> transform(
-        const PointReference<2>& pIn) const override final;
+        const PointReference<2>& pIn) const final;
     PointReference<4> transform(
-        const PointReference<3>& pIn) const override final;
+        const PointReference<3>& pIn) const final;
 
     //! To compute the Jacobian, the two component ones have to multiplied.
     Jacobian<0, 1> calcJacobian(
-        const PointReference<0>& p) const override final;
+        const PointReference<0>& p) const final;
     Jacobian<1, 2> calcJacobian(
-        const PointReference<1>& p) const override final;
+        const PointReference<1>& p) const final;
     Jacobian<2, 3> calcJacobian(
-        const PointReference<2>& p) const override final;
+        const PointReference<2>& p) const final;
     Jacobian<3, 4> calcJacobian(
-        const PointReference<3>& p) const override final;
+        const PointReference<3>& p) const final;
 
-    std::size_t getTargetDimension() const override final;
+    std::size_t getTargetDimension() const final;
 
     std::pair<const MappingReferenceToReference<0>*,
               const MappingReferenceToReference<1>*>

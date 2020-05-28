@@ -215,7 +215,7 @@ class HpgemAPILinearSteadyState : public HpgemAPILinear<DIM> {
     virtual void createSourceTerms();
 
     /// \brief Create and store things before solving the problem.
-    virtual void tasksBeforeSolving() override;
+    void tasksBeforeSolving() override;
 
     /// \brief Solve the steady-state problem using Petsc.
     virtual void solveSteadyStateWithPetsc(bool doComputeError);

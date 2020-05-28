@@ -49,10 +49,10 @@ class MappingToRefCubeToHypercube0 : public MappingReferenceToReference<1> {
    public:
     static const MappingToRefCubeToHypercube0& Instance();
     PointReference<4> transform(
-        const Geometry::PointReference<3>& p1) const override final;
+        const Geometry::PointReference<3>& p1) const final;
     Jacobian<3, 4> calcJacobian(
-        const Geometry::PointReference<3>&) const override final;
-    std::size_t getTargetDimension() const override final { return 4; }
+        const Geometry::PointReference<3>&) const final;
+    std::size_t getTargetDimension() const final { return 4; }
     MappingToRefCubeToHypercube0(const MappingToRefCubeToHypercube0&) = delete;
     MappingToRefCubeToHypercube0& operator=(
         const MappingToRefCubeToHypercube0&) = delete;
@@ -70,10 +70,10 @@ class MappingToRefCubeToHypercube1 : public MappingReferenceToReference<1> {
    public:
     static const MappingToRefCubeToHypercube1& Instance();
     PointReference<4> transform(
-        const Geometry::PointReference<3>& p1) const override final;
+        const Geometry::PointReference<3>& p1) const final;
     Jacobian<3, 4> calcJacobian(
-        const Geometry::PointReference<3>&) const override final;
-    std::size_t getTargetDimension() const override final { return 4; }
+        const Geometry::PointReference<3>&) const final;
+    std::size_t getTargetDimension() const final { return 4; }
     MappingToRefCubeToHypercube1(const MappingToRefCubeToHypercube1&) = delete;
     MappingToRefCubeToHypercube1& operator=(
         const MappingToRefCubeToHypercube1&) = delete;
@@ -91,10 +91,10 @@ class MappingToRefCubeToHypercube2 : public MappingReferenceToReference<1> {
    public:
     static const MappingToRefCubeToHypercube2& Instance();
     PointReference<4> transform(
-        const Geometry::PointReference<3>& p1) const override final;
+        const Geometry::PointReference<3>& p1) const final;
     Jacobian<3, 4> calcJacobian(
-        const Geometry::PointReference<3>&) const override final;
-    std::size_t getTargetDimension() const override final { return 4; }
+        const Geometry::PointReference<3>&) const final;
+    std::size_t getTargetDimension() const final { return 4; }
     MappingToRefCubeToHypercube2(const MappingToRefCubeToHypercube2&) = delete;
     MappingToRefCubeToHypercube1& operator=(
         const MappingToRefCubeToHypercube2&) = delete;
@@ -112,10 +112,10 @@ class MappingToRefCubeToHypercube3 : public MappingReferenceToReference<1> {
    public:
     static const MappingToRefCubeToHypercube3& Instance();
     PointReference<4> transform(
-        const Geometry::PointReference<3>& p1) const override final;
+        const Geometry::PointReference<3>& p1) const final;
     Jacobian<3, 4> calcJacobian(
-        const Geometry::PointReference<3>&) const override final;
-    std::size_t getTargetDimension() const override final { return 4; }
+        const Geometry::PointReference<3>&) const final;
+    std::size_t getTargetDimension() const final { return 4; }
     MappingToRefCubeToHypercube3(const MappingToRefCubeToHypercube3&) = delete;
     MappingToRefCubeToHypercube3& operator=(
         const MappingToRefCubeToHypercube3&) = delete;
@@ -133,10 +133,10 @@ class MappingToRefCubeToHypercube4 : public MappingReferenceToReference<1> {
    public:
     static const MappingToRefCubeToHypercube4& Instance();
     PointReference<4> transform(
-        const Geometry::PointReference<3>& p1) const override final;
+        const Geometry::PointReference<3>& p1) const final;
     Jacobian<3, 4> calcJacobian(
-        const Geometry::PointReference<3>&) const override final;
-    std::size_t getTargetDimension() const override final { return 4; }
+        const Geometry::PointReference<3>&) const final;
+    std::size_t getTargetDimension() const final { return 4; }
     MappingToRefCubeToHypercube4(const MappingToRefCubeToHypercube4&) = delete;
     MappingToRefCubeToHypercube4& operator=(
         const MappingToRefCubeToHypercube4&) = delete;
@@ -154,10 +154,10 @@ class MappingToRefCubeToHypercube5 : public MappingReferenceToReference<1> {
    public:
     static const MappingToRefCubeToHypercube5& Instance();
     PointReference<4> transform(
-        const Geometry::PointReference<3>& p1) const override final;
+        const Geometry::PointReference<3>& p1) const final;
     Jacobian<3, 4> calcJacobian(
-        const Geometry::PointReference<3>&) const override final;
-    std::size_t getTargetDimension() const override final { return 4; }
+        const Geometry::PointReference<3>&) const final;
+    std::size_t getTargetDimension() const final { return 4; }
     MappingToRefCubeToHypercube5(const MappingToRefCubeToHypercube5&) = delete;
     MappingToRefCubeToHypercube5& operator=(
         const MappingToRefCubeToHypercube5&) = delete;
@@ -175,10 +175,10 @@ class MappingToRefCubeToHypercube6 : public MappingReferenceToReference<1> {
    public:
     static const MappingToRefCubeToHypercube6& Instance();
     PointReference<4> transform(
-        const Geometry::PointReference<3>& p1) const override final;
+        const Geometry::PointReference<3>& p1) const final;
     Jacobian<3, 4> calcJacobian(
-        const Geometry::PointReference<3>&) const override final;
-    std::size_t getTargetDimension() const override final { return 4; }
+        const Geometry::PointReference<3>&) const final;
+    std::size_t getTargetDimension() const final { return 4; }
     MappingToRefCubeToHypercube6(const MappingToRefCubeToHypercube6&) = delete;
     MappingToRefCubeToHypercube6& operator=(
         const MappingToRefCubeToHypercube6&) = delete;
@@ -196,10 +196,10 @@ class MappingToRefCubeToHypercube7 : public MappingReferenceToReference<1> {
    public:
     static const MappingToRefCubeToHypercube7& Instance();
     PointReference<4> transform(
-        const Geometry::PointReference<3>& p1) const override final;
+        const Geometry::PointReference<3>& p1) const final;
     Jacobian<3, 4> calcJacobian(
-        const Geometry::PointReference<3>&) const override final;
-    std::size_t getTargetDimension() const override final { return 4; }
+        const Geometry::PointReference<3>&) const final;
+    std::size_t getTargetDimension() const final { return 4; }
     MappingToRefCubeToHypercube7(const MappingToRefCubeToHypercube7&) = delete;
     MappingToRefCubeToHypercube7& operator=(
         const MappingToRefCubeToHypercube7&) = delete;

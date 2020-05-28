@@ -122,7 +122,7 @@ class GlobalPetscMatrix : public GlobalMatrix {
 
     ~GlobalPetscMatrix() override;
 
-    virtual void assemble() override;
+    void assemble() override;
 
     void reinit() override;
 

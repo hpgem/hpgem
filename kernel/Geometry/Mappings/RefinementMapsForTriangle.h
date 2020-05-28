@@ -133,11 +133,11 @@ class RefinementMapForTriangle0 : public RefinementMapping {
         return &theInstance;
     }
 
-    std::string getName() const override final { return "Identity map"; }
+    std::string getName() const final { return "Identity map"; }
 
     PointReference<2> refinementTransform(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         logger.assert_debug(
             subElementIndex == 0,
             "asked for subElement %, but the % has only % subElements",
@@ -147,7 +147,7 @@ class RefinementMapForTriangle0 : public RefinementMapping {
 
     LinearAlgebra::SmallMatrix<2, 2> getRefinementMappingMatrixL(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         logger.assert_debug(
             subElementIndex == 0,
             "asked for subElement %, but the % has only % subElements",
@@ -158,7 +158,7 @@ class RefinementMapForTriangle0 : public RefinementMapping {
 
     LinearAlgebra::SmallMatrix<2, 2> getRefinementMappingMatrixR(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         logger.assert_debug(
             subElementIndex == 0,
             "asked for subElement %, but the % has only % subElements",
@@ -167,12 +167,12 @@ class RefinementMapForTriangle0 : public RefinementMapping {
         return LinearAlgebra::SmallMatrix<2, 2>{{{{1., 0.}}, {{0., 1.}}}};
     }
 
-    std::size_t getNumberOfNewNodes() const override final { return 0; }
+    std::size_t getNumberOfNewNodes() const final { return 0; }
 
-    std::size_t getNumberOfSubElements() const override final { return 1; }
+    std::size_t getNumberOfSubElements() const final { return 1; }
 
     std::vector<std::size_t> getSubElementLocalNodeIndices(
-        std::size_t subElementIndex) const override final {
+        std::size_t subElementIndex) const final {
         logger.assert_debug(
             subElementIndex == 0,
             "asked for subElement %, but the % has only % subElements",
@@ -181,12 +181,12 @@ class RefinementMapForTriangle0 : public RefinementMapping {
     }
 
     Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const override final {
+        const final {
         return &Geometry::ReferenceTriangle::Instance();
     }
 
     Geometry::ReferenceGeometry* getSubElementReferenceGeometry(
-        std::size_t subElement) const override final {
+        std::size_t subElement) const final {
         logger.assert_debug(
             subElement < getNumberOfSubElements(),
             "asked for subElement %, but the % has only % subElements",
@@ -195,12 +195,12 @@ class RefinementMapForTriangle0 : public RefinementMapping {
     }
 
     std::vector<Geometry::PointReference<2>> getNewNodeLocations(
-        const PointReference<2>&) const override final {
+        const PointReference<2>&) const final {
         return {};
     }
 
     std::vector<const RefinementMapping*> getCodim1RefinementMaps()
-        const override final {
+        const final {
         return std::vector<const RefinementMapping*>{
             RefinementMapForLine0::instance(),
             RefinementMapForLine0::instance(),
@@ -208,7 +208,7 @@ class RefinementMapForTriangle0 : public RefinementMapping {
     }
 
     std::vector<std::size_t> getCodim1LocalNodeIndices(
-        std::size_t localFaceNumber) const override final {
+        std::size_t localFaceNumber) const final {
         switch (localFaceNumber) {
             case 0:
                 return {0, 1};
@@ -226,7 +226,7 @@ class RefinementMapForTriangle0 : public RefinementMapping {
     }
 
     std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(
-        std::size_t face, std::size_t subFaceIndex) const override final {
+        std::size_t face, std::size_t subFaceIndex) const final {
         logger.assert_debug(
             face <
                 getBigElementReferenceGeometry()->getNumberOfCodim1Entities(),
@@ -253,11 +253,11 @@ class RefinementMapForTriangle1 : public RefinementMapping {
         return &theInstance;
     }
 
-    std::string getName() const override final { return "split face 0"; }
+    std::string getName() const final { return "split face 0"; }
 
     PointReference<2> refinementTransform(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         logger.assert_debug(
             subElementIndex < 2,
             "asked for subElement %, but the % has only % subElements",
@@ -267,7 +267,7 @@ class RefinementMapForTriangle1 : public RefinementMapping {
 
     LinearAlgebra::SmallMatrix<2, 2> getRefinementMappingMatrixL(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         logger.assert_debug(
             subElementIndex < 2,
             "asked for subElement %, but the % has only % subElements",
@@ -278,7 +278,7 @@ class RefinementMapForTriangle1 : public RefinementMapping {
 
     LinearAlgebra::SmallMatrix<2, 2> getRefinementMappingMatrixR(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         logger.assert_debug(
             subElementIndex < 2,
             "asked for subElement %, but the % has only % subElements",
@@ -287,12 +287,12 @@ class RefinementMapForTriangle1 : public RefinementMapping {
         return LinearAlgebra::SmallMatrix<2, 2>{{{{2., 0.}}, {{0., 1.}}}};
     }
 
-    std::size_t getNumberOfNewNodes() const override final { return 1; }
+    std::size_t getNumberOfNewNodes() const final { return 1; }
 
-    std::size_t getNumberOfSubElements() const override final { return 2; }
+    std::size_t getNumberOfSubElements() const final { return 2; }
 
     std::vector<std::size_t> getSubElementLocalNodeIndices(
-        std::size_t subElementIndex) const override final {
+        std::size_t subElementIndex) const final {
         logger.assert_debug(
             subElementIndex < 2,
             "asked for subElement %, but the % has only % subElements",
@@ -305,12 +305,12 @@ class RefinementMapForTriangle1 : public RefinementMapping {
     }
 
     Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const override final {
+        const final {
         return &Geometry::ReferenceTriangle::Instance();
     }
 
     Geometry::ReferenceGeometry* getSubElementReferenceGeometry(
-        std::size_t subElement) const override final {
+        std::size_t subElement) const final {
         logger.assert_debug(
             subElement < getNumberOfSubElements(),
             "asked for subElement %, but the % has only % subElements",
@@ -319,12 +319,12 @@ class RefinementMapForTriangle1 : public RefinementMapping {
     }
 
     std::vector<Geometry::PointReference<2>> getNewNodeLocations(
-        const PointReference<2>&) const override final {
+        const PointReference<2>&) const final {
         return {{0.5, 0.}};
     }
 
     std::vector<const RefinementMapping*> getCodim1RefinementMaps()
-        const override final {
+        const final {
         return std::vector<const RefinementMapping*>{
             RefinementMapForLine1::instance(),
             RefinementMapForLine0::instance(),
@@ -332,7 +332,7 @@ class RefinementMapForTriangle1 : public RefinementMapping {
     }
 
     std::vector<std::size_t> getCodim1LocalNodeIndices(
-        std::size_t localFaceNumber) const override final {
+        std::size_t localFaceNumber) const final {
         switch (localFaceNumber) {
             case 0:
                 return {0, 1, 3};
@@ -350,7 +350,7 @@ class RefinementMapForTriangle1 : public RefinementMapping {
     }
 
     std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(
-        std::size_t face, std::size_t subFaceIndex) const override final {
+        std::size_t face, std::size_t subFaceIndex) const final {
         logger.assert_debug(
             face <
                 getBigElementReferenceGeometry()->getNumberOfCodim1Entities(),
@@ -387,11 +387,11 @@ class RefinementMapForTriangle2 : public RefinementMapping {
         return &theInstance;
     }
 
-    std::string getName() const override final { return "split face 1"; }
+    std::string getName() const final { return "split face 1"; }
 
     PointReference<2> refinementTransform(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         logger.assert_debug(
             subElementIndex < 2,
             "asked for subElement %, but the % has only % subElements",
@@ -401,7 +401,7 @@ class RefinementMapForTriangle2 : public RefinementMapping {
 
     LinearAlgebra::SmallMatrix<2, 2> getRefinementMappingMatrixL(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         logger.assert_debug(
             subElementIndex < 2,
             "asked for subElement %, but the % has only % subElements",
@@ -412,7 +412,7 @@ class RefinementMapForTriangle2 : public RefinementMapping {
 
     LinearAlgebra::SmallMatrix<2, 2> getRefinementMappingMatrixR(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         logger.assert_debug(
             subElementIndex < 2,
             "asked for subElement %, but the % has only % subElements",
@@ -421,12 +421,12 @@ class RefinementMapForTriangle2 : public RefinementMapping {
         return LinearAlgebra::SmallMatrix<2, 2>{{{{1., 0.}}, {{0., 2.}}}};
     }
 
-    std::size_t getNumberOfNewNodes() const override final { return 1; }
+    std::size_t getNumberOfNewNodes() const final { return 1; }
 
-    std::size_t getNumberOfSubElements() const override final { return 2; }
+    std::size_t getNumberOfSubElements() const final { return 2; }
 
     std::vector<std::size_t> getSubElementLocalNodeIndices(
-        std::size_t subElementIndex) const override final {
+        std::size_t subElementIndex) const final {
         logger.assert_debug(
             subElementIndex < 2,
             "asked for subElement %, but the % has only % subElements",
@@ -439,12 +439,12 @@ class RefinementMapForTriangle2 : public RefinementMapping {
     }
 
     Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const override final {
+        const final {
         return &Geometry::ReferenceTriangle::Instance();
     }
 
     Geometry::ReferenceGeometry* getSubElementReferenceGeometry(
-        std::size_t subElement) const override final {
+        std::size_t subElement) const final {
         logger.assert_debug(
             subElement < getNumberOfSubElements(),
             "asked for subElement %, but the % has only % subElements",
@@ -453,12 +453,12 @@ class RefinementMapForTriangle2 : public RefinementMapping {
     }
 
     std::vector<Geometry::PointReference<2>> getNewNodeLocations(
-        const PointReference<2>&) const override final {
+        const PointReference<2>&) const final {
         return {{0., 0.5}};
     }
 
     std::vector<const RefinementMapping*> getCodim1RefinementMaps()
-        const override final {
+        const final {
         return std::vector<const RefinementMapping*>{
             RefinementMapForLine0::instance(),
             RefinementMapForLine1::instance(),
@@ -466,7 +466,7 @@ class RefinementMapForTriangle2 : public RefinementMapping {
     }
 
     std::vector<std::size_t> getCodim1LocalNodeIndices(
-        std::size_t localFaceNumber) const override final {
+        std::size_t localFaceNumber) const final {
         switch (localFaceNumber) {
             case 0:
                 return {0, 1};
@@ -484,7 +484,7 @@ class RefinementMapForTriangle2 : public RefinementMapping {
     }
 
     std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(
-        std::size_t face, std::size_t subFaceIndex) const override final {
+        std::size_t face, std::size_t subFaceIndex) const final {
         logger.assert_debug(
             face <
                 getBigElementReferenceGeometry()->getNumberOfCodim1Entities(),
@@ -521,11 +521,11 @@ class RefinementMapForTriangle3 : public RefinementMapping {
         return &theInstance;
     }
 
-    std::string getName() const override final { return "split face 2"; }
+    std::string getName() const final { return "split face 2"; }
 
     PointReference<2> refinementTransform(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         logger.assert_debug(
             subElementIndex < 2,
             "asked for subElement %, but the % has only % subElements",
@@ -539,7 +539,7 @@ class RefinementMapForTriangle3 : public RefinementMapping {
 
     LinearAlgebra::SmallMatrix<2, 2> getRefinementMappingMatrixL(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         logger.assert_debug(
             subElementIndex < 2,
             "asked for subElement %, but the % has only % subElements",
@@ -555,7 +555,7 @@ class RefinementMapForTriangle3 : public RefinementMapping {
 
     LinearAlgebra::SmallMatrix<2, 2> getRefinementMappingMatrixR(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         logger.assert_debug(
             subElementIndex < 2,
             "asked for subElement %, but the % has only % subElements",
@@ -569,12 +569,12 @@ class RefinementMapForTriangle3 : public RefinementMapping {
         
     }
 
-    std::size_t getNumberOfNewNodes() const override final { return 1; }
+    std::size_t getNumberOfNewNodes() const final { return 1; }
 
-    std::size_t getNumberOfSubElements() const override final { return 2; }
+    std::size_t getNumberOfSubElements() const final { return 2; }
 
     std::vector<std::size_t> getSubElementLocalNodeIndices(
-        std::size_t subElementIndex) const override final {
+        std::size_t subElementIndex) const final {
         logger.assert_debug(
             subElementIndex < 2,
             "asked for subElement %, but the % has only % subElements",
@@ -587,12 +587,12 @@ class RefinementMapForTriangle3 : public RefinementMapping {
     }
 
     Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const override final {
+        const final {
         return &Geometry::ReferenceTriangle::Instance();
     }
 
     Geometry::ReferenceGeometry* getSubElementReferenceGeometry(
-        std::size_t subElement) const override final {
+        std::size_t subElement) const final {
         logger.assert_debug(
             subElement < getNumberOfSubElements(),
             "asked for subElement %, but the % has only % subElements",
@@ -601,12 +601,12 @@ class RefinementMapForTriangle3 : public RefinementMapping {
     }
 
     std::vector<Geometry::PointReference<2>> getNewNodeLocations(
-        const PointReference<2>&) const override final {
+        const PointReference<2>&) const final {
         return {{0.5, 0.5}};
     }
 
     std::vector<const RefinementMapping*> getCodim1RefinementMaps()
-        const override final {
+        const final {
         return std::vector<const RefinementMapping*>{
             RefinementMapForLine0::instance(),
             RefinementMapForLine0::instance(),
@@ -614,7 +614,7 @@ class RefinementMapForTriangle3 : public RefinementMapping {
     }
 
     std::vector<std::size_t> getCodim1LocalNodeIndices(
-        std::size_t localFaceNumber) const override final {
+        std::size_t localFaceNumber) const final {
         switch (localFaceNumber) {
             case 0:
                 return {0, 1};
@@ -632,7 +632,7 @@ class RefinementMapForTriangle3 : public RefinementMapping {
     }
 
     std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(
-        std::size_t face, std::size_t subFaceIndex) const override final {
+        std::size_t face, std::size_t subFaceIndex) const final {
         logger.assert_debug(
             face <
                 getBigElementReferenceGeometry()->getNumberOfCodim1Entities(),
@@ -669,11 +669,11 @@ class RefinementMapForTriangle4 : public RefinementMapping {
         return &theInstance;
     }
 
-    std::string getName() const override final { return "split all faces"; }
+    std::string getName() const final { return "split all faces"; }
 
     PointReference<2> refinementTransform(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return {0.5 * p[0], 0.5 * p[1]};
@@ -694,7 +694,7 @@ class RefinementMapForTriangle4 : public RefinementMapping {
 
     LinearAlgebra::SmallMatrix<2, 2> getRefinementMappingMatrixL(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column might be {0, 0, 1}
@@ -723,7 +723,7 @@ class RefinementMapForTriangle4 : public RefinementMapping {
 
     LinearAlgebra::SmallMatrix<2, 2> getRefinementMappingMatrixR(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         // matrix was not present in the legacy code and I can't make a
         // reasonable guess about the bonus column
         switch (subElementIndex) {
@@ -752,12 +752,12 @@ class RefinementMapForTriangle4 : public RefinementMapping {
         }
     }
 
-    std::size_t getNumberOfNewNodes() const override final { return 3; }
+    std::size_t getNumberOfNewNodes() const final { return 3; }
 
-    std::size_t getNumberOfSubElements() const override final { return 4; }
+    std::size_t getNumberOfSubElements() const final { return 4; }
 
     std::vector<std::size_t> getSubElementLocalNodeIndices(
-        std::size_t subElementIndex) const override final {
+        std::size_t subElementIndex) const final {
         switch (subElementIndex) {
             case 0:
                 return std::vector<std::size_t>{0, 3, 4};
@@ -777,12 +777,12 @@ class RefinementMapForTriangle4 : public RefinementMapping {
     }
 
     Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const override final {
+        const final {
         return &Geometry::ReferenceTriangle::Instance();
     }
 
     Geometry::ReferenceGeometry* getSubElementReferenceGeometry(
-        std::size_t subElement) const override final {
+        std::size_t subElement) const final {
         logger.assert_debug(
             subElement < getNumberOfSubElements(),
             "asked for subElement %, but the % has only % subElements",
@@ -791,12 +791,12 @@ class RefinementMapForTriangle4 : public RefinementMapping {
     }
 
     std::vector<Geometry::PointReference<2>> getNewNodeLocations(
-        const PointReference<2>&) const override final {
+        const PointReference<2>&) const final {
         return {{0.5, 0.}, {0., 0.5}, {0.5, 0.5}};
     }
 
     std::vector<const RefinementMapping*> getCodim1RefinementMaps()
-        const override final {
+        const final {
         return std::vector<const RefinementMapping*>{
             RefinementMapForLine1::instance(),
             RefinementMapForLine1::instance(),
@@ -804,7 +804,7 @@ class RefinementMapForTriangle4 : public RefinementMapping {
     }
 
     std::vector<std::size_t> getCodim1LocalNodeIndices(
-        std::size_t localFaceNumber) const override final {
+        std::size_t localFaceNumber) const final {
         switch (localFaceNumber) {
             case 0:
                 return {0, 1, 3};
@@ -822,7 +822,7 @@ class RefinementMapForTriangle4 : public RefinementMapping {
     }
 
     std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(
-        std::size_t face, std::size_t subFaceIndex) const override final {
+        std::size_t face, std::size_t subFaceIndex) const final {
         logger.assert_debug(
             face <
                 getBigElementReferenceGeometry()->getNumberOfCodim1Entities(),
@@ -859,13 +859,13 @@ class RefinementMapForTriangle5 : public RefinementMapping {
         return &theInstance;
     }
 
-    std::string getName() const override final {
+    std::string getName() const final {
         return "split to 3 quadrilaterals";
     }
 
     PointReference<2> refinementTransform(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return {(p[1] + 1.) * (5. + p[0]) / 24.,
@@ -887,7 +887,7 @@ class RefinementMapForTriangle5 : public RefinementMapping {
 
     LinearAlgebra::SmallMatrix<2, 2> getRefinementMappingMatrixL(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column should be {5./24., 5./24, 1}
@@ -915,7 +915,7 @@ class RefinementMapForTriangle5 : public RefinementMapping {
 
     LinearAlgebra::SmallMatrix<2, 2> getRefinementMappingMatrixR(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return LinearAlgebra::SmallMatrix<2, 2>{
@@ -941,12 +941,12 @@ class RefinementMapForTriangle5 : public RefinementMapping {
         }
     }
 
-    std::size_t getNumberOfNewNodes() const override final { return 4; }
+    std::size_t getNumberOfNewNodes() const final { return 4; }
 
-    std::size_t getNumberOfSubElements() const override final { return 3; }
+    std::size_t getNumberOfSubElements() const final { return 3; }
 
     std::vector<std::size_t> getSubElementLocalNodeIndices(
-        std::size_t subElementIndex) const override final {
+        std::size_t subElementIndex) const final {
         switch (subElementIndex) {
             case 0:
                 return std::vector<std::size_t>{4, 0, 6, 3};
@@ -964,12 +964,12 @@ class RefinementMapForTriangle5 : public RefinementMapping {
     }
 
     Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const override final {
+        const final {
         return &Geometry::ReferenceTriangle::Instance();
     }
 
     Geometry::ReferenceGeometry* getSubElementReferenceGeometry(
-        std::size_t subElement) const override final {
+        std::size_t subElement) const final {
         logger.assert_debug(
             subElement < getNumberOfSubElements(),
             "asked for subElement %, but the % has only % subElements",
@@ -978,12 +978,12 @@ class RefinementMapForTriangle5 : public RefinementMapping {
     }
 
     std::vector<Geometry::PointReference<2>> getNewNodeLocations(
-        const PointReference<2>&) const override final {
+        const PointReference<2>&) const final {
         return {{0.5, 0.}, {0., 0.5}, {0.5, 0.5}, {1. / 3., 1. / 3.}};
     }
 
     std::vector<const RefinementMapping*> getCodim1RefinementMaps()
-        const override final {
+        const final {
         return std::vector<const RefinementMapping*>{
             RefinementMapForLine1::instance(),
             RefinementMapForLine1::instance(),
@@ -991,7 +991,7 @@ class RefinementMapForTriangle5 : public RefinementMapping {
     }
 
     std::vector<std::size_t> getCodim1LocalNodeIndices(
-        std::size_t localFaceNumber) const override final {
+        std::size_t localFaceNumber) const final {
         switch (localFaceNumber) {
             case 0:
                 return {0, 1, 3};
@@ -1009,7 +1009,7 @@ class RefinementMapForTriangle5 : public RefinementMapping {
     }
 
     std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(
-        std::size_t face, std::size_t subFaceIndex) const override final {
+        std::size_t face, std::size_t subFaceIndex) const final {
         logger.assert_debug(
             face <
                 getBigElementReferenceGeometry()->getNumberOfCodim1Entities(),
@@ -1046,13 +1046,13 @@ class RefinementMapForTriangle6 : public RefinementMapping {
         return &theInstance;
     }
 
-    std::string getName() const override final {
+    std::string getName() const final {
         return "split to a triangle and a quadrilateral";
     }
 
     PointReference<2> refinementTransform(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return {(1. + p[0]) / 4., (p[1] + 1.) * (3. - p[0]) / 8.};
@@ -1069,7 +1069,7 @@ class RefinementMapForTriangle6 : public RefinementMapping {
 
     LinearAlgebra::SmallMatrix<2, 2> getRefinementMappingMatrixL(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column should be {.25, .375, 1}
@@ -1090,7 +1090,7 @@ class RefinementMapForTriangle6 : public RefinementMapping {
 
     LinearAlgebra::SmallMatrix<2, 2> getRefinementMappingMatrixR(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return LinearAlgebra::SmallMatrix<2, 2>{
@@ -1108,12 +1108,12 @@ class RefinementMapForTriangle6 : public RefinementMapping {
         }
     }
 
-    std::size_t getNumberOfNewNodes() const override final { return 2; }
+    std::size_t getNumberOfNewNodes() const final { return 2; }
 
-    std::size_t getNumberOfSubElements() const override final { return 2; }
+    std::size_t getNumberOfSubElements() const final { return 2; }
 
     std::vector<std::size_t> getSubElementLocalNodeIndices(
-        std::size_t subElementIndex) const override final {
+        std::size_t subElementIndex) const final {
         switch (subElementIndex) {
             case 0:
                 return std::vector<std::size_t>{0, 3, 2, 4};
@@ -1129,12 +1129,12 @@ class RefinementMapForTriangle6 : public RefinementMapping {
     }
 
     Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const override final {
+        const final {
         return &Geometry::ReferenceTriangle::Instance();
     }
 
     Geometry::ReferenceGeometry* getSubElementReferenceGeometry(
-        std::size_t subElement) const override final {
+        std::size_t subElement) const final {
         switch (subElement) {
             case 0:
                 return &Geometry::ReferenceSquare::Instance();
@@ -1150,12 +1150,12 @@ class RefinementMapForTriangle6 : public RefinementMapping {
     }
 
     std::vector<Geometry::PointReference<2>> getNewNodeLocations(
-        const PointReference<2>&) const override final {
+        const PointReference<2>&) const final {
         return {{0.5, 0.}, {0.5, 0.5}};
     }
 
     std::vector<const RefinementMapping*> getCodim1RefinementMaps()
-        const override final {
+        const final {
         return std::vector<const RefinementMapping*>{
             RefinementMapForLine1::instance(),
             RefinementMapForLine0::instance(),
@@ -1163,7 +1163,7 @@ class RefinementMapForTriangle6 : public RefinementMapping {
     }
 
     std::vector<std::size_t> getCodim1LocalNodeIndices(
-        std::size_t localFaceNumber) const override final {
+        std::size_t localFaceNumber) const final {
         switch (localFaceNumber) {
             case 0:
                 return {0, 1, 3};
@@ -1181,7 +1181,7 @@ class RefinementMapForTriangle6 : public RefinementMapping {
     }
 
     std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(
-        std::size_t face, std::size_t subFaceIndex) const override final {
+        std::size_t face, std::size_t subFaceIndex) const final {
         logger.assert_debug(
             face <
                 getBigElementReferenceGeometry()->getNumberOfCodim1Entities(),
@@ -1218,13 +1218,13 @@ class RefinementMapForTriangle7 : public RefinementMapping {
         return &theInstance;
     }
 
-    std::string getName() const override final {
+    std::string getName() const final {
         return "split to a triangle and a quadrilateral";
     }
 
     PointReference<2> refinementTransform(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return {(p[0] + 1.) * (3. - p[1]) / 8., (1. + p[1]) / 4.};
@@ -1241,7 +1241,7 @@ class RefinementMapForTriangle7 : public RefinementMapping {
 
     LinearAlgebra::SmallMatrix<2, 2> getRefinementMappingMatrixL(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column should be {.375, .25, 1}
@@ -1262,7 +1262,7 @@ class RefinementMapForTriangle7 : public RefinementMapping {
 
     LinearAlgebra::SmallMatrix<2, 2> getRefinementMappingMatrixR(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return LinearAlgebra::SmallMatrix<2, 2>{
@@ -1280,12 +1280,12 @@ class RefinementMapForTriangle7 : public RefinementMapping {
         }
     }
 
-    std::size_t getNumberOfNewNodes() const override final { return 2; }
+    std::size_t getNumberOfNewNodes() const final { return 2; }
 
-    std::size_t getNumberOfSubElements() const override final { return 2; }
+    std::size_t getNumberOfSubElements() const final { return 2; }
 
     std::vector<std::size_t> getSubElementLocalNodeIndices(
-        std::size_t subElementIndex) const override final {
+        std::size_t subElementIndex) const final {
         switch (subElementIndex) {
             case 0:
                 return std::vector<std::size_t>{0, 1, 3, 4};
@@ -1301,12 +1301,12 @@ class RefinementMapForTriangle7 : public RefinementMapping {
     }
 
     Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const override final {
+        const final {
         return &Geometry::ReferenceTriangle::Instance();
     }
 
     Geometry::ReferenceGeometry* getSubElementReferenceGeometry(
-        std::size_t subElement) const override final {
+        std::size_t subElement) const final {
         switch (subElement) {
             case 0:
                 return &Geometry::ReferenceSquare::Instance();
@@ -1322,12 +1322,12 @@ class RefinementMapForTriangle7 : public RefinementMapping {
     }
 
     std::vector<Geometry::PointReference<2>> getNewNodeLocations(
-        const PointReference<2>&) const override final {
+        const PointReference<2>&) const final {
         return {{0., 0.5}, {0.5, 0.5}};
     }
 
     std::vector<const RefinementMapping*> getCodim1RefinementMaps()
-        const override final {
+        const final {
         return std::vector<const RefinementMapping*>{
             RefinementMapForLine0::instance(),
             RefinementMapForLine1::instance(),
@@ -1335,7 +1335,7 @@ class RefinementMapForTriangle7 : public RefinementMapping {
     }
 
     std::vector<std::size_t> getCodim1LocalNodeIndices(
-        std::size_t localFaceNumber) const override final {
+        std::size_t localFaceNumber) const final {
         switch (localFaceNumber) {
             case 0:
                 return {0, 1};
@@ -1353,7 +1353,7 @@ class RefinementMapForTriangle7 : public RefinementMapping {
     }
 
     std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(
-        std::size_t face, std::size_t subFaceIndex) const override final {
+        std::size_t face, std::size_t subFaceIndex) const final {
         logger.assert_debug(
             face <
                 getBigElementReferenceGeometry()->getNumberOfCodim1Entities(),
@@ -1390,13 +1390,13 @@ class RefinementMapForTriangle8 : public RefinementMapping {
         return &theInstance;
     }
 
-    std::string getName() const override final {
+    std::string getName() const final {
         return "split to a triangle and a quadrilateral";
     }
 
     PointReference<2> refinementTransform(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return {p[0] / 2., p[1] / 2.};
@@ -1414,7 +1414,7 @@ class RefinementMapForTriangle8 : public RefinementMapping {
 
     LinearAlgebra::SmallMatrix<2, 2> getRefinementMappingMatrixL(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         switch (subElementIndex) {
             case 0:
                 // the bonus column should be {0, 0, 1}
@@ -1436,7 +1436,7 @@ class RefinementMapForTriangle8 : public RefinementMapping {
 
     LinearAlgebra::SmallMatrix<2, 2> getRefinementMappingMatrixR(
         std::size_t subElementIndex,
-        const PointReference<2>& p) const override final {
+        const PointReference<2>& p) const final {
         switch (subElementIndex) {
             case 0:
                 return LinearAlgebra::SmallMatrix<2, 2>{
@@ -1455,12 +1455,12 @@ class RefinementMapForTriangle8 : public RefinementMapping {
         }
     }
 
-    std::size_t getNumberOfNewNodes() const override final { return 2; }
+    std::size_t getNumberOfNewNodes() const final { return 2; }
 
-    std::size_t getNumberOfSubElements() const override final { return 2; }
+    std::size_t getNumberOfSubElements() const final { return 2; }
 
     std::vector<std::size_t> getSubElementLocalNodeIndices(
-        std::size_t subElementIndex) const override final {
+        std::size_t subElementIndex) const final {
         switch (subElementIndex) {
             case 0:
                 return std::vector<std::size_t>{0, 3, 4};
@@ -1476,12 +1476,12 @@ class RefinementMapForTriangle8 : public RefinementMapping {
     }
 
     Geometry::ReferenceGeometry* getBigElementReferenceGeometry()
-        const override final {
+        const final {
         return &Geometry::ReferenceTriangle::Instance();
     }
 
     Geometry::ReferenceGeometry* getSubElementReferenceGeometry(
-        std::size_t subElement) const override final {
+        std::size_t subElement) const final {
         switch (subElement) {
             case 0:
                 return &Geometry::ReferenceTriangle::Instance();
@@ -1497,12 +1497,12 @@ class RefinementMapForTriangle8 : public RefinementMapping {
     }
 
     std::vector<Geometry::PointReference<2>> getNewNodeLocations(
-        const PointReference<2>&) const override final {
+        const PointReference<2>&) const final {
         return {{0.5, 0.}, {0., 0.5}};
     }
 
     std::vector<const RefinementMapping*> getCodim1RefinementMaps()
-        const override final {
+        const final {
         return std::vector<const RefinementMapping*>{
             RefinementMapForLine0::instance(),
             RefinementMapForLine1::instance(),
@@ -1510,7 +1510,7 @@ class RefinementMapForTriangle8 : public RefinementMapping {
     }
 
     std::vector<std::size_t> getCodim1LocalNodeIndices(
-        std::size_t localFaceNumber) const override final {
+        std::size_t localFaceNumber) const final {
         switch (localFaceNumber) {
             case 0:
                 return {0, 1, 3};
@@ -1528,7 +1528,7 @@ class RefinementMapForTriangle8 : public RefinementMapping {
     }
 
     std::tuple<std::size_t, std::size_t> getSubElementAndLocalFaceIndex(
-        std::size_t face, std::size_t subFaceIndex) const override final {
+        std::size_t face, std::size_t subFaceIndex) const final {
         logger.assert_debug(
             face <
                 getBigElementReferenceGeometry()->getNumberOfCodim1Entities(),

@@ -66,10 +66,10 @@ class MappingToRefLineToTriangle0 : public MappingReferenceToReference<1> {
    public:
     static const MappingToRefLineToTriangle0& Instance();
     PointReference<2> transform(
-        const Geometry::PointReference<1>& p1) const override final;
+        const Geometry::PointReference<1>& p1) const final;
     Jacobian<1, 2> calcJacobian(
-        const Geometry::PointReference<1>&) const override final;
-    std::size_t getTargetDimension() const override final { return 2; }
+        const Geometry::PointReference<1>&) const final;
+    std::size_t getTargetDimension() const final { return 2; }
     MappingToRefLineToTriangle0(const MappingToRefLineToTriangle0&) = delete;
     MappingToRefLineToTriangle0& operator=(const MappingToRefLineToTriangle0&) =
         delete;
@@ -85,10 +85,10 @@ class MappingToRefLineToTriangle1 : public MappingReferenceToReference<1> {
    public:
     static const MappingToRefLineToTriangle1& Instance();
     PointReference<2> transform(
-        const Geometry::PointReference<1>& p1) const override final;
+        const Geometry::PointReference<1>& p1) const final;
     Jacobian<1, 2> calcJacobian(
-        const Geometry::PointReference<1>&) const override final;
-    std::size_t getTargetDimension() const override final { return 2; }
+        const Geometry::PointReference<1>&) const final;
+    std::size_t getTargetDimension() const final { return 2; }
     MappingToRefLineToTriangle1(const MappingToRefLineToTriangle1&) = delete;
     MappingToRefLineToTriangle1& operator=(const MappingToRefLineToTriangle1&) =
         delete;
@@ -104,10 +104,10 @@ class MappingToRefLineToTriangle2 : public MappingReferenceToReference<1> {
    public:
     static const MappingToRefLineToTriangle2& Instance();
     PointReference<2> transform(
-        const Geometry::PointReference<1>& p1) const override final;
+        const Geometry::PointReference<1>& p1) const final;
     Jacobian<1, 2> calcJacobian(
-        const Geometry::PointReference<1>&) const override final;
-    std::size_t getTargetDimension() const override final { return 2; }
+        const Geometry::PointReference<1>&) const final;
+    std::size_t getTargetDimension() const final { return 2; }
     MappingToRefLineToTriangle2(const MappingToRefLineToTriangle2&) = delete;
     MappingToRefLineToTriangle1& operator=(const MappingToRefLineToTriangle2&) =
         delete;

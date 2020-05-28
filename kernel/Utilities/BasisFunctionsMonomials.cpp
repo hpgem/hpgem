@@ -89,11 +89,11 @@ class BasisFunctionsMonomials1 : public Base::BaseBasisFunction,
     explicit BasisFunctionsMonomials1(std::size_t power)
         : BasisFunctionsMonomials<1>({power}) {}
 
-    double eval(const Geometry::PointReference<1>& p) const override final {
+    double eval(const Geometry::PointReference<1>& p) const final {
         return evalDIM(p);
     }
     double evalDeriv0(
-        const Geometry::PointReference<1>& p) const override final {
+        const Geometry::PointReference<1>& p) const final {
         return evalDerivDIM(p, 0);
     }
 };
@@ -104,17 +104,17 @@ class BasisFunctionsMonomials2 : public Base::BaseBasisFunction,
     BasisFunctionsMonomials2(std::size_t power1, std::size_t power2)
         : BasisFunctionsMonomials<2>({power1, power2}) {}
 
-    double eval(const Geometry::PointReference<2>& p) const override final {
+    double eval(const Geometry::PointReference<2>& p) const final {
         return evalDIM(p);
     }
 
     double evalDeriv0(
-        const Geometry::PointReference<2>& p) const override final {
+        const Geometry::PointReference<2>& p) const final {
         return evalDerivDIM(p, 0);
     }
 
     double evalDeriv1(
-        const Geometry::PointReference<2>& p) const override final {
+        const Geometry::PointReference<2>& p) const final {
         return evalDerivDIM(p, 1);
     }
 };
@@ -125,22 +125,22 @@ class BasisFunctionsMonomials3 : public Base::BaseBasisFunction,
     BasisFunctionsMonomials3(std::size_t p1, std::size_t p2, std::size_t p3)
         : BasisFunctionsMonomials<3>({p1, p2, p3}) {}
 
-    double eval(const Geometry::PointReference<3>& p) const override final {
+    double eval(const Geometry::PointReference<3>& p) const final {
         return evalDIM(p);
     }
 
     double evalDeriv0(
-        const Geometry::PointReference<3>& p) const override final {
+        const Geometry::PointReference<3>& p) const final {
         return evalDerivDIM(p, 0);
     }
 
     double evalDeriv1(
-        const Geometry::PointReference<3>& p) const override final {
+        const Geometry::PointReference<3>& p) const final {
         return evalDerivDIM(p, 1);
     }
 
     double evalDeriv2(
-        const Geometry::PointReference<3>& p) const override final {
+        const Geometry::PointReference<3>& p) const final {
         return evalDerivDIM(p, 2);
     }
 };
@@ -152,27 +152,27 @@ class BasisFunctionsMonomials4 : public Base::BaseBasisFunction,
                              std::size_t p4)
         : BasisFunctionsMonomials<4>({p1, p2, p3, p4}) {}
 
-    double eval(const Geometry::PointReference<4>& p) const override final {
+    double eval(const Geometry::PointReference<4>& p) const final {
         return evalDIM(p);
     }
 
     double evalDeriv0(
-        const Geometry::PointReference<4>& p) const override final {
+        const Geometry::PointReference<4>& p) const final {
         return evalDerivDIM(p, 0);
     }
 
     double evalDeriv1(
-        const Geometry::PointReference<4>& p) const override final {
+        const Geometry::PointReference<4>& p) const final {
         return evalDerivDIM(p, 1);
     }
 
     double evalDeriv2(
-        const Geometry::PointReference<4>& p) const override final {
+        const Geometry::PointReference<4>& p) const final {
         return evalDerivDIM(p, 2);
     }
 
     double evalDeriv3(
-        const Geometry::PointReference<4>& p) const override final {
+        const Geometry::PointReference<4>& p) const final {
         return evalDerivDIM(p, 3);
     }
 };

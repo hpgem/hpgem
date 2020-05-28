@@ -62,11 +62,11 @@ class BasisFunction2DVertexSquare : public Base::BaseBasisFunction {
         logger.assert_debug(node < 4, "A square only has 4 nodes");
     }
 
-    double eval(const Geometry::PointReference<2>& p) const;
+    double eval(const Geometry::PointReference<2>& p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<2>& p) const;
+    double evalDeriv0(const Geometry::PointReference<2>& p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<2>& p) const;
+    double evalDeriv1(const Geometry::PointReference<2>& p) const override;
 
    private:
     int nodePosition0_;
@@ -78,11 +78,11 @@ class BasisFunction2DFaceSquare_0 : public Base::BaseBasisFunction {
     BasisFunction2DFaceSquare_0(std::size_t node0, std::size_t node1,
                                 std::size_t polynomialOrder);
 
-    double eval(const Geometry::PointReference<2>& p) const;
+    double eval(const Geometry::PointReference<2>& p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<2>& p) const;
+    double evalDeriv0(const Geometry::PointReference<2>& p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<2>& p) const;
+    double evalDeriv1(const Geometry::PointReference<2>& p) const override;
 
    private:
     int edgePosition_;
@@ -95,11 +95,11 @@ class BasisFunction2DFaceSquare_1 : public Base::BaseBasisFunction {
     BasisFunction2DFaceSquare_1(std::size_t node0, std::size_t node1,
                                 std::size_t polynomialOrder);
 
-    double eval(const Geometry::PointReference<2>& p) const;
+    double eval(const Geometry::PointReference<2>& p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<2>& p) const;
+    double evalDeriv0(const Geometry::PointReference<2>& p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<2>& p) const;
+    double evalDeriv1(const Geometry::PointReference<2>& p) const override;
 
    private:
     int edgePosition_;
@@ -114,11 +114,11 @@ class BasisFunction2DInteriorSquare : public Base::BaseBasisFunction {
         : polynomialOrder0_(polynomialOrder0),
           polynomialOrder1_(polynomialOrder1) {}
 
-    double eval(const Geometry::PointReference<2>& p) const;
+    double eval(const Geometry::PointReference<2>& p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<2>& p) const;
+    double evalDeriv0(const Geometry::PointReference<2>& p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<2>& p) const;
+    double evalDeriv1(const Geometry::PointReference<2>& p) const override;
 
    private:
     std::size_t polynomialOrder0_, polynomialOrder1_;

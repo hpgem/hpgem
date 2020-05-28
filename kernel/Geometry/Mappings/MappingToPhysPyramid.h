@@ -57,17 +57,17 @@ class MappingToPhysPyramid : public MappingReferenceToPhysical {
 
     MappingToPhysPyramid(const MappingToPhysPyramid& other) = default;
 
-    PointPhysical<3> transform(const PointReference<3>&) const override final;
+    PointPhysical<3> transform(const PointReference<3>&) const final;
 
     PointReference<3> inverseTransform(
-        const PointPhysical<3>&) const override final;
+        const PointPhysical<3>&) const final;
 
-    Jacobian<3, 3> calcJacobian(const PointReference<3>&) const override final;
+    Jacobian<3, 3> calcJacobian(const PointReference<3>&) const final;
 
-    void reinit() override final;
+    void reinit() final;
 
     bool isValidPoint(const PointReference<3>&) const;
-    std::size_t getTargetDimension() const override final { return 3; }
+    std::size_t getTargetDimension() const final { return 3; }
 };
 }  // namespace Geometry
 #endif

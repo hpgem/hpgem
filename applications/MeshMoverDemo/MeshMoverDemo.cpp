@@ -54,7 +54,7 @@ class Dummy : public Output::TecplotSingleElementWriter<2> {
     Dummy() {}
     void writeToTecplotFile(const Base::Element* el,
                             const Geometry::PointReference<2>& p,
-                            std::ostream& os) {}
+                            std::ostream& os) override {}
 };
 
 /// Demo of how a mesh mover can be used to create a non-rectangular domain.

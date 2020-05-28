@@ -116,7 +116,7 @@ const MappingReferenceToReference<0>*
     logger(FATAL,
            "ReferenceTetrahedron::getCodim0MappingPtr: T.p to T.p mappings do "
            "not exist.\n");
-    return 0;
+    return nullptr;
 }
 
 // ================================== Codimension 1
@@ -150,7 +150,7 @@ const ReferenceGeometry* ReferenceTriangularPrism::getCodim1ReferenceGeometry(
                "ReferenceTriangularPrism::getCodim1ReferenceGeometry: Index "
                "out of range. T.p has 5 faces.\n");
     }
-    return 0;
+    return nullptr;
 }
 
 const MappingReferenceToReference<1>*
@@ -188,7 +188,7 @@ const MappingReferenceToReference<2>*
     logger(FATAL,
            "ReferenceTriangularPrism::getCodim2MappingPtr: Line to TP mappings "
            "do not exist.\n");
-    return 0;
+    return nullptr;
 }
 
 // ================================== Codimension 3

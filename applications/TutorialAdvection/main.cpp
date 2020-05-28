@@ -74,7 +74,7 @@ class TutorialAdvection : public Base::HpgemAPILinear<DIM> {
     /// opposed to a reference element), because this generally allows for
     /// easier expressions
     LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(
-        Base::PhysicalElement<DIM>& element) override final {
+        Base::PhysicalElement<DIM>& element) final {
         // we access the actual element to find the number of basis functions
         // that are non-zero on this element
         std::size_t numberOfBasisFunctions =
@@ -107,7 +107,7 @@ class TutorialAdvection : public Base::HpgemAPILinear<DIM> {
     /// the boundary. Each element matrix corresponds to a pair of two adjacent
     /// elements of the face.
     Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(
-        Base::PhysicalFace<DIM>& face) override final {
+        Base::PhysicalFace<DIM>& face) final {
         // Get the total number of basis functions of both sides of the face.
         std::size_t numberOfBasisFunctions =
             face.getFace()->getNumberOfBasisFunctions();
@@ -162,7 +162,7 @@ class TutorialAdvection : public Base::HpgemAPILinear<DIM> {
     /// make sense
     LinearAlgebra::MiddleSizeVector getExactSolution(
         const PointPhysicalT& point, const double& time,
-        const std::size_t orderTimeDerivative) override final {
+        const std::size_t orderTimeDerivative) final {
         logger.assert_debug(
             orderTimeDerivative == 0,
             "No exact solution for order time derivative % implemented");
@@ -175,7 +175,7 @@ class TutorialAdvection : public Base::HpgemAPILinear<DIM> {
     /// solution at the start time.
     LinearAlgebra::MiddleSizeVector getInitialSolution(
         const PointPhysicalT& point, const double& startTime,
-        const std::size_t orderTimeDerivative) override final {
+        const std::size_t orderTimeDerivative) final {
         return getExactSolution(point, startTime, orderTimeDerivative);
     }
 

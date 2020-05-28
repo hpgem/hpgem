@@ -53,7 +53,7 @@ class HCurlConformingTransformation : public CoordinateTransformation<DIM> {
     /// kernel of the reference curl-operator.
     LinearAlgebra::SmallVector<DIM> transform(
         LinearAlgebra::SmallVector<DIM> referenceData,
-        PhysicalElement<DIM>& element) const override final {
+        PhysicalElement<DIM>& element) const final {
         element.getTransposeJacobian().solve(referenceData);
         return referenceData;
     }
@@ -61,21 +61,21 @@ class HCurlConformingTransformation : public CoordinateTransformation<DIM> {
     /// transform the curl by using the chain rule
     LinearAlgebra::SmallVector<DIM> transformCurl(
         LinearAlgebra::SmallVector<DIM> referenceData,
-        PhysicalElement<DIM>& element) const override final {
+        PhysicalElement<DIM>& element) const final {
         return element.getJacobian() * referenceData / element.getJacobianDet();
     }
 
     /// integrands for elements are multiplied by the absolute value of the
     /// determinant of the Jacobian to correct for the difference in volume
     double getIntegrandScaleFactor(
-        PhysicalElement<DIM>& element) const override final {
+        PhysicalElement<DIM>& element) const final {
         return element.getJacobianAbsDet();
     }
 
     /// integrands for faces are multiplied by the norm of the outward normal
     /// vector to correct for the difference in area
     double getIntegrandScaleFactor(
-        PhysicalFace<DIM>& face) const override final {
+        PhysicalFace<DIM>& face) const final {
         return face.getRelativeSurfaceArea();
     }
 };

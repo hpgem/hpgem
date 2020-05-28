@@ -66,20 +66,20 @@ class ReferencePyramid : public ReferenceGeometry {
     ReferencePyramid(const ReferencePyramid& copy) = delete;
 
     //! (see ReferenceGeometry.h)
-    bool isInternalPoint(const PointReference<3>& point) const override final;
+    bool isInternalPoint(const PointReference<3>& point) const final;
 
     /// Output routine.
     friend std::ostream& operator<<(std::ostream& os,
                                     const ReferencePyramid& point);
 
-    const PointReferenceBase& getCenter() const override final {
+    const PointReferenceBase& getCenter() const final {
         return center_;
     }
 
-    std::size_t getNumberOfNodes() const override final { return 5; }
+    std::size_t getNumberOfNodes() const final { return 5; }
 
     const PointReferenceBase& getReferenceNodeCoordinate(
-        const std::size_t& i) const override final {
+        const std::size_t& i) const final {
         logger.assert_debug(i < getNumberOfNodes(),
                             "Asked for node %, but there are only % nodes", i,
                             getNumberOfNodes());
@@ -92,11 +92,11 @@ class ReferencePyramid : public ReferenceGeometry {
     //! (see MappingCodimensions.h)
     std::size_t getCodim0MappingIndex(
         const std::vector<std::size_t>&,
-        const std::vector<std::size_t>&) const override final;
+        const std::vector<std::size_t>&) const final;
 
     //! (see MappingCodimensions.h)
     const MappingReferenceToReference<0>* getCodim0MappingPtr(
-        const std::size_t) const override final;
+        const std::size_t) const final;
 
     using MappingCodimensions::getCodim0MappingPtr;
 
@@ -104,47 +104,47 @@ class ReferencePyramid : public ReferenceGeometry {
     // ========================================
 
     //! (see MappingCodimensions.h)
-    std::size_t getNumberOfCodim1Entities() const override final { return 5; }
+    std::size_t getNumberOfCodim1Entities() const final { return 5; }
 
     //! (see MappingCodimensions.h)
     std::vector<std::size_t> getCodim1EntityLocalIndices(
-        const std::size_t) const override final;
+        const std::size_t) const final;
 
     //! (see MappingCodimensions.h)
     const MappingReferenceToReference<1>* getCodim1MappingPtr(
-        const std::size_t) const override final;
+        const std::size_t) const final;
 
     //! (see MappingCodimensions.h)
     const ReferenceGeometry* getCodim1ReferenceGeometry(
-        const std::size_t) const override final;
+        const std::size_t) const final;
 
     // ================================== Codimension 2
     // ========================================
 
     //! (see MappingCodimensions.h)
-    std::size_t getNumberOfCodim2Entities() const override final { return 8; }
+    std::size_t getNumberOfCodim2Entities() const final { return 8; }
 
     //! (see MappingCodimensions.h)
     std::vector<std::size_t> getCodim2EntityLocalIndices(
-        const std::size_t) const override final;
+        const std::size_t) const final;
 
     //! (see MappingCodimensions.h)
     const MappingReferenceToReference<2>* getCodim2MappingPtr(
-        const std::size_t) const override final;
+        const std::size_t) const final;
 
     //! (see MappingCodimensions.h)
     const ReferenceGeometry* getCodim2ReferenceGeometry(
-        const std::size_t) const override final;
+        const std::size_t) const final;
 
     // ================================== Codimension 3
     // ========================================
 
     //! (see MappingCodimensions.h)
-    std::size_t getNumberOfCodim3Entities() const override final { return 5; }
+    std::size_t getNumberOfCodim3Entities() const final { return 5; }
 
     //! (see MappingCodimensions.h)
     std::vector<std::size_t> getCodim3EntityLocalIndices(
-        const std::size_t) const override final;
+        const std::size_t) const final;
 
    private:
     ReferencePyramid();

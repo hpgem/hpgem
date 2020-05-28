@@ -49,9 +49,9 @@ class MeshMover : public Base::MeshMoverBase<2> {
    public:
     MeshMover() {}
 
-    virtual ~MeshMover() {}
+    ~MeshMover() override {}
 
-    void movePoint(PointPhysicalT& point) const override final {
+    void movePoint(PointPhysicalT& point) const final {
         std::cout << "we are moving" << std::endl;
 
         point[0] = point[0];

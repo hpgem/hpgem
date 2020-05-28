@@ -72,7 +72,7 @@ class PoissonTest : public Base::HpgemAPILinearSteadyState<DIM> {
         readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + name);
     }
 
-    void readMesh(const std::string meshName) override final {
+    void readMesh(const std::string meshName) final {
 
         // Set the number of Element/Face Matrices/Vectors.
         std::size_t numberOfElementMatrices =
@@ -98,7 +98,7 @@ class PoissonTest : public Base::HpgemAPILinearSteadyState<DIM> {
 
     ///\brief Compute the integrand for the stiffness matrix at the element.
     LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(
-        Base::PhysicalElement<DIM>& element) override final {
+        Base::PhysicalElement<DIM>& element) final {
         // Obtain the number of basisfunctions that are possibly non-zero on
         // this element.
         const std::size_t numberOfBasisFunctions =
@@ -125,20 +125,20 @@ class PoissonTest : public Base::HpgemAPILinearSteadyState<DIM> {
     // the default hpGEM solver expects to have to construct a face matrix, just
     // give it the default one
     Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(
-        Base::PhysicalFace<DIM>& face) override final {
+        Base::PhysicalFace<DIM>& face) final {
         return face.getResultMatrix();
     }
 
     // the default hpGEM solver expects to have to construct a face vector, just
     // give it the default one
     LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(
-        Base::PhysicalFace<DIM>& face) override final {
+        Base::PhysicalFace<DIM>& face) final {
         return face.getResultVector();
     }
 
     /// \brief Define the exact solution
     LinearAlgebra::MiddleSizeVector getExactSolution(
-        const PointPhysicalT& p) override final {
+        const PointPhysicalT& p) final {
         LinearAlgebra::MiddleSizeVector exactSolution(1);
 
         double ret = std::sin(2 * M_PI * p[0]);
@@ -155,7 +155,7 @@ class PoissonTest : public Base::HpgemAPILinearSteadyState<DIM> {
 
     ///\brief Define the source term.
     LinearAlgebra::MiddleSizeVector getSourceTerm(
-        const PointPhysicalT& p) override final {
+        const PointPhysicalT& p) final {
         LinearAlgebra::MiddleSizeVector sourceTerm(1);
 
         double ret = -std::sin(2 * M_PI * p[0]) * (4 * M_PI * M_PI);
@@ -197,7 +197,7 @@ class PoissonTest : public Base::HpgemAPILinearSteadyState<DIM> {
         CHKERRV(ierr);
     }
 
-    void solveSteadyStateWithPetsc(bool doComputeError) override final {
+    void solveSteadyStateWithPetsc(bool doComputeError) final {
 #if defined(HPGEM_USE_ANY_PETSC)
         // Create and Store things before solving the problem.
         this->tasksBeforeSolving();

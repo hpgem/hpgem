@@ -266,7 +266,7 @@ ReferenceGeometry* ElementGeometry::createReferenceGeometry(std::size_t size) {
         default:
             logger(FATAL, "No know entities contain this many nodes. \n");
     }
-    return 0;
+    return nullptr;
 }
 
 template <std::size_t DIM>

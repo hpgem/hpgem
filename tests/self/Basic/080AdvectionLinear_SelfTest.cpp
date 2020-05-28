@@ -75,7 +75,7 @@ class AdvectionLinear : public Base::HpgemAPILinear<DIM> {
     /// \brief Compute the integrals of the right-hand side associated with
     /// elements.
     LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(
-        Base::PhysicalElement<DIM>& element) override final {
+        Base::PhysicalElement<DIM>& element) final {
         std::size_t numberOFBasisFunctions =
             element.getElement()->getNumberOfBasisFunctions();
         LinearAlgebra::MiddleSizeMatrix& result = element.getResultMatrix();
@@ -92,7 +92,7 @@ class AdvectionLinear : public Base::HpgemAPILinear<DIM> {
     /// \brief Compute the integrals of the left-hand side associated with
     /// faces.
     Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(
-        Base::PhysicalFace<DIM>& face) override final {
+        Base::PhysicalFace<DIM>& face) final {
         // Get the number of basis functions, first of both sides of the face
         // and then only the basis functions associated with the left and right
         // element.
@@ -152,7 +152,7 @@ class AdvectionLinear : public Base::HpgemAPILinear<DIM> {
     /// zero.
     LinearAlgebra::MiddleSizeVector getExactSolution(
         const PointPhysicalT& point, const double& time,
-        const std::size_t orderTimeDerivative) override final {
+        const std::size_t orderTimeDerivative) final {
         LinearAlgebra::MiddleSizeVector exactSolution(1);
         if (orderTimeDerivative == 0) {
             PointPhysicalT displacement{a * time};
@@ -171,7 +171,7 @@ class AdvectionLinear : public Base::HpgemAPILinear<DIM> {
     /// solution at the start time.
     LinearAlgebra::MiddleSizeVector getInitialSolution(
         const PointPhysicalT& point, const double& startTime,
-        const std::size_t orderTimeDerivative) override final {
+        const std::size_t orderTimeDerivative) final {
         return getExactSolution(point, startTime, orderTimeDerivative);
     }
 

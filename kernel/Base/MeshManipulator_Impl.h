@@ -85,7 +85,7 @@
 #include "Logger.h"
 
 #include <algorithm>
-#include <ctype.h>
+#include <cctype>
 #include <iostream>
 #include <unordered_set>
 #include <array>

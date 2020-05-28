@@ -56,40 +56,40 @@ class DoNotScaleIntegrands : public CoordinateTransformation<DIM> {
     ~DoNotScaleIntegrands() { delete underlying_; }
 
     double transform(double referenceData,
-                     PhysicalElement<DIM>& element) const override final {
+                     PhysicalElement<DIM>& element) const final {
         return underlying_->transform(referenceData, element);
     }
 
     LinearAlgebra::SmallVector<DIM> transform(
         LinearAlgebra::SmallVector<DIM> referenceData,
-        PhysicalElement<DIM>& element) const override final {
+        PhysicalElement<DIM>& element) const final {
         return underlying_->transform(referenceData, element);
     }
 
     LinearAlgebra::SmallVector<DIM> transformDeriv(
         LinearAlgebra::SmallVector<DIM> referenceData,
-        PhysicalElement<DIM>& element) const override final {
+        PhysicalElement<DIM>& element) const final {
         return underlying_->transformDeriv(referenceData, element);
     }
 
     double transformDiv(double referenceData,
-                        PhysicalElement<DIM>& element) const override final {
+                        PhysicalElement<DIM>& element) const final {
         return underlying_->transformDiv(referenceData, element);
     }
 
     LinearAlgebra::SmallVector<DIM> transformCurl(
         LinearAlgebra::SmallVector<DIM> referenceData,
-        PhysicalElement<DIM>& element) const override final {
+        PhysicalElement<DIM>& element) const final {
         return underlying_->transformCurl(referenceData, element);
     }
 
     double getIntegrandScaleFactor(
-        PhysicalElement<DIM>& element) const override final {
+        PhysicalElement<DIM>& element) const final {
         return 1.;
     }
 
     double getIntegrandScaleFactor(
-        PhysicalFace<DIM>& face) const override final {
+        PhysicalFace<DIM>& face) const final {
         return 1.;
     }
 

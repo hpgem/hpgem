@@ -162,7 +162,7 @@ class HpgemAPILinear : public HpgemAPISimplified<DIM> {
     HpgemAPILinear &operator=(const HpgemAPILinear &other) = delete;
 
     /// \brief Create the mesh.
-    virtual void readMesh(std::string fileName) override;
+    void readMesh(std::string fileName) override;
 
     /// \brief Compute the source term at a given physical point.
     virtual LinearAlgebra::MiddleSizeVector getSourceTerm(

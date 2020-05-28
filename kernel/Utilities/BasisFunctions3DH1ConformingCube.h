@@ -58,13 +58,13 @@ class BasisFunction3DVertexCube : public Base::BaseBasisFunction {
    public:
     BasisFunction3DVertexCube(std::size_t node);
 
-    double eval(const Geometry::PointReference<3>& p) const;
+    double eval(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<3>& p) const;
+    double evalDeriv0(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<3>& p) const;
+    double evalDeriv1(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv2(const Geometry::PointReference<3>& p) const;
+    double evalDeriv2(const Geometry::PointReference<3>& p) const override;
 
    private:
     int nodePosition0_, nodePosition1_, nodePosition2_;
@@ -75,13 +75,13 @@ class BasisFunction3DEdgeCube_0 : public Base::BaseBasisFunction {
     BasisFunction3DEdgeCube_0(std::size_t node0, std::size_t node1,
                               std::size_t polynomialOrder);
 
-    double eval(const Geometry::PointReference<3>& p) const;
+    double eval(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<3>& p) const;
+    double evalDeriv0(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<3>& p) const;
+    double evalDeriv1(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv2(const Geometry::PointReference<3>& p) const;
+    double evalDeriv2(const Geometry::PointReference<3>& p) const override;
 
    private:
     int edgePosition1_;
@@ -95,13 +95,13 @@ class BasisFunction3DEdgeCube_1 : public Base::BaseBasisFunction {
     BasisFunction3DEdgeCube_1(std::size_t node0, std::size_t node1,
                               std::size_t polynomialOrder);
 
-    double eval(const Geometry::PointReference<3>& p) const;
+    double eval(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<3>& p) const;
+    double evalDeriv0(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<3>& p) const;
+    double evalDeriv1(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv2(const Geometry::PointReference<3>& p) const;
+    double evalDeriv2(const Geometry::PointReference<3>& p) const override;
 
    private:
     int edgePosition0_;
@@ -115,13 +115,13 @@ class BasisFunction3DEdgeCube_2 : public Base::BaseBasisFunction {
     BasisFunction3DEdgeCube_2(std::size_t node0, std::size_t node1,
                               std::size_t polynomialOrder);
 
-    double eval(const Geometry::PointReference<3>& p) const;
+    double eval(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<3>& p) const;
+    double evalDeriv0(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<3>& p) const;
+    double evalDeriv1(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv2(const Geometry::PointReference<3>& p) const;
+    double evalDeriv2(const Geometry::PointReference<3>& p) const override;
 
    private:
     int edgePosition0_;
@@ -136,13 +136,13 @@ class BasisFunction3DFaceCube_0 : public Base::BaseBasisFunction {
                               std::size_t node2, std::size_t polynomialOrder1,
                               std::size_t polynomialOrder2);
 
-    double eval(const Geometry::PointReference<3>& p) const;
+    double eval(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<3>& p) const;
+    double evalDeriv0(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<3>& p) const;
+    double evalDeriv1(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv2(const Geometry::PointReference<3>& p) const;
+    double evalDeriv2(const Geometry::PointReference<3>& p) const override;
 
    private:
     int facePosition_;
@@ -158,13 +158,13 @@ class BasisFunction3DFaceCube_1 : public Base::BaseBasisFunction {
                               std::size_t node2, std::size_t polynomialOrder0,
                               std::size_t polynomialOrder2);
 
-    double eval(const Geometry::PointReference<3>& p) const;
+    double eval(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<3>& p) const;
+    double evalDeriv0(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<3>& p) const;
+    double evalDeriv1(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv2(const Geometry::PointReference<3>& p) const;
+    double evalDeriv2(const Geometry::PointReference<3>& p) const override;
 
    private:
     int facePosition_;
@@ -180,13 +180,13 @@ class BasisFunction3DFaceCube_2 : public Base::BaseBasisFunction {
                               std::size_t node2, std::size_t polynomialOrder0,
                               std::size_t polynomialOrder1);
 
-    double eval(const Geometry::PointReference<3>& p) const;
+    double eval(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<3>& p) const;
+    double evalDeriv0(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<3>& p) const;
+    double evalDeriv1(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv2(const Geometry::PointReference<3>& p) const;
+    double evalDeriv2(const Geometry::PointReference<3>& p) const override;
 
    private:
     int facePosition_;
@@ -205,13 +205,13 @@ class BasisFunction3DInteriorCube : public Base::BaseBasisFunction {
           polynomialOrder1_(polynomialOrder1),
           polynomialOrder2_(polynomialOrder2) {}
 
-    double eval(const Geometry::PointReference<3>& p) const;
+    double eval(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<3>& p) const;
+    double evalDeriv0(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<3>& p) const;
+    double evalDeriv1(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv2(const Geometry::PointReference<3>& p) const;
+    double evalDeriv2(const Geometry::PointReference<3>& p) const override;
 
    private:
     std::size_t polynomialOrder0_, polynomialOrder1_, polynomialOrder2_;

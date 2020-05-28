@@ -63,10 +63,10 @@ class MappingToRefPointToLine0 : public MappingReferenceToReference<1> {
    public:
     static const MappingToRefPointToLine0& Instance();
     PointReference<1> transform(
-        const Geometry::PointReference<0>& p1) const override final;
+        const Geometry::PointReference<0>& p1) const final;
     Jacobian<0, 1> calcJacobian(
-        const Geometry::PointReference<0>&) const override final;
-    std::size_t getTargetDimension() const override final { return 1; }
+        const Geometry::PointReference<0>&) const final;
+    std::size_t getTargetDimension() const final { return 1; }
     MappingToRefPointToLine0(const MappingToRefPointToLine0&) = delete;
     MappingToRefPointToLine0& operator=(const MappingToRefPointToLine0&) =
         delete;
@@ -84,10 +84,10 @@ class MappingToRefPointToLine1 : public MappingReferenceToReference<1> {
    public:
     static const MappingToRefPointToLine1& Instance();
     PointReference<1> transform(
-        const Geometry::PointReference<0>& p1) const override final;
+        const Geometry::PointReference<0>& p1) const final;
     Jacobian<0, 1> calcJacobian(
-        const Geometry::PointReference<0>&) const override final;
-    std::size_t getTargetDimension() const override final { return 1; }
+        const Geometry::PointReference<0>&) const final;
+    std::size_t getTargetDimension() const final { return 1; }
     MappingToRefPointToLine1(const MappingToRefPointToLine1&) = delete;
     MappingToRefPointToLine1& operator=(const MappingToRefPointToLine1&) =
         delete;

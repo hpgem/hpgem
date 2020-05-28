@@ -92,7 +92,7 @@ class PointPhysical : public Point<DIM>, public PointPhysicalBase {
 
     const double* data() const { return Point<DIM>::coordinates_.data(); }
 
-    std::size_t size() const { return Point<DIM>::size(); }
+    std::size_t size() const override { return Point<DIM>::size(); }
 };
 
 template <std::size_t DIM>

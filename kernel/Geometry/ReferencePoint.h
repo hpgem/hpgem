@@ -61,7 +61,7 @@ class ReferencePoint : public ReferenceGeometry {
     ReferencePoint(const ReferencePoint&) = delete;
 
     /// \brief Return true.
-    bool isInternalPoint(const PointReference<0>& p) const override final;
+    bool isInternalPoint(const PointReference<0>& p) const final;
 
     // ================================== Codimension 0
     // ========================================
@@ -69,20 +69,20 @@ class ReferencePoint : public ReferenceGeometry {
     /// \brief Returns 0.
     std::size_t getCodim0MappingIndex(
         const std::vector<std::size_t>&,
-        const std::vector<std::size_t>&) const override final;
+        const std::vector<std::size_t>&) const final;
 
     /// \brief Returns 0.
     const MappingReferenceToReference<0>* getCodim0MappingPtr(
-        const std::size_t a) const override final;
+        const std::size_t a) const final;
 
-    const PointReferenceBase& getCenter() const override final {
+    const PointReferenceBase& getCenter() const final {
         return center_;
     }
 
-    std::size_t getNumberOfNodes() const override final { return 1; }
+    std::size_t getNumberOfNodes() const final { return 1; }
 
     const PointReferenceBase& getReferenceNodeCoordinate(
-        const std::size_t& i) const override final {
+        const std::size_t& i) const final {
         logger.assert_debug(i < getNumberOfNodes(),
                             "Asked for node %, but there are only % nodes", i,
                             getNumberOfNodes());
