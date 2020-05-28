@@ -18,6 +18,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# from http://github.com/votca/votca/blob/master/CMakeModules/FindCLANG_FORMAT.cmake
 
 find_program(CLANG_FORMAT_EXECUTABLE
              NAMES clang-format
