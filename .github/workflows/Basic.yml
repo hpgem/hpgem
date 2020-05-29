@@ -18,7 +18,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2 
     - name: blaslapack
-      run: sudo apt install libblas-dev liblapack-dev libopenmpi-dev
+      run: sudo apt install libblas-dev liblapack-dev libopenmpi-dev 
     - name: configure
       env:
         CC: ${{ matrix.compiler }}
