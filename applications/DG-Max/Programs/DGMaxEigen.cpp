@@ -4,8 +4,8 @@
 
 #include "DGMaxLogger.h"
 #include "DGMaxProgramUtils.h"
-#include "Algorithms/DivDGMaxEigenValue.h"
-#include "Algorithms/DGMaxEigenValue.h"
+#include "Algorithms/DivDGMaxEigenvalue.h"
+#include "Algorithms/DGMaxEigenvalue.h"
 
 // File name of the mesh file, e.g. -m mesh.hpgem
 auto& meshFile = Base::register_argument<std::string>(
@@ -120,19 +120,19 @@ void runWithDimension() {
     EigenValueProblem<DIM> input(path, numEigenvalues.getValue());
     // Method dependent solving
     if (useDivDGMax) {
-        DivDGMaxEigenValue<DIM> solver(*mesh);
+        DivDGMaxEigenvalue<DIM> solver(*mesh);
         typename DivDGMaxDiscretization<DIM>::Stab stab =
             parsePenaltyParmaters<DIM>();
-        typename DivDGMaxEigenValue<DIM>::Result result =
+        typename DivDGMaxEigenvalue<DIM>::Result result =
             solver.solve(input, stab, p.getValue());
         if (Base::MPIContainer::Instance().getProcessorID() == 0) {
             result.printFrequencies();
             result.writeFrequencies("frequencies.csv");
         }
     } else {
-        DGMaxEigenValue<DIM> solver(*mesh, p.getValue());
+        DGMaxEigenvalue<DIM> solver(*mesh, p.getValue());
         const double stab = parseDGMaxPenaltyParameter();
-        typename DGMaxEigenValue<DIM>::Result result =
+        typename DGMaxEigenvalue<DIM>::Result result =
             solver.solve(input, stab);
         if (Base::MPIContainer::Instance().getProcessorID() == 0) {
             result.printFrequencies();

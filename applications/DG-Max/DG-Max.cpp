@@ -52,10 +52,10 @@
 #include "ElementInfos.h"
 #include "DGMaxProgramUtils.h"
 
-#include "Algorithms/DGMaxEigenValue.h"
+#include "Algorithms/DGMaxEigenvalue.h"
 #include "Algorithms/DGMaxHarmonic.h"
 #include "Algorithms/DGMaxTimeIntegration.h"
-#include "Algorithms/DivDGMaxEigenValue.h"
+#include "Algorithms/DivDGMaxEigenvalue.h"
 #include "Algorithms/DivDGMaxHarmonic.h"
 
 #include "ProblemTypes/Harmonic/SampleHarmonicProblems.h"
@@ -144,11 +144,11 @@ int main(int argc, char** argv) {
         // Eigenvalue code //
         /////////////////////
 
-        //        DGMaxEigenValue solver (base, p.getValue());
-        DivDGMaxEigenValue<DIM> solver(*mesh);
+        //        DGMaxEigenvalue solver (base, p.getValue());
+        DivDGMaxEigenvalue<DIM> solver(*mesh);
         KSpacePath<DIM> path = KSpacePath<DIM>::cubePath(20);
         EigenValueProblem<DIM> input(path, numEigenvalues.getValue());
-        DivDGMaxEigenValue<DIM>::Result result =
+        DivDGMaxEigenvalue<DIM>::Result result =
             solver.solve(input, divStab, p.getValue());
         if (Base::MPIContainer::Instance().getProcessorID() == 0) {
             result.printFrequencies();
