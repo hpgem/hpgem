@@ -107,21 +107,6 @@ if(hpGEM_USE_SLEPC)
     add_definitions(-DHPGEM_USE_SLEPC)
 endif()
 
-if(hpGEM_USE_SUNDIALS)
-    if(hpGEM_USE_MPI)
-        message(FATAL_ERROR "SUNDIALS is only serial (for now)")
-    endif()
-    FIND_PACKAGE(SUNDIALS REQUIRED)
-    add_definitions(-DHPGEM_USE_SUNDIALS)
-    # Create target for easy linking
-    add_library(SUNDIALS::SUNDIALS INTERFACE IMPORTED)
-
-    set_target_properties(SUNDIALS::SUNDIALS PROPERTIES 
-        INTERFACE_LINK_LIBRARIES  "${SUNDIALS_LIB_sundials_cvodes};${SUNDIALS_LIB_sundials_idas};${SUNDIALS_LIB_sundials_kinsol};${SUNDIALS_LIB_sundials_nvecserial}"
-        INTERFACE_INCLUDE_DIRECTORIES "${SUNDIALS_INCLUDE_DIR}")
-endif()
-
-
 find_package(CLANG_FORMAT 9)
 if(CLANG_FORMAT_FOUND)
     file(GLOB_RECURSE FORMAT_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/*.h)

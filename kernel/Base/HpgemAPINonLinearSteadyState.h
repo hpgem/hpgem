@@ -44,10 +44,6 @@
 #include "Base/FaceMatrix.h"
 #include "Utilities/GlobalVector.h"
 
-#if defined(HPGEM_USE_SUNDIALS)
-#include "nvector/nvector_serial.h"
-#endif
-
 namespace Base {
 /// \brief Interface for solving steady-state solutions of non-linear PDE's. At
 /// the moment this class can only solve steady state problems using Sundials.
@@ -120,25 +116,6 @@ class HpgemAPINonLinearSteadyState : public HpgemAPISimplified<DIM> {
         return jacobianAtElement;
     }
 
-#if defined(HPGEM_USE_SUNDIALS)
-    /// \brief This function is called by the Sundials library and then calls
-    /// the function int computeRHS(N_Vector u, N_Vector fval);
-    static int func(N_Vector cc, N_Vector fval, void *user_data);
-
-    // todo: write this function
-    static int jtimes(N_Vector v, N_Vector Jv, N_Vector u, booleantype *new_u,
-                      void *user_data);
-
-    /// \brief This function computes the right hand side of the system of
-    /// equations. N_Vector u contains the supplied solution coefficients
-    /// N_Vector fval will contain the computed rhs
-    int computeRHS(N_Vector u, N_Vector fval);
-
-    // todo: write this function
-    int computeJacTimesVector(N_Vector v, N_Vector Jv, N_Vector u,
-                              booleantype *new_u);
-#endif
-
     /// \brief Solve the steady-state problem using Sundials
     virtual bool solve(bool doComputeInitialCondition, bool doComputeError,
                        bool doUseJacobian);
@@ -173,14 +150,6 @@ class HpgemAPINonLinearSteadyState : public HpgemAPISimplified<DIM> {
     /// \brief for Debugging purposes or curiousity. If the flag is true it will
     /// output intermediate solutions.
     bool doOutputIntermediateSolutions_ = true;
-
-#if defined(HPGEM_USE_SUNDIALS)
-    /// GlobalVector that performs operations on a given N_Vector. Either writes
-    /// solutionCoefficients to the hpGEM data structure, or obtains the RHS
-    /// from the hpGEM data structure
-    Utilities::GlobalSundialsVector *globalVector_;
-
-#endif
 
     /// tecplotwriter
     Output::TecplotDiscontinuousSolutionWriter<DIM> *tecplotWriter_;
