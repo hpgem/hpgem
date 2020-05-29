@@ -49,21 +49,21 @@ class BogackiShampine : public ButcherTableau {
         return theInstance;
     }
 
-    std::size_t getOrder() const override final;
+    std::size_t getOrder() const final;
 
-    std::size_t getNumberOfStages() const override final;
+    std::size_t getNumberOfStages() const final;
 
-    bool getTotalVariationDiminishing() const override final;
+    bool getTotalVariationDiminishing() const final;
 
-    double getA(std::size_t i, std::size_t j) const override final;
+    double getA(std::size_t i, std::size_t j) const final;
 
-    double getB(std::size_t i) const override final;
+    double getB(std::size_t i) const final;
 
-    double getC(std::size_t i) const override final;
+    double getC(std::size_t i) const final;
 
-    bool hasErrorEstimate() const override final { return true; }
+    bool hasErrorEstimate() const final { return true; }
 
-    double getErrorCoefficient(std::size_t i) const override final;
+    double getErrorCoefficient(std::size_t i) const final;
 
    private:
     BogackiShampine();

@@ -347,7 +347,7 @@ typename DivDGMaxEigenValue<DIM>::Result DivDGMaxEigenValue<DIM>::solve(
         CHKERRABORT(PETSC_COMM_WORLD, error);
 
         extractEigenvalues(eigenSolver, eigenvalues[i]);
-        error = EPSGetEigenvector(eigenSolver, 0, globalVector, NULL);
+        error = EPSGetEigenvector(eigenSolver, 0, globalVector, nullptr);
         CHKERRABORT(PETSC_COMM_WORLD, error);
         // globalVector.writeTimeIntegrationVector(outputId);
         outputId++;
@@ -422,9 +422,8 @@ void DivDGMaxEigenValue<DIM>::extractEigenvalues(
               [](const PetscScalar& a, const PetscScalar& b) {
                   if (a.real() != b.real()) {
                       return a.real() > b.real();
-                  } else {
-                      return a.imag() > b.imag();
                   }
+                  return a.imag() > b.imag();
               });
 }
 

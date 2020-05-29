@@ -111,7 +111,7 @@ static std::size_t referenceGeometryTypeDimension(ReferenceGeometryType type) {
  */
 class ReferenceGeometry : public MappingCodimensions {
    public:
-    virtual ~ReferenceGeometry() = default;
+    ~ReferenceGeometry() override = default;
 
     ReferenceGeometry(const ReferenceGeometry& other) = delete;
 

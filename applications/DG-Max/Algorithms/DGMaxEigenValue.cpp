@@ -140,7 +140,7 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
 
     // Setup the EPS eigen value solver of SLEPC to find the eigenvalues of
     // `product`.
-    error = EPSSetOperators(eigenSolver, product, NULL);
+    error = EPSSetOperators(eigenSolver, product, nullptr);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     error = EPSSetUp(eigenSolver);
     CHKERRABORT(PETSC_COMM_WORLD, error);
@@ -306,7 +306,7 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
             measureAmount++;
         }
 
-        error = EPSSetOperators(eigenSolver, product, NULL);
+        error = EPSSetOperators(eigenSolver, product, nullptr);
         CHKERRABORT(PETSC_COMM_WORLD, error);
         if (i > 0) {
             // Use solution of previous time as starting point for the next one.
@@ -373,9 +373,8 @@ void DGMaxEigenValue<DIM>::extractEigenValues(
               [](const PetscScalar& a, const PetscScalar& b) {
                   if (a.real() != b.real()) {
                       return a.real() < b.real();
-                  } else {
-                      return a.imag() < b.imag();
                   }
+                  return a.imag() < b.imag();
               });
 }
 

@@ -68,7 +68,7 @@ Jacobian<1, 2> MappingToRefLineToTriangle0::calcJacobian(
     return jacobian;
 }
 
-MappingToRefLineToTriangle0::MappingToRefLineToTriangle0() {}
+MappingToRefLineToTriangle0::MappingToRefLineToTriangle0() = default;
 
 // ~~~~~~~~~~~~~~~==============================================================================
 // ~~~ index 1
@@ -97,7 +97,7 @@ Jacobian<1, 2> MappingToRefLineToTriangle1::calcJacobian(
     return jacobian;
 }
 
-MappingToRefLineToTriangle1::MappingToRefLineToTriangle1() {}
+MappingToRefLineToTriangle1::MappingToRefLineToTriangle1() = default;
 
 // ~~~~~~~~~~~~~~~==============================================================================
 // ~~~ index 2
@@ -126,5 +126,5 @@ Jacobian<1, 2> MappingToRefLineToTriangle2::calcJacobian(
     return jacobian;
 }
 
-MappingToRefLineToTriangle2::MappingToRefLineToTriangle2() {}
+MappingToRefLineToTriangle2::MappingToRefLineToTriangle2() = default;
 }  // namespace Geometry

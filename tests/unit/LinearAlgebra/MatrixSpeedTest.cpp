@@ -37,8 +37,8 @@
  */
 
 #include <iostream>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 #include "LinearAlgebra/MiddleSizeMatrix.h"
 
 using namespace ::std;

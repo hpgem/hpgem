@@ -66,7 +66,7 @@ class GlobalMatrix {
 
    public:
     /// use the destructor of the subclass in case this is needed
-    virtual ~GlobalMatrix() {}
+    virtual ~GlobalMatrix() = default;
 
     GlobalMatrix(const GlobalMatrix& other) = delete;
 
@@ -122,7 +122,7 @@ class GlobalPetscMatrix : public GlobalMatrix {
 
     ~GlobalPetscMatrix() override;
 
-    virtual void assemble() override;
+    void assemble() override;
 
     void reinit() override;
 

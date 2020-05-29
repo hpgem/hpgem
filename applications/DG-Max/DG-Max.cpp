@@ -43,7 +43,7 @@
 
 #include <cstdlib>
 #include <iostream>
-#include "math.h"
+#include <cmath>
 #include <ctime>
 
 #include "Base/CommandLineOptions.h"

@@ -109,9 +109,9 @@ void GlobalMatrix::getMatrixBCEntries(const Base::Face* face,
             face->getPtrElementLeft()->getPhysicalGeometry()->getNodeIndex(
                 edgeIndex[1]);
         bool firstFound(false), secondFound(false);
-        for (std::size_t j = 0; j < nodeEntries.size(); ++j) {
-            if (nodeEntries[j] == edgeIndex[0]) firstFound = true;
-            if (nodeEntries[j] == edgeIndex[1]) secondFound = true;
+        for (unsigned long nodeEntrie : nodeEntries) {
+            if (nodeEntrie == edgeIndex[0]) firstFound = true;
+            if (nodeEntrie == edgeIndex[1]) secondFound = true;
         }
         if (firstFound && secondFound) {
             const Base::Edge* edge = face->getPtrElementLeft()->getEdge(i);

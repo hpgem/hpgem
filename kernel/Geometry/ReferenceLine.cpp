@@ -88,10 +88,9 @@ std::size_t ReferenceLine::getCodim0MappingIndex(
     const std::vector<std::size_t>& list1,
     const std::vector<std::size_t>& list2) const {
     if (list1.size() == 2 && list2.size() == 2) {
-        if (list1[0] == list2[0])
-            return 0;
-        else
-            return 1;
+        if (list1[0] == list2[0]) return 0;
+
+        return 1;
     } else {
         logger(ERROR,
                "number of nodes of reference square was larger than 4.\n");

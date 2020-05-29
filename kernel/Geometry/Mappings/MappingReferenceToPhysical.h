@@ -79,8 +79,8 @@ class MappingReferenceToPhysical : public MappingInterface<0> {
 
     // Note that the memory of nodes is managed by Mesh, so do not make a deep
     // copy.
-    MappingReferenceToPhysical(const MappingReferenceToPhysical& other)
-        : MappingInterface(other), geometry(other.geometry) {}
+    MappingReferenceToPhysical(const MappingReferenceToPhysical& other) =
+        default;
 
     // Methods.
     //! ~OC~ Transform a point from reference space to physical space.

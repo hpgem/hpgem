@@ -53,7 +53,7 @@ class H1ConformingTransformation : public CoordinateTransformation<DIM> {
     /// function values are not scaled, just evaluated using reference
     /// coordinates
     double transform(double referenceData,
-                     PhysicalElement<DIM>& element) const override final {
+                     PhysicalElement<DIM>& element) const final {
         return referenceData;
     }
 
@@ -61,22 +61,20 @@ class H1ConformingTransformation : public CoordinateTransformation<DIM> {
     /// pre-multiplying with the inverse transpose Jacobian
     LinearAlgebra::SmallVector<DIM> transformDeriv(
         LinearAlgebra::SmallVector<DIM> referenceData,
-        PhysicalElement<DIM>& element) const override final {
+        PhysicalElement<DIM>& element) const final {
         element.getTransposeJacobian().solve(referenceData);
         return referenceData;
     }
 
     /// integrands for elements are multiplied by the absolute value of the
     /// determinant of the Jacobian to correct for the difference in volume
-    double getIntegrandScaleFactor(
-        PhysicalElement<DIM>& element) const override final {
+    double getIntegrandScaleFactor(PhysicalElement<DIM>& element) const final {
         return element.getJacobianAbsDet();
     }
 
     /// integrands for faces are multiplied by the norm of the outward normal
     /// vector to correct for the difference in area
-    double getIntegrandScaleFactor(
-        PhysicalFace<DIM>& face) const override final {
+    double getIntegrandScaleFactor(PhysicalFace<DIM>& face) const final {
         return face.getRelativeSurfaceArea();
     }
 };

@@ -117,18 +117,16 @@ class Face final : public Geometry::FaceGeometry, public FaceData {
     const Element* getPtrElement(Side iSide) const {
         if (iSide == Side::LEFT) {
             return elementLeft_;
-        } else {
-            return elementRight_;
         }
+        return elementRight_;
     }
 
     /// \brief Return the pointer to the element on the opposite side of iSide.
     const Element* getPtrElementOpposite(Side iSide) const {
         if (iSide == Side::LEFT) {
             return elementRight_;
-        } else {
-            return elementLeft_;
         }
+        return elementLeft_;
     }
 
     /// \brief Get a list of pointers to the adjacent nodes
@@ -390,10 +388,9 @@ double Face::basisFunction(std::size_t i,
         getPtrElementLeft()->getNumberOfBasisFunctions();
     if (i < numberOfBasisFuncs) {
         return getPtrElementLeft()->basisFunction(i, mapRefFaceToRefElemL(p));
-    } else {
-        return getPtrElementRight()->basisFunction(i - numberOfBasisFuncs,
-                                                   mapRefFaceToRefElemR(p));
     }
+    return getPtrElementRight()->basisFunction(i - numberOfBasisFuncs,
+                                               mapRefFaceToRefElemR(p));
 }
 
 template <std::size_t DIM>
@@ -409,10 +406,9 @@ double Face::basisFunction(std::size_t i,
     if (i < numberOfBasisFuncs) {
         return getPtrElementLeft()->basisFunction(i, mapRefFaceToRefElemL(p),
                                                   unknown);
-    } else {
-        return getPtrElementRight()->basisFunction(
-            i - numberOfBasisFuncs, mapRefFaceToRefElemR(p), unknown);
     }
+    return getPtrElementRight()->basisFunction(
+        i - numberOfBasisFuncs, mapRefFaceToRefElemR(p), unknown);
 }
 
 template <std::size_t DIM>
@@ -462,16 +458,15 @@ double Face::basisFunction(Side iSide, std::size_t iBasisFunction,
             iBasisFunction, getPtrElementLeft()->getNumberOfBasisFunctions());
         return getPtrElementLeft()->basisFunction(iBasisFunction,
                                                   mapRefFaceToRefElemL(p));
-    } else {
-        logger.assert_debug(isInternal(),
-                            "boundary faces only have a \"left\" element");
-        logger.assert_debug(
-            iBasisFunction < getPtrElementRight()->getNumberOfBasisFunctions(),
-            "Asked for basis function %, but there are only % basis functions",
-            iBasisFunction, getPtrElementRight()->getNumberOfBasisFunctions());
-        return getPtrElementRight()->basisFunction(iBasisFunction,
-                                                   mapRefFaceToRefElemR(p));
     }
+    logger.assert_debug(isInternal(),
+                        "boundary faces only have a \"left\" element");
+    logger.assert_debug(
+        iBasisFunction < getPtrElementRight()->getNumberOfBasisFunctions(),
+        "Asked for basis function %, but there are only % basis functions",
+        iBasisFunction, getPtrElementRight()->getNumberOfBasisFunctions());
+    return getPtrElementRight()->basisFunction(iBasisFunction,
+                                               mapRefFaceToRefElemR(p));
 }
 
 /// \param[in] iSide The index corresponding to the side of the face.
@@ -490,18 +485,17 @@ double Face::basisFunction(Side iSide, std::size_t iBasisFunction,
             getPtrElementLeft()->getNumberOfBasisFunctions(unknown));
         return getPtrElementLeft()->basisFunction(
             iBasisFunction, mapRefFaceToRefElemL(p), unknown);
-    } else {
-        logger.assert_debug(isInternal(),
-                            "boundary faces only have a \"left\" element");
-        logger.assert_debug(
-            iBasisFunction <
-                getPtrElementRight()->getNumberOfBasisFunctions(unknown),
-            "Asked for basis function %, but there are only % basis functions",
-            iBasisFunction,
-            getPtrElementRight()->getNumberOfBasisFunctions(unknown));
-        return getPtrElementRight()->basisFunction(
-            iBasisFunction, mapRefFaceToRefElemR(p), unknown);
     }
+    logger.assert_debug(isInternal(),
+                        "boundary faces only have a \"left\" element");
+    logger.assert_debug(
+        iBasisFunction <
+            getPtrElementRight()->getNumberOfBasisFunctions(unknown),
+        "Asked for basis function %, but there are only % basis functions",
+        iBasisFunction,
+        getPtrElementRight()->getNumberOfBasisFunctions(unknown));
+    return getPtrElementRight()->basisFunction(
+        iBasisFunction, mapRefFaceToRefElemR(p), unknown);
 }
 
 template <std::size_t DIM>
@@ -569,17 +563,16 @@ LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionNormal(
         return getPtrElementLeft()->basisFunction(iBasisFunction,
                                                   mapRefFaceToRefElemL(p)) *
                normal / Base::L2Norm(normal);
-    } else {
-        logger.assert_debug(isInternal(),
-                            "boundary faces only have a \"left\" element");
-        logger.assert_debug(
-            iBasisFunction < getPtrElementRight()->getNumberOfBasisFunctions(),
-            "Asked for basis function %, but there are only % basis functions",
-            iBasisFunction, getPtrElementRight()->getNumberOfBasisFunctions());
-        return -getPtrElementRight()->basisFunction(iBasisFunction,
-                                                    mapRefFaceToRefElemR(p)) *
-               normal / Base::L2Norm(normal);
     }
+    logger.assert_debug(isInternal(),
+                        "boundary faces only have a \"left\" element");
+    logger.assert_debug(
+        iBasisFunction < getPtrElementRight()->getNumberOfBasisFunctions(),
+        "Asked for basis function %, but there are only % basis functions",
+        iBasisFunction, getPtrElementRight()->getNumberOfBasisFunctions());
+    return -getPtrElementRight()->basisFunction(iBasisFunction,
+                                                mapRefFaceToRefElemR(p)) *
+           normal / Base::L2Norm(normal);
 }
 
 /// \param[in] iSide The index corresponding to the side of the face.
@@ -602,19 +595,18 @@ LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionNormal(
         return getPtrElementLeft()->basisFunction(
                    iBasisFunction, mapRefFaceToRefElemL(p), unknown) *
                normal / Base::L2Norm(normal);
-    } else {
-        logger.assert_debug(isInternal(),
-                            "boundary faces only have a \"left\" element");
-        logger.assert_debug(
-            iBasisFunction <
-                getPtrElementRight()->getNumberOfBasisFunctions(unknown),
-            "Asked for basis function %, but there are only % basis functions",
-            iBasisFunction,
-            getPtrElementRight()->getNumberOfBasisFunctions(unknown));
-        return -getPtrElementRight()->basisFunction(
-                   iBasisFunction, mapRefFaceToRefElemR(p), unknown) *
-               normal / Base::L2Norm(normal);
     }
+    logger.assert_debug(isInternal(),
+                        "boundary faces only have a \"left\" element");
+    logger.assert_debug(
+        iBasisFunction <
+            getPtrElementRight()->getNumberOfBasisFunctions(unknown),
+        "Asked for basis function %, but there are only % basis functions",
+        iBasisFunction,
+        getPtrElementRight()->getNumberOfBasisFunctions(unknown));
+    return -getPtrElementRight()->basisFunction(
+               iBasisFunction, mapRefFaceToRefElemR(p), unknown) *
+           normal / Base::L2Norm(normal);
 }
 
 template <std::size_t DIM>
@@ -628,10 +620,9 @@ double Face::basisFunctionDeriv(std::size_t i, std::size_t jDir,
     if (i < n) {
         return getPtrElementLeft()->basisFunctionDeriv(i, jDir,
                                                        mapRefFaceToRefElemL(p));
-    } else {
-        return getPtrElementRight()->basisFunctionDeriv(
-            i - n, jDir, mapRefFaceToRefElemR(p));
     }
+    return getPtrElementRight()->basisFunctionDeriv(i - n, jDir,
+                                                    mapRefFaceToRefElemR(p));
 }
 
 template <std::size_t DIM>
@@ -646,10 +637,9 @@ double Face::basisFunctionDeriv(std::size_t i, std::size_t jDir,
     if (i < n) {
         return getPtrElementLeft()->basisFunctionDeriv(
             i, jDir, mapRefFaceToRefElemL(p), unknown);
-    } else {
-        return getPtrElementRight()->basisFunctionDeriv(
-            i - n, jDir, mapRefFaceToRefElemR(p), unknown);
     }
+    return getPtrElementRight()->basisFunctionDeriv(
+        i - n, jDir, mapRefFaceToRefElemR(p), unknown);
 }
 
 template <std::size_t DIM>
@@ -663,10 +653,9 @@ LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionDeriv(
     if (i < n) {
         return getPtrElementLeft()->basisFunctionDeriv(i,
                                                        mapRefFaceToRefElemL(p));
-    } else {
-        return getPtrElementRight()->basisFunctionDeriv(
-            i - n, mapRefFaceToRefElemR(p));
     }
+    return getPtrElementRight()->basisFunctionDeriv(i - n,
+                                                    mapRefFaceToRefElemR(p));
 }
 
 template <std::size_t DIM>
@@ -681,10 +670,9 @@ LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionDeriv(
     if (i < n) {
         return getPtrElementLeft()->basisFunctionDeriv(
             i, mapRefFaceToRefElemL(p), unknown);
-    } else {
-        return getPtrElementRight()->basisFunctionDeriv(
-            i - n, mapRefFaceToRefElemR(p), unknown);
     }
+    return getPtrElementRight()->basisFunctionDeriv(
+        i - n, mapRefFaceToRefElemR(p), unknown);
 }
 
 /// \param[in] iSide The index corresponding to the side of the face.
@@ -701,16 +689,15 @@ LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionDeriv(
             iBasisFunction, getPtrElementLeft()->getNumberOfBasisFunctions());
         return getPtrElementLeft()->basisFunctionDeriv(iBasisFunction,
                                                        mapRefFaceToRefElemL(p));
-    } else {
-        logger.assert_debug(isInternal(),
-                            "boundary faces only have a \"left\" element");
-        logger.assert_debug(
-            iBasisFunction < getPtrElementRight()->getNumberOfBasisFunctions(),
-            "Asked for basis function %, but there are only % basis functions",
-            iBasisFunction, getPtrElementRight()->getNumberOfBasisFunctions());
-        return getPtrElementRight()->basisFunctionDeriv(
-            iBasisFunction, mapRefFaceToRefElemR(p));
     }
+    logger.assert_debug(isInternal(),
+                        "boundary faces only have a \"left\" element");
+    logger.assert_debug(
+        iBasisFunction < getPtrElementRight()->getNumberOfBasisFunctions(),
+        "Asked for basis function %, but there are only % basis functions",
+        iBasisFunction, getPtrElementRight()->getNumberOfBasisFunctions());
+    return getPtrElementRight()->basisFunctionDeriv(iBasisFunction,
+                                                    mapRefFaceToRefElemR(p));
 }
 
 /// \param[in] iSide The index corresponding to the side of the face.
@@ -729,18 +716,17 @@ LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionDeriv(
             getPtrElementLeft()->getNumberOfBasisFunctions(unknown));
         return getPtrElementLeft()->basisFunctionDeriv(
             iBasisFunction, mapRefFaceToRefElemL(p), unknown);
-    } else {
-        logger.assert_debug(isInternal(),
-                            "boundary faces only have a \"left\" element");
-        logger.assert_debug(
-            iBasisFunction <
-                getPtrElementRight()->getNumberOfBasisFunctions(unknown),
-            "Asked for basis function %, but there are only % basis functions",
-            iBasisFunction,
-            getPtrElementRight()->getNumberOfBasisFunctions(unknown));
-        return getPtrElementRight()->basisFunctionDeriv(
-            iBasisFunction, mapRefFaceToRefElemR(p), unknown);
     }
+    logger.assert_debug(isInternal(),
+                        "boundary faces only have a \"left\" element");
+    logger.assert_debug(
+        iBasisFunction <
+            getPtrElementRight()->getNumberOfBasisFunctions(unknown),
+        "Asked for basis function %, but there are only % basis functions",
+        iBasisFunction,
+        getPtrElementRight()->getNumberOfBasisFunctions(unknown));
+    return getPtrElementRight()->basisFunctionDeriv(
+        iBasisFunction, mapRefFaceToRefElemR(p), unknown);
 }
 
 template <std::size_t DIM>
@@ -755,10 +741,9 @@ LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionCurl(
     if (i < numberOfBasisFunctionsLeft) {
         return getPtrElementLeft()->basisFunctionCurl(i,
                                                       mapRefFaceToRefElemL(p));
-    } else {
-        return getPtrElementRight()->basisFunctionCurl(
-            i - numberOfBasisFunctionsLeft, mapRefFaceToRefElemR(p));
     }
+    return getPtrElementRight()->basisFunctionCurl(
+        i - numberOfBasisFunctionsLeft, mapRefFaceToRefElemR(p));
 }
 
 template <std::size_t DIM>
@@ -774,10 +759,9 @@ LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionCurl(
     if (i < numberOfBasisFunctionsLeft) {
         return getPtrElementLeft()->basisFunctionCurl(
             i, mapRefFaceToRefElemL(p), unknown);
-    } else {
-        return getPtrElementRight()->basisFunctionCurl(
-            i - numberOfBasisFunctionsLeft, mapRefFaceToRefElemR(p), unknown);
     }
+    return getPtrElementRight()->basisFunctionCurl(
+        i - numberOfBasisFunctionsLeft, mapRefFaceToRefElemR(p), unknown);
 }
 }  // namespace Base
 #endif

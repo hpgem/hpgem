@@ -8,3 +8,5 @@ For more detailed information about the changes see the history of the
 * Updated Readme (#32)
 * Deleted Old Meshgeneration (#31)
 * Removed Valarray (#32)
+* Formatted Code (#33)
+* Ran Clang-tdiy checks (#34)

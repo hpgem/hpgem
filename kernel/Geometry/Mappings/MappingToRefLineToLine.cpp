@@ -78,7 +78,7 @@ Jacobian<1, 1> MappingToRefLineToLine0::calcJacobian(
     return jacobian;
 }
 
-MappingToRefLineToLine0::MappingToRefLineToLine0() {}
+MappingToRefLineToLine0::MappingToRefLineToLine0() = default;
 
 // ~~~~~~~~~~~~~~~==============================================================================
 // ~~~ index 1
@@ -106,6 +106,6 @@ Jacobian<1, 1> MappingToRefLineToLine1::calcJacobian(
     return jacobian;
 }
 
-MappingToRefLineToLine1::MappingToRefLineToLine1() {}
+MappingToRefLineToLine1::MappingToRefLineToLine1() = default;
 
 }  // namespace Geometry

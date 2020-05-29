@@ -158,8 +158,8 @@ static void printMessage(std::string module, std::string msg) {
         if (dladdr(stackBuffer[i], &infoStruct)) {  // We succesfully loaded the
                                                     // address...
             int demangleStatus;
-            char* fnDemangled = abi::__cxa_demangle(infoStruct.dli_sname, NULL,
-                                                    NULL, &demangleStatus);
+            char* fnDemangled = abi::__cxa_demangle(
+                infoStruct.dli_sname, nullptr, nullptr, &demangleStatus);
             if (infoStruct.dli_sname == nullptr) continue;
 
             // We even succesfully demangled the symbol...

@@ -54,7 +54,7 @@ class BaseBasisFunction {
     BaseBasisFunction(const BaseBasisFunction& other) = default;
     BaseBasisFunction& operator=(const BaseBasisFunction& other) = default;
 
-    virtual ~BaseBasisFunction() {}
+    virtual ~BaseBasisFunction() = default;
 
     // we have to manually specify reasonable choices for template parameters in
     // virtual functions

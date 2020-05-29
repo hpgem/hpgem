@@ -70,7 +70,7 @@ Jacobian<2, 2> MappingToRefSquareToSquare0::calcJacobian(
     return jacobian;
 }
 
-MappingToRefSquareToSquare0::MappingToRefSquareToSquare0() {}
+MappingToRefSquareToSquare0::MappingToRefSquareToSquare0() = default;
 
 // ~~~~~~~~~~~~~~~==============================================================================
 // ~~~ index 1
@@ -101,7 +101,7 @@ Jacobian<2, 2> MappingToRefSquareToSquare1::calcJacobian(
     return jacobian;
 }
 
-MappingToRefSquareToSquare1::MappingToRefSquareToSquare1() {}
+MappingToRefSquareToSquare1::MappingToRefSquareToSquare1() = default;
 
 // ~~~~~~~~~~~~~~~==============================================================================
 // ~~~ index 2
@@ -132,7 +132,7 @@ Jacobian<2, 2> MappingToRefSquareToSquare2::calcJacobian(
     return jacobian;
 }
 
-MappingToRefSquareToSquare2::MappingToRefSquareToSquare2() {}
+MappingToRefSquareToSquare2::MappingToRefSquareToSquare2() = default;
 
 // ~~~~~~~~~~~~~~~==============================================================================
 // ~~~ index 3
@@ -163,7 +163,7 @@ Jacobian<2, 2> MappingToRefSquareToSquare3::calcJacobian(
     return jacobian;
 }
 
-MappingToRefSquareToSquare3::MappingToRefSquareToSquare3() {}
+MappingToRefSquareToSquare3::MappingToRefSquareToSquare3() = default;
 
 // ~~~~~~~~~~~~~~~==============================================================================
 // ~~~ index 4
@@ -194,7 +194,7 @@ Jacobian<2, 2> MappingToRefSquareToSquare4::calcJacobian(
     return jacobian;
 }
 
-MappingToRefSquareToSquare4::MappingToRefSquareToSquare4() {}
+MappingToRefSquareToSquare4::MappingToRefSquareToSquare4() = default;
 
 // ~~~~~~~~~~~~~~~==============================================================================
 // ~~~ index 5
@@ -225,7 +225,7 @@ Jacobian<2, 2> MappingToRefSquareToSquare5::calcJacobian(
     return jacobian;
 }
 
-MappingToRefSquareToSquare5::MappingToRefSquareToSquare5() {}
+MappingToRefSquareToSquare5::MappingToRefSquareToSquare5() = default;
 
 // ~~~~~~~~~~~~~~~==============================================================================
 // ~~~ index 6
@@ -256,7 +256,7 @@ Jacobian<2, 2> MappingToRefSquareToSquare6::calcJacobian(
     return jacobian;
 }
 
-MappingToRefSquareToSquare6::MappingToRefSquareToSquare6() {}
+MappingToRefSquareToSquare6::MappingToRefSquareToSquare6() = default;
 
 // ~~~~~~~~~~~~~~~==============================================================================
 // ~~~ index 7
@@ -287,5 +287,5 @@ Jacobian<2, 2> MappingToRefSquareToSquare7::calcJacobian(
     return jacobian;
 }
 
-MappingToRefSquareToSquare7::MappingToRefSquareToSquare7() {}
+MappingToRefSquareToSquare7::MappingToRefSquareToSquare7() = default;
 }  // namespace Geometry

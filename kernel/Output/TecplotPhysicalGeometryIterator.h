@@ -61,32 +61,27 @@ class TecplotPhysicalGeometryIterator : public PhysicalGeometryAcceptor {
     void acceptG(const Geometry::PhysicalGeometryBase* geo);
 
     /// \brief Choose node sequence for the hexahedron.
-    void acceptHexahedronGeometry(
-        const Geometry::PhysicalGeometryBase*) override final;
+    void acceptHexahedronGeometry(const Geometry::PhysicalGeometryBase*) final;
 
     /// \brief Choose node sequence for the prism.
     void acceptTriangularPrismGeometry(
-        const Geometry::PhysicalGeometryBase*) override final;
+        const Geometry::PhysicalGeometryBase*) final;
 
     /// \brief Choose node sequence for the pyramid.
-    void acceptPyramidGeometry(
-        const Geometry::PhysicalGeometryBase*) override final;
+    void acceptPyramidGeometry(const Geometry::PhysicalGeometryBase*) final;
 
     /// \brief Choose node sequence for the tetrahedron.
-    void acceptTetrahedronGeometry(
-        const Geometry::PhysicalGeometryBase*) override final;
+    void acceptTetrahedronGeometry(const Geometry::PhysicalGeometryBase*) final;
 
     /// \brief Choose node sequence for quadrilateral.
     void acceptQuadrilateralGeometry(
-        const Geometry::PhysicalGeometryBase*) override final;
+        const Geometry::PhysicalGeometryBase*) final;
 
     /// \brief Choose node sequence for triangle.
-    void acceptTriangleGeometry(
-        const Geometry::PhysicalGeometryBase*) override final;
+    void acceptTriangleGeometry(const Geometry::PhysicalGeometryBase*) final;
 
     /// \brief Choose node sequence for line.
-    void acceptLineGeometry(
-        const Geometry::PhysicalGeometryBase*) override final;
+    void acceptLineGeometry(const Geometry::PhysicalGeometryBase*) final;
 
     /// \brief Check whether all nodes of current shape have been used.
     bool more() const;

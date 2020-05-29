@@ -59,7 +59,7 @@ namespace Base {
 class FaceMatrix {
    public:
     // Constructors
-    FaceMatrix() {}
+    FaceMatrix() = default;
 
     FaceMatrix(const std::size_t nDOFLeft, const std::size_t nDOFRight);
 
@@ -91,10 +91,9 @@ class FaceMatrix {
     /// \brief Gets the number of degrees of freedom (usually the amount of
     /// (vector)-basis functions) corresponding to the element at side iSide.
     std::size_t getNumberOfDegreesOfFreedom(Side iSide) const {
-        if (iSide == Side::LEFT)
-            return M_LeftLeft_.getNumberOfRows();
-        else
-            return M_RightRight_.getNumberOfRows();
+        if (iSide == Side::LEFT) return M_LeftLeft_.getNumberOfRows();
+
+        return M_RightRight_.getNumberOfRows();
     }
 
     ///\deprecated Does not conform naming conventions, use

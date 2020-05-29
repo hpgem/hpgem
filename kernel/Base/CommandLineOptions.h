@@ -129,7 +129,7 @@ class CommandLineOptionBase {
 
     std::string getDescription() { return description; }
 
-    virtual ~CommandLineOptionBase() {}
+    virtual ~CommandLineOptionBase() = default;
 };
 std::map<char, CommandLineOptionBase*>& getCLOMapping_short();
 std::map<std::string, CommandLineOptionBase*>& getCLOMapping_long();

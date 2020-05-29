@@ -139,9 +139,8 @@ struct TimeIntegrationParameters {
         // for the last step.
         if (numberOfSteps % snapshotStride == 0) {
             return 1 + numberOfSteps / snapshotStride;
-        } else {
-            return 2 + numberOfSteps / snapshotStride;
         }
+        return 2 + numberOfSteps / snapshotStride;
     }
 };
 

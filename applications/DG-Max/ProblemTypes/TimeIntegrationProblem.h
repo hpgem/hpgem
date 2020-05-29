@@ -55,7 +55,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 template <std::size_t DIM>
 class TimeIntegrationProblem {
    public:
-    virtual ~TimeIntegrationProblem() {}
+    virtual ~TimeIntegrationProblem() = default;
 
     /// \brief Initial value of the electric field E
     virtual void initialCondition(

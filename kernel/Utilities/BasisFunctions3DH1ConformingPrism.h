@@ -58,13 +58,13 @@ class BasisFunction3DVertexPrism : public Base::BaseBasisFunction {
    public:
     BasisFunction3DVertexPrism(std::size_t node);
 
-    double eval(const Geometry::PointReference<3>& p) const;
+    double eval(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<3>& p) const;
+    double evalDeriv0(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<3>& p) const;
+    double evalDeriv1(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv2(const Geometry::PointReference<3>& p) const;
+    double evalDeriv2(const Geometry::PointReference<3>& p) const override;
 
    private:
     int nodePosition_;
@@ -86,13 +86,13 @@ class BasisFunction3DEdgePrism_0 : public Base::BaseBasisFunction {
             "Nodes % and % do not form an edge connected to a triangular face");
     }
 
-    double eval(const Geometry::PointReference<3>& p) const;
+    double eval(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<3>& p) const;
+    double evalDeriv0(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<3>& p) const;
+    double evalDeriv1(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv2(const Geometry::PointReference<3>& p) const;
+    double evalDeriv2(const Geometry::PointReference<3>& p) const override;
 
    private:
     int edgePosition_;
@@ -104,13 +104,13 @@ class BasisFunction3DEdgePrism_1 : public Base::BaseBasisFunction {
     BasisFunction3DEdgePrism_1(std::size_t node0, std::size_t node1,
                                std::size_t polynomialOrder);
 
-    double eval(const Geometry::PointReference<3>& p) const;
+    double eval(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<3>& p) const;
+    double evalDeriv0(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<3>& p) const;
+    double evalDeriv1(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv2(const Geometry::PointReference<3>& p) const;
+    double evalDeriv2(const Geometry::PointReference<3>& p) const override;
 
    private:
     int mirroring_;
@@ -123,13 +123,13 @@ class BasisFunction3DFacePrism_0 : public Base::BaseBasisFunction {
                                std::size_t node2, std::size_t polynomialOrder0,
                                std::size_t polynomialOrder1);
 
-    double eval(const Geometry::PointReference<3>& p) const;
+    double eval(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<3>& p) const;
+    double evalDeriv0(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<3>& p) const;
+    double evalDeriv1(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv2(const Geometry::PointReference<3>& p) const;
+    double evalDeriv2(const Geometry::PointReference<3>& p) const override;
 
    private:
     int facePosition_;
@@ -142,13 +142,13 @@ class BasisFunction3DFacePrism_1 : public Base::BaseBasisFunction {
                                std::size_t node2, std::size_t polynomialOrder0,
                                std::size_t polynomialOrder1);
 
-    double eval(const Geometry::PointReference<3>& p) const;
+    double eval(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<3>& p) const;
+    double evalDeriv0(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<3>& p) const;
+    double evalDeriv1(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv2(const Geometry::PointReference<3>& p) const;
+    double evalDeriv2(const Geometry::PointReference<3>& p) const override;
 
    private:
     int mirroring_;
@@ -164,13 +164,13 @@ class BasisFunction3DInteriorPrism : public Base::BaseBasisFunction {
           polynomialOrder1_(polynomialOrder1),
           polynomialOrder2_(polynomialOrder2) {}
 
-    double eval(const Geometry::PointReference<3>& p) const;
+    double eval(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<3>& p) const;
+    double evalDeriv0(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<3>& p) const;
+    double evalDeriv1(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv2(const Geometry::PointReference<3>& p) const;
+    double evalDeriv2(const Geometry::PointReference<3>& p) const override;
 
    private:
     std::size_t polnomialOrder0_, polynomialOrder1_, polynomialOrder2_;

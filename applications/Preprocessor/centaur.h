@@ -56,10 +56,9 @@ class CentaurReader {
     Range<std::vector<std::size_t>> getElements();
 
     std::size_t getDimension() {
-        if (centaurFileType > 0)
-            return 3;
-        else
-            return 2;
+        if (centaurFileType > 0) return 3;
+
+        return 2;
     }
 
    private:

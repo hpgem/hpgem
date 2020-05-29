@@ -96,7 +96,7 @@ class MappingCodimensions {
         logger(ERROR,
                "The dimension of given entity is too low to warrant maps of "
                "this codimension.\n");
-        return 0;
+        return nullptr;
     }
 
     virtual const ReferenceGeometry* getCodim1ReferenceGeometry(
@@ -104,7 +104,7 @@ class MappingCodimensions {
         logger(ERROR,
                "The dimension of given entity is too low to warrant maps of "
                "this codimension.\n");
-        return 0;
+        return nullptr;
     }
 
     ///\deprecated use getNumberOfCodim2Entities instead
@@ -128,7 +128,7 @@ class MappingCodimensions {
         logger(ERROR,
                "The dimension of given entity is too low to warrant maps of "
                "this codimension.\n");
-        return 0;
+        return nullptr;
     }
 
     virtual const ReferenceGeometry* getCodim2ReferenceGeometry(
@@ -136,7 +136,7 @@ class MappingCodimensions {
         logger(ERROR,
                "The dimension of given entity is too low to warrant maps of "
                "this codimension.\n");
-        return 0;
+        return nullptr;
     }
 
     ///\deprecated use getNumberOfCodim3Entities instead
@@ -155,7 +155,7 @@ class MappingCodimensions {
         return dummy;
     }
 
-    virtual ~MappingCodimensions() {}
+    virtual ~MappingCodimensions() = default;
 };
 }  // namespace Geometry
 #endif

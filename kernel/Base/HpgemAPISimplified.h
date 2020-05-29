@@ -161,7 +161,7 @@ class HpgemAPISimplified : public HpgemAPIBase<DIM>,
                        const bool computeBothFaces = false);
 
     HpgemAPISimplified(const HpgemAPISimplified &other) = delete;
-    virtual ~HpgemAPISimplified() = default;
+    ~HpgemAPISimplified() override = default;
 
     /// \brief Create the mesh.
     virtual void readMesh(std::string fileName);
@@ -386,9 +386,9 @@ class HpgemAPISimplified : public HpgemAPIBase<DIM>,
                                 std::vector<std::string> variableNames);
 
     /// \brief Write output to a tecplot file.
-    virtual void writeToTecplotFile(const Element *ptrElement,
-                                    const PointReferenceT &pRef,
-                                    std::ostream &out) override;
+    void writeToTecplotFile(const Element *ptrElement,
+                            const PointReferenceT &pRef,
+                            std::ostream &out) override;
 
     virtual void VTKWrite(Output::VTKTimeDependentWriter<DIM> &out, double t,
                           std::size_t timeIntegrationVectorId) {

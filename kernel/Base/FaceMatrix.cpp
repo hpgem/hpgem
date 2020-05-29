@@ -55,11 +55,7 @@ FaceMatrix::FaceMatrix(const std::size_t nDOFLeft, const std::size_t nDOFRight)
 
 /// \param[in] other FaceMatrix that will be copied to construct a new
 /// FaceMatrix.
-FaceMatrix::FaceMatrix(const FaceMatrix &other)
-    : M_LeftLeft_(other.M_LeftLeft_),
-      M_LeftRight_(other.M_LeftRight_),
-      M_RightLeft_(other.M_RightLeft_),
-      M_RightRight_(other.M_RightRight_) {}
+FaceMatrix::FaceMatrix(const FaceMatrix &other) = default;
 
 // Operators
 /// \param[in] iSide Side of the adjacent element to consider the test function.
@@ -82,15 +78,14 @@ LinearAlgebra::MiddleSizeMatrix::type &FaceMatrix::operator()(
     if (iSide == Side::LEFT) {
         if (jSide == Side::LEFT) {
             return M_LeftLeft_(iVarBasisFunction, jVarBasisFunction);
-        } else {
-            return M_LeftRight_(iVarBasisFunction, jVarBasisFunction);
         }
+        return M_LeftRight_(iVarBasisFunction, jVarBasisFunction);
+
     } else {
         if (jSide == Side::LEFT) {
             return M_RightLeft_(iVarBasisFunction, jVarBasisFunction);
-        } else {
-            return M_RightRight_(iVarBasisFunction, jVarBasisFunction);
         }
+        return M_RightRight_(iVarBasisFunction, jVarBasisFunction);
     }
 }
 
@@ -122,26 +117,19 @@ LinearAlgebra::MiddleSizeMatrix::type &FaceMatrix::operator()(std::size_t i,
     if (i < nDOFLeft) {
         if (j < nDOFLeft) {
             return M_LeftLeft_(i, j);
-        } else {
-            return M_LeftRight_(i, j - nDOFLeft);
         }
+        return M_LeftRight_(i, j - nDOFLeft);
+
     } else {
         if (j < nDOFLeft) {
             return M_RightLeft_(i - nDOFLeft, j);
-        } else {
-            return M_RightRight_(i - nDOFLeft, j - nDOFLeft);
         }
+        return M_RightRight_(i - nDOFLeft, j - nDOFLeft);
     }
 }
 
 /// \param[in] other FaceMatrix that is being copied.
-FaceMatrix &FaceMatrix::operator=(const FaceMatrix &other) {
-    M_LeftLeft_ = other.M_LeftLeft_;
-    M_LeftRight_ = other.M_LeftRight_;
-    M_RightLeft_ = other.M_RightLeft_;
-    M_RightRight_ = other.M_RightRight_;
-    return *this;
-}
+FaceMatrix &FaceMatrix::operator=(const FaceMatrix &other) = default;
 
 /// \param[in] other FaceMatrix that is being added.
 FaceMatrix &FaceMatrix::operator+=(const FaceMatrix &other) {
@@ -181,15 +169,14 @@ const LinearAlgebra::MiddleSizeMatrix &FaceMatrix::getElementMatrix(
     if (iSide == Side::LEFT) {
         if (jSide == Side::LEFT) {
             return M_LeftLeft_;
-        } else {
-            return M_LeftRight_;
         }
+        return M_LeftRight_;
+
     } else {
         if (jSide == Side::LEFT) {
             return M_RightLeft_;
-        } else {
-            return M_RightRight_;
         }
+        return M_RightRight_;
     }
 }
 

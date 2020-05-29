@@ -65,7 +65,7 @@ class ReferenceTriangle : public ReferenceSimplex<2> {
     ReferenceTriangle(const ReferenceTriangle& copy) = delete;
 
     /// /see (see ReferenceGeometry.h)
-    bool isInternalPoint(const PointReference<2>& point) const override final;
+    bool isInternalPoint(const PointReference<2>& point) const final;
 
     // ================================== Codimension 0
     // ========================================
@@ -73,11 +73,11 @@ class ReferenceTriangle : public ReferenceSimplex<2> {
     //! (see MappingCodimensions.h)
     std::size_t getCodim0MappingIndex(
         const std::vector<std::size_t>&,
-        const std::vector<std::size_t>&) const override final;
+        const std::vector<std::size_t>&) const final;
 
     //! (see MappingCodimensions.h)
     const MappingReferenceToReference<0>* getCodim0MappingPtr(
-        const std::size_t) const override final;
+        const std::size_t) const final;
 
     using MappingCodimensions::getCodim0MappingPtr;
 
@@ -85,33 +85,33 @@ class ReferenceTriangle : public ReferenceSimplex<2> {
     // ========================================
 
     //! (see MappingCodimensions.h)
-    std::size_t getNumberOfCodim1Entities() const override final { return 3; }
+    std::size_t getNumberOfCodim1Entities() const final { return 3; }
 
     //! (see MappingCodimensions.h)
     std::vector<std::size_t> getCodim1EntityLocalIndices(
-        const std::size_t) const override final;
+        const std::size_t) const final;
 
     //! (see MappingCodimensions.h)
     const MappingReferenceToReference<1>* getCodim1MappingPtr(
-        const std::size_t) const override final;
+        const std::size_t) const final;
 
     //! (see MappingCodimensions.h)
     const ReferenceGeometry* getCodim1ReferenceGeometry(
-        const std::size_t) const override final;
+        const std::size_t) const final;
 
     // ================================== Codimension 2
     // ========================================
 
     //! (see MappingCodimensions.h)
-    std::size_t getNumberOfCodim2Entities() const override final { return 3; }
+    std::size_t getNumberOfCodim2Entities() const final { return 3; }
 
     std::vector<std::size_t> getCodim2EntityLocalIndices(
-        const std::size_t node) const override final {
+        const std::size_t node) const final {
         return std::vector<std::size_t>(1, node);
     }
 
     const ReferenceGeometry* getCodim2ReferenceGeometry(
-        const std::size_t) const override final;
+        const std::size_t) const final;
 
    private:
     ReferenceTriangle();

@@ -97,7 +97,8 @@ class PhysicalGeometry : public PhysicalGeometryBase {
 
     /// \brief Given a global index, returns a pointer to the corresponding
     /// point.
-    PointPhysicalBase* getNodeCoordinatePtr(const std::size_t globalIndex) {
+    PointPhysicalBase* getNodeCoordinatePtr(
+        const std::size_t globalIndex) override {
         logger.assert_debug(globalIndex < nodeCoordinates_.size(),
                             "This mesh does not contain a node with index %",
                             globalIndex);
@@ -107,7 +108,7 @@ class PhysicalGeometry : public PhysicalGeometryBase {
     /// \brief Given a global index, returns a pointer to the corresponding
     /// point.
     const PointPhysicalBase* getNodeCoordinatePtr(
-        const std::size_t globalIndex) const {
+        const std::size_t globalIndex) const override {
         logger.assert_debug(globalIndex < nodeCoordinates_.size(),
                             "This mesh does not contain a node with index %",
                             globalIndex);
@@ -145,20 +146,22 @@ class PhysicalGeometry : public PhysicalGeometryBase {
     /// \brief Given a local index, return the physical coordinates of the
     /// corresponding point.
     const PointPhysicalBase& getLocalNodeCoordinates(
-        const std::size_t localIndex) const;
+        const std::size_t localIndex) const override;
 
     /// \brief Given a global index, return the physical coordinates of the
     /// corresponding point.
     const PointPhysicalBase& getGlobalNodeCoordinates(
-        const std::size_t globalIndex) const;
+        const std::size_t globalIndex) const override;
 
     /// \brief Given a local index, return the physical coordinates of the
     /// corresponding point.
-    PointPhysicalBase& getLocalNodeCoordinates(const std::size_t localIndex);
+    PointPhysicalBase& getLocalNodeCoordinates(
+        const std::size_t localIndex) override;
 
     /// \brief Given a global index, return the physical coordinates of the
     /// corresponding point.
-    PointPhysicalBase& getGlobalNodeCoordinates(const std::size_t globalIndex);
+    PointPhysicalBase& getGlobalNodeCoordinates(
+        const std::size_t globalIndex) override;
 
    protected:
     /// Reference to the global node container.

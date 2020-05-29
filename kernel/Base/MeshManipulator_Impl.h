@@ -85,7 +85,7 @@
 #include "Logger.h"
 
 #include <algorithm>
-#include <ctype.h>
+#include <cctype>
 #include <iostream>
 #include <unordered_set>
 #include <array>
@@ -1261,9 +1261,8 @@ std::tuple<const Base::Element *, Geometry::PointReference<DIM>>
             if (singleEntry->hasChild()) {
                 return physicalToReference_detail(pointPhysical,
                                                   singleEntry->getChildren());
-            } else {
-                return std::make_tuple(element, pointReference);
             }
+            return std::make_tuple(element, pointReference);
         }
     }
     throw "The point % lies outsize the subdomain managed by this thread";

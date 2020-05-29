@@ -75,15 +75,14 @@ class faceMapContainer {
         if (!isConcatenated_) {
             if (RHS.isConcatenated_) {
                 return true;
-            } else {
-                return data_.direct_ < RHS.data_.direct_;
             }
+            return data_.direct_ < RHS.data_.direct_;
+
         } else {
             if (RHS.isConcatenated_) {
                 return data_.indirect_ < RHS.data_.indirect_;
-            } else {
-                return false;
             }
+            return false;
         }
     }
 
@@ -108,7 +107,7 @@ class GaussQuadratureRule {
     GaussQuadratureRule() = default;
     GaussQuadratureRule(const GaussQuadratureRule& other) = delete;
 
-    virtual ~GaussQuadratureRule() {}
+    virtual ~GaussQuadratureRule() = default;
 
     //! Return the name of the quadrature.
     virtual std::string getName() const = 0;

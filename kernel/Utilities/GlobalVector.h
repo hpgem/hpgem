@@ -68,7 +68,7 @@ class GlobalVector {
 
    public:
     /// use the destructor of the subclass in case this is needed
-    virtual ~GlobalVector() {}
+    virtual ~GlobalVector() = default;
 
     GlobalVector(const GlobalVector& other) = delete;
 

@@ -20,14 +20,13 @@ LinearAlgebra::SmallVector<DIM> KSpacePath<DIM>::k(std::size_t index) const {
                         totalNumberOfSteps());
     if (index % steps_ == 0) {
         return points_[index / steps_];
-    } else {
-        // Linear interpolation
-        std::size_t pointOffset = index / steps_;
-        std::size_t stepOffset = index % steps_;
-        double alpha = 1.0 * stepOffset / steps_;
-        return alpha * points_[pointOffset + 1] +
-               (1 - alpha) * points_[pointOffset];
     }
+    // Linear interpolation
+    std::size_t pointOffset = index / steps_;
+    std::size_t stepOffset = index % steps_;
+    double alpha = 1.0 * stepOffset / steps_;
+    return alpha * points_[pointOffset + 1] +
+           (1 - alpha) * points_[pointOffset];
 }
 
 template <std::size_t DIM>
@@ -38,10 +37,9 @@ LinearAlgebra::SmallVector<DIM> KSpacePath<DIM>::dk(std::size_t index) const {
     if (index == 0) {
         logger(WARN, "Asking for dk at point 0");
         return points_[0];
-    } else {
-        std::size_t pointOffset = (index - 1) / steps_;
-        return (points_[pointOffset + 1] - points_[pointOffset]) / steps_;
     }
+    std::size_t pointOffset = (index - 1) / steps_;
+    return (points_[pointOffset + 1] - points_[pointOffset]) / steps_;
 }
 
 template <std::size_t DIM>

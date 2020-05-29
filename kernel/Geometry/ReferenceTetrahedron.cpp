@@ -93,7 +93,7 @@ std::size_t ReferenceTetrahedron::getCodim0MappingIndex(
 const MappingReferenceToReference<0>* ReferenceTetrahedron::getCodim0MappingPtr(
     const std::size_t i) const {
     logger(FATAL, "ERROR: Tetrahedron to tetrahedron mappings do not exist.\n");
-    return 0;
+    return nullptr;
 }
 
 // ================================== Codimension 1
@@ -147,7 +147,7 @@ const ReferenceGeometry* ReferenceTetrahedron::getCodim2ReferenceGeometry(
 const MappingReferenceToReference<2>* ReferenceTetrahedron::getCodim2MappingPtr(
     const std::size_t faceIndex) const {
     logger(FATAL, "ERROR: Line to tetrahedron mappings do not exist.\n");
-    return 0;
+    return nullptr;
 }
 
 // ================================== Codimension 3

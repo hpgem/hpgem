@@ -40,7 +40,7 @@
 
 namespace Geometry {
 
-MappingToRefPointToPoint::MappingToRefPointToPoint() {}
+MappingToRefPointToPoint::MappingToRefPointToPoint() = default;
 
 const MappingToRefPointToPoint& MappingToRefPointToPoint::Instance() {
     static const MappingToRefPointToPoint theInstance;

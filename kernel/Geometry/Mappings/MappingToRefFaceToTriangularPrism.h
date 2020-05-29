@@ -50,10 +50,9 @@ class MappingToRefFaceToTriangularPrism0
    public:
     static const MappingToRefFaceToTriangularPrism0& Instance();
     PointReference<3> transform(
-        const Geometry::PointReference<2>& p1) const override final;
-    Jacobian<2, 3> calcJacobian(
-        const Geometry::PointReference<2>&) const override final;
-    std::size_t getTargetDimension() const override final { return 3; }
+        const Geometry::PointReference<2>& p1) const final;
+    Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const final;
+    std::size_t getTargetDimension() const final { return 3; }
     MappingToRefFaceToTriangularPrism0(
         const MappingToRefFaceToTriangularPrism0&) = delete;
     MappingToRefFaceToTriangularPrism0& operator=(
@@ -73,10 +72,9 @@ class MappingToRefFaceToTriangularPrism1
    public:
     static const MappingToRefFaceToTriangularPrism1& Instance();
     PointReference<3> transform(
-        const Geometry::PointReference<2>& p1) const override final;
-    Jacobian<2, 3> calcJacobian(
-        const Geometry::PointReference<2>&) const override final;
-    std::size_t getTargetDimension() const override final { return 3; }
+        const Geometry::PointReference<2>& p1) const final;
+    Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const final;
+    std::size_t getTargetDimension() const final { return 3; }
     MappingToRefFaceToTriangularPrism1(
         const MappingToRefFaceToTriangularPrism1&) = delete;
     MappingToRefFaceToTriangularPrism1& operator=(
@@ -96,10 +94,9 @@ class MappingToRefFaceToTriangularPrism2
    public:
     static const MappingToRefFaceToTriangularPrism2& Instance();
     PointReference<3> transform(
-        const Geometry::PointReference<2>& p1) const override final;
-    Jacobian<2, 3> calcJacobian(
-        const Geometry::PointReference<2>&) const override final;
-    std::size_t getTargetDimension() const override final { return 3; }
+        const Geometry::PointReference<2>& p1) const final;
+    Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const final;
+    std::size_t getTargetDimension() const final { return 3; }
     MappingToRefFaceToTriangularPrism2(
         const MappingToRefFaceToTriangularPrism2&) = delete;
     MappingToRefFaceToTriangularPrism1& operator=(
@@ -119,10 +116,9 @@ class MappingToRefFaceToTriangularPrism3
    public:
     static const MappingToRefFaceToTriangularPrism3& Instance();
     PointReference<3> transform(
-        const Geometry::PointReference<2>& p1) const override final;
-    Jacobian<2, 3> calcJacobian(
-        const Geometry::PointReference<2>&) const override final;
-    std::size_t getTargetDimension() const override final { return 3; }
+        const Geometry::PointReference<2>& p1) const final;
+    Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const final;
+    std::size_t getTargetDimension() const final { return 3; }
     MappingToRefFaceToTriangularPrism3(
         const MappingToRefFaceToTriangularPrism3&) = delete;
     MappingToRefFaceToTriangularPrism3& operator=(
@@ -142,10 +138,9 @@ class MappingToRefFaceToTriangularPrism4
    public:
     static const MappingToRefFaceToTriangularPrism4& Instance();
     PointReference<3> transform(
-        const Geometry::PointReference<2>& p1) const override final;
-    Jacobian<2, 3> calcJacobian(
-        const Geometry::PointReference<2>&) const override final;
-    std::size_t getTargetDimension() const override final { return 3; }
+        const Geometry::PointReference<2>& p1) const final;
+    Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const final;
+    std::size_t getTargetDimension() const final { return 3; }
     MappingToRefFaceToTriangularPrism4(
         const MappingToRefFaceToTriangularPrism4&) = delete;
     MappingToRefFaceToTriangularPrism4& operator=(
