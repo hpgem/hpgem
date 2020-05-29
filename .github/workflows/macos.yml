@@ -11,7 +11,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        mpi: [ ON, OFF ] 
+        mpi: [ ON ] 
         compiler: [clang]
         BUILD_TYPE : [Release]
     steps:
