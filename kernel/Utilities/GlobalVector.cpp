@@ -54,7 +54,6 @@
 #include "petscis.h"
 #endif
 
-
 namespace Utilities {
 
 GlobalVector::GlobalVector(const GlobalIndexing& indexing, int elementVectorID,
@@ -463,6 +462,5 @@ void GlobalPetscVector::writeTimeIntegrationVector(
     CHKERRV(ierr);
 }
 #endif
-
 
 }  // namespace Utilities

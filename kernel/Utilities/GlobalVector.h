@@ -155,7 +155,6 @@ class GlobalPetscVector : public GlobalVector {
 };
 #endif
 
-
 }  // namespace Utilities
 
 #endif /* GLOBALVECTOR_HPP_ */

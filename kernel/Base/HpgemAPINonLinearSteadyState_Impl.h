@@ -119,7 +119,6 @@ void HpgemAPINonLinearSteadyState<DIM>::computeJacobian() {
     }
 }
 
-
 template <std::size_t DIM>
 bool HpgemAPINonLinearSteadyState<DIM>::solve(bool doComputeInitialCondition,
                                               bool doComputeError,
