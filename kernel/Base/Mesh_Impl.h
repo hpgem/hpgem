@@ -243,9 +243,6 @@ const LevelTree<Element*>& Mesh<DIM>::getElementsList(IteratorType part) const {
     if (part == IteratorType::LOCAL) {
         return submeshes_.getElementsList();
     }
-    logger(WARN,
-           "getElementsList will only return elements this processor knows "
-           "about (including shadow elements)");
     return elements_;
 }
 
@@ -254,9 +251,6 @@ LevelTree<Element*>& Mesh<DIM>::getElementsList(IteratorType part) {
     if (part == IteratorType::LOCAL) {
         return submeshes_.getElementsList();
     }
-    logger(WARN,
-           "getElementsList will only return elements this processor knows "
-           "about (including shadow elements)");
     return elements_;
 }
 
@@ -265,8 +259,6 @@ const LevelTree<Face*>& Mesh<DIM>::getFacesList(IteratorType part) const {
     if (part == IteratorType::LOCAL) {
         return submeshes_.getFacesList();
     }
-    logger(WARN,
-           "getFacesList will only return faces this processor knows about");
     return faces_;
 }
 
@@ -275,8 +267,6 @@ LevelTree<Face*>& Mesh<DIM>::getFacesList(IteratorType part) {
     if (part == IteratorType::LOCAL) {
         return submeshes_.getFacesList();
     }
-    logger(WARN,
-           "getFacesList will only return faces this processor knows about");
     return faces_;
 }
 
@@ -285,8 +275,6 @@ const LevelTree<Edge*>& Mesh<DIM>::getEdgesList(IteratorType part) const {
     if (part == IteratorType::LOCAL) {
         return submeshes_.getEdgesList();
     }
-    logger(WARN,
-           "getEdgesList will only return edges this processor knows about");
     return edges_;
 }
 
@@ -295,8 +283,6 @@ LevelTree<Edge*>& Mesh<DIM>::getEdgesList(IteratorType part) {
     if (part == IteratorType::LOCAL) {
         return submeshes_.getEdgesList();
     }
-    logger(WARN,
-           "getEdgesList will only return edges this processor knows about");
     return edges_;
 }
 
@@ -305,8 +291,6 @@ const std::vector<Node*>& Mesh<DIM>::getNodesList(IteratorType part) const {
     if (part == IteratorType::LOCAL) {
         return submeshes_.getNodesList();
     }
-    logger(WARN,
-           "getNodesList will only return nodes this processor knows about");
     return nodes_;
 }
 
@@ -315,8 +299,6 @@ std::vector<Node*>& Mesh<DIM>::getNodesList(IteratorType part) {
     if (part == IteratorType::LOCAL) {
         return submeshes_.getNodesList();
     }
-    logger(WARN,
-           "getNodesList will only return nodes this processor knows about");
     return nodes_;
 }
 
