@@ -18,7 +18,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2 
     - name: dependencies
-      run: sudo apt install libblas-dev liblapack-dev libqhull-dev
+      run: sudo apt install libblas-dev liblapack-dev libqhull-dev libslepc-complex-3.7-dev
     - name: configure
       env:
         CC: ${{ matrix.compiler }}
