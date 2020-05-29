@@ -9,27 +9,209 @@
 #include "Algorithms/DGMaxEigenValue.h"
 #include "Utils/HomogeneousBandStructure.h"
 
+auto& method = Base::register_argument<std::string>('\0', "method",
+        "The method to be used, either 'DGMAX' or 'DIVDGMAX' (default)",
+        false, "DIVDGMAX");
+auto &order = Base::register_argument<std::size_t>('p', "order",
+        "The polynomial order to be used, defaults to p=1",
+        false, 1);
+
+auto& numEigenvalues = Base::register_argument<std::size_t>('e', "eigenvalues",
+        "The number of eigenvalues to compute", false, 10);
+
+
+template<std::size_t DIM>
 class Solver
 {
 public:
+    Solver(std::size_t order)
+        : order_ (order)
+    {};
     virtual ~Solver() = default;
-    virtual std::unique_ptr<BaseEigenvalueResult<2>> solve(
+    virtual std::unique_ptr<BaseEigenvalueResult<DIM>> solve(
             const std::string &meshFileName, std::size_t structureIndex,
-            const LinearAlgebra::SmallVector<2>& kpoint) = 0;
+            const LinearAlgebra::SmallVector<DIM>& kpoint,
+            std::size_t numEigenvalues) = 0;
 
-private:
-    std::size_t p;
+protected:
+    // Order of the solver
+    std::size_t order_;
     // K-vector
     // structure
     // dim?
 };
 
-class DivDGMaxSolver : public Solver
+template<std::size_t DIM>
+class DivDGMaxSolver : public Solver<DIM>
 {
-    std::unique_ptr<BaseEigenvalueResult<2>> solve(
+public:
+    DivDGMaxSolver(std::size_t order)
+        : Solver<DIM>(order)
+    {};
+
+    std::unique_ptr<BaseEigenvalueResult<DIM>> solve(
             const std::string &meshFileName, std::size_t structureIndex,
-            const LinearAlgebra::SmallVector<2>& kpoint) override;
+            const LinearAlgebra::SmallVector<DIM>& kpoint, std::size_t numEigenvalues) override;
 };
+
+template<std::size_t DIM>
+class DGMaxSolver : public Solver<DIM>
+{
+public:
+    DGMaxSolver(std::size_t order)
+            : Solver<DIM>(order)
+    {};
+
+    std::unique_ptr<BaseEigenvalueResult<DIM>> solve(
+            const std::string &meshFileName, std::size_t structureIndex,
+            const LinearAlgebra::SmallVector<DIM>& kpoint, std::size_t numEigenvalues) override;
+};
+
+/// Result of the convergence test
+struct Result
+{
+    /// The frequencies of the refinement levels
+    std::vector<std::vector<double>> frequencies_;
+
+    /// Frequencies computed in analytical sense.
+    std::vector<double> theoreticalFrequencies_;
+
+    std::size_t maxNumberOfFrequencies()
+    {
+        std::size_t max = 0;
+        for (const auto& level : frequencies_)
+        {
+            max = std::max(max, level.size());
+        }
+        return max;
+    }
+
+    void printFrequencyTable(std::vector<double> theoretical);
+    void printErrorTable(std::vector<double> theoretical);
+};
+
+void Result::printFrequencyTable(std::vector<double> theoretical)
+{
+    std::size_t max = maxNumberOfFrequencies();
+
+    // Header line
+    std::cout << "|";
+    for (std::size_t i = 0; i < max; ++i)
+    {
+        if (i < theoretical.size())
+        {
+            std::cout << " "
+                      << std::setprecision(4)
+                      << std::setw(6)
+                      << theoretical[i] << " |";
+        }
+        else
+        {
+            // When lacking an theoretical frequency, just print a placeholder
+            std::cout << " f_ " << std::setw(4)  << i << " |";
+        }
+    }
+    std::cout << std::endl
+              << "|"; // For the header bottom line
+    for (std::size_t i = 0; i < max; ++i)
+    {
+        std::cout << "--------|";
+    }
+    std::cout << std::endl;
+    // Frequencies
+    for (auto &levelFrequency : frequencies_)
+    {
+        std::cout << "|";
+        for (double &frequency : levelFrequency)
+        {
+            std::cout << " "
+                      << std::setprecision(4)
+                      << std::setw(6) << frequency << " |";
+        }
+        std::cout << std::endl;
+    }
+    // Spacing newline
+    std::cout << std::endl;
+}
+
+void Result::printErrorTable(std::vector<double> theoretical) {
+
+    std::size_t max = maxNumberOfFrequencies();
+
+    std::vector<std::vector<double>> errors;
+    // Compute actual errors
+    for (auto& levelFrequencies : frequencies_)
+    {
+        std::vector<double> temp;
+        for (std::size_t i = 0; i < levelFrequencies.size() && i < theoretical.size(); ++i)
+        {
+            temp.emplace_back(std::abs(levelFrequencies[i] - theoretical[i]));
+        }
+        errors.emplace_back(temp);
+    }
+
+    // Printing
+    // Header line
+    std::cout << "|";
+    for (std::size_t i = 0; i < max; ++i)
+    {
+        std::cout << " "; // Separator from previous column
+        if (i < theoretical.size())
+        {
+            std::cout << std::setprecision(4)
+                      << std::setw(8)
+                      << theoretical[i];
+        }
+        else
+        {
+            // Place holder
+            std::cout << "f_"
+                      << std::setw(8) << std::right
+                      << i;
+        }
+        std::cout << "        " // Space of second column
+                  << " |";
+    }
+    std::cout << std::endl
+              << "|"; // For the header bottom line
+    for (std::size_t i = 0; i < max; ++i)
+    {
+        std::cout << "----------|-------|";
+    }
+    std::cout << std::endl;
+    // Frequencies
+    for (std::size_t i = 0; i < errors.size(); ++i)
+    {
+        auto &meshErrors = errors[i];
+        std::cout << "|";
+        for (std::size_t j = 0; j < meshErrors.size(); ++j)
+        {
+            double &error = meshErrors[j];
+            std::cout << " "
+                      << std::scientific
+                      << std::setprecision(2)
+                      << std::setw(6) << error << " |";
+            if (i == 0 || errors[i-1].size() <= j)
+            {
+                // For first row there is no convergence speed
+                // so print a placeholder instead.
+                std::cout << "     - |";
+            }
+            else
+            {
+                double factor = errors[i-1][j]/error;
+                std::cout << " "
+                          << std::fixed
+                          << std::setprecision(2)
+                          << std::setw(5)
+                          << factor << " |";
+            }
+        }
+        std::cout << std::endl;
+    }
+    // Spacing newline
+    std::cout << std::endl;
+}
 
 template<std::size_t DIM>
 std::unique_ptr<BandStructure<DIM>> createStructure(std::size_t structureIndex)
@@ -70,31 +252,59 @@ int main(int argc, char** argv)
     };
 
     const std::size_t structureIndex = 0;
-    std::unique_ptr<Solver> solver(new DivDGMaxSolver());
+    std::unique_ptr<Solver<2>> solver;
+    if (method.getValue() == "DGMAX")
+    {
+        solver = std::unique_ptr<Solver<2>>(new DGMaxSolver<2>(
+                order.getValue()
+        ));
+    }
+    else if (method.getValue() == "DIVDGMAX")
+    {
+        solver = std::unique_ptr<Solver<2>>(new DivDGMaxSolver<2>(
+                order.getValue()
+        ));
+    }
+    else
+    {
+        DGMaxLogger(ERROR, "Unknown method %", method.getValue());
+        return -1;
+    }
+
     std::unique_ptr<BandStructure<2>> structure = createStructure<2>(structureIndex);
     const LinearAlgebra::SmallVector<2> kpoint ({0.5, 0.5});// Should be multiplied by M_PI?
 
-    std::vector<std::vector<double>> frequencies;
-    std::size_t numFrequencies = 10;
+    Result refinementResult;
+    std::size_t numFrequencies = numEigenvalues.getValue();
 
 
     for (std::string& meshFileName : meshes)
     {
-        auto result = solver->solve(meshFileName, structureIndex, kpoint);
+        auto result = solver->solve(meshFileName, structureIndex, kpoint, numFrequencies);
         // TODO: Raw eigenvalues is better than the computed frequencies in case something goes wrong
+
+        const std::vector<double>& resultFreqs = result->frequencies(0);
+        // Discard zero/negative eigenvalues
+        std::size_t index = 0;
+        while (index < resultFreqs.size()
+            && (std::isnan(resultFreqs[index]) || std::abs(resultFreqs[index]) < 1e-3))
+        {
+            index++;
+        }
 
         // Copy the required number of frequencies
         std::vector<double> freqs;
-        const std::vector<double>& resultFreqs = result->frequencies(0);
-        for (std::size_t i = 0; i < numFrequencies && i < resultFreqs.size(); ++i)
+        for (; index < numFrequencies && index < resultFreqs.size(); ++index)
         {
-            freqs.emplace_back(resultFreqs[i]);
+            freqs.emplace_back(resultFreqs[index]);
         }
-        frequencies.emplace_back(freqs);
+        refinementResult.frequencies_.emplace_back(freqs);
     }
 
     // Compute Errors //
     ////////////////////
+
+
 
     std::vector<std::vector<double>> errors;
 
@@ -112,7 +322,7 @@ int main(int argc, char** argv)
     //TODO: Add option for the analytical spectrum to compute at least N frequencies
     logger.assert_always(linearSpectrum.size() >= numFrequencies, "Not enough analytical frequencies");
 
-    for(auto & meshFrequencies : frequencies)
+    for(auto & meshFrequencies : refinementResult.frequencies_)
     {
         std::vector<double> tempErrors (meshFrequencies.size(), 0);
         for(std::size_t j = 0; j < meshFrequencies.size(); ++j)
@@ -125,114 +335,54 @@ int main(int argc, char** argv)
     // Print results //
     ///////////////////
 
-    // Header line
-    std::cout << "|";
-    for (std::size_t i = 0; i < numFrequencies; ++i)
-    {
-        std::cout << " "
-            << std::setprecision(4)
-            << std::setw(6)
-            << linearSpectrum[i] << " |";
-    }
-    std::cout << std::endl
-        << "|"; // For the header bottom line
-    for (std::size_t i = 0; i < numFrequencies; ++i)
-    {
-        std::cout << "--------|";
-    }
-    std::cout << std::endl;
-    // Frequencies
-    for (auto &meshFrequencies : frequencies)
-    {
-        std::cout << "|";
-        for (double &frequency : meshFrequencies)
-        {
-            std::cout << " "
-                << std::setprecision(4)
-                << std::setw(6) << frequency << " |";
-        }
-        std::cout << std::endl;
-    }
-    // Spacing newline
-    std::cout << std::endl;
-
-    // Errors
-    // Header line
-    std::cout << "|";
-    for (std::size_t i = 0; i < numFrequencies; ++i)
-    {
-        std::cout << " "
-                  << std::setprecision(4)
-                  << std::setw(8)
-                  << linearSpectrum[i]
-                  << "        " // Space of second column
-                  << " |";
-    }
-    std::cout << std::endl
-              << "|"; // For the header bottom line
-    for (std::size_t i = 0; i < numFrequencies; ++i)
-    {
-        std::cout << "----------|-------|";
-    }
-    std::cout << std::endl;
-    // Frequencies
-    for (std::size_t i = 0; i < errors.size(); ++i)
-    {
-        auto &meshErrors = errors[i];
-        std::cout << "|";
-        for (std::size_t j = 0; j < meshErrors.size(); ++j)
-        {
-            double &error = meshErrors[j];
-            std::cout << " "
-                      << std::scientific
-                      << std::setprecision(2)
-                      << std::setw(6) << error << " |";
-            if (i == 0)
-            {
-                // For first row there is no convergence speed
-                // so print a placeholder instead.
-                std::cout << "     - |";
-            }
-            else
-            {
-                double factor = errors[i-1][j]/error;
-                std::cout << " "
-                    << std::fixed
-                    << std::setprecision(2)
-                    << std::setw(5)
-                    << factor << " |";
-            }
-        }
-        std::cout << std::endl;
-    }
-    // Spacing newline
-    std::cout << std::endl;
-
+    refinementResult.printFrequencyTable(linearSpectrum);
+    refinementResult.printErrorTable(linearSpectrum);
+    return 0;
 }
 
-
-std::unique_ptr<BaseEigenvalueResult<2>> DivDGMaxSolver::solve(
+template<std::size_t DIM>
+std::unique_ptr<BaseEigenvalueResult<DIM>> DivDGMaxSolver<DIM>::solve(
         const std::string &meshFileName, std::size_t structureIndex,
-        const LinearAlgebra::SmallVector<2> &kpoint)
+        const LinearAlgebra::SmallVector<DIM> &kpoint, std::size_t numEigenvalues)
 {
     Base::ConfigurationData configData (2, 1);
-    auto mesh = DGMax::readMesh<2>(meshFileName, &configData,
-            [&](const Geometry::PointPhysical<2>& p) {
-        // TODO: Hardcoded structure
+    auto mesh = DGMax::readMesh<DIM>(meshFileName, &configData,
+            [&](const Geometry::PointPhysical<DIM>& p) {
         return jelmerStructure(p, structureIndex);
     });
     DGMaxLogger(INFO, "Loaded mesh % with % local elements.", meshFileName, mesh->getNumberOfElements());
-    KSpacePath<2> path = KSpacePath<2>::singleStepPath(kpoint);
-    EigenValueProblem<2> input(path, 10); // TODO: Customize number of eigenvalues
+    KSpacePath<DIM> path = KSpacePath<DIM>::singleStepPath(kpoint);
+    EigenValueProblem<DIM> input(path, numEigenvalues);
 
-    DivDGMaxEigenValue<2> solver (*mesh);
-    typename DivDGMaxDiscretization<2>::Stab stab; // Change this?
+    DivDGMaxEigenValue<DIM> solver (*mesh);
+    typename DivDGMaxDiscretization<DIM>::Stab stab; // Change this?
     stab.stab1 = 100;
     stab.stab2 = 0;
     stab.stab3 = 1;
-    // TODO: move p-value
-    typename DivDGMaxEigenValue<2>::Result result = solver.solve(input, stab, 1);
+    typename DivDGMaxEigenValue<DIM>::Result result = solver.solve(input, stab, this->order_);
 
 
-    return std::unique_ptr<BaseEigenvalueResult<2>>(new DivDGMaxEigenValue<2>::Result(result));
+    return std::unique_ptr<BaseEigenvalueResult<DIM>>(new typename DivDGMaxEigenValue<DIM>::Result(result));
+}
+
+
+template<std::size_t DIM>
+std::unique_ptr<BaseEigenvalueResult<DIM> > DGMaxSolver<DIM>::solve(
+        const std::string &meshFileName, std::size_t structureIndex,
+        const LinearAlgebra::SmallVector<DIM> &kpoint, std::size_t numEigenvalues)
+{
+    Base::ConfigurationData configData (1, 1);
+    auto mesh = DGMax::readMesh<DIM>(meshFileName, &configData,
+        [&](const Geometry::PointPhysical<DIM>& p) {
+            return jelmerStructure(p, structureIndex);
+    });
+    DGMaxLogger(INFO, "Loaded mesh % with % local elements.", meshFileName, mesh->getNumberOfElements());
+    KSpacePath<DIM> path = KSpacePath<DIM>::singleStepPath(kpoint);
+    EigenValueProblem<DIM> input(path, numEigenvalues);
+
+    //TODO Vary the order
+    DGMaxEigenValue<DIM> solver (*mesh, this->order_);
+    auto result = solver.solve(input, 100);
+    return std::unique_ptr<BaseEigenvalueResult<DIM>>(
+            new typename DGMaxEigenValue<DIM>::Result(result));
 }
