@@ -22,7 +22,7 @@ jobs:
     - name: configure
       env:
         CC: ${{ matrix.compiler }}
-      run: cmake -H. -Bbuild -DhpGEM_USE_MPI=${{ matrix.mpi }} -DENABLE_TESTING=ON -DCMAKEBUILD_TYPE=${{ matrix.BUILD_TYPE }} -DhpGEM_USE_METIS=ON -DhpGEM_USE_PETSC=${{ matrix.mpi }} -DhpGEM_USE_SLEPC=${{ matrix.mpi }} 
+      run: cmake -H. -Bbuild -DhpGEM_USE_MPI=${{ matrix.mpi }} -DENABLE_TESTING=ON -DCMAKE_BUILD_TYPE=${{ matrix.BUILD_TYPE }} -DhpGEM_USE_METIS=ON -DhpGEM_USE_PETSC=${{ matrix.mpi }} -DhpGEM_USE_SLEPC=${{ matrix.mpi }} 
     - name: make
       run: cmake --build build -- -j4
     - name: test
