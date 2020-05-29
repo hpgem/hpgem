@@ -39,25 +39,26 @@
 ///    direction. To keep this simple we use a cube as unit cell. This results
 ///    in some band folding.
 ///
-class BraggStackBandstructure : public BandStructure<3>
-{
-public:
+class BraggStackBandstructure : public BandStructure<3> {
+   public:
     BraggStackBandstructure(double eps1, double eps2, double fraction = 0.5);
 
     /// Compute the spectrum at a specific k-point in the first Brillouin zone.
     /// \param kpoint The point to compute the spectrum at
     /// \param omegaMax The maximum angular frequency to compute
     /// \return A map from frequency to to degeneracy of that frequency.
-    std::map<double, std::size_t> computeSpectrum(LinearAlgebra::SmallVector<3> kpoint, double omegaMax) const final;
+    std::map<double, std::size_t> computeSpectrum(
+        LinearAlgebra::SmallVector<3> kpoint, double omegaMax) const final;
 
-
-    /// \brief Set of Lines in the banstructure while traversing a line in k-space.
-    class LineSet : public BandStructure<3>::LineSet
-    {
-    private:
+    /// \brief Set of Lines in the banstructure while traversing a line in
+    /// k-space.
+    class LineSet : public BandStructure<3>::LineSet {
+       private:
         struct MultiMode;
-    public:
-        LineSet(const BraggStackBandstructure& structure, double l, double x1, double x2);
+
+       public:
+        LineSet(const BraggStackBandstructure& structure, double l, double x1,
+                double x2);
 
         double frequency(std::size_t line, double interpolation) const final;
         std::size_t multiplicity(std::size_t line) const final;
@@ -67,9 +68,12 @@ public:
         std::string lineTitle(std::size_t line) const final;
 
         // TODO: Friend structure.
-        void addLine(std::size_t multiplicity, double x, double y, std::pair<std::size_t, std::size_t> modes);
-    private:
-        std::pair<const MultiMode*, std::size_t> findMode(std::size_t line) const;
+        void addLine(std::size_t multiplicity, double x, double y,
+                     std::pair<std::size_t, std::size_t> modes);
+
+       private:
+        std::pair<const MultiMode*, std::size_t> findMode(
+            std::size_t line) const;
 
         const BraggStackBandstructure& structure_;
         const double l_;
@@ -88,11 +92,11 @@ public:
         /// k_t = (k_y, k_z) = k - k_i, where k is the transverse component of
         /// the point in the band diagram and k_i is a reciprocal lattice point.
         /// As only the magnitude of the transverse component is part of the
-        /// implicit definition of valid modes, there could be several reciprocal
-        /// lattice points which have identical magnitude of the transverse
-        /// wavevector when following the line of the LineSet (see for an
-        /// example below). The resulting modes from these reciprocal lattice
-        /// points would thus be degenerate.
+        /// implicit definition of valid modes, there could be several
+        /// reciprocal lattice points which have identical magnitude of the
+        /// transverse wavevector when following the line of the LineSet (see
+        /// for an example below). The resulting modes from these reciprocal
+        /// lattice points would thus be degenerate.
         ///
         /// Thus a Multimode on a line through k-space describes:
         ///  - A set of modes TE and TM that have a fixed magnitude of the
@@ -135,15 +139,14 @@ public:
         /// same distance. Hence we would the one MultiMode with fourfold
         /// degeneracy for Gamma-X splits in 3 MultiModes on X-S, two non
         /// degenerate modes and one with degeneracy 2.
-        struct MultiMode
-        {
-            MultiMode(double x, double y, std::size_t teModes, std::size_t tmModes, std::size_t multiplicity)
-                : x_ (x)
-                , y_ (y)
-                , teModes_ (teModes)
-                , tmModes_ (tmModes)
-                , multiplicity_ (multiplicity)
-            {}
+        struct MultiMode {
+            MultiMode(double x, double y, std::size_t teModes,
+                      std::size_t tmModes, std::size_t multiplicity)
+                : x_(x),
+                  y_(y),
+                  teModes_(teModes),
+                  tmModes_(tmModes),
+                  multiplicity_(multiplicity) {}
 
             double x_;
             double y_;
@@ -154,11 +157,10 @@ public:
     };
 
     virtual std::unique_ptr<typename BandStructure<3>::LineSet> computeLines(
-            LinearAlgebra::SmallVector<3> point1, LinearAlgebra::SmallVector<3> point2,
-            double maxFrequency) const final;
+        LinearAlgebra::SmallVector<3> point1,
+        LinearAlgebra::SmallVector<3> point2, double maxFrequency) const final;
 
-
-private:
+   private:
     const double eps1_;
     const double eps2_;
     /// \brief The fraction of the stack consisting of material with eps1.
@@ -181,7 +183,8 @@ private:
     /// \param tm Whether to look for roots of the TM (true) or TE (false)
     /// function.
     /// \param out The vector to which to add the found frequencies.
-    void findRoots(LinearAlgebra::SmallVector<3> k, double omegamax, bool tm, std::vector<double>& out) const;
+    void findRoots(LinearAlgebra::SmallVector<3> k, double omegamax, bool tm,
+                   std::vector<double>& out) const;
 
     /// \brief Internal function for findRoots, where we look for the roots on
     ///  a small angular frequency interval.
@@ -194,13 +197,13 @@ private:
     /// \param omax The maximum angular frequency
     /// \param tm TM or TE mode?
     /// \param out Vector to output the results in.
-    void findRootsInterval(LinearAlgebra::SmallVector<3> k, double omin, double omax, bool tm,
-            std::vector<double>& out) const;
+    void findRootsInterval(LinearAlgebra::SmallVector<3> k, double omin,
+                           double omax, bool tm,
+                           std::vector<double>& out) const;
 
     /// \brief Similar to findRoots, but find the n-th root
-    double findRoot(LinearAlgebra::SmallVector<3> k, std::size_t n, bool tm) const;
-
+    double findRoot(LinearAlgebra::SmallVector<3> k, std::size_t n,
+                    bool tm) const;
 };
 
-
-#endif //HPGEM_BRAGGSTACKBANDSTRUCTURE_H
+#endif  // HPGEM_BRAGGSTACKBANDSTRUCTURE_H
