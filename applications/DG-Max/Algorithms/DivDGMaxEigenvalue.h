@@ -41,6 +41,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "DivDGMaxDiscretization.h"
 #include "../ProblemTypes/EigenValueProblem.h"
+#include "ProblemTypes/AbstractEigenvalueSolver.h"
 
 #include "Utilities/GlobalIndexing.h"
 
@@ -48,12 +49,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <petscvec.h>
 #include <slepceps.h>
 
-#include "ProblemTypes/BaseEigenvalueResult.h"
+#include "ProblemTypes/AbstractEigenvalueResult.h"
 
 template <std::size_t DIM>
-class DivDGMaxEigenvalue {
+class DivDGMaxEigenvalue : public AbstractEigenvalueSolver<DIM> {
    public:
-    class Result : public BaseEigenvalueResult<DIM> {
+    class Result : public AbstractEigenvalueResult<DIM> {
        public:
         Result(EigenValueProblem<DIM> problem,
                std::vector<std::vector<PetscScalar>> eigenvalues);
@@ -65,9 +66,10 @@ class DivDGMaxEigenvalue {
         const std::vector<std::vector<PetscScalar>> eigenvalues_;
     };
 
-    DivDGMaxEigenvalue(Base::MeshManipulator<DIM>& mesh);
-    Result solve(EigenValueProblem<DIM> input,
-                 typename DivDGMaxDiscretization<DIM>::Stab, std::size_t order);
+    DivDGMaxEigenvalue(Base::MeshManipulator<DIM>& mesh, std::size_t order,
+                       typename DivDGMaxDiscretization<DIM>::Stab stab);
+    std::unique_ptr<AbstractEigenvalueResult<DIM>> solve(
+        const EigenValueProblem<DIM>& input) override;
 
    private:
     void extractEigenvalues(const EPS& solver,
@@ -84,6 +86,8 @@ class DivDGMaxEigenvalue {
         const Base::Face* face) const;
 
     Base::MeshManipulator<DIM>& mesh_;
+    typename DivDGMaxDiscretization<DIM>::Stab stab_;
+    std::size_t order_;
     DivDGMaxDiscretization<DIM> discretization;
 };
 

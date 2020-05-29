@@ -48,13 +48,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <valarray>
 
 template <std::size_t DIM>
-DivDGMaxEigenvalue<DIM>::DivDGMaxEigenvalue(Base::MeshManipulator<DIM>& mesh)
-    : mesh_(mesh) {}
+DivDGMaxEigenvalue<DIM>::DivDGMaxEigenvalue(
+    Base::MeshManipulator<DIM>& mesh, std::size_t order,
+    typename DivDGMaxDiscretization<DIM>::Stab stab)
+    : mesh_(mesh), order_(order), stab_(stab) {}
 
 template <std::size_t DIM>
-typename DivDGMaxEigenvalue<DIM>::Result DivDGMaxEigenvalue<DIM>::solve(
-    EigenValueProblem<DIM> input,
-    typename DivDGMaxDiscretization<DIM>::Stab stab, std::size_t order) {
+std::unique_ptr<AbstractEigenvalueResult<DIM>> DivDGMaxEigenvalue<DIM>::solve(
+    const EigenValueProblem<DIM>& input) {
     // Sometimes the solver finds more eigenvalues & vectors than requested, so
     // reserve some extra space for them.
     std::size_t numberOfEigenvalues = input.getNumberOfEigenvalues();
@@ -64,10 +65,10 @@ typename DivDGMaxEigenvalue<DIM>::Result DivDGMaxEigenvalue<DIM>::solve(
 
     PetscErrorCode error;
     DGMaxLogger(INFO, "Starting assembly");
-    discretization.initializeBasisFunctions(mesh_, order);
+    discretization.initializeBasisFunctions(mesh_, order_);
     discretization.computeElementIntegrands(mesh_, false, nullptr, nullptr,
                                             nullptr);
-    discretization.computeFaceIntegrals(mesh_, nullptr, stab);
+    discretization.computeFaceIntegrals(mesh_, nullptr, stab_);
 
     Utilities::GlobalIndexing indexing(&mesh_);
     Utilities::GlobalPetscMatrix massMatrix(
@@ -357,8 +358,8 @@ typename DivDGMaxEigenvalue<DIM>::Result DivDGMaxEigenvalue<DIM>::solve(
     error = EPSDestroy(&eigenSolver);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
-    Result result(input, eigenvalues);
-    return result;
+    return std::unique_ptr<AbstractEigenvalueResult<DIM>>(
+        new Result(input, eigenvalues));
 }
 
 template <std::size_t DIM>

@@ -40,7 +40,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define ALGORITHMS_DGMAXEIGENVALUE_h
 
 #include "../ProblemTypes/EigenValueProblem.h"
-#include "../ProblemTypes/BaseEigenvalueResult.h"
+#include "../ProblemTypes/AbstractEigenvalueResult.h"
+#include "ProblemTypes/AbstractEigenvalueSolver.h"
 
 #include "DGMaxDiscretization.h"
 
@@ -50,10 +51,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // TODO: It might be better to call this differently
 template <std::size_t DIM>
-class DGMaxEigenvalue {
+class DGMaxEigenvalue : public AbstractEigenvalueSolver<DIM> {
 
    public:
-    class Result : public BaseEigenvalueResult<DIM> {
+    class Result : public AbstractEigenvalueResult<DIM> {
        public:
         Result(EigenValueProblem<DIM> problem,
                std::vector<std::vector<PetscScalar>> values);
@@ -65,8 +66,11 @@ class DGMaxEigenvalue {
         const std::vector<std::vector<PetscScalar>> eigenvalues_;
     };
 
-    DGMaxEigenvalue(Base::MeshManipulator<DIM>& mesh, std::size_t order);
-    Result solve(const EigenValueProblem<DIM>& input, double stab);
+    DGMaxEigenvalue(Base::MeshManipulator<DIM>& mesh, std::size_t order,
+                    double stab);
+
+    std::unique_ptr<AbstractEigenvalueResult<DIM>> solve(
+        const EigenValueProblem<DIM>& input) override;
     // TODO: A nice wrapper of EPS that does RAII would be nicer
     EPS createEigenSolver();
     void destroyEigenSolver(EPS& eps);
@@ -85,6 +89,8 @@ class DGMaxEigenvalue {
         const Base::Face* face) const;
 
     Base::MeshManipulator<DIM>& mesh_;
+    std::size_t order_;
+    std::size_t stab_;
     DGMaxDiscretization<DIM> discretization_;
 };
 

@@ -8,9 +8,9 @@
 #include <fstream>
 
 template <std::size_t DIM>
-class BaseEigenvalueResult {
+class AbstractEigenvalueResult {
    public:
-    virtual ~BaseEigenvalueResult() = default;
+    virtual ~AbstractEigenvalueResult() = default;
 
     virtual const EigenValueProblem<DIM>& originalProblem() const = 0;
     virtual const std::vector<double> frequencies(std::size_t point) const = 0;

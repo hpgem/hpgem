@@ -54,10 +54,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 template <std::size_t DIM>
 DGMaxEigenvalue<DIM>::DGMaxEigenvalue(Base::MeshManipulator<DIM>& mesh,
-                                      std::size_t order)
-    : mesh_(mesh) {
-    discretization_.initializeBasisFunctions(mesh_, order);
-}
+                                      std::size_t order, double stab)
+    : mesh_(mesh), order_(order), stab_(stab) {}
 
 template <std::size_t DIM>
 EPS DGMaxEigenvalue<DIM>::createEigenSolver() {
@@ -101,8 +99,9 @@ void DGMaxEigenvalue<DIM>::initializeMatrices(double stab) {
 }
 
 template <std::size_t DIM>
-typename DGMaxEigenvalue<DIM>::Result DGMaxEigenvalue<DIM>::solve(
-    const EigenValueProblem<DIM>& input, double stab) {
+std::unique_ptr<AbstractEigenvalueResult<DIM>> DGMaxEigenvalue<DIM>::solve(
+    const EigenValueProblem<DIM>& input) {
+    discretization_.initializeBasisFunctions(mesh_, order_);
     // Sometimes the solver finds more eigenvalues & vectors than requested, so
     // reserve some extra space for them.
     std::size_t numberOfEigenvalues = input.getNumberOfEigenvalues();
@@ -120,7 +119,7 @@ typename DGMaxEigenvalue<DIM>::Result DGMaxEigenvalue<DIM>::solve(
     // matrix anyway so there the general eigenproblem is just more work
     //    base_.MHasToBeInverted_ = true;
     //    base_.assembler->fillMatrices(&base_);
-    initializeMatrices(stab);
+    initializeMatrices(stab_);
 
     Utilities::GlobalIndexing indexing(&mesh_);
     Utilities::GlobalPetscMatrix massMatrix(
@@ -339,8 +338,8 @@ typename DGMaxEigenvalue<DIM>::Result DGMaxEigenvalue<DIM>::solve(
 
     destroyEigenSolver(eigenSolver);
 
-    Result result(input, eigenvalues);
-    return result;
+    return std::unique_ptr<AbstractEigenvalueResult<DIM>>(
+        new Result(input, eigenvalues));
 }
 
 template <std::size_t DIM>
