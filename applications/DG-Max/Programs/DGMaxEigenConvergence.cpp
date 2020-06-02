@@ -6,8 +6,8 @@
 
 #include "DGMaxLogger.h"
 #include "DGMaxProgramUtils.h"
-#include "Algorithms/DivDGMaxEigenValue.h"
-#include "Algorithms/DGMaxEigenValue.h"
+#include "Algorithms/DivDGMaxEigenvalue.h"
+#include "Algorithms/DGMaxEigenvalue.h"
 #include "Utils/HomogeneousBandStructure.h"
 #include "Utils/Verification/EigenvalueResult.h"
 
@@ -21,7 +21,7 @@ class Solver {
    public:
     Solver(std::size_t order) : order_(order){};
     virtual ~Solver() = default;
-    virtual std::unique_ptr<BaseEigenvalueResult<DIM>> solve(
+    virtual std::unique_ptr<AbstractEigenvalueResult<DIM>> solve(
         const std::string &meshFileName, std::size_t structureIndex,
         const LinearAlgebra::SmallVector<DIM> &kpoint,
         std::size_t numEigenvalues) = 0;
@@ -39,7 +39,7 @@ class DivDGMaxSolver : public Solver<DIM> {
    public:
     DivDGMaxSolver(std::size_t order) : Solver<DIM>(order){};
 
-    std::unique_ptr<BaseEigenvalueResult<DIM>> solve(
+    std::unique_ptr<AbstractEigenvalueResult<DIM>> solve(
         const std::string &meshFileName, std::size_t structureIndex,
         const LinearAlgebra::SmallVector<DIM> &kpoint,
         std::size_t numEigenvalues) override;
@@ -50,7 +50,7 @@ class DGMaxSolver : public Solver<DIM> {
    public:
     DGMaxSolver(std::size_t order) : Solver<DIM>(order){};
 
-    std::unique_ptr<BaseEigenvalueResult<DIM>> solve(
+    std::unique_ptr<AbstractEigenvalueResult<DIM>> solve(
         const std::string &meshFileName, std::size_t structureIndex,
         const LinearAlgebra::SmallVector<DIM> &kpoint,
         std::size_t numEigenvalues) override;
@@ -195,7 +195,7 @@ int main(int argc, char **argv) {
 }
 
 template <std::size_t DIM>
-std::unique_ptr<BaseEigenvalueResult<DIM>> DivDGMaxSolver<DIM>::solve(
+std::unique_ptr<AbstractEigenvalueResult<DIM>> DivDGMaxSolver<DIM>::solve(
     const std::string &meshFileName, std::size_t structureIndex,
     const LinearAlgebra::SmallVector<DIM> &kpoint, std::size_t numEigenvalues) {
     Base::ConfigurationData configData(2, 1);
@@ -208,20 +208,16 @@ std::unique_ptr<BaseEigenvalueResult<DIM>> DivDGMaxSolver<DIM>::solve(
     KSpacePath<DIM> path = KSpacePath<DIM>::singleStepPath(kpoint);
     EigenValueProblem<DIM> input(path, numEigenvalues);
 
-    DivDGMaxEigenValue<DIM> solver(*mesh);
     typename DivDGMaxDiscretization<DIM>::Stab stab;  // Change this?
     stab.stab1 = 100;
     stab.stab2 = 0;
     stab.stab3 = 1;
-    typename DivDGMaxEigenValue<DIM>::Result result =
-        solver.solve(input, stab, this->order_);
-
-    return std::unique_ptr<BaseEigenvalueResult<DIM>>(
-        new typename DivDGMaxEigenValue<DIM>::Result(result));
+    DivDGMaxEigenvalue<DIM> solver(*mesh, this->order_, stab);
+    return solver.solve(input);
 }
 
 template <std::size_t DIM>
-std::unique_ptr<BaseEigenvalueResult<DIM>> DGMaxSolver<DIM>::solve(
+std::unique_ptr<AbstractEigenvalueResult<DIM>> DGMaxSolver<DIM>::solve(
     const std::string &meshFileName, std::size_t structureIndex,
     const LinearAlgebra::SmallVector<DIM> &kpoint, std::size_t numEigenvalues) {
     Base::ConfigurationData configData(1, 1);
@@ -235,8 +231,6 @@ std::unique_ptr<BaseEigenvalueResult<DIM>> DGMaxSolver<DIM>::solve(
     EigenValueProblem<DIM> input(path, numEigenvalues);
 
     // TODO Vary the order
-    DGMaxEigenValue<DIM> solver(*mesh, this->order_);
-    auto result = solver.solve(input, 100);
-    return std::unique_ptr<BaseEigenvalueResult<DIM>>(
-        new typename DGMaxEigenValue<DIM>::Result(result));
+    DGMaxEigenvalue<DIM> solver(*mesh, this->order_, 100);
+    return solver.solve(input);
 }
