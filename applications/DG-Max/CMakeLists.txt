@@ -26,6 +26,8 @@ if(hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
 		Utils/HomogeneousBandStructure.cpp
 		Utils/BraggStackBandstructure.cpp
 		Utils/KSpacePath.cpp
+
+		Utils/Verification/EigenvalueResult.cpp
 	)
 	# TODO: Lacking source/include separation
 	target_include_directories(DGMax-lib
