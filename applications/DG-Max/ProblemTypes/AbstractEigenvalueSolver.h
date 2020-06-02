@@ -3,8 +3,8 @@
 
 #include <memory>
 
-#include "EigenValueProblem.h"
 #include "AbstractEigenvalueResult.h"
+#include "EigenValueProblem.h"
 
 template <std::size_t DIM>
 class AbstractEigenvalueSolver {

@@ -39,17 +39,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef ALGORITHMS_DIVDGMAXEIGENVALUE_H
 #define ALGORITHMS_DIVDGMAXEIGENVALUE_H
 
-#include "DivDGMaxDiscretization.h"
-#include "../ProblemTypes/EigenValueProblem.h"
-#include "ProblemTypes/AbstractEigenvalueSolver.h"
-
-#include "Utilities/GlobalIndexing.h"
-
 #include <petscis.h>
 #include <petscvec.h>
 #include <slepceps.h>
 
+#include "Utilities/GlobalIndexing.h"
+
+#include "DivDGMaxDiscretization.h"
 #include "ProblemTypes/AbstractEigenvalueResult.h"
+#include "ProblemTypes/AbstractEigenvalueSolver.h"
+#include "ProblemTypes/EigenValueProblem.h"
+
 
 template <std::size_t DIM>
 class DivDGMaxEigenvalue : public AbstractEigenvalueSolver<DIM> {

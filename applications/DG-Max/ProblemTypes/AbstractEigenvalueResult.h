@@ -2,10 +2,11 @@
 #ifndef HPGEM_BASEEIGENVALUEOUTPUT_H
 #define HPGEM_BASEEIGENVALUEOUTPUT_H
 
-#include "EigenValueProblem.h"
-
-#include <iostream>
 #include <fstream>
+#include <iostream>
+
+
+#include "EigenValueProblem.h"
 
 template <std::size_t DIM>
 class AbstractEigenvalueResult {
@@ -15,7 +16,7 @@ class AbstractEigenvalueResult {
     virtual const EigenValueProblem<DIM>& originalProblem() const = 0;
     virtual const std::vector<double> frequencies(std::size_t point) const = 0;
 
-    void writeFrequencies(std::string fileName) const {
+    void writeFrequencies(const std::string& fileName) const {
         std::ofstream file;
         file.open(fileName);
         writeFrequencies(file, ',');

@@ -38,14 +38,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "DivDGMaxEigenvalue.h"
 
-#include "../DGMaxLogger.h"
+#include <valarray>
 
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
 
-#include <slepceps.h>
+#include "DGMaxLogger.h"
 
-#include <valarray>
 
 template <std::size_t DIM>
 DivDGMaxEigenvalue<DIM>::DivDGMaxEigenvalue(
