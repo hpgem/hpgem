@@ -1,19 +1,18 @@
-#ifndef HPGEM_EIGENVALUETESTCASE_H
-#define HPGEM_EIGENVALUETESTCASE_H
+#ifndef HPGEM_EVTESTCASE_H
+#define HPGEM_EVTESTCASE_H
 
 #include <utility>
 #include <vector>
 
 #include "LinearAlgebra/SmallVector.h"
-#include "EigenvalueResult.h"
+#include "EVConvergenceResult.h"
 
 namespace DGMax {
 
 template <std::size_t DIM>
-class EigenvalueTestCase {
+class EVTestCase {
    public:
-    EigenvalueTestCase(const LinearAlgebra::SmallVector<DIM>& kpoint,
-                       std::vector<std::string>  meshes,
+    EVTestCase(const LinearAlgebra::SmallVector<DIM>& kpoint,
                        size_t structureId, size_t numberOfEigenvalues)
         : kpoint_(kpoint),
           structureId_(structureId),
@@ -39,4 +38,4 @@ class EigenvalueTestCase {
 
 }  // namespace DGMax
 
-#endif  // HPGEM_EIGENVALUETESTCASE_H
+#endif  // HPGEM_EVTESTCASE_H

@@ -27,7 +27,11 @@ if(hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
 		Utils/BraggStackBandstructure.cpp
 		Utils/KSpacePath.cpp
 
-		Utils/Verification/EigenvalueResult.cpp
+
+		Utils/Verification/DGMaxEVTestCase.cpp
+		Utils/Verification/DivDGMaxEVTestCase.cpp
+		Utils/Verification/EVConvergenceResult.cpp
+		Utils/Verification/RunnableEVTestCase.cpp
 	)
 	# TODO: Lacking source/include separation
 	target_include_directories(DGMax-lib

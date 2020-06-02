@@ -9,73 +9,15 @@
 #include "Algorithms/DivDGMaxEigenvalue.h"
 #include "Algorithms/DGMaxEigenvalue.h"
 #include "Utils/HomogeneousBandStructure.h"
-#include "Utils/Verification/EigenvalueResult.h"
+#include "Utils/Verification/RunnableEVTestCase.h"
+#include "Utils/Verification/DGMaxEVTestCase.h"
+#include "Utils/Verification/DivDGMaxEVTestCase.h"
+#include "Utils/Verification/EVConvergenceResult.h"
 
 auto &method = Base::register_argument<std::string>(
     '\0', "method",
     "The method to be used, either 'DGMAX' or 'DIVDGMAX' (default)", false,
     "DIVDGMAX");
-
-template <std::size_t DIM>
-class Solver {
-   public:
-    Solver(std::size_t order) : order_(order){};
-    virtual ~Solver() = default;
-    virtual std::unique_ptr<AbstractEigenvalueResult<DIM>> solve(
-        const std::string &meshFileName, std::size_t structureIndex,
-        const LinearAlgebra::SmallVector<DIM> &kpoint,
-        std::size_t numEigenvalues) = 0;
-
-   protected:
-    // Order of the solver
-    std::size_t order_;
-    // K-vector
-    // structure
-    // dim?
-};
-
-template <std::size_t DIM>
-class DivDGMaxSolver : public Solver<DIM> {
-   public:
-    DivDGMaxSolver(std::size_t order) : Solver<DIM>(order){};
-
-    std::unique_ptr<AbstractEigenvalueResult<DIM>> solve(
-        const std::string &meshFileName, std::size_t structureIndex,
-        const LinearAlgebra::SmallVector<DIM> &kpoint,
-        std::size_t numEigenvalues) override;
-};
-
-template <std::size_t DIM>
-class DGMaxSolver : public Solver<DIM> {
-   public:
-    DGMaxSolver(std::size_t order) : Solver<DIM>(order){};
-
-    std::unique_ptr<AbstractEigenvalueResult<DIM>> solve(
-        const std::string &meshFileName, std::size_t structureIndex,
-        const LinearAlgebra::SmallVector<DIM> &kpoint,
-        std::size_t numEigenvalues) override;
-};
-
-template <std::size_t DIM>
-struct DGMaxTestCase {
-    DGMaxTestCase(LinearAlgebra::SmallVector<DIM> kpoint,
-                  std::vector<std::string> meshes, size_t structureId,
-                  size_t numberOfEigenvalues, size_t order,
-                  std::shared_ptr<DGMax::EigenvalueResult> expected = nullptr)
-        : kpoint_(std::move(kpoint)),
-          meshes_(std::move(meshes)),
-          structureId_(structureId),
-          numberOfEigenvalues_(numberOfEigenvalues),
-          order_(order),
-          expected_(std::move(expected)) {}
-
-    LinearAlgebra::SmallVector<DIM> kpoint_;
-    std::vector<std::string> meshes_;
-    std::size_t structureId_;
-    std::size_t numberOfEigenvalues_;
-    std::size_t order_;
-    std::shared_ptr<DGMax::EigenvalueResult> expected_;
-};
 
 template <std::size_t DIM>
 std::unique_ptr<BandStructure<DIM>> createStructure(
@@ -99,60 +41,44 @@ std::unique_ptr<BandStructure<DIM>> createStructure(
     }
 }
 
-static DGMaxTestCase<2> simpleVacuum({0.5, 0.8},
-                                     {"meshes/mesh_D2X10N1.hpgem",
-                                      "meshes/mesh_D2X20N1.hpgem",
-                                      "meshes/mesh_D2X40N1.hpgem"},
-                                     0, 10, 1);
+const std::vector<std::string> meshes2D({"meshes/mesh_D2X10N1.hpgem",
+                                         "meshes/mesh_D2X20N1.hpgem",
+                                         "meshes/mesh_D2X40N1.hpgem"});
 
 int main(int argc, char **argv) {
     Base::parse_options(argc, argv);
     initDGMaxLogging();
     DGMax::printArguments(argc, argv);
-    ;
 
-    DGMaxTestCase<2> testCase = simpleVacuum;
+    const std::size_t numFrequencies = 10;
 
-    std::unique_ptr<Solver<2>> solver;
+    std::unique_ptr<DGMax::RunnableEVTestCase<2>> testCase2;
+    DGMax::EVTestCase<2> rawTestCase({0.5, 0.8}, 0, numFrequencies);
     if (method.getValue() == "DGMAX") {
-        solver =
-            std::unique_ptr<Solver<2>>(new DGMaxSolver<2>(testCase.order_));
+        testCase2 = std::unique_ptr<DGMax::RunnableEVTestCase<2>>(
+            new DGMax::DGMaxEVTestCase<2>(rawTestCase, meshes2D,
+                                        0.0,  // No expecations
+                                        1, 100, nullptr));
     } else if (method.getValue() == "DIVDGMAX") {
-        solver =
-            std::unique_ptr<Solver<2>>(new DivDGMaxSolver<2>(testCase.order_));
+        typename DivDGMaxDiscretization<2>::Stab stab;
+        stab.stab1 = 5;
+        stab.stab2 = 0;
+        stab.stab3 = 5;
+        stab.setAllFluxeTypes(DivDGMaxDiscretization<2>::FluxType::BREZZI);
+
+        testCase2 = std::unique_ptr<DGMax::RunnableEVTestCase<2>>(
+            new DGMax::DivDGMaxEVTestCase<2>(rawTestCase, meshes2D,
+                                           0.0,  // No expectations
+                                           1, stab, nullptr));
     } else {
         DGMaxLogger(ERROR, "Unknown method %", method.getValue());
         return -1;
     }
 
     std::unique_ptr<BandStructure<2>> structure =
-        createStructure<2>(testCase.structureId_);
+        createStructure<2>(rawTestCase.getStructureId());
 
-    DGMax::EigenvalueResult refinementResult;
-    std::size_t numFrequencies = testCase.numberOfEigenvalues_;
-
-    for (std::string &meshFileName : testCase.meshes_) {
-        auto result = solver->solve(meshFileName, testCase.structureId_,
-                                    testCase.kpoint_, numFrequencies);
-        // TODO: Raw eigenvalues is better than the computed frequencies in case
-        // something goes wrong
-
-        const std::vector<double> &resultFreqs = result->frequencies(0);
-        // Discard zero/negative eigenvalues
-        std::size_t index = 0;
-        while (index < resultFreqs.size() &&
-               (std::isnan(resultFreqs[index]) ||
-                std::abs(resultFreqs[index]) < 1e-3)) {
-            index++;
-        }
-
-        // Copy the required number of frequencies
-        std::vector<double> frequencies;
-        for (; index < numFrequencies && index < resultFreqs.size(); ++index) {
-            frequencies.emplace_back(resultFreqs[index]);
-        }
-        refinementResult.addLevel(frequencies);
-    }
+    DGMax::EVConvergenceResult refinementResult = testCase2->runWithResults(false);
 
     // Compute Errors //
     ////////////////////
@@ -161,7 +87,7 @@ int main(int argc, char **argv) {
 
     // Probably overkill
     std::map<double, std::size_t> spectrum =
-        structure->computeSpectrum(testCase.kpoint_, 20);
+        structure->computeSpectrum(rawTestCase.getKPoint(), 20);
     // Create a linear spectrum for easy comparison.
     std::vector<double> linearSpectrum;
     for (auto const &entry : spectrum) {
@@ -177,60 +103,9 @@ int main(int argc, char **argv) {
     // Print results //
     ///////////////////
 
-    if (testCase.expected_) {
-        // There is a case to compare
-        if (!refinementResult.equals(*testCase.expected_, 1e-10)) {
-            std::cout << "Expected results" << std::endl;
-            testCase.expected_->printFrequencyTable({});
-            refinementResult.printFrequencyTable({});
-            logger.assert_always(false, "Differences with expected output");
-        }
-    } else {
-
-        refinementResult.printFrequencyTable(linearSpectrum);
-        refinementResult.printErrorTable(linearSpectrum);
-    }
+    refinementResult.filterResults(0.01, false);
+    refinementResult.printFrequencyTable(linearSpectrum);
+    refinementResult.printErrorTable(linearSpectrum);
 
     return 0;
-}
-
-template <std::size_t DIM>
-std::unique_ptr<AbstractEigenvalueResult<DIM>> DivDGMaxSolver<DIM>::solve(
-    const std::string &meshFileName, std::size_t structureIndex,
-    const LinearAlgebra::SmallVector<DIM> &kpoint, std::size_t numEigenvalues) {
-    Base::ConfigurationData configData(2, 1);
-    auto mesh = DGMax::readMesh<DIM>(
-        meshFileName, &configData, [&](const Geometry::PointPhysical<DIM> &p) {
-            return jelmerStructure(p, structureIndex);
-        });
-    DGMaxLogger(INFO, "Loaded mesh % with % local elements.", meshFileName,
-                mesh->getNumberOfElements());
-    KSpacePath<DIM> path = KSpacePath<DIM>::singleStepPath(kpoint);
-    EigenValueProblem<DIM> input(path, numEigenvalues);
-
-    typename DivDGMaxDiscretization<DIM>::Stab stab;  // Change this?
-    stab.stab1 = 100;
-    stab.stab2 = 0;
-    stab.stab3 = 1;
-    DivDGMaxEigenvalue<DIM> solver(*mesh, this->order_, stab);
-    return solver.solve(input);
-}
-
-template <std::size_t DIM>
-std::unique_ptr<AbstractEigenvalueResult<DIM>> DGMaxSolver<DIM>::solve(
-    const std::string &meshFileName, std::size_t structureIndex,
-    const LinearAlgebra::SmallVector<DIM> &kpoint, std::size_t numEigenvalues) {
-    Base::ConfigurationData configData(1, 1);
-    auto mesh = DGMax::readMesh<DIM>(
-        meshFileName, &configData, [&](const Geometry::PointPhysical<DIM> &p) {
-            return jelmerStructure(p, structureIndex);
-        });
-    DGMaxLogger(INFO, "Loaded mesh % with % local elements.", meshFileName,
-                mesh->getNumberOfElements());
-    KSpacePath<DIM> path = KSpacePath<DIM>::singleStepPath(kpoint);
-    EigenValueProblem<DIM> input(path, numEigenvalues);
-
-    // TODO Vary the order
-    DGMaxEigenvalue<DIM> solver(*mesh, this->order_, 100);
-    return solver.solve(input);
 }

@@ -1,11 +1,12 @@
-#include "EigenvalueResult.h"
+#include "EVConvergenceResult.h"
 
 #include <iomanip>
 #include <iostream>
+#include <cmath>
 
 namespace DGMax {
 
-void EigenvalueResult::printFrequencyTable(std::vector<double> theoretical) {
+void EVConvergenceResult::printFrequencyTable(std::vector<double> theoretical) const {
     std::size_t max = maxNumberOfFrequencies();
 
     // Header line
@@ -27,7 +28,7 @@ void EigenvalueResult::printFrequencyTable(std::vector<double> theoretical) {
     // Frequencies
     for (auto &levelFrequency : frequencyLevels_) {
         std::cout << "|";
-        for (double &frequency : levelFrequency) {
+        for (const double &frequency : levelFrequency) {
             std::cout << " " << std::setprecision(4) << std::setw(6)
                       << frequency << " |";
         }
@@ -37,7 +38,7 @@ void EigenvalueResult::printFrequencyTable(std::vector<double> theoretical) {
     std::cout << std::endl;
 }
 
-void EigenvalueResult::printErrorTable(std::vector<double> theoretical) {
+void EVConvergenceResult::printErrorTable(std::vector<double> theoretical) const {
 
     std::size_t max = maxNumberOfFrequencies();
 
@@ -95,25 +96,14 @@ void EigenvalueResult::printErrorTable(std::vector<double> theoretical) {
     std::cout << std::endl;
 }
 
-bool EigenvalueResult::equals(const EigenvalueResult &other, double tolerance) {
-    if (frequencyLevels_.size() != other.frequencyLevels_.size()) {
-        return false;
-    }
-    std::size_t levels = frequencyLevels_.size();
-    for (std::size_t i = 0; i < levels; ++i) {
-        if (frequencyLevels_[i].size() != other.frequencyLevels_[i].size()) {
-            return false;
-        }
-        for (std::size_t j = 0; j < frequencyLevels_[i].size(); ++j) {
-            double diff = frequencyLevels_[i][j] - other.frequencyLevels_[i][j];
-            // Note the use of !(diff < tol) as this returns true if diff is
-            // NaN, using (diff >= tol) would return false if diff is NaN.
-            if (!(std::abs(diff) < tolerance)) {
-                return false;
+void EVConvergenceResult::filterResults(double minimum, bool removeNaN) {
+    for (std::vector<double>& frequencies : frequencyLevels_) {
+        for (auto it = frequencies.begin(); it != frequencies.end(); ++it) {
+            if (*it < minimum || (removeNaN && std::isnan(*it))) {
+                it = frequencies.erase(it);
             }
         }
     }
-    return true;
 }
 
 }  // namespace DGMax
