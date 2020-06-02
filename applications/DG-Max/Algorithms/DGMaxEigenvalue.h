@@ -36,27 +36,28 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef ALGORITHMS_DIVDGMAXEIGENVALUE_H
-#define ALGORITHMS_DIVDGMAXEIGENVALUE_H
+#ifndef ALGORITHMS_DGMAXEIGENVALUE_h
+#define ALGORITHMS_DGMAXEIGENVALUE_h
 
-#include "DivDGMaxDiscretization.h"
 #include "../ProblemTypes/EigenValueProblem.h"
+#include "../ProblemTypes/AbstractEigenvalueResult.h"
+#include "ProblemTypes/AbstractEigenvalueSolver.h"
+
+#include "DGMaxDiscretization.h"
 
 #include "Utilities/GlobalIndexing.h"
 
-#include <petscis.h>
-#include <petscvec.h>
 #include <slepceps.h>
 
-#include "ProblemTypes/BaseEigenvalueResult.h"
-
+// TODO: It might be better to call this differently
 template <std::size_t DIM>
-class DivDGMaxEigenValue {
+class DGMaxEigenvalue : public AbstractEigenvalueSolver<DIM> {
+
    public:
-    class Result : public BaseEigenvalueResult<DIM> {
+    class Result : public AbstractEigenvalueResult<DIM> {
        public:
         Result(EigenValueProblem<DIM> problem,
-               std::vector<std::vector<PetscScalar>> eigenvalues);
+               std::vector<std::vector<PetscScalar>> values);
         const EigenValueProblem<DIM>& originalProblem() const final;
         const std::vector<double> frequencies(std::size_t point) const final;
 
@@ -65,26 +66,32 @@ class DivDGMaxEigenValue {
         const std::vector<std::vector<PetscScalar>> eigenvalues_;
     };
 
-    DivDGMaxEigenValue(Base::MeshManipulator<DIM>& mesh);
-    Result solve(EigenValueProblem<DIM> input,
-                 typename DivDGMaxDiscretization<DIM>::Stab, std::size_t order);
+    DGMaxEigenvalue(Base::MeshManipulator<DIM>& mesh, std::size_t order,
+                    double stab);
+
+    std::unique_ptr<AbstractEigenvalueResult<DIM>> solve(
+        const EigenValueProblem<DIM>& input) override;
+    // TODO: A nice wrapper of EPS that does RAII would be nicer
+    EPS createEigenSolver();
+    void destroyEigenSolver(EPS& eps);
 
    private:
-    void extractEigenvalues(const EPS& solver,
-                            std::vector<PetscScalar>& result) const;
+    void initializeMatrices(double stab);
+    void makeShiftMatrix(const Utilities::GlobalIndexing& indexing,
+                         const LinearAlgebra::SmallVector<DIM>& direction,
+                         Vec& waveVecMatrix) const;
 
-    void makeShiftMatrix(LinearAlgebra::SmallVector<DIM>& direction,
-                         const Utilities::GlobalIndexing& index,
-                         Vec& waveVecMatrix);
+    void extractEigenValues(const EPS& solver,
+                            std::vector<PetscScalar>& result);
 
-    // TODO: These are directly copied from DGMaxEigenValue, this is of course
-    // not good programming.
     std::vector<Base::Face*> findPeriodicBoundaryFaces() const;
     LinearAlgebra::SmallVector<DIM> boundaryFaceShift(
         const Base::Face* face) const;
 
     Base::MeshManipulator<DIM>& mesh_;
-    DivDGMaxDiscretization<DIM> discretization;
+    std::size_t order_;
+    std::size_t stab_;
+    DGMaxDiscretization<DIM> discretization_;
 };
 
-#endif  // ALGORITHMS_DIVDGMAXEIGENVALUE_H
+#endif  // ALGORITHMS_DGMAXEIGENVALUE_h
