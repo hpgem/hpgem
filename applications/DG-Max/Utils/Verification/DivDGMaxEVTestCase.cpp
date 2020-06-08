@@ -20,7 +20,7 @@ std::unique_ptr<AbstractEigenvalueResult<DIM> >
                 meshFileNames_[level], mesh->getNumberOfElements());
     KSpacePath<DIM> path =
         KSpacePath<DIM>::singleStepPath(testCase_.getKPoint());
-    EigenValueProblem<DIM> input(path, testCase_.getNumberOfEigenvalues());
+    EigenvalueProblem<DIM> input(path, testCase_.getNumberOfEigenvalues());
 
     DivDGMaxEigenvalue<DIM> solver(*mesh, this->order_, this->stab_);
     return solver.solve(input);

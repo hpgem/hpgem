@@ -12,8 +12,8 @@ template <std::size_t DIM>
 class DGMaxEVTestCase : public RunnableEVTestCase<DIM> {
    public:
     DGMaxEVTestCase(EVTestCase<DIM> testCase,
-                  std::vector<std::string> meshFileNames, double tolerance,
-                  std::size_t order, double stab,
+                    std::vector<std::string> meshFileNames, double tolerance,
+                    std::size_t order, double stab,
                     EVConvergenceResult* expected)
         : testCase_(testCase),
           meshFileNames_(std::move(meshFileNames)),

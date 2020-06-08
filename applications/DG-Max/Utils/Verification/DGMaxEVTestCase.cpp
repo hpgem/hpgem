@@ -12,9 +12,8 @@
 namespace DGMax {
 
 template <std::size_t DIM>
-std::unique_ptr<AbstractEigenvalueResult<DIM> >
-    DGMaxEVTestCase<DIM>::runInternal(
-    std::size_t level) {
+std::unique_ptr<AbstractEigenvalueResult<DIM>>
+    DGMaxEVTestCase<DIM>::runInternal(std::size_t level) {
 
     logger.assert_always(level < meshFileNames_.size(), "No such mesh");
 
@@ -28,7 +27,7 @@ std::unique_ptr<AbstractEigenvalueResult<DIM> >
                 meshFileNames_[level], mesh->getNumberOfElements());
     KSpacePath<DIM> path =
         KSpacePath<DIM>::singleStepPath(testCase_.getKPoint());
-    EigenValueProblem<DIM> input(path, testCase_.getNumberOfEigenvalues());
+    EigenvalueProblem<DIM> input(path, testCase_.getNumberOfEigenvalues());
 
     DGMaxEigenvalue<DIM> solver(*mesh, this->order_, this->stab_);
     return solver.solve(input);
