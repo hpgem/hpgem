@@ -42,9 +42,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../Utils/KSpacePath.h"
 
 template <std::size_t DIM>
-class EigenValueProblem {
+class EigenvalueProblem {
    public:
-    EigenValueProblem(KSpacePath<DIM>& path, std::size_t numberOfEigenvalues)
+    EigenvalueProblem(KSpacePath<DIM>& path, std::size_t numberOfEigenvalues)
         : path_(path), numberOfEigenvalues_(numberOfEigenvalues) {}
 
     /// \brief The path through K-space to scan.

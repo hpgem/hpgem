@@ -48,28 +48,27 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DivDGMaxDiscretization.h"
 #include "ProblemTypes/AbstractEigenvalueResult.h"
 #include "ProblemTypes/AbstractEigenvalueSolver.h"
-#include "ProblemTypes/EigenValueProblem.h"
-
+#include "ProblemTypes/EigenvalueProblem.h"
 
 template <std::size_t DIM>
 class DivDGMaxEigenvalue : public AbstractEigenvalueSolver<DIM> {
    public:
     class Result : public AbstractEigenvalueResult<DIM> {
        public:
-        Result(EigenValueProblem<DIM> problem,
+        Result(EigenvalueProblem<DIM> problem,
                std::vector<std::vector<PetscScalar>> eigenvalues);
-        const EigenValueProblem<DIM>& originalProblem() const final;
+        const EigenvalueProblem<DIM>& originalProblem() const final;
         const std::vector<double> frequencies(std::size_t point) const final;
 
        private:
-        const EigenValueProblem<DIM> problem_;
+        const EigenvalueProblem<DIM> problem_;
         const std::vector<std::vector<PetscScalar>> eigenvalues_;
     };
 
     DivDGMaxEigenvalue(Base::MeshManipulator<DIM>& mesh, std::size_t order,
                        typename DivDGMaxDiscretization<DIM>::Stab stab);
     std::unique_ptr<AbstractEigenvalueResult<DIM>> solve(
-        const EigenValueProblem<DIM>& input) override;
+        const EigenvalueProblem<DIM>& input) override;
 
    private:
     void extractEigenvalues(const EPS& solver,

@@ -100,7 +100,7 @@ void DGMaxEigenvalue<DIM>::initializeMatrices(double stab) {
 
 template <std::size_t DIM>
 std::unique_ptr<AbstractEigenvalueResult<DIM>> DGMaxEigenvalue<DIM>::solve(
-    const EigenValueProblem<DIM>& input) {
+    const EigenvalueProblem<DIM>& input) {
     discretization_.initializeBasisFunctions(mesh_, order_);
     // Sometimes the solver finds more eigenvalues & vectors than requested, so
     // reserve some extra space for them.
@@ -451,7 +451,7 @@ void DGMaxEigenvalue<DIM>::makeShiftMatrix(
 
 template <std::size_t DIM>
 DGMaxEigenvalue<DIM>::Result::Result(
-    EigenValueProblem<DIM> problem,
+    EigenvalueProblem<DIM> problem,
     std::vector<std::vector<PetscScalar>> values)
     : problem_(problem), eigenvalues_(values) {
     logger.assert_always(
@@ -460,7 +460,7 @@ DGMaxEigenvalue<DIM>::Result::Result(
 }
 
 template <std::size_t DIM>
-const EigenValueProblem<DIM>& DGMaxEigenvalue<DIM>::Result::originalProblem()
+const EigenvalueProblem<DIM>& DGMaxEigenvalue<DIM>::Result::originalProblem()
     const {
     return problem_;
 }

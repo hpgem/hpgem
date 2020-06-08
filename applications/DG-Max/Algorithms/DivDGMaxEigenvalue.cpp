@@ -54,7 +54,7 @@ DivDGMaxEigenvalue<DIM>::DivDGMaxEigenvalue(
 
 template <std::size_t DIM>
 std::unique_ptr<AbstractEigenvalueResult<DIM>> DivDGMaxEigenvalue<DIM>::solve(
-    const EigenValueProblem<DIM>& input) {
+    const EigenvalueProblem<DIM>& input) {
     // Sometimes the solver finds more eigenvalues & vectors than requested, so
     // reserve some extra space for them.
     std::size_t numberOfEigenvalues = input.getNumberOfEigenvalues();
@@ -473,12 +473,12 @@ LinearAlgebra::SmallVector<DIM> DivDGMaxEigenvalue<DIM>::boundaryFaceShift(
 
 template <std::size_t DIM>
 DivDGMaxEigenvalue<DIM>::Result::Result(
-    EigenValueProblem<DIM> problem,
+    EigenvalueProblem<DIM> problem,
     std::vector<std::vector<PetscScalar>> eigenvalues)
     : problem_(problem), eigenvalues_(eigenvalues) {}
 
 template <std::size_t DIM>
-const EigenValueProblem<DIM>& DivDGMaxEigenvalue<DIM>::Result::originalProblem()
+const EigenvalueProblem<DIM>& DivDGMaxEigenvalue<DIM>::Result::originalProblem()
     const {
     return problem_;
 }

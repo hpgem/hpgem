@@ -117,7 +117,7 @@ void runWithDimension() {
            mesh->getNumberOfElements());
     // TODO: Parameterize
     KSpacePath<DIM> path = parsePath<DIM>();
-    EigenValueProblem<DIM> input(path, numEigenvalues.getValue());
+    EigenvalueProblem<DIM> input(path, numEigenvalues.getValue());
     // Method dependent solving
     std::unique_ptr<AbstractEigenvalueResult<DIM>> result;
     if (useDivDGMax) {

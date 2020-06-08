@@ -145,13 +145,12 @@ int main(int argc, char** argv) {
         /////////////////////
 
         //        DGMaxEigenvalue solver (base, p.getValue());
-        DivDGMaxEigenvalue<DIM> solver(*mesh);
+        DivDGMaxEigenvalue<DIM> solver(*mesh, p.getValue(), divStab);
         KSpacePath<DIM> path = KSpacePath<DIM>::cubePath(20);
-        EigenValueProblem<DIM> input(path, numEigenvalues.getValue());
-        DivDGMaxEigenvalue<DIM>::Result result =
-            solver.solve(input, divStab, p.getValue());
+        EigenvalueProblem<DIM> input(path, numEigenvalues.getValue());
+        std::unique_ptr<AbstractEigenvalueResult<DIM>> result = solver.solve(input);
         if (Base::MPIContainer::Instance().getProcessorID() == 0) {
-            result.printFrequencies();
+            result->printFrequencies();
         }
 
         ///////////////////////////
@@ -188,7 +187,7 @@ int main(int argc, char** argv) {
             points.emplace_back("S");
             points.emplace_back("R");
         }
-        BandstructureGNUPlot<DIM> output(path, points, structure, &result);
+        BandstructureGNUPlot<DIM> output(path, points, structure, &(*result));
         output.plot("gnutest.in");
 
         time(&end);
