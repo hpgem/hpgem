@@ -4,15 +4,16 @@
 #include <memory>
 
 #include "AbstractEigenvalueResult.h"
-#include "EigenValueProblem.h"
+#include "EigenvalueProblem.h"
 
+/// Solver for the EigenvalueProblem
 template <std::size_t DIM>
 class AbstractEigenvalueSolver {
    public:
     virtual ~AbstractEigenvalueSolver() = default;
-    /// Solve an eigenvalue problem.
+    /// Solve the EigenvalueProblem
     virtual std::unique_ptr<AbstractEigenvalueResult<DIM>> solve(
-        const EigenValueProblem<DIM>& input) = 0;
+        const EigenvalueProblem<DIM>& input) = 0;
 };
 
 #endif  // HPGEM_ABSTRACTEIGENVALUESOLVER_H

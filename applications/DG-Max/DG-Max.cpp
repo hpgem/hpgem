@@ -147,7 +147,7 @@ int main(int argc, char** argv) {
         //        DGMaxEigenvalue solver (base, p.getValue());
         DivDGMaxEigenvalue<DIM> solver(*mesh);
         KSpacePath<DIM> path = KSpacePath<DIM>::cubePath(20);
-        EigenValueProblem<DIM> input(path, numEigenvalues.getValue());
+        EigenvalueProblem<DIM> input(path, numEigenvalues.getValue());
         DivDGMaxEigenvalue<DIM>::Result result =
             solver.solve(input, divStab, p.getValue());
         if (Base::MPIContainer::Instance().getProcessorID() == 0) {

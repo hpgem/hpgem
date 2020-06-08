@@ -5,15 +5,14 @@
 #include <fstream>
 #include <iostream>
 
-
-#include "EigenValueProblem.h"
+#include "EigenvalueProblem.h"
 
 template <std::size_t DIM>
 class AbstractEigenvalueResult {
    public:
     virtual ~AbstractEigenvalueResult() = default;
 
-    virtual const EigenValueProblem<DIM>& originalProblem() const = 0;
+    virtual const EigenvalueProblem<DIM>& originalProblem() const = 0;
     virtual const std::vector<double> frequencies(std::size_t point) const = 0;
 
     void writeFrequencies(const std::string& fileName) const {

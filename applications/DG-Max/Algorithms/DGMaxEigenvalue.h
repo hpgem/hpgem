@@ -39,7 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef ALGORITHMS_DGMAXEIGENVALUE_h
 #define ALGORITHMS_DGMAXEIGENVALUE_h
 
-#include "../ProblemTypes/EigenValueProblem.h"
+#include "../ProblemTypes/EigenvalueProblem.h"
 #include "../ProblemTypes/AbstractEigenvalueResult.h"
 #include "ProblemTypes/AbstractEigenvalueSolver.h"
 
@@ -56,13 +56,13 @@ class DGMaxEigenvalue : public AbstractEigenvalueSolver<DIM> {
    public:
     class Result : public AbstractEigenvalueResult<DIM> {
        public:
-        Result(EigenValueProblem<DIM> problem,
+        Result(EigenvalueProblem<DIM> problem,
                std::vector<std::vector<PetscScalar>> values);
-        const EigenValueProblem<DIM>& originalProblem() const final;
+        const EigenvalueProblem<DIM>& originalProblem() const final;
         const std::vector<double> frequencies(std::size_t point) const final;
 
        private:
-        const EigenValueProblem<DIM> problem_;
+        const EigenvalueProblem<DIM> problem_;
         const std::vector<std::vector<PetscScalar>> eigenvalues_;
     };
 
@@ -70,7 +70,7 @@ class DGMaxEigenvalue : public AbstractEigenvalueSolver<DIM> {
                     double stab);
 
     std::unique_ptr<AbstractEigenvalueResult<DIM>> solve(
-        const EigenValueProblem<DIM>& input) override;
+        const EigenvalueProblem<DIM>& input) override;
     // TODO: A nice wrapper of EPS that does RAII would be nicer
     EPS createEigenSolver();
     void destroyEigenSolver(EPS& eps);
