@@ -68,6 +68,10 @@ class LevelTree {
     //! clean up the entries (does not do memory management on V)
     ~LevelTree();
 
+    // Disallow copying, as we own pointers to TreeEntry-s.
+    LevelTree(const LevelTree<V>& other) = delete;
+    LevelTree<V>& operator=(const LevelTree<V>&) = delete;
+
     //! false if there are entries in the tree
     bool empty() const;
 
