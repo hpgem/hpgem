@@ -148,7 +148,8 @@ int main(int argc, char** argv) {
         DivDGMaxEigenvalue<DIM> solver(*mesh, p.getValue(), divStab);
         KSpacePath<DIM> path = KSpacePath<DIM>::cubePath(20);
         EigenvalueProblem<DIM> input(path, numEigenvalues.getValue());
-        std::unique_ptr<AbstractEigenvalueResult<DIM>> result = solver.solve(input);
+        std::unique_ptr<AbstractEigenvalueResult<DIM>> result =
+            solver.solve(input);
         if (Base::MPIContainer::Instance().getProcessorID() == 0) {
             result->printFrequencies();
         }
