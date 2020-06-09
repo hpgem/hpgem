@@ -96,11 +96,35 @@ void EVConvergenceResult::printErrorTable(std::vector<double> theoretical) const
     std::cout << std::endl;
 }
 
+void EVConvergenceResult::printResultCode(int precision) const {
+    std::cout << "{" << std::endl;
+    for (std::size_t i = 0; i < frequencyLevels_.size(); ++i) {
+        const std::vector<double> frequencies = frequencyLevels_[i];
+
+        std::cout << "{";
+        for (std::size_t j = 0; j < frequencies.size(); ++j) {
+            std::cout << std::setprecision(precision) << frequencies[j];
+            if (j != frequencies.size() - 1) {
+                std::cout << ",";
+            }
+        }
+        std::cout << "}";
+        if (i != frequencyLevels_.size() - 1) {
+            std::cout << ",";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "}" << std::endl;
+}
+
 void EVConvergenceResult::filterResults(double minimum, bool removeNaN) {
     for (std::vector<double>& frequencies : frequencyLevels_) {
-        for (auto it = frequencies.begin(); it != frequencies.end(); ++it) {
+        auto it = frequencies.begin();
+        while (it != frequencies.end()) {
             if (*it < minimum || (removeNaN && std::isnan(*it))) {
                 it = frequencies.erase(it);
+            } else {
+                it++;
             }
         }
     }

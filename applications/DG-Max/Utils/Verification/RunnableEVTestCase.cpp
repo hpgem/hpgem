@@ -5,14 +5,14 @@
 namespace DGMax {
 
 template <std::size_t DIM>
-EVConvergenceResult RunnableEVTestCase<DIM>::runWithResults(bool breakOnError) {
+EVConvergenceResult RunnableEVTestCase<DIM>::run(bool failOnDifference) {
     EVConvergenceResult convergenceResult;
 
     for (std::size_t level = 0; level < getNumberOfLevels(); ++level) {
         std::unique_ptr<AbstractEigenvalueResult<DIM>> result =
             runInternal(level);
 
-        bool hasResult (result);
+        bool hasResult(result);
         logger.assert_always(hasResult, "Null result");
 
         convergenceResult.addLevel(result->frequencies(0));
@@ -20,9 +20,8 @@ EVConvergenceResult RunnableEVTestCase<DIM>::runWithResults(bool breakOnError) {
         if (getExpected() != nullptr) {
             bool correct = compareWithExpected(level, *result);
 
-            if (!correct && breakOnError) {
-                break;
-            }
+            logger.assert_always(correct || !failOnDifference,
+                                 "Results differ from expected");
         }
     }
     return convergenceResult;
@@ -47,9 +46,8 @@ bool RunnableEVTestCase<DIM>::compareWithExpected(
     }
     for (std::size_t i = 0; i < expectedLevel.size(); ++i) {
         double diff = std::abs(expectedLevel[i] - resultLevel[i]);
-        // Note the use of !(diff < tol) as this returns true if diff is
-        // NaN, using (diff >= tol) would return false if diff is NaN.
-        if (!(diff < getTolerance())) {
+        if (diff >= getTolerance() ||
+            (std::isnan(expectedLevel[i]) != std::isnan(resultLevel[i]))) {
             logger(ERROR,
                    "Different %-th eigenvalue at level %: Expected % got %", i,
                    level, expectedLevel[i], resultLevel[i]);

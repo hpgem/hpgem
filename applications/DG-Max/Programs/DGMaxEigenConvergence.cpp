@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
     std::unique_ptr<BandStructure<2>> structure =
         createStructure<2>(rawTestCase.getStructureId());
 
-    DGMax::EVConvergenceResult refinementResult = testCase2->runWithResults(false);
+    DGMax::EVConvergenceResult refinementResult = testCase2->run(false);
 
     // Compute Errors //
     ////////////////////

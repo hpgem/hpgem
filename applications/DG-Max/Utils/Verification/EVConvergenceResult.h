@@ -10,6 +10,21 @@ namespace DGMax {
 /// \brief Frequencies from eigenvalue computations on a set of meshes.
 class EVConvergenceResult {
    public:
+    EVConvergenceResult() = default;
+    /// Constructor for hard coded results
+    EVConvergenceResult(std::vector<std::vector<double>> rawResults)
+        : frequencyLevels_(rawResults) {}
+    EVConvergenceResult(
+        const std::initializer_list<std::vector<double>> rawResults)
+        : frequencyLevels_(rawResults.size())
+    {
+        std::size_t i = 0;
+        for (const std::vector<double>& level : rawResults) {
+            frequencyLevels_[i] = level;
+            i++;
+        }
+    }
+
     /// Print the raw frequencies
     ///
     /// \param theoretical Theoretical frequencies used as header.
@@ -19,6 +34,10 @@ class EVConvergenceResult {
     /// \param theoretical The theoretical results, used for printing
     /// convergence order.
     void printErrorTable(std::vector<double> theoretical) const;
+
+    /// Print the results in a format that can be copied into code.
+    /// \param precision The precision to print with
+    void printResultCode(int precision) const;
 
     void filterResults(double minimum, bool removeNaN);
 

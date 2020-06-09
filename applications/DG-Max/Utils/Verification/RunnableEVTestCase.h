@@ -13,7 +13,11 @@ class RunnableEVTestCase {
    public:
     virtual ~RunnableEVTestCase() = default;
 
-    EVConvergenceResult runWithResults(bool breakOnError);
+    /// Run the convergence test case
+    ///
+    /// \param failOnDifference If there are differences from the expected result, create an assertion failure.
+    /// \return The results
+    EVConvergenceResult run(bool failOnDifference);
 
    protected:
     /// Number of mesh levels

@@ -10,7 +10,7 @@ BraggStackBandstructure::BraggStackBandstructure(double eps1, double eps2,
                                                  double fraction)
     : eps1_(eps1), eps2_(eps2), fraction_(fraction) {}
 
-std::map<double, std::size_t> BraggStackBandstructure::computeSpectrum(
+std::vector<double> BraggStackBandstructure::computeLinearSpectrum(
     LinearAlgebra::SmallVector<3> kpoint, double omegaMax) const {
     for (std::size_t i = 0; i < 3; ++i)
         logger.assert_always(std::abs(kpoint[i]) <= (M_PI + 1e-8),
@@ -46,7 +46,13 @@ std::map<double, std::size_t> BraggStackBandstructure::computeSpectrum(
     }
     std::sort(freqs.begin(), freqs.end());
     // Binning
-    return group(freqs, 1e-5);
+    return freqs;
+}
+
+std::map<double, std::size_t> BraggStackBandstructure::computeSpectrum(
+    LinearAlgebra::SmallVector<3> kpoint, double omegaMax) const {
+    std::vector<double> frequencies = computeLinearSpectrum(kpoint, omegaMax);
+    return group(frequencies, 1e-5);
 }
 
 /// \brief Simple bisection algorithm to find the root of a functions

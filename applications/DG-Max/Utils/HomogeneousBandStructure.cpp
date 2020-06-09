@@ -12,7 +12,7 @@ HomogeneousBandStructure<DIM>::HomogeneousBandStructure(
     : reciprocalVectors_(reciprocalVectors), permittivity_(permittivity) {}
 
 template <std::size_t DIM>
-std::map<double, std::size_t> HomogeneousBandStructure<DIM>::computeSpectrum(
+std::vector<double> HomogeneousBandStructure<DIM>::computeLinearSpectrum(
     LinearAlgebra::SmallVector<DIM> kpoint, double maxFrequency) const {
     // Using this order so that points are first ordered by frequency.
     using Key = std::tuple<double, LatticePoint<DIM>>;
@@ -78,9 +78,15 @@ std::map<double, std::size_t> HomogeneousBandStructure<DIM>::computeSpectrum(
             }
         }
     }
-    // group the results
-    return group(frequencies, 1e-5);
+    return frequencies;
 }
+
+template<std::size_t DIM>
+std::map<double, std::size_t> HomogeneousBandStructure<DIM>::computeSpectrum(LinearAlgebra::SmallVector<DIM> kpoint, double maxFrequency) const {
+    std::vector<double> linearSpectrum = computeLinearSpectrum(kpoint, maxFrequency);
+    return group(linearSpectrum, 1e-5);
+}
+
 
 template <std::size_t DIM>
 std::unique_ptr<typename BandStructure<DIM>::LineSet>
