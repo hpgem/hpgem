@@ -357,8 +357,7 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DivDGMaxEigenvalue<DIM>::solve(
     error = EPSDestroy(&eigenSolver);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
-    return std::unique_ptr<AbstractEigenvalueResult<DIM>>(
-        new Result(input, eigenvalues));
+    return std::make_unique<Result>(input, eigenvalues);
 }
 
 template <std::size_t DIM>

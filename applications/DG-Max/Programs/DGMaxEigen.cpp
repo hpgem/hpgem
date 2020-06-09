@@ -11,7 +11,7 @@
 auto& meshFile = Base::register_argument<std::string>(
     'm', "meshFile", "The hpgem meshfile to use", true);
 // Polynomial order of the basis functions, e.g. -p 2
-auto& p = Base::register_argument<std::size_t>(
+auto& order = Base::register_argument<std::size_t>(
     'p', "order", "Polynomial order of the solution", true);
 // Number of eigenvalues to compute, e.g. -e 40
 auto& numEigenvalues = Base::register_argument<std::size_t>(
@@ -123,11 +123,11 @@ void runWithDimension() {
     if (useDivDGMax) {
         typename DivDGMaxDiscretization<DIM>::Stab stab =
             parsePenaltyParmaters<DIM>();
-        DivDGMaxEigenvalue<DIM> solver(*mesh, p.getValue(), stab);
+        DivDGMaxEigenvalue<DIM> solver(*mesh, order.getValue(), stab);
         result = solver.solve(input);
     } else {
         const double stab = parseDGMaxPenaltyParameter();
-        DGMaxEigenvalue<DIM> solver(*mesh, p.getValue(), stab);
+        DGMaxEigenvalue<DIM> solver(*mesh, order.getValue(), stab);
         result = solver.solve(input);
     }
 
