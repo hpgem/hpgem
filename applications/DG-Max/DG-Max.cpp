@@ -92,15 +92,12 @@ int main(int argc, char** argv) {
     // DGMax problem(new MaxwellData(numElements.getValue(), p.getValue()), new
     // Base::ConfigurationData(DIM, 1, p.getValue(), 1), new MatrixAssemblyIP);
     const std::size_t numberOfTimeLevels = 1;
-    Base::GlobalData* const globalData = new Base::GlobalData();
-    globalData->numberOfTimeLevels_ = numberOfTimeLevels;
     // TODO: LC: this should be determined by the discretization, but this is
     // currently not possible yet, as we get a dependency loop (discretization
     // requires DGMax, which requires the configurationData, which would then
     // require the discretization).
     const std::size_t numberOfUnknowns = 2;
-    Base::ConfigurationData* const configData =
-        new Base::ConfigurationData(numberOfUnknowns, numberOfTimeLevels);
+    Base::ConfigurationData configData (numberOfUnknowns, numberOfTimeLevels);
     try {
         double stab = (p.getValue() + 1) * (p.getValue() + 3);
         DivDGMaxDiscretization<DIM>::Stab divStab;
@@ -116,7 +113,7 @@ int main(int argc, char** argv) {
         };
 
         std::unique_ptr<Base::MeshManipulator<DIM>> mesh(
-            DGMax::readMesh<DIM>(meshFile.getValue(), configData, epsilon));
+            DGMax::readMesh<DIM>(meshFile.getValue(), &configData, epsilon));
         // base.createCentaurMesh(std::string("SmallIW_Mesh4000.hyb"));
         // base.createCentaurMesh(std::string("BoxCylinder_Mesh6000.hyb"));
         // TODO: LC: this does seem rather arbitrary and should probably be done
@@ -188,7 +185,7 @@ int main(int argc, char** argv) {
             points.emplace_back("S");
             points.emplace_back("R");
         }
-        BandstructureGNUPlot<DIM> output(path, points, structure, &(*result));
+        BandstructureGNUPlot<DIM> output(path, points, structure, result.get());
         output.plot("gnutest.in");
 
         time(&end);
