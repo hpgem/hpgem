@@ -97,7 +97,7 @@ int main(int argc, char** argv) {
     // requires DGMax, which requires the configurationData, which would then
     // require the discretization).
     const std::size_t numberOfUnknowns = 2;
-    Base::ConfigurationData configData (numberOfUnknowns, numberOfTimeLevels);
+    Base::ConfigurationData configData(numberOfUnknowns, numberOfTimeLevels);
     try {
         double stab = (p.getValue() + 1) * (p.getValue() + 3);
         DivDGMaxDiscretization<DIM>::Stab divStab;
