@@ -14,6 +14,15 @@
 #include "Utils/Verification/DivDGMaxEVTestCase.h"
 #include "Utils/Verification/EVConvergenceResult.h"
 
+auto &dimensionArg = Base::register_argument<std::size_t>(
+    'd', "dimension", "The dimension of the problem", true);
+
+auto &structureArg = Base::register_argument<std::size_t>(
+    '\0', "structure", "The structure to use", true, 0);
+
+auto &meshFiles = Base::register_argument<std::string>(
+    'm', "meshes", "The mesh files to use, comma separated", true);
+
 auto &method = Base::register_argument<std::string>(
     '\0', "method",
     "The method to be used, either 'DGMAX' or 'DIVDGMAX' (default)", false,
@@ -35,77 +44,117 @@ std::unique_ptr<BandStructure<DIM>> createStructure(
         return std::unique_ptr<BandStructure<DIM>>(
             new HomogeneousBandStructure<DIM>(reciprocalVectors));
     } else {
-        logger.assert_always(false, "Unknown structure");
-        // Won't happen.
         return std::unique_ptr<BandStructure<DIM>>();
     }
 }
 
-const std::vector<std::string> meshes2D({"meshes/mesh_D2X10N1.hpgem",
-                                         "meshes/mesh_D2X20N1.hpgem",
-                                         "meshes/mesh_D2X40N1.hpgem"});
+std::vector<std::string> parseMeshFiles();
+
+template <std::size_t DIM>
+void runWithDimension();
 
 int main(int argc, char **argv) {
     Base::parse_options(argc, argv);
     initDGMaxLogging();
     DGMax::printArguments(argc, argv);
 
+    switch (dimensionArg.getValue()) {
+        case 2:
+            runWithDimension<2>();
+            break;
+        case 3:
+            runWithDimension<3>();
+            break;
+        default:
+            logger.assert_always(false, "Can only run with dimension 2 or 3");
+    }
+    return 0;
+}
+
+template <std::size_t DIM>
+void runWithDimension() {
     const std::size_t numFrequencies = 10;
 
-    std::unique_ptr<DGMax::RunnableEVTestCase<2>> testCase2;
-    DGMax::EVTestCase<2> rawTestCase({0.5, 0.8}, 0, numFrequencies);
+    std::vector<std::string> meshFiles = parseMeshFiles();
+    std::size_t structureId = structureArg.getValue();
+
+    std::unique_ptr<DGMax::RunnableEVTestCase<DIM>> testCase2;
+    DGMax::EVTestCase<DIM> rawTestCase({0.5, 0.8}, structureId, numFrequencies);
     if (method.getValue() == "DGMAX") {
-        testCase2 = std::unique_ptr<DGMax::RunnableEVTestCase<2>>(
-            new DGMax::DGMaxEVTestCase<2>(rawTestCase, meshes2D,
-                                        0.0,  // No expecations
-                                        1, 100, nullptr));
+        testCase2 = std::unique_ptr<DGMax::RunnableEVTestCase<DIM>>(
+            new DGMax::DGMaxEVTestCase<DIM>(rawTestCase, meshFiles,
+                                            0.0,  // No expecations
+                                            1, 100, nullptr));
     } else if (method.getValue() == "DIVDGMAX") {
-        typename DivDGMaxDiscretization<2>::Stab stab;
+        typename DivDGMaxDiscretization<DIM>::Stab stab;
         stab.stab1 = 5;
         stab.stab2 = 0;
         stab.stab3 = 5;
-        stab.setAllFluxeTypes(DivDGMaxDiscretization<2>::FluxType::BREZZI);
+        stab.setAllFluxeTypes(DivDGMaxDiscretization<DIM>::FluxType::BREZZI);
 
-        testCase2 = std::unique_ptr<DGMax::RunnableEVTestCase<2>>(
-            new DGMax::DivDGMaxEVTestCase<2>(rawTestCase, meshes2D,
-                                           0.0,  // No expectations
-                                           1, stab, nullptr));
+        testCase2 = std::unique_ptr<DGMax::RunnableEVTestCase<DIM>>(
+            new DGMax::DivDGMaxEVTestCase<DIM>(rawTestCase, meshFiles,
+                                               0.0,  // No expectations
+                                               1, stab, nullptr));
     } else {
         DGMaxLogger(ERROR, "Unknown method %", method.getValue());
-        return -1;
+        return;
     }
-
-    std::unique_ptr<BandStructure<2>> structure =
-        createStructure<2>(rawTestCase.getStructureId());
 
     DGMax::EVConvergenceResult refinementResult = testCase2->run(false);
 
     // Compute Errors //
     ////////////////////
+    std::vector<double> spectrum;
 
-    std::vector<std::vector<double>> errors;
-
-    // Probably overkill
-    std::map<double, std::size_t> spectrum =
-        structure->computeSpectrum(rawTestCase.getKPoint(), 20);
-    // Create a linear spectrum for easy comparison.
-    std::vector<double> linearSpectrum;
-    for (auto const &entry : spectrum) {
-        for (std::size_t i = 0; i < entry.second; ++i) {
-            linearSpectrum.emplace_back(entry.first);
-        }
+    std::unique_ptr<BandStructure<DIM>> structure =
+        createStructure<DIM>(rawTestCase.getStructureId());
+    if (structure) {
+        // TODO: It would be nice to have a way to compute the N lowest instead
+        // of up to a frequency
+        spectrum =
+            structure->computeLinearSpectrum(rawTestCase.getKPoint(), 20);
+        logger.assert_always(spectrum.size() >= numFrequencies,
+                             "Not enough analytical frequencies");
     }
-    // TODO: Add option for the analytical spectrum to compute at least N
-    // frequencies
-    logger.assert_always(linearSpectrum.size() >= numFrequencies,
-                         "Not enough analytical frequencies");
 
     // Print results //
     ///////////////////
 
-    refinementResult.filterResults(0.01, false);
-    refinementResult.printFrequencyTable(linearSpectrum);
-    refinementResult.printErrorTable(linearSpectrum);
+    int rank;
+    MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
 
-    return 0;
+    if (rank == 0) {
+        refinementResult.filterResults(0.01, false);
+        refinementResult.printFrequencyTable(spectrum);
+        if (!spectrum.empty()) {
+            refinementResult.printErrorTable(spectrum);
+        }
+    }
+}
+
+std::vector<std::string> parseMeshFiles() {
+    std::string files = meshFiles.getValue();
+
+    logger.assert_always(!files.empty(), "Empty list of meshes");
+
+    std::vector<std::string> result;
+
+    std::size_t pos = 0;
+    while (true) {
+        std::size_t next = files.find_first_of(',', pos);
+        if (next == pos) {
+            logger(WARN, "Empty mesh string at position %", pos);
+            pos++;
+        }
+        if (next == std::string::npos) {
+            // Last entry
+            result.push_back(files.substr(pos));
+            break;
+        } else {
+            result.push_back(files.substr(pos, next - pos));
+            pos = next + 1;  // Skip the comma itself.
+        }
+    }
+    return result;
 }

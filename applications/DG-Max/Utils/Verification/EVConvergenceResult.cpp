@@ -17,7 +17,7 @@ void EVConvergenceResult::printFrequencyTable(std::vector<double> theoretical) c
                       << theoretical[i] << " |";
         } else {
             // When lacking an theoretical frequency, just print a placeholder
-            std::cout << " f_ " << std::setw(4) << i << " |";
+            std::cout << " f_" << std::left << std::setw(4) << i << " |";
         }
     }
     std::cout << std::endl << "|";  // For the header bottom line
@@ -62,7 +62,7 @@ void EVConvergenceResult::printErrorTable(std::vector<double> theoretical) const
             std::cout << std::setprecision(4) << std::setw(8) << theoretical[i];
         } else {
             // Place holder
-            std::cout << "f_" << std::setw(8) << std::right << i;
+            std::cout << "f_" << std::setw(6) << std::left << i;
         }
         std::cout << "        "  // Space of second column
                   << " |";
