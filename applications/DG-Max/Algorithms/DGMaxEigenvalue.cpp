@@ -338,8 +338,7 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DGMaxEigenvalue<DIM>::solve(
 
     destroyEigenSolver(eigenSolver);
 
-    return std::unique_ptr<AbstractEigenvalueResult<DIM>>(
-        new Result(input, eigenvalues));
+    return std::make_unique<Result>(input, eigenvalues);
 }
 
 template <std::size_t DIM>
