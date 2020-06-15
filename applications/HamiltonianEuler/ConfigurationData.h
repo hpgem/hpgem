@@ -1,6 +1,6 @@
 //
 //  ConfigurationData.h
-//  
+//
 //
 //  Created by Shavarsh Nurijanyan on 4/29/13.
 //

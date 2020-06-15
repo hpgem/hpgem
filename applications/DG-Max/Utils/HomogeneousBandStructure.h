@@ -7,35 +7,38 @@
 
 #include <set>
 
-/// \brief Computation of the analytic band structure of a homogeneous structure/
-template<std::size_t DIM>
-class HomogeneousBandStructure : public BandStructure<DIM>
-{
-public:
+/// \brief Computation of the analytic band structure of a homogeneous
+/// structure/
+template <std::size_t DIM>
+class HomogeneousBandStructure : public BandStructure<DIM> {
+   public:
     ///
     /// \param reciprocalVectors The lattice vectors to use
     /// \param permittivity The Relative permitivity of the material
-    HomogeneousBandStructure(std::array<LinearAlgebra::SmallVector<DIM>, DIM> reciprocalVectors, double permittivity = 1);
+    HomogeneousBandStructure(
+        std::array<LinearAlgebra::SmallVector<DIM>, DIM> reciprocalVectors,
+        double permittivity = 1);
 
     /// \brief Compute the spectrum at a given point in k-space
     ///
     /// \param kpoint A point in the First Brillouin zone
     /// \param maxFrequency The maximum frequency of the mode
     /// \return A listing of the modes with their multiplicities
-    virtual std::map<double, std::size_t> computeSpectrum(LinearAlgebra::SmallVector<DIM> kpoint, double maxFrequency) const final;
+    virtual std::map<double, std::size_t> computeSpectrum(
+        LinearAlgebra::SmallVector<DIM> kpoint,
+        double maxFrequency) const final;
 
-    /// \brief A set of dispersion lines in a band structure between two points in k-space
+    /// \brief A set of dispersion lines in a band structure between two points
+    /// in k-space
     ///
     /// This is the set of lines in the bandstructure (including degeneracy) on
     /// a line that passes through two points in kspace k1, k2. This latter
     /// restriction allows for grouping of the bands from multiple reciprocal
     /// lattice points together, when they give the same band.
-    class LineSet : public BandStructure<DIM>::LineSet
-    {
-    public:
+    class LineSet : public BandStructure<DIM>::LineSet {
+       public:
         LineSet(double l, double permittivity)
-            : l_(l), permittivity_(permittivity)
-        {}
+            : l_(l), permittivity_(permittivity) {}
 
         LineSet(const LineSet& other) = default;
         LineSet(LineSet&& other) = default;
@@ -45,37 +48,28 @@ public:
         /// \param line The line number
         /// \param interpolation Interpolation constant (k = k1 + a(k2 - k1))
         /// \return The frequency of this band at the specified point.
-        virtual double frequency(std::size_t line, double interpolation) const final
-        {
-            double x0 = l_*interpolation + xs_[line];
+        virtual double frequency(std::size_t line,
+                                 double interpolation) const final {
+            double x0 = l_ * interpolation + xs_[line];
             double y = ys_[line];
-            return std::sqrt(y*y +x0*x0) / std::sqrt(permittivity_);
+            return std::sqrt(y * y + x0 * x0) / std::sqrt(permittivity_);
         }
         /// \return Multiplicity without taking into account the polarization
-        virtual std::size_t multiplicity(std::size_t line) const final
-        {
+        virtual std::size_t multiplicity(std::size_t line) const final {
             return multiplicities_[line];
         }
 
-        double getPermittivity() const
-        {
-            return permittivity_;
-        }
+        double getPermittivity() const { return permittivity_; }
 
-        void addLine(double x, double y, std::size_t multiplicity)
-        {
+        void addLine(double x, double y, std::size_t multiplicity) {
             xs_.emplace_back(x);
             ys_.emplace_back(y);
             multiplicities_.emplace_back(multiplicity);
         }
 
-        virtual std::size_t numberOfLines() const final
-        {
-            return xs_.size();
-        }
+        virtual std::size_t numberOfLines() const final { return xs_.size(); }
 
-
-    private:
+       private:
         // The frequency omega for a band at point k is defined as
         // omega = |k - k_l| c/n
         // where c the speed of light (assumed to be 1), n the refractive index
@@ -141,15 +135,16 @@ public:
         std::vector<double> xs_;
         std::vector<double> ys_;
         std::vector<std::size_t> multiplicities_;
-
     };
 
-    virtual std::unique_ptr<typename BandStructure<DIM>::LineSet> computeLines(LinearAlgebra::SmallVector<DIM> point1, LinearAlgebra::SmallVector<DIM> point2, double maxFrequency) const final;
+    virtual std::unique_ptr<typename BandStructure<DIM>::LineSet> computeLines(
+        LinearAlgebra::SmallVector<DIM> point1,
+        LinearAlgebra::SmallVector<DIM> point2,
+        double maxFrequency) const final;
 
-private:
+   private:
     const std::array<LinearAlgebra::SmallVector<DIM>, DIM> reciprocalVectors_;
     double permittivity_;
 };
 
-
-#endif //HPGEM_ANALYTICBANDSTRUCTURE_H
+#endif  // HPGEM_ANALYTICBANDSTRUCTURE_H
