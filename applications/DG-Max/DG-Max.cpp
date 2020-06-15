@@ -48,9 +48,8 @@
 
 
 
-auto& numElements = Base::register_argument<std::size_t>('n', "numElems", "number of elements per dimension", false, 0);
 auto& p = Base::register_argument<std::size_t>('p', "order", "polynomial order of the solution", true);
-auto& meshFile = Base::register_argument<std::string>('m', "meshFile", "The hpgem meshfile to use", false);
+auto& meshFile = Base::register_argument<std::string>('m', "meshFile", "The hpgem meshfile to use", true);
 auto& numEigenvalues = Base::register_argument<std::size_t>('e', "eigenvalues", "The number of eigenvalues to compute", false, 24);
 
 //Temporary
@@ -67,8 +66,6 @@ int main(int argc, char** argv)
 
 
     DGMaxLogger.assert_always( DIM >= 2 && DIM <= 3, "Can only handle 2D and 3D problems.");
-    DGMaxLogger.assert_always(numElements.isUsed() || meshFile.isUsed(),
-            "DGMax requires either a mesh file or a number of elements");
 
     //set up timings
     time_t start, end, initialised, solved;
@@ -99,16 +96,7 @@ int main(int argc, char** argv)
             return jelmerStructure(p, 0);
         };
 
-        std::unique_ptr<Base::MeshManipulator<DIM>> mesh;
-        if (meshFile.isUsed())
-        {
-            mesh = DGMax::readMesh<DIM>(meshFile.getValue(), configData, epsilon);
-        }
-        else
-        {
-            // Temporary fall back for easy testing.
-            mesh = DGMax::createCubeMesh<DIM>(numElements.getValue(), configData, epsilon);
-        }
+        std::unique_ptr<Base::MeshManipulator<DIM>> mesh (DGMax::readMesh<DIM>(meshFile.getValue(), configData, epsilon));
         //base.createCentaurMesh(std::string("SmallIW_Mesh4000.hyb"));
         //base.createCentaurMesh(std::string("BoxCylinder_Mesh6000.hyb"));
         //TODO: LC: this does seem rather arbitrary and should probably be done by the solver

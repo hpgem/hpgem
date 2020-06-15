@@ -1,3 +1,7 @@
+![Basic CI](https://github.com/hpgem/hpgem/workflows/Basic%20CI/badge.svg) [![codecov](https://codecov.io/gh/hpgem/hpgem/branch/master/graph/badge.svg)](https://codecov.io/gh/hpgem/hpgem)
+
+
+
 <Fancy ascII logo goes here>
 
 # hpGEM
@@ -8,10 +12,10 @@ hpGEM is a c++ partial differential equation solver. It is intended for Disconti
 
 For a quick, basic installation do
 
-> mkdir ../hpGEM_build
-> cd ../hpGEM_build
-> cmake ../trunk
-> make
+> mkdir build
+> cd build
+> cmake ..
+> make 
 
 For detailled instructions and alternative options see http://www.hpgem.org/obtaining-the-code/downloading-and-installing-version-2.x
 
@@ -52,11 +56,15 @@ describes a mesh of 7x8 triangular elements on the boundary of a cylinder with h
  
 ## Contact
  
-For questions, comments, requests and bug reports, send an e-mail to support@hpgem.org
+For questions, comments, requests and bug reports, send an e-mail to support@hpgem.org or open an issue [here](https://github.com/hpgem/hpgem/issues).
  
 ## More information
  
 More information is available on the website: http://www.hpgem.org
+
+## Contributing
+
+Contributions are very welcome, please open an issue [here](https://github.com/hpgem/hpgem/issues) before submitting a Pull-Request, for larger changes. So that they can be discussed. You find more information in the [Developers Guide](https://github.com/hpgem/hpgem/blob/master/DEVELOPERS_GUIDE.md).
 
 ## FAQ
 

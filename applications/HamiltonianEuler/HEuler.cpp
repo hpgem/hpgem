@@ -565,8 +565,7 @@ void HEuler::calculatePressure(const Mat& A, const Mat& Ah, const Vec& UCorrecte
 
 void HEuler::createIncompressibleSystem()
 {
-    PetscInfoAllow(PETSC_TRUE, "history.txt");
-    // 	DumpElementsFaces(mesh,data);return;
+
     
     Mat C;
     Mat BF;
@@ -1083,8 +1082,7 @@ void HEuler::createIncompressibleSystem()
 
 void HEuler::createCompressibleSystem()
 {
-    PetscInfoAllow(PETSC_TRUE, "history.txt");
-    // 	DumpElementsFaces(mesh,data);return;
+
     
     Mat C;
     Mat BF;

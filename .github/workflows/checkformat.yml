@@ -1,0 +1,19 @@
+name: check format
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2 
+    - name: dependencies
+      run: sudo apt install libblas-dev liblapack-dev libopenmpi-dev
+    - name: cmake
+      run: cmake -B builddir
+    - name: Format
+      run: cmake --build builddir --target format && git diff --exit-code
