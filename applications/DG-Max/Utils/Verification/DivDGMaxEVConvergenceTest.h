@@ -51,10 +51,10 @@ template <std::size_t DIM>
 class DivDGMaxEVConvergenceTest : public AbstractEVConvergenceTest<DIM> {
    public:
     DivDGMaxEVConvergenceTest(EVTestPoint<DIM> testCase,
-                       std::vector<std::string> meshFileNames, double tolerance,
-                       std::size_t order,
-                       typename DivDGMaxDiscretization<DIM>::Stab stab,
-                       EVConvergenceResult* expected)
+                              std::vector<std::string> meshFileNames,
+                              double tolerance, std::size_t order,
+                              typename DivDGMaxDiscretization<DIM>::Stab stab,
+                              EVConvergenceResult* expected)
         : testCase_(testCase),
           meshFileNames_(std::move(meshFileNames)),
           tolerance_(tolerance),

@@ -81,12 +81,13 @@ std::vector<double> HomogeneousBandStructure<DIM>::computeLinearSpectrum(
     return frequencies;
 }
 
-template<std::size_t DIM>
-std::map<double, std::size_t> HomogeneousBandStructure<DIM>::computeSpectrum(LinearAlgebra::SmallVector<DIM> kpoint, double maxFrequency) const {
-    std::vector<double> linearSpectrum = computeLinearSpectrum(kpoint, maxFrequency);
+template <std::size_t DIM>
+std::map<double, std::size_t> HomogeneousBandStructure<DIM>::computeSpectrum(
+    LinearAlgebra::SmallVector<DIM> kpoint, double maxFrequency) const {
+    std::vector<double> linearSpectrum =
+        computeLinearSpectrum(kpoint, maxFrequency);
     return group(linearSpectrum, 1e-5);
 }
-
 
 template <std::size_t DIM>
 std::unique_ptr<typename BandStructure<DIM>::LineSet>

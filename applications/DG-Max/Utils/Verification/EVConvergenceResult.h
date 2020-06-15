@@ -54,10 +54,9 @@ class EVConvergenceResult {
         : frequencyLevels_(rawResults) {}
     EVConvergenceResult(
         const std::initializer_list<std::vector<double>> rawResults)
-        : frequencyLevels_(rawResults.size())
-    {
+        : frequencyLevels_(rawResults.size()) {
         std::size_t i = 0;
-        for (const std::vector<double>& level : rawResults) {
+        for (const std::vector<double> &level : rawResults) {
             frequencyLevels_[i] = level;
             i++;
         }
