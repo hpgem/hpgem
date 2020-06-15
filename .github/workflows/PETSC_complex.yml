@@ -1,4 +1,4 @@
-name: Basic CI
+name: PETSC_complex
 
 on:
   push:
@@ -12,17 +12,17 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        mpi: [ ON, OFF ] 
-        compiler: [gcc, clang]
+        mpi: [ ON ] 
+        compiler: [gcc]
         BUILD_TYPE : [Debug, Release]
     steps:
     - uses: actions/checkout@v2 
     - name: dependencies
-      run: sudo apt install libblas-dev liblapack-dev libopenmpi-dev libmetis-dev petsc-dev slepc-dev
+      run: sudo apt install libblas-dev liblapack-dev libopenmpi-dev libpetsc-complex-3.7-dev libslepc-complex-3.7-dev
     - name: configure
       env:
         CC: ${{ matrix.compiler }}
-      run: cmake -H. -Bbuild -DhpGEM_USE_MPI=${{ matrix.mpi }} -DENABLE_TESTING=ON -DCMAKE_BUILD_TYPE=${{ matrix.BUILD_TYPE }} -DhpGEM_USE_METIS=ON -DhpGEM_USE_PETSC=${{ matrix.mpi }} -DhpGEM_USE_SLEPC=${{ matrix.mpi }} 
+      run: cmake -H. -Bbuild -DhpGEM_USE_MPI=${{ matrix.mpi }} -DENABLE_TESTING=ON -DCMAKE_BUILD_TYPE=${{ matrix.BUILD_TYPE }} -DhpGEM_USE_COMPLEX_PETSC=${{ matrix.mpi }} -DhpGEM_USE_SLEPC=${{ matrix.mpi }} 
     - name: make
       run: cmake --build build -- -j4
     - name: test

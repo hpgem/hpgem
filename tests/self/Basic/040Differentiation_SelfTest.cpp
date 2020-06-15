@@ -63,7 +63,7 @@ void testMesh(Base::MeshManipulator<DIM>* test) {
                 LinearAlgebra::MiddleSizeVector, DIM> {
 
         void elementIntegrand(Base::PhysicalElement<DIM>& element,
-                              LinearAlgebra::MiddleSizeVector& ret) {
+                              LinearAlgebra::MiddleSizeVector& ret) override {
             std::size_t numberOfBasisFunctions =
                 element.getElement()->getNumberOfBasisFunctions();
             ret.resize(numberOfBasisFunctions);
@@ -82,7 +82,7 @@ void testMesh(Base::MeshManipulator<DIM>* test) {
                 LinearAlgebra::MiddleSizeMatrix, DIM> {
 
         void elementIntegrand(Base::PhysicalElement<DIM>& element,
-                              LinearAlgebra::MiddleSizeMatrix& ret) {
+                              LinearAlgebra::MiddleSizeMatrix& ret) override {
             std::size_t numberOfBasisFunctions =
                 element.getElement()->getNumberOfBasisFunctions();
             ret.resize(numberOfBasisFunctions, numberOfBasisFunctions);
@@ -97,7 +97,7 @@ void testMesh(Base::MeshManipulator<DIM>* test) {
 
     class : public Integration::ElementIntegrandBase<double, DIM> {
         void elementIntegrand(Base::PhysicalElement<DIM>& element,
-                              double& ret) {
+                              double& ret) override {
             LinearAlgebra::SmallVector<DIM> temp1 =
                 element.getSolutionDeriv()[0];
             ret = temp1 * temp1;

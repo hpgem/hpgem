@@ -39,8 +39,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef ALGORITHMS_DGMAXEIGENVALUE_h
 #define ALGORITHMS_DGMAXEIGENVALUE_h
 
-#include "../ProblemTypes/EigenValueProblem.h"
-#include "../ProblemTypes/BaseEigenvalueResult.h"
+#include "../ProblemTypes/EigenvalueProblem.h"
+#include "../ProblemTypes/AbstractEigenvalueResult.h"
+#include "ProblemTypes/AbstractEigenvalueSolver.h"
 
 #include "DGMaxDiscretization.h"
 
@@ -78,24 +79,26 @@ class DGMaxEigenvalueBase {
 
 // TODO: It might be better to call this differently
 template <std::size_t DIM>
-class DGMaxEigenValue : public DGMaxEigenvalueBase {
+class DGMaxEigenvalue : public AbstractEigenvalueSolver<DIM>, public DGMaxEigenvalueBase {
 
    public:
-    class Result : public BaseEigenvalueResult<DIM> {
+    class Result : public AbstractEigenvalueResult<DIM> {
        public:
-        Result(EigenValueProblem<DIM> problem,
+        Result(EigenvalueProblem<DIM> problem,
                std::vector<std::vector<PetscScalar>> values);
-        const EigenValueProblem<DIM>& originalProblem() const final;
+        const EigenvalueProblem<DIM>& originalProblem() const final;
         const std::vector<double> frequencies(std::size_t point) const final;
 
        private:
-        const EigenValueProblem<DIM> problem_;
+        const EigenvalueProblem<DIM> problem_;
         const std::vector<std::vector<PetscScalar>> eigenvalues_;
     };
 
-    DGMaxEigenValue(Base::MeshManipulator<DIM>& mesh, std::size_t order,
-                    bool useProjector = true);
-    Result solve(const EigenValueProblem<DIM>& input, SolverConfig stab);
+    DGMaxEigenvalue(Base::MeshManipulator<DIM>& mesh, std::size_t order,
+                    SolverConfig stab, bool useProjector = true);
+
+    std::unique_ptr<AbstractEigenvalueResult<DIM>> solve(
+        const EigenvalueProblem<DIM>& input) override;
 
    private:
     void initializeMatrices(SolverConfig config);
@@ -112,6 +115,9 @@ class DGMaxEigenValue : public DGMaxEigenvalueBase {
         const Base::Face* face) const;
 
     Base::MeshManipulator<DIM>& mesh_;
+    std::size_t order_;
+    std::size_t stab_;
+    SolverConfig config_;
     DGMaxDiscretization<DIM> discretization_;
     /// Use a projector to remove the kernel of the stiffness matrix
     const bool useProjector_;

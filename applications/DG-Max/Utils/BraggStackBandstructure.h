@@ -156,7 +156,7 @@ class BraggStackBandstructure : public BandStructure<3> {
         };
     };
 
-    virtual std::unique_ptr<typename BandStructure<3>::LineSet> computeLines(
+    std::unique_ptr<typename BandStructure<3>::LineSet> computeLines(
         LinearAlgebra::SmallVector<3> point1,
         LinearAlgebra::SmallVector<3> point2, double maxFrequency) const final;
 

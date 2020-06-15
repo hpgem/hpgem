@@ -60,13 +60,13 @@ class BasisFunction3DVertexTetrahedron : public Base::BaseBasisFunction {
         logger.assert_debug(node < 4, "A tetrahedron only has 4 nodes");
     }
 
-    double eval(const Geometry::PointReference<3>& p) const;
+    double eval(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<3>& p) const;
+    double evalDeriv0(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<3>& p) const;
+    double evalDeriv1(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv2(const Geometry::PointReference<3>& p) const;
+    double evalDeriv2(const Geometry::PointReference<3>& p) const override;
 
    private:
     std::size_t node_;
@@ -81,13 +81,13 @@ class BasisFunction3DEdgeTetrahedron : public Base::BaseBasisFunction {
         logger.assert_debug(node1 < 4, "A tetrahedron only has 4 nodes");
     }
 
-    double eval(const Geometry::PointReference<3>& p) const;
+    double eval(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<3>& p) const;
+    double evalDeriv0(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<3>& p) const;
+    double evalDeriv1(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv2(const Geometry::PointReference<3>& p) const;
+    double evalDeriv2(const Geometry::PointReference<3>& p) const override;
 
    private:
     std::size_t node0_, node1_, polynomialOrder_;
@@ -109,13 +109,13 @@ class BasisFunction3DFaceTetrahedron : public Base::BaseBasisFunction {
         logger.assert_debug(node2 < 4, "A tetrahedron only has 4 nodes");
     }
 
-    double eval(const Geometry::PointReference<3>& p) const;
+    double eval(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<3>& p) const;
+    double evalDeriv0(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<3>& p) const;
+    double evalDeriv1(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv2(const Geometry::PointReference<3>& p) const;
+    double evalDeriv2(const Geometry::PointReference<3>& p) const override;
 
    private:
     std::size_t node0_, node1_, node2_, polynomialOrder0_, polynomialOrder1_;
@@ -130,13 +130,13 @@ class BasisFunction3DInteriorTetrahedron : public Base::BaseBasisFunction {
           polynomialOrder1_(polynomialOrder1),
           polynomialOrder2_(polynomialOrder2) {}
 
-    double eval(const Geometry::PointReference<3>& p) const;
+    double eval(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<3>& p) const;
+    double evalDeriv0(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<3>& p) const;
+    double evalDeriv1(const Geometry::PointReference<3>& p) const override;
 
-    double evalDeriv2(const Geometry::PointReference<3>& p) const;
+    double evalDeriv2(const Geometry::PointReference<3>& p) const override;
 
    private:
     std::size_t polynomialOrder0_, polynomialOrder1_, polynomialOrder2_;

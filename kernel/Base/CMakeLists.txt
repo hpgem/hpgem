@@ -70,6 +70,3 @@ if(hpGEM_USE_QHULL)
 	target_link_libraries(hpGEM_Base QHULL::QHULL)
 endif()
 
-if(hpGEM_USE_SUNDIALS)
-	target_link_libraries(hpGEM_Base SUNDIALS::SUNDIALS)
-endif()

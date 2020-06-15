@@ -103,7 +103,7 @@ class MeshManipulator : public MeshManipulatorBase {
 
     MeshManipulator(const MeshManipulator& other);
 
-    virtual ~MeshManipulator();
+    ~MeshManipulator() override;
 
     /// creates some cheap, easy to construct basis function set (monomials) to
     /// use as a placeholder Note that they usually result in very badly
@@ -175,22 +175,22 @@ class MeshManipulator : public MeshManipulatorBase {
     void addNode();
 
     std::size_t getNumberOfElements(
-        IteratorType part = IteratorType::LOCAL) const {
+        IteratorType part = IteratorType::LOCAL) const override {
         return theMesh_.getNumberOfElements(part);
     }
 
     std::size_t getNumberOfFaces(
-        IteratorType part = IteratorType::LOCAL) const {
+        IteratorType part = IteratorType::LOCAL) const override {
         return theMesh_.getNumberOfFaces(part);
     }
 
     std::size_t getNumberOfEdges(
-        IteratorType part = IteratorType::LOCAL) const {
+        IteratorType part = IteratorType::LOCAL) const override {
         return theMesh_.getNumberOfEdges(part);
     }
 
     std::size_t getNumberOfNodes(
-        IteratorType part = IteratorType::LOCAL) const {
+        IteratorType part = IteratorType::LOCAL) const override {
         return theMesh_.getNumberOfNodes(part);
     }
 
@@ -201,76 +201,81 @@ class MeshManipulator : public MeshManipulatorBase {
     /// *****************Iteration through the Elements*******************
 
     ConstElementIterator elementColBegin(
-        IteratorType part = IteratorType::LOCAL) const {
+        IteratorType part = IteratorType::LOCAL) const override {
         return theMesh_.elementColBegin(part);
     }
 
     ConstElementIterator elementColEnd(
-        IteratorType part = IteratorType::LOCAL) const {
+        IteratorType part = IteratorType::LOCAL) const override {
         return theMesh_.elementColEnd(part);
     }
 
-    ElementIterator elementColBegin(IteratorType part = IteratorType::LOCAL) {
+    ElementIterator elementColBegin(
+        IteratorType part = IteratorType::LOCAL) override {
         return theMesh_.elementColBegin(part);
     }
 
-    ElementIterator elementColEnd(IteratorType part = IteratorType::LOCAL) {
+    ElementIterator elementColEnd(
+        IteratorType part = IteratorType::LOCAL) override {
         return theMesh_.elementColEnd(part);
     }
 
     ConstFaceIterator faceColBegin(
-        IteratorType part = IteratorType::LOCAL) const {
+        IteratorType part = IteratorType::LOCAL) const override {
         return theMesh_.faceColBegin(part);
     }
 
     ConstFaceIterator faceColEnd(
-        IteratorType part = IteratorType::LOCAL) const {
+        IteratorType part = IteratorType::LOCAL) const override {
         return theMesh_.faceColEnd(part);
     }
 
-    FaceIterator faceColBegin(IteratorType part = IteratorType::LOCAL) {
+    FaceIterator faceColBegin(
+        IteratorType part = IteratorType::LOCAL) override {
         return theMesh_.faceColBegin(part);
     }
 
-    FaceIterator faceColEnd(IteratorType part = IteratorType::LOCAL) {
+    FaceIterator faceColEnd(IteratorType part = IteratorType::LOCAL) override {
         return theMesh_.faceColEnd(part);
     }
 
     TreeIteratorConst<Edge*> edgeColBegin(
-        IteratorType part = IteratorType::LOCAL) const {
+        IteratorType part = IteratorType::LOCAL) const override {
         return theMesh_.edgeColBegin(part);
     }
 
     TreeIteratorConst<Edge*> edgeColEnd(
-        IteratorType part = IteratorType::LOCAL) const {
+        IteratorType part = IteratorType::LOCAL) const override {
         return theMesh_.edgeColEnd(part);
     }
 
-    TreeIterator<Edge*> edgeColBegin(IteratorType part = IteratorType::LOCAL) {
+    TreeIterator<Edge*> edgeColBegin(
+        IteratorType part = IteratorType::LOCAL) override {
         return theMesh_.edgeColBegin(part);
     }
 
-    TreeIterator<Edge*> edgeColEnd(IteratorType part = IteratorType::LOCAL) {
+    TreeIterator<Edge*> edgeColEnd(
+        IteratorType part = IteratorType::LOCAL) override {
         return theMesh_.edgeColEnd(part);
     }
 
     std::vector<Node*>::const_iterator nodeColBegin(
-        IteratorType part = IteratorType::LOCAL) const {
+        IteratorType part = IteratorType::LOCAL) const override {
         return theMesh_.nodeColBegin(part);
     }
 
     std::vector<Node*>::const_iterator nodeColEnd(
-        IteratorType part = IteratorType::LOCAL) const {
+        IteratorType part = IteratorType::LOCAL) const override {
         return theMesh_.nodeColEnd(part);
     }
 
     std::vector<Node*>::iterator nodeColBegin(
-        IteratorType part = IteratorType::LOCAL) {
+        IteratorType part = IteratorType::LOCAL) override {
         return theMesh_.nodeColBegin(part);
     }
 
     std::vector<Node*>::iterator nodeColEnd(
-        IteratorType part = IteratorType::LOCAL) {
+        IteratorType part = IteratorType::LOCAL) override {
         return theMesh_.nodeColEnd(part);
     }
 
@@ -401,50 +406,53 @@ class MeshManipulator : public MeshManipulatorBase {
 
     //! Get const list of elements
     const LevelTree<Element*>& getElementsList(
-        IteratorType part = IteratorType::LOCAL) const {
+        IteratorType part = IteratorType::LOCAL) const override {
         return theMesh_.getElementsList(part);
     }
 
     //! Get non-const list of elements
     LevelTree<Element*>& getElementsList(
-        IteratorType part = IteratorType::LOCAL) {
+        IteratorType part = IteratorType::LOCAL) override {
         return theMesh_.getElementsList(part);
     }
 
     //! Get const list of faces
     const LevelTree<Face*>& getFacesList(
-        IteratorType part = IteratorType::LOCAL) const {
+        IteratorType part = IteratorType::LOCAL) const override {
         return theMesh_.getFacesList(part);
     }
 
     //! Get non-const list of faces
-    LevelTree<Face*>& getFacesList(IteratorType part = IteratorType::LOCAL) {
+    LevelTree<Face*>& getFacesList(
+        IteratorType part = IteratorType::LOCAL) override {
         return theMesh_.getFacesList(part);
     }
 
     const LevelTree<Edge*>& getEdgesList(
-        IteratorType part = IteratorType::LOCAL) const {
+        IteratorType part = IteratorType::LOCAL) const override {
         return theMesh_.getEdgesList(part);
     }
 
-    LevelTree<Edge*>& getEdgesList(IteratorType part = IteratorType::LOCAL) {
+    LevelTree<Edge*>& getEdgesList(
+        IteratorType part = IteratorType::LOCAL) override {
         return theMesh_.getEdgesList(part);
     }
 
     const std::vector<Node*>& getNodesList(
-        IteratorType part = IteratorType::LOCAL) const {
+        IteratorType part = IteratorType::LOCAL) const override {
         return theMesh_.getNodesList(part);
     }
 
-    std::vector<Node*>& getNodesList(IteratorType part = IteratorType::LOCAL) {
+    std::vector<Node*>& getNodesList(
+        IteratorType part = IteratorType::LOCAL) override {
         return theMesh_.getNodesList(part);
     }
 
-    const std::map<int, std::vector<Element*>>& getPullElements() {
+    const std::map<int, std::vector<Element*>>& getPullElements() override {
         return theMesh_.getPullElements();
     }
 
-    const std::map<int, std::vector<Element*>>& getPushElements() {
+    const std::map<int, std::vector<Element*>>& getPushElements() override {
         return theMesh_.getPushElements();
     }
     // ************************************************************************

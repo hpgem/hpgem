@@ -36,7 +36,7 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "DGMaxEigenValue.h"
+#include "DGMaxEigenvalue.h"
 
 #include <iostream>
 #include <valarray>
@@ -53,14 +53,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Utilities/GlobalVector.h"
 
 template <std::size_t DIM>
-DGMaxEigenValue<DIM>::DGMaxEigenValue(Base::MeshManipulator<DIM>& mesh,
-                                      std::size_t order, bool useProjector)
-    : mesh_(mesh), useProjector_(useProjector), discretization_(useProjector) {
+DGMaxEigenvalue<DIM>::DGMaxEigenvalue(Base::MeshManipulator<DIM>& mesh,
+                                      std::size_t order, SolverConfig config, bool useProjector)
+    : mesh_(mesh), order_ (order), config_ (config), useProjector_(useProjector), discretization_(useProjector) {
     discretization_.initializeBasisFunctions(mesh_, order);
 }
 
 template <std::size_t DIM>
-void DGMaxEigenValue<DIM>::initializeMatrices(SolverConfig config) {
+void DGMaxEigenvalue<DIM>::initializeMatrices(SolverConfig config) {
     auto massMatrixHandling = config.useHermitian_
                                   ? DGMaxDiscretizationBase::ORTHOGONALIZE
                                   : DGMaxDiscretizationBase::INVERT;
@@ -991,15 +991,15 @@ void KShift<DIM>::insertShiftedBlock(double kshift, bool hermitianPart,
 ///
 
 template <std::size_t DIM>
-typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
-    const EigenValueProblem<DIM>& input, SolverConfig config) {
+std::unique_ptr<AbstractEigenvalueResult<DIM>> DGMaxEigenvalue<DIM>::solve(
+    const EigenvalueProblem<DIM>& input) {
     const std::size_t numberOfEigenvalues = input.getNumberOfEigenvalues();
     const KSpacePath<DIM>& kpath = input.getPath();
 
     PetscErrorCode error;
-    initializeMatrices(config);
+    initializeMatrices(config_);
 
-    SolverWorkspace workspace(config, useProjector_);
+    SolverWorkspace workspace(config_, useProjector_);
     // Leave a bit room for extra converged eigenvectors
     workspace.init(&mesh_,
                    std::max(2 * numberOfEigenvalues, numberOfEigenvalues + 10));
@@ -1008,10 +1008,10 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
     ///////////////////////////////////////
 
     const std::vector<KShift<DIM>> periodicShifts =
-        findPeriodicShifts(workspace.fieldIndex_, config);
+        findPeriodicShifts(workspace.fieldIndex_, config_);
     const std::vector<KShift<DIM>> projectorShifts =
         findProjectorPeriodicShifts(workspace.projectorIndex_,
-                                    workspace.fieldIndex_, config);
+                                    workspace.fieldIndex_, config_);
 
     LinearAlgebra::SmallVector<DIM> dk;  // Step in k-space from previous solve
     std::size_t maxStep = kpath.totalNumberOfSteps();
@@ -1027,7 +1027,7 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
         if (i > 0) {
             workspace.extractEigenVectors();
         }
-        if (config.usesShifts()) {
+        if (config_.usesShifts()) {
             error = MatDiagonalScale(workspace.getActualStiffnessMatrix(),
                                      workspace.waveVec_,
                                      workspace.waveVecConjugate_);
@@ -1111,12 +1111,11 @@ typename DGMaxEigenValue<DIM>::Result DGMaxEigenValue<DIM>::solve(
 
     workspace.cleanup();
 
-    Result result(input, eigenvalues);
-    return result;
+    return std::make_unique<Result>(input, eigenvalues);
 }
 
 template <std::size_t DIM>
-void DGMaxEigenValue<DIM>::extractEigenValues(
+void DGMaxEigenvalue<DIM>::extractEigenValues(
     const EPS& solver, std::vector<PetscScalar>& result) {
     const double ZERO_TOLLERANCE = 1e-10;
 
@@ -1145,14 +1144,13 @@ void DGMaxEigenValue<DIM>::extractEigenValues(
               [](const PetscScalar& a, const PetscScalar& b) {
                   if (a.real() != b.real()) {
                       return a.real() < b.real();
-                  } else {
-                      return a.imag() < b.imag();
                   }
+                  return a.imag() < b.imag();
               });
 }
 
 template <std::size_t DIM>
-std::vector<KShift<DIM>> DGMaxEigenValue<DIM>::findPeriodicShifts(
+std::vector<KShift<DIM>> DGMaxEigenvalue<DIM>::findPeriodicShifts(
     const Utilities::GlobalIndexing& indexing, SolverConfig config) const {
     std::vector<KShift<DIM>> result;
     auto end = mesh_.faceColEnd(Base::IteratorType::GLOBAL);
@@ -1192,7 +1190,7 @@ std::vector<KShift<DIM>> DGMaxEigenValue<DIM>::findPeriodicShifts(
 }
 
 template <std::size_t DIM>
-std::vector<KShift<DIM>> DGMaxEigenValue<DIM>::findProjectorPeriodicShifts(
+std::vector<KShift<DIM>> DGMaxEigenvalue<DIM>::findProjectorPeriodicShifts(
     const Utilities::GlobalIndexing& projectorIndex,
     const Utilities::GlobalIndexing& indexing, SolverConfig config) const {
     std::vector<KShift<DIM>> result;
@@ -1260,7 +1258,7 @@ std::vector<KShift<DIM>> DGMaxEigenValue<DIM>::findProjectorPeriodicShifts(
 }
 
 template <std::size_t DIM>
-LinearAlgebra::SmallVector<DIM> DGMaxEigenValue<DIM>::boundaryFaceShift(
+LinearAlgebra::SmallVector<DIM> DGMaxEigenvalue<DIM>::boundaryFaceShift(
     const Base::Face* face) const {
     logger.assert_always(face->isInternal(), "Internal face boundary");
     const Geometry::PointReference<DIM - 1>& p =
@@ -1275,8 +1273,8 @@ LinearAlgebra::SmallVector<DIM> DGMaxEigenValue<DIM>::boundaryFaceShift(
 }
 
 template <std::size_t DIM>
-DGMaxEigenValue<DIM>::Result::Result(
-    EigenValueProblem<DIM> problem,
+DGMaxEigenvalue<DIM>::Result::Result(
+    EigenvalueProblem<DIM> problem,
     std::vector<std::vector<PetscScalar>> values)
     : problem_(problem), eigenvalues_(values) {
     logger.assert_always(
@@ -1285,13 +1283,13 @@ DGMaxEigenValue<DIM>::Result::Result(
 }
 
 template <std::size_t DIM>
-const EigenValueProblem<DIM>& DGMaxEigenValue<DIM>::Result::originalProblem()
+const EigenvalueProblem<DIM>& DGMaxEigenvalue<DIM>::Result::originalProblem()
     const {
     return problem_;
 }
 
 template <std::size_t DIM>
-const std::vector<double> DGMaxEigenValue<DIM>::Result::frequencies(
+const std::vector<double> DGMaxEigenvalue<DIM>::Result::frequencies(
     std::size_t point) const {
     logger.assert_debug(
         point >= 0 && point < problem_.getPath().totalNumberOfSteps(),
@@ -1305,5 +1303,5 @@ const std::vector<double> DGMaxEigenValue<DIM>::Result::frequencies(
     return result;
 }
 
-template class DGMaxEigenValue<2>;
-template class DGMaxEigenValue<3>;
+template class DGMaxEigenvalue<2>;
+template class DGMaxEigenvalue<3>;

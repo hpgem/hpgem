@@ -637,9 +637,8 @@ class hybridIterator {
     decltype(auto) forward(const F& function, std::index_sequence<N, Ns...>) {
         if (active == N) {
             return function(reinterpret_cast<get_t<N, Iterators...>*>(&data));
-        } else {
-            return forward(function, std::index_sequence<Ns...>{});
         }
+        return forward(function, std::index_sequence<Ns...>{});
     };
 
     template <typename F>
@@ -655,9 +654,8 @@ class hybridIterator {
         if (active == N) {
             return function(
                 reinterpret_cast<const get_t<N, Iterators...>*>(&data));
-        } else {
-            return forward(function, std::index_sequence<Ns...>{});
         }
+        return forward(function, std::index_sequence<Ns...>{});
     };
 
     template <typename F>

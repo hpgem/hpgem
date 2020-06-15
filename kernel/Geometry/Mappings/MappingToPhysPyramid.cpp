@@ -174,13 +174,9 @@ bool MappingToPhysPyramid::isValidPoint(
                         "Reference point has the wrong dimension");
     static const double eps = 1.e-14;
     const double z = pointReference[2];
-    if ((std::abs(pointReference[0]) <= 1. - z + eps) &&
-        (std::abs(pointReference[1]) <= 1. - z + eps) && (z >= 0. - eps) &&
-        (z <= 1. + eps)) {
-        return true;
-    } else {
-        return false;
-    }
+    return (std::abs(pointReference[0]) <= 1. - z + eps) &&
+           (std::abs(pointReference[1]) <= 1. - z + eps) && (z >= 0. - eps) &&
+           (z <= 1. + eps);
 }
 
 }  // namespace Geometry

@@ -40,7 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <petscksp.h>
 
-#include <complex.h>
+#include <complex>
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"

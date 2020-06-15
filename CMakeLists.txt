@@ -97,8 +97,6 @@ option(hpGEM_USE_COMPLEX_PETSC "Include PETSc with complex numbers" OFF)
 add_feature_info(hpGEM_USE_COMPLEX_PETSC hpGEM_USE_COMPLEX_PETSC "Include PETSc with complex numbers")
 option(hpGEM_USE_SLEPC "Include SLEPC this is needed for some applications" OFF)
 add_feature_info(hpGEM_USE_SLEPC hpGEM_USE_SLEPC "Include SLEPC this is needed for some applications")
-option(hpGEM_USE_SUNDIALS "Include SUNDIALS containing robust time integrators and nonlinear solvers" OFF)
-add_feature_info(hpGEM_USE_SUNDIALS hpGEM_USE_SUNDIALS "Include SUNDIALS containing robust time integrators and nonlinear solvers")
 
 
 ################################################################################

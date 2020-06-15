@@ -338,7 +338,7 @@ class Logger {
     /*!
      * \brief destructor
      */
-    ~Logger() {}
+    ~Logger() = default;
 
     /*
      *

@@ -60,11 +60,11 @@ class BasisFunction2DVertexTriangle : public Base::BaseBasisFunction {
         logger.assert_debug(node < 3, "A triangle only has 3 nodes");
     }
 
-    double eval(const Geometry::PointReference<2>& p) const;
+    double eval(const Geometry::PointReference<2>& p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<2>& p) const;
+    double evalDeriv0(const Geometry::PointReference<2>& p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<2>& p) const;
+    double evalDeriv1(const Geometry::PointReference<2>& p) const override;
 
    private:
     std::size_t node_;
@@ -79,11 +79,11 @@ class BasisFunction2DFaceTriangle : public Base::BaseBasisFunction {
         logger.assert_debug(node1 < 3, "A triangle only has 3 nodes");
     }
 
-    double eval(const Geometry::PointReference<2>& p) const;
+    double eval(const Geometry::PointReference<2>& p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<2>& p) const;
+    double evalDeriv0(const Geometry::PointReference<2>& p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<2>& p) const;
+    double evalDeriv1(const Geometry::PointReference<2>& p) const override;
 
    private:
     std::size_t node0_, node1_, polynomialOrder_;
@@ -96,11 +96,11 @@ class BasisFunction2DInteriorTriangle : public Base::BaseBasisFunction {
         : polynomialOrder0_(polynomialOrder0),
           polynomialOrder1_(polynomialOrder1) {}
 
-    double eval(const Geometry::PointReference<2>& p) const;
+    double eval(const Geometry::PointReference<2>& p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<2>& p) const;
+    double evalDeriv0(const Geometry::PointReference<2>& p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<2>& p) const;
+    double evalDeriv1(const Geometry::PointReference<2>& p) const override;
 
    private:
     std::size_t polynomialOrder0_, polynomialOrder1_;

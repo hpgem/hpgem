@@ -54,20 +54,19 @@ class Cn2_1_1 : public GaussQuadratureRule {
     }
     Cn2_1_1(const Cn2_1_1&) = delete;
 
-    std::string getName() const override final;
+    std::string getName() const final;
 
-    std::size_t order() const override final;
+    std::size_t order() const final;
 
-    std::size_t dimension() const override final;
+    std::size_t dimension() const final;
 
-    std::size_t getNumberOfPoints() const override final;
+    std::size_t getNumberOfPoints() const final;
 
-    double weight(std::size_t i) const override final;
+    double weight(std::size_t i) const final;
 
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const override final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
 
-    Geometry::ReferenceGeometry* forReferenceGeometry() const override final;
+    Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
     Cn2_1_1();
@@ -87,20 +86,19 @@ class Cn2_3_4 : public GaussQuadratureRule {
     }
     Cn2_3_4(const Cn2_3_4&) = delete;
 
-    std::string getName() const override final;
+    std::string getName() const final;
 
-    std::size_t order() const override final;
+    std::size_t order() const final;
 
-    std::size_t dimension() const override final;
+    std::size_t dimension() const final;
 
-    std::size_t getNumberOfPoints() const override final;
+    std::size_t getNumberOfPoints() const final;
 
-    double weight(std::size_t i) const override final;
+    double weight(std::size_t i) const final;
 
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const override final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
 
-    Geometry::ReferenceGeometry* forReferenceGeometry() const override final;
+    Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
     Cn2_3_4();
@@ -120,20 +118,19 @@ class Cn2_5_9 : public GaussQuadratureRule {
     }
     Cn2_5_9(const Cn2_5_9&) = delete;
 
-    std::string getName() const override final;
+    std::string getName() const final;
 
-    std::size_t order() const override final;
+    std::size_t order() const final;
 
-    std::size_t dimension() const override final;
+    std::size_t dimension() const final;
 
-    std::size_t getNumberOfPoints() const override final;
+    std::size_t getNumberOfPoints() const final;
 
-    double weight(std::size_t i) const override final;
+    double weight(std::size_t i) const final;
 
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const override final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
 
-    Geometry::ReferenceGeometry* forReferenceGeometry() const override final;
+    Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
     Cn2_5_9();
@@ -153,20 +150,19 @@ class C2_7_4 : public GaussQuadratureRule {
     }
     C2_7_4(const C2_7_4&) = delete;
 
-    std::string getName() const override final;
+    std::string getName() const final;
 
-    std::size_t order() const override final;
+    std::size_t order() const final;
 
-    std::size_t dimension() const override final;
+    std::size_t dimension() const final;
 
-    std::size_t getNumberOfPoints() const override final;
+    std::size_t getNumberOfPoints() const final;
 
-    double weight(std::size_t i) const override final;
+    double weight(std::size_t i) const final;
 
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const override final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
 
-    Geometry::ReferenceGeometry* forReferenceGeometry() const override final;
+    Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
     C2_7_4();
@@ -185,20 +181,19 @@ class C2_9_5 : public GaussQuadratureRule {
     }
     C2_9_5(const C2_9_5&) = delete;
 
-    std::string getName() const override final;
+    std::string getName() const final;
 
-    std::size_t order() const override final;
+    std::size_t order() const final;
 
-    std::size_t dimension() const override final;
+    std::size_t dimension() const final;
 
-    std::size_t getNumberOfPoints() const override final;
+    std::size_t getNumberOfPoints() const final;
 
-    double weight(std::size_t i) const override final;
+    double weight(std::size_t i) const final;
 
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const override final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
 
-    Geometry::ReferenceGeometry* forReferenceGeometry() const override final;
+    Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
     C2_9_5();
@@ -217,20 +212,19 @@ class C2_11_6 : public GaussQuadratureRule {
     }
     C2_11_6(const C2_11_6&) = delete;
 
-    std::string getName() const override final;
+    std::string getName() const final;
 
-    std::size_t order() const override final;
+    std::size_t order() const final;
 
-    std::size_t dimension() const override final;
+    std::size_t dimension() const final;
 
-    std::size_t getNumberOfPoints() const override final;
+    std::size_t getNumberOfPoints() const final;
 
-    double weight(std::size_t i) const override final;
+    double weight(std::size_t i) const final;
 
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const override final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
 
-    Geometry::ReferenceGeometry* forReferenceGeometry() const override final;
+    Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
     C2_11_6();

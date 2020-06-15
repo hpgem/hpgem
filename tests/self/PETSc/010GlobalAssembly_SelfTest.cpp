@@ -75,7 +75,7 @@ class PoissonTest : public Base::HpgemAPILinearSteadyState<DIM> {
 
     ///\brief Compute the integrand for the stiffness matrix at the element.
     LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(
-        Base::PhysicalElement<DIM>& element) override final {
+        Base::PhysicalElement<DIM>& element) final {
         // Obtain the number of basisfunctions that are possibly non-zero on
         // this element.
         const std::size_t numberOfBasisFunctions =
@@ -101,7 +101,7 @@ class PoissonTest : public Base::HpgemAPILinearSteadyState<DIM> {
 
     /// \brief Compute the integrand for the siffness matrix at the face.
     Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(
-        Base::PhysicalFace<DIM>& face) override final {
+        Base::PhysicalFace<DIM>& face) final {
         // Get the number of basis functions, first of both sides of the face
         // and then only the basis functions associated with the left and right
         // element.
@@ -166,7 +166,7 @@ class PoissonTest : public Base::HpgemAPILinearSteadyState<DIM> {
 
     /// \brief Define the exact solution
     LinearAlgebra::MiddleSizeVector getExactSolution(
-        const PointPhysicalT& p) override final {
+        const PointPhysicalT& p) final {
         LinearAlgebra::MiddleSizeVector exactSolution(1);
 
         double ret = std::sin(2 * M_PI * p[0]);
@@ -183,7 +183,7 @@ class PoissonTest : public Base::HpgemAPILinearSteadyState<DIM> {
 
     ///\brief Define the source term.
     LinearAlgebra::MiddleSizeVector getSourceTerm(
-        const PointPhysicalT& p) override final {
+        const PointPhysicalT& p) final {
         LinearAlgebra::MiddleSizeVector sourceTerm(1);
 
         double ret = -std::sin(2 * M_PI * p[0]) * (4 * M_PI * M_PI);
@@ -201,7 +201,7 @@ class PoissonTest : public Base::HpgemAPILinearSteadyState<DIM> {
     /// \brief Compute the integrals of the right-hand side associated with
     /// faces.
     LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(
-        Base::PhysicalFace<DIM>& face) override final {
+        Base::PhysicalFace<DIM>& face) final {
         // Obtain the number of basisfunctions that are possibly non-zero
         const std::size_t numberOfBasisFunctions =
             face.getFace()->getNumberOfBasisFunctions();
@@ -218,7 +218,7 @@ class PoissonTest : public Base::HpgemAPILinearSteadyState<DIM> {
         return integrandVal;
     }
 
-    void solveSteadyStateWithPetsc(bool doComputeError) override final {
+    void solveSteadyStateWithPetsc(bool doComputeError) final {
 #if defined(HPGEM_USE_ANY_PETSC)
         // Create and Store things before solving the problem.
         this->tasksBeforeSolving();

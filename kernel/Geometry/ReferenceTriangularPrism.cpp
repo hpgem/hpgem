@@ -116,7 +116,7 @@ const MappingReferenceToReference<0>*
     logger(FATAL,
            "ReferenceTetrahedron::getCodim0MappingPtr: T.p to T.p mappings do "
            "not exist.\n");
-    return 0;
+    return nullptr;
 }
 
 // ================================== Codimension 1
@@ -127,7 +127,8 @@ std::vector<std::size_t> ReferenceTriangularPrism::getCodim1EntityLocalIndices(
     if (faceIndex < 2) {
         return std::vector<std::size_t>(localNodeIndexes_[faceIndex],
                                         localNodeIndexes_[faceIndex] + 3);
-    } else if (faceIndex < 5) {
+    }
+    if (faceIndex < 5) {
         return std::vector<std::size_t>(localNodeIndexes_[faceIndex],
                                         localNodeIndexes_[faceIndex] + 4);
     } else {
@@ -143,14 +144,15 @@ const ReferenceGeometry* ReferenceTriangularPrism::getCodim1ReferenceGeometry(
     const std::size_t faceIndex) const {
     if (faceIndex < 2) {
         return referenceGeometryCodim1TrianglePtr_;
-    } else if (faceIndex < 5) {
+    }
+    if (faceIndex < 5) {
         return referenceGeometryCodim1SquarePtr_;
     } else {
         logger(ERROR,
                "ReferenceTriangularPrism::getCodim1ReferenceGeometry: Index "
                "out of range. T.p has 5 faces.\n");
     }
-    return 0;
+    return nullptr;
 }
 
 const MappingReferenceToReference<1>*
@@ -188,7 +190,7 @@ const MappingReferenceToReference<2>*
     logger(FATAL,
            "ReferenceTriangularPrism::getCodim2MappingPtr: Line to TP mappings "
            "do not exist.\n");
-    return 0;
+    return nullptr;
 }
 
 // ================================== Codimension 3

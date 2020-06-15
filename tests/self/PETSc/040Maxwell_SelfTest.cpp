@@ -80,7 +80,7 @@ class MaxwellTest : public Base::HpgemAPILinearSteadyState<3> {
 
     ///\brief Compute the integrand for the stiffness matrix at the element.
     LinearAlgebra::MiddleSizeMatrix computeIntegrandStiffnessMatrixAtElement(
-        Base::PhysicalElement<3> &element) override final {
+        Base::PhysicalElement<3> &element) final {
         // Obtain the number of basisfunctions that are possibly non-zero on
         // this element.
         const std::size_t numberOfBasisFunctions =
@@ -110,7 +110,7 @@ class MaxwellTest : public Base::HpgemAPILinearSteadyState<3> {
 
     /// \brief Compute the integrand for the siffness matrix at the face.
     Base::FaceMatrix computeIntegrandStiffnessMatrixAtFace(
-        Base::PhysicalFace<3> &face) override final {
+        Base::PhysicalFace<3> &face) final {
         // Get the number of basis functions, first of both sides of the face
         // and then only the basis functions associated with the left and right
         // element.
@@ -197,30 +197,29 @@ class MaxwellTest : public Base::HpgemAPILinearSteadyState<3> {
     /// \brief Compute the integrals of the right-hand side associated with
     /// faces.
     LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(
-        Base::PhysicalFace<3> &face) override final {
+        Base::PhysicalFace<3> &face) final {
         if (face.getFace()->isInternal()) {
             return face.getResultVector();
-        } else {
-            LinearAlgebra::MiddleSizeVector &result = face.getResultVector();
-            PointPhysicalT pPhys = face.getPointPhysical();
-            LinearAlgebra::SmallVector<3> value = boundaryConditions(pPhys)[0];
-            LinearAlgebra::SmallVector<3> normalValue =
-                LinearAlgebra::SmallMatrix<3, 2>{
-                    {face.getUnitNormalVector(), value}}
-                    .computeWedgeStuffVector();
-            LinearAlgebra::SmallVector<3> phi;
-            for (std::size_t i = 0; i < face.getNumberOfBasisFunctions(); ++i) {
-                face.basisFunctionNormalCross(i, phi);
-                result[i] = -face.basisFunctionCurl(i) * normalValue +
-                            penalty * phi * normalValue;
-            }
-            return result;
         }
+        LinearAlgebra::MiddleSizeVector &result = face.getResultVector();
+        PointPhysicalT pPhys = face.getPointPhysical();
+        LinearAlgebra::SmallVector<3> value = boundaryConditions(pPhys)[0];
+        LinearAlgebra::SmallVector<3> normalValue =
+            LinearAlgebra::SmallMatrix<3, 2>{
+                {face.getUnitNormalVector(), value}}
+                .computeWedgeStuffVector();
+        LinearAlgebra::SmallVector<3> phi;
+        for (std::size_t i = 0; i < face.getNumberOfBasisFunctions(); ++i) {
+            face.basisFunctionNormalCross(i, phi);
+            result[i] = -face.basisFunctionCurl(i) * normalValue +
+                        penalty * phi * normalValue;
+        }
+        return result;
     }
 
     LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtElement(
         Base::PhysicalElement<3> &element, const double time,
-        const std::size_t orderTimeDerivative) override final {
+        const std::size_t orderTimeDerivative) final {
         // Get a reference to the result vector.
         LinearAlgebra::MiddleSizeVector &integrand = element.getResultVector();
 
@@ -250,7 +249,7 @@ class MaxwellTest : public Base::HpgemAPILinearSteadyState<3> {
     LinearAlgebra::MiddleSizeVector::type computeIntegrandTotalError(
         Base::PhysicalElement<3> &element,
         const LinearAlgebra::MiddleSizeVector &solutionCoefficients,
-        const double time) override final {
+        const double time) final {
 
         // Get the physical point.
         const PointPhysicalT &pPhys = element.getPointPhysical();
@@ -286,7 +285,7 @@ class MaxwellTest : public Base::HpgemAPILinearSteadyState<3> {
         return this->totalError;
     }
 
-    void solveSteadyStateWithPetsc(bool doComputeError) override final {
+    void solveSteadyStateWithPetsc(bool doComputeError) final {
 #if defined(HPGEM_USE_ANY_PETSC)
         // Create and Store things before solving the problem.
         this->tasksBeforeSolving();

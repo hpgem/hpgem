@@ -262,7 +262,7 @@ FaceIntegral<DIM>::FaceIntegral() : internalFace_(true), boundaryFace_(false) {}
 
 //! \brief Free the memory used for the data storage.
 template <std::size_t DIM>
-FaceIntegral<DIM>::~FaceIntegral() {}
+FaceIntegral<DIM>::~FaceIntegral() = default;
 
 template <std::size_t DIM>
 void FaceIntegral<DIM>::setTransformation(

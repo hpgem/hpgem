@@ -121,7 +121,7 @@ std::size_t ReferenceHypercube::getCodim0MappingIndex(
 const MappingReferenceToReference<0>* ReferenceHypercube::getCodim0MappingPtr(
     const std::size_t i) const {
     logger(FATAL, "ReferenceCube::getCodim0MappingPtr not implemented.\n");
-    return 0;
+    return nullptr;
 }
 
 // ================================== Codimension 1
@@ -162,7 +162,7 @@ const MappingReferenceToReference<2>* ReferenceHypercube::getCodim2MappingPtr(
     logger(FATAL,
            "ERROR: ReferenceHypercube::getCodim2MappingPtr: face to hypercube "
            "mappings not implemented.\n");
-    return 0;
+    return nullptr;
 }
 
 const ReferenceGeometry* ReferenceHypercube::getCodim2ReferenceGeometry(

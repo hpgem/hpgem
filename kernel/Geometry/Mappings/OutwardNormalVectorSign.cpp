@@ -61,36 +61,28 @@ double OutwardNormalVectorSign(
         typeid(*map) == typeid(const MappingToRefSquareToCube2) ||
         typeid(*map) == typeid(const MappingToRefSquareToCube4)) {
         return -1;
-    } else if (typeid(*map) == typeid(const MappingToRefPointToLine1) ||
-               typeid(*map) == typeid(const MappingToRefLineToTriangle1) ||
-               typeid(*map) == typeid(const MappingToRefLineToSquare1) ||
-               typeid(*map) == typeid(const MappingToRefLineToSquare3) ||
-               typeid(*map) == typeid(const MappingToRefSquareToCube1) ||
-               typeid(*map) == typeid(const MappingToRefSquareToCube3) ||
-               typeid(*map) == typeid(const MappingToRefSquareToCube5) ||
-               typeid(*map) ==
-                   typeid(const MappingToRefTriangleToTetrahedron0) ||
-               typeid(*map) ==
-                   typeid(const MappingToRefTriangleToTetrahedron1) ||
-               typeid(*map) ==
-                   typeid(const MappingToRefTriangleToTetrahedron2) ||
-               typeid(*map) ==
-                   typeid(const MappingToRefTriangleToTetrahedron3) ||
-               typeid(*map) ==
-                   typeid(const MappingToRefFaceToTriangularPrism0) ||
-               typeid(*map) ==
-                   typeid(const MappingToRefFaceToTriangularPrism1) ||
-               typeid(*map) ==
-                   typeid(const MappingToRefFaceToTriangularPrism2) ||
-               typeid(*map) ==
-                   typeid(const MappingToRefFaceToTriangularPrism3) ||
-               typeid(*map) ==
-                   typeid(const MappingToRefFaceToTriangularPrism4) ||
-               typeid(*map) == typeid(const MappingToRefFaceToPyramid0) ||
-               typeid(*map) == typeid(const MappingToRefFaceToPyramid1) ||
-               typeid(*map) == typeid(const MappingToRefFaceToPyramid2) ||
-               typeid(*map) == typeid(const MappingToRefFaceToPyramid3) ||
-               typeid(*map) == typeid(const MappingToRefFaceToPyramid4)) {
+    }
+    if (typeid(*map) == typeid(const MappingToRefPointToLine1) ||
+        typeid(*map) == typeid(const MappingToRefLineToTriangle1) ||
+        typeid(*map) == typeid(const MappingToRefLineToSquare1) ||
+        typeid(*map) == typeid(const MappingToRefLineToSquare3) ||
+        typeid(*map) == typeid(const MappingToRefSquareToCube1) ||
+        typeid(*map) == typeid(const MappingToRefSquareToCube3) ||
+        typeid(*map) == typeid(const MappingToRefSquareToCube5) ||
+        typeid(*map) == typeid(const MappingToRefTriangleToTetrahedron0) ||
+        typeid(*map) == typeid(const MappingToRefTriangleToTetrahedron1) ||
+        typeid(*map) == typeid(const MappingToRefTriangleToTetrahedron2) ||
+        typeid(*map) == typeid(const MappingToRefTriangleToTetrahedron3) ||
+        typeid(*map) == typeid(const MappingToRefFaceToTriangularPrism0) ||
+        typeid(*map) == typeid(const MappingToRefFaceToTriangularPrism1) ||
+        typeid(*map) == typeid(const MappingToRefFaceToTriangularPrism2) ||
+        typeid(*map) == typeid(const MappingToRefFaceToTriangularPrism3) ||
+        typeid(*map) == typeid(const MappingToRefFaceToTriangularPrism4) ||
+        typeid(*map) == typeid(const MappingToRefFaceToPyramid0) ||
+        typeid(*map) == typeid(const MappingToRefFaceToPyramid1) ||
+        typeid(*map) == typeid(const MappingToRefFaceToPyramid2) ||
+        typeid(*map) == typeid(const MappingToRefFaceToPyramid3) ||
+        typeid(*map) == typeid(const MappingToRefFaceToPyramid4)) {
         return 1;
     } else {
         logger(FATAL, "Face to Element mapping not known for given case. \n");

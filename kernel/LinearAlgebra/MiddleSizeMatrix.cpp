@@ -153,10 +153,7 @@ MiddleSizeMatrix::MiddleSizeMatrix(const std::size_t n, const std::size_t m,
 }
 
 /// \param[in] Matrix A i.e. the matrix to be copies.
-MiddleSizeMatrix::MiddleSizeMatrix(const MiddleSizeMatrix& other)
-    : data_(other.data_),
-      numberOfRows_(other.numberOfRows_),
-      numberOfColumns_(other.numberOfColumns_) {}
+MiddleSizeMatrix::MiddleSizeMatrix(const MiddleSizeMatrix& other) = default;
 
 MiddleSizeMatrix::MiddleSizeMatrix(MiddleSizeMatrix&& other)
     : data_(std::move(other.data_)),
@@ -461,12 +458,8 @@ MiddleSizeMatrix& MiddleSizeMatrix::operator=(const type& c) {
 
 /// \param[in] Matrix : this is the matrix of the right hand side of the
 /// assignment
-MiddleSizeMatrix& MiddleSizeMatrix::operator=(const MiddleSizeMatrix& right) {
-    data_ = (right.data_);
-    numberOfRows_ = right.numberOfRows_;
-    numberOfColumns_ = right.numberOfColumns_;
-    return *this;
-}
+MiddleSizeMatrix& MiddleSizeMatrix::operator=(const MiddleSizeMatrix& right) =
+    default;
 
 MiddleSizeMatrix& MiddleSizeMatrix::operator=(MiddleSizeMatrix&& right) {
     data_ = std::move(right.data_);

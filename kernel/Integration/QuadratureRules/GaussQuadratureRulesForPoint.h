@@ -58,22 +58,21 @@ class Cn0_inf_1 : public QuadratureRules::GaussQuadratureRule {
     }
     Cn0_inf_1(const Cn0_inf_1&) = delete;
 
-    std::string getName() const override final { return name_; }
+    std::string getName() const final { return name_; }
 
-    std::size_t order() const override final {
+    std::size_t order() const final {
         return std::numeric_limits<std::size_t>::max();
     }
 
-    std::size_t dimension() const override final { return 0; }
+    std::size_t dimension() const final { return 0; }
 
-    std::size_t getNumberOfPoints() const override final { return 1; }
+    std::size_t getNumberOfPoints() const final { return 1; }
 
-    double weight(std::size_t i) const override final;
+    double weight(std::size_t i) const final;
 
-    const Geometry::PointReferenceBase& getPoint(
-        std::size_t i) const override final;
+    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
 
-    Geometry::ReferenceGeometry* forReferenceGeometry() const override final {
+    Geometry::ReferenceGeometry* forReferenceGeometry() const final {
         return refGeoPtr_;
     }
 

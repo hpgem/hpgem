@@ -68,7 +68,7 @@ Jacobian<1, 2> MappingToRefLineToSquare0::calcJacobian(
     return jacobian;
 }
 
-MappingToRefLineToSquare0::MappingToRefLineToSquare0() {}
+MappingToRefLineToSquare0::MappingToRefLineToSquare0() = default;
 
 // ~~~~~~~~~~~~~~~==============================================================================
 // ~~~ index 1
@@ -97,7 +97,7 @@ Jacobian<1, 2> MappingToRefLineToSquare1::calcJacobian(
     return jacobian;
 }
 
-MappingToRefLineToSquare1::MappingToRefLineToSquare1() {}
+MappingToRefLineToSquare1::MappingToRefLineToSquare1() = default;
 
 // ~~~~~~~~~~~~~~~==============================================================================
 // ~~~ index 2
@@ -126,7 +126,7 @@ Jacobian<1, 2> MappingToRefLineToSquare2::calcJacobian(
     return jacobian;
 }
 
-MappingToRefLineToSquare2::MappingToRefLineToSquare2() {}
+MappingToRefLineToSquare2::MappingToRefLineToSquare2() = default;
 
 // ~~~~~~~~~~~~~~~==============================================================================
 // ~~~ index 3
@@ -155,5 +155,5 @@ Jacobian<1, 2> MappingToRefLineToSquare3::calcJacobian(
     return jacobian;
 }
 
-MappingToRefLineToSquare3::MappingToRefLineToSquare3() {}
+MappingToRefLineToSquare3::MappingToRefLineToSquare3() = default;
 }  // namespace Geometry

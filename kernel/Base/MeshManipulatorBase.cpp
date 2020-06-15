@@ -108,14 +108,6 @@ MeshManipulatorBase::MeshManipulatorBase(const ConfigurationData* config,
     logger(VERBOSE, "numberOfFaceVectors = %", numberOfFaceVectors);
 }
 
-MeshManipulatorBase::MeshManipulatorBase(const MeshManipulatorBase& other)
-    : configData_(other.configData_),
-      periodicX_(other.periodicX_),
-      periodicY_(other.periodicY_),
-      periodicZ_(other.periodicZ_),
-      numberOfElementMatrices_(other.numberOfElementMatrices_),
-      numberOfFaceMatrices_(other.numberOfFaceMatrices_),
-      numberOfElementVectors_(other.numberOfElementVectors_),
-      numberOfFaceVectors_(other.numberOfFaceVectors_),
-      dimension_(other.dimension_) {}
+MeshManipulatorBase::MeshManipulatorBase(const MeshManipulatorBase& other) =
+    default;
 }  // namespace Base

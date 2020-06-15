@@ -9,9 +9,8 @@ bool next(std::array<int, DIM> &arr, int min, int max) {
         if (arr[i] < max) {
             arr[i]++;
             return true;
-        } else {
-            arr[i] = min;
         }
+        arr[i] = min;
     }
     return false;
 }
@@ -20,7 +19,8 @@ double intervalDist(double x, double xmin, double xmax) {
     logger.assert_debug(xmin <= xmax, "xmin should not be more than xmax");
     if (x < xmin) {
         return xmin - x;
-    } else if (x < xmax) {
+    }
+    if (x < xmax) {
         return 0;
     } else {
         return x - xmax;

@@ -1,4 +1,4 @@
-name: Basic CI
+name: Qhull
 
 on:
   push:
@@ -13,16 +13,16 @@ jobs:
     strategy:
       matrix:
         mpi: [ ON, OFF ] 
-        compiler: [gcc, clang]
+        compiler: [gcc]
         BUILD_TYPE : [Debug, Release]
     steps:
     - uses: actions/checkout@v2 
     - name: dependencies
-      run: sudo apt install libblas-dev liblapack-dev libopenmpi-dev libmetis-dev petsc-dev slepc-dev
+      run: sudo apt install libblas-dev liblapack-dev libqhull-dev libslepc-complex-3.7-dev
     - name: configure
       env:
         CC: ${{ matrix.compiler }}
-      run: cmake -H. -Bbuild -DhpGEM_USE_MPI=${{ matrix.mpi }} -DENABLE_TESTING=ON -DCMAKE_BUILD_TYPE=${{ matrix.BUILD_TYPE }} -DhpGEM_USE_METIS=ON -DhpGEM_USE_PETSC=${{ matrix.mpi }} -DhpGEM_USE_SLEPC=${{ matrix.mpi }} 
+      run: cmake -H. -Bbuild -DhpGEM_USE_MPI=${{ matrix.mpi }} -DENABLE_TESTING=ON -DCMAKE_BUILD_TYPE=${{ matrix.BUILD_TYPE }} -DhpGEM_USE_QHULL=ON
     - name: make
       run: cmake --build build -- -j4
     - name: test

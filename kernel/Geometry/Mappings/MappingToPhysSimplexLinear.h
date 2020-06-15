@@ -73,14 +73,11 @@ class MappingToPhysSimplexLinear : public MappingReferenceToPhysical {
     MappingToPhysSimplexLinear(const MappingToPhysSimplexLinear<DIM>& other)
         : MappingReferenceToPhysical(other) {}
 
-    PointPhysical<DIM> transform(
-        const PointReference<DIM>&) const override final;
-    PointReference<DIM> inverseTransform(
-        const PointPhysical<DIM>&) const override final;
-    Jacobian<DIM, DIM> calcJacobian(
-        const PointReference<DIM>&) const override final;
-    void reinit() override final;
-    std::size_t getTargetDimension() const override final { return DIM; }
+    PointPhysical<DIM> transform(const PointReference<DIM>&) const final;
+    PointReference<DIM> inverseTransform(const PointPhysical<DIM>&) const final;
+    Jacobian<DIM, DIM> calcJacobian(const PointReference<DIM>&) const final;
+    void reinit() final;
+    std::size_t getTargetDimension() const final { return DIM; }
 
    private:
     ///\todo: Implement this function.

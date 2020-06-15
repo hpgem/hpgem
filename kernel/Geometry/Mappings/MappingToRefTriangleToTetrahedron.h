@@ -65,10 +65,9 @@ class MappingToRefTriangleToTetrahedron0
    public:
     static const MappingToRefTriangleToTetrahedron0& Instance();
     PointReference<3> transform(
-        const Geometry::PointReference<2>& p1) const override final;
-    Jacobian<2, 3> calcJacobian(
-        const Geometry::PointReference<2>&) const override final;
-    std::size_t getTargetDimension() const override final { return 3; }
+        const Geometry::PointReference<2>& p1) const final;
+    Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const final;
+    std::size_t getTargetDimension() const final { return 3; }
     MappingToRefTriangleToTetrahedron0(
         const MappingToRefTriangleToTetrahedron0&) = delete;
     MappingToRefTriangleToTetrahedron0& operator=(
@@ -88,10 +87,9 @@ class MappingToRefTriangleToTetrahedron1
    public:
     static const MappingToRefTriangleToTetrahedron1& Instance();
     PointReference<3> transform(
-        const Geometry::PointReference<2>& p1) const override final;
-    Jacobian<2, 3> calcJacobian(
-        const Geometry::PointReference<2>&) const override final;
-    std::size_t getTargetDimension() const override final { return 3; }
+        const Geometry::PointReference<2>& p1) const final;
+    Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const final;
+    std::size_t getTargetDimension() const final { return 3; }
     MappingToRefTriangleToTetrahedron1(
         const MappingToRefTriangleToTetrahedron1&) = delete;
     MappingToRefTriangleToTetrahedron1& operator=(
@@ -111,10 +109,9 @@ class MappingToRefTriangleToTetrahedron2
    public:
     static const MappingToRefTriangleToTetrahedron2& Instance();
     PointReference<3> transform(
-        const Geometry::PointReference<2>& p1) const override final;
-    Jacobian<2, 3> calcJacobian(
-        const Geometry::PointReference<2>&) const override final;
-    std::size_t getTargetDimension() const override final { return 3; }
+        const Geometry::PointReference<2>& p1) const final;
+    Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const final;
+    std::size_t getTargetDimension() const final { return 3; }
     MappingToRefTriangleToTetrahedron2(
         const MappingToRefTriangleToTetrahedron2&) = delete;
     MappingToRefTriangleToTetrahedron1& operator=(
@@ -134,10 +131,9 @@ class MappingToRefTriangleToTetrahedron3
    public:
     static const MappingToRefTriangleToTetrahedron3& Instance();
     PointReference<3> transform(
-        const Geometry::PointReference<2>& p1) const override final;
-    Jacobian<2, 3> calcJacobian(
-        const Geometry::PointReference<2>&) const override final;
-    std::size_t getTargetDimension() const override final { return 3; }
+        const Geometry::PointReference<2>& p1) const final;
+    Jacobian<2, 3> calcJacobian(const Geometry::PointReference<2>&) const final;
+    std::size_t getTargetDimension() const final { return 3; }
     MappingToRefTriangleToTetrahedron3(
         const MappingToRefTriangleToTetrahedron3&) = delete;
     MappingToRefTriangleToTetrahedron3& operator=(

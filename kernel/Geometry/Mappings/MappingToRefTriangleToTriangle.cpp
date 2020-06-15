@@ -71,7 +71,7 @@ Jacobian<2, 2> MappingToRefTriangleToTriangle0::calcJacobian(
     return jacobian;
 }
 
-MappingToRefTriangleToTriangle0::MappingToRefTriangleToTriangle0() {}
+MappingToRefTriangleToTriangle0::MappingToRefTriangleToTriangle0() = default;
 
 // ~~~~~~~~~~~~~~~==============================================================================
 // ~~~ index 1
@@ -103,7 +103,7 @@ Jacobian<2, 2> MappingToRefTriangleToTriangle1::calcJacobian(
     return jacobian;
 }
 
-MappingToRefTriangleToTriangle1::MappingToRefTriangleToTriangle1() {}
+MappingToRefTriangleToTriangle1::MappingToRefTriangleToTriangle1() = default;
 
 // ~~~~~~~~~~~~~~~==============================================================================
 // ~~~ index 2
@@ -135,7 +135,7 @@ Jacobian<2, 2> MappingToRefTriangleToTriangle2::calcJacobian(
     return jacobian;
 }
 
-MappingToRefTriangleToTriangle2::MappingToRefTriangleToTriangle2() {}
+MappingToRefTriangleToTriangle2::MappingToRefTriangleToTriangle2() = default;
 
 // ~~~~~~~~~~~~~~~==============================================================================
 // ~~~ index 3
@@ -167,7 +167,7 @@ Jacobian<2, 2> MappingToRefTriangleToTriangle3::calcJacobian(
     return jacobian;
 }
 
-MappingToRefTriangleToTriangle3::MappingToRefTriangleToTriangle3() {}
+MappingToRefTriangleToTriangle3::MappingToRefTriangleToTriangle3() = default;
 
 // ~~~~~~~~~~~~~~~==============================================================================
 // ~~~ index 4
@@ -199,7 +199,7 @@ Jacobian<2, 2> MappingToRefTriangleToTriangle4::calcJacobian(
     return jacobian;
 }
 
-MappingToRefTriangleToTriangle4::MappingToRefTriangleToTriangle4() {}
+MappingToRefTriangleToTriangle4::MappingToRefTriangleToTriangle4() = default;
 
 // ~~~~~~~~~~~~~~~==============================================================================
 // ~~~ index 5
@@ -231,5 +231,5 @@ Jacobian<2, 2> MappingToRefTriangleToTriangle5::calcJacobian(
     return jacobian;
 }
 
-MappingToRefTriangleToTriangle5::MappingToRefTriangleToTriangle5() {}
+MappingToRefTriangleToTriangle5::MappingToRefTriangleToTriangle5() = default;
 }  // namespace Geometry

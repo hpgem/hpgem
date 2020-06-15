@@ -106,10 +106,9 @@ void check(GEOM geom, const Utilities::GlobalIndexing& indexing,
 /// \return Either owned or nonOwned
 template <typename GEOM, typename T>
 T& selectByOwner(const GEOM* geom, T& owned, T& nonOwned) {
-    if (geom->isOwnedByCurrentProcessor())
-        return owned;
-    else
-        return nonOwned;
+    if (geom->isOwnedByCurrentProcessor()) return owned;
+
+    return nonOwned;
 }
 
 /// Storage for geometrical objects.
@@ -169,24 +168,20 @@ struct GeomStorage {
             for (const Base::Node* node : nodes)
                 basisFunctions += node->getTotalLocalNumberOfBasisFunctions();
             return basisFunctions;
-        } else {
-            std::size_t basisFunctions = 0;
-            for (std::size_t unknown : *unknowns) {
-                for (const Base::Element* element : elements)
-                    basisFunctions +=
-                        element->getLocalNumberOfBasisFunctions(unknown);
-                for (const Base::Face* face : faces)
-                    basisFunctions +=
-                        face->getLocalNumberOfBasisFunctions(unknown);
-                for (const Base::Edge* edge : edges)
-                    basisFunctions +=
-                        edge->getLocalNumberOfBasisFunctions(unknown);
-                for (const Base::Node* node : nodes)
-                    basisFunctions +=
-                        node->getLocalNumberOfBasisFunctions(unknown);
-            }
-            return basisFunctions;
         }
+        std::size_t basisFunctions = 0;
+        for (std::size_t unknown : *unknowns) {
+            for (const Base::Element* element : elements)
+                basisFunctions +=
+                    element->getLocalNumberOfBasisFunctions(unknown);
+            for (const Base::Face* face : faces)
+                basisFunctions += face->getLocalNumberOfBasisFunctions(unknown);
+            for (const Base::Edge* edge : edges)
+                basisFunctions += edge->getLocalNumberOfBasisFunctions(unknown);
+            for (const Base::Node* node : nodes)
+                basisFunctions += node->getLocalNumberOfBasisFunctions(unknown);
+        }
+        return basisFunctions;
     }
 };
 

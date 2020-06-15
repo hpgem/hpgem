@@ -58,13 +58,13 @@ class BasisFunction3DVertexPyramid : public Base::BaseBasisFunction {
    public:
     BasisFunction3DVertexPyramid(std::size_t node);
 
-    double eval(const Geometry::PointReference<3> &p) const;
+    double eval(const Geometry::PointReference<3> &p) const override;
 
-    double evalDeriv0(const Geometry::PointReference<3> &p) const;
+    double evalDeriv0(const Geometry::PointReference<3> &p) const override;
 
-    double evalDeriv1(const Geometry::PointReference<3> &p) const;
+    double evalDeriv1(const Geometry::PointReference<3> &p) const override;
 
-    double evalDeriv2(const Geometry::PointReference<3> &p) const;
+    double evalDeriv2(const Geometry::PointReference<3> &p) const override;
 
    private:
     std::size_t node_;  // numbering consistent with referenceGeometry

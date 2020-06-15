@@ -153,7 +153,7 @@ class MappingInterface {
     MappingInterface() = default;
     MappingInterface(const MappingInterface &other) = default;  // does nothing
 
-    virtual ~MappingInterface() {}
+    virtual ~MappingInterface() = default;
 
     /// concatenated mapping needs to know what kind of intermediate point to
     /// create
