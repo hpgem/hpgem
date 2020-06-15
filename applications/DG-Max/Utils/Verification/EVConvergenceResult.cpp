@@ -46,6 +46,18 @@ namespace DGMax {
 
 void EVConvergenceResult::printFrequencyTable(
     std::vector<double> theoretical) const {
+    /*
+     * Goal print a table of the form
+     *
+     * | 1.1 | 2.2 |     <- Theoretical frequencies
+     * |-----|-----|
+     * | 0.9 | 1.9 |     <- Results from different levels
+     * | 1.0 | 2.1 |
+     *
+     * Each column being 8 characters wide. Where there are no theoretical
+     * frequencies use f_0, f_1, etc. as substitute
+     */
+
     std::size_t max = maxNumberOfFrequencies();
 
     // Header line
@@ -77,7 +89,20 @@ void EVConvergenceResult::printFrequencyTable(
     std::cout << std::endl;
 }
 
-void EVConvergenceResult::printErrorTable(std::vector<double> theoretical) const {
+void EVConvergenceResult::printErrorTable(
+    std::vector<double> theoretical) const {
+    /*
+     * Goal print an error table with convergence rate, similar to that of
+     * printFrequency table. In this case the columns look like
+     *
+     * |   1.1     |   <- Theoretical frequency
+     * |-----|-----|
+     * | 0.2 | -   |  <- Individual levels, first the error, second convergence
+     * | 0.1 | 2.0 |     rate.
+     *
+     * Error column = 10 characters wide
+     * Convergence rate column 7 characters wide.
+     */
 
     std::size_t max = maxNumberOfFrequencies();
 
@@ -157,7 +182,7 @@ void EVConvergenceResult::printResultCode(int precision) const {
 }
 
 void EVConvergenceResult::filterResults(double minimum, bool removeNaN) {
-    for (std::vector<double>& frequencies : frequencyLevels_) {
+    for (std::vector<double> &frequencies : frequencyLevels_) {
         auto it = frequencies.begin();
         while (it != frequencies.end()) {
             if (*it < minimum || (removeNaN && std::isnan(*it))) {
