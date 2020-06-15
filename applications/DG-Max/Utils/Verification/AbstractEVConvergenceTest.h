@@ -36,44 +36,49 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPGEM_EVTESTCASE_H
-#define HPGEM_EVTESTCASE_H
+#ifndef HPGEM_ABSTRACTEVCONVERGENCETEST_H
+#define HPGEM_ABSTRACTEVCONVERGENCETEST_H
 
-#include <utility>
-#include <vector>
+#include <memory>
 
-#include "LinearAlgebra/SmallVector.h"
-#include "EVConvergenceResult.h"
+#include "ProblemTypes/AbstractEigenvalueResult.h"
+#include "EVTestPoint.h"
 
 namespace DGMax {
 
+/// Abstract convergence test for bandstructure eigenvalue solvers.
 template <std::size_t DIM>
-class EVTestCase {
+class AbstractEVConvergenceTest {
    public:
-    EVTestCase(const LinearAlgebra::SmallVector<DIM>& kpoint,
-                       size_t structureId, size_t numberOfEigenvalues)
-        : kpoint_(kpoint),
-          structureId_(structureId),
-          numberOfEigenvalues_(numberOfEigenvalues) {}
+    virtual ~AbstractEVConvergenceTest() = default;
 
-    const LinearAlgebra::SmallVector<DIM>& getKPoint() const {
-        return kpoint_;
-    };
+    /// Run the convergence test
+    ///
+    /// \param failOnDifference If there are differences from the expected
+    /// result, create an assertion failure. \return The results
+    EVConvergenceResult run(bool failOnDifference);
 
-    std::size_t getStructureId() const {
-        return structureId_;
-    }
-
-    std::size_t getNumberOfEigenvalues() const {
-        return numberOfEigenvalues_;
-    }
+   protected:
+    /// Number of mesh levels
+    virtual std::size_t getNumberOfLevels() const = 0;
+    /// Absolute tolerance for the frequencies in checking the results
+    virtual double getTolerance() const = 0;
+    /// Expected result (null if none)
+    virtual const EVConvergenceResult* getExpected() const = 0;
+    /// Run the actual algorithm on a single level.
+    virtual std::unique_ptr<AbstractEigenvalueResult<DIM>> runInternal(
+        std::size_t level) = 0;
 
    private:
-    LinearAlgebra::SmallVector<DIM> kpoint_;
-    std::size_t structureId_;
-    std::size_t numberOfEigenvalues_;
+    /// Compare the results with the expected results of a specific level.
+    ///
+    /// \param level The level in the expected results
+    /// \param result The actual computed result
+    /// \return  Whether the result is inconsistent with the expected data.
+    bool compareWithExpected(std::size_t level,
+                             const AbstractEigenvalueResult<DIM>& result) const;
 };
 
 }  // namespace DGMax
 
-#endif  // HPGEM_EVTESTCASE_H
+#endif  // HPGEM_ABSTRACTEVCONVERGENCETEST_H

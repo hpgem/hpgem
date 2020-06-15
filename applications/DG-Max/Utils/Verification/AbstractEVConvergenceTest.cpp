@@ -36,14 +36,14 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "RunnableEVTestCase.h"
+#include "AbstractEVConvergenceTest.h"
 
 #include "Logger.h"
 
 namespace DGMax {
 
 template <std::size_t DIM>
-EVConvergenceResult RunnableEVTestCase<DIM>::run(bool failOnDifference) {
+EVConvergenceResult AbstractEVConvergenceTest<DIM>::run(bool failOnDifference) {
     EVConvergenceResult convergenceResult;
 
     for (std::size_t level = 0; level < getNumberOfLevels(); ++level) {
@@ -66,7 +66,7 @@ EVConvergenceResult RunnableEVTestCase<DIM>::run(bool failOnDifference) {
 }
 
 template <std::size_t DIM>
-bool RunnableEVTestCase<DIM>::compareWithExpected(
+bool AbstractEVConvergenceTest<DIM>::compareWithExpected(
     std::size_t level, const AbstractEigenvalueResult<DIM>& result) const {
 
     auto expected = getExpected();
@@ -95,7 +95,7 @@ bool RunnableEVTestCase<DIM>::compareWithExpected(
     return true;
 }
 
-template class RunnableEVTestCase<2>;
-template class RunnableEVTestCase<3>;
+template class AbstractEVConvergenceTest<2>;
+template class AbstractEVConvergenceTest<3>;
 
 }  // namespace DGMax

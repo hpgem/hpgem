@@ -36,43 +36,52 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPGEM_RUNNABLEEVTESTCASE_H
-#define HPGEM_RUNNABLEEVTESTCASE_H
+#ifndef HPGEM_DGMAXEVCONVERGENCETEST_H
+#define HPGEM_DGMAXEVCONVERGENCETEST_H
 
 #include <memory>
 
-#include "ProblemTypes/AbstractEigenvalueResult.h"
-#include "EVTestCase.h"
+#include "Utils/Verification/AbstractEVConvergenceTest.h"
+#include "Utils/Verification/EVTestPoint.h"
 
 namespace DGMax {
 
 template <std::size_t DIM>
-class RunnableEVTestCase {
+class DGMaxEVConvergenceTest : public AbstractEVConvergenceTest<DIM> {
    public:
-    virtual ~RunnableEVTestCase() = default;
-
-    /// Run the convergence test case
-    ///
-    /// \param failOnDifference If there are differences from the expected result, create an assertion failure.
-    /// \return The results
-    EVConvergenceResult run(bool failOnDifference);
+    DGMaxEVConvergenceTest(EVTestPoint<DIM> testCase,
+                           std::vector<std::string> meshFileNames,
+                           double tolerance, std::size_t order, double stab,
+                           EVConvergenceResult* expected)
+        : testCase_(testCase),
+          meshFileNames_(std::move(meshFileNames)),
+          tolerance_(tolerance),
+          order_(order),
+          stab_(stab),
+          expected_(expected){};
 
    protected:
-    /// Number of mesh levels
-    virtual std::size_t getNumberOfLevels() const = 0;
-    /// Absolute tolerance in checking the results
-    virtual double getTolerance() const = 0;
-    /// Expected result (null if none)
-    virtual const EVConvergenceResult* getExpected() const = 0;
+    std::size_t getNumberOfLevels() const override {
+        return meshFileNames_.size();
+    }
+    double getTolerance() const override { return tolerance_; }
+    const EVConvergenceResult* getExpected() const override {
+        return expected_;
+    }
     /// Run the actual algorithm on a single level.
-    virtual std::unique_ptr<AbstractEigenvalueResult<DIM>> runInternal(
-        std::size_t level) = 0;
+    std::unique_ptr<AbstractEigenvalueResult<DIM>> runInternal(
+        std::size_t level) override;
 
    private:
-    bool compareWithExpected(std::size_t level,
-                             const AbstractEigenvalueResult<DIM>& result) const;
+    EVTestPoint<DIM> testCase_;
+    std::vector<std::string> meshFileNames_;
+    double tolerance_;
+    std::size_t order_;
+    double stab_;
+    // TODO: This is usually static data
+    EVConvergenceResult* expected_;
 };
 
 }  // namespace DGMax
 
-#endif  // HPGEM_RUNNABLEEVTESTCASE_H
+#endif  // HPGEM_DGMAXEVCONVERGENCETEST_H

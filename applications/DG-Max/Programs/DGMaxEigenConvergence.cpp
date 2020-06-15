@@ -47,9 +47,9 @@
 #include "Algorithms/DivDGMaxEigenvalue.h"
 #include "Algorithms/DGMaxEigenvalue.h"
 #include "Utils/HomogeneousBandStructure.h"
-#include "Utils/Verification/RunnableEVTestCase.h"
-#include "Utils/Verification/DGMaxEVTestCase.h"
-#include "Utils/Verification/DivDGMaxEVTestCase.h"
+#include "Utils/Verification/AbstractEVConvergenceTest.h"
+#include "Utils/Verification/DGMaxEVConvergenceTest.h"
+#include "Utils/Verification/DivDGMaxEVConvergenceTest.h"
 #include "Utils/Verification/EVConvergenceResult.h"
 
 auto &dimensionArg = Base::register_argument<std::size_t>(
@@ -66,6 +66,7 @@ auto &method = Base::register_argument<std::string>(
     "The method to be used, either 'DGMAX' or 'DIVDGMAX' (default)", false,
     "DIVDGMAX");
 
+/// Create a reference bandstructure based on the structure index
 template <std::size_t DIM>
 std::unique_ptr<BandStructure<DIM>> createStructure(
     std::size_t structureIndex) {
@@ -86,8 +87,11 @@ std::unique_ptr<BandStructure<DIM>> createStructure(
     }
 }
 
+/// Parse the input argument with mesh files
+/// \return The list of filenames with meshes
 std::vector<std::string> parseMeshFiles();
 
+/// Run the actual program with fixed dimension template.
 template <std::size_t DIM>
 void runWithDimension();
 
@@ -116,42 +120,45 @@ void runWithDimension() {
     std::vector<std::string> meshFiles = parseMeshFiles();
     std::size_t structureId = structureArg.getValue();
 
-    std::unique_ptr<DGMax::RunnableEVTestCase<DIM>> testCase2;
-    DGMax::EVTestCase<DIM> rawTestCase({0.5, 0.8}, structureId, numFrequencies);
+    std::unique_ptr<DGMax::AbstractEVConvergenceTest<DIM>> convergenceTest;
+    DGMax::EVTestPoint<DIM> testPoint({0.5, 0.8}, structureId, numFrequencies);
     if (method.getValue() == "DGMAX") {
-        testCase2 = std::unique_ptr<DGMax::RunnableEVTestCase<DIM>>(
-            new DGMax::DGMaxEVTestCase<DIM>(rawTestCase, meshFiles,
-                                            0.0,  // No expecations
-                                            1, 100, nullptr));
+        convergenceTest =
+            std::unique_ptr<DGMax::AbstractEVConvergenceTest<DIM>>(
+                new DGMax::DGMaxEVConvergenceTest<DIM>(testPoint, meshFiles,
+                                                       0.0,  // No expecations
+                                                       1, 100, nullptr));
     } else if (method.getValue() == "DIVDGMAX") {
+        // Some default stabilization parameters
         typename DivDGMaxDiscretization<DIM>::Stab stab;
         stab.stab1 = 5;
         stab.stab2 = 0;
         stab.stab3 = 5;
         stab.setAllFluxeTypes(DivDGMaxDiscretization<DIM>::FluxType::BREZZI);
 
-        testCase2 = std::unique_ptr<DGMax::RunnableEVTestCase<DIM>>(
-            new DGMax::DivDGMaxEVTestCase<DIM>(rawTestCase, meshFiles,
-                                               0.0,  // No expectations
-                                               1, stab, nullptr));
+        convergenceTest =
+            std::unique_ptr<DGMax::AbstractEVConvergenceTest<DIM>>(
+                new DGMax::DivDGMaxEVConvergenceTest<DIM>(testPoint, meshFiles,
+                                                          0.0,  // No
+                                                                // expectations
+                                                          1, stab, nullptr));
     } else {
         DGMaxLogger(ERROR, "Unknown method %", method.getValue());
         return;
     }
 
-    DGMax::EVConvergenceResult refinementResult = testCase2->run(false);
+    DGMax::EVConvergenceResult refinementResult = convergenceTest->run(false);
 
     // Compute Errors //
     ////////////////////
     std::vector<double> spectrum;
 
     std::unique_ptr<BandStructure<DIM>> structure =
-        createStructure<DIM>(rawTestCase.getStructureId());
+        createStructure<DIM>(testPoint.getStructureId());
     if (structure) {
         // TODO: It would be nice to have a way to compute the N lowest instead
         // of up to a frequency
-        spectrum =
-            structure->computeLinearSpectrum(rawTestCase.getKPoint(), 20);
+        spectrum = structure->computeLinearSpectrum(testPoint.getKPoint(), 20);
         logger.assert_always(spectrum.size() >= numFrequencies,
                              "Not enough analytical frequencies");
     }

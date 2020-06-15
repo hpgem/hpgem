@@ -36,7 +36,7 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "DivDGMaxEVTestCase.h"
+#include "DivDGMaxEVConvergenceTest.h"
 
 #include "DGMaxLogger.h"
 #include "DGMaxProgramUtils.h"
@@ -44,7 +44,7 @@
 namespace DGMax {
 template <std::size_t DIM>
 std::unique_ptr<AbstractEigenvalueResult<DIM> >
-    DivDGMaxEVTestCase<DIM>::runInternal(std::size_t level) {
+    DivDGMaxEVConvergenceTest<DIM>::runInternal(std::size_t level) {
 
     logger.assert_always(level < meshFileNames_.size(), "No such mesh");
 
@@ -65,7 +65,7 @@ std::unique_ptr<AbstractEigenvalueResult<DIM> >
 }
 
 // Template instantiation
-template class DivDGMaxEVTestCase<2>;
-template class DivDGMaxEVTestCase<3>;
+template class DivDGMaxEVConvergenceTest<2>;
+template class DivDGMaxEVConvergenceTest<3>;
 
 }  // namespace DGMax

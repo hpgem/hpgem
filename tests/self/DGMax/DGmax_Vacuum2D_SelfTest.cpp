@@ -40,8 +40,8 @@
 
 #include "DGMaxLogger.h"
 #include "DGMaxProgramUtils.h"
-#include "Utils/Verification/DGMaxEVTestCase.h"
-#include "Utils/Verification/EVTestCase.h"
+#include "Utils/Verification/DGMaxEVConvergenceTest.h"
+#include "Utils/Verification/EVTestPoint.h"
 
 #include "Utils/HomogeneousBandStructure.h"
 
@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
         DGMaxTest::singleProcessorRefinementMeshes2D();
 
     // Just a random point in vacuum
-    DGMax::EVTestCase<2> testPoint(LinearAlgebra::SmallVector<2>({0.8, 0.9}), 0,
+    DGMax::EVTestPoint<2> testPoint(LinearAlgebra::SmallVector<2>({0.8, 0.9}), 0,
                                    10);
 
     // clang-format off
@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
     });
     // clang-format on
 
-    DGMax::DGMaxEVTestCase<2> testCase(testPoint, meshes, 1e-8, 1, 100,
+    DGMax::DGMaxEVConvergenceTest<2> testCase(testPoint, meshes, 1e-8, 1, 100,
                                        &expected);
     DGMax::EVConvergenceResult result = testCase.run(false);
 

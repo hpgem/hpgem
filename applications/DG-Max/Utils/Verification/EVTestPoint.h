@@ -36,42 +36,45 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "DGMaxEVTestCase.h"
+#ifndef HPGEM_EVTESTPOINT_H
+#define HPGEM_EVTESTPOINT_H
 
-#include "Base/ConfigurationData.h"
-#include "Base/MeshManipulator.h"
+#include <utility>
+#include <vector>
 
-#include "DGMaxLogger.h"
-#include "DGMaxProgramUtils.h"
-
-#include "Algorithms/DGMaxEigenvalue.h"
+#include "LinearAlgebra/SmallVector.h"
+#include "EVConvergenceResult.h"
 
 namespace DGMax {
 
+/// A description of a point in a bandstructure that can be used as test for
+/// bandstructure eigenvalue solvers. The given information is, combined with a
+/// unit cell sufficient to determine the frequency of the bands.
+///
+/// \tparam DIM The dimension in which the problem is situated.
 template <std::size_t DIM>
-std::unique_ptr<AbstractEigenvalueResult<DIM>>
-    DGMaxEVTestCase<DIM>::runInternal(std::size_t level) {
+class EVTestPoint {
+   public:
+    EVTestPoint(const LinearAlgebra::SmallVector<DIM>& kpoint,
+                size_t structureId, size_t numberOfEigenvalues)
+        : kpoint_(kpoint),
+          structureId_(structureId),
+          numberOfEigenvalues_(numberOfEigenvalues) {}
 
-    logger.assert_always(level < meshFileNames_.size(), "No such mesh");
+    const LinearAlgebra::SmallVector<DIM>& getKPoint() const {
+        return kpoint_;
+    };
 
-    Base::ConfigurationData configData(1, 1);
-    auto mesh = DGMax::readMesh<DIM>(
-        meshFileNames_[level], &configData,
-        [&](const Geometry::PointPhysical<DIM> &p) {
-            return jelmerStructure(p, testCase_.getStructureId());
-        });
-    DGMaxLogger(INFO, "Loaded mesh % with % local elements.",
-                meshFileNames_[level], mesh->getNumberOfElements());
-    KSpacePath<DIM> path =
-        KSpacePath<DIM>::singleStepPath(testCase_.getKPoint());
-    EigenvalueProblem<DIM> input(path, testCase_.getNumberOfEigenvalues());
+    std::size_t getStructureId() const { return structureId_; }
 
-    DGMaxEigenvalue<DIM> solver(*mesh, this->order_, this->stab_);
-    return solver.solve(input);
-}
+    std::size_t getNumberOfEigenvalues() const { return numberOfEigenvalues_; }
 
-// Template instantiation
-template class DGMaxEVTestCase<2>;
-template class DGMaxEVTestCase<3>;
+   private:
+    LinearAlgebra::SmallVector<DIM> kpoint_;
+    std::size_t structureId_;
+    std::size_t numberOfEigenvalues_;
+};
 
-};  // namespace DGMax
+}  // namespace DGMax
+
+#endif  // HPGEM_EVTESTPOINT_H

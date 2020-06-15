@@ -36,52 +36,42 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPGEM_DGMAXEVTESTCASE_H
-#define HPGEM_DGMAXEVTESTCASE_H
+#include "DGMaxEVConvergenceTest.h"
 
-#include <memory>
+#include "Base/ConfigurationData.h"
+#include "Base/MeshManipulator.h"
 
-#include "Utils/Verification/RunnableEVTestCase.h"
-#include "Utils/Verification/EVTestCase.h"
+#include "DGMaxLogger.h"
+#include "DGMaxProgramUtils.h"
+
+#include "Algorithms/DGMaxEigenvalue.h"
 
 namespace DGMax {
 
 template <std::size_t DIM>
-class DGMaxEVTestCase : public RunnableEVTestCase<DIM> {
-   public:
-    DGMaxEVTestCase(EVTestCase<DIM> testCase,
-                    std::vector<std::string> meshFileNames, double tolerance,
-                    std::size_t order, double stab,
-                    EVConvergenceResult* expected)
-        : testCase_(testCase),
-          meshFileNames_(std::move(meshFileNames)),
-          tolerance_(tolerance),
-          order_(order),
-          stab_(stab),
-          expected_(expected){};
+std::unique_ptr<AbstractEigenvalueResult<DIM>>
+    DGMaxEVConvergenceTest<DIM>::runInternal(std::size_t level) {
 
-   protected:
-    std::size_t getNumberOfLevels() const override {
-        return meshFileNames_.size();
-    }
-    double getTolerance() const override { return tolerance_; }
-    const EVConvergenceResult* getExpected() const override {
-        return expected_;
-    }
-    /// Run the actual algorithm on a single level.
-    std::unique_ptr<AbstractEigenvalueResult<DIM>> runInternal(
-        std::size_t level) override;
+    logger.assert_always(level < meshFileNames_.size(), "No such mesh");
 
-   private:
-    EVTestCase<DIM> testCase_;
-    std::vector<std::string> meshFileNames_;
-    double tolerance_;
-    std::size_t order_;
-    double stab_;
-    // TODO: This is usually static data
-    EVConvergenceResult* expected_;
-};
+    Base::ConfigurationData configData(1, 1);
+    auto mesh = DGMax::readMesh<DIM>(
+        meshFileNames_[level], &configData,
+        [&](const Geometry::PointPhysical<DIM> &p) {
+            return jelmerStructure(p, testCase_.getStructureId());
+        });
+    DGMaxLogger(INFO, "Loaded mesh % with % local elements.",
+                meshFileNames_[level], mesh->getNumberOfElements());
+    KSpacePath<DIM> path =
+        KSpacePath<DIM>::singleStepPath(testCase_.getKPoint());
+    EigenvalueProblem<DIM> input(path, testCase_.getNumberOfEigenvalues());
 
-}  // namespace DGMax
+    DGMaxEigenvalue<DIM> solver(*mesh, this->order_, this->stab_);
+    return solver.solve(input);
+}
 
-#endif  // HPGEM_DGMAXEVTESTCASE_H
+// Template instantiation
+template class DGMaxEVConvergenceTest<2>;
+template class DGMaxEVConvergenceTest<3>;
+
+};  // namespace DGMax

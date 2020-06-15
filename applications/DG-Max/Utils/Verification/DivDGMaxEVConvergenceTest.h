@@ -36,21 +36,21 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPGEM_DIVDGMAXEVTESTCASE_H
-#define HPGEM_DIVDGMAXEVTESTCASE_H
+#ifndef HPGEM_DIVDGMAXEVCONVERGENCETEST_H
+#define HPGEM_DIVDGMAXEVCONVERGENCETEST_H
 
 #include <memory>
 
 #include "Algorithms/DivDGMaxEigenvalue.h"
-#include "Utils/Verification/RunnableEVTestCase.h"
-#include "Utils/Verification/EVTestCase.h"
+#include "Utils/Verification/AbstractEVConvergenceTest.h"
+#include "Utils/Verification/EVTestPoint.h"
 
 namespace DGMax {
 
 template <std::size_t DIM>
-class DivDGMaxEVTestCase : public RunnableEVTestCase<DIM> {
+class DivDGMaxEVConvergenceTest : public AbstractEVConvergenceTest<DIM> {
    public:
-    DivDGMaxEVTestCase(EVTestCase<DIM> testCase,
+    DivDGMaxEVConvergenceTest(EVTestPoint<DIM> testCase,
                        std::vector<std::string> meshFileNames, double tolerance,
                        std::size_t order,
                        typename DivDGMaxDiscretization<DIM>::Stab stab,
@@ -75,7 +75,7 @@ class DivDGMaxEVTestCase : public RunnableEVTestCase<DIM> {
         std::size_t level) override;
 
    private:
-    EVTestCase<DIM> testCase_;
+    EVTestPoint<DIM> testCase_;
     std::vector<std::string> meshFileNames_;
     double tolerance_;
     std::size_t order_;
@@ -86,4 +86,4 @@ class DivDGMaxEVTestCase : public RunnableEVTestCase<DIM> {
 
 }  // namespace DGMax
 
-#endif  // HPGEM_DIVDGMAXEVTESTCASE_H
+#endif  // HPGEM_DIVDGMAXEVCONVERGENCETEST_H

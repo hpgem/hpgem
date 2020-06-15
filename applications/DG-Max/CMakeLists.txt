@@ -28,10 +28,10 @@ if(hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
 		Utils/KSpacePath.cpp
 
 
-		Utils/Verification/DGMaxEVTestCase.cpp
-		Utils/Verification/DivDGMaxEVTestCase.cpp
+		Utils/Verification/DGMaxEVConvergenceTest.cpp
+		Utils/Verification/DivDGMaxEVConvergenceTest.cpp
 		Utils/Verification/EVConvergenceResult.cpp
-		Utils/Verification/RunnableEVTestCase.cpp
+		Utils/Verification/AbstractEVConvergenceTest.cpp
 	)
 	# TODO: Lacking source/include separation
 	target_include_directories(DGMax-lib
