@@ -4,7 +4,7 @@
 
 #include "KSpacePath.h"
 #include "BandStructure.h"
-#include "ProblemTypes/BaseEigenvalueResult.h"
+#include "ProblemTypes/AbstractEigenvalueResult.h"
 
 #include <string>
 #include <vector>
@@ -17,7 +17,7 @@ class BandstructureGNUPlot {
     BandstructureGNUPlot(
         const KSpacePath<DIM>& path, const std::vector<std::string>& pointNames,
         const BandStructure<DIM>& structure,
-        const BaseEigenvalueResult<DIM>* computedSpectrum = nullptr);
+        const AbstractEigenvalueResult<DIM>* computedSpectrum = nullptr);
     void plot(std::string fileName);
 
    private:
@@ -44,7 +44,7 @@ class BandstructureGNUPlot {
     std::map<int, std::vector<std::tuple<double, double>>> groupSpectrum();
 
     const BandStructure<DIM>& structure_;
-    const BaseEigenvalueResult<DIM>* computedSpectrum_;
+    const AbstractEigenvalueResult<DIM>* computedSpectrum_;
     const KSpacePath<DIM>& path_;
     const std::vector<std::string>& pointNames_;
 };
