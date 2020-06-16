@@ -146,6 +146,7 @@ void runWithDimension() {
         config.stab_ = stab;
         config.useHermitian_ = true;
         config.shiftFactor_ = 0;
+        config.useProjector_ = useProjector;
         DGMaxEigenvalue<DIM> solver(*mesh, order.getValue(), config);
         result = solver.solve(input);
     }
