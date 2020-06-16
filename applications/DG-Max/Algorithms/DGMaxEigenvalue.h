@@ -56,7 +56,11 @@ struct KShift;
 class DGMaxEigenvalueBase {
    public:
     struct SolverConfig {
-        SolverConfig() : useHermitian_(true), shiftFactor_(0), stab_(100){};
+        SolverConfig()
+            : useHermitian_(true),
+              shiftFactor_(0),
+              stab_(100),
+              useProjector_(false){};
 
         /// Reformulate the generalized eigenvalue in a Hermitian or non
         /// Hermitian way.
@@ -68,6 +72,8 @@ class DGMaxEigenvalueBase {
         double shiftFactor_;
         /// Stabilization parameter (will be rescaled based on facet size).
         double stab_;
+        /// Use a projector to remove the kernel of the stiffness matrix
+        bool useProjector_;
 
         /// Whether the config uses shifts
         bool usesShifts() const {
@@ -77,9 +83,9 @@ class DGMaxEigenvalueBase {
     };
 };
 
-// TODO: It might be better to call this differently
 template <std::size_t DIM>
-class DGMaxEigenvalue : public AbstractEigenvalueSolver<DIM>, public DGMaxEigenvalueBase {
+class DGMaxEigenvalue : public AbstractEigenvalueSolver<DIM>,
+                        public DGMaxEigenvalueBase {
 
    public:
     class Result : public AbstractEigenvalueResult<DIM> {
@@ -95,32 +101,29 @@ class DGMaxEigenvalue : public AbstractEigenvalueSolver<DIM>, public DGMaxEigenv
     };
 
     DGMaxEigenvalue(Base::MeshManipulator<DIM>& mesh, std::size_t order,
-                    SolverConfig stab, bool useProjector = true);
+                    SolverConfig config);
 
     std::unique_ptr<AbstractEigenvalueResult<DIM>> solve(
         const EigenvalueProblem<DIM>& input) override;
 
    private:
-    void initializeMatrices(SolverConfig config);
+    void initializeMatrices();
 
     void extractEigenValues(const EPS& solver,
                             std::vector<PetscScalar>& result);
 
     std::vector<KShift<DIM>> findPeriodicShifts(
-        const Utilities::GlobalIndexing& indexing, SolverConfig config) const;
+        const Utilities::GlobalIndexing& indexing) const;
     std::vector<KShift<DIM>> findProjectorPeriodicShifts(
         const Utilities::GlobalIndexing& projectorIndex,
-        const Utilities::GlobalIndexing& indexing, SolverConfig config) const;
+        const Utilities::GlobalIndexing& indexing) const;
     LinearAlgebra::SmallVector<DIM> boundaryFaceShift(
         const Base::Face* face) const;
 
     Base::MeshManipulator<DIM>& mesh_;
     std::size_t order_;
-    std::size_t stab_;
     SolverConfig config_;
     DGMaxDiscretization<DIM> discretization_;
-    /// Use a projector to remove the kernel of the stiffness matrix
-    const bool useProjector_;
 };
 
 #endif  // ALGORITHMS_DGMAXEIGENVALUE_h

@@ -54,20 +54,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 template <std::size_t DIM>
 DGMaxEigenvalue<DIM>::DGMaxEigenvalue(Base::MeshManipulator<DIM>& mesh,
-                                      std::size_t order, SolverConfig config, bool useProjector)
-    : mesh_(mesh), order_ (order), config_ (config), useProjector_(useProjector), discretization_(useProjector) {
+                                      std::size_t order, SolverConfig config)
+    : mesh_(mesh),
+      order_(order),
+      config_(config),
+      discretization_(config.useProjector_) {
     discretization_.initializeBasisFunctions(mesh_, order);
 }
 
 template <std::size_t DIM>
-void DGMaxEigenvalue<DIM>::initializeMatrices(SolverConfig config) {
-    auto massMatrixHandling = config.useHermitian_
+void DGMaxEigenvalue<DIM>::initializeMatrices() {
+    auto massMatrixHandling = config_.useHermitian_
                                   ? DGMaxDiscretizationBase::ORTHOGONALIZE
                                   : DGMaxDiscretizationBase::INVERT;
     discretization_.computeElementIntegrands(mesh_, massMatrixHandling, nullptr,
                                              nullptr, nullptr);
     discretization_.computeFaceIntegrals(mesh_, massMatrixHandling, nullptr,
-                                         config.stab_);
+                                         config_.stab_);
 }
 
 /// Storage space for KShift
@@ -212,9 +215,8 @@ struct KShift {
 
 /// Workspace area for the solver
 struct SolverWorkspace {
-    SolverWorkspace(DGMaxEigenvalueBase::SolverConfig config, bool useProjector)
+    SolverWorkspace(DGMaxEigenvalueBase::SolverConfig config)
         : config_(config),
-          useProjector_(useProjector),
           mesh_(nullptr),
           fieldIndex_(nullptr),
           projectorIndex_(nullptr),
@@ -261,7 +263,6 @@ struct SolverWorkspace {
     }
 
     DGMaxEigenvalueBase::SolverConfig config_;
-    const bool useProjector_;
 
     Base::MeshManipulatorBase* mesh_;
     Utilities::GlobalIndexing fieldIndex_;
@@ -339,7 +340,7 @@ void SolverWorkspace::initMatrices() {
     massMatrix_.reinit();
     sampleVector_.reinit();
 
-    if (useProjector_) {
+    if (config_.useProjector_) {
         std::vector<std::size_t> projectorUnknowns({1});
         projectorIndex_.reset(
             mesh_, Utilities::GlobalIndexing::Layout::BLOCKED_PROCESSOR,
@@ -365,7 +366,7 @@ void SolverWorkspace::initShell() {
     CHKERRABORT(PETSC_COMM_WORLD, error);
     error = MatShellSetOperation(shell_, MATOP_MULT,
                                  (void (*)(void))staticShellMultiply);
-    if (useProjector_) {
+    if (config_.useProjector_) {
         CHKERRABORT(PETSC_COMM_WORLD, error);
         error = KSPCreate(PETSC_COMM_WORLD, &projectionSolver_);
         CHKERRABORT(PETSC_COMM_WORLD, error);
@@ -393,13 +394,13 @@ void SolverWorkspace::shellMultiply(Vec in, Vec out) {
     PetscErrorCode error;
     error = MatMult(getActualStiffnessMatrix(), in, out);
     CHKERRABORT(PETSC_COMM_WORLD, error);
-    if (useProjector_) {
+    if (config_.useProjector_) {
         project(out);
     }
 }
 
 void SolverWorkspace::project(Vec vec) {
-    logger.assert_always(useProjector_, "Projecting without projector");
+    logger.assert_always(config_.useProjector_, "Projecting without projector");
     // Projection P of a vector u, this is
     // P u = u - M^{-1} * B^H * C^{-1} * B * u
     // where
@@ -542,7 +543,7 @@ void SolverWorkspace::setupSolver(std::size_t numberOfEigenvalues) {
     CHKERRABORT(PETSC_COMM_WORLD, error);
     DGMaxLogger(INFO, "Solver setup completed");
 
-    if (useProjector_) {
+    if (config_.useProjector_) {
         Mat projectionH;
         error = MatHermitianTranspose(projectorMatrix_, MAT_INITIAL_MATRIX,
                                       &projectionH);
@@ -630,7 +631,7 @@ void SolverWorkspace::shift(
     const LinearAlgebra::SmallVector<DIM>& k) {
     // Maybe move to KShift as static function
     shiftMatrix(getActualStiffnessMatrix(), stiffnessMatrixShifts, k);
-    if (useProjector_) {
+    if (config_.useProjector_) {
         shiftMatrix(projectorMatrix_, projectorShifts, k);
     }
 }
@@ -684,7 +685,7 @@ void SolverWorkspace::cleanup() {
     error = EPSDestroy(&solver_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
-    if (useProjector_) {
+    if (config_.useProjector_) {
         error = KSPDestroy(&projectionSolver_);
         CHKERRABORT(PETSC_COMM_WORLD, error);
         error = MatDestroy(&projectionStiffness_);
@@ -997,9 +998,9 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DGMaxEigenvalue<DIM>::solve(
     const KSpacePath<DIM>& kpath = input.getPath();
 
     PetscErrorCode error;
-    initializeMatrices(config_);
+    initializeMatrices();
 
-    SolverWorkspace workspace(config_, useProjector_);
+    SolverWorkspace workspace(config_);
     // Leave a bit room for extra converged eigenvectors
     workspace.init(&mesh_,
                    std::max(2 * numberOfEigenvalues, numberOfEigenvalues + 10));
@@ -1008,10 +1009,10 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DGMaxEigenvalue<DIM>::solve(
     ///////////////////////////////////////
 
     const std::vector<KShift<DIM>> periodicShifts =
-        findPeriodicShifts(workspace.fieldIndex_, config_);
+        findPeriodicShifts(workspace.fieldIndex_);
     const std::vector<KShift<DIM>> projectorShifts =
         findProjectorPeriodicShifts(workspace.projectorIndex_,
-                                    workspace.fieldIndex_, config_);
+                                    workspace.fieldIndex_);
 
     LinearAlgebra::SmallVector<DIM> dk;  // Step in k-space from previous solve
     std::size_t maxStep = kpath.totalNumberOfSteps();
@@ -1033,7 +1034,7 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DGMaxEigenvalue<DIM>::solve(
                                      workspace.waveVecConjugate_);
             CHKERRABORT(PETSC_COMM_WORLD, error);
             // TODO: Check
-            if (workspace.useProjector_) {
+            if (config_.useProjector_) {
                 error = MatDiagonalScale(workspace.projectorMatrix_, nullptr,
                                          workspace.waveVecConjugate_);
             }
@@ -1065,7 +1066,7 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DGMaxEigenvalue<DIM>::solve(
             // if they are not all used.
             usableInitialVectors = workspace.convergedEigenValues_;
         }
-        if (useProjector_) {
+        if (config_.useProjector_) {
             for (std::size_t j = 0; j < usableInitialVectors; ++j) {
                 workspace.project(workspace.eigenVectors_[j]);
             }
@@ -1087,7 +1088,7 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DGMaxEigenvalue<DIM>::solve(
 
     workspace.extractEigenVectors();
     // Diagnostics
-    if (useProjector_) {
+    if (config_.useProjector_) {
         std::cout << "Test projection on results" << std::endl;
         for (PetscInt i = 0; i < workspace.convergedEigenValues_; ++i) {
             // Diagnostics on the projection operator. Theoretically we have
@@ -1151,7 +1152,7 @@ void DGMaxEigenvalue<DIM>::extractEigenValues(
 
 template <std::size_t DIM>
 std::vector<KShift<DIM>> DGMaxEigenvalue<DIM>::findPeriodicShifts(
-    const Utilities::GlobalIndexing& indexing, SolverConfig config) const {
+    const Utilities::GlobalIndexing& indexing) const {
     std::vector<KShift<DIM>> result;
     auto end = mesh_.faceColEnd(Base::IteratorType::GLOBAL);
     for (Base::TreeIterator<Base::Face*> it =
@@ -1184,7 +1185,7 @@ std::vector<KShift<DIM>> DGMaxEigenvalue<DIM>::findPeriodicShifts(
             // is thus only necessary when owning an element to either side.
             continue;
         }
-        result.emplace_back(KShift<DIM>::faceShift(*it, indexing, dx, config));
+        result.emplace_back(KShift<DIM>::faceShift(*it, indexing, dx, config_));
     }
     return result;
 }
@@ -1192,9 +1193,9 @@ std::vector<KShift<DIM>> DGMaxEigenvalue<DIM>::findPeriodicShifts(
 template <std::size_t DIM>
 std::vector<KShift<DIM>> DGMaxEigenvalue<DIM>::findProjectorPeriodicShifts(
     const Utilities::GlobalIndexing& projectorIndex,
-    const Utilities::GlobalIndexing& indexing, SolverConfig config) const {
+    const Utilities::GlobalIndexing& indexing) const {
     std::vector<KShift<DIM>> result;
-    if (!useProjector_) {
+    if (!config_.useProjector_) {
         return result;
     }
 
@@ -1216,7 +1217,7 @@ std::vector<KShift<DIM>> DGMaxEigenvalue<DIM>::findProjectorPeriodicShifts(
 
             if ((*it)->isOwnedByCurrentProcessor()) {
                 KShift<DIM>::addFaceProjectorShifts(*it, projectorIndex,
-                                                    indexing, config, result);
+                                                    indexing, config_, result);
             }
             // There is no direct edge list for a face, instead we need to
             // recover it from one of the neighbouring elements.
@@ -1247,11 +1248,11 @@ std::vector<KShift<DIM>> DGMaxEigenvalue<DIM>::findProjectorPeriodicShifts(
     // shifts.
     for (const Base::Node* node : boundaryNodes) {
         KShift<DIM>::addNodeProjectorShifts(node, projectorIndex, indexing,
-                                            config, result);
+                                            config_, result);
     }
     for (const Base::Edge* edge : boundaryEdges) {
         KShift<DIM>::addEdgeProjectorShifts(edge, projectorIndex, indexing,
-                                            config, result);
+                                            config_, result);
     }
 
     return result;
