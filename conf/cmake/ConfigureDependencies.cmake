@@ -107,7 +107,7 @@ if(hpGEM_USE_SLEPC)
     add_definitions(-DHPGEM_USE_SLEPC)
 endif()
 
-find_package(CLANG_FORMAT 9 EXACT)
+find_package(CLANG_FORMAT 10 EXACT)
 if(CLANG_FORMAT_FOUND)
     file(GLOB_RECURSE FORMAT_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
   add_custom_target(format
