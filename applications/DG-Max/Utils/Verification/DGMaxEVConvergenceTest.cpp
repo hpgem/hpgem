@@ -66,7 +66,7 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>>
         KSpacePath<DIM>::singleStepPath(testCase_.getKPoint());
     EigenvalueProblem<DIM> input(path, testCase_.getNumberOfEigenvalues());
 
-    DGMaxEigenvalue<DIM> solver(*mesh, this->order_, this->stab_);
+    DGMaxEigenvalue<DIM> solver(*mesh, this->order_, this->solverConfig_);
     return solver.solve(input);
 }
 

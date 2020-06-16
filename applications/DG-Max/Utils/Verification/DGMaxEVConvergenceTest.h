@@ -41,6 +41,8 @@
 
 #include <memory>
 
+#include "Algorithms/DGMaxEigenvalue.h"
+
 #include "Utils/Verification/AbstractEVConvergenceTest.h"
 #include "Utils/Verification/EVTestPoint.h"
 
@@ -51,13 +53,14 @@ class DGMaxEVConvergenceTest : public AbstractEVConvergenceTest<DIM> {
    public:
     DGMaxEVConvergenceTest(EVTestPoint<DIM> testCase,
                            std::vector<std::string> meshFileNames,
-                           double tolerance, std::size_t order, double stab,
+                           double tolerance, std::size_t order,
+                           DGMaxEigenvalueBase::SolverConfig solverConfig,
                            EVConvergenceResult* expected)
         : testCase_(testCase),
           meshFileNames_(std::move(meshFileNames)),
           tolerance_(tolerance),
           order_(order),
-          stab_(stab),
+          solverConfig_(solverConfig),
           expected_(expected){};
 
    protected:
@@ -77,7 +80,7 @@ class DGMaxEVConvergenceTest : public AbstractEVConvergenceTest<DIM> {
     std::vector<std::string> meshFileNames_;
     double tolerance_;
     std::size_t order_;
-    double stab_;
+    DGMaxEigenvalueBase::SolverConfig solverConfig_;
     // TODO: This is usually static data
     EVConvergenceResult* expected_;
 };
