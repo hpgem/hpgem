@@ -123,11 +123,16 @@ void runWithDimension() {
     std::unique_ptr<DGMax::AbstractEVConvergenceTest<DIM>> convergenceTest;
     DGMax::EVTestPoint<DIM> testPoint({0.5, 0.8}, structureId, numFrequencies);
     if (method.getValue() == "DGMAX") {
+        DGMaxEigenvalueBase::SolverConfig config;
+        config.useHermitian_ = true;
+        config.stab_ = 100;
+        config.shiftFactor_ = 0.0;
+        config.useProjector_ = false;
         convergenceTest =
             std::unique_ptr<DGMax::AbstractEVConvergenceTest<DIM>>(
                 new DGMax::DGMaxEVConvergenceTest<DIM>(testPoint, meshFiles,
                                                        0.0,  // No expecations
-                                                       1, 100, nullptr));
+                                                       1, config, nullptr));
     } else if (method.getValue() == "DIVDGMAX") {
         // Some default stabilization parameters
         typename DivDGMaxDiscretization<DIM>::Stab stab;
