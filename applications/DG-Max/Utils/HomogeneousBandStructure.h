@@ -25,7 +25,7 @@ class HomogeneousBandStructure : public BandStructure<DIM> {
     /// \param omegaMax  The maximum frequency
     /// \return The frequencies in increasing order at the k-point up to
     /// omegaMax.
-    virtual std::vector<double> computeLinearSpectrum(
+    std::vector<double> computeLinearSpectrum(
         LinearAlgebra::SmallVector<DIM> kpoint, double omegaMax) const final;
 
     /// \brief Compute the grouped spectrum at a given point in k-space
