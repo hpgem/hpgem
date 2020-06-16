@@ -38,6 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "DGMaxEigenvalue.h"
 
+#include <chrono>  // For timing
 #include <iostream>
 #include <valarray>
 #include <vector>
@@ -1080,35 +1081,60 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DGMaxEigenvalue<DIM>::solve(
         CHKERRABORT(PETSC_COMM_WORLD, error);
 
         DGMaxLogger(INFO, "Solving eigenvalue problem");
+
+        auto start = std::chrono::high_resolution_clock::now();
+
         error = EPSSolve(workspace.solver_);
         CHKERRABORT(PETSC_COMM_WORLD, error);
 
+        // Some basic statistics
+        std::chrono::duration<double> time =
+            std::chrono::high_resolution_clock::now() - start;
+        PetscInt numEigenvalues, iterations;
+        error = EPSGetConverged(workspace.solver_, &numEigenvalues);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+        error = EPSGetIterationNumber(workspace.solver_, &iterations);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+
+        DGMaxLogger(INFO,
+                    "Eigenvalue solver stopped after % iterations with % "
+                    "eigenvalues in %s",
+                    iterations, numEigenvalues, time.count());
+
+        // Actual result processing
         extractEigenValues(workspace.solver_, eigenvalues[i]);
     }
 
     workspace.extractEigenVectors();
     // Diagnostics
-    if (config_.useProjector_) {
-        std::cout << "Test projection on results" << std::endl;
-        for (PetscInt i = 0; i < workspace.convergedEigenValues_; ++i) {
-            // Diagnostics on the projection operator. Theoretically we have
-            // Bu == 0 <=> lambda != 0. For each of the eigenpairs (u,lambda) we
-            // test whether Bu == 0 <=> lambda != 0 holds approximately.
-            PetscScalar eigenValue;
-            error = EPSGetEigenpair(workspace.solver_, i, &eigenValue, nullptr,
-                                    workspace.eigenVectors_[i], nullptr);
-            CHKERRABORT(PETSC_COMM_WORLD, error);
-            std::cout << "Eigenvalue " << i << ":\t" << std::abs(eigenValue)
-                      << "\t" << eigenValue << std::endl;
-            bool isPracticallyZero = std::abs(eigenValue) < 1e-5;
-            PetscReal normB;
-            MatMult(workspace.projectorMatrix_, workspace.eigenVectors_[i],
-                    workspace.tempProjectorVector_);
-            VecNorm(workspace.tempProjectorVector_, NORM_2, &normB);
-            std::cout << "\t Bu=" << normB << " expected "
-                      << (isPracticallyZero ? "!=" : "==") << " 0" << std::endl;
-        }
-    }
+    // Useful for debugging, but not in a real situation.
+    //    if (config_.useProjector_) {
+    //        std::cout << "Test projection on results" << std::endl;
+    //        for (PetscInt i = 0; i < workspace.convergedEigenValues_; ++i) {
+    //            // Diagnostics on the projection operator. Theoretically we
+    //            have
+    //            // Bu == 0 <=> lambda != 0. For each of the eigenpairs
+    //            (u,lambda) we
+    //            // test whether Bu == 0 <=> lambda != 0 holds approximately.
+    //            PetscScalar eigenValue;
+    //            error = EPSGetEigenpair(workspace.solver_, i, &eigenValue,
+    //            nullptr,
+    //                                    workspace.eigenVectors_[i], nullptr);
+    //            CHKERRABORT(PETSC_COMM_WORLD, error);
+    //            std::cout << "Eigenvalue " << i << ":\t" <<
+    //            std::abs(eigenValue)
+    //                      << "\t" << eigenValue << std::endl;
+    //            bool isPracticallyZero = std::abs(eigenValue) < 1e-5;
+    //            PetscReal normB;
+    //            MatMult(workspace.projectorMatrix_,
+    //            workspace.eigenVectors_[i],
+    //                    workspace.tempProjectorVector_);
+    //            VecNorm(workspace.tempProjectorVector_, NORM_2, &normB);
+    //            std::cout << "\t Bu=" << normB << " expected "
+    //                      << (isPracticallyZero ? "!=" : "==") << " 0" <<
+    //                      std::endl;
+    //        }
+    //    }
 
     workspace.cleanup();
 
