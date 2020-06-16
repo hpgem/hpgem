@@ -54,7 +54,8 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>>
 
     logger.assert_always(level < meshFileNames_.size(), "No such mesh");
 
-    Base::ConfigurationData configData(1, 1);
+    std::size_t unknowns = solverConfig_.useProjector_ ? 2 : 1;
+    Base::ConfigurationData configData(unknowns, 1);
     auto mesh = DGMax::readMesh<DIM>(
         meshFileNames_[level], &configData,
         [&](const Geometry::PointPhysical<DIM> &p) {
