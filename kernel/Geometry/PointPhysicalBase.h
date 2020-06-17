@@ -56,25 +56,25 @@ class PointPhysical;
 // type conversion operators
 class PointPhysicalBase {
    public:
-    operator PointPhysical<0>&();
+    operator PointPhysical<0> &();
 
-    operator PointPhysical<1>&();
+    operator PointPhysical<1> &();
 
-    operator PointPhysical<2>&();
+    operator PointPhysical<2> &();
 
-    operator PointPhysical<3>&();
+    operator PointPhysical<3> &();
 
-    operator PointPhysical<4>&();
+    operator PointPhysical<4> &();
 
-    operator const PointPhysical<0>&() const;
+    operator const PointPhysical<0> &() const;
 
-    operator const PointPhysical<1>&() const;
+    operator const PointPhysical<1> &() const;
 
-    operator const PointPhysical<2>&() const;
+    operator const PointPhysical<2> &() const;
 
-    operator const PointPhysical<3>&() const;
+    operator const PointPhysical<3> &() const;
 
-    operator const PointPhysical<4>&() const;
+    operator const PointPhysical<4> &() const;
 
     virtual std::size_t size() const = 0;
 
