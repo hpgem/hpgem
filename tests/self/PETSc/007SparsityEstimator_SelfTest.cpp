@@ -281,6 +281,10 @@ void testWithDGBasis(std::size_t unknowns, std::string meshFile) {
     }
 }
 
+/**
+ * Test with conforming basis functions on a 1D mesh. Here the sparisty pattern
+ * is far more predictable than in a higher dimensions.
+ */
 void testConformingWith1DMesh() {
     Base::ConfigurationData config(1);
     Base::MeshManipulator<1> mesh(&config);
@@ -437,6 +441,11 @@ void testMassOnly(std::vector<BasisFunctionType> basisFunctions) {
     }
 }
 
+/**
+ * Test sparisty estimator with for a matrix where the rows and columns use a
+ * different subset of the unknowns.
+ * @param meshFile The mesh to test on.
+ */
 void testRowColumnDifference(std::string meshFile) {
     // Test where the GlobalIndexing for the rows and columns differ.
     Base::ConfigurationData config(2);
@@ -575,6 +584,10 @@ void testRowColumnDifference(std::string meshFile) {
     }
 }
 
+/**
+ * Test with an empty GlobalIndex, where there are no basis functions and thus
+ * an empty sparsity pattern would be the result.
+ */
 void testEmptyIndex() {
     // Test with an empty GlobalIndex
     Utilities::GlobalIndexing emptyIndex;
