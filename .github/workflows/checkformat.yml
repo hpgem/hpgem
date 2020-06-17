@@ -8,11 +8,11 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2 
     - name: dependencies
-      run: sudo apt install libblas-dev liblapack-dev libopenmpi-dev
+      run: sudo apt-get install libblas-dev liblapack-dev libopenmpi-dev clang-format-10
     - name: cmake
       run: cmake -B builddir
     - name: Format
