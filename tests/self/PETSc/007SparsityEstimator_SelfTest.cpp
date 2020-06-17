@@ -68,6 +68,43 @@ TestConfiguration TEST_CONFIGURATIONS[] = {
     TestConfiguration(Layout::BLOCKED_GLOBAL, true),
 };
 
+enum class BasisFunctionType {
+    CG4,  // Fourth order CG, which in 3D has DoFs with support on every piece
+    // of geometry
+    DG1  // First order DG.
+};
+
+template <std::size_t DIM>
+void applyBasisFunctionsType(
+    Base::MeshManipulator<DIM>& mesh,
+    const std::vector<BasisFunctionType>& basisFunctions) {
+
+    if (!basisFunctions.empty()) {
+        switch (basisFunctions[0]) {
+            case BasisFunctionType::CG4:
+                mesh.useDefaultConformingBasisFunctions(4);
+                break;
+            case BasisFunctionType::DG1:
+                mesh.useDefaultDGBasisFunctions(1);
+                break;
+            default:
+                logger.assert_always(false, "Unknown basis function type");
+        }
+        for (std::size_t i = 1; i < basisFunctions.size(); ++i) {
+            switch (basisFunctions[i]) {
+                case BasisFunctionType::CG4:
+                    mesh.useDefaultConformingBasisFunctions(4, i);
+                    break;
+                case BasisFunctionType::DG1:
+                    mesh.useDefaultDGBasisFunctions(1, i);
+                    break;
+                default:
+                    logger.assert_always(false, "Unknown basis function type");
+            }
+        }
+    }
+}
+
 /// Check that the estimate holds for the DoFs related to part of the geometry
 /// \tparam GEOM The type of geometry part (Element, Face, etc.)
 /// \param geom The geometry part
@@ -342,8 +379,13 @@ void testConformingWith1DMesh() {
     }
 }
 
-void testMassOnly(std::size_t unknowns) {
-    Base::ConfigurationData config(unknowns);
+/**
+ * Test the sparsity pattern of a standard CG mass/stiffness matrix, thus
+ * without any face coupling.
+ * @param basisFunctions The type of basis functions to use
+ */
+void testMassOnly(std::vector<BasisFunctionType> basisFunctions) {
+    Base::ConfigurationData config(basisFunctions.size());
     Base::MeshManipulator<3> mesh(&config);
 
     using namespace std::string_literals;
@@ -353,8 +395,7 @@ void testMassOnly(std::size_t unknowns) {
              << ".hpgem";
     mesh.readMesh(filename.str());
 
-    // Sufficiently high to have connections everywhere
-    mesh.useDefaultConformingBasisFunctions(4);
+    applyBasisFunctionsType(mesh, basisFunctions);
 
     // Sparsity estimate
     Utilities::GlobalIndexing indexing(&mesh, Layout::SEQUENTIAL);
@@ -556,8 +597,12 @@ int main(int argc, char** argv) {
 
     testConformingWith1DMesh();
 
-    testMassOnly(1);
-    testMassOnly(3);
+    testMassOnly({BasisFunctionType::CG4});
+    testMassOnly({BasisFunctionType::CG4, BasisFunctionType::CG4,
+                  BasisFunctionType::CG4});
+    // This configuration actually caused a bug.
+    testMassOnly({BasisFunctionType::DG1, BasisFunctionType::DG1,
+                  BasisFunctionType::CG4});
 
     testRowColumnDifference("3Drectangular1mesh"s);
     testRowColumnDifference("3Dtriangular1mesh"s);
