@@ -47,6 +47,21 @@
 
 #include "testMeshes.h"
 
+// Convergence test for DivDGMaxEigenvalue, based on computing the spectrum for
+// Vacuum at a single k-point. The resulting frequencies are cached in the
+// expected results below. If these are no longer correct the convergence test
+//// should be re-run and the expected results updated.
+
+// clang-format off
+// Leave the results as an easily readable table
+DGMax::EVConvergenceResult expected ({
+    {1.2044351353,5.4116291469,5.5262052437,7.0674801624,7.1468756651,7.7213397212,8.9374986496,9.0778132093,10.1643930579,11.3111802309,11.4252815469},
+    {1.2042284160,5.4346771252,5.5490171908,7.1221660674,7.2076240689,7.6940823890,8.9083377743,9.0486671389,10.1102877500,11.6012384097,11.7101182626},
+    {1.2041766998,5.4404004795,5.5546745951,7.1356532352,7.2226152771,7.6865715589,8.8996495507,9.0398483410,10.0938166890,11.6707922206,11.7782466337},
+    {1.2041637685,5.4418290426,5.5560862656,7.1390145224,7.2263519206,7.6846528664,8.8973974149,9.0375561136,10.0895361929,11.6880331460,11.7951266380}
+});
+// clang-format on
+
 int main(int argc, char** argv) {
 
     Base::parse_options(argc, argv);
@@ -65,21 +80,12 @@ int main(int argc, char** argv) {
     stab.stab3 = 5;
     stab.setAllFluxeTypes(DivDGMaxDiscretization<2>::FluxType::BREZZI);
 
-    // clang-format off
-    // Leave the results as an easily readable table
-    DGMax::EVConvergenceResult expected ({
-        {1.2044351353,5.4116291469,5.5262052437,7.0674801624,7.1468756651,7.7213397212,8.9374986496,9.0778132093,10.1643930579,11.3111802309,11.4252815469},
-        {1.2042284160,5.4346771252,5.5490171908,7.1221660674,7.2076240689,7.6940823890,8.9083377743,9.0486671389,10.1102877500,11.6012384097,11.7101182626},
-        {1.2041766998,5.4404004795,5.5546745951,7.1356532352,7.2226152771,7.6865715589,8.8996495507,9.0398483410,10.0938166890,11.6707922206,11.7782466337},
-        {1.2041637685,5.4418290426,5.5560862656,7.1390145224,7.2263519206,7.6846528664,8.8973974149,9.0375561136,10.0895361929,11.6880331460,11.7951266380}
-    });
-    // clang-format on
-
     DGMax::DivDGMaxEVConvergenceTest<2> testCase(testPoint, meshes, 1e-8, 1,
                                                  stab, &expected);
     DGMax::EVConvergenceResult result = testCase.run(true);
 
     // Code to check the results if they change
+    // Expected convergence speed = 2^2p = 4
     //    std::array<LinearAlgebra::SmallVector<2>, 2> reciprocal;
     //    // Standard cubic lattice.
     //    reciprocal[0] = LinearAlgebra::SmallVector<2>({2 * M_PI, 0});
