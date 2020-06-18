@@ -21,7 +21,8 @@
 # from http://github.com/votca/votca/blob/master/CMakeModules/FindCLANG_FORMAT.cmake
 
 find_program(CLANG_FORMAT_EXECUTABLE
-             NAMES clang-format
+             NAMES clang-format-10
+	           clang-format
                    clang-format-9
                    clang-format-8
                    clang-format-7

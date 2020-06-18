@@ -80,8 +80,8 @@ std::unique_ptr<BandStructure<DIM>> createStructure(
             // Assuming unit cube as unit cell
             reciprocalVectors[i][i] = 2 * M_PI;
         }
-        return std::unique_ptr<BandStructure<DIM>>(
-            new HomogeneousBandStructure<DIM>(reciprocalVectors));
+        return std::make_unique<HomogeneousBandStructure<DIM>>(
+            reciprocalVectors);
     } else {
         return std::unique_ptr<BandStructure<DIM>>();
     }
@@ -128,11 +128,10 @@ void runWithDimension() {
         config.stab_ = 100;
         config.shiftFactor_ = 0.0;
         config.useProjector_ = false;
-        convergenceTest =
-            std::unique_ptr<DGMax::AbstractEVConvergenceTest<DIM>>(
-                new DGMax::DGMaxEVConvergenceTest<DIM>(testPoint, meshFiles,
-                                                       0.0,  // No expecations
-                                                       1, config, nullptr));
+        convergenceTest = std::make_unique<DGMax::DGMaxEVConvergenceTest<DIM>>(
+            testPoint, meshFiles,
+            0.0,  // No expecations
+            1, config, nullptr);
     } else if (method.getValue() == "DIVDGMAX") {
         // Some default stabilization parameters
         typename DivDGMaxDiscretization<DIM>::Stab stab;
@@ -142,11 +141,10 @@ void runWithDimension() {
         stab.setAllFluxeTypes(DivDGMaxDiscretization<DIM>::FluxType::BREZZI);
 
         convergenceTest =
-            std::unique_ptr<DGMax::AbstractEVConvergenceTest<DIM>>(
-                new DGMax::DivDGMaxEVConvergenceTest<DIM>(testPoint, meshFiles,
-                                                          0.0,  // No
-                                                                // expectations
-                                                          1, stab, nullptr));
+            std::make_unique<DGMax::DivDGMaxEVConvergenceTest<DIM>>(
+                testPoint, meshFiles,
+                0.0,  // No expectations
+                1, stab, nullptr);
     } else {
         DGMaxLogger(ERROR, "Unknown method %", method.getValue());
         return;
