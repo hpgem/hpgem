@@ -52,6 +52,11 @@
 // expected results below. If these are no longer correct the convergence test
 // should be re-run and the expected results updated.
 
+auto& runAsTestArg = Base::register_argument<bool>(
+    't', "test",
+    "Whether to run as test (true, default) or as convergence study (false)",
+    false, true);
+
 // clang-format off
 // Leave the results as an easily readable table
 
@@ -70,6 +75,10 @@ int main(int argc, char** argv) {
     Base::parse_options(argc, argv);
     initDGMaxLogging();
 
+    // Flag to switch between testing with known results (true) and checking the
+    // results when they change (false).
+    bool runAsTest = runAsTestArg.getValue();
+
     std::vector<std::string> meshes =
         DGMaxTest::singleProcessorRefinementMeshes2D();
 
@@ -79,26 +88,28 @@ int main(int argc, char** argv) {
 
     DGMax::DGMaxEVConvergenceTest<2> testCase(testPoint, meshes, 1e-8, 1, 100,
                                               &expected);
-    DGMax::EVConvergenceResult result = testCase.run(false);
+    DGMax::EVConvergenceResult result = testCase.run(runAsTest);
 
     // Code to check the results if they change
     // Expected convergence speed = 2^2p = 4
-    //    std::array<LinearAlgebra::SmallVector<2>, 2> reciprocal;
-    //    // Standard cubic lattice.
-    //    reciprocal[0] = LinearAlgebra::SmallVector<2>({2 * M_PI, 0});
-    //    reciprocal[1] = LinearAlgebra::SmallVector<2>({0, 2 * M_PI});
-    //    HomogeneousBandStructure<2> analytical(reciprocal);
-    //    std::vector<double> linear =
-    //        analytical.computeLinearSpectrum(testPoint.getKPoint(), 20);
-    //
-    //    std::cout << "Raw frequency table" << std::endl;
-    //    result.printFrequencyTable(linear);
-    //
-    //    result.printResultCode(10);
-    //
-    //    std::cout << "Cleanup results" << std::endl;
-    //    result.filterResults(
-    //        0.01, true);  // Small eigenvalues are to be expected from DGMax
-    //    result.printFrequencyTable(linear);
-    //    result.printErrorTable(linear);
+    if (!runAsTest) {
+        std::array<LinearAlgebra::SmallVector<2>, 2> reciprocal;
+        // Standard cubic lattice.
+        reciprocal[0] = LinearAlgebra::SmallVector<2>({2 * M_PI, 0});
+        reciprocal[1] = LinearAlgebra::SmallVector<2>({0, 2 * M_PI});
+        HomogeneousBandStructure<2> analytical(reciprocal);
+        std::vector<double> linear =
+            analytical.computeLinearSpectrum(testPoint.getKPoint(), 20);
+
+        std::cout << "Raw frequency table" << std::endl;
+        result.printFrequencyTable(linear);
+
+        result.printResultCode(10);
+
+        std::cout << "Cleanup results" << std::endl;
+        result.filterResults(
+            0.01, true);  // Small eigenvalues are to be expected from DGMax
+        result.printFrequencyTable(linear);
+        result.printErrorTable(linear);
+    }
 }
