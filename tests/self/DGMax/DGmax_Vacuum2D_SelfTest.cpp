@@ -86,8 +86,13 @@ int main(int argc, char** argv) {
     DGMax::EVTestPoint<2> testPoint(LinearAlgebra::SmallVector<2>({0.8, 0.9}),
                                     0, 10);
 
-    DGMax::DGMaxEVConvergenceTest<2> testCase(testPoint, meshes, 1e-8, 1, 100,
-                                              &expected);
+    DGMaxEigenvalueBase::SolverConfig config;
+    config.stab_ = 100;
+    config.shiftFactor_ = 0;
+    config.useHermitian_ = false;
+    config.useProjector_ = false;
+    DGMax::DGMaxEVConvergenceTest<2> testCase(testPoint, meshes, 1e-8, 1,
+                                              config, &expected);
     DGMax::EVConvergenceResult result = testCase.run(runAsTest);
 
     // Code to check the results if they change
