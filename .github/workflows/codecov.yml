@@ -6,7 +6,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  code-coverage:
 
     runs-on: ubuntu-latest
     strategy:

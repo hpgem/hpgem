@@ -7,7 +7,8 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  # Workflow name included as the job-id is sometimes listed without workflow name.
+  run-tests-basic:
 
     runs-on: ubuntu-latest
     strategy:
