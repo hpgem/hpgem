@@ -476,22 +476,41 @@ void SolverWorkspace::initShiftVectors() {
 
 PetscErrorCode compareEigen(PetscScalar ar, PetscScalar ai, PetscScalar br,
                             PetscScalar bi, PetscInt* res, void* ctx) {
-    const double cutOff = M_PI * M_PI * 0.9 * 0.9;
+
+    // Custom eigenvalue comparison looking for those whose log is closest to a
+    // certain target. Negative eigenvalues should not occur, but are sorted as
+    // larger (further away from the target) than any positive number.
+
+    // Target frequency, factor 2 as the eigenvalues are frequency squared
+    const double target = 2 * std::log(4);
+
     // Documentation is unclear on whether ai and bi are zero.
     double res1 = std::norm(ar) + std::norm(ai);
     double res2 = std::norm(br) + std::norm(bi);
-    if (res1 < cutOff)
-        //        res1 = (cutOff*cutOff)/res1;
-        res1 = cutOff * std::exp(cutOff / res1);
-    if (res2 < cutOff)
-        //        res2 = (cutOff*cutOff)/res2;
-        res2 = cutOff * std::exp(cutOff / res2);
-    if (res1 < res2) {
-        (*res) = -1;
-    } else if (res2 < res1) {
-        (*res) = 1;
+    if (res1 <= 0 && res2 > 0) {
+        (*res) = 1;  // Res 2 is positive and thus preferable
+    } else if (res1 > 0 && res2 <= 0) {
+        (*res) = -1;  // Res1 is positive and thus preferable
+    } else if (res1 <= 0 && res2 <= 0) {
+        // Both are negative, sort them according to standard order
+        if (res1 < res2) {
+            (*res) = -1;
+        } else if (res2 < res1) {
+            (*res) = 1;
+        } else {
+            (*res) = 0;
+        }
     } else {
-        (*res) = 0;
+        // Both positive, order by |log(lambda) - target|
+        double lres1 = std::abs(std::log(res1) - target);
+        double lres2 = std::abs(std::log(res2) - target);
+        if (lres1 < lres2) {
+            (*res) = -1;
+        } else if (lres2 < lres1) {
+            (*res) = 1;
+        } else {
+            (*res) = 0;
+        }
     }
     return 0;
 }
