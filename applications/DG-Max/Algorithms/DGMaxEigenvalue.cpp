@@ -232,7 +232,7 @@ struct SolverWorkspace {
           setupHasBeenRun_(false) {}
 
     /// Initialize the solver, should only be called once.
-    void init(Base::MeshManipulatorBase* mesh,
+    void init(Base::MeshManipulatorBase* mesh, std::size_t numberOfEigenvalues,
               std::size_t numberOfEigenvectors);
 
     /// Update the blocks in the matrices that are affected by the k-shifted
@@ -247,7 +247,7 @@ struct SolverWorkspace {
 
     /// Setup the solver for a solve, needs to be called after all the matrices
     /// are shifted.
-    void setupSolver(std::size_t numberOfEigenvalues);
+    void setupSolver();
     /// Extract the eigenvectors after solving.
     void extractEigenVectors();
 
@@ -306,7 +306,7 @@ struct SolverWorkspace {
     /// Initialize the Shell matrix
     void initShell();
     void initShiftVectors();
-    void initSolver();
+    void initSolver(std::size_t numberOfEigenvalues);
     void initEigenvectorStorage(std::size_t numberOfEigenvectors);
 
     template <std::size_t DIM>
@@ -317,13 +317,14 @@ struct SolverWorkspace {
 };
 
 void SolverWorkspace::init(Base::MeshManipulatorBase* mesh,
+                           std::size_t numberOfEigenvalues,
                            std::size_t numberOfEigenvectors) {
     mesh_ = mesh;
     initMatrices();
     DGMaxLogger(INFO, "Matrices assembled");
     initShell();
     initShiftVectors();
-    initSolver();
+    initSolver(numberOfEigenvalues);
     initEigenvectorStorage(numberOfEigenvectors);
     DGMaxLogger(INFO, "Solver workspace init completed");
 }
@@ -515,7 +516,7 @@ PetscErrorCode compareEigen(PetscScalar ar, PetscScalar ai, PetscScalar br,
     return 0;
 }
 
-void SolverWorkspace::initSolver() {
+void SolverWorkspace::initSolver(std::size_t numberOfEigenvalues) {
     PetscErrorCode err = EPSCreate(PETSC_COMM_WORLD, &solver_);
     CHKERRABORT(PETSC_COMM_WORLD, err);
 
@@ -531,6 +532,10 @@ void SolverWorkspace::initSolver() {
     //    double target = 2 * M_PI * M_PI;
     double target = 10;  // Original target used in the older codes.
     err = EPSSetTarget(solver_, target);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
+
+    err = EPSSetDimensions(solver_, numberOfEigenvalues, PETSC_DEFAULT,
+                           PETSC_DEFAULT);
     CHKERRABORT(PETSC_COMM_WORLD, err);
 
     // So far we have configured the the parameters of the eigenvalue solver in
@@ -549,7 +554,7 @@ void SolverWorkspace::initEigenvectorStorage(std::size_t numberOfEigenvectors) {
     CHKERRABORT(PETSC_COMM_WORLD, error);
 }
 
-void SolverWorkspace::setupSolver(std::size_t numberOfEigenvalues) {
+void SolverWorkspace::setupSolver() {
     DGMaxLogger(INFO, "Setting up solver");
     PetscErrorCode error;
     // Setup the EPS eigen value solver of SLEPC to find the eigenvalues of
@@ -557,9 +562,6 @@ void SolverWorkspace::setupSolver(std::size_t numberOfEigenvalues) {
     error = EPSSetOperators(solver_, shell_, NULL);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     error = EPSSetUp(solver_);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    error = EPSSetDimensions(solver_, numberOfEigenvalues, PETSC_DEFAULT,
-                             PETSC_DEFAULT);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     DGMaxLogger(INFO, "Solver setup completed");
 
@@ -1022,7 +1024,7 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DGMaxEigenvalue<DIM>::solve(
 
     SolverWorkspace workspace(config_);
     // Leave a bit room for extra converged eigenvectors
-    workspace.init(&mesh_,
+    workspace.init(&mesh_, numberOfEigenvalues,
                    std::max(2 * numberOfEigenvalues, numberOfEigenvalues + 10));
 
     // Setup the boundary block shifting //
@@ -1063,7 +1065,7 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DGMaxEigenvalue<DIM>::solve(
 
         workspace.shift(periodicShifts, projectorShifts, kpath.k(i));
 
-        workspace.setupSolver(numberOfEigenvalues);
+        workspace.setupSolver();
 
         PetscInt usableInitialVectors;
         if (i == 0) {
