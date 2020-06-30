@@ -85,6 +85,7 @@ template <std::size_t DIM>
 struct ShiftWorkspace;
 template <std::size_t DIM>
 struct ProjectorWorkspace;
+struct MonitorContext;
 
 /// Workspace for solving the eigenvalue problem.
 template <std::size_t DIM>
@@ -103,6 +104,8 @@ class SolverWorkspace {
     void extractEigenVectors();
 
     void solve();
+
+    void attachMonitor(std::string filePrefix);
 
     const std::vector<PetscScalar>& getEigenvalues() const {
         return eigenvalues_;
@@ -147,6 +150,9 @@ class SolverWorkspace {
     std::unique_ptr<ShiftWorkspace<DIM>> shifts;
     // Projector
     std::unique_ptr<ProjectorWorkspace<DIM>> projector;
+    // Monitor
+    std::unique_ptr<MonitorContext> monitor_;
+
     double targetFrequency_;
 
     LinearAlgebra::SmallVector<DIM> currentK_;
@@ -223,6 +229,63 @@ class ProjectorWorkspace {
     DGMax::KPhaseShifts<DIM> phaseShifts_;
 };
 
+// Monitor //
+/////////////
+/// Monitor to trace the convergence history
+struct MonitorContext {
+    MonitorContext(std::string prefix) : eigenvalueStream_() {
+        eigenvalueStream_.open(prefix + "eigenvalue-progress.csv",
+                               std::ios_base::trunc);
+        residualStream_.open(prefix + "residual-progress.csv",
+                             std::ios_base::trunc);
+        numConvergedStream_.open(prefix + "convergence-number-progress.csv",
+                                 std::ios_base::trunc);
+    }
+
+    void writeMonitor(int its, int nconv, PetscScalar* eig, PetscReal* errest,
+                      int nest) {
+        numConvergedStream_ << its << ',' << nconv << std::endl;
+        // Iteration count
+        eigenvalueStream_ << its;
+        residualStream_ << its;
+        for (int i = 0; i < nest; ++i) {
+            eigenvalueStream_ << ',' << PetscRealPart(eig[i]);
+            if (PetscImaginaryPart(eig[i]) != 0.0) {
+                eigenvalueStream_ << '+' << PetscImaginaryPart(eig[i]) << "i";
+            }
+            residualStream_ << ',' << errest[i];
+        }
+        eigenvalueStream_ << std::endl;
+        residualStream_ << std::endl;
+    }
+
+    ~MonitorContext() {
+        eigenvalueStream_.close();
+        residualStream_.close();
+        numConvergedStream_.close();
+    }
+
+    std::ofstream eigenvalueStream_;
+    std::ofstream residualStream_;
+    std::ofstream numConvergedStream_;
+
+    void attachToEPS(EPS eps) {
+        PetscErrorCode err;
+        err = EPSMonitorSet(eps, monitorFunction, this, nullptr);
+    }
+
+    static PetscErrorCode monitorFunction(EPS, int its, int nconv,
+                                          PetscScalar* eigr, PetscScalar*,
+                                          PetscReal* errest, int nest,
+                                          void* mctx) {
+        auto* context = static_cast<MonitorContext*>(mctx);
+        context->writeMonitor(its, nconv, eigr, errest, nest);
+        return PetscErrorCode(0);
+    }
+};
+
+///
+
 void sortEigenvalues(std::vector<PetscScalar>& result) {
     // Sort eigen values in ascending order with respect to the real part of the
     // eigenvalue and using the imaginairy part as tie breaker.
@@ -246,6 +309,7 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DGMaxEigenvalue<DIM>::solve(
     initializeMatrices();
 
     SolverWorkspace<DIM> workspace(config_, &mesh_, numberOfEigenvalues);
+    workspace.attachMonitor("test-");
 
     // Setup the boundary block shifting //
     ///////////////////////////////////////
@@ -564,6 +628,12 @@ void SolverWorkspace<DIM>::initStiffnessMatrixShifts() {
 }
 
 template <std::size_t DIM>
+void SolverWorkspace<DIM>::attachMonitor(std::string filePrefix) {
+    monitor_ = std::make_unique<MonitorContext>(filePrefix);
+    monitor_->attachToEPS(solver_);
+}
+
+template <std::size_t DIM>
 void SolverWorkspace<DIM>::extractEigenVectors() {
     PetscErrorCode error;
     error = EPSGetConverged(solver_, &convergedEigenValues_);
@@ -822,6 +892,8 @@ ProjectorWorkspace<DIM>::~ProjectorWorkspace() {
     error = MatDestroy(&projectionStiffness_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 }
+
+///
 
 template <std::size_t DIM>
 void ProjectorWorkspace<DIM>::project(Vec vec) {
