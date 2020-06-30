@@ -1012,6 +1012,62 @@ void KShift<DIM>::insertShiftedBlock(double kshift, bool hermitianPart,
     CHKERRABORT(PETSC_COMM_WORLD, err);
 }
 
+/////
+// Custom monitor
+/////
+
+struct MonitorContext {
+    MonitorContext(std::string prefix) : eigenvalueStream_() {
+        eigenvalueStream_.open(prefix + "eigenvalue-progress.csv",
+                               std::ios_base::trunc);
+        residualStream_.open(prefix + "residual-progress.csv",
+                             std::ios_base::trunc);
+        numConvergedStream_.open(prefix + "convergence-number-progress.csv",
+                                 std::ios_base::trunc);
+    }
+
+    void writeMonitor(int its, int nconv, PetscScalar* eig, PetscReal* errest,
+                      int nest) {
+        numConvergedStream_ << its << ',' << nconv << std::endl;
+        // Iteration count
+        eigenvalueStream_ << its;
+        residualStream_ << its;
+        for (int i = 0; i < nest; ++i) {
+            eigenvalueStream_ << ',' << PetscRealPart(eig[i]);
+            if (PetscImaginaryPart(eig[i]) != 0.0) {
+                eigenvalueStream_ << '+' << PetscImaginaryPart(eig[i]) << "i";
+            }
+            residualStream_ << ',' << errest[i];
+        }
+        eigenvalueStream_ << std::endl;
+        residualStream_ << std::endl;
+    }
+
+    ~MonitorContext() {
+        eigenvalueStream_.close();
+        residualStream_.close();
+        numConvergedStream_.close();
+    }
+
+    std::ofstream eigenvalueStream_;
+    std::ofstream residualStream_;
+    std::ofstream numConvergedStream_;
+
+    void attachToEPS(EPS eps) {
+        PetscErrorCode err;
+        err = EPSMonitorSet(eps, monitorFunction, this, nullptr);
+    }
+
+    static PetscErrorCode monitorFunction(EPS, int its, int nconv,
+                                          PetscScalar* eigr, PetscScalar*,
+                                          PetscReal* errest, int nest,
+                                          void* mctx) {
+        auto* context = static_cast<MonitorContext*>(mctx);
+        context->writeMonitor(its, nconv, eigr, errest, nest);
+        return PetscErrorCode(0);
+    }
+};
+
 ///
 
 template <std::size_t DIM>
@@ -1041,6 +1097,9 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DGMaxEigenvalue<DIM>::solve(
     std::size_t maxStep = kpath.totalNumberOfSteps();
 
     std::vector<std::vector<PetscScalar>> eigenvalues(maxStep);
+
+    MonitorContext monitorContext("test-");
+    monitorContext.attachToEPS(workspace.solver_);
 
     for (int i = 0; i < maxStep; ++i) {
         DGMaxLogger(INFO, "Computing eigenvalues for k-point %/%", i + 1,
