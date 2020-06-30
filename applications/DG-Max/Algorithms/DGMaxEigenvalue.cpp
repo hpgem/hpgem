@@ -229,7 +229,8 @@ struct SolverWorkspace {
                            DGMaxDiscretizationBase::PROJECTOR_MATRIX_ID, -1),
           sampleVector_(fieldIndex_, -1, -1),
           tempProjectorVector_(projectorIndex_, -1, -1),
-          setupHasBeenRun_(false) {}
+          setupHasBeenRun_(false),
+          targetFrequency_(3) {}
 
     /// Initialize the solver, should only be called once.
     void init(Base::MeshManipulatorBase* mesh, std::size_t numberOfEigenvalues,
@@ -300,6 +301,8 @@ struct SolverWorkspace {
 
     // Setup has been run at least once, to allow reusing matrices
     bool setupHasBeenRun_;
+
+    double targetFrequency_;
 
    private:
     void initMatrices();
@@ -478,12 +481,14 @@ void SolverWorkspace::initShiftVectors() {
 PetscErrorCode compareEigen(PetscScalar ar, PetscScalar ai, PetscScalar br,
                             PetscScalar bi, PetscInt* res, void* ctx) {
 
+    SolverWorkspace* ctxx = (SolverWorkspace*)ctx;
+
     // Custom eigenvalue comparison looking for those whose log is closest to a
     // certain target. Negative eigenvalues should not occur, but are sorted as
     // larger (further away from the target) than any positive number.
 
     // Target frequency, factor 2 as the eigenvalues are frequency squared
-    const double target = 2 * std::log(4);
+    const double target = 2 * std::log(ctxx->targetFrequency_);
 
     // Documentation is unclear on whether ai and bi are zero.
     double res1 = std::norm(ar) + std::norm(ai);
@@ -527,11 +532,7 @@ void SolverWorkspace::initSolver(std::size_t numberOfEigenvalues) {
     //    CHKERRABORT(PETSC_COMM_WORLD, err);
     err = EPSSetWhichEigenpairs(solver_, EPS_TARGET_REAL);
     err = EPSSetEigenvalueComparison(solver_, compareEigen, nullptr);
-    // Note, this is to find the bottom band, which should run from omega = 0 to
-    // pi (Gamma-X) Thus eigen values 0 to pi^2
-    //    double target = 2 * M_PI * M_PI;
-    double target = 10;  // Original target used in the older codes.
-    err = EPSSetTarget(solver_, target);
+    err = EPSSetTarget(solver_, targetFrequency_ * targetFrequency_);
     CHKERRABORT(PETSC_COMM_WORLD, err);
 
     err = EPSSetDimensions(solver_, numberOfEigenvalues, PETSC_DEFAULT,
