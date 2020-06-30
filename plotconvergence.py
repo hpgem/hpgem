@@ -33,6 +33,7 @@ def plotEigenvalues():
     currentLines = []
     convergedLines = []
     convergencePoints = []
+    maxIter = 0
     with open('test-eigenvalue-progress.csv', newline='') as evFile, \
          open('test-residual-progress.csv', newline='') as resFile, \
          open('test-convergence-number-progress.csv', newline='') as convFile:
@@ -47,6 +48,8 @@ def plotEigenvalues():
             # Number of converged lines
             converged = int(convRow[1])
 
+            maxIter = max(maxIter,curIter)
+
             # Current eigenvalue points
             evs = []
             for i,evres in enumerate(zip(evRow,resRow)):
@@ -56,14 +59,13 @@ def plotEigenvalues():
             # Handle that we have converged lines
             for i in range(0,lastConverged):
                 ev = evs.pop(0)
-                convergedLines[i].append(ev)
             # Newly converged lines
             if converged is not lastConverged:
                 for i in range(lastConverged,converged):
-                    # So far it seems only the EV with lowest order can converge
-                    line = min(currentLines, key=lambda l: l[-1][2])
-                    currentLines.remove(line)
                     ev = evs.pop(0)
+                    # Find the line that is the closest match in eigenvalue
+                    line = min(currentLines, key=lambda l: abs(l[-1][1] - ev[1]))
+                    currentLines.remove(line)
                     line.append(ev)
                     convergedLines.append(line)
                     convergencePoints.append(ev)
@@ -125,9 +127,53 @@ def plotEigenvalues():
             { "segments" : segments
             , "segmentColors" : segmentColors
             , "cps" : cps
+            , "convergedLines" : convergedLines
+            }
+
+    # Compute the straight lines after convergece
+    def computeConvergedLines(xind,yind,xtarget,cind):
+        lines = []
+        colors = []
+        for cp in convergencePoints:
+            lines.append([[cp[xind],cp[yind]], [xtarget,cp[yind]]])
+            colors.append(cp[cind])
+        return \
+            { "lines" : lines
+            , "colors" : colors
             }
 
     def plot1():
+
+        plotData = computeSegments(0, 1, 4)
+        norm = plt.Normalize(-7,1)
+        norm = plt.Normalize(-1.5,8.5)
+        # lc = LineCollection(plotData['segments'], cmap='viridis', norm=norm)
+        lc = LineCollection(plotData['segments'], cmap='tab10', norm=norm)
+        lc.set_array(np.array(plotData['segmentColors']))
+
+        convergedData = computeConvergedLines(0,1,maxIter,4)
+        lcc = LineCollection(convergedData['lines'], cmap='tab10', linestyles='dashed')
+        lcc.set_array(np.array(convergedData['colors']))
+
+        fig,ax = plt.subplots()
+        
+
+        ax.add_collection(lcc)
+        line = ax.add_collection(lc)
+        cbar = fig.colorbar(line, ax=ax, ticks=[-1,0,2,4,6,8])
+        cbar.ax.set_yticklabels(['Conv.', 0, 2, 4, 6, 8])
+        cbar.ax.set_ylabel('Eigenvalue ordering')
+
+        ax.plot(plotData['cps']["x"], plotData['cps']["y"], 'ko')
+
+        ax.set_xlabel('Iteration')
+        ax.set_ylabel('Eigenvalue')
+        ax.set_xlim(0, maxIter)
+        ax.set_ylim(0.1, 1000.0)
+        ax.set_yscale('log')
+    plot1()
+
+    def plot3():
 
         plotData = computeSegments(0, 1, 3)
         plotData['segmentColors'] \
@@ -135,10 +181,17 @@ def plotEigenvalues():
         norm = plt.Normalize(-7,1)
         lc = LineCollection(plotData['segments'], cmap='viridis', norm=norm)
         lc.set_array(np.array(plotData['segmentColors']))
+        
+        convergedData = computeConvergedLines(0,1,maxIter,3)
+        convergedData['colors'] = list(map(lambda c:math.log(c,10), convergedData['colors']))
+        lcc = LineCollection(convergedData['lines'], cmap='viridis', \
+                linestyles='dotted', norm=norm)
+        lcc.set_array(np.array(convergedData['colors']))
 
         fig,ax = plt.subplots()
         
 
+        ax.add_collection(lcc)
         line = ax.add_collection(lc)
         cbar = fig.colorbar(line, ax=ax)
         cbar.ax.set_ylabel('Log(residual)')
@@ -147,14 +200,14 @@ def plotEigenvalues():
 
         ax.set_xlabel('Iteration')
         ax.set_ylabel('Eigenvalue')
-        ax.set_xlim(0, 1500)
-        ax.set_ylim(0.1, 100.0)
+        ax.set_xlim(0, maxIter)
+        ax.set_ylim(0.1, 1000.0)
         ax.set_yscale('log')
-    plot1()
+    plot3()
    
     # Plot with residuals colored according to order
     def plot2():
-        plotData = computeSegments(0, 3, 4, pred=lambda p0,p1: min(p0[1],p1[1]) <= 100)
+        plotData = computeSegments(0, 3, 4, pred=lambda p0,p1: min(p0[2],p1[4]) <= 10)
         
         norm = plt.Normalize(-1.5,8.5)
         lc = LineCollection(plotData['segments'], cmap='tab10', norm=norm)
@@ -172,7 +225,7 @@ def plotEigenvalues():
 
         ax.set_xlabel('Iteration')
         ax.set_ylabel('Residual')
-        ax.set_xlim(0, 1500)
+        ax.set_xlim(0, maxIter)
         ax.set_ylim(1e-8, 10)
         ax.set_yscale('log')
     plot2()
