@@ -230,7 +230,7 @@ struct SolverWorkspace {
           sampleVector_(fieldIndex_, -1, -1),
           tempProjectorVector_(projectorIndex_, -1, -1),
           setupHasBeenRun_(false),
-          targetFrequency_(3) {}
+          targetFrequency_(0.1) {}
 
     /// Initialize the solver, should only be called once.
     void init(Base::MeshManipulatorBase* mesh, std::size_t numberOfEigenvalues,
@@ -530,8 +530,13 @@ void SolverWorkspace::initSolver(std::size_t numberOfEigenvalues) {
     CHKERRABORT(PETSC_COMM_WORLD, err);
     //    err = EPSSetWhichEigenpairs(solver_, EPS_SMALLEST_REAL);
     //    CHKERRABORT(PETSC_COMM_WORLD, err);
-    err = EPSSetWhichEigenpairs(solver_, EPS_TARGET_REAL);
-    err = EPSSetEigenvalueComparison(solver_, compareEigen, nullptr);
+    //    err = EPSSetWhichEigenpairs(solver_, EPS_TARGET_REAL);
+    err = EPSSetWhichEigenpairs(solver_, EPS_WHICH_USER);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
+    err = EPSSetEigenvalueComparison(solver_, compareEigen, this);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
+    //    err = EPSSetExtraction(solver_, EPS_HARMONIC);
+    //    CHKERRABORT(PETSC_COMM_WORLD, err);
     err = EPSSetTarget(solver_, targetFrequency_ * targetFrequency_);
     CHKERRABORT(PETSC_COMM_WORLD, err);
 
