@@ -73,6 +73,8 @@ bool AbstractEVConvergenceTest<DIM>::compareWithExpected(
     if (expected == nullptr || expected->getNumberOfLevels() <= level) {
         return true;
     }
+    bool same = true;
+
     const std::vector<double>& expectedLevel = expected->getLevel(level);
     const std::vector<double>& resultLevel = result.frequencies(0);
 
@@ -80,19 +82,37 @@ bool AbstractEVConvergenceTest<DIM>::compareWithExpected(
         logger(ERROR,
                "Different number of eigenvalues expected % got % at level %",
                expectedLevel.size(), resultLevel.size(), level);
-        return false;
+        same = false;
     }
-    for (std::size_t i = 0; i < expectedLevel.size(); ++i) {
-        double diff = std::abs(expectedLevel[i] - resultLevel[i]);
-        if (diff >= getTolerance() ||
-            (std::isnan(expectedLevel[i]) != std::isnan(resultLevel[i]))) {
-            logger(ERROR,
-                   "Different %-th eigenvalue at level %: Expected % got %", i,
-                   level, expectedLevel[i], resultLevel[i]);
-            return false;
+    if (same) {
+        for (std::size_t i = 0; i < expectedLevel.size(); ++i) {
+            double diff = std::abs(expectedLevel[i] - resultLevel[i]);
+            if (diff >= getTolerance() ||
+                (std::isnan(expectedLevel[i]) != std::isnan(resultLevel[i]))) {
+                logger(ERROR,
+                       "Different %-th eigenvalue at level %: Expected % got %",
+                       i, level, expectedLevel[i], resultLevel[i]);
+                same = false;
+                break;
+            }
         }
     }
-    return true;
+    if (!same) {
+        std::stringstream expectedString;
+        expectedString << "Expected:";
+        for (auto& expectedFreq : expectedLevel) {
+            expectedString << " " << expectedFreq;
+        }
+
+        std::stringstream actualString;
+        actualString << "Computed:";
+        for (auto& resultFreq : resultLevel) {
+            actualString << " " << resultFreq;
+        }
+        logger(ERROR, "Results\n%\n%\n", expectedString.str(),
+               actualString.str());
+    }
+    return same;
 }
 
 template class AbstractEVConvergenceTest<2>;
