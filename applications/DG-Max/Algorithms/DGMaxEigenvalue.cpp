@@ -470,10 +470,13 @@ void SolverWorkspace<DIM>::initSolver() {
     //    err = EPSSetWhichEigenpairs(solver_, EPS_SMALLEST_REAL);
     //    CHKERRABORT(PETSC_COMM_WORLD, err);
     //    err = EPSSetWhichEigenpairs(solver_, EPS_TARGET_REAL);
-    //    CHKERRABORT(PETSC_COMM_WORLD, err);
+    err = EPSSetWhichEigenpairs(solver_, EPS_WHICH_USER);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
     err = EPSSetEigenvalueComparison(solver_, compareEigen,
                                      &(this->targetFrequency_));
     CHKERRABORT(PETSC_COMM_WORLD, err);
+    //    err = EPSSetExtraction(solver_, EPS_HARMONIC);
+    //    CHKERRABORT(PETSC_COMM_WORLD, err);
     err = EPSSetTarget(solver_, targetFrequency_ * targetFrequency_);
     CHKERRABORT(PETSC_COMM_WORLD, err);
 
