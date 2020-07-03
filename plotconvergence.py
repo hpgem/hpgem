@@ -9,6 +9,21 @@ import numpy as np
 import csv
 import time
 
+# Set some default readable font sizes
+SMALL_SIZE = 16
+MEDIUM_SIZE = 20
+BIGGER_SIZE = 24
+
+plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
+plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
+plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
+
+plt.rc('lines', linewidth=2) # Increase the linewidth
+
 def plotConverged():
     iters = []
     converged=[]
@@ -100,7 +115,7 @@ def plotEigenvalues():
         segments = []
         segmentColors = []
 
-        pred = lambda p0,p1: True
+        pred = lambda p1: True
 
         for key,value in kwargs.items():
             if key == "pred":
@@ -113,7 +128,7 @@ def plotEigenvalues():
             for i in range(0, len(line)-1):
                 p0 = line[i]
                 p1 = line[i+1]
-                if not pred(p0,p1):
+                if not pred(p1):
                     continue
                 segment = [ (p0[xind], p0[yind]), (p1[xind], p1[yind]) ]
                 segments.append(segment)
@@ -127,8 +142,70 @@ def plotEigenvalues():
             { "segments" : segments
             , "segmentColors" : segmentColors
             , "cps" : cps
-            , "convergedLines" : convergedLines
             }
+
+    def outputSegments(filename, xind, yind, cind, **kwargs):
+
+        pred = lambda p0: True
+        color = lambda c: c
+        ymax = math.inf
+
+        for key,value in kwargs.items():
+            if key == "pred":
+                pred = value
+            elif key == "color":
+                color = value
+            elif key == "ymax":
+                ymax = value
+            else:
+                raise Exception("Unknown key %" % key)
+
+        print(ymax)
+        with  open(filename, 'w') as f:
+            f.write('x\ty\tcolor\n')
+            skipping = False
+            for line in lines:
+                for i in range(0, len(line)):
+                    p0 = line[i]
+                    skip = not pred(p0)
+                    # Skip middle point if all three above max
+                    # Note this could be improved to handle the first/last points and points
+                    # near jumps, but this is probably enough
+                    skip = skip or (i > 0 and i < len(line)-1 and \
+                            p0[yind] > ymax and line[i-1][yind] > ymax and line[i+1][yind] > ymax)
+                    if skip:
+                        if not skipping:
+                            f.write('\n') # Create discontinuity line
+                        skipping = True
+                        continue
+                    else:
+                        skipping = False
+                    f.write(f'{p0[xind]}\t{p0[yind]}\t{color(p0[cind])}\n')
+                f.write('\n') # Separator line
+    def outputConvergencePoints(filename, xind, yind):
+        with open(filename,'w') as f:
+            f.write('x\ty\n')
+            for p in convergencePoints:
+                f.write(f'{p[xind]}\t{p[yind]}\n')
+    def ouptutConvergenceLines(filename, xind, yind, xtarget, cind, **kwargs):
+        pred = lambda p0,p1: True
+        color = lambda c: c
+
+        for key,value in kwargs.items():
+            if key == "pred":
+                pred = value
+            elif key == "color":
+                color = value
+            else:
+                raise Exception("Unknown key %" % key)
+
+        with  open(filename, 'w') as f:
+            f.write('x\ty\tcolor\n')
+            for cp in convergencePoints:
+                f.write(f'{cp[xind]}\t{cp[yind]}\t{color(cp[cind])}\n')
+                f.write(f'{xtarget }\t{cp[yind]}\t{color(cp[cind])}\n')
+                f.write('\n') # Separator line
+
 
     # Compute the straight lines after convergece
     def computeConvergedLines(xind,yind,xtarget,cind):
@@ -145,9 +222,8 @@ def plotEigenvalues():
     def plot1():
 
         plotData = computeSegments(0, 1, 4)
-        norm = plt.Normalize(-7,1)
+        norm = plt.Normalize(-9,1)
         norm = plt.Normalize(-1.5,8.5)
-        # lc = LineCollection(plotData['segments'], cmap='viridis', norm=norm)
         lc = LineCollection(plotData['segments'], cmap='tab10', norm=norm)
         lc.set_array(np.array(plotData['segmentColors']))
 
@@ -178,13 +254,13 @@ def plotEigenvalues():
         plotData = computeSegments(0, 1, 3)
         plotData['segmentColors'] \
                     = list(map(lambda c: math.log(c,10), plotData['segmentColors']))
-        norm = plt.Normalize(-7,1)
-        lc = LineCollection(plotData['segments'], cmap='viridis', norm=norm)
+        norm = plt.Normalize(-9,1)
+        lc = LineCollection(plotData['segments'], cmap='jet', norm=norm)
         lc.set_array(np.array(plotData['segmentColors']))
         
         convergedData = computeConvergedLines(0,1,maxIter,3)
         convergedData['colors'] = list(map(lambda c:math.log(c,10), convergedData['colors']))
-        lcc = LineCollection(convergedData['lines'], cmap='viridis', \
+        lcc = LineCollection(convergedData['lines'], cmap='jet', \
                 linestyles='dotted', norm=norm)
         lcc.set_array(np.array(convergedData['colors']))
 
@@ -203,11 +279,16 @@ def plotEigenvalues():
         ax.set_xlim(0, maxIter)
         ax.set_ylim(0.1, 1000.0)
         ax.set_yscale('log')
+        # Outputing it to file
+        outputSegments('ev-res-trace.dat', 0, 1, 3, color=lambda c: round(math.log(c,10),2),ymax=10000)
+        outputConvergencePoints('ev-res-trace-cp.dat', 0, 1)
+        ouptutConvergenceLines('ev-res-trace-cl.dat', 0, 1, maxIter, 3, \
+                color = lambda c:math.log(c,10))
     plot3()
    
     # Plot with residuals colored according to order
     def plot2():
-        plotData = computeSegments(0, 3, 4, pred=lambda p0,p1: min(p0[2],p1[4]) <= 10)
+        plotData = computeSegments(0, 3, 4, pred=lambda p1: p1[4] <= 10)
         
         norm = plt.Normalize(-1.5,8.5)
         lc = LineCollection(plotData['segments'], cmap='tab10', norm=norm)
