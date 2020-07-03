@@ -429,8 +429,8 @@ PetscErrorCode compareEigen(PetscScalar ar, PetscScalar ai, PetscScalar br,
     const double target = 2 * std::log(*(double*)ctx);
 
     // Documentation is unclear on whether ai and bi are zero.
-    double res1 = std::norm(ar) + std::norm(ai);
-    double res2 = std::norm(br) + std::norm(bi);
+    double res1 = std::abs(ar) + std::abs(ai);
+    double res2 = std::abs(br) + std::abs(bi);
     if (res1 <= 0 && res2 > 0) {
         (*res) = 1;  // Res 2 is positive and thus preferable
     } else if (res1 > 0 && res2 <= 0) {
