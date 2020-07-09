@@ -43,12 +43,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Logger.h"
 
-using namespace hpgem;
-
 #ifndef HPGEM_APP_DGMAXDISCRETIZATION_H
 #define HPGEM_APP_DGMAXDISCRETIZATION_H
 
 // Forward definitions
+namespace hpgem {
 namespace Base {
 class Element;
 template <std::size_t>
@@ -73,7 +72,9 @@ class PointReference;
 template <std::size_t DIM>
 class PointPhysical;
 }  // namespace Geometry
+}  // namespace hpgem
 
+using namespace hpgem;
 template <std::size_t DIM>
 class DGMaxDiscretization {
    public:

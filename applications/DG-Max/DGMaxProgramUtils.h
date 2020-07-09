@@ -5,15 +5,15 @@
 #include <memory>
 #include <ElementInfos.h>
 
-using namespace hpgem;
-
+namespace hpgem {
 namespace Base {
 class ConfigurationData;
 
 template <std::size_t DIM>
 class MeshManipulator;
 }  // namespace Base
-
+}  // namespace hpgem
+using namespace hpgem;
 namespace DGMax {
 
 void printArguments(int argc, char** argv);

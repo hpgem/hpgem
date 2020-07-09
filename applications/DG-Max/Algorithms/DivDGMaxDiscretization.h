@@ -44,9 +44,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Base/MeshManipulator.h"
 
-using namespace hpgem;
-
 // Forward definitions
+namespace hpgem {
 namespace Base {
 template <std::size_t>
 class PhysicalElement;
@@ -61,7 +60,8 @@ class MiddleSizeVector;
 template <std::size_t DIM>
 class SmallVector;
 }  // namespace LinearAlgebra
-
+}  // namespace hpgem
+using namespace hpgem;
 /// \brief Discontinuous Galerkin discretization for Maxwell, where the
 /// divergence constraint (div E = 0) is part of the discretization.
 ///
