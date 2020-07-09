@@ -42,7 +42,7 @@
 #include "PhysicalElement.h"
 #include "FaceMatrix.h"
 #include "Face.h"
-
+namespace hpgem {
 namespace Base {
 
 template <std::size_t DIM>
@@ -404,7 +404,7 @@ class PhysicalFace final {
     bool hasNormal, hasUnitNormal, hasNormalNorm;
 };
 }  // namespace Base
-
+}  // namespace hpgem
 #include "PhysicalFace_Impl.h"
 
 #endif  // HPGEM_KERNEL_PHYSICALFACE_H

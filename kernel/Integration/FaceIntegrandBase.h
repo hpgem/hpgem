@@ -40,6 +40,8 @@
 
 #include <cstdlib>
 
+namespace hpgem {
+
 namespace Base {
 template <std::size_t DIM>
 class PhysicalFace;
@@ -69,4 +71,6 @@ class FaceIntegrandBase {
 };
 
 }  // namespace Integration
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_FACEINTEGRANDBASE_H

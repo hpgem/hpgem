@@ -42,7 +42,7 @@
 #include <functional>
 #include <fstream>
 #include "Base/MeshManipulator.h"
-
+namespace hpgem {
 namespace Output {
 
 ///\class VTKSpecificTimeWriter
@@ -98,7 +98,7 @@ class VTKSpecificTimeWriter final {
     std::size_t timelevel_;
 };
 }  // namespace Output
-
+}  // namespace hpgem
 #include "VTKSpecificTimeWriter_Impl.h"
 
 #endif  // HPGEM_KERNEL_VTKSPECIFICTIMEWRITER_H

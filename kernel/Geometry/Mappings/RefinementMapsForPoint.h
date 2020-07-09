@@ -43,6 +43,8 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferencePoint.h"
 
+namespace hpgem {
+
 namespace Geometry {
 /**
  * Stores all the refinement mappings for a point.
@@ -147,5 +149,7 @@ class RefinementMapForPoint0 : public RefinementMapping {
     RefinementMapForPoint0(const RefinementMapForPoint0&) = delete;
 };
 }  // namespace Geometry
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_REFINEMENTMAPSFORPOINT_H

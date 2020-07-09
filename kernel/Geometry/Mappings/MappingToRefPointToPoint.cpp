@@ -38,6 +38,8 @@
 
 #include "Geometry/Mappings/MappingToRefPointToPoint.h"
 
+namespace hpgem {
+
 namespace Geometry {
 
 MappingToRefPointToPoint::MappingToRefPointToPoint() = default;
@@ -62,3 +64,5 @@ Jacobian<0, 0> MappingToRefPointToPoint::calcJacobian(
 }
 
 } /* namespace Geometry */
+
+}  // namespace hpgem

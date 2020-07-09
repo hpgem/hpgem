@@ -38,6 +38,8 @@
 #ifndef HPGEM_KERNEL_OUTWARDNORMALVECTORSIGN_H
 #define HPGEM_KERNEL_OUTWARDNORMALVECTORSIGN_H
 
+namespace hpgem {
+
 namespace Geometry {
 template <int codim>
 class MappingReferenceToReference;
@@ -54,4 +56,6 @@ class MappingReferenceToReference;
  */
 double OutwardNormalVectorSign(const MappingReferenceToReference<1>* const map);
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_OUTWARDNORMALVECTORSIGN_H

@@ -39,6 +39,8 @@
 #include "MidPoint.h"
 #include "Logger.h"
 
+namespace hpgem {
+
 namespace TimeIntegration {
 MidPoint::MidPoint() {
     order_ = 2;
@@ -89,3 +91,5 @@ double MidPoint::getC(std::size_t i) const {
     return c_[i];
 }
 }  // namespace TimeIntegration
+
+}  // namespace hpgem

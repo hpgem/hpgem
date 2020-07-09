@@ -42,6 +42,8 @@
 #include <vector>
 #include "ButcherTableau.h"
 
+namespace hpgem {
+
 namespace TimeIntegration {
 class DormandPrince : public ButcherTableau {
    public:
@@ -71,5 +73,7 @@ class DormandPrince : public ButcherTableau {
     std::vector<double> error_;
 };
 }  // namespace TimeIntegration
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_DORMANDPRINCE_H

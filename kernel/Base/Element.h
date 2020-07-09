@@ -56,7 +56,7 @@
 #include <memory>
 #include <Integration/QuadratureRules/GaussQuadratureRule.h>
 #include <Base/ElementBasisFunctions.h>
-
+namespace hpgem {
 namespace QuadratureRules {
 class GaussQuadratureRule;
 }
@@ -501,8 +501,12 @@ class Element final : public Geometry::ElementGeometry, public ElementData {
     std::size_t owner_;
 };
 }  // namespace Base
+}  // namespace hpgem
 #include "PhysGradientOfBasisFunction.h"
 #include "PhysicalElement.h"
+
+namespace hpgem {
+
 namespace Base {
 /// \details The user does not need to worry about the construction of elements.
 /// This is done by mesh-generators. For example the interface HpgemAPIBase can
@@ -1017,5 +1021,7 @@ LinearAlgebra::SmallVector<DIM> Element::basisFunctionCurl(
                                  map);
 }
 }  // namespace Base
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_ELEMENT_H

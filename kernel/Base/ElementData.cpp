@@ -45,6 +45,8 @@
 #include "UserData.h"
 #include <functional>
 
+namespace hpgem {
+
 namespace Base {
 ElementData::ElementData(std::size_t timeLevels, std::size_t numberOfUnknowns,
                          std::size_t numberOfElementMatrixes,
@@ -517,3 +519,5 @@ void ElementData::setUserData(UserElementData* data) const {
 
 UserElementData* ElementData::getUserData() const { return userData_; }
 }  // namespace Base
+
+}  // namespace hpgem

@@ -43,6 +43,8 @@
 #include "Geometry/Jacobian.h"
 #include "Geometry/PointReference.h"
 
+namespace hpgem {
+
 namespace Geometry {
 
 /*
@@ -74,4 +76,6 @@ class MappingToRefPointToPoint
 };
 
 } /* namespace Geometry */
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_MAPPINGTOREFPOINTTOPOINT_H

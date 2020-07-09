@@ -42,7 +42,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vector>
 #include "Logger.h"
 #include "BaseBasisFunction.h"
-
+namespace hpgem {
 namespace LinearAlgebra {
 template <std::size_t DIM>
 class SmallVector;
@@ -222,11 +222,12 @@ class BasisFunctionSet {
         registeredRules_;
 };
 }  // namespace Base
-
+}  // namespace hpgem
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 
 // reopening namespace because gcc has a bug where it doesn't accept template
 // specializations in an enclosing namespace
+namespace hpgem {
 namespace Base {
 template <std::size_t DIM>
 double BasisFunctionSet::eval(std::size_t i,
@@ -465,4 +466,6 @@ inline LinearAlgebra::SmallVector<2> BasisFunctionSet::evalCurl(
 }
 
 }  // namespace Base
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_BASISFUNCTIONSET_H

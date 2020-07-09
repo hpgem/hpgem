@@ -42,6 +42,8 @@
 #include "Base/BaseBasisFunction.h"
 #include <vector>
 
+namespace hpgem {
+
 namespace Base {
 class BasisFunctionSet;
 }
@@ -71,5 +73,7 @@ class BasisCurlEdgeNedelec2D : public Base::BaseBasisFunction {
 
 Base::BasisFunctionSet* createDGBasisFunctionSet2DNedelec(std::size_t order);
 }  // namespace Utilities
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_BASISFUNCTIONS2DNEDELEC_H

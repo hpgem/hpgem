@@ -42,6 +42,8 @@
 #include <vector>
 #include <map>
 
+namespace hpgem {
+
 namespace Geometry {
 class ReferenceGeometry;
 }
@@ -79,4 +81,6 @@ class AllGaussQuadratureRules {
 
 }  // namespace QuadratureRules
 //---------------------------------------------------------------------------
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_ALLGAUSSQUADRATURERULES_H

@@ -43,6 +43,9 @@
 #include "../Geometry/PointReference.h"
 #include "../Base/BasisFunctionSet.h"
 #include "../LinearAlgebra/Matrix.h"
+
+namespace hpgem {
+
 namespace Base {
 ///\deprecated Use Element::getSolution instead of this class.
 class Expansion {
@@ -103,5 +106,7 @@ class Expansion {
 };
 
 }  // namespace Base
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_EXPANSION_H

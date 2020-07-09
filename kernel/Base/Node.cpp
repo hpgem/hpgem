@@ -41,6 +41,8 @@
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include <algorithm>
 
+namespace hpgem {
+
 void Base::Node::addElement(Element *element, std::size_t localNodeNumber) {
     logger.assert_debug(std::find(elements_.begin(), elements_.end(),
                                   element) == elements_.end(),
@@ -141,3 +143,5 @@ Base::Element *Base::Node::getOwningElement() const {
         "Owning element is only accurate when owned by the current processor");
     return elements_.empty() ? nullptr : elements_[0];
 }
+
+}  // namespace hpgem

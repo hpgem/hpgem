@@ -44,6 +44,8 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferenceCube.h"
 
+namespace hpgem {
+
 namespace Geometry {
 /**
  * Stores all the refinement mappings for a square. Indices for nodes, edges and
@@ -1720,5 +1722,7 @@ class RefinementMapForCube7 : public RefinementMapping {
     RefinementMapForCube7(const RefinementMapForCube7&) = delete;
 };
 }  // namespace Geometry
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_REFINEMENTMAPSFORCUBE_H

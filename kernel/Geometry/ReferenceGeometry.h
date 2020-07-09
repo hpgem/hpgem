@@ -48,6 +48,8 @@
 #include <iostream>
 #include <vector>
 
+namespace hpgem {
+
 namespace LinearAlgebra {
 class MiddleSizeVector;
 }
@@ -201,5 +203,7 @@ class ReferenceGeometry : public MappingCodimensions {
 };
 
 }  // namespace Geometry
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_REFERENCEGEOMETRY_H

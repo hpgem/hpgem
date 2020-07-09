@@ -45,6 +45,8 @@
 #include <vector>
 #include "Logger.h"
 
+namespace hpgem {
+
 namespace Geometry {
 /// \class ReferencePoint
 /// \brief Reference geometry of dimensions 0.
@@ -105,4 +107,6 @@ class ReferencePoint : public ReferenceGeometry {
     ReferencePoint();
 };
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_REFERENCEPOINT_H

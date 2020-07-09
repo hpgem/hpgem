@@ -61,6 +61,9 @@
 // For including the MPI rank in the information
 // The logger interfaces directly with MPI to prevent cyclic dependencies
 #include <mpi.h>
+
+namespace hpgem {
+
 #endif
 
 /*
@@ -199,3 +202,5 @@ LoggerOutput loggerOutputDefaultImpl = {
 
 // And we assign them.
 LoggerOutput* loggerOutput = &loggerOutputDefaultImpl;
+
+}  // namespace hpgem

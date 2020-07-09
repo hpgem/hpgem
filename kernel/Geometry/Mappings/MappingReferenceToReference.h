@@ -43,6 +43,8 @@
 #include "Geometry/PointReference.h"
 #include <map>
 
+namespace hpgem {
+
 namespace Geometry {
 /*! \brief Intermediate ABC for reference space to reference space mappings.
 
@@ -100,4 +102,6 @@ class MappingReferenceToReference : public MappingInterface<codim> {
     //    transformedCoordinates;
 };
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_MAPPINGREFERENCETOREFERENCE_H

@@ -42,6 +42,8 @@
 #include <cstdlib>
 #include "LinearAlgebra/SmallVector.h"
 
+namespace hpgem {
+
 namespace Base {
 /// You have to pass this coordinate transformation another transformation,
 /// which will be used to transform function values, derivatives and curls. This
@@ -95,5 +97,7 @@ class DoNotScaleIntegrands : public CoordinateTransformation<DIM> {
     CoordinateTransformation<DIM>* underlying_;
 };
 }  // namespace Base
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_DONOTSCALEINTEGRANDS_H

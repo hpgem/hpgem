@@ -40,6 +40,8 @@
 
 #include <cstdlib>
 
+namespace hpgem {
+
 namespace Geometry {
 template <std::size_t DIM>
 class PointReference;
@@ -61,5 +63,7 @@ double baricentric_2D(std::size_t node, const Geometry::PointReference<2>& p);
 
 double baricentricDeriv(std::size_t node, std::size_t direction);
 }  // namespace Utilities
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_HELPERFUNCTIONS_H

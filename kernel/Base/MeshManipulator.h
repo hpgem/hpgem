@@ -48,7 +48,7 @@
 #include "GlobalNamespaceBase.h"
 #include "BasisFunctionSet.h"
 #include "MeshManipulatorBase.h"
-
+namespace hpgem {
 namespace Base {
 template <std::size_t DIM>
 class MeshManipulator;
@@ -594,7 +594,7 @@ class MeshManipulator : public MeshManipulatorBase {
 };
 
 }  // namespace Base
-
+}  // namespace hpgem
 #include "MeshManipulator_Impl.h"
 
 #endif  // HPGEM_KERNEL_MESHMANIPULATOR_H

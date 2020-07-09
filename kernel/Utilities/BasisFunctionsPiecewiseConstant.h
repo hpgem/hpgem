@@ -39,6 +39,8 @@
 #ifndef HPGEM_KERNEL_BASISFUNCTIONSPIECEWISECONSTANT_H
 #define HPGEM_KERNEL_BASISFUNCTIONSPIECEWISECONSTANT_H
 
+namespace hpgem {
+
 namespace Base {
 class BasisFunctionSet;
 }
@@ -50,5 +52,7 @@ void addPiecewiseConstantBasisFunction2D(Base::BasisFunctionSet &set);
 void addPiecewiseConstantBasisFunction3D(Base::BasisFunctionSet &set);
 void addPiecewiseConstantBasisFunction4D(Base::BasisFunctionSet &set);
 }  // namespace Utilities
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_BASISFUNCTIONSPIECEWISECONSTANT_H

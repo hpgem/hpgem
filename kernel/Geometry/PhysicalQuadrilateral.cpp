@@ -42,6 +42,8 @@
 #include "Geometry/PointPhysical.h"
 #include "Geometry/PointReference.h"
 
+namespace hpgem {
+
 namespace Geometry {
 PhysicalQuadrilateral::PhysicalQuadrilateral(
     const std::vector<std::size_t>& globalNodeIndexes,
@@ -49,3 +51,5 @@ PhysicalQuadrilateral::PhysicalQuadrilateral(
     : PhysicalGeometry(globalNodeIndexes, nodes, &ReferenceSquare::Instance()) {
 }
 }  // namespace Geometry
+
+}  // namespace hpgem

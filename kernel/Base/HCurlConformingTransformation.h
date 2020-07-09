@@ -43,6 +43,8 @@
 #include "LinearAlgebra/SmallVector.h"
 #include "CoordinateTransformation.h"
 
+namespace hpgem {
+
 namespace Base {
 /// transforms vector functions and their curl in a conforming way
 template <std::size_t DIM>
@@ -86,5 +88,7 @@ inline LinearAlgebra::SmallVector<2>
     return referenceData / element.getJacobianDet();
 }
 }  // namespace Base
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_HCURLCONFORMINGTRANSFORMATION_H

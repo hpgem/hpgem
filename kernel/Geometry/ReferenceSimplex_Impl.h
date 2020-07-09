@@ -6,6 +6,8 @@
 
 #include "../LinearAlgebra/SmallVector.h"
 
+namespace hpgem {
+
 namespace Geometry {
 // Helper functions for the constructor
 template <std::size_t DIM>
@@ -41,5 +43,7 @@ LinearAlgebra::SmallVector<DIM + 1>
 }
 
 }  // namespace Geometry
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_REFERENCESIMPLEX_IMPL_H

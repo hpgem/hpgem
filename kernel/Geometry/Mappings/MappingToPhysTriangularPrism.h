@@ -43,6 +43,8 @@
 #include "MappingReferenceToPhysical.h"
 #include "Geometry/PointPhysical.h"
 
+namespace hpgem {
+
 namespace Geometry {
 /*! \brief Map from the reference (triangular) prism to physical space.
  *
@@ -72,4 +74,6 @@ class MappingToPhysTriangularPrism : public MappingReferenceToPhysical {
     PointPhysical<3> a0, a1, a2, a3, a4, a5;
 };
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_MAPPINGTOPHYSTRIANGULARPRISM_H

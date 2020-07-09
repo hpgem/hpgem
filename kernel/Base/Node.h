@@ -44,6 +44,8 @@
 
 #include "Logger.h"
 
+namespace hpgem {
+
 namespace Base {
 class Element;
 class Face;
@@ -171,4 +173,6 @@ class Node {
 };
 
 }  // namespace Base
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_NODE_H

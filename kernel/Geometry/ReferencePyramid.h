@@ -40,6 +40,9 @@
 
 #include "ReferenceGeometry.h"
 #include <vector>
+
+namespace hpgem {
+
 // created for the shape globally
 namespace Geometry {
 /* The ordering of the vertex and faces in a pyramid (top view; 0 is above the
@@ -181,4 +184,6 @@ class ReferencePyramid : public ReferenceGeometry {
     PointReference<3> center_;
 };
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_REFERENCEPYRAMID_H

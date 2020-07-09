@@ -40,6 +40,8 @@
 #define HPGEM_KERNEL_PHYSICALLINE_H
 #include "PhysicalGeometry.h"
 
+namespace hpgem {
+
 namespace Geometry {
 class ReferenceLine;
 
@@ -53,4 +55,6 @@ class PhysicalLine : public PhysicalGeometry<1> {
 };
 
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_PHYSICALLINE_H

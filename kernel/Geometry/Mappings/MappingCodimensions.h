@@ -42,6 +42,8 @@
 #include <vector>
 #include "Logger.h"
 
+namespace hpgem {
+
 namespace Geometry {
 class ReferenceGeometry;
 
@@ -158,4 +160,6 @@ class MappingCodimensions {
     virtual ~MappingCodimensions() = default;
 };
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_MAPPINGCODIMENSIONS_H

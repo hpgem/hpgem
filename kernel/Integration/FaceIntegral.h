@@ -42,7 +42,7 @@
 
 #include "Base/PhysicalElement.h"
 #include "Base/Face.h"
-
+namespace hpgem {
 namespace LinearAlgebra {
 class MiddleSizeVector;
 }
@@ -118,6 +118,7 @@ class FaceIntegral {
 };  // class FaceIntegral
 
 }  // namespace Integration
-
+}  // namespace hpgem
 #include "FaceIntegral_Impl.h"
+
 #endif  // HPGEM_KERNEL_FACEINTEGRAL_H

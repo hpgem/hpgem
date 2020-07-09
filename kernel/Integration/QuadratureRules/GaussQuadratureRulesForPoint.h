@@ -42,6 +42,8 @@
 #include <limits>
 #include "Geometry/PointReference.h"
 
+namespace hpgem {
+
 namespace Geometry {
 class ReferencePoint;
 }
@@ -86,5 +88,7 @@ class Cn0_inf_1 : public QuadratureRules::GaussQuadratureRule {
 };
 
 } /* namespace QuadratureRules */
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_GAUSSQUADRATURERULESFORPOINT_H

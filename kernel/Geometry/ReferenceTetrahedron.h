@@ -44,6 +44,8 @@
 #include "ReferenceSimplex_Impl.h"
 #include <vector>
 
+namespace hpgem {
+
 namespace Geometry {
 /* The ordering of the vertex and faces in a tetrahedron:
  *
@@ -149,5 +151,7 @@ class ReferenceTetrahedron : public ReferenceSimplex<3> {
     std::vector<QuadratureRules::GaussQuadratureRule*> lstGaussQuadratureRules_;
 };
 }  // namespace Geometry
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_REFERENCETETRAHEDRON_H

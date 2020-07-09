@@ -40,6 +40,8 @@
 #include "Geometry/Jacobian.h"
 #include "Geometry/PointReference.h"
 
+namespace hpgem {
+
 namespace Geometry {
 // ~~~~~~~~~~~~~~~==============================================================================
 // ~~~ index 0
@@ -157,3 +159,5 @@ Jacobian<1, 2> MappingToRefLineToSquare3::calcJacobian(
 
 MappingToRefLineToSquare3::MappingToRefLineToSquare3() = default;
 }  // namespace Geometry
+
+}  // namespace hpgem

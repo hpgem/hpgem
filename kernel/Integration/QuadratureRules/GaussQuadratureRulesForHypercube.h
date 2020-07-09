@@ -43,6 +43,8 @@
 #include "Geometry/PointReference.h"
 #include <vector>
 
+namespace hpgem {
+
 //---------------------------------------------------------------------------
 namespace QuadratureRules {
 //---------------------------------------------------------------------------
@@ -96,4 +98,6 @@ class Cn4_3_16 : public GaussQuadratureRule {
 
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_GAUSSQUADRATURERULESFORHYPERCUBE_H

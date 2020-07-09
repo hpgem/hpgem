@@ -39,6 +39,8 @@
 #include "RK4Methods.h"
 #include "Logger.h"
 
+namespace hpgem {
+
 namespace TimeIntegration {
 RK4_4::RK4_4() {
     order_ = 4;
@@ -93,3 +95,5 @@ double RK4_4::getC(std::size_t i) const {
     return c_[i];
 }
 }  // namespace TimeIntegration
+
+}  // namespace hpgem

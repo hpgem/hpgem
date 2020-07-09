@@ -41,6 +41,8 @@
 
 #include <cstdlib>
 
+namespace hpgem {
+
 namespace Geometry {
 template <std::size_t DIM>
 class PointReference;
@@ -81,5 +83,7 @@ class PointReferenceBase {
     virtual ~PointReferenceBase() = default;
 };
 }  // namespace Geometry
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_POINTREFERENCEBASE_H

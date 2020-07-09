@@ -41,6 +41,8 @@
 
 #include "ButcherTableau.h"
 
+namespace hpgem {
+
 namespace TimeIntegration {
 class ButcherTableau;
 
@@ -66,5 +68,7 @@ class AllTimeIntegrators {
     std::vector<ButcherTableau*> vecOfIntegrators_;
 };
 }  // namespace TimeIntegration
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_ALLTIMEINTEGRATORS_H

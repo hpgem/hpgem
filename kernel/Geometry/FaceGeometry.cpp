@@ -54,6 +54,8 @@
 
 #include "Logger.h"
 
+namespace hpgem {
+
 namespace Geometry {
 
 class FaceGeometry;
@@ -209,3 +211,5 @@ double FaceGeometry::computeDiameter() const {
 }
 
 }  // namespace Geometry
+
+}  // namespace hpgem

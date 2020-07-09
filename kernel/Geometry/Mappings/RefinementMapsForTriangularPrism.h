@@ -46,6 +46,8 @@
 #include "Geometry/ReferenceCube.h"
 #include "Geometry/ReferenceTriangularPrism.h"
 
+namespace hpgem {
+
 namespace Geometry {
 /* Stores all the refinement mappings for a pyramid. Note that the ascii art is
  * provided in a different perspective than the other 3D geometries Numbering
@@ -1941,5 +1943,7 @@ class RefinementMapForTriangularPrism9 : public RefinementMapping {
         delete;
 };
 }  // namespace Geometry
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_REFINEMENTMAPSFORTRIANGULARPRISM_H

@@ -43,6 +43,8 @@
 #include "LinearAlgebra/SmallVector.h"
 #include "CoordinateTransformation.h"
 
+namespace hpgem {
+
 namespace Base {
 /// transforms vector functions and their divergence in a conforming way
 template <std::size_t DIM>
@@ -78,5 +80,7 @@ class HDivConformingTransformation : public CoordinateTransformation<DIM> {
     }
 };
 }  // namespace Base
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_HDIVCONFORMINGTRANSFORMATION_H

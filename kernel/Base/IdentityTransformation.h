@@ -43,6 +43,8 @@
 #include "LinearAlgebra/SmallVector.h"
 #include "CoordinateTransformation.h"
 
+namespace hpgem {
+
 namespace Base {
 /// the identity transformation is meant for advanced users that need accurate
 /// control over how their data gets transformed and are willing to do the
@@ -96,5 +98,7 @@ class IdentityTransformation : public CoordinateTransformation<DIM> {
     }
 };
 }  // namespace Base
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_IDENTITYTRANSFORMATION_H

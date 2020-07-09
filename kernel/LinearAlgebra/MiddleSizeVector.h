@@ -44,7 +44,7 @@
 #include <cmath>
 #include <iostream>
 #include <complex>
-
+namespace hpgem {
 namespace LinearAlgebra {
 template <std::size_t numberOfRows>
 class SmallVector;
@@ -150,7 +150,7 @@ class MiddleSizeVector {
 
    private:
     std::vector<type> data_;
-};
+};  // namespace hpgem
 
 MiddleSizeVector operator*(const MiddleSizeVector::type& left,
                            const MiddleSizeVector& right);
@@ -160,4 +160,6 @@ MiddleSizeVector operator-(const MiddleSizeVector& right);
 std::ostream& operator<<(std::ostream& os, const MiddleSizeVector& A);
 
 }  // namespace LinearAlgebra
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_MIDDLESIZEVECTOR_H

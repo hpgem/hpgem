@@ -46,7 +46,7 @@
 #include "PointReference.h"
 #include "ReferenceGeometry.h"
 #include "PhysicalGeometryBase.h"
-
+namespace hpgem {
 namespace Geometry {
 class ReferenceGeometry;
 template <std::size_t DIM>
@@ -169,7 +169,7 @@ class PhysicalGeometry : public PhysicalGeometryBase {
 };
 
 }  // namespace Geometry
-
+}  // namespace hpgem
 #include "PhysicalGeometry_Impl.h"
 
 #endif  // HPGEM_KERNEL_PHYSICALGEOMETRY_H

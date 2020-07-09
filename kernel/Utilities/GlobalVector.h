@@ -49,7 +49,7 @@
 #include "GlobalIndexing.h"
 #include <vector>
 #include <map>
-
+namespace hpgem {
 namespace Base {
 class MeshManipulatorBase;
 class Element;
@@ -156,5 +156,5 @@ class GlobalPetscVector : public GlobalVector {
 #endif
 
 }  // namespace Utilities
-
+}  // namespace hpgem
 #endif  // HPGEM_KERNEL_GLOBALVECTOR_H

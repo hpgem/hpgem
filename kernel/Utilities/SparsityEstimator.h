@@ -4,6 +4,8 @@
 
 #include "vector"
 
+namespace hpgem {
+
 // Forward definitions
 namespace Base {
 class Element;
@@ -66,5 +68,7 @@ class SparsityEstimator {
     const GlobalIndexing& columnIndexing_;
 };
 }  // namespace Utilities
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_SPARSITYESTIMATOR_H

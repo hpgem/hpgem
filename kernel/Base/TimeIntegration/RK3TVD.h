@@ -42,6 +42,8 @@
 #include <vector>
 #include "ButcherTableau.h"
 
+namespace hpgem {
+
 namespace TimeIntegration {
 
 class RK3TVD : public ButcherTableau {
@@ -70,5 +72,7 @@ class RK3TVD : public ButcherTableau {
 };
 
 }  // namespace TimeIntegration
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_RK3TVD_H

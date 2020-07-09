@@ -41,6 +41,8 @@
 #include "Geometry/ReferenceHypercube.h"
 #include "Geometry/PointReference.h"
 
+namespace hpgem {
+
 //---------------------------------------------------------------------------
 namespace QuadratureRules {
 //---------------------------------------------------------------------------
@@ -169,3 +171,5 @@ Cn4_3_16::Cn4_3_16()
 }
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
+
+}  // namespace hpgem

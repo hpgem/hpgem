@@ -45,6 +45,8 @@
 #include "Geometry/ReferenceSquare.h"
 #include "Geometry/ReferenceTriangle.h"
 
+namespace hpgem {
+
 namespace Geometry {
 /**
  * Stores all the refinement mappings for a triangle.
@@ -1514,5 +1516,7 @@ class RefinementMapForTriangle8 : public RefinementMapping {
     RefinementMapForTriangle8(const RefinementMapForTriangle8&) = delete;
 };
 }  // namespace Geometry
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_REFINEMENTMAPSFORTRIANGLE_H

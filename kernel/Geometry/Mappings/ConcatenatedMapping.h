@@ -40,6 +40,9 @@
 #define HPGEM_KERNEL_CONCATENATEDMAPPING_H
 
 #include "MappingReferenceToReference.h"
+
+namespace hpgem {
+
 //------------------------------------------------------------------------------
 
 namespace Geometry {
@@ -95,5 +98,7 @@ class ConcatenatedMapping : public MappingReferenceToReference<1> {
 };
 
 }  // namespace Geometry
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_CONCATENATEDMAPPING_H

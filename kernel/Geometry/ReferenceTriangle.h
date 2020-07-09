@@ -44,6 +44,8 @@
 #include <iostream>
 #include <vector>
 
+namespace hpgem {
+
 namespace Geometry {
 
 /* The ordering of the vertex and faces in a triangle:
@@ -138,4 +140,6 @@ class ReferenceTriangle : public ReferenceSimplex<2> {
 };
 
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_REFERENCETRIANGLE_H

@@ -49,7 +49,7 @@
 #include "Output/TecplotSingleElementWriter.h"
 #include "Output/VTKTimeDependentWriter.h"
 #include <functional>
-
+namespace hpgem {
 namespace Base {
 /// \brief Interface for solving steady-state solutions of linear PDE's. At the
 /// moment this class can only solve steady state problems using Petsc.
@@ -230,7 +230,7 @@ class HpgemAPILinearSteadyState : public HpgemAPILinear<DIM> {
     const std::size_t sourceFaceVectorID_;
 };
 }  // namespace Base
-
+}  // namespace hpgem
 #include "HpgemAPILinearSteadyState_Impl.h"
 
 #endif  // HPGEM_KERNEL_HPGEMAPILINEARSTEADYSTATE_H

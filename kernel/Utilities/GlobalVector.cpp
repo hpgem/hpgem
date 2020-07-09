@@ -52,6 +52,9 @@
 #include <numeric>
 #if defined(HPGEM_USE_ANY_PETSC)
 #include "petscis.h"
+
+namespace hpgem {
+
 #endif
 
 namespace Utilities {
@@ -464,3 +467,5 @@ void GlobalPetscVector::writeTimeIntegrationVector(
 #endif
 
 }  // namespace Utilities
+
+}  // namespace hpgem

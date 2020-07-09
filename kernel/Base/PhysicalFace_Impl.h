@@ -38,6 +38,8 @@
 
 #include "CoordinateTransformation.h"
 
+namespace hpgem {
+
 namespace Base {
 
 template <std::size_t DIM>
@@ -1066,3 +1068,4 @@ inline void PhysicalFace<DIM>::setQuadraturePointIndex(std::size_t index) {
     }
 }
 }  // namespace Base
+}  // namespace hpgem

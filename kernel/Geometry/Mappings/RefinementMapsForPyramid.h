@@ -45,6 +45,8 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferencePyramid.h"
 
+namespace hpgem {
+
 namespace Geometry {
 /* Stores all the refinement mappings for a pyramid. Note that the ascii art is
  * provided in top view rather than perspective
@@ -188,5 +190,7 @@ class RefinementMapForPyramid0 : public RefinementMapping {
     RefinementMapForPyramid0(const RefinementMapForPyramid0&) = delete;
 };
 }  // namespace Geometry
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_REFINEMENTMAPSFORPYRAMID_H

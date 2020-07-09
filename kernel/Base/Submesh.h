@@ -43,6 +43,8 @@
 #include <map>
 #include "LevelTree.h"
 
+namespace hpgem {
+
 namespace Geometry {
 template <std::size_t DIM>
 class PointPhysical;
@@ -203,5 +205,7 @@ class Submesh {
 };
 
 }  // namespace Base
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_SUBMESH_H

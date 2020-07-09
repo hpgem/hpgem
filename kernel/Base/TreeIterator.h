@@ -42,6 +42,9 @@
 
 #include "Logger.h"
 #include "TreeEntry.h"
+
+namespace hpgem {
+
 //------------------------------------------------------------------------------
 namespace Base {
 
@@ -637,5 +640,7 @@ class TreeIterator {
 template <typename V>
 using TreeIteratorConst = TreeIterator<V, true>;
 }  // namespace Base
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_TREEITERATOR_H

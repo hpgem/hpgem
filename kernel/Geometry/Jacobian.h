@@ -40,7 +40,7 @@
 #define HPGEM_KERNEL_JACOBIAN_H
 
 #include "LinearAlgebra/SmallMatrix.h"
-
+namespace hpgem {
 namespace Geometry {
 /**
  * Jacobian of a mapping from dimFrom to dimTo. The standardized layout for
@@ -80,7 +80,7 @@ class Jacobian : public LinearAlgebra::SmallMatrix<dimTo, dimFrom> {
 };
 
 }  // namespace Geometry
-
+}  // namespace hpgem
 #include "Jacobian_Impl.h"
 
 #endif  // HPGEM_KERNEL_JACOBIAN_H

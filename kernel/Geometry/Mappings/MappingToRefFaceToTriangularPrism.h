@@ -41,6 +41,8 @@
 
 #include "MappingReferenceToReference.h"
 
+namespace hpgem {
+
 namespace Geometry {
 
 // ~~~ index 0
@@ -153,4 +155,6 @@ class MappingToRefFaceToTriangularPrism4
 };
 
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_MAPPINGTOREFFACETOTRIANGULARPRISM_H

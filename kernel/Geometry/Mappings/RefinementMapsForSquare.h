@@ -44,6 +44,8 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferenceSquare.h"
 
+namespace hpgem {
+
 namespace Geometry {
 /**
  * Stores all the refinement mappings for a square.
@@ -660,5 +662,7 @@ class RefinementMapForSquare3 : public RefinementMapping {
     RefinementMapForSquare3(const RefinementMapForSquare3&) = delete;
 };
 }  // namespace Geometry
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_REFINEMENTMAPSFORSQUARE_H

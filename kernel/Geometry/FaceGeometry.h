@@ -93,7 +93,7 @@
 // G1^(-1) and G2^(-1) are not defined well. However this exception should be
 // handled in the code.)
 //--------------------------------------------------------------------------------------------------
-
+namespace hpgem {
 namespace Base {
 
 class Face;
@@ -455,4 +455,6 @@ PointPhysical<DIM + 1> FaceGeometry::referenceToPhysical(
     return getElementGLeft()->referenceToPhysical(mapRefFaceToRefElemL(p));
 }
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_FACEGEOMETRY_H

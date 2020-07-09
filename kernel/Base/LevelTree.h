@@ -44,7 +44,7 @@
 #include "Logger.h"
 #include "TreeEntry.h"
 #include "TreeIterator.h"
-
+namespace hpgem {
 namespace Base {
 
 template <typename V>
@@ -199,7 +199,7 @@ class LevelTree {
 };
 
 }  // namespace Base
-
+}  // namespace hpgem
 // merge the implementation file here.
 #include "LevelTree_Impl.h"
 

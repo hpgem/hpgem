@@ -44,8 +44,9 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/PhysicalGeometry.h"
 #include "Geometry/ReferenceGeometry.h"
-#include "TecplotSingleElementWriter.h"
 
+#include "TecplotSingleElementWriter.h"
+namespace hpgem {
 namespace Output {
 
 template <std::size_t DIM>
@@ -290,3 +291,4 @@ std::string TecplotDiscontinuousSolutionWriter<DIM>::makeTecplotVariableString(
 }
 
 }  // namespace Output
+}  // namespace hpgem

@@ -39,7 +39,7 @@
 #include "PhysicalGeometry.h"
 
 #include "PointPhysical.h"
-
+namespace hpgem {
 namespace Geometry {
 
 template <std::size_t DIM>
@@ -81,3 +81,4 @@ PointPhysicalBase& PhysicalGeometry<DIM>::getGlobalNodeCoordinates(
 }
 
 }  // namespace Geometry
+}  // namespace hpgem

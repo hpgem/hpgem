@@ -43,6 +43,8 @@
 #include "Geometry/Jacobian.h"
 #include "Base/L2Norm.h"
 
+namespace hpgem {
+
 namespace Geometry {
 // =============================================================================================
 // ~~~ Dimension 1
@@ -414,3 +416,5 @@ bool MappingToPhysHypercubeLinear<4>::isValidPoint(
              (pointReference[3] < -1.) || (pointReference[3] > 1.));
 }
 }  // namespace Geometry
+
+}  // namespace hpgem

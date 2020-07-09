@@ -44,6 +44,8 @@
 
 #include "BasisFunctionSet.h"
 
+namespace hpgem {
+
 namespace Base {
 
 /// \brief Association information of BasisFunctions with an Element
@@ -254,5 +256,7 @@ inline std::size_t ElementBasisFunctions::getTotalLocalNumberOfBasisFunctions()
     return total;
 }
 }  // namespace Base
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_ELEMENTBASISFUNCTIONS_H

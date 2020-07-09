@@ -44,6 +44,8 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferenceTetrahedron.h"
 
+namespace hpgem {
+
 namespace Geometry {
 /* Stores all the refinement mappings for a tetrahedron.
  *
@@ -182,5 +184,7 @@ class RefinementMapForTetrahedron0 : public RefinementMapping {
     RefinementMapForTetrahedron0(const RefinementMapForTetrahedron0&) = delete;
 };
 }  // namespace Geometry
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_REFINEMENTMAPSFORTETRAHEDRON_H

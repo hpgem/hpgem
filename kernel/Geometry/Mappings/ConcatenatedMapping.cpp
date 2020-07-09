@@ -41,6 +41,8 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/Jacobian.h"
 
+namespace hpgem {
+
 namespace Geometry {
 
 PointReference<1> ConcatenatedMapping::transform(
@@ -95,3 +97,5 @@ std::size_t ConcatenatedMapping::getTargetDimension() const {
 }
 
 }  // namespace Geometry
+
+}  // namespace hpgem

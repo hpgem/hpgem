@@ -53,6 +53,8 @@
 #include "Logger.h"
 #include <numeric>
 
+namespace hpgem {
+
 namespace Utilities {
 
 GlobalMatrix::GlobalMatrix(const GlobalIndexing& rowIndexing,
@@ -336,3 +338,5 @@ void GlobalPetscMatrix::writeMatlab(const std::string& fileName) {
 }
 #endif
 }  // namespace Utilities
+
+}  // namespace hpgem

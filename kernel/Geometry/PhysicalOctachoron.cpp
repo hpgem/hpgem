@@ -41,6 +41,8 @@
 #include "PointPhysical.h"
 #include "PointReference.h"
 
+namespace hpgem {
+
 namespace Geometry {
 PhysicalOctachoron::PhysicalOctachoron(
     const std::vector<std::size_t>& globalNodeIndexes,
@@ -49,3 +51,5 @@ PhysicalOctachoron::PhysicalOctachoron(
                        &ReferenceHypercube::Instance()) {}
 
 }  // namespace Geometry
+
+}  // namespace hpgem

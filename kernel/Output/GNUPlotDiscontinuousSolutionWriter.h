@@ -10,7 +10,7 @@
 
 #include <ostream>
 #include <vector>
-
+namespace hpgem {
 namespace Base {
 template <std::size_t DIM>
 class MeshManipulator;
@@ -73,7 +73,7 @@ class GNUPlotDiscontinuousSolutionWriter {
     const std::size_t nDimensionsToWrite_;
 };
 }  // namespace Output
-
+}  // namespace hpgem
 #include "GNUPlotDiscontinuousSolutionWriter_Impl.h"
 
 #endif  // HPGEM_KERNEL_GNUPLOTDISCONTINUOUSSOLUTIONWRITER_H

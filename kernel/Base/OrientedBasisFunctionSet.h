@@ -41,6 +41,8 @@
 
 #include "BasisFunctionSet.h"
 
+namespace hpgem {
+
 namespace Base {
 
 /**
@@ -71,5 +73,7 @@ class OrientedBasisFunctionSet : public Base::BasisFunctionSet {
 };
 
 } /* namespace Base */
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_ORIENTEDBASISFUNCTIONSET_H

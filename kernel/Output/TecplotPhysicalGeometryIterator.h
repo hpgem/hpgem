@@ -42,6 +42,8 @@
 #include <vector>
 #include "PhysicalGeometryAcceptor.h"
 
+namespace hpgem {
+
 namespace Geometry {
 class PhysicalGeometryBase;
 }
@@ -112,4 +114,6 @@ class TecplotPhysicalGeometryIterator : public PhysicalGeometryAcceptor {
 };
 
 }  // namespace Output
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_TECPLOTPHYSICALGEOMETRYITERATOR_H

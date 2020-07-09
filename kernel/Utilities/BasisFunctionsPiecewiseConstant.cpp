@@ -42,6 +42,8 @@
 #include "BaseBasisFunction.h"
 #include "BasisFunctionSet.h"
 
+namespace hpgem {
+
 namespace Utilities {
 class PiecewiseConstant1 : public Base::BaseBasisFunction {
    public:
@@ -127,3 +129,4 @@ void addPiecewiseConstantBasisFunction4D(Base::BasisFunctionSet& set) {
     set.addBasisFunction(new PiecewiseConstant4());
 }
 }  // namespace Utilities
+}  // namespace hpgem

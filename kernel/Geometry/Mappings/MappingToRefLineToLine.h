@@ -41,6 +41,8 @@
 
 #include "MappingReferenceToReference.h"
 
+namespace hpgem {
+
 namespace Geometry {
 /*
  * The reference line:
@@ -92,4 +94,6 @@ class MappingToRefLineToLine1 : public MappingReferenceToReference<0> {
         transformedCoordinates;
 };
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_MAPPINGTOREFLINETOLINE_H

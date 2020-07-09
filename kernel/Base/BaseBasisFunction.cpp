@@ -40,6 +40,8 @@
 
 #include "Geometry/PointReference.h"
 
+namespace hpgem {
+
 namespace Base {
 
 LinearAlgebra::SmallVector<1> BaseBasisFunction::evalDeriv(
@@ -76,3 +78,5 @@ LinearAlgebra::SmallVector<4> BaseBasisFunction::evalDeriv(
     return ret;
 }
 }  // namespace Base
+
+}  // namespace hpgem

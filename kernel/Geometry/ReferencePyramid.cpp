@@ -45,6 +45,8 @@
 
 #include <cmath>
 
+namespace hpgem {
+
 namespace Geometry {
 
 std::size_t ReferencePyramid::localNodeIndexes_[5][4] = {
@@ -187,3 +189,5 @@ std::vector<std::size_t> ReferencePyramid::getCodim3EntityLocalIndices(
     return std::vector<std::size_t>(1, nodeIndex);
 }
 }  // namespace Geometry
+
+}  // namespace hpgem

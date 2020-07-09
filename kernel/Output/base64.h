@@ -41,6 +41,8 @@
 
 #include <string>
 
+namespace hpgem {
+
 // support for converting to base64
 namespace Output {
 namespace Detail {
@@ -57,4 +59,6 @@ static const char base64Encode[65] =
 std::string toBase64(void* rawData, std::size_t len);
 }  // namespace Detail
 }  // namespace Output
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_BASE64_H

@@ -40,6 +40,8 @@
 #define HPGEM_KERNEL_PHYSICALHEXAHEDRON_H
 #include "PhysicalGeometry.h"
 
+namespace hpgem {
+
 namespace Geometry {
 class ReferenceCube;
 
@@ -52,4 +54,6 @@ class PhysicalHexahedron : public PhysicalGeometry<3> {
 };
 
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_PHYSICALHEXAHEDRON_H

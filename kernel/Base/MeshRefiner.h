@@ -39,6 +39,8 @@
 #ifndef HPGEM_KERNEL_MESHREFINER_H
 #define HPGEM_KERNEL_MESHREFINER_H
 
+namespace hpgem {
+
 //#include "TypedefsInBase.h"
 
 namespace Base {
@@ -92,4 +94,6 @@ class MeshRefiner {
 };
 
 }  // namespace Base
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_MESHREFINER_H

@@ -44,6 +44,8 @@
 #include "Geometry/ReferenceTriangularPrism.h"
 #include "Geometry/PointReference.h"
 
+namespace hpgem {
+
 //---------------------------------------------------------------------------
 namespace QuadratureRules {
 //---------------------------------------------------------------------------
@@ -536,3 +538,5 @@ TriPrism_7_64::TriPrism_7_64()
 
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
+
+}  // namespace hpgem

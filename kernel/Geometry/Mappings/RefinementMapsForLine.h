@@ -44,6 +44,8 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferenceLine.h"
 
+namespace hpgem {
+
 namespace Geometry {
 /**
  * Stores all the refinement mappings for a line.
@@ -290,5 +292,7 @@ class RefinementMapForLine1 : public RefinementMapping {
     RefinementMapForLine1(const RefinementMapForLine1&) = delete;
 };
 }  // namespace Geometry
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_REFINEMENTMAPSFORLINE_H

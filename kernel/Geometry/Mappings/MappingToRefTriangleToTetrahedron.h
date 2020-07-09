@@ -41,6 +41,8 @@
 
 #include "MappingReferenceToReference.h"
 
+namespace hpgem {
+
 namespace Geometry {
 /* The ordering of the vertex in a cube:
  *
@@ -145,4 +147,6 @@ class MappingToRefTriangleToTetrahedron3
         transformedCoordinates;
 };
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_MAPPINGTOREFTRIANGLETOTETRAHEDRON_H

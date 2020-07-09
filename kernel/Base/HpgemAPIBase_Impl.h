@@ -43,7 +43,7 @@
 #include "Geometry/PointPhysical.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "ConfigurationData.h"
-
+namespace hpgem {
 namespace Base {
 template <std::size_t DIM>
 HpgemAPIBase<DIM>::HpgemAPIBase(GlobalData* const global,
@@ -92,6 +92,7 @@ std::size_t HpgemAPIBase<DIM>::addMesh(const std::string& fileName,
 template <std::size_t DIM>
 void HpgemAPIBase<DIM>::synchronize(const std::size_t timeIntegrationVectorId) {
 #ifdef HPGEM_USE_MPI
+
     // Now, set it up.
     Base::MeshManipulator<DIM>* meshManipulator = this->meshes_[0];
     Base::Submesh& mesh = meshManipulator->getMesh().getSubmesh();
@@ -133,6 +134,7 @@ void HpgemAPIBase<DIM>::synchronize(const std::size_t timeIntegrationVectorId) {
         }
     }
     Base::MPIContainer::Instance().sync();
+
 #endif
 }
 
@@ -222,3 +224,4 @@ typename HpgemAPIBase<DIM>::FaceIterator HpgemAPIBase<DIM>::faceColEnd(
 }
 
 }  // namespace Base
+}  // namespace hpgem

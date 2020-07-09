@@ -41,6 +41,8 @@
 
 #include <limits>
 
+namespace hpgem {
+
 namespace LinearAlgebra {
 
 extern "C"
@@ -236,3 +238,5 @@ std::ostream& operator<<(std::ostream& os, const MiddleSizeVector& A) {
 }
 
 }  // namespace LinearAlgebra
+
+}  // namespace hpgem

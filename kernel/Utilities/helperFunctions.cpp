@@ -41,6 +41,8 @@
 #include <cmath>
 #include "Geometry/PointReference.h"
 
+namespace hpgem {
+
 namespace Utilities {
 
 /// computes the lobatto polynomials. Excludes the (1-x*x) component
@@ -162,3 +164,5 @@ double baricentricDeriv(std::size_t node, std::size_t direction) {
 }
 
 }  // namespace Utilities
+
+}  // namespace hpgem

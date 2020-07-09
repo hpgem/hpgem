@@ -45,6 +45,8 @@
 #include "LinearAlgebra/MiddleSizeMatrix.h"
 #include "Logger.h"
 
+namespace hpgem {
+
 namespace Geometry {
 /* Behold the reference square:
  *
@@ -209,3 +211,5 @@ const ReferenceGeometry* ReferenceSquare::getCodim2ReferenceGeometry(
     return &Geometry::ReferencePoint::Instance();
 }
 }  // namespace Geometry
+
+}  // namespace hpgem

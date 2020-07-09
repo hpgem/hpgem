@@ -42,6 +42,8 @@
 #include "MappingReferenceToPhysical.h"
 #include "Geometry/PointPhysical.h"
 
+namespace hpgem {
+
 namespace Geometry {
 /*!
  * "In geometry, a hypercube is an n-dimensional analogue of a square (n = 2)
@@ -137,4 +139,6 @@ class MappingToPhysHypercubeLinear<4> : public MappingReferenceToPhysical {
         a013, a123, a230, a0123;
 };
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_MAPPINGTOPHYSHYPERCUBELINEAR_H

@@ -41,6 +41,8 @@
 
 #include "MappingReferenceToReference.h"
 
+namespace hpgem {
+
 namespace Geometry {
 // ~~~ index 0
 // ~~~==============================================================================
@@ -142,4 +144,6 @@ class MappingToRefFaceToPyramid4 : public MappingReferenceToReference<1> {
 };
 
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_MAPPINGTOREFFACETOPYRAMID_H

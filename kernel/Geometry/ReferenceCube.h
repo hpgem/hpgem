@@ -43,6 +43,8 @@
 #include "PointReference.h"
 #include <vector>
 
+namespace hpgem {
+
 namespace Geometry {
 /*! The ordering of the vertex and faces in a cube:
  *
@@ -181,4 +183,6 @@ class ReferenceCube : public ReferenceGeometry {
     PointReference<3> center_;
 };
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_REFERENCECUBE_H

@@ -40,6 +40,8 @@
 
 #include "Geometry/FaceGeometry.h"
 
+namespace hpgem {
+
 namespace Base {
 class Face;
 class Element;
@@ -71,5 +73,7 @@ class FaceFactory {
     std::size_t numberOfFaceVectors_;
 };
 }  // namespace Base
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_FACEFACTORY_H

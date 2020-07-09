@@ -42,6 +42,8 @@
 #include <cmath>
 #include "LinearAlgebra/MiddleSizeVector.h"
 
+namespace hpgem {
+
 namespace LinearAlgebra {
 template <std::size_t DIM>
 class SmallVector;
@@ -71,4 +73,6 @@ double L2Norm(const Geometry::Point<DIM>& v) {
     return std::sqrt(retSquared);
 }
 }  // namespace Base
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_L2NORM_H

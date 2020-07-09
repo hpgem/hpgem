@@ -46,6 +46,8 @@
 #include "Geometry/PointPhysical.h"
 #include <vector>
 
+namespace hpgem {
+
 namespace Base {
 
 void Edge::addElement(Element* element, std::size_t edgeNumber) {
@@ -109,3 +111,5 @@ Element* Edge::getOwningElement() const {
 }
 
 }  // namespace Base
+
+}  // namespace hpgem

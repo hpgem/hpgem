@@ -41,6 +41,8 @@
 #include "PointPhysical.h"
 #include "PointReference.h"
 
+namespace hpgem {
+
 namespace Geometry {
 PhysicalPyramid::PhysicalPyramid(
     const std::vector<std::size_t>& globalNodeIndexes,
@@ -48,3 +50,5 @@ PhysicalPyramid::PhysicalPyramid(
     : PhysicalGeometry(globalNodeIndexes, nodes,
                        &ReferencePyramid::Instance()) {}
 }  // namespace Geometry
+
+}  // namespace hpgem

@@ -44,6 +44,8 @@
 #include "Element.h"
 #include "GlobalUniqueIndex.h"
 
+namespace hpgem {
+
 namespace Geometry {
 template <std::size_t DIM>
 class PointPhysical;
@@ -112,5 +114,7 @@ Element* ElementFactory::makeElement(
 }
 
 }  // namespace Base
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_ELEMENTFACTORY_H

@@ -44,6 +44,8 @@
 #include <iostream>
 #include <vector>
 
+namespace hpgem {
+
 namespace Geometry {
 /* Behold the reference line:
  *
@@ -138,4 +140,6 @@ class ReferenceLine : public ReferenceGeometry {
     PointReference<1> center_;
 };
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_REFERENCELINE_H

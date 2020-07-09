@@ -43,6 +43,8 @@
 #include "Geometry/PointReference.h"
 #include <vector>
 
+namespace hpgem {
+
 //---------------------------------------------------------------------------
 namespace QuadratureRules {
 
@@ -334,4 +336,6 @@ class T2_11_28 : public GaussQuadratureRule {
 
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_GAUSSQUADRATURERULESFORTRIANGLE_H

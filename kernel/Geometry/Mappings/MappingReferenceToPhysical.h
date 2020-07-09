@@ -44,6 +44,8 @@
 #include "Geometry/PhysicalGeometryBase.h"
 #include <vector>
 
+namespace hpgem {
+
 namespace Geometry {
 template <std::size_t DIM>
 class PhysicalGeometry;
@@ -136,4 +138,6 @@ class MappingReferenceToPhysical : public MappingInterface<0> {
 };
 
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_MAPPINGREFERENCETOPHYSICAL_H

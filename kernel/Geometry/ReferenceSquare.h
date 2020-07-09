@@ -43,6 +43,8 @@
 #include <vector>
 #include <iostream>
 
+namespace hpgem {
+
 namespace Geometry {
 
 /* Behold the reference square:
@@ -158,4 +160,6 @@ class ReferenceSquare : public ReferenceGeometry {
 };
 
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_REFERENCESQUARE_H

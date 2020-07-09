@@ -41,6 +41,8 @@
 
 #include <cstdlib>
 
+namespace hpgem {
+
 namespace Geometry {
 template <std::size_t DIM>
 class PointPhysical;
@@ -84,5 +86,7 @@ class PointPhysicalBase {
 };
 std::ostream& operator<<(std::ostream& out, const PointPhysicalBase& point);
 }  // namespace Geometry
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_POINTPHYSICALBASE_H

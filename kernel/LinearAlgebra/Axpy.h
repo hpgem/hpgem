@@ -43,6 +43,8 @@
 
 #include <type_traits>
 
+namespace hpgem {
+
 namespace LinearAlgebra {
 ///\brief Implementation for the AXPY operation, i.e. Y = alpha * X + Y.
 /// If you need a variant that's not working on a scalar or class that
@@ -74,5 +76,7 @@ inline void axpy(S a, const std::complex<double>& x, std::complex<double>& y) {
 }
 
 }  // namespace LinearAlgebra
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_AXPY_H

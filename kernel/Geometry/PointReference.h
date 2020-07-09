@@ -45,6 +45,7 @@
 
 #include <map>
 
+namespace hpgem {
 namespace Geometry {
 template <std::size_t DIM>
 class PointReference : public Point<DIM>, public PointReferenceBase {
@@ -70,7 +71,7 @@ class PointReference : public Point<DIM>, public PointReferenceBase {
 // PointReference operator*(double left, const PointReference& right);
 
 }  // namespace Geometry
-
+}  // namespace hpgem
 #include "PointReference_Impl.h"
 
 #endif  // HPGEM_KERNEL_POINTREFERENCE_H

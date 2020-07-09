@@ -48,6 +48,8 @@
 #include "LinearAlgebra/Axpy.h"
 #include "Base/DoNotScaleIntegrands.h"
 
+namespace hpgem {
+
 namespace Integration {
 /*!
 \param[in]  el        the Element to be integrated on,
@@ -229,5 +231,7 @@ Base::PhysicalElement<DIM>& ElementIntegral<DIM>::getPhysicalElement() {
     return element_;
 }
 }  // namespace Integration
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_ELEMENTINTEGRAL_IMPL_H
