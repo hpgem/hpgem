@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef NAVIERSTOKESCONSTANTS_H_
-#define NAVIERSTOKESCONSTANTS_H_
+#ifndef HPGEM_APP_NAVIERSTOKESCONSTANTS_H
+#define HPGEM_APP_NAVIERSTOKESCONSTANTS_H
 
 // Hardcoded parameters
 const static double ETA = 3.0;  // Lifting opererator coefficient
@@ -48,4 +48,4 @@ const static double EPSILON = 1e-6;  // Jacobian difference parameter
 
 enum class BoundaryType { ADIABATIC_WALL, INFLOW, OUTFLOW, FULL_STATE };
 
-#endif /* NAVIERSTOKESCONSTANTS_H_ */
+#endif // HPGEM_APP_NAVIERSTOKESCONSTANTS_H

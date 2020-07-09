@@ -16,6 +16,6 @@ foreach(CPPFILE ${CPPFILES})
 	#Make the exe
 	add_executable(${EXECNAME} ${FILENAME})
 
-	target_link_libraries(${EXECNAME} hpGEM_Base Output ${PETSC_LIBRARIES})
+	target_link_libraries(${EXECNAME} hpGEM_Base Output PETSc::PETSc)
 endforeach()
 

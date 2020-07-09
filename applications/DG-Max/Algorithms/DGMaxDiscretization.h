@@ -43,8 +43,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Logger.h"
 
-#ifndef ALGORITHMS_DGMAXDISCRETIZATION_h
-#define ALGORITHMS_DGMAXDISCRETIZATION_h
+#ifndef HPGEM_APP_DGMAXDISCRETIZATION_H
+#define HPGEM_APP_DGMAXDISCRETIZATION_H
 
 // Forward definitions
 namespace Base {
@@ -168,4 +168,4 @@ class DGMaxDiscretization {
                               InputFunction exactValue) const;
 };
 
-#endif  // ALGORITHMS_DGMAXDISCRETIZATION_h
+#endif // HPGEM_APP_DGMAXDISCRETIZATION_H

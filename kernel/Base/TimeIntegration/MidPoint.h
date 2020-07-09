@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MIDPOINT_HPP
-#define MIDPOINT_HPP
+#ifndef HPGEM_KERNEL_MIDPOINT_H
+#define HPGEM_KERNEL_MIDPOINT_H
 
 #include <vector>
 #include "ButcherTableau.h"
@@ -70,4 +70,4 @@ class MidPoint : public ButcherTableau {
 };
 }  // namespace TimeIntegration
 
-#endif /* MIDPOINT_HPP */
+#endif // HPGEM_KERNEL_MIDPOINT_H

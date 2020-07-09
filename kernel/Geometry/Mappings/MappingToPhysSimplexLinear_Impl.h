@@ -39,8 +39,8 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/Jacobian.h"
 
-#ifndef MAPPINGSIMPLEXLINEAR_CPP_
-#define MAPPINGSIMPLEXLINEAR_CPP_
+#ifndef HPGEM_KERNEL_MAPPINGTOPHYSSIMPLEXLINEAR_IMPL_H
+#define HPGEM_KERNEL_MAPPINGTOPHYSSIMPLEXLINEAR_IMPL_H
 
 /*! The mapping is linear in every reference space dimension, with the offset to
  *  the origin of the dim-simplex. */
@@ -97,4 +97,4 @@ void Geometry::MappingToPhysSimplexLinear<DIM>::reinit() {
     // we get a free reinit because transform and jacobian use the nodes
     // directly
 }
-#endif /* MAPPINGSIMPLECUBENLINEAR_H_ */
+#endif // HPGEM_KERNEL_MAPPINGTOPHYSSIMPLEXLINEAR_IMPL_H

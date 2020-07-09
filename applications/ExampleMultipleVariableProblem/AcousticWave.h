@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef AcousticWaveH
-#define AcousticWaveH
+#ifndef HPGEM_APP_ACOUSTICWAVE_H
+#define HPGEM_APP_ACOUSTICWAVE_H
 
 #include <fstream>
 
@@ -241,4 +241,4 @@ class AcousticWave : public Base::HpgemAPISimplified<DIM> {
 
 #include "AcousticWave_Impl.h"
 
-#endif
+#endif // HPGEM_APP_ACOUSTICWAVE_H

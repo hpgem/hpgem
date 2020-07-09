@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BaseBasisFunction_h
-#define BaseBasisFunction_h
+#ifndef HPGEM_KERNEL_BASEBASISFUNCTION_H
+#define HPGEM_KERNEL_BASEBASISFUNCTION_H
 
 #include "LinearAlgebra/SmallVector.h"
 
@@ -192,4 +192,4 @@ class BaseBasisFunction {
 
 }  // namespace Base
 
-#endif  // BaseBasisFunction_h
+#endif // HPGEM_KERNEL_BASEBASISFUNCTION_H

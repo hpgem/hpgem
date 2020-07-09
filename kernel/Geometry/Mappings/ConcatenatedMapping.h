@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ____ConcatenatedMapping__
-#define ____ConcatenatedMapping__
+#ifndef HPGEM_KERNEL_CONCATENATEDMAPPING_H
+#define HPGEM_KERNEL_CONCATENATEDMAPPING_H
 
 #include "MappingReferenceToReference.h"
 //------------------------------------------------------------------------------
@@ -96,4 +96,4 @@ class ConcatenatedMapping : public MappingReferenceToReference<1> {
 
 }  // namespace Geometry
 
-#endif /* defined(____ConcatenatedMapping__) */
+#endif // HPGEM_KERNEL_CONCATENATEDMAPPING_H

@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ____PhysGradientOfBasisFunction__
-#define ____PhysGradientOfBasisFunction__
+#ifndef HPGEM_KERNEL_PHYSGRADIENTOFBASISFUNCTION_H
+#define HPGEM_KERNEL_PHYSGRADIENTOFBASISFUNCTION_H
 
 #include "Logger.h"
 
@@ -86,4 +86,4 @@ struct PhysGradientOfBasisFunction {
 
 #include "PhysGradientOfBasisFunction_Impl.h"
 
-#endif /* defined(____PhysGradientOfBasisFunction__) */
+#endif // HPGEM_KERNEL_PHYSGRADIENTOFBASISFUNCTION_H

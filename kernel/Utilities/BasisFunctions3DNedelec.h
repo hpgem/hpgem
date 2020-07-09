@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BASISFUNCTIONS3DNEDELEC_H_
-#define BASISFUNCTIONS3DNEDELEC_H_
+#ifndef HPGEM_KERNEL_BASISFUNCTIONS3DNEDELEC_H
+#define HPGEM_KERNEL_BASISFUNCTIONS3DNEDELEC_H
 
 #include "Base/BaseBasisFunction.h"
 #include <vector>
@@ -153,4 +153,4 @@ Base::BasisFunctionSet* createDGBasisFunctionSet3DNedelec(std::size_t order);
 
 }  // namespace Utilities
 
-#endif
+#endif // HPGEM_KERNEL_BASISFUNCTIONS3DNEDELEC_H

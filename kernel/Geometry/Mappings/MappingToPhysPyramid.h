@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MAPPINGPYRAMID_H_
-#define MAPPINGPYRAMID_H_
+#ifndef HPGEM_KERNEL_MAPPINGTOPHYSPYRAMID_H
+#define HPGEM_KERNEL_MAPPINGTOPHYSPYRAMID_H
 
 #include "MappingReferenceToPhysical.h"
 #include <vector>
@@ -69,4 +69,4 @@ class MappingToPhysPyramid : public MappingReferenceToPhysical {
     std::size_t getTargetDimension() const final { return 3; }
 };
 }  // namespace Geometry
-#endif
+#endif // HPGEM_KERNEL_MAPPINGTOPHYSPYRAMID_H

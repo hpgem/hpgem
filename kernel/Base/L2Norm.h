@@ -35,8 +35,8 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef L2Norm_h
-#define L2Norm_h
+#ifndef HPGEM_KERNEL_L2NORM_H
+#define HPGEM_KERNEL_L2NORM_H
 
 #include <cstdlib>
 #include <cmath>
@@ -71,4 +71,4 @@ double L2Norm(const Geometry::Point<DIM>& v) {
     return std::sqrt(retSquared);
 }
 }  // namespace Base
-#endif
+#endif // HPGEM_KERNEL_L2NORM_H

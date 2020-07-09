@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ____FaceGeometry__
-#define ____FaceGeometry__
+#ifndef HPGEM_KERNEL_FACEGEOMETRY_H
+#define HPGEM_KERNEL_FACEGEOMETRY_H
 
 #include <set>
 #include <vector>
@@ -455,4 +455,4 @@ PointPhysical<DIM + 1> FaceGeometry::referenceToPhysical(
     return getElementGLeft()->referenceToPhysical(mapRefFaceToRefElemL(p));
 }
 }  // namespace Geometry
-#endif /* defined(____FaceGeometry__) */
+#endif // HPGEM_KERNEL_FACEGEOMETRY_H

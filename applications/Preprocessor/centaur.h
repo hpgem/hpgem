@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPGEM_CENTAUR_H
-#define HPGEM_CENTAUR_H
+#ifndef HPGEM_APP_CENTAUR_H
+#define HPGEM_APP_CENTAUR_H
 
 #include "customIterator.h"
 #include "unstructuredFile.h"
@@ -79,4 +79,4 @@ class CentaurReader {
 };
 }  // namespace Preprocessor
 
-#endif  // HPGEM_CENTAUR_H
+#endif // HPGEM_APP_CENTAUR_H

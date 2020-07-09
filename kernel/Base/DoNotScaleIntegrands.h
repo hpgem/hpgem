@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DONOTSCALEINTEGRANDS_H_
-#define DONOTSCALEINTEGRANDS_H_
+#ifndef HPGEM_KERNEL_DONOTSCALEINTEGRANDS_H
+#define HPGEM_KERNEL_DONOTSCALEINTEGRANDS_H
 
 #include <cstdlib>
 #include "LinearAlgebra/SmallVector.h"
@@ -96,4 +96,4 @@ class DoNotScaleIntegrands : public CoordinateTransformation<DIM> {
 };
 }  // namespace Base
 
-#endif /* DONOTSCALEINTEGRANDS_H_ */
+#endif // HPGEM_KERNEL_DONOTSCALEINTEGRANDS_H

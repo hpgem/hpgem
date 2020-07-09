@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MAPPINGSIMPLEXLINEAR_H_
-#define MAPPINGSIMPLEXLINEAR_H_
+#ifndef HPGEM_KERNEL_MAPPINGTOPHYSSIMPLEXLINEAR_H
+#define HPGEM_KERNEL_MAPPINGTOPHYSSIMPLEXLINEAR_H
 
 #include "MappingReferenceToPhysical.h"
 
@@ -85,4 +85,4 @@ class MappingToPhysSimplexLinear : public MappingReferenceToPhysical {
 };
 }  // namespace Geometry
 #include "MappingToPhysSimplexLinear_Impl.h"
-#endif
+#endif // HPGEM_KERNEL_MAPPINGTOPHYSSIMPLEXLINEAR_H

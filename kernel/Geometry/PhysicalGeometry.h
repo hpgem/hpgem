@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PHYSICALGEOMETRY_H_
-#define PHYSICALGEOMETRY_H_
+#ifndef HPGEM_KERNEL_PHYSICALGEOMETRY_H
+#define HPGEM_KERNEL_PHYSICALGEOMETRY_H
 
 #include <vector>
 #include <iostream>
@@ -172,4 +172,4 @@ class PhysicalGeometry : public PhysicalGeometryBase {
 
 #include "PhysicalGeometry_Impl.h"
 
-#endif /* PHYSICALGEOMETRY_H_ */
+#endif // HPGEM_KERNEL_PHYSICALGEOMETRY_H

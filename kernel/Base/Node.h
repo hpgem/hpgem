@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef NODE_HPP
-#define NODE_HPP
+#ifndef HPGEM_KERNEL_NODE_H
+#define HPGEM_KERNEL_NODE_H
 
 #include <cstdlib>
 #include <vector>
@@ -171,4 +171,4 @@ class Node {
 };
 
 }  // namespace Base
-#endif /* NODE_HPP */
+#endif // HPGEM_KERNEL_NODE_H

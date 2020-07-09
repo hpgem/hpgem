@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ELEMENTGEOMETRY_H_
-#define ELEMENTGEOMETRY_H_
+#ifndef HPGEM_KERNEL_ELEMENTGEOMETRY_H
+#define HPGEM_KERNEL_ELEMENTGEOMETRY_H
 
 #include <vector>
 #include <iostream>
@@ -359,4 +359,4 @@ ElementGeometry::ElementGeometry(
                                // it one needs to call enableRefinement
 {}
 }  // namespace Geometry
-#endif
+#endif // HPGEM_KERNEL_ELEMENTGEOMETRY_H

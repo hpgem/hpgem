@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPGEM_CUSTOMALLOCATOR_H
-#define HPGEM_CUSTOMALLOCATOR_H
+#ifndef HPGEM_APP_CUSTOMVECTOR_H
+#define HPGEM_APP_CUSTOMVECTOR_H
 
 #include <memory>
 #include <vector>
@@ -602,4 +602,4 @@ void swap(stackVector<T, N>& l, stackVector<T, N>& r) {
 };
 }  // namespace Preprocessor
 
-#endif  // HPGEM_CUSTOMALLOCATOR_H
+#endif // HPGEM_APP_CUSTOMVECTOR_H

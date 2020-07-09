@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ____ReferenceLine__
-#define ____ReferenceLine__
+#ifndef HPGEM_KERNEL_REFERENCELINE_H
+#define HPGEM_KERNEL_REFERENCELINE_H
 
 #include "ReferenceGeometry.h"
 
@@ -138,4 +138,4 @@ class ReferenceLine : public ReferenceGeometry {
     PointReference<1> center_;
 };
 }  // namespace Geometry
-#endif
+#endif // HPGEM_KERNEL_REFERENCELINE_H

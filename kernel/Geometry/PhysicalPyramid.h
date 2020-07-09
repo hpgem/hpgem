@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PHYSICALPYRAMID_HH
-#define PHYSICALPYRAMID_HH
+#ifndef HPGEM_KERNEL_PHYSICALPYRAMID_H
+#define HPGEM_KERNEL_PHYSICALPYRAMID_H
 
 #include "PhysicalGeometry.h"
 
@@ -52,4 +52,4 @@ class PhysicalPyramid : public PhysicalGeometry<3> {
                     std::vector<Geometry::PointPhysical<3> >&);
 };
 }  // namespace Geometry
-#endif
+#endif // HPGEM_KERNEL_PHYSICALPYRAMID_H

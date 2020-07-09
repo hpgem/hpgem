@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FORWARDEULER_HPP
-#define FORWARDEULER_HPP
+#ifndef HPGEM_KERNEL_FORWARDEULER_H
+#define HPGEM_KERNEL_FORWARDEULER_H
 
 #include <vector>
 #include "ButcherTableau.h"
@@ -70,4 +70,4 @@ class ForwardEuler : public ButcherTableau {
 };
 }  // namespace TimeIntegration
 
-#endif /* FORWARDEULER_HPP */
+#endif // HPGEM_KERNEL_FORWARDEULER_H

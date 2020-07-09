@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MAPPINGPOINTTOLINE_H_
-#define MAPPINGPOINTTOLINE_H_
+#ifndef HPGEM_KERNEL_MAPPINGTOREFPOINTTOLINE_H
+#define HPGEM_KERNEL_MAPPINGTOREFPOINTTOLINE_H
 
 #include "MappingReferenceToReference.h"
 #include "Geometry/Jacobian.h"
@@ -96,4 +96,4 @@ class MappingToRefPointToLine1 : public MappingReferenceToReference<1> {
         transformedCoordinates;
 };
 }  // namespace Geometry
-#endif
+#endif // HPGEM_KERNEL_MAPPINGTOREFPOINTTOLINE_H

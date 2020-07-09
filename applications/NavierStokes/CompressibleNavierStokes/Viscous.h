@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef VISCOUS_H_
-#define VISCOUS_H_
+#ifndef HPGEM_APP_VISCOUS_H
+#define HPGEM_APP_VISCOUS_H
 
 #include "CompressibleDimension.h"
 
@@ -229,4 +229,4 @@ class Viscous {
                                                            // elements.
 };
 
-#endif /* VISCOUS_H_ */
+#endif // HPGEM_APP_VISCOUS_H

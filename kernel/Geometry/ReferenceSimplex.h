@@ -1,5 +1,5 @@
-#ifndef HPGEM_REFERENCESIMPLEX_H
-#define HPGEM_REFERENCESIMPLEX_H
+#ifndef HPGEM_KERNEL_REFERENCESIMPLEX_H
+#define HPGEM_KERNEL_REFERENCESIMPLEX_H
 
 #include "../Logger.h"
 
@@ -65,4 +65,4 @@ std::ostream& operator<<(std::ostream& os,
 }
 }  // namespace Geometry
 
-#endif  // HPGEM_REFERENCESIMPLEX_H
+#endif // HPGEM_KERNEL_REFERENCESIMPLEX_H

@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPGEM_UNSTRUCTUREDFILE_H
-#define HPGEM_UNSTRUCTUREDFILE_H
+#ifndef HPGEM_APP_UNSTRUCTUREDFILE_H
+#define HPGEM_APP_UNSTRUCTUREDFILE_H
 
 /**
  * @brief wrapper class allow streamed input (using >>) on unstructured classes
@@ -104,4 +104,4 @@ class UnstructuredInputStream {
 };
 }  // namespace Preprocessor
 
-#endif  // HPGEM_UNSTRUCTUREDFILE_H
+#endif // HPGEM_APP_UNSTRUCTUREDFILE_H

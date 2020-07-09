@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BaseLinearH
-#define BaseLinearH
+#ifndef HPGEM_KERNEL_HPGEMAPILINEAR_H
+#define HPGEM_KERNEL_HPGEMAPILINEAR_H
 
 #include "Base/ConfigurationData.h"
 #include "Base/Element.h"
@@ -320,4 +320,4 @@ class HpgemAPILinear : public HpgemAPISimplified<DIM> {
 
 #include "HpgemAPILinear_Impl.h"
 
-#endif
+#endif // HPGEM_KERNEL_HPGEMAPILINEAR_H

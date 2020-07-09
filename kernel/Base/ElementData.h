@@ -37,8 +37,8 @@
  */
 
 //----------------------------------------------------------------
-#ifndef ElementData_h
-#define ElementData_h
+#ifndef HPGEM_KERNEL_ELEMENTDATA_H
+#define HPGEM_KERNEL_ELEMENTDATA_H
 //----------------------------------------------------------------
 #include <vector>
 #include "LinearAlgebra/MiddleSizeMatrix.h"
@@ -250,4 +250,4 @@ class ElementData {
     std::vector<LinearAlgebra::MiddleSizeVector> elementVector_;
 };
 }  // namespace Base
-#endif
+#endif // HPGEM_KERNEL_ELEMENTDATA_H

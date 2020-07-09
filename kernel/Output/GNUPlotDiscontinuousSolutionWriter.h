@@ -5,8 +5,8 @@
  * Created on November 10, 2014, 2:58 PM
  */
 
-#ifndef DISCONTINUOUSSOLUTIONWRITER_HH
-#define DISCONTINUOUSSOLUTIONWRITER_HH
+#ifndef HPGEM_KERNEL_GNUPLOTDISCONTINUOUSSOLUTIONWRITER_H
+#define HPGEM_KERNEL_GNUPLOTDISCONTINUOUSSOLUTIONWRITER_H
 
 #include <ostream>
 #include <vector>
@@ -76,4 +76,4 @@ class GNUPlotDiscontinuousSolutionWriter {
 
 #include "GNUPlotDiscontinuousSolutionWriter_Impl.h"
 
-#endif /* DISCONTINUOUSSOLUTIONWRITER_HH */
+#endif // HPGEM_KERNEL_GNUPLOTDISCONTINUOUSSOLUTIONWRITER_H

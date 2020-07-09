@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPGEM_MESH_H
-#define HPGEM_MESH_H
+#ifndef HPGEM_APP_MESH_H
+#define HPGEM_APP_MESH_H
 
 #include "Base/ConstIterableWrapper.h"
 #include "LinearAlgebra/SmallVector.h"
@@ -587,4 +587,4 @@ Mesh<dimension> readFile(file_t& file) {
 
 #include "mesh_impl.h"
 
-#endif  // HPGEM_MESH_H
+#endif // HPGEM_APP_MESH_H

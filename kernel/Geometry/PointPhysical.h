@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef POINTPHYSICAL_HPP_
-#define POINTPHYSICAL_HPP_
+#ifndef HPGEM_KERNEL_POINTPHYSICAL_H
+#define HPGEM_KERNEL_POINTPHYSICAL_H
 
 #include "Point.h"
 #include "PointPhysicalBase.h"
@@ -101,4 +101,4 @@ PointPhysical<DIM> operator*(double left, const PointPhysical<DIM>& right);
 
 #include "PointPhysical_Impl.h"
 
-#endif /* POINTPHYSICAL_HPP_ */
+#endif // HPGEM_KERNEL_POINTPHYSICAL_H

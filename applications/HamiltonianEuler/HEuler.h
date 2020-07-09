@@ -1,5 +1,5 @@
-#ifndef HEULER_HH
-#define HEULER_HH
+#ifndef HPGEM_APP_HEULER_H
+#define HPGEM_APP_HEULER_H
 
 #include <string>
 using std::string;
@@ -213,4 +213,4 @@ class HEuler
     Mat P_;
     Mat Q_;
 };
-#endif
+#endif // HPGEM_APP_HEULER_H

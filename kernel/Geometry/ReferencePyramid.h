@@ -35,8 +35,8 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef ____ReferencePyramid__
-#define ____ReferencePyramid__
+#ifndef HPGEM_KERNEL_REFERENCEPYRAMID_H
+#define HPGEM_KERNEL_REFERENCEPYRAMID_H
 
 #include "ReferenceGeometry.h"
 #include <vector>
@@ -181,4 +181,4 @@ class ReferencePyramid : public ReferenceGeometry {
     PointReference<3> center_;
 };
 }  // namespace Geometry
-#endif
+#endif // HPGEM_KERNEL_REFERENCEPYRAMID_H

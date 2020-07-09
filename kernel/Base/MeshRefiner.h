@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MeshRefiner_h
-#define MeshRefiner_h
+#ifndef HPGEM_KERNEL_MESHREFINER_H
+#define HPGEM_KERNEL_MESHREFINER_H
 
 //#include "TypedefsInBase.h"
 
@@ -92,4 +92,4 @@ class MeshRefiner {
 };
 
 }  // namespace Base
-#endif  //  MeshRefiner_h
+#endif // HPGEM_KERNEL_MESHREFINER_H

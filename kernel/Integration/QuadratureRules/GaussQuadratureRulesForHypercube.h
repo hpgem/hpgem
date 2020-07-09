@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 //------------------------------------------------------------------------------
-#ifndef GaussQuadratureRulesForHypercube_h
-#define GaussQuadratureRulesForHypercube_h
+#ifndef HPGEM_KERNEL_GAUSSQUADRATURERULESFORHYPERCUBE_H
+#define HPGEM_KERNEL_GAUSSQUADRATURERULESFORHYPERCUBE_H
 //---------------------------------------------------------------------------
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include "Geometry/PointReference.h"
@@ -96,4 +96,4 @@ class Cn4_3_16 : public GaussQuadratureRule {
 
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
-#endif
+#endif // HPGEM_KERNEL_GAUSSQUADRATURERULESFORHYPERCUBE_H

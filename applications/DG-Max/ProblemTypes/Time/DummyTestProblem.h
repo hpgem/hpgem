@@ -36,8 +36,8 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PROBLEMTYPES_TIME_DUMMYTESTPROBLEM_h
-#define PROBLEMTYPES_TIME_DUMMYTESTPROBLEM_h
+#ifndef HPGEM_APP_DUMMYTESTPROBLEM_H
+#define HPGEM_APP_DUMMYTESTPROBLEM_H
 
 #include "../TimeIntegrationProblem.h"
 
@@ -65,4 +65,4 @@ class DummyTestProblem : public ExactSeparableTimeIntegrationProblem<DIM> {
     double timeScalingSource(double t) const override;
 };
 
-#endif  // PROBLEMTYPES_TIME_DUMMYTESTPROBLEM_h
+#endif // HPGEM_APP_DUMMYTESTPROBLEM_H

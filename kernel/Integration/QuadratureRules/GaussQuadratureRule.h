@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef GaussQuadratureRule_h
-#define GaussQuadratureRule_h
+#ifndef HPGEM_KERNEL_GAUSSQUADRATURERULE_H
+#define HPGEM_KERNEL_GAUSSQUADRATURERULE_H
 
 #include <string>
 #include <cstring>
@@ -369,4 +369,4 @@ inline void QuadratureRules::GaussQuadratureRule::eval(
     }
 }
 
-#endif
+#endif // HPGEM_KERNEL_GAUSSQUADRATURERULE_H

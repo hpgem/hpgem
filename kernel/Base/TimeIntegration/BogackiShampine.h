@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPGEM_BOGACKISHAMPINE_H
-#define HPGEM_BOGACKISHAMPINE_H
+#ifndef HPGEM_KERNEL_BOGACKISHAMPINE_H
+#define HPGEM_KERNEL_BOGACKISHAMPINE_H
 
 #include "ButcherTableau.h"
 
@@ -78,4 +78,4 @@ class BogackiShampine : public ButcherTableau {
 };
 }  // namespace TimeIntegration
 
-#endif  // HPGEM_BOGACKISHAMPINE_H
+#endif // HPGEM_KERNEL_BOGACKISHAMPINE_H

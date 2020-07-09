@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SAVAGEHUTTER1DBIDSIPERSED_H
-#define SAVAGEHUTTER1DBIDSIPERSED_H
+#ifndef HPGEM_APP_SAVAGEHUTTER1DBIDISPERSED_H
+#define HPGEM_APP_SAVAGEHUTTER1DBIDISPERSED_H
 
 #include "SavageHutter1DBase.h"
 
@@ -107,4 +107,4 @@ class SavageHutter1DBidispersed : public SavageHutter1DBase {
     double alpha_;
     std::vector<double> maximumHeights_;
 };
-#endif /* SAVAGEHUTTER1DBIDSIPERSED_H */
+#endif // HPGEM_APP_SAVAGEHUTTER1DBIDISPERSED_H

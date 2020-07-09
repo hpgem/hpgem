@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef REFERENCETOPHYSICALM_H_
-#define REFERENCETOPHYSICALM_H_
+#ifndef HPGEM_KERNEL_MAPPINGREFERENCETOPHYSICAL_H
+#define HPGEM_KERNEL_MAPPINGREFERENCETOPHYSICAL_H
 
 #include "MappingInterface.h"
 #include "Logger.h"
@@ -136,4 +136,4 @@ class MappingReferenceToPhysical : public MappingInterface<0> {
 };
 
 }  // namespace Geometry
-#endif /* REFERENCETOPHYSICALM_H_ */
+#endif // HPGEM_KERNEL_MAPPINGREFERENCETOPHYSICAL_H

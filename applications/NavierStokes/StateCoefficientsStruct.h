@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef STATECOEFFICIENTSSTRUCT_H_
-#define STATECOEFFICIENTSSTRUCT_H_
+#ifndef HPGEM_APP_STATECOEFFICIENTSSTRUCT_H
+#define HPGEM_APP_STATECOEFFICIENTSSTRUCT_H
 
 #include "Base/PhysicalElement.h"
 #include "Base/PhysicalFace.h"
@@ -227,4 +227,4 @@ class StateCoefficientsStruct {
     std::vector<LinearAlgebra::MiddleSizeMatrix> ellipticTensor_;
 };
 
-#endif /* STATECOEFFICIENTSSTRUCT_H_ */
+#endif // HPGEM_APP_STATECOEFFICIENTSSTRUCT_H

@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef STATECOEFFICIENTSFUNCTIONS_H_
-#define STATECOEFFICIENTSFUNCTIONS_H_
+#ifndef HPGEM_APP_STATECOEFFICIENTSFUNCTIONS_H
+#define HPGEM_APP_STATECOEFFICIENTSFUNCTIONS_H
 
 #include "Base/PhysicalElement.h"
 #include "Base/PhysicalFace.h"
@@ -248,4 +248,4 @@ LinearAlgebra::MiddleSizeMatrix computeEllipticTensorMatrixContraction(
     return result;
 }
 
-#endif /* STATECOEFFICIENTSFUNCTIONS_H_ */
+#endif // HPGEM_APP_STATECOEFFICIENTSFUNCTIONS_H

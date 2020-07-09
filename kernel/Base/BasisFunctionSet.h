@@ -36,8 +36,8 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef BasisFunctionSet_h
-#define BasisFunctionSet_h
+#ifndef HPGEM_KERNEL_BASISFUNCTIONSET_H
+#define HPGEM_KERNEL_BASISFUNCTIONSET_H
 
 #include <vector>
 #include "Logger.h"
@@ -465,4 +465,4 @@ inline LinearAlgebra::SmallVector<2> BasisFunctionSet::evalCurl(
 }
 
 }  // namespace Base
-#endif
+#endif // HPGEM_KERNEL_BASISFUNCTIONSET_H

@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MAPPINGSQUARETOCUBE_H_
-#define MAPPINGSQUARETOCUBE_H_
+#ifndef HPGEM_KERNEL_MAPPINGTOREFSQUARETOCUBE_H
+#define HPGEM_KERNEL_MAPPINGTOREFSQUARETOCUBE_H
 
 #include "MappingReferenceToReference.h"
 
@@ -195,4 +195,4 @@ class MappingToRefSquareToCube5 : public MappingReferenceToReference<1> {
 };
 
 }  // namespace Geometry
-#endif /* MAPPINGSIMPLECUBENLINEAR_H_ */
+#endif // HPGEM_KERNEL_MAPPINGTOREFSQUARETOCUBE_H

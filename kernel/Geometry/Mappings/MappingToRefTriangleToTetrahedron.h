@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MappingToRefTriangleToTetrahedron_H_
-#define MappingToRefTriangleToTetrahedron_H_
+#ifndef HPGEM_KERNEL_MAPPINGTOREFTRIANGLETOTETRAHEDRON_H
+#define HPGEM_KERNEL_MAPPINGTOREFTRIANGLETOTETRAHEDRON_H
 
 #include "MappingReferenceToReference.h"
 
@@ -145,4 +145,4 @@ class MappingToRefTriangleToTetrahedron3
         transformedCoordinates;
 };
 }  // namespace Geometry
-#endif
+#endif // HPGEM_KERNEL_MAPPINGTOREFTRIANGLETOTETRAHEDRON_H

@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ____ReferencePoint__
-#define ____ReferencePoint__
+#ifndef HPGEM_KERNEL_REFERENCEPOINT_H
+#define HPGEM_KERNEL_REFERENCEPOINT_H
 
 #include <iostream>
 
@@ -105,4 +105,4 @@ class ReferencePoint : public ReferenceGeometry {
     ReferencePoint();
 };
 }  // namespace Geometry
-#endif
+#endif // HPGEM_KERNEL_REFERENCEPOINT_H

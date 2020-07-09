@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MESH_HPP
-#define MESH_HPP
+#ifndef HPGEM_KERNEL_MESH_H
+#define HPGEM_KERNEL_MESH_H
 #ifdef HPGEM_USE_MPI
 #include <mpi.h>
 #endif
@@ -277,4 +277,4 @@ class Mesh final {
 
 #include "Mesh_Impl.h"
 
-#endif /* MESH_HPP */
+#endif // HPGEM_KERNEL_MESH_H

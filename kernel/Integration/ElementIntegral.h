@@ -35,8 +35,8 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef ElementIntegral_h
-#define ElementIntegral_h
+#ifndef HPGEM_KERNEL_ELEMENTINTEGRAL_H
+#define HPGEM_KERNEL_ELEMENTINTEGRAL_H
 //------------------------------------------------------------------------------
 // Package configuration (namespace Integration):
 //------------------------------------------------------------------------------
@@ -123,4 +123,4 @@ class ElementIntegral {
 
 #include "ElementIntegral_Impl.h"
 
-#endif
+#endif // HPGEM_KERNEL_ELEMENTINTEGRAL_H

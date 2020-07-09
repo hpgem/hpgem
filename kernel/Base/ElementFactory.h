@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ELEMENTFACTORY_HPP
-#define ELEMENTFACTORY_HPP
+#ifndef HPGEM_KERNEL_ELEMENTFACTORY_H
+#define HPGEM_KERNEL_ELEMENTFACTORY_H
 
 #include <vector>
 
@@ -113,4 +113,4 @@ Element* ElementFactory::makeElement(
 
 }  // namespace Base
 
-#endif /* ELEMENTFACTORY_HPP */
+#endif // HPGEM_KERNEL_ELEMENTFACTORY_H

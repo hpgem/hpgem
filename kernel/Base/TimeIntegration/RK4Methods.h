@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef RK4METHODS_HPP
-#define RK4METHODS_HPP
+#ifndef HPGEM_KERNEL_RK4METHODS_H
+#define HPGEM_KERNEL_RK4METHODS_H
 
 #include <vector>
 #include "ButcherTableau.h"
@@ -69,4 +69,4 @@ class RK4_4 : public ButcherTableau {
 };
 }  // namespace TimeIntegration
 
-#endif /* RK4METHODS_HPP */
+#endif // HPGEM_KERNEL_RK4METHODS_H

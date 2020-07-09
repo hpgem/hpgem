@@ -1,6 +1,6 @@
 
-#ifndef HPGEM_BANDSTRUCTUREUTILS_H
-#define HPGEM_BANDSTRUCTUREUTILS_H
+#ifndef HPGEM_APP_BANDSTRUCTUREUTILS_H
+#define HPGEM_APP_BANDSTRUCTUREUTILS_H
 
 #include "LinearAlgebra/SmallVector.h"
 
@@ -79,4 +79,4 @@ struct LatticePoint {
     std::array<int, DIM> coords_;
 };
 
-#endif  // HPGEM_BANDSTRUCTUREUTILS_H
+#endif // HPGEM_APP_BANDSTRUCTUREUTILS_H

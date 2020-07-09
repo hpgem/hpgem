@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PHYSICALGEOMETRYACCEPTOR_HPP_
-#define PHYSICALGEOMETRYACCEPTOR_HPP_
+#ifndef HPGEM_KERNEL_PHYSICALGEOMETRYACCEPTOR_H
+#define HPGEM_KERNEL_PHYSICALGEOMETRYACCEPTOR_H
 
 namespace Geometry {
 class PhysicalGeometryBase;
@@ -65,4 +65,4 @@ class PhysicalGeometryAcceptor {
     virtual ~PhysicalGeometryAcceptor() = default;
 };
 }  // namespace Output
-#endif
+#endif // HPGEM_KERNEL_PHYSICALGEOMETRYACCEPTOR_H

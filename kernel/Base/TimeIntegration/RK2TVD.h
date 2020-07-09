@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef RK2TVD_H_
-#define RK2TVD_H_
+#ifndef HPGEM_KERNEL_RK2TVD_H
+#define HPGEM_KERNEL_RK2TVD_H
 
 #include <vector>
 #include "ButcherTableau.h"
@@ -74,4 +74,4 @@ class RK2TVD : public ButcherTableau {
 
 }  // namespace TimeIntegration
 
-#endif /* RK2TVD_H_ */
+#endif // HPGEM_KERNEL_RK2TVD_H

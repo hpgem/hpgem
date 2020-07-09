@@ -35,8 +35,8 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef GaussQuadratureRulesForSquare_h
-#define GaussQuadratureRulesForSquare_h
+#ifndef HPGEM_KERNEL_GAUSSQUADRATURERULESFORSQUARE_H
+#define HPGEM_KERNEL_GAUSSQUADRATURERULESFORSQUARE_H
 //---------------------------------------------------------------------------
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include "Geometry/PointReference.h"
@@ -236,4 +236,4 @@ class C2_11_6 : public GaussQuadratureRule {
 };
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
-#endif
+#endif // HPGEM_KERNEL_GAUSSQUADRATURERULESFORSQUARE_H

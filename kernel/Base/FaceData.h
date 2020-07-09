@@ -37,8 +37,8 @@
  */
 
 //----------------------------------------------------------------
-#ifndef FaceData_h
-#define FaceData_h
+#ifndef HPGEM_KERNEL_FACEDATA_H
+#define HPGEM_KERNEL_FACEDATA_H
 //----------------------------------------------------------------
 #include <vector>
 #include "Base/FaceMatrix.h"
@@ -131,4 +131,4 @@ class FaceData {
     LinearAlgebra::MiddleSizeVector residual_;
 };
 }  // namespace Base
-#endif
+#endif // HPGEM_KERNEL_FACEDATA_H
