@@ -52,7 +52,7 @@
 #include "Geometry/PhysicalGeometry.h"
 
 #include <cmath>
-
+using namespace hpgem;
 int main() {
 
     // dim0

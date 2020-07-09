@@ -85,7 +85,7 @@
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
 
 using namespace std;
-
+using namespace hpgem;
 template <std::size_t DIM>
 void testMesh(Base::MeshManipulator<DIM>* test, bool isPeriodic) {
     std::unordered_set<std::size_t> elementIDs, faceIDs, edgeIDs, nodeIDs;

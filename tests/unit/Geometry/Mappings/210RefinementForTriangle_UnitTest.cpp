@@ -40,7 +40,7 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferenceTriangle.h"
 #include <iostream>
-
+using namespace hpgem;
 int main(int argc, char** argv) {
     Geometry::PointReference<2> refPoint;
     Geometry::PointReference<2> point, compare;

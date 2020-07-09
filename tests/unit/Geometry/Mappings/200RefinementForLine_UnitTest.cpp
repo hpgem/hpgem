@@ -40,7 +40,7 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferenceLine.h"
 #include <iostream>
-
+using namespace hpgem;
 int main(int argc, char** argv) {
     Geometry::PointReference<1> refPoint;
     Geometry::PointReference<1> point, compare;

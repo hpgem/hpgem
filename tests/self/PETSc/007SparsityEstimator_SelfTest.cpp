@@ -43,7 +43,7 @@
 
 #include "Utilities/GlobalIndexing.h"
 #include "Utilities/SparsityEstimator.h"
-
+using namespace hpgem;
 using Layout = Utilities::GlobalIndexing::Layout;
 
 /// Test configuration with GlobalIndexing layout and whether to include face

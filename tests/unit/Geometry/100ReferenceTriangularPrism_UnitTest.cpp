@@ -51,6 +51,7 @@
 #include "Geometry/Mappings/MappingToRefFaceToTriangularPrism.h"
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include <cmath>
+using namespace hpgem;
 using Geometry::ReferenceTriangularPrism;
 
 int main() {

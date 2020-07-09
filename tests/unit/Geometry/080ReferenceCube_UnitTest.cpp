@@ -52,6 +52,7 @@
 #include "Geometry/Mappings/MappingToRefCubeToCube.h"
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include <cmath>
+using namespace hpgem;
 using Geometry::ReferenceCube;
 
 int main() {

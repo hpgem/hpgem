@@ -49,7 +49,7 @@
 #include "Logger.h"
 #include <cmath>
 #include <CMakeDefinitions.h>
-
+using namespace hpgem;
 template <std::size_t DIM>
 void move(Base::MeshManipulator<DIM>* mesh) {
     class : public Base::MeshMoverBase<DIM> {

@@ -47,6 +47,7 @@
 #include "Geometry/ReferenceLine.h"
 
 #include <cmath>
+using namespace hpgem;
 using Geometry::PhysicalLine;
 
 int main() {

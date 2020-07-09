@@ -48,7 +48,7 @@
 #include "LinearAlgebra/SmallMatrix.h"
 #include "LinearAlgebra/SmallVector.h"
 #include "Logger.h"
-
+using namespace hpgem;
 using LinearAlgebra::SmallMatrix;
 using LinearAlgebra::SmallVector;
 

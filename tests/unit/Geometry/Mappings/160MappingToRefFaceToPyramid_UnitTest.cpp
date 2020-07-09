@@ -50,6 +50,7 @@
 #include "Geometry/Jacobian.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include <cmath>
+using namespace hpgem;
 int main() {
 
     Geometry::PointReference<2> refPoint;

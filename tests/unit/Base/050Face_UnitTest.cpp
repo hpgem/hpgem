@@ -56,7 +56,7 @@
 #include "Base/Element.h"
 #include "Geometry/PointReference.h"
 #include "Base/BaseBasisFunction.h"
-
+using namespace hpgem;
 int main() {
 
     std::vector<std::size_t> pointIndexes;

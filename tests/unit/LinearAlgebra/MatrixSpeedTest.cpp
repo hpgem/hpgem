@@ -42,7 +42,7 @@
 #include "LinearAlgebra/MiddleSizeMatrix.h"
 
 using namespace ::std;
-
+using namespace hpgem;
 ///\todo Please fix or remove.
 int main(int argc, char* argv[]) {
 

@@ -41,7 +41,7 @@
 #include <cmath>
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "Logger.h"
-
+using namespace hpgem;
 using LinearAlgebra::MiddleSizeVector;
 
 int main(int argc, char* argv[]) {

@@ -44,7 +44,7 @@
 #include "Base/LevelTree.h"
 #include "Base/TreeIterator.h"
 #include "Base/TreeEntry.h"
-
+using namespace hpgem;
 //========================================================= Here is the main
 // function
 int main() {

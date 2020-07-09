@@ -47,7 +47,7 @@
 
 #include "Logger.h"
 #include <CMakeDefinitions.h>
-
+using namespace hpgem;
 // If this test ever breaks it is not a bad thing per se. However, once this
 // breaks a thorough convergence analysis needs to be done. If the results still
 // show the theoretically optimal order of convergence, and you are convinced

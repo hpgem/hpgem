@@ -51,6 +51,7 @@
 #include "Geometry/Mappings/MappingToRefTriangleToTetrahedron.h"
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include <cmath>
+using namespace hpgem;
 using Geometry::ReferenceTetrahedron;
 
 int main() {

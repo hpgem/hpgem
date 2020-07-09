@@ -60,7 +60,7 @@
 // bool isInternal1D(const Geometry::PointPhysical& p) {
 //	return p[0]>1.4&&p[1]<1.7;
 //}
-
+using namespace hpgem;
 bool isInternal2D(const Geometry::PointPhysical<2>& p) {
     return (p[1] - p[0]) > 1. && (1.8 * p[0] - 1.4 * p[1]) > -0.84 &&
            (1.5 * p[0] - 1.1 * p[1]) < -0.42;

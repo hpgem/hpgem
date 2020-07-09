@@ -42,7 +42,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <CMakeDefinitions.h>
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
-
+using namespace hpgem;
 void testWithEmptyIndex() {
     // Test that creating a GlobalMatrix and GlobalVector with an empty index is
     // possible

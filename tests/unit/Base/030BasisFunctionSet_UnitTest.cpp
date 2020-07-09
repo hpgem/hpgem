@@ -48,7 +48,7 @@
 #include "Base/BaseBasisFunction.h"
 
 #include "Logger.h"
-
+using namespace hpgem;
 int main() {
 
     Base::BasisFunctionSet all1DbasisFunctions(5);

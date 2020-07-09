@@ -50,7 +50,7 @@
 #include "Geometry/PointReference.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include <cmath>
-
+using namespace hpgem;
 void testRule(QuadratureRules::GaussQuadratureRule& test,
               std::size_t expectedOrder) {
     std::cout << test.getName();
