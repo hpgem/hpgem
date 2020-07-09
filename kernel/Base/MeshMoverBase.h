@@ -74,4 +74,4 @@ class MeshMoverBase {
 };
 }  // namespace Base
 
-#endif // HPGEM_KERNEL_MESHMOVERBASE_H
+#endif  // HPGEM_KERNEL_MESHMOVERBASE_H

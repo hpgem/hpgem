@@ -82,4 +82,4 @@ namespace Base {
 using namespace TimeIntegration;
 }  // namespace Base
 
-#endif // HPGEM_KERNEL_BUTCHERTABLEAU_H
+#endif  // HPGEM_KERNEL_BUTCHERTABLEAU_H

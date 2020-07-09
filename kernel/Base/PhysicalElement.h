@@ -267,4 +267,4 @@ class PhysicalElement final {
 }  // namespace Base
 
 #include "PhysicalElement_Impl.h"
-#endif // HPGEM_KERNEL_PHYSICALELEMENT_H
+#endif  // HPGEM_KERNEL_PHYSICALELEMENT_H

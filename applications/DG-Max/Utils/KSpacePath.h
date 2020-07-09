@@ -58,4 +58,4 @@ class KSpacePath {
     const std::size_t steps_;
 };
 
-#endif // HPGEM_APP_KSPACEPATH_H
+#endif  // HPGEM_APP_KSPACEPATH_H

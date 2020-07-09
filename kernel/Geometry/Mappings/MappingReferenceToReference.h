@@ -100,4 +100,4 @@ class MappingReferenceToReference : public MappingInterface<codim> {
     //    transformedCoordinates;
 };
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_MAPPINGREFERENCETOREFERENCE_H
+#endif  // HPGEM_KERNEL_MAPPINGREFERENCETOREFERENCE_H

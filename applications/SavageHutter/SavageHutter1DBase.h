@@ -119,4 +119,4 @@ class SavageHutter1DBase : public SavageHutterBase<1> {
         const double normal, Base::PhysicalFace<1> &face);
 };
 
-#endif // HPGEM_APP_SAVAGEHUTTER1DBASE_H
+#endif  // HPGEM_APP_SAVAGEHUTTER1DBASE_H

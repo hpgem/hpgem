@@ -57,4 +57,4 @@ static const char base64Encode[65] =
 std::string toBase64(void* rawData, std::size_t len);
 }  // namespace Detail
 }  // namespace Output
-#endif // HPGEM_KERNEL_BASE64_H
+#endif  // HPGEM_KERNEL_BASE64_H

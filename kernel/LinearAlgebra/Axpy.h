@@ -75,4 +75,4 @@ inline void axpy(S a, const std::complex<double>& x, std::complex<double>& y) {
 
 }  // namespace LinearAlgebra
 
-#endif // HPGEM_KERNEL_AXPY_H
+#endif  // HPGEM_KERNEL_AXPY_H

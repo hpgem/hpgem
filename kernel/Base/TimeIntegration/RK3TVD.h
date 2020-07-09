@@ -71,4 +71,4 @@ class RK3TVD : public ButcherTableau {
 
 }  // namespace TimeIntegration
 
-#endif // HPGEM_KERNEL_RK3TVD_H
+#endif  // HPGEM_KERNEL_RK3TVD_H

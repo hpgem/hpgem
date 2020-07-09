@@ -148,4 +148,4 @@ class RefinementMapForPoint0 : public RefinementMapping {
 };
 }  // namespace Geometry
 
-#endif // HPGEM_KERNEL_REFINEMENTMAPSFORPOINT_H
+#endif  // HPGEM_KERNEL_REFINEMENTMAPSFORPOINT_H

@@ -187,4 +187,4 @@ class InviscidTerms {
 
 #include "InviscidTerms_Impl.h"
 
-#endif // HPGEM_APP_INVISCIDTERMS_H
+#endif  // HPGEM_APP_INVISCIDTERMS_H

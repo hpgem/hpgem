@@ -175,4 +175,4 @@ class ReferenceHypercube : public ReferenceGeometry {
 };
 }  // namespace Geometry
 
-#endif // HPGEM_KERNEL_REFERENCEHYPERCUBE_H
+#endif  // HPGEM_KERNEL_REFERENCEHYPERCUBE_H

@@ -52,4 +52,4 @@ class PhysicalPyramid : public PhysicalGeometry<3> {
                     std::vector<Geometry::PointPhysical<3> >&);
 };
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_PHYSICALPYRAMID_H
+#endif  // HPGEM_KERNEL_PHYSICALPYRAMID_H

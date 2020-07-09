@@ -146,4 +146,4 @@ class HomogeneousBandStructure : public BandStructure<DIM> {
     double permittivity_;
 };
 
-#endif // HPGEM_APP_HOMOGENEOUSBANDSTRUCTURE_H
+#endif  // HPGEM_APP_HOMOGENEOUSBANDSTRUCTURE_H

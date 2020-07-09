@@ -97,4 +97,4 @@ void Geometry::MappingToPhysSimplexLinear<DIM>::reinit() {
     // we get a free reinit because transform and jacobian use the nodes
     // directly
 }
-#endif // HPGEM_KERNEL_MAPPINGTOPHYSSIMPLEXLINEAR_IMPL_H
+#endif  // HPGEM_KERNEL_MAPPINGTOPHYSSIMPLEXLINEAR_IMPL_H

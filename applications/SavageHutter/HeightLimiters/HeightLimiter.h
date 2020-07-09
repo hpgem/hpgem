@@ -50,4 +50,4 @@ class HeightLimiter {
         LinearAlgebra::MiddleSizeVector &solutionCoeffiecients) = 0;
 };
 
-#endif // HPGEM_APP_HEIGHTLIMITER_H
+#endif  // HPGEM_APP_HEIGHTLIMITER_H

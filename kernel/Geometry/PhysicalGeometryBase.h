@@ -218,4 +218,4 @@ class PhysicalGeometryBase {
 };
 
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_PHYSICALGEOMETRYBASE_H
+#endif  // HPGEM_KERNEL_PHYSICALGEOMETRYBASE_H

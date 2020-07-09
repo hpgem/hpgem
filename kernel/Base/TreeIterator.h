@@ -638,4 +638,4 @@ template <typename V>
 using TreeIteratorConst = TreeIterator<V, true>;
 }  // namespace Base
 
-#endif // HPGEM_KERNEL_TREEITERATOR_H
+#endif  // HPGEM_KERNEL_TREEITERATOR_H

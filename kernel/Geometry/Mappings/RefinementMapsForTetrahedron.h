@@ -183,4 +183,4 @@ class RefinementMapForTetrahedron0 : public RefinementMapping {
 };
 }  // namespace Geometry
 
-#endif // HPGEM_KERNEL_REFINEMENTMAPSFORTETRAHEDRON_H
+#endif  // HPGEM_KERNEL_REFINEMENTMAPSFORTETRAHEDRON_H

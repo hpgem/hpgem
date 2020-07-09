@@ -213,4 +213,4 @@ class HEuler
     Mat P_;
     Mat Q_;
 };
-#endif // HPGEM_APP_HEULER_H
+#endif  // HPGEM_APP_HEULER_H

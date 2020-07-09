@@ -150,4 +150,4 @@ class ReferenceTetrahedron : public ReferenceSimplex<3> {
 };
 }  // namespace Geometry
 
-#endif // HPGEM_KERNEL_REFERENCETETRAHEDRON_H
+#endif  // HPGEM_KERNEL_REFERENCETETRAHEDRON_H

@@ -76,4 +76,4 @@ class GNUPlotDiscontinuousSolutionWriter {
 
 #include "GNUPlotDiscontinuousSolutionWriter_Impl.h"
 
-#endif // HPGEM_KERNEL_GNUPLOTDISCONTINUOUSSOLUTIONWRITER_H
+#endif  // HPGEM_KERNEL_GNUPLOTDISCONTINUOUSSOLUTIONWRITER_H

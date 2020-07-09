@@ -58,4 +58,4 @@ using Base::UserElementData;
 ///\deprecated this is global scope
 using Base::UserFaceData;
 
-#endif // HPGEM_KERNEL_USERDATA_H
+#endif  // HPGEM_KERNEL_USERDATA_H

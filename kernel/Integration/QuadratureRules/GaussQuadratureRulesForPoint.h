@@ -87,4 +87,4 @@ class Cn0_inf_1 : public QuadratureRules::GaussQuadratureRule {
 
 } /* namespace QuadratureRules */
 
-#endif // HPGEM_KERNEL_GAUSSQUADRATURERULESFORPOINT_H
+#endif  // HPGEM_KERNEL_GAUSSQUADRATURERULESFORPOINT_H

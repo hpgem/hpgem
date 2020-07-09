@@ -181,4 +181,4 @@ class ReferencePyramid : public ReferenceGeometry {
     PointReference<3> center_;
 };
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_REFERENCEPYRAMID_H
+#endif  // HPGEM_KERNEL_REFERENCEPYRAMID_H

@@ -179,4 +179,4 @@ class MappingToRefTriangleToTriangle5 : public MappingReferenceToReference<0> {
         transformedCoordinates;
 };
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_MAPPINGTOREFTRIANGLETOTRIANGLE_H
+#endif  // HPGEM_KERNEL_MAPPINGTOREFTRIANGLETOTRIANGLE_H

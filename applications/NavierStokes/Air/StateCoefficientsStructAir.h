@@ -94,4 +94,4 @@ class StateCoefficientsStructAir
         const LinearAlgebra::MiddleSizeMatrix &matrix) const override final;
 };
 
-#endif // HPGEM_APP_STATECOEFFICIENTSSTRUCTAIR_H
+#endif  // HPGEM_APP_STATECOEFFICIENTSSTRUCTAIR_H

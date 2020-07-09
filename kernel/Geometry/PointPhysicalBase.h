@@ -85,4 +85,4 @@ class PointPhysicalBase {
 std::ostream& operator<<(std::ostream& out, const PointPhysicalBase& point);
 }  // namespace Geometry
 
-#endif // HPGEM_KERNEL_POINTPHYSICALBASE_H
+#endif  // HPGEM_KERNEL_POINTPHYSICALBASE_H

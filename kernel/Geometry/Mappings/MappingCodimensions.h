@@ -158,4 +158,4 @@ class MappingCodimensions {
     virtual ~MappingCodimensions() = default;
 };
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_MAPPINGCODIMENSIONS_H
+#endif  // HPGEM_KERNEL_MAPPINGCODIMENSIONS_H

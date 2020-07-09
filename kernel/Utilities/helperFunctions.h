@@ -62,4 +62,4 @@ double baricentric_2D(std::size_t node, const Geometry::PointReference<2>& p);
 double baricentricDeriv(std::size_t node, std::size_t direction);
 }  // namespace Utilities
 
-#endif // HPGEM_KERNEL_HELPERFUNCTIONS_H
+#endif  // HPGEM_KERNEL_HELPERFUNCTIONS_H

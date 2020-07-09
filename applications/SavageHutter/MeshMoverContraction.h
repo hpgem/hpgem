@@ -75,4 +75,4 @@ class MeshMoverContraction : public Base::MeshMoverBase<2> {
     }
 };
 
-#endif // HPGEM_APP_MESHMOVERCONTRACTION_H
+#endif  // HPGEM_APP_MESHMOVERCONTRACTION_H

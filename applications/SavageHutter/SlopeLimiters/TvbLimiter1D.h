@@ -60,4 +60,4 @@ class TvbLimiter1D : public SlopeLimiter {
     Integration::ElementIntegral<1> elementIntegrator_;
 };
 
-#endif // HPGEM_APP_TVBLIMITER1D_H
+#endif  // HPGEM_APP_TVBLIMITER1D_H

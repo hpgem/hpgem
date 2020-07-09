@@ -172,4 +172,4 @@ class PhysicalGeometry : public PhysicalGeometryBase {
 
 #include "PhysicalGeometry_Impl.h"
 
-#endif // HPGEM_KERNEL_PHYSICALGEOMETRY_H
+#endif  // HPGEM_KERNEL_PHYSICALGEOMETRY_H

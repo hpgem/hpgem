@@ -519,4 +519,4 @@ class HpgemAPISimplified : public HpgemAPIBase<DIM>,
 
 #include "HpgemAPISimplified_Impl.h"
 
-#endif // HPGEM_KERNEL_HPGEMAPISIMPLIFIED_H
+#endif  // HPGEM_KERNEL_HPGEMAPISIMPLIFIED_H

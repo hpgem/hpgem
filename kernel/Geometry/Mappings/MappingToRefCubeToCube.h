@@ -213,4 +213,4 @@ class MappingToRefCubeToCube7 : public MappingReferenceToReference<0> {
         transformedCoordinates;
 };
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_MAPPINGTOREFCUBETOCUBE_H
+#endif  // HPGEM_KERNEL_MAPPINGTOREFCUBETOCUBE_H

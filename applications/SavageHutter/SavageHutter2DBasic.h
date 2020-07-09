@@ -79,4 +79,4 @@ class SavageHutter2DBasic : public SavageHutter2DBase {
     std::map<double, std::array<double, 3> > inputValues_;
 };
 
-#endif // HPGEM_APP_SAVAGEHUTTER2DBASIC_H
+#endif  // HPGEM_APP_SAVAGEHUTTER2DBASIC_H

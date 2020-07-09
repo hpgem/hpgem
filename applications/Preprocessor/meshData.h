@@ -171,4 +171,4 @@ class PartialData {
 };
 }  // namespace Preprocessor
 
-#endif // HPGEM_APP_MESHDATA_H
+#endif  // HPGEM_APP_MESHDATA_H

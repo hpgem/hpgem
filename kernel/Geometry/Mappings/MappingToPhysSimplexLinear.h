@@ -85,4 +85,4 @@ class MappingToPhysSimplexLinear : public MappingReferenceToPhysical {
 };
 }  // namespace Geometry
 #include "MappingToPhysSimplexLinear_Impl.h"
-#endif // HPGEM_KERNEL_MAPPINGTOPHYSSIMPLEXLINEAR_H
+#endif  // HPGEM_KERNEL_MAPPINGTOPHYSSIMPLEXLINEAR_H

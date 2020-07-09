@@ -82,4 +82,4 @@ class PointReferenceBase {
 };
 }  // namespace Geometry
 
-#endif // HPGEM_KERNEL_POINTREFERENCEBASE_H
+#endif  // HPGEM_KERNEL_POINTREFERENCEBASE_H

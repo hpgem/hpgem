@@ -69,4 +69,4 @@ class TecplotSingleElementWriter {
 };
 }  // namespace Output
 
-#endif // HPGEM_KERNEL_TECPLOTSINGLEELEMENTWRITER_H
+#endif  // HPGEM_KERNEL_TECPLOTSINGLEELEMENTWRITER_H

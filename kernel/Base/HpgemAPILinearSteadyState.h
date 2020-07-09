@@ -233,4 +233,4 @@ class HpgemAPILinearSteadyState : public HpgemAPILinear<DIM> {
 
 #include "HpgemAPILinearSteadyState_Impl.h"
 
-#endif // HPGEM_KERNEL_HPGEMAPILINEARSTEADYSTATE_H
+#endif  // HPGEM_KERNEL_HPGEMAPILINEARSTEADYSTATE_H

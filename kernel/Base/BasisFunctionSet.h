@@ -465,4 +465,4 @@ inline LinearAlgebra::SmallVector<2> BasisFunctionSet::evalCurl(
 }
 
 }  // namespace Base
-#endif // HPGEM_KERNEL_BASISFUNCTIONSET_H
+#endif  // HPGEM_KERNEL_BASISFUNCTIONSET_H

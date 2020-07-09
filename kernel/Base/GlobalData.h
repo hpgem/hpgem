@@ -45,4 +45,4 @@ struct GlobalData {
 };
 }  // namespace Base
 
-#endif // HPGEM_KERNEL_GLOBALDATA_H
+#endif  // HPGEM_KERNEL_GLOBALDATA_H

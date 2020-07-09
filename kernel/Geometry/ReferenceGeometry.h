@@ -202,4 +202,4 @@ class ReferenceGeometry : public MappingCodimensions {
 
 }  // namespace Geometry
 
-#endif // HPGEM_KERNEL_REFERENCEGEOMETRY_H
+#endif  // HPGEM_KERNEL_REFERENCEGEOMETRY_H

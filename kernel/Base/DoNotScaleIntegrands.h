@@ -96,4 +96,4 @@ class DoNotScaleIntegrands : public CoordinateTransformation<DIM> {
 };
 }  // namespace Base
 
-#endif // HPGEM_KERNEL_DONOTSCALEINTEGRANDS_H
+#endif  // HPGEM_KERNEL_DONOTSCALEINTEGRANDS_H

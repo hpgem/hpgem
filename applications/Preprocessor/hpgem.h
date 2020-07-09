@@ -87,4 +87,4 @@ class HpgemReader {
 };
 }  // namespace Preprocessor
 
-#endif // HPGEM_APP_HPGEM_H
+#endif  // HPGEM_APP_HPGEM_H

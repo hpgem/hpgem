@@ -119,4 +119,4 @@ std::vector<const Base::OrientedBasisFunctionSet*>
 
 }  // namespace Utilities
 
-#endif // HPGEM_KERNEL_BASISFUNCTIONS2DH1CONFORMINGTRIANGLE_H
+#endif  // HPGEM_KERNEL_BASISFUNCTIONS2DH1CONFORMINGTRIANGLE_H

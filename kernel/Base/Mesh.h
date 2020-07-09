@@ -277,4 +277,4 @@ class Mesh final {
 
 #include "Mesh_Impl.h"
 
-#endif // HPGEM_KERNEL_MESH_H
+#endif  // HPGEM_KERNEL_MESH_H

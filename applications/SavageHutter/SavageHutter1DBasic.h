@@ -101,4 +101,4 @@ class SavageHutter1DBasic : public SavageHutter1DBase {
     double alpha_;
 };
 
-#endif // HPGEM_APP_SAVAGEHUTTER1DBASIC_H
+#endif  // HPGEM_APP_SAVAGEHUTTER1DBASIC_H

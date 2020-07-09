@@ -79,4 +79,4 @@ class AllGaussQuadratureRules {
 
 }  // namespace QuadratureRules
 //---------------------------------------------------------------------------
-#endif // HPGEM_KERNEL_ALLGAUSSQUADRATURERULES_H
+#endif  // HPGEM_KERNEL_ALLGAUSSQUADRATURERULES_H

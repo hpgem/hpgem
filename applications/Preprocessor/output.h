@@ -56,4 +56,4 @@ void outputMesh(Mesh<dimension>& mesh,
 
 #include "output_impl.h"
 
-#endif // HPGEM_APP_OUTPUT_H
+#endif  // HPGEM_APP_OUTPUT_H

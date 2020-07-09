@@ -334,4 +334,4 @@ class T2_11_28 : public GaussQuadratureRule {
 
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
-#endif // HPGEM_KERNEL_GAUSSQUADRATURERULESFORTRIANGLE_H
+#endif  // HPGEM_KERNEL_GAUSSQUADRATURERULESFORTRIANGLE_H

@@ -112,4 +112,4 @@ class TecplotPhysicalGeometryIterator : public PhysicalGeometryAcceptor {
 };
 
 }  // namespace Output
-#endif // HPGEM_KERNEL_TECPLOTPHYSICALGEOMETRYITERATOR_H
+#endif  // HPGEM_KERNEL_TECPLOTPHYSICALGEOMETRYITERATOR_H

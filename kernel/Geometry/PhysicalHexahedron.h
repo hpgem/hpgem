@@ -52,4 +52,4 @@ class PhysicalHexahedron : public PhysicalGeometry<3> {
 };
 
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_PHYSICALHEXAHEDRON_H
+#endif  // HPGEM_KERNEL_PHYSICALHEXAHEDRON_H

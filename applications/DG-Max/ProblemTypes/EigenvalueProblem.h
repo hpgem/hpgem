@@ -58,4 +58,4 @@ class EigenvalueProblem {
     std::size_t numberOfEigenvalues_;
 };
 
-#endif // HPGEM_APP_EIGENVALUEPROBLEM_H
+#endif  // HPGEM_APP_EIGENVALUEPROBLEM_H

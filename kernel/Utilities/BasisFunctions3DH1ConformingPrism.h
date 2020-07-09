@@ -193,4 +193,4 @@ std::vector<const Base::OrientedBasisFunctionSet*>
 
 }  // namespace Utilities
 
-#endif // HPGEM_KERNEL_BASISFUNCTIONS3DH1CONFORMINGPRISM_H
+#endif  // HPGEM_KERNEL_BASISFUNCTIONS3DH1CONFORMINGPRISM_H

@@ -96,4 +96,4 @@ class Cn4_3_16 : public GaussQuadratureRule {
 
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
-#endif // HPGEM_KERNEL_GAUSSQUADRATURERULESFORHYPERCUBE_H
+#endif  // HPGEM_KERNEL_GAUSSQUADRATURERULESFORHYPERCUBE_H

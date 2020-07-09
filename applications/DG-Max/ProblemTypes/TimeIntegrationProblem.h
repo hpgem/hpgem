@@ -212,4 +212,4 @@ class ExactSeparableTimeIntegrationProblem
     virtual double referenceTimeBoundary() const = 0;
 };
 
-#endif // HPGEM_APP_TIMEINTEGRATIONPROBLEM_H
+#endif  // HPGEM_APP_TIMEINTEGRATIONPROBLEM_H

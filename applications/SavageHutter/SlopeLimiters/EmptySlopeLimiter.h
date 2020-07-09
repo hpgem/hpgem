@@ -47,4 +47,4 @@ class EmptySlopeLimiter : public SlopeLimiter {
     void limitSlope(Base::Element *elt) override final {}
 };
 
-#endif // HPGEM_APP_EMPTYSLOPELIMITER_H
+#endif  // HPGEM_APP_EMPTYSLOPELIMITER_H

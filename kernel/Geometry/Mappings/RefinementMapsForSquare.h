@@ -661,4 +661,4 @@ class RefinementMapForSquare3 : public RefinementMapping {
 };
 }  // namespace Geometry
 
-#endif // HPGEM_KERNEL_REFINEMENTMAPSFORSQUARE_H
+#endif  // HPGEM_KERNEL_REFINEMENTMAPSFORSQUARE_H

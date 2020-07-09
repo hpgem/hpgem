@@ -104,4 +104,4 @@ class UnstructuredInputStream {
 };
 }  // namespace Preprocessor
 
-#endif // HPGEM_APP_UNSTRUCTUREDFILE_H
+#endif  // HPGEM_APP_UNSTRUCTUREDFILE_H

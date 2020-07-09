@@ -70,4 +70,4 @@ class GlobalUniqueIndex final {
 };
 }  // namespace Base
 
-#endif // HPGEM_KERNEL_GLOBALUNIQUEINDEX_H
+#endif  // HPGEM_KERNEL_GLOBALUNIQUEINDEX_H

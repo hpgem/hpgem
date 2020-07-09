@@ -229,4 +229,4 @@ class Viscous {
                                                            // elements.
 };
 
-#endif // HPGEM_APP_VISCOUS_H
+#endif  // HPGEM_APP_VISCOUS_H

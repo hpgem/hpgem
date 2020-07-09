@@ -640,5 +640,5 @@ class InitCondLambda
     }
 };
 
-#endif // HPGEM_APP_INITIALCONDITIONS_H
+#endif  // HPGEM_APP_INITIALCONDITIONS_H
 //------------------------------------------------------------------------------

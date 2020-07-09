@@ -67,4 +67,4 @@ class SparsityEstimator {
 };
 }  // namespace Utilities
 
-#endif // HPGEM_KERNEL_SPARSITYESTIMATOR_H
+#endif  // HPGEM_KERNEL_SPARSITYESTIMATOR_H

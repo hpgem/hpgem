@@ -97,4 +97,4 @@ class IdentityTransformation : public CoordinateTransformation<DIM> {
 };
 }  // namespace Base
 
-#endif // HPGEM_KERNEL_IDENTITYTRANSFORMATION_H
+#endif  // HPGEM_KERNEL_IDENTITYTRANSFORMATION_H

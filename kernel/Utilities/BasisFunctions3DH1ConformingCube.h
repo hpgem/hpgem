@@ -232,4 +232,4 @@ std::vector<const Base::OrientedBasisFunctionSet*>
     createFaceBasisFunctionSet3DH1Cube(std::size_t order);
 }  // namespace Utilities
 
-#endif // HPGEM_KERNEL_BASISFUNCTIONS3DH1CONFORMINGCUBE_H
+#endif  // HPGEM_KERNEL_BASISFUNCTIONS3DH1CONFORMINGCUBE_H

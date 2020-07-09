@@ -160,4 +160,4 @@ MiddleSizeVector operator-(const MiddleSizeVector& right);
 std::ostream& operator<<(std::ostream& os, const MiddleSizeVector& A);
 
 }  // namespace LinearAlgebra
-#endif // HPGEM_KERNEL_MIDDLESIZEVECTOR_H
+#endif  // HPGEM_KERNEL_MIDDLESIZEVECTOR_H

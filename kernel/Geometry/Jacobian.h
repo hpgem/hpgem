@@ -83,4 +83,4 @@ class Jacobian : public LinearAlgebra::SmallMatrix<dimTo, dimFrom> {
 
 #include "Jacobian_Impl.h"
 
-#endif // HPGEM_KERNEL_JACOBIAN_H
+#endif  // HPGEM_KERNEL_JACOBIAN_H

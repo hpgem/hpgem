@@ -255,4 +255,4 @@ inline std::size_t ElementBasisFunctions::getTotalLocalNumberOfBasisFunctions()
 }
 }  // namespace Base
 
-#endif // HPGEM_KERNEL_ELEMENTBASISFUNCTIONS_H
+#endif  // HPGEM_KERNEL_ELEMENTBASISFUNCTIONS_H

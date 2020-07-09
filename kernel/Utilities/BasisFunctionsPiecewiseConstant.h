@@ -51,4 +51,4 @@ void addPiecewiseConstantBasisFunction3D(Base::BasisFunctionSet &set);
 void addPiecewiseConstantBasisFunction4D(Base::BasisFunctionSet &set);
 }  // namespace Utilities
 
-#endif // HPGEM_KERNEL_BASISFUNCTIONSPIECEWISECONSTANT_H
+#endif  // HPGEM_KERNEL_BASISFUNCTIONSPIECEWISECONSTANT_H

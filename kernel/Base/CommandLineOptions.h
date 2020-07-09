@@ -254,4 +254,4 @@ CommandLineOption<T>& register_argument(char tag, std::string long_tag,
 
 }  // namespace Base
 
-#endif // HPGEM_KERNEL_COMMANDLINEOPTIONS_H
+#endif  // HPGEM_KERNEL_COMMANDLINEOPTIONS_H

@@ -160,4 +160,4 @@ class HpgemAPINonLinearSteadyState : public HpgemAPISimplified<DIM> {
 
 #include "HpgemAPINonLinearSteadyState_Impl.h"
 
-#endif // HPGEM_KERNEL_HPGEMAPINONLINEARSTEADYSTATE_H
+#endif  // HPGEM_KERNEL_HPGEMAPINONLINEARSTEADYSTATE_H

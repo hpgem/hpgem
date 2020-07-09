@@ -65,4 +65,4 @@ std::ostream& operator<<(std::ostream& os,
 }
 }  // namespace Geometry
 
-#endif // HPGEM_KERNEL_REFERENCESIMPLEX_H
+#endif  // HPGEM_KERNEL_REFERENCESIMPLEX_H

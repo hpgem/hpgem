@@ -82,4 +82,4 @@ class AbstractEigenvalueResult {
     }
 };
 
-#endif // HPGEM_APP_ABSTRACTEIGENVALUERESULT_H
+#endif  // HPGEM_APP_ABSTRACTEIGENVALUERESULT_H

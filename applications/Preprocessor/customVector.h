@@ -602,4 +602,4 @@ void swap(stackVector<T, N>& l, stackVector<T, N>& r) {
 };
 }  // namespace Preprocessor
 
-#endif // HPGEM_APP_CUSTOMVECTOR_H
+#endif  // HPGEM_APP_CUSTOMVECTOR_H

@@ -137,4 +137,4 @@ std::vector<const Base::OrientedBasisFunctionSet*>
 
 }  // namespace Utilities
 
-#endif // HPGEM_KERNEL_BASISFUNCTIONS2DH1CONFORMINGSQUARE_H
+#endif  // HPGEM_KERNEL_BASISFUNCTIONS2DH1CONFORMINGSQUARE_H

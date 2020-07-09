@@ -716,4 +716,4 @@ bool operator>=(const hybridIterator<T, Iterators...>& a,
 }
 }  // namespace Preprocessor
 
-#endif // HPGEM_APP_CUSTOMITERATOR_H
+#endif  // HPGEM_APP_CUSTOMITERATOR_H

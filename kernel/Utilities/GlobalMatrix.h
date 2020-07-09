@@ -139,4 +139,4 @@ class GlobalPetscMatrix : public GlobalMatrix {
 #endif
 }  // namespace Utilities
 
-#endif // HPGEM_KERNEL_GLOBALMATRIX_H
+#endif  // HPGEM_KERNEL_GLOBALMATRIX_H

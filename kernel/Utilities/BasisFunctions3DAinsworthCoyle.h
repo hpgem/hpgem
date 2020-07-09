@@ -141,4 +141,4 @@ Base::BasisFunctionSet* createDGBasisFunctionSet3DAinsworthCoyle(
 
 }  // namespace Utilities
 
-#endif // HPGEM_KERNEL_BASISFUNCTIONS3DAINSWORTHCOYLE_H
+#endif  // HPGEM_KERNEL_BASISFUNCTIONS3DAINSWORTHCOYLE_H

@@ -38,4 +38,4 @@ class BandStructure {
         LinearAlgebra::SmallVector<DIM> point2, double maxFrequency) const = 0;
 };
 
-#endif // HPGEM_APP_BANDSTRUCTURE_H
+#endif  // HPGEM_APP_BANDSTRUCTURE_H

@@ -151,4 +151,4 @@ class Pyramid_7_48 : public GaussQuadratureRule {
 
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
-#endif // HPGEM_KERNEL_GAUSSQUADRATURERULESFORPYRAMID_H
+#endif  // HPGEM_KERNEL_GAUSSQUADRATURERULESFORPYRAMID_H

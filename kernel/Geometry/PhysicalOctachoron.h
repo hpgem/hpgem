@@ -51,4 +51,4 @@ class PhysicalOctachoron : public PhysicalGeometry<4> {
 };
 
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_PHYSICALOCTACHORON_H
+#endif  // HPGEM_KERNEL_PHYSICALOCTACHORON_H

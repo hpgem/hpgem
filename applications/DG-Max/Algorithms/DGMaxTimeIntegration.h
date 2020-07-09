@@ -144,4 +144,4 @@ struct TimeIntegrationParameters {
     }
 };
 
-#endif // HPGEM_APP_DGMAXTIMEINTEGRATION_H
+#endif  // HPGEM_APP_DGMAXTIMEINTEGRATION_H

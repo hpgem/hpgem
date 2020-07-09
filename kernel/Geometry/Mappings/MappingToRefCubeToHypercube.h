@@ -202,4 +202,4 @@ class MappingToRefCubeToHypercube7 : public MappingReferenceToReference<1> {
         transformedCoordinates;
 };
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_MAPPINGTOREFCUBETOHYPERCUBE_H
+#endif  // HPGEM_KERNEL_MAPPINGTOREFCUBETOHYPERCUBE_H

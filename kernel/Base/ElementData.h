@@ -250,4 +250,4 @@ class ElementData {
     std::vector<LinearAlgebra::MiddleSizeVector> elementVector_;
 };
 }  // namespace Base
-#endif // HPGEM_KERNEL_ELEMENTDATA_H
+#endif  // HPGEM_KERNEL_ELEMENTDATA_H

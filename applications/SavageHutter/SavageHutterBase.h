@@ -163,4 +163,4 @@ class SavageHutterBase : public Base::HpgemAPISimplified<DIM> {
 };
 
 #include "SavageHutterBase_Impl.h"
-#endif // HPGEM_APP_SAVAGEHUTTERBASE_H
+#endif  // HPGEM_APP_SAVAGEHUTTERBASE_H

@@ -180,4 +180,4 @@ class ReferenceTriangularPrism : public ReferenceGeometry {
 };
 }  // namespace Geometry
 
-#endif // HPGEM_KERNEL_REFERENCETRIANGULARPRISM_H
+#endif  // HPGEM_KERNEL_REFERENCETRIANGULARPRISM_H

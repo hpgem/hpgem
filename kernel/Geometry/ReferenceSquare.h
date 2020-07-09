@@ -158,4 +158,4 @@ class ReferenceSquare : public ReferenceGeometry {
 };
 
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_REFERENCESQUARE_H
+#endif  // HPGEM_KERNEL_REFERENCESQUARE_H

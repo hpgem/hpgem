@@ -382,4 +382,4 @@ MiddleSizeMatrix::MiddleSizeMatrix(
 
 #include "SmallMatrix_impl.h"
 
-#endif // HPGEM_KERNEL_SMALLMATRIX_H
+#endif  // HPGEM_KERNEL_SMALLMATRIX_H

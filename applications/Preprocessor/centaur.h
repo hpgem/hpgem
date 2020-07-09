@@ -79,4 +79,4 @@ class CentaurReader {
 };
 }  // namespace Preprocessor
 
-#endif // HPGEM_APP_CENTAUR_H
+#endif  // HPGEM_APP_CENTAUR_H

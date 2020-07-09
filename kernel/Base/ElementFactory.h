@@ -113,4 +113,4 @@ Element* ElementFactory::makeElement(
 
 }  // namespace Base
 
-#endif // HPGEM_KERNEL_ELEMENTFACTORY_H
+#endif  // HPGEM_KERNEL_ELEMENTFACTORY_H

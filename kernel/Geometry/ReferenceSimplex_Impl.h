@@ -42,4 +42,4 @@ LinearAlgebra::SmallVector<DIM + 1>
 
 }  // namespace Geometry
 
-#endif // HPGEM_KERNEL_REFERENCESIMPLEX_IMPL_H
+#endif  // HPGEM_KERNEL_REFERENCESIMPLEX_IMPL_H

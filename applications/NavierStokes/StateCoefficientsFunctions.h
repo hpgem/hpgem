@@ -248,4 +248,4 @@ LinearAlgebra::MiddleSizeMatrix computeEllipticTensorMatrixContraction(
     return result;
 }
 
-#endif // HPGEM_APP_STATECOEFFICIENTSFUNCTIONS_H
+#endif  // HPGEM_APP_STATECOEFFICIENTSFUNCTIONS_H

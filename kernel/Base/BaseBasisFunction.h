@@ -192,4 +192,4 @@ class BaseBasisFunction {
 
 }  // namespace Base
 
-#endif // HPGEM_KERNEL_BASEBASISFUNCTION_H
+#endif  // HPGEM_KERNEL_BASEBASISFUNCTION_H

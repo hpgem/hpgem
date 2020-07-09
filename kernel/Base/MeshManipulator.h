@@ -597,4 +597,4 @@ class MeshManipulator : public MeshManipulatorBase {
 
 #include "MeshManipulator_Impl.h"
 
-#endif // HPGEM_KERNEL_MESHMANIPULATOR_H
+#endif  // HPGEM_KERNEL_MESHMANIPULATOR_H

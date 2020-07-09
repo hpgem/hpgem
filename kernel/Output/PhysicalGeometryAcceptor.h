@@ -65,4 +65,4 @@ class PhysicalGeometryAcceptor {
     virtual ~PhysicalGeometryAcceptor() = default;
 };
 }  // namespace Output
-#endif // HPGEM_KERNEL_PHYSICALGEOMETRYACCEPTOR_H
+#endif  // HPGEM_KERNEL_PHYSICALGEOMETRYACCEPTOR_H

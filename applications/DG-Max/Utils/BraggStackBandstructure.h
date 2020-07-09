@@ -206,4 +206,4 @@ class BraggStackBandstructure : public BandStructure<3> {
                     bool tm) const;
 };
 
-#endif // HPGEM_APP_BRAGGSTACKBANDSTRUCTURE_H
+#endif  // HPGEM_APP_BRAGGSTACKBANDSTRUCTURE_H

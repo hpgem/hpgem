@@ -92,4 +92,4 @@ class SavageHutter1DWidthHAndU : public SavageHutter1DBase {
         const double normal, Base::PhysicalFace<1> &face) override final;
 };
 
-#endif // HPGEM_APP_SAVAGEHUTTER1DWIDTHHANDU_H
+#endif  // HPGEM_APP_SAVAGEHUTTER1DWIDTHHANDU_H

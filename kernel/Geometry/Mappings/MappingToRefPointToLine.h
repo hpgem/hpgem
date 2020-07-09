@@ -96,4 +96,4 @@ class MappingToRefPointToLine1 : public MappingReferenceToReference<1> {
         transformedCoordinates;
 };
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_MAPPINGTOREFPOINTTOLINE_H
+#endif  // HPGEM_KERNEL_MAPPINGTOREFPOINTTOLINE_H

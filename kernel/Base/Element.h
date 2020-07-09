@@ -1018,4 +1018,4 @@ LinearAlgebra::SmallVector<DIM> Element::basisFunctionCurl(
 }
 }  // namespace Base
 
-#endif // HPGEM_KERNEL_ELEMENT_H
+#endif  // HPGEM_KERNEL_ELEMENT_H

@@ -347,4 +347,4 @@ MiddleSizeVector::MiddleSizeVector(const SmallVector<numberOfRows>& other)
 #endif
 
 }  // namespace LinearAlgebra
-#endif // HPGEM_KERNEL_SMALLVECTOR_H
+#endif  // HPGEM_KERNEL_SMALLVECTOR_H

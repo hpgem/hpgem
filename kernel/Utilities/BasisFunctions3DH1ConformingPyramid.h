@@ -86,4 +86,4 @@ std::vector<const Base::OrientedBasisFunctionSet *>
     createFaceBasisFunctionSet3DH1ConformingPyramid(std::size_t order);
 }  // namespace Utilities
 
-#endif // HPGEM_KERNEL_BASISFUNCTIONS3DH1CONFORMINGPYRAMID_H
+#endif  // HPGEM_KERNEL_BASISFUNCTIONS3DH1CONFORMINGPYRAMID_H

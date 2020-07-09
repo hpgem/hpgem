@@ -66,4 +66,4 @@ struct ConfigurationData {
 };
 }  // namespace Base
 
-#endif // HPGEM_KERNEL_CONFIGURATIONDATA_H
+#endif  // HPGEM_KERNEL_CONFIGURATIONDATA_H

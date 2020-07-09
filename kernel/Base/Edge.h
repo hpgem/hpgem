@@ -185,4 +185,4 @@ class Edge {
 
 } /* namespace Base */
 
-#endif // HPGEM_KERNEL_EDGE_H
+#endif  // HPGEM_KERNEL_EDGE_H

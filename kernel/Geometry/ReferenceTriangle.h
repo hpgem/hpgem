@@ -138,4 +138,4 @@ class ReferenceTriangle : public ReferenceSimplex<2> {
 };
 
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_REFERENCETRIANGLE_H
+#endif  // HPGEM_KERNEL_REFERENCETRIANGLE_H

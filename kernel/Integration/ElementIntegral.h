@@ -123,4 +123,4 @@ class ElementIntegral {
 
 #include "ElementIntegral_Impl.h"
 
-#endif // HPGEM_KERNEL_ELEMENTINTEGRAL_H
+#endif  // HPGEM_KERNEL_ELEMENTINTEGRAL_H

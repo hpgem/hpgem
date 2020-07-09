@@ -204,4 +204,4 @@ class Submesh {
 
 }  // namespace Base
 
-#endif // HPGEM_KERNEL_SUBMESH_H
+#endif  // HPGEM_KERNEL_SUBMESH_H

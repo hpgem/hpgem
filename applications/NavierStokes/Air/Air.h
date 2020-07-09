@@ -95,4 +95,4 @@ class Air : public UnsteadyNavierStokesAPI<DIM, NUMBER_OF_VARIABLES> {
     void registerVTKWriteFunctions() override;
 };
 
-#endif // HPGEM_APP_AIR_H
+#endif  // HPGEM_APP_AIR_H

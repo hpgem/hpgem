@@ -203,4 +203,4 @@ class C1_11_6 : public GaussQuadratureRule {
 
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
-#endif // HPGEM_KERNEL_GAUSSQUADRATURERULESFORLINE_H
+#endif  // HPGEM_KERNEL_GAUSSQUADRATURERULESFORLINE_H

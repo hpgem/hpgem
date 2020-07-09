@@ -78,4 +78,4 @@ class BogackiShampine : public ButcherTableau {
 };
 }  // namespace TimeIntegration
 
-#endif // HPGEM_KERNEL_BOGACKISHAMPINE_H
+#endif  // HPGEM_KERNEL_BOGACKISHAMPINE_H

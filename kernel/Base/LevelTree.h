@@ -203,4 +203,4 @@ class LevelTree {
 // merge the implementation file here.
 #include "LevelTree_Impl.h"
 
-#endif // HPGEM_KERNEL_LEVELTREE_H
+#endif  // HPGEM_KERNEL_LEVELTREE_H

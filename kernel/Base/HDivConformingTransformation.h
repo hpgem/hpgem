@@ -79,4 +79,4 @@ class HDivConformingTransformation : public CoordinateTransformation<DIM> {
 };
 }  // namespace Base
 
-#endif // HPGEM_KERNEL_HDIVCONFORMINGTRANSFORMATION_H
+#endif  // HPGEM_KERNEL_HDIVCONFORMINGTRANSFORMATION_H

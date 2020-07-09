@@ -210,4 +210,4 @@ class TecplotWriteFunction : public Output::TecplotSingleElementWriter<3> {
     ofstream* l2errorfile_;
 };
 
-#endif // HPGEM_APP_TECPLOTOUTPUT_H
+#endif  // HPGEM_APP_TECPLOTOUTPUT_H

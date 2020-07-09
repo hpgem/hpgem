@@ -293,4 +293,4 @@ MiddleSizeMatrix operator*(const MiddleSizeMatrix::type d,
 MiddleSizeVector operator*(MiddleSizeVector& vec, MiddleSizeMatrix& mat);
 
 }  // namespace LinearAlgebra
-#endif // HPGEM_KERNEL_MIDDLESIZEMATRIX_H
+#endif  // HPGEM_KERNEL_MIDDLESIZEMATRIX_H

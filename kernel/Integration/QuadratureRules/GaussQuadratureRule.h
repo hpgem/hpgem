@@ -369,4 +369,4 @@ inline void QuadratureRules::GaussQuadratureRule::eval(
     }
 }
 
-#endif // HPGEM_KERNEL_GAUSSQUADRATURERULE_H
+#endif  // HPGEM_KERNEL_GAUSSQUADRATURERULE_H

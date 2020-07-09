@@ -455,4 +455,4 @@ PointPhysical<DIM + 1> FaceGeometry::referenceToPhysical(
     return getElementGLeft()->referenceToPhysical(mapRefFaceToRefElemL(p));
 }
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_FACEGEOMETRY_H
+#endif  // HPGEM_KERNEL_FACEGEOMETRY_H

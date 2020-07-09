@@ -137,4 +137,4 @@ class MappingToPhysHypercubeLinear<4> : public MappingReferenceToPhysical {
         a013, a123, a230, a0123;
 };
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_MAPPINGTOPHYSHYPERCUBELINEAR_H
+#endif  // HPGEM_KERNEL_MAPPINGTOPHYSHYPERCUBELINEAR_H

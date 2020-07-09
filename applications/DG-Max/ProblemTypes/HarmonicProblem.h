@@ -93,4 +93,4 @@ class ExactHarmonicProblem : public HarmonicProblem<DIM> {
     }
 };
 
-#endif // HPGEM_APP_HARMONICPROBLEM_H
+#endif  // HPGEM_APP_HARMONICPROBLEM_H

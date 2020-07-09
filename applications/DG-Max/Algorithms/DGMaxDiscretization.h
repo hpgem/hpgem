@@ -168,4 +168,4 @@ class DGMaxDiscretization {
                               InputFunction exactValue) const;
 };
 
-#endif // HPGEM_APP_DGMAXDISCRETIZATION_H
+#endif  // HPGEM_APP_DGMAXDISCRETIZATION_H

@@ -142,4 +142,4 @@ class HpgemAPIBase {
 
 #include "HpgemAPIBase_Impl.h"
 
-#endif // HPGEM_KERNEL_HPGEMAPIBASE_H
+#endif  // HPGEM_KERNEL_HPGEMAPIBASE_H

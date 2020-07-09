@@ -11,4 +11,4 @@
 
 #include <iostream>
 
-#endif // HPGEM_APP_CONFIGURATIONDATA_H
+#endif  // HPGEM_APP_CONFIGURATIONDATA_H

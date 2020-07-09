@@ -79,4 +79,4 @@ struct LatticePoint {
     std::array<int, DIM> coords_;
 };
 
-#endif // HPGEM_APP_BANDSTRUCTUREUTILS_H
+#endif  // HPGEM_APP_BANDSTRUCTUREUTILS_H

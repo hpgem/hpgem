@@ -291,4 +291,4 @@ class RefinementMapForLine1 : public RefinementMapping {
 };
 }  // namespace Geometry
 
-#endif // HPGEM_KERNEL_REFINEMENTMAPSFORLINE_H
+#endif  // HPGEM_KERNEL_REFINEMENTMAPSFORLINE_H

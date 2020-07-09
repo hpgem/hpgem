@@ -80,4 +80,4 @@ class TvbLimiterWithDetector1D : public SlopeLimiter {
     const std::size_t DIM;
 };
 
-#endif // HPGEM_APP_TVBLIMITERWITHDETECTOR1D_H
+#endif  // HPGEM_APP_TVBLIMITERWITHDETECTOR1D_H

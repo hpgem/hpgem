@@ -69,4 +69,4 @@ class MappingToPhysPyramid : public MappingReferenceToPhysical {
     std::size_t getTargetDimension() const final { return 3; }
 };
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_MAPPINGTOPHYSPYRAMID_H
+#endif  // HPGEM_KERNEL_MAPPINGTOPHYSPYRAMID_H

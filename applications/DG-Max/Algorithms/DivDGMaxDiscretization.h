@@ -283,4 +283,4 @@ std::ostream& operator<<(std::ostream& os,
 std::ostream& operator<<(std::ostream& os,
                          typename DivDGMaxDiscretization<3>::Stab& stab);
 
-#endif // HPGEM_APP_DIVDGMAXDISCRETIZATION_H
+#endif  // HPGEM_APP_DIVDGMAXDISCRETIZATION_H

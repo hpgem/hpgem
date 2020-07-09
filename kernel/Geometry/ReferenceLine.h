@@ -138,4 +138,4 @@ class ReferenceLine : public ReferenceGeometry {
     PointReference<1> center_;
 };
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_REFERENCELINE_H
+#endif  // HPGEM_KERNEL_REFERENCELINE_H

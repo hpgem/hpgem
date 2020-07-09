@@ -34,4 +34,4 @@ inline std::size_t tohpGEMOrdering(std::size_t VTKIndex,
 
 }  // namespace Output
 
-#endif // HPGEM_KERNEL_VTKELEMENTORDERING_H
+#endif  // HPGEM_KERNEL_VTKELEMENTORDERING_H

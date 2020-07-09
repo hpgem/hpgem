@@ -98,4 +98,4 @@ class Inviscid {
     const CompressibleNavierStokes &instance_;
 };
 
-#endif // HPGEM_APP_INVISCID_H
+#endif  // HPGEM_APP_INVISCID_H

@@ -101,4 +101,4 @@ class SavageHutter1DWidthAveraged : public SavageHutter1DBase {
         const double normal, Base::PhysicalFace<1> &face) override final;
 };
 
-#endif // HPGEM_APP_SAVAGEHUTTER1DWIDTHAVERAGED_H
+#endif  // HPGEM_APP_SAVAGEHUTTER1DWIDTHAVERAGED_H

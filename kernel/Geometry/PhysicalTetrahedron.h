@@ -52,4 +52,4 @@ class PhysicalTetrahedron : public PhysicalGeometry<3> {
                         std::vector<PointPhysical<3> >&);
 };
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_PHYSICALTETRAHEDRON_H
+#endif  // HPGEM_KERNEL_PHYSICALTETRAHEDRON_H

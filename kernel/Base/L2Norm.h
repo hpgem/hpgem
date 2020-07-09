@@ -71,4 +71,4 @@ double L2Norm(const Geometry::Point<DIM>& v) {
     return std::sqrt(retSquared);
 }
 }  // namespace Base
-#endif // HPGEM_KERNEL_L2NORM_H
+#endif  // HPGEM_KERNEL_L2NORM_H

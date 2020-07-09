@@ -90,4 +90,4 @@ class DivDGMaxEigenvalue : public AbstractEigenvalueSolver<DIM> {
     DivDGMaxDiscretization<DIM> discretization;
 };
 
-#endif // HPGEM_APP_DIVDGMAXEIGENVALUE_H
+#endif  // HPGEM_APP_DIVDGMAXEIGENVALUE_H

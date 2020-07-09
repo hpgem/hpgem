@@ -70,4 +70,4 @@ class ForwardEuler : public ButcherTableau {
 };
 }  // namespace TimeIntegration
 
-#endif // HPGEM_KERNEL_FORWARDEULER_H
+#endif  // HPGEM_KERNEL_FORWARDEULER_H

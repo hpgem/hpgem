@@ -308,4 +308,4 @@ class T3_10_126 : public GaussQuadratureRule {
 
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
-#endif // HPGEM_KERNEL_GAUSSQUADRATURERULESFORTETRAHEDRON_H
+#endif  // HPGEM_KERNEL_GAUSSQUADRATURERULESFORTETRAHEDRON_H

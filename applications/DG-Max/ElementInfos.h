@@ -79,4 +79,4 @@ template <std::size_t DIM>
 double jelmerStructure(const Geometry::PointPhysical<DIM>& point,
                        std::size_t structure);
 
-#endif // HPGEM_APP_ELEMENTINFOS_H
+#endif  // HPGEM_APP_ELEMENTINFOS_H

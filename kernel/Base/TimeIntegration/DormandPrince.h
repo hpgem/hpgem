@@ -72,4 +72,4 @@ class DormandPrince : public ButcherTableau {
 };
 }  // namespace TimeIntegration
 
-#endif // HPGEM_KERNEL_DORMANDPRINCE_H
+#endif  // HPGEM_KERNEL_DORMANDPRINCE_H

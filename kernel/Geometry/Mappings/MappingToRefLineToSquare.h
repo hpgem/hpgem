@@ -139,4 +139,4 @@ class MappingToRefLineToSquare3 : public MappingReferenceToReference<1> {
         transformedCoordinates;
 };
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_MAPPINGTOREFLINETOSQUARE_H
+#endif  // HPGEM_KERNEL_MAPPINGTOREFLINETOSQUARE_H

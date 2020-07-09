@@ -45,4 +45,4 @@ namespace Geometry {
 const std::size_t MAXSIZET = std::numeric_limits<std::size_t>::max();
 }
 
-#endif // HPGEM_KERNEL_GLOBALNAMESPACEGEOMETRY_H
+#endif  // HPGEM_KERNEL_GLOBALNAMESPACEGEOMETRY_H

@@ -50,4 +50,4 @@ class EmptyHeightLimiter : public HeightLimiter {
     }
 };
 
-#endif // HPGEM_APP_EMPTYHEIGHTLIMITER_H
+#endif  // HPGEM_APP_EMPTYHEIGHTLIMITER_H

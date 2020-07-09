@@ -160,4 +160,4 @@ class MappingInterface {
     virtual std::size_t getTargetDimension() const = 0;
 };
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_MAPPINGINTERFACE_H
+#endif  // HPGEM_KERNEL_MAPPINGINTERFACE_H

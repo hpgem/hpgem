@@ -157,4 +157,4 @@ class GlobalPetscVector : public GlobalVector {
 
 }  // namespace Utilities
 
-#endif // HPGEM_KERNEL_GLOBALVECTOR_H
+#endif  // HPGEM_KERNEL_GLOBALVECTOR_H

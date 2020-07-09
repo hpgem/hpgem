@@ -181,4 +181,4 @@ class ReferenceCube : public ReferenceGeometry {
     PointReference<3> center_;
 };
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_REFERENCECUBE_H
+#endif  // HPGEM_KERNEL_REFERENCECUBE_H

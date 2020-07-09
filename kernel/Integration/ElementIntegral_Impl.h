@@ -230,4 +230,4 @@ Base::PhysicalElement<DIM>& ElementIntegral<DIM>::getPhysicalElement() {
 }
 }  // namespace Integration
 
-#endif // HPGEM_KERNEL_ELEMENTINTEGRAL_IMPL_H
+#endif  // HPGEM_KERNEL_ELEMENTINTEGRAL_IMPL_H

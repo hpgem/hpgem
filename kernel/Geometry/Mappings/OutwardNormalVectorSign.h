@@ -54,4 +54,4 @@ class MappingReferenceToReference;
  */
 double OutwardNormalVectorSign(const MappingReferenceToReference<1>* const map);
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_OUTWARDNORMALVECTORSIGN_H
+#endif  // HPGEM_KERNEL_OUTWARDNORMALVECTORSIGN_H

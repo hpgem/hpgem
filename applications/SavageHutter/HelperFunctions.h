@@ -159,4 +159,4 @@ LinearAlgebra::MiddleSizeVector projectOnBasisFuns(
     return projection;
 }
 }  // namespace Helpers
-#endif // HPGEM_APP_HELPERFUNCTIONS_H
+#endif  // HPGEM_APP_HELPERFUNCTIONS_H

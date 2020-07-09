@@ -72,4 +72,4 @@ class SavageHutter2DInteriorTest : public SavageHutter2DBase {
         override final;
 };
 
-#endif // HPGEM_APP_SAVAGEHUTTER2DINTERIORTEST_H
+#endif  // HPGEM_APP_SAVAGEHUTTER2DINTERIORTEST_H

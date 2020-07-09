@@ -69,4 +69,4 @@ class AverageValuesNonNegativeLimiter : public HeightLimiter {
 };
 
 #include "AverageValuesNonNegativeLimiter_Impl.h"
-#endif // HPGEM_APP_AVERAGEVALUESNONNEGATIVELIMITER_H
+#endif  // HPGEM_APP_AVERAGEVALUESNONNEGATIVELIMITER_H

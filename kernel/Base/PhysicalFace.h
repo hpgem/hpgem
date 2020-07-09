@@ -407,4 +407,4 @@ class PhysicalFace final {
 
 #include "PhysicalFace_Impl.h"
 
-#endif // HPGEM_KERNEL_PHYSICALFACE_H
+#endif  // HPGEM_KERNEL_PHYSICALFACE_H

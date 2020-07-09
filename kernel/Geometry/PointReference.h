@@ -73,4 +73,4 @@ class PointReference : public Point<DIM>, public PointReferenceBase {
 
 #include "PointReference_Impl.h"
 
-#endif // HPGEM_KERNEL_POINTREFERENCE_H
+#endif  // HPGEM_KERNEL_POINTREFERENCE_H

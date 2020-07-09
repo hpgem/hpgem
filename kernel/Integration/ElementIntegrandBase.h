@@ -72,4 +72,4 @@ class ElementIntegrandBase {
 };
 }  // namespace Integration
 
-#endif // HPGEM_KERNEL_ELEMENTINTEGRANDBASE_H
+#endif  // HPGEM_KERNEL_ELEMENTINTEGRANDBASE_H

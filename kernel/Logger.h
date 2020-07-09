@@ -546,4 +546,4 @@ extern Logger<HPGEM_LOGLEVEL> logger;
 #define assert_debug(e, ...) assert_debug(true, "")
 #endif
 
-#endif // HPGEM_KERNEL_LOGGER_H
+#endif  // HPGEM_KERNEL_LOGGER_H

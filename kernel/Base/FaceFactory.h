@@ -72,4 +72,4 @@ class FaceFactory {
 };
 }  // namespace Base
 
-#endif // HPGEM_KERNEL_FACEFACTORY_H
+#endif  // HPGEM_KERNEL_FACEFACTORY_H

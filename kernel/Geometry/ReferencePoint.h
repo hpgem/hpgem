@@ -105,4 +105,4 @@ class ReferencePoint : public ReferenceGeometry {
     ReferencePoint();
 };
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_REFERENCEPOINT_H
+#endif  // HPGEM_KERNEL_REFERENCEPOINT_H

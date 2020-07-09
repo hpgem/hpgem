@@ -107,4 +107,4 @@ class SavageHutter1DBidispersed : public SavageHutter1DBase {
     double alpha_;
     std::vector<double> maximumHeights_;
 };
-#endif // HPGEM_APP_SAVAGEHUTTER1DBIDISPERSED_H
+#endif  // HPGEM_APP_SAVAGEHUTTER1DBIDISPERSED_H

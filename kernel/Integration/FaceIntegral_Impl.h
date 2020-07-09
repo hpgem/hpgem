@@ -280,4 +280,4 @@ Base::CoordinateTransformation<DIM>& FaceIntegral<DIM>::getTransformation(
 
 }  // namespace Integration
 
-#endif // HPGEM_KERNEL_FACEINTEGRAL_IMPL_H
+#endif  // HPGEM_KERNEL_FACEINTEGRAL_IMPL_H

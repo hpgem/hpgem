@@ -69,4 +69,4 @@ class FaceIntegrandBase {
 };
 
 }  // namespace Integration
-#endif // HPGEM_KERNEL_FACEINTEGRANDBASE_H
+#endif  // HPGEM_KERNEL_FACEINTEGRANDBASE_H

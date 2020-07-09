@@ -142,4 +142,4 @@ class MappingToRefFaceToPyramid4 : public MappingReferenceToReference<1> {
 };
 
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_MAPPINGTOREFFACETOPYRAMID_H
+#endif  // HPGEM_KERNEL_MAPPINGTOREFFACETOPYRAMID_H

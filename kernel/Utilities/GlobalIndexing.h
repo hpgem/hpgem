@@ -508,4 +508,4 @@ class GlobalIndexing {
 };
 }  // namespace Utilities
 
-#endif // HPGEM_KERNEL_GLOBALINDEXING_H
+#endif  // HPGEM_KERNEL_GLOBALINDEXING_H

@@ -81,4 +81,4 @@ class BidispersedLimiter : public HeightLimiter {
     Integration::ElementIntegral<1> elementIntegrator_;
 };
 
-#endif // HPGEM_APP_BIDISPERSEDLIMITER1D_H
+#endif  // HPGEM_APP_BIDISPERSEDLIMITER1D_H

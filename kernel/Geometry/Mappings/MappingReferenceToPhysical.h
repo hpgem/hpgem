@@ -136,4 +136,4 @@ class MappingReferenceToPhysical : public MappingInterface<0> {
 };
 
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_MAPPINGREFERENCETOPHYSICAL_H
+#endif  // HPGEM_KERNEL_MAPPINGREFERENCETOPHYSICAL_H

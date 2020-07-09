@@ -48,4 +48,4 @@ const static double EPSILON = 1e-6;  // Jacobian difference parameter
 
 enum class BoundaryType { ADIABATIC_WALL, INFLOW, OUTFLOW, FULL_STATE };
 
-#endif // HPGEM_APP_NAVIERSTOKESCONSTANTS_H
+#endif  // HPGEM_APP_NAVIERSTOKESCONSTANTS_H

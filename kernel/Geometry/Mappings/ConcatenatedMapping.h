@@ -96,4 +96,4 @@ class ConcatenatedMapping : public MappingReferenceToReference<1> {
 
 }  // namespace Geometry
 
-#endif // HPGEM_KERNEL_CONCATENATEDMAPPING_H
+#endif  // HPGEM_KERNEL_CONCATENATEDMAPPING_H

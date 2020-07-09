@@ -139,4 +139,4 @@ class CoordinateTransformation {
 };
 }  // namespace Base
 
-#endif // HPGEM_KERNEL_COORDINATETRANSFORMATION_H
+#endif  // HPGEM_KERNEL_COORDINATETRANSFORMATION_H

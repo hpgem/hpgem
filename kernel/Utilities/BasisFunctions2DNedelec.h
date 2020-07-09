@@ -72,4 +72,4 @@ class BasisCurlEdgeNedelec2D : public Base::BaseBasisFunction {
 Base::BasisFunctionSet* createDGBasisFunctionSet2DNedelec(std::size_t order);
 }  // namespace Utilities
 
-#endif // HPGEM_KERNEL_BASISFUNCTIONS2DNEDELEC_H
+#endif  // HPGEM_KERNEL_BASISFUNCTIONS2DNEDELEC_H

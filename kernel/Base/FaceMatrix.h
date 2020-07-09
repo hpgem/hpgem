@@ -138,4 +138,4 @@ class FaceMatrix {
     LinearAlgebra::MiddleSizeMatrix M_RightRight_;
 };
 }  // namespace Base
-#endif // HPGEM_KERNEL_FACEMATRIX_H
+#endif  // HPGEM_KERNEL_FACEMATRIX_H

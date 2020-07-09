@@ -70,4 +70,4 @@ class MidPoint : public ButcherTableau {
 };
 }  // namespace TimeIntegration
 
-#endif // HPGEM_KERNEL_MIDPOINT_H
+#endif  // HPGEM_KERNEL_MIDPOINT_H

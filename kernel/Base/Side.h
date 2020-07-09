@@ -44,4 +44,4 @@
 namespace Base {
 enum class Side { LEFT, RIGHT };
 }
-#endif // HPGEM_KERNEL_SIDE_H
+#endif  // HPGEM_KERNEL_SIDE_H

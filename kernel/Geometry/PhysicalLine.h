@@ -53,4 +53,4 @@ class PhysicalLine : public PhysicalGeometry<1> {
 };
 
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_PHYSICALLINE_H
+#endif  // HPGEM_KERNEL_PHYSICALLINE_H

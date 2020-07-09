@@ -118,4 +118,4 @@ std::ostream& operator<<(std::ostream& os, const Point<DIM>& point);
 }  // namespace Geometry
 
 #include "Point_Impl.h"
-#endif // HPGEM_KERNEL_POINT_H
+#endif  // HPGEM_KERNEL_POINT_H

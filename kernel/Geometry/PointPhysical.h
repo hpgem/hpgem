@@ -101,4 +101,4 @@ PointPhysical<DIM> operator*(double left, const PointPhysical<DIM>& right);
 
 #include "PointPhysical_Impl.h"
 
-#endif // HPGEM_KERNEL_POINTPHYSICAL_H
+#endif  // HPGEM_KERNEL_POINTPHYSICAL_H

@@ -53,4 +53,4 @@ class AbstractEigenvalueSolver {
         const EigenvalueProblem<DIM>& input) = 0;
 };
 
-#endif // HPGEM_APP_ABSTRACTEIGENVALUESOLVER_H
+#endif  // HPGEM_APP_ABSTRACTEIGENVALUESOLVER_H

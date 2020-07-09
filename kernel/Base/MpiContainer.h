@@ -423,4 +423,4 @@ class MPIContainer {
 
 }  // namespace Base
 
-#endif // HPGEM_KERNEL_MPICONTAINER_H
+#endif  // HPGEM_KERNEL_MPICONTAINER_H

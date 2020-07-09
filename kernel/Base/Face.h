@@ -764,4 +764,4 @@ LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionCurl(
         i - numberOfBasisFunctionsLeft, mapRefFaceToRefElemR(p), unknown);
 }
 }  // namespace Base
-#endif // HPGEM_KERNEL_FACE_H
+#endif  // HPGEM_KERNEL_FACE_H

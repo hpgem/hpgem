@@ -98,4 +98,4 @@ class VTKTimeDependentWriter final {
 
 #include "VTKTimeDependentWriter_Impl.h"
 
-#endif // HPGEM_KERNEL_VTKTIMEDEPENDENTWRITER_H
+#endif  // HPGEM_KERNEL_VTKTIMEDEPENDENTWRITER_H

@@ -153,4 +153,4 @@ Base::BasisFunctionSet* createDGBasisFunctionSet3DNedelec(std::size_t order);
 
 }  // namespace Utilities
 
-#endif // HPGEM_KERNEL_BASISFUNCTIONS3DNEDELEC_H
+#endif  // HPGEM_KERNEL_BASISFUNCTIONS3DNEDELEC_H

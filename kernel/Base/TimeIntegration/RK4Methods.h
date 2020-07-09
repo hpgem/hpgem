@@ -69,4 +69,4 @@ class RK4_4 : public ButcherTableau {
 };
 }  // namespace TimeIntegration
 
-#endif // HPGEM_KERNEL_RK4METHODS_H
+#endif  // HPGEM_KERNEL_RK4METHODS_H

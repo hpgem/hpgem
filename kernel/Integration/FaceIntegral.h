@@ -120,4 +120,4 @@ class FaceIntegral {
 }  // namespace Integration
 
 #include "FaceIntegral_Impl.h"
-#endif // HPGEM_KERNEL_FACEINTEGRAL_H
+#endif  // HPGEM_KERNEL_FACEINTEGRAL_H

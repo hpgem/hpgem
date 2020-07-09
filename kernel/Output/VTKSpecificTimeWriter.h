@@ -101,4 +101,4 @@ class VTKSpecificTimeWriter final {
 
 #include "VTKSpecificTimeWriter_Impl.h"
 
-#endif // HPGEM_KERNEL_VTKSPECIFICTIMEWRITER_H
+#endif  // HPGEM_KERNEL_VTKSPECIFICTIMEWRITER_H

@@ -145,4 +145,4 @@ class MappingToRefTriangleToTetrahedron3
         transformedCoordinates;
 };
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_MAPPINGTOREFTRIANGLETOTETRAHEDRON_H
+#endif  // HPGEM_KERNEL_MAPPINGTOREFTRIANGLETOTETRAHEDRON_H

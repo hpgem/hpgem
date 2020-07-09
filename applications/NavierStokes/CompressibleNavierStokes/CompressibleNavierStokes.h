@@ -268,4 +268,4 @@ class CompressibleNavierStokes : public Base::HpgemAPISimplified<DIM> {
     friend class Viscous;
 };
 
-#endif // HPGEM_APP_COMPRESSIBLENAVIERSTOKES_H
+#endif  // HPGEM_APP_COMPRESSIBLENAVIERSTOKES_H

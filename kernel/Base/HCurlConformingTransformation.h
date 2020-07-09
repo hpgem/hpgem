@@ -87,4 +87,4 @@ inline LinearAlgebra::SmallVector<2>
 }
 }  // namespace Base
 
-#endif // HPGEM_KERNEL_HCURLCONFORMINGTRANSFORMATION_H
+#endif  // HPGEM_KERNEL_HCURLCONFORMINGTRANSFORMATION_H

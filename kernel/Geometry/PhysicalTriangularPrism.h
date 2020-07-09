@@ -51,4 +51,4 @@ class PhysicalTriangularPrism : public PhysicalGeometry<3> {
                             std::vector<PointPhysical<3> >&);
 };
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_PHYSICALTRIANGULARPRISM_H
+#endif  // HPGEM_KERNEL_PHYSICALTRIANGULARPRISM_H

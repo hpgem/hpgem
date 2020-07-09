@@ -1942,4 +1942,4 @@ class RefinementMapForTriangularPrism9 : public RefinementMapping {
 };
 }  // namespace Geometry
 
-#endif // HPGEM_KERNEL_REFINEMENTMAPSFORTRIANGULARPRISM_H
+#endif  // HPGEM_KERNEL_REFINEMENTMAPSFORTRIANGULARPRISM_H

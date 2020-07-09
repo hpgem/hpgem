@@ -250,4 +250,4 @@ class UnsteadyNavierStokesAPI : public Base::HpgemAPISimplified<DIM> {
 
 #include "UnsteadyNavierStokesAPI_Impl.h"
 
-#endif // HPGEM_APP_UNSTEADYNAVIERSTOKESAPI_H
+#endif  // HPGEM_APP_UNSTEADYNAVIERSTOKESAPI_H

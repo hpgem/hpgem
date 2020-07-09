@@ -171,4 +171,4 @@ class Node {
 };
 
 }  // namespace Base
-#endif // HPGEM_KERNEL_NODE_H
+#endif  // HPGEM_KERNEL_NODE_H

@@ -115,4 +115,4 @@ class MappingToRefLineToTriangle2 : public MappingReferenceToReference<1> {
         transformedCoordinates;
 };
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_MAPPINGTOREFLINETOTRIANGLE_H
+#endif  // HPGEM_KERNEL_MAPPINGTOREFLINETOTRIANGLE_H

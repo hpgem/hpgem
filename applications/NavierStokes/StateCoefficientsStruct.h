@@ -227,4 +227,4 @@ class StateCoefficientsStruct {
     std::vector<LinearAlgebra::MiddleSizeMatrix> ellipticTensor_;
 };
 
-#endif // HPGEM_APP_STATECOEFFICIENTSSTRUCT_H
+#endif  // HPGEM_APP_STATECOEFFICIENTSSTRUCT_H

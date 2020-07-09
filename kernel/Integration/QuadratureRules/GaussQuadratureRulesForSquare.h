@@ -236,4 +236,4 @@ class C2_11_6 : public GaussQuadratureRule {
 };
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
-#endif // HPGEM_KERNEL_GAUSSQUADRATURERULESFORSQUARE_H
+#endif  // HPGEM_KERNEL_GAUSSQUADRATURERULESFORSQUARE_H

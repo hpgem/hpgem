@@ -59,4 +59,4 @@ class MeshMover : public Base::MeshMoverBase<2> {
     }
 };
 
-#endif // HPGEM_APP_MESHMOVER_H
+#endif  // HPGEM_APP_MESHMOVER_H

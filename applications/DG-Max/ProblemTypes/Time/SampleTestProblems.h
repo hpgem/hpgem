@@ -90,4 +90,4 @@ class SampleTestProblems : public ExactSeparableTimeIntegrationProblem<DIM> {
                       LinearAlgebra::SmallVector<DIM>& result) const;
 };
 
-#endif // HPGEM_APP_SAMPLETESTPROBLEMS_H
+#endif  // HPGEM_APP_SAMPLETESTPROBLEMS_H

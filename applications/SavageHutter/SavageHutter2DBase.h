@@ -113,4 +113,4 @@ class SavageHutter2DBase : public SavageHutterBase<2> {
         const LinearAlgebra::SmallVector<2> &normal);
 };
 
-#endif // HPGEM_APP_SAVAGEHUTTER2DBASE_H
+#endif  // HPGEM_APP_SAVAGEHUTTER2DBASE_H

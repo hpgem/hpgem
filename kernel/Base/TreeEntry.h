@@ -297,4 +297,4 @@ class TreeEntry {
 };
 }  // namespace Base
 
-#endif // HPGEM_KERNEL_TREEENTRY_H
+#endif  // HPGEM_KERNEL_TREEENTRY_H

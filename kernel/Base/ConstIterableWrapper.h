@@ -191,4 +191,4 @@ IteratorOverConst<T> operator+(typename IteratorOverConst<T>::difference_type n,
     return result += n;
 }
 
-#endif // HPGEM_KERNEL_CONSTITERABLEWRAPPER_H
+#endif  // HPGEM_KERNEL_CONSTITERABLEWRAPPER_H

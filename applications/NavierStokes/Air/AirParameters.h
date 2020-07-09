@@ -76,4 +76,4 @@ const static double SUTHERLAND_TEMPERATURE = THETA_S * TEMPERATURE_REF;
 /// Often used parameters:
 const static double VISCOSITY_SCALING = 0.01;  // 1.0/REYNOLDS;
 
-#endif // HPGEM_APP_AIRPARAMETERS_H
+#endif  // HPGEM_APP_AIRPARAMETERS_H

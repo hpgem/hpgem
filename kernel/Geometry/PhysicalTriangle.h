@@ -52,4 +52,4 @@ class PhysicalTriangle : public PhysicalGeometry<2> {
 };
 
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_PHYSICALTRIANGLE_H
+#endif  // HPGEM_KERNEL_PHYSICALTRIANGLE_H

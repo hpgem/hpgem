@@ -74,4 +74,4 @@ class MappingToRefPointToPoint
 };
 
 } /* namespace Geometry */
-#endif // HPGEM_KERNEL_MAPPINGTOREFPOINTTOPOINT_H
+#endif  // HPGEM_KERNEL_MAPPINGTOREFPOINTTOPOINT_H

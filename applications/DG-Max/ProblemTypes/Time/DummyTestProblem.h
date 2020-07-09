@@ -65,4 +65,4 @@ class DummyTestProblem : public ExactSeparableTimeIntegrationProblem<DIM> {
     double timeScalingSource(double t) const override;
 };
 
-#endif // HPGEM_APP_DUMMYTESTPROBLEM_H
+#endif  // HPGEM_APP_DUMMYTESTPROBLEM_H

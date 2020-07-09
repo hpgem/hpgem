@@ -131,4 +131,4 @@ class FaceData {
     LinearAlgebra::MiddleSizeVector residual_;
 };
 }  // namespace Base
-#endif // HPGEM_KERNEL_FACEDATA_H
+#endif  // HPGEM_KERNEL_FACEDATA_H

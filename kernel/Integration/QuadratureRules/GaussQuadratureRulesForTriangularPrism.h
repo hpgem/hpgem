@@ -152,4 +152,4 @@ class TriPrism_7_64 : public GaussQuadratureRule {
 
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
-#endif // HPGEM_KERNEL_GAUSSQUADRATURERULESFORTRIANGULARPRISM_H
+#endif  // HPGEM_KERNEL_GAUSSQUADRATURERULESFORTRIANGULARPRISM_H

@@ -67,4 +67,4 @@ class AllTimeIntegrators {
 };
 }  // namespace TimeIntegration
 
-#endif // HPGEM_KERNEL_ALLTIMEINTEGRATORS_H
+#endif  // HPGEM_KERNEL_ALLTIMEINTEGRATORS_H

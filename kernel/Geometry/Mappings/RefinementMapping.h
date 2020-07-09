@@ -227,4 +227,4 @@ class RefinementMapping {
         std::size_t localFaceNumber) const = 0;
 };
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_REFINEMENTMAPPING_H
+#endif  // HPGEM_KERNEL_REFINEMENTMAPPING_H

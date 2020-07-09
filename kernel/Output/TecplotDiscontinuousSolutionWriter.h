@@ -122,4 +122,4 @@ class TecplotDiscontinuousSolutionWriter {
 }  // namespace Output
 
 #include "TecplotDiscontinuousSolutionWriter_Impl.h"
-#endif // HPGEM_KERNEL_TECPLOTDISCONTINUOUSSOLUTIONWRITER_H
+#endif  // HPGEM_KERNEL_TECPLOTDISCONTINUOUSSOLUTIONWRITER_H

@@ -51,4 +51,4 @@ class SlopeLimiter {
    protected:
     std::size_t numberOfVariables_;
 };
-#endif // HPGEM_APP_SLOPELIMITER_H
+#endif  // HPGEM_APP_SLOPELIMITER_H

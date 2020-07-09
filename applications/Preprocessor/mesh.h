@@ -587,4 +587,4 @@ Mesh<dimension> readFile(file_t& file) {
 
 #include "mesh_impl.h"
 
-#endif // HPGEM_APP_MESH_H
+#endif  // HPGEM_APP_MESH_H

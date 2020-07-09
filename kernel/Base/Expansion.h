@@ -104,4 +104,4 @@ class Expansion {
 
 }  // namespace Base
 
-#endif // HPGEM_KERNEL_EXPANSION_H
+#endif  // HPGEM_KERNEL_EXPANSION_H

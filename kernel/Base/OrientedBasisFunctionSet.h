@@ -72,4 +72,4 @@ class OrientedBasisFunctionSet : public Base::BasisFunctionSet {
 
 } /* namespace Base */
 
-#endif // HPGEM_KERNEL_ORIENTEDBASISFUNCTIONSET_H
+#endif  // HPGEM_KERNEL_ORIENTEDBASISFUNCTIONSET_H

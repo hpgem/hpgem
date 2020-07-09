@@ -92,4 +92,4 @@ class MeshRefiner {
 };
 
 }  // namespace Base
-#endif // HPGEM_KERNEL_MESHREFINER_H
+#endif  // HPGEM_KERNEL_MESHREFINER_H

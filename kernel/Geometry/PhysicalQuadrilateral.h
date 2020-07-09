@@ -53,4 +53,4 @@ class PhysicalQuadrilateral : public PhysicalGeometry<2> {
 };
 
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_PHYSICALQUADRILATERAL_H
+#endif  // HPGEM_KERNEL_PHYSICALQUADRILATERAL_H

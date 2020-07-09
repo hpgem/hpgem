@@ -195,4 +195,4 @@ class MappingToRefSquareToCube5 : public MappingReferenceToReference<1> {
 };
 
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_MAPPINGTOREFSQUARETOCUBE_H
+#endif  // HPGEM_KERNEL_MAPPINGTOREFSQUARETOCUBE_H

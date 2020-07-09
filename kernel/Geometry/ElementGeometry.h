@@ -359,4 +359,4 @@ ElementGeometry::ElementGeometry(
                                // it one needs to call enableRefinement
 {}
 }  // namespace Geometry
-#endif // HPGEM_KERNEL_ELEMENTGEOMETRY_H
+#endif  // HPGEM_KERNEL_ELEMENTGEOMETRY_H

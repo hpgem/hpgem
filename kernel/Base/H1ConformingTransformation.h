@@ -80,4 +80,4 @@ class H1ConformingTransformation : public CoordinateTransformation<DIM> {
 };
 }  // namespace Base
 
-#endif // HPGEM_KERNEL_H1CONFORMINGTRANSFORMATION_H
+#endif  // HPGEM_KERNEL_H1CONFORMINGTRANSFORMATION_H

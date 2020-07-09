@@ -48,4 +48,4 @@ template <std::size_t DIM>
 PointPath<DIM> parsePath(const std::string& path);
 }  // namespace DGMax
 
-#endif // HPGEM_APP_DGMAXPROGRAMUTILS_H
+#endif  // HPGEM_APP_DGMAXPROGRAMUTILS_H

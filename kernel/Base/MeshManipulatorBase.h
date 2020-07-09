@@ -217,4 +217,4 @@ class MeshManipulatorBase {
 
 }  // namespace Base
 
-#endif // HPGEM_KERNEL_MESHMANIPULATORBASE_H
+#endif  // HPGEM_KERNEL_MESHMANIPULATORBASE_H

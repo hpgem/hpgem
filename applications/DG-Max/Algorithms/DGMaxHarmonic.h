@@ -68,4 +68,4 @@ class DGMaxHarmonic {
     DGMaxDiscretization<DIM> discretization;
 };
 
-#endif // HPGEM_APP_DGMAXHARMONIC_H
+#endif  // HPGEM_APP_DGMAXHARMONIC_H

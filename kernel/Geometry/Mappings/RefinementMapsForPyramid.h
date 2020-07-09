@@ -189,4 +189,4 @@ class RefinementMapForPyramid0 : public RefinementMapping {
 };
 }  // namespace Geometry
 
-#endif // HPGEM_KERNEL_REFINEMENTMAPSFORPYRAMID_H
+#endif  // HPGEM_KERNEL_REFINEMENTMAPSFORPYRAMID_H

@@ -86,4 +86,4 @@ struct PhysGradientOfBasisFunction {
 
 #include "PhysGradientOfBasisFunction_Impl.h"
 
-#endif // HPGEM_KERNEL_PHYSGRADIENTOFBASISFUNCTION_H
+#endif  // HPGEM_KERNEL_PHYSGRADIENTOFBASISFUNCTION_H

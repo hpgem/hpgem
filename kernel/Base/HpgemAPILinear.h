@@ -320,4 +320,4 @@ class HpgemAPILinear : public HpgemAPISimplified<DIM> {
 
 #include "HpgemAPILinear_Impl.h"
 
-#endif // HPGEM_KERNEL_HPGEMAPILINEAR_H
+#endif  // HPGEM_KERNEL_HPGEMAPILINEAR_H

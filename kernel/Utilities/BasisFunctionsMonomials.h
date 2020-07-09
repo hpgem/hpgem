@@ -56,4 +56,4 @@ void assembleMonomialBasisFunctions4D(Base::BasisFunctionSet &set,
                                       std::size_t maxPower);
 }  // namespace Utilities
 
-#endif // HPGEM_KERNEL_BASISFUNCTIONSMONOMIALS_H
+#endif  // HPGEM_KERNEL_BASISFUNCTIONSMONOMIALS_H

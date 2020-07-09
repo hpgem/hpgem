@@ -347,4 +347,4 @@ void Base::LevelTree<V>::clear() {
 
 }  // namespace Base
 
-#endif // HPGEM_KERNEL_LEVELTREE_IMPL_H
+#endif  // HPGEM_KERNEL_LEVELTREE_IMPL_H

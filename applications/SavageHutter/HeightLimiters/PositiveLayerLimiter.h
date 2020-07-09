@@ -67,4 +67,4 @@ class PositiveLayerLimiter : public HeightLimiter {
 };
 
 #include "PositiveLayerLimiter_Impl.h"
-#endif // HPGEM_APP_POSITIVELAYERLIMITER_H
+#endif  // HPGEM_APP_POSITIVELAYERLIMITER_H
