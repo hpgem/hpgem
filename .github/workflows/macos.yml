@@ -6,7 +6,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  run-tests-complex-petsc:
 
     runs-on: macos-latest
     strategy:

@@ -71,7 +71,7 @@ void SparsityEstimator::writeDoFCount(
 template <typename GEOM>
 bool hasLocalDoFs(const GEOM* geom, const std::vector<std::size_t>& unknowns) {
     for (const std::size_t& unknown : unknowns) {
-        if (geom->getLocalNumberOfBasisFunctions(unknown > 0)) return true;
+        if (geom->getLocalNumberOfBasisFunctions(unknown) > 0) return true;
     }
     return false;
 }
