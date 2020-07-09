@@ -52,11 +52,8 @@
 #include <numeric>
 #if defined(HPGEM_USE_ANY_PETSC)
 #include "petscis.h"
-
-namespace hpgem {
-
 #endif
-
+namespace hpgem {
 namespace Utilities {
 
 GlobalVector::GlobalVector(const GlobalIndexing& indexing, int elementVectorID,
