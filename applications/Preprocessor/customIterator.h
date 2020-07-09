@@ -48,6 +48,9 @@
 #include <utility>
 #include <Logger.h>
 
+using namespace hpgem;
+
+
 namespace Preprocessor {
 
 namespace Detail {

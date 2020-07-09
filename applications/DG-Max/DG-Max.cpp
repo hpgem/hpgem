@@ -63,6 +63,9 @@
 #include "Utils/HomogeneousBandStructure.h"
 #include "Utils/BandstructureGNUPlot.h"
 
+using namespace hpgem;
+
+
 auto& p = Base::register_argument<std::size_t>(
     'p', "order", "polynomial order of the solution", true);
 auto& meshFile = Base::register_argument<std::string>(

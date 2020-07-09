@@ -213,4 +213,7 @@ class AcousticWaveLinear : public Base::HpgemAPILinear<DIM> {
 
 #include "AcousticWaveLinear_Impl.h"
 
+using namespace hpgem;
+
+
 #endif  // HPGEM_APP_ACOUSTICWAVELINEAR_H

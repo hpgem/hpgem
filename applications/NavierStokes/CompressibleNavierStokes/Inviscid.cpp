@@ -40,6 +40,9 @@
 #include "Inviscid.h"
 #include <cmath>
 
+using namespace hpgem;
+
+
 Inviscid::Inviscid(const CompressibleNavierStokes &instance)
     : instance_(instance) {}
 

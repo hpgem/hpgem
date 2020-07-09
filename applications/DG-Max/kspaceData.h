@@ -41,6 +41,9 @@
 #include "LinearAlgebra/MiddleSizeMatrix.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 
+using namespace hpgem;
+
+
 /**
  * The tesselation in k-space does not fit the hpGEM-framework because of its
  * continuous nature this is a specialized class to store the relevant

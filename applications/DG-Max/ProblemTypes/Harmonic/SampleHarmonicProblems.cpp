@@ -38,6 +38,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "SampleHarmonicProblems.h"
 
+using namespace hpgem;
+
+
 template <std::size_t DIM>
 SampleHarmonicProblems<DIM>::SampleHarmonicProblems(
     SampleHarmonicProblems<DIM>::Problem problem, double omega)

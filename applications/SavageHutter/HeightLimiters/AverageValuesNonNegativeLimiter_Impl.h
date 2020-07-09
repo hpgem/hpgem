@@ -38,6 +38,9 @@
 
 #include "../HelperFunctions.h"
 
+using namespace hpgem;
+
+
 ///\details Limit the solution by changing the solution coefficients that are
 /// given to this function.
 template <std::size_t DIM>

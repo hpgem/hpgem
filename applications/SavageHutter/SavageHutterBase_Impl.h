@@ -42,6 +42,9 @@
 #include "Base/MpiContainer.h"
 #include "SavageHutterBase.h"
 
+using namespace hpgem;
+
+
 template <std::size_t DIM>
 SavageHutterBase<DIM>::SavageHutterBase(std::size_t numberOfVariables,
                                         std::size_t polyOrder)

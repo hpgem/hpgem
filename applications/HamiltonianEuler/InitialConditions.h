@@ -18,6 +18,9 @@ using namespace std;
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "Integration/ElementIntegrandBase.h"
 
+using namespace hpgem;
+
+
 class ExactSolutionBase {
    public:
     using PointPhysicalT = Geometry::PointPhysical<3>;

@@ -106,6 +106,7 @@
  'setOutputNames'. \li The function 'solve' is then used to solve the PDE.
  */
 
+using namespace hpgem;
 template <std::size_t DIM>
 class AcousticWave : public Base::HpgemAPISimplified<DIM> {
    public:
@@ -240,5 +241,8 @@ class AcousticWave : public Base::HpgemAPISimplified<DIM> {
 };
 
 #include "AcousticWave_Impl.h"
+
+
+
 
 #endif  // HPGEM_APP_ACOUSTICWAVE_H

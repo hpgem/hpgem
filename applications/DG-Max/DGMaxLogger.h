@@ -3,6 +3,9 @@
 
 #include <Logger.h>
 
+using namespace hpgem;
+
+
 extern Logger<HPGEM_LOGLEVEL> DGMaxLogger;
 
 void initDGMaxLogging();

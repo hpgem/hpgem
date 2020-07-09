@@ -43,6 +43,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Geometry/PointPhysical.h"
 #include "LinearAlgebra/SmallVector.h"
 
+using namespace hpgem;
+
+
 /// \brief Problem to intergrate a given starting field in time
 ///
 /// This solves the standard time dependent problem

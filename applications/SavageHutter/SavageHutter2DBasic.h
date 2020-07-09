@@ -41,6 +41,9 @@
 
 #include "SavageHutter2DBase.h"
 
+using namespace hpgem;
+
+
 class SavageHutter2DBasic : public SavageHutter2DBase {
    public:
     ///\brief Constructor: initialise parent classes and set parameters.

@@ -41,6 +41,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../Utils/KSpacePath.h"
 
+using namespace hpgem;
+
+
 template <std::size_t DIM>
 class EigenvalueProblem {
    public:

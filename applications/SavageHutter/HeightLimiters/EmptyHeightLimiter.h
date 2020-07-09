@@ -41,6 +41,9 @@
 
 #include "HeightLimiter.h"
 
+using namespace hpgem;
+
+
 class EmptyHeightLimiter : public HeightLimiter {
    public:
     void limit(

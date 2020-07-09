@@ -47,6 +47,9 @@
 #include <vector>
 #include <limits>
 
+using namespace hpgem;
+
+
 // todo: Optimise this code
 
 template <std::size_t DIM, std::size_t NUMBER_OF_VARIABLES>

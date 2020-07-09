@@ -43,6 +43,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "DivDGMaxDiscretization.h"
 
+using namespace hpgem;
+
+
 template <std::size_t DIM>
 class DivDGMaxHarmonic {
 

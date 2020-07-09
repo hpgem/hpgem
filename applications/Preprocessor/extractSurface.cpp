@@ -92,6 +92,9 @@ using idx_t = std::size_t;
 #include "meshData.h"
 #include "output.h"
 
+using namespace hpgem;
+
+
 class Boundary {
    public:
     Boundary() = default;

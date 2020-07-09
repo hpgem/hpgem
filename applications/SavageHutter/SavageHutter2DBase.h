@@ -41,6 +41,9 @@
 
 #include "SavageHutterBase.h"
 
+using namespace hpgem;
+
+
 class SavageHutter2DBase : public SavageHutterBase<2> {
    public:
     using PointPhysicalT = Geometry::PointPhysical<2>;

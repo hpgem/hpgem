@@ -38,6 +38,9 @@
 
 #include "ViscousTerms.h"
 
+using namespace hpgem;
+
+
 /// *****************************************
 /// ***   Element integration functions   ***
 /// *****************************************

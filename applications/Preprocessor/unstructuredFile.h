@@ -49,6 +49,9 @@
 #include <ios>
 #include "Logger.h"
 
+using namespace hpgem;
+
+
 namespace Preprocessor {
 template <typename inStream>
 class UnstructuredInputStream {

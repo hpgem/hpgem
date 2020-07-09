@@ -49,6 +49,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <slepceps.h>
 
+using namespace hpgem;
+
+
 // TODO: It might be better to call this differently
 template <std::size_t DIM>
 class DGMaxEigenvalue : public AbstractEigenvalueSolver<DIM> {

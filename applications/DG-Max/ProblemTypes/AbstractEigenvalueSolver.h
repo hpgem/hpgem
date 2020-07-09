@@ -43,6 +43,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "AbstractEigenvalueResult.h"
 #include "EigenvalueProblem.h"
 
+using namespace hpgem;
+
+
 /// Solver for the EigenvalueProblem
 template <std::size_t DIM>
 class AbstractEigenvalueSolver {

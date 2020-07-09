@@ -41,6 +41,9 @@
 
 #include "SavageHutter1DBase.h"
 
+using namespace hpgem;
+
+
 class SavageHutter1DWidthHAndU : public SavageHutter1DBase {
    public:
     SavageHutter1DWidthHAndU(const std::size_t polyOrder,

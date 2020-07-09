@@ -466,4 +466,7 @@ const std::vector<const ElementShape<3>*> defaultShapes<3> = {
 
 #include <elementShape_impl.h>
 
+using namespace hpgem;
+
+
 #endif  // HPGEM_APP_ELEMENTSHAPE_H

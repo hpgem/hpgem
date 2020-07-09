@@ -301,4 +301,7 @@ class ViscousTerms {
 
 #include "ViscousTerms_Impl.h"
 
+using namespace hpgem;
+
+
 #endif  // HPGEM_APP_VISCOUSTERMS_H

@@ -40,6 +40,9 @@
 #define HPGEM_APP_HEIGHTLIMITER_H
 #include "Base/Element.h"
 
+using namespace hpgem;
+
+
 class HeightLimiter {
    public:
     virtual ~HeightLimiter() {}

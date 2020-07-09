@@ -38,6 +38,9 @@
 
 #include "InviscidTerms.h"
 
+using namespace hpgem;
+
+
 /// *****************************************
 /// ***   Element integration functions   ***
 /// *****************************************

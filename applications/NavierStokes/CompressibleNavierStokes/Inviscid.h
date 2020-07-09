@@ -41,6 +41,9 @@
 
 #include "CompressibleDimension.h"
 
+using namespace hpgem;
+
+
 class Inviscid {
    public:
     Inviscid(const CompressibleNavierStokes &instance);

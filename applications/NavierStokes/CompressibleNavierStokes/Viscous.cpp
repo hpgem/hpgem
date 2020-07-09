@@ -41,6 +41,9 @@
 #include <tuple>
 #include <chrono>  //todo: remove this, not required
 
+using namespace hpgem;
+
+
 Viscous::Viscous(CompressibleNavierStokes &instance) : instance_(instance) {}
 
 /// ****************************************

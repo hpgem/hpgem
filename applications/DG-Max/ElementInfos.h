@@ -47,6 +47,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Base/GlobalData.h"
 #include "Geometry/Jacobian.h"
 
+using namespace hpgem;
+
+
 /**
  * store some usefull information that needs to be computed everytime at the
  * beginning of an integrand specialized for tetrahedra

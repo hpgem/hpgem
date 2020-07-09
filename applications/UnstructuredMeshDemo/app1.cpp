@@ -54,6 +54,9 @@
 #include <functional>
 #include <array>
 
+using namespace hpgem;
+
+
 using Base::RectangularMeshDescriptor;
 
 const unsigned int DIM = 2;

@@ -46,6 +46,9 @@
 #include <string>
 #include <map>
 
+using namespace hpgem;
+
+
 namespace Preprocessor {
 
 class CentaurReader {

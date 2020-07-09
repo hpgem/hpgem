@@ -44,6 +44,9 @@
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "LinearAlgebra/MiddleSizeMatrix.h"
 
+using namespace hpgem;
+
+
 /// *********************************************************
 /// ***      General Solution Coefficient Functions       ***
 /// *********************************************************

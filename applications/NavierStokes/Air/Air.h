@@ -43,6 +43,9 @@
 #include "../UnsteadyNavierStokesAPI.h"
 #include "StateCoefficientsStructAir.h"
 
+using namespace hpgem;
+
+
 class Air : public UnsteadyNavierStokesAPI<DIM, NUMBER_OF_VARIABLES> {
    public:
     Air(const std::size_t numOfVariables, const double endTime,

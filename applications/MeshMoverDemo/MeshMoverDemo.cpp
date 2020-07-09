@@ -44,6 +44,9 @@
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
 #include "Output/TecplotPhysicalGeometryIterator.h"
 #include "Output/VTKSpecificTimeWriter.h"
+
+using namespace hpgem;
+
 using Base::ConfigurationData;
 using Base::GlobalData;
 

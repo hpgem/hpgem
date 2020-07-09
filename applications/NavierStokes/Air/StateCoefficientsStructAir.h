@@ -42,6 +42,9 @@
 #include "AirParameters.h"
 #include "../StateCoefficientsStruct.h"
 
+using namespace hpgem;
+
+
 class StateCoefficientsStructAir
     : public StateCoefficientsStruct<DIM, NUMBER_OF_VARIABLES> {
    public:

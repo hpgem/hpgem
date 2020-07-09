@@ -46,6 +46,9 @@ class CompressibleNavierStokes;
 #include "Inviscid.h"
 #include "Viscous.h"
 
+using namespace hpgem;
+
+
 class CompressibleNavierStokes : public Base::HpgemAPISimplified<DIM> {
    public:
     CompressibleNavierStokes(

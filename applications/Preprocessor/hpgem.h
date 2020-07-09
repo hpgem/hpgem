@@ -44,6 +44,9 @@
 #include <string>
 #include <fstream>
 
+using namespace hpgem;
+
+
 namespace Preprocessor {
 
 class PrivateReader {

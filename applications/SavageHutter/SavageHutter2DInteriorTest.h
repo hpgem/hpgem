@@ -41,6 +41,9 @@
 
 #include "SavageHutter2DBase.h"
 
+using namespace hpgem;
+
+
 /// Class meant to test the convergence of the code. It is mostly copied from
 /// SavageHutter2DBasic, but with a different source term and boundary
 /// conditions and without unnecessary features like width-averaging.

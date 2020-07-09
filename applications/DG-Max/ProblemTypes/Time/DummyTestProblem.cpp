@@ -38,6 +38,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "DummyTestProblem.h"
 
+using namespace hpgem;
+
+
 template <std::size_t DIM>
 void DummyTestProblem<DIM>::initialConditionDerivative(
     const Geometry::PointPhysical<DIM> &point,

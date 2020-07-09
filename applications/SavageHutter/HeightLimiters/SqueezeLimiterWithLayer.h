@@ -70,4 +70,7 @@ class SqueezeLimiterWithLayer : public HeightLimiter {
 };
 #include "SqueezeLimiterWithLayer_Impl.h"
 
+using namespace hpgem;
+
+
 #endif  // HPGEM_APP_SQUEEZELIMITERWITHLAYER_H

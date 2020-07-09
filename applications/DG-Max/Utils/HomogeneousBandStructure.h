@@ -7,6 +7,9 @@
 
 #include <set>
 
+using namespace hpgem;
+
+
 /// \brief Computation of the analytic band structure of a homogeneous
 /// structure/
 template <std::size_t DIM>

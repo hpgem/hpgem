@@ -40,6 +40,9 @@
 #include <numeric>
 #include "elementShape.h"
 
+using namespace hpgem;
+
+
 template <std::size_t dimension>
 template <int entityDimension>
 std::enable_if_t<(entityDimension < 0), std::size_t>

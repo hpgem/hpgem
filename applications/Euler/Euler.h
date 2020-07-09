@@ -41,6 +41,8 @@
 
 #include "Base/HpgemAPISimplified.h"
 
+using namespace hpgem;
+
 template <std::size_t DIM>
 class Euler : public Base::HpgemAPISimplified<DIM> {
    public:
@@ -145,5 +147,7 @@ class Euler : public Base::HpgemAPISimplified<DIM> {
 };
 
 #include "Euler_Impl.h"
+
+
 
 #endif  // HPGEM_APP_EULER_H

@@ -40,6 +40,9 @@
 #include "SavageHutter1DBidispersed.h"
 #include "HeightLimiters/BidispersedLimiter1D.h"
 
+using namespace hpgem;
+
+
 ///\details In this constructor, some of the parameters for the problem are set.
 /// Most of these parameters are declared in SavageHutterBase, but since they
 /// are protected they can also be used here.

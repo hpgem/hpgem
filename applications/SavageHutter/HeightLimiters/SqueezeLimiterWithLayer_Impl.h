@@ -38,6 +38,9 @@
 
 #include "../HelperFunctions.h"
 
+using namespace hpgem;
+
+
 void SqueezeLimiterWithLayer::limit(
     Base::Element *element,
     LinearAlgebra::MiddleSizeVector &solutionCoefficients) {

@@ -41,6 +41,9 @@
 
 #include "SavageHutter1DBase.h"
 
+using namespace hpgem;
+
+
 ///\brief Class to solve the basic Savage-Hutter equations in 1D.
 ///\details The idea is that almost everything you want to change in your
 /// application can be changed in this class: the domain, initial solution,

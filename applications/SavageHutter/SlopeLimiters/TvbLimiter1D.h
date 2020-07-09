@@ -41,6 +41,9 @@
 #include "SlopeLimiter.h"
 #include "../HelperFunctions.h"
 
+using namespace hpgem;
+
+
 class TvbLimiter1D : public SlopeLimiter {
    public:
     using PointReferenceT = Geometry::PointReference<1>;

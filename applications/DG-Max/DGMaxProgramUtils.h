@@ -5,6 +5,9 @@
 #include <memory>
 #include <ElementInfos.h>
 
+using namespace hpgem;
+
+
 namespace Base {
 class ConfigurationData;
 

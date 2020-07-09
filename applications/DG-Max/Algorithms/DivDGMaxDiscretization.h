@@ -44,6 +44,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Base/MeshManipulator.h"
 
+using namespace hpgem;
+
+
 // Forward definitions
 namespace Base {
 template <std::size_t>

@@ -42,6 +42,9 @@
 #include "HeightLimiter.h"
 #include "Integration/ElementIntegral.h"
 
+using namespace hpgem;
+
+
 ////\brief Limiter that limits both the height and the height of the small
 /// particles in 1D This class is still under construction, use at your own
 /// peril.

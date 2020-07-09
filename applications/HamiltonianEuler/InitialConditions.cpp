@@ -39,6 +39,9 @@
 #include "InitialConditions.h"
 #include "LinearAlgebra/MiddleSizeMatrix.h"
 
+using namespace hpgem;
+
+
 const double ExactSolutionBase::Pi = 3.14159265;
 
 Compressible3DOneThirdPeriodic::Compressible3DOneThirdPeriodic(double lx,
