@@ -24,7 +24,6 @@ using std::string;
 
 using namespace hpgem;
 
-
 using Base::ConfigurationData;
 using Base::GlobalData;
 using Base::HpgemAPIBase;

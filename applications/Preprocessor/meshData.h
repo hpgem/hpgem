@@ -44,7 +44,6 @@
 
 using namespace hpgem;
 
-
 namespace Preprocessor {
 
 // todo: conversion operators

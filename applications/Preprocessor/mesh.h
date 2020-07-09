@@ -589,5 +589,4 @@ Mesh<dimension> readFile(file_t& file) {
 
 using namespace hpgem;
 
-
 #endif  // HPGEM_APP_MESH_H

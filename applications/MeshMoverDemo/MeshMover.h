@@ -43,7 +43,6 @@
 
 using namespace hpgem;
 
-
 class MeshMover : public Base::MeshMoverBase<2> {
 
    public:

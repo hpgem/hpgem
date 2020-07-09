@@ -47,7 +47,6 @@
 
 using namespace hpgem;
 
-
 SavageHutter2DBasic::SavageHutter2DBasic(std::size_t polyOrder,
                                          std::string meshName)
     : SavageHutter2DBase(3, polyOrder) {

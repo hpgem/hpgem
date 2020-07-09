@@ -9,7 +9,6 @@
 
 using namespace hpgem;
 
-
 // Several utility functions for computing band structures
 
 /// \brief Lexiographical next array.

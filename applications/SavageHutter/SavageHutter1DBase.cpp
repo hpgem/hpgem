@@ -41,7 +41,6 @@
 
 using namespace hpgem;
 
-
 /// \details The integrand for the reference element is the same as the physical
 /// element, but scaled with the reference-to-physical element scale, which is
 /// the determinant of the jacobian of the reference-to-physical element

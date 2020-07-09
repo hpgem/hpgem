@@ -56,7 +56,6 @@
 
 using namespace hpgem;
 
-
 // Choose the dimension (1 or 2 or 3)
 const static std::size_t DIM = 3;
 

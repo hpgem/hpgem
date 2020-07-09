@@ -6,7 +6,6 @@
 
 using namespace hpgem;
 
-
 template <std::size_t DIM>
 class KSpacePath {
    public:

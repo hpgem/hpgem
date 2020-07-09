@@ -9,7 +9,6 @@
 
 using namespace hpgem;
 
-
 template <std::size_t DIM>
 class BandStructure {
    public:

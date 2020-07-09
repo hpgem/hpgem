@@ -40,7 +40,6 @@
 
 using namespace hpgem;
 
-
 void SqueezeLimiterWithLayer::limit(
     Base::Element *element,
     LinearAlgebra::MiddleSizeVector &solutionCoefficients) {

@@ -41,7 +41,6 @@
 
 using namespace hpgem;
 
-
 const LinearAlgebra::MiddleSizeVector
     SavageHutter2DBase::integrandRightHandSideOnElement(
         Base::PhysicalElement<2>& element, const double& time,

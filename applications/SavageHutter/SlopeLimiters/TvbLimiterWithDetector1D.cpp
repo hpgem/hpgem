@@ -41,7 +41,6 @@
 
 using namespace hpgem;
 
-
 void TvbLimiterWithDetector1D::limitSlope(Base::Element *element) {
     for (std::size_t i = 0; i < numberOfVariables_; ++i) {
         if (detectDiscontinuity(element)[i] && !hasSmallSlope(element, i)) {

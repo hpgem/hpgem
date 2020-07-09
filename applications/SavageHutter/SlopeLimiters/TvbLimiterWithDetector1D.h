@@ -44,7 +44,6 @@
 
 using namespace hpgem;
 
-
 class TvbLimiterWithDetector1D : public SlopeLimiter {
    public:
     using PointReferenceT = Geometry::PointReference<1>;

@@ -40,7 +40,6 @@
 
 using namespace hpgem;
 
-
 /// \param[in] dimension Dimension of the domain
 /// \param[in] numberOfVariables Number of variables in the PDE
 /// \param[in] polynomialOrder Polynomial order of the basis functions

@@ -46,7 +46,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace hpgem;
 
-
 // Forward definitions
 namespace Base {
 template <std::size_t>

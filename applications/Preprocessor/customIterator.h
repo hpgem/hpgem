@@ -50,7 +50,6 @@
 
 using namespace hpgem;
 
-
 namespace Preprocessor {
 
 namespace Detail {

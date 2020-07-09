@@ -61,11 +61,8 @@
 // For including the MPI rank in the information
 // The logger interfaces directly with MPI to prevent cyclic dependencies
 #include <mpi.h>
-
-namespace hpgem {
-
 #endif
-
+namespace hpgem {
 /*
  *  We need these to actually exists. These are used as tags in the template
  * metaprogramming for the Logger class.

@@ -42,7 +42,6 @@
 
 using namespace hpgem;
 
-
 auto& dimension = Base::register_argument<std::size_t>(
     'D', "dim", "number of dimensions in the problem");
 auto& name = Base::register_argument<std::string>(

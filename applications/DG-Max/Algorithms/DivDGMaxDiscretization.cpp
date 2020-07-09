@@ -47,7 +47,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace hpgem;
 
-
 // Utility function
 struct FaceDoFInfo {
     std::size_t leftUDoFs;

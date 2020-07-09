@@ -148,6 +148,4 @@ class Euler : public Base::HpgemAPISimplified<DIM> {
 
 #include "Euler_Impl.h"
 
-
-
 #endif  // HPGEM_APP_EULER_H

@@ -9,7 +9,6 @@
 
 using namespace hpgem;
 
-
 /// \brief Theoretical Bandstructure of a Bragg stack
 ///
 /// Bandstructure of a Bragg stack using the theory from Yariv & Yeh (Optical

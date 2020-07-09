@@ -50,7 +50,6 @@
 
 using namespace hpgem;
 
-
 // class Thomas : public Base::HpgemAPINonLinearSteadyState<DIM>
 
 /*	/// \brief Steady State constructor

@@ -44,7 +44,6 @@
 
 using namespace hpgem;
 
-
 namespace Detail {
 template <std::size_t d>
 struct tag {};

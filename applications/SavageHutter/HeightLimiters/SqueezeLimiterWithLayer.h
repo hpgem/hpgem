@@ -72,5 +72,4 @@ class SqueezeLimiterWithLayer : public HeightLimiter {
 
 using namespace hpgem;
 
-
 #endif  // HPGEM_APP_SQUEEZELIMITERWITHLAYER_H

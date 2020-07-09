@@ -5,7 +5,6 @@
 
 using namespace hpgem;
 
-
 template <std::size_t DIM>
 bool next(std::array<int, DIM> &arr, int min, int max) {
     for (std::size_t i = 0; i < DIM; ++i) {

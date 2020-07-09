@@ -303,5 +303,4 @@ class ViscousTerms {
 
 using namespace hpgem;
 
-
 #endif  // HPGEM_APP_VISCOUSTERMS_H

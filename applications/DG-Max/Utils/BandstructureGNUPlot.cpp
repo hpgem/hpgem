@@ -9,7 +9,6 @@
 
 using namespace hpgem;
 
-
 template <std::size_t DIM>
 BandstructureGNUPlot<DIM>::BandstructureGNUPlot(
     const KSpacePath<DIM>& path, const std::vector<std::string>& pointNames,

@@ -43,7 +43,6 @@
 
 using namespace hpgem;
 
-
 // todo: decide if choosing the dimension during run time is worth the design
 // overhead
 auto& name = Base::register_argument<std::string>(

@@ -43,7 +43,6 @@
 
 using namespace hpgem;
 
-
 /// MeshMoverContraction moves the grid such that a contraction in the domain
 /// arises If you want only the first half of the contraction, set xMiddle to
 /// the end of the domain.

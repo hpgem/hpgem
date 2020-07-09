@@ -46,7 +46,6 @@
 
 using namespace hpgem;
 
-
 namespace Preprocessor {
 
 /**

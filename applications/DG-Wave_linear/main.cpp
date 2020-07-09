@@ -59,7 +59,6 @@
 
 using namespace hpgem;
 
-
 const std::size_t DIM = 2;
 
 class DGWave : public Base::HpgemAPIBase<DIM>,

@@ -43,7 +43,6 @@
 
 using namespace hpgem;
 
-
 Viscous::Viscous(CompressibleNavierStokes &instance) : instance_(instance) {}
 
 /// ****************************************

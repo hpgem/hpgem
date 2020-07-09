@@ -43,7 +43,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace hpgem;
 
-
 template <std::size_t DIM>
 class SampleHarmonicProblems : public ExactHarmonicProblem<DIM> {
    public:

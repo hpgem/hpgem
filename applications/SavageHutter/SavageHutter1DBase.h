@@ -43,7 +43,6 @@
 
 using namespace hpgem;
 
-
 class SavageHutter1DBase : public SavageHutterBase<1> {
    public:
     using PointPhysicalT = Geometry::PointPhysical<1>;

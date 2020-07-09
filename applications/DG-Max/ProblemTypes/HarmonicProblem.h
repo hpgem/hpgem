@@ -45,7 +45,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace hpgem;
 
-
 /// \brief Harmonic maxwell problem.
 ///
 /// A problem description for a harmonic maxwell problem. Such a problem assumes

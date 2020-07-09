@@ -8,7 +8,6 @@
 
 using namespace hpgem;
 
-
 BraggStackBandstructure::BraggStackBandstructure(double eps1, double eps2,
                                                  double fraction)
     : eps1_(eps1), eps2_(eps2), fraction_(fraction) {}

@@ -42,7 +42,6 @@
 
 using namespace hpgem;
 
-
 void BidispersedLimiter::limit(
     Base::Element* element,
     LinearAlgebra::MiddleSizeVector& solutionCoefficients) {

@@ -43,7 +43,6 @@
 
 using namespace hpgem;
 
-
 Air::Air(const std::size_t numOfVariables, const double endTime,
          const std::size_t polynomialOrder,
          const TimeIntegration::ButcherTableau *const ptrButcherTableau,

@@ -4,7 +4,6 @@
 
 using namespace hpgem;
 
-
 template <std::size_t DIM>
 KSpacePath<DIM>::KSpacePath(std::vector<KSpacePath::KPoint> points,
                             std::size_t steps)

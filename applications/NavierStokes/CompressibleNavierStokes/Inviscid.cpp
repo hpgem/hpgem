@@ -42,7 +42,6 @@
 
 using namespace hpgem;
 
-
 Inviscid::Inviscid(const CompressibleNavierStokes &instance)
     : instance_(instance) {}
 

@@ -42,7 +42,6 @@
 
 using namespace hpgem;
 
-
 class EmptySlopeLimiter : public SlopeLimiter {
    public:
     EmptySlopeLimiter() : SlopeLimiter(0) {}

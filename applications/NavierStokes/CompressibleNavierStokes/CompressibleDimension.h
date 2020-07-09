@@ -43,7 +43,6 @@
 
 using namespace hpgem;
 
-
 const static std::size_t DIM = 2;
 
 #endif  // HPGEM_APP_COMPRESSIBLEDIMENSION_H

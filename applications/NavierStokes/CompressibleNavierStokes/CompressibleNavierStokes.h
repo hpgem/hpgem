@@ -48,7 +48,6 @@ class CompressibleNavierStokes;
 
 using namespace hpgem;
 
-
 class CompressibleNavierStokes : public Base::HpgemAPISimplified<DIM> {
    public:
     CompressibleNavierStokes(

@@ -48,7 +48,6 @@
 
 using namespace hpgem;
 
-
 namespace Preprocessor {
 
 class CentaurReader {

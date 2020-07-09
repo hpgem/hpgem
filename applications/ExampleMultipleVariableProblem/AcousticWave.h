@@ -242,7 +242,4 @@ class AcousticWave : public Base::HpgemAPISimplified<DIM> {
 
 #include "AcousticWave_Impl.h"
 
-
-
-
 #endif  // HPGEM_APP_ACOUSTICWAVE_H

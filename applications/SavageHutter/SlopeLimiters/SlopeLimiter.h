@@ -42,7 +42,6 @@
 
 using namespace hpgem;
 
-
 class SlopeLimiter {
    public:
     SlopeLimiter(std::size_t numVars) : numberOfVariables_(numVars) {}

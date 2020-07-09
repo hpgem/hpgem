@@ -94,7 +94,6 @@ using idx_t = std::size_t;
 
 using namespace hpgem;
 
-
 class Boundary {
    public:
     Boundary() = default;

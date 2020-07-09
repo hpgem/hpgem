@@ -58,5 +58,4 @@ void outputMesh(Mesh<dimension>& mesh,
 
 using namespace hpgem;
 
-
 #endif  // HPGEM_APP_OUTPUT_H

@@ -7,7 +7,6 @@
 
 using namespace hpgem;
 
-
 template <std::size_t DIM>
 HomogeneousBandStructure<DIM>::HomogeneousBandStructure(
     std::array<LinearAlgebra::SmallVector<DIM>, DIM> reciprocalVectors,

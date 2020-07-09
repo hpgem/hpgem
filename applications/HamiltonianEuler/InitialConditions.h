@@ -20,7 +20,6 @@ using namespace std;
 
 using namespace hpgem;
 
-
 class ExactSolutionBase {
    public:
     using PointPhysicalT = Geometry::PointPhysical<3>;

@@ -43,7 +43,6 @@
 
 using namespace hpgem;
 
-
 template <std::size_t DIM>
 double computeEpsilon(const Base::Element& element, std::size_t structureType);
 

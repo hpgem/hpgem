@@ -40,7 +40,6 @@
 
 using namespace hpgem;
 
-
 namespace Preprocessor {
 
 template <std::size_t dimension, std::size_t gridDimension>

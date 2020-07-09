@@ -7,7 +7,6 @@
 
 using namespace hpgem;
 
-
 namespace Base {
 class ConfigurationData;
 

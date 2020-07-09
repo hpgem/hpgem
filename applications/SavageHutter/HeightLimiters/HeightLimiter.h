@@ -42,7 +42,6 @@
 
 using namespace hpgem;
 
-
 class HeightLimiter {
    public:
     virtual ~HeightLimiter() {}

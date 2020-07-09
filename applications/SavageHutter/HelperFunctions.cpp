@@ -40,7 +40,6 @@
 
 using namespace hpgem;
 
-
 namespace Helpers {
 int sign(const double x) {
     if (std::abs(x) < 1e-16) return 0;

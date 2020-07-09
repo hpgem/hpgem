@@ -252,5 +252,4 @@ class UnsteadyNavierStokesAPI : public Base::HpgemAPISimplified<DIM> {
 
 using namespace hpgem;
 
-
 #endif  // HPGEM_APP_UNSTEADYNAVIERSTOKESAPI_H

@@ -41,7 +41,6 @@
 
 using namespace hpgem;
 
-
 SavageHutter2DInteriorTest::SavageHutter2DInteriorTest(std::size_t polyOrder,
                                                        std::string meshName)
     : SavageHutter2DBase(3, polyOrder) {
