@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ELEMENTINTEGRAL_IMPL_HPP_
-#define ELEMENTINTEGRAL_IMPL_HPP_
+#ifndef HPGEM_KERNEL_ELEMENTINTEGRAL_IMPL_H
+#define HPGEM_KERNEL_ELEMENTINTEGRAL_IMPL_H
 
 #include "Logger.h"
 #include "Base/Element.h"
@@ -230,4 +230,4 @@ Base::PhysicalElement<DIM>& ElementIntegral<DIM>::getPhysicalElement() {
 }
 }  // namespace Integration
 
-#endif /* ELEMENTINTEGRAL_IMPL_HPP_ */
+#endif  // HPGEM_KERNEL_ELEMENTINTEGRAL_IMPL_H

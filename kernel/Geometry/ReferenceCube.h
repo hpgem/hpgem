@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef REFERENCECUBE_HH
-#define REFERENCECUBE_HH
+#ifndef HPGEM_KERNEL_REFERENCECUBE_H
+#define HPGEM_KERNEL_REFERENCECUBE_H
 
 #include "ReferenceGeometry.h"
 #include "PointReference.h"
@@ -181,4 +181,4 @@ class ReferenceCube : public ReferenceGeometry {
     PointReference<3> center_;
 };
 }  // namespace Geometry
-#endif
+#endif  // HPGEM_KERNEL_REFERENCECUBE_H

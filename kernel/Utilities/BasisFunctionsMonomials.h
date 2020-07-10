@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef HPGEM_BASISFUNCTIONSMONOMIALS_H
-#define HPGEM_BASISFUNCTIONSMONOMIALS_H
+#ifndef HPGEM_KERNEL_BASISFUNCTIONSMONOMIALS_H
+#define HPGEM_KERNEL_BASISFUNCTIONSMONOMIALS_H
 
 #include <memory>
 
@@ -56,4 +56,4 @@ void assembleMonomialBasisFunctions4D(Base::BasisFunctionSet &set,
                                       std::size_t maxPower);
 }  // namespace Utilities
 
-#endif  // HPGEM_BASISFUNCTIONSMONOMIALS_H
+#endif  // HPGEM_KERNEL_BASISFUNCTIONSMONOMIALS_H

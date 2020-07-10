@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SUBMESH_HPP
-#define SUBMESH_HPP
+#ifndef HPGEM_KERNEL_SUBMESH_H
+#define HPGEM_KERNEL_SUBMESH_H
 
 #include <vector>
 #include <map>
@@ -204,4 +204,4 @@ class Submesh {
 
 }  // namespace Base
 
-#endif /* SUBMESH_HPP */
+#endif  // HPGEM_KERNEL_SUBMESH_H

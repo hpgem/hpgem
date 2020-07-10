@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _UserElementData_h
-#define _UserElementData_h
+#ifndef HPGEM_KERNEL_USERDATA_H
+#define HPGEM_KERNEL_USERDATA_H
 
 namespace Base {
 /// Just a place holder, for polymorphism
@@ -58,4 +58,4 @@ using Base::UserElementData;
 ///\deprecated this is global scope
 using Base::UserFaceData;
 
-#endif
+#endif  // HPGEM_KERNEL_USERDATA_H

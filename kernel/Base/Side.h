@@ -37,11 +37,11 @@
  */
 
 //----------------------------------------------------------------
-#ifndef Side_h
-#define Side_h
+#ifndef HPGEM_KERNEL_SIDE_H
+#define HPGEM_KERNEL_SIDE_H
 //----------------------------------------------------------------
 
 namespace Base {
 enum class Side { LEFT, RIGHT };
 }
-#endif
+#endif  // HPGEM_KERNEL_SIDE_H

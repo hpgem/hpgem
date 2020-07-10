@@ -1,6 +1,6 @@
 
-#ifndef UTILS_KSPACEPATH_h
-#define UTILS_KSPACEPATH_h
+#ifndef HPGEM_APP_KSPACEPATH_H
+#define HPGEM_APP_KSPACEPATH_H
 
 #include "LinearAlgebra/SmallVector.h"
 
@@ -58,4 +58,4 @@ class KSpacePath {
     const std::size_t steps_;
 };
 
-#endif  // UTILS_KSPACEPATH_h
+#endif  // HPGEM_APP_KSPACEPATH_H

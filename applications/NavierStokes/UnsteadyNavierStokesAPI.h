@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UNSTEADYNAVIERSTOKESAPI_H_
-#define UNSTEADYNAVIERSTOKESAPI_H_
+#ifndef HPGEM_APP_UNSTEADYNAVIERSTOKESAPI_H
+#define HPGEM_APP_UNSTEADYNAVIERSTOKESAPI_H
 
 //#include "Base/HpgemAPINonLinearSteadyState.h"
 #include "Base/HpgemAPISimplified.h"
@@ -250,4 +250,4 @@ class UnsteadyNavierStokesAPI : public Base::HpgemAPISimplified<DIM> {
 
 #include "UnsteadyNavierStokesAPI_Impl.h"
 
-#endif /* UNSTEADYNAVIERSTOKESAPI */
+#endif  // HPGEM_APP_UNSTEADYNAVIERSTOKESAPI_H

@@ -37,8 +37,8 @@
  */
 
 //----------------------------------------------------------------
-#ifndef Element_h
-#define Element_h
+#ifndef HPGEM_KERNEL_ELEMENT_H
+#define HPGEM_KERNEL_ELEMENT_H
 //----------------------------------------------------------------
 #include "Base/ElementData.h"
 #include "Geometry/ElementGeometry.h"
@@ -1018,4 +1018,4 @@ LinearAlgebra::SmallVector<DIM> Element::basisFunctionCurl(
 }
 }  // namespace Base
 
-#endif
+#endif  // HPGEM_KERNEL_ELEMENT_H

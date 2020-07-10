@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPGEM_ELEMENTSHAPE_H
-#define HPGEM_ELEMENTSHAPE_H
+#ifndef HPGEM_APP_ELEMENTSHAPE_H
+#define HPGEM_APP_ELEMENTSHAPE_H
 
 #include <cstddef>
 #include <vector>
@@ -466,4 +466,4 @@ const std::vector<const ElementShape<3>*> defaultShapes<3> = {
 
 #include <elementShape_impl.h>
 
-#endif  // HPGEM_ELEMENTSHAPE_H
+#endif  // HPGEM_APP_ELEMENTSHAPE_H

@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MESHMOVERCONTRACTION_HPP_
-#define MESHMOVERCONTRACTION_HPP_
+#ifndef HPGEM_APP_MESHMOVERCONTRACTION_H
+#define HPGEM_APP_MESHMOVERCONTRACTION_H
 
 #include "Base/MeshMoverBase.h"
 
@@ -75,4 +75,4 @@ class MeshMoverContraction : public Base::MeshMoverBase<2> {
     }
 };
 
-#endif /* MESHMOVER_HPP_ */
+#endif  // HPGEM_APP_MESHMOVERCONTRACTION_H

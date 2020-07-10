@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PointReference_h
-#define PointReference_h
+#ifndef HPGEM_KERNEL_POINTREFERENCE_H
+#define HPGEM_KERNEL_POINTREFERENCE_H
 
 #include "Point.h"
 #include "PointReferenceBase.h"
@@ -73,4 +73,4 @@ class PointReference : public Point<DIM>, public PointReferenceBase {
 
 #include "PointReference_Impl.h"
 
-#endif /* POINTREFERENCE_HPP_ */
+#endif  // HPGEM_KERNEL_POINTREFERENCE_H

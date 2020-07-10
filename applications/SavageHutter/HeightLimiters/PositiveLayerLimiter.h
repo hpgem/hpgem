@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef POSITIVELAYERLIMITER_H
-#define POSITIVELAYERLIMITER_H
+#ifndef HPGEM_APP_POSITIVELAYERLIMITER_H
+#define HPGEM_APP_POSITIVELAYERLIMITER_H
 #include "HeightLimiter.h"
 
 #include "Integration/ElementIntegral.h"
@@ -67,4 +67,4 @@ class PositiveLayerLimiter : public HeightLimiter {
 };
 
 #include "PositiveLayerLimiter_Impl.h"
-#endif /* POSITIVELAYERLIMITER_H */
+#endif  // HPGEM_APP_POSITIVELAYERLIMITER_H

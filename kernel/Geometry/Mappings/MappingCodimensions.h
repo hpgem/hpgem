@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MAPPINGCODIMENSIONS_HPP_
-#define MAPPINGCODIMENSIONS_HPP_
+#ifndef HPGEM_KERNEL_MAPPINGCODIMENSIONS_H
+#define HPGEM_KERNEL_MAPPINGCODIMENSIONS_H
 
 #include <vector>
 #include "Logger.h"
@@ -158,4 +158,4 @@ class MappingCodimensions {
     virtual ~MappingCodimensions() = default;
 };
 }  // namespace Geometry
-#endif
+#endif  // HPGEM_KERNEL_MAPPINGCODIMENSIONS_H

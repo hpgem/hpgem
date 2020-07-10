@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef JACOBIAN_HPP_
-#define JACOBIAN_HPP_
+#ifndef HPGEM_KERNEL_JACOBIAN_H
+#define HPGEM_KERNEL_JACOBIAN_H
 
 #include "LinearAlgebra/SmallMatrix.h"
 
@@ -83,4 +83,4 @@ class Jacobian : public LinearAlgebra::SmallMatrix<dimTo, dimFrom> {
 
 #include "Jacobian_Impl.h"
 
-#endif /* JACOBIAN_HPP_ */
+#endif  // HPGEM_KERNEL_JACOBIAN_H

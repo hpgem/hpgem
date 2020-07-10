@@ -35,8 +35,8 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef ElementIntegrandBase_h
-#define ElementIntegrandBase_h
+#ifndef HPGEM_KERNEL_ELEMENTINTEGRANDBASE_H
+#define HPGEM_KERNEL_ELEMENTINTEGRANDBASE_H
 
 #include <cstdlib>
 
@@ -72,4 +72,4 @@ class ElementIntegrandBase {
 };
 }  // namespace Integration
 
-#endif
+#endif  // HPGEM_KERNEL_ELEMENTINTEGRANDBASE_H

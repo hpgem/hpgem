@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PHYSICALTRIANGULARPRISM_HH
-#define PHYSICALTRIANGULARPRISM_HH
+#ifndef HPGEM_KERNEL_PHYSICALTRIANGULARPRISM_H
+#define HPGEM_KERNEL_PHYSICALTRIANGULARPRISM_H
 #include "PhysicalGeometry.h"
 
 namespace Geometry {
@@ -51,4 +51,4 @@ class PhysicalTriangularPrism : public PhysicalGeometry<3> {
                             std::vector<PointPhysical<3> >&);
 };
 }  // namespace Geometry
-#endif
+#endif  // HPGEM_KERNEL_PHYSICALTRIANGULARPRISM_H

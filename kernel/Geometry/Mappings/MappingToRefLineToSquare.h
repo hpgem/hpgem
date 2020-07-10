@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MAPPINGLINETOSQUARE_H_
-#define MAPPINGLINETOSQUARE_H_
+#ifndef HPGEM_KERNEL_MAPPINGTOREFLINETOSQUARE_H
+#define HPGEM_KERNEL_MAPPINGTOREFLINETOSQUARE_H
 
 #include "MappingReferenceToReference.h"
 
@@ -139,4 +139,4 @@ class MappingToRefLineToSquare3 : public MappingReferenceToReference<1> {
         transformedCoordinates;
 };
 }  // namespace Geometry
-#endif /* MAPPINGSIMPLECUBENLINEAR_H_ */
+#endif  // HPGEM_KERNEL_MAPPINGTOREFLINETOSQUARE_H

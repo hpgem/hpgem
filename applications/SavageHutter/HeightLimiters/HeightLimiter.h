@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HEIGHTLIMITER_H
-#define HEIGHTLIMITER_H
+#ifndef HPGEM_APP_HEIGHTLIMITER_H
+#define HPGEM_APP_HEIGHTLIMITER_H
 #include "Base/Element.h"
 
 class HeightLimiter {
@@ -50,4 +50,4 @@ class HeightLimiter {
         LinearAlgebra::MiddleSizeVector &solutionCoeffiecients) = 0;
 };
 
-#endif /* HEIGHTLIMITER_H */
+#endif  // HPGEM_APP_HEIGHTLIMITER_H

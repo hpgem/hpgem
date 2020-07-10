@@ -1,6 +1,6 @@
 
-#ifndef HPGEM_SPARSITYESTIMATOR_H
-#define HPGEM_SPARSITYESTIMATOR_H
+#ifndef HPGEM_KERNEL_SPARSITYESTIMATOR_H
+#define HPGEM_KERNEL_SPARSITYESTIMATOR_H
 
 #include "vector"
 
@@ -67,4 +67,4 @@ class SparsityEstimator {
 };
 }  // namespace Utilities
 
-#endif  // HPGEM_SPARSITYESTIMATOR_H
+#endif  // HPGEM_KERNEL_SPARSITYESTIMATOR_H

@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef STATECOEFFICIENTSSTRUCTAIR_H_
-#define STATECOEFFICIENTSSTRUCTAIR_H_
+#ifndef HPGEM_APP_STATECOEFFICIENTSSTRUCTAIR_H
+#define HPGEM_APP_STATECOEFFICIENTSSTRUCTAIR_H
 
 #include "AirParameters.h"
 #include "../StateCoefficientsStruct.h"
@@ -94,4 +94,4 @@ class StateCoefficientsStructAir
         const LinearAlgebra::MiddleSizeMatrix &matrix) const override final;
 };
 
-#endif /* STATECOEFFICIENTSSTRUCTAIR_H_ */
+#endif  // HPGEM_APP_STATECOEFFICIENTSSTRUCTAIR_H

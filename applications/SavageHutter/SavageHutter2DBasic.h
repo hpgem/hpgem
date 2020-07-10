@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SAVAGEHUTTER2DBASIC_H
-#define SAVAGEHUTTER2DBASIC_H
+#ifndef HPGEM_APP_SAVAGEHUTTER2DBASIC_H
+#define HPGEM_APP_SAVAGEHUTTER2DBASIC_H
 
 #include "SavageHutter2DBase.h"
 
@@ -79,4 +79,4 @@ class SavageHutter2DBasic : public SavageHutter2DBase {
     std::map<double, std::array<double, 3> > inputValues_;
 };
 
-#endif /* SAVAGEHUTTER2DBASIC_H */
+#endif  // HPGEM_APP_SAVAGEHUTTER2DBASIC_H

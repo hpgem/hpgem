@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PHYSICALFACE_H_
-#define PHYSICALFACE_H_
+#ifndef HPGEM_KERNEL_PHYSICALFACE_H
+#define HPGEM_KERNEL_PHYSICALFACE_H
 
 #include "PhysicalElement.h"
 #include "FaceMatrix.h"
@@ -407,4 +407,4 @@ class PhysicalFace final {
 
 #include "PhysicalFace_Impl.h"
 
-#endif /* PHYSICALFACE_H_ */
+#endif  // HPGEM_KERNEL_PHYSICALFACE_H

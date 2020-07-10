@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQUEEZELIMITERWITHLAYER_H
-#define SQUEEZELIMITERWITHLAYER_H
+#ifndef HPGEM_APP_SQUEEZELIMITERWITHLAYER_H
+#define HPGEM_APP_SQUEEZELIMITERWITHLAYER_H
 
 #include "HeightLimiter.h"
 
@@ -70,4 +70,4 @@ class SqueezeLimiterWithLayer : public HeightLimiter {
 };
 #include "SqueezeLimiterWithLayer_Impl.h"
 
-#endif /* SQUEEZELIMITERWITHLAYER_H */
+#endif  // HPGEM_APP_SQUEEZELIMITERWITHLAYER_H

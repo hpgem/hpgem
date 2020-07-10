@@ -35,8 +35,8 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef RefinementMapping_h
-#define RefinementMapping_h
+#ifndef HPGEM_KERNEL_REFINEMENTMAPPING_H
+#define HPGEM_KERNEL_REFINEMENTMAPPING_H
 
 #include <iostream>
 #include <string>
@@ -227,4 +227,4 @@ class RefinementMapping {
         std::size_t localFaceNumber) const = 0;
 };
 }  // namespace Geometry
-#endif
+#endif  // HPGEM_KERNEL_REFINEMENTMAPPING_H

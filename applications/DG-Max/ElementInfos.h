@@ -38,8 +38,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // this file has a container data structure for everything you want to know on a
 // per element basis
-#ifndef Elementinfos_h
-#define Elementinfos_h
+#ifndef HPGEM_APP_ELEMENTINFOS_H
+#define HPGEM_APP_ELEMENTINFOS_H
 
 #include "Base/UserData.h"
 #include "Base/Element.h"
@@ -79,4 +79,4 @@ template <std::size_t DIM>
 double jelmerStructure(const Geometry::PointPhysical<DIM>& point,
                        std::size_t structure);
 
-#endif
+#endif  // HPGEM_APP_ELEMENTINFOS_H

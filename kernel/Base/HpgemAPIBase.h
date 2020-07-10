@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BASE_HPP
-#define BASE_HPP
+#ifndef HPGEM_KERNEL_HPGEMAPIBASE_H
+#define HPGEM_KERNEL_HPGEMAPIBASE_H
 
 #include <vector>
 
@@ -142,4 +142,4 @@ class HpgemAPIBase {
 
 #include "HpgemAPIBase_Impl.h"
 
-#endif
+#endif  // HPGEM_KERNEL_HPGEMAPIBASE_H

@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef EMPTYHEIGHTLIMITER_H
-#define EMPTYHEIGHTLIMITER_H
+#ifndef HPGEM_APP_EMPTYHEIGHTLIMITER_H
+#define HPGEM_APP_EMPTYHEIGHTLIMITER_H
 
 #include "HeightLimiter.h"
 
@@ -50,4 +50,4 @@ class EmptyHeightLimiter : public HeightLimiter {
     }
 };
 
-#endif /* EMPTYHEIGHTLIMITER_H */
+#endif  // HPGEM_APP_EMPTYHEIGHTLIMITER_H

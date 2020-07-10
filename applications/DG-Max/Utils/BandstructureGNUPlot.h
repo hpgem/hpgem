@@ -1,6 +1,6 @@
 
-#ifndef HPGEM_GNUOUTPUT_H
-#define HPGEM_GNUOUTPUT_H
+#ifndef HPGEM_APP_BANDSTRUCTUREGNUPLOT_H
+#define HPGEM_APP_BANDSTRUCTUREGNUPLOT_H
 
 #include "KSpacePath.h"
 #include "BandStructure.h"
@@ -49,4 +49,4 @@ class BandstructureGNUPlot {
     const std::vector<std::string>& pointNames_;
 };
 
-#endif  // HPGEM_GNUOUTPUT_H
+#endif  // HPGEM_APP_BANDSTRUCTUREGNUPLOT_H

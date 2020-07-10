@@ -6,8 +6,8 @@
 //
 //
 
-#ifndef TECPLOTOUTPUT_HH
-#define TECPLOTOUTPUT_HH
+#ifndef HPGEM_APP_TECPLOTOUTPUT_H
+#define HPGEM_APP_TECPLOTOUTPUT_H
 // To declare Physical and reference space points
 #include "Geometry/PointPhysical.h"
 #include "Geometry/PointReference.h"
@@ -210,4 +210,4 @@ class TecplotWriteFunction : public Output::TecplotSingleElementWriter<3> {
     ofstream* l2errorfile_;
 };
 
-#endif
+#endif  // HPGEM_APP_TECPLOTOUTPUT_H

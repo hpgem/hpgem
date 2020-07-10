@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef TRIANGULARPRISM_H_
-#define TRIANGULARPRISM_H_
+#ifndef HPGEM_KERNEL_MAPPINGTOPHYSTRIANGULARPRISM_H
+#define HPGEM_KERNEL_MAPPINGTOPHYSTRIANGULARPRISM_H
 
 #include <vector>
 #include "MappingReferenceToPhysical.h"
@@ -72,4 +72,4 @@ class MappingToPhysTriangularPrism : public MappingReferenceToPhysical {
     PointPhysical<3> a0, a1, a2, a3, a4, a5;
 };
 }  // namespace Geometry
-#endif
+#endif  // HPGEM_KERNEL_MAPPINGTOPHYSTRIANGULARPRISM_H

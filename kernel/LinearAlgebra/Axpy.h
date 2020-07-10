@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef AXPY_H
-#define AXPY_H
+#ifndef HPGEM_KERNEL_AXPY_H
+#define HPGEM_KERNEL_AXPY_H
 #include "MiddleSizeMatrix.h"
 #include "MiddleSizeVector.h"
 
@@ -75,4 +75,4 @@ inline void axpy(S a, const std::complex<double>& x, std::complex<double>& y) {
 
 }  // namespace LinearAlgebra
 
-#endif /* AXPY_H */
+#endif  // HPGEM_KERNEL_AXPY_H

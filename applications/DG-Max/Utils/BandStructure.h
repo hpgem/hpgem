@@ -1,6 +1,6 @@
 
-#ifndef HPGEM_BANDSTRUCTURE_H
-#define HPGEM_BANDSTRUCTURE_H
+#ifndef HPGEM_APP_BANDSTRUCTURE_H
+#define HPGEM_APP_BANDSTRUCTURE_H
 
 #include "LinearAlgebra/SmallVector.h"
 #include <map>
@@ -38,4 +38,4 @@ class BandStructure {
         LinearAlgebra::SmallVector<DIM> point2, double maxFrequency) const = 0;
 };
 
-#endif  // HPGEM_BANDSTRUCTURE_H
+#endif  // HPGEM_APP_BANDSTRUCTURE_H

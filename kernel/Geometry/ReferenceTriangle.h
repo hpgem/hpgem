@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ____ReferenceTriangle__
-#define ____ReferenceTriangle__
+#ifndef HPGEM_KERNEL_REFERENCETRIANGLE_H
+#define HPGEM_KERNEL_REFERENCETRIANGLE_H
 
 #include "ReferenceSimplex_Impl.h"
 
@@ -138,4 +138,4 @@ class ReferenceTriangle : public ReferenceSimplex<2> {
 };
 
 }  // namespace Geometry
-#endif /* defined(____ReferenceTriangle__) */
+#endif  // HPGEM_KERNEL_REFERENCETRIANGLE_H

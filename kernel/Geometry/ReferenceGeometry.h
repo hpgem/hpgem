@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef REFERENCEGEOMETRY_HH
-#define REFERENCEGEOMETRY_HH
+#ifndef HPGEM_KERNEL_REFERENCEGEOMETRY_H
+#define HPGEM_KERNEL_REFERENCEGEOMETRY_H
 
 #include "Geometry/Mappings/MappingCodimensions.h"
 #include "Geometry/Mappings/RefinementMapping.h"
@@ -202,4 +202,4 @@ class ReferenceGeometry : public MappingCodimensions {
 
 }  // namespace Geometry
 
-#endif
+#endif  // HPGEM_KERNEL_REFERENCEGEOMETRY_H

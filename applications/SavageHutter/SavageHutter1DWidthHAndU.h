@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SAVAGEHUTTER1DWIDTHHANDU_H
-#define SAVAGEHUTTER1DWIDTHHANDU_H
+#ifndef HPGEM_APP_SAVAGEHUTTER1DWIDTHHANDU_H
+#define HPGEM_APP_SAVAGEHUTTER1DWIDTHHANDU_H
 
 #include "SavageHutter1DBase.h"
 
@@ -92,4 +92,4 @@ class SavageHutter1DWidthHAndU : public SavageHutter1DBase {
         const double normal, Base::PhysicalFace<1> &face) override final;
 };
 
-#endif /* SAVAGEHUTTER1DWIDTHHANDU_H */
+#endif  // HPGEM_APP_SAVAGEHUTTER1DWIDTHHANDU_H

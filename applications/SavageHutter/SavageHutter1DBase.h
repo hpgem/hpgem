@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SAVAGEHUTTER1DBASE_H
-#define SAVAGEHUTTER1DBASE_H
+#ifndef HPGEM_APP_SAVAGEHUTTER1DBASE_H
+#define HPGEM_APP_SAVAGEHUTTER1DBASE_H
 
 #include "SavageHutterBase.h"
 
@@ -119,4 +119,4 @@ class SavageHutter1DBase : public SavageHutterBase<1> {
         const double normal, Base::PhysicalFace<1> &face);
 };
 
-#endif /* SAVAGEHUTTER1DBASE_H */
+#endif  // HPGEM_APP_SAVAGEHUTTER1DBASE_H

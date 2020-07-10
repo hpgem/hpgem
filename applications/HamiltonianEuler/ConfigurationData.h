@@ -6,9 +6,9 @@
 //
 //
 
-#ifndef ____ConfigurationData__
-#define ____ConfigurationData__
+#ifndef HPGEM_APP_CONFIGURATIONDATA_H
+#define HPGEM_APP_CONFIGURATIONDATA_H
 
 #include <iostream>
 
-#endif /* defined(____ConfigurationData__) */
+#endif  // HPGEM_APP_CONFIGURATIONDATA_H

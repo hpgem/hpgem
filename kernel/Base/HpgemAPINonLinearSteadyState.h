@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BaseNonLinearSteadyStateH
-#define BaseNonLinearSteadyStateH
+#ifndef HPGEM_KERNEL_HPGEMAPINONLINEARSTEADYSTATE_H
+#define HPGEM_KERNEL_HPGEMAPINONLINEARSTEADYSTATE_H
 
 #include "Base/HpgemAPISimplified.h"
 #include "Base/TimeIntegration/AllTimeIntegrators.h"
@@ -160,4 +160,4 @@ class HpgemAPINonLinearSteadyState : public HpgemAPISimplified<DIM> {
 
 #include "HpgemAPINonLinearSteadyState_Impl.h"
 
-#endif
+#endif  // HPGEM_KERNEL_HPGEMAPINONLINEARSTEADYSTATE_H

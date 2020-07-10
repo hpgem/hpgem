@@ -35,8 +35,8 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HELPERFUNCTIONS_HPP_
-#define HELPERFUNCTIONS_HPP_
+#ifndef HPGEM_KERNEL_HELPERFUNCTIONS_H
+#define HPGEM_KERNEL_HELPERFUNCTIONS_H
 
 #include <cstdlib>
 
@@ -62,4 +62,4 @@ double baricentric_2D(std::size_t node, const Geometry::PointReference<2>& p);
 double baricentricDeriv(std::size_t node, std::size_t direction);
 }  // namespace Utilities
 
-#endif /* HELPERFUNCTIONS_HPP_ */
+#endif  // HPGEM_KERNEL_HELPERFUNCTIONS_H

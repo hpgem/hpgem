@@ -35,8 +35,8 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HELPERFUNCTIONS_H
-#define HELPERFUNCTIONS_H
+#ifndef HPGEM_APP_HELPERFUNCTIONS_H
+#define HPGEM_APP_HELPERFUNCTIONS_H
 #include <cmath>
 #include "Base/Element.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
@@ -159,4 +159,4 @@ LinearAlgebra::MiddleSizeVector projectOnBasisFuns(
     return projection;
 }
 }  // namespace Helpers
-#endif /* HELPERFUNCTIONS_H */
+#endif  // HPGEM_APP_HELPERFUNCTIONS_H

@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef COMMANDLINEOPTIONS_H_
-#define COMMANDLINEOPTIONS_H_
+#ifndef HPGEM_KERNEL_COMMANDLINEOPTIONS_H
+#define HPGEM_KERNEL_COMMANDLINEOPTIONS_H
 
 #include <functional>
 #include <map>
@@ -254,4 +254,4 @@ CommandLineOption<T>& register_argument(char tag, std::string long_tag,
 
 }  // namespace Base
 
-#endif /* COMMANDLINEOPTIONS_H_ */
+#endif  // HPGEM_KERNEL_COMMANDLINEOPTIONS_H

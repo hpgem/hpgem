@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef IDENTITYTRANSFORMATION_H_
-#define IDENTITYTRANSFORMATION_H_
+#ifndef HPGEM_KERNEL_IDENTITYTRANSFORMATION_H
+#define HPGEM_KERNEL_IDENTITYTRANSFORMATION_H
 
 #include <cstdlib>
 #include "LinearAlgebra/SmallVector.h"
@@ -97,4 +97,4 @@ class IdentityTransformation : public CoordinateTransformation<DIM> {
 };
 }  // namespace Base
 
-#endif /* IDENTITYTRANSFORMATION_H_ */
+#endif  // HPGEM_KERNEL_IDENTITYTRANSFORMATION_H

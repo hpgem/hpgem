@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef VISCOUSTERMS_H_
-#define VISCOUSTERMS_H_
+#ifndef HPGEM_APP_VISCOUSTERMS_H
+#define HPGEM_APP_VISCOUSTERMS_H
 
 #include "NavierStokesConstants.h"
 #include "UnsteadyNavierStokesAPI.h"
@@ -301,4 +301,4 @@ class ViscousTerms {
 
 #include "ViscousTerms_Impl.h"
 
-#endif /* VISCOUSTERMS_H_ */
+#endif  // HPGEM_APP_VISCOUSTERMS_H

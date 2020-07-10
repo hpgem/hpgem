@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SMALLVECTOR_H_
-#define SMALLVECTOR_H_
+#ifndef HPGEM_KERNEL_SMALLVECTOR_H
+#define HPGEM_KERNEL_SMALLVECTOR_H
 
 #include "Logger.h"
 #include <array>
@@ -347,4 +347,4 @@ MiddleSizeVector::MiddleSizeVector(const SmallVector<numberOfRows>& other)
 #endif
 
 }  // namespace LinearAlgebra
-#endif
+#endif  // HPGEM_KERNEL_SMALLVECTOR_H

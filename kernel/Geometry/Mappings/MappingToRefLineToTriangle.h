@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MappingToRefLineToTriangle_H_
-#define MappingToRefLineToTriangle_H_
+#ifndef HPGEM_KERNEL_MAPPINGTOREFLINETOTRIANGLE_H
+#define HPGEM_KERNEL_MAPPINGTOREFLINETOTRIANGLE_H
 
 #include "MappingReferenceToReference.h"
 
@@ -115,4 +115,4 @@ class MappingToRefLineToTriangle2 : public MappingReferenceToReference<1> {
         transformedCoordinates;
 };
 }  // namespace Geometry
-#endif /* MAPPINGSIMPLECUBENLINEAR_H_ */
+#endif  // HPGEM_KERNEL_MAPPINGTOREFLINETOTRIANGLE_H

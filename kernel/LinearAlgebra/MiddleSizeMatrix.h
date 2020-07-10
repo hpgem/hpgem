@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 //------------------------------------------------------------------------------
-#ifndef MIDDLESIZEMATRIX_HH
-#define MIDDLESIZEMATRIX_HH
+#ifndef HPGEM_KERNEL_MIDDLESIZEMATRIX_H
+#define HPGEM_KERNEL_MIDDLESIZEMATRIX_H
 
 // System includes
 #include <iostream>
@@ -293,4 +293,4 @@ MiddleSizeMatrix operator*(const MiddleSizeMatrix::type d,
 MiddleSizeVector operator*(MiddleSizeVector& vec, MiddleSizeMatrix& mat);
 
 }  // namespace LinearAlgebra
-#endif
+#endif  // HPGEM_KERNEL_MIDDLESIZEMATRIX_H

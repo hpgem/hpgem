@@ -35,8 +35,8 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef TreeEntry_h
-#define TreeEntry_h
+#ifndef HPGEM_KERNEL_TREEENTRY_H
+#define HPGEM_KERNEL_TREEENTRY_H
 #include <typeinfo>
 
 #include <iostream>
@@ -297,4 +297,4 @@ class TreeEntry {
 };
 }  // namespace Base
 
-#endif  // TreeEntry_h
+#endif  // HPGEM_KERNEL_TREEENTRY_H

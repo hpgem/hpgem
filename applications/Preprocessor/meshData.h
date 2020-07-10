@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPGEM_MESHDATA_H
-#define HPGEM_MESHDATA_H
+#ifndef HPGEM_APP_MESHDATA_H
+#define HPGEM_APP_MESHDATA_H
 
 #include <cstddef>
 #include "mesh.h"
@@ -171,4 +171,4 @@ class PartialData {
 };
 }  // namespace Preprocessor
 
-#endif  // HPGEM_MESHDATA_H
+#endif  // HPGEM_APP_MESHDATA_H

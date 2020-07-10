@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ____ReferenceTriangularPrism__
-#define ____ReferenceTriangularPrism__
+#ifndef HPGEM_KERNEL_REFERENCETRIANGULARPRISM_H
+#define HPGEM_KERNEL_REFERENCETRIANGULARPRISM_H
 
 #include <iostream>
 
@@ -180,4 +180,4 @@ class ReferenceTriangularPrism : public ReferenceGeometry {
 };
 }  // namespace Geometry
 
-#endif /* defined(____ReferenceTriangularPrism__) */
+#endif  // HPGEM_KERNEL_REFERENCETRIANGULARPRISM_H

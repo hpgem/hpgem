@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef LOGGER_H
-#define LOGGER_H
+#ifndef HPGEM_KERNEL_LOGGER_H
+#define HPGEM_KERNEL_LOGGER_H
 
 #include <string>
 #include <sstream>
@@ -546,4 +546,4 @@ extern Logger<HPGEM_LOGLEVEL> logger;
 #define assert_debug(e, ...) assert_debug(true, "")
 #endif
 
-#endif
+#endif  // HPGEM_KERNEL_LOGGER_H

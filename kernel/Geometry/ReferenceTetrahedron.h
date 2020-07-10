@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 //
-#ifndef ____ReferenceTetrahedron__
-#define ____ReferenceTetrahedron__
+#ifndef HPGEM_KERNEL_REFERENCETETRAHEDRON_H
+#define HPGEM_KERNEL_REFERENCETETRAHEDRON_H
 
 #include <iostream>
 
@@ -150,4 +150,4 @@ class ReferenceTetrahedron : public ReferenceSimplex<3> {
 };
 }  // namespace Geometry
 
-#endif /* defined(____ReferenceTetrahedron__) */
+#endif  // HPGEM_KERNEL_REFERENCETETRAHEDRON_H

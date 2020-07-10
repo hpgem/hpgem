@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MAPPINGHYPERCUBELINEAR_H_
-#define MAPPINGHYPERCUBELINEAR_H_
+#ifndef HPGEM_KERNEL_MAPPINGTOPHYSHYPERCUBELINEAR_H
+#define HPGEM_KERNEL_MAPPINGTOPHYSHYPERCUBELINEAR_H
 
 #include "MappingReferenceToPhysical.h"
 #include "Geometry/PointPhysical.h"
@@ -137,4 +137,4 @@ class MappingToPhysHypercubeLinear<4> : public MappingReferenceToPhysical {
         a013, a123, a230, a0123;
 };
 }  // namespace Geometry
-#endif
+#endif  // HPGEM_KERNEL_MAPPINGTOPHYSHYPERCUBELINEAR_H

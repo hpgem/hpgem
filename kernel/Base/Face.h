@@ -37,8 +37,8 @@
  */
 
 //----------------------------------------------------------------
-#ifndef Face_h
-#define Face_h
+#ifndef HPGEM_KERNEL_FACE_H
+#define HPGEM_KERNEL_FACE_H
 //----------------------------------------------------------------
 #include "Base/FaceData.h"
 #include "Base/FaceMatrix.h"
@@ -764,4 +764,4 @@ LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionCurl(
         i - numberOfBasisFunctionsLeft, mapRefFaceToRefElemR(p), unknown);
 }
 }  // namespace Base
-#endif
+#endif  // HPGEM_KERNEL_FACE_H

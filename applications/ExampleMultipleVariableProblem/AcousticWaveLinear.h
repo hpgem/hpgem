@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef AcousticWaveLinearH
-#define AcousticWaveLinearH
+#ifndef HPGEM_APP_ACOUSTICWAVELINEAR_H
+#define HPGEM_APP_ACOUSTICWAVELINEAR_H
 
 #include <fstream>
 
@@ -213,4 +213,4 @@ class AcousticWaveLinear : public Base::HpgemAPILinear<DIM> {
 
 #include "AcousticWaveLinear_Impl.h"
 
-#endif
+#endif  // HPGEM_APP_ACOUSTICWAVELINEAR_H

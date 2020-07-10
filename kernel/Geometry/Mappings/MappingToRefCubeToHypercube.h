@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MappingToRefCubeToHypercube_H_
-#define MappingToRefCubeToHypercube_H_
+#ifndef HPGEM_KERNEL_MAPPINGTOREFCUBETOHYPERCUBE_H
+#define HPGEM_KERNEL_MAPPINGTOREFCUBETOHYPERCUBE_H
 
 #include "MappingReferenceToReference.h"
 
@@ -202,4 +202,4 @@ class MappingToRefCubeToHypercube7 : public MappingReferenceToReference<1> {
         transformedCoordinates;
 };
 }  // namespace Geometry
-#endif
+#endif  // HPGEM_KERNEL_MAPPINGTOREFCUBETOHYPERCUBE_H

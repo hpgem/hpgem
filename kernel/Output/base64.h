@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BASE64_HPP
-#define BASE64_HPP
+#ifndef HPGEM_KERNEL_BASE64_H
+#define HPGEM_KERNEL_BASE64_H
 
 #include <string>
 
@@ -57,4 +57,4 @@ static const char base64Encode[65] =
 std::string toBase64(void* rawData, std::size_t len);
 }  // namespace Detail
 }  // namespace Output
-#endif /* BASE64_HPP */
+#endif  // HPGEM_KERNEL_BASE64_H

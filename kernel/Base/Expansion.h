@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef Expansion_h
-#define Expansion_h
+#ifndef HPGEM_KERNEL_EXPANSION_H
+#define HPGEM_KERNEL_EXPANSION_H
 
 #include "../LinearAlgebra/MiddleSizeVector.h"
 #include "../Geometry/PointReference.h"
@@ -104,4 +104,4 @@ class Expansion {
 
 }  // namespace Base
 
-#endif  // Expansion_h
+#endif  // HPGEM_KERNEL_EXPANSION_H

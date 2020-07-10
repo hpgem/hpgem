@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BIDISPERSEDLIMITER_H
-#define BIDISPERSEDLIMITER_H
+#ifndef HPGEM_APP_BIDISPERSEDLIMITER1D_H
+#define HPGEM_APP_BIDISPERSEDLIMITER1D_H
 
 #include "HeightLimiter.h"
 #include "Integration/ElementIntegral.h"
@@ -81,4 +81,4 @@ class BidispersedLimiter : public HeightLimiter {
     Integration::ElementIntegral<1> elementIntegrator_;
 };
 
-#endif /* BIDISPERSEDLIMITER_H */
+#endif  // HPGEM_APP_BIDISPERSEDLIMITER1D_H

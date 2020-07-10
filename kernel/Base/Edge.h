@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef EDGE_HPP_
-#define EDGE_HPP_
+#ifndef HPGEM_KERNEL_EDGE_H
+#define HPGEM_KERNEL_EDGE_H
 
 #include <vector>
 #include <cstdlib>
@@ -185,4 +185,4 @@ class Edge {
 
 } /* namespace Base */
 
-#endif /* EDGE_HPP_ */
+#endif  // HPGEM_KERNEL_EDGE_H

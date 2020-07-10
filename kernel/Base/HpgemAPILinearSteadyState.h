@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BaseLinearSteadyStateH
-#define BaseLinearSteadyStateH
+#ifndef HPGEM_KERNEL_HPGEMAPILINEARSTEADYSTATE_H
+#define HPGEM_KERNEL_HPGEMAPILINEARSTEADYSTATE_H
 
 #include "Base/ConfigurationData.h"
 #include "Base/Element.h"
@@ -233,4 +233,4 @@ class HpgemAPILinearSteadyState : public HpgemAPILinear<DIM> {
 
 #include "HpgemAPILinearSteadyState_Impl.h"
 
-#endif
+#endif  // HPGEM_KERNEL_HPGEMAPILINEARSTEADYSTATE_H

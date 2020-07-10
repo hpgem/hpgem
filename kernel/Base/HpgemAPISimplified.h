@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BaseSimplifiedHPP
-#define BaseSimplifiedHPP
+#ifndef HPGEM_KERNEL_HPGEMAPISIMPLIFIED_H
+#define HPGEM_KERNEL_HPGEMAPISIMPLIFIED_H
 
 #include "Base/ConfigurationData.h"
 #include "Base/Element.h"
@@ -519,4 +519,4 @@ class HpgemAPISimplified : public HpgemAPIBase<DIM>,
 
 #include "HpgemAPISimplified_Impl.h"
 
-#endif
+#endif  // HPGEM_KERNEL_HPGEMAPISIMPLIFIED_H
