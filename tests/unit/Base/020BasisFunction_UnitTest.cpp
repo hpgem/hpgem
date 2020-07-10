@@ -60,6 +60,7 @@
 #include "Logger.h"
 
 #include <cmath>
+using namespace hpgem;
 int main() {
 
     // 1D

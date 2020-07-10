@@ -41,6 +41,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../TimeIntegrationProblem.h"
 
+using namespace hpgem;
+
 /// \brief Test problem with all the previous (unsorted) problems.
 /// Test problems copied from BaseExtended when moving all the code from there
 /// to separate files. Your milage may vary on the quality and correctness of

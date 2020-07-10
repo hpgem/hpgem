@@ -40,6 +40,8 @@
 
 #include "Geometry/PointPhysical.h"
 
+namespace hpgem {
+
 namespace Geometry {
 
 const PointPhysical& MappingReferenceToPhysical::getNodeCoordinates(
@@ -48,3 +50,5 @@ const PointPhysical& MappingReferenceToPhysical::getNodeCoordinates(
 }
 
 }  // namespace Geometry
+
+}  // namespace hpgem

@@ -44,6 +44,8 @@
 #include "Edge.h"
 #include "Geometry/PointPhysical.h"
 
+namespace hpgem {
+
 namespace Base {
 void Submesh::add(Element* element) {
     logger.assert_debug(element != nullptr, "Invalid element passed");
@@ -198,3 +200,5 @@ void Submesh::processPullRequests() {
 #endif
 }
 }  // namespace Base
+
+}  // namespace hpgem

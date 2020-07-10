@@ -39,6 +39,8 @@
 #include "MappingToRefPointToLine.h"
 #include "Geometry/PointReference.h"
 
+namespace hpgem {
+
 namespace Geometry {
 /*
  * The reference line:
@@ -105,3 +107,5 @@ Jacobian<0, 1> MappingToRefPointToLine1::calcJacobian(
 MappingToRefPointToLine1::MappingToRefPointToLine1() = default;
 
 }  // namespace Geometry
+
+}  // namespace hpgem

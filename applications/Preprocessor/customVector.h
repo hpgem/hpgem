@@ -44,6 +44,8 @@
 #include <Logger.h>
 #include "customIterator.h"
 
+using namespace hpgem;
+
 namespace Preprocessor {
 
 /**

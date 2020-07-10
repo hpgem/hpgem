@@ -41,6 +41,8 @@
 
 #include <cstdlib>
 
+namespace hpgem {
+
 namespace Base {
 /// class for providing indices
 class GlobalUniqueIndex final {
@@ -69,5 +71,7 @@ class GlobalUniqueIndex final {
     std::size_t nodeIndex_ = 0;
 };
 }  // namespace Base
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_GLOBALUNIQUEINDEX_H

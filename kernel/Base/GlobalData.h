@@ -38,11 +38,15 @@
 #ifndef HPGEM_KERNEL_GLOBALDATA_H
 #define HPGEM_KERNEL_GLOBALDATA_H
 
+namespace hpgem {
+
 namespace Base {
 struct GlobalData {
     std::size_t numberOfUnknowns_;
     std::size_t numberOfTimeLevels_;
 };
 }  // namespace Base
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_GLOBALDATA_H

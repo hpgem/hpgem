@@ -45,6 +45,8 @@
 #include "Geometry/ReferenceLine.h"
 #include "Geometry/PointReference.h"
 
+namespace hpgem {
+
 //---------------------------------------------------------------------------
 namespace QuadratureRules {
 //---------------------------------------------------------------------------
@@ -298,3 +300,5 @@ C1_11_6::C1_11_6()
 
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
+
+}  // namespace hpgem

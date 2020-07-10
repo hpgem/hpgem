@@ -44,6 +44,8 @@
 #include "Integration/ElementIntegral.h"
 #include "Base/UserData.h"
 
+using namespace hpgem;
+
 namespace Helpers {
 
 struct DryFlag : public UserElementData {

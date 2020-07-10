@@ -45,6 +45,8 @@
 #include "Logger.h"
 #include "TreeEntry.h"
 
+namespace hpgem {
+
 namespace Base {
 
 class Element;
@@ -184,5 +186,7 @@ class Edge {
 };
 
 } /* namespace Base */
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_EDGE_H

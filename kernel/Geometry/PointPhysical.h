@@ -42,6 +42,7 @@
 #include "Point.h"
 #include "PointPhysicalBase.h"
 #include <complex>
+namespace hpgem {
 namespace Geometry {
 template <std::size_t DIM>
 class PointPhysical;
@@ -98,7 +99,7 @@ class PointPhysical : public Point<DIM>, public PointPhysicalBase {
 template <std::size_t DIM>
 PointPhysical<DIM> operator*(double left, const PointPhysical<DIM>& right);
 }  // namespace Geometry
-
+}  // namespace hpgem
 #include "PointPhysical_Impl.h"
 
 #endif  // HPGEM_KERNEL_POINTPHYSICAL_H

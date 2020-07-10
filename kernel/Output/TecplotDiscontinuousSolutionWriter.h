@@ -47,7 +47,7 @@
 #include <functional>
 
 #include "Logger.h"
-
+namespace hpgem {
 namespace Base {
 template <std::size_t DIM>
 class MeshManipulator;
@@ -120,6 +120,7 @@ class TecplotDiscontinuousSolutionWriter {
     std::size_t* dimensionNumbers;
 };
 }  // namespace Output
-
+}  // namespace hpgem
 #include "TecplotDiscontinuousSolutionWriter_Impl.h"
+
 #endif  // HPGEM_KERNEL_TECPLOTDISCONTINUOUSSOLUTIONWRITER_H

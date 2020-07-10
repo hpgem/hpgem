@@ -38,6 +38,8 @@
 
 #include "H1ConformingTransformation.h"
 
+namespace hpgem {
+
 namespace Base {
 template <std::size_t DIM>
 PhysicalElement<DIM>::PhysicalElement()
@@ -743,3 +745,4 @@ inline void PhysicalElement<DIM>::setQuadraturePointIndex(std::size_t index) {
     hasQuadratureRule = true;
 }
 }  // namespace Base
+}  // namespace hpgem

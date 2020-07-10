@@ -53,6 +53,7 @@
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include <cmath>
+using namespace hpgem;
 using Geometry::ReferencePyramid;
 
 int main() {

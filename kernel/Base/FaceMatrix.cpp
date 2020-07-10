@@ -40,6 +40,8 @@
 #include "Logger.h"
 #include <iostream>
 
+namespace hpgem {
+
 namespace Base {
 class FaceMatrix;
 
@@ -294,3 +296,5 @@ void FaceMatrix::axpy(const LinearAlgebra::MiddleSizeMatrix::type &a,
     M_RightRight_.axpy(a, x.M_RightRight_);
 }
 }  // namespace Base
+
+}  // namespace hpgem

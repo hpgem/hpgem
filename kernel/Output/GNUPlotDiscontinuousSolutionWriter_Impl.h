@@ -45,8 +45,9 @@
 #include "Geometry/PointPhysical.h"
 #include "Geometry/PointReference.h"
 #include "Geometry/PhysicalGeometry.h"
-#include "Geometry/ReferenceGeometry.h"
 
+#include "Geometry/ReferenceGeometry.h"
+namespace hpgem {
 namespace Output {
 /// Constructor: initialise the output stream and make the header.
 ///@param[in] output             The output stream you want to write to
@@ -148,3 +149,4 @@ void GNUPlotDiscontinuousSolutionWriter<DIM>::write(
 }  // end of write function
 
 }  // namespace Output
+}  // namespace hpgem

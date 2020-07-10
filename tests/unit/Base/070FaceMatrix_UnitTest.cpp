@@ -42,7 +42,7 @@
 #include <iostream>
 
 #include "Base/FaceMatrix.h"
-
+using namespace hpgem;
 int main() {
     // std::cout << "Test if FaceMatrix works.\n";
 

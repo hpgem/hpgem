@@ -22,6 +22,8 @@ using std::string;
 #include "Integration/ElementIntegrandBase.h"
 #include "Integration/FaceIntegrandBase.h"
 
+using namespace hpgem;
+
 using Base::ConfigurationData;
 using Base::GlobalData;
 using Base::HpgemAPIBase;

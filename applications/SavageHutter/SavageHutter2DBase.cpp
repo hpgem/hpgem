@@ -39,6 +39,8 @@
 #include "SavageHutter2DBase.h"
 #include "HelperFunctions.h"
 
+using namespace hpgem;
+
 const LinearAlgebra::MiddleSizeVector
     SavageHutter2DBase::integrandRightHandSideOnElement(
         Base::PhysicalElement<2>& element, const double& time,

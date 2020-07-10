@@ -41,6 +41,8 @@
 
 #include "Base/MeshMoverBase.h"
 
+using namespace hpgem;
+
 class MeshMover : public Base::MeshMoverBase<2> {
 
    public:

@@ -44,6 +44,8 @@
 
 #include "Logger.h"
 
+using namespace hpgem;
+
 // it is also possible to template ExampleProblem on the dimension if you want
 // more flexibility, but if you do so you must prefix identifiers defined in the
 // API with 'this->' due to the name look-up rules for templated classes

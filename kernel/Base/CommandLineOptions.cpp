@@ -52,7 +52,7 @@
 #ifdef HPGEM_USE_SLEPC
 #include <slepcsys.h>
 #endif
-
+namespace hpgem {
 // special flags
 auto& isDone = Base::register_argument<bool>(
     '\0', "",
@@ -272,3 +272,5 @@ int Base::Detail::CLOParser::go() {
     logger.assert_always(!kill, "Help printed, terminating program...");
     return currCount;
 }
+
+}  // namespace hpgem

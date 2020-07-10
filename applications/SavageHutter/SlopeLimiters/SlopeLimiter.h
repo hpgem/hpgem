@@ -40,6 +40,8 @@
 #define HPGEM_APP_SLOPELIMITER_H
 #include "Base/Element.h"
 
+using namespace hpgem;
+
 class SlopeLimiter {
    public:
     SlopeLimiter(std::size_t numVars) : numberOfVariables_(numVars) {}

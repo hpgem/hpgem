@@ -44,6 +44,8 @@
 #include "FaceIntegrandBase.h"
 #include "LinearAlgebra/Axpy.h"
 
+namespace hpgem {
+
 namespace Integration {
 // dim denotes the dimension of the ELEMENT here
 template <std::size_t DIM>
@@ -279,5 +281,7 @@ Base::CoordinateTransformation<DIM>& FaceIntegral<DIM>::getTransformation(
 }
 
 }  // namespace Integration
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_FACEINTEGRAL_IMPL_H

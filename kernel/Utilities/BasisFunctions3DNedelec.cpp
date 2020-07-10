@@ -42,6 +42,8 @@
 #include "Geometry/ReferenceTetrahedron.h"
 #include "Geometry/PointReference.h"
 
+namespace hpgem {
+
 namespace Utilities {
 namespace {
 void OuterProduct(const LinearAlgebra::SmallVector<3>& a,
@@ -464,3 +466,5 @@ Base::BasisFunctionSet* createDGBasisFunctionSet3DNedelec(std::size_t order) {
     return bFset;
 }
 }  // namespace Utilities
+
+}  // namespace hpgem

@@ -40,6 +40,8 @@
 
 #include <cstdlib>
 
+namespace hpgem {
+
 namespace Base {
 template <std::size_t DIM>
 class PhysicalElement;
@@ -71,5 +73,7 @@ class ElementIntegrandBase {
     ElementIntegrandBase(const ElementIntegrandBase<T, DIM>& other) = delete;
 };
 }  // namespace Integration
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_ELEMENTINTEGRANDBASE_H

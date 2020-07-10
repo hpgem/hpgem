@@ -44,6 +44,8 @@
 #include "PhysicalElement.h"
 #include "CoordinateTransformation.h"
 
+namespace hpgem {
+
 namespace Base {
 /// the basic transformation that most users need (transforms functions and
 /// their derivatives in a conforming way)
@@ -79,5 +81,7 @@ class H1ConformingTransformation : public CoordinateTransformation<DIM> {
     }
 };
 }  // namespace Base
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_H1CONFORMINGTRANSFORMATION_H

@@ -42,6 +42,8 @@
 #include <vector>
 #include "ButcherTableau.h"
 
+namespace hpgem {
+
 namespace TimeIntegration {
 
 class MidPoint : public ButcherTableau {
@@ -69,5 +71,7 @@ class MidPoint : public ButcherTableau {
     std::vector<double> c_;
 };
 }  // namespace TimeIntegration
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_MIDPOINT_H

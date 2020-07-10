@@ -40,6 +40,8 @@
 
 #include "PositiveLayerLimiter.h"
 
+using namespace hpgem;
+
 template <std::size_t DIM>
 void PositiveLayerLimiter<DIM>::limit(
     Base::Element *element,

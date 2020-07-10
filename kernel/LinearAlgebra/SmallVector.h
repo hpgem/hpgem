@@ -46,6 +46,7 @@
 #include <algorithm>
 #include <numeric>
 
+namespace hpgem {
 namespace LinearAlgebra {
 class MiddleSizeVector;
 /// \class SmallVector
@@ -347,4 +348,5 @@ MiddleSizeVector::MiddleSizeVector(const SmallVector<numberOfRows>& other)
 #endif
 
 }  // namespace LinearAlgebra
+}  // namespace hpgem
 #endif  // HPGEM_KERNEL_SMALLVECTOR_H

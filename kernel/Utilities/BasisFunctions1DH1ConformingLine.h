@@ -42,6 +42,8 @@
 #include "Base/BaseBasisFunction.h"
 #include <vector>
 
+namespace hpgem {
+
 namespace Base {
 class BasisFunctionSet;
 class OrientedBasisFunctionSet;
@@ -92,5 +94,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
     createVertexBasisFunctionSet1DH1Line(std::size_t polynomialOrder);
 
 }  // namespace Utilities
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_BASISFUNCTIONS1DH1CONFORMINGLINE_H

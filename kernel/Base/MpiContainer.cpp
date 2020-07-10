@@ -43,6 +43,8 @@
 
 #include "Logger.h"
 
+namespace hpgem {
+
 namespace Base {
 namespace Detail {
 #ifdef HPGEM_USE_MPI
@@ -117,3 +119,5 @@ MPI_Comm &MPIContainer::getComm() { return communicator_; }
 #endif
 
 }  // namespace Base
+
+}  // namespace hpgem

@@ -44,6 +44,8 @@
 #include "PhysicalElement.h"
 #include "PhysicalFace.h"
 
+namespace hpgem {
+
 namespace Base {
 // Due to recursive includes these need a forward defined
 template <std::size_t DIM>
@@ -138,5 +140,7 @@ class CoordinateTransformation {
     }
 };
 }  // namespace Base
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_COORDINATETRANSFORMATION_H

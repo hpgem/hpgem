@@ -43,6 +43,8 @@
 #include "Base/Side.h"
 #include "LinearAlgebra/MiddleSizeMatrix.h"
 
+namespace hpgem {
+
 namespace Base {
 /// \class FaceMatrix
 /// \brief This class stores and can manipulate data for the face matrices.
@@ -138,4 +140,6 @@ class FaceMatrix {
     LinearAlgebra::MiddleSizeMatrix M_RightRight_;
 };
 }  // namespace Base
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_FACEMATRIX_H

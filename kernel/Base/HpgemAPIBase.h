@@ -45,7 +45,7 @@
 #include "GlobalNamespaceBase.h"
 #include "CommandLineOptions.h"
 #include "GlobalData.h"
-
+namespace hpgem {
 namespace Base {
 template <std::size_t DIM>
 class MeshMoverBase;
@@ -139,7 +139,7 @@ class HpgemAPIBase {
     std::size_t globalNumberOfTimeIntegrationVectors_;
 };
 }  // namespace Base
-
+}  // namespace hpgem
 #include "HpgemAPIBase_Impl.h"
 
 #endif  // HPGEM_KERNEL_HPGEMAPIBASE_H

@@ -43,6 +43,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "DGMaxDiscretization.h"
 
+using namespace hpgem;
+
 /// \brief Solver for a harmonic problem to find the fields.
 template <std::size_t DIM>
 class DGMaxHarmonic {

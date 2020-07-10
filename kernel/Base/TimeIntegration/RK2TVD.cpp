@@ -39,6 +39,8 @@
 #include "RK2TVD.h"
 #include "Logger.h"
 
+namespace hpgem {
+
 namespace TimeIntegration {
 
 RK2TVD::RK2TVD() {
@@ -102,3 +104,5 @@ double RK2TVD::getErrorCoefficient(std::size_t i) const {
 }
 
 }  // namespace TimeIntegration
+
+}  // namespace hpgem

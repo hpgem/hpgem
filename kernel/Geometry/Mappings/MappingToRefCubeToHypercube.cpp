@@ -40,6 +40,8 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/Jacobian.h"
 
+namespace hpgem {
+
 namespace Geometry {
 // ~~~ index 0
 // ~~~==============================================================================
@@ -353,3 +355,5 @@ Jacobian<3, 4> MappingToRefCubeToHypercube7::calcJacobian(
 
 MappingToRefCubeToHypercube7::MappingToRefCubeToHypercube7() = default;
 }  // namespace Geometry
+
+}  // namespace hpgem

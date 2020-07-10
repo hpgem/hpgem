@@ -47,6 +47,8 @@
 #include "GlobalNamespaceBase.h"
 #include "BasisFunctionSet.h"
 
+namespace hpgem {
+
 namespace Base {
 template <std::size_t DIM>
 class MeshManipulator;
@@ -54,6 +56,7 @@ class MeshManipulator;
 
 template <std::size_t DIM>
 std::ostream& operator<<(std::ostream&, const Base::MeshManipulator<DIM>&);
+
 namespace Geometry {
 template <std::size_t DIM>
 class PointPhysical;
@@ -216,5 +219,7 @@ class MeshManipulatorBase {
 };
 
 }  // namespace Base
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_MESHMANIPULATORBASE_H

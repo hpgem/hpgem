@@ -48,6 +48,7 @@
 #include <complex>
 #include "Logger.h"
 
+namespace hpgem {
 namespace Base {
 
 namespace Detail {
@@ -422,5 +423,7 @@ class MPIContainer {
 };
 
 }  // namespace Base
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_MPICONTAINER_H

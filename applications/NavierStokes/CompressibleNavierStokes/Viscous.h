@@ -41,6 +41,8 @@
 
 #include "CompressibleDimension.h"
 
+using namespace hpgem;
+
 class Viscous {
    public:
     Viscous(CompressibleNavierStokes &instance);

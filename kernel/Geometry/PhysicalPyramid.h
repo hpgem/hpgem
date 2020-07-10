@@ -41,6 +41,8 @@
 
 #include "PhysicalGeometry.h"
 
+namespace hpgem {
+
 namespace Geometry {
 class ReferencePyramid;
 
@@ -52,4 +54,6 @@ class PhysicalPyramid : public PhysicalGeometry<3> {
                     std::vector<Geometry::PointPhysical<3> >&);
 };
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_PHYSICALPYRAMID_H

@@ -45,6 +45,8 @@
 #include "LinearAlgebra/MiddleSizeMatrix.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 
+namespace hpgem {
+
 namespace LinearAlgebra {
 class MiddleSizeVector;
 }
@@ -131,4 +133,6 @@ class FaceData {
     LinearAlgebra::MiddleSizeVector residual_;
 };
 }  // namespace Base
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_FACEDATA_H

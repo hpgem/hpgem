@@ -42,6 +42,8 @@
 #include "Base/BaseBasisFunction.h"
 #include <vector>
 
+namespace hpgem {
+
 namespace Base {
 class BasisFunctionSet;
 class OrientedBasisFunctionSet;
@@ -118,5 +120,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
     createFaceBasisFunctionSet2DH1Triangle(std::size_t order);
 
 }  // namespace Utilities
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_BASISFUNCTIONS2DH1CONFORMINGTRIANGLE_H

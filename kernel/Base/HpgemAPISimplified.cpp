@@ -39,6 +39,8 @@
 #include "CommandLineOptions.h"
 #include <limits>
 
+namespace hpgem {
+
 namespace Base {
 
 ///\bug Workaround for Bug 60352 in (at least) gcc 4.8.2 (should read auto&
@@ -60,3 +62,5 @@ CommandLineOption<std::string>& outputName =
         0, "outFile", "Name of the output file (without extentions)", false,
         "output");
 }  // namespace Base
+
+}  // namespace hpgem

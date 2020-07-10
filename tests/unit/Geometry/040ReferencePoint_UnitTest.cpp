@@ -49,6 +49,7 @@
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 
 #include <cmath>
+using namespace hpgem;
 using Geometry::ReferencePoint;
 
 int main() {

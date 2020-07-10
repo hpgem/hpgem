@@ -39,6 +39,8 @@
 #ifndef HPGEM_KERNEL_PHYSICALGEOMETRYACCEPTOR_H
 #define HPGEM_KERNEL_PHYSICALGEOMETRYACCEPTOR_H
 
+namespace hpgem {
+
 namespace Geometry {
 class PhysicalGeometryBase;
 }
@@ -65,4 +67,6 @@ class PhysicalGeometryAcceptor {
     virtual ~PhysicalGeometryAcceptor() = default;
 };
 }  // namespace Output
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_PHYSICALGEOMETRYACCEPTOR_H

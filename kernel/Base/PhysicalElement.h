@@ -45,7 +45,7 @@
 #include "Geometry/Jacobian.h"
 #include "CoordinateTransformation.h"
 #include "Element.h"
-
+namespace hpgem {
 namespace Base {
 template <std::size_t DIM>
 class PhysicalFace;
@@ -265,6 +265,7 @@ class PhysicalElement final {
 };
 
 }  // namespace Base
-
+}  // namespace hpgem
 #include "PhysicalElement_Impl.h"
+
 #endif  // HPGEM_KERNEL_PHYSICALELEMENT_H

@@ -43,6 +43,7 @@
 #include "SmallVector.h"
 #include "MiddleSizeMatrix.h"
 
+namespace hpgem {
 namespace LinearAlgebra {
 /// \class SmallMatrix
 /// \brief Data type for small dense matrix.
@@ -379,7 +380,7 @@ MiddleSizeMatrix::MiddleSizeMatrix(
 }
 
 }  // namespace LinearAlgebra
-
+}  // namespace hpgem
 #include "SmallMatrix_impl.h"
 
 #endif  // HPGEM_KERNEL_SMALLMATRIX_H

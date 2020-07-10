@@ -40,6 +40,8 @@
 #define HPGEM_KERNEL_PHYSICALTRIANGLE_H
 #include "PhysicalGeometry.h"
 
+namespace hpgem {
+
 namespace Geometry {
 class ReferenceTriangle;
 
@@ -52,4 +54,6 @@ class PhysicalTriangle : public PhysicalGeometry<2> {
 };
 
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_PHYSICALTRIANGLE_H

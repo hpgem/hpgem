@@ -40,8 +40,9 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/Jacobian.h"
 #include "Element.h"
-#include "Geometry/ReferenceGeometry.h"
 
+#include "Geometry/ReferenceGeometry.h"
+namespace hpgem {
 namespace Utilities {
 template <std::size_t DIM>
 LinearAlgebra::SmallVector<DIM> PhysGradientOfBasisFunction::operator()(
@@ -60,3 +61,4 @@ LinearAlgebra::SmallVector<DIM> PhysGradientOfBasisFunction::operator()(
 }
 
 }  // namespace Utilities
+}  // namespace hpgem

@@ -5,6 +5,8 @@
 
 #include "ReferenceGeometry.h"
 
+namespace hpgem {
+
 namespace LinearAlgebra {
 template <std::size_t DIM>
 class SmallVector;
@@ -64,5 +66,7 @@ std::ostream& operator<<(std::ostream& os,
     return os;
 }
 }  // namespace Geometry
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_REFERENCESIMPLEX_H

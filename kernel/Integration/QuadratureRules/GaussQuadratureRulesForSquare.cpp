@@ -45,6 +45,8 @@
 #include "GaussQuadratureRulesForLine.h"
 #include "Geometry/PointReference.h"
 
+namespace hpgem {
+
 //---------------------------------------------------------------------------
 namespace QuadratureRules {
 //---------------------------------------------------------------------------
@@ -361,3 +363,5 @@ C2_11_6::C2_11_6()
 
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
+
+}  // namespace hpgem

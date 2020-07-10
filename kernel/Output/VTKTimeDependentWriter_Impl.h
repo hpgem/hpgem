@@ -40,8 +40,10 @@
 #include "Base/MpiContainer.h"
 #include "Logger.h"
 #include "base64.h"
+
 #include "Base/CommandLineOptions.h"
 
+namespace hpgem {
 template <std::size_t DIM>
 Output::VTKTimeDependentWriter<DIM>::VTKTimeDependentWriter(
     std::string baseFileName, Base::MeshManipulator<DIM>* mesh)
@@ -123,3 +125,4 @@ void Output::VTKTimeDependentWriter<DIM>::write(
                         timelevel_);
     currentFile_->write(f, name);
 }
+}  // namespace hpgem

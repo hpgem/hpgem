@@ -41,6 +41,9 @@
 #include "Base/L2Norm.h"
 #include "Geometry/PointPhysical.h"
 #include "Logger.h"
+
+using namespace hpgem;
+
 /*
 KspaceData::KspaceData(int pointsPerDirection)
         : minimumsize_(999999), current_(0)

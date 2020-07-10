@@ -20,6 +20,9 @@ using Geometry::PointReference;
 #include <iomanip>
 #include <iostream>
 #include <fstream>
+
+using namespace hpgem;
+
 using std::ifstream;
 using std::istream;
 using std::ofstream;

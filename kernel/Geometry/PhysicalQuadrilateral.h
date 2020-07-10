@@ -41,6 +41,8 @@
 
 #include "PhysicalGeometry.h"
 
+namespace hpgem {
+
 namespace Geometry {
 class ReferenceSquare;
 
@@ -53,4 +55,6 @@ class PhysicalQuadrilateral : public PhysicalGeometry<2> {
 };
 
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_PHYSICALQUADRILATERAL_H

@@ -40,7 +40,7 @@
 #define HPGEM_KERNEL_PHYSGRADIENTOFBASISFUNCTION_H
 
 #include "Logger.h"
-
+namespace hpgem {
 namespace LinearAlgebra {
 template <std::size_t DIM>
 class SmallVector;
@@ -83,7 +83,7 @@ struct PhysGradientOfBasisFunction {
 };
 
 }  // namespace Utilities
-
+}  // namespace hpgem
 #include "PhysGradientOfBasisFunction_Impl.h"
 
 #endif  // HPGEM_KERNEL_PHYSGRADIENTOFBASISFUNCTION_H

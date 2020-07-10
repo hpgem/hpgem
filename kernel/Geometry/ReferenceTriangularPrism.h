@@ -44,6 +44,8 @@
 #include "ReferenceGeometry.h"
 #include <vector>
 
+namespace hpgem {
+
 namespace Geometry {
 
 /* The ordering of the vertex and faces in a triangularPrism:
@@ -179,5 +181,7 @@ class ReferenceTriangularPrism : public ReferenceGeometry {
     PointReference<3> center_;
 };
 }  // namespace Geometry
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_REFERENCETRIANGULARPRISM_H

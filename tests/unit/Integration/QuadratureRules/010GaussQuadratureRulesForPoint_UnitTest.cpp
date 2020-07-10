@@ -47,7 +47,7 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferencePoint.h"
 #include <cmath>
-
+using namespace hpgem;
 void testRule(QuadratureRules::GaussQuadratureRule& test) {
     std::cout << test.getName();
     logger.assert_always((test.dimension() == 0), "dimension");

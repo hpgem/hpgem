@@ -47,6 +47,7 @@
 #include "Geometry/ReferenceTetrahedron.h"
 
 #include <cmath>
+using namespace hpgem;
 using Geometry::PhysicalTetrahedron;
 
 int main() {

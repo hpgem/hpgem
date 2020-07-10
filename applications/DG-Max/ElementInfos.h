@@ -51,12 +51,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * store some usefull information that needs to be computed everytime at the
  * beginning of an integrand specialized for tetrahedra
  */
-
+namespace hpgem {
 namespace Geometry {
 template <std::size_t DIM>
 class PointPhysical;
 }
-
+}  // namespace hpgem
+using namespace hpgem;
 class ElementInfos : public UserElementData {
    public:
     template <std::size_t DIM>

@@ -47,6 +47,8 @@
 #include <string>
 #include "Logger.h"
 
+namespace hpgem {
+
 namespace Base {
 
 /**
@@ -253,5 +255,7 @@ CommandLineOption<T>& register_argument(char tag, std::string long_tag,
 }
 
 }  // namespace Base
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_COMMANDLINEOPTIONS_H

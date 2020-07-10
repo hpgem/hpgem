@@ -48,7 +48,7 @@
 #include "GlobalIndexing.h"
 #include <vector>
 #include <map>
-
+namespace hpgem {
 namespace Base {
 class MeshManipulatorBase;
 class Face;
@@ -137,6 +137,7 @@ class GlobalPetscMatrix : public GlobalMatrix {
     Mat A_;
 };
 #endif
-}  // namespace Utilities
 
+}  // namespace Utilities
+}  // namespace hpgem
 #endif  // HPGEM_KERNEL_GLOBALMATRIX_H

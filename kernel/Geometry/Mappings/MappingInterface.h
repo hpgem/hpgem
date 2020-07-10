@@ -43,6 +43,8 @@
 #include "Logger.h"
 #include "Geometry/Jacobian.h"
 
+namespace hpgem {
+
 namespace Geometry {
 template <std::size_t DIM>
 class PointReference;
@@ -160,4 +162,6 @@ class MappingInterface {
     virtual std::size_t getTargetDimension() const = 0;
 };
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_MAPPINGINTERFACE_H

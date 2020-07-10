@@ -42,6 +42,8 @@
 
 #include <cmath>
 
+using namespace hpgem;
+
 CompressibleNavierStokes::CompressibleNavierStokes(
     const std::size_t numOfVariables, const double endTime,
     const std::size_t polynomialOrder,

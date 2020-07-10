@@ -39,6 +39,8 @@
 #include "DormandPrince.h"
 #include "Logger.h"
 
+namespace hpgem {
+
 namespace TimeIntegration {
 DormandPrince::DormandPrince() {
     order_ = 5;
@@ -119,3 +121,5 @@ double DormandPrince::getErrorCoefficient(std::size_t i) const {
     return error_[i];
 }
 }  // namespace TimeIntegration
+
+}  // namespace hpgem

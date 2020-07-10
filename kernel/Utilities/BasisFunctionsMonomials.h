@@ -41,6 +41,8 @@
 
 #include <memory>
 
+namespace hpgem {
+
 namespace Base {
 class BasisFunctionSet;
 }
@@ -55,5 +57,7 @@ void assembleMonomialBasisFunctions3D(Base::BasisFunctionSet &set,
 void assembleMonomialBasisFunctions4D(Base::BasisFunctionSet &set,
                                       std::size_t maxPower);
 }  // namespace Utilities
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_BASISFUNCTIONSMONOMIALS_H

@@ -42,7 +42,7 @@
 #include <string>
 #include <cstring>
 #include "Geometry/Mappings/ConcatenatedMapping.h"
-
+namespace hpgem {
 namespace Geometry {
 // forward declaration
 class ReferenceGeometry;
@@ -269,8 +269,10 @@ class GaussQuadratureRule {
         faceBasisFunctionDivs_;
 };
 }  // namespace QuadratureRules
-
+}  // namespace hpgem
 #include "Base/BasisFunctionSet.h"
+
+namespace hpgem {
 
 template <std::size_t DIM>
 inline void QuadratureRules::GaussQuadratureRule::eval(
@@ -368,5 +370,7 @@ inline void QuadratureRules::GaussQuadratureRule::eval(
                                                [basisFunctionIndex];
     }
 }
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_GAUSSQUADRATURERULE_H

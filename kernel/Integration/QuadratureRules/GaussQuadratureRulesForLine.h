@@ -42,6 +42,8 @@
 #include "Geometry/PointReference.h"
 #include <vector>
 
+namespace hpgem {
+
 //---------------------------------------------------------------------------
 namespace QuadratureRules {
 
@@ -203,4 +205,6 @@ class C1_11_6 : public GaussQuadratureRule {
 
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_GAUSSQUADRATURERULESFORLINE_H

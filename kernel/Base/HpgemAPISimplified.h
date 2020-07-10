@@ -51,7 +51,7 @@
 #include "Output/TecplotSingleElementWriter.h"
 #include "Output/VTKTimeDependentWriter.h"
 #include <functional>
-
+namespace hpgem {
 namespace Integration {
 template <std::size_t DIM>
 class FaceIntegral;
@@ -516,7 +516,7 @@ class HpgemAPISimplified : public HpgemAPIBase<DIM>,
         VTKMatrixWrite_;
 };
 }  // namespace Base
-
+}  // namespace hpgem
 #include "HpgemAPISimplified_Impl.h"
 
 #endif  // HPGEM_KERNEL_HPGEMAPISIMPLIFIED_H

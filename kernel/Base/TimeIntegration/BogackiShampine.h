@@ -41,6 +41,8 @@
 
 #include "ButcherTableau.h"
 
+namespace hpgem {
+
 namespace TimeIntegration {
 class BogackiShampine : public ButcherTableau {
    public:
@@ -77,5 +79,7 @@ class BogackiShampine : public ButcherTableau {
     std::vector<double> error_;
 };
 }  // namespace TimeIntegration
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_BOGACKISHAMPINE_H

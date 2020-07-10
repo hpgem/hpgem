@@ -50,6 +50,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ProblemTypes/AbstractEigenvalueSolver.h"
 #include "ProblemTypes/EigenvalueProblem.h"
 
+using namespace hpgem;
+
 template <std::size_t DIM>
 class DivDGMaxEigenvalue : public AbstractEigenvalueSolver<DIM> {
    public:

@@ -41,6 +41,8 @@
 
 #include <vector>
 
+namespace hpgem {
+
 template <typename T>
 class IteratorOverConst;
 
@@ -190,5 +192,7 @@ IteratorOverConst<T> operator+(typename IteratorOverConst<T>::difference_type n,
     IteratorOverConst<T> result{a};
     return result += n;
 }
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_CONSTITERABLEWRAPPER_H

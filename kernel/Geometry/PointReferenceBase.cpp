@@ -39,6 +39,8 @@
 #include "PointReferenceBase.h"
 #include "PointReference.h"
 
+namespace hpgem {
+
 namespace Geometry {
 
 PointReferenceBase::operator PointReference<0> &() {
@@ -101,3 +103,5 @@ PointReferenceBase::operator const PointReference<4> &() const {
     return static_cast<const PointReference<4>&>(*this);
 }
 }  // namespace Geometry
+
+}  // namespace hpgem

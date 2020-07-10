@@ -54,6 +54,8 @@ using idx_t = std::size_t;
 #include "meshData.h"
 #include "output.h"
 
+using namespace hpgem;
+
 auto& inputFileName = Base::register_argument<std::string>(
     '\0', "inFile", "Name of your input file", true);
 auto& fileType = Base::register_argument<std::string>(

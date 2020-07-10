@@ -42,6 +42,8 @@
 #include "ReferenceGeometry.h"
 #include <vector>
 
+namespace hpgem {
+
 namespace Geometry {
 // Reference Hypercube.
 class ReferenceHypercube : public ReferenceGeometry {
@@ -174,5 +176,7 @@ class ReferenceHypercube : public ReferenceGeometry {
     PointReference<4> center_;
 };
 }  // namespace Geometry
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_REFERENCEHYPERCUBE_H

@@ -39,6 +39,8 @@
 #ifndef HPGEM_KERNEL_LEVELTREE_IMPL_H
 #define HPGEM_KERNEL_LEVELTREE_IMPL_H
 
+namespace hpgem {
+
 namespace Base {
 template <typename V>
 LevelTree<V>::LevelTree()
@@ -346,5 +348,7 @@ void Base::LevelTree<V>::clear() {
 }
 
 }  // namespace Base
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_LEVELTREE_IMPL_H

@@ -48,7 +48,7 @@
 #include "Geometry/PointPhysical.h"
 #include "Node.h"
 #include "LevelTree.h"
-
+namespace hpgem {
 namespace Geometry {
 template <std::size_t DIM>
 class PointPhysical;
@@ -274,7 +274,7 @@ class Mesh final {
 };
 
 }  // namespace Base
-
+}  // namespace hpgem
 #include "Mesh_Impl.h"
 
 #endif  // HPGEM_KERNEL_MESH_H

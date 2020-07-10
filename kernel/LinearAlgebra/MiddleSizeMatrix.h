@@ -46,6 +46,7 @@
 #include "MiddleSizeVector.h"
 #include <complex>
 
+namespace hpgem {
 namespace LinearAlgebra {
 template <std::size_t numberOfRows, std::size_t numberOfColumns>
 class SmallMatrix;
@@ -280,7 +281,7 @@ class MiddleSizeMatrix {
 
     /// Store the number of columns of the matrix
     std::size_t numberOfColumns_;
-};
+};  // namespace hpgem
 
 /// Writes nicely formatted entries of the Matrix A to the stream os.
 std::ostream& operator<<(std::ostream& os, const MiddleSizeMatrix& A);
@@ -293,4 +294,6 @@ MiddleSizeMatrix operator*(const MiddleSizeMatrix::type d,
 MiddleSizeVector operator*(MiddleSizeVector& vec, MiddleSizeMatrix& mat);
 
 }  // namespace LinearAlgebra
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_MIDDLESIZEMATRIX_H

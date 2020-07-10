@@ -42,6 +42,8 @@
 #include <vector>
 #include "Logger.h"
 
+namespace hpgem {
+
 namespace TimeIntegration {
 /** \brief Basic container for Butcher's tableaux.
  *
@@ -81,5 +83,7 @@ namespace Base {
 /// previous location
 using namespace TimeIntegration;
 }  // namespace Base
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_BUTCHERTABLEAU_H

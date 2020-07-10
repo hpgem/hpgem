@@ -42,7 +42,9 @@
 
 #include "LinearAlgebra/SmallVector.h"
 
+namespace hpgem {
 namespace Geometry {
+
 template <std::size_t DIM>
 class Point {
    public:
@@ -116,6 +118,7 @@ template <std::size_t DIM>
 std::ostream& operator<<(std::ostream& os, const Point<DIM>& point);
 
 }  // namespace Geometry
-
+}  // namespace hpgem
 #include "Point_Impl.h"
+
 #endif  // HPGEM_KERNEL_POINT_H

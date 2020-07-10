@@ -51,6 +51,7 @@
 #include "Geometry/PointReference.h"
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include <cmath>
+using namespace hpgem;
 using Geometry::ReferenceSquare;
 
 int main() {

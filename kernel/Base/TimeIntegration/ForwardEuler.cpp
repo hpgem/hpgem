@@ -39,6 +39,8 @@
 #include "ForwardEuler.h"
 #include "Logger.h"
 
+namespace hpgem {
+
 namespace TimeIntegration {
 ForwardEuler::ForwardEuler() {
     order_ = 1;
@@ -87,3 +89,5 @@ double ForwardEuler::getC(std::size_t i) const {
     return c_[i];
 }
 }  // namespace TimeIntegration
+
+}  // namespace hpgem

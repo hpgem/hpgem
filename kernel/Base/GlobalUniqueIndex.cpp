@@ -38,6 +38,8 @@
 
 #include "GlobalUniqueIndex.h"
 
+namespace hpgem {
+
 Base::GlobalUniqueIndex &Base::GlobalUniqueIndex::instance() {
     static GlobalUniqueIndex theInstance;
     return theInstance;
@@ -52,3 +54,5 @@ std::size_t Base::GlobalUniqueIndex::getFaceIndex() { return faceIndex_++; }
 std::size_t Base::GlobalUniqueIndex::getEdgeIndex() { return edgeIndex_++; }
 
 std::size_t Base::GlobalUniqueIndex::getNodeIndex() { return nodeIndex_++; }
+
+}  // namespace hpgem

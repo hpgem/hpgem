@@ -43,6 +43,9 @@
 #include "Integration/QuadratureRules/GaussQuadratureRulesForTriangle.h"
 #include "Geometry/ReferenceTriangle.h"
 #include "Geometry/PointReference.h"
+
+namespace hpgem {
+
 //---------------------------------------------------------------------------
 namespace QuadratureRules {
 //---------------------------------------------------------------------------
@@ -799,3 +802,5 @@ T2_11_28::T2_11_28()
 
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
+
+}  // namespace hpgem

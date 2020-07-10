@@ -46,6 +46,8 @@
 // only uses the constant basis functions
 #include "BasisFunctionsPiecewiseConstant.h"
 
+namespace hpgem {
+
 namespace Utilities {
 
 double BasisFunction3DVertexTetrahedron::eval(
@@ -538,3 +540,5 @@ std::vector<const Base::OrientedBasisFunctionSet*>
 }
 
 }  // namespace Utilities
+
+}  // namespace hpgem

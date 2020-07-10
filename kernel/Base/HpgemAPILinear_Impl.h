@@ -56,7 +56,7 @@
 #include "Utilities/BasisFunctions3DH1ConformingTetrahedron.h"
 
 #include "Logger.h"
-
+namespace hpgem {
 namespace Base {
 /// \param[in] dimension Dimension of the domain
 /// \param[in] numberOfVariables Number of variables in the PDE
@@ -505,3 +505,4 @@ void HpgemAPILinear<DIM>::tasksBeforeSolving() {
     createStiffnessMatrices();
 }
 }  // namespace Base
+}  // namespace hpgem

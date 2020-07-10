@@ -41,6 +41,8 @@
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include <vector>
 
+namespace hpgem {
+
 namespace Geometry {
 template <std::size_t DIM>
 class PointReference;
@@ -214,4 +216,6 @@ class C3_11_2 : public GaussQuadratureRule {
 
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_GAUSSQUADRATURERULESFORCUBE_H

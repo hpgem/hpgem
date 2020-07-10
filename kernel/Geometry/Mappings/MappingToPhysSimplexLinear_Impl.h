@@ -42,6 +42,8 @@
 #ifndef HPGEM_KERNEL_MAPPINGTOPHYSSIMPLEXLINEAR_IMPL_H
 #define HPGEM_KERNEL_MAPPINGTOPHYSSIMPLEXLINEAR_IMPL_H
 
+namespace hpgem {
+
 /*! The mapping is linear in every reference space dimension, with the offset to
  *  the origin of the dim-simplex. */
 template <std::size_t DIM>
@@ -97,4 +99,6 @@ void Geometry::MappingToPhysSimplexLinear<DIM>::reinit() {
     // we get a free reinit because transform and jacobian use the nodes
     // directly
 }
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_MAPPINGTOPHYSSIMPLEXLINEAR_IMPL_H

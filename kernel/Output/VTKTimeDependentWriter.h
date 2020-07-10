@@ -44,6 +44,7 @@
 #include "Base/MeshManipulator.h"
 #include "VTKSpecificTimeWriter.h"
 
+namespace hpgem {
 namespace Output {
 
 ///\class VTKSpecificTimeWriter
@@ -95,7 +96,7 @@ class VTKTimeDependentWriter final {
 };
 
 }  // namespace Output
-
+}  // namespace hpgem
 #include "VTKTimeDependentWriter_Impl.h"
 
 #endif  // HPGEM_KERNEL_VTKTIMEDEPENDENTWRITER_H

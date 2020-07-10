@@ -44,7 +44,7 @@
 #include <functional>
 #include <memory>
 //------------------------------------------------------------------------------
-
+namespace hpgem {
 namespace Base {
 class Element;
 
@@ -120,7 +120,7 @@ class ElementIntegral {
 };
 
 }  // namespace Integration
-
+}  // namespace hpgem
 #include "ElementIntegral_Impl.h"
 
 #endif  // HPGEM_KERNEL_ELEMENTINTEGRAL_H

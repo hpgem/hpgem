@@ -47,6 +47,8 @@
 #include "L2Norm.h"
 #include "TreeEntry.h"
 
+namespace hpgem {
+
 namespace QuadratureRules {
 class GaussQuadratureRule;
 }
@@ -764,4 +766,6 @@ LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionCurl(
         i - numberOfBasisFunctionsLeft, mapRefFaceToRefElemR(p), unknown);
 }
 }  // namespace Base
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_FACE_H

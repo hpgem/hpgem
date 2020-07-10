@@ -42,6 +42,8 @@
 #include "Base/BaseBasisFunction.h"
 #include <vector>
 
+namespace hpgem {
+
 namespace Base {
 class BasisFunctionSet;
 class OrientedBasisFunctionSet;
@@ -85,5 +87,7 @@ std::vector<const Base::OrientedBasisFunctionSet *>
 std::vector<const Base::OrientedBasisFunctionSet *>
     createFaceBasisFunctionSet3DH1ConformingPyramid(std::size_t order);
 }  // namespace Utilities
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_BASISFUNCTIONS3DH1CONFORMINGPYRAMID_H

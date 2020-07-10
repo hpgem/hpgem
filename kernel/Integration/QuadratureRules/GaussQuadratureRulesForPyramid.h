@@ -42,6 +42,8 @@
 #include "Geometry/PointReference.h"
 #include <vector>
 
+namespace hpgem {
+
 //---------------------------------------------------------------------------
 namespace QuadratureRules {
 
@@ -151,4 +153,6 @@ class Pyramid_7_48 : public GaussQuadratureRule {
 
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_GAUSSQUADRATURERULESFORPYRAMID_H

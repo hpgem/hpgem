@@ -43,6 +43,8 @@
 #include "Geometry/PointReference.h"
 #include <vector>
 
+namespace hpgem {
+
 //---------------------------------------------------------------------------
 namespace QuadratureRules {
 
@@ -152,4 +154,6 @@ class TriPrism_7_64 : public GaussQuadratureRule {
 
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_GAUSSQUADRATURERULESFORTRIANGULARPRISM_H

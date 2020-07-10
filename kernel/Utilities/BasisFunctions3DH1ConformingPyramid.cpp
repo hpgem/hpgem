@@ -46,6 +46,8 @@
 // only uses the constant basis functions
 #include "BasisFunctionsPiecewiseConstant.h"
 
+namespace hpgem {
+
 namespace Utilities {
 
 BasisFunction3DVertexPyramid::BasisFunction3DVertexPyramid(std::size_t node)
@@ -232,3 +234,5 @@ std::vector<const Base::OrientedBasisFunctionSet *>
 }
 
 }  // namespace Utilities
+
+}  // namespace hpgem

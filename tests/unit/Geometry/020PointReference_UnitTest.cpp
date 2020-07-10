@@ -44,6 +44,7 @@
 #include <iostream>
 #include "Logger.h"
 #include <cmath>
+using namespace hpgem;
 using Geometry::PointReference;
 
 int main() {

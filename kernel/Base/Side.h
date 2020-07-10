@@ -39,9 +39,14 @@
 //----------------------------------------------------------------
 #ifndef HPGEM_KERNEL_SIDE_H
 #define HPGEM_KERNEL_SIDE_H
+
+namespace hpgem {
+
 //----------------------------------------------------------------
 
 namespace Base {
 enum class Side { LEFT, RIGHT };
 }
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_SIDE_H

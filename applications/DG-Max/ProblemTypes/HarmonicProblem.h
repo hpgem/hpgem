@@ -43,6 +43,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Base/PhysicalFace.h"
 #include "LinearAlgebra/SmallVector.h"
 
+using namespace hpgem;
+
 /// \brief Harmonic maxwell problem.
 ///
 /// A problem description for a harmonic maxwell problem. Such a problem assumes

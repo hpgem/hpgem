@@ -52,6 +52,8 @@
 #include "Geometry/PointPhysical.h"
 #include "TreeIterator.h"
 
+namespace hpgem {
+
 namespace Base {
 
 class Face;
@@ -454,3 +456,5 @@ const std::vector<Base::Node*> Face::getNodesList() const {
     return ptrNodesAtFace;
 }
 }  // namespace Base
+
+}  // namespace hpgem

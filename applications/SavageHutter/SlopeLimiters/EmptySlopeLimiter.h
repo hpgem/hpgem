@@ -40,6 +40,8 @@
 #define HPGEM_APP_EMPTYSLOPELIMITER_H
 #include "SlopeLimiter.h"
 
+using namespace hpgem;
+
 class EmptySlopeLimiter : public SlopeLimiter {
    public:
     EmptySlopeLimiter() : SlopeLimiter(0) {}

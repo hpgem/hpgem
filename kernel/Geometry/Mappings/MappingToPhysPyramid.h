@@ -42,6 +42,8 @@
 #include "MappingReferenceToPhysical.h"
 #include <vector>
 
+namespace hpgem {
+
 namespace Geometry {
 /*!
  * "In geometry, a pyramid is a polyhedron formed by connecting a polygonal base
@@ -69,4 +71,6 @@ class MappingToPhysPyramid : public MappingReferenceToPhysical {
     std::size_t getTargetDimension() const final { return 3; }
 };
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_MAPPINGTOPHYSPYRAMID_H

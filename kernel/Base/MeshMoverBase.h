@@ -38,6 +38,8 @@
 #ifndef HPGEM_KERNEL_MESHMOVERBASE_H
 #define HPGEM_KERNEL_MESHMOVERBASE_H
 
+namespace hpgem {
+
 namespace Geometry {
 template <std::size_t DIM>
 class PointPhysical;
@@ -73,5 +75,7 @@ class MeshMoverBase {
     virtual void movePoint(Geometry::PointPhysical<DIM>& point) const = 0;
 };
 }  // namespace Base
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_MESHMOVERBASE_H

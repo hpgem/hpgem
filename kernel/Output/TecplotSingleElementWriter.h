@@ -39,6 +39,8 @@
 #ifndef HPGEM_KERNEL_TECPLOTSINGLEELEMENTWRITER_H
 #define HPGEM_KERNEL_TECPLOTSINGLEELEMENTWRITER_H
 
+namespace hpgem {
+
 // forward declarations
 namespace Base {
 class Element;
@@ -68,5 +70,7 @@ class TecplotSingleElementWriter {
     virtual ~TecplotSingleElementWriter() = default;
 };
 }  // namespace Output
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_TECPLOTSINGLEELEMENTWRITER_H

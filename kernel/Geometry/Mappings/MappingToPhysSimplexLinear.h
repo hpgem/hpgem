@@ -45,7 +45,7 @@
 // though it can be coded up generally in a header
 #include "Geometry/PointPhysical.h"
 #include "Geometry/PhysicalGeometry.h"
-
+namespace hpgem {
 namespace Geometry {
 /*!
  * "In geometry, a simplex (plural simplexes or simplices) is a generalization
@@ -84,5 +84,7 @@ class MappingToPhysSimplexLinear : public MappingReferenceToPhysical {
     bool isValidPoint(const PointReference<DIM>&) const;
 };
 }  // namespace Geometry
+}  // namespace hpgem
 #include "MappingToPhysSimplexLinear_Impl.h"
+
 #endif  // HPGEM_KERNEL_MAPPINGTOPHYSSIMPLEXLINEAR_H

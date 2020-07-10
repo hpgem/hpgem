@@ -41,6 +41,8 @@
 
 #include "MappingReferenceToReference.h"
 
+namespace hpgem {
+
 namespace Geometry {
 /* The ordering of the vertex in a cube:
  *
@@ -195,4 +197,6 @@ class MappingToRefSquareToCube5 : public MappingReferenceToReference<1> {
 };
 
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_MAPPINGTOREFSQUARETOCUBE_H

@@ -50,6 +50,7 @@
 #include "Output/VTKTimeDependentWriter.h"
 #include <functional>
 
+namespace hpgem {
 namespace Base {
 /// \brief Simplified Interface for solving linear PDE's.
 /** At the moment this class is well-suited for problems of the form \f[
@@ -317,7 +318,7 @@ class HpgemAPILinear : public HpgemAPISimplified<DIM> {
     const std::size_t stiffnessFaceMatrixID_;
 };
 }  // namespace Base
-
+}  // namespace hpgem
 #include "HpgemAPILinear_Impl.h"
 
 #endif  // HPGEM_KERNEL_HPGEMAPILINEAR_H

@@ -48,6 +48,8 @@
 #include "Base/HpgemAPISimplified.h"
 #include "UnsteadyNavierStokesAPI.h"
 
+using namespace hpgem;
+
 // class Thomas : public Base::HpgemAPINonLinearSteadyState<DIM>
 
 /*	/// \brief Steady State constructor

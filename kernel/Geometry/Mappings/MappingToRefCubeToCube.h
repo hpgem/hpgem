@@ -41,6 +41,8 @@
 
 #include "MappingReferenceToReference.h"
 
+namespace hpgem {
+
 namespace Geometry {
 /*!
  *
@@ -213,4 +215,6 @@ class MappingToRefCubeToCube7 : public MappingReferenceToReference<0> {
         transformedCoordinates;
 };
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_MAPPINGTOREFCUBETOCUBE_H

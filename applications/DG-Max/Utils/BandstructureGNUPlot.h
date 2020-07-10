@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 
+using namespace hpgem;
+
 /// Utility class to generate plots of a band structure using gnuplot.
 /// \tparam DIM The dimension to work in.
 template <std::size_t DIM>

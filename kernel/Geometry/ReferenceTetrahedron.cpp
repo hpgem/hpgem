@@ -42,6 +42,8 @@
 #include "Geometry/PointReference.h"
 #include "Mappings/MappingToRefTriangleToTetrahedron.h"
 
+namespace hpgem {
+
 namespace Geometry {
 /* The ordering of the vertex and faces in a tetrahedron:
  * 3 o
@@ -162,3 +164,5 @@ std::vector<std::size_t> ReferenceTetrahedron::getCodim3EntityLocalIndices(
 }
 
 }  // namespace Geometry
+
+}  // namespace hpgem

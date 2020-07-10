@@ -41,6 +41,8 @@
 
 #include "MappingReferenceToReference.h"
 
+namespace hpgem {
+
 namespace Geometry {
 /* The ordering of the vertex and faces in a triangle:
  *
@@ -115,4 +117,6 @@ class MappingToRefLineToTriangle2 : public MappingReferenceToReference<1> {
         transformedCoordinates;
 };
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_MAPPINGTOREFLINETOTRIANGLE_H

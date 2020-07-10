@@ -39,9 +39,13 @@
 #ifndef HPGEM_KERNEL_GLOBALNAMESPACEBASE_H
 #define HPGEM_KERNEL_GLOBALNAMESPACEBASE_H
 
+namespace hpgem {
+
 namespace Base {
 enum class MeshType { RECTANGULAR, TRIANGULAR };
 
 }
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_GLOBALNAMESPACEBASE_H

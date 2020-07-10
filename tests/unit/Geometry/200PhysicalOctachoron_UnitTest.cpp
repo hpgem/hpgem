@@ -47,6 +47,7 @@
 #include "Geometry/PointPhysical.h"
 #include "Geometry/PointReference.h"
 #include <cmath>
+using namespace hpgem;
 using Geometry::PhysicalOctachoron;
 
 int main() {

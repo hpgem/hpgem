@@ -39,6 +39,8 @@
 #ifndef HPGEM_KERNEL_USERDATA_H
 #define HPGEM_KERNEL_USERDATA_H
 
+namespace hpgem {
+
 namespace Base {
 /// Just a place holder, for polymorphism
 class UserData {};
@@ -57,5 +59,7 @@ using Base::UserElementData;
 
 ///\deprecated this is global scope
 using Base::UserFaceData;
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_USERDATA_H

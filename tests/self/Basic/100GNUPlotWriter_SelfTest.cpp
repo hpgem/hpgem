@@ -50,7 +50,7 @@
 #include "Output/GNUPlotDiscontinuousSolutionWriter.h"
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
 #include "Logger.h"
-
+using namespace hpgem;
 /// This class is used to test if the advection equation is written to a GNU
 /// plot file correctly when using HpgemAPISimplified. Linear advection
 /// equation: du/dt + a[0] du/dx + a[1] du/dy = 0, or equivalently: du/dt = -

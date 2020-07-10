@@ -42,7 +42,7 @@
 #include "Base/CommandLineOptions.h"
 
 #include "Utilities/GlobalIndexing.h"
-
+using namespace hpgem;
 struct IndexStore {
     // The used indices
     std::vector<bool> usedIndices;

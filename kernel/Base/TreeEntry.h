@@ -43,6 +43,8 @@
 #include "Logger.h"
 #include "ConstIterableWrapper.h"
 
+namespace hpgem {
+
 namespace Base {
 enum class TreeTraversalMethod { SINGLELEVEL, ALLLEVEL, PREORDER, POSTORDER };
 
@@ -296,5 +298,7 @@ class TreeEntry {
     TreeEntry* parent_;
 };
 }  // namespace Base
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_TREEENTRY_H

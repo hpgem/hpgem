@@ -41,6 +41,8 @@
 
 #include <cstdlib>
 
+namespace hpgem {
+
 namespace Base {
 struct ConfigurationData {
 
@@ -65,5 +67,7 @@ struct ConfigurationData {
     std::size_t numberOfTimeLevels_;
 };
 }  // namespace Base
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_CONFIGURATIONDATA_H

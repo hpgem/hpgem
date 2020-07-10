@@ -47,6 +47,7 @@
 #include "Geometry/ReferenceCube.h"
 
 #include <cmath>
+using namespace hpgem;
 using Geometry::PhysicalHexahedron;
 
 int main() {

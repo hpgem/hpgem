@@ -72,6 +72,8 @@
 
 #include "PointReference.h"
 
+namespace hpgem {
+
 namespace Geometry {
 template <std::size_t DIM>
 class PointReference;
@@ -359,4 +361,6 @@ ElementGeometry::ElementGeometry(
                                // it one needs to call enableRefinement
 {}
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_ELEMENTGEOMETRY_H

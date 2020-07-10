@@ -44,6 +44,8 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferenceGeometry.h"
 
+namespace hpgem {
+
 namespace Geometry {
 template <std::size_t DIM>
 class PointReference;
@@ -227,4 +229,6 @@ class RefinementMapping {
         std::size_t localFaceNumber) const = 0;
 };
 }  // namespace Geometry
+}  // namespace hpgem
+
 #endif  // HPGEM_KERNEL_REFINEMENTMAPPING_H

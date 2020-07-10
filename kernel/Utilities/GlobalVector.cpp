@@ -53,7 +53,7 @@
 #if defined(HPGEM_USE_ANY_PETSC)
 #include "petscis.h"
 #endif
-
+namespace hpgem {
 namespace Utilities {
 
 GlobalVector::GlobalVector(const GlobalIndexing& indexing, int elementVectorID,
@@ -464,3 +464,5 @@ void GlobalPetscVector::writeTimeIntegrationVector(
 #endif
 
 }  // namespace Utilities
+
+}  // namespace hpgem

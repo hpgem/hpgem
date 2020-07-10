@@ -51,6 +51,7 @@
 #include "Geometry/Mappings/MappingToRefTriangleToTriangle.h"
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include <cmath>
+using namespace hpgem;
 using Geometry::ReferenceTriangle;
 
 int main() {

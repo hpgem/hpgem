@@ -57,7 +57,7 @@
 #include "LinearAlgebra/Axpy.h"
 
 #include "Logger.h"
-
+namespace hpgem {
 namespace Base {
 
 ///\bug Workaround for Bug 60352 in (at least) gcc 4.8.2 (should read auto&
@@ -939,7 +939,9 @@ bool HpgemAPISimplified<DIM>::solve(const double initialTime,
         outputFileName_ + "." +
         std::to_string(Base::MPIContainer::Instance().getProcessorID());
 #else
+
     const std::string outputFileName = outputFileName_;
+
 #endif
     const std::string outputFileNameTecplot = outputFileName + ".dat";
     std::string dimensionsToWrite = "";
@@ -982,7 +984,7 @@ bool HpgemAPISimplified<DIM>::solve(const double initialTime,
 
     // if the user wants an adaptive time step, the default of 0.01 for dt is
     // silly
-    if (!::Base::dt.isUsed() && error.isUsed()) {
+    if (!::hpgem::Base::dt.isUsed() && error.isUsed()) {
         dt = std::numeric_limits<double>::infinity();
     }
     double maximumRelativeError = error.getValue();
@@ -1057,3 +1059,4 @@ bool HpgemAPISimplified<DIM>::solve(const double initialTime,
     return true;
 }
 }  // namespace Base
+}  // namespace hpgem

@@ -158,6 +158,7 @@
  *
  * Please, use the tags FATAL/ERROR/etc without class/enum/namespace instead.
  */
+namespace hpgem {
 enum class Log : signed char {
     FATAL = -20,
     ERROR = -15,
@@ -545,5 +546,7 @@ extern Logger<HPGEM_LOGLEVEL> logger;
 #if !HPGEM_ASSERTS
 #define assert_debug(e, ...) assert_debug(true, "")
 #endif
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_LOGGER_H

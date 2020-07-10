@@ -44,7 +44,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../Base/Face.h"
 #include "../Base/MeshManipulatorBase.h"
 #include "../Base/Node.h"
-
+namespace hpgem {
 namespace Utilities {
 
 /// \brief Mapping between basis functions on geometrical objects (Element,
@@ -507,5 +507,7 @@ class GlobalIndexing {
     Base::MeshManipulatorBase* mesh_;
 };
 }  // namespace Utilities
+
+}  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_GLOBALINDEXING_H

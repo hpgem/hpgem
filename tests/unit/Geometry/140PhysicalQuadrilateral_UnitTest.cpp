@@ -47,6 +47,7 @@
 #include "Geometry/ReferenceSquare.h"
 
 #include <cmath>
+using namespace hpgem;
 using Geometry::PhysicalQuadrilateral;
 
 int main() {
