@@ -10,14 +10,17 @@
  Copyright (c) 2014, University of Twente
  All rights reserved.
 
- Redistribution and use in source and binary forms, with or without
+ Redistribution and use INFO($2);
+CHECK($1); source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
 
  1. Redistributions of source code must retain the above copyright notice, this
  list of conditions and the following disclaimer.
 
- 2. Redistributions in binary form must reproduce the above copyright notice,
- this list of conditions and the following disclaimer in the documentation
+ 2. Redistributions INFO($2);
+CHECK($1); binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer INFO($2);
+CHECK($1); the documentation
  and/or other materials provided with the distribution.
 
  3. Neither the name of the copyright holder nor the names of its contributors
@@ -66,7 +69,7 @@
 using namespace hpgem;
 using Base::L2Norm;
 
-TEST_CASE("BasisFunctions", "BasisFunctions") {
+TEST_CASE("BasisFunctions", "[BasisFunctions]"){
 
     // 1D
     Base::BasisFunctionSet* all1DbasisFunctions =
@@ -82,9 +85,11 @@ TEST_CASE("BasisFunctions", "BasisFunctions") {
 
             point1D[0] += -1e-8;
             ret = test->evalDeriv((point1D));
-            CHECK((std::abs(ret[0] - 5.e7 * (x1 - x0)) < 1e-5));
-            CHECK((std::abs(test->evalDeriv0((point1D)) - 5.e7 * (x1 - x0)) <
-                   1e-5));
+            INFO("gradient");
+CHECK((std::abs(ret[0] - 5.e7 * (x1 - x0)) < 1e-5));
+            INFO("derivative");
+CHECK((std::abs(test->evalDeriv0((point1D)) -
+                                           5.e7 * (x1 - x0)) < 1e-5));
         }
     }
 
@@ -105,9 +110,12 @@ TEST_CASE("BasisFunctions", "BasisFunctions") {
 
                 point2D[0] += -1e-8;
                 ret2 = test->evalDeriv((point2D));
-                CHECK((std::abs(ret2[0] - 5.e7 * (x1 - x0)) < 1e-5));
-                CHECK((std::abs(test->evalDeriv0((point2D)) -
-                                5.e7 * (x1 - x0)) < 1e-5));
+                INFO("gradient");
+CHECK(
+                    (std::abs(ret2[0] - 5.e7 * (x1 - x0)) < 1e-5));
+                INFO("derivative");
+CHECK((std::abs(test->evalDeriv0((point2D)) -
+                                               5.e7 * (x1 - x0)) < 1e-5));
 
                 point2D[1] += -1.e-8;
                 x0 = test->eval((point2D));
@@ -115,9 +123,12 @@ TEST_CASE("BasisFunctions", "BasisFunctions") {
                 x1 = test->eval((point2D));
 
                 point2D[1] += -1e-8;
-                CHECK((std::abs(ret2[1] - 5.e7 * (x1 - x0)) < 1e-5));
-                CHECK((std::abs(test->evalDeriv1((point2D)) -
-                                5.e7 * (x1 - x0)) < 1e-5));
+                INFO("gradient");
+CHECK(
+                    (std::abs(ret2[1] - 5.e7 * (x1 - x0)) < 1e-5));
+                INFO("derivative");
+CHECK((std::abs(test->evalDeriv1((point2D)) -
+                                               5.e7 * (x1 - x0)) < 1e-5));
             }
         }
     }
@@ -138,14 +149,17 @@ TEST_CASE("BasisFunctions", "BasisFunctions") {
                     test->evalDeriv((point2D));  // exact to within absolute OR
                                                  // relative tolerace of 1e-5
                 double derivative = test->evalDeriv0((point2D));
-                CHECK(
+                INFO("gradient");
+CHECK(
                     (std::abs(ret2[0] - 5.e7 * (x1 - x0)) < 1e-5 ||
                      (L2Norm(ret2) > 1 && std::abs(ret2[0] - 5.e7 * (x1 - x0)) <
                                               1e-5 * L2Norm(ret2))));
-                CHECK((std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
-                       (std::abs(derivative) > 1 &&
-                        std::abs(derivative - 5.e7 * (x1 - x0)) <
-                            1e-5 * std::abs(derivative))));
+                INFO("derivative");
+CHECK(
+                    (std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
+                     (std::abs(derivative) > 1 &&
+                      std::abs(derivative - 5.e7 * (x1 - x0)) <
+                          1e-5 * std::abs(derivative))));
 
                 point2D[1] += -1.e-8;
                 x0 = test->eval((point2D));
@@ -154,14 +168,17 @@ TEST_CASE("BasisFunctions", "BasisFunctions") {
 
                 point2D[1] += -1e-8;
                 derivative = test->evalDeriv1((point2D));
-                CHECK(
+                INFO("gradient");
+CHECK(
                     (std::abs(ret2[1] - 5.e7 * (x1 - x0)) < 1e-5 ||
                      (L2Norm(ret2) > 1 && std::abs(ret2[1] - 5.e7 * (x1 - x0)) <
                                               1e-5 * L2Norm(ret2))));
-                CHECK((std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
-                       (std::abs(derivative) > 1 &&
-                        std::abs(derivative - 5.e7 * (x1 - x0)) <
-                            1e-5 * std::abs(derivative))));
+                INFO("derivative");
+CHECK(
+                    (std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
+                     (std::abs(derivative) > 1 &&
+                      std::abs(derivative - 5.e7 * (x1 - x0)) <
+                          1e-5 * std::abs(derivative))));
             }
         }
     }
@@ -186,14 +203,18 @@ TEST_CASE("BasisFunctions", "BasisFunctions") {
                     point3D[0] += -1e-8;
                     ret3 = test->evalDeriv((point3D));
                     double derivative = test->evalDeriv0((point3D));
-                    CHECK((std::abs(ret3[0] - 5.e7 * (x1 - x0)) < 1e-5 ||
-                           (L2Norm(ret3) > 1 &&
-                            std::abs(ret3[0] - 5.e7 * (x1 - x0)) <
-                                1e-5 * L2Norm(ret3))));
-                    CHECK((std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
-                           (std::abs(derivative) > 1 &&
-                            std::abs(derivative - 5.e7 * (x1 - x0)) <
-                                1e-5 * std::abs(derivative))));
+                    INFO("gradient");
+CHECK(
+                        (std::abs(ret3[0] - 5.e7 * (x1 - x0)) < 1e-5 ||
+                         (L2Norm(ret3) > 1 &&
+                          std::abs(ret3[0] - 5.e7 * (x1 - x0)) <
+                              1e-5 * L2Norm(ret3))));
+                    INFO("derivative");
+CHECK(
+                        (std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
+                         (std::abs(derivative) > 1 &&
+                          std::abs(derivative - 5.e7 * (x1 - x0)) <
+                              1e-5 * std::abs(derivative))));
 
                     point3D[1] += -1.e-8;
                     x0 = test->eval((point3D));
@@ -202,14 +223,18 @@ TEST_CASE("BasisFunctions", "BasisFunctions") {
 
                     point3D[1] += -1e-8;
                     derivative = test->evalDeriv1((point3D));
-                    CHECK((std::abs(ret3[1] - 5.e7 * (x1 - x0)) < 1e-5 ||
-                           (L2Norm(ret3) > 1 &&
-                            std::abs(ret3[1] - 5.e7 * (x1 - x0)) <
-                                1e-5 * L2Norm(ret3))));
-                    CHECK((std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
-                           (std::abs(derivative) > 1 &&
-                            std::abs(derivative - 5.e7 * (x1 - x0)) <
-                                1e-5 * std::abs(derivative))));
+                    INFO("gradient");
+CHECK(
+                        (std::abs(ret3[1] - 5.e7 * (x1 - x0)) < 1e-5 ||
+                         (L2Norm(ret3) > 1 &&
+                          std::abs(ret3[1] - 5.e7 * (x1 - x0)) <
+                              1e-5 * L2Norm(ret3))));
+                    INFO("derivative");
+CHECK(
+                        (std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
+                         (std::abs(derivative) > 1 &&
+                          std::abs(derivative - 5.e7 * (x1 - x0)) <
+                              1e-5 * std::abs(derivative))));
 
                     point3D[2] += -1.e-8;
                     x0 = test->eval((point3D));
@@ -218,14 +243,18 @@ TEST_CASE("BasisFunctions", "BasisFunctions") {
 
                     point3D[2] += -1e-8;
                     derivative = test->evalDeriv2((point3D));
-                    CHECK((std::abs(ret3[2] - 5.e7 * (x1 - x0)) < 1e-5 ||
-                           (L2Norm(ret3) > 1 &&
-                            std::abs(ret3[2] - 5.e7 * (x1 - x0)) <
-                                1e-5 * L2Norm(ret3))));
-                    CHECK((std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
-                           (std::abs(derivative) > 1 &&
-                            std::abs(derivative - 5.e7 * (x1 - x0)) <
-                                1e-5 * std::abs(derivative))));
+                    INFO("gradient");
+CHECK(
+                        (std::abs(ret3[2] - 5.e7 * (x1 - x0)) < 1e-5 ||
+                         (L2Norm(ret3) > 1 &&
+                          std::abs(ret3[2] - 5.e7 * (x1 - x0)) <
+                              1e-5 * L2Norm(ret3))));
+                    INFO("derivative");
+CHECK(
+                        (std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
+                         (std::abs(derivative) > 1 &&
+                          std::abs(derivative - 5.e7 * (x1 - x0)) <
+                              1e-5 * std::abs(derivative))));
                 }
             }
         }
@@ -246,14 +275,18 @@ TEST_CASE("BasisFunctions", "BasisFunctions") {
                     point3D[0] += -1e-8;
                     ret3 = test->evalDeriv((point3D));
                     double derivative = test->evalDeriv0((point3D));
-                    CHECK((std::abs(ret3[0] - 5.e7 * (x1 - x0)) < 1e-5 ||
-                           (L2Norm(ret3) > 1 &&
-                            std::abs(ret3[0] - 5.e7 * (x1 - x0)) <
-                                1e-5 * L2Norm(ret3))));
-                    CHECK((std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
-                           (std::abs(derivative) > 1 &&
-                            std::abs(derivative - 5.e7 * (x1 - x0)) <
-                                1e-5 * std::abs(derivative))));
+                    INFO("gradient");
+CHECK(
+                        (std::abs(ret3[0] - 5.e7 * (x1 - x0)) < 1e-5 ||
+                         (L2Norm(ret3) > 1 &&
+                          std::abs(ret3[0] - 5.e7 * (x1 - x0)) <
+                              1e-5 * L2Norm(ret3))));
+                    INFO("derivative");
+CHECK(
+                        (std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
+                         (std::abs(derivative) > 1 &&
+                          std::abs(derivative - 5.e7 * (x1 - x0)) <
+                              1e-5 * std::abs(derivative))));
 
                     point3D[1] += -1.e-8;
                     x0 = test->eval((point3D));
@@ -262,14 +295,18 @@ TEST_CASE("BasisFunctions", "BasisFunctions") {
 
                     point3D[1] += -1e-8;
                     derivative = test->evalDeriv1((point3D));
-                    CHECK((std::abs(ret3[1] - 5.e7 * (x1 - x0)) < 1e-5 ||
-                           (L2Norm(ret3) > 1 &&
-                            std::abs(ret3[1] - 5.e7 * (x1 - x0)) <
-                                1e-5 * L2Norm(ret3))));
-                    CHECK((std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
-                           (std::abs(derivative) > 1 &&
-                            std::abs(derivative - 5.e7 * (x1 - x0)) <
-                                1e-5 * std::abs(derivative))));
+                    INFO("gradient");
+CHECK(
+                        (std::abs(ret3[1] - 5.e7 * (x1 - x0)) < 1e-5 ||
+                         (L2Norm(ret3) > 1 &&
+                          std::abs(ret3[1] - 5.e7 * (x1 - x0)) <
+                              1e-5 * L2Norm(ret3))));
+                    INFO("derivative");
+CHECK(
+                        (std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
+                         (std::abs(derivative) > 1 &&
+                          std::abs(derivative - 5.e7 * (x1 - x0)) <
+                              1e-5 * std::abs(derivative))));
 
                     point3D[2] += -1.e-8;
                     x0 = test->eval((point3D));
@@ -278,14 +315,18 @@ TEST_CASE("BasisFunctions", "BasisFunctions") {
 
                     point3D[2] += -1e-8;
                     derivative = test->evalDeriv2((point3D));
-                    CHECK((std::abs(ret3[2] - 5.e7 * (x1 - x0)) < 1e-5 ||
-                           (L2Norm(ret3) > 1 &&
-                            std::abs(ret3[2] - 5.e7 * (x1 - x0)) <
-                                1e-5 * L2Norm(ret3))));
-                    CHECK((std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
-                           (std::abs(derivative) > 1 &&
-                            std::abs(derivative - 5.e7 * (x1 - x0)) <
-                                1e-5 * std::abs(derivative))));
+                    INFO("gradient");
+CHECK(
+                        (std::abs(ret3[2] - 5.e7 * (x1 - x0)) < 1e-5 ||
+                         (L2Norm(ret3) > 1 &&
+                          std::abs(ret3[2] - 5.e7 * (x1 - x0)) <
+                              1e-5 * L2Norm(ret3))));
+                    INFO("derivative");
+CHECK(
+                        (std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
+                         (std::abs(derivative) > 1 &&
+                          std::abs(derivative - 5.e7 * (x1 - x0)) <
+                              1e-5 * std::abs(derivative))));
                 }
             }
         }
@@ -323,21 +364,23 @@ TEST_CASE("BasisFunctions", "BasisFunctions") {
                     point3D[2] += -1e-8;
 
                     ret3 = test->evalCurl((point3D));
-                    CHECK((std::abs(ret3[0] - 5.e7 * (y1[2] - y0[2]) +
-                                    5.e7 * (z1[1] - z0[1])) +
-                                   std::abs(ret3[1] + 5.e7 * (x1[2] - x0[2]) -
-                                            5.e7 * (z1[0] - z0[0])) +
-                                   std::abs(ret3[2] - 5.e7 * (x1[1] - x0[1]) +
-                                            5.e7 * (y1[0] - y0[0])) <
-                               1e-5 ||
-                           (L2Norm(ret3) &&
-                            std::abs(ret3[0] - 5.e7 * (y1[2] - y0[2]) +
-                                     5.e7 * (z1[1] - z0[1])) +
-                                    std::abs(ret3[1] + 5.e7 * (x1[2] - x0[2]) -
-                                             5.e7 * (z1[0] - z0[0])) +
-                                    std::abs(ret3[2] - 5.e7 * (x1[1] - x0[1]) +
-                                             5.e7 * (y1[0] - y0[0])) <
-                                1e-5 * L2Norm(ret3))));
+                    INFO("curl");
+CHECK(
+                        (std::abs(ret3[0] - 5.e7 * (y1[2] - y0[2]) +
+                                  5.e7 * (z1[1] - z0[1])) +
+                                 std::abs(ret3[1] + 5.e7 * (x1[2] - x0[2]) -
+                                          5.e7 * (z1[0] - z0[0])) +
+                                 std::abs(ret3[2] - 5.e7 * (x1[1] - x0[1]) +
+                                          5.e7 * (y1[0] - y0[0])) <
+                             1e-5 ||
+                         (L2Norm(ret3) &&
+                          std::abs(ret3[0] - 5.e7 * (y1[2] - y0[2]) +
+                                   5.e7 * (z1[1] - z0[1])) +
+                                  std::abs(ret3[1] + 5.e7 * (x1[2] - x0[2]) -
+                                           5.e7 * (z1[0] - z0[0])) +
+                                  std::abs(ret3[2] - 5.e7 * (x1[1] - x0[1]) +
+                                           5.e7 * (y1[0] - y0[0])) <
+                              1e-5 * L2Norm(ret3))));
                 }
             }
         }
@@ -376,21 +419,23 @@ TEST_CASE("BasisFunctions", "BasisFunctions") {
                     point3D[2] += -1e-8;
 
                     ret3 = test->evalCurl((point3D));
-                    CHECK((std::abs(ret3[0] - 5.e7 * (y1[2] - y0[2]) +
-                                    5.e7 * (z1[1] - z0[1])) +
-                                   std::abs(ret3[1] + 5.e7 * (x1[2] - x0[2]) -
-                                            5.e7 * (z1[0] - z0[0])) +
-                                   std::abs(ret3[2] - 5.e7 * (x1[1] - x0[1]) +
-                                            5.e7 * (y1[0] - y0[0])) <
-                               1e-5 ||
-                           (L2Norm(ret3) &&
-                            std::abs(ret3[0] - 5.e7 * (y1[2] - y0[2]) +
-                                     5.e7 * (z1[1] - z0[1])) +
-                                    std::abs(ret3[1] + 5.e7 * (x1[2] - x0[2]) -
-                                             5.e7 * (z1[0] - z0[0])) +
-                                    std::abs(ret3[2] - 5.e7 * (x1[1] - x0[1]) +
-                                             5.e7 * (y1[0] - y0[0])) <
-                                1e-5 * L2Norm(ret3))));
+                    INFO("derivative");
+CHECK(
+                        (std::abs(ret3[0] - 5.e7 * (y1[2] - y0[2]) +
+                                  5.e7 * (z1[1] - z0[1])) +
+                                 std::abs(ret3[1] + 5.e7 * (x1[2] - x0[2]) -
+                                          5.e7 * (z1[0] - z0[0])) +
+                                 std::abs(ret3[2] - 5.e7 * (x1[1] - x0[1]) +
+                                          5.e7 * (y1[0] - y0[0])) <
+                             1e-5 ||
+                         (L2Norm(ret3) &&
+                          std::abs(ret3[0] - 5.e7 * (y1[2] - y0[2]) +
+                                   5.e7 * (z1[1] - z0[1])) +
+                                  std::abs(ret3[1] + 5.e7 * (x1[2] - x0[2]) -
+                                           5.e7 * (z1[0] - z0[0])) +
+                                  std::abs(ret3[2] - 5.e7 * (x1[1] - x0[1]) +
+                                           5.e7 * (y1[0] - y0[0])) <
+                              1e-5 * L2Norm(ret3))));
                 }
             }
         }
@@ -412,14 +457,18 @@ TEST_CASE("BasisFunctions", "BasisFunctions") {
                     point3D[0] += -1e-8;
                     ret3 = test->evalDeriv((point3D));
                     double derivative = test->evalDeriv0((point3D));
-                    CHECK((std::abs(ret3[0] - 5.e7 * (x1 - x0)) < 1e-5 ||
-                           (L2Norm(ret3) > 1 &&
-                            std::abs(ret3[0] - 5.e7 * (x1 - x0)) <
-                                1e-5 * L2Norm(ret3))));
-                    CHECK((std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
-                           (std::abs(derivative) > 1 &&
-                            std::abs(derivative - 5.e7 * (x1 - x0)) <
-                                1e-5 * std::abs(derivative))));
+                    INFO("gradient");
+CHECK(
+                        (std::abs(ret3[0] - 5.e7 * (x1 - x0)) < 1e-5 ||
+                         (L2Norm(ret3) > 1 &&
+                          std::abs(ret3[0] - 5.e7 * (x1 - x0)) <
+                              1e-5 * L2Norm(ret3))));
+                    INFO("derivative");
+CHECK(
+                        (std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
+                         (std::abs(derivative) > 1 &&
+                          std::abs(derivative - 5.e7 * (x1 - x0)) <
+                              1e-5 * std::abs(derivative))));
 
                     point3D[1] += -1.e-8;
                     x0 = test->eval((point3D));
@@ -428,14 +477,18 @@ TEST_CASE("BasisFunctions", "BasisFunctions") {
 
                     point3D[1] += -1e-8;
                     derivative = test->evalDeriv1((point3D));
-                    CHECK((std::abs(ret3[1] - 5.e7 * (x1 - x0)) < 1e-5 ||
-                           (L2Norm(ret3) > 1 &&
-                            std::abs(ret3[1] - 5.e7 * (x1 - x0)) <
-                                1e-5 * L2Norm(ret3))));
-                    CHECK((std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
-                           (std::abs(derivative) > 1 &&
-                            std::abs(derivative - 5.e7 * (x1 - x0)) <
-                                1e-5 * std::abs(derivative))));
+                    INFO("gradient");
+CHECK(
+                        (std::abs(ret3[1] - 5.e7 * (x1 - x0)) < 1e-5 ||
+                         (L2Norm(ret3) > 1 &&
+                          std::abs(ret3[1] - 5.e7 * (x1 - x0)) <
+                              1e-5 * L2Norm(ret3))));
+                    INFO("derivative");
+CHECK(
+                        (std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
+                         (std::abs(derivative) > 1 &&
+                          std::abs(derivative - 5.e7 * (x1 - x0)) <
+                              1e-5 * std::abs(derivative))));
 
                     point3D[2] += -1.e-8;
                     x0 = test->eval((point3D));
@@ -444,14 +497,18 @@ TEST_CASE("BasisFunctions", "BasisFunctions") {
 
                     point3D[2] += -1e-8;
                     derivative = test->evalDeriv2((point3D));
-                    CHECK((std::abs(ret3[2] - 5.e7 * (x1 - x0)) < 1e-5 ||
-                           (L2Norm(ret3) > 1 &&
-                            std::abs(ret3[2] - 5.e7 * (x1 - x0)) <
-                                1e-5 * L2Norm(ret3))));
-                    CHECK((std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
-                           (std::abs(derivative) > 1 &&
-                            std::abs(derivative - 5.e7 * (x1 - x0)) <
-                                1e-5 * std::abs(derivative))));
+                    INFO("gradient");
+CHECK(
+                        (std::abs(ret3[2] - 5.e7 * (x1 - x0)) < 1e-5 ||
+                         (L2Norm(ret3) > 1 &&
+                          std::abs(ret3[2] - 5.e7 * (x1 - x0)) <
+                              1e-5 * L2Norm(ret3))));
+                    INFO("derivative");
+CHECK(
+                        (std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
+                         (std::abs(derivative) > 1 &&
+                          std::abs(derivative - 5.e7 * (x1 - x0)) <
+                              1e-5 * std::abs(derivative))));
                 }
             }
         }
@@ -473,14 +530,18 @@ TEST_CASE("BasisFunctions", "BasisFunctions") {
                     point3D[0] += -1e-8;
                     ret3 = test->evalDeriv((point3D));
                     double derivative = test->evalDeriv0((point3D));
-                    CHECK((std::abs(ret3[0] - 5.e7 * (x1 - x0)) < 1e-5 ||
-                           (L2Norm(ret3) > 1 &&
-                            std::abs(ret3[0] - 5.e7 * (x1 - x0)) <
-                                1e-5 * L2Norm(ret3))));
-                    CHECK((std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
-                           (std::abs(derivative) > 1 &&
-                            std::abs(derivative - 5.e7 * (x1 - x0)) <
-                                1e-5 * std::abs(derivative))));
+                    INFO("gradient");
+CHECK(
+                        (std::abs(ret3[0] - 5.e7 * (x1 - x0)) < 1e-5 ||
+                         (L2Norm(ret3) > 1 &&
+                          std::abs(ret3[0] - 5.e7 * (x1 - x0)) <
+                              1e-5 * L2Norm(ret3))));
+                    INFO("derivative");
+CHECK(
+                        (std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
+                         (std::abs(derivative) > 1 &&
+                          std::abs(derivative - 5.e7 * (x1 - x0)) <
+                              1e-5 * std::abs(derivative))));
 
                     point3D[1] += -1.e-8;
                     x0 = test->eval((point3D));
@@ -489,14 +550,18 @@ TEST_CASE("BasisFunctions", "BasisFunctions") {
 
                     point3D[1] += -1e-8;
                     derivative = test->evalDeriv1((point3D));
-                    CHECK((std::abs(ret3[1] - 5.e7 * (x1 - x0)) < 1e-5 ||
-                           (L2Norm(ret3) > 1 &&
-                            std::abs(ret3[1] - 5.e7 * (x1 - x0)) <
-                                1e-5 * L2Norm(ret3))));
-                    CHECK((std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
-                           (std::abs(derivative) > 1 &&
-                            std::abs(derivative - 5.e7 * (x1 - x0)) <
-                                1e-5 * std::abs(derivative))));
+                    INFO("gradient");
+CHECK(
+                        (std::abs(ret3[1] - 5.e7 * (x1 - x0)) < 1e-5 ||
+                         (L2Norm(ret3) > 1 &&
+                          std::abs(ret3[1] - 5.e7 * (x1 - x0)) <
+                              1e-5 * L2Norm(ret3))));
+                    INFO("derivative");
+CHECK(
+                        (std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
+                         (std::abs(derivative) > 1 &&
+                          std::abs(derivative - 5.e7 * (x1 - x0)) <
+                              1e-5 * std::abs(derivative))));
 
                     point3D[2] += -1.e-8;
                     x0 = test->eval((point3D));
@@ -505,18 +570,23 @@ TEST_CASE("BasisFunctions", "BasisFunctions") {
 
                     point3D[2] += -1e-8;
                     derivative = test->evalDeriv2((point3D));
-                    CHECK((std::abs(ret3[2] - 5.e7 * (x1 - x0)) < 1e-5 ||
-                           (L2Norm(ret3) > 1 &&
-                            std::abs(ret3[2] - 5.e7 * (x1 - x0)) <
-                                1e-5 * L2Norm(ret3))));
-                    CHECK((std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
-                           (std::abs(derivative) > 1 &&
-                            std::abs(derivative - 5.e7 * (x1 - x0)) <
-                                1e-5 * std::abs(derivative))));
+                    INFO("gradient");
+CHECK(
+                        (std::abs(ret3[2] - 5.e7 * (x1 - x0)) < 1e-5 ||
+                         (L2Norm(ret3) > 1 &&
+                          std::abs(ret3[2] - 5.e7 * (x1 - x0)) <
+                              1e-5 * L2Norm(ret3))));
+                    INFO("derivative");
+CHECK(
+                        (std::abs(derivative - 5.e7 * (x1 - x0)) < 1e-5 ||
+                         (std::abs(derivative) > 1 &&
+                          std::abs(derivative - 5.e7 * (x1 - x0)) <
+                              1e-5 * std::abs(derivative))));
                 }
             }
         }
     }
 
     delete all3DbasisFunctions;
+
 }
