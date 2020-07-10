@@ -48,8 +48,13 @@
 #include "Geometry/Jacobian.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include <cmath>
+
+#define CATCH_CONFIG_MAIN
+#include "../catch.hpp"
+
 using namespace hpgem;
-int main() {
+TEST_CASE("060MappingToRefLineToLine_UnitTest",
+          "[060MappingToRefLineToLine_UnitTest]") {
 
     Geometry::PointReference<1> refPoint, point, compare;
 
@@ -66,9 +71,9 @@ int main() {
 
     for (refPoint[0] = -2.8189; refPoint[0] < 3.141; refPoint[0] += 0.1) {
         point = test->transform((refPoint));
-        logger.assert_always(
-            (geom.isInternalPoint((refPoint)) == geom.isInternalPoint((point))),
-            "transform");
+        INFO("transform");
+        CHECK((geom.isInternalPoint((refPoint)) ==
+               geom.isInternalPoint((point))));
 
         refPoint[0] += -1.e-8;
         compare = test->transform((refPoint));
@@ -77,22 +82,22 @@ int main() {
 
         refPoint[0] += -1e-8;
         jac = test->calcJacobian((refPoint));
-        logger.assert_always(
-            (std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) < 1e-5),
-            "jacobian");  // estimate is a bit rough, but should work for most
-                          // mappings
+        INFO("jacobian");
+        CHECK((std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) <
+               1e-5));  // estimate is a bit rough, but should work for most
+                        // mappings
     }
 
     for (std::size_t i = 0; i < geom.getNumberOfNodes(); ++i) {
         refPoint = geom.getReferenceNodeCoordinate(i);
         compare = geom.getReferenceNodeCoordinate(nodesAfterTransformation[i]);
         point = test->transform((refPoint));
-        logger.assert_always((std::abs(point[0] - compare[0]) < 1e-12),
-                             "transform");
+        INFO("transform");
+        CHECK((std::abs(point[0] - compare[0]) < 1e-12));
     }
 
-    logger.assert_always((test->getTargetDimension() == 1),
-                         "getTargetDimension");
+    INFO("getTargetDimension");
+    CHECK((test->getTargetDimension() == 1));
 
     test = &Geometry::MappingToRefLineToLine1::Instance();
     nodesAfterTransformation[0] = 1;
@@ -100,9 +105,9 @@ int main() {
 
     for (refPoint[0] = -2.8189; refPoint[0] < 3.141; refPoint[0] += 0.1) {
         point = test->transform((refPoint));
-        logger.assert_always(
-            (geom.isInternalPoint((refPoint)) == geom.isInternalPoint((point))),
-            "transform");
+        INFO("transform");
+        CHECK((geom.isInternalPoint((refPoint)) ==
+               geom.isInternalPoint((point))));
 
         refPoint[0] += -1.e-8;
         compare = test->transform((refPoint));
@@ -111,22 +116,20 @@ int main() {
 
         refPoint[0] += -1e-8;
         jac = test->calcJacobian((refPoint));
-        logger.assert_always(
-            (std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) < 1e-5),
-            "jacobian");  // estimate is a bit rough, but should work for most
-                          // mappings
+        INFO("jacobian");
+        CHECK((std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) <
+               1e-5));  // estimate is a bit rough, but should work for most
+                        // mappings
     }
 
     for (std::size_t i = 0; i < geom.getNumberOfNodes(); ++i) {
         refPoint = geom.getReferenceNodeCoordinate(i);
         compare = geom.getReferenceNodeCoordinate(nodesAfterTransformation[i]);
         point = test->transform((refPoint));
-        logger.assert_always((std::abs(point[0] - compare[0]) < 1e-12),
-                             "transform");
+        INFO("transform");
+        CHECK((std::abs(point[0] - compare[0]) < 1e-12));
     }
 
-    logger.assert_always((test->getTargetDimension() == 1),
-                         "getTargetDimension");
-
-    return 0;
+    INFO("getTargetDimension");
+    CHECK((test->getTargetDimension() == 1));
 }

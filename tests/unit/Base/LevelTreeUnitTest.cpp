@@ -44,26 +44,35 @@
 #include "Base/LevelTree.h"
 #include "Base/TreeIterator.h"
 #include "Base/TreeEntry.h"
+
+#define CATCH_CONFIG_MAIN
+#include "../catch.hpp"
+
 using namespace hpgem;
 //========================================================= Here is the main
 // function
-int main() {
+TEST_CASE("LevelTreeUnitTest", "[LevelTreeUnitTest]") {
     Base::LevelTree<std::size_t> testBalancedBinary, testSingleRoot,
         testMultiRoot;
 
-    logger.assert_always(testBalancedBinary.empty(), "initial tree nonempty");
-    logger.assert_always(testSingleRoot.empty(), "initial tree nonempty");
-    logger.assert_always(testMultiRoot.empty(), "initial tree nonempty");
-    logger.assert_always(testBalancedBinary.size() == 0,
-                         "initial tree nonempty");
-    logger.assert_always(testSingleRoot.size() == 0, "initial tree nonempty");
-    logger.assert_always(testMultiRoot.size() == 0, "initial tree nonempty");
-    logger.assert_always(testBalancedBinary.maxLevel() == 0,
-                         "initial tree nonempty");
-    logger.assert_always(testSingleRoot.maxLevel() == 0,
-                         "initial tree nonempty");
-    logger.assert_always(testMultiRoot.maxLevel() == 0,
-                         "initial tree nonempty");
+    INFO("initial tree nonempty");
+    CHECK(testBalancedBinary.empty());
+    INFO("initial tree nonempty");
+    CHECK(testSingleRoot.empty());
+    INFO("initial tree nonempty");
+    CHECK(testMultiRoot.empty());
+    INFO("initial tree nonempty");
+    CHECK(testBalancedBinary.size() == 0);
+    INFO("initial tree nonempty");
+    CHECK(testSingleRoot.size() == 0);
+    INFO("initial tree nonempty");
+    CHECK(testMultiRoot.size() == 0);
+    INFO("initial tree nonempty");
+    CHECK(testBalancedBinary.maxLevel() == 0);
+    INFO("initial tree nonempty");
+    CHECK(testSingleRoot.maxLevel() == 0);
+    INFO("initial tree nonempty");
+    CHECK(testMultiRoot.maxLevel() == 0);
 
     for (std::size_t i : testBalancedBinary) {
         logger(ERROR, "should be able to iterator over an empty tree");
@@ -74,24 +83,24 @@ int main() {
     for (std::size_t i = 0; i < 5; ++i) {
         testMultiRoot.addRootEntry(i);
     }
-    logger.assert_always(!testBalancedBinary.empty(),
-                         "tree should have entries now");
-    logger.assert_always(!testSingleRoot.empty(),
-                         "tree should have entries now");
-    logger.assert_always(!testMultiRoot.empty(),
-                         "tree should have entries now");
-    logger.assert_always(testBalancedBinary.size() == 1,
-                         "tree should have entries now");
-    logger.assert_always(testSingleRoot.size() == 1,
-                         "tree should have entries now");
-    logger.assert_always(testMultiRoot.size() == 5,
-                         "tree should have entries now");
-    logger.assert_always(testBalancedBinary.maxLevel() == 1,
-                         "tree should only have root entries now");
-    logger.assert_always(testSingleRoot.maxLevel() == 1,
-                         "tree should only have root entries now");
-    logger.assert_always(testMultiRoot.maxLevel() == 1,
-                         "tree should only have root entries now");
+    INFO("tree should have entries now");
+    CHECK(!testBalancedBinary.empty());
+    INFO("tree should have entries now");
+    CHECK(!testSingleRoot.empty());
+    INFO("tree should have entries now");
+    CHECK(!testMultiRoot.empty());
+    INFO("tree should have entries now");
+    CHECK(testBalancedBinary.size() == 1);
+    INFO("tree should have entries now");
+    CHECK(testSingleRoot.size() == 1);
+    INFO("tree should have entries now");
+    CHECK(testMultiRoot.size() == 5);
+    INFO("tree should only have root entries now");
+    CHECK(testBalancedBinary.maxLevel() == 1);
+    INFO("tree should only have root entries now");
+    CHECK(testSingleRoot.maxLevel() == 1);
+    INFO("tree should only have root entries now");
+    CHECK(testMultiRoot.maxLevel() == 1);
 
     testBalancedBinary.setAllLevelTraversal();
     testSingleRoot.setTraversalMethod(Base::TreeTraversalMethod::ALLLEVEL);
@@ -149,24 +158,24 @@ int main() {
     for (std::size_t i = 25; i < 31; ++i) {
         testMultiRoot.addChild(iterator, i);
     }
-    logger.assert_always(!testBalancedBinary.empty(),
-                         "tree should have entries now");
-    logger.assert_always(!testSingleRoot.empty(),
-                         "tree should have entries now");
-    logger.assert_always(!testMultiRoot.empty(),
-                         "tree should have entries now");
-    logger.assert_always(testBalancedBinary.size() == 1,
-                         "tree should have entries now");
-    logger.assert_always(testSingleRoot.size() == 1,
-                         "tree should have entries now");
-    logger.assert_always(testMultiRoot.size() == 5,
-                         "tree should have entries now");
-    logger.assert_always(testBalancedBinary.maxLevel() == 5,
-                         "tree should have multiple levels now");
-    logger.assert_always(testSingleRoot.maxLevel() == 5,
-                         "tree should have multiple levels now");
-    logger.assert_always(testMultiRoot.maxLevel() == 4,
-                         "tree should have multiple levels now");
+    INFO("tree should have entries now");
+    CHECK(!testBalancedBinary.empty());
+    INFO("tree should have entries now");
+    CHECK(!testSingleRoot.empty());
+    INFO("tree should have entries now");
+    CHECK(!testMultiRoot.empty());
+    INFO("tree should have entries now");
+    CHECK(testBalancedBinary.size() == 1);
+    INFO("tree should have entries now");
+    CHECK(testSingleRoot.size() == 1);
+    INFO("tree should have entries now");
+    CHECK(testMultiRoot.size() == 5);
+    INFO("tree should have multiple levels now");
+    CHECK(testBalancedBinary.maxLevel() == 5);
+    INFO("tree should have multiple levels now");
+    CHECK(testSingleRoot.maxLevel() == 5);
+    INFO("tree should have multiple levels now");
+    CHECK(testMultiRoot.maxLevel() == 4);
 
     std::vector<std::size_t> binaryPostOrder = {
         15, 16, 7,  17, 18, 8, 3,  19, 20, 9,  21, 22, 10, 4, 1, 23,
@@ -195,86 +204,93 @@ int main() {
 
     std::size_t i = 0;
     for (std::size_t test : testBalancedBinary) {
-        logger.assert_always(test == i,
-                             "ordering of the entries got messed up");
+        INFO("ordering of the entries got messed up");
+        CHECK(test == i);
         i++;
     }
-    logger.assert_always(i == 31, "amount of entries got messed up");
+    INFO("amount of entries got messed up");
+    CHECK(i == 31);
     i = 7;
     testBalancedBinary.setSingleLevelTraversal(3);
     for (std::size_t test : testBalancedBinary) {
-        logger.assert_always(test == i, "entries on level 3 got messed up");
+        INFO("entries on level 3 got messed up");
+        CHECK(test == i);
         i++;
     }
-    logger.assert_always(i == 15, "entries on level 3 got messed up");
+    INFO("entries on level 3 got messed up");
+    CHECK(i == 15);
     i = 14;
     testSingleRoot.setSingleLevelTraversal(3);
     for (std::size_t test : testSingleRoot) {
-        logger.assert_always(test == i, "entries on level 3 got messed up");
+        INFO("entries on level 3 got messed up");
+        CHECK(test == i);
         i++;
     }
-    logger.assert_always(i == 19, "entries on level 3 got messed up");
+    INFO("entries on level 3 got messed up");
+    CHECK(i == 19);
     i = 12;
     testMultiRoot.setSingleLevelTraversal(3);
     for (std::size_t test : testMultiRoot) {
-        logger.assert_always(test == i, "entries on level 3 got messed up");
+        INFO("entries on level 3 got messed up");
+        CHECK(test == i);
         i++;
     }
-    logger.assert_always(i == 13, "entries on level 3 got messed up");
+    INFO("entries on level 3 got messed up");
+    CHECK(i == 13);
     // range-for also works with the other traversal methods, but we have to do
     // a loop over two ranges to test for sanity
     auto testIterator = binaryPreOrder.begin();
     for (iterator = testBalancedBinary.beginPreOrder();
          iterator != testBalancedBinary.end(); ++iterator, ++testIterator) {
-        logger.assert_always(*iterator == *testIterator,
-                             "pre-ordering of the entries got messed up");
+        INFO("pre-ordering of the entries got messed up");
+        CHECK(*iterator == *testIterator);
     }
     testSingleRoot.setPreOrderTraversal();
     testIterator = singlePreOrder.begin();
     for (iterator = testSingleRoot.begin();
          testIterator != singlePreOrder.end(); ++iterator, ++testIterator) {
-        logger.assert_always(*iterator == *testIterator,
-                             "pre-ordering of the entries got messed up");
+        INFO("pre-ordering of the entries got messed up");
+        CHECK(*iterator == *testIterator);
     }
     testMultiRoot.setTraversalMethod(Base::TreeTraversalMethod::PREORDER);
     testIterator = multiPreOrder.begin();
     for (iterator = testMultiRoot.begin(); iterator != testMultiRoot.end();
          ++iterator, ++testIterator) {
-        logger.assert_always(*iterator == *testIterator,
-                             "pre-ordering of the entries got messed up");
+        INFO("pre-ordering of the entries got messed up");
+        CHECK(*iterator == *testIterator);
     }
     testBalancedBinary.setTraversalMethod(Base::TreeTraversalMethod::POSTORDER);
     testIterator = binaryPostOrder.begin();
     for (iterator = testBalancedBinary.begin();
          testIterator != binaryPostOrder.end(); ++iterator, ++testIterator) {
-        logger.assert_always(*iterator == *testIterator,
-                             "post-ordering of the entries got messed up");
+        INFO("post-ordering of the entries got messed up");
+        CHECK(*iterator == *testIterator);
     }
     testIterator = singlePostOrder.begin();
     for (iterator = testSingleRoot.beginPostOrder();
          iterator != testSingleRoot.end(); ++iterator, ++testIterator) {
-        logger.assert_always(*iterator == *testIterator,
-                             "post-ordering of the entries got messed up");
+        INFO("post-ordering of the entries got messed up");
+        CHECK(*iterator == *testIterator);
     }
     testMultiRoot.setPostOrderTraversal();
     testIterator = multiPostOrder.begin();
     for (iterator = testMultiRoot.begin(); testIterator != multiPostOrder.end();
          ++iterator, ++testIterator) {
-        logger.assert_always(*iterator == *testIterator,
-                             "post-ordering of the entries got messed up");
+        INFO("post-ordering of the entries got messed up");
+        CHECK(*iterator == *testIterator);
     }
     testIterator = singleAllLevel.begin();
     for (iterator = testSingleRoot.beginAllLevel();
          iterator != testSingleRoot.end(); ++iterator, ++testIterator) {
-        logger.assert_always(*iterator == *testIterator,
-                             "level-ordering of the entries got messed up");
+        INFO("level-ordering of the entries got messed up");
+        CHECK(*iterator == *testIterator);
     }
     testMultiRoot.setAllLevelTraversal();
     testIterator = multiAllLevel.begin();
     for (iterator = testMultiRoot.begin(); testIterator != multiAllLevel.end();
          ++iterator, ++testIterator) {
-        logger.assert_always(*iterator == *testIterator,
-                             "level-ordering of the entries got messed up");
+        INFO("level-ordering of the entries got messed up");
+        CHECK(*iterator == *testIterator);
     }
     // and again for reverse iteration
     auto testReverseIterator = binaryPreOrder.rbegin();
@@ -282,55 +298,55 @@ int main() {
     auto reverseIterator = testBalancedBinary.rbegin();
     for (; reverseIterator != testBalancedBinary.rend();
          ++reverseIterator, ++testReverseIterator) {
-        logger.assert_always(*reverseIterator == *testReverseIterator,
-                             "pre-ordering of the entries got messed up");
+        INFO("pre-ordering of the entries got messed up");
+        CHECK(*reverseIterator == *testReverseIterator);
     }
     testSingleRoot.setPreOrderTraversal();
     testReverseIterator = singlePreOrder.rbegin();
     for (reverseIterator = testSingleRoot.rbegin();
          reverseIterator != testSingleRoot.rend();
          ++reverseIterator, ++testReverseIterator) {
-        logger.assert_always(*reverseIterator == *testReverseIterator,
-                             "pre-ordering of the entries got messed up");
+        INFO("pre-ordering of the entries got messed up");
+        CHECK(*reverseIterator == *testReverseIterator);
     }
     testMultiRoot.setTraversalMethod(Base::TreeTraversalMethod::PREORDER);
     testReverseIterator = multiPreOrder.rbegin();
     for (reverseIterator = testMultiRoot.rbegin();
          reverseIterator != testMultiRoot.rend();
          ++reverseIterator, ++testReverseIterator) {
-        logger.assert_always(*reverseIterator == *testReverseIterator,
-                             "pre-ordering of the entries got messed up");
+        INFO("pre-ordering of the entries got messed up");
+        CHECK(*reverseIterator == *testReverseIterator);
     }
     testBalancedBinary.setTraversalMethod(Base::TreeTraversalMethod::POSTORDER);
     testReverseIterator = binaryPostOrder.rbegin();
     for (reverseIterator = testBalancedBinary.rbegin();
          reverseIterator != testBalancedBinary.rend();
          ++reverseIterator, ++testReverseIterator) {
-        logger.assert_always(*reverseIterator == *testReverseIterator,
-                             "post-ordering of the entries got messed up");
+        INFO("post-ordering of the entries got messed up");
+        CHECK(*reverseIterator == *testReverseIterator);
     }
     testReverseIterator = singlePostOrder.rbegin();
     testSingleRoot.setPostOrderTraversal();
     for (reverseIterator = testSingleRoot.rbegin();
          reverseIterator != testSingleRoot.rend();
          ++reverseIterator, ++testReverseIterator) {
-        logger.assert_always(*reverseIterator == *testReverseIterator,
-                             "post-ordering of the entries got messed up");
+        INFO("post-ordering of the entries got messed up");
+        CHECK(*reverseIterator == *testReverseIterator);
     }
     testMultiRoot.setPostOrderTraversal();
     testReverseIterator = multiPostOrder.rbegin();
     for (reverseIterator = testMultiRoot.rbegin();
          reverseIterator != testMultiRoot.rend();
          ++reverseIterator, ++testReverseIterator) {
-        logger.assert_always(*reverseIterator == *testReverseIterator,
-                             "post-ordering of the entries got messed up");
+        INFO("post-ordering of the entries got messed up");
+        CHECK(*reverseIterator == *testReverseIterator);
     }
     i = 30;
     testBalancedBinary.setAllLevelTraversal();
     for (reverseIterator = testBalancedBinary.rbegin();
          reverseIterator != testBalancedBinary.rend(); ++reverseIterator, --i) {
-        logger.assert_always(*reverseIterator == i,
-                             "level-ordering of the entries got messed up");
+        INFO("level-ordering of the entries got messed up");
+        CHECK(*reverseIterator == i);
     }
 
     // test some special cases
@@ -341,18 +357,18 @@ int main() {
                                        26, 27, 28, 29, 30, 16, 5,  17,
                                        18, 7,  8,  9,  10, 11, 12, 13};
 
-    logger.assert_always(!testSingleRoot.empty(),
-                         "tree should still have entries");
-    logger.assert_always(testSingleRoot.size() == 1,
-                         "tree should still have entries");
-    logger.assert_always(testSingleRoot.maxLevel() == 5,
-                         "tree should still have multiple levels");
+    INFO("tree should still have entries");
+    CHECK(!testSingleRoot.empty());
+    INFO("tree should still have entries");
+    CHECK(testSingleRoot.size() == 1);
+    INFO("tree should still have multiple levels");
+    CHECK(testSingleRoot.maxLevel() == 5);
     testSingleRoot.setSingleLevelTraversal(3);
     testIterator = level3.begin();
     for (iterator = testSingleRoot.begin(); iterator != testSingleRoot.end();
          ++iterator, ++testIterator) {
-        logger.assert_always(*iterator == *testIterator,
-                             "level-ordering of the entries got messed up");
+        INFO("level-ordering of the entries got messed up");
+        CHECK(*iterator == *testIterator);
     }
     std::cout << std::endl;
     // leaf traversal
@@ -360,8 +376,8 @@ int main() {
     testIterator = level4.begin();
     for (iterator = testSingleRoot.begin(); iterator != testSingleRoot.end();
          ++iterator, ++testIterator) {
-        logger.assert_always(*iterator == *testIterator,
-                             "level-ordering of the entries got messed up");
+        INFO("level-ordering of the entries got messed up");
+        CHECK(*iterator == *testIterator);
     }
     testMultiRoot.setAllLevelTraversal();
     iterator = testMultiRoot.begin();
@@ -376,19 +392,17 @@ int main() {
     --iterator;
     --iterator;
     --iterator;
-    logger.assert_always(!testMultiRoot.empty(),
-                         "tree should still have entries");
-    logger.assert_always(testMultiRoot.size() == 5,
-                         "tree should still have entries");
-    logger.assert_always(testMultiRoot.maxLevel() == 4,
-                         "tree should still have multiple levels");
+    INFO("tree should still have entries");
+    CHECK(!testMultiRoot.empty());
+    INFO("tree should still have entries");
+    CHECK(testMultiRoot.size() == 5);
+    INFO("tree should still have multiple levels");
+    CHECK(testMultiRoot.maxLevel() == 4);
     testMultiRoot.eraseChilds(iterator);
-    logger.assert_always(!testMultiRoot.empty(),
-                         "tree should still have entries");
-    logger.assert_always(testMultiRoot.size() == 5,
-                         "tree should still have entries");
-    logger.assert_always(testMultiRoot.maxLevel() == 2,
-                         "tree should have less levels");
-
-    return 0;
+    INFO("tree should still have entries");
+    CHECK(!testMultiRoot.empty());
+    INFO("tree should still have entries");
+    CHECK(testMultiRoot.size() == 5);
+    INFO("tree should have less levels");
+    CHECK(testMultiRoot.maxLevel() == 2);
 }

@@ -49,17 +49,22 @@
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 
 #include <cmath>
+
+#define CATCH_CONFIG_MAIN
+#include "../catch.hpp"
+
 using namespace hpgem;
 using Geometry::ReferencePoint;
 
-int main() {
+TEST_CASE("040ReferencePoint_UnitTest", "[040ReferencePoint_UnitTest]") {
     ReferencePoint& test = ReferencePoint::Instance();
 
     Geometry::PointReference<0> pTest = {};
 
     // testing basic functionality
 
-    logger.assert_always((test.isInternalPoint(pTest)), "isInternalPoint");
+    INFO("isInternalPoint");
+    CHECK((test.isInternalPoint(pTest)));
     const Geometry::PointReference<0>& pTest1 = test.getCenter();
     const Geometry::PointReference<0>& pTest2 =
         test.getReferenceNodeCoordinate(0);
@@ -79,28 +84,28 @@ int main() {
     logger.assert_always((test.getCodim0MappingPtr(base, transformed) ==
                           &Geometry::MappingToRefPointToPoint::Instance()),
                          "getCodim0MappingIndex&Ptr");
-    logger.assert_always((test.getNumberOfCodim1Entities() == 0 &&
-                          test.getNumberOfCodim2Entities() == 0) &&
-                             test.getNumberOfCodim3Entities() == 0,
-                         "higher codimensional entities");
+    INFO("higher codimensional entities");
+    CHECK((test.getNumberOfCodim1Entities() == 0 &&
+           test.getNumberOfCodim2Entities() == 0) &&
+          test.getNumberOfCodim3Entities() == 0);
 
-    logger.assert_always((test.getGaussQuadratureRule(3)->order() >= 3),
-                         "quadrature rules");
-    logger.assert_always((test.getGaussQuadratureRule(5)->order() >= 5),
-                         "quadrature rules");
-    logger.assert_always((test.getGaussQuadratureRule(7)->order() >= 7),
-                         "quadrature rules");
-    logger.assert_always((test.getGaussQuadratureRule(9)->order() >= 9),
-                         "quadrature rules");
-    logger.assert_always((test.getGaussQuadratureRule(11)->order() >= 11),
-                         "quadrature rules");
+    INFO("quadrature rules");
+    CHECK((test.getGaussQuadratureRule(3)->order() >= 3));
+    INFO("quadrature rules");
+    CHECK((test.getGaussQuadratureRule(5)->order() >= 5));
+    INFO("quadrature rules");
+    CHECK((test.getGaussQuadratureRule(7)->order() >= 7));
+    INFO("quadrature rules");
+    CHECK((test.getGaussQuadratureRule(9)->order() >= 9));
+    INFO("quadrature rules");
+    CHECK((test.getGaussQuadratureRule(11)->order() >= 11));
 
     // testing functionality of abstract parent classes
 
-    logger.assert_always((test.getNumberOfNodes() == 1), "number of nodes");
-    logger.assert_always(
-        (test.getGeometryType() == Geometry::ReferenceGeometryType::POINT),
-        "type of geometry");
+    INFO("number of nodes");
+    CHECK((test.getNumberOfNodes() == 1));
+    INFO("type of geometry");
+    CHECK((test.getGeometryType() == Geometry::ReferenceGeometryType::POINT));
 
     ///\todo testing that the refinement maps behave exactly like the forwarded
     /// calls of this class

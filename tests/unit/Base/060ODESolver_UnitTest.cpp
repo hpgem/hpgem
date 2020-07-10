@@ -7,6 +7,10 @@
 #include <limits>
 #include "Base/TimeIntegration/AllTimeIntegrators.h"
 #include "Logger.h"
+
+#define CATCH_CONFIG_MAIN
+#include "../catch.hpp"
+
 using namespace hpgem;
 double executeOneTimeStep(const TimeIntegration::ButcherTableau *integrator,
                           double u, double dt) {
@@ -76,7 +80,7 @@ double executeOneTimeStep(const TimeIntegration::ButcherTableau *integrator,
     return result;
 }
 
-int main() {
+TEST_CASE("060ODESolver_UnitTest", "[060ODESolver_UnitTest]") {
     std::vector<const TimeIntegration::ButcherTableau *> integrators{
         TimeIntegration::AllTimeIntegrators::Instance().getRule(1, 1),
         TimeIntegration::AllTimeIntegrators::Instance().getRule(2, 2),
@@ -178,5 +182,4 @@ int main() {
             }
         }
     }
-    return 0;
 }

@@ -50,15 +50,21 @@
 #include "Geometry/PointReference.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include <cmath>
+
+#define CATCH_CONFIG_MAIN
+#include "../catch.hpp"
+
 using namespace hpgem;
 void testRule(QuadratureRules::GaussQuadratureRule& test,
               std::size_t expectedOrder) {
     std::cout << test.getName();
-    logger.assert_always((test.dimension() == 1), "dimension");
-    logger.assert_always((test.order() >= expectedOrder), "order");
+    INFO("dimension");
+    CHECK((test.dimension() == 1));
+    INFO("order");
+    CHECK((test.order() >= expectedOrder));
     const Geometry::ReferenceGeometry& refGeo = *test.forReferenceGeometry();
-    logger.assert_always((typeid(refGeo) == typeid(Geometry::ReferenceLine)),
-                         "forReferenceGeometry");
+    INFO("forReferenceGeometry");
+    CHECK((typeid(refGeo) == typeid(Geometry::ReferenceLine)));
 
     Base::BasisFunctionSet* functions =
         Utilities::createDGBasisFunctionSet1DH1Line(expectedOrder);
@@ -71,21 +77,22 @@ void testRule(QuadratureRules::GaussQuadratureRule& test,
         }
         logger(INFO, "basisfunction %: integral equal to %", i, integrated);
         if (i < 2) {
-            logger.assert_always((std::abs(integrated - 1) < 1e-12),
-                                 "integration");
+            INFO("integration");
+            CHECK((std::abs(integrated - 1) < 1e-12));
         } else if (i == 2) {
-            logger.assert_always(
-                (std::abs(integrated + std::sqrt(2. / 3.)) < 1e-12),
-                "integration");
+            INFO("integration");
+            CHECK((std::abs(integrated + std::sqrt(2. / 3.)) < 1e-12));
         } else {
-            logger.assert_always((std::abs(integrated) < 1e-12), "integration");
+            INFO("integration");
+            CHECK((std::abs(integrated) < 1e-12));
         }
     }
 
     delete functions;
 }
 
-int main() {
+TEST_CASE("020GaussQuadratureRulesForLine_UnitTest",
+          "[020GaussQuadratureRulesForLine_UnitTest]") {
 
     testRule(QuadratureRules::Cn1_1_1::Instance(), 1);
     testRule(QuadratureRules::Cn1_3_2::Instance(), 3);
@@ -93,6 +100,4 @@ int main() {
     testRule(QuadratureRules::C1_7_4::Instance(), 7);
     testRule(QuadratureRules::C1_9_5::Instance(), 9);
     testRule(QuadratureRules::C1_11_6::Instance(), 11);
-
-    return 0;
 }

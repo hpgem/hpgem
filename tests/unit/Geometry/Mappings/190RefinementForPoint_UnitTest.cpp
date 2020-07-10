@@ -40,8 +40,13 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferencePoint.h"
 #include <iostream>
+
+#define CATCH_CONFIG_MAIN
+#include "../catch.hpp"
+
 using namespace hpgem;
-int main(int argc, char** argv) {
+TEST_CASE("190RefinementForPoint_UnitTest",
+          "[190RefinementForPoint_UnitTest]") {
     Geometry::PointReference<0> refPoint;
     Geometry::PointReference<0> point, compare;
     LinearAlgebra::SmallMatrix<0, 0> jac;
@@ -54,20 +59,19 @@ int main(int argc, char** argv) {
             jac = test->getRefinementMappingMatrixL(i, (refPoint));
             jac = test->getRefinementMappingMatrixR(i, (refPoint));
             for (std::size_t index : test->getSubElementLocalNodeIndices(i)) {
-                logger.assert_always(
-                    index < Geometry::ReferencePoint::Instance()
-                                    .getNumberOfNodes() +
-                                test->getNumberOfNewNodes(),
-                    "local index out of bounds");
+                INFO("local index out of bounds");
+                CHECK(index <
+                      Geometry::ReferencePoint::Instance().getNumberOfNodes() +
+                          test->getNumberOfNewNodes());
             }
             for (const Geometry::RefinementMapping* faceMapping :
                  test->getCodim1RefinementMaps()) {
-                logger.assert_always(faceMapping->getNumberOfNewNodes() <=
-                                         test->getNumberOfNewNodes(),
-                                     "face gets too much new nodes");
-                logger.assert_always(faceMapping->getNumberOfSubElements() <=
-                                         test->getNumberOfSubElements(),
-                                     "face gets too much new elements");
+                INFO("face gets too much new nodes");
+                CHECK(faceMapping->getNumberOfNewNodes() <=
+                      test->getNumberOfNewNodes());
+                INFO("face gets too much new elements");
+                CHECK(faceMapping->getNumberOfSubElements() <=
+                      test->getNumberOfSubElements());
             }
         }
     }

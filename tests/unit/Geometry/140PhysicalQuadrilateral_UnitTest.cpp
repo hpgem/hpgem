@@ -47,10 +47,15 @@
 #include "Geometry/ReferenceSquare.h"
 
 #include <cmath>
+
+#define CATCH_CONFIG_MAIN
+#include "../catch.hpp"
+
 using namespace hpgem;
 using Geometry::PhysicalQuadrilateral;
 
-int main() {
+TEST_CASE("140PhysicalQuadrilateral_UnitTest",
+          "[140PhysicalQuadrilateral_UnitTest]") {
 
     std::vector<std::size_t> pointIndexes;
     std::vector<Geometry::PointPhysical<2> > nodes;
@@ -81,154 +86,147 @@ int main() {
 
     pointIndexes = test.getNodeIndexes();
 
-    logger.assert_always((pointIndexes[0] == 4 && pointIndexes[1] == 7 &&
-                          pointIndexes[2] == 10 && pointIndexes[3] == 11),
-                         "getNodeIndexes");
-    logger.assert_always((nodes == test.getNodeCoordinates()), "getNodes");
-    logger.assert_always(
-        (test.getNodeIndex(0) == 4 && test.getNodeIndex(1) == 7 &&
-         test.getNodeIndex(2) == 10 && test.getNodeIndex(3) == 11),
-        "getNodeIndex");
+    INFO("getNodeIndexes");
+    CHECK((pointIndexes[0] == 4 && pointIndexes[1] == 7 &&
+           pointIndexes[2] == 10 && pointIndexes[3] == 11));
+    INFO("getNodes");
+    CHECK((nodes == test.getNodeCoordinates()));
+    INFO("getNodeIndex");
+    CHECK((test.getNodeIndex(0) == 4 && test.getNodeIndex(1) == 7 &&
+           test.getNodeIndex(2) == 10 && test.getNodeIndex(3) == 11));
 
     std::cout << test.getName();
 
     point = *test.getNodeCoordinatePtr(test.getNodeIndex(0));
-    logger.assert_always((std::abs(point[0] - 1.4) < 1e-12), "getNodePtr");
-    logger.assert_always((std::abs(point[1] - 2.4) < 1e-12), "getNodePtr");
+    INFO("getNodePtr");
+    CHECK((std::abs(point[0] - 1.4) < 1e-12));
+    INFO("getNodePtr");
+    CHECK((std::abs(point[1] - 2.4) < 1e-12));
     point = *test.getNodeCoordinatePtr(test.getNodeIndex(1));
-    logger.assert_always((std::abs(point[0] - 1.7) < 1e-12), "getNodePtr");
-    logger.assert_always((std::abs(point[1] - 2.7) < 1e-12), "getNodePtr");
+    INFO("getNodePtr");
+    CHECK((std::abs(point[0] - 1.7) < 1e-12));
+    INFO("getNodePtr");
+    CHECK((std::abs(point[1] - 2.7) < 1e-12));
 
-    logger.assert_always((test.getNumberOfNodes() == 4), "getNumberOfNodes");
+    INFO("getNumberOfNodes");
+    CHECK((test.getNumberOfNodes() == 4));
 
     point = test.getLocalNodeCoordinates(0);
-    logger.assert_always((std::abs(point[0] - 1.4) < 1e-12),
-                         "getLocalNodeCoordinates");
-    logger.assert_always((std::abs(point[1] - 2.4) < 1e-12),
-                         "getLocalNodeCoordinates");
+    INFO("getLocalNodeCoordinates");
+    CHECK((std::abs(point[0] - 1.4) < 1e-12));
+    INFO("getLocalNodeCoordinates");
+    CHECK((std::abs(point[1] - 2.4) < 1e-12));
     point = test.getLocalNodeCoordinates(1);
-    logger.assert_always((std::abs(point[0] - 1.7) < 1e-12),
-                         "getLocalNodeCoordinates");
-    logger.assert_always((std::abs(point[1] - 2.7) < 1e-12),
-                         "getLocalNodeCoordinates");
+    INFO("getLocalNodeCoordinates");
+    CHECK((std::abs(point[0] - 1.7) < 1e-12));
+    INFO("getLocalNodeCoordinates");
+    CHECK((std::abs(point[1] - 2.7) < 1e-12));
     point = test.getLocalNodeCoordinates(2);
-    logger.assert_always((std::abs(point[0] - 3.5) < 1e-12),
-                         "getLocalNodeCoordinates");
-    logger.assert_always((std::abs(point[1] - 4.6) < 1e-12),
-                         "getLocalNodeCoordinates");
+    INFO("getLocalNodeCoordinates");
+    CHECK((std::abs(point[0] - 3.5) < 1e-12));
+    INFO("getLocalNodeCoordinates");
+    CHECK((std::abs(point[1] - 4.6) < 1e-12));
     point = test.getLocalNodeCoordinates(3);
-    logger.assert_always((std::abs(point[0] - 6.7) < 1e-12),
-                         "getLocalNodeCoordinates");
-    logger.assert_always((std::abs(point[1] - 2.8) < 1e-12),
-                         "getLocalNodeCoordinates");
+    INFO("getLocalNodeCoordinates");
+    CHECK((std::abs(point[0] - 6.7) < 1e-12));
+    INFO("getLocalNodeCoordinates");
+    CHECK((std::abs(point[1] - 2.8) < 1e-12));
 
     for (std::size_t i = 0; i < 10; ++i) {
         point = test.getGlobalNodeCoordinates(i);
-        logger.assert_always(
-            (std::abs(point[0] - 1. - static_cast<double>(i) / 10.) < 1e-12),
-            "getGlobalNodeCoordinates");
-        logger.assert_always(
-            (std::abs(point[1] - 2. - static_cast<double>(i) / 10.) < 1e-12),
-            "getGlobalNodeCoordinates");
+        INFO("getGlobalNodeCoordinates");
+        CHECK((std::abs(point[0] - 1. - static_cast<double>(i) / 10.) < 1e-12));
+        INFO("getGlobalNodeCoordinates");
+        CHECK((std::abs(point[1] - 2. - static_cast<double>(i) / 10.) < 1e-12));
     }
 
     pointIndexes.resize(2);
 
     pointIndexes = test.getGlobalFaceNodeIndices(0);
-    logger.assert_always(
-        (pointIndexes[0] ==
-         test.getNodeIndex(
-             test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(
-                 0, 0))),
-        "getGlobalFaceNodeIndices");
-    logger.assert_always(
-        (pointIndexes[1] ==
-         test.getNodeIndex(
-             test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(
-                 0, 1))),
-        "getGlobalFaceNodeIndices");
+    INFO("getGlobalFaceNodeIndices");
+    CHECK((pointIndexes[0] ==
+           test.getNodeIndex(
+               test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(
+                   0, 0))));
+    INFO("getGlobalFaceNodeIndices");
+    CHECK((pointIndexes[1] ==
+           test.getNodeIndex(
+               test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(
+                   0, 1))));
     pointIndexes = test.getGlobalFaceNodeIndices(1);
-    logger.assert_always(
-        (pointIndexes[0] ==
-         test.getNodeIndex(
-             test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(
-                 1, 0))),
-        "getGlobalFaceNodeIndices");
-    logger.assert_always(
-        (pointIndexes[1] ==
-         test.getNodeIndex(
-             test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(
-                 1, 1))),
-        "getGlobalFaceNodeIndices");
+    INFO("getGlobalFaceNodeIndices");
+    CHECK((pointIndexes[0] ==
+           test.getNodeIndex(
+               test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(
+                   1, 0))));
+    INFO("getGlobalFaceNodeIndices");
+    CHECK((pointIndexes[1] ==
+           test.getNodeIndex(
+               test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(
+                   1, 1))));
     pointIndexes = test.getGlobalFaceNodeIndices(2);
-    logger.assert_always(
-        (pointIndexes[0] ==
-         test.getNodeIndex(
-             test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(
-                 2, 0))),
-        "getGlobalFaceNodeIndices");
-    logger.assert_always(
-        (pointIndexes[1] ==
-         test.getNodeIndex(
-             test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(
-                 2, 1))),
-        "getGlobalFaceNodeIndices");
+    INFO("getGlobalFaceNodeIndices");
+    CHECK((pointIndexes[0] ==
+           test.getNodeIndex(
+               test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(
+                   2, 0))));
+    INFO("getGlobalFaceNodeIndices");
+    CHECK((pointIndexes[1] ==
+           test.getNodeIndex(
+               test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(
+                   2, 1))));
     pointIndexes = test.getGlobalFaceNodeIndices(3);
-    logger.assert_always(
-        (pointIndexes[0] ==
-         test.getNodeIndex(
-             test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(
-                 3, 0))),
-        "getGlobalFaceNodeIndices");
-    logger.assert_always(
-        (pointIndexes[1] ==
-         test.getNodeIndex(
-             test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(
-                 3, 1))),
-        "getGlobalFaceNodeIndices");
+    INFO("getGlobalFaceNodeIndices");
+    CHECK((pointIndexes[0] ==
+           test.getNodeIndex(
+               test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(
+                   3, 0))));
+    INFO("getGlobalFaceNodeIndices");
+    CHECK((pointIndexes[1] ==
+           test.getNodeIndex(
+               test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(
+                   3, 1))));
 
     pointIndexes = test.getLocalFaceNodeIndices(0);
-    logger.assert_always(
+    INFO("getLocalFaceNodeIndices");
+    CHECK(
         (pointIndexes[0] ==
-         test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(0, 0)),
-        "getLocalFaceNodeIndices");
-    logger.assert_always(
+         test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(0, 0)));
+    INFO("getLocalFaceNodeIndices");
+    CHECK(
         (pointIndexes[1] ==
-         test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(0, 1)),
-        "getLocalFaceNodeIndices");
+         test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(0, 1)));
     pointIndexes = test.getLocalFaceNodeIndices(1);
-    logger.assert_always(
+    INFO("getLocalFaceNodeIndices");
+    CHECK(
         (pointIndexes[0] ==
-         test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(1, 0)),
-        "getLocalFaceNodeIndices");
-    logger.assert_always(
+         test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(1, 0)));
+    INFO("getLocalFaceNodeIndices");
+    CHECK(
         (pointIndexes[1] ==
-         test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(1, 1)),
-        "getLocalFaceNodeIndices");
+         test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(1, 1)));
     pointIndexes = test.getLocalFaceNodeIndices(2);
-    logger.assert_always(
+    INFO("getLocalFaceNodeIndices");
+    CHECK(
         (pointIndexes[0] ==
-         test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(2, 0)),
-        "getLocalFaceNodeIndices");
-    logger.assert_always(
+         test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(2, 0)));
+    INFO("getLocalFaceNodeIndices");
+    CHECK(
         (pointIndexes[1] ==
-         test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(2, 1)),
-        "getLocalFaceNodeIndices");
+         test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(2, 1)));
     pointIndexes = test.getLocalFaceNodeIndices(3);
-    logger.assert_always(
+    INFO("getLocalFaceNodeIndices");
+    CHECK(
         (pointIndexes[0] ==
-         test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(3, 0)),
-        "getLocalFaceNodeIndices");
-    logger.assert_always(
+         test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(3, 0)));
+    INFO("getLocalFaceNodeIndices");
+    CHECK(
         (pointIndexes[1] ==
-         test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(3, 1)),
-        "getLocalFaceNodeIndices");
+         test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(3, 1)));
 
-    logger.assert_always((test.getNumberOfFaces() == 4), "getNumberOfFaces");
+    INFO("getNumberOfFaces");
+    CHECK((test.getNumberOfFaces() == 4));
 
-    logger.assert_always(
-        (test.getRefGeometry() == &Geometry::ReferenceSquare::Instance()),
-        "getRefGeometry");
-
-    return 0;
+    INFO("getRefGeometry");
+    CHECK((test.getRefGeometry() == &Geometry::ReferenceSquare::Instance()));
 }

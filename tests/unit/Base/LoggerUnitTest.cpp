@@ -38,6 +38,10 @@
 
 #include <iostream>
 #include "Logger.h"
+
+#define CATCH_CONFIG_MAIN
+#include "../catch.hpp"
+
 using namespace hpgem;
 // --- Declaring a logger.
 // --- This allows you to redefine LogLevels based on command line options.
@@ -50,7 +54,7 @@ void logMessage(std::string, std::string);
 
 void logTestMessage(std::string, std::string);
 
-int main(int argc, char** argv) {
+TEST_CASE("LoggerUnitTest", "[LoggerUnitTest]") {
 
     // Basic use cases
 
@@ -104,7 +108,6 @@ int main(int argc, char** argv) {
     std::cout << "In a normal application you wouldn't see me, but someone "
                  "redefined onFatal for the purpose of this demonstration"
               << std::endl;
-    return 0;
 }
 
 void logMessage(std::string module, std::string msg) {

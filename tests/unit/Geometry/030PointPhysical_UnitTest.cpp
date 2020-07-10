@@ -44,10 +44,14 @@
 #include <iostream>
 #include "Logger.h"
 #include <cmath>
+
+#define CATCH_CONFIG_MAIN
+#include "../catch.hpp"
+
 using namespace hpgem;
 using Geometry::PointPhysical;
 
-int main() {
+TEST_CASE("030PointPhysical_UnitTest", "[030PointPhysical_UnitTest]") {
 
     double *coord0 = nullptr;
     double coord1[] = {1.1};
@@ -74,41 +78,49 @@ int main() {
     Geometry::PointPhysical<3> p3, pp3(pb3), pv3(vec3);
     Geometry::PointPhysical<4> p4, pp4(pb4), pv4(vec4);
 
-    logger.assert_always((p1[0] == 0.), "1D default constructor");
+    INFO("1D default constructor");
+    CHECK((p1[0] == 0.));
     for (std::size_t i = 0; i < 2; ++i) {
-        logger.assert_always((p2[i] == 0.), "2D default constructor");
+        INFO("2D default constructor");
+        CHECK((p2[i] == 0.));
     }
     for (std::size_t i = 0; i < 3; ++i) {
-        logger.assert_always((p3[i] == 0.), "3D default constructor");
+        INFO("3D default constructor");
+        CHECK((p3[i] == 0.));
     }
     for (std::size_t i = 0; i < 4; ++i) {
-        logger.assert_always((p4[i] == 0.), "4D default constructor");
+        INFO("4D default constructor");
+        CHECK((p4[i] == 0.));
     }
 
-    logger.assert_always((pp1[0] == 0.), "1D copy constructor");
+    INFO("1D copy constructor");
+    CHECK((pp1[0] == 0.));
     for (std::size_t i = 0; i < 2; ++i) {
-        logger.assert_always((pp2[i] == 0.), "2D copy constructor");
+        INFO("2D copy constructor");
+        CHECK((pp2[i] == 0.));
     }
     for (std::size_t i = 0; i < 3; ++i) {
-        logger.assert_always((pp3[i] == 0.), "3D copy constructor");
+        INFO("3D copy constructor");
+        CHECK((pp3[i] == 0.));
     }
     for (std::size_t i = 0; i < 4; ++i) {
-        logger.assert_always((pp4[i] == 0.), "4D copy constructor");
+        INFO("4D copy constructor");
+        CHECK((pp4[i] == 0.));
     }
 
-    logger.assert_always((std::abs(pv1[0] - 1.1) < 1e-12),
-                         "1D from NumericalVector constructor");
+    INFO("1D from NumericalVector constructor");
+    CHECK((std::abs(pv1[0] - 1.1) < 1e-12));
     for (std::size_t i = 0; i < 2; ++i) {
-        logger.assert_always((std::abs(pv2[i] - 1.2 - i) < 1e-12),
-                             "2D from NumericalVector constructor");
+        INFO("2D from NumericalVector constructor");
+        CHECK((std::abs(pv2[i] - 1.2 - i) < 1e-12));
     }
     for (std::size_t i = 0; i < 3; ++i) {
-        logger.assert_always((std::abs(pv3[i] - 1.3 - i) < 1e-12),
-                             "3D from NumericalVector constructor");
+        INFO("3D from NumericalVector constructor");
+        CHECK((std::abs(pv3[i] - 1.3 - i) < 1e-12));
     }
     for (std::size_t i = 0; i < 4; ++i) {
-        logger.assert_always((std::abs(pv4[i] - 1.4 - i) < 1e-12),
-                             "4D from NumericalVector constructor");
+        INFO("4D from NumericalVector constructor");
+        CHECK((std::abs(pv4[i] - 1.4 - i) < 1e-12));
     }
 
     // testing operators
@@ -120,87 +132,94 @@ int main() {
     const PointPhysical<4> pr4 = pp4 = pv4;
 
     pv0 * 6.;
-    logger.assert_always((std::abs((pv1 * 5.)[0] - 5.5) < 1e-12),
-                         "1D multiplication");
+    INFO("1D multiplication");
+    CHECK((std::abs((pv1 * 5.)[0] - 5.5) < 1e-12));
     for (std::size_t i = 0; i < 2; ++i) {
-        logger.assert_always((std::abs((pv2 * 4.)[i] - 4.8 - 4 * i) < 1e-12),
-                             "2D multiplication");
+        INFO("2D multiplication");
+        CHECK((std::abs((pv2 * 4.)[i] - 4.8 - 4 * i) < 1e-12));
     }
     for (std::size_t i = 0; i < 3; ++i) {
-        logger.assert_always((std::abs((pv3 * 3.)[i] - 3.9 - 3 * i) < 1e-12),
-                             "3D multiplication");
+        INFO("3D multiplication");
+        CHECK((std::abs((pv3 * 3.)[i] - 3.9 - 3 * i) < 1e-12));
     }
     for (std::size_t i = 0; i < 4; ++i) {
-        logger.assert_always((std::abs((pv4 * 2.)[i] - 2.8 - 2 * i) < 1e-12),
-                             "4D multiplication");
+        INFO("4D multiplication");
+        CHECK((std::abs((pv4 * 2.)[i] - 2.8 - 2 * i) < 1e-12));
     }
 
-    logger.assert_always(((pr0 * 0.) == p0), "0D multiplication");
-    logger.assert_always(((pr1 * 0.) == p1), "1D multiplication");
-    logger.assert_always(((pr2 * 0.) == p2), "2D multiplication");
-    logger.assert_always(((pr3 * 0.) == p3), "3D multiplication");
-    logger.assert_always(((pr4 * 0.) == p4), "4D multiplication");
+    INFO("0D multiplication");
+    CHECK(((pr0 * 0.) == p0));
+    INFO("1D multiplication");
+    CHECK(((pr1 * 0.) == p1));
+    INFO("2D multiplication");
+    CHECK(((pr2 * 0.) == p2));
+    INFO("3D multiplication");
+    CHECK(((pr3 * 0.) == p3));
+    INFO("4D multiplication");
+    CHECK(((pr4 * 0.) == p4));
 
     pp0 + pv0;
-    logger.assert_always((std::abs((pp1 + pv1)[0] - 2.2) < 1e-12),
-                         "1D addition");
+    INFO("1D addition");
+    CHECK((std::abs((pp1 + pv1)[0] - 2.2) < 1e-12));
     for (std::size_t i = 0; i < 2; ++i) {
-        logger.assert_always((std::abs((pp2 + pv2)[i] - 2.4 - 2 * i) < 1e-12),
-                             "2D addition");
+        INFO("2D addition");
+        CHECK((std::abs((pp2 + pv2)[i] - 2.4 - 2 * i) < 1e-12));
     }
     for (std::size_t i = 0; i < 3; ++i) {
-        logger.assert_always((std::abs((pp3 + pv3)[i] - 2.6 - 2 * i) < 1e-12),
-                             "3D addition");
+        INFO("3D addition");
+        CHECK((std::abs((pp3 + pv3)[i] - 2.6 - 2 * i) < 1e-12));
     }
     for (std::size_t i = 0; i < 4; ++i) {
-        logger.assert_always((std::abs((pp4 + pv4)[i] - 2.8 - 2 * i) < 1e-12),
-                             "4D addition");
+        INFO("4D addition");
+        CHECK((std::abs((pp4 + pv4)[i] - 2.8 - 2 * i) < 1e-12));
     }
 
     pr0 + pv0;
-    logger.assert_always((std::abs((pr1 + pv1)[0] - 2.2) < 1e-12),
-                         "1D addition");
+    INFO("1D addition");
+    CHECK((std::abs((pr1 + pv1)[0] - 2.2) < 1e-12));
     for (std::size_t i = 0; i < 2; ++i) {
-        logger.assert_always((std::abs((pr2 + pv2)[i] - 2.4 - 2 * i) < 1e-12),
-                             "2D addition");
+        INFO("2D addition");
+        CHECK((std::abs((pr2 + pv2)[i] - 2.4 - 2 * i) < 1e-12));
     }
     for (std::size_t i = 0; i < 3; ++i) {
-        logger.assert_always((std::abs((pr3 + pv3)[i] - 2.6 - 2 * i) < 1e-12),
-                             "3D addition");
+        INFO("3D addition");
+        CHECK((std::abs((pr3 + pv3)[i] - 2.6 - 2 * i) < 1e-12));
     }
     for (std::size_t i = 0; i < 4; ++i) {
-        logger.assert_always((std::abs((pr4 + pv4)[i] - 2.8 - 2 * i) < 1e-12),
-                             "4D addition");
+        INFO("4D addition");
+        CHECK((std::abs((pr4 + pv4)[i] - 2.8 - 2 * i) < 1e-12));
     }
 
     pp0 - pv0;
-    logger.assert_always((std::abs((pp1 - pv1)[0]) < 1e-12), "1D subtraction");
+    INFO("1D subtraction");
+    CHECK((std::abs((pp1 - pv1)[0]) < 1e-12));
     for (std::size_t i = 0; i < 2; ++i) {
-        logger.assert_always((std::abs((pp2 - pv2)[i]) < 1e-12),
-                             "2D subtraction");
+        INFO("2D subtraction");
+        CHECK((std::abs((pp2 - pv2)[i]) < 1e-12));
     }
     for (std::size_t i = 0; i < 3; ++i) {
-        logger.assert_always((std::abs((pp3 - pv3)[i]) < 1e-12),
-                             "3D subtraction");
+        INFO("3D subtraction");
+        CHECK((std::abs((pp3 - pv3)[i]) < 1e-12));
     }
     for (std::size_t i = 0; i < 4; ++i) {
-        logger.assert_always((std::abs((pp4 - pv4)[i]) < 1e-12),
-                             "4D subtraction");
+        INFO("4D subtraction");
+        CHECK((std::abs((pp4 - pv4)[i]) < 1e-12));
     }
 
     pr0 - pv0;
-    logger.assert_always((std::abs((pr1 - pv1)[0]) < 1e-12), "1D subtraction");
+    INFO("1D subtraction");
+    CHECK((std::abs((pr1 - pv1)[0]) < 1e-12));
     for (std::size_t i = 0; i < 2; ++i) {
-        logger.assert_always((std::abs((pr2 - pv2)[i]) < 1e-12),
-                             "2D subtraction");
+        INFO("2D subtraction");
+        CHECK((std::abs((pr2 - pv2)[i]) < 1e-12));
     }
     for (std::size_t i = 0; i < 3; ++i) {
-        logger.assert_always((std::abs((pr3 - pv3)[i]) < 1e-12),
-                             "3D subtraction");
+        INFO("3D subtraction");
+        CHECK((std::abs((pr3 - pv3)[i]) < 1e-12));
     }
     for (std::size_t i = 0; i < 4; ++i) {
-        logger.assert_always((std::abs((pr4 - pv4)[i]) < 1e-12),
-                             "4D subtraction");
+        INFO("4D subtraction");
+        CHECK((std::abs((pr4 - pv4)[i]) < 1e-12));
     }
 
     // and point already works so done

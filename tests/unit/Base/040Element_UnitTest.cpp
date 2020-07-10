@@ -60,8 +60,12 @@
 #include "LinearAlgebra/MiddleSizeMatrix.h"
 #include "Base/BaseBasisFunction.h"
 #include "Logger.h"
+
+#define CATCH_CONFIG_MAIN
+#include "../catch.hpp"
+
 using namespace hpgem;
-int main() {
+TEST_CASE("040Element_UnitTest", "[040Element_UnitTest]") {
 
     std::vector<std::size_t> pointIndexes;
     std::vector<Geometry::PointPhysical<3>> nodes;
@@ -123,21 +127,20 @@ int main() {
         test.setDefaultBasisFunctionSet(0, i);
     }
 
-    logger.assert_always((test.getGaussQuadratureRule() != nullptr),
-                         "quadrature rule");
+    INFO("quadrature rule");
+    CHECK((test.getGaussQuadratureRule() != nullptr));
 
     test.setQuadratureRulesWithOrder(8);
-    logger.assert_always((test.getGaussQuadratureRule()->order() >= 8),
-                         "setQuadratureRule");
+    INFO("setQuadratureRule");
+    CHECK((test.getGaussQuadratureRule()->order() >= 8));
 
     test.setGaussQuadratureRule(&QuadratureRules::Cn3_3_4::Instance());
     const QuadratureRules::GaussQuadratureRule& rule =
         *test.getGaussQuadratureRule();
     ///\todo figure out why the '::Instance' alters the typeid (it also alters
     /// the hash_code of the typeid)
-    logger.assert_always(
-        (typeid(rule) == typeid(QuadratureRules::Cn3_3_4::Instance())),
-        "setQuadratureRule");
+    INFO("setQuadratureRule");
+    CHECK((typeid(rule) == typeid(QuadratureRules::Cn3_3_4::Instance())));
 
     // check set*BasisFunctionSet without breaking preconditions...
 
@@ -170,6 +173,4 @@ int main() {
     // check setFace and setEdge without breaking preconditions...
 
     std::cout << test << std::endl;
-
-    return 0;
 }

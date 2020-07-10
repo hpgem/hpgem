@@ -53,6 +53,10 @@
 #include "Geometry/PhysicalGeometry.h"
 #include <cmath>
 #include <Base/L2Norm.h>
+
+#define CATCH_CONFIG_MAIN
+#include "../catch.hpp"
+
 // transformations should map internal points to internal points, external
 // points to external points and nodes to nodes so construct the physical
 // geometries such that this can be checked :(
@@ -72,7 +76,8 @@ bool isInternal3D(const Geometry::PointPhysical<3>& p) {
            (1.5 * p[0] - 1.1 * p[1]) < -0.42;
 }
 
-int main() {
+TEST_CASE("020MappingToPhysicalSimplexLinear_UnitTest",
+          "[020MappingToPhysicalSimplexLinear_UnitTest]") {
     std::vector<std::size_t> pointIndexes;
     pointIndexes.push_back(4);
     pointIndexes.push_back(7);
@@ -116,15 +121,15 @@ int main() {
         for (refPoint2D[1] = -1.5188; refPoint2D[1] < 1.541;
              refPoint2D[1] += 0.2) {
             point2D = mapping2D.transform((refPoint2D));
-            logger.assert_always(((rGeom2D.isInternalPoint((refPoint2D)) &&
-                                   isInternal2D(point2D)) ||
-                                  (!rGeom2D.isInternalPoint((refPoint2D)) &&
-                                   !isInternal2D(point2D))),
-                                 "transform");
+            INFO("transform");
+            CHECK(((rGeom2D.isInternalPoint((refPoint2D)) &&
+                    isInternal2D(point2D)) ||
+                   (!rGeom2D.isInternalPoint((refPoint2D)) &&
+                    !isInternal2D(point2D))));
             point2D = reinit2D.transform((refPoint2D));
-            logger.assert_always((rGeom2D.isInternalPoint((refPoint2D)) ==
-                                  isInternal2D(point2D)),
-                                 "reinit");
+            INFO("reinit");
+            CHECK((rGeom2D.isInternalPoint((refPoint2D)) ==
+                   isInternal2D(point2D)));
 
             refPoint2D[0] += -1.e-8;
             compare2D = mapping2D.transform((refPoint2D));
@@ -133,16 +138,14 @@ int main() {
 
             refPoint2D[0] += -1e-8;
             jac2D = mapping2D.calcJacobian((refPoint2D));
-            logger.assert_always(
-                (std::abs(jac2D[0] - 5.e7 * (point2D[0] - compare2D[0])) <
-                 1e-5),
-                "jacobian");  // estimate is a bit rough, but should work for
-                              // most mappings
-            logger.assert_always(
-                (std::abs(jac2D[1] - 5.e7 * (point2D[1] - compare2D[1])) <
-                 1e-5),
-                "jacobian");  // implementations are strongly recommended to be
-                              // more accurate
+            INFO("jacobian");
+            CHECK((std::abs(jac2D[0] - 5.e7 * (point2D[0] - compare2D[0])) <
+                   1e-5));  // estimate is a bit rough, but should work for
+                            // most mappings
+            INFO("jacobian");
+            CHECK((std::abs(jac2D[1] - 5.e7 * (point2D[1] - compare2D[1])) <
+                   1e-5));  // implementations are strongly recommended to be
+                            // more accurate
 
             refPoint2D[1] += -1.e-8;
             compare2D = mapping2D.transform((refPoint2D));
@@ -151,14 +154,12 @@ int main() {
 
             refPoint2D[1] += -1e-8;
             jac2D = mapping2D.calcJacobian((refPoint2D));
-            logger.assert_always(
-                (std::abs(jac2D[2] - 5.e7 * (point2D[0] - compare2D[0])) <
-                 1e-5),
-                "jacobian");
-            logger.assert_always(
-                (std::abs(jac2D[3] - 5.e7 * (point2D[1] - compare2D[1])) <
-                 1e-5),
-                "jacobian");
+            INFO("jacobian");
+            CHECK((std::abs(jac2D[2] - 5.e7 * (point2D[0] - compare2D[0])) <
+                   1e-5));
+            INFO("jacobian");
+            CHECK((std::abs(jac2D[3] - 5.e7 * (point2D[1] - compare2D[1])) <
+                   1e-5));
             refPoint2D[1] += 1e-8;
             // either the reference point and the inverse transform of its
             // transform are both outside the square (but on potentially
@@ -180,13 +181,13 @@ int main() {
         refPoint2D = rGeom2D.getReferenceNodeCoordinate(i);
         compare2D = pGeom2D.getLocalNodeCoordinates(i);
         point2D = mapping2D.transform((refPoint2D));
-        logger.assert_always((std::abs(point2D[0] - compare2D[0]) < 1e-12) &&
-                                 std::abs(point2D[1] - compare2D[1]) < 1e-12,
-                             "transform");
+        INFO("transform");
+        CHECK((std::abs(point2D[0] - compare2D[0]) < 1e-12) &&
+              std::abs(point2D[1] - compare2D[1]) < 1e-12);
     }
 
-    logger.assert_always((mapping2D.getTargetDimension() == 2),
-                         "getTargetDimension");
+    INFO("getTargetDimension");
+    CHECK((mapping2D.getTargetDimension() == 2));
 
     // dim3
     pointIndexes[2] = 18;
@@ -244,13 +245,13 @@ int main() {
             for (refPoint3D[2] = -1.5188; refPoint3D[2] < 1.541;
                  refPoint3D[2] += 0.4) {
                 point3D = mapping3D.transform((refPoint3D));
-                logger.assert_always((rGeom3D.isInternalPoint((refPoint3D)) ==
-                                      isInternal3D(point3D)),
-                                     "transform");
+                INFO("transform");
+                CHECK((rGeom3D.isInternalPoint((refPoint3D)) ==
+                       isInternal3D(point3D)));
                 point3D = reinit3D.transform((refPoint3D));
-                logger.assert_always((rGeom3D.isInternalPoint((refPoint3D)) ==
-                                      isInternal3D(point3D)),
-                                     "reinit");
+                INFO("reinit");
+                CHECK((rGeom3D.isInternalPoint((refPoint3D)) ==
+                       isInternal3D(point3D)));
 
                 refPoint3D[0] += -1.e-8;
                 compare3D = mapping3D.transform((refPoint3D));
@@ -259,20 +260,17 @@ int main() {
 
                 refPoint3D[0] += -1e-8;
                 jac3D = mapping3D.calcJacobian((refPoint3D));
-                logger.assert_always(
-                    (std::abs(jac3D[0] - 5.e7 * (point3D[0] - compare3D[0])) <
-                     1e-5),
-                    "jacobian");  // estimate is a bit rough, but should work
-                                  // for most mappings
-                logger.assert_always(
-                    (std::abs(jac3D[1] - 5.e7 * (point3D[1] - compare3D[1])) <
-                     1e-5),
-                    "jacobian");  // implementations are strongly recommended to
-                                  // be more accurate
-                logger.assert_always(
-                    (std::abs(jac3D[2] - 5.e7 * (point3D[2] - compare3D[2])) <
-                     1e-5),
-                    "jacobian");
+                INFO("jacobian");
+                CHECK((std::abs(jac3D[0] - 5.e7 * (point3D[0] - compare3D[0])) <
+                       1e-5));  // estimate is a bit rough, but should work
+                                // for most mappings
+                INFO("jacobian");
+                CHECK((std::abs(jac3D[1] - 5.e7 * (point3D[1] - compare3D[1])) <
+                       1e-5));  // implementations are strongly recommended to
+                                // be more accurate
+                INFO("jacobian");
+                CHECK((std::abs(jac3D[2] - 5.e7 * (point3D[2] - compare3D[2])) <
+                       1e-5));
 
                 refPoint3D[1] += -1.e-8;
                 compare3D = mapping3D.transform((refPoint3D));
@@ -281,18 +279,15 @@ int main() {
 
                 refPoint3D[1] += -1e-8;
                 jac3D = mapping3D.calcJacobian((refPoint3D));
-                logger.assert_always(
-                    (std::abs(jac3D[3] - 5.e7 * (point3D[0] - compare3D[0])) <
-                     1e-5),
-                    "jacobian");
-                logger.assert_always(
-                    (std::abs(jac3D[4] - 5.e7 * (point3D[1] - compare3D[1])) <
-                     1e-5),
-                    "jacobian");
-                logger.assert_always(
-                    (std::abs(jac3D[5] - 5.e7 * (point3D[2] - compare3D[2])) <
-                     1e-5),
-                    "jacobian");
+                INFO("jacobian");
+                CHECK((std::abs(jac3D[3] - 5.e7 * (point3D[0] - compare3D[0])) <
+                       1e-5));
+                INFO("jacobian");
+                CHECK((std::abs(jac3D[4] - 5.e7 * (point3D[1] - compare3D[1])) <
+                       1e-5));
+                INFO("jacobian");
+                CHECK((std::abs(jac3D[5] - 5.e7 * (point3D[2] - compare3D[2])) <
+                       1e-5));
 
                 refPoint3D[2] += -1.e-8;
                 compare3D = mapping3D.transform((refPoint3D));
@@ -301,18 +296,15 @@ int main() {
 
                 refPoint3D[2] += -1e-8;
                 jac3D = mapping3D.calcJacobian((refPoint3D));
-                logger.assert_always(
-                    (std::abs(jac3D[6] - 5.e7 * (point3D[0] - compare3D[0])) <
-                     1e-5),
-                    "jacobian");
-                logger.assert_always(
-                    (std::abs(jac3D[7] - 5.e7 * (point3D[1] - compare3D[1])) <
-                     1e-5),
-                    "jacobian");
-                logger.assert_always(
-                    (std::abs(jac3D[8] - 5.e7 * (point3D[2] - compare3D[2])) <
-                     1e-5),
-                    "jacobian");
+                INFO("jacobian");
+                CHECK((std::abs(jac3D[6] - 5.e7 * (point3D[0] - compare3D[0])) <
+                       1e-5));
+                INFO("jacobian");
+                CHECK((std::abs(jac3D[7] - 5.e7 * (point3D[1] - compare3D[1])) <
+                       1e-5));
+                INFO("jacobian");
+                CHECK((std::abs(jac3D[8] - 5.e7 * (point3D[2] - compare3D[2])) <
+                       1e-5));
                 refPoint3D[2] += 1e-8;
                 // either the reference point and the inverse transform of its
                 // transform are both outside the square (but on potentially
@@ -336,14 +328,12 @@ int main() {
         refPoint3D = rGeom3D.getReferenceNodeCoordinate(i);
         compare3D = pGeom3D.getLocalNodeCoordinates(i);
         point3D = mapping3D.transform((refPoint3D));
-        logger.assert_always((std::abs(point3D[0] - compare3D[0]) < 1e-12) &&
-                                 std::abs(point3D[1] - compare3D[1]) < 1e-12 &&
-                                 std::abs(point3D[2] - compare3D[2]) < 1e-12,
-                             "transform");
+        INFO("transform");
+        CHECK((std::abs(point3D[0] - compare3D[0]) < 1e-12) &&
+              std::abs(point3D[1] - compare3D[1]) < 1e-12 &&
+              std::abs(point3D[2] - compare3D[2]) < 1e-12);
     }
 
-    logger.assert_always((mapping3D.getTargetDimension() == 3),
-                         "getTargetDimension");
-
-    return 0;
+    INFO("getTargetDimension");
+    CHECK((mapping3D.getTargetDimension() == 3));
 }

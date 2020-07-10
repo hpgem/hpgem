@@ -40,14 +40,19 @@
 #include "Base/ElementBasisFunctions.h"
 #include "Utilities/BasisFunctionsMonomials.h"
 #include "Logger.h"
+
+#define CATCH_CONFIG_MAIN
+#include "../catch.hpp"
+
 using namespace hpgem;
-int main() {
+TEST_CASE("035ElementBasisFunctions_UnitTest",
+          "[035ElementBasisFunctions_UnitTest]") {
     using namespace Base;
 
     {
         ElementBasisFunctions empty;  // Empty basis function set
-        logger.assert_always(0 == empty.getTotalLocalNumberOfBasisFunctions(),
-                             "Expecting zero local basis functions");
+        INFO("Expecting zero local basis functions");
+        CHECK(0 == empty.getTotalLocalNumberOfBasisFunctions());
         empty.validatePositions();
     }
 
@@ -65,44 +70,37 @@ int main() {
         ElementBasisFunctions almostEmpty(&sets, UNKNOWNS);
         for (std::size_t i = 0; i < UNKNOWNS; ++i) {
             almostEmpty.validatePositions();
-            logger.assert_always(
-                0 == almostEmpty.getNumberOfLocalBasisFunctions(i),
-                "Expecting no local basis functions");
-            logger.assert_always(0 == almostEmpty.getNumberOfBasisFunctions(i),
-                                 "Expecting no basis functions");
+            INFO("Expecting no local basis functions");
+            CHECK(0 == almostEmpty.getNumberOfLocalBasisFunctions(i));
+            INFO("Expecting no basis functions");
+            CHECK(0 == almostEmpty.getNumberOfBasisFunctions(i));
         }
-        logger.assert_always(0 == almostEmpty.getMaximumOrder(),
-                             "No basis functions, expecting order 0");
-        logger.assert_always(
-            0 == almostEmpty.getTotalLocalNumberOfBasisFunctions(),
-            "Expecting total of 0 local basis functions");
+        INFO("No basis functions, expecting order 0");
+        CHECK(0 == almostEmpty.getMaximumOrder());
+        INFO("Expecting total of 0 local basis functions");
+        CHECK(0 == almostEmpty.getTotalLocalNumberOfBasisFunctions());
 
         // Register the basis function as first basis function for second
         // unknown
         almostEmpty.registerBasisFunctionPosition(1, 0, 0);
         almostEmpty.validatePositions();
-        logger.assert_always(
-            set->size() == almostEmpty.getNumberOfBasisFunctions(1),
-            "Matching basis function count");
-        logger.assert_always(
-            set->size() == almostEmpty.getNumberOfLocalBasisFunctions(1),
-            "Expecting registered for local functions");
-        logger.assert_always(
-            set->size() == almostEmpty.getTotalLocalNumberOfBasisFunctions(),
-            "Expecting no registered other basis functions");
+        INFO("Matching basis function count");
+        CHECK(set->size() == almostEmpty.getNumberOfBasisFunctions(1));
+        INFO("Expecting registered for local functions");
+        CHECK(set->size() == almostEmpty.getNumberOfLocalBasisFunctions(1));
+        INFO("Expecting no registered other basis functions");
+        CHECK(set->size() == almostEmpty.getTotalLocalNumberOfBasisFunctions());
         // Register it on only the second position for the zeroth unknown
         // hence not as local basis functions
         almostEmpty.clearBasisFunctionPosition(1);
         almostEmpty.registerBasisFunctionPosition(0, 1, 0);
-        logger.assert_always(0 == almostEmpty.getNumberOfLocalBasisFunctions(0),
-                             "Expecting no local basis functions");
-        logger.assert_always(
-            set->size() == almostEmpty.getNumberOfBasisFunctions(0),
-            "Expecting non local basis function");
+        INFO("Expecting no local basis functions");
+        CHECK(0 == almostEmpty.getNumberOfLocalBasisFunctions(0));
+        INFO("Expecting non local basis function");
+        CHECK(set->size() == almostEmpty.getNumberOfBasisFunctions(0));
         for (std::size_t i = 1; i < UNKNOWNS; ++i) {
-            logger.assert_always(
-                0 == almostEmpty.getNumberOfBasisFunctions(i),
-                "Expecting no basis functions for other unknowns");
+            INFO("Expecting no basis functions for other unknowns");
+            CHECK(0 == almostEmpty.getNumberOfBasisFunctions(i));
         }
     }
 
@@ -122,6 +120,4 @@ int main() {
         filled.registerBasisFunctionPosition(1, 0,
                                              1);  // secondSet for unknown 1
     }
-
-    return 0;
 }

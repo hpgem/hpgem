@@ -42,8 +42,12 @@
 #include <iostream>
 
 #include "Base/FaceMatrix.h"
+
+#define CATCH_CONFIG_MAIN
+#include "../catch.hpp"
+
 using namespace hpgem;
-int main() {
+TEST_CASE("070FaceMatrix_UnitTest", "[070FaceMatrix_UnitTest]") {
     // std::cout << "Test if FaceMatrix works.\n";
 
     const Base::Side sL = Base::Side::LEFT;
@@ -116,5 +120,4 @@ int main() {
     }
 
     // std::cout << "Matrix F2:\n" << F2.getEntireMatrix() << "\n";
-    return 0;
 }

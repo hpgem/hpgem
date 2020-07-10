@@ -52,10 +52,14 @@
 #include "Geometry/Mappings/MappingToRefCubeToCube.h"
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include <cmath>
+
+#define CATCH_CONFIG_MAIN
+#include "../catch.hpp"
+
 using namespace hpgem;
 using Geometry::ReferenceCube;
 
-int main() {
+TEST_CASE("080ReferenceCube_UnitTest", "[080ReferenceCube_UnitTest]") {
     ReferenceCube& test = ReferenceCube::Instance();
 
     Geometry::PointReference<3> pTest;
@@ -65,172 +69,154 @@ int main() {
     for (pTest[0] = -1.51; pTest[0] < -1.; pTest[0] += 0.2) {
         for (pTest[1] = -1.51; pTest[1] < 1.51; pTest[1] += 0.2) {
             for (pTest[2] = -1.51; pTest[2] < 1.51; pTest[2] += 0.2) {
-                logger.assert_always((!test.isInternalPoint((pTest))),
-                                     "isInternalPoint");
+                INFO("isInternalPoint");
+                CHECK((!test.isInternalPoint((pTest))));
             }
         }
     }
     for (; pTest[0] < 1; pTest[0] += 0.2) {
         for (pTest[1] = -1.51; pTest[1] < -1.; pTest[1] += 0.2) {
             for (pTest[2] = -1.51; pTest[2] < 1.51; pTest[2] += 0.2) {
-                logger.assert_always((!test.isInternalPoint((pTest))),
-                                     "isInternalPoint");
+                INFO("isInternalPoint");
+                CHECK((!test.isInternalPoint((pTest))));
             }
         }
         for (; pTest[1] < 1.; pTest[1] += 0.2) {
             for (pTest[2] = -1.51; pTest[2] < -1.; pTest[2] += 0.2) {
-                logger.assert_always((!test.isInternalPoint((pTest))),
-                                     "isInternalPoint");
+                INFO("isInternalPoint");
+                CHECK((!test.isInternalPoint((pTest))));
             }
             for (; pTest[2] < 1.; pTest[2] += 0.2) {
-                logger.assert_always((test.isInternalPoint((pTest))),
-                                     "isInternalPoint");
+                INFO("isInternalPoint");
+                CHECK((test.isInternalPoint((pTest))));
             }
             for (; pTest[2] < 1.51; pTest[2] += 0.2) {
-                logger.assert_always((!test.isInternalPoint((pTest))),
-                                     "isInternalPoint");
+                INFO("isInternalPoint");
+                CHECK((!test.isInternalPoint((pTest))));
             }
         }
         for (; pTest[1] < 1.51; pTest[1] += 0.2) {
             for (pTest[2] = -1.51; pTest[2] < 1.51; pTest[2] += 0.2) {
-                logger.assert_always((!test.isInternalPoint((pTest))),
-                                     "isInternalPoint");
+                INFO("isInternalPoint");
+                CHECK((!test.isInternalPoint((pTest))));
             }
         }
     }
     for (; pTest[0] < 1.51; pTest[0] += 0.2) {
         for (pTest[1] = -1.51; pTest[1] < 3.1416; pTest[1] += 0.2) {
             for (pTest[2] = -1.51; pTest[2] < 3.1416; pTest[2] += 0.2) {
-                logger.assert_always((!test.isInternalPoint((pTest))),
-                                     "isInternalPoint");
+                INFO("isInternalPoint");
+                CHECK((!test.isInternalPoint((pTest))));
             }
         }
     }
 
     pTest = test.getCenter();
-    logger.assert_always(
-        (test.isInternalPoint((pTest)) && std::abs(pTest[0]) < 1e-12 &&
-         std::abs(pTest[1]) < 1e-12) &&
-            std::abs(pTest[2]) < 1e-12,
-        "getCenter");
+    INFO("getCenter");
+    CHECK(test.isInternalPoint(pTest));
+    CHECK(std::abs(pTest[0]) < 1e-12);
+    CHECK(std::abs(pTest[1]) < 1e-12);
+    CHECK(std::abs(pTest[2]) < 1e-12);
     pTest = test.getReferenceNodeCoordinate(0);
-    logger.assert_always(
-        (std::abs(pTest[0] + 1) < 1e-12 && std::abs(pTest[1] + 1) < 1e-12 &&
-         std::abs(pTest[2] + 1) < 1e-12),
-        "getNode 0");
+    INFO("getNode 0");
+    CHECK(std::abs(pTest[0] + 1) < 1e-12);
+    CHECK(std::abs(pTest[1] + 1) < 1e-12);
+    CHECK(std::abs(pTest[2] + 1) < 1e-12);
     pTest = test.getReferenceNodeCoordinate(1);
-    logger.assert_always(
-        (std::abs(pTest[0] - 1) < 1e-12 && std::abs(pTest[1] + 1) < 1e-12 &&
-         std::abs(pTest[2] + 1) < 1e-12),
-        "getNode 1");
+    INFO("getNode 1");
+    CHECK(std::abs(pTest[0] - 1) < 1e-12);
+    CHECK(std::abs(pTest[1] + 1) < 1e-12);
+    CHECK(std::abs(pTest[2] + 1) < 1e-12);
+
     pTest = test.getReferenceNodeCoordinate(2);
-    logger.assert_always(
-        (std::abs(pTest[0] + 1) < 1e-12 && std::abs(pTest[1] - 1) < 1e-12 &&
-         std::abs(pTest[2] + 1) < 1e-12),
-        "getNode 2");
+    INFO("getNode 2");
+    CHECK(std::abs(pTest[0] + 1) < 1e-12);
+    CHECK(std::abs(pTest[1] - 1) < 1e-12);
+    CHECK(std::abs(pTest[2] + 1) < 1e-12);
     pTest = test.getReferenceNodeCoordinate(3);
-    logger.assert_always(
-        (std::abs(pTest[0] - 1) < 1e-12 && std::abs(pTest[1] - 1) < 1e-12 &&
-         std::abs(pTest[2] + 1) < 1e-12),
-        "getNode 3");
+    INFO("getNode 3");
+    CHECK(std::abs(pTest[0] - 1) < 1e-12);
+    CHECK(std::abs(pTest[1] - 1) < 1e-12);
+    CHECK(std::abs(pTest[2] + 1) < 1e-12);
     pTest = test.getReferenceNodeCoordinate(4);
-    logger.assert_always(
-        (std::abs(pTest[0] + 1) < 1e-12 && std::abs(pTest[1] + 1) < 1e-12 &&
-         std::abs(pTest[2] - 1) < 1e-12),
-        "getNode 4");
+    INFO("getNode 4");
+    CHECK(std::abs(pTest[0] + 1) < 1e-12);
+    CHECK(std::abs(pTest[1] + 1) < 1e-12);
+    CHECK(std::abs(pTest[2] - 1) < 1e-12);
     pTest = test.getReferenceNodeCoordinate(5);
-    logger.assert_always(
-        (std::abs(pTest[0] - 1) < 1e-12 && std::abs(pTest[1] + 1) < 1e-12 &&
-         std::abs(pTest[2] - 1) < 1e-12),
-        "getNode 5");
+    INFO("getNode 5");
+    CHECK(std::abs(pTest[0] - 1) < 1e-12);
+    CHECK(std::abs(pTest[1] + 1) < 1e-12);
+    CHECK(std::abs(pTest[2] - 1) < 1e-12);
     pTest = test.getReferenceNodeCoordinate(6);
-    logger.assert_always(
-        (std::abs(pTest[0] + 1) < 1e-12 && std::abs(pTest[1] - 1) < 1e-12 &&
-         std::abs(pTest[2] - 1) < 1e-12),
-        "getNode 6");
+    INFO("getNode 6");
+    CHECK(std::abs(pTest[0] + 1) < 1e-12);
+    CHECK(std::abs(pTest[1] - 1) < 1e-12);
+    CHECK(std::abs(pTest[2] - 1) < 1e-12);
     pTest = test.getReferenceNodeCoordinate(7);
-    logger.assert_always(
-        (std::abs(pTest[0] - 1) < 1e-12 && std::abs(pTest[1] - 1) < 1e-12 &&
-         std::abs(pTest[2] - 1) < 1e-12),
-        "getNode 7");
+    INFO("getNode 7");
+    CHECK(std::abs(pTest[0] - 1) < 1e-12);
+    CHECK(std::abs(pTest[1] - 1) < 1e-12);
+    CHECK(std::abs(pTest[2] - 1) < 1e-12);
     std::cout << test.getName();
 
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 0) == 0),
-        "getLocalNodeIndex 0");  // the nodes of the face must always be
-                                 // specified IN THIS SPECIFIC ORDER
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 1) == 1),
-        "getLocalNodeIndex 0");  // im not sure if I like this myself, but this
-                                 // should at least verify
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 2) == 2),
-        "getLocalNodeIndex 0");  // that all face nodes are specified, none are
-                                 // specified twice
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 3) == 3),
-        "getLocalNodeIndex 0");  // and only face nodes are specified and the
-                                 // ordering of the nodes is consistent
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 0) == 0),
-        "getLocalNodeIndex 1");  // across function calls
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 1) == 1),
-        "getLocalNodeIndex 1");
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 2) == 4),
-        "getLocalNodeIndex 1");
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 3) == 5),
-        "getLocalNodeIndex 1");
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 0) == 0),
-        "getLocalNodeIndex 2");
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 1) == 2),
-        "getLocalNodeIndex 2");
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 2) == 4),
-        "getLocalNodeIndex 2");
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 3) == 6),
-        "getLocalNodeIndex 2");
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 0) == 1),
-        "getLocalNodeIndex 3");
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 1) == 3),
-        "getLocalNodeIndex 3");
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 2) == 5),
-        "getLocalNodeIndex 3");
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 3) == 7),
-        "getLocalNodeIndex 3");
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 0) == 2),
-        "getLocalNodeIndex 4");
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 1) == 3),
-        "getLocalNodeIndex 4");
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 2) == 6),
-        "getLocalNodeIndex 4");
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 3) == 7),
-        "getLocalNodeIndex 4");
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 0) == 4),
-        "getLocalNodeIndex 5");
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 1) == 5),
-        "getLocalNodeIndex 5");
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 2) == 6),
-        "getLocalNodeIndex 5");
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 3) == 7),
-        "getLocalNodeIndex 5");
+    INFO("getLocalNodeIndex 0");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 0) ==
+           0));  // the nodes of the face must always be
+                 // specified IN THIS SPECIFIC ORDER
+    INFO("getLocalNodeIndex 0");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 1) ==
+           1));  // im not sure if I like this myself, but this
+                 // should at least verify
+    INFO("getLocalNodeIndex 0");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 2) ==
+           2));  // that all face nodes are specified, none are
+                 // specified twice
+    INFO("getLocalNodeIndex 0");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 3) ==
+           3));  // and only face nodes are specified and the
+                 // ordering of the nodes is consistent
+    INFO("getLocalNodeIndex 1");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 0) ==
+           0));  // across function calls
+    INFO("getLocalNodeIndex 1");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 1) == 1));
+    INFO("getLocalNodeIndex 1");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 2) == 4));
+    INFO("getLocalNodeIndex 1");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 3) == 5));
+    INFO("getLocalNodeIndex 2");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 0) == 0));
+    INFO("getLocalNodeIndex 2");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 1) == 2));
+    INFO("getLocalNodeIndex 2");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 2) == 4));
+    INFO("getLocalNodeIndex 2");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 3) == 6));
+    INFO("getLocalNodeIndex 3");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 0) == 1));
+    INFO("getLocalNodeIndex 3");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 1) == 3));
+    INFO("getLocalNodeIndex 3");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 2) == 5));
+    INFO("getLocalNodeIndex 3");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 3) == 7));
+    INFO("getLocalNodeIndex 4");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 0) == 2));
+    INFO("getLocalNodeIndex 4");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 1) == 3));
+    INFO("getLocalNodeIndex 4");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 2) == 6));
+    INFO("getLocalNodeIndex 4");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 3) == 7));
+    INFO("getLocalNodeIndex 5");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 0) == 4));
+    INFO("getLocalNodeIndex 5");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 1) == 5));
+    INFO("getLocalNodeIndex 5");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 2) == 6));
+    INFO("getLocalNodeIndex 5");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 3) == 7));
 
     std::cout << test;
 
@@ -241,13 +227,13 @@ int main() {
                                            // the nodes in the first vector
         base[i] = transformed[i] = i;
     }
-    logger.assert_always((test.getCodim0MappingPtr(
-                              test.getCodim0MappingIndex(base, transformed)) ==
-                          &Geometry::MappingToRefCubeToCube0::Instance()),
-                         "getCodim0MappingIndex&Ptr");
-    logger.assert_always((test.getCodim0MappingPtr(base, transformed) ==
-                          &Geometry::MappingToRefCubeToCube0::Instance()),
-                         "getCodim0MappingIndex&Ptr");
+    INFO("getCodim0MappingIndex&Ptr");
+    CHECK((test.getCodim0MappingPtr(
+               test.getCodim0MappingIndex(base, transformed)) ==
+           &Geometry::MappingToRefCubeToCube0::Instance()));
+    INFO("getCodim0MappingIndex&Ptr");
+    CHECK((test.getCodim0MappingPtr(base, transformed) ==
+           &Geometry::MappingToRefCubeToCube0::Instance()));
     transformed[0] = 1;
     transformed[1] = 3;
     transformed[2] = 0;
@@ -256,13 +242,13 @@ int main() {
     transformed[5] = 7;
     transformed[6] = 4;
     transformed[7] = 6;
-    logger.assert_always((test.getCodim0MappingPtr(
-                              test.getCodim0MappingIndex(base, transformed)) ==
-                          &Geometry::MappingToRefCubeToCube1::Instance()),
-                         "getCodim0MappingIndex&Ptr");
-    logger.assert_always((test.getCodim0MappingPtr(base, transformed) ==
-                          &Geometry::MappingToRefCubeToCube1::Instance()),
-                         "getCodim0MappingIndex&Ptr");
+    INFO("getCodim0MappingIndex&Ptr");
+    CHECK((test.getCodim0MappingPtr(
+               test.getCodim0MappingIndex(base, transformed)) ==
+           &Geometry::MappingToRefCubeToCube1::Instance()));
+    INFO("getCodim0MappingIndex&Ptr");
+    CHECK((test.getCodim0MappingPtr(base, transformed) ==
+           &Geometry::MappingToRefCubeToCube1::Instance()));
     transformed[0] = 3;
     transformed[1] = 2;
     transformed[2] = 1;
@@ -271,13 +257,13 @@ int main() {
     transformed[5] = 6;
     transformed[6] = 5;
     transformed[7] = 4;
-    logger.assert_always((test.getCodim0MappingPtr(
-                              test.getCodim0MappingIndex(base, transformed)) ==
-                          &Geometry::MappingToRefCubeToCube2::Instance()),
-                         "getCodim0MappingIndex&Ptr");
-    logger.assert_always((test.getCodim0MappingPtr(base, transformed) ==
-                          &Geometry::MappingToRefCubeToCube2::Instance()),
-                         "getCodim0MappingIndex&Ptr");
+    INFO("getCodim0MappingIndex&Ptr");
+    CHECK((test.getCodim0MappingPtr(
+               test.getCodim0MappingIndex(base, transformed)) ==
+           &Geometry::MappingToRefCubeToCube2::Instance()));
+    INFO("getCodim0MappingIndex&Ptr");
+    CHECK((test.getCodim0MappingPtr(base, transformed) ==
+           &Geometry::MappingToRefCubeToCube2::Instance()));
     transformed[0] = 2;
     transformed[1] = 0;
     transformed[2] = 3;
@@ -286,13 +272,13 @@ int main() {
     transformed[5] = 4;
     transformed[6] = 7;
     transformed[7] = 5;
-    logger.assert_always((test.getCodim0MappingPtr(
-                              test.getCodim0MappingIndex(base, transformed)) ==
-                          &Geometry::MappingToRefCubeToCube3::Instance()),
-                         "getCodim0MappingIndex&Ptr");
-    logger.assert_always((test.getCodim0MappingPtr(base, transformed) ==
-                          &Geometry::MappingToRefCubeToCube3::Instance()),
-                         "getCodim0MappingIndex&Ptr");
+    INFO("getCodim0MappingIndex&Ptr");
+    CHECK((test.getCodim0MappingPtr(
+               test.getCodim0MappingIndex(base, transformed)) ==
+           &Geometry::MappingToRefCubeToCube3::Instance()));
+    INFO("getCodim0MappingIndex&Ptr");
+    CHECK((test.getCodim0MappingPtr(base, transformed) ==
+           &Geometry::MappingToRefCubeToCube3::Instance()));
     transformed[0] = 2;
     transformed[1] = 3;
     transformed[2] = 0;
@@ -301,13 +287,13 @@ int main() {
     transformed[5] = 7;
     transformed[6] = 4;
     transformed[7] = 5;
-    logger.assert_always((test.getCodim0MappingPtr(
-                              test.getCodim0MappingIndex(base, transformed)) ==
-                          &Geometry::MappingToRefCubeToCube4::Instance()),
-                         "getCodim0MappingIndex&Ptr");
-    logger.assert_always((test.getCodim0MappingPtr(base, transformed) ==
-                          &Geometry::MappingToRefCubeToCube4::Instance()),
-                         "getCodim0MappingIndex&Ptr");
+    INFO("getCodim0MappingIndex&Ptr");
+    CHECK((test.getCodim0MappingPtr(
+               test.getCodim0MappingIndex(base, transformed)) ==
+           &Geometry::MappingToRefCubeToCube4::Instance()));
+    INFO("getCodim0MappingIndex&Ptr");
+    CHECK((test.getCodim0MappingPtr(base, transformed) ==
+           &Geometry::MappingToRefCubeToCube4::Instance()));
     transformed[0] = 1;
     transformed[1] = 0;
     transformed[2] = 3;
@@ -316,13 +302,13 @@ int main() {
     transformed[5] = 4;
     transformed[6] = 7;
     transformed[7] = 6;
-    logger.assert_always((test.getCodim0MappingPtr(
-                              test.getCodim0MappingIndex(base, transformed)) ==
-                          &Geometry::MappingToRefCubeToCube5::Instance()),
-                         "getCodim0MappingIndex&Ptr");
-    logger.assert_always((test.getCodim0MappingPtr(base, transformed) ==
-                          &Geometry::MappingToRefCubeToCube5::Instance()),
-                         "getCodim0MappingIndex&Ptr");
+    INFO("getCodim0MappingIndex&Ptr");
+    CHECK((test.getCodim0MappingPtr(
+               test.getCodim0MappingIndex(base, transformed)) ==
+           &Geometry::MappingToRefCubeToCube5::Instance()));
+    INFO("getCodim0MappingIndex&Ptr");
+    CHECK((test.getCodim0MappingPtr(base, transformed) ==
+           &Geometry::MappingToRefCubeToCube5::Instance()));
     transformed[0] = 3;
     transformed[1] = 1;
     transformed[2] = 2;
@@ -331,13 +317,13 @@ int main() {
     transformed[5] = 5;
     transformed[6] = 6;
     transformed[7] = 4;
-    logger.assert_always((test.getCodim0MappingPtr(
-                              test.getCodim0MappingIndex(base, transformed)) ==
-                          &Geometry::MappingToRefCubeToCube6::Instance()),
-                         "getCodim0MappingIndex&Ptr");
-    logger.assert_always((test.getCodim0MappingPtr(base, transformed) ==
-                          &Geometry::MappingToRefCubeToCube6::Instance()),
-                         "getCodim0MappingIndex&Ptr");
+    INFO("getCodim0MappingIndex&Ptr");
+    CHECK((test.getCodim0MappingPtr(
+               test.getCodim0MappingIndex(base, transformed)) ==
+           &Geometry::MappingToRefCubeToCube6::Instance()));
+    INFO("getCodim0MappingIndex&Ptr");
+    CHECK((test.getCodim0MappingPtr(base, transformed) ==
+           &Geometry::MappingToRefCubeToCube6::Instance()));
     transformed[0] = 0;
     transformed[1] = 2;
     transformed[2] = 1;
@@ -346,224 +332,256 @@ int main() {
     transformed[5] = 6;
     transformed[6] = 5;
     transformed[7] = 7;
-    logger.assert_always((test.getCodim0MappingPtr(
-                              test.getCodim0MappingIndex(base, transformed)) ==
-                          &Geometry::MappingToRefCubeToCube7::Instance()),
-                         "getCodim0MappingIndex&Ptr");
-    logger.assert_always((test.getCodim0MappingPtr(base, transformed) ==
-                          &Geometry::MappingToRefCubeToCube7::Instance()),
-                         "getCodim0MappingIndex&Ptr");
+    INFO("getCodim0MappingIndex&Ptr");
+    CHECK((test.getCodim0MappingPtr(
+               test.getCodim0MappingIndex(base, transformed)) ==
+           &Geometry::MappingToRefCubeToCube7::Instance()));
+    INFO("getCodim0MappingIndex&Ptr");
+    CHECK((test.getCodim0MappingPtr(base, transformed) ==
+           &Geometry::MappingToRefCubeToCube7::Instance()));
 
-    logger.assert_always((test.getNumberOfCodim1Entities() == 6 &&
-                          test.getNumberOfCodim2Entities() == 12) &&
-                             test.getNumberOfCodim3Entities() == 8,
-                         "higher codimensional entities");
-    logger.assert_always((test.getCodim1ReferenceGeometry(0) ==
-                              &Geometry::ReferenceSquare::Instance() &&
-                          test.getCodim1ReferenceGeometry(1) ==
-                              &Geometry::ReferenceSquare::Instance() &&
-                          test.getCodim1ReferenceGeometry(2) ==
-                              &Geometry::ReferenceSquare::Instance() &&
-                          test.getCodim1ReferenceGeometry(3) ==
-                              &Geometry::ReferenceSquare::Instance() &&
-                          test.getCodim1ReferenceGeometry(4) ==
-                              &Geometry::ReferenceSquare::Instance() &&
-                          test.getCodim1ReferenceGeometry(5) ==
-                              &Geometry::ReferenceSquare::Instance()),
-                         "getCodim1ReferenceGeometry");
-    logger.assert_always((test.getCodim2ReferenceGeometry(0) ==
-                              &Geometry::ReferenceLine::Instance() &&
-                          test.getCodim2ReferenceGeometry(1) ==
-                              &Geometry::ReferenceLine::Instance() &&
-                          test.getCodim2ReferenceGeometry(2) ==
-                              &Geometry::ReferenceLine::Instance() &&
-                          test.getCodim2ReferenceGeometry(3) ==
-                              &Geometry::ReferenceLine::Instance() &&
-                          test.getCodim2ReferenceGeometry(4) ==
-                              &Geometry::ReferenceLine::Instance() &&
-                          test.getCodim2ReferenceGeometry(5) ==
-                              &Geometry::ReferenceLine::Instance() &&
-                          test.getCodim2ReferenceGeometry(6) ==
-                              &Geometry::ReferenceLine::Instance() &&
-                          test.getCodim2ReferenceGeometry(7) ==
-                              &Geometry::ReferenceLine::Instance() &&
-                          test.getCodim2ReferenceGeometry(8) ==
-                              &Geometry::ReferenceLine::Instance() &&
-                          test.getCodim2ReferenceGeometry(9) ==
-                              &Geometry::ReferenceLine::Instance() &&
-                          test.getCodim2ReferenceGeometry(10) ==
-                              &Geometry::ReferenceLine::Instance() &&
-                          test.getCodim2ReferenceGeometry(11) ==
-                              &Geometry::ReferenceLine::Instance()),
-                         "getCodim2ReferenceGeometry");
-    logger.assert_always((test.getCodim1MappingPtr(0) ==
-                          &Geometry::MappingToRefSquareToCube0::Instance()),
-                         "getCodim1MappingPtr");
-    logger.assert_always((test.getCodim1MappingPtr(1) ==
-                          &Geometry::MappingToRefSquareToCube1::Instance()),
-                         "getCodim1MappingPtr");
-    logger.assert_always((test.getCodim1MappingPtr(2) ==
-                          &Geometry::MappingToRefSquareToCube2::Instance()),
-                         "getCodim1MappingPtr");
-    logger.assert_always((test.getCodim1MappingPtr(3) ==
-                          &Geometry::MappingToRefSquareToCube3::Instance()),
-                         "getCodim1MappingPtr");
-    logger.assert_always((test.getCodim1MappingPtr(4) ==
-                          &Geometry::MappingToRefSquareToCube4::Instance()),
-                         "getCodim1MappingPtr");
-    logger.assert_always((test.getCodim1MappingPtr(5) ==
-                          &Geometry::MappingToRefSquareToCube5::Instance()),
-                         "getCodim1MappingPtr");
+    INFO("higher codimensional entities");
+    CHECK((test.getNumberOfCodim1Entities() == 6 &&
+           test.getNumberOfCodim2Entities() == 12) &&
+          test.getNumberOfCodim3Entities() == 8);
+    INFO("getCodim1ReferenceGeometry");
+    CHECK((test.getCodim1ReferenceGeometry(0) ==
+               &Geometry::ReferenceSquare::Instance() &&
+           test.getCodim1ReferenceGeometry(1) ==
+               &Geometry::ReferenceSquare::Instance() &&
+           test.getCodim1ReferenceGeometry(2) ==
+               &Geometry::ReferenceSquare::Instance() &&
+           test.getCodim1ReferenceGeometry(3) ==
+               &Geometry::ReferenceSquare::Instance() &&
+           test.getCodim1ReferenceGeometry(4) ==
+               &Geometry::ReferenceSquare::Instance() &&
+           test.getCodim1ReferenceGeometry(5) ==
+               &Geometry::ReferenceSquare::Instance()));
+    INFO("getCodim2ReferenceGeometry");
+    CHECK((test.getCodim2ReferenceGeometry(0) ==
+               &Geometry::ReferenceLine::Instance() &&
+           test.getCodim2ReferenceGeometry(1) ==
+               &Geometry::ReferenceLine::Instance() &&
+           test.getCodim2ReferenceGeometry(2) ==
+               &Geometry::ReferenceLine::Instance() &&
+           test.getCodim2ReferenceGeometry(3) ==
+               &Geometry::ReferenceLine::Instance() &&
+           test.getCodim2ReferenceGeometry(4) ==
+               &Geometry::ReferenceLine::Instance() &&
+           test.getCodim2ReferenceGeometry(5) ==
+               &Geometry::ReferenceLine::Instance() &&
+           test.getCodim2ReferenceGeometry(6) ==
+               &Geometry::ReferenceLine::Instance() &&
+           test.getCodim2ReferenceGeometry(7) ==
+               &Geometry::ReferenceLine::Instance() &&
+           test.getCodim2ReferenceGeometry(8) ==
+               &Geometry::ReferenceLine::Instance() &&
+           test.getCodim2ReferenceGeometry(9) ==
+               &Geometry::ReferenceLine::Instance() &&
+           test.getCodim2ReferenceGeometry(10) ==
+               &Geometry::ReferenceLine::Instance() &&
+           test.getCodim2ReferenceGeometry(11) ==
+               &Geometry::ReferenceLine::Instance()));
+    INFO("getCodim1MappingPtr");
+    CHECK((test.getCodim1MappingPtr(0) ==
+           &Geometry::MappingToRefSquareToCube0::Instance()));
+    INFO("getCodim1MappingPtr");
+    CHECK((test.getCodim1MappingPtr(1) ==
+           &Geometry::MappingToRefSquareToCube1::Instance()));
+    INFO("getCodim1MappingPtr");
+    CHECK((test.getCodim1MappingPtr(2) ==
+           &Geometry::MappingToRefSquareToCube2::Instance()));
+    INFO("getCodim1MappingPtr");
+    CHECK((test.getCodim1MappingPtr(3) ==
+           &Geometry::MappingToRefSquareToCube3::Instance()));
+    INFO("getCodim1MappingPtr");
+    CHECK((test.getCodim1MappingPtr(4) ==
+           &Geometry::MappingToRefSquareToCube4::Instance()));
+    INFO("getCodim1MappingPtr");
+    CHECK((test.getCodim1MappingPtr(5) ==
+           &Geometry::MappingToRefSquareToCube5::Instance()));
     faceIndices = test.getCodim1EntityLocalIndices(0);
-    logger.assert_always(
-        (faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 0)),
-        "getCodim1EntityLocalIndices");
-    logger.assert_always(
-        (faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 1)),
-        "getCodim1EntityLocalIndices");
-    logger.assert_always(
-        (faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 2)),
-        "getCodim1EntityLocalIndices");
-    logger.assert_always(
-        (faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 3)),
-        "getCodim1EntityLocalIndices");
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 0)));
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 1)));
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 2)));
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 3)));
     faceIndices = test.getCodim1EntityLocalIndices(1);
-    logger.assert_always(
-        (faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 0)),
-        "getCodim1EntityLocalIndices");
-    logger.assert_always(
-        (faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 1)),
-        "getCodim1EntityLocalIndices");
-    logger.assert_always(
-        (faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 2)),
-        "getCodim1EntityLocalIndices");
-    logger.assert_always(
-        (faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 3)),
-        "getCodim1EntityLocalIndices");
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 0)));
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 1)));
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 2)));
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 3)));
     faceIndices = test.getCodim1EntityLocalIndices(2);
-    logger.assert_always(
-        (faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 0)),
-        "getCodim1EntityLocalIndices");
-    logger.assert_always(
-        (faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 1)),
-        "getCodim1EntityLocalIndices");
-    logger.assert_always(
-        (faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 2)),
-        "getCodim1EntityLocalIndices");
-    logger.assert_always(
-        (faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 3)),
-        "getCodim1EntityLocalIndices");
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 0)));
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 1)));
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 2)));
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 3)));
     faceIndices = test.getCodim1EntityLocalIndices(3);
-    logger.assert_always(
-        (faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 0)),
-        "getCodim1EntityLocalIndices");
-    logger.assert_always(
-        (faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 1)),
-        "getCodim1EntityLocalIndices");
-    logger.assert_always(
-        (faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 2)),
-        "getCodim1EntityLocalIndices");
-    logger.assert_always(
-        (faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 3)),
-        "getCodim1EntityLocalIndices");
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 0)));
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 1)));
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 2)));
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 3)));
     faceIndices = test.getCodim1EntityLocalIndices(4);
-    logger.assert_always(
-        (faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 0)),
-        "getCodim1EntityLocalIndices");
-    logger.assert_always(
-        (faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 1)),
-        "getCodim1EntityLocalIndices");
-    logger.assert_always(
-        (faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 2)),
-        "getCodim1EntityLocalIndices");
-    logger.assert_always(
-        (faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 3)),
-        "getCodim1EntityLocalIndices");
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 0)));
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 1)));
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 2)));
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 3)));
     faceIndices = test.getCodim1EntityLocalIndices(5);
-    logger.assert_always(
-        (faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 0)),
-        "getCodim1EntityLocalIndices");
-    logger.assert_always(
-        (faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 1)),
-        "getCodim1EntityLocalIndices");
-    logger.assert_always(
-        (faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 2)),
-        "getCodim1EntityLocalIndices");
-    logger.assert_always(
-        (faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 3)),
-        "getCodim1EntityLocalIndices");
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 0)));
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 1)));
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 2)));
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 3)));
     faceIndices.resize(2);
     faceIndices = test.getCodim2EntityLocalIndices(0);
-    logger.assert_always((faceIndices[0] == 0), "getCodim2EntityLocalIndices");
-    logger.assert_always((faceIndices[1] == 1), "getCodim2EntityLocalIndices");
+    INFO("getCodim2EntityLocalIndices");
+    CHECK((faceIndices[0] == 0));
+    INFO("getCodim2EntityLocalIndices");
+    CHECK((faceIndices[1] == 1));
     faceIndices = test.getCodim2EntityLocalIndices(1);
-    logger.assert_always((faceIndices[0] == 2), "getCodim2EntityLocalIndices");
-    logger.assert_always((faceIndices[1] == 3), "getCodim2EntityLocalIndices");
+    INFO("getCodim2EntityLocalIndices");
+    CHECK((faceIndices[0] == 2));
+    INFO("getCodim2EntityLocalIndices");
+    CHECK((faceIndices[1] == 3));
     faceIndices = test.getCodim2EntityLocalIndices(2);
-    logger.assert_always((faceIndices[0] == 4), "getCodim2EntityLocalIndices");
-    logger.assert_always((faceIndices[1] == 5), "getCodim2EntityLocalIndices");
+    INFO("getCodim2EntityLocalIndices");
+    CHECK((faceIndices[0] == 4));
+    INFO("getCodim2EntityLocalIndices");
+    CHECK((faceIndices[1] == 5));
     faceIndices = test.getCodim2EntityLocalIndices(3);
-    logger.assert_always((faceIndices[0] == 6), "getCodim2EntityLocalIndices");
-    logger.assert_always((faceIndices[1] == 7), "getCodim2EntityLocalIndices");
+    INFO("getCodim2EntityLocalIndices");
+    CHECK((faceIndices[0] == 6));
+    INFO("getCodim2EntityLocalIndices");
+    CHECK((faceIndices[1] == 7));
     faceIndices = test.getCodim2EntityLocalIndices(4);
-    logger.assert_always((faceIndices[0] == 0), "getCodim2EntityLocalIndices");
-    logger.assert_always((faceIndices[1] == 2), "getCodim2EntityLocalIndices");
+    INFO("getCodim2EntityLocalIndices");
+    CHECK((faceIndices[0] == 0));
+    INFO("getCodim2EntityLocalIndices");
+    CHECK((faceIndices[1] == 2));
     faceIndices = test.getCodim2EntityLocalIndices(5);
-    logger.assert_always((faceIndices[0] == 1), "getCodim2EntityLocalIndices");
-    logger.assert_always((faceIndices[1] == 3), "getCodim2EntityLocalIndices");
+    INFO("getCodim2EntityLocalIndices");
+    CHECK((faceIndices[0] == 1));
+    INFO("getCodim2EntityLocalIndices");
+    CHECK((faceIndices[1] == 3));
     faceIndices = test.getCodim2EntityLocalIndices(6);
-    logger.assert_always((faceIndices[0] == 4), "getCodim2EntityLocalIndices");
-    logger.assert_always((faceIndices[1] == 6), "getCodim2EntityLocalIndices");
+    INFO("getCodim2EntityLocalIndices");
+    CHECK((faceIndices[0] == 4));
+    INFO("getCodim2EntityLocalIndices");
+    CHECK((faceIndices[1] == 6));
     faceIndices = test.getCodim2EntityLocalIndices(7);
-    logger.assert_always((faceIndices[0] == 5), "getCodim2EntityLocalIndices");
-    logger.assert_always((faceIndices[1] == 7), "getCodim2EntityLocalIndices");
+    INFO("getCodim2EntityLocalIndices");
+    CHECK((faceIndices[0] == 5));
+    INFO("getCodim2EntityLocalIndices");
+    CHECK((faceIndices[1] == 7));
     faceIndices = test.getCodim2EntityLocalIndices(8);
-    logger.assert_always((faceIndices[0] == 0), "getCodim2EntityLocalIndices");
-    logger.assert_always((faceIndices[1] == 4), "getCodim2EntityLocalIndices");
+    INFO("getCodim2EntityLocalIndices");
+    CHECK((faceIndices[0] == 0));
+    INFO("getCodim2EntityLocalIndices");
+    CHECK((faceIndices[1] == 4));
     faceIndices = test.getCodim2EntityLocalIndices(9);
-    logger.assert_always((faceIndices[0] == 1), "getCodim2EntityLocalIndices");
-    logger.assert_always((faceIndices[1] == 5), "getCodim2EntityLocalIndices");
+    INFO("getCodim2EntityLocalIndices");
+    CHECK((faceIndices[0] == 1));
+    INFO("getCodim2EntityLocalIndices");
+    CHECK((faceIndices[1] == 5));
     faceIndices = test.getCodim2EntityLocalIndices(10);
-    logger.assert_always((faceIndices[0] == 2), "getCodim2EntityLocalIndices");
-    logger.assert_always((faceIndices[1] == 6), "getCodim2EntityLocalIndices");
+    INFO("getCodim2EntityLocalIndices");
+    CHECK((faceIndices[0] == 2));
+    INFO("getCodim2EntityLocalIndices");
+    CHECK((faceIndices[1] == 6));
     faceIndices = test.getCodim2EntityLocalIndices(11);
-    logger.assert_always((faceIndices[0] == 3), "getCodim2EntityLocalIndices");
-    logger.assert_always((faceIndices[1] == 7), "getCodim2EntityLocalIndices");
+    INFO("getCodim2EntityLocalIndices");
+    CHECK((faceIndices[0] == 3));
+    INFO("getCodim2EntityLocalIndices");
+    CHECK((faceIndices[1] == 7));
     faceIndices.resize(1);
     faceIndices = test.getCodim3EntityLocalIndices(0);
-    logger.assert_always((faceIndices[0] == 0), "getCodim3EntityLocalIndices");
+    INFO("getCodim3EntityLocalIndices");
+    CHECK((faceIndices[0] == 0));
     faceIndices = test.getCodim3EntityLocalIndices(1);
-    logger.assert_always((faceIndices[0] == 1), "getCodim3EntityLocalIndices");
+    INFO("getCodim3EntityLocalIndices");
+    CHECK((faceIndices[0] == 1));
     faceIndices = test.getCodim3EntityLocalIndices(2);
-    logger.assert_always((faceIndices[0] == 2), "getCodim3EntityLocalIndices");
+    INFO("getCodim3EntityLocalIndices");
+    CHECK((faceIndices[0] == 2));
     faceIndices = test.getCodim3EntityLocalIndices(3);
-    logger.assert_always((faceIndices[0] == 3), "getCodim3EntityLocalIndices");
+    INFO("getCodim3EntityLocalIndices");
+    CHECK((faceIndices[0] == 3));
     faceIndices = test.getCodim3EntityLocalIndices(4);
-    logger.assert_always((faceIndices[0] == 4), "getCodim3EntityLocalIndices");
+    INFO("getCodim3EntityLocalIndices");
+    CHECK((faceIndices[0] == 4));
     faceIndices = test.getCodim3EntityLocalIndices(5);
-    logger.assert_always((faceIndices[0] == 5), "getCodim3EntityLocalIndices");
+    INFO("getCodim3EntityLocalIndices");
+    CHECK((faceIndices[0] == 5));
     faceIndices = test.getCodim3EntityLocalIndices(6);
-    logger.assert_always((faceIndices[0] == 6), "getCodim3EntityLocalIndices");
+    INFO("getCodim3EntityLocalIndices");
+    CHECK((faceIndices[0] == 6));
     faceIndices = test.getCodim3EntityLocalIndices(7);
-    logger.assert_always((faceIndices[0] == 7), "getCodim3EntityLocalIndices");
+    INFO("getCodim3EntityLocalIndices");
+    CHECK((faceIndices[0] == 7));
 
-    logger.assert_always((test.getGaussQuadratureRule(3)->order() >= 3),
-                         "quadrature rules");
-    logger.assert_always((test.getGaussQuadratureRule(5)->order() >= 5),
-                         "quadrature rules");
-    logger.assert_always((test.getGaussQuadratureRule(7)->order() >= 7),
-                         "quadrature rules");
-    logger.assert_always((test.getGaussQuadratureRule(9)->order() >= 9),
-                         "quadrature rules");
-    logger.assert_always((test.getGaussQuadratureRule(11)->order() >= 11),
-                         "quadrature rules");
+    INFO("quadrature rules");
+    CHECK((test.getGaussQuadratureRule(3)->order() >= 3));
+    INFO("quadrature rules");
+    CHECK((test.getGaussQuadratureRule(5)->order() >= 5));
+    INFO("quadrature rules");
+    CHECK((test.getGaussQuadratureRule(7)->order() >= 7));
+    INFO("quadrature rules");
+    CHECK((test.getGaussQuadratureRule(9)->order() >= 9));
+    INFO("quadrature rules");
+    CHECK((test.getGaussQuadratureRule(11)->order() >= 11));
 
     // testing functionality of abstract parent classes
 
-    logger.assert_always((test.getNumberOfNodes() == 8), "number of nodes");
-    logger.assert_always(
-        (test.getGeometryType() == Geometry::ReferenceGeometryType::CUBE),
-        "type of geometry");
+    INFO("number of nodes");
+    CHECK((test.getNumberOfNodes() == 8));
+    INFO("type of geometry");
+    CHECK((test.getGeometryType() == Geometry::ReferenceGeometryType::CUBE));
 
     ///\todo testing that the refinement maps behave exactly like the forwarded
     /// calls of this class

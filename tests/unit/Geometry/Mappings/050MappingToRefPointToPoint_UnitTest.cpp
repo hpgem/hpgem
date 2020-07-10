@@ -48,9 +48,14 @@
 #include "Geometry/Jacobian.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include <cmath>
+
+#define CATCH_CONFIG_MAIN
+#include "../catch.hpp"
+
 using namespace hpgem;
-int main() {  // The 0D case is mostly testing if there are any crashing
-              // functions
+TEST_CASE("050MappingToRefPointToPoint_UnitTest",
+          "[050MappingToRefPointToPoint_UnitTest]") {
+    // functions
 
     Geometry::PointReference<0> refPoint, point;
 
@@ -62,9 +67,8 @@ int main() {  // The 0D case is mostly testing if there are any crashing
     Geometry::Jacobian<0, 0> jac;
 
     point = test->transform((refPoint));
-    logger.assert_always(
-        (geom.isInternalPoint((refPoint)) == geom.isInternalPoint((point))),
-        "transform");
+    INFO("transform");
+    CHECK((geom.isInternalPoint((refPoint)) == geom.isInternalPoint((point))));
 
     jac = test->calcJacobian((refPoint));
 
@@ -73,8 +77,6 @@ int main() {  // The 0D case is mostly testing if there are any crashing
         point = test->transform((refPoint));
     }
 
-    logger.assert_always((test->getTargetDimension() == 0),
-                         "getTargetDimension");
-
-    return 0;
+    INFO("getTargetDimension");
+    CHECK((test->getTargetDimension() == 0));
 }
