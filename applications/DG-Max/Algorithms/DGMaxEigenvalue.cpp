@@ -294,6 +294,8 @@ struct SolverWorkspace {
 
     // Vectors corresponding to shifted basis functions
     Vec waveVec_, waveVecConjugate_;
+    // Nullspace vectors
+    Vec* nullspaceBasis_;
     // Eigenvector storage
     PetscInt convergedEigenValues_;
     Vec* eigenVectors_;
@@ -352,6 +354,10 @@ void SolverWorkspace::initMatrices() {
             &projectorUnknowns);
         projectorMatrix_.reinit();
         tempProjectorVector_.reinit();
+        // Wrong for multiprocessor
+        VecDuplicateVecs(sampleVector_,
+                         projectorIndex_.getNumberOfLocalBasisFunctions(),
+                         &nullspaceBasis_);
     }
     // Initialize the product matrix
     if (!config_.useHermitian_) {
@@ -399,9 +405,9 @@ void SolverWorkspace::shellMultiply(Vec in, Vec out) {
     PetscErrorCode error;
     error = MatMult(getActualStiffnessMatrix(), in, out);
     CHKERRABORT(PETSC_COMM_WORLD, error);
-    if (config_.useProjector_) {
-        project(out);
-    }
+    //    if (config_.useProjector_) {
+    //        project(out);
+    //    }
 }
 
 void SolverWorkspace::project(Vec vec) {
@@ -531,10 +537,10 @@ void SolverWorkspace::initSolver(std::size_t numberOfEigenvalues) {
     //    err = EPSSetWhichEigenpairs(solver_, EPS_SMALLEST_REAL);
     //    CHKERRABORT(PETSC_COMM_WORLD, err);
     //    err = EPSSetWhichEigenpairs(solver_, EPS_TARGET_REAL);
-    err = EPSSetWhichEigenpairs(solver_, EPS_WHICH_USER);
+    err = EPSSetWhichEigenpairs(solver_, EPS_SMALLEST_REAL);
     CHKERRABORT(PETSC_COMM_WORLD, err);
-    err = EPSSetEigenvalueComparison(solver_, compareEigen, this);
-    CHKERRABORT(PETSC_COMM_WORLD, err);
+    //    err = EPSSetEigenvalueComparison(solver_, compareEigen, this);
+    //    CHKERRABORT(PETSC_COMM_WORLD, err);
     //    err = EPSSetExtraction(solver_, EPS_HARMONIC);
     //    CHKERRABORT(PETSC_COMM_WORLD, err);
     err = EPSSetTarget(solver_, targetFrequency_ * targetFrequency_);
@@ -565,9 +571,8 @@ void SolverWorkspace::setupSolver() {
     PetscErrorCode error;
     // Setup the EPS eigen value solver of SLEPC to find the eigenvalues of
     // `product`.
-    error = EPSSetOperators(solver_, shell_, NULL);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    error = EPSSetUp(solver_);
+    //    error = EPSSetOperators(solver_, shell_, NULL);
+    error = EPSSetOperators(solver_, stiffnessMatrix_, nullptr);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     DGMaxLogger(INFO, "Solver setup completed");
 
@@ -601,6 +606,18 @@ void SolverWorkspace::setupSolver() {
         CHKERRABORT(PETSC_COMM_WORLD, error);
         error = KSPSetUp(projectionSolver_);
         CHKERRABORT(PETSC_COMM_WORLD, error);
+        DGMaxLogger(INFO, "Setting up deflation space");
+        for (PetscInt i = 0;
+             i < projectorIndex_.getNumberOfLocalBasisFunctions(); ++i) {
+            MatGetColumnVector(projectionH, nullspaceBasis_[i], i);
+        }
+        EPSSetDeflationSpace(solver_,
+                             projectorIndex_.getNumberOfLocalBasisFunctions(),
+                             nullspaceBasis_);
+
+        error = EPSSetUp(solver_);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+
         error = MatDestroy(&projectionH);
         CHKERRABORT(PETSC_COMM_WORLD, error);
         DGMaxLogger(INFO, "Projection solver setup completed");
@@ -718,6 +735,8 @@ void SolverWorkspace::cleanup() {
         CHKERRABORT(PETSC_COMM_WORLD, error);
         error = MatDestroy(&projectionStiffness_);
         CHKERRABORT(PETSC_COMM_WORLD, error);
+        VecDestroyVecs(projectorIndex_.getNumberOfLocalBasisFunctions(),
+                       &nullspaceBasis_);
     }
 
     error = VecDestroy(&waveVec_);
