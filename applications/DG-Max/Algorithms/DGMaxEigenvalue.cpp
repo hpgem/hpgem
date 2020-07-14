@@ -356,7 +356,7 @@ void SolverWorkspace::initMatrices() {
         projectorMatrix_.reinit();
         tempProjectorVector_.reinit();
         // Wrong for multiprocessor
-        VecDuplicateVecs(sampleVector_,
+        VecDuplicateVecs(tempFieldVector_,
                          projectorIndex_.getNumberOfLocalBasisFunctions(),
                          &nullspaceBasis_);
     }
