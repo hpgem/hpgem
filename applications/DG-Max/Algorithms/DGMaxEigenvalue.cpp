@@ -278,6 +278,7 @@ struct SolverWorkspace {
     Utilities::GlobalPetscMatrix projectorMatrix_;
     // Temporary storage vectors
     Utilities::GlobalPetscVector tempFieldVector_;
+    Vec tempFieldVector2_;
     Utilities::GlobalPetscVector tempProjectorVector_;
 
     // Product matrix, massMatrix * stiffnessMatrix
@@ -433,11 +434,17 @@ void SolverWorkspace::project(Vec vec) {
     // MatMultAdd
     error = VecScale(tempProjectorVector_, -1.0);
     CHKERRABORT(PETSC_COMM_WORLD, error);
+    // The multiply and add version of the Hermitian case does not work on older
+    // version of petsc (the non Hermitian was not tested, but probably also
+    // fails). So the 1-function commented out version is replaced by a two step
+    // version, first multiplying with a matrix and then adding to the vector.
     if (config_.useHermitian_) {
         // No need to multiply with the mass matrix in the Hermitian case
         // u = u + B^H (-t)
-        error = MatMultHermitianTransposeAdd(projectorMatrix_,
-                                             tempProjectorVector_, vec, vec);
+        // error = MatMultHermitianTransposeAdd(projectorMatrix_,
+        //                                      tempProjectorVector_, vec, vec);
+        error = MatMultHermitianTranspose(
+            projectorMatrix_, tempProjectorVector_, tempFieldVector2_);
         CHKERRABORT(PETSC_COMM_WORLD, error);
     } else {
         // v = B^H (-t)
@@ -445,9 +452,12 @@ void SolverWorkspace::project(Vec vec) {
             projectorMatrix_, tempProjectorVector_, tempFieldVector_);
         CHKERRABORT(PETSC_COMM_WORLD, error);
         // Finally compute u + M^{-1}v
-        error = MatMultAdd(massMatrix_, tempFieldVector_, vec, vec);
+        // error = MatMultAdd(massMatrix_, tempFieldVector_, vec, vec);
+        error = MatMult(massMatrix_, tempFieldVector_, tempFieldVector2_);
         CHKERRABORT(PETSC_COMM_WORLD, error);
     }
+    error = VecAXPY(vec, 1.0, tempFieldVector2_);
+    CHKERRABORT(PETSC_COMM_WORLD, error);
 
     //    // Diagnostics
     //    PetscReal correctionNorm, newProjectionNorm;
@@ -531,7 +541,7 @@ void SolverWorkspace::initSolver(std::size_t numberOfEigenvalues) {
     //    err = EPSSetWhichEigenpairs(solver_, EPS_SMALLEST_REAL);
     //    CHKERRABORT(PETSC_COMM_WORLD, err);
     err = EPSSetWhichEigenpairs(solver_, EPS_TARGET_REAL);
-    err = EPSSetEigenvalueComparison(solver_, compareEigen, nullptr);
+    err = EPSSetEigenvalueComparison(solver_, compareEigen, this);
     err = EPSSetTarget(solver_, targetFrequency_ * targetFrequency_);
     CHKERRABORT(PETSC_COMM_WORLD, err);
 
@@ -552,6 +562,8 @@ void SolverWorkspace::initEigenvectorStorage(std::size_t numberOfEigenvectors) {
     numberOfEigenVectors_ = numberOfEigenvectors;
     PetscErrorCode error = VecDuplicateVecs(
         tempFieldVector_, numberOfEigenvectors, &eigenVectors_);
+    CHKERRABORT(PETSC_COMM_WORLD, error);
+    error = VecDuplicate(tempFieldVector_, &tempFieldVector2_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 }
 
@@ -703,6 +715,8 @@ void SolverWorkspace::cleanup() {
     // TODO: Can this be moved to a destructor
     PetscErrorCode error;
     error = VecDestroyVecs(numberOfEigenVectors_, &eigenVectors_);
+    CHKERRABORT(PETSC_COMM_WORLD, error);
+    error = VecDestroy(&tempFieldVector2_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
     error = EPSDestroy(&solver_);
