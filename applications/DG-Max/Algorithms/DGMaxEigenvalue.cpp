@@ -227,7 +227,7 @@ struct SolverWorkspace {
           massMatrix_(fieldIndex_, DGMaxDiscretizationBase::MASS_MATRIX_ID, -1),
           projectorMatrix_(projectorIndex_, fieldIndex_,
                            DGMaxDiscretizationBase::PROJECTOR_MATRIX_ID, -1),
-          sampleVector_(fieldIndex_, -1, -1),
+          tempFieldVector_(fieldIndex_, -1, -1),
           tempProjectorVector_(projectorIndex_, -1, -1),
           setupHasBeenRun_(false),
           targetFrequency_(3) {}
@@ -276,8 +276,8 @@ struct SolverWorkspace {
     // Inverted
     Utilities::GlobalPetscMatrix massMatrix_;
     Utilities::GlobalPetscMatrix projectorMatrix_;
-    // Sample vector to hold field information
-    Utilities::GlobalPetscVector sampleVector_;
+    // Temporary storage vectors
+    Utilities::GlobalPetscVector tempFieldVector_;
     Utilities::GlobalPetscVector tempProjectorVector_;
 
     // Product matrix, massMatrix * stiffnessMatrix
@@ -343,7 +343,7 @@ void SolverWorkspace::initMatrices() {
     // This also assembles them from the local matrices.
     stiffnessMatrix_.reinit();
     massMatrix_.reinit();
-    sampleVector_.reinit();
+    tempFieldVector_.reinit();
 
     if (config_.useProjector_) {
         std::vector<std::size_t> projectorUnknowns({1});
@@ -441,17 +441,17 @@ void SolverWorkspace::project(Vec vec) {
         CHKERRABORT(PETSC_COMM_WORLD, error);
     } else {
         // v = B^H (-t)
-        error = MatMultHermitianTranspose(projectorMatrix_,
-                                          tempProjectorVector_, sampleVector_);
+        error = MatMultHermitianTranspose(
+            projectorMatrix_, tempProjectorVector_, tempFieldVector_);
         CHKERRABORT(PETSC_COMM_WORLD, error);
         // Finally compute u + M^{-1}v
-        error = MatMultAdd(massMatrix_, sampleVector_, vec, vec);
+        error = MatMultAdd(massMatrix_, tempFieldVector_, vec, vec);
         CHKERRABORT(PETSC_COMM_WORLD, error);
     }
 
     //    // Diagnostics
     //    PetscReal correctionNorm, newProjectionNorm;
-    //    VecNorm(sampleVector_, NORM_2, &correctionNorm);
+    //    VecNorm(tempFieldVector_, NORM_2, &correctionNorm);
     //    MatMult(projectorMatrix_, vec, tempProjectorVector_);
     //    VecNorm(tempProjectorVector_, NORM_2, &newProjectionNorm);
     //
@@ -466,7 +466,7 @@ void SolverWorkspace::project(Vec vec) {
 void SolverWorkspace::initShiftVectors() {
     // Setup initial wave vector and its conjugate.
     PetscErrorCode error;
-    error = VecDuplicate(sampleVector_, &waveVec_);
+    error = VecDuplicate(tempFieldVector_, &waveVec_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     error = VecSetUp(waveVec_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
@@ -550,8 +550,8 @@ void SolverWorkspace::initSolver(std::size_t numberOfEigenvalues) {
 void SolverWorkspace::initEigenvectorStorage(std::size_t numberOfEigenvectors) {
     convergedEigenValues_ = 0;
     numberOfEigenVectors_ = numberOfEigenvectors;
-    PetscErrorCode error =
-        VecDuplicateVecs(sampleVector_, numberOfEigenvectors, &eigenVectors_);
+    PetscErrorCode error = VecDuplicateVecs(
+        tempFieldVector_, numberOfEigenvectors, &eigenVectors_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 }
 
@@ -616,7 +616,7 @@ void SolverWorkspace::extractEigenVectors() {
                     convergedEigenValues_, numberOfEigenVectors_);
         error = VecDestroyVecs(numberOfEigenVectors_, &eigenVectors_);
         CHKERRABORT(PETSC_COMM_WORLD, error);
-        error = VecDuplicateVecs(sampleVector_, convergedEigenValues_,
+        error = VecDuplicateVecs(tempFieldVector_, convergedEigenValues_,
                                  &eigenVectors_);
         CHKERRABORT(PETSC_COMM_WORLD, error);
         numberOfEigenVectors_ = convergedEigenValues_;
