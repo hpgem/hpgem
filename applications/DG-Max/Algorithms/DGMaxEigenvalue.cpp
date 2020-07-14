@@ -583,7 +583,7 @@ void SolverWorkspace::setupSolver() {
     PetscErrorCode error;
     // Setup the EPS eigen value solver of SLEPC to find the eigenvalues of
     // `product`.
-    error = EPSSetOperators(solver_, shell_, NULL);
+    error = EPSSetOperators(solver_, stiffnessMatrix_, NULL);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
     if (config_.useProjector_) {
