@@ -299,23 +299,22 @@ TEST_CASE("200PhysicalOctachoron_UnitTest",
     for (std::size_t i = 0; i < 8; ++i) {
         pointIndexes = test.getGlobalFaceNodeIndices(i);
         for (std::size_t j = 0; j < 8; ++j) {
-            logger.assert_always(
-                (pointIndexes[j] ==
-                 test.getNodeIndex(
-                     test.getRefGeometry()
-                         ->getLocalNodeIndexFromFaceAndIndexOnFace(i, j))),
-                "getGlobalFaceNodeIndices");
+            INFO("getGlobalFaceNodeIndices");
+            CHECK((pointIndexes[j] ==
+                   test.getNodeIndex(
+                       test.getRefGeometry()
+                           ->getLocalNodeIndexFromFaceAndIndexOnFace(i, j))));
         }
     }
 
     for (std::size_t i = 0; i < 8; ++i) {
         pointIndexes = test.getLocalFaceNodeIndices(i);
         for (std::size_t j = 0; j < 8; ++j) {
-            logger.assert_always(
+            INFO("getLocalFaceNodeIndices");
+            CHECK(
                 (pointIndexes[j] ==
                  test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(
-                     i, j)),
-                "getLocalFaceNodeIndices");
+                     i, j)));
         }
     }
 

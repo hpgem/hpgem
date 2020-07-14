@@ -62,13 +62,12 @@ TEST_CASE("030BasisFunctionSet_UnitTest", "[030BasisFunctionSet_UnitTest]") {
     for (std::size_t i = 0; i < all1DbasisFunctions.size(); ++i) {
         const Base::BaseBasisFunction* test = all1DbasisFunctions[i];
         for (point1D[0] = -1.5; point1D[0] < 1.51; point1D[0] += 0.1) {
-            logger.assert_always((test->eval((point1D)) ==
-                                  all1DbasisFunctions.eval(i, (point1D))),
-                                 "eval");
-            logger.assert_always(
-                (test->evalDeriv0((point1D)) ==
-                 all1DbasisFunctions.evalDeriv(i, 0, (point1D))),
-                "derivative");
+            INFO("eval");
+            CHECK((test->eval((point1D)) ==
+                   all1DbasisFunctions.eval(i, (point1D))));
+            INFO("derivative");
+            CHECK((test->evalDeriv0((point1D)) ==
+                   all1DbasisFunctions.evalDeriv(i, 0, (point1D))));
         }
     }
 
@@ -79,17 +78,15 @@ TEST_CASE("030BasisFunctionSet_UnitTest", "[030BasisFunctionSet_UnitTest]") {
         const Base::BaseBasisFunction* test = all2DbasisFunctions[i];
         for (point2D[0] = -1.5; point2D[0] < 1.51; point2D[0] += 0.2) {
             for (point2D[1] = -1.5; point2D[1] < 1.51; point2D[1] += 0.2) {
-                logger.assert_always((test->eval((point2D)) ==
-                                      all2DbasisFunctions.eval(i, (point2D))),
-                                     "eval");
-                logger.assert_always(
-                    (test->evalDeriv0((point2D)) ==
-                     all2DbasisFunctions.evalDeriv(i, 0, (point2D))),
-                    "derivative");
-                logger.assert_always(
-                    (test->evalDeriv1((point2D)) ==
-                     all2DbasisFunctions.evalDeriv(i, 1, (point2D))),
-                    "derivative");
+                INFO("eval");
+                CHECK((test->eval((point2D)) ==
+                       all2DbasisFunctions.eval(i, (point2D))));
+                INFO("derivative");
+                CHECK((test->evalDeriv0((point2D)) ==
+                       all2DbasisFunctions.evalDeriv(i, 0, (point2D))));
+                INFO("derivative");
+                CHECK((test->evalDeriv1((point2D)) ==
+                       all2DbasisFunctions.evalDeriv(i, 1, (point2D))));
             }
         }
     }
@@ -102,22 +99,18 @@ TEST_CASE("030BasisFunctionSet_UnitTest", "[030BasisFunctionSet_UnitTest]") {
         for (point3D[0] = -1.5; point3D[0] < 1.51; point3D[0] += 0.6) {
             for (point3D[1] = -1.5; point3D[1] < 1.51; point3D[1] += 0.7) {
                 for (point3D[2] = -1.5; point3D[2] < 1.51; point3D[2] += 0.8) {
-                    logger.assert_always(
-                        (test->eval((point3D)) ==
-                         all3DbasisFunctions.eval(i, (point3D))),
-                        "eval");
-                    logger.assert_always(
-                        (test->evalDeriv0((point3D)) ==
-                         all3DbasisFunctions.evalDeriv(i, 0, (point3D))),
-                        "derivative");
-                    logger.assert_always(
-                        (test->evalDeriv1((point3D)) ==
-                         all3DbasisFunctions.evalDeriv(i, 1, (point3D))),
-                        "derivative");
-                    logger.assert_always(
-                        (test->evalDeriv2((point3D)) ==
-                         all3DbasisFunctions.evalDeriv(i, 2, (point3D))),
-                        "derivative");
+                    INFO("eval");
+                    CHECK((test->eval((point3D)) ==
+                           all3DbasisFunctions.eval(i, (point3D))));
+                    INFO("derivative");
+                    CHECK((test->evalDeriv0((point3D)) ==
+                           all3DbasisFunctions.evalDeriv(i, 0, (point3D))));
+                    INFO("derivative");
+                    CHECK((test->evalDeriv1((point3D)) ==
+                           all3DbasisFunctions.evalDeriv(i, 1, (point3D))));
+                    INFO("derivative");
+                    CHECK((test->evalDeriv2((point3D)) ==
+                           all3DbasisFunctions.evalDeriv(i, 2, (point3D))));
                 }
             }
         }

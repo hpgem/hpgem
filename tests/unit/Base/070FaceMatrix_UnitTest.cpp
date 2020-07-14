@@ -110,12 +110,14 @@ TEST_CASE("070FaceMatrix_UnitTest", "[070FaceMatrix_UnitTest]") {
             z = i * 10 + j;
             z = z * 100. + z;
 
-            logger.assert_always(F2.getElementMatrix(iS, jS)(iVB, jVB) == z,
-                                 "Face matrix is wrong");
-            logger.assert_always(F3(i, j) == z, "Face matrix is wrong");
-            logger.assert_always(F4.getEntireMatrix()(i, j) == z,
-                                 "Face matrix is wrong");
-            logger.assert_always(F5(i, j) == z, "Face matrix is wrong");
+            INFO("Face matrix is wrong");
+            CHECK(F2.getElementMatrix(iS, jS)(iVB, jVB) == z);
+            INFO("Face matrix is wrong");
+            CHECK(F3(i, j) == z);
+            INFO("Face matrix is wrong");
+            CHECK(F4.getEntireMatrix()(i, j) == z);
+            INFO("Face matrix is wrong");
+            CHECK(F5(i, j) == z);
         }
     }
 

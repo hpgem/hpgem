@@ -71,8 +71,8 @@ TEST_CASE("SmallMatrixUnitTest", "[SmallMatrixUnitTest]") {
     }
     for (std::size_t i = 0; i < destroy.getNumberOfRows(); ++i) {
         for (std::size_t j = 0; j < destroy.getNCols(); ++j) {
-            logger.assert_always(std::abs(destroy(i, j) - 1.) < 1e-12,
-                                 "Entry of a matrix");
+            INFO("Entry of a matrix");
+            CHECK(std::abs(destroy(i, j) - 1.) < 1e-12);
         }
     }
     SmallMatrix<3, 3> moved(std::move(destroy));
@@ -88,8 +88,8 @@ TEST_CASE("SmallMatrixUnitTest", "[SmallMatrixUnitTest]") {
     }
     for (std::size_t i = 0; i < moved.getNumberOfRows(); ++i) {
         for (std::size_t j = 0; j < moved.getNCols(); ++j) {
-            logger.assert_always(std::abs(moved(i, j) - 1.) < 1e-12,
-                                 "Entry of a matrix");
+            INFO("Entry of a matrix");
+            CHECK(std::abs(moved(i, j) - 1.) < 1e-12);
         }
     }
     INFO("Rows in a matrix");
@@ -126,14 +126,14 @@ TEST_CASE("SmallMatrixUnitTest", "[SmallMatrixUnitTest]") {
         INFO("Entry of a matrix");
         CHECK(std::abs(count0[i] - i) < 1e-12);
     }
-    logger.assert_always(std::abs(count0(0, 0) - 0.) < 1e-12,
-                         "Entry of a matrix");
-    logger.assert_always(std::abs(count0(1, 0) - 1.) < 1e-12,
-                         "Entry of a matrix");
-    logger.assert_always(std::abs(count0(0, 1) - 2.) < 1e-12,
-                         "Entry of a matrix");
-    logger.assert_always(std::abs(count0(1, 1) - 3.) < 1e-12,
-                         "Entry of a matrix");
+    INFO("Entry of a matrix");
+    CHECK(std::abs(count0(0, 0) - 0.) < 1e-12);
+    INFO("Entry of a matrix");
+    CHECK(std::abs(count0(1, 0) - 1.) < 1e-12);
+    INFO("Entry of a matrix");
+    CHECK(std::abs(count0(0, 1) - 2.) < 1e-12);
+    INFO("Entry of a matrix");
+    CHECK(std::abs(count0(1, 1) - 3.) < 1e-12);
     INFO("Rows in a matrix");
     CHECK(count1.getNumberOfRows() == 2);
     INFO("Columns in a matrix");
@@ -168,59 +168,72 @@ TEST_CASE("SmallMatrixUnitTest", "[SmallMatrixUnitTest]") {
     A32[5] = 0.5;
 
     // out-of-place operators
-    logger.assert_always(std::abs((count0 * count1)(0, 0) - 10.) < 1e-12,
-                         "multiply");
-    logger.assert_always(std::abs((count0 * count1)(1, 0) - 19.) < 1e-12,
-                         "multiply");
-    logger.assert_always(std::abs((count0 * count1)(0, 1) - 14.) < 1e-12,
-                         "multiply");
-    logger.assert_always(std::abs((count0 * count1)(1, 1) - 27.) < 1e-12,
-                         "multiply");
-    logger.assert_always(std::abs((count1 * count0)(0, 0) - 6.) < 1e-12,
-                         "multiply");
-    logger.assert_always(std::abs((count1 * count0)(1, 0) - 7.) < 1e-12,
-                         "multiply");
-    logger.assert_always(std::abs((count1 * count0)(0, 1) - 26.) < 1e-12,
-                         "multiply");
-    logger.assert_always(std::abs((count1 * count0)(1, 1) - 31.) < 1e-12,
-                         "multiply");
-    logger.assert_always(std::abs((count0 * A23)(0, 0) - .2) < 1e-12,
-                         "multiply");
-    logger.assert_always(std::abs((count0 * A23)(1, 0) - .3) < 1e-12,
-                         "multiply");
-    logger.assert_always(std::abs((count0 * A23)(0, 1) - .6) < 1e-12,
-                         "multiply");
-    logger.assert_always(std::abs((count0 * A23)(1, 1) - 1.1) < 1e-12,
-                         "multiply");
-    logger.assert_always(std::abs((count0 * A23)(0, 2) - 1.) < 1e-12,
-                         "multiply");
-    logger.assert_always(std::abs((count0 * A23)(1, 2) - 1.9) < 1e-12,
-                         "multiply");
-    logger.assert_always(std::abs((A32 * count0)(0, 0) - .3) < 1e-12,
-                         "multiply");
-    logger.assert_always(std::abs((A32 * count0)(1, 0) - .4) < 1e-12,
-                         "multiply");
-    logger.assert_always(std::abs((A32 * count0)(2, 0) - .5) < 1e-12,
-                         "multiply");
-    logger.assert_always(std::abs((A32 * count0)(0, 1) - .9) < 1e-12,
-                         "multiply");
-    logger.assert_always(std::abs((A32 * count0)(1, 1) - 1.4) < 1e-12,
-                         "multiply");
-    logger.assert_always(std::abs((A32 * count0)(2, 1) - 1.9) < 1e-12,
-                         "multiply");
-    logger.assert_always(std::abs((A32 * A23)(0, 0) - .03) < 1e-12, "multiply");
-    logger.assert_always(std::abs((A32 * A23)(1, 0) - .04) < 1e-12, "multiply");
-    logger.assert_always(std::abs((A32 * A23)(2, 0) - .05) < 1e-12, "multiply");
-    logger.assert_always(std::abs((A32 * A23)(0, 1) - .09) < 1e-12, "multiply");
-    logger.assert_always(std::abs((A32 * A23)(1, 1) - .14) < 1e-12, "multiply");
-    logger.assert_always(std::abs((A32 * A23)(2, 1) - .19) < 1e-12, "multiply");
-    logger.assert_always(std::abs((A32 * A23)(0, 2) - .15) < 1e-12, "multiply");
-    logger.assert_always(std::abs((A32 * A23)(1, 2) - .24) < 1e-12, "multiply");
-    logger.assert_always(std::abs((A32 * A23)(2, 2) - .33) < 1e-12, "multiply");
-    logger.assert_always(std::abs((A23 * A32)(0, 0) - .1) < 1e-12, "multiply");
-    logger.assert_always(std::abs((A23 * A32)(1, 0) - .13) < 1e-12, "multiply");
-    logger.assert_always(std::abs((A23 * A32)(0, 1) - .28) < 1e-12, "multiply");
-    logger.assert_always(std::abs((A23 * A32)(1, 1) - .40) < 1e-12, "multiply");
+    INFO("multiply");
+    CHECK(std::abs((count0 * count1)(0, 0) - 10.) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((count0 * count1)(1, 0) - 19.) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((count0 * count1)(0, 1) - 14.) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((count0 * count1)(1, 1) - 27.) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((count1 * count0)(0, 0) - 6.) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((count1 * count0)(1, 0) - 7.) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((count1 * count0)(0, 1) - 26.) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((count1 * count0)(1, 1) - 31.) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((count0 * A23)(0, 0) - .2) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((count0 * A23)(1, 0) - .3) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((count0 * A23)(0, 1) - .6) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((count0 * A23)(1, 1) - 1.1) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((count0 * A23)(0, 2) - 1.) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((count0 * A23)(1, 2) - 1.9) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((A32 * count0)(0, 0) - .3) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((A32 * count0)(1, 0) - .4) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((A32 * count0)(2, 0) - .5) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((A32 * count0)(0, 1) - .9) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((A32 * count0)(1, 1) - 1.4) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((A32 * count0)(2, 1) - 1.9) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((A32 * A23)(0, 0) - .03) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((A32 * A23)(1, 0) - .04) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((A32 * A23)(2, 0) - .05) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((A32 * A23)(0, 1) - .09) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((A32 * A23)(1, 1) - .14) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((A32 * A23)(2, 1) - .19) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((A32 * A23)(0, 2) - .15) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((A32 * A23)(1, 2) - .24) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((A32 * A23)(2, 2) - .33) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((A23 * A32)(0, 0) - .1) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((A23 * A32)(1, 0) - .13) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((A23 * A32)(0, 1) - .28) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((A23 * A32)(1, 1) - .40) < 1e-12);
     INFO("multiply");
     CHECK(std::abs((vec1 * count0) * vec1 - 45) < 1e-12);
     INFO("multiply");
@@ -230,44 +243,54 @@ TEST_CASE("SmallMatrixUnitTest", "[SmallMatrixUnitTest]") {
     CHECK(std::abs(size3 * (A32 * vec0) - 5) < 1e-12);
     INFO("multiply");
     CHECK(std::abs((size3 * A32) * vec0 - 5) < 1e-12);
-    logger.assert_always(std::abs((2 * count0 * 2)(0, 0) - 0.) < 1e-12,
-                         "multiply");
-    logger.assert_always(std::abs((2 * count0 * 2)(1, 0) - 4.) < 1e-12,
-                         "multiply");
-    logger.assert_always(std::abs((2 * count0 * 2)(0, 1) - 8.) < 1e-12,
-                         "multiply");
-    logger.assert_always(std::abs((2 * count0 * 2)(1, 1) - 12.) < 1e-12,
-                         "multiply");
-    logger.assert_always(std::abs((count0 / 2.)(0, 0) - 0.) < 1e-12, "divide");
-    logger.assert_always(std::abs((count0 / 2.)(1, 0) - .5) < 1e-12, "divide");
-    logger.assert_always(std::abs((count0 / 2.)(0, 1) - 1.) < 1e-12, "divide");
-    logger.assert_always(std::abs((count0 / 2.)(1, 1) - 1.5) < 1e-12, "divide");
-    logger.assert_always(std::abs((count0 + count1)(0, 0) - 4.) < 1e-12, "add");
-    logger.assert_always(std::abs((count0 + count1)(1, 0) - 6.) < 1e-12, "add");
-    logger.assert_always(std::abs((count0 + count1)(0, 1) - 8.) < 1e-12, "add");
-    logger.assert_always(std::abs((count0 + count1)(1, 1) - 10.) < 1e-12,
-                         "add");
-    logger.assert_always(std::abs((count1 + count0)(0, 0) - 4.) < 1e-12, "add");
-    logger.assert_always(std::abs((count1 + count0)(1, 0) - 6.) < 1e-12, "add");
-    logger.assert_always(std::abs((count1 + count0)(0, 1) - 8.) < 1e-12, "add");
-    logger.assert_always(std::abs((count1 + count0)(1, 1) - 10.) < 1e-12,
-                         "add");
-    logger.assert_always(std::abs((count0 - count1)(0, 0) + 4.) < 1e-12,
-                         "subtract");
-    logger.assert_always(std::abs((count0 - count1)(1, 0) + 4.) < 1e-12,
-                         "subtract");
-    logger.assert_always(std::abs((count0 - count1)(0, 1) + 4.) < 1e-12,
-                         "subtract");
-    logger.assert_always(std::abs((count0 - count1)(1, 1) + 4.) < 1e-12,
-                         "subtract");
-    logger.assert_always(std::abs((count1 - count0)(0, 0) - 4.) < 1e-12,
-                         "subtract");
-    logger.assert_always(std::abs((count1 - count0)(1, 0) - 4.) < 1e-12,
-                         "subtract");
-    logger.assert_always(std::abs((count1 - count0)(0, 1) - 4.) < 1e-12,
-                         "subtract");
-    logger.assert_always(std::abs((count1 - count0)(1, 1) - 4.) < 1e-12,
-                         "subtract");
+    INFO("multiply");
+    CHECK(std::abs((2 * count0 * 2)(0, 0) - 0.) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((2 * count0 * 2)(1, 0) - 4.) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((2 * count0 * 2)(0, 1) - 8.) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((2 * count0 * 2)(1, 1) - 12.) < 1e-12);
+    INFO("divide");
+    CHECK(std::abs((count0 / 2.)(0, 0) - 0.) < 1e-12);
+    INFO("divide");
+    CHECK(std::abs((count0 / 2.)(1, 0) - .5) < 1e-12);
+    INFO("divide");
+    CHECK(std::abs((count0 / 2.)(0, 1) - 1.) < 1e-12);
+    INFO("divide");
+    CHECK(std::abs((count0 / 2.)(1, 1) - 1.5) < 1e-12);
+    INFO("add");
+    CHECK(std::abs((count0 + count1)(0, 0) - 4.) < 1e-12);
+    INFO("add");
+    CHECK(std::abs((count0 + count1)(1, 0) - 6.) < 1e-12);
+    INFO("add");
+    CHECK(std::abs((count0 + count1)(0, 1) - 8.) < 1e-12);
+    INFO("add");
+    CHECK(std::abs((count0 + count1)(1, 1) - 10.) < 1e-12);
+    INFO("add");
+    CHECK(std::abs((count1 + count0)(0, 0) - 4.) < 1e-12);
+    INFO("add");
+    CHECK(std::abs((count1 + count0)(1, 0) - 6.) < 1e-12);
+    INFO("add");
+    CHECK(std::abs((count1 + count0)(0, 1) - 8.) < 1e-12);
+    INFO("add");
+    CHECK(std::abs((count1 + count0)(1, 1) - 10.) < 1e-12);
+    INFO("subtract");
+    CHECK(std::abs((count0 - count1)(0, 0) + 4.) < 1e-12);
+    INFO("subtract");
+    CHECK(std::abs((count0 - count1)(1, 0) + 4.) < 1e-12);
+    INFO("subtract");
+    CHECK(std::abs((count0 - count1)(0, 1) + 4.) < 1e-12);
+    INFO("subtract");
+    CHECK(std::abs((count0 - count1)(1, 1) + 4.) < 1e-12);
+    INFO("subtract");
+    CHECK(std::abs((count1 - count0)(0, 0) - 4.) < 1e-12);
+    INFO("subtract");
+    CHECK(std::abs((count1 - count0)(1, 0) - 4.) < 1e-12);
+    INFO("subtract");
+    CHECK(std::abs((count1 - count0)(0, 1) - 4.) < 1e-12);
+    INFO("subtract");
+    CHECK(std::abs((count1 - count0)(1, 1) - 4.) < 1e-12);
 
     // assignent operators
     SmallMatrix<2, 2> extra = copy;
@@ -299,10 +322,14 @@ TEST_CASE("SmallMatrixUnitTest", "[SmallMatrixUnitTest]") {
     CHECK(count0.getNCols() == 2);
     INFO("Size of a matrix");
     CHECK(count0.size() == 4);
-    logger.assert_always(std::abs((count0)(0, 0) - 10.) < 1e-12, "multiply");
-    logger.assert_always(std::abs((count0)(1, 0) - 19.) < 1e-12, "multiply");
-    logger.assert_always(std::abs((count0)(0, 1) - 14.) < 1e-12, "multiply");
-    logger.assert_always(std::abs((count0)(1, 1) - 27.) < 1e-12, "multiply");
+    INFO("multiply");
+    CHECK(std::abs((count0)(0, 0) - 10.) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((count0)(1, 0) - 19.) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((count0)(0, 1) - 14.) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((count0)(1, 1) - 27.) < 1e-12);
     count0 *= 4;
     INFO("Rows in a matrix");
     CHECK(count0.getNumberOfRows() == 2);
@@ -310,10 +337,14 @@ TEST_CASE("SmallMatrixUnitTest", "[SmallMatrixUnitTest]") {
     CHECK(count0.getNCols() == 2);
     INFO("Size of a matrix");
     CHECK(count0.size() == 4);
-    logger.assert_always(std::abs((count0)(0, 0) - 40.) < 1e-12, "multiply");
-    logger.assert_always(std::abs((count0)(1, 0) - 76.) < 1e-12, "multiply");
-    logger.assert_always(std::abs((count0)(0, 1) - 56.) < 1e-12, "multiply");
-    logger.assert_always(std::abs((count0)(1, 1) - 108.) < 1e-12, "multiply");
+    INFO("multiply");
+    CHECK(std::abs((count0)(0, 0) - 40.) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((count0)(1, 0) - 76.) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((count0)(0, 1) - 56.) < 1e-12);
+    INFO("multiply");
+    CHECK(std::abs((count0)(1, 1) - 108.) < 1e-12);
     count0 /= 2;
     INFO("Rows in a matrix");
     CHECK(count0.getNumberOfRows() == 2);
@@ -321,10 +352,14 @@ TEST_CASE("SmallMatrixUnitTest", "[SmallMatrixUnitTest]") {
     CHECK(count0.getNCols() == 2);
     INFO("Size of a matrix");
     CHECK(count0.size() == 4);
-    logger.assert_always(std::abs((count0)(0, 0) - 20.) < 1e-12, "divide");
-    logger.assert_always(std::abs((count0)(1, 0) - 38.) < 1e-12, "divide");
-    logger.assert_always(std::abs((count0)(0, 1) - 28.) < 1e-12, "divide");
-    logger.assert_always(std::abs((count0)(1, 1) - 54.) < 1e-12, "divide");
+    INFO("divide");
+    CHECK(std::abs((count0)(0, 0) - 20.) < 1e-12);
+    INFO("divide");
+    CHECK(std::abs((count0)(1, 0) - 38.) < 1e-12);
+    INFO("divide");
+    CHECK(std::abs((count0)(0, 1) - 28.) < 1e-12);
+    INFO("divide");
+    CHECK(std::abs((count0)(1, 1) - 54.) < 1e-12);
     copy += extra;
     INFO("Rows in a matrix");
     CHECK(copy.getNumberOfRows() == 2);
@@ -332,10 +367,14 @@ TEST_CASE("SmallMatrixUnitTest", "[SmallMatrixUnitTest]") {
     CHECK(copy.getNCols() == 2);
     INFO("Size of a matrix");
     CHECK(copy.size() == 4);
-    logger.assert_always(std::abs((copy)(0, 0) - 4.) < 1e-12, "add");
-    logger.assert_always(std::abs((copy)(1, 0) - 6.) < 1e-12, "add");
-    logger.assert_always(std::abs((copy)(0, 1) - 8.) < 1e-12, "add");
-    logger.assert_always(std::abs((copy)(1, 1) - 10.) < 1e-12, "add");
+    INFO("add");
+    CHECK(std::abs((copy)(0, 0) - 4.) < 1e-12);
+    INFO("add");
+    CHECK(std::abs((copy)(1, 0) - 6.) < 1e-12);
+    INFO("add");
+    CHECK(std::abs((copy)(0, 1) - 8.) < 1e-12);
+    INFO("add");
+    CHECK(std::abs((copy)(1, 1) - 10.) < 1e-12);
     extra -= count0;
     INFO("Rows in a matrix");
     CHECK(extra.getNumberOfRows() == 2);
@@ -343,10 +382,14 @@ TEST_CASE("SmallMatrixUnitTest", "[SmallMatrixUnitTest]") {
     CHECK(extra.getNCols() == 2);
     INFO("Size of a matrix");
     CHECK(extra.size() == 4);
-    logger.assert_always(std::abs((extra)(0, 0) + 20.) < 1e-12, "subtract");
-    logger.assert_always(std::abs((extra)(1, 0) + 37.) < 1e-12, "subtract");
-    logger.assert_always(std::abs((extra)(0, 1) + 26.) < 1e-12, "subtract");
-    logger.assert_always(std::abs((extra)(1, 1) + 51.) < 1e-12, "subtract");
+    INFO("subtract");
+    CHECK(std::abs((extra)(0, 0) + 20.) < 1e-12);
+    INFO("subtract");
+    CHECK(std::abs((extra)(1, 0) + 37.) < 1e-12);
+    INFO("subtract");
+    CHECK(std::abs((extra)(0, 1) + 26.) < 1e-12);
+    INFO("subtract");
+    CHECK(std::abs((extra)(1, 1) + 51.) < 1e-12);
     extra.axpy(3., copy);
     INFO("Rows in a matrix");
     CHECK(extra.getNumberOfRows() == 2);
@@ -354,195 +397,171 @@ TEST_CASE("SmallMatrixUnitTest", "[SmallMatrixUnitTest]") {
     CHECK(extra.getNCols() == 2);
     INFO("Size of a matrix");
     CHECK(extra.size() == 4);
-    logger.assert_always(std::abs((extra)(0, 0) + 8.) < 1e-12, "ax+y");
-    logger.assert_always(std::abs((extra)(1, 0) + 19.) < 1e-12, "ax+y");
-    logger.assert_always(std::abs((extra)(0, 1) + 2.) < 1e-12, "ax+y");
-    logger.assert_always(std::abs((extra)(1, 1) + 21.) < 1e-12, "ax+y");
+    INFO("ax+y");
+    CHECK(std::abs((extra)(0, 0) + 8.) < 1e-12);
+    INFO("ax+y");
+    CHECK(std::abs((extra)(1, 0) + 19.) < 1e-12);
+    INFO("ax+y");
+    CHECK(std::abs((extra)(0, 1) + 2.) < 1e-12);
+    INFO("ax+y");
+    CHECK(std::abs((extra)(1, 1) + 21.) < 1e-12);
 
     // wedge stuff
-    logger.assert_always(
-        std::abs((SmallMatrix<2, 1>(vec0).computeWedgeStuffVector()) *
-                     (SmallMatrix<2, 1>(vec0).computeWedgeStuffVector()) -
-                 vec0 * vec0) < 1e-12,
-        "norm of wedge stuff vector");
-    logger.assert_always(
-        std::abs((SmallMatrix<2, 1>(vec0).computeWedgeStuffVector()) * vec0) <
-            1e-12,
-        "direction of wedge stuff vector");
-    logger.assert_always(
-        std::abs((SmallMatrix<2, 1>(vec1).computeWedgeStuffVector()) *
-                     (SmallMatrix<2, 1>(vec1).computeWedgeStuffVector()) -
-                 vec1 * vec1) < 1e-12,
-        "norm of wedge stuff vector");
-    logger.assert_always(
-        std::abs((SmallMatrix<2, 1>(vec1).computeWedgeStuffVector()) * vec1) <
-            1e-12,
-        "direction of wedge stuff vector");
-    logger.assert_always(
-        std::abs((SmallMatrix<2, 1>(vec2).computeWedgeStuffVector()) *
-                     (SmallMatrix<2, 1>(vec2).computeWedgeStuffVector()) -
-                 vec2 * vec2) < 1e-12,
-        "norm of wedge stuff vector");
-    logger.assert_always(
-        std::abs((SmallMatrix<2, 1>(vec2).computeWedgeStuffVector()) * vec2) <
-            1e-12,
-        "direction of wedge stuff vector");
-    logger.assert_always(
-        std::abs((SmallMatrix<2, 1>(vec3).computeWedgeStuffVector()) *
-                     (SmallMatrix<2, 1>(vec3).computeWedgeStuffVector()) -
-                 vec3 * vec3) < 1e-12,
-        "norm of wedge stuff vector");
-    logger.assert_always(
-        std::abs((SmallMatrix<2, 1>(vec3).computeWedgeStuffVector()) * vec3) <
-            1e-12,
-        "direction of wedge stuff vector");
+    INFO("norm of wedge stuff vector");
+    CHECK(std::abs((SmallMatrix<2, 1>(vec0).computeWedgeStuffVector()) *
+                       (SmallMatrix<2, 1>(vec0).computeWedgeStuffVector()) -
+                   vec0 * vec0) < 1e-12);
+    INFO("direction of wedge stuff vector");
+    CHECK(std::abs((SmallMatrix<2, 1>(vec0).computeWedgeStuffVector()) * vec0) <
+          1e-12);
+    INFO("norm of wedge stuff vector");
+    CHECK(std::abs((SmallMatrix<2, 1>(vec1).computeWedgeStuffVector()) *
+                       (SmallMatrix<2, 1>(vec1).computeWedgeStuffVector()) -
+                   vec1 * vec1) < 1e-12);
+    INFO("direction of wedge stuff vector");
+    CHECK(std::abs((SmallMatrix<2, 1>(vec1).computeWedgeStuffVector()) * vec1) <
+          1e-12);
+    INFO("norm of wedge stuff vector");
+    CHECK(std::abs((SmallMatrix<2, 1>(vec2).computeWedgeStuffVector()) *
+                       (SmallMatrix<2, 1>(vec2).computeWedgeStuffVector()) -
+                   vec2 * vec2) < 1e-12);
+    INFO("direction of wedge stuff vector");
+    CHECK(std::abs((SmallMatrix<2, 1>(vec2).computeWedgeStuffVector()) * vec2) <
+          1e-12);
+    INFO("norm of wedge stuff vector");
+    CHECK(std::abs((SmallMatrix<2, 1>(vec3).computeWedgeStuffVector()) *
+                       (SmallMatrix<2, 1>(vec3).computeWedgeStuffVector()) -
+                   vec3 * vec3) < 1e-12);
+    INFO("direction of wedge stuff vector");
+    CHECK(std::abs((SmallMatrix<2, 1>(vec3).computeWedgeStuffVector()) * vec3) <
+          1e-12);
     SmallVector<3> vec3D0{{0., 1., 2.}}, vec3D1{{3., 4., 5.}},
         vec3D2{{0., -1., 2.}};
     ///\todo test that the norm of the 3D wedge stuff vector equals the area of
     /// the triangle formed by nodes {0, 0, 0}, v1 and v2
-    logger.assert_always(
-        std::abs(
-            (SmallMatrix<3, 2>({vec3D0, vec3D1}).computeWedgeStuffVector()) *
-            vec3D0) < 1e-12,
-        "direction of wedge stuff vector");
-    logger.assert_always(
-        std::abs(
-            (SmallMatrix<3, 2>({vec3D0, vec3D1}).computeWedgeStuffVector()) *
-            vec3D1) < 1e-12,
-        "direction of wedge stuff vector");
-    logger.assert_always(
-        std::abs(
-            (SmallMatrix<3, 2>({vec3D1, vec3D2}).computeWedgeStuffVector()) *
-            vec3D1) < 1e-12,
-        "direction of wedge stuff vector");
-    logger.assert_always(
-        std::abs(
-            (SmallMatrix<3, 2>({vec3D1, vec3D2}).computeWedgeStuffVector()) *
-            vec3D2) < 1e-12,
-        "direction of wedge stuff vector");
-    logger.assert_always(
-        std::abs(
-            (SmallMatrix<3, 2>({vec3D0, vec3D2}).computeWedgeStuffVector()) *
-            vec3D0) < 1e-12,
-        "direction of wedge stuff vector");
-    logger.assert_always(
-        std::abs(
-            (SmallMatrix<3, 2>({vec3D0, vec3D2}).computeWedgeStuffVector()) *
-            vec3D2) < 1e-12,
-        "direction of wedge stuff vector");
+    INFO("direction of wedge stuff vector");
+    CHECK(std::abs(
+              (SmallMatrix<3, 2>({vec3D0, vec3D1}).computeWedgeStuffVector()) *
+              vec3D0) < 1e-12);
+    INFO("direction of wedge stuff vector");
+    CHECK(std::abs(
+              (SmallMatrix<3, 2>({vec3D0, vec3D1}).computeWedgeStuffVector()) *
+              vec3D1) < 1e-12);
+    INFO("direction of wedge stuff vector");
+    CHECK(std::abs(
+              (SmallMatrix<3, 2>({vec3D1, vec3D2}).computeWedgeStuffVector()) *
+              vec3D1) < 1e-12);
+    INFO("direction of wedge stuff vector");
+    CHECK(std::abs(
+              (SmallMatrix<3, 2>({vec3D1, vec3D2}).computeWedgeStuffVector()) *
+              vec3D2) < 1e-12);
+    INFO("direction of wedge stuff vector");
+    CHECK(std::abs(
+              (SmallMatrix<3, 2>({vec3D0, vec3D2}).computeWedgeStuffVector()) *
+              vec3D0) < 1e-12);
+    INFO("direction of wedge stuff vector");
+    CHECK(std::abs(
+              (SmallMatrix<3, 2>({vec3D0, vec3D2}).computeWedgeStuffVector()) *
+              vec3D2) < 1e-12);
     SmallVector<4> vec4D0{{0., 1., 2., 3.}}, vec4D1{{4., 5., 6., 7.}},
         vec4D2{{0., -1., 2., -3.}}, vec4D3{{0., -1., -2., 3.}};
     ///\todo test that the norm of the 4D wedge stuff vector equals the area of
     /// the tetrahedron formed by nodes {0, 0, 0}, v1 and v2 and v3
-    logger.assert_always(std::abs((SmallMatrix<4, 3>({vec4D0, vec4D1, vec4D2})
-                                       .computeWedgeStuffVector()) *
-                                  vec4D0) < 1e-12,
-                         "direction of wedge stuff vector");
-    logger.assert_always(std::abs((SmallMatrix<4, 3>({vec4D0, vec4D1, vec4D2})
-                                       .computeWedgeStuffVector()) *
-                                  vec4D1) < 1e-12,
-                         "direction of wedge stuff vector");
-    logger.assert_always(std::abs((SmallMatrix<4, 3>({vec4D0, vec4D1, vec4D2})
-                                       .computeWedgeStuffVector()) *
-                                  vec4D2) < 1e-12,
-                         "direction of wedge stuff vector");
-    logger.assert_always(std::abs((SmallMatrix<4, 3>({vec4D0, vec4D1, vec4D3})
-                                       .computeWedgeStuffVector()) *
-                                  vec4D0) < 1e-12,
-                         "direction of wedge stuff vector");
-    logger.assert_always(std::abs((SmallMatrix<4, 3>({vec4D0, vec4D1, vec4D3})
-                                       .computeWedgeStuffVector()) *
-                                  vec4D1) < 1e-12,
-                         "direction of wedge stuff vector");
-    logger.assert_always(std::abs((SmallMatrix<4, 3>({vec4D0, vec4D1, vec4D3})
-                                       .computeWedgeStuffVector()) *
-                                  vec4D3) < 1e-12,
-                         "direction of wedge stuff vector");
-    logger.assert_always(std::abs((SmallMatrix<4, 3>({vec4D0, vec4D2, vec4D3})
-                                       .computeWedgeStuffVector()) *
-                                  vec4D0) < 1e-12,
-                         "direction of wedge stuff vector");
-    logger.assert_always(std::abs((SmallMatrix<4, 3>({vec4D0, vec4D2, vec4D3})
-                                       .computeWedgeStuffVector()) *
-                                  vec4D2) < 1e-12,
-                         "direction of wedge stuff vector");
-    logger.assert_always(std::abs((SmallMatrix<4, 3>({vec4D0, vec4D2, vec4D3})
-                                       .computeWedgeStuffVector()) *
-                                  vec4D3) < 1e-12,
-                         "direction of wedge stuff vector");
-    logger.assert_always(std::abs((SmallMatrix<4, 3>({vec4D1, vec4D2, vec4D3})
-                                       .computeWedgeStuffVector()) *
-                                  vec4D1) < 1e-12,
-                         "direction of wedge stuff vector");
-    logger.assert_always(std::abs((SmallMatrix<4, 3>({vec4D1, vec4D2, vec4D3})
-                                       .computeWedgeStuffVector()) *
-                                  vec4D2) < 1e-12,
-                         "direction of wedge stuff vector");
-    logger.assert_always(std::abs((SmallMatrix<4, 3>({vec4D1, vec4D2, vec4D3})
-                                       .computeWedgeStuffVector()) *
-                                  vec4D3) < 1e-12,
-                         "direction of wedge stuff vector");
+    INFO("direction of wedge stuff vector");
+    CHECK(std::abs((SmallMatrix<4, 3>({vec4D0, vec4D1, vec4D2})
+                        .computeWedgeStuffVector()) *
+                   vec4D0) < 1e-12);
+    INFO("direction of wedge stuff vector");
+    CHECK(std::abs((SmallMatrix<4, 3>({vec4D0, vec4D1, vec4D2})
+                        .computeWedgeStuffVector()) *
+                   vec4D1) < 1e-12);
+    INFO("direction of wedge stuff vector");
+    CHECK(std::abs((SmallMatrix<4, 3>({vec4D0, vec4D1, vec4D2})
+                        .computeWedgeStuffVector()) *
+                   vec4D2) < 1e-12);
+    INFO("direction of wedge stuff vector");
+    CHECK(std::abs((SmallMatrix<4, 3>({vec4D0, vec4D1, vec4D3})
+                        .computeWedgeStuffVector()) *
+                   vec4D0) < 1e-12);
+    INFO("direction of wedge stuff vector");
+    CHECK(std::abs((SmallMatrix<4, 3>({vec4D0, vec4D1, vec4D3})
+                        .computeWedgeStuffVector()) *
+                   vec4D1) < 1e-12);
+    INFO("direction of wedge stuff vector");
+    CHECK(std::abs((SmallMatrix<4, 3>({vec4D0, vec4D1, vec4D3})
+                        .computeWedgeStuffVector()) *
+                   vec4D3) < 1e-12);
+    INFO("direction of wedge stuff vector");
+    CHECK(std::abs((SmallMatrix<4, 3>({vec4D0, vec4D2, vec4D3})
+                        .computeWedgeStuffVector()) *
+                   vec4D0) < 1e-12);
+    INFO("direction of wedge stuff vector");
+    CHECK(std::abs((SmallMatrix<4, 3>({vec4D0, vec4D2, vec4D3})
+                        .computeWedgeStuffVector()) *
+                   vec4D2) < 1e-12);
+    INFO("direction of wedge stuff vector");
+    CHECK(std::abs((SmallMatrix<4, 3>({vec4D0, vec4D2, vec4D3})
+                        .computeWedgeStuffVector()) *
+                   vec4D3) < 1e-12);
+    INFO("direction of wedge stuff vector");
+    CHECK(std::abs((SmallMatrix<4, 3>({vec4D1, vec4D2, vec4D3})
+                        .computeWedgeStuffVector()) *
+                   vec4D1) < 1e-12);
+    INFO("direction of wedge stuff vector");
+    CHECK(std::abs((SmallMatrix<4, 3>({vec4D1, vec4D2, vec4D3})
+                        .computeWedgeStuffVector()) *
+                   vec4D2) < 1e-12);
+    INFO("direction of wedge stuff vector");
+    CHECK(std::abs((SmallMatrix<4, 3>({vec4D1, vec4D2, vec4D3})
+                        .computeWedgeStuffVector()) *
+                   vec4D3) < 1e-12);
 
-    logger.assert_always(
-        SmallMatrix<3, 2>({vec3D0, vec3D1}).getColumn(0).size() == 3,
-        "getColumn");
-    logger.assert_always(
-        std::abs(((SmallMatrix<3, 2>({vec3D0, vec3D1}).getColumn(0)) -
-                  vec3D0)[0]) < 1e-12,
-        "getColumn");
-    logger.assert_always(
-        std::abs(((SmallMatrix<3, 2>({vec3D0, vec3D1}).getColumn(0)) -
-                  vec3D0)[1]) < 1e-12,
-        "getColumn");
-    logger.assert_always(
-        std::abs(((SmallMatrix<3, 2>({vec3D0, vec3D1}).getColumn(0)) -
-                  vec3D0)[2]) < 1e-12,
-        "getColumn");
-    logger.assert_always(
-        SmallMatrix<3, 2>({vec3D0, vec3D1}).getColumn(1).size() == 3,
-        "getColumn");
-    logger.assert_always(
-        std::abs(((SmallMatrix<3, 2>({vec3D0, vec3D1}).getColumn(1)) -
-                  vec3D1)[0]) < 1e-12,
-        "getColumn");
-    logger.assert_always(
-        std::abs(((SmallMatrix<3, 2>({vec3D0, vec3D1}).getColumn(1)) -
-                  vec3D1)[1]) < 1e-12,
-        "getColumn");
-    logger.assert_always(
-        std::abs(((SmallMatrix<3, 2>({vec3D0, vec3D1}).getColumn(1)) -
-                  vec3D1)[2]) < 1e-12,
-        "getColumn");
-    logger.assert_always(
-        SmallMatrix<3, 2>({vec3D0, vec3D1}).getRow(0).size() == 2, "getRow");
-    logger.assert_always(
-        std::abs(((SmallMatrix<3, 2>({vec3D0, vec3D1}).getRow(0)))[0] - 0.) <
-            1e-12,
-        "getRow");
-    logger.assert_always(
-        std::abs(((SmallMatrix<3, 2>({vec3D0, vec3D1}).getRow(0)))[1] - 3.) <
-            1e-12,
-        "getRow");
-    logger.assert_always(
-        SmallMatrix<3, 2>({vec3D0, vec3D1}).getRow(1).size() == 2, "getRow");
-    logger.assert_always(
-        std::abs(((SmallMatrix<3, 2>({vec3D0, vec3D1}).getRow(1)))[0] - 1.) <
-            1e-12,
-        "getRow");
-    logger.assert_always(
-        std::abs(((SmallMatrix<3, 2>({vec3D0, vec3D1}).getRow(1)))[1] - 4.) <
-            1e-12,
-        "getRow");
-    logger.assert_always(
-        SmallMatrix<3, 2>({vec3D0, vec3D1}).getRow(2).size() == 2, "getRow");
-    logger.assert_always(
-        std::abs(((SmallMatrix<3, 2>({vec3D0, vec3D1}).getRow(2)))[0] - 2.) <
-            1e-12,
-        "getRow");
-    logger.assert_always(
-        std::abs(((SmallMatrix<3, 2>({vec3D0, vec3D1}).getRow(2)))[1] - 5.) <
-            1e-12,
-        "getRow");
+    INFO("getColumn");
+    CHECK(SmallMatrix<3, 2>({vec3D0, vec3D1}).getColumn(0).size() == 3);
+    INFO("getColumn");
+    CHECK(std::abs(((SmallMatrix<3, 2>({vec3D0, vec3D1}).getColumn(0)) -
+                    vec3D0)[0]) < 1e-12);
+    INFO("getColumn");
+    CHECK(std::abs(((SmallMatrix<3, 2>({vec3D0, vec3D1}).getColumn(0)) -
+                    vec3D0)[1]) < 1e-12);
+    INFO("getColumn");
+    CHECK(std::abs(((SmallMatrix<3, 2>({vec3D0, vec3D1}).getColumn(0)) -
+                    vec3D0)[2]) < 1e-12);
+    INFO("getColumn");
+    CHECK(SmallMatrix<3, 2>({vec3D0, vec3D1}).getColumn(1).size() == 3);
+    INFO("getColumn");
+    CHECK(std::abs(((SmallMatrix<3, 2>({vec3D0, vec3D1}).getColumn(1)) -
+                    vec3D1)[0]) < 1e-12);
+    INFO("getColumn");
+    CHECK(std::abs(((SmallMatrix<3, 2>({vec3D0, vec3D1}).getColumn(1)) -
+                    vec3D1)[1]) < 1e-12);
+    INFO("getColumn");
+    CHECK(std::abs(((SmallMatrix<3, 2>({vec3D0, vec3D1}).getColumn(1)) -
+                    vec3D1)[2]) < 1e-12);
+    INFO("getRow");
+    CHECK(SmallMatrix<3, 2>({vec3D0, vec3D1}).getRow(0).size() == 2);
+    INFO("getRow");
+    CHECK(std::abs(((SmallMatrix<3, 2>({vec3D0, vec3D1}).getRow(0)))[0] - 0.) <
+          1e-12);
+    INFO("getRow");
+    CHECK(std::abs(((SmallMatrix<3, 2>({vec3D0, vec3D1}).getRow(0)))[1] - 3.) <
+          1e-12);
+    INFO("getRow");
+    CHECK(SmallMatrix<3, 2>({vec3D0, vec3D1}).getRow(1).size() == 2);
+    INFO("getRow");
+    CHECK(std::abs(((SmallMatrix<3, 2>({vec3D0, vec3D1}).getRow(1)))[0] - 1.) <
+          1e-12);
+    INFO("getRow");
+    CHECK(std::abs(((SmallMatrix<3, 2>({vec3D0, vec3D1}).getRow(1)))[1] - 4.) <
+          1e-12);
+    INFO("getRow");
+    CHECK(SmallMatrix<3, 2>({vec3D0, vec3D1}).getRow(2).size() == 2);
+    INFO("getRow");
+    CHECK(std::abs(((SmallMatrix<3, 2>({vec3D0, vec3D1}).getRow(2)))[0] - 2.) <
+          1e-12);
+    INFO("getRow");
+    CHECK(std::abs(((SmallMatrix<3, 2>({vec3D0, vec3D1}).getRow(2)))[1] - 5.) <
+          1e-12);
 
     ///\todo figure out a way to test a LU factorisation
 
@@ -568,18 +587,18 @@ TEST_CASE("SmallMatrixUnitTest", "[SmallMatrixUnitTest]") {
     CHECK(std::abs((count0 - count0.transpose().transpose())[2]) < 1e-12);
     INFO("transpose");
     CHECK(std::abs((count0 - count0.transpose().transpose())[3]) < 1e-12);
-    logger.assert_always(std::abs(A23(0, 0) - A23.transpose()(0, 0)) < 1e-12,
-                         "transpose");
-    logger.assert_always(std::abs(A23(1, 0) - A23.transpose()(0, 1)) < 1e-12,
-                         "transpose");
-    logger.assert_always(std::abs(A23(0, 1) - A23.transpose()(1, 0)) < 1e-12,
-                         "transpose");
-    logger.assert_always(std::abs(A23(1, 1) - A23.transpose()(1, 1)) < 1e-12,
-                         "transpose");
-    logger.assert_always(std::abs(A23(0, 2) - A23.transpose()(2, 0)) < 1e-12,
-                         "transpose");
-    logger.assert_always(std::abs(A23(1, 2) - A23.transpose()(2, 1)) < 1e-12,
-                         "transpose");
+    INFO("transpose");
+    CHECK(std::abs(A23(0, 0) - A23.transpose()(0, 0)) < 1e-12);
+    INFO("transpose");
+    CHECK(std::abs(A23(1, 0) - A23.transpose()(0, 1)) < 1e-12);
+    INFO("transpose");
+    CHECK(std::abs(A23(0, 1) - A23.transpose()(1, 0)) < 1e-12);
+    INFO("transpose");
+    CHECK(std::abs(A23(1, 1) - A23.transpose()(1, 1)) < 1e-12);
+    INFO("transpose");
+    CHECK(std::abs(A23(0, 2) - A23.transpose()(2, 0)) < 1e-12);
+    INFO("transpose");
+    CHECK(std::abs(A23(1, 2) - A23.transpose()(2, 1)) < 1e-12);
 
     auto data = A23.data();
     INFO("data");

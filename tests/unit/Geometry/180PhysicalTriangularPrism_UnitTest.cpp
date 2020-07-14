@@ -187,24 +187,22 @@ TEST_CASE("180PhysicalTriangularPrism_UnitTest",
     for (std::size_t i = 0; i < 2; ++i) {
         pointIndexes = test.getGlobalFaceNodeIndices(i);
         for (std::size_t j = 0; j < 3; ++j) {
-            logger.assert_always(
-                (pointIndexes[j] ==
-                 test.getNodeIndex(
-                     test.getRefGeometry()
-                         ->getLocalNodeIndexFromFaceAndIndexOnFace(i, j))),
-                "getGlobalFaceNodeIndices");
+            INFO("getGlobalFaceNodeIndices");
+            CHECK((pointIndexes[j] ==
+                   test.getNodeIndex(
+                       test.getRefGeometry()
+                           ->getLocalNodeIndexFromFaceAndIndexOnFace(i, j))));
         }
     }
     pointIndexes.resize(4);
     for (std::size_t i = 2; i < 5; ++i) {
         pointIndexes = test.getGlobalFaceNodeIndices(i);
         for (std::size_t j = 0; j < 4; ++j) {
-            logger.assert_always(
-                (pointIndexes[j] ==
-                 test.getNodeIndex(
-                     test.getRefGeometry()
-                         ->getLocalNodeIndexFromFaceAndIndexOnFace(i, j))),
-                "getGlobalFaceNodeIndices");
+            INFO("getGlobalFaceNodeIndices");
+            CHECK((pointIndexes[j] ==
+                   test.getNodeIndex(
+                       test.getRefGeometry()
+                           ->getLocalNodeIndexFromFaceAndIndexOnFace(i, j))));
         }
     }
 
@@ -212,22 +210,22 @@ TEST_CASE("180PhysicalTriangularPrism_UnitTest",
     for (std::size_t i = 0; i < 2; ++i) {
         pointIndexes = test.getLocalFaceNodeIndices(i);
         for (std::size_t j = 0; j < 3; ++j) {
-            logger.assert_always(
+            INFO("getLocalFaceNodeIndices");
+            CHECK(
                 (pointIndexes[j] ==
                  test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(
-                     i, j)),
-                "getLocalFaceNodeIndices");
+                     i, j)));
         }
     }
     pointIndexes.resize(3);
     for (std::size_t i = 2; i < 5; ++i) {
         pointIndexes = test.getLocalFaceNodeIndices(i);
         for (std::size_t j = 0; j < 4; ++j) {
-            logger.assert_always(
+            INFO("getLocalFaceNodeIndices");
+            CHECK(
                 (pointIndexes[j] ==
                  test.getRefGeometry()->getLocalNodeIndexFromFaceAndIndexOnFace(
-                     i, j)),
-                "getLocalFaceNodeIndices");
+                     i, j)));
         }
     }
 

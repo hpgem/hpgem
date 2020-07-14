@@ -77,13 +77,13 @@ TEST_CASE("040ReferencePoint_UnitTest", "[040ReferencePoint_UnitTest]") {
 
     // testing mappings and quadrature rules
 
-    logger.assert_always((test.getCodim0MappingPtr(
-                              test.getCodim0MappingIndex(base, transformed)) ==
-                          &Geometry::MappingToRefPointToPoint::Instance()),
-                         "getCodim0MappingIndex&Ptr");
-    logger.assert_always((test.getCodim0MappingPtr(base, transformed) ==
-                          &Geometry::MappingToRefPointToPoint::Instance()),
-                         "getCodim0MappingIndex&Ptr");
+    INFO("getCodim0MappingIndex&Ptr");
+    CHECK((test.getCodim0MappingPtr(
+               test.getCodim0MappingIndex(base, transformed)) ==
+           &Geometry::MappingToRefPointToPoint::Instance()));
+    INFO("getCodim0MappingIndex&Ptr");
+    CHECK((test.getCodim0MappingPtr(base, transformed) ==
+           &Geometry::MappingToRefPointToPoint::Instance()));
     INFO("higher codimensional entities");
     CHECK((test.getNumberOfCodim1Entities() == 0 &&
            test.getNumberOfCodim2Entities() == 0) &&
