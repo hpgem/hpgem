@@ -1097,8 +1097,7 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DGMaxEigenvalue<DIM>::solve(
         }
 
         // Use solution of previous time as starting point for the next one.
-        error = EPSSetInitialSpace(workspace.solver_,
-                                   workspace.convergedEigenValues_,
+        error = EPSSetInitialSpace(workspace.solver_, usableInitialVectors,
                                    workspace.eigenVectors_);
         CHKERRABORT(PETSC_COMM_WORLD, error);
 
