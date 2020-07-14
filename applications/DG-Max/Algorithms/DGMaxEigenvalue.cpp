@@ -583,10 +583,8 @@ void SolverWorkspace::setupSolver() {
     PetscErrorCode error;
     // Setup the EPS eigen value solver of SLEPC to find the eigenvalues of
     // `product`.
-    //    error = EPSSetOperators(solver_, shell_, NULL);
-    error = EPSSetOperators(solver_, stiffnessMatrix_, nullptr);
+    error = EPSSetOperators(solver_, shell_, NULL);
     CHKERRABORT(PETSC_COMM_WORLD, error);
-    DGMaxLogger(INFO, "Solver setup completed");
 
     if (config_.useProjector_) {
         Mat projectionH;
@@ -626,10 +624,6 @@ void SolverWorkspace::setupSolver() {
         EPSSetDeflationSpace(solver_,
                              projectorIndex_.getNumberOfLocalBasisFunctions(),
                              nullspaceBasis_);
-
-        error = EPSSetUp(solver_);
-        CHKERRABORT(PETSC_COMM_WORLD, error);
-
         error = MatDestroy(&projectionH);
         CHKERRABORT(PETSC_COMM_WORLD, error);
         DGMaxLogger(INFO, "Projection solver setup completed");
@@ -1199,6 +1193,10 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DGMaxEigenvalue<DIM>::solve(
         CHKERRABORT(PETSC_COMM_WORLD, error);
 
         DGMaxLogger(INFO, "Solving eigenvalue problem");
+
+        error = EPSSetUp(workspace.solver_);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+        DGMaxLogger(INFO, "Solver setup completed");
 
         auto start = std::chrono::high_resolution_clock::now();
 
