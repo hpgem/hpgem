@@ -73,7 +73,7 @@ class AbstractEigenvalueResult {
         for (std::size_t i = 0;
              i < originalProblem().getPath().totalNumberOfSteps(); ++i) {
             std::vector<double> freqs = frequencies(i);
-            stream<<"k-point frequencies->\n";
+            stream<<"k-point" << separator <<  "frequencies->\n";
             stream << i;
             for (double& freq : freqs) {
                 stream << separator << freq;
