@@ -62,13 +62,10 @@ class DGMaxEigenvalueBase {
               stab_(100),
               useProjector_(false){};
 
-        /// Reformulate the generalized eigenvalue in a Hermitian or non
-        /// Hermitian way.
-        // Note, directly influences the storage of the stored matrices.
+        /// Whether to solve M^{-1}S x = omega^2 (non Hermitian) or
+        /// L^{-1} S L^{-T}y = omega^2 y (Hermitian)
         bool useHermitian_;
-        /// Use shifted basis functions, where each of them has the shift e^{i a
-        /// k x}, where x is the center of the element, k is the point in
-        /// reciprocal space and a is this shift factor
+        /// The factor 's' in shifting the basis functions
         double shiftFactor_;
         /// Stabilization parameter (will be rescaled based on facet size).
         double stab_;
@@ -83,6 +80,62 @@ class DGMaxEigenvalueBase {
     };
 };
 
+/**
+ * Solver of the Bloch Eigenvalue problem based on DGMaxDiscretization.
+ *
+ * The most basic version solves the eigenvalue problem S(k) u = omega^2 Mu,
+ * where u are the coefficients for the electric field, M is the mass matrix and
+ * S is the stiffness matrix. The matrix S(k) depends on the k-point and is
+ * Hermitian (with complex values) positive semi definite. The matrix M is an
+ * mass matrix weighted by the dielectric constant, and is thus block diagonal
+ * and positive definite.
+ *
+ * The dependence on the k-point is part of the stiffness matrix. In most basic
+ * form of the problem we have the Bloch-periodic boundary condition:
+ * E(x+a) = E(x) e^{ika},
+ * where E is the electric field which we are solving for, x and x+a are two
+ * points that are connected through the periodic boundary, i is the imaginary
+ * unit and k is the kpoint for which we are solving. As result the face-matrix
+ * for the faces on the periodic boundary gain a factor e^{ika} and e^{-ika} on
+ * the off diagonal blocks. The implementation of DGMaxDiscretization gives the
+ * correct matrix for k=0, for different k-points the matrix S needs to be
+ * adjusted.
+ *
+ * In addition to this most basic problem there are a few extra options that can
+ * be enabled in the solver:
+ *  - Hermitian/Non Hermitian: To solve the problem as a standard eigenvalue
+ *    problem it was originally reformulated as M^{-1}S u = omega^2 u, which is
+ *    non-Hermitian. For the Hermitian variant we instead use the Cholesky
+ *    decomposition of M = LL^T, and solve L^{-1} S L^{-T} y = omega^2 y, with
+ *    L^T u = y.
+ *  - Shifts: the idea is that the convergence between different k-points may
+ *    improve if we give each basis function psi(x) a phase shift
+ *    psi(x) e^{s*ik x0} where x0 is a fixed point of the basis function (we use
+ *    the center of its element) and s a configurable number. Use 0 to disable
+ *    it. These phase shifts result in that the stiffness matrix is changed from
+ *    S(k) to D(k) S(k) D^* (k), where D(k) is a diagonal matrix with the phase
+ *    shifts e^{s ik x0} on the diagonal.
+ *  - Projector: The stiffness matrix S has a large kernel, corresponding to
+ *    fields that are not divergence free. The projector uses that we have an
+ *    analytic expression for these to remove them. For this projector an extra
+ *    matrix B(k) is introduced with a non-orthogonal basis for the kernel of S,
+ *    i.e. S(k) B(k) = 0. Just like S the matrix B depends on the k-point,
+ *    where entries get a phase factor e^{+-ika}.
+ *
+ * Implementation note:
+ *  - The ordering of L from the Hermitian reformulation and D from the shifts
+ *    does not matter. The L matrix is block diagonal with each block
+ *    corresponding to a block. The matrix D is diagonal, but as we choose the
+ *    phase shifts based on the center of the element, we get that it is
+ *    constant in each block. Therefore, we have L^{-1} D = D L^{-1}. This is
+ *    convenient as shifting basis functions would imply that the correct order
+ *    is L^{-1} D S D^* L^{-T} (shift basis functions first), while for
+ *    implementation it is more practical to use the reverse order
+ *    D L^{-1} S L^{-T} D^*, as this allows assembling the middle matrix and
+ *    then using a diagonal rescaling.
+ *
+ * @tparam DIM The dimension of the problem (and thus k-vector)
+ */
 template <std::size_t DIM>
 class DGMaxEigenvalue : public AbstractEigenvalueSolver<DIM>,
                         public DGMaxEigenvalueBase {
