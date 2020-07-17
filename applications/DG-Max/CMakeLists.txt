@@ -25,8 +25,9 @@ if(hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
 		Utils/BandstructureUtils.cpp
 		Utils/HomogeneousBandStructure.cpp
 		Utils/BraggStackBandstructure.cpp
+		Utils/MatrixBlocks.cpp
 		Utils/KSpacePath.cpp
-
+		Utils/KPhaseShift.cpp
 
 		Utils/Verification/DGMaxEVConvergenceTest.cpp
 		Utils/Verification/DivDGMaxEVConvergenceTest.cpp

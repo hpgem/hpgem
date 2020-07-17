@@ -40,6 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <chrono>  // For timing
 #include <iostream>
+#include <utility>
 #include <valarray>
 #include <vector>
 
@@ -52,6 +53,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "LinearAlgebra/SmallVector.h"
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
+#include "Utils/KPhaseShift.h"
 
 template <std::size_t DIM>
 DGMaxEigenvalue<DIM>::DGMaxEigenvalue(Base::MeshManipulator<DIM>& mesh,
@@ -74,143 +76,6 @@ void DGMaxEigenvalue<DIM>::initializeMatrices() {
                                          config_.stab_);
 }
 
-/// Storage space for KShift
-struct KShiftStorage {
-    /// The values to be inserted
-    std::vector<std::complex<double>> values_;
-};
-
-/// \brief Description of a k-shifted matrix block
-/// For the k-shifted boundary conditions there matrix entries that get a phase
-/// factor exp(i k*x). KShift describes a block of a matrix with a fixed x that
-/// needs to shifted. The block is described by a set of row and column indices,
-/// the entries of this block will be replaced by exp(i k*x) * block.
-///
-/// \tparam DIM The dimension of the wave vector k
-
-template <std::size_t DIM>
-struct KShift {
-    // Implementation note. The alternative to replacing the block is taking it
-    // out and multiplying it with exp(i dk*x), with dk the change with the
-    // previous k-vector. However, after replacing a block a call to assemble is
-    // needed, resulting in possibly significant synchronization overhead. The
-    // current approach only needs a single assembly call.
-   private:
-    /// Indices for the rows of the global matrix where the block needs to be
-    /// inserted
-    std::vector<PetscInt> rowIndices_;
-    /// Indices for the columns of the global matrix where the block needs to be
-    /// inserted
-    std::vector<PetscInt> columnIndices_;
-    /// Whether the hermitian counter part also needs to be shifted
-    const bool hermitian_;
-    /// Distance between the two sides for the shift
-    const LinearAlgebra::SmallVector<DIM> dx_;
-    /// Block that needs to be shifted and inserted
-    const LinearAlgebra::MiddleSizeMatrix block1_;
-    /// Block that needs to be shifted and inserted for the hermitian part.
-    const LinearAlgebra::MiddleSizeMatrix block2_;
-
-   public:
-    KShift(PetscInt startRowIndex, PetscInt lengthRowIndex,
-           PetscInt startColIndex, PetscInt lengthColIndex, bool hermitian,
-           const LinearAlgebra::SmallVector<DIM>& dx,
-           const LinearAlgebra::MiddleSizeMatrix& block1,
-           const LinearAlgebra::MiddleSizeMatrix& block2);
-
-    /// Create a KShift for a Periodic boundary face in the stiffness matrix.
-    ///
-    /// \param face The face
-    /// \param indexing The indexing used in the matrix
-    /// \param dx The difference x_L - x_R, where x_L is the position of the
-    /// face from the
-    ///     left element and x_R that as seen from the right.
-    /// \param config Configuration of the solver
-    /// \return The corresponding shift.
-    static KShift<DIM> faceShift(const Base::Face* face,
-                                 const Utilities::GlobalIndexing& indexing,
-                                 LinearAlgebra::SmallVector<DIM> dx,
-                                 DGMaxEigenvalueBase::SolverConfig config);
-
-    /// Create KShift-s for basis functions associated with a specific node for
-    /// the projector matrix.
-    ///
-    /// \param node The node on the periodic boundary
-    /// \param projectorIndex The GlobalIndex of the projector unknown
-    /// \param indexing The GlobalIndex of the field unknown
-    /// \param out The vector to which to add the create KShifts
-    static void addNodeProjectorShifts(
-        const Base::Node* node, const Utilities::GlobalIndexing& projectorIndex,
-        const Utilities::GlobalIndexing& indexing,
-        const DGMaxEigenvalueBase::SolverConfig& config,
-        std::vector<KShift<DIM>>& out);
-
-    static void addEdgeProjectorShifts(
-        const Base::Edge* edge, const Utilities::GlobalIndexing& projectorIndex,
-        const Utilities::GlobalIndexing& indexing,
-        const DGMaxEigenvalueBase::SolverConfig& config,
-        std::vector<KShift<DIM>>& out);
-
-    static void addFaceProjectorShifts(
-        const Base::Face* face, const Utilities::GlobalIndexing& projectorIndex,
-        const Utilities::GlobalIndexing& indexing,
-        const DGMaxEigenvalueBase::SolverConfig& config,
-        std::vector<KShift<DIM>>& out);
-
-    /// Helper function to create a projector KShift for the projector basis
-    /// functions associated with geom (node, edge, face) and the field basis
-    /// functions on a adjacent element.
-    template <typename GEOM>
-    static void addElementProjectorShift(
-        const GEOM* geom, const Geometry::PointPhysical<DIM>& owningCoord,
-        const Base::Element* element,
-        const Utilities::GlobalIndexing& projectorIndex,
-        const Utilities::GlobalIndexing& indexing,
-        const DGMaxEigenvalueBase::SolverConfig& config,
-        std::vector<KShift<DIM>>& out);
-
-    /// Check for a k-vector if a phase factor is incurred.
-    bool shiftNeeded(LinearAlgebra::SmallVector<DIM> k) const {
-        return std::abs(dx_ * k) > 1e-12;
-    }
-
-    /// Perform the actual shift
-    ///
-    /// \param k The wave vector
-    /// \param storage Temporary storage space to use
-    /// \param mat The matrix in which to insert the block(s).
-    void shift(LinearAlgebra::SmallVector<DIM> k, KShiftStorage& storage,
-               Mat mat) const {
-        if (shiftNeeded(k)) {
-            setupShift(storage);
-            insertShiftedBlock(k * dx_, false, storage, mat);
-            if (hermitian_) {
-                insertShiftedBlock(k * dx_, true, storage, mat);
-            }
-        }
-    }
-
-   private:
-    /// Setup the storage for shifing
-    void setupShift(KShiftStorage& storage) const {
-        // Ensure that there are enough entries
-        std::size_t entries = rowIndices_.size() * columnIndices_.size();
-        if (storage.values_.size() < entries) {
-            storage.values_.resize(entries);
-        }
-    }
-
-    /// Insert the shifted block into the matrix
-    ///
-    /// \param kshift The shift k*dx.
-    /// \param hermitianPart Whether to insert the Hermitian transposed block
-    /// (true) or the normal one. \param storage The storage space to use
-    /// (prepared with setupShift(KShiftStorage&)) \param mat The matrix to
-    /// insert into
-    void insertShiftedBlock(double kshift, bool hermitianPart,
-                            KShiftStorage& storage, Mat mat) const;
-};
-
 // SolverWorkspace //
 /////////////////////
 
@@ -230,7 +95,7 @@ struct SolverWorkspace {
           tempFieldVector_(fieldIndex_, -1, -1),
           tempProjectorVector_(projectorIndex_, -1, -1),
           setupHasBeenRun_(false),
-          targetFrequency_(3) {}
+          targetFrequency_(1) {}
 
     /// Initialize the solver, should only be called once.
     void init(Base::MeshManipulatorBase* mesh, std::size_t numberOfEigenvalues,
@@ -239,8 +104,8 @@ struct SolverWorkspace {
     /// Update the blocks in the matrices that are affected by the k-shifted
     /// boundary conditions.
     template <std::size_t DIM>
-    void shift(const std::vector<KShift<DIM>>& stiffnessMatrixShifts,
-               const std::vector<KShift<DIM>>& projectorShifts,
+    void shift(const DGMax::KPhaseShifts<DIM>& stiffnessMatrixShifts,
+               const DGMax::KPhaseShifts<DIM>& projectorShifts,
                const LinearAlgebra::SmallVector<DIM>& k);
     /// Update the vectors used to adjust for the shifted basis functions.
     template <std::size_t DIM>
@@ -313,9 +178,6 @@ struct SolverWorkspace {
     void initSolver(std::size_t numberOfEigenvalues);
     void initEigenvectorStorage(std::size_t numberOfEigenvectors);
 
-    template <std::size_t DIM>
-    void shiftMatrix(Mat mat, const std::vector<KShift<DIM>>& shifts,
-                     const LinearAlgebra::SmallVector<DIM>& k);
     void shellMultiply(Vec in, Vec out);
     static PetscErrorCode staticShellMultiply(Mat mat, Vec in, Vec out);
 };
@@ -635,36 +497,14 @@ void SolverWorkspace::extractEigenVectors() {
 }
 
 template <std::size_t DIM>
-void SolverWorkspace::shiftMatrix(Mat mat,
-                                  const std::vector<KShift<DIM>>& shifts,
-                                  const LinearAlgebra::SmallVector<DIM>& k) {
-    PetscErrorCode error;
-    error = MatSetOption(mat, MAT_ROW_ORIENTED, PETSC_FALSE);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    KShiftStorage storage;
-    for (const KShift<DIM>& toShift : shifts) {
-        toShift.shift(k, storage, mat);
-    }
-    // Go back to the default row orientation
-    error = MatSetOption(mat, MAT_ROW_ORIENTED, PETSC_TRUE);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-
-    // Assembly after inserts from face-phase-shifts
-    error = MatAssemblyBegin(mat, MAT_FINAL_ASSEMBLY);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    error = MatAssemblyEnd(mat, MAT_FINAL_ASSEMBLY);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-}
-
-template <std::size_t DIM>
 void SolverWorkspace::shift(
-    const std::vector<KShift<DIM>>& stiffnessMatrixShifts,
-    const std::vector<KShift<DIM>>& projectorShifts,
+    const DGMax::KPhaseShifts<DIM>& stiffnessMatrixShifts,
+    const DGMax::KPhaseShifts<DIM>& projectorShifts,
     const LinearAlgebra::SmallVector<DIM>& k) {
     // Maybe move to KShift as static function
-    shiftMatrix(getActualStiffnessMatrix(), stiffnessMatrixShifts, k);
+    stiffnessMatrixShifts.apply(k, getActualStiffnessMatrix());
     if (config_.useProjector_) {
-        shiftMatrix(projectorMatrix_, projectorShifts, k);
+        projectorShifts.apply(k, projectorMatrix_);
     }
 }
 
@@ -739,290 +579,6 @@ void SolverWorkspace::cleanup() {
     }
 }
 
-// Helpers for KShift //
-////////////////////////
-
-template <std::size_t DIM>
-Geometry::PointPhysical<DIM> getCoordinate(const Base::Element* element,
-                                           const Base::Node* node) {
-    return element->getPhysicalGeometry()->getLocalNodeCoordinates(
-        element->getLocalId(node));
-}
-
-template <std::size_t DIM>
-Geometry::PointPhysical<DIM> getCoordinate(const Base::Element* element,
-                                           const Base::Edge* edge) {
-    std::size_t localEdgeId = element->getLocalId(edge);
-    std::vector<std::size_t> nodeIds =
-        element->getReferenceGeometry()->getCodim2EntityLocalIndices(
-            localEdgeId);
-    const Geometry::PointPhysical<DIM> n1 =
-        element->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIds[0]);
-    const Geometry::PointPhysical<DIM> n2 =
-        element->getPhysicalGeometry()->getLocalNodeCoordinates(nodeIds[1]);
-    return 0.5 * (n1 + n2);
-}
-
-template <std::size_t DIM>
-Geometry::PointPhysical<DIM> getCoordinate(const Base::Element* element,
-                                           const Base::Face* face) {
-    bool isLeft = face->getPtrElementLeft() == element;
-    logger.assert_debug(isLeft || face->getPtrElementRight() == element,
-                        "Not a neighbouring element");
-    const Geometry::PointReference<DIM - 1> faceCenter =
-        face->getReferenceGeometry()->getCenter();
-    const Geometry::PointReference<DIM> elementFaceCenter =
-        isLeft ? face->mapRefFaceToRefElemL(faceCenter)
-               : face->mapRefFaceToRefElemR(faceCenter);
-    return element->referenceToPhysical(elementFaceCenter);
-}
-
-// KShift implementation //
-///////////////////////////
-
-template <std::size_t DIM>
-KShift<DIM>::KShift(PetscInt startRowIndex, PetscInt lengthRowIndex,
-                    PetscInt startColIndex, PetscInt lengthColIndex,
-                    bool hermitian, const LinearAlgebra::SmallVector<DIM>& dx,
-                    const LinearAlgebra::MiddleSizeMatrix& block1,
-                    const LinearAlgebra::MiddleSizeMatrix& block2)
-    : rowIndices_(lengthRowIndex),
-      columnIndices_(lengthColIndex),
-      hermitian_(hermitian),
-      dx_(dx),
-      block1_(block1),
-      block2_(block2) {
-    for (PetscInt i = 0; i < lengthRowIndex; ++i) {
-        rowIndices_[i] = i + startRowIndex;
-    }
-    for (PetscInt i = 0; i < lengthColIndex; ++i) {
-        columnIndices_[i] = i + startColIndex;
-    }
-}
-
-template <std::size_t DIM>
-KShift<DIM> KShift<DIM>::faceShift(const Base::Face* face,
-                                   const Utilities::GlobalIndexing& indexing,
-                                   LinearAlgebra::SmallVector<DIM> dx,
-                                   DGMaxEigenvalueBase::SolverConfig config) {
-
-    // Element that this processor owns
-    const Base::Element* ownedElement = face->getPtrElementLeft();
-    // Element that this processor might own (owned == hermitian_)
-    const Base::Element* otherElement;
-    Base::Side ownedElementSide, otherElementSide;
-    bool hermitian;
-    if (!ownedElement->isOwnedByCurrentProcessor()) {
-        // Switch the role of owned & other element so that the owned element is
-        // actually owned.
-        otherElement = ownedElement;
-        ownedElement = face->getPtrElementRight();
-        ownedElementSide = Base::Side::RIGHT;
-        otherElementSide = Base::Side::LEFT;
-        // The Hermitian block is not shifted on this processor but on the owner
-        // of the otherElement.
-        hermitian = false;
-        // dx is the jump in coordinate to go from other->owned, swapping owned
-        // and other means that we get the inverse jump.
-        dx *= -1.0;
-    } else {
-        otherElement = face->getPtrElementRight();
-        ownedElementSide = Base::Side::LEFT;
-        otherElementSide = Base::Side::RIGHT;
-        hermitian = otherElement->isOwnedByCurrentProcessor();
-    }
-    logger.assert_debug(ownedElement->isOwnedByCurrentProcessor(),
-                        "Not owning either side of the face!");
-    if (config.usesShifts()) {
-        // Rows are scaled by e^(ikx) and columns by e^(-ikx) where x is the
-        // centre of the element owning the row/column. As the matrices are
-        // inserted from scratch we need to add this factor.
-        Geometry::PointPhysical<DIM> centerPhys;
-        const Geometry::PointReference<DIM>& center1 =
-            ownedElement->getReferenceGeometry()->getCenter();
-        centerPhys = ownedElement->referenceToPhysical(center1);
-        // Owned element corresponds to the rows -> +x
-        dx += centerPhys.getCoordinates() * config.shiftFactor_;
-        const Geometry::PointReference<DIM>& center2 =
-            otherElement->getReferenceGeometry()->getCenter();
-        centerPhys = otherElement->referenceToPhysical(center2);
-        // The other element is for the columns -> -x
-        dx -= centerPhys.getCoordinates() * config.shiftFactor_;
-    }
-
-    const Base::FaceMatrix& faceMatrix =
-        face->getFaceMatrix(DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
-    LinearAlgebra::MiddleSizeMatrix block1, block2;
-    // Note ordering, we need the block where the rows are from the
-    // ownedElement. The rows correspond to the test functions, hence
-    // ownedElementSide as first argument.
-    block1 = faceMatrix.getElementMatrix(ownedElementSide, otherElementSide);
-    block2 = faceMatrix.getElementMatrix(otherElementSide, ownedElementSide);
-    if (!config.useHermitian_) {
-        // The stiffness matrix is premultiplied by the (inverse) mass matrix.
-        // Thus multiply by the mass matrix of the element corresponding to the
-        // rows.
-        block1 = ownedElement->getElementMatrix(
-                     DGMaxDiscretization<DIM>::MASS_MATRIX_ID) *
-                 block1;
-        block2 = otherElement->getElementMatrix(
-                     DGMaxDiscretization<DIM>::MASS_MATRIX_ID) *
-                 block2;
-    }
-    KShift<DIM> result(indexing.getGlobalIndex(ownedElement, 0),
-                       ownedElement->getNumberOfBasisFunctions(0),
-                       indexing.getGlobalIndex(otherElement, 0),
-                       otherElement->getNumberOfBasisFunctions(0), hermitian,
-                       dx, block1, block2);
-    return result;
-}
-
-template <std::size_t DIM>
-void KShift<DIM>::addFaceProjectorShifts(
-    const Base::Face* face, const Utilities::GlobalIndexing& projectorIndex,
-    const Utilities::GlobalIndexing& indexing,
-    const DGMaxEigenvalueBase::SolverConfig& config,
-    std::vector<KShift<DIM>>& out) {
-    logger.assert_debug(face->isOwnedByCurrentProcessor(),
-                        "Not owned by current processor");
-
-    // Associate the node with an element that owns it
-    const Base::Element* owningElement = face->getPtrElementLeft();
-    const Geometry::PointPhysical<DIM> owningCoord =
-        getCoordinate<DIM>(owningElement, face);
-
-    addElementProjectorShift(face, owningCoord, face->getPtrElementRight(),
-                             projectorIndex, indexing, config, out);
-}
-
-template <std::size_t DIM>
-void KShift<DIM>::addEdgeProjectorShifts(
-    const Base::Edge* edge, const Utilities::GlobalIndexing& projectorIndex,
-    const Utilities::GlobalIndexing& indexing,
-    const DGMaxEigenvalueBase::SolverConfig& config,
-    std::vector<KShift<DIM>>& out) {
-    logger.assert_debug(edge->isOwnedByCurrentProcessor(),
-                        "Not owned by current processor");
-
-    // Associate the node with an element that owns it
-    const Base::Element* owningElement = edge->getOwningElement();
-    const Geometry::PointPhysical<DIM> owningCoord =
-        getCoordinate<DIM>(owningElement, edge);
-
-    for (const Base::Element* element : edge->getElements()) {
-        addElementProjectorShift(edge, owningCoord, element, projectorIndex,
-                                 indexing, config, out);
-    }
-}
-
-template <std::size_t DIM>
-void KShift<DIM>::addNodeProjectorShifts(
-    const Base::Node* node, const Utilities::GlobalIndexing& projectorIndex,
-    const Utilities::GlobalIndexing& indexing,
-    const DGMaxEigenvalueBase::SolverConfig& config,
-    std::vector<KShift<DIM>>& out) {
-    logger.assert_debug(node->isOwnedByCurrentProcessor(),
-                        "Not owned by current processor");
-
-    // Associate the node with an element that owns it
-    const Base::Element* owningElement = node->getOwningElement();
-    const Geometry::PointPhysical<DIM> owningCoord =
-        getCoordinate<DIM>(owningElement, node);
-
-    for (const Base::Element* element : node->getElements()) {
-        addElementProjectorShift(node, owningCoord, element, projectorIndex,
-                                 indexing, config, out);
-    }
-}
-
-template <std::size_t DIM>
-template <typename GEOM>
-void KShift<DIM>::addElementProjectorShift(
-    const GEOM* geom, const Geometry::PointPhysical<DIM>& owningCoord,
-    const Base::Element* element,
-    const Utilities::GlobalIndexing& projectorIndex,
-    const Utilities::GlobalIndexing& indexing,
-    const DGMaxEigenvalueBase::SolverConfig& config,
-    std::vector<KShift<DIM>>& out) {
-    const Geometry::PointPhysical<DIM> elementCoord =
-        getCoordinate<DIM>(element, geom);
-    // TODO Check why, currently only checked in MATLAB
-    LinearAlgebra::SmallVector<DIM> dx =
-        owningCoord.getCoordinates() - elementCoord.getCoordinates();
-    if (dx.l2Norm() > 1e-12) {
-        const Geometry::PointReference<DIM>& center =
-            element->getReferenceGeometry()->getCenter();
-        if (config.usesShifts()) {
-            // Rescaling of the columns, as the shifts for the field basis
-            // functions are e^{-ikx}. Where the convention is used that the
-            // trial basis functions use the - sign.
-            dx -= element->referenceToPhysical(center).getCoordinates() *
-                  config.shiftFactor_;
-        }
-
-        std::size_t numProjectorDoF = geom->getLocalNumberOfBasisFunctions(1);
-
-        // Difference in coordinates for the node => shift is needed
-        std::size_t numSolutionDoF = element->getLocalNumberOfBasisFunctions(0);
-        LinearAlgebra::MiddleSizeMatrix matrix(numProjectorDoF, numSolutionDoF);
-        const LinearAlgebra::MiddleSizeMatrix& originalMatrix =
-            element->getElementMatrix(
-                DGMaxDiscretization<DIM>::PROJECTOR_MATRIX_ID);
-
-        // Offset
-        std::size_t localOffset = element->getBasisFunctionOffset(geom, 1);
-        for (std::size_t i = 0; i < numProjectorDoF; ++i) {
-            for (std::size_t j = 0; j < numSolutionDoF; ++j) {
-                matrix(i, j) = originalMatrix(i + localOffset, j);
-            }
-        }
-        PetscInt globalProjectorIndex = projectorIndex.getGlobalIndex(geom, 1);
-        PetscInt globalElementIndex = indexing.getGlobalIndex(element, 0);
-        // Nothing on the Hermitian block
-        LinearAlgebra::MiddleSizeMatrix emptyMatrix;
-        out.emplace_back(globalProjectorIndex, numProjectorDoF,
-                         globalElementIndex, numSolutionDoF, false, dx, matrix,
-                         emptyMatrix);
-    }
-}
-
-template <std::size_t DIM>
-void KShift<DIM>::insertShiftedBlock(double kshift, bool hermitianPart,
-                                     KShiftStorage& storage, Mat mat) const {
-    const std::complex<double> phase =
-        exp(std::complex<double>(0, hermitianPart ? -kshift : kshift));
-    // Copy data to temp matrix
-    const LinearAlgebra::MiddleSizeMatrix& block =
-        hermitianPart ? block2_ : block1_;
-    for (std::size_t i = 0; i < block.size(); ++i) {
-        storage.values_[i] = phase * block[i];
-    }
-
-    PetscErrorCode err;
-#ifdef HPGEM_ASSERTS
-    // Check if the matrix is column oriented, as MiddleSizeMatrix stores it in
-    // column order.
-    PetscBool isRowOriented = PETSC_FALSE;
-    // TODO: Does not seem to do anything
-    err = MatGetOption(mat, MAT_ROW_ORIENTED, &isRowOriented);
-    CHKERRABORT(PETSC_COMM_WORLD, err);
-    logger.assert_debug(isRowOriented == PETSC_FALSE,
-                        "Requires column orientation");
-#endif
-    if (!hermitianPart) {
-        err =
-            MatSetValues(mat, (PetscInt)rowIndices_.size(), rowIndices_.data(),
-                         (PetscInt)columnIndices_.size(), columnIndices_.data(),
-                         storage.values_.data(), INSERT_VALUES);
-    } else {
-        err = MatSetValues(mat, (PetscInt)columnIndices_.size(),
-                           columnIndices_.data(), (PetscInt)rowIndices_.size(),
-                           rowIndices_.data(), storage.values_.data(),
-                           INSERT_VALUES);
-    }
-    CHKERRABORT(PETSC_COMM_WORLD, err);
-}
-
 ///
 
 template <std::size_t DIM>
@@ -1042,11 +598,87 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DGMaxEigenvalue<DIM>::solve(
     // Setup the boundary block shifting //
     ///////////////////////////////////////
 
-    const std::vector<KShift<DIM>> periodicShifts =
-        findPeriodicShifts(workspace.fieldIndex_);
-    const std::vector<KShift<DIM>> projectorShifts =
-        findProjectorPeriodicShifts(workspace.projectorIndex_,
-                                    workspace.fieldIndex_);
+    DGMax::FaceMatrixKPhaseShiftBuilder<DIM> builder;
+    builder.setMatrixExtractor([&](const Base::Face* face) {
+        const Base::FaceMatrix& faceMatrix =
+            face->getFaceMatrix(DGMaxDiscretizationBase::FACE_MATRIX_ID);
+        LinearAlgebra::MiddleSizeMatrix block1, block2;
+        block1 =
+            faceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::RIGHT);
+        block2 =
+            faceMatrix.getElementMatrix(Base::Side::RIGHT, Base::Side::LEFT);
+
+        if (!config_.useHermitian_) {
+            // In the non Hermitian version we assemble the matrices S and
+            // M^{-1} but solve the system with the product matrix M^{-1}S. So
+            // when inserting the blocks for a k-phase shift we also need the
+            // blocks for M^{-1}S. The block diagonal structure of M^{-1} makes
+            // this easy, as we need to rescale the rows S by the block on the
+            // same row in M^{-1}.
+            block1 = face->getPtrElementLeft()->getElementMatrix(
+                         DGMaxDiscretizationBase::MASS_MATRIX_ID) *
+                     block1;
+            block2 = face->getPtrElementRight()->getElementMatrix(
+                         DGMaxDiscretizationBase::MASS_MATRIX_ID) *
+                     block2;
+        }
+
+        return std::make_pair(block1, block2);
+    });
+
+    if (config_.usesShifts()) {
+        builder.setExtraShift([&](const Base::Face* face) {
+            LinearAlgebra::SmallVector<DIM> dx;
+            // Rows are scaled by e^(ikx) and columns by e^(-ikx) where x is the
+            // centre of the element owning the row/column. As the matrices are
+            // inserted from scratch we need to add this factor. The factor for
+            // this function is constructed considering a row from the left
+            // element with a column for the right element.
+            Geometry::PointPhysical<DIM> centerPhys;
+            const Geometry::PointReference<DIM>& center1 =
+                face->getPtrElementLeft()->getReferenceGeometry()->getCenter();
+            centerPhys =
+                face->getPtrElementLeft()->referenceToPhysical(center1);
+            // Left element corresponds to the rows -> +x
+            dx += centerPhys.getCoordinates() * config_.shiftFactor_;
+            const Geometry::PointReference<DIM>& center2 =
+                face->getPtrElementRight()->getReferenceGeometry()->getCenter();
+            centerPhys =
+                face->getPtrElementRight()->referenceToPhysical(center2);
+            // The Right element is for the columns -> -x
+            dx -= centerPhys.getCoordinates() * config_.shiftFactor_;
+
+            return dx;
+        });
+    }
+
+    const DGMax::KPhaseShifts<DIM> periodicShifts =
+        builder.build(workspace.fieldIndex_);
+
+    DGMax::KPhaseShifts<DIM> projectorShifts;
+    if (config_.useProjector_) {
+        DGMax::CGDGMatrixKPhaseShiftBuilder<DIM> projectorBuilder;
+
+        projectorBuilder.setMatrixExtractor([&](const Base::Element* element) {
+            return element->getElementMatrix(
+                DGMaxDiscretizationBase::PROJECTOR_MATRIX_ID);
+        });
+
+        if (config_.usesShifts()) {
+            // TODO: Think about where the -sign for this shift should go
+            projectorBuilder.setExtraShift([&](const Base::Element* element) {
+                const Geometry::PointReference<DIM>& center =
+                    element->getReferenceGeometry()->getCenter();
+                // Rescaling of the columns, as the shifts for the field basis
+                // functions are e^{-ikx}. Where the convention is used that the
+                // trial basis functions use the - sign.
+                return element->referenceToPhysical(center).getCoordinates() *
+                       config_.shiftFactor_;
+            });
+        }
+        projectorShifts = projectorBuilder.build(workspace.projectorIndex_,
+                                                 workspace.fieldIndex_);
+    }
 
     LinearAlgebra::SmallVector<DIM> dk;  // Step in k-space from previous solve
     std::size_t maxStep = kpath.totalNumberOfSteps();
@@ -1210,129 +842,6 @@ void DGMaxEigenvalue<DIM>::extractEigenValues(
                   }
                   return a.imag() < b.imag();
               });
-}
-
-template <std::size_t DIM>
-std::vector<KShift<DIM>> DGMaxEigenvalue<DIM>::findPeriodicShifts(
-    const Utilities::GlobalIndexing& indexing) const {
-    std::vector<KShift<DIM>> result;
-    auto end = mesh_.faceColEnd(Base::IteratorType::GLOBAL);
-    for (Base::TreeIterator<Base::Face*> it =
-             mesh_.faceColBegin(Base::IteratorType::GLOBAL);
-         it != end; ++it) {
-        // To check if the face is on a periodic boundary we compare the
-        // coordinates of the center of the face according to the elements on
-        // each side of the face. For an internal face both elements touch in
-        // the mesh, so they should give the same coordinates. For a periodic
-        // boundary face, they should differ as they are on different sides of
-        // the mesh (for example, one on the top and the other on the bottom).
-        // As this should be zero for internal faces and of the size of the mesh
-        // for boundary faces, we can use a very sloppy bound.
-
-        // With ghost faces some faces may not have two elements associated with
-        // them. Calculating the boundary shift for these faces is not needed
-        // nor possible, so skip them.
-        if (!(*it)->isInternal()) {
-            continue;
-        }
-        LinearAlgebra::SmallVector<DIM> dx = boundaryFaceShift(*it);
-        if (dx.l2Norm() < 1e-3) {
-            continue;
-        }
-        if (!(*it)->getPtrElementLeft()->isOwnedByCurrentProcessor() &&
-            !(*it)->getPtrElementRight()->isOwnedByCurrentProcessor()) {
-            // For each face two blocks need to be 'shifted' in the stiffness
-            // matrix (that are Hermitian counterparts). Each processor only
-            // shifts the rows in the matrix that it owns. Shifting for a face
-            // is thus only necessary when owning an element to either side.
-            continue;
-        }
-        result.emplace_back(KShift<DIM>::faceShift(*it, indexing, dx, config_));
-    }
-    return result;
-}
-
-template <std::size_t DIM>
-std::vector<KShift<DIM>> DGMaxEigenvalue<DIM>::findProjectorPeriodicShifts(
-    const Utilities::GlobalIndexing& projectorIndex,
-    const Utilities::GlobalIndexing& indexing) const {
-    std::vector<KShift<DIM>> result;
-    if (!config_.useProjector_) {
-        return result;
-    }
-
-    std::set<const Base::Edge*> boundaryEdges;
-    std::set<const Base::Node*> boundaryNodes;
-    for (Base::TreeIterator<Base::Face*> it = mesh_.faceColBegin();
-         it != mesh_.faceColEnd(); ++it) {
-        if (!(*it)->isInternal()) continue;
-        // Same idea as for the periodic faces.
-        LinearAlgebra::SmallVector<DIM> dx = boundaryFaceShift(*it);
-        if (dx.l2Norm() > 1e-3) {
-            // Look for faces, edges and nodes which have projector DoFs that
-            // are owned by the current processor and thus need to be shifted.
-            for (const Base::Node* node : (*it)->getNodesList()) {
-                if (node->isOwnedByCurrentProcessor()) {
-                    boundaryNodes.emplace(node);
-                }
-            }
-
-            if ((*it)->isOwnedByCurrentProcessor()) {
-                KShift<DIM>::addFaceProjectorShifts(*it, projectorIndex,
-                                                    indexing, config_, result);
-            }
-            // There is no direct edge list for a face, instead we need to
-            // recover it from one of the neighbouring elements.
-            const Base::Element* element = (*it)->getPtrElementLeft();
-            const Geometry::ReferenceGeometry* referenceGeometry =
-                element->getReferenceGeometry();
-            std::vector<std::size_t> nodeIds(
-                referenceGeometry->getCodim1EntityLocalIndices(
-                    element->getLocalId(*it)));
-            std::vector<std::size_t> edgeNodeIds;
-            for (std::size_t i = 0; i < element->getNumberOfEdges(); ++i) {
-                edgeNodeIds = referenceGeometry->getCodim2EntityLocalIndices(i);
-                bool found1(false);
-                bool found2(false);
-                for (std::size_t j = 0; j < nodeIds.size(); ++j) {
-                    found1 |= nodeIds[j] == edgeNodeIds[0];
-                    found2 |= nodeIds[j] == edgeNodeIds[1];
-                }
-                if (found1 && found2 &&
-                    element->getEdge(i)->isOwnedByCurrentProcessor()) {
-                    boundaryEdges.emplace(element->getEdge(i));
-                }
-            }
-        }
-    }
-
-    // Now that all boundary nodes and edges have been de-duplicated, add their
-    // shifts.
-    for (const Base::Node* node : boundaryNodes) {
-        KShift<DIM>::addNodeProjectorShifts(node, projectorIndex, indexing,
-                                            config_, result);
-    }
-    for (const Base::Edge* edge : boundaryEdges) {
-        KShift<DIM>::addEdgeProjectorShifts(edge, projectorIndex, indexing,
-                                            config_, result);
-    }
-
-    return result;
-}
-
-template <std::size_t DIM>
-LinearAlgebra::SmallVector<DIM> DGMaxEigenvalue<DIM>::boundaryFaceShift(
-    const Base::Face* face) const {
-    logger.assert_always(face->isInternal(), "Internal face boundary");
-    const Geometry::PointReference<DIM - 1>& p =
-        face->getReferenceGeometry()->getCenter();
-    const Geometry::PointPhysical<DIM> pLeftPhys =
-        face->getPtrElementLeft()->referenceToPhysical(
-            face->mapRefFaceToRefElemL(p));
-    const Geometry::PointPhysical<DIM> pRightPhys =
-        face->getPtrElementRight()->referenceToPhysical(
-            face->mapRefFaceToRefElemR(p));
-    return pLeftPhys.getCoordinates() - pRightPhys.getCoordinates();
 }
 
 template <std::size_t DIM>
