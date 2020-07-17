@@ -128,13 +128,9 @@ TEST_CASE("030MappingToPhysicalTriangularPrism_UnitTest",
                  refPoint3D[2] += 0.4) {
                 point3D = mapping3D.transform((refPoint3D));
                 INFO("transform");
-                CHECK((rGeom3D.isInternalPoint((refPoint3D)) ==
-                       isInternal3D(point3D)));
-                point3D = reinit3D.transform((refPoint3D));
+CHECK((rGeom3D.isInternalPoint((refPoint3D)) ==isInternal3D(point3D)));                point3D = reinit3D.transform((refPoint3D));
                 INFO("reinit");
-                CHECK((rGeom3D.isInternalPoint((refPoint3D)) ==
-                       isInternal3D(point3D)));
-
+CHECK((rGeom3D.isInternalPoint((refPoint3D)) ==isInternal3D(point3D)));
                 refPoint3D[0] += -1.e-8;
                 compare3D = mapping3D.transform((refPoint3D));
                 refPoint3D[0] += 2.e-8;
@@ -143,17 +139,11 @@ TEST_CASE("030MappingToPhysicalTriangularPrism_UnitTest",
                 refPoint3D[0] += -1e-8;
                 jac3D = mapping3D.calcJacobian((refPoint3D));
                 INFO("jacobian");
-                CHECK((std::abs(jac3D[0] - 5.e7 * (point3D[0] - compare3D[0])) <
-                       1e-5));  // estimate is a bit rough, but should work
-                                // for most mappings
+CHECK((std::abs(jac3D[0] - 5.e7 * (point3D[0] - compare3D[0])) <1e-5));                                // for most mappings
                 INFO("jacobian");
-                CHECK((std::abs(jac3D[1] - 5.e7 * (point3D[1] - compare3D[1])) <
-                       1e-5));  // implementations are strongly recommended to
-                                // be more accurate
+CHECK((std::abs(jac3D[1] - 5.e7 * (point3D[1] - compare3D[1])) <1e-5));                                // be more accurate
                 INFO("jacobian");
-                CHECK((std::abs(jac3D[2] - 5.e7 * (point3D[2] - compare3D[2])) <
-                       1e-5));
-
+CHECK((std::abs(jac3D[2] - 5.e7 * (point3D[2] - compare3D[2])) <1e-5));
                 refPoint3D[1] += -1.e-8;
                 compare3D = mapping3D.transform((refPoint3D));
                 refPoint3D[1] += 2.e-8;
@@ -162,15 +152,9 @@ TEST_CASE("030MappingToPhysicalTriangularPrism_UnitTest",
                 refPoint3D[1] += -1e-8;
                 jac3D = mapping3D.calcJacobian((refPoint3D));
                 INFO("jacobian");
-                CHECK((std::abs(jac3D[3] - 5.e7 * (point3D[0] - compare3D[0])) <
-                       1e-5));
-                INFO("jacobian");
-                CHECK((std::abs(jac3D[4] - 5.e7 * (point3D[1] - compare3D[1])) <
-                       1e-5));
-                INFO("jacobian");
-                CHECK((std::abs(jac3D[5] - 5.e7 * (point3D[2] - compare3D[2])) <
-                       1e-5));
-
+CHECK((std::abs(jac3D[3] - 5.e7 * (point3D[0] - compare3D[0])) <1e-5));                INFO("jacobian");
+CHECK((std::abs(jac3D[4] - 5.e7 * (point3D[1] - compare3D[1])) <1e-5));                INFO("jacobian");
+CHECK((std::abs(jac3D[5] - 5.e7 * (point3D[2] - compare3D[2])) <1e-5));
                 refPoint3D[2] += -1.e-8;
                 compare3D = mapping3D.transform((refPoint3D));
                 refPoint3D[2] += 2.e-8;
@@ -179,15 +163,9 @@ TEST_CASE("030MappingToPhysicalTriangularPrism_UnitTest",
                 refPoint3D[2] += -1e-8;
                 jac3D = mapping3D.calcJacobian((refPoint3D));
                 INFO("jacobian");
-                CHECK((std::abs(jac3D[6] - 5.e7 * (point3D[0] - compare3D[0])) <
-                       1e-5));
-                INFO("jacobian");
-                CHECK((std::abs(jac3D[7] - 5.e7 * (point3D[1] - compare3D[1])) <
-                       1e-5));
-                INFO("jacobian");
-                CHECK((std::abs(jac3D[8] - 5.e7 * (point3D[2] - compare3D[2])) <
-                       1e-5));
-                refPoint3D[2] += 1e-8;
+CHECK((std::abs(jac3D[6] - 5.e7 * (point3D[0] - compare3D[0])) <1e-5));                INFO("jacobian");
+CHECK((std::abs(jac3D[7] - 5.e7 * (point3D[1] - compare3D[1])) <1e-5));                INFO("jacobian");
+CHECK((std::abs(jac3D[8] - 5.e7 * (point3D[2] - compare3D[2])) <1e-5));                refPoint3D[2] += 1e-8;
                 // either the reference point and the inverse transform of its
                 // transform are both outside the square (but on potentially
                 // different locations; due to nonlinearities) or they are
@@ -211,11 +189,10 @@ TEST_CASE("030MappingToPhysicalTriangularPrism_UnitTest",
         compare3D = pGeom3D.getLocalNodeCoordinates(i);
         point3D = mapping3D.transform((refPoint3D));
         INFO("transform");
-        CHECK((std::abs(point3D[0] - compare3D[0]) < 1e-12) &&
-              std::abs(point3D[1] - compare3D[1]) < 1e-12 &&
-              std::abs(point3D[2] - compare3D[2]) < 1e-12);
+CHECK(std::abs(point3D[0] - compare3D[0]) < 1e-12) ;
+CHECK(std::abs(point3D[1] - compare3D[1]) < 1e-12 );
+CHECK(std::abs(point3D[2] - compare3D[2]) < 1e-12);
     }
 
     INFO("getTargetDimension");
-    CHECK((mapping3D.getTargetDimension() == 3));
-}
+CHECK((mapping3D.getTargetDimension() == 3));}

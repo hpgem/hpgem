@@ -133,7 +133,6 @@ TEST_CASE("040MappingToPhysicalPyramid_UnitTest",
                 point3D = reinit3D.transform((refPoint3D));
                 if (rGeom3D.isInternalPoint((refPoint3D))) INFO("reinit");
                 CHECK((isInternal3D(point3D)));
-
                 refPoint3D[0] += -1.e-8;
                 compare3D = mapping3D.transform((refPoint3D));
                 refPoint3D[0] += 2.e-8;
@@ -143,16 +142,13 @@ TEST_CASE("040MappingToPhysicalPyramid_UnitTest",
                 jac3D = mapping3D.calcJacobian((refPoint3D));
                 INFO("jacobian");
                 CHECK((std::abs(jac3D[0] - 5.e7 * (point3D[0] - compare3D[0])) <
-                       1e-5));  // estimate is a bit rough, but should work
-                                // for most mappings
+                       1e-5));  // for most mappings
                 INFO("jacobian");
                 CHECK((std::abs(jac3D[1] - 5.e7 * (point3D[1] - compare3D[1])) <
-                       1e-5));  // implementations are strongly recommended to
-                                // be more accurate
+                       1e-5));  // be more accurate
                 INFO("jacobian");
                 CHECK((std::abs(jac3D[2] - 5.e7 * (point3D[2] - compare3D[2])) <
                        1e-5));
-
                 refPoint3D[1] += -1.e-8;
                 compare3D = mapping3D.transform((refPoint3D));
                 refPoint3D[1] += 2.e-8;
@@ -169,7 +165,6 @@ TEST_CASE("040MappingToPhysicalPyramid_UnitTest",
                 INFO("jacobian");
                 CHECK((std::abs(jac3D[5] - 5.e7 * (point3D[2] - compare3D[2])) <
                        1e-5));
-
                 refPoint3D[2] += -1.e-8;
                 compare3D = mapping3D.transform((refPoint3D));
                 refPoint3D[2] += 2.e-8;
@@ -213,9 +208,9 @@ TEST_CASE("040MappingToPhysicalPyramid_UnitTest",
         compare3D = pGeom3D.getLocalNodeCoordinates(i);
         point3D = mapping3D.transform((refPoint3D));
         INFO("transform");
-        CHECK((std::abs(point3D[0] - compare3D[0]) < 1e-12) &&
-              std::abs(point3D[1] - compare3D[1]) < 1e-12 &&
-              std::abs(point3D[2] - compare3D[2]) < 1e-12);
+        CHECK(std::abs(point3D[0] - compare3D[0]) < 1e-12);
+        CHECK(std::abs(point3D[1] - compare3D[1]) < 1e-12);
+        CHECK(std::abs(point3D[2] - compare3D[2]) < 1e-12);
     }
 
     INFO("getTargetDimension");

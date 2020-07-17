@@ -48,7 +48,7 @@ using namespace hpgem;
 #ifndef LOG_TESTING_LEVEL
 #define LOG_TESTING_LEVEL Log::DEBUG
 #endif
-Logger<LOG_TESTING_LEVEL, false> log("Main");
+Logger<LOG_TESTING_LEVEL, false> logger2("Main");
 
 void logMessage(std::string, std::string);
 
@@ -65,7 +65,7 @@ TEST_CASE("LoggerUnitTest", "[LoggerUnitTest]") {
     //    logger(ERROR, "Oopsie!");
     //    logger(FATAL, "x is not supposed to be %!!!", x);
     logger(DEBUG, "You won't see me!");
-    log(DEBUG, "But you will see me!");
+    logger2(DEBUG, "But you will see me!");
     logger(WARN, "Escapes are possible! %\\% sure!", 100.01f);
 
     // Usage case for redefining with an function
@@ -76,7 +76,7 @@ TEST_CASE("LoggerUnitTest", "[LoggerUnitTest]") {
     logger.assert_debug(true, "Test %", 3);
 
     // normal logger will only crash the program in debug mode, use with care
-    log.assert_debug(false, "Test %", 4);
+    logger2.assert_debug(false, "Test %", 4);
 
     // for testing blatant assumptions when it is necessary to check again in
     // release mode (for example, opening files, processing command line input,
@@ -84,14 +84,14 @@ TEST_CASE("LoggerUnitTest", "[LoggerUnitTest]") {
     logger.assert_always(true, "Test %", 5);
 
     // will test even when turned off
-    log.assert_always(true, "Test %", 6);
+    logger2.assert_always(true, "Test %", 6);
 
     // test if the string parser works correctly (\ tends to accumulate
     // exponentially as the amount of escape layers grows) note that placing \%
     // in a string is technically implementation defined behaviour (to be
     // avoided in portable code) (§2.14.3.3 of the c++11 standard draft)
     loggerOutput->onDebug = logTestMessage;
-    log(DEBUG,
+    logger2(DEBUG,
         "If you don't like \\\\\\\\\\%, it is also possible to escape the \\%, "
         "by substituting the % with a % manually",
         '%', "%");
@@ -104,7 +104,7 @@ TEST_CASE("LoggerUnitTest", "[LoggerUnitTest]") {
                   << std::endl;
     };
 
-    log(FATAL, "Null pointer passed!");
+    logger2(FATAL, "Null pointer passed!");
     std::cout << "In a normal application you wouldn't see me, but someone "
                  "redefined onFatal for the purpose of this demonstration"
               << std::endl;

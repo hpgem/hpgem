@@ -113,46 +113,46 @@ TEST_CASE("090ReferenceTetrahedron_UnitTest",
 
     pTest = test.getCenter();
     INFO("getCenter");
-    CHECK((test.isInternalPoint((pTest)) && std::abs(pTest[0] - .25) < 1e-12 &&
-           std::abs(pTest[1] - .25) < 1e-12) &&
-          std::abs(pTest[2] - .25) < 1e-12);
+    CHECK(test.isInternalPoint((pTest)));
+    CHECK(std::abs(pTest[0] - .25) < 1e-12);
+    CHECK(std::abs(pTest[1] - .25) < 1e-12);
+    CHECK(std::abs(pTest[2] - .25) < 1e-12);
     pTest = test.getReferenceNodeCoordinate(0);
     INFO("getNode 0");
-    CHECK((std::abs(pTest[0]) < 1e-12 && std::abs(pTest[1]) < 1e-12 &&
-           std::abs(pTest[2]) < 1e-12));
+    CHECK(std::abs(pTest[0]) < 1e-12);
+    CHECK(std::abs(pTest[1]) < 1e-12);
+    CHECK(std::abs(pTest[2]) < 1e-12);
     pTest = test.getReferenceNodeCoordinate(1);
     INFO("getNode 1");
-    CHECK((std::abs(pTest[0] - 1) < 1e-12 && std::abs(pTest[1]) < 1e-12 &&
-           std::abs(pTest[2]) < 1e-12));
+    CHECK(std::abs(pTest[0] - 1) < 1e-12);
+    CHECK(std::abs(pTest[1]) < 1e-12);
+    CHECK(std::abs(pTest[2]) < 1e-12);
     pTest = test.getReferenceNodeCoordinate(2);
     INFO("getNode 2");
-    CHECK((std::abs(pTest[0]) < 1e-12 && std::abs(pTest[1] - 1) < 1e-12 &&
-           std::abs(pTest[2]) < 1e-12));
+    CHECK(std::abs(pTest[0]) < 1e-12);
+    CHECK(std::abs(pTest[1] - 1) < 1e-12);
+    CHECK(std::abs(pTest[2]) < 1e-12);
     pTest = test.getReferenceNodeCoordinate(3);
     INFO("getNode 3");
-    CHECK((std::abs(pTest[0]) < 1e-12 && std::abs(pTest[1]) < 1e-12 &&
-           std::abs(pTest[2] - 1) < 1e-12));
+    CHECK(std::abs(pTest[0]) < 1e-12);
+    CHECK(std::abs(pTest[1]) < 1e-12);
+    CHECK(std::abs(pTest[2] - 1) < 1e-12);
     std::cout << test.getName();
 
     INFO("getLocalNodeIndex 0");
     CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 0) ==
-           0));  // the nodes of the face must always be
-                 // specified IN THIS SPECIFIC ORDER
+           0));  // specified IN THIS SPECIFIC ORDER
     INFO("getLocalNodeIndex 0");
     CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 1) ==
-           3));  // im not sure if I like this myself, but this
-                 // should at least verify
+           3));  // should at least verify
     INFO("getLocalNodeIndex 0");
-    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 2) ==
-           2));  // that all face nodes are specified, none are
-                 // specified twice
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 2) == 2));  // specified
+                                                                       // twice
     INFO("getLocalNodeIndex 1");
     CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 0) ==
-           0));  // and only face nodes are specified and the
-                 // ordering of the nodes is consistent
+           0));  // ordering of the nodes is consistent
     INFO("getLocalNodeIndex 1");
-    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 1) ==
-           1));  // across function calls
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 1) == 1));
     INFO("getLocalNodeIndex 1");
     CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 2) == 3));
     INFO("getLocalNodeIndex 2");
@@ -167,7 +167,6 @@ TEST_CASE("090ReferenceTetrahedron_UnitTest",
     CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 1) == 2));
     INFO("getLocalNodeIndex 3");
     CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 2) == 3));
-
     std::cout << test;
 
     // testing mappings and quadrature rules
@@ -176,31 +175,31 @@ TEST_CASE("090ReferenceTetrahedron_UnitTest",
     // codim0maps dont exist so they dont need to be found properly
 
     INFO("higher codimensional entities");
-    CHECK((test.getNumberOfCodim1Entities() == 4 &&
-           test.getNumberOfCodim2Entities() == 6) &&
-          test.getNumberOfCodim3Entities() == 4);
+    CHECK(test.getNumberOfCodim1Entities() == 4);
+    CHECK(test.getNumberOfCodim2Entities() == 6);
+    CHECK(test.getNumberOfCodim3Entities() == 4);
     INFO("getCodim1ReferenceGeometry");
-    CHECK((test.getCodim1ReferenceGeometry(0) ==
-               &Geometry::ReferenceTriangle::Instance() &&
-           test.getCodim1ReferenceGeometry(1) ==
-               &Geometry::ReferenceTriangle::Instance() &&
-           test.getCodim1ReferenceGeometry(2) ==
-               &Geometry::ReferenceTriangle::Instance() &&
-           test.getCodim1ReferenceGeometry(3) ==
-               &Geometry::ReferenceTriangle::Instance()));
+    CHECK(test.getCodim1ReferenceGeometry(0) ==
+          &Geometry::ReferenceTriangle::Instance());
+    CHECK(test.getCodim1ReferenceGeometry(1) ==
+          &Geometry::ReferenceTriangle::Instance());
+    CHECK(test.getCodim1ReferenceGeometry(2) ==
+          &Geometry::ReferenceTriangle::Instance());
+    CHECK(test.getCodim1ReferenceGeometry(3) ==
+          &Geometry::ReferenceTriangle::Instance());
     INFO("getCodim2ReferenceGeometry");
-    CHECK((test.getCodim2ReferenceGeometry(0) ==
-               &Geometry::ReferenceLine::Instance() &&
-           test.getCodim2ReferenceGeometry(1) ==
-               &Geometry::ReferenceLine::Instance() &&
-           test.getCodim2ReferenceGeometry(2) ==
-               &Geometry::ReferenceLine::Instance() &&
-           test.getCodim2ReferenceGeometry(3) ==
-               &Geometry::ReferenceLine::Instance() &&
-           test.getCodim2ReferenceGeometry(4) ==
-               &Geometry::ReferenceLine::Instance() &&
-           test.getCodim2ReferenceGeometry(5) ==
-               &Geometry::ReferenceLine::Instance()));
+    CHECK(test.getCodim2ReferenceGeometry(0) ==
+          &Geometry::ReferenceLine::Instance());
+    CHECK(test.getCodim2ReferenceGeometry(1) ==
+          &Geometry::ReferenceLine::Instance());
+    CHECK(test.getCodim2ReferenceGeometry(2) ==
+          &Geometry::ReferenceLine::Instance());
+    CHECK(test.getCodim2ReferenceGeometry(3) ==
+          &Geometry::ReferenceLine::Instance());
+    CHECK(test.getCodim2ReferenceGeometry(4) ==
+          &Geometry::ReferenceLine::Instance());
+    CHECK(test.getCodim2ReferenceGeometry(5) ==
+          &Geometry::ReferenceLine::Instance());
     INFO("getCodim1MappingPtr");
     CHECK((test.getCodim1MappingPtr(0) ==
            &Geometry::MappingToRefTriangleToTetrahedron0::Instance()));
@@ -297,7 +296,6 @@ TEST_CASE("090ReferenceTetrahedron_UnitTest",
     faceIndices = test.getCodim3EntityLocalIndices(3);
     INFO("getCodim3EntityLocalIndices");
     CHECK((faceIndices[0] == 3));
-
     INFO("quadrature rules");
     CHECK((test.getGaussQuadratureRule(3)->order() >= 3));
     INFO("quadrature rules");
@@ -305,8 +303,8 @@ TEST_CASE("090ReferenceTetrahedron_UnitTest",
     INFO("quadrature rules");
     CHECK((test.getGaussQuadratureRule(7)->order() >= 7));
     INFO("quadrature rules");
-    CHECK((test.getGaussQuadratureRule(9)->order() >= 9));
-    ///\todo implement more quadrature rules
+    CHECK((test.getGaussQuadratureRule(9)->order() >=
+           9));  ///\todo implement more quadrature rules
     // assert_debug(("quadrature
     // rules",test.getGaussQuadratureRule(11)->order()>=11));
 
@@ -317,7 +315,6 @@ TEST_CASE("090ReferenceTetrahedron_UnitTest",
     INFO("type of geometry");
     CHECK((test.getGeometryType() ==
            Geometry::ReferenceGeometryType::TETRAHEDRON));
-
     // testing the barycentric coordinates
     for (std::size_t i = 0; i < test.getNumberOfNodes(); ++i) {
         LinearAlgebra::SmallVector<4> bcoords =
@@ -333,8 +330,6 @@ TEST_CASE("090ReferenceTetrahedron_UnitTest",
     INFO("Incorrect barycentric coordinates for the centre");
     CHECK((refbcoord - test.baryCentricCoordinates(test.getCenter())).l2Norm() <
           1e-12);
-
-    return (0);
 
     ///\todo testing that the refinement maps behave exactly like the forwarded
     /// calls of this class

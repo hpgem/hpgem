@@ -127,7 +127,6 @@ TEST_CASE("080ReferenceCube_UnitTest", "[080ReferenceCube_UnitTest]") {
     CHECK(std::abs(pTest[0] - 1) < 1e-12);
     CHECK(std::abs(pTest[1] + 1) < 1e-12);
     CHECK(std::abs(pTest[2] + 1) < 1e-12);
-
     pTest = test.getReferenceNodeCoordinate(2);
     INFO("getNode 2");
     CHECK(std::abs(pTest[0] + 1) < 1e-12);
@@ -162,23 +161,18 @@ TEST_CASE("080ReferenceCube_UnitTest", "[080ReferenceCube_UnitTest]") {
 
     INFO("getLocalNodeIndex 0");
     CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 0) ==
-           0));  // the nodes of the face must always be
-                 // specified IN THIS SPECIFIC ORDER
+           0));  // specified IN THIS SPECIFIC ORDER
     INFO("getLocalNodeIndex 0");
     CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 1) ==
-           1));  // im not sure if I like this myself, but this
-                 // should at least verify
+           1));  // should at least verify
     INFO("getLocalNodeIndex 0");
-    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 2) ==
-           2));  // that all face nodes are specified, none are
-                 // specified twice
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 2) == 2));  // specified
+                                                                       // twice
     INFO("getLocalNodeIndex 0");
     CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 3) ==
-           3));  // and only face nodes are specified and the
-                 // ordering of the nodes is consistent
+           3));  // ordering of the nodes is consistent
     INFO("getLocalNodeIndex 1");
-    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 0) ==
-           0));  // across function calls
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 0) == 0));
     INFO("getLocalNodeIndex 1");
     CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 1) == 1));
     INFO("getLocalNodeIndex 1");
@@ -217,7 +211,6 @@ TEST_CASE("080ReferenceCube_UnitTest", "[080ReferenceCube_UnitTest]") {
     CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 2) == 6));
     INFO("getLocalNodeIndex 5");
     CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 3) == 7));
-
     std::cout << test;
 
     // testing mappings and quadrature rules
@@ -339,250 +332,222 @@ TEST_CASE("080ReferenceCube_UnitTest", "[080ReferenceCube_UnitTest]") {
     INFO("getCodim0MappingIndex&Ptr");
     CHECK((test.getCodim0MappingPtr(base, transformed) ==
            &Geometry::MappingToRefCubeToCube7::Instance()));
-
     INFO("higher codimensional entities");
-    CHECK((test.getNumberOfCodim1Entities() == 6 &&
-           test.getNumberOfCodim2Entities() == 12) &&
-          test.getNumberOfCodim3Entities() == 8);
-    INFO("getCodim1ReferenceGeometry");
-    CHECK((test.getCodim1ReferenceGeometry(0) ==
-               &Geometry::ReferenceSquare::Instance() &&
-           test.getCodim1ReferenceGeometry(1) ==
-               &Geometry::ReferenceSquare::Instance() &&
-           test.getCodim1ReferenceGeometry(2) ==
-               &Geometry::ReferenceSquare::Instance() &&
-           test.getCodim1ReferenceGeometry(3) ==
-               &Geometry::ReferenceSquare::Instance() &&
-           test.getCodim1ReferenceGeometry(4) ==
-               &Geometry::ReferenceSquare::Instance() &&
-           test.getCodim1ReferenceGeometry(5) ==
-               &Geometry::ReferenceSquare::Instance()));
-    INFO("getCodim2ReferenceGeometry");
-    CHECK((test.getCodim2ReferenceGeometry(0) ==
-               &Geometry::ReferenceLine::Instance() &&
-           test.getCodim2ReferenceGeometry(1) ==
-               &Geometry::ReferenceLine::Instance() &&
-           test.getCodim2ReferenceGeometry(2) ==
-               &Geometry::ReferenceLine::Instance() &&
-           test.getCodim2ReferenceGeometry(3) ==
-               &Geometry::ReferenceLine::Instance() &&
-           test.getCodim2ReferenceGeometry(4) ==
-               &Geometry::ReferenceLine::Instance() &&
-           test.getCodim2ReferenceGeometry(5) ==
-               &Geometry::ReferenceLine::Instance() &&
-           test.getCodim2ReferenceGeometry(6) ==
-               &Geometry::ReferenceLine::Instance() &&
-           test.getCodim2ReferenceGeometry(7) ==
-               &Geometry::ReferenceLine::Instance() &&
-           test.getCodim2ReferenceGeometry(8) ==
-               &Geometry::ReferenceLine::Instance() &&
-           test.getCodim2ReferenceGeometry(9) ==
-               &Geometry::ReferenceLine::Instance() &&
-           test.getCodim2ReferenceGeometry(10) ==
-               &Geometry::ReferenceLine::Instance() &&
-           test.getCodim2ReferenceGeometry(11) ==
-               &Geometry::ReferenceLine::Instance()));
-    INFO("getCodim1MappingPtr");
-    CHECK((test.getCodim1MappingPtr(0) ==
-           &Geometry::MappingToRefSquareToCube0::Instance()));
-    INFO("getCodim1MappingPtr");
-    CHECK((test.getCodim1MappingPtr(1) ==
-           &Geometry::MappingToRefSquareToCube1::Instance()));
-    INFO("getCodim1MappingPtr");
-    CHECK((test.getCodim1MappingPtr(2) ==
-           &Geometry::MappingToRefSquareToCube2::Instance()));
-    INFO("getCodim1MappingPtr");
-    CHECK((test.getCodim1MappingPtr(3) ==
-           &Geometry::MappingToRefSquareToCube3::Instance()));
-    INFO("getCodim1MappingPtr");
-    CHECK((test.getCodim1MappingPtr(4) ==
-           &Geometry::MappingToRefSquareToCube4::Instance()));
-    INFO("getCodim1MappingPtr");
-    CHECK((test.getCodim1MappingPtr(5) ==
-           &Geometry::MappingToRefSquareToCube5::Instance()));
-    faceIndices = test.getCodim1EntityLocalIndices(0);
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 0)));
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 1)));
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 2)));
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 3)));
-    faceIndices = test.getCodim1EntityLocalIndices(1);
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 0)));
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 1)));
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 2)));
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 3)));
-    faceIndices = test.getCodim1EntityLocalIndices(2);
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 0)));
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 1)));
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 2)));
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 3)));
-    faceIndices = test.getCodim1EntityLocalIndices(3);
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 0)));
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 1)));
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 2)));
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 3)));
-    faceIndices = test.getCodim1EntityLocalIndices(4);
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 0)));
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 1)));
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 2)));
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 3)));
-    faceIndices = test.getCodim1EntityLocalIndices(5);
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 0)));
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 1)));
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 2)));
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 3)));
-    faceIndices.resize(2);
-    faceIndices = test.getCodim2EntityLocalIndices(0);
-    INFO("getCodim2EntityLocalIndices");
-    CHECK((faceIndices[0] == 0));
-    INFO("getCodim2EntityLocalIndices");
-    CHECK((faceIndices[1] == 1));
-    faceIndices = test.getCodim2EntityLocalIndices(1);
-    INFO("getCodim2EntityLocalIndices");
-    CHECK((faceIndices[0] == 2));
-    INFO("getCodim2EntityLocalIndices");
-    CHECK((faceIndices[1] == 3));
-    faceIndices = test.getCodim2EntityLocalIndices(2);
-    INFO("getCodim2EntityLocalIndices");
-    CHECK((faceIndices[0] == 4));
-    INFO("getCodim2EntityLocalIndices");
-    CHECK((faceIndices[1] == 5));
-    faceIndices = test.getCodim2EntityLocalIndices(3);
-    INFO("getCodim2EntityLocalIndices");
-    CHECK((faceIndices[0] == 6));
-    INFO("getCodim2EntityLocalIndices");
-    CHECK((faceIndices[1] == 7));
-    faceIndices = test.getCodim2EntityLocalIndices(4);
-    INFO("getCodim2EntityLocalIndices");
-    CHECK((faceIndices[0] == 0));
-    INFO("getCodim2EntityLocalIndices");
-    CHECK((faceIndices[1] == 2));
-    faceIndices = test.getCodim2EntityLocalIndices(5);
-    INFO("getCodim2EntityLocalIndices");
-    CHECK((faceIndices[0] == 1));
-    INFO("getCodim2EntityLocalIndices");
-    CHECK((faceIndices[1] == 3));
-    faceIndices = test.getCodim2EntityLocalIndices(6);
-    INFO("getCodim2EntityLocalIndices");
-    CHECK((faceIndices[0] == 4));
-    INFO("getCodim2EntityLocalIndices");
-    CHECK((faceIndices[1] == 6));
-    faceIndices = test.getCodim2EntityLocalIndices(7);
-    INFO("getCodim2EntityLocalIndices");
-    CHECK((faceIndices[0] == 5));
-    INFO("getCodim2EntityLocalIndices");
-    CHECK((faceIndices[1] == 7));
-    faceIndices = test.getCodim2EntityLocalIndices(8);
-    INFO("getCodim2EntityLocalIndices");
-    CHECK((faceIndices[0] == 0));
-    INFO("getCodim2EntityLocalIndices");
-    CHECK((faceIndices[1] == 4));
-    faceIndices = test.getCodim2EntityLocalIndices(9);
-    INFO("getCodim2EntityLocalIndices");
-    CHECK((faceIndices[0] == 1));
-    INFO("getCodim2EntityLocalIndices");
-    CHECK((faceIndices[1] == 5));
-    faceIndices = test.getCodim2EntityLocalIndices(10);
-    INFO("getCodim2EntityLocalIndices");
-    CHECK((faceIndices[0] == 2));
-    INFO("getCodim2EntityLocalIndices");
-    CHECK((faceIndices[1] == 6));
-    faceIndices = test.getCodim2EntityLocalIndices(11);
-    INFO("getCodim2EntityLocalIndices");
-    CHECK((faceIndices[0] == 3));
-    INFO("getCodim2EntityLocalIndices");
-    CHECK((faceIndices[1] == 7));
-    faceIndices.resize(1);
-    faceIndices = test.getCodim3EntityLocalIndices(0);
-    INFO("getCodim3EntityLocalIndices");
-    CHECK((faceIndices[0] == 0));
-    faceIndices = test.getCodim3EntityLocalIndices(1);
-    INFO("getCodim3EntityLocalIndices");
-    CHECK((faceIndices[0] == 1));
-    faceIndices = test.getCodim3EntityLocalIndices(2);
-    INFO("getCodim3EntityLocalIndices");
-    CHECK((faceIndices[0] == 2));
-    faceIndices = test.getCodim3EntityLocalIndices(3);
-    INFO("getCodim3EntityLocalIndices");
-    CHECK((faceIndices[0] == 3));
-    faceIndices = test.getCodim3EntityLocalIndices(4);
-    INFO("getCodim3EntityLocalIndices");
-    CHECK((faceIndices[0] == 4));
-    faceIndices = test.getCodim3EntityLocalIndices(5);
-    INFO("getCodim3EntityLocalIndices");
-    CHECK((faceIndices[0] == 5));
-    faceIndices = test.getCodim3EntityLocalIndices(6);
-    INFO("getCodim3EntityLocalIndices");
-    CHECK((faceIndices[0] == 6));
-    faceIndices = test.getCodim3EntityLocalIndices(7);
-    INFO("getCodim3EntityLocalIndices");
-    CHECK((faceIndices[0] == 7));
+    CHECK(test.getNumberOfCodim1Entities() == 6);
+CHECK(test.getNumberOfCodim2Entities() == 12);
+CHECK(test.getNumberOfCodim3Entities() == 8);
+INFO("getCodim1ReferenceGeometry");
+CHECK(test.getCodim1ReferenceGeometry(0) ==
+      &Geometry::ReferenceSquare::Instance());
+CHECK(test.getCodim1ReferenceGeometry(1) ==
+      &Geometry::ReferenceSquare::Instance());
+CHECK(test.getCodim1ReferenceGeometry(2) ==
+      &Geometry::ReferenceSquare::Instance());
+CHECK(test.getCodim1ReferenceGeometry(3) ==
+      &Geometry::ReferenceSquare::Instance());
+CHECK(test.getCodim1ReferenceGeometry(4) ==
+      &Geometry::ReferenceSquare::Instance());
+CHECK(test.getCodim1ReferenceGeometry(5) ==
+      &Geometry::ReferenceSquare::Instance());
+INFO("getCodim2ReferenceGeometry");
+CHECK(test.getCodim2ReferenceGeometry(0) ==
+      &Geometry::ReferenceLine::Instance());
+CHECK(test.getCodim2ReferenceGeometry(1) ==
+      &Geometry::ReferenceLine::Instance());
+CHECK(test.getCodim2ReferenceGeometry(2) ==
+      &Geometry::ReferenceLine::Instance());
+CHECK(test.getCodim2ReferenceGeometry(3) ==
+      &Geometry::ReferenceLine::Instance());
+CHECK(test.getCodim2ReferenceGeometry(4) ==
+      &Geometry::ReferenceLine::Instance());
+CHECK(test.getCodim2ReferenceGeometry(5) ==
+      &Geometry::ReferenceLine::Instance());
+CHECK(test.getCodim2ReferenceGeometry(6) ==
+      &Geometry::ReferenceLine::Instance());
+CHECK(test.getCodim2ReferenceGeometry(7) ==
+      &Geometry::ReferenceLine::Instance());
+CHECK(test.getCodim2ReferenceGeometry(8) ==
+      &Geometry::ReferenceLine::Instance());
+CHECK(test.getCodim2ReferenceGeometry(9) ==
+      &Geometry::ReferenceLine::Instance());
+CHECK(test.getCodim2ReferenceGeometry(10) ==
+      &Geometry::ReferenceLine::Instance());
+CHECK(test.getCodim2ReferenceGeometry(11) ==
+      &Geometry::ReferenceLine::Instance());
+INFO("getCodim1MappingPtr");
+CHECK((test.getCodim1MappingPtr(0) ==
+       &Geometry::MappingToRefSquareToCube0::Instance()));
+INFO("getCodim1MappingPtr");
+CHECK((test.getCodim1MappingPtr(1) ==
+       &Geometry::MappingToRefSquareToCube1::Instance()));
+INFO("getCodim1MappingPtr");
+CHECK((test.getCodim1MappingPtr(2) ==
+       &Geometry::MappingToRefSquareToCube2::Instance()));
+INFO("getCodim1MappingPtr");
+CHECK((test.getCodim1MappingPtr(3) ==
+       &Geometry::MappingToRefSquareToCube3::Instance()));
+INFO("getCodim1MappingPtr");
+CHECK((test.getCodim1MappingPtr(4) ==
+       &Geometry::MappingToRefSquareToCube4::Instance()));
+INFO("getCodim1MappingPtr");
+CHECK((test.getCodim1MappingPtr(5) ==
+       &Geometry::MappingToRefSquareToCube5::Instance()));
+faceIndices = test.getCodim1EntityLocalIndices(0);
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 0)));
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 1)));
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 2)));
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 3)));
+faceIndices = test.getCodim1EntityLocalIndices(1);
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 0)));
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 1)));
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 2)));
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 3)));
+faceIndices = test.getCodim1EntityLocalIndices(2);
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 0)));
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 1)));
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 2)));
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(2, 3)));
+faceIndices = test.getCodim1EntityLocalIndices(3);
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 0)));
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 1)));
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 2)));
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(3, 3)));
+faceIndices = test.getCodim1EntityLocalIndices(4);
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 0)));
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 1)));
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 2)));
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(4, 3)));
+faceIndices = test.getCodim1EntityLocalIndices(5);
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 0)));
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[1] == test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 1)));
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[2] == test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 2)));
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[3] == test.getLocalNodeIndexFromFaceAndIndexOnFace(5, 3)));
+faceIndices.resize(2);
+faceIndices = test.getCodim2EntityLocalIndices(0);
+INFO("getCodim2EntityLocalIndices");
+CHECK((faceIndices[0] == 0));
+INFO("getCodim2EntityLocalIndices");
+CHECK((faceIndices[1] == 1));
+faceIndices = test.getCodim2EntityLocalIndices(1);
+INFO("getCodim2EntityLocalIndices");
+CHECK((faceIndices[0] == 2));
+INFO("getCodim2EntityLocalIndices");
+CHECK((faceIndices[1] == 3));
+faceIndices = test.getCodim2EntityLocalIndices(2);
+INFO("getCodim2EntityLocalIndices");
+CHECK((faceIndices[0] == 4));
+INFO("getCodim2EntityLocalIndices");
+CHECK((faceIndices[1] == 5));
+faceIndices = test.getCodim2EntityLocalIndices(3);
+INFO("getCodim2EntityLocalIndices");
+CHECK((faceIndices[0] == 6));
+INFO("getCodim2EntityLocalIndices");
+CHECK((faceIndices[1] == 7));
+faceIndices = test.getCodim2EntityLocalIndices(4);
+INFO("getCodim2EntityLocalIndices");
+CHECK((faceIndices[0] == 0));
+INFO("getCodim2EntityLocalIndices");
+CHECK((faceIndices[1] == 2));
+faceIndices = test.getCodim2EntityLocalIndices(5);
+INFO("getCodim2EntityLocalIndices");
+CHECK((faceIndices[0] == 1));
+INFO("getCodim2EntityLocalIndices");
+CHECK((faceIndices[1] == 3));
+faceIndices = test.getCodim2EntityLocalIndices(6);
+INFO("getCodim2EntityLocalIndices");
+CHECK((faceIndices[0] == 4));
+INFO("getCodim2EntityLocalIndices");
+CHECK((faceIndices[1] == 6));
+faceIndices = test.getCodim2EntityLocalIndices(7);
+INFO("getCodim2EntityLocalIndices");
+CHECK((faceIndices[0] == 5));
+INFO("getCodim2EntityLocalIndices");
+CHECK((faceIndices[1] == 7));
+faceIndices = test.getCodim2EntityLocalIndices(8);
+INFO("getCodim2EntityLocalIndices");
+CHECK((faceIndices[0] == 0));
+INFO("getCodim2EntityLocalIndices");
+CHECK((faceIndices[1] == 4));
+faceIndices = test.getCodim2EntityLocalIndices(9);
+INFO("getCodim2EntityLocalIndices");
+CHECK((faceIndices[0] == 1));
+INFO("getCodim2EntityLocalIndices");
+CHECK((faceIndices[1] == 5));
+faceIndices = test.getCodim2EntityLocalIndices(10);
+INFO("getCodim2EntityLocalIndices");
+CHECK((faceIndices[0] == 2));
+INFO("getCodim2EntityLocalIndices");
+CHECK((faceIndices[1] == 6));
+faceIndices = test.getCodim2EntityLocalIndices(11);
+INFO("getCodim2EntityLocalIndices");
+CHECK((faceIndices[0] == 3));
+INFO("getCodim2EntityLocalIndices");
+CHECK((faceIndices[1] == 7));
+faceIndices.resize(1);
+faceIndices = test.getCodim3EntityLocalIndices(0);
+INFO("getCodim3EntityLocalIndices");
+CHECK((faceIndices[0] == 0));
+faceIndices = test.getCodim3EntityLocalIndices(1);
+INFO("getCodim3EntityLocalIndices");
+CHECK((faceIndices[0] == 1));
+faceIndices = test.getCodim3EntityLocalIndices(2);
+INFO("getCodim3EntityLocalIndices");
+CHECK((faceIndices[0] == 2));
+faceIndices = test.getCodim3EntityLocalIndices(3);
+INFO("getCodim3EntityLocalIndices");
+CHECK((faceIndices[0] == 3));
+faceIndices = test.getCodim3EntityLocalIndices(4);
+INFO("getCodim3EntityLocalIndices");
+CHECK((faceIndices[0] == 4));
+faceIndices = test.getCodim3EntityLocalIndices(5);
+INFO("getCodim3EntityLocalIndices");
+CHECK((faceIndices[0] == 5));
+faceIndices = test.getCodim3EntityLocalIndices(6);
+INFO("getCodim3EntityLocalIndices");
+CHECK((faceIndices[0] == 6));
+faceIndices = test.getCodim3EntityLocalIndices(7);
+INFO("getCodim3EntityLocalIndices");
+CHECK((faceIndices[0] == 7));
+INFO("quadrature rules");
+CHECK((test.getGaussQuadratureRule(3)->order() >= 3));
+INFO("quadrature rules");
+CHECK((test.getGaussQuadratureRule(5)->order() >= 5));
+INFO("quadrature rules");
+CHECK((test.getGaussQuadratureRule(7)->order() >= 7));
+INFO("quadrature rules");
+CHECK((test.getGaussQuadratureRule(9)->order() >= 9));
+INFO("quadrature rules");
+CHECK((test.getGaussQuadratureRule(11)->order() >= 11));
+// testing functionality of abstract parent classes
 
-    INFO("quadrature rules");
-    CHECK((test.getGaussQuadratureRule(3)->order() >= 3));
-    INFO("quadrature rules");
-    CHECK((test.getGaussQuadratureRule(5)->order() >= 5));
-    INFO("quadrature rules");
-    CHECK((test.getGaussQuadratureRule(7)->order() >= 7));
-    INFO("quadrature rules");
-    CHECK((test.getGaussQuadratureRule(9)->order() >= 9));
-    INFO("quadrature rules");
-    CHECK((test.getGaussQuadratureRule(11)->order() >= 11));
-
-    // testing functionality of abstract parent classes
-
-    INFO("number of nodes");
-    CHECK((test.getNumberOfNodes() == 8));
-    INFO("type of geometry");
-    CHECK((test.getGeometryType() == Geometry::ReferenceGeometryType::CUBE));
-
-    ///\todo testing that the refinement maps behave exactly like the forwarded
-    /// calls of this class
+INFO("number of nodes");
+CHECK((test.getNumberOfNodes() == 8));
+INFO("type of geometry");
+CHECK((test.getGeometryType() == Geometry::ReferenceGeometryType::CUBE));
+///\todo testing that the refinement maps behave exactly like the forwarded
+/// calls of this class
 }

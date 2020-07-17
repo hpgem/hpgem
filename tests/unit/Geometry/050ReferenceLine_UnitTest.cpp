@@ -79,7 +79,8 @@ TEST_CASE("050ReferenceLine_UnitTest", "[050ReferenceLine_UnitTest]") {
 
     pTest = test.getCenter();
     INFO("getCenter");
-    CHECK((test.isInternalPoint(pTest) && std::abs(pTest[0]) < 1e-12));
+    CHECK(test.isInternalPoint(pTest));
+    CHECK(std::abs(pTest[0]) < 1e-12);
     pTest = test.getReferenceNodeCoordinate(0);
     INFO("getNode 0");
     CHECK((std::abs(pTest[0] + 1) < 1e-12));
@@ -92,7 +93,6 @@ TEST_CASE("050ReferenceLine_UnitTest", "[050ReferenceLine_UnitTest]") {
     CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 0) == 0));
     INFO("getLocalNodeIndex 1");
     CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 0) == 1));
-
     std::cout << test;
 
     // testing mappings and quadrature rules
@@ -117,49 +117,43 @@ TEST_CASE("050ReferenceLine_UnitTest", "[050ReferenceLine_UnitTest]") {
     INFO("getCodim0MappingIndex&Ptr");
     CHECK((test.getCodim0MappingPtr(base, transformed) ==
            &Geometry::MappingToRefLineToLine1::Instance()));
-
     INFO("higher codimensional entities");
-    CHECK((test.getNumberOfCodim1Entities() == 2 &&
-           test.getNumberOfCodim2Entities() == 0) &&
-          test.getNumberOfCodim3Entities() == 0);
-    INFO("getCodim1ReferenceGeometry");
-    CHECK((test.getCodim1ReferenceGeometry(0) ==
-               &Geometry::ReferencePoint::Instance() &&
-           test.getCodim1ReferenceGeometry(1) ==
-               &Geometry::ReferencePoint::Instance()));
-    INFO("getCodim1MappingPtr");
-    CHECK((test.getCodim1MappingPtr(0) ==
-           &Geometry::MappingToRefPointToLine0::Instance()));
-    INFO("getCodim1MappingPtr");
-    CHECK((test.getCodim1MappingPtr(1) ==
-           &Geometry::MappingToRefPointToLine1::Instance()));
-    faceIndices = test.getCodim1EntityLocalIndices(0);
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 0)));
-    faceIndices = test.getCodim1EntityLocalIndices(1);
-    INFO("getCodim1EntityLocalIndices");
-    CHECK(
-        (faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 0)));
+    CHECK(test.getNumberOfCodim1Entities() == 2);
+CHECK(test.getNumberOfCodim2Entities() == 0);
+CHECK(test.getNumberOfCodim3Entities() == 0);
+INFO("getCodim1ReferenceGeometry");
+CHECK(test.getCodim1ReferenceGeometry(0) ==
+      &Geometry::ReferencePoint::Instance());
+CHECK(test.getCodim1ReferenceGeometry(1) ==
+      &Geometry::ReferencePoint::Instance());
+INFO("getCodim1MappingPtr");
+CHECK((test.getCodim1MappingPtr(0) ==
+       &Geometry::MappingToRefPointToLine0::Instance()));
+INFO("getCodim1MappingPtr");
+CHECK((test.getCodim1MappingPtr(1) ==
+       &Geometry::MappingToRefPointToLine1::Instance()));
+faceIndices = test.getCodim1EntityLocalIndices(0);
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 0)));
+faceIndices = test.getCodim1EntityLocalIndices(1);
+INFO("getCodim1EntityLocalIndices");
+CHECK((faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 0)));
+INFO("quadrature rules");
+CHECK((test.getGaussQuadratureRule(3)->order() >= 3));
+INFO("quadrature rules");
+CHECK((test.getGaussQuadratureRule(5)->order() >= 5));
+INFO("quadrature rules");
+CHECK((test.getGaussQuadratureRule(7)->order() >= 7));
+INFO("quadrature rules");
+CHECK((test.getGaussQuadratureRule(9)->order() >= 9));
+INFO("quadrature rules");
+CHECK((test.getGaussQuadratureRule(11)->order() >= 11));
+// testing functionality of abstract parent classes
 
-    INFO("quadrature rules");
-    CHECK((test.getGaussQuadratureRule(3)->order() >= 3));
-    INFO("quadrature rules");
-    CHECK((test.getGaussQuadratureRule(5)->order() >= 5));
-    INFO("quadrature rules");
-    CHECK((test.getGaussQuadratureRule(7)->order() >= 7));
-    INFO("quadrature rules");
-    CHECK((test.getGaussQuadratureRule(9)->order() >= 9));
-    INFO("quadrature rules");
-    CHECK((test.getGaussQuadratureRule(11)->order() >= 11));
-
-    // testing functionality of abstract parent classes
-
-    INFO("number of nodes");
-    CHECK((test.getNumberOfNodes() == 2));
-    INFO("type of geometry");
-    CHECK((test.getGeometryType() == Geometry::ReferenceGeometryType::LINE));
-
-    ///\todo testing that the refinement maps behave exactly like the forwarded
-    /// calls of this class
+INFO("number of nodes");
+CHECK((test.getNumberOfNodes() == 2));
+INFO("type of geometry");
+CHECK((test.getGeometryType() == Geometry::ReferenceGeometryType::LINE));
+///\todo testing that the refinement maps behave exactly like the forwarded
+/// calls of this class
 }

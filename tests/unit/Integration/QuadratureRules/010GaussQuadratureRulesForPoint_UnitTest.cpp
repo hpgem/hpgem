@@ -49,7 +49,7 @@
 #include <cmath>
 
 #define CATCH_CONFIG_MAIN
-#include "../catch.hpp"
+#include "../../catch.hpp"
 
 using namespace hpgem;
 void testRule(QuadratureRules::GaussQuadratureRule& test) {
