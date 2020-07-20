@@ -182,14 +182,16 @@ TEST_CASE("010MappingToPhysicalHypercubeLinear_UnitTest",
              refPoint2D[1] += 0.2) {
             point2D = mapping2D.transform((refPoint2D));
             INFO("transform");
-CHECK(rGeom2D.isInternalPoint((refPoint2D)) );
-bool check=((isInternal2D(point2D)) || !rGeom2D.isInternalPoint(refPoint2D));
+            bool check = ((rGeom2D.isInternalPoint((refPoint2D)) &&
+-                                   isInternal2D(point2D)) ||
+-                                  (!rGeom2D.isInternalPoint((refPoint2D)) &&
+-                                   !isInternal2D(point2D)));
 
-CHECK(check);
-CHECK(!isInternal2D(point2D));
+            CHECK(check);
             point2D = reinit2D.transform((refPoint2D));
             INFO("reinit");
-CHECK((rGeom2D.isInternalPoint((refPoint2D)) ==isInternal2D(point2D)));
+            CHECK((rGeom2D.isInternalPoint((refPoint2D)) ==
+                   isInternal2D(point2D)));
             refPoint2D[0] += -1.e-8;
             compare2D = mapping2D.transform((refPoint2D));
             refPoint2D[0] += 2.e-8;
@@ -198,9 +200,11 @@ CHECK((rGeom2D.isInternalPoint((refPoint2D)) ==isInternal2D(point2D)));
             refPoint2D[0] += -1e-8;
             jac2D = mapping2D.calcJacobian((refPoint2D));
             INFO("jacobian");
-CHECK((std::abs(jac2D[0] - 5.e7 * (point2D[0] - compare2D[0])) <1e-5));                            // most mappings
+            CHECK((std::abs(jac2D[0] - 5.e7 * (point2D[0] - compare2D[0])) <
+                   1e-5));  // most mappings
             INFO("jacobian");
-CHECK((std::abs(jac2D[1] - 5.e7 * (point2D[1] - compare2D[1])) <1e-5));                            // more accurate
+            CHECK((std::abs(jac2D[1] - 5.e7 * (point2D[1] - compare2D[1])) <
+                   1e-5));  // more accurate
 
             refPoint2D[1] += -1.e-8;
             compare2D = mapping2D.transform((refPoint2D));
@@ -210,8 +214,12 @@ CHECK((std::abs(jac2D[1] - 5.e7 * (point2D[1] - compare2D[1])) <1e-5));         
             refPoint2D[1] += -1e-8;
             jac2D = mapping2D.calcJacobian((refPoint2D));
             INFO("jacobian");
-CHECK((std::abs(jac2D[2] - 5.e7 * (point2D[0] - compare2D[0])) <1e-5));            INFO("jacobian");
-CHECK((std::abs(jac2D[3] - 5.e7 * (point2D[1] - compare2D[1])) <1e-5));            refPoint2D[1] += 1e-8;
+            CHECK((std::abs(jac2D[2] - 5.e7 * (point2D[0] - compare2D[0])) <
+                   1e-5));
+            INFO("jacobian");
+            CHECK((std::abs(jac2D[3] - 5.e7 * (point2D[1] - compare2D[1])) <
+                   1e-5));
+            refPoint2D[1] += 1e-8;
             // either the reference point and the inverse transform of its
             // transform are both outside the square (but on potentially
             // different locations; due to nonlinearities) or they are inside
@@ -233,8 +241,8 @@ CHECK((std::abs(jac2D[3] - 5.e7 * (point2D[1] - compare2D[1])) <1e-5));         
         compare2D = pGeom2D.getLocalNodeCoordinates(i);
         point2D = mapping2D.transform((refPoint2D));
         INFO("transform");
-CHECK(std::abs(point2D[0] - compare2D[0]) < 1e-12);
-CHECK(std::abs(point2D[1] - compare2D[1]) < 1e-12);
+        CHECK(std::abs(point2D[0] - compare2D[0]) < 1e-12);
+        CHECK(std::abs(point2D[1] - compare2D[1]) < 1e-12);
     }
 
     INFO("getTargetDimension");
@@ -376,9 +384,9 @@ CHECK(std::abs(point2D[1] - compare2D[1]) < 1e-12);
         compare3D = pGeom3D.getLocalNodeCoordinates(i);
         point3D = mapping3D.transform((refPoint3D));
         INFO("transform");
-CHECK(std::abs(point3D[0] - compare3D[0]) < 1e-12);
-CHECK(std::abs(point3D[1] - compare3D[1]) < 1e-12);
-CHECK(std::abs(point3D[2] - compare3D[2]) < 1e-12);
+        CHECK(std::abs(point3D[0] - compare3D[0]) < 1e-12);
+        CHECK(std::abs(point3D[1] - compare3D[1]) < 1e-12);
+        CHECK(std::abs(point3D[2] - compare3D[2]) < 1e-12);
     }
 
     INFO("getTargetDimension");
