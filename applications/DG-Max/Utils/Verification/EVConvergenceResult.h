@@ -45,6 +45,8 @@
 
 namespace DGMax {
 
+using namespace hpgem;
+
 /// \brief Frequencies from eigenvalue computations on a set of meshes.
 class EVConvergenceResult {
    public:
