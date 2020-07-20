@@ -70,10 +70,10 @@ class AbstractEigenvalueResult {
     /// \param stream The output stream to write to
     /// \param separator The separator between frequencies for the same k-point
     void writeFrequencies(std::ostream& stream, char separator) const {
+        stream << "k-point" << separator << "frequencies->\n";
         for (std::size_t i = 0;
              i < originalProblem().getPath().totalNumberOfSteps(); ++i) {
             std::vector<double> freqs = frequencies(i);
-            stream<<"k-point" << separator <<  "frequencies->\n";
             stream << i;
             for (double& freq : freqs) {
                 stream << separator << freq;
