@@ -76,7 +76,7 @@ class DGMaxEVConvergenceTest : public AbstractEVConvergenceTest<DIM> {
     // frequencies) are expected
     bool expectNaNsOrNegative() const override { return true; }
     // Reasonable default for if k is not that close to zero
-    double expectedNumericalZeroThreshold() const override { return 1e-4; }
+    double expectedNumericalZeroThreshold() const override { return 1e-3; }
     // Basic estimate that at least 1/2 of the actual eigenvalues must be there.
     std::size_t minimumNumberOfResults(std::size_t level) const {
         return expected_->getLevel(level).size() * 1 / 2;
