@@ -159,9 +159,6 @@ class DGMaxEigenvalue : public AbstractEigenvalueSolver<DIM>,
    private:
     void initializeMatrices();
 
-    void extractEigenValues(const EPS& solver,
-                            std::vector<PetscScalar>& result);
-
     Base::MeshManipulator<DIM>& mesh_;
     std::size_t order_;
     SolverConfig config_;

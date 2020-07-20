@@ -104,9 +104,9 @@ class SolverWorkspace {
 
     void solve();
 
-    // FUTURE TODO: remove last references to make it private
-    // Solver
-    EPS solver_;
+    const std::vector<PetscScalar>& getEigenvalues() const {
+        return eigenvalues_;
+    }
 
    private:
     /// Helper function for getting the Stiffness matrix to use as basis in the
@@ -134,6 +134,9 @@ class SolverWorkspace {
     /// Shell matrix P*product_, where P is the projection operator
     Mat shell_;
 
+    // Solver
+    EPS solver_;
+
     // Eigenvector storage
     PetscInt convergedEigenValues_;
     Vec* eigenVectors_;
@@ -148,6 +151,8 @@ class SolverWorkspace {
 
     LinearAlgebra::SmallVector<DIM> currentK_;
     DGMax::KPhaseShifts<DIM> stiffnessMatrixShifts_;
+
+    std::vector<PetscScalar> eigenvalues_;
 
     void initStiffnessMatrixShifts();
     void initMatrices();
@@ -218,6 +223,18 @@ class ProjectorWorkspace {
     DGMax::KPhaseShifts<DIM> phaseShifts_;
 };
 
+void sortEigenvalues(std::vector<PetscScalar>& result) {
+    // Sort eigen values in ascending order with respect to the real part of the
+    // eigenvalue and using the imaginairy part as tie breaker.
+    std::sort(result.begin(), result.end(),
+              [](const PetscScalar& a, const PetscScalar& b) {
+                  if (a.real() != b.real()) {
+                      return a.real() < b.real();
+                  }
+                  return a.imag() < b.imag();
+              });
+}
+
 ///
 
 template <std::size_t DIM>
@@ -245,45 +262,11 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DGMaxEigenvalue<DIM>::solve(
 
         workspace.solve();
         // Actual result processing
-        extractEigenValues(workspace.solver_, eigenvalues[i]);
+        eigenvalues[i] = workspace.getEigenvalues();
+        sortEigenvalues(eigenvalues[i]);
     }
 
     return std::make_unique<Result>(input, eigenvalues);
-}
-
-template <std::size_t DIM>
-void DGMaxEigenvalue<DIM>::extractEigenValues(
-    const EPS& solver, std::vector<PetscScalar>& result) {
-    const double ZERO_TOLLERANCE = 1e-10;
-
-    PetscInt converged;  // number of converged eigenpairs
-    PetscErrorCode err;
-    PetscScalar eigenvalue, neededOnlyForRealPetsc;
-
-    err = EPSGetConverged(solver, &converged);
-    CHKERRABORT(PETSC_COMM_WORLD, err);
-
-    // Retrieve all non zero eigenvalues from the solver.
-    result.resize(converged);
-    for (int i = 0; i < converged; ++i) {
-        // Note, the last parameter is only used for a PETSc compiled using real
-        // numbers, where we need two output parameters for a complex number.
-        err = EPSGetEigenvalue(solver, i, &eigenvalue, &neededOnlyForRealPetsc);
-        CHKERRABORT(PETSC_COMM_WORLD, err);
-
-        result[i] = eigenvalue;
-    }
-
-    logger(INFO, "Number of eigenvalues:  %.", result.size());
-    // Sort eigen values in ascending order with respect to the real part of the
-    // eigenvalue and using the imaginairy part as tie breaker.
-    std::sort(result.begin(), result.end(),
-              [](const PetscScalar& a, const PetscScalar& b) {
-                  if (a.real() != b.real()) {
-                      return a.real() < b.real();
-                  }
-                  return a.imag() < b.imag();
-              });
 }
 
 template <std::size_t DIM>
@@ -598,7 +581,12 @@ void SolverWorkspace<DIM>::extractEigenVectors() {
         CHKERRABORT(PETSC_COMM_WORLD, error);
         numberOfEigenVectors_ = convergedEigenValues_;
     }
-    error = EPSGetInvariantSubspace(solver_, eigenVectors_);
+
+    eigenvalues_.resize(convergedEigenValues_);
+    for (PetscInt i = 0; i < convergedEigenValues_; ++i) {
+        EPSGetEigenpair(solver_, i, &eigenvalues_[i], nullptr, eigenVectors_[i],
+                        nullptr);
+    }
     CHKERRABORT(PETSC_COMM_WORLD, error);
 }
 
