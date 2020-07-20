@@ -71,32 +71,67 @@ bool AbstractEVConvergenceTest<DIM>::compareWithExpected(
 
     auto expected = getExpected();
     if (expected == nullptr || expected->getNumberOfLevels() <= level) {
+        logger(WARN, "No expected results for level %", level);
         return true;
     }
-    bool same = true;
 
     const std::vector<double>& expectedLevel = expected->getLevel(level);
     const std::vector<double>& resultLevel = result.frequencies(0);
 
-    if (expectedLevel.size() != resultLevel.size()) {
+    // Skip over the starting NaNs
+    auto resultIter = resultLevel.begin();
+    while (expectNaNsOrNegative() && resultIter != resultLevel.end() &&
+           (std::isnan(*resultIter) || (*resultIter) < 0.0)) {
+        ++resultIter;
+    }
+    auto expectedIter = expectedLevel.begin();
+    while (expectNaNsOrNegative() && expectedIter != expectedLevel.end() &&
+           (std::isnan(*expectedIter) || (*expectedIter) < 0.0)) {
+        ++expectedIter;
+    }
+    // Check if the result is sorted as it should be
+    if (!std::is_sorted(resultIter, resultLevel.end())) {
+        logger(ERROR, "Non sorted result");
+        return false;
+    }
+    logger.assert_always(std::is_sorted(expectedIter, expectedLevel.end()),
+                         "Non sorted expected result");
+    // Skip over any numerical zeros
+    while (resultIter != resultLevel.end() && (*resultIter) >= 0.0 &&
+           (*resultIter) < expectedNumericalZeroThreshold()) {
+        ++resultIter;
+    }
+    while (expectedIter != expectedLevel.end() && (*expectedIter) >= 0.0 &&
+           (*expectedIter) < expectedNumericalZeroThreshold()) {
+        ++expectedIter;
+    }
+
+    // Check if there are enough values to compare
+    logger.assert_always(
+        expectedLevel.end() - expectedIter >= minimumNumberOfResults(level),
+        "Not enough expected values for a comparison");
+    if (resultLevel.end() - resultIter < minimumNumberOfResults(level)) {
         logger(ERROR,
-               "Different number of eigenvalues expected % got % at level %",
-               expectedLevel.size(), resultLevel.size(), level);
-        same = false;
+               "Not enough result values for a comparison, minimum %, got %",
+               minimumNumberOfResults(level), resultLevel.end() - resultIter);
+        return false;
     }
-    if (same) {
-        for (std::size_t i = 0; i < expectedLevel.size(); ++i) {
-            double diff = std::abs(expectedLevel[i] - resultLevel[i]);
-            if (diff >= getTolerance() ||
-                (std::isnan(expectedLevel[i]) != std::isnan(resultLevel[i]))) {
-                logger(ERROR,
-                       "Different %-th eigenvalue at level %: Expected % got %",
-                       i, level, expectedLevel[i], resultLevel[i]);
-                same = false;
-                break;
-            }
+    // Now the actual comparison
+
+    bool same = true;
+    while (resultIter != resultLevel.end() &&
+           expectedIter != expectedLevel.end()) {
+        double diff = std::abs(*resultIter - *expectedIter);
+        if (std::abs(diff) >= getTolerance()) {
+            logger(WARN, "Different eigenvalue detected: Expexted %, result %",
+                   *expectedIter, *resultIter);
+            same = false;
+            break;
         }
+        ++resultIter;
+        ++expectedIter;
     }
+    // Print complete output
     if (!same) {
         std::stringstream expectedString;
         expectedString << "Expected:";
