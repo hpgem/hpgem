@@ -123,9 +123,10 @@ TEST_CASE("230FaceGeometry_UnitTest", "[230FaceGeometry_UnitTest]") {
         compare1Dphys =
             test->getPtrElementGRight()->referenceToPhysical((compare1D));
         point1D = test->mapRefFaceToRefElemR((orig1D));
-        logger.assert_always((std::abs(compare1D[0] - point1D[0]) < 1e-12),
-                             "getPtrElementGRight or localFaceNumberRight or "
+         INFO("getPtrElementGRight or localFaceNumberRight or "
                              "mapRefFaceToRefElemR or mapRefFaceToRefFace");
+                             CHECK(std::abs(compare1D[0] - point1D[0]) < 1e-12);
+
         INFO("referenceToPhysical");
         CHECK((std::abs(compare1Dphys[0] - point1Dphys[0]) <
                1e-12));  // probably indirectly verified already,
@@ -223,12 +224,14 @@ TEST_CASE("230FaceGeometry_UnitTest", "[230FaceGeometry_UnitTest]") {
         compare2Dphys =
             test->getPtrElementGRight()->referenceToPhysical((compare2D));
         point2D = test->mapRefFaceToRefElemR((orig2D));
-        logger.assert_always((std::abs(compare2D[0] - point2D[0]) < 1e-12),
-                             "getPtrElementGRight or localFaceNumberRight or "
+        INFO("getPtrElementGRight or localFaceNumberRight or "
                              "mapRefFaceToRefElemR or mapRefFaceToRefFace");
-        logger.assert_always((std::abs(compare2D[1] - point2D[1]) < 1e-12),
-                             "getPtrElementGRight or localFaceNumberRight or "
+                             CHECK(std::abs(compare2D[0] - point2D[0]) < 1e-12);
+
+        INFO("getPtrElementGRight or localFaceNumberRight or "
                              "mapRefFaceToRefElemR or mapRefFaceToRefFace");
+                             CHECK(std::abs(compare2D[1] - point2D[1]) < 1e-12);
+
         INFO("referenceToPhysical");
         CHECK((std::abs(compare2Dphys[0] - point2Dphys[0]) <
                1e-12));  // probably indirectly verified already,

@@ -96,45 +96,48 @@ void testMesh(Base::MeshManipulator<DIM>* test, bool isPeriodic) {
     std::cout << test->getElementsList(Base::IteratorType::LOCAL).size()
               << std::endl;
     for (Base::Element* element : test->getElementsList()) {
-        INFO("duplicate element ID");
-        CHECK((elementIDs.find(element->getID()) == elementIDs.end()));
+        logger.assert_always(
+            (elementIDs.find(element->getID()) == elementIDs.end()),
+            "duplicate element ID");
         elementIDs.insert(element->getID());
-        INFO("confusion about the number of faces");
-        CHECK((element->getNumberOfFaces() ==
-               element->getReferenceGeometry()->getNumberOfCodim1Entities()));
+        logger.assert_always(
+            (element->getNumberOfFaces() ==
+             element->getReferenceGeometry()->getNumberOfCodim1Entities()),
+            "confusion about the number of faces");
         if (test->dimension() == 2) {
-            INFO("confusion about the number of edges");
-            CHECK((element->getNumberOfEdges() == 0));
+            logger.assert_always((element->getNumberOfEdges() == 0),
+                                 "confusion about the number of edges");
         } else {
-            INFO("confusion about the number of edges");
-            CHECK(
+            logger.assert_always(
                 (element->getNumberOfEdges() ==
-                 element->getReferenceGeometry()->getNumberOfCodim2Entities()));
+                 element->getReferenceGeometry()->getNumberOfCodim2Entities()),
+                "confusion about the number of edges");
         }
-        INFO("confusion about the number of vertices");
-        CHECK((element->getNumberOfNodes() ==
-               element->getReferenceGeometry()->getNumberOfNodes()));
+        logger.assert_always(
+            (element->getNumberOfNodes() ==
+             element->getReferenceGeometry()->getNumberOfNodes()),
+            "confusion about the number of vertices");
         for (std::size_t i = 0; i < element->getNumberOfFaces(); ++i) {
             logger.assert_always((element->getFace(i) != nullptr),
                                  "missing Face no. % in element %", i,
                                  element->getID());
         }
         for (std::size_t i = 0; i < element->getNumberOfEdges(); ++i) {
-            INFO("missing Face");
-            CHECK((element->getEdge(i) != nullptr));
+            logger.assert_always((element->getEdge(i) != nullptr),
+                                 "missing Face");
         }
         for (std::size_t i = 0; i < element->getNumberOfNodes(); ++i) {
-            INFO("missing Face");
-            CHECK((element->getNode(i) != nullptr));
+            logger.assert_always((element->getNode(i) != nullptr),
+                                 "missing Face");
         }
     }
     for (Base::Face* face : test->getFacesList()) {
-        INFO("duplicate face ID");
-        CHECK((faceIDs.find(face->getID()) == faceIDs.end()));
+        logger.assert_always((faceIDs.find(face->getID()) == faceIDs.end()),
+                             "duplicate face ID");
         faceIDs.insert(face->getID());
-        INFO("element<->face matching");
-        CHECK((face->getPtrElementLeft()->getFace(
-                   face->localFaceNumberLeft()) == face));
+        logger.assert_always((face->getPtrElementLeft()->getFace(
+                                  face->localFaceNumberLeft()) == face),
+                             "element<->face matching");
         if (!isPeriodic && face->isInternal()) {
             std::vector<std::size_t> leftNodes(
                 face->getReferenceGeometry()->getNumberOfNodes()),
@@ -164,24 +167,24 @@ void testMesh(Base::MeshManipulator<DIM>* test, bool isPeriodic) {
                 for (unsigned long rightNode : rightNodes) {
                     found |= leftNode == rightNode;
                 }
-                INFO("face positioning");
-                CHECK((found));
+                logger.assert_always((found), "face positioning");
             }
-            INFO("element<->face matching");
-            CHECK((face->getPtrElementRight()->getFace(
-                       face->localFaceNumberRight()) == face));
+            logger.assert_always((face->getPtrElementRight()->getFace(
+                                      face->localFaceNumberRight()) == face),
+                                 "element<->face matching");
         }
         if (isPeriodic) {
-            INFO("Boundary face detected in a periodic mesh");
-            CHECK(face->isInternal());
+            logger.assert_always(face->isInternal(),
+                                 "Boundary face detected in a periodic mesh");
         }
     }
     for (Base::Edge* edge : test->getEdgesList()) {
-        INFO("duplicate edge ID");
-        CHECK((edgeIDs.find(edge->getID()) == edgeIDs.end()));
+        logger.assert_always((edgeIDs.find(edge->getID()) == edgeIDs.end()),
+                             "duplicate edge ID");
         edgeIDs.insert(edge->getID());
-        INFO("element<->edge matching");
-        CHECK((edge->getElement(0)->getEdge(edge->getEdgeNumber(0)) == edge));
+        logger.assert_always(
+            (edge->getElement(0)->getEdge(edge->getEdgeNumber(0)) == edge),
+            "element<->edge matching");
         std::vector<std::size_t> firstNodes(
             edge->getElement(0)
                 ->getReferenceGeometry()
@@ -197,9 +200,9 @@ void testMesh(Base::MeshManipulator<DIM>* test, bool isPeriodic) {
                     firstNode);
         }
         for (std::size_t i = 1; i < edge->getNumberOfElements(); ++i) {
-            INFO("element<->edge matching");
-            CHECK(
-                (edge->getElement(i)->getEdge(edge->getEdgeNumber(i)) == edge));
+            logger.assert_always(
+                (edge->getElement(i)->getEdge(edge->getEdgeNumber(i)) == edge),
+                "element<->edge matching");
             otherNodes =
                 edge->getElement(i)
                     ->getReferenceGeometry()
@@ -214,32 +217,32 @@ void testMesh(Base::MeshManipulator<DIM>* test, bool isPeriodic) {
                 for (unsigned long otherNode : otherNodes) {
                     found |= firstNode == otherNode;
                 }
-                INFO("edge positioning");
-                CHECK(found || isPeriodic);
+                logger.assert_always(found || isPeriodic, "edge positioning");
             }
-            INFO("edge positioning");
-            CHECK((firstNodes.size() == otherNodes.size()));
+            logger.assert_always((firstNodes.size() == otherNodes.size()),
+                                 "edge positioning");
         }
     }
     for (Base::Node* node : test->getNodesList()) {
-        INFO("duplicate node ID");
-        CHECK((nodeIDs.find(node->getID()) == nodeIDs.end()));
+        logger.assert_always((nodeIDs.find(node->getID()) == nodeIDs.end()),
+                             "duplicate node ID");
         nodeIDs.insert(node->getID());
-        INFO("element<->node matching");
-        CHECK((node->getElement(0)->getNode(node->getNodeNumber(0)) == node));
+        logger.assert_always(
+            (node->getElement(0)->getNode(node->getNodeNumber(0)) == node),
+            "element<->node matching");
         Geometry::PointPhysical<DIM> pFirst, pOther;
         pFirst =
             node->getElement(0)->getPhysicalGeometry()->getLocalNodeCoordinates(
                 node->getNodeNumber(0));
         for (std::size_t i = 1; i < node->getNumberOfElements(); ++i) {
-            INFO("element<->node matching");
-            CHECK(
-                (node->getElement(i)->getNode(node->getNodeNumber(i)) == node));
+            logger.assert_always(
+                (node->getElement(i)->getNode(node->getNodeNumber(i)) == node),
+                "element<->node matching");
             pOther = node->getElement(i)
                          ->getPhysicalGeometry()
                          ->getLocalNodeCoordinates(node->getNodeNumber(i));
-            INFO("node positioning");
-            CHECK((pFirst == pOther) || isPeriodic);
+            logger.assert_always((pFirst == pOther) || isPeriodic,
+                                 "node positioning");
         }
     }
     logger.assert_always(

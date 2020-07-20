@@ -231,7 +231,7 @@ TEST_CASE("060ReferenceSquare_UnitTest", "[060ReferenceSquare_UnitTest]") {
     INFO("higher codimensional entities");
     CHECK(test.getNumberOfCodim1Entities() == 4);
     CHECK(test.getNumberOfCodim2Entities() == 4);
-    CHECK(test.getNumberOfCodim3Entities() == 4);
+    CHECK(test.getNumberOfCodim3Entities() == 0);
     INFO("getCodim1ReferenceGeometry");
     CHECK(test.getCodim1ReferenceGeometry(0) ==
           &Geometry::ReferenceLine::Instance());

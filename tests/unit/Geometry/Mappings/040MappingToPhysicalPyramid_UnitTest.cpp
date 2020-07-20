@@ -188,11 +188,11 @@ TEST_CASE("040MappingToPhysicalPyramid_UnitTest",
                 // on
                 // the same location
                 logger.assert_always((
-                                         !rGeom3D.isInternalPoint(refPoint3D) /*&& !rGeom3D.isInternalPoint(mapping3D.inverseTransform(point3D))*/) ||
-                                         Base::L2Norm(
+                                         !rGeom3D.isInternalPoint(refPoint3D)) ||
+                                         (Base::L2Norm(
                                              refPoint3D -
                                              mapping3D.inverseTransform(
-                                                 point3D)) < 1e-12,
+                                                 point3D)) < 1e-12),
                                      "inverse transformation, (distance is %, "
                                      "point is %/%)",
                                      refPoint3D -

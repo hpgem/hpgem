@@ -322,8 +322,8 @@ TEST_CASE("090ReferenceTetrahedron_UnitTest",
         LinearAlgebra::SmallVector<4> refbcoord;
         refbcoord.set(0);
         refbcoord[i] = 1;
-        logger.assert_always((bcoords - refbcoord).l2Norm() < 1e-12,
-                             "Incorrect barycentric coordinate %", i);
+        INFO("Incorrect barycentric coordinate "<<i);
+        CHECK((bcoords - refbcoord).l2Norm() < 1e-12);
     }
     LinearAlgebra::SmallVector<4> refbcoord(
         {1. / 4., 1. / 4., 1. / 4., 1. / 4.});

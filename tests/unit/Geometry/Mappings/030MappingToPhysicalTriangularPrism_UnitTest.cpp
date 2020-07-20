@@ -171,15 +171,14 @@ CHECK((std::abs(jac3D[8] - 5.e7 * (point3D[2] - compare3D[2])) <1e-5));         
                 // different locations; due to nonlinearities) or they are
                 // inside
                 // and on the same location
-                logger.assert_always(
-                    (!rGeom3D.isInternalPoint(refPoint3D) &&
+                bool check=!rGeom3D.isInternalPoint(refPoint3D) &&
                      !rGeom3D.isInternalPoint(
-                         mapping3D.inverseTransform(point3D))) ||
-                        Base::L2Norm(refPoint3D - mapping3D.inverseTransform(
-                                                      point3D)) < 1e-12,
-                    "inverse transformation, (distance is %, point is %)",
-                    refPoint3D - mapping3D.inverseTransform(point3D),
-                    refPoint3D);
+                         mapping3D.inverseTransform(point3D)) ||
+                        (Base::L2Norm(refPoint3D - mapping3D.inverseTransform(
+                                                      point3D)) < 1e-12);
+                CHECK(check);
+                INFO("inverse transformation, (distance is "<<refPoint3D - mapping3D.inverseTransform(point3D)<<", point is "<<refPoint3D<<")");
+               
             }
         }
     }
