@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPGEM_OUTPUT_H
-#define HPGEM_OUTPUT_H
+#ifndef HPGEM_APP_OUTPUT_H
+#define HPGEM_APP_OUTPUT_H
 
 #include <Base/CommandLineOptions.h>
 #include "mesh.h"
@@ -56,4 +56,6 @@ void outputMesh(Mesh<dimension>& mesh,
 
 #include "output_impl.h"
 
-#endif  // HPGEM_OUTPUT_H
+using namespace hpgem;
+
+#endif  // HPGEM_APP_OUTPUT_H

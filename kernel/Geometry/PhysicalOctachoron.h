@@ -36,9 +36,12 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PHYSICALOCTACHORON_HH
-#define PHYSICALOCTACHORON_HH
+#ifndef HPGEM_KERNEL_PHYSICALOCTACHORON_H
+#define HPGEM_KERNEL_PHYSICALOCTACHORON_H
 #include "PhysicalGeometry.h"
+
+namespace hpgem {
+
 namespace Geometry {
 class ReferenceHypercube;
 
@@ -51,4 +54,6 @@ class PhysicalOctachoron : public PhysicalGeometry<4> {
 };
 
 }  // namespace Geometry
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_PHYSICALOCTACHORON_H

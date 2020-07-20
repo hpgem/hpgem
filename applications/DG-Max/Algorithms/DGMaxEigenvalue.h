@@ -36,8 +36,8 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef ALGORITHMS_DGMAXEIGENVALUE_h
-#define ALGORITHMS_DGMAXEIGENVALUE_h
+#ifndef HPGEM_APP_DGMAXEIGENVALUE_H
+#define HPGEM_APP_DGMAXEIGENVALUE_H
 
 #include "../ProblemTypes/EigenvalueProblem.h"
 #include "../ProblemTypes/AbstractEigenvalueResult.h"
@@ -48,6 +48,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Utilities/GlobalIndexing.h"
 
 #include <slepceps.h>
+
+using namespace hpgem;
 
 // TODO: It might be better to call this differently
 template <std::size_t DIM>
@@ -94,4 +96,4 @@ class DGMaxEigenvalue : public AbstractEigenvalueSolver<DIM> {
     DGMaxDiscretization<DIM> discretization_;
 };
 
-#endif  // ALGORITHMS_DGMAXEIGENVALUE_h
+#endif  // HPGEM_APP_DGMAXEIGENVALUE_H

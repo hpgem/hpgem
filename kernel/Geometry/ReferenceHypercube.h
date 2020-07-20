@@ -36,11 +36,13 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef REFERENCEHYPERCUBE_HH
-#define REFERENCEHYPERCUBE_HH
+#ifndef HPGEM_KERNEL_REFERENCEHYPERCUBE_H
+#define HPGEM_KERNEL_REFERENCEHYPERCUBE_H
 
 #include "ReferenceGeometry.h"
 #include <vector>
+
+namespace hpgem {
 
 namespace Geometry {
 // Reference Hypercube.
@@ -175,4 +177,6 @@ class ReferenceHypercube : public ReferenceGeometry {
 };
 }  // namespace Geometry
 
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_REFERENCEHYPERCUBE_H

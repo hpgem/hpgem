@@ -5,6 +5,9 @@
 
 #ifdef HPGEM_USE_MPI
 #include <mpi.h>
+
+using namespace hpgem;
+
 #endif
 
 Logger<HPGEM_LOGLEVEL> DGMaxLogger("DGMax");

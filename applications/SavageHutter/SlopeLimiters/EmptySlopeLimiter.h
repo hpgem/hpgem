@@ -36,9 +36,11 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef EMPTYSLOPELIMITER_H
-#define EMPTYSLOPELIMITER_H
+#ifndef HPGEM_APP_EMPTYSLOPELIMITER_H
+#define HPGEM_APP_EMPTYSLOPELIMITER_H
 #include "SlopeLimiter.h"
+
+using namespace hpgem;
 
 class EmptySlopeLimiter : public SlopeLimiter {
    public:
@@ -47,4 +49,4 @@ class EmptySlopeLimiter : public SlopeLimiter {
     void limitSlope(Base::Element *elt) override final {}
 };
 
-#endif /* EMPTYSLOPELIMITER_H */
+#endif  // HPGEM_APP_EMPTYSLOPELIMITER_H

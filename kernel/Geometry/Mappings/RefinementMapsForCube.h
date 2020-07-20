@@ -36,13 +36,15 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef KERNEL_GEOMETRY_MAPPINGS_REFINEMENTMAPSFORCUBE_H_
-#define KERNEL_GEOMETRY_MAPPINGS_REFINEMENTMAPSFORCUBE_H_
+#ifndef HPGEM_KERNEL_REFINEMENTMAPSFORCUBE_H
+#define HPGEM_KERNEL_REFINEMENTMAPSFORCUBE_H
 
 #include "RefinementMapping.h"
 #include "RefinementMapsForSquare.h"
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferenceCube.h"
+
+namespace hpgem {
 
 namespace Geometry {
 /**
@@ -1721,4 +1723,6 @@ class RefinementMapForCube7 : public RefinementMapping {
 };
 }  // namespace Geometry
 
-#endif /* KERNEL_GEOMETRY_MAPPINGS_REFINEMENTMAPSFORCUBE_H_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_REFINEMENTMAPSFORCUBE_H

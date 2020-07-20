@@ -7,6 +7,8 @@
 #include "Algorithms/DivDGMaxEigenvalue.h"
 #include "Algorithms/DGMaxEigenvalue.h"
 
+using namespace hpgem;
+
 // File name of the mesh file, e.g. -m mesh.hpgem
 auto& meshFile = Base::register_argument<std::string>(
     'm', "meshFile", "The hpgem meshfile to use", true);

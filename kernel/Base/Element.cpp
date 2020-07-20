@@ -55,6 +55,8 @@
 #include <limits>
 #include <algorithm>
 
+namespace hpgem {
+
 namespace Base {
 
 Element::Element(std::size_t owner, bool owned, const ElementData &otherData,
@@ -372,3 +374,5 @@ bool Element::isOwnedByCurrentProcessor() const { return owned_; }
 
 std::size_t Element::getOwner() const { return owner_; }
 }  // namespace Base
+
+}  // namespace hpgem

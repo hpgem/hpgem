@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef COMPRESSIBLENAVIERSTOKES_H_
-#define COMPRESSIBLENAVIERSTOKES_H_
+#ifndef HPGEM_APP_COMPRESSIBLENAVIERSTOKES_H
+#define HPGEM_APP_COMPRESSIBLENAVIERSTOKES_H
 
 #include "Base/HpgemAPISimplified.h"
 
@@ -45,6 +45,8 @@ class CompressibleNavierStokes;
 
 #include "Inviscid.h"
 #include "Viscous.h"
+
+using namespace hpgem;
 
 class CompressibleNavierStokes : public Base::HpgemAPISimplified<DIM> {
    public:
@@ -268,4 +270,4 @@ class CompressibleNavierStokes : public Base::HpgemAPISimplified<DIM> {
     friend class Viscous;
 };
 
-#endif /* COMPRESSIBLENAVIERSTOKES_H_ */
+#endif  // HPGEM_APP_COMPRESSIBLENAVIERSTOKES_H

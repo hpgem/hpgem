@@ -45,6 +45,8 @@
 #include <cmath>
 #include <Base/L2Norm.h>
 
+namespace hpgem {
+
 namespace Geometry {
 MappingToPhysPyramid::MappingToPhysPyramid(
     const PhysicalGeometry<3>* const physicalGeometry)
@@ -180,3 +182,5 @@ bool MappingToPhysPyramid::isValidPoint(
 }
 
 }  // namespace Geometry
+
+}  // namespace hpgem

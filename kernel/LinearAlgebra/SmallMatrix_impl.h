@@ -38,6 +38,8 @@
 
 #include "SmallMatrix.h"
 
+namespace hpgem {
+
 namespace LinearAlgebra {
 extern "C" {
 
@@ -418,3 +420,4 @@ SmallVector<numberOfColumns> operator*(
     return result;
 }
 }  // namespace LinearAlgebra
+}  // namespace hpgem

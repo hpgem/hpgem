@@ -48,7 +48,7 @@
 #include "Logger.h"
 #include <cmath>
 #include <CMakeDefinitions.h>
-
+using namespace hpgem;
 template <std::size_t DIM>
 void testMesh(Base::MeshManipulator<DIM>* test) {
 

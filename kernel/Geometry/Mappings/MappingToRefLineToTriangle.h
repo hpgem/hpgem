@@ -36,10 +36,12 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MappingToRefLineToTriangle_H_
-#define MappingToRefLineToTriangle_H_
+#ifndef HPGEM_KERNEL_MAPPINGTOREFLINETOTRIANGLE_H
+#define HPGEM_KERNEL_MAPPINGTOREFLINETOTRIANGLE_H
 
 #include "MappingReferenceToReference.h"
+
+namespace hpgem {
 
 namespace Geometry {
 /* The ordering of the vertex and faces in a triangle:
@@ -115,4 +117,6 @@ class MappingToRefLineToTriangle2 : public MappingReferenceToReference<1> {
         transformedCoordinates;
 };
 }  // namespace Geometry
-#endif /* MAPPINGSIMPLECUBENLINEAR_H_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_MAPPINGTOREFLINETOTRIANGLE_H

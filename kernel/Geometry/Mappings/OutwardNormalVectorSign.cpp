@@ -48,6 +48,8 @@
 #include <typeinfo>
 #include <limits>
 
+namespace hpgem {
+
 namespace Geometry {
 double OutwardNormalVectorSign(
     const MappingReferenceToReference<1> *const map) {
@@ -90,3 +92,5 @@ double OutwardNormalVectorSign(
     }
 }
 }  // namespace Geometry
+
+}  // namespace hpgem

@@ -39,6 +39,8 @@
 #include "Mappings/MappingToRefPointToPoint.h"
 #include "PointReference.h"
 
+namespace hpgem {
+
 namespace Geometry {
 /* The reference point just looks like:
  *
@@ -77,3 +79,5 @@ const MappingReferenceToReference<0>* ReferencePoint::getCodim0MappingPtr(
 }
 
 }  // namespace Geometry
+
+}  // namespace hpgem

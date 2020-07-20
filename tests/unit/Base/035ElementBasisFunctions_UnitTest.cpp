@@ -40,7 +40,7 @@
 #include "Base/ElementBasisFunctions.h"
 #include "Utilities/BasisFunctionsMonomials.h"
 #include "Logger.h"
-
+using namespace hpgem;
 int main() {
     using namespace Base;
 

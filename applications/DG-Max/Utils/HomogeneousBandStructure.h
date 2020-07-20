@@ -1,11 +1,13 @@
 
-#ifndef HPGEM_ANALYTICBANDSTRUCTURE_H
-#define HPGEM_ANALYTICBANDSTRUCTURE_H
+#ifndef HPGEM_APP_HOMOGENEOUSBANDSTRUCTURE_H
+#define HPGEM_APP_HOMOGENEOUSBANDSTRUCTURE_H
 
 #include "LinearAlgebra/SmallVector.h"
 #include "BandStructure.h"
 
 #include <set>
+
+using namespace hpgem;
 
 /// \brief Computation of the analytic band structure of a homogeneous
 /// structure/
@@ -155,4 +157,4 @@ class HomogeneousBandStructure : public BandStructure<DIM> {
     double permittivity_;
 };
 
-#endif  // HPGEM_ANALYTICBANDSTRUCTURE_H
+#endif  // HPGEM_APP_HOMOGENEOUSBANDSTRUCTURE_H

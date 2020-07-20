@@ -35,12 +35,14 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef GaussQuadratureRulesForLine_h
-#define GaussQuadratureRulesForLine_h
+#ifndef HPGEM_KERNEL_GAUSSQUADRATURERULESFORLINE_H
+#define HPGEM_KERNEL_GAUSSQUADRATURERULESFORLINE_H
 //---------------------------------------------------------------------------
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include "Geometry/PointReference.h"
 #include <vector>
+
+namespace hpgem {
 
 //---------------------------------------------------------------------------
 namespace QuadratureRules {
@@ -203,4 +205,6 @@ class C1_11_6 : public GaussQuadratureRule {
 
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_GAUSSQUADRATURERULESFORLINE_H

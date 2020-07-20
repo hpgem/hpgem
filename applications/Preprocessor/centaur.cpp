@@ -42,6 +42,8 @@
 #include "centaur.h"
 #include "Logger.h"
 
+using namespace hpgem;
+
 namespace Preprocessor {
 
 UnstructuredInputStream<std::istringstream> CentaurReader::readLine() {

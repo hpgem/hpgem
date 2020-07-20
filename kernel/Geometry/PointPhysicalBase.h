@@ -36,10 +36,12 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef POINTPHYSICALBASE_H_
-#define POINTPHYSICALBASE_H_
+#ifndef HPGEM_KERNEL_POINTPHYSICALBASE_H
+#define HPGEM_KERNEL_POINTPHYSICALBASE_H
 
 #include <cstdlib>
+
+namespace hpgem {
 
 namespace Geometry {
 template <std::size_t DIM>
@@ -85,4 +87,6 @@ class PointPhysicalBase {
 std::ostream& operator<<(std::ostream& out, const PointPhysicalBase& point);
 }  // namespace Geometry
 
-#endif /* POINTPHYSICALBASE_H_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_POINTPHYSICALBASE_H

@@ -52,6 +52,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
 
+using namespace hpgem;
+
 template <std::size_t DIM>
 DGMaxEigenvalue<DIM>::DGMaxEigenvalue(Base::MeshManipulator<DIM>& mesh,
                                       std::size_t order, double stab)

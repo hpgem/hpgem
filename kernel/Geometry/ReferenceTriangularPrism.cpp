@@ -43,6 +43,8 @@
 #include "Mappings/MappingToRefFaceToTriangularPrism.h"
 #include "LinearAlgebra/MiddleSizeMatrix.h"
 
+namespace hpgem {
+
 namespace Geometry {
 std::size_t ReferenceTriangularPrism::localNodeIndexes_[5][4] = {
     {0, 2, 1}, {3, 4, 5}, {2, 0, 5, 3}, {0, 1, 3, 4}, {1, 2, 4, 5}};
@@ -204,3 +206,5 @@ std::vector<std::size_t> ReferenceTriangularPrism::getCodim3EntityLocalIndices(
     return std::vector<std::size_t>(1, nodeIndex);
 }
 }  // namespace Geometry
+
+}  // namespace hpgem

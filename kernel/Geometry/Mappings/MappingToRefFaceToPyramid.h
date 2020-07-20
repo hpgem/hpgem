@@ -36,10 +36,12 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MappingToRefFaceToPyramid_H_
-#define MappingToRefFaceToPyramid_H_
+#ifndef HPGEM_KERNEL_MAPPINGTOREFFACETOPYRAMID_H
+#define HPGEM_KERNEL_MAPPINGTOREFFACETOPYRAMID_H
 
 #include "MappingReferenceToReference.h"
+
+namespace hpgem {
 
 namespace Geometry {
 // ~~~ index 0
@@ -142,4 +144,6 @@ class MappingToRefFaceToPyramid4 : public MappingReferenceToReference<1> {
 };
 
 }  // namespace Geometry
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_MAPPINGTOREFFACETOPYRAMID_H

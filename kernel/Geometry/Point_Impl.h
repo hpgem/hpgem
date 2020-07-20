@@ -37,7 +37,7 @@
  */
 #include <iostream>
 #include "Point.h"
-
+namespace hpgem {
 namespace Geometry {
 template <std::size_t DIM>
 Point<DIM>::Point() : coordinates_() {}
@@ -199,3 +199,4 @@ Point<DIM> operator*(const double& left, const Point<DIM>& right) {
     return Point<DIM>(right * left);
 }
 }  // namespace Geometry
+}  // namespace hpgem

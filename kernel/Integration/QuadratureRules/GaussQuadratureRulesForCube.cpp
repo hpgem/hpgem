@@ -42,6 +42,8 @@
 #include "GaussQuadratureRulesForLine.h"
 #include "Geometry/PointReference.h"
 
+namespace hpgem {
+
 namespace QuadratureRules {
 
 std::string Cn3_1_1::getName() const { return name_; }
@@ -399,3 +401,5 @@ C3_11_2::C3_11_2()
 
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
+
+}  // namespace hpgem

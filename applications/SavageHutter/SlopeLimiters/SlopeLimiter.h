@@ -36,9 +36,11 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SLOPELIMITER_H
-#define SLOPELIMITER_H
+#ifndef HPGEM_APP_SLOPELIMITER_H
+#define HPGEM_APP_SLOPELIMITER_H
 #include "Base/Element.h"
+
+using namespace hpgem;
 
 class SlopeLimiter {
    public:
@@ -51,4 +53,4 @@ class SlopeLimiter {
    protected:
     std::size_t numberOfVariables_;
 };
-#endif /* SLOPELIMITER_H */
+#endif  // HPGEM_APP_SLOPELIMITER_H

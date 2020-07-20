@@ -36,10 +36,12 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MESHMOVER_HPP_
-#define MESHMOVER_HPP_
+#ifndef HPGEM_APP_MESHMOVER_H
+#define HPGEM_APP_MESHMOVER_H
 
 #include "Base/MeshMoverBase.h"
+
+using namespace hpgem;
 
 class MeshMover : public Base::MeshMoverBase<2> {
 
@@ -59,4 +61,4 @@ class MeshMover : public Base::MeshMoverBase<2> {
     }
 };
 
-#endif /* MESHMOVER_HPP_ */
+#endif  // HPGEM_APP_MESHMOVER_H

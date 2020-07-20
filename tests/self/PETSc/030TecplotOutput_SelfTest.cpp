@@ -47,7 +47,7 @@
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
 #include <CMakeDefinitions.h>
-
+using namespace hpgem;
 // If this test ever breaks it is not a bad thing per se.
 // If the results are still readable by tecplot, and you are convinced that your
 // changes improved the code, you should update the data file to reflect the

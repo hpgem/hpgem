@@ -47,6 +47,8 @@
 #include "RK3TVD.h"
 #include "Logger.h"
 
+namespace hpgem {
+
 namespace TimeIntegration {
 AllTimeIntegrators::AllTimeIntegrators() {
     vecOfIntegrators_.push_back(&ForwardEuler::instance());
@@ -94,3 +96,5 @@ ButcherTableau* AllTimeIntegrators::getRule(std::size_t order,
     return nullptr;
 }
 }  // namespace TimeIntegration
+
+}  // namespace hpgem

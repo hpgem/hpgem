@@ -38,6 +38,8 @@
 
 #include "TvbLimiter1D.h"
 
+using namespace hpgem;
+
 TvbLimiter1D::TvbLimiter1D(std::size_t numberOfVariables)
     : SlopeLimiter(numberOfVariables) {}
 

@@ -36,12 +36,14 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PROBLEMTYPES_HARMONICPROBLEM_h
-#define PROBLEMTYPES_HARMONICPROBLEM_h
+#ifndef HPGEM_APP_HARMONICPROBLEM_H
+#define HPGEM_APP_HARMONICPROBLEM_H
 
 #include "Geometry/PointPhysical.h"
 #include "Base/PhysicalFace.h"
 #include "LinearAlgebra/SmallVector.h"
+
+using namespace hpgem;
 
 /// \brief Harmonic maxwell problem.
 ///
@@ -93,4 +95,4 @@ class ExactHarmonicProblem : public HarmonicProblem<DIM> {
     }
 };
 
-#endif  // PROBLEMTYPES_HARMONICPROBLEM_h
+#endif  // HPGEM_APP_HARMONICPROBLEM_H

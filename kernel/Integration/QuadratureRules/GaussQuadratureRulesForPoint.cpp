@@ -42,6 +42,8 @@
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "Logger.h"
 
+namespace hpgem {
+
 namespace QuadratureRules {
 
 double Cn0_inf_1::weight(std::size_t i) const {
@@ -65,3 +67,5 @@ Cn0_inf_1::Cn0_inf_1()
 }
 
 }  // namespace QuadratureRules
+
+}  // namespace hpgem

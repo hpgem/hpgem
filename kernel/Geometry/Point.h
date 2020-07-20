@@ -35,14 +35,16 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _POINT_HPP
-#define _POINT_HPP
+#ifndef HPGEM_KERNEL_POINT_H
+#define HPGEM_KERNEL_POINT_H
 
 #include <iostream>
 
 #include "LinearAlgebra/SmallVector.h"
 
+namespace hpgem {
 namespace Geometry {
+
 template <std::size_t DIM>
 class Point {
    public:
@@ -116,6 +118,7 @@ template <std::size_t DIM>
 std::ostream& operator<<(std::ostream& os, const Point<DIM>& point);
 
 }  // namespace Geometry
-
+}  // namespace hpgem
 #include "Point_Impl.h"
-#endif /* defined(_POINT_HPP) */
+
+#endif  // HPGEM_KERNEL_POINT_H

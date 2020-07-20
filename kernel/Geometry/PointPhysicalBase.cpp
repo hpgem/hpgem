@@ -38,6 +38,8 @@
 
 #include "PointPhysical.h"
 
+namespace hpgem {
+
 namespace Geometry {
 
 PointPhysicalBase::operator PointPhysical<0> &() {
@@ -121,3 +123,5 @@ std::ostream& operator<<(std::ostream& out, const PointPhysicalBase& point) {
     return out;
 }
 }  // namespace Geometry
+
+}  // namespace hpgem

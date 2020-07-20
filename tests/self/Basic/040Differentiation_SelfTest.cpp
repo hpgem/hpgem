@@ -53,7 +53,7 @@
 #include "Base/CommandLineOptions.h"
 #include <cmath>
 #include <CMakeDefinitions.h>
-
+using namespace hpgem;
 // computes \int_\Omega (\nabla f)^2 dx by interpolating f and then integrating
 // using basisFunctionDerivatives
 template <std::size_t DIM>

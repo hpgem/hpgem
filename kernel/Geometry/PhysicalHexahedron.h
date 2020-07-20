@@ -36,9 +36,11 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PHYSICALHEXAHEDRON_HH
-#define PHYSICALHEXAHEDRON_HH
+#ifndef HPGEM_KERNEL_PHYSICALHEXAHEDRON_H
+#define HPGEM_KERNEL_PHYSICALHEXAHEDRON_H
 #include "PhysicalGeometry.h"
+
+namespace hpgem {
 
 namespace Geometry {
 class ReferenceCube;
@@ -52,4 +54,6 @@ class PhysicalHexahedron : public PhysicalGeometry<3> {
 };
 
 }  // namespace Geometry
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_PHYSICALHEXAHEDRON_H

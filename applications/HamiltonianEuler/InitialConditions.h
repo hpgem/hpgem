@@ -1,5 +1,5 @@
-#ifndef INITIAL_CONDITIONS_HH
-#define INITIAL_CONDITIONS_HH
+#ifndef HPGEM_APP_INITIALCONDITIONS_H
+#define HPGEM_APP_INITIALCONDITIONS_H
 
 #include <cmath>
 #include <fstream>
@@ -17,6 +17,8 @@ using namespace std;
 #include "Base/Element.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "Integration/ElementIntegrandBase.h"
+
+using namespace hpgem;
 
 class ExactSolutionBase {
    public:
@@ -640,5 +642,5 @@ class InitCondLambda
     }
 };
 
-#endif
+#endif  // HPGEM_APP_INITIALCONDITIONS_H
 //------------------------------------------------------------------------------

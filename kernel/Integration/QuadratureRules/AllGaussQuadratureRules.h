@@ -36,11 +36,13 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 //------------------------------------------------------------------------------
-#ifndef AllGaussQuadratureRules_h
-#define AllGaussQuadratureRules_h
+#ifndef HPGEM_KERNEL_ALLGAUSSQUADRATURERULES_H
+#define HPGEM_KERNEL_ALLGAUSSQUADRATURERULES_H
 
 #include <vector>
 #include <map>
+
+namespace hpgem {
 
 namespace Geometry {
 class ReferenceGeometry;
@@ -79,4 +81,6 @@ class AllGaussQuadratureRules {
 
 }  // namespace QuadratureRules
 //---------------------------------------------------------------------------
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_ALLGAUSSQUADRATURERULES_H

@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPGEM_CUSTOMITERATOR_H
-#define HPGEM_CUSTOMITERATOR_H
+#ifndef HPGEM_APP_CUSTOMITERATOR_H
+#define HPGEM_APP_CUSTOMITERATOR_H
 
 #include <cstddef>
 #include <limits>
@@ -47,6 +47,8 @@
 #include <functional>
 #include <utility>
 #include <Logger.h>
+
+using namespace hpgem;
 
 namespace Preprocessor {
 
@@ -716,4 +718,4 @@ bool operator>=(const hybridIterator<T, Iterators...>& a,
 }
 }  // namespace Preprocessor
 
-#endif  // HPGEM_CUSTOMITERATOR_H
+#endif  // HPGEM_APP_CUSTOMITERATOR_H

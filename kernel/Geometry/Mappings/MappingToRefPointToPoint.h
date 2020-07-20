@@ -36,12 +36,14 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MAPPINGTOREFPOINTTOPOINT_HPP_
-#define MAPPINGTOREFPOINTTOPOINT_HPP_
+#ifndef HPGEM_KERNEL_MAPPINGTOREFPOINTTOPOINT_H
+#define HPGEM_KERNEL_MAPPINGTOREFPOINTTOPOINT_H
 
 #include "Geometry/Mappings/MappingReferenceToReference.h"
 #include "Geometry/Jacobian.h"
 #include "Geometry/PointReference.h"
+
+namespace hpgem {
 
 namespace Geometry {
 
@@ -74,4 +76,6 @@ class MappingToRefPointToPoint
 };
 
 } /* namespace Geometry */
-#endif /* MAPPINGTOREFPOINTTOPOINT_HPP_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_MAPPINGTOREFPOINTTOPOINT_H

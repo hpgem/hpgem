@@ -42,7 +42,7 @@
 #include "LinearAlgebra/MiddleSizeMatrix.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "Logger.h"
-
+using namespace hpgem;
 using LinearAlgebra::MiddleSizeMatrix;
 using LinearAlgebra::MiddleSizeVector;
 

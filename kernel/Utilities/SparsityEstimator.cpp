@@ -8,6 +8,8 @@
 #include "Base/MeshManipulatorBase.h"
 #include "Utilities/GlobalIndexing.h"
 
+namespace hpgem {
+
 namespace Utilities {
 SparsityEstimator::SparsityEstimator(const GlobalIndexing& rowindexing,
                                      const GlobalIndexing& columnindexing)
@@ -319,3 +321,4 @@ void SparsityEstimator::addElementDoFs(const Base::Element* element,
     }
 }
 }  // namespace Utilities
+}  // namespace hpgem

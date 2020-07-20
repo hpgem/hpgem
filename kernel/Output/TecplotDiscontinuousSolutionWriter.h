@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef TECPLOTDISCONTINUOUSSOLUTIONWRITER_HH
-#define TECPLOTDISCONTINUOUSSOLUTIONWRITER_HH
+#ifndef HPGEM_KERNEL_TECPLOTDISCONTINUOUSSOLUTIONWRITER_H
+#define HPGEM_KERNEL_TECPLOTDISCONTINUOUSSOLUTIONWRITER_H
 
 #include <sstream>
 #include <ostream>
@@ -47,7 +47,7 @@
 #include <functional>
 
 #include "Logger.h"
-
+namespace hpgem {
 namespace Base {
 template <std::size_t DIM>
 class MeshManipulator;
@@ -120,6 +120,7 @@ class TecplotDiscontinuousSolutionWriter {
     std::size_t* dimensionNumbers;
 };
 }  // namespace Output
-
+}  // namespace hpgem
 #include "TecplotDiscontinuousSolutionWriter_Impl.h"
-#endif
+
+#endif  // HPGEM_KERNEL_TECPLOTDISCONTINUOUSSOLUTIONWRITER_H

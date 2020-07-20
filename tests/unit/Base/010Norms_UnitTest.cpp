@@ -46,7 +46,7 @@
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "Geometry/PointPhysical.h"
 #include "Logger.h"
-
+using namespace hpgem;
 int main() {
 
     LinearAlgebra::MiddleSizeVector::type *test0(nullptr), test1[1], test2[2],

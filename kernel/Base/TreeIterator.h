@@ -35,13 +35,16 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef TreeIterator_h
-#define TreeIterator_h
+#ifndef HPGEM_KERNEL_TREEITERATOR_H
+#define HPGEM_KERNEL_TREEITERATOR_H
 #include <vector>
 #include <iostream>
 
 #include "Logger.h"
 #include "TreeEntry.h"
+
+namespace hpgem {
+
 //------------------------------------------------------------------------------
 namespace Base {
 
@@ -638,4 +641,6 @@ template <typename V>
 using TreeIteratorConst = TreeIterator<V, true>;
 }  // namespace Base
 
-#endif  // TreeIterator_h
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_TREEITERATOR_H

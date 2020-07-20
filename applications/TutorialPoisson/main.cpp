@@ -53,6 +53,8 @@
 #include "Integration/ElementIntegral.h"
 #include "Base/CommandLineOptions.h"
 
+using namespace hpgem;
+
 // Choose the dimension (in this case 2)
 const std::size_t DIM = 2;
 

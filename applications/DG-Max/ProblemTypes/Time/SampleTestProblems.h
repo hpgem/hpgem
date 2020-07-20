@@ -36,10 +36,12 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PROBLEMSTYPES_TIME_SAMPLETESTPROBLEMS_H
-#define PROBLEMSTYPES_TIME_SAMPLETESTPROBLEMS_H
+#ifndef HPGEM_APP_SAMPLETESTPROBLEMS_H
+#define HPGEM_APP_SAMPLETESTPROBLEMS_H
 
 #include "../TimeIntegrationProblem.h"
+
+using namespace hpgem;
 
 template <std::size_t DIM>
 class SampleTestProblems : public ExactSeparableTimeIntegrationProblem<DIM> {
@@ -90,4 +92,4 @@ class SampleTestProblems : public ExactSeparableTimeIntegrationProblem<DIM> {
                       LinearAlgebra::SmallVector<DIM>& result) const;
 };
 
-#endif  // PROBLEMSTYPES_TIME_SAMPLETESTPROBLEMS_H
+#endif  // HPGEM_APP_SAMPLETESTPROBLEMS_H

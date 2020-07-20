@@ -59,6 +59,7 @@
 #include "Geometry/ReferenceGeometry.h"
 #include "Geometry/ReferenceLine.h"
 #include <cmath>
+using namespace hpgem;
 using Base::L2Norm;
 
 int main() {

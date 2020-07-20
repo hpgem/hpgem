@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MESHMANIPULATORBASE_H_
-#define MESHMANIPULATORBASE_H_
+#ifndef HPGEM_KERNEL_MESHMANIPULATORBASE_H
+#define HPGEM_KERNEL_MESHMANIPULATORBASE_H
 
 #include <vector>
 #include <fstream>
@@ -47,6 +47,8 @@
 #include "GlobalNamespaceBase.h"
 #include "BasisFunctionSet.h"
 
+namespace hpgem {
+
 namespace Base {
 template <std::size_t DIM>
 class MeshManipulator;
@@ -54,6 +56,7 @@ class MeshManipulator;
 
 template <std::size_t DIM>
 std::ostream& operator<<(std::ostream&, const Base::MeshManipulator<DIM>&);
+
 namespace Geometry {
 template <std::size_t DIM>
 class PointPhysical;
@@ -217,4 +220,6 @@ class MeshManipulatorBase {
 
 }  // namespace Base
 
-#endif /* MESHMANIPULATORBASE_H_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_MESHMANIPULATORBASE_H

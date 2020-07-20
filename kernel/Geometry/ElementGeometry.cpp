@@ -64,6 +64,8 @@
 
 #include "PointReference.h"
 
+namespace hpgem {
+
 namespace Geometry {
 class ElementGeometry;
 
@@ -191,3 +193,5 @@ std::size_t ElementGeometry::getNumberOfNodes() const {
 std::size_t ElementGeometry::getNrOfNodes() const { return getNumberOfNodes(); }
 
 }  // namespace Geometry
+
+}  // namespace hpgem

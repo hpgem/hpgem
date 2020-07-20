@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SAVAGEHUTTERBASE_H
-#define SAVAGEHUTTERBASE_H
+#ifndef HPGEM_APP_SAVAGEHUTTERBASE_H
+#define HPGEM_APP_SAVAGEHUTTERBASE_H
 
 #include "SlopeLimiters/SlopeLimiter.h"
 #include "HeightLimiters/HeightLimiter.h"
@@ -163,4 +163,7 @@ class SavageHutterBase : public Base::HpgemAPISimplified<DIM> {
 };
 
 #include "SavageHutterBase_Impl.h"
-#endif /* SAVAGEHUTTERBASE_H */
+
+using namespace hpgem;
+
+#endif  // HPGEM_APP_SAVAGEHUTTERBASE_H

@@ -35,13 +35,15 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef HPGEM_ABSTRACTEIGENVALUESOLVER_H
-#define HPGEM_ABSTRACTEIGENVALUESOLVER_H
+#ifndef HPGEM_APP_ABSTRACTEIGENVALUESOLVER_H
+#define HPGEM_APP_ABSTRACTEIGENVALUESOLVER_H
 
 #include <memory>
 
 #include "AbstractEigenvalueResult.h"
 #include "EigenvalueProblem.h"
+
+using namespace hpgem;
 
 /// Solver for the EigenvalueProblem
 template <std::size_t DIM>
@@ -53,4 +55,4 @@ class AbstractEigenvalueSolver {
         const EigenvalueProblem<DIM>& input) = 0;
 };
 
-#endif  // HPGEM_ABSTRACTEIGENVALUESOLVER_H
+#endif  // HPGEM_APP_ABSTRACTEIGENVALUESOLVER_H

@@ -40,6 +40,8 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/Jacobian.h"
 
+namespace hpgem {
+
 namespace Geometry {
 // ~~~ index 0
 // ~~~==============================================================================
@@ -212,3 +214,5 @@ MappingToRefFaceToTriangularPrism4::MappingToRefFaceToTriangularPrism4() =
     default;
 
 }  // namespace Geometry
+
+}  // namespace hpgem

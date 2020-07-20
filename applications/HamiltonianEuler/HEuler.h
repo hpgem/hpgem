@@ -1,5 +1,5 @@
-#ifndef HEULER_HH
-#define HEULER_HH
+#ifndef HPGEM_APP_HEULER_H
+#define HPGEM_APP_HEULER_H
 
 #include <string>
 using std::string;
@@ -21,6 +21,8 @@ using std::string;
 #include "TecplotOutput.h"
 #include "Integration/ElementIntegrandBase.h"
 #include "Integration/FaceIntegrandBase.h"
+
+using namespace hpgem;
 
 using Base::ConfigurationData;
 using Base::GlobalData;
@@ -213,4 +215,4 @@ class HEuler
     Mat P_;
     Mat Q_;
 };
-#endif
+#endif  // HPGEM_APP_HEULER_H

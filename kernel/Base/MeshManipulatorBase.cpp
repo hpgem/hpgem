@@ -88,6 +88,8 @@
 #include <type_traits>
 #include <typeinfo>
 
+namespace hpgem {
+
 namespace Base {
 
 MeshManipulatorBase::MeshManipulatorBase(const ConfigurationData* config,
@@ -111,3 +113,5 @@ MeshManipulatorBase::MeshManipulatorBase(const ConfigurationData* config,
 MeshManipulatorBase::MeshManipulatorBase(const MeshManipulatorBase& other) =
     default;
 }  // namespace Base
+
+}  // namespace hpgem

@@ -36,9 +36,11 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PHYSICALTRIANGLE_HH
-#define PHYSICALTRIANGLE_HH
+#ifndef HPGEM_KERNEL_PHYSICALTRIANGLE_H
+#define HPGEM_KERNEL_PHYSICALTRIANGLE_H
 #include "PhysicalGeometry.h"
+
+namespace hpgem {
 
 namespace Geometry {
 class ReferenceTriangle;
@@ -52,4 +54,6 @@ class PhysicalTriangle : public PhysicalGeometry<2> {
 };
 
 }  // namespace Geometry
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_PHYSICALTRIANGLE_H

@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef AcousticWaveH
-#define AcousticWaveH
+#ifndef HPGEM_APP_ACOUSTICWAVE_H
+#define HPGEM_APP_ACOUSTICWAVE_H
 
 #include <fstream>
 
@@ -106,6 +106,7 @@
  'setOutputNames'. \li The function 'solve' is then used to solve the PDE.
  */
 
+using namespace hpgem;
 template <std::size_t DIM>
 class AcousticWave : public Base::HpgemAPISimplified<DIM> {
    public:
@@ -241,4 +242,4 @@ class AcousticWave : public Base::HpgemAPISimplified<DIM> {
 
 #include "AcousticWave_Impl.h"
 
-#endif
+#endif  // HPGEM_APP_ACOUSTICWAVE_H

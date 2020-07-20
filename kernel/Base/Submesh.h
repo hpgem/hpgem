@@ -36,12 +36,14 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SUBMESH_HPP
-#define SUBMESH_HPP
+#ifndef HPGEM_KERNEL_SUBMESH_H
+#define HPGEM_KERNEL_SUBMESH_H
 
 #include <vector>
 #include <map>
 #include "LevelTree.h"
+
+namespace hpgem {
 
 namespace Geometry {
 template <std::size_t DIM>
@@ -204,4 +206,6 @@ class Submesh {
 
 }  // namespace Base
 
-#endif /* SUBMESH_HPP */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_SUBMESH_H

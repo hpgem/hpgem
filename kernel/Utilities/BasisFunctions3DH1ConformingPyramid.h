@@ -36,11 +36,13 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPGEM_BASISFUNCTIONS3DH1CONFORMINGPYRAMID_H
-#define HPGEM_BASISFUNCTIONS3DH1CONFORMINGPYRAMID_H
+#ifndef HPGEM_KERNEL_BASISFUNCTIONS3DH1CONFORMINGPYRAMID_H
+#define HPGEM_KERNEL_BASISFUNCTIONS3DH1CONFORMINGPYRAMID_H
 
 #include "Base/BaseBasisFunction.h"
 #include <vector>
+
+namespace hpgem {
 
 namespace Base {
 class BasisFunctionSet;
@@ -86,4 +88,6 @@ std::vector<const Base::OrientedBasisFunctionSet *>
     createFaceBasisFunctionSet3DH1ConformingPyramid(std::size_t order);
 }  // namespace Utilities
 
-#endif  // HPGEM_BASISFUNCTIONS3DH1CONFORMINGPYRAMID_H
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_BASISFUNCTIONS3DH1CONFORMINGPYRAMID_H

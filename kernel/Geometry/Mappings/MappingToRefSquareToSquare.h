@@ -36,10 +36,12 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MAPPINGSQUARETOSQUARE_H_
-#define MAPPINGSQUARETOSQUARE_H_
+#ifndef HPGEM_KERNEL_MAPPINGTOREFSQUARETOSQUARE_H
+#define HPGEM_KERNEL_MAPPINGTOREFSQUARETOSQUARE_H
 
 #include "MappingReferenceToReference.h"
+
+namespace hpgem {
 
 namespace Geometry {
 /*
@@ -215,4 +217,6 @@ class MappingToRefSquareToSquare7 : public MappingReferenceToReference<0> {
         transformedCoordinates;
 };
 }  // namespace Geometry
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_MAPPINGTOREFSQUARETOSQUARE_H

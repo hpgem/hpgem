@@ -36,11 +36,13 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BASISFUNCTIONS2DH1CONFORMINGSQUARE_HPP_
-#define BASISFUNCTIONS2DH1CONFORMINGSQUARE_HPP_
+#ifndef HPGEM_KERNEL_BASISFUNCTIONS2DH1CONFORMINGSQUARE_H
+#define HPGEM_KERNEL_BASISFUNCTIONS2DH1CONFORMINGSQUARE_H
 
 #include "Base/BaseBasisFunction.h"
 #include <vector>
+
+namespace hpgem {
 
 namespace Base {
 class BasisFunctionSet;
@@ -137,4 +139,6 @@ std::vector<const Base::OrientedBasisFunctionSet*>
 
 }  // namespace Utilities
 
-#endif /* BASISFUNCTIONS2DH1CONFORMINGSQUARE_HPP_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_BASISFUNCTIONS2DH1CONFORMINGSQUARE_H

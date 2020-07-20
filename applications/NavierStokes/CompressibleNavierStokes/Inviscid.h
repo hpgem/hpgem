@@ -36,10 +36,12 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef INVISCID_H_
-#define INVISCID_H_
+#ifndef HPGEM_APP_INVISCID_H
+#define HPGEM_APP_INVISCID_H
 
 #include "CompressibleDimension.h"
+
+using namespace hpgem;
 
 class Inviscid {
    public:
@@ -98,4 +100,4 @@ class Inviscid {
     const CompressibleNavierStokes &instance_;
 };
 
-#endif /* INVISCID_H_ */
+#endif  // HPGEM_APP_INVISCID_H

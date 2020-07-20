@@ -36,15 +36,15 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 //
-#ifndef LevelTree_h
-#define LevelTree_h
+#ifndef HPGEM_KERNEL_LEVELTREE_H
+#define HPGEM_KERNEL_LEVELTREE_H
 #include <deque>
 #include <vector>
 #include <iostream>
 #include "Logger.h"
 #include "TreeEntry.h"
 #include "TreeIterator.h"
-
+namespace hpgem {
 namespace Base {
 
 template <typename V>
@@ -199,8 +199,8 @@ class LevelTree {
 };
 
 }  // namespace Base
-
+}  // namespace hpgem
 // merge the implementation file here.
 #include "LevelTree_Impl.h"
 
-#endif  // LevelTree_h
+#endif  // HPGEM_KERNEL_LEVELTREE_H

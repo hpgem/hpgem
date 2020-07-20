@@ -36,11 +36,13 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BASISFUNCTIONS3DAINSWORTHCOYLE_H_
-#define BASISFUNCTIONS3DAINSWORTHCOYLE_H_
+#ifndef HPGEM_KERNEL_BASISFUNCTIONS3DAINSWORTHCOYLE_H
+#define HPGEM_KERNEL_BASISFUNCTIONS3DAINSWORTHCOYLE_H
 
 #include "Base/BaseBasisFunction.h"
 #include <vector>
+
+namespace hpgem {
 
 namespace Base {
 class BasisFunctionSet;
@@ -141,4 +143,6 @@ Base::BasisFunctionSet* createDGBasisFunctionSet3DAinsworthCoyle(
 
 }  // namespace Utilities
 
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_BASISFUNCTIONS3DAINSWORTHCOYLE_H

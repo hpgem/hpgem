@@ -42,6 +42,8 @@
 #include "Geometry/ReferenceTriangle.h"
 #include "Geometry/PointReference.h"
 
+namespace hpgem {
+
 namespace Utilities {
 namespace {
 LinearAlgebra::SmallVector<2> baricentricDeriv(std::size_t node) {
@@ -108,3 +110,5 @@ Base::BasisFunctionSet* createDGBasisFunctionSet2DNedelec(std::size_t order) {
     return bFset;
 }
 }  // namespace Utilities
+
+}  // namespace hpgem

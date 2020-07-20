@@ -36,14 +36,16 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef EDGE_HPP_
-#define EDGE_HPP_
+#ifndef HPGEM_KERNEL_EDGE_H
+#define HPGEM_KERNEL_EDGE_H
 
 #include <vector>
 #include <cstdlib>
 
 #include "Logger.h"
 #include "TreeEntry.h"
+
+namespace hpgem {
 
 namespace Base {
 
@@ -185,4 +187,6 @@ class Edge {
 
 } /* namespace Base */
 
-#endif /* EDGE_HPP_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_EDGE_H

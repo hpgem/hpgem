@@ -51,6 +51,8 @@
 
 #include "Logger.h"
 
+using namespace hpgem;
+
 // this tutorial solves a 2 dimensional problem
 const std::size_t DIM = 2;
 

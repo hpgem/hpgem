@@ -52,7 +52,7 @@
 // transformations should map internal points to internal points, external
 // points to external points and nodes to nodes so construct the physical
 // geometries such that this can be checked :(
-
+using namespace hpgem;
 bool isInternal3D(const Geometry::PointPhysical<3>& p) {
     return p[2] > 0 && (p[1] - p[0]) > (1) &&
            (1.8 * p[0] - 1.4 * p[1]) > -0.84 &&

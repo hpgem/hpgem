@@ -39,8 +39,8 @@
 // WARNING: THIS HEADER PARTLY DEPENDS ON C LIBRARIES - INCLUDING THIS HEADER
 // BEFORE OTHER HEADERS GREATLY INCLEASES THE RISK OF NAMING CONFLICTS OR OTHER
 // COMPILE TIME ERRORS
-#ifndef GLOBALVECTOR_HPP_
-#define GLOBALVECTOR_HPP_
+#ifndef HPGEM_KERNEL_GLOBALVECTOR_H
+#define HPGEM_KERNEL_GLOBALVECTOR_H
 
 #include "LinearAlgebra/MiddleSizeVector.h"
 #if defined(HPGEM_USE_ANY_PETSC)
@@ -49,7 +49,7 @@
 #include "GlobalIndexing.h"
 #include <vector>
 #include <map>
-
+namespace hpgem {
 namespace Base {
 class MeshManipulatorBase;
 class Element;
@@ -156,5 +156,5 @@ class GlobalPetscVector : public GlobalVector {
 #endif
 
 }  // namespace Utilities
-
-#endif /* GLOBALVECTOR_HPP_ */
+}  // namespace hpgem
+#endif  // HPGEM_KERNEL_GLOBALVECTOR_H

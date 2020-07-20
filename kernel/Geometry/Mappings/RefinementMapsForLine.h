@@ -36,13 +36,15 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef KERNEL_GEOMETRY_MAPPINGS_REFINEMENTMAPSFORLINE_H_
-#define KERNEL_GEOMETRY_MAPPINGS_REFINEMENTMAPSFORLINE_H_
+#ifndef HPGEM_KERNEL_REFINEMENTMAPSFORLINE_H
+#define HPGEM_KERNEL_REFINEMENTMAPSFORLINE_H
 
 #include "RefinementMapping.h"
 #include "RefinementMapsForPoint.h"
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferenceLine.h"
+
+namespace hpgem {
 
 namespace Geometry {
 /**
@@ -291,4 +293,6 @@ class RefinementMapForLine1 : public RefinementMapping {
 };
 }  // namespace Geometry
 
-#endif /* KERNEL_GEOMETRY_MAPPINGS_REFINEMENTMAPSFORLINE_H_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_REFINEMENTMAPSFORLINE_H

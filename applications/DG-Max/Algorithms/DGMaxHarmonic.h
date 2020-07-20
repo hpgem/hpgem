@@ -36,12 +36,14 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef ALGORITHMS_DGMAXHARMONIC_h
-#define ALGORITHMS_DGMAXHARMONIC_h
+#ifndef HPGEM_APP_DGMAXHARMONIC_H
+#define HPGEM_APP_DGMAXHARMONIC_H
 
 #include "../ProblemTypes/HarmonicProblem.h"
 
 #include "DGMaxDiscretization.h"
+
+using namespace hpgem;
 
 /// \brief Solver for a harmonic problem to find the fields.
 template <std::size_t DIM>
@@ -68,4 +70,4 @@ class DGMaxHarmonic {
     DGMaxDiscretization<DIM> discretization;
 };
 
-#endif  // ALGORITHMS_DGMAXHARMONIC_h
+#endif  // HPGEM_APP_DGMAXHARMONIC_H

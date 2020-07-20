@@ -36,13 +36,15 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ELEMENTFACTORY_HPP
-#define ELEMENTFACTORY_HPP
+#ifndef HPGEM_KERNEL_ELEMENTFACTORY_H
+#define HPGEM_KERNEL_ELEMENTFACTORY_H
 
 #include <vector>
 
 #include "Element.h"
 #include "GlobalUniqueIndex.h"
+
+namespace hpgem {
 
 namespace Geometry {
 template <std::size_t DIM>
@@ -113,4 +115,6 @@ Element* ElementFactory::makeElement(
 
 }  // namespace Base
 
-#endif /* ELEMENTFACTORY_HPP */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_ELEMENTFACTORY_H

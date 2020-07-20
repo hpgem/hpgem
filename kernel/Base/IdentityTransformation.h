@@ -36,12 +36,14 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef IDENTITYTRANSFORMATION_H_
-#define IDENTITYTRANSFORMATION_H_
+#ifndef HPGEM_KERNEL_IDENTITYTRANSFORMATION_H
+#define HPGEM_KERNEL_IDENTITYTRANSFORMATION_H
 
 #include <cstdlib>
 #include "LinearAlgebra/SmallVector.h"
 #include "CoordinateTransformation.h"
+
+namespace hpgem {
 
 namespace Base {
 /// the identity transformation is meant for advanced users that need accurate
@@ -97,4 +99,6 @@ class IdentityTransformation : public CoordinateTransformation<DIM> {
 };
 }  // namespace Base
 
-#endif /* IDENTITYTRANSFORMATION_H_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_IDENTITYTRANSFORMATION_H

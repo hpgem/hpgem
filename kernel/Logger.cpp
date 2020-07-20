@@ -62,7 +62,7 @@
 // The logger interfaces directly with MPI to prevent cyclic dependencies
 #include <mpi.h>
 #endif
-
+namespace hpgem {
 /*
  *  We need these to actually exists. These are used as tags in the template
  * metaprogramming for the Logger class.
@@ -199,3 +199,5 @@ LoggerOutput loggerOutputDefaultImpl = {
 
 // And we assign them.
 LoggerOutput* loggerOutput = &loggerOutputDefaultImpl;
+
+}  // namespace hpgem

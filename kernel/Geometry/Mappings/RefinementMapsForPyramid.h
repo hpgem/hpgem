@@ -36,14 +36,16 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef KERNEL_GEOMETRY_MAPPINGS_REFINEMENTMAPSFORPYRAMID_H_
-#define KERNEL_GEOMETRY_MAPPINGS_REFINEMENTMAPSFORPYRAMID_H_
+#ifndef HPGEM_KERNEL_REFINEMENTMAPSFORPYRAMID_H
+#define HPGEM_KERNEL_REFINEMENTMAPSFORPYRAMID_H
 
 #include "RefinementMapping.h"
 #include "RefinementMapsForTriangle.h"
 #include "RefinementMapsForSquare.h"
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferencePyramid.h"
+
+namespace hpgem {
 
 namespace Geometry {
 /* Stores all the refinement mappings for a pyramid. Note that the ascii art is
@@ -189,4 +191,6 @@ class RefinementMapForPyramid0 : public RefinementMapping {
 };
 }  // namespace Geometry
 
-#endif /* KERNEL_GEOMETRY_MAPPINGS_REFINEMENTMAPSFORPYRAMID_H_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_REFINEMENTMAPSFORPYRAMID_H

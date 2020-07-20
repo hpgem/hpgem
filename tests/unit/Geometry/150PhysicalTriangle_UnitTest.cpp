@@ -47,6 +47,7 @@
 #include "Geometry/ReferenceTriangle.h"
 
 #include <cmath>
+using namespace hpgem;
 using Geometry::PhysicalTriangle;
 
 int main() {

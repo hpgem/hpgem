@@ -35,12 +35,14 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef GAUSSQUADRATURERULESFORPOINT_H_
-#define GAUSSQUADRATURERULESFORPOINT_H_
+#ifndef HPGEM_KERNEL_GAUSSQUADRATURERULESFORPOINT_H
+#define HPGEM_KERNEL_GAUSSQUADRATURERULESFORPOINT_H
 
 #include "GaussQuadratureRule.h"
 #include <limits>
 #include "Geometry/PointReference.h"
+
+namespace hpgem {
 
 namespace Geometry {
 class ReferencePoint;
@@ -87,4 +89,6 @@ class Cn0_inf_1 : public QuadratureRules::GaussQuadratureRule {
 
 } /* namespace QuadratureRules */
 
-#endif /* GAUSSQUADRATURERULESFORPOINT_H_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_GAUSSQUADRATURERULESFORPOINT_H

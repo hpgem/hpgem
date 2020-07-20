@@ -36,12 +36,14 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef AIR_H_
-#define AIR_H_
+#ifndef HPGEM_APP_AIR_H
+#define HPGEM_APP_AIR_H
 
 #include "AirParameters.h"
 #include "../UnsteadyNavierStokesAPI.h"
 #include "StateCoefficientsStructAir.h"
+
+using namespace hpgem;
 
 class Air : public UnsteadyNavierStokesAPI<DIM, NUMBER_OF_VARIABLES> {
    public:
@@ -95,4 +97,4 @@ class Air : public UnsteadyNavierStokesAPI<DIM, NUMBER_OF_VARIABLES> {
     void registerVTKWriteFunctions() override;
 };
 
-#endif /* AIR_H_ */
+#endif  // HPGEM_APP_AIR_H

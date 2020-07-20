@@ -36,10 +36,12 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MappingToRefTriangleToTriangle_H_
-#define MappingToRefTriangleToTriangle_H_
+#ifndef HPGEM_KERNEL_MAPPINGTOREFTRIANGLETOTRIANGLE_H
+#define HPGEM_KERNEL_MAPPINGTOREFTRIANGLETOTRIANGLE_H
 
 #include "MappingReferenceToReference.h"
+
+namespace hpgem {
 
 namespace Geometry {
 /*
@@ -179,4 +181,6 @@ class MappingToRefTriangleToTriangle5 : public MappingReferenceToReference<0> {
         transformedCoordinates;
 };
 }  // namespace Geometry
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_MAPPINGTOREFTRIANGLETOTRIANGLE_H

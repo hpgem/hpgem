@@ -36,13 +36,15 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPGEM_ELEMENTBASISFUNCTIONS_H
-#define HPGEM_ELEMENTBASISFUNCTIONS_H
+#ifndef HPGEM_KERNEL_ELEMENTBASISFUNCTIONS_H
+#define HPGEM_KERNEL_ELEMENTBASISFUNCTIONS_H
 
 #include <memory>
 #include <vector>
 
 #include "BasisFunctionSet.h"
+
+namespace hpgem {
 
 namespace Base {
 
@@ -255,4 +257,6 @@ inline std::size_t ElementBasisFunctions::getTotalLocalNumberOfBasisFunctions()
 }
 }  // namespace Base
 
-#endif  // HPGEM_ELEMENTBASISFUNCTIONS_H
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_ELEMENTBASISFUNCTIONS_H

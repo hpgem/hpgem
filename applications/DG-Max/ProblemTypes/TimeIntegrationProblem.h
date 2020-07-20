@@ -36,12 +36,14 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PROBLEMTYPES_TIMEINTEGRATIONPROBLEM_h
-#define PROBLEMTYPES_TIMEINTEGRATIONPROBLEM_h
+#ifndef HPGEM_APP_TIMEINTEGRATIONPROBLEM_H
+#define HPGEM_APP_TIMEINTEGRATIONPROBLEM_H
 
 #include "Base/PhysicalFace.h"
 #include "Geometry/PointPhysical.h"
 #include "LinearAlgebra/SmallVector.h"
+
+using namespace hpgem;
 
 /// \brief Problem to intergrate a given starting field in time
 ///
@@ -212,4 +214,4 @@ class ExactSeparableTimeIntegrationProblem
     virtual double referenceTimeBoundary() const = 0;
 };
 
-#endif  // PROBLEMTYPES_TIMEINTEGRATIONPROBLEM_h
+#endif  // HPGEM_APP_TIMEINTEGRATIONPROBLEM_H

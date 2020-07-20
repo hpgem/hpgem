@@ -40,6 +40,8 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/Jacobian.h"
 
+namespace hpgem {
+
 namespace Geometry {
 // ~~~ index 0
 // ~~~==============================================================================
@@ -202,3 +204,5 @@ Jacobian<2, 3> MappingToRefFaceToPyramid4::calcJacobian(
 MappingToRefFaceToPyramid4::MappingToRefFaceToPyramid4() = default;
 
 }  // namespace Geometry
+
+}  // namespace hpgem

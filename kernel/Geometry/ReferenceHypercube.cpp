@@ -42,6 +42,8 @@
 #include "Geometry/PointReference.h"
 #include "Mappings/MappingToRefCubeToHypercube.h"
 
+namespace hpgem {
+
 namespace Geometry {
 std::size_t ReferenceHypercube::localNodeIndexes_[8][8] = {
     {0, 1, 2, 3, 4, 5, 6, 7},     {0, 1, 2, 3, 8, 9, 10, 11},
@@ -201,3 +203,5 @@ std::vector<std::size_t> ReferenceHypercube::getCodim3EntityLocalIndices(
 }
 
 }  // namespace Geometry
+
+}  // namespace hpgem

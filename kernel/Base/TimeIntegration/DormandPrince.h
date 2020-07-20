@@ -36,11 +36,13 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DORMANDPRINCE_HPP
-#define DORMANDPRINCE_HPP
+#ifndef HPGEM_KERNEL_DORMANDPRINCE_H
+#define HPGEM_KERNEL_DORMANDPRINCE_H
 
 #include <vector>
 #include "ButcherTableau.h"
+
+namespace hpgem {
 
 namespace TimeIntegration {
 class DormandPrince : public ButcherTableau {
@@ -72,4 +74,6 @@ class DormandPrince : public ButcherTableau {
 };
 }  // namespace TimeIntegration
 
-#endif /* DORMANDPRINCE_HPP */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_DORMANDPRINCE_H

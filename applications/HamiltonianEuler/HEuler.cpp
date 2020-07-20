@@ -41,6 +41,9 @@
 #endif
 
 #include "HEuler.h"
+
+using namespace hpgem;
+
 HEuler::HEuler(HEulerGlobalVariables* global,
                const HEulerConfigurationData* config)
     : Base::HpgemAPIBase<3>(global, config), P_(), Q_() {

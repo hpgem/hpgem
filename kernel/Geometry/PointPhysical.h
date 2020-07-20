@@ -36,12 +36,13 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef POINTPHYSICAL_HPP_
-#define POINTPHYSICAL_HPP_
+#ifndef HPGEM_KERNEL_POINTPHYSICAL_H
+#define HPGEM_KERNEL_POINTPHYSICAL_H
 
 #include "Point.h"
 #include "PointPhysicalBase.h"
 #include <complex>
+namespace hpgem {
 namespace Geometry {
 template <std::size_t DIM>
 class PointPhysical;
@@ -98,7 +99,7 @@ class PointPhysical : public Point<DIM>, public PointPhysicalBase {
 template <std::size_t DIM>
 PointPhysical<DIM> operator*(double left, const PointPhysical<DIM>& right);
 }  // namespace Geometry
-
+}  // namespace hpgem
 #include "PointPhysical_Impl.h"
 
-#endif /* POINTPHYSICAL_HPP_ */
+#endif  // HPGEM_KERNEL_POINTPHYSICAL_H

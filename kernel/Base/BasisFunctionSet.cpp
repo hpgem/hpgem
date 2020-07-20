@@ -41,6 +41,8 @@
 #include "Logger.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 
+namespace hpgem {
+
 namespace Base {
 
 // class BasisFunctionSet;
@@ -98,3 +100,5 @@ double Base::BasisFunctionSet::evalDiv(
     return faceQuadratureRule->evalDiv(this, i, quadraturePointIndex,
                                        faceToElementMap);
 }
+
+}  // namespace hpgem

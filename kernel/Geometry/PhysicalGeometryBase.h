@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PHYSICALGEOMETRYBASE_H_
-#define PHYSICALGEOMETRYBASE_H_
+#ifndef HPGEM_KERNEL_PHYSICALGEOMETRYBASE_H
+#define HPGEM_KERNEL_PHYSICALGEOMETRYBASE_H
 
 #include <vector>
 #include <iostream>
@@ -45,6 +45,8 @@
 #include "PointPhysical.h"
 #include "PointReference.h"
 #include "ReferenceGeometry.h"
+
+namespace hpgem {
 
 namespace Geometry {
 template <std::size_t DIM>
@@ -218,4 +220,6 @@ class PhysicalGeometryBase {
 };
 
 }  // namespace Geometry
-#endif /* PHYSICALGEOMETRYBASE_H_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_PHYSICALGEOMETRYBASE_H

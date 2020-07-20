@@ -52,6 +52,8 @@
 #include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
 #include "Logger.h"
 
+using namespace hpgem;
+
 const static std::size_t DIM = 2;
 
 /// Linear advection equation du/dt + a[0] du/dx + a[1] du/dy = 0.

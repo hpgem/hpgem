@@ -36,8 +36,8 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef ALGORITHMS_DIVDGMAXEIGENVALUE_H
-#define ALGORITHMS_DIVDGMAXEIGENVALUE_H
+#ifndef HPGEM_APP_DIVDGMAXEIGENVALUE_H
+#define HPGEM_APP_DIVDGMAXEIGENVALUE_H
 
 #include <petscis.h>
 #include <petscvec.h>
@@ -49,6 +49,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ProblemTypes/AbstractEigenvalueResult.h"
 #include "ProblemTypes/AbstractEigenvalueSolver.h"
 #include "ProblemTypes/EigenvalueProblem.h"
+
+using namespace hpgem;
 
 template <std::size_t DIM>
 class DivDGMaxEigenvalue : public AbstractEigenvalueSolver<DIM> {
@@ -90,4 +92,4 @@ class DivDGMaxEigenvalue : public AbstractEigenvalueSolver<DIM> {
     DivDGMaxDiscretization<DIM> discretization;
 };
 
-#endif  // ALGORITHMS_DIVDGMAXEIGENVALUE_H
+#endif  // HPGEM_APP_DIVDGMAXEIGENVALUE_H

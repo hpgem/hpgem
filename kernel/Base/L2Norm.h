@@ -35,12 +35,14 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef L2Norm_h
-#define L2Norm_h
+#ifndef HPGEM_KERNEL_L2NORM_H
+#define HPGEM_KERNEL_L2NORM_H
 
 #include <cstdlib>
 #include <cmath>
 #include "LinearAlgebra/MiddleSizeVector.h"
+
+namespace hpgem {
 
 namespace LinearAlgebra {
 template <std::size_t DIM>
@@ -71,4 +73,6 @@ double L2Norm(const Geometry::Point<DIM>& v) {
     return std::sqrt(retSquared);
 }
 }  // namespace Base
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_L2NORM_H

@@ -36,11 +36,13 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef RK3TVD_H_
-#define RK3TVD_H_
+#ifndef HPGEM_KERNEL_RK3TVD_H
+#define HPGEM_KERNEL_RK3TVD_H
 
 #include <vector>
 #include "ButcherTableau.h"
+
+namespace hpgem {
 
 namespace TimeIntegration {
 
@@ -71,4 +73,6 @@ class RK3TVD : public ButcherTableau {
 
 }  // namespace TimeIntegration
 
-#endif /* RK3TVD_H_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_RK3TVD_H

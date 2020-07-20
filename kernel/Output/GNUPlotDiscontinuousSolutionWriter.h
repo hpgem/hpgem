@@ -5,12 +5,12 @@
  * Created on November 10, 2014, 2:58 PM
  */
 
-#ifndef DISCONTINUOUSSOLUTIONWRITER_HH
-#define DISCONTINUOUSSOLUTIONWRITER_HH
+#ifndef HPGEM_KERNEL_GNUPLOTDISCONTINUOUSSOLUTIONWRITER_H
+#define HPGEM_KERNEL_GNUPLOTDISCONTINUOUSSOLUTIONWRITER_H
 
 #include <ostream>
 #include <vector>
-
+namespace hpgem {
 namespace Base {
 template <std::size_t DIM>
 class MeshManipulator;
@@ -73,7 +73,7 @@ class GNUPlotDiscontinuousSolutionWriter {
     const std::size_t nDimensionsToWrite_;
 };
 }  // namespace Output
-
+}  // namespace hpgem
 #include "GNUPlotDiscontinuousSolutionWriter_Impl.h"
 
-#endif /* DISCONTINUOUSSOLUTIONWRITER_HH */
+#endif  // HPGEM_KERNEL_GNUPLOTDISCONTINUOUSSOLUTIONWRITER_H

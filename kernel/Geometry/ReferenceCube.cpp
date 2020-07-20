@@ -45,6 +45,8 @@
 #include "LinearAlgebra/MiddleSizeMatrix.h"
 #include "Geometry/PointReference.h"
 
+namespace hpgem {
+
 namespace Geometry {
 
 std::size_t ReferenceCube::localNodeIndexes_[6][4] = {
@@ -195,3 +197,5 @@ std::vector<std::size_t> ReferenceCube::getCodim2EntityLocalIndices(
                                     localNodesOnEdge_[i] + 2);
 }
 }  // namespace Geometry
+
+}  // namespace hpgem

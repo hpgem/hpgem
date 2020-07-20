@@ -60,7 +60,7 @@
 #include "LinearAlgebra/MiddleSizeMatrix.h"
 #include "Base/BaseBasisFunction.h"
 #include "Logger.h"
-
+using namespace hpgem;
 int main() {
 
     std::vector<std::size_t> pointIndexes;

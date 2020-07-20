@@ -36,11 +36,13 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef TECPLOTPHYSICALGEOMETRYITERATOR_HH
-#define TECPLOTPHYSICALGEOMETRYITERATOR_HH
+#ifndef HPGEM_KERNEL_TECPLOTPHYSICALGEOMETRYITERATOR_H
+#define HPGEM_KERNEL_TECPLOTPHYSICALGEOMETRYITERATOR_H
 
 #include <vector>
 #include "PhysicalGeometryAcceptor.h"
+
+namespace hpgem {
 
 namespace Geometry {
 class PhysicalGeometryBase;
@@ -112,4 +114,6 @@ class TecplotPhysicalGeometryIterator : public PhysicalGeometryAcceptor {
 };
 
 }  // namespace Output
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_TECPLOTPHYSICALGEOMETRYITERATOR_H

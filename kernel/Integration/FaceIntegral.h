@@ -35,14 +35,14 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FaceIntegral_h
-#define FaceIntegral_h
+#ifndef HPGEM_KERNEL_FACEINTEGRAL_H
+#define HPGEM_KERNEL_FACEINTEGRAL_H
 
 #include <functional>
 
 #include "Base/PhysicalElement.h"
 #include "Base/Face.h"
-
+namespace hpgem {
 namespace LinearAlgebra {
 class MiddleSizeVector;
 }
@@ -118,6 +118,7 @@ class FaceIntegral {
 };  // class FaceIntegral
 
 }  // namespace Integration
-
+}  // namespace hpgem
 #include "FaceIntegral_Impl.h"
-#endif
+
+#endif  // HPGEM_KERNEL_FACEINTEGRAL_H

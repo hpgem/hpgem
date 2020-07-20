@@ -43,6 +43,8 @@
 #include "Geometry/PointReference.h"
 #include "Logger.h"
 
+namespace hpgem {
+
 namespace Geometry {
 /* Behold the reference line:
  *
@@ -135,3 +137,5 @@ const MappingReferenceToReference<1>* ReferenceLine::getCodim1MappingPtr(
 }
 
 }  // namespace Geometry
+
+}  // namespace hpgem

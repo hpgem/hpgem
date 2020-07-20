@@ -36,10 +36,12 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPGEM_GLOBALUNIQUEINDEX_H
-#define HPGEM_GLOBALUNIQUEINDEX_H
+#ifndef HPGEM_KERNEL_GLOBALUNIQUEINDEX_H
+#define HPGEM_KERNEL_GLOBALUNIQUEINDEX_H
 
 #include <cstdlib>
+
+namespace hpgem {
 
 namespace Base {
 /// class for providing indices
@@ -70,4 +72,6 @@ class GlobalUniqueIndex final {
 };
 }  // namespace Base
 
-#endif  // HPGEM_GLOBALUNIQUEINDEX_H
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_GLOBALUNIQUEINDEX_H

@@ -35,14 +35,16 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FACEINTEGRAL_IMPL_HPP_
-#define FACEINTEGRAL_IMPL_HPP_
+#ifndef HPGEM_KERNEL_FACEINTEGRAL_IMPL_H
+#define HPGEM_KERNEL_FACEINTEGRAL_IMPL_H
 
 #include "QuadratureRules/GaussQuadratureRule.h"
 #include "Logger.h"
 #include "Base/L2Norm.h"
 #include "FaceIntegrandBase.h"
 #include "LinearAlgebra/Axpy.h"
+
+namespace hpgem {
 
 namespace Integration {
 // dim denotes the dimension of the ELEMENT here
@@ -280,4 +282,6 @@ Base::CoordinateTransformation<DIM>& FaceIntegral<DIM>::getTransformation(
 
 }  // namespace Integration
 
-#endif /* FACEINTEGRAL_IMPL_HPP_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_FACEINTEGRAL_IMPL_H

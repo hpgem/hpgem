@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef REFERENCEGEOMETRY_HH
-#define REFERENCEGEOMETRY_HH
+#ifndef HPGEM_KERNEL_REFERENCEGEOMETRY_H
+#define HPGEM_KERNEL_REFERENCEGEOMETRY_H
 
 #include "Geometry/Mappings/MappingCodimensions.h"
 #include "Geometry/Mappings/RefinementMapping.h"
@@ -47,6 +47,8 @@
 #include <unordered_map>
 #include <iostream>
 #include <vector>
+
+namespace hpgem {
 
 namespace LinearAlgebra {
 class MiddleSizeVector;
@@ -202,4 +204,6 @@ class ReferenceGeometry : public MappingCodimensions {
 
 }  // namespace Geometry
 
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_REFERENCEGEOMETRY_H

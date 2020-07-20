@@ -48,7 +48,7 @@
 #include "Geometry/Jacobian.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include <cmath>
-
+using namespace hpgem;
 int main() {  // The 0D case is mostly testing if there are any crashing
               // functions
 

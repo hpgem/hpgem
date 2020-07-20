@@ -37,8 +37,8 @@
  */
 
 //----------------------------------------------------------------
-#ifndef Face_h
-#define Face_h
+#ifndef HPGEM_KERNEL_FACE_H
+#define HPGEM_KERNEL_FACE_H
 //----------------------------------------------------------------
 #include "Base/FaceData.h"
 #include "Base/FaceMatrix.h"
@@ -46,6 +46,8 @@
 #include "Base/Element.h"
 #include "L2Norm.h"
 #include "TreeEntry.h"
+
+namespace hpgem {
 
 namespace QuadratureRules {
 class GaussQuadratureRule;
@@ -764,4 +766,6 @@ LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionCurl(
         i - numberOfBasisFunctionsLeft, mapRefFaceToRefElemR(p), unknown);
 }
 }  // namespace Base
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_FACE_H

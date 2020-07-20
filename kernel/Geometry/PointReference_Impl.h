@@ -38,4 +38,7 @@
 
 #include "Geometry/PointReference.h"
 
+namespace hpgem {
+
 namespace Geometry {}
+}  // namespace hpgem

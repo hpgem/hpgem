@@ -44,6 +44,8 @@
 #include "Geometry/ReferencePyramid.h"
 #include "Geometry/PointReference.h"
 
+namespace hpgem {
+
 //---------------------------------------------------------------------------
 namespace QuadratureRules {
 //---------------------------------------------------------------------------
@@ -763,3 +765,5 @@ Pyramid_7_48::Pyramid_7_48()
 
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
+
+}  // namespace hpgem

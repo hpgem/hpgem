@@ -66,7 +66,7 @@
 
 #include <cmath>
 #include <typeinfo>
-
+using namespace hpgem;
 int main() {
 
     // dim 1

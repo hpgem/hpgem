@@ -38,8 +38,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // this file has a container data structure for everything you want to know on a
 // per element basis
-#ifndef Elementinfos_h
-#define Elementinfos_h
+#ifndef HPGEM_APP_ELEMENTINFOS_H
+#define HPGEM_APP_ELEMENTINFOS_H
 
 #include "Base/UserData.h"
 #include "Base/Element.h"
@@ -51,12 +51,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * store some usefull information that needs to be computed everytime at the
  * beginning of an integrand specialized for tetrahedra
  */
-
+namespace hpgem {
 namespace Geometry {
 template <std::size_t DIM>
 class PointPhysical;
 }
-
+}  // namespace hpgem
+using namespace hpgem;
 class ElementInfos : public UserElementData {
    public:
     template <std::size_t DIM>
@@ -79,4 +80,4 @@ template <std::size_t DIM>
 double jelmerStructure(const Geometry::PointPhysical<DIM>& point,
                        std::size_t structure);
 
-#endif
+#endif  // HPGEM_APP_ELEMENTINFOS_H

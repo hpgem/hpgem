@@ -1,6 +1,6 @@
 
-#ifndef HPGEM_GNUOUTPUT_H
-#define HPGEM_GNUOUTPUT_H
+#ifndef HPGEM_APP_BANDSTRUCTUREGNUPLOT_H
+#define HPGEM_APP_BANDSTRUCTUREGNUPLOT_H
 
 #include "KSpacePath.h"
 #include "BandStructure.h"
@@ -8,6 +8,8 @@
 
 #include <string>
 #include <vector>
+
+using namespace hpgem;
 
 /// Utility class to generate plots of a band structure using gnuplot.
 /// \tparam DIM The dimension to work in.
@@ -49,4 +51,4 @@ class BandstructureGNUPlot {
     const std::vector<std::string>& pointNames_;
 };
 
-#endif  // HPGEM_GNUOUTPUT_H
+#endif  // HPGEM_APP_BANDSTRUCTUREGNUPLOT_H

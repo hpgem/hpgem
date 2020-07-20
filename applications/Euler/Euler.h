@@ -36,10 +36,12 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef EULER_H_
-#define EULER_H_
+#ifndef HPGEM_APP_EULER_H
+#define HPGEM_APP_EULER_H
 
 #include "Base/HpgemAPISimplified.h"
+
+using namespace hpgem;
 
 template <std::size_t DIM>
 class Euler : public Base::HpgemAPISimplified<DIM> {
@@ -146,4 +148,4 @@ class Euler : public Base::HpgemAPISimplified<DIM> {
 
 #include "Euler_Impl.h"
 
-#endif /* EULER_H_ */
+#endif  // HPGEM_APP_EULER_H
