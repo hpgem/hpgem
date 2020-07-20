@@ -91,7 +91,8 @@ TEST_CASE("LoggerUnitTest", "[LoggerUnitTest]") {
     // in a string is technically implementation defined behaviour (to be
     // avoided in portable code) (§2.14.3.3 of the c++11 standard draft)
     loggerOutput->onDebug = logTestMessage;
-    logger2(DEBUG,
+    logger2(
+        DEBUG,
         "If you don't like \\\\\\\\\\%, it is also possible to escape the \\%, "
         "by substituting the % with a % manually",
         '%', "%");

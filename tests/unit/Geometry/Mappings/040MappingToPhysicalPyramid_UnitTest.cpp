@@ -125,14 +125,18 @@ TEST_CASE("040MappingToPhysicalPyramid_UnitTest",
                  refPoint3D[2] += 0.4) {
                 point3D = mapping3D.transform((refPoint3D));
                 if (rGeom3D.isInternalPoint(
-                        (refPoint3D)))  // not perfect, but the degenerate cube
-                                        // face makes the mapping less linear
-                                        // than desired
+                        (refPoint3D))) {  // not perfect, but the degenerate
+                                          // cube face makes the mapping less
+                                          // linear than desired
                     INFO("transform");
-                CHECK((isInternal3D(point3D)));
+                    CHECK(isInternal3D(point3D));
+                }
                 point3D = reinit3D.transform((refPoint3D));
-                if (rGeom3D.isInternalPoint((refPoint3D))) INFO("reinit");
-                CHECK((isInternal3D(point3D)));
+                if (rGeom3D.isInternalPoint((refPoint3D))) {
+                    INFO("reinit");
+                    CHECK((isInternal3D(point3D)));
+                }
+
                 refPoint3D[0] += -1.e-8;
                 compare3D = mapping3D.transform((refPoint3D));
                 refPoint3D[0] += 2.e-8;
@@ -187,18 +191,14 @@ TEST_CASE("040MappingToPhysicalPyramid_UnitTest",
                 // might not be; due to nonlinearities) or they are inside and
                 // on
                 // the same location
-                logger.assert_always((
-                                         !rGeom3D.isInternalPoint(refPoint3D)) ||
-                                         (Base::L2Norm(
-                                             refPoint3D -
-                                             mapping3D.inverseTransform(
-                                                 point3D)) < 1e-12),
-                                     "inverse transformation, (distance is %, "
-                                     "point is %/%)",
-                                     refPoint3D -
-                                         mapping3D.inverseTransform(point3D),
-                                     refPoint3D,
-                                     mapping3D.inverseTransform(point3D));
+                logger.assert_always(
+                    (!rGeom3D.isInternalPoint(refPoint3D)) ||
+                        (Base::L2Norm(refPoint3D - mapping3D.inverseTransform(
+                                                       point3D)) < 1e-12),
+                    "inverse transformation, (distance is %, "
+                    "point is %/%)",
+                    refPoint3D - mapping3D.inverseTransform(point3D),
+                    refPoint3D, mapping3D.inverseTransform(point3D));
             }
         }
     }

@@ -146,8 +146,9 @@ TEST_CASE("090ReferenceTetrahedron_UnitTest",
     CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 1) ==
            3));  // should at least verify
     INFO("getLocalNodeIndex 0");
-    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 2) == 2));  // specified
-                                                                       // twice
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 2) ==
+           2));  // specified
+                 // twice
     INFO("getLocalNodeIndex 1");
     CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 0) ==
            0));  // ordering of the nodes is consistent
@@ -322,7 +323,7 @@ TEST_CASE("090ReferenceTetrahedron_UnitTest",
         LinearAlgebra::SmallVector<4> refbcoord;
         refbcoord.set(0);
         refbcoord[i] = 1;
-        INFO("Incorrect barycentric coordinate "<<i);
+        INFO("Incorrect barycentric coordinate " << i);
         CHECK((bcoords - refbcoord).l2Norm() < 1e-12);
     }
     LinearAlgebra::SmallVector<4> refbcoord(

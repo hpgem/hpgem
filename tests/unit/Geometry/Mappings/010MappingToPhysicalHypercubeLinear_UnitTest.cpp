@@ -183,9 +183,9 @@ TEST_CASE("010MappingToPhysicalHypercubeLinear_UnitTest",
             point2D = mapping2D.transform((refPoint2D));
             INFO("transform");
             bool check = ((rGeom2D.isInternalPoint((refPoint2D)) &&
--                                   isInternal2D(point2D)) ||
--                                  (!rGeom2D.isInternalPoint((refPoint2D)) &&
--                                   !isInternal2D(point2D)));
+                           -isInternal2D(point2D)) ||
+                          -(!rGeom2D.isInternalPoint((refPoint2D)) &&
+                            -!isInternal2D(point2D)));
 
             CHECK(check);
             point2D = reinit2D.transform((refPoint2D));

@@ -86,25 +86,25 @@ TEST_CASE("040ReferencePoint_UnitTest", "[040ReferencePoint_UnitTest]") {
            &Geometry::MappingToRefPointToPoint::Instance()));
     INFO("higher codimensional entities");
     CHECK(test.getNumberOfCodim1Entities() == 0);
-CHECK(test.getNumberOfCodim2Entities() == 0);
-CHECK(test.getNumberOfCodim3Entities() == 0);
+    CHECK(test.getNumberOfCodim2Entities() == 0);
+    CHECK(test.getNumberOfCodim3Entities() == 0);
 
-INFO("quadrature rules");
-CHECK((test.getGaussQuadratureRule(3)->order() >= 3));
-INFO("quadrature rules");
-CHECK((test.getGaussQuadratureRule(5)->order() >= 5));
-INFO("quadrature rules");
-CHECK((test.getGaussQuadratureRule(7)->order() >= 7));
-INFO("quadrature rules");
-CHECK((test.getGaussQuadratureRule(9)->order() >= 9));
-INFO("quadrature rules");
-CHECK((test.getGaussQuadratureRule(11)->order() >= 11));
-// testing functionality of abstract parent classes
+    INFO("quadrature rules");
+    CHECK((test.getGaussQuadratureRule(3)->order() >= 3));
+    INFO("quadrature rules");
+    CHECK((test.getGaussQuadratureRule(5)->order() >= 5));
+    INFO("quadrature rules");
+    CHECK((test.getGaussQuadratureRule(7)->order() >= 7));
+    INFO("quadrature rules");
+    CHECK((test.getGaussQuadratureRule(9)->order() >= 9));
+    INFO("quadrature rules");
+    CHECK((test.getGaussQuadratureRule(11)->order() >= 11));
+    // testing functionality of abstract parent classes
 
-INFO("number of nodes");
-CHECK((test.getNumberOfNodes() == 1));
-INFO("type of geometry");
-CHECK((test.getGeometryType() == Geometry::ReferenceGeometryType::POINT));
-///\todo testing that the refinement maps behave exactly like the forwarded
-/// calls of this class
+    INFO("number of nodes");
+    CHECK((test.getNumberOfNodes() == 1));
+    INFO("type of geometry");
+    CHECK((test.getGeometryType() == Geometry::ReferenceGeometryType::POINT));
+    ///\todo testing that the refinement maps behave exactly like the forwarded
+    /// calls of this class
 }
