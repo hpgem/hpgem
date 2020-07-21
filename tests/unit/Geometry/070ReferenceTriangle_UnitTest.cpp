@@ -276,8 +276,8 @@ TEST_CASE("070ReferenceTriangle_UnitTest", "[070ReferenceTriangle_UnitTest]") {
         LinearAlgebra::SmallVector<3> refbcoord;
         refbcoord.set(0);
         refbcoord[i] = 1;
-        logger.assert_always((bcoords - refbcoord).l2Norm() < 1e-12,
-                             "Incorrect barycentric coordinate %", i);
+        INFO("Incorrect barycentric coordinate " << i);
+        CHECK((bcoords - refbcoord).l2Norm() < 1e-12);
     }
     LinearAlgebra::SmallVector<3> refbcoord({1. / 3., 1. / 3., 1. / 3.});
     INFO("Incorrect barycentric coordinates for the centre");

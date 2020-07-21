@@ -122,11 +122,11 @@ TEST_CASE("020MappingToPhysicalSimplexLinear_UnitTest",
              refPoint2D[1] += 0.2) {
             point2D = mapping2D.transform((refPoint2D));
             INFO("transform");
-            bool check =((rGeom2D.isInternalPoint((refPoint2D)) &&
-                    isInternal2D(point2D)) ||
-                 (!rGeom2D.isInternalPoint((refPoint2D)) &&
-                  !isInternal2D(point2D)));
-           
+            bool check = ((rGeom2D.isInternalPoint((refPoint2D)) &&
+                           isInternal2D(point2D)) ||
+                          (!rGeom2D.isInternalPoint((refPoint2D)) &&
+                           !isInternal2D(point2D)));
+
             CHECK(check);
             point2D = reinit2D.transform((refPoint2D));
             INFO("reinit");
@@ -165,14 +165,16 @@ TEST_CASE("020MappingToPhysicalSimplexLinear_UnitTest",
             // different locations; due to nonlinearities) or they are inside
             // and
             // on the same location
-            logger.assert_always(
-                (!rGeom2D.isInternalPoint(refPoint2D) &&
-                 !rGeom2D.isInternalPoint(
-                     mapping2D.inverseTransform(point2D))) ||
-                    Base::L2Norm(refPoint2D -
-                                 mapping2D.inverseTransform(point2D)) < 1e-12,
-                "inverse transformation, (distance is %, point is %)",
-                refPoint2D - mapping2D.inverseTransform(point2D), refPoint2D);
+
+            double dist =
+                Base::L2Norm(refPoint2D - mapping2D.inverseTransform(point2D));
+            bool check2 = (!rGeom2D.isInternalPoint(refPoint2D) &&
+                           !rGeom2D.isInternalPoint(
+                               mapping2D.inverseTransform(point2D))) ||
+                          dist < 1e-12;
+            INFO("inverse transformation, (distance is" << dist << ", point is "
+                                                        << refPoint2D << ")");
+            CHECK(check2);
         }
     }
 
@@ -304,15 +306,17 @@ TEST_CASE("020MappingToPhysicalSimplexLinear_UnitTest",
                 // different locations; due to nonlinearities) or they are
                 // inside
                 // and on the same location
-                logger.assert_always(
-                    (!rGeom3D.isInternalPoint(refPoint3D) &&
-                     !rGeom3D.isInternalPoint(
-                         mapping3D.inverseTransform(point3D))) ||
-                        Base::L2Norm(refPoint3D - mapping3D.inverseTransform(
-                                                      point3D)) < 1e-12,
-                    "inverse transformation, (distance is %, point is %)",
-                    refPoint3D - mapping3D.inverseTransform(point3D),
-                    refPoint3D);
+
+                double dist = Base::L2Norm(refPoint3D -
+                                           mapping3D.inverseTransform(point3D));
+                bool check = (!rGeom3D.isInternalPoint(refPoint3D) &&
+                              !rGeom3D.isInternalPoint(
+                                  mapping3D.inverseTransform(point3D))) ||
+                             dist < 1e-12;
+
+                INFO("inverse transformation, (distance is "
+                     << dist << "point is " << refPoint3D << ")");
+                CHECK(check);
             }
         }
     }

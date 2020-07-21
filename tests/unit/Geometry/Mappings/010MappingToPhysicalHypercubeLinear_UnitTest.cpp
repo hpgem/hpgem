@@ -125,11 +125,10 @@ TEST_CASE("010MappingToPhysicalHypercubeLinear_UnitTest",
         CHECK((std::abs(jac1D[0] - 5.e7 * (point1D[0] - compare1D[0])) <
                1e-5));  // mappings
         refPoint1D[0] += 1e-8;
-        logger.assert_always(
-            Base::L2Norm(refPoint1D - mapping1D.inverseTransform(point1D)) <
-                1e-12,
-            "inverse transformation(difference is %, point is %)",
-            refPoint1D - mapping1D.inverseTransform(point1D), refPoint1D);
+
+        double dist=Base::L2Norm(refPoint1D - mapping1D.inverseTransform(point1D));
+        INFO( "inverse transformation(difference is"<<dist<<", point is "<<refPoint1D);
+        CHECK(dist< 1e-12);
     }
 
     for (std::size_t i = 0; i < rGeom.getNumberOfNodes(); ++i) {
@@ -225,14 +224,13 @@ TEST_CASE("010MappingToPhysicalHypercubeLinear_UnitTest",
             // different locations; due to nonlinearities) or they are inside
             // and
             // on the same location
-            logger.assert_always(
-                (!rGeom2D.isInternalPoint(refPoint2D) &&
+            double dist=Base::L2Norm(refPoint2D - mapping2D.inverseTransform(point2D));
+            INFO("inverse transformation, (distance is"<<dist<<", point is"<<refPoint2D);
+            bool check_or=  (!rGeom2D.isInternalPoint(refPoint2D) &&
                  !rGeom2D.isInternalPoint(
                      mapping2D.inverseTransform(point2D))) ||
-                    Base::L2Norm(refPoint2D -
-                                 mapping2D.inverseTransform(point2D)) < 1e-12,
-                "inverse transformation, (distance is %, point is %)",
-                refPoint2D - mapping2D.inverseTransform(point2D), refPoint2D);
+                    dist < 1e-12;
+            CHECK(check_or);
         }
     }
 
@@ -366,15 +364,17 @@ TEST_CASE("010MappingToPhysicalHypercubeLinear_UnitTest",
                 // different locations; due to nonlinearities) or they are
                 // inside
                 // and on the same location
-                logger.assert_always(
-                    (!rGeom3D.isInternalPoint(refPoint3D) &&
+
+                double dist=Base::L2Norm(refPoint3D - mapping3D.inverseTransform(
+                                                      point3D));
+                bool check=(!rGeom3D.isInternalPoint(refPoint3D) &&
                      !rGeom3D.isInternalPoint(
                          mapping3D.inverseTransform(point3D))) ||
-                        Base::L2Norm(refPoint3D - mapping3D.inverseTransform(
-                                                      point3D)) < 1e-12,
-                    "inverse transformation, (distance is %, point is %)",
-                    refPoint3D - mapping3D.inverseTransform(point3D),
-                    refPoint3D);
+                        dist < 1e-12;
+
+               INFO("inverse transformation, (distance is "<<dist<<", point is "<<refPoint3D<<"/"<<mapping3D.inverseTransform(point3D)<<")");
+               CHECK(check);
+
             }
         }
     }

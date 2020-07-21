@@ -191,14 +191,14 @@ TEST_CASE("040MappingToPhysicalPyramid_UnitTest",
                 // might not be; due to nonlinearities) or they are inside and
                 // on
                 // the same location
-                logger.assert_always(
-                    (!rGeom3D.isInternalPoint(refPoint3D)) ||
-                        (Base::L2Norm(refPoint3D - mapping3D.inverseTransform(
-                                                       point3D)) < 1e-12),
-                    "inverse transformation, (distance is %, "
-                    "point is %/%)",
-                    refPoint3D - mapping3D.inverseTransform(point3D),
-                    refPoint3D, mapping3D.inverseTransform(point3D));
+                double dist=Base::L2Norm(refPoint3D - mapping3D.inverseTransform(
+                                                       point3D));
+
+                INFO("inverse transformation, (distance is "<<dist<<", point is "<<refPoint3D<<"/"<<mapping3D.inverseTransform(point3D)<<")");
+
+                bool check=(!rGeom3D.isInternalPoint(refPoint3D)) ||
+                        dist < 1e-12;
+                        CHECK(check);
             }
         }
     }

@@ -156,9 +156,6 @@ TEST_CASE("120MappingToRefLineToTriangle_UnitTest",
     for (refPoint[0] = -2.8189; refPoint[0] < 3.141; refPoint[0] += 0.1) {
         point = test->transform((refPoint));
         std::cout << refPoint << " " << point << std::endl;
-        // truncation errors break this assertion
-        // logger.assert_always(("transform",fGeom.isInternalPoint(*Geometry::PointReferenceFactory<1>::instance()->makePoint(refPoint))==eGeom.isInternalPoint(*Geometry::PointReferenceFactory<2>::instance()->makePoint(point))));
-
         refPoint[0] += -1.e-8;
         compare = test->transform((refPoint));
         refPoint[0] += 2.e-8;
