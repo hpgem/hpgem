@@ -45,7 +45,7 @@
 #include "Base/TreeIterator.h"
 #include "Base/TreeEntry.h"
 
-#define CATCH_CONFIG_MAIN
+
 #include "../catch.hpp"
 
 using namespace hpgem;

@@ -50,7 +50,7 @@
 #include <cmath>
 #include <Base/L2Norm.h>
 
-#define CATCH_CONFIG_MAIN
+
 #include "../catch.hpp"
 
 // transformations should map internal points to internal points, external

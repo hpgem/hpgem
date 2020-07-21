@@ -41,7 +41,7 @@
 #include "Geometry/ReferenceTetrahedron.h"
 #include <iostream>
 
-#define CATCH_CONFIG_MAIN
+
 #include "../catch.hpp"
 
 using namespace hpgem;

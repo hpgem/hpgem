@@ -43,7 +43,7 @@
 #include "LinearAlgebra/SmallMatrix.h"
 #include "Logger.h"
 
-#define CATCH_CONFIG_MAIN
+
 #include "../catch.hpp"
 
 using namespace hpgem;

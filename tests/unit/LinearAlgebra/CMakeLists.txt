@@ -13,5 +13,5 @@ foreach(CPPFILE ${CPPFILES})
 	#Make the exe
 	add_executable(${EXECNAME} ${FILENAME})
 							        
-	target_link_libraries(${EXECNAME}  LinearAlgebra)
+	target_link_libraries(${EXECNAME}  LinearAlgebra tests-main)
 endforeach()

@@ -12,6 +12,6 @@ foreach(CPPFILE ${CPPFILES})
 	get_filename_component(EXECNAME ${CPPFILE} NAME_WE)
 	#Make the exe
 	add_executable(${EXECNAME} ${FILENAME})
-	target_link_libraries(${EXECNAME}  Geometry QuadratureRules)
+	target_link_libraries(${EXECNAME}  Geometry QuadratureRules tests-main)
 endforeach()
 
