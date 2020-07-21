@@ -63,7 +63,6 @@ CHECK($1); the documentation
 #include "Geometry/ReferenceLine.h"
 #include <cmath>
 
-
 #include "../catch.hpp"
 
 using namespace hpgem;

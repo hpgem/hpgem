@@ -45,7 +45,6 @@
 #include "Logger.h"
 #include <cmath>
 
-
 #include "../catch.hpp"
 
 using namespace hpgem;

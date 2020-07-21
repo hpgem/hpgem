@@ -39,7 +39,6 @@
 #include <iostream>
 #include "Logger.h"
 
-
 #include "../catch.hpp"
 
 using namespace hpgem;

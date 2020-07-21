@@ -41,7 +41,6 @@
 #include "Geometry/ReferenceSquare.h"
 #include <iostream>
 
-
 #include "../catch.hpp"
 
 using namespace hpgem;

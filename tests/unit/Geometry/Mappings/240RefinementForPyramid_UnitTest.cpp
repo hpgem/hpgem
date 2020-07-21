@@ -41,7 +41,6 @@
 #include "Geometry/ReferencePyramid.h"
 #include <iostream>
 
-
 #include "../catch.hpp"
 
 using namespace hpgem;

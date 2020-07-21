@@ -47,7 +47,6 @@
 #include "Geometry/PointPhysical.h"
 #include "Logger.h"
 
-
 #include "../catch.hpp"
 
 using namespace hpgem;

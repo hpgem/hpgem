@@ -41,7 +41,6 @@
 #include "Geometry/ReferenceTriangularPrism.h"
 #include <iostream>
 
-
 #include "../catch.hpp"
 
 using namespace hpgem;

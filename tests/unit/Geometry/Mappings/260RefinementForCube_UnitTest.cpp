@@ -41,7 +41,6 @@
 #include "Geometry/ReferenceCube.h"
 #include <iostream>
 
-
 #include "../catch.hpp"
 
 using namespace hpgem;

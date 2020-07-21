@@ -61,7 +61,6 @@
 #include "Base/BaseBasisFunction.h"
 #include "Logger.h"
 
-
 #include "../catch.hpp"
 
 using namespace hpgem;

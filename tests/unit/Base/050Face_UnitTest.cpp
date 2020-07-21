@@ -57,7 +57,6 @@
 #include "Geometry/PointReference.h"
 #include "Base/BaseBasisFunction.h"
 
-
 #include "../catch.hpp"
 
 using namespace hpgem;

@@ -48,7 +48,6 @@
 #include "Geometry/ReferencePoint.h"
 #include <cmath>
 
-
 #include "../../catch.hpp"
 
 using namespace hpgem;

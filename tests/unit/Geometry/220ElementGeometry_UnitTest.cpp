@@ -67,7 +67,6 @@
 #include <cmath>
 #include <typeinfo>
 
-
 #include "../catch.hpp"
 
 using namespace hpgem;

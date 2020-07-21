@@ -51,7 +51,6 @@
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include <cmath>
 
-
 #include "../catch.hpp"
 
 using namespace hpgem;

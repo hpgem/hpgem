@@ -43,7 +43,6 @@
 
 #include "Base/FaceMatrix.h"
 
-
 #include "../catch.hpp"
 
 using namespace hpgem;

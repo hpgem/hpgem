@@ -43,7 +43,6 @@
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "Logger.h"
 
-
 #include "../catch.hpp"
 
 using namespace hpgem;

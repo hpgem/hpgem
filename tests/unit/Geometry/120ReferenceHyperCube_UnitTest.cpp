@@ -53,7 +53,6 @@
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include <cmath>
 
-
 #include "../catch.hpp"
 
 using namespace hpgem;

@@ -41,7 +41,6 @@
 #include "Utilities/BasisFunctionsMonomials.h"
 #include "Logger.h"
 
-
 #include "../catch.hpp"
 
 using namespace hpgem;

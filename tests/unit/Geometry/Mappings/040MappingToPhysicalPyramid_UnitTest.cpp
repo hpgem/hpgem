@@ -51,7 +51,6 @@
 #include <cmath>
 #include <Base/L2Norm.h>
 
-
 #include "../catch.hpp"
 
 // transformations should map internal points to internal points, external
