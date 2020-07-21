@@ -246,8 +246,9 @@ TEST_CASE("120ReferenceHyperCube_UnitTest",
     CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 1) ==
            1));  // should at least verify
     INFO("getLocalNodeIndex 0");
-    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 2) == 2));  // specified
-                                                                       // twice
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 2) ==
+           2));  // specified
+                 // twice
     INFO("getLocalNodeIndex 0");
     CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 3) ==
            3));  // ordering of the nodes is consistent

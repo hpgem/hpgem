@@ -355,7 +355,7 @@ TEST_CASE("110ReferencePyramid_UnitTest", "[110ReferencePyramid_UnitTest]") {
     CHECK((test.getGaussQuadratureRule(5)->order() >= 5));
     INFO("quadrature rules");
     CHECK((test.getGaussQuadratureRule(7)->order() >= 7));  ///\todo implement
-                                                            ///more quadrature
+                                                            /// more quadrature
                                                             /// rules
     // assert_debug(("quadrature
     // rules",test.getGaussQuadratureRule(9)->order()>=9));

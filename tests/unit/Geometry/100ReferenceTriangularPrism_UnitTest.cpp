@@ -156,8 +156,9 @@ TEST_CASE("100ReferenceTriangularPrism_UnitTest",
     CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 1) ==
            2));  // should at least verify
     INFO("getLocalNodeIndex 0");
-    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 2) == 1));  // specified
-                                                                       // twice
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 2) ==
+           1));  // specified
+                 // twice
     INFO("getLocalNodeIndex 1");
     CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 0) ==
            3));  // ordering of the nodes is consistent
@@ -376,7 +377,7 @@ TEST_CASE("100ReferenceTriangularPrism_UnitTest",
     CHECK((test.getGaussQuadratureRule(5)->order() >= 5));
     INFO("quadrature rules");
     CHECK((test.getGaussQuadratureRule(7)->order() >= 7));  ///\todo add extra
-                                                            ///quadrature rules
+                                                            /// quadrature rules
     // assert_debug(("quadrature
     // rules",test.getGaussQuadratureRule(9)->order()>=9));
     // assert_debug(("quadrature
