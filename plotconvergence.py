@@ -23,6 +23,7 @@ plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
 plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 plt.rc('lines', linewidth=2) # Increase the linewidth
+plt.rc('text', usetex=True)
 
 def plotConverged():
     iters = []
@@ -38,7 +39,7 @@ def plotConverged():
 
     ax.plot(iters, converged)  # Matplotlib plot.
     ax.set_xlabel('Iteration')
-    ax.set_ylabel('#Converged eigenvalues')
+    ax.set_ylabel('\#Converged eigenvalues')
     ax.set_xlim(min(iters)-1, max(iters)+1)
     ax.set_ylim(min(converged)-1, max(converged)+1)
 
@@ -51,15 +52,18 @@ def plotEigenvalues():
     maxIter = 0
     with open('test-eigenvalue-progress.csv', newline='') as evFile, \
          open('test-residual-progress.csv', newline='') as resFile, \
+         open('test-orthogonality-progress.csv', newline='') as orthoFile, \
          open('test-convergence-number-progress.csv', newline='') as convFile:
         evReader = csv.reader(evFile, delimiter=',')
         resReader = csv.reader(resFile, delimiter=',')
+        orthoReader = csv.reader(orthoFile, delimiter=',')
         convReader = csv.reader(convFile, delimiter=',')
         lastConverged = 0
-        for (evRow,resRow,convRow) in zip(evReader,resReader,convReader):
+        for (evRow,resRow,orthoRow,convRow) in zip(evReader,resReader,orthoReader,convReader):
             # Handle the current iteration count
             curIter = float(evRow.pop(0))
             resRow.pop(0)
+            orthoRow.pop(0)
             # Number of converged lines
             converged = int(convRow[1])
 
@@ -67,9 +71,10 @@ def plotEigenvalues():
 
             # Current eigenvalue points
             evs = []
-            for i,evres in enumerate(zip(evRow,resRow)):
+            for i,evres in enumerate(zip(evRow,resRow,orthoRow)):
                 # Append the tuple (iter, eigenValue, order, residual, unconverged order)
-                evs.append((curIter, float(evres[0]), i, float(evres[1]), max(-1,i-converged)))
+                evs.append((curIter, float(evres[0]), i, float(evres[1]), \
+                        max(-1,i-converged),float(evres[2])))
 
             # Handle that we have converged lines
             for i in range(0,lastConverged):
@@ -251,14 +256,15 @@ def plotEigenvalues():
 
     def plot3():
 
-        plotData = computeSegments(0, 1, 3)
+        colorKey = 5
+        plotData = computeSegments(0, 1, colorKey)
         plotData['segmentColors'] \
                     = list(map(lambda c: math.log(c,10), plotData['segmentColors']))
         norm = plt.Normalize(-9,1)
         lc = LineCollection(plotData['segments'], cmap='jet', norm=norm)
         lc.set_array(np.array(plotData['segmentColors']))
         
-        convergedData = computeConvergedLines(0,1,maxIter,3)
+        convergedData = computeConvergedLines(0,1,maxIter,colorKey)
         convergedData['colors'] = list(map(lambda c:math.log(c,10), convergedData['colors']))
         lcc = LineCollection(convergedData['lines'], cmap='jet', \
                 linestyles='dotted', norm=norm)
@@ -270,7 +276,7 @@ def plotEigenvalues():
         ax.add_collection(lcc)
         line = ax.add_collection(lc)
         cbar = fig.colorbar(line, ax=ax)
-        cbar.ax.set_ylabel('Log(residual)')
+        cbar.ax.set_ylabel('$\log(||Bx||_2)$')
 
         ax.plot(plotData['cps']["x"], plotData['cps']["y"], 'ko')
 

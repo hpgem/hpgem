@@ -85,6 +85,7 @@ template <std::size_t DIM>
 struct ShiftWorkspace;
 template <std::size_t DIM>
 struct ProjectorWorkspace;
+template <std::size_t DIM>
 struct MonitorContext;
 
 /// Workspace for solving the eigenvalue problem.
@@ -151,7 +152,7 @@ class SolverWorkspace {
     // Projector
     std::unique_ptr<ProjectorWorkspace<DIM>> projector;
     // Monitor
-    std::unique_ptr<MonitorContext> monitor_;
+    std::unique_ptr<MonitorContext<DIM>> monitor_;
 
     double targetFrequency_;
 
@@ -172,6 +173,7 @@ class SolverWorkspace {
 
     friend class ProjectorWorkspace<DIM>;
     friend class ShiftWorkspace<DIM>;
+    friend class MonitorContext<DIM>;
 };
 
 /// Extra workspace for handling the optional extra phase shift of each basis
@@ -227,36 +229,61 @@ class ProjectorWorkspace {
     /// Solver for the projection stiffness matrix
     KSP projectionSolver_;
     DGMax::KPhaseShifts<DIM> phaseShifts_;
+    friend class MonitorContext<DIM>;
 };
 
 // Monitor //
 /////////////
 /// Monitor to trace the convergence history
+template <std::size_t DIM>
 struct MonitorContext {
-    MonitorContext(std::string prefix) : eigenvalueStream_() {
+    MonitorContext(std::string prefix, SolverWorkspace<DIM>& solverWorkspace)
+        : eigenvalueStream_(), solverWorkspace_(solverWorkspace) {
         eigenvalueStream_.open(prefix + "eigenvalue-progress.csv",
                                std::ios_base::trunc);
         residualStream_.open(prefix + "residual-progress.csv",
                              std::ios_base::trunc);
         numConvergedStream_.open(prefix + "convergence-number-progress.csv",
                                  std::ios_base::trunc);
+        orthogonalityStream_.open(prefix + "orthogonality-progress.csv",
+                                  std::ios_base::trunc);
     }
 
     void writeMonitor(int its, int nconv, PetscScalar* eig, PetscReal* errest,
                       int nest) {
+        std::vector<double> ortho(nest);
+
+        // Compute orthogonality
+        BV bv;
+        EPSGetBV(solverWorkspace_.solver_, &bv);
+        for (std::size_t i = 0; i < nest; ++i) {
+            BVCopyVec(bv, i, solverWorkspace_.tempFieldVector_);
+            MatMult(solverWorkspace_.projector->projectorMatrix_,
+                    solverWorkspace_.tempFieldVector_,
+                    solverWorkspace_.projector->tempProjectorVector_);
+            PetscReal norm;
+            VecNorm(solverWorkspace_.projector->tempProjectorVector_, NORM_2,
+                    &norm);
+            ortho[i] = norm;
+        }
+
+        //
         numConvergedStream_ << its << ',' << nconv << std::endl;
         // Iteration count
         eigenvalueStream_ << its;
         residualStream_ << its;
+        orthogonalityStream_ << its;
         for (int i = 0; i < nest; ++i) {
             eigenvalueStream_ << ',' << PetscRealPart(eig[i]);
             if (PetscImaginaryPart(eig[i]) != 0.0) {
                 eigenvalueStream_ << '+' << PetscImaginaryPart(eig[i]) << "i";
             }
             residualStream_ << ',' << errest[i];
+            orthogonalityStream_ << ',' << ortho[i];
         }
         eigenvalueStream_ << std::endl;
         residualStream_ << std::endl;
+        orthogonalityStream_ << std::endl;
     }
 
     ~MonitorContext() {
@@ -268,6 +295,8 @@ struct MonitorContext {
     std::ofstream eigenvalueStream_;
     std::ofstream residualStream_;
     std::ofstream numConvergedStream_;
+    std::ofstream orthogonalityStream_;
+    SolverWorkspace<DIM>& solverWorkspace_;
 
     void attachToEPS(EPS eps) {
         PetscErrorCode err;
@@ -632,7 +661,7 @@ void SolverWorkspace<DIM>::initStiffnessMatrixShifts() {
 
 template <std::size_t DIM>
 void SolverWorkspace<DIM>::attachMonitor(std::string filePrefix) {
-    monitor_ = std::make_unique<MonitorContext>(filePrefix);
+    monitor_ = std::make_unique<MonitorContext<DIM>>(filePrefix, *this);
     monitor_->attachToEPS(solver_);
 }
 
