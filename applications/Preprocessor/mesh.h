@@ -142,12 +142,19 @@ class MeshEntity {
 
     std::size_t getElementIndex(const Element<gridDimension>& element) const;
 
+    /// The number of elements that this MeshEntity is part of.
     std::size_t getNumberOfElements() const;
 
+    /// The Local index of this MeshEntity on the i-th Element.
     std::size_t getLocalIndex(std::size_t i) const;
 
+    /// Get the local index of this MeshEntity for an element that it is part
+    /// of.
+    /// \param element The element
+    /// \return The local index on the element.
     std::size_t getLocalIndex(const Element<gridDimension>& element) const;
 
+    /// The global index of this MeshEntity
     std::size_t getGlobalIndex() const;
 
     // note: this will return a vector of MeshEntities. To access individual
@@ -207,12 +214,23 @@ class MeshEntity {
     MeshEntity(Mesh<gridDimension>* mesh, std::size_t entityID)
         : mesh(mesh), entityID(entityID) {}
 
+    /// Add an element that is this MeshEntity is part of
+    ///
+    /// \param elementID The entityID of the element
+    /// \param localEntityIndex The localIndex of this MeshEntity for the
+    /// element.
     void addElement(std::size_t elementID, std::size_t localEntityIndex);
 
     Mesh<gridDimension>* mesh;
+    /// The id of this MeshEntity
     std::size_t entityID = std::numeric_limits<std::size_t>::max();
+    /// The entityIDs for the Elements that this MeshEntity is part of
     std::vector<std::size_t> elementIDs;
+    /// For each of the elements that this MeshEntity is part of, the local id
+    /// of this MeshEntity on the element.
     std::vector<std::size_t> localIDs;
+    // NOTE: Probably the following identity should hold:
+    // elements[elementIDs[i]].incidenceList[dimension][localIDs[i]] == entityID
 };
 
 /**
