@@ -253,18 +253,24 @@ struct MonitorContext {
                       int nest) {
         std::vector<double> ortho(nest);
 
-        // Compute orthogonality
-        BV bv;
-        EPSGetBV(solverWorkspace_.solver_, &bv);
-        for (std::size_t i = 0; i < nest; ++i) {
-            BVCopyVec(bv, i, solverWorkspace_.tempFieldVector_);
-            MatMult(solverWorkspace_.projector->projectorMatrix_,
-                    solverWorkspace_.tempFieldVector_,
-                    solverWorkspace_.projector->tempProjectorVector_);
-            PetscReal norm;
-            VecNorm(solverWorkspace_.projector->tempProjectorVector_, NORM_2,
-                    &norm);
-            ortho[i] = norm;
+        if (solverWorkspace_.projector) {
+            // With the projector comes a basis of the nullspace of the
+            // stiffness matrix which gives a matrix B such that SB^H = 0. With
+            // this basis we can get an estimate for how dominant the kernel is
+            // in the search space. For this we compute Bx_i for each vector x_i
+            // from the search space.
+            BV bv;
+            EPSGetBV(solverWorkspace_.solver_, &bv);
+            for (std::size_t i = 0; i < nest; ++i) {
+                BVCopyVec(bv, i, solverWorkspace_.tempFieldVector_);
+                MatMult(solverWorkspace_.projector->projectorMatrix_,
+                        solverWorkspace_.tempFieldVector_,
+                        solverWorkspace_.projector->tempProjectorVector_);
+                PetscReal norm;
+                VecNorm(solverWorkspace_.projector->tempProjectorVector_,
+                        NORM_2, &norm);
+                ortho[i] = norm;
+            }
         }
 
         //
