@@ -892,7 +892,7 @@ ProjectorWorkspace<DIM>::ProjectorWorkspace(SolverWorkspace<DIM>& workspace)
       projectorIndex_(nullptr),
       projectorMatrix_(projectorIndex_, workspace.fieldIndex_,
                        DGMaxDiscretizationBase::PROJECTOR_MATRIX_ID),
-      tempProjectorVector_(projectorIndex_),
+      tempProjectorVector_(projectorIndex_, -1, -1),
       projectionStiffness_(nullptr),
       projectionSolver_(nullptr) {
 
