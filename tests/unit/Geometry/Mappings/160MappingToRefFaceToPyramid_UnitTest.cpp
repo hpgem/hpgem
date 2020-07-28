@@ -50,8 +50,12 @@
 #include "Geometry/Jacobian.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include <cmath>
+
+#include "../catch.hpp"
+
 using namespace hpgem;
-int main() {
+TEST_CASE("160MappingToRefFaceToPyramid_UnitTest",
+          "[160MappingToRefFaceToPyramid_UnitTest]") {
 
     Geometry::PointReference<2> refPoint;
     Geometry::PointReference<3> point, compare;
@@ -73,9 +77,9 @@ int main() {
     for (refPoint[0] = -1.51; refPoint[0] < 1.51; refPoint[0] += 0.2) {
         for (refPoint[1] = -1.51; refPoint[1] < 1.51; refPoint[1] += 0.2) {
             point = test->transform((refPoint));
-            logger.assert_always((fGeom->isInternalPoint((refPoint)) ==
-                                  eGeom.isInternalPoint((point))),
-                                 "transform");
+            INFO("transform");
+            CHECK((fGeom->isInternalPoint((refPoint)) ==
+                   eGeom.isInternalPoint((point))));
 
             refPoint[0] += -1.e-8;
             compare = test->transform((refPoint));
@@ -84,17 +88,16 @@ int main() {
 
             refPoint[0] += -1e-8;
             jac = test->calcJacobian((refPoint));
-            logger.assert_always(
-                (std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) < 1e-5),
-                "jacobian");  // estimate is a bit rough, but should work for
-                              // most mappings
-            logger.assert_always(
-                (std::abs(jac[1] - 5.e7 * (point[1] - compare[1])) < 1e-5),
-                "jacobian");  // implementations are very strongly recommended
-                              // to be more accurate
-            logger.assert_always(
-                (std::abs(jac[2] - 5.e7 * (point[2] - compare[2])) < 1e-5),
-                "jacobian");
+            INFO("jacobian");
+            CHECK((std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) <
+                   1e-5));  // estimate is a bit rough, but should work for
+                            // most mappings
+            INFO("jacobian");
+            CHECK((std::abs(jac[1] - 5.e7 * (point[1] - compare[1])) <
+                   1e-5));  // implementations are very strongly recommended
+                            // to be more accurate
+            INFO("jacobian");
+            CHECK((std::abs(jac[2] - 5.e7 * (point[2] - compare[2])) < 1e-5));
 
             refPoint[1] += -1.e-8;
             compare = test->transform((refPoint));
@@ -103,15 +106,12 @@ int main() {
 
             refPoint[1] += -1e-8;
             jac = test->calcJacobian((refPoint));
-            logger.assert_always(
-                (std::abs(jac[3] - 5.e7 * (point[0] - compare[0])) < 1e-5),
-                "jacobian");
-            logger.assert_always(
-                (std::abs(jac[4] - 5.e7 * (point[1] - compare[1])) < 1e-5),
-                "jacobian");
-            logger.assert_always(
-                (std::abs(jac[5] - 5.e7 * (point[2] - compare[2])) < 1e-5),
-                "jacobian");
+            INFO("jacobian");
+            CHECK((std::abs(jac[3] - 5.e7 * (point[0] - compare[0])) < 1e-5));
+            INFO("jacobian");
+            CHECK((std::abs(jac[4] - 5.e7 * (point[1] - compare[1])) < 1e-5));
+            INFO("jacobian");
+            CHECK((std::abs(jac[5] - 5.e7 * (point[2] - compare[2])) < 1e-5));
         }
     }
 
@@ -119,16 +119,16 @@ int main() {
         refPoint = fGeom->getReferenceNodeCoordinate(i);
         compare = eGeom.getReferenceNodeCoordinate(nodesAfterTransformation[i]);
         point = test->transform((refPoint));
-        logger.assert_always((std::abs(point[0] - compare[0]) < 1e-12),
-                             "transform");
-        logger.assert_always((std::abs(point[1] - compare[1]) < 1e-12),
-                             "transform");
-        logger.assert_always((std::abs(point[2] - compare[2]) < 1e-12),
-                             "transform");
+        INFO("transform");
+        CHECK((std::abs(point[0] - compare[0]) < 1e-12));
+        INFO("transform");
+        CHECK((std::abs(point[1] - compare[1]) < 1e-12));
+        INFO("transform");
+        CHECK((std::abs(point[2] - compare[2]) < 1e-12));
     }
 
-    logger.assert_always((test->getTargetDimension() == 3),
-                         "getTargetDimension");
+    INFO("getTargetDimension");
+    CHECK((test->getTargetDimension() == 3));
 
     fGeom = &Geometry::ReferenceTriangle::Instance();
     nodesAfterTransformation.resize(3);
@@ -141,9 +141,9 @@ int main() {
     for (refPoint[0] = -1.51; refPoint[0] < 1.51; refPoint[0] += 0.2) {
         for (refPoint[1] = -1.51; refPoint[1] < 1.51; refPoint[1] += 0.2) {
             point = test->transform((refPoint));
-            logger.assert_always((fGeom->isInternalPoint((refPoint)) ==
-                                  eGeom.isInternalPoint((point))),
-                                 "transform");
+            INFO("transform");
+            CHECK((fGeom->isInternalPoint((refPoint)) ==
+                   eGeom.isInternalPoint((point))));
 
             refPoint[0] += -1.e-8;
             compare = test->transform((refPoint));
@@ -152,17 +152,16 @@ int main() {
 
             refPoint[0] += -1e-8;
             jac = test->calcJacobian((refPoint));
-            logger.assert_always(
-                (std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) < 1e-5),
-                "jacobian");  // estimate is a bit rough, but should work for
-                              // most mappings
-            logger.assert_always(
-                (std::abs(jac[1] - 5.e7 * (point[1] - compare[1])) < 1e-5),
-                "jacobian");  // implementations are very strongly recommended
-                              // to be more accurate
-            logger.assert_always(
-                (std::abs(jac[2] - 5.e7 * (point[2] - compare[2])) < 1e-5),
-                "jacobian");
+            INFO("jacobian");
+            CHECK((std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) <
+                   1e-5));  // estimate is a bit rough, but should work for
+                            // most mappings
+            INFO("jacobian");
+            CHECK((std::abs(jac[1] - 5.e7 * (point[1] - compare[1])) <
+                   1e-5));  // implementations are very strongly recommended
+                            // to be more accurate
+            INFO("jacobian");
+            CHECK((std::abs(jac[2] - 5.e7 * (point[2] - compare[2])) < 1e-5));
 
             refPoint[1] += -1.e-8;
             compare = test->transform((refPoint));
@@ -171,15 +170,12 @@ int main() {
 
             refPoint[1] += -1e-8;
             jac = test->calcJacobian((refPoint));
-            logger.assert_always(
-                (std::abs(jac[3] - 5.e7 * (point[0] - compare[0])) < 1e-5),
-                "jacobian");
-            logger.assert_always(
-                (std::abs(jac[4] - 5.e7 * (point[1] - compare[1])) < 1e-5),
-                "jacobian");
-            logger.assert_always(
-                (std::abs(jac[5] - 5.e7 * (point[2] - compare[2])) < 1e-5),
-                "jacobian");
+            INFO("jacobian");
+            CHECK((std::abs(jac[3] - 5.e7 * (point[0] - compare[0])) < 1e-5));
+            INFO("jacobian");
+            CHECK((std::abs(jac[4] - 5.e7 * (point[1] - compare[1])) < 1e-5));
+            INFO("jacobian");
+            CHECK((std::abs(jac[5] - 5.e7 * (point[2] - compare[2])) < 1e-5));
         }
     }
 
@@ -187,16 +183,16 @@ int main() {
         refPoint = fGeom->getReferenceNodeCoordinate(i);
         compare = eGeom.getReferenceNodeCoordinate(nodesAfterTransformation[i]);
         point = test->transform((refPoint));
-        logger.assert_always((std::abs(point[0] - compare[0]) < 1e-12),
-                             "transform");
-        logger.assert_always((std::abs(point[1] - compare[1]) < 1e-12),
-                             "transform");
-        logger.assert_always((std::abs(point[2] - compare[2]) < 1e-12),
-                             "transform");
+        INFO("transform");
+        CHECK((std::abs(point[0] - compare[0]) < 1e-12));
+        INFO("transform");
+        CHECK((std::abs(point[1] - compare[1]) < 1e-12));
+        INFO("transform");
+        CHECK((std::abs(point[2] - compare[2]) < 1e-12));
     }
 
-    logger.assert_always((test->getTargetDimension() == 3),
-                         "getTargetDimension");
+    INFO("getTargetDimension");
+    CHECK((test->getTargetDimension() == 3));
 
     test = &Geometry::MappingToRefFaceToPyramid2::Instance();
     nodesAfterTransformation[0] = 2;
@@ -206,9 +202,9 @@ int main() {
     for (refPoint[0] = -1.51; refPoint[0] < 1.51; refPoint[0] += 0.2) {
         for (refPoint[1] = -1.51; refPoint[1] < 1.51; refPoint[1] += 0.2) {
             point = test->transform((refPoint));
-            logger.assert_always((fGeom->isInternalPoint((refPoint)) ==
-                                  eGeom.isInternalPoint((point))),
-                                 "transform");
+            INFO("transform");
+            CHECK((fGeom->isInternalPoint((refPoint)) ==
+                   eGeom.isInternalPoint((point))));
 
             refPoint[0] += -1.e-8;
             compare = test->transform((refPoint));
@@ -217,17 +213,16 @@ int main() {
 
             refPoint[0] += -1e-8;
             jac = test->calcJacobian((refPoint));
-            logger.assert_always(
-                (std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) < 1e-5),
-                "jacobian");  // estimate is a bit rough, but should work for
-                              // most mappings
-            logger.assert_always(
-                (std::abs(jac[1] - 5.e7 * (point[1] - compare[1])) < 1e-5),
-                "jacobian");  // implementations are very strongly recommended
-                              // to be more accurate
-            logger.assert_always(
-                (std::abs(jac[2] - 5.e7 * (point[2] - compare[2])) < 1e-5),
-                "jacobian");
+            INFO("jacobian");
+            CHECK((std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) <
+                   1e-5));  // estimate is a bit rough, but should work for
+                            // most mappings
+            INFO("jacobian");
+            CHECK((std::abs(jac[1] - 5.e7 * (point[1] - compare[1])) <
+                   1e-5));  // implementations are very strongly recommended
+                            // to be more accurate
+            INFO("jacobian");
+            CHECK((std::abs(jac[2] - 5.e7 * (point[2] - compare[2])) < 1e-5));
 
             refPoint[1] += -1.e-8;
             compare = test->transform((refPoint));
@@ -236,15 +231,12 @@ int main() {
 
             refPoint[1] += -1e-8;
             jac = test->calcJacobian((refPoint));
-            logger.assert_always(
-                (std::abs(jac[3] - 5.e7 * (point[0] - compare[0])) < 1e-5),
-                "jacobian");
-            logger.assert_always(
-                (std::abs(jac[4] - 5.e7 * (point[1] - compare[1])) < 1e-5),
-                "jacobian");
-            logger.assert_always(
-                (std::abs(jac[5] - 5.e7 * (point[2] - compare[2])) < 1e-5),
-                "jacobian");
+            INFO("jacobian");
+            CHECK((std::abs(jac[3] - 5.e7 * (point[0] - compare[0])) < 1e-5));
+            INFO("jacobian");
+            CHECK((std::abs(jac[4] - 5.e7 * (point[1] - compare[1])) < 1e-5));
+            INFO("jacobian");
+            CHECK((std::abs(jac[5] - 5.e7 * (point[2] - compare[2])) < 1e-5));
         }
     }
 
@@ -252,16 +244,16 @@ int main() {
         refPoint = fGeom->getReferenceNodeCoordinate(i);
         compare = eGeom.getReferenceNodeCoordinate(nodesAfterTransformation[i]);
         point = test->transform((refPoint));
-        logger.assert_always((std::abs(point[0] - compare[0]) < 1e-12),
-                             "transform");
-        logger.assert_always((std::abs(point[1] - compare[1]) < 1e-12),
-                             "transform");
-        logger.assert_always((std::abs(point[2] - compare[2]) < 1e-12),
-                             "transform");
+        INFO("transform");
+        CHECK((std::abs(point[0] - compare[0]) < 1e-12));
+        INFO("transform");
+        CHECK((std::abs(point[1] - compare[1]) < 1e-12));
+        INFO("transform");
+        CHECK((std::abs(point[2] - compare[2]) < 1e-12));
     }
 
-    logger.assert_always((test->getTargetDimension() == 3),
-                         "getTargetDimension");
+    INFO("getTargetDimension");
+    CHECK((test->getTargetDimension() == 3));
 
     test = &Geometry::MappingToRefFaceToPyramid3::Instance();
     nodesAfterTransformation[0] = 1;
@@ -271,9 +263,9 @@ int main() {
     for (refPoint[0] = -1.51; refPoint[0] < 1.51; refPoint[0] += 0.2) {
         for (refPoint[1] = -1.51; refPoint[1] < 1.51; refPoint[1] += 0.2) {
             point = test->transform((refPoint));
-            logger.assert_always((fGeom->isInternalPoint((refPoint)) ==
-                                  eGeom.isInternalPoint((point))),
-                                 "transform");
+            INFO("transform");
+            CHECK((fGeom->isInternalPoint((refPoint)) ==
+                   eGeom.isInternalPoint((point))));
 
             refPoint[0] += -1.e-8;
             compare = test->transform((refPoint));
@@ -282,17 +274,16 @@ int main() {
 
             refPoint[0] += -1e-8;
             jac = test->calcJacobian((refPoint));
-            logger.assert_always(
-                (std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) < 1e-5),
-                "jacobian");  // estimate is a bit rough, but should work for
-                              // most mappings
-            logger.assert_always(
-                (std::abs(jac[1] - 5.e7 * (point[1] - compare[1])) < 1e-5),
-                "jacobian");  // implementations are very strongly recommended
-                              // to be more accurate
-            logger.assert_always(
-                (std::abs(jac[2] - 5.e7 * (point[2] - compare[2])) < 1e-5),
-                "jacobian");
+            INFO("jacobian");
+            CHECK((std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) <
+                   1e-5));  // estimate is a bit rough, but should work for
+                            // most mappings
+            INFO("jacobian");
+            CHECK((std::abs(jac[1] - 5.e7 * (point[1] - compare[1])) <
+                   1e-5));  // implementations are very strongly recommended
+                            // to be more accurate
+            INFO("jacobian");
+            CHECK((std::abs(jac[2] - 5.e7 * (point[2] - compare[2])) < 1e-5));
 
             refPoint[1] += -1.e-8;
             compare = test->transform((refPoint));
@@ -301,15 +292,12 @@ int main() {
 
             refPoint[1] += -1e-8;
             jac = test->calcJacobian((refPoint));
-            logger.assert_always(
-                (std::abs(jac[3] - 5.e7 * (point[0] - compare[0])) < 1e-5),
-                "jacobian");
-            logger.assert_always(
-                (std::abs(jac[4] - 5.e7 * (point[1] - compare[1])) < 1e-5),
-                "jacobian");
-            logger.assert_always(
-                (std::abs(jac[5] - 5.e7 * (point[2] - compare[2])) < 1e-5),
-                "jacobian");
+            INFO("jacobian");
+            CHECK((std::abs(jac[3] - 5.e7 * (point[0] - compare[0])) < 1e-5));
+            INFO("jacobian");
+            CHECK((std::abs(jac[4] - 5.e7 * (point[1] - compare[1])) < 1e-5));
+            INFO("jacobian");
+            CHECK((std::abs(jac[5] - 5.e7 * (point[2] - compare[2])) < 1e-5));
         }
     }
 
@@ -317,16 +305,16 @@ int main() {
         refPoint = fGeom->getReferenceNodeCoordinate(i);
         compare = eGeom.getReferenceNodeCoordinate(nodesAfterTransformation[i]);
         point = test->transform((refPoint));
-        logger.assert_always((std::abs(point[0] - compare[0]) < 1e-12),
-                             "transform");
-        logger.assert_always((std::abs(point[1] - compare[1]) < 1e-12),
-                             "transform");
-        logger.assert_always((std::abs(point[2] - compare[2]) < 1e-12),
-                             "transform");
+        INFO("transform");
+        CHECK((std::abs(point[0] - compare[0]) < 1e-12));
+        INFO("transform");
+        CHECK((std::abs(point[1] - compare[1]) < 1e-12));
+        INFO("transform");
+        CHECK((std::abs(point[2] - compare[2]) < 1e-12));
     }
 
-    logger.assert_always((test->getTargetDimension() == 3),
-                         "getTargetDimension");
+    INFO("getTargetDimension");
+    CHECK((test->getTargetDimension() == 3));
 
     test = &Geometry::MappingToRefFaceToPyramid4::Instance();
     nodesAfterTransformation[0] = 4;
@@ -336,9 +324,9 @@ int main() {
     for (refPoint[0] = -1.51; refPoint[0] < 1.51; refPoint[0] += 0.2) {
         for (refPoint[1] = -1.51; refPoint[1] < 1.51; refPoint[1] += 0.2) {
             point = test->transform((refPoint));
-            logger.assert_always((fGeom->isInternalPoint((refPoint)) ==
-                                  eGeom.isInternalPoint((point))),
-                                 "transform");
+            INFO("transform");
+            CHECK((fGeom->isInternalPoint((refPoint)) ==
+                   eGeom.isInternalPoint((point))));
 
             refPoint[0] += -1.e-8;
             compare = test->transform((refPoint));
@@ -347,17 +335,16 @@ int main() {
 
             refPoint[0] += -1e-8;
             jac = test->calcJacobian((refPoint));
-            logger.assert_always(
-                (std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) < 1e-5),
-                "jacobian");  // estimate is a bit rough, but should work for
-                              // most mappings
-            logger.assert_always(
-                (std::abs(jac[1] - 5.e7 * (point[1] - compare[1])) < 1e-5),
-                "jacobian");  // implementations are very strongly recommended
-                              // to be more accurate
-            logger.assert_always(
-                (std::abs(jac[2] - 5.e7 * (point[2] - compare[2])) < 1e-5),
-                "jacobian");
+            INFO("jacobian");
+            CHECK((std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) <
+                   1e-5));  // estimate is a bit rough, but should work for
+                            // most mappings
+            INFO("jacobian");
+            CHECK((std::abs(jac[1] - 5.e7 * (point[1] - compare[1])) <
+                   1e-5));  // implementations are very strongly recommended
+                            // to be more accurate
+            INFO("jacobian");
+            CHECK((std::abs(jac[2] - 5.e7 * (point[2] - compare[2])) < 1e-5));
 
             refPoint[1] += -1.e-8;
             compare = test->transform((refPoint));
@@ -366,15 +353,12 @@ int main() {
 
             refPoint[1] += -1e-8;
             jac = test->calcJacobian((refPoint));
-            logger.assert_always(
-                (std::abs(jac[3] - 5.e7 * (point[0] - compare[0])) < 1e-5),
-                "jacobian");
-            logger.assert_always(
-                (std::abs(jac[4] - 5.e7 * (point[1] - compare[1])) < 1e-5),
-                "jacobian");
-            logger.assert_always(
-                (std::abs(jac[5] - 5.e7 * (point[2] - compare[2])) < 1e-5),
-                "jacobian");
+            INFO("jacobian");
+            CHECK((std::abs(jac[3] - 5.e7 * (point[0] - compare[0])) < 1e-5));
+            INFO("jacobian");
+            CHECK((std::abs(jac[4] - 5.e7 * (point[1] - compare[1])) < 1e-5));
+            INFO("jacobian");
+            CHECK((std::abs(jac[5] - 5.e7 * (point[2] - compare[2])) < 1e-5));
         }
     }
 
@@ -382,16 +366,14 @@ int main() {
         refPoint = fGeom->getReferenceNodeCoordinate(i);
         compare = eGeom.getReferenceNodeCoordinate(nodesAfterTransformation[i]);
         point = test->transform((refPoint));
-        logger.assert_always((std::abs(point[0] - compare[0]) < 1e-12),
-                             "transform");
-        logger.assert_always((std::abs(point[1] - compare[1]) < 1e-12),
-                             "transform");
-        logger.assert_always((std::abs(point[2] - compare[2]) < 1e-12),
-                             "transform");
+        INFO("transform");
+        CHECK((std::abs(point[0] - compare[0]) < 1e-12));
+        INFO("transform");
+        CHECK((std::abs(point[1] - compare[1]) < 1e-12));
+        INFO("transform");
+        CHECK((std::abs(point[2] - compare[2]) < 1e-12));
     }
 
-    logger.assert_always((test->getTargetDimension() == 3),
-                         "getTargetDimension");
-
-    return 0;
+    INFO("getTargetDimension");
+    CHECK((test->getTargetDimension() == 3));
 }

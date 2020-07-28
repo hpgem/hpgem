@@ -40,8 +40,11 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferenceCube.h"
 #include <iostream>
+
+#include "../catch.hpp"
+
 using namespace hpgem;
-int main(int argc, char** argv) {
+TEST_CASE("260RefinementForCube_UnitTest", "[260RefinementForCube_UnitTest]") {
     Geometry::PointReference<3> refPoint;
     Geometry::PointReference<3> point, compare;
     LinearAlgebra::SmallMatrix<3, 3> jac;
@@ -72,20 +75,19 @@ int main(int argc, char** argv) {
 
                         refPoint[0] += -1e-8;
                         jac = test->getRefinementMappingMatrixL(i, (refPoint));
-                        logger.assert_always(
+                        INFO("jacobian");
+                        CHECK(
                             (std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) <
-                             1e-5),
-                            "jacobian");  // estimate is a bit rough, but should
-                                          // work for most mappings
-                        logger.assert_always(
+                             1e-5));  // estimate is a bit rough, but should
+                                      // work for most mappings
+                        INFO("jacobian");
+                        CHECK(
                             (std::abs(jac[1] - 5.e7 * (point[1] - compare[1])) <
-                             1e-5),
-                            "jacobian");  // implementations are very strongly
-                                          // recommended to be more accurate
-                        logger.assert_always(
-                            (std::abs(jac[2] - 5.e7 * (point[2] - compare[2])) <
-                             1e-5),
-                            "jacobian");
+                             1e-5));  // implementations are very strongly
+                                      // recommended to be more accurate
+                        INFO("jacobian");
+                        CHECK((std::abs(jac[2] - 5.e7 * (point[2] -
+                                                         compare[2])) < 1e-5));
 
                         refPoint[1] += -1.e-8;
                         compare = test->refinementTransform(i, (refPoint));
@@ -94,18 +96,15 @@ int main(int argc, char** argv) {
 
                         refPoint[1] += -1e-8;
                         jac = test->getRefinementMappingMatrixL(i, (refPoint));
-                        logger.assert_always(
-                            (std::abs(jac[3] - 5.e7 * (point[0] - compare[0])) <
-                             1e-5),
-                            "jacobian");
-                        logger.assert_always(
-                            (std::abs(jac[4] - 5.e7 * (point[1] - compare[1])) <
-                             1e-5),
-                            "jacobian");
-                        logger.assert_always(
-                            (std::abs(jac[5] - 5.e7 * (point[2] - compare[2])) <
-                             1e-5),
-                            "jacobian");
+                        INFO("jacobian");
+                        CHECK((std::abs(jac[3] - 5.e7 * (point[0] -
+                                                         compare[0])) < 1e-5));
+                        INFO("jacobian");
+                        CHECK((std::abs(jac[4] - 5.e7 * (point[1] -
+                                                         compare[1])) < 1e-5));
+                        INFO("jacobian");
+                        CHECK((std::abs(jac[5] - 5.e7 * (point[2] -
+                                                         compare[2])) < 1e-5));
 
                         refPoint[2] += -1.e-8;
                         compare = test->refinementTransform(i, (refPoint));
@@ -114,55 +113,51 @@ int main(int argc, char** argv) {
 
                         refPoint[2] += -1e-8;
                         jac = test->getRefinementMappingMatrixL(i, (refPoint));
-                        logger.assert_always(
-                            (std::abs(jac[6] - 5.e7 * (point[0] - compare[0])) <
-                             1e-5),
-                            "jacobian");
-                        logger.assert_always(
-                            (std::abs(jac[7] - 5.e7 * (point[1] - compare[1])) <
-                             1e-5),
-                            "jacobian");
-                        logger.assert_always(
-                            (std::abs(jac[8] - 5.e7 * (point[2] - compare[2])) <
-                             1e-5),
-                            "jacobian");
+                        INFO("jacobian");
+                        CHECK((std::abs(jac[6] - 5.e7 * (point[0] -
+                                                         compare[0])) < 1e-5));
+                        INFO("jacobian");
+                        CHECK((std::abs(jac[7] - 5.e7 * (point[1] -
+                                                         compare[1])) < 1e-5));
+                        INFO("jacobian");
+                        CHECK((std::abs(jac[8] - 5.e7 * (point[2] -
+                                                         compare[2])) < 1e-5));
                         jac *= test->getRefinementMappingMatrixR(i, (refPoint));
-                        logger.assert_always(std::abs(jac[0] - 1.) < 1e-12,
-                                             "inverse of jacobian");
-                        logger.assert_always(std::abs(jac[1] - 0.) < 1e-12,
-                                             "inverse of jacobian");
-                        logger.assert_always(std::abs(jac[2] - 0.) < 1e-12,
-                                             "inverse of jacobian");
-                        logger.assert_always(std::abs(jac[3] - 0.) < 1e-12,
-                                             "inverse of jacobian");
-                        logger.assert_always(std::abs(jac[4] - 1.) < 1e-12,
-                                             "inverse of jacobian");
-                        logger.assert_always(std::abs(jac[5] - 0.) < 1e-12,
-                                             "inverse of jacobian");
-                        logger.assert_always(std::abs(jac[6] - 0.) < 1e-12,
-                                             "inverse of jacobian");
-                        logger.assert_always(std::abs(jac[7] - 0.) < 1e-12,
-                                             "inverse of jacobian");
-                        logger.assert_always(std::abs(jac[8] - 1.) < 1e-12,
-                                             "inverse of jacobian");
+                        INFO("inverse of jacobian");
+                        CHECK(std::abs(jac[0] - 1.) < 1e-12);
+                        INFO("inverse of jacobian");
+                        CHECK(std::abs(jac[1] - 0.) < 1e-12);
+                        INFO("inverse of jacobian");
+                        CHECK(std::abs(jac[2] - 0.) < 1e-12);
+                        INFO("inverse of jacobian");
+                        CHECK(std::abs(jac[3] - 0.) < 1e-12);
+                        INFO("inverse of jacobian");
+                        CHECK(std::abs(jac[4] - 1.) < 1e-12);
+                        INFO("inverse of jacobian");
+                        CHECK(std::abs(jac[5] - 0.) < 1e-12);
+                        INFO("inverse of jacobian");
+                        CHECK(std::abs(jac[6] - 0.) < 1e-12);
+                        INFO("inverse of jacobian");
+                        CHECK(std::abs(jac[7] - 0.) < 1e-12);
+                        INFO("inverse of jacobian");
+                        CHECK(std::abs(jac[8] - 1.) < 1e-12);
                     }
                 }
             }
             for (std::size_t index : test->getSubElementLocalNodeIndices(i)) {
-                logger.assert_always(
-                    index <
-                        Geometry::ReferenceCube::Instance().getNumberOfNodes() +
-                            test->getNumberOfNewNodes(),
-                    "local index out of bounds");
+                INFO("local index out of bounds");
+                CHECK(index <
+                      Geometry::ReferenceCube::Instance().getNumberOfNodes() +
+                          test->getNumberOfNewNodes());
             }
             for (const Geometry::RefinementMapping* faceMapping :
                  test->getCodim1RefinementMaps()) {
-                logger.assert_always(faceMapping->getNumberOfNewNodes() <=
-                                         test->getNumberOfNewNodes(),
-                                     "face gets too much new nodes");
-                logger.assert_always(faceMapping->getNumberOfSubElements() <=
-                                         test->getNumberOfSubElements(),
-                                     "face gets too much new elements");
+                INFO("face gets too much new nodes");
+                CHECK(faceMapping->getNumberOfNewNodes() <=
+                      test->getNumberOfNewNodes());
+                INFO("face gets too much new elements");
+                CHECK(faceMapping->getNumberOfSubElements() <=
+                      test->getNumberOfSubElements());
             }
         }
     }

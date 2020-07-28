@@ -60,8 +60,11 @@
 #include "LinearAlgebra/MiddleSizeMatrix.h"
 #include "Base/BaseBasisFunction.h"
 #include "Logger.h"
+
+#include "../catch.hpp"
+
 using namespace hpgem;
-int main() {
+TEST_CASE("040Element_UnitTest", "[040Element_UnitTest]") {
 
     std::vector<std::size_t> pointIndexes;
     std::vector<Geometry::PointPhysical<3>> nodes;
@@ -123,21 +126,20 @@ int main() {
         test.setDefaultBasisFunctionSet(0, i);
     }
 
-    logger.assert_always((test.getGaussQuadratureRule() != nullptr),
-                         "quadrature rule");
+    INFO("quadrature rule");
+    CHECK((test.getGaussQuadratureRule() != nullptr));
 
     test.setQuadratureRulesWithOrder(8);
-    logger.assert_always((test.getGaussQuadratureRule()->order() >= 8),
-                         "setQuadratureRule");
+    INFO("setQuadratureRule");
+    CHECK((test.getGaussQuadratureRule()->order() >= 8));
 
     test.setGaussQuadratureRule(&QuadratureRules::Cn3_3_4::Instance());
     const QuadratureRules::GaussQuadratureRule& rule =
         *test.getGaussQuadratureRule();
     ///\todo figure out why the '::Instance' alters the typeid (it also alters
     /// the hash_code of the typeid)
-    logger.assert_always(
-        (typeid(rule) == typeid(QuadratureRules::Cn3_3_4::Instance())),
-        "setQuadratureRule");
+    INFO("setQuadratureRule");
+    CHECK((typeid(rule) == typeid(QuadratureRules::Cn3_3_4::Instance())));
 
     // check set*BasisFunctionSet without breaking preconditions...
 
@@ -146,22 +148,18 @@ int main() {
         for (point[0] = -1.5; point[0] < 1.51; point[0] += 0.6) {
             for (point[1] = -1.5; point[1] < 1.51; point[1] += 0.7) {
                 for (point[2] = -1.5; point[2] < 1.51; point[2] += 0.8) {
-                    logger.assert_always(
-                        (test.basisFunction(i, (point3D)) ==
-                         (*basisFunctions)[i]->eval((point3D))),
-                        "basisFunctions");
-                    logger.assert_always(
-                        (test.basisFunctionDeriv(i, 0, (point3D)) ==
-                         (*basisFunctions)[i]->evalDeriv0((point3D))),
-                        "basisFunctions");
-                    logger.assert_always(
-                        (test.basisFunctionDeriv(i, 1, (point3D)) ==
-                         (*basisFunctions)[i]->evalDeriv1((point3D))),
-                        "basisFunctions");
-                    logger.assert_always(
-                        (test.basisFunctionDeriv(i, 2, (point3D)) ==
-                         (*basisFunctions)[i]->evalDeriv2((point3D))),
-                        "basisFunctions");
+                    INFO("basisFunctions");
+                    CHECK((test.basisFunction(i, (point3D)) ==
+                           (*basisFunctions)[i]->eval((point3D))));
+                    INFO("basisFunctions");
+                    CHECK((test.basisFunctionDeriv(i, 0, (point3D)) ==
+                           (*basisFunctions)[i]->evalDeriv0((point3D))));
+                    INFO("basisFunctions");
+                    CHECK((test.basisFunctionDeriv(i, 1, (point3D)) ==
+                           (*basisFunctions)[i]->evalDeriv1((point3D))));
+                    INFO("basisFunctions");
+                    CHECK((test.basisFunctionDeriv(i, 2, (point3D)) ==
+                           (*basisFunctions)[i]->evalDeriv2((point3D))));
                 }
             }
         }
@@ -170,6 +168,4 @@ int main() {
     // check setFace and setEdge without breaking preconditions...
 
     std::cout << test << std::endl;
-
-    return 0;
 }
