@@ -255,12 +255,12 @@ def plotEigenvalues():
     plot1()
 
     def plot3():
-
-        colorKey = 5
+        # 3 for residual, 5 for kernel component
+        colorKey = 3
         plotData = computeSegments(0, 1, colorKey)
         plotData['segmentColors'] \
                     = list(map(lambda c: math.log(c,10), plotData['segmentColors']))
-        norm = plt.Normalize(-9,1)
+        norm = plt.Normalize(-8,1)
         lc = LineCollection(plotData['segments'], cmap='jet', norm=norm)
         lc.set_array(np.array(plotData['segmentColors']))
         
@@ -268,6 +268,7 @@ def plotEigenvalues():
         convergedData['colors'] = list(map(lambda c:math.log(c,10), convergedData['colors']))
         lcc = LineCollection(convergedData['lines'], cmap='jet', \
                 linestyles='dotted', norm=norm)
+        lcc.cmap.set_under('k')
         lcc.set_array(np.array(convergedData['colors']))
 
         fig,ax = plt.subplots()
