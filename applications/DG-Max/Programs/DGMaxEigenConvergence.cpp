@@ -127,7 +127,7 @@ void runWithDimension() {
         config.useHermitian_ = true;
         config.stab_ = 100;
         config.shiftFactor_ = 0.0;
-        config.useProjector_ = false;
+        config.useProjector_ = DGMaxEigenvalueBase::NONE;
         convergenceTest = std::make_unique<DGMax::DGMaxEVConvergenceTest<DIM>>(
             testPoint, meshFiles,
             0.0,  // No expecations
