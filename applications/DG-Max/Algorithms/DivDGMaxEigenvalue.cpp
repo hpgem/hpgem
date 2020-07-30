@@ -51,6 +51,34 @@ DivDGMaxEigenvalue<DIM>::DivDGMaxEigenvalue(
     typename DivDGMaxDiscretization<DIM>::Stab stab)
     : mesh_(mesh), order_(order), stab_(stab) {}
 
+struct MonitorContext {
+
+    void attachToEPS(EPS eps) {
+        PetscErrorCode err;
+        err = EPSMonitorSet(eps, monitorFunction, this, nullptr);
+    }
+
+   private:
+    std::size_t lastConverged;
+
+    void writeMonitor(int its, int nconv, PetscScalar* eig, PetscReal* errest,
+                      int nest) {
+        if (lastConverged != nconv) {
+            DGMaxLogger(INFO, "Eigenvalues % converged at iter %", nconv, its);
+            lastConverged = nconv;
+        }
+    }
+
+    static PetscErrorCode monitorFunction(EPS, int its, int nconv,
+                                          PetscScalar* eigr, PetscScalar*,
+                                          PetscReal* errest, int nest,
+                                          void* mctx) {
+        auto* context = static_cast<MonitorContext*>(mctx);
+        context->writeMonitor(its, nconv, eigr, errest, nest);
+        return PetscErrorCode(0);
+    }
+};
+
 template <std::size_t DIM>
 std::unique_ptr<AbstractEigenvalueResult<DIM>> DivDGMaxEigenvalue<DIM>::solve(
     const EigenvalueProblem<DIM>& input) {
@@ -147,6 +175,10 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DivDGMaxEigenvalue<DIM>::solve(
     EPSSetWhichEigenpairs(eigenSolver, EPS_LARGEST_MAGNITUDE);
 
     EPSSetProblemType(eigenSolver, EPS_GNHEP);
+
+    MonitorContext context;
+    context.attachToEPS(eigenSolver);
+
     // everything that is set in the code, but before this line is overridden by
     // command-line options
     error = EPSSetFromOptions(eigenSolver);

@@ -238,7 +238,9 @@ class ProjectorWorkspace {
 template <std::size_t DIM>
 struct MonitorContext {
     MonitorContext(std::string prefix, SolverWorkspace<DIM>& solverWorkspace)
-        : eigenvalueStream_(), solverWorkspace_(solverWorkspace) {
+        : eigenvalueStream_(),
+          solverWorkspace_(solverWorkspace),
+          lastConverged(0) {
         eigenvalueStream_.open(prefix + "eigenvalue-progress.csv",
                                std::ios_base::trunc);
         residualStream_.open(prefix + "residual-progress.csv",
@@ -290,6 +292,11 @@ struct MonitorContext {
         eigenvalueStream_ << std::endl;
         residualStream_ << std::endl;
         orthogonalityStream_ << std::endl;
+
+        if (lastConverged != nconv) {
+            DGMaxLogger(INFO, "Eigenvalues % converged at iter %", nconv, its);
+            lastConverged = nconv;
+        }
     }
 
     ~MonitorContext() {
@@ -303,6 +310,7 @@ struct MonitorContext {
     std::ofstream numConvergedStream_;
     std::ofstream orthogonalityStream_;
     SolverWorkspace<DIM>& solverWorkspace_;
+    std::size_t lastConverged;
 
     void attachToEPS(EPS eps) {
         PetscErrorCode err;

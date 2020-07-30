@@ -277,7 +277,10 @@ def plotEigenvalues():
         ax.add_collection(lcc)
         line = ax.add_collection(lc)
         cbar = fig.colorbar(line, ax=ax)
-        cbar.ax.set_ylabel('$\log(||Bx||_2)$')
+        if colorKey is 3:
+            cbar.ax.set_ylabel('$\log_{10}(res)$')
+        elif colorKey is 5:
+            cbar.ax.set_ylabel('$\log(||Bx||_2)$')
 
         ax.plot(plotData['cps']["x"], plotData['cps']["y"], 'ko')
 
