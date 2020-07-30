@@ -61,7 +61,7 @@ DGMaxEigenvalue<DIM>::DGMaxEigenvalue(Base::MeshManipulator<DIM>& mesh,
     : mesh_(mesh),
       order_(order),
       config_(config),
-      discretization_(config.useProjector_) {
+      discretization_(config.useProjector_ != DGMaxEigenvalueBase::NONE) {
     discretization_.initializeBasisFunctions(mesh_, order);
 }
 
@@ -326,7 +326,7 @@ SolverWorkspace<DIM>::SolverWorkspace(DGMaxEigenvalueBase::SolverConfig config,
         shifts =
             std::make_unique<ShiftWorkspace<DIM>>(tempFieldVector_, config_);
     }
-    if (config_.useProjector_) {
+    if (config_.useProjector_ != DGMaxEigenvalueBase::NONE) {
         projector = std::make_unique<ProjectorWorkspace<DIM>>(*this);
     }
     initSolver();
@@ -413,7 +413,7 @@ void SolverWorkspace<DIM>::shellMultiply(Vec in, Vec out) {
     PetscErrorCode error;
     error = MatMult(getActualStiffnessMatrix(), in, out);
     CHKERRABORT(PETSC_COMM_WORLD, error);
-    if (config_.useProjector_) {
+    if (config_.useProjector_ == DGMaxEigenvalueBase::ALL) {
         projector->project(out);
     }
 }
@@ -601,7 +601,7 @@ void SolverWorkspace<DIM>::updateKPoint(
         shifts->updateShiftVectors(dk, fieldIndex_);
         // TODO: Check with NON HERMITIAN
         shifts->applyToStiffnessMatrix(getActualStiffnessMatrix());
-        if (config_.useProjector_) {
+        if (config_.useProjector_ != DGMaxEigenvalueBase::NONE) {
             shifts->applyToProjector(projector->projectorMatrix_);
         }
     }
@@ -609,7 +609,7 @@ void SolverWorkspace<DIM>::updateKPoint(
     // TODO: Check with NON HERMITIAN
     stiffnessMatrixShifts_.apply(newK, getActualStiffnessMatrix());
 
-    if (config_.useProjector_) {
+    if (config_.useProjector_ != DGMaxEigenvalueBase::NONE) {
         projector->updateKPoint(newK);
     }
 
@@ -647,7 +647,7 @@ void SolverWorkspace<DIM>::solve() {
         // if they are not all used.
         usableInitialVectors = convergedEigenValues_;
     }
-    if (config_.useProjector_) {
+    if (config_.useProjector_ != DGMaxEigenvalueBase::NONE) {
         for (std::size_t j = 0; j < usableInitialVectors; ++j) {
             projector->project(eigenVectors_[j]);
         }
@@ -828,8 +828,9 @@ ProjectorWorkspace<DIM>::~ProjectorWorkspace() {
 
 template <std::size_t DIM>
 void ProjectorWorkspace<DIM>::project(Vec vec) {
-    logger.assert_always(workspace_.config_.useProjector_,
-                         "Projecting without projector");
+    logger.assert_always(
+        workspace_.config_.useProjector_ != DGMaxEigenvalueBase::NONE,
+        "Projecting without projector");
     // Projection P of a vector u, this is
     // P u = u - M^{-1} * B^H * C^{-1} * B * u
     // where

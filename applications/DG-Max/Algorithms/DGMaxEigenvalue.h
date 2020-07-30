@@ -49,15 +49,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <slepceps.h>
 
-
 class DGMaxEigenvalueBase {
    public:
+    enum ProjectorUse {
+        /// Don't use the projector
+        NONE,
+        /// Only use the projector for the initial subspace
+        INITIAL,
+        /// Use the projector at each step
+        ALL
+    };
+
     struct SolverConfig {
         SolverConfig()
             : useHermitian_(true),
               shiftFactor_(0),
               stab_(100),
-              useProjector_(false){};
+              useProjector_(NONE){};
 
         /// Whether to solve M^{-1}S x = omega^2 (non Hermitian) or
         /// L^{-1} S L^{-T}y = omega^2 y (Hermitian)
@@ -67,7 +75,7 @@ class DGMaxEigenvalueBase {
         /// Stabilization parameter (will be rescaled based on facet size).
         double stab_;
         /// Use a projector to remove the kernel of the stiffness matrix
-        bool useProjector_;
+        ProjectorUse useProjector_;
 
         /// Whether the config uses shifts
         bool usesShifts() const {

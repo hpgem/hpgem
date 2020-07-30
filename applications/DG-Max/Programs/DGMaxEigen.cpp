@@ -96,16 +96,19 @@ int main(int argc, char** argv) {
 template <std::size_t DIM>
 void runWithDimension() {
     bool useDivDGMax = true;
-    bool useProjector = false;
+    DGMaxEigenvalueBase::ProjectorUse useProjector = DGMaxEigenvalueBase::NONE;
     std::size_t numberOfElementMatrices = 2;
     std::size_t unknowns = 0;
     // 2 unknowns, 1 time level
     if (method.getValue() == "DGMAX") {
         useDivDGMax = false;
         unknowns = 1;
-    } else if (method.getValue() == "DGMAX_PROJECT") {
+    } else if (method.getValue() == "DGMAX_PROJECT" ||
+               method.getValue() == "DGMAX_PROJECT1") {
         useDivDGMax = false;
-        useProjector = true;
+        useProjector = method.getValue() == "DGMAX_PROJECT"
+                           ? DGMaxEigenvalueBase::ALL
+                           : DGMaxEigenvalueBase::INITIAL;
         unknowns = 2;
         // 1 more is needed for the projector operator
         numberOfElementMatrices = 3;
@@ -114,8 +117,8 @@ void runWithDimension() {
         unknowns = 2;
     } else {
         logger(ERROR,
-               "Invalid method {}, should be either DGMAX, DGMAX_PROJECT or "
-               "DIVDGMAX",
+               "Invalid method {}, should be either DGMAX, DGMAX_PROJECT, "
+               "DGMAX_PROJECT1 or DIVDGMAX",
                method.getValue());
         return;
     }
