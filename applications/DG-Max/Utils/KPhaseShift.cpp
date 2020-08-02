@@ -44,7 +44,8 @@ namespace DGMax {
 
 template <std::size_t DIM>
 void KPhaseShiftBlock<DIM>::apply(LinearAlgebra::SmallVector<DIM> k,
-                        std::vector<PetscScalar>& storage, Mat mat) const {
+                                  std::vector<PetscScalar>& storage,
+                                  Mat mat) const {
     if (shiftNeeded(k)) {
         // Load values in storage
         blocks_.loadBlocks(storage);
@@ -149,6 +150,16 @@ Geometry::PointPhysical<DIM> getCoordinate(const Base::Element* element,
     return element->referenceToPhysical(elementFaceCenter);
 }
 
+void checkMatrixSize(const LinearAlgebra::MiddleSizeMatrix mat,
+                     std::size_t rows, std::size_t cols) {
+    logger.assert_always(mat.getNumberOfRows() == rows,
+                         "Incorrect number of rows, expected % got %", rows,
+                         mat.getNumberOfRows());
+    logger.assert_always(mat.getNumberOfColumns() == cols,
+                         "Incorrect number of columns, expected % got %", cols,
+                         mat.getNumberOfColumns());
+}
+
 /// Builders
 
 template <std::size_t DIM>
@@ -234,22 +245,22 @@ KPhaseShiftBlock<DIM> FaceMatrixKPhaseShiftBuilder<DIM>::facePhaseShift(
 
     // Compute vectors with the global indices //
     /////////////////////////////////////////////
-    std::vector<PetscInt> rowIndices(
-        ownedElement->getNumberOfBasisFunctions(0));
-    std::iota(rowIndices.begin(), rowIndices.end(),
-              indexing.getGlobalIndex(ownedElement, 0));
 
-    std::vector<PetscInt> colIndices(
-        otherElement->getNumberOfBasisFunctions(0));
-    std::iota(colIndices.begin(), colIndices.end(),
-              indexing.getGlobalIndex(otherElement, 0));
+    // Using the functionality from GlobalIndexing is only safe for DG type
+    // basis functions, as they are only located on the elements of the mesh.
+    // This is not checked and left up to the user.
+    std::vector<PetscInt> rowIndices = indexing.getGlobalIndices(ownedElement);
+    std::vector<PetscInt> colIndices = indexing.getGlobalIndices(otherElement);
+
+    checkMatrixSize(block1, rowIndices.size(), colIndices.size());
+    checkMatrixSize(block2, colIndices.size(), rowIndices.size());
 
     // Construct the result //
     //////////////////////////
 
     if (isSubdomainBoundary) {
-        return KPhaseShiftBlock<DIM>(DGMax::MatrixBlocks(rowIndices, colIndices, block1),
-                           dx);
+        return KPhaseShiftBlock<DIM>(
+            DGMax::MatrixBlocks(rowIndices, colIndices, block1), dx);
     } else {
         return KPhaseShiftBlock<DIM>(
             DGMax::MatrixBlocks(rowIndices, colIndices, block1, block2), dx);
@@ -425,6 +436,8 @@ void CGDGMatrixKPhaseShiftBuilder<DIM>::addElementPhaseShift(
         std::vector<PetscInt> colIndices(numSolutionDoF);
         std::iota(rowIndices.begin(), rowIndices.end(), globalProjectorIndex);
         std::iota(colIndices.begin(), colIndices.end(), globalElementIndex);
+
+        checkMatrixSize(matrix, rowIndices.size(), colIndices.size());
 
         out.emplace_back(DGMax::MatrixBlocks(rowIndices, colIndices, matrix),
                          dx);
