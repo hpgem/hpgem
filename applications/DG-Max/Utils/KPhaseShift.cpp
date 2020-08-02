@@ -150,7 +150,7 @@ Geometry::PointPhysical<DIM> getCoordinate(const Base::Element* element,
     return element->referenceToPhysical(elementFaceCenter);
 }
 
-void checkMatrixSize(const LinearAlgebra::MiddleSizeMatrix mat,
+void checkMatrixSize(const LinearAlgebra::MiddleSizeMatrix& mat,
                      std::size_t rows, std::size_t cols) {
     logger.assert_always(mat.getNumberOfRows() == rows,
                          "Incorrect number of rows, expected % got %", rows,
@@ -308,9 +308,9 @@ KPhaseShifts<DIM> CGDGMatrixKPhaseShiftBuilder<DIM>::build(
                 edgeNodeIds = referenceGeometry->getCodim2EntityLocalIndices(i);
                 bool found1(false);
                 bool found2(false);
-                for (std::size_t j = 0; j < nodeIds.size(); ++j) {
-                    found1 |= nodeIds[j] == edgeNodeIds[0];
-                    found2 |= nodeIds[j] == edgeNodeIds[1];
+                for (unsigned long nodeId : nodeIds) {
+                    found1 |= nodeId == edgeNodeIds[0];
+                    found2 |= nodeId == edgeNodeIds[1];
                 }
                 if (found1 && found2 &&
                     element->getEdge(i)->isOwnedByCurrentProcessor()) {
