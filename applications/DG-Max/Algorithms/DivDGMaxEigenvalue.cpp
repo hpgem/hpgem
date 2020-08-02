@@ -43,6 +43,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
 
+#include "Utils/KPhaseShift.h"
+
 #include "DGMaxLogger.h"
 
 using namespace hpgem;
@@ -82,46 +84,23 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DivDGMaxEigenvalue<DIM>::solve(
 
     // Setup the boundary block shifting //
     ///////////////////////////////////////
+    DGMax::KPhaseShifts<DIM> kphaseshifts;
+    {
+        DGMax::FaceMatrixKPhaseShiftBuilder<DIM> builder;
+        builder.setMatrixExtractor([&](const Base::Face* face) {
+            const Base::FaceMatrix& faceMatrix = face->getFaceMatrix(
+                DivDGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID);
+            LinearAlgebra::MiddleSizeMatrix block1, block2;
+            block1 = faceMatrix.getElementMatrix(Base::Side::LEFT,
+                                                 Base::Side::RIGHT);
+            block2 = faceMatrix.getElementMatrix(Base::Side::RIGHT,
+                                                 Base::Side::LEFT);
 
-    const std::vector<Base::Face*> boundaryFaces = findPeriodicBoundaryFaces();
-    unsigned long maxBoundaryFaces = boundaryFaces.size();
-    // We need to know the maximum number of boundary faces on any node
-    MPI_Allreduce(MPI_IN_PLACE, &maxBoundaryFaces, 1, MPI_UNSIGNED_LONG,
-                  MPI_MAX, PETSC_COMM_WORLD);
-    DGMaxLogger(INFO, "Max local number of periodic boundary faces: %",
-                maxBoundaryFaces);
-
-    // Implicitly assume that each element has the same number of DOFs
-    std::size_t dofsUPerElement =
-                    (*(mesh_.elementColBegin()))->getNumberOfBasisFunctions(0),
-                dofsPPerElement =
-                    (*(mesh_.elementColBegin()))->getNumberOfBasisFunctions(1),
-                totalDofsPerElement = dofsUPerElement + dofsPPerElement;
-    // Storage for shifting
-    std::valarray<PetscScalar> lrBlockValues(totalDofsPerElement *
-                                             totalDofsPerElement);
-    std::valarray<PetscScalar> rlBlockValues(totalDofsPerElement *
-                                             totalDofsPerElement);
-
-    // Prepare indexing arrays.
-    std::valarray<PetscInt> leftNumbers(totalDofsPerElement);
-    std::valarray<PetscInt> rightNumbers(totalDofsPerElement);
-    std::slice uslice(0, dofsUPerElement, 1),
-        pslice(dofsUPerElement, dofsPPerElement, 1);
-
-    for (PetscInt i = 0; i < dofsUPerElement; ++i) {
-        leftNumbers[i] = i;
-        rightNumbers[i] = i;
+            return std::make_pair(block1, block2);
+        });
+        kphaseshifts = builder.build(indexing);
+        DGMaxLogger(VERBOSE, "Initialized boundary shifting");
     }
-    for (PetscInt i = 0; i < dofsPPerElement; ++i) {
-        leftNumbers[i + dofsUPerElement] = i;
-        rightNumbers[i + dofsUPerElement] = i;
-    }
-
-    // Last ids used for offsetting
-    PetscInt lastLeftUOffset = 0, lastLeftPOffset = 0, lastRightUOffset = 0,
-             lastRightPOffset = 0;
-    DGMaxLogger(VERBOSE, "Initialized boundary shifting");
 
     // Setting up eigenvalue solver //
     //////////////////////////////////
@@ -232,99 +211,8 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DivDGMaxEigenvalue<DIM>::solve(
         // taking into account that not all boundary faces need a shift, and by
         // shifting multiple boundary faces in one step. But that is for a later
         // optimization round.
-        DGMaxLogger(VERBOSE, "Starting boundary k-shift for max % faces",
-                    maxBoundaryFaces);
-        auto faceIter = boundaryFaces.begin();
-        for (unsigned long j = 0; j < maxBoundaryFaces; ++j) {
-            double kshift = 0;
-            Base::Face* face;
-            while (faceIter != boundaryFaces.end() &&
-                   std::abs(kshift) <= 1e-12) {
-                LinearAlgebra::SmallVector<DIM> shift =
-                    boundaryFaceShift(*faceIter);
-                kshift = dk * shift;
-                // Store before using.
-                face = *faceIter;
-                faceIter++;
-            }
-            if (std::abs(kshift) > 1e-12) {
-                PetscInt leftUOffset =
-                    massMatrix.getGlobalIndex().getGlobalIndex(
-                        face->getPtrElementLeft(), 0);
-                PetscInt leftPOffset =
-                    massMatrix.getGlobalIndex().getGlobalIndex(
-                        face->getPtrElementLeft(), 1);
-                PetscInt rightUOffset =
-                    massMatrix.getGlobalIndex().getGlobalIndex(
-                        face->getPtrElementRight(), 0);
-                PetscInt rightPOffset =
-                    massMatrix.getGlobalIndex().getGlobalIndex(
-                        face->getPtrElementRight(), 1);
-
-                PetscInt leftId = face->getPtrElementLeft()->getID(),
-                         rightId = face->getPtrElementRight()->getID();
-
-                // Unfortunately slices only support adding with a valarray, not
-                // scalars.
-                leftNumbers[uslice] += std::valarray<PetscInt>(
-                    (leftUOffset - lastLeftUOffset), dofsUPerElement);
-                rightNumbers[uslice] += std::valarray<PetscInt>(
-                    (rightUOffset - lastRightUOffset), dofsUPerElement);
-                leftNumbers[pslice] += std::valarray<PetscInt>(
-                    (leftPOffset - lastLeftPOffset), dofsPPerElement);
-                rightNumbers[pslice] += std::valarray<PetscInt>(
-                    (rightPOffset - lastRightPOffset), dofsPPerElement);
-                lastLeftUOffset = leftUOffset;
-                lastLeftPOffset = leftPOffset;
-                lastRightUOffset = rightUOffset;
-                lastRightPOffset = rightPOffset;
-
-                bool ownLeft =
-                    face->getPtrElementLeft()->isOwnedByCurrentProcessor();
-                bool ownRight =
-                    face->getPtrElementRight()->isOwnedByCurrentProcessor();
-
-                // Note that we interleave the left and right code to first do
-                // the gets and then the sets and finally the assembly on the
-                // global matrix. When doing left (get+set) and then right
-                // (get+set) we would need a second assembly step in between.
-                if (ownLeft) {
-                    error = MatGetValues(stiffnessMatrix, totalDofsPerElement,
-                                         &leftNumbers[0], totalDofsPerElement,
-                                         &rightNumbers[0], &lrBlockValues[0]);
-                    CHKERRABORT(PETSC_COMM_WORLD, error);
-                }
-                if (ownRight) {
-                    error = MatGetValues(stiffnessMatrix, totalDofsPerElement,
-                                         &rightNumbers[0], totalDofsPerElement,
-                                         &leftNumbers[0], &rlBlockValues[0]);
-                    CHKERRABORT(PETSC_COMM_WORLD, error);
-                }
-
-                if (ownLeft) {
-                    lrBlockValues *= exp(std::complex<double>(0, kshift));
-                    error = MatSetValues(stiffnessMatrix, totalDofsPerElement,
-                                         &leftNumbers[0], totalDofsPerElement,
-                                         &rightNumbers[0], &lrBlockValues[0],
-                                         INSERT_VALUES);
-                    CHKERRABORT(PETSC_COMM_WORLD, error);
-                }
-
-                if (ownRight) {
-                    rlBlockValues *= exp(std::complex<double>(0, -kshift));
-                    error = MatSetValues(stiffnessMatrix, totalDofsPerElement,
-                                         &rightNumbers[0], totalDofsPerElement,
-                                         &leftNumbers[0], &rlBlockValues[0],
-                                         INSERT_VALUES);
-                    CHKERRABORT(PETSC_COMM_WORLD, error);
-                }
-            }
-            // Reassemble.
-            error = MatAssemblyBegin(stiffnessMatrix, MAT_FINAL_ASSEMBLY);
-            CHKERRABORT(PETSC_COMM_WORLD, error);
-            error = MatAssemblyEnd(stiffnessMatrix, MAT_FINAL_ASSEMBLY);
-            CHKERRABORT(PETSC_COMM_WORLD, error);
-        }
+        DGMaxLogger(VERBOSE, "Starting boundary k-shift");
+        kphaseshifts.apply(kpath.k(i), stiffnessMatrix);
 
         error = EPSSetOperators(eigenSolver, massMatrix, stiffnessMatrix);
         CHKERRABORT(PETSC_COMM_WORLD, error);
@@ -425,50 +313,6 @@ void DivDGMaxEigenvalue<DIM>::extractEigenvalues(
                   }
                   return a.imag() > b.imag();
               });
-}
-
-template <std::size_t DIM>
-std::vector<Base::Face*> DivDGMaxEigenvalue<DIM>::findPeriodicBoundaryFaces()
-    const {
-    std::vector<Base::Face*> result;
-    auto end = mesh_.faceColEnd();
-    for (Base::TreeIterator<Base::Face*> it = mesh_.faceColBegin(); it != end;
-         ++it) {
-        // To check if the face is on a periodic boundary we compare the
-        // coordinates of the center of the face according to the elements on
-        // each side of the face. For an internal face both elements touch in
-        // the mesh, so they should give the same coordinates. For a periodic
-        // boundary face, they should differ as they are on different sides of
-        // the mesh (for example, one on the top and the other on the bottom).
-        // As this should be zero for internal faces and of the size of the mesh
-        // for boundary faces, we can use a very sloppy bound.
-
-        // FIXME: The parallel meshes from the preprocessor contain 'boundary
-        //  faces' for the ghost cells. These cells are probably there because
-        //  the other side of the face is on the inside of the neighbouring
-        //  domain, which is an element that is not known to 'this' processor.
-        //  Note, the same hack is used in DGMaxEigenvalue
-        if ((*it)->isInternal() &&
-            Base::L2Norm(boundaryFaceShift(*it)) > 1e-3) {
-            result.emplace_back(*it);
-        }
-    }
-    return result;
-}
-
-template <std::size_t DIM>
-LinearAlgebra::SmallVector<DIM> DivDGMaxEigenvalue<DIM>::boundaryFaceShift(
-    const Base::Face* face) const {
-    logger.assert_always(face->isInternal(), "Internal face boundary");
-    const Geometry::PointReference<DIM - 1>& p =
-        face->getReferenceGeometry()->getCenter();
-    const Geometry::PointPhysical<DIM> pLeftPhys =
-        face->getPtrElementLeft()->referenceToPhysical(
-            face->mapRefFaceToRefElemL(p));
-    const Geometry::PointPhysical<DIM> pRightPhys =
-        face->getPtrElementRight()->referenceToPhysical(
-            face->mapRefFaceToRefElemR(p));
-    return pLeftPhys.getCoordinates() - pRightPhys.getCoordinates();
 }
 
 template <std::size_t DIM>
