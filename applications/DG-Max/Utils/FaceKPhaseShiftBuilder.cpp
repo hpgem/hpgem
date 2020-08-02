@@ -128,15 +128,15 @@ KPhaseShiftBlock<DIM> FaceMatrixKPhaseShiftBuilder<DIM>::facePhaseShift(
 
     // Compute vectors with the global indices //
     /////////////////////////////////////////////
-    std::vector<PetscInt> rowIndices(
-        ownedElement->getNumberOfBasisFunctions(0));
-    std::iota(rowIndices.begin(), rowIndices.end(),
-              indexing.getGlobalIndex(ownedElement, 0));
 
-    std::vector<PetscInt> colIndices(
-        otherElement->getNumberOfBasisFunctions(0));
-    std::iota(colIndices.begin(), colIndices.end(),
-              indexing.getGlobalIndex(otherElement, 0));
+    // Using the functionality from GlobalIndexing is only safe for DG type
+    // basis functions, as they are only located on the elements of the mesh.
+    // This is not checked and left up to the user.
+    std::vector<PetscInt> rowIndices = indexing.getGlobalIndices(ownedElement);
+    std::vector<PetscInt> colIndices = indexing.getGlobalIndices(otherElement);
+
+    checkMatrixSize(block1, rowIndices.size(), colIndices.size());
+    checkMatrixSize(block2, colIndices.size(), rowIndices.size());
 
     // Construct the result //
     //////////////////////////
