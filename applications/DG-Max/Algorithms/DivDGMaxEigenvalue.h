@@ -80,12 +80,6 @@ class DivDGMaxEigenvalue : public AbstractEigenvalueSolver<DIM> {
                          const Utilities::GlobalIndexing& index,
                          Vec& waveVecMatrix);
 
-    // TODO: These are directly copied from DGMaxEigenvalue, this is of course
-    // not good programming.
-    std::vector<Base::Face*> findPeriodicBoundaryFaces() const;
-    LinearAlgebra::SmallVector<DIM> boundaryFaceShift(
-        const Base::Face* face) const;
-
     Base::MeshManipulator<DIM>& mesh_;
     typename DivDGMaxDiscretization<DIM>::Stab stab_;
     std::size_t order_;
