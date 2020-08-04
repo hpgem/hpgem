@@ -90,7 +90,17 @@ void DivDGMaxDiscretization<DIM>::initializeBasisFunctions(
                          unknowns);
     // TODO: This needs the additional unknown id.
     mesh.useNedelecDGBasisFunctions(order);
-    mesh.useDefaultDGBasisFunctions(order, 1);
+    switch (divType_) {
+        case DivType::DG:
+            mesh.useDefaultDGBasisFunctions(order, 1);
+            break;
+        case DivType::CG:
+            mesh.useDefaultConformingBasisFunctions(order, 1);
+            break;
+        default:
+            logger.assert_always(false, "Unknown divType");
+            break;
+    }
 }
 
 template <std::size_t DIM>
@@ -225,15 +235,17 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
                     result += temp;
                     temp *= 0;  // Reset the variable;
                 }
-                if (stab.fluxType3 == FluxType::IP) {
+                if (stab.fluxType3 == FluxType::IP && divType_ != DivType::CG) {
                     faceStiffnessScalarMatrix4(face, temp, stab.stab3);
                     // Note the matrix contribution is -C.
                     result -= temp;
                     temp *= 0;  // Reset the variable;
                 }
 
-                faceScalarVectorCoupling(face, temp);
-                result += temp;
+                if (divType_ != DivDGMaxDiscretizationBase::DivType::CG) {
+                    faceScalarVectorCoupling(face, temp);
+                    result += temp;
+                }
 
                 // Reset no longer needed.
                 return result;
@@ -1094,7 +1106,7 @@ LinearAlgebra::MiddleSizeMatrix
         distributeFaceMatrix(faceInfo, true, vectorStabilizer, result);
     }
 
-    if (stab.fluxType3 == FluxType::BREZZI) {
+    if (stab.fluxType3 == FluxType::BREZZI && divType_ != DivType::CG) {
         // Compute scalar stabilizer, stab3 * R^T M^{-1} R, R = lift matrix
         // using stab3 * R^T L^{-T} L{-1} R, where LL^{T} = M
         LinearAlgebra::MiddleSizeMatrix scalarStabilizer =

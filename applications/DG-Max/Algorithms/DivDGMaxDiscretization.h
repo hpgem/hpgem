@@ -75,11 +75,9 @@ using namespace hpgem;
 /// u and p, and C is a stabilization term. The matrix M is the mass
 /// matrix, corresponding to the omega^2 E term in the timeharmonic
 /// formulation.
-template <std::size_t DIM>
-class DivDGMaxDiscretization {
-   public:
-    // TODO: static const std::size_t matrix/vector ids
 
+class DivDGMaxDiscretizationBase {
+   public:
     static const std::size_t ELEMENT_MASS_MATRIX_ID = 0;
     static const std::size_t ELEMENT_STIFFNESS_MATRIX_ID = 1;
     // Note: Missing are the initial conditions, taking up positions 0, 1
@@ -88,6 +86,16 @@ class DivDGMaxDiscretization {
     static const std::size_t FACE_BOUNDARY_VECTOR_ID = 0;
 
     enum class FluxType { IP, BREZZI };
+
+    /// Type of divergence constraint, with DG or CG Lagrange basis functions.
+    enum class DivType { DG, CG };
+};
+
+template <std::size_t DIM>
+class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
+   public:
+    explicit DivDGMaxDiscretization(DivType divType = DivType::DG)
+        : divType_(divType){};
 
     struct Stab {
         /// \brief Stabilization parameter for the tangential part of u/v.
@@ -275,6 +283,9 @@ class DivDGMaxDiscretization {
     double elementErrorIntegrand(Base::PhysicalElement<DIM>& el,
                                  std::size_t timeVector,
                                  const InputFunction& exactValues) const;
+
+   private:
+    DivType divType_;
 };
 
 // TODO: Deduction fails for a templated variant, hence using explicit versions

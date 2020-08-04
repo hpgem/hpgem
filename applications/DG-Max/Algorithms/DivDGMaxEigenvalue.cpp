@@ -52,8 +52,13 @@ using namespace hpgem;
 template <std::size_t DIM>
 DivDGMaxEigenvalue<DIM>::DivDGMaxEigenvalue(
     Base::MeshManipulator<DIM>& mesh, std::size_t order,
-    typename DivDGMaxDiscretization<DIM>::Stab stab)
-    : mesh_(mesh), order_(order), stab_(stab) {}
+    typename DivDGMaxDiscretization<DIM>::Stab stab,
+    DivDGMaxDiscretizationBase::DivType divType)
+    : mesh_(mesh),
+      order_(order),
+      stab_(stab),
+      divType_(divType),
+      discretization(divType) {}
 
 template <std::size_t DIM>
 std::unique_ptr<AbstractEigenvalueResult<DIM>> DivDGMaxEigenvalue<DIM>::solve(
@@ -101,6 +106,23 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DivDGMaxEigenvalue<DIM>::solve(
         builder.setIndexing(&indexing);
         kphaseshifts = builder.build();
         DGMaxLogger(VERBOSE, "Initialized boundary shifting");
+    }
+    // Phase shifts for the CG part (if needed)
+    DGMax::KPhaseShifts<DIM> kphaseshiftsCG;
+    if (divType_ == DivDGMaxDiscretizationBase::DivType::CG) {
+        DGMax::CGDGMatrixKPhaseShiftBuilder<DIM> builder;
+        builder.setMatrixExtractor([](const Base::Element* element) {
+            return element->getElementMatrix(
+                DivDGMaxDiscretization<DIM>::ELEMENT_STIFFNESS_MATRIX_ID);
+        });
+        builder.setIndices(&indexing, &indexing);
+        std::vector<std::size_t> unknowns(1);
+        unknowns[0] = 0;
+        builder.setDGUnknowns(unknowns);
+        unknowns[0] = 1;
+        builder.setCGUnknowns(unknowns);
+        builder.setHermitian(true);
+        kphaseshiftsCG = builder.build();
     }
 
     // Setting up eigenvalue solver //
@@ -214,6 +236,7 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DivDGMaxEigenvalue<DIM>::solve(
         // optimization round.
         DGMaxLogger(VERBOSE, "Starting boundary k-shift");
         kphaseshifts.apply(kpath.k(i), stiffnessMatrix);
+        kphaseshiftsCG.apply(kpath.k(i), stiffnessMatrix);
 
         error = EPSSetOperators(eigenSolver, massMatrix, stiffnessMatrix);
         CHKERRABORT(PETSC_COMM_WORLD, error);
