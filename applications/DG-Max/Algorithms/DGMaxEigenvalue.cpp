@@ -569,7 +569,8 @@ void SolverWorkspace<DIM>::initStiffnessMatrixShifts() {
         });
     }
 
-    stiffnessMatrixShifts_ = builder.build(fieldIndex_);
+    builder.setIndexing(&fieldIndex_);
+    stiffnessMatrixShifts_ = builder.build();
 }
 
 template <std::size_t DIM>
@@ -966,8 +967,8 @@ void ProjectorWorkspace<DIM>::initKPhaseShifts() {
                    workspace_.config_.shiftFactor_;
         });
     }
-    phaseShifts_ =
-        projectorBuilder.build(projectorIndex_, workspace_.fieldIndex_);
+    projectorBuilder.setIndices(&projectorIndex_, &workspace_.fieldIndex_);
+    phaseShifts_ = projectorBuilder.build();
 }
 
 template class DGMaxEigenvalue<2>;

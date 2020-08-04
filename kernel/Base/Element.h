@@ -448,6 +448,11 @@ class Element final : public Geometry::ElementGeometry, public ElementData {
         return std::numeric_limits<std::size_t>::max();
     }
 
+    std::size_t getBasisFunctionOffset(const Base::Element* element,
+                                       std::size_t unknown) const {
+        return basisFunctions_.getBasisFunctionOffset(unknown, 0);
+    }
+
     std::size_t getBasisFunctionOffset(const Base::Face* face,
                                        std::size_t unknown) const {
         return getFaceBasisFunctionOffset(getLocalId(face), unknown);

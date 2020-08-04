@@ -43,14 +43,22 @@
 namespace DGMax {
 
 template <std::size_t DIM>
-KPhaseShifts<DIM> CGDGMatrixKPhaseShiftBuilder<DIM>::build(
-    const Utilities::GlobalIndexing& cgIndexing,
-    const Utilities::GlobalIndexing& dgIndexing) const {
+KPhaseShifts<DIM> CGDGMatrixKPhaseShiftBuilder<DIM>::build() const {
+
+    logger.assert_always(cgIndexing_ != nullptr, "Null CG index at build");
+    logger.assert_always(dgIndexing_ != nullptr, "Null DG index at build");
+
+    if (hermitian_) {
+        logger.assert_always(
+            cgIndexing_ == dgIndexing_,
+            "Different index for CG and DG in Hermitian mode.");
+        // Not verified that cgUnknowns_ and dgUnknowns_ are disjoint.
+    }
 
     std::vector<DGMax::KPhaseShiftBlock<DIM>> result;
     std::set<const Base::Edge*> boundaryEdges;
     std::set<const Base::Node*> boundaryNodes;
-    Base::MeshManipulatorBase* mesh = cgIndexing.getMesh();
+    Base::MeshManipulatorBase* mesh = cgIndexing_->getMesh();
 
     auto end = mesh->faceColEnd();
     for (Base::TreeIterator<Base::Face*> it = mesh->faceColBegin(); it != end;
@@ -59,14 +67,30 @@ KPhaseShifts<DIM> CGDGMatrixKPhaseShiftBuilder<DIM>::build(
         if (type == Geometry::FaceType::PERIODIC_SUBDOMAIN_BC ||
             type == Geometry::FaceType::PERIODIC_BC) {
 
-            if ((*it)->isOwnedByCurrentProcessor()) {
-                this->addFacePhaseShifts(*it, cgIndexing, dgIndexing, result);
+            if ((*it)->getPtrElementLeft()->isOwnedByCurrentProcessor() ||
+                (*it)->getPtrElementRight()->isOwnedByCurrentProcessor()) {
+                this->addFacePhaseShifts(*it, result);
             }
 
             // This is a periodic boundary face, so all the nodes are also
             // placed on the periodic boundary.
             for (const Base::Node* node : (*it)->getNodesList()) {
-                if (node->isOwnedByCurrentProcessor()) {
+                bool include = false;
+                if (!hermitian_) {
+                    // For the non Hermitian case the node forms the rows and
+                    // should thus be owned.
+                    include = node->isOwnedByCurrentProcessor();
+                } else {
+                    // Include not only if we own the node, but also any of its
+                    // adjacent elements.
+                    for (const Base::Element* element : node->getElements()) {
+                        if (element->isOwnedByCurrentProcessor()) {
+                            include = true;
+                            break;
+                        }
+                    }
+                }
+                if (include) {
                     boundaryNodes.emplace(node);
                 }
             }
@@ -87,9 +111,25 @@ KPhaseShifts<DIM> CGDGMatrixKPhaseShiftBuilder<DIM>::build(
                     found1 |= nodeIds[j] == edgeNodeIds[0];
                     found2 |= nodeIds[j] == edgeNodeIds[1];
                 }
-                if (found1 && found2 &&
-                    element->getEdge(i)->isOwnedByCurrentProcessor()) {
-                    boundaryEdges.emplace(element->getEdge(i));
+                if (found1 && found2) {
+                    const Base::Edge* edge = element->getEdge(i);
+                    // Same as for node, check if it needs to be included.
+                    bool include = false;
+                    if (!hermitian_) {
+                        include = edge->isOwnedByCurrentProcessor();
+                    } else {
+
+                        for (const Base::Element* element1 :
+                             edge->getElements()) {
+                            if (element1->isOwnedByCurrentProcessor()) {
+                                include = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (include) {
+                        boundaryEdges.emplace(element->getEdge(i));
+                    }
                 }
             }
         }
@@ -97,18 +137,17 @@ KPhaseShifts<DIM> CGDGMatrixKPhaseShiftBuilder<DIM>::build(
         // Now that all boundary nodes and edges have been de-duplicated, add
         // their shifts.
         for (const Base::Node* node : boundaryNodes) {
-            this->addNodePhaseShifts(node, cgIndexing, dgIndexing, result);
+            this->addNodePhaseShifts(node, result);
         }
         for (const Base::Edge* edge : boundaryEdges) {
-            this->addEdgePhaseShifts(edge, cgIndexing, dgIndexing, result);
+            this->addEdgePhaseShifts(edge, result);
         }
     }
     return KPhaseShifts<DIM>(result);
 }
 template <std::size_t DIM>
 void CGDGMatrixKPhaseShiftBuilder<DIM>::addFacePhaseShifts(
-    const Base::Face* face, const Utilities::GlobalIndexing& projectorIndex,
-    const Utilities::GlobalIndexing& indexing,
+    const Base::Face* face,
     std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const {
     logger.assert_debug(face->isOwnedByCurrentProcessor(),
                         "Not owned by current processor");
@@ -118,14 +157,19 @@ void CGDGMatrixKPhaseShiftBuilder<DIM>::addFacePhaseShifts(
     const Geometry::PointPhysical<DIM> owningCoord =
         getCoordinate<DIM>(owningElement, face);
 
-    addElementPhaseShift(face, owningCoord, face->getPtrElementRight(),
-                         projectorIndex, indexing, out);
+    // Dirty shortcut: The face DoFs are associated with the Left face.
+    // Therefore, the left face does not need any shifts and can be skipped.
+
+    if (face->isOwnedByCurrentProcessor() ||
+        face->getPtrElementRight()->isOwnedByCurrentProcessor()) {
+        addElementPhaseShift(face, owningCoord, face->getPtrElementRight(),
+                             out);
+    }
 }
 
 template <std::size_t DIM>
 void CGDGMatrixKPhaseShiftBuilder<DIM>::addEdgePhaseShifts(
-    const Base::Edge* edge, const Utilities::GlobalIndexing& projectorIndex,
-    const Utilities::GlobalIndexing& indexing,
+    const Base::Edge* edge,
     std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const {
     logger.assert_debug(edge->isOwnedByCurrentProcessor(),
                         "Not owned by current processor");
@@ -136,15 +180,16 @@ void CGDGMatrixKPhaseShiftBuilder<DIM>::addEdgePhaseShifts(
         getCoordinate<DIM>(owningElement, edge);
 
     for (const Base::Element* element : edge->getElements()) {
-        addElementPhaseShift(edge, owningCoord, element, projectorIndex,
-                             indexing, out);
+        if (edge->isOwnedByCurrentProcessor() ||
+            element->isOwnedByCurrentProcessor()) {
+            addElementPhaseShift(edge, owningCoord, element, out);
+        }
     }
 }
 
 template <std::size_t DIM>
 void CGDGMatrixKPhaseShiftBuilder<DIM>::addNodePhaseShifts(
-    const Base::Node* node, const Utilities::GlobalIndexing& projectorIndex,
-    const Utilities::GlobalIndexing& indexing,
+    const Base::Node* node,
     std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const {
     logger.assert_debug(node->isOwnedByCurrentProcessor(),
                         "Not owned by current processor");
@@ -155,8 +200,10 @@ void CGDGMatrixKPhaseShiftBuilder<DIM>::addNodePhaseShifts(
         getCoordinate<DIM>(owningElement, node);
 
     for (const Base::Element* element : node->getElements()) {
-        addElementPhaseShift(node, owningCoord, element, projectorIndex,
-                             indexing, out);
+        if (node->isOwnedByCurrentProcessor() ||
+            element->isOwnedByCurrentProcessor()) {
+            addElementPhaseShift(node, owningCoord, element, out);
+        }
     }
 }
 
@@ -165,9 +212,17 @@ template <typename GEOM>
 void CGDGMatrixKPhaseShiftBuilder<DIM>::addElementPhaseShift(
     const GEOM* geom, const Geometry::PointPhysical<DIM>& owningCoord,
     const Base::Element* element,
-    const Utilities::GlobalIndexing& projectorIndex,
-    const Utilities::GlobalIndexing& indexing,
     std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const {
+
+    if (hermitian_) {
+        logger.assert_always(geom->isOwnedByCurrentProcessor() ||
+                                 element->isOwnedByCurrentProcessor(),
+                             "Hermitian case and owning neither side");
+    } else {
+        logger.assert_debug(
+            geom->isOwnedByCurrentProcessor(),
+            "Non hermitian case and not owning the geometry part");
+    }
 
     // Compute the vector a_T
     const Geometry::PointPhysical<DIM> elementCoord =
@@ -187,36 +242,68 @@ void CGDGMatrixKPhaseShiftBuilder<DIM>::addElementPhaseShift(
             dx -= extraShift_(element);
         }
 
-        std::size_t numProjectorDoF = geom->getLocalNumberOfBasisFunctions(1);
-
-        // Difference in coordinates for the node => shift is needed
-        std::size_t numSolutionDoF = element->getLocalNumberOfBasisFunctions(0);
-        LinearAlgebra::MiddleSizeMatrix matrix(numProjectorDoF, numSolutionDoF);
         const LinearAlgebra::MiddleSizeMatrix originalMatrix =
             matrixExtractor_(element);
 
-        // Extract the submatrix from the element matrix corresponding to the cg
-        // basis functions from geom and the dg basis functions on the element.
-        std::size_t localOffset = element->getBasisFunctionOffset(geom, 1);
-        for (std::size_t i = 0; i < numProjectorDoF; ++i) {
-            for (std::size_t j = 0; j < numSolutionDoF; ++j) {
-                matrix(i, j) = originalMatrix(i + localOffset, j);
-            }
-        }
+        // The descriptors of each side
+        SideDescriptor<GEOM> rows;
+        rows.unknowns = cgIndexing_->getIncludedUnknowns();
+        rows.desiredUnknowns = cgUnknowns_;
+        rows.geom = geom;
+        rows.element = element;
+
+        SideDescriptor<Base::Element> cols;
+        cols.unknowns = dgIndexing_->getIncludedUnknowns();
+        cols.desiredUnknowns = dgUnknowns_;
+        cols.geom = element;
+        cols.element = element;
+
         // Compute their global indices
-        PetscInt globalProjectorIndex = projectorIndex.getGlobalIndex(geom, 1);
-        PetscInt globalElementIndex = indexing.getGlobalIndex(element, 0);
+        std::vector<PetscInt> rowIndices = rows.globalIndices(cgIndexing_);
+        std::vector<PetscInt> colIndices = cols.globalIndices(dgIndexing_);
 
-        std::vector<PetscInt> rowIndices(numProjectorDoF);
-        std::vector<PetscInt> colIndices(numSolutionDoF);
-        std::iota(rowIndices.begin(), rowIndices.end(), globalProjectorIndex);
-        std::iota(colIndices.begin(), colIndices.end(), globalElementIndex);
+        LinearAlgebra::MiddleSizeMatrix matrix1 =
+            extractSubMatrix<GEOM, Base::Element>(rows, cols, originalMatrix);
+        checkMatrixSize(matrix1, rowIndices.size(), colIndices.size());
 
-        checkMatrixSize(matrix, rowIndices.size(), colIndices.size());
-
-        out.emplace_back(DGMax::MatrixBlocks(rowIndices, colIndices, matrix),
-                         dx);
+        LinearAlgebra::MiddleSizeMatrix matrix2;
+        if (hermitian_) {
+            matrix2 = extractSubMatrix<Base::Element, GEOM>(cols, rows,
+                                                            originalMatrix);
+            checkMatrixSize(matrix2, colIndices.size(), rowIndices.size());
+        }
+        if (hermitian_ && element->isOwnedByCurrentProcessor() &&
+            geom->isOwnedByCurrentProcessor()) {
+            // Owning both blocks -> insert both
+            out.emplace_back(
+                DGMax::MatrixBlocks(rowIndices, colIndices, matrix1, matrix2),
+                dx);
+        } else {
+            if (hermitian_ && !geom->isOwnedByCurrentProcessor()) {
+                std::swap(rowIndices, colIndices);
+                std::swap(matrix1, matrix2);
+                dx = -dx;
+            }
+            out.emplace_back(
+                DGMax::MatrixBlocks(rowIndices, colIndices, matrix1), dx);
+        }
     }
+}
+
+template <std::size_t DIM>
+void CGDGMatrixKPhaseShiftBuilder<DIM>::setCGUnknowns(
+    const std::vector<std::size_t>& cgUnknowns) {
+    checkUnknowns(cgUnknowns, cgIndexing_);
+    cgUnknowns_ = cgUnknowns;
+    std::sort(cgUnknowns_.begin(), cgUnknowns_.end());
+}
+
+template <std::size_t DIM>
+void CGDGMatrixKPhaseShiftBuilder<DIM>::setDGUnknowns(
+    const std::vector<std::size_t>& dgUnknowns) {
+    checkUnknowns(dgUnknowns, dgIndexing_);
+    dgUnknowns_ = dgUnknowns;
+    std::sort(dgUnknowns_.begin(), dgUnknowns_.end());
 }
 
 template class CGDGMatrixKPhaseShiftBuilder<2>;

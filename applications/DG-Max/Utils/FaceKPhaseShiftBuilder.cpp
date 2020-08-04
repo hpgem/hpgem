@@ -46,10 +46,9 @@ template class FaceMatrixKPhaseShiftBuilder<2>;
 template class FaceMatrixKPhaseShiftBuilder<3>;
 
 template <std::size_t DIM>
-KPhaseShifts<DIM> FaceMatrixKPhaseShiftBuilder<DIM>::build(
-    const Utilities::GlobalIndexing& indexing) const {
+KPhaseShifts<DIM> FaceMatrixKPhaseShiftBuilder<DIM>::build() const {
     std::vector<KPhaseShiftBlock<DIM>> result;
-    const Base::MeshManipulatorBase* mesh = indexing.getMesh();
+    const Base::MeshManipulatorBase* mesh = indexing_->getMesh();
 
     auto end = mesh->faceColEnd(Base::IteratorType::GLOBAL);
     for (auto it = mesh->faceColBegin(Base::IteratorType::GLOBAL); it != end;
@@ -73,7 +72,7 @@ KPhaseShifts<DIM> FaceMatrixKPhaseShiftBuilder<DIM>::build(
                 // element to either side.
                 continue;
             }
-            result.emplace_back(facePhaseShift(*it, indexing));
+            result.emplace_back(facePhaseShift(*it));
         } else if ((boundaryFaceShift<DIM>(*it)).l2Norm() > 1e-3) {
             // This seems to be a periodic boundary that was not marked
             // correctly. If we don't own either side this is not a problem for
@@ -89,7 +88,7 @@ KPhaseShifts<DIM> FaceMatrixKPhaseShiftBuilder<DIM>::build(
 
 template <std::size_t DIM>
 KPhaseShiftBlock<DIM> FaceMatrixKPhaseShiftBuilder<DIM>::facePhaseShift(
-    const Base::Face* face, const Utilities::GlobalIndexing& indexing) const {
+    const Base::Face* face) const {
 
     // Extra data
     LinearAlgebra::SmallVector<DIM> dx = boundaryFaceShift<DIM>(face);
@@ -129,14 +128,25 @@ KPhaseShiftBlock<DIM> FaceMatrixKPhaseShiftBuilder<DIM>::facePhaseShift(
     // Compute vectors with the global indices //
     /////////////////////////////////////////////
 
-    // Using the functionality from GlobalIndexing is only safe for DG type
-    // basis functions, as they are only located on the elements of the mesh.
-    // This is not checked and left up to the user.
-    std::vector<PetscInt> rowIndices = indexing.getGlobalIndices(ownedElement);
-    std::vector<PetscInt> colIndices = indexing.getGlobalIndices(otherElement);
+    SideDescriptor<Base::Element> rows, cols;
+    rows.unknowns = indexing_->getIncludedUnknowns();
+    rows.desiredUnknowns = unknowns_;
+    rows.element = ownedElement;
+    rows.geom = ownedElement;
 
+    cols.unknowns = indexing_->getIncludedUnknowns();
+    cols.desiredUnknowns = unknowns_;
+    cols.element = otherElement;
+    cols.geom = otherElement;
+
+    std::vector<PetscInt> rowIndices = rows.globalIndices(indexing_);
+    std::vector<PetscInt> colIndices = cols.globalIndices(indexing_);
+    block1 = extractSubMatrix(rows, cols, block1);
     checkMatrixSize(block1, rowIndices.size(), colIndices.size());
-    checkMatrixSize(block2, colIndices.size(), rowIndices.size());
+    if (!isSubdomainBoundary) {
+        block2 = extractSubMatrix(cols, rows, block2);
+        checkMatrixSize(block2, colIndices.size(), rowIndices.size());
+    }
 
     // Construct the result //
     //////////////////////////
@@ -148,6 +158,14 @@ KPhaseShiftBlock<DIM> FaceMatrixKPhaseShiftBuilder<DIM>::facePhaseShift(
         return KPhaseShiftBlock<DIM>(
             DGMax::MatrixBlocks(rowIndices, colIndices, block1, block2), dx);
     }
+}
+
+template <std::size_t DIM>
+void FaceMatrixKPhaseShiftBuilder<DIM>::setUnknowns(
+    const std::vector<std::size_t>& unknowns) {
+    checkUnknowns(unknowns, indexing_);
+    unknowns_ = unknowns;
+    std::sort(unknowns_.begin(), unknowns_.end());
 }
 
 }  // namespace DGMax

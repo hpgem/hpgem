@@ -76,8 +76,16 @@ class CGDGMatrixKPhaseShiftBuilder {
     using MatrixExtractor =
         std::function<LinearAlgebra::MiddleSizeMatrix(const Base::Element*)>;
 
-    KPhaseShifts<DIM> build(const Utilities::GlobalIndexing& cgIndexing,
-                            const Utilities::GlobalIndexing& dgIndexing) const;
+    CGDGMatrixKPhaseShiftBuilder()
+        : matrixExtractor_(nullptr),
+          extraShift_(nullptr),
+          cgIndexing_(nullptr),
+          dgIndexing_(nullptr),
+          cgUnknowns_(),
+          dgUnknowns_(),
+          hermitian_(false){};
+
+    KPhaseShifts<DIM> build() const;
 
     /// Set the function that provides the element matrix for an element that
     /// touches the boundary.
@@ -92,31 +100,52 @@ class CGDGMatrixKPhaseShiftBuilder {
         extraShift_ = extraShift;
     }
 
+    void setIndices(const Utilities::GlobalIndexing* cgIndexing,
+                    const Utilities::GlobalIndexing* dgIndexing) {
+        logger.assert_debug(cgIndexing != nullptr, "Null cg index");
+        logger.assert_debug(cgIndexing != nullptr, "Null dg index");
+        cgIndexing_ = cgIndexing;
+        dgIndexing_ = dgIndexing;
+        cgUnknowns_ = cgIndexing_->getIncludedUnknowns();
+        dgUnknowns_ = dgIndexing_->getIncludedUnknowns();
+    }
+
+    void setCGUnknowns(const std::vector<std::size_t>& cgUnknowns);
+    void setDGUnknowns(const std::vector<std::size_t>& dgUnknowns);
+
+    /// Whether this to phase shift just CG rows and DG columns, or also the DG
+    /// rows and CG columns. If set to true it is expected that cgIndexing ==
+    /// dgIndexing and that cgUnknowns and dgUnknowns are disjoint.
+    void setHermitian(bool hermitian) { hermitian_ = hermitian; }
+
    private:
     MatrixExtractor matrixExtractor_;
     std::function<LinearAlgebra::SmallVector<DIM>(const Base::Element*)>
         extraShift_;
 
+    const Utilities::GlobalIndexing* cgIndexing_;
+    const Utilities::GlobalIndexing* dgIndexing_;
+
+    std::vector<std::size_t> cgUnknowns_;
+    std::vector<std::size_t> dgUnknowns_;
+
+    bool hermitian_;
+
     void addFacePhaseShifts(
-        const Base::Face* face, const Utilities::GlobalIndexing& projectorIndex,
-        const Utilities::GlobalIndexing& indexing,
+        const Base::Face* face,
         std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const;
 
     void addEdgePhaseShifts(
-        const Base::Edge* edge, const Utilities::GlobalIndexing& projectorIndex,
-        const Utilities::GlobalIndexing& indexing,
+        const Base::Edge* edge,
         std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const;
     void addNodePhaseShifts(
-        const Base::Node* node, const Utilities::GlobalIndexing& projectorIndex,
-        const Utilities::GlobalIndexing& indexing,
+        const Base::Node* node,
         std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const;
 
     template <typename GEOM>
     void addElementPhaseShift(
         const GEOM* geom, const Geometry::PointPhysical<DIM>& owningCoord,
         const Base::Element* element,
-        const Utilities::GlobalIndexing& projectorIndex,
-        const Utilities::GlobalIndexing& indexing,
         std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const;
 };
 }  // namespace DGMax

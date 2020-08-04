@@ -42,6 +42,7 @@
 #include <utility>
 
 #include "LinearAlgebra/SmallVector.h"
+#include "Utilities/GlobalIndexing.h"
 
 #include "MatrixBlocks.h"
 
@@ -142,7 +143,6 @@ class KPhaseShifts {
 
    private:
 };
-
 };  // namespace DGMax
 
 #endif  // HPGEM_KPHASESHIFT_H

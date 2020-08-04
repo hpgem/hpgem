@@ -69,12 +69,14 @@ class FaceMatrixKPhaseShiftBuilder {
                                 LinearAlgebra::MiddleSizeMatrix>(
             const Base::Face*)>;
 
-    KPhaseShifts<DIM> build(const Utilities::GlobalIndexing& indexing) const;
+    KPhaseShifts<DIM> build() const;
 
     /// Set the function to get the two off diagonal face matrix blocks for a
     /// periodic boundary face. The first matrix should correspond to the test
     /// functions of the left element with the trial functions of the right
-    /// element, with the second matrix vice versa.
+    /// element, with the second matrix vice versa. If the GlobalIndex does not
+    /// include all unknowns, then the matrices rows and columns should only be
+    /// for DoFs that correspond to included unknowns.
     ///
     /// \param extractor The function used to extract the two matrix blocks
     void setMatrixExtractor(MatrixExtractor extractor) {
@@ -91,10 +93,19 @@ class FaceMatrixKPhaseShiftBuilder {
         extraShift_ = extraShift;
     }
 
+    void setIndexing(const Utilities::GlobalIndexing* indexing) {
+        logger.assert_debug(indexing != nullptr, "Null index");
+        indexing_ = indexing;
+        unknowns_ = indexing->getIncludedUnknowns();
+    }
+
+    void setUnknowns(const std::vector<std::size_t>& unknowns);
+
    private:
-    KPhaseShiftBlock<DIM> facePhaseShift(
-        const Base::Face* face,
-        const Utilities::GlobalIndexing& indexing) const;
+    KPhaseShiftBlock<DIM> facePhaseShift(const Base::Face* face) const;
+
+    const Utilities::GlobalIndexing* indexing_;
+    std::vector<std::size_t> unknowns_;
 
     MatrixExtractor matrixExtractor_;
     std::function<LinearAlgebra::SmallVector<DIM>(const Base::Face*)>

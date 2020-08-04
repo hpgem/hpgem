@@ -57,6 +57,23 @@ inline void checkMatrixSize(const LinearAlgebra::MiddleSizeMatrix mat,
                          mat.getNumberOfColumns());
 }
 
+inline void checkUnknowns(const std::vector<std::size_t>& unknowns,
+                          const Utilities::GlobalIndexing* indexing) {
+    if (indexing == nullptr) {
+        logger(WARN, "Setting unknowns without indexing, no verification done");
+        return;
+    }
+    // Check whether the unknowns are included in the index;
+    for (const std::size_t unknown : unknowns) {
+        const std::vector<std::size_t>& includedUnknowns =
+            indexing->getIncludedUnknowns();
+        logger.assert_always(
+            std::find(includedUnknowns.begin(), includedUnknowns.end(),
+                      unknown) != includedUnknowns.end(),
+            "Unknown % is not available in the index", unknown);
+    }
+}
+
 // Given a point x on a (periodic boundary) face, which has coordinates x_l and
 // x_r as seen from the left and right face respectively. Compute the difference
 // x_l - x_r,
@@ -119,6 +136,113 @@ Geometry::PointPhysical<DIM> getCoordinate(const Base::Element* element,
         isLeft ? face->mapRefFaceToRefElemL(faceCenter)
                : face->mapRefFaceToRefElemR(faceCenter);
     return element->referenceToPhysical(elementFaceCenter);
+}
+
+/// Helper class for extractSubMatrix() describing either the rows or columns.
+///
+/// \tparam GEOM
+template <typename GEOM>
+struct SideDescriptor {
+
+    SideDescriptor()
+        : unknowns(), desiredUnknowns(), geom(nullptr), element(nullptr){};
+
+    /// All the unknowns that form all the row/column of the local matrix
+    std::vector<std::size_t> unknowns;
+    /// The subset of the unknowns that needs to be extracted
+    std::vector<std::size_t> desiredUnknowns;
+    /// The geometry part for which to extract the entries.
+    const GEOM* geom;
+    /// The element to which the side of the matrix corresponds, geom should be
+    /// adjacent to this element (not checked).
+    const Base::Element* element;
+
+    /// Compute the indices in the local (input) matrix that form the resulting
+    /// submatrix. In matlab syntax:
+    /// result = input(rows.localIndices(), cols.localIndices())
+    std::vector<std::size_t> localIndices() const {
+        // Index in the local matrix where, for each unknown, the basis
+        // functions for the geometrical part start.
+        std::vector<std::size_t> unknownOffsets(element->getNumberOfUnknowns() +
+                                                1);
+        // First compute the offsets of the unknowns
+        for (const std::size_t& unknown : unknowns) {
+            unknownOffsets[unknown + 1] =
+                element->getNumberOfBasisFunctions(unknown);
+        }
+        std::partial_sum(unknownOffsets.begin(), unknownOffsets.end(),
+                         unknownOffsets.begin());
+        // Add the local offset for the unknown
+        for (const std::size_t& unknown : unknowns) {
+            unknownOffsets[unknown] +=
+                element->getBasisFunctionOffset(geom, unknown);
+        }
+
+        // Compute the result mapping
+        std::vector<std::size_t> result(numberOfEntries());
+        std::size_t resultOffset = 0;
+        for (const std::size_t& unknown : desiredUnknowns) {
+            std::size_t numDoFs = geom->getLocalNumberOfBasisFunctions(unknown);
+            for (std::size_t i = 0; i < numDoFs; ++i) {
+                result[i + resultOffset] = unknownOffsets[unknown] + i;
+            }
+            resultOffset += numDoFs;
+        }
+        return result;
+    }
+
+    /// Global indices corresponding to the extracted block.
+    ///
+    /// \param indexing The GlobalIndex of this side, assumes that
+    /// indexing->getIncludedUnknowns() == unknowns (not checked).
+    ///
+    /// \return The global indices for the extracted block.
+    std::vector<PetscInt> globalIndices(
+        const Utilities::GlobalIndexing* indexing) {
+        const std::size_t size = numberOfEntries();
+        std::vector<PetscInt> result(size);
+        auto start = result.begin();
+        for (const std::size_t& unknown : unknowns) {
+            std::size_t numDoFs = geom->getLocalNumberOfBasisFunctions(unknown);
+            std::size_t offset = indexing->getGlobalIndex(geom, unknown);
+            std::iota(start, start + numDoFs, offset);
+            start += numDoFs;
+        }
+        logger.assert_debug(result.size() == size, "Incorrect size given");
+        return result;
+    }
+
+   private:
+    std::size_t numberOfEntries() const {
+        std::size_t result = 0;
+        for (const std::size_t& unknown : unknowns) {
+            result += geom->getLocalNumberOfBasisFunctions(unknown);
+        }
+        return result;
+    }
+};
+
+/// Given a local matrix, extract the submatrix that corresponds to the basis
+/// functions that correspond to a certain geometrical part and from these basis
+/// functions only those for a certain unknown.
+template <typename RGeom, typename CGeom>
+LinearAlgebra::MiddleSizeMatrix extractSubMatrix(
+    const SideDescriptor<RGeom>& rows, const SideDescriptor<CGeom>& cols,
+    const LinearAlgebra::MiddleSizeMatrix& localMatrix) {
+
+    std::vector<std::size_t> rowIndices = rows.localIndices();
+    std::vector<std::size_t> colIndices = cols.localIndices();
+    std::size_t numRows = rowIndices.size();
+    std::size_t numCols = colIndices.size();
+
+    LinearAlgebra::MiddleSizeMatrix result(numRows, numCols);
+
+    for (std::size_t i = 0; i < numRows; ++i) {
+        for (std::size_t j = 0; j < numCols; ++j) {
+            result(i, j) = localMatrix(rowIndices[i], colIndices[j]);
+        }
+    }
+    return result;
 }
 
 }  // namespace DGMax

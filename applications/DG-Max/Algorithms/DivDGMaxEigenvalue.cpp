@@ -98,7 +98,8 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DivDGMaxEigenvalue<DIM>::solve(
 
             return std::make_pair(block1, block2);
         });
-        kphaseshifts = builder.build(indexing);
+        builder.setIndexing(&indexing);
+        kphaseshifts = builder.build();
         DGMaxLogger(VERBOSE, "Initialized boundary shifting");
     }
 
