@@ -21,7 +21,8 @@ auto& numEigenvalues = Base::register_argument<std::size_t>(
 
 auto& method = Base::register_argument<std::string>(
     '\0', "method",
-    "The method to be used, either 'DGMAX', 'DGMAX_PROJECT' or 'DIVDGMAX' "
+    "The method to be used, either 'DGMAX', 'DGMAX_PROJECT', 'DIVDGMAXCG' or "
+    "'DIVDGMAX' "
     "(default)",
     false, "DIVDGMAX");
 
@@ -114,13 +115,14 @@ void runWithDimension() {
         unknowns = 2;
         // 1 more is needed for the projector operator
         numberOfElementMatrices = 3;
-    } else if (method.getValue() == "DIVDGMAX") {
+    } else if (method.getValue() == "DIVDGMAX" ||
+               method.getValue() == "DIVDGMAXCG") {
         useDivDGMax = true;
         unknowns = 2;
     } else {
         logger(ERROR,
                "Invalid method {}, should be either DGMAX, DGMAX_PROJECT, "
-               "DGMAX_PROJECT1 or DIVDGMAX",
+               "DGMAX_PROJECT1, DIVDGMAXCG' or DIVDGMAX",
                method.getValue());
         return;
     }
@@ -143,7 +145,11 @@ void runWithDimension() {
     if (useDivDGMax) {
         typename DivDGMaxDiscretization<DIM>::Stab stab =
             parsePenaltyParmaters<DIM>();
-        DivDGMaxEigenvalue<DIM> solver(*mesh, order.getValue(), stab);
+        DivDGMaxDiscretizationBase::DivType divType =
+            method.getValue() == "DIVDGMAXCG"
+                ? DivDGMaxDiscretizationBase::DivType::CG
+                : DivDGMaxDiscretizationBase::DivType::DG;
+        DivDGMaxEigenvalue<DIM> solver(*mesh, order.getValue(), stab, divType);
         result = solver.solve(input);
     } else {
         const double stab = parseDGMaxPenaltyParameter();

@@ -68,7 +68,9 @@ class DivDGMaxEigenvalue : public AbstractEigenvalueSolver<DIM> {
     };
 
     DivDGMaxEigenvalue(Base::MeshManipulator<DIM>& mesh, std::size_t order,
-                       typename DivDGMaxDiscretization<DIM>::Stab stab);
+                       typename DivDGMaxDiscretization<DIM>::Stab stab,
+                       DivDGMaxDiscretizationBase::DivType divType =
+                           DivDGMaxDiscretizationBase::DivType::DG);
     std::unique_ptr<AbstractEigenvalueResult<DIM>> solve(
         const EigenvalueProblem<DIM>& input) override;
 
@@ -83,6 +85,7 @@ class DivDGMaxEigenvalue : public AbstractEigenvalueSolver<DIM> {
     Base::MeshManipulator<DIM>& mesh_;
     typename DivDGMaxDiscretization<DIM>::Stab stab_;
     std::size_t order_;
+    DivDGMaxDiscretizationBase::DivType divType_;
     DivDGMaxDiscretization<DIM> discretization;
 };
 
