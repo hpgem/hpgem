@@ -42,6 +42,7 @@
 #include <utility>
 
 #include "LinearAlgebra/SmallVector.h"
+#include "Utilities/GlobalIndexing.h"
 
 #include "MatrixBlocks.h"
 
@@ -165,17 +166,21 @@ class KPhaseShifts {
 template <std::size_t DIM>
 class FaceMatrixKPhaseShiftBuilder {
    public:
+    /// Function to compute the offdiagonal blocks that need to be
+    /// KPhaseShift-ed.
     using MatrixExtractor =
         std::function<std::pair<LinearAlgebra::MiddleSizeMatrix,
                                 LinearAlgebra::MiddleSizeMatrix>(
             const Base::Face*)>;
 
-    KPhaseShifts<DIM> build(const Utilities::GlobalIndexing& indexing) const;
+    KPhaseShifts<DIM> build() const;
 
     /// Set the function to get the two off diagonal face matrix blocks for a
     /// periodic boundary face. The first matrix should correspond to the test
     /// functions of the left element with the trial functions of the right
-    /// element, with the second matrix vice versa.
+    /// element, with the second matrix vice versa. If the GlobalIndex does not
+    /// include all unknowns, then the matrices rows and columns should only be
+    /// for DoFs that correspond to included unknowns.
     ///
     /// \param extractor The function used to extract the two matrix blocks
     void setMatrixExtractor(MatrixExtractor extractor) {
@@ -192,9 +197,19 @@ class FaceMatrixKPhaseShiftBuilder {
         extraShift_ = extraShift;
     }
 
+    void setIndexing(const Utilities::GlobalIndexing* indexing) {
+        logger.assert_debug(indexing != nullptr, "Null index");
+        indexing_ = indexing;
+        unknowns_ = indexing->getIncludedUnknowns();
+    }
+
+    void setUnknowns(const std::vector<std::size_t>& unknowns);
+
    private:
-    KPhaseShiftBlock<DIM> facePhaseShift(const Base::Face* face,
-                               const Utilities::GlobalIndexing& indexing) const;
+    KPhaseShiftBlock<DIM> facePhaseShift(const Base::Face* face) const;
+
+    const Utilities::GlobalIndexing* indexing_;
+    std::vector<std::size_t> unknowns_;
 
     MatrixExtractor matrixExtractor_;
     std::function<LinearAlgebra::SmallVector<DIM>(const Base::Face*)>
@@ -236,11 +251,22 @@ class CGDGMatrixKPhaseShiftBuilder {
     using MatrixExtractor =
         std::function<LinearAlgebra::MiddleSizeMatrix(const Base::Element*)>;
 
-    KPhaseShifts<DIM> build(const Utilities::GlobalIndexing& cgIndexing,
-                            const Utilities::GlobalIndexing& dgIndexing) const;
+    CGDGMatrixKPhaseShiftBuilder()
+        : matrixExtractor_(nullptr),
+          extraShift_(nullptr),
+          cgIndexing_(nullptr),
+          dgIndexing_(nullptr),
+          cgUnknowns_(),
+          dgUnknowns_(),
+          hermitian_(false){};
 
-    /// Set the function that provides the element matrix for an element that
-    /// touches the boundary.
+    KPhaseShifts<DIM> build() const;
+
+    /// Set the function that extracts an element matrix for the given element,
+    /// where the rows correspond the the CG basis functions and the columns to
+    /// the DG ones. If the GlobalIndex of the cg or dg part does not include
+    /// all unknowns, then the matrix should only have rows or columns for the
+    /// included unknowns of the corresponding GlobalIndex.
     void setMatrixExtractor(MatrixExtractor extractor) {
         matrixExtractor_ = std::move(extractor);
     }
@@ -252,32 +278,53 @@ class CGDGMatrixKPhaseShiftBuilder {
         extraShift_ = extraShift;
     }
 
+    void setIndices(const Utilities::GlobalIndexing* cgIndexing,
+                    const Utilities::GlobalIndexing* dgIndexing) {
+        logger.assert_debug(cgIndexing != nullptr, "Null cg index");
+        logger.assert_debug(cgIndexing != nullptr, "Null dg index");
+        cgIndexing_ = cgIndexing;
+        dgIndexing_ = dgIndexing;
+        cgUnknowns_ = cgIndexing_->getIncludedUnknowns();
+        dgUnknowns_ = dgIndexing_->getIncludedUnknowns();
+    }
+
+    void setCGUnknowns(const std::vector<std::size_t>& cgUnknowns);
+    void setDGUnknowns(const std::vector<std::size_t>& dgUnknowns);
+
+    /// Whether this to phase shift just CG rows and DG columns, or also the DG
+    /// rows and CG columns. If set to true it is expected that cgIndexing ==
+    /// dgIndexing and that cgUnknowns and dgUnknowns are disjoint.
+    void setHermitian(bool hermitian) { hermitian_ = hermitian; }
+
    private:
     MatrixExtractor matrixExtractor_;
     std::function<LinearAlgebra::SmallVector<DIM>(const Base::Element*)>
         extraShift_;
 
-    void addFacePhaseShifts(const Base::Face* face,
-                            const Utilities::GlobalIndexing& projectorIndex,
-                            const Utilities::GlobalIndexing& indexing,
-                            std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const;
+    const Utilities::GlobalIndexing* cgIndexing_;
+    const Utilities::GlobalIndexing* dgIndexing_;
 
-    void addEdgePhaseShifts(const Base::Edge* edge,
-                            const Utilities::GlobalIndexing& projectorIndex,
-                            const Utilities::GlobalIndexing& indexing,
-                            std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const;
-    void addNodePhaseShifts(const Base::Node* node,
-                            const Utilities::GlobalIndexing& projectorIndex,
-                            const Utilities::GlobalIndexing& indexing,
-                            std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const;
+    std::vector<std::size_t> cgUnknowns_;
+    std::vector<std::size_t> dgUnknowns_;
+
+    bool hermitian_;
+
+    void addFacePhaseShifts(
+        const Base::Face* face,
+        std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const;
+
+    void addEdgePhaseShifts(
+        const Base::Edge* edge,
+        std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const;
+    void addNodePhaseShifts(
+        const Base::Node* node,
+        std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const;
 
     template <typename GEOM>
-    void addElementPhaseShift(const GEOM* geom,
-                              const Geometry::PointPhysical<DIM>& owningCoord,
-                              const Base::Element* element,
-                              const Utilities::GlobalIndexing& projectorIndex,
-                              const Utilities::GlobalIndexing& indexing,
-                              std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const;
+    void addElementPhaseShift(
+        const GEOM* geom, const Geometry::PointPhysical<DIM>& owningCoord,
+        const Base::Element* element,
+        std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const;
 };
 
 };  // namespace DGMax
