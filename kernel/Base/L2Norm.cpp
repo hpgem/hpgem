@@ -45,6 +45,9 @@
 #include "L2Norm.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "Geometry/PointPhysical.h"
+
+namespace hpgem {
+
 //------------------------------------------------------------------------------
 namespace Base {
 LinearAlgebra::MiddleSizeVector::type L2Norm(
@@ -56,3 +59,5 @@ LinearAlgebra::MiddleSizeVector::type L2Norm(
     return std::sqrt(retSquared);
 }
 }  // namespace Base
+
+}  // namespace hpgem

@@ -47,6 +47,8 @@
 #include "GaussQuadratureRulesForTriangle.h"
 #include "GaussQuadratureRulesForTriangularPrism.h"
 
+namespace hpgem {
+
 namespace QuadratureRules {
 // add all the rules here
 // note that adding a lot of extra rules might harm start-up time
@@ -146,3 +148,5 @@ GaussQuadratureRule* AllGaussQuadratureRules::getRule(
 }
 
 }  // namespace QuadratureRules
+
+}  // namespace hpgem

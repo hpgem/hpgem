@@ -36,13 +36,15 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 //
-#ifndef ____ReferenceTetrahedron__
-#define ____ReferenceTetrahedron__
+#ifndef HPGEM_KERNEL_REFERENCETETRAHEDRON_H
+#define HPGEM_KERNEL_REFERENCETETRAHEDRON_H
 
 #include <iostream>
 
 #include "ReferenceSimplex_Impl.h"
 #include <vector>
+
+namespace hpgem {
 
 namespace Geometry {
 /* The ordering of the vertex and faces in a tetrahedron:
@@ -150,4 +152,6 @@ class ReferenceTetrahedron : public ReferenceSimplex<3> {
 };
 }  // namespace Geometry
 
-#endif /* defined(____ReferenceTetrahedron__) */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_REFERENCETETRAHEDRON_H

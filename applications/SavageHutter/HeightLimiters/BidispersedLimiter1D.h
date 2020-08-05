@@ -36,11 +36,13 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BIDISPERSEDLIMITER_H
-#define BIDISPERSEDLIMITER_H
+#ifndef HPGEM_APP_BIDISPERSEDLIMITER1D_H
+#define HPGEM_APP_BIDISPERSEDLIMITER1D_H
 
 #include "HeightLimiter.h"
 #include "Integration/ElementIntegral.h"
+
+using namespace hpgem;
 
 ////\brief Limiter that limits both the height and the height of the small
 /// particles in 1D This class is still under construction, use at your own
@@ -81,4 +83,4 @@ class BidispersedLimiter : public HeightLimiter {
     Integration::ElementIntegral<1> elementIntegrator_;
 };
 
-#endif /* BIDISPERSEDLIMITER_H */
+#endif  // HPGEM_APP_BIDISPERSEDLIMITER1D_H

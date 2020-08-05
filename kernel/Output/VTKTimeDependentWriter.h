@@ -36,14 +36,15 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef VTKTIMEDEPENDENTWRITER_HPP
-#define VTKTIMEDEPENDENTWRITER_HPP
+#ifndef HPGEM_KERNEL_VTKTIMEDEPENDENTWRITER_H
+#define HPGEM_KERNEL_VTKTIMEDEPENDENTWRITER_H
 
 #include <functional>
 #include <fstream>
 #include "Base/MeshManipulator.h"
 #include "VTKSpecificTimeWriter.h"
 
+namespace hpgem {
 namespace Output {
 
 ///\class VTKSpecificTimeWriter
@@ -95,7 +96,7 @@ class VTKTimeDependentWriter final {
 };
 
 }  // namespace Output
-
+}  // namespace hpgem
 #include "VTKTimeDependentWriter_Impl.h"
 
-#endif /* VTKTIMEDEPENDENTWRITER_HPP */
+#endif  // HPGEM_KERNEL_VTKTIMEDEPENDENTWRITER_H

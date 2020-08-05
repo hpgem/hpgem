@@ -1,10 +1,12 @@
-#ifndef HPGEM_REFERENCESIMPLEX_IMPL_H
-#define HPGEM_REFERENCESIMPLEX_IMPL_H
+#ifndef HPGEM_KERNEL_REFERENCESIMPLEX_IMPL_H
+#define HPGEM_KERNEL_REFERENCESIMPLEX_IMPL_H
 
 #include "ReferenceSimplex.h"
 #include "PointReference.h"
 
 #include "../LinearAlgebra/SmallVector.h"
+
+namespace hpgem {
 
 namespace Geometry {
 // Helper functions for the constructor
@@ -42,4 +44,6 @@ LinearAlgebra::SmallVector<DIM + 1>
 
 }  // namespace Geometry
 
-#endif  // HPGEM_REFERENCESIMPLEX_IMPL_H
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_REFERENCESIMPLEX_IMPL_H

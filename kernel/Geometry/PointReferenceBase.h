@@ -36,10 +36,12 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef POINTREFERENCEBASE_H_
-#define POINTREFERENCEBASE_H_
+#ifndef HPGEM_KERNEL_POINTREFERENCEBASE_H
+#define HPGEM_KERNEL_POINTREFERENCEBASE_H
 
 #include <cstdlib>
+
+namespace hpgem {
 
 namespace Geometry {
 template <std::size_t DIM>
@@ -82,4 +84,6 @@ class PointReferenceBase {
 };
 }  // namespace Geometry
 
-#endif /* POINTREFERENCEBASE_H_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_POINTREFERENCEBASE_H

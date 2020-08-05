@@ -41,6 +41,8 @@
 
 #include <cstdlib>
 
+namespace hpgem {
+
 bool Output::Detail::isBigEndian() {
     std::uint32_t test = 0x01020304;
     // Do NOT let the compiler touch the underlying binary data
@@ -80,3 +82,5 @@ std::string Output::Detail::toBase64(void* rawData, std::size_t len) {
     }
     return result;
 }
+
+}  // namespace hpgem

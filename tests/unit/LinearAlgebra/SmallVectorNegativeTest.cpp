@@ -47,7 +47,7 @@
 #include <cmath>
 #include "LinearAlgebra/SmallVector.h"
 #include "Logger.h"
-
+using namespace hpgem;
 using LinearAlgebra::SmallVector;
 
 int main(int argc, char* argv[]) {

@@ -35,10 +35,12 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FACEFACTORY_HPP
-#define FACEFACTORY_HPP
+#ifndef HPGEM_KERNEL_FACEFACTORY_H
+#define HPGEM_KERNEL_FACEFACTORY_H
 
 #include "Geometry/FaceGeometry.h"
+
+namespace hpgem {
 
 namespace Base {
 class Face;
@@ -72,4 +74,6 @@ class FaceFactory {
 };
 }  // namespace Base
 
-#endif /* FACEFACTORY_HPP */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_FACEFACTORY_H

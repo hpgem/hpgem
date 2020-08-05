@@ -36,10 +36,12 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CONFIGURATIONDATA_H_
-#define CONFIGURATIONDATA_H_
+#ifndef HPGEM_KERNEL_CONFIGURATIONDATA_H
+#define HPGEM_KERNEL_CONFIGURATIONDATA_H
 
 #include <cstdlib>
+
+namespace hpgem {
 
 namespace Base {
 struct ConfigurationData {
@@ -66,4 +68,6 @@ struct ConfigurationData {
 };
 }  // namespace Base
 
-#endif /* CONFIGURATIONDATA_H_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_CONFIGURATIONDATA_H

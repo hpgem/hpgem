@@ -36,10 +36,12 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PHYSICALQUADRILATERAL_HH
-#define PHYSICALQUADRILATERAL_HH
+#ifndef HPGEM_KERNEL_PHYSICALQUADRILATERAL_H
+#define HPGEM_KERNEL_PHYSICALQUADRILATERAL_H
 
 #include "PhysicalGeometry.h"
+
+namespace hpgem {
 
 namespace Geometry {
 class ReferenceSquare;
@@ -53,4 +55,6 @@ class PhysicalQuadrilateral : public PhysicalGeometry<2> {
 };
 
 }  // namespace Geometry
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_PHYSICALQUADRILATERAL_H

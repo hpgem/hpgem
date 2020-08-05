@@ -36,10 +36,12 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MAPPINGSQUARETOCUBE_H_
-#define MAPPINGSQUARETOCUBE_H_
+#ifndef HPGEM_KERNEL_MAPPINGTOREFSQUARETOCUBE_H
+#define HPGEM_KERNEL_MAPPINGTOREFSQUARETOCUBE_H
 
 #include "MappingReferenceToReference.h"
+
+namespace hpgem {
 
 namespace Geometry {
 /* The ordering of the vertex in a cube:
@@ -195,4 +197,6 @@ class MappingToRefSquareToCube5 : public MappingReferenceToReference<1> {
 };
 
 }  // namespace Geometry
-#endif /* MAPPINGSIMPLECUBENLINEAR_H_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_MAPPINGTOREFSQUARETOCUBE_H

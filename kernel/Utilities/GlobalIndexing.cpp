@@ -40,6 +40,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Base/MpiContainer.h"
 
+namespace hpgem {
+
 namespace Utilities {
 
 GlobalIndexing::GlobalIndexing()
@@ -894,3 +896,5 @@ void GlobalIndexing::Offsets::setOffset(int globalOffset, int localOffset,
     }
 }
 }  // namespace Utilities
+
+}  // namespace hpgem

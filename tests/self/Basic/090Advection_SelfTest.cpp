@@ -56,7 +56,7 @@
 /// This class is used to test if the advection equation is solved correctly
 /// when using HpgemAPISimplified. Linear advection equation: du/dt + a[0] du/dx
 /// + a[1] du/dy = 0, or equivalently: du/dt = - a[0] du/dx - a[1] du/dy = 0.
-
+using namespace hpgem;
 template <std::size_t DIM>
 class Advection : public Base::HpgemAPISimplified<DIM> {
    public:

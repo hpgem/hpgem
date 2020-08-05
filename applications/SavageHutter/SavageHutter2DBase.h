@@ -36,10 +36,12 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SAVAGEHUTTER2DBASE_H
-#define SAVAGEHUTTER2DBASE_H
+#ifndef HPGEM_APP_SAVAGEHUTTER2DBASE_H
+#define HPGEM_APP_SAVAGEHUTTER2DBASE_H
 
 #include "SavageHutterBase.h"
+
+using namespace hpgem;
 
 class SavageHutter2DBase : public SavageHutterBase<2> {
    public:
@@ -113,4 +115,4 @@ class SavageHutter2DBase : public SavageHutterBase<2> {
         const LinearAlgebra::SmallVector<2> &normal);
 };
 
-#endif /* SAVAGEHUTTER2DBASE_H */
+#endif  // HPGEM_APP_SAVAGEHUTTER2DBASE_H

@@ -36,10 +36,12 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SAVAGEHUTTER2DINTERIORTEST_H
-#define SAVAGEHUTTER2DINTERIORTEST_H
+#ifndef HPGEM_APP_SAVAGEHUTTER2DINTERIORTEST_H
+#define HPGEM_APP_SAVAGEHUTTER2DINTERIORTEST_H
 
 #include "SavageHutter2DBase.h"
+
+using namespace hpgem;
 
 /// Class meant to test the convergence of the code. It is mostly copied from
 /// SavageHutter2DBasic, but with a different source term and boundary
@@ -72,4 +74,4 @@ class SavageHutter2DInteriorTest : public SavageHutter2DBase {
         override final;
 };
 
-#endif /* SAVAGEHUTTER2DBASIC_H */
+#endif  // HPGEM_APP_SAVAGEHUTTER2DINTERIORTEST_H

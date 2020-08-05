@@ -52,6 +52,8 @@
 #include "Logger.h"
 #include <typeinfo>
 
+namespace hpgem {
+
 namespace Output {
 TecplotPhysicalGeometryIterator::TecplotPhysicalGeometryIterator() {
     // sort in the sequences in BACKWARD order!
@@ -194,3 +196,5 @@ std::size_t TecplotPhysicalGeometryIterator::getNodeNumber() {
     return currentSequencePtr->operator[](currentNode--);
 }
 }  // namespace Output
+
+}  // namespace hpgem

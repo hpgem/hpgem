@@ -36,10 +36,12 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PROBLEMTYPES_HARMONIC_SAMPLEHARMONICPROBLEMS_H
-#define PROBLEMTYPES_HARMONIC_SAMPLEHARMONICPROBLEMS_H
+#ifndef HPGEM_APP_SAMPLEHARMONICPROBLEMS_H
+#define HPGEM_APP_SAMPLEHARMONICPROBLEMS_H
 
 #include "../HarmonicProblem.h"
+
+using namespace hpgem;
 
 template <std::size_t DIM>
 class SampleHarmonicProblems : public ExactHarmonicProblem<DIM> {
@@ -71,4 +73,4 @@ class SampleHarmonicProblems : public ExactHarmonicProblem<DIM> {
                   LinearAlgebra::SmallVector<DIM>& result) const;
 };
 
-#endif  // PROBLEMTYPES_HARMONIC_SAMPLEHARMONICPROBLEMS_H
+#endif  // HPGEM_APP_SAMPLEHARMONICPROBLEMS_H

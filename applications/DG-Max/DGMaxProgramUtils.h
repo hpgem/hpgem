@@ -1,17 +1,19 @@
 
-#ifndef HPGEM_PROGRAMUTILS_H
-#define HPGEM_PROGRAMUTILS_H
+#ifndef HPGEM_APP_DGMAXPROGRAMUTILS_H
+#define HPGEM_APP_DGMAXPROGRAMUTILS_H
 
 #include <memory>
 #include <ElementInfos.h>
 
+namespace hpgem {
 namespace Base {
 class ConfigurationData;
 
 template <std::size_t DIM>
 class MeshManipulator;
 }  // namespace Base
-
+}  // namespace hpgem
+using namespace hpgem;
 namespace DGMax {
 
 void printArguments(int argc, char** argv);
@@ -49,4 +51,4 @@ template <std::size_t DIM>
 PointPath<DIM> parsePath(const std::string& path);
 }  // namespace DGMax
 
-#endif  // HPGEM_PROGRAMUTILS_H
+#endif  // HPGEM_APP_DGMAXPROGRAMUTILS_H

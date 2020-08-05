@@ -36,10 +36,12 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef TVBLIMITER_H
-#define TVBLIMITER_H
+#ifndef HPGEM_APP_TVBLIMITER1D_H
+#define HPGEM_APP_TVBLIMITER1D_H
 #include "SlopeLimiter.h"
 #include "../HelperFunctions.h"
+
+using namespace hpgem;
 
 class TvbLimiter1D : public SlopeLimiter {
    public:
@@ -60,4 +62,4 @@ class TvbLimiter1D : public SlopeLimiter {
     Integration::ElementIntegral<1> elementIntegrator_;
 };
 
-#endif /* TVBLIMITER_H */
+#endif  // HPGEM_APP_TVBLIMITER1D_H

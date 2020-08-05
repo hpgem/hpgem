@@ -108,7 +108,7 @@ class EnumHash {
             static_cast<typename std::underlying_type<T>::type>(t));
     }
 };
-
+namespace hpgem {
 namespace Base {
 template <std::size_t DIM>
 void MeshManipulator<DIM>::useMonomialBasisFunctions(std::size_t order) {
@@ -1809,6 +1809,7 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
 }
 
 #ifdef HPGEM_USE_QHULL
+
 template <std::size_t DIM>
 void MeshManipulator<DIM>::createUnstructuredMesh(
     Geometry::PointPhysical<DIM> BottomLeft,
@@ -3396,6 +3397,7 @@ void MeshManipulator<DIM>::updateMesh(
         element->getReferenceToPhysicalMap()->reinit();
     }
 }
+
 #endif
 
 /// \bug does not do the bc flags yet
@@ -3620,3 +3622,4 @@ double MeshManipulator<DIM>::readDouble(std::istream &input) const {
     return result;
 }
 }  // namespace Base
+}  // namespace hpgem

@@ -38,7 +38,7 @@
 
 #include <iostream>
 #include "Logger.h"
-
+using namespace hpgem;
 // --- Declaring a logger.
 // --- This allows you to redefine LogLevels based on command line options.
 #ifndef LOG_TESTING_LEVEL

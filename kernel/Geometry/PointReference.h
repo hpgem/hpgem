@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PointReference_h
-#define PointReference_h
+#ifndef HPGEM_KERNEL_POINTREFERENCE_H
+#define HPGEM_KERNEL_POINTREFERENCE_H
 
 #include "Point.h"
 #include "PointReferenceBase.h"
@@ -45,6 +45,7 @@
 
 #include <map>
 
+namespace hpgem {
 namespace Geometry {
 template <std::size_t DIM>
 class PointReference : public Point<DIM>, public PointReferenceBase {
@@ -70,7 +71,7 @@ class PointReference : public Point<DIM>, public PointReferenceBase {
 // PointReference operator*(double left, const PointReference& right);
 
 }  // namespace Geometry
-
+}  // namespace hpgem
 #include "PointReference_Impl.h"
 
-#endif /* POINTREFERENCE_HPP_ */
+#endif  // HPGEM_KERNEL_POINTREFERENCE_H

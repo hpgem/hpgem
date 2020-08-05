@@ -43,10 +43,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Logger.h"
 
-#ifndef ALGORITHMS_DGMAXDISCRETIZATION_h
-#define ALGORITHMS_DGMAXDISCRETIZATION_h
+#ifndef HPGEM_APP_DGMAXDISCRETIZATION_H
+#define HPGEM_APP_DGMAXDISCRETIZATION_H
 
 // Forward definitions
+namespace hpgem {
 namespace Base {
 class Element;
 template <std::size_t>
@@ -71,6 +72,9 @@ class PointReference;
 template <std::size_t DIM>
 class PointPhysical;
 }  // namespace Geometry
+}  // namespace hpgem
+
+using namespace hpgem;
 
 /// Dimension independent constants of DGMaxDiscretization
 class DGMaxDiscretizationBase {
@@ -194,4 +198,4 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
     const bool includeProjector_;
 };
 
-#endif  // ALGORITHMS_DGMAXDISCRETIZATION_h
+#endif  // HPGEM_APP_DGMAXDISCRETIZATION_H

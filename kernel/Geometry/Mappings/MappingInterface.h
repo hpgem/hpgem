@@ -36,12 +36,14 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MAPPINGINTERFACE_H_
-#define MAPPINGINTERFACE_H_
+#ifndef HPGEM_KERNEL_MAPPINGINTERFACE_H
+#define HPGEM_KERNEL_MAPPINGINTERFACE_H
 
 #include <cstdlib>
 #include "Logger.h"
 #include "Geometry/Jacobian.h"
+
+namespace hpgem {
 
 namespace Geometry {
 template <std::size_t DIM>
@@ -160,4 +162,6 @@ class MappingInterface {
     virtual std::size_t getTargetDimension() const = 0;
 };
 }  // namespace Geometry
-#endif /* MAP_H_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_MAPPINGINTERFACE_H

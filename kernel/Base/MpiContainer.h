@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MPICONTAINER_HPP
-#define MPICONTAINER_HPP
+#ifndef HPGEM_KERNEL_MPICONTAINER_H
+#define HPGEM_KERNEL_MPICONTAINER_H
 
 #ifdef HPGEM_USE_MPI
 #include <mpi.h>
@@ -48,6 +48,7 @@
 #include <complex>
 #include "Logger.h"
 
+namespace hpgem {
 namespace Base {
 
 namespace Detail {
@@ -423,4 +424,6 @@ class MPIContainer {
 
 }  // namespace Base
 
-#endif /* MPICONTAINER_HPP */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_MPICONTAINER_H

@@ -35,11 +35,13 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef GaussQuadratureRulesForCube_h
-#define GaussQuadratureRulesForCube_h
+#ifndef HPGEM_KERNEL_GAUSSQUADRATURERULESFORCUBE_H
+#define HPGEM_KERNEL_GAUSSQUADRATURERULESFORCUBE_H
 //---------------------------------------------------------------------------
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include <vector>
+
+namespace hpgem {
 
 namespace Geometry {
 template <std::size_t DIM>
@@ -214,4 +216,6 @@ class C3_11_2 : public GaussQuadratureRule {
 
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_GAUSSQUADRATURERULESFORCUBE_H

@@ -7,7 +7,8 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  # Workflow name included as the job-id is sometimes listed without workflow name.
+  run-tests-complex-petsc:
 
     runs-on: ubuntu-latest
     strategy:
@@ -26,4 +27,4 @@ jobs:
     - name: make
       run: cmake --build build -- -j4
     - name: test
-      run: cd build && ctest
+      run: cd build && ctest -V -R DGmax_Vacuum2D_SelfTest && ctest

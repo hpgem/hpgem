@@ -43,7 +43,7 @@
 
 #include "Utilities/GlobalIndexing.h"
 #include "Utilities/SparsityEstimator.h"
-
+using namespace hpgem;
 using Layout = Utilities::GlobalIndexing::Layout;
 
 /// Test configuration with GlobalIndexing layout and whether to include face
@@ -67,6 +67,43 @@ TestConfiguration TEST_CONFIGURATIONS[] = {
     TestConfiguration(Layout::BLOCKED_GLOBAL, false),
     TestConfiguration(Layout::BLOCKED_GLOBAL, true),
 };
+
+enum class BasisFunctionType {
+    CG4,  // Fourth order CG, which in 3D has DoFs with support on every piece
+    // of geometry
+    DG1  // First order DG.
+};
+
+template <std::size_t DIM>
+void applyBasisFunctionsType(
+    Base::MeshManipulator<DIM>& mesh,
+    const std::vector<BasisFunctionType>& basisFunctions) {
+
+    if (!basisFunctions.empty()) {
+        switch (basisFunctions[0]) {
+            case BasisFunctionType::CG4:
+                mesh.useDefaultConformingBasisFunctions(4);
+                break;
+            case BasisFunctionType::DG1:
+                mesh.useDefaultDGBasisFunctions(1);
+                break;
+            default:
+                logger.assert_always(false, "Unknown basis function type");
+        }
+        for (std::size_t i = 1; i < basisFunctions.size(); ++i) {
+            switch (basisFunctions[i]) {
+                case BasisFunctionType::CG4:
+                    mesh.useDefaultConformingBasisFunctions(4, i);
+                    break;
+                case BasisFunctionType::DG1:
+                    mesh.useDefaultDGBasisFunctions(1, i);
+                    break;
+                default:
+                    logger.assert_always(false, "Unknown basis function type");
+            }
+        }
+    }
+}
 
 /// Check that the estimate holds for the DoFs related to part of the geometry
 /// \tparam GEOM The type of geometry part (Element, Face, etc.)
@@ -244,6 +281,10 @@ void testWithDGBasis(std::size_t unknowns, std::string meshFile) {
     }
 }
 
+/**
+ * Test with conforming basis functions on a 1D mesh. Here the sparisty pattern
+ * is far more predictable than in a higher dimensions.
+ */
 void testConformingWith1DMesh() {
     Base::ConfigurationData config(1);
     Base::MeshManipulator<1> mesh(&config);
@@ -342,8 +383,13 @@ void testConformingWith1DMesh() {
     }
 }
 
-void testMassOnly(std::size_t unknowns) {
-    Base::ConfigurationData config(unknowns);
+/**
+ * Test the sparsity pattern of a standard CG mass/stiffness matrix, thus
+ * without any face coupling.
+ * @param basisFunctions The type of basis functions to use
+ */
+void testMassOnly(std::vector<BasisFunctionType> basisFunctions) {
+    Base::ConfigurationData config(basisFunctions.size());
     Base::MeshManipulator<3> mesh(&config);
 
     using namespace std::string_literals;
@@ -353,8 +399,7 @@ void testMassOnly(std::size_t unknowns) {
              << ".hpgem";
     mesh.readMesh(filename.str());
 
-    // Sufficiently high to have connections everywhere
-    mesh.useDefaultConformingBasisFunctions(4);
+    applyBasisFunctionsType(mesh, basisFunctions);
 
     // Sparsity estimate
     Utilities::GlobalIndexing indexing(&mesh, Layout::SEQUENTIAL);
@@ -396,6 +441,11 @@ void testMassOnly(std::size_t unknowns) {
     }
 }
 
+/**
+ * Test sparisty estimator with for a matrix where the rows and columns use a
+ * different subset of the unknowns.
+ * @param meshFile The mesh to test on.
+ */
 void testRowColumnDifference(std::string meshFile) {
     // Test where the GlobalIndexing for the rows and columns differ.
     Base::ConfigurationData config(2);
@@ -534,6 +584,10 @@ void testRowColumnDifference(std::string meshFile) {
     }
 }
 
+/**
+ * Test with an empty GlobalIndex, where there are no basis functions and thus
+ * an empty sparsity pattern would be the result.
+ */
 void testEmptyIndex() {
     // Test with an empty GlobalIndex
     Utilities::GlobalIndexing emptyIndex;
@@ -556,8 +610,12 @@ int main(int argc, char** argv) {
 
     testConformingWith1DMesh();
 
-    testMassOnly(1);
-    testMassOnly(3);
+    testMassOnly({BasisFunctionType::CG4});
+    testMassOnly({BasisFunctionType::CG4, BasisFunctionType::CG4,
+                  BasisFunctionType::CG4});
+    // This configuration actually caused a bug.
+    testMassOnly({BasisFunctionType::DG1, BasisFunctionType::DG1,
+                  BasisFunctionType::CG4});
 
     testRowColumnDifference("3Drectangular1mesh"s);
     testRowColumnDifference("3Dtriangular1mesh"s);

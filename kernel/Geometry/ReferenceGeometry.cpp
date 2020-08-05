@@ -42,6 +42,8 @@
 
 #include <stdexcept>
 
+namespace hpgem {
+
 namespace Geometry {
 
 ReferenceGeometry::ReferenceGeometry(const ReferenceGeometryType& geoT,
@@ -55,3 +57,5 @@ QuadratureRules::GaussQuadratureRule* ReferenceGeometry::getGaussQuadratureRule(
 }
 
 }  // namespace Geometry
+
+}  // namespace hpgem

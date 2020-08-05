@@ -42,6 +42,8 @@
 
 #include <array>
 
+namespace hpgem {
+
 namespace Utilities {
 double ipow(double value, std::size_t power) {
     double result = 1.0;
@@ -205,3 +207,5 @@ void assembleMonomialBasisFunctions4D(Base::BasisFunctionSet& set,
     }
 }
 }  // namespace Utilities
+
+}  // namespace hpgem

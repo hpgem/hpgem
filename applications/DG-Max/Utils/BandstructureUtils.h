@@ -1,11 +1,13 @@
 
-#ifndef HPGEM_BANDSTRUCTUREUTILS_H
-#define HPGEM_BANDSTRUCTUREUTILS_H
+#ifndef HPGEM_APP_BANDSTRUCTUREUTILS_H
+#define HPGEM_APP_BANDSTRUCTUREUTILS_H
 
 #include "LinearAlgebra/SmallVector.h"
 
 #include <map>
 #include <vector>
+
+using namespace hpgem;
 
 // Several utility functions for computing band structures
 
@@ -79,4 +81,4 @@ struct LatticePoint {
     std::array<int, DIM> coords_;
 };
 
-#endif  // HPGEM_BANDSTRUCTUREUTILS_H
+#endif  // HPGEM_APP_BANDSTRUCTUREUTILS_H

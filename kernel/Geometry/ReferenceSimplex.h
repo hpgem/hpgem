@@ -1,9 +1,11 @@
-#ifndef HPGEM_REFERENCESIMPLEX_H
-#define HPGEM_REFERENCESIMPLEX_H
+#ifndef HPGEM_KERNEL_REFERENCESIMPLEX_H
+#define HPGEM_KERNEL_REFERENCESIMPLEX_H
 
 #include "../Logger.h"
 
 #include "ReferenceGeometry.h"
+
+namespace hpgem {
 
 namespace LinearAlgebra {
 template <std::size_t DIM>
@@ -65,4 +67,6 @@ std::ostream& operator<<(std::ostream& os,
 }
 }  // namespace Geometry
 
-#endif  // HPGEM_REFERENCESIMPLEX_H
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_REFERENCESIMPLEX_H

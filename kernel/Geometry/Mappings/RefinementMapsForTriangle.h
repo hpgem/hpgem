@@ -36,14 +36,16 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef KERNEL_GEOMETRY_MAPPINGS_REFINEMENTMAPSFORTRIANGLE_H_
-#define KERNEL_GEOMETRY_MAPPINGS_REFINEMENTMAPSFORTRIANGLE_H_
+#ifndef HPGEM_KERNEL_REFINEMENTMAPSFORTRIANGLE_H
+#define HPGEM_KERNEL_REFINEMENTMAPSFORTRIANGLE_H
 
 #include "RefinementMapping.h"
 #include "RefinementMapsForLine.h"
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferenceSquare.h"
 #include "Geometry/ReferenceTriangle.h"
+
+namespace hpgem {
 
 namespace Geometry {
 /**
@@ -1515,4 +1517,6 @@ class RefinementMapForTriangle8 : public RefinementMapping {
 };
 }  // namespace Geometry
 
-#endif /* KERNEL_GEOMETRY_MAPPINGS_REFINEMENTMAPSFORTRIANGLE_H_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_REFINEMENTMAPSFORTRIANGLE_H

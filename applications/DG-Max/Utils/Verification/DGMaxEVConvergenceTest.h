@@ -75,6 +75,16 @@ class DGMaxEVConvergenceTest : public AbstractEVConvergenceTest<DIM> {
     std::unique_ptr<AbstractEigenvalueResult<DIM>> runInternal(
         std::size_t level) override;
 
+    // Zeros are in the kernel and slight negative eigenvalues (result NaN
+    // frequencies) are expected
+    bool expectNaNsOrNegative() const override { return true; }
+    // Reasonable default for if k is not that close to zero
+    double expectedNumericalZeroThreshold() const override { return 1e-4; }
+    // Basic estimate that at least 1/2 of the actual eigenvalues must be there.
+    std::size_t minimumNumberOfResults(std::size_t level) const {
+        return expected_->getLevel(level).size() * 1 / 2;
+    }
+
    private:
     EVTestPoint<DIM> testCase_;
     std::vector<std::string> meshFileNames_;

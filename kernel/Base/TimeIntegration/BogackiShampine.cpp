@@ -38,6 +38,8 @@
 
 #include "BogackiShampine.h"
 
+namespace hpgem {
+
 TimeIntegration::BogackiShampine::BogackiShampine() {
     order_ = 3;
     numberOfStages_ = 4;
@@ -93,3 +95,5 @@ double TimeIntegration::BogackiShampine::getErrorCoefficient(
     std::size_t i) const {
     return error_[i];
 }
+
+}  // namespace hpgem

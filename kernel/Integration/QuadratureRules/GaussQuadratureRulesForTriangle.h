@@ -36,12 +36,14 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 //------------------------------------------------------------------------------
-#ifndef GaussQuadratureRulesForTriangle_h
-#define GaussQuadratureRulesForTriangle_h
+#ifndef HPGEM_KERNEL_GAUSSQUADRATURERULESFORTRIANGLE_H
+#define HPGEM_KERNEL_GAUSSQUADRATURERULESFORTRIANGLE_H
 //---------------------------------------------------------------------------
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include "Geometry/PointReference.h"
 #include <vector>
+
+namespace hpgem {
 
 //---------------------------------------------------------------------------
 namespace QuadratureRules {
@@ -334,4 +336,6 @@ class T2_11_28 : public GaussQuadratureRule {
 
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_GAUSSQUADRATURERULESFORTRIANGLE_H

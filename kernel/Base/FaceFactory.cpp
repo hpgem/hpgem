@@ -42,6 +42,8 @@
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "GlobalUniqueIndex.h"
 
+namespace hpgem {
+
 namespace Base {
 
 FaceFactory::FaceFactory()
@@ -77,3 +79,5 @@ void FaceFactory::setNumberOfFaceVectors(std::size_t vectors) {
 }
 
 }  // namespace Base
+
+}  // namespace hpgem

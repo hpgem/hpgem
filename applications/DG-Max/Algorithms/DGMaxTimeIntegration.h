@@ -36,14 +36,16 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef ALGORITHMS_DGMAXTIMEINTEGRATION_h
-#define ALGORITHMS_DGMAXTIMEINTEGRATION_h
+#ifndef HPGEM_APP_DGMAXTIMEINTEGRATION_H
+#define HPGEM_APP_DGMAXTIMEINTEGRATION_H
 
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
 
 #include "../ProblemTypes/TimeIntegrationProblem.h"
 
 #include "DGMaxDiscretization.h"
+
+using namespace hpgem;
 
 template <std::size_t DIM>
 struct TimeIntegrationParameters;
@@ -144,4 +146,4 @@ struct TimeIntegrationParameters {
     }
 };
 
-#endif  // ALGORITHMS_DGMAXTIMEINTEGRATION_h
+#endif  // HPGEM_APP_DGMAXTIMEINTEGRATION_H

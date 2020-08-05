@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BaseSimplifiedHPP
-#define BaseSimplifiedHPP
+#ifndef HPGEM_KERNEL_HPGEMAPISIMPLIFIED_H
+#define HPGEM_KERNEL_HPGEMAPISIMPLIFIED_H
 
 #include "Base/ConfigurationData.h"
 #include "Base/Element.h"
@@ -51,7 +51,7 @@
 #include "Output/TecplotSingleElementWriter.h"
 #include "Output/VTKTimeDependentWriter.h"
 #include <functional>
-
+namespace hpgem {
 namespace Integration {
 template <std::size_t DIM>
 class FaceIntegral;
@@ -516,7 +516,7 @@ class HpgemAPISimplified : public HpgemAPIBase<DIM>,
         VTKMatrixWrite_;
 };
 }  // namespace Base
-
+}  // namespace hpgem
 #include "HpgemAPISimplified_Impl.h"
 
-#endif
+#endif  // HPGEM_KERNEL_HPGEMAPISIMPLIFIED_H

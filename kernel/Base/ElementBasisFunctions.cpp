@@ -40,6 +40,8 @@
 
 #include "Logger.h"
 
+namespace hpgem {
+
 namespace Base {
 void ElementBasisFunctions::validatePositions() const {
     std::size_t unknowns = getNumberOfUnknowns();
@@ -143,3 +145,5 @@ void ElementBasisFunctions::registerBasisFunctionPosition(
     setPositions_[unknown][place] = position;
 }
 }  // namespace Base
+
+}  // namespace hpgem

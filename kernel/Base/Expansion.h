@@ -36,13 +36,16 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef Expansion_h
-#define Expansion_h
+#ifndef HPGEM_KERNEL_EXPANSION_H
+#define HPGEM_KERNEL_EXPANSION_H
 
 #include "../LinearAlgebra/MiddleSizeVector.h"
 #include "../Geometry/PointReference.h"
 #include "../Base/BasisFunctionSet.h"
 #include "../LinearAlgebra/Matrix.h"
+
+namespace hpgem {
+
 namespace Base {
 ///\deprecated Use Element::getSolution instead of this class.
 class Expansion {
@@ -104,4 +107,6 @@ class Expansion {
 
 }  // namespace Base
 
-#endif  // Expansion_h
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_EXPANSION_H

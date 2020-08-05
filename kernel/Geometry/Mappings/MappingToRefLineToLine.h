@@ -36,10 +36,12 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MAPPINGLINETOLINE_H_
-#define MAPPINGLINETOLINE_H_
+#ifndef HPGEM_KERNEL_MAPPINGTOREFLINETOLINE_H
+#define HPGEM_KERNEL_MAPPINGTOREFLINETOLINE_H
 
 #include "MappingReferenceToReference.h"
+
+namespace hpgem {
 
 namespace Geometry {
 /*
@@ -92,4 +94,6 @@ class MappingToRefLineToLine1 : public MappingReferenceToReference<0> {
         transformedCoordinates;
 };
 }  // namespace Geometry
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_MAPPINGTOREFLINETOLINE_H

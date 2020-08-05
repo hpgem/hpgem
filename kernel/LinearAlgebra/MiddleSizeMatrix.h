@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 //------------------------------------------------------------------------------
-#ifndef MIDDLESIZEMATRIX_HH
-#define MIDDLESIZEMATRIX_HH
+#ifndef HPGEM_KERNEL_MIDDLESIZEMATRIX_H
+#define HPGEM_KERNEL_MIDDLESIZEMATRIX_H
 
 // System includes
 #include <iostream>
@@ -46,6 +46,7 @@
 #include "MiddleSizeVector.h"
 #include <complex>
 
+namespace hpgem {
 namespace LinearAlgebra {
 template <std::size_t numberOfRows, std::size_t numberOfColumns>
 class SmallMatrix;
@@ -283,7 +284,7 @@ class MiddleSizeMatrix {
 
     /// Store the number of columns of the matrix
     std::size_t numberOfColumns_;
-};
+};  // namespace hpgem
 
 /// Writes nicely formatted entries of the Matrix A to the stream os.
 std::ostream& operator<<(std::ostream& os, const MiddleSizeMatrix& A);
@@ -296,4 +297,6 @@ MiddleSizeMatrix operator*(const MiddleSizeMatrix::type d,
 MiddleSizeVector operator*(MiddleSizeVector& vec, MiddleSizeMatrix& mat);
 
 }  // namespace LinearAlgebra
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_MIDDLESIZEMATRIX_H

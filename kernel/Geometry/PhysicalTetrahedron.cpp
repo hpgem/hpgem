@@ -42,6 +42,8 @@
 #include "PointPhysical.h"
 #include "PointReference.h"
 
+namespace hpgem {
+
 namespace Geometry {
 PhysicalTetrahedron::PhysicalTetrahedron(
     const std::vector<std::size_t>& globalNodeIndexes,
@@ -49,3 +51,5 @@ PhysicalTetrahedron::PhysicalTetrahedron(
     : PhysicalGeometry(globalNodeIndexes, nodes,
                        &ReferenceTetrahedron::Instance()) {}
 }  // namespace Geometry
+
+}  // namespace hpgem

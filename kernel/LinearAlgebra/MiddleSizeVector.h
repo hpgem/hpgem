@@ -36,15 +36,15 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MIDDLESIZEVECTOR_H_
-#define MIDDLESIZEVECTOR_H_
+#ifndef HPGEM_KERNEL_MIDDLESIZEVECTOR_H
+#define HPGEM_KERNEL_MIDDLESIZEVECTOR_H
 
 #include "Logger.h"
 #include <vector>
 #include <cmath>
 #include <iostream>
 #include <complex>
-
+namespace hpgem {
 namespace LinearAlgebra {
 template <std::size_t numberOfRows>
 class SmallVector;
@@ -150,7 +150,7 @@ class MiddleSizeVector {
 
    private:
     std::vector<type> data_;
-};
+};  // namespace hpgem
 
 MiddleSizeVector operator*(const MiddleSizeVector::type& left,
                            const MiddleSizeVector& right);
@@ -160,4 +160,6 @@ MiddleSizeVector operator-(const MiddleSizeVector& right);
 std::ostream& operator<<(std::ostream& os, const MiddleSizeVector& A);
 
 }  // namespace LinearAlgebra
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_MIDDLESIZEVECTOR_H

@@ -44,6 +44,7 @@
 #include "Logger.h"
 
 #include <cmath>
+using namespace hpgem;
 using Geometry::Jacobian;
 
 int main() {

@@ -36,13 +36,15 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef KERNEL_GEOMETRY_MAPPINGS_REFINEMENTMAPSFORSQUARE_H_
-#define KERNEL_GEOMETRY_MAPPINGS_REFINEMENTMAPSFORSQUARE_H_
+#ifndef HPGEM_KERNEL_REFINEMENTMAPSFORSQUARE_H
+#define HPGEM_KERNEL_REFINEMENTMAPSFORSQUARE_H
 
 #include "RefinementMapping.h"
 #include "RefinementMapsForLine.h"
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferenceSquare.h"
+
+namespace hpgem {
 
 namespace Geometry {
 /**
@@ -661,4 +663,6 @@ class RefinementMapForSquare3 : public RefinementMapping {
 };
 }  // namespace Geometry
 
-#endif /* KERNEL_GEOMETRY_MAPPINGS_REFINEMENTMAPSFORSQUARE_H_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_REFINEMENTMAPSFORSQUARE_H

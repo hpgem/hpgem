@@ -39,6 +39,8 @@
 #include "GaussQuadratureRule.h"
 #include "Geometry/PointReference.h"
 
+namespace hpgem {
+
 double QuadratureRules::GaussQuadratureRule::eval(
     const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex,
     std::size_t quadraturePointIndex) {
@@ -600,3 +602,5 @@ double QuadratureRules::GaussQuadratureRule::evalDiv(
                                      [basisFunctionIndex];
     }
 }
+
+}  // namespace hpgem

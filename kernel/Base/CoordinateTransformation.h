@@ -36,13 +36,15 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef COORDINATETRANSFORMATION_H_
-#define COORDINATETRANSFORMATION_H_
+#ifndef HPGEM_KERNEL_COORDINATETRANSFORMATION_H
+#define HPGEM_KERNEL_COORDINATETRANSFORMATION_H
 
 #include <cstdlib>
 #include "LinearAlgebra/SmallVector.h"
 #include "PhysicalElement.h"
 #include "PhysicalFace.h"
+
+namespace hpgem {
 
 namespace Base {
 // Due to recursive includes these need a forward defined
@@ -139,4 +141,6 @@ class CoordinateTransformation {
 };
 }  // namespace Base
 
-#endif /* COORDINATETRANSFORMATION_H_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_COORDINATETRANSFORMATION_H

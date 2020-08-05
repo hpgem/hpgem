@@ -45,6 +45,8 @@
 
 namespace DGMax {
 
+using namespace hpgem;
+
 /// A block from the global matrix, or a pair of blocks that are placed
 /// symmetrically.
 class MatrixBlocks {

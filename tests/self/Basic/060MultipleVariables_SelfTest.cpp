@@ -54,7 +54,7 @@
 #include "Base/Node.h"
 #include "Geometry/PointPhysical.h"
 #include "Geometry/PointReference.h"
-
+using namespace hpgem;
 int main() {
     std::cout << "Test functions for multiple variables.\n";
 

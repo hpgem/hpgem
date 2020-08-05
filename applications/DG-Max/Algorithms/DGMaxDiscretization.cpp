@@ -47,6 +47,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "ElementInfos.h"
 
+using namespace hpgem;
+
 template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::initializeBasisFunctions(
     Base::MeshManipulator<DIM>& mesh, std::size_t order) {

@@ -44,6 +44,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Geometry/PhysicalGeometry.h"
 #include "Geometry/Jacobian.h"
 
+namespace hpgem {
+
 namespace Geometry {
 MappingToPhysTriangularPrism::MappingToPhysTriangularPrism(
     const PhysicalGeometry<3>* const physicalGeometry)
@@ -194,3 +196,5 @@ bool MappingToPhysTriangularPrism::isValidPoint(
            (pointReference[2] >= -1.) && (pointReference[2] <= 1.);
 }
 }  // namespace Geometry
+
+}  // namespace hpgem

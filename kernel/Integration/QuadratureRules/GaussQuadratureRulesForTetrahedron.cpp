@@ -44,6 +44,8 @@
 #include "Geometry/ReferenceTetrahedron.h"
 #include "Geometry/PointReference.h"
 
+namespace hpgem {
+
 //---------------------------------------------------------------------------
 namespace QuadratureRules {
 //---------------------------------------------------------------------------
@@ -1595,3 +1597,5 @@ T3_10_126::T3_10_126()
 }
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
+
+}  // namespace hpgem

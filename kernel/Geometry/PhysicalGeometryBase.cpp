@@ -1,5 +1,7 @@
 #include "PhysicalGeometryBase.h"
 
+namespace hpgem {
+
 namespace Geometry {
 using namespace LinearAlgebra;
 
@@ -38,3 +40,4 @@ double PhysicalGeometryBase::computeDiameter() const {
     }
 }
 }  // namespace Geometry
+}  // namespace hpgem

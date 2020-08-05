@@ -35,11 +35,14 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef ____ReferencePyramid__
-#define ____ReferencePyramid__
+#ifndef HPGEM_KERNEL_REFERENCEPYRAMID_H
+#define HPGEM_KERNEL_REFERENCEPYRAMID_H
 
 #include "ReferenceGeometry.h"
 #include <vector>
+
+namespace hpgem {
+
 // created for the shape globally
 namespace Geometry {
 /* The ordering of the vertex and faces in a pyramid (top view; 0 is above the
@@ -181,4 +184,6 @@ class ReferencePyramid : public ReferenceGeometry {
     PointReference<3> center_;
 };
 }  // namespace Geometry
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_REFERENCEPYRAMID_H

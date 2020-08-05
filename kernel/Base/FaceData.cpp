@@ -44,6 +44,8 @@
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "Logger.h"
 
+namespace hpgem {
+
 Base::FaceData::FaceData(std::size_t numberOfDOF,
                          std::size_t numberOfFaceMatrices,
                          std::size_t numberOfFaceVectors)
@@ -164,3 +166,5 @@ std::size_t Base::FaceData::getNumberOfFaceMatrices() const {
 std::size_t Base::FaceData::getNumberOfFaceVectors() const {
     return faceVector_.size();
 }
+
+}  // namespace hpgem

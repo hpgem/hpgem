@@ -42,7 +42,7 @@
 #include "LinearAlgebra/SmallVector.h"
 #include "LinearAlgebra/SmallMatrix.h"
 #include "Logger.h"
-
+using namespace hpgem;
 using LinearAlgebra::SmallVector;
 
 void crossProductTests3D() {

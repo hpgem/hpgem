@@ -7,7 +7,7 @@
 #include <limits>
 #include "Base/TimeIntegration/AllTimeIntegrators.h"
 #include "Logger.h"
-
+using namespace hpgem;
 double executeOneTimeStep(const TimeIntegration::ButcherTableau *integrator,
                           double u, double dt) {
     std::vector<double> k;

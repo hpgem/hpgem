@@ -36,8 +36,10 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef TECPLOTSINGLEELEMENTWRITER_HPP
-#define TECPLOTSINGLEELEMENTWRITER_HPP
+#ifndef HPGEM_KERNEL_TECPLOTSINGLEELEMENTWRITER_H
+#define HPGEM_KERNEL_TECPLOTSINGLEELEMENTWRITER_H
+
+namespace hpgem {
 
 // forward declarations
 namespace Base {
@@ -69,4 +71,6 @@ class TecplotSingleElementWriter {
 };
 }  // namespace Output
 
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_TECPLOTSINGLEELEMENTWRITER_H

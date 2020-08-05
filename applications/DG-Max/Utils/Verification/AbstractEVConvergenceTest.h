@@ -70,12 +70,32 @@ class AbstractEVConvergenceTest {
     virtual std::unique_ptr<AbstractEigenvalueResult<DIM>> runInternal(
         std::size_t level) = 0;
 
+    /// Options for checking the result, by default perfect results
+
+    /// Whether to expect NaNs and negative values at the lower end of the
+    /// frequency spectrum.
+    virtual bool expectNaNsOrNegative() const { return false; }
+    /// The threshold for numerical zeros (use negative values for no expected
+    /// zeros).
+    virtual double expectedNumericalZeroThreshold() const { return -1.0; }
+
+    /// The minimum number of actual results (not filtered by
+    /// expectNaNsOrNegative nor by expectedNumericalZeroThreshold()) that
+    /// should be included for a result to be consistent with the expected
+    /// result.
+    ///
+    /// \param level The level
+    /// \return The number of actual frequencies that should match.
+    virtual std::size_t minimumNumberOfResults(std::size_t level) const {
+        return getExpected()->getLevel(level).size();
+    }
+
    private:
     /// Compare the results with the expected results of a specific level.
     ///
     /// \param level The level in the expected results
     /// \param result The actual computed result
-    /// \return  Whether the result is inconsistent with the expected data.
+    /// \return  Whether the result is consistent with the expected data.
     bool compareWithExpected(std::size_t level,
                              const AbstractEigenvalueResult<DIM>& result) const;
 };

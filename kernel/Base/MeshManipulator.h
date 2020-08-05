@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MESHMANIPULATOR_H_
-#define MESHMANIPULATOR_H_
+#ifndef HPGEM_KERNEL_MESHMANIPULATOR_H
+#define HPGEM_KERNEL_MESHMANIPULATOR_H
 
 #include <vector>
 #include <fstream>
@@ -48,7 +48,7 @@
 #include "GlobalNamespaceBase.h"
 #include "BasisFunctionSet.h"
 #include "MeshManipulatorBase.h"
-
+namespace hpgem {
 namespace Base {
 template <std::size_t DIM>
 class MeshManipulator;
@@ -594,7 +594,7 @@ class MeshManipulator : public MeshManipulatorBase {
 };
 
 }  // namespace Base
-
+}  // namespace hpgem
 #include "MeshManipulator_Impl.h"
 
-#endif /* MESHMANIPULATOR_H_ */
+#endif  // HPGEM_KERNEL_MESHMANIPULATOR_H

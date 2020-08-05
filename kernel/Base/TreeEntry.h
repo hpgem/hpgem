@@ -35,13 +35,15 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef TreeEntry_h
-#define TreeEntry_h
+#ifndef HPGEM_KERNEL_TREEENTRY_H
+#define HPGEM_KERNEL_TREEENTRY_H
 #include <typeinfo>
 
 #include <iostream>
 #include "Logger.h"
 #include "ConstIterableWrapper.h"
+
+namespace hpgem {
 
 namespace Base {
 enum class TreeTraversalMethod { SINGLELEVEL, ALLLEVEL, PREORDER, POSTORDER };
@@ -297,4 +299,6 @@ class TreeEntry {
 };
 }  // namespace Base
 
-#endif  // TreeEntry_h
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_TREEENTRY_H

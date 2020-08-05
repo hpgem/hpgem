@@ -44,6 +44,8 @@
 #include "Geometry/ReferencePoint.h"
 #include "Logger.h"
 
+namespace hpgem {
+
 namespace Geometry {
 /* The ordering of the vertex and faces in a triangle:
  *
@@ -157,3 +159,5 @@ const ReferenceGeometry* ReferenceTriangle::getCodim2ReferenceGeometry(
 }
 
 }  // namespace Geometry
+
+}  // namespace hpgem

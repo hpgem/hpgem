@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef INVISCIDTERMS_H_
-#define INVISCIDTERMS_H_
+#ifndef HPGEM_APP_INVISCIDTERMS_H
+#define HPGEM_APP_INVISCIDTERMS_H
 
 #include "NavierStokesConstants.h"
 #include "UnsteadyNavierStokesAPI.h"
@@ -187,4 +187,6 @@ class InviscidTerms {
 
 #include "InviscidTerms_Impl.h"
 
-#endif /* INVISCIDTERMS_H_ */
+using namespace hpgem;
+
+#endif  // HPGEM_APP_INVISCIDTERMS_H

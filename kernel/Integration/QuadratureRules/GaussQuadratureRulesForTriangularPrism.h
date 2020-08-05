@@ -36,12 +36,14 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 //------------------------------------------------------------------------------
-#ifndef GaussQuadratureRulesForTriangularPrism_h
-#define GaussQuadratureRulesForTriangularPrism_h
+#ifndef HPGEM_KERNEL_GAUSSQUADRATURERULESFORTRIANGULARPRISM_H
+#define HPGEM_KERNEL_GAUSSQUADRATURERULESFORTRIANGULARPRISM_H
 //---------------------------------------------------------------------------
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include "Geometry/PointReference.h"
 #include <vector>
+
+namespace hpgem {
 
 //---------------------------------------------------------------------------
 namespace QuadratureRules {
@@ -152,4 +154,6 @@ class TriPrism_7_64 : public GaussQuadratureRule {
 
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_GAUSSQUADRATURERULESFORTRIANGULARPRISM_H

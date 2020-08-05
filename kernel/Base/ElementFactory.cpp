@@ -41,6 +41,8 @@
 #include "Geometry/PointPhysical.h"
 #include "BasisFunctionSet.h"
 
+namespace hpgem {
+
 namespace Base {
 
 ElementFactory::ElementFactory()
@@ -78,3 +80,5 @@ void ElementFactory::setNumberOfVectors(std::size_t vectors) {
 }
 
 }  // namespace Base
+
+}  // namespace hpgem

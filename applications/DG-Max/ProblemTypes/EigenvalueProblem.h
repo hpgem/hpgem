@@ -36,10 +36,12 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PROBLEMTYPES_EIGENVALUEPROBLEM_h
-#define PROBLEMTYPES_EIGENVALUEPROBLEM_h
+#ifndef HPGEM_APP_EIGENVALUEPROBLEM_H
+#define HPGEM_APP_EIGENVALUEPROBLEM_H
 
 #include "../Utils/KSpacePath.h"
+
+using namespace hpgem;
 
 template <std::size_t DIM>
 class EigenvalueProblem {
@@ -58,4 +60,4 @@ class EigenvalueProblem {
     std::size_t numberOfEigenvalues_;
 };
 
-#endif  // PROBLEMTYPES_EIGENVALUEPROBLEM_h
+#endif  // HPGEM_APP_EIGENVALUEPROBLEM_H

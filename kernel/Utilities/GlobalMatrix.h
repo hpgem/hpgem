@@ -39,8 +39,8 @@
 // WARNING: THIS HEADER PARTLY DEPENDS ON C LIBRARIES - INCLUDING THIS HEADER
 // BEFORE OR AFTER OTHER HEADERS GREATLY INCLEASES THE RISK OF NAMING CONFLICTS
 // OR OTHER COMPILE TIME ERRORS
-#ifndef GLOBALMATRIX_HPP_
-#define GLOBALMATRIX_HPP_
+#ifndef HPGEM_KERNEL_GLOBALMATRIX_H
+#define HPGEM_KERNEL_GLOBALMATRIX_H
 
 #if defined(HPGEM_USE_ANY_PETSC)
 #include <petscmat.h>
@@ -48,7 +48,7 @@
 #include "GlobalIndexing.h"
 #include <vector>
 #include <map>
-
+namespace hpgem {
 namespace Base {
 class MeshManipulatorBase;
 class Face;
@@ -137,6 +137,7 @@ class GlobalPetscMatrix : public GlobalMatrix {
     Mat A_;
 };
 #endif
-}  // namespace Utilities
 
-#endif /* GLOBALMATRIX_HPP_ */
+}  // namespace Utilities
+}  // namespace hpgem
+#endif  // HPGEM_KERNEL_GLOBALMATRIX_H

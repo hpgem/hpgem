@@ -39,6 +39,8 @@
 #include "RK3TVD.h"
 #include "Logger.h"
 
+namespace hpgem {
+
 namespace TimeIntegration {
 
 RK3TVD::RK3TVD() {
@@ -94,3 +96,5 @@ double RK3TVD::getC(std::size_t i) const {
 }
 
 }  // namespace TimeIntegration
+
+}  // namespace hpgem

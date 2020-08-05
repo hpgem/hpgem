@@ -42,6 +42,8 @@
 #include <chrono>
 #include <fstream>
 
+using namespace hpgem;
+
 auto& name = Base::register_argument<std::string>(
     'n', "meshName", "name of the mesh file", true);
 auto& polynomialOrder = Base::register_argument<std::size_t>(

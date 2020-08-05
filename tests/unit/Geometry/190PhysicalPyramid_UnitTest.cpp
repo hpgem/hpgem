@@ -47,6 +47,7 @@
 #include "Geometry/ReferencePyramid.h"
 
 #include <cmath>
+using namespace hpgem;
 using Geometry::PhysicalPyramid;
 
 int main() {

@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ELEMENTINTEGRAL_IMPL_HPP_
-#define ELEMENTINTEGRAL_IMPL_HPP_
+#ifndef HPGEM_KERNEL_ELEMENTINTEGRAL_IMPL_H
+#define HPGEM_KERNEL_ELEMENTINTEGRAL_IMPL_H
 
 #include "Logger.h"
 #include "Base/Element.h"
@@ -47,6 +47,8 @@
 #include "ElementIntegral.h"
 #include "LinearAlgebra/Axpy.h"
 #include "Base/DoNotScaleIntegrands.h"
+
+namespace hpgem {
 
 namespace Integration {
 /*!
@@ -230,4 +232,6 @@ Base::PhysicalElement<DIM>& ElementIntegral<DIM>::getPhysicalElement() {
 }
 }  // namespace Integration
 
-#endif /* ELEMENTINTEGRAL_IMPL_HPP_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_ELEMENTINTEGRAL_IMPL_H

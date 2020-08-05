@@ -36,13 +36,17 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _GlobalNamespaceGeometry_h
-#define _GlobalNamespaceGeometry_h
+#ifndef HPGEM_KERNEL_GLOBALNAMESPACEGEOMETRY_H
+#define HPGEM_KERNEL_GLOBALNAMESPACEGEOMETRY_H
 
 #include <limits>
+
+namespace hpgem {
 
 namespace Geometry {
 const std::size_t MAXSIZET = std::numeric_limits<std::size_t>::max();
 }
 
-#endif  ///_GlobalNamespaceGeometry_h
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_GLOBALNAMESPACEGEOMETRY_H

@@ -36,11 +36,13 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BUTCHERTABLEAU_HPP
-#define BUTCHERTABLEAU_HPP
+#ifndef HPGEM_KERNEL_BUTCHERTABLEAU_H
+#define HPGEM_KERNEL_BUTCHERTABLEAU_H
 
 #include <vector>
 #include "Logger.h"
+
+namespace hpgem {
 
 namespace TimeIntegration {
 /** \brief Basic container for Butcher's tableaux.
@@ -82,4 +84,6 @@ namespace Base {
 using namespace TimeIntegration;
 }  // namespace Base
 
-#endif /* BUTCHERTABLEAU_HPP */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_BUTCHERTABLEAU_H

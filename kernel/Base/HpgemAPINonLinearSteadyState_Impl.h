@@ -42,7 +42,7 @@
 #include "Logger.h"
 #include <iostream>  //remove this after this API is official
 #include <fstream>   //remove this after this API is official
-
+namespace hpgem {
 namespace Base {
 // todo: Possibly add restart from data file to create a p-multigrid solution
 // strategy todo: Add function that can add setup functions to the solve
@@ -130,3 +130,4 @@ bool HpgemAPINonLinearSteadyState<DIM>::solve(bool doComputeInitialCondition,
     return false;
 }
 }  // namespace Base
+}  // namespace hpgem

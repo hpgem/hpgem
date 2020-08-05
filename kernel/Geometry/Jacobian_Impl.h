@@ -38,6 +38,8 @@
 
 #include "Logger.h"
 
+namespace hpgem {
+
 namespace Geometry {
 template <std::size_t dimFrom, std::size_t dimTo>
 Jacobian<dimFrom, dimTo>::Jacobian()
@@ -114,3 +116,4 @@ double Jacobian<dimFrom, dimTo>::determinant() const {
     return 0;
 }
 }  // namespace Geometry
+}  // namespace hpgem

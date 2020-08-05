@@ -36,14 +36,14 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BaseNonLinearSteadyStateH
-#define BaseNonLinearSteadyStateH
+#ifndef HPGEM_KERNEL_HPGEMAPINONLINEARSTEADYSTATE_H
+#define HPGEM_KERNEL_HPGEMAPINONLINEARSTEADYSTATE_H
 
 #include "Base/HpgemAPISimplified.h"
 #include "Base/TimeIntegration/AllTimeIntegrators.h"
 #include "Base/FaceMatrix.h"
 #include "Utilities/GlobalVector.h"
-
+namespace hpgem {
 namespace Base {
 /// \brief Interface for solving steady-state solutions of non-linear PDE's. At
 /// the moment this class can only solve steady state problems using Sundials.
@@ -157,7 +157,8 @@ class HpgemAPINonLinearSteadyState : public HpgemAPISimplified<DIM> {
     double step_ = 0.0;
 };
 }  // namespace Base
+}  // namespace hpgem
 
 #include "HpgemAPINonLinearSteadyState_Impl.h"
 
-#endif
+#endif  // HPGEM_KERNEL_HPGEMAPINONLINEARSTEADYSTATE_H

@@ -36,8 +36,10 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef LevelTree_Impl_h
-#define LevelTree_Impl_h
+#ifndef HPGEM_KERNEL_LEVELTREE_IMPL_H
+#define HPGEM_KERNEL_LEVELTREE_IMPL_H
+
+namespace hpgem {
 
 namespace Base {
 template <typename V>
@@ -347,4 +349,6 @@ void Base::LevelTree<V>::clear() {
 
 }  // namespace Base
 
-#endif  // LevelTree_Impl_h
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_LEVELTREE_IMPL_H

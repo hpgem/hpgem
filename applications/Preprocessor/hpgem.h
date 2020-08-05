@@ -36,13 +36,15 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPGEM_HPGEM_H
-#define HPGEM_HPGEM_H
+#ifndef HPGEM_APP_HPGEM_H
+#define HPGEM_APP_HPGEM_H
 
 #include "customIterator.h"
 #include <vector>
 #include <string>
 #include <fstream>
+
+using namespace hpgem;
 
 namespace Preprocessor {
 
@@ -87,4 +89,4 @@ class HpgemReader {
 };
 }  // namespace Preprocessor
 
-#endif  // HPGEM_HPGEM_H
+#endif  // HPGEM_APP_HPGEM_H

@@ -40,6 +40,8 @@
 #include "Geometry/Jacobian.h"
 #include "Geometry/PointReference.h"
 
+namespace hpgem {
+
 namespace Geometry {
 // ~~~ index 0
 // ~~~==============================================================================
@@ -177,3 +179,5 @@ Jacobian<2, 3> MappingToRefTriangleToTetrahedron3::calcJacobian(
 MappingToRefTriangleToTetrahedron3::MappingToRefTriangleToTetrahedron3() =
     default;
 }  // namespace Geometry
+
+}  // namespace hpgem

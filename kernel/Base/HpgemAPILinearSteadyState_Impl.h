@@ -62,7 +62,7 @@
 #endif
 
 #include "Logger.h"
-
+namespace hpgem {
 namespace Base {
 /// \param[in] dimension Dimension of the domain
 /// \param[in] numberOfVariables Number of variables in the PDE
@@ -151,6 +151,7 @@ void HpgemAPILinearSteadyState<DIM>::solveSteadyStateWithPetsc(
 #else
     std::string outputFileName = this->outputFileName_;
 #endif
+
     std::string outputFileNameTecplot = outputFileName + ".dat";
     std::string dimensionsToWrite = "";
     for (std::size_t i = 0; i < DIM; i++) {
@@ -226,6 +227,7 @@ void HpgemAPILinearSteadyState<DIM>::solveSteadyStateWithPetsc(
     }
 
     return;
+
 #endif
     logger(ERROR,
            "Petsc is needed to solve the steady state problem using this "
@@ -234,3 +236,4 @@ void HpgemAPILinearSteadyState<DIM>::solveSteadyStateWithPetsc(
            "make this clearer to other users");
 }
 }  // namespace Base
+}  // namespace hpgem

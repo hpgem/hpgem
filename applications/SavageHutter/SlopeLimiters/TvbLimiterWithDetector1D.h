@@ -36,11 +36,13 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef TVBLIMITERWITHDETECTOR_H
-#define TVBLIMITERWITHDETECTOR_H
+#ifndef HPGEM_APP_TVBLIMITERWITHDETECTOR1D_H
+#define HPGEM_APP_TVBLIMITERWITHDETECTOR1D_H
 
 #include "SlopeLimiter.h"
 #include "Integration/ElementIntegral.h"
+
+using namespace hpgem;
 
 class TvbLimiterWithDetector1D : public SlopeLimiter {
    public:
@@ -80,4 +82,4 @@ class TvbLimiterWithDetector1D : public SlopeLimiter {
     const std::size_t DIM;
 };
 
-#endif /* TVBLIMITERWITHDETECTOR_H */
+#endif  // HPGEM_APP_TVBLIMITERWITHDETECTOR1D_H

@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PHYSYCALELEMENT_H_
-#define PHYSYCALELEMENT_H_
+#ifndef HPGEM_KERNEL_PHYSICALELEMENT_H
+#define HPGEM_KERNEL_PHYSICALELEMENT_H
 
 #include <cstdlib>
 #include "Geometry/PointReference.h"
@@ -45,7 +45,7 @@
 #include "Geometry/Jacobian.h"
 #include "CoordinateTransformation.h"
 #include "Element.h"
-
+namespace hpgem {
 namespace Base {
 template <std::size_t DIM>
 class PhysicalFace;
@@ -265,6 +265,7 @@ class PhysicalElement final {
 };
 
 }  // namespace Base
-
+}  // namespace hpgem
 #include "PhysicalElement_Impl.h"
-#endif /* PHYSYCALELEMENT_H_ */
+
+#endif  // HPGEM_KERNEL_PHYSICALELEMENT_H

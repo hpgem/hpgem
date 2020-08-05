@@ -41,6 +41,8 @@
 #include "PointPhysical.h"
 #include "PointReference.h"
 
+namespace hpgem {
+
 namespace Geometry {
 PhysicalTriangularPrism::PhysicalTriangularPrism(
     const std::vector<std::size_t>& globalNodeIndexes,
@@ -48,3 +50,5 @@ PhysicalTriangularPrism::PhysicalTriangularPrism(
     : PhysicalGeometry(globalNodeIndexes, nodes,
                        &ReferenceTriangularPrism::Instance()) {}
 }  // namespace Geometry
+
+}  // namespace hpgem

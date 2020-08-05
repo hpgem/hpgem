@@ -36,12 +36,14 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef KERNEL_GEOMETRY_MAPPINGS_REFINEMENTMAPSFORPOINT_H_
-#define KERNEL_GEOMETRY_MAPPINGS_REFINEMENTMAPSFORPOINT_H_
+#ifndef HPGEM_KERNEL_REFINEMENTMAPSFORPOINT_H
+#define HPGEM_KERNEL_REFINEMENTMAPSFORPOINT_H
 
 #include "RefinementMapping.h"
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferencePoint.h"
+
+namespace hpgem {
 
 namespace Geometry {
 /**
@@ -148,4 +150,6 @@ class RefinementMapForPoint0 : public RefinementMapping {
 };
 }  // namespace Geometry
 
-#endif /* KERNEL_GEOMETRY_MAPPINGS_REFINEMENTMAPSFORPOINT_H_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_REFINEMENTMAPSFORPOINT_H

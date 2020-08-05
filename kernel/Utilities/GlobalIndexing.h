@@ -36,15 +36,15 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef HPGEM_GLOBALINDEXING_H
-#define HPGEM_GLOBALINDEXING_H
+#ifndef HPGEM_KERNEL_GLOBALINDEXING_H
+#define HPGEM_KERNEL_GLOBALINDEXING_H
 
 #include "../Base/Edge.h"
 #include "../Base/Element.h"
 #include "../Base/Face.h"
 #include "../Base/MeshManipulatorBase.h"
 #include "../Base/Node.h"
-
+namespace hpgem {
 namespace Utilities {
 
 /// \brief Mapping between basis functions on geometrical objects (Element,
@@ -508,4 +508,6 @@ class GlobalIndexing {
 };
 }  // namespace Utilities
 
-#endif  // HPGEM_GLOBALINDEXING_H
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_GLOBALINDEXING_H

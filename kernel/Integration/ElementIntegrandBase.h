@@ -35,10 +35,12 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef ElementIntegrandBase_h
-#define ElementIntegrandBase_h
+#ifndef HPGEM_KERNEL_ELEMENTINTEGRANDBASE_H
+#define HPGEM_KERNEL_ELEMENTINTEGRANDBASE_H
 
 #include <cstdlib>
+
+namespace hpgem {
 
 namespace Base {
 template <std::size_t DIM>
@@ -72,4 +74,6 @@ class ElementIntegrandBase {
 };
 }  // namespace Integration
 
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_ELEMENTINTEGRANDBASE_H

@@ -36,13 +36,13 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef VTKDISCONTINUOUSSOLUTIONWRITER_HPP
-#define VTKDISCONTINUOUSSOLUTIONWRITER_HPP
+#ifndef HPGEM_KERNEL_VTKSPECIFICTIMEWRITER_H
+#define HPGEM_KERNEL_VTKSPECIFICTIMEWRITER_H
 
 #include <functional>
 #include <fstream>
 #include "Base/MeshManipulator.h"
-
+namespace hpgem {
 namespace Output {
 
 ///\class VTKSpecificTimeWriter
@@ -98,7 +98,7 @@ class VTKSpecificTimeWriter final {
     std::size_t timelevel_;
 };
 }  // namespace Output
-
+}  // namespace hpgem
 #include "VTKSpecificTimeWriter_Impl.h"
 
-#endif /* VTKDISCONTINUOUSSOLUTIONWRITER_HPP */
+#endif  // HPGEM_KERNEL_VTKSPECIFICTIMEWRITER_H

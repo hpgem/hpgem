@@ -36,13 +36,15 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef H1CONFORMINGTRANSFORMATION_H_
-#define H1CONFORMINGTRANSFORMATION_H_
+#ifndef HPGEM_KERNEL_H1CONFORMINGTRANSFORMATION_H
+#define HPGEM_KERNEL_H1CONFORMINGTRANSFORMATION_H
 
 #include <cstdlib>
 #include "LinearAlgebra/SmallVector.h"
 #include "PhysicalElement.h"
 #include "CoordinateTransformation.h"
+
+namespace hpgem {
 
 namespace Base {
 /// the basic transformation that most users need (transforms functions and
@@ -80,4 +82,6 @@ class H1ConformingTransformation : public CoordinateTransformation<DIM> {
 };
 }  // namespace Base
 
-#endif /* H1CONFORMINGTRANSFORMATION_H_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_H1CONFORMINGTRANSFORMATION_H

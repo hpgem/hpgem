@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BASE_HPP
-#define BASE_HPP
+#ifndef HPGEM_KERNEL_HPGEMAPIBASE_H
+#define HPGEM_KERNEL_HPGEMAPIBASE_H
 
 #include <vector>
 
@@ -45,7 +45,7 @@
 #include "GlobalNamespaceBase.h"
 #include "CommandLineOptions.h"
 #include "GlobalData.h"
-
+namespace hpgem {
 namespace Base {
 template <std::size_t DIM>
 class MeshMoverBase;
@@ -139,7 +139,7 @@ class HpgemAPIBase {
     std::size_t globalNumberOfTimeIntegrationVectors_;
 };
 }  // namespace Base
-
+}  // namespace hpgem
 #include "HpgemAPIBase_Impl.h"
 
-#endif
+#endif  // HPGEM_KERNEL_HPGEMAPIBASE_H

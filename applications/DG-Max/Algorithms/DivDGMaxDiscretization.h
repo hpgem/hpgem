@@ -36,8 +36,8 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef ALGORITHMS_DIVDGMAXDISCRETIZATION_h
-#define ALGORITHMS_DIVDGMAXDISCRETIZATION_h
+#ifndef HPGEM_APP_DIVDGMAXDISCRETIZATION_H
+#define HPGEM_APP_DIVDGMAXDISCRETIZATION_H
 
 #include <functional>
 #include <memory>
@@ -45,6 +45,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Base/MeshManipulator.h"
 
 // Forward definitions
+namespace hpgem {
 namespace Base {
 template <std::size_t>
 class PhysicalElement;
@@ -59,7 +60,8 @@ class MiddleSizeVector;
 template <std::size_t DIM>
 class SmallVector;
 }  // namespace LinearAlgebra
-
+}  // namespace hpgem
+using namespace hpgem;
 /// \brief Discontinuous Galerkin discretization for Maxwell, where the
 /// divergence constraint (div E = 0) is part of the discretization.
 ///
@@ -283,4 +285,4 @@ std::ostream& operator<<(std::ostream& os,
 std::ostream& operator<<(std::ostream& os,
                          typename DivDGMaxDiscretization<3>::Stab& stab);
 
-#endif  // ALGORITHMS_DIVDGMAXDISCRETIZATION_h
+#endif  // HPGEM_APP_DIVDGMAXDISCRETIZATION_H

@@ -9,6 +9,9 @@
 #ifdef HPGEM_USE_MPI
 // In case of MPI it is usefull to know where each process is located
 #include <unistd.h>
+
+using namespace hpgem;
+
 #endif
 
 namespace DGMax {

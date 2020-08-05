@@ -36,13 +36,15 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef KERNEL_GEOMETRY_MAPPINGS_REFINEMENTMAPSFORTETRAHEDRON_H_
-#define KERNEL_GEOMETRY_MAPPINGS_REFINEMENTMAPSFORTETRAHEDRON_H_
+#ifndef HPGEM_KERNEL_REFINEMENTMAPSFORTETRAHEDRON_H
+#define HPGEM_KERNEL_REFINEMENTMAPSFORTETRAHEDRON_H
 
 #include "RefinementMapping.h"
 #include "RefinementMapsForTriangle.h"
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferenceTetrahedron.h"
+
+namespace hpgem {
 
 namespace Geometry {
 /* Stores all the refinement mappings for a tetrahedron.
@@ -183,4 +185,6 @@ class RefinementMapForTetrahedron0 : public RefinementMapping {
 };
 }  // namespace Geometry
 
-#endif /* KERNEL_GEOMETRY_MAPPINGS_REFINEMENTMAPSFORTETRAHEDRON_H_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_REFINEMENTMAPSFORTETRAHEDRON_H

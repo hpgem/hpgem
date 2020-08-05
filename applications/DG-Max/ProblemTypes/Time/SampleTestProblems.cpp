@@ -38,6 +38,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "SampleTestProblems.h"
 
+using namespace hpgem;
+
 template <std::size_t DIM>
 SampleTestProblems<DIM>::SampleTestProblems(
     SampleTestProblems<DIM>::Problem problem)

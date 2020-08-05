@@ -5,11 +5,13 @@
  * Created on November 26, 2014, 12:14 PM
  */
 
-#ifndef VTKELEMENTORDERING_HPP
-#define VTKELEMENTORDERING_HPP
+#ifndef HPGEM_KERNEL_VTKELEMENTORDERING_H
+#define HPGEM_KERNEL_VTKELEMENTORDERING_H
 
 #include <array>
 #include <typeinfo>
+
+namespace hpgem {
 
 namespace Output {
 ///\brief given a local node index in the node ordering VTK uses, return the
@@ -34,4 +36,6 @@ inline std::size_t tohpGEMOrdering(std::size_t VTKIndex,
 
 }  // namespace Output
 
-#endif /* VTKELEMENTORDERING_HPP */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_VTKELEMENTORDERING_H

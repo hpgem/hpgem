@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef KERNEL_GEOMETRY_MAPPINGS_REFINEMENTMAPSFORTRIANGULARPRISM_H_
-#define KERNEL_GEOMETRY_MAPPINGS_REFINEMENTMAPSFORTRIANGULARPRISM_H_
+#ifndef HPGEM_KERNEL_REFINEMENTMAPSFORTRIANGULARPRISM_H
+#define HPGEM_KERNEL_REFINEMENTMAPSFORTRIANGULARPRISM_H
 
 #include "RefinementMapping.h"
 #include "RefinementMapsForTriangle.h"
@@ -45,6 +45,8 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferenceCube.h"
 #include "Geometry/ReferenceTriangularPrism.h"
+
+namespace hpgem {
 
 namespace Geometry {
 /* Stores all the refinement mappings for a pyramid. Note that the ascii art is
@@ -1942,4 +1944,6 @@ class RefinementMapForTriangularPrism9 : public RefinementMapping {
 };
 }  // namespace Geometry
 
-#endif /* KERNEL_GEOMETRY_MAPPINGS_REFINEMENTMAPSFORTRIANGULARPRISM_H_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_REFINEMENTMAPSFORTRIANGULARPRISM_H

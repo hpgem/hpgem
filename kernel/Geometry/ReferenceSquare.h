@@ -35,13 +35,15 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef ____ReferenceSquare__
-#define ____ReferenceSquare__
+#ifndef HPGEM_KERNEL_REFERENCESQUARE_H
+#define HPGEM_KERNEL_REFERENCESQUARE_H
 
 #include "ReferenceGeometry.h"
 
 #include <vector>
 #include <iostream>
+
+namespace hpgem {
 
 namespace Geometry {
 
@@ -158,4 +160,6 @@ class ReferenceSquare : public ReferenceGeometry {
 };
 
 }  // namespace Geometry
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_REFERENCESQUARE_H

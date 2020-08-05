@@ -35,8 +35,10 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef GLOBALDATA_H_
-#define GLOBALDATA_H_
+#ifndef HPGEM_KERNEL_GLOBALDATA_H
+#define HPGEM_KERNEL_GLOBALDATA_H
+
+namespace hpgem {
 
 namespace Base {
 struct GlobalData {
@@ -45,4 +47,6 @@ struct GlobalData {
 };
 }  // namespace Base
 
-#endif /* GLOBALDATA_H_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_GLOBALDATA_H

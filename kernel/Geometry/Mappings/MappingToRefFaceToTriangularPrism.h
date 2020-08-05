@@ -36,10 +36,12 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MappingToRefFaceToTriangularPrism_H_
-#define MappingToRefFaceToTriangularPrism_H_
+#ifndef HPGEM_KERNEL_MAPPINGTOREFFACETOTRIANGULARPRISM_H
+#define HPGEM_KERNEL_MAPPINGTOREFFACETOTRIANGULARPRISM_H
 
 #include "MappingReferenceToReference.h"
+
+namespace hpgem {
 
 namespace Geometry {
 
@@ -153,4 +155,6 @@ class MappingToRefFaceToTriangularPrism4
 };
 
 }  // namespace Geometry
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_MAPPINGTOREFFACETOTRIANGULARPRISM_H

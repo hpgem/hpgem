@@ -50,6 +50,7 @@
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include "Logger.h"
 #include <cmath>
+using namespace hpgem;
 using Geometry::ReferenceLine;
 
 int main() {

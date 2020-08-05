@@ -36,13 +36,13 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PHYSICALFACE_H_
-#define PHYSICALFACE_H_
+#ifndef HPGEM_KERNEL_PHYSICALFACE_H
+#define HPGEM_KERNEL_PHYSICALFACE_H
 
 #include "PhysicalElement.h"
 #include "FaceMatrix.h"
 #include "Face.h"
-
+namespace hpgem {
 namespace Base {
 
 template <std::size_t DIM>
@@ -404,7 +404,7 @@ class PhysicalFace final {
     bool hasNormal, hasUnitNormal, hasNormalNorm;
 };
 }  // namespace Base
-
+}  // namespace hpgem
 #include "PhysicalFace_Impl.h"
 
-#endif /* PHYSICALFACE_H_ */
+#endif  // HPGEM_KERNEL_PHYSICALFACE_H

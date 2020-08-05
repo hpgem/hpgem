@@ -54,8 +54,9 @@
 #else
 // replace the metis internal size type by something reasonably sane
 using idx_t = std::size_t;
-#endif
 
+#endif
+namespace hpgem {
 namespace Base {
 
 template <std::size_t DIM>
@@ -314,3 +315,4 @@ std::vector<Geometry::PointPhysical<DIM> >& Mesh<DIM>::getNodeCoordinates() {
 }
 
 }  // namespace Base
+}  // namespace hpgem

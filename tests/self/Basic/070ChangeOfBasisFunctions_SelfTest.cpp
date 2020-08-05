@@ -50,7 +50,7 @@
 #include "Base/Element.h"
 #include "Base/ConfigurationData.h"
 #include "Base/CommandLineOptions.h"
-
+using namespace hpgem;
 template <std::size_t DIM>
 void testData(const Base::MeshManipulator<DIM>& mesh) {
     for (Base::Element* element : mesh.getElementsList()) {

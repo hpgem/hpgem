@@ -35,8 +35,10 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef OUTWARDNORMALVECTORSIGN_HH
-#define OUTWARDNORMALVECTORSIGN_HH
+#ifndef HPGEM_KERNEL_OUTWARDNORMALVECTORSIGN_H
+#define HPGEM_KERNEL_OUTWARDNORMALVECTORSIGN_H
+
+namespace hpgem {
 
 namespace Geometry {
 template <int codim>
@@ -54,4 +56,6 @@ class MappingReferenceToReference;
  */
 double OutwardNormalVectorSign(const MappingReferenceToReference<1>* const map);
 }  // namespace Geometry
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_OUTWARDNORMALVECTORSIGN_H

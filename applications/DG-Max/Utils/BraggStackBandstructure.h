@@ -1,11 +1,13 @@
 
-#ifndef HPGEM_BRAGGSTACKBANDSTRUCTURE_H
-#define HPGEM_BRAGGSTACKBANDSTRUCTURE_H
+#ifndef HPGEM_APP_BRAGGSTACKBANDSTRUCTURE_H
+#define HPGEM_APP_BRAGGSTACKBANDSTRUCTURE_H
 
 // So far only in 3D
 
 #include "LinearAlgebra/SmallVector.h"
 #include "BandStructure.h"
+
+using namespace hpgem;
 
 /// \brief Theoretical Bandstructure of a Bragg stack
 ///
@@ -209,4 +211,4 @@ class BraggStackBandstructure : public BandStructure<3> {
                     bool tm) const;
 };
 
-#endif  // HPGEM_BRAGGSTACKBANDSTRUCTURE_H
+#endif  // HPGEM_APP_BRAGGSTACKBANDSTRUCTURE_H

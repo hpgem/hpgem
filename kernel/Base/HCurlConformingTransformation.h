@@ -36,12 +36,14 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HCURLCONFORMINGTRANSFORMATION_H_
-#define HCURLCONFORMINGTRANSFORMATION_H_
+#ifndef HPGEM_KERNEL_HCURLCONFORMINGTRANSFORMATION_H
+#define HPGEM_KERNEL_HCURLCONFORMINGTRANSFORMATION_H
 
 #include <cstdlib>
 #include "LinearAlgebra/SmallVector.h"
 #include "CoordinateTransformation.h"
+
+namespace hpgem {
 
 namespace Base {
 /// transforms vector functions and their curl in a conforming way
@@ -87,4 +89,6 @@ inline LinearAlgebra::SmallVector<2>
 }
 }  // namespace Base
 
-#endif /* HCURLCONFORMINGTRANSFORMATION_H_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_HCURLCONFORMINGTRANSFORMATION_H

@@ -36,12 +36,14 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef REFERENCETOREFERENCEM_H_
-#define REFERENCETOREFERENCEM_H_
+#ifndef HPGEM_KERNEL_MAPPINGREFERENCETOREFERENCE_H
+#define HPGEM_KERNEL_MAPPINGREFERENCETOREFERENCE_H
 
 #include "MappingInterface.h"
 #include "Geometry/PointReference.h"
 #include <map>
+
+namespace hpgem {
 
 namespace Geometry {
 /*! \brief Intermediate ABC for reference space to reference space mappings.
@@ -100,4 +102,6 @@ class MappingReferenceToReference : public MappingInterface<codim> {
     //    transformedCoordinates;
 };
 }  // namespace Geometry
-#endif /* REFERENCETOPHYSICALM_H_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_MAPPINGREFERENCETOREFERENCE_H

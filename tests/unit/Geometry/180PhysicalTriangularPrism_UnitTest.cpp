@@ -47,6 +47,7 @@
 #include "Geometry/ReferenceTriangularPrism.h"
 
 #include <cmath>
+using namespace hpgem;
 using Geometry::PhysicalTriangularPrism;
 
 int main() {

@@ -46,6 +46,8 @@
 // only uses the constant basis functions
 #include "BasisFunctionsPiecewiseConstant.h"
 
+namespace hpgem {
+
 namespace Utilities {
 
 double BasisFunction2DVertexTriangle::evalDeriv0(
@@ -256,3 +258,5 @@ std::vector<const Base::OrientedBasisFunctionSet*>
 }
 
 }  // namespace Utilities
+
+}  // namespace hpgem

@@ -40,6 +40,8 @@
 #include <iomanip>
 #include <cmath>
 
+using namespace hpgem;
+
 template <std::size_t DIM>
 Euler<DIM>::Euler(
     const std::size_t numOfVariables, const double endTime,

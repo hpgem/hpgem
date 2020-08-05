@@ -36,11 +36,13 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BASISFUNCTIONS2DNEDELEC_H_
-#define BASISFUNCTIONS2DNEDELEC_H_
+#ifndef HPGEM_KERNEL_BASISFUNCTIONS2DNEDELEC_H
+#define HPGEM_KERNEL_BASISFUNCTIONS2DNEDELEC_H
 
 #include "Base/BaseBasisFunction.h"
 #include <vector>
+
+namespace hpgem {
 
 namespace Base {
 class BasisFunctionSet;
@@ -72,4 +74,6 @@ class BasisCurlEdgeNedelec2D : public Base::BaseBasisFunction {
 Base::BasisFunctionSet* createDGBasisFunctionSet2DNedelec(std::size_t order);
 }  // namespace Utilities
 
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_BASISFUNCTIONS2DNEDELEC_H

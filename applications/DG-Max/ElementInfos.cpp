@@ -41,6 +41,8 @@
 #include "Geometry/ReferenceGeometry.h"
 #include "Geometry/PointPhysical.h"
 
+using namespace hpgem;
+
 template <std::size_t DIM>
 double computeEpsilon(const Base::Element& element, std::size_t structureType);
 

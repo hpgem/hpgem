@@ -35,12 +35,14 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef GaussQuadratureRulesForPyramid_h
-#define GaussQuadratureRulesForPyramid_h
+#ifndef HPGEM_KERNEL_GAUSSQUADRATURERULESFORPYRAMID_H
+#define HPGEM_KERNEL_GAUSSQUADRATURERULESFORPYRAMID_H
 //---------------------------------------------------------------------------
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include "Geometry/PointReference.h"
 #include <vector>
+
+namespace hpgem {
 
 //---------------------------------------------------------------------------
 namespace QuadratureRules {
@@ -151,4 +153,6 @@ class Pyramid_7_48 : public GaussQuadratureRule {
 
 //---------------------------------------------------------------------------
 }  // namespace QuadratureRules
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_GAUSSQUADRATURERULESFORPYRAMID_H

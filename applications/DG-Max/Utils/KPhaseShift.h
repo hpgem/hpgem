@@ -45,6 +45,8 @@
 
 #include "MatrixBlocks.h"
 
+namespace hpgem {
+
 namespace LinearAlgebra {
 class MiddleSizeMatrix;
 }
@@ -64,8 +66,11 @@ class PointPhysical;
 namespace Utilities {
 class GlobalIndexing;
 }
+}  // namespace hpgem
 
 namespace DGMax {
+
+using namespace hpgem;
 
 /// A MatrixBlock which incurs a phase factor e^{ikx} (e^{-ikx} for the
 /// symmetric counter part).

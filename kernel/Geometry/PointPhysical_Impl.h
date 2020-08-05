@@ -38,8 +38,11 @@
 
 #include "PointPhysical.h"
 
+namespace hpgem {
+
 template <std::size_t DIM>
 Geometry::PointPhysical<DIM> Geometry::operator*(
     double left, const Geometry::PointPhysical<DIM>& right) {
     return right * left;
 }
+}  // namespace hpgem

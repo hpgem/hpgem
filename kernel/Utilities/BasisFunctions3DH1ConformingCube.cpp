@@ -46,6 +46,8 @@
 // only uses the constant basis functions
 #include "BasisFunctionsPiecewiseConstant.h"
 
+namespace hpgem {
+
 namespace Utilities {
 
 BasisFunction3DVertexCube::BasisFunction3DVertexCube(std::size_t node) {
@@ -1073,3 +1075,5 @@ double BasisFunction3DFaceCube_0::evalDeriv0(
 }
 
 }  // namespace Utilities
+
+}  // namespace hpgem

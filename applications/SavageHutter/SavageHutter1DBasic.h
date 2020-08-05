@@ -36,10 +36,12 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SAVAGEHUTTER1DBASIC_H
-#define SAVAGEHUTTER1DBASIC_H
+#ifndef HPGEM_APP_SAVAGEHUTTER1DBASIC_H
+#define HPGEM_APP_SAVAGEHUTTER1DBASIC_H
 
 #include "SavageHutter1DBase.h"
+
+using namespace hpgem;
 
 ///\brief Class to solve the basic Savage-Hutter equations in 1D.
 ///\details The idea is that almost everything you want to change in your
@@ -101,4 +103,4 @@ class SavageHutter1DBasic : public SavageHutter1DBase {
     double alpha_;
 };
 
-#endif /* SAVAGEHUTTER1DBASIC_H */
+#endif  // HPGEM_APP_SAVAGEHUTTER1DBASIC_H

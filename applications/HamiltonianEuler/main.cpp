@@ -48,6 +48,9 @@ using namespace std;
 #include <petscksp.h>
 
 #include "HEuler.h"
+
+using namespace hpgem;
+
 // ============================================================
 static char help[] = "Petsc Help";
 

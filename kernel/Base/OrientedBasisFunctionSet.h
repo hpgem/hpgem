@@ -36,10 +36,12 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ORIENTEDBASISFUNCTIONSET_HPP_
-#define ORIENTEDBASISFUNCTIONSET_HPP_
+#ifndef HPGEM_KERNEL_ORIENTEDBASISFUNCTIONSET_H
+#define HPGEM_KERNEL_ORIENTEDBASISFUNCTIONSET_H
 
 #include "BasisFunctionSet.h"
+
+namespace hpgem {
 
 namespace Base {
 
@@ -72,4 +74,6 @@ class OrientedBasisFunctionSet : public Base::BasisFunctionSet {
 
 } /* namespace Base */
 
-#endif /* ORIENTEDBASISFUNCTIONSET_HPP_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_ORIENTEDBASISFUNCTIONSET_H

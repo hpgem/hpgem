@@ -36,8 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ELEMENTGEOMETRY_H_
-#define ELEMENTGEOMETRY_H_
+#ifndef HPGEM_KERNEL_ELEMENTGEOMETRY_H
+#define HPGEM_KERNEL_ELEMENTGEOMETRY_H
 
 #include <vector>
 #include <iostream>
@@ -71,6 +71,8 @@
 #include "Mappings/MappingToPhysTriangularPrism.h"
 
 #include "PointReference.h"
+
+namespace hpgem {
 
 namespace Geometry {
 template <std::size_t DIM>
@@ -359,4 +361,6 @@ ElementGeometry::ElementGeometry(
                                // it one needs to call enableRefinement
 {}
 }  // namespace Geometry
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_ELEMENTGEOMETRY_H

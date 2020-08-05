@@ -58,8 +58,10 @@
 #include "VTKElementOrdering.h"
 #include <vector>
 #include <unordered_map>
+
 #include <typeindex>
 
+namespace hpgem {
 /////////////////////////////////////
 // some VTK specific helper routines//
 /////////////////////////////////////
@@ -368,3 +370,4 @@ void Output::VTKSpecificTimeWriter<DIM>::write(
                << Detail::toBase64((void*)data.data(), totalData) << std::endl;
     localFile_ << "      </DataArray>" << std::endl;
 }
+}  // namespace hpgem

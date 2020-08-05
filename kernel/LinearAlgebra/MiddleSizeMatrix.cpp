@@ -42,6 +42,8 @@
 #include <algorithm>
 #include <complex>
 
+namespace hpgem {
+
 namespace LinearAlgebra {
 
 extern "C" {
@@ -917,3 +919,5 @@ bool MiddleSizeMatrix::isHermitian(double tol) const {
     return true;
 }
 }  // namespace LinearAlgebra
+
+}  // namespace hpgem

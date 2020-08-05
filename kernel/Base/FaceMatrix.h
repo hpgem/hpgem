@@ -37,11 +37,13 @@
  */
 
 //----------------------------------------------------------------
-#ifndef FaceMatrix_h
-#define FaceMatrix_h
+#ifndef HPGEM_KERNEL_FACEMATRIX_H
+#define HPGEM_KERNEL_FACEMATRIX_H
 //----------------------------------------------------------------
 #include "Base/Side.h"
 #include "LinearAlgebra/MiddleSizeMatrix.h"
+
+namespace hpgem {
 
 namespace Base {
 /// \class FaceMatrix
@@ -138,4 +140,6 @@ class FaceMatrix {
     LinearAlgebra::MiddleSizeMatrix M_RightRight_;
 };
 }  // namespace Base
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_FACEMATRIX_H

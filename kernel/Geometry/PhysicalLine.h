@@ -36,9 +36,11 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PHYSICALLINE_HH
-#define PHYSICALLINE_HH
+#ifndef HPGEM_KERNEL_PHYSICALLINE_H
+#define HPGEM_KERNEL_PHYSICALLINE_H
 #include "PhysicalGeometry.h"
+
+namespace hpgem {
 
 namespace Geometry {
 class ReferenceLine;
@@ -53,4 +55,6 @@ class PhysicalLine : public PhysicalGeometry<1> {
 };
 
 }  // namespace Geometry
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_PHYSICALLINE_H

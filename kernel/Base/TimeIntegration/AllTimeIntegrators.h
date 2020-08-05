@@ -36,10 +36,12 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ALLTIMEINTEGRATORS_HPP
-#define ALLTIMEINTEGRATORS_HPP
+#ifndef HPGEM_KERNEL_ALLTIMEINTEGRATORS_H
+#define HPGEM_KERNEL_ALLTIMEINTEGRATORS_H
 
 #include "ButcherTableau.h"
+
+namespace hpgem {
 
 namespace TimeIntegration {
 class ButcherTableau;
@@ -67,4 +69,6 @@ class AllTimeIntegrators {
 };
 }  // namespace TimeIntegration
 
-#endif /* ALLTIMEINTEGRATORS_HPP */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_ALLTIMEINTEGRATORS_H

@@ -36,13 +36,14 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SMALLMATRIX_H_
-#define SMALLMATRIX_H_
+#ifndef HPGEM_KERNEL_SMALLMATRIX_H
+#define HPGEM_KERNEL_SMALLMATRIX_H
 
 #include <array>
 #include "SmallVector.h"
 #include "MiddleSizeMatrix.h"
 
+namespace hpgem {
 namespace LinearAlgebra {
 /// \class SmallMatrix
 /// \brief Data type for small dense matrix.
@@ -379,7 +380,7 @@ MiddleSizeMatrix::MiddleSizeMatrix(
 }
 
 }  // namespace LinearAlgebra
-
+}  // namespace hpgem
 #include "SmallMatrix_impl.h"
 
-#endif /* SMALLMATRIX_H_ */
+#endif  // HPGEM_KERNEL_SMALLMATRIX_H

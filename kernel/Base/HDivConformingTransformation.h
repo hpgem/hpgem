@@ -36,12 +36,14 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HDIVCONFORMINGTRANSFORMATION_H_
-#define HDIVCONFORMINGTRANSFORMATION_H_
+#ifndef HPGEM_KERNEL_HDIVCONFORMINGTRANSFORMATION_H
+#define HPGEM_KERNEL_HDIVCONFORMINGTRANSFORMATION_H
 
 #include <cstdlib>
 #include "LinearAlgebra/SmallVector.h"
 #include "CoordinateTransformation.h"
+
+namespace hpgem {
 
 namespace Base {
 /// transforms vector functions and their divergence in a conforming way
@@ -79,4 +81,6 @@ class HDivConformingTransformation : public CoordinateTransformation<DIM> {
 };
 }  // namespace Base
 
-#endif /* HDIVCONFORMINGTRANSFORMATION_H_ */
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_HDIVCONFORMINGTRANSFORMATION_H

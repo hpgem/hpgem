@@ -41,6 +41,8 @@
 #include "StateCoefficientsStructAir.h"
 #include <cmath>
 
+using namespace hpgem;
+
 StateCoefficientsStructAir::StateCoefficientsStructAir(
     Base::PhysicalElement<DIM> &element,
     const LinearAlgebra::MiddleSizeVector &stateCoefficients, const double time)

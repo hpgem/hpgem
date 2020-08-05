@@ -36,10 +36,12 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPGEM_CONSTITERABLEWRAPPER_H
-#define HPGEM_CONSTITERABLEWRAPPER_H
+#ifndef HPGEM_KERNEL_CONSTITERABLEWRAPPER_H
+#define HPGEM_KERNEL_CONSTITERABLEWRAPPER_H
 
 #include <vector>
+
+namespace hpgem {
 
 template <typename T>
 class IteratorOverConst;
@@ -191,4 +193,6 @@ IteratorOverConst<T> operator+(typename IteratorOverConst<T>::difference_type n,
     return result += n;
 }
 
-#endif  // HPGEM_CONSTITERABLEWRAPPER_H
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_CONSTITERABLEWRAPPER_H

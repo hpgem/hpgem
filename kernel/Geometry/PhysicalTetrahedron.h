@@ -36,9 +36,11 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PHYSICALTETRAHEDRON_HH
-#define PHYSICALTETRAHEDRON_HH
+#ifndef HPGEM_KERNEL_PHYSICALTETRAHEDRON_H
+#define HPGEM_KERNEL_PHYSICALTETRAHEDRON_H
 #include "PhysicalGeometry.h"
+
+namespace hpgem {
 
 namespace Geometry {
 class ReferenceTetrahedron;
@@ -52,4 +54,6 @@ class PhysicalTetrahedron : public PhysicalGeometry<3> {
                         std::vector<PointPhysical<3> >&);
 };
 }  // namespace Geometry
-#endif
+}  // namespace hpgem
+
+#endif  // HPGEM_KERNEL_PHYSICALTETRAHEDRON_H
