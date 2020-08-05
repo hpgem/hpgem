@@ -133,15 +133,14 @@ KPhaseShifts<DIM> CGDGMatrixKPhaseShiftBuilder<DIM>::build() const {
                 }
             }
         }
-
-        // Now that all boundary nodes and edges have been de-duplicated, add
-        // their shifts.
-        for (const Base::Node* node : boundaryNodes) {
-            this->addNodePhaseShifts(node, result);
-        }
-        for (const Base::Edge* edge : boundaryEdges) {
-            this->addEdgePhaseShifts(edge, result);
-        }
+    }
+    // Now that all boundary nodes and edges have been de-duplicated, add
+    // their shifts.
+    for (const Base::Node* node : boundaryNodes) {
+        this->addNodePhaseShifts(node, result);
+    }
+    for (const Base::Edge* edge : boundaryEdges) {
+        this->addEdgePhaseShifts(edge, result);
     }
     return KPhaseShifts<DIM>(result);
 }
