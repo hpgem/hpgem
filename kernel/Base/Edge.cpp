@@ -38,6 +38,7 @@
 #include "Edge.h"
 
 #include "Element.h"
+#include "Node.h"
 #include "Geometry/ReferenceGeometry.h"
 #include "Geometry/PhysicalGeometry.h"
 #include "LinearAlgebra/MiddleSizeMatrix.h"
@@ -111,9 +112,47 @@ bool Edge::isOwnedByCurrentProcessor() const {
 }
 
 Element* Edge::getOwningElement() const {
-    logger.assert_debug(
-        isOwnedByCurrentProcessor(),
-        "Owning element is only accurate when owned by the current processor");
+#if HPGEM_ASSERTS
+    if (!isOwnedByCurrentProcessor()) {
+        // This edge is part of the layer of ghost cells around the owned part
+        // of the mesh. As such, the list of elements may be incomplete as some
+        // of them may fall outside the ghost layer. This is guaranteed not to
+        // happen if one of the two boundary nodes is adjacent to an element
+        // that is owned by the current processor.
+
+        bool safe = false;
+        // Checking all elements adjacent to the nodes is expensive. The
+        // elements adjacent to this edge is a subset that we can easily check.
+        for (const Element* edgeElement : elements_) {
+            if (edgeElement->isOwnedByCurrentProcessor()) {
+                safe = true;
+                break;
+            }
+        }
+        // The expensive check going via both the nodes
+        if (!safe) {
+            const Element* element = elements_[0];
+            const Geometry::ReferenceGeometry* referenceGeometry =
+                element->getReferenceGeometry();
+            std::vector<std::size_t> nodeIds =
+                referenceGeometry->getCodim2EntityLocalIndices(
+                    localEdgeNumbers_[0]);
+            for (std::size_t nodeId : nodeIds) {
+                const Node* node = element->getNode(nodeId);
+                for (const Element* nodeElement : node->getElements()) {
+                    if (nodeElement->isOwnedByCurrentProcessor()) {
+                        safe = true;
+                        break;
+                    }
+                }
+                if (safe) {
+                    break;
+                }
+            }
+        }
+        logger.assert_debug(safe, "Owning element of this edge is not certain");
+    }
+#endif
     return elements_.empty() ? nullptr : elements_[0];
 }
 
