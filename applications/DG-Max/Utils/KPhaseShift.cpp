@@ -508,10 +508,9 @@ KPhaseShifts<DIM> CGDGMatrixKPhaseShiftBuilder<DIM>::build() const {
                     if (!hermitian_) {
                         include = edge->isOwnedByCurrentProcessor();
                     } else {
-
                         for (const Base::Element* element1 :
                              edge->getElements()) {
-                            if (element->isOwnedByCurrentProcessor()) {
+                            if (element1->isOwnedByCurrentProcessor()) {
                                 include = true;
                                 break;
                             }
