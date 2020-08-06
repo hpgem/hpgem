@@ -48,6 +48,9 @@
 #include "GlobalIndexing.h"
 #include <vector>
 #include <map>
+
+#include "Table2D.h"
+
 namespace hpgem {
 namespace Base {
 class MeshManipulatorBase;
@@ -118,6 +121,16 @@ class GlobalPetscMatrix : public GlobalMatrix {
 
     GlobalPetscMatrix(const GlobalIndexing& rowIndexing,
                       const GlobalIndexing& columnIndexing, int elementMatrixID,
+                      int faceMatrixID = -1)
+        : GlobalPetscMatrix(
+              rowIndexing, columnIndexing,
+              Table2D<bool>(rowIndexing.getNumberOfIncludedUnknowns(),
+                            columnIndexing.getNumberOfIncludedUnknowns(),
+                            faceMatrixID >= 0),
+              elementMatrixID, faceMatrixID){};
+    GlobalPetscMatrix(const GlobalIndexing& rowIndexing,
+                      const GlobalIndexing& columnIndexing,
+                      Table2D<bool> faceCoupling, int elementMatrixID,
                       int faceMatrixID = -1);
 
     ~GlobalPetscMatrix() override;
@@ -128,12 +141,24 @@ class GlobalPetscMatrix : public GlobalMatrix {
 
     void printMatInfo(MatInfoType type, std::ostream& stream);
     void writeMatlab(const std::string& fileName);
+    /// \brief Optional override for the use of face coupling.
+    ///
+    /// Optionally override the face-coupling between DoFs for the sparsity
+    /// estimate. The entry at (i,j) indicates the coupling between the i-th
+    /// included unknown from the rowIndexing and the j-th from the
+    /// columnIndexing.
+    ///
+    /// \param faceCoupling The new face coupling.
+    void setFaceCoupling(const Table2D<bool>& faceCoupling) {
+        faceCoupling_ = faceCoupling;
+    }
 
     const GlobalIndexing& getGlobalIndex() const { return rowIndexing_; }
 
    private:
     void createMat();
-
+    // Optional override for the face coupling
+    Table2D<bool> faceCoupling_;
     Mat A_;
 };
 #endif
