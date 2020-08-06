@@ -127,9 +127,9 @@ void DivDGMaxDiscretization<DIM>::computeElementIntegrands(
             new Base::H1ConformingTransformation<DIM>()),
         1);
 
-    auto end = mesh.elementColEnd();
+    auto end = mesh.elementColEnd(Base::IteratorType::GLOBAL);
     for (typename Base::MeshManipulator<DIM>::ElementIterator it =
-             mesh.elementColBegin();
+             mesh.elementColBegin(Base::IteratorType::GLOBAL);
          it != end; ++it) {
         totalUDoFs = (*it)->getNumberOfBasisFunctions(0);
         totalPDoFs = (*it)->getNumberOfBasisFunctions(1);
