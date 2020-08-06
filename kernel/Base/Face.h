@@ -361,12 +361,7 @@ class Face final : public Geometry::FaceGeometry, public FaceData {
 
     /// The element owning this face, only valid if the face is owned by the
     /// current processor
-    Element* getOwningElement() const {
-        logger.assert_debug(isOwnedByCurrentProcessor(),
-                            "Owning element is only accurate when owned by the "
-                            "current processor");
-        return elementLeft_;
-    }
+    Element* getOwningElement() const;
 
    private:
     Element* elementLeft_;
