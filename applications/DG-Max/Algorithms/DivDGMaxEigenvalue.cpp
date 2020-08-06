@@ -77,11 +77,19 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DivDGMaxEigenvalue<DIM>::solve(
                                             nullptr);
     discretization.computeFaceIntegrals(mesh_, nullptr, stab_);
 
+    Utilities::Table2D<bool> stiffnessCoupling(2, 2, true);
+    if (divType_ == DivDGMaxDiscretizationBase::DivType::CG) {
+        // Face matrices are only used for the DG-DG coupling
+        stiffnessCoupling = false;
+        stiffnessCoupling(0, 0) = true;
+    }
+
     Utilities::GlobalIndexing indexing(&mesh_);
     Utilities::GlobalPetscMatrix massMatrix(
         indexing, DivDGMaxDiscretization<DIM>::ELEMENT_MASS_MATRIX_ID, -1),
         stiffnessMatrix(
-            indexing, DivDGMaxDiscretization<DIM>::ELEMENT_STIFFNESS_MATRIX_ID,
+            indexing, indexing, stiffnessCoupling,
+            DivDGMaxDiscretization<DIM>::ELEMENT_STIFFNESS_MATRIX_ID,
             DivDGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID);
     DGMaxLogger(INFO, "Mass and stiffness matrices assembled");
     Utilities::GlobalPetscVector globalVector(indexing, -1, -1);
