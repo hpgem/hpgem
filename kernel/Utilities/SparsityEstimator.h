@@ -3,6 +3,7 @@
 #define HPGEM_KERNEL_SPARSITYESTIMATOR_H
 
 #include "vector"
+#include "Utilities/Table2D.h"
 
 namespace hpgem {
 
@@ -13,7 +14,7 @@ class MeshManipulatorBase;
 }  // namespace Base
 namespace Utilities {
 class GlobalIndexing;
-}
+}  // namespace Utilities
 
 namespace Utilities {
 /// Computation for the estimate (upper bound) on the number of non zero entries
@@ -42,25 +43,43 @@ class SparsityEstimator {
                                  std::vector<int>& nonZeroPerRowNonOwned,
                                  bool includeFaceCoupling = true) const;
 
+    void computeSparsityEstimate(std::vector<int>& nonZeroPerRowOwned,
+                                 std::vector<int>& nonZeroPerRowNonOwned,
+                                 const Table2D<bool>& faceCoupling) const;
+
    private:
     /// Workspace variables for the computation
     struct Workspace;
 
     /// Add the DoFs that have support on an Element to the workspace.
+    ///
+    /// \param element The element for which to add it
+    /// \param workspace The works space to add it to
     void addElementDoFs(const Base::Element* element,
                         Workspace& workspace) const;
 
     /// Write the DoF count for an Element, Face, etc. to the sparsity estimate
-    /// vector \tparam GEOM The Element, Face, etc. type \param geom The
-    /// Element, Face, etc. which supports the basis functions for which to
-    /// write the DoF count. \param workspace The workspace with DoF counts
+    /// vector
+    ///
+    /// \tparam GEOM The Element, Face, etc. type
+    ///
+    /// \param geom The Element, Face, etc. which supports the basis functions
+    /// for which to write the DoF count.
+    ///
+    /// \param workspace The workspace with DoF counts
+    ///
     /// \param nonZeroPerRowOwned see computeSparsityEstimate(std::vector<int>&,
-    /// std::vector<int>&) \param nonZeroPerRowNonOwned see
+    /// std::vector<int>&)
+    ///
+    /// \param nonZeroPerRowNonOwned see
     /// computeSparsityEstimate(std::vector<int>&, std::vector<int>&)
+    ///
+    /// \param faceCoupling Whether different unknowns couple through faces.
     template <typename GEOM>
     void writeDoFCount(const GEOM* geom, const Workspace& workspace,
                        std::vector<int>& nonZeroPerRowOwned,
-                       std::vector<int>& nonZeroPerRowNonOwned) const;
+                       std::vector<int>& nonZeroPerRowNonOwned,
+                       const Table2D<bool>& faceCoupling) const;
 
     /// The indexing for the basis functions on the rows of the matrix
     const GlobalIndexing& rowIndexing_;

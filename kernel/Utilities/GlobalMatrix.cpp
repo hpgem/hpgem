@@ -152,11 +152,12 @@ void GlobalMatrix::getMatrixBCEntries(const Base::Face* face,
 }
 
 #if defined(HPGEM_USE_ANY_PETSC)
-
 GlobalPetscMatrix::GlobalPetscMatrix(const GlobalIndexing& rowIndexing,
                                      const GlobalIndexing& columnIndexing,
+                                     Table2D<bool> faceCoupling,
                                      int elementMatrixID, int faceMatrixID)
-    : GlobalMatrix(rowIndexing, columnIndexing, elementMatrixID, faceMatrixID) {
+    : GlobalMatrix(rowIndexing, columnIndexing, elementMatrixID, faceMatrixID),
+      faceCoupling_(std::move(faceCoupling)) {
     PetscBool petscRuns;
     PetscInitialized(&petscRuns);
     logger.assert_debug(
@@ -229,9 +230,8 @@ void GlobalPetscMatrix::createMat() {
         std::vector<PetscInt> offDiagonalPositionsPerRow;
         logger.assert_always(rowIndexing_.getMesh() != nullptr, "Null mesh");
         SparsityEstimator estimator(rowIndexing_, columnIndexing_);
-        estimator.computeSparsityEstimate(numberOfPositionsPerRow,
-                                          offDiagonalPositionsPerRow,
-                                          faceMatrixID_ >= 0);
+        estimator.computeSparsityEstimate(
+            numberOfPositionsPerRow, offDiagonalPositionsPerRow, faceCoupling_);
         // Zeros are passed for the ignored arguments.
         ierr = MatMPIAIJSetPreallocation(A_, 0, numberOfPositionsPerRow.data(),
                                          0, offDiagonalPositionsPerRow.data());
@@ -250,8 +250,14 @@ void GlobalPetscMatrix::createMat() {
     // anything on the diagonal will cause an error with the previous option but
     // without the following.
     MatSetOption(A_, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE);
+    // Even when using custom faceCoupling_, the corresponding face matrix will
+    // be inserted fully via MatSetValues. However, a large part of this matrix
+    // is empty. Without the following option all these zeros will create a
+    // large number of unused entries overrunning the estimate from the
+    // sparsityestimator.
+    MatSetOption(A_, MAT_IGNORE_ZERO_ENTRIES, PETSC_TRUE);
     // Enable the following to test that no new allocations were needed
-    // MatSetOption(A_, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_TRUE);
+    MatSetOption(A_, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_TRUE);
 }
 
 void GlobalPetscMatrix::assemble() {
@@ -314,6 +320,9 @@ void GlobalPetscMatrix::assemble() {
                 A_, localToGlobalRow.size(), localToGlobalRow.data(),
                 localToGlobalColumnRef.size(), localToGlobalColumnRef.data(),
                 faceMatrix.data(), ADD_VALUES);
+            if (ierr > 0) {
+                logger(ERROR, "error");
+            }
             CHKERRV(ierr);
         }
     }
