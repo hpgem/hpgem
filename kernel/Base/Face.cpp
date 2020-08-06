@@ -381,6 +381,51 @@ bool Face::determineIsPeriodicBoundaryFace() const {
     return globalLeftNodes != globalRightNodes;
 }
 
+Element* Face::getOwningElement() const {
+#if HPGEM_ASSERTS
+    bool safe = false;
+    // If we own it, then we definitely know the owning element
+    safe |= isOwnedByCurrentProcessor();
+    // The owner is the left element. For a face in the ghost layer the right
+    // element may become the left element if the actual left element is outside
+    // the ghost layer. If both are available then we can be certain that the
+    // left one is correct.
+    safe |= elementRight_ != nullptr;
+    if (!safe) {
+        // If there is a node shared between an element that we own and this
+        // face, then we can be certain that all elements around that node are
+        // present in the ghost layer. Therefore, all elements around this face
+        // must be included and we can be certain that the right element is
+        // actually not present.
+        std::size_t faceLocalId = elementLeft_->getLocalId(this);
+        std::size_t nodes = getReferenceGeometry()->getNumberOfNodes();
+        for (std::size_t i = 0; i < nodes; ++i) {
+            std::size_t elementNodeIndex =
+                elementLeft_->getReferenceGeometry()
+                    ->getLocalNodeIndexFromFaceAndIndexOnFace(faceLocalId, i);
+            const Node* node = elementLeft_->getNode(elementNodeIndex);
+            for (const Element* element : node->getElements()) {
+                if (element->isOwnedByCurrentProcessor()) {
+                    safe = true;
+                    break;
+                }
+            }
+            if (safe) {
+                break;
+            }
+        }
+    }
+    // By now there are two options left:
+    //  - It is a boundary face in the ghost layer
+    //  - It is a internal face in the ghost layer where the second element is
+    //    not part of the ghost layer.
+    // For this second case we can not be certain that the left element is
+    // actually the owner.
+    logger.assert_debug(safe, "Possibly inaccurate owner for this face");
+#endif
+    return elementLeft_;
+}
+
 }  // namespace Base
 
 }  // namespace hpgem
