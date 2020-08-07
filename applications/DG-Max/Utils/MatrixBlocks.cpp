@@ -52,19 +52,49 @@ void MatrixBlocks::insertBlock(std::vector<PetscScalar>& storage,
     logger.assert_debug(isRowOriented == PETSC_FALSE,
                         "Requires column orientation");
 #endif
-    if (!hermitianPart) {
-        // Normal block (block1)
-        err =
-            MatSetValues(mat, (PetscInt)rowIndices_.size(), rowIndices_.data(),
-                         (PetscInt)columnIndices_.size(), columnIndices_.data(),
-                         storage.data(), INSERT_VALUES);
-    } else {
-        // Hermitian block (block2)
-        PetscScalar* data = storage.data() + getBlockSize();
-        err = MatSetValues(mat, (PetscInt)columnIndices_.size(),
-                           columnIndices_.data(), (PetscInt)rowIndices_.size(),
-                           rowIndices_.data(), data, INSERT_VALUES);
+    for (std::size_t i = 0; i < rowIndices_.size(); ++i) {
+        for (std::size_t j = 0; j < columnIndices_.size(); ++j) {
+            insertValue(storage, hermitianPart, mat, i, j);
+        }
     }
+    //
+    //    if (!hermitianPart) {
+    //        // Normal block (block1)
+    //        err =
+    //            MatSetValues(mat, (PetscInt)rowIndices_.size(),
+    //            rowIndices_.data(),
+    //                         (PetscInt)columnIndices_.size(),
+    //                         columnIndices_.data(), storage.data(),
+    //                         INSERT_VALUES);
+    //    } else {
+    //        // Hermitian block (block2)
+    //        PetscScalar* data = storage.data() + getBlockSize();
+    //        err = MatSetValues(mat, (PetscInt)columnIndices_.size(),
+    //                           columnIndices_.data(),
+    //                           (PetscInt)rowIndices_.size(),
+    //                           rowIndices_.data(), data, INSERT_VALUES);
+    //    }
+    CHKERRABORT(PETSC_COMM_WORLD, err);
+}
+
+void MatrixBlocks::insertValue(std::vector<PetscScalar>& storage,
+                               bool hermitianPart, Mat mat, std::size_t r,
+                               std::size_t c) const {
+    PetscScalar val;
+    if (!hermitianPart) {
+        val = storage[r + c * rowIndices_.size()];
+        r = rowIndices_[r];
+        c = columnIndices_[c];
+    } else {
+        val = storage[c + columnIndices_.size() * r + getBlockSize()];
+        std::swap(r, c);
+        r = columnIndices_[r];
+        c = rowIndices_[c];
+    }
+    if (val == 0.0) {
+        return;
+    }
+    PetscErrorCode err = MatSetValue(mat, r, c, val, INSERT_VALUES);
     CHKERRABORT(PETSC_COMM_WORLD, err);
 }
 

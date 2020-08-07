@@ -130,6 +130,9 @@ class MatrixBlocks {
     void insertBlock(std::vector<PetscScalar>& storage, bool hermitianPart,
                      Mat mat) const;
 
+    void insertValue(std::vector<PetscScalar>& storage, bool hermitianPart,
+                     Mat mat, std::size_t r, std::size_t c) const;
+
     /// Validate the correctnees
     void validate() const;
 };
