@@ -117,9 +117,9 @@ class Mesh;
 /**
  * @brief While this is conceptually just an index into the mesh, it also
  * presents some functions for local inspection and manipulation of the mesh
- * @tparam gridDimension the dimension of the mesh
+ * @tparam meshDimension the dimension of the mesh
  */
-template <std::size_t dimension, std::size_t gridDimension>
+template <std::size_t entityDimension, std::size_t meshDimension>
 class MeshEntity {
    public:
     // the default constructor constructs an entity in a moved-from state so it
@@ -137,10 +137,10 @@ class MeshEntity {
 
     MeshEntity& operator=(MeshEntity&&) = default;
 
-    Element<gridDimension>& getElement(std::size_t i);
-    const Element<gridDimension>& getElement(std::size_t i) const;
+    Element<meshDimension>& getElement(std::size_t i);
+    const Element<meshDimension>& getElement(std::size_t i) const;
 
-    std::size_t getElementIndex(const Element<gridDimension>& element) const;
+    std::size_t getElementIndex(const Element<meshDimension>& element) const;
 
     /// The number of elements that this MeshEntity is part of.
     std::size_t getNumberOfElements() const;
@@ -152,7 +152,7 @@ class MeshEntity {
     /// of.
     /// \param element The element
     /// \return The local index on the element.
-    std::size_t getLocalIndex(const Element<gridDimension>& element) const;
+    std::size_t getLocalIndex(const Element<meshDimension>& element) const;
 
     /// The global index of this MeshEntity
     std::size_t getGlobalIndex() const;
@@ -160,25 +160,25 @@ class MeshEntity {
     // note: this will return a vector of MeshEntities. To access individual
     // elements, call getElement(0) on the element or call getElement i for all
     // i on this entity
-    std::vector<MeshEntity<gridDimension, gridDimension>> getElementsList()
+    std::vector<MeshEntity<meshDimension, meshDimension>> getElementsList()
         const {
-        return getIncidenceList<gridDimension>();
+        return getIncidenceList<meshDimension>();
     }
 
-    std::vector<MeshEntity<gridDimension - 1, gridDimension>> getFacesList()
+    std::vector<MeshEntity<meshDimension - 1, meshDimension>> getFacesList()
         const {
-        return getIncidenceList<gridDimension - 1>();
+        return getIncidenceList<meshDimension - 1>();
     }
 
     std::size_t getNumberOfFaces() const { return getFacesList().size(); }
 
-    std::vector<MeshEntity<1, gridDimension>> getEdgesList() const {
+    std::vector<MeshEntity<1, meshDimension>> getEdgesList() const {
         return getIncidenceList<1>();
     }
 
     std::size_t getNumberOfEdges() const { return getEdgesList().size(); }
 
-    std::vector<MeshEntity<0, gridDimension>> getNodesList() const {
+    std::vector<MeshEntity<0, meshDimension>> getNodesList() const {
         return getIncidenceList<0>();
     }
 
@@ -186,7 +186,7 @@ class MeshEntity {
 
     // when d == dimension, it will just return {*this}
     template <int d>
-    std::vector<MeshEntity<(d < 0 ? d + gridDimension : d), gridDimension>>
+    std::vector<MeshEntity<(d < 0 ? d + meshDimension : d), meshDimension>>
         getIncidenceList() const;
 
     template <int d>
@@ -198,20 +198,20 @@ class MeshEntity {
     }
 
     template <int d>
-    MeshEntity<(d < 0 ? d + gridDimension : d), gridDimension>
+    MeshEntity<(d < 0 ? d + meshDimension : d), meshDimension>
         getIncidentEntity(std::size_t i) const {
-        return mesh->template getEntity<(d < 0 ? d + gridDimension : d)>(
-            getIncidenceListAsIndices<(d < 0 ? d + gridDimension : d)>()[i]);
+        return mesh->template getEntity<(d < 0 ? d + meshDimension : d)>(
+            getIncidenceListAsIndices<(d < 0 ? d + meshDimension : d)>()[i]);
     }
 
-    const Mesh<gridDimension>* getMesh() const { return mesh; }
+    const Mesh<meshDimension>* getMesh() const { return mesh; }
 
     bool operator==(const MeshEntity&) const;
     bool operator!=(const MeshEntity& other) const { return !(*this == other); }
 
    protected:
-    friend Mesh<gridDimension>;
-    MeshEntity(Mesh<gridDimension>* mesh, std::size_t entityID)
+    friend Mesh<meshDimension>;
+    MeshEntity(Mesh<meshDimension>* mesh, std::size_t entityID)
         : mesh(mesh), entityID(entityID) {}
 
     /// Add an element that is this MeshEntity is part of
@@ -221,7 +221,7 @@ class MeshEntity {
     /// element.
     void addElement(std::size_t elementID, std::size_t localEntityIndex);
 
-    Mesh<gridDimension>* mesh;
+    Mesh<meshDimension>* mesh;
     /// The id of this MeshEntity
     std::size_t entityID = std::numeric_limits<std::size_t>::max();
     /// The entityIDs for the Elements that this MeshEntity is part of
@@ -236,10 +236,10 @@ class MeshEntity {
 /**
  * @brief While this is conceptually just an index into the mesh, it also
  * presents some functions for local inspection and manipulation of the mesh
- * @tparam dimension the dimension of the mesh
+ * @tparam dim the dimension of the mesh
  */
-template <std::size_t dimension>
-class Element : public MeshEntity<dimension, dimension> {
+template <std::size_t dim>
+class Element : public MeshEntity<dim, dim> {
    public:
     // the default constructor constructs an entity in a moved-from state so it
     // is only useful if you want to create a std::array or something similar
@@ -261,15 +261,13 @@ class Element : public MeshEntity<dimension, dimension> {
         return !(*this == element);
     }
 
-    LinearAlgebra::SmallVector<dimension> getCoordinate(
-        std::size_t localIndex) const;
+    LinearAlgebra::SmallVector<dim> getCoordinate(std::size_t localIndex) const;
     std::size_t getCoordinateIndex(std::size_t localIndex) const;
 
-    std::vector<LinearAlgebra::SmallVector<dimension>> getCoordinatesList()
-        const;
+    std::vector<LinearAlgebra::SmallVector<dim>> getCoordinatesList() const;
 
     void setNodeCoordinate(std::size_t localIndex,
-                           LinearAlgebra::SmallVector<dimension> newCoordinate);
+                           LinearAlgebra::SmallVector<dim> newCoordinate);
 
     void setNode(std::size_t localIndex, std::size_t globalIndex,
                  std::size_t coordinateIndex);
@@ -278,8 +276,8 @@ class Element : public MeshEntity<dimension, dimension> {
     std::enable_if_t<(d > 0)> setEntity(std::size_t localIndex,
                                         std::size_t globalIndex);
 
-    using MeshEntity<dimension, dimension>::getIncidenceList;
-    using MeshEntity<dimension, dimension>::getIncidenceListAsIndices;
+    using MeshEntity<dim, dim>::getIncidenceList;
+    using MeshEntity<dim, dim>::getIncidenceListAsIndices;
 
     // get entities adjacent to both this element and the passed entity
     // e.g. adjacent faces of this element that are adjacent to the specified
@@ -287,22 +285,21 @@ class Element : public MeshEntity<dimension, dimension> {
     // entity must be adjacent to this element according to the zero argument
     // version
     template <int d, std::size_t entityDimension>
-    std::vector<MeshEntity<(d < 0 ? d + dimension : d), dimension>>
-        getIncidenceList(
-            const MeshEntity<entityDimension, dimension>& entity) const;
+    std::vector<MeshEntity<(d < 0 ? d + dim : d), dim>> getIncidenceList(
+        const MeshEntity<entityDimension, dim>& entity) const;
 
     template <int d, std::size_t entityDimension>
     std::vector<std::size_t> getIncidenceListAsIndices(
-        const MeshEntity<entityDimension, dimension>& entity) const;
+        const MeshEntity<entityDimension, dim>& entity) const;
 
     template <int d, std::size_t entityDimension>
     std::vector<std::size_t> getLocalIncidenceListAsIndices(
-        const MeshEntity<entityDimension, dimension>& entity) const;
+        const MeshEntity<entityDimension, dim>& entity) const;
 
    private:
-    friend Mesh<dimension>;
-    Element(Mesh<dimension>* mesh, std::size_t elementID)
-        : MeshEntity<dimension, dimension>(mesh, elementID) {
+    friend Mesh<dim>;
+    Element(Mesh<dim>* mesh, std::size_t elementID)
+        : MeshEntity<dim, dim>(mesh, elementID) {
         this->addElement(elementID, 0);
     }
 
@@ -311,14 +308,14 @@ class Element : public MeshEntity<dimension, dimension> {
     template <std::size_t d>
     std::enable_if_t<(d > 0)> addEntity(std::size_t globalIndex);
 
-    void setGeometry(const ElementShape<dimension>* shape) {
+    void setGeometry(const ElementShape<dim>* shape) {
         referenceGeometry = shape;
     }
 
-    const ElementShape<dimension>* referenceGeometry;
+    const ElementShape<dim>* referenceGeometry;
     // technically a map from the integer d to a list of indices of entities of
     // dimension d
-    std::array<std::vector<std::size_t>, dimension> incidenceLists;
+    std::array<std::vector<std::size_t>, dim> incidenceLists;
     std::vector<std::size_t> globalCoordinateIndices;
 };
 
