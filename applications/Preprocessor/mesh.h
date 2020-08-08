@@ -54,58 +54,6 @@ namespace Preprocessor {
 template <std::size_t dimension, std::size_t gridDimension>
 class MeshEntity;
 
-namespace Detail {
-
-template <std::size_t entityDimension, std::size_t dimension = entityDimension>
-struct MeshEntities : public MeshEntities<entityDimension - 1, dimension> {
-    std::vector<MeshEntity<entityDimension, dimension>> data;
-
-    template <std::size_t SUB_DIM>
-    std::vector<MeshEntity<SUB_DIM, dimension>>& getData() {
-        static_assert(SUB_DIM <= entityDimension,
-                      "Requested data is not available in this entity");
-        return MeshEntities<SUB_DIM, dimension>::data;
-    }
-
-    template <std::size_t SUB_DIM>
-    const std::vector<MeshEntity<SUB_DIM, dimension>>& getData() const {
-        static_assert(SUB_DIM <= entityDimension,
-                      "Requested data is not available in this entity");
-        return MeshEntities<SUB_DIM, dimension>::data;
-    }
-};
-
-template <std::size_t dimension>
-struct MeshEntities<0, dimension> {
-    std::vector<MeshEntity<0, dimension>> data;
-
-    template <std::size_t SUB_DIM>
-    std::vector<MeshEntity<0, dimension>>& getData() {
-        static_assert(SUB_DIM == 0,
-                      "Requested data is not available in this entity");
-        return data;
-    }
-
-    template <std::size_t SUB_DIM>
-    const std::vector<MeshEntity<0, dimension>>& getData() const {
-        static_assert(SUB_DIM == 0,
-                      "Requested data is not available in this entity");
-        return data;
-    }
-};
-
-constexpr std::size_t exp2(std::size_t power) {
-    if (power == 0) {
-        return 1;
-    }
-    if ((power / 2) * 2 == power) {
-        return exp2(power / 2) * exp2(power / 2);
-    } else {
-        return 2 * exp2(power - 1);
-    }
-}
-}  // namespace Detail
-
 template <std::size_t dimension>
 class Element;
 
@@ -318,6 +266,58 @@ class Element : public MeshEntity<dim, dim> {
     std::array<std::vector<std::size_t>, dim> incidenceLists;
     std::vector<std::size_t> globalCoordinateIndices;
 };
+
+namespace Detail {
+
+template <std::size_t entityDimension, std::size_t dimension = entityDimension>
+struct MeshEntities : public MeshEntities<entityDimension - 1, dimension> {
+    std::vector<MeshEntity<entityDimension, dimension>> data;
+
+    template <std::size_t SUB_DIM>
+    std::vector<MeshEntity<SUB_DIM, dimension>>& getData() {
+        static_assert(SUB_DIM <= entityDimension,
+                      "Requested data is not available in this entity");
+        return MeshEntities<SUB_DIM, dimension>::data;
+    }
+
+    template <std::size_t SUB_DIM>
+    const std::vector<MeshEntity<SUB_DIM, dimension>>& getData() const {
+        static_assert(SUB_DIM <= entityDimension,
+                      "Requested data is not available in this entity");
+        return MeshEntities<SUB_DIM, dimension>::data;
+    }
+};
+
+template <std::size_t dimension>
+struct MeshEntities<0, dimension> {
+    std::vector<MeshEntity<0, dimension>> data;
+
+    template <std::size_t SUB_DIM>
+    std::vector<MeshEntity<0, dimension>>& getData() {
+        static_assert(SUB_DIM == 0,
+                      "Requested data is not available in this entity");
+        return data;
+    }
+
+    template <std::size_t SUB_DIM>
+    const std::vector<MeshEntity<0, dimension>>& getData() const {
+        static_assert(SUB_DIM == 0,
+                      "Requested data is not available in this entity");
+        return data;
+    }
+};
+
+constexpr std::size_t exp2(std::size_t power) {
+    if (power == 0) {
+        return 1;
+    }
+    if ((power / 2) * 2 == power) {
+        return exp2(power / 2) * exp2(power / 2);
+    } else {
+        return 2 * exp2(power - 1);
+    }
+}
+}  // namespace Detail
 
 // the mesh class is designed for the preprocessor of hpGEM. Since a mesh will
 // always have coordinates accosiated with it these are baked into the data
