@@ -167,7 +167,7 @@ GlobalPetscMatrix::GlobalPetscMatrix(const GlobalIndexing& rowIndexing,
     // Dummy call to always have an valid matrix in A_.
     MatCreateSeqAIJ(PETSC_COMM_SELF, 0, 0, 0, PETSC_NULL, &A_);
 
-    reinit();
+    reinit(false);
 }
 
 GlobalPetscMatrix::~GlobalPetscMatrix() {
@@ -187,9 +187,15 @@ GlobalPetscMatrix::operator Mat() {
     return A_;
 }
 
-void GlobalPetscMatrix::reinit() {
+void GlobalPetscMatrix::reinit(bool reinitFaceCoupling) {
+
     if (rowIndexing_.getMesh() == nullptr ||
         columnIndexing_.getMesh() == nullptr) {
+
+        if (reinitFaceCoupling) {
+            faceCoupling_.resize(0, 0);
+        }
+
         // Uninitialized index for at least the rows or columns. So replace it
         // with an empty matrix.
         PetscErrorCode error;
@@ -202,6 +208,14 @@ void GlobalPetscMatrix::reinit() {
         logger.assert_always(
             rowIndexing_.getMesh() == columnIndexing_.getMesh(),
             "Row and column indexing from different meshes");
+
+        if (reinitFaceCoupling) {
+            faceCoupling_ =
+                Table2D<bool>(rowIndexing_.getNumberOfIncludedUnknowns(),
+                              columnIndexing_.getNumberOfIncludedUnknowns(),
+                              faceMatrixID_ >= 0);
+        }
+
         createMat();
         assemble();
     }
