@@ -137,7 +137,10 @@ class GlobalPetscMatrix : public GlobalMatrix {
 
     void assemble() override;
 
-    void reinit() override;
+    void reinit() override { reinit(true); }
+    /// Reinitialize the matrix
+    /// \param reinitFaceCoupling Whether to reinit the face coupling
+    void reinit(bool reinitFaceCoupling);
 
     void printMatInfo(MatInfoType type, std::ostream& stream);
     void writeMatlab(const std::string& fileName);
