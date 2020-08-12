@@ -68,6 +68,40 @@ DGMaxEigenvalue<DIM>::DGMaxEigenvalue(Base::MeshManipulator<DIM>& mesh,
       config_(config),
       discretization_(config.useProjector_ != DGMaxEigenvalueBase::NONE) {
     discretization_.initializeBasisFunctions(mesh_, order);
+    // Temporary boundaryIndicators
+    discretization_.setBoundaryIndicator([](const Base::Face* face) {
+        using BCT = DGMaxDiscretizationBase::BoundaryConditionType;
+        using Vector = LinearAlgebra::SmallVector<DIM>;
+        Base::PhysicalFace<DIM> pFace(false);
+        pFace.setFace(face);
+        pFace.setPointReference(face->getReferenceGeometry()->getCenter());
+        const Vector& normal = pFace.getNormalVector();
+
+        std::size_t maxDirection = -1;
+        // Find the direction of the normal.
+        double maxDirComponent = -1.0;
+        for (std::size_t i = 0; i < DIM; ++i) {
+            Vector dir;
+            dir[i] = 1.0;
+            double dirComponent = std::abs(dir * normal);
+            if (dirComponent > maxDirComponent) {
+                maxDirComponent = dirComponent;
+                maxDirection = i;
+            }
+        }
+
+        switch (maxDirection) {
+            case 0:
+                return BCT::DIRICHLET;
+            case 1:
+                return BCT::DIRICHLET;
+            case 2:
+                return BCT::NEUMANN_ZERO;
+            default:
+                logger.assert_always(false, "Undefined direction boundary");
+                return BCT::DIRICHLET;
+        }
+    });
 }
 
 template <std::size_t DIM>
