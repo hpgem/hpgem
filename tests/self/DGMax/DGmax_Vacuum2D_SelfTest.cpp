@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
     config.stab_ = 100;
     config.shiftFactor_ = 0;
     config.useHermitian_ = false;
-    config.useProjector_ = false;
+    config.useProjector_ = DGMaxEigenvalueBase::NONE;
     DGMax::DGMaxEVConvergenceTest<2> testCase(testPoint, meshes, 1e-8, 1,
                                               config, &expected);
     DGMax::EVConvergenceResult result = testCase.run(runAsTest);

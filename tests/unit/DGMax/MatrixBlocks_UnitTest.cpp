@@ -185,7 +185,7 @@ void matrixInsertionTest() {
 }  // namespace DGMax
 
 int main(int argc, char** argv) {
-    Base::parse_options(argc, argv);  // To init petsc
+    hpgem::Base::parse_options(argc, argv);  // To init petsc
 
     DGMax::basicInitTest();
     DGMax::matrixInsertionTest();
