@@ -13,5 +13,5 @@ foreach(CPPFILE ${CPPFILES})
 	#Make the exe
 	add_executable(${EXECNAME} ${FILENAME})
 
-	target_link_libraries(${EXECNAME}  hpGEM_Base QuadratureRules)
+	target_link_libraries(${EXECNAME}  hpGEM_Base QuadratureRules tests-main)
 endforeach()

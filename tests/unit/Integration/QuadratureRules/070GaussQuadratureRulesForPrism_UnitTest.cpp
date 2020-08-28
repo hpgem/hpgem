@@ -50,16 +50,20 @@
 #include "Geometry/PointReference.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include <cmath>
+
+#include "../../catch.hpp"
+
 using namespace hpgem;
 void testRule(QuadratureRules::GaussQuadratureRule& test,
               std::size_t expectedOrder) {
     std::cout << test.getName() << std::endl;
-    logger.assert_always((test.dimension() == 3), "dimension");
-    logger.assert_always((test.order() >= expectedOrder), "order");
+    INFO("dimension");
+    CHECK((test.dimension() == 3));
+    INFO("order");
+    CHECK((test.order() >= expectedOrder));
     const Geometry::ReferenceGeometry& refGeo = *test.forReferenceGeometry();
-    logger.assert_always(
-        (typeid(refGeo) == typeid(Geometry::ReferenceTriangularPrism)),
-        "forReferenceGeometry");
+    INFO("forReferenceGeometry");
+    CHECK((typeid(refGeo) == typeid(Geometry::ReferenceTriangularPrism)));
     std::cout.precision(14);
     Base::BasisFunctionSet* functions =
         Utilities::createDGBasisFunctionSet3DH1ConformingPrism(expectedOrder);
@@ -70,78 +74,70 @@ void testRule(QuadratureRules::GaussQuadratureRule& test,
             integrated += test.weight(j) * functions->eval(i, point);
         }
         if (i < 6) {
-            logger.assert_always((std::abs(integrated - 1. / 6.) < 1e-10),
-                                 "integration");
+            INFO("integration");
+            CHECK((std::abs(integrated - 1. / 6.) < 1e-10));
         } else if (i < 12) {
-            logger.assert_always(
-                (std::abs(integrated + 0.1020620726159) < 1e-10),
-                "integration");
+            INFO("integration");
+            CHECK((std::abs(integrated + 0.1020620726159) < 1e-10));
         } else if (11 < i && i < 15) {
-            logger.assert_always(
-                (std::abs(integrated + 0.1360827634879) < 1e-9), "integration");
+            INFO("integration");
+            CHECK((std::abs(integrated + 0.1360827634879) < 1e-9));
         } else if (14 < i && i < 18) {
-            logger.assert_always((std::abs(integrated - 1. / 12.) < 1e-10),
-                                 "integration");
+            INFO("integration");
+            CHECK((std::abs(integrated - 1. / 12.) < 1e-10));
         } else if (i == 27 || i == 28) {
-            logger.assert_always((std::abs(integrated - 1. / 20.) < 1e-10),
-                                 "integration");
+            INFO("integration");
+            CHECK((std::abs(integrated - 1. / 20.) < 1e-10));
         } else if (40 < i && i < 47) {
-            logger.assert_always(
-                (std::abs(integrated - 0.012991865926298) < 1e-10),
-                "integration");
+            INFO("integration");
+            CHECK((std::abs(integrated - 0.012991865926298) < 1e-10));
         } else if (i == 56 || i == 61 || i == 66) {
-            logger.assert_always(
-                (std::abs(integrated + 0.01060781410869) < 1e-10),
-                "integration");
+            INFO("integration");
+            CHECK((std::abs(integrated + 0.01060781410869) < 1e-10));
         } else if (i == 69 || i == 70) {
-            logger.assert_always(
-                (std::abs(integrated - 0.008166315725102) < 1e-10),
-                "integration");
+            INFO("integration");
+            CHECK((std::abs(integrated - 0.008166315725102) < 1e-10));
         } else if (i == 75) {
-            logger.assert_always(
-                (std::abs(integrated - 0.001369177697178) < 1e-10 ||
-                 expectedOrder == 7),
-                "integration");  // actually the p=5 quadrature rule may also be
-                                 // the culprit, but 7 is more likely because it
-                                 // has other flaws
+            INFO("integration");
+            CHECK((std::abs(integrated - 0.001369177697178) < 1e-10 ||
+                   expectedOrder == 7));  // actually the p=5 quadrature rule
+                                          // may also be the culprit, but 7 is
+                                          // more likely because it has other
+                                          // flaws
         } else if (i == 76) {
-            logger.assert_always(
-                (std::abs(integrated + 0.001369177697178) < 1e-10 ||
-                 expectedOrder == 7),
-                "integration");
+            INFO("integration");
+            CHECK((std::abs(integrated + 0.001369177697178) < 1e-10 ||
+                   expectedOrder == 7));
         } else if (i == 87 || i == 89 || i == 90 || i == 92) {
-            logger.assert_always(
-                (std::abs(integrated + 0.010001653302483) < 1e-10),
-                "integration");
+            INFO("integration");
+            CHECK((std::abs(integrated + 0.010001653302483) < 1e-10));
         } else if (i == 88 || i == 91) {
-            logger.assert_always(
-                (std::abs(integrated + 0.003968253968254) < 1e-10),
-                "integration");
+            INFO("integration");
+            CHECK((std::abs(integrated + 0.003968253968254) < 1e-10));
         } else if (i == 123 || i == 124) {
-            logger.assert_always(
-                (std::abs(integrated + 0.000465750474069) < 1e-10 ||
-                 expectedOrder == 7),
-                "integration");
+            INFO("integration");
+            CHECK((std::abs(integrated + 0.000465750474069) < 1e-10 ||
+                   expectedOrder == 7));
         } else if (i == 129) {
-            logger.assert_always(
-                (std::abs(integrated + 0.000721656823802) < 1e-10 ||
-                 expectedOrder == 7),
-                "integration");
+            INFO("integration");
+            CHECK((std::abs(integrated + 0.000721656823802) < 1e-10 ||
+                   expectedOrder == 7));
         } else if (i == 130) {
-            logger.assert_always(
-                (std::abs(integrated - 0.000721656823802) < 1e-10 ||
-                 expectedOrder == 7),
-                "integration");
+            INFO("integration");
+            CHECK((std::abs(integrated - 0.000721656823802) < 1e-10 ||
+                   expectedOrder == 7));
         } else if (i < 132) {  // I test what I can for p=7, but not all the
                                // points
-            logger.assert_always((std::abs(integrated) < 1e-10), "integration");
+            INFO("integration");
+            CHECK((std::abs(integrated) < 1e-10));
         }
     }
 
     delete functions;
 }
 
-int main() {
+TEST_CASE("070GaussQuadratureRulesForPrism_UnitTest",
+          "[070GaussQuadratureRulesForPrism_UnitTest]") {
 
     testRule(QuadratureRules::TriPrism_1_1::Instance(), 1);
     testRule(QuadratureRules::TriPrism_3_8::Instance(), 3);
@@ -149,6 +145,4 @@ int main() {
     ///\todo not accurate enough
     testRule(QuadratureRules::TriPrism_7_64::Instance(), 7);
     ///\todo there are no quadrature rules for higher order prisms
-
-    return 0;
 }

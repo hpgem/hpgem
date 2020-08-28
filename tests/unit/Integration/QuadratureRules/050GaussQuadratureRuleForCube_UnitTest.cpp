@@ -50,15 +50,20 @@
 #include "Geometry/PointReference.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include <cmath>
+
+#include "../../catch.hpp"
+
 using namespace hpgem;
 void testRule(QuadratureRules::GaussQuadratureRule& test,
               std::size_t expectedOrder) {
     std::cout << test.getName() << std::endl;
-    logger.assert_always((test.dimension() == 3), "dimension");
-    logger.assert_always((test.order() >= expectedOrder), "order");
+    INFO("dimension");
+    CHECK((test.dimension() == 3));
+    INFO("order");
+    CHECK((test.order() >= expectedOrder));
     const Geometry::ReferenceGeometry& refGeo = *test.forReferenceGeometry();
-    logger.assert_always((typeid(refGeo) == typeid(Geometry::ReferenceCube)),
-                         "forReferenceGeometry");
+    INFO("forReferenceGeometry");
+    CHECK((typeid(refGeo) == typeid(Geometry::ReferenceCube)));
 
     Base::BasisFunctionSet* functions =
         Utilities::createDGBasisFunctionSet3DH1Cube(expectedOrder);
@@ -70,28 +75,29 @@ void testRule(QuadratureRules::GaussQuadratureRule& test,
             integrated += test.weight(j) * functions->eval(i, point);
         }
         if (i < 8) {
-            logger.assert_always((std::abs(integrated - 1) < 1e-12),
-                                 "integration");
+            INFO("integration");
+            CHECK((std::abs(integrated - 1) < 1e-12));
         } else if (i < 20) {
-            logger.assert_always(
-                (std::abs(integrated + std::sqrt(2. / 3.)) < 1e-12),
-                "integration");
+            INFO("integration");
+            CHECK((std::abs(integrated + std::sqrt(2. / 3.)) < 1e-12));
         } else if (i < 26) {
-            logger.assert_always((std::abs(integrated - 2. / 3.) < 1e-12),
-                                 "integration");
+            INFO("integration");
+            CHECK((std::abs(integrated - 2. / 3.) < 1e-12));
         } else if (i == 26) {
-            logger.assert_always(
-                (std::abs(integrated + std::sqrt(2. / 3.) * 2. / 3.) < 1e-12),
-                "integration");
+            INFO("integration");
+            CHECK(
+                (std::abs(integrated + std::sqrt(2. / 3.) * 2. / 3.) < 1e-12));
         } else {
-            logger.assert_always((std::abs(integrated) < 1e-12), "integration");
+            INFO("integration");
+            CHECK((std::abs(integrated) < 1e-12));
         }
     }
 
     delete functions;
 }
 
-int main() {
+TEST_CASE("050GaussQuadratureRuleForCube_UnitTest",
+          "[050GaussQuadratureRuleForCube_UnitTest]") {
 
     testRule(QuadratureRules::Cn3_1_1::Instance(), 1);
     testRule(QuadratureRules::Cn3_3_4::Instance(), 3);
@@ -99,6 +105,4 @@ int main() {
     testRule(QuadratureRules::C3_7_2::Instance(), 7);
     testRule(QuadratureRules::C3_9_2::Instance(), 9);
     testRule(QuadratureRules::C3_11_2::Instance(), 11);
-
-    return 0;
 }

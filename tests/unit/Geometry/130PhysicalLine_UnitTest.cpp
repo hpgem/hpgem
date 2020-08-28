@@ -47,10 +47,13 @@
 #include "Geometry/ReferenceLine.h"
 
 #include <cmath>
+
+#include "../catch.hpp"
+
 using namespace hpgem;
 using Geometry::PhysicalLine;
 
-int main() {
+TEST_CASE("130PhysicalLine_UnitTest", "[130PhysicalLine_UnitTest]") {
 
     std::vector<std::size_t> pointIndexes;
     std::vector<Geometry::PointPhysical<1> > nodes;
@@ -72,55 +75,60 @@ int main() {
 
     pointIndexes = test.getNodeIndexes();
 
-    logger.assert_always((pointIndexes[0] == 4 && pointIndexes[1] == 7),
-                         "getNodeIndexes");
-    logger.assert_always((nodes == test.getNodeCoordinates()), "getNodes");
-    logger.assert_always(
-        (test.getNodeIndex(0) == 4 && test.getNodeIndex(1) == 7),
-        "getNodeIndex");
+    INFO("getNodeIndexes");
+    CHECK((pointIndexes[0] == 4 && pointIndexes[1] == 7));
+    INFO("getNodes");
+    CHECK((nodes == test.getNodeCoordinates()));
+    INFO("getNodeIndex");
+    CHECK((test.getNodeIndex(0) == 4 && test.getNodeIndex(1) == 7));
 
     std::cout << test.getName();
 
     point = *test.getNodeCoordinatePtr(test.getNodeIndex(0));
-    logger.assert_always((std::abs(point[0] - 1.4) < 1e-12), "getNodePtr");
+    INFO("getNodePtr");
+    CHECK((std::abs(point[0] - 1.4) < 1e-12));
     point = *test.getNodeCoordinatePtr(test.getNodeIndex(1));
-    logger.assert_always((std::abs(point[0] - 1.7) < 1e-12), "getNodePtr");
+    INFO("getNodePtr");
+    CHECK((std::abs(point[0] - 1.7) < 1e-12));
 
-    logger.assert_always((test.getNumberOfNodes() == 2), "getNumberOfNodes");
+    INFO("getNumberOfNodes");
+    CHECK((test.getNumberOfNodes() == 2));
 
     point = test.getLocalNodeCoordinates(0);
-    logger.assert_always((std::abs(point[0] - 1.4) < 1e-12),
-                         "getLocalNodeCoordinates");
+    INFO("getLocalNodeCoordinates");
+    CHECK((std::abs(point[0] - 1.4) < 1e-12));
     point = test.getLocalNodeCoordinates(1);
-    logger.assert_always((std::abs(point[0] - 1.7) < 1e-12),
-                         "getLocalNodeCoordinates");
+    INFO("getLocalNodeCoordinates");
+    CHECK((std::abs(point[0] - 1.7) < 1e-12));
 
     for (std::size_t i = 0; i < 10; ++i) {
         point = test.getGlobalNodeCoordinates(i);
-        logger.assert_always((std::abs(point[0] - 1. - i / 10.) < 1e-12),
-                             "getGlobalNodeCoordinates");
+        INFO("getGlobalNodeCoordinates");
+        CHECK((std::abs(point[0] - 1. - i / 10.) < 1e-12));
     }
 
     pointIndexes.resize(1);
 
     pointIndexes = test.getGlobalFaceNodeIndices(0);
-    logger.assert_always((pointIndexes[0] == 4), "getGlobalFaceNodeIndices");
+    INFO("getGlobalFaceNodeIndices");
+    CHECK((pointIndexes[0] == 4));
     pointIndexes = test.getGlobalFaceNodeIndices(1);
-    logger.assert_always((pointIndexes[0] == 7), "getGlobalFaceNodeIndices");
+    INFO("getGlobalFaceNodeIndices");
+    CHECK((pointIndexes[0] == 7));
 
     pointIndexes = test.getLocalFaceNodeIndices(0);
-    logger.assert_always((pointIndexes[0] == 0), "getLocalFaceNodeIndices");
+    INFO("getLocalFaceNodeIndices");
+    CHECK((pointIndexes[0] == 0));
     pointIndexes = test.getLocalFaceNodeIndices(1);
-    logger.assert_always((pointIndexes[0] == 1), "getLocalFaceNodeIndices");
+    INFO("getLocalFaceNodeIndices");
+    CHECK((pointIndexes[0] == 1));
 
-    logger.assert_always((test.getNumberOfFaces() == 2), "getNumberOfFaces");
+    INFO("getNumberOfFaces");
+    CHECK((test.getNumberOfFaces() == 2));
 
-    logger.assert_always(
-        (test.getRefGeometry() == &Geometry::ReferenceLine::Instance()),
-        "getRefGeometry");
+    INFO("getRefGeometry");
+    CHECK((test.getRefGeometry() == &Geometry::ReferenceLine::Instance()));
 
-    logger.assert_always(std::abs(test.getDiameter() - 0.3) < 1e-12,
-                         "getDiameter");
-
-    return 0;
+    INFO("getDiameter");
+    CHECK(std::abs(test.getDiameter() - 0.3) < 1e-12);
 }

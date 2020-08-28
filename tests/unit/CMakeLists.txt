@@ -8,3 +8,5 @@ add_subdirectory(Utilities)
 if (hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
     add_subdirectory(DGMax)
 endif(hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
+
+add_library (tests-main tests-main.cpp)

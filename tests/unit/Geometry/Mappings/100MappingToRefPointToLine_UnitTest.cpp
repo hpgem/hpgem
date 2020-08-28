@@ -49,8 +49,12 @@
 #include "Geometry/Jacobian.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include <cmath>
+
+#include "../catch.hpp"
+
 using namespace hpgem;
-int main() {
+TEST_CASE("100MappingToRefPointToLine_UnitTest",
+          "[100MappingToRefPointToLine_UnitTest]") {
 
     Geometry::PointReference<0> refPoint;
     Geometry::PointReference<1> point, compare;
@@ -67,9 +71,9 @@ int main() {
     nodesAfterTransformation[0] = 0;
 
     point = test->transform((refPoint));
-    logger.assert_always(
-        (fGeom.isInternalPoint((refPoint)) == eGeom.isInternalPoint((point))),
-        "transform");
+    INFO("transform");
+    CHECK(
+        (fGeom.isInternalPoint((refPoint)) == eGeom.isInternalPoint((point))));
 
     jac = test->calcJacobian((refPoint));
 
@@ -77,20 +81,20 @@ int main() {
         refPoint = fGeom.getReferenceNodeCoordinate(i);
         compare = eGeom.getReferenceNodeCoordinate(nodesAfterTransformation[i]);
         point = test->transform((refPoint));
-        logger.assert_always((std::abs(point[0] - compare[0]) < 1e-12),
-                             "transform");
+        INFO("transform");
+        CHECK((std::abs(point[0] - compare[0]) < 1e-12));
     }
 
-    logger.assert_always((test->getTargetDimension() == 1),
-                         "getTargetDimension");
+    INFO("getTargetDimension");
+    CHECK((test->getTargetDimension() == 1));
 
     test = &Geometry::MappingToRefPointToLine1::Instance();
     nodesAfterTransformation[0] = 1;
 
     point = test->transform((refPoint));
-    logger.assert_always(
-        (fGeom.isInternalPoint((refPoint)) == eGeom.isInternalPoint((point))),
-        "transform");
+    INFO("transform");
+    CHECK(
+        (fGeom.isInternalPoint((refPoint)) == eGeom.isInternalPoint((point))));
 
     jac = test->calcJacobian((refPoint));
 
@@ -100,8 +104,6 @@ int main() {
         point = test->transform((refPoint));
     }
 
-    logger.assert_always((test->getTargetDimension() == 1),
-                         "getTargetDimension");
-
-    return 0;
+    INFO("getTargetDimension");
+    CHECK((test->getTargetDimension() == 1));
 }

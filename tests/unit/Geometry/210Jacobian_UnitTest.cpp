@@ -44,26 +44,29 @@
 #include "Logger.h"
 
 #include <cmath>
+
+#include "../catch.hpp"
+
 using namespace hpgem;
 using Geometry::Jacobian;
 
-int main() {
+TEST_CASE("210Jacobian_UnitTest", "[210Jacobian_UnitTest]") {
 
     // square jacobians and determinants
 
     Jacobian<1, 1> dim1;
 
     dim1(0, 0) = 3.14;
-    logger.assert_always((std::abs(dim1.determinant() - 3.14) < 1e-12),
-                         "1D determinant");
+    INFO("1D determinant");
+    CHECK((std::abs(dim1.determinant() - 3.14) < 1e-12));
 
     dim1(0, 0) = 0;
-    logger.assert_always((std::abs(dim1.determinant()) < 1e-12),
-                         "1D determinant");
+    INFO("1D determinant");
+    CHECK((std::abs(dim1.determinant()) < 1e-12));
 
     dim1(0, 0) = -2.81;
-    logger.assert_always((std::abs(dim1.determinant() + 2.81) < 1e-12),
-                         "1D determinant");
+    INFO("1D determinant");
+    CHECK((std::abs(dim1.determinant() + 2.81) < 1e-12));
 
     Jacobian<2, 2> dim2;
 
@@ -71,15 +74,15 @@ int main() {
     dim2(1, 0) = 2.;
     dim2(0, 1) = 3.;
     dim2(1, 1) = 4.;
-    logger.assert_always((std::abs(dim2.determinant() + 2.) < 1e-12),
-                         "2D determinant");
+    INFO("2D determinant");
+    CHECK((std::abs(dim2.determinant() + 2.) < 1e-12));
 
     dim2(0, 0) = -1.;
     dim2(1, 0) = 2.;
     dim2(0, 1) = 3.;
     dim2(1, 1) = 4.;
-    logger.assert_always((std::abs(dim2.determinant() + 10.) < 1e-12),
-                         "2D determinant");
+    INFO("2D determinant");
+    CHECK((std::abs(dim2.determinant() + 10.) < 1e-12));
 
     Jacobian<2, 2> copy(dim2);
 
@@ -87,59 +90,59 @@ int main() {
     dim2(1, 0) = -2.;
     dim2(0, 1) = 3.;
     dim2(1, 1) = 4.;
-    logger.assert_always((std::abs(dim2.determinant() - 10.) < 1e-12),
-                         "2D determinant");
+    INFO("2D determinant");
+    CHECK((std::abs(dim2.determinant() - 10.) < 1e-12));
 
     dim2(0, 0) = 1.;
     dim2(1, 0) = 2.;
     dim2(0, 1) = -3.;
     dim2(1, 1) = 4.;
-    logger.assert_always((std::abs(dim2.determinant() - 10.) < 1e-12),
-                         "2D determinant");
+    INFO("2D determinant");
+    CHECK((std::abs(dim2.determinant() - 10.) < 1e-12));
 
     dim2(0, 0) = 1.;
     dim2(1, 0) = 2.;
     dim2(0, 1) = 3.;
     dim2(1, 1) = -4.;
-    logger.assert_always((std::abs(dim2.determinant() + 10.) < 1e-12),
-                         "2D determinant");
+    INFO("2D determinant");
+    CHECK((std::abs(dim2.determinant() + 10.) < 1e-12));
 
     dim2(0, 0) = -1.;
     dim2(1, 0) = -2.;
     dim2(0, 1) = 3.;
     dim2(1, 1) = 4.;
-    logger.assert_always((std::abs(dim2.determinant() - 2.) < 1e-12),
-                         "2D determinant");
+    INFO("2D determinant");
+    CHECK((std::abs(dim2.determinant() - 2.) < 1e-12));
 
     dim2(0, 0) = -1.;
     dim2(1, 0) = 2.;
     dim2(0, 1) = -3.;
     dim2(1, 1) = 4.;
-    logger.assert_always((std::abs(dim2.determinant() - 2.) < 1e-12),
-                         "2D determinant");
+    INFO("2D determinant");
+    CHECK((std::abs(dim2.determinant() - 2.) < 1e-12));
 
     dim2(0, 0) = -1.;
     dim2(1, 0) = 2.;
     dim2(0, 1) = 3.;
     dim2(1, 1) = -4.;
-    logger.assert_always((std::abs(dim2.determinant() + 2.) < 1e-12),
-                         "2D determinant");
+    INFO("2D determinant");
+    CHECK((std::abs(dim2.determinant() + 2.) < 1e-12));
 
     dim2(0, 0) = 1.;
     dim2(1, 0) = 2.;
     dim2(0, 1) = 2.;
     dim2(1, 1) = 4.;
-    logger.assert_always((std::abs(dim2.determinant()) < 1e-12),
-                         "2D determinant");
-    logger.assert_always((std::abs(copy.determinant() + 10.) < 1e-12),
-                         "copy constructor");
+    INFO("2D determinant");
+    CHECK((std::abs(dim2.determinant()) < 1e-12));
+    INFO("copy constructor");
+    CHECK((std::abs(copy.determinant() + 10.) < 1e-12));
 
     Jacobian<2, 2> product;
 
     product = dim2.multiplyJacobiansInto(copy);
-    logger.assert_always((product.getNCols() == 2 && product.getNRows() == 2 &&
-                          std::abs(product.determinant()) < 1e-12),
-                         "multiply JacobiansInto - square matrixes");
+    INFO("multiply JacobiansInto - square matrixes");
+    CHECK((product.getNCols() == 2 && product.getNRows() == 2 &&
+           std::abs(product.determinant()) < 1e-12));
 
     Jacobian<3, 3> dim3;
     dim3(0, 0) = 1.;
@@ -151,8 +154,8 @@ int main() {
     dim3(0, 2) = 7.;
     dim3(1, 2) = 8.;
     dim3(2, 2) = 9.;
-    logger.assert_always((std::abs(dim3.determinant()) < 1e-12),
-                         "3D determinant");
+    INFO("3D determinant");
+    CHECK((std::abs(dim3.determinant()) < 1e-12));
 
     dim3(0, 0) = -1.;
     dim3(1, 0) = 2.;
@@ -163,8 +166,8 @@ int main() {
     dim3(0, 2) = 7.;
     dim3(1, 2) = 8.;
     dim3(2, 2) = 9.;
-    logger.assert_always((std::abs(dim3.determinant() - 6.) < 1e-12),
-                         "3D determinant");
+    INFO("3D determinant");
+    CHECK((std::abs(dim3.determinant() - 6.) < 1e-12));
 
     dim3(0, 0) = 1.;
     dim3(1, 0) = -2.;
@@ -175,8 +178,8 @@ int main() {
     dim3(0, 2) = 7.;
     dim3(1, 2) = 8.;
     dim3(2, 2) = 9.;
-    logger.assert_always((std::abs(dim3.determinant() + 24.) < 1e-12),
-                         "3D determinant");
+    INFO("3D determinant");
+    CHECK((std::abs(dim3.determinant() + 24.) < 1e-12));
 
     dim3(0, 0) = 1.;
     dim3(1, 0) = 2.;
@@ -187,8 +190,8 @@ int main() {
     dim3(0, 2) = 7.;
     dim3(1, 2) = 8.;
     dim3(2, 2) = 9.;
-    logger.assert_always((std::abs(dim3.determinant() - 18.) < 1e-12),
-                         "3D determinant");
+    INFO("3D determinant");
+    CHECK((std::abs(dim3.determinant() - 18.) < 1e-12));
 
     dim3(0, 0) = 1.;
     dim3(1, 0) = 2.;
@@ -199,8 +202,8 @@ int main() {
     dim3(0, 2) = 7.;
     dim3(1, 2) = 8.;
     dim3(2, 2) = 9.;
-    logger.assert_always((std::abs(dim3.determinant() + 48.) < 1e-12),
-                         "3D determinant");
+    INFO("3D determinant");
+    CHECK((std::abs(dim3.determinant() + 48.) < 1e-12));
 
     dim3(0, 0) = 1.;
     dim3(1, 0) = 2.;
@@ -211,8 +214,8 @@ int main() {
     dim3(0, 2) = 7.;
     dim3(1, 2) = 8.;
     dim3(2, 2) = 9.;
-    logger.assert_always((std::abs(dim3.determinant() - 120.) < 1e-12),
-                         "3D determinant");
+    INFO("3D determinant");
+    CHECK((std::abs(dim3.determinant() - 120.) < 1e-12));
 
     dim3(0, 0) = 1.;
     dim3(1, 0) = 2.;
@@ -223,8 +226,8 @@ int main() {
     dim3(0, 2) = 7.;
     dim3(1, 2) = 8.;
     dim3(2, 2) = 9.;
-    logger.assert_always((std::abs(dim3.determinant() + 72.) < 1e-12),
-                         "3D determinant");
+    INFO("3D determinant");
+    CHECK((std::abs(dim3.determinant() + 72.) < 1e-12));
 
     dim3(0, 0) = 1.;
     dim3(1, 0) = 2.;
@@ -235,8 +238,8 @@ int main() {
     dim3(0, 2) = -7.;
     dim3(1, 2) = 8.;
     dim3(2, 2) = 9.;
-    logger.assert_always((std::abs(dim3.determinant() - 42.) < 1e-12),
-                         "3D determinant");
+    INFO("3D determinant");
+    CHECK((std::abs(dim3.determinant() - 42.) < 1e-12));
 
     dim3(0, 0) = 1.;
     dim3(1, 0) = 2.;
@@ -247,8 +250,8 @@ int main() {
     dim3(0, 2) = 7.;
     dim3(1, 2) = -8.;
     dim3(2, 2) = 9.;
-    logger.assert_always((std::abs(dim3.determinant() + 96.) < 1e-12),
-                         "3D determinant");
+    INFO("3D determinant");
+    CHECK((std::abs(dim3.determinant() + 96.) < 1e-12));
 
     dim3(0, 0) = 1.;
     dim3(1, 0) = 2.;
@@ -259,8 +262,8 @@ int main() {
     dim3(0, 2) = 7.;
     dim3(1, 2) = 8.;
     dim3(2, 2) = -9.;
-    logger.assert_always((std::abs(dim3.determinant() - 54.) < 1e-12),
-                         "3D determinant");
+    INFO("3D determinant");
+    CHECK((std::abs(dim3.determinant() - 54.) < 1e-12));
 
     Jacobian<1, 2> rectangle21;
     Jacobian<2, 1> rectangle12;
@@ -286,24 +289,22 @@ int main() {
     rectangle23(1, 2) = 12.;
 
     auto product2 = rectangle21.multiplyJacobiansInto(dim1);
-    logger.assert_always(
-        (product2.getNumberOfColumns() == 1 && product2.getNumberOfRows() == 2),
-        "multiply JacobiansInto - square & rectangular matrixes");
+    INFO("multiply JacobiansInto - square & rectangular matrixes");
+    CHECK((product2.getNumberOfColumns() == 1 &&
+           product2.getNumberOfRows() == 2));
 
     auto product4 = rectangle12.multiplyJacobiansInto(dim2);
-    logger.assert_always(
-        (product4.getNumberOfColumns() == 2 && product4.getNumberOfRows() == 1),
-        "multiply JacobiansInto - square & rectangular matrixes");
+    INFO("multiply JacobiansInto - square & rectangular matrixes");
+    CHECK((product4.getNumberOfColumns() == 2 &&
+           product4.getNumberOfRows() == 1));
 
     auto product6 = rectangle23.multiplyJacobiansInto(dim3);
-    logger.assert_always(
-        (product6.getNumberOfColumns() == 3 && product6.getNumberOfRows() == 2),
-        "multiply JacobiansInto - square & rectangular matrixes");
+    INFO("multiply JacobiansInto - square & rectangular matrixes");
+    CHECK((product6.getNumberOfColumns() == 3 &&
+           product6.getNumberOfRows() == 2));
 
     auto product8 = rectangle32.multiplyJacobiansInto(dim2);
-    logger.assert_always(
-        (product8.getNumberOfColumns() == 2 && product8.getNumberOfRows() == 3),
-        "multiply JacobiansInto - square & rectangular matrixes");
-
-    return 0;
+    INFO("multiply JacobiansInto - square & rectangular matrixes");
+    CHECK((product8.getNumberOfColumns() == 2 &&
+           product8.getNumberOfRows() == 3));
 }
