@@ -69,16 +69,16 @@ void MatrixBlocks::insertBlock(std::vector<PetscScalar>& storage,
 }
 
 void MatrixBlocks::validate() const {
-    logger.assert_debug(rowIndices_.size() == block1_.getNumberOfRows()
-                        , "Wrong rows size for block1");
-    logger.assert_debug(columnIndices_.size() == block1_.getNumberOfColumns()
-        , "Wrong column size for block1");
+    logger.assert_debug(rowIndices_.size() == block1_.getNumberOfRows(),
+                        "Wrong rows size for block1");
+    logger.assert_debug(columnIndices_.size() == block1_.getNumberOfColumns(),
+                        "Wrong column size for block1");
 
     if (pair_) {
-        logger.assert_debug(rowIndices_.size() == block2_.getNumberOfColumns()
-            , "Wrong column size for block2");
-        logger.assert_debug(columnIndices_.size() == block2_.getNumberOfRows()
-            , "Wrong rows size for block2");
+        logger.assert_debug(rowIndices_.size() == block2_.getNumberOfColumns(),
+                            "Wrong column size for block2");
+        logger.assert_debug(columnIndices_.size() == block2_.getNumberOfRows(),
+                            "Wrong rows size for block2");
     }
 }
 

@@ -44,7 +44,8 @@ namespace DGMax {
 
 template <std::size_t DIM>
 void KPhaseShiftBlock<DIM>::apply(LinearAlgebra::SmallVector<DIM> k,
-                        std::vector<PetscScalar>& storage, Mat mat) const {
+                                  std::vector<PetscScalar>& storage,
+                                  Mat mat) const {
     if (shiftNeeded(k)) {
         // Load values in storage
         blocks_.loadBlocks(storage);
@@ -248,8 +249,8 @@ KPhaseShiftBlock<DIM> FaceMatrixKPhaseShiftBuilder<DIM>::facePhaseShift(
     //////////////////////////
 
     if (isSubdomainBoundary) {
-        return KPhaseShiftBlock<DIM>(DGMax::MatrixBlocks(rowIndices, colIndices, block1),
-                           dx);
+        return KPhaseShiftBlock<DIM>(
+            DGMax::MatrixBlocks(rowIndices, colIndices, block1), dx);
     } else {
         return KPhaseShiftBlock<DIM>(
             DGMax::MatrixBlocks(rowIndices, colIndices, block1, block2), dx);

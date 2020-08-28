@@ -193,8 +193,9 @@ class FaceMatrixKPhaseShiftBuilder {
     }
 
    private:
-    KPhaseShiftBlock<DIM> facePhaseShift(const Base::Face* face,
-                               const Utilities::GlobalIndexing& indexing) const;
+    KPhaseShiftBlock<DIM> facePhaseShift(
+        const Base::Face* face,
+        const Utilities::GlobalIndexing& indexing) const;
 
     MatrixExtractor matrixExtractor_;
     std::function<LinearAlgebra::SmallVector<DIM>(const Base::Face*)>
@@ -257,27 +258,27 @@ class CGDGMatrixKPhaseShiftBuilder {
     std::function<LinearAlgebra::SmallVector<DIM>(const Base::Element*)>
         extraShift_;
 
-    void addFacePhaseShifts(const Base::Face* face,
-                            const Utilities::GlobalIndexing& projectorIndex,
-                            const Utilities::GlobalIndexing& indexing,
-                            std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const;
+    void addFacePhaseShifts(
+        const Base::Face* face, const Utilities::GlobalIndexing& projectorIndex,
+        const Utilities::GlobalIndexing& indexing,
+        std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const;
 
-    void addEdgePhaseShifts(const Base::Edge* edge,
-                            const Utilities::GlobalIndexing& projectorIndex,
-                            const Utilities::GlobalIndexing& indexing,
-                            std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const;
-    void addNodePhaseShifts(const Base::Node* node,
-                            const Utilities::GlobalIndexing& projectorIndex,
-                            const Utilities::GlobalIndexing& indexing,
-                            std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const;
+    void addEdgePhaseShifts(
+        const Base::Edge* edge, const Utilities::GlobalIndexing& projectorIndex,
+        const Utilities::GlobalIndexing& indexing,
+        std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const;
+    void addNodePhaseShifts(
+        const Base::Node* node, const Utilities::GlobalIndexing& projectorIndex,
+        const Utilities::GlobalIndexing& indexing,
+        std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const;
 
     template <typename GEOM>
-    void addElementPhaseShift(const GEOM* geom,
-                              const Geometry::PointPhysical<DIM>& owningCoord,
-                              const Base::Element* element,
-                              const Utilities::GlobalIndexing& projectorIndex,
-                              const Utilities::GlobalIndexing& indexing,
-                              std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const;
+    void addElementPhaseShift(
+        const GEOM* geom, const Geometry::PointPhysical<DIM>& owningCoord,
+        const Base::Element* element,
+        const Utilities::GlobalIndexing& projectorIndex,
+        const Utilities::GlobalIndexing& indexing,
+        std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const;
 };
 
 };  // namespace DGMax
