@@ -377,6 +377,10 @@ class Face final : public Geometry::FaceGeometry, public FaceData {
 
     std::vector<std::size_t> numberOfConformingDOFOnTheFace_;
     std::size_t faceID_;
+
+    /// Determine whether this face is a face on the periodic boundary. Is
+    /// independent of the faceType.
+    bool detirmineIsPeriodicBoundaryFace();
 };
 
 template <std::size_t DIM>
