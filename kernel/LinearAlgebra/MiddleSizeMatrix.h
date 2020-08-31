@@ -194,14 +194,14 @@ class MiddleSizeMatrix {
     std::size_t getNumberOfRows() const;
 
     ///\deprecated Does not conform the naming conventions, please use
-    ///getNumberOfRows instead.
+    /// getNumberOfRows instead.
     std::size_t getNRows() const { return getNumberOfRows(); }
 
     /// \brief Get the number of columns
     std::size_t getNumberOfColumns() const;
 
     ///\deprecated Does not conform the naming conventions, please use
-    ///getNumberOfColumns instead.
+    /// getNumberOfColumns instead.
     std::size_t getNCols() const { return getNumberOfColumns(); }
 
     /// \brief get the j^th column
