@@ -50,10 +50,13 @@
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include "Logger.h"
 #include <cmath>
+
+#include "../catch.hpp"
+
 using namespace hpgem;
 using Geometry::ReferenceLine;
 
-int main() {
+TEST_CASE("050ReferenceLine_UnitTest", "[050ReferenceLine_UnitTest]") {
     ReferenceLine& test = ReferenceLine::Instance();
 
     Geometry::PointReference<1> pTest;
@@ -61,32 +64,34 @@ int main() {
     // testing basic functionality
 
     for (pTest[0] = -3.141; pTest[0] < -1.; pTest[0] += 0.1) {
-        logger.assert_always((!test.isInternalPoint(pTest)), "isInternalPoint");
+        INFO("isInternalPoint");
+        CHECK((!test.isInternalPoint(pTest)));
     }
     for (; pTest[0] < 1; pTest[0] += 0.1) {
-        logger.assert_always((test.isInternalPoint(pTest)), "isInternalPoint");
+        INFO("isInternalPoint");
+        CHECK((test.isInternalPoint(pTest)));
     }
     for (; pTest[0] < 3.141; pTest[0] += 0.1) {
-        logger.assert_always((!test.isInternalPoint(pTest)), "isInternalPoint");
+        INFO("isInternalPoint");
+        CHECK((!test.isInternalPoint(pTest)));
     }
 
     pTest = test.getCenter();
-    logger.assert_always(
-        (test.isInternalPoint(pTest) && std::abs(pTest[0]) < 1e-12),
-        "getCenter");
+    INFO("getCenter");
+    CHECK(test.isInternalPoint(pTest));
+    CHECK(std::abs(pTest[0]) < 1e-12);
     pTest = test.getReferenceNodeCoordinate(0);
-    logger.assert_always((std::abs(pTest[0] + 1) < 1e-12), "getNode 0");
+    INFO("getNode 0");
+    CHECK((std::abs(pTest[0] + 1) < 1e-12));
     pTest = test.getReferenceNodeCoordinate(1);
-    logger.assert_always((std::abs(pTest[0] - 1) < 1e-12), "getNode 1");
+    INFO("getNode 1");
+    CHECK((std::abs(pTest[0] - 1) < 1e-12));
     std::cout << test.getName();
 
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 0) == 0),
-        "getLocalNodeIndex 0");
-    logger.assert_always(
-        (test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 0) == 1),
-        "getLocalNodeIndex 1");
-
+    INFO("getLocalNodeIndex 0");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 0) == 0));
+    INFO("getLocalNodeIndex 1");
+    CHECK((test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 0) == 1));
     std::cout << test;
 
     // testing mappings and quadrature rules
@@ -95,65 +100,61 @@ int main() {
     for (std::size_t i = 0; i < 2; ++i) {
         base[i] = transformed[i] = i;
     }
-    logger.assert_always((test.getCodim0MappingPtr(
-                              test.getCodim0MappingIndex(base, transformed)) ==
-                          &Geometry::MappingToRefLineToLine0::Instance()),
-                         "getCodim0MappingIndex&Ptr");
-    logger.assert_always((test.getCodim0MappingPtr(base, transformed) ==
-                          &Geometry::MappingToRefLineToLine0::Instance()),
-                         "getCodim0MappingIndex&Ptr");
+    INFO("getCodim0MappingIndex&Ptr");
+    CHECK((test.getCodim0MappingPtr(
+               test.getCodim0MappingIndex(base, transformed)) ==
+           &Geometry::MappingToRefLineToLine0::Instance()));
+    INFO("getCodim0MappingIndex&Ptr");
+    CHECK((test.getCodim0MappingPtr(base, transformed) ==
+           &Geometry::MappingToRefLineToLine0::Instance()));
     transformed[0] = 1;
     transformed[1] = 0;
-    logger.assert_always((test.getCodim0MappingPtr(
-                              test.getCodim0MappingIndex(base, transformed)) ==
-                          &Geometry::MappingToRefLineToLine1::Instance()),
-                         "getCodim0MappingIndex&Ptr");
-    logger.assert_always((test.getCodim0MappingPtr(base, transformed) ==
-                          &Geometry::MappingToRefLineToLine1::Instance()),
-                         "getCodim0MappingIndex&Ptr");
-
-    logger.assert_always((test.getNumberOfCodim1Entities() == 2 &&
-                          test.getNumberOfCodim2Entities() == 0) &&
-                             test.getNumberOfCodim3Entities() == 0,
-                         "higher codimensional entities");
-    logger.assert_always((test.getCodim1ReferenceGeometry(0) ==
-                              &Geometry::ReferencePoint::Instance() &&
-                          test.getCodim1ReferenceGeometry(1) ==
-                              &Geometry::ReferencePoint::Instance()),
-                         "getCodim1ReferenceGeometry");
-    logger.assert_always((test.getCodim1MappingPtr(0) ==
-                          &Geometry::MappingToRefPointToLine0::Instance()),
-                         "getCodim1MappingPtr");
-    logger.assert_always((test.getCodim1MappingPtr(1) ==
-                          &Geometry::MappingToRefPointToLine1::Instance()),
-                         "getCodim1MappingPtr");
+    INFO("getCodim0MappingIndex&Ptr");
+    CHECK((test.getCodim0MappingPtr(
+               test.getCodim0MappingIndex(base, transformed)) ==
+           &Geometry::MappingToRefLineToLine1::Instance()));
+    INFO("getCodim0MappingIndex&Ptr");
+    CHECK((test.getCodim0MappingPtr(base, transformed) ==
+           &Geometry::MappingToRefLineToLine1::Instance()));
+    INFO("higher codimensional entities");
+    CHECK(test.getNumberOfCodim1Entities() == 2);
+    CHECK(test.getNumberOfCodim2Entities() == 0);
+    CHECK(test.getNumberOfCodim3Entities() == 0);
+    INFO("getCodim1ReferenceGeometry");
+    CHECK(test.getCodim1ReferenceGeometry(0) ==
+          &Geometry::ReferencePoint::Instance());
+    CHECK(test.getCodim1ReferenceGeometry(1) ==
+          &Geometry::ReferencePoint::Instance());
+    INFO("getCodim1MappingPtr");
+    CHECK((test.getCodim1MappingPtr(0) ==
+           &Geometry::MappingToRefPointToLine0::Instance()));
+    INFO("getCodim1MappingPtr");
+    CHECK((test.getCodim1MappingPtr(1) ==
+           &Geometry::MappingToRefPointToLine1::Instance()));
     faceIndices = test.getCodim1EntityLocalIndices(0);
-    logger.assert_always(
-        (faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 0)),
-        "getCodim1EntityLocalIndices");
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(0, 0)));
     faceIndices = test.getCodim1EntityLocalIndices(1);
-    logger.assert_always(
-        (faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 0)),
-        "getCodim1EntityLocalIndices");
-
-    logger.assert_always((test.getGaussQuadratureRule(3)->order() >= 3),
-                         "quadrature rules");
-    logger.assert_always((test.getGaussQuadratureRule(5)->order() >= 5),
-                         "quadrature rules");
-    logger.assert_always((test.getGaussQuadratureRule(7)->order() >= 7),
-                         "quadrature rules");
-    logger.assert_always((test.getGaussQuadratureRule(9)->order() >= 9),
-                         "quadrature rules");
-    logger.assert_always((test.getGaussQuadratureRule(11)->order() >= 11),
-                         "quadrature rules");
-
+    INFO("getCodim1EntityLocalIndices");
+    CHECK(
+        (faceIndices[0] == test.getLocalNodeIndexFromFaceAndIndexOnFace(1, 0)));
+    INFO("quadrature rules");
+    CHECK((test.getGaussQuadratureRule(3)->order() >= 3));
+    INFO("quadrature rules");
+    CHECK((test.getGaussQuadratureRule(5)->order() >= 5));
+    INFO("quadrature rules");
+    CHECK((test.getGaussQuadratureRule(7)->order() >= 7));
+    INFO("quadrature rules");
+    CHECK((test.getGaussQuadratureRule(9)->order() >= 9));
+    INFO("quadrature rules");
+    CHECK((test.getGaussQuadratureRule(11)->order() >= 11));
     // testing functionality of abstract parent classes
 
-    logger.assert_always((test.getNumberOfNodes() == 2), "number of nodes");
-    logger.assert_always(
-        (test.getGeometryType() == Geometry::ReferenceGeometryType::LINE),
-        "type of geometry");
-
+    INFO("number of nodes");
+    CHECK((test.getNumberOfNodes() == 2));
+    INFO("type of geometry");
+    CHECK((test.getGeometryType() == Geometry::ReferenceGeometryType::LINE));
     ///\todo testing that the refinement maps behave exactly like the forwarded
     /// calls of this class
 }

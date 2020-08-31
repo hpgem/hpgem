@@ -60,8 +60,11 @@
 #include "Logger.h"
 
 #include <cmath>
+
+#include "../catch.hpp"
+
 using namespace hpgem;
-int main() {
+TEST_CASE("020BasisFunction_UnitTest", "[020BasisFunction_UnitTest]") {
 
     // 1D
 
@@ -81,11 +84,11 @@ int main() {
 
             point1D[0] += -1e-8;
             ret = test->evalDeriv((point1D));
-            logger.assert_always(std::abs(ret[0] - 5.e7 * (x1 - x0)) < 1e-5,
-                                 "derivative");
-            logger.assert_always(
-                std::abs(test->evalDeriv0((point1D)) - 5.e7 * (x1 - x0)) < 1e-5,
-                "derivative");
+            INFO("derivative");
+            CHECK(std::abs(ret[0] - 5.e7 * (x1 - x0)) < 1e-5);
+            INFO("derivative");
+            CHECK(std::abs(test->evalDeriv0((point1D)) - 5.e7 * (x1 - x0)) <
+                  1e-5);
         }
     }
 
@@ -108,11 +111,11 @@ int main() {
 
                 point2D[0] += -1e-8;
                 ret2 = test->evalDeriv((point2D));
-                logger.assert_always(
-                    std::abs(ret2[0] - 5.e7 * (x1 - x0)) < 1e-5, "derivative");
-                logger.assert_always(std::abs(test->evalDeriv0((point2D)) -
-                                              5.e7 * (x1 - x0)) < 1e-5,
-                                     "derivative");
+                INFO("derivative");
+                CHECK(std::abs(ret2[0] - 5.e7 * (x1 - x0)) < 1e-5);
+                INFO("derivative");
+                CHECK(std::abs(test->evalDeriv0((point2D)) - 5.e7 * (x1 - x0)) <
+                      1e-5);
 
                 point2D[1] += -1.e-8;
                 x0 = test->eval((point2D));
@@ -120,11 +123,11 @@ int main() {
                 x1 = test->eval((point2D));
 
                 point2D[1] += -1e-8;
-                logger.assert_always(
-                    std::abs(ret2[1] - 5.e7 * (x1 - x0)) < 1e-5, "derivative");
-                logger.assert_always(std::abs(test->evalDeriv1((point2D)) -
-                                              5.e7 * (x1 - x0)) < 1e-5,
-                                     "derivative");
+                INFO("derivative");
+                CHECK(std::abs(ret2[1] - 5.e7 * (x1 - x0)) < 1e-5);
+                INFO("derivative");
+                CHECK(std::abs(test->evalDeriv1((point2D)) - 5.e7 * (x1 - x0)) <
+                      1e-5);
             }
         }
     }
@@ -149,12 +152,11 @@ int main() {
 
                     point3D[0] += -1e-8;
                     ret3 = test->evalDeriv((point3D));
-                    logger.assert_always(
-                        std::abs(ret3[0] - 5.e7 * (x1 - x0)) < 1e-5,
-                        "derivative");
-                    logger.assert_always(std::abs(test->evalDeriv0((point3D)) -
-                                                  5.e7 * (x1 - x0)) < 1e-5,
-                                         "derivative");
+                    INFO("derivative");
+                    CHECK(std::abs(ret3[0] - 5.e7 * (x1 - x0)) < 1e-5);
+                    INFO("derivative");
+                    CHECK(std::abs(test->evalDeriv0((point3D)) -
+                                   5.e7 * (x1 - x0)) < 1e-5);
 
                     point3D[1] += -1.e-8;
                     x0 = test->eval((point3D));
@@ -162,12 +164,11 @@ int main() {
                     x1 = test->eval((point3D));
 
                     point3D[1] += -1e-8;
-                    logger.assert_always(
-                        std::abs(ret3[1] - 5.e7 * (x1 - x0)) < 1e-5,
-                        "derivative");
-                    logger.assert_always(std::abs(test->evalDeriv1((point3D)) -
-                                                  5.e7 * (x1 - x0)) < 1e-5,
-                                         "derivative");
+                    INFO("derivative");
+                    CHECK(std::abs(ret3[1] - 5.e7 * (x1 - x0)) < 1e-5);
+                    INFO("derivative");
+                    CHECK(std::abs(test->evalDeriv1((point3D)) -
+                                   5.e7 * (x1 - x0)) < 1e-5);
 
                     point3D[2] += -1.e-8;
                     x0 = test->eval((point3D));
@@ -175,16 +176,13 @@ int main() {
                     x1 = test->eval((point3D));
 
                     point3D[2] += -1e-8;
-                    logger.assert_always(
-                        std::abs(ret3[2] - 5.e7 * (x1 - x0)) < 1e-5,
-                        "derivative");
-                    logger.assert_always(std::abs(test->evalDeriv2((point3D)) -
-                                                  5.e7 * (x1 - x0)) < 1e-5,
-                                         "derivative");
+                    INFO("derivative");
+                    CHECK(std::abs(ret3[2] - 5.e7 * (x1 - x0)) < 1e-5);
+                    INFO("derivative");
+                    CHECK(std::abs(test->evalDeriv2((point3D)) -
+                                   5.e7 * (x1 - x0)) < 1e-5);
                 }
             }
         }
     }
-
-    return 0;
 }

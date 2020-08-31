@@ -56,8 +56,11 @@
 #include "Base/Element.h"
 #include "Geometry/PointReference.h"
 #include "Base/BaseBasisFunction.h"
+
+#include "../catch.hpp"
+
 using namespace hpgem;
-int main() {
+TEST_CASE("050Face_UnitTest", "[050Face_UnitTest]") {
 
     std::vector<std::size_t> pointIndexes;
     std::vector<Geometry::PointPhysical<3>> nodes;
@@ -123,8 +126,8 @@ int main() {
     // (3.5, 4.6, 5.4), (6.7, 2.8, 5.7), (3.5, 4.6, 7.4), (6.7, 2,8, 7.7)
     Base::Face test(&element, 4, Geometry::FaceType::WALL_BC, 3);
 
-    logger.assert_always((test.getGaussQuadratureRule() != nullptr),
-                         "quadrature rule");
+    INFO("quadrature rule");
+    CHECK((test.getGaussQuadratureRule() != nullptr));
 
     test.setGaussQuadratureRule(&QuadratureRules::Cn2_3_4::Instance());
 
@@ -132,14 +135,13 @@ int main() {
         *test.getGaussQuadratureRule();
     ///\todo figure out why the '::Instance' alters the typeid (it also alters
     /// the hash_code of the typeid)
-    logger.assert_always(
-        (typeid(rule) == typeid(QuadratureRules::Cn2_3_4::Instance())),
-        "setQuadratureRule");
+    INFO("setQuadratureRule");
+    CHECK((typeid(rule) == typeid(QuadratureRules::Cn2_3_4::Instance())));
 
     // check set*BasisFunctionSet without breaking preconditions...
 
-    logger.assert_always((test.getPtrElementLeft() == &element),
-                         "getElementPtr");
+    INFO("getElementPtr");
+    CHECK((test.getPtrElementLeft() == &element));
 
     Geometry::PointReference<2> refPoint;
     Geometry::PointReference<3> point3D;
@@ -147,29 +149,24 @@ int main() {
         for (refPoint[0] = -1.5; refPoint[0] < 1.51; refPoint[0] += 0.2) {
             for (refPoint[1] = -1.5; refPoint[1] < 1.51; refPoint[1] += 0.2) {
                 point3D = test.mapRefFaceToRefElemL((refPoint));
-                logger.assert_always((test.basisFunction(i, (refPoint)) ==
-                                      (*basisFunctions)[i]->eval((point3D))),
-                                     "basisFunctions");
-                logger.assert_always(
-                    (test.basisFunctionDeriv(i, 0, (refPoint)) ==
-                     (*basisFunctions)[i]->evalDeriv0((point3D))),
-                    "basisFunctions");
-                logger.assert_always(
-                    (test.basisFunctionDeriv(i, 1, (refPoint)) ==
-                     (*basisFunctions)[i]->evalDeriv1((point3D))),
-                    "basisFunctions");
-                logger.assert_always(
-                    (test.basisFunctionDeriv(i, 2, (refPoint)) ==
-                     (*basisFunctions)[i]->evalDeriv2((point3D))),
-                    "basisFunctions");
+                INFO("basisFunctions");
+                CHECK((test.basisFunction(i, (refPoint)) ==
+                       (*basisFunctions)[i]->eval((point3D))));
+                INFO("basisFunctions");
+                CHECK((test.basisFunctionDeriv(i, 0, (refPoint)) ==
+                       (*basisFunctions)[i]->evalDeriv0((point3D))));
+                INFO("basisFunctions");
+                CHECK((test.basisFunctionDeriv(i, 1, (refPoint)) ==
+                       (*basisFunctions)[i]->evalDeriv1((point3D))));
+                INFO("basisFunctions");
+                CHECK((test.basisFunctionDeriv(i, 2, (refPoint)) ==
+                       (*basisFunctions)[i]->evalDeriv2((point3D))));
             }
         }
     }
 
     // Expected diam: sqrt(18.77) ~ 4.3324
     double diam = (nodes[10] - nodes[15]).getCoordinates().l2Norm();
-    logger.assert_always(std::abs(test.getDiameter() - diam) < 1e-12,
-                         "getDiameter");
-
-    return 0;
+    INFO("getDiameter");
+    CHECK(std::abs(test.getDiameter() - diam) < 1e-12);
 }

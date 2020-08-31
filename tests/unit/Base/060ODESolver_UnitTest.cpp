@@ -7,6 +7,9 @@
 #include <limits>
 #include "Base/TimeIntegration/AllTimeIntegrators.h"
 #include "Logger.h"
+
+#include "../catch.hpp"
+
 using namespace hpgem;
 double executeOneTimeStep(const TimeIntegration::ButcherTableau *integrator,
                           double u, double dt) {
@@ -39,9 +42,11 @@ double executeOneTimeStep(const TimeIntegration::ButcherTableau *integrator,
     if (dt > dtMax) {
         dt = dtMax;
     }
-    logger.assert_debug(integrator->hasErrorEstimate(),
-                        "Cannot use dynamic time stepping if the butcher "
-                        "tableau has no error estimator");
+    INFO(
+        "Cannot use dynamic time stepping if the butcher "
+        "tableau has no error estimator");
+    CHECK(integrator->hasErrorEstimate());
+
     double currentError = std::numeric_limits<double>::infinity();
     double result = u;
     // cancel first loop
@@ -76,7 +81,7 @@ double executeOneTimeStep(const TimeIntegration::ButcherTableau *integrator,
     return result;
 }
 
-int main() {
+TEST_CASE("060ODESolver_UnitTest", "[060ODESolver_UnitTest]") {
     std::vector<const TimeIntegration::ButcherTableau *> integrators{
         TimeIntegration::AllTimeIntegrators::Instance().getRule(1, 1),
         TimeIntegration::AllTimeIntegrators::Instance().getRule(2, 2),
@@ -107,20 +112,14 @@ int main() {
         }
         double error3 = std::abs(std::exp(1.) - u);
         double expectedRatio = std::pow(2., integrator->getOrder());
-        logger.assert_always(
-            error1 / error2 > expectedRatio * 0.875 &&
-                error1 / error2 < expectedRatio * 1.25,
-            "% stage% time integrator of order % (with ratio %)",
-            integrator->getNumberOfStages(),
-            integrator->getTotalVariationDiminishing() ? " tvd" : "",
-            integrator->getOrder(), error1 / error2);
-        logger.assert_always(
-            error2 / error3 > expectedRatio * 0.875 &&
-                error2 / error3 < expectedRatio * 1.25,
-            "% stage% time integrator of order % (with ratio %)",
-            integrator->getNumberOfStages(),
-            integrator->getTotalVariationDiminishing() ? " tvd" : "",
-            integrator->getOrder(), error2 / error3);
+        std::string tvd =
+            integrator->getTotalVariationDiminishing() ? " tvd" : "";
+        INFO("" << integrator->getNumberOfStages() << " stage" << tvd
+                << "time integrator of order" << integrator->getOrder()
+                << " (with ratio" << error2 / error3 << ")");
+        CHECK(error1 / error2 > expectedRatio * 0.875);
+        CHECK(error1 / error2 < expectedRatio * 1.25);
+
         if (integrator->hasErrorEstimate()) {
             double dtMax = 1.;
             double maxError = std::numeric_limits<double>::infinity();
@@ -130,22 +129,26 @@ int main() {
             while (t < 1 - 1e-14) {
                 double uOld = u;
                 u = executeOneTimeStep(integrator, u, maxError, dt, dtMax);
-                logger.assert_always(
-                    std::abs(uOld * std::exp(dt) - u) < maxError * std::abs(u),
-                    "% stage% time integrator of order % exceeded error "
-                    "tolerance (error was %, but should be < %)",
-                    integrator->getNumberOfStages(),
-                    integrator->getTotalVariationDiminishing() ? " tvd" : "",
-                    integrator->getOrder(), std::abs(uOld * std::exp(dt) - u),
-                    maxError);
-                logger.assert_always(
-                    dt < dtMax + 1e-14,
-                    "% stage% time integrator of order % used a larger time "
-                    "step than the maximum allowed (time step was %, but "
-                    "should be < %)",
-                    integrator->getNumberOfStages(),
-                    integrator->getTotalVariationDiminishing() ? " tvd" : "",
-                    integrator->getOrder(), dt, dtMax);
+
+                tvd = integrator->getTotalVariationDiminishing() ? " tvd" : "";
+                INFO("" << integrator->getNumberOfStages() << "stage" << tvd
+                        << " time integrator of order "
+                        << integrator->getOrder()
+                        << "exceeded error "
+                           "tolerance (error was "
+                        << std::abs(uOld * std::exp(dt) - u)
+                        << " , but should be <" << maxError);
+                CHECK(std::abs(uOld * std::exp(dt) - u) <
+                      maxError * std::abs(u));
+
+                INFO(""
+                     << "stage" << tvd << " time integrator of order "
+                     << integrator->getOrder()
+                     << " used a larger time "
+                        "step than the maximum allowed (time step was "
+                     << dt << ",but should be <" << dtMax);
+                CHECK(dt < dtMax + 1e-14);
+
                 t += dt;
                 dtMax = 1 - t;
             }
@@ -157,26 +160,28 @@ int main() {
             while (t < 1 - 1e-14) {
                 double uOld = u;
                 u = executeOneTimeStep(integrator, u, maxError, dt, dtMax);
-                logger.assert_always(
-                    std::abs(uOld * std::exp(dt) - u) < maxError * std::abs(u),
-                    "% stage% time integrator of order % exceeded error "
-                    "tolerance (error was %, but should be < %)",
-                    integrator->getNumberOfStages(),
-                    integrator->getTotalVariationDiminishing() ? " tvd" : "",
-                    integrator->getOrder(), std::abs(uOld * std::exp(dt) - u),
-                    maxError);
-                logger.assert_always(
-                    dt < dtMax + 1e-14,
-                    "% stage% time integrator of order % used a larger time "
-                    "step than the maximum allowed (time step was %, but "
-                    "should be < %)",
-                    integrator->getNumberOfStages(),
-                    integrator->getTotalVariationDiminishing() ? " tvd" : "",
-                    integrator->getOrder(), dt, dtMax);
+
+                tvd = integrator->getTotalVariationDiminishing() ? " tvd" : "";
+                INFO("" << integrator->getNumberOfStages() << "stage" << tvd
+                        << " time integrator of order "
+                        << integrator->getOrder()
+                        << "exceeded error "
+                           "tolerance (error was "
+                        << std::abs(uOld * std::exp(dt) - u)
+                        << " , but should be <" << maxError);
+                CHECK(std::abs(uOld * std::exp(dt) - u) <
+                      maxError * std::abs(u));
+
+                INFO(""
+                     << "stage" << tvd << " time integrator of order "
+                     << integrator->getOrder()
+                     << " used a larger time "
+                        "step than the maximum allowed (time step was "
+                     << dt << ",but should be <" << dtMax);
+                CHECK(dt < dtMax + 1e-14);
                 t += dt;
                 dtMax = 1 - t;
             }
         }
     }
-    return 0;
 }
