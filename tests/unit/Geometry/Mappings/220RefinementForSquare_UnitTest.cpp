@@ -40,8 +40,12 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferenceSquare.h"
 #include <iostream>
+
+#include "../catch.hpp"
+
 using namespace hpgem;
-int main(int argc, char** argv) {
+TEST_CASE("220RefinementForSquare_UnitTest",
+          "[220RefinementForSquare_UnitTest]") {
     Geometry::PointReference<2> refPoint;
     Geometry::PointReference<2> point, compare;
     LinearAlgebra::SmallMatrix<2, 2> jac;
@@ -65,16 +69,14 @@ int main(int argc, char** argv) {
 
                     refPoint[0] += -1e-8;
                     jac = test->getRefinementMappingMatrixL(i, (refPoint));
-                    logger.assert_always(
-                        (std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) <
-                         1e-5),
-                        "jacobian");  // estimate is a bit rough, but should
-                                      // work for most mappings
-                    logger.assert_always(
-                        (std::abs(jac[1] - 5.e7 * (point[1] - compare[1])) <
-                         1e-5),
-                        "jacobian");  // implementations are very strongly
-                                      // recommended to be more accurate
+                    INFO("jacobian");
+                    CHECK((std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) <
+                           1e-5));  // estimate is a bit rough, but should
+                                    // work for most mappings
+                    INFO("jacobian");
+                    CHECK((std::abs(jac[1] - 5.e7 * (point[1] - compare[1])) <
+                           1e-5));  // implementations are very strongly
+                                    // recommended to be more accurate
 
                     refPoint[1] += -1.e-8;
                     compare = test->refinementTransform(i, (refPoint));
@@ -83,40 +85,37 @@ int main(int argc, char** argv) {
 
                     refPoint[1] += -1e-8;
                     jac = test->getRefinementMappingMatrixL(i, (refPoint));
-                    logger.assert_always(
-                        (std::abs(jac[2] - 5.e7 * (point[0] - compare[0])) <
-                         1e-5),
-                        "jacobian");
-                    logger.assert_always(
-                        (std::abs(jac[3] - 5.e7 * (point[1] - compare[1])) <
-                         1e-5),
-                        "jacobian");
+                    INFO("jacobian");
+                    CHECK((std::abs(jac[2] - 5.e7 * (point[0] - compare[0])) <
+                           1e-5));
+                    INFO("jacobian");
+                    CHECK((std::abs(jac[3] - 5.e7 * (point[1] - compare[1])) <
+                           1e-5));
                     jac *= test->getRefinementMappingMatrixR(i, (refPoint));
-                    logger.assert_always(std::abs(jac[0] - 1.) < 1e-12,
-                                         "inverse of jacobian");
-                    logger.assert_always(std::abs(jac[1] - 0.) < 1e-12,
-                                         "inverse of jacobian");
-                    logger.assert_always(std::abs(jac[2] - 0.) < 1e-12,
-                                         "inverse of jacobian");
-                    logger.assert_always(std::abs(jac[3] - 1.) < 1e-12,
-                                         "inverse of jacobian");
+                    INFO("inverse of jacobian");
+                    CHECK(std::abs(jac[0] - 1.) < 1e-12);
+                    INFO("inverse of jacobian");
+                    CHECK(std::abs(jac[1] - 0.) < 1e-12);
+                    INFO("inverse of jacobian");
+                    CHECK(std::abs(jac[2] - 0.) < 1e-12);
+                    INFO("inverse of jacobian");
+                    CHECK(std::abs(jac[3] - 1.) < 1e-12);
                 }
             }
             for (std::size_t index : test->getSubElementLocalNodeIndices(i)) {
-                logger.assert_always(
-                    index < Geometry::ReferenceSquare::Instance()
-                                    .getNumberOfNodes() +
-                                test->getNumberOfNewNodes(),
-                    "local index out of bounds");
+                INFO("local index out of bounds");
+                CHECK(index <
+                      Geometry::ReferenceSquare::Instance().getNumberOfNodes() +
+                          test->getNumberOfNewNodes());
             }
             for (const Geometry::RefinementMapping* faceMapping :
                  test->getCodim1RefinementMaps()) {
-                logger.assert_always(faceMapping->getNumberOfNewNodes() <=
-                                         test->getNumberOfNewNodes(),
-                                     "face gets too much new nodes");
-                logger.assert_always(faceMapping->getNumberOfSubElements() <=
-                                         test->getNumberOfSubElements(),
-                                     "face gets too much new elements");
+                INFO("face gets too much new nodes");
+                CHECK(faceMapping->getNumberOfNewNodes() <=
+                      test->getNumberOfNewNodes());
+                INFO("face gets too much new elements");
+                CHECK(faceMapping->getNumberOfSubElements() <=
+                      test->getNumberOfSubElements());
             }
         }
     }

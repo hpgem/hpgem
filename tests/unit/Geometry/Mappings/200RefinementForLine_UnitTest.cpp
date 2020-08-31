@@ -40,8 +40,11 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferenceLine.h"
 #include <iostream>
+
+#include "../catch.hpp"
+
 using namespace hpgem;
-int main(int argc, char** argv) {
+TEST_CASE("200RefinementForLine_UnitTest", "[200RefinementForLine_UnitTest]") {
     Geometry::PointReference<1> refPoint;
     Geometry::PointReference<1> point, compare;
     LinearAlgebra::SmallMatrix<1, 1> jac;
@@ -61,29 +64,28 @@ int main(int argc, char** argv) {
 
                 refPoint[0] += -1e-8;
                 jac = test->getRefinementMappingMatrixL(i, (refPoint));
-                logger.assert_always(
-                    (std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) < 1e-5),
-                    "jacobian");  // estimate is a bit rough, but should work
-                                  // for most mappings
+                INFO("jacobian");
+                CHECK((std::abs(jac[0] - 5.e7 * (point[0] - compare[0])) <
+                       1e-5));  // estimate is a bit rough, but should work
+                                // for most mappings
                 jac *= test->getRefinementMappingMatrixR(i, (refPoint));
-                logger.assert_always(std::abs(jac[0] - 1.) < 1e-12,
-                                     "inverse of jacobian");
+                INFO("inverse of jacobian");
+                CHECK(std::abs(jac[0] - 1.) < 1e-12);
             }
             for (std::size_t index : test->getSubElementLocalNodeIndices(i)) {
-                logger.assert_always(
-                    index <
-                        Geometry::ReferenceLine::Instance().getNumberOfNodes() +
-                            test->getNumberOfNewNodes(),
-                    "local index out of bounds");
+                INFO("local index out of bounds");
+                CHECK(index <
+                      Geometry::ReferenceLine::Instance().getNumberOfNodes() +
+                          test->getNumberOfNewNodes());
             }
             for (const Geometry::RefinementMapping* faceMapping :
                  test->getCodim1RefinementMaps()) {
-                logger.assert_always(faceMapping->getNumberOfNewNodes() <=
-                                         test->getNumberOfNewNodes(),
-                                     "face gets too much new nodes");
-                logger.assert_always(faceMapping->getNumberOfSubElements() <=
-                                         test->getNumberOfSubElements(),
-                                     "face gets too much new elements");
+                INFO("face gets too much new nodes");
+                CHECK(faceMapping->getNumberOfNewNodes() <=
+                      test->getNumberOfNewNodes());
+                INFO("face gets too much new elements");
+                CHECK(faceMapping->getNumberOfSubElements() <=
+                      test->getNumberOfSubElements());
             }
         }
     }

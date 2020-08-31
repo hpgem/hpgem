@@ -42,8 +42,11 @@
 #include <iostream>
 
 #include "Base/FaceMatrix.h"
+
+#include "../catch.hpp"
+
 using namespace hpgem;
-int main() {
+TEST_CASE("070FaceMatrix_UnitTest", "[070FaceMatrix_UnitTest]") {
     // std::cout << "Test if FaceMatrix works.\n";
 
     const Base::Side sL = Base::Side::LEFT;
@@ -106,15 +109,16 @@ int main() {
             z = i * 10 + j;
             z = z * 100. + z;
 
-            logger.assert_always(F2.getElementMatrix(iS, jS)(iVB, jVB) == z,
-                                 "Face matrix is wrong");
-            logger.assert_always(F3(i, j) == z, "Face matrix is wrong");
-            logger.assert_always(F4.getEntireMatrix()(i, j) == z,
-                                 "Face matrix is wrong");
-            logger.assert_always(F5(i, j) == z, "Face matrix is wrong");
+            INFO("Face matrix is wrong");
+            CHECK(F2.getElementMatrix(iS, jS)(iVB, jVB) == z);
+            INFO("Face matrix is wrong");
+            CHECK(F3(i, j) == z);
+            INFO("Face matrix is wrong");
+            CHECK(F4.getEntireMatrix()(i, j) == z);
+            INFO("Face matrix is wrong");
+            CHECK(F5(i, j) == z);
         }
     }
 
     // std::cout << "Matrix F2:\n" << F2.getEntireMatrix() << "\n";
-    return 0;
 }

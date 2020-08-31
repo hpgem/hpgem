@@ -47,26 +47,31 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferencePoint.h"
 #include <cmath>
+
+#include "../../catch.hpp"
+
 using namespace hpgem;
 void testRule(QuadratureRules::GaussQuadratureRule& test) {
     std::cout << test.getName();
-    logger.assert_always((test.dimension() == 0), "dimension");
-    logger.assert_always((test.order() > 11), "order");
+    INFO("dimension");
+    CHECK((test.dimension() == 0));
+    INFO("order");
+    CHECK((test.order() > 11));
     const Geometry::ReferenceGeometry& refGeo = *test.forReferenceGeometry();
-    logger.assert_always((typeid(refGeo) == typeid(Geometry::ReferencePoint)),
-                         "forReferenceGeometry");
+    INFO("forReferenceGeometry");
+    CHECK((typeid(refGeo) == typeid(Geometry::ReferencePoint)));
     // 0D Quadrature rules are special
     double integrated = 0;
     for (std::size_t i = 0; i < test.getNumberOfPoints(); ++i) {
         integrated += test.weight(i);
         const Geometry::PointReference<0>& point = test.getPoint(i);
     }
-    logger.assert_always((std::abs(integrated - 1) < 1e-12), "integration");
+    INFO("integration");
+    CHECK((std::abs(integrated - 1) < 1e-12));
 }
 
-int main() {
+TEST_CASE("010GaussQuadratureRulesForPoint_UnitTest",
+          "[010GaussQuadratureRulesForPoint_UnitTest]") {
 
     testRule(QuadratureRules::Cn0_inf_1::Instance());
-
-    return 0;
 }
