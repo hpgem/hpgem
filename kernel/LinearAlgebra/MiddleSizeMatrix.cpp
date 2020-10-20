@@ -776,10 +776,11 @@ void MiddleSizeMatrix::solveCholesky(LinearAlgebra::MiddleSizeMatrix& B) const {
 }
 
 void MiddleSizeMatrix::solveLowerTriangular(LinearAlgebra::MiddleSizeMatrix& B,
-                                            bool left) const {
+                                            Side side,
+                                            Transpose transpose) const {
     logger.assert_debug(numberOfRows_ == numberOfColumns_,
                         "can only solve for square matrixes");
-    if (left) {
+    if (side == Side::OP_LEFT) {
         logger.assert_debug(
             numberOfRows_ == B.numberOfRows_,
             "size of the RHS does not match the size of the matrix");
@@ -793,25 +794,35 @@ void MiddleSizeMatrix::solveLowerTriangular(LinearAlgebra::MiddleSizeMatrix& B,
     int n = B.numberOfColumns_;
     int lda = numberOfRows_;  // == numberOfColumns
     int ldb = m;
+    char cside, ctranspose;
+    switch (side) {
+        case Side::OP_LEFT:
+            cside = 'L';
+            break;
+        case Side::OP_RIGHT:
+            cside = 'R';
+            break;
+    }
+    switch (transpose) {
+        case Transpose::NOT:
+            ctranspose = 'N';
+            break;
+        case Transpose::TRANSPOSE:
+            ctranspose = 'T';
+            break;
+        case Transpose::HERMITIAN_TRANSPOSE:
+            ctranspose = 'C';
+    }
+
     MiddleSizeMatrix matThis = *this;  // Mutable copy.
 #ifdef HPGEM_USE_COMPLEX_PETSC
     std::complex<double> alpha(1);
-    if (left) {
-        ztrsm_("L", "L", "N", "N", &m, &n, &alpha, matThis.data(), &lda,
-               B.data(), &ldb);
-    } else {
-        ztrsm_("R", "L", "C", "N", &m, &n, &alpha, matThis.data(), &lda,
-               B.data(), &ldb);
-    }
+    ztrsm_(&cside, "L", &ctranspose, "N", &m, &n, &alpha, matThis.data(), &lda,
+           B.data(), &ldb);
 #else
     double alpha(1);
-    if (left) {
-        dtrsm_("L", "L", "N", "N", &m, &n, &alpha, matThis.data(), &lda,
-               B.data(), &ldb);
-    } else {
-        dtrsm_("R", "L", "C", "N", &m, &n, &alpha, matThis.data(), &lda,
-               B.data(), &ldb);
-    }
+    dtrsm_(&cside, "L", &ctranspose, "N", &m, &n, &alpha, matThis.data(), &lda,
+           B.data(), &ldb);
 #endif
 }
 

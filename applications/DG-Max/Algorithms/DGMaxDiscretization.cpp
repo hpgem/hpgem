@@ -146,8 +146,12 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(
             // Compute L^{-1} S L^{-H}, where S is the stiffness matrix and
             // LL^H is the mass matrix.
             LinearAlgebra::MiddleSizeMatrix original = stiffnessMatrix;
-            massMatrix.solveLowerTriangular(stiffnessMatrix, true);
-            massMatrix.solveLowerTriangular(stiffnessMatrix, false);
+            massMatrix.solveLowerTriangular(stiffnessMatrix,
+                                            LinearAlgebra::Side::OP_LEFT,
+                                            LinearAlgebra::Transpose::NOT);
+            massMatrix.solveLowerTriangular(
+                stiffnessMatrix, LinearAlgebra::Side::OP_RIGHT,
+                LinearAlgebra::Transpose::HERMITIAN_TRANSPOSE);
             // Due to rounding errors the matrix might be slightly non
             // Hermitian, fix this by replacing S by 0.5(S + S^H).
             for (std::size_t i = 0; i < stiffnessMatrix.getNumberOfRows();
@@ -180,7 +184,9 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(
             if (massMatrixHandling == DGMaxDiscretizationBase::ORTHOGONALIZE) {
                 // Compute B L^{-H}, where B is the projector matrix and L is
                 // the Cholesky factor of the mass matrix.
-                massMatrix.solveLowerTriangular(projectorMatrix, false);
+                massMatrix.solveLowerTriangular(
+                    projectorMatrix, LinearAlgebra::Side::OP_RIGHT,
+                    LinearAlgebra::Transpose::HERMITIAN_TRANSPOSE);
             }
 
             (*it)->setElementMatrix(projectorMatrix, PROJECTOR_MATRIX_ID);
@@ -300,8 +306,12 @@ void DGMaxDiscretization<DIM>::computeFaceIntegrals(
             }
             LinearAlgebra::MiddleSizeMatrix original = stiffnessFaceMatrix;
             // Rescaling
-            massMatrix.solveLowerTriangular(stiffnessFaceMatrix, false);
-            massMatrix.solveLowerTriangular(stiffnessFaceMatrix, true);
+            massMatrix.solveLowerTriangular(stiffnessFaceMatrix,
+                                            hpgem::LinearAlgebra::Side::OP_LEFT,
+                                            LinearAlgebra::Transpose::NOT);
+            massMatrix.solveLowerTriangular(
+                stiffnessFaceMatrix, hpgem::LinearAlgebra::Side::OP_RIGHT,
+                LinearAlgebra::Transpose::HERMITIAN_TRANSPOSE);
         }
         (*it)->setFaceMatrix(stiffnessFaceMatrix, FACE_MATRIX_ID);
 

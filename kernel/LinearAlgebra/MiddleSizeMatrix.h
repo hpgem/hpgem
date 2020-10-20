@@ -44,6 +44,8 @@
 #include <vector>
 
 #include "MiddleSizeVector.h"
+#include "Side.h"
+#include "Transpose.h"
 #include <complex>
 
 namespace hpgem {
@@ -250,16 +252,20 @@ class MiddleSizeMatrix {
     /// \param B The rhs and result matrix.
     void solveCholesky(MiddleSizeMatrix& B) const;
 
-    /// \brief Solve the system L*X = B or X*L^H = B
+    /// \brief Solve linear systems with a lower triangular matrix.
     ///
-    /// Solve the system L*X = B or X*L^H = B, where L is the current matrix
-    /// that is assumed to be lower triangular. The strictly upper triagonal
-    /// part of the matrix is not referenced.
+    /// Solves either op(L)X = B or X op(L) = B, where op(L) is either
+    /// L or L^T, where L is the current. It is assumed that this the current
+    /// matrix is lower triangular and the strictly upper triangular part of the
+    /// matrix is not referenced.
     ///
     /// \param B The right hand side, that will be overwritten by the
     /// solution.
-    /// \param left whether to solve L*X = B (true) or X*L^H = B (false)
-    void solveLowerTriangular(MiddleSizeMatrix& B, bool left = true) const;
+    /// \param side The side of the this matrix with respect to the variables
+    /// i.e. L*X=B is for left,
+    /// \param transpose Whether use the (conjugate) transpose of this matrix.
+    void solveLowerTriangular(MiddleSizeMatrix& B, Side side = Side::OP_LEFT,
+                              Transpose transpose = Transpose::NOT) const;
 
     /// \brief Computes the minimum norm solution to a real linear least squares
     /// problem.
