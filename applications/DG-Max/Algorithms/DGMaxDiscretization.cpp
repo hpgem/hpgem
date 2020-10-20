@@ -108,16 +108,17 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(
     for (typename Base::MeshManipulator<DIM>::ElementIterator it =
              mesh.elementColBegin(Base::IteratorType::GLOBAL);
          it != end; ++it) {
+        Base::Element* element = *it;
         std::size_t numberOfBasisFunctions =
-            (*it)->getNumberOfBasisFunctions(0);
+            element->getNumberOfBasisFunctions(0);
 
         // TODO: Are these resizes needed, as the content seems to be
         // overwritten by the integral.
         massMatrix.resize(numberOfBasisFunctions, numberOfBasisFunctions);
         massMatrix = elIntegral.integrate(
-            (*it), [&](Base::PhysicalElement<DIM>& element) {
+            element, [&](Base::PhysicalElement<DIM>& pelement) {
                 LinearAlgebra::MiddleSizeMatrix res;
-                elementMassMatrix(element, res);
+                elementMassMatrix(pelement, res);
                 return res;
             });
         switch (massMatrixHandling) {
@@ -133,13 +134,13 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(
                 logger.assert_always(false,
                                      "Not implemented mass matrix handling");
         }
-        (*it)->setElementMatrix(massMatrix, MASS_MATRIX_ID);
+        element->setElementMatrix(massMatrix, MASS_MATRIX_ID);
 
         stiffnessMatrix.resize(numberOfBasisFunctions, numberOfBasisFunctions);
         stiffnessMatrix = elIntegral.integrate(
-            (*it), [&](Base::PhysicalElement<DIM>& element) {
+            element, [&](Base::PhysicalElement<DIM>& pelement) {
                 LinearAlgebra::MiddleSizeMatrix res;
-                elementStiffnessMatrix(element, res);
+                elementStiffnessMatrix(pelement, res);
                 return res;
             });
         if (massMatrixHandling == DGMaxDiscretizationBase::ORTHOGONALIZE) {
@@ -167,17 +168,17 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(
                 }
             }
         }
-        (*it)->setElementMatrix(stiffnessMatrix, STIFFNESS_MATRIX_ID);
+        element->setElementMatrix(stiffnessMatrix, STIFFNESS_MATRIX_ID);
 
         if (includeProjector_) {
             std::size_t numberOfProjectorBasisFunctions =
-                (*it)->getNumberOfBasisFunctions(1);
+                element->getNumberOfBasisFunctions(1);
             projectorMatrix.resize(numberOfProjectorBasisFunctions,
                                    numberOfBasisFunctions);
             projectorMatrix = elIntegral.integrate(
-                (*it), [&](Base::PhysicalElement<DIM>& element) {
+                element, [&](Base::PhysicalElement<DIM>& pelement) {
                     LinearAlgebra::MiddleSizeMatrix res;
-                    elementProjectorMatrix(element, res);
+                    elementProjectorMatrix(pelement, res);
                     return res;
                 });
 
@@ -189,48 +190,48 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(
                     LinearAlgebra::Transpose::HERMITIAN_TRANSPOSE);
             }
 
-            (*it)->setElementMatrix(projectorMatrix, PROJECTOR_MATRIX_ID);
+            element->setElementMatrix(projectorMatrix, PROJECTOR_MATRIX_ID);
         }
 
         // Note, resizes for vectors needed in case of empty functions
         initialConditionVector.resize(numberOfBasisFunctions);
         if (initialCondition) {
             initialConditionVector = elIntegral.integrate(
-                (*it), [&](Base::PhysicalElement<DIM>& element) {
+                element, [&](Base::PhysicalElement<DIM>& element) {
                     LinearAlgebra::MiddleSizeVector res;
                     elementInnerProduct(element, initialCondition,
                                         res);  // Initial conditions
                     return res;
                 });
         }
-        (*it)->setElementVector(initialConditionVector,
-                                INITIAL_CONDITION_VECTOR_ID);
+        element->setElementVector(initialConditionVector,
+                                  INITIAL_CONDITION_VECTOR_ID);
 
         initialConditionDerivativeVector.resize(numberOfBasisFunctions);
         if (initialConditionDerivative) {
             initialConditionDerivativeVector = elIntegral.integrate(
-                (*it), [&](Base::PhysicalElement<DIM>& element) {
+                element, [&](Base::PhysicalElement<DIM>& pelement) {
                     LinearAlgebra::MiddleSizeVector res;
-                    elementInnerProduct(element, initialConditionDerivative,
+                    elementInnerProduct(pelement, initialConditionDerivative,
                                         res);  // Initial conditions derivative
                     return res;
                 });
         }
-        (*it)->setElementVector(initialConditionDerivativeVector,
-                                INITIAL_CONDITION_DERIVATIVE_VECTOR_ID);
+        element->setElementVector(initialConditionDerivativeVector,
+                                  INITIAL_CONDITION_DERIVATIVE_VECTOR_ID);
 
         elementVector.resize(numberOfBasisFunctions);
         if (sourceTerm) {
             elementVector = elIntegral.integrate(
-                (*it), [&](Base::PhysicalElement<DIM>& element) {
+                element, [&](Base::PhysicalElement<DIM>& pelement) {
                     LinearAlgebra::MiddleSizeVector res;
-                    elementInnerProduct(element, sourceTerm,
+                    elementInnerProduct(pelement, sourceTerm,
                                         res);  // Source  term
                     return res;
                 });
         }
 
-        (*it)->setElementVector(elementVector, SOURCE_TERM_VECTOR_ID);
+        element->setElementVector(elementVector, SOURCE_TERM_VECTOR_ID);
     }
 }
 
@@ -256,13 +257,14 @@ void DGMaxDiscretization<DIM>::computeFaceIntegrals(
     for (typename Base::MeshManipulator<DIM>::FaceIterator it =
              mesh.faceColBegin();
          it != end; ++it) {
+        Base::Face* face = *it;
 
         // Resize all the matrices and vectors;
         std::size_t numberOfBasisFunctions =
-            (*it)->getPtrElementLeft()->getNumberOfBasisFunctions(0);
-        if ((*it)->isInternal()) {
+            face->getPtrElementLeft()->getNumberOfBasisFunctions(0);
+        if (face->isInternal()) {
             numberOfBasisFunctions +=
-                (*it)->getPtrElementRight()->getNumberOfBasisFunctions(0);
+                face->getPtrElementRight()->getNumberOfBasisFunctions(0);
         }
 
         stiffnessFaceMatrix.resize(numberOfBasisFunctions,
@@ -271,11 +273,11 @@ void DGMaxDiscretization<DIM>::computeFaceIntegrals(
 
         // Compute the actual face  integrals.
         stiffnessFaceMatrix =
-            faIntegral.integrate((*it), [&](Base::PhysicalFace<DIM>& face) {
+            faIntegral.integrate(face, [&](Base::PhysicalFace<DIM>& pface) {
                 LinearAlgebra::MiddleSizeMatrix res;
-                faceMatrix(face, res);
+                faceMatrix(pface, res);
                 LinearAlgebra::MiddleSizeMatrix temp;
-                facePenaltyMatrix(face, temp, stab);
+                facePenaltyMatrix(pface, temp, stab);
                 res += temp;
                 return res;
             });
@@ -283,7 +285,7 @@ void DGMaxDiscretization<DIM>::computeFaceIntegrals(
             massMatrix.resize(numberOfBasisFunctions, numberOfBasisFunctions);
             massMatrix *= 0.0;  // Clear the contents
             const LinearAlgebra::MiddleSizeMatrix& leftMassMat =
-                (*it)->getPtrElementLeft()->getElementMatrix(MASS_MATRIX_ID);
+                face->getPtrElementLeft()->getElementMatrix(MASS_MATRIX_ID);
             std::size_t leftRows = leftMassMat.getNumberOfRows();
             // Copy lower triagonal part
             for (std::size_t i = 0; i < leftRows; ++i) {
@@ -291,9 +293,9 @@ void DGMaxDiscretization<DIM>::computeFaceIntegrals(
                     massMatrix(j, i) = leftMassMat(j, i);
                 }
             }
-            if ((*it)->isInternal()) {
+            if (face->isInternal()) {
                 const LinearAlgebra::MiddleSizeMatrix& rightMassMat =
-                    (*it)->getPtrElementRight()->getElementMatrix(
+                    face->getPtrElementRight()->getElementMatrix(
                         MASS_MATRIX_ID);
                 std::size_t rightRows = rightMassMat.getNumberOfRows();
                 // Copy lower triagonal part, now offset by leftRows.
@@ -313,20 +315,20 @@ void DGMaxDiscretization<DIM>::computeFaceIntegrals(
                 stiffnessFaceMatrix, hpgem::LinearAlgebra::Side::OP_RIGHT,
                 LinearAlgebra::Transpose::HERMITIAN_TRANSPOSE);
         }
-        (*it)->setFaceMatrix(stiffnessFaceMatrix, FACE_MATRIX_ID);
+        face->setFaceMatrix(stiffnessFaceMatrix, FACE_MATRIX_ID);
 
         if (boundaryCondition) {
             // NOTE: No check on rescaling, as the face vector is zero when
             // there is no boundaryCondition.
             boundaryFaceVector =
-                faIntegral.integrate((*it), [&](Base::PhysicalFace<DIM>& face) {
+                faIntegral.integrate(face, [&](Base::PhysicalFace<DIM>& face) {
                     LinearAlgebra::MiddleSizeVector res;
                     faceVector(face, boundaryCondition, res, stab);
                     return res;
                 });
         }
 
-        (*it)->setFaceVector(boundaryFaceVector, FACE_VECTOR_ID);
+        face->setFaceVector(boundaryFaceVector, FACE_VECTOR_ID);
     }
 }
 
