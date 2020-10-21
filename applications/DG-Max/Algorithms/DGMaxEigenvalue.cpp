@@ -53,7 +53,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "LinearAlgebra/SmallVector.h"
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
-#include "Utils/KPhaseShift.h"
+#include "Utils/CGDGMatrixKPhaseShiftBuilder.h"
+#include "Utils/FaceKPhaseShiftBuilder.h"
 
 using namespace hpgem;
 

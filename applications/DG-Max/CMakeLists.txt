@@ -28,6 +28,8 @@ if(hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
 		Utils/MatrixBlocks.cpp
 		Utils/KSpacePath.cpp
 		Utils/KPhaseShift.cpp
+		Utils/CGDGMatrixKPhaseShiftBuilder.cpp
+		Utils/FaceKPhaseShiftBuilder.cpp
 
 		Utils/Verification/DGMaxEVConvergenceTest.cpp
 		Utils/Verification/DivDGMaxEVConvergenceTest.cpp
