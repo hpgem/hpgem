@@ -42,10 +42,8 @@
 
 namespace DGMax {
 
-
 template class FaceMatrixKPhaseShiftBuilder<2>;
 template class FaceMatrixKPhaseShiftBuilder<3>;
-
 
 template <std::size_t DIM>
 KPhaseShifts<DIM> FaceMatrixKPhaseShiftBuilder<DIM>::build(
@@ -82,7 +80,7 @@ KPhaseShifts<DIM> FaceMatrixKPhaseShiftBuilder<DIM>::build(
             // this processor.
             logger.assert_always(
                 !(*it)->getPtrElementLeft()->isOwnedByCurrentProcessor() &&
-                !(*it)->getPtrElementRight()->isOwnedByCurrentProcessor(),
+                    !(*it)->getPtrElementRight()->isOwnedByCurrentProcessor(),
                 "Incorrectly marked periodic boundary");
         }
     }
@@ -152,4 +150,4 @@ KPhaseShiftBlock<DIM> FaceMatrixKPhaseShiftBuilder<DIM>::facePhaseShift(
     }
 }
 
-}
+}  // namespace DGMax

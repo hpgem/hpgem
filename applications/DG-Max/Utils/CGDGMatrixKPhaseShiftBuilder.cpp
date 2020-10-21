@@ -42,7 +42,6 @@
 
 namespace DGMax {
 
-
 template <std::size_t DIM>
 KPhaseShifts<DIM> CGDGMatrixKPhaseShiftBuilder<DIM>::build(
     const Utilities::GlobalIndexing& cgIndexing,
@@ -221,4 +220,4 @@ void CGDGMatrixKPhaseShiftBuilder<DIM>::addElementPhaseShift(
 template class CGDGMatrixKPhaseShiftBuilder<2>;
 template class CGDGMatrixKPhaseShiftBuilder<3>;
 
-}
+}  // namespace DGMax

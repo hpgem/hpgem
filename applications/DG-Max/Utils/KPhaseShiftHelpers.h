@@ -45,7 +45,6 @@ namespace DGMax {
 
 using namespace hpgem;
 
-
 // Several helper functions needed for implemting KPhase shifts
 
 // Given a point x on a (periodic boundary) face, which has coordinates x_l and
@@ -55,12 +54,9 @@ using namespace hpgem;
 /// \brief Compute the coordinate jump of a face.
 ///
 /// For a point P on a (periodic boundary) the coordinate may be different when
-/// computed from the left or right face. This function computes the jump in this
-/// coordinate: x_l - x_r, where x_l/x_r is the coordinate of point P as seen
-/// from the left/right face.
-/// \tparam DIM
-/// \param face
-/// \return
+/// computed from the left or right face. This function computes the jump in
+/// this coordinate: x_l - x_r, where x_l/x_r is the coordinate of point P as
+/// seen from the left/right face. \tparam DIM \param face \return
 template <std::size_t DIM>
 LinearAlgebra::SmallVector<DIM> boundaryFaceShift(const Base::Face* face) {
     logger.assert_always(face->isInternal(), "Internal face boundary");
@@ -115,7 +111,6 @@ Geometry::PointPhysical<DIM> getCoordinate(const Base::Element* element,
     return element->referenceToPhysical(elementFaceCenter);
 }
 
-
-}
+}  // namespace DGMax
 
 #endif  // HPGEM_KPHASESHIFTHELPERS_H

@@ -57,6 +57,6 @@ enum class Transpose {
 };
 
 }
-}
+}  // namespace hpgem
 
 #endif  // HPGEM_TRANSPOSE_H
