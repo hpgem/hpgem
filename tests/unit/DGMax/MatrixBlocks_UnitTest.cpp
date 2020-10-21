@@ -40,9 +40,13 @@
 
 #include "Utils/MatrixBlocks.h"
 
+#include <petsc.h>
+#define CATCH_CONFIG_RUNNER
+#include "../catch.hpp"
+
 namespace DGMax {
 
-void basicInitTest() {
+TEST_CASE("Matrix blocks init", "[MatrixBlocksUnitTest]") {
     std::size_t rows = 2;
     std::size_t columns = 3;
     LinearAlgebra::MiddleSizeMatrix block1(rows, columns, 3.0);
@@ -50,26 +54,29 @@ void basicInitTest() {
     std::vector<PetscInt> rowIndices({0, 1});
     std::vector<PetscInt> colIndices({2, 3, 4});
 
-    {
+    SECTION("Single (non Hermitian) block") {
         // Single block
         MatrixBlocks blocks(rowIndices, colIndices, block1);
-        logger.assert_always(blocks.getBlockSize() == rows * columns,
-                             "Incorrect block size");
-        logger.assert_always(!blocks.isPair(),
-                             "Incorrect pair value for single block");
+
+        INFO("Matrix block is not a pair");
+        CHECK_FALSE(blocks.isPair());
+
+        INFO("Block has the right size");
+        REQUIRE(blocks.getBlockSize() == rows * columns);
     }
-    {
+    SECTION("Symmetrically placed pair of blocks") {
         // Paired block
         LinearAlgebra::MiddleSizeMatrix block2(columns, rows, 3.0);
         MatrixBlocks blocks(rowIndices, colIndices, block1, block2);
-        logger.assert_always(blocks.getBlockSize() == rows * columns,
-                             "Incorrect block size");
-        logger.assert_always(blocks.isPair(),
-                             "Incorrect pair value for pair block");
+
+        INFO("Block is a pair");
+        CHECK(blocks.isPair());
+        INFO("Block has the right size");
+        REQUIRE(blocks.getBlockSize() == rows * columns);
     }
 }
 
-void matrixInsertionTest() {
+TEST_CASE("Block insertion", "[MatrixBlocksUnitTest]") {
 
     LinearAlgebra::MiddleSizeMatrix block(2, 2);
     block(0, 0) = 1.0;
@@ -79,7 +86,7 @@ void matrixInsertionTest() {
     std::vector<PetscInt> rows({0, 1});
     std::vector<PetscInt> columns({2, 3});
 
-    {
+    SECTION("Single block") {
         MatrixBlocks blocks(rows, columns, block);
         // Test with a dense matrix, as that is the simplest to create
         Mat mat;
@@ -93,8 +100,8 @@ void matrixInsertionTest() {
         // Insert blocks
         std::vector<PetscScalar> tempStorage;
         blocks.loadBlocks(tempStorage);
-        logger.assert_always(tempStorage.size() >= block.size(),
-                             "Too small storage");
+        INFO("Sufficient space allocated in storage");
+        REQUIRE(tempStorage.size() >= block.size());
         blocks.insertBlocks(tempStorage, mat);
 
         MatAssemblyBegin(mat, MAT_FINAL_ASSEMBLY);
@@ -102,20 +109,19 @@ void matrixInsertionTest() {
 
         PetscScalar value;
         PetscInt ri, ci;
+        INFO("Entries placed correctly");
         for (std::size_t i = 0; i < rows.size(); ++i) {
             for (std::size_t j = 0; j < columns.size(); ++j) {
                 ri = rows[i];
                 ci = columns[j];
                 MatGetValues(mat, 1, &ri, 1, &ci, &value);
-                logger.assert_always(value == block(i, j),
-                                     "Incorrectly placed value");
+                REQUIRE(value == block(i, j));
             }
         }
         // Scaling test
-
         blocks.loadBlocks(tempStorage);
-        logger.assert_always(tempStorage.size() >= block.size(),
-                             "Too small storage");
+        INFO("Sufficient space allocated in storage (2)");
+        REQUIRE(tempStorage.size() >= block.size());
         for (std::size_t i = 0; i < block.size(); ++i) {
             tempStorage[i] *= 3.0;
         }
@@ -124,19 +130,21 @@ void matrixInsertionTest() {
 
         MatAssemblyBegin(mat, MAT_FINAL_ASSEMBLY);
         MatAssemblyEnd(mat, MAT_FINAL_ASSEMBLY);
+        INFO("Scaled entries placed correctly");
         for (std::size_t i = 0; i < rows.size(); ++i) {
             for (std::size_t j = 0; j < columns.size(); ++j) {
                 ri = rows[i];
                 ci = columns[j];
                 MatGetValues(mat, 1, &ri, 1, &ci, &value);
-                logger.assert_always(value == 3.0 * block(i, j),
-                                     "Incorrect scaled value");
+                REQUIRE(value == 3.0 * block(i, j));
             }
         }
         // Cleanup
         MatDestroy(&mat);
     }
-    {
+
+    SECTION("Symmetrically placed pair of blocks") {
+
         // Test with a symmetric pair of blocks
         LinearAlgebra::MiddleSizeMatrix block2(2, 2);
         block2(0, 0) = 5.0;
@@ -156,8 +164,8 @@ void matrixInsertionTest() {
         // Insert blocks
         std::vector<PetscScalar> tempStorage;
         blocks.loadBlocks(tempStorage);
-        logger.assert_always(tempStorage.size() >= 2 * block.size(),
-                             "Too small storage");
+        INFO("Sufficient space allocated in storage");
+        REQUIRE(tempStorage.size() >= 2 * block.size());
         blocks.insertBlocks(tempStorage, mat);
 
         MatAssemblyBegin(mat, MAT_FINAL_ASSEMBLY);
@@ -170,13 +178,11 @@ void matrixInsertionTest() {
                 ri = rows[i];
                 ci = columns[j];
                 MatGetValues(mat, 1, &ri, 1, &ci, &value);
-                logger.assert_always(
-                    value == block(i, j),
-                    "Incorrectly placed value in symmetric case");
+                INFO("Correctly placed value in symmetric case");
+                REQUIRE(value == block(i, j));
                 MatGetValues(mat, 1, &ci, 1, &ri, &value);
-                logger.assert_always(
-                    value == block2(j, i),
-                    "Incorrectly placed symmetric value in symmetric case");
+                INFO("Correctly placed symmetric value in symmetric case");
+                REQUIRE(value == block2(j, i));
             }
         }
     }
@@ -184,11 +190,13 @@ void matrixInsertionTest() {
 
 }  // namespace DGMax
 
-int main(int argc, char** argv) {
-    hpgem::Base::parse_options(argc, argv);  // To init petsc
+int main(int argc, char* argv[]) {
+    PetscErrorCode ierr = PetscInitialize(&argc, &argv, nullptr, nullptr);
+    CHKERRABORT(PETSC_COMM_WORLD, ierr);
 
-    DGMax::basicInitTest();
-    DGMax::matrixInsertionTest();
+    int result = Catch::Session().run(argc, argv);
 
-    return 0;
+    ierr = PetscFinalize();
+    CHKERRABORT(PETSC_COMM_WORLD, ierr);
+    return result;
 }
