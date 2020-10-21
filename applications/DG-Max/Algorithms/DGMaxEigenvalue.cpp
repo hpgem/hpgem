@@ -470,16 +470,11 @@ void SolverWorkspace<DIM>::initSolver() {
     err =
         EPSSetProblemType(solver_, config_.useHermitian_ ? EPS_HEP : EPS_NHEP);
     CHKERRABORT(PETSC_COMM_WORLD, err);
-    //    err = EPSSetWhichEigenpairs(solver_, EPS_SMALLEST_REAL);
-    //    CHKERRABORT(PETSC_COMM_WORLD, err);
-    //    err = EPSSetWhichEigenpairs(solver_, EPS_TARGET_REAL);
     err = EPSSetWhichEigenpairs(solver_, EPS_WHICH_USER);
     CHKERRABORT(PETSC_COMM_WORLD, err);
     err = EPSSetEigenvalueComparison(solver_, compareEigen,
                                      &(this->targetFrequency_));
     CHKERRABORT(PETSC_COMM_WORLD, err);
-    //    err = EPSSetExtraction(solver_, EPS_HARMONIC);
-    //    CHKERRABORT(PETSC_COMM_WORLD, err);
     err = EPSSetTarget(solver_, targetFrequency_ * targetFrequency_);
     CHKERRABORT(PETSC_COMM_WORLD, err);
 
@@ -501,8 +496,10 @@ template <std::size_t DIM>
 void SolverWorkspace<DIM>::initEigenvectorStorage() {
     convergedEigenValues_ = 0;
     // Some extra space for if more eigenvalues converge to prevent reallocation
-    numberOfEigenVectors_ = std::max(2 * targetNumberOfEigenvalues_,
-                                     targetNumberOfEigenvalues_ + 10);
+    PetscInt MINIMAL_EXTRA_SPACE = 10;
+    numberOfEigenVectors_ =
+        std::max(2 * targetNumberOfEigenvalues_,
+                 targetNumberOfEigenvalues_ + MINIMAL_EXTRA_SPACE);
     PetscErrorCode error = VecDuplicateVecs(
         tempFieldVector_, numberOfEigenVectors_, &eigenVectors_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
