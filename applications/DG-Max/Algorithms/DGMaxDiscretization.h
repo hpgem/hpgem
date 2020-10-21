@@ -122,14 +122,20 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
     void initializeBasisFunctions(Base::MeshManipulator<DIM>& mesh,
                                   std::size_t order);
 
+    /**
+     * Compute element matrices and vectors
+     * @param mesh The mesh
+     * @param massMatrix The possible transformation applied to the mass matrix
+     * @param elementVectors The element vectors to compute as mapping from id
+     * to the function to use.
+     */
     void computeElementIntegrands(
         Base::MeshManipulator<DIM>& mesh, MassMatrixHandling massMatrix,
-        const InputFunction& sourceTerm, const InputFunction& initialCondition,
-        const InputFunction& initialConditionDerivative) const;
-    void computeFaceIntegrals(Base::MeshManipulator<DIM>& mesh,
-                              MassMatrixHandling massMatrix,
-                              const FaceInputFunction& boundaryCondition,
-                              double stab) const;
+        const std::map<std::size_t, InputFunction>& elementVectors) const;
+    void computeFaceIntegrals(
+        Base::MeshManipulator<DIM>& mesh, MassMatrixHandling massMatrix,
+        const std::map<std::size_t, FaceInputFunction>& boundaryVectors,
+        double stab) const;
 
     static std::string normName(NormType norm) {
         switch (norm) {

@@ -59,18 +59,24 @@ void DGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& harmonicProblem,
                                double stab) {
     PetscErrorCode error;
     std::cout << "finding a time-harmonic solution" << std::endl;
-    discretization.computeElementIntegrands(
-        mesh_, DGMaxDiscretizationBase::NORMAL,
+
+    std::map<std::size_t, typename DGMaxDiscretization<DIM>::InputFunction>
+        elementVectors;
+    elementVectors[DGMaxDiscretization<DIM>::SOURCE_TERM_VECTOR_ID] =
         std::bind(&HarmonicProblem<DIM>::sourceTerm, std::ref(harmonicProblem),
-                  std::placeholders::_1, std::placeholders::_2),
-        nullptr, nullptr  // No initial values
-    );
-    discretization.computeFaceIntegrals(
-        mesh_, DGMaxDiscretizationBase::NORMAL,
-        std::bind(&HarmonicProblem<DIM>::boundaryCondition,
-                  std::ref(harmonicProblem), std::placeholders::_1,
-                  std::placeholders::_2, std::placeholders::_3),
-        stab);
+                  std::placeholders::_1, std::placeholders::_2);
+
+    discretization.computeElementIntegrands(
+        mesh_, DGMaxDiscretizationBase::NORMAL, elementVectors);
+
+    std::map<std::size_t, typename DGMaxDiscretization<DIM>::FaceInputFunction>
+        faceVectors;
+    faceVectors[DGMaxDiscretization<DIM>::FACE_VECTOR_ID] = std::bind(
+        &HarmonicProblem<DIM>::boundaryCondition, std::ref(harmonicProblem),
+        std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+
+    discretization.computeFaceIntegrals(mesh_, DGMaxDiscretizationBase::NORMAL,
+                                        faceVectors, stab);
 
     Utilities::GlobalIndexing indexing(&mesh_);
     Utilities::GlobalPetscMatrix massMatrix(

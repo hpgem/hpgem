@@ -72,9 +72,15 @@ void DGMaxEigenvalue<DIM>::initializeMatrices() {
     auto massMatrixHandling = config_.useHermitian_
                                   ? DGMaxDiscretizationBase::ORTHOGONALIZE
                                   : DGMaxDiscretizationBase::INVERT;
-    discretization_.computeElementIntegrands(mesh_, massMatrixHandling, nullptr,
-                                             nullptr, nullptr);
-    discretization_.computeFaceIntegrals(mesh_, massMatrixHandling, nullptr,
+    // No element vectors
+    std::map<std::size_t, typename DGMaxDiscretization<DIM>::InputFunction>
+        elementVectors;
+    discretization_.computeElementIntegrands(mesh_, massMatrixHandling,
+                                             elementVectors);
+    // No face vectors
+    std::map<std::size_t, typename DGMaxDiscretization<DIM>::FaceInputFunction>
+        faceVectors;
+    discretization_.computeFaceIntegrals(mesh_, massMatrixHandling, faceVectors,
                                          config_.stab_);
 }
 
