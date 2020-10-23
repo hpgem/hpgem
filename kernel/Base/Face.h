@@ -380,7 +380,7 @@ class Face final : public Geometry::FaceGeometry, public FaceData {
 
     /// Determine whether this face is a face on the periodic boundary. Is
     /// independent of the faceType.
-    bool detirmineIsPeriodicBoundaryFace();
+    bool determineIsPeriodicBoundaryFace() const;
 };
 
 template <std::size_t DIM>

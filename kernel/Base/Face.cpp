@@ -90,7 +90,7 @@ Face::Face(Element* ptrElemL, const std::size_t& localFaceNumberL,
         ptrElemR->getPhysicalGeometry()->getLocalFaceNodeIndices(
             localFaceNumberR);
 
-    if (detirmineIsPeriodicBoundaryFace()) {
+    if (determineIsPeriodicBoundaryFace()) {
         setFaceType(Geometry::FaceType::PERIODIC_BC);
     }
 
@@ -309,7 +309,7 @@ void Face::addElement(Element* ptrElementR, std::size_t localFaceNumberR) {
         ptrElementR->getPhysicalGeometry()->getLocalFaceNodeIndices(
             localFaceNumberR);
 
-    if (detirmineIsPeriodicBoundaryFace()) {
+    if (determineIsPeriodicBoundaryFace()) {
         setFaceType(Geometry::FaceType::PERIODIC_BC);
     }
 
@@ -344,7 +344,7 @@ const std::vector<Base::Node*> Face::getNodesList() const {
     return ptrNodesAtFace;
 }
 
-bool Face::detirmineIsPeriodicBoundaryFace() {
+bool Face::determineIsPeriodicBoundaryFace() const{
     // Determine if the face is on a Periodic boundary by looking at the
     // global node indices.
     std::vector<std::size_t> globalLeftNodes =
