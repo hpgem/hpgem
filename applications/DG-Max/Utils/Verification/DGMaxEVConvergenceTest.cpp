@@ -53,10 +53,10 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>>
     DGMaxEVConvergenceTest<DIM>::runInternal(std::size_t level) {
 
     logger.assert_always(level < meshFileNames_.size(), "No such mesh");
-
     std::size_t unknowns = solverConfig_.useProjector_ ? 2 : 1;
     std::size_t elementMatrices = solverConfig_.useProjector_ ? 3 : 2;
     Base::ConfigurationData configData(unknowns, 1);
+
     auto mesh = DGMax::readMesh<DIM>(
         meshFileNames_[level], &configData,
         [&](const Geometry::PointPhysical<DIM> &p) {

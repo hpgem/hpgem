@@ -320,7 +320,6 @@ void Face::addElement(Element* ptrElementR, std::size_t localFaceNumberR) {
     std::vector<std::size_t> localRightNodes =
         ptrElementR->getPhysicalGeometry()->getLocalFaceNodeIndices(
             localFaceNumberR);
-
     {
         // Determine if the face is on a Periodic boundary by looking at the
         // global node indices.
@@ -367,6 +366,21 @@ const std::vector<Base::Node*> Face::getNodesList() const {
 
     return ptrNodesAtFace;
 }
+
+bool Face::determineIsPeriodicBoundaryFace() const {
+    // Determine if the face is on a Periodic boundary by looking at the
+    // global node indices.
+    std::vector<std::size_t> globalLeftNodes =
+        elementLeft_->getPhysicalGeometry()->getGlobalFaceNodeIndices(
+            localFaceNumberLeft_);
+    std::vector<std::size_t> globalRightNodes =
+        elementRight_->getPhysicalGeometry()->getGlobalFaceNodeIndices(
+            localFaceNumberRight_);
+    std::sort(globalLeftNodes.begin(), globalLeftNodes.end());
+    std::sort(globalRightNodes.begin(), globalRightNodes.end());
+    return globalLeftNodes != globalRightNodes;
+}
+
 }  // namespace Base
 
 }  // namespace hpgem

@@ -42,7 +42,6 @@
 #include <memory>
 
 #include "Algorithms/DGMaxEigenvalue.h"
-
 #include "Utils/Verification/AbstractEVConvergenceTest.h"
 #include "Utils/Verification/EVTestPoint.h"
 
@@ -80,6 +79,7 @@ class DGMaxEVConvergenceTest : public AbstractEVConvergenceTest<DIM> {
     bool expectNaNsOrNegative() const override { return true; }
     // Reasonable default for if k is not that close to zero
     double expectedNumericalZeroThreshold() const override { return 1e-4; }
+    double expectedNumericalZeroThreshold() const override { return 1e-3; }
     // Basic estimate that at least 1/2 of the actual eigenvalues must be there.
     std::size_t minimumNumberOfResults(std::size_t level) const {
         return expected_->getLevel(level).size() * 1 / 2;
