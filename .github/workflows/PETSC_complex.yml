@@ -27,4 +27,4 @@ jobs:
     - name: make
       run: cmake --build build -- -j4
     - name: test
-      run: cd build && ctest -V -R DGmax_Vacuum2D_SelfTest && ctest
+      run: cd build && ctest
