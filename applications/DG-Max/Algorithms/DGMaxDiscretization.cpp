@@ -49,6 +49,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace hpgem;
 
+// Definition of the constants to reference to.
+const std::size_t DGMaxDiscretizationBase::MASS_MATRIX_ID;
+const std::size_t DGMaxDiscretizationBase::STIFFNESS_MATRIX_ID;
+const std::size_t DGMaxDiscretizationBase::PROJECTOR_MATRIX_ID;
+const std::size_t DGMaxDiscretizationBase::INITIAL_CONDITION_VECTOR_ID;
+const std::size_t
+    DGMaxDiscretizationBase::INITIAL_CONDITION_DERIVATIVE_VECTOR_ID;
+const std::size_t DGMaxDiscretizationBase::SOURCE_TERM_VECTOR_ID;
+
+const std::size_t DGMaxDiscretizationBase::FACE_MATRIX_ID;
+const std::size_t DGMaxDiscretizationBase::FACE_VECTOR_ID;
+
 template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::initializeBasisFunctions(
     Base::MeshManipulator<DIM>& mesh, std::size_t order) {
@@ -75,17 +87,13 @@ void DGMaxDiscretization<DIM>::initializeBasisFunctions(
 template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::computeElementIntegrands(
     Base::MeshManipulator<DIM>& mesh, MassMatrixHandling massMatrixHandling,
-    const InputFunction& sourceTerm, const InputFunction& initialCondition,
-    const InputFunction& initialConditionDerivative) const {
-    bool anyFuncPresent =
-        sourceTerm || initialCondition || initialConditionDerivative;
+    const std::map<std::size_t, InputFunction>& elementVectors) const {
     logger.assert_always(
-        !anyFuncPresent || massMatrixHandling != ORTHOGONALIZE,
+        !(massMatrixHandling == ORTHOGONALIZE && !elementVectors.empty()),
         "Mass matrix rescale with input functions is not implemented");
     LinearAlgebra::MiddleSizeMatrix massMatrix(1, 1), stiffnessMatrix(1, 1),
         projectorMatrix(0, 0);
-    LinearAlgebra::MiddleSizeVector initialConditionVector(1),
-        initialConditionDerivativeVector(1), elementVector(1);
+    LinearAlgebra::MiddleSizeVector tempElementVector;
     Integration::ElementIntegral<DIM> elIntegral;
 
     elIntegral.setTransformation(
@@ -193,61 +201,36 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(
             element->setElementMatrix(projectorMatrix, PROJECTOR_MATRIX_ID);
         }
 
-        // Note, resizes for vectors needed in case of empty functions
-        initialConditionVector.resize(numberOfBasisFunctions);
-        if (initialCondition) {
-            initialConditionVector = elIntegral.integrate(
-                element, [&](Base::PhysicalElement<DIM>& element) {
-                    LinearAlgebra::MiddleSizeVector res;
-                    elementInnerProduct(element, initialCondition,
-                                        res);  // Initial conditions
-                    return res;
-                });
+        for (auto const& elementVectorDef : elementVectors) {
+            tempElementVector.resize(numberOfBasisFunctions);
+            if (elementVectorDef.second) {
+                tempElementVector = elIntegral.integrate(
+                    element, [&](Base::PhysicalElement<DIM>& element) {
+                        LinearAlgebra::MiddleSizeVector res;
+                        elementInnerProduct(element, elementVectorDef.second,
+                                            res);  // Initial conditions
+                        return res;
+                    });
+            }
+            element->setElementVector(tempElementVector,
+                                      elementVectorDef.first);
         }
-        element->setElementVector(initialConditionVector,
-                                  INITIAL_CONDITION_VECTOR_ID);
-
-        initialConditionDerivativeVector.resize(numberOfBasisFunctions);
-        if (initialConditionDerivative) {
-            initialConditionDerivativeVector = elIntegral.integrate(
-                element, [&](Base::PhysicalElement<DIM>& pelement) {
-                    LinearAlgebra::MiddleSizeVector res;
-                    elementInnerProduct(pelement, initialConditionDerivative,
-                                        res);  // Initial conditions derivative
-                    return res;
-                });
-        }
-        element->setElementVector(initialConditionDerivativeVector,
-                                  INITIAL_CONDITION_DERIVATIVE_VECTOR_ID);
-
-        elementVector.resize(numberOfBasisFunctions);
-        if (sourceTerm) {
-            elementVector = elIntegral.integrate(
-                element, [&](Base::PhysicalElement<DIM>& pelement) {
-                    LinearAlgebra::MiddleSizeVector res;
-                    elementInnerProduct(pelement, sourceTerm,
-                                        res);  // Source  term
-                    return res;
-                });
-        }
-
-        element->setElementVector(elementVector, SOURCE_TERM_VECTOR_ID);
     }
 }
 
 template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::computeFaceIntegrals(
     Base::MeshManipulator<DIM>& mesh, MassMatrixHandling massMatrixHandling,
-    const DGMaxDiscretization<DIM>::FaceInputFunction& boundaryCondition,
+    const std::map<std::size_t, FaceInputFunction>& boundaryVectors,
     double stab) const {
     logger.assert_always(
-        massMatrixHandling != ORTHOGONALIZE || !boundaryCondition,
+        !(massMatrixHandling == ORTHOGONALIZE && !boundaryVectors.empty()),
         "Rescale not implemented in combination with boundary conditions");
 
     LinearAlgebra::MiddleSizeMatrix stiffnessFaceMatrix(0, 0);
     // Mass matrix for the face, already Cholesky factored.
     LinearAlgebra::MiddleSizeMatrix massMatrix(0, 0);
-    LinearAlgebra::MiddleSizeVector boundaryFaceVector(1);
+    LinearAlgebra::MiddleSizeVector tempFaceVector;
     Integration::FaceIntegral<DIM> faIntegral;
 
     faIntegral.setTransformation(
@@ -269,7 +252,7 @@ void DGMaxDiscretization<DIM>::computeFaceIntegrals(
 
         stiffnessFaceMatrix.resize(numberOfBasisFunctions,
                                    numberOfBasisFunctions);
-        boundaryFaceVector.resize(numberOfBasisFunctions);
+        tempFaceVector.resize(numberOfBasisFunctions);
 
         // Compute the actual face  integrals.
         stiffnessFaceMatrix =
@@ -317,18 +300,18 @@ void DGMaxDiscretization<DIM>::computeFaceIntegrals(
         }
         face->setFaceMatrix(stiffnessFaceMatrix, FACE_MATRIX_ID);
 
-        if (boundaryCondition) {
-            // NOTE: No check on rescaling, as the face vector is zero when
-            // there is no boundaryCondition.
-            boundaryFaceVector =
-                faIntegral.integrate(face, [&](Base::PhysicalFace<DIM>& face) {
-                    LinearAlgebra::MiddleSizeVector res;
-                    faceVector(face, boundaryCondition, res, stab);
-                    return res;
-                });
+        for (auto const& faceVectorDef : boundaryVectors) {
+            tempFaceVector.resize(numberOfBasisFunctions);
+            if (faceVectorDef.second) {
+                tempFaceVector = faIntegral.integrate(
+                    face, [&](Base::PhysicalFace<DIM>& face) {
+                        LinearAlgebra::MiddleSizeVector res;
+                        faceVector(face, faceVectorDef.second, res, stab);
+                        return res;
+                    });
+            }
+            face->setFaceVector(tempFaceVector, faceVectorDef.first);
         }
-
-        face->setFaceVector(boundaryFaceVector, FACE_VECTOR_ID);
     }
 }
 

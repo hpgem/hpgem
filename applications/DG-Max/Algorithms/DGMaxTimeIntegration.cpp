@@ -81,20 +81,31 @@ void DGMaxTimeIntegration<DIM>::solve(
     PetscErrorCode error;
 
     std::cout << "doing a time dependent simulation" << std::endl;
-    discretization.computeElementIntegrands(
-        mesh_, DGMaxDiscretizationBase::INVERT,
-        std::bind(&SeparableTimeIntegrationProblem<DIM>::sourceTermRef,
-                  std::ref(input), _1, _2),
-        std::bind(&TimeIntegrationProblem<DIM>::initialCondition,
-                  std::ref(input), _1, _2),
-        std::bind(&TimeIntegrationProblem<DIM>::initialConditionDerivative,
-                  std::ref(input), _1, _2));
+    std::map<std::size_t, typename DGMaxDiscretization<DIM>::InputFunction>
+        elementVectors;
 
-    discretization.computeFaceIntegrals(
-        mesh_, DGMaxDiscretizationBase::INVERT,
+    elementVectors[DGMaxDiscretizationBase::SOURCE_TERM_VECTOR_ID] =
+        std::bind(&SeparableTimeIntegrationProblem<DIM>::sourceTermRef,
+                  std::ref(input), _1, _2);
+    elementVectors[DGMaxDiscretizationBase::INITIAL_CONDITION_VECTOR_ID] =
+        std::bind(&TimeIntegrationProblem<DIM>::initialCondition,
+                  std::ref(input), _1, _2);
+    elementVectors
+        [DGMaxDiscretizationBase::INITIAL_CONDITION_DERIVATIVE_VECTOR_ID] =
+            std::bind(&TimeIntegrationProblem<DIM>::initialConditionDerivative,
+                      std::ref(input), _1, _2);
+
+    discretization.computeElementIntegrands(
+        mesh_, DGMaxDiscretizationBase::INVERT, elementVectors);
+
+    std::map<std::size_t, typename DGMaxDiscretization<DIM>::FaceInputFunction>
+        faceVectors;
+    faceVectors[DGMaxDiscretizationBase::FACE_VECTOR_ID] =
         std::bind(&SeparableTimeIntegrationProblem<DIM>::boundaryConditionRef,
-                  std::ref(input), _1, _2, _3),
-        parameters.stab);
+                  std::ref(input), _1, _2, _3);
+
+    discretization.computeFaceIntegrals(mesh_, DGMaxDiscretizationBase::INVERT,
+                                        faceVectors, parameters.stab);
     //    MHasToBeInverted_ = true;
     //    assembler->fillMatrices(this);
 
