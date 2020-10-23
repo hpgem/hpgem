@@ -45,6 +45,9 @@ class BraggStackBandstructure : public BandStructure<3> {
    public:
     BraggStackBandstructure(double eps1, double eps2, double fraction = 0.5);
 
+    std::vector<double> computeLinearSpectrum(
+        LinearAlgebra::SmallVector<3> kpoint, double omegaMax) const final;
+
     /// Compute the spectrum at a specific k-point in the first Brillouin zone.
     /// \param kpoint The point to compute the spectrum at
     /// \param omegaMax The maximum angular frequency to compute

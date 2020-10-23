@@ -21,7 +21,16 @@ class HomogeneousBandStructure : public BandStructure<DIM> {
         std::array<LinearAlgebra::SmallVector<DIM>, DIM> reciprocalVectors,
         double permittivity = 1);
 
-    /// \brief Compute the spectrum at a given point in k-space
+    /// \brief Compute the spectrum at a given point in k space
+    ///
+    /// \param kpoint The k-point
+    /// \param omegaMax  The maximum frequency
+    /// \return The frequencies in increasing order at the k-point up to
+    /// omegaMax.
+    std::vector<double> computeLinearSpectrum(
+        LinearAlgebra::SmallVector<DIM> kpoint, double omegaMax) const final;
+
+    /// \brief Compute the grouped spectrum at a given point in k-space
     ///
     /// \param kpoint A point in the First Brillouin zone
     /// \param maxFrequency The maximum frequency of the mode
