@@ -42,21 +42,22 @@ using namespace hpgem;
 
 namespace Preprocessor {
 
-template <std::size_t dimension, std::size_t gridDimension>
-Element<gridDimension>& MeshEntity<dimension, gridDimension>::getElement(
+template <std::size_t entityDimension, std::size_t meshDimension>
+Element<meshDimension>& MeshEntity<entityDimension, meshDimension>::getElement(
     std::size_t i) {
     return mesh->getElement(elementIDs[i]);
 };
 
-template <std::size_t dimension, std::size_t gridDimension>
-const Element<gridDimension>& MeshEntity<dimension, gridDimension>::getElement(
-    std::size_t i) const {
+template <std::size_t entityDimension, std::size_t meshDimension>
+const Element<meshDimension>&
+    MeshEntity<entityDimension, meshDimension>::getElement(
+        std::size_t i) const {
     return mesh->getElement(elementIDs[i]);
 }
 
-template <std::size_t dimension, std::size_t gridDimension>
-std::size_t MeshEntity<dimension, gridDimension>::getElementIndex(
-    const Element<gridDimension>& element) const {
+template <std::size_t entityDimension, std::size_t meshDimension>
+std::size_t MeshEntity<entityDimension, meshDimension>::getElementIndex(
+    const Element<meshDimension>& element) const {
     for (std::size_t i = 0; i < elementIDs.size(); ++i) {
         if (getElement(i) == element) {
             return i;
@@ -66,20 +67,21 @@ std::size_t MeshEntity<dimension, gridDimension>::getElementIndex(
     return 0;
 }
 
-template <std::size_t dimension, std::size_t gridDimension>
-std::size_t MeshEntity<dimension, gridDimension>::getNumberOfElements() const {
+template <std::size_t entityDimension, std::size_t meshDimension>
+std::size_t MeshEntity<entityDimension, meshDimension>::getNumberOfElements()
+    const {
     return elementIDs.size();
 }
 
-template <std::size_t dimension, std::size_t gridDimension>
-std::size_t MeshEntity<dimension, gridDimension>::getLocalIndex(
+template <std::size_t entityDimension, std::size_t meshDimension>
+std::size_t MeshEntity<entityDimension, meshDimension>::getLocalIndex(
     std::size_t i) const {
     return localIDs[i];
 }
 
-template <std::size_t dimension, std::size_t gridDimension>
-std::size_t MeshEntity<dimension, gridDimension>::getLocalIndex(
-    const Element<gridDimension>& element) const {
+template <std::size_t entityDimension, std::size_t meshDimension>
+std::size_t MeshEntity<entityDimension, meshDimension>::getLocalIndex(
+    const Element<meshDimension>& element) const {
     for (std::size_t i = 0; i < elementIDs.size(); ++i) {
         if (getElement(i).getGlobalIndex() == element.getGlobalIndex()) {
             logger.assert_debug(getElement(i) == element,
@@ -91,43 +93,43 @@ std::size_t MeshEntity<dimension, gridDimension>::getLocalIndex(
     return 0;
 }
 
-template <std::size_t dimension, std::size_t gridDimension>
-std::size_t MeshEntity<dimension, gridDimension>::getGlobalIndex() const {
+template <std::size_t entityDimension, std::size_t meshDimension>
+std::size_t MeshEntity<entityDimension, meshDimension>::getGlobalIndex() const {
     return entityID;
 }
 
-template <std::size_t dimension, std::size_t gridDimension>
+template <std::size_t entityDimension, std::size_t meshDimension>
 template <int d>
-std::vector<MeshEntity<(d < 0 ? d + gridDimension : d), gridDimension>>
-    MeshEntity<dimension, gridDimension>::getIncidenceList() const {
+std::vector<MeshEntity<(d < 0 ? d + meshDimension : d), meshDimension>>
+    MeshEntity<entityDimension, meshDimension>::getIncidenceList() const {
     auto indices = getIncidenceListAsIndices<d>();
-    std::vector<MeshEntity<(d < 0 ? d + gridDimension : d), gridDimension>>
+    std::vector<MeshEntity<(d < 0 ? d + meshDimension : d), meshDimension>>
         result(indices.size());
     for (std::size_t i = 0; i < indices.size(); ++i) {
-        result[i] = mesh->template getEntity<(d < 0 ? d + gridDimension : d)>(
+        result[i] = mesh->template getEntity<(d < 0 ? d + meshDimension : d)>(
             indices[i]);
     }
     return result;
 }
 
-template <std::size_t dimension, std::size_t gridDimension>
+template <std::size_t entityDimension, std::size_t meshDimension>
 template <int d>
-std::vector<std::size_t>
-    MeshEntity<dimension, gridDimension>::getIncidenceListAsIndices() const {
-    static_assert(d + dimension >= 0,
+std::vector<std::size_t> MeshEntity<
+    entityDimension, meshDimension>::getIncidenceListAsIndices() const {
+    static_assert(d + entityDimension >= 0,
                   "The codimension you are interested in is too high for the "
                   "dimension of this object");
     if (d < 0) {
-        return getIncidenceListAsIndices<(d < 0 ? d + gridDimension : d)>();
+        return getIncidenceListAsIndices<(d < 0 ? d + meshDimension : d)>();
     }
-    if (d == dimension) {
+    if (d == entityDimension) {
         return {getGlobalIndex()};
     }
-    if (d == gridDimension) {
+    if (d == meshDimension) {
         return std::vector<std::size_t>(elementIDs.begin(), elementIDs.end());
-    } else if (d < dimension) {
-        // easy case: all adjacent entities of this dimension are adjacent to
-        // all adjacent elements
+    } else if (d < entityDimension) {
+        // easy case: all adjacent entities of this entityDimension are adjacent
+        // to all adjacent elements
         return getElement(0).template getIncidenceListAsIndices<d>(*this);
     } else {
         std::vector<std::size_t> result;
@@ -143,15 +145,15 @@ std::vector<std::size_t>
     }
 }
 
-template <std::size_t dimension, std::size_t gridDimension>
-void MeshEntity<dimension, gridDimension>::addElement(
+template <std::size_t entityDimension, std::size_t meshDimension>
+void MeshEntity<entityDimension, meshDimension>::addElement(
     std::size_t elementID, std::size_t localEntityIndex) {
     elementIDs.push_back(elementID);
     localIDs.push_back(localEntityIndex);
 }
 
-template <std::size_t dimension, std::size_t gridDimension>
-bool MeshEntity<dimension, gridDimension>::operator==(
+template <std::size_t entityDimension, std::size_t meshDimension>
+bool MeshEntity<entityDimension, meshDimension>::operator==(
     const MeshEntity& other) const {
     return mesh == other.mesh && entityID == other.entityID &&
            elementIDs == other.elementIDs && localIDs == other.localIDs;
