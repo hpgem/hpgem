@@ -344,7 +344,7 @@ const std::vector<Base::Node*> Face::getNodesList() const {
     return ptrNodesAtFace;
 }
 
-bool Face::determineIsPeriodicBoundaryFace() const{
+bool Face::determineIsPeriodicBoundaryFace() const {
     // Determine if the face is on a Periodic boundary by looking at the
     // global node indices.
     std::vector<std::size_t> globalLeftNodes =
