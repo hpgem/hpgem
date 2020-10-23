@@ -47,7 +47,6 @@ std::vector<double> BraggStackBandstructure::computeLinearSpectrum(
         }
     }
     std::sort(freqs.begin(), freqs.end());
-    // Binning
     return freqs;
 }
 
