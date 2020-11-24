@@ -39,72 +39,49 @@
 #ifndef HPGEM_KERNEL_BASISFUNCTIONS2DNEDELEC_H
 #define HPGEM_KERNEL_BASISFUNCTIONS2DNEDELEC_H
 
-#include "Base/BaseBasisFunction.h"
 #include <vector>
 #include <memory>
 
 namespace hpgem {
 
 namespace Base {
+class BaseBasisFunction;
 class BasisFunctionSet;
-}
-
-namespace Geometry {
-template <std::size_t DIM>
-class PointReference;
 }
 
 namespace Utilities {
 
-//! Curl conforming Nedelec edge functions.
-class BasisCurlEdgeNedelec2D : public Base::BaseBasisFunction {
-   public:
-    BasisCurlEdgeNedelec2D(
-        std::size_t side,
-        std::shared_ptr<const Base::BaseBasisFunction> modulator);
+/**
+ * Implementation of Nedelec functions based on the basis for Raviart-Thomas
+ * (RT) basis functions from [1]. We use the relation between H(div) and H(curl)
+ * vector fields in 2D. If F = (Fx, Fy) is a vector field in H(div) then
+ * rotating the vectors by 90 degrees (Fy, -Fx) one gets a vector field in
+ * H(curl). Similarly, rotating the fields of the RT basis functions, one gets a
+ * basis for the Nedelec space.
+ *
+ * As noted in [1] we can split the basis functions in two categories, edge and
+ * internal. With the slight difference that we use order = p = k+1 (paper) we
+ * have:
+ * - 3*p edge basis functions, one per edge
+ * - (p-1)*p internal basis functions
+ * For a total of p*(p+2) basis functions.
+ *
+ * [1] Computational bases for RT_k and BDM_k on triangles
+ * VJ Ervin, Computers & Mathematics with Applications 64 (8) 2764--2774
+ */
 
-    void eval(const Geometry::PointReference<2>& p,
-              LinearAlgebra::SmallVector<2>& ret) const override;
-
-    LinearAlgebra::SmallVector<2> evalCurl(
-        const Geometry::PointReference<2>& p) const override;
-
-   private:
-    // Eval the side dependent function
-    void evalSideFunction(const Geometry::PointReference<2>& p,
-                          LinearAlgebra::SmallVector<2>& ret) const;
-
-    double evalModulatorCoord(const Geometry::PointReference<2>& p) const;
-    // Side of the triangle which has non-zero tangential trace. The tangential
-    // trace is pointed counter clockwise along the edge of the triangle.
-    // Side 1 = (y-1,-x), side 2 = (y,-x), side 3 = (y,1-x)
-    std::size_t side_;
-    // 1D Modulation function for the basis functions.
-    std::shared_ptr<const Base::BaseBasisFunction> modulator_;
-};
-
-class BasisFunctionCurlInteriorNedelec2D : public Base::BaseBasisFunction {
-
-   public:
-    BasisFunctionCurlInteriorNedelec2D(
-        std::size_t type,
-        std::shared_ptr<const Base::BaseBasisFunction> modulator);
-    void eval(const Geometry::PointReference<2>& p,
-              LinearAlgebra::SmallVector<2>& ret) const override;
-
-    LinearAlgebra::SmallVector<2> evalCurl(
-        const Geometry::PointReference<2>& p) const override;
-
-   private:
-    void evalTypePart(const Geometry::PointReference<2>& p,
-                      LinearAlgebra::SmallVector<2>& ret) const;
-
-    // Type one or two
-    std::size_t type_;
-    std::shared_ptr<const Base::BaseBasisFunction> modulator_;
-};
-
+/**
+ * Create BasisFunctionSet for DG (elementwise) 2D Nedelec functions.
+ * @param order The order of the basis functions (highest polynomial degree)
+ * @return The set of basis functions, user owns the pointer.
+ */
 Base::BasisFunctionSet* createDGBasisFunctionSet2DNedelec(std::size_t order);
+
+/**
+ * Create BasisFunctionSet for DG (elementwise) 2D Nedelec functions.
+ * @param order The order of the basis functions (highest polynomial degree)
+ * @return A vector with the basis functions. The user owns all the pointers.
+ */
 std::vector<Base::BaseBasisFunction*> createDGBasisFunctions2DNedelec(
     std::size_t order);
 }  // namespace Utilities

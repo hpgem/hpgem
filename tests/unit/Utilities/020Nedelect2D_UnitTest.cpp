@@ -48,6 +48,7 @@ TEST_CASE("Nedelec 2D: Basic properties", "[Nedelec2D]") {
     auto p = GENERATE(1, 2, 3, 4);
     auto* bfSet = Utilities::createDGBasisFunctionSet2DNedelec(p);
 
+    // Basic self check
     REQUIRE(bfSet->getOrder() == p);
     // There should be p*(p+2) basis functions
     REQUIRE(bfSet->size() == p * (p + 2));
@@ -56,6 +57,10 @@ TEST_CASE("Nedelec 2D: Basic properties", "[Nedelec2D]") {
 TEST_CASE("Nedelec 2D: trace values", "[Nedelec2D]") {
     LinearAlgebra::SmallVector<2> tangents[3];
     Geometry::PointReference<2> sidePoints[3];
+    // Nedelec elements are for H(curl), for conforming elements this requires
+    // continuous tangential part. Hence, they are constructed to have zero
+    // tangential trace on all sides but (at most) 1. For order p there are
+    // exactly p basis functions with non zero trace.
 
     // -y
     tangents[0][0] = 1.0;
@@ -92,6 +97,10 @@ TEST_CASE("Nedelec 2D: trace values", "[Nedelec2D]") {
 }
 
 TEST_CASE("Nedelec 2D: curl values", "[Nedelec2D]") {
+    // Test whether the curl of the basis functions is computed correctly. For
+    // this we compute the curl through Finite differences and compare it with
+    // the value from the basisfunctions.
+
     auto p = GENERATE(1, 2, 3, 4);
     auto* bfSet = Utilities::createDGBasisFunctionSet2DNedelec(p);
 
