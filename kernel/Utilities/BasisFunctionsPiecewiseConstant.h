@@ -42,6 +42,7 @@
 namespace hpgem {
 
 namespace Base {
+class BaseBasisFunction;
 class BasisFunctionSet;
 }
 
@@ -51,6 +52,11 @@ void addPiecewiseConstantBasisFunction1D(Base::BasisFunctionSet &set);
 void addPiecewiseConstantBasisFunction2D(Base::BasisFunctionSet &set);
 void addPiecewiseConstantBasisFunction3D(Base::BasisFunctionSet &set);
 void addPiecewiseConstantBasisFunction4D(Base::BasisFunctionSet &set);
+
+/// Create basis function
+Base::BaseBasisFunction *createPiecewiseConstant1D();
+Base::BaseBasisFunction *createPiecewiseConstant2D();
+
 }  // namespace Utilities
 
 }  // namespace hpgem

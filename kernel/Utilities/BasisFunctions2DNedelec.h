@@ -41,6 +41,7 @@
 
 #include "Base/BaseBasisFunction.h"
 #include <vector>
+#include <memory>
 
 namespace hpgem {
 
@@ -54,12 +55,13 @@ class PointReference;
 }
 
 namespace Utilities {
+
 //! Curl conforming Nedelec edge functions.
 class BasisCurlEdgeNedelec2D : public Base::BaseBasisFunction {
    public:
-    BasisCurlEdgeNedelec2D(std::size_t degree1, std::size_t degree2,
-                           std::size_t localFirstVertex,
-                           std::size_t localSecondVertex);
+    BasisCurlEdgeNedelec2D(
+        std::size_t side,
+        std::shared_ptr<const Base::BaseBasisFunction> modulator);
 
     void eval(const Geometry::PointReference<2>& p,
               LinearAlgebra::SmallVector<2>& ret) const override;
@@ -68,10 +70,43 @@ class BasisCurlEdgeNedelec2D : public Base::BaseBasisFunction {
         const Geometry::PointReference<2>& p) const override;
 
    private:
-    const std::size_t deg1, deg2, i, j;
+    // Eval the side dependent function
+    void evalSideFunction(const Geometry::PointReference<2>& p,
+                          LinearAlgebra::SmallVector<2>& ret) const;
+
+    double evalModulatorCoord(const Geometry::PointReference<2>& p) const;
+    // Side of the triangle which has non-zero tangential trace. The tangential
+    // trace is pointed counter clockwise along the edge of the triangle.
+    // Side 1 = (y-1,-x), side 2 = (y,-x), side 3 = (y,1-x)
+    std::size_t side_;
+    // 1D Modulation function for the basis functions.
+    std::shared_ptr<const Base::BaseBasisFunction> modulator_;
+};
+
+class BasisFunctionCurlInteriorNedelec2D : public Base::BaseBasisFunction {
+
+   public:
+    BasisFunctionCurlInteriorNedelec2D(
+        std::size_t type,
+        std::shared_ptr<const Base::BaseBasisFunction> modulator);
+    void eval(const Geometry::PointReference<2>& p,
+              LinearAlgebra::SmallVector<2>& ret) const override;
+
+    LinearAlgebra::SmallVector<2> evalCurl(
+        const Geometry::PointReference<2>& p) const override;
+
+   private:
+    void evalTypePart(const Geometry::PointReference<2>& p,
+                      LinearAlgebra::SmallVector<2>& ret) const;
+
+    // Type one or two
+    std::size_t type_;
+    std::shared_ptr<const Base::BaseBasisFunction> modulator_;
 };
 
 Base::BasisFunctionSet* createDGBasisFunctionSet2DNedelec(std::size_t order);
+std::vector<Base::BaseBasisFunction*> createDGBasisFunctions2DNedelec(
+    std::size_t order);
 }  // namespace Utilities
 
 }  // namespace hpgem

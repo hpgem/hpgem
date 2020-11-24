@@ -108,6 +108,8 @@ class BasisFunction2DInteriorTriangle : public Base::BaseBasisFunction {
     std::size_t polynomialOrder0_, polynomialOrder1_;
 };
 
+std::vector<Base::BaseBasisFunction*> createDGBasisFunctions2DH1Triangle(
+    std::size_t order);
 Base::BasisFunctionSet* createDGBasisFunctionSet2DH1Triangle(std::size_t order);
 
 Base::BasisFunctionSet* createInteriorBasisFunctionSet2DH1Triangle(
