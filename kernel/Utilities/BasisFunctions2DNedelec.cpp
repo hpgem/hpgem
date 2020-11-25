@@ -62,7 +62,7 @@ namespace Utilities {
 /// The function q_p(t) is shared between the sides and 'modulates' the vector
 /// field by a polynomial of order p-1. The coordinate t is linear on the side
 /// to which the basis function is associated.
-class BasisCurlEdgeNedelec2D final: public Base::BaseBasisFunction {
+class BasisCurlEdgeNedelec2D final : public Base::BaseBasisFunction {
    public:
     BasisCurlEdgeNedelec2D(
         std::size_t side,
@@ -120,7 +120,6 @@ class BasisCurlEdgeNedelec2D final: public Base::BaseBasisFunction {
 
 LinearAlgebra::SmallVector<2> BasisCurlEdgeNedelec2D::evalCurl(
     const Geometry::PointReference<2>& p) const {
-
 
     Geometry::PointReference<1> modulatorCoord;
     modulatorCoord[0] = evalModulatorCoord(p);
