@@ -69,7 +69,36 @@ auto& targetMpiCount = Base::register_argument<std::size_t>(
     'n', "MPICount", "Target number of processors", false, 1);
 
 template <std::size_t dimension>
+void printMeshStatistics(const Preprocessor::Mesh<dimension>& mesh) {
+    logger(INFO, "Mesh counts");
+    logger(INFO, "\tElements: %", mesh.getNumberOfElements());
+    logger(INFO, "\tFaces: %", mesh.getNumberOfFaces());
+    if (dimension > 2) {
+        logger(INFO, "\tEdges: %", mesh.getNumberOfEdges());
+    }
+    if (dimension > 1) {
+        logger(INFO, "\tNodes: %", mesh.getNumberOfNodes());
+    }
+
+    if (!mesh.getNodeCoordinates().empty()) {
+        LinearAlgebra::SmallVector<dimension> minCoord, maxCoord;
+        minCoord = mesh.getNodeCoordinates()[0].coordinate;
+        maxCoord = minCoord;
+
+        for (const auto& node : mesh.getNodeCoordinates()) {
+            for (std::size_t i = 0; i < dimension; ++i) {
+                minCoord[i] = std::min(minCoord[i], node.coordinate[i]);
+                maxCoord[i] = std::max(maxCoord[i], node.coordinate[i]);
+            }
+        }
+        logger(INFO, "Mesh bounding box min % - max %", minCoord, maxCoord);
+    }
+}
+
+template <std::size_t dimension>
 void processMesh(Preprocessor::Mesh<dimension> mesh) {
+    printMeshStatistics(mesh);
+
     Preprocessor::MeshData<idx_t, dimension, dimension> partitionID(&mesh);
     idx_t numberOfProcessors = targetMpiCount.getValue();
     if (numberOfProcessors > 1) {
