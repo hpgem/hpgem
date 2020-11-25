@@ -66,8 +66,8 @@ class BasisCurlEdgeNedelec2D final: public Base::BaseBasisFunction {
    public:
     BasisCurlEdgeNedelec2D(
         std::size_t side,
-        std::shared_ptr<const Base::BaseBasisFunction> modulator)
-        : side_(side), modulator_(std::move(modulator)) {
+        std::shared_ptr<const Base::BaseBasisFunction>& modulator)
+        : side_(side), modulator_(modulator) {
 
         logger.assert_debug(side <= 2, "Triangle has only three sides");
     }
@@ -160,8 +160,8 @@ class BasisFunctionCurlInteriorNedelec2D : public Base::BaseBasisFunction {
    public:
     BasisFunctionCurlInteriorNedelec2D(
         std::size_t type,
-        std::shared_ptr<const Base::BaseBasisFunction> modulator)
-        : type_(type), modulator_(std::move(modulator)) {
+        std::shared_ptr<const Base::BaseBasisFunction>& modulator)
+        : type_(type), modulator_(modulator) {
         logger.assert_always(type == 0 || type == 1,
                              "Only two interior types supported");
     }
@@ -234,7 +234,7 @@ std::vector<Base::BaseBasisFunction*> createDGBasisFunctions2DNedelec(
     std::vector<Base::BaseBasisFunction*> lineFunctions =
         createDGBasisFunctions1DH1Line(order - 1);
     for (auto& i : lineFunctions) {
-        auto lineFunction = std::shared_ptr<Base::BaseBasisFunction>(i);
+        auto lineFunction = std::shared_ptr<const Base::BaseBasisFunction>(i);
         result.emplace_back(new BasisCurlEdgeNedelec2D(0, lineFunction));
         result.emplace_back(new BasisCurlEdgeNedelec2D(1, lineFunction));
         result.emplace_back(new BasisCurlEdgeNedelec2D(2, lineFunction));
@@ -244,7 +244,8 @@ std::vector<Base::BaseBasisFunction*> createDGBasisFunctions2DNedelec(
         std::vector<Base::BaseBasisFunction*> triangleFunctions =
             createDGBasisFunctions2DH1Triangle(order - 2);
         for (auto& i : triangleFunctions) {
-            auto triangleFunction = std::shared_ptr<Base::BaseBasisFunction>(i);
+            auto triangleFunction =
+                std::shared_ptr<const Base::BaseBasisFunction>(i);
             result.emplace_back(
                 new BasisFunctionCurlInteriorNedelec2D(0, triangleFunction));
             result.emplace_back(
