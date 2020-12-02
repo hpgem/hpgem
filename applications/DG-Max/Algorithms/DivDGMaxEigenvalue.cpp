@@ -43,7 +43,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
 
-#include "Utils/KPhaseShift.h"
+#include "Utils/FaceKPhaseShiftBuilder.h"
 
 #include "DGMaxLogger.h"
 
