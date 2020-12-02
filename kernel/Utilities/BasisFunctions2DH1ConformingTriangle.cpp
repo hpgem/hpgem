@@ -173,29 +173,38 @@ double BasisFunction2DInteriorTriangle::evalDeriv1(
                     LobattoPolynomialDerivative(polynomialOrder1_, x1));
 }
 
-Base::BasisFunctionSet* createDGBasisFunctionSet2DH1Triangle(
+std::vector<Base::BaseBasisFunction*> createDGBasisFunctions2DH1Triangle(
     std::size_t order) {
-    Base::BasisFunctionSet* result(new Base::BasisFunctionSet(order));
+    std::vector<Base::BaseBasisFunction*> result;
     if (order > 0) {
         for (std::size_t i = 0; i < 3; ++i) {
-            result->addBasisFunction(new BasisFunction2DVertexTriangle(i));
+            result.emplace_back(new BasisFunction2DVertexTriangle(i));
         }
         for (std::size_t k = 0; k + 2 <= order; ++k) {
             for (std::size_t i = 0; i < 3; ++i) {
                 for (std::size_t j = 0; j < i; ++j) {
-                    result->addBasisFunction(
+                    result.emplace_back(
                         new BasisFunction2DFaceTriangle(i, j, k));
                 }
             }
             if (k + 3 <= order) {
                 for (std::size_t j = 0; j <= k; ++j) {
-                    result->addBasisFunction(
+                    result.emplace_back(
                         new BasisFunction2DInteriorTriangle(k - j, j));
                 }
             }
         }
     } else {
-        addPiecewiseConstantBasisFunction2D(*result);
+        result.emplace_back(createPiecewiseConstant2D());
+    }
+    return result;
+}
+
+Base::BasisFunctionSet* createDGBasisFunctionSet2DH1Triangle(
+    std::size_t order) {
+    Base::BasisFunctionSet* result(new Base::BasisFunctionSet(order));
+    for (auto* bf : createDGBasisFunctions2DH1Triangle(order)) {
+        result->addBasisFunction(bf);
     }
     return result;
 }

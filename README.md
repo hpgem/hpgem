@@ -11,13 +11,12 @@ hpGEM is a c++ partial differential equation solver. It is intended for Disconti
 ## Installation
 
 For a quick, basic installation do
-
-> mkdir build
-> cd build
-> cmake ..
-> make 
-
-For detailled instructions and alternative options see http://www.hpgem.org/obtaining-the-code/downloading-and-installing-version-2.x
+```
+mkdir build
+cd build
+cmake ..
+make 
+```
 
 ## Use
 

@@ -72,17 +72,27 @@ double BasisFunction1DInteriorLine::evalDeriv0(
                LobattoPolynomialDerivative(polynomialOrder_, p[0]) / 4.;
 }
 
-Base::BasisFunctionSet* createDGBasisFunctionSet1DH1Line(
+std::vector<Base::BaseBasisFunction*> createDGBasisFunctions1DH1Line(
     std::size_t polynomialOrder) {
-    Base::BasisFunctionSet* result(new Base::BasisFunctionSet(polynomialOrder));
+    std::vector<Base::BaseBasisFunction*> result;
     if (polynomialOrder > 0) {
-        result->addBasisFunction(new BasisFunction1DVertexLine(0));
-        result->addBasisFunction(new BasisFunction1DVertexLine(1));
+        result.emplace_back(new BasisFunction1DVertexLine(0));
+        result.emplace_back(new BasisFunction1DVertexLine(1));
         for (std::size_t i = 0; i + 2 <= polynomialOrder; ++i) {
-            result->addBasisFunction(new BasisFunction1DInteriorLine(i));
+            result.emplace_back(new BasisFunction1DInteriorLine(i));
         }
     } else {
-        addPiecewiseConstantBasisFunction1D(*result);
+        result.emplace_back(createPiecewiseConstant1D());
+    }
+    return result;
+}
+
+Base::BasisFunctionSet* createDGBasisFunctionSet1DH1Line(
+    std::size_t polynomialOrder) {
+
+    Base::BasisFunctionSet* result(new Base::BasisFunctionSet(polynomialOrder));
+    for (auto* bf : createDGBasisFunctions1DH1Line(polynomialOrder)) {
+        result->addBasisFunction(bf);
     }
     return result;
 }
