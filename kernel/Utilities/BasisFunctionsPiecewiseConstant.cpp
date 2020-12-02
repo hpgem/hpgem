@@ -57,7 +57,11 @@ class PiecewiseConstant1 : public Base::BaseBasisFunction {
 };
 
 void addPiecewiseConstantBasisFunction1D(Base::BasisFunctionSet& set) {
-    set.addBasisFunction(new PiecewiseConstant1());
+    set.addBasisFunction(createPiecewiseConstant1D());
+}
+
+Base::BaseBasisFunction* createPiecewiseConstant1D() {
+    return new PiecewiseConstant1();
 }
 
 class PiecewiseConstant2 : public Base::BaseBasisFunction {
@@ -75,8 +79,12 @@ class PiecewiseConstant2 : public Base::BaseBasisFunction {
     }
 };
 
+Base::BaseBasisFunction* createPiecewiseConstant2D() {
+    return new PiecewiseConstant2();
+}
+
 void addPiecewiseConstantBasisFunction2D(Base::BasisFunctionSet& set) {
-    set.addBasisFunction(new PiecewiseConstant2());
+    set.addBasisFunction(createPiecewiseConstant2D());
 }
 
 class PiecewiseConstant3 : public Base::BaseBasisFunction {

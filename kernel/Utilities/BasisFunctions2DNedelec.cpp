@@ -37,77 +37,228 @@
  */
 
 #include "BasisFunctions2DNedelec.h"
-#include "helperFunctions.h"
+
+#include <utility>
+
+#include "Base/BaseBasisFunction.h"
 #include "Base/BasisFunctionSet.h"
-#include "Geometry/ReferenceTriangle.h"
 #include "Geometry/PointReference.h"
+#include "Geometry/ReferenceTriangle.h"
+
+#include "BasisFunctions1DH1ConformingLine.h"
+#include "BasisFunctions2DH1ConformingTriangle.h"
 
 namespace hpgem {
 
 namespace Utilities {
-namespace {
-LinearAlgebra::SmallVector<2> baricentricDeriv(std::size_t node) {
-    LinearAlgebra::SmallVector<2> ret;
-    if (node == 0) {
-        ret[0] = -1;
-        ret[1] = -1;
-    } else {
-        // clear the return vector so we don't return trash
-        ret[0] = 0;
-        ret[1] = 0;
-        ret[node - 1] = 1;
+
+/// Edge based basis functions of the form form q_p(t) F(x,y).
+///
+/// The function F(x,y) gives the direction of the vector field and consists of
+/// two linear functions. For each side these are constructed so that it has a
+/// constant tangential trace along that side and zero tangential trace along
+/// the two other sides.
+///
+/// The function q_p(t) is shared between the sides and 'modulates' the vector
+/// field by a polynomial of order p-1. The coordinate t is linear on the side
+/// to which the basis function is associated.
+class BasisCurlEdgeNedelec2D final : public Base::BaseBasisFunction {
+   public:
+    BasisCurlEdgeNedelec2D(
+        std::size_t side,
+        std::shared_ptr<const Base::BaseBasisFunction>& modulator)
+        : side_(side), modulator_(modulator) {
+
+        logger.assert_debug(side <= 2, "Triangle has only three sides");
     }
-    return ret;
-}
-}  // namespace
 
-BasisCurlEdgeNedelec2D::BasisCurlEdgeNedelec2D(std::size_t degree1,
-                                               std::size_t degree2,
-                                               std::size_t localFirstVertex,
-                                               std::size_t localSecondVertex)
-    : deg1(degree1), deg2(degree2), i(localFirstVertex), j(localSecondVertex) {
-    logger.assert_debug(
-        deg1 < 1 && deg2 < 1,
-        "2D Nedelec basis functions only implemented for p = 1");
-    logger.assert_debug(i < 3 && j < 3, "A triangle only has 3 nodes");
-}
+    void eval(const Geometry::PointReference<2>& p,
+              LinearAlgebra::SmallVector<2>& ret) const override {
+        evalSideFunction(p, ret);
+        Geometry::PointReference<1> coord;
+        coord[0] = evalModulatorCoord(p);
+        ret *= modulator_->eval(coord);
+    }
 
-void BasisCurlEdgeNedelec2D::eval(const Geometry::PointReference<2>& p,
-                                  LinearAlgebra::SmallVector<2>& ret) const {
-    LinearAlgebra::SmallVector<2> dummy;
+    LinearAlgebra::SmallVector<2> evalCurl(
+        const Geometry::PointReference<2>& p) const override;
 
-    ret = baricentricDeriv(i);
-    dummy = baricentricDeriv(j);
+   private:
+    /// The side function F(x,y)
+    void evalSideFunction(const Geometry::PointReference<2>& p,
+                          LinearAlgebra::SmallVector<2>& ret) const {
+        if (side_ == 0) {
+            // (y-1, -x)
+            ret[0] = p[1] - 1.0;
+            ret[1] = -p[0];
+        } else if (side_ == 1) {
+            // (y,-x)
+            ret[0] = p[1];
+            ret[1] = -p[0];
+        } else {
+            // (y,1-x)
+            ret[0] = p[1];
+            ret[1] = 1.0 - p[0];
+        }
+    }
 
-    double valI(baricentric_2D(i, p)), valJ(baricentric_2D(j, p));
+    double evalModulatorCoord(const Geometry::PointReference<2>& p) const {
+        if (side_ == 0) {
+            return p[0];  // x
+        } else if (side_ == 1) {
+            return p[1];  // y
+        } else {
+            return 1.0 - p[1];  // 1-y
+        }
+    }
 
-    ret *= valJ;
-    dummy *= valI;
-    ret -= dummy;
-}
+    // Side of the triangle to which this basis function is associated
+    std::size_t side_;
+    // 1D Modulation function for the basis functions.
+    std::shared_ptr<const Base::BaseBasisFunction> modulator_;
+};
 
 LinearAlgebra::SmallVector<2> BasisCurlEdgeNedelec2D::evalCurl(
     const Geometry::PointReference<2>& p) const {
-    LinearAlgebra::SmallVector<2> dummy, dummy2, ret;
 
-    dummy = baricentricDeriv(i);
-    dummy2 = baricentricDeriv(j);
+    Geometry::PointReference<1> modulatorCoord;
+    modulatorCoord[0] = evalModulatorCoord(p);
+    double modulatorVal = modulator_->eval(modulatorCoord);
+    LinearAlgebra::SmallVector<2> sideVal;
+    evalSideFunction(p, sideVal);
 
-    double valI(baricentric_2D(i, p)), valJ(baricentric_2D(j, p));
-
-    ret[0] = -2 * dummy2[1] * dummy[0] + 2 * dummy[1] * dummy2[0];
-    ret[1] = 0.0;
-    return ret;
+    // Compute rotation Fy/dx - Fx/dy from the side function
+    double result = -2.0;
+    // By chain rule, multiply by modulator (q) value
+    result *= modulatorVal;
+    // Now second contribution, applying the derivatives to the modulator.
+    // Note that the modulator q(t) depends on only one coordinate, where
+    // t depends on side_.
+    if (side_ == 0) {
+        // t=x, so add dq/dt Fy
+        result += modulator_->evalDeriv0(modulatorCoord) * sideVal[1];
+    } else if (side_ == 1) {
+        // t=y, so add -dq/dt Fx
+        result -= modulator_->evalDeriv0(modulatorCoord) * sideVal[0];
+    } else {
+        // t = 1-y, so add +dq/dt Fx
+        result += modulator_->evalDeriv0(modulatorCoord) * sideVal[0];
+    }
+    return LinearAlgebra::SmallVector<2>({result, 0});
 }
 
+/// Interior Nedelec functions of the form q_p(x,y) F(x,y)
+///
+/// The function F(x,y) is one of two vector fields of second order polynomials.
+/// These are constructed such that they have zero trace on all three sides of
+/// the triangle. These are modulated by the scalar function q_p(x,y), which are
+/// polynomials that span the space of polynomials of order at most p-2, for
+/// example standard Lagrange basis functions.
+class BasisFunctionCurlInteriorNedelec2D : public Base::BaseBasisFunction {
+
+   public:
+    BasisFunctionCurlInteriorNedelec2D(
+        std::size_t type,
+        std::shared_ptr<const Base::BaseBasisFunction>& modulator)
+        : type_(type), modulator_(modulator) {
+        logger.assert_always(type == 0 || type == 1,
+                             "Only two interior types supported");
+    }
+    void eval(const Geometry::PointReference<2>& p,
+              LinearAlgebra::SmallVector<2>& ret) const override {
+        evalTypePart(p, ret);
+        double pval = modulator_->eval(p);
+        ret *= pval;
+    }
+
+    LinearAlgebra::SmallVector<2> evalCurl(
+        const Geometry::PointReference<2>& p) const override;
+
+   private:
+    void evalTypePart(const Geometry::PointReference<2>& p,
+                      LinearAlgebra::SmallVector<2>& ret) const {
+        if (type_ == 0) {
+            // x(y, 1-x)
+            ret[0] = p[1];
+            ret[1] = 1.0 - p[0];
+            ret *= p[0];
+        } else {
+            // y(1-y,x)
+            ret[0] = 1.0 - p[1];
+            ret[1] = p[0];
+            ret *= p[1];
+        }
+    }
+
+    // Type one or two
+    std::size_t type_;
+    std::shared_ptr<const Base::BaseBasisFunction> modulator_;
+};
+
+LinearAlgebra::SmallVector<2> BasisFunctionCurlInteriorNedelec2D::evalCurl(
+    const Geometry::PointReference<2>& p) const {
+
+    // Curl = rotation, thus F_y/dx - F_x/dy evaluated via the chain rule
+    double result;
+
+    LinearAlgebra::SmallVector<2> typeValue;
+    double typeFydx, typeFxdy;
+    double modulatorValue;
+    LinearAlgebra::SmallVector<2> modulatorGrad;
+
+    evalTypePart(p, typeValue);
+    if (type_ == 0) {
+        typeFydx = 1 - 2.0 * p[0];
+        typeFxdy = p[0];
+    } else {
+        typeFydx = p[1];
+        typeFxdy = 1 - 2.0 * p[1];
+    }
+    modulatorValue = modulator_->eval(p);
+    modulatorGrad = modulator_->evalDeriv(p);
+
+    // Chain rule part 1, F_y/dx
+    result = typeFydx * modulatorValue + typeValue[1] * modulatorGrad[0];
+    // Chain rule part 2, -F_x/dy
+    result -= typeFxdy * modulatorValue + typeValue[0] * modulatorGrad[1];
+
+    return LinearAlgebra::SmallVector<2>({result, 0.0});
+}
+
+std::vector<Base::BaseBasisFunction*> createDGBasisFunctions2DNedelec(
+    std::size_t order) {
+
+    std::vector<Base::BaseBasisFunction*> result;
+
+    std::vector<Base::BaseBasisFunction*> lineFunctions =
+        createDGBasisFunctions1DH1Line(order - 1);
+    for (auto& i : lineFunctions) {
+        auto lineFunction = std::shared_ptr<const Base::BaseBasisFunction>(i);
+        result.emplace_back(new BasisCurlEdgeNedelec2D(0, lineFunction));
+        result.emplace_back(new BasisCurlEdgeNedelec2D(1, lineFunction));
+        result.emplace_back(new BasisCurlEdgeNedelec2D(2, lineFunction));
+    }
+
+    if (order > 1) {
+        std::vector<Base::BaseBasisFunction*> triangleFunctions =
+            createDGBasisFunctions2DH1Triangle(order - 2);
+        for (auto& i : triangleFunctions) {
+            auto triangleFunction =
+                std::shared_ptr<const Base::BaseBasisFunction>(i);
+            result.emplace_back(
+                new BasisFunctionCurlInteriorNedelec2D(0, triangleFunction));
+            result.emplace_back(
+                new BasisFunctionCurlInteriorNedelec2D(1, triangleFunction));
+        }
+    }
+    return result;
+}
 Base::BasisFunctionSet* createDGBasisFunctionSet2DNedelec(std::size_t order) {
-    logger.assert_debug(
-        order < 2, "2D Nedelec basis functions only implemented for p = 1");
-    Base::BasisFunctionSet* bFset = new Base::BasisFunctionSet(order);
-    bFset->addBasisFunction(new BasisCurlEdgeNedelec2D(0, 0, 0, 1));
-    bFset->addBasisFunction(new BasisCurlEdgeNedelec2D(0, 0, 0, 2));
-    bFset->addBasisFunction(new BasisCurlEdgeNedelec2D(0, 0, 1, 2));
-    return bFset;
+    Base::BasisFunctionSet* set = new Base::BasisFunctionSet(order);
+    for (auto* bf : createDGBasisFunctions2DNedelec(order)) {
+        set->addBasisFunction(bf);
+    }
+    return set;
 }
 }  // namespace Utilities
 

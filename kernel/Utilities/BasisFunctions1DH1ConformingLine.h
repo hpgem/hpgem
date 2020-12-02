@@ -87,6 +87,9 @@ class BasisFunction1DInteriorLine : public Base::BaseBasisFunction {
 Base::BasisFunctionSet* createDGBasisFunctionSet1DH1Line(
     std::size_t polynomialOrder);
 
+std::vector<Base::BaseBasisFunction*> createDGBasisFunctions1DH1Line(
+    std::size_t polynomialOrder);
+
 Base::BasisFunctionSet* createInteriorBasisFunctionSet1DH1Line(
     std::size_t polynomialOrder);
 

@@ -39,39 +39,51 @@
 #ifndef HPGEM_KERNEL_BASISFUNCTIONS2DNEDELEC_H
 #define HPGEM_KERNEL_BASISFUNCTIONS2DNEDELEC_H
 
-#include "Base/BaseBasisFunction.h"
 #include <vector>
+#include <memory>
 
 namespace hpgem {
 
 namespace Base {
+class BaseBasisFunction;
 class BasisFunctionSet;
-}
-
-namespace Geometry {
-template <std::size_t DIM>
-class PointReference;
-}
+}  // namespace Base
 
 namespace Utilities {
-//! Curl conforming Nedelec edge functions.
-class BasisCurlEdgeNedelec2D : public Base::BaseBasisFunction {
-   public:
-    BasisCurlEdgeNedelec2D(std::size_t degree1, std::size_t degree2,
-                           std::size_t localFirstVertex,
-                           std::size_t localSecondVertex);
 
-    void eval(const Geometry::PointReference<2>& p,
-              LinearAlgebra::SmallVector<2>& ret) const override;
+/**
+ * Implementation of Nedelec functions based on the basis for Raviart-Thomas
+ * (RT) basis functions from [1]. We use the relation between H(div) and H(curl)
+ * vector fields in 2D. If F = (Fx, Fy) is a vector field in H(div) then
+ * rotating the vectors by 90 degrees (Fy, -Fx) one gets a vector field in
+ * H(curl). Similarly, rotating the fields of the RT basis functions, one gets a
+ * basis for the Nedelec space.
+ *
+ * As noted in [1] we can split the basis functions in two categories, edge and
+ * internal. With the slight difference that we use order = p = k+1 (paper) we
+ * have:
+ * - 3*p edge basis functions, one per edge
+ * - (p-1)*p internal basis functions
+ * For a total of p*(p+2) basis functions.
+ *
+ * [1] Computational bases for RT_k and BDM_k on triangles
+ * VJ Ervin, Computers & Mathematics with Applications 64 (8) 2764--2774
+ */
 
-    LinearAlgebra::SmallVector<2> evalCurl(
-        const Geometry::PointReference<2>& p) const override;
-
-   private:
-    const std::size_t deg1, deg2, i, j;
-};
-
+/**
+ * Create BasisFunctionSet for DG (elementwise) 2D Nedelec functions.
+ * @param order The order of the basis functions (highest polynomial degree)
+ * @return The set of basis functions, user owns the pointer.
+ */
 Base::BasisFunctionSet* createDGBasisFunctionSet2DNedelec(std::size_t order);
+
+/**
+ * Create BasisFunctionSet for DG (elementwise) 2D Nedelec functions.
+ * @param order The order of the basis functions (highest polynomial degree)
+ * @return A vector with the basis functions. The user owns all the pointers.
+ */
+std::vector<Base::BaseBasisFunction*> createDGBasisFunctions2DNedelec(
+    std::size_t order);
 }  // namespace Utilities
 
 }  // namespace hpgem
