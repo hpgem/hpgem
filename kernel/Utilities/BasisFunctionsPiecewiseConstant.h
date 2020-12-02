@@ -44,7 +44,7 @@ namespace hpgem {
 namespace Base {
 class BaseBasisFunction;
 class BasisFunctionSet;
-}
+}  // namespace Base
 
 namespace Utilities {
 /// Add the piecewise constant for 1D to the basis function set

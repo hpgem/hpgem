@@ -47,7 +47,7 @@ namespace hpgem {
 namespace Base {
 class BaseBasisFunction;
 class BasisFunctionSet;
-}
+}  // namespace Base
 
 namespace Utilities {
 
