@@ -124,20 +124,31 @@ int main(int argc, char** argv) {
         ///////////////////
         // Harmonic code //
         ///////////////////
+        for (auto* element : mesh->getElementsList()) {
+            element->setNumberOfTimeIntegrationVectors(3);
+        }
 
-        //        DGMaxHarmonic harmonicSolver (base, p.getValue());
-        //        DivDGMaxHarmonic harmonicSolver (base);
-        //
-        //        SampleHarmonicProblems problem
-        //        (SampleHarmonicProblems::SARMANY2010, 1);
-        //        harmonicSolver.solve(problem, divStab, p.getValue());
-        //        std::cout << "L2 error " <<
-        //        harmonicSolver.computeL2Error(problem) << std::endl; auto
-        //        errors = harmonicSolver.computeError({DGMaxDiscretization::L2,
-        //        DGMaxDiscretization::HCurl}, problem); std::cout << "L2 error
-        //        " << errors[DGMaxDiscretization::L2] << std::endl; std::cout
-        //        << "HCurl error " << errors[DGMaxDiscretization::HCurl] <<
-        //        std::endl;
+        SampleHarmonicProblems<DIM> harmonicProblem(
+            SampleHarmonicProblems<DIM>::CONSTANT, 1);
+
+        //        DGMaxHarmonic<DIM> harmonicSolver(*mesh, p.getValue());
+        //        harmonicSolver.solve(harmonicProblem, stab);
+        //        auto errors = harmonicSolver.computeError(
+        //            {DGMaxDiscretizationBase::L2,
+        //            DGMaxDiscretizationBase::HCurl}, harmonicProblem);
+        //        std::cout << "L2 error" << errors[DGMaxDiscretizationBase::L2]
+        //                  << std::endl;
+        //        std::cout << "HCurl error " <<
+        //        errors[DGMaxDiscretizationBase::HCurl]
+        //                  << std::endl;
+        // Seems to be broken :(
+        //        DivDGMaxHarmonic<DIM> harmonicSolver(*mesh);
+        //        harmonicSolver.solve(harmonicProblem, divStab, p.getValue());
+        //        std::cout << "L2 error "
+        //                  << harmonicSolver.computeL2Error(harmonicProblem)
+        //                  << std::endl;
+
+        return 0;
 
         /////////////////////
         // Eigenvalue code //

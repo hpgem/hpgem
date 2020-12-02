@@ -90,8 +90,20 @@ Face::Face(Element* ptrElemL, const std::size_t& localFaceNumberL,
         ptrElemR->getPhysicalGeometry()->getLocalFaceNodeIndices(
             localFaceNumberR);
 
-    if (determineIsPeriodicBoundaryFace()) {
-        setFaceType(Geometry::FaceType::PERIODIC_BC);
+    {
+        // Determine if the face is on a Periodic boundary by looking at the
+        // global node indices.
+        std::vector<std::size_t> globalLeftNodes =
+            ptrElemL->getPhysicalGeometry()->getGlobalFaceNodeIndices(
+                localFaceNumberL);
+        std::vector<std::size_t> globalRightNodes =
+            ptrElemR->getPhysicalGeometry()->getGlobalFaceNodeIndices(
+                localFaceNumberR);
+        std::sort(globalLeftNodes.begin(), globalLeftNodes.end());
+        std::sort(globalRightNodes.begin(), globalRightNodes.end());
+        if (globalLeftNodes != globalRightNodes) {
+            setFaceType(Geometry::FaceType::PERIODIC_BC);
+        }
     }
 
     for (std::size_t i = 0; i < getReferenceGeometry()->getNumberOfNodes();
@@ -308,9 +320,20 @@ void Face::addElement(Element* ptrElementR, std::size_t localFaceNumberR) {
     std::vector<std::size_t> localRightNodes =
         ptrElementR->getPhysicalGeometry()->getLocalFaceNodeIndices(
             localFaceNumberR);
-
-    if (determineIsPeriodicBoundaryFace()) {
-        setFaceType(Geometry::FaceType::PERIODIC_BC);
+    {
+        // Determine if the face is on a Periodic boundary by looking at the
+        // global node indices.
+        std::vector<std::size_t> globalLeftNodes =
+            elementLeft_->getPhysicalGeometry()->getGlobalFaceNodeIndices(
+                localFaceNumberLeft_);
+        std::vector<std::size_t> globalRightNodes =
+            ptrElementR->getPhysicalGeometry()->getGlobalFaceNodeIndices(
+                localFaceNumberR);
+        std::sort(globalLeftNodes.begin(), globalLeftNodes.end());
+        std::sort(globalRightNodes.begin(), globalRightNodes.end());
+        if (globalLeftNodes != globalRightNodes) {
+            setFaceType(Geometry::FaceType::PERIODIC_BC);
+        }
     }
 
     for (std::size_t i = 0; i < getReferenceGeometry()->getNumberOfNodes();

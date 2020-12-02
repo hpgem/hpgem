@@ -35,46 +35,28 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef HPGEM_TRANSPOSE_H
+#define HPGEM_TRANSPOSE_H
 
-#include "DGMaxEVConvergenceTest.h"
+namespace hpgem {
+namespace LinearAlgebra {
 
-#include "Base/ConfigurationData.h"
-#include "Base/MeshManipulator.h"
+enum class Transpose {
+    /**
+     * Use the matrix as is.
+     */
+    NOT,
+    /**
+     * Use transpose of the matrix
+     */
+    TRANSPOSE,
+    /**
+     * Use conjugate transpose of the matrix
+     */
+    HERMITIAN_TRANSPOSE
+};
 
-#include "DGMaxLogger.h"
-#include "DGMaxProgramUtils.h"
-
-#include "Algorithms/DGMaxEigenvalue.h"
-
-namespace DGMax {
-
-template <std::size_t DIM>
-std::unique_ptr<AbstractEigenvalueResult<DIM>>
-    DGMaxEVConvergenceTest<DIM>::runInternal(std::size_t level) {
-
-    logger.assert_always(level < meshFileNames_.size(), "No such mesh");
-    std::size_t unknowns = solverConfig_.useProjector_ ? 2 : 1;
-    std::size_t elementMatrices = solverConfig_.useProjector_ ? 3 : 2;
-    Base::ConfigurationData configData(unknowns, 1);
-
-    auto mesh = DGMax::readMesh<DIM>(
-        meshFileNames_[level], &configData,
-        [&](const Geometry::PointPhysical<DIM> &p) {
-            return jelmerStructure(p, testCase_.getStructureId());
-        },
-        elementMatrices);
-    DGMaxLogger(INFO, "Loaded mesh % with % local elements.",
-                meshFileNames_[level], mesh->getNumberOfElements());
-    KSpacePath<DIM> path =
-        KSpacePath<DIM>::singleStepPath(testCase_.getKPoint());
-    EigenvalueProblem<DIM> input(path, testCase_.getNumberOfEigenvalues());
-
-    DGMaxEigenvalue<DIM> solver(*mesh, this->order_, this->solverConfig_);
-    return solver.solve(input);
 }
+}  // namespace hpgem
 
-// Template instantiation
-template class DGMaxEVConvergenceTest<2>;
-template class DGMaxEVConvergenceTest<3>;
-
-};  // namespace DGMax
+#endif  // HPGEM_TRANSPOSE_H

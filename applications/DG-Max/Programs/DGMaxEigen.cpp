@@ -21,8 +21,9 @@ auto& numEigenvalues = Base::register_argument<std::size_t>(
 
 auto& method = Base::register_argument<std::string>(
     '\0', "method",
-    "The method to be used, either 'DGMAX' or 'DIVDGMAX' (default)", false,
-    "DIVDGMAX");
+    "The method to be used, either 'DGMAX', 'DGMAX_PROJECT' or 'DIVDGMAX' "
+    "(default)",
+    false, "DIVDGMAX");
 
 // Compute a single point --point 1,0.5,0 or a path of points
 // [steps@]0,0:1,0:1,1
@@ -96,25 +97,42 @@ int main(int argc, char** argv) {
 
 template <std::size_t DIM>
 void runWithDimension() {
-    bool useDivDGMax;
+    bool useDivDGMax = true;
+    DGMaxEigenvalueBase::ProjectorUse useProjector = DGMaxEigenvalueBase::NONE;
+    std::size_t numberOfElementMatrices = 2;
+    std::size_t unknowns = 0;
     // 2 unknowns, 1 time level
     if (method.getValue() == "DGMAX") {
         useDivDGMax = false;
+        unknowns = 1;
+    } else if (method.getValue() == "DGMAX_PROJECT" ||
+               method.getValue() == "DGMAX_PROJECT1") {
+        useDivDGMax = false;
+        useProjector = method.getValue() == "DGMAX_PROJECT"
+                           ? DGMaxEigenvalueBase::ALL
+                           : DGMaxEigenvalueBase::INITIAL;
+        unknowns = 2;
+        // 1 more is needed for the projector operator
+        numberOfElementMatrices = 3;
     } else if (method.getValue() == "DIVDGMAX") {
         useDivDGMax = true;
+        unknowns = 2;
     } else {
-        logger(ERROR, "Invalid method {}, should be either DGMAX or DIVDGMAX",
+        logger(ERROR,
+               "Invalid method {}, should be either DGMAX, DGMAX_PROJECT, "
+               "DGMAX_PROJECT1 or DIVDGMAX",
                method.getValue());
         return;
     }
 
-    Base::ConfigurationData configData(useDivDGMax ? 2 : 1, 1);
+    Base::ConfigurationData configData(unknowns, 1);
     auto mesh = DGMax::readMesh<DIM>(
         meshFile.getValue(), &configData,
         [&](const Geometry::PointPhysical<DIM>& p) {
             // TODO: Hardcoded structure
             return jelmerStructure(p, structure.getValue());
-        });
+        },
+        numberOfElementMatrices);
     logger(INFO, "Loaded mesh % with % local elements", meshFile.getValue(),
            mesh->getNumberOfElements());
     // TODO: Parameterize
@@ -129,7 +147,12 @@ void runWithDimension() {
         result = solver.solve(input);
     } else {
         const double stab = parseDGMaxPenaltyParameter();
-        DGMaxEigenvalue<DIM> solver(*mesh, order.getValue(), stab);
+        DGMaxEigenvalueBase::SolverConfig config;
+        config.stab_ = stab;
+        config.useHermitian_ = true;
+        config.shiftFactor_ = 0;
+        config.useProjector_ = useProjector;
+        DGMaxEigenvalue<DIM> solver(*mesh, order.getValue(), config);
         result = solver.solve(input);
     }
 

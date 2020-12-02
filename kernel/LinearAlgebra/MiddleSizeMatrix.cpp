@@ -775,25 +775,54 @@ void MiddleSizeMatrix::solveCholesky(LinearAlgebra::MiddleSizeMatrix& B) const {
     logger.assert_always(info == 0, "Error in solving using decomposition.");
 }
 
-void MiddleSizeMatrix::solveLowerTriangular(
-    LinearAlgebra::MiddleSizeMatrix& B) const {
+void MiddleSizeMatrix::solveLowerTriangular(LinearAlgebra::MiddleSizeMatrix& B,
+                                            Side side,
+                                            Transpose transpose) const {
     logger.assert_debug(numberOfRows_ == numberOfColumns_,
                         "can only solve for square matrixes");
-    logger.assert_debug(
-        numberOfRows_ == B.numberOfRows_,
-        "size of the RHS does not match the size of the matrix");
+    if (side == Side::OP_LEFT) {
+        logger.assert_debug(
+            numberOfRows_ == B.numberOfRows_,
+            "size of the RHS does not match the size of the matrix");
+    } else {
+        logger.assert_debug(
+            numberOfColumns_ == B.numberOfColumns_,
+            "size of RHS does not match the size of the matrix");
+    }
 
-    int n = numberOfRows_;
-    int nrhs = B.getNumberOfColumns();
+    int m = B.numberOfRows_;
+    int n = B.numberOfColumns_;
+    int lda = numberOfRows_;  // == numberOfColumns
+    int ldb = m;
+    char cside, ctranspose;
+    switch (side) {
+        case Side::OP_LEFT:
+            cside = 'L';
+            break;
+        case Side::OP_RIGHT:
+            cside = 'R';
+            break;
+    }
+    switch (transpose) {
+        case Transpose::NOT:
+            ctranspose = 'N';
+            break;
+        case Transpose::TRANSPOSE:
+            ctranspose = 'T';
+            break;
+        case Transpose::HERMITIAN_TRANSPOSE:
+            ctranspose = 'C';
+    }
+
     MiddleSizeMatrix matThis = *this;  // Mutable copy.
 #ifdef HPGEM_USE_COMPLEX_PETSC
     std::complex<double> alpha(1);
-    ztrsm_("L", "L", "N", "N", &n, &nrhs, &alpha, matThis.data(), &n, B.data(),
-           &n);
+    ztrsm_(&cside, "L", &ctranspose, "N", &m, &n, &alpha, matThis.data(), &lda,
+           B.data(), &ldb);
 #else
-    double alpha;
-    dtrsm_("L", "L", "N", "N", &n, &nrhs, &alpha, matThis.data(), &n, B.data(),
-           &n);
+    double alpha(1);
+    dtrsm_(&cside, "L", &ctranspose, "N", &m, &n, &alpha, matThis.data(), &lda,
+           B.data(), &ldb);
 #endif
 }
 

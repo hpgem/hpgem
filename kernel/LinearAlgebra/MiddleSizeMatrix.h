@@ -44,6 +44,8 @@
 #include <vector>
 
 #include "MiddleSizeVector.h"
+#include "Side.h"
+#include "Transpose.h"
 #include <complex>
 
 namespace hpgem {
@@ -237,9 +239,10 @@ class MiddleSizeMatrix {
     /// \brief Computes the Cholesky decomposition in place.
     ///
     /// Computes the Cholesky decomposition L*L^H = A of this matrix (A),
-    /// assuming but not checking that this matrix is Hermtian positive
+    /// assuming but not checking that this matrix is Hermitian positive
     /// definite. The contents of this matrix is overwritten with the
-    /// lower triangular part of the Cholesky decomposition.
+    /// lower triangular part of the Cholesky decomposition. The strictly
+    /// upper triangular part is left untouched.
     void cholesky();
 
     /// \brief Solve a system (L*L^H)*X = B after Cholesky decomposition
@@ -249,14 +252,20 @@ class MiddleSizeMatrix {
     /// \param B The rhs and result matrix.
     void solveCholesky(MiddleSizeMatrix& B) const;
 
-    /// \brief Solve the system L*x = B
+    /// \brief Solve linear systems with a lower triangular matrix.
     ///
-    /// Solve the system L*x = B, where L is the current matrix that is
-    /// assumed to be lower triangular.
+    /// Solves either op(L)X = B or X op(L) = B, where op(L) is either
+    /// L or L^T, where L is the current. It is assumed that this the current
+    /// matrix is lower triangular and the strictly upper triangular part of the
+    /// matrix is not referenced.
     ///
     /// \param B The right hand side, that will be overwritten by the
     /// solution.
-    void solveLowerTriangular(MiddleSizeMatrix& B) const;
+    /// \param side The side of the this matrix with respect to the variables
+    /// i.e. L*X=B is for left,
+    /// \param transpose Whether use the (conjugate) transpose of this matrix.
+    void solveLowerTriangular(MiddleSizeMatrix& B, Side side = Side::OP_LEFT,
+                              Transpose transpose = Transpose::NOT) const;
 
     /// \brief Computes the minimum norm solution to a real linear least squares
     /// problem.

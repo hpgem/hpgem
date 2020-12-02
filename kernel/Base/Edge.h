@@ -108,6 +108,7 @@ class Edge {
     std::size_t getNumberOfElements() const;
 
     Element* getElement(std::size_t i);
+    const Element* getElement(std::size_t i) const;
 
     /// get the root element that is the (indirect) parent of one of the
     /// adjacent elements
@@ -120,7 +121,7 @@ class Edge {
     /// instead
     std::size_t getEdgeNr(std::size_t i) { return getEdgeNumber(i); }
 
-    std::size_t getEdgeNumber(std::size_t i) {
+    std::size_t getEdgeNumber(std::size_t i) const {
         logger.assert_debug(
             i < getNumberOfElements(),
             "Asked for element %, but there are only % elements", i,

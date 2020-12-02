@@ -59,14 +59,12 @@ auto& runAsTestArg = Base::register_argument<bool>(
 
 // clang-format off
 // Leave the results as an easily readable table
-
-// Note: Several nan results are from computing negative eigenvalues. As
-// frequency = sqrt(eigenvalue), the resulting frequencies are NaN.
 DGMax::EVConvergenceResult expected ({
-     {2.268990566e-06,3.563100846e-06,1.204336889,5.411086151,5.524294257,7.066481048,7.149443644,7.72780029},
-     {std::nan(""),2.812220581e-06,1.204203888,5.43456121,5.548559589,7.1219632,7.208314184,7.695794404,8.910736644},
-     {std::nan(""),std::nan(""),1.641925264e-05,1.20417057,5.440372736,5.554561455,7.13560546,7.222790797,7.68700507,8.900260151,9.040610049},
-     {std::nan(""),std::nan(""),0.0001017320878,1.204162236,5.441822184,5.556058059,7.139002763,7.226395987,7.684761581,8.897550726}
+     {1.204336889,5.411086151,5.524294257,7.066481048,7.149443644,7.72780029},
+     {1.204203888,5.43456121,5.548559589,7.1219632,7.208314184,7.695794404,8.910736644},
+     {1.20417057,5.440372736,5.554561455,7.13560546,7.222790797,7.68700507,8.900260151,9.040610049},
+     {1.204162236,5.441822184,5.556058059,7.139002763,7.226395987,7.684761581,8.897550726}
+
  });
 // clang-format on
 
@@ -86,8 +84,13 @@ int main(int argc, char** argv) {
     DGMax::EVTestPoint<2> testPoint(LinearAlgebra::SmallVector<2>({0.8, 0.9}),
                                     0, 10);
 
-    DGMax::DGMaxEVConvergenceTest<2> testCase(testPoint, meshes, 1e-8, 1, 100,
-                                              &expected);
+    DGMaxEigenvalueBase::SolverConfig config;
+    config.stab_ = 100;
+    config.shiftFactor_ = 0;
+    config.useHermitian_ = false;
+    config.useProjector_ = DGMaxEigenvalueBase::NONE;
+    DGMax::DGMaxEVConvergenceTest<2> testCase(testPoint, meshes, 1e-8, 1,
+                                              config, &expected);
     DGMax::EVConvergenceResult result = testCase.run(runAsTest);
 
     // Code to check the results if they change
