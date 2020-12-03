@@ -50,7 +50,8 @@ ElementLocalIndexing::ElementLocalIndexing(std::size_t numberOfUnknowns)
       sizes_(numberOfUnknowns_, 0),
       includedUnknowns_(0) {}
 
-void ElementLocalIndexing::reinit(const std::vector<std::size_t> &includedUnknowns) {
+void ElementLocalIndexing::reinit(
+    const std::vector<std::size_t> &includedUnknowns) {
     includedUnknowns_ = includedUnknowns;
     std::sort(includedUnknowns_.begin(), includedUnknowns_.end());
 #ifdef HPGEM_ASSERTS
@@ -61,7 +62,8 @@ void ElementLocalIndexing::reinit(const std::vector<std::size_t> &includedUnknow
     }
     // Check maximum
     if (!includedUnknowns_.empty()) {
-        std::size_t maxUnknown = includedUnknowns_[includedUnknowns_.size() - 1];
+        std::size_t maxUnknown =
+            includedUnknowns_[includedUnknowns_.size() - 1];
         logger.assert_debug(
             maxUnknown < numberOfUnknowns_,
             "Largest unknown % is larger than maximum allowable unknown %",
