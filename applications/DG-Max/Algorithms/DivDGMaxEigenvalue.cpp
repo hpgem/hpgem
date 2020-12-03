@@ -44,6 +44,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Utilities/GlobalVector.h"
 
 #include "Utils/FaceKPhaseShiftBuilder.h"
+#include "Utils/CGDGMatrixKPhaseShiftBuilder.h"
 
 #include "DGMaxLogger.h"
 
