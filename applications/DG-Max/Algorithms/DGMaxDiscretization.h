@@ -75,11 +75,13 @@ class PointPhysical;
 }  // namespace hpgem
 
 using namespace hpgem;
-template <std::size_t DIM>
-class DGMaxDiscretization {
+
+/// Dimension independent constants of DGMaxDiscretization
+class DGMaxDiscretizationBase {
    public:
     static const std::size_t MASS_MATRIX_ID = 0;
     static const std::size_t STIFFNESS_MATRIX_ID = 1;
+    static const std::size_t PROJECTOR_MATRIX_ID = 2;
     static const std::size_t INITIAL_CONDITION_VECTOR_ID = 0;
     static const std::size_t INITIAL_CONDITION_DERIVATIVE_VECTOR_ID = 1;
     static const std::size_t SOURCE_TERM_VECTOR_ID = 2;
@@ -87,6 +89,24 @@ class DGMaxDiscretization {
     static const std::size_t FACE_MATRIX_ID = 0;
     static const std::size_t FACE_VECTOR_ID = 0;
 
+    enum NormType { L2, HCurl, DG };
+
+    enum MassMatrixHandling {
+        /// Compute the mass matrix
+        NORMAL,
+        /// Compute the inverse of the mass matrix
+        INVERT,
+        /// Compute the Cholesky decomposition LL^H = M of the mass matrix and
+        /// use this to rescale the stiffness matrix and mass matrix.
+        /// Effectively this is an orthogonalization of the basis functions with
+        /// respect to the innerproduct defined by the mass matrix.
+        ORTHOGONALIZE
+    };
+};
+
+template <std::size_t DIM>
+class DGMaxDiscretization : public DGMaxDiscretizationBase {
+   public:
     using PointPhysicalT = Geometry::PointPhysical<DIM>;
     using InputFunction = std::function<void(const PointPhysicalT&,
                                              LinearAlgebra::SmallVector<DIM>&)>;
@@ -96,18 +116,27 @@ class DGMaxDiscretization {
     using TimeFunction = std::function<void(const PointPhysicalT&, double,
                                             LinearAlgebra::SmallVector<DIM>&)>;
 
+    DGMaxDiscretization(bool includeProjector = false)
+        : includeProjector_(includeProjector) {}
+
     void initializeBasisFunctions(Base::MeshManipulator<DIM>& mesh,
                                   std::size_t order);
 
+    /**
+     * Compute element matrices and vectors
+     * @param mesh The mesh
+     * @param massMatrix The possible transformation applied to the mass matrix
+     * @param elementVectors The element vectors to compute as mapping from id
+     * to the function to use.
+     */
     void computeElementIntegrands(
-        Base::MeshManipulator<DIM>& mesh, bool invertMassMatrix,
-        const InputFunction& sourceTerm, const InputFunction& initialCondition,
-        const InputFunction& initialConditionDerivative) const;
-    void computeFaceIntegrals(Base::MeshManipulator<DIM>& mesh,
-                              const FaceInputFunction& boundaryCondition,
-                              double stab) const;
+        Base::MeshManipulator<DIM>& mesh, MassMatrixHandling massMatrix,
+        const std::map<std::size_t, InputFunction>& elementVectors) const;
+    void computeFaceIntegrals(
+        Base::MeshManipulator<DIM>& mesh, MassMatrixHandling massMatrix,
+        const std::map<std::size_t, FaceInputFunction>& boundaryVectors,
+        double stab) const;
 
-    enum NormType { L2, HCurl, DG };
     static std::string normName(NormType norm) {
         switch (norm) {
             case L2:
@@ -143,6 +172,8 @@ class DGMaxDiscretization {
     // something like curl-stiffness?
     void elementStiffnessMatrix(Base::PhysicalElement<DIM>& el,
                                 LinearAlgebra::MiddleSizeMatrix& ret) const;
+    void elementProjectorMatrix(Base::PhysicalElement<DIM>& el,
+                                LinearAlgebra::MiddleSizeMatrix& ret) const;
     // Element vector integrand for the source term
     void elementInnerProduct(Base::PhysicalElement<DIM>& el,
                              const InputFunction& function,
@@ -169,6 +200,8 @@ class DGMaxDiscretization {
     double faceErrorIntegrand(Base::PhysicalFace<DIM>& fa,
                               std::size_t timeVector,
                               InputFunction exactValue) const;
+
+    const bool includeProjector_;
 };
 
 #endif  // HPGEM_APP_DGMAXDISCRETIZATION_H

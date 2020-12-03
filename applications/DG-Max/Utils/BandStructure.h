@@ -33,6 +33,8 @@ class BandStructure {
     };
 
     virtual ~BandStructure() = default;
+    virtual std::vector<double> computeLinearSpectrum(
+        LinearAlgebra::SmallVector<DIM> kpoint, double omegaMax) const = 0;
     virtual std::map<double, std::size_t> computeSpectrum(
         LinearAlgebra::SmallVector<DIM> kpoint, double omegaMax) const = 0;
     virtual std::unique_ptr<LineSet> computeLines(

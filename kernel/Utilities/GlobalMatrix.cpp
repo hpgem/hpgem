@@ -68,7 +68,9 @@ GlobalMatrix::GlobalMatrix(const GlobalIndexing& rowIndexing,
       ,
       symmetricIndexing_(&rowIndexing == &columnIndexing),
       faceMatrixID_(faceMatrixID) {
-    logger.assert_always(columnIndexing.getMesh() == rowIndexing.getMesh(),
+    logger.assert_always(columnIndexing.getMesh() == nullptr ||
+                             rowIndexing.getMesh() == nullptr ||
+                             columnIndexing.getMesh() == rowIndexing.getMesh(),
                          "Row and column indexing based on different meshes.");
 }
 
@@ -185,10 +187,23 @@ GlobalPetscMatrix::operator Mat() {
 }
 
 void GlobalPetscMatrix::reinit() {
-    logger.assert_always(rowIndexing_.getMesh() == columnIndexing_.getMesh(),
-                         "Row and column indexing from different meshes");
-    createMat();
-    assemble();
+    if (rowIndexing_.getMesh() == nullptr ||
+        columnIndexing_.getMesh() == nullptr) {
+        // Uninitialized index for at least the rows or columns. So replace it
+        // with an empty matrix.
+        PetscErrorCode error;
+        error = MatDestroy(&A_);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+        error = MatCreateSeqAIJ(PETSC_COMM_SELF, 0, 0, 0, PETSC_NULL, &A_);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+        return;
+    } else {
+        logger.assert_always(
+            rowIndexing_.getMesh() == columnIndexing_.getMesh(),
+            "Row and column indexing from different meshes");
+        createMat();
+        assemble();
+    }
 }
 
 void GlobalPetscMatrix::createMat() {

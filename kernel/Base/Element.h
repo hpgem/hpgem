@@ -421,6 +421,65 @@ class Element final : public Geometry::ElementGeometry, public ElementData {
 
     const std::vector<Node*> getNodesList() const { return nodesList_; }
 
+    /// Compute the face id of a face that is adjacent to the element.
+    std::size_t getLocalId(const Base::Face* face) const {
+        for (std::size_t i = 0; i < facesList_.size(); ++i) {
+            if (facesList_[i] == face) return i;
+        }
+        logger.assert_debug(false, "Not an face adjacent to the element");
+        return std::numeric_limits<std::size_t>::max();
+    }
+
+    /// Compute the edge id of a edge that is adjacent to the element.
+    std::size_t getLocalId(const Base::Edge* edge) const {
+        for (std::size_t i = 0; i < edgesList_.size(); ++i) {
+            if (edgesList_[i] == edge) return i;
+        }
+        logger.assert_debug(false, "Not an edge adjacent to the element");
+        return std::numeric_limits<std::size_t>::max();
+    }
+
+    /// Compute the node id of a node that is adjacent to the element.
+    std::size_t getLocalId(const Base::Node* node) const {
+        for (std::size_t i = 0; i < nodesList_.size(); ++i) {
+            if (nodesList_[i] == node) return i;
+        }
+        logger.assert_debug(false, "Not an node adjacent to the element");
+        return std::numeric_limits<std::size_t>::max();
+    }
+
+    std::size_t getBasisFunctionOffset(const Base::Face* face,
+                                       std::size_t unknown) const {
+        return getFaceBasisFunctionOffset(getLocalId(face), unknown);
+    }
+
+    std::size_t getBasisFunctionOffset(const Base::Edge* edge,
+                                       std::size_t unknown) const {
+        return getEdgeBasisFunctionOffset(getLocalId(edge), unknown);
+    }
+
+    std::size_t getBasisFunctionOffset(const Base::Node* node,
+                                       std::size_t unknown) const {
+        return getNodeBasisFunctionOffset(getLocalId(node), unknown);
+    }
+
+    std::size_t getFaceBasisFunctionOffset(std::size_t localFaceId,
+                                           std::size_t unknown) const {
+        return basisFunctions_.getBasisFunctionOffset(unknown, 1 + localFaceId);
+    }
+
+    std::size_t getEdgeBasisFunctionOffset(std::size_t localEdgeId,
+                                           std::size_t unknown) const {
+        return basisFunctions_.getBasisFunctionOffset(
+            unknown, 1 + getNumberOfFaces() + localEdgeId);
+    }
+
+    std::size_t getNodeBasisFunctionOffset(std::size_t localNodeId,
+                                           std::size_t unknown) const {
+        return basisFunctions_.getBasisFunctionOffset(
+            unknown, 1 + getNumberOfFaces() + getNumberOfEdges() + localNodeId);
+    }
+
     ///\deprecated Does not follow naming conventions, use getNumberOfFaces
     /// instead
     std::size_t getNrOfFaces() const { return getNumberOfFaces(); }

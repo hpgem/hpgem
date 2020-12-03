@@ -165,6 +165,20 @@ class ElementBasisFunctions {
     void registerBasisFunctionPosition(std::size_t unknown, std::size_t place,
                                        std::size_t position);
 
+    /// \brief Get the offset for the basis functions at a certain place.
+    ///
+    /// Get the number of basis functions for the unknown that are registered
+    /// before 'place'. The basis functions corresponding registered at place
+    /// are thus preceded by this amount of basis functions in the local
+    /// ordering.
+    ///
+    /// \param unknown The unknown for the basis functions
+    /// \param place The place of the basis functions
+    /// \return The offset of the basis functions at place. Undefined if none
+    /// are registered.
+    std::size_t getBasisFunctionOffset(std::size_t unknown,
+                                       std::size_t place) const;
+
    private:
     std::size_t getNumberOfUnknowns() const { return setPositions_.size(); }
 
