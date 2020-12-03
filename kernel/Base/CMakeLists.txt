@@ -37,7 +37,8 @@ add_library(hpGEM_Base STATIC
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/GlobalMatrix.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/GlobalVector.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/GlobalIndexing.cpp
-		${hpGEM_SOURCE_DIR}/kernel/Utilities/LocalIndexing.cpp
+		${hpGEM_SOURCE_DIR}/kernel/Utilities/ElementLocalIndexing.cpp
+		${hpGEM_SOURCE_DIR}/kernel/Utilities/FaceLocalIndexing.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/SparsityEstimator.cpp
         GlobalUniqueIndex.cpp ../Utilities/BasisFunctions3DH1ConformingPyramid.cpp)
 

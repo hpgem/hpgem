@@ -35,9 +35,10 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_LOCALINDEXING_H
-#define HPGEM_LOCALINDEXING_H
+#ifndef HPGEM_ELEMENTLOCALINDEXING_H
+#define HPGEM_ELEMENTLOCALINDEXING_H
 
+#include <numeric>
 #include <vector>
 #include "Logger.h"
 #include "Base/Side.h"
@@ -46,11 +47,18 @@ namespace hpgem {
 
 namespace Base {
 class Element;
-class Face;
 }
 
 namespace Utilities {
 
+/**
+ * Index of the local DoFs on an Element.
+ *
+ * For element matrices and vectors the rows and columns correspond to DoFs of
+ * a particular (sub)set of unknowns. Which are the DoFs for these unknowns that
+ * have support on the element. This class provides easy access to information
+ * about the local ordering of the DoFs in matrices and vectors.
+ */
 class ElementLocalIndexing {
    public:
     /// Create a ElementLocalIndexing without any includedUnknowns.
@@ -65,6 +73,16 @@ class ElementLocalIndexing {
     /// \param element The new element (may be nullptr)
     void reinit(const Base::Element* element);
 
+    /// Combined reinit for both the element and included unknowns.
+    ///
+    /// \param element The new element (may be nullptr)
+    /// \param includedUnknowns The new set of included unknowns.
+    void reinit(const Base::Element* element,
+                const std::vector<std::size_t>& includedUnknowns) {
+        reinit(includedUnknowns);
+        reinit(element);
+    }
+
     /// Get the Offset in an ElementMatrix/Vector for the unknown. Will be an
     /// invalid value for non included unknowns or when no element is available.
     std::size_t getDoFOffset(std::size_t unknown) const {
@@ -74,7 +92,8 @@ class ElementLocalIndexing {
         return offsets_[unknown];
     }
     /// Get the number DoFs (rows/columns) for the unknown in an element
-    /// matrix/vector. Will be zero for non included unknowns or when no element is available.
+    /// matrix/vector. Will be zero for non included unknowns or when no element
+    /// is available.
     std::size_t getNumberOfDoFs(std::size_t unknown) const {
         logger.assert_debug(unknown < numberOfUnknowns_,
                             "Unknown % larger than maximum %", unknown,
@@ -99,7 +118,8 @@ class ElementLocalIndexing {
     /// Constructor alternative for an index where all unknowns are included.
     /// \param numberOfUnknowns The total number of unknowns
     /// \return A new instance with all unknowns included
-    static ElementLocalIndexing createFullIndexing(std::size_t numberOfUnknowns) {
+    static ElementLocalIndexing createFullIndexing(
+        std::size_t numberOfUnknowns) {
         std::vector<std::size_t> unknowns(numberOfUnknowns);
         std::iota(unknowns.begin(), unknowns.end(), 0);
         ElementLocalIndexing result(numberOfUnknowns);
@@ -126,51 +146,7 @@ class ElementLocalIndexing {
     std::vector<std::size_t> includedUnknowns_;
 };
 
-class FaceLocalIndexing {
-   public:
-    explicit FaceLocalIndexing(std::size_t numberOfUnknowns);
-    void reinit(const std::vector<std::size_t>& includedUnknowns);
-    /// Reinit the values for a different face
-    /// \param element The new element (may be nullptr)
-    void reinit(const Base::Face* face);
-
-    std::size_t getDoFOffset(std::size_t unknown, Base::Side side) const {
-        if (side == Base::Side::LEFT) {
-            return left_.getDoFOffset(unknown);
-        } else {
-            logger.assert_debug(
-                right_.getElement() != nullptr, "Asking for the right side of an internal face");
-            return left_.getNumberOfDoFs() + right_.getNumberOfDoFs(unknown);
-        }
-    }
-
-    std::size_t getNumberOfDoFs(std::size_t unknown, Base::Side side) const {
-        if (side == Base::Side::LEFT) {
-            return left_.getNumberOfDoFs(unknown);
-        } else {
-            logger.assert_debug(
-                right_.getElement() != nullptr, "Asking for the right side of an internal face");
-            return right_.getNumberOfDoFs(unknown);
-        }
-    }
-
-    std::size_t getNumberOfDoFs() const { return left_.getNumberOfDoFs() + right_.getNumberOfDoFs(); }
-
-    const std::vector<std::size_t>& getIncludedUnknowns() {
-        return left_.getIncludedUnknowns();
-    }
-
-    const Base::Face* getFace() {
-        return face_;
-    }
-
-   private:
-    const Base::Face* face_;
-    ElementLocalIndexing left_;
-    ElementLocalIndexing right_;
-};
-
 }  // namespace Utilities
 }  // namespace hpgem
 
-#endif  // HPGEM_LOCALINDEXING_H
+#endif  // HPGEM_ELEMENTLOCALINDEXING_H

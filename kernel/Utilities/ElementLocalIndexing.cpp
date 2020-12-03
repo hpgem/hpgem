@@ -35,7 +35,7 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "LocalIndexing.h"
+#include "ElementLocalIndexing.h"
 
 #include "Element.h"
 
@@ -120,22 +120,6 @@ void ElementLocalIndexing::validate() const {
                                  sizes_[i]);
         }
     }
-}
-
-// FaceLocalIndexing
-FaceLocalIndexing::FaceLocalIndexing(std::size_t numberOfUnknowns)
-    : face_ (nullptr), left_(numberOfUnknowns), right_(numberOfUnknowns)
-{}
-
-void FaceLocalIndexing::reinit(const std::vector<std::size_t> &includedUnknowns) {
-    left_.reinit(includedUnknowns);
-    right_.reinit(includedUnknowns);
-}
-
-void FaceLocalIndexing::reinit(const Base::Face *face) {
-    face_ = face;
-    left_.reinit(face->getPtrElementLeft());
-    right_.reinit(face->getPtrElementRight());
 }
 
 }  // namespace Utilities

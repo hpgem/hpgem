@@ -40,7 +40,7 @@
 #include "Base/MeshManipulator.h"
 #include "Base/CommandLineOptions.h"
 
-#include "Utilities/LocalIndexing.h"
+#include "Utilities/ElementLocalIndexing.h"
 
 namespace hpgem {
 
