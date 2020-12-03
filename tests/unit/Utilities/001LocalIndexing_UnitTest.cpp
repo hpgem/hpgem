@@ -42,9 +42,12 @@
 
 #include "Utilities/ElementLocalIndexing.h"
 
-namespace hpgem {
+#define CATCH_CONFIG_RUNNER
+#include "../catch.hpp"
 
-void run() {
+using namespace hpgem;
+
+TEST_CASE("Basic indexing", "[LocalIndexing]") {
     // Create a simple 1D mesh to work with
     std::size_t numberOfUnknowns = 3;
     Base::ConfigurationData config(numberOfUnknowns);
@@ -66,10 +69,12 @@ void run() {
 
     // Validate with empty unknowns
     Utilities::ElementLocalIndexing indexing(numberOfUnknowns);
-    logger.assert_always(indexing.getIncludedUnknowns().empty(), "Non empty starting index");
+    INFO("Initial index should be empty");
+    REQUIRE(indexing.getIncludedUnknowns().empty() == true);
     for (const Base::Element* element : mesh.getElementsList()) {
         indexing.reinit(element);
-        logger.assert_always(element == indexing.getElement(), "Element not matching after reinit");
+        INFO("Element should match the reinit");
+        REQUIRE(indexing.getElement() == element);
         indexing.validate();
     }
 
@@ -88,41 +93,52 @@ void run() {
     unknowns[1] = 1;
     unknowns[2] = 2;
     indexing.reinit(unknowns);
-    logger.assert_always(unknowns == indexing.getIncludedUnknowns(), "Not all unknowns are included.");
+    INFO("Included unknowns should match reinit");
+    REQUIRE(indexing.getIncludedUnknowns() == unknowns);
     for (const Base::Element* element : mesh.getElementsList()) {
         indexing.reinit(element);
-        logger.assert_always(indexing.getNumberOfDoFs() ==
-                                 element->getTotalNumberOfBasisFunctions(),
-                             "Incorrect total basis function count");
-        logger.assert_always(indexing.getDoFOffset(0) == 0, "Incorrect offset for DoF 0");
+        INFO("Check total basis function count");
+        REQUIRE(indexing.getNumberOfDoFs() ==
+                element->getTotalNumberOfBasisFunctions());
+        INFO("Offset for first unknown should be zero")
+        REQUIRE(indexing.getDoFOffset(0) == 0);
         std::size_t dofZeroSize = element->getNumberOfBasisFunctions(0);
-        logger.assert_always(indexing.getDoFOffset(1) == dofZeroSize, "Incorrect offset for DoF 1");
-        logger.assert_always(indexing.getNumberOfDoFs(0) == dofZeroSize, "Incorrect DoFSize");
+
+        INFO("Correct number of DoFs for unknown 0");
+        REQUIRE(indexing.getNumberOfDoFs(0) == dofZeroSize);
+
+        INFO("Only the first unknown DoFs are before those of the second one");
+        REQUIRE(indexing.getDoFOffset(1) == dofZeroSize);
         // More can be added if desired
     }
 
-    // Check with partial unknowns
+    // Check with partial unknowns, dropping the first unknown
     unknowns.resize(2);
     unknowns[0] = 1;
     unknowns[1] = 2;
     indexing.reinit(unknowns);
     for (const Base::Element* element : mesh.getElementsList()) {
         indexing.reinit(element);
-        logger.assert_always(indexing.getDoFOffset(1) == 0, "Incorrect offset of DoF1 (partial index)");
+        INFO("First included unknown should have offset 0");
+        REQUIRE(indexing.getDoFOffset(1) == 0);
         std::size_t dof1Size = element->getNumberOfBasisFunctions(1);
-        logger.assert_always(indexing.getNumberOfDoFs(1) == dof1Size, "Incorrect size for DoF1 (partial index)");
-        logger.assert_always(indexing.getDoFOffset(2) == dof1Size, "Incorrect offset for DoF 2 (partial index)");
+        INFO("Correct number of DoFs for first unknown");
+        REQUIRE(indexing.getNumberOfDoFs(1) == dof1Size);
+        INFO("Correct offset of second unknown");
+        REQUIRE(indexing.getDoFOffset(2) == dof1Size);
     }
 
     // Deassociate with an element and check
     indexing.reinit(nullptr);
-    logger.assert_always(indexing.getNumberOfDoFs() == 0, "No element and positive DoFs");
+    INFO("Without element there are no DoFs");
+    REQUIRE(indexing.getNumberOfDoFs() == 0);
 }
 
-}  // namespace hpgem
+int main(int argc, char* argv[]) {
+    // Only pass program name
+    Base::parse_options(1, argv);
 
-int main(int argc, char** argv) {
-    hpgem::Base::parse_options(argc, argv);
-    hpgem::run();
-    return 0;
+    int result = Catch::Session().run(argc, argv);
+
+    return result;
 }
