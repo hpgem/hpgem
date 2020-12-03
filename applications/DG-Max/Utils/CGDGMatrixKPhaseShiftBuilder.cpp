@@ -134,6 +134,7 @@ KPhaseShifts<DIM> CGDGMatrixKPhaseShiftBuilder<DIM>::build() const {
             }
         }
     }
+
     // Now that all boundary nodes and edges have been de-duplicated, add
     // their shifts.
     for (const Base::Node* node : boundaryNodes) {
@@ -148,8 +149,6 @@ template <std::size_t DIM>
 void CGDGMatrixKPhaseShiftBuilder<DIM>::addFacePhaseShifts(
     const Base::Face* face,
     std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const {
-    logger.assert_debug(face->isOwnedByCurrentProcessor(),
-                        "Not owned by current processor");
 
     // Associate the node with an element that owns it
     const Base::Element* owningElement = face->getPtrElementLeft();
@@ -170,8 +169,6 @@ template <std::size_t DIM>
 void CGDGMatrixKPhaseShiftBuilder<DIM>::addEdgePhaseShifts(
     const Base::Edge* edge,
     std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const {
-    logger.assert_debug(edge->isOwnedByCurrentProcessor(),
-                        "Not owned by current processor");
 
     // Associate the node with an element that owns it
     const Base::Element* owningElement = edge->getOwningElement();
@@ -190,8 +187,6 @@ template <std::size_t DIM>
 void CGDGMatrixKPhaseShiftBuilder<DIM>::addNodePhaseShifts(
     const Base::Node* node,
     std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const {
-    logger.assert_debug(node->isOwnedByCurrentProcessor(),
-                        "Not owned by current processor");
 
     // Associate the node with an element that owns it
     const Base::Element* owningElement = node->getOwningElement();
