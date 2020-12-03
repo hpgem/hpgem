@@ -212,6 +212,8 @@ void CGDGMatrixKPhaseShiftBuilder<DIM>::addElementPhaseShift(
         std::iota(rowIndices.begin(), rowIndices.end(), globalProjectorIndex);
         std::iota(colIndices.begin(), colIndices.end(), globalElementIndex);
 
+        checkMatrixSize(matrix, rowIndices.size(), colIndices.size());
+
         out.emplace_back(DGMax::MatrixBlocks(rowIndices, colIndices, matrix),
                          dx);
     }
