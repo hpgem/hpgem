@@ -75,24 +75,8 @@ KPhaseShifts<DIM> CGDGMatrixKPhaseShiftBuilder<DIM>::build() const {
             // This is a periodic boundary face, so all the nodes are also
             // placed on the periodic boundary.
             for (const Base::Node* node : (*it)->getNodesList()) {
-                bool include = false;
-                if (!hermitian_) {
-                    // For the non Hermitian case the node forms the rows and
-                    // should thus be owned.
-                    include = node->isOwnedByCurrentProcessor();
-                } else {
-                    // Include not only if we own the node, but also any of its
-                    // adjacent elements.
-                    for (const Base::Element* element : node->getElements()) {
-                        if (element->isOwnedByCurrentProcessor()) {
-                            include = true;
-                            break;
-                        }
-                    }
-                }
-                if (include) {
-                    boundaryNodes.emplace(node);
-                }
+                // Checking for relevance happens later
+                boundaryNodes.emplace(node);
             }
 
             // Additionally, all the edges are also on the periodic boundary.
@@ -112,24 +96,8 @@ KPhaseShifts<DIM> CGDGMatrixKPhaseShiftBuilder<DIM>::build() const {
                     found2 |= nodeIds[j] == edgeNodeIds[1];
                 }
                 if (found1 && found2) {
-                    const Base::Edge* edge = element->getEdge(i);
-                    // Same as for node, check if it needs to be included.
-                    bool include = false;
-                    if (!hermitian_) {
-                        include = edge->isOwnedByCurrentProcessor();
-                    } else {
-
-                        for (const Base::Element* element1 :
-                             edge->getElements()) {
-                            if (element1->isOwnedByCurrentProcessor()) {
-                                include = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (include) {
-                        boundaryEdges.emplace(element->getEdge(i));
-                    }
+                    // Checking for relevance happens later
+                    boundaryEdges.emplace(element->getEdge(i));
                 }
             }
         }
@@ -170,6 +138,23 @@ void CGDGMatrixKPhaseShiftBuilder<DIM>::addEdgePhaseShifts(
     const Base::Edge* edge,
     std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const {
 
+    // First test if there is something to include (see nodes)
+    bool include = false;
+    if (!hermitian_) {
+        include = edge->isOwnedByCurrentProcessor();
+    } else {
+
+        for (const Base::Element* element1 : edge->getElements()) {
+            if (element1->isOwnedByCurrentProcessor()) {
+                include = true;
+                break;
+            }
+        }
+    }
+    if (!include) {
+        return;
+    }
+
     // Associate the node with an element that owns it
     const Base::Element* owningElement = edge->getOwningElement();
     const Geometry::PointPhysical<DIM> owningCoord =
@@ -187,6 +172,27 @@ template <std::size_t DIM>
 void CGDGMatrixKPhaseShiftBuilder<DIM>::addNodePhaseShifts(
     const Base::Node* node,
     std::vector<DGMax::KPhaseShiftBlock<DIM>>& out) const {
+
+    // Test if there is actually something to include, i.e., do we own any of
+    // the rows that would need to be phase shifted.
+    bool include = false;
+    if (!hermitian_) {
+        // For the non Hermitian case the node forms the rows and
+        // should thus be owned.
+        include = node->isOwnedByCurrentProcessor();
+    } else {
+        // Include not only if we own the node, but also any of its
+        // adjacent elements.
+        for (const Base::Element* element : node->getElements()) {
+            if (element->isOwnedByCurrentProcessor()) {
+                include = true;
+                break;
+            }
+        }
+    }
+    if (!include) {
+        return;
+    }
 
     // Associate the node with an element that owns it
     const Base::Element* owningElement = node->getOwningElement();
