@@ -135,7 +135,10 @@ TEST_CASE("Basic indexing", "[LocalIndexing]") {
 }
 
 int main(int argc, char* argv[]) {
-    // Only pass program name
+
+    // The mesh reader needs an initialized MPI and possibly more. To achieve
+    // this initialize the system using only the program name, as the arguments
+    // to the program are most probably used to direct Catch.
     Base::parse_options(1, argv);
 
     int result = Catch::Session().run(argc, argv);
