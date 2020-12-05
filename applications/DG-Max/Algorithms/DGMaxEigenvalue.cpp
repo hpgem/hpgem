@@ -244,13 +244,30 @@ void sortEigenvalues(std::vector<PetscScalar>& result) {
               });
 }
 
+template <std::size_t DIM>
+struct DGMaxEigenvalueResult : public AbstractEigenvalueResult<DIM> {
+    std::vector<double> getFrequencies() override final {
+        std::vector<double> frequencies(eigenvalues_.size());
+        for (std::size_t i = 0; i < eigenvalues_.size(); ++i) {
+            frequencies[i] =
+                std::sqrt(std::abs(PetscRealPart(eigenvalues_[i])));
+        }
+        return frequencies;
+    }
+
+    const LinearAlgebra::SmallVector<DIM>& getKPoint() const final {
+        return kpoint_;
+    }
+
+    std::vector<PetscScalar> eigenvalues_;
+    LinearAlgebra::SmallVector<DIM> kpoint_;
+};
+
 ///
 
 template <std::size_t DIM>
-std::unique_ptr<AbstractEigenvalueResult<DIM>> DGMaxEigenvalue<DIM>::solve(
-    const EigenvalueProblem<DIM>& input) {
-    const std::size_t numberOfEigenvalues = input.getNumberOfEigenvalues();
-    const KSpacePath<DIM>& kpath = input.getPath();
+void DGMaxEigenvalue<DIM>::solve(AbstractEigenvalueSolverDriver<DIM>& driver) {
+    std::size_t numberOfEigenvalues = driver.getTargetNumberOfEigenvalues();
 
     initializeMatrices();
 
@@ -260,53 +277,25 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DGMaxEigenvalue<DIM>::solve(
     ///////////////////////////////////////
 
     LinearAlgebra::SmallVector<DIM> dk;  // Step in k-space from previous solve
-    std::size_t maxStep = kpath.totalNumberOfSteps();
+    std::size_t expectedNumberOfSteps = driver.getNumberOfKPoints();
 
-    std::vector<std::vector<PetscScalar>> eigenvalues(maxStep);
+    std::vector<PetscScalar> eigenvalues(eigenvalues);
 
-    for (int i = 0; i < maxStep; ++i) {
-        DGMaxLogger(INFO, "Computing eigenvalues for k-point %/%", i + 1,
-                    maxStep);
-        workspace.updateKPoint(kpath.k(i));
+    for (std::size_t solve = 0; driver.stop(); driver.nextKPoint(), ++solve) {
+        DGMaxLogger(INFO, "Computing eigenvalues for k-point %/%", solve + 1,
+                    expectedNumberOfSteps);
+        const LinearAlgebra::SmallVector<DIM>& currentK =
+            driver.getCurrentKPoint();
+        workspace.updateKPoint(currentK);
 
         workspace.solve();
         // Actual result processing
-        eigenvalues[i] = workspace.getEigenvalues();
-        sortEigenvalues(eigenvalues[i]);
+        DGMaxEigenvalueResult<DIM> result;
+        result.kpoint_ = currentK;
+        result.eigenvalues_ = workspace.getEigenvalues();
+        sortEigenvalues(result.eigenvalues_);
+        driver.handleResult(result);
     }
-
-    return std::make_unique<Result>(input, eigenvalues);
-}
-
-template <std::size_t DIM>
-DGMaxEigenvalue<DIM>::Result::Result(
-    EigenvalueProblem<DIM> problem,
-    std::vector<std::vector<PetscScalar>> values)
-    : problem_(problem), eigenvalues_(values) {
-    logger.assert_always(
-        problem.getPath().totalNumberOfSteps() == values.size(),
-        "Eigenvalues are not provided for each k-point.");
-}
-
-template <std::size_t DIM>
-const EigenvalueProblem<DIM>& DGMaxEigenvalue<DIM>::Result::originalProblem()
-    const {
-    return problem_;
-}
-
-template <std::size_t DIM>
-const std::vector<double> DGMaxEigenvalue<DIM>::Result::frequencies(
-    std::size_t point) const {
-    logger.assert_debug(
-        point >= 0 && point < problem_.getPath().totalNumberOfSteps(),
-        "Point number outside of valid range for the path");
-
-    std::vector<double> result;
-    result.reserve(eigenvalues_[point].size());
-    for (PetscScalar eigenvalue : eigenvalues_[point]) {
-        result.emplace_back(std::sqrt(std::abs(eigenvalue.real())));
-    }
-    return result;
 }
 
 // SolverWorkspace //

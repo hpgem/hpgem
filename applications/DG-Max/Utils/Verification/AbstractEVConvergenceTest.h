@@ -41,7 +41,7 @@
 
 #include <memory>
 
-#include "ProblemTypes/AbstractEigenvalueResult.h"
+#include "ProblemTypes/AbstractEigenvalueSolver.h"
 #include "EVTestPoint.h"
 
 namespace DGMax {
@@ -49,6 +49,43 @@ namespace DGMax {
 /// Abstract convergence test for bandstructure eigenvalue solvers.
 template <std::size_t DIM>
 class AbstractEVConvergenceTest {
+
+   protected:
+    // Driver that solves the eigenvalue problem at a single point and stores
+    // the result.
+    class Driver : public AbstractEigenvalueSolverDriver<DIM> {
+       public:
+        Driver(const LinearAlgebra::SmallVector<DIM>& kpoint,
+               std::size_t numberOfEigenvalues)
+            : point_(kpoint),
+              numberOfEigenvalues_(numberOfEigenvalues),
+              nextInvoked_(false),
+              frequencyResult_(0){};
+
+        bool stop() const final { return nextInvoked_; };
+
+        void nextKPoint() final { nextInvoked_ = true; }
+
+        LinearAlgebra::SmallVector<DIM> getCurrentKPoint() const final {
+            return point_;
+        }
+        size_t getNumberOfKPoints() const override { return 1; }
+        size_t getTargetNumberOfEigenvalues() const override {
+            return numberOfEigenvalues_;
+        }
+        void handleResult(AbstractEigenvalueResult<DIM>& result) override {
+            frequencyResult_ = result.getFrequencies();
+        }
+
+        std::vector<double> getResult() { return frequencyResult_; }
+
+       private:
+        LinearAlgebra::SmallVector<DIM> point_;
+        std::size_t numberOfEigenvalues_;
+        bool nextInvoked_;
+        std::vector<double> frequencyResult_;
+    };
+
    public:
     virtual ~AbstractEVConvergenceTest() = default;
 
@@ -67,8 +104,7 @@ class AbstractEVConvergenceTest {
     /// Expected result (null if none)
     virtual const EVConvergenceResult* getExpected() const = 0;
     /// Run the actual algorithm on a single level.
-    virtual std::unique_ptr<AbstractEigenvalueResult<DIM>> runInternal(
-        std::size_t level) = 0;
+    virtual void runInternal(Driver& driver, std::size_t level) = 0;
 
     /// Options for checking the result, by default perfect results
 
@@ -90,14 +126,18 @@ class AbstractEVConvergenceTest {
         return getExpected()->getLevel(level).size();
     }
 
+    virtual const LinearAlgebra::SmallVector<DIM>& getKPoint() const = 0;
+
+    virtual std::size_t getTargetNumberOfEigenvalues() const = 0;
+
    private:
     /// Compare the results with the expected results of a specific level.
     ///
     /// \param level The level in the expected results
-    /// \param result The actual computed result
+    /// \param result The actual computed frequencies
     /// \return  Whether the result is consistent with the expected data.
     bool compareWithExpected(std::size_t level,
-                             const AbstractEigenvalueResult<DIM>& result) const;
+                             const std::vector<double>& frequencies) const;
 };
 
 }  // namespace DGMax

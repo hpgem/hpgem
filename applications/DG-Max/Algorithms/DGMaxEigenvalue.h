@@ -39,8 +39,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef HPGEM_APP_DGMAXEIGENVALUE_H
 #define HPGEM_APP_DGMAXEIGENVALUE_H
 
-#include "../ProblemTypes/EigenvalueProblem.h"
-#include "../ProblemTypes/AbstractEigenvalueResult.h"
 #include "ProblemTypes/AbstractEigenvalueSolver.h"
 
 #include "DGMaxDiscretization.h"
@@ -148,23 +146,10 @@ class DGMaxEigenvalue : public AbstractEigenvalueSolver<DIM>,
                         public DGMaxEigenvalueBase {
 
    public:
-    class Result : public AbstractEigenvalueResult<DIM> {
-       public:
-        Result(EigenvalueProblem<DIM> problem,
-               std::vector<std::vector<PetscScalar>> values);
-        const EigenvalueProblem<DIM>& originalProblem() const final;
-        const std::vector<double> frequencies(std::size_t point) const final;
-
-       private:
-        const EigenvalueProblem<DIM> problem_;
-        const std::vector<std::vector<PetscScalar>> eigenvalues_;
-    };
-
     DGMaxEigenvalue(Base::MeshManipulator<DIM>& mesh, std::size_t order,
                     SolverConfig config);
 
-    std::unique_ptr<AbstractEigenvalueResult<DIM>> solve(
-        const EigenvalueProblem<DIM>& input) override;
+    void solve(AbstractEigenvalueSolverDriver<DIM>& driver) override;
 
    private:
     void initializeMatrices();

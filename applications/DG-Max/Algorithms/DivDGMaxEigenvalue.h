@@ -46,31 +46,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Utilities/GlobalIndexing.h"
 
 #include "DivDGMaxDiscretization.h"
-#include "ProblemTypes/AbstractEigenvalueResult.h"
 #include "ProblemTypes/AbstractEigenvalueSolver.h"
-#include "ProblemTypes/EigenvalueProblem.h"
 
 using namespace hpgem;
 
 template <std::size_t DIM>
 class DivDGMaxEigenvalue : public AbstractEigenvalueSolver<DIM> {
    public:
-    class Result : public AbstractEigenvalueResult<DIM> {
-       public:
-        Result(EigenvalueProblem<DIM> problem,
-               std::vector<std::vector<PetscScalar>> eigenvalues);
-        const EigenvalueProblem<DIM>& originalProblem() const final;
-        const std::vector<double> frequencies(std::size_t point) const final;
-
-       private:
-        const EigenvalueProblem<DIM> problem_;
-        const std::vector<std::vector<PetscScalar>> eigenvalues_;
-    };
-
     DivDGMaxEigenvalue(Base::MeshManipulator<DIM>& mesh, std::size_t order,
                        typename DivDGMaxDiscretization<DIM>::Stab stab);
-    std::unique_ptr<AbstractEigenvalueResult<DIM>> solve(
-        const EigenvalueProblem<DIM>& input) override;
+    void solve(AbstractEigenvalueSolverDriver<DIM>& driver) override;
 
    private:
     void extractEigenvalues(const EPS& solver,
