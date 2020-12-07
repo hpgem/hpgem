@@ -47,9 +47,33 @@
 
 using namespace hpgem;
 
+void validate(const Utilities::ElementLocalIndexing& indexing,
+              std::size_t numberOfUnknowns) {
+    indexing.validateInternalState();
+
+    // Check the values for all the included and not included unknowns
+    std::vector<bool> included(numberOfUnknowns, false);
+    for (auto& unknown : indexing.getIncludedUnknowns()) {
+        included[unknown] = true;
+    }
+    std::size_t totalNumberOfDoFs = indexing.getNumberOfDoFs();
+    for (std::size_t i = 0; i < numberOfUnknowns; ++i) {
+        if (included[i]) {
+            INFO("Unknown DoF index does not go over max")
+            CHECK(indexing.getDoFOffset(i) + indexing.getNumberOfDoFs(i) <=
+                  totalNumberOfDoFs);
+        } else {
+            INFO("Non included DoF has size 0")
+            CHECK(indexing.getNumberOfDoFs(i) == 0);
+            INFO("Non included DoF has index -1")
+            CHECK(indexing.getDoFOffset(i) == -1);
+        }
+    }
+}
+
 TEST_CASE("Basic indexing", "[LocalIndexing]") {
     // Create a simple 1D mesh to work with
-    std::size_t numberOfUnknowns = 3;
+    const std::size_t numberOfUnknowns = 3;
     Base::ConfigurationData config(numberOfUnknowns);
     Base::MeshManipulator<1> mesh(&config);
 
@@ -75,16 +99,16 @@ TEST_CASE("Basic indexing", "[LocalIndexing]") {
         indexing.reinit(element);
         INFO("Element should match the reinit");
         REQUIRE(indexing.getElement() == element);
-        indexing.validate();
+        validate(indexing, numberOfUnknowns);
     }
 
     // Switch unknowns and revalidate
     std::vector<std::size_t> unknowns(1, 1);
     indexing.reinit(unknowns);
-    indexing.validate();
+    indexing.validateInternalState();
     for (const Base::Element* element : mesh.getElementsList()) {
         indexing.reinit(element);
-        indexing.validate();
+        validate(indexing, numberOfUnknowns);
     }
 
     // Verify with local data

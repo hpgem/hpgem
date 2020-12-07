@@ -95,7 +95,7 @@ void ElementLocalIndexing::reinit(const Base::Element *element) {
     }
 }
 
-void ElementLocalIndexing::validate() const {
+void ElementLocalIndexing::validateInternalState() const {
     logger.assert_always(offsets_.size() == numberOfUnknowns_,
                          "Incorrectly sized offsets table");
     logger.assert_always(sizes_.size() == numberOfUnknowns_,
@@ -103,25 +103,6 @@ void ElementLocalIndexing::validate() const {
     logger.assert_always(
         std::is_sorted(includedUnknowns_.begin(), includedUnknowns_.end()),
         "Unsorted included unknowns");
-    std::vector<bool> included(numberOfUnknowns_, false);
-    for (const auto &unknown : includedUnknowns_) included[unknown] = true;
-
-    std::size_t totalNumberOfDoFs = getNumberOfDoFs();
-    for (std::size_t i = 0; i < numberOfUnknowns_; ++i) {
-        if (included[i]) {
-            logger.assert_always(
-                offsets_[i] + sizes_[i] <= totalNumberOfDoFs,
-                "Too large offset/size for included dof %: (%,%)", i,
-                offsets_[i], sizes_[i]);
-        } else {
-            logger.assert_always(offsets_[i] == -1,
-                                 "Incorrect offset for non included unknown: %",
-                                 offsets_[i]);
-            logger.assert_always(sizes_[i] == 0,
-                                 "Incorrect size for non included unknown: %",
-                                 sizes_[i]);
-        }
-    }
 }
 
 }  // namespace Utilities

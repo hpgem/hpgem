@@ -119,7 +119,7 @@ class ElementLocalIndexing {
 
     /// Check the invariants of the datastructure to see if the internal
     /// constraints are satisfied. To be used for testing and debugging.
-    void validate() const;
+    void validateInternalState() const;
 
     /// Constructor alternative for an index where all unknowns are included.
     /// \param numberOfUnknowns The total number of unknowns
