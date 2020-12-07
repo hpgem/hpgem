@@ -61,8 +61,10 @@ namespace Utilities {
  */
 class ElementLocalIndexing {
    public:
+    ElementLocalIndexing();
+
     /// Create a ElementLocalIndexing without any includedUnknowns.
-    /// \param numberOfUnknowns The largest unknown that can be used.
+    /// \param numberOfUnknowns The largest unknown
     explicit ElementLocalIndexing(std::size_t numberOfUnknowns);
     /// Update the included unknowns. The unknowns should be unique and less
     /// than the maximum.
@@ -83,21 +85,24 @@ class ElementLocalIndexing {
         reinit(element);
     }
 
-    /// Get the Offset in an ElementMatrix/Vector for the unknown. Will be an
+    /// Get the Offset in an ElementMatrix/Vector for the unknown.
+    ///
+    /// Will be an
     /// invalid value for non included unknowns or when no element is available.
     std::size_t getDoFOffset(std::size_t unknown) const {
-        logger.assert_debug(unknown < numberOfUnknowns_,
-                            "Unknown % larger than maximum %", unknown,
-                            numberOfUnknowns_);
+        if (unknown >= offsets_.size()) {
+            return -1;
+        }
         return offsets_[unknown];
     }
     /// Get the number DoFs (rows/columns) for the unknown in an element
-    /// matrix/vector. Will be zero for non included unknowns or when no element
-    /// is available.
+    /// matrix/vector. Will be zero for non included unknowns or when no
+    /// element is available.
     std::size_t getNumberOfDoFs(std::size_t unknown) const {
-        logger.assert_debug(unknown < numberOfUnknowns_,
-                            "Unknown % larger than maximum %", unknown,
-                            numberOfUnknowns_);
+
+        if (unknown >= sizes_.size()) {
+            return 0;
+        }
         return sizes_[unknown];
     }
     /// Total number of DoFs of the included unknowns and thus rows/columns of
@@ -136,9 +141,6 @@ class ElementLocalIndexing {
    private:
     /// The current element
     const Base::Element* element_;
-
-    /// The maximum number of unknowns.
-    std::size_t numberOfUnknowns_;
 
     /// Vector of size numberOfUnknowns_ with the offsets of each unknown. Will
     /// be -1 if the unknown is not included.

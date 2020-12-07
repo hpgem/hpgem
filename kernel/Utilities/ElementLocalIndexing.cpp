@@ -42,11 +42,12 @@
 namespace hpgem {
 namespace Utilities {
 
+ElementLocalIndexing::ElementLocalIndexing() : ElementLocalIndexing(0) {}
+
 ElementLocalIndexing::ElementLocalIndexing(std::size_t numberOfUnknowns)
     : element_(nullptr),
-      numberOfUnknowns_(numberOfUnknowns),
-      offsets_(numberOfUnknowns_, -1),
-      sizes_(numberOfUnknowns_, 0),
+      offsets_(numberOfUnknowns, -1),
+      sizes_(numberOfUnknowns, 0),
       includedUnknowns_(0) {}
 
 void ElementLocalIndexing::reinit(
@@ -59,14 +60,14 @@ void ElementLocalIndexing::reinit(
         logger.assert_debug(includedUnknowns_[i] != includedUnknowns_[i + 1],
                             "Duplicate unknown");
     }
-    // Check maximum
+    // Check maximum and extend if necessary
     if (!includedUnknowns_.empty()) {
         std::size_t maxUnknown =
             includedUnknowns_[includedUnknowns_.size() - 1];
-        logger.assert_debug(
-            maxUnknown < numberOfUnknowns_,
-            "Largest unknown % is larger than maximum allowable unknown %",
-            maxUnknown, numberOfUnknowns_);
+        if (maxUnknown >= sizes_.size()) {
+            sizes_.resize(maxUnknown + 1, 0);
+            offsets_.resize(maxUnknown + 1, -1);
+        }
     }
 #endif
     // Update the content
@@ -96,10 +97,8 @@ void ElementLocalIndexing::reinit(const Base::Element *element) {
 }
 
 void ElementLocalIndexing::validateInternalState() const {
-    logger.assert_always(offsets_.size() == numberOfUnknowns_,
-                         "Incorrectly sized offsets table");
-    logger.assert_always(sizes_.size() == numberOfUnknowns_,
-                         "Incorrectly sized sizes table");
+    logger.assert_always(offsets_.size() == sizes_.size(),
+                         "Size and offset tables of different length.");
     logger.assert_always(
         std::is_sorted(includedUnknowns_.begin(), includedUnknowns_.end()),
         "Unsorted included unknowns");
