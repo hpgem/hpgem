@@ -658,7 +658,7 @@ void SolverWorkspace<DIM>::solve(std::size_t targetNumberOfEigenvalues) {
     // Final Options //
     ///////////////////
 
-    // Set the actual target
+    // Set the actual target number of eigenvalues for this solve
     error = EPSSetDimensions(solver_, targetNumberOfEigenvalues, PETSC_DECIDE,
                              PETSC_DECIDE);
     CHKERRABORT(PETSC_COMM_WORLD, error);
