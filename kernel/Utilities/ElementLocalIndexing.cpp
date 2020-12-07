@@ -45,7 +45,6 @@ namespace Utilities {
 ElementLocalIndexing::ElementLocalIndexing(std::size_t numberOfUnknowns)
     : element_(nullptr),
       numberOfUnknowns_(numberOfUnknowns),
-      totalNumberOfDofs_(0),
       offsets_(numberOfUnknowns_, -1),
       sizes_(numberOfUnknowns_, 0),
       includedUnknowns_(0) {}
@@ -85,14 +84,13 @@ void ElementLocalIndexing::reinit(const Base::Element *element) {
     if (element == nullptr) {
         std::fill(offsets_.begin(), offsets_.end(), -1);
         std::fill(sizes_.begin(), sizes_.end(), 0);
-        totalNumberOfDofs_ = 0.0;
     } else {
-        totalNumberOfDofs_ = 0;
+        std::size_t totalNumberOfDoFs = 0;
         for (std::size_t unknown : includedUnknowns_) {
             std::size_t numDoFs = element->getNumberOfBasisFunctions(unknown);
-            offsets_[unknown] = totalNumberOfDofs_;
+            offsets_[unknown] = totalNumberOfDoFs;
             sizes_[unknown] = numDoFs;
-            totalNumberOfDofs_ += numDoFs;
+            totalNumberOfDoFs += numDoFs;
         }
     }
 }
@@ -107,10 +105,12 @@ void ElementLocalIndexing::validate() const {
         "Unsorted included unknowns");
     std::vector<bool> included(numberOfUnknowns_, false);
     for (const auto &unknown : includedUnknowns_) included[unknown] = true;
+
+    std::size_t totalNumberOfDoFs = getNumberOfDoFs();
     for (std::size_t i = 0; i < numberOfUnknowns_; ++i) {
         if (included[i]) {
             logger.assert_always(
-                offsets_[i] + sizes_[i] <= totalNumberOfDofs_,
+                offsets_[i] + sizes_[i] <= totalNumberOfDoFs,
                 "Too large offset/size for included dof %: (%,%)", i,
                 offsets_[i], sizes_[i]);
         } else {

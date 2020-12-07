@@ -102,7 +102,13 @@ class ElementLocalIndexing {
     }
     /// Total number of DoFs of the included unknowns and thus rows/columns of
     /// an element matrix or vector. Without element this will be zero.
-    std::size_t getNumberOfDoFs() const { return totalNumberOfDofs_; }
+    std::size_t getNumberOfDoFs() const {
+        std::size_t totalNumberOfDoFs = 0;
+        for (std::size_t includedUnknown : includedUnknowns_) {
+            totalNumberOfDoFs += sizes_[includedUnknown];
+        }
+        return totalNumberOfDoFs;
+    }
 
     /// Get the current element.
     const Base::Element* getElement() const { return element_; }
@@ -134,8 +140,6 @@ class ElementLocalIndexing {
     /// The maximum number of unknowns.
     std::size_t numberOfUnknowns_;
 
-    /// The total number of DoFs of the included unknowns.
-    std::size_t totalNumberOfDofs_;
     /// Vector of size numberOfUnknowns_ with the offsets of each unknown. Will
     /// be -1 if the unknown is not included.
     std::vector<std::size_t> offsets_;
