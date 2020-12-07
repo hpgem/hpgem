@@ -47,13 +47,12 @@
 namespace hpgem {
 namespace Utilities {
 
-/// A safe 2D vector.
+/// A std::vector with 2 indices forming a rectangular table.
 ///
-/// \tparam type The entry type
-template <typename EntryType>
+/// \tparam type The type of the entries
+template <typename type>
 class Table2D {
    public:
-    using type = bool;
     Table2D() : rows_(0), columns_(0){};
 
     Table2D(std::size_t rows, std::size_t columns)
@@ -91,7 +90,8 @@ class Table2D {
     /// \param n The row number
     /// \param m The column number
     /// \return The value
-    std::vector<type>::reference operator()(std::size_t n, std::size_t m) {
+    typename std::vector<type>::reference operator()(std::size_t n,
+                                                     std::size_t m) {
         logger.assert_debug(n < rows_,
                             "Requested row % for a table with only % rows", n,
                             rows_);
@@ -99,10 +99,11 @@ class Table2D {
             m < columns_, "Requested column % for a table with only % columns",
             m, columns_);
 
-        return entries_[n + m*rows_];
+        return entries_[n + m * rows_];
     }
 
-    std::vector<type>::const_reference operator()(std::size_t n, std::size_t m) const {
+    typename std::vector<type>::const_reference operator()(
+        std::size_t n, std::size_t m) const {
         logger.assert_debug(n < rows_,
                             "Requested row % for a table with only % rows", n,
                             rows_);
