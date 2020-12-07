@@ -40,6 +40,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <vector>
 #include "LinearAlgebra/SmallVector.h"
+#include "Output/VTKSpecificTimeWriter.h"
+
+#include "DGMaxLogger.h"
 
 using namespace hpgem;
 
@@ -63,6 +66,19 @@ class AbstractEigenvalueResult {
      * @return Wavevector point of this result
      */
     virtual const LinearAlgebra::SmallVector<DIM>& getKPoint() const = 0;
+
+    /**
+     * Write the field (or fields) of a specific eigenvalue (if supported).
+     *
+     * When not supported should remain as is, printing a warning.
+     *
+     * @param eigenvalue The eigenvalue index
+     * @param writer The writer to use for the output.
+     */
+    virtual void writeField(std::size_t eigenvalue,
+                            Output::VTKSpecificTimeWriter<DIM>& writer) {
+        DGMaxLogger(WARN, "Not supported for this result implementation.");
+    };
 };
 
 #endif  // HPGEM_APP_ABSTRACTEIGENVALUERESULT_H
