@@ -104,12 +104,12 @@ class FaceLocalIndexing {
     }
 
     /// \return The unknowns that are included.
-    const std::vector<std::size_t>& getIncludedUnknowns() {
+    const std::vector<std::size_t>& getIncludedUnknowns() const {
         return left_.getIncludedUnknowns();
     }
 
     /// \return The face for which this indexing is currently.
-    const hpgem::Base::Face* getFace() { return face_; }
+    const hpgem::Base::Face* getFace() const { return face_; }
 
    private:
     /// The current face
