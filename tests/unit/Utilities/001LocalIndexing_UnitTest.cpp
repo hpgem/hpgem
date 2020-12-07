@@ -63,10 +63,11 @@ void validate(const Utilities::ElementLocalIndexing& indexing,
             CHECK(indexing.getDoFOffset(i) + indexing.getNumberOfDoFs(i) <=
                   totalNumberOfDoFs);
         } else {
-            INFO("Non included DoF has size 0")
+            INFO("Non included unknown has size 0")
             CHECK(indexing.getNumberOfDoFs(i) == 0);
-            INFO("Non included DoF has index -1")
-            CHECK(indexing.getDoFOffset(i) == -1);
+            INFO("Non included unknown has correct offset")
+            CHECK(indexing.getDoFOffset(i) ==
+                  Utilities::ElementLocalIndexing::UNKNOWN_NOT_INCLUDED);
         }
     }
 }

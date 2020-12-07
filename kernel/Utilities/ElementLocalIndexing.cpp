@@ -69,7 +69,7 @@ void ElementLocalIndexing::reinit(
     if (element_ != nullptr) {
         // Clear the storage to the default values as reinit does only overwrite
         // the included unknowns.
-        std::fill(offsets_.begin(), offsets_.end(), -1);
+        std::fill(offsets_.begin(), offsets_.end(), UNKNOWN_NOT_INCLUDED);
         std::fill(sizes_.begin(), sizes_.end(), 0);
         reinit(element_);
     }
@@ -78,7 +78,7 @@ void ElementLocalIndexing::reinit(
 void ElementLocalIndexing::reinit(const Base::Element *element) {
     element_ = element;
     if (element == nullptr) {
-        std::fill(offsets_.begin(), offsets_.end(), -1);
+        std::fill(offsets_.begin(), offsets_.end(), UNKNOWN_NOT_INCLUDED);
         std::fill(sizes_.begin(), sizes_.end(), 0);
     } else {
         std::size_t totalNumberOfDoFs = 0;

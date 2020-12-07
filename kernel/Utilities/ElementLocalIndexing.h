@@ -61,6 +61,8 @@ namespace Utilities {
  */
 class ElementLocalIndexing {
    public:
+    static const std::size_t UNKNOWN_NOT_INCLUDED =
+        std::numeric_limits<std::size_t>::max();
 
     ElementLocalIndexing();
     /// Update the included unknowns. The unknowns should be unique and less
@@ -84,11 +86,11 @@ class ElementLocalIndexing {
 
     /// Get the Offset in an ElementMatrix/Vector for the unknown.
     ///
-    /// Will be an
-    /// invalid value for non included unknowns or when no element is available.
+    /// Will be UNKNOWN_NOT_INCLUDED for non included unknowns or when no
+    /// element is available.
     std::size_t getDoFOffset(std::size_t unknown) const {
         if (unknown >= offsets_.size()) {
-            return -1;
+            return UNKNOWN_NOT_INCLUDED;
         }
         return offsets_[unknown];
     }

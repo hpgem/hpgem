@@ -65,7 +65,9 @@ class FaceLocalIndexing {
     void reinit(const hpgem::Base::Face* face);
 
     /// Get the offset of the DoFs for a particular unknown at one side of the
-    /// face.
+    /// face. Will be ElementLocalIndexing::UNKNOWN_NOT_INCLUDED for a non
+    /// included unknown.
+    ///
     /// \param unknown The unknown
     /// \param side The side of the face
     /// \return The offset of the first DoF for that unknown at that side.
@@ -77,7 +79,9 @@ class FaceLocalIndexing {
             hpgem::logger.assert_debug(
                 right_.getElement() != nullptr,
                 "Asking for the right side of an internal face");
-            return left_.getNumberOfDoFs() + right_.getNumberOfDoFs(unknown);
+            // Also works for non included unknowns, as
+            // left_.getNumberOfDoFs() == 0 for such an unknown
+            return left_.getNumberOfDoFs() + right_.getDoFOffset(unknown);
         }
     }
 
