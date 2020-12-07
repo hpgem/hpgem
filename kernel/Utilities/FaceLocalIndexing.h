@@ -53,7 +53,7 @@ namespace Utilities {
  *
  * For face matrices and vectors the rows and columns correspond to DoFs of a
  * particular (sub)set of unknowns. These are the DoFs which have support on the
- * adjacent element(s). This calss provides easy access to information about the
+ * adjacent element(s). This class provides easy access to information about the
  * local ordering of these DoFs in matrices and vectors.
  */
 class FaceLocalIndexing {
