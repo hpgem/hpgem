@@ -42,6 +42,9 @@
 namespace hpgem {
 namespace Utilities {
 
+const std::size_t ElementLocalIndexing::UNKNOWN_NOT_INCLUDED =
+    std::numeric_limits<std::size_t>::max();
+
 ElementLocalIndexing::ElementLocalIndexing()
     : element_(nullptr), offsets_(), sizes_(), includedUnknowns_(0) {}
 

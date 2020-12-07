@@ -40,6 +40,7 @@
 
 #include <numeric>
 #include <vector>
+#include <limits>
 #include "Logger.h"
 #include "Base/Side.h"
 
@@ -61,8 +62,7 @@ namespace Utilities {
  */
 class ElementLocalIndexing {
    public:
-    static const std::size_t UNKNOWN_NOT_INCLUDED =
-        std::numeric_limits<std::size_t>::max();
+    static const std::size_t UNKNOWN_NOT_INCLUDED;
 
     ElementLocalIndexing();
     /// Update the included unknowns. The unknowns should be unique and less
