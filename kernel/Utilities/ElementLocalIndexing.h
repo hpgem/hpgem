@@ -61,11 +61,8 @@ namespace Utilities {
  */
 class ElementLocalIndexing {
    public:
-    ElementLocalIndexing();
 
-    /// Create a ElementLocalIndexing without any includedUnknowns.
-    /// \param numberOfUnknowns The largest unknown
-    explicit ElementLocalIndexing(std::size_t numberOfUnknowns);
+    ElementLocalIndexing();
     /// Update the included unknowns. The unknowns should be unique and less
     /// than the maximum.
     ///
@@ -133,7 +130,7 @@ class ElementLocalIndexing {
         std::size_t numberOfUnknowns) {
         std::vector<std::size_t> unknowns(numberOfUnknowns);
         std::iota(unknowns.begin(), unknowns.end(), 0);
-        ElementLocalIndexing result(numberOfUnknowns);
+        ElementLocalIndexing result;
         result.reinit(unknowns);
         return result;
     }

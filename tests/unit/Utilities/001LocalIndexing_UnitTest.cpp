@@ -92,7 +92,7 @@ TEST_CASE("Basic indexing", "[LocalIndexing]") {
     mesh.useDefaultDGBasisFunctions(0, 2);
 
     // Validate with empty unknowns
-    Utilities::ElementLocalIndexing indexing(numberOfUnknowns);
+    Utilities::ElementLocalIndexing indexing;
     INFO("Initial index should be empty");
     REQUIRE(indexing.getIncludedUnknowns().empty() == true);
     for (const Base::Element* element : mesh.getElementsList()) {

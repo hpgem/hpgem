@@ -42,13 +42,8 @@
 namespace hpgem {
 namespace Utilities {
 
-ElementLocalIndexing::ElementLocalIndexing() : ElementLocalIndexing(0) {}
-
-ElementLocalIndexing::ElementLocalIndexing(std::size_t numberOfUnknowns)
-    : element_(nullptr),
-      offsets_(numberOfUnknowns, -1),
-      sizes_(numberOfUnknowns, 0),
-      includedUnknowns_(0) {}
+ElementLocalIndexing::ElementLocalIndexing()
+    : element_(nullptr), offsets_(), sizes_(), includedUnknowns_(0) {}
 
 void ElementLocalIndexing::reinit(
     const std::vector<std::size_t> &includedUnknowns) {

@@ -58,7 +58,7 @@ namespace Utilities {
  */
 class FaceLocalIndexing {
    public:
-    explicit FaceLocalIndexing(std::size_t numberOfUnknowns);
+    FaceLocalIndexing();
     void reinit(const std::vector<std::size_t>& includedUnknowns);
     /// Reinit the values for a different face
     /// \param element The new element (may be nullptr)

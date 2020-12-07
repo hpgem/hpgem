@@ -42,9 +42,8 @@
 
 namespace hpgem {
 namespace Utilities {
-// FaceLocalIndexing
-FaceLocalIndexing::FaceLocalIndexing(std::size_t numberOfUnknowns)
-    : face_(nullptr), left_(numberOfUnknowns), right_(numberOfUnknowns) {}
+
+FaceLocalIndexing::FaceLocalIndexing() : face_(nullptr), left_(), right_() {}
 
 void FaceLocalIndexing::reinit(
     const std::vector<std::size_t> &includedUnknowns) {
