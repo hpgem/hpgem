@@ -99,9 +99,16 @@ struct ProjectorWorkspace;
 template <std::size_t DIM>
 class SolverWorkspace {
    public:
+    /**
+     * Initialize the workspace
+     * @param config  The configuration of the method
+     * @param mesh The mesh to solve on
+     * @param targetNumberOfEigenvalues Estimate of the target number of
+     * eigenvalues (to allocate space).
+     */
     SolverWorkspace(DGMaxEigenvalueBase::SolverConfig config,
                     Base::MeshManipulatorBase* mesh,
-                    std::size_t numberOfEigenvalues);
+                    std::size_t targetNumberOfEigenvalues);
 
     ~SolverWorkspace();
 
@@ -111,7 +118,7 @@ class SolverWorkspace {
     /// Extract the eigenvectors after solving.
     void extractEigenVectors();
 
-    void solve();
+    void solve(std::size_t targetNumberOfEigenvalues);
 
     const std::vector<PetscScalar>& getEigenvalues() const {
         return eigenvalues_;
@@ -150,7 +157,6 @@ class SolverWorkspace {
     PetscInt convergedEigenValues_;
     Vec* eigenVectors_;
     PetscInt numberOfEigenVectors_;
-    PetscInt targetNumberOfEigenvalues_;
 
     // Phase offset shifts
     std::unique_ptr<ShiftWorkspace<DIM>> shifts;
@@ -168,7 +174,7 @@ class SolverWorkspace {
     /// Initialize the Shell matrix
     void initStiffnessShellMatrix();
     void initSolver();
-    void initEigenvectorStorage();
+    void initEigenvectorStorage(std::size_t targetNumberOfEigenvalues);
 
     void shellMultiply(Vec in, Vec out);
     static PetscErrorCode staticShellMultiply(Mat mat, Vec in, Vec out);
@@ -279,16 +285,16 @@ void DGMaxEigenvalue<DIM>::solve(AbstractEigenvalueSolverDriver<DIM>& driver) {
     LinearAlgebra::SmallVector<DIM> dk;  // Step in k-space from previous solve
     std::size_t expectedNumberOfSteps = driver.getNumberOfKPoints();
 
-    std::vector<PetscScalar> eigenvalues(eigenvalues);
+    std::vector<PetscScalar> eigenvalues(numberOfEigenvalues);
 
-    for (std::size_t solve = 0; driver.stop(); driver.nextKPoint(), ++solve) {
+    for (std::size_t solve = 0; !driver.stop(); driver.nextKPoint(), ++solve) {
         DGMaxLogger(INFO, "Computing eigenvalues for k-point %/%", solve + 1,
                     expectedNumberOfSteps);
         const LinearAlgebra::SmallVector<DIM>& currentK =
             driver.getCurrentKPoint();
         workspace.updateKPoint(currentK);
 
-        workspace.solve();
+        workspace.solve(driver.getTargetNumberOfEigenvalues());
         // Actual result processing
         DGMaxEigenvalueResult<DIM> result;
         result.kpoint_ = currentK;
@@ -304,7 +310,7 @@ void DGMaxEigenvalue<DIM>::solve(AbstractEigenvalueSolverDriver<DIM>& driver) {
 template <std::size_t DIM>
 SolverWorkspace<DIM>::SolverWorkspace(DGMaxEigenvalueBase::SolverConfig config,
                                       Base::MeshManipulatorBase* mesh,
-                                      std::size_t numberOfEigenvalues)
+                                      std::size_t targetNumberOfEigenvalues)
     : config_(config),
       mesh_(mesh),
       fieldIndex_(nullptr),  // Initialized in initMatrices()
@@ -314,7 +320,6 @@ SolverWorkspace<DIM>::SolverWorkspace(DGMaxEigenvalueBase::SolverConfig config,
       massMatrix_(fieldIndex_, DGMaxDiscretizationBase::MASS_MATRIX_ID, -1),
       tempFieldVector_(fieldIndex_, -1, -1),
       targetFrequency_(1),
-      targetNumberOfEigenvalues_(numberOfEigenvalues),
       numberOfEigenVectors_(0) {
 
     initMatrices();
@@ -328,7 +333,7 @@ SolverWorkspace<DIM>::SolverWorkspace(DGMaxEigenvalueBase::SolverConfig config,
         projector = std::make_unique<ProjectorWorkspace<DIM>>(*this);
     }
     initSolver();
-    initEigenvectorStorage();
+    initEigenvectorStorage(targetNumberOfEigenvalues);
     initStiffnessMatrixShifts();
     DGMaxLogger(INFO, "Solver workspace init completed");
 }
@@ -473,10 +478,6 @@ void SolverWorkspace<DIM>::initSolver() {
     err = EPSSetTarget(solver_, targetFrequency_ * targetFrequency_);
     CHKERRABORT(PETSC_COMM_WORLD, err);
 
-    err = EPSSetDimensions(solver_, targetNumberOfEigenvalues_, PETSC_DEFAULT,
-                           PETSC_DEFAULT);
-    CHKERRABORT(PETSC_COMM_WORLD, err);
-
     // So far we have configured the the parameters of the eigenvalue solver in
     // code. This overrides these settings with the values that are in SLEPc's
     // options database (if there are any). This can be used for commandline
@@ -488,13 +489,14 @@ void SolverWorkspace<DIM>::initSolver() {
 }
 
 template <std::size_t DIM>
-void SolverWorkspace<DIM>::initEigenvectorStorage() {
+void SolverWorkspace<DIM>::initEigenvectorStorage(
+    std::size_t targetNumberOfEigenvalues) {
     convergedEigenValues_ = 0;
     // Some extra space for if more eigenvalues converge to prevent reallocation
     PetscInt MINIMAL_EXTRA_SPACE = 10;
     numberOfEigenVectors_ =
-        std::max(2 * targetNumberOfEigenvalues_,
-                 targetNumberOfEigenvalues_ + MINIMAL_EXTRA_SPACE);
+        std::max(2 * targetNumberOfEigenvalues,
+                 targetNumberOfEigenvalues + MINIMAL_EXTRA_SPACE);
     PetscErrorCode error = VecDuplicateVecs(
         tempFieldVector_, numberOfEigenVectors_, &eigenVectors_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
@@ -615,7 +617,7 @@ void SolverWorkspace<DIM>::updateKPoint(
 }
 
 template <std::size_t DIM>
-void SolverWorkspace<DIM>::solve() {
+void SolverWorkspace<DIM>::solve(std::size_t targetNumberOfEigenvalues) {
     PetscInt usableInitialVectors;
     PetscErrorCode error;
 
@@ -651,6 +653,18 @@ void SolverWorkspace<DIM>::solve() {
 
     // Use solution of previous time as starting point for the next one.
     error = EPSSetInitialSpace(solver_, usableInitialVectors, eigenVectors_);
+    CHKERRABORT(PETSC_COMM_WORLD, error);
+
+    // Final Options //
+    ///////////////////
+
+    // Set the actual target
+    error = EPSSetDimensions(solver_, targetNumberOfEigenvalues, PETSC_DECIDE,
+                             PETSC_DECIDE);
+    CHKERRABORT(PETSC_COMM_WORLD, error);
+
+    // Final overrides from the command line just before solving.
+    error = EPSSetFromOptions(solver_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
     // Actual Solve //
