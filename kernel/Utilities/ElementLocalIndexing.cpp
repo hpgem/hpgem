@@ -65,7 +65,7 @@ void ElementLocalIndexing::reinit(
             includedUnknowns_[includedUnknowns_.size() - 1];
         if (maxUnknown >= sizes_.size()) {
             sizes_.resize(maxUnknown + 1, 0);
-            offsets_.resize(maxUnknown + 1, -1);
+            offsets_.resize(maxUnknown + 1, UNKNOWN_NOT_INCLUDED);
         }
     }
     // Update the content
