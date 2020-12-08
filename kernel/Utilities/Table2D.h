@@ -115,7 +115,8 @@ class Table2D {
     }
 
     /// Linear index
-    const type& operator[](std::size_t i) const {
+    typename std::vector<type>::const_reference operator[](
+        std::size_t i) const {
         logger.assert_debug(i < rows_ * columns_, "Linear index out of range.");
         const type& entry = entries_[i];
         return entry;
