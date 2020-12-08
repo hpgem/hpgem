@@ -307,10 +307,16 @@ class MaxwellTest : public Base::HpgemAPILinearSteadyState<3> {
         // it is declared.
         b.assemble();
 
-        // Make the Krylov supspace method
+        // Make a solver, by default solve using a direct method. This to
+        // prevent spurious errors from the solver.
         KSP ksp;
-        PC preconditioner;
         KSPCreate(PETSC_COMM_WORLD, &ksp);
+
+        KSPSetType(ksp, KSPPREONLY);
+        PC pc;
+        KSPGetPC(ksp, &pc);
+        PCSetType(pc, PCLU);
+
         KSPSetTolerances(ksp, 1e-12, PETSC_DEFAULT, PETSC_DEFAULT,
                          PETSC_DEFAULT);
         // Tell ksp that it will solve the system Ax = b.
