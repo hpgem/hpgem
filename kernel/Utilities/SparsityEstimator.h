@@ -48,7 +48,6 @@ class SparsityEstimator {
                                  const Table2D<bool>& faceCoupling) const;
 
    private:
-
     /// The indexing for the basis functions on the rows of the matrix
     const GlobalIndexing& rowIndexing_;
     /// The indexing for the basis functions on the columns of the matrix
