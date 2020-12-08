@@ -138,6 +138,10 @@ class ElementLocalIndexing {
     }
 
    private:
+    /// Clear the state of the vectors relating to the specific unknowns (i.e.
+    /// offsets_ and sizes_)
+    void clearUnknownVectors();
+
     /// The current element
     const Base::Element* element_;
 

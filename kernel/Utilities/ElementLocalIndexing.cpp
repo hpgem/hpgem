@@ -58,6 +58,7 @@ void ElementLocalIndexing::reinit(
         logger.assert_debug(includedUnknowns_[i] != includedUnknowns_[i + 1],
                             "Duplicate unknown");
     }
+#endif
     // Check maximum and extend if necessary
     if (!includedUnknowns_.empty()) {
         std::size_t maxUnknown =
@@ -67,13 +68,11 @@ void ElementLocalIndexing::reinit(
             offsets_.resize(maxUnknown + 1, -1);
         }
     }
-#endif
     // Update the content
     if (element_ != nullptr) {
         // Clear the storage to the default values as reinit does only overwrite
         // the included unknowns.
-        std::fill(offsets_.begin(), offsets_.end(), UNKNOWN_NOT_INCLUDED);
-        std::fill(sizes_.begin(), sizes_.end(), 0);
+        clearUnknownVectors();
         reinit(element_);
     }
 }
@@ -81,8 +80,7 @@ void ElementLocalIndexing::reinit(
 void ElementLocalIndexing::reinit(const Base::Element *element) {
     element_ = element;
     if (element == nullptr) {
-        std::fill(offsets_.begin(), offsets_.end(), UNKNOWN_NOT_INCLUDED);
-        std::fill(sizes_.begin(), sizes_.end(), 0);
+        clearUnknownVectors();
     } else {
         std::size_t totalNumberOfDoFs = 0;
         for (std::size_t unknown : includedUnknowns_) {
@@ -100,6 +98,11 @@ void ElementLocalIndexing::validateInternalState() const {
     logger.assert_always(
         std::is_sorted(includedUnknowns_.begin(), includedUnknowns_.end()),
         "Unsorted included unknowns");
+}
+
+void ElementLocalIndexing::clearUnknownVectors() {
+    std::fill(offsets_.begin(), offsets_.end(), UNKNOWN_NOT_INCLUDED);
+    std::fill(sizes_.begin(), sizes_.end(), 0);
 }
 
 }  // namespace Utilities
