@@ -43,7 +43,10 @@ namespace hpgem {
 
 namespace Base {
 /// Just a place holder, for polymorphism
-class UserData {};
+class UserData {
+   public:
+    virtual ~UserData() = default;
+};
 
 ///\deprecated the only meaningful distinction between UserElementData and
 /// UserFaceData is the class that contains the pointer

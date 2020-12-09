@@ -6,6 +6,7 @@
 #include "DGMaxProgramUtils.h"
 #include "Algorithms/DivDGMaxEigenvalue.h"
 #include "Algorithms/DGMaxEigenvalue.h"
+#include "Output/VTKSpecificTimeWriter.h"
 
 using namespace hpgem;
 
@@ -62,6 +63,15 @@ template <std::size_t DIM>
 typename DivDGMaxDiscretization<DIM>::Stab parsePenaltyParmaters();
 template <std::size_t DIM>
 KSpacePath<DIM> parsePath();
+
+/// Write out a visualization file for the mesh, including the material
+/// parameter (epsilon)
+///
+/// \tparam DIM The dimension of the mesh
+/// \param fileName File name (without extension) for the mesh file
+/// \param mesh Pointer to the mesh.
+template <std::size_t DIM>
+void writeMesh(std::string fileName, const Base::MeshManipulator<DIM>* mesh);
 
 int main(int argc, char** argv) {
     Base::parse_options(argc, argv);
@@ -135,6 +145,7 @@ void runWithDimension() {
         numberOfElementMatrices);
     logger(INFO, "Loaded mesh % with % local elements", meshFile.getValue(),
            mesh->getNumberOfElements());
+    writeMesh<DIM>("mesh", mesh.get());
     // TODO: Parameterize
     KSpacePath<DIM> path = parsePath<DIM>();
     EigenvalueProblem<DIM> input(path, numEigenvalues.getValue());
@@ -323,4 +334,19 @@ typename DivDGMaxDiscretization<DIM>::Stab parsePenaltyParmaters() {
         stab.setAllFluxeTypes(DivDGMaxDiscretization<DIM>::FluxType::BREZZI);
         return stab;
     }
+}
+
+template <std::size_t DIM>
+void writeMesh(std::string fileName, const Base::MeshManipulator<DIM>* mesh) {
+    Output::VTKSpecificTimeWriter<DIM> writer(fileName, mesh);
+    writer.write(
+        [&](Base::Element* element, const Geometry::PointReference<DIM>&,
+            std::size_t) {
+            const ElementInfos* elementInfos =
+                dynamic_cast<ElementInfos*>(element->getUserData());
+            logger.assert_debug(elementInfos != nullptr,
+                                "Incorrect user data type");
+            return elementInfos->epsilon_;
+        },
+        "epsilon");
 }
