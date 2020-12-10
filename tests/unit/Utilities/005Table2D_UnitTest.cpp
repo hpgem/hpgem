@@ -53,7 +53,7 @@ TEST_CASE("Resizing", "[Table2D]") {
     INFO("Resizing column count");
     CHECK(dummy.getNumberOfColumns() == 3);
     INFO("Resizing total size")
-    CHECK(dummy.getSize() == 2*3);
+    CHECK(dummy.getSize() == 2 * 3);
 }
 
 TEST_CASE("Entry values", "[Table2D]") {
@@ -61,7 +61,7 @@ TEST_CASE("Entry values", "[Table2D]") {
     const std::size_t COLS = 3;
     const int START_VALUE = 42;
 
-    Utilities::Table2D<int> table (ROWS,COLS, START_VALUE);
+    Utilities::Table2D<int> table(ROWS, COLS, START_VALUE);
     REQUIRE(table.getNumberOfRows() == ROWS);
     REQUIRE(table.getNumberOfColumns() == COLS);
     for (std::size_t i = 0; i < table.getSize(); ++i) {
@@ -83,7 +83,7 @@ TEST_CASE("Entry values", "[Table2D]") {
     }
 
     SECTION("Setting single value") {
-        table(1,1) = 2;
+        table(1, 1) = 2;
         for (std::size_t i = 0; i < ROWS; ++i) {
             for (std::size_t j = 0; j < COLS; ++j) {
                 if (i == 1 && j == 1) {
@@ -99,7 +99,7 @@ TEST_CASE("Entry values", "[Table2D]") {
 TEST_CASE("Bool table", "[Table2D]") {
     // Had problems with assigning boolean values in the past due to how vector
     // stores booleans as bitfields.
-    Utilities::Table2D<bool> boolTable (2,2, true);
-    boolTable(0,1) = true;
-    REQUIRE(boolTable(0,1) == true);
+    Utilities::Table2D<bool> boolTable(2, 2, true);
+    boolTable(0, 1) = true;
+    REQUIRE(boolTable(0, 1) == true);
 }
