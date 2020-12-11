@@ -262,13 +262,10 @@ void SparsityEstimator::computeSparsityEstimate(
                     columnDoFs.getNonOwnedIntervals(colUnknown);
 
                 for (Detail::DoFInterval rowInterval : rowIntervals) {
-                    for (Detail::DoFInterval colInterval : ownedColIntervals) {
-                        owned[rowInterval].emplace(colInterval);
-                    }
-                    for (Detail::DoFInterval colInterval :
-                         nonOwnedColIntervals) {
-                        nonOwned[rowInterval].emplace(colInterval);
-                    }
+                    owned[rowInterval].insert(ownedColIntervals.begin(),
+                                              ownedColIntervals.end());
+                    nonOwned[rowInterval].insert(nonOwnedColIntervals.begin(),
+                                                 nonOwnedColIntervals.end());
                 }
             }
         }
@@ -289,9 +286,7 @@ void SparsityEstimator::computeSparsityEstimate(
     if (anyFaceCoupling) {
         for (const Base::Face* face : rowIndexing_.getMesh()->getFacesList()) {
             // Check for a distributed mesh
-            if (face->getFaceType() == Geometry::FaceType::SUBDOMAIN_BOUNDARY ||
-                face->getFaceType() ==
-                    Geometry::FaceType::PERIODIC_SUBDOMAIN_BC) {
+            if (face->isSubdomainBoundary()) {
                 distributedMesh = true;
             }
             // Actual face matrix
@@ -308,11 +303,11 @@ void SparsityEstimator::computeSparsityEstimate(
 
                 for (std::size_t ci = 0;
                      ci < columnIndexing_.getNumberOfIncludedUnknowns(); ++ci) {
-                    std::size_t colUnknown =
-                        columnIndexing_.getIncludedUnknowns()[ci];
                     if (!faceCoupling(ri, ci)) {
                         continue;
                     }
+                    std::size_t colUnknown =
+                        columnIndexing_.getIncludedUnknowns()[ci];
 
                     const Detail::DoFIntervals& ownedColIntervals =
                         columnDoFs.getOwnedIntervals(colUnknown);
@@ -322,11 +317,11 @@ void SparsityEstimator::computeSparsityEstimate(
                     for (Detail::DoFInterval rowInterval : rowIntervals) {
                         for (Detail::DoFInterval colInterval :
                              ownedColIntervals) {
-                            owned[rowInterval].emplace(colInterval);
+                            owned[rowInterval].insert(colInterval);
                         }
                         for (Detail::DoFInterval colInterval :
                              nonOwnedColIntervals) {
-                            nonOwned[rowInterval].emplace(colInterval);
+                            nonOwned[rowInterval].insert(colInterval);
                         }
                     }
                 }

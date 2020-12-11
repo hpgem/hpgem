@@ -401,7 +401,7 @@ void testConformingWith1DMesh() {
 }
 
 /**
- * Test with conforming basis functions on a 1D mesh. Here the sparisty pattern
+ * Test with conforming basis functions on a 1D mesh. Here the sparsity pattern
  * is far more predictable than in a higher dimensions.
  */
 void testFaceCoupling1D() {
