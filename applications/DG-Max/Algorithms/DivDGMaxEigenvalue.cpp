@@ -56,14 +56,25 @@ DivDGMaxEigenvalue<DIM>::DivDGMaxEigenvalue(
     : mesh_(mesh), order_(order), stab_(stab) {}
 
 template <std::size_t DIM>
-std::unique_ptr<AbstractEigenvalueResult<DIM>> DivDGMaxEigenvalue<DIM>::solve(
-    const EigenvalueProblem<DIM>& input) {
+struct DivDGMaxResult : AbstractEigenvalueResult<DIM> {
+    std::vector<double> getFrequencies() final { return frequencies_; }
+
+    const LinearAlgebra::SmallVector<DIM>& getKPoint() const final {
+        return kpoint_;
+    }
+
+    std::vector<double> frequencies_;
+    LinearAlgebra::SmallVector<DIM> kpoint_;
+};
+
+template <std::size_t DIM>
+void DivDGMaxEigenvalue<DIM>::solve(
+    AbstractEigenvalueSolverDriver<DIM>& driver) {
     // Sometimes the solver finds more eigenvalues & vectors than requested, so
     // reserve some extra space for them.
-    std::size_t numberOfEigenvalues = input.getNumberOfEigenvalues();
+    std::size_t numberOfEigenvalues = driver.getTargetNumberOfEigenvalues();
     const PetscInt numberOfEigenVectors =
         std::max(2 * numberOfEigenvalues, numberOfEigenvalues + 10);
-    const KSpacePath<DIM>& kpath = input.getPath();
 
     PetscErrorCode error;
     DGMaxLogger(INFO, "Starting assembly");
@@ -118,9 +129,6 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DivDGMaxEigenvalue<DIM>::solve(
     // SH 180212
     // error = EPSSetUp(eigenSolver_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
-    error = EPSSetDimensions(eigenSolver, numberOfEigenvalues, PETSC_DECIDE,
-                             PETSC_DECIDE);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
 
     // As the stiffness and mass matrix are switched (i.e. M u = lambda S u),
     // the eigenvalues correspond to omega^{-2}, thus the lowest bands give the
@@ -128,12 +136,6 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DivDGMaxEigenvalue<DIM>::solve(
     EPSSetWhichEigenpairs(eigenSolver, EPS_LARGEST_MAGNITUDE);
 
     EPSSetProblemType(eigenSolver, EPS_GNHEP);
-    // everything that is set in the code, but before this line is overridden by
-    // command-line options
-    error = EPSSetFromOptions(eigenSolver);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    // everything that is set in the code, but after this line overrides the
-    // comand-line options
     DGMaxLogger(INFO, "Eigenvalue solver configured");
 
     // Storage vectors //
@@ -155,8 +157,6 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DivDGMaxEigenvalue<DIM>::solve(
     CHKERRABORT(PETSC_COMM_WORLD, error);
     DGMaxLogger(INFO, "Storage vectors assembled");
 
-    LinearAlgebra::SmallVector<DIM> dk = kpath.dk(1);
-
     //    makeShiftMatrix(dk, stiffnessMatrix.getGlobalIndex(), waveVec);
     //    error = VecAssemblyBegin(waveVec);
     //    CHKERRABORT(PETSC_COMM_WORLD, error);
@@ -170,29 +170,34 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DivDGMaxEigenvalue<DIM>::solve(
     //    CHKERRABORT(PETSC_COMM_WORLD, error);
 
     std::size_t outputId = 0;
-    std::size_t maxSteps = kpath.totalNumberOfSteps();
+    std::size_t expectedNumberOfSteps = driver.getNumberOfKPoints();
     // For testing
     //    maxSteps = 21;
 
-    std::vector<std::vector<PetscScalar>> eigenvalues(maxSteps);
+    std::vector<PetscScalar> eigenvalues(numberOfEigenvalues);
+    DivDGMaxResult<DIM> result;
 
     DGMaxLogger(INFO, "Starting k-vector walk");
-    for (int i = 0; i < maxSteps; ++i) {
-        DGMaxLogger(INFO, "Solving for k-vector %/%", i + 1, maxSteps);
+    for (std::size_t solve = 0; !driver.stop(); driver.nextKPoint(), ++solve) {
+        LinearAlgebra::SmallVector<DIM> currentK = driver.getCurrentKPoint();
+        numberOfEigenvalues = driver.getTargetNumberOfEigenvalues();
+        DGMaxLogger(INFO, "Solving for k-vector %/%", solve + 1,
+                    expectedNumberOfSteps);
 
-        if (kpath.dkDidChange(i)) {
-            dk = kpath.dk(i);
-            //            //recompute the shifts
-            //            makeShiftMatrix(k, stiffnessMatrix.getGlobalIndex(),
-            //            waveVec); error = VecAssemblyBegin(waveVec);
-            //            CHKERRABORT(PETSC_COMM_WORLD, error);
-            //            error = VecAssemblyEnd(waveVec);
-            //            CHKERRABORT(PETSC_COMM_WORLD, error);
-            //            error = VecCopy(waveVec, waveVecConjugate);
-            //            CHKERRABORT(PETSC_COMM_WORLD, error);
-            //            error = VecConjugate(waveVecConjugate);
-            //            CHKERRABORT(PETSC_COMM_WORLD, error);
-        }
+        //        if (kpath.dkDidChange(i)) {
+        //            dk = kpath.dk(i);
+        //            //recompute the shifts
+        //            makeShiftMatrix(k,
+        //            stiffnessMatrix.getGlobalIndex(), waveVec); error
+        //            = VecAssemblyBegin(waveVec);
+        //            CHKERRABORT(PETSC_COMM_WORLD, error);
+        //            error = VecAssemblyEnd(waveVec);
+        //            CHKERRABORT(PETSC_COMM_WORLD, error);
+        //            error = VecCopy(waveVec, waveVecConjugate);
+        //            CHKERRABORT(PETSC_COMM_WORLD, error);
+        //            error = VecConjugate(waveVecConjugate);
+        //            CHKERRABORT(PETSC_COMM_WORLD, error);
+        //        }
         // SH 180216 turned this off
         // error = EPSGetInvariantSubspace(eigenSolver_, eigenVectors); //Must
         // be put after EPSSolve? CHKERRABORT(PETSC_COMM_WORLD, error);
@@ -212,16 +217,25 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DivDGMaxEigenvalue<DIM>::solve(
         // shifting multiple boundary faces in one step. But that is for a later
         // optimization round.
         DGMaxLogger(VERBOSE, "Starting boundary k-shift");
-        kphaseshifts.apply(kpath.k(i), stiffnessMatrix);
+        kphaseshifts.apply(currentK, stiffnessMatrix);
 
         error = EPSSetOperators(eigenSolver, massMatrix, stiffnessMatrix);
         CHKERRABORT(PETSC_COMM_WORLD, error);
         // SH 180212
-        if (i > 1) {
+        if (solve > 1) {
             error = EPSSetInitialSpace(eigenSolver, converged, eigenVectors);
             CHKERRABORT(PETSC_COMM_WORLD, error);
         }
-        DGMaxLogger(INFO, "Setting up solve for k-vector %/%", i + 1, maxSteps);
+        error = EPSSetDimensions(eigenSolver, numberOfEigenvalues, PETSC_DECIDE,
+                                 PETSC_DECIDE);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+
+        // Allow for overrides
+        error = EPSSetFromOptions(eigenSolver);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+
+        DGMaxLogger(INFO, "Setting up solve for k-vector %/%", solve + 1,
+                    expectedNumberOfSteps);
         error = EPSSetUp(eigenSolver);
         CHKERRABORT(PETSC_COMM_WORLD, error);
 
@@ -231,13 +245,23 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DivDGMaxEigenvalue<DIM>::solve(
         // EPSSetFromOptions(eigenSolver_);
         // CHKERRABORT(PETSC_COMM_WORLD);
 
-        DGMaxLogger(INFO, "Solving for k-vector %/%", i + 1, maxSteps);
+        DGMaxLogger(INFO, "Solving for k-vector %/%", solve + 1,
+                    expectedNumberOfSteps);
         error = EPSSolve(eigenSolver);
         CHKERRABORT(PETSC_COMM_WORLD, error);
 
-        extractEigenvalues(eigenSolver, eigenvalues[i]);
+        extractEigenvalues(eigenSolver, eigenvalues);
         error = EPSGetEigenvector(eigenSolver, 0, globalVector, nullptr);
         CHKERRABORT(PETSC_COMM_WORLD, error);
+
+        result.kpoint_ = currentK;
+        result.frequencies_.resize(eigenvalues.size());
+        for (std::size_t i = 0; i < eigenvalues.size(); ++i) {
+            result.frequencies_[i] = std::sqrt(1 / eigenvalues[i].real());
+        }
+
+        driver.handleResult(result);
+
         // globalVector.writeTimeIntegrationVector(outputId);
         outputId++;
     }
@@ -245,8 +269,6 @@ std::unique_ptr<AbstractEigenvalueResult<DIM>> DivDGMaxEigenvalue<DIM>::solve(
 
     error = EPSDestroy(&eigenSolver);
     CHKERRABORT(PETSC_COMM_WORLD, error);
-
-    return std::make_unique<Result>(input, eigenvalues);
 }
 
 template <std::size_t DIM>
@@ -313,31 +335,6 @@ void DivDGMaxEigenvalue<DIM>::extractEigenvalues(
                   }
                   return a.imag() > b.imag();
               });
-}
-
-template <std::size_t DIM>
-DivDGMaxEigenvalue<DIM>::Result::Result(
-    EigenvalueProblem<DIM> problem,
-    std::vector<std::vector<PetscScalar>> eigenvalues)
-    : problem_(problem), eigenvalues_(eigenvalues) {}
-
-template <std::size_t DIM>
-const EigenvalueProblem<DIM>& DivDGMaxEigenvalue<DIM>::Result::originalProblem()
-    const {
-    return problem_;
-}
-
-template <std::size_t DIM>
-const std::vector<double> DivDGMaxEigenvalue<DIM>::Result::frequencies(
-    std::size_t point) const {
-    logger.assert_always(
-        point >= 0 && point < problem_.getPath().totalNumberOfSteps(),
-        "Invalid point");
-    std::vector<double> frequencies(eigenvalues_[point].size());
-    for (std::size_t i = 0; i < frequencies.size(); ++i) {
-        frequencies[i] = std::sqrt(1.0 / eigenvalues_[point][i].real());
-    }
-    return frequencies;
 }
 
 template class DivDGMaxEigenvalue<2>;

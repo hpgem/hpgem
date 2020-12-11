@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2014, University of Twente
+ Copyright (c) 2020, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,34 +35,60 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef HPGEM_EIGENVALUEDRIVER_H
+#define HPGEM_EIGENVALUEDRIVER_H
 
-#ifndef HPGEM_KERNEL_USERDATA_H
-#define HPGEM_KERNEL_USERDATA_H
+#include "LinearAlgebra/SmallVector.h"
+#include "AbstractEigenvalueResult.h"
 
-namespace hpgem {
-
-namespace Base {
-/// Just a place holder, for polymorphism
-class UserData {
+/**
+ * Driver for an AbstractEigenvalueSolver, that instructs the solver what
+ * eigenvalue problems to solve and what to do with the results.
+ *
+ * @tparam DIM The dimension of the problem.
+ */
+template <std::size_t DIM>
+class AbstractEigenvalueSolverDriver {
    public:
-    virtual ~UserData() = default;
+    virtual ~AbstractEigenvalueSolverDriver() = default;
+
+    /**
+     * @return Whether to stop solving
+     */
+    virtual bool stop() const = 0;
+    /**
+     * Advance to the next wave vector point for solving
+     */
+    virtual void nextKPoint() = 0;
+
+    /**
+     * @return The current k-point
+     */
+    virtual LinearAlgebra::SmallVector<DIM> getCurrentKPoint() const = 0;
+
+    /**
+     * The total number of wave vectors/k-points, if known a-priori.
+     * @return The number of wave vector points, or 0 if unknown.
+     */
+    virtual std::size_t getNumberOfKPoints() const = 0;
+
+    /**
+     * The target number of eigenvalues to solve for at the current k-point.
+     * Depending on the actual configuration of the solver the result may
+     * include less eigenvalues (e.g. if a maximum iteration count was reached)
+     * or slightly more (e.g. when a solver iteration provides more than
+     * required).
+     *
+     * @return The number of eigenvalues.
+     */
+    virtual std::size_t getTargetNumberOfEigenvalues() const = 0;
+
+    /**
+     * Handle the result of a solved eigenvalue problem.
+     * @param result The result handle, any references to results are only valid
+     *   during the call to this method.
+     */
+    virtual void handleResult(AbstractEigenvalueResult<DIM>& result) = 0;
 };
 
-///\deprecated the only meaningful distinction between UserElementData and
-/// UserFaceData is the class that contains the pointer
-using UserFaceData = UserData;
-
-///\deprecated the only meaningful distinction between UserElementData and
-/// UserFaceData is the class that contains the pointer
-using UserElementData = UserData;
-}  // namespace Base
-
-///\deprecated this is global scope
-using Base::UserElementData;
-
-///\deprecated this is global scope
-using Base::UserFaceData;
-
-}  // namespace hpgem
-
-#endif  // HPGEM_KERNEL_USERDATA_H
+#endif  // HPGEM_EIGENVALUEDRIVER_H

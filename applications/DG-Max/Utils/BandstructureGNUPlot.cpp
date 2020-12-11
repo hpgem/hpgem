@@ -13,7 +13,7 @@ template <std::size_t DIM>
 BandstructureGNUPlot<DIM>::BandstructureGNUPlot(
     const KSpacePath<DIM>& path, const std::vector<std::string>& pointNames,
     const BandStructure<DIM>& structure,
-    const AbstractEigenvalueResult<DIM>* computedSpectrum)
+    const std::vector<std::vector<double>>* computedSpectrum)
     : path_(path),
       pointNames_(pointNames),
       structure_(structure),
@@ -25,9 +25,7 @@ BandstructureGNUPlot<DIM>::BandstructureGNUPlot(
     // from the computed spectrum.
     logger.assert_always(
         computedSpectrum_ == nullptr ||
-            computedSpectrum_->originalProblem()
-                    .getPath()
-                    .totalNumberOfSteps() == path.totalNumberOfSteps(),
+            computedSpectrum->size() == path.totalNumberOfSteps(),
         "Computed and path step length mismatch.");
 }
 
@@ -258,17 +256,16 @@ std::map<int, std::vector<std::tuple<double, double>>>
     BandstructureGNUPlot<DIM>::groupSpectrum() {
     const double TRESHOLD = 0.15;
     std::map<int, std::vector<std::tuple<double, double>>> points;
-    std::size_t steps =
-        computedSpectrum_->originalProblem().getPath().totalNumberOfSteps();
+    std::size_t steps = computedSpectrum_->size();
     double x = 0;
     for (std::size_t i = 0; i < steps; ++i) {
         if (i > 0) {
-            x += computedSpectrum_->originalProblem().getPath().dk(i).l2Norm();
+            x += path_.dk(i).l2Norm();
         }
-        std::vector<double> freqs = computedSpectrum_->frequencies(i);
+        const std::vector<double>& freqs = (*computedSpectrum_)[i];
         // Theoretical spectrum for comparison
-        std::map<double, std::size_t> theoretical = structure_.computeSpectrum(
-            computedSpectrum_->originalProblem().getPath().k(i), freqs.size());
+        std::map<double, std::size_t> theoretical =
+            structure_.computeSpectrum(path_.k(i), freqs.size());
         // Deduplicate computed spectrum.
         std::map<double, std::size_t> computed;
         double last = 0;

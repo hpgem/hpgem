@@ -38,51 +38,31 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef HPGEM_APP_ABSTRACTEIGENVALUERESULT_H
 #define HPGEM_APP_ABSTRACTEIGENVALUERESULT_H
 
-#include <fstream>
-#include <iostream>
-
-#include "EigenvalueProblem.h"
+#include <vector>
+#include "LinearAlgebra/SmallVector.h"
 
 using namespace hpgem;
 
-/// Result of solving the EigenvalueProblem
+/**
+ * Callback interface for an AbstractEigenvalueSolver to allow access to the
+ * result of solving at a single K-point in a discretization independent way.
+ *
+ * @tparam DIM The dimension of the original problem.
+ */
 template <std::size_t DIM>
 class AbstractEigenvalueResult {
    public:
     virtual ~AbstractEigenvalueResult() = default;
 
-    /// The problem that was solved
-    virtual const EigenvalueProblem<DIM>& originalProblem() const = 0;
-    /// A list of frequencies (in increasing order) obtained at a certain
-    /// k-point
-    virtual const std::vector<double> frequencies(std::size_t point) const = 0;
+    /**
+     * @return The computed eigenfrequencies.
+     */
+    virtual std::vector<double> getFrequencies() = 0;
 
-    void writeFrequencies(const std::string& fileName) const {
-        std::ofstream file;
-        file.open(fileName);
-        writeFrequencies(file, ',');
-        file.close();
-    }
-
-    /// Write the frequencies to the standard out.
-    void printFrequencies() const { writeFrequencies(std::cout, '\t'); }
-
-    /// Write the frequencies to a stream
-    ///
-    /// \param stream The output stream to write to
-    /// \param separator The separator between frequencies for the same k-point
-    void writeFrequencies(std::ostream& stream, char separator) const {
-        stream << "k-point" << separator << "frequencies->\n";
-        for (std::size_t i = 0;
-             i < originalProblem().getPath().totalNumberOfSteps(); ++i) {
-            std::vector<double> freqs = frequencies(i);
-            stream << i;
-            for (double& freq : freqs) {
-                stream << separator << freq;
-            }
-            stream << std::endl;
-        }
-    }
+    /**
+     * @return Wavevector point of this result
+     */
+    virtual const LinearAlgebra::SmallVector<DIM>& getKPoint() const = 0;
 };
 
 #endif  // HPGEM_APP_ABSTRACTEIGENVALUERESULT_H

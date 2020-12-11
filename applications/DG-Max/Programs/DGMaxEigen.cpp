@@ -1,11 +1,13 @@
 
 #include <exception>
 #include "Base/CommandLineOptions.h"
+#include "Output/VTKSpecificTimeWriter.h"
 
 #include "DGMaxLogger.h"
 #include "DGMaxProgramUtils.h"
 #include "Algorithms/DivDGMaxEigenvalue.h"
 #include "Algorithms/DGMaxEigenvalue.h"
+#include "Utils/KSpacePath.h"
 
 using namespace hpgem;
 
@@ -63,6 +65,15 @@ typename DivDGMaxDiscretization<DIM>::Stab parsePenaltyParmaters();
 template <std::size_t DIM>
 KSpacePath<DIM> parsePath();
 
+/// Write out a visualization file for the mesh, including the material
+/// parameter (epsilon)
+///
+/// \tparam DIM The dimension of the mesh
+/// \param fileName File name (without extension) for the mesh file
+/// \param mesh Pointer to the mesh.
+template <std::size_t DIM>
+void writeMesh(std::string fileName, const Base::MeshManipulator<DIM>* mesh);
+
 int main(int argc, char** argv) {
     Base::parse_options(argc, argv);
     initDGMaxLogging();
@@ -94,6 +105,78 @@ int main(int argc, char** argv) {
     DGMaxLogger(INFO, "Runtime %s", end - start);
     return 0;
 }
+
+template <std::size_t DIM>
+class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
+
+   public:
+    DGMaxEigenDriver(KSpacePath<DIM>& path,
+                     std::size_t targetNumberOfEigenvalues)
+        : targetNumberOfEigenvalues_(targetNumberOfEigenvalues),
+          currentPoint_(0),
+          path_(path),
+          frequencyResults_(path.totalNumberOfSteps()) {
+
+        outFile.open("frequencies.csv");
+        logger.assert_always(!outFile.fail(), "Output file opening failed");
+        writeHeader(outFile, ',');
+    }
+
+    ~DGMaxEigenDriver() { outFile.close(); }
+
+    bool stop() const final {
+        return currentPoint_ >= path_.totalNumberOfSteps();
+    }
+
+    void nextKPoint() final { ++currentPoint_; }
+
+    LinearAlgebra::SmallVector<DIM> getCurrentKPoint() const final {
+        logger.assert_debug(currentPoint_ < path_.totalNumberOfSteps(),
+                            "Too large k-point index");
+        return path_.k(currentPoint_);
+    }
+
+    std::size_t getNumberOfKPoints() const final {
+        return path_.totalNumberOfSteps();
+    }
+
+    std::size_t getTargetNumberOfEigenvalues() const final {
+        return targetNumberOfEigenvalues_;
+    }
+
+    void handleResult(AbstractEigenvalueResult<DIM>& result) final {
+        frequencyResults_[currentPoint_] = result.getFrequencies();
+        writeFrequencies(outFile, currentPoint_,
+                         frequencyResults_[currentPoint_], ',');
+    }
+
+    void printFrequencies() {
+        writeHeader(std::cout, '\t');
+        for (std::size_t i = 0; i < frequencyResults_.size(); ++i) {
+            writeFrequencies(std::cout, i, frequencyResults_[i], '\t');
+        }
+    }
+
+   private:
+    std::size_t targetNumberOfEigenvalues_;
+    std::size_t currentPoint_;
+    KSpacePath<DIM> path_;
+    std::vector<std::vector<double>> frequencyResults_;
+    std::ofstream outFile;
+
+    void writeHeader(std::ostream& stream, char separator) {
+        stream << "k-point" << separator << "frequencies->" << std::endl;
+    }
+
+    void writeFrequencies(std::ostream& stream, std::size_t point,
+                          std::vector<double>& frequencies, char separator) {
+        stream << point;
+        for (double frequency : frequencies) {
+            stream << separator << frequency;
+        }
+        stream << std::endl;
+    }
+};
 
 template <std::size_t DIM>
 void runWithDimension() {
@@ -135,16 +218,18 @@ void runWithDimension() {
         numberOfElementMatrices);
     logger(INFO, "Loaded mesh % with % local elements", meshFile.getValue(),
            mesh->getNumberOfElements());
+    writeMesh<DIM>("mesh", mesh.get());
     // TODO: Parameterize
+
     KSpacePath<DIM> path = parsePath<DIM>();
-    EigenvalueProblem<DIM> input(path, numEigenvalues.getValue());
+    DGMaxEigenDriver<DIM> driver(path, numEigenvalues.getValue());
+
     // Method dependent solving
-    std::unique_ptr<AbstractEigenvalueResult<DIM>> result;
     if (useDivDGMax) {
         typename DivDGMaxDiscretization<DIM>::Stab stab =
             parsePenaltyParmaters<DIM>();
         DivDGMaxEigenvalue<DIM> solver(*mesh, order.getValue(), stab);
-        result = solver.solve(input);
+        solver.solve(driver);
     } else {
         const double stab = parseDGMaxPenaltyParameter();
         DGMaxEigenvalueBase::SolverConfig config;
@@ -153,13 +238,10 @@ void runWithDimension() {
         config.shiftFactor_ = 0;
         config.useProjector_ = useProjector;
         DGMaxEigenvalue<DIM> solver(*mesh, order.getValue(), config);
-        result = solver.solve(input);
+        solver.solve(driver);
     }
 
-    if (Base::MPIContainer::Instance().getProcessorID() == 0) {
-        result->printFrequencies();
-        result->writeFrequencies("frequencies.csv");
-    }
+    driver.printFrequencies();
 }
 
 /// Parse DIM comma separated numbers as the coordinates of a point.
@@ -323,4 +405,19 @@ typename DivDGMaxDiscretization<DIM>::Stab parsePenaltyParmaters() {
         stab.setAllFluxeTypes(DivDGMaxDiscretization<DIM>::FluxType::BREZZI);
         return stab;
     }
+}
+
+template <std::size_t DIM>
+void writeMesh(std::string fileName, const Base::MeshManipulator<DIM>* mesh) {
+    Output::VTKSpecificTimeWriter<DIM> writer(fileName, mesh);
+    writer.write(
+        [&](Base::Element* element, const Geometry::PointReference<DIM>&,
+            std::size_t) {
+            const ElementInfos* elementInfos =
+                dynamic_cast<ElementInfos*>(element->getUserData());
+            logger.assert_debug(elementInfos != nullptr,
+                                "Incorrect user data type");
+            return elementInfos->epsilon_;
+        },
+        "epsilon");
 }

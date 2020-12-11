@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2014, University of Twente
+ Copyright (c) 2020, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,34 +35,26 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "FaceLocalIndexing.h"
 
-#ifndef HPGEM_KERNEL_USERDATA_H
-#define HPGEM_KERNEL_USERDATA_H
+// Would like to include Face.h, but that has a dependency loop
+#include "Element.h"
 
 namespace hpgem {
+namespace Utilities {
 
-namespace Base {
-/// Just a place holder, for polymorphism
-class UserData {
-   public:
-    virtual ~UserData() = default;
-};
+FaceLocalIndexing::FaceLocalIndexing() : face_(nullptr), left_(), right_() {}
 
-///\deprecated the only meaningful distinction between UserElementData and
-/// UserFaceData is the class that contains the pointer
-using UserFaceData = UserData;
+void FaceLocalIndexing::reinit(
+    const std::vector<std::size_t> &includedUnknowns) {
+    left_.reinit(includedUnknowns);
+    right_.reinit(includedUnknowns);
+}
 
-///\deprecated the only meaningful distinction between UserElementData and
-/// UserFaceData is the class that contains the pointer
-using UserElementData = UserData;
-}  // namespace Base
-
-///\deprecated this is global scope
-using Base::UserElementData;
-
-///\deprecated this is global scope
-using Base::UserFaceData;
-
+void FaceLocalIndexing::reinit(const Base::Face *face) {
+    face_ = face;
+    left_.reinit(face->getPtrElementLeft());
+    right_.reinit(face->getPtrElementRight());
+}
+}  // namespace Utilities
 }  // namespace hpgem
-
-#endif  // HPGEM_KERNEL_USERDATA_H
