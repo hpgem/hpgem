@@ -168,19 +168,17 @@ class LocalMatrixSideDoFs {
 
 }  // namespace Detail
 
-void SparsityEstimator::computeSparsityEstimate(
-    std::vector<int>& nonZeroPerRowOwned,
-    std::vector<int>& nonZeroPerRowNonOwned, bool includeFaceCoupling) const {
+std::pair<std::vector<int>, std::vector<int>>
+    SparsityEstimator::computeSparsityEstimate(bool includeFaceCoupling) const {
     Table2D<bool> faceCoupling(rowIndexing_.getNumberOfIncludedUnknowns(),
                                columnIndexing_.getNumberOfIncludedUnknowns(),
                                includeFaceCoupling);
-    computeSparsityEstimate(nonZeroPerRowOwned, nonZeroPerRowNonOwned,
-                            faceCoupling);
+    return computeSparsityEstimate(faceCoupling);
 }
-void SparsityEstimator::computeSparsityEstimate(
-    std::vector<int>& nonZeroPerRowOwned,
-    std::vector<int>& nonZeroPerRowNonOwned,
-    const Table2D<bool>& faceCoupling) const {
+
+std::pair<std::vector<int>, std::vector<int>>
+    SparsityEstimator::computeSparsityEstimate(
+        const Table2D<bool>& faceCoupling) const {
 
     /*
      * ** APPROACH **
@@ -214,6 +212,9 @@ void SparsityEstimator::computeSparsityEstimate(
      *    (faceCoupling table).
      */
 
+    std::vector<int> nonZeroPerRowOwned;
+    std::vector<int> nonZeroPerRowNonOwned;
+
     logger.assert_always(faceCoupling.getNumberOfRows() ==
                              rowIndexing_.getNumberOfIncludedUnknowns(),
                          "Different rows in face coupling from the row index");
@@ -232,7 +233,7 @@ void SparsityEstimator::computeSparsityEstimate(
 
     if (rowIndexing_.getMesh() == nullptr || totalNumberOfDoF == 0) {
         // Nothing to do, result has already been resized.
-        return;
+        return std::make_pair(nonZeroPerRowOwned, nonZeroPerRowNonOwned);
     }
 
     Detail::LocalMatrixSideDoFs rowDoFs(rowIndexing_, Detail::ROWS);
@@ -422,6 +423,7 @@ void SparsityEstimator::computeSparsityEstimate(
             nonZeroPerRowNonOwned[ri] = nonZero;
         }
     }
+    return std::make_pair(nonZeroPerRowOwned, nonZeroPerRowNonOwned);
 }
 
 }  // namespace Utilities

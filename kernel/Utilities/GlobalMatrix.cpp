@@ -244,8 +244,8 @@ void GlobalPetscMatrix::createMat() {
         std::vector<PetscInt> offDiagonalPositionsPerRow;
         logger.assert_always(rowIndexing_.getMesh() != nullptr, "Null mesh");
         SparsityEstimator estimator(rowIndexing_, columnIndexing_);
-        estimator.computeSparsityEstimate(
-            numberOfPositionsPerRow, offDiagonalPositionsPerRow, faceCoupling_);
+        std::tie(numberOfPositionsPerRow, offDiagonalPositionsPerRow) =
+            estimator.computeSparsityEstimate(faceCoupling_);
         // Zeros are passed for the ignored arguments.
         ierr = MatMPIAIJSetPreallocation(A_, 0, numberOfPositionsPerRow.data(),
                                          0, offDiagonalPositionsPerRow.data());
