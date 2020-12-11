@@ -47,16 +47,13 @@ EVConvergenceResult AbstractEVConvergenceTest<DIM>::run(bool failOnDifference) {
     EVConvergenceResult convergenceResult;
 
     for (std::size_t level = 0; level < getNumberOfLevels(); ++level) {
-        std::unique_ptr<AbstractEigenvalueResult<DIM>> result =
-            runInternal(level);
+        Driver driver(getKPoint(), getTargetNumberOfEigenvalues());
+        runInternal(driver, level);
 
-        bool hasResult(result);
-        logger.assert_always(hasResult, "Null result");
-
-        convergenceResult.addLevel(result->frequencies(0));
+        convergenceResult.addLevel(driver.getResult());
 
         if (getExpected() != nullptr) {
-            bool correct = compareWithExpected(level, *result);
+            bool correct = compareWithExpected(level, driver.getResult());
 
             logger.assert_always(correct || !failOnDifference,
                                  "Results differ from expected");
@@ -67,7 +64,7 @@ EVConvergenceResult AbstractEVConvergenceTest<DIM>::run(bool failOnDifference) {
 
 template <std::size_t DIM>
 bool AbstractEVConvergenceTest<DIM>::compareWithExpected(
-    std::size_t level, const AbstractEigenvalueResult<DIM>& result) const {
+    std::size_t level, const std::vector<double>& computedFrequencies) const {
 
     auto expected = getExpected();
     if (expected == nullptr || expected->getNumberOfLevels() <= level) {
@@ -76,7 +73,7 @@ bool AbstractEVConvergenceTest<DIM>::compareWithExpected(
     }
 
     const std::vector<double>& expectedLevel = expected->getLevel(level);
-    const std::vector<double>& resultLevel = result.frequencies(0);
+    const std::vector<double>& resultLevel = computedFrequencies;
 
     // Skip over the starting NaNs
     auto resultIter = resultLevel.begin();

@@ -35,44 +35,60 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef HPGEM_EIGENVALUEDRIVER_H
+#define HPGEM_EIGENVALUEDRIVER_H
 
-#include "DGMaxEVConvergenceTest.h"
+#include "LinearAlgebra/SmallVector.h"
+#include "AbstractEigenvalueResult.h"
 
-#include "Base/ConfigurationData.h"
-#include "Base/MeshManipulator.h"
-
-#include "DGMaxLogger.h"
-#include "DGMaxProgramUtils.h"
-
-#include "Algorithms/DGMaxEigenvalue.h"
-
-namespace DGMax {
-
+/**
+ * Driver for an AbstractEigenvalueSolver, that instructs the solver what
+ * eigenvalue problems to solve and what to do with the results.
+ *
+ * @tparam DIM The dimension of the problem.
+ */
 template <std::size_t DIM>
-void DGMaxEVConvergenceTest<DIM>::runInternal(
-    typename AbstractEVConvergenceTest<DIM>::Driver& driver,
-    std::size_t level) {
+class AbstractEigenvalueSolverDriver {
+   public:
+    virtual ~AbstractEigenvalueSolverDriver() = default;
 
-    logger.assert_always(level < meshFileNames_.size(), "No such mesh");
-    std::size_t unknowns = solverConfig_.useProjector_ ? 2 : 1;
-    std::size_t elementMatrices = solverConfig_.useProjector_ ? 3 : 2;
-    Base::ConfigurationData configData(unknowns, 1);
+    /**
+     * @return Whether to stop solving
+     */
+    virtual bool stop() const = 0;
+    /**
+     * Advance to the next wave vector point for solving
+     */
+    virtual void nextKPoint() = 0;
 
-    auto mesh = DGMax::readMesh<DIM>(
-        meshFileNames_[level], &configData,
-        [&](const Geometry::PointPhysical<DIM>& p) {
-            return jelmerStructure(p, testCase_.getStructureId());
-        },
-        elementMatrices);
-    DGMaxLogger(INFO, "Loaded mesh % with % local elements.",
-                meshFileNames_[level], mesh->getNumberOfElements());
+    /**
+     * @return The current k-point
+     */
+    virtual LinearAlgebra::SmallVector<DIM> getCurrentKPoint() const = 0;
 
-    DGMaxEigenvalue<DIM> solver(*mesh, this->order_, this->solverConfig_);
-    solver.solve(driver);
-}
+    /**
+     * The total number of wave vectors/k-points, if known a-priori.
+     * @return The number of wave vector points, or 0 if unknown.
+     */
+    virtual std::size_t getNumberOfKPoints() const = 0;
 
-// Template instantiation
-template class DGMaxEVConvergenceTest<2>;
-template class DGMaxEVConvergenceTest<3>;
+    /**
+     * The target number of eigenvalues to solve for at the current k-point.
+     * Depending on the actual configuration of the solver the result may
+     * include less eigenvalues (e.g. if a maximum iteration count was reached)
+     * or slightly more (e.g. when a solver iteration provides more than
+     * required).
+     *
+     * @return The number of eigenvalues.
+     */
+    virtual std::size_t getTargetNumberOfEigenvalues() const = 0;
 
-};  // namespace DGMax
+    /**
+     * Handle the result of a solved eigenvalue problem.
+     * @param result The result handle, any references to results are only valid
+     *   during the call to this method.
+     */
+    virtual void handleResult(AbstractEigenvalueResult<DIM>& result) = 0;
+};
+
+#endif  // HPGEM_EIGENVALUEDRIVER_H
