@@ -252,7 +252,7 @@ void sortEigenvalues(std::vector<PetscScalar>& result) {
 
 template <std::size_t DIM>
 struct DGMaxEigenvalueResult : public AbstractEigenvalueResult<DIM> {
-    std::vector<double> getFrequencies() override final {
+    std::vector<double> getFrequencies() final {
         std::vector<double> frequencies(eigenvalues_.size());
         for (std::size_t i = 0; i < eigenvalues_.size(); ++i) {
             frequencies[i] =
