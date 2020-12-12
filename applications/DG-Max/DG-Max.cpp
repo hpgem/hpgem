@@ -52,15 +52,12 @@
 #include "ElementInfos.h"
 #include "DGMaxProgramUtils.h"
 
-#include "Algorithms/DGMaxEigenvalue.h"
 #include "Algorithms/DGMaxHarmonic.h"
 #include "Algorithms/DGMaxTimeIntegration.h"
-#include "Algorithms/DivDGMaxEigenvalue.h"
 #include "Algorithms/DivDGMaxHarmonic.h"
 
 #include "ProblemTypes/Harmonic/SampleHarmonicProblems.h"
 #include "ProblemTypes/Time/SampleTestProblems.h"
-#include "Utils/HomogeneousBandStructure.h"
 #include "Utils/BandstructureGNUPlot.h"
 
 using namespace hpgem;
@@ -150,20 +147,6 @@ int main(int argc, char** argv) {
 
         return 0;
 
-        /////////////////////
-        // Eigenvalue code //
-        /////////////////////
-
-        //        DGMaxEigenvalue solver (base, p.getValue());
-        DivDGMaxEigenvalue<DIM> solver(*mesh, p.getValue(), divStab);
-        KSpacePath<DIM> path = KSpacePath<DIM>::cubePath(20);
-        EigenvalueProblem<DIM> input(path, numEigenvalues.getValue());
-        std::unique_ptr<AbstractEigenvalueResult<DIM>> result =
-            solver.solve(input);
-        if (Base::MPIContainer::Instance().getProcessorID() == 0) {
-            result->printFrequencies();
-        }
-
         ///////////////////////////
         // Time dependent solver //
         ///////////////////////////
@@ -180,26 +163,6 @@ int main(int argc, char** argv) {
         //        timeSolver.writeTimeSnapshots("domokos.dat");
         //        timeSolver.printErrors({DGMaxDiscretization::L2,
         //        DGMaxDiscretization::HCurl}, testProblem);
-
-        // Quick way of plotting all the eigenvalue results against theory
-        // Probably should be split off at some point to output the
-        // bandstructure and do this plotting separately.
-        std::array<LinearAlgebra::SmallVector<DIM>, DIM> reciprocalVectors;
-        for (std::size_t i = 0; i < DIM; ++i) {
-            reciprocalVectors[i].set(0);
-            reciprocalVectors[i][i] = 2.0 * M_PI;
-        }
-
-        HomogeneousBandStructure<DIM> structure(reciprocalVectors);
-        std::vector<std::string> points({"G", "X"});
-        if (DIM == 2) {
-            points.emplace_back("M");
-        } else {
-            points.emplace_back("S");
-            points.emplace_back("R");
-        }
-        BandstructureGNUPlot<DIM> output(path, points, structure, result.get());
-        output.plot("gnutest.in");
 
         time(&end);
         DGMaxLogger(INFO, "DGMax finished in %s", end - start);
