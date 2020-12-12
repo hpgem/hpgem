@@ -46,7 +46,7 @@
 #include "PhysicalElement.h"
 #include "Mesh.h"
 #include "GlobalNamespaceBase.h"
-#include "BasisFunctionSet.h"
+#include "FE/BasisFunctionSet.h"
 #include "MeshManipulatorBase.h"
 namespace hpgem {
 namespace Base {

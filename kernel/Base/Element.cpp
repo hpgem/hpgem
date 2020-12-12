@@ -41,7 +41,7 @@
 #include "Edge.h"
 #include "Face.h"
 
-#include "BasisFunctionSet.h"
+#include "FE/BasisFunctionSet.h"
 #include "Geometry/PhysicalGeometry.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "Geometry/PointPhysical.h"

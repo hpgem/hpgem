@@ -42,10 +42,10 @@
 // correct execution of all prior unit tests
 #include "Utilities/BasisFunctionsMonomials.h"
 
-#include "Base/BasisFunctionSet.h"
+#include "FE/BasisFunctionSet.h"
 #include "Geometry/PointReference.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
-#include "Base/BaseBasisFunction.h"
+#include "FE/BaseBasisFunction.h"
 
 #include "Logger.h"
 

@@ -38,8 +38,8 @@
 
 #include "BasisFunctions2DH1ConformingTriangle.h"
 #include "helperFunctions.h"
-#include "Base/BasisFunctionSet.h"
-#include "Base/OrientedBasisFunctionSet.h"
+#include "FE/BasisFunctionSet.h"
+#include "FE/OrientedBasisFunctionSet.h"
 #include "Geometry/ReferenceTriangle.h"
 #include "Geometry/PointReference.h"
 

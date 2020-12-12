@@ -42,7 +42,7 @@
 #include <memory>
 #include <vector>
 
-#include "BasisFunctionSet.h"
+#include "FE/BasisFunctionSet.h"
 
 namespace hpgem {
 

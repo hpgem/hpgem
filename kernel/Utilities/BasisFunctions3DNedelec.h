@@ -39,7 +39,7 @@
 #ifndef HPGEM_KERNEL_BASISFUNCTIONS3DNEDELEC_H
 #define HPGEM_KERNEL_BASISFUNCTIONS3DNEDELEC_H
 
-#include "Base/BaseBasisFunction.h"
+#include "FE/BaseBasisFunction.h"
 #include <vector>
 
 namespace hpgem {

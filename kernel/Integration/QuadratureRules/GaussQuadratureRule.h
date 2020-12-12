@@ -275,7 +275,7 @@ class GaussQuadratureRule {
 };
 }  // namespace QuadratureRules
 }  // namespace hpgem
-#include "Base/BasisFunctionSet.h"
+#include "FE/BasisFunctionSet.h"
 
 namespace hpgem {
 

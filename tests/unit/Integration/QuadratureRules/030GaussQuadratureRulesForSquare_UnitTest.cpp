@@ -46,7 +46,6 @@
 
 #include "Utilities/BasisFunctions2DH1ConformingSquare.h"
 #include "Geometry/ReferenceSquare.h"
-#include "Base/BasisFunctionSet.h"
 #include "Geometry/PointReference.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include <cmath>

@@ -38,7 +38,7 @@
 
 #include "BasisFunctions3DAinsworthCoyle.h"
 #include "helperFunctions.h"
-#include "Base/BasisFunctionSet.h"
+#include "FE/BasisFunctionSet.h"
 #include "Geometry/ReferenceTetrahedron.h"
 #include "Geometry/PointReference.h"
 

@@ -46,7 +46,6 @@
 
 #include "Utilities/BasisFunctions3DH1ConformingTetrahedron.h"
 #include "Geometry/ReferenceTetrahedron.h"
-#include "Base/BasisFunctionSet.h"
 #include "Geometry/PointReference.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include <cmath>

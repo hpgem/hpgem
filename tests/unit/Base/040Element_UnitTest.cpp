@@ -55,10 +55,10 @@
 #include "Utilities/BasisFunctionsMonomials.h"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForCube.h"
 #include "Geometry/PointPhysical.h"
-#include "Base/BasisFunctionSet.h"
+#include "FE/BasisFunctionSet.h"
 #include "Geometry/PointReference.h"
 #include "LinearAlgebra/MiddleSizeMatrix.h"
-#include "Base/BaseBasisFunction.h"
+#include "FE/BaseBasisFunction.h"
 #include "Logger.h"
 
 #include "../catch.hpp"

@@ -43,7 +43,7 @@
 #include "Base/ElementData.h"
 #include "Geometry/ElementGeometry.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
-#include "BasisFunctionSet.h"
+#include "FE/BasisFunctionSet.h"
 #include "TreeEntry.h"
 
 //#include "PhysGradientOfBasisFunction.h"//included after class definition due

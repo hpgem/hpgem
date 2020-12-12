@@ -2,8 +2,6 @@ include_directories(${hpGEM_SOURCE_DIR}/kernel/ .)
 add_subdirectory(TimeIntegration)
 
 add_library(hpGEM_Base OBJECT
- 		${hpGEM_SOURCE_DIR}/kernel/Base/BasisFunctionSet.cpp	
- 		BaseBasisFunction.cpp	  
 		CommandLineOptions.cpp
  		Element.cpp
 		ElementBasisFunctions.cpp
@@ -47,7 +45,7 @@ set(CURRENT_TARGET hpGEM_Base)
 include(${CMAKE_SOURCE_DIR}/conf/cmake/CLionFix.cmake)
 set(CURRENT_TARGET)
 
-target_link_libraries(hpGEM_Base Output Geometry TimeIntegration)
+target_link_libraries(hpGEM_Base FE Output Geometry TimeIntegration)
 
 set_target_properties(hpGEM_Base PROPERTIES POSITION_INDEPENDENT_CODE true)
 

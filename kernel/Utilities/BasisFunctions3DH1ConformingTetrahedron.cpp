@@ -38,8 +38,8 @@
 
 #include "BasisFunctions3DH1ConformingTetrahedron.h"
 #include "helperFunctions.h"
-#include "Base/BasisFunctionSet.h"
-#include "Base/OrientedBasisFunctionSet.h"
+#include "FE/BasisFunctionSet.h"
+#include "FE/OrientedBasisFunctionSet.h"
 #include "Geometry/ReferenceTetrahedron.h"
 #include "Geometry/PointReference.h"
 

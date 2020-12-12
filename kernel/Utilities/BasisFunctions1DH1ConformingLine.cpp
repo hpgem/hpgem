@@ -38,8 +38,8 @@
 
 #include "BasisFunctions1DH1ConformingLine.h"
 #include "helperFunctions.h"
-#include "Base/BasisFunctionSet.h"
-#include "Base/OrientedBasisFunctionSet.h"
+#include "FE/BasisFunctionSet.h"
+#include "FE/OrientedBasisFunctionSet.h"
 #include "Geometry/PointReference.h"
 
 // only uses the constant basis functions

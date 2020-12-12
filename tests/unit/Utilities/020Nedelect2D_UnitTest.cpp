@@ -40,7 +40,6 @@
 #include "Integration/QuadratureRules/AllGaussQuadratureRules.h"
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include "Geometry/ReferenceTriangle.h"
-#include "Base/BasisFunctionSet.h"
 #include "../catch.hpp"
 
 using namespace hpgem;

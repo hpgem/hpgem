@@ -38,8 +38,8 @@
 
 #include "BasisFunctions3DH1ConformingPyramid.h"
 #include "helperFunctions.h"
-#include "Base/BasisFunctionSet.h"
-#include "Base/OrientedBasisFunctionSet.h"
+#include "FE/BasisFunctionSet.h"
+#include "FE/OrientedBasisFunctionSet.h"
 #include "Geometry/ReferenceTriangularPrism.h"
 #include "Geometry/PointReference.h"
 

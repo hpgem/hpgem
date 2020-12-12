@@ -37,8 +37,8 @@
 */
 
 #include "BasisFunctionsMonomials.h"
-#include "BaseBasisFunction.h"
-#include "BasisFunctionSet.h"
+#include "FE/BaseBasisFunction.h"
+#include "FE/BasisFunctionSet.h"
 #include "Geometry/PointReference.h"
 
 #include <array>

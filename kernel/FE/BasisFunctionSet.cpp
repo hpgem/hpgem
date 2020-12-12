@@ -35,11 +35,10 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "Base/BasisFunctionSet.h"
+#include "BasisFunctionSet.h"
 
-#include "Base/BaseBasisFunction.h"
+#include "BaseBasisFunction.h"
 #include "Logger.h"
-#include "LinearAlgebra/MiddleSizeVector.h"
 
 namespace hpgem {
 

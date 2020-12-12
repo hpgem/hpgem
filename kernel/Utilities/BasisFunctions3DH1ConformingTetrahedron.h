@@ -39,7 +39,7 @@
 #ifndef HPGEM_KERNEL_BASISFUNCTIONS3DH1CONFORMINGTETRAHEDRON_H
 #define HPGEM_KERNEL_BASISFUNCTIONS3DH1CONFORMINGTETRAHEDRON_H
 
-#include "Base/BaseBasisFunction.h"
+#include "FE/BaseBasisFunction.h"
 #include <vector>
 
 namespace hpgem {

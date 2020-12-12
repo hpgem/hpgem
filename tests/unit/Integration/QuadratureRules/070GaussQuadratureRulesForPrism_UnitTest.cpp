@@ -46,7 +46,7 @@
 
 #include "Utilities/BasisFunctions3DH1ConformingPrism.h"
 #include "Geometry/ReferenceTriangularPrism.h"
-#include "Base/BasisFunctionSet.h"
+#include "FE/BasisFunctionSet.h"
 #include "Geometry/PointReference.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include <cmath>

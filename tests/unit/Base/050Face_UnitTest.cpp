@@ -52,10 +52,10 @@
 #include "Integration/QuadratureRules/GaussQuadratureRulesForSquare.h"
 
 #include "Geometry/PointPhysical.h"
-#include "Base/BasisFunctionSet.h"
+#include "FE/BasisFunctionSet.h"
 #include "Base/Element.h"
 #include "Geometry/PointReference.h"
-#include "Base/BaseBasisFunction.h"
+#include "FE/BaseBasisFunction.h"
 
 #include "../catch.hpp"
 

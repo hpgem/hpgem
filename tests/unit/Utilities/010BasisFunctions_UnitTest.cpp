@@ -55,7 +55,7 @@ CHECK($1); the documentation
 #include "Utilities/BasisFunctions3DAinsworthCoyle.h"
 #include "Logger.h"
 
-#include "Base/BasisFunctionSet.h"
+#include "FE/BasisFunctionSet.h"
 #include "Base/L2Norm.h"
 #include "Geometry/PointReference.h"
 #include "LinearAlgebra/MiddleSizeVector.h"

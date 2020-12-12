@@ -40,8 +40,8 @@
 
 #include <utility>
 
-#include "Base/BaseBasisFunction.h"
-#include "Base/BasisFunctionSet.h"
+#include "FE/BaseBasisFunction.h"
+#include "FE/BasisFunctionSet.h"
 #include "Geometry/PointReference.h"
 #include "Geometry/ReferenceTriangle.h"
 
