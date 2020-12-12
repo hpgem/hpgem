@@ -53,9 +53,8 @@ BasisFunctionSet::~BasisFunctionSet() {
         delete vecOfBasisFcn_.back();
         vecOfBasisFcn_.pop_back();
     }
-    while (!registeredRules_.empty()) {
-        registeredRules_.back()->unregisterBasisFunctionSet(this);
-        registeredRules_.pop_back();
+    for (auto callBack : destructorListeners_) {
+        callBack();
     }
 }
 
@@ -66,39 +65,10 @@ std::size_t BasisFunctionSet::getOrder() const { return order_; }
 void BasisFunctionSet::addBasisFunction(BaseBasisFunction* bf) {
     logger.assert_debug(bf != nullptr, "Invalid basis function passed");
     vecOfBasisFcn_.push_back(bf);
-    while (!registeredRules_.empty()) {
-        registeredRules_.back()->unregisterBasisFunctionSet(this);
-        vecOfBasisFcn_.pop_back();
+    for (auto& callback : destructorListeners_) {
+        callback();
     }
 }
 }  // namespace Base
-
-double Base::BasisFunctionSet::eval(
-    std::size_t i, QuadratureRules::GaussQuadratureRule* elementQuadratureRule,
-    std::size_t quadraturePointIndex) const {
-    return elementQuadratureRule->eval(this, i, quadraturePointIndex);
-}
-
-double Base::BasisFunctionSet::eval(
-    std::size_t i, QuadratureRules::GaussQuadratureRule* faceQuadratureRule,
-    std::size_t quadraturePointIndex,
-    const Geometry::MappingReferenceToReference<1>* faceToElementMap) const {
-    return faceQuadratureRule->eval(this, i, quadraturePointIndex,
-                                    faceToElementMap);
-}
-
-double Base::BasisFunctionSet::evalDiv(
-    std::size_t i, QuadratureRules::GaussQuadratureRule* elementQuadratureRule,
-    std::size_t quadraturePointIndex) const {
-    return elementQuadratureRule->evalDiv(this, i, quadraturePointIndex);
-}
-
-double Base::BasisFunctionSet::evalDiv(
-    std::size_t i, QuadratureRules::GaussQuadratureRule* faceQuadratureRule,
-    std::size_t quadraturePointIndex,
-    const Geometry::MappingReferenceToReference<1>* faceToElementMap) const {
-    return faceQuadratureRule->evalDiv(this, i, quadraturePointIndex,
-                                       faceToElementMap);
-}
 
 }  // namespace hpgem

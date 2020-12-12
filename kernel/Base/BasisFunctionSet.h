@@ -56,10 +56,6 @@ template <int CODIM>
 class MappingReferenceToReference;
 }  // namespace Geometry
 
-namespace QuadratureRules {
-class GaussQuadratureRule;
-}
-
 namespace Base {
 class BaseBasisFunction;
 
@@ -84,40 +80,10 @@ class BasisFunctionSet {
     template <std::size_t DIM>
     double eval(std::size_t i, const Geometry::PointReference<DIM> &p) const;
 
-    ///\evaluate basis function i at a point needed for a quadrature rule, where
-    /// the quadrature rule is meant for integrating over an element
-    double eval(std::size_t i,
-                QuadratureRules::GaussQuadratureRule *elementQuadratureRule,
-                std::size_t quadraturePointIndex) const;
-
-    ///\evaluate basis function i at a point needed for a quadrature rule, where
-    /// the quadrature rule is meant for integrating over a face
-    double eval(
-        std::size_t i, QuadratureRules::GaussQuadratureRule *faceQuadratureRule,
-        std::size_t quadraturePointIndex,
-        const Geometry::MappingReferenceToReference<1> *faceToElementMap) const;
-
     ///\brief returns the value of the i-th basisfunction at point p in ret
     template <std::size_t DIM>
     void eval(std::size_t i, const Geometry::PointReference<DIM> &p,
               LinearAlgebra::SmallVector<DIM> &ret) const;
-
-    ///\evaluate basis function i at a point needed for a quadrature rule, where
-    /// the quadrature rule is meant for integrating over an element
-    template <std::size_t DIM>
-    void eval(std::size_t i,
-              QuadratureRules::GaussQuadratureRule *elementQuadratureRule,
-              std::size_t quadraturePointIndex,
-              LinearAlgebra::SmallVector<DIM> &result) const;
-
-    ///\evaluate basis function i at a point needed for a quadrature rule, where
-    /// the quadrature rule is meant for integrating over a face
-    template <std::size_t DIM>
-    void eval(std::size_t i,
-              QuadratureRules::GaussQuadratureRule *faceQuadratureRule,
-              std::size_t quadraturePointIndex,
-              const Geometry::MappingReferenceToReference<1> *faceToElementMap,
-              LinearAlgebra::SmallVector<DIM> &result) const;
 
     template <std::size_t DIM>
     double evalDeriv(std::size_t i, std::size_t jDir,
@@ -127,63 +93,14 @@ class BasisFunctionSet {
     LinearAlgebra::SmallVector<DIM> evalDeriv(
         std::size_t i, const Geometry::PointReference<DIM> &p) const;
 
-    ///\evaluate the gradient of basis function i at a point needed for a
-    /// quadrature rule, where the quadrature rule is meant for integrating over
-    /// an element
-    template <std::size_t DIM>
-    LinearAlgebra::SmallVector<DIM> evalDeriv(
-        std::size_t i,
-        QuadratureRules::GaussQuadratureRule *elementQuadratureRule,
-        std::size_t quadraturePointIndex) const;
-
-    ///\evaluate the gradient of basis function i at a point needed for a
-    /// quadrature rule, where the quadrature rule is meant for integrating over
-    /// a face
-    template <std::size_t DIM>
-    LinearAlgebra::SmallVector<DIM> evalDeriv(
-        std::size_t i, QuadratureRules::GaussQuadratureRule *faceQuadratureRule,
-        std::size_t quadraturePointIndex,
-        const Geometry::MappingReferenceToReference<1> *faceToElementMap) const;
-
     ///\brief returns the curl of the i-th basisfunction at point p in ret
     template <std::size_t DIM>
     LinearAlgebra::SmallVector<DIM> evalCurl(
         std::size_t i, const Geometry::PointReference<DIM> &p) const;
 
-    ///\evaluate the curl of basis function i at a point needed for a quadrature
-    /// rule, where the quadrature rule is meant for integrating over an element
-    template <std::size_t DIM>
-    LinearAlgebra::SmallVector<DIM> evalCurl(
-        std::size_t i,
-        QuadratureRules::GaussQuadratureRule *elementQuadratureRule,
-        std::size_t quadraturePointIndex) const;
-
-    ///\evaluate the curl of basis function i at a point needed for a quadrature
-    /// rule, where the quadrature rule is meant for integrating over a face
-    template <std::size_t DIM>
-    LinearAlgebra::SmallVector<DIM> evalCurl(
-        std::size_t i, QuadratureRules::GaussQuadratureRule *faceQuadratureRule,
-        std::size_t quadraturePointIndex,
-        const Geometry::MappingReferenceToReference<1> *faceToElementMap) const;
-
     ///\brief returns the divergence of the i-th basisfunction at point p in ret
     template <std::size_t DIM>
     double evalDiv(std::size_t i, const Geometry::PointReference<DIM> &p) const;
-
-    ///\evaluate the divergence of basis function i at a point needed for a
-    /// quadrature rule, where the quadrature rule is meant for integrating over
-    /// an element
-    double evalDiv(std::size_t i,
-                   QuadratureRules::GaussQuadratureRule *elementQuadratureRule,
-                   std::size_t quadraturePointIndex) const;
-
-    ///\evaluate the divergence of basis function i at a point needed for a
-    /// quadrature rule, where the quadrature rule is meant for integrating over
-    /// a face
-    double evalDiv(
-        std::size_t i, QuadratureRules::GaussQuadratureRule *faceQuadratureRule,
-        std::size_t quadraturePointIndex,
-        const Geometry::MappingReferenceToReference<1> *faceToElementMap) const;
 
     const BaseBasisFunction *operator[](std::size_t i) const {
         logger.assert_debug(
@@ -206,24 +123,20 @@ class BasisFunctionSet {
 
     BaseBasisFunctions::iterator end() { return vecOfBasisFcn_.end(); }
 
-    /// tell the basis function set that the quadrature rule uses a pointer to
-    /// this set for quick function lookup
-    void registerQuadratureRule(
-        QuadratureRules::GaussQuadratureRule *rule) const {
-        registeredRules_.push_back(rule);
+    /// Register a function that will be called when this BasisFunctionSet is
+    /// deconstructed.
+    void registerDestructorListener(std::function<void()> callback) const {
+        destructorListeners_.push_back(callback);
     }
 
    private:
     std::size_t order_;
     BaseBasisFunctions vecOfBasisFcn_;
-    // altering this field does not alter the visible behavior of the function
-    // set
-    mutable std::vector<QuadratureRules::GaussQuadratureRule *>
-        registeredRules_;
+
+    mutable std::vector<std::function<void()>> destructorListeners_;
 };
 }  // namespace Base
 }  // namespace hpgem
-#include "Integration/QuadratureRules/GaussQuadratureRule.h"
 
 // reopening namespace because gcc has a bug where it doesn't accept template
 // specializations in an enclosing namespace
@@ -380,89 +293,6 @@ double BasisFunctionSet::evalDiv(std::size_t i,
         "Asked for basis function %, but there are only % basis functions", i,
         size());
     return vecOfBasisFcn_[i]->evalDiv(p);
-}
-
-template <std::size_t DIM>
-inline void BasisFunctionSet::eval(
-    std::size_t i, QuadratureRules::GaussQuadratureRule *elementQuadratureRule,
-    std::size_t quadraturePointIndex,
-    LinearAlgebra::SmallVector<DIM> &result) const {
-    elementQuadratureRule->eval(this, i, quadraturePointIndex, result);
-}
-
-template <std::size_t DIM>
-inline void BasisFunctionSet::eval(
-    std::size_t i, QuadratureRules::GaussQuadratureRule *faceQuadratureRule,
-    std::size_t quadraturePointIndex,
-    const Geometry::MappingReferenceToReference<1> *faceToElementMap,
-    LinearAlgebra::SmallVector<DIM> &result) const {
-    faceQuadratureRule->eval(this, i, quadraturePointIndex, faceToElementMap,
-                             result);
-}
-
-template <std::size_t DIM>
-inline LinearAlgebra::SmallVector<DIM> BasisFunctionSet::evalDeriv(
-    std::size_t i, QuadratureRules::GaussQuadratureRule *elementQuadratureRule,
-    std::size_t quadraturePointIndex) const {
-    return elementQuadratureRule->evalGrad(this, i, quadraturePointIndex);
-}
-
-template <std::size_t DIM>
-inline LinearAlgebra::SmallVector<DIM> BasisFunctionSet::evalDeriv(
-    std::size_t i, QuadratureRules::GaussQuadratureRule *faceQuadratureRule,
-    std::size_t quadraturePointIndex,
-    const Geometry::MappingReferenceToReference<1> *faceToElementMap) const {
-    return faceQuadratureRule->evalGrad(this, i, quadraturePointIndex,
-                                        faceToElementMap);
-}
-
-template <std::size_t DIM>
-inline LinearAlgebra::SmallVector<DIM> BasisFunctionSet::evalCurl(
-    std::size_t i, QuadratureRules::GaussQuadratureRule *elementQuadratureRule,
-    std::size_t quadraturePointIndex) const {
-    logger(ERROR, "only implemented for DIM = 3");
-    return LinearAlgebra::SmallVector<DIM>();
-}
-
-template <>
-inline LinearAlgebra::SmallVector<2> BasisFunctionSet::evalCurl(
-    std::size_t i, QuadratureRules::GaussQuadratureRule *elementQuadratureRule,
-    std::size_t quadraturePointIndex) const {
-    return elementQuadratureRule->evalCurl2D(this, i, quadraturePointIndex);
-}
-
-template <>
-inline LinearAlgebra::SmallVector<3> BasisFunctionSet::evalCurl(
-    std::size_t i, QuadratureRules::GaussQuadratureRule *elementQuadratureRule,
-    std::size_t quadraturePointIndex) const {
-    return elementQuadratureRule->evalCurl(this, i, quadraturePointIndex);
-}
-
-template <std::size_t DIM>
-inline LinearAlgebra::SmallVector<DIM> BasisFunctionSet::evalCurl(
-    std::size_t i, QuadratureRules::GaussQuadratureRule *faceQuadratureRule,
-    std::size_t quadraturePointIndex,
-    const Geometry::MappingReferenceToReference<1> *faceToElementMap) const {
-    logger(ERROR, "only implemented for DIM = 3");
-    return LinearAlgebra::SmallVector<DIM>();
-}
-
-template <>
-inline LinearAlgebra::SmallVector<3> BasisFunctionSet::evalCurl(
-    std::size_t i, QuadratureRules::GaussQuadratureRule *faceQuadratureRule,
-    std::size_t quadraturePointIndex,
-    const Geometry::MappingReferenceToReference<1> *faceToElementMap) const {
-    return faceQuadratureRule->evalCurl(this, i, quadraturePointIndex,
-                                        faceToElementMap);
-}
-
-template <>
-inline LinearAlgebra::SmallVector<2> BasisFunctionSet::evalCurl(
-    std::size_t i, QuadratureRules::GaussQuadratureRule *faceQuadratureRule,
-    std::size_t quadraturePointIndex,
-    const Geometry::MappingReferenceToReference<1> *faceToElementMap) const {
-    return faceQuadratureRule->evalCurl2D(this, i, quadraturePointIndex,
-                                          faceToElementMap);
 }
 
 }  // namespace Base

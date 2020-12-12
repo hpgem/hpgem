@@ -959,8 +959,8 @@ LinearAlgebra::SmallVector<DIM> Element::basisFunctionCurl(
     const BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
-    return subSet->evalCurl<DIM>(subIndex, quadratureRule,
-                                 quadraturePointIndex);
+    return quadratureRule->evalCurl<DIM>(subSet, subIndex,
+                                         quadraturePointIndex);
 }
 
 template <std::size_t DIM>
@@ -975,8 +975,8 @@ LinearAlgebra::SmallVector<DIM> Element::basisFunctionCurl(
     std::size_t subIndex;
     std::tie(subSet, subIndex) =
         basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);
-    return subSet->evalCurl<DIM>(subIndex, quadratureRule,
-                                 quadraturePointIndex);
+    return quadratureRule->evalCurl<DIM>(subSet, subIndex,
+                                         quadraturePointIndex);
 }
 
 template <std::size_t DIM>
@@ -1058,8 +1058,8 @@ LinearAlgebra::SmallVector<DIM> Element::basisFunctionCurl(
     const BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
-    return subSet->evalCurl<DIM>(subIndex, quadratureRule, quadraturePointIndex,
-                                 map);
+    return quadratureRule->evalCurl<DIM>(subSet, subIndex, quadraturePointIndex,
+                                         map);
 }
 
 template <std::size_t DIM>
@@ -1076,8 +1076,8 @@ LinearAlgebra::SmallVector<DIM> Element::basisFunctionCurl(
     std::size_t subIndex;
     std::tie(subSet, subIndex) =
         basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);
-    return subSet->evalCurl<DIM>(subIndex, quadratureRule, quadraturePointIndex,
-                                 map);
+    return quadratureRule->evalCurl<DIM>(subSet, subIndex, quadraturePointIndex,
+                                         map);
 }
 }  // namespace Base
 
