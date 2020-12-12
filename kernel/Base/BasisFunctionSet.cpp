@@ -71,32 +71,4 @@ void BasisFunctionSet::addBasisFunction(BaseBasisFunction* bf) {
 }
 }  // namespace Base
 
-double Base::BasisFunctionSet::eval(
-    std::size_t i, QuadratureRules::GaussQuadratureRule* elementQuadratureRule,
-    std::size_t quadraturePointIndex) const {
-    return elementQuadratureRule->eval(this, i, quadraturePointIndex);
-}
-
-double Base::BasisFunctionSet::eval(
-    std::size_t i, QuadratureRules::GaussQuadratureRule* faceQuadratureRule,
-    std::size_t quadraturePointIndex,
-    const Geometry::MappingReferenceToReference<1>* faceToElementMap) const {
-    return faceQuadratureRule->eval(this, i, quadraturePointIndex,
-                                    faceToElementMap);
-}
-
-double Base::BasisFunctionSet::evalDiv(
-    std::size_t i, QuadratureRules::GaussQuadratureRule* elementQuadratureRule,
-    std::size_t quadraturePointIndex) const {
-    return elementQuadratureRule->evalDiv(this, i, quadraturePointIndex);
-}
-
-double Base::BasisFunctionSet::evalDiv(
-    std::size_t i, QuadratureRules::GaussQuadratureRule* faceQuadratureRule,
-    std::size_t quadraturePointIndex,
-    const Geometry::MappingReferenceToReference<1>* faceToElementMap) const {
-    return faceQuadratureRule->evalDiv(this, i, quadraturePointIndex,
-                                       faceToElementMap);
-}
-
 }  // namespace hpgem
