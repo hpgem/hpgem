@@ -56,7 +56,8 @@ double QuadratureRules::GaussQuadratureRule::eval(
         return basisFunctionValues_.at(
             set)[quadraturePointIndex][basisFunctionIndex];
     } catch (std::out_of_range&) {
-        set->registerQuadratureRule(this);
+        set->registerDestructorListener(
+            [=] { unregisterBasisFunctionSet(set); });
         basisFunctionValues_[set].resize(getNumberOfPoints());
         for (std::size_t i = 0; i < getNumberOfPoints(); ++i) {
             basisFunctionValues_[set][i].resize(set->size());
@@ -116,7 +117,8 @@ double QuadratureRules::GaussQuadratureRule::eval(
         return faceBasisFunctionValues_.at(set).at(
             containedMap)[quadraturePointIndex][basisFunctionIndex];
     } catch (std::out_of_range&) {
-        set->registerQuadratureRule(this);
+        set->registerDestructorListener(
+            [set, this] { unregisterBasisFunctionSet(set); });
         faceBasisFunctionValues_[set][containedMap].resize(getNumberOfPoints());
         for (std::size_t i = 0; i < getNumberOfPoints(); ++i) {
             faceBasisFunctionValues_[set][containedMap][i].resize(set->size());
@@ -194,7 +196,8 @@ const LinearAlgebra::MiddleSizeVector&
         // the entire computation
         auto oldWarn = loggerOutput->onWarn;
         loggerOutput->onWarn = [](std::string, std::string) {};
-        set->registerQuadratureRule(this);
+        set->registerDestructorListener(
+            [set, this] { unregisterBasisFunctionSet(set); });
         basisFunctionGrads_[set].resize(getNumberOfPoints());
         for (std::size_t i = 0; i < getNumberOfPoints(); ++i) {
             basisFunctionGrads_[set][i].resize(set->size());
@@ -267,7 +270,8 @@ const LinearAlgebra::MiddleSizeVector&
         // the entire computation
         auto oldWarn = loggerOutput->onWarn;
         loggerOutput->onWarn = [](std::string, std::string) {};
-        set->registerQuadratureRule(this);
+        set->registerDestructorListener(
+            [set, this] { unregisterBasisFunctionSet(set); });
         faceBasisFunctionGrads_[set][containedMap].resize(getNumberOfPoints());
         for (std::size_t i = 0; i < getNumberOfPoints(); ++i) {
             faceBasisFunctionGrads_[set][containedMap][i].resize(set->size());
@@ -338,7 +342,8 @@ LinearAlgebra::SmallVector<3> QuadratureRules::GaussQuadratureRule::evalCurl(
         return basisFunctionCurls_.at(
             set)[quadraturePointIndex][basisFunctionIndex];
     } catch (std::out_of_range&) {
-        set->registerQuadratureRule(this);
+        set->registerDestructorListener(
+            [set, this] { unregisterBasisFunctionSet(set); });
         basisFunctionCurls_[set].resize(getNumberOfPoints());
         for (std::size_t i = 0; i < getNumberOfPoints(); ++i) {
             basisFunctionCurls_[set][i].resize(set->size());
@@ -374,7 +379,8 @@ LinearAlgebra::SmallVector<2> QuadratureRules::GaussQuadratureRule::evalCurl2D(
         return basisFunctionCurls2D_.at(
             set)[quadraturePointIndex][basisFunctionIndex];
     } catch (std::out_of_range&) {
-        set->registerQuadratureRule(this);
+        set->registerDestructorListener(
+            [set, this] { unregisterBasisFunctionSet(set); });
         basisFunctionCurls2D_[set].resize(getNumberOfPoints());
         for (std::size_t i = 0; i < getNumberOfPoints(); ++i) {
             basisFunctionCurls2D_[set][i].resize(set->size());
@@ -414,7 +420,8 @@ LinearAlgebra::SmallVector<3> QuadratureRules::GaussQuadratureRule::evalCurl(
         return faceBasisFunctionCurls_.at(set).at(
             containedMap)[quadraturePointIndex][basisFunctionIndex];
     } catch (std::out_of_range&) {
-        set->registerQuadratureRule(this);
+        set->registerDestructorListener(
+            [set, this] { unregisterBasisFunctionSet(set); });
         faceBasisFunctionCurls_[set][containedMap].resize(getNumberOfPoints());
         for (std::size_t i = 0; i < getNumberOfPoints(); ++i) {
             faceBasisFunctionCurls_[set][containedMap][i].resize(set->size());
@@ -457,7 +464,8 @@ LinearAlgebra::SmallVector<2> QuadratureRules::GaussQuadratureRule::evalCurl2D(
         return faceBasisFunctionCurls2D_.at(set).at(
             containedMap)[quadraturePointIndex][basisFunctionIndex];
     } catch (std::out_of_range&) {
-        set->registerQuadratureRule(this);
+        set->registerDestructorListener(
+            [set, this] { unregisterBasisFunctionSet(set); });
         faceBasisFunctionCurls2D_[set][containedMap].resize(
             getNumberOfPoints());
         for (std::size_t i = 0; i < getNumberOfPoints(); ++i) {
@@ -498,7 +506,8 @@ double QuadratureRules::GaussQuadratureRule::evalDiv(
         return basisFunctionDivs_.at(
             set)[quadraturePointIndex][basisFunctionIndex];
     } catch (std::out_of_range&) {
-        set->registerQuadratureRule(this);
+        set->registerDestructorListener(
+            [set, this] { unregisterBasisFunctionSet(set); });
         basisFunctionDivs_[set].resize(getNumberOfPoints());
         for (std::size_t i = 0; i < getNumberOfPoints(); ++i) {
             basisFunctionDivs_[set][i].resize(set->size());
@@ -555,7 +564,8 @@ double QuadratureRules::GaussQuadratureRule::evalDiv(
         return faceBasisFunctionDivs_.at(set).at(
             containedMap)[quadraturePointIndex][basisFunctionIndex];
     } catch (std::out_of_range&) {
-        set->registerQuadratureRule(this);
+        set->registerDestructorListener(
+            [set, this] { unregisterBasisFunctionSet(set); });
         faceBasisFunctionDivs_[set][containedMap].resize(getNumberOfPoints());
         for (std::size_t i = 0; i < getNumberOfPoints(); ++i) {
             faceBasisFunctionDivs_[set][containedMap][i].resize(set->size());

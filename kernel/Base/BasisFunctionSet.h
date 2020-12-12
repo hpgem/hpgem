@@ -206,20 +206,17 @@ class BasisFunctionSet {
 
     BaseBasisFunctions::iterator end() { return vecOfBasisFcn_.end(); }
 
-    /// tell the basis function set that the quadrature rule uses a pointer to
-    /// this set for quick function lookup
-    void registerQuadratureRule(
-        QuadratureRules::GaussQuadratureRule *rule) const {
-        registeredRules_.push_back(rule);
+    /// Register a function that will be called when this BasisFunctionSet is
+    /// deconstructed.
+    void registerDestructorListener(std::function<void()> callback) const {
+        destructorListeners_.push_back(callback);
     }
 
    private:
     std::size_t order_;
     BaseBasisFunctions vecOfBasisFcn_;
-    // altering this field does not alter the visible behavior of the function
-    // set
-    mutable std::vector<QuadratureRules::GaussQuadratureRule *>
-        registeredRules_;
+
+    mutable std::vector<std::function<void()>> destructorListeners_;
 };
 }  // namespace Base
 }  // namespace hpgem

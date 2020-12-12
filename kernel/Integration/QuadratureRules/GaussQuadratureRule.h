@@ -137,7 +137,7 @@ class GaussQuadratureRule {
 
     /// tell the quadrature rule that a pointer to a basis function set is no
     /// longer suitable for quick lookup
-    void unregisterBasisFunctionSet(Base::BasisFunctionSet* set) {
+    void unregisterBasisFunctionSet(const Base::BasisFunctionSet* set) {
         basisFunctionValues_.erase(set);
         basisFunctionGrads_.erase(set);
         basisFunctionCurls_.erase(set);
@@ -299,7 +299,8 @@ inline void QuadratureRules::GaussQuadratureRule::eval(
         // the entire computation
         auto oldWarn = loggerOutput->onWarn;
         loggerOutput->onWarn = [](std::string, std::string) {};
-        set->registerQuadratureRule(this);
+        set->registerDestructorListener(
+            [set, this] { unregisterBasisFunctionSet(set); });
         basisFunctionVectorValues_[set].resize(getNumberOfPoints());
         for (std::size_t i = 0; i < getNumberOfPoints(); ++i) {
             basisFunctionVectorValues_[set][i].resize(set->size());
@@ -347,7 +348,8 @@ inline void QuadratureRules::GaussQuadratureRule::eval(
         // the entire computation
         auto oldWarn = loggerOutput->onWarn;
         loggerOutput->onWarn = [](std::string, std::string) {};
-        set->registerQuadratureRule(this);
+        set->registerDestructorListener(
+            [set, this] { unregisterBasisFunctionSet(set); });
         faceBasisFunctionVectorValues_[set][containedMap].resize(
             getNumberOfPoints());
         for (std::size_t i = 0; i < getNumberOfPoints(); ++i) {
