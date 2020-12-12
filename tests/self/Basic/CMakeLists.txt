@@ -13,6 +13,6 @@ foreach(CPPFILE ${CPPFILES})
 	#Make the exe
 	add_executable(${EXECNAME} ${FILENAME})
 	
-	target_link_libraries(${EXECNAME} hpGEM_Base Output)
+	target_link_libraries(${EXECNAME} HPGEM::HPGEM Output)
 endforeach()
 
