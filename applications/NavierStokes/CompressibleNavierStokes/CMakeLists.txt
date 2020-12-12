@@ -10,6 +10,6 @@ if(NOT hpGEM_USE_COMPLEX_PETSC)
 		CompressibleNavierStokes.cpp
 		main.cpp
       		)
-    target_link_libraries(CompressibleNavierStokes.out hpGEM_Base Output)
+    target_link_libraries(CompressibleNavierStokes.out HPGEM::HPGEM)
 
 endif()

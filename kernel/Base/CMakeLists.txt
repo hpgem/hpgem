@@ -1,7 +1,7 @@
 include_directories(${hpGEM_SOURCE_DIR}/kernel/ .)
 add_subdirectory(TimeIntegration)
 
-add_library(hpGEM_Base STATIC
+add_library(hpGEM_Base OBJECT
  		${hpGEM_SOURCE_DIR}/kernel/Base/BasisFunctionSet.cpp	
  		BaseBasisFunction.cpp	  
 		CommandLineOptions.cpp

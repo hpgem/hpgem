@@ -1,4 +1,4 @@
-add_library(Logger SHARED Logger.cpp)
+add_library(Logger STATIC Logger.cpp)
 set_target_properties(Logger PROPERTIES POSITION_INDEPENDENT_CODE true)
 
 if( hpGEM_USE_MPI )
