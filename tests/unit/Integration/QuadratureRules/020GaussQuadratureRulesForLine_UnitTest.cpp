@@ -64,8 +64,8 @@ void testRule(QuadratureRules::GaussQuadratureRule& test,
     INFO("forReferenceGeometry");
     CHECK((typeid(refGeo) == typeid(Geometry::ReferenceLine)));
 
-    Base::BasisFunctionSet* functions =
-        Utilities::createDGBasisFunctionSet1DH1Line(expectedOrder);
+    FE::BasisFunctionSet* functions =
+        FE::createDGBasisFunctionSet1DH1Line(expectedOrder);
 
     for (std::size_t i = 0; i < functions->size(); ++i) {
         double integrated = 0;

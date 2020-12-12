@@ -74,12 +74,12 @@ class DGWave : public Base::HpgemAPIBase<DIM>,
         addMesh("mesh.hpgem", 1, 1, 1, 1);
         setNumberOfTimeIntegrationVectorsGlobally(1);
         meshes_[0]->setDefaultBasisFunctionSet(
-            Utilities::createInteriorBasisFunctionSet2DH1Square(p_));
-        std::vector<const Base::BasisFunctionSet*> bFsets;
-        bFsets = Utilities::createVertexBasisFunctionSet2DH1Square(p_);
+            FE::createInteriorBasisFunctionSet2DH1Square(p_));
+        std::vector<const FE::BasisFunctionSet*> bFsets;
+        bFsets = FE::createVertexBasisFunctionSet2DH1Square(p_);
         meshes_[0]->addVertexBasisFunctionSet(bFsets);
-        std::vector<const Base::OrientedBasisFunctionSet*> oBFsets;
-        oBFsets = Utilities::createFaceBasisFunctionSet2DH1Square(p_);
+        std::vector<const FE::OrientedBasisFunctionSet*> oBFsets;
+        oBFsets = FE::createFaceBasisFunctionSet2DH1Square(p_);
         meshes_[0]->addFaceBasisFunctionSet(oBFsets);
         return true;
     }

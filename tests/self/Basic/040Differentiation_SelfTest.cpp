@@ -44,10 +44,6 @@
 #include "Logger.h"
 
 #include "FE/BasisFunctions1DH1ConformingLine.h"
-#include "FE/BasisFunctions2DH1ConformingSquare.h"
-#include "FE/BasisFunctions2DH1ConformingTriangle.h"
-#include "FE/BasisFunctions3DH1ConformingCube.h"
-#include "FE/BasisFunctions3DH1ConformingTetrahedron.h"
 #include "Base/ConfigurationData.h"
 #include "Base/L2Norm.h"
 #include "Base/CommandLineOptions.h"

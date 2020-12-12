@@ -46,7 +46,7 @@ using namespace hpgem;
 
 TEST_CASE("Nedelec 2D: Basic properties", "[Nedelec2D]") {
     auto p = GENERATE(1, 2, 3, 4);
-    auto* bfSet = Utilities::createDGBasisFunctionSet2DNedelec(p);
+    auto* bfSet = FE::createDGBasisFunctionSet2DNedelec(p);
 
     // Basic self check
     REQUIRE(bfSet->getOrder() == p);
@@ -80,7 +80,7 @@ TEST_CASE("Nedelec 2D: trace values", "[Nedelec2D]") {
 
     // There should be exactly p basis functions that have non zero trace
     auto p = GENERATE(1, 2, 3, 4);
-    auto* bfSet = Utilities::createDGBasisFunctionSet2DNedelec(p);
+    auto* bfSet = FE::createDGBasisFunctionSet2DNedelec(p);
 
     for (std::size_t side = 0; side < 3; ++side) {
         std::size_t nonZeroTangents = 0;
@@ -102,7 +102,7 @@ TEST_CASE("Nedelec 2D: curl values", "[Nedelec2D]") {
     // the value from the basisfunctions.
 
     auto p = GENERATE(1, 2, 3, 4);
-    auto* bfSet = Utilities::createDGBasisFunctionSet2DNedelec(p);
+    auto* bfSet = FE::createDGBasisFunctionSet2DNedelec(p);
 
     const double eps = 0.0001;
     const double margin = eps * 100;
@@ -147,7 +147,7 @@ TEST_CASE("Nedelec 2D: curl values", "[Nedelec2D]") {
 TEST_CASE("Nedelec 2D: Non singular mass matrix") {
     // Test to see if the mass matrix is non singular
     auto p = GENERATE(1, 2, 3, 4);
-    auto* bfSet = Utilities::createDGBasisFunctionSet2DNedelec(p);
+    auto* bfSet = FE::createDGBasisFunctionSet2DNedelec(p);
 
     auto* quadRule =
         QuadratureRules::AllGaussQuadratureRules::instance().getRule(

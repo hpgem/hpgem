@@ -112,13 +112,12 @@ TEST_CASE("040Element_UnitTest", "[040Element_UnitTest]") {
     point[2] = 7.7;
     nodes.push_back(point);
 
-    Base::BasisFunctionSet* basisFunctions = new Base::BasisFunctionSet(3);
+    FE::BasisFunctionSet* basisFunctions = new FE::BasisFunctionSet(3);
 
-    Utilities::assembleMonomialBasisFunctions3D(*basisFunctions, 3);
+    FE::assembleMonomialBasisFunctions3D(*basisFunctions, 3);
 
-    std::vector<std::shared_ptr<const Base::BasisFunctionSet>>
-        vectorOfFunctions(
-            1, std::shared_ptr<const Base::BasisFunctionSet>(basisFunctions));
+    std::vector<std::shared_ptr<const FE::BasisFunctionSet>> vectorOfFunctions(
+        1, std::shared_ptr<const FE::BasisFunctionSet>(basisFunctions));
 
     Base::Element test(pointIndexes, &vectorOfFunctions, nodes, 3, 14, 18);
     // Register the basis function for use for each of the three coordinates

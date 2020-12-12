@@ -54,12 +54,12 @@
 using namespace hpgem;
 TEST_CASE("030BasisFunctionSet_UnitTest", "[030BasisFunctionSet_UnitTest]") {
 
-    Base::BasisFunctionSet all1DbasisFunctions(5);
+    FE::BasisFunctionSet all1DbasisFunctions(5);
 
-    Utilities::assembleMonomialBasisFunctions1D(all1DbasisFunctions, 5);
+    FE::assembleMonomialBasisFunctions1D(all1DbasisFunctions, 5);
     Geometry::PointReference<1> point1D;
     for (std::size_t i = 0; i < all1DbasisFunctions.size(); ++i) {
-        const Base::BaseBasisFunction* test = all1DbasisFunctions[i];
+        const FE::BaseBasisFunction* test = all1DbasisFunctions[i];
         for (point1D[0] = -1.5; point1D[0] < 1.51; point1D[0] += 0.1) {
             INFO("eval");
             CHECK((test->eval((point1D)) ==
@@ -70,11 +70,11 @@ TEST_CASE("030BasisFunctionSet_UnitTest", "[030BasisFunctionSet_UnitTest]") {
         }
     }
 
-    Base::BasisFunctionSet all2DbasisFunctions(5);
-    Utilities::assembleMonomialBasisFunctions2D(all2DbasisFunctions, 5);
+    FE::BasisFunctionSet all2DbasisFunctions(5);
+    FE::assembleMonomialBasisFunctions2D(all2DbasisFunctions, 5);
     Geometry::PointReference<2> point2D;
     for (std::size_t i = 0; i < all2DbasisFunctions.size(); ++i) {
-        const Base::BaseBasisFunction* test = all2DbasisFunctions[i];
+        const FE::BaseBasisFunction* test = all2DbasisFunctions[i];
         for (point2D[0] = -1.5; point2D[0] < 1.51; point2D[0] += 0.2) {
             for (point2D[1] = -1.5; point2D[1] < 1.51; point2D[1] += 0.2) {
                 INFO("eval");
@@ -90,11 +90,11 @@ TEST_CASE("030BasisFunctionSet_UnitTest", "[030BasisFunctionSet_UnitTest]") {
         }
     }
 
-    Base::BasisFunctionSet all3DbasisFunctions(5);
-    Utilities::assembleMonomialBasisFunctions3D(all3DbasisFunctions, 5);
+    FE::BasisFunctionSet all3DbasisFunctions(5);
+    FE::assembleMonomialBasisFunctions3D(all3DbasisFunctions, 5);
     Geometry::PointReference<3> point3D;
     for (std::size_t i = 0; i < all3DbasisFunctions.size(); ++i) {
-        const Base::BaseBasisFunction* test = all3DbasisFunctions[i];
+        const FE::BaseBasisFunction* test = all3DbasisFunctions[i];
         for (point3D[0] = -1.5; point3D[0] < 1.51; point3D[0] += 0.6) {
             for (point3D[1] = -1.5; point3D[1] < 1.51; point3D[1] += 0.7) {
                 for (point3D[2] = -1.5; point3D[2] < 1.51; point3D[2] += 0.8) {

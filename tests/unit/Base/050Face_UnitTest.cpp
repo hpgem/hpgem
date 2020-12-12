@@ -109,13 +109,12 @@ TEST_CASE("050Face_UnitTest", "[050Face_UnitTest]") {
     point[2] = 7.7;
     nodes.push_back(point);
 
-    Base::BasisFunctionSet* basisFunctions = new Base::BasisFunctionSet(3);
+    FE::BasisFunctionSet* basisFunctions = new FE::BasisFunctionSet(3);
 
-    Utilities::assembleMonomialBasisFunctions3D(*basisFunctions, 3);
+    FE::assembleMonomialBasisFunctions3D(*basisFunctions, 3);
 
-    std::vector<std::shared_ptr<const Base::BasisFunctionSet>>
-        vectorOfFunctions(
-            1, std::shared_ptr<Base::BasisFunctionSet>(basisFunctions));
+    std::vector<std::shared_ptr<const FE::BasisFunctionSet>> vectorOfFunctions(
+        1, std::shared_ptr<FE::BasisFunctionSet>(basisFunctions));
 
     Base::Element element(pointIndexes, &vectorOfFunctions, nodes, 3, 14, 18);
     for (std::size_t i = 0; i < 3; ++i) {

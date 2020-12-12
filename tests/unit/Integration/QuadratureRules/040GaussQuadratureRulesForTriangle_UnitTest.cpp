@@ -64,8 +64,8 @@ void testRule(QuadratureRules::GaussQuadratureRule& test,
     INFO("forReferenceGeometry");
     CHECK((typeid(refGeo) == typeid(Geometry::ReferenceTriangle)));
     std::cout.precision(14);
-    Base::BasisFunctionSet* functions =
-        Utilities::createDGBasisFunctionSet2DH1Triangle(expectedOrder);
+    FE::BasisFunctionSet* functions =
+        FE::createDGBasisFunctionSet2DH1Triangle(expectedOrder);
     for (std::size_t i = 0; i < functions->size(); ++i) {
         double integrated = 0;
         for (std::size_t j = 0; j < test.getNumberOfPoints(); ++j) {

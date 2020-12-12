@@ -64,8 +64,8 @@ void testRule(QuadratureRules::GaussQuadratureRule& test,
     INFO("forReferenceGeometry");
     CHECK((typeid(refGeo) == typeid(Geometry::ReferenceTetrahedron)));
     std::cout.precision(14);
-    Base::BasisFunctionSet* functions =
-        Utilities::createDGBasisFunctionSet3DH1Tetrahedron(expectedOrder);
+    FE::BasisFunctionSet* functions =
+        FE::createDGBasisFunctionSet3DH1Tetrahedron(expectedOrder);
     for (std::size_t i = 0; i < functions->size(); ++i) {
         double integrated = 0;
         for (std::size_t j = 0; j < test.getNumberOfPoints(); ++j) {

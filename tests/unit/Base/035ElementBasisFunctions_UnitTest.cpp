@@ -56,9 +56,9 @@ TEST_CASE("035ElementBasisFunctions_UnitTest",
     }
 
     // Test case for testing with basis functions
-    std::shared_ptr<BasisFunctionSet> set =
-        std::make_shared<BasisFunctionSet>(3);
-    Utilities::assembleMonomialBasisFunctions3D(*set, 3);
+    std::shared_ptr<FE::BasisFunctionSet> set =
+        std::make_shared<FE::BasisFunctionSet>(3);
+    FE::assembleMonomialBasisFunctions3D(*set, 3);
     ElementBasisFunctions::CollectionOfBasisFunctionSets sets;
     sets.emplace_back(set);
 
@@ -105,9 +105,9 @@ TEST_CASE("035ElementBasisFunctions_UnitTest",
 
     {
         // Adding secondary lower order basis functions
-        std::shared_ptr<BasisFunctionSet> secondSet =
-            std::make_shared<BasisFunctionSet>(1);
-        Utilities::assembleMonomialBasisFunctions3D(*secondSet, 1);
+        std::shared_ptr<FE::BasisFunctionSet> secondSet =
+            std::make_shared<FE::BasisFunctionSet>(1);
+        FE::assembleMonomialBasisFunctions3D(*secondSet, 1);
         sets.emplace_back(secondSet);
 
         const std::size_t UNKNOWNS = 2;
