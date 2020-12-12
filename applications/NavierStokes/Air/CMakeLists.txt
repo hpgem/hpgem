@@ -9,6 +9,6 @@ if(NOT hpGEM_USE_COMPLEX_PETSC)
 		Air.cpp
 		main.cpp
       		)
-    target_link_libraries(Air.out hpGEM_Base Output)
+    target_link_libraries(Air.out HPGEM::HPGEM)
 
 endif()
