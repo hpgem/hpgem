@@ -1,6 +1,6 @@
 include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 
-add_library(QuadratureRules STATIC
+add_library(QuadratureRules OBJECT
         # Gauss quadrature rules
         ${hpGEM_SOURCE_DIR}/kernel/Integration/QuadratureRules/AllGaussQuadratureRules.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Integration/QuadratureRules/GaussQuadratureRule.cpp
