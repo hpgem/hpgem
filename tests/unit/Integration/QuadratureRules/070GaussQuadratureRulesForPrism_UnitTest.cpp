@@ -44,7 +44,7 @@
 #include "Logger.h"
 #include <typeinfo>
 
-#include "Utilities/BasisFunctions3DH1ConformingPrism.h"
+#include "FE/BasisFunctions3DH1ConformingPrism.h"
 #include "Geometry/ReferenceTriangularPrism.h"
 #include "FE/BasisFunctionSet.h"
 #include "Geometry/PointReference.h"

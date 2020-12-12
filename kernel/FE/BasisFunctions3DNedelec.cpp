@@ -38,7 +38,7 @@
 
 #include "BasisFunctions3DNedelec.h"
 #include "helperFunctions.h"
-#include "FE/BasisFunctionSet.h"
+#include "BasisFunctionSet.h"
 #include "Geometry/ReferenceTetrahedron.h"
 #include "Geometry/PointReference.h"
 

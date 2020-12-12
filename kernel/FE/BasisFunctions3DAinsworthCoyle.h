@@ -36,10 +36,10 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPGEM_KERNEL_BASISFUNCTIONS3DNEDELEC_H
-#define HPGEM_KERNEL_BASISFUNCTIONS3DNEDELEC_H
+#ifndef HPGEM_KERNEL_BASISFUNCTIONS3DAINSWORTHCOYLE_H
+#define HPGEM_KERNEL_BASISFUNCTIONS3DAINSWORTHCOYLE_H
 
-#include "FE/BaseBasisFunction.h"
+#include "BaseBasisFunction.h"
 #include <vector>
 
 namespace hpgem {
@@ -54,13 +54,12 @@ class PointReference;
 }
 
 namespace Utilities {
-
-//! Curl conforming Nedelec edge functions.
-class BasisCurlEdgeNedelec : public Base::BaseBasisFunction {
+//! Curl conforming edge functions.
+class BasisCurlEdgeAinsworthCoyle : public Base::BaseBasisFunction {
    public:
-    BasisCurlEdgeNedelec(std::size_t degree1, std::size_t degree2,
-                         std::size_t localFirstVertex,
-                         std::size_t localSecondVertex);
+    BasisCurlEdgeAinsworthCoyle(std::size_t degree,
+                                std::size_t localFirstVertex,
+                                std::size_t localSecondVertex);
 
     void eval(const Geometry::PointReference<3>& p,
               LinearAlgebra::SmallVector<3>& ret) const override;
@@ -69,14 +68,15 @@ class BasisCurlEdgeNedelec : public Base::BaseBasisFunction {
         const Geometry::PointReference<3>& p) const override;
 
    private:
-    const std::size_t deg1, deg2, i, j;
+    const std::size_t deg, o, i;
 };
 
-//! Curl conforming Nedelec face functions.
-class BasisCurlFace1Nedelec : public Base::BaseBasisFunction {
+//! Curl conforming edge based face functions.
+class BasisCurlEdgeFaceAinsworthCoyle : public Base::BaseBasisFunction {
    public:
-    BasisCurlFace1Nedelec(std::size_t degree1, std::size_t degree2,
-                          std::size_t degree3, std::size_t localOpposingVertex);
+    BasisCurlEdgeFaceAinsworthCoyle(std::size_t degree,
+                                    std::size_t localOpposingVertex,
+                                    std::size_t localSpecialVertex);
 
     void eval(const Geometry::PointReference<3>& p,
               LinearAlgebra::SmallVector<3>& ret) const override;
@@ -85,13 +85,15 @@ class BasisCurlFace1Nedelec : public Base::BaseBasisFunction {
         const Geometry::PointReference<3>& p) const override;
 
    private:
-    std::size_t deg1, deg2, deg3, a, b, c, d;
+    std::size_t deg, a, b, c;
 };
 
-class BasisCurlFace2Nedelec : public Base::BaseBasisFunction {
+//! Curl conforming face functions.
+class BasisCurlFaceAinsworthCoyle : public Base::BaseBasisFunction {
    public:
-    BasisCurlFace2Nedelec(std::size_t degree1, std::size_t degree2,
-                          std::size_t degree3, std::size_t localOpposingVertex);
+    BasisCurlFaceAinsworthCoyle(std::size_t degree1, std::size_t degree2,
+                                std::size_t localOpposingVertex,
+                                std::size_t direction);
 
     void eval(const Geometry::PointReference<3>& p,
               LinearAlgebra::SmallVector<3>& ret) const override;
@@ -100,14 +102,15 @@ class BasisCurlFace2Nedelec : public Base::BaseBasisFunction {
         const Geometry::PointReference<3>& p) const override;
 
    private:
-    std::size_t deg1, deg2, deg3, a, b, c, d;
+    std::size_t deg1, deg2, a, b, c;
 };
 
-//! curl conforming interior Nedelec functions
-class BasisCurlinterior1Nedelec : public Base::BaseBasisFunction {
+//! Curl conforming face based interior functions.
+class BasisCurlFaceinteriorAinsworthCoyle : public Base::BaseBasisFunction {
    public:
-    BasisCurlinterior1Nedelec(std::size_t degree1, std::size_t degree2,
-                              std::size_t degree3, std::size_t degree4);
+    BasisCurlFaceinteriorAinsworthCoyle(std::size_t degree1,
+                                        std::size_t degree2,
+                                        std::size_t localOpposingVertex);
 
     void eval(const Geometry::PointReference<3>& p,
               LinearAlgebra::SmallVector<3>& ret) const override;
@@ -116,14 +119,14 @@ class BasisCurlinterior1Nedelec : public Base::BaseBasisFunction {
         const Geometry::PointReference<3>& p) const override;
 
    private:
-    const std::size_t deg1, deg2, deg3, deg4;
+    std::size_t deg1, deg2, a, b, c, d;
 };
 
-//! curl conforming interior Nedelec functions
-class BasisCurlinterior2Nedelec : public Base::BaseBasisFunction {
+//! curl conforming interior functions
+class BasisCurlinteriorAinsworthCoyle : public Base::BaseBasisFunction {
    public:
-    BasisCurlinterior2Nedelec(std::size_t degree1, std::size_t degree2,
-                              std::size_t degree3, std::size_t degree4);
+    BasisCurlinteriorAinsworthCoyle(std::size_t degree1, std::size_t degree2,
+                                    std::size_t degree3, std::size_t direction);
 
     void eval(const Geometry::PointReference<3>& p,
               LinearAlgebra::SmallVector<3>& ret) const override;
@@ -132,29 +135,14 @@ class BasisCurlinterior2Nedelec : public Base::BaseBasisFunction {
         const Geometry::PointReference<3>& p) const override;
 
    private:
-    const std::size_t deg1, deg2, deg3, deg4;
+    const std::size_t deg1, deg2, deg3, direction;
 };
 
-//! curl conforming interior Nedelec functions
-class BasisCurlinterior3Nedelec : public Base::BaseBasisFunction {
-   public:
-    BasisCurlinterior3Nedelec(std::size_t degree1, std::size_t degree2,
-                              std::size_t degree3, std::size_t degree4);
-
-    void eval(const Geometry::PointReference<3>& p,
-              LinearAlgebra::SmallVector<3>& ret) const override;
-
-    LinearAlgebra::SmallVector<3> evalCurl(
-        const Geometry::PointReference<3>& p) const override;
-
-   private:
-    const std::size_t deg1, deg2, deg3, deg4;
-};
-
-Base::BasisFunctionSet* createDGBasisFunctionSet3DNedelec(std::size_t order);
+Base::BasisFunctionSet* createDGBasisFunctionSet3DAinsworthCoyle(
+    std::size_t order);
 
 }  // namespace Utilities
 
 }  // namespace hpgem
 
-#endif  // HPGEM_KERNEL_BASISFUNCTIONS3DNEDELEC_H
+#endif  // HPGEM_KERNEL_BASISFUNCTIONS3DAINSWORTHCOYLE_H

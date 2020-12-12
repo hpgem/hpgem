@@ -44,7 +44,7 @@
 #include "Logger.h"
 #include <typeinfo>
 
-#include "Utilities/BasisFunctions2DH1ConformingSquare.h"
+#include "FE/BasisFunctions2DH1ConformingSquare.h"
 #include "Geometry/ReferenceSquare.h"
 #include "Geometry/PointReference.h"
 #include "LinearAlgebra/MiddleSizeVector.h"

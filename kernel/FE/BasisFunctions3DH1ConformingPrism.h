@@ -36,10 +36,10 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPGEM_KERNEL_BASISFUNCTIONS3DH1CONFORMINGCUBE_H
-#define HPGEM_KERNEL_BASISFUNCTIONS3DH1CONFORMINGCUBE_H
+#ifndef HPGEM_KERNEL_BASISFUNCTIONS3DH1CONFORMINGPRISM_H
+#define HPGEM_KERNEL_BASISFUNCTIONS3DH1CONFORMINGPRISM_H
 
-#include "FE/BaseBasisFunction.h"
+#include "BaseBasisFunction.h"
 #include <vector>
 
 namespace hpgem {
@@ -56,9 +56,9 @@ class PointReference;
 
 namespace Utilities {
 
-class BasisFunction3DVertexCube : public Base::BaseBasisFunction {
+class BasisFunction3DVertexPrism : public Base::BaseBasisFunction {
    public:
-    BasisFunction3DVertexCube(std::size_t node);
+    BasisFunction3DVertexPrism(std::size_t node);
 
     double eval(const Geometry::PointReference<3>& p) const override;
 
@@ -69,13 +69,24 @@ class BasisFunction3DVertexCube : public Base::BaseBasisFunction {
     double evalDeriv2(const Geometry::PointReference<3>& p) const override;
 
    private:
-    int nodePosition0_, nodePosition1_, nodePosition2_;
+    int nodePosition_;
+    std::size_t node_;  // node is number inside triangle
 };
 
-class BasisFunction3DEdgeCube_0 : public Base::BaseBasisFunction {
+class BasisFunction3DEdgePrism_0 : public Base::BaseBasisFunction {
    public:
-    BasisFunction3DEdgeCube_0(std::size_t node0, std::size_t node1,
-                              std::size_t polynomialOrder);
+    BasisFunction3DEdgePrism_0(std::size_t node0, std::size_t node1,
+                               std::size_t polynomialOrder)
+        : edgePosition_((static_cast<int>(node0) / 3) * 2 - 1),
+          node0_(node0 % 3),
+          node1_(node1 % 3),
+          polynomialOrder_(polynomialOrder) {
+        logger.assert_debug(node0 < 6, "A triangular prism only has 6 nodes");
+        logger.assert_debug(node1 < 6, "A triangular prism only has 6 nodes");
+        logger.assert_debug(
+            node0 / 3 == node1 / 3,
+            "Nodes % and % do not form an edge connected to a triangular face");
+    }
 
     double eval(const Geometry::PointReference<3>& p) const override;
 
@@ -86,57 +97,33 @@ class BasisFunction3DEdgeCube_0 : public Base::BaseBasisFunction {
     double evalDeriv2(const Geometry::PointReference<3>& p) const override;
 
    private:
-    int edgePosition1_;
-    int edgePosition2_;
+    int edgePosition_;
+    std::size_t node0_, node1_, polynomialOrder_;
+};
+
+class BasisFunction3DEdgePrism_1 : public Base::BaseBasisFunction {
+   public:
+    BasisFunction3DEdgePrism_1(std::size_t node0, std::size_t node1,
+                               std::size_t polynomialOrder);
+
+    double eval(const Geometry::PointReference<3>& p) const override;
+
+    double evalDeriv0(const Geometry::PointReference<3>& p) const override;
+
+    double evalDeriv1(const Geometry::PointReference<3>& p) const override;
+
+    double evalDeriv2(const Geometry::PointReference<3>& p) const override;
+
+   private:
     int mirroring_;
-    std::size_t polynomialOrder_;
+    std::size_t node_, polynomialOrder_;
 };
 
-class BasisFunction3DEdgeCube_1 : public Base::BaseBasisFunction {
+class BasisFunction3DFacePrism_0 : public Base::BaseBasisFunction {
    public:
-    BasisFunction3DEdgeCube_1(std::size_t node0, std::size_t node1,
-                              std::size_t polynomialOrder);
-
-    double eval(const Geometry::PointReference<3>& p) const override;
-
-    double evalDeriv0(const Geometry::PointReference<3>& p) const override;
-
-    double evalDeriv1(const Geometry::PointReference<3>& p) const override;
-
-    double evalDeriv2(const Geometry::PointReference<3>& p) const override;
-
-   private:
-    int edgePosition0_;
-    int edgePosition2_;
-    int mirroring_;
-    std::size_t polynomialOrder_;
-};
-
-class BasisFunction3DEdgeCube_2 : public Base::BaseBasisFunction {
-   public:
-    BasisFunction3DEdgeCube_2(std::size_t node0, std::size_t node1,
-                              std::size_t polynomialOrder);
-
-    double eval(const Geometry::PointReference<3>& p) const override;
-
-    double evalDeriv0(const Geometry::PointReference<3>& p) const override;
-
-    double evalDeriv1(const Geometry::PointReference<3>& p) const override;
-
-    double evalDeriv2(const Geometry::PointReference<3>& p) const override;
-
-   private:
-    int edgePosition0_;
-    int edgePosition1_;
-    int mirroring_;
-    std::size_t polynomialOrder_;
-};
-
-class BasisFunction3DFaceCube_0 : public Base::BaseBasisFunction {
-   public:
-    BasisFunction3DFaceCube_0(std::size_t node0, std::size_t node1,
-                              std::size_t node2, std::size_t polynomialOrder1,
-                              std::size_t polynomialOrder2);
+    BasisFunction3DFacePrism_0(std::size_t node0, std::size_t node1,
+                               std::size_t node2, std::size_t polynomialOrder0,
+                               std::size_t polynomialOrder1);
 
     double eval(const Geometry::PointReference<3>& p) const override;
 
@@ -148,17 +135,14 @@ class BasisFunction3DFaceCube_0 : public Base::BaseBasisFunction {
 
    private:
     int facePosition_;
-    int mirroring1_;
-    int mirroring2_;
-    std::size_t polynomialOrder1_;
-    std::size_t polynomialOrder2_;
+    std::size_t polynomialOrder0_, polynomialOrder1_, node0_, node1_, node2_;
 };
 
-class BasisFunction3DFaceCube_1 : public Base::BaseBasisFunction {
+class BasisFunction3DFacePrism_1 : public Base::BaseBasisFunction {
    public:
-    BasisFunction3DFaceCube_1(std::size_t node0, std::size_t node1,
-                              std::size_t node2, std::size_t polynomialOrder0,
-                              std::size_t polynomialOrder2);
+    BasisFunction3DFacePrism_1(std::size_t node0, std::size_t node1,
+                               std::size_t node2, std::size_t polynomialOrder0,
+                               std::size_t polynomialOrder1);
 
     double eval(const Geometry::PointReference<3>& p) const override;
 
@@ -169,41 +153,16 @@ class BasisFunction3DFaceCube_1 : public Base::BaseBasisFunction {
     double evalDeriv2(const Geometry::PointReference<3>& p) const override;
 
    private:
-    int facePosition_;
-    int mirroring0_;
-    int mirroring2_;
-    std::size_t polynomialOrder0_;
-    std::size_t polynomialOrder2_;
+    int mirroring_;
+    std::size_t node0_, node1_, polynomialOrder0_, polynomialOrder1_;
 };
 
-class BasisFunction3DFaceCube_2 : public Base::BaseBasisFunction {
+class BasisFunction3DInteriorPrism : public Base::BaseBasisFunction {
    public:
-    BasisFunction3DFaceCube_2(std::size_t node0, std::size_t node1,
-                              std::size_t node2, std::size_t polynomialOrder0,
-                              std::size_t polynomialOrder1);
-
-    double eval(const Geometry::PointReference<3>& p) const override;
-
-    double evalDeriv0(const Geometry::PointReference<3>& p) const override;
-
-    double evalDeriv1(const Geometry::PointReference<3>& p) const override;
-
-    double evalDeriv2(const Geometry::PointReference<3>& p) const override;
-
-   private:
-    int facePosition_;
-    int mirroring0_;
-    int mirroring1_;
-    std::size_t polynomialOrder0_;
-    std::size_t polynomialOrder1_;
-};
-
-class BasisFunction3DInteriorCube : public Base::BaseBasisFunction {
-   public:
-    BasisFunction3DInteriorCube(std::size_t polynomialOrder0,
-                                std::size_t polynomialOrder1,
-                                std::size_t polynomialOrder2)
-        : polynomialOrder0_(polynomialOrder0),
+    BasisFunction3DInteriorPrism(std::size_t polynomialOrder0,
+                                 std::size_t polynomialOrder1,
+                                 std::size_t polynomialOrder2)
+        : polnomialOrder0_(polynomialOrder0),
           polynomialOrder1_(polynomialOrder1),
           polynomialOrder2_(polynomialOrder2) {}
 
@@ -216,24 +175,26 @@ class BasisFunction3DInteriorCube : public Base::BaseBasisFunction {
     double evalDeriv2(const Geometry::PointReference<3>& p) const override;
 
    private:
-    std::size_t polynomialOrder0_, polynomialOrder1_, polynomialOrder2_;
+    std::size_t polnomialOrder0_, polynomialOrder1_, polynomialOrder2_;
 };
 
-Base::BasisFunctionSet* createDGBasisFunctionSet3DH1Cube(std::size_t order);
-
-Base::BasisFunctionSet* createInteriorBasisFunctionSet3DH1Cube(
+Base::BasisFunctionSet* createDGBasisFunctionSet3DH1ConformingPrism(
     std::size_t order);
 
-std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet3DH1Cube(
+Base::BasisFunctionSet* createInteriorBasisFunctionSet3DH1ConformingPrism(
     std::size_t order);
 
-std::vector<const Base::OrientedBasisFunctionSet*>
-    createEdgeBasisFunctionSet3DH1Cube(std::size_t order);
+std::vector<const Base::BasisFunctionSet*>
+    createVertexBasisFunctionSet3DH1ConformingPrism(std::size_t order);
 
 std::vector<const Base::OrientedBasisFunctionSet*>
-    createFaceBasisFunctionSet3DH1Cube(std::size_t order);
+    createEdgeBasisFunctionSet3DH1ConformingPrism(std::size_t order);
+
+std::vector<const Base::OrientedBasisFunctionSet*>
+    createFaceBasisFunctionSet3DH1ConformingPrism(std::size_t order);
+
 }  // namespace Utilities
 
 }  // namespace hpgem
 
-#endif  // HPGEM_KERNEL_BASISFUNCTIONS3DH1CONFORMINGCUBE_H
+#endif  // HPGEM_KERNEL_BASISFUNCTIONS3DH1CONFORMINGPRISM_H

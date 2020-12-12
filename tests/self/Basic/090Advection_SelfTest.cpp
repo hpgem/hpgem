@@ -50,7 +50,7 @@
 #include "Integration/FaceIntegral.h"
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
 #include "Output/TecplotSingleElementWriter.h"
-#include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
+#include "FE/BasisFunctions2DH1ConformingTriangle.h"
 #include "Logger.h"
 
 /// This class is used to test if the advection equation is solved correctly

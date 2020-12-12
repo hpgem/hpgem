@@ -40,8 +40,8 @@
 
 #include "Base/HpgemAPILinearSteadyState.h"
 #include "petscksp.h"
-#include "Utilities/BasisFunctions1DH1ConformingLine.h"
-#include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
+#include "FE/BasisFunctions1DH1ConformingLine.h"
+#include "FE/BasisFunctions2DH1ConformingTriangle.h"
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
 

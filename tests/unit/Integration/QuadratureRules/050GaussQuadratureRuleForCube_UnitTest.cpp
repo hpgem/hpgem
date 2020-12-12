@@ -44,7 +44,7 @@
 #include "Logger.h"
 #include <typeinfo>
 
-#include "Utilities/BasisFunctions3DH1ConformingCube.h"
+#include "FE/BasisFunctions3DH1ConformingCube.h"
 #include "Geometry/ReferenceCube.h"
 #include "Geometry/PointReference.h"
 #include "LinearAlgebra/MiddleSizeVector.h"

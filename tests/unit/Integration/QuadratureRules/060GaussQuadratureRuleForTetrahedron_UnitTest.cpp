@@ -44,7 +44,7 @@
 #include "Logger.h"
 #include <typeinfo>
 
-#include "Utilities/BasisFunctions3DH1ConformingTetrahedron.h"
+#include "FE/BasisFunctions3DH1ConformingTetrahedron.h"
 #include "Geometry/ReferenceTetrahedron.h"
 #include "Geometry/PointReference.h"
 #include "LinearAlgebra/MiddleSizeVector.h"

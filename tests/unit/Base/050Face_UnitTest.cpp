@@ -48,7 +48,7 @@
 #include "Base/Face.h"
 #include "Logger.h"
 
-#include "Utilities/BasisFunctionsMonomials.h"
+#include "FE/BasisFunctionsMonomials.h"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForSquare.h"
 
 #include "Geometry/PointPhysical.h"

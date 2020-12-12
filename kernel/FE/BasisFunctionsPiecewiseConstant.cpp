@@ -39,8 +39,8 @@
 #include "BasisFunctionsPiecewiseConstant.h"
 
 #include "memory"
-#include "FE/BaseBasisFunction.h"
-#include "FE/BasisFunctionSet.h"
+#include "BaseBasisFunction.h"
+#include "BasisFunctionSet.h"
 
 namespace hpgem {
 

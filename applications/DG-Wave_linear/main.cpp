@@ -40,7 +40,7 @@
 #include "Base/L2Norm.h"
 #include "Output/TecplotSingleElementWriter.h"
 #include <fstream>
-#include "Utilities/BasisFunctions2DH1ConformingSquare.h"
+#include "FE/BasisFunctions2DH1ConformingSquare.h"
 #include "Integration/ElementIntegrandBase.h"
 #include "Integration/FaceIntegrandBase.h"
 #include "Integration/FaceIntegral.h"

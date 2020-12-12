@@ -40,7 +40,7 @@
 // that will make sure the unit tests are ordered such that the first failing
 // unit test indicate the culprit class and other 'unit' tests may assume
 // correct execution of all prior unit tests
-#include "Utilities/BasisFunctionsMonomials.h"
+#include "FE/BasisFunctionsMonomials.h"
 
 #include "FE/BasisFunctionSet.h"
 #include "Geometry/PointReference.h"

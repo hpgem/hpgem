@@ -52,7 +52,7 @@
 #include <typeinfo>
 #include <typeindex>
 
-#include "Utilities/BasisFunctionsMonomials.h"
+#include "FE/BasisFunctionsMonomials.h"
 #include "Integration/QuadratureRules/GaussQuadratureRulesForCube.h"
 #include "Geometry/PointPhysical.h"
 #include "FE/BasisFunctionSet.h"

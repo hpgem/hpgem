@@ -38,8 +38,8 @@
 
 #include "BasisFunctions3DH1ConformingCube.h"
 #include "helperFunctions.h"
-#include "FE/BasisFunctionSet.h"
-#include "FE/OrientedBasisFunctionSet.h"
+#include "BasisFunctionSet.h"
+#include "OrientedBasisFunctionSet.h"
 #include "Geometry/ReferenceCube.h"
 #include "Geometry/PointReference.h"
 

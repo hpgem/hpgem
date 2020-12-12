@@ -51,7 +51,7 @@
 // numerical approximation for all basis-function over and over again (but of
 // course this is not as accurate as the actual derivative should be) -FB
 
-#include "Utilities/BasisFunctionsMonomials.h"
+#include "FE/BasisFunctionsMonomials.h"
 
 #include "FE/BasisFunctionSet.h"
 #include "Geometry/PointReference.h"

@@ -39,7 +39,7 @@
 #ifndef HPGEM_KERNEL_BASISFUNCTIONS1DH1CONFORMINGLINE_H
 #define HPGEM_KERNEL_BASISFUNCTIONS1DH1CONFORMINGLINE_H
 
-#include "FE/BaseBasisFunction.h"
+#include "BaseBasisFunction.h"
 #include <vector>
 
 namespace hpgem {

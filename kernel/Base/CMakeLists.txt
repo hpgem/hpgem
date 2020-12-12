@@ -19,26 +19,15 @@ add_library(hpGEM_Base OBJECT
                 Submesh.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Base/L2Norm.cpp
                 MpiContainer.cpp
-		        
-        	${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions1DH1ConformingLine.cpp
-		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions2DH1ConformingSquare.cpp
-		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions2DH1ConformingTriangle.cpp
-		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions3DH1ConformingCube.cpp
-		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions3DH1ConformingPrism.cpp
-		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions3DH1ConformingTetrahedron.cpp
-		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions2DNedelec.cpp
-		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions3DNedelec.cpp
-		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctions3DAinsworthCoyle.cpp
-		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctionsMonomials.cpp
-		${hpGEM_SOURCE_DIR}/kernel/Utilities/BasisFunctionsPiecewiseConstant.cpp
-		${hpGEM_SOURCE_DIR}/kernel/Utilities/helperFunctions.cpp
+
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/GlobalMatrix.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/GlobalVector.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/GlobalIndexing.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/ElementLocalIndexing.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/FaceLocalIndexing.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/SparsityEstimator.cpp
-        GlobalUniqueIndex.cpp ../Utilities/BasisFunctions3DH1ConformingPyramid.cpp)
+        GlobalUniqueIndex.cpp
+)
 
 
 set(CURRENT_TARGET hpGEM_Base)

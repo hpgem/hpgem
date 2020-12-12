@@ -44,7 +44,7 @@
 #include "Logger.h"
 #include <typeinfo>
 
-#include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
+#include "FE/BasisFunctions2DH1ConformingTriangle.h"
 #include "Geometry/ReferenceTriangle.h"
 #include "Geometry/PointReference.h"
 #include "LinearAlgebra/MiddleSizeVector.h"

@@ -36,10 +36,10 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPGEM_KERNEL_BASISFUNCTIONS2DH1CONFORMINGTRIANGLE_H
-#define HPGEM_KERNEL_BASISFUNCTIONS2DH1CONFORMINGTRIANGLE_H
+#ifndef HPGEM_KERNEL_BASISFUNCTIONS2DH1CONFORMINGSQUARE_H
+#define HPGEM_KERNEL_BASISFUNCTIONS2DH1CONFORMINGSQUARE_H
 
-#include "FE/BaseBasisFunction.h"
+#include "BaseBasisFunction.h"
 #include <vector>
 
 namespace hpgem {
@@ -56,10 +56,12 @@ class PointReference;
 
 namespace Utilities {
 
-class BasisFunction2DVertexTriangle : public Base::BaseBasisFunction {
+class BasisFunction2DVertexSquare : public Base::BaseBasisFunction {
    public:
-    BasisFunction2DVertexTriangle(std::size_t node) : node_(node) {
-        logger.assert_debug(node < 3, "A triangle only has 3 nodes");
+    BasisFunction2DVertexSquare(std::size_t node)
+        : nodePosition0_((static_cast<int>(node) % 2) * 2 - 1),
+          nodePosition1_((static_cast<int>(node) / 2) * 2 - 1) {
+        logger.assert_debug(node < 4, "A square only has 4 nodes");
     }
 
     double eval(const Geometry::PointReference<2>& p) const override;
@@ -69,17 +71,14 @@ class BasisFunction2DVertexTriangle : public Base::BaseBasisFunction {
     double evalDeriv1(const Geometry::PointReference<2>& p) const override;
 
    private:
-    std::size_t node_;
+    int nodePosition0_;
+    int nodePosition1_;
 };
 
-class BasisFunction2DFaceTriangle : public Base::BaseBasisFunction {
+class BasisFunction2DFaceSquare_0 : public Base::BaseBasisFunction {
    public:
-    BasisFunction2DFaceTriangle(std::size_t node0, std::size_t node1,
-                                std::size_t polynomialOrder)
-        : node0_(node0), node1_(node1), polynomialOrder_(polynomialOrder) {
-        logger.assert_debug(node0 < 3, "A triangle only has 3 nodes");
-        logger.assert_debug(node1 < 3, "A triangle only has 3 nodes");
-    }
+    BasisFunction2DFaceSquare_0(std::size_t node0, std::size_t node1,
+                                std::size_t polynomialOrder);
 
     double eval(const Geometry::PointReference<2>& p) const override;
 
@@ -88,13 +87,32 @@ class BasisFunction2DFaceTriangle : public Base::BaseBasisFunction {
     double evalDeriv1(const Geometry::PointReference<2>& p) const override;
 
    private:
-    std::size_t node0_, node1_, polynomialOrder_;
+    int edgePosition_;
+    int mirroring_;
+    std::size_t polynomialOrder_;
 };
 
-class BasisFunction2DInteriorTriangle : public Base::BaseBasisFunction {
+class BasisFunction2DFaceSquare_1 : public Base::BaseBasisFunction {
    public:
-    BasisFunction2DInteriorTriangle(std::size_t polynomialOrder0,
-                                    std::size_t polynomialOrder1)
+    BasisFunction2DFaceSquare_1(std::size_t node0, std::size_t node1,
+                                std::size_t polynomialOrder);
+
+    double eval(const Geometry::PointReference<2>& p) const override;
+
+    double evalDeriv0(const Geometry::PointReference<2>& p) const override;
+
+    double evalDeriv1(const Geometry::PointReference<2>& p) const override;
+
+   private:
+    int edgePosition_;
+    int mirroring_;
+    std::size_t polynomialOrder_;
+};
+
+class BasisFunction2DInteriorSquare : public Base::BaseBasisFunction {
+   public:
+    BasisFunction2DInteriorSquare(std::size_t polynomialOrder0,
+                                  std::size_t polynomialOrder1)
         : polynomialOrder0_(polynomialOrder0),
           polynomialOrder1_(polynomialOrder1) {}
 
@@ -108,21 +126,19 @@ class BasisFunction2DInteriorTriangle : public Base::BaseBasisFunction {
     std::size_t polynomialOrder0_, polynomialOrder1_;
 };
 
-std::vector<Base::BaseBasisFunction*> createDGBasisFunctions2DH1Triangle(
-    std::size_t order);
-Base::BasisFunctionSet* createDGBasisFunctionSet2DH1Triangle(std::size_t order);
+Base::BasisFunctionSet* createDGBasisFunctionSet2DH1Square(std::size_t order);
 
-Base::BasisFunctionSet* createInteriorBasisFunctionSet2DH1Triangle(
+Base::BasisFunctionSet* createInteriorBasisFunctionSet2DH1Square(
     std::size_t order);
 
 std::vector<const Base::BasisFunctionSet*>
-    createVertexBasisFunctionSet2DH1Triangle(std::size_t order);
+    createVertexBasisFunctionSet2DH1Square(std::size_t order);
 
 std::vector<const Base::OrientedBasisFunctionSet*>
-    createFaceBasisFunctionSet2DH1Triangle(std::size_t order);
+    createFaceBasisFunctionSet2DH1Square(std::size_t order);
 
 }  // namespace Utilities
 
 }  // namespace hpgem
 
-#endif  // HPGEM_KERNEL_BASISFUNCTIONS2DH1CONFORMINGTRIANGLE_H
+#endif  // HPGEM_KERNEL_BASISFUNCTIONS2DH1CONFORMINGSQUARE_H

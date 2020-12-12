@@ -36,7 +36,7 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Utilities/BasisFunctions2DNedelec.h"
+#include "FE/BasisFunctions2DNedelec.h"
 #include "Integration/QuadratureRules/AllGaussQuadratureRules.h"
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include "Geometry/ReferenceTriangle.h"

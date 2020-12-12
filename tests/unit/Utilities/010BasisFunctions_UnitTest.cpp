@@ -44,15 +44,15 @@ CHECK($1); the documentation
 // correct execution of all prior unit tests see also
 // Base/???BasisFunction_UnitTest.cpp
 // - running the same series of checks on different basisfunctions
-#include "Utilities/BasisFunctions1DH1ConformingLine.h"
-#include "Utilities/BasisFunctions2DH1ConformingSquare.h"
-#include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
-#include "Utilities/BasisFunctions3DH1ConformingCube.h"
-#include "Utilities/BasisFunctions3DH1ConformingTetrahedron.h"
-#include "Utilities/BasisFunctions3DH1ConformingPrism.h"
-#include "Utilities/BasisFunctions3DH1ConformingPyramid.h"
-#include "Utilities/BasisFunctions3DNedelec.h"
-#include "Utilities/BasisFunctions3DAinsworthCoyle.h"
+#include "FE/BasisFunctions1DH1ConformingLine.h"
+#include "FE/BasisFunctions2DH1ConformingSquare.h"
+#include "FE/BasisFunctions2DH1ConformingTriangle.h"
+#include "FE/BasisFunctions3DH1ConformingCube.h"
+#include "FE/BasisFunctions3DH1ConformingTetrahedron.h"
+#include "FE/BasisFunctions3DH1ConformingPrism.h"
+#include "FE/BasisFunctions3DH1ConformingPyramid.h"
+#include "FE/BasisFunctions3DNedelec.h"
+#include "FE/BasisFunctions3DAinsworthCoyle.h"
 #include "Logger.h"
 
 #include "FE/BasisFunctionSet.h"

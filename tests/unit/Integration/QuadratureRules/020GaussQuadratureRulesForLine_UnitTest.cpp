@@ -44,7 +44,7 @@
 #include "Logger.h"
 #include <typeinfo>
 
-#include "Utilities/BasisFunctions1DH1ConformingLine.h"
+#include "FE/BasisFunctions1DH1ConformingLine.h"
 #include "Geometry/ReferenceLine.h"
 #include "Geometry/PointReference.h"
 #include "LinearAlgebra/MiddleSizeVector.h"

@@ -39,7 +39,7 @@
 #ifndef HPGEM_KERNEL_BASISFUNCTIONS3DH1CONFORMINGPYRAMID_H
 #define HPGEM_KERNEL_BASISFUNCTIONS3DH1CONFORMINGPYRAMID_H
 
-#include "FE/BaseBasisFunction.h"
+#include "BaseBasisFunction.h"
 #include <vector>
 
 namespace hpgem {

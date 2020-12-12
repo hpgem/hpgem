@@ -38,7 +38,7 @@
  */
 
 #include "Base/ElementBasisFunctions.h"
-#include "Utilities/BasisFunctionsMonomials.h"
+#include "FE/BasisFunctionsMonomials.h"
 #include "Logger.h"
 
 #include "../catch.hpp"

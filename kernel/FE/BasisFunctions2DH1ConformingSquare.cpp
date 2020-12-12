@@ -38,8 +38,8 @@
 
 #include "BasisFunctions2DH1ConformingSquare.h"
 #include "helperFunctions.h"
-#include "FE/BasisFunctionSet.h"
-#include "FE/OrientedBasisFunctionSet.h"
+#include "BasisFunctionSet.h"
+#include "OrientedBasisFunctionSet.h"
 #include "Geometry/ReferenceSquare.h"
 #include "Geometry/PointReference.h"
 #include "Logger.h"
