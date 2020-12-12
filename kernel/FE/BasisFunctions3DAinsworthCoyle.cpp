@@ -44,7 +44,7 @@
 
 namespace hpgem {
 
-namespace Utilities {
+namespace FE {
 namespace {
 void OuterProduct(const LinearAlgebra::SmallVector<3>& a,
                   const LinearAlgebra::SmallVector<3>& b,
@@ -414,9 +414,8 @@ LinearAlgebra::SmallVector<3> BasisCurlinteriorAinsworthCoyle::evalCurl(
     return ret;
 }
 
-Base::BasisFunctionSet* createDGBasisFunctionSet3DAinsworthCoyle(
-    std::size_t order) {
-    Base::BasisFunctionSet* bFset = new Base::BasisFunctionSet(order);
+BasisFunctionSet* createDGBasisFunctionSet3DAinsworthCoyle(std::size_t order) {
+    BasisFunctionSet* bFset = new BasisFunctionSet(order);
     for (std::size_t p = 0; p <= order; ++p) {
         // constructor takes first the degree of the function then the two
         // vertices on the edge

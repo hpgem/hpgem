@@ -48,7 +48,7 @@
 
 namespace hpgem {
 
-namespace Utilities {
+namespace FE {
 
 double BasisFunction2DVertexTriangle::evalDeriv0(
     const Geometry::PointReference<2>& p) const {
@@ -173,9 +173,9 @@ double BasisFunction2DInteriorTriangle::evalDeriv1(
                     LobattoPolynomialDerivative(polynomialOrder1_, x1));
 }
 
-std::vector<Base::BaseBasisFunction*> createDGBasisFunctions2DH1Triangle(
+std::vector<BaseBasisFunction*> createDGBasisFunctions2DH1Triangle(
     std::size_t order) {
-    std::vector<Base::BaseBasisFunction*> result;
+    std::vector<BaseBasisFunction*> result;
     if (order > 0) {
         for (std::size_t i = 0; i < 3; ++i) {
             result.emplace_back(new BasisFunction2DVertexTriangle(i));
@@ -200,21 +200,20 @@ std::vector<Base::BaseBasisFunction*> createDGBasisFunctions2DH1Triangle(
     return result;
 }
 
-Base::BasisFunctionSet* createDGBasisFunctionSet2DH1Triangle(
-    std::size_t order) {
-    Base::BasisFunctionSet* result(new Base::BasisFunctionSet(order));
+BasisFunctionSet* createDGBasisFunctionSet2DH1Triangle(std::size_t order) {
+    BasisFunctionSet* result(new BasisFunctionSet(order));
     for (auto* bf : createDGBasisFunctions2DH1Triangle(order)) {
         result->addBasisFunction(bf);
     }
     return result;
 }
 
-Base::BasisFunctionSet* createInteriorBasisFunctionSet2DH1Triangle(
+BasisFunctionSet* createInteriorBasisFunctionSet2DH1Triangle(
     std::size_t order) {
     logger.assert_debug(order > 0,
                         "Trying to create a conforming, constant basis "
                         "function set, did you mean the constant solution?");
-    Base::BasisFunctionSet* result(new Base::BasisFunctionSet(order));
+    BasisFunctionSet* result(new BasisFunctionSet(order));
     for (std::size_t i = 0; i + 3 <= order; ++i) {
         for (std::size_t j = 0; i + j + 3 <= order; ++j) {
             result->addBasisFunction(new BasisFunction2DInteriorTriangle(i, j));
@@ -223,40 +222,39 @@ Base::BasisFunctionSet* createInteriorBasisFunctionSet2DH1Triangle(
     return result;
 }
 
-std::vector<const Base::BasisFunctionSet*>
-    createVertexBasisFunctionSet2DH1Triangle(std::size_t order) {
+std::vector<const BasisFunctionSet*> createVertexBasisFunctionSet2DH1Triangle(std::size_t order) {
     logger.assert_debug(order > 0,
                         "Trying to create a conforming, constant basis "
                         "function set, did you mean the constant solution?");
-    std::vector<const Base::BasisFunctionSet*> result;
-    Base::BasisFunctionSet* set;
+    std::vector<const BasisFunctionSet*> result;
+    BasisFunctionSet* set;
     for (std::size_t i = 0; i < 3; ++i) {
-        set = new Base::BasisFunctionSet(order);
+        set = new BasisFunctionSet(order);
         set->addBasisFunction(new BasisFunction2DVertexTriangle(i));
         result.push_back(set);
     }
     return result;
 }
 
-std::vector<const Base::OrientedBasisFunctionSet*>
+std::vector<const OrientedBasisFunctionSet*>
     createFaceBasisFunctionSet2DH1Triangle(std::size_t order) {
     logger.assert_debug(order > 0,
                         "Trying to create a conforming, constant basis "
                         "function set, did you mean the constant solution?");
-    std::vector<const Base::OrientedBasisFunctionSet*> result;
-    Base::OrientedBasisFunctionSet* set;
+    std::vector<const OrientedBasisFunctionSet*> result;
+    OrientedBasisFunctionSet* set;
     Geometry::ReferenceTriangle& triangle =
         Geometry::ReferenceTriangle::Instance();
     std::vector<std::size_t> vertexindices(2);
     for (std::size_t i = 0; i < 3; ++i) {
-        set = new Base::OrientedBasisFunctionSet(order, 0, i);
+        set = new OrientedBasisFunctionSet(order, 0, i);
         vertexindices = triangle.getCodim1EntityLocalIndices(i);
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction2DFaceTriangle(
                 vertexindices[0], vertexindices[1], j));
         }
         result.push_back(set);
-        set = new Base::OrientedBasisFunctionSet(order, 1, i);
+        set = new OrientedBasisFunctionSet(order, 1, i);
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction2DFaceTriangle(
                 vertexindices[1], vertexindices[0], j));

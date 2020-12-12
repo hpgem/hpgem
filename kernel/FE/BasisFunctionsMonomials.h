@@ -43,18 +43,16 @@
 
 namespace hpgem {
 
-namespace Base {
+namespace FE {
 class BasisFunctionSet;
-}
 
-namespace Utilities {
-void assembleMonomialBasisFunctions1D(Base::BasisFunctionSet &set,
+void assembleMonomialBasisFunctions1D(BasisFunctionSet &set,
                                       std::size_t maxPower);
-void assembleMonomialBasisFunctions2D(Base::BasisFunctionSet &set,
+void assembleMonomialBasisFunctions2D(BasisFunctionSet &set,
                                       std::size_t maxPower);
-void assembleMonomialBasisFunctions3D(Base::BasisFunctionSet &set,
+void assembleMonomialBasisFunctions3D(BasisFunctionSet &set,
                                       std::size_t maxPower);
-void assembleMonomialBasisFunctions4D(Base::BasisFunctionSet &set,
+void assembleMonomialBasisFunctions4D(BasisFunctionSet &set,
                                       std::size_t maxPower);
 }  // namespace Utilities
 

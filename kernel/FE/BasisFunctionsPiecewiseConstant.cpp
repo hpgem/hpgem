@@ -44,8 +44,8 @@
 
 namespace hpgem {
 
-namespace Utilities {
-class PiecewiseConstant1 : public Base::BaseBasisFunction {
+namespace FE {
+class PiecewiseConstant1 : public BaseBasisFunction {
    public:
     double eval(const Geometry::PointReference<1>& p) const final {
         return 1.0;
@@ -56,15 +56,15 @@ class PiecewiseConstant1 : public Base::BaseBasisFunction {
     }
 };
 
-void addPiecewiseConstantBasisFunction1D(Base::BasisFunctionSet& set) {
+void addPiecewiseConstantBasisFunction1D(BasisFunctionSet& set) {
     set.addBasisFunction(createPiecewiseConstant1D());
 }
 
-Base::BaseBasisFunction* createPiecewiseConstant1D() {
+BaseBasisFunction* createPiecewiseConstant1D() {
     return new PiecewiseConstant1();
 }
 
-class PiecewiseConstant2 : public Base::BaseBasisFunction {
+class PiecewiseConstant2 : public BaseBasisFunction {
    public:
     double eval(const Geometry::PointReference<2>& p) const final {
         return 1.0;
@@ -79,15 +79,15 @@ class PiecewiseConstant2 : public Base::BaseBasisFunction {
     }
 };
 
-Base::BaseBasisFunction* createPiecewiseConstant2D() {
+BaseBasisFunction* createPiecewiseConstant2D() {
     return new PiecewiseConstant2();
 }
 
-void addPiecewiseConstantBasisFunction2D(Base::BasisFunctionSet& set) {
+void addPiecewiseConstantBasisFunction2D(BasisFunctionSet& set) {
     set.addBasisFunction(createPiecewiseConstant2D());
 }
 
-class PiecewiseConstant3 : public Base::BaseBasisFunction {
+class PiecewiseConstant3 : public BaseBasisFunction {
    public:
     double eval(const Geometry::PointReference<3>& p) const final {
         return 1.0;
@@ -106,11 +106,11 @@ class PiecewiseConstant3 : public Base::BaseBasisFunction {
     }
 };
 
-void addPiecewiseConstantBasisFunction3D(Base::BasisFunctionSet& set) {
+void addPiecewiseConstantBasisFunction3D(BasisFunctionSet& set) {
     set.addBasisFunction(new PiecewiseConstant3());
 }
 
-class PiecewiseConstant4 : public Base::BaseBasisFunction {
+class PiecewiseConstant4 : public BaseBasisFunction {
    public:
     double eval(const Geometry::PointReference<4>& p) const final {
         return 1.0;
@@ -133,7 +133,7 @@ class PiecewiseConstant4 : public Base::BaseBasisFunction {
     }
 };
 
-void addPiecewiseConstantBasisFunction4D(Base::BasisFunctionSet& set) {
+void addPiecewiseConstantBasisFunction4D(BasisFunctionSet& set) {
     set.addBasisFunction(new PiecewiseConstant4());
 }
 }  // namespace Utilities

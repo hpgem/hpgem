@@ -48,7 +48,7 @@
 
 namespace hpgem {
 
-namespace Utilities {
+namespace FE {
 
 BasisFunction3DVertexPyramid::BasisFunction3DVertexPyramid(std::size_t node)
     : node_(node) {
@@ -168,11 +168,11 @@ double BasisFunction3DVertexPyramid::evalDeriv2(
     return 0;
 }
 
-Base::BasisFunctionSet *createDGBasisFunctionSet3DH1ConformingPyramid(
+BasisFunctionSet *createDGBasisFunctionSet3DH1ConformingPyramid(
     std::size_t order) {
     logger.assert_debug(
         order < 2, "Only linear basis functions have been implemented so far");
-    auto result = new Base::BasisFunctionSet(order);
+    auto result = new BasisFunctionSet(order);
     if (order == 1) {
         result->addBasisFunction(new BasisFunction3DVertexPyramid(0));
         result->addBasisFunction(new BasisFunction3DVertexPyramid(1));
@@ -185,49 +185,49 @@ Base::BasisFunctionSet *createDGBasisFunctionSet3DH1ConformingPyramid(
     return result;
 }
 
-Base::BasisFunctionSet *createInteriorBasisFunctionSet3DH1ConformingPyramid(
+BasisFunctionSet *createInteriorBasisFunctionSet3DH1ConformingPyramid(
     std::size_t order) {
     logger.assert_debug(
         order == 1, "Only linear basis functions have been implemented so far");
-    return new Base::BasisFunctionSet(order);
+    return new BasisFunctionSet(order);
 }
 
-std::vector<const Base::BasisFunctionSet *>
+std::vector<const BasisFunctionSet *>
     createVertexBasisFunctionSet3DH1ConformingPyramid(std::size_t order) {
     logger.assert_debug(
         order == 1, "Only linear basis functions have been implemented so far");
-    auto result = std::vector<const Base::BasisFunctionSet *>{};
+    auto result = std::vector<const BasisFunctionSet *>{};
     for (std::size_t i = 0; i < 5; ++i) {
-        auto next = new Base::BasisFunctionSet(order);
+        auto next = new BasisFunctionSet(order);
         next->addBasisFunction(new BasisFunction3DVertexPyramid(i));
         result.push_back(next);
     }
     return result;
 }
 
-std::vector<const Base::OrientedBasisFunctionSet *>
+std::vector<const OrientedBasisFunctionSet *>
     createEdgeBasisFunctionSet3DH1ConformingPyramid(std::size_t order) {
     logger.assert_debug(
         order == 1, "Only linear basis functions have been implemented so far");
-    auto result = std::vector<const Base::OrientedBasisFunctionSet *>{};
+    auto result = std::vector<const OrientedBasisFunctionSet *>{};
     for (std::size_t i = 0; i < 8; ++i) {
-        result.push_back(new Base::OrientedBasisFunctionSet(order, 0, i));
-        result.push_back(new Base::OrientedBasisFunctionSet(order, 1, i));
+        result.push_back(new OrientedBasisFunctionSet(order, 0, i));
+        result.push_back(new OrientedBasisFunctionSet(order, 1, i));
     }
     return result;
 }
 
-std::vector<const Base::OrientedBasisFunctionSet *>
+std::vector<const OrientedBasisFunctionSet *>
     createFaceBasisFunctionSet3DH1ConformingPyramid(std::size_t order) {
     logger.assert_debug(
         order == 1, "Only linear basis functions have been implemented so far");
-    auto result = std::vector<const Base::OrientedBasisFunctionSet *>{};
+    auto result = std::vector<const OrientedBasisFunctionSet *>{};
     for (std::size_t i = 0; i < 8; ++i) {
-        result.push_back(new Base::OrientedBasisFunctionSet(order, i, 0));
+        result.push_back(new OrientedBasisFunctionSet(order, i, 0));
     }
     for (std::size_t i = 1; i < 5; ++i) {
         for (std::size_t j = 0; j < 6; ++j) {
-            result.push_back(new Base::OrientedBasisFunctionSet(order, i, j));
+            result.push_back(new OrientedBasisFunctionSet(order, i, j));
         }
     }
     return result;

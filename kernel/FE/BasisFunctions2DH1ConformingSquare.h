@@ -44,19 +44,17 @@
 
 namespace hpgem {
 
-namespace Base {
-class BasisFunctionSet;
-class OrientedBasisFunctionSet;
-}  // namespace Base
-
 namespace Geometry {
 template <std::size_t DIM>
 class PointReference;
 }
 
-namespace Utilities {
+namespace FE {
 
-class BasisFunction2DVertexSquare : public Base::BaseBasisFunction {
+class BasisFunctionSet;
+class OrientedBasisFunctionSet;
+
+class BasisFunction2DVertexSquare : public BaseBasisFunction {
    public:
     BasisFunction2DVertexSquare(std::size_t node)
         : nodePosition0_((static_cast<int>(node) % 2) * 2 - 1),
@@ -75,7 +73,7 @@ class BasisFunction2DVertexSquare : public Base::BaseBasisFunction {
     int nodePosition1_;
 };
 
-class BasisFunction2DFaceSquare_0 : public Base::BaseBasisFunction {
+class BasisFunction2DFaceSquare_0 : public BaseBasisFunction {
    public:
     BasisFunction2DFaceSquare_0(std::size_t node0, std::size_t node1,
                                 std::size_t polynomialOrder);
@@ -92,7 +90,7 @@ class BasisFunction2DFaceSquare_0 : public Base::BaseBasisFunction {
     std::size_t polynomialOrder_;
 };
 
-class BasisFunction2DFaceSquare_1 : public Base::BaseBasisFunction {
+class BasisFunction2DFaceSquare_1 : public BaseBasisFunction {
    public:
     BasisFunction2DFaceSquare_1(std::size_t node0, std::size_t node1,
                                 std::size_t polynomialOrder);
@@ -109,7 +107,7 @@ class BasisFunction2DFaceSquare_1 : public Base::BaseBasisFunction {
     std::size_t polynomialOrder_;
 };
 
-class BasisFunction2DInteriorSquare : public Base::BaseBasisFunction {
+class BasisFunction2DInteriorSquare : public BaseBasisFunction {
    public:
     BasisFunction2DInteriorSquare(std::size_t polynomialOrder0,
                                   std::size_t polynomialOrder1)
@@ -126,15 +124,13 @@ class BasisFunction2DInteriorSquare : public Base::BaseBasisFunction {
     std::size_t polynomialOrder0_, polynomialOrder1_;
 };
 
-Base::BasisFunctionSet* createDGBasisFunctionSet2DH1Square(std::size_t order);
+BasisFunctionSet* createDGBasisFunctionSet2DH1Square(std::size_t order);
 
-Base::BasisFunctionSet* createInteriorBasisFunctionSet2DH1Square(
-    std::size_t order);
+BasisFunctionSet* createInteriorBasisFunctionSet2DH1Square(std::size_t order);
 
-std::vector<const Base::BasisFunctionSet*>
-    createVertexBasisFunctionSet2DH1Square(std::size_t order);
+std::vector<const BasisFunctionSet*> createVertexBasisFunctionSet2DH1Square(std::size_t order);
 
-std::vector<const Base::OrientedBasisFunctionSet*>
+std::vector<const OrientedBasisFunctionSet*>
     createFaceBasisFunctionSet2DH1Square(std::size_t order);
 
 }  // namespace Utilities

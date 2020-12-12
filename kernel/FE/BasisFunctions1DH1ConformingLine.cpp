@@ -47,7 +47,7 @@
 
 namespace hpgem {
 
-namespace Utilities {
+namespace FE {
 
 double BasisFunction1DVertexLine::eval(
     const Geometry::PointReference<1>& p) const {
@@ -72,9 +72,9 @@ double BasisFunction1DInteriorLine::evalDeriv0(
                LobattoPolynomialDerivative(polynomialOrder_, p[0]) / 4.;
 }
 
-std::vector<Base::BaseBasisFunction*> createDGBasisFunctions1DH1Line(
+std::vector<BaseBasisFunction*> createDGBasisFunctions1DH1Line(
     std::size_t polynomialOrder) {
-    std::vector<Base::BaseBasisFunction*> result;
+    std::vector<BaseBasisFunction*> result;
     if (polynomialOrder > 0) {
         result.emplace_back(new BasisFunction1DVertexLine(0));
         result.emplace_back(new BasisFunction1DVertexLine(1));
@@ -87,39 +87,39 @@ std::vector<Base::BaseBasisFunction*> createDGBasisFunctions1DH1Line(
     return result;
 }
 
-Base::BasisFunctionSet* createDGBasisFunctionSet1DH1Line(
+BasisFunctionSet* createDGBasisFunctionSet1DH1Line(
     std::size_t polynomialOrder) {
 
-    Base::BasisFunctionSet* result(new Base::BasisFunctionSet(polynomialOrder));
+    BasisFunctionSet* result(new BasisFunctionSet(polynomialOrder));
     for (auto* bf : createDGBasisFunctions1DH1Line(polynomialOrder)) {
         result->addBasisFunction(bf);
     }
     return result;
 }
 
-Base::BasisFunctionSet* createInteriorBasisFunctionSet1DH1Line(
+BasisFunctionSet* createInteriorBasisFunctionSet1DH1Line(
     std::size_t polynomialOrder) {
     logger.assert_debug(polynomialOrder > 0,
                         "Trying to create a conforming, constant basis "
                         "function set, did you mean the constant solution?");
-    Base::BasisFunctionSet* result(new Base::BasisFunctionSet(polynomialOrder));
+    BasisFunctionSet* result(new BasisFunctionSet(polynomialOrder));
     for (std::size_t i = 0; i + 2 <= polynomialOrder; ++i) {
         result->addBasisFunction(new BasisFunction1DInteriorLine(i));
     }
     return result;
 }
 
-std::vector<const Base::OrientedBasisFunctionSet*>
+std::vector<const OrientedBasisFunctionSet*>
     createVertexBasisFunctionSet1DH1Line(std::size_t polynomialOrder) {
     logger.assert_debug(polynomialOrder > 0,
                         "Trying to create a conforming, constant basis "
                         "function set, did you mean the constant solution?");
-    std::vector<const Base::OrientedBasisFunctionSet*> result;
-    Base::OrientedBasisFunctionSet* set(
-        new Base::OrientedBasisFunctionSet(polynomialOrder, 0, 0));
+    std::vector<const OrientedBasisFunctionSet*> result;
+    OrientedBasisFunctionSet* set(
+        new OrientedBasisFunctionSet(polynomialOrder, 0, 0));
     set->addBasisFunction(new BasisFunction1DVertexLine(0));
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(polynomialOrder, 0, 1);
+    set = new OrientedBasisFunctionSet(polynomialOrder, 0, 1);
     set->addBasisFunction(new BasisFunction1DVertexLine(1));
     result.push_back(set);
     return result;

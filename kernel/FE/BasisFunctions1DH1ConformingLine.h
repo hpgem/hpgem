@@ -44,19 +44,17 @@
 
 namespace hpgem {
 
-namespace Base {
-class BasisFunctionSet;
-class OrientedBasisFunctionSet;
-}  // namespace Base
-
 namespace Geometry {
 template <std::size_t DIM>
 class PointReference;
 }
 
-namespace Utilities {
+namespace FE {
 
-class BasisFunction1DVertexLine : public Base::BaseBasisFunction {
+class BasisFunctionSet;
+class OrientedBasisFunctionSet;
+
+class BasisFunction1DVertexLine : public BaseBasisFunction {
    public:
     BasisFunction1DVertexLine(std::size_t node)
         : nodePosition_(2 * static_cast<int>(node) - 1) {
@@ -71,7 +69,7 @@ class BasisFunction1DVertexLine : public Base::BaseBasisFunction {
     int nodePosition_;
 };
 
-class BasisFunction1DInteriorLine : public Base::BaseBasisFunction {
+class BasisFunction1DInteriorLine : public BaseBasisFunction {
    public:
     BasisFunction1DInteriorLine(std::size_t polynomialOrder)
         : polynomialOrder_(polynomialOrder) {}
@@ -84,16 +82,15 @@ class BasisFunction1DInteriorLine : public Base::BaseBasisFunction {
     std::size_t polynomialOrder_;
 };
 
-Base::BasisFunctionSet* createDGBasisFunctionSet1DH1Line(
+BasisFunctionSet* createDGBasisFunctionSet1DH1Line(std::size_t polynomialOrder);
+
+std::vector<BaseBasisFunction*> createDGBasisFunctions1DH1Line(
     std::size_t polynomialOrder);
 
-std::vector<Base::BaseBasisFunction*> createDGBasisFunctions1DH1Line(
+BasisFunctionSet* createInteriorBasisFunctionSet1DH1Line(
     std::size_t polynomialOrder);
 
-Base::BasisFunctionSet* createInteriorBasisFunctionSet1DH1Line(
-    std::size_t polynomialOrder);
-
-std::vector<const Base::OrientedBasisFunctionSet*>
+std::vector<const OrientedBasisFunctionSet*>
     createVertexBasisFunctionSet1DH1Line(std::size_t polynomialOrder);
 
 }  // namespace Utilities

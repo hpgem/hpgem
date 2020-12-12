@@ -49,7 +49,7 @@
 
 namespace hpgem {
 
-namespace Utilities {
+namespace FE {
 
 double BasisFunction2DVertexSquare::eval(
     const Geometry::PointReference<2>& p) const {
@@ -161,8 +161,8 @@ double BasisFunction2DInteriorSquare::evalDeriv1(
                 LobattoPolynomialDerivative(polynomialOrder1_, p[1]) / 4.);
 }
 
-Base::BasisFunctionSet* createDGBasisFunctionSet2DH1Square(std::size_t order) {
-    Base::BasisFunctionSet* result(new Base::BasisFunctionSet(order));
+BasisFunctionSet* createDGBasisFunctionSet2DH1Square(std::size_t order) {
+    BasisFunctionSet* result(new BasisFunctionSet(order));
     if (order > 0) {
         for (std::size_t i = 0; i < 4; ++i) {
             result->addBasisFunction(new BasisFunction2DVertexSquare(i));
@@ -183,12 +183,11 @@ Base::BasisFunctionSet* createDGBasisFunctionSet2DH1Square(std::size_t order) {
     return result;
 }
 
-Base::BasisFunctionSet* createInteriorBasisFunctionSet2DH1Square(
-    std::size_t order) {
+BasisFunctionSet* createInteriorBasisFunctionSet2DH1Square(std::size_t order) {
     logger.assert_debug(order > 0,
                         "Trying to create a conforming, constant basis "
                         "function set, did you mean the constant solution?");
-    Base::BasisFunctionSet* result(new Base::BasisFunctionSet(order));
+    BasisFunctionSet* result(new BasisFunctionSet(order));
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             result->addBasisFunction(new BasisFunction2DInteriorSquare(i, j));
@@ -197,32 +196,31 @@ Base::BasisFunctionSet* createInteriorBasisFunctionSet2DH1Square(
     return result;
 }
 
-std::vector<const Base::BasisFunctionSet*>
-    createVertexBasisFunctionSet2DH1Square(std::size_t order) {
+std::vector<const BasisFunctionSet*> createVertexBasisFunctionSet2DH1Square(std::size_t order) {
     logger.assert_debug(order > 0,
                         "Trying to create a conforming, constant basis "
                         "function set, did you mean the constant solution?");
-    std::vector<const Base::BasisFunctionSet*> result;
-    Base::BasisFunctionSet* set;
+    std::vector<const BasisFunctionSet*> result;
+    BasisFunctionSet* set;
     for (std::size_t i = 0; i < 4; ++i) {
-        set = new Base::BasisFunctionSet(order);
+        set = new BasisFunctionSet(order);
         set->addBasisFunction(new BasisFunction2DVertexSquare(i));
         result.push_back(set);
     }
     return result;
 }
 
-std::vector<const Base::OrientedBasisFunctionSet*>
+std::vector<const OrientedBasisFunctionSet*>
     createFaceBasisFunctionSet2DH1Square(std::size_t order) {
     logger.assert_debug(order > 0,
                         "Trying to create a conforming, constant basis "
                         "function set, did you mean the constant solution?");
-    std::vector<const Base::OrientedBasisFunctionSet*> result;
+    std::vector<const OrientedBasisFunctionSet*> result;
     Geometry::ReferenceSquare& square = Geometry::ReferenceSquare::Instance();
-    Base::OrientedBasisFunctionSet* set;
+    OrientedBasisFunctionSet* set;
     std::vector<std::size_t> vertexindices(2);
     for (std::size_t i = 0; i < 4; ++i) {
-        set = new Base::OrientedBasisFunctionSet(order, 0, i);
+        set = new OrientedBasisFunctionSet(order, 0, i);
         vertexindices = square.getCodim1EntityLocalIndices(i);
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             if ((vertexindices[0] + vertexindices[1]) % 2 == 1)
@@ -233,7 +231,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
                     vertexindices[0], vertexindices[1], j));
         }
         result.push_back(set);
-        set = new Base::OrientedBasisFunctionSet(order, 1, i);
+        set = new OrientedBasisFunctionSet(order, 1, i);
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             if ((vertexindices[0] + vertexindices[1]) % 2 == 1)
                 set->addBasisFunction(new BasisFunction2DFaceSquare_0(

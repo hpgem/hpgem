@@ -41,21 +41,19 @@
 
 namespace hpgem {
 
-namespace Base {
+namespace FE {
 class BaseBasisFunction;
 class BasisFunctionSet;
-}  // namespace Base
 
-namespace Utilities {
 /// Add the piecewise constant for 1D to the basis function set
-void addPiecewiseConstantBasisFunction1D(Base::BasisFunctionSet &set);
-void addPiecewiseConstantBasisFunction2D(Base::BasisFunctionSet &set);
-void addPiecewiseConstantBasisFunction3D(Base::BasisFunctionSet &set);
-void addPiecewiseConstantBasisFunction4D(Base::BasisFunctionSet &set);
+void addPiecewiseConstantBasisFunction1D(BasisFunctionSet &set);
+void addPiecewiseConstantBasisFunction2D(BasisFunctionSet &set);
+void addPiecewiseConstantBasisFunction3D(BasisFunctionSet &set);
+void addPiecewiseConstantBasisFunction4D(BasisFunctionSet &set);
 
 /// Create basis function
-Base::BaseBasisFunction *createPiecewiseConstant1D();
-Base::BaseBasisFunction *createPiecewiseConstant2D();
+BaseBasisFunction *createPiecewiseConstant1D();
+BaseBasisFunction *createPiecewiseConstant2D();
 
 }  // namespace Utilities
 

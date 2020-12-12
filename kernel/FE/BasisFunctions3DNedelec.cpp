@@ -44,7 +44,7 @@
 
 namespace hpgem {
 
-namespace Utilities {
+namespace FE {
 namespace {
 void OuterProduct(const LinearAlgebra::SmallVector<3>& a,
                   const LinearAlgebra::SmallVector<3>& b,
@@ -415,8 +415,8 @@ LinearAlgebra::SmallVector<3> BasisCurlinterior3Nedelec::evalCurl(
     return ret;
 }
 
-Base::BasisFunctionSet* createDGBasisFunctionSet3DNedelec(std::size_t order) {
-    Base::BasisFunctionSet* bFset = new Base::BasisFunctionSet(order);
+BasisFunctionSet* createDGBasisFunctionSet3DNedelec(std::size_t order) {
+    BasisFunctionSet* bFset = new BasisFunctionSet(order);
     for (std::size_t l = 0; l + 1 <= order; ++l) {
         std::size_t m((order - 1) - l);
         bFset->addBasisFunction(new BasisCurlEdgeNedelec(l, m, 0, 1));

@@ -50,7 +50,7 @@
 
 namespace hpgem {
 
-namespace Utilities {
+namespace FE {
 
 /// Edge based basis functions of the form form q_p(t) F(x,y).
 ///
@@ -62,11 +62,10 @@ namespace Utilities {
 /// The function q_p(t) is shared between the sides and 'modulates' the vector
 /// field by a polynomial of order p-1. The coordinate t is linear on the side
 /// to which the basis function is associated.
-class BasisCurlEdgeNedelec2D final : public Base::BaseBasisFunction {
+class BasisCurlEdgeNedelec2D final : public BaseBasisFunction {
    public:
-    BasisCurlEdgeNedelec2D(
-        std::size_t side,
-        std::shared_ptr<const Base::BaseBasisFunction>& modulator)
+    BasisCurlEdgeNedelec2D(std::size_t side,
+                           std::shared_ptr<const BaseBasisFunction>& modulator)
         : side_(side), modulator_(modulator) {
 
         logger.assert_debug(side <= 2, "Triangle has only three sides");
@@ -115,7 +114,7 @@ class BasisCurlEdgeNedelec2D final : public Base::BaseBasisFunction {
     // Side of the triangle to which this basis function is associated
     std::size_t side_;
     // 1D Modulation function for the basis functions.
-    std::shared_ptr<const Base::BaseBasisFunction> modulator_;
+    std::shared_ptr<const BaseBasisFunction> modulator_;
 };
 
 LinearAlgebra::SmallVector<2> BasisCurlEdgeNedelec2D::evalCurl(
@@ -154,12 +153,11 @@ LinearAlgebra::SmallVector<2> BasisCurlEdgeNedelec2D::evalCurl(
 /// the triangle. These are modulated by the scalar function q_p(x,y), which are
 /// polynomials that span the space of polynomials of order at most p-2, for
 /// example standard Lagrange basis functions.
-class BasisFunctionCurlInteriorNedelec2D : public Base::BaseBasisFunction {
+class BasisFunctionCurlInteriorNedelec2D : public BaseBasisFunction {
 
    public:
     BasisFunctionCurlInteriorNedelec2D(
-        std::size_t type,
-        std::shared_ptr<const Base::BaseBasisFunction>& modulator)
+        std::size_t type, std::shared_ptr<const BaseBasisFunction>& modulator)
         : type_(type), modulator_(modulator) {
         logger.assert_always(type == 0 || type == 1,
                              "Only two interior types supported");
@@ -192,7 +190,7 @@ class BasisFunctionCurlInteriorNedelec2D : public Base::BaseBasisFunction {
 
     // Type one or two
     std::size_t type_;
-    std::shared_ptr<const Base::BaseBasisFunction> modulator_;
+    std::shared_ptr<const BaseBasisFunction> modulator_;
 };
 
 LinearAlgebra::SmallVector<2> BasisFunctionCurlInteriorNedelec2D::evalCurl(
@@ -225,26 +223,25 @@ LinearAlgebra::SmallVector<2> BasisFunctionCurlInteriorNedelec2D::evalCurl(
     return LinearAlgebra::SmallVector<2>({result, 0.0});
 }
 
-std::vector<Base::BaseBasisFunction*> createDGBasisFunctions2DNedelec(
+std::vector<BaseBasisFunction*> createDGBasisFunctions2DNedelec(
     std::size_t order) {
 
-    std::vector<Base::BaseBasisFunction*> result;
+    std::vector<BaseBasisFunction*> result;
 
-    std::vector<Base::BaseBasisFunction*> lineFunctions =
+    std::vector<BaseBasisFunction*> lineFunctions =
         createDGBasisFunctions1DH1Line(order - 1);
     for (auto& i : lineFunctions) {
-        auto lineFunction = std::shared_ptr<const Base::BaseBasisFunction>(i);
+        auto lineFunction = std::shared_ptr<const BaseBasisFunction>(i);
         result.emplace_back(new BasisCurlEdgeNedelec2D(0, lineFunction));
         result.emplace_back(new BasisCurlEdgeNedelec2D(1, lineFunction));
         result.emplace_back(new BasisCurlEdgeNedelec2D(2, lineFunction));
     }
 
     if (order > 1) {
-        std::vector<Base::BaseBasisFunction*> triangleFunctions =
+        std::vector<BaseBasisFunction*> triangleFunctions =
             createDGBasisFunctions2DH1Triangle(order - 2);
         for (auto& i : triangleFunctions) {
-            auto triangleFunction =
-                std::shared_ptr<const Base::BaseBasisFunction>(i);
+            auto triangleFunction = std::shared_ptr<const BaseBasisFunction>(i);
             result.emplace_back(
                 new BasisFunctionCurlInteriorNedelec2D(0, triangleFunction));
             result.emplace_back(
@@ -253,8 +250,8 @@ std::vector<Base::BaseBasisFunction*> createDGBasisFunctions2DNedelec(
     }
     return result;
 }
-Base::BasisFunctionSet* createDGBasisFunctionSet2DNedelec(std::size_t order) {
-    Base::BasisFunctionSet* set = new Base::BasisFunctionSet(order);
+BasisFunctionSet* createDGBasisFunctionSet2DNedelec(std::size_t order) {
+    BasisFunctionSet* set = new BasisFunctionSet(order);
     for (auto* bf : createDGBasisFunctions2DNedelec(order)) {
         set->addBasisFunction(bf);
     }

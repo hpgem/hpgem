@@ -43,7 +43,7 @@
 
 namespace hpgem {
 
-namespace Base {
+namespace FE {
 
 /**
  * has all the functionality of a basisfunctionset, but is meant for cases
@@ -52,7 +52,7 @@ namespace Base {
  * it is assumed that this set contains only part of the basis (for example only
  * the functions with their DOF linked to a face)
  */
-class OrientedBasisFunctionSet : public Base::BasisFunctionSet {
+class OrientedBasisFunctionSet : public BasisFunctionSet {
    public:
     OrientedBasisFunctionSet(std::size_t order, std::size_t orientation,
                              std::size_t face)

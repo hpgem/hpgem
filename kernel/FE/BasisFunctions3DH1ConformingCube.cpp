@@ -48,7 +48,7 @@
 
 namespace hpgem {
 
-namespace Utilities {
+namespace FE {
 
 BasisFunction3DVertexCube::BasisFunction3DVertexCube(std::size_t node) {
     logger.assert_debug(node < 8, "A cube only has 8 nodes");
@@ -431,8 +431,8 @@ double BasisFunction3DInteriorCube::evalDeriv2(
                 LobattoPolynomialDerivative(polynomialOrder2_, p[2]) / 64.);
 }
 
-Base::BasisFunctionSet* createDGBasisFunctionSet3DH1Cube(std::size_t order) {
-    Base::BasisFunctionSet* result(new Base::BasisFunctionSet(order));
+BasisFunctionSet* createDGBasisFunctionSet3DH1Cube(std::size_t order) {
+    BasisFunctionSet* result(new BasisFunctionSet(order));
     if (order > 0) {
         Geometry::ReferenceCube& cube = Geometry::ReferenceCube::Instance();
         std::vector<std::size_t> vectorOfPointIndices(4);
@@ -527,12 +527,11 @@ Base::BasisFunctionSet* createDGBasisFunctionSet3DH1Cube(std::size_t order) {
     return result;
 }
 
-Base::BasisFunctionSet* createInteriorBasisFunctionSet3DH1Cube(
-    std::size_t order) {
+BasisFunctionSet* createInteriorBasisFunctionSet3DH1Cube(std::size_t order) {
     logger.assert_debug(order > 0,
                         "Trying to create a conforming, constant basis "
                         "function set, did you mean the constant solution?");
-    Base::BasisFunctionSet* result(new Base::BasisFunctionSet(order));
+    BasisFunctionSet* result(new BasisFunctionSet(order));
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             for (std::size_t k = 0; k + 2 <= order; ++k) {
@@ -544,40 +543,39 @@ Base::BasisFunctionSet* createInteriorBasisFunctionSet3DH1Cube(
     return result;
 }
 
-std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet3DH1Cube(
+std::vector<const BasisFunctionSet*> createVertexBasisFunctionSet3DH1Cube(
     std::size_t order) {
     logger.assert_debug(order > 0,
                         "Trying to create a conforming, constant basis "
                         "function set, did you mean the constant solution?");
-    std::vector<const Base::BasisFunctionSet*> result;
-    Base::BasisFunctionSet* set;
+    std::vector<const BasisFunctionSet*> result;
+    BasisFunctionSet* set;
     Geometry::ReferenceCube& cube = Geometry::ReferenceCube::Instance();
     for (std::size_t i = 0; i < cube.getNumberOfCodim3Entities(); ++i) {
-        set = new Base::BasisFunctionSet(order);
+        set = new BasisFunctionSet(order);
         set->addBasisFunction(new BasisFunction3DVertexCube(i));
         result.push_back(set);
     }
     return result;
 }
 
-std::vector<const Base::OrientedBasisFunctionSet*>
-    createEdgeBasisFunctionSet3DH1Cube(std::size_t order) {
+std::vector<const OrientedBasisFunctionSet*> createEdgeBasisFunctionSet3DH1Cube(std::size_t order) {
     logger.assert_debug(order > 0,
                         "Trying to create a conforming, constant basis "
                         "function set, did you mean the constant solution?");
-    std::vector<const Base::OrientedBasisFunctionSet*> result;
-    Base::OrientedBasisFunctionSet* set;
+    std::vector<const OrientedBasisFunctionSet*> result;
+    OrientedBasisFunctionSet* set;
     Geometry::ReferenceCube& cube = Geometry::ReferenceCube::Instance();
     std::vector<std::size_t> vectorOfPointIndices(2);
     for (std::size_t i = 0; i < 4; ++i) {
         vectorOfPointIndices = cube.getCodim2EntityLocalIndices(i);
-        set = new Base::OrientedBasisFunctionSet(order, 0, i);
+        set = new OrientedBasisFunctionSet(order, 0, i);
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DEdgeCube_0(
                 vectorOfPointIndices[0], vectorOfPointIndices[1], j));
         }
         result.push_back(set);
-        set = new Base::OrientedBasisFunctionSet(order, 1, i);
+        set = new OrientedBasisFunctionSet(order, 1, i);
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DEdgeCube_0(
                 vectorOfPointIndices[1], vectorOfPointIndices[0], j));
@@ -586,13 +584,13 @@ std::vector<const Base::OrientedBasisFunctionSet*>
     }
     for (std::size_t i = 4; i < 8; ++i) {
         vectorOfPointIndices = cube.getCodim2EntityLocalIndices(i);
-        set = new Base::OrientedBasisFunctionSet(order, 0, i);
+        set = new OrientedBasisFunctionSet(order, 0, i);
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DEdgeCube_1(
                 vectorOfPointIndices[0], vectorOfPointIndices[1], j));
         }
         result.push_back(set);
-        set = new Base::OrientedBasisFunctionSet(order, 1, i);
+        set = new OrientedBasisFunctionSet(order, 1, i);
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DEdgeCube_1(
                 vectorOfPointIndices[1], vectorOfPointIndices[0], j));
@@ -601,13 +599,13 @@ std::vector<const Base::OrientedBasisFunctionSet*>
     }
     for (std::size_t i = 8; i < 12; ++i) {
         vectorOfPointIndices = cube.getCodim2EntityLocalIndices(i);
-        set = new Base::OrientedBasisFunctionSet(order, 0, i);
+        set = new OrientedBasisFunctionSet(order, 0, i);
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DEdgeCube_2(
                 vectorOfPointIndices[0], vectorOfPointIndices[1], j));
         }
         result.push_back(set);
-        set = new Base::OrientedBasisFunctionSet(order, 1, i);
+        set = new OrientedBasisFunctionSet(order, 1, i);
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DEdgeCube_2(
                 vectorOfPointIndices[1], vectorOfPointIndices[0], j));
@@ -617,17 +615,16 @@ std::vector<const Base::OrientedBasisFunctionSet*>
     return result;
 }
 
-std::vector<const Base::OrientedBasisFunctionSet*>
-    createFaceBasisFunctionSet3DH1Cube(std::size_t order) {
+std::vector<const OrientedBasisFunctionSet*> createFaceBasisFunctionSet3DH1Cube(std::size_t order) {
     logger.assert_debug(order > 0,
                         "Trying to create a conforming, constant basis "
                         "function set, did you mean the constant solution?");
-    std::vector<const Base::OrientedBasisFunctionSet*> result;
-    Base::OrientedBasisFunctionSet* set;
+    std::vector<const OrientedBasisFunctionSet*> result;
+    OrientedBasisFunctionSet* set;
     Geometry::ReferenceCube& cube = Geometry::ReferenceCube::Instance();
     std::vector<std::size_t> vectorOfPointIndices(4);
     vectorOfPointIndices = cube.getCodim1EntityLocalIndices(0);
-    set = new Base::OrientedBasisFunctionSet(order, 0, 0);
+    set = new OrientedBasisFunctionSet(order, 0, 0);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_2(
@@ -636,7 +633,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 1, 0);
+    set = new OrientedBasisFunctionSet(order, 1, 0);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_2(
@@ -645,7 +642,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 2, 0);
+    set = new OrientedBasisFunctionSet(order, 2, 0);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_2(
@@ -654,7 +651,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 3, 0);
+    set = new OrientedBasisFunctionSet(order, 3, 0);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_2(
@@ -663,7 +660,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 4, 0);
+    set = new OrientedBasisFunctionSet(order, 4, 0);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_2(
@@ -672,7 +669,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 5, 0);
+    set = new OrientedBasisFunctionSet(order, 5, 0);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_2(
@@ -681,7 +678,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 6, 0);
+    set = new OrientedBasisFunctionSet(order, 6, 0);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_2(
@@ -690,7 +687,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 7, 0);
+    set = new OrientedBasisFunctionSet(order, 7, 0);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_2(
@@ -700,7 +697,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
     }
     result.push_back(set);
     vectorOfPointIndices = cube.getCodim1EntityLocalIndices(1);
-    set = new Base::OrientedBasisFunctionSet(order, 0, 1);
+    set = new OrientedBasisFunctionSet(order, 0, 1);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_1(
@@ -709,7 +706,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 1, 1);
+    set = new OrientedBasisFunctionSet(order, 1, 1);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_1(
@@ -718,7 +715,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 2, 1);
+    set = new OrientedBasisFunctionSet(order, 2, 1);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_1(
@@ -727,7 +724,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 3, 1);
+    set = new OrientedBasisFunctionSet(order, 3, 1);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_1(
@@ -736,7 +733,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 4, 1);
+    set = new OrientedBasisFunctionSet(order, 4, 1);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_1(
@@ -745,7 +742,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 5, 1);
+    set = new OrientedBasisFunctionSet(order, 5, 1);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_1(
@@ -754,7 +751,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 6, 1);
+    set = new OrientedBasisFunctionSet(order, 6, 1);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_1(
@@ -763,7 +760,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 7, 1);
+    set = new OrientedBasisFunctionSet(order, 7, 1);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_1(
@@ -773,7 +770,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
     }
     result.push_back(set);
     vectorOfPointIndices = cube.getCodim1EntityLocalIndices(2);
-    set = new Base::OrientedBasisFunctionSet(order, 0, 2);
+    set = new OrientedBasisFunctionSet(order, 0, 2);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_0(
@@ -782,7 +779,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 1, 2);
+    set = new OrientedBasisFunctionSet(order, 1, 2);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_0(
@@ -791,7 +788,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 2, 2);
+    set = new OrientedBasisFunctionSet(order, 2, 2);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_0(
@@ -800,7 +797,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 3, 2);
+    set = new OrientedBasisFunctionSet(order, 3, 2);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_0(
@@ -809,7 +806,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 4, 2);
+    set = new OrientedBasisFunctionSet(order, 4, 2);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_0(
@@ -818,7 +815,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 5, 2);
+    set = new OrientedBasisFunctionSet(order, 5, 2);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_0(
@@ -827,7 +824,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 6, 2);
+    set = new OrientedBasisFunctionSet(order, 6, 2);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_0(
@@ -836,7 +833,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 7, 2);
+    set = new OrientedBasisFunctionSet(order, 7, 2);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_0(
@@ -846,7 +843,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
     }
     result.push_back(set);
     vectorOfPointIndices = cube.getCodim1EntityLocalIndices(3);
-    set = new Base::OrientedBasisFunctionSet(order, 0, 3);
+    set = new OrientedBasisFunctionSet(order, 0, 3);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_0(
@@ -855,7 +852,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 1, 3);
+    set = new OrientedBasisFunctionSet(order, 1, 3);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_0(
@@ -864,7 +861,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 2, 3);
+    set = new OrientedBasisFunctionSet(order, 2, 3);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_0(
@@ -873,7 +870,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 3, 3);
+    set = new OrientedBasisFunctionSet(order, 3, 3);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_0(
@@ -882,7 +879,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 4, 3);
+    set = new OrientedBasisFunctionSet(order, 4, 3);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_0(
@@ -891,7 +888,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 5, 3);
+    set = new OrientedBasisFunctionSet(order, 5, 3);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_0(
@@ -900,7 +897,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 6, 3);
+    set = new OrientedBasisFunctionSet(order, 6, 3);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_0(
@@ -909,7 +906,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 7, 3);
+    set = new OrientedBasisFunctionSet(order, 7, 3);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_0(
@@ -919,7 +916,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
     }
     result.push_back(set);
     vectorOfPointIndices = cube.getCodim1EntityLocalIndices(4);
-    set = new Base::OrientedBasisFunctionSet(order, 0, 4);
+    set = new OrientedBasisFunctionSet(order, 0, 4);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_1(
@@ -928,7 +925,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 1, 4);
+    set = new OrientedBasisFunctionSet(order, 1, 4);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_1(
@@ -937,7 +934,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 2, 4);
+    set = new OrientedBasisFunctionSet(order, 2, 4);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_1(
@@ -946,7 +943,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 3, 4);
+    set = new OrientedBasisFunctionSet(order, 3, 4);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_1(
@@ -955,7 +952,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 4, 4);
+    set = new OrientedBasisFunctionSet(order, 4, 4);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_1(
@@ -964,7 +961,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 5, 4);
+    set = new OrientedBasisFunctionSet(order, 5, 4);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_1(
@@ -973,7 +970,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 6, 4);
+    set = new OrientedBasisFunctionSet(order, 6, 4);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_1(
@@ -982,7 +979,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 7, 4);
+    set = new OrientedBasisFunctionSet(order, 7, 4);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_1(
@@ -992,7 +989,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
     }
     result.push_back(set);
     vectorOfPointIndices = cube.getCodim1EntityLocalIndices(5);
-    set = new Base::OrientedBasisFunctionSet(order, 0, 5);
+    set = new OrientedBasisFunctionSet(order, 0, 5);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_2(
@@ -1001,7 +998,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 1, 5);
+    set = new OrientedBasisFunctionSet(order, 1, 5);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_2(
@@ -1010,7 +1007,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 2, 5);
+    set = new OrientedBasisFunctionSet(order, 2, 5);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_2(
@@ -1019,7 +1016,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 3, 5);
+    set = new OrientedBasisFunctionSet(order, 3, 5);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_2(
@@ -1028,7 +1025,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 4, 5);
+    set = new OrientedBasisFunctionSet(order, 4, 5);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_2(
@@ -1037,7 +1034,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 5, 5);
+    set = new OrientedBasisFunctionSet(order, 5, 5);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_2(
@@ -1046,7 +1043,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 6, 5);
+    set = new OrientedBasisFunctionSet(order, 6, 5);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_2(
@@ -1055,7 +1052,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
         }
     }
     result.push_back(set);
-    set = new Base::OrientedBasisFunctionSet(order, 7, 5);
+    set = new OrientedBasisFunctionSet(order, 7, 5);
     for (std::size_t i = 0; i + 2 <= order; ++i) {
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DFaceCube_2(

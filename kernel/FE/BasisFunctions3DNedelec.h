@@ -44,19 +44,17 @@
 
 namespace hpgem {
 
-namespace Base {
-class BasisFunctionSet;
-}
-
 namespace Geometry {
 template <std::size_t DIM>
 class PointReference;
 }
 
-namespace Utilities {
+namespace FE {
+
+class BasisFunctionSet;
 
 //! Curl conforming Nedelec edge functions.
-class BasisCurlEdgeNedelec : public Base::BaseBasisFunction {
+class BasisCurlEdgeNedelec : public BaseBasisFunction {
    public:
     BasisCurlEdgeNedelec(std::size_t degree1, std::size_t degree2,
                          std::size_t localFirstVertex,
@@ -73,7 +71,7 @@ class BasisCurlEdgeNedelec : public Base::BaseBasisFunction {
 };
 
 //! Curl conforming Nedelec face functions.
-class BasisCurlFace1Nedelec : public Base::BaseBasisFunction {
+class BasisCurlFace1Nedelec : public BaseBasisFunction {
    public:
     BasisCurlFace1Nedelec(std::size_t degree1, std::size_t degree2,
                           std::size_t degree3, std::size_t localOpposingVertex);
@@ -88,7 +86,7 @@ class BasisCurlFace1Nedelec : public Base::BaseBasisFunction {
     std::size_t deg1, deg2, deg3, a, b, c, d;
 };
 
-class BasisCurlFace2Nedelec : public Base::BaseBasisFunction {
+class BasisCurlFace2Nedelec : public BaseBasisFunction {
    public:
     BasisCurlFace2Nedelec(std::size_t degree1, std::size_t degree2,
                           std::size_t degree3, std::size_t localOpposingVertex);
@@ -104,7 +102,7 @@ class BasisCurlFace2Nedelec : public Base::BaseBasisFunction {
 };
 
 //! curl conforming interior Nedelec functions
-class BasisCurlinterior1Nedelec : public Base::BaseBasisFunction {
+class BasisCurlinterior1Nedelec : public BaseBasisFunction {
    public:
     BasisCurlinterior1Nedelec(std::size_t degree1, std::size_t degree2,
                               std::size_t degree3, std::size_t degree4);
@@ -120,7 +118,7 @@ class BasisCurlinterior1Nedelec : public Base::BaseBasisFunction {
 };
 
 //! curl conforming interior Nedelec functions
-class BasisCurlinterior2Nedelec : public Base::BaseBasisFunction {
+class BasisCurlinterior2Nedelec : public BaseBasisFunction {
    public:
     BasisCurlinterior2Nedelec(std::size_t degree1, std::size_t degree2,
                               std::size_t degree3, std::size_t degree4);
@@ -136,7 +134,7 @@ class BasisCurlinterior2Nedelec : public Base::BaseBasisFunction {
 };
 
 //! curl conforming interior Nedelec functions
-class BasisCurlinterior3Nedelec : public Base::BaseBasisFunction {
+class BasisCurlinterior3Nedelec : public BaseBasisFunction {
    public:
     BasisCurlinterior3Nedelec(std::size_t degree1, std::size_t degree2,
                               std::size_t degree3, std::size_t degree4);
@@ -151,7 +149,7 @@ class BasisCurlinterior3Nedelec : public Base::BaseBasisFunction {
     const std::size_t deg1, deg2, deg3, deg4;
 };
 
-Base::BasisFunctionSet* createDGBasisFunctionSet3DNedelec(std::size_t order);
+BasisFunctionSet* createDGBasisFunctionSet3DNedelec(std::size_t order);
 
 }  // namespace Utilities
 

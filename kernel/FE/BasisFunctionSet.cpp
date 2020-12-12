@@ -42,7 +42,7 @@
 
 namespace hpgem {
 
-namespace Base {
+namespace FE {
 
 // class BasisFunctionSet;
 BasisFunctionSet::BasisFunctionSet(std::size_t order) : order_(order) {}

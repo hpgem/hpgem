@@ -48,7 +48,7 @@ template <std::size_t DIM>
 class PointReference;
 }
 
-namespace Base {
+namespace FE {
 
 class BaseBasisFunction {
    public:

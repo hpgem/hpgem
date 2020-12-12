@@ -47,7 +47,7 @@ template <std::size_t DIM>
 class PointReference;
 }
 
-namespace Utilities {
+namespace FE {
 
 double LobattoPolynomial(std::size_t degree, double x);
 

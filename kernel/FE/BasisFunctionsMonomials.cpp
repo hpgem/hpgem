@@ -45,7 +45,7 @@
 
 namespace hpgem {
 
-namespace Utilities {
+namespace FE {
 double ipow(double value, std::size_t power) {
     double result = 1.0;
     for (std::size_t i = 0; i < power; ++i) result *= value;
@@ -86,7 +86,7 @@ class BasisFunctionsMonomials {
     std::array<std::size_t, DIM> powers_;
 };
 
-class BasisFunctionsMonomials1 : public Base::BaseBasisFunction,
+class BasisFunctionsMonomials1 : public BaseBasisFunction,
                                  private BasisFunctionsMonomials<1> {
    public:
     explicit BasisFunctionsMonomials1(std::size_t power)
@@ -100,7 +100,7 @@ class BasisFunctionsMonomials1 : public Base::BaseBasisFunction,
     }
 };
 
-class BasisFunctionsMonomials2 : public Base::BaseBasisFunction,
+class BasisFunctionsMonomials2 : public BaseBasisFunction,
                                  private BasisFunctionsMonomials<2> {
    public:
     BasisFunctionsMonomials2(std::size_t power1, std::size_t power2)
@@ -119,7 +119,7 @@ class BasisFunctionsMonomials2 : public Base::BaseBasisFunction,
     }
 };
 
-class BasisFunctionsMonomials3 : public Base::BaseBasisFunction,
+class BasisFunctionsMonomials3 : public BaseBasisFunction,
                                  private BasisFunctionsMonomials<3> {
    public:
     BasisFunctionsMonomials3(std::size_t p1, std::size_t p2, std::size_t p3)
@@ -142,7 +142,7 @@ class BasisFunctionsMonomials3 : public Base::BaseBasisFunction,
     }
 };
 
-class BasisFunctionsMonomials4 : public Base::BaseBasisFunction,
+class BasisFunctionsMonomials4 : public BaseBasisFunction,
                                  private BasisFunctionsMonomials<4> {
    public:
     BasisFunctionsMonomials4(std::size_t p1, std::size_t p2, std::size_t p3,
@@ -171,13 +171,13 @@ class BasisFunctionsMonomials4 : public Base::BaseBasisFunction,
 };
 
 // Actual construction methods
-void assembleMonomialBasisFunctions1D(Base::BasisFunctionSet& set,
+void assembleMonomialBasisFunctions1D(BasisFunctionSet& set,
                                       std::size_t maxPower) {
     for (std::size_t i = 0; i <= maxPower; ++i) {
         set.addBasisFunction(new BasisFunctionsMonomials1(i));
     }
 }
-void assembleMonomialBasisFunctions2D(Base::BasisFunctionSet& set,
+void assembleMonomialBasisFunctions2D(BasisFunctionSet& set,
                                       std::size_t maxPower) {
     for (std::size_t i = 0; i <= maxPower; ++i) {
         for (std::size_t j = 0; j + i <= maxPower; ++j) {
@@ -185,7 +185,7 @@ void assembleMonomialBasisFunctions2D(Base::BasisFunctionSet& set,
         }
     }
 }
-void assembleMonomialBasisFunctions3D(Base::BasisFunctionSet& set,
+void assembleMonomialBasisFunctions3D(BasisFunctionSet& set,
                                       std::size_t maxPower) {
     for (std::size_t i = 0; i <= maxPower; ++i) {
         for (std::size_t j = 0; i + j <= maxPower; ++j) {
@@ -195,7 +195,7 @@ void assembleMonomialBasisFunctions3D(Base::BasisFunctionSet& set,
         }
     }
 }
-void assembleMonomialBasisFunctions4D(Base::BasisFunctionSet& set,
+void assembleMonomialBasisFunctions4D(BasisFunctionSet& set,
                                       std::size_t maxPower) {
     for (std::size_t i = 0; i <= maxPower; ++i) {
         for (std::size_t j = 0; i + j <= maxPower; ++j) {

@@ -44,19 +44,17 @@
 
 namespace hpgem {
 
-namespace Base {
-class BasisFunctionSet;
-class OrientedBasisFunctionSet;
-}  // namespace Base
-
 namespace Geometry {
 template <std::size_t DIM>
 class PointReference;
 }
 
-namespace Utilities {
+namespace FE {
 
-class BasisFunction3DVertexCube : public Base::BaseBasisFunction {
+class BasisFunctionSet;
+class OrientedBasisFunctionSet;
+
+class BasisFunction3DVertexCube : public BaseBasisFunction {
    public:
     BasisFunction3DVertexCube(std::size_t node);
 
@@ -72,7 +70,7 @@ class BasisFunction3DVertexCube : public Base::BaseBasisFunction {
     int nodePosition0_, nodePosition1_, nodePosition2_;
 };
 
-class BasisFunction3DEdgeCube_0 : public Base::BaseBasisFunction {
+class BasisFunction3DEdgeCube_0 : public BaseBasisFunction {
    public:
     BasisFunction3DEdgeCube_0(std::size_t node0, std::size_t node1,
                               std::size_t polynomialOrder);
@@ -92,7 +90,7 @@ class BasisFunction3DEdgeCube_0 : public Base::BaseBasisFunction {
     std::size_t polynomialOrder_;
 };
 
-class BasisFunction3DEdgeCube_1 : public Base::BaseBasisFunction {
+class BasisFunction3DEdgeCube_1 : public BaseBasisFunction {
    public:
     BasisFunction3DEdgeCube_1(std::size_t node0, std::size_t node1,
                               std::size_t polynomialOrder);
@@ -112,7 +110,7 @@ class BasisFunction3DEdgeCube_1 : public Base::BaseBasisFunction {
     std::size_t polynomialOrder_;
 };
 
-class BasisFunction3DEdgeCube_2 : public Base::BaseBasisFunction {
+class BasisFunction3DEdgeCube_2 : public BaseBasisFunction {
    public:
     BasisFunction3DEdgeCube_2(std::size_t node0, std::size_t node1,
                               std::size_t polynomialOrder);
@@ -132,7 +130,7 @@ class BasisFunction3DEdgeCube_2 : public Base::BaseBasisFunction {
     std::size_t polynomialOrder_;
 };
 
-class BasisFunction3DFaceCube_0 : public Base::BaseBasisFunction {
+class BasisFunction3DFaceCube_0 : public BaseBasisFunction {
    public:
     BasisFunction3DFaceCube_0(std::size_t node0, std::size_t node1,
                               std::size_t node2, std::size_t polynomialOrder1,
@@ -154,7 +152,7 @@ class BasisFunction3DFaceCube_0 : public Base::BaseBasisFunction {
     std::size_t polynomialOrder2_;
 };
 
-class BasisFunction3DFaceCube_1 : public Base::BaseBasisFunction {
+class BasisFunction3DFaceCube_1 : public BaseBasisFunction {
    public:
     BasisFunction3DFaceCube_1(std::size_t node0, std::size_t node1,
                               std::size_t node2, std::size_t polynomialOrder0,
@@ -176,7 +174,7 @@ class BasisFunction3DFaceCube_1 : public Base::BaseBasisFunction {
     std::size_t polynomialOrder2_;
 };
 
-class BasisFunction3DFaceCube_2 : public Base::BaseBasisFunction {
+class BasisFunction3DFaceCube_2 : public BaseBasisFunction {
    public:
     BasisFunction3DFaceCube_2(std::size_t node0, std::size_t node1,
                               std::size_t node2, std::size_t polynomialOrder0,
@@ -198,7 +196,7 @@ class BasisFunction3DFaceCube_2 : public Base::BaseBasisFunction {
     std::size_t polynomialOrder1_;
 };
 
-class BasisFunction3DInteriorCube : public Base::BaseBasisFunction {
+class BasisFunction3DInteriorCube : public BaseBasisFunction {
    public:
     BasisFunction3DInteriorCube(std::size_t polynomialOrder0,
                                 std::size_t polynomialOrder1,
@@ -219,19 +217,16 @@ class BasisFunction3DInteriorCube : public Base::BaseBasisFunction {
     std::size_t polynomialOrder0_, polynomialOrder1_, polynomialOrder2_;
 };
 
-Base::BasisFunctionSet* createDGBasisFunctionSet3DH1Cube(std::size_t order);
+BasisFunctionSet* createDGBasisFunctionSet3DH1Cube(std::size_t order);
 
-Base::BasisFunctionSet* createInteriorBasisFunctionSet3DH1Cube(
+BasisFunctionSet* createInteriorBasisFunctionSet3DH1Cube(std::size_t order);
+
+std::vector<const BasisFunctionSet*> createVertexBasisFunctionSet3DH1Cube(
     std::size_t order);
 
-std::vector<const Base::BasisFunctionSet*> createVertexBasisFunctionSet3DH1Cube(
-    std::size_t order);
+std::vector<const OrientedBasisFunctionSet*> createEdgeBasisFunctionSet3DH1Cube(std::size_t order);
 
-std::vector<const Base::OrientedBasisFunctionSet*>
-    createEdgeBasisFunctionSet3DH1Cube(std::size_t order);
-
-std::vector<const Base::OrientedBasisFunctionSet*>
-    createFaceBasisFunctionSet3DH1Cube(std::size_t order);
+std::vector<const OrientedBasisFunctionSet*> createFaceBasisFunctionSet3DH1Cube(std::size_t order);
 }  // namespace Utilities
 
 }  // namespace hpgem

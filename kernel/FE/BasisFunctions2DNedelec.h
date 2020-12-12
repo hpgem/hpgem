@@ -44,12 +44,10 @@
 
 namespace hpgem {
 
-namespace Base {
+namespace FE {
+
 class BaseBasisFunction;
 class BasisFunctionSet;
-}  // namespace Base
-
-namespace Utilities {
 
 /**
  * Implementation of Nedelec functions based on the basis for Raviart-Thomas
@@ -75,14 +73,14 @@ namespace Utilities {
  * @param order The order of the basis functions (highest polynomial degree)
  * @return The set of basis functions, user owns the pointer.
  */
-Base::BasisFunctionSet* createDGBasisFunctionSet2DNedelec(std::size_t order);
+BasisFunctionSet* createDGBasisFunctionSet2DNedelec(std::size_t order);
 
 /**
  * Create BasisFunctionSet for DG (elementwise) 2D Nedelec functions.
  * @param order The order of the basis functions (highest polynomial degree)
  * @return A vector with the basis functions. The user owns all the pointers.
  */
-std::vector<Base::BaseBasisFunction*> createDGBasisFunctions2DNedelec(
+std::vector<BaseBasisFunction*> createDGBasisFunctions2DNedelec(
     std::size_t order);
 }  // namespace Utilities
 

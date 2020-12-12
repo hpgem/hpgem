@@ -44,18 +44,17 @@
 
 namespace hpgem {
 
-namespace Base {
-class BasisFunctionSet;
-}
-
 namespace Geometry {
 template <std::size_t DIM>
 class PointReference;
 }
 
-namespace Utilities {
+namespace FE {
+
+class BasisFunctionSet;
+
 //! Curl conforming edge functions.
-class BasisCurlEdgeAinsworthCoyle : public Base::BaseBasisFunction {
+class BasisCurlEdgeAinsworthCoyle : public BaseBasisFunction {
    public:
     BasisCurlEdgeAinsworthCoyle(std::size_t degree,
                                 std::size_t localFirstVertex,
@@ -72,7 +71,7 @@ class BasisCurlEdgeAinsworthCoyle : public Base::BaseBasisFunction {
 };
 
 //! Curl conforming edge based face functions.
-class BasisCurlEdgeFaceAinsworthCoyle : public Base::BaseBasisFunction {
+class BasisCurlEdgeFaceAinsworthCoyle : public BaseBasisFunction {
    public:
     BasisCurlEdgeFaceAinsworthCoyle(std::size_t degree,
                                     std::size_t localOpposingVertex,
@@ -89,7 +88,7 @@ class BasisCurlEdgeFaceAinsworthCoyle : public Base::BaseBasisFunction {
 };
 
 //! Curl conforming face functions.
-class BasisCurlFaceAinsworthCoyle : public Base::BaseBasisFunction {
+class BasisCurlFaceAinsworthCoyle : public BaseBasisFunction {
    public:
     BasisCurlFaceAinsworthCoyle(std::size_t degree1, std::size_t degree2,
                                 std::size_t localOpposingVertex,
@@ -106,7 +105,7 @@ class BasisCurlFaceAinsworthCoyle : public Base::BaseBasisFunction {
 };
 
 //! Curl conforming face based interior functions.
-class BasisCurlFaceinteriorAinsworthCoyle : public Base::BaseBasisFunction {
+class BasisCurlFaceinteriorAinsworthCoyle : public BaseBasisFunction {
    public:
     BasisCurlFaceinteriorAinsworthCoyle(std::size_t degree1,
                                         std::size_t degree2,
@@ -123,7 +122,7 @@ class BasisCurlFaceinteriorAinsworthCoyle : public Base::BaseBasisFunction {
 };
 
 //! curl conforming interior functions
-class BasisCurlinteriorAinsworthCoyle : public Base::BaseBasisFunction {
+class BasisCurlinteriorAinsworthCoyle : public BaseBasisFunction {
    public:
     BasisCurlinteriorAinsworthCoyle(std::size_t degree1, std::size_t degree2,
                                     std::size_t degree3, std::size_t direction);
@@ -138,8 +137,7 @@ class BasisCurlinteriorAinsworthCoyle : public Base::BaseBasisFunction {
     const std::size_t deg1, deg2, deg3, direction;
 };
 
-Base::BasisFunctionSet* createDGBasisFunctionSet3DAinsworthCoyle(
-    std::size_t order);
+BasisFunctionSet* createDGBasisFunctionSet3DAinsworthCoyle(std::size_t order);
 
 }  // namespace Utilities
 

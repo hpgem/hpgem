@@ -44,19 +44,17 @@
 
 namespace hpgem {
 
-namespace Base {
-class BasisFunctionSet;
-class OrientedBasisFunctionSet;
-}  // namespace Base
-
 namespace Geometry {
 template <std::size_t DIM>
 class PointReference;
 }
 
-namespace Utilities {
+namespace FE {
 
-class BasisFunction3DVertexPyramid : public Base::BaseBasisFunction {
+class BasisFunctionSet;
+class OrientedBasisFunctionSet;
+
+class BasisFunction3DVertexPyramid : public BaseBasisFunction {
    public:
     BasisFunction3DVertexPyramid(std::size_t node);
 
@@ -72,19 +70,19 @@ class BasisFunction3DVertexPyramid : public Base::BaseBasisFunction {
     std::size_t node_;  // numbering consistent with referenceGeometry
 };
 
-Base::BasisFunctionSet *createDGBasisFunctionSet3DH1ConformingPyramid(
+BasisFunctionSet *createDGBasisFunctionSet3DH1ConformingPyramid(
     std::size_t order);
 
-Base::BasisFunctionSet *createInteriorBasisFunctionSet3DH1ConformingPyramid(
+BasisFunctionSet *createInteriorBasisFunctionSet3DH1ConformingPyramid(
     std::size_t order);
 
-std::vector<const Base::BasisFunctionSet *>
+std::vector<const BasisFunctionSet *>
     createVertexBasisFunctionSet3DH1ConformingPyramid(std::size_t order);
 
-std::vector<const Base::OrientedBasisFunctionSet *>
+std::vector<const OrientedBasisFunctionSet *>
     createEdgeBasisFunctionSet3DH1ConformingPyramid(std::size_t order);
 
-std::vector<const Base::OrientedBasisFunctionSet *>
+std::vector<const OrientedBasisFunctionSet *>
     createFaceBasisFunctionSet3DH1ConformingPyramid(std::size_t order);
 }  // namespace Utilities
 

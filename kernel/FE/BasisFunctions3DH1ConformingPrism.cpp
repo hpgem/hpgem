@@ -48,7 +48,7 @@
 
 namespace hpgem {
 
-namespace Utilities {
+namespace FE {
 
 BasisFunction3DVertexPrism::BasisFunction3DVertexPrism(std::size_t node) {
     logger.assert_debug(node < 6, "A triangular prism only has 6 nodes");
@@ -486,9 +486,9 @@ double BasisFunction3DInteriorPrism::evalDeriv2(
                 LobattoPolynomialDerivative(polynomialOrder2_, p[2]) / 4.);
 }
 
-Base::BasisFunctionSet* createDGBasisFunctionSet3DH1ConformingPrism(
+BasisFunctionSet* createDGBasisFunctionSet3DH1ConformingPrism(
     std::size_t order) {
-    Base::BasisFunctionSet* result = new Base::BasisFunctionSet(order);
+    BasisFunctionSet* result = new BasisFunctionSet(order);
     if (order > 0) {
         Geometry::ReferenceTriangularPrism& prism =
             Geometry::ReferenceTriangularPrism::Instance();
@@ -548,12 +548,12 @@ Base::BasisFunctionSet* createDGBasisFunctionSet3DH1ConformingPrism(
     return result;
 }
 
-Base::BasisFunctionSet* createInteriorBasisFunctionSet3DH1ConformingPrism(
+BasisFunctionSet* createInteriorBasisFunctionSet3DH1ConformingPrism(
     std::size_t order) {
     logger.assert_debug(order > 0,
                         "Trying to create a conforming, constant basis "
                         "function set, did you mean the constant solution?");
-    Base::BasisFunctionSet* result = new Base::BasisFunctionSet(order);
+    BasisFunctionSet* result = new BasisFunctionSet(order);
     for (std::size_t i = 0; i + 3 <= order; ++i) {
         for (std::size_t j = 0; i + j + 3 <= order; ++j) {
             for (std::size_t k = 0; k + 2 <= order; ++k) {
@@ -565,40 +565,40 @@ Base::BasisFunctionSet* createInteriorBasisFunctionSet3DH1ConformingPrism(
     return result;
 }
 
-std::vector<const Base::BasisFunctionSet*>
+std::vector<const BasisFunctionSet*>
     createVertexBasisFunctionSet3DH1ConformingPrism(std::size_t order) {
     logger.assert_debug(order > 0,
                         "Trying to create a conforming, constant basis "
                         "function set, did you mean the constant solution?");
-    std::vector<const Base::BasisFunctionSet*> result;
-    Base::BasisFunctionSet* set;
+    std::vector<const BasisFunctionSet*> result;
+    BasisFunctionSet* set;
     for (std::size_t i = 0; i < 6; ++i) {
-        set = new Base::BasisFunctionSet(order);
+        set = new BasisFunctionSet(order);
         set->addBasisFunction(new BasisFunction3DVertexPrism(i));
         result.push_back(set);
     }
     return result;
 }
 
-std::vector<const Base::OrientedBasisFunctionSet*>
+std::vector<const OrientedBasisFunctionSet*>
     createEdgeBasisFunctionSet3DH1ConformingPrism(std::size_t order) {
     logger.assert_debug(order > 0,
                         "Trying to create a conforming, constant basis "
                         "function set, did you mean the constant solution?");
-    std::vector<const Base::OrientedBasisFunctionSet*> result;
-    Base::OrientedBasisFunctionSet* set;
+    std::vector<const OrientedBasisFunctionSet*> result;
+    OrientedBasisFunctionSet* set;
     Geometry::ReferenceTriangularPrism& prism =
         Geometry::ReferenceTriangularPrism::Instance();
     std::vector<std::size_t> vectorOfPointIndexes(2);
     for (std::size_t i = 0; i < 6; ++i) {
         vectorOfPointIndexes = prism.getCodim2EntityLocalIndices(i);
-        set = new Base::OrientedBasisFunctionSet(order, 0, i);
+        set = new OrientedBasisFunctionSet(order, 0, i);
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DEdgePrism_0(
                 vectorOfPointIndexes[0], vectorOfPointIndexes[1], j));
         }
         result.push_back(set);
-        set = new Base::OrientedBasisFunctionSet(order, 1, i);
+        set = new OrientedBasisFunctionSet(order, 1, i);
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DEdgePrism_0(
                 vectorOfPointIndexes[1], vectorOfPointIndexes[0], j));
@@ -607,13 +607,13 @@ std::vector<const Base::OrientedBasisFunctionSet*>
     }
     for (std::size_t i = 6; i < 9; ++i) {
         vectorOfPointIndexes = prism.getCodim2EntityLocalIndices(i);
-        set = new Base::OrientedBasisFunctionSet(order, 0, i);
+        set = new OrientedBasisFunctionSet(order, 0, i);
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DEdgePrism_1(
                 vectorOfPointIndexes[0], vectorOfPointIndexes[1], j));
         }
         result.push_back(set);
-        set = new Base::OrientedBasisFunctionSet(order, 1, i);
+        set = new OrientedBasisFunctionSet(order, 1, i);
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             set->addBasisFunction(new BasisFunction3DEdgePrism_1(
                 vectorOfPointIndexes[1], vectorOfPointIndexes[0], j));
@@ -623,19 +623,19 @@ std::vector<const Base::OrientedBasisFunctionSet*>
     return result;
 }
 
-std::vector<const Base::OrientedBasisFunctionSet*>
+std::vector<const OrientedBasisFunctionSet*>
     createFaceBasisFunctionSet3DH1ConformingPrism(std::size_t order) {
     logger.assert_debug(order > 0,
                         "Trying to create a conforming, constant basis "
                         "function set, did you mean the constant solution?");
-    std::vector<const Base::OrientedBasisFunctionSet*> result;
-    Base::OrientedBasisFunctionSet* set;
+    std::vector<const OrientedBasisFunctionSet*> result;
+    OrientedBasisFunctionSet* set;
     Geometry::ReferenceTriangularPrism& prism =
         Geometry::ReferenceTriangularPrism::Instance();
     std::vector<std::size_t> vectorOfPointIndexes(4);
     for (std::size_t i = 0; i < 2; ++i) {
         vectorOfPointIndexes = prism.getCodim1EntityLocalIndices(i);
-        set = new Base::OrientedBasisFunctionSet(order, 0, i);
+        set = new OrientedBasisFunctionSet(order, 0, i);
         for (std::size_t j = 0; j + 3 <= order; ++j) {
             for (std::size_t k = 0; j + k + 3 <= order; ++k) {
                 set->addBasisFunction(new BasisFunction3DFacePrism_0(
@@ -644,7 +644,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
             }
         }
         result.push_back(set);
-        set = new Base::OrientedBasisFunctionSet(order, 1, i);
+        set = new OrientedBasisFunctionSet(order, 1, i);
         for (std::size_t j = 0; j + 3 <= order; ++j) {
             for (std::size_t k = 0; j + k + 3 <= order; ++k) {
                 set->addBasisFunction(new BasisFunction3DFacePrism_0(
@@ -653,7 +653,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
             }
         }
         result.push_back(set);
-        set = new Base::OrientedBasisFunctionSet(order, 2, i);
+        set = new OrientedBasisFunctionSet(order, 2, i);
         for (std::size_t j = 0; j + 3 <= order; ++j) {
             for (std::size_t k = 0; j + k + 3 <= order; ++k) {
                 set->addBasisFunction(new BasisFunction3DFacePrism_0(
@@ -662,7 +662,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
             }
         }
         result.push_back(set);
-        set = new Base::OrientedBasisFunctionSet(order, 3, i);
+        set = new OrientedBasisFunctionSet(order, 3, i);
         for (std::size_t j = 0; j + 3 <= order; ++j) {
             for (std::size_t k = 0; j + k + 3 <= order; ++k) {
                 set->addBasisFunction(new BasisFunction3DFacePrism_0(
@@ -671,7 +671,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
             }
         }
         result.push_back(set);
-        set = new Base::OrientedBasisFunctionSet(order, 4, i);
+        set = new OrientedBasisFunctionSet(order, 4, i);
         for (std::size_t j = 0; j + 3 <= order; ++j) {
             for (std::size_t k = 0; j + k + 3 <= order; ++k) {
                 set->addBasisFunction(new BasisFunction3DFacePrism_0(
@@ -680,7 +680,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
             }
         }
         result.push_back(set);
-        set = new Base::OrientedBasisFunctionSet(order, 5, i);
+        set = new OrientedBasisFunctionSet(order, 5, i);
         for (std::size_t j = 0; j + 3 <= order; ++j) {
             for (std::size_t k = 0; j + k + 3 <= order; ++k) {
                 set->addBasisFunction(new BasisFunction3DFacePrism_0(
@@ -692,7 +692,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
     }
     for (std::size_t i = 2; i < 5; ++i) {
         vectorOfPointIndexes = prism.getCodim1EntityLocalIndices(i);
-        set = new Base::OrientedBasisFunctionSet(order, 0, i);
+        set = new OrientedBasisFunctionSet(order, 0, i);
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             for (std::size_t k = 0; k + 2 <= order; ++k) {
                 set->addBasisFunction(new BasisFunction3DFacePrism_0(
@@ -701,7 +701,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
             }
         }
         result.push_back(set);
-        set = new Base::OrientedBasisFunctionSet(order, 1, i);
+        set = new OrientedBasisFunctionSet(order, 1, i);
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             for (std::size_t k = 0; k + 2 <= order; ++k) {
                 set->addBasisFunction(new BasisFunction3DFacePrism_0(
@@ -710,7 +710,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
             }
         }
         result.push_back(set);
-        set = new Base::OrientedBasisFunctionSet(order, 2, i);
+        set = new OrientedBasisFunctionSet(order, 2, i);
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             for (std::size_t k = 0; k + 2 <= order; ++k) {
                 set->addBasisFunction(new BasisFunction3DFacePrism_0(
@@ -719,7 +719,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
             }
         }
         result.push_back(set);
-        set = new Base::OrientedBasisFunctionSet(order, 3, i);
+        set = new OrientedBasisFunctionSet(order, 3, i);
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             for (std::size_t k = 0; k + 2 <= order; ++k) {
                 set->addBasisFunction(new BasisFunction3DFacePrism_0(
@@ -728,7 +728,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
             }
         }
         result.push_back(set);
-        set = new Base::OrientedBasisFunctionSet(order, 4, i);
+        set = new OrientedBasisFunctionSet(order, 4, i);
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             for (std::size_t k = 0; k + 2 <= order; ++k) {
                 set->addBasisFunction(new BasisFunction3DFacePrism_0(
@@ -737,7 +737,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
             }
         }
         result.push_back(set);
-        set = new Base::OrientedBasisFunctionSet(order, 5, i);
+        set = new OrientedBasisFunctionSet(order, 5, i);
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             for (std::size_t k = 0; k + 2 <= order; ++k) {
                 set->addBasisFunction(new BasisFunction3DFacePrism_0(
@@ -746,7 +746,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
             }
         }
         result.push_back(set);
-        set = new Base::OrientedBasisFunctionSet(order, 6, i);
+        set = new OrientedBasisFunctionSet(order, 6, i);
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             for (std::size_t k = 0; k + 2 <= order; ++k) {
                 set->addBasisFunction(new BasisFunction3DFacePrism_0(
@@ -755,7 +755,7 @@ std::vector<const Base::OrientedBasisFunctionSet*>
             }
         }
         result.push_back(set);
-        set = new Base::OrientedBasisFunctionSet(order, 7, i);
+        set = new OrientedBasisFunctionSet(order, 7, i);
         for (std::size_t j = 0; j + 2 <= order; ++j) {
             for (std::size_t k = 0; k + 2 <= order; ++k) {
                 set->addBasisFunction(new BasisFunction3DFacePrism_0(

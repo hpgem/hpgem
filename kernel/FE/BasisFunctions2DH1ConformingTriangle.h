@@ -44,19 +44,17 @@
 
 namespace hpgem {
 
-namespace Base {
-class BasisFunctionSet;
-class OrientedBasisFunctionSet;
-}  // namespace Base
-
 namespace Geometry {
 template <std::size_t DIM>
 class PointReference;
 }
 
-namespace Utilities {
+namespace FE {
 
-class BasisFunction2DVertexTriangle : public Base::BaseBasisFunction {
+class BasisFunctionSet;
+class OrientedBasisFunctionSet;
+
+class BasisFunction2DVertexTriangle : public BaseBasisFunction {
    public:
     BasisFunction2DVertexTriangle(std::size_t node) : node_(node) {
         logger.assert_debug(node < 3, "A triangle only has 3 nodes");
@@ -72,7 +70,7 @@ class BasisFunction2DVertexTriangle : public Base::BaseBasisFunction {
     std::size_t node_;
 };
 
-class BasisFunction2DFaceTriangle : public Base::BaseBasisFunction {
+class BasisFunction2DFaceTriangle : public BaseBasisFunction {
    public:
     BasisFunction2DFaceTriangle(std::size_t node0, std::size_t node1,
                                 std::size_t polynomialOrder)
@@ -91,7 +89,7 @@ class BasisFunction2DFaceTriangle : public Base::BaseBasisFunction {
     std::size_t node0_, node1_, polynomialOrder_;
 };
 
-class BasisFunction2DInteriorTriangle : public Base::BaseBasisFunction {
+class BasisFunction2DInteriorTriangle : public BaseBasisFunction {
    public:
     BasisFunction2DInteriorTriangle(std::size_t polynomialOrder0,
                                     std::size_t polynomialOrder1)
@@ -108,17 +106,16 @@ class BasisFunction2DInteriorTriangle : public Base::BaseBasisFunction {
     std::size_t polynomialOrder0_, polynomialOrder1_;
 };
 
-std::vector<Base::BaseBasisFunction*> createDGBasisFunctions2DH1Triangle(
+std::vector<BaseBasisFunction*> createDGBasisFunctions2DH1Triangle(
     std::size_t order);
-Base::BasisFunctionSet* createDGBasisFunctionSet2DH1Triangle(std::size_t order);
+BasisFunctionSet* createDGBasisFunctionSet2DH1Triangle(std::size_t order);
 
-Base::BasisFunctionSet* createInteriorBasisFunctionSet2DH1Triangle(
+BasisFunctionSet* createInteriorBasisFunctionSet2DH1Triangle(std::size_t order);
+
+std::vector<const BasisFunctionSet*> createVertexBasisFunctionSet2DH1Triangle(
     std::size_t order);
 
-std::vector<const Base::BasisFunctionSet*>
-    createVertexBasisFunctionSet2DH1Triangle(std::size_t order);
-
-std::vector<const Base::OrientedBasisFunctionSet*>
+std::vector<const OrientedBasisFunctionSet*>
     createFaceBasisFunctionSet2DH1Triangle(std::size_t order);
 
 }  // namespace Utilities

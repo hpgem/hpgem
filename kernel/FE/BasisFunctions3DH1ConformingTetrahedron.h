@@ -44,19 +44,17 @@
 
 namespace hpgem {
 
-namespace Base {
-class BasisFunctionSet;
-class OrientedBasisFunctionSet;
-}  // namespace Base
-
 namespace Geometry {
 template <std::size_t DIM>
 class PointReference;
 }
 
-namespace Utilities {
+namespace FE {
 
-class BasisFunction3DVertexTetrahedron : public Base::BaseBasisFunction {
+class BasisFunctionSet;
+class OrientedBasisFunctionSet;
+
+class BasisFunction3DVertexTetrahedron : public BaseBasisFunction {
    public:
     BasisFunction3DVertexTetrahedron(std::size_t node) : node_(node) {
         logger.assert_debug(node < 4, "A tetrahedron only has 4 nodes");
@@ -74,7 +72,7 @@ class BasisFunction3DVertexTetrahedron : public Base::BaseBasisFunction {
     std::size_t node_;
 };
 
-class BasisFunction3DEdgeTetrahedron : public Base::BaseBasisFunction {
+class BasisFunction3DEdgeTetrahedron : public BaseBasisFunction {
    public:
     BasisFunction3DEdgeTetrahedron(std::size_t node0, std::size_t node1,
                                    std::size_t polynomialOrder)
@@ -95,7 +93,7 @@ class BasisFunction3DEdgeTetrahedron : public Base::BaseBasisFunction {
     std::size_t node0_, node1_, polynomialOrder_;
 };
 
-class BasisFunction3DFaceTetrahedron : public Base::BaseBasisFunction {
+class BasisFunction3DFaceTetrahedron : public BaseBasisFunction {
    public:
     BasisFunction3DFaceTetrahedron(std::size_t node0, std::size_t node1,
                                    std::size_t node2,
@@ -123,7 +121,7 @@ class BasisFunction3DFaceTetrahedron : public Base::BaseBasisFunction {
     std::size_t node0_, node1_, node2_, polynomialOrder0_, polynomialOrder1_;
 };
 
-class BasisFunction3DInteriorTetrahedron : public Base::BaseBasisFunction {
+class BasisFunction3DInteriorTetrahedron : public BaseBasisFunction {
    public:
     BasisFunction3DInteriorTetrahedron(std::size_t polynomialOrder0,
                                        std::size_t polynomialOrder1,
@@ -144,19 +142,18 @@ class BasisFunction3DInteriorTetrahedron : public Base::BaseBasisFunction {
     std::size_t polynomialOrder0_, polynomialOrder1_, polynomialOrder2_;
 };
 
-Base::BasisFunctionSet* createDGBasisFunctionSet3DH1Tetrahedron(
+BasisFunctionSet* createDGBasisFunctionSet3DH1Tetrahedron(std::size_t order);
+
+BasisFunctionSet* createInteriorBasisFunctionSet3DH1Tetrahedron(
     std::size_t order);
 
-Base::BasisFunctionSet* createInteriorBasisFunctionSet3DH1Tetrahedron(
-    std::size_t order);
-
-std::vector<const Base::BasisFunctionSet*>
+std::vector<const BasisFunctionSet*>
     createVertexBasisFunctionSet3DH1Tetrahedron(std::size_t order);
 
-std::vector<const Base::OrientedBasisFunctionSet*>
+std::vector<const OrientedBasisFunctionSet*>
     createEdgeBasisFunctionSet3DH1Tetrahedron(std::size_t order);
 
-std::vector<const Base::OrientedBasisFunctionSet*>
+std::vector<const OrientedBasisFunctionSet*>
     createFaceBasisFunctionSet3DH1Tetrahedron(std::size_t order);
 
 }  // namespace Utilities

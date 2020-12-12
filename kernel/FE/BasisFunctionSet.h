@@ -56,7 +56,7 @@ template <int CODIM>
 class MappingReferenceToReference;
 }  // namespace Geometry
 
-namespace Base {
+namespace FE {
 class BaseBasisFunction;
 
 class BasisFunctionSet {
@@ -141,7 +141,7 @@ class BasisFunctionSet {
 // reopening namespace because gcc has a bug where it doesn't accept template
 // specializations in an enclosing namespace
 namespace hpgem {
-namespace Base {
+namespace FE {
 template <std::size_t DIM>
 double BasisFunctionSet::eval(std::size_t i,
                               const Geometry::PointReference<DIM> &p) const {

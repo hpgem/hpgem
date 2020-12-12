@@ -42,7 +42,7 @@
 
 namespace hpgem {
 
-namespace Base {
+namespace FE {
 
 LinearAlgebra::SmallVector<1> BaseBasisFunction::evalDeriv(
     const Geometry::PointReference<1>& p) const {

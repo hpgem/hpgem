@@ -43,7 +43,7 @@
 
 namespace hpgem {
 
-namespace Utilities {
+namespace FE {
 
 /// computes the lobatto polynomials. Excludes the (1-x*x) component
 double LobattoPolynomial(std::size_t degree, double x) {
