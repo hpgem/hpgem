@@ -40,19 +40,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <memory>
 
-#include "AbstractEigenvalueResult.h"
-#include "EigenvalueProblem.h"
+#include "AbstractEigenvalueSolverDriver.h"
 
 using namespace hpgem;
 
-/// Solver for the EigenvalueProblem
+/// Solver for the Maxwell crystal eigenvalue problem.
 template <std::size_t DIM>
 class AbstractEigenvalueSolver {
    public:
     virtual ~AbstractEigenvalueSolver() = default;
-    /// Solve the EigenvalueProblem
-    virtual std::unique_ptr<AbstractEigenvalueResult<DIM>> solve(
-        const EigenvalueProblem<DIM>& input) = 0;
+    /**
+     * Solve eigenvalue problems as directed by the driver.
+     * @param driver Driver that controls what eigenvalue problems to solve.
+     */
+    virtual void solve(AbstractEigenvalueSolverDriver<DIM>& driver) = 0;
 };
 
 #endif  // HPGEM_APP_ABSTRACTEIGENVALUESOLVER_H

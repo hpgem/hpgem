@@ -71,8 +71,16 @@ class DivDGMaxEVConvergenceTest : public AbstractEVConvergenceTest<DIM> {
         return expected_;
     }
     /// Run the actual algorithm on a single level.
-    std::unique_ptr<AbstractEigenvalueResult<DIM>> runInternal(
-        std::size_t level) override;
+    void runInternal(typename AbstractEVConvergenceTest<DIM>::Driver& driver,
+                     std::size_t level) override;
+
+    const LinearAlgebra::SmallVector<DIM>& getKPoint() const final {
+        return testCase_.getKPoint();
+    }
+
+    std::size_t getTargetNumberOfEigenvalues() const final {
+        return testCase_.getNumberOfEigenvalues();
+    }
 
    private:
     EVTestPoint<DIM> testCase_;

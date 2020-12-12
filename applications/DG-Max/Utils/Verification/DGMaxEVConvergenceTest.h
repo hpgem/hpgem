@@ -71,8 +71,8 @@ class DGMaxEVConvergenceTest : public AbstractEVConvergenceTest<DIM> {
         return expected_;
     }
     /// Run the actual algorithm on a single level.
-    std::unique_ptr<AbstractEigenvalueResult<DIM>> runInternal(
-        std::size_t level) override;
+    void runInternal(typename AbstractEVConvergenceTest<DIM>::Driver& driver,
+                     std::size_t level) override;
 
     // Zeros are in the kernel and slight negative eigenvalues (result NaN
     // frequencies) are expected
@@ -82,6 +82,14 @@ class DGMaxEVConvergenceTest : public AbstractEVConvergenceTest<DIM> {
     // Basic estimate that at least 1/2 of the actual eigenvalues must be there.
     std::size_t minimumNumberOfResults(std::size_t level) const {
         return expected_->getLevel(level).size() * 1 / 2;
+    }
+
+    const LinearAlgebra::SmallVector<DIM>& getKPoint() const final {
+        return testCase_.getKPoint();
+    }
+
+    std::size_t getTargetNumberOfEigenvalues() const final {
+        return testCase_.getNumberOfEigenvalues();
     }
 
    private:
