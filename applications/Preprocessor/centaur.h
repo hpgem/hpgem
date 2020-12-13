@@ -63,20 +63,43 @@ class CentaurReader {
         return 2;
     }
 
+    bool is2D() { return getDimension() == 2; }
+    bool is3D() { return getDimension() == 3; }
+
    private:
     UnstructuredInputStream<std::istringstream> readLine();
     // returns the number of skipped entities
     std::uint32_t skipGroup(std::size_t linesPerEntity = 1,
                             bool multiline = true);
-    void readNodeConnections();
+
+    void readHeader();
+
+    void readPeriodicNodeConnections();
+
+    // Header information
+    /**
+     * Version of the format
+     */
+    float version;
+    /**
+     * Type of the hybrid file. Negative values are 2D grids, positive values
+     * are 3D.
+     */
+    std::int32_t centaurFileType;
 
     UnstructuredInputStream<std::ifstream> centaurFile;
+    /// Location in the file where the node/coordinate information starts
     std::ifstream::pos_type nodeStart;
+    /// Location in the file where the element definition starts
     std::ifstream::pos_type elementStart;
-    std::map<std::uint32_t, std::vector<std::size_t>> boundaryConnections;
-    std::int32_t centaurFileType;
+
+    /// Number of Nodes
     std::uint32_t numberOfNodes;
+    /// Number of Elements (independent of type)
     std::uint32_t numberOfElements;
+
+    std::map<std::uint32_t, std::vector<std::size_t>> boundaryConnections;
+
     std::vector<std::size_t> toHpgemNumbering;
 };
 }  // namespace Preprocessor

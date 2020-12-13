@@ -46,6 +46,35 @@ using namespace hpgem;
 
 namespace Preprocessor {
 
+/*
+ * General notes.
+ *   1. The data is stored in 'Fortran unformatted style'. This means that the
+ *   data is stored in data lines, each of the shape:
+ *   [start marker] data [end marker]
+ *   where both start and end marker are the number of bytes contained in the
+ *   data it encloses.
+ *
+ *   2. Confusingly the hyb files have two 'version' type values. One is a
+ *   floating point version that seems to refer to the capabilities (e.g. zone
+ *   families are only supported in version >= 5). The second is a fileType
+ *   which seem to have 4 categories:
+ *     < 0 is used for 2D
+ *     4 is 3D without multiline
+ *     5 is 3D with multiline
+ *     6 is 3D with multiline and int64 indices (for node counts etc.)
+ *
+ *  3. The multiline of point 2 is that some data arrays are split over multiple
+ *  lines. For example the actual coordinates of the nodes are stored in a
+ *  single data line for hybtype 4, but for 5 & 6 they are spread over multiple
+ *  data lines.
+ *  Note: My guess is that this is needed because the markers of each data line
+ *  store the number of bytes as (u?)int. This limits the amount of data inside
+ *  a single line to what can be represented by these markers.
+ *
+ *  4. This reader supports both 2D and 3D hyb meshes, and unlike the examples
+ *  from centaur we don't separate them into completely different code blocks.
+ */
+
 UnstructuredInputStream<std::istringstream> CentaurReader::readLine() {
     // todo figure out ifstream.get(streambuf)
     logger.assert_always(!!centaurFile,
@@ -78,38 +107,57 @@ UnstructuredInputStream<std::istringstream> CentaurReader::readLine() {
     return std::istringstream(buffer, std::ios_base::binary);
 }
 
+void CentaurReader::readHeader() {
+    auto headerLine = readLine();
+    headerLine >> version >> centaurFileType;
+
+    logger(INFO, "This mesh is in Centaur version % format", version);
+}
+
 CentaurReader::CentaurReader(std::string filename) {
     centaurFile.open(filename, std::ios::binary);
     logger.assert_always(centaurFile.is_open(),
                          "Cannot open Centaur meshfile.");
     logger.assert_always(centaurFile.good(),
                          "Something is not so good about this mesh");
-    auto currentLine = readLine();
 
-    float version;
-    currentLine >> version >> centaurFileType;
-    logger(INFO, "This mesh is in Centaur version % format", version);
+    readHeader();
 
+    /// Scan through the file ///
+    /////////////////////////////
+    // Scan through the file to find the positions where the interesting data
+    // starts.
+
+    // Nodes
     nodeStart = centaurFile.tellg();
-    numberOfNodes = skipGroup();  // nodes
+    numberOfNodes = skipGroup();
 
+    // Elements, these are stored by shape
     elementStart = centaurFile.tellg();
     numberOfElements = 0;
-    if (centaurFileType > 1) numberOfElements += skipGroup();  // hexahedra
+    if (is3D()) {
+        numberOfElements += skipGroup();  // hexahedra
+    }
     numberOfElements += skipGroup();  // triangles/prisms
-    if (centaurFileType > 1) numberOfElements += skipGroup();  // pyramids
+    if (is3D()) {
+        numberOfElements += skipGroup();  // pyramids
+    }
     numberOfElements += skipGroup();  // quadrilaterals/tetrahedra
+
     logger(DEBUG, "done with skipping elements");
-    if (centaurFileType < 0) skipGroup();  // redundant boundary nodes
-    if (centaurFileType > 3 || centaurFileType < 0)
+    if (is2D()) skipGroup();  // redundant boundary nodes
+    if (is2D() || centaurFileType > 3) {
         skipGroup(2);
-    else
-        skipGroup(1);                      // boundary faces
+    } else {
+        skipGroup(1);  // boundary faces
+    }
     if (centaurFileType < 0) skipGroup();  // segments
     skipGroup(1, false);                   // face/segment to group connections
     skipGroup(2, false);                   // group to b.c. type connections
     logger(VERBOSE, "done with skipping information");
-    readNodeConnections();
+
+    // Read information about periodicity
+    readPeriodicNodeConnections();
 }
 
 std::function<void(int&)> difference_generator(
@@ -279,7 +327,7 @@ std::uint32_t CentaurReader::skipGroup(std::size_t linesPerEntity,
     return numberOfEntities;
 }
 
-void CentaurReader::readNodeConnections() {
+void CentaurReader::readPeriodicNodeConnections() {
     std::uint32_t numberOfPeriodicTransformations = 1;
     if (centaurFileType > 3) {
         auto currentLine = readLine();
