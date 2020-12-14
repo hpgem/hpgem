@@ -50,8 +50,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace hpgem;
 
 /// Internal storage for the algorithm
+
+template <std::size_t DIM>
+class DivDGMaxResult;
+
 template <std::size_t DIM>
 struct Workspace {
+
+    friend class DivDGMaxResult<DIM>;
+
     explicit Workspace(Base::MeshManipulator<DIM>* mesh)
         : indexing_(nullptr),
           stiffnessMatrix_(
@@ -94,6 +101,7 @@ struct Workspace {
                std::size_t numberOfEigenvalues) {
 
         kphaseshifts_.apply(k, stiffnessMatrix_);
+        kpoint_ = k;
 
         PetscErrorCode err;
         err = EPSSetOperators(solver_, massMatrix_, stiffnessMatrix_);
@@ -181,6 +189,8 @@ struct Workspace {
     /// exp(ikx) shifts used in the stiffness matrix
     DGMax::KPhaseShifts<DIM> kphaseshifts_;
 
+    LinearAlgebra::SmallVector<DIM> kpoint_;
+
     /// Eigenvalue solver
     EPS solver_;
 
@@ -196,22 +206,32 @@ struct Workspace {
 };
 
 template <std::size_t DIM>
+class DivDGMaxResult : public AbstractEigenvalueResult<DIM> {
+   public:
+    DivDGMaxResult(const Workspace<DIM>& workspace) : workspace_(workspace) {
+        frequencies_.resize(workspace.numberOfConvergedEigenpairs);
+        for (std::size_t i = 0; i < frequencies_.size(); ++i) {
+            frequencies_[i] =
+                1. / std::sqrt(PetscRealPart(workspace_.eigenvalues_[i]));
+        }
+    };
+
+    std::vector<double> getFrequencies() final { return frequencies_; }
+
+    const LinearAlgebra::SmallVector<DIM>& getKPoint() const final {
+        return workspace_.kpoint_;
+    }
+
+   private:
+    const Workspace<DIM>& workspace_;
+    std::vector<double> frequencies_;
+};
+
+template <std::size_t DIM>
 DivDGMaxEigenvalue<DIM>::DivDGMaxEigenvalue(
     Base::MeshManipulator<DIM>& mesh, std::size_t order,
     typename DivDGMaxDiscretization<DIM>::Stab stab)
     : mesh_(mesh), order_(order), stab_(stab) {}
-
-template <std::size_t DIM>
-struct DivDGMaxResult : AbstractEigenvalueResult<DIM> {
-    std::vector<double> getFrequencies() final { return frequencies_; }
-
-    const LinearAlgebra::SmallVector<DIM>& getKPoint() const final {
-        return kpoint_;
-    }
-
-    std::vector<double> frequencies_;
-    LinearAlgebra::SmallVector<DIM> kpoint_;
-};
 
 template <std::size_t DIM>
 void DivDGMaxEigenvalue<DIM>::solve(
@@ -233,7 +253,6 @@ void DivDGMaxEigenvalue<DIM>::solve(
 
     std::size_t outputId = 0;
     std::size_t expectedNumberOfSteps = driver.getNumberOfKPoints();
-    DivDGMaxResult<DIM> result;
 
     DGMaxLogger(INFO, "Starting k-vector walk");
     for (std::size_t solve = 0; !driver.stop(); driver.nextKPoint(), ++solve) {
@@ -243,13 +262,7 @@ void DivDGMaxEigenvalue<DIM>::solve(
                     expectedNumberOfSteps);
         workspace.solve(currentK, numberOfEigenvalues);
 
-        result.kpoint_ = currentK;
-        result.frequencies_.resize(workspace.numberOfConvergedEigenpairs);
-        for (std::size_t i = 0; i < workspace.numberOfConvergedEigenpairs;
-             ++i) {
-            result.frequencies_[i] =
-                std::sqrt(1 / workspace.eigenvalues_[i].real());
-        }
+        DivDGMaxResult<DIM> result(workspace);
 
         driver.handleResult(result);
 
