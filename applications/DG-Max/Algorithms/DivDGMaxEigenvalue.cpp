@@ -52,7 +52,7 @@ using namespace hpgem;
 /// Internal storage for the algorithm
 template <std::size_t DIM>
 struct Workspace {
-    Workspace(Base::MeshManipulator<DIM>* mesh)
+    explicit Workspace(Base::MeshManipulator<DIM>* mesh)
         : indexing_(nullptr),
           stiffnessMatrix_(
               indexing_,
@@ -86,42 +86,8 @@ struct Workspace {
         DGMaxLogger(DEBUG, "Building temporary global vector");
         tempVector_.reinit();
 
-        initShifts();
+        initKShifts();
         initSolver();
-    }
-
-    void initShifts() {
-        DGMaxLogger(VERBOSE, "Initializing boundary shifting");
-        DGMax::FaceMatrixKPhaseShiftBuilder<DIM> builder;
-        builder.setMatrixExtractor([&](const Base::Face* face) {
-            const Base::FaceMatrix& faceMatrix = face->getFaceMatrix(
-                DivDGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID);
-            LinearAlgebra::MiddleSizeMatrix block1, block2;
-            block1 = faceMatrix.getElementMatrix(Base::Side::LEFT,
-                                                 Base::Side::RIGHT);
-            block2 = faceMatrix.getElementMatrix(Base::Side::RIGHT,
-                                                 Base::Side::LEFT);
-
-            return std::make_pair(block1, block2);
-        });
-        kphaseshifts_ = builder.build(indexing_);
-    }
-
-    void initSolver() {
-        PetscErrorCode err;
-        err = EPSCreate(PETSC_COMM_WORLD, &solver_);
-        CHKERRABORT(PETSC_COMM_WORLD, err);
-        // Setting operators, but these will be set again after k-shifting
-        // Note the order Mx = (1/omega^2) Sx and NOT Sx = omega^2 M x and doing
-        // a spectral transformation.
-        // It may be possible to remove this relic with the current version of
-        // SLEPc.
-        err = EPSSetOperators(solver_, massMatrix_, stiffnessMatrix_);
-        CHKERRABORT(PETSC_COMM_WORLD, err);
-
-        err = EPSSetWhichEigenpairs(solver_, EPS_LARGEST_MAGNITUDE);
-        CHKERRABORT(PETSC_COMM_WORLD, err);
-        DGMaxLogger(INFO, "Eigenvalue solver configured");
     }
 
     void solve(LinearAlgebra::SmallVector<DIM> k,
@@ -169,6 +135,41 @@ struct Workspace {
                                   eigenvectors_[i], nullptr);
             CHKERRABORT(PETSC_COMM_WORLD, err);
         }
+    }
+
+   private:
+    void initKShifts() {
+        DGMaxLogger(VERBOSE, "Initializing boundary shifting");
+        DGMax::FaceMatrixKPhaseShiftBuilder<DIM> builder;
+        builder.setMatrixExtractor([&](const Base::Face* face) {
+            const Base::FaceMatrix& faceMatrix = face->getFaceMatrix(
+                DivDGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID);
+            LinearAlgebra::MiddleSizeMatrix block1, block2;
+            block1 = faceMatrix.getElementMatrix(Base::Side::LEFT,
+                                                 Base::Side::RIGHT);
+            block2 = faceMatrix.getElementMatrix(Base::Side::RIGHT,
+                                                 Base::Side::LEFT);
+
+            return std::make_pair(block1, block2);
+        });
+        kphaseshifts_ = builder.build(indexing_);
+    }
+
+    void initSolver() {
+        PetscErrorCode err;
+        err = EPSCreate(PETSC_COMM_WORLD, &solver_);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+        // Setting operators, but these will be set again after k-shifting
+        // Note the order Mx = (1/omega^2) Sx and NOT Sx = omega^2 M x and doing
+        // a spectral transformation.
+        // It may be possible to remove this relic with the current version of
+        // SLEPc.
+        err = EPSSetOperators(solver_, massMatrix_, stiffnessMatrix_);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+
+        err = EPSSetWhichEigenpairs(solver_, EPS_LARGEST_MAGNITUDE);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+        DGMaxLogger(INFO, "Eigenvalue solver configured");
     }
 
     Utilities::GlobalIndexing indexing_;
