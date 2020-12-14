@@ -79,6 +79,11 @@ class AbstractEigenvalueResult {
                             Output::VTKSpecificTimeWriter<DIM>& writer) {
         DGMaxLogger(WARN, "Not supported for this result implementation.");
     };
+
+    /**
+     * @return Mesh file used for the computation.
+     */
+    virtual const Base::MeshManipulator<DIM>* getMesh() const = 0;
 };
 
 #endif  // HPGEM_APP_ABSTRACTEIGENVALUERESULT_H

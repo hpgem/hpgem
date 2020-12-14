@@ -208,7 +208,9 @@ struct Workspace {
 template <std::size_t DIM>
 class DivDGMaxResult : public AbstractEigenvalueResult<DIM> {
    public:
-    DivDGMaxResult(const Workspace<DIM>& workspace) : workspace_(workspace) {
+    DivDGMaxResult(const Workspace<DIM>& workspace,
+                   const Base::MeshManipulator<DIM>* mesh)
+        : workspace_(workspace), mesh_(mesh) {
         frequencies_.resize(workspace.numberOfConvergedEigenpairs);
         for (std::size_t i = 0; i < frequencies_.size(); ++i) {
             frequencies_[i] =
@@ -224,6 +226,10 @@ class DivDGMaxResult : public AbstractEigenvalueResult<DIM> {
 
    private:
     const Workspace<DIM>& workspace_;
+
+    const Base::MeshManipulator<DIM>* getMesh() const final { return mesh_; }
+
+    const Base::MeshManipulator<DIM>* mesh_;
     std::vector<double> frequencies_;
 };
 
@@ -262,7 +268,7 @@ void DivDGMaxEigenvalue<DIM>::solve(
                     expectedNumberOfSteps);
         workspace.solve(currentK, numberOfEigenvalues);
 
-        DivDGMaxResult<DIM> result(workspace);
+        DivDGMaxResult<DIM> result(workspace, &mesh_);
 
         driver.handleResult(result);
 

@@ -148,6 +148,15 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
         frequencyResults_[currentPoint_] = result.getFrequencies();
         writeFrequencies(outFile, currentPoint_,
                          frequencyResults_[currentPoint_], ',');
+
+        for (std::size_t i = 0; i < frequencyResults_[currentPoint_].size();
+             ++i) {
+            std::stringstream outFile;
+            outFile << "eigenfield-" << currentPoint_ << "-field-" << i;
+            Output::VTKSpecificTimeWriter<DIM> writer(outFile.str(),
+                                                      result.getMesh());
+            result.writeField(i, writer);
+        }
     }
 
     void printFrequencies() {

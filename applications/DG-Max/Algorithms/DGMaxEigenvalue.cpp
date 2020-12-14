@@ -265,6 +265,9 @@ struct DGMaxEigenvalueResult : public AbstractEigenvalueResult<DIM> {
         return kpoint_;
     }
 
+    const Base::MeshManipulator<DIM>* getMesh() const final { return mesh_; }
+
+    const Base::MeshManipulator<DIM>* mesh_;
     std::vector<PetscScalar> eigenvalues_;
     LinearAlgebra::SmallVector<DIM> kpoint_;
 };
@@ -299,6 +302,7 @@ void DGMaxEigenvalue<DIM>::solve(AbstractEigenvalueSolverDriver<DIM>& driver) {
         DGMaxEigenvalueResult<DIM> result;
         result.kpoint_ = currentK;
         result.eigenvalues_ = workspace.getEigenvalues();
+        result.mesh_ = &mesh_;
         sortEigenvalues(result.eigenvalues_);
         driver.handleResult(result);
     }
