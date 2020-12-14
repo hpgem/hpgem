@@ -58,9 +58,6 @@ class DivDGMaxEigenvalue : public AbstractEigenvalueSolver<DIM> {
     void solve(AbstractEigenvalueSolverDriver<DIM>& driver) override;
 
    private:
-    void extractEigenvalues(const EPS& solver,
-                            std::vector<PetscScalar>& result) const;
-
     Base::MeshManipulator<DIM>& mesh_;
     typename DivDGMaxDiscretization<DIM>::Stab stab_;
     std::size_t order_;
