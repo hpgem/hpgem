@@ -151,18 +151,6 @@ void DivDGMaxEigenvalue<DIM>::solve(
     int converged = 0;
     DGMaxLogger(INFO, "Storage vectors assembled");
 
-    //    makeShiftMatrix(dk, stiffnessMatrix.getGlobalIndex(), waveVec);
-    //    error = VecAssemblyBegin(waveVec);
-    //    CHKERRABORT(PETSC_COMM_WORLD, error);
-    //    error = VecAssemblyEnd(waveVec);
-    //    CHKERRABORT(PETSC_COMM_WORLD, error);
-    //    error = VecDuplicate(waveVec, &waveVecConjugate);
-    //    CHKERRABORT(PETSC_COMM_WORLD, error);
-    //    error = VecCopy(waveVec, waveVecConjugate);
-    //    CHKERRABORT(PETSC_COMM_WORLD, error);
-    //    error = VecConjugate(waveVecConjugate);
-    //    CHKERRABORT(PETSC_COMM_WORLD, error);
-
     std::size_t outputId = 0;
     std::size_t expectedNumberOfSteps = driver.getNumberOfKPoints();
     // For testing
