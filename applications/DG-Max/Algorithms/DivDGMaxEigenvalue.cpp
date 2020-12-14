@@ -208,9 +208,10 @@ struct Workspace {
 template <std::size_t DIM>
 class DivDGMaxResult : public AbstractEigenvalueResult<DIM> {
    public:
-    DivDGMaxResult(const Workspace<DIM>& workspace,
-                   const Base::MeshManipulator<DIM>* mesh)
-        : workspace_(workspace), mesh_(mesh) {
+    DivDGMaxResult(Workspace<DIM>& workspace,
+                   const Base::MeshManipulator<DIM>* mesh,
+                   const DivDGMaxDiscretization<DIM>& discretization)
+        : workspace_(workspace), mesh_(mesh), discretization_(discretization) {
         frequencies_.resize(workspace.numberOfConvergedEigenpairs);
         for (std::size_t i = 0; i < frequencies_.size(); ++i) {
             frequencies_[i] =
@@ -224,14 +225,79 @@ class DivDGMaxResult : public AbstractEigenvalueResult<DIM> {
         return workspace_.kpoint_;
     }
 
-   private:
-    const Workspace<DIM>& workspace_;
+    void writeField(std::size_t eigenvalue,
+                    Output::VTKSpecificTimeWriter<DIM>& writer) final;
 
     const Base::MeshManipulator<DIM>* getMesh() const final { return mesh_; }
 
+   private:
+    Workspace<DIM>& workspace_;
     const Base::MeshManipulator<DIM>* mesh_;
+    const DivDGMaxDiscretization<DIM>& discretization_;
     std::vector<double> frequencies_;
 };
+
+template <std::size_t DIM>
+void DivDGMaxResult<DIM>::writeField(
+    std::size_t eigenvalue, Output::VTKSpecificTimeWriter<DIM>& writer) {
+    logger.assert_debug(eigenvalue < workspace_.numberOfConvergedEigenpairs,
+                        "Eigenvalue index too large");
+    PetscErrorCode err;
+    err = VecCopy(workspace_.eigenvectors_[eigenvalue], workspace_.tempVector_);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
+    const std::size_t VECTOR_ID = 0;
+    // Write to a time integration vector so that we can access it on each
+    // element.
+    workspace_.tempVector_.writeTimeIntegrationVector(VECTOR_ID);
+    // write all field components
+    writer.write(
+        [&](const Base::Element* element,
+            const Geometry::PointReference<DIM>& pref, std::size_t) {
+            const LinearAlgebra::MiddleSizeVector& coefficients =
+                element->getTimeIntegrationVector(VECTOR_ID);
+            auto fields =
+                discretization_.computeFields(element, pref, coefficients);
+            return std::sqrt(fields.realEField.l2NormSquared() +
+                             fields.imagEField.l2NormSquared());
+        },
+        "Emag");
+    writer.write(
+        [&](const Base::Element* element,
+            const Geometry::PointReference<DIM>& pref, std::size_t) {
+            const LinearAlgebra::MiddleSizeVector& coefficients =
+                element->getTimeIntegrationVector(VECTOR_ID);
+            return discretization_.computeFields(element, pref, coefficients)
+                .realEField;
+        },
+        "Ereal");
+    writer.write(
+        [&](const Base::Element* element,
+            const Geometry::PointReference<DIM>& pref, std::size_t) {
+            const LinearAlgebra::MiddleSizeVector& coefficients =
+                element->getTimeIntegrationVector(VECTOR_ID);
+            return discretization_.computeFields(element, pref, coefficients)
+                .imagEField;
+        },
+        "Eimag");
+    writer.write(
+        [&](const Base::Element* element,
+            const Geometry::PointReference<DIM>& pref, std::size_t) {
+            const LinearAlgebra::MiddleSizeVector& coefficients =
+                element->getTimeIntegrationVector(VECTOR_ID);
+            return discretization_.computeFields(element, pref, coefficients)
+                .potential.real();
+        },
+        "preal");
+    writer.write(
+        [&](const Base::Element* element,
+            const Geometry::PointReference<DIM>& pref, std::size_t) {
+            const LinearAlgebra::MiddleSizeVector& coefficients =
+                element->getTimeIntegrationVector(VECTOR_ID);
+            return discretization_.computeFields(element, pref, coefficients)
+                .potential.imag();
+        },
+        "pimag");
+}
 
 template <std::size_t DIM>
 DivDGMaxEigenvalue<DIM>::DivDGMaxEigenvalue(
@@ -268,7 +334,7 @@ void DivDGMaxEigenvalue<DIM>::solve(
                     expectedNumberOfSteps);
         workspace.solve(currentK, numberOfEigenvalues);
 
-        DivDGMaxResult<DIM> result(workspace, &mesh_);
+        DivDGMaxResult<DIM> result(workspace, &mesh_, discretization);
 
         driver.handleResult(result);
 

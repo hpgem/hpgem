@@ -269,7 +269,7 @@ typename DivDGMaxDiscretization<DIM>::Fields
         const LinearAlgebra::MiddleSizeVector& coefficients) const {
     Fields result;
     std::size_t nPhiU = element->getNumberOfBasisFunctions(0);
-    std::size_t nPhiP = element->getNumberOfBasisFunctions(0);
+    std::size_t nPhiP = element->getNumberOfBasisFunctions(1);
     // Setup transformation to real space
     Base::PhysicalElement<DIM> physicalElement;
     std::shared_ptr<Base::CoordinateTransformation<DIM>>
