@@ -48,31 +48,42 @@ namespace Preprocessor {
 
 /*
  * General notes.
- *   1. The data is stored in 'Fortran unformatted style'. This means that the
+ * 1. The data is stored in 'Fortran unformatted style'. This means that the
  *   data is stored in data lines, each of the shape:
  *   [start marker] data [end marker]
  *   where both start and end marker are the number of bytes contained in the
  *   data it encloses.
  *
- *   2. Confusingly the hyb files have two 'version' type values. One is a
- *   floating point version that seems to refer to the capabilities (e.g. zone
- *   families are only supported in version >= 5). The second is a fileType
- *   which seem to have 4 categories:
+ * 2. As a Fortran dataformat all indices start at 1 (not at 0).
+ *
+ * 3. Confusingly the hyb files have two 'version' type values. One is a
+ *    floating point version that seems to refer to the capabilities (e.g. zone
+ *    families are only supported in version >= 5). The second is a fileType
+ *    which seem to have 4 categories:
  *     < 0 is used for 2D
  *     4 is 3D without multiline
  *     5 is 3D with multiline
  *     6 is 3D with multiline and int64 indices (for node counts etc.)
  *
- *  3. The multiline of point 2 is that some data arrays are split over multiple
- *  lines. For example the actual coordinates of the nodes are stored in a
- *  single data line for hybtype 4, but for 5 & 6 they are spread over multiple
- *  data lines.
- *  Note: My guess is that this is needed because the markers of each data line
- *  store the number of bytes as (u?)int. This limits the amount of data inside
- *  a single line to what can be represented by these markers.
+ * 4. The data is stored linearly in blocks/groups. For example, after a header
+ *    all the node coordinates are stored, followed by all the hexahedra, then
+ *    all prisms, etc. Each block/group has a fixed structure:
+ *      - 1 data line with the number of entities Ne (e.g. node coordinates) and
+ *          for hyb_type 5 & 6 the number of entries per data line
+ *      - Nl data lines for the first property
+ *      - Nl data lines for the second property
+ *      - etc.
+ *    The number Nl differs between hyb_type 4 and types 5 & 6. For version 4 Nl
+ *    is fixed at 1. For version 5 and 6 it is variable, hence the 'multiline'
+ *    capability. The number of lines is such that the first Nl-1 lines contain
+ *    exactly Ne entries, and the last line contains the remaining entries.
  *
- *  4. This reader supports both 2D and 3D hyb meshes, and unlike the examples
- *  from centaur we don't separate them into completely different code blocks.
+ *    Note: My guess is that this multiline storage is needed as the start/end
+ *    markers are stored as (u?)int32. Hence the number of bytes in each data
+ *    line is limited.
+ *
+ * 5. This reader supports both 2D and 3D hyb meshes, and unlike the examples
+ *    from centaur we don't separate them into completely different code blocks.
  */
 
 UnstructuredInputStream<std::istringstream> CentaurReader::readLine() {
@@ -130,10 +141,14 @@ CentaurReader::CentaurReader(std::string filename) {
 
     // Nodes
     nodeStart = centaurFile.tellg();
+    // 1 group with all coordinates
     numberOfNodes = skipGroup();
 
     // Elements, these are stored by shape
     elementStart = centaurFile.tellg();
+
+    // For each element type there is a group with the 3-8 node indices of the
+    // corners.
     numberOfElements = 0;
     if (is3D()) {
         numberOfElements += skipGroup();  // hexahedra
@@ -144,20 +159,73 @@ CentaurReader::CentaurReader(std::string filename) {
     }
     numberOfElements += skipGroup();  // quadrilaterals/tetrahedra
 
+    // Additional information
+
     logger(DEBUG, "done with skipping elements");
-    if (is2D()) skipGroup();  // redundant boundary nodes
+    if (is2D()) {
+        // In 2D there is the option to specify the boundary condition per node
+        // or per edge (=face equivalent).
+
+        // 1 group with pairs of indices (node, group)
+        // meaning that the specified node belongs to the boundary group. Nodes
+        // can belong to multiple groups
+        skipGroup();  // redundant boundary nodes
+    }
+
+    // (interface) Boundary faces
+    // 3D: Face nodes & Panel id
+    // 2D: Boundary edges (2 edge ids) & segment id
     if (is2D() || centaurFileType > 3) {
         skipGroup(2);
     } else {
+        // For hybtype < 4 panel id was stored in the face-node table
         skipGroup(1);  // boundary faces
     }
-    if (centaurFileType < 0) skipGroup();  // segments
-    skipGroup(1, false);                   // face/segment to group connections
-    skipGroup(2, false);                   // group to b.c. type connections
+
+    // Note the following seems to be incorrect:
+    // the segment to boundary group mapping should be equivalent to the 3D
+    // panel ->PanelGroup mapping. Thus I don't understand what this extra line
+    // is doing here.
+    if (is2D()) {
+        // Segment -> boundary group mapping
+        skipGroup();  // segments
+    }
+    // Panel -> PanelGroup mapping
+    skipGroup(1, false);
+    // Panel Group -> B.C. type & Name
+    skipGroup(2, false);  // group to b.c. type connections
     logger(VERBOSE, "done with skipping information");
 
-    // Read information about periodicity
+    // Periodicity information
+    // (<3 only a single periodicity, hence 1 array of periodic node pairs)
+    // For hybtype >=4:
+    // - 1 data line with the number N of periodic connections
+    // - N sets of entries
+    //   - 1 data line with 4x4 matrix (xform1) 2D: 3x3
+    //   - 1 data line with 4x4 matrix (xform2) 2D: 3x3
+    //   - 1 data line with number Nn number of periodic node pairs
+    //   - 1 data line with Nn pairs (nod1, nod2), node nod1 is connected to
+    //       node nod2. Matrices correspond to the transformation from nod1 to
+    //       nod2 and vice versa.
     readPeriodicNodeConnections();
+
+    // Interface panels (3D only)
+    // 1 data line with number N of interface panels (could be zero)
+    // 1 data line with N entries (panel numbers?)
+
+    // Zones
+    // 1 data line with the number N of zones
+    // 1? data line with N entries of the form:
+    //  - 5 offsets, 4 for the elements, 1 for boundary faces indicating the
+    //    start of the elements/boundary faces of this zone (2D: only 2 offsets
+    //    for the elements)
+    //  - char80 zone name
+    // Note 2D no >4.99 seems to allow not having zone information
+
+    // (only version >4.99)
+    // 1? data line with N zone family names
+
+    // More internal information is possible, for example polyhedrons.
 }
 
 std::function<void(int&)> difference_generator(
