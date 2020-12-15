@@ -250,16 +250,32 @@ class DGMaxEigenvalueResult : public AbstractEigenvalueResult<DIM> {
     DGMaxEigenvalueResult(SolverWorkspace<DIM>& workspace,
                           const Base::MeshManipulator<DIM>* mesh,
                           const DGMaxDiscretization<DIM>& discretization)
-        : workspace_(workspace), mesh_(mesh), discretization_(discretization){};
+        : workspace_(workspace),
+          mesh_(mesh),
+          discretization_(discretization),
+          eigenvalueOrdering_(workspace.convergedEigenValues_) {
+        std::iota(eigenvalueOrdering_.begin(), eigenvalueOrdering_.end(), 0);
+        std::sort(eigenvalueOrdering_.begin(), eigenvalueOrdering_.end(),
+                  [&](const std::size_t& i1, const std::size_t& i2) {
+                      const PetscScalar& e1 = workspace.eigenvalues_[i1];
+                      const PetscScalar& e2 = workspace.eigenvalues_[i2];
+                      if (PetscRealPart(e1) != PetscRealPart(e2)) {
+                          return PetscRealPart(e1) < PetscRealPart(e2);
+                      } else {
+                          return PetscImaginaryPart(e1) <
+                                 PetscImaginaryPart(e2);
+                      }
+                  });
+    };
 
     std::vector<double> getFrequencies() final {
         const std::vector<PetscScalar> eigenvalues =
             workspace_.getEigenvalues();
         std::vector<double> frequencies(eigenvalues.size());
         for (std::size_t i = 0; i < frequencies.size(); ++i) {
-            frequencies[i] = std::sqrt(std::abs(PetscRealPart(eigenvalues[i])));
+            frequencies[i] = std::sqrt(
+                std::abs(PetscRealPart(eigenvalues[eigenvalueOrdering_[i]])));
         }
-        std::sort(frequencies.begin(), frequencies.end());
         return frequencies;
     }
 
@@ -276,6 +292,11 @@ class DGMaxEigenvalueResult : public AbstractEigenvalueResult<DIM> {
     SolverWorkspace<DIM>& workspace_;
     const Base::MeshManipulator<DIM>* mesh_;
     const DGMaxDiscretization<DIM>& discretization_;
+    /// Reordering of the Workspace eigenvalues to make them increasing.
+    /// The entries are indices in the eigenpairs of the workspace. That is,
+    /// entry 0 points is the index of the smallest eigenpair, 1 of the next
+    /// smallest, etc.
+    std::vector<std::size_t> eigenvalueOrdering_;
 };
 
 template <std::size_t DIM>
@@ -286,7 +307,7 @@ void DGMaxEigenvalueResult<DIM>::writeField(
                         workspace_.convergedEigenValues_);
     // Distribute the solution coefficients to the local element vectors
     PetscErrorCode err;
-    err = VecCopy(workspace_.eigenVectors_[eigenvalue],
+    err = VecCopy(workspace_.eigenVectors_[eigenvalueOrdering_[eigenvalue]],
                   workspace_.tempFieldVector_);
     CHKERRABORT(PETSC_COMM_WORLD, err);
     const std::size_t VECTOR_ID = 0;
@@ -372,7 +393,7 @@ SolverWorkspace<DIM>::SolverWorkspace(DGMaxEigenvalueBase::SolverConfig config,
                        DGMaxDiscretizationBase::FACE_MATRIX_ID),
       massMatrix_(fieldIndex_, DGMaxDiscretizationBase::MASS_MATRIX_ID, -1),
       tempFieldVector_(fieldIndex_, -1, -1),
-      targetFrequency_(1),
+      targetFrequency_(3),
       numberOfEigenVectors_(0) {
 
     initMatrices();
