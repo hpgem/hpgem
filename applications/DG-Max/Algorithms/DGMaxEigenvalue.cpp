@@ -248,8 +248,9 @@ class DGMaxEigenvalueResult : public AbstractEigenvalueResult<DIM> {
 
    public:
     DGMaxEigenvalueResult(SolverWorkspace<DIM>& workspace,
-                          const Base::MeshManipulator<DIM>* mesh)
-        : workspace_(workspace), mesh_(mesh){};
+                          const Base::MeshManipulator<DIM>* mesh,
+                          const DGMaxDiscretization<DIM>& discretization)
+        : workspace_(workspace), mesh_(mesh), discretization_(discretization){};
 
     std::vector<double> getFrequencies() final {
         const std::vector<PetscScalar> eigenvalues =
@@ -268,10 +269,61 @@ class DGMaxEigenvalueResult : public AbstractEigenvalueResult<DIM> {
 
     const Base::MeshManipulator<DIM>* getMesh() const final { return mesh_; }
 
+    void writeField(std::size_t eigenvalue,
+                    Output::VTKSpecificTimeWriter<DIM>& writer);
+
    private:
     SolverWorkspace<DIM>& workspace_;
     const Base::MeshManipulator<DIM>* mesh_;
+    const DGMaxDiscretization<DIM>& discretization_;
 };
+
+template <std::size_t DIM>
+void DGMaxEigenvalueResult<DIM>::writeField(
+    std::size_t eigenvalue, Output::VTKSpecificTimeWriter<DIM>& writer) {
+    logger.assert_debug(eigenvalue < workspace_.convergedEigenValues_,
+                        "Eigenvalue % is more than converged %", eigenvalue,
+                        workspace_.convergedEigenValues_);
+    // Distribute the solution coefficients to the local element vectors
+    PetscErrorCode err;
+    err = VecCopy(workspace_.eigenVectors_[eigenvalue],
+                  workspace_.tempFieldVector_);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
+    const std::size_t VECTOR_ID = 0;
+    workspace_.tempFieldVector_.writeTimeIntegrationVector(VECTOR_ID);
+    // Write the actual fields
+    writer.write(
+        [&](const Base::Element* element,
+            const Geometry::PointReference<DIM>& pref, std::size_t) {
+            const LinearAlgebra::MiddleSizeVector& coefficients =
+                element->getTimeIntegrationVector(VECTOR_ID);
+            auto fields =
+                discretization_.computeFields(element, pref, coefficients);
+            return std::sqrt(fields.realEField.l2NormSquared() +
+                             fields.imagEField.l2NormSquared());
+        },
+        "Emag");
+    writer.write(
+        [&](const Base::Element* element,
+            const Geometry::PointReference<DIM>& pref, std::size_t) {
+            const LinearAlgebra::MiddleSizeVector& coefficients =
+                element->getTimeIntegrationVector(VECTOR_ID);
+            auto fields =
+                discretization_.computeFields(element, pref, coefficients);
+            return fields.realEField;
+        },
+        "Ereal");
+    writer.write(
+        [&](const Base::Element* element,
+            const Geometry::PointReference<DIM>& pref, std::size_t) {
+            const LinearAlgebra::MiddleSizeVector& coefficients =
+                element->getTimeIntegrationVector(VECTOR_ID);
+            auto fields =
+                discretization_.computeFields(element, pref, coefficients);
+            return fields.imagEField;
+        },
+        "Eimag");
+}
 
 ///
 
@@ -300,7 +352,7 @@ void DGMaxEigenvalue<DIM>::solve(AbstractEigenvalueSolverDriver<DIM>& driver) {
 
         workspace.solve(driver.getTargetNumberOfEigenvalues());
         // Actual result processing
-        DGMaxEigenvalueResult<DIM> result(workspace, &mesh_);
+        DGMaxEigenvalueResult<DIM> result(workspace, &mesh_, discretization_);
         driver.handleResult(result);
     }
 }
