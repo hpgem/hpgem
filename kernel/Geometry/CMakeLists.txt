@@ -59,5 +59,7 @@ add_library(Geometry OBJECT
 
       )
 
-target_link_libraries(Reference_geometries PUBLIC LinearAlgebra)
+target_link_libraries(Reference_geometries
+	PUBLIC
+		LinearAlgebra)
 target_link_libraries(Geometry PUBLIC Reference_geometries)

@@ -7,6 +7,7 @@ endif()
 
 add_subdirectory(LinearAlgebra)
 add_subdirectory(Geometry)
+add_subdirectory(FE)
 add_subdirectory(Integration)
 add_subdirectory(Base)
 add_subdirectory(Output)
@@ -20,6 +21,7 @@ add_library(HPGEM STATIC dummy.cpp)
 target_include_directories(HPGEM PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 # Link to all components
 target_link_libraries(HPGEM
+        FE
         Geometry
         hpGEM_Base
         LinearAlgebra

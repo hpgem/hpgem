@@ -39,7 +39,6 @@
 #include "ElementFactory.h"
 #include "Element.h"
 #include "Geometry/PointPhysical.h"
-#include "BasisFunctionSet.h"
 
 namespace hpgem {
 
