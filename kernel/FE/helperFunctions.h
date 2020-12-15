@@ -62,7 +62,7 @@ double baricentric_3D(std::size_t node, const Geometry::PointReference<3>& p);
 double baricentric_2D(std::size_t node, const Geometry::PointReference<2>& p);
 
 double baricentricDeriv(std::size_t node, std::size_t direction);
-}  // namespace Utilities
+}  // namespace FE
 
 }  // namespace hpgem
 

@@ -82,7 +82,7 @@ BasisFunctionSet* createDGBasisFunctionSet2DNedelec(std::size_t order);
  */
 std::vector<BaseBasisFunction*> createDGBasisFunctions2DNedelec(
     std::size_t order);
-}  // namespace Utilities
+}  // namespace FE
 
 }  // namespace hpgem
 

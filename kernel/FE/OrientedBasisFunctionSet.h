@@ -72,7 +72,7 @@ class OrientedBasisFunctionSet : public BasisFunctionSet {
     std::size_t face_;
 };
 
-} /* namespace Base */
+}  // namespace FE
 
 }  // namespace hpgem
 

@@ -559,7 +559,8 @@ std::vector<const BasisFunctionSet*> createVertexBasisFunctionSet3DH1Cube(
     return result;
 }
 
-std::vector<const OrientedBasisFunctionSet*> createEdgeBasisFunctionSet3DH1Cube(std::size_t order) {
+std::vector<const OrientedBasisFunctionSet*> createEdgeBasisFunctionSet3DH1Cube(
+    std::size_t order) {
     logger.assert_debug(order > 0,
                         "Trying to create a conforming, constant basis "
                         "function set, did you mean the constant solution?");
@@ -615,7 +616,8 @@ std::vector<const OrientedBasisFunctionSet*> createEdgeBasisFunctionSet3DH1Cube(
     return result;
 }
 
-std::vector<const OrientedBasisFunctionSet*> createFaceBasisFunctionSet3DH1Cube(std::size_t order) {
+std::vector<const OrientedBasisFunctionSet*> createFaceBasisFunctionSet3DH1Cube(
+    std::size_t order) {
     logger.assert_debug(order > 0,
                         "Trying to create a conforming, constant basis "
                         "function set, did you mean the constant solution?");
@@ -1071,6 +1073,6 @@ double BasisFunction3DFaceCube_0::evalDeriv0(
            LobattoPolynomial(polynomialOrder2_, mirroring2_ * p[2]) / 32.;
 }
 
-}  // namespace Utilities
+}  // namespace FE
 
 }  // namespace hpgem

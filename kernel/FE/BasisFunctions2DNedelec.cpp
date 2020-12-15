@@ -257,6 +257,6 @@ BasisFunctionSet* createDGBasisFunctionSet2DNedelec(std::size_t order) {
     }
     return set;
 }
-}  // namespace Utilities
+}  // namespace FE
 
 }  // namespace hpgem

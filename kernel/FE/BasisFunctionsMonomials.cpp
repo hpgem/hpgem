@@ -207,6 +207,6 @@ void assembleMonomialBasisFunctions4D(BasisFunctionSet& set,
         }
     }
 }
-}  // namespace Utilities
+}  // namespace FE
 
 }  // namespace hpgem

@@ -192,7 +192,7 @@ class BaseBasisFunction {
         const Geometry::PointReference<4>& p) const;
 };
 
-}  // namespace Base
+}  // namespace FE
 
 }  // namespace hpgem
 

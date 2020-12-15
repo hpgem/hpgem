@@ -93,7 +93,7 @@ BasisFunctionSet* createInteriorBasisFunctionSet1DH1Line(
 std::vector<const OrientedBasisFunctionSet*>
     createVertexBasisFunctionSet1DH1Line(std::size_t polynomialOrder);
 
-}  // namespace Utilities
+}  // namespace FE
 
 }  // namespace hpgem
 

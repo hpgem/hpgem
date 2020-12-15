@@ -196,7 +196,8 @@ BasisFunctionSet* createInteriorBasisFunctionSet2DH1Square(std::size_t order) {
     return result;
 }
 
-std::vector<const BasisFunctionSet*> createVertexBasisFunctionSet2DH1Square(std::size_t order) {
+std::vector<const BasisFunctionSet*> createVertexBasisFunctionSet2DH1Square(
+    std::size_t order) {
     logger.assert_debug(order > 0,
                         "Trying to create a conforming, constant basis "
                         "function set, did you mean the constant solution?");
@@ -245,6 +246,6 @@ std::vector<const OrientedBasisFunctionSet*>
     return result;
 }
 
-}  // namespace Utilities
+}  // namespace FE
 
 }  // namespace hpgem

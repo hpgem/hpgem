@@ -68,6 +68,6 @@ void BasisFunctionSet::addBasisFunction(BaseBasisFunction* bf) {
         callback();
     }
 }
-}  // namespace Base
+}  // namespace FE
 
 }  // namespace hpgem

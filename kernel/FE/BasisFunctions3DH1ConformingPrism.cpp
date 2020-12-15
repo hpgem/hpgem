@@ -768,6 +768,6 @@ std::vector<const OrientedBasisFunctionSet*>
     return result;
 }
 
-}  // namespace Utilities
+}  // namespace FE
 
 }  // namespace hpgem

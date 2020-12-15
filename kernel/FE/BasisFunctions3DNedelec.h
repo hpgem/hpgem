@@ -151,7 +151,7 @@ class BasisCurlinterior3Nedelec : public BaseBasisFunction {
 
 BasisFunctionSet* createDGBasisFunctionSet3DNedelec(std::size_t order);
 
-}  // namespace Utilities
+}  // namespace FE
 
 }  // namespace hpgem
 

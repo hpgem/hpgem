@@ -44,7 +44,6 @@
 
 namespace hpgem {
 
-
 namespace Geometry {
 template <std::size_t DIM>
 class PointReference;
@@ -192,7 +191,7 @@ std::vector<const OrientedBasisFunctionSet*>
 std::vector<const OrientedBasisFunctionSet*>
     createFaceBasisFunctionSet3DH1ConformingPrism(std::size_t order);
 
-}  // namespace Utilities
+}  // namespace FE
 
 }  // namespace hpgem
 

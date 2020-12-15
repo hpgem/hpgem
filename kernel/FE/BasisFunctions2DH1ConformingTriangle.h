@@ -118,7 +118,7 @@ std::vector<const BasisFunctionSet*> createVertexBasisFunctionSet2DH1Triangle(
 std::vector<const OrientedBasisFunctionSet*>
     createFaceBasisFunctionSet2DH1Triangle(std::size_t order);
 
-}  // namespace Utilities
+}  // namespace FE
 
 }  // namespace hpgem
 

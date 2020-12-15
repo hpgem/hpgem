@@ -136,5 +136,5 @@ class PiecewiseConstant4 : public BaseBasisFunction {
 void addPiecewiseConstantBasisFunction4D(BasisFunctionSet& set) {
     set.addBasisFunction(new PiecewiseConstant4());
 }
-}  // namespace Utilities
+}  // namespace FE
 }  // namespace hpgem

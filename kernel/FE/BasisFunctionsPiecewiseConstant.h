@@ -55,7 +55,7 @@ void addPiecewiseConstantBasisFunction4D(BasisFunctionSet &set);
 BaseBasisFunction *createPiecewiseConstant1D();
 BaseBasisFunction *createPiecewiseConstant2D();
 
-}  // namespace Utilities
+}  // namespace FE
 
 }  // namespace hpgem
 

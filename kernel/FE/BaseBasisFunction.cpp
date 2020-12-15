@@ -77,6 +77,6 @@ LinearAlgebra::SmallVector<4> BaseBasisFunction::evalDeriv(
     ret[3] = evalDeriv3(p);
     return ret;
 }
-}  // namespace Base
+}  // namespace FE
 
 }  // namespace hpgem

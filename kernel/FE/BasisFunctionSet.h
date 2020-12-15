@@ -135,7 +135,7 @@ class BasisFunctionSet {
 
     mutable std::vector<std::function<void()>> destructorListeners_;
 };
-}  // namespace Base
+}  // namespace FE
 }  // namespace hpgem
 
 // reopening namespace because gcc has a bug where it doesn't accept template
@@ -295,7 +295,7 @@ double BasisFunctionSet::evalDiv(std::size_t i,
     return vecOfBasisFcn_[i]->evalDiv(p);
 }
 
-}  // namespace Base
+}  // namespace FE
 }  // namespace hpgem
 
 #endif  // HPGEM_KERNEL_BASISFUNCTIONSET_H

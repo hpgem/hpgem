@@ -139,7 +139,7 @@ class BasisCurlinteriorAinsworthCoyle : public BaseBasisFunction {
 
 BasisFunctionSet* createDGBasisFunctionSet3DAinsworthCoyle(std::size_t order);
 
-}  // namespace Utilities
+}  // namespace FE
 
 }  // namespace hpgem
 

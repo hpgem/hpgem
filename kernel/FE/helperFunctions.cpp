@@ -163,6 +163,6 @@ double baricentricDeriv(std::size_t node, std::size_t direction) {
     }
 }
 
-}  // namespace Utilities
+}  // namespace FE
 
 }  // namespace hpgem

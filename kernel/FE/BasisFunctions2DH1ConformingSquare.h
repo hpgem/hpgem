@@ -128,12 +128,13 @@ BasisFunctionSet* createDGBasisFunctionSet2DH1Square(std::size_t order);
 
 BasisFunctionSet* createInteriorBasisFunctionSet2DH1Square(std::size_t order);
 
-std::vector<const BasisFunctionSet*> createVertexBasisFunctionSet2DH1Square(std::size_t order);
+std::vector<const BasisFunctionSet*> createVertexBasisFunctionSet2DH1Square(
+    std::size_t order);
 
 std::vector<const OrientedBasisFunctionSet*>
     createFaceBasisFunctionSet2DH1Square(std::size_t order);
 
-}  // namespace Utilities
+}  // namespace FE
 
 }  // namespace hpgem
 

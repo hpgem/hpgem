@@ -84,7 +84,7 @@ std::vector<const OrientedBasisFunctionSet *>
 
 std::vector<const OrientedBasisFunctionSet *>
     createFaceBasisFunctionSet3DH1ConformingPyramid(std::size_t order);
-}  // namespace Utilities
+}  // namespace FE
 
 }  // namespace hpgem
 

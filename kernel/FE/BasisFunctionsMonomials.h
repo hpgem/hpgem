@@ -54,7 +54,7 @@ void assembleMonomialBasisFunctions3D(BasisFunctionSet &set,
                                       std::size_t maxPower);
 void assembleMonomialBasisFunctions4D(BasisFunctionSet &set,
                                       std::size_t maxPower);
-}  // namespace Utilities
+}  // namespace FE
 
 }  // namespace hpgem
 

@@ -156,7 +156,7 @@ std::vector<const OrientedBasisFunctionSet*>
 std::vector<const OrientedBasisFunctionSet*>
     createFaceBasisFunctionSet3DH1Tetrahedron(std::size_t order);
 
-}  // namespace Utilities
+}  // namespace FE
 
 }  // namespace hpgem
 

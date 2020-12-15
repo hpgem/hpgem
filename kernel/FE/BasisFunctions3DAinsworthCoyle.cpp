@@ -500,6 +500,6 @@ BasisFunctionSet* createDGBasisFunctionSet3DAinsworthCoyle(std::size_t order) {
     }
     return bFset;
 }
-}  // namespace Utilities
+}  // namespace FE
 
 }  // namespace hpgem

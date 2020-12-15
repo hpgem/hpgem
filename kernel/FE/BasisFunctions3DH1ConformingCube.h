@@ -224,10 +224,12 @@ BasisFunctionSet* createInteriorBasisFunctionSet3DH1Cube(std::size_t order);
 std::vector<const BasisFunctionSet*> createVertexBasisFunctionSet3DH1Cube(
     std::size_t order);
 
-std::vector<const OrientedBasisFunctionSet*> createEdgeBasisFunctionSet3DH1Cube(std::size_t order);
+std::vector<const OrientedBasisFunctionSet*> createEdgeBasisFunctionSet3DH1Cube(
+    std::size_t order);
 
-std::vector<const OrientedBasisFunctionSet*> createFaceBasisFunctionSet3DH1Cube(std::size_t order);
-}  // namespace Utilities
+std::vector<const OrientedBasisFunctionSet*> createFaceBasisFunctionSet3DH1Cube(
+    std::size_t order);
+}  // namespace FE
 
 }  // namespace hpgem
 
