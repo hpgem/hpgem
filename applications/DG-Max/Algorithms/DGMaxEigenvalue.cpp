@@ -95,10 +95,15 @@ struct ShiftWorkspace;
 template <std::size_t DIM>
 struct ProjectorWorkspace;
 
+template <std::size_t DIM>
+class DGMaxEigenvalueResult;
+
 /// Workspace for solving the eigenvalue problem.
 template <std::size_t DIM>
 class SolverWorkspace {
    public:
+    friend class DGMaxEigenvalueResult<DIM>;
+
     /**
      * Initialize the workspace
      * @param config  The configuration of the method
@@ -238,38 +243,34 @@ class ProjectorWorkspace {
     DGMax::KPhaseShifts<DIM> phaseShifts_;
 };
 
-void sortEigenvalues(std::vector<PetscScalar>& result) {
-    // Sort eigen values in ascending order with respect to the real part of the
-    // eigenvalue and using the imaginairy part as tie breaker.
-    std::sort(result.begin(), result.end(),
-              [](const PetscScalar& a, const PetscScalar& b) {
-                  if (a.real() != b.real()) {
-                      return a.real() < b.real();
-                  }
-                  return a.imag() < b.imag();
-              });
-}
-
 template <std::size_t DIM>
-struct DGMaxEigenvalueResult : public AbstractEigenvalueResult<DIM> {
+class DGMaxEigenvalueResult : public AbstractEigenvalueResult<DIM> {
+
+   public:
+    DGMaxEigenvalueResult(SolverWorkspace<DIM>& workspace,
+                          const Base::MeshManipulator<DIM>* mesh)
+        : workspace_(workspace), mesh_(mesh){};
+
     std::vector<double> getFrequencies() final {
-        std::vector<double> frequencies(eigenvalues_.size());
-        for (std::size_t i = 0; i < eigenvalues_.size(); ++i) {
-            frequencies[i] =
-                std::sqrt(std::abs(PetscRealPart(eigenvalues_[i])));
+        const std::vector<PetscScalar> eigenvalues =
+            workspace_.getEigenvalues();
+        std::vector<double> frequencies(eigenvalues.size());
+        for (std::size_t i = 0; i < frequencies.size(); ++i) {
+            frequencies[i] = std::sqrt(std::abs(PetscRealPart(eigenvalues[i])));
         }
+        std::sort(frequencies.begin(), frequencies.end());
         return frequencies;
     }
 
     const LinearAlgebra::SmallVector<DIM>& getKPoint() const final {
-        return kpoint_;
+        return workspace_.currentK_;
     }
 
     const Base::MeshManipulator<DIM>* getMesh() const final { return mesh_; }
 
+   private:
+    SolverWorkspace<DIM>& workspace_;
     const Base::MeshManipulator<DIM>* mesh_;
-    std::vector<PetscScalar> eigenvalues_;
-    LinearAlgebra::SmallVector<DIM> kpoint_;
 };
 
 ///
@@ -299,11 +300,7 @@ void DGMaxEigenvalue<DIM>::solve(AbstractEigenvalueSolverDriver<DIM>& driver) {
 
         workspace.solve(driver.getTargetNumberOfEigenvalues());
         // Actual result processing
-        DGMaxEigenvalueResult<DIM> result;
-        result.kpoint_ = currentK;
-        result.eigenvalues_ = workspace.getEigenvalues();
-        result.mesh_ = &mesh_;
-        sortEigenvalues(result.eigenvalues_);
+        DGMaxEigenvalueResult<DIM> result(workspace, &mesh_);
         driver.handleResult(result);
     }
 }
