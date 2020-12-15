@@ -149,6 +149,7 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
         writeFrequencies(outFile, currentPoint_,
                          frequencyResults_[currentPoint_], ',');
 
+        DGMaxLogger(INFO, "Writing field paterns");
         for (std::size_t i = 0; i < frequencyResults_[currentPoint_].size();
              ++i) {
             std::stringstream outFile;
