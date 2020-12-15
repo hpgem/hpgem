@@ -267,6 +267,21 @@ class MiddleSizeMatrix {
     void solveLowerTriangular(MiddleSizeMatrix& B, Side side = Side::OP_LEFT,
                               Transpose transpose = Transpose::NOT) const;
 
+    /// \brief Solve linear system with a lower triangular matrix
+    ///
+    /// Identical to solveLowerTriangular(MiddleSizeMatrix, Side, Transpose) but
+    /// solving with a vector instead of a matrix. This vector is interpreted as
+    /// column vector if side == OP_LEFT, and as row vector if side == OP_RIGHT.
+    ///
+    /// \param B The right hand side that will be overwritten by the solution.
+    /// \param side The side of this matrix with respect to the variables, i.e.
+    /// L*X = B for left.
+    /// \param transpose Whether to use the (conjugate) transpose of this
+    /// matrix.
+    /// \see solveLowerTriangular(MiddleSizeMatrix, Side, Transpose);
+    void solveLowerTriangular(MiddleSizeVector& B, Side side = Side::OP_LEFT,
+                              Transpose transpose = Transpose::NOT) const;
+
     /// \brief Computes the minimum norm solution to a real linear least squares
     /// problem.
     void pseudoSolve(MiddleSizeVector& b, double rCond) const;

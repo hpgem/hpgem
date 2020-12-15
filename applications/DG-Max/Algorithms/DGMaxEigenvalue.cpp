@@ -312,6 +312,21 @@ void DGMaxEigenvalueResult<DIM>::writeField(
     CHKERRABORT(PETSC_COMM_WORLD, err);
     const std::size_t VECTOR_ID = 0;
     workspace_.tempFieldVector_.writeTimeIntegrationVector(VECTOR_ID);
+    // When using the Hermitian system we applied a rescaling of the
+    // solution coefficients x -> L^H x (LL^H = M is the Cholesky decomposition
+    // of the mass matrix). Undo this transformation to correctly compute the
+    // fields.
+    if (workspace_.config_.useHermitian_) {
+        for (Base::Element* element : mesh_->getElementsList()) {
+            // Note: this all happens inplace.
+            LinearAlgebra::MiddleSizeVector& coeffs =
+                element->getTimeIntegrationVector(VECTOR_ID);
+            element->getElementMatrix(DGMaxDiscretizationBase::MASS_MATRIX_ID)
+                .solveLowerTriangular(
+                    coeffs, LinearAlgebra::Side::OP_LEFT,
+                    LinearAlgebra::Transpose::HERMITIAN_TRANSPOSE);
+        }
+    }
     // Write the actual fields
     writer.write(
         [&](const Base::Element* element,
