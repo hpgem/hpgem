@@ -49,7 +49,7 @@ using namespace hpgem;
 
 namespace Preprocessor {
 
-class PrivateReader {
+class PrivateReader : public MeshSource {
    public:
     virtual ~PrivateReader() = default;
     PrivateReader(const PrivateReader&) = delete;
@@ -59,7 +59,7 @@ class PrivateReader {
 
     virtual Range<MeshSource::Node> getNodeCoordinates() = 0;
     virtual Range<MeshSource::Element> getElements() = 0;
-    virtual std::size_t getDimension() = 0;
+    virtual std::size_t getDimension() const = 0;
     virtual std::size_t getTargetProcessorCount() = 0;
     virtual Range<std::size_t> getProcessorBindings() = 0;
 

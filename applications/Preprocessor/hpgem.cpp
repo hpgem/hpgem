@@ -232,7 +232,7 @@ class StructuredReader : public PrivateReader {
         return {first, std::move(increment), totalNumberOfElements};
     }
 
-    std::size_t getDimension() override { return isPeriodic.size(); }
+    std::size_t getDimension() const override { return isPeriodic.size(); }
 
     std::size_t getTargetProcessorCount() override { return 1; }
 
@@ -326,7 +326,7 @@ class PreprocessorReader : public PrivateReader {
         return {start, std::move(increment), numberOfElements};
     }
 
-    std::size_t getDimension() override { return dimension; }
+    std::size_t getDimension() const override { return dimension; }
 
     std::size_t getTargetProcessorCount() override {
         return targetProcessorCount;
