@@ -144,6 +144,10 @@ CentaurReader::CentaurReader(std::string filename) {
 
     readHeader();
 
+    // Don't accept hybtype 1 as this lacks hexahedra & pyramids.
+    logger.assert_always(centaurFileType != 1,
+                         "File with hyb-type 1 is too old.");
+
     logger.assert_always(centaurFileType != 6,
                          "File hyb-type 6 uses 64 bit indices for nodes and "
                          "elements, which is not implemented.");
@@ -361,31 +365,64 @@ Range<MeshSource::Element> CentaurReader::getElements() {
     auto increment = [=, currentLine = std::move(currentLine)](
                          MeshSource::Element& next) mutable {
         while (currentGroupRemainder == 0) {
-            if (centaurFileType < 2)
-                groupsProcessed += 2;
-            else
-                groupsProcessed++;
+            groupsProcessed++;
+
+            // Read the line with the element count
             currentLine = readLine();
             currentLine >> currentGroupRemainder;
-            entitiesOnLine = currentGroupRemainder;
-            if (centaurFileType > 4) currentLine >> entitiesOnLine;
+            if (centaurFileType <= 4) {
+                // No multiline in versions < 4 (includes 2D)
+                entitiesOnLine = currentGroupRemainder;
+            } else {
+                // Multiline support for hybtype 5/6
+                currentLine >> entitiesOnLine;
+            }
             remainderThisLine = entitiesOnLine;
-            if (groupsProcessed == 1)
-                next.coordinateIds.resize(8);
-            else if (groupsProcessed == 3)
-                next.coordinateIds.resize(5);
-            else if (groupsProcessed == 4)
-                next.coordinateIds.resize(4);
-            else if (centaurFileType < 0)
-                next.coordinateIds.resize(3);
-            else
-                next.coordinateIds.resize(6);
+            // Resize the node storage
+            std::size_t numberOfNodesPerElement = 0;
+            if (is2D()) {
+                if (groupsProcessed == 1) {
+                    // Triangles
+                    numberOfNodesPerElement = 3;
+                } else if (groupsProcessed == 2) {
+                    // Quadrilaterals
+                    numberOfNodesPerElement = 4;
+                } else {
+                    logger.assert_always(false, "Too many groups for 2D");
+                }
+            } else {
+                switch (groupsProcessed) {
+                    case 1:
+                        // Hexahedra
+                        numberOfNodesPerElement = 8;
+                        break;
+                    case 2:
+                        // Prisms
+                        numberOfNodesPerElement = 6;
+                        break;
+                    case 3:
+                        // Pyramids
+                        numberOfNodesPerElement = 5;
+                        break;
+                    case 4:
+                        // Tetrahedra
+                        numberOfNodesPerElement = 4;
+                        break;
+                    default:
+                        logger.assert_always(false, "Too many groups for 3D.");
+                        break;
+                }
+            }
+            next.coordinateIds.resize(numberOfNodesPerElement);
+            // Read the line with the actual elements
             currentLine = readLine();
         }
         if (remainderThisLine == 0) {
+            // End of a data line in multiline
             currentLine = readLine();
             remainderThisLine = entitiesOnLine;
         }
+        // Read the element
         for (auto& index : next.coordinateIds) {
             uint32_t input;
             currentLine >> input;
