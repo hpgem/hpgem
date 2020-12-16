@@ -88,7 +88,7 @@ std::size_t ElementBasisFunctions::getBasisFunctionOffset(
     return offset;
 }
 
-std::pair<const BasisFunctionSet*, std::size_t>
+std::pair<const FE::BasisFunctionSet*, std::size_t>
     ElementBasisFunctions::getBasisFunctionSetAndIndex(size_t index,
                                                        size_t unknown) const {
     assertValidUnknown(unknown, true);

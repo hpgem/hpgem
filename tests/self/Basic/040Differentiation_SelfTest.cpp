@@ -43,11 +43,7 @@
 #include "unordered_set"
 #include "Logger.h"
 
-#include "Utilities/BasisFunctions1DH1ConformingLine.h"
-#include "Utilities/BasisFunctions2DH1ConformingSquare.h"
-#include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
-#include "Utilities/BasisFunctions3DH1ConformingCube.h"
-#include "Utilities/BasisFunctions3DH1ConformingTetrahedron.h"
+#include "FE/BasisFunctions1DH1ConformingLine.h"
 #include "Base/ConfigurationData.h"
 #include "Base/L2Norm.h"
 #include "Base/CommandLineOptions.h"
