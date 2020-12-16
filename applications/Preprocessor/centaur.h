@@ -73,6 +73,10 @@ class CentaurReader {
                             bool multiline = true);
 
     void readHeader();
+    /// Read the zone information from the file.
+    /// \param elementCount The count for each element type in centaur order.
+    /// For 2D only the first two entries should be used.
+    void readZoneInfo(std::array<std::uint32_t, 4> elementCount);
 
     void readPeriodicNodeConnections();
 
@@ -101,6 +105,28 @@ class CentaurReader {
     std::map<std::uint32_t, std::vector<std::size_t>> boundaryConnections;
 
     std::vector<std::size_t> toHpgemNumbering;
+
+    struct ZoneInformation {
+        /// The end-offset for element types and (3D only) boundary faces.
+        /// Each end offset gives the number of elements/boundary faces in this
+        /// zone and all previous zones. Thus when this index is reached the
+        /// next zone starts.
+        /// For 3D the ordering is:
+        /// Hexahedra, Prisms, Pyramids, Tetrahedra, boundary faces
+        /// For 2D the ordering is: Triangles, Quadrilaterals
+        std::array<std::uint32_t, 5> endOffsets;
+        /// Name of the zone, not null terminated, space filled
+        std::array<char, 80> rawZoneName;
+        /// Name of the zone family (optional)
+        /// not null terminated, space filled
+        std::array<char, 80> rawZoneFamiliyName;
+
+        std::string getZoneName() const;
+        std::string getZoneFamilyName() const;
+    };
+
+    /// Storage for the zones.
+    std::vector<ZoneInformation> zones;
 };
 }  // namespace Preprocessor
 

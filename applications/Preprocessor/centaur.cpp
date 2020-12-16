@@ -86,6 +86,16 @@ namespace Preprocessor {
  *    from centaur we don't separate them into completely different code blocks.
  */
 
+template <std::size_t N>
+std::string fromFortranString(const std::array<char, N>& fortranString) {
+    // Find the end of the string
+    std::size_t length = N;
+    while (length > 0 && fortranString[length - 1] == ' ') {
+        length--;
+    }
+    return std::string(fortranString.data(), length);
+}
+
 UnstructuredInputStream<std::istringstream> CentaurReader::readLine() {
     // todo figure out ifstream.get(streambuf)
     logger.assert_always(!!centaurFile,
@@ -134,6 +144,16 @@ CentaurReader::CentaurReader(std::string filename) {
 
     readHeader();
 
+    logger.assert_always(centaurFileType != 6,
+                         "File hyb-type 6 uses 64 bit indices for nodes and "
+                         "elements, which is not implemented.");
+    logger.assert_always(centaurFileType < 6, "File type is too new.");
+    if (centaurFileType < 4) {
+        logger(WARN,
+               "Old centaur file format. These files can be upgraded using "
+               "hybconvert.");
+    }
+
     /// Scan through the file ///
     /////////////////////////////
     // Scan through the file to find the positions where the interesting data
@@ -143,21 +163,22 @@ CentaurReader::CentaurReader(std::string filename) {
     nodeStart = centaurFile.tellg();
     // 1 group with all coordinates
     numberOfNodes = skipGroup();
-
     // Elements, these are stored by shape
     elementStart = centaurFile.tellg();
 
     // For each element type there is a group with the 3-8 node indices of the
     // corners.
+    std::array<std::uint32_t, 4> elementCounts({0, 0, 0, 0});
+
     numberOfElements = 0;
-    if (is3D()) {
-        numberOfElements += skipGroup();  // hexahedra
+    std::size_t numberOfElementTypes = is3D() ? 4 : 2;
+    // For 3D the order is hexahedra, prisms, pyramids tetrahedra
+    // For 2D the order is triangles, quadrilaterals
+
+    for (std::size_t i = 0; i < numberOfElementTypes; ++i) {
+        elementCounts[i] += skipGroup();
+        numberOfElements += elementCounts[i];
     }
-    numberOfElements += skipGroup();  // triangles/prisms
-    if (is3D()) {
-        numberOfElements += skipGroup();  // pyramids
-    }
-    numberOfElements += skipGroup();  // quadrilaterals/tetrahedra
 
     // Additional information
 
@@ -212,18 +233,20 @@ CentaurReader::CentaurReader(std::string filename) {
     // Interface panels (3D only)
     // 1 data line with number N of interface panels (could be zero)
     // 1 data line with N entries (panel numbers?)
+    skipGroup();
 
     // Zones
     // 1 data line with the number N of zones
     // 1? data line with N entries of the form:
-    //  - 5 offsets, 4 for the elements, 1 for boundary faces indicating the
-    //    start of the elements/boundary faces of this zone (2D: only 2 offsets
-    //    for the elements)
+    //  - 5 endOffsets, 4 for the elements, 1 for boundary faces indicating the
+    //    start of the elements/boundary faces of this zone (2D: only 2
+    //    endOffsets for the elements)
     //  - char80 zone name
-    // Note 2D no >4.99 seems to allow not having zone information
-
-    // (only version >4.99)
-    // 1? data line with N zone family names
+    // (only version >4.99 && 3D)
+    //  - 1 data line with N zone family names
+    //
+    // Note 2D: Version prior <= 4.99 allow not having zones it seems
+    readZoneInfo(elementCounts);
 
     // More internal information is possible, for example polyhedrons.
 }
@@ -457,4 +480,103 @@ void CentaurReader::readPeriodicNodeConnections() {
         }
     }
 }
+
+void CentaurReader::readZoneInfo(std::array<std::uint32_t, 4> elementCount) {
+    if (is2D() && version <= 4.99 && centaurFile.eof()) {
+        // Zone info is only mandatory for 2D, version > 4.99
+        zones.resize(1);
+        std::fill(zones[0].rawZoneName.begin(), zones[0].rawZoneName.end(),
+                  ' ');
+        char defaultName[] = "default";
+        for (std::size_t i = 0; i < 7; ++i) {
+            zones[0].rawZoneName[i] = defaultName[i];
+        }
+        zones[0].endOffsets[0] = elementCount[0];
+        zones[0].endOffsets[1] = elementCount[1];
+        return;
+    }
+    // Read the count
+    auto line = readLine();
+    std::uint32_t numberOfZones;
+    line >> numberOfZones;
+    zones.resize(numberOfZones);
+
+    // Read all the zones
+    line = readLine();
+    for (std::uint32_t i = 0; i < numberOfZones; ++i) {
+        ZoneInformation& zone = zones[i];
+
+        if (i == 0) {
+            std::uint32_t entry;
+            std::size_t numEntries = is3D() ? 5 : 2;
+            for (std::size_t j = 0; j < numEntries; ++j) {
+                line >> entry;
+                logger.assert_always(
+                    entry == 1, "Offset for the first zone entry is non zero.");
+            }
+        } else {
+            ZoneInformation& prevZone = zones[i - 1];
+
+            line >> prevZone.endOffsets[0];
+            line >> prevZone.endOffsets[1];
+            // Fortran offset
+            prevZone.endOffsets[0]--;
+            prevZone.endOffsets[1]--;
+            if (is3D()) {
+                line >> prevZone.endOffsets[2];
+                line >> prevZone.endOffsets[3];
+                line >> prevZone.endOffsets[4];
+                // Fortran offset
+                prevZone.endOffsets[2]--;
+                prevZone.endOffsets[3]--;
+                prevZone.endOffsets[4]--;
+            } else {
+                // Filling to zero
+                prevZone.endOffsets[2] = 0;
+                prevZone.endOffsets[3] = 0;
+                prevZone.endOffsets[4] = 0;
+            }
+        }
+        line >> zone.rawZoneName;
+    }
+
+    {
+        /// Fill last endOffsets as there is no previous
+        ZoneInformation& lastZone = zones[numberOfZones - 1];
+        for (std::size_t i = 0; i < 4; ++i) {
+            lastZone.endOffsets[i] = elementCount[i];
+        }
+        // Not used
+        lastZone.endOffsets[4] = 0;
+    }
+
+    if (is3D() && version > 4.99) {
+        // Read zone families
+        line = readLine();
+        for (std::uint32_t i = 0; i < numberOfZones; ++i) {
+            line >> zones[i].rawZoneFamiliyName;
+        }
+    } else {
+        for (std::uint32_t i = 0; i < numberOfZones; ++i) {
+            std::fill(zones[i].rawZoneFamiliyName.begin(),
+                      zones[i].rawZoneFamiliyName.end(), ' ');
+        }
+    }
+    for (const ZoneInformation& zone : zones) {
+        logger(DEBUG, "Zone \"%\"", zone.getZoneName());
+        logger(DEBUG, "\tFamily: \"%\"", zone.getZoneFamilyName());
+        for (std::size_t i = 0; i < 5; ++i) {
+            logger(DEBUG, "\tOffset % : %", i, zone.endOffsets[i]);
+        }
+    }
+}
+
+std::string CentaurReader::ZoneInformation::getZoneName() const {
+    return fromFortranString(rawZoneName);
+}
+
+std::string CentaurReader::ZoneInformation::getZoneFamilyName() const {
+    return fromFortranString(rawZoneFamiliyName);
+}
+
 }  // namespace Preprocessor
