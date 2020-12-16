@@ -97,7 +97,7 @@ class StructuredReader : public PrivateReader {
         }
     }
 
-    Range<std::vector<std::vector<double>>> getNodeCoordinates() override {
+    Range<MeshSource::Node> getNodeCoordinates() override {
         std::vector<std::size_t> loopIndices(numberOfNodes.size());
         std::size_t nodeIndex = -1;
         std::size_t cumulativeIndex = 0;
@@ -106,21 +106,22 @@ class StructuredReader : public PrivateReader {
             totalNumberOfNodes *= numberOfNodes[i];
         }
         coordinateIDs.resize(totalNumberOfNodes);
-        auto increment = [=](std::vector<std::vector<double>>& next) mutable {
-            next.resize(1);
-            next[0].resize(loopIndices.size());
+        auto increment = [=](MeshSource::Node& next) mutable {
+            next.coordinates.resize(1);
+            next.coordinates[0].resize(loopIndices.size());
             coordinateIDs[++nodeIndex].push_back(cumulativeIndex++);
             for (std::size_t i = 0; i < loopIndices.size(); ++i) {
-                next[0][i] = lowerLeft[i] +
-                             loopIndices[i] * size[i] / numberOfElements[i];
+                next.coordinates[0][i] = lowerLeft[i] + loopIndices[i] *
+                                                            size[i] /
+                                                            numberOfElements[i];
             }
             for (std::size_t i = 0; i < loopIndices.size(); ++i) {
                 if (isPeriodic[i] && loopIndices[i] == 0) {
-                    std::size_t currentSize = next.size();
+                    std::size_t currentSize = next.coordinates.size();
                     for (std::size_t j = 0; j < currentSize; ++j) {
-                        std::vector<double> newCoordinate = next[j];
+                        std::vector<double> newCoordinate = next.coordinates[j];
                         newCoordinate[i] += size[i];
-                        next.push_back(newCoordinate);
+                        next.coordinates.push_back(newCoordinate);
                         coordinateIDs[nodeIndex].push_back(cumulativeIndex++);
                     }
                 }
@@ -132,12 +133,12 @@ class StructuredReader : public PrivateReader {
                 loopIndices[i] = 0;
             }
         };
-        std::vector<std::vector<double>> first;
+        MeshSource::Node first;
         increment(first);
         return {first, std::move(increment), totalNumberOfNodes};
     }
 
-    Range<std::vector<std::size_t>> getElements() override {
+    Range<MeshSource::Element> getElements() override {
         std::vector<std::size_t> loopIndices(numberOfNodes.size());
         std::vector<std::size_t> multipliedNodeCounts = {1};
         std::vector<std::vector<std::size_t>> cornersOfTriangles;
@@ -161,37 +162,44 @@ class StructuredReader : public PrivateReader {
             multipliedNodeCounts.push_back(multipliedNodeCounts.back() *
                                            numberOfNodes[i - 1]);
         }
-        auto increment = [=](std::vector<std::size_t>& next) mutable {
-            next = {0};
+        auto increment = [=](MeshSource::Element& next) mutable {
+            next.coordinateIds = {0};
             for (std::size_t i = 0; i < loopIndices.size(); ++i) {
-                std::size_t currentSize = next.size();
+                std::size_t currentSize = next.coordinateIds.size();
                 for (std::size_t j = 0; j < currentSize; ++j) {
-                    next[j] += loopIndices[i] * multipliedNodeCounts[i];
-                    next.push_back(next[j] + multipliedNodeCounts[i]);
+                    next.coordinateIds[j] +=
+                        loopIndices[i] * multipliedNodeCounts[i];
+                    next.coordinateIds.push_back(next.coordinateIds[j] +
+                                                 multipliedNodeCounts[i]);
                 }
             }
-            for (std::size_t j = 0; j < next.size(); ++j) {
+            for (std::size_t j = 0; j < next.coordinateIds.size(); ++j) {
                 std::size_t subIndex = 0;
                 std::size_t numberOfPreviousPeriodicDimensions = 0;
                 for (std::size_t i = 0; i < loopIndices.size(); ++i) {
                     if (((j & (1 << i)) != 0) &&
                         (loopIndices[i] == numberOfNodes[i] - 1)) {
-                        next[j] -= (numberOfNodes[i] * multipliedNodeCounts[i]);
+                        next.coordinateIds[j] -=
+                            (numberOfNodes[i] * multipliedNodeCounts[i]);
                         subIndex += (1 << numberOfPreviousPeriodicDimensions++);
                     }
                     if (isPeriodic[i] && (loopIndices[i] + (j & (1 << i)) == 0))
                         numberOfPreviousPeriodicDimensions++;
                 }
-                next[j] = coordinateIDs[next[j]][subIndex];
+                next.coordinateIds[j] =
+                    coordinateIDs[next.coordinateIds[j]][subIndex];
             }
             if (hasTriangles) {
-                auto temp = next;
+                auto temp = next.coordinateIds;
                 for (std::size_t i = 0;
                      i < cornersOfTriangles[triangleIndex].size(); ++i) {
-                    temp[i] = next[cornersOfTriangles[triangleIndex][i]];
+                    temp[i] =
+                        next.coordinateIds[cornersOfTriangles[triangleIndex]
+                                                             [i]];
                 }
-                next = std::move(temp);
-                next.resize(cornersOfTriangles[triangleIndex].size());
+                next.coordinateIds = std::move(temp);
+                next.coordinateIds.resize(
+                    cornersOfTriangles[triangleIndex].size());
                 if (++triangleIndex == cornersOfTriangles.size())
                     triangleIndex = 0;
             }
@@ -214,7 +222,7 @@ class StructuredReader : public PrivateReader {
                 }
             }
         };
-        std::vector<std::size_t> first;
+        MeshSource::Element first;
         increment(first);
         std::size_t totalNumberOfElements = 1;
         for (std::size_t i = 0; i < loopIndices.size(); ++i) {
@@ -276,16 +284,17 @@ class PreprocessorReader : public PrivateReader {
         elementsStart = this->hpgemFile.tellg();
     }
 
-    Range<std::vector<std::vector<double>>> getNodeCoordinates() override {
+    Range<MeshSource::Node> getNodeCoordinates() override {
         hpgemFile.seekg(nodesStart);
         std::size_t currentNode = 0;
         std::size_t processedNodes = 0;
-        auto increment = [=](std::vector<std::vector<double>>& next) mutable {
+        auto increment = [=](MeshSource::Node& next) mutable {
             hpgemFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             std::size_t numberOfCoordinates;
             hpgemFile >> numberOfCoordinates;
-            next.resize(numberOfCoordinates, std::vector<double>(dimension));
-            for (auto& coordinate : next) {
+            next.coordinates.resize(numberOfCoordinates,
+                                    std::vector<double>(dimension));
+            for (auto& coordinate : next.coordinates) {
                 coordinateIDs[currentNode].push_back(processedNodes++);
                 for (std::size_t i = 0; i < dimension; ++i) {
                     coordinate[i] = readDouble(hpgemFile);
@@ -294,25 +303,25 @@ class PreprocessorReader : public PrivateReader {
             currentNode++;
             hpgemFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         };
-        std::vector<std::vector<double>> start;
+        MeshSource::Node start;
         increment(start);
         return {start, std::move(increment), numberOfNodes};
     }
 
-    Range<std::vector<std::size_t>> getElements() override {
+    Range<MeshSource::Element> getElements() override {
         hpgemFile.seekg(elementsStart);
-        auto increment = [this](std::vector<std::size_t>& next) mutable {
+        auto increment = [this](MeshSource::Element& next) mutable {
             std::size_t numberOfNodes;
             std::size_t nodeID, localCoordinateID;
             hpgemFile >> numberOfNodes;
-            next.resize(numberOfNodes);
-            for (auto& coordinateID : next) {
+            next.coordinateIds.resize(numberOfNodes);
+            for (auto& coordinateID : next.coordinateIds) {
                 hpgemFile >> nodeID >> localCoordinateID;
                 coordinateID = coordinateIDs[nodeID][localCoordinateID];
             }
             hpgemFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         };
-        std::vector<std::size_t> start;
+        MeshSource::Element start;
         increment(start);
         return {start, std::move(increment), numberOfElements};
     }

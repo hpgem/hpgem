@@ -40,6 +40,7 @@
 #define HPGEM_APP_HPGEM_H
 
 #include "customIterator.h"
+#include "MeshSource.h"
 #include <vector>
 #include <string>
 #include <fstream>
@@ -56,8 +57,8 @@ class PrivateReader {
     PrivateReader& operator=(const PrivateReader&) = delete;
     PrivateReader& operator=(PrivateReader&&) = delete;
 
-    virtual Range<std::vector<std::vector<double>>> getNodeCoordinates() = 0;
-    virtual Range<std::vector<std::size_t>> getElements() = 0;
+    virtual Range<MeshSource::Node> getNodeCoordinates() = 0;
+    virtual Range<MeshSource::Element> getElements() = 0;
     virtual std::size_t getDimension() = 0;
     virtual std::size_t getTargetProcessorCount() = 0;
     virtual Range<std::size_t> getProcessorBindings() = 0;
@@ -66,17 +67,17 @@ class PrivateReader {
     PrivateReader() = default;
 };
 
-class HpgemReader {
+class HpgemReader : public MeshSource {
    public:
     HpgemReader(std::string filename);
 
-    Range<std::vector<std::vector<double>>> getNodeCoordinates() {
+    Range<MeshSource::Node> getNodeCoordinates() final {
         return impl->getNodeCoordinates();
     }
-    Range<std::vector<std::size_t>> getElements() {
+    Range<MeshSource::Element> getElements() final {
         return impl->getElements();
     }
-    std::size_t getDimension() { return impl->getDimension(); }
+    std::size_t getDimension() const final { return impl->getDimension(); }
     std::size_t getTargetProcessorCount() {
         return impl->getTargetProcessorCount();
     }

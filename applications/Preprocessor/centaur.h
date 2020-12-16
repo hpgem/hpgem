@@ -41,6 +41,7 @@
 
 #include "customIterator.h"
 #include "unstructuredFile.h"
+#include "MeshSource.h"
 #include <vector>
 #include <fstream>
 #include <string>
@@ -50,14 +51,14 @@ using namespace hpgem;
 
 namespace Preprocessor {
 
-class CentaurReader {
+class CentaurReader : public MeshSource {
    public:
     CentaurReader(std::string filename);
 
-    Range<std::vector<std::vector<double>>> getNodeCoordinates();
-    Range<std::vector<std::size_t>> getElements();
+    Range<MeshSource::Node> getNodeCoordinates() final;
+    Range<MeshSource::Element> getElements() final;
 
-    std::size_t getDimension() {
+    std::size_t getDimension() const final {
         if (centaurFileType > 0) return 3;
 
         return 2;

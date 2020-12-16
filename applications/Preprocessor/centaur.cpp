@@ -261,7 +261,7 @@ std::function<void(int&)> difference_generator(
     };
 }
 
-Range<std::vector<std::vector<double>>> CentaurReader::getNodeCoordinates() {
+Range<MeshSource::Node> CentaurReader::getNodeCoordinates() {
     centaurFile.seekg(nodeStart);
     std::size_t dimension = 3;
     if (centaurFileType < 0) dimension = 2;
@@ -276,7 +276,7 @@ Range<std::vector<std::vector<double>>> CentaurReader::getNodeCoordinates() {
     std::size_t index = 1;
     currentLine = readLine();
     auto increment = [=, currentLine = std::move(currentLine)](
-                         std::vector<std::vector<double>>& next) mutable {
+                         MeshSource::Node& next) mutable {
         if (remainderThisLine == 0) {
             remainderThisLine = nodesOnLine;
             currentLine = readLine();
@@ -294,11 +294,11 @@ Range<std::vector<std::vector<double>>> CentaurReader::getNodeCoordinates() {
                 currentLine = readLine();
             }
         }
-        next.resize(1);
+        next.coordinates.resize(1);
         for (auto& value : coordinate) {
             currentLine >> value;
         }
-        next[0] = coordinate;
+        next.coordinates[0] = coordinate;
         remainderThisLine--;
         index++;
         if (position != boundaryConnections.end() &&
@@ -329,14 +329,14 @@ Range<std::vector<std::vector<double>>> CentaurReader::getNodeCoordinates() {
                         currentLine >> value;
                     }
                 }
-                next.push_back(coordinate);
+                next.coordinates.push_back(coordinate);
             }
             currentLine = std::move(oldLine);
             centaurFile.seekg(currentFilePosition);
             remainderThisLine = oldRemainder;
         }
         if (HPGEM_LOGLEVEL >= Log::VERBOSE) {
-            for (auto outputCoordinate : next) {
+            for (auto outputCoordinate : next.coordinates) {
                 std::cout << "(" << outputCoordinate[0];
                 for (std::size_t i = 1; i < outputCoordinate.size(); ++i) {
                     std::cout << ", " << outputCoordinate[i];
@@ -346,13 +346,12 @@ Range<std::vector<std::vector<double>>> CentaurReader::getNodeCoordinates() {
         }
         logger(VERBOSE, "");
     };
-    std::vector<std::vector<double>> coordinates;
-    increment(coordinates);
-    return Range<std::vector<std::vector<double>>>{
-        coordinates, std::move(increment), numberOfNodes};
+    MeshSource::Node node;
+    increment(node);
+    return Range<MeshSource::Node>{node, std::move(increment), numberOfNodes};
 }
 
-Range<std::vector<std::size_t>> CentaurReader::getElements() {
+Range<MeshSource::Element> CentaurReader::getElements() {
     centaurFile.seekg(elementStart);
     std::size_t currentGroupRemainder = 0;
     std::size_t entitiesOnLine = 0;
@@ -360,7 +359,7 @@ Range<std::vector<std::size_t>> CentaurReader::getElements() {
     std::size_t groupsProcessed = 0;
     UnstructuredInputStream<std::istringstream> currentLine;
     auto increment = [=, currentLine = std::move(currentLine)](
-                         std::vector<std::size_t>& next) mutable {
+                         MeshSource::Element& next) mutable {
         while (currentGroupRemainder == 0) {
             if (centaurFileType < 2)
                 groupsProcessed += 2;
@@ -372,22 +371,22 @@ Range<std::vector<std::size_t>> CentaurReader::getElements() {
             if (centaurFileType > 4) currentLine >> entitiesOnLine;
             remainderThisLine = entitiesOnLine;
             if (groupsProcessed == 1)
-                next.resize(8);
+                next.coordinateIds.resize(8);
             else if (groupsProcessed == 3)
-                next.resize(5);
+                next.coordinateIds.resize(5);
             else if (groupsProcessed == 4)
-                next.resize(4);
+                next.coordinateIds.resize(4);
             else if (centaurFileType < 0)
-                next.resize(3);
+                next.coordinateIds.resize(3);
             else
-                next.resize(6);
+                next.coordinateIds.resize(6);
             currentLine = readLine();
         }
         if (remainderThisLine == 0) {
             currentLine = readLine();
             remainderThisLine = entitiesOnLine;
         }
-        for (auto& index : next) {
+        for (auto& index : next.coordinateIds) {
             uint32_t input;
             currentLine >> input;
             index = toHpgemNumbering[input];
@@ -395,7 +394,7 @@ Range<std::vector<std::size_t>> CentaurReader::getElements() {
         remainderThisLine--;
         currentGroupRemainder--;
     };
-    std::vector<std::size_t> first;
+    MeshSource::Element first;
     increment(first);
     return {first, std::move(increment), numberOfElements};
 }

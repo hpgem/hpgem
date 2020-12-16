@@ -42,6 +42,7 @@
 #include "Base/ConstIterableWrapper.h"
 #include "LinearAlgebra/SmallVector.h"
 #include "elementShape.h"
+#include "MeshSource.h"
 
 // the data structures needed to represent a mesh
 // they are collected in one file because they are meaningless alone and
@@ -686,12 +687,14 @@ class Mesh {
 
 // for use with file readers that can 'guess' the correct numbering of the node
 // coordinates file readers that don't do this should overload this function
-template <std::size_t dimension, typename file_t>
-Mesh<dimension> readFile(file_t& file) {
+template <std::size_t dimension>
+Mesh<dimension> readFile(MeshSource& file) {
     Mesh<dimension> result;
+    logger.assert_always(dimension == file.getDimension(),
+                         "Mismatching dimensions");
     for (auto nodeCoordinates : file.getNodeCoordinates()) {
         result.addNode();
-        for (auto coordinate : nodeCoordinates) {
+        for (auto coordinate : nodeCoordinates.coordinates) {
             logger.assert_debug(
                 coordinate.size() == dimension,
                 "The coordinates read by this reader have the wrong dimension");
@@ -700,7 +703,7 @@ Mesh<dimension> readFile(file_t& file) {
         }
     }
     for (auto element : file.getElements()) {
-        result.addElement(element);
+        result.addElement(element.coordinateIds);
     }
     logger.assert_debug(result.isValid(), "Unspecified problem with the mesh");
     return result;
