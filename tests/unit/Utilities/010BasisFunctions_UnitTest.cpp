@@ -44,18 +44,18 @@ CHECK($1); the documentation
 // correct execution of all prior unit tests see also
 // Base/???BasisFunction_UnitTest.cpp
 // - running the same series of checks on different basisfunctions
-#include "Utilities/BasisFunctions1DH1ConformingLine.h"
-#include "Utilities/BasisFunctions2DH1ConformingSquare.h"
-#include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
-#include "Utilities/BasisFunctions3DH1ConformingCube.h"
-#include "Utilities/BasisFunctions3DH1ConformingTetrahedron.h"
-#include "Utilities/BasisFunctions3DH1ConformingPrism.h"
-#include "Utilities/BasisFunctions3DH1ConformingPyramid.h"
-#include "Utilities/BasisFunctions3DNedelec.h"
-#include "Utilities/BasisFunctions3DAinsworthCoyle.h"
+#include "FE/BasisFunctions1DH1ConformingLine.h"
+#include "FE/BasisFunctions2DH1ConformingSquare.h"
+#include "FE/BasisFunctions2DH1ConformingTriangle.h"
+#include "FE/BasisFunctions3DH1ConformingCube.h"
+#include "FE/BasisFunctions3DH1ConformingTetrahedron.h"
+#include "FE/BasisFunctions3DH1ConformingPrism.h"
+#include "FE/BasisFunctions3DH1ConformingPyramid.h"
+#include "FE/BasisFunctions3DNedelec.h"
+#include "FE/BasisFunctions3DAinsworthCoyle.h"
 #include "Logger.h"
 
-#include "Base/BasisFunctionSet.h"
+#include "FE/BasisFunctionSet.h"
 #include "Base/L2Norm.h"
 #include "Geometry/PointReference.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
@@ -71,8 +71,8 @@ using Base::L2Norm;
 TEST_CASE("BasisFunctions", "[BasisFunctions]") {
 
     // 1D
-    Base::BasisFunctionSet* all1DbasisFunctions =
-        Utilities::createDGBasisFunctionSet1DH1Line(5);
+    FE::BasisFunctionSet* all1DbasisFunctions =
+        FE::createDGBasisFunctionSet1DH1Line(5);
     Geometry::PointReference<1> point1D;
     LinearAlgebra::SmallVector<1> ret;
     for (auto test : *all1DbasisFunctions) {
@@ -95,8 +95,8 @@ TEST_CASE("BasisFunctions", "[BasisFunctions]") {
     delete all1DbasisFunctions;
 
     // 2D
-    Base::BasisFunctionSet* all2DbasisFunctions =
-        Utilities::createDGBasisFunctionSet2DH1Square(5);
+    FE::BasisFunctionSet* all2DbasisFunctions =
+        FE::createDGBasisFunctionSet2DH1Square(5);
     Geometry::PointReference<2> point2D;
     LinearAlgebra::SmallVector<2> ret2;
     for (auto test : *all2DbasisFunctions) {
@@ -132,7 +132,7 @@ TEST_CASE("BasisFunctions", "[BasisFunctions]") {
 
     delete all2DbasisFunctions;
 
-    all2DbasisFunctions = Utilities::createDGBasisFunctionSet2DH1Triangle(5);
+    all2DbasisFunctions = FE::createDGBasisFunctionSet2DH1Triangle(5);
     for (auto test : *all2DbasisFunctions) {
         for (point2D[0] = -1.5; point2D[0] < 1.51; point2D[0] += 0.8) {
             for (point2D[1] = -1.5; point2D[1] < 1.51; point2D[1] += 0.9) {
@@ -182,8 +182,8 @@ TEST_CASE("BasisFunctions", "[BasisFunctions]") {
 
     // 3D
 
-    Base::BasisFunctionSet* all3DbasisFunctions =
-        Utilities::createDGBasisFunctionSet3DH1Cube(5);
+    FE::BasisFunctionSet* all3DbasisFunctions =
+        FE::createDGBasisFunctionSet3DH1Cube(5);
     Geometry::PointReference<3> point3D;
     LinearAlgebra::SmallVector<3> ret3;
     for (auto test : *all3DbasisFunctions) {
@@ -251,7 +251,7 @@ TEST_CASE("BasisFunctions", "[BasisFunctions]") {
 
     delete all3DbasisFunctions;
 
-    all3DbasisFunctions = Utilities::createDGBasisFunctionSet3DH1Tetrahedron(5);
+    all3DbasisFunctions = FE::createDGBasisFunctionSet3DH1Tetrahedron(5);
     for (auto test : *all3DbasisFunctions) {
         for (point3D[0] = -1.5; point3D[0] < 1.51; point3D[0] += 0.6) {
             for (point3D[1] = -1.5; point3D[1] < 1.51; point3D[1] += 0.6) {
@@ -317,7 +317,7 @@ TEST_CASE("BasisFunctions", "[BasisFunctions]") {
 
     delete all3DbasisFunctions;
 
-    all3DbasisFunctions = Utilities::createDGBasisFunctionSet3DNedelec(5);
+    all3DbasisFunctions = FE::createDGBasisFunctionSet3DNedelec(5);
     for (auto test : *all3DbasisFunctions) {
         for (point3D[0] = -1.5; point3D[0] < 1.51; point3D[0] += 0.6) {
             for (point3D[1] = -1.5; point3D[1] < 1.51; point3D[1] += 0.6) {
@@ -370,8 +370,7 @@ TEST_CASE("BasisFunctions", "[BasisFunctions]") {
 
     delete all3DbasisFunctions;
 
-    all3DbasisFunctions =
-        Utilities::createDGBasisFunctionSet3DAinsworthCoyle(5);
+    all3DbasisFunctions = FE::createDGBasisFunctionSet3DAinsworthCoyle(5);
     for (auto test : *all3DbasisFunctions) {
         for (point3D[0] = -1.5; point3D[0] < 1.51; point3D[0] += 0.8) {
             for (point3D[1] = -1.5; point3D[1] < 1.51; point3D[1] += 1.6) {
@@ -424,8 +423,7 @@ TEST_CASE("BasisFunctions", "[BasisFunctions]") {
 
     delete all3DbasisFunctions;
 
-    all3DbasisFunctions =
-        Utilities::createDGBasisFunctionSet3DH1ConformingPrism(5);
+    all3DbasisFunctions = FE::createDGBasisFunctionSet3DH1ConformingPrism(5);
     for (auto test : *all3DbasisFunctions) {
         for (point3D[0] = -1.5; point3D[0] < 1.51; point3D[0] += 0.6) {
             for (point3D[1] = -1.5; point3D[1] < 1.51; point3D[1] += 0.6) {
@@ -491,8 +489,7 @@ TEST_CASE("BasisFunctions", "[BasisFunctions]") {
 
     delete all3DbasisFunctions;
 
-    all3DbasisFunctions =
-        Utilities::createDGBasisFunctionSet3DH1ConformingPyramid(1);
+    all3DbasisFunctions = FE::createDGBasisFunctionSet3DH1ConformingPyramid(1);
     for (auto test : *all3DbasisFunctions) {
         for (point3D[0] = -1.5; point3D[0] < 1.51; point3D[0] += 0.6) {
             for (point3D[1] = -1.5; point3D[1] < 1.51; point3D[1] += 0.6) {

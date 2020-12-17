@@ -41,7 +41,6 @@
 
 #include "Point.h"
 #include "PointReferenceBase.h"
-#include "Base/BaseBasisFunction.h"
 
 #include <map>
 

@@ -46,7 +46,7 @@
 #include "PhysicalElement.h"
 #include "Mesh.h"
 #include "GlobalNamespaceBase.h"
-#include "BasisFunctionSet.h"
+#include "FE/BasisFunctionSet.h"
 #include "MeshManipulatorBase.h"
 namespace hpgem {
 namespace Base {
@@ -63,9 +63,12 @@ template <std::size_t DIM>
 class PointReference;
 }  // namespace Geometry
 
-namespace Base {
+namespace FE {
 class BasisFunctionSet;
 class OrientedBasisFunctionSet;
+}  // namespace FE
+
+namespace Base {
 class Face;
 template <std::size_t DIM>
 class MeshMoverBase;
@@ -464,7 +467,7 @@ class MeshManipulator : public MeshManipulatorBase {
     /// deprecated: The routines useDefaultDGBasisFunctionSet and
     /// useDefaultConformingBasisFunctionSet can do this more flexibly and also
     /// support mixed meshes
-    void setDefaultBasisFunctionSet(BasisFunctionSet* bFSet);
+    void setDefaultBasisFunctionSet(FE::BasisFunctionSet* bFSet);
 
     //! Adds vertex based degrees of freedom to the set of basisfunctions for
     //! this mesh and all of its vertices. This routine will assume that the
@@ -474,7 +477,7 @@ class MeshManipulator : public MeshManipulatorBase {
     /// deprecated: The routine useDefaultConformingBasis is more flexible and
     /// can also deal with mixed meshes
     void addVertexBasisFunctionSet(
-        const std::vector<const BasisFunctionSet*>& bFsets);
+        const std::vector<const FE::BasisFunctionSet*>& bFsets);
 
     //! Adds face based degrees of freedom to the set of basisfunctions for this
     //! mesh and all of its faces. This routine will assume that all needed
@@ -483,7 +486,7 @@ class MeshManipulator : public MeshManipulatorBase {
     /// deprecated: The routine useDefaultConformingBasis is more flexible and
     /// can also deal with mixed meshes
     void addFaceBasisFunctionSet(
-        const std::vector<const OrientedBasisFunctionSet*>& bFsets);
+        const std::vector<const FE::OrientedBasisFunctionSet*>& bFsets);
 
     //! Adds edge based degrees of freedom to the set of basisfunctions for this
     //! mesh and all of its edges. This routine will assume that all needed
@@ -492,7 +495,7 @@ class MeshManipulator : public MeshManipulatorBase {
     /// deprecated: The routine useDefaultConformingBasis is more flexible and
     /// can also deal with mixed meshes
     void addEdgeBasisFunctionSet(
-        const std::vector<const OrientedBasisFunctionSet*>& bFsets);
+        const std::vector<const FE::OrientedBasisFunctionSet*>& bFsets);
 
     const std::vector<Geometry::PointPhysical<DIM>>& getNodeCoordinates()
         const {

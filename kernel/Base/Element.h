@@ -43,7 +43,7 @@
 #include "Base/ElementData.h"
 #include "Geometry/ElementGeometry.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
-#include "BasisFunctionSet.h"
+#include "FE/BasisFunctionSet.h"
 #include "TreeEntry.h"
 
 //#include "PhysGradientOfBasisFunction.h"//included after class definition due
@@ -57,17 +57,18 @@
 #include <Integration/QuadratureRules/GaussQuadratureRule.h>
 #include <Base/ElementBasisFunctions.h>
 namespace hpgem {
-namespace QuadratureRules {
-class GaussQuadratureRule;
-}
+
+namespace FE {
+class BasisFunctionSet;
+class BaseBasisFunction;
+}  // namespace FE
 
 namespace Base {
 class Node;
 class Edge;
 class Face;
-class BasisFunctionSet;
+
 class ElementCacheData;
-class BaseBasisFunction;
 template <std::size_t DIM>
 class PhysicalElement;
 
@@ -77,7 +78,7 @@ class Element final : public Geometry::ElementGeometry, public ElementData {
    public:
     using SolutionVector = LinearAlgebra::MiddleSizeVector;
     using CollectionOfBasisFunctionSets =
-        std::vector<std::shared_ptr<const BasisFunctionSet>>;
+        std::vector<std::shared_ptr<const FE::BasisFunctionSet>>;
 
     template <std::size_t DIM>
     Element(const std::vector<std::size_t>& globalNodeIndexes,
@@ -502,7 +503,7 @@ class Element final : public Geometry::ElementGeometry, public ElementData {
     std::size_t getNumberOfNodes() const { return nodesList_.size(); }
 
 #ifndef NDEBUG
-    const Base::BaseBasisFunction* getBasisFunction(std::size_t i) const;
+    const FE::BaseBasisFunction* getBasisFunction(std::size_t i) const;
 #endif
 
     void setPositionInTree(const TreeEntry<Element*>* position) {
@@ -622,7 +623,7 @@ double Element::basisFunctionDeriv(
         (jDir < p.size()),
         "Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
 
-    const BasisFunctionSet* subSet;
+    const FE::BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
     return subSet->evalDeriv(subIndex, jDir, p);
@@ -640,7 +641,7 @@ double Element::basisFunctionDeriv(std::size_t i, std::size_t jDir,
         (jDir < p.size()),
         "Error in BasisFunctionSet.EvalDeriv: invalid derivative direction!");
 
-    const BasisFunctionSet* subSet;
+    const FE::BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) =
         basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);
@@ -654,7 +655,7 @@ double Element::basisFunction(std::size_t i,
         i < getNumberOfBasisFunctions(),
         "Asked for basis function %, but there are only % basis functions", i,
         getNumberOfBasisFunctions());
-    const BasisFunctionSet* subSet;
+    const FE::BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
     return subSet->eval(subIndex, p);
@@ -668,7 +669,7 @@ double Element::basisFunction(std::size_t i,
         i < getNumberOfBasisFunctions(unknown),
         "Asked for basis function %, but there are only % basis functions", i,
         getNumberOfBasisFunctions(unknown));
-    const BasisFunctionSet* subSet;
+    const FE::BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) =
         basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);
@@ -683,7 +684,7 @@ void Element::basisFunction(std::size_t i,
         i < getNumberOfBasisFunctions(),
         "Asked for basis function %, but there are only % basis functions", i,
         getNumberOfBasisFunctions());
-    const BasisFunctionSet* subSet;
+    const FE::BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
     subSet->eval(subIndex, p, ret);
@@ -698,7 +699,7 @@ void Element::basisFunction(std::size_t i,
         i < getNumberOfBasisFunctions(unknown),
         "Asked for basis function %, but there are only % basis functions", i,
         getNumberOfBasisFunctions(unknown));
-    const BasisFunctionSet* subSet;
+    const FE::BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) =
         basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);
@@ -712,7 +713,7 @@ LinearAlgebra::SmallVector<DIM> Element::basisFunctionCurl(
         i < getNumberOfBasisFunctions(),
         "Asked for basis function %, but there are only % basis functions", i,
         getNumberOfBasisFunctions());
-    const BasisFunctionSet* subSet;
+    const FE::BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
     return subSet->evalCurl(subIndex, p);
@@ -726,7 +727,7 @@ LinearAlgebra::SmallVector<DIM> Element::basisFunctionCurl(
         i < getNumberOfBasisFunctions(unknown),
         "Asked for basis function %, but there are only % basis functions", i,
         getNumberOfBasisFunctions(unknown));
-    const BasisFunctionSet* subSet;
+    const FE::BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) =
         basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);
@@ -740,7 +741,7 @@ double Element::basisFunctionDiv(std::size_t i,
         i < getNumberOfBasisFunctions(),
         "Asked for basis function %, but there are only % basis functions", i,
         getNumberOfBasisFunctions());
-    const BasisFunctionSet* subSet;
+    const FE::BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
     return subSet->evalDiv(subIndex, p);
@@ -754,7 +755,7 @@ double Element::basisFunctionDiv(std::size_t i,
         i < getNumberOfBasisFunctions(unknown),
         "Asked for basis function %, but there are only % basis functions", i,
         getNumberOfBasisFunctions(unknown));
-    const BasisFunctionSet* subSet;
+    const FE::BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) =
         basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);
@@ -768,7 +769,7 @@ LinearAlgebra::SmallVector<DIM> Element::basisFunctionDeriv(
         i < getNumberOfBasisFunctions(),
         "Asked for basis function %, but there are only % basis functions", i,
         getNumberOfBasisFunctions());
-    const BasisFunctionSet* subSet;
+    const FE::BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
     return subSet->evalDeriv(subIndex, p);
@@ -782,7 +783,7 @@ LinearAlgebra::SmallVector<DIM> Element::basisFunctionDeriv(
         i < getNumberOfBasisFunctions(unknown),
         "Asked for basis function %, but there are only % basis functions", i,
         getNumberOfBasisFunctions(unknown));
-    const BasisFunctionSet* subSet;
+    const FE::BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) =
         basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);
@@ -897,7 +898,7 @@ void Element::basisFunction(
         i < getNumberOfBasisFunctions(),
         "Asked for basis function %, but there are only % basis functions", i,
         getNumberOfBasisFunctions());
-    const BasisFunctionSet* subSet;
+    const FE::BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
     quadratureRule->eval(subSet, subIndex, quadraturePointIndex, ret);
@@ -912,7 +913,7 @@ void Element::basisFunction(
         i < getNumberOfBasisFunctions(unknown),
         "Asked for basis function %, but there are only % basis functions", i,
         getNumberOfBasisFunctions(unknown));
-    const BasisFunctionSet* subSet;
+    const FE::BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) =
         basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);
@@ -927,7 +928,7 @@ LinearAlgebra::SmallVector<DIM> Element::basisFunctionDeriv(
         i < getNumberOfBasisFunctions(),
         "Asked for basis function %, but there are only % basis functions", i,
         getNumberOfBasisFunctions());
-    const BasisFunctionSet* subSet;
+    const FE::BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
     return quadratureRule->evalGrad(subSet, subIndex, quadraturePointIndex);
@@ -941,7 +942,7 @@ LinearAlgebra::SmallVector<DIM> Element::basisFunctionDeriv(
         i < getNumberOfBasisFunctions(unknown),
         "Asked for basis function %, but there are only % basis functions", i,
         getNumberOfBasisFunctions(unknown));
-    const BasisFunctionSet* subSet;
+    const FE::BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) =
         basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);
@@ -956,7 +957,7 @@ LinearAlgebra::SmallVector<DIM> Element::basisFunctionCurl(
         i < getNumberOfBasisFunctions(),
         "Asked for basis function %, but there are only % basis functions", i,
         getNumberOfBasisFunctions());
-    const BasisFunctionSet* subSet;
+    const FE::BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
     return quadratureRule->evalCurl<DIM>(subSet, subIndex,
@@ -971,7 +972,7 @@ LinearAlgebra::SmallVector<DIM> Element::basisFunctionCurl(
         i < getNumberOfBasisFunctions(unknown),
         "Asked for basis function %, but there are only % basis functions", i,
         getNumberOfBasisFunctions(unknown));
-    const BasisFunctionSet* subSet;
+    const FE::BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) =
         basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);
@@ -989,7 +990,7 @@ void Element::basisFunction(
         i < getNumberOfBasisFunctions(),
         "Asked for basis function %, but there are only % basis functions", i,
         getNumberOfBasisFunctions());
-    const BasisFunctionSet* subSet;
+    const FE::BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
     quadratureRule->eval(subSet, subIndex, quadraturePointIndex, map, ret);
@@ -1005,7 +1006,7 @@ void Element::basisFunction(
         i < getNumberOfBasisFunctions(unknown),
         "Asked for basis function %, but there are only % basis functions", i,
         getNumberOfBasisFunctions(unknown));
-    const BasisFunctionSet* subSet;
+    const FE::BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) =
         basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);
@@ -1021,7 +1022,7 @@ LinearAlgebra::SmallVector<DIM> Element::basisFunctionDeriv(
         i < getNumberOfBasisFunctions(),
         "Asked for basis function %, but there are only % basis functions", i,
         getNumberOfBasisFunctions());
-    const BasisFunctionSet* subSet;
+    const FE::BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
     return quadratureRule->evalGrad(subSet, subIndex, quadraturePointIndex,
@@ -1038,7 +1039,7 @@ LinearAlgebra::SmallVector<DIM> Element::basisFunctionDeriv(
         i < getNumberOfBasisFunctions(unknown),
         "Asked for basis function %, but there are only % basis functions", i,
         getNumberOfBasisFunctions(unknown));
-    const BasisFunctionSet* subSet;
+    const FE::BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) =
         basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);
@@ -1055,7 +1056,7 @@ LinearAlgebra::SmallVector<DIM> Element::basisFunctionCurl(
         i < getNumberOfBasisFunctions(),
         "Asked for basis function %, but there are only % basis functions", i,
         getNumberOfBasisFunctions());
-    const BasisFunctionSet* subSet;
+    const FE::BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) = basisFunctions_.getBasisFunctionSetAndIndex(i);
     return quadratureRule->evalCurl<DIM>(subSet, subIndex, quadraturePointIndex,
@@ -1072,7 +1073,7 @@ LinearAlgebra::SmallVector<DIM> Element::basisFunctionCurl(
         i < getNumberOfBasisFunctions(unknown),
         "Asked for basis function %, but there are only % basis functions", i,
         getNumberOfBasisFunctions(unknown));
-    const BasisFunctionSet* subSet;
+    const FE::BasisFunctionSet* subSet;
     std::size_t subIndex;
     std::tie(subSet, subIndex) =
         basisFunctions_.getBasisFunctionSetAndIndex(i, unknown);

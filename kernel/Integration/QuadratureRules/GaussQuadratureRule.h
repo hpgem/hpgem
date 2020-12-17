@@ -51,7 +51,7 @@ template <int CODIM>
 class MappingReferenceToReference;
 }  // namespace Geometry
 
-namespace Base {
+namespace FE {
 class BasisFunctionSet;
 }
 
@@ -137,7 +137,7 @@ class GaussQuadratureRule {
 
     /// tell the quadrature rule that a pointer to a basis function set is no
     /// longer suitable for quick lookup
-    void unregisterBasisFunctionSet(const Base::BasisFunctionSet* set) {
+    void unregisterBasisFunctionSet(const FE::BasisFunctionSet* set) {
         basisFunctionValues_.erase(set);
         basisFunctionGrads_.erase(set);
         basisFunctionCurls_.erase(set);
@@ -149,27 +149,25 @@ class GaussQuadratureRule {
     }
 
     /// pre-evaluate a set of basisfunctions to speed up computation
-    double eval(const Base::BasisFunctionSet* set,
-                std::size_t basisFunctionIndex,
+    double eval(const FE::BasisFunctionSet* set, std::size_t basisFunctionIndex,
                 std::size_t quadraturePointIndex);
 
     /// pre-evaluate a set of basisfunctions to speed up computation. First maps
     /// the quadrature points to an element using the provided mapping
-    double eval(const Base::BasisFunctionSet* set,
-                std::size_t basisFunctionIndex,
+    double eval(const FE::BasisFunctionSet* set, std::size_t basisFunctionIndex,
                 std::size_t quadraturePointIndex,
                 const Geometry::MappingReferenceToReference<1>* map);
 
     /// pre-evaluate a set of basisfunctions to speed up computation
     template <std::size_t DIM>
-    void eval(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex,
+    void eval(const FE::BasisFunctionSet* set, std::size_t basisFunctionIndex,
               std::size_t quadraturePointIndex,
               LinearAlgebra::SmallVector<DIM>& result);
 
     /// pre-evaluate a set of basisfunctions to speed up computation. First maps
     /// the quadrature points to an element using the provided mapping
     template <std::size_t DIM>
-    void eval(const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex,
+    void eval(const FE::BasisFunctionSet* set, std::size_t basisFunctionIndex,
               std::size_t quadraturePointIndex,
               const Geometry::MappingReferenceToReference<1>* map,
               LinearAlgebra::SmallVector<DIM>& result);
@@ -178,7 +176,7 @@ class GaussQuadratureRule {
     /// computation the result of this function should be assigned back into a
     /// smallvector of appropriate size
     const LinearAlgebra::MiddleSizeVector& evalGrad(
-        const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex,
+        const FE::BasisFunctionSet* set, std::size_t basisFunctionIndex,
         std::size_t quadraturePointIndex);
 
     /// pre-evaluate the derivative of a set of basisfunctions to speed up
@@ -186,13 +184,13 @@ class GaussQuadratureRule {
     /// provided mapping the result of this function should be assigned back
     /// into a smallvector of appropriate size
     const LinearAlgebra::MiddleSizeVector& evalGrad(
-        const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex,
+        const FE::BasisFunctionSet* set, std::size_t basisFunctionIndex,
         std::size_t quadraturePointIndex,
         const Geometry::MappingReferenceToReference<1>* map);
 
     /// pre-evaluate the curl of a set of basisfunctions to speed up computation
     template <std::size_t DIM>
-    LinearAlgebra::SmallVector<DIM> evalCurl(const Base::BasisFunctionSet* set,
+    LinearAlgebra::SmallVector<DIM> evalCurl(const FE::BasisFunctionSet* set,
                                              std::size_t basisFunctionIndex,
                                              std::size_t quadraturePointIndex) {
         logger(ERROR, "Curl only valid for 2D and 3D not in %", dimension());
@@ -205,7 +203,7 @@ class GaussQuadratureRule {
     /// provided mapping
     template <std::size_t DIM>
     LinearAlgebra::SmallVector<DIM> evalCurl(
-        const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex,
+        const FE::BasisFunctionSet* set, std::size_t basisFunctionIndex,
         std::size_t quadraturePointIndex,
         const Geometry::MappingReferenceToReference<1>* map) {
         logger(ERROR, "Curl only valid for 2D and 3D not in %", dimension());
@@ -215,14 +213,14 @@ class GaussQuadratureRule {
 
     /// pre-evaluate the divergence of a set of basisfunctions to speed up
     /// computation
-    double evalDiv(const Base::BasisFunctionSet* set,
+    double evalDiv(const FE::BasisFunctionSet* set,
                    std::size_t basisFunctionIndex,
                    std::size_t quadraturePointIndex);
 
     /// pre-evaluate the divergence of a set of basisfunctions to speed up
     /// computation. First maps the quadrature points to an element using the
     /// provided mapping
-    double evalDiv(const Base::BasisFunctionSet* set,
+    double evalDiv(const FE::BasisFunctionSet* set,
                    std::size_t basisFunctionIndex,
                    std::size_t quadraturePointIndex,
                    const Geometry::MappingReferenceToReference<1>* map);
@@ -232,56 +230,56 @@ class GaussQuadratureRule {
     // you lose the benefit of consecutive memory access anyway and there are
     // relatively few entries created, but a lot of lookups so the allocation
     // overhead is relatively minor
-    std::map<const Base::BasisFunctionSet*, std::vector<std::vector<double>>>
+    std::map<const FE::BasisFunctionSet*, std::vector<std::vector<double>>>
         basisFunctionValues_;
-    std::map<const Base::BasisFunctionSet*,
+    std::map<const FE::BasisFunctionSet*,
              std::vector<std::vector<LinearAlgebra::MiddleSizeVector>>>
         basisFunctionVectorValues_;
-    std::map<const Base::BasisFunctionSet*,
+    std::map<const FE::BasisFunctionSet*,
              std::vector<std::vector<LinearAlgebra::MiddleSizeVector>>>
         basisFunctionGrads_;
-    std::map<const Base::BasisFunctionSet*,
+    std::map<const FE::BasisFunctionSet*,
              std::vector<std::vector<LinearAlgebra::SmallVector<3>>>>
         basisFunctionCurls_;
-    std::map<const Base::BasisFunctionSet*,
+    std::map<const FE::BasisFunctionSet*,
              std::vector<std::vector<LinearAlgebra::SmallVector<2>>>>
         basisFunctionCurls2D_;
-    std::map<const Base::BasisFunctionSet*, std::vector<std::vector<double>>>
+    std::map<const FE::BasisFunctionSet*, std::vector<std::vector<double>>>
         basisFunctionDivs_;
-    std::map<const Base::BasisFunctionSet*,
+    std::map<const FE::BasisFunctionSet*,
              std::map<faceMapContainer, std::vector<std::vector<double>>>>
         faceBasisFunctionValues_;
     std::map<
-        const Base::BasisFunctionSet*,
+        const FE::BasisFunctionSet*,
         std::map<faceMapContainer,
                  std::vector<std::vector<LinearAlgebra::MiddleSizeVector>>>>
         faceBasisFunctionVectorValues_;
     std::map<
-        const Base::BasisFunctionSet*,
+        const FE::BasisFunctionSet*,
         std::map<faceMapContainer,
                  std::vector<std::vector<LinearAlgebra::MiddleSizeVector>>>>
         faceBasisFunctionGrads_;
-    std::map<const Base::BasisFunctionSet*,
+    std::map<const FE::BasisFunctionSet*,
              std::map<faceMapContainer,
                       std::vector<std::vector<LinearAlgebra::SmallVector<3>>>>>
         faceBasisFunctionCurls_;
-    std::map<const Base::BasisFunctionSet*,
+    std::map<const FE::BasisFunctionSet*,
              std::map<faceMapContainer,
                       std::vector<std::vector<LinearAlgebra::SmallVector<2>>>>>
         faceBasisFunctionCurls2D_;
-    std::map<const Base::BasisFunctionSet*,
+    std::map<const FE::BasisFunctionSet*,
              std::map<faceMapContainer, std::vector<std::vector<double>>>>
         faceBasisFunctionDivs_;
 };
 }  // namespace QuadratureRules
 }  // namespace hpgem
-#include "Base/BasisFunctionSet.h"
+#include "FE/BasisFunctionSet.h"
 
 namespace hpgem {
 
 template <std::size_t DIM>
 inline void QuadratureRules::GaussQuadratureRule::eval(
-    const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex,
+    const FE::BasisFunctionSet* set, std::size_t basisFunctionIndex,
     std::size_t quadraturePointIndex, LinearAlgebra::SmallVector<DIM>& result) {
     logger.assert_debug(set != nullptr, "Invalid basis function set passed");
     logger.assert_debug(dimension() == DIM,
@@ -325,7 +323,7 @@ inline void QuadratureRules::GaussQuadratureRule::eval(
 
 template <std::size_t DIM>
 inline void QuadratureRules::GaussQuadratureRule::eval(
-    const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex,
+    const FE::BasisFunctionSet* set, std::size_t basisFunctionIndex,
     std::size_t quadraturePointIndex,
     const Geometry::MappingReferenceToReference<1>* map,
     LinearAlgebra::SmallVector<DIM>& result) {
@@ -381,7 +379,7 @@ inline void QuadratureRules::GaussQuadratureRule::eval(
 template <>
 inline LinearAlgebra::SmallVector<3>
     QuadratureRules::GaussQuadratureRule::evalCurl(
-        const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex,
+        const FE::BasisFunctionSet* set, std::size_t basisFunctionIndex,
         std::size_t quadraturePointIndex) {
     logger.assert_debug(set != nullptr, "Invalid basis function set passed");
     logger.assert_debug(quadraturePointIndex < getNumberOfPoints(),
@@ -420,7 +418,7 @@ inline LinearAlgebra::SmallVector<3>
 template <>
 inline LinearAlgebra::SmallVector<2>
     QuadratureRules::GaussQuadratureRule::evalCurl(
-        const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex,
+        const FE::BasisFunctionSet* set, std::size_t basisFunctionIndex,
         std::size_t quadraturePointIndex) {
     logger.assert_debug(set != nullptr, "Invalid basis function set passed");
     logger.assert_debug(quadraturePointIndex < getNumberOfPoints(),
@@ -459,7 +457,7 @@ inline LinearAlgebra::SmallVector<2>
 template <>
 inline LinearAlgebra::SmallVector<3>
     QuadratureRules::GaussQuadratureRule::evalCurl(
-        const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex,
+        const FE::BasisFunctionSet* set, std::size_t basisFunctionIndex,
         std::size_t quadraturePointIndex,
         const Geometry::MappingReferenceToReference<1>* map) {
     logger.assert_debug(set != nullptr, "Invalid basis function set passed");
@@ -505,7 +503,7 @@ inline LinearAlgebra::SmallVector<3>
 template <>
 inline LinearAlgebra::SmallVector<2>
     QuadratureRules::GaussQuadratureRule::evalCurl(
-        const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex,
+        const FE::BasisFunctionSet* set, std::size_t basisFunctionIndex,
         std::size_t quadraturePointIndex,
         const Geometry::MappingReferenceToReference<1>* map) {
     logger.assert_debug(set != nullptr, "Invalid basis function set passed");
