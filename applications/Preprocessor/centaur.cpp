@@ -358,6 +358,8 @@ Range<MeshSource::Node> CentaurReader::getNodeCoordinates() {
 Range<MeshSource::Element> CentaurReader::getElements() {
     centaurFile.seekg(elementStart);
     std::size_t currentGroupRemainder = 0;
+    std::size_t currentGroupElements = 0;
+    std::size_t currentZoneIndex = 0;
     std::size_t entitiesOnLine = 0;
     std::size_t remainderThisLine = 0;
     std::size_t groupsProcessed = 0;
@@ -366,6 +368,9 @@ Range<MeshSource::Element> CentaurReader::getElements() {
                          MeshSource::Element& next) mutable {
         while (currentGroupRemainder == 0) {
             groupsProcessed++;
+
+            currentGroupElements = 0;
+            currentZoneIndex = 0;
 
             // Read the line with the element count
             currentLine = readLine();
@@ -417,6 +422,15 @@ Range<MeshSource::Element> CentaurReader::getElements() {
             // Read the line with the actual elements
             currentLine = readLine();
         }
+        // Increment zone if needed
+        while (currentGroupElements >=
+               zones[currentZoneIndex].endOffsets[groupsProcessed - 1]) {
+            currentZoneIndex++;
+            logger.assert_debug(currentZoneIndex < zones.size(),
+                                "Zone index out of bounds");
+            next.zoneName = zones[currentZoneIndex].getZoneName();
+        }
+
         if (remainderThisLine == 0) {
             // End of a data line in multiline
             currentLine = readLine();

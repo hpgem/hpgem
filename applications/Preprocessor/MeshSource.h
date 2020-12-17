@@ -78,6 +78,12 @@ class MeshSource {
          */
         std::vector<std::size_t> coordinateIds;
 
+        /**
+         * Zone specifier of this element, for example for differentiating zones
+         * with different materials.
+         */
+        std::string zoneName;
+
         bool operator==(const Element& o) const {
             return coordinateIds == o.coordinateIds;
         }
