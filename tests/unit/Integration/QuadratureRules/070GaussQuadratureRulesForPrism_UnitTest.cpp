@@ -44,9 +44,9 @@
 #include "Logger.h"
 #include <typeinfo>
 
-#include "Utilities/BasisFunctions3DH1ConformingPrism.h"
+#include "FE/BasisFunctions3DH1ConformingPrism.h"
 #include "Geometry/ReferenceTriangularPrism.h"
-#include "Base/BasisFunctionSet.h"
+#include "FE/BasisFunctionSet.h"
 #include "Geometry/PointReference.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include <cmath>
@@ -65,8 +65,8 @@ void testRule(QuadratureRules::GaussQuadratureRule& test,
     INFO("forReferenceGeometry");
     CHECK((typeid(refGeo) == typeid(Geometry::ReferenceTriangularPrism)));
     std::cout.precision(14);
-    Base::BasisFunctionSet* functions =
-        Utilities::createDGBasisFunctionSet3DH1ConformingPrism(expectedOrder);
+    FE::BasisFunctionSet* functions =
+        FE::createDGBasisFunctionSet3DH1ConformingPrism(expectedOrder);
     for (std::size_t i = 0; i < functions->size(); ++i) {
         double integrated = 0;
         for (std::size_t j = 0; j < test.getNumberOfPoints(); ++j) {

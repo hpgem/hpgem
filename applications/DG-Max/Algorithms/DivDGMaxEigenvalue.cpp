@@ -149,25 +149,7 @@ void DivDGMaxEigenvalue<DIM>::solve(
     error = VecDuplicateVecs(globalVector, numberOfEigenVectors, &eigenVectors);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     int converged = 0;
-
-    Vec waveVec, waveVecConjugate;
-    error = VecDuplicate(globalVector, &waveVec);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    error = VecSetUp(waveVec);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
     DGMaxLogger(INFO, "Storage vectors assembled");
-
-    //    makeShiftMatrix(dk, stiffnessMatrix.getGlobalIndex(), waveVec);
-    //    error = VecAssemblyBegin(waveVec);
-    //    CHKERRABORT(PETSC_COMM_WORLD, error);
-    //    error = VecAssemblyEnd(waveVec);
-    //    CHKERRABORT(PETSC_COMM_WORLD, error);
-    //    error = VecDuplicate(waveVec, &waveVecConjugate);
-    //    CHKERRABORT(PETSC_COMM_WORLD, error);
-    //    error = VecCopy(waveVec, waveVecConjugate);
-    //    CHKERRABORT(PETSC_COMM_WORLD, error);
-    //    error = VecConjugate(waveVecConjugate);
-    //    CHKERRABORT(PETSC_COMM_WORLD, error);
 
     std::size_t outputId = 0;
     std::size_t expectedNumberOfSteps = driver.getNumberOfKPoints();
@@ -183,31 +165,6 @@ void DivDGMaxEigenvalue<DIM>::solve(
         numberOfEigenvalues = driver.getTargetNumberOfEigenvalues();
         DGMaxLogger(INFO, "Solving for k-vector %/%", solve + 1,
                     expectedNumberOfSteps);
-
-        //        if (kpath.dkDidChange(i)) {
-        //            dk = kpath.dk(i);
-        //            //recompute the shifts
-        //            makeShiftMatrix(k,
-        //            stiffnessMatrix.getGlobalIndex(), waveVec); error
-        //            = VecAssemblyBegin(waveVec);
-        //            CHKERRABORT(PETSC_COMM_WORLD, error);
-        //            error = VecAssemblyEnd(waveVec);
-        //            CHKERRABORT(PETSC_COMM_WORLD, error);
-        //            error = VecCopy(waveVec, waveVecConjugate);
-        //            CHKERRABORT(PETSC_COMM_WORLD, error);
-        //            error = VecConjugate(waveVecConjugate);
-        //            CHKERRABORT(PETSC_COMM_WORLD, error);
-        //        }
-        // SH 180216 turned this off
-        // error = EPSGetInvariantSubspace(eigenSolver_, eigenVectors); //Must
-        // be put after EPSSolve? CHKERRABORT(PETSC_COMM_WORLD, error);
-        // SH 180221
-        // error = MatDiagonalScale(product, waveVec, waveVecConjugate);
-        // error = MatDiagonalScale(massMatrix, waveVec, waveVecConjugate);
-        // error = MatDiagonalScale(stiffnessMatrix, waveVec, waveVecConjugate);
-        // error = MatDiagonalScale(massMatrix, waveVecConjugate, waveVec);
-        // error = MatDiagonalScale(stiffnessMatrix, waveVecConjugate, waveVec);
-        // CHKERRABORT(PETSC_COMM_WORLD, error);
 
         // To match the AssemblyBegin and AssemblyEnd of Mat, we need to call
         // them the same number of times on each node. The current, slightly
@@ -269,38 +226,6 @@ void DivDGMaxEigenvalue<DIM>::solve(
 
     error = EPSDestroy(&eigenSolver);
     CHKERRABORT(PETSC_COMM_WORLD, error);
-}
-
-template <std::size_t DIM>
-void DivDGMaxEigenvalue<DIM>::makeShiftMatrix(
-    LinearAlgebra::SmallVector<DIM>& direction,
-    const Utilities::GlobalIndexing& index, Vec& waveVecMatrix) {
-    PetscErrorCode error;
-
-    for (typename Base::MeshManipulator<DIM>::ElementIterator it =
-             mesh_.elementColBegin();
-         it != mesh_.elementColEnd(); ++it) {
-        Geometry::PointPhysical<DIM> centerPhys;
-        const Geometry::PointReference<DIM>& center =
-            (*it)->getReferenceGeometry()->getCenter();
-        centerPhys = (*it)->referenceToPhysical(center);
-        PetscScalar shift = exp(
-            std::complex<double>(0, direction * centerPhys.getCoordinates()));
-
-        std::size_t basisOffset = index.getGlobalIndex(*it, 0);
-        for (std::size_t j = 0; j < (*it)->getNumberOfBasisFunctions(0); ++j) {
-            error = VecSetValue(waveVecMatrix, basisOffset + j, shift,
-                                INSERT_VALUES);
-            CHKERRABORT(PETSC_COMM_WORLD, error);
-        }
-
-        basisOffset = index.getGlobalIndex(*it, 1);
-        for (std::size_t j = 0; j < (*it)->getNumberOfBasisFunctions(1); ++j) {
-            error = VecSetValue(waveVecMatrix, basisOffset + j, shift,
-                                INSERT_VALUES);
-            CHKERRABORT(PETSC_COMM_WORLD, error);
-        }
-    }
 }
 
 template <std::size_t DIM>
