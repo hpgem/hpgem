@@ -545,7 +545,7 @@ class Mesh {
         LinearAlgebra::SmallVector<dimension> coordinate);
 
     void addElement(std::vector<std::size_t> nodeCoordinateIDs,
-                    const std::string& zoneName);
+                    const std::string& zoneName = "main");
 
     void updateCoordinate(std::size_t coordinateIndex,
                           LinearAlgebra::SmallVector<dimension> coordinate) {
