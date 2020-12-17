@@ -42,6 +42,7 @@
 #include "customIterator.h"
 #include "unstructuredFile.h"
 #include "MeshSource.h"
+#include <array>
 #include <vector>
 #include <fstream>
 #include <string>
