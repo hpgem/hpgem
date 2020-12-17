@@ -4,6 +4,7 @@ include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 add_executable(Preprocessor.out
                main.cpp
                centaur.cpp
+               FortranUnformattedFile.cpp
                hpgem.cpp
                ../../kernel/Logger.cpp
                ../../kernel/Base/CommandLineOptions.cpp
@@ -12,6 +13,7 @@ add_executable(Preprocessor.out
 add_executable(ExtractSurface.out
                extractSurface.cpp
                centaur.cpp
+               FortranUnformattedFile.cpp
                hpgem.cpp
                ../../kernel/Logger.cpp
                ../../kernel/Base/CommandLineOptions.cpp
