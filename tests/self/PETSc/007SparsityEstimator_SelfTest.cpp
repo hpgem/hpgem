@@ -262,8 +262,8 @@ void testWithDGBasis(std::size_t unknowns, std::string meshFile) {
         Utilities::SparsityEstimator estimator(indexing);
 
         std::vector<int> owned, nonOwned;
-        estimator.computeSparsityEstimate(owned, nonOwned,
-                                          configuration.faceCoupling_);
+        std::tie(owned, nonOwned) =
+            estimator.computeSparsityEstimate(configuration.faceCoupling_);
         logger.assert_always(
             owned.size() == indexing.getNumberOfLocalBasisFunctions(),
             "Wrong size owned");
@@ -320,8 +320,8 @@ void testConformingWith1DMesh() {
         Utilities::SparsityEstimator estimator(indexing);
 
         std::vector<int> owned, nonOwned;
-        estimator.computeSparsityEstimate(owned, nonOwned,
-                                          configuration.faceCoupling_);
+        std::tie(owned, nonOwned) =
+            estimator.computeSparsityEstimate(configuration.faceCoupling_);
         logger.assert_always(
             owned.size() == indexing.getNumberOfLocalBasisFunctions(),
             "Wrong size owned");
@@ -426,7 +426,7 @@ void testFaceCoupling1D() {
         Utilities::SparsityEstimator estimator(indexing);
 
         std::vector<int> owned, nonOwned;
-        estimator.computeSparsityEstimate(owned, nonOwned, coupling);
+        std::tie(owned, nonOwned) = estimator.computeSparsityEstimate(coupling);
         logger.assert_always(
             owned.size() == indexing.getNumberOfLocalBasisFunctions(),
             "Wrong size owned");
@@ -502,7 +502,7 @@ void testMassOnly(std::vector<BasisFunctionType> basisFunctions) {
 
     std::vector<int> owned, nonOwned;
     // No face-face coupling
-    estimator.computeSparsityEstimate(owned, nonOwned, false);
+    std::tie(owned, nonOwned) = estimator.computeSparsityEstimate(false);
     logger.assert_always(
         owned.size() == indexing.getNumberOfLocalBasisFunctions(),
         "Wrong size owned");
@@ -569,7 +569,8 @@ void testRowColumnDifference(std::string meshFile) {
             Utilities::SparsityEstimator estimator(indexing0, indexing1);
 
             std::vector<int> owned, nonOwned;
-            estimator.computeSparsityEstimate(owned, nonOwned, false);
+            std::tie(owned, nonOwned) =
+                estimator.computeSparsityEstimate(false);
             logger.assert_always(
                 owned.size() == indexing0.getNumberOfLocalBasisFunctions(),
                 "Wrong size owned");
@@ -588,7 +589,8 @@ void testRowColumnDifference(std::string meshFile) {
             // support.
             Utilities::SparsityEstimator estimator(indexing1, indexing0);
             std::vector<int> owned, nonOwned;
-            estimator.computeSparsityEstimate(owned, nonOwned, false);
+            std::tie(owned, nonOwned) =
+                estimator.computeSparsityEstimate(false);
             logger.assert_always(
                 owned.size() == indexing1.getNumberOfLocalBasisFunctions(),
                 "Wrong size owned");
@@ -624,7 +626,7 @@ void testRowColumnDifference(std::string meshFile) {
             // or on the adjacent elements.
             Utilities::SparsityEstimator estimator(indexing0, indexing01);
             std::vector<int> owned, nonOwned;
-            estimator.computeSparsityEstimate(owned, nonOwned, true);
+            std::tie(owned, nonOwned) = estimator.computeSparsityEstimate(true);
             logger.assert_always(
                 owned.size() == indexing0.getNumberOfLocalBasisFunctions(),
                 "Wrong size owned");
@@ -644,7 +646,7 @@ void testRowColumnDifference(std::string meshFile) {
             // support
             Utilities::SparsityEstimator estimator(indexing01, indexing0);
             std::vector<int> owned, nonOwned;
-            estimator.computeSparsityEstimate(owned, nonOwned, true);
+            std::tie(owned, nonOwned) = estimator.computeSparsityEstimate(true);
             logger.assert_always(
                 owned.size() == indexing01.getNumberOfLocalBasisFunctions(),
                 "Wrong size owned");
@@ -688,7 +690,7 @@ void testEmptyIndex() {
     Utilities::GlobalIndexing emptyIndex;
     Utilities::SparsityEstimator estimator(emptyIndex);
     std::vector<int> owned, nonOwned;
-    estimator.computeSparsityEstimate(owned, nonOwned);
+    std::tie(owned, nonOwned) = estimator.computeSparsityEstimate();
     logger.assert_always(owned.empty(),
                          "Non empty owned estimate with empty index");
     logger.assert_always(nonOwned.empty(),
