@@ -90,10 +90,6 @@ class KPhaseShiftBlock {
                std::vector<PetscScalar>& storage, Mat mat) const;
 
    private:
-    /// Check for a k-vector if a phase factor dx_ * k is present
-    bool shiftNeeded(LinearAlgebra::SmallVector<DIM> k) const {
-        return std::abs(dx_ * k) > 1e-12;
-    }
 
     /// The blocks that need to be shifted
     MatrixBlocks blocks_;
