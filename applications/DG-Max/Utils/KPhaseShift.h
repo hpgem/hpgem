@@ -90,7 +90,6 @@ class KPhaseShiftBlock {
                std::vector<PetscScalar>& storage, Mat mat) const;
 
    private:
-
     /// The blocks that need to be shifted
     MatrixBlocks blocks_;
     /// The distance x for the phase factor e^{ikx}.
