@@ -44,7 +44,13 @@
 namespace Preprocessor {
 
 /**
- * Source of a mesh
+ * A generic source that can provide the mesh as input for the Preprocessor.
+ *
+ * This mesh source described the mesh that is the input for the Preprocessor.
+ * It needs a listing of the nodes in the mesh (with coordinates) and the
+ * elements to which they attach. This source is agnostic with respect to what
+ * the actual origin is of this information.
+ *
  */
 class MeshSource {
    public:
