@@ -37,23 +37,6 @@ if(hpGEM_USE_METIS)
         INTERFACE_INCLUDE_DIRECTORIES "${METIS_INCLUDE_DIR}")
 endif()
 
-if(hpGEM_USE_QHULL)
-    FIND_PACKAGE(QHULL REQUIRED)
-    add_definitions(-DHPGEM_USE_QHULL)
-    # Create target for easy linking
-    add_library(QHULL::QHULL INTERFACE IMPORTED)
-    if(CMAKE_BUILD_TYPE MATCHES "Debug")
-        set_target_properties(QHULL::QHULL PROPERTIES 
-            INTERFACE_LINK_LIBRARIES "${QHULL_DEBUG_LIBRARIES}" 
-            INTERFACE_INCLUDE_DIRECTORIES "${QHULL_INCLUDE_DIR}")
-    else()
-        set_target_properties(QHULL::QHULL PROPERTIES 
-            INTERFACE_LINK_LIBRARIES "${QHULL_LIBRARIES}" 
-            INTERFACE_INCLUDE_DIRECTORIES "${QHULL_INCLUDE_DIR}")
-    endif()
-endif()
-
-
 if (hpGEM_USE_PETSC OR hpGEM_USE_COMPLEX_PETSC)
 
     if(NOT hpGEM_USE_MPI)
