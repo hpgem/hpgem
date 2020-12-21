@@ -47,8 +47,7 @@
 
 #include <iostream>
 
-#include "Utilities/BasisFunctionsMonomials.h"
-#include "Base/BasisFunctionSet.h"
+#include "FE/BasisFunctionsMonomials.h"
 #include "Base/Element.h"
 #include "Base/Face.h"
 #include "Base/Node.h"
@@ -117,14 +116,14 @@ int main() {
     pointsPhysical.push_back(point4);
     pointsPhysical.push_back(point5);
 
-    Base::BasisFunctionSet* basisFunctionSet =
-        new Base::BasisFunctionSet(basisFunctionOrder);
-    Utilities::assembleMonomialBasisFunctions2D(*basisFunctionSet, 1);
-    std::vector<std::shared_ptr<const Base::BasisFunctionSet>>
+    FE::BasisFunctionSet* basisFunctionSet =
+        new FE::BasisFunctionSet(basisFunctionOrder);
+    FE::assembleMonomialBasisFunctions2D(*basisFunctionSet, 1);
+    std::vector<std::shared_ptr<const FE::BasisFunctionSet>>
         basisFunctionSetVector(1);
     basisFunctionSetVector[0] =
-        std::shared_ptr<const Base::BasisFunctionSet>(basisFunctionSet);
-    std::vector<std::shared_ptr<const Base::BasisFunctionSet>>*
+        std::shared_ptr<const FE::BasisFunctionSet>(basisFunctionSet);
+    std::vector<std::shared_ptr<const FE::BasisFunctionSet>>*
         pBasisFunctionSetVector = &basisFunctionSetVector;
 
     std::cout << "Build elements.\n";

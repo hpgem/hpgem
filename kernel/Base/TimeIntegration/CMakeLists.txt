@@ -1,6 +1,6 @@
 include_directories(. ${hpGEM_SOURCE_DIR}/kernel/)
 
-add_library(TimeIntegration STATIC
+add_library(TimeIntegration OBJECT
         #Fully explicit time integrators that depend on butcher tableaus
 		${hpGEM_SOURCE_DIR}/kernel/Base/TimeIntegration/RK4Methods.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Base/TimeIntegration/DormandPrince.cpp

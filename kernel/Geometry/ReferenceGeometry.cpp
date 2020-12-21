@@ -37,8 +37,6 @@
  */
 #include "ReferenceGeometry.h"
 #include "Integration/QuadratureRules/AllGaussQuadratureRules.h"
-#include "Geometry/PointReference.h"
-#include "Base/BaseBasisFunction.h"
 
 #include <stdexcept>
 

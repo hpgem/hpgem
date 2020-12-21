@@ -44,9 +44,8 @@
 #include "Logger.h"
 #include <typeinfo>
 
-#include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
+#include "FE/BasisFunctions2DH1ConformingTriangle.h"
 #include "Geometry/ReferenceTriangle.h"
-#include "Base/BasisFunctionSet.h"
 #include "Geometry/PointReference.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include <cmath>
@@ -65,8 +64,8 @@ void testRule(QuadratureRules::GaussQuadratureRule& test,
     INFO("forReferenceGeometry");
     CHECK((typeid(refGeo) == typeid(Geometry::ReferenceTriangle)));
     std::cout.precision(14);
-    Base::BasisFunctionSet* functions =
-        Utilities::createDGBasisFunctionSet2DH1Triangle(expectedOrder);
+    FE::BasisFunctionSet* functions =
+        FE::createDGBasisFunctionSet2DH1Triangle(expectedOrder);
     for (std::size_t i = 0; i < functions->size(); ++i) {
         double integrated = 0;
         for (std::size_t j = 0; j < test.getNumberOfPoints(); ++j) {

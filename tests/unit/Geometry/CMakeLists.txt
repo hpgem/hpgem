@@ -12,7 +12,7 @@ foreach(CPPFILE ${CPPFILES})
 	get_filename_component(EXECNAME ${CPPFILE} NAME_WE)
 	#Make the exe
 	add_executable(${EXECNAME} ${FILENAME})
-	target_link_libraries(${EXECNAME}  Geometry QuadratureRules tests-main)
+	target_link_libraries(${EXECNAME}  HPGEM::HPGEM tests-main)
 endforeach()
 
 add_subdirectory(Mappings)

@@ -46,7 +46,7 @@
 #include "PhysicalElement.h"
 #include "Mesh.h"
 #include "GlobalNamespaceBase.h"
-#include "BasisFunctionSet.h"
+#include "FE/BasisFunctionSet.h"
 #include "MeshManipulatorBase.h"
 namespace hpgem {
 namespace Base {
@@ -63,9 +63,12 @@ template <std::size_t DIM>
 class PointReference;
 }  // namespace Geometry
 
-namespace Base {
+namespace FE {
 class BasisFunctionSet;
 class OrientedBasisFunctionSet;
+}  // namespace FE
+
+namespace Base {
 class Face;
 template <std::size_t DIM>
 class MeshMoverBase;
@@ -286,117 +289,6 @@ class MeshManipulator : public MeshManipulatorBase {
      */
     void readMesh(const std::string& filename);
 
-#ifdef HPGEM_USE_QHULL
-    /**
-     * \brief create an unstructured triangular mesh
-     * \details An iterative mesh generator based on "A Simple Mesh Generator in
-     * Matlab" (Persson & Strang, 2004) The initial mesh uses the same structure
-     * as createTriangularMesh. This algorithm will still function if the
-     * bounding box of the domain is only known approximately If there is a very
-     * large difference between the smallest desired edge length and the largest
-     * desired edge length (ratio > ~4), it will usually help to overestimate
-     * the domain size The domain has to be described implicitly by a distance
-     * function, such that domainDescription(p) < 0 means p is inside the domain
-     * and the gradient of domaindescription is normal to the boundary Local
-     * element refinement is possible by providing desired relative edge lengths
-     * of the output mesh. The scaling of this function has no effect on the
-     * resulting mesh. If the edge scaling function returns NaN for some part of
-     * the domain, it is expanded exponentially from the known parts This
-     * routine cannot deal very well with concave(>pi) or very sharp
-     * corners(~<pi/4), by placing fixed points on these location, performance
-     * can be greatly improved Mesh quality is not guaraneed if growFactor is
-     * much larger or smaller than 1
-     * @param BottomLeft The bottom left corner of the bounding box of the
-     * domain
-     * @param TopRight The top right corner of the bounding box of the domain
-     * @param TotalNoNodes The desired amount of nodes in the mesh
-     * @param domainDescription A function that maps PointPhysicals to doubles,
-     * such that negative numbers signify points inside the mesh
-     * @param fixedPoints coordinates of point that MUST be in the mesh, no
-     * matter what
-     * @param relativeEdgeLength Allow r-refinement
-     * @param growFactor specify how much larger than its neighbours an element
-     * may be in areas where relativeEdgeLengths returns NaN
-     */
-    void createUnstructuredMesh(
-        Geometry::PointPhysical<DIM> BottomLeft,
-        Geometry::PointPhysical<DIM> TopRight, std::size_t TotalNoNodes,
-        std::function<double(Geometry::PointPhysical<DIM>)> domainDescription,
-        std::vector<Geometry::PointPhysical<DIM>> fixedPoints = {},
-        std::function<double(Geometry::PointPhysical<DIM>)> relativeEdgeLength =
-            [](Geometry::PointPhysical<DIM>) { return 1.; },
-        double growFactor = 1.1);
-
-    /**
-     * \brief improve the mesh quality of an existing mesh
-     * \details An iterative mesh generator based on "A Simple Mesh Generator in
-     * Matlab" (Persson & Strang, 2004) The domain has to be described
-     * implicitly by a distance function, such that domainDescription(p) < 0
-     * means p is inside the domain and the gradient of domaindescription is
-     * normal to the boundary Local element refinement is possible by providing
-     * desired relative edge lengths of the output mesh. The scaling of this
-     * function has no effect on the resulting mesh. If the edge scaling
-     * function returns NaN for some part of the domain, it is expanded
-     * exponentially from the known parts This routine cannot deal very well
-     * with concave(>pi) or very sharp corners(~<pi/4), by placing fixed points
-     * on these location, performance can be greatly improved If no implicit
-     * description of the domain is available, fixing all boundary nodes usually
-     * prevents the other nodes from escaping. In this case domainDescription
-     * can return -1. for all p. \todo the current implementation throws away
-     * all data, this behaviour should be replaced by an interpolation scheme
-     * \todo this algoritm boils down to alternatingly doing delaunay
-     * triangulations and moving nodes according to an optimally damped mass
-     * spring system. This is currently done using a relatively crude
-     * implementation. Once there is a proper coupling between mercury and
-     * hpGEM, some thought should be given to the improvement of this algorithm
-     * @param domainDescription A function that maps PointPhysicals to doubles,
-     * such that negative numbers signify points inside the mesh
-     * @param fixedPointIdxs pointIndexes of point that MUST remain in the same
-     * location, no matter what
-     * @param relativeEdgeLength Allow r-refinement
-     * @param growFactor specify how much larger than its neighbours an element
-     * may be in areas where relativeEdgeLengths returns NaN
-     * @param isOnPeriodicBoundary A function that returns true if the point
-     * passed is on a periodic boundary. This should only return true on the
-     * 'master' half of the periodic boundary. Note that support for periodic
-     * boundaries is not yet thoroughly tested and might be fragile. (Make sure
-     * to allow a small tolerance/snapping distance.)
-     * @param mapPeriodicNode A function that returns a point on the other
-     * periodic boundary. You may assume isOnPeriodicBoundary returns true for
-     * the argument of this function. To prevent infinite duplication you should
-     * specify only half the periodic boundary as being periodic. The other half
-     * will implicitly also become periodic because it receives periodic nodes
-     * from this function
-     * @param isOnOtherPeriodicBoundary A function that return true if the point
-     * is on a periodic boundary, but isOnPeriodicBoundary returns false
-     * @param safeNonPeriodicNode A function that maps the receiving end of the
-     * periodic boundary to the interior of the domain so that non-periodic
-     * nodes that stray near the periodic boundary can be safed
-     * @param dontConnect specify a group of nodes that should not be connected
-     * by elements, for example because they are part of a concave boundary.
-     * Note that this can have unexpected effect if the nodes you specify are
-     * not fixed
-     */
-    void updateMesh(
-        std::function<double(Geometry::PointPhysical<DIM>)> domainDescription,
-        std::vector<std::size_t> fixedPointIdxs = {},
-        std::function<double(Geometry::PointPhysical<DIM>)> relativeEdgeLength =
-            [](Geometry::PointPhysical<DIM>) { return 1.; },
-        double growFactor = 1.1,
-        std::function<bool(Geometry::PointPhysical<DIM>)> isOnPeriodicBoundary =
-            [](Geometry::PointPhysical<DIM>) { return false; },
-        std::function<
-            Geometry::PointPhysical<DIM>(Geometry::PointPhysical<DIM>)>
-            mapPeriodicNode = nullptr,
-        std::function<bool(Geometry::PointPhysical<DIM>)>
-            isOnOtherPeriodicBoundary =
-                [](Geometry::PointPhysical<DIM>) { return false; },
-        std::function<
-            Geometry::PointPhysical<DIM>(Geometry::PointPhysical<DIM>)>
-            safeNonPeriodicNode = nullptr,
-        std::vector<std::size_t> dontConnect = {});
-#endif
-
     //! Set MeshMoverBase object pointer, for moving meshes if needed
     void setMeshMover(const MeshMoverBase<DIM>* const meshMover);
 
@@ -464,7 +356,7 @@ class MeshManipulator : public MeshManipulatorBase {
     /// deprecated: The routines useDefaultDGBasisFunctionSet and
     /// useDefaultConformingBasisFunctionSet can do this more flexibly and also
     /// support mixed meshes
-    void setDefaultBasisFunctionSet(BasisFunctionSet* bFSet);
+    void setDefaultBasisFunctionSet(FE::BasisFunctionSet* bFSet);
 
     //! Adds vertex based degrees of freedom to the set of basisfunctions for
     //! this mesh and all of its vertices. This routine will assume that the
@@ -474,7 +366,7 @@ class MeshManipulator : public MeshManipulatorBase {
     /// deprecated: The routine useDefaultConformingBasis is more flexible and
     /// can also deal with mixed meshes
     void addVertexBasisFunctionSet(
-        const std::vector<const BasisFunctionSet*>& bFsets);
+        const std::vector<const FE::BasisFunctionSet*>& bFsets);
 
     //! Adds face based degrees of freedom to the set of basisfunctions for this
     //! mesh and all of its faces. This routine will assume that all needed
@@ -483,7 +375,7 @@ class MeshManipulator : public MeshManipulatorBase {
     /// deprecated: The routine useDefaultConformingBasis is more flexible and
     /// can also deal with mixed meshes
     void addFaceBasisFunctionSet(
-        const std::vector<const OrientedBasisFunctionSet*>& bFsets);
+        const std::vector<const FE::OrientedBasisFunctionSet*>& bFsets);
 
     //! Adds edge based degrees of freedom to the set of basisfunctions for this
     //! mesh and all of its edges. This routine will assume that all needed
@@ -492,7 +384,7 @@ class MeshManipulator : public MeshManipulatorBase {
     /// deprecated: The routine useDefaultConformingBasis is more flexible and
     /// can also deal with mixed meshes
     void addEdgeBasisFunctionSet(
-        const std::vector<const OrientedBasisFunctionSet*>& bFsets);
+        const std::vector<const FE::OrientedBasisFunctionSet*>& bFsets);
 
     const std::vector<Geometry::PointPhysical<DIM>>& getNodeCoordinates()
         const {

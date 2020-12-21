@@ -61,10 +61,6 @@ class DivDGMaxEigenvalue : public AbstractEigenvalueSolver<DIM> {
     void extractEigenvalues(const EPS& solver,
                             std::vector<PetscScalar>& result) const;
 
-    void makeShiftMatrix(LinearAlgebra::SmallVector<DIM>& direction,
-                         const Utilities::GlobalIndexing& index,
-                         Vec& waveVecMatrix);
-
     Base::MeshManipulator<DIM>& mesh_;
     typename DivDGMaxDiscretization<DIM>::Stab stab_;
     std::size_t order_;

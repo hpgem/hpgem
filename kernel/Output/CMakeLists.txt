@@ -1,9 +1,9 @@
 include_directories(${hpGEM_SOURCE_DIR}/kernel/ .)
 
-add_library(Output STATIC
-	${hpGEM_SOURCE_DIR}/kernel/Output/TecplotPhysicalGeometryIterator.cpp		
+add_library(Output OBJECT
+	${hpGEM_SOURCE_DIR}/kernel/Output/TecplotPhysicalGeometryIterator.cpp
     ${hpGEM_SOURCE_DIR}/kernel/Output/base64.cpp
-	)
+)
 
-target_link_libraries(Output hpGEM_Base)
+target_link_libraries(Output)
 set_target_properties(Output PROPERTIES POSITION_INDEPENDENT_CODE true)

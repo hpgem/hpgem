@@ -41,8 +41,8 @@
 
 #include "Base/HpgemAPILinearSteadyState.h"
 #include "Output/GNUPlotDiscontinuousSolutionWriter.h"
-#include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
-#include "Utilities/BasisFunctions2DH1ConformingSquare.h"
+#include "FE/BasisFunctions2DH1ConformingTriangle.h"
+#include "FE/BasisFunctions2DH1ConformingSquare.h"
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
 #include "petscksp.h"
