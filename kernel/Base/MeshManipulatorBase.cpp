@@ -36,19 +36,6 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef HPGEM_USE_QHULL
-#include "libqhullcpp/QhullFacet.h"
-#include "libqhullcpp/QhullQh.h"
-#include "libqhullcpp/RboxPoints.h"
-#include "libqhullcpp/QhullError.h"
-#include "libqhullcpp/QhullFacetList.h"
-#include "libqhullcpp/QhullFacetSet.h"
-#include "libqhullcpp/QhullLinkedList.h"
-#include "libqhullcpp/QhullVertex.h"
-#include "libqhullcpp/QhullVertexSet.h"
-#include "libqhullcpp/Qhull.h"
-#endif
-
 #include "MeshManipulator.h"
 
 #include "Geometry/PhysicalGeometry.h"

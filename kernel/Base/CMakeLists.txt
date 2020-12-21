@@ -55,7 +55,3 @@ if(hpGEM_USE_SLEPC)
 	target_link_libraries(hpGEM_Base SLEPc::SLEPc)
 endif()
 
-if(hpGEM_USE_QHULL)
-	target_link_libraries(hpGEM_Base QHULL::QHULL)
-endif()
-
