@@ -72,6 +72,15 @@ class ElementInfos : public UserElementData {
                                          EpsilonFunc<DIM> epsilon);
 };
 
+enum class StructureDefinition : std::size_t {
+    VACUUM = 0,
+    BRAGG_STACK = 1,           // [-inf,0.5] material 1, [0.5, inf] material 2
+    CYLINDER = 2,              // Cylinder at x,y (0.5, 0.5) radius 0.2
+    SQUARE_HOLE = 3,           // Square hole for x,y in [0.1, 0.9] x [0.1, 0.9]
+    INVERSE_WOODPILE_OLD = 4,  // Old IW definition with a=1, c=1/sqrt(2)
+    INVERSE_WOODPILE_NEW = 5,  // New IW definition with a=sqrt(2),c=1
+};
+
 // Jelmer: Select the case you are want to use. Note that for certain cases
 // diameters can differ. Vacuum Case:         SetEpsilon = 0; Bragg Stack:
 // SetEpsilon = 1; Cylinder Case:       SetEpsilon = 2; Cube in Cuboid case:

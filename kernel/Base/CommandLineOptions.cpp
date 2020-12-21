@@ -265,9 +265,6 @@ int Base::Detail::CLOParser::go() {
 #ifdef HPGEM_USE_SLEPC
         std::cout << "\tSLEPC\n";
 #endif
-#ifdef HPGEM_USE_QHULL
-        std::cout << "\tQHull\n";
-#endif
     }
     logger.assert_always(!kill, "Help printed, terminating program...");
     return currCount;

@@ -42,7 +42,7 @@
 namespace hpgem {
 
 double QuadratureRules::GaussQuadratureRule::eval(
-    const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex,
+    const FE::BasisFunctionSet* set, std::size_t basisFunctionIndex,
     std::size_t quadraturePointIndex) {
     logger.assert_debug(set != nullptr, "Invalid basis function set passed");
     logger.assert_debug(quadraturePointIndex < getNumberOfPoints(),
@@ -99,7 +99,7 @@ double QuadratureRules::GaussQuadratureRule::eval(
 }
 
 double QuadratureRules::GaussQuadratureRule::eval(
-    const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex,
+    const FE::BasisFunctionSet* set, std::size_t basisFunctionIndex,
     std::size_t quadraturePointIndex,
     const Geometry::MappingReferenceToReference<1>* map) {
     logger.assert_debug(set != nullptr, "Invalid basis function set passed");
@@ -175,7 +175,7 @@ double QuadratureRules::GaussQuadratureRule::eval(
 
 const LinearAlgebra::MiddleSizeVector&
     QuadratureRules::GaussQuadratureRule::evalGrad(
-        const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex,
+        const FE::BasisFunctionSet* set, std::size_t basisFunctionIndex,
         std::size_t quadraturePointIndex) {
     logger.assert_debug(set != nullptr, "Invalid basis function set passed");
     logger.assert_debug(quadraturePointIndex < getNumberOfPoints(),
@@ -245,7 +245,7 @@ const LinearAlgebra::MiddleSizeVector&
 
 const LinearAlgebra::MiddleSizeVector&
     QuadratureRules::GaussQuadratureRule::evalGrad(
-        const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex,
+        const FE::BasisFunctionSet* set, std::size_t basisFunctionIndex,
         std::size_t quadraturePointIndex,
         const Geometry::MappingReferenceToReference<1>* map) {
     logger.assert_debug(set != nullptr, "Invalid basis function set passed");
@@ -328,7 +328,7 @@ const LinearAlgebra::MiddleSizeVector&
 }
 
 double QuadratureRules::GaussQuadratureRule::evalDiv(
-    const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex,
+    const FE::BasisFunctionSet* set, std::size_t basisFunctionIndex,
     std::size_t quadraturePointIndex) {
     logger.assert_debug(set != nullptr, "Invalid basis function set passed");
     logger.assert_debug(quadraturePointIndex < getNumberOfPoints(),
@@ -382,7 +382,7 @@ double QuadratureRules::GaussQuadratureRule::evalDiv(
 }
 
 double QuadratureRules::GaussQuadratureRule::evalDiv(
-    const Base::BasisFunctionSet* set, std::size_t basisFunctionIndex,
+    const FE::BasisFunctionSet* set, std::size_t basisFunctionIndex,
     std::size_t quadraturePointIndex,
     const Geometry::MappingReferenceToReference<1>* map) {
     logger.assert_debug(set != nullptr, "Invalid basis function set passed");

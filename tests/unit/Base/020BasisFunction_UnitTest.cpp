@@ -51,12 +51,12 @@
 // numerical approximation for all basis-function over and over again (but of
 // course this is not as accurate as the actual derivative should be) -FB
 
-#include "Utilities/BasisFunctionsMonomials.h"
+#include "FE/BasisFunctionsMonomials.h"
 
-#include "Base/BasisFunctionSet.h"
+#include "FE/BasisFunctionSet.h"
 #include "Geometry/PointReference.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
-#include "Base/BaseBasisFunction.h"
+#include "FE/BaseBasisFunction.h"
 #include "Logger.h"
 
 #include <cmath>
@@ -68,11 +68,11 @@ TEST_CASE("020BasisFunction_UnitTest", "[020BasisFunction_UnitTest]") {
 
     // 1D
 
-    Base::BasisFunctionSet all1DbasisFunctions(
+    FE::BasisFunctionSet all1DbasisFunctions(
         5);  // WARNING: this breaks the ordering of the unit tests, but it is
              // basically the only way to collect all basisfunctions in an
              // indexable way
-    Utilities::assembleMonomialBasisFunctions1D(all1DbasisFunctions, 5);
+    FE::assembleMonomialBasisFunctions1D(all1DbasisFunctions, 5);
     Geometry::PointReference<1> point1D;
     LinearAlgebra::SmallVector<1> ret;
     for (auto test : all1DbasisFunctions) {
@@ -94,11 +94,11 @@ TEST_CASE("020BasisFunction_UnitTest", "[020BasisFunction_UnitTest]") {
 
     // 2D
 
-    Base::BasisFunctionSet all2DbasisFunctions(
+    FE::BasisFunctionSet all2DbasisFunctions(
         5);  // WARNING: this breaks the ordering of the unit tests, but it is
              // basically the only way to collect all basisfunctions in an
              // indexable way
-    Utilities::assembleMonomialBasisFunctions2D(all2DbasisFunctions, 5);
+    FE::assembleMonomialBasisFunctions2D(all2DbasisFunctions, 5);
     Geometry::PointReference<2> point2D;
     LinearAlgebra::SmallVector<2> ret2;
     for (auto test : all2DbasisFunctions) {
@@ -134,11 +134,11 @@ TEST_CASE("020BasisFunction_UnitTest", "[020BasisFunction_UnitTest]") {
 
     // 3D
 
-    Base::BasisFunctionSet all3DbasisFunctions(
+    FE::BasisFunctionSet all3DbasisFunctions(
         5);  // WARNING: this breaks the ordering of the unit tests, but it is
              // basically the only way to collect all basisfunctions in an
              // indexable way
-    Utilities::assembleMonomialBasisFunctions3D(all3DbasisFunctions, 5);
+    FE::assembleMonomialBasisFunctions3D(all3DbasisFunctions, 5);
     Geometry::PointReference<3> point3D;
     LinearAlgebra::SmallVector<3> ret3;
     for (auto test : all3DbasisFunctions) {

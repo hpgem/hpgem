@@ -42,7 +42,7 @@
 #include <memory>
 #include <vector>
 
-#include "BasisFunctionSet.h"
+#include "FE/BasisFunctionSet.h"
 
 namespace hpgem {
 
@@ -76,7 +76,7 @@ class ElementBasisFunctions {
     const static std::size_t LEGACY_BEHAVIOUR =
         std::numeric_limits<std::size_t>::max();
     using CollectionOfBasisFunctionSets =
-        std::vector<std::shared_ptr<const BasisFunctionSet>>;
+        std::vector<std::shared_ptr<const FE::BasisFunctionSet>>;
 
     /// Create an ElementBasisFunction with no basis functions and no unknowns.
     ElementBasisFunctions() : sets_(nullptr), setPositions_() {}
@@ -139,7 +139,7 @@ class ElementBasisFunctions {
     /// \param unknown The unknown for which to covert this index
     /// \return The basisFunctionSet to which this basis function belongs
     ///   and the index in that set.
-    std::pair<const BasisFunctionSet *, std::size_t>
+    std::pair<const FE::BasisFunctionSet *, std::size_t>
         getBasisFunctionSetAndIndex(
             size_t index, std::size_t unknown = LEGACY_BEHAVIOUR) const;
 

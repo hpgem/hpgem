@@ -48,7 +48,7 @@
 #include "Integration/ElementIntegral.h"
 #include "Integration/FaceIntegral.h"
 #include "Output/GNUPlotDiscontinuousSolutionWriter.h"
-#include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
+#include "FE/BasisFunctions2DH1ConformingTriangle.h"
 #include "Logger.h"
 using namespace hpgem;
 /// This class is used to test if the advection equation is written to a GNU

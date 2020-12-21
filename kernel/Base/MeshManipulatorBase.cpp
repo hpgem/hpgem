@@ -36,48 +36,26 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef HPGEM_USE_QHULL
-#include "libqhullcpp/QhullFacet.h"
-#include "libqhullcpp/QhullQh.h"
-#include "libqhullcpp/RboxPoints.h"
-#include "libqhullcpp/QhullError.h"
-#include "libqhullcpp/QhullFacetList.h"
-#include "libqhullcpp/QhullFacetSet.h"
-#include "libqhullcpp/QhullLinkedList.h"
-#include "libqhullcpp/QhullVertex.h"
-#include "libqhullcpp/QhullVertexSet.h"
-#include "libqhullcpp/Qhull.h"
-#endif
-
 #include "MeshManipulator.h"
 
 #include "Geometry/PhysicalGeometry.h"
 #include "Geometry/ReferenceTriangle.h"
 #include "Edge.h"
-#include "Base/BasisFunctionSet.h"
 #include "ConfigurationData.h"
 #include "Element.h"
 #include "PhysicalElement.h"
 #include "Face.h"
 #include "MeshMoverBase.h"
-#include "OrientedBasisFunctionSet.h"
 #include "Geometry/PointPhysical.h"
 #include "Geometry/ReferenceSquare.h"
 #include "Geometry/GlobalNamespaceGeometry.h"
 #include "Geometry/PointReference.h"
-#include "BaseBasisFunction.h"
 #include "Geometry/Mappings/MappingReferenceToPhysical.h"
 #include "ElementFactory.h"
 #include "FaceFactory.h"
 #include "L2Norm.h"
 #include "Geometry/Jacobian.h"
 #include "Geometry/ReferenceGeometry.h"
-#include "Utilities/BasisFunctions1DH1ConformingLine.h"
-#include "Utilities/BasisFunctions2DH1ConformingSquare.h"
-#include "Utilities/BasisFunctions2DH1ConformingTriangle.h"
-#include "Utilities/BasisFunctions3DH1ConformingCube.h"
-#include "Utilities/BasisFunctions3DH1ConformingPrism.h"
-#include "Utilities/BasisFunctions3DH1ConformingTetrahedron.h"
 #include "Logger.h"
 
 #include <algorithm>
