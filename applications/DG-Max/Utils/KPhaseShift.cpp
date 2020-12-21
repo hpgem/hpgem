@@ -46,27 +46,29 @@ template <std::size_t DIM>
 void KPhaseShiftBlock<DIM>::apply(LinearAlgebra::SmallVector<DIM> k,
                                   std::vector<PetscScalar>& storage,
                                   Mat mat) const {
-    if (shiftNeeded(k)) {
-        // Load values in storage
-        blocks_.loadBlocks(storage);
-        // Apply phase shift
-        std::size_t blockSize = blocks_.getBlockSize();
-        const std::complex<double> phase =
-            std::exp(std::complex<double>(0, k * dx_));
+    // Note we could optimize and only apply this if needed, that is if
+    // exp(ixk_old) = exp(ix k_new). However, that may give a minimal
+    // improvement in performance and would add the need to keep track of k_old.
 
-        for (std::size_t i = 0; i < blockSize; ++i) {
-            storage[i] *= phase;
-        }
-        if (blocks_.isPair()) {
-            const std::complex<double> antiPhase =
-                std::exp(std::complex<double>(0, -(k * dx_)));
-            for (std::size_t i = 0; i < blockSize; ++i) {
-                storage[i + blockSize] *= antiPhase;
-            }
-        }
-        // Insert the now phase shifted blocks into the matrix
-        blocks_.insertBlocks(storage, mat);
+    // Load values in storage
+    blocks_.loadBlocks(storage);
+    // Apply phase shift
+    std::size_t blockSize = blocks_.getBlockSize();
+    const std::complex<double> phase =
+        std::exp(std::complex<double>(0, k * dx_));
+
+    for (std::size_t i = 0; i < blockSize; ++i) {
+        storage[i] *= phase;
     }
+    if (blocks_.isPair()) {
+        const std::complex<double> antiPhase =
+            std::exp(std::complex<double>(0, -(k * dx_)));
+        for (std::size_t i = 0; i < blockSize; ++i) {
+            storage[i + blockSize] *= antiPhase;
+        }
+    }
+    // Insert the now phase shifted blocks into the matrix
+    blocks_.insertBlocks(storage, mat);
 }
 
 /// Phase Shifts
