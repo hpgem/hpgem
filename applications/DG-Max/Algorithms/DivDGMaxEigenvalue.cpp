@@ -44,6 +44,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Utilities/GlobalVector.h"
 
 #include "Utils/FaceKPhaseShiftBuilder.h"
+#include "ElementInfos.h"
 
 #include "DGMaxLogger.h"
 
@@ -308,6 +309,20 @@ void DivDGMaxEigenvalue<DIM>::Result::writeField(
                 .potential.imag();
         },
         "pimag");
+    // Also write epsilon, for later filtering
+    writer.write(
+        [&](const Base::Element* element, const Geometry::PointReference<DIM>&,
+            std::size_t) {
+            auto* userData = element->getUserData();
+            const ElementInfos* elementInfo =
+                dynamic_cast<ElementInfos*>(userData);
+            if (elementInfo != nullptr) {
+                return elementInfo->epsilon_;
+            } else {
+                return -1.0;  // Clearly invalid value
+            }
+        },
+        "epsilon");
 }
 
 template <std::size_t DIM>
