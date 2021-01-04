@@ -50,12 +50,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace hpgem;
 
 /// Internal storage for the algorithm
-
 template <std::size_t DIM>
-class DivDGMaxResult;
-
-template <std::size_t DIM>
-struct SolverWorkspace {
+class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
+   public:
     explicit SolverWorkspace(Base::MeshManipulator<DIM>* mesh)
         : indexing_(nullptr),
           stiffnessMatrix_(
@@ -209,9 +206,9 @@ struct SolverWorkspace {
 };
 
 template <std::size_t DIM>
-class DivDGMaxResult : public AbstractEigenvalueResult<DIM> {
+class DivDGMaxEigenvalue<DIM>::Result : public AbstractEigenvalueResult<DIM> {
    public:
-    DivDGMaxResult(const SolverWorkspace<DIM>& workspace)
+    Result(const typename DivDGMaxEigenvalue<DIM>::SolverWorkspace& workspace)
         : workspace_(workspace) {
         auto& eigenvalues = workspace.getEigenvalues();
         frequencies_.resize(eigenvalues.size());
@@ -227,7 +224,7 @@ class DivDGMaxResult : public AbstractEigenvalueResult<DIM> {
     }
 
    private:
-    const SolverWorkspace<DIM>& workspace_;
+    const typename DivDGMaxEigenvalue<DIM>::SolverWorkspace& workspace_;
     std::vector<double> frequencies_;
 };
 
@@ -253,7 +250,7 @@ void DivDGMaxEigenvalue<DIM>::solve(
                                             nullptr);
     discretization.computeFaceIntegrals(mesh_, nullptr, stab_);
 
-    SolverWorkspace<DIM> workspace(&mesh_);
+    SolverWorkspace workspace(&mesh_);
 
     std::size_t outputId = 0;
     std::size_t expectedNumberOfSteps = driver.getNumberOfKPoints();
@@ -266,7 +263,7 @@ void DivDGMaxEigenvalue<DIM>::solve(
                     expectedNumberOfSteps);
         workspace.solve(currentK, numberOfEigenvalues);
 
-        DivDGMaxResult<DIM> result(workspace);
+        Result result(workspace);
 
         driver.handleResult(result);
 
