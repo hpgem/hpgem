@@ -41,6 +41,8 @@
 
 #include "customIterator.h"
 #include "unstructuredFile.h"
+#include "MeshSource.h"
+#include <array>
 #include <vector>
 #include <fstream>
 #include <string>
@@ -50,34 +52,83 @@ using namespace hpgem;
 
 namespace Preprocessor {
 
-class CentaurReader {
+class CentaurReader : public MeshSource {
    public:
     CentaurReader(std::string filename);
 
-    Range<std::vector<std::vector<double>>> getNodeCoordinates();
-    Range<std::vector<std::size_t>> getElements();
+    Range<MeshSource::Node> getNodeCoordinates() final;
+    Range<MeshSource::Element> getElements() final;
 
-    std::size_t getDimension() {
+    std::size_t getDimension() const final {
         if (centaurFileType > 0) return 3;
 
         return 2;
     }
+
+    bool is2D() { return getDimension() == 2; }
+    bool is3D() { return getDimension() == 3; }
 
    private:
     UnstructuredInputStream<std::istringstream> readLine();
     // returns the number of skipped entities
     std::uint32_t skipGroup(std::size_t linesPerEntity = 1,
                             bool multiline = true);
-    void readNodeConnections();
+
+    void readHeader();
+    /// Read the zone information from the file.
+    /// \param elementCount The count for each element type in centaur order.
+    /// For 2D only the first two entries should be used.
+    void readZoneInfo(std::array<std::uint32_t, 4> elementCount);
+
+    void readPeriodicNodeConnections();
+
+    // Header information
+    /**
+     * Version of the format
+     */
+    float version;
+    /**
+     * Type of the hybrid file. Negative values are 2D grids, positive values
+     * are 3D.
+     */
+    std::int32_t centaurFileType;
 
     UnstructuredInputStream<std::ifstream> centaurFile;
+    /// Location in the file where the node/coordinate information starts
     std::ifstream::pos_type nodeStart;
+    /// Location in the file where the element definition starts
     std::ifstream::pos_type elementStart;
-    std::map<std::uint32_t, std::vector<std::size_t>> boundaryConnections;
-    std::int32_t centaurFileType;
+
+    /// Number of Nodes
     std::uint32_t numberOfNodes;
+    /// Number of Elements (independent of type)
     std::uint32_t numberOfElements;
+
+    std::map<std::uint32_t, std::vector<std::size_t>> boundaryConnections;
+
     std::vector<std::size_t> toHpgemNumbering;
+
+    struct ZoneInformation {
+        /// The end-offset for element types and (3D only) boundary faces.
+        /// Each end offset gives the number of elements/boundary faces in this
+        /// zone and all previous zones. Thus when this index is reached the
+        /// next zone starts.
+        /// For 3D the ordering is:
+        /// Hexahedra, Prisms, Pyramids, Tetrahedra, boundary faces
+        /// For 2D the ordering is: Triangles, Quadrilaterals
+        std::array<std::uint32_t, 5> endOffsets;
+        /// Name of the zone, not null terminated, space filled
+        std::array<char, 80> rawZoneName;
+        /// Name of the zone family (optional)
+        /// not null terminated, space filled
+        std::array<char, 80> rawZoneFamiliyName;
+
+        std::string getZoneName() const;
+        std::string getZoneFamilyName() const;
+    };
+
+    /// Storage for the zones.
+    std::vector<ZoneInformation> zones;
 };
 }  // namespace Preprocessor
 

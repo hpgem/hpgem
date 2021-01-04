@@ -50,16 +50,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace hpgem;
 
 /// Internal storage for the algorithm
-
 template <std::size_t DIM>
-class DivDGMaxResult;
-
-template <std::size_t DIM>
-struct Workspace {
-
-    friend class DivDGMaxResult<DIM>;
-
-    explicit Workspace(Base::MeshManipulator<DIM>* mesh)
+class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
+   public:
+    explicit SolverWorkspace(Base::MeshManipulator<DIM>* mesh)
         : indexing_(nullptr),
           stiffnessMatrix_(
               indexing_,
@@ -76,7 +70,7 @@ struct Workspace {
         init(mesh);
     };
 
-    ~Workspace() {
+    ~SolverWorkspace() {
         PetscErrorCode err;
 
         VecDestroyVecs(numberOfEigenvectors_, &eigenvectors_);
@@ -145,6 +139,28 @@ struct Workspace {
         }
     }
 
+    const LinearAlgebra::SmallVector<DIM>& getKPoint() const { return kpoint_; }
+
+    const std::vector<PetscScalar>& getEigenvalues() const {
+        return eigenvalues_;
+    }
+
+    /**
+     * Write the (global) eigenvector to a (local) time integration vector, for
+     * example for plotting the solution.
+     * @param eigenvalue The index of the eigenvalue
+     * @param timeIntegrationVector The index of the time integration vector
+     */
+    void writeEigenvectorAsTimeIntegrationVector(
+        std::size_t eigenvalue, std::size_t timeIntegrationVector) {
+        logger.assert_debug(eigenvalue < numberOfConvergedEigenpairs,
+                            "Eigenvalue index too large");
+        PetscErrorCode err;
+        err = VecCopy(eigenvectors_[eigenvalue], tempVector_);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+        tempVector_.writeTimeIntegrationVector(timeIntegrationVector);
+    }
+
    private:
     void initKShifts() {
         DGMaxLogger(VERBOSE, "Initializing boundary shifting");
@@ -206,23 +222,23 @@ struct Workspace {
 };
 
 template <std::size_t DIM>
-class DivDGMaxResult : public AbstractEigenvalueResult<DIM> {
+class DivDGMaxEigenvalue<DIM>::Result : public AbstractEigenvalueResult<DIM> {
    public:
-    DivDGMaxResult(Workspace<DIM>& workspace,
-                   const Base::MeshManipulator<DIM>* mesh,
-                   const DivDGMaxDiscretization<DIM>& discretization)
+    Result(typename DivDGMaxEigenvalue<DIM>::SolverWorkspace& workspace,
+           const Base::MeshManipulator<DIM>* mesh,
+           const DivDGMaxDiscretization<DIM>& discretization)
         : workspace_(workspace), mesh_(mesh), discretization_(discretization) {
-        frequencies_.resize(workspace.numberOfConvergedEigenpairs);
+        auto& eigenvalues = workspace.getEigenvalues();
+        frequencies_.resize(eigenvalues.size());
         for (std::size_t i = 0; i < frequencies_.size(); ++i) {
-            frequencies_[i] =
-                1. / std::sqrt(PetscRealPart(workspace_.eigenvalues_[i]));
+            frequencies_[i] = 1. / std::sqrt(PetscRealPart(eigenvalues[i]));
         }
     };
 
     std::vector<double> getFrequencies() final { return frequencies_; }
 
     const LinearAlgebra::SmallVector<DIM>& getKPoint() const final {
-        return workspace_.kpoint_;
+        return workspace_.getKPoint();
     }
 
     void writeField(std::size_t eigenvalue,
@@ -231,24 +247,19 @@ class DivDGMaxResult : public AbstractEigenvalueResult<DIM> {
     const Base::MeshManipulator<DIM>* getMesh() const final { return mesh_; }
 
    private:
-    Workspace<DIM>& workspace_;
+    typename DivDGMaxEigenvalue<DIM>::SolverWorkspace& workspace_;
     const Base::MeshManipulator<DIM>* mesh_;
     const DivDGMaxDiscretization<DIM>& discretization_;
     std::vector<double> frequencies_;
 };
 
 template <std::size_t DIM>
-void DivDGMaxResult<DIM>::writeField(
+void DivDGMaxEigenvalue<DIM>::Result::writeField(
     std::size_t eigenvalue, Output::VTKSpecificTimeWriter<DIM>& writer) {
-    logger.assert_debug(eigenvalue < workspace_.numberOfConvergedEigenpairs,
-                        "Eigenvalue index too large");
-    PetscErrorCode err;
-    err = VecCopy(workspace_.eigenvectors_[eigenvalue], workspace_.tempVector_);
-    CHKERRABORT(PETSC_COMM_WORLD, err);
     const std::size_t VECTOR_ID = 0;
     // Write to a time integration vector so that we can access it on each
     // element.
-    workspace_.tempVector_.writeTimeIntegrationVector(VECTOR_ID);
+    workspace_.writeEigenvectorAsTimeIntegrationVector(eigenvalue, VECTOR_ID);
     // write all field components
     writer.write(
         [&](const Base::Element* element,
@@ -321,7 +332,7 @@ void DivDGMaxEigenvalue<DIM>::solve(
                                             nullptr);
     discretization.computeFaceIntegrals(mesh_, nullptr, stab_);
 
-    Workspace<DIM> workspace(&mesh_);
+    SolverWorkspace workspace(&mesh_);
 
     std::size_t outputId = 0;
     std::size_t expectedNumberOfSteps = driver.getNumberOfKPoints();
@@ -334,7 +345,7 @@ void DivDGMaxEigenvalue<DIM>::solve(
                     expectedNumberOfSteps);
         workspace.solve(currentK, numberOfEigenvalues);
 
-        DivDGMaxResult<DIM> result(workspace, &mesh_, discretization);
+        Result result(workspace, &mesh_, discretization);
 
         driver.handleResult(result);
 

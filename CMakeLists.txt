@@ -89,8 +89,6 @@ option(hpGEM_USE_METIS "Include metis this will enable parallel computation" OFF
 add_feature_info(hpGEM_USE_METIS hpGEM_USE_METIS "Include metis this will enable parallel computation")
 option(hpGEM_USE_MPI "Include mpi this will enable parallel computation" OFF)
 add_feature_info(hpGEM_USE_MPI hpGEM_USE_MPI "Include mpi this will enable parallel computation")
-option(hpGEM_USE_QHULL "Include QHull this will allow unstructured mesh generation and r-refinement" OFF)
-add_feature_info(hpGEM_USE_QHULL hpGEM_USE_QHULL "Include QHull this will allow unstructured mesh generation and r-refinement")
 option(hpGEM_USE_PETSC "Include PETSC with real numbers, which is required for assembling a global system" OFF)
 add_feature_info(hpGEM_USE_PETSC hpGEM_USE_PETSC "Include PETSC with real numbers, which is required for assembling a global system")
 option(hpGEM_USE_COMPLEX_PETSC "Include PETSc with complex numbers" OFF)

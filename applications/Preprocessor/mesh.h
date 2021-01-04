@@ -42,6 +42,7 @@
 #include "Base/ConstIterableWrapper.h"
 #include "LinearAlgebra/SmallVector.h"
 #include "elementShape.h"
+#include "MeshSource.h"
 
 // the data structures needed to represent a mesh
 // they are collected in one file because they are meaningless alone and
@@ -315,10 +316,12 @@ class Element : public MeshEntity<dim, dim> {
     std::vector<std::size_t> getLocalIncidenceListAsIndices(
         const MeshEntity<entityDimension, dim>& entity) const;
 
+    std::string getZoneName() { return this->mesh->zoneNames[zoneId]; }
+
    private:
     friend Mesh<dim>;
-    Element(Mesh<dim>* mesh, std::size_t elementID)
-        : MeshEntity<dim, dim>(mesh, elementID) {
+    Element(Mesh<dim>* mesh, std::size_t elementID, std::size_t zoneId)
+        : MeshEntity<dim, dim>(mesh, elementID), zoneId(zoneId) {
         this->addElement(elementID, 0);
     }
 
@@ -341,6 +344,8 @@ class Element : public MeshEntity<dim, dim> {
     std::array<std::vector<std::size_t>, dim> incidenceLists;
     /// The global indices of the coordinates for the corners of this element.
     std::vector<std::size_t> globalCoordinateIndices;
+
+    std::size_t zoneId;
 };
 
 namespace Detail {
@@ -539,7 +544,8 @@ class Mesh {
         std::size_t nodeIndex,
         LinearAlgebra::SmallVector<dimension> coordinate);
 
-    void addElement(std::vector<std::size_t> nodeCoordinateIDs);
+    void addElement(std::vector<std::size_t> nodeCoordinateIDs,
+                    const std::string& zoneName = "main");
 
     void updateCoordinate(std::size_t coordinateIndex,
                           LinearAlgebra::SmallVector<dimension> coordinate) {
@@ -674,6 +680,8 @@ class Mesh {
         return newIndex;
     }
 
+    std::size_t getZoneId(const std::string& zoneName);
+
     const ElementShape<dimension>* findGeometry(std::size_t numberOfNodes);
 
     std::vector<Element<dimension>> elementsList;
@@ -682,16 +690,19 @@ class Mesh {
     // algorithms that need elements can un-slice by asking for the first (and
     // only) element
     Detail::MeshEntities<dimension> otherEntities;
+    std::vector<std::string> zoneNames;
 };
 
 // for use with file readers that can 'guess' the correct numbering of the node
 // coordinates file readers that don't do this should overload this function
-template <std::size_t dimension, typename file_t>
-Mesh<dimension> readFile(file_t& file) {
+template <std::size_t dimension>
+Mesh<dimension> readFile(MeshSource& file) {
     Mesh<dimension> result;
+    logger.assert_always(dimension == file.getDimension(),
+                         "Mismatching dimensions");
     for (auto nodeCoordinates : file.getNodeCoordinates()) {
         result.addNode();
-        for (auto coordinate : nodeCoordinates) {
+        for (auto coordinate : nodeCoordinates.coordinates) {
             logger.assert_debug(
                 coordinate.size() == dimension,
                 "The coordinates read by this reader have the wrong dimension");
@@ -700,7 +711,7 @@ Mesh<dimension> readFile(file_t& file) {
         }
     }
     for (auto element : file.getElements()) {
-        result.addElement(element);
+        result.addElement(element.coordinateIds, element.zoneName);
     }
     logger.assert_debug(result.isValid(), "Unspecified problem with the mesh");
     return result;

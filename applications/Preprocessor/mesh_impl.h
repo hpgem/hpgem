@@ -380,9 +380,10 @@ std::size_t Mesh<dimension>::addNodeCoordinate(
 }
 
 template <std::size_t dimension>
-void Mesh<dimension>::addElement(std::vector<std::size_t> nodeCoordinateIDs) {
+void Mesh<dimension>::addElement(std::vector<std::size_t> nodeCoordinateIDs,
+                                 const std::string& zoneName) {
     std::size_t elementID = elementsList.size();
-    Element<dimension> newElement{this, elementID};
+    Element<dimension> newElement{this, elementID, 0};
     newElement.setGeometry(findGeometry(nodeCoordinateIDs.size()));
     for (auto coordinateID : nodeCoordinateIDs) {
         std::size_t nodeID = coordinates[coordinateID].nodeIndex;
@@ -466,5 +467,17 @@ const ElementShape<dimension>* Mesh<dimension>::findGeometry(
     logger(ERROR, "There are no % dimensional default shapes with % nodes",
            dimension, numberOfNodes);
     return nullptr;
+}
+
+template <std::size_t DIM>
+std::size_t Mesh<DIM>::getZoneId(const std::string& zoneName) {
+    for (std::size_t i = 0; i < zoneNames.size(); ++i) {
+        if (zoneNames[i] == zoneName) {
+            return i;
+        }
+    }
+    // Not found
+    zoneNames.push_back(zoneName);
+    return zoneNames.size() - 1;
 }
 }  // namespace Preprocessor
