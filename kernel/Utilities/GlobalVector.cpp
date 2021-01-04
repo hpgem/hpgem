@@ -283,7 +283,7 @@ void GlobalPetscVector::writeTimeIntegrationVector(
             {
                 // Copy the values from data to the localData and update the
                 // running number
-                localData[runningTotal] = std::real(data[elementBasis0 + i]);
+                localData[runningTotal] = data[elementBasis0 + i];
                 ++runningTotal;
             }
 
@@ -300,7 +300,7 @@ void GlobalPetscVector::writeTimeIntegrationVector(
                 {
                     // Copy the values from data to the localData and update the
                     // running number
-                    localData[runningTotal] = std::real(data[faceBasis0 + j]);
+                    localData[runningTotal] = data[faceBasis0 + j];
                     ++runningTotal;
                 }
             }
@@ -317,7 +317,7 @@ void GlobalPetscVector::writeTimeIntegrationVector(
                     // Copy the values from data to the localData and update the
                     // running number
 
-                    localData[runningTotal] = std::real(data[edgeBasis0 + j]);
+                    localData[runningTotal] = data[edgeBasis0 + j];
                     ++runningTotal;
                 }
             }
@@ -337,8 +337,7 @@ void GlobalPetscVector::writeTimeIntegrationVector(
                     {
                         // Copy the values from data to the localData and update
                         // the running number
-                        localData[runningTotal] =
-                            std::real(data[nodeBasis0 + j]);
+                        localData[runningTotal] = data[nodeBasis0 + j];
                         ++runningTotal;
                     }
                 }
@@ -406,7 +405,7 @@ void GlobalPetscVector::writeTimeIntegrationVector(
                 (*it)->getLocalNumberOfBasisFunctions(index);
             int elementBasis0 = indexing_.getGlobalIndex((*it), index);
             for (std::size_t i = 0; i < nElementBasis; ++i) {
-                localData[runningTotal] = std::real(data[elementBasis0 + i]);
+                localData[runningTotal] = data[elementBasis0 + i];
                 ++runningTotal;
             }
 
@@ -417,7 +416,7 @@ void GlobalPetscVector::writeTimeIntegrationVector(
                 int faceBasis0 =
                     indexing_.getGlobalIndex((*it)->getFace(i), index);
                 for (std::size_t j = 0; j < nFaceBasis; ++j) {
-                    localData[runningTotal] = std::real(data[faceBasis0 + j]);
+                    localData[runningTotal] = data[faceBasis0 + j];
                     ++runningTotal;
                 }
             }
@@ -427,7 +426,7 @@ void GlobalPetscVector::writeTimeIntegrationVector(
                 int edgeBasis0 =
                     indexing_.getGlobalIndex((*it)->getEdge(i), index);
                 for (std::size_t j = 0; j < nEdgeBasis; ++j) {
-                    localData[runningTotal] = std::real(data[edgeBasis0 + j]);
+                    localData[runningTotal] = data[edgeBasis0 + j];
                     ++runningTotal;
                 }
             }
@@ -439,8 +438,7 @@ void GlobalPetscVector::writeTimeIntegrationVector(
                     int nodeBasis0 =
                         indexing_.getGlobalIndex((*it)->getNode(i), index);
                     for (std::size_t j = 0; j < nNodeBasis; ++j) {
-                        localData[runningTotal] =
-                            std::real(data[nodeBasis0 + j]);
+                        localData[runningTotal] = data[nodeBasis0 + j];
                         ++runningTotal;
                     }
                 }
