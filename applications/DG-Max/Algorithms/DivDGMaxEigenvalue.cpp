@@ -55,11 +55,11 @@ template <std::size_t DIM>
 class DivDGMaxResult;
 
 template <std::size_t DIM>
-struct Workspace {
+struct SolverWorkspace {
 
     friend class DivDGMaxResult<DIM>;
 
-    explicit Workspace(Base::MeshManipulator<DIM>* mesh)
+    explicit SolverWorkspace(Base::MeshManipulator<DIM>* mesh)
         : indexing_(nullptr),
           stiffnessMatrix_(
               indexing_,
@@ -76,7 +76,7 @@ struct Workspace {
         init(mesh);
     };
 
-    ~Workspace() {
+    ~SolverWorkspace() {
         PetscErrorCode err;
 
         VecDestroyVecs(numberOfEigenvectors_, &eigenvectors_);
@@ -208,7 +208,8 @@ struct Workspace {
 template <std::size_t DIM>
 class DivDGMaxResult : public AbstractEigenvalueResult<DIM> {
    public:
-    DivDGMaxResult(const Workspace<DIM>& workspace) : workspace_(workspace) {
+    DivDGMaxResult(const SolverWorkspace<DIM>& workspace)
+        : workspace_(workspace) {
         frequencies_.resize(workspace.numberOfConvergedEigenpairs);
         for (std::size_t i = 0; i < frequencies_.size(); ++i) {
             frequencies_[i] =
@@ -223,7 +224,7 @@ class DivDGMaxResult : public AbstractEigenvalueResult<DIM> {
     }
 
    private:
-    const Workspace<DIM>& workspace_;
+    const SolverWorkspace<DIM>& workspace_;
     std::vector<double> frequencies_;
 };
 
@@ -249,7 +250,7 @@ void DivDGMaxEigenvalue<DIM>::solve(
                                             nullptr);
     discretization.computeFaceIntegrals(mesh_, nullptr, stab_);
 
-    Workspace<DIM> workspace(&mesh_);
+    SolverWorkspace<DIM> workspace(&mesh_);
 
     std::size_t outputId = 0;
     std::size_t expectedNumberOfSteps = driver.getNumberOfKPoints();
