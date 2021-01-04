@@ -89,15 +89,7 @@ void DGMaxEigenvalue<DIM>::initializeMatrices() {
 /////////////////////
 
 template <std::size_t DIM>
-struct SolverWorkspace;
-template <std::size_t DIM>
-struct ShiftWorkspace;
-template <std::size_t DIM>
-struct ProjectorWorkspace;
-
-/// Workspace for solving the eigenvalue problem.
-template <std::size_t DIM>
-class SolverWorkspace {
+class DGMaxEigenvalue<DIM>::SolverWorkspace {
    public:
     /**
      * Initialize the workspace
@@ -159,9 +151,10 @@ class SolverWorkspace {
     PetscInt numberOfEigenVectors_;
 
     // Phase offset shifts
-    std::unique_ptr<ShiftWorkspace<DIM>> shifts;
+    std::unique_ptr<typename DGMaxEigenvalue<DIM>::ShiftWorkspace> shifts;
     // Projector
-    std::unique_ptr<ProjectorWorkspace<DIM>> projector;
+    std::unique_ptr<typename DGMaxEigenvalue<DIM>::ProjectorWorkspace>
+        projector;
     double targetFrequency_;
 
     LinearAlgebra::SmallVector<DIM> currentK_;
@@ -179,14 +172,12 @@ class SolverWorkspace {
     void shellMultiply(Vec in, Vec out);
     static PetscErrorCode staticShellMultiply(Mat mat, Vec in, Vec out);
 
-    friend class ProjectorWorkspace<DIM>;
-    friend class ShiftWorkspace<DIM>;
+    friend class DGMaxEigenvalue<DIM>::ProjectorWorkspace;
+    friend class DGMaxEigenvalue<DIM>::ShiftWorkspace;
 };
 
-/// Extra workspace for handling the optional extra phase shift of each basis
-/// function as defined by config.shift
 template <std::size_t DIM>
-class ShiftWorkspace {
+class DGMaxEigenvalue<DIM>::ShiftWorkspace {
    public:
     ShiftWorkspace(Vec example, DGMaxEigenvalueBase::SolverConfig& config);
     // Probably need to remove some default constructors
@@ -209,9 +200,10 @@ class ShiftWorkspace {
 
 /// Extra workspace for the Projector that removes the zero eigenvalue subspace.
 template <std::size_t DIM>
-class ProjectorWorkspace {
+class DGMaxEigenvalue<DIM>::ProjectorWorkspace {
    public:
-    explicit ProjectorWorkspace(SolverWorkspace<DIM>& workspace);
+    explicit ProjectorWorkspace(
+        DGMaxEigenvalue<DIM>::SolverWorkspace& workspace);
     // TODO Remove constructors
     ~ProjectorWorkspace();
 
@@ -228,7 +220,7 @@ class ProjectorWorkspace {
    private:
     void initKPhaseShifts();
 
-    SolverWorkspace<DIM>& workspace_;
+    DGMaxEigenvalue<DIM>::SolverWorkspace& workspace_;
 
     Utilities::GlobalPetscVector tempProjectorVector_;
     /// Stiffness matrix used in the projection operator
@@ -277,7 +269,7 @@ void DGMaxEigenvalue<DIM>::solve(AbstractEigenvalueSolverDriver<DIM>& driver) {
 
     initializeMatrices();
 
-    SolverWorkspace<DIM> workspace(config_, &mesh_, numberOfEigenvalues);
+    SolverWorkspace workspace(config_, &mesh_, numberOfEigenvalues);
 
     // Setup the boundary block shifting //
     ///////////////////////////////////////
@@ -308,9 +300,9 @@ void DGMaxEigenvalue<DIM>::solve(AbstractEigenvalueSolverDriver<DIM>& driver) {
 /////////////////////
 
 template <std::size_t DIM>
-SolverWorkspace<DIM>::SolverWorkspace(DGMaxEigenvalueBase::SolverConfig config,
-                                      Base::MeshManipulatorBase* mesh,
-                                      std::size_t targetNumberOfEigenvalues)
+DGMaxEigenvalue<DIM>::SolverWorkspace::SolverWorkspace(
+    DGMaxEigenvalueBase::SolverConfig config, Base::MeshManipulatorBase* mesh,
+    std::size_t targetNumberOfEigenvalues)
     : config_(config),
       mesh_(mesh),
       fieldIndex_(nullptr),  // Initialized in initMatrices()
@@ -326,11 +318,12 @@ SolverWorkspace<DIM>::SolverWorkspace(DGMaxEigenvalueBase::SolverConfig config,
     DGMaxLogger(INFO, "Matrices assembled");
     initStiffnessShellMatrix();
     if (config_.usesShifts()) {
-        shifts =
-            std::make_unique<ShiftWorkspace<DIM>>(tempFieldVector_, config_);
+        shifts = std::make_unique<DGMaxEigenvalue<DIM>::ShiftWorkspace>(
+            tempFieldVector_, config_);
     }
     if (config_.useProjector_ != DGMaxEigenvalueBase::NONE) {
-        projector = std::make_unique<ProjectorWorkspace<DIM>>(*this);
+        projector =
+            std::make_unique<DGMaxEigenvalue<DIM>::ProjectorWorkspace>(*this);
     }
     initSolver();
     initEigenvectorStorage(targetNumberOfEigenvalues);
@@ -339,7 +332,7 @@ SolverWorkspace<DIM>::SolverWorkspace(DGMaxEigenvalueBase::SolverConfig config,
 }
 
 template <std::size_t DIM>
-SolverWorkspace<DIM>::~SolverWorkspace() {
+DGMaxEigenvalue<DIM>::SolverWorkspace::~SolverWorkspace() {
 
     // Force cleanup of the projector & shifts workspace (if available)
     projector = nullptr;
@@ -364,7 +357,7 @@ SolverWorkspace<DIM>::~SolverWorkspace() {
 }
 
 template <std::size_t DIM>
-void SolverWorkspace<DIM>::initMatrices() {
+void DGMaxEigenvalue<DIM>::SolverWorkspace::initMatrices() {
     DGMaxLogger(INFO, "DGMaxEigenvalue workspace init start");
     std::vector<std::size_t> fieldUnknowns({0});
     fieldIndex_.reset(mesh_,
@@ -388,7 +381,7 @@ void SolverWorkspace<DIM>::initMatrices() {
 }
 
 template <std::size_t DIM>
-void SolverWorkspace<DIM>::initStiffnessShellMatrix() {
+void DGMaxEigenvalue<DIM>::SolverWorkspace::initStiffnessShellMatrix() {
     PetscErrorCode error;
     PetscInt rows = fieldIndex_.getNumberOfLocalBasisFunctions();
     error = MatCreateShell(PETSC_COMM_WORLD, rows, rows, PETSC_DETERMINE,
@@ -400,11 +393,11 @@ void SolverWorkspace<DIM>::initStiffnessShellMatrix() {
 }
 
 template <std::size_t DIM>
-PetscErrorCode SolverWorkspace<DIM>::staticShellMultiply(Mat mat, Vec in,
-                                                         Vec out) {
+PetscErrorCode DGMaxEigenvalue<DIM>::SolverWorkspace::staticShellMultiply(
+    Mat mat, Vec in, Vec out) {
     PetscErrorCode error;
     // TODO Check if the context is correct
-    SolverWorkspace<DIM>* workspace;
+    DGMaxEigenvalue<DIM>::SolverWorkspace* workspace;
     error = MatShellGetContext(mat, &workspace);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     workspace->shellMultiply(in, out);
@@ -412,7 +405,7 @@ PetscErrorCode SolverWorkspace<DIM>::staticShellMultiply(Mat mat, Vec in,
 }
 
 template <std::size_t DIM>
-void SolverWorkspace<DIM>::shellMultiply(Vec in, Vec out) {
+void DGMaxEigenvalue<DIM>::SolverWorkspace::shellMultiply(Vec in, Vec out) {
     PetscErrorCode error;
     error = MatMult(getActualStiffnessMatrix(), in, out);
     CHKERRABORT(PETSC_COMM_WORLD, error);
@@ -463,7 +456,7 @@ PetscErrorCode compareEigen(PetscScalar ar, PetscScalar ai, PetscScalar br,
 }
 
 template <std::size_t DIM>
-void SolverWorkspace<DIM>::initSolver() {
+void DGMaxEigenvalue<DIM>::SolverWorkspace::initSolver() {
     PetscErrorCode err = EPSCreate(PETSC_COMM_WORLD, &solver_);
     CHKERRABORT(PETSC_COMM_WORLD, err);
 
@@ -489,7 +482,7 @@ void SolverWorkspace<DIM>::initSolver() {
 }
 
 template <std::size_t DIM>
-void SolverWorkspace<DIM>::initEigenvectorStorage(
+void DGMaxEigenvalue<DIM>::SolverWorkspace::initEigenvectorStorage(
     std::size_t targetNumberOfEigenvalues) {
     convergedEigenValues_ = 0;
     // Some extra space for if more eigenvalues converge to prevent reallocation
@@ -505,7 +498,7 @@ void SolverWorkspace<DIM>::initEigenvectorStorage(
 }
 
 template <std::size_t DIM>
-void SolverWorkspace<DIM>::initStiffnessMatrixShifts() {
+void DGMaxEigenvalue<DIM>::SolverWorkspace::initStiffnessMatrixShifts() {
     DGMax::FaceMatrixKPhaseShiftBuilder<DIM> builder;
     builder.setMatrixExtractor([&](const Base::Face* face) {
         const Base::FaceMatrix& faceMatrix =
@@ -564,7 +557,7 @@ void SolverWorkspace<DIM>::initStiffnessMatrixShifts() {
 }
 
 template <std::size_t DIM>
-void SolverWorkspace<DIM>::extractEigenVectors() {
+void DGMaxEigenvalue<DIM>::SolverWorkspace::extractEigenVectors() {
     PetscErrorCode error;
     error = EPSGetConverged(solver_, &convergedEigenValues_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
@@ -591,7 +584,7 @@ void SolverWorkspace<DIM>::extractEigenVectors() {
 }
 
 template <std::size_t DIM>
-void SolverWorkspace<DIM>::updateKPoint(
+void DGMaxEigenvalue<DIM>::SolverWorkspace::updateKPoint(
     const LinearAlgebra::SmallVector<DIM>& newK) {
     LinearAlgebra::SmallVector<DIM> dk = newK - currentK_;
     if (config_.usesShifts()) {
@@ -617,7 +610,8 @@ void SolverWorkspace<DIM>::updateKPoint(
 }
 
 template <std::size_t DIM>
-void SolverWorkspace<DIM>::solve(std::size_t targetNumberOfEigenvalues) {
+void DGMaxEigenvalue<DIM>::SolverWorkspace::solve(
+    std::size_t targetNumberOfEigenvalues) {
     PetscInt usableInitialVectors;
     PetscErrorCode error;
 
@@ -704,8 +698,8 @@ void SolverWorkspace<DIM>::solve(std::size_t targetNumberOfEigenvalues) {
 ////////////////////
 
 template <std::size_t DIM>
-ShiftWorkspace<DIM>::ShiftWorkspace(Vec example,
-                                    DGMaxEigenvalueBase::SolverConfig& config)
+DGMaxEigenvalue<DIM>::ShiftWorkspace::ShiftWorkspace(
+    Vec example, DGMaxEigenvalueBase::SolverConfig& config)
     : config_(config), waveVec_(nullptr), waveVecConjugate_(nullptr) {
 
     PetscErrorCode error;
@@ -722,7 +716,7 @@ ShiftWorkspace<DIM>::ShiftWorkspace(Vec example,
 }
 
 template <std::size_t DIM>
-ShiftWorkspace<DIM>::~ShiftWorkspace() {
+DGMaxEigenvalue<DIM>::ShiftWorkspace::~ShiftWorkspace() {
     PetscErrorCode error;
     error = VecDestroy(&waveVec_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
@@ -731,21 +725,21 @@ ShiftWorkspace<DIM>::~ShiftWorkspace() {
 }
 
 template <std::size_t DIM>
-void ShiftWorkspace<DIM>::applyToStiffnessMatrix(Mat mat) {
+void DGMaxEigenvalue<DIM>::ShiftWorkspace::applyToStiffnessMatrix(Mat mat) {
     PetscErrorCode error;
     error = MatDiagonalScale(mat, waveVec_, waveVecConjugate_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 }
 
 template <std::size_t DIM>
-void ShiftWorkspace<DIM>::applyToProjector(Mat mat) {
+void DGMaxEigenvalue<DIM>::ShiftWorkspace::applyToProjector(Mat mat) {
     PetscErrorCode error;
     error = MatDiagonalScale(mat, nullptr, waveVecConjugate_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 }
 
 template <std::size_t DIM>
-void ShiftWorkspace<DIM>::updateShiftVectors(
+void DGMaxEigenvalue<DIM>::ShiftWorkspace::updateShiftVectors(
     const LinearAlgebra::SmallVector<DIM>& dk,
     const Utilities::GlobalIndexing& fieldIndex) {
 
@@ -791,7 +785,8 @@ void ShiftWorkspace<DIM>::updateShiftVectors(
 ////////////////////////
 
 template <std::size_t DIM>
-ProjectorWorkspace<DIM>::ProjectorWorkspace(SolverWorkspace<DIM>& workspace)
+DGMaxEigenvalue<DIM>::ProjectorWorkspace::ProjectorWorkspace(
+    DGMaxEigenvalue<DIM>::SolverWorkspace& workspace)
     : workspace_(workspace),
       projectorIndex_(nullptr),
       projectorMatrix_(projectorIndex_, workspace.fieldIndex_,
@@ -827,7 +822,7 @@ ProjectorWorkspace<DIM>::ProjectorWorkspace(SolverWorkspace<DIM>& workspace)
 }
 
 template <std::size_t DIM>
-ProjectorWorkspace<DIM>::~ProjectorWorkspace() {
+DGMaxEigenvalue<DIM>::ProjectorWorkspace::~ProjectorWorkspace() {
     PetscErrorCode error;
     error = KSPDestroy(&projectionSolver_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
@@ -836,7 +831,7 @@ ProjectorWorkspace<DIM>::~ProjectorWorkspace() {
 }
 
 template <std::size_t DIM>
-void ProjectorWorkspace<DIM>::project(Vec vec) {
+void DGMaxEigenvalue<DIM>::ProjectorWorkspace::project(Vec vec) {
     logger.assert_always(
         workspace_.config_.useProjector_ != DGMaxEigenvalueBase::NONE,
         "Projecting without projector");
@@ -910,7 +905,7 @@ void ProjectorWorkspace<DIM>::project(Vec vec) {
 }
 
 template <std::size_t DIM>
-void ProjectorWorkspace<DIM>::updateKPoint(
+void DGMaxEigenvalue<DIM>::ProjectorWorkspace::updateKPoint(
     const LinearAlgebra::SmallVector<DIM>& k) {
     // Update the matrix
     phaseShifts_.apply(k, projectorMatrix_);
@@ -950,7 +945,7 @@ void ProjectorWorkspace<DIM>::updateKPoint(
 }
 
 template <std::size_t DIM>
-void ProjectorWorkspace<DIM>::initKPhaseShifts() {
+void DGMaxEigenvalue<DIM>::ProjectorWorkspace::initKPhaseShifts() {
     DGMax::CGDGMatrixKPhaseShiftBuilder<DIM> projectorBuilder;
 
     projectorBuilder.setMatrixExtractor([&](const Base::Element* element) {
