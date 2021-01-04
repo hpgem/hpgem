@@ -56,9 +56,6 @@ class DivDGMaxResult;
 
 template <std::size_t DIM>
 struct SolverWorkspace {
-
-    friend class DivDGMaxResult<DIM>;
-
     explicit SolverWorkspace(Base::MeshManipulator<DIM>* mesh)
         : indexing_(nullptr),
           stiffnessMatrix_(
@@ -145,6 +142,12 @@ struct SolverWorkspace {
         }
     }
 
+    const LinearAlgebra::SmallVector<DIM>& getKPoint() const { return kpoint_; }
+
+    const std::vector<PetscScalar>& getEigenvalues() const {
+        return eigenvalues_;
+    }
+
    private:
     void initKShifts() {
         DGMaxLogger(VERBOSE, "Initializing boundary shifting");
@@ -210,17 +213,17 @@ class DivDGMaxResult : public AbstractEigenvalueResult<DIM> {
    public:
     DivDGMaxResult(const SolverWorkspace<DIM>& workspace)
         : workspace_(workspace) {
-        frequencies_.resize(workspace.numberOfConvergedEigenpairs);
+        auto& eigenvalues = workspace.getEigenvalues();
+        frequencies_.resize(eigenvalues.size());
         for (std::size_t i = 0; i < frequencies_.size(); ++i) {
-            frequencies_[i] =
-                1. / std::sqrt(PetscRealPart(workspace_.eigenvalues_[i]));
+            frequencies_[i] = 1. / std::sqrt(PetscRealPart(eigenvalues[i]));
         }
     };
 
     std::vector<double> getFrequencies() final { return frequencies_; }
 
     const LinearAlgebra::SmallVector<DIM>& getKPoint() const final {
-        return workspace_.kpoint_;
+        return workspace_.getKPoint();
     }
 
    private:
