@@ -100,6 +100,8 @@ class UnstructuredInputStream {
 
     explicit operator bool() { return !!stream; }
 
+    bool eof() { return stream.eof(); }
+
     // fixme: complete as needed
    private:
     inStream stream;
