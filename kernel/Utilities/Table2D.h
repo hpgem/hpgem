@@ -110,16 +110,14 @@ class Table2D {
         logger.assert_debug(
             m < columns_, "Requested column % for a table with only % columns",
             m, columns_);
-        const type& entry = entries_[n + m * rows_];
-        return entry;
+        return entries_[n + m * rows_];
     }
 
     /// Linear index
     typename std::vector<type>::const_reference operator[](
         std::size_t i) const {
         logger.assert_debug(i < rows_ * columns_, "Linear index out of range.");
-        const type& entry = entries_[i];
-        return entry;
+        return entries_[i];
     }
 
     /// Fill the table with a constant value
