@@ -328,7 +328,7 @@ void VTKSpecificTimeWriter<DIM>::writeLocalFileHeader(
     /// Prepare data ///
     ////////////////////
 
-    // Basic properties
+    // first pass compute sizes
     for (Base::Element* element : mesh_->getElementsList()) {
         totalPoints_ += element->getNumberOfNodes();
         ++totalElements_;
@@ -336,13 +336,6 @@ void VTKSpecificTimeWriter<DIM>::writeLocalFileHeader(
 
     /// Write the local part of the mesh ///
     ////////////////////////////////////////
-
-    // first pass compute sizes
-    for (Base::Element* element : mesh_->getElementsList()) {
-        // For discontinuous data, we duplicate the nodes.
-        totalPoints_ += element->getNumberOfNodes();
-        ++totalElements_;
-    }
 
     // clang-format off
     localFile_ << "    <Piece NumberOfPoints=\"" << totalPoints_ << "\" NumberOfCells=\"" << totalElements_ << "\">" << std::endl;
@@ -392,11 +385,11 @@ void VTKSpecificTimeWriter<DIM>::writeLocalFileHeader(
     localFile_ << "        <DataArray type=\"UInt32\" Name=\"connectivity\" "
                   "format=\"binary\">"
                << std::endl;
-    localFile_ << "          ";
     std::vector<std::uint32_t> index(totalPoints_);
     for (std::size_t i = 0; i < totalPoints_; ++i) {
         index[i] = i;
     }
+    localFile_ << "          ";
     writeLocalFileBinaryData(index.data(),
                              totalPoints_ * sizeof(std::uint32_t));
     localFile_ << "        </DataArray>" << std::endl;
@@ -405,6 +398,7 @@ void VTKSpecificTimeWriter<DIM>::writeLocalFileHeader(
     localFile_ << "        <DataArray type=\"UInt32\" Name=\"offsets\" "
                   "format=\"binary\">"
                << std::endl;
+    localFile_ << "          ";
     writeLocalFileBinaryData(cumulativeNodesPerElement.data() + 1,
                              totalElements_ * sizeof(std::uint32_t));
     localFile_ << "        </DataArray>" << std::endl;
@@ -412,6 +406,7 @@ void VTKSpecificTimeWriter<DIM>::writeLocalFileHeader(
     localFile_
         << "        <DataArray type=\"UInt8\" Name=\"types\" format=\"binary\">"
         << std::endl;
+    localFile_ << "          ";
     writeLocalFileBinaryData(elementTypes.data(),
                              totalElements_ * sizeof(VTKElementName));
     localFile_ << "        </DataArray>" << std::endl;
