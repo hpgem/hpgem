@@ -351,10 +351,11 @@ void VTKSpecificTimeWriter<DIM>::writeLocalFileHeader(
     localFile_ << "          ";
     // clang-format on
 
-    // Write binary header, the number of bytes
+    // Write raw points
     std::uint32_t totalData;
     totalData = 3 * totalPoints_ * sizeof(double);
-    localFile_ << Detail::toBase64((void*)&totalData, sizeof(totalData));
+    localFile_ << Detail::toBase64((void*)&totalData,
+                                   sizeof(totalData));  // Header
     Geometry::PointPhysical<3> usefullNode;
     Geometry::PointPhysical<DIM> actualNode;
     std::vector<std::uint32_t> cumulativeNodesPerElement;
@@ -386,47 +387,51 @@ void VTKSpecificTimeWriter<DIM>::writeLocalFileHeader(
     localFile_ << "        </DataArray>" << std::endl;
     localFile_ << "      </Points>" << std::endl;
     localFile_ << "      <Cells>" << std::endl;
+
+    // Connectivity, which points form a cell
     localFile_ << "        <DataArray type=\"UInt32\" Name=\"connectivity\" "
                   "format=\"binary\">"
                << std::endl;
     localFile_ << "          ";
-    totalData = totalPoints_ * sizeof(totalPoints_);
-    localFile_ << Detail::toBase64((void*)&totalData, sizeof(totalPoints_));
     std::vector<std::uint32_t> index(totalPoints_);
     for (std::size_t i = 0; i < totalPoints_; ++i) {
         index[i] = i;
     }
-    if (totalPoints_ > 0)
-        localFile_ << Detail::toBase64((void*)index.data(), totalData)
-                   << std::endl;
+    writeLocalFileBinaryData(index.data(),
+                             totalPoints_ * sizeof(std::uint32_t));
     localFile_ << "        </DataArray>" << std::endl;
+
+    // Offsets in the connectivity DataArray where each element ends
     localFile_ << "        <DataArray type=\"UInt32\" Name=\"offsets\" "
                   "format=\"binary\">"
                << std::endl;
-    totalData = totalElements_ * sizeof(totalElements_);
-    localFile_ << "          "
-               << Detail::toBase64((void*)&totalData, sizeof(totalElements_));
-    if (totalData > 0)
-        localFile_ << Detail::toBase64(
-                          (void*)(cumulativeNodesPerElement.data() + 1),
-                          totalData)
-                   << std::endl;
+    writeLocalFileBinaryData(cumulativeNodesPerElement.data() + 1,
+                             totalElements_ * sizeof(std::uint32_t));
     localFile_ << "        </DataArray>" << std::endl;
+    // Types of the elements
     localFile_
         << "        <DataArray type=\"UInt8\" Name=\"types\" format=\"binary\">"
         << std::endl;
-    totalData = totalElements_ * sizeof(VTKElementName);
-    localFile_ << "          "
-               << Detail::toBase64((void*)&totalData, sizeof(totalElements_));
-    if (totalData > 0)
-        localFile_ << Detail::toBase64((void*)elementTypes.data(), totalData)
-                   << std::endl;
+    writeLocalFileBinaryData(elementTypes.data(),
+                             totalElements_ * sizeof(VTKElementName));
     localFile_ << "        </DataArray>" << std::endl;
     localFile_ << "      </Cells>" << std::endl;
 
     /// Prepare for following point data ///
     ////////////////////////////////////////
     localFile_ << "      <PointData>" << std::endl;
+}
+
+template <std::size_t DIM>
+void VTKSpecificTimeWriter<DIM>::writeLocalFileBinaryData(
+    void* data, std::uint32_t byteLength) {
+    // Note: according to https://vtk.org/Wiki/VTK_XML_Formats we need a header
+    // with the number of bytes. We use the default of using a uint32 as header
+    // type.
+    localFile_ << Detail::toBase64(&byteLength, sizeof(std::uint32_t));
+    localFile_ << Detail::toBase64(data, byteLength);
+    // Optional newline, but for a nice layout
+    localFile_ << std::endl;
 }
 
 }  // namespace Output
