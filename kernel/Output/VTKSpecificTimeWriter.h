@@ -118,14 +118,16 @@ class VTKSpecificTimeWriter final {
      */
     void writeLocalFileHeader(const std::string& baseName);
     /**
-     * Write binary data for a <DataArray> to the localFile stream.
+     * Write the data for a <DataArray> with binary data to the local file.
      *
-     * The data will be encoded in base64 and will be given the appropriate
-     * length header.
-     * @param data A pointer to the data.
-     * @param byteLength The length in bytes to write
+     * This only writes the data content (including the length header) but does
+     * not write the enclosing XML tags. The user should make sure that the type
+     * of the data matches that of the one described in the <DataArray> tag.
+     *
+     * @tparam T The type of the data.
      */
-    void writeLocalFileBinaryData(void* data, std::uint32_t byteLength);
+    template <class T>
+    void writeBinaryDataArrayData(std::vector<T> data);
 
     std::ofstream localFile_;
     std::ofstream masterFile_;

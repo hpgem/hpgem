@@ -392,26 +392,22 @@ void VTKSpecificTimeWriter<DIM>::writeLocalFileHeader(
     localFile_ << "      <Points>" << std::endl;
     localFile_ << "        <DataArray type=\"Float64\" NumberOfComponents=\"3\" format=\"binary\">" << std::endl;
     localFile_ << "          ";
-    writeLocalFileBinaryData(pointCoordinates.data(),
-                             3 * sizeof(double) * totalPoints_);
+    writeBinaryDataArrayData(pointCoordinates);
     localFile_ << "        </DataArray>" << std::endl;
     localFile_ << "      </Points>" << std::endl;
     localFile_ << "      <Cells>" << std::endl;
     localFile_ << "        <DataArray type=\"UInt32\" Name=\"connectivity\" format=\"binary\">" << std::endl;
     localFile_ << "          ";
-    writeLocalFileBinaryData(connectivity.data(),
-                             totalPoints_ * sizeof(std::uint32_t));
+    writeBinaryDataArrayData(connectivity);
     localFile_ << "        </DataArray>" << std::endl;
 
     localFile_ << "        <DataArray type=\"UInt32\" Name=\"offsets\" format=\"binary\">" << std::endl;
     localFile_ << "          ";
-    writeLocalFileBinaryData(offsets.data(),
-                             totalElements_ * sizeof(std::uint32_t));
+    writeBinaryDataArrayData(offsets);
     localFile_ << "        </DataArray>" << std::endl;
     localFile_ << "        <DataArray type=\"UInt8\" Name=\"types\" format=\"binary\">" << std::endl;
     localFile_ << "          ";
-    writeLocalFileBinaryData(types.data(),
-                             totalElements_ * sizeof(VTKElementName));
+    writeBinaryDataArrayData(types);
     localFile_ << "        </DataArray>" << std::endl;
     localFile_ << "      </Cells>" << std::endl;
     // clang-format on
@@ -422,13 +418,14 @@ void VTKSpecificTimeWriter<DIM>::writeLocalFileHeader(
 }
 
 template <std::size_t DIM>
-void VTKSpecificTimeWriter<DIM>::writeLocalFileBinaryData(
-    void* data, std::uint32_t byteLength) {
+template <class T>
+void VTKSpecificTimeWriter<DIM>::writeBinaryDataArrayData(std::vector<T> data) {
     // Note: according to https://vtk.org/Wiki/VTK_XML_Formats we need a header
     // with the number of bytes. We use the default of using a uint32 as header
     // type.
-    localFile_ << Detail::toBase64(&byteLength, sizeof(std::uint32_t));
-    localFile_ << Detail::toBase64(data, byteLength);
+    std::uint32_t size = data.size() * sizeof(T);
+    localFile_ << Detail::toBase64(static_cast<void*>(&size), sizeof(size));
+    localFile_ << Detail::toBase64(static_cast<void*>(data.data()), size);
     // Optional newline, but for a nice layout
     localFile_ << std::endl;
 }
