@@ -167,7 +167,10 @@ GlobalPetscMatrix::GlobalPetscMatrix(const GlobalIndexing& rowIndexing,
     // Dummy call to always have an valid matrix in A_.
     MatCreateSeqAIJ(PETSC_COMM_SELF, 0, 0, 0, PETSC_NULL, &A_);
 
-    reinit(false);
+    // The user passed the face coupling through the constructor so don't reinit
+    // it.
+    const bool reinitFaceCoupling = false;
+    reinit(reinitFaceCoupling);
 }
 
 GlobalPetscMatrix::~GlobalPetscMatrix() {

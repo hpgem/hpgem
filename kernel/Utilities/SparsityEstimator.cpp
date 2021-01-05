@@ -28,7 +28,7 @@ using DoFInterval = std::pair<std::size_t, std::size_t>;
 using DoFIntervals = std::set<DoFInterval>;
 
 /// Enum to specify rows or columns of a matrix
-enum MatrixSide { ROWS, COLUMNS };
+enum RowsOrColumns { ROWS, COLUMNS };
 
 /// For an element or face matrix, the global DoF-indices to which the rows or
 /// columns correspond, grouped by the unknown.
@@ -40,10 +40,10 @@ enum MatrixSide { ROWS, COLUMNS };
 class LocalMatrixSideDoFs {
    public:
     LocalMatrixSideDoFs(const Utilities::GlobalIndexing& indexing,
-                        MatrixSide side)
+                        RowsOrColumns side)
         : indexing_(indexing),
           dimension_(indexing.getMesh()->dimension()),
-          side_(side),
+          rowsOrColumns_(side),
           isOnlyElementBased_(indexing.getTotalNumberOfUnknowns(), true),
           ownedIntervalsByUnknown_(indexing.getTotalNumberOfUnknowns()),
           nonOwnedIntervalsByUnknown_(indexing.getTotalNumberOfUnknowns())
@@ -124,12 +124,12 @@ class LocalMatrixSideDoFs {
             }
 
             // For rows we only care about the owned rows.
-            if (side_ == ROWS && !geom->isOwnedByCurrentProcessor()) {
+            if (rowsOrColumns_ == ROWS && !geom->isOwnedByCurrentProcessor()) {
                 continue;
             }
 
             std::size_t start;  // start of the interval
-            if (side_ == ROWS) {
+            if (rowsOrColumns_ == ROWS) {
                 // Safe because we already excluded the non owned ones.
                 start = indexing_.getProcessorLocalIndex(geom, unknown);
             } else {
@@ -149,7 +149,7 @@ class LocalMatrixSideDoFs {
     /// The mesh dimension
     std::size_t dimension_;
     /// Which side of the matrix is this associated to
-    MatrixSide side_;
+    RowsOrColumns rowsOrColumns_;
     /// Whether the DoFs of each unknown are only associated with Elements
     /// (true), or also with Faces, Edges and Nodes (false). Only filled for the
     /// unknowns included in indexing_;
