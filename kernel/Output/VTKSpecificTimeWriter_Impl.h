@@ -62,6 +62,9 @@
 #include <typeindex>
 
 namespace hpgem {
+
+namespace Output {
+
 /////////////////////////////////////
 // some VTK specific helper routines//
 /////////////////////////////////////
@@ -96,150 +99,27 @@ static std::unordered_map<std::type_index, VTKElementName> hpGEMToVTK = {
      VTKElementName::PYRAMID}};
 
 template <std::size_t DIM>
-Output::VTKSpecificTimeWriter<DIM>::VTKSpecificTimeWriter(
+VTKSpecificTimeWriter<DIM>::VTKSpecificTimeWriter(
     const std::string& baseName, const Base::MeshManipulator<DIM>* mesh,
     std::size_t timelevel)
-    : totalPoints_(0), mesh_(mesh), timelevel_(timelevel) {
+    : totalPoints_(0), totalElements_(0), mesh_(mesh), timelevel_(timelevel) {
     logger.assert_debug(mesh != nullptr, "Invalid mesh passed");
     std::size_t id = Base::MPIContainer::Instance().getProcessorID();
-    std::uint32_t totalData;
     if (id == 0) {
-        masterFile_.open(baseName + ".pvtu");
-        if (!masterFile_.good()) {
-            if (baseName.find('/') != std::string::npos) {
-                logger(FATAL,
-                       "failed to open main paraview output file %.pvtu, does "
-                       "the directory % exist?",
-                       baseName,
-                       baseName.substr(0, baseName.find_last_of('/') + 1));
-            } else {
-                logger(FATAL, "failed to open main paraview output file %.pvtu",
-                       baseName);
-            }
-        }
-        masterFile_ << "<?xml version=\"1.0\"?>" << std::endl;
-        masterFile_ << "<VTKFile type=\"PUnstructuredGrid\" version=\"0.1\" "
-                       "byte_order=\""
-                    << (Detail::isBigEndian() ? "BigEndian" : "LittleEndian")
-                    << "\">" << std::endl;
-        masterFile_ << "  <PUnstructuredGrid GhostLevel=\"0\">" << std::endl;
-        std::size_t numberOfProcs =
-            Base::MPIContainer::Instance().getNumberOfProcessors();
-        for (std::size_t i = 0; i < numberOfProcs; ++i) {
-            std::string fileName = baseName;
-            if (fileName.find('/') != std::string::npos) {
-                fileName = fileName.substr(fileName.find_last_of('/') + 1);
-            }
-            masterFile_ << "    <Piece Source=\"" << fileName << "." << i
-                        << ".vtu\"/>" << std::endl;
-        }
-        masterFile_ << "    <PPointData>" << std::endl;
+        writeMasterFileHeader(baseName);
     }
-    using namespace std::string_literals;
-    localFile_.open(baseName + "."s + std::to_string(id) + ".vtu");
-    if (!localFile_.good()) {
-        logger(ERROR,
-               "failed to open local paraview output file %.vtu, part of the "
-               "output will not be written",
-               baseName);
-    }
-    localFile_ << "<?xml version=\"1.0\"?>" << std::endl;
-    localFile_
-        << "<VTKFile type=\"UnstructuredGrid\" version=\"0.1\" byte_order=\""
-        << (Detail::isBigEndian() ? "BigEndian" : "LittleEndian") << "\">"
-        << std::endl;
-    localFile_ << "  <UnstructuredGrid>" << std::endl;
-    // the number of points is not an inherent quantity of the mesh, because we
-    // have to repeat nodes to allow discontinuous data
-    std::uint32_t totalElements = 0;
-    for (Base::Element* element : mesh_->getElementsList()) {
-        totalPoints_ += element->getNumberOfNodes();
-        ++totalElements;
-    }
-    localFile_ << "    <Piece NumberOfPoints=\"" << totalPoints_
-               << "\" NumberOfCells=\"" << totalElements << "\">" << std::endl;
-    localFile_ << "      <Points>" << std::endl;
-    localFile_ << "        <DataArray type=\"Float64\" "
-                  "NumberOfComponents=\"3\" format=\"binary\">"
-               << std::endl
-               << "          ";
-    totalData = 3 * totalPoints_ * sizeof(double);
-    localFile_ << Detail::toBase64((void*)&totalData, sizeof(totalData));
-    Geometry::PointPhysical<3> usefullNode;
-    Geometry::PointPhysical<DIM> actualNode;
-    std::vector<std::uint32_t> cumulativeNodesPerElement;
-    cumulativeNodesPerElement.reserve(totalElements + 1);
-    cumulativeNodesPerElement.push_back(0);
-    std::vector<VTKElementName> elementTypes;
-    elementTypes.reserve(totalElements);
-    for (Base::Element* element : mesh_->getElementsList()) {
-        cumulativeNodesPerElement.push_back(element->getNumberOfNodes() +
-                                            cumulativeNodesPerElement.back());
-        const Geometry::ReferenceGeometry& referenceGeometry =
-            *element->getReferenceGeometry();
-        elementTypes.push_back(
-            hpGEMToVTK.at(std::type_index(typeid(referenceGeometry))));
-        for (std::size_t i = 0; i < element->getNumberOfNodes(); ++i) {
-            actualNode =
-                element->getPhysicalGeometry()->getLocalNodeCoordinates(
-                    tohpGEMOrdering(i, element->getReferenceGeometry()));
-            for (std::size_t j = 0; j < DIM; ++j) {
-                usefullNode[j] = actualNode[j];
-            }
-            // this bit will only work correctly if the data size is a multiple
-            // of 3, but VTK requires 3D coordinates anyway
-            localFile_ << Detail::toBase64((void*)usefullNode.data(),
-                                           3 * sizeof(double));
-        }
-    }
-    localFile_ << std::endl << "        </DataArray>" << std::endl;
-    localFile_ << "      </Points>" << std::endl;
-    localFile_ << "      <Cells>" << std::endl;
-    localFile_ << "        <DataArray type=\"UInt32\" Name=\"connectivity\" "
-                  "format=\"binary\">"
-               << std::endl
-               << "          ";
-    totalData = totalPoints_ * sizeof(totalPoints_);
-    localFile_ << Detail::toBase64((void*)&totalData, sizeof(totalPoints_));
-    std::vector<std::uint32_t> index(totalPoints_);
-    for (std::size_t i = 0; i < totalPoints_; ++i) {
-        index[i] = i;
-    }
-    if (totalPoints_ > 0)
-        localFile_ << Detail::toBase64((void*)index.data(), totalData)
-                   << std::endl;
-    localFile_ << "        </DataArray>" << std::endl;
-    localFile_ << "        <DataArray type=\"UInt32\" Name=\"offsets\" "
-                  "format=\"binary\">"
-               << std::endl;
-    totalData = totalElements * sizeof(totalElements);
-    localFile_ << "          "
-               << Detail::toBase64((void*)&totalData, sizeof(totalElements));
-    if (totalData > 0)
-        localFile_ << Detail::toBase64(
-                          (void*)(cumulativeNodesPerElement.data() + 1),
-                          totalData)
-                   << std::endl;
-    localFile_ << "        </DataArray>" << std::endl;
-    localFile_
-        << "        <DataArray type=\"UInt8\" Name=\"types\" format=\"binary\">"
-        << std::endl;
-    totalData = totalElements * sizeof(VTKElementName);
-    localFile_ << "          "
-               << Detail::toBase64((void*)&totalData, sizeof(totalElements));
-    if (totalData > 0)
-        localFile_ << Detail::toBase64((void*)elementTypes.data(), totalData)
-                   << std::endl;
-    localFile_ << "        </DataArray>" << std::endl;
-    localFile_ << "      </Cells>" << std::endl;
-    localFile_ << "      <PointData>" << std::endl;
+    writeLocalFileHeader(baseName);
 }
 
 template <std::size_t DIM>
-Output::VTKSpecificTimeWriter<DIM>::~VTKSpecificTimeWriter() {
+VTKSpecificTimeWriter<DIM>::~VTKSpecificTimeWriter() {
     std::size_t id = Base::MPIContainer::Instance().getProcessorID();
     if (id == 0) {
+        /// Close point data
         masterFile_ << "    </PPointData>" << std::endl;
+
+        /// Describe data format for the points ///
+        ///////////////////////////////////////////
         masterFile_ << "    <PPoints>" << std::endl;
         ///\bug assumes all compilers map double to the 64 bit IEEE-754 floating
         /// point data type
@@ -247,11 +127,15 @@ Output::VTKSpecificTimeWriter<DIM>::~VTKSpecificTimeWriter() {
             << "      <PDataArray type=\"Float64\" NumberOfComponents=\"3\"/>"
             << std::endl;
         masterFile_ << "    </PPoints>" << std::endl;
+        /// Closure information ///
+        ///////////////////////////
         masterFile_ << "  </PUnstructuredGrid>" << std::endl;
         masterFile_ << "</VTKFile>" << std::endl;
         masterFile_.flush();
         masterFile_.close();
     }
+
+    // Close all opened tags in the local file
     localFile_ << "      </PointData>" << std::endl;
     localFile_ << "    </Piece>" << std::endl;
     localFile_ << "  </UnstructuredGrid>" << std::endl;
@@ -261,7 +145,7 @@ Output::VTKSpecificTimeWriter<DIM>::~VTKSpecificTimeWriter() {
 }
 
 template <std::size_t DIM>
-void Output::VTKSpecificTimeWriter<DIM>::write(
+void VTKSpecificTimeWriter<DIM>::write(
     std::function<double(Base::Element*, const Geometry::PointReference<DIM>&,
                          std::size_t)>
         dataCompute,
@@ -293,7 +177,7 @@ void Output::VTKSpecificTimeWriter<DIM>::write(
 }
 
 template <std::size_t DIM>
-void Output::VTKSpecificTimeWriter<DIM>::write(
+void VTKSpecificTimeWriter<DIM>::write(
     std::function<LinearAlgebra::SmallVector<DIM>(
         Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)>
         dataCompute,
@@ -329,7 +213,7 @@ void Output::VTKSpecificTimeWriter<DIM>::write(
 }
 
 template <std::size_t DIM>
-void Output::VTKSpecificTimeWriter<DIM>::write(
+void VTKSpecificTimeWriter<DIM>::write(
     std::function<LinearAlgebra::SmallMatrix<DIM, DIM>(
         Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)>
         dataCompute,
@@ -370,4 +254,180 @@ void Output::VTKSpecificTimeWriter<DIM>::write(
                << Detail::toBase64((void*)data.data(), totalData) << std::endl;
     localFile_ << "      </DataArray>" << std::endl;
 }
+
+template <std::size_t DIM>
+void VTKSpecificTimeWriter<DIM>::writeMasterFileHeader(
+    const std::string& baseName) {
+    masterFile_.open(baseName + ".pvtu");
+    if (!masterFile_.good()) {
+        if (baseName.find('/') != std::string::npos) {
+            logger(FATAL,
+                   "failed to open main paraview output file %.pvtu, does "
+                   "the directory % exist?",
+                   baseName,
+                   baseName.substr(0, baseName.find_last_of('/') + 1));
+        } else {
+            logger(FATAL, "failed to open main paraview output file %.pvtu",
+                   baseName);
+        }
+    }
+    /// Basic header ///
+    ////////////////////
+
+    masterFile_ << "<?xml version=\"1.0\"?>" << std::endl;
+    masterFile_ << "<VTKFile type=\"PUnstructuredGrid\" version=\"0.1\" "
+                   "byte_order=\""
+                << (Detail::isBigEndian() ? "BigEndian" : "LittleEndian")
+                << "\">" << std::endl;
+    masterFile_ << "  <PUnstructuredGrid GhostLevel=\"0\">" << std::endl;
+    std::size_t numberOfProcs =
+        Base::MPIContainer::Instance().getNumberOfProcessors();
+
+    /// Serial file locations ///
+    /////////////////////////////
+
+    for (std::size_t i = 0; i < numberOfProcs; ++i) {
+        std::string fileName = baseName;
+        if (fileName.find('/') != std::string::npos) {
+            fileName = fileName.substr(fileName.find_last_of('/') + 1);
+        }
+        masterFile_ << "    <Piece Source=\"" << fileName << "." << i
+                    << ".vtu\"/>" << std::endl;
+    }
+    /// Start of the point data ///
+    ///////////////////////////////
+
+    // This starts the point data that will be added later
+    // tag will be closed in the destructor
+    masterFile_ << "    <PPointData>" << std::endl;
+}
+
+template <std::size_t DIM>
+void VTKSpecificTimeWriter<DIM>::writeLocalFileHeader(
+    const std::string& baseName) {
+    std::size_t id = Base::MPIContainer::Instance().getProcessorID();
+    using namespace std::string_literals;
+    localFile_.open(baseName + "."s + std::to_string(id) + ".vtu");
+    if (!localFile_.good()) {
+        logger(ERROR,
+               "failed to open local paraview output file %.vtu, part of the "
+               "output will not be written",
+               baseName);
+    }
+
+    /// Basic Header ///
+    ////////////////////
+    localFile_ << "<?xml version=\"1.0\"?>" << std::endl;
+    std::string endianness =
+        Detail::isBigEndian() ? "BigEndian" : "LittleEndian";
+    localFile_
+        << "<VTKFile type=\"UnstructuredGrid\" version=\"0.1\" byte_order=\""
+        << endianness << "\">" << std::endl;
+    localFile_ << "  <UnstructuredGrid>" << std::endl;
+
+    /// Prepare data ///
+    ////////////////////
+
+    // Basic properties
+    for (Base::Element* element : mesh_->getElementsList()) {
+        totalPoints_ += element->getNumberOfNodes();
+        ++totalElements_;
+    }
+
+    /// Write the local part of the mesh ///
+    ////////////////////////////////////////
+
+    // first pass compute sizes
+    for (Base::Element* element : mesh_->getElementsList()) {
+        // For discontinuous data, we duplicate the nodes.
+        totalPoints_ += element->getNumberOfNodes();
+        ++totalElements_;
+    }
+
+    // clang-format off
+    localFile_ << "    <Piece NumberOfPoints=\"" << totalPoints_ << "\" NumberOfCells=\"" << totalElements_ << "\">" << std::endl;
+    localFile_ << "      <Points>" << std::endl;
+    localFile_ << "        <DataArray type=\"Float64\" NumberOfComponents=\"3\" format=\"binary\">" << std::endl;
+    localFile_ << "          ";
+    // clang-format on
+
+    // Write binary header, the number of bytes
+    std::uint32_t totalData;
+    totalData = 3 * totalPoints_ * sizeof(double);
+    localFile_ << Detail::toBase64((void*)&totalData, sizeof(totalData));
+    Geometry::PointPhysical<3> usefullNode;
+    Geometry::PointPhysical<DIM> actualNode;
+    std::vector<std::uint32_t> cumulativeNodesPerElement;
+    cumulativeNodesPerElement.reserve(totalElements_ + 1);
+    cumulativeNodesPerElement.push_back(0);
+    std::vector<VTKElementName> elementTypes;
+    elementTypes.reserve(totalElements_);
+    for (Base::Element* element : mesh_->getElementsList()) {
+        cumulativeNodesPerElement.push_back(element->getNumberOfNodes() +
+                                            cumulativeNodesPerElement.back());
+        const Geometry::ReferenceGeometry& referenceGeometry =
+            *element->getReferenceGeometry();
+        elementTypes.push_back(
+            hpGEMToVTK.at(std::type_index(typeid(referenceGeometry))));
+        for (std::size_t i = 0; i < element->getNumberOfNodes(); ++i) {
+            actualNode =
+                element->getPhysicalGeometry()->getLocalNodeCoordinates(
+                    tohpGEMOrdering(i, element->getReferenceGeometry()));
+            for (std::size_t j = 0; j < DIM; ++j) {
+                usefullNode[j] = actualNode[j];
+            }
+            // this bit will only work correctly if the data size is a multiple
+            // of 3, but VTK requires 3D coordinates anyway
+            localFile_ << Detail::toBase64((void*)usefullNode.data(),
+                                           3 * sizeof(double));
+        }
+    }
+    localFile_ << std::endl;
+    localFile_ << "        </DataArray>" << std::endl;
+    localFile_ << "      </Points>" << std::endl;
+    localFile_ << "      <Cells>" << std::endl;
+    localFile_ << "        <DataArray type=\"UInt32\" Name=\"connectivity\" "
+                  "format=\"binary\">"
+               << std::endl;
+    localFile_ << "          ";
+    totalData = totalPoints_ * sizeof(totalPoints_);
+    localFile_ << Detail::toBase64((void*)&totalData, sizeof(totalPoints_));
+    std::vector<std::uint32_t> index(totalPoints_);
+    for (std::size_t i = 0; i < totalPoints_; ++i) {
+        index[i] = i;
+    }
+    if (totalPoints_ > 0)
+        localFile_ << Detail::toBase64((void*)index.data(), totalData)
+                   << std::endl;
+    localFile_ << "        </DataArray>" << std::endl;
+    localFile_ << "        <DataArray type=\"UInt32\" Name=\"offsets\" "
+                  "format=\"binary\">"
+               << std::endl;
+    totalData = totalElements_ * sizeof(totalElements_);
+    localFile_ << "          "
+               << Detail::toBase64((void*)&totalData, sizeof(totalElements_));
+    if (totalData > 0)
+        localFile_ << Detail::toBase64(
+                          (void*)(cumulativeNodesPerElement.data() + 1),
+                          totalData)
+                   << std::endl;
+    localFile_ << "        </DataArray>" << std::endl;
+    localFile_
+        << "        <DataArray type=\"UInt8\" Name=\"types\" format=\"binary\">"
+        << std::endl;
+    totalData = totalElements_ * sizeof(VTKElementName);
+    localFile_ << "          "
+               << Detail::toBase64((void*)&totalData, sizeof(totalElements_));
+    if (totalData > 0)
+        localFile_ << Detail::toBase64((void*)elementTypes.data(), totalData)
+                   << std::endl;
+    localFile_ << "        </DataArray>" << std::endl;
+    localFile_ << "      </Cells>" << std::endl;
+
+    /// Prepare for following point data ///
+    ////////////////////////////////////////
+    localFile_ << "      <PointData>" << std::endl;
+}
+
+}  // namespace Output
 }  // namespace hpgem
