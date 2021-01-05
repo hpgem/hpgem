@@ -333,84 +333,88 @@ void VTKSpecificTimeWriter<DIM>::writeLocalFileHeader(
         totalPoints_ += element->getNumberOfNodes();
         ++totalElements_;
     }
+    // Second pass
+    // We need 4 DataArray's to describe the mesh
+    // - array with all the coordinates of the points
+    // - array with the VTK-cell-types (line, triangle, square, etc.)
+    // - array with connectivity, for each cell giving the indices in the point
+    //   data array for the corner points of the cell (in VTK defined order)
+    // - array with offsets in the connectivity array, the i-th is the
+    //   cummulative number of points of the first i elements. (Alternatively it
+    //   is the index of the first entry after the i-th element in the
+    //   connectivity array).
+
+    // Point coordinates, VTK needs exactly three coordinates per point
+    std::vector<double> pointCoordinates(totalPoints_ * 3, 0.0);
+    // Types
+    std::vector<VTKElementName> types(totalElements_);
+    // Connectivity
+    std::vector<std::uint32_t> connectivity(totalPoints_);
+    // Offsets
+    std::vector<std::uint32_t> offsets(totalElements_);
+    // Number of points in previous elements
+    std::uint32_t pointCount(0);
+    std::size_t elementId = 0;
+
+    for (Base::Element* element : mesh_->getElementsList()) {
+        std::uint32_t localNumberOfPoints = element->getNumberOfNodes();
+        const Geometry::ReferenceGeometry& referenceGeometry =
+            *element->getReferenceGeometry();
+
+        types[elementId] =
+            hpGEMToVTK.at(std::type_index(typeid(referenceGeometry)));
+        // Individual nodes
+        for (std::size_t i = 0; i < localNumberOfPoints; ++i) {
+            // Use the VTK ordering for the points. This makes the connectivity
+            // trivial, but we need to reorder the coordinates
+            connectivity[pointCount + i] = pointCount + i;
+            Geometry::PointPhysical<DIM> coordinate =
+                element->getPhysicalGeometry()->getLocalNodeCoordinates(
+                    tohpGEMOrdering(i, element->getReferenceGeometry()));
+            // Copy coordinate
+            for (std::size_t j = 0; j < std::min(DIM, 3ul); ++j) {
+                pointCoordinates[3 * (pointCount + i) + j] = coordinate[j];
+            }
+        }
+
+        // Offset array is including the current element
+        pointCount += localNumberOfPoints;
+        offsets[elementId] = pointCount;
+        elementId++;
+    }
 
     /// Write the local part of the mesh ///
     ////////////////////////////////////////
 
     // clang-format off
+    // Manual formatting to show the XML structure
     localFile_ << "    <Piece NumberOfPoints=\"" << totalPoints_ << "\" NumberOfCells=\"" << totalElements_ << "\">" << std::endl;
     localFile_ << "      <Points>" << std::endl;
     localFile_ << "        <DataArray type=\"Float64\" NumberOfComponents=\"3\" format=\"binary\">" << std::endl;
     localFile_ << "          ";
-    // clang-format on
-
-    // Write raw points
-    std::uint32_t totalData;
-    totalData = 3 * totalPoints_ * sizeof(double);
-    localFile_ << Detail::toBase64((void*)&totalData,
-                                   sizeof(totalData));  // Header
-    Geometry::PointPhysical<3> usefullNode;
-    Geometry::PointPhysical<DIM> actualNode;
-    std::vector<std::uint32_t> cumulativeNodesPerElement;
-    cumulativeNodesPerElement.reserve(totalElements_ + 1);
-    cumulativeNodesPerElement.push_back(0);
-    std::vector<VTKElementName> elementTypes;
-    elementTypes.reserve(totalElements_);
-    for (Base::Element* element : mesh_->getElementsList()) {
-        cumulativeNodesPerElement.push_back(element->getNumberOfNodes() +
-                                            cumulativeNodesPerElement.back());
-        const Geometry::ReferenceGeometry& referenceGeometry =
-            *element->getReferenceGeometry();
-        elementTypes.push_back(
-            hpGEMToVTK.at(std::type_index(typeid(referenceGeometry))));
-        for (std::size_t i = 0; i < element->getNumberOfNodes(); ++i) {
-            actualNode =
-                element->getPhysicalGeometry()->getLocalNodeCoordinates(
-                    tohpGEMOrdering(i, element->getReferenceGeometry()));
-            for (std::size_t j = 0; j < DIM; ++j) {
-                usefullNode[j] = actualNode[j];
-            }
-            // this bit will only work correctly if the data size is a multiple
-            // of 3, but VTK requires 3D coordinates anyway
-            localFile_ << Detail::toBase64((void*)usefullNode.data(),
-                                           3 * sizeof(double));
-        }
-    }
-    localFile_ << std::endl;
+    writeLocalFileBinaryData(pointCoordinates.data(),
+                             3 * sizeof(double) * totalPoints_);
     localFile_ << "        </DataArray>" << std::endl;
     localFile_ << "      </Points>" << std::endl;
     localFile_ << "      <Cells>" << std::endl;
-
-    // Connectivity, which points form a cell
-    localFile_ << "        <DataArray type=\"UInt32\" Name=\"connectivity\" "
-                  "format=\"binary\">"
-               << std::endl;
-    std::vector<std::uint32_t> index(totalPoints_);
-    for (std::size_t i = 0; i < totalPoints_; ++i) {
-        index[i] = i;
-    }
+    localFile_ << "        <DataArray type=\"UInt32\" Name=\"connectivity\" format=\"binary\">" << std::endl;
     localFile_ << "          ";
-    writeLocalFileBinaryData(index.data(),
+    writeLocalFileBinaryData(connectivity.data(),
                              totalPoints_ * sizeof(std::uint32_t));
     localFile_ << "        </DataArray>" << std::endl;
 
-    // Offsets in the connectivity DataArray where each element ends
-    localFile_ << "        <DataArray type=\"UInt32\" Name=\"offsets\" "
-                  "format=\"binary\">"
-               << std::endl;
+    localFile_ << "        <DataArray type=\"UInt32\" Name=\"offsets\" format=\"binary\">" << std::endl;
     localFile_ << "          ";
-    writeLocalFileBinaryData(cumulativeNodesPerElement.data() + 1,
+    writeLocalFileBinaryData(offsets.data(),
                              totalElements_ * sizeof(std::uint32_t));
     localFile_ << "        </DataArray>" << std::endl;
-    // Types of the elements
-    localFile_
-        << "        <DataArray type=\"UInt8\" Name=\"types\" format=\"binary\">"
-        << std::endl;
+    localFile_ << "        <DataArray type=\"UInt8\" Name=\"types\" format=\"binary\">" << std::endl;
     localFile_ << "          ";
-    writeLocalFileBinaryData(elementTypes.data(),
+    writeLocalFileBinaryData(types.data(),
                              totalElements_ * sizeof(VTKElementName));
     localFile_ << "        </DataArray>" << std::endl;
     localFile_ << "      </Cells>" << std::endl;
+    // clang-format on
 
     /// Prepare for following point data ///
     ////////////////////////////////////////
