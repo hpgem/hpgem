@@ -383,13 +383,9 @@ std::pair<std::vector<int>, std::vector<int>>
     if (distributedMesh) {
         for (std::size_t i = 0; i < rowIndexing_.getNumberOfIncludedUnknowns();
              ++i) {
-            std::size_t rowUnknown = rowIndexing_.getIncludedUnknowns()[i];
             for (std::size_t j = 0;
                  j < columnIndexing_.getNumberOfIncludedUnknowns(); ++j) {
-                std::size_t colUnknown =
-                    columnIndexing_.getIncludedUnknowns()[j];
-                if (faceCoupling(i, j) && distributedMesh &&
-                    !rowDoFs.isOnlyElementBased(i)) {
+                if (faceCoupling(i, j) && !rowDoFs.isOnlyElementBased(i)) {
                     logger(ERROR,
                            "Face coupling of a row-DoF from an Face, Edge or "
                            "Node.");
