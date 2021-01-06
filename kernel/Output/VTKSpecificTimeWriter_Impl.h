@@ -155,8 +155,6 @@ void VTKSpecificTimeWriter<DIM>::write(
         masterFile_ << "      <PDataArray type=\"Float64\" Name=\"" << name
                     << "\"/>" << std::endl;
     }
-    localFile_ << "      <DataArray type=\"Float64\" Name=\"" << name
-               << "\" format=\"binary\">" << std::endl;
     std::vector<double> data;
     data.reserve(totalPoints_);
     for (Base::Element* element : mesh_->getElementsList()) {
@@ -167,12 +165,11 @@ void VTKSpecificTimeWriter<DIM>::write(
             data.push_back(dataCompute(element, node, timelevel_));
         }
     }
-    std::uint32_t totalData = sizeof(double) * data.size();
-    localFile_ << "        "
-               << Detail::toBase64((void*)&totalData, sizeof(totalPoints_));
-    if (totalData > 0)
-        localFile_ << Detail::toBase64((void*)data.data(), totalData)
-                   << std::endl;
+    /// Write local data
+    localFile_ << "      <DataArray type=\"Float64\" Name=\"" << name
+               << "\" format=\"binary\">" << std::endl;
+    localFile_ << "        ";
+    writeBinaryDataArrayData(data);
     localFile_ << "      </DataArray>" << std::endl;
 }
 
@@ -187,28 +184,24 @@ void VTKSpecificTimeWriter<DIM>::write(
         masterFile_ << "      <PDataArray type=\"Float64\" Name=\"" << name
                     << "\" NumberOfComponents=\"3\"/>" << std::endl;
     }
-    localFile_ << "      <DataArray type=\"Float64\" Name=\"" << name
-               << "\" NumberOfComponents=\"3\" format=\"binary\">" << std::endl;
-    std::vector<double> data;
-    LinearAlgebra::SmallVector<DIM> newData;
-    data.reserve(3 * totalPoints_);
+    // Prepare local data
+    std::vector<double> data(3 * totalPoints_, 0.0);
+    std::size_t pointId = 0;
     for (Base::Element* element : mesh_->getElementsList()) {
         for (std::size_t i = 0; i < element->getNumberOfNodes(); ++i) {
             const Geometry::PointReference<DIM>& node =
                 element->getReferenceGeometry()->getReferenceNodeCoordinate(i);
-            newData = dataCompute(element, node, timelevel_);
-            for (std::size_t j = 0; j < newData.size(); ++j) {
-                data.push_back(newData[j]);
-            }
-            for (std::size_t j = newData.size(); j < 3; ++j) {
-                data.push_back(0.);
-            }
+
+            writePaddedVector(dataCompute(element, node, timelevel_), pointId,
+                              data);
+            pointId++;
         }
     }
-    std::uint32_t totalData = sizeof(double) * data.size();
-    localFile_ << "        "
-               << Detail::toBase64((void*)&totalData, sizeof(totalPoints_))
-               << Detail::toBase64((void*)data.data(), totalData) << std::endl;
+    // Write local data
+    localFile_ << "      <DataArray type=\"Float64\" Name=\"" << name
+               << "\" NumberOfComponents=\"3\" format=\"binary\">" << std::endl;
+    localFile_ << "        ";
+    writeBinaryDataArrayData(data);
     localFile_ << "      </DataArray>" << std::endl;
 }
 
@@ -223,35 +216,22 @@ void VTKSpecificTimeWriter<DIM>::write(
         masterFile_ << "      <PDataArray type=\"Float64\" Name=\"" << name
                     << "\" NumberOfComponents=\"3\"/>" << std::endl;
     }
-    localFile_ << "      <DataArray type=\"Float64\" Name=\"" << name
-               << "\" NumberOfComponents=\"3\" format=\"binary\">" << std::endl;
-    std::vector<double> data;
-    LinearAlgebra::SmallMatrix<DIM, DIM> newData;
-    data.reserve(9 * totalPoints_);
+    std::vector<double> data(9 * totalPoints_);
+    std::size_t pointId = 0;
     for (Base::Element* element : mesh_->getElementsList()) {
         for (std::size_t i = 0; i < element->getNumberOfNodes(); ++i) {
             const Geometry::PointReference<DIM>& node =
                 element->getReferenceGeometry()->getReferenceNodeCoordinate(i);
-            newData = dataCompute(element, node, timelevel_);
-            std::size_t j = 0;
-            for (; j < newData.getNumberOfRows(); ++j) {
-                for (std::size_t k = 0; k < newData.getNumberOfColumns(); ++k) {
-                    data.push_back(newData(j, k));
-                }
-                for (std::size_t k = newData.getNumberOfColumns(); k < 3; ++k) {
-                    data.push_back(0.);
-                }
-            }
-            j *= newData.getNumberOfColumns();
-            for (; j < 9; ++j) {  // identity matrix
-                data.push_back(((j == 0 || j == 4 || j == 8) ? 1. : 0.));
-            }
+            writePaddedTensor(dataCompute(element, node, timelevel_), pointId,
+                              data);
+            pointId++;
         }
     }
     std::uint32_t totalData = sizeof(double) * data.size();
-    localFile_ << "        "
-               << Detail::toBase64((void*)&totalData, sizeof(totalPoints_))
-               << Detail::toBase64((void*)data.data(), totalData) << std::endl;
+    localFile_ << "      <DataArray type=\"Float64\" Name=\"" << name
+               << "\" NumberOfComponents=\"3\" format=\"binary\">" << std::endl;
+    localFile_ << "        ";
+    writeBinaryDataArrayData(data);
     localFile_ << "      </DataArray>" << std::endl;
 }
 
@@ -428,6 +408,43 @@ void VTKSpecificTimeWriter<DIM>::writeBinaryDataArrayData(std::vector<T> data) {
     localFile_ << Detail::toBase64(static_cast<void*>(data.data()), size);
     // Optional newline, but for a nice layout
     localFile_ << std::endl;
+}
+
+template <std::size_t DIM>
+void VTKSpecificTimeWriter<DIM>::writePaddedVector(
+    LinearAlgebra::SmallVector<DIM> in, std::size_t offset,
+    std::vector<double>& out) {
+    logger.assert_debug(out.size() >= 3 * (offset + 1),
+                        "Not enough output storage");
+    for (std::size_t i = 0; i < std::min(DIM, 3ul); ++i) {
+        out[3 * offset + i] = in[i];
+    }
+    // padding
+    for (std::size_t i = std::min(DIM, 3ul); i < 3; ++i) {
+        out[i] = 0.0;
+    }
+}
+
+template <std::size_t DIM>
+void VTKSpecificTimeWriter<DIM>::writePaddedTensor(
+    LinearAlgebra::SmallMatrix<DIM, DIM> in, std::size_t offset,
+    std::vector<double>& out) {
+    logger.assert_debug(out.size() >= 9 * (offset + 1),
+                        "Not enough output storage");
+
+    for (std::size_t i = 0; i < 3; ++i) {
+        for (std::size_t j = 0; j < 3; ++j) {
+            double& entry = out[9 * offset + 3 * i + j];
+            if (i < DIM && j < DIM) {
+                entry = in(i, j);
+            } else if (i == j) {
+                // Pad with the identity tensor
+                entry = 1.0;
+            } else {
+                entry = 0.0;
+            }
+        }
+    }
 }
 
 }  // namespace Output

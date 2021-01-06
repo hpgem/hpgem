@@ -129,6 +129,29 @@ class VTKSpecificTimeWriter final {
     template <class T>
     void writeBinaryDataArrayData(std::vector<T> data);
 
+    /**
+     * Write a vector to the output storage, adding zero padding as needed.
+     *
+     * @param in The input vector
+     * @param offset The offset of the vector (i.e. the number of previous
+     * vectors).
+     * @param out The place to write to, should be of at least size 3*(offset+1)
+     */
+    void writePaddedVector(LinearAlgebra::SmallVector<DIM> in,
+                           std::size_t offset, std::vector<double>& out);
+
+    /**
+     * Write a second order tensor to the output storage, adding padding as
+     * needed. The padding will be in the form of the idenity tensor.
+     *
+     * @param in The input tensor
+     * @param offset The offset of the tensor (i.e. the number of previously
+     * written tensors)
+     * @param out The place to write to, should be of at least size 9*(offset+1)
+     */
+    void writePaddedTensor(LinearAlgebra::SmallMatrix<DIM, DIM> in,
+                           std::size_t offset, std::vector<double>& out);
+
     std::ofstream localFile_;
     std::ofstream masterFile_;
     /// Number of points in the local file
