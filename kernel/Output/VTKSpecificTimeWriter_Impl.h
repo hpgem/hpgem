@@ -56,6 +56,7 @@
 #include "Geometry/PointReference.h"
 #include "base64.h"
 #include "VTKElementOrdering.h"
+#include "VTKStandardElements.h"
 #include <vector>
 #include <unordered_map>
 
@@ -102,8 +103,13 @@ template <std::size_t DIM>
 VTKSpecificTimeWriter<DIM>::VTKSpecificTimeWriter(
     const std::string& baseName, const Base::MeshManipulator<DIM>* mesh,
     std::size_t timelevel)
-    : totalPoints_(0), totalElements_(0), mesh_(mesh), timelevel_(timelevel) {
+    : totalPoints_(0),
+      totalElements_(0),
+      mesh_(mesh),
+      timelevel_(timelevel),
+      elementMapping_() {
     logger.assert_debug(mesh != nullptr, "Invalid mesh passed");
+    setupMapping();
     std::size_t id = Base::MPIContainer::Instance().getProcessorID();
     if (id == 0) {
         writeMasterFileHeader(baseName);
@@ -158,10 +164,14 @@ void VTKSpecificTimeWriter<DIM>::write(
     std::vector<double> data;
     data.reserve(totalPoints_);
     for (Base::Element* element : mesh_->getElementsList()) {
-        for (std::size_t i = 0; i < element->getNumberOfNodes(); ++i) {
-            const Geometry::PointReference<DIM>& node =
-                element->getReferenceGeometry()->getReferenceNodeCoordinate(
-                    tohpGEMOrdering(i, element->getReferenceGeometry()));
+        auto vtkElement = elementMapping_.find(
+            element->getReferenceGeometry()->getGeometryType());
+        logger.assert_always(vtkElement != elementMapping_.end(),
+                             "No mapping to VTK element for %",
+                             element->getReferenceGeometry());
+
+        for (const Geometry::PointReference<DIM>& node :
+             vtkElement->second->getPoints()) {
             data.push_back(dataCompute(element, node, timelevel_));
         }
     }
@@ -188,10 +198,14 @@ void VTKSpecificTimeWriter<DIM>::write(
     std::vector<double> data(3 * totalPoints_, 0.0);
     std::size_t pointId = 0;
     for (Base::Element* element : mesh_->getElementsList()) {
-        for (std::size_t i = 0; i < element->getNumberOfNodes(); ++i) {
-            const Geometry::PointReference<DIM>& node =
-                element->getReferenceGeometry()->getReferenceNodeCoordinate(i);
+        auto vtkElement = elementMapping_.find(
+            element->getReferenceGeometry()->getGeometryType());
+        logger.assert_always(vtkElement != elementMapping_.end(),
+                             "No mapping to VTK element for %",
+                             element->getReferenceGeometry());
 
+        for (const Geometry::PointReference<DIM>& node :
+             vtkElement->second->getPoints()) {
             writePaddedVector(dataCompute(element, node, timelevel_), pointId,
                               data);
             pointId++;
@@ -219,9 +233,14 @@ void VTKSpecificTimeWriter<DIM>::write(
     std::vector<double> data(9 * totalPoints_);
     std::size_t pointId = 0;
     for (Base::Element* element : mesh_->getElementsList()) {
-        for (std::size_t i = 0; i < element->getNumberOfNodes(); ++i) {
-            const Geometry::PointReference<DIM>& node =
-                element->getReferenceGeometry()->getReferenceNodeCoordinate(i);
+        auto vtkElement = elementMapping_.find(
+            element->getReferenceGeometry()->getGeometryType());
+        logger.assert_always(vtkElement != elementMapping_.end(),
+                             "No mapping to VTK element for %",
+                             element->getReferenceGeometry());
+
+        for (const Geometry::PointReference<DIM>& node :
+             vtkElement->second->getPoints()) {
             writePaddedTensor(dataCompute(element, node, timelevel_), pointId,
                               data);
             pointId++;
@@ -310,7 +329,12 @@ void VTKSpecificTimeWriter<DIM>::writeLocalFileHeader(
 
     // first pass compute sizes
     for (Base::Element* element : mesh_->getElementsList()) {
-        totalPoints_ += element->getNumberOfNodes();
+        auto vtkElement = elementMapping_.find(
+            element->getReferenceGeometry()->getGeometryType());
+        logger.assert_always(vtkElement != elementMapping_.end(),
+                             "No mapping to VTK element for %",
+                             element->getReferenceGeometry());
+        totalPoints_ += vtkElement->second->getPoints().size();
         ++totalElements_;
     }
     // Second pass
@@ -445,6 +469,44 @@ void VTKSpecificTimeWriter<DIM>::writePaddedTensor(
             }
         }
     }
+}
+
+template <std::size_t DIM>
+void VTKSpecificTimeWriter<DIM>::setupMapping() {
+    logger(ERROR, "No VTK element mapping in dimension %", DIM);
+    // Specialized per DIM
+}
+
+template <>
+inline void VTKSpecificTimeWriter<0>::setupMapping() {
+    elementMapping_[Geometry::ReferenceGeometryType::POINT] =
+        std::shared_ptr<VTKElement<0>>(new VTKPoint());
+}
+
+template <>
+inline void VTKSpecificTimeWriter<1>::setupMapping() {
+    elementMapping_[Geometry::ReferenceGeometryType::LINE] =
+        std::shared_ptr<VTKElement<1>>(new VTKLine());
+}
+
+template <>
+inline void VTKSpecificTimeWriter<2>::setupMapping() {
+    elementMapping_[Geometry::ReferenceGeometryType::TRIANGLE] =
+        std::shared_ptr<VTKElement<2>>(new VTKTriangle());
+    elementMapping_[Geometry::ReferenceGeometryType::SQUARE] =
+        std::shared_ptr<VTKElement<2>>(new VTKQuad());
+}
+
+template <>
+inline void VTKSpecificTimeWriter<3>::setupMapping() {
+    elementMapping_[Geometry::ReferenceGeometryType::TETRAHEDRON] =
+        std::shared_ptr<VTKElement<3>>(new VTKTetra());
+    elementMapping_[Geometry::ReferenceGeometryType::CUBE] =
+        std::shared_ptr<VTKElement<3>>(new VTKHexahedron());
+    elementMapping_[Geometry::ReferenceGeometryType::TRIANGULARPRISM] =
+        std::shared_ptr<VTKElement<3>>(new VTKWedge());
+    elementMapping_[Geometry::ReferenceGeometryType::PYRAMID] =
+        std::shared_ptr<VTKElement<3>>(new VTKPyramid());
 }
 
 }  // namespace Output
