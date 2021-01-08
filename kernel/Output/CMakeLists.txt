@@ -4,6 +4,8 @@ add_library(Output OBJECT
 	${hpGEM_SOURCE_DIR}/kernel/Output/TecplotPhysicalGeometryIterator.cpp
     ${hpGEM_SOURCE_DIR}/kernel/Output/base64.cpp
 	VTKLagrangeCurve.cpp
+	VTKLagrangeHexahedron.cpp
+	VTKLagrangeQuadrilateral.cpp
 	VTKLagrangeTriangle.cpp
 	VTKStandardElements.cpp
 )

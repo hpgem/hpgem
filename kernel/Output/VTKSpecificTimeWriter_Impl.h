@@ -58,7 +58,9 @@
 #include "VTKElementOrdering.h"
 #include "VTKStandardElements.h"
 #include "VTKLagrangeCurve.h"
+#include "VTKLagrangeHexahedron.h"
 #include "VTKLagrangeTriangle.h"
+#include "VTKLagrangeQuadrilateral.h"
 #include <vector>
 #include <unordered_map>
 
@@ -510,19 +512,26 @@ inline void VTKSpecificTimeWriter<2>::setupMapping(std::size_t order) {
     } else {
         elementMapping_[Geometry::ReferenceGeometryType::TRIANGLE] =
             std::shared_ptr<VTKElement<2>>(new VTKLagrangeTriangle(order));
+        elementMapping_[Geometry::ReferenceGeometryType::SQUARE] =
+            std::shared_ptr<VTKElement<2>>(new VTKLagrangeQuadrilateral(order));
     }
 }
 
 template <>
 inline void VTKSpecificTimeWriter<3>::setupMapping(std::size_t order) {
-    elementMapping_[Geometry::ReferenceGeometryType::TETRAHEDRON] =
-        std::shared_ptr<VTKElement<3>>(new VTKTetra());
-    elementMapping_[Geometry::ReferenceGeometryType::CUBE] =
-        std::shared_ptr<VTKElement<3>>(new VTKHexahedron());
-    elementMapping_[Geometry::ReferenceGeometryType::TRIANGULARPRISM] =
-        std::shared_ptr<VTKElement<3>>(new VTKWedge());
-    elementMapping_[Geometry::ReferenceGeometryType::PYRAMID] =
-        std::shared_ptr<VTKElement<3>>(new VTKPyramid());
+    if (order == 1) {
+        elementMapping_[Geometry::ReferenceGeometryType::TETRAHEDRON] =
+            std::shared_ptr<VTKElement<3>>(new VTKTetra());
+        elementMapping_[Geometry::ReferenceGeometryType::CUBE] =
+            std::shared_ptr<VTKElement<3>>(new VTKHexahedron());
+        elementMapping_[Geometry::ReferenceGeometryType::TRIANGULARPRISM] =
+            std::shared_ptr<VTKElement<3>>(new VTKWedge());
+        elementMapping_[Geometry::ReferenceGeometryType::PYRAMID] =
+            std::shared_ptr<VTKElement<3>>(new VTKPyramid());
+    } else {
+        elementMapping_[Geometry::ReferenceGeometryType::CUBE] =
+            std::shared_ptr<VTKElement<3>>(new VTKLagrangeHexahedron(order));
+    }
 }
 
 }  // namespace Output

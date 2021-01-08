@@ -103,6 +103,28 @@ void test2DSquare() {
     runBasicTest<2>(
         "unitSquareN1.hpgem", "unitSquare-linear",
         [](Geometry::PointPhysical<2> p) { return 1 + p[0] + 2 * p[1]; });
+    // Quadratic 1 + 15x - 14x^2 + 18y - 20xy + 20x^2y - 16y^2 + 24xy^2 -
+    // 24x^2y^2
+    // This is constructed so that the corner points are 1-4 (in reference
+    // order) Midpoints are 5-8 (x=0, y=0, y=1,x=1 edges) and midpoint is 9.
+    runBasicTest<2>(
+        "unitSquareN1.hpgem", "unitSquare-quadratic",
+        [](Geometry::PointPhysical<2> p) {
+            double x = p[0], x2 = x * x;
+            double y = p[1], y2 = y * y;
+            return 1 + 15 * x - 14 * x2 + 18 * y - 20 * x * y + 20 * x2 * y -
+                   16 * y2 + 24 * x * y2 - 24 * x2 * y2;
+        },
+        2);
+
+    runBasicTest<2>(
+        "unitSquareN1.hpgem", "unitSquare-quartic",
+        [](Geometry::PointPhysical<2> p) {
+            double x = p[0], x2 = x * x;
+            double y = p[1], y2 = y * y;
+            return 1 + x2 * x2 - y2 * y2 + x2 * y2;
+        },
+        4);
 }
 
 void test2DTriangles() {
@@ -128,7 +150,6 @@ void test2DTriangles() {
         [](Geometry::PointPhysical<2> p) {
             double x = p[0];
             double y = p[1];
-            std::cout << x << " " << y << std::endl;
             // 1 + x^4 - y^4 + x^2y^2
             return 1 + x * x * x * x - y * y * y * y + x * x * y * y;
         },
@@ -142,7 +163,6 @@ void test2DTriangles() {
             double x3 = x * x * x;
             double y = p[1];
             double y2 = y * y;
-            std::cout << x << " " << y << std::endl;
             // 1 + x^6 - y^4 + x^3y^3
             return 1 + x3 * x3 - y2 * y2 + x3 * y2 * y;
         },
@@ -155,6 +175,34 @@ void test3DCube() {
                     [](Geometry::PointPhysical<3> p) {
                         return 1 + p[0] + 2 * p[1] + 4 * p[2];
                     });
+    // Quadratic function
+    // Such that it has values 1-8 + (2z*8), where the values 1-8 are used
+    // linearly for the points from x=0-1,y=0 then x=0-1,y=1/2 and then
+    // x=0-1/2,y=1. The values 25-27 are used at x=1,y=1 with z=1 being 25 and
+    // z=0 being 27.
+    runBasicTest<3>(
+        "unitCubeN1.hpgem", "unitCube-quadratic",
+        [](Geometry::PointPhysical<3> p) {
+            double x = p[0], x2 = x * x;
+            double y = p[1], y2 = y * y;
+            double z = p[2], z2 = z * z;
+            return 1 + 2 * x + 6 * y + 17 * x * y - 34 * (x2 * y + x * y2) +
+                   68 * x2 * y2 +
+                   z * (16 - 15 * x * y + 30 * (x2 * y + x * y2) -
+                        60 * x2 * y2) +
+                   z2 * (-2 * x * y + 4 * (x2 * y + y2 * x) - 8 * x2 * y2);
+        },
+        2);
+
+    runBasicTest<3>(
+        "unitCubeN1.hpgem", "unitCube-quartic",
+        [](Geometry::PointPhysical<3> p) {
+            double x = p[0], x2 = x * x;
+            double y = p[1], y2 = y * y;
+            double z = p[2], z2 = z * z;
+            return 1 + x2 + y * y2 + z2 * z2 - x * y * z;
+        },
+        4);
 }
 
 void test3DTetrahedrons() {

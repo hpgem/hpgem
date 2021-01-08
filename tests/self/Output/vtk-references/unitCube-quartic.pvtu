@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<VTKFile type="PUnstructuredGrid" version="0.1" byte_order="LittleEndian">
+  <PUnstructuredGrid GhostLevel="0">
+    <Piece Source="unitCube-quartic.0.vtu"/>
+    <PPointData>
+      <PDataArray type="Float64" Name="value"/>
+    </PPointData>
+    <PPoints>
+      <PDataArray type="Float64" NumberOfComponents="3"/>
+    </PPoints>
+  </PUnstructuredGrid>
+</VTKFile>
