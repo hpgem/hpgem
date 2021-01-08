@@ -158,6 +158,24 @@ class DGMaxEigenvalue : public AbstractEigenvalueSolver<DIM>,
     std::size_t order_;
     SolverConfig config_;
     DGMaxDiscretization<DIM> discretization_;
+
+    // Implementation details, declared as inner classes to prevent name clashes
+    /**
+     * Workspace used to solve at a single k-point
+     */
+    class SolverWorkspace;
+    /**
+     * Extra workspace where each of the basis functions has an extra phase
+     * shift exp(i akx), where x is the center of the element of the basis
+     * function, k is the k-point for the current solve and a is the factor from
+     * the solver config.
+     */
+    class ShiftWorkspace;
+    /**
+     * Extra workspace for a projector that removes the eigenspace corresponding
+     * to the zero eigenvalues.
+     */
+    class ProjectorWorkspace;
 };
 
 #endif  // HPGEM_APP_DGMAXEIGENVALUE_H
