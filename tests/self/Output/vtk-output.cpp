@@ -62,16 +62,18 @@ namespace hpgem {
  * @param valueFunction Function to evaluate and plot in the output. It will get
  *  the Physical position as input and should give a single double that will be
  *  used as output.
+ * @param order The polynomial order of the plotting
  */
 template <std::size_t DIM>
 void runBasicTest(
     std::string meshFile, std::string outputFile,
-    std::function<double(Geometry::PointPhysical<DIM>)> valueFunction) {
+    std::function<double(Geometry::PointPhysical<DIM>)> valueFunction,
+    std::size_t order = 1) {
     Base::ConfigurationData config(1);
     Base::MeshManipulator<DIM> mesh(&config);
     mesh.readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/" +
                   meshFile);
-    Output::VTKSpecificTimeWriter<DIM> writer(outputFile, &mesh);
+    Output::VTKSpecificTimeWriter<DIM> writer(outputFile, &mesh, 0, order);
     writer.write(
         [&valueFunction](Base::Element* element,
                          const Geometry::PointReference<DIM>& pref,
@@ -86,10 +88,14 @@ void test1D() {
     runBasicTest<1>("unitLineN1.hpgem", "unitLineSegment-linear",
                     [](Geometry::PointPhysical<1> p) { return p[0]; });
 
-    // Quadratic output: '1+x-x^2'
+    // Quadratic output: '1+x-0.5*x^2'
+    // Factor 0.5 to ensure that it has different values at 0, 0.5 and 1
     runBasicTest<1>(
         "unitLineN1.hpgem", "unitLineSegment-quadratic",
-        [](Geometry::PointPhysical<1> p) { return 1 + p[0] - p[0] * p[0]; });
+        [](Geometry::PointPhysical<1> p) {
+            return 1 + p[0] - 0.5 * p[0] * p[0];
+        },
+        2);
 }
 
 void test2DSquare() {
@@ -104,6 +110,43 @@ void test2DTriangles() {
     runBasicTest<2>(
         "unitSquareTrianglesN1.hpgem", "unitSquareTriangles-linear",
         [](Geometry::PointPhysical<2> p) { return 1 + p[0] + 2 * p[1]; });
+
+    // Quadratic 1 + 11x + 18y - 10x^2 - 16xy - 16y^2
+    // Result: 1-2-3 at the corners, 4-5-6 at the midpoints (all in CCW order)
+    runBasicTest<2>(
+        "unitSquareTrianglesN1.hpgem", "unitSquareTriangles-quadratic",
+        [](Geometry::PointPhysical<2> p) {
+            double x = p[0];
+            double y = p[1];
+            return 1 + 11 * x + 18 * y - 10 * x * x - 16 * x * y - 16 * y * y;
+        },
+        2);
+
+    // Higher order (4-th order)
+    runBasicTest<2>(
+        "unitSquareTrianglesN1.hpgem", "unitSquareTriangles-quartic",
+        [](Geometry::PointPhysical<2> p) {
+            double x = p[0];
+            double y = p[1];
+            std::cout << x << " " << y << std::endl;
+            // 1 + x^4 - y^4 + x^2y^2
+            return 1 + x * x * x * x - y * y * y * y + x * x * y * y;
+        },
+        4);
+
+    // Higher order (6-th order)
+    runBasicTest<2>(
+        "unitSquareTrianglesN1.hpgem", "unitSquareTriangles-sextic",
+        [](Geometry::PointPhysical<2> p) {
+            double x = p[0];
+            double x3 = x * x * x;
+            double y = p[1];
+            double y2 = y * y;
+            std::cout << x << " " << y << std::endl;
+            // 1 + x^6 - y^4 + x^3y^3
+            return 1 + x3 * x3 - y2 * y2 + x3 * y2 * y;
+        },
+        6);
 }
 
 void test3DCube() {
