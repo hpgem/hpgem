@@ -164,8 +164,9 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
                 }
 
                 outFile << "eigenfield-" << currentPoint_ << "-field-" << i;
-                Output::VTKSpecificTimeWriter<DIM> writer(outFile.str(),
-                                                          result.getMesh());
+                // Note the zero for timelevel is unused.
+                Output::VTKSpecificTimeWriter<DIM> writer(
+                    outFile.str(), result.getMesh(), 0, order.getValue());
                 result.writeField(i, writer);
             }
         }
