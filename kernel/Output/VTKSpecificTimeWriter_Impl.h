@@ -41,21 +41,11 @@
 #include "Base/MpiContainer.h"
 
 #include "Base/MeshManipulator.h"
-#include "Geometry/ElementGeometry.h"
 #include "Base/Element.h"
 #include "Geometry/PointPhysical.h"
-#include "Geometry/PhysicalGeometry.h"
 #include "Geometry/ReferencePoint.h"
-#include "Geometry/ReferenceLine.h"
-#include "Geometry/ReferenceTriangle.h"
-#include "Geometry/ReferenceSquare.h"
-#include "Geometry/ReferenceTetrahedron.h"
-#include "Geometry/ReferenceCube.h"
-#include "Geometry/ReferenceTriangularPrism.h"
-#include "Geometry/ReferencePyramid.h"
 #include "Geometry/PointReference.h"
 #include "base64.h"
-#include "VTKElementOrdering.h"
 #include "VTKStandardElements.h"
 #include "VTKLagrangeCurve.h"
 #include "VTKLagrangeHexahedron.h"
@@ -65,44 +55,9 @@
 #include <vector>
 #include <unordered_map>
 
-#include <typeindex>
-
 namespace hpgem {
 
 namespace Output {
-
-/////////////////////////////////////
-// some VTK specific helper routines//
-/////////////////////////////////////
-
-// vtk element types supported by hpGEM
-// magic numbers taken from http://www.vtk.org/VTK/img/file-formats.pdf
-// smaller underlying type allows for easy conversion to base64
-enum class VTKElementName : std::uint8_t {
-    VERTEX = 1,
-    LINE = 3,
-    TRIANGLE = 5,
-    QUAD = 9,
-    TETRA = 10,
-    HEXAHEDRON = 12,
-    WEDGE = 13,
-    PYRAMID = 14
-};
-
-static std::unordered_map<std::type_index, VTKElementName> hpGEMToVTK = {
-    {std::type_index(typeid(Geometry::ReferencePoint)), VTKElementName::VERTEX},
-    {std::type_index(typeid(Geometry::ReferenceLine)), VTKElementName::LINE},
-    {std::type_index(typeid(Geometry::ReferenceTriangle)),
-     VTKElementName::TRIANGLE},
-    {std::type_index(typeid(Geometry::ReferenceSquare)), VTKElementName::QUAD},
-    {std::type_index(typeid(Geometry::ReferenceTetrahedron)),
-     VTKElementName::TETRA},
-    {std::type_index(typeid(Geometry::ReferenceCube)),
-     VTKElementName::HEXAHEDRON},
-    {std::type_index(typeid(Geometry::ReferenceTriangularPrism)),
-     VTKElementName::WEDGE},
-    {std::type_index(typeid(Geometry::ReferencePyramid)),
-     VTKElementName::PYRAMID}};
 
 template <std::size_t DIM>
 VTKSpecificTimeWriter<DIM>::VTKSpecificTimeWriter(
