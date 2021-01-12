@@ -91,8 +91,6 @@ void DGMaxEigenvalue<DIM>::initializeMatrices() {
 template <std::size_t DIM>
 class DGMaxEigenvalue<DIM>::SolverWorkspace {
    public:
-    friend DGMaxEigenvalue<DIM>::Result;
-
     /**
      * Initialize the workspace
      * @param config  The configuration of the method
@@ -117,6 +115,24 @@ class DGMaxEigenvalue<DIM>::SolverWorkspace {
     const std::vector<PetscScalar>& getEigenvalues() const {
         return eigenvalues_;
     }
+
+    const LinearAlgebra::SmallVector<DIM>& getKPoint() const {
+        return currentK_;
+    }
+
+    const DGMaxEigenvalueBase::SolverConfig& getConfig() const {
+        return config_;
+    }
+
+    /**
+     * Take an eigenvector and write it to the element local timeintegration
+     * vector.
+     * @param eigenvectorId The index of the eigenvector
+     * @param timeIntegrationVectorId The index of the time integration to which
+     * to write it.
+     */
+    void writeAsTimeIntegrationVector(std::size_t eigenvectorId,
+                                      std::size_t timeIntegrationVectorId);
 
    private:
     /// Helper function for getting the Stiffness matrix to use as basis in the
@@ -241,12 +257,14 @@ class DGMaxEigenvalue<DIM>::Result : public AbstractEigenvalueResult<DIM> {
         : workspace_(workspace),
           mesh_(mesh),
           discretization_(discretization),
-          eigenvalueOrdering_(workspace.convergedEigenValues_) {
+          eigenvalueOrdering_(workspace.getEigenvalues().size()) {
+        const std::vector<PetscScalar>& eigenvalues =
+            workspace.getEigenvalues();
         std::iota(eigenvalueOrdering_.begin(), eigenvalueOrdering_.end(), 0);
         std::sort(eigenvalueOrdering_.begin(), eigenvalueOrdering_.end(),
                   [&](const std::size_t& i1, const std::size_t& i2) {
-                      const PetscScalar& e1 = workspace.eigenvalues_[i1];
-                      const PetscScalar& e2 = workspace.eigenvalues_[i2];
+                      const PetscScalar& e1 = eigenvalues[i1];
+                      const PetscScalar& e2 = eigenvalues[i2];
                       if (PetscRealPart(e1) != PetscRealPart(e2)) {
                           return PetscRealPart(e1) < PetscRealPart(e2);
                       } else {
@@ -268,13 +286,13 @@ class DGMaxEigenvalue<DIM>::Result : public AbstractEigenvalueResult<DIM> {
     }
 
     const LinearAlgebra::SmallVector<DIM>& getKPoint() const final {
-        return workspace_.currentK_;
+        return workspace_.getKPoint();
     }
 
     const Base::MeshManipulator<DIM>* getMesh() const final { return mesh_; }
 
     void writeField(std::size_t eigenvalue,
-                    Output::VTKSpecificTimeWriter<DIM>& writer);
+                    Output::VTKSpecificTimeWriter<DIM>& writer) override;
 
    private:
     SolverWorkspace& workspace_;
@@ -290,21 +308,14 @@ class DGMaxEigenvalue<DIM>::Result : public AbstractEigenvalueResult<DIM> {
 template <std::size_t DIM>
 void DGMaxEigenvalue<DIM>::Result::writeField(
     std::size_t eigenvalue, Output::VTKSpecificTimeWriter<DIM>& writer) {
-    logger.assert_debug(eigenvalue < workspace_.convergedEigenValues_,
-                        "Eigenvalue % is more than converged %", eigenvalue,
-                        workspace_.convergedEigenValues_);
-    // Distribute the solution coefficients to the local element vectors
-    PetscErrorCode err;
-    err = VecCopy(workspace_.eigenVectors_[eigenvalueOrdering_[eigenvalue]],
-                  workspace_.tempFieldVector_);
-    CHKERRABORT(PETSC_COMM_WORLD, err);
     const std::size_t VECTOR_ID = 0;
-    workspace_.tempFieldVector_.writeTimeIntegrationVector(VECTOR_ID);
+    workspace_.writeAsTimeIntegrationVector(eigenvalueOrdering_[eigenvalue],
+                                            VECTOR_ID);
     // When using the Hermitian system we applied a rescaling of the
     // solution coefficients x -> L^H x (LL^H = M is the Cholesky decomposition
     // of the mass matrix). Undo this transformation to correctly compute the
     // fields.
-    if (workspace_.config_.useHermitian_) {
+    if (workspace_.getConfig().useHermitian_) {
         for (Base::Element* element : mesh_->getElementsList()) {
             // Note: this all happens inplace.
             LinearAlgebra::MiddleSizeVector& coeffs =
@@ -777,6 +788,19 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::solve(
     // Post processing //
     /////////////////////
     extractEigenVectors();
+}
+
+template <std::size_t DIM>
+void DGMaxEigenvalue<DIM>::SolverWorkspace::writeAsTimeIntegrationVector(
+    std::size_t eigenvectorId, std::size_t timeIntegrationVectorId) {
+    logger.assert_debug(eigenvectorId < convergedEigenValues_,
+                        "Eigenvalue % is more than converged %", eigenvectorId,
+                        convergedEigenValues_);
+    // Distribute the solution coefficients to the local element vectors
+    PetscErrorCode err;
+    err = VecCopy(eigenVectors_[eigenvectorId], tempFieldVector_);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
+    tempFieldVector_.writeTimeIntegrationVector(timeIntegrationVectorId);
 }
 
 // ShiftWorkspace //
