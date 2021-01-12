@@ -49,23 +49,190 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace hpgem;
 
+/// Internal storage for the algorithm
+template <std::size_t DIM>
+class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
+   public:
+    explicit SolverWorkspace(Base::MeshManipulator<DIM>* mesh)
+        : indexing_(nullptr),
+          stiffnessMatrix_(
+              indexing_,
+              DivDGMaxDiscretization<DIM>::ELEMENT_STIFFNESS_MATRIX_ID,
+              DivDGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID),
+          massMatrix_(indexing_,
+                      DivDGMaxDiscretization<DIM>::ELEMENT_MASS_MATRIX_ID, -1),
+          tempVector_(indexing_, -1, -1),
+          solver_(nullptr),
+          numberOfConvergedEigenpairs(0),
+          numberOfEigenvectors_(0),
+          eigenvectors_(nullptr) {
+        // Separate from initializer list to allow for more flexibility
+        init(mesh);
+    };
+
+    ~SolverWorkspace() {
+        PetscErrorCode err;
+
+        VecDestroyVecs(numberOfEigenvectors_, &eigenvectors_);
+        err = EPSDestroy(&solver_);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+    }
+
+    void init(Base::MeshManipulator<DIM>* mesh) {
+        DGMaxLogger(DEBUG, "Initializing global index");
+        indexing_.reset(mesh, Utilities::GlobalIndexing::BLOCKED_PROCESSOR);
+        DGMaxLogger(DEBUG, "Assembling matrices");
+        stiffnessMatrix_.reinit();
+        massMatrix_.reinit();
+        DGMaxLogger(DEBUG, "Building temporary global vector");
+        tempVector_.reinit();
+
+        initKShifts();
+        initSolver();
+    }
+
+    void solve(LinearAlgebra::SmallVector<DIM> k,
+               std::size_t numberOfEigenvalues) {
+
+        kphaseshifts_.apply(k, stiffnessMatrix_);
+        kpoint_ = k;
+
+        PetscErrorCode err;
+        err = EPSSetOperators(solver_, massMatrix_, stiffnessMatrix_);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+        err = EPSSetDimensions(solver_, numberOfEigenvalues, PETSC_DECIDE,
+                               PETSC_DECIDE);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+
+        EPSSetInitialSpace(solver_, numberOfConvergedEigenpairs, eigenvectors_);
+
+        // Allow for overrides
+        err = EPSSetFromOptions(solver_);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+
+        DGMaxLogger(INFO, "Setting up solve");
+        err = EPSSetUp(solver_);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+        EPSSetWhichEigenpairs(solver_, EPS_LARGEST_REAL);
+        DGMaxLogger(INFO, "Solving");
+
+        err = EPSSolve(solver_);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+
+        // Post solve
+        err = EPSGetConverged(solver_, &numberOfConvergedEigenpairs);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+        DGMaxLogger(INFO, "Number of eigenvalues %", numberOfEigenvalues);
+        if (numberOfConvergedEigenpairs > numberOfEigenvectors_) {
+            err = VecDestroyVecs(numberOfEigenvectors_, &eigenvectors_);
+            CHKERRABORT(PETSC_COMM_WORLD, err);
+            err = VecDuplicateVecs(tempVector_, numberOfConvergedEigenpairs,
+                                   &eigenvectors_);
+            CHKERRABORT(PETSC_COMM_WORLD, err);
+        }
+
+        eigenvalues_.resize(numberOfConvergedEigenpairs);
+        for (PetscInt i = 0; i < numberOfConvergedEigenpairs; ++i) {
+            err = EPSGetEigenpair(solver_, i, &eigenvalues_[i], nullptr,
+                                  eigenvectors_[i], nullptr);
+            CHKERRABORT(PETSC_COMM_WORLD, err);
+        }
+    }
+
+    const LinearAlgebra::SmallVector<DIM>& getKPoint() const { return kpoint_; }
+
+    const std::vector<PetscScalar>& getEigenvalues() const {
+        return eigenvalues_;
+    }
+
+   private:
+    void initKShifts() {
+        DGMaxLogger(VERBOSE, "Initializing boundary shifting");
+        DGMax::FaceMatrixKPhaseShiftBuilder<DIM> builder;
+        builder.setMatrixExtractor([&](const Base::Face* face) {
+            const Base::FaceMatrix& faceMatrix = face->getFaceMatrix(
+                DivDGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID);
+            LinearAlgebra::MiddleSizeMatrix block1, block2;
+            block1 = faceMatrix.getElementMatrix(Base::Side::LEFT,
+                                                 Base::Side::RIGHT);
+            block2 = faceMatrix.getElementMatrix(Base::Side::RIGHT,
+                                                 Base::Side::LEFT);
+
+            return std::make_pair(block1, block2);
+        });
+        kphaseshifts_ = builder.build(indexing_);
+    }
+
+    void initSolver() {
+        PetscErrorCode err;
+        err = EPSCreate(PETSC_COMM_WORLD, &solver_);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+        // Setting operators, but these will be set again after k-shifting
+        // Note the order Mx = (1/omega^2) Sx and NOT Sx = omega^2 M x and doing
+        // a spectral transformation.
+        // It may be possible to remove this relic with the current version of
+        // SLEPc.
+        err = EPSSetOperators(solver_, massMatrix_, stiffnessMatrix_);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+
+        err = EPSSetWhichEigenpairs(solver_, EPS_LARGEST_MAGNITUDE);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+        DGMaxLogger(INFO, "Eigenvalue solver configured");
+    }
+
+    Utilities::GlobalIndexing indexing_;
+    Utilities::GlobalPetscMatrix stiffnessMatrix_;
+    Utilities::GlobalPetscMatrix massMatrix_;
+    /// Vector used as intermediate storage and sample
+    Utilities::GlobalPetscVector tempVector_;
+
+    /// exp(ikx) shifts used in the stiffness matrix
+    DGMax::KPhaseShifts<DIM> kphaseshifts_;
+
+    LinearAlgebra::SmallVector<DIM> kpoint_;
+
+    /// Eigenvalue solver
+    EPS solver_;
+
+    /// Number of converged eigenpairs
+    PetscInt numberOfConvergedEigenpairs;
+    /// Number of vectors available in eigenvectors_, this may be larger than
+    /// the number of converged eigenvalues.
+    std::size_t numberOfEigenvectors_;
+    /// Storage for eigenvectors
+    Vec* eigenvectors_;
+    /// Storage for the most recent eigenvalues
+    std::vector<PetscScalar> eigenvalues_;
+};
+
+template <std::size_t DIM>
+class DivDGMaxEigenvalue<DIM>::Result : public AbstractEigenvalueResult<DIM> {
+   public:
+    Result(const typename DivDGMaxEigenvalue<DIM>::SolverWorkspace& workspace)
+        : workspace_(workspace) {
+        auto& eigenvalues = workspace.getEigenvalues();
+        frequencies_.resize(eigenvalues.size());
+        for (std::size_t i = 0; i < frequencies_.size(); ++i) {
+            frequencies_[i] = 1. / std::sqrt(PetscRealPart(eigenvalues[i]));
+        }
+    };
+
+    std::vector<double> getFrequencies() final { return frequencies_; }
+
+    const LinearAlgebra::SmallVector<DIM>& getKPoint() const final {
+        return workspace_.getKPoint();
+    }
+
+   private:
+    const typename DivDGMaxEigenvalue<DIM>::SolverWorkspace& workspace_;
+    std::vector<double> frequencies_;
+};
+
 template <std::size_t DIM>
 DivDGMaxEigenvalue<DIM>::DivDGMaxEigenvalue(
     Base::MeshManipulator<DIM>& mesh, std::size_t order,
     typename DivDGMaxDiscretization<DIM>::Stab stab)
     : mesh_(mesh), order_(order), stab_(stab) {}
-
-template <std::size_t DIM>
-struct DivDGMaxResult : AbstractEigenvalueResult<DIM> {
-    std::vector<double> getFrequencies() final { return frequencies_; }
-
-    const LinearAlgebra::SmallVector<DIM>& getKPoint() const final {
-        return kpoint_;
-    }
-
-    std::vector<double> frequencies_;
-    LinearAlgebra::SmallVector<DIM> kpoint_;
-};
 
 template <std::size_t DIM>
 void DivDGMaxEigenvalue<DIM>::solve(
@@ -83,81 +250,10 @@ void DivDGMaxEigenvalue<DIM>::solve(
                                             nullptr);
     discretization.computeFaceIntegrals(mesh_, nullptr, stab_);
 
-    Utilities::GlobalIndexing indexing(&mesh_);
-    Utilities::GlobalPetscMatrix massMatrix(
-        indexing, DivDGMaxDiscretization<DIM>::ELEMENT_MASS_MATRIX_ID, -1),
-        stiffnessMatrix(
-            indexing, DivDGMaxDiscretization<DIM>::ELEMENT_STIFFNESS_MATRIX_ID,
-            DivDGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID);
-    DGMaxLogger(INFO, "Mass and stiffness matrices assembled");
-    Utilities::GlobalPetscVector globalVector(indexing, -1, -1);
-    DGMaxLogger(INFO, "Dummy vector assembled");
-
-    // Setup the boundary block shifting //
-    ///////////////////////////////////////
-    DGMax::KPhaseShifts<DIM> kphaseshifts;
-    {
-        DGMax::FaceMatrixKPhaseShiftBuilder<DIM> builder;
-        builder.setMatrixExtractor([&](const Base::Face* face) {
-            const Base::FaceMatrix& faceMatrix = face->getFaceMatrix(
-                DivDGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID);
-            LinearAlgebra::MiddleSizeMatrix block1, block2;
-            block1 = faceMatrix.getElementMatrix(Base::Side::LEFT,
-                                                 Base::Side::RIGHT);
-            block2 = faceMatrix.getElementMatrix(Base::Side::RIGHT,
-                                                 Base::Side::LEFT);
-
-            return std::make_pair(block1, block2);
-        });
-        kphaseshifts = builder.build(indexing);
-        DGMaxLogger(VERBOSE, "Initialized boundary shifting");
-    }
-
-    // Setting up eigenvalue solver //
-    //////////////////////////////////
-
-    DGMaxLogger(INFO, "Configuring Eigenvalue solver");
-    EPS eigenSolver;
-    error = EPSCreate(PETSC_COMM_WORLD, &eigenSolver);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-
-    // SH 180221
-    error = EPSSetOperators(eigenSolver, massMatrix, stiffnessMatrix);
-    // MatSetOption(product, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE);
-    // MatSetOption(stiffnessMatrix, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    // SH 180212
-    // error = EPSSetUp(eigenSolver_);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-
-    // As the stiffness and mass matrix are switched (i.e. M u = lambda S u),
-    // the eigenvalues correspond to omega^{-2}, thus the lowest bands give the
-    // largest eigenvalues.
-    EPSSetWhichEigenpairs(eigenSolver, EPS_LARGEST_MAGNITUDE);
-
-    EPSSetProblemType(eigenSolver, EPS_GNHEP);
-    DGMaxLogger(INFO, "Eigenvalue solver configured");
-
-    // Storage vectors //
-    /////////////////////
-
-    Vec* eigenVectors;
-    eigenVectors =
-        new Vec[numberOfEigenVectors];  // a few extra in case SLEPc finds more
-                                        // than the requested amount of
-                                        // eigenvalues
-    error = VecDuplicateVecs(globalVector, numberOfEigenVectors, &eigenVectors);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    int converged = 0;
-    DGMaxLogger(INFO, "Storage vectors assembled");
+    SolverWorkspace workspace(&mesh_);
 
     std::size_t outputId = 0;
     std::size_t expectedNumberOfSteps = driver.getNumberOfKPoints();
-    // For testing
-    //    maxSteps = 21;
-
-    std::vector<PetscScalar> eigenvalues(numberOfEigenvalues);
-    DivDGMaxResult<DIM> result;
 
     DGMaxLogger(INFO, "Starting k-vector walk");
     for (std::size_t solve = 0; !driver.stop(); driver.nextKPoint(), ++solve) {
@@ -165,57 +261,9 @@ void DivDGMaxEigenvalue<DIM>::solve(
         numberOfEigenvalues = driver.getTargetNumberOfEigenvalues();
         DGMaxLogger(INFO, "Solving for k-vector %/%", solve + 1,
                     expectedNumberOfSteps);
+        workspace.solve(currentK, numberOfEigenvalues);
 
-        // To match the AssemblyBegin and AssemblyEnd of Mat, we need to call
-        // them the same number of times on each node. The current, slightly
-        // inefficient approach is to call it max(BF_i) times, with BF_i the
-        // number of boundary faces on node i. This can be further optimized
-        // taking into account that not all boundary faces need a shift, and by
-        // shifting multiple boundary faces in one step. But that is for a later
-        // optimization round.
-        DGMaxLogger(VERBOSE, "Starting boundary k-shift");
-        kphaseshifts.apply(currentK, stiffnessMatrix);
-
-        error = EPSSetOperators(eigenSolver, massMatrix, stiffnessMatrix);
-        CHKERRABORT(PETSC_COMM_WORLD, error);
-        // SH 180212
-        if (solve > 1) {
-            error = EPSSetInitialSpace(eigenSolver, converged, eigenVectors);
-            CHKERRABORT(PETSC_COMM_WORLD, error);
-        }
-        error = EPSSetDimensions(eigenSolver, numberOfEigenvalues, PETSC_DECIDE,
-                                 PETSC_DECIDE);
-        CHKERRABORT(PETSC_COMM_WORLD, error);
-
-        // Allow for overrides
-        error = EPSSetFromOptions(eigenSolver);
-        CHKERRABORT(PETSC_COMM_WORLD, error);
-
-        DGMaxLogger(INFO, "Setting up solve for k-vector %/%", solve + 1,
-                    expectedNumberOfSteps);
-        error = EPSSetUp(eigenSolver);
-        CHKERRABORT(PETSC_COMM_WORLD, error);
-
-        // Jelmer: Search eigenvalue in neighborhood of this number:
-        // EPSSetTarget(eigenSolver_,40.0);
-        EPSSetWhichEigenpairs(eigenSolver, EPS_LARGEST_MAGNITUDE);
-        // EPSSetFromOptions(eigenSolver_);
-        // CHKERRABORT(PETSC_COMM_WORLD);
-
-        DGMaxLogger(INFO, "Solving for k-vector %/%", solve + 1,
-                    expectedNumberOfSteps);
-        error = EPSSolve(eigenSolver);
-        CHKERRABORT(PETSC_COMM_WORLD, error);
-
-        extractEigenvalues(eigenSolver, eigenvalues);
-        error = EPSGetEigenvector(eigenSolver, 0, globalVector, nullptr);
-        CHKERRABORT(PETSC_COMM_WORLD, error);
-
-        result.kpoint_ = currentK;
-        result.frequencies_.resize(eigenvalues.size());
-        for (std::size_t i = 0; i < eigenvalues.size(); ++i) {
-            result.frequencies_[i] = std::sqrt(1 / eigenvalues[i].real());
-        }
+        Result result(workspace);
 
         driver.handleResult(result);
 
@@ -223,43 +271,6 @@ void DivDGMaxEigenvalue<DIM>::solve(
         outputId++;
     }
     DGMaxLogger(INFO, "Finished k-vector walk");
-
-    error = EPSDestroy(&eigenSolver);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-}
-
-template <std::size_t DIM>
-void DivDGMaxEigenvalue<DIM>::extractEigenvalues(
-    const EPS& solver, std::vector<PetscScalar>& result) const {
-    int converged;
-    PetscErrorCode err;
-    PetscScalar eigenvalue, neededOnlyForRealPetsc;
-
-    err = EPSGetConverged(solver, &converged);
-    CHKERRABORT(PETSC_COMM_WORLD, err);
-
-    // Retrieve all non zero eigenvalues from the solver.
-    result.resize(converged);
-    for (int i = 0; i < converged; ++i) {
-        // Note, the last parameter is only used for a PETSc compiled using real
-        // numbers, where we need two output parameters for a complex number.
-        err = EPSGetEigenvalue(solver, i, &eigenvalue, &neededOnlyForRealPetsc);
-        CHKERRABORT(PETSC_COMM_WORLD, err);
-
-        result[i] = eigenvalue;
-    }
-
-    DGMaxLogger(INFO, "Number of eigenvalues:  %.", result.size());
-    // Sort eigenvalues in descending order with respect to the real part of the
-    // eigenvalue and using the imaginary part as tie breaker.
-    // Note descending, as this gives ascending values for the frequency.
-    std::sort(result.begin(), result.end(),
-              [](const PetscScalar& a, const PetscScalar& b) {
-                  if (a.real() != b.real()) {
-                      return a.real() > b.real();
-                  }
-                  return a.imag() > b.imag();
-              });
 }
 
 template class DivDGMaxEigenvalue<2>;
