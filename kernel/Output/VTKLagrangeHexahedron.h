@@ -46,9 +46,7 @@ class VTKLagrangeHexahedron : public VTKElement<3> {
    public:
     VTKLagrangeHexahedron(std::size_t order);
 
-    std::uint8_t vtkId() const final {
-        return 72;
-    }
+    std::uint8_t vtkId() const final { return 72; }
 
     const std::vector<Geometry::PointReference<3>>& getPoints() const final {
         return points_;

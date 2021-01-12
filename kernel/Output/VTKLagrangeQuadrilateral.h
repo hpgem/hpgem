@@ -41,13 +41,11 @@
 #include "VTKElement.h"
 namespace hpgem {
 namespace Output {
-class VTKLagrangeQuadrilateral : public VTKElement<2>{
+class VTKLagrangeQuadrilateral : public VTKElement<2> {
    public:
     explicit VTKLagrangeQuadrilateral(std::size_t order);
 
-    std::uint8_t vtkId() const final {
-        return 70;
-    }
+    std::uint8_t vtkId() const final { return 70; }
 
     const std::vector<Geometry::PointReference<2>>& getPoints() const final {
         return points_;
@@ -55,7 +53,7 @@ class VTKLagrangeQuadrilateral : public VTKElement<2>{
 
     std::vector<Geometry::PointReference<2>> points_;
 };
-}
-}
+}  // namespace Output
+}  // namespace hpgem
 
 #endif  // HPGEM_VTKLAGRANGEQUADRILATERAL_H
