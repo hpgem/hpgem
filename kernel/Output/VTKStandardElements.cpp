@@ -36,7 +36,6 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "VTKStandardElements.h"
-#include "Geometry/PointReference.h"
 
 namespace hpgem {
 namespace Output {

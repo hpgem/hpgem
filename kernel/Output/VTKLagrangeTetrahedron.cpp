@@ -39,7 +39,6 @@
 
 #include <array>
 #include <valarray>
-#include "LinearAlgebra/SmallVector.h"
 
 #include "VTKLagrangeTriangle.h"
 

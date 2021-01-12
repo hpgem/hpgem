@@ -37,8 +37,6 @@
  */
 #include "VTKLagrangeQuadrilateral.h"
 
-#include "Geometry/PointReference.h"
-
 namespace hpgem {
 
 namespace Output {

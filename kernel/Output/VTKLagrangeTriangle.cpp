@@ -36,7 +36,6 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "VTKLagrangeTriangle.h"
-#include "Geometry/PointReference.h"
 
 #include <valarray>
 

@@ -37,8 +37,6 @@
  */
 #include "VTKLagrangeHexahedron.h"
 
-#include "Geometry/PointReference.h"
-
 namespace hpgem {
 namespace Output {
 

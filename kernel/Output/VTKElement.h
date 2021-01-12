@@ -41,30 +41,38 @@
 #include <cstdint>
 #include <vector>
 
-namespace hpgem {
+#include "Geometry/PointReference.h"
 
-namespace Geometry {
-template <std::size_t DIM>
-class PointReference;
-}
+namespace hpgem {
 
 namespace Output {
 
+/**
+ * \brief VTK description of a type of mesh elements
+ *
+ * Essential information about a single type of reference element that can be
+ * used in a VTK file (in VTK unstructured grid these are known as cells).
+ *
+ * @tparam DIM The dimension of the geometry
+ */
 template <std::size_t DIM>
 class VTKElement {
    public:
     virtual ~VTKElement() = default;
     /**
-     * Magic number representing identifying the element type.
+     * Magic number identifying the element/cell type.
      *
-     * see
+     * @see
      * https://github.com/Kitware/VTK/blob/0ce0d74e67927fd964a27c045d68e2f32b5f65f7/Common/DataModel/vtkCellType.h
      * @return
      */
     virtual std::uint8_t vtkId() const = 0;
 
     /**
-     * The reference coordinates for the points
+     * The reference coordinates on the corresponding ReferenceGeometry. The
+     * ordering of these is used to for the corresponding physical coordinates
+     * in the output file.
+     *
      * @return A vector with reference coordinates of the points
      */
     virtual const std::vector<Geometry::PointReference<DIM>>& getPoints()

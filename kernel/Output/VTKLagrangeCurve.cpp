@@ -36,7 +36,7 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "VTKLagrangeCurve.h"
-#include "Geometry/PointReference.h"
+
 namespace hpgem {
 namespace Output {
 
