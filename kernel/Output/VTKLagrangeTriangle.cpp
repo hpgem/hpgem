@@ -38,55 +38,66 @@
 #include "VTKLagrangeTriangle.h"
 #include "Geometry/PointReference.h"
 
+#include <valarray>
+
 namespace hpgem {
 namespace Output {
 
 VTKLagrangeTriangle::VTKLagrangeTriangle(std::size_t order)
     : points_((order + 1) * (order + 2) / 2) {
-    // For higher order elements, the points can be seen to form several nested
-    // triangles. The first layer is formed by the points on the corners (listed
-    // counter clockwise) and points on the outer edges (also listend counter
-    // clockwise). When removing these points an inner triangle is revealed, for
-    // which the process repeats.
-
-    double h = 1.0 / order;  // Spacing between points
-    std::size_t index = 0;
-
-    // The inner most layer goes through three stages:
-    // - order % 3 == 0 a single point
-    // - order % 3 == 1 three corner points
-    // - order % 3 == 2 three corner points and three midpoints
-    // At the next step, three corner points and six midpoints, there will be a
-    // new layer inside with a single point
-    for (std::size_t layer = 0; layer < order / 3 + 1; ++layer) {
-        double lh = layer * h;
-        // Corner points in ccw order
-        points_[index++] = Geometry::PointReference<2>({lh, lh});
-        if (order % 3 != 0 || layer != order / 3) {
-            // The three corner points coincide for the inner most layer when
-            // order % 3 == 0.
-            points_[index++] = Geometry::PointReference<2>({1.0 - 2 * lh, lh});
-            points_[index++] = Geometry::PointReference<2>({lh, 1.0 - 2 * lh});
-        }
-
-        std::size_t nSidePoints =
-            order + 1 - 3 * layer;  // includes corner points
-        // Bottom edge
-        for (std::size_t i = 1; i < nSidePoints - 1; ++i) {
-            // i == 0 is first corner, i = nSidePoints-1 is the second corner
-            points_[index++] = Geometry::PointReference<2>({lh + i * h, lh});
-        }
-        // Diagonal edge
-        for (std::size_t i = 1; i < nSidePoints - 1; ++i) {
-            points_[index++] =
-                Geometry::PointReference<2>({1.0 - 2*lh - i * h, lh + i * h});
-        }
-        // Left edge
-        for (std::size_t i = 1; i < nSidePoints - 1; ++i) {
-            points_[index++] =
-                Geometry::PointReference<2>({lh, 1.0 - 2*lh - i * h});
-        }
+    std::vector<std::valarray<std::size_t>> bary =
+        computeBaryIntegerPoints(order);
+    double h = 1.0 / order;
+    for (std::size_t i = 0; i < bary.size(); ++i) {
+        // Conversion from barycentric to actual coordinates.
+        points_[i][0] = h * bary[i][1];
+        points_[i][1] = h * bary[i][2];
     }
+}
+
+std::vector<std::valarray<std::size_t>>
+    VTKLagrangeTriangle::computeBaryIntegerPoints(std::size_t order) {
+
+    // Integer variation on barycenteric coordinates. When multiplying by h =
+    // 1/order these are actual barycentric coordinates. This uses the reference
+    // point order (origin, x=1, y=1), which is identical to the VTK ordering.
+    using IVec = std::valarray<std::size_t>;
+
+    std::size_t numPoints = (order + 1) * (order + 2) / 2;
+    std::vector<IVec> points(numPoints);
+
+    std::size_t index = 0;
+    for (std::size_t layer = 0; 3 * layer <= order; ++layer) {
+        // Offset for this layer
+        IVec offset = IVec({layer, layer, layer});
+        // The remainder of the order to distribute
+        std::size_t rOrder = order - 3 * layer;
+
+        // Either 1 or 3 corner points
+        points[index++] = offset + IVec({rOrder, 0, 0});
+        if (rOrder == 0) {
+            break;
+        }
+        points[index++] = offset + IVec({0, rOrder, 0});
+        points[index++] = offset + IVec({0, 0, rOrder});
+
+        // For rOrder >= 2 there are rOrder - 1 intermediate points on each edge
+        // These are enumerated in counter clockwise order
+        for (std::size_t i = 0; i < rOrder - 1; ++i) {
+            std::size_t i1 = i + 1;
+            std::size_t i2 = rOrder - i - 1;
+            points[index + i + 0 * (rOrder - 1)] = offset + IVec({i2, i1, 0});
+            points[index + i + 1 * (rOrder - 1)] = offset + IVec({0, i2, i1});
+            points[index + i + 2 * (rOrder - 1)] = offset + IVec({i1, 0, i2});
+        }
+        index += 3 * (rOrder - 1);
+    }
+
+    logger.assert_always(
+        points.size() == numPoints,
+        "Incorrect number of points for the VTKLangrangeTriangle of order %",
+        order);
+    return points;
 }
 
 }  // namespace Output

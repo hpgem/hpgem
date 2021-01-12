@@ -40,23 +40,37 @@
 
 #include "VTKElement.h"
 
+#include <valarray>
+
 namespace hpgem {
 namespace Output {
-class VTKLagrangeTriangle : public VTKElement<2>{
+class VTKLagrangeTriangle : public VTKElement<2> {
    public:
     explicit VTKLagrangeTriangle(std::size_t order);
 
-    std::uint8_t vtkId() const final {
-        return 69;
-    }
+    std::uint8_t vtkId() const final { return 69; }
 
     const std::vector<Geometry::PointReference<2>>& getPoints() const final {
         return points_;
     }
 
     std::vector<Geometry::PointReference<2>> points_;
+
+    /// Compute the scaled barycentric coordinates of the Lagrange points.
+    ///
+    /// This computes the Lagrange points in VTK order, scaled by the order, so
+    /// that all the Lagrange points are at integral coordinates. The scaled
+    /// barycentric coordinates are vectors of three positive integers, for the
+    /// points (x=0,y=0), (x=1,y=0) and (x=0,y=1) in that order (though any
+    /// three points with CCW ordering could be used).
+    ///
+    /// \param order The order for which to generate the Lagrange points.
+    /// \return A vector of size (order+1)*(order+2)/2 with the scaled
+    /// barycentric coordinates.
+    static std::vector<std::valarray<std::size_t>> computeBaryIntegerPoints(
+        std::size_t order);
 };
-}
-}
+}  // namespace Output
+}  // namespace hpgem
 
 #endif  // HPGEM_VTKLAGRANGETRIANGLE_H
