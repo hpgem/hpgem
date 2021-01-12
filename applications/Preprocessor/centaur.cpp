@@ -152,7 +152,7 @@ CentaurReader::CentaurReader(std::string filename) {
                          "File hyb-type 6 uses 64 bit indices for nodes and "
                          "elements, which is not implemented.");
     logger.assert_always(centaurFileType < 6, "File type is too new.");
-    if (centaurFileType < 4) {
+    if (centaurFileType < 4 && centaurFileType > 0) {
         logger(WARN,
                "Old centaur file format. These files can be upgraded using "
                "hybconvert.");
