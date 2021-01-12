@@ -35,50 +35,28 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_VTKLAGRANGETRIANGLE_H
-#define HPGEM_VTKLAGRANGETRIANGLE_H
+#ifndef HPGEM_VTKLAGRANGETETRAHEDRON_H
+#define HPGEM_VTKLAGRANGETETRAHEDRON_H
 
 #include "VTKElement.h"
 
-#include <valarray>
-
 namespace hpgem {
 namespace Output {
-class VTKLagrangeTriangle : public VTKElement<2> {
+class VTKLagrangeTetrahedron : public VTKElement<3>{
    public:
-    explicit VTKLagrangeTriangle(std::size_t order);
+    explicit VTKLagrangeTetrahedron(std::size_t order);
+    std::uint8_t vtkId() const final {
+        return 71;
+    }
 
-    std::uint8_t vtkId() const final { return 69; }
-
-    const std::vector<Geometry::PointReference<2>>& getPoints() const final {
+    const std::vector<Geometry::PointReference<3>>& getPoints() const final {
         return points_;
     }
 
-    std::vector<Geometry::PointReference<2>> points_;
+    std::vector<Geometry::PointReference<3>> points_;
 
-    /// Compute the scaled barycentric coordinates of the Lagrange points.
-    ///
-    /// This computes the Lagrange points in VTK ordering for a given
-    /// (polynomial) order. The coordinates for the points are given in scaled
-    /// barycentric coordinates, that is bary centric coordinates scaled by a
-    /// factor order, so that the coordinates are all non negative integers. As
-    /// these are barycentric coordinates the sum of the coordinates sum up to
-    /// order.
-    ///
-    /// The VTK ordering for a triangle is recursive. First one lists the outer
-    /// corner points. Then in CCW direction the points along the edge. This
-    /// either exhausts the points or reveals an inner triangle (possibly a
-    /// single point) for which the process can be repeated. The first three
-    /// nodes in this process are [order, 0, 0], [0, order, 0] and [0, 0,
-    /// order].
-    ///
-    /// \param order The order for which to generate the Lagrange points.
-    /// \return A vector of size (order+1)*(order+2)/2 with the scaled
-    /// barycentric coordinates.
-    static std::vector<std::valarray<std::size_t>> computeBaryIntegerPoints(
-        std::size_t order);
 };
-}  // namespace Output
-}  // namespace hpgem
+}
+}
 
-#endif  // HPGEM_VTKLAGRANGETRIANGLE_H
+#endif  // HPGEM_VTKLAGRANGETETRAHEDRON_H

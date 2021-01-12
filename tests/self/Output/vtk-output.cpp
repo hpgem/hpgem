@@ -211,6 +211,42 @@ void test3DTetrahedrons() {
                     [](Geometry::PointPhysical<3> p) {
                         return 1 + p[0] + 2 * p[1] + 4 * p[2];
                     });
+    // 1+15x+18y+25z-14x^2-12xy-16y^2-12xz-12yz-22z^2
+    // Values 1-4 at corner points, then
+    //  - 5 at x=0.5
+    //  - 6 at y=0.5
+    //  - 7 at x=y=0.5
+    //  - 8 at z=0.5
+    //  - 9 at x=z=0.5
+    //  - 10 at y=z=0.5
+    runBasicTest<3>(
+        "unitCubeTetrahedronsN1.hpgem", "unitTetrahedrons-quadratic",
+        [](Geometry::PointPhysical<3> p) {
+            double x = p[0], y = p[1], z = p[2];
+            return 1 + 15 * x + 18 * y + 25 * z - 14 * x * x - 12 * x * y -
+                   16 * y * y - 12 * x * z - 12 * y * z - 22 * z * z;
+        },
+        2);
+    // Test for the connectivity on faces (each face has 3 points), which allow
+    // for incorrect ordering.
+    runBasicTest<3>(
+        "unitCubeTetrahedronsN1.hpgem", "unitTetrahedrons-quartic",
+        [](Geometry::PointPhysical<3> p) {
+            // Dummy function
+            double x = p[0], y = p[1], z = p[2];
+            return 1 + x * (1 - x) + 2 * y * (1 - y) + 3 * z * (1 - z);
+        },
+        4);
+
+    // Order 7 so that the inner tetrahedron has a single face points
+    runBasicTest<3>(
+        "unitCubeTetrahedronsN1.hpgem", "unitTetrahedrons-septic",
+        [](Geometry::PointPhysical<3> p) {
+            double x = p[0], y = p[1], z = p[2];
+            double x2 = x * x, y2 = y * y, z2 = z * z;
+            return x2 * x2 * x2 * x + y2 * y2 + z;
+        },
+        7);
 }
 
 }  // namespace hpgem

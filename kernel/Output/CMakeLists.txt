@@ -6,6 +6,7 @@ add_library(Output OBJECT
 	VTKLagrangeCurve.cpp
 	VTKLagrangeHexahedron.cpp
 	VTKLagrangeQuadrilateral.cpp
+	VTKLagrangeTetrahedron.cpp
 	VTKLagrangeTriangle.cpp
 	VTKStandardElements.cpp
 )

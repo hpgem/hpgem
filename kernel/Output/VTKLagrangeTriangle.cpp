@@ -59,18 +59,22 @@ std::vector<std::valarray<std::size_t>>
     VTKLagrangeTriangle::computeBaryIntegerPoints(std::size_t order) {
 
     // Integer variation on barycenteric coordinates. When multiplying by h =
-    // 1/order these are actual barycentric coordinates. This uses the reference
-    // point order (origin, x=1, y=1), which is identical to the VTK ordering.
+    // 1/order these are actual barycentric coordinates. While the actual
+    // coordiantes of the points don't matter, they will be mapped such that
+    // [order, 0, 0] = (0,0), [0, order, 0] = (1,0) and [0, 0, order] = (0,1).
     using IVec = std::valarray<std::size_t>;
 
     std::size_t numPoints = (order + 1) * (order + 2) / 2;
     std::vector<IVec> points(numPoints);
 
-    std::size_t index = 0;
+    std::size_t index = 0;  // Index in the output
     for (std::size_t layer = 0; 3 * layer <= order; ++layer) {
-        // Offset for this layer
+        // Split the points on this layer into offset + localPoint
+        // Offset is a vector that ensures that we are away from each corner
+        // point by 'layer'-points. The localPoint is a localPoint on the layer,
+        // which is ensured by having at least one zero coordinate.
         IVec offset = IVec({layer, layer, layer});
-        // The remainder of the order to distribute
+        // sum(offset[i]) = 3*layer, so ew need sum(localPoint[i]) = rOrder
         std::size_t rOrder = order - 3 * layer;
 
         // Either 1 or 3 corner points
@@ -92,9 +96,9 @@ std::vector<std::valarray<std::size_t>>
         }
         index += 3 * (rOrder - 1);
     }
-
+    // Safety check
     logger.assert_always(
-        points.size() == numPoints,
+        index == numPoints,
         "Incorrect number of points for the VTKLangrangeTriangle of order %",
         order);
     return points;

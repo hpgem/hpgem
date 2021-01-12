@@ -59,6 +59,7 @@
 #include "VTKStandardElements.h"
 #include "VTKLagrangeCurve.h"
 #include "VTKLagrangeHexahedron.h"
+#include "VTKLagrangeTetrahedron.h"
 #include "VTKLagrangeTriangle.h"
 #include "VTKLagrangeQuadrilateral.h"
 #include <vector>
@@ -531,6 +532,8 @@ inline void VTKSpecificTimeWriter<3>::setupMapping(std::size_t order) {
     } else {
         elementMapping_[Geometry::ReferenceGeometryType::CUBE] =
             std::shared_ptr<VTKElement<3>>(new VTKLagrangeHexahedron(order));
+        elementMapping_[Geometry::ReferenceGeometryType::TETRAHEDRON] =
+            std::shared_ptr<VTKElement<3>>(new VTKLagrangeTetrahedron(order));
     }
 }
 
