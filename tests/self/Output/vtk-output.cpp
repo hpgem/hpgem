@@ -178,8 +178,8 @@ void test3DCube() {
     // Quadratic function
     // Such that it has values 1-8 + (2z*8), where the values 1-8 are used
     // linearly for the points from x=0-1,y=0 then x=0-1,y=1/2 and then
-    // x=0-1/2,y=1. The values 25-27 are used at x=1,y=1 with z=1 being 25 and
-    // z=0 being 27.
+    // x=0-1/2,y=1. The values 25-27 are used at x=1,y=1 where
+    // 25 is at z=1, 26 at z=0 and 27 at z=0.5.
     runBasicTest<3>(
         "unitCubeN1.hpgem", "unitCube-quadratic",
         [](Geometry::PointPhysical<3> p) {
@@ -188,9 +188,9 @@ void test3DCube() {
             double z = p[2], z2 = z * z;
             return 1 + 2 * x + 6 * y + 17 * x * y - 34 * (x2 * y + x * y2) +
                    68 * x2 * y2 +
-                   z * (16 - 15 * x * y + 30 * (x2 * y + x * y2) -
-                        60 * x2 * y2) +
-                   z2 * (-2 * x * y + 4 * (x2 * y + y2 * x) - 8 * x2 * y2);
+                   z * (16 - 11 * x * y + 22 * (x2 * y + x * y2) -
+                        44 * x2 * y2) +
+                   z2 * (-6 * x * y + 12 * (x2 * y + y2 * x) - 24 * x2 * y2);
         },
         2);
 
