@@ -25,4 +25,4 @@ jobs:
     - name: make
       run: cmake --build build -- -j4
     - name: test
-      run: cd build && ctest
+      run: cd build && ctest --output-on-failure
