@@ -122,7 +122,7 @@ class DivDGMaxDiscretization {
         LinearAlgebra::SmallVector<DIM> realEField;
         // Imaginary part of the E field
         LinearAlgebra::SmallVector<DIM> imagEField;
-        // Complex valued p field;
+        // Complex valued p scalar function;
         std::complex<double> potential;
     };
 

@@ -48,6 +48,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <petscvec.h>
 #include <slepceps.h>
 #include <DGMaxLogger.h>
+#include <ElementInfos.h>
 
 #include "Base/MeshManipulator.h"
 #include "LinearAlgebra/SmallVector.h"
@@ -260,6 +261,7 @@ class DGMaxEigenvalue<DIM>::Result : public AbstractEigenvalueResult<DIM> {
           eigenvalueOrdering_(workspace.getEigenvalues().size()) {
         const std::vector<PetscScalar>& eigenvalues =
             workspace.getEigenvalues();
+        // Compute the reordering to have increasing eigenvalues
         std::iota(eigenvalueOrdering_.begin(), eigenvalueOrdering_.end(), 0);
         std::sort(eigenvalueOrdering_.begin(), eigenvalueOrdering_.end(),
                   [&](const std::size_t& i1, const std::size_t& i2) {
@@ -292,7 +294,7 @@ class DGMaxEigenvalue<DIM>::Result : public AbstractEigenvalueResult<DIM> {
     const Base::MeshManipulator<DIM>* getMesh() const final { return mesh_; }
 
     void writeField(std::size_t eigenvalue,
-                    Output::VTKSpecificTimeWriter<DIM>& writer) override;
+                    Output::VTKSpecificTimeWriter<DIM>& writer) final;
 
    private:
     SolverWorkspace& workspace_;
@@ -312,9 +314,9 @@ void DGMaxEigenvalue<DIM>::Result::writeField(
     workspace_.writeAsTimeIntegrationVector(eigenvalueOrdering_[eigenvalue],
                                             VECTOR_ID);
     // When using the Hermitian system we applied a rescaling of the
-    // solution coefficients x -> L^H x (LL^H = M is the Cholesky decomposition
-    // of the mass matrix). Undo this transformation to correctly compute the
-    // fields.
+    // solution coefficients to use y = L^H x (LL^H = M is the Cholesky
+    // decomposition of the mass matrix and x the actual coefficients). Undo
+    // this transformation to correctly compute the fields.
     if (workspace_.getConfig().useHermitian_) {
         for (Base::Element* element : mesh_->getElementsList()) {
             // Note: this all happens inplace.
@@ -358,6 +360,20 @@ void DGMaxEigenvalue<DIM>::Result::writeField(
             return fields.imagEField;
         },
         "Eimag");
+    // Also write epsilon for post processing
+    writer.write(
+        [&](const Base::Element* element, const Geometry::PointReference<DIM>&,
+            std::size_t) {
+            auto* userData = element->getUserData();
+            const ElementInfos* elementInfo =
+                dynamic_cast<ElementInfos*>(userData);
+            if (elementInfo != nullptr) {
+                return elementInfo->epsilon_;
+            } else {
+                return -1.0;  // Clearly invalid value
+            }
+        },
+        "epsilon");
 }
 
 ///
@@ -407,7 +423,7 @@ DGMaxEigenvalue<DIM>::SolverWorkspace::SolverWorkspace(
                        DGMaxDiscretizationBase::FACE_MATRIX_ID),
       massMatrix_(fieldIndex_, DGMaxDiscretizationBase::MASS_MATRIX_ID, -1),
       tempFieldVector_(fieldIndex_, -1, -1),
-      targetFrequency_(3),
+      targetFrequency_(1),
       numberOfEigenVectors_(0) {
 
     initMatrices();
