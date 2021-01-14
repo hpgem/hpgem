@@ -78,12 +78,21 @@ namespace Preprocessor {
  *    capability. The number of lines is such that the first Nl-1 lines contain
  *    exactly Ne entries, and the last line contains the remaining entries.
  *
+ *    This is the most common format. For some things (zones, periodic boundary
+ *    conditions) the data does not follow this format. For example, Zones in 3D
+ *    interleave the zone-element-indices and the zone names (instead of having
+ *    two separate arrays). While periodic boundary conditions don't use arrays
+ *    to group the storage of the properties, instead storing them seperately
+ *    one in each dataline.
+ *
  *    Note: My guess is that this multiline storage is needed as the start/end
  *    markers are stored as (u?)int32. Hence the number of bytes in each data
  *    line is limited.
  *
  * 5. This reader supports both 2D and 3D hyb meshes, and unlike the examples
  *    from centaur we don't separate them into completely different code blocks.
+ *    This is possible because the basic structure of the format is the same,
+ *    though there several tiny differences.
  */
 
 template <std::size_t N>
