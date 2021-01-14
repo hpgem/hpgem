@@ -207,18 +207,14 @@ CentaurReader::CentaurReader(std::string filename) {
         skipGroup(1);  // boundary faces
     }
 
-    // Note the following seems to be incorrect:
-    // the segment to boundary group mapping should be equivalent to the 3D
-    // panel ->PanelGroup mapping. Thus I don't understand what this extra line
-    // is doing here.
-    if (is2D()) {
-        // Segment -> boundary group mapping
-        skipGroup();  // segments
-    }
-    // Panel -> PanelGroup mapping
+    // Mapping of the boundary
+    // 3D: Panel -> PanelGroup mapping
+    // 2D: Segment -> boundary group mapping
     skipGroup(1, false);
+
     // Panel Group -> B.C. type & Name
-    skipGroup(2, false);  // group to b.c. type connections
+    // skipGroup(2, false);  // group to b.c. type connections
+    readBoundaryGroups();
     logger(VERBOSE, "done with skipping information");
 
     // Periodicity information
@@ -237,7 +233,9 @@ CentaurReader::CentaurReader(std::string filename) {
     // Interface panels (3D only)
     // 1 data line with number N of interface panels (could be zero)
     // 1 data line with N entries (panel numbers?)
-    skipGroup();
+    if (is3D()) {
+        skipGroup();
+    }
 
     // Zones
     // 1 data line with the number N of zones
@@ -251,6 +249,7 @@ CentaurReader::CentaurReader(std::string filename) {
     //
     // Note 2D: Version prior <= 4.99 allow not having zones it seems
     readZoneInfo(elementCounts);
+    logger(INFO, "Finished scanning through hyb-file");
 
     // More internal information is possible, for example polyhedrons.
 }
@@ -470,7 +469,7 @@ std::uint32_t CentaurReader::skipGroup(std::size_t linesPerEntity,
 
 void CentaurReader::readPeriodicNodeConnections() {
     std::uint32_t numberOfPeriodicTransformations = 1;
-    if (centaurFileType > 3) {
+    if (centaurFileType > 3 || is2D()) {
         auto currentLine = readLine();
         currentLine >> numberOfPeriodicTransformations;
     }
@@ -531,6 +530,30 @@ void CentaurReader::readPeriodicNodeConnections() {
     }
 }
 
+void CentaurReader::readBoundaryGroups() {
+    auto line = readLine();
+    std::uint32_t numberOfGroups;
+    line >> numberOfGroups;
+    logger(INFO, "Discarding % boundary groups", numberOfGroups);
+    std::vector<std::uint32_t> boundaryTypeIds(numberOfGroups);
+    std::vector<std::array<char, 80>> rawBoundaryNames(numberOfGroups);
+    line = readLine();
+    for (std::uint32_t i = 0; i < numberOfGroups; ++i) {
+        std::uint32_t temp;
+        line >> temp;
+        boundaryTypeIds[i] = temp;
+    }
+    line = readLine();
+    for (std::uint32_t i = 0; i < numberOfGroups; ++i) {
+        line >> rawBoundaryNames[i];
+    }
+    // Output for debugging
+    for (std::uint32_t i = 0; i < numberOfGroups; ++i) {
+        logger(VERBOSE, "Boundary group \"%\" of type %'", rawBoundaryNames[i],
+               boundaryTypeIds[i]);
+    }
+}
+
 void CentaurReader::readZoneInfo(std::array<std::uint32_t, 4> elementCount) {
     if (is2D() && version <= 4.99 && centaurFile.eof()) {
         // Zone info is only mandatory for 2D, version > 4.99
@@ -550,12 +573,15 @@ void CentaurReader::readZoneInfo(std::array<std::uint32_t, 4> elementCount) {
     std::uint32_t numberOfZones;
     line >> numberOfZones;
     zones.resize(numberOfZones);
+    logger(INFO, "Reading % zones", numberOfZones);
 
     // Read all the zones
     line = readLine();
     for (std::uint32_t i = 0; i < numberOfZones; ++i) {
         ZoneInformation& zone = zones[i];
-
+        // The centaur file stores the element indices of the first element in
+        // the zone. However, we are interested in the last index of each
+        // element type in the zone.
         if (i == 0) {
             std::uint32_t entry;
             std::size_t numEntries = is3D() ? 5 : 2;
@@ -587,17 +613,29 @@ void CentaurReader::readZoneInfo(std::array<std::uint32_t, 4> elementCount) {
                 prevZone.endOffsets[4] = 0;
             }
         }
-        line >> zone.rawZoneName;
+        if (is3D()) {
+            // For 3D the zone name is directly appended to the zone
+            line >> zone.rawZoneName;
+        }
     }
 
     {
-        /// Fill last endOffsets as there is no previous
+        // Fill the endOffsets of the last zone as there is no next zone to fill
+        // them.
         ZoneInformation& lastZone = zones[numberOfZones - 1];
         for (std::size_t i = 0; i < 4; ++i) {
             lastZone.endOffsets[i] = elementCount[i];
         }
         // Not used
         lastZone.endOffsets[4] = 0;
+    }
+
+    if (is2D()) {
+        // For 2D the zone names are separate
+        line = readLine();
+        for (std::size_t i = 0; i < numberOfZones; ++i) {
+            line >> zones[i].rawZoneName;
+        }
     }
 
     if (is3D() && version > 4.99) {
@@ -607,14 +645,15 @@ void CentaurReader::readZoneInfo(std::array<std::uint32_t, 4> elementCount) {
             line >> zones[i].rawZoneFamiliyName;
         }
     } else {
+        // No zone families: fill the zones with padding
         for (std::uint32_t i = 0; i < numberOfZones; ++i) {
             std::fill(zones[i].rawZoneFamiliyName.begin(),
                       zones[i].rawZoneFamiliyName.end(), ' ');
         }
     }
     for (const ZoneInformation& zone : zones) {
-        logger(DEBUG, "Zone \"%\"", zone.getZoneName());
-        logger(DEBUG, "\tFamily: \"%\"", zone.getZoneFamilyName());
+        logger(VERBOSE, "Zone \"%\"", zone.getZoneName());
+        logger(VERBOSE, "\tFamily: \"%\"", zone.getZoneFamilyName());
         for (std::size_t i = 0; i < 5; ++i) {
             logger(DEBUG, "\tOffset % : %", i, zone.endOffsets[i]);
         }
