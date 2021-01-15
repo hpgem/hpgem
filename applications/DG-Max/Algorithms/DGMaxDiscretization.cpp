@@ -493,6 +493,14 @@ LinearAlgebra::SmallVector<DIM> DGMaxDiscretization<DIM>::computeField(
     const Base::Element* element, const Geometry::PointReference<DIM>& p,
     const LinearAlgebra::MiddleSizeVector& coefficients) const {
     logger.log(Log::WARN, "Only computing the real part of the field.");
+    return computeFields(element, p, coefficients).realEField;
+}
+
+template <std::size_t DIM>
+typename DGMaxDiscretization<DIM>::Fields
+    DGMaxDiscretization<DIM>::computeFields(
+        const Base::Element* element, const Geometry::PointReference<DIM>& p,
+        const LinearAlgebra::MiddleSizeVector& coefficients) const {
     Base::PhysicalElement<DIM> physicalElement;
     physicalElement.setElement(element);
     std::shared_ptr<Base::CoordinateTransformation<DIM>> transform{
@@ -500,10 +508,13 @@ LinearAlgebra::SmallVector<DIM> DGMaxDiscretization<DIM>::computeField(
     physicalElement.setTransformation(transform);
     physicalElement.setPointReference(p);
 
-    LinearAlgebra::SmallVector<DIM> result, phi;
+    DGMaxDiscretization<DIM>::Fields result;
+
     for (std::size_t i = 0; i < element->getNumberOfBasisFunctions(0); ++i) {
+        LinearAlgebra::SmallVector<DIM> phi;
         physicalElement.basisFunction(i, phi, 0);
-        result += std::real(coefficients[i]) * phi;
+        result.realEField += std::real(coefficients[i]) * phi;
+        result.imagEField += std::imag(coefficients[i]) * phi;
     }
     return result;
 }

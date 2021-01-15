@@ -262,15 +262,15 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
 }
 
 template <std::size_t DIM>
-LinearAlgebra::SmallVector<DIM> DivDGMaxDiscretization<DIM>::computeField(
-    const Base::Element* element, const Geometry::PointReference<DIM>& point,
-    const LinearAlgebra::MiddleSizeVector& coefficients) const {
-    logger.log(Log::WARN, "Only computing the real part of the field.");
-    LinearAlgebra::SmallVector<DIM> result, phiU;
-    std::size_t nb0 = element->getNumberOfBasisFunctions(0),
-                nb1 = element->getNumberOfBasisFunctions(1);
-
-    // Setup the physical element with the correct transformations
+typename DivDGMaxDiscretization<DIM>::Fields
+    DivDGMaxDiscretization<DIM>::computeFields(
+        const Base::Element* element,
+        const Geometry::PointReference<DIM>& point,
+        const LinearAlgebra::MiddleSizeVector& coefficients) const {
+    Fields result;
+    std::size_t nPhiU = element->getNumberOfBasisFunctions(0);
+    std::size_t nPhiP = element->getNumberOfBasisFunctions(1);
+    // Setup transformation to real space
     Base::PhysicalElement<DIM> physicalElement;
     std::shared_ptr<Base::CoordinateTransformation<DIM>>
         coordinateTransformationU{
@@ -284,47 +284,40 @@ LinearAlgebra::SmallVector<DIM> DivDGMaxDiscretization<DIM>::computeField(
     Geometry::PointPhysical<DIM> pointPhysical;
     pointPhysical = element->referenceToPhysical(point);
 
-    // reconstruct the field E = u + grad q.
-    for (std::size_t i = 0; i < nb0; ++i) {
+    // Actual value computation
+    // Compute field part
+    for (std::size_t i = 0; i < nPhiU; ++i) {
+        LinearAlgebra::SmallVector<DIM> phiU;
         physicalElement.basisFunction(i, phiU, 0);
-        result += std::real(coefficients[i]) * phiU;
+        result.realEField += std::real(coefficients[i]) * phiU;
+        result.imagEField += std::imag(coefficients[i]) * phiU;
     }
-    for (std::size_t i = 0; i < nb1; ++i) {
-        result += std::real(coefficients[nb0 + i]) *
-                  physicalElement.basisFunctionDeriv(i, 1);
+    // Compute potential
+    for (std::size_t i = 0; i < nPhiP; ++i) {
+        result.potential +=
+            coefficients[nPhiU + i] * physicalElement.basisFunction(i, 1);
     }
     return result;
+}
+
+template <std::size_t DIM>
+LinearAlgebra::SmallVector<DIM> DivDGMaxDiscretization<DIM>::computeField(
+    const Base::Element* element, const Geometry::PointReference<DIM>& point,
+    const LinearAlgebra::MiddleSizeVector& coefficients) const {
+
+    logger.log(Log::WARN, "Only computing the real part of the field.");
+    Fields fields = computeFields(element, point, coefficients);
+    return fields.realEField;
 }
 
 template <std::size_t DIM>
 double DivDGMaxDiscretization<DIM>::computePotential(
     const Base::Element* element, const Geometry::PointReference<DIM>& point,
     const LinearAlgebra::MiddleSizeVector& coefficients) const {
-    logger.log(Log::WARN, "Only computing the real part of the field.");
-    LinearAlgebra::SmallVector<DIM> phiU;
-    double result;
-    std::size_t nb0 = element->getNumberOfBasisFunctions(0),
-                nb1 = element->getNumberOfBasisFunctions(1);
 
-    // Setup the physical element with the correct transformations
-    Base::PhysicalElement<DIM> physicalElement;
-    std::shared_ptr<Base::CoordinateTransformation<DIM>>
-        coordinateTransformationU{
-            new Base::HCurlConformingTransformation<DIM>()};
-    std::shared_ptr<Base::CoordinateTransformation<DIM>>
-        coordinateTransformationP{new Base::H1ConformingTransformation<DIM>()};
-    physicalElement.setTransformation(coordinateTransformationU, 0);
-    physicalElement.setTransformation(coordinateTransformationP, 1);
-    physicalElement.setElement(element);
-    physicalElement.setPointReference(point);
-    Geometry::PointPhysical<DIM> pointPhysical;
-    pointPhysical = element->referenceToPhysical(point);
-
-    for (std::size_t i = 0; i < nb1; ++i) {
-        result += std::real(coefficients[nb0 + i]) *
-                  physicalElement.basisFunction(i, 1);
-    }
-    return result;
+    logger.log(Log::WARN, "Only computing the real part of the potential.");
+    Fields fields = computeFields(element, point, coefficients);
+    return fields.potential.real();
 }
 
 template <std::size_t DIM>

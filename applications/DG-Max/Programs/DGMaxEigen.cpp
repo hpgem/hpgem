@@ -57,6 +57,10 @@ auto& d = Base::register_argument<std::size_t>(
 auto& structure = Base::register_argument<std::size_t>(
     '\0', "structure", "Structure to use", false, 0);
 
+//
+auto& fieldDir = Base::register_argument<std::string>(
+    '\0', "fields", "Existing directory to output the fields to.", false, "");
+
 template <std::size_t DIM>
 void runWithDimension();
 double parseDGMaxPenaltyParameter();
@@ -148,6 +152,23 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
         frequencyResults_[currentPoint_] = result.getFrequencies();
         writeFrequencies(outFile, currentPoint_,
                          frequencyResults_[currentPoint_], ',');
+
+        if (fieldDir.isUsed()) {
+            DGMaxLogger(INFO, "Writing field paterns");
+            for (std::size_t i = 0; i < frequencyResults_[currentPoint_].size();
+                 ++i) {
+                std::stringstream outFile;
+                // Note: Assumes the field directory is present
+                if (fieldDir.hasArgument()) {
+                    outFile << fieldDir.getValue() << "/";
+                }
+
+                outFile << "eigenfield-" << currentPoint_ << "-field-" << i;
+                Output::VTKSpecificTimeWriter<DIM> writer(outFile.str(),
+                                                          result.getMesh());
+                result.writeField(i, writer);
+            }
+        }
     }
 
     void printFrequencies() {
