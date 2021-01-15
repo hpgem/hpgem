@@ -706,3 +706,43 @@ TEST_CASE("MiddleSizeMatrixUnitTest", "[MiddleSizeMatrixUnitTest]") {
 
     std::cout << A32 << std::endl;
 }
+
+TEST_CASE("MiddleSizeMatrix solve lower", "[MiddleSizeMatrixUnitTest]") {
+    LinearAlgebra::MiddleSizeMatrix L(2, 2);
+    // Define a test matrix
+    // [1 0; 1 2]
+    L(0, 0) = 1.0;
+    L(1, 0) = 1.0;
+    L(1, 1) = 2.0;
+
+    LinearAlgebra::MiddleSizeVector vec({3.0, 4.0});
+
+    SECTION("Solve Lx = b") {
+        L.solveLowerTriangular(vec, LinearAlgebra::Side::OP_LEFT,
+                               LinearAlgebra::Transpose::NOT);
+        CHECK(vec(0) == 3.0);
+        CHECK(vec(1) == 0.5);
+    }
+
+    SECTION("Solve xL = b") {
+        L.solveLowerTriangular(vec, hpgem::LinearAlgebra::Side::OP_RIGHT,
+                               hpgem::LinearAlgebra::Transpose::NOT);
+        CHECK(vec(0) == 1.0);
+        CHECK(vec(1) == 2.0);
+    }
+
+    SECTION("Solve L^T x = b") {
+        L.solveLowerTriangular(vec, hpgem::LinearAlgebra::Side::OP_LEFT,
+                               hpgem::LinearAlgebra::Transpose::TRANSPOSE);
+        CHECK(vec(0) == 1.0);
+        CHECK(vec(1) == 2.0);
+    }
+
+    SECTION("Solve x L^T = b") {
+        L.solveLowerTriangular(vec, hpgem::LinearAlgebra::Side::OP_RIGHT,
+                               hpgem::LinearAlgebra::Transpose::TRANSPOSE);
+        CHECK(vec(0) == 3.0);
+        CHECK(vec(1) == 0.5);
+    }
+    // Reset for next
+}

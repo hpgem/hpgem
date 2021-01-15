@@ -116,6 +116,16 @@ class DivDGMaxDiscretization {
         }
     };
 
+    /// Value class for the solution.
+    struct Fields {
+        // Real part of the E field
+        LinearAlgebra::SmallVector<DIM> realEField;
+        // Imaginary part of the E field
+        LinearAlgebra::SmallVector<DIM> imagEField;
+        // Complex valued p scalar function;
+        std::complex<double> potential;
+    };
+
     // See notes in DGMaxDiscretization
     using PointPhysicalT = Geometry::PointPhysical<DIM>;
     using InputFunction = std::function<void(const PointPhysicalT&,
@@ -140,6 +150,11 @@ class DivDGMaxDiscretization {
     double computeL2Error(Base::MeshManipulator<DIM>& mesh,
                           std::size_t timeVector,
                           const InputFunction& electricField) const;
+
+    Fields computeFields(
+        const Base::Element* element,
+        const Geometry::PointReference<DIM>& point,
+        const LinearAlgebra::MiddleSizeVector& coefficients) const;
 
     LinearAlgebra::SmallVector<DIM> computeField(
         const Base::Element* element,
