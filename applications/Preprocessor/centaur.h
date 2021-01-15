@@ -80,6 +80,12 @@ class CentaurReader : public MeshSource {
     /// For 2D only the first two entries should be used.
     void readZoneInfo(std::array<std::uint32_t, 4> elementCount);
 
+    /// Read & discard boundary group information
+    /// Note: While the information is discarded, it is very useful in debugging
+    /// The boundary group names are human readable and can be easily checked
+    /// for correctness.
+    void readBoundaryGroups();
+
     void readPeriodicNodeConnections();
 
     // Header information

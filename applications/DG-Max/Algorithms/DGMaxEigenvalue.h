@@ -176,6 +176,11 @@ class DGMaxEigenvalue : public AbstractEigenvalueSolver<DIM>,
      * to the zero eigenvalues.
      */
     class ProjectorWorkspace;
+
+    /**
+     * Result class
+     */
+    class Result;
 };
 
 #endif  // HPGEM_APP_DGMAXEIGENVALUE_H

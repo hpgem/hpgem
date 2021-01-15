@@ -826,6 +826,56 @@ void MiddleSizeMatrix::solveLowerTriangular(LinearAlgebra::MiddleSizeMatrix& B,
 #endif
 }
 
+void MiddleSizeMatrix::solveLowerTriangular(MiddleSizeVector& B, Side side,
+                                            Transpose transpose) const {
+    logger.assert_debug(numberOfRows_ == numberOfColumns_,
+                        "can only solve for square matrices");
+    if (side == Side::OP_LEFT) {
+        logger.assert_debug(numberOfRows_ == B.size(),
+                            "Vector size does not match size of the matrix");
+    } else {
+        logger.assert_debug(numberOfColumns_ == B.size(),
+                            "Vector size does not match size of the matrix");
+    }
+
+    // RHS is either column or row vector depending on the side.
+    // Variable naming follows that of LAPACK
+    int m = side == Side::OP_LEFT ? B.size() : 1;  // Row size of B
+    int n = side == Side::OP_LEFT ? 1 : B.size();  // Column size of B
+    int lda = numberOfRows_;
+    int ldb = m;
+    char cside, ctranspose;
+    switch (side) {
+        case Side::OP_LEFT:
+            cside = 'L';
+            break;
+        case Side::OP_RIGHT:
+            cside = 'R';
+            break;
+    }
+    switch (transpose) {
+        case Transpose::NOT:
+            ctranspose = 'N';
+            break;
+        case Transpose::TRANSPOSE:
+            ctranspose = 'T';
+            break;
+        case Transpose::HERMITIAN_TRANSPOSE:
+            ctranspose = 'C';
+    }
+
+    MiddleSizeMatrix matThis = *this;  // Mutable copy.
+#ifdef HPGEM_USE_COMPLEX_PETSC
+    std::complex<double> alpha(1);
+    ztrsm_(&cside, "L", &ctranspose, "N", &m, &n, &alpha, matThis.data(), &lda,
+           B.data(), &ldb);
+#else
+    double alpha(1);
+    dtrsm_(&cside, "L", &ctranspose, "N", &m, &n, &alpha, matThis.data(), &lda,
+           B.data(), &ldb);
+#endif
+}
+
 /// \details Computes the minimum norm solution to a real linear least squares
 /// problem: minimize 2-norm(| b - A*x |), using the singular value
 /// decomposition (SVD) of A. A is an M-by-N matrix which may be rank-deficient.
