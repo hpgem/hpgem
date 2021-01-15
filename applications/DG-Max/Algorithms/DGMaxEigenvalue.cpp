@@ -250,7 +250,7 @@ class DGMaxEigenvalue<DIM>::ProjectorWorkspace {
 };
 
 template <std::size_t DIM>
-class DGMaxEigenvalue<DIM>::Result : public AbstractEigenvalueResult<DIM> {
+class DGMaxEigenvalue<DIM>::Result final : public AbstractEigenvalueResult<DIM> {
 
    public:
     Result(SolverWorkspace& workspace, const Base::MeshManipulator<DIM>* mesh,

@@ -286,8 +286,8 @@ typename DivDGMaxDiscretization<DIM>::Fields
 
     // Actual value computation
     // Compute field part
-    LinearAlgebra::SmallVector<DIM> phiU;
     for (std::size_t i = 0; i < nPhiU; ++i) {
+        LinearAlgebra::SmallVector<DIM> phiU;
         physicalElement.basisFunction(i, phiU, 0);
         result.realEField += std::real(coefficients[i]) * phiU;
         result.imagEField += std::imag(coefficients[i]) * phiU;

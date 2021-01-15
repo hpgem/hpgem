@@ -510,8 +510,8 @@ typename DGMaxDiscretization<DIM>::Fields
 
     DGMaxDiscretization<DIM>::Fields result;
 
-    LinearAlgebra::SmallVector<DIM> phi;
     for (std::size_t i = 0; i < element->getNumberOfBasisFunctions(0); ++i) {
+        LinearAlgebra::SmallVector<DIM> phi;
         physicalElement.basisFunction(i, phi, 0);
         result.realEField += std::real(coefficients[i]) * phi;
         result.imagEField += std::imag(coefficients[i]) * phi;
