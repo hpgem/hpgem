@@ -223,7 +223,8 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
 };
 
 template <std::size_t DIM>
-class DivDGMaxEigenvalue<DIM>::Result final : public AbstractEigenvalueResult<DIM> {
+class DivDGMaxEigenvalue<DIM>::Result final
+    : public AbstractEigenvalueResult<DIM> {
    public:
     Result(typename DivDGMaxEigenvalue<DIM>::SolverWorkspace& workspace,
            const Base::MeshManipulator<DIM>* mesh,
