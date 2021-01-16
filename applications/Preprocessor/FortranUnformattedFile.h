@@ -43,7 +43,7 @@
 
 class FortranUnformattedFile {
    public:
-    FortranUnformattedFile(std::string path);
+    FortranUnformattedFile(const std::string&);
 
     /**
      * Read a single record of known size, if the size is wrong it will fail
@@ -52,18 +52,13 @@ class FortranUnformattedFile {
      * @param buffer Buffer of at least size bytes used for reading
      * @return The number of bytes read
      */
-    std::uint32_t readRawRecord(std::uint32_t size, char* buffer);
+    void readRawRecord(std::uint32_t size, char* buffer);
 
     /**
      * Read the size of the record without affecting the position of the object
      * @return The record size.
      */
     std::uint32_t peekRecordSize();
-
-    /**
-     * Skip the next record.
-     */
-    void skipRecord();
 
     /**
      * Skip the next record, will fail if the size is wrong
@@ -76,9 +71,9 @@ class FortranUnformattedFile {
     std::filebuf file_;
 
     /**
-     * Read a record size marker
+     * Read a record size marker and advance the position in the file.
      * @param size [out] The marker size
-     * @return Whether successful
+     * @return Whether successful, the location is not modified if it fails.
      */
     bool readRecordSize(std::uint32_t& size);
 };

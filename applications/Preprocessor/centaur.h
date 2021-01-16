@@ -69,6 +69,7 @@ class CentaurReader : public MeshSource {
     bool is3D() { return getDimension() == 3; }
 
    private:
+    void temp(const std::string& path);
     UnstructuredInputStream<std::istringstream> readLine();
     // returns the number of skipped entities
     std::uint32_t skipGroup(std::size_t linesPerEntity = 1,

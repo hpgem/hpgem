@@ -41,6 +41,7 @@
 
 #include "centaur.h"
 #include "Logger.h"
+#include "FortranUnformattedFile.h"
 
 namespace Preprocessor {
 
@@ -145,6 +146,8 @@ void CentaurReader::readHeader() {
 }
 
 CentaurReader::CentaurReader(std::string filename) {
+    temp(filename);
+
     centaurFile.open(filename, std::ios::binary);
     logger.assert_always(centaurFile.is_open(),
                          "Cannot open Centaur meshfile.");
@@ -676,5 +679,8 @@ std::string CentaurReader::ZoneInformation::getZoneName() const {
 std::string CentaurReader::ZoneInformation::getZoneFamilyName() const {
     return fromFortranString(rawZoneFamiliyName);
 }
+
+void CentaurReader::temp(const std::string& path) {
+    FortranUnformattedFile file(path);
 
 }  // namespace Preprocessor
