@@ -51,6 +51,19 @@ namespace Output {
 /// this produces multiple files, you do not have to append anything, just load
 /// the .pvtu into paraview VTK makes the assumption that all data is 3D data,
 /// this class will provide conversions where necessary, but not from 4D to 3D
+///
+/// Implementation note: The output can in general be discontinuous at the
+/// element boundaries. To handle such a function requires a bit of special
+/// care. The VTK fileformat associates data values with cells (elements) or
+/// points. If we would store a single function value f(x) for a node at x, then
+/// the result is necessarily continuous. After all, independently from which
+/// element one approaches x, the value will be f(x).
+/// To represent discontinuous data we will therefore need to duplicate the node
+/// x to x_E1, x_E2, ... x_EN for the N attached elements. This way we can store
+/// multiple values f(x_E1), f(x_E2), ..., f(x_EN) and represent data that is
+/// discontinuous at the element boundaries.
+///
+/// \tparam DIM The dimension of the mesh
 // class is final because the destructor would be the only virtual function
 template <std::size_t DIM>
 class VTKSpecificTimeWriter final {
@@ -91,9 +104,60 @@ class VTKSpecificTimeWriter final {
     VTKSpecificTimeWriter operator=(const VTKSpecificTimeWriter& orig) = delete;
 
    private:
+    /**
+     * Write the start of the master pvtu file, this will contain the
+     * indirection to the data in the local vtu files.
+     * @param baseName The base name for the file (actual file will have .pvtu
+     * extension)
+     */
+    void writeMasterFileHeader(const std::string& baseName);
+    /**
+     * Write the start of the processor local vtu file.
+     * @param baseName The base name for the file (actual files will have .[proc
+     * num].vtu extension)
+     */
+    void writeLocalFileHeader(const std::string& baseName);
+    /**
+     * Write the data for a <DataArray> with binary data to the local file.
+     *
+     * This only writes the data content (including the length header) but does
+     * not write the enclosing XML tags. The user should make sure that the type
+     * of the data matches that of the one described in the <DataArray> tag.
+     *
+     * @tparam T The type of the data.
+     */
+    template <class T>
+    void writeBinaryDataArrayData(std::vector<T> data);
+
+    /**
+     * Write a vector to the output storage, adding zero padding as needed.
+     *
+     * @param in The input vector
+     * @param offset The offset of the vector (i.e. the number of previous
+     * vectors).
+     * @param out The place to write to, should be of at least size 3*(offset+1)
+     */
+    void writePaddedVector(LinearAlgebra::SmallVector<DIM> in,
+                           std::size_t offset, std::vector<double>& out);
+
+    /**
+     * Write a second order tensor to the output storage, adding padding as
+     * needed. The padding will be in the form of the idenity tensor.
+     *
+     * @param in The input tensor
+     * @param offset The offset of the tensor (i.e. the number of previously
+     * written tensors)
+     * @param out The place to write to, should be of at least size 9*(offset+1)
+     */
+    void writePaddedTensor(LinearAlgebra::SmallMatrix<DIM, DIM> in,
+                           std::size_t offset, std::vector<double>& out);
+
     std::ofstream localFile_;
     std::ofstream masterFile_;
+    /// Number of points in the local file
     std::uint32_t totalPoints_;
+    /// Number of elements in the local file
+    std::uint32_t totalElements_;
     const Base::MeshManipulator<DIM>* mesh_;
     std::size_t timelevel_;
 };

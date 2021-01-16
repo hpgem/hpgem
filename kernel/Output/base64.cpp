@@ -51,6 +51,10 @@ bool Output::Detail::isBigEndian() {
 }
 
 std::string Output::Detail::toBase64(void* rawData, std::size_t len) {
+    // Break out fast, even before checking the pointer
+    if (len == 0) {
+        return "";
+    }
     logger.assert_debug(rawData != nullptr, "no raw data passed");
     const unsigned char* cRawData = (const unsigned char*)rawData;
     std::string result;
