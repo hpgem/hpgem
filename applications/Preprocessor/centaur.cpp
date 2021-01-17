@@ -138,14 +138,7 @@ UnstructuredInputStream<std::istringstream> CentaurReader::readLine() {
     return std::istringstream(buffer, std::ios_base::binary);
 }
 
-void CentaurReader::readHeader() {
-    auto headerLine = readLine();
-    headerLine >> version >> centaurFileType;
-
-    logger(INFO, "This mesh is in Centaur version % format", version);
-}
-
-CentaurReader::CentaurReader(std::string filename) {
+CentaurReader::CentaurReader(std::string filename) : centaurFile2(filename) {
     temp(filename);
 
     centaurFile.open(filename, std::ios::binary);
@@ -175,6 +168,8 @@ CentaurReader::CentaurReader(std::string filename) {
     // Scan through the file to find the positions where the interesting data
     // starts.
 
+    readCoordinates();
+
     // Nodes
     nodeStart = centaurFile.tellg();
     // 1 group with all coordinates
@@ -192,6 +187,7 @@ CentaurReader::CentaurReader(std::string filename) {
     // For 2D the order is triangles, quadrilaterals
 
     for (std::size_t i = 0; i < numberOfElementTypes; ++i) {
+        readElements(i, numNodes(i));
         elementCounts[i] += skipGroup();
         numberOfElements += elementCounts[i];
     }
@@ -264,6 +260,37 @@ CentaurReader::CentaurReader(std::string filename) {
     logger(INFO, "Finished scanning through hyb-file");
 
     // More internal information is possible, for example polyhedrons.
+}
+
+void CentaurReader::readHeader() {
+    // We do not apriori know the size of the header
+    std::uint32_t headerSize = centaurFile2.peekRecordSize();
+    std::vector<char> rawInput(headerSize);
+
+    centaurFile2.readRawRecord(headerSize, rawInput.data());
+    std::uint32_t offset = 0;
+    version = *reinterpret_cast<typeof(version)*>(rawInput.data());
+    offset += sizeof(version);
+    centaurFileType =
+        *reinterpret_cast<typeof(centaurFileType)*>(rawInput.data() + offset);
+    // Rest of the data seems to be char[80] with something like
+    // "Unstructured hybrid grid format"
+    // But can be ignored
+
+    // TODO: Remove
+    auto headerLine = readLine();
+    headerLine >> version >> centaurFileType;
+
+    logger(INFO, "This mesh is in Centaur version % format", version);
+}
+
+void CentaurReader::readCoordinates() {
+    readGroup(coordinates, getDimension(), true);
+}
+
+void CentaurReader::readElements(std::size_t elemType, std::uint32_t numNodes) {
+    logger.assert_always(elemType < 4, "Element type out of range");
+    elementCount[elemType] = readGroup(elements[elemType], numNodes, true);
 }
 
 std::function<void(int&)> difference_generator(
@@ -463,20 +490,20 @@ Range<MeshSource::Element> CentaurReader::getElements() {
 
 std::uint32_t CentaurReader::skipGroup(std::size_t linesPerEntity,
                                        bool multiline) {
-    std::uint32_t numberOfEntities;
-    auto currentLine = readLine();
-    currentLine >> numberOfEntities;
-    logger(VERBOSE, "skipping % entities", numberOfEntities);
-    std::uint32_t numberOfEntitiesPerLine = numberOfEntities;
-    if (centaurFileType > 4 && multiline)
-        currentLine >> numberOfEntitiesPerLine;
-    logger(VERBOSE, "there are % entities per line", numberOfEntitiesPerLine);
-    if (numberOfEntities == 0) readLine();
-    for (std::size_t i = 0; i < numberOfEntities;
-         i += numberOfEntitiesPerLine) {
-        for (std::size_t j = 0; j < linesPerEntity; ++j) readLine();
+    GroupSize groupSize = readGroupSize(multiline);
+    if (groupSize.totalCount == 0) {
+        centaurFile2.skipRecord(0);
+    } else {
+        for (std::size_t i = 0; i < linesPerEntity; ++i) {
+            for (std::size_t read = 0; read < groupSize.totalCount;
+                 read += groupSize.perLineCount) {
+                // TODO: Remove the need for peeking
+                std::uint32_t size = centaurFile2.peekRecordSize();
+                centaurFile2.skipRecord(size);
+            }
+        }
     }
-    return numberOfEntities;
+    return groupSize.totalCount;
 }
 
 void CentaurReader::readPeriodicNodeConnections() {
@@ -543,22 +570,18 @@ void CentaurReader::readPeriodicNodeConnections() {
 }
 
 void CentaurReader::readBoundaryGroups() {
-    auto line = readLine();
-    std::uint32_t numberOfGroups;
-    line >> numberOfGroups;
+    GroupSize groupSize = readGroupSize(false);
+    std::uint32_t numberOfGroups = groupSize.totalCount;
     logger(INFO, "Discarding % boundary groups", numberOfGroups);
+
     std::vector<std::uint32_t> boundaryTypeIds(numberOfGroups);
     std::vector<std::array<char, 80>> rawBoundaryNames(numberOfGroups);
-    line = readLine();
-    for (std::uint32_t i = 0; i < numberOfGroups; ++i) {
-        std::uint32_t temp;
-        line >> temp;
-        boundaryTypeIds[i] = temp;
-    }
-    line = readLine();
-    for (std::uint32_t i = 0; i < numberOfGroups; ++i) {
-        line >> rawBoundaryNames[i];
-    }
+
+    centaurFile2.readRawRecord(numberOfGroups * sizeof(std::uint32_t),
+                               reinterpret_cast<char*>(boundaryTypeIds.data()));
+    centaurFile2.readRawRecord(
+        numberOfGroups * 80 * sizeof(char),
+        reinterpret_cast<char*>(rawBoundaryNames.data()));
     // Output for debugging
     for (std::uint32_t i = 0; i < numberOfGroups; ++i) {
         logger(VERBOSE, "Boundary group \"%\" of type %'", rawBoundaryNames[i],
@@ -580,15 +603,24 @@ void CentaurReader::readZoneInfo(std::array<std::uint32_t, 4> elementCount) {
         zones[0].endOffsets[1] = elementCount[1];
         return;
     }
-    // Read the count
-    auto line = readLine();
-    std::uint32_t numberOfZones;
-    line >> numberOfZones;
+    GroupSize groupSize = readGroupSize(false);
+    std::uint32_t numberOfZones = groupSize.totalCount;
     zones.resize(numberOfZones);
     logger(INFO, "Reading % zones", numberOfZones);
 
+    // For 2D only the offsets of 2 element types are stored
+    // For 3D there are 4 element types and additionally the starting boundary
+    // face is stored.
+    std::size_t numIndexEntries = is3D() ? 5 : 2;
+    // For 2D the zone names are stored separately
+    std::size_t byteSize = numIndexEntries * sizeof(std::uint32_t) +
+                           (is3D() ? 80 * sizeof(char) : 0);
+    byteSize *= numberOfZones;
+    std::vector<char> rawZoneData(byteSize);
+    centaurFile2.readRawRecord(byteSize, rawZoneData.data());
+
     // Read all the zones
-    line = readLine();
+    std::size_t offset = 0;
     for (std::uint32_t i = 0; i < numberOfZones; ++i) {
         ZoneInformation& zone = zones[i];
         // The centaur file stores the element indices of the first element in
@@ -596,29 +628,26 @@ void CentaurReader::readZoneInfo(std::array<std::uint32_t, 4> elementCount) {
         // element type in the zone.
         if (i == 0) {
             std::uint32_t entry;
-            std::size_t numEntries = is3D() ? 5 : 2;
-            for (std::size_t j = 0; j < numEntries; ++j) {
-                line >> entry;
+            for (std::size_t j = 0; j < numIndexEntries; ++j) {
+                entry = *reinterpret_cast<typeof(entry)*>(rawZoneData.data() +
+                                                          offset);
+                offset += sizeof(entry);
                 logger.assert_always(
                     entry == 1, "Offset for the first zone entry is non zero.");
             }
         } else {
             ZoneInformation& prevZone = zones[i - 1];
 
-            line >> prevZone.endOffsets[0];
-            line >> prevZone.endOffsets[1];
-            // Fortran offset
-            prevZone.endOffsets[0]--;
-            prevZone.endOffsets[1]--;
-            if (is3D()) {
-                line >> prevZone.endOffsets[2];
-                line >> prevZone.endOffsets[3];
-                line >> prevZone.endOffsets[4];
-                // Fortran offset
-                prevZone.endOffsets[2]--;
-                prevZone.endOffsets[3]--;
-                prevZone.endOffsets[4]--;
-            } else {
+            for (std::size_t entryId = 0; entryId < numIndexEntries;
+                 ++entryId) {
+                prevZone.endOffsets[entryId] =
+                    *reinterpret_cast<typeof(std::uint32_t)*>(
+                        rawZoneData.data() + offset);
+                offset += sizeof(std::uint32_t);
+                // Compensate for fortran 1-indexing
+                prevZone.endOffsets[entryId]--;
+            }
+            if (is2D()) {
                 // Filling to zero
                 prevZone.endOffsets[2] = 0;
                 prevZone.endOffsets[3] = 0;
@@ -627,9 +656,13 @@ void CentaurReader::readZoneInfo(std::array<std::uint32_t, 4> elementCount) {
         }
         if (is3D()) {
             // For 3D the zone name is directly appended to the zone
-            line >> zone.rawZoneName;
+            auto start = rawZoneData.begin() + offset;
+            std::copy(start, start + 80, zone.rawZoneName.begin());
+            offset += 80 * sizeof(char);
         }
     }
+    // Check whether we exactly read all data.
+    logger.assert_always(offset == byteSize, "Incorrect zone reading");
 
     {
         // Fill the endOffsets of the last zone as there is no next zone to fill
@@ -644,17 +677,23 @@ void CentaurReader::readZoneInfo(std::array<std::uint32_t, 4> elementCount) {
 
     if (is2D()) {
         // For 2D the zone names are separate
-        line = readLine();
+        std::vector<char> names(numberOfZones * 80);
+        centaurFile2.readRawRecord(numberOfZones * 80 * sizeof(char),
+                                   names.data());
         for (std::size_t i = 0; i < numberOfZones; ++i) {
-            line >> zones[i].rawZoneName;
+            auto start = names.begin() + 80 * i;
+            std::copy(start, start + 80, zones[i].rawZoneName.begin());
         }
     }
 
     if (is3D() && version > 4.99) {
         // Read zone families
-        line = readLine();
-        for (std::uint32_t i = 0; i < numberOfZones; ++i) {
-            line >> zones[i].rawZoneFamiliyName;
+        std::vector<char> familyNames(numberOfZones * 80);
+        centaurFile2.readRawRecord(numberOfZones * 80 * sizeof(char),
+                                   familyNames.data());
+        for (std::size_t i = 0; i < numberOfZones; ++i) {
+            auto start = familyNames.begin() + 80 * i;
+            std::copy(start, start + 80, zones[i].rawZoneFamiliyName.begin());
         }
     } else {
         // No zone families: fill the zones with padding
@@ -680,7 +719,84 @@ std::string CentaurReader::ZoneInformation::getZoneFamilyName() const {
     return fromFortranString(rawZoneFamiliyName);
 }
 
+CentaurReader::GroupSize CentaurReader::readGroupSize(bool expectMultiline) {
+    // Multiline is only supported in v5 & v6
+    bool multiline = expectMultiline && centaurFileType > 4;
+    std::array<std::uint32_t, 2> data{};
+    centaurFile2.readRawRecord(sizeof(std::uint32_t) * (1 + multiline),
+                               reinterpret_cast<char*>(data.data()));
+    GroupSize result{};
+    result.totalCount = data[0];
+    if (multiline) {
+        result.perLineCount = data[1];
+    } else {
+        result.perLineCount = result.totalCount;
+    }
+    return result;
+}
+
+template <typename T>
+std::uint32_t CentaurReader::readGroup(std::vector<T>& data,
+                                       std::uint32_t numComponents,
+                                       bool expectMultiline) {
+    GroupSize groupSize = readGroupSize(expectMultiline);
+    // Prevent overflow
+    std::size_t totalRawEntries =
+        static_cast<std::size_t>(groupSize.totalCount) * numComponents;
+    data.resize(totalRawEntries);
+    if (totalRawEntries == 0) {
+        // Read the empty group
+        centaurFile2.readRawRecord(0, reinterpret_cast<char*>(data.data()));
+    } else {
+        std::uint32_t entriesRead = 0;
+        while (entriesRead < groupSize.totalCount) {
+            // Compute the number of entries on this line
+            std::uint32_t lineSize = std::min(
+                groupSize.perLineCount, groupSize.totalCount - entriesRead);
+            // Read the actual entries
+            std::size_t offset = entriesRead * numComponents;
+            std::size_t lineByteSize = lineSize * numComponents * sizeof(T);
+            centaurFile2.readRawRecord(
+                lineByteSize, reinterpret_cast<char*>(data.data() + offset));
+            entriesRead += lineSize;
+        }
+        logger.assert_always(entriesRead == groupSize.totalCount,
+                             "Incorrect number of entries read");
+    }
+    return groupSize.totalCount;
+}
+
 void CentaurReader::temp(const std::string& path) {
     FortranUnformattedFile file(path);
+    while (!file.eof()) {
+        std::uint32_t size = file.peekRecordSize();
+        file.skipRecord(size);
+        logger(INFO, "Skipped record of size %", size);
+    }
+    logger(INFO, "Reached end of file");
+}
+
+std::uint32_t CentaurReader::numNodes(std::size_t elementType) const {
+    if (is2D()) {
+        logger.assert_always(elementType < 2, "Invalid element type % for 2D",
+                             elementType);
+        return elementType == 0 ? 3 : 4;
+    } else {
+        switch (elementType) {
+            case 0:
+                return 8;  // Hexahedra;
+            case 1:
+                return 6;  // Prisms
+            case 2:
+                return 5;  // Pyramids
+            case 3:
+                return 4;  // Tetrahedra
+            default:
+                logger.assert_always(false, "Invalid element  % type for 3D",
+                                     elementType);
+                return -1;
+        }
+    }
+}
 
 }  // namespace Preprocessor

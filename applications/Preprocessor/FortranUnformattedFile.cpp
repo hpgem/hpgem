@@ -72,7 +72,7 @@ std::uint32_t FortranUnformattedFile::peekRecordSize() {
     // Check that we actually read enough
     logger.assert_debug(read == sizeof(recordSize),
                         "Not enough bytes for reading a record size.");
-    return read;
+    return recordSize;
 }
 
 void FortranUnformattedFile::skipRecord(std::uint32_t size) {
@@ -90,6 +90,12 @@ void FortranUnformattedFile::skipRecord(std::uint32_t size) {
     logger.assert_debug(recordSize == endRecordSize,
                         "Record sizes don't match");
 }
+
+bool FortranUnformattedFile::eof() {
+    // Just peak to see if we get EOF
+    return file_.sgetc() == EOF ;
+}
+
 
 bool FortranUnformattedFile::readRecordSize(std::uint32_t &size) {
     std::filebuf::off_type readSize =

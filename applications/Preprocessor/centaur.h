@@ -41,6 +41,7 @@
 
 #include "customIterator.h"
 #include "unstructuredFile.h"
+#include "FortranUnformattedFile.h"
 #include "MeshSource.h"
 #include <array>
 #include <vector>
@@ -65,17 +66,60 @@ class CentaurReader : public MeshSource {
         return 2;
     }
 
-    bool is2D() { return getDimension() == 2; }
-    bool is3D() { return getDimension() == 3; }
+    bool is2D() const { return getDimension() == 2; }
+    bool is3D() const { return getDimension() == 3; }
 
    private:
+    struct GroupSize {
+        /**
+         * Total number of entries
+         */
+        std::uint32_t totalCount;
+        /**
+         * Entries per line
+         */
+        std::uint32_t perLineCount;
+    };
+
     void temp(const std::string& path);
     UnstructuredInputStream<std::istringstream> readLine();
     // returns the number of skipped entities
     std::uint32_t skipGroup(std::size_t linesPerEntity = 1,
                             bool multiline = true);
 
+    /**
+     * Read the size of the next group
+     * @param expectMultiline Whether it can be a multiline group (if the file
+     * type supports it)
+     * @return The size of the next group.
+     */
+    GroupSize readGroupSize(bool expectMultiline);
+
+    /**
+     * Read a group with a uniform data type
+     * @tparam T The datatype
+     * @param data vector to store the result in
+     * @param numComponents The number of components per entry (e.g. 4 corner
+     * indices for squares)
+     * @param expectMultiline Whether it can be stored as multiline when the
+     * version supports it.
+     * @return The number of entries that were read
+     */
+    template <typename T>
+    std::uint32_t readGroup(std::vector<T>& data, std::uint32_t numComponents,
+                   bool expectMultiline);
+
     void readHeader();
+    void readCoordinates();
+    /**
+     * Read a group defining the elements
+     * @param elemType the element index
+     * @param numNodes The number of nodes for this type of element
+     */
+    void readElements(std::size_t elemType, std::uint32_t numNodes);
+
+    std::uint32_t numNodes(std::size_t elementType) const;
+
     /// Read the zone information from the file.
     /// \param elementCount The count for each element type in centaur order.
     /// For 2D only the first two entries should be used.
@@ -100,6 +144,7 @@ class CentaurReader : public MeshSource {
      */
     std::int32_t centaurFileType;
 
+    FortranUnformattedFile centaurFile2;
     UnstructuredInputStream<std::ifstream> centaurFile;
     /// Location in the file where the node/coordinate information starts
     std::ifstream::pos_type nodeStart;
@@ -133,6 +178,17 @@ class CentaurReader : public MeshSource {
         std::string getZoneName() const;
         std::string getZoneFamilyName() const;
     };
+
+    /**
+     * Raw coordinates
+     */
+    std::vector<double> coordinates;
+
+    /**
+     * Corner node indices of the up to four different element types
+     */
+    std::array<std::vector<std::uint32_t>, 4> elements;
+    std::array<std::uint32_t, 4> elementCount;
 
     /// Storage for the zones.
     std::vector<ZoneInformation> zones;

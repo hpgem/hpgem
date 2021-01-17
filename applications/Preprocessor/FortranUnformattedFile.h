@@ -66,6 +66,8 @@ class FortranUnformattedFile {
      */
     void skipRecord(std::uint32_t size);
 
+    bool eof();
+
    private:
     // Internal buffer
     std::filebuf file_;
