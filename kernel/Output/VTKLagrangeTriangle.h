@@ -44,7 +44,7 @@
 
 namespace hpgem {
 namespace Output {
-class VTKLagrangeTriangle : public VTKElement<2> {
+class VTKLagrangeTriangle final : public VTKElement<2> {
    public:
     explicit VTKLagrangeTriangle(std::size_t order);
 
@@ -53,8 +53,6 @@ class VTKLagrangeTriangle : public VTKElement<2> {
     const std::vector<Geometry::PointReference<2>>& getPoints() const final {
         return points_;
     }
-
-    std::vector<Geometry::PointReference<2>> points_;
 
     /// Compute the scaled barycentric coordinates of the Lagrange points.
     ///
@@ -77,6 +75,9 @@ class VTKLagrangeTriangle : public VTKElement<2> {
     /// barycentric coordinates.
     static std::vector<std::valarray<std::size_t>> computeBaryIntegerPoints(
         std::size_t order);
+
+   private:
+    std::vector<Geometry::PointReference<2>> points_;
 };
 }  // namespace Output
 }  // namespace hpgem

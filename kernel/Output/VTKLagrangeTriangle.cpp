@@ -59,7 +59,7 @@ std::vector<std::valarray<std::size_t>>
 
     // Integer variation on barycenteric coordinates. When multiplying by h =
     // 1/order these are actual barycentric coordinates. While the actual
-    // coordiantes of the points don't matter, they will be mapped such that
+    // coordinates of the points don't matter, they will be mapped such that
     // [order, 0, 0] = (0,0), [0, order, 0] = (1,0) and [0, 0, order] = (0,1).
     using IVec = std::valarray<std::size_t>;
 
@@ -73,7 +73,7 @@ std::vector<std::valarray<std::size_t>>
         // point by 'layer'-points. The localPoint is a localPoint on the layer,
         // which is ensured by having at least one zero coordinate.
         IVec offset = IVec({layer, layer, layer});
-        // sum(offset[i]) = 3*layer, so ew need sum(localPoint[i]) = rOrder
+        // sum(offset[i]) = 3*layer, so we need sum(localPoint[i]) = rOrder
         std::size_t rOrder = order - 3 * layer;
 
         // Either 1 or 3 corner points

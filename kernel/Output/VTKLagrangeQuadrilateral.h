@@ -41,7 +41,7 @@
 #include "VTKElement.h"
 namespace hpgem {
 namespace Output {
-class VTKLagrangeQuadrilateral : public VTKElement<2> {
+class VTKLagrangeQuadrilateral final : public VTKElement<2> {
    public:
     explicit VTKLagrangeQuadrilateral(std::size_t order);
 
@@ -51,6 +51,7 @@ class VTKLagrangeQuadrilateral : public VTKElement<2> {
         return points_;
     }
 
+   private:
     std::vector<Geometry::PointReference<2>> points_;
 };
 }  // namespace Output

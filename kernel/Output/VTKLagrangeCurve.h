@@ -43,7 +43,7 @@
 namespace hpgem {
 namespace Output {
 
-class VTKLagrangeCurve : public VTKElement<1> {
+class VTKLagrangeCurve final : public VTKElement<1> {
    public:
     explicit VTKLagrangeCurve(std::size_t order);
 
@@ -52,7 +52,7 @@ class VTKLagrangeCurve : public VTKElement<1> {
     const std::vector<Geometry::PointReference<1>>& getPoints() const final {
         return points_;
     }
-
+   private:
     std::vector<Geometry::PointReference<1>> points_;
 };
 

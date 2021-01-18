@@ -444,17 +444,17 @@ void VTKSpecificTimeWriter<DIM>::setupMapping(std::size_t order) {
 template <>
 inline void VTKSpecificTimeWriter<0>::setupMapping(std::size_t order) {
     elementMapping_[Geometry::ReferenceGeometryType::POINT] =
-        std::shared_ptr<VTKElement<0>>(new VTKPoint());
+        std::make_shared<VTKPoint>();
 }
 
 template <>
 inline void VTKSpecificTimeWriter<1>::setupMapping(std::size_t order) {
     if (order == 1) {
         elementMapping_[Geometry::ReferenceGeometryType::LINE] =
-            std::shared_ptr<VTKElement<1>>(new VTKLine());
+            std::make_shared<VTKLine>();
     } else {
         elementMapping_[Geometry::ReferenceGeometryType::LINE] =
-            std::shared_ptr<VTKElement<1>>(new VTKLagrangeCurve(order));
+            std::make_shared<VTKLagrangeCurve>(order);
     }
 }
 
@@ -462,14 +462,14 @@ template <>
 inline void VTKSpecificTimeWriter<2>::setupMapping(std::size_t order) {
     if (order == 1) {
         elementMapping_[Geometry::ReferenceGeometryType::TRIANGLE] =
-            std::shared_ptr<VTKElement<2>>(new VTKTriangle());
+            std::make_shared<VTKTriangle>();
         elementMapping_[Geometry::ReferenceGeometryType::SQUARE] =
-            std::shared_ptr<VTKElement<2>>(new VTKQuad());
+            std::make_shared<VTKQuad>();
     } else {
         elementMapping_[Geometry::ReferenceGeometryType::TRIANGLE] =
-            std::shared_ptr<VTKElement<2>>(new VTKLagrangeTriangle(order));
+            std::make_shared<VTKLagrangeTriangle>(order);
         elementMapping_[Geometry::ReferenceGeometryType::SQUARE] =
-            std::shared_ptr<VTKElement<2>>(new VTKLagrangeQuadrilateral(order));
+            std::make_shared<VTKLagrangeQuadrilateral>(order);
     }
 }
 
@@ -477,18 +477,18 @@ template <>
 inline void VTKSpecificTimeWriter<3>::setupMapping(std::size_t order) {
     if (order == 1) {
         elementMapping_[Geometry::ReferenceGeometryType::TETRAHEDRON] =
-            std::shared_ptr<VTKElement<3>>(new VTKTetra());
+            std::make_shared<VTKTetra>();
         elementMapping_[Geometry::ReferenceGeometryType::CUBE] =
-            std::shared_ptr<VTKElement<3>>(new VTKHexahedron());
+            std::make_shared<VTKHexahedron>();
         elementMapping_[Geometry::ReferenceGeometryType::TRIANGULARPRISM] =
-            std::shared_ptr<VTKElement<3>>(new VTKWedge());
+            std::make_shared<VTKWedge>();
         elementMapping_[Geometry::ReferenceGeometryType::PYRAMID] =
-            std::shared_ptr<VTKElement<3>>(new VTKPyramid());
+            std::make_shared<VTKPyramid>();
     } else {
         elementMapping_[Geometry::ReferenceGeometryType::CUBE] =
-            std::shared_ptr<VTKElement<3>>(new VTKLagrangeHexahedron(order));
+            std::make_shared<VTKLagrangeHexahedron>(order);
         elementMapping_[Geometry::ReferenceGeometryType::TETRAHEDRON] =
-            std::shared_ptr<VTKElement<3>>(new VTKLagrangeTetrahedron(order));
+            std::make_shared<VTKLagrangeTetrahedron>(order);
     }
 }
 

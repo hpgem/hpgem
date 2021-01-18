@@ -45,7 +45,7 @@ namespace Output {
 
 /// Simple hardcoded (linear) elements
 
-class VTKPoint : public VTKElement<0> {
+class VTKPoint final : public VTKElement<0> {
    public:
     std::uint8_t vtkId() const final { return 1; }
 
@@ -53,10 +53,11 @@ class VTKPoint : public VTKElement<0> {
         return points_;
     }
 
+   private:
     static std::vector<Geometry::PointReference<0>> points_;
 };
 
-class VTKLine : public VTKElement<1> {
+class VTKLine final : public VTKElement<1> {
    public:
     std::uint8_t vtkId() const final { return 3; }
 
@@ -64,10 +65,11 @@ class VTKLine : public VTKElement<1> {
         return points_;
     }
 
+   private:
     static std::vector<Geometry::PointReference<1>> points_;
 };
 
-class VTKTriangle : public VTKElement<2> {
+class VTKTriangle final : public VTKElement<2> {
    public:
     std::uint8_t vtkId() const final { return 5; }
 
@@ -75,10 +77,11 @@ class VTKTriangle : public VTKElement<2> {
         return points_;
     }
 
+   private:
     static std::vector<Geometry::PointReference<2>> points_;
 };
 
-class VTKQuad : public VTKElement<2> {
+class VTKQuad final : public VTKElement<2> {
    public:
     std::uint8_t vtkId() const final { return 9; }
 
@@ -86,10 +89,11 @@ class VTKQuad : public VTKElement<2> {
         return points_;
     }
 
+   private:
     static std::vector<Geometry::PointReference<2>> points_;
 };
 
-class VTKTetra : public VTKElement<3> {
+class VTKTetra final : public VTKElement<3> {
    public:
     std::uint8_t vtkId() const final { return 10; }
 
@@ -97,10 +101,11 @@ class VTKTetra : public VTKElement<3> {
         return points_;
     }
 
+   private:
     static std::vector<Geometry::PointReference<3>> points_;
 };
 
-class VTKHexahedron : public VTKElement<3> {
+class VTKHexahedron final : public VTKElement<3> {
    public:
     std::uint8_t vtkId() const final { return 12; }
 
@@ -108,10 +113,11 @@ class VTKHexahedron : public VTKElement<3> {
         return points_;
     }
 
+   private:
     static std::vector<Geometry::PointReference<3>> points_;
 };
 
-class VTKWedge : public VTKElement<3> {
+class VTKWedge final : public VTKElement<3> {
    public:
     std::uint8_t vtkId() const final { return 13; }
 
@@ -119,10 +125,11 @@ class VTKWedge : public VTKElement<3> {
         return points_;
     }
 
+   private:
     static std::vector<Geometry::PointReference<3>> points_;
 };
 
-class VTKPyramid : public VTKElement<3> {
+class VTKPyramid final : public VTKElement<3> {
    public:
     std::uint8_t vtkId() const final { return 14; }
 
@@ -130,6 +137,7 @@ class VTKPyramid : public VTKElement<3> {
         return points_;
     }
 
+   private:
     static std::vector<Geometry::PointReference<3>> points_;
 };
 }  // namespace Output

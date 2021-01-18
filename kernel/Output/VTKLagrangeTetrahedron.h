@@ -42,7 +42,7 @@
 
 namespace hpgem {
 namespace Output {
-class VTKLagrangeTetrahedron : public VTKElement<3> {
+class VTKLagrangeTetrahedron final : public VTKElement<3> {
    public:
     explicit VTKLagrangeTetrahedron(std::size_t order);
     std::uint8_t vtkId() const final { return 71; }
@@ -51,6 +51,7 @@ class VTKLagrangeTetrahedron : public VTKElement<3> {
         return points_;
     }
 
+   private:
     std::vector<Geometry::PointReference<3>> points_;
 };
 }  // namespace Output
