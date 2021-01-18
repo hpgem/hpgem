@@ -41,7 +41,13 @@
 
 #include <functional>
 #include <fstream>
+#include <map>
+#include <memory>
 #include "Base/MeshManipulator.h"
+#include "Geometry/ReferenceGeometry.h"
+
+#include "VTKElement.h"
+
 namespace hpgem {
 namespace Output {
 
@@ -73,9 +79,11 @@ class VTKSpecificTimeWriter final {
     ///\param mesh the mesh containing the data you want to output
     /// if you want to write from multiple meshes, simply have paraview load
     /// both output files
+    /// \param timelevel
+    /// \param order The polynomial order of the solution
     VTKSpecificTimeWriter(const std::string& baseName,
                           const Base::MeshManipulator<DIM>* mesh,
-                          std::size_t timelevel = 0);
+                          std::size_t timelevel = 0, std::size_t order = 1);
 
     ///\brief write end matter and close the file stream
     ~VTKSpecificTimeWriter();
@@ -160,6 +168,15 @@ class VTKSpecificTimeWriter final {
     std::uint32_t totalElements_;
     const Base::MeshManipulator<DIM>* mesh_;
     std::size_t timelevel_;
+
+    void setupMapping(std::size_t order);
+
+    /**
+     * The mapping from hpgem-reference geometry to the VTK elements
+     */
+    std::unordered_map<Geometry::ReferenceGeometryType,
+                       std::shared_ptr<VTKElement<DIM>>>
+        elementMapping_;
 };
 }  // namespace Output
 }  // namespace hpgem

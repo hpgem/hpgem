@@ -41,69 +41,35 @@
 #include "Base/MpiContainer.h"
 
 #include "Base/MeshManipulator.h"
-#include "Geometry/ElementGeometry.h"
 #include "Base/Element.h"
 #include "Geometry/PointPhysical.h"
-#include "Geometry/PhysicalGeometry.h"
 #include "Geometry/ReferencePoint.h"
-#include "Geometry/ReferenceLine.h"
-#include "Geometry/ReferenceTriangle.h"
-#include "Geometry/ReferenceSquare.h"
-#include "Geometry/ReferenceTetrahedron.h"
-#include "Geometry/ReferenceCube.h"
-#include "Geometry/ReferenceTriangularPrism.h"
-#include "Geometry/ReferencePyramid.h"
 #include "Geometry/PointReference.h"
 #include "base64.h"
-#include "VTKElementOrdering.h"
+#include "VTKStandardElements.h"
+#include "VTKLagrangeCurve.h"
+#include "VTKLagrangeHexahedron.h"
+#include "VTKLagrangeTetrahedron.h"
+#include "VTKLagrangeTriangle.h"
+#include "VTKLagrangeQuadrilateral.h"
 #include <vector>
 #include <unordered_map>
-
-#include <typeindex>
 
 namespace hpgem {
 
 namespace Output {
 
-/////////////////////////////////////
-// some VTK specific helper routines//
-/////////////////////////////////////
-
-// vtk element types supported by hpGEM
-// magic numbers taken from http://www.vtk.org/VTK/img/file-formats.pdf
-// smaller underlying type allows for easy conversion to base64
-enum class VTKElementName : std::uint8_t {
-    VERTEX = 1,
-    LINE = 3,
-    TRIANGLE = 5,
-    QUAD = 9,
-    TETRA = 10,
-    HEXAHEDRON = 12,
-    WEDGE = 13,
-    PYRAMID = 14
-};
-
-static std::unordered_map<std::type_index, VTKElementName> hpGEMToVTK = {
-    {std::type_index(typeid(Geometry::ReferencePoint)), VTKElementName::VERTEX},
-    {std::type_index(typeid(Geometry::ReferenceLine)), VTKElementName::LINE},
-    {std::type_index(typeid(Geometry::ReferenceTriangle)),
-     VTKElementName::TRIANGLE},
-    {std::type_index(typeid(Geometry::ReferenceSquare)), VTKElementName::QUAD},
-    {std::type_index(typeid(Geometry::ReferenceTetrahedron)),
-     VTKElementName::TETRA},
-    {std::type_index(typeid(Geometry::ReferenceCube)),
-     VTKElementName::HEXAHEDRON},
-    {std::type_index(typeid(Geometry::ReferenceTriangularPrism)),
-     VTKElementName::WEDGE},
-    {std::type_index(typeid(Geometry::ReferencePyramid)),
-     VTKElementName::PYRAMID}};
-
 template <std::size_t DIM>
 VTKSpecificTimeWriter<DIM>::VTKSpecificTimeWriter(
     const std::string& baseName, const Base::MeshManipulator<DIM>* mesh,
-    std::size_t timelevel)
-    : totalPoints_(0), totalElements_(0), mesh_(mesh), timelevel_(timelevel) {
+    std::size_t timelevel, std::size_t order)
+    : totalPoints_(0),
+      totalElements_(0),
+      mesh_(mesh),
+      timelevel_(timelevel),
+      elementMapping_() {
     logger.assert_debug(mesh != nullptr, "Invalid mesh passed");
+    setupMapping(order);
     std::size_t id = Base::MPIContainer::Instance().getProcessorID();
     if (id == 0) {
         writeMasterFileHeader(baseName);
@@ -158,10 +124,14 @@ void VTKSpecificTimeWriter<DIM>::write(
     std::vector<double> data;
     data.reserve(totalPoints_);
     for (Base::Element* element : mesh_->getElementsList()) {
-        for (std::size_t i = 0; i < element->getNumberOfNodes(); ++i) {
-            const Geometry::PointReference<DIM>& node =
-                element->getReferenceGeometry()->getReferenceNodeCoordinate(
-                    tohpGEMOrdering(i, element->getReferenceGeometry()));
+        auto vtkElement = elementMapping_.find(
+            element->getReferenceGeometry()->getGeometryType());
+        logger.assert_always(vtkElement != elementMapping_.end(),
+                             "No mapping to VTK element for %",
+                             element->getReferenceGeometry());
+
+        for (const Geometry::PointReference<DIM>& node :
+             vtkElement->second->getPoints()) {
             data.push_back(dataCompute(element, node, timelevel_));
         }
     }
@@ -188,10 +158,14 @@ void VTKSpecificTimeWriter<DIM>::write(
     std::vector<double> data(3 * totalPoints_, 0.0);
     std::size_t pointId = 0;
     for (Base::Element* element : mesh_->getElementsList()) {
-        for (std::size_t i = 0; i < element->getNumberOfNodes(); ++i) {
-            const Geometry::PointReference<DIM>& node =
-                element->getReferenceGeometry()->getReferenceNodeCoordinate(i);
+        auto vtkElement = elementMapping_.find(
+            element->getReferenceGeometry()->getGeometryType());
+        logger.assert_always(vtkElement != elementMapping_.end(),
+                             "No mapping to VTK element for %",
+                             element->getReferenceGeometry());
 
+        for (const Geometry::PointReference<DIM>& node :
+             vtkElement->second->getPoints()) {
             writePaddedVector(dataCompute(element, node, timelevel_), pointId,
                               data);
             pointId++;
@@ -219,9 +193,14 @@ void VTKSpecificTimeWriter<DIM>::write(
     std::vector<double> data(9 * totalPoints_);
     std::size_t pointId = 0;
     for (Base::Element* element : mesh_->getElementsList()) {
-        for (std::size_t i = 0; i < element->getNumberOfNodes(); ++i) {
-            const Geometry::PointReference<DIM>& node =
-                element->getReferenceGeometry()->getReferenceNodeCoordinate(i);
+        auto vtkElement = elementMapping_.find(
+            element->getReferenceGeometry()->getGeometryType());
+        logger.assert_always(vtkElement != elementMapping_.end(),
+                             "No mapping to VTK element for %",
+                             element->getReferenceGeometry());
+
+        for (const Geometry::PointReference<DIM>& node :
+             vtkElement->second->getPoints()) {
             writePaddedTensor(dataCompute(element, node, timelevel_), pointId,
                               data);
             pointId++;
@@ -310,7 +289,12 @@ void VTKSpecificTimeWriter<DIM>::writeLocalFileHeader(
 
     // first pass compute sizes
     for (Base::Element* element : mesh_->getElementsList()) {
-        totalPoints_ += element->getNumberOfNodes();
+        auto vtkElement = elementMapping_.find(
+            element->getReferenceGeometry()->getGeometryType());
+        logger.assert_always(vtkElement != elementMapping_.end(),
+                             "No mapping to VTK element for %",
+                             element->getReferenceGeometry());
+        totalPoints_ += vtkElement->second->getPoints().size();
         ++totalElements_;
     }
     // Second pass
@@ -327,7 +311,7 @@ void VTKSpecificTimeWriter<DIM>::writeLocalFileHeader(
     // Point coordinates, VTK needs exactly three coordinates per point
     std::vector<double> pointCoordinates(totalPoints_ * 3, 0.0);
     // Types
-    std::vector<VTKElementName> types(totalElements_);
+    std::vector<std::uint8_t> types(totalElements_);
     // Connectivity
     std::vector<std::uint32_t> connectivity(totalPoints_);
     // Offsets
@@ -337,28 +321,32 @@ void VTKSpecificTimeWriter<DIM>::writeLocalFileHeader(
     std::size_t elementId = 0;
 
     for (Base::Element* element : mesh_->getElementsList()) {
-        std::uint32_t localNumberOfPoints = element->getNumberOfNodes();
-        const Geometry::ReferenceGeometry& referenceGeometry =
-            *element->getReferenceGeometry();
 
-        types[elementId] =
-            hpGEMToVTK.at(std::type_index(typeid(referenceGeometry)));
-        // Individual nodes
-        for (std::size_t i = 0; i < localNumberOfPoints; ++i) {
+        auto vtkElement = elementMapping_.find(
+            element->getReferenceGeometry()->getGeometryType());
+        logger.assert_always(vtkElement != elementMapping_.end(),
+                             "No mapping to VTK element for %",
+                             element->getReferenceGeometry());
+        types[elementId] = vtkElement->second->vtkId();
+        std::size_t localPointCount = 0;
+        for (const Geometry::PointReference<DIM>& node :
+             vtkElement->second->getPoints()) {
             // Use the VTK ordering for the points. This makes the connectivity
             // trivial, but we need to reorder the coordinates
-            connectivity[pointCount + i] = pointCount + i;
+            connectivity[pointCount + localPointCount] =
+                pointCount + localPointCount;
+
             Geometry::PointPhysical<DIM> coordinate =
-                element->getPhysicalGeometry()->getLocalNodeCoordinates(
-                    tohpGEMOrdering(i, element->getReferenceGeometry()));
+                element->referenceToPhysical(node);
             // Copy coordinate
             for (std::size_t j = 0; j < std::min(DIM, 3ul); ++j) {
-                pointCoordinates[3 * (pointCount + i) + j] = coordinate[j];
+                pointCoordinates[3 * (pointCount + localPointCount) + j] =
+                    coordinate[j];
             }
+            localPointCount++;
         }
-
         // Offset array is including the current element
-        pointCount += localNumberOfPoints;
+        pointCount += localPointCount;
         offsets[elementId] = pointCount;
         elementId++;
     }
@@ -444,6 +432,63 @@ void VTKSpecificTimeWriter<DIM>::writePaddedTensor(
                 entry = 0.0;
             }
         }
+    }
+}
+
+template <std::size_t DIM>
+void VTKSpecificTimeWriter<DIM>::setupMapping(std::size_t order) {
+    logger(ERROR, "No VTK element mapping in dimension %", DIM);
+    // Specialized per DIM
+}
+
+template <>
+inline void VTKSpecificTimeWriter<0>::setupMapping(std::size_t order) {
+    elementMapping_[Geometry::ReferenceGeometryType::POINT] =
+        std::make_shared<VTKPoint>();
+}
+
+template <>
+inline void VTKSpecificTimeWriter<1>::setupMapping(std::size_t order) {
+    if (order == 1) {
+        elementMapping_[Geometry::ReferenceGeometryType::LINE] =
+            std::make_shared<VTKLine>();
+    } else {
+        elementMapping_[Geometry::ReferenceGeometryType::LINE] =
+            std::make_shared<VTKLagrangeCurve>(order);
+    }
+}
+
+template <>
+inline void VTKSpecificTimeWriter<2>::setupMapping(std::size_t order) {
+    if (order == 1) {
+        elementMapping_[Geometry::ReferenceGeometryType::TRIANGLE] =
+            std::make_shared<VTKTriangle>();
+        elementMapping_[Geometry::ReferenceGeometryType::SQUARE] =
+            std::make_shared<VTKQuad>();
+    } else {
+        elementMapping_[Geometry::ReferenceGeometryType::TRIANGLE] =
+            std::make_shared<VTKLagrangeTriangle>(order);
+        elementMapping_[Geometry::ReferenceGeometryType::SQUARE] =
+            std::make_shared<VTKLagrangeQuadrilateral>(order);
+    }
+}
+
+template <>
+inline void VTKSpecificTimeWriter<3>::setupMapping(std::size_t order) {
+    if (order == 1) {
+        elementMapping_[Geometry::ReferenceGeometryType::TETRAHEDRON] =
+            std::make_shared<VTKTetra>();
+        elementMapping_[Geometry::ReferenceGeometryType::CUBE] =
+            std::make_shared<VTKHexahedron>();
+        elementMapping_[Geometry::ReferenceGeometryType::TRIANGULARPRISM] =
+            std::make_shared<VTKWedge>();
+        elementMapping_[Geometry::ReferenceGeometryType::PYRAMID] =
+            std::make_shared<VTKPyramid>();
+    } else {
+        elementMapping_[Geometry::ReferenceGeometryType::CUBE] =
+            std::make_shared<VTKLagrangeHexahedron>(order);
+        elementMapping_[Geometry::ReferenceGeometryType::TETRAHEDRON] =
+            std::make_shared<VTKLagrangeTetrahedron>(order);
     }
 }
 
