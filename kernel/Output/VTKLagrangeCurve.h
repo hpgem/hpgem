@@ -52,6 +52,7 @@ class VTKLagrangeCurve final : public VTKElement<1> {
     const std::vector<Geometry::PointReference<1>>& getPoints() const final {
         return points_;
     }
+
    private:
     std::vector<Geometry::PointReference<1>> points_;
 };
