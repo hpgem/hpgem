@@ -46,20 +46,15 @@ using namespace hpgem;
 
 namespace Preprocessor {
 
-    GmshReader::GmshReader(std::string filename){
+GmshReader::GmshReader(std::string filename) {
 
     Filehandle.open(filename);
-    logger.assert_always(Filehandle.is_open(),
-                         "Cannot open msh meshfile.");
+    logger.assert_always(Filehandle.is_open(), "Cannot open msh meshfile.");
     logger.assert_always(Filehandle.good(),
                          "Something is not so good about this mesh");
-
-
-
-    }
-
-    Range<MeshSource::Node> GmshReader::getNodeCoordinates(){;}
-    Range<MeshSource::Element> GmshReader::getElements() {;}
-
-
 }
+
+Range<MeshSource::Node> GmshReader::getNodeCoordinates() { ; }
+Range<MeshSource::Element> GmshReader::getElements() { ; }
+
+}  // namespace Preprocessor

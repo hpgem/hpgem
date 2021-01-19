@@ -50,7 +50,7 @@
 using namespace hpgem;
 TEST_CASE("010Gmsh_UnitTest", "010Gmsh_UnitTest") {
 
-std::string filename=std::string(PREPROCESSOR_TEST_DATA_FOLDER)+"/insulated-4.1.msh";
- Preprocessor::GmshReader test(filename);
-
+    std::string filename =
+        std::string(PREPROCESSOR_TEST_DATA_FOLDER) + "/insulated-4.1.msh";
+    Preprocessor::GmshReader test(filename);
 }

@@ -215,8 +215,7 @@ int main(int argc, char** argv) {
         } else if ((fileType.isUsed() && fileType.getValue() == "gmsh") ||
                    (!fileType.isUsed() &&
                     fileName.compare(nameSize - 4, 4, ".msh") == 0)) {
-            auto gmshFile =
-                Preprocessor::GmshReader(inputFileName.getValue());
+            auto gmshFile = Preprocessor::GmshReader(inputFileName.getValue());
             if (dimension.isUsed()) {
                 logger.assert_always(
                     dimension.getValue() == gmshFile.getDimension(),
@@ -229,8 +228,7 @@ int main(int argc, char** argv) {
             } else if (gmshFile.getDimension() == 3) {
                 processMesh(Preprocessor::readFile<3>(gmshFile));
             } else {
-                logger(ERROR,
-                       "Msh file should not be able to have dimension %",
+                logger(ERROR, "Msh file should not be able to have dimension %",
                        gmshFile.getDimension());
             }
         } else {
