@@ -86,10 +86,10 @@ using idx_t = std::size_t;
 #include <string>
 #include "Base/CommandLineOptions.h"
 #include "Base/MpiContainer.h"
-#include "mesh.h"
-#include "hpgem.h"
-#include "centaur.h"
-#include "meshData.h"
+#include "lib/mesh.h"
+#include "lib/hpgem.h"
+#include "lib/centaur.h"
+#include "lib/meshData.h"
 #include "output.h"
 
 using namespace hpgem;

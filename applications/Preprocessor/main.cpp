@@ -48,11 +48,12 @@ using idx_t = std::size_t;
 #include <random>
 #include "Base/CommandLineOptions.h"
 #include "Base/MpiContainer.h"
-#include "mesh.h"
-#include "hpgem.h"
-#include "centaur.h"
-#include "meshData.h"
-#include "output.h"
+#include "lib/mesh.h"
+#include "lib/hpgem.h"
+#include "lib/centaur.h"
+#include "lib/gmsh.h"
+#include "lib/meshData.h"
+#include "lib/output.h"
 
 using namespace hpgem;
 
@@ -210,6 +211,27 @@ int main(int argc, char** argv) {
                 logger(ERROR,
                        "Centaur file should not be able to have dimension %",
                        centaurFile.getDimension());
+            }
+        } else if ((fileType.isUsed() && fileType.getValue() == "gmsh") ||
+                   (!fileType.isUsed() &&
+                    fileName.compare(nameSize - 4, 4, ".msh") == 0)) {
+            auto gmshFile =
+                Preprocessor::GmshReader(inputFileName.getValue());
+            if (dimension.isUsed()) {
+                logger.assert_always(
+                    dimension.getValue() == gmshFile.getDimension(),
+                    "The input file reports being for dimension %, but the "
+                    "code was started for dimension %",
+                    gmshFile.getDimension(), dimension.getValue());
+            }
+            if (gmshFile.getDimension() == 2) {
+                processMesh(Preprocessor::readFile<2>(gmshFile));
+            } else if (gmshFile.getDimension() == 3) {
+                processMesh(Preprocessor::readFile<3>(gmshFile));
+            } else {
+                logger(ERROR,
+                       "Msh file should not be able to have dimension %",
+                       gmshFile.getDimension());
             }
         } else {
             logger(ERROR, "Don't know what to do with this file");
