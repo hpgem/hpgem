@@ -48,10 +48,64 @@ namespace Preprocessor {
 
 GmshReader::GmshReader(std::string filename) {
 
-    Filehandle.open(filename);
-    logger.assert_always(Filehandle.is_open(), "Cannot open msh meshfile.");
-    logger.assert_always(Filehandle.good(),
+    Filehandle_.open(filename);
+    logger.assert_always(Filehandle_.is_open(), "Cannot open msh meshfile.");
+    logger.assert_always(Filehandle_.good(),
                          "Something is not so good about this mesh");
+}
+
+//
+// Non-class helper function for line-reading
+// Because getline works only on text files from the OS that it was compiled
+// on...
+// From:
+// https://stackoverflow.com/questions/6089231/getting-std-ifstream-to-handle-lf-cr-and-crlf
+//
+std::istream& safeGetline(std::istream& is, std::string& t) {
+    t.clear();
+
+    // The characters in the stream are read one-by-one using a std::streambuf.
+    // That is faster than reading them one-by-one using the std::istream.
+    // Code that uses streambuf this way must be guarded by a sentry object.
+    // The sentry object performs various tasks,
+    // such as thread synchronization and updating the stream state.
+
+    std::istream::sentry se(is, true);
+    std::streambuf* sb = is.rdbuf();
+
+    for (;;) {
+        int c = sb->sbumpc();
+        switch (c) {
+            case '\n':
+                return is;
+            case '\r':
+                if (sb->sgetc() == '\n') sb->sbumpc();
+                return is;
+            case std::streambuf::traits_type::eof():
+                // Also handle the case when the last line has no line ending
+                if (t.empty()) is.setstate(std::ios::eofbit);
+                return is;
+            default:
+                t += (char)c;
+        }
+    }
+}
+
+bool GmshReader::locate_in_file(std::ifstream& filestream,
+                                const std::string& searchname) {
+    // to find a specific keyword in the MSH file and return the file stream
+    std::string temp;
+    bool found = false;
+    while (!filestream.eof()) {
+        safeGetline(filestream, temp);
+        found = false;
+        if (temp == searchname) {
+            found = true;
+            break;
+        }
+    }
+    logger.assert_always(found, "The " + searchname + "field was not found");
+    return found;
 }
 
 Range<MeshSource::Node> GmshReader::getNodeCoordinates() { ; }
