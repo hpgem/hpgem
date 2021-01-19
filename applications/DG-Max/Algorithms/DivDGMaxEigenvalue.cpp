@@ -44,6 +44,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Utilities/GlobalVector.h"
 
 #include "Utils/FaceKPhaseShiftBuilder.h"
+#include "ElementInfos.h"
 
 #include "DGMaxLogger.h"
 
@@ -145,6 +146,22 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
         return eigenvalues_;
     }
 
+    /**
+     * Write the (global) eigenvector to a (local) time integration vector, for
+     * example for plotting the solution.
+     * @param eigenvalue The index of the eigenvalue
+     * @param timeIntegrationVector The index of the time integration vector
+     */
+    void writeEigenvectorAsTimeIntegrationVector(
+        std::size_t eigenvalue, std::size_t timeIntegrationVector) {
+        logger.assert_debug(eigenvalue < numberOfConvergedEigenpairs,
+                            "Eigenvalue index too large");
+        PetscErrorCode err;
+        err = VecCopy(eigenvectors_[eigenvalue], tempVector_);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+        tempVector_.writeTimeIntegrationVector(timeIntegrationVector);
+    }
+
    private:
     void initKShifts() {
         DGMaxLogger(VERBOSE, "Initializing boundary shifting");
@@ -206,10 +223,13 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
 };
 
 template <std::size_t DIM>
-class DivDGMaxEigenvalue<DIM>::Result : public AbstractEigenvalueResult<DIM> {
+class DivDGMaxEigenvalue<DIM>::Result final
+    : public AbstractEigenvalueResult<DIM> {
    public:
-    Result(const typename DivDGMaxEigenvalue<DIM>::SolverWorkspace& workspace)
-        : workspace_(workspace) {
+    Result(typename DivDGMaxEigenvalue<DIM>::SolverWorkspace& workspace,
+           const Base::MeshManipulator<DIM>* mesh,
+           const DivDGMaxDiscretization<DIM>& discretization)
+        : workspace_(workspace), mesh_(mesh), discretization_(discretization) {
         auto& eigenvalues = workspace.getEigenvalues();
         frequencies_.resize(eigenvalues.size());
         for (std::size_t i = 0; i < frequencies_.size(); ++i) {
@@ -223,10 +243,88 @@ class DivDGMaxEigenvalue<DIM>::Result : public AbstractEigenvalueResult<DIM> {
         return workspace_.getKPoint();
     }
 
+    void writeField(std::size_t eigenvalue,
+                    Output::VTKSpecificTimeWriter<DIM>& writer) final;
+
+    const Base::MeshManipulator<DIM>* getMesh() const final { return mesh_; }
+
    private:
-    const typename DivDGMaxEigenvalue<DIM>::SolverWorkspace& workspace_;
+    typename DivDGMaxEigenvalue<DIM>::SolverWorkspace& workspace_;
+    const Base::MeshManipulator<DIM>* mesh_;
+    const DivDGMaxDiscretization<DIM>& discretization_;
     std::vector<double> frequencies_;
 };
+
+template <std::size_t DIM>
+void DivDGMaxEigenvalue<DIM>::Result::writeField(
+    std::size_t eigenvalue, Output::VTKSpecificTimeWriter<DIM>& writer) {
+    const std::size_t VECTOR_ID = 0;
+    // Write to a time integration vector so that we can access it on each
+    // element.
+    workspace_.writeEigenvectorAsTimeIntegrationVector(eigenvalue, VECTOR_ID);
+    // write all field components
+    writer.write(
+        [&](const Base::Element* element,
+            const Geometry::PointReference<DIM>& pref, std::size_t) {
+            const LinearAlgebra::MiddleSizeVector& coefficients =
+                element->getTimeIntegrationVector(VECTOR_ID);
+            auto fields =
+                discretization_.computeFields(element, pref, coefficients);
+            return std::sqrt(fields.realEField.l2NormSquared() +
+                             fields.imagEField.l2NormSquared());
+        },
+        "Emag");
+    writer.write(
+        [&](const Base::Element* element,
+            const Geometry::PointReference<DIM>& pref, std::size_t) {
+            const LinearAlgebra::MiddleSizeVector& coefficients =
+                element->getTimeIntegrationVector(VECTOR_ID);
+            return discretization_.computeFields(element, pref, coefficients)
+                .realEField;
+        },
+        "Ereal");
+    writer.write(
+        [&](const Base::Element* element,
+            const Geometry::PointReference<DIM>& pref, std::size_t) {
+            const LinearAlgebra::MiddleSizeVector& coefficients =
+                element->getTimeIntegrationVector(VECTOR_ID);
+            return discretization_.computeFields(element, pref, coefficients)
+                .imagEField;
+        },
+        "Eimag");
+    writer.write(
+        [&](const Base::Element* element,
+            const Geometry::PointReference<DIM>& pref, std::size_t) {
+            const LinearAlgebra::MiddleSizeVector& coefficients =
+                element->getTimeIntegrationVector(VECTOR_ID);
+            return discretization_.computeFields(element, pref, coefficients)
+                .potential.real();
+        },
+        "preal");
+    writer.write(
+        [&](const Base::Element* element,
+            const Geometry::PointReference<DIM>& pref, std::size_t) {
+            const LinearAlgebra::MiddleSizeVector& coefficients =
+                element->getTimeIntegrationVector(VECTOR_ID);
+            return discretization_.computeFields(element, pref, coefficients)
+                .potential.imag();
+        },
+        "pimag");
+    // Also write epsilon, for later filtering
+    writer.write(
+        [&](const Base::Element* element, const Geometry::PointReference<DIM>&,
+            std::size_t) {
+            auto* userData = element->getUserData();
+            const ElementInfos* elementInfo =
+                dynamic_cast<ElementInfos*>(userData);
+            if (elementInfo != nullptr) {
+                return elementInfo->epsilon_;
+            } else {
+                return -1.0;  // Clearly invalid value
+            }
+        },
+        "epsilon");
+}
 
 template <std::size_t DIM>
 DivDGMaxEigenvalue<DIM>::DivDGMaxEigenvalue(
@@ -263,7 +361,7 @@ void DivDGMaxEigenvalue<DIM>::solve(
                     expectedNumberOfSteps);
         workspace.solve(currentK, numberOfEigenvalues);
 
-        Result result(workspace);
+        Result result(workspace, &mesh_, discretization);
 
         driver.handleResult(result);
 

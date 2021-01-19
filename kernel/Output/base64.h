@@ -55,7 +55,11 @@ bool isBigEndian();
 static const char base64Encode[65] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-///\brief convert raw binary data to base64 encoded raw binary data
+/// \brief convert raw binary data to base64 encoded raw binary data
+///
+/// \param rawData A pointer to the raw data, not used if the length is zero
+/// \param len The length
+/// \return A string with base64 encoded rawData[0] to rawData[len-1]
 std::string toBase64(void* rawData, std::size_t len);
 }  // namespace Detail
 }  // namespace Output

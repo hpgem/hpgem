@@ -11,7 +11,7 @@
 
 find_package(PkgConfig)
 list(APPEND CMAKE_PREFIX_PATH "${PETSC_DIR}/${PETSC_ARCH}")
-pkg_check_modules(PETSC_PKG PETSc)
+pkg_check_modules(PETSC_PKG REQUIRED PETSc)
 
 find_path(PETSc_INCLUDE_DIR petsc.h HINTS ${PETSC_PKG_INCLUDE_DIRS})
 find_path(PETSc_INCLUDE_DIR2 petscconf.h HINTS ${PETSC_PKG_INCLUDE_DIRS})
@@ -23,8 +23,6 @@ include(FindPackageHandleStandardArgs)
 # if all listed variables are TRUE
 
 find_package_handle_standard_args(PETSc DEFAULT_MSG PETSc_LIBRARY PETSc_INCLUDE_DIR )
-
-message(STATUS "${PETSc_INCLUDE_DIR}")
 
 if (PETSc_FOUND)
   include(CheckSymbolExists)

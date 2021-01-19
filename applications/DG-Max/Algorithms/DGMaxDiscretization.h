@@ -116,6 +116,14 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
     using TimeFunction = std::function<void(const PointPhysicalT&, double,
                                             LinearAlgebra::SmallVector<DIM>&)>;
 
+    /// Computed fields of the solution
+    struct Fields {
+        /// Real part of the field
+        LinearAlgebra::SmallVector<DIM> realEField;
+        /// Imaginary part of the field
+        LinearAlgebra::SmallVector<DIM> imagEField;
+    };
+
     DGMaxDiscretization(bool includeProjector = false)
         : includeProjector_(includeProjector) {}
 
@@ -157,6 +165,9 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
                                             InputFunction electricFieldCurl,
                                             std::set<NormType> norms) const;
 
+    Fields computeFields(
+        const Base::Element* element, const Geometry::PointReference<DIM>& p,
+        const LinearAlgebra::MiddleSizeVector& coefficients) const;
     LinearAlgebra::SmallVector<DIM> computeField(
         const Base::Element* element, const Geometry::PointReference<DIM>& p,
         const LinearAlgebra::MiddleSizeVector& coefficients) const;

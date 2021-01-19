@@ -59,6 +59,7 @@ std::unique_ptr<Base::MeshManipulator<DIM>> readMesh(
              mesh->elementColBegin(Base::IteratorType::GLOBAL);
          it != mesh->elementColEnd(Base::IteratorType::GLOBAL); ++it) {
         (*it)->setUserData(ElementInfos::createStructure<DIM>(**it, epsilon));
+        (*it)->setNumberOfTimeIntegrationVectors(1);
     }
     return mesh;
 }
