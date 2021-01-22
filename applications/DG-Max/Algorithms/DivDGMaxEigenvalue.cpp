@@ -50,6 +50,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace hpgem;
 
+// Helper function
+
+
+
 /// Internal storage for the algorithm
 template <std::size_t DIM>
 class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
@@ -99,7 +103,7 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
         kpoint_ = k;
 
         PetscErrorCode err;
-        err = EPSSetOperators(solver_, massMatrix_, stiffnessMatrix_);
+        err = EPSSetOperators(solver_, stiffnessMatrix_, massMatrix_);
         CHKERRABORT(PETSC_COMM_WORLD, err);
         err = EPSSetDimensions(solver_, numberOfEigenvalues, PETSC_DECIDE,
                                PETSC_DECIDE);
@@ -114,9 +118,8 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
         DGMaxLogger(INFO, "Setting up solve");
         err = EPSSetUp(solver_);
         CHKERRABORT(PETSC_COMM_WORLD, err);
-        EPSSetWhichEigenpairs(solver_, EPS_LARGEST_REAL);
-        DGMaxLogger(INFO, "Solving");
 
+        DGMaxLogger(INFO, "Solving");
         err = EPSSolve(solver_);
         CHKERRABORT(PETSC_COMM_WORLD, err);
 
@@ -192,8 +195,20 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
         err = EPSSetOperators(solver_, massMatrix_, stiffnessMatrix_);
         CHKERRABORT(PETSC_COMM_WORLD, err);
 
-        err = EPSSetWhichEigenpairs(solver_, EPS_LARGEST_MAGNITUDE);
+        err = EPSSetWhichEigenpairs(solver_, EPS_TARGET_REAL);
         CHKERRABORT(PETSC_COMM_WORLD, err);
+        err = EPSSetTarget(solver_, 0.0);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+
+        // By default configure to use shift & invert
+        {
+            ST st;
+            err = EPSGetST(solver_, &st);
+            CHKERRABORT(PETSC_COMM_WORLD, err);
+            err = STSetType(st, STSINVERT);
+            CHKERRABORT(PETSC_COMM_WORLD, err);
+        }
+
         DGMaxLogger(INFO, "Eigenvalue solver configured");
     }
 
@@ -233,7 +248,7 @@ class DivDGMaxEigenvalue<DIM>::Result final
         auto& eigenvalues = workspace.getEigenvalues();
         frequencies_.resize(eigenvalues.size());
         for (std::size_t i = 0; i < frequencies_.size(); ++i) {
-            frequencies_[i] = 1. / std::sqrt(PetscRealPart(eigenvalues[i]));
+            frequencies_[i] = std::sqrt(PetscRealPart(eigenvalues[i]));
         }
     };
 
