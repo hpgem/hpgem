@@ -52,8 +52,6 @@ using namespace hpgem;
 
 // Helper function
 
-
-
 /// Internal storage for the algorithm
 template <std::size_t DIM>
 class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
@@ -126,7 +124,7 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
         // Post solve
         err = EPSGetConverged(solver_, &numberOfConvergedEigenpairs);
         CHKERRABORT(PETSC_COMM_WORLD, err);
-        DGMaxLogger(INFO, "Number of eigenvalues %", numberOfEigenvalues);
+        DGMaxLogger(INFO, "Number of eigenvalues %", numberOfConvergedEigenpairs);
         if (numberOfConvergedEigenpairs > numberOfEigenvectors_) {
             err = VecDestroyVecs(numberOfEigenvectors_, &eigenvectors_);
             CHKERRABORT(PETSC_COMM_WORLD, err);
