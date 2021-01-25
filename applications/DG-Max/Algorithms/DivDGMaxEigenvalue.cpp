@@ -50,8 +50,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace hpgem;
 
-// Helper function
-
 /// Internal storage for the algorithm
 template <std::size_t DIM>
 class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
