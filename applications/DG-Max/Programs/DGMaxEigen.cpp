@@ -120,13 +120,19 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
           currentPoint_(0),
           path_(path),
           frequencyResults_(path.totalNumberOfSteps()) {
-
-        outFile.open("frequencies.csv");
-        logger.assert_always(!outFile.fail(), "Output file opening failed");
-        writeHeader(outFile, ',');
+        // Only one processor should write to the file
+        Base::MPIContainer::Instance().onlyOnOneProcessor({[&]() {
+            outFile.open("frequencies.csv");
+            logger.assert_always(!outFile.fail(), "Output file opening failed");
+            writeHeader(outFile, ',');
+        }});
     }
 
-    ~DGMaxEigenDriver() { outFile.close(); }
+    ~DGMaxEigenDriver() override {
+        if (outFile.is_open()) {
+            outFile.close();
+        }
+    }
 
     bool stop() const final {
         return currentPoint_ >= path_.totalNumberOfSteps();
@@ -150,8 +156,10 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
 
     void handleResult(AbstractEigenvalueResult<DIM>& result) final {
         frequencyResults_[currentPoint_] = result.getFrequencies();
-        writeFrequencies(outFile, currentPoint_,
-                         frequencyResults_[currentPoint_], ',');
+        Base::MPIContainer::Instance().onlyOnOneProcessor({[&]() {
+            writeFrequencies(outFile, currentPoint_,
+                             frequencyResults_[currentPoint_], ',');
+        }});
 
         if (fieldDir.isUsed()) {
             DGMaxLogger(INFO, "Writing field paterns");
@@ -263,7 +271,8 @@ void runWithDimension() {
         solver.solve(driver);
     }
 
-    driver.printFrequencies();
+    Base::MPIContainer::Instance().onlyOnOneProcessor(
+        {[&]() { driver.printFrequencies(); }});
 }
 
 /// Parse DIM comma separated numbers as the coordinates of a point.
