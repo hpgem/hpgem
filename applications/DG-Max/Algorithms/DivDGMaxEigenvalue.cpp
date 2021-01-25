@@ -124,7 +124,8 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
         // Post solve
         err = EPSGetConverged(solver_, &numberOfConvergedEigenpairs);
         CHKERRABORT(PETSC_COMM_WORLD, err);
-        DGMaxLogger(INFO, "Number of eigenvalues %", numberOfConvergedEigenpairs);
+        DGMaxLogger(INFO, "Number of eigenvalues %",
+                    numberOfConvergedEigenpairs);
         if (numberOfConvergedEigenpairs > numberOfEigenvectors_) {
             err = VecDestroyVecs(numberOfEigenvectors_, &eigenvectors_);
             CHKERRABORT(PETSC_COMM_WORLD, err);
