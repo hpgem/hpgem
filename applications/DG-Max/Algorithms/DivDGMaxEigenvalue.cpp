@@ -186,19 +186,19 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
         err = EPSCreate(PETSC_COMM_WORLD, &solver_);
         CHKERRABORT(PETSC_COMM_WORLD, err);
         // Setting operators, but these will be set again after k-shifting
-        // Note the order Mx = (1/omega^2) Sx and NOT Sx = omega^2 M x and doing
-        // a spectral transformation.
-        // It may be possible to remove this relic with the current version of
-        // SLEPc.
-        err = EPSSetOperators(solver_, massMatrix_, stiffnessMatrix_);
+        err = EPSSetOperators(solver_, stiffnessMatrix_, massMatrix_);
         CHKERRABORT(PETSC_COMM_WORLD, err);
 
+        // The mass matrix is positive semidefinite, the stiffness matrix is
+        // Hermitian indefinite (k-phase-shifts are also Hermitian for real k).
+        err = EPSSetProblemType(solver_, EPS_GHEP);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+
+        // By default configure to use shift & invert targeted to 0
         err = EPSSetWhichEigenpairs(solver_, EPS_TARGET_REAL);
         CHKERRABORT(PETSC_COMM_WORLD, err);
         err = EPSSetTarget(solver_, 0.0);
         CHKERRABORT(PETSC_COMM_WORLD, err);
-
-        // By default configure to use shift & invert
         {
             ST st;
             err = EPSGetST(solver_, &st);
