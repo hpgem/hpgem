@@ -178,6 +178,8 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
                 result.writeField(i, writer);
             }
         }
+
+        writeOverlapIntegrals(result);
     }
 
     void printFrequencies() {
@@ -205,6 +207,44 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
             stream << separator << frequency;
         }
         stream << std::endl;
+    }
+
+    void writeOverlapIntegrals(AbstractEigenvalueResult<DIM>& result) const {
+        if (currentPoint_ == 0) {
+            // No previous point
+            return;
+        }
+        DGMaxLogger(INFO, "Writing overlap integrals");
+
+        // Compute overlap integrals -> Needs all processors
+        LinearAlgebra::MiddleSizeMatrix overlapIntegrals =
+            result.computeFieldOverlap();
+        Base::MPIContainer::Instance().onlyOnOneProcessor({[&]() {
+            std::stringstream fileName;
+            fileName << "overlap-" << currentPoint_ << ".csv";
+            std::ofstream overlapFile(fileName.str());
+
+            // Write header
+            overlapFile << "Mode";
+            for (std::size_t j = 0; j < overlapIntegrals.getNumberOfColumns();
+                 ++j) {
+                std::stringstream header;
+                overlapFile << ","
+                            << "Prev" << j;
+            }
+            overlapFile << std::endl;
+            for (std::size_t i = 0; i < overlapIntegrals.getNumberOfRows();
+                 ++i) {
+                overlapFile << "New" << i;
+                for (std::size_t j = 0;
+                     j < overlapIntegrals.getNumberOfColumns(); ++j) {
+                    overlapFile << "," << std::real(overlapIntegrals(i, j))
+                                << "+" << std::imag(overlapIntegrals(i, j))
+                                << "i";
+                }
+                overlapFile << std::endl;
+            }
+        }});
     }
 };
 

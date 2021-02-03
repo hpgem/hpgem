@@ -117,6 +117,7 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
         CHKERRABORT(PETSC_COMM_WORLD, err);
 
         // Post solve
+        std::swap(eigenpairs_, previousEigenpairs_);
         eigenpairs_.loadEigenpairs(solver_, tempVector_);
     }
 
@@ -138,6 +139,27 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
         err = VecCopy(eigenpairs_.getEigenvector(eigenvalue), tempVector_);
         CHKERRABORT(PETSC_COMM_WORLD, err);
         tempVector_.writeTimeIntegrationVector(timeIntegrationVector);
+    }
+
+    LinearAlgebra::MiddleSizeMatrix computeOverlapIntegrals() {
+        LinearAlgebra::MiddleSizeMatrix result(eigenpairs_.size(),
+                                               previousEigenpairs_.size());
+        PetscErrorCode err;
+        for (std::size_t i = 0; i < eigenpairs_.size(); ++i) {
+            err = MatMult(massMatrix_, eigenpairs_.getEigenvector(i),
+                          tempVector_);
+            CHKERRABORT(PETSC_COMM_WORLD, err);
+            for (std::size_t j = 0; j < previousEigenpairs_.size(); ++j) {
+                // Note VecMDot might be a bit faster, but
+                // a) this is not needed
+                // b) this is complicated by the possible reordering of
+                // eigenvalues.
+                err = VecDot(tempVector_, previousEigenpairs_.getEigenvector(j),
+                             &result(i, j));
+                CHKERRABORT(PETSC_COMM_WORLD, err);
+            }
+        }
+        return result;
     }
 
    private:
@@ -202,6 +224,7 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
     EPS solver_;
 
     Utilities::Eigenpairs eigenpairs_;
+    Utilities::Eigenpairs previousEigenpairs_;
 };
 
 template <std::size_t DIM>
@@ -230,6 +253,10 @@ class DivDGMaxEigenvalue<DIM>::Result final
                     Output::VTKSpecificTimeWriter<DIM>& writer) final;
 
     const Base::MeshManipulator<DIM>* getMesh() const final { return mesh_; }
+
+    LinearAlgebra::MiddleSizeMatrix computeFieldOverlap() const final {
+        return workspace_.computeOverlapIntegrals();
+    }
 
    private:
     typename DivDGMaxEigenvalue<DIM>::SolverWorkspace& workspace_;

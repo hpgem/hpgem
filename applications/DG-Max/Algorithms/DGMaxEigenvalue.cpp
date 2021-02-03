@@ -124,6 +124,8 @@ class DGMaxEigenvalue<DIM>::SolverWorkspace {
 
     const Utilities::Eigenpairs& getEigenpairs() const { return eigenpairs_; }
 
+    LinearAlgebra::MiddleSizeMatrix computeOverlapIntegrals();
+
     /**
      * Take an eigenvector and write it to the element local timeintegration
      * vector.
@@ -175,6 +177,7 @@ class DGMaxEigenvalue<DIM>::SolverWorkspace {
 
     // Eigenvector storage
     Utilities::Eigenpairs eigenpairs_;
+    Utilities::Eigenpairs previousEigenpairs_;
 
     void initStiffnessMatrixShifts();
     void initMatrices();
@@ -270,6 +273,10 @@ class DGMaxEigenvalue<DIM>::Result final
 
     void writeField(std::size_t eigenvalue,
                     Output::VTKSpecificTimeWriter<DIM>& writer) final;
+
+    LinearAlgebra::MiddleSizeMatrix computeFieldOverlap() const {
+        return workspace_.computeOverlapIntegrals();
+    }
 
    private:
     SolverWorkspace& workspace_;
@@ -628,6 +635,7 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::initStiffnessMatrixShifts() {
 
 template <std::size_t DIM>
 void DGMaxEigenvalue<DIM>::SolverWorkspace::extractEigenVectors() {
+    std::swap(eigenpairs_, previousEigenpairs_);
     PetscErrorCode error;
     eigenpairs_.loadEigenpairs(solver_, tempFieldVector_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
@@ -770,6 +778,28 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::writeAsTimeIntegrationVector(
     err = VecCopy(eigenpairs_.getEigenvector(eigenvectorId), tempFieldVector_);
     CHKERRABORT(PETSC_COMM_WORLD, err);
     tempFieldVector_.writeTimeIntegrationVector(timeIntegrationVectorId);
+}
+
+template<std::size_t DIM>
+LinearAlgebra::MiddleSizeMatrix DGMaxEigenvalue<DIM>::SolverWorkspace::computeOverlapIntegrals() {
+    LinearAlgebra::MiddleSizeMatrix result(eigenpairs_.size(),
+                                           previousEigenpairs_.size());
+    PetscErrorCode err;
+    for (std::size_t i = 0; i < eigenpairs_.size(); ++i) {
+        err = MatMult(massMatrix_, eigenpairs_.getEigenvector(i),
+                      tempFieldVector_);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+        for (std::size_t j = 0; j < previousEigenpairs_.size(); ++j) {
+            // Note VecMDot might be a bit faster, but
+            // a) this is not needed
+            // b) this is complicated by the possible reordering of
+            // eigenvalues.
+            err = VecDot(tempFieldVector_, previousEigenpairs_.getEigenvector(j),
+                         &result(i, j));
+            CHKERRABORT(PETSC_COMM_WORLD, err);
+        }
+    }
+    return result;
 }
 
 // ShiftWorkspace //
