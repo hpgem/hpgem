@@ -61,6 +61,15 @@ auto& structure = Base::register_argument<std::size_t>(
 auto& fieldDir = Base::register_argument<std::string>(
     '\0', "fields", "Existing directory to output the fields to.", false, "");
 
+// A natural mesh would be one where the unit cell in the mesh has a lattice
+// constant of '1' in mesh coordinates. However, it may be more convenient to
+// create a mesh at a different length scale. This option may be used to
+// indicate and compensate for this difference in scale. Specifically:
+//  1. The k-vectors are multiplied by 1/lengthscale
+//  2. The resulting frequencies are multiplied by lengthscale
+auto& lengthScale = Base::register_argument<double>(
+    '\0', "lengthscale", "Length scale of the mesh", false, 1.0);
+
 template <std::size_t DIM>
 void runWithDimension();
 double parseDGMaxPenaltyParameter();
@@ -195,14 +204,51 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
     std::ofstream outFile;
 
     void writeHeader(std::ostream& stream, char separator) {
-        stream << "k-point" << separator << "frequencies->" << std::endl;
+        // Mostly matching MPB
+        // clang-format off
+        stream << "freqs:"
+               << separator << "k index"
+               << separator << "kx/2pi"
+               << separator << "ky/2pi"
+               << separator << "kz/2pi"
+               << separator << "kmag/2pi";
+        // clang-format on
+
+        // Add headers for the number of expected bands. The actual number may
+        // be higher.
+        for (std::size_t i = 0; i < targetNumberOfEigenvalues_; ++i) {
+            stream << separator << "band " << i;
+        }
+        stream << std::endl;
     }
 
     void writeFrequencies(std::ostream& stream, std::size_t point,
                           std::vector<double>& frequencies, char separator) {
-        stream << point;
+        auto k = path_.k(point);
+
+        // Undo rescaling
+        k *= lengthScale.getValue();
+
+        // MPB like prefix. Importantly, we don't have a reciprocal lattice
+        // defined so we output the kx-kz instead of k1-k3.
+
+        // clang-format off
+        stream << "freqs:"
+               << separator << point + 1 //MPB uses 1 indexing
+               << separator << k[0] / (2*M_PI)
+               << separator << k[1] / (2*M_PI)
+               << separator << (DIM == 3 ?  k[2] / (2*M_PI) : 0)
+               << separator << k.l2Norm() / (2*M_PI);
+        // clang-format on
+
         for (double frequency : frequencies) {
-            stream << separator << frequency;
+            // By convention the frequency is reported in units of
+            // 2pi c/a, with c the speed of light and 'a' the lattice constant
+            // (or similarly predefined length). For the computation we assume
+            // c=1, and assume the length scale a matches that of the mesh. Thus
+            // the distance between x=0 and x=1 is assumed to be 'a'.
+            stream << separator
+                   << frequency / (2 * M_PI) * lengthScale.getValue();
         }
         stream << std::endl;
     }
@@ -310,7 +356,7 @@ KSpacePath<DIM> parsePath() {
             DGMax::parsePath<DIM>(pointMode.getValue());
         // Compensate for factor of pi in the reciprocal lattice
         for (std::size_t i = 0; i < path.points_.size(); ++i) {
-            path.points_[i] *= M_PI;
+            path.points_[i] *= M_PI / lengthScale.getValue();
         }
         // Default steps to 1.
         if (path.steps_ < 0) {
