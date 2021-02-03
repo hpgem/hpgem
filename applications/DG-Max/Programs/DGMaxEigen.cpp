@@ -247,7 +247,8 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
             // (or similarly predefined length). For the computation we assume
             // c=1, and assume the length scale a matches that of the mesh. Thus
             // the distance between x=0 and x=1 is assumed to be 'a'.
-            stream << separator << frequency / (2 * M_PI) * lengthScale.getValue();
+            stream << separator
+                   << frequency / (2 * M_PI) * lengthScale.getValue();
         }
         stream << std::endl;
     }
@@ -355,7 +356,7 @@ KSpacePath<DIM> parsePath() {
             DGMax::parsePath<DIM>(pointMode.getValue());
         // Compensate for factor of pi in the reciprocal lattice
         for (std::size_t i = 0; i < path.points_.size(); ++i) {
-            path.points_[i] *= M_PI/lengthScale.getValue();
+            path.points_[i] *= M_PI / lengthScale.getValue();
         }
         // Default steps to 1.
         if (path.steps_ < 0) {
