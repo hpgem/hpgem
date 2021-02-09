@@ -55,14 +55,6 @@
 #include "ReferenceCube.h"
 #include "ReferenceHypercube.h"
 
-#include "PhysicalTetrahedron.h"
-#include "PhysicalLine.h"
-#include "PhysicalQuadrilateral.h"
-#include "PhysicalTriangle.h"
-#include "PhysicalPyramid.h"
-#include "PhysicalTriangularPrism.h"
-#include "PhysicalHexahedron.h"
-#include "PhysicalOctachoron.h"
 
 #include "Mappings/MappingReferenceToPhysical.h"
 #include "Mappings/MappingToPhysHypercubeLinear.h"
