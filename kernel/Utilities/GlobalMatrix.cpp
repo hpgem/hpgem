@@ -228,10 +228,13 @@ void GlobalPetscMatrix::createMat() {
     PetscErrorCode ierr = MatDestroy(&A_);
     CHKERRV(ierr);
 
+    bool isMultiProcessor =
+        Base::MPIContainer::Instance().getNumberOfProcessors() > 1;
+
     // Create matrix
     ierr = MatCreate(PETSC_COMM_WORLD, &A_);
     CHKERRV(ierr);
-    ierr = MatSetType(A_, MATMPIAIJ);
+    ierr = MatSetType(A_, isMultiProcessor ? MATMPIAIJ : MATSEQAIJ);
     CHKERRV(ierr);
 
     // Set sizes based on indexing
@@ -250,14 +253,24 @@ void GlobalPetscMatrix::createMat() {
         std::tie(numberOfPositionsPerRow, offDiagonalPositionsPerRow) =
             estimator.computeSparsityEstimate(faceCoupling_);
         // Zeros are passed for the ignored arguments.
-        ierr = MatMPIAIJSetPreallocation(A_, 0, numberOfPositionsPerRow.data(),
-                                         0, offDiagonalPositionsPerRow.data());
+        if (isMultiProcessor) {
+            ierr =
+                MatMPIAIJSetPreallocation(A_, 0, numberOfPositionsPerRow.data(),
+                                          0, offDiagonalPositionsPerRow.data());
+        } else {
+            ierr = MatSeqAIJSetPreallocation(A_, 0,
+                                             numberOfPositionsPerRow.data());
+        }
         CHKERRV(ierr);
     } else {
         logger.assert_always(
             numberOfLocalRows == 0 && numberOfLocalColumns == 0,
             "Degrees of freedom without a mesh");
-        ierr = MatMPIAIJSetPreallocation(A_, 0, nullptr, 0, nullptr);
+        if (isMultiProcessor) {
+            ierr = MatMPIAIJSetPreallocation(A_, 0, nullptr, 0, nullptr);
+        } else {
+            ierr = MatSeqAIJSetPreallocation(A_, 0, nullptr);
+        }
         CHKERRV(ierr);
     }
 

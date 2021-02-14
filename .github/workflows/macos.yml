@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2 
     - name: dependencies
-      run: brew install openblas lapack open-mpi metis petsc-complex pkg-config mumps
+      run: brew install openblas lapack open-mpi metis pkg-config petsc-complex
     - name: configure
       env:
         CC: ${{ matrix.compiler }}
