@@ -32,15 +32,9 @@ endif()
 
 #the preprocessor does not perform floating poing arithmetic, so it doesn't need special Petsc/not petsc guards
 add_executable(Preprocessor.out
-               main.cpp
-               ../../kernel/Logger.cpp
-               ../../kernel/Base/CommandLineOptions.cpp
-               ../../kernel/Base/MpiContainer.cpp)
+               main.cpp)
                target_link_libraries(Preprocessor.out Preprocessor-lib)
 add_executable(ExtractSurface.out
-               extractSurface.cpp
-               ../../kernel/Logger.cpp
-               ../../kernel/Base/CommandLineOptions.cpp
-               ../../kernel/Base/MpiContainer.cpp)
+               extractSurface.cpp)
 
                target_link_libraries(ExtractSurface.out Preprocessor-lib)
