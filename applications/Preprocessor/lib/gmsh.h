@@ -60,7 +60,7 @@ class GmshReader : public MeshSource {
     Range<MeshSource::Node> getNodeCoordinates() final;
     Range<MeshSource::Element> getElements() final;
 
-    std::size_t getDimension() const final { return 3; }
+    std::size_t getDimension() const final { return dimension_; }
 
    private:
     std::ifstream Filehandle_;
@@ -68,6 +68,17 @@ class GmshReader : public MeshSource {
     std::vector<MeshSource::Node> nodes_;
 
     std::vector<MeshSource::Element> elements_;
+    std::size_t dimension_;
+
+ void ReadHeader();
+ void ReadNodes();
+void ReadElements();
+size_t DetermineDimension(double tol=1e-12)const;
+
+void FillElementTypeMap();
+
+//gmsh elementtype to how many nodes that element has
+    std::map<int,int> nodes_per_elementtype_;
 
 };
 }  // namespace Preprocessor
