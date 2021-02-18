@@ -284,13 +284,23 @@ void GmshReader::ReadElements() {
         size_t numElementsInBlock;
         Filehandle_ >> entityDim >> entityTag >> elementType >>
             numElementsInBlock;
+        if (entityDim < dimension_) {
+            continue;  // we skip all elements which are not the same dimension
+                       // as the mesh in hpgem
+        }
 
-        for (size_t size_entity_index = 0;
-             size_entity_index < numElementsInBlock; size_entity_index++) {
-            int entityDim;
-            int entityTag;
-            int elementType;
-            int numElementsInBlock;
+        int num_points = nodes_per_elementtype_.at(elementType);
+        for (size_t size_element_index = 0;
+             size_element_index < numElementsInBlock; size_element_index++) {
+            MeshSource::Element element;
+            size_t elementag;
+            size_t nodetag;
+            Filehandle_ >> elementag;
+            for (int i = 0; i < num_points; i++) {
+                Filehandle_ >> nodetag;
+                element.coordinateIds.push_back(nodetag - 1);
+            }
+            elements_.push_back(element);
         }
     }
 }
