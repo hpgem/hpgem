@@ -70,16 +70,15 @@ class GmshReader : public MeshSource {
     std::vector<MeshSource::Element> elements_;
     std::size_t dimension_;
 
- void ReadHeader();
- void ReadNodes();
-void ReadElements();
-size_t DetermineDimension(double tol=1e-12)const;
+    void ReadHeader();
+    void ReadNodes();
+    void ReadElements();
+    size_t DetermineDimension(double tol = 1e-12) const;
 
-void FillElementTypeMap();
+    void FillElementTypeMap();
 
-//gmsh elementtype to how many nodes that element has
-    std::map<int,int> nodes_per_elementtype_;
-
+    // gmsh elementtype to how many nodes that element has
+    std::map<int, int> nodes_per_elementtype_;
 };
 }  // namespace Preprocessor
 

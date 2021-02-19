@@ -284,7 +284,7 @@ void GmshReader::ReadElements() {
         size_t numElementsInBlock;
         Filehandle_ >> entityDim >> entityTag >> elementType >>
             numElementsInBlock;
-        if (entityDim < dimension_) {
+        if (entityDim != dimension_) {
             continue;  // we skip all elements which are not the same dimension
                        // as the mesh in hpgem
         }
