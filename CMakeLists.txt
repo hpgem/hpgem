@@ -125,6 +125,11 @@ include(conf/cmake/ConfigureDependencies.cmake)
 ####### EXPOSE CMAKE VARIABLES
 ################################################################################
 
+# Extract GIT hash
+include(GetGitRevisionDescription)
+get_git_head_revision(GIT_REFSPEC GIT_SHA1)
+git_local_changes(GIT_DIRTY)
+
 # Make a header file which can contain relevant cmake variables
 configure_file(
 		${hpGEM_SOURCE_DIR}/conf/cmake/CMakeDefinitions.conf
