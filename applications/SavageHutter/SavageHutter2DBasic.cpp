@@ -40,7 +40,7 @@
 #include <iomanip>
 #include <algorithm>
 
-#include "../../conf/cmake/CMakeDefinitions.h"
+#include "hpgem-cmake.h"
 
 #include "SavageHutter2DBasic.h"
 #include "HeightLimiters/PositiveLayerLimiter.h"
@@ -208,7 +208,7 @@ void SavageHutter2DBasic::tasksBeforeSolving() {
     if (false) {
         // put values of initial conditions from text file in a map
         std::ifstream inFile(
-            Base::getCMAKE_hpGEM_SOURCE_DIR() +
+            getCMAKE_hpGEM_SOURCE_DIR() +
             "/applications/SavageHutter/"
             "initialConditionsGeneratedBy1DMatlabWithShock.txt");
         std::string line;
