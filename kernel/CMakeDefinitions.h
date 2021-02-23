@@ -47,8 +47,8 @@ namespace Base {
 // 2. The name of this header file is far too generic.
 
 /// return the absolute path of the hpGEM-directory
-[[deprecated("replaced by the function in hpgem-cmake.h")]]
-std::string getCMAKE_hpGEM_SOURCE_DIR() {
+[[deprecated("replaced by the function in hpgem-cmake.h")]] std::string
+    getCMAKE_hpGEM_SOURCE_DIR() {
     return hpgem::getCMAKE_hpGEM_SOURCE_DIR();
 }
 
