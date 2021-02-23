@@ -45,8 +45,8 @@ void printArguments(int argc, char** argv) {
         }
         std::string message = stream.str();
         DGMaxLogger(INFO, message);
-        DGMaxLogger(INFO, "git ref: % (%%)", Base::getGITRef(),
-                    Base::isGITClean() ? "" : "dirty ", Base::getGITHash());
+        DGMaxLogger(INFO, "git ref: % (%%)", getGITRef(),
+                    isGITClean() ? "" : "dirty ", getGITHash());
     }
 }
 
