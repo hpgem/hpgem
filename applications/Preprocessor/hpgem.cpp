@@ -40,9 +40,9 @@
 #include "hpgem.h"
 #include "Logger.h"
 
-using namespace hpgem;
-
 namespace Preprocessor {
+
+using namespace hpgem;
 
 // this is clearly not a bool so std::vector<Bool> will not behave as badly as
 // std::vector<bool>

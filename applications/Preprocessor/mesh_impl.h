@@ -38,8 +38,6 @@
 
 #include "mesh.h"
 
-using namespace hpgem;
-
 namespace Preprocessor {
 
 template <std::size_t entityDimension, std::size_t meshDimension>

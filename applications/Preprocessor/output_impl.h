@@ -42,6 +42,8 @@
 #include <set>
 #include <map>
 
+namespace Preprocessor {
+
 using namespace hpgem;
 
 namespace Detail {
@@ -50,26 +52,26 @@ struct tag {};
 
 template <std::size_t dimension>
 void printOtherEntityCounts(std::ofstream& output,
-                            const Preprocessor::Mesh<dimension>& mesh, tag<0>) {
+                            const Mesh<dimension>& mesh, tag<0>) {
 }
 
 template <std::size_t d, std::size_t dimension>
 void printOtherEntityCounts(std::ofstream& output,
-                            const Preprocessor::Mesh<dimension>& mesh, tag<d>) {
+                            const Mesh<dimension>& mesh, tag<d>) {
     output << " " << mesh.template getNumberOfEntities<d>();
     printOtherEntityCounts(output, mesh, tag<d - 1>{});
 }
 
 template <std::size_t dimension, typename indexType>
 void printOtherEntities(
-    std::ofstream& output, const Preprocessor::Mesh<dimension>& mesh,
-    Preprocessor::MeshData<indexType, dimension, dimension>& partitions,
+    std::ofstream& output, const Mesh<dimension>& mesh,
+    MeshData<indexType, dimension, dimension>& partitions,
     tag<0>) {}
 
 template <std::size_t d, std::size_t dimension, typename indexType>
 void printOtherEntities(
-    std::ofstream& output, const Preprocessor::Mesh<dimension>& mesh,
-    Preprocessor::MeshData<indexType, dimension, dimension>& partitions,
+    std::ofstream& output, const Mesh<dimension>& mesh,
+    MeshData<indexType, dimension, dimension>& partitions,
     tag<d>) {
     for (auto entity : mesh.template getEntities<d>()) {
         std::set<std::size_t> localPartitions;
@@ -95,7 +97,7 @@ void printOtherEntities(
 }  // namespace Detail
 
 template <typename indexType, std::size_t dimension>
-void Preprocessor::outputMesh(
+void outputMesh(
     Mesh<dimension>& mesh, MeshData<indexType, dimension, dimension> partitions,
     std::size_t numberOfPartitions) {
     if (mesh.getNumberOfNodes() == 0) {
@@ -106,7 +108,7 @@ void Preprocessor::outputMesh(
     output << "mesh 1" << std::endl;
     output << mesh.getNumberOfNodes() << " " << mesh.getNumberOfElements()
            << " " << dimension;
-    printOtherEntityCounts(output, mesh, ::Detail::tag<dimension - 1>{});
+    printOtherEntityCounts(output, mesh, Detail::tag<dimension - 1>{});
     output << std::endl;
     std::size_t reservedSpace =
         std::max(std::log10(mesh.getNumberOfNodes()), 0.) + 2;
@@ -189,10 +191,12 @@ void Preprocessor::outputMesh(
         output << std::endl;
     }
     printOtherEntities(output, mesh, partitions,
-                       ::Detail::tag<dimension - 1>{});
+                       Detail::tag<dimension - 1>{});
     output.seekp(partitionInformation);
     for (std::size_t i = 0; i < numberOfPartitions; ++i) {
         output << partitionData[i] << " ";
     }
     output.close();
 }
+
+}  // namespace Preprocessor

@@ -42,9 +42,9 @@
 #include <cstddef>
 #include "mesh.h"
 
-using namespace hpgem;
-
 namespace Preprocessor {
+
+using namespace hpgem;
 
 // todo: conversion operators
 
