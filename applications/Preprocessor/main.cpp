@@ -97,7 +97,7 @@ void printMeshStatistics(const Preprocessor::Mesh<dimension>& mesh) {
 
 template <std::size_t dimension>
 Preprocessor::MeshData<idx_t, dimension, dimension> partitionMesh(
-    Preprocessor::Mesh<dimension> mesh) {
+    Preprocessor::Mesh<dimension>& mesh) {
     Preprocessor::MeshData<idx_t, dimension, dimension> partitionID(&mesh);
     idx_t numberOfProcessors = targetMpiCount.getValue();
     if (numberOfProcessors > 1) {
