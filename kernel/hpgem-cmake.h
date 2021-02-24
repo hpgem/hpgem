@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2020, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,27 +35,23 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_TESTMESHES_H
-#define HPGEM_TESTMESHES_H
+#ifndef HPGEM_HPGEMCMAKE_H
+#define HPGEM_HPGEMCMAKE_H
 
 #include <string>
-#include <vector>
-#include "hpgem-cmake.h"
 
-namespace DGMaxTest {
+namespace hpgem {
+/// return the absolute path of the hpGEM-directory
+std::string getCMAKE_hpGEM_SOURCE_DIR();
 
-std::vector<std::string> singleProcessorRefinementMeshes2D() {
+/// The Git ref at compile time
+std::string getGITRef();
 
-    using namespace std::string_literals;
+/// The raw git hash at compile time
+std::string getGITHash();
 
-    std::string prefix = hpgem::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s;
+/// Whether the working directory was clean at compile time
+bool isGITClean();
+}  // namespace hpgem
 
-    return std::vector<std::string>(
-        {prefix + "unitPeriodicSimplexD2N8P1.hpgem",
-         prefix + "unitPeriodicSimplexD2N16P1.hpgem",
-         prefix + "unitPeriodicSimplexD2N32P1.hpgem",
-         prefix + "unitPeriodicSimplexD2N64P1.hpgem"});
-}
-}  // namespace DGMaxTest
-
-#endif  // HPGEM_TESTMESHES_H
+#endif  // HPGEM_HPGEMCMAKE_H

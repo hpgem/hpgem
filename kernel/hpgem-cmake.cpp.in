@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2020, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,27 +35,26 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_TESTMESHES_H
-#define HPGEM_TESTMESHES_H
-
-#include <string>
-#include <vector>
 #include "hpgem-cmake.h"
 
-namespace DGMaxTest {
-
-std::vector<std::string> singleProcessorRefinementMeshes2D() {
-
-    using namespace std::string_literals;
-
-    std::string prefix = hpgem::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s;
-
-    return std::vector<std::string>(
-        {prefix + "unitPeriodicSimplexD2N8P1.hpgem",
-         prefix + "unitPeriodicSimplexD2N16P1.hpgem",
-         prefix + "unitPeriodicSimplexD2N32P1.hpgem",
-         prefix + "unitPeriodicSimplexD2N64P1.hpgem"});
+namespace hpgem {
+std::string getCMAKE_hpGEM_SOURCE_DIR() {
+return "@hpGEM_SOURCE_DIR@";
 }
-}  // namespace DGMaxTest
 
-#endif  // HPGEM_TESTMESHES_H
+/// The Git ref at compile time
+std::string getGITRef() {
+return "@GIT_REFSPEC@";
+}
+
+/// The raw git hash at compile time
+std::string getGITHash() {
+return "@GIT_SHA1@";
+}
+
+/// Whether the working directory was clean at compile time
+bool isGITClean() {
+return std::string("@GIT_DIRTY@") == std::string("CLEAN");
+}
+
+}
