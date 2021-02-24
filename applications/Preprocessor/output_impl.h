@@ -51,28 +51,25 @@ template <std::size_t d>
 struct tag {};
 
 template <std::size_t dimension>
-void printOtherEntityCounts(std::ofstream& output,
-                            const Mesh<dimension>& mesh, tag<0>) {
-}
+void printOtherEntityCounts(std::ofstream& output, const Mesh<dimension>& mesh,
+                            tag<0>) {}
 
 template <std::size_t d, std::size_t dimension>
-void printOtherEntityCounts(std::ofstream& output,
-                            const Mesh<dimension>& mesh, tag<d>) {
+void printOtherEntityCounts(std::ofstream& output, const Mesh<dimension>& mesh,
+                            tag<d>) {
     output << " " << mesh.template getNumberOfEntities<d>();
     printOtherEntityCounts(output, mesh, tag<d - 1>{});
 }
 
 template <std::size_t dimension, typename indexType>
-void printOtherEntities(
-    std::ofstream& output, const Mesh<dimension>& mesh,
-    MeshData<indexType, dimension, dimension>& partitions,
-    tag<0>) {}
+void printOtherEntities(std::ofstream& output, const Mesh<dimension>& mesh,
+                        MeshData<indexType, dimension, dimension>& partitions,
+                        tag<0>) {}
 
 template <std::size_t d, std::size_t dimension, typename indexType>
-void printOtherEntities(
-    std::ofstream& output, const Mesh<dimension>& mesh,
-    MeshData<indexType, dimension, dimension>& partitions,
-    tag<d>) {
+void printOtherEntities(std::ofstream& output, const Mesh<dimension>& mesh,
+                        MeshData<indexType, dimension, dimension>& partitions,
+                        tag<d>) {
     for (auto entity : mesh.template getEntities<d>()) {
         std::set<std::size_t> localPartitions;
         output << entity.getNumberOfElements() << " ";
@@ -97,9 +94,9 @@ void printOtherEntities(
 }  // namespace Detail
 
 template <typename indexType, std::size_t dimension>
-void outputMesh(
-    Mesh<dimension>& mesh, MeshData<indexType, dimension, dimension> partitions,
-    std::size_t numberOfPartitions) {
+void outputMesh(Mesh<dimension>& mesh,
+                MeshData<indexType, dimension, dimension> partitions,
+                std::size_t numberOfPartitions) {
     if (mesh.getNumberOfNodes() == 0) {
         logger(WARN, "outputting empty mesh");
     }
@@ -190,8 +187,7 @@ void outputMesh(
         }
         output << std::endl;
     }
-    printOtherEntities(output, mesh, partitions,
-                       Detail::tag<dimension - 1>{});
+    printOtherEntities(output, mesh, partitions, Detail::tag<dimension - 1>{});
     output.seekp(partitionInformation);
     for (std::size_t i = 0; i < numberOfPartitions; ++i) {
         output << partitionData[i] << " ";
