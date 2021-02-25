@@ -76,7 +76,7 @@ void printOtherEntities(
         output << entity.getNumberOfElements() << " ";
         for (std::size_t i = 0; i < entity.getNumberOfElements(); ++i) {
             auto element = entity.getElement(i);
-            output << element.getGlobalIndex() << " " << entity.getLocalIndex(i)
+            output << element.getGlobalIndex().id << " " << entity.getLocalIndex(i).id
                    << " ";
             for (auto node : element.getNodesList()) {
                 for (auto neighbour : node.getElementsList()) {
@@ -169,7 +169,7 @@ void Preprocessor::outputMesh(
     for (auto element : mesh.getElements()) {
         output << element.getNumberOfNodes() << " ";
         for (auto node : element.getNodesList()) {
-            output << node.getGlobalIndex() << " ";
+            output << node.getGlobalIndex().id << " ";
             output << coordinateIndices[node][node.getElementIndex(element)]
                    << " ";
         }
