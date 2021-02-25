@@ -45,9 +45,9 @@
 #include <string>
 #include <fstream>
 
-using namespace hpgem;
-
 namespace Preprocessor {
+
+using namespace hpgem;
 
 class PrivateReader : public MeshSource {
    public:

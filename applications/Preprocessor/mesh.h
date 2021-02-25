@@ -39,7 +39,6 @@
 #ifndef HPGEM_APP_MESH_H
 #define HPGEM_APP_MESH_H
 
-#include "Base/ConstIterableWrapper.h"
 #include "LinearAlgebra/SmallVector.h"
 #include "elementShape.h"
 #include "MeshSource.h"
@@ -715,11 +714,10 @@ Mesh<dimension> readFile(MeshSource& file) {
     }
     logger.assert_debug(result.isValid(), "Unspecified problem with the mesh");
     return result;
-};
+}
+
 }  // namespace Preprocessor
 
 #include "mesh_impl.h"
-
-using namespace hpgem;
 
 #endif  // HPGEM_APP_MESH_H
