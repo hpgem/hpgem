@@ -181,17 +181,22 @@ class MeshEntity {
     bool operator==(const MeshEntity&) const;
     bool operator!=(const MeshEntity& other) const { return !(*this == other); }
 
-   protected:
-    friend Mesh<meshDimension>;
-    MeshEntity(Mesh<meshDimension>* mesh, EntityGId entityID)
-        : mesh(mesh), entityID(entityID) {}
-
     /// Add an element that is this MeshEntity is part of
     ///
     /// \param elementID The entityID of the element
     /// \param localEntityIndex The localIndex of this MeshEntity for the
     /// element.
     void addElement(EntityGId elementID, EntityLId EntityLId);
+
+    void clear() {
+        elementIDs.clear();
+        localIDs.clear();
+    }
+
+   protected:
+    friend Mesh<meshDimension>;
+    MeshEntity(Mesh<meshDimension>* mesh, EntityGId entityID)
+        : mesh(mesh), entityID(entityID) {}
 
     Mesh<meshDimension>* mesh;
     /// The id of this MeshEntity

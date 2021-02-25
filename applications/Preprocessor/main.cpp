@@ -150,8 +150,117 @@ Preprocessor::MeshData<idx_t, dimension, dimension> partitionMesh(
 }
 
 template <std::size_t dimension>
+void addPeriodicity(Preprocessor::Mesh<dimension>& mesh) {
+    using namespace Preprocessor;
+    std::set<std::size_t> boundaryCoordIds;
+    std::vector<std::size_t> boundaryFacets;
+    for (auto& face : mesh.getFaces()) {
+        if (face.getNumberOfElements() == 1) {
+            std::set<std::size_t> faceNodes;
+            boundaryFacets.emplace_back(face.getGlobalIndex());
+            for (auto& node : face.getNodesList()) {
+                faceNodes.emplace(node.getGlobalIndex());
+            }
+            // Only 1
+            Element<dimension>& element = face.getElement(0);
+            // Figure out the global coordinate ids
+            std::vector<MeshEntity<0, dimension>> nodes =
+                element.getNodesList();
+            for (std::size_t lid = 0; lid < nodes.size(); ++lid) {
+                if (faceNodes.find(nodes[lid].getGlobalIndex()) !=
+                    faceNodes.end()) {
+                    // Found the global node
+                    boundaryCoordIds.emplace(element.getCoordinateIndex(lid));
+                }
+            }
+        }
+    }
+    // Check pairs of boundary coords
+    std::cout << "Boundary nodes " << boundaryCoordIds.size() << std::endl;
+    // Set of eliminiated boundaryCoords
+    std::set<std::size_t> eliminiated;
+    std::map<std::size_t, std::size_t> coordRemapping;
+    std::set<std::size_t> validNodeIds;
+    for (auto iter = boundaryCoordIds.begin(); iter != boundaryCoordIds.end();
+         ++iter) {
+        if (eliminiated.find(*iter) != eliminiated.end()) {
+            // This boundary coordinate is already eliminated
+            continue;
+        }
+        LinearAlgebra::SmallVector<dimension> coord = mesh.getCoordinate(*iter);
+        // Check more
+        auto otherIter = iter;
+        for (otherIter++; otherIter != boundaryCoordIds.end(); ++otherIter) {
+            if (eliminiated.find(*otherIter) != eliminiated.end()) {
+                // This boundary coordinate is already eliminated
+                continue;
+            }
+            LinearAlgebra::SmallVector<dimension> coordDiff =
+                coord - mesh.getCoordinate(*otherIter);
+            bool ok = true;
+            for (std::size_t i = 0; i < dimension; ++i) {
+                ok &= std::abs(coordDiff[i]) < 1e-8 ||
+                      std::abs(std::abs(coordDiff[i]) - 1.0) < 1e-8;
+            }
+            if (ok) {
+                std::cout << "Merging " << coord << " and "
+                          << mesh.getCoordinate(*otherIter) << std::endl;
+                eliminiated.emplace(*otherIter);
+                std::size_t newIndex =
+                    mesh.getNodeCoordinates()[*iter].nodeIndex;
+                std::size_t& oldIndex =
+                    mesh.getNodeCoordinates()[*otherIter].nodeIndex;
+                coordRemapping[oldIndex] = newIndex;
+                oldIndex = newIndex;
+                validNodeIds.emplace(newIndex);
+            }
+        }
+    }
+    // Rename all nodes in elements
+    for (Element<dimension>& element : mesh.getElements()) {
+        for (std::size_t lid = 0; lid < element.getNumberOfNodes(); ++lid) {
+            std::size_t coordIndex = element.getCoordinateIndex(lid);
+            // WRONG uses node indices as coord indices
+            auto coordUpdate = coordRemapping.find(coordIndex);
+            if (coordUpdate != coordRemapping.end()) {
+                // We need to remap
+                std::size_t newCoordIndex = coordUpdate->second;
+                std::size_t newNodeIndex =
+                    mesh.getNodeCoordinates()[newCoordIndex].nodeIndex;
+                // TODO: Add to node
+                // TODO: Remove from old node
+                std::cout << "Updating local node to " << newNodeIndex
+                          << std::endl;
+                element.setNode(lid, newNodeIndex, coordIndex);
+                mesh.getNodes()[newNodeIndex].addElement(
+                    element.getGlobalIndex(), lid);
+            }
+        }
+    }
+    auto& nodes = mesh.getNodes();
+    for (const std::size_t& enode : eliminiated) {
+        nodes[enode].clear();
+    }
+    // Fix the faces
+    std::map<std::vector<std::size_t>, std::size_t> newFacets;
+    std::vector<std::size_t> toReplace;
+    for (std::size_t faceId : boundaryFacets) {
+        MeshEntity<dimension-1,dimension> face = mesh.getFace(faceId);
+        bool acceptable;
+
+    }
+
+
+    std::cout << "Mesh is valid: " << mesh.isValid() << std::endl;
+    mesh.fixConnectivity();
+    std::cout << "Mesh is valid: " << mesh.isValid() << std::endl;
+}
+
+template <std::size_t dimension>
 void processMesh(Preprocessor::Mesh<dimension> mesh) {
     printMeshStatistics(mesh);
+
+    addPeriodicity(mesh);
 
     Preprocessor::MeshData<idx_t, dimension, dimension> partitionID =
         partitionMesh(mesh);
