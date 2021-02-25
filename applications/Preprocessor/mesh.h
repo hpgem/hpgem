@@ -536,7 +536,7 @@ class Mesh {
     /// Set the number of nodes in the Mesh. Will add or remove Nodes as
     /// necessary.
     void setNumberOfNodes(std::size_t number);
-    void addNode();
+    std::size_t addNode();
     void addNodes(std::size_t count);
 
     std::size_t addNodeCoordinate(
@@ -709,6 +709,39 @@ Mesh<dimension> readFile(MeshSource& file) {
                                      coordinate.data());
         }
     }
+    for (auto element : file.getElements()) {
+        result.addElement(element.coordinateIds, element.zoneName);
+    }
+    logger.assert_debug(result.isValid(), "Unspecified problem with the mesh");
+    return result;
+}
+
+template <std::size_t dimension>
+Mesh<dimension> fromMeshSource(MeshSource2& file) {
+    Mesh<dimension> result;
+    logger.assert_always(dimension == file.getDimension(),
+                         "Mismatching dimensions");
+    // Mapping of the nodeId, source nodeId -> mesh nodeId
+    std::map<std::size_t, std::size_t> nodeMapping;
+    // Add all the nodes
+    for (auto coord : file.getCoordinates()) {
+        // Find the node in the mesh, or create a new one if needed
+        std::size_t sourceNodeId = coord.nodeId;
+        std::size_t meshNodeId;
+        auto current = nodeMapping.find(sourceNodeId);
+        if (current != nodeMapping.end()) {
+            meshNodeId = current->second;
+        } else {
+            meshNodeId = result.addNode();
+            nodeMapping[sourceNodeId] = meshNodeId;
+        }
+        // Add the actual coordinate
+        logger.assert_debug(
+            coord.coordinate.size() == dimension,
+            "The coordinates read by this reader have the wrong dimension");
+        result.addNodeCoordinate(meshNodeId, coord.coordinate);
+    }
+    // Add all the elements
     for (auto element : file.getElements()) {
         result.addElement(element.coordinateIds, element.zoneName);
     }
