@@ -97,7 +97,7 @@ The lines describing the edges are identical in format to those describing faces
 ## Design notes:
 
 1. The format is designed so that each partition can easily decide whether to load an entity (Element, Face, Edge or Node) based on the local information.
-2. The extension to version 2 adds some headers purely for reading clariy.
+2. The extension to version 2 adds some headers purely for reading clarity.
 3. The additions of zones is such that it should be possible to convert a v2 mesh to a v1 mesh. Additionally, the ordering is to simplify reading in the references.
 
 
