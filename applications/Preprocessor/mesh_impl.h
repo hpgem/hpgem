@@ -53,6 +53,12 @@ const Element<meshDimension>&
 }
 
 template <std::size_t entityDimension, std::size_t meshDimension>
+EntityGId MeshEntity<entityDimension, meshDimension>::getElementId(
+    EntityLId i) const {
+    return elementIDs[i];
+}
+
+template <std::size_t entityDimension, std::size_t meshDimension>
 EntityLId MeshEntity<entityDimension, meshDimension>::getElementIndex(
     const Element<meshDimension>& element) const {
     for (std::size_t i = 0; i < elementIDs.size(); ++i) {
@@ -60,7 +66,7 @@ EntityLId MeshEntity<entityDimension, meshDimension>::getElementIndex(
             return i;
         }
     }
-    logger(ERROR, "Element not found");
+    logger(ERROR, "Element % not found", element.getGlobalIndex());
     return 0;
 }
 
@@ -86,7 +92,7 @@ EntityLId MeshEntity<entityDimension, meshDimension>::getLocalIndex(
             return localIDs[i];
         }
     }
-    logger(ERROR, "Element not found");
+    logger(ERROR, "Element % not found", element.getGlobalIndex());
     return 0;
 }
 
@@ -150,6 +156,18 @@ void MeshEntity<entityDimension, meshDimension>::addElement(
 }
 
 template <std::size_t entityDimension, std::size_t meshDimension>
+void MeshEntity<entityDimension, meshDimension>::removeElement(
+    EntityGId elementID) {
+    auto entry = std::find(elementIDs.begin(), elementIDs.end(), elementID);
+    logger.assert_debug(entry != elementIDs.end(),
+                        "Removing a non linked element");
+    std::size_t offset = entry - elementIDs.begin();
+
+    elementIDs.erase(entry);
+    localIDs.erase(localIDs.begin() + offset);
+}
+
+template <std::size_t entityDimension, std::size_t meshDimension>
 bool MeshEntity<entityDimension, meshDimension>::operator==(
     const MeshEntity& other) const {
     return mesh == other.mesh && entityID == other.entityID &&
@@ -196,8 +214,15 @@ void Element<dimension>::setNodeCoordinate(
 template <std::size_t dimension>
 void Element<dimension>::setNode(EntityLId localIndex, EntityGId globalIndex,
                                  CoordId coordinateIndex) {
+    EntityGId oldNodeIndex = incidenceLists[0][localIndex.id];
     incidenceLists[0][localIndex.id] = globalIndex;
     globalCoordinateIndices[localIndex.id] = coordinateIndex;
+    if (oldNodeIndex != globalIndex) {
+        MeshEntity<0, dimension>& newNode = this->mesh->getNode(globalIndex);
+        MeshEntity<0, dimension>& oldNode = this->mesh->getNode(oldNodeIndex);
+        newNode.addElement(this->entityID, localIndex);
+        oldNode.removeElement(this->entityID);
+    }
 }
 
 template <std::size_t dimension>
@@ -249,7 +274,7 @@ std::vector<EntityLId> Element<dimension>::getLocalIncidenceListAsIndices(
         referenceGeometry
             ->template getAdjacentEntities<entityDimension, actualDimension>(
                 entity.getLocalIndex(*this));
-    std::vector<EntityLId> realResult (result.size());
+    std::vector<EntityLId> realResult(result.size());
     for (std::size_t i = 0; i < result.size(); ++i) {
         realResult[i] = EntityLId(result[i]);
     }
@@ -267,6 +292,18 @@ template <std::size_t dimension>
 template <std::size_t d>
 std::enable_if_t<(d > 0)> Element<dimension>::addEntity(EntityGId globalIndex) {
     incidenceLists[d].push_back(globalIndex);
+}
+
+template <std::size_t dimension>
+template <std::size_t d>
+void Element<dimension>::remapIndices(
+    const std::map<EntityGId, EntityGId>& mapping) {
+    for (EntityGId& id : incidenceLists[d]) {
+        auto newIndex = mapping.find(id);
+        logger.assert_debug(newIndex != mapping.end(), "Non mapped index %",
+                            id);
+        id = newIndex->second;
+    }
 }
 
 template <std::size_t dimension>
@@ -483,4 +520,233 @@ std::size_t Mesh<DIM>::getZoneId(const std::string& zoneName) {
     zoneNames.push_back(zoneName);
     return zoneNames.size() - 1;
 }
+
+template <std::size_t dimension>
+void Mesh<dimension>::mergeFaces(
+    EntityGId face1Id, EntityGId face2Id,
+    const std::vector<EntityLId>& nodePermutation) {
+
+    MeshEntity<dimension - 1, dimension>& face1 = getFace(face1Id);
+    MeshEntity<dimension - 1, dimension>& face2 = getFace(face2Id);
+
+    logger(INFO, "Merging faces % (elem %) and % (elem %)",
+           face1.getGlobalIndex(), face1.getElementId(0),
+           face2.getGlobalIndex(), face2.getElementId(0));
+
+    // Merge nodes around the face as needed.
+    std::vector<EntityGId> f1nodes =
+        face1.template getIncidenceListAsIndices<0>();
+    std::vector<EntityGId> f2nodes =
+        face2.template getIncidenceListAsIndices<0>();
+    // Mapping of Node EntityGId's from face1 -> face2.
+    std::map<EntityGId, EntityGId> nodeRemapping;
+    for (std::size_t i = 0; i < nodePermutation.size(); ++i) {
+        EntityGId& node1 = f1nodes[i];
+        EntityGId& node2 = f2nodes[nodePermutation[i].id];
+        nodeRemapping[node1] = node2;
+        if (node1 != node2) {
+            mergeNodes(node1, node2);
+        }
+    }
+
+    // Merge in between entities (edges)
+    mergeFaceBoundary(face1, face2, nodeRemapping, tag<dimension - 2>{});
+
+    // Merge the actual face last, so that boundary information stays intact
+    // for merging in between entities.
+    EntityGId element2Id = face2.getElementId(0);
+    EntityLId localIndex = face2.getLocalIndex(0);
+    face1.addElement(element2Id, localIndex);
+    face2.removeElement(element2Id);
+    getElement(element2Id)
+        .template setEntity<dimension - 1>(localIndex, face1.getGlobalIndex());
+}
+
+// Specialization for dimension == 1 -> Boundaries are just the nodes
+
+template <>
+void Mesh<1>::mergeFaces(EntityGId face1, EntityGId face2,
+                         const std::vector<EntityLId>& nodePermutation) {
+    // TODO
+}
+template <>
+template <std::size_t d>
+void Mesh<1>::mergeFaceBoundary(MeshEntity<0, 1>& face1,
+                                MeshEntity<0, 1>& face2,
+                                std::map<EntityGId, EntityGId>& nodeMapping,
+                                tag<d> tag) {}
+
+template <std::size_t dimension>
+template <std::size_t d>
+void Mesh<dimension>::mergeFaceBoundary(
+    MeshEntity<dimension - 1, dimension>& face1,
+    MeshEntity<dimension - 1, dimension>& face2,
+    std::map<EntityGId, EntityGId>& nodeMapping, tag<d>) {
+
+    std::vector<EntityGId> fboundary1 =
+        face1.template getIncidenceListAsIndices<d>();
+    std::vector<EntityGId> fboundary2 =
+        face2.template getIncidenceListAsIndices<d>();
+    // Vector indices should be sorted
+    std::map<std::vector<EntityGId>, EntityGId> boundary1ByNodes;
+    std::map<std::vector<EntityGId>, EntityGId> boundary2ByNodes;
+
+    for (EntityGId& bound1Id : fboundary1) {
+        MeshEntity<d, dimension>& bound1 = getEntities<d>()[bound1Id.id];
+        std::vector<EntityGId> nodes =
+            bound1.template getIncidenceListAsIndices<0>();
+        std::sort(nodes.begin(), nodes.end());
+        boundary1ByNodes[nodes] = bound1Id;
+    }
+
+    for (EntityGId& bound2Id : fboundary2) {
+        MeshEntity<d, dimension>& bound2 = getEntities<d>()[bound2Id.id];
+        std::vector<EntityGId> nodes =
+            bound2.template getIncidenceListAsIndices<0>();
+        for (EntityGId& node : nodes) {
+            // Remap the nodes
+            node = nodeMapping[node];
+        }
+        std::sort(nodes.begin(), nodes.end());
+        boundary2ByNodes[nodes] = bound2Id;
+    }
+    for (auto const& bound2 : boundary2ByNodes) {
+        auto bound1 = boundary1ByNodes.find(bound2.first);
+        logger.assert_debug(bound1 != boundary1ByNodes.end(),
+                            "Could not find matching boundary part");
+        if (bound1->second != bound2.second) {
+            // Need to merge
+            MeshEntity<d, dimension>& bound1Entity =
+                getEntities<d>()[bound1->second.id];
+            MeshEntity<d, dimension>& bound2Entity =
+                getEntities<d>()[bound2.second.id];
+            while (bound2Entity.getNumberOfElements() > 0) {
+                EntityGId element = bound2Entity.getElementId(0);
+                EntityLId index = bound2Entity.getLocalIndex(0);
+
+                bound1Entity.addElement(element, index);
+                bound2Entity.removeElement(element);
+            }
+        }
+    }
+    // Recurse
+    mergeFaceBoundary(face1, face2, nodeMapping, tag<d - 1>{});
+}
+
+template <std::size_t dimension>
+void Mesh<dimension>::mergeNodes(EntityGId node1, EntityGId node2) {
+    // Merge steps:
+    // Coordinates: Update references from node2 -> node1
+    // Elements: Replace linkage from node2 -> node1
+    // Transitive, update edges -> faces
+
+    // Update coordinates
+    for (coordinateData& coordinate : coordinates) {
+        if (coordinate.nodeIndex == node2) {
+            coordinate.nodeIndex = node1;
+        }
+    }
+    MeshEntity<0, dimension>& node1Ref = getNodes()[node1.id];
+    MeshEntity<0, dimension>& node2Ref = getNodes()[node2.id];
+
+    // Update elements
+    for (Element<dimension>& element : elementsList) {
+        std::vector<EntityGId> nodeIds =
+            element.template getIncidenceListAsIndices<0>();
+        for (std::size_t i = 0; i < element.getNumberOfNodes(); ++i) {
+            // Relink element -> node
+            if (nodeIds[i] == node2) {
+                element.setNode(i, node1, element.getCoordinateIndex(i));
+            }
+        }
+    }
+}
+
+template <std::size_t dimension>
+void Mesh<dimension>::compactIndices() {
+    // Future proofing
+    for (std::size_t i = 0; i < elementsList.size(); ++i) {
+        Element<dimension>& element = getElement(EntityGId(i));
+        if (element.getNumberOfNodes() == 0) {
+            logger.assert_always(false,
+                                 "Compacting elements not supported yet");
+        }
+    }
+    // Recursively compact in between indices
+    compactIndices(tag<dimension - 1>{});
+    // entity dimension 0 is special, it requires also updating the coordinates
+    {
+        std::map<EntityGId, EntityGId> nodeRemapping;
+        EntityGId newIndex = EntityGId(0);
+        EntityGId maxId = EntityGId(getNumberOfNodes());
+        std::vector<MeshEntity<0, dimension>>& nodes = getNodes();
+        for (EntityGId i = EntityGId(0); i < maxId; ++i) {
+            if (getNode(i).getNumberOfElements() > 0) {
+                nodeRemapping[i] = newIndex;
+                if (newIndex != i) {
+                    // Move to new location
+                    nodes[newIndex.id] = nodes[i.id];
+                    // Update the id of the node
+                    nodes[newIndex.id].entityID = newIndex;
+                }
+                newIndex++;
+            }
+        }
+        if (newIndex != maxId) {
+            // There is at least one deleted node.
+            nodes.resize(newIndex.id);
+
+            // Update elements
+            EntityGId maxElemId = EntityGId(elementsList.size());
+            for (EntityGId i = EntityGId(0); i < maxElemId; ++i) {
+                getElement(i).template remapIndices<0>(nodeRemapping);
+            }
+            // Update coordinates
+            for (coordinateData& coord : coordinates) {
+                coord.nodeIndex = nodeRemapping[coord.nodeIndex];
+            }
+            logger(INFO, "Reduced the number of nodes from % to %", maxId,
+                   newIndex);
+        }
+    }
+    // Note: Coordinate remapping not implemented as:
+    // 1. This is far harder (one needs to do a liveness check via elements)
+    // 2. I don't think this affects the structure
+}
+template<std::size_t dimension>
+template<std::size_t d>
+void Mesh<dimension>::compactIndices(tag<d>) {
+    std::map<EntityGId, EntityGId> nodeRemapping;
+    EntityGId newIndex = EntityGId(0);
+    EntityGId maxId = EntityGId(getNumberOfEntities<d>());
+    std::vector<MeshEntity<d, dimension>>& entities = getEntities<d>();
+
+    for (EntityGId i = EntityGId(0); i < maxId; ++i) {
+        if (getEntity<d>(i).getNumberOfElements() > 0) {
+            nodeRemapping[i] = newIndex;
+            if (newIndex != i) {
+                entities[newIndex.id] = entities[i.id];
+                entities[newIndex.id].entityID = newIndex;
+            }
+            newIndex++;
+        }
+    }
+
+    if (newIndex != maxId) {
+        // There is at least one deleted entity
+        entities.resize(newIndex.id);
+
+        // Update elements
+        EntityGId maxElemId = EntityGId(elementsList.size());
+        for (EntityGId i = EntityGId(0); i < maxElemId; ++i) {
+            getElement(i).template remapIndices<d>(nodeRemapping);
+        }
+        logger(INFO, "Reduced the number of %-entities from % to %", d, maxId,
+               newIndex);
+    }
+    // Recurse to lower dimensions
+    compactIndices(tag<d-1>{});
+}
+
+
 }  // namespace Preprocessor

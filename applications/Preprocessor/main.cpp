@@ -152,11 +152,11 @@ Preprocessor::MeshData<idx_t, dimension, dimension> partitionMesh(
 template <std::size_t dimension>
 void addPeriodicity(Preprocessor::Mesh<dimension>& mesh) {
     using namespace Preprocessor;
-    std::set<std::size_t> boundaryCoordIds;
-    std::vector<std::size_t> boundaryFacets;
+    std::set<CoordId> boundaryCoordIds;
+    std::vector<EntityGId> boundaryFacets;
     for (auto& face : mesh.getFaces()) {
         if (face.getNumberOfElements() == 1) {
-            std::set<std::size_t> faceNodes;
+            std::set<EntityGId> faceNodes;
             boundaryFacets.emplace_back(face.getGlobalIndex());
             for (auto& node : face.getNodesList()) {
                 faceNodes.emplace(node.getGlobalIndex());
@@ -177,21 +177,24 @@ void addPeriodicity(Preprocessor::Mesh<dimension>& mesh) {
     }
     // Check pairs of boundary coords
     std::cout << "Boundary nodes " << boundaryCoordIds.size() << std::endl;
-    // Set of eliminiated boundaryCoords
-    std::set<std::size_t> eliminiated;
-    std::map<std::size_t, std::size_t> coordRemapping;
-    std::set<std::size_t> validNodeIds;
+    // Mapping of the old node to the new node
+    std::map<EntityGId, EntityGId> nodeRenaming;
+    // Eliminated coords
+    std::set<CoordId> eliminated;
     for (auto iter = boundaryCoordIds.begin(); iter != boundaryCoordIds.end();
          ++iter) {
-        if (eliminiated.find(*iter) != eliminiated.end()) {
+        if (eliminated.find(*iter) != eliminated.end()) {
             // This boundary coordinate is already eliminated
             continue;
         }
+        EntityGId newIndex =
+            mesh.getNodeCoordinates()[iter->id].nodeIndex;
+        nodeRenaming[newIndex] = newIndex;
         LinearAlgebra::SmallVector<dimension> coord = mesh.getCoordinate(*iter);
-        // Check more
+
         auto otherIter = iter;
         for (otherIter++; otherIter != boundaryCoordIds.end(); ++otherIter) {
-            if (eliminiated.find(*otherIter) != eliminiated.end()) {
+            if (eliminated.find(*otherIter) != eliminated.end()) {
                 // This boundary coordinate is already eliminated
                 continue;
             }
@@ -205,51 +208,52 @@ void addPeriodicity(Preprocessor::Mesh<dimension>& mesh) {
             if (ok) {
                 std::cout << "Merging " << coord << " and "
                           << mesh.getCoordinate(*otherIter) << std::endl;
-                eliminiated.emplace(*otherIter);
-                std::size_t newIndex =
-                    mesh.getNodeCoordinates()[*iter].nodeIndex;
-                std::size_t& oldIndex =
-                    mesh.getNodeCoordinates()[*otherIter].nodeIndex;
-                coordRemapping[oldIndex] = newIndex;
-                oldIndex = newIndex;
-                validNodeIds.emplace(newIndex);
+                eliminated.emplace(*otherIter);
+
+                EntityGId oldIndex =
+                    mesh.getNodeCoordinates()[otherIter->id].nodeIndex;
+                nodeRenaming[oldIndex] = newIndex;
             }
         }
     }
-    // Rename all nodes in elements
-    for (Element<dimension>& element : mesh.getElements()) {
-        for (std::size_t lid = 0; lid < element.getNumberOfNodes(); ++lid) {
-            std::size_t coordIndex = element.getCoordinateIndex(lid);
-            // WRONG uses node indices as coord indices
-            auto coordUpdate = coordRemapping.find(coordIndex);
-            if (coordUpdate != coordRemapping.end()) {
-                // We need to remap
-                std::size_t newCoordIndex = coordUpdate->second;
-                std::size_t newNodeIndex =
-                    mesh.getNodeCoordinates()[newCoordIndex].nodeIndex;
-                // TODO: Add to node
-                // TODO: Remove from old node
-                std::cout << "Updating local node to " << newNodeIndex
-                          << std::endl;
-                element.setNode(lid, newNodeIndex, coordIndex);
-                mesh.getNodes()[newNodeIndex].addElement(
-                    element.getGlobalIndex(), lid);
+
+    std::map<std::vector<EntityGId>,
+             std::pair<EntityGId, std::vector<EntityGId>>>
+        facetsByNodes;
+    std::vector<std::tuple<EntityGId, EntityGId, std::vector<EntityLId>>>
+        merges;
+    for (const EntityGId& facetId : boundaryFacets) {
+        MeshEntity<dimension - 1, dimension>& facet =
+            mesh.template getEntities<dimension - 1>()[facetId.id];
+        std::vector<EntityGId> nodes =
+            facet.template getIncidenceListAsIndices<0>();
+        // Remap
+        for (EntityGId& node : nodes) {
+            node = nodeRenaming[node];
+        }
+        std::vector<EntityGId> sortedNodes (nodes);
+        std::sort(sortedNodes.begin(), sortedNodes.end());
+        auto pairedFacet = facetsByNodes.find(sortedNodes);
+        if (pairedFacet == facetsByNodes.end()) {
+            facetsByNodes[sortedNodes] = std::make_pair(facetId, nodes);
+        } else {
+            // Found a connecting pair
+            EntityGId pairedId = pairedFacet->second.first;
+            std::vector<EntityGId> pairedNodes = pairedFacet->second.second;
+            // Compute node permutation
+            std::vector<EntityLId> nodeOrdering (pairedNodes.size());
+            for(std::size_t i = 0; i < pairedNodes.size(); ++i) {
+                EntityGId nodeId = nodes[i];
+                auto pos = std::find(pairedNodes.begin(), pairedNodes.end(), nodeId);
+                nodeOrdering[i] = pos - pairedNodes.begin();
             }
+            merges.emplace_back(facetId, pairedId, nodeOrdering);
         }
     }
-    auto& nodes = mesh.getNodes();
-    for (const std::size_t& enode : eliminiated) {
-        nodes[enode].clear();
+    for (const auto& merge : merges) {
+        mesh.mergeFaces(std::get<0>(merge), std::get<1>(merge), std::get<2>(merge));
     }
-    // Fix the faces
-    std::map<std::vector<std::size_t>, std::size_t> newFacets;
-    std::vector<std::size_t> toReplace;
-    for (std::size_t faceId : boundaryFacets) {
-        MeshEntity<dimension-1,dimension> face = mesh.getFace(faceId);
-        bool acceptable;
-
-    }
-
+    mesh.compactIndices();
 
     std::cout << "Mesh is valid: " << mesh.isValid() << std::endl;
     mesh.fixConnectivity();

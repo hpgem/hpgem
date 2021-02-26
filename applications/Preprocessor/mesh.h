@@ -108,6 +108,7 @@ class MeshEntity {
     /// Get a connected Element by its local index.
     Element<meshDimension>& getElement(EntityLId i);
     const Element<meshDimension>& getElement(EntityLId i) const;
+    EntityGId getElementId(EntityLId i) const;
 
     /// Given a connected Element, what is its local index?
     EntityLId getElementIndex(const Element<meshDimension>& element) const;
@@ -188,10 +189,7 @@ class MeshEntity {
     /// element.
     void addElement(EntityGId elementID, EntityLId EntityLId);
 
-    void clear() {
-        elementIDs.clear();
-        localIDs.clear();
-    }
+    void removeElement(EntityGId elementID);
 
    protected:
     friend Mesh<meshDimension>;
@@ -341,6 +339,9 @@ class Element : public MeshEntity<dim, dim> {
     void setGeometry(const ElementShape<dim>* shape) {
         referenceGeometry = shape;
     }
+
+    template<std::size_t d>
+    void remapIndices(const std::map<EntityGId, EntityGId>& mapping);
 
     /// The geometry of this element (e.g. a cube or tetrahedron)
     const ElementShape<dim>* referenceGeometry;
@@ -495,8 +496,8 @@ class Mesh {
 
     std::vector<MeshEntity<dimension - 1, dimension>>& getFaces();
     const std::vector<MeshEntity<dimension - 1, dimension>>& getFaces() const;
-    MeshEntity<dimension - 1, dimension> getFace(std::size_t i) const {
-        return getFaces()[i];
+    MeshEntity<dimension - 1, dimension>& getFace(EntityGId i) {
+        return getFaces()[i.id];
     };
     std::size_t getNumberOfFaces() const { return getFaces().size(); }
 
@@ -509,9 +510,7 @@ class Mesh {
 
     std::vector<MeshEntity<0, dimension>>& getNodes();
     const std::vector<MeshEntity<0, dimension>>& getNodes() const;
-    MeshEntity<0, dimension> getNode(std::size_t i) const {
-        return getNodes()[i];
-    };
+    MeshEntity<0, dimension>& getNode(EntityGId i) { return getNodes()[i.id]; };
     std::size_t getNumberOfNodes() const { return getNodes().size(); }
 
     std::vector<coordinateData>& getNodeCoordinates();
@@ -546,8 +545,7 @@ class Mesh {
     void addNodes(std::size_t count);
 
     std::size_t addNodeCoordinate(
-        EntityGId nodeIndex,
-        LinearAlgebra::SmallVector<dimension> coordinate);
+        EntityGId nodeIndex, LinearAlgebra::SmallVector<dimension> coordinate);
 
     void addElement(std::vector<CoordId> nodeCoordinateIDs,
                     const std::string& zoneName = "main");
@@ -579,10 +577,36 @@ class Mesh {
     // todo: is this needed?
     void fixConnectivity();
 
+    /// Merge two nodes into a connected pair
+    void mergeNodes(EntityGId node1, EntityGId node2);
+    void mergeFaces(EntityGId face1, EntityGId face2,
+                    const std::vector<EntityLId>& nodePermutation);
+
+    template <std::size_t d>
+    void mergeFaceBoundary(MeshEntity<dimension - 1, dimension>& face1,
+                           MeshEntity<dimension - 1, dimension>& face2,
+                           std::map<EntityGId, EntityGId>& nodeMapping,
+                           tag<d> tag);
+    // Base cases
+    void mergeFaceBoundary(MeshEntity<dimension - 1, dimension>& face1,
+                           MeshEntity<dimension - 1, dimension>& face2,
+                           std::map<EntityGId, EntityGId>& nodeMapping,
+                           tag<1> tag){};
+    void mergeFaceBoundary(MeshEntity<dimension - 1, dimension>& face1,
+                           MeshEntity<dimension - 1, dimension>& face2,
+                           std::map<EntityGId, EntityGId>& nodeMapping,
+                           tag<0> tag){};
+
+
+    void compactIndices();
+    template<std::size_t d>
+    void compactIndices(tag<d>);
+    void compactIndices(tag<0>) {};
+
    private:
     /// Recursively checks that for each MeshEntity that is adjacent to an
-    /// Element, that that MeshEntity has the Element in its list of adjacent
-    /// Elements.
+    /// Element, that that MeshEntity has the Element in its list of
+    /// adjacent Elements.
     template <std::size_t d>
     bool checkBoundingEntities(const Element<dimension>& element,
                                tag<d>) const {
@@ -591,9 +615,10 @@ class Mesh {
             if (std::find(candidateElements.begin(), candidateElements.end(),
                           element) == candidateElements.end()) {
                 logger(ERROR,
-                       "The element is bounded by a %-dimensional shape that "
+                       "Element % is bounded by a %-dimensional shape % that "
                        "is not near the element",
-                       d);
+                       element.getGlobalIndex(),
+                       boundingEntity.getGlobalIndex(), d);
                 return false;
             }
         }
@@ -607,9 +632,10 @@ class Mesh {
             if (std::find(candidateElements.begin(), candidateElements.end(),
                           element) == candidateElements.end()) {
                 logger(ERROR,
-                       "The element is bounded by a %-dimensional shape that "
+                       "Element % is bounded by a %-dimensional shape % that "
                        "is not near the element",
-                       0);
+                       element.getGlobalIndex(),
+                       boundingEntity.getGlobalIndex(), 0);
                 return false;
             }
         }
@@ -719,7 +745,7 @@ Mesh<dimension> readFile(MeshSource& file) {
     for (auto element : file.getElements()) {
         // TODO: Move up into MeshSource at a convenient moment
         coords.resize(element.coordinateIds.size());
-        for(std::size_t i = 0; i < coords.size(); ++i) {
+        for (std::size_t i = 0; i < coords.size(); ++i) {
             coords[i] = CoordId(element.coordinateIds[i]);
         }
         result.addElement(coords, element.zoneName);
