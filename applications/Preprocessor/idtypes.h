@@ -69,6 +69,16 @@ struct CoordId {
     inline bool operator>=(const CoordId& other) const {
         return id >= other.id;
     }
+    inline CoordId& operator++() {
+        ++id;
+        return *this;
+    }
+    CoordId operator++(int) {
+        CoordId temp = *this;
+        ++id;
+        return temp;
+    }
+
 };
 
 std::ostream& operator<<(std::ostream& os, const CoordId& coord) {
@@ -105,6 +115,15 @@ struct EntityGId {
     }
     inline bool operator>=(const EntityGId& other) const {
         return id >= other.id;
+    }
+    inline EntityGId& operator++() {
+        ++id;
+        return *this;
+    }
+    EntityGId operator++(int) {
+        EntityGId temp = *this;
+        ++id;
+        return temp;
     }
 };
 
@@ -144,6 +163,15 @@ struct EntityLId {
     }
     inline bool operator>=(const EntityLId& other) const {
         return id >= other.id;
+    }
+    inline EntityLId& operator++() {
+        ++id;
+        return *this;
+    }
+    EntityLId operator++(int) {
+        EntityLId temp = *this;
+        ++id;
+        return temp;
     }
 };
 
