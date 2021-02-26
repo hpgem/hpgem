@@ -86,8 +86,13 @@ where
  3. `$nfpart` indices `$npi` are the partitions which need to read this face 
 
 ### Edges
-Same as faces but only when the dimension is at least 3. The "codim1" is replaced by "codim2"
-
+```
+(dimension >= 3)
+# "codim2" (version >= 2)
+$nedge lines:
+  # (same as for faces)
+```
+The lines describing the edges are identical in format to those describing faces.
 
 ## Design notes:
 
