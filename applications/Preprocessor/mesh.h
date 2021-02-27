@@ -276,6 +276,14 @@ class Element : public MeshEntity<dim, dim> {
     void setNode(EntityLId localIndex, EntityGId globalIndex,
                  CoordId coordinateIndex);
 
+    /// Overwrite the entity for a specific local index.
+    ///
+    /// After an initial placement of the entity by 'addEntity', replace the
+    /// MeshEntity at a specific localIndex. In addition to updating the element,
+    /// this also updates the old and new MeshEntity.
+    /// \tparam d The dimension of the entity
+    /// \param localIndex The local index of the entity to replace
+    /// \param globalIndex The global index of the new entity
     template <std::size_t d>
     std::enable_if_t<(d > 0)> setEntity(EntityLId localIndex,
                                         EntityGId globalIndex);
@@ -340,7 +348,10 @@ class Element : public MeshEntity<dim, dim> {
         referenceGeometry = shape;
     }
 
-    template<std::size_t d>
+    /// Apply a remapping of the global indices
+    /// \tparam d The dimension for which the global indices are remapped
+    /// \param mapping The mapping old -> new
+    template <std::size_t d>
     void remapIndices(const std::map<EntityGId, EntityGId>& mapping);
 
     /// The geometry of this element (e.g. a cube or tetrahedron)
@@ -414,6 +425,10 @@ constexpr std::size_t exp2(std::size_t power) {
 }
 }  // namespace Detail
 
+/// Template class helper to pass a dimension d.
+template <std::size_t d>
+struct tag {};
+
 /// Simplified Mesh finite element Mesh for use with the preprocessor.
 ///
 /// A bare minimum Mesh for use with the Preprocessor. This is conceptually the
@@ -434,10 +449,6 @@ class Mesh {
         /// The coordinates
         LinearAlgebra::SmallVector<dimension> coordinate;
     };
-
-    /// Template class helper to pass a dimension d.
-    template <std::size_t d>
-    struct tag {};
 
    public:
     Mesh() = default;
@@ -528,7 +539,11 @@ class Mesh {
         dimension>>&
         getEntities() const;
     template <int entityDimension>
-    MeshEntity<entityDimension, dimension> getEntity(EntityGId i) const {
+    const MeshEntity<entityDimension, dimension>& getEntity(EntityGId i) const {
+        return getEntities<entityDimension>()[i.id];
+    };
+    template <int entityDimension>
+    MeshEntity<entityDimension, dimension>& getEntity(EntityGId i) {
         return getEntities<entityDimension>()[i.id];
     };
     template <int entityDimension>
@@ -577,31 +592,20 @@ class Mesh {
     // todo: is this needed?
     void fixConnectivity();
 
-    /// Merge two nodes into a connected pair
-    void mergeNodes(EntityGId node1, EntityGId node2);
-    void mergeFaces(EntityGId face1, EntityGId face2,
-                    const std::vector<EntityLId>& nodePermutation);
-
     template <std::size_t d>
-    void mergeFaceBoundary(MeshEntity<dimension - 1, dimension>& face1,
-                           MeshEntity<dimension - 1, dimension>& face2,
-                           std::map<EntityGId, EntityGId>& nodeMapping,
-                           tag<d> tag);
-    // Base cases
-    void mergeFaceBoundary(MeshEntity<dimension - 1, dimension>& face1,
-                           MeshEntity<dimension - 1, dimension>& face2,
-                           std::map<EntityGId, EntityGId>& nodeMapping,
-                           tag<1> tag){};
-    void mergeFaceBoundary(MeshEntity<dimension - 1, dimension>& face1,
-                           MeshEntity<dimension - 1, dimension>& face2,
-                           std::map<EntityGId, EntityGId>& nodeMapping,
-                           tag<0> tag){};
+    void mergeEntities(EntityGId entity1, EntityGId entity2,
+                       const std::vector<EntityLId>& nodePermutation,
+                       tag<d> tag);
 
+    void mergeEntities(EntityGId node1, EntityGId node2,
+                       const std::vector<EntityLId>& nodePermutation,
+                       tag<0> tag);
 
-    void compactIndices();
-    template<std::size_t d>
-    void compactIndices(tag<d>);
-    void compactIndices(tag<0>) {};
+    /// Remove any MeshEntity that is unused from the mesh.
+    ///
+    /// Removes any MeshEntity that is not used, as in, an entity that is not
+    /// connected to an Element.
+    void removeUnusedEntities();
 
    private:
     /// Recursively checks that for each MeshEntity that is adjacent to an
@@ -701,6 +705,62 @@ class Mesh {
 
     template <std::size_t d>
     void fixEntity(Element<dimension>& element, std::size_t i);
+
+    /// Merge two nodes
+    ///
+    /// Merge node2 into node1, so that all connections to node2 are linked to
+    /// node1. Node2 will as result become unused.
+    ///
+    /// \param node1 The node to merge into
+    /// \param node2 The node becomes unused
+    void mergeNodes(EntityGId node1, EntityGId node2);
+
+    /// Helper for mergeFaces(). When merging two faces the boundary of the face
+    /// should also be the same. That is for
+    ///
+    /// \tparam d The dimension of the boundary entities to merge (and
+    /// recursively down to to d > 1).
+    /// \param face1 The first face
+    /// \param face2 The second face (the one being removed)
+    /// \param tag Tag for d
+    template <std::size_t d>
+    void mergeFaceBoundary(MeshEntity<dimension - 1, dimension>& face1,
+                           MeshEntity<dimension - 1, dimension>& face2,
+                           tag<d> tag);
+    // Base cases
+    void mergeFaceBoundary(MeshEntity<dimension - 1, dimension>& face1,
+                           MeshEntity<dimension - 1, dimension>& face2,
+                           tag<1> tag){};
+    void mergeFaceBoundary(MeshEntity<dimension - 1, dimension>& face1,
+                           MeshEntity<dimension - 1, dimension>& face2,
+                           tag<0> tag){};
+
+    /// Merge two entities that have a matching set of nodes.
+    ///
+    /// When merging two entities E1 and E2 one also needs to merge the entities
+    /// on the boundary of E1 and E2. For example in 3D for merging two faces
+    /// one also needs to merge its boundary edges and nodes.
+    ///
+    /// This function merges two entities E1 and E2 (including its boundary),
+    /// with the requirement that the nodes for E1 and E2 must be the same set.
+    ///
+    /// \tparam d The dimension of the entities d < dimension
+    /// \param entity1 The first entity
+    /// \param entity2 The second entity (will be unused afterwards)
+    template <std::size_t d>
+    void mergeEntitiesInternal(MeshEntity<d, dimension>& entity1,
+                               MeshEntity<d, dimension>& entity2);
+    // Base case
+    void mergeEntitiesInternal(MeshEntity<0, dimension>& entity1,
+                               MeshEntity<0, dimension>& entity2){};
+
+    /// Helper method for removeUnusedEntities()
+    /// Compacting the indices of the d-dimensional mesh entities
+    template <std::size_t d>
+    void removeUnusedEntities(tag<d>);
+    /// Helper method for removeUnusedEntities()
+    /// Compacting the indices of the 0-dimensional mesh entities
+    void removeUnusedEntities(tag<0>){};
 
     template <std::size_t entityDimension>
     EntityGId newEntity() {

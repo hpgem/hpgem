@@ -187,8 +187,7 @@ void addPeriodicity(Preprocessor::Mesh<dimension>& mesh) {
             // This boundary coordinate is already eliminated
             continue;
         }
-        EntityGId newIndex =
-            mesh.getNodeCoordinates()[iter->id].nodeIndex;
+        EntityGId newIndex = mesh.getNodeCoordinates()[iter->id].nodeIndex;
         nodeRenaming[newIndex] = newIndex;
         LinearAlgebra::SmallVector<dimension> coord = mesh.getCoordinate(*iter);
 
@@ -231,7 +230,7 @@ void addPeriodicity(Preprocessor::Mesh<dimension>& mesh) {
         for (EntityGId& node : nodes) {
             node = nodeRenaming[node];
         }
-        std::vector<EntityGId> sortedNodes (nodes);
+        std::vector<EntityGId> sortedNodes(nodes);
         std::sort(sortedNodes.begin(), sortedNodes.end());
         auto pairedFacet = facetsByNodes.find(sortedNodes);
         if (pairedFacet == facetsByNodes.end()) {
@@ -241,19 +240,21 @@ void addPeriodicity(Preprocessor::Mesh<dimension>& mesh) {
             EntityGId pairedId = pairedFacet->second.first;
             std::vector<EntityGId> pairedNodes = pairedFacet->second.second;
             // Compute node permutation
-            std::vector<EntityLId> nodeOrdering (pairedNodes.size());
-            for(std::size_t i = 0; i < pairedNodes.size(); ++i) {
+            std::vector<EntityLId> nodeOrdering(pairedNodes.size());
+            for (std::size_t i = 0; i < pairedNodes.size(); ++i) {
                 EntityGId nodeId = nodes[i];
-                auto pos = std::find(pairedNodes.begin(), pairedNodes.end(), nodeId);
+                auto pos =
+                    std::find(pairedNodes.begin(), pairedNodes.end(), nodeId);
                 nodeOrdering[i] = pos - pairedNodes.begin();
             }
             merges.emplace_back(facetId, pairedId, nodeOrdering);
         }
     }
     for (const auto& merge : merges) {
-        mesh.mergeFaces(std::get<0>(merge), std::get<1>(merge), std::get<2>(merge));
+        mesh.mergeEntities(std::get<0>(merge), std::get<1>(merge),
+                           std::get<2>(merge), tag<dimension - 1>());
     }
-    mesh.compactIndices();
+    mesh.removeUnusedEntities();
 
     std::cout << "Mesh is valid: " << mesh.isValid() << std::endl;
     mesh.fixConnectivity();

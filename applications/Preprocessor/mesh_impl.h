@@ -229,7 +229,18 @@ template <std::size_t dimension>
 template <std::size_t d>
 std::enable_if_t<(d > 0)> Element<dimension>::setEntity(EntityLId localIndex,
                                                         EntityGId globalIndex) {
+    EntityGId current = incidenceLists[d][localIndex];
     incidenceLists[d][localIndex] = globalIndex;
+    if (current != globalIndex) {
+        // Update happened
+        MeshEntity<d, dimension>& newEntity =
+            this->mesh->template getEntity<d>(globalIndex);
+        newEntity.addElement(this->getGlobalIndex(), localIndex);
+
+        MeshEntity<d, dimension>& oldEntity =
+            this->mesh->template getEntity<d>(current);
+        oldEntity.removeElement(this->getGlobalIndex());
+    }
 }
 
 template <std::size_t dimension>
@@ -522,12 +533,17 @@ std::size_t Mesh<DIM>::getZoneId(const std::string& zoneName) {
 }
 
 template <std::size_t dimension>
-void Mesh<dimension>::mergeFaces(
+template <std::size_t d>
+void Mesh<dimension>::mergeEntities(
     EntityGId face1Id, EntityGId face2Id,
-    const std::vector<EntityLId>& nodePermutation) {
+    const std::vector<EntityLId>& nodePermutation, tag<d>) {
 
-    MeshEntity<dimension - 1, dimension>& face1 = getFace(face1Id);
-    MeshEntity<dimension - 1, dimension>& face2 = getFace(face2Id);
+    static_assert(d < dimension, "Can not merge elements");
+    // Nodes should have their own overload
+    static_assert(d > 0, "Wrong function");
+
+    MeshEntity<d, dimension>& face1 = getFace(face1Id);
+    MeshEntity<d, dimension>& face2 = getFace(face2Id);
 
     logger(INFO, "Merging faces % (elem %) and % (elem %)",
            face1.getGlobalIndex(), face1.getElementId(0),
@@ -539,98 +555,100 @@ void Mesh<dimension>::mergeFaces(
     std::vector<EntityGId> f2nodes =
         face2.template getIncidenceListAsIndices<0>();
     // Mapping of Node EntityGId's from face1 -> face2.
-    std::map<EntityGId, EntityGId> nodeRemapping;
     for (std::size_t i = 0; i < nodePermutation.size(); ++i) {
         EntityGId& node1 = f1nodes[i];
         EntityGId& node2 = f2nodes[nodePermutation[i].id];
-        nodeRemapping[node1] = node2;
         if (node1 != node2) {
             mergeNodes(node1, node2);
         }
     }
-
-    // Merge in between entities (edges)
-    mergeFaceBoundary(face1, face2, nodeRemapping, tag<dimension - 2>{});
-
-    // Merge the actual face last, so that boundary information stays intact
-    // for merging in between entities.
-    EntityGId element2Id = face2.getElementId(0);
-    EntityLId localIndex = face2.getLocalIndex(0);
-    face1.addElement(element2Id, localIndex);
-    face2.removeElement(element2Id);
-    getElement(element2Id)
-        .template setEntity<dimension - 1>(localIndex, face1.getGlobalIndex());
+    mergeEntitiesInternal(face1, face2);
 }
-
-// Specialization for dimension == 1 -> Boundaries are just the nodes
-
-template <>
-void Mesh<1>::mergeFaces(EntityGId face1, EntityGId face2,
-                         const std::vector<EntityLId>& nodePermutation) {
-    // TODO
+template <std::size_t dimension>
+void Mesh<dimension>::mergeEntities(
+    EntityGId node1, EntityGId node2,
+    const std::vector<EntityLId>& nodePermutation, tag<0>) {
+    logger.assert_debug(nodePermutation.size() == 1,
+                        "Incorrect node permutiation size");
+    mergeNodes(node1, node2);
 }
-template <>
-template <std::size_t d>
-void Mesh<1>::mergeFaceBoundary(MeshEntity<0, 1>& face1,
-                                MeshEntity<0, 1>& face2,
-                                std::map<EntityGId, EntityGId>& nodeMapping,
-                                tag<d> tag) {}
 
 template <std::size_t dimension>
 template <std::size_t d>
-void Mesh<dimension>::mergeFaceBoundary(
-    MeshEntity<dimension - 1, dimension>& face1,
-    MeshEntity<dimension - 1, dimension>& face2,
-    std::map<EntityGId, EntityGId>& nodeMapping, tag<d>) {
+void Mesh<dimension>::mergeEntitiesInternal(MeshEntity<d, dimension>& entity1,
+                                            MeshEntity<d, dimension>& entity2) {
+    static_assert(d < dimension, "Can't merge elements");
+    // The case d == 0 should default to the base case.
+    static_assert(d > 0, "Not the right function for merging nodes");
 
-    std::vector<EntityGId> fboundary1 =
-        face1.template getIncidenceListAsIndices<d>();
-    std::vector<EntityGId> fboundary2 =
-        face2.template getIncidenceListAsIndices<d>();
-    // Vector indices should be sorted
-    std::map<std::vector<EntityGId>, EntityGId> boundary1ByNodes;
-    std::map<std::vector<EntityGId>, EntityGId> boundary2ByNodes;
+    if (d > 1) {
+        // Merging the boundary is not straightforward, as there are multiple
+        // entities on the boundary and we do not apriori know which boundary
+        // entities of E1 should be merged with which boundary entities of E2.
+        //
+        // A necessary requirement for merging boundary entity Eb1 of E1 and Eb2
+        // of E2 is that both use the same set of nodes. We assume that all
+        // boundary nodes on E1 (and thus also E2) have unique EntityGId's. That
+        // way we can find the pairs Eb1 and Eb2 by looking for d-1 dimensional
+        // boundary entities that share the same set of EntityGIds.
+        std::vector<EntityGId> boundary1 =
+            entity1.template getIncidenceListAsIndices<d - 1>();
+        std::vector<EntityGId> boundary2 =
+            entity2.template getIncidenceListAsIndices<d - 1>();
 
-    for (EntityGId& bound1Id : fboundary1) {
-        MeshEntity<d, dimension>& bound1 = getEntities<d>()[bound1Id.id];
-        std::vector<EntityGId> nodes =
-            bound1.template getIncidenceListAsIndices<0>();
-        std::sort(nodes.begin(), nodes.end());
-        boundary1ByNodes[nodes] = bound1Id;
-    }
+        // Possible future optimization:
+        // Remove entries that are present in both boundaries, as these are
+        // already merged.
 
-    for (EntityGId& bound2Id : fboundary2) {
-        MeshEntity<d, dimension>& bound2 = getEntities<d>()[bound2Id.id];
-        std::vector<EntityGId> nodes =
-            bound2.template getIncidenceListAsIndices<0>();
-        for (EntityGId& node : nodes) {
-            // Remap the nodes
-            node = nodeMapping[node];
+        // Mapping Nodes on boundary -> corresponding boundary entity,
+        // the vectors MUST be sorted.
+        std::map<std::vector<EntityGId>, EntityGId> boundary1ByNodes;
+        std::map<std::vector<EntityGId>, EntityGId> boundary2ByNodes;
+
+        for (EntityGId& bound1Id : boundary1) {
+            MeshEntity<d - 1, dimension>& bound1 =
+                getEntities<d - 1>()[bound1Id.id];
+            std::vector<EntityGId> nodes =
+                bound1.template getIncidenceListAsIndices<0>();
+            std::sort(nodes.begin(), nodes.end());
+            boundary1ByNodes[nodes] = bound1Id;
         }
-        std::sort(nodes.begin(), nodes.end());
-        boundary2ByNodes[nodes] = bound2Id;
-    }
-    for (auto const& bound2 : boundary2ByNodes) {
-        auto bound1 = boundary1ByNodes.find(bound2.first);
-        logger.assert_debug(bound1 != boundary1ByNodes.end(),
-                            "Could not find matching boundary part");
-        if (bound1->second != bound2.second) {
-            // Need to merge
-            MeshEntity<d, dimension>& bound1Entity =
-                getEntities<d>()[bound1->second.id];
-            MeshEntity<d, dimension>& bound2Entity =
-                getEntities<d>()[bound2.second.id];
-            while (bound2Entity.getNumberOfElements() > 0) {
-                EntityGId element = bound2Entity.getElementId(0);
-                EntityLId index = bound2Entity.getLocalIndex(0);
 
-                bound1Entity.addElement(element, index);
-                bound2Entity.removeElement(element);
+        for (EntityGId& bound2Id : boundary2) {
+            MeshEntity<d - 1, dimension>& bound2 =
+                getEntities<d - 1>()[bound2Id.id];
+            std::vector<EntityGId> nodes =
+                bound2.template getIncidenceListAsIndices<0>();
+            std::sort(nodes.begin(), nodes.end());
+            boundary2ByNodes[nodes] = bound2Id;
+        }
+        // Merge boundary parts
+        for (auto const& bound2 : boundary2ByNodes) {
+            auto bound1 = boundary1ByNodes.find(bound2.first);
+            logger.assert_debug(bound1 != boundary1ByNodes.end(),
+                                "Could not find matching boundary part");
+            // Check if the entities use a different entity on the boundary.
+            if (bound1->second != bound2.second) {
+                // A merge is needed
+                MeshEntity<d - 1, dimension>& bound1Entity =
+                    getEntities<d - 1>()[bound1->second.id];
+                MeshEntity<d - 1, dimension>& bound2Entity =
+                    getEntities<d - 1>()[bound2.second.id];
+                mergeEntitiesInternal(bound1Entity, bound2Entity);
             }
         }
     }
-    // Recurse
-    mergeFaceBoundary(face1, face2, nodeMapping, tag<d - 1>{});
+
+    // Merge the entities themselves
+    // For this we simply need to replace all references to entity2 by entity1,
+    // as 0 < d < dimension there are only references in Element.
+
+    while (entity2.getNumberOfElements() > 0) {
+        EntityGId element = entity2.getElementId(0);
+        EntityLId index = entity2.getLocalIndex(0);
+        getElement(element).template setEntity<d>(index,
+                                                  entity1.getGlobalIndex());
+    }
 }
 
 template <std::size_t dimension>
@@ -663,17 +681,9 @@ void Mesh<dimension>::mergeNodes(EntityGId node1, EntityGId node2) {
 }
 
 template <std::size_t dimension>
-void Mesh<dimension>::compactIndices() {
-    // Future proofing
-    for (std::size_t i = 0; i < elementsList.size(); ++i) {
-        Element<dimension>& element = getElement(EntityGId(i));
-        if (element.getNumberOfNodes() == 0) {
-            logger.assert_always(false,
-                                 "Compacting elements not supported yet");
-        }
-    }
+void Mesh<dimension>::removeUnusedEntities() {
     // Recursively compact in between indices
-    compactIndices(tag<dimension - 1>{});
+    removeUnusedEntities(tag<dimension - 1>{});
     // entity dimension 0 is special, it requires also updating the coordinates
     {
         std::map<EntityGId, EntityGId> nodeRemapping;
@@ -713,9 +723,9 @@ void Mesh<dimension>::compactIndices() {
     // 1. This is far harder (one needs to do a liveness check via elements)
     // 2. I don't think this affects the structure
 }
-template<std::size_t dimension>
-template<std::size_t d>
-void Mesh<dimension>::compactIndices(tag<d>) {
+template <std::size_t dimension>
+template <std::size_t d>
+void Mesh<dimension>::removeUnusedEntities(tag<d>) {
     std::map<EntityGId, EntityGId> nodeRemapping;
     EntityGId newIndex = EntityGId(0);
     EntityGId maxId = EntityGId(getNumberOfEntities<d>());
@@ -741,12 +751,11 @@ void Mesh<dimension>::compactIndices(tag<d>) {
         for (EntityGId i = EntityGId(0); i < maxElemId; ++i) {
             getElement(i).template remapIndices<d>(nodeRemapping);
         }
-        logger(INFO, "Reduced the number of %-entities from % to %", d, maxId,
-               newIndex);
+        logger(INFO, "Reduced the number of dim-%-entities from % to %", d,
+               maxId, newIndex);
     }
     // Recurse to lower dimensions
-    compactIndices(tag<d-1>{});
+    removeUnusedEntities(tag<d - 1>{});
 }
-
 
 }  // namespace Preprocessor
