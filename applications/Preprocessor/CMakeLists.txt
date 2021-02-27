@@ -23,6 +23,8 @@ set(CURRENT_TARGET ExtractSurface.out)
 include(${CMAKE_SOURCE_DIR}/conf/cmake/CLionFix.cmake)
 set(CURRENT_TARGET)
 
+target_link_libraries(Preprocessor.out HPGEM::HPGEM)
+
 if(hpGEM_USE_MPI)
     target_link_libraries(Preprocessor.out MPI::MPI_CXX)
     target_link_libraries(ExtractSurface.out MPI::MPI_CXX)
