@@ -53,6 +53,7 @@ using idx_t = std::size_t;
 #include "centaur.h"
 #include "meshData.h"
 #include "output.h"
+#include "LinearAlgebra/SmallMatrix.h"
 
 using namespace hpgem;
 
@@ -181,6 +182,9 @@ void addPeriodicity(Preprocessor::Mesh<dimension>& mesh) {
     std::map<EntityGId, EntityGId> nodeRenaming;
     // Eliminated coords
     std::set<CoordId> eliminated;
+    // Basis translation vectors as columns
+    LinearAlgebra::SmallMatrix<dimension, dimension> basisVectors(
+        {{1., 0., 0.}, {0., 1., 0.}, {0., 0., 1.}});
     for (auto iter = boundaryCoordIds.begin(); iter != boundaryCoordIds.end();
          ++iter) {
         if (eliminated.find(*iter) != eliminated.end()) {
@@ -199,12 +203,17 @@ void addPeriodicity(Preprocessor::Mesh<dimension>& mesh) {
             }
             LinearAlgebra::SmallVector<dimension> coordDiff =
                 coord - mesh.getCoordinate(*otherIter);
-            bool ok = true;
+            // Find translation vector coefficients
+            LinearAlgebra::SmallVector<dimension> coefficients = coordDiff;
+            basisVectors.solve(coefficients);
+            // Two coordinates are mergable if they differ an integer number of
+            // times the translation vectors.
+            bool mergable = true;
             for (std::size_t i = 0; i < dimension; ++i) {
-                ok &= std::abs(coordDiff[i]) < 1e-8 ||
-                      std::abs(std::abs(coordDiff[i]) - 1.0) < 1e-8;
+                mergable &= std::abs(coefficients[i] -
+                                    std::round(coefficients[i])) < 1e-6;
             }
-            if (ok) {
+            if (mergable) {
                 std::cout << "Merging " << coord << " and "
                           << mesh.getCoordinate(*otherIter) << std::endl;
                 eliminated.emplace(*otherIter);
