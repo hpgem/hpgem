@@ -269,6 +269,10 @@ class Element : public MeshEntity<dim, dim> {
 
     /// Set the node at a specific local index.
     ///
+    /// After initial placement of a node with addNode(), replace the node at a
+    /// specific local index. In addition to updating this element it will also
+    /// updates the MeshEntities corresponding to the old and new node.
+    ///
     /// \param localIndex The local index of the node
     /// \param globalIndex The global index of the node
     /// \param coordinateIndex  The global coordinate index for the point
@@ -278,9 +282,10 @@ class Element : public MeshEntity<dim, dim> {
 
     /// Overwrite the entity for a specific local index.
     ///
-    /// After an initial placement of the entity by 'addEntity', replace the
-    /// MeshEntity at a specific localIndex. In addition to updating the element,
-    /// this also updates the old and new MeshEntity.
+    /// After an initial placement of the entity by addEntity(), replace the
+    /// MeshEntity at a specific localIndex. In addition to updating this
+    /// element, this also updates the old and new MeshEntity.
+    ///
     /// \tparam d The dimension of the entity
     /// \param localIndex The local index of the entity to replace
     /// \param globalIndex The global index of the new entity
