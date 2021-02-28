@@ -60,9 +60,7 @@ class CentaurReader : public MeshSource2 {
     std::vector<MeshSource2::Coord>& getCoordinates() final {
         return coordinates;
     }
-    std::vector<MeshSource2::Element>& getElements() final {
-        return elements2;
-    }
+    std::vector<MeshSource2::Element>& getElements() final { return elements; }
 
     std::size_t getDimension() const final {
         if (centaurFileType > 0) return 3;
@@ -84,8 +82,6 @@ class CentaurReader : public MeshSource2 {
          */
         std::uint32_t perLineCount;
     };
-
-    void temp(const std::string& path);
 
     // returns the number of skipped entities
     std::uint32_t skipGroup(std::size_t linesPerEntity = 1,
@@ -120,7 +116,7 @@ class CentaurReader : public MeshSource2 {
      */
     template <typename T>
     std::uint32_t readGroup(std::vector<T>& data, std::uint32_t numComponents,
-                   bool expectMultiline);
+                            bool expectMultiline);
 
     void readHeader();
     void readCoordinates();
@@ -131,11 +127,26 @@ class CentaurReader : public MeshSource2 {
      */
     void readElements(std::size_t elemType, std::uint32_t numNodes);
 
+    /**
+     * The number of nodes each centaur element type has.
+     * @param elementType The element type
+     * @return The number of nodes for one element.
+     */
     std::uint32_t numNodes(std::size_t elementType) const;
 
-    /// Read the zone information from the file.
-    /// \param elementCount The count for each element type in centaur order.
-    /// For 2D only the first two entries should be used.
+    /**
+     * Reorder coordinates to follow hpgem ordering.
+     *
+     * For some element types the ordering of the coordinates is differs between
+     * hpgem and centaur. This function reorders a set of coordinates in centaur
+     * ordering to follow hpgem ordering.
+     * @param coords The coordinates
+     * @param elementType The element type index.
+     */
+    void reorderElementCoords(std::vector<std::size_t>& coords,
+                              std::size_t elementType) const;
+
+    /// Read the zone information from the file and update the elements
     void readZoneInfo();
 
     /// Read & discard boundary group information
@@ -144,7 +155,10 @@ class CentaurReader : public MeshSource2 {
     /// for correctness.
     void readBoundaryGroups();
 
-    void readPeriodicNodeConnections2();
+    /**
+     * Read and apply the periodic connections from the centaur file.
+     */
+    void readPeriodicNodeConnections();
 
     // Header information
     /**
@@ -157,10 +171,7 @@ class CentaurReader : public MeshSource2 {
      */
     std::int32_t centaurFileType;
 
-    FortranUnformattedFile centaurFile2;
-
-    /// Number of Elements (independent of type)
-    std::uint32_t numberOfElements;
+    FortranUnformattedFile centaurFile;
 
     std::map<std::uint32_t, std::vector<std::size_t>> boundaryConnections;
 
@@ -187,12 +198,14 @@ class CentaurReader : public MeshSource2 {
      * Coordinates
      */
     std::vector<MeshSource2::Coord> coordinates;
-
     /**
-     * Corner node indices of the up to four different element types
+     * The elements in the mesh. The different element types are placed
+     * consecutively.
      */
-    std::array<std::vector<std::uint32_t>, 4> elements;
-    std::vector<MeshSource2::Element> elements2;
+    std::vector<MeshSource2::Element> elements;
+    /**
+     * The number of elements of each type.
+     */
     std::array<std::uint32_t, 4> elementCount;
 
     /// Storage for the zones.
