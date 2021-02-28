@@ -72,6 +72,12 @@ class CentaurReader : public MeshSource2 {
     bool is3D() const { return getDimension() == 3; }
 
    private:
+
+    /// Helper methods ///
+    //////////////////////
+    //
+    // Helper methods for how centaur uses the fortran file format.
+
     struct GroupSize {
         /**
          * Total number of entries
@@ -118,6 +124,12 @@ class CentaurReader : public MeshSource2 {
     std::uint32_t readGroup(std::vector<T>& data, std::uint32_t numComponents,
                             bool expectMultiline);
 
+    /// Reader Methods ///
+    //////////////////////
+    //
+    // Methods to read parts of the centaur file. Following the same ordering as
+    // in the file.
+
     void readHeader();
     void readCoordinates();
     /**
@@ -146,9 +158,6 @@ class CentaurReader : public MeshSource2 {
     void reorderElementCoords(std::vector<std::size_t>& coords,
                               std::size_t elementType) const;
 
-    /// Read the zone information from the file and update the elements
-    void readZoneInfo();
-
     /// Read & discard boundary group information
     /// Note: While the information is discarded, it is very useful in debugging
     /// The boundary group names are human readable and can be easily checked
@@ -159,6 +168,15 @@ class CentaurReader : public MeshSource2 {
      * Read and apply the periodic connections from the centaur file.
      */
     void readPeriodicNodeConnections();
+
+    /// Read the zone information from the file and update the elements
+    void readZoneInfo();
+
+    /// DATA ///
+    ////////////
+    // All data from the file, following the same ordering as in the file.
+
+    FortranUnformattedFile centaurFile;
 
     // Header information
     /**
@@ -171,9 +189,19 @@ class CentaurReader : public MeshSource2 {
      */
     std::int32_t centaurFileType;
 
-    FortranUnformattedFile centaurFile;
-
-    std::map<std::uint32_t, std::vector<std::size_t>> boundaryConnections;
+    /**
+     * Coordinates
+     */
+    std::vector<MeshSource2::Coord> coordinates;
+    /**
+     * The elements in the mesh. The different element types are placed
+     * consecutively.
+     */
+    std::vector<MeshSource2::Element> elements;
+    /**
+     * The number of elements of each type.
+     */
+    std::array<std::uint32_t, 4> elementCount;
 
     struct ZoneInformation {
         /// The end-offset for element types and (3D only) boundary faces.
@@ -193,20 +221,6 @@ class CentaurReader : public MeshSource2 {
         std::string getZoneName() const;
         std::string getZoneFamilyName() const;
     };
-
-    /**
-     * Coordinates
-     */
-    std::vector<MeshSource2::Coord> coordinates;
-    /**
-     * The elements in the mesh. The different element types are placed
-     * consecutively.
-     */
-    std::vector<MeshSource2::Element> elements;
-    /**
-     * The number of elements of each type.
-     */
-    std::array<std::uint32_t, 4> elementCount;
 
     /// Storage for the zones.
     std::vector<ZoneInformation> zones;
