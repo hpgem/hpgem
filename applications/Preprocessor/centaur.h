@@ -48,9 +48,9 @@
 #include <string>
 #include <map>
 
-using namespace hpgem;
-
 namespace Preprocessor {
+
+using namespace hpgem;
 
 class CentaurReader : public MeshSource {
    public:

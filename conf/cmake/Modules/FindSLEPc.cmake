@@ -8,7 +8,17 @@
 
 find_package(PkgConfig)
 list(APPEND CMAKE_PREFIX_PATH "${SLEPC_DIR}/${PETSC_ARCH}")
-pkg_check_modules(SLEPc_PKG REQUIRED SLEPc)
+
+# SLEPC decided to change the casing of the slepc module from SLEPc to slepc,
+# probably with version 3.14. Unfortunately there does not seem to be a case
+# insensitive version of pkg_check_modules, so we have to do it this way.
+pkg_check_modules(SLEPc_PKG slepc)
+if (NOT SLEPc_PKG_FOUND)
+    pkg_check_modules(SLEPc_PKG SLEPc)
+    if (NOT SLEPc_PKG_FOUND)
+        message(FATAL_ERROR "SLEPc pkgconfig file not found")
+    endif()
+endif()
 
 find_path(SLEPc_INCLUDE_DIR slepc.h HINTS ${SLEPc_PKG_INCLUDE_DIRS})
 find_path(SLEPc_INCLUDE_DIR2 slepcconf.h HINTS ${SLEPc_PKG_INCLUDE_DIRS})

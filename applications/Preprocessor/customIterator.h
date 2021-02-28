@@ -48,9 +48,9 @@
 #include <utility>
 #include <Logger.h>
 
-using namespace hpgem;
-
 namespace Preprocessor {
+
+using namespace hpgem;
 
 namespace Detail {
 template <bool... predicates>

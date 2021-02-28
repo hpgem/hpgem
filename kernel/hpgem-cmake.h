@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2017, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,59 +35,23 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef HPGEM_HPGEMCMAKE_H
+#define HPGEM_HPGEMCMAKE_H
 
-#ifndef HPGEM_APP_HPGEM_H
-#define HPGEM_APP_HPGEM_H
-
-#include "customIterator.h"
-#include "MeshSource.h"
-#include <vector>
 #include <string>
-#include <fstream>
 
-namespace Preprocessor {
+namespace hpgem {
+/// return the absolute path of the hpGEM-directory
+std::string getCMAKE_hpGEM_SOURCE_DIR();
 
-using namespace hpgem;
+/// The Git ref at compile time
+std::string getGITRef();
 
-class PrivateReader : public MeshSource {
-   public:
-    virtual ~PrivateReader() = default;
-    PrivateReader(const PrivateReader&) = delete;
-    PrivateReader(PrivateReader&&) = delete;
-    PrivateReader& operator=(const PrivateReader&) = delete;
-    PrivateReader& operator=(PrivateReader&&) = delete;
+/// The raw git hash at compile time
+std::string getGITHash();
 
-    virtual Range<MeshSource::Node> getNodeCoordinates() = 0;
-    virtual Range<MeshSource::Element> getElements() = 0;
-    virtual std::size_t getDimension() const = 0;
-    virtual std::size_t getTargetProcessorCount() = 0;
-    virtual Range<std::size_t> getProcessorBindings() = 0;
+/// Whether the working directory was clean at compile time
+bool isGITClean();
+}  // namespace hpgem
 
-   protected:
-    PrivateReader() = default;
-};
-
-class HpgemReader : public MeshSource {
-   public:
-    HpgemReader(std::string filename);
-
-    Range<MeshSource::Node> getNodeCoordinates() final {
-        return impl->getNodeCoordinates();
-    }
-    Range<MeshSource::Element> getElements() final {
-        return impl->getElements();
-    }
-    std::size_t getDimension() const final { return impl->getDimension(); }
-    std::size_t getTargetProcessorCount() {
-        return impl->getTargetProcessorCount();
-    }
-    Range<std::size_t> getProcessorBindings() {
-        return impl->getProcessorBindings();
-    }
-
-   private:
-    std::shared_ptr<PrivateReader> impl{nullptr};
-};
-}  // namespace Preprocessor
-
-#endif  // HPGEM_APP_HPGEM_H
+#endif  // HPGEM_HPGEMCMAKE_H

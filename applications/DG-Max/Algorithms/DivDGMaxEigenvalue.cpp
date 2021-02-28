@@ -117,8 +117,13 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
         CHKERRABORT(PETSC_COMM_WORLD, err);
 
         // Post solve
+        PetscInt iterations;
+        err = EPSGetIterationNumber(solver_, &iterations);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
         std::swap(eigenpairs_, previousEigenpairs_);
         eigenpairs_.loadEigenpairs(solver_, tempVector_);
+        DGMaxLogger(INFO, "Number of eigenvalues % converged in % iterations",
+                    eigenpairs_.size(), iterations);
     }
 
     const LinearAlgebra::SmallVector<DIM>& getKPoint() const { return kpoint_; }

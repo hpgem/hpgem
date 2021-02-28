@@ -42,9 +42,10 @@
 #include <cstddef>
 #include <vector>
 #include "Logger.h"
-#include "customVector.h"
 
 namespace Preprocessor {
+
+using namespace hpgem;
 
 template <std::size_t dimension>
 class ElementShape;
@@ -465,7 +466,5 @@ const std::vector<const ElementShape<3>*> defaultShapes<3> = {
 }  // namespace Preprocessor
 
 #include <elementShape_impl.h>
-
-using namespace hpgem;
 
 #endif  // HPGEM_APP_ELEMENTSHAPE_H
