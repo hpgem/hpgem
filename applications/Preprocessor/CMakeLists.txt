@@ -6,6 +6,7 @@ add_executable(Preprocessor.out
                centaur.cpp
                FortranUnformattedFile.cpp
                hpgem.cpp
+        SparseUnionFind.cpp
                ../../kernel/Logger.cpp
                ../../kernel/Base/CommandLineOptions.cpp
                ../../kernel/Base/MpiContainer.cpp)
@@ -15,6 +16,7 @@ add_executable(ExtractSurface.out
                centaur.cpp
                FortranUnformattedFile.cpp
                hpgem.cpp
+        SparseUnionFind.cpp
                ../../kernel/Logger.cpp
                ../../kernel/Base/CommandLineOptions.cpp
                ../../kernel/Base/MpiContainer.cpp)

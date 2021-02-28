@@ -53,12 +53,16 @@ namespace Preprocessor {
 
 using namespace hpgem;
 
-class CentaurReader : public MeshSource {
+class CentaurReader : public MeshSource2 {
    public:
     CentaurReader(std::string filename);
 
-    Range<MeshSource::Node> getNodeCoordinates() final;
-    Range<MeshSource::Element> getElements() final;
+    std::vector<MeshSource2::Coord>& getCoordinates() final {
+        return coordinates;
+    }
+    std::vector<MeshSource2::Element>& getElements() final {
+        return elements2;
+    }
 
     std::size_t getDimension() const final {
         if (centaurFileType > 0) return 3;
@@ -82,7 +86,7 @@ class CentaurReader : public MeshSource {
     };
 
     void temp(const std::string& path);
-    UnstructuredInputStream<std::istringstream> readLine();
+
     // returns the number of skipped entities
     std::uint32_t skipGroup(std::size_t linesPerEntity = 1,
                             bool multiline = true);
@@ -94,6 +98,15 @@ class CentaurReader : public MeshSource {
      * @return The size of the next group.
      */
     GroupSize readGroupSize(bool expectMultiline);
+
+    /**
+     * Read the size of the next group, assuming it does not support multiline
+     * @return The size of the group.
+     */
+    std::uint32_t readSingleLineGroupSize() {
+        GroupSize groupSize = readGroupSize(false);
+        return groupSize.totalCount;
+    }
 
     /**
      * Read a group with a uniform data type
@@ -123,7 +136,7 @@ class CentaurReader : public MeshSource {
     /// Read the zone information from the file.
     /// \param elementCount The count for each element type in centaur order.
     /// For 2D only the first two entries should be used.
-    void readZoneInfo(std::array<std::uint32_t, 4> elementCount);
+    void readZoneInfo();
 
     /// Read & discard boundary group information
     /// Note: While the information is discarded, it is very useful in debugging
@@ -131,7 +144,7 @@ class CentaurReader : public MeshSource {
     /// for correctness.
     void readBoundaryGroups();
 
-    void readPeriodicNodeConnections();
+    void readPeriodicNodeConnections2();
 
     // Header information
     /**
@@ -145,20 +158,11 @@ class CentaurReader : public MeshSource {
     std::int32_t centaurFileType;
 
     FortranUnformattedFile centaurFile2;
-    UnstructuredInputStream<std::ifstream> centaurFile;
-    /// Location in the file where the node/coordinate information starts
-    std::ifstream::pos_type nodeStart;
-    /// Location in the file where the element definition starts
-    std::ifstream::pos_type elementStart;
 
-    /// Number of Nodes
-    std::uint32_t numberOfNodes;
     /// Number of Elements (independent of type)
     std::uint32_t numberOfElements;
 
     std::map<std::uint32_t, std::vector<std::size_t>> boundaryConnections;
-
-    std::vector<std::size_t> toHpgemNumbering;
 
     struct ZoneInformation {
         /// The end-offset for element types and (3D only) boundary faces.
@@ -180,14 +184,15 @@ class CentaurReader : public MeshSource {
     };
 
     /**
-     * Raw coordinates
+     * Coordinates
      */
-    std::vector<double> coordinates;
+    std::vector<MeshSource2::Coord> coordinates;
 
     /**
      * Corner node indices of the up to four different element types
      */
     std::array<std::vector<std::uint32_t>, 4> elements;
+    std::vector<MeshSource2::Element> elements2;
     std::array<std::uint32_t, 4> elementCount;
 
     /// Storage for the zones.

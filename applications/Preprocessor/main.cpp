@@ -212,9 +212,9 @@ int main(int argc, char** argv) {
                     centaurFile.getDimension(), dimension.getValue());
             }
             if (centaurFile.getDimension() == 2) {
-                processMesh(Preprocessor::readFile<2>(centaurFile));
+                processMesh(Preprocessor::fromMeshSource<2>(centaurFile));
             } else if (centaurFile.getDimension() == 3) {
-                processMesh(Preprocessor::readFile<3>(centaurFile));
+                processMesh(Preprocessor::fromMeshSource<3>(centaurFile));
             } else {
                 logger(ERROR,
                        "Centaur file should not be able to have dimension %",
