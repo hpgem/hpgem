@@ -47,6 +47,14 @@
 
 namespace hpgem {
 namespace Utilities {
+
+/**
+ * A list of eigenpairs from solving an eigenvalue problem.
+ *
+ * Storage and handling of a list of N eigenpairs (lambda_i, x_i) with i=1..N
+ * and lambda_i the i-th eigenvalue and x_i the corresponding eigenvector. The
+ * ordering of the eigenpairs in the list can be adjusted.
+ */
 class Eigenpairs final {
    public:
     Eigenpairs();
