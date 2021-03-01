@@ -1471,6 +1471,16 @@ void MeshManipulator<DIM>::refine(
         }
     }
 }
+namespace Detail {
+inline void readSegmentHeader(std::istream &stream,
+                              std::string expectedHeader) {
+    std::string line;
+    stream >> line;
+    logger.assert_always(line == expectedHeader,
+                         "Different segment header expected '%' but got '%'",
+                         expectedHeader, line);
+}
+}
 
 template <std::size_t DIM>
 void MeshManipulator<DIM>::readMesh(const std::string &filename) {
@@ -1502,9 +1512,17 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
     logger.assert_always(
         rawInput.substr(0, 4) == "mesh",
         "incorrect file type, please use the preprocessor first");
-    logger.assert_always(
-        rawInput == "mesh 1"s,
-        "This file is too new to be read by the current version of hpGEM");
+    // Extract the version
+    std::size_t version;
+    {
+        std::istringstream temp(rawInput.substr(4));
+        temp >> version;
+        logger.assert_always(version >= 1 && version <= 2,
+                             "Version % can't be read by this reader.",
+                             version);
+    }
+    // Header //
+    ////////////
     std::size_t numberOfNodes, numberOfElements, meshDimension;
     input >> numberOfNodes >> numberOfElements >> meshDimension;
     logger.assert_always(meshDimension == DIM,
@@ -1535,6 +1553,35 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
         "This mesh is targeting % parallel threads, but you are running on % "
         "threads, please rerun the preprocessor first",
         numberOfPartitions, MPIContainer::Instance().getNumberOfProcessors());
+
+    // ZONES //
+    ///////////
+
+    std::vector<std::string> zones;
+    if (version == 1) {
+        // Zones are only present in version > 1, provide a default zone
+        zones.emplace_back("Main");
+    } else {
+        Detail::readSegmentHeader(input, "zones");
+        // Number of zones
+        std::size_t numZones;
+        input >> numZones;
+        logger.assert_always(numZones > 0 || numberOfElements == 0,
+                             "Got a file with zero zones but with elements");
+        input.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        // Zone names
+        zones.resize(numZones);
+        for (std::size_t i = 0; i < numZones; ++i) {
+            getline(input, zones[i]);
+        }
+    }
+
+    // NODES //
+    ///////////
+
+    if (version > 1) {
+        Detail::readSegmentHeader(input, "nodes");
+    }
 
     std::size_t processedNodes = 0;
     std::map<std::size_t, std::size_t> localNodeIndex;
@@ -1583,6 +1630,13 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
         processedNodes == localNumberOfNodes,
         "The mesh file lies about how many nodes are in this partition");
 
+    // Elements //
+    //////////////
+
+    if (version > 1) {
+        Detail::readSegmentHeader(input, "elements");
+    }
+
     std::map<std::size_t, Element *> actualElement;
 
     for (std::size_t i = 0; i < numberOfElements; ++i) {
@@ -1627,12 +1681,25 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
             // reserve the index for use in another processor
             GlobalUniqueIndex::instance().getElementIndex();
         }
+        std::size_t zoneIndex;
+        if (version == 1) {
+            zoneIndex = 0; // Default zone
+        } else {
+            input >> zoneIndex;
+        }
     }
 
     logger.suppressWarnings([&]() {
         getFacesList(IteratorType::GLOBAL).setPreOrderTraversal();
         getEdgesList(IteratorType::GLOBAL).setPreOrderTraversal();
     });
+
+    // FACES //
+    ///////////
+
+    if (version > 1) {
+        Detail::readSegmentHeader(input, "codim1");
+    }
 
     for (std::size_t i = 0; i < numberOfFaces; ++i) {
         std::size_t localNumberOfFaces;
@@ -1692,6 +1759,13 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
         if (!faceIsInPartition) {
             GlobalUniqueIndex::instance().getFaceIndex();
         }
+    }
+
+    // EDGES //
+    ///////////
+
+    if (version > 1) {
+        Detail::readSegmentHeader(input, "codim2");
     }
 
     for (std::size_t i = 0; i < numberOfEdges; ++i) {
