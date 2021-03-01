@@ -603,6 +603,8 @@ void CentaurReader::reorderElementCoords(std::vector<std::size_t>& coords,
             std::swap(coords[2], coords[3]);
             std::swap(coords[6], coords[7]);
         } else if (elementType == 2) {
+            // Same as for squares
+            std::swap(coords[2], coords[3]);
             // Centaur has the top of the pyramid as last node, hpgem as first
             // one
             std::size_t top = coords[4];
