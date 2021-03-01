@@ -780,8 +780,9 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::writeAsTimeIntegrationVector(
     tempFieldVector_.writeTimeIntegrationVector(timeIntegrationVectorId);
 }
 
-template<std::size_t DIM>
-LinearAlgebra::MiddleSizeMatrix DGMaxEigenvalue<DIM>::SolverWorkspace::computeOverlapIntegrals() {
+template <std::size_t DIM>
+LinearAlgebra::MiddleSizeMatrix
+    DGMaxEigenvalue<DIM>::SolverWorkspace::computeOverlapIntegrals() {
     LinearAlgebra::MiddleSizeMatrix result(eigenpairs_.size(),
                                            previousEigenpairs_.size());
     PetscErrorCode err;
@@ -794,8 +795,8 @@ LinearAlgebra::MiddleSizeMatrix DGMaxEigenvalue<DIM>::SolverWorkspace::computeOv
             // a) this is not needed
             // b) this is complicated by the possible reordering of
             // eigenvalues.
-            err = VecDot(tempFieldVector_, previousEigenpairs_.getEigenvector(j),
-                         &result(i, j));
+            err = VecDot(tempFieldVector_,
+                         previousEigenpairs_.getEigenvector(j), &result(i, j));
             CHKERRABORT(PETSC_COMM_WORLD, err);
         }
     }
