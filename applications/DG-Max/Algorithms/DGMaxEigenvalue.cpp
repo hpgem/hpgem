@@ -636,9 +636,7 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::initStiffnessMatrixShifts() {
 template <std::size_t DIM>
 void DGMaxEigenvalue<DIM>::SolverWorkspace::extractEigenVectors() {
     std::swap(eigenpairs_, previousEigenpairs_);
-    PetscErrorCode error;
     eigenpairs_.loadEigenpairs(solver_, tempFieldVector_);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
     // Reorder
     std::vector<std::size_t> ordering(eigenpairs_.size());
     std::iota(ordering.begin(), ordering.end(), 0);
