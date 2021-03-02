@@ -240,7 +240,7 @@ class DivDGMaxEigenvalue<DIM>::Result final
            const Base::MeshManipulator<DIM>* mesh,
            const DivDGMaxDiscretization<DIM>& discretization)
         : workspace_(workspace), mesh_(mesh), discretization_(discretization) {
-        auto& eigenpairs = workspace.getEigenpairs();
+        const auto& eigenpairs = workspace.getEigenpairs();
         frequencies_.resize(eigenpairs.size());
         for (std::size_t i = 0; i < frequencies_.size(); ++i) {
             frequencies_[i] =
