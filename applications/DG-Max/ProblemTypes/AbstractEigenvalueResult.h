@@ -40,6 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <vector>
 #include "LinearAlgebra/SmallVector.h"
+#include "LinearAlgebra/MiddleSizeMatrix.h"
 #include "Output/VTKSpecificTimeWriter.h"
 
 #include "DGMaxLogger.h"
@@ -84,6 +85,24 @@ class AbstractEigenvalueResult {
      * @return Mesh file used for the computation.
      */
     virtual const Base::MeshManipulator<DIM>* getMesh() const = 0;
+
+    /**
+     * \brief Compute field overlap integrals
+     *
+     * Compute the field overlap integrals integral(E_prev epsilon E_cur)
+     * between the fields E_cur of the current k-point and the field E_prev of
+     * the previous k-point. The rows correspond to the fields of the current
+     * k-point, while the columns correspond to the fields of the previous
+     * k-point.
+     *
+     * By default outputs a matrix of size (0,0) if not supported.
+     *
+     * @return A matrix with the overlap values.
+     */
+    virtual LinearAlgebra::MiddleSizeMatrix computeFieldOverlap() const {
+        DGMaxLogger(WARN, "Field overlap computation not supported");
+        return LinearAlgebra::MiddleSizeMatrix(0, 0);
+    };
 };
 
 #endif  // HPGEM_APP_ABSTRACTEIGENVALUERESULT_H
