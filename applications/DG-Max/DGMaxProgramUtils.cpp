@@ -10,6 +10,8 @@
 // In case of MPI it is usefull to know where each process is located
 #include <unistd.h>
 
+#include "CMakeDefinitions.h"
+
 using namespace hpgem;
 
 #endif
@@ -43,6 +45,8 @@ void printArguments(int argc, char** argv) {
         }
         std::string message = stream.str();
         DGMaxLogger(INFO, message);
+        DGMaxLogger(INFO, "git ref: % (%%)", getGITRef(),
+                    isGITClean() ? "" : "dirty ", getGITHash());
     }
 }
 

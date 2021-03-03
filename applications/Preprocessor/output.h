@@ -43,7 +43,7 @@
 #include "mesh.h"
 #include "meshData.h"
 
-auto& outputFileName = Base::register_argument<std::string>(
+auto& outputFileName = hpgem::Base::register_argument<std::string>(
     '\0', "outFile", "Name of your output file (input for hpGEM)", false,
     "mesh.hpGEM");
 
@@ -55,7 +55,5 @@ void outputMesh(Mesh<dimension>& mesh,
 }
 
 #include "output_impl.h"
-
-using namespace hpgem;
 
 #endif  // HPGEM_APP_OUTPUT_H

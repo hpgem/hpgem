@@ -96,9 +96,8 @@ void printMeshStatistics(const Preprocessor::Mesh<dimension>& mesh) {
 }
 
 template <std::size_t dimension>
-void processMesh(Preprocessor::Mesh<dimension> mesh) {
-    printMeshStatistics(mesh);
-
+Preprocessor::MeshData<idx_t, dimension, dimension> partitionMesh(
+    Preprocessor::Mesh<dimension>& mesh) {
     Preprocessor::MeshData<idx_t, dimension, dimension> partitionID(&mesh);
     idx_t numberOfProcessors = targetMpiCount.getValue();
     if (numberOfProcessors > 1) {
@@ -147,6 +146,16 @@ void processMesh(Preprocessor::Mesh<dimension> mesh) {
             "Please install metis if you want to generate a distributed mesh");
 #endif
     }
+    return partitionID;
+}
+
+template <std::size_t dimension>
+void processMesh(Preprocessor::Mesh<dimension> mesh) {
+    printMeshStatistics(mesh);
+
+    Preprocessor::MeshData<idx_t, dimension, dimension> partitionID =
+        partitionMesh(mesh);
+    idx_t numberOfProcessors = targetMpiCount.getValue();
     Preprocessor::outputMesh(mesh, partitionID, numberOfProcessors);
 }
 

@@ -42,9 +42,9 @@
 #include "centaur.h"
 #include "Logger.h"
 
-using namespace hpgem;
-
 namespace Preprocessor {
+
+using namespace hpgem;
 
 /*
  * General notes.
