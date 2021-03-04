@@ -71,6 +71,30 @@ int main(int argc, char** argv) {
     Base::parse_options(argc, argv);
     initDGMaxLogging();
 
+    // The build-in (default) Petsc LU solver has problems with zero pivots.
+    // Other solvers (mumps, umfpack, etc.) do not have this problem, probably
+    // due to a different (better) reordering. So we default the use of a
+    // different solver.
+    {
+#if PETSC_VERSION_LE(3, 8, 0)
+        // This was replaced. The corresponding function does not show up in the
+        // documentation for petsc-3.9.
+        const char option[] = "-st_pc_factor_mat_solver_package";
+#else
+        const char option[] = "-st_pc_factor_mat_solver_type";
+#endif
+        PetscBool present;
+        PetscOptionsHasName(nullptr, nullptr, option, &present);
+        if (!present) {
+            DGMaxLogger(INFO, "Defaulting LU solver");
+            // UMFPack is chosen because it is installed as dependency when
+            // installing petsc on ubuntu (via apt) or mac (via homebrew).
+            // Unfortunately this is the only compatible solver which is
+            // installed via homebrew.
+            PetscOptionsSetValue(nullptr, option, "umfpack");
+        }
+    }
+
     // Flag to switch between testing with known results (true) and checking the
     // results when they change (false).
     bool runAsTest = runAsTestArg.getValue();

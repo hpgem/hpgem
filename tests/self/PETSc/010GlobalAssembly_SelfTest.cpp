@@ -67,6 +67,7 @@ class PoissonTest : public Base::HpgemAPILinearSteadyState<DIM> {
         : Base::HpgemAPILinearSteadyState<DIM>(1, p, true, true),
           p_(p),
           totalError_(0) {
+        logger(INFO, "Reading test with mesh % and p=%", name, p);
         using namespace std::string_literals;
         penalty_ = 3 * n * p_ * (p_ + DIM - 1) + 1;
         this->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s +
@@ -240,15 +241,26 @@ class PoissonTest : public Base::HpgemAPILinearSteadyState<DIM> {
         // it is declared.
         b.assemble();
 
-        // Make the Krylov supspace method
+        // Make a solver, by default solve using a direct method. This to
+        // prevent spurious errors from the solver.
         KSP ksp;
         KSPCreate(PETSC_COMM_WORLD, &ksp);
+
+        KSPSetType(ksp, KSPPREONLY);
+        PC pc;
+        KSPGetPC(ksp, &pc);
+        PCSetType(pc, PCLU);
+
         KSPSetTolerances(ksp, 1e-12, PETSC_DEFAULT, PETSC_DEFAULT,
                          PETSC_DEFAULT);
         // Tell ksp that it will solve the system Ax = b.
         KSPSetOperators(ksp, A, A);
         KSPSetFromOptions(ksp);
         KSPSolve(ksp, b, x);
+        KSPType type;
+        KSPGetType(ksp, &type);
+        logger(INFO, "Solving using %", type);
+
         // Do PETSc magic, including solving.
         KSPConvergedReason converge;
         KSPGetConvergedReason(ksp, &converge);

@@ -52,6 +52,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Base/MeshManipulator.h"
 #include "LinearAlgebra/SmallVector.h"
+#include "Utilities/Eigenpairs.h"
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
 #include "Utils/CGDGMatrixKPhaseShiftBuilder.h"
@@ -113,10 +114,6 @@ class DGMaxEigenvalue<DIM>::SolverWorkspace {
 
     void solve(std::size_t targetNumberOfEigenvalues);
 
-    const std::vector<PetscScalar>& getEigenvalues() const {
-        return eigenvalues_;
-    }
-
     const LinearAlgebra::SmallVector<DIM>& getKPoint() const {
         return currentK_;
     }
@@ -124,6 +121,10 @@ class DGMaxEigenvalue<DIM>::SolverWorkspace {
     const DGMaxEigenvalueBase::SolverConfig& getConfig() const {
         return config_;
     }
+
+    const Utilities::Eigenpairs& getEigenpairs() const { return eigenpairs_; }
+
+    LinearAlgebra::MiddleSizeMatrix computeOverlapIntegrals();
 
     /**
      * Take an eigenvector and write it to the element local timeintegration
@@ -164,11 +165,6 @@ class DGMaxEigenvalue<DIM>::SolverWorkspace {
     // Solver
     EPS solver_;
 
-    // Eigenvector storage
-    PetscInt convergedEigenValues_;
-    Vec* eigenVectors_;
-    PetscInt numberOfEigenVectors_;
-
     // Phase offset shifts
     std::unique_ptr<typename DGMaxEigenvalue<DIM>::ShiftWorkspace> shifts;
     // Projector
@@ -179,7 +175,9 @@ class DGMaxEigenvalue<DIM>::SolverWorkspace {
     LinearAlgebra::SmallVector<DIM> currentK_;
     DGMax::KPhaseShifts<DIM> stiffnessMatrixShifts_;
 
-    std::vector<PetscScalar> eigenvalues_;
+    // Eigenvector storage
+    Utilities::Eigenpairs eigenpairs_;
+    Utilities::Eigenpairs previousEigenpairs_;
 
     void initStiffnessMatrixShifts();
     void initMatrices();
@@ -256,34 +254,13 @@ class DGMaxEigenvalue<DIM>::Result final
    public:
     Result(SolverWorkspace& workspace, const Base::MeshManipulator<DIM>* mesh,
            const DGMaxDiscretization<DIM>& discretization)
-        : workspace_(workspace),
-          mesh_(mesh),
-          discretization_(discretization),
-          eigenvalueOrdering_(workspace.getEigenvalues().size()) {
-        const std::vector<PetscScalar>& eigenvalues =
-            workspace.getEigenvalues();
-        // Compute the reordering to have increasing eigenvalues
-        std::iota(eigenvalueOrdering_.begin(), eigenvalueOrdering_.end(), 0);
-        std::sort(eigenvalueOrdering_.begin(), eigenvalueOrdering_.end(),
-                  [&](const std::size_t& i1, const std::size_t& i2) {
-                      const PetscScalar& e1 = eigenvalues[i1];
-                      const PetscScalar& e2 = eigenvalues[i2];
-                      if (PetscRealPart(e1) != PetscRealPart(e2)) {
-                          return PetscRealPart(e1) < PetscRealPart(e2);
-                      } else {
-                          return PetscImaginaryPart(e1) <
-                                 PetscImaginaryPart(e2);
-                      }
-                  });
-    };
+        : workspace_(workspace), mesh_(mesh), discretization_(discretization){};
 
     std::vector<double> getFrequencies() final {
-        const std::vector<PetscScalar> eigenvalues =
-            workspace_.getEigenvalues();
-        std::vector<double> frequencies(eigenvalues.size());
+        std::vector<double> frequencies(workspace_.getEigenpairs().size());
         for (std::size_t i = 0; i < frequencies.size(); ++i) {
-            frequencies[i] = std::sqrt(
-                std::abs(PetscRealPart(eigenvalues[eigenvalueOrdering_[i]])));
+            frequencies[i] = std::sqrt(std::abs(
+                PetscRealPart(workspace_.getEigenpairs().getEigenvalue(i))));
         }
         return frequencies;
     }
@@ -297,23 +274,21 @@ class DGMaxEigenvalue<DIM>::Result final
     void writeField(std::size_t eigenvalue,
                     Output::VTKSpecificTimeWriter<DIM>& writer) final;
 
+    LinearAlgebra::MiddleSizeMatrix computeFieldOverlap() const {
+        return workspace_.computeOverlapIntegrals();
+    }
+
    private:
     SolverWorkspace& workspace_;
     const Base::MeshManipulator<DIM>* mesh_;
     const DGMaxDiscretization<DIM>& discretization_;
-    /// Reordering of the Workspace eigenvalues to make them increasing.
-    /// The entries are indices in the eigenpairs of the workspace. That is,
-    /// entry 0 points is the index of the smallest eigenpair, 1 of the next
-    /// smallest, etc.
-    std::vector<std::size_t> eigenvalueOrdering_;
 };
 
 template <std::size_t DIM>
 void DGMaxEigenvalue<DIM>::Result::writeField(
     std::size_t eigenvalue, Output::VTKSpecificTimeWriter<DIM>& writer) {
     const std::size_t VECTOR_ID = 0;
-    workspace_.writeAsTimeIntegrationVector(eigenvalueOrdering_[eigenvalue],
-                                            VECTOR_ID);
+    workspace_.writeAsTimeIntegrationVector(eigenvalue, VECTOR_ID);
     // When using the Hermitian system we applied a rescaling of the
     // solution coefficients to use y = L^H x (LL^H = M is the Cholesky
     // decomposition of the mass matrix and x the actual coefficients). Undo
@@ -424,8 +399,7 @@ DGMaxEigenvalue<DIM>::SolverWorkspace::SolverWorkspace(
                        DGMaxDiscretizationBase::FACE_MATRIX_ID),
       massMatrix_(fieldIndex_, DGMaxDiscretizationBase::MASS_MATRIX_ID, -1),
       tempFieldVector_(fieldIndex_, -1, -1),
-      targetFrequency_(1),
-      numberOfEigenVectors_(0) {
+      targetFrequency_(1) {
 
     initMatrices();
     DGMaxLogger(INFO, "Matrices assembled");
@@ -452,8 +426,6 @@ DGMaxEigenvalue<DIM>::SolverWorkspace::~SolverWorkspace() {
     shifts = nullptr;
 
     PetscErrorCode error;
-    error = VecDestroyVecs(numberOfEigenVectors_, &eigenVectors_);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
     error = VecDestroy(&tempFieldVector2_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
@@ -597,15 +569,7 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::initSolver() {
 template <std::size_t DIM>
 void DGMaxEigenvalue<DIM>::SolverWorkspace::initEigenvectorStorage(
     std::size_t targetNumberOfEigenvalues) {
-    convergedEigenValues_ = 0;
-    // Some extra space for if more eigenvalues converge to prevent reallocation
-    PetscInt MINIMAL_EXTRA_SPACE = 10;
-    numberOfEigenVectors_ =
-        std::max(2 * targetNumberOfEigenvalues,
-                 targetNumberOfEigenvalues + MINIMAL_EXTRA_SPACE);
-    PetscErrorCode error = VecDuplicateVecs(
-        tempFieldVector_, numberOfEigenVectors_, &eigenVectors_);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
+    PetscErrorCode error;
     error = VecDuplicate(tempFieldVector_, &tempFieldVector2_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 }
@@ -671,29 +635,22 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::initStiffnessMatrixShifts() {
 
 template <std::size_t DIM>
 void DGMaxEigenvalue<DIM>::SolverWorkspace::extractEigenVectors() {
-    PetscErrorCode error;
-    error = EPSGetConverged(solver_, &convergedEigenValues_);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    if (convergedEigenValues_ > numberOfEigenVectors_) {
-        // Reallocate
-        DGMaxLogger(INFO,
-                    "Reallocating eigenvector storage to store % instead of % "
-                    "eigenvectors",
-                    convergedEigenValues_, numberOfEigenVectors_);
-        error = VecDestroyVecs(numberOfEigenVectors_, &eigenVectors_);
-        CHKERRABORT(PETSC_COMM_WORLD, error);
-        error = VecDuplicateVecs(tempFieldVector_, convergedEigenValues_,
-                                 &eigenVectors_);
-        CHKERRABORT(PETSC_COMM_WORLD, error);
-        numberOfEigenVectors_ = convergedEigenValues_;
-    }
-
-    eigenvalues_.resize(convergedEigenValues_);
-    for (PetscInt i = 0; i < convergedEigenValues_; ++i) {
-        EPSGetEigenpair(solver_, i, &eigenvalues_[i], nullptr, eigenVectors_[i],
-                        nullptr);
-    }
-    CHKERRABORT(PETSC_COMM_WORLD, error);
+    std::swap(eigenpairs_, previousEigenpairs_);
+    eigenpairs_.loadEigenpairs(solver_, tempFieldVector_);
+    // Reorder
+    std::vector<std::size_t> ordering(eigenpairs_.size());
+    std::iota(ordering.begin(), ordering.end(), 0);
+    std::sort(ordering.begin(), ordering.end(),
+              [&](const std::size_t& i1, const std::size_t& i2) {
+                  PetscScalar e1 = eigenpairs_.getEigenvalue(ordering[i1]);
+                  PetscScalar e2 = eigenpairs_.getEigenvalue(ordering[i2]);
+                  if (PetscRealPart(e1) != PetscRealPart(e2)) {
+                      return PetscRealPart(e1) < PetscRealPart(e2);
+                  } else {
+                      return PetscImaginaryPart(e1) < PetscImaginaryPart(e2);
+                  }
+              });
+    eigenpairs_.reorder(ordering);
 }
 
 template <std::size_t DIM>
@@ -731,35 +688,36 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::solve(
     // Setup search space //
     ////////////////////////
 
-    if (convergedEigenValues_ == 0) {
+    if (eigenpairs_.size() == 0) {
         // Generate fresh starting vector
+        eigenpairs_.reserve(1, tempFieldVector_);
         DGMaxLogger(INFO, "Generating initial vector");
-        error = VecSetRandom(eigenVectors_[0], nullptr);
+        error = VecSetRandom(eigenpairs_.getRawEigenvectors()[0], nullptr);
         CHKERRABORT(PETSC_COMM_WORLD, error);
-        usableInitialVectors = 1;
     } else {
         DGMaxLogger(INFO, "Combining previous eigen vectors");
-        for (PetscInt j = 1; j < convergedEigenValues_; ++j) {
+        for (PetscInt j = 1; j < eigenpairs_.size(); ++j) {
             // Some eigenvalue solvers only uses a single starting vector.
             // Mix the eigenvalue spaces from the previous k-point in the
             // hope that these are rich in the eigenvectors for the next
             // space.
-            error = VecAYPX(eigenVectors_[0], 1, eigenVectors_[j]);
+            error = VecAYPX(eigenpairs_.getRawEigenvectors()[0], 1,
+                            eigenpairs_.getRawEigenvectors()[j]);
             CHKERRABORT(PETSC_COMM_WORLD, error);
         }
         // Add all previous eigenvectors to the eigenvalue solver, even
         // if they are not all used.
-        usableInitialVectors = convergedEigenValues_;
     }
     if (config_.useProjector_ != DGMaxEigenvalueBase::NONE) {
         for (std::size_t j = 0; j < usableInitialVectors; ++j) {
-            projector->project(eigenVectors_[j]);
+            projector->project(eigenpairs_.getRawEigenvectors()[j]);
         }
         DGMaxLogger(INFO, "Projected initial vector");
     }
 
     // Use solution of previous time as starting point for the next one.
-    error = EPSSetInitialSpace(solver_, usableInitialVectors, eigenVectors_);
+    error = EPSSetInitialSpace(solver_, eigenpairs_.size(),
+                               eigenpairs_.getRawEigenvectors());
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
     // Final Options //
@@ -810,14 +768,37 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::solve(
 template <std::size_t DIM>
 void DGMaxEigenvalue<DIM>::SolverWorkspace::writeAsTimeIntegrationVector(
     std::size_t eigenvectorId, std::size_t timeIntegrationVectorId) {
-    logger.assert_debug(eigenvectorId < convergedEigenValues_,
+    logger.assert_debug(eigenvectorId < eigenpairs_.size(),
                         "Eigenvalue % is more than converged %", eigenvectorId,
-                        convergedEigenValues_);
+                        eigenpairs_.size());
     // Distribute the solution coefficients to the local element vectors
     PetscErrorCode err;
-    err = VecCopy(eigenVectors_[eigenvectorId], tempFieldVector_);
+    err = VecCopy(eigenpairs_.getEigenvector(eigenvectorId), tempFieldVector_);
     CHKERRABORT(PETSC_COMM_WORLD, err);
     tempFieldVector_.writeTimeIntegrationVector(timeIntegrationVectorId);
+}
+
+template <std::size_t DIM>
+LinearAlgebra::MiddleSizeMatrix
+    DGMaxEigenvalue<DIM>::SolverWorkspace::computeOverlapIntegrals() {
+    LinearAlgebra::MiddleSizeMatrix result(eigenpairs_.size(),
+                                           previousEigenpairs_.size());
+    PetscErrorCode err;
+    for (std::size_t i = 0; i < eigenpairs_.size(); ++i) {
+        err = MatMult(massMatrix_, eigenpairs_.getEigenvector(i),
+                      tempFieldVector_);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+        for (std::size_t j = 0; j < previousEigenpairs_.size(); ++j) {
+            // Note VecMDot might be a bit faster, but
+            // a) this is not needed
+            // b) this is complicated by the possible reordering of
+            // eigenvalues.
+            err = VecDot(tempFieldVector_,
+                         previousEigenpairs_.getEigenvector(j), &result(i, j));
+            CHKERRABORT(PETSC_COMM_WORLD, err);
+        }
+    }
+    return result;
 }
 
 // ShiftWorkspace //
