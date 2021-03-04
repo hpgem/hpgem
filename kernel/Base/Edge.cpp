@@ -133,7 +133,7 @@ Element* Edge::getOwningElement() const {
         if (!safe) {
             // The edge does not have a link to the nodes at the ends. We need
             // to go through one of the adjacent elements.
-            const std::size_t ELEM_LID = 0; // Local ID of the element
+            const std::size_t ELEM_LID = 0;  // Local ID of the element
             const Element* element = elements_[ELEM_LID];
             const Geometry::ReferenceGeometry* referenceGeometry =
                 element->getReferenceGeometry();
