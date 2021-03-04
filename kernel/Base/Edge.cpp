@@ -131,12 +131,16 @@ Element* Edge::getOwningElement() const {
         }
         // The expensive check going via both the nodes
         if (!safe) {
-            const Element* element = elements_[0];
+            // The edge does not have a link to the nodes at the ends. We need
+            // to go through one of the adjacent elements.
+            const std::size_t ELEM_LID = 0; // Local ID of the element
+            const Element* element = elements_[ELEM_LID];
             const Geometry::ReferenceGeometry* referenceGeometry =
                 element->getReferenceGeometry();
+            // The nodes corresponding to the edge
             std::vector<std::size_t> nodeIds =
                 referenceGeometry->getCodim2EntityLocalIndices(
-                    localEdgeNumbers_[0]);
+                    localEdgeNumbers_[ELEM_LID]);
             for (std::size_t nodeId : nodeIds) {
                 const Node* node = element->getNode(nodeId);
                 for (const Element* nodeElement : node->getElements()) {
