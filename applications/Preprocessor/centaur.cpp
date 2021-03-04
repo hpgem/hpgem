@@ -264,8 +264,8 @@ void CentaurReader::readElements(std::size_t elemType, std::uint32_t numNodes) {
             // -1 due to Fortran indexing
             localCoordIds[c] = coordIds[elem * numNodes + c] - 1;
             // Reorder to hpgem ordering
-            reorderElementCoords(localCoordIds, elemType);
         }
+        reorderElementCoords(localCoordIds, elemType);
     }
     logger(VERBOSE, "Read % elements with % nodes", elementCount[elemType],
            numNodes);
