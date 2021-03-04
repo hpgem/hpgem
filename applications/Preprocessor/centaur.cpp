@@ -38,6 +38,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <cstring>
 
 #include "centaur.h"
 #include "Logger.h"
@@ -215,11 +216,11 @@ void CentaurReader::readHeader() {
     std::vector<char> rawInput(headerSize);
 
     centaurFile.readRawRecord(headerSize, rawInput.data());
+
     std::uint32_t offset = 0;
-    version = *reinterpret_cast<typeof(version)*>(rawInput.data());
+    memcpy(&version, rawInput.data(), sizeof(offset));
     offset += sizeof(version);
-    centaurFileType =
-        *reinterpret_cast<typeof(centaurFileType)*>(rawInput.data() + offset);
+    memcpy(&centaurFileType, rawInput.data() + offset, sizeof(centaurFileType));
     // Rest of the data seems to be char[80] with something like
     // "Unstructured hybrid grid format"
     // But can be ignored
@@ -396,8 +397,7 @@ void CentaurReader::readZoneInfo() {
         if (i == 0) {
             std::uint32_t entry;
             for (std::size_t j = 0; j < numIndexEntries; ++j) {
-                entry = *reinterpret_cast<typeof(entry)*>(rawZoneData.data() +
-                                                          offset);
+                memcpy(&entry, rawZoneData.data() + offset, sizeof(entry));
                 offset += sizeof(entry);
                 logger.assert_always(
                     entry == 1, "Offset for the first zone entry is non zero.");
@@ -407,9 +407,8 @@ void CentaurReader::readZoneInfo() {
 
             for (std::size_t entryId = 0; entryId < numIndexEntries;
                  ++entryId) {
-                prevZone.endOffsets[entryId] =
-                    *reinterpret_cast<typeof(std::uint32_t)*>(
-                        rawZoneData.data() + offset);
+                memcpy(&(prevZone.endOffsets[entryId]),
+                       rawZoneData.data() + offset, sizeof(std::uint32_t));
                 offset += sizeof(std::uint32_t);
                 // Compensate for fortran 1-indexing
                 prevZone.endOffsets[entryId]--;
