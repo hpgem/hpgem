@@ -84,7 +84,7 @@ void SparseUnionFind::unionSets(std::size_t elem1, std::size_t elem2) {
         return;
     }
     std::size_t rank1 = ranks_[target1];
-    std::size_t& rank2 = ranks_[target2]; // Reference to allow for update
+    std::size_t& rank2 = ranks_[target2];  // Reference to allow for update
 
     if (rank1 > rank2) {
         parents_[target2] = target1;

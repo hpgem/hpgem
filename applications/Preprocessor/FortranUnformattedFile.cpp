@@ -93,9 +93,8 @@ void FortranUnformattedFile::skipRecord(std::uint32_t size) {
 
 bool FortranUnformattedFile::eof() {
     // Just peak to see if we get EOF
-    return file_.sgetc() == EOF ;
+    return file_.sgetc() == EOF;
 }
-
 
 bool FortranUnformattedFile::readRecordSize(std::uint32_t &size) {
     std::filebuf::off_type readSize =

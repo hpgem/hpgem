@@ -71,7 +71,6 @@ class CentaurReader : public MeshSource2 {
     bool is3D() const { return getDimension() == 3; }
 
    private:
-
     /// Helper methods ///
     //////////////////////
     //
