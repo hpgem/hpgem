@@ -108,7 +108,8 @@ std::string fromFortranString(const std::array<char, N>& fortranString) {
     return std::string(fortranString.data(), length);
 }
 
-CentaurReader::CentaurReader(std::string filename) : centaurFile(filename) {
+CentaurReader::CentaurReader(std::string filename)
+    : centaurFile(filename), elementCount({0, 0, 0, 0}) {
     // temp(filename);
     readHeader();
 
