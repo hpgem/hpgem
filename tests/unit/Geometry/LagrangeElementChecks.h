@@ -35,53 +35,38 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "ReferenceLagrangeLine.h"
+#ifndef HPGEM_LAGRANGEELEMENTCHECKS_H
+#define HPGEM_LAGRANGEELEMENTCHECKS_H
 
-#include <map>
-
-#include "LagrangeReferenceElement_Impl.h"
-#include "ReferenceLine.h"
-#include "ReferencePoint.h"
-
+#include "Geometry/LagrangeReferenceElement.h"
+#include "../catch.hpp"
+#include "typeinfo"
 
 namespace hpgem {
-namespace Geometry {
 
-ReferenceLagrangeLine* ReferenceLagrangeLine::getReferenceLagrangeLine(
-    std::size_t order) {
-    // Multiton
-    static std::map<std::size_t, ReferenceLagrangeLine*> lines;
-
-    ReferenceLagrangeLine*& line = lines[order];
-    if (line == nullptr) {
-        line = new ReferenceLagrangeLine(order);
+template <std::size_t d>
+void testLowestLevelIsPoints(
+    const Geometry::LagrangeReferenceElement<d>& geom) {
+    static_assert(d > 0 && d <= 2, "Not implemented for this dimension");
+    std::size_t nent;
+    if (d == 1) {
+        nent = geom.getNumberOfCodim1Entities();
+    } else if (d == 2) {
+        nent = geom.getNumberOfCodim2Entities();
     }
-    return line;
-}
-
-std::string getReferenceLagrangeLineName(std::size_t order) {
-    std::stringstream name;
-    name << "Lagrange-ReferenceLine-" << order;
-    return name.str();
-}
-
-std::vector<Geometry::PointReference<1>> createReferencePoints(
-    std::size_t order) {
-    // order + 1 equally spaced points from -1 to 1
-    double h = 2.0 / order;
-    std::vector<Geometry::PointReference<1>> result(order + 1);
-    for (std::size_t i = 0; i < order + 1; ++i) {
-        result[i] = {-1.0 + i * h};
+    for (std::size_t i = 0; i < nent; ++i) {
+        const Geometry::ReferenceGeometry* pointlike;
+        if (d == 1) {
+            pointlike = geom.getCodim1ReferenceGeometry(i);
+        } else if (d == 2) {
+            pointlike = geom.getCodim2ReferenceGeometry(i);
+        }
+        INFO("Check codim " << d << " entity " << i << "to be a point.");
+        // Stringent test, it should not even be a subclass.
+        CHECK(typeid(Geometry::ReferencePoint) == typeid(*pointlike));
     }
-    return result;
 }
 
-ReferenceLagrangeLine::ReferenceLagrangeLine(std::size_t order)
-    : LagrangeReferenceElement<1>(&ReferenceLine::Instance(),
-                                  std::vector<ReferenceGeometry*>(0),
-                                  std::vector<ReferenceGeometry*>(0),
-                                  createReferencePoints(order),
-                                  getReferenceLagrangeLineName(order)) {}
-
-}  // namespace Geometry
 }  // namespace hpgem
+
+#endif  // HPGEM_LAGRANGEELEMENTCHECKS_H

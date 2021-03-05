@@ -35,53 +35,17 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "ReferenceLagrangeLine.h"
 
-#include <map>
+#include "../catch.hpp"
+#include "Geometry/ReferenceLagrangeLine.h"
+#include "LagrangeElementChecks.h"
 
-#include "LagrangeReferenceElement_Impl.h"
-#include "ReferenceLine.h"
-#include "ReferencePoint.h"
+using namespace hpgem;
+using Geometry::ReferenceLagrangeLine;
 
+TEST_CASE("LagrangeLine Codim1", "[400ReferenceLagrangeLine_UnitTest]") {
+    auto p = GENERATE(2,4);
 
-namespace hpgem {
-namespace Geometry {
-
-ReferenceLagrangeLine* ReferenceLagrangeLine::getReferenceLagrangeLine(
-    std::size_t order) {
-    // Multiton
-    static std::map<std::size_t, ReferenceLagrangeLine*> lines;
-
-    ReferenceLagrangeLine*& line = lines[order];
-    if (line == nullptr) {
-        line = new ReferenceLagrangeLine(order);
-    }
-    return line;
+    const auto* line = Geometry::ReferenceLagrangeLine::getReferenceLagrangeLine(p);
+    testLowestLevelIsPoints<1>(*line);
 }
-
-std::string getReferenceLagrangeLineName(std::size_t order) {
-    std::stringstream name;
-    name << "Lagrange-ReferenceLine-" << order;
-    return name.str();
-}
-
-std::vector<Geometry::PointReference<1>> createReferencePoints(
-    std::size_t order) {
-    // order + 1 equally spaced points from -1 to 1
-    double h = 2.0 / order;
-    std::vector<Geometry::PointReference<1>> result(order + 1);
-    for (std::size_t i = 0; i < order + 1; ++i) {
-        result[i] = {-1.0 + i * h};
-    }
-    return result;
-}
-
-ReferenceLagrangeLine::ReferenceLagrangeLine(std::size_t order)
-    : LagrangeReferenceElement<1>(&ReferenceLine::Instance(),
-                                  std::vector<ReferenceGeometry*>(0),
-                                  std::vector<ReferenceGeometry*>(0),
-                                  createReferencePoints(order),
-                                  getReferenceLagrangeLineName(order)) {}
-
-}  // namespace Geometry
-}  // namespace hpgem
