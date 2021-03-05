@@ -399,20 +399,16 @@ Element* Face::getOwningElement() const {
         // actually not present.
         std::size_t faceLocalId = elementLeft_->getLocalId(this);
         std::size_t nodes = getReferenceGeometry()->getNumberOfNodes();
-        for (std::size_t i = 0; i < nodes; ++i) {
+        for (std::size_t i = 0; !safe && i < nodes; ++i) {
             std::size_t elementNodeIndex =
                 elementLeft_->getReferenceGeometry()
                     ->getLocalNodeIndexFromFaceAndIndexOnFace(faceLocalId, i);
             const Node* node = elementLeft_->getNode(elementNodeIndex);
-            for (const Element* element : node->getElements()) {
-                if (element->isOwnedByCurrentProcessor()) {
-                    safe = true;
-                    break;
-                }
-            }
-            if (safe) {
-                break;
-            }
+            const std::vector<Element*>& nodeElements = node->getElements();
+            safe = std::any_of(nodeElements.begin(), nodeElements.end(),
+                               [](const Base::Element* el) {
+                                   return el->isOwnedByCurrentProcessor();
+                               });
         }
     }
     // By now there are two options left:
