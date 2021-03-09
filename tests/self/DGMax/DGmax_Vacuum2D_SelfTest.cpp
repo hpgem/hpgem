@@ -97,7 +97,8 @@ int main(int argc, char** argv) {
     // Second test of the same algorithm, but with completely different
     // settings, in an attempt to cover as many different paths with the least
     // number of tests.
-    // TODO: Modify this to use the Braggstack (need: git fix theory to work in 2D)
+    // TODO: Modify this to use the Braggstack (need: git fix theory to work in
+    // 2D)
     config.shiftFactor_ = -1.0;
     config.useHermitian_ = true;
     config.useProjector_ = DGMaxEigenvalueBase::ALL;
