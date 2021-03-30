@@ -44,7 +44,6 @@
 #include <string>
 #include <vector>
 
-
 #include "MeshSource.h"
 #include "Logger.h"
 
@@ -57,17 +56,11 @@ class GmshReader final : public MeshSource2 {
    public:
     GmshReader(std::string filename);
 
-    const std::vector<Coord>& getCoordinates(){
-        return nodes_;
-    }
+    const std::vector<Coord>& getCoordinates() { return nodes_; }
 
-    const std::vector<Element>& getElements(){
-        return elements_;
-    }
+    const std::vector<Element>& getElements() { return elements_; }
 
-    std::size_t getDimension() const{
-        return dimension_;
-    }
+    std::size_t getDimension() const { return dimension_; }
 
    private:
     void fillElementTypeMap();

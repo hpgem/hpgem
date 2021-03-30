@@ -359,7 +359,7 @@ void GmshReader::readElementData() {
     size_t num_entities;
     Filehandle_ >> timestep >> field_components >> num_entities;
 
-     logger.assert_always(field_components== 1,
+    logger.assert_always(field_components == 1,
                          "We only read in Scalar data as material identifiers");
     for (int i = 3; i < numintegerelements; i++) {
         size_t dummy;
@@ -442,7 +442,8 @@ GmshReader::GmshReader(std::string filename) {
     logger.assert_always(Filehandle_.is_open(), "Cannot open msh meshfile. %",
                          filename);
     logger.assert_always(Filehandle_.good(),
-                         "Something is not so good about this mesh in file %",filename);
+                         "Something is not so good about this mesh in file %",
+                         filename);
 
     readHeader();
     readNodes();

@@ -42,7 +42,6 @@
 #include <vector>
 #include <string>
 
-
 namespace Preprocessor {
 
 class ElementReorder {
