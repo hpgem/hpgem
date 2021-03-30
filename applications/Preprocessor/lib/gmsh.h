@@ -3,11 +3,11 @@
  years by various people at the University of Twente and a full list of
  contributors can be found at http://hpgem.org/about-the-code/team
 
- This code is distributed using BSD 3-Clause License. A copy of which can found
- below.
+ This code is azdistributed using BSD 3-Clause License. A copy of which can
+ found below.
 
 
- Copyright (c) 2020, University of Twente
+ Copyright (c) 2017, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -36,17 +36,55 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <map>
+#include <iostream>
+#include <string>
+#include <vector>
 
 
-#include "Preprocessor/Reorder.h"
-
-#define CATCH_CONFIG_RUNNER
-#include "../catch.hpp"
+#include "MeshSource.h"
+#include "Logger.h"
 
 using namespace hpgem;
 
+namespace Preprocessor {
 
+class GmshReader final : public MeshSource2 {
 
-TEST_CASE("Reorder", "Reorder") {
-   
-}
+   public:
+    GmshReader(std::string filename);
+
+    const std::vector<Coord>& getCoordinates(){
+        return nodes_;
+    }
+
+    const std::vector<Element>& getElements(){
+        return elements_;
+    }
+
+    std::size_t getDimension() const{
+        return dimension_;
+    }
+
+   private:
+    void fillElementTypeMap();
+    void readHeader();
+    void readElements();
+    void readElementData();
+    void readPBCs();
+    void purgeLowerDimElements();
+
+    size_t determineDimension(double tol = 1e-12) const;
+
+    size_t dimension_;
+
+    std::vector<MeshSource2::Element> elements_;
+
+    std::vector<MeshSource2::Coord> nodes_;
+
+    std::ifstream Filehandle_;
+    std::map<size_t, size_t> nodes_per_elementtype_;
+    std::map<size_t, size_t> dimension_of_elementtype_;
+};
+
+}  // namespace Preprocessor

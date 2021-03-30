@@ -13,6 +13,6 @@ foreach(CPPFILE ${CPPFILES})
 	#Make the exe
 	add_executable(${EXECNAME} ${FILENAME})
 	target_compile_definitions(${EXECNAME} PRIVATE TEST_DATA_FOLDER="${CMAKE_CURRENT_SOURCE_DIR}/DataFiles")
-	target_link_libraries(${EXECNAME}  HPGEM::HPGEM tests-main)
+	target_link_libraries(${EXECNAME}  Preprocessor-lib tests-main)
 endforeach()
 
