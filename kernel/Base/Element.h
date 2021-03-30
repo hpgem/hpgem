@@ -395,7 +395,7 @@ class Element final : public Geometry::ElementGeometry, public ElementData {
         return facesList_[localFaceNumber];
     }
 
-    const std::vector<Face*> getFacesList() const { return facesList_; }
+    const std::vector<Face*>& getFacesList() const { return facesList_; }
 
     Edge* getEdge(std::size_t localEdgeNumber) const {
         logger.assert_debug(localEdgeNumber < getNumberOfEdges(),
@@ -404,7 +404,7 @@ class Element final : public Geometry::ElementGeometry, public ElementData {
         return edgesList_[localEdgeNumber];
     }
 
-    const std::vector<Edge*> getEdgesList() const { return edgesList_; }
+    const std::vector<Edge*>& getEdgesList() const { return edgesList_; }
 
     const Node* getNode(std::size_t localNodeNumber) const {
         logger.assert_debug(localNodeNumber < getNumberOfNodes(),
@@ -420,7 +420,7 @@ class Element final : public Geometry::ElementGeometry, public ElementData {
         return nodesList_[localNodeNumber];
     }
 
-    const std::vector<Node*> getNodesList() const { return nodesList_; }
+    const std::vector<Node*>& getNodesList() const { return nodesList_; }
 
     /// Compute the face id of a face that is adjacent to the element.
     std::size_t getLocalId(const Base::Face* face) const {

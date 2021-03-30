@@ -138,9 +138,22 @@ bool Base::Node::isOwnedByCurrentProcessor() const {
 }
 
 Base::Element *Base::Node::getOwningElement() const {
-    logger.assert_debug(
-        isOwnedByCurrentProcessor(),
-        "Owning element is only accurate when owned by the current processor");
+#if HPGEM_ASSERTS
+    if (!isOwnedByCurrentProcessor()) {
+        // The node is part of the boundary layer of ghost elements. On the
+        // outer side of this layer there are nodes where the list of elements
+        // is not complete because those elements are outside the ghost layer.
+        // One of these missing Elements could be the owner. It is only
+        // guaranteed that the list of Elements is correct, when at least one of
+        // the elements is owned by the current processor.
+        logger.assert_debug(
+            std::any_of(elements_.begin(), elements_.end(),
+                        [](const Base::Element *el) {
+                            return el->isOwnedByCurrentProcessor();
+                        }),
+            "Owning element of this node may be inaccurate");
+    }
+#endif
     return elements_.empty() ? nullptr : elements_[0];
 }
 
