@@ -82,6 +82,7 @@ class MeshSource {
          * and the dimension of the mesh. The ordering of the nodes should
          * follow the standard hpgem ordering.
          */
+
         std::vector<std::size_t> coordinateIds;
 
         /**
@@ -159,8 +160,19 @@ class MeshSource2 {
          */
         std::string zoneName;
 
+        /**
+         * Dimension of the Element, this is not used in the generation of the
+         * hpgem intermediate format, but maybe useful for parsing
+         */
+        size_t dimension;
+        /**
+         * Index of the Element, this is not used in the generation of the hpgem
+         * intermediate format, but maybe useful for parsing
+         */
+        size_t id;
+
         bool operator==(const Element& o) const {
-            return coordinateIds == o.coordinateIds;
+            return coordinateIds == o.coordinateIds && zoneName == o.zoneName;
         }
     };
 
@@ -185,3 +197,4 @@ class MeshSource2 {
 }  // namespace Preprocessor
 
 #endif  // HPGEM_MESHSOURCE_H
+
