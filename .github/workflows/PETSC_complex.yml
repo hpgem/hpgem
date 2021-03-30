@@ -19,7 +19,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2 
     - name: dependencies
-      run: sudo apt install libblas-dev liblapack-dev libopenmpi-dev libpetsc-complex-dev libslepc-complex-dev
+      run: sudo apt install libblas-dev liblapack-dev libopenmpi-dev libpetsc-complex-dev libslepc3.12-complex-dev
     - name: configure
       env:
         CC: ${{ matrix.compiler }}
