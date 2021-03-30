@@ -38,12 +38,13 @@
 
 #include "ElementReorder.h"
 #include <algorithm>
+#include <numeric>
 #include "Logger.h"
 
 namespace Preprocessor {
 
-const ElementReorder::Element& ElementReorder::FindElement(size_t dimension,
-                                           size_t indices_size) const {
+const ElementReorder::Element& ElementReorder::FindElement(
+    size_t dimension, size_t indices_size) const {
     auto iterator = std::find_if(
         order_per_element_.begin(), order_per_element_.end(),
         [&](const Element& e) {
@@ -63,10 +64,11 @@ void ElementReorder::addElementType(size_t dimension, const std::string& name,
 
     bool found = (iterator != order_per_element_.end());
 
-    hpgem::logger.assert_always(!found,
-                         "Element with dimension % and same number of nodes % "
-                         "already exists. Clear disambiguation not possible.",
-                         dimension, order.size());
+    hpgem::logger.assert_always(
+        !found,
+        "Element with dimension % and same number of nodes % "
+        "already exists. Clear disambiguation not possible.",
+        dimension, order.size());
 
     order_per_element_.push_back(Element(dimension, name, order));
 }
@@ -91,6 +93,17 @@ void ElementReorder::reorderFromHpGem(size_t dimension,
     for (size_t i = 0; i < indeces.size(); i++) {
         indeces[e.order_[i]] = copy[i];
     }
+}
+
+void ElementReorder::Element::checkOrder(std::vector<size_t> order) const {
+    std::sort(order.begin(), order.end());
+    std::adjacent_difference(order.begin(), order.end(), order.begin());
+
+    bool valid = (order[0] == 0) && (std::accumulate(order.begin(), order.end(),
+                                                     0) == order.size() - 1);
+    hpgem::logger.assert_always(valid,
+                                "Order has to contain 0 as an index and then "
+                                "contain all indices contiguously");
 }
 
 }  // namespace Preprocessor

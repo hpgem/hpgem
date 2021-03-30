@@ -40,7 +40,8 @@
 #define HPGEM_APP_ELEMENTREORDER_H
 
 #include <vector>
-#include <map>
+#include <string>
+
 
 namespace Preprocessor {
 
@@ -62,7 +63,9 @@ class ElementReorder {
 
         Element(size_t dimension, const std::string& name,
                 const std::vector<size_t>& order)
-            : dimension_(dimension), name_(name), order_(order) {}
+            : dimension_(dimension), name_(name), order_(order) {
+            checkOrder(order);
+        }
         size_t dimension_;
         std::string name_;
         std::vector<size_t> order_;
@@ -71,6 +74,9 @@ class ElementReorder {
             return dimension_ == other.dimension_ && name_ == other.name_ &&
                    order_ == other.order_;
         }
+
+       private:
+        void checkOrder(std::vector<size_t> order) const;
     };
 
     const Element& FindElement(size_t dimension, size_t indices_size) const;
