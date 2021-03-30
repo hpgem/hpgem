@@ -169,6 +169,11 @@ bool FaceGeometry::isInternal() const {
     return false;
 }
 
+bool FaceGeometry::isSubdomainBoundary() const {
+    return faceType_ == FaceType::SUBDOMAIN_BOUNDARY ||
+           faceType_ == FaceType::PERIODIC_SUBDOMAIN_BC;
+}
+
 template <std::size_t DIM>
 double computeFaceDiameter(const FaceGeometry& face) {
     const ElementGeometry* element = face.getElementGLeft();

@@ -40,6 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <valarray>
 
+#include "Utilities/Eigenpairs.h"
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
 
@@ -63,18 +64,13 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
           massMatrix_(indexing_,
                       DivDGMaxDiscretization<DIM>::ELEMENT_MASS_MATRIX_ID, -1),
           tempVector_(indexing_, -1, -1),
-          solver_(nullptr),
-          numberOfConvergedEigenpairs(0),
-          numberOfEigenvectors_(0),
-          eigenvectors_(nullptr) {
+          solver_(nullptr) {
         // Separate from initializer list to allow for more flexibility
         init(mesh);
     };
 
     ~SolverWorkspace() {
         PetscErrorCode err;
-
-        VecDestroyVecs(numberOfEigenvectors_, &eigenvectors_);
         err = EPSDestroy(&solver_);
         CHKERRABORT(PETSC_COMM_WORLD, err);
     }
@@ -105,7 +101,8 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
                                PETSC_DECIDE);
         CHKERRABORT(PETSC_COMM_WORLD, err);
 
-        EPSSetInitialSpace(solver_, numberOfConvergedEigenpairs, eigenvectors_);
+        EPSSetInitialSpace(solver_, eigenpairs_.size(),
+                           eigenpairs_.getRawEigenvectors());
 
         // Allow for overrides
         err = EPSSetFromOptions(solver_);
@@ -123,31 +120,15 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
         PetscInt iterations;
         err = EPSGetIterationNumber(solver_, &iterations);
         CHKERRABORT(PETSC_COMM_WORLD, err);
-        err = EPSGetConverged(solver_, &numberOfConvergedEigenpairs);
-        CHKERRABORT(PETSC_COMM_WORLD, err);
+        std::swap(eigenpairs_, previousEigenpairs_);
+        eigenpairs_.loadEigenpairs(solver_, tempVector_);
         DGMaxLogger(INFO, "Number of eigenvalues % converged in % iterations",
-                    numberOfConvergedEigenpairs, iterations);
-        if (numberOfConvergedEigenpairs > numberOfEigenvectors_) {
-            err = VecDestroyVecs(numberOfEigenvectors_, &eigenvectors_);
-            CHKERRABORT(PETSC_COMM_WORLD, err);
-            err = VecDuplicateVecs(tempVector_, numberOfConvergedEigenpairs,
-                                   &eigenvectors_);
-            CHKERRABORT(PETSC_COMM_WORLD, err);
-        }
-
-        eigenvalues_.resize(numberOfConvergedEigenpairs);
-        for (PetscInt i = 0; i < numberOfConvergedEigenpairs; ++i) {
-            err = EPSGetEigenpair(solver_, i, &eigenvalues_[i], nullptr,
-                                  eigenvectors_[i], nullptr);
-            CHKERRABORT(PETSC_COMM_WORLD, err);
-        }
+                    eigenpairs_.size(), iterations);
     }
 
     const LinearAlgebra::SmallVector<DIM>& getKPoint() const { return kpoint_; }
 
-    const std::vector<PetscScalar>& getEigenvalues() const {
-        return eigenvalues_;
-    }
+    const Utilities::Eigenpairs& getEigenpairs() const { return eigenpairs_; }
 
     /**
      * Write the (global) eigenvector to a (local) time integration vector, for
@@ -157,12 +138,33 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
      */
     void writeEigenvectorAsTimeIntegrationVector(
         std::size_t eigenvalue, std::size_t timeIntegrationVector) {
-        logger.assert_debug(eigenvalue < numberOfConvergedEigenpairs,
+        logger.assert_debug(eigenvalue < eigenpairs_.size(),
                             "Eigenvalue index too large");
         PetscErrorCode err;
-        err = VecCopy(eigenvectors_[eigenvalue], tempVector_);
+        err = VecCopy(eigenpairs_.getEigenvector(eigenvalue), tempVector_);
         CHKERRABORT(PETSC_COMM_WORLD, err);
         tempVector_.writeTimeIntegrationVector(timeIntegrationVector);
+    }
+
+    LinearAlgebra::MiddleSizeMatrix computeOverlapIntegrals() {
+        LinearAlgebra::MiddleSizeMatrix result(eigenpairs_.size(),
+                                               previousEigenpairs_.size());
+        PetscErrorCode err;
+        for (std::size_t i = 0; i < eigenpairs_.size(); ++i) {
+            err = MatMult(massMatrix_, eigenpairs_.getEigenvector(i),
+                          tempVector_);
+            CHKERRABORT(PETSC_COMM_WORLD, err);
+            for (std::size_t j = 0; j < previousEigenpairs_.size(); ++j) {
+                // Note VecMDot might be a bit faster, but
+                // a) this is not needed
+                // b) this is complicated by the possible reordering of
+                // eigenvalues.
+                err = VecDot(tempVector_, previousEigenpairs_.getEigenvector(j),
+                             &result(i, j));
+                CHKERRABORT(PETSC_COMM_WORLD, err);
+            }
+        }
+        return result;
     }
 
    private:
@@ -226,15 +228,8 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
     /// Eigenvalue solver
     EPS solver_;
 
-    /// Number of converged eigenpairs
-    PetscInt numberOfConvergedEigenpairs;
-    /// Number of vectors available in eigenvectors_, this may be larger than
-    /// the number of converged eigenvalues.
-    std::size_t numberOfEigenvectors_;
-    /// Storage for eigenvectors
-    Vec* eigenvectors_;
-    /// Storage for the most recent eigenvalues
-    std::vector<PetscScalar> eigenvalues_;
+    Utilities::Eigenpairs eigenpairs_;
+    Utilities::Eigenpairs previousEigenpairs_;
 };
 
 template <std::size_t DIM>
@@ -245,10 +240,11 @@ class DivDGMaxEigenvalue<DIM>::Result final
            const Base::MeshManipulator<DIM>* mesh,
            const DivDGMaxDiscretization<DIM>& discretization)
         : workspace_(workspace), mesh_(mesh), discretization_(discretization) {
-        auto& eigenvalues = workspace.getEigenvalues();
-        frequencies_.resize(eigenvalues.size());
+        const auto& eigenpairs = workspace.getEigenpairs();
+        frequencies_.resize(eigenpairs.size());
         for (std::size_t i = 0; i < frequencies_.size(); ++i) {
-            frequencies_[i] = std::sqrt(PetscRealPart(eigenvalues[i]));
+            frequencies_[i] =
+                std::sqrt(PetscRealPart(eigenpairs.getEigenvalue(i)));
         }
     };
 
@@ -262,6 +258,10 @@ class DivDGMaxEigenvalue<DIM>::Result final
                     Output::VTKSpecificTimeWriter<DIM>& writer) final;
 
     const Base::MeshManipulator<DIM>* getMesh() const final { return mesh_; }
+
+    LinearAlgebra::MiddleSizeMatrix computeFieldOverlap() const final {
+        return workspace_.computeOverlapIntegrals();
+    }
 
    private:
     typename DivDGMaxEigenvalue<DIM>::SolverWorkspace& workspace_;
