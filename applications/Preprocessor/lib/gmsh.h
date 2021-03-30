@@ -40,7 +40,7 @@
 #define HPGEM_APP_GMSH_H
 
 #include <map>
-#include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -72,6 +72,7 @@ class GmshReader final : public MeshSource2 {
    private:
     void fillElementTypeMap();
     void readHeader();
+    void readNodes();
     void readElements();
     void readElementData();
     void readPBCs();

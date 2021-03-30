@@ -36,23 +36,61 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
-
 #include "ElementReorder.h"
+#include <algorithm>
+#include "Logger.h"
 
 namespace Preprocessor {
 
+const ElementReorder::Element& ElementReorder::FindElement(size_t dimension,
+                                           size_t indices_size) const {
+    auto iterator = std::find_if(
+        order_per_element_.begin(), order_per_element_.end(),
+        [&](const Element& e) {
+            return e.dimension_ == dimension && e.order_.size() == indices_size;
+        });
 
-    void ElementReorder::addElementType(size_t dimension, const std::string& name,
-                        const std::vector<size_t>& order){;}
+    return *iterator;
+}
 
-    void ElementReorder::reorderToHpGem(size_t dimension, std::vector<size_t>& indeces) const{;}
+void ElementReorder::addElementType(size_t dimension, const std::string& name,
+                                    const std::vector<size_t>& order) {
+    auto iterator = std::find_if(
+        order_per_element_.begin(), order_per_element_.end(),
+        [&](const Element& e) {
+            return e.dimension_ == dimension && e.order_.size() == order.size();
+        });
 
-    void ElementReorder::reorderFromHpGem(size_t dimension, std::vector<size_t>& indeces) const{;}
+    bool found = (iterator != order_per_element_.end());
 
-  
+    hpgem::logger.assert_always(!found,
+                         "Element with dimension % and same number of nodes % "
+                         "already exists. Clear disambiguation not possible.",
+                         dimension, order.size());
 
+    order_per_element_.push_back(Element(dimension, name, order));
+}
+
+void ElementReorder::reorderToHpGem(size_t dimension,
+                                    std::vector<size_t>& indeces) const {
+    const Element& e = FindElement(dimension, indeces.size());
+
+    std::vector<size_t> copy = indeces;
+
+    for (size_t i = 0; i < indeces.size(); i++) {
+        indeces[i] = copy[e.order_[i]];
+    }
+}
+
+void ElementReorder::reorderFromHpGem(size_t dimension,
+                                      std::vector<size_t>& indeces) const {
+    const Element& e = FindElement(dimension, indeces.size());
+
+    std::vector<size_t> copy = indeces;
+
+    for (size_t i = 0; i < indeces.size(); i++) {
+        indeces[e.order_[i]] = copy[i];
+    }
+}
 
 }  // namespace Preprocessor
-
-
