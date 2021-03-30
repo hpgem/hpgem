@@ -45,17 +45,17 @@ TEST_CASE("Reorder", "Reorder") {
     Preprocessor::ElementReorder r;
 
     r.addElementType(2, "square", {0, 2, 3, 1});
-   
+
     std::vector<size_t> index1{5, 8, 7, 4};
     std::vector<size_t> index1_ref1{5, 7, 4, 8};
     std::vector<size_t> index1_ref2 = index1;
 
-    r.reorderToHpGem(2,index1);
+    r.reorderToHpGem(2, index1);
     INFO("square -> hpgem");
-    REQUIRE(index1==index1_ref1);
-    r.reorderFromHpGem(2,index1);
-     INFO("square <- hpgem");
-    REQUIRE(index1==index1_ref2);
+    REQUIRE(index1 == index1_ref1);
+    r.reorderFromHpGem(2, index1);
+    INFO("square <- hpgem");
+    REQUIRE(index1 == index1_ref2);
 
     r.addElementType(3, "cube", {2, 3, 4, 1, 5, 6, 7, 0});
 
@@ -63,13 +63,10 @@ TEST_CASE("Reorder", "Reorder") {
     std::vector<size_t> index2_ref1{3, 4, 5, 2, 6, 7, 8, 1};
     std::vector<size_t> index2_ref2 = index2;
 
-
-    r.reorderToHpGem(3,index2);
+    r.reorderToHpGem(3, index2);
     INFO("cube -> hpgem");
-    REQUIRE(index2==index2_ref1);
-    r.reorderFromHpGem(3,index2);
+    REQUIRE(index2 == index2_ref1);
+    r.reorderFromHpGem(3, index2);
     INFO("cube <- hpgem");
-    REQUIRE(index2==index2_ref2);
-
-
+    REQUIRE(index2 == index2_ref2);
 }

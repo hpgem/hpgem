@@ -36,20 +36,58 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #include "gmsh.h"
 
 #include "../catch.hpp"
 
-
 TEST_CASE("ReadingFile", "[ReadingFile]") {
 
-    Preprocessor::GmshReader reader(std::string(TEST_DATA_FOLDER)+"/gmsh2.2.gmsh");
+    Preprocessor::GmshReader reader(std::string(TEST_DATA_FOLDER) +
+                                    "/gmsh2.2.gmsh");
     INFO("Dimension");
     REQUIRE(reader.getDimension() == 2);
-    
 
+    std::vector<Preprocessor::MeshSource2::Coord> ref_Coords;
+    ref_Coords.reserve(6);
+    ref_Coords.push_back({{0.0, 0.0, 0.0}, 0});
+    ref_Coords.push_back({{1.0, 0.0, 0.0}, 1});
+    ref_Coords.push_back({{1.0, 1.0, 0.0}, 2});
+    ref_Coords.push_back({{0.0, 1.0, 0.0}, 3});
+    ref_Coords.push_back({{2.0, 0.0, 0.0}, 0});
+    ref_Coords.push_back({{2.0, 1.0, 0.0}, 3});
 
-   
+    const auto& coords = reader.getCoordinates();
+    INFO("Nodes");
+    REQUIRE(coords.size() == ref_Coords.size());
+    for (size_t i = 0; i < coords.size(); i++) {
+        INFO("Coordinate:" + std::to_string(i));
+        REQUIRE(coords[i].nodeId == ref_Coords[i].nodeId);
+        for (size_t dim = 0; dim < 3; dim++) {
+            INFO("Dim:" + std::to_string(dim));
+            REQUIRE(coords[i].coordinate[dim] ==
+                    Approx(ref_Coords[i].coordinate[dim]));
+        }
+    }
+
+    std::vector<Preprocessor::MeshSource2::Element> ref_Elements;
+    ref_Elements.reserve(2);
+    ref_Elements.push_back({{0, 1, 3, 2}, "2", 2, 0});
+    ref_Elements.push_back({{1, 4, 2, 5}, "1", 2, 1});
+
+    const auto& elements = reader.getElements();
+
+    INFO("Elements");
+    REQUIRE(elements.size() == ref_Elements.size());
+
+    for (size_t i = 0; i < elements.size(); i++) {
+        INFO("Element:" + std::to_string(i));
+        INFO("id");
+        REQUIRE(elements[i].id == ref_Elements[i].id);
+        INFO("dimension");
+        REQUIRE(elements[i].dimension == ref_Elements[i].dimension);
+        INFO("zone name");
+        REQUIRE(elements[i].zoneName == ref_Elements[i].zoneName);
+        INFO("coordinates");
+        REQUIRE(elements[i].coordinateIds == ref_Elements[i].coordinateIds);
+    }
 }
-
