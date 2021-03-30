@@ -3,8 +3,8 @@
  years by various people at the University of Twente and a full list of
  contributors can be found at http://hpgem.org/about-the-code/team
 
- This code is azdistributed using BSD 3-Clause License. A copy of which can found
- below.
+ This code is azdistributed using BSD 3-Clause License. A copy of which can
+ found below.
 
 
  Copyright (c) 2017, University of Twente
@@ -358,6 +358,9 @@ void GmshReader::readElementData() {
     size_t field_components;
     size_t num_entities;
     Filehandle_ >> timestep >> field_components >> num_entities;
+
+     logger.assert_always(field_components== 1,
+                         "We only read in Scalar data as material identifiers");
     for (int i = 3; i < numintegerelements; i++) {
         size_t dummy;
         Filehandle_ >> dummy;
@@ -436,9 +439,10 @@ GmshReader::GmshReader(std::string filename) {
     // Fileformat is defined in
     // https://gmsh.info/doc/texinfo/gmsh.html#MSH-file-format
     Filehandle_.open(filename);
-    logger.assert_always(Filehandle_.is_open(), "Cannot open msh meshfile.");
+    logger.assert_always(Filehandle_.is_open(), "Cannot open msh meshfile. %",
+                         filename);
     logger.assert_always(Filehandle_.good(),
-                         "Something is not so good about this mesh");
+                         "Something is not so good about this mesh in file %",filename);
 
     readHeader();
     readNodes();
@@ -451,4 +455,3 @@ GmshReader::GmshReader(std::string filename) {
 }
 
 }  // namespace Preprocessor
-

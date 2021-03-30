@@ -44,7 +44,12 @@
 
 TEST_CASE("ReadingFile", "[ReadingFile]") {
 
-    Preprocessor::GmshReader reader(std::string(TEST_DATA_FOLDER)+"gmsh2.2.gmsh");
+    Preprocessor::GmshReader reader(std::string(TEST_DATA_FOLDER)+"/gmsh2.2.gmsh");
+    INFO("Dimension");
+    REQUIRE(reader.getDimension() == 2);
+    
+
+
    
 }
 
