@@ -3,6 +3,7 @@
 #define HPGEM_KERNEL_SPARSITYESTIMATOR_H
 
 #include "vector"
+#include "Utilities/Table2D.h"
 
 namespace hpgem {
 
@@ -13,7 +14,7 @@ class MeshManipulatorBase;
 }  // namespace Base
 namespace Utilities {
 class GlobalIndexing;
-}
+}  // namespace Utilities
 
 namespace Utilities {
 /// Computation for the estimate (upper bound) on the number of non zero entries
@@ -31,37 +32,20 @@ class SparsityEstimator {
                       const GlobalIndexing& columnIndexing);
 
     /// Compute the sparsity estimate
-    /// \param nonZeroPerRowOwned [out] Per local DoF the number of non zero
-    /// columns from
-    ///     locally owned basis functions.
-    /// \param nonZeroPerRowNonOwned [out] Per local DoF the number of non zero
-    /// columns
-    ///     from non locally owned basis functions.
     /// \param includeFaceCoupling [in] Include coupling through face matrices
-    void computeSparsityEstimate(std::vector<int>& nonZeroPerRowOwned,
-                                 std::vector<int>& nonZeroPerRowNonOwned,
-                                 bool includeFaceCoupling = true) const;
+    ///
+    /// \return Pair of vectors, each entry corresponding to a single row DoF in
+    /// processor local ordering. For each row DoF the entry contains the number
+    /// of column DoFs with which it can form a non zero entry. The first vector
+    /// is for column DoFs owned by the current process, while second vector
+    /// for those owned by different processes
+    std::pair<std::vector<int>, std::vector<int>> computeSparsityEstimate(
+        bool includeFaceCoupling = true) const;
+
+    std::pair<std::vector<int>, std::vector<int>> computeSparsityEstimate(
+        const Table2D<bool>& faceCoupling) const;
 
    private:
-    /// Workspace variables for the computation
-    struct Workspace;
-
-    /// Add the DoFs that have support on an Element to the workspace.
-    void addElementDoFs(const Base::Element* element,
-                        Workspace& workspace) const;
-
-    /// Write the DoF count for an Element, Face, etc. to the sparsity estimate
-    /// vector \tparam GEOM The Element, Face, etc. type \param geom The
-    /// Element, Face, etc. which supports the basis functions for which to
-    /// write the DoF count. \param workspace The workspace with DoF counts
-    /// \param nonZeroPerRowOwned see computeSparsityEstimate(std::vector<int>&,
-    /// std::vector<int>&) \param nonZeroPerRowNonOwned see
-    /// computeSparsityEstimate(std::vector<int>&, std::vector<int>&)
-    template <typename GEOM>
-    void writeDoFCount(const GEOM* geom, const Workspace& workspace,
-                       std::vector<int>& nonZeroPerRowOwned,
-                       std::vector<int>& nonZeroPerRowNonOwned) const;
-
     /// The indexing for the basis functions on the rows of the matrix
     const GlobalIndexing& rowIndexing_;
     /// The indexing for the basis functions on the columns of the matrix
