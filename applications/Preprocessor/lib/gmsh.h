@@ -36,6 +36,9 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef HPGEM_APP_GMSH_H
+#define HPGEM_APP_GMSH_H
+
 #include <map>
 #include <iostream>
 #include <string>
@@ -88,3 +91,4 @@ class GmshReader final : public MeshSource2 {
 };
 
 }  // namespace Preprocessor
+#endif  // HPGEM_APP_GMSH_H
