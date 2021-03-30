@@ -7,7 +7,7 @@ This describes the intermediate mesh format that is used to store the partitione
 The mesh format is a line based, with mostly space separated numbers on each line. To describe the line we will use the following syntax elements
  1. For visial clarity each line describing the output is prepend with a # (not present in the output).
  2. Values between quotations marks are literals, e.g. "mesh"
- 3. Variables are prepended by a dolar sign
+ 3. Variables are prepended by a dollar sign
  4. Curly braces are used to denote variable length lists, e.g. `{N integers: ni}`
  5. Rectangular brances `[]` are used to denote conditional entries, see the description for the specifics
  6. Round brackets `()` are used to denote conditionals. At the end of a line they denote that a line is conditional. At the start of a section they denote that the whole section is conditional.
