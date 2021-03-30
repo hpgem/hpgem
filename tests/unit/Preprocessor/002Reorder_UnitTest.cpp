@@ -38,15 +38,13 @@
 
 
 
-#include "Preprocessor/Reorder.h"
+#include "ElementReorder.h"
 
-#define CATCH_CONFIG_RUNNER
 #include "../catch.hpp"
-
-using namespace hpgem;
-
 
 
 TEST_CASE("Reorder", "Reorder") {
+
+    Preprocessor::ElementReorder r;
    
 }

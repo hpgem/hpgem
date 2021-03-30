@@ -37,16 +37,14 @@
  */
 
 
-#include "Preprocessor/gmsh.h"
+#include "gmsh.h"
 
-#define CATCH_CONFIG_RUNNER
 #include "../catch.hpp"
 
-using namespace hpgem;
 
 TEST_CASE("ReadingFile", "[ReadingFile]") {
 
-    
+    Preprocessor::GmshReader reader(std::string(TEST_DATA_FOLDER)+"gmsh2.2.gmsh");
    
 }
 
