@@ -49,13 +49,14 @@ namespace hpgem {
 
 namespace Base {
 ElementData::ElementData(std::size_t timeLevels, std::size_t numberOfUnknowns,
-                         std::size_t numberOfElementMatrixes,
+                         Zone* zone, std::size_t numberOfElementMatrixes,
                          std::size_t numberOfElementVectors)
     : timeLevels_(timeLevels),
       numberOfUnknowns_(numberOfUnknowns),
       numberOfBasisFunctions_(numberOfUnknowns_),
       timeLevelDataVectors_(timeLevels_),
       userData_(nullptr),
+      zone_(zone),
       elementMatrix_(numberOfElementMatrixes),
       elementVector_(numberOfElementVectors) {
     logger(VERBOSE, "In constructor of ElementData: ");
@@ -79,6 +80,7 @@ ElementData::ElementData(const ElementData& other) {
 
     elementMatrix_ = other.elementMatrix_;
     elementVector_ = other.elementVector_;
+    zone_ = other.zone_;
 }
 
 void ElementData::setElementMatrix(

@@ -85,8 +85,8 @@ class Element final : public Geometry::ElementGeometry, public ElementData {
             const CollectionOfBasisFunctionSets* basisFunctionSet,
             std::vector<Geometry::PointPhysical<DIM>>& allNodes,
             std::size_t numberOfUnkowns, std::size_t numberOfTimeLevels,
-            std::size_t id, std::size_t owner = 0, bool owning = true,
-            std::size_t numberOfElementMatrices = 0,
+            std::size_t id, Zone* zone, std::size_t owner = 0,
+            bool owning = true, std::size_t numberOfElementMatrices = 0,
             std::size_t numberOfElementVectors = 0);
 
     Element(const Element& other) = delete;
@@ -576,12 +576,12 @@ Element::Element(const std::vector<std::size_t>& globalNodeIndexes,
                  const CollectionOfBasisFunctionSets* basisFunctionSet,
                  std::vector<Geometry::PointPhysical<DIM>>& allNodes,
                  std::size_t numberOfUnknowns, std::size_t numberOfTimeLevels,
-                 std::size_t id, std::size_t owner, bool owned,
+                 std::size_t id, Zone* zone, std::size_t owner, bool owned,
                  std::size_t numberOfElementMatrices,
                  std::size_t numberOfElementVectors)
     : ElementGeometry(globalNodeIndexes, allNodes),
-      ElementData(numberOfTimeLevels, numberOfUnknowns, numberOfElementMatrices,
-                  numberOfElementVectors),
+      ElementData(numberOfTimeLevels, numberOfUnknowns, zone,
+                  numberOfElementMatrices, numberOfElementVectors),
       quadratureRule_(nullptr),
       id_(id),
       basisFunctions_(basisFunctionSet, numberOfUnknowns),

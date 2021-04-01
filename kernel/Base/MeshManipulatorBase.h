@@ -46,6 +46,7 @@
 #include "Mesh.h"
 #include "GlobalNamespaceBase.h"
 #include "FE/BasisFunctionSet.h"
+#include "Zone.h"
 
 namespace hpgem {
 
@@ -200,7 +201,20 @@ class MeshManipulatorBase {
 
     const ConfigurationData* getConfigData() { return configData_; }
 
+    /**
+     * Add a zone to the mesh
+     * @param name The name of the zone
+     * @return A non owned pointer to the new zone, valid as long as the mesh
+     * exists.
+     */
+    Zone* addZone(std::string name);
+
+    /**
+     * @return All the zones in this mesh
+     */
+    const std::vector<Zone>& getZones() const { return zones_; }
    protected:
+
     const ConfigurationData* configData_;
     //! Periodicity in x-direction.
     bool periodicX_;
@@ -216,6 +230,8 @@ class MeshManipulatorBase {
     std::size_t numberOfElementVectors_;
     std::size_t numberOfFaceVectors_;
     const std::size_t dimension_;
+
+    std::vector<Zone> zones_;
 };
 
 }  // namespace Base

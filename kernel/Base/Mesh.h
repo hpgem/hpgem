@@ -48,6 +48,8 @@
 #include "Geometry/PointPhysical.h"
 #include "Node.h"
 #include "LevelTree.h"
+#include "Zone.h"
+
 namespace hpgem {
 namespace Geometry {
 template <std::size_t DIM>
@@ -78,7 +80,7 @@ class Mesh final {
     ~Mesh();
 
     Element* addElement(const std::vector<std::size_t>& globalNodeIndexes,
-                        std::size_t owner, bool owning);
+                        Zone* zone, std::size_t owner, bool owning);
 
     void addSubElements(Base::Element* parent,
                         const std::vector<Base::Element*> subElements);
