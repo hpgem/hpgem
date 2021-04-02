@@ -72,7 +72,7 @@ void printOtherEntities(std::ofstream& output, const Mesh<dimension>& mesh,
                         tag<d>) {
     for (auto entity : mesh.template getEntities<d>()) {
         std::set<std::size_t> localPartitions;
-        output<< "codim"<<dimension-d<<'\n';
+        output << "codim" << dimension - d << '\n';
         output << entity.getNumberOfElements() << " ";
         for (std::size_t i = 0; i < entity.getNumberOfElements(); ++i) {
             auto element = entity.getElement(i);
@@ -103,18 +103,18 @@ void outputMesh(Mesh<dimension>& mesh,
     }
     std::ofstream output(outputFileName.getValue());
     output << std::hexfloat;
-    size_t version=2;
-    output << "mesh "<<version << std::endl;
+    size_t version = 2;
+    output << "mesh " << version << std::endl;
     output << mesh.getNumberOfNodes() << " " << mesh.getNumberOfElements()
            << " " << dimension;
     printOtherEntityCounts(output, mesh, Detail::tag<dimension - 1>{});
     output << std::endl;
-    output <<"zones"<< std::endl;
-    for(const auto& zonename:mesh.getZoneNames()){
-        std::cout<<zonename<<'\n';
+    output << "zones" << std::endl;
+    for (const auto& zonename : mesh.getZoneNames()) {
+        std::cout << zonename << '\n';
     }
 
-    output <<"nodes"<< std::endl;
+    output << "nodes" << std::endl;
     std::size_t reservedSpace =
         std::max(std::log10(mesh.getNumberOfNodes()), 0.) + 2;
     std::string whiteSpace(reservedSpace, ' ');
@@ -173,7 +173,7 @@ void outputMesh(Mesh<dimension>& mesh,
         }
         output << std::endl;
     }
-    output <<"elements"<< std::endl;
+    output << "elements" << std::endl;
     for (auto element : mesh.getElements()) {
         output << element.getNumberOfNodes() << " ";
         for (auto node : element.getNodesList()) {
@@ -194,7 +194,7 @@ void outputMesh(Mesh<dimension>& mesh,
         for (auto index : shadowPartitions) {
             output << index << " ";
         }
-        output << '\n'<<element.getZoneId()<<'\n';
+        output << '\n' << element.getZoneId() << '\n';
     }
     printOtherEntities(output, mesh, partitions, Detail::tag<dimension - 1>{});
     output.seekp(partitionInformation);
