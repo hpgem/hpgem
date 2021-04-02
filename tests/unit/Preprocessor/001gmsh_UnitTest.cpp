@@ -49,12 +49,12 @@ TEST_CASE("ReadingFile", "[ReadingFile]") {
 
     std::vector<Preprocessor::MeshSource2::Coord> ref_Coords;
     ref_Coords.reserve(6);
-    ref_Coords.push_back({{0.0, 0.0, 0.0}, 0});
-    ref_Coords.push_back({{1.0, 0.0, 0.0}, 1});
-    ref_Coords.push_back({{1.0, 1.0, 0.0}, 2});
-    ref_Coords.push_back({{0.0, 1.0, 0.0}, 3});
-    ref_Coords.push_back({{2.0, 0.0, 0.0}, 0});
-    ref_Coords.push_back({{2.0, 1.0, 0.0}, 3});
+    ref_Coords.push_back({{0.0, 0.0}, 0});
+    ref_Coords.push_back({{1.0, 0.0}, 1});
+    ref_Coords.push_back({{1.0, 1.0}, 2});
+    ref_Coords.push_back({{0.0, 1.0}, 3});
+    ref_Coords.push_back({{2.0, 0.0}, 0});
+    ref_Coords.push_back({{2.0, 1.0}, 3});
 
     const auto& coords = reader.getCoordinates();
     INFO("Nodes");
@@ -62,7 +62,7 @@ TEST_CASE("ReadingFile", "[ReadingFile]") {
     for (size_t i = 0; i < coords.size(); i++) {
         INFO("Coordinate:" + std::to_string(i));
         REQUIRE(coords[i].nodeId == ref_Coords[i].nodeId);
-        for (size_t dim = 0; dim < 3; dim++) {
+        for (size_t dim = 0; dim < 2; dim++) {
             INFO("Dim:" + std::to_string(dim));
             REQUIRE(coords[i].coordinate[dim] ==
                     Approx(ref_Coords[i].coordinate[dim]));

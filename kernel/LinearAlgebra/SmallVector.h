@@ -84,6 +84,14 @@ class SmallVector {
         }
     }
 
+    SmallVector(const std::vector<double>& vec){
+         logger.assert_debug(
+            vec.size() == numberOfRows,
+            "Cannot construct a vector of size % from a std::vector of size %",
+            numberOfRows, vec.size());
+        std::copy_n(vec.begin(), numberOfRows, data_.begin());
+    }
+
     SmallVector(SmallVector&& other) : data_(std::move(other.data_)) {}
 
     SmallVector(const double array[]) : data_() {

@@ -50,6 +50,12 @@
 using namespace hpgem;
 
 namespace Preprocessor {
+/**
+ * @brief Parser for gmsh files
+ * This parser only works with gmsh files of version 2.2.
+ * For more info see 
+ * https://gmsh.info/doc/texinfo/gmsh.html#MSH-file-format-version-2-_0028Legacy_0029
+ */
 
 class GmshReader final : public MeshSource2 {
 
@@ -70,6 +76,7 @@ class GmshReader final : public MeshSource2 {
     void readElementData();
     void readPBCs();
     void purgeLowerDimElements();
+    void pruneCoordinatesToDimension();
 
     size_t determineDimension(double tol = 1e-12) const;
 
@@ -80,8 +87,8 @@ class GmshReader final : public MeshSource2 {
     std::vector<MeshSource2::Coord> nodes_;
 
     std::ifstream Filehandle_;
-    std::map<size_t, size_t> nodes_per_elementtype_;
-    std::map<size_t, size_t> dimension_of_elementtype_;
+    std::map<size_t, size_t> nodesPerElementtype_;
+    std::map<size_t, size_t> dimensionOfElementtype_;
 };
 
 }  // namespace Preprocessor

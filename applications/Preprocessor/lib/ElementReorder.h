@@ -80,9 +80,9 @@ class ElementReorder {
 
     const Element& FindElement(size_t dimension, size_t indices_size) const;
 
-    std::vector<Element> order_per_element_;  // there are like 10 different
-                                              // types so a linear search should
-                                              // be fast enough
+    std::vector<Element> orderPerElement_;  // there are like 10 different
+                                            // types so a linear search should
+                                            // be fast enough
 };
 
 }  // namespace Preprocessor

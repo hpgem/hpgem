@@ -119,10 +119,14 @@ TEST_CASE("SmallVectorUnitTest", "[SmallVectorUnitTest]") {
     SmallVector<0> x0;
     SmallVector<1> x1, y1(x1);
     SmallVector<3> fromArray(data);
+    std::vector<double> vec{1.0,3,5};
+    SmallVector<3> fromVector(vec);
     SmallVector<4> destroy, convenient({5., 6., 8., 9.});
     data[0] = 4;
     INFO("Constructor creates a vector of the wrong size");
     CHECK(x0.size() == 0);
+    INFO("Constructor creates a vector of the wrong size");
+    CHECK(fromVector.size() == 3);
     INFO("Constructor creates a vector of the wrong size");
     CHECK(x1.size() == 1);
     INFO("Constructor creates a vector of the wrong size");

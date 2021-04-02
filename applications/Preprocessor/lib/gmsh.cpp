@@ -108,124 +108,124 @@ bool locate_in_file(std::ifstream& filestream, const std::string& searchname) {
 
 void GmshReader::fillElementTypeMap() {
 
-    nodes_per_elementtype_[1] = 2;  // 2-node line.
-    dimension_of_elementtype_[1] = 1;
-    nodes_per_elementtype_[2] = 3;  // 3-node triangle.
-    dimension_of_elementtype_[2] = 2;
-    nodes_per_elementtype_[3] = 4;  // 4-node quadrangle.
-    dimension_of_elementtype_[3] = 2;
-    nodes_per_elementtype_[4] = 4;  // 4-node tetrahedron.
-    dimension_of_elementtype_[4] = 3;
-    nodes_per_elementtype_[5] = 8;  // 8-node hexahedron.
-    dimension_of_elementtype_[5] = 3;
-    nodes_per_elementtype_[6] = 6;  // 6-node prism.
-    dimension_of_elementtype_[6] = 3;
-    nodes_per_elementtype_[7] = 5;  // 5-node pyramid.
-    dimension_of_elementtype_[7] = 3;
-    nodes_per_elementtype_[8] =
+    nodesPerElementtype_[1] = 2;  // 2-node line.
+    dimensionOfElementtype_[1] = 1;
+    nodesPerElementtype_[2] = 3;  // 3-node triangle.
+    dimensionOfElementtype_[2] = 2;
+    nodesPerElementtype_[3] = 4;  // 4-node quadrangle.
+    dimensionOfElementtype_[3] = 2;
+    nodesPerElementtype_[4] = 4;  // 4-node tetrahedron.
+    dimensionOfElementtype_[4] = 3;
+    nodesPerElementtype_[5] = 8;  // 8-node hexahedron.
+    dimensionOfElementtype_[5] = 3;
+    nodesPerElementtype_[6] = 6;  // 6-node prism.
+    dimensionOfElementtype_[6] = 3;
+    nodesPerElementtype_[7] = 5;  // 5-node pyramid.
+    dimensionOfElementtype_[7] = 3;
+    nodesPerElementtype_[8] =
         3;  // 3-node second order line (2 nodes associated with the vertices
             // and 1 with the edge).
-    dimension_of_elementtype_[8] = 1;
-    nodes_per_elementtype_[9] =
+    dimensionOfElementtype_[8] = 1;
+    nodesPerElementtype_[9] =
         6;  // 6-node second order triangle (3 nodes associated with the
             // vertices and 3 with the edges).
-    dimension_of_elementtype_[9] = 2;
-    nodes_per_elementtype_[10] =
+    dimensionOfElementtype_[9] = 2;
+    nodesPerElementtype_[10] =
         9;  // 9-node second order quadrangle (4 nodes associated with the
     // vertices, 4 with the edges and 1 with the face).
-    dimension_of_elementtype_[10] = 2;
-    nodes_per_elementtype_[11] =
+    dimensionOfElementtype_[10] = 2;
+    nodesPerElementtype_[11] =
         10;  // 10-node second order tetrahedron (4 nodes associated with the
              // vertices and 6 with the edges).
-    dimension_of_elementtype_[11] = 3;
-    nodes_per_elementtype_[12] =
+    dimensionOfElementtype_[11] = 3;
+    nodesPerElementtype_[12] =
         27;  // 27-node second order hexahedron (8 nodes associated with the
              // vertices, 12 with the edges, 6 with the faces and 1 with the
              // volume).
-    dimension_of_elementtype_[12] = 3;
-    nodes_per_elementtype_[13] =
+    dimensionOfElementtype_[12] = 3;
+    nodesPerElementtype_[13] =
         18;  // 18-node second order prism (6 nodes associated with the
              // vertices, 9 with the edges and 3 with the quadrangular faces).
-    dimension_of_elementtype_[13] = 3;
-    nodes_per_elementtype_[14] =
+    dimensionOfElementtype_[13] = 3;
+    nodesPerElementtype_[14] =
         14;  // 14-node second order pyramid (5 nodes associated with the
              // vertices, 8 with the edges and 1 with the quadrangular face).
-    dimension_of_elementtype_[14] = 3;
-    nodes_per_elementtype_[15] = 1;  // 1-node point.
-    dimension_of_elementtype_[15] = 0;
-    nodes_per_elementtype_[16] =
+    dimensionOfElementtype_[14] = 3;
+    nodesPerElementtype_[15] = 1;  // 1-node point.
+    dimensionOfElementtype_[15] = 0;
+    nodesPerElementtype_[16] =
         8;  // 8-node second order quadrangle (4 nodes associated with the
             // vertices and 4 with the edges).
-    dimension_of_elementtype_[16] = 2;
-    nodes_per_elementtype_[17] =
+    dimensionOfElementtype_[16] = 2;
+    nodesPerElementtype_[17] =
         20;  // 20-node second order hexahedron (8 nodes associated with the
              // vertices and 12 with the edges).
-    dimension_of_elementtype_[17] = 3;
-    nodes_per_elementtype_[18] =
+    dimensionOfElementtype_[17] = 3;
+    nodesPerElementtype_[18] =
         15;  // 15-node second order prism (6 nodes associated with the vertices
              // and 9 with the edges).
-    dimension_of_elementtype_[18] = 3;
-    nodes_per_elementtype_[19] =
+    dimensionOfElementtype_[18] = 3;
+    nodesPerElementtype_[19] =
         13;  // 13-node second order pyramid (5 nodes associated with the
              // vertices and 8 with the edges).
-    dimension_of_elementtype_[19] = 3;
-    nodes_per_elementtype_[20] =
+    dimensionOfElementtype_[19] = 3;
+    nodesPerElementtype_[20] =
         9;  // 9-node third order incomplete triangle (3 nodes associated with
             // the vertices, 6 with the edges)
-    dimension_of_elementtype_[20] = 2;
-    nodes_per_elementtype_[21] =
+    dimensionOfElementtype_[20] = 2;
+    nodesPerElementtype_[21] =
         10;  // 10-node third order triangle (3 nodes associated with the
              // vertices, 6 with the edges, 1 with the face)
-    dimension_of_elementtype_[21] = 2;
-    nodes_per_elementtype_[22] =
+    dimensionOfElementtype_[21] = 2;
+    nodesPerElementtype_[22] =
         12;  // 12-node fourth order incomplete triangle (3 nodes associated
              // with the vertices, 9 with the edges)
-    dimension_of_elementtype_[22] = 2;
-    nodes_per_elementtype_[23] =
+    dimensionOfElementtype_[22] = 2;
+    nodesPerElementtype_[23] =
         15;  // 15-node fourth order triangle (3 nodes associated with the
              // vertices, 9 with the edges, 3 with the face)
-    dimension_of_elementtype_[23] = 2;
-    nodes_per_elementtype_[24] =
+    dimensionOfElementtype_[23] = 2;
+    nodesPerElementtype_[24] =
         15;  // 15-node fifth order incomplete triangle (3 nodes associated with
              // the vertices, 12 with the edges)
-    dimension_of_elementtype_[24] = 2;
-    nodes_per_elementtype_[25] =
+    dimensionOfElementtype_[24] = 2;
+    nodesPerElementtype_[25] =
         21;  // 21-node fifth order complete triangle (3 nodes associated with
              // the vertices, 12 with the edges, 6 with the face)
-    dimension_of_elementtype_[25] = 2;
-    nodes_per_elementtype_[26] =
+    dimensionOfElementtype_[25] = 2;
+    nodesPerElementtype_[26] =
         4;  // 4-node third order edge (2 nodes associated with the vertices, 2
             // internal to the edge)
-    dimension_of_elementtype_[26] = 1;
-    nodes_per_elementtype_[27] =
+    dimensionOfElementtype_[26] = 1;
+    nodesPerElementtype_[27] =
         5;  // 5-node fourth order edge (2 nodes associated with the vertices, 3
     // internal to the edge)
-    dimension_of_elementtype_[27] = 1;
-    nodes_per_elementtype_[28] =
+    dimensionOfElementtype_[27] = 1;
+    nodesPerElementtype_[28] =
         6;  // 6-node fifth order edge (2 nodes associated with the vertices, 4
             // internal to the edge)
-    dimension_of_elementtype_[28] = 1;
-    nodes_per_elementtype_[29] =
+    dimensionOfElementtype_[28] = 1;
+    nodesPerElementtype_[29] =
         20;  // 20-node third order tetrahedron (4 nodes associated with the
              // vertices, 12 with the edges, 4 with the faces)
-    dimension_of_elementtype_[29] = 3;
-    nodes_per_elementtype_[30] =
+    dimensionOfElementtype_[29] = 3;
+    nodesPerElementtype_[30] =
         35;  // 35-node fourth order tetrahedron (4 nodes associated with the
              // vertices, 18 with the edges, 12 with the faces, 1 in the volume)
-    dimension_of_elementtype_[30] = 3;
-    nodes_per_elementtype_[31] =
+    dimensionOfElementtype_[30] = 3;
+    nodesPerElementtype_[31] =
         56;  // 56-node fifth order tetrahedron (4 nodes associated with the
              // vertices, 24 with the edges, 24 with the faces, 4 in the volume)
-    dimension_of_elementtype_[31] = 3;
-    nodes_per_elementtype_[92] =
+    dimensionOfElementtype_[31] = 3;
+    nodesPerElementtype_[92] =
         64;  // 64-node third order hexahedron (8 nodes associated with the
              // vertices, 24 with the edges, 24 with the faces, 8 in the volume)
-    dimension_of_elementtype_[92] = 3;
-    nodes_per_elementtype_[93] =
+    dimensionOfElementtype_[92] = 3;
+    nodesPerElementtype_[93] =
         125;  // 125-node fourth order hexahedron (8 nodes associated with the
               // vertices, 36 with the edges, 54 with the faces, 27 in the
               // volume)
-    dimension_of_elementtype_[93] = 3;
+    dimensionOfElementtype_[93] = 3;
 }
 
 void GmshReader::readHeader() {
@@ -290,14 +290,14 @@ void GmshReader::readElements() {
 
         Filehandle_ >> elm_number >> elm_type >> no_tags;
         MeshSource2::Element element;
-        element.dimension = dimension_of_elementtype_.at(elm_type);
+        element.dimension = dimensionOfElementtype_.at(elm_type);
         element.id =
             elm_number - 1;  // gmsh ids are 1 indexed hpgem is zero indexed
         for (int i = 0; i < no_tags; i++) {
             int dummy;
             Filehandle_ >> dummy;
         }
-        int num_points = nodes_per_elementtype_.at(elm_type);
+        int num_points = nodesPerElementtype_.at(elm_type);
         for (int i = 0; i < num_points; i++) {
             size_t nodetag;
             Filehandle_ >> nodetag;
@@ -433,6 +433,17 @@ void GmshReader::purgeLowerDimElements() {
                                    }),
                     elements_.end());
 };
+
+void GmshReader::pruneCoordinatesToDimension() {
+    if (dimension_ == 3) {
+        return;
+    }
+    for (auto& node : nodes_) {
+        node.coordinate.resize(dimension_);
+    }
+}
+
+
 GmshReader::GmshReader(std::string filename) {
 
     fillElementTypeMap();
@@ -453,6 +464,7 @@ GmshReader::GmshReader(std::string filename) {
     readElementData();
 
     purgeLowerDimElements();
+    pruneCoordinatesToDimension();
 }
 
 }  // namespace Preprocessor
