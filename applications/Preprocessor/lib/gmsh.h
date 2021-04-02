@@ -53,7 +53,7 @@ namespace Preprocessor {
 /**
  * @brief Parser for gmsh files
  * This parser only works with gmsh files of version 2.2.
- * For more info see 
+ * For more info see
  * https://gmsh.info/doc/texinfo/gmsh.html#MSH-file-format-version-2-_0028Legacy_0029
  */
 

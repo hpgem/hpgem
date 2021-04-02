@@ -45,22 +45,22 @@ namespace Preprocessor {
 
 const ElementReorder::Element& ElementReorder::FindElement(
     size_t dimension, size_t indices_size) const {
-    auto iterator = std::find_if(
-        orderPerElement_.begin(), orderPerElement_.end(),
-        [&](const Element& e) {
-            return e.dimension_ == dimension && e.order_.size() == indices_size;
-        });
+    auto iterator = std::find_if(orderPerElement_.begin(),
+                                 orderPerElement_.end(), [&](const Element& e) {
+                                     return e.dimension_ == dimension &&
+                                            e.order_.size() == indices_size;
+                                 });
 
     return *iterator;
 }
 
 void ElementReorder::addElementType(size_t dimension, const std::string& name,
                                     const std::vector<size_t>& order) {
-    auto iterator = std::find_if(
-        orderPerElement_.begin(), orderPerElement_.end(),
-        [&](const Element& e) {
-            return e.dimension_ == dimension && e.order_.size() == order.size();
-        });
+    auto iterator = std::find_if(orderPerElement_.begin(),
+                                 orderPerElement_.end(), [&](const Element& e) {
+                                     return e.dimension_ == dimension &&
+                                            e.order_.size() == order.size();
+                                 });
 
     bool found = (iterator != orderPerElement_.end());
 

@@ -119,7 +119,7 @@ TEST_CASE("SmallVectorUnitTest", "[SmallVectorUnitTest]") {
     SmallVector<0> x0;
     SmallVector<1> x1, y1(x1);
     SmallVector<3> fromArray(data);
-    std::vector<double> vec{1.0,3,5};
+    std::vector<double> vec{1.0, 3, 5};
     SmallVector<3> fromVector(vec);
     SmallVector<4> destroy, convenient({5., 6., 8., 9.});
     data[0] = 4;

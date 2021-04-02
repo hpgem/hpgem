@@ -443,7 +443,6 @@ void GmshReader::pruneCoordinatesToDimension() {
     }
 }
 
-
 GmshReader::GmshReader(std::string filename) {
 
     fillElementTypeMap();

@@ -84,8 +84,8 @@ class SmallVector {
         }
     }
 
-    SmallVector(const std::vector<double>& vec){
-         logger.assert_debug(
+    SmallVector(const std::vector<double>& vec) {
+        logger.assert_debug(
             vec.size() == numberOfRows,
             "Cannot construct a vector of size % from a std::vector of size %",
             numberOfRows, vec.size());
