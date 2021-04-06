@@ -1119,8 +1119,8 @@ void MeshManipulator<DIM>::addEdgeBasisFunctionSet(
 
 template <std::size_t DIM>
 Base::Element *MeshManipulator<DIM>::addElement(
-    const std::vector<std::size_t> &globalNodeIndexes, Zone* zone, std::size_t owner,
-    bool owning) {
+    const std::vector<std::size_t> &globalNodeIndexes, Zone *zone,
+    std::size_t owner, bool owning) {
     logger.assert_debug(
         [&]() -> bool {
             for (std::size_t i = 0; i < globalNodeIndexes.size(); ++i)
@@ -1396,8 +1396,8 @@ void MeshManipulator<DIM>::refine(
                 }
                 auto newElement = ElementFactory::instance().makeElement(
                     subElementNodeIndices, theMesh_.getNodeCoordinates(),
-                    element->getZone(),
-                    element->getOwner(), element->isOwnedByCurrentProcessor());
+                    element->getZone(), element->getOwner(),
+                    element->isOwnedByCurrentProcessor());
                 subElements.push_back(newElement);
                 for (std::size_t j = 0;
                      j < refinementMapping->getSubElementReferenceGeometry(i)
@@ -1481,7 +1481,7 @@ inline void readSegmentHeader(std::istream &stream,
                          "Different segment header expected '%' but got '%'",
                          expectedHeader, line);
 }
-}
+}  // namespace Detail
 
 template <std::size_t DIM>
 void MeshManipulator<DIM>::readMesh(const std::string &filename) {
@@ -1558,10 +1558,10 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
     // ZONES //
     ///////////
 
-    std::vector<Zone*> zones;
+    std::vector<Zone *> zones;
     if (version == 1) {
         // Zones are only present in version > 1, provide a default zone
-        Zone* zone = addZone("Main");
+        Zone *zone = addZone("Main");
         zones.push_back(zone);
     } else {
         Detail::readSegmentHeader(input, "zones");
@@ -1575,7 +1575,7 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
         for (std::size_t i = 0; i < numZones; ++i) {
             std::string zoneName;
             getline(input, zoneName);
-            Zone* zone = addZone(zoneName);
+            Zone *zone = addZone(zoneName);
             zones.push_back(zone);
         }
     }
@@ -1669,7 +1669,8 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
             std::size_t shadowPartition;
             input >> shadowPartition;
             if (shadowPartition == processorID) {
-                element = addElement(coordinateIndices, nullptr, partition, false);
+                element =
+                    addElement(coordinateIndices, nullptr, partition, false);
                 actualElement[i] = element;
                 getMesh().getSubmesh().addPull(element, partition);
             }
@@ -1687,7 +1688,7 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
         }
         std::size_t zoneIndex;
         if (version == 1) {
-            zoneIndex = 0; // Default zone
+            zoneIndex = 0;  // Default zone
         } else {
             input >> zoneIndex;
         }

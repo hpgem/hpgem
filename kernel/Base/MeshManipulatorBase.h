@@ -213,8 +213,8 @@ class MeshManipulatorBase {
      * @return All the zones in this mesh
      */
     const std::vector<Zone>& getZones() const { return zones_; }
-   protected:
 
+   protected:
     const ConfigurationData* configData_;
     //! Periodicity in x-direction.
     bool periodicX_;

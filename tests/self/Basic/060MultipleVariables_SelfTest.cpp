@@ -127,7 +127,7 @@ int main() {
         pBasisFunctionSetVector = &basisFunctionSetVector;
 
     std::cout << "Build elements.\n";
-    Base::Zone zone ({"dummy", 0});
+    Base::Zone zone({"dummy", 0});
     Base::Element elementLeft(pointIndicesLeft, pBasisFunctionSetVector,
                               pointsPhysical, numberOfUnknowns, 0,
                               elementIdLeft, &zone);

@@ -74,9 +74,7 @@ class MeshSource {
 
     struct Element {
 
-        Element()
-            : coordinateIds(), zoneName ("Main")
-        {};
+        Element() : coordinateIds(), zoneName("Main"){};
 
         /**
          * Indices of the coordinates of the vertices of this element. The Ids
