@@ -49,7 +49,7 @@ namespace Base {
 class Zone {
 
    public:
-    Zone(std::string& name, std::size_t zoneId)
+    Zone(const std::string& name, std::size_t zoneId)
         : name_(name), zoneId_(zoneId){};
 
     /// \return Identifier for this zone that uniquely represents the zone for
