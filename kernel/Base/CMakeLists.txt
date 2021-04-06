@@ -20,7 +20,7 @@ add_library(hpGEM_Base OBJECT
                 Submesh.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Base/L2Norm.cpp
                 MpiContainer.cpp
-
+		${hpGEM_SOURCE_DIR}/kernel/Utilities/Eigenpairs.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/GlobalMatrix.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/GlobalVector.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/GlobalIndexing.cpp

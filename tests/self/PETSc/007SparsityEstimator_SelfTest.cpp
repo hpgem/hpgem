@@ -134,6 +134,23 @@ void check(GEOM geom, const Utilities::GlobalIndexing& indexing,
     }
 }
 
+template <typename GEOM>
+void checkUnknown(GEOM geom, const Utilities::GlobalIndexing& indexing,
+                  std::size_t unknown, std::vector<int>& owned,
+                  std::vector<int>& nonOwned, std::size_t expectedOwned,
+                  std::size_t expectedNonOnwed) {
+    std::size_t dof = indexing.getProcessorLocalIndex(geom, unknown);
+    for (std::size_t dofOff = 0;
+         dofOff < geom->getLocalNumberOfBasisFunctions(unknown); ++dofOff) {
+        logger.assert_always(owned[dof + dofOff] == expectedOwned,
+                             "Expected % owned non zero entries but got %",
+                             expectedOwned, owned[dof + dofOff]);
+        logger.assert_always(nonOwned[dof + dofOff] == expectedNonOnwed,
+                             "Expected % non owned non zero entries but got %",
+                             expectedNonOnwed, nonOwned[dof + dofOff]);
+    }
+}
+
 /// Select an object based on whether the geometrical object is owned or not
 /// \tparam GEOM The type of geometrical object (Element, Face, etc.)
 /// \tparam T The type of object to be selected
@@ -245,8 +262,8 @@ void testWithDGBasis(std::size_t unknowns, std::string meshFile) {
         Utilities::SparsityEstimator estimator(indexing);
 
         std::vector<int> owned, nonOwned;
-        estimator.computeSparsityEstimate(owned, nonOwned,
-                                          configuration.faceCoupling_);
+        std::tie(owned, nonOwned) =
+            estimator.computeSparsityEstimate(configuration.faceCoupling_);
         logger.assert_always(
             owned.size() == indexing.getNumberOfLocalBasisFunctions(),
             "Wrong size owned");
@@ -303,8 +320,8 @@ void testConformingWith1DMesh() {
         Utilities::SparsityEstimator estimator(indexing);
 
         std::vector<int> owned, nonOwned;
-        estimator.computeSparsityEstimate(owned, nonOwned,
-                                          configuration.faceCoupling_);
+        std::tie(owned, nonOwned) =
+            estimator.computeSparsityEstimate(configuration.faceCoupling_);
         logger.assert_always(
             owned.size() == indexing.getNumberOfLocalBasisFunctions(),
             "Wrong size owned");
@@ -384,6 +401,84 @@ void testConformingWith1DMesh() {
 }
 
 /**
+ * Test with conforming basis functions on a 1D mesh. Here the sparsity pattern
+ * is far more predictable than in a higher dimensions.
+ */
+void testFaceCoupling1D() {
+    // Note this test is non MPI safe.
+    Base::ConfigurationData config(2);
+    Base::MeshManipulator<1> mesh(&config);
+
+    using namespace std::string_literals;
+    std::stringstream filename;
+    filename << Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s
+             << "1Drectangular2mesh"s
+             << ".hpgem";
+    mesh.readMesh(filename.str());
+
+    mesh.useDefaultDGBasisFunctions(0);
+    mesh.useDefaultConformingBasisFunctions(1, 1);
+    Utilities::Table2D<bool> coupling(2, 2, true);
+    coupling(1, 1) = false;
+
+    for (TestConfiguration configuration : TEST_CONFIGURATIONS) {
+        Utilities::GlobalIndexing indexing(&mesh, configuration.layout_);
+        Utilities::SparsityEstimator estimator(indexing);
+
+        std::vector<int> owned, nonOwned;
+        std::tie(owned, nonOwned) = estimator.computeSparsityEstimate(coupling);
+        logger.assert_always(
+            owned.size() == indexing.getNumberOfLocalBasisFunctions(),
+            "Wrong size owned");
+        logger.assert_always(
+            nonOwned.size() == indexing.getNumberOfLocalBasisFunctions(),
+            "Wrong size owned");
+
+        for (const Base::Element* element : mesh.getElementsList()) {
+            // Check the DG DoFs, they should couple to:
+            // - 1 DG DoF and 2 CG DoFs on the same element
+            // - 1 DG and 1 CG DoF for the left and right neighbour
+            std::size_t expected = 3;  // Local
+            for (const Base::Face* face : element->getFacesList()) {
+                if (face->isInternal()) {
+                    expected += 2;  // Left or Right coupling
+                }
+            }
+            checkUnknown(element, indexing, 0, owned, nonOwned, expected, 0);
+        }
+
+        for (const Base::Face* face : mesh.getFacesList()) {
+            // Each CG basis function only couples through element matrices, so
+            // we expect:
+            // - Coupling to itself
+            // - For each adjacent element coupling to the 1 DG DoF
+            // - For each adjacent element coupling to the CG DoF on the far
+            //   end.
+            // - If the face at the other side of the adjacent element is
+            //   internal, 1 DoF from the face coupling with the DG basis
+            //   function on the other side.
+            std::size_t expected = 1;  // Self
+            std::vector<const Base::Element*> elements(
+                {face->getPtrElementLeft()});
+            if (face->isInternal()) {
+                elements.emplace_back(face->getPtrElementRight());
+            }
+            for (const Base::Element* element : elements) {
+                expected += 1;  // Local DG
+                const Base::Face* otherFace =
+                    element->getFace(element->getFace(0) == face ? 1 : 0);
+                expected += 1;  // CG on the face
+                if (otherFace->isInternal()) {
+                    expected += 1;  // DG on the other side of the face.
+                }
+            }
+
+            checkUnknown(face, indexing, 1, owned, nonOwned, expected, 0);
+        }
+    }
+}
+
+/**
  * Test the sparsity pattern of a standard CG mass/stiffness matrix, thus
  * without any face coupling.
  * @param basisFunctions The type of basis functions to use
@@ -407,7 +502,7 @@ void testMassOnly(std::vector<BasisFunctionType> basisFunctions) {
 
     std::vector<int> owned, nonOwned;
     // No face-face coupling
-    estimator.computeSparsityEstimate(owned, nonOwned, false);
+    std::tie(owned, nonOwned) = estimator.computeSparsityEstimate(false);
     logger.assert_always(
         owned.size() == indexing.getNumberOfLocalBasisFunctions(),
         "Wrong size owned");
@@ -474,7 +569,8 @@ void testRowColumnDifference(std::string meshFile) {
             Utilities::SparsityEstimator estimator(indexing0, indexing1);
 
             std::vector<int> owned, nonOwned;
-            estimator.computeSparsityEstimate(owned, nonOwned, false);
+            std::tie(owned, nonOwned) =
+                estimator.computeSparsityEstimate(false);
             logger.assert_always(
                 owned.size() == indexing0.getNumberOfLocalBasisFunctions(),
                 "Wrong size owned");
@@ -493,7 +589,8 @@ void testRowColumnDifference(std::string meshFile) {
             // support.
             Utilities::SparsityEstimator estimator(indexing1, indexing0);
             std::vector<int> owned, nonOwned;
-            estimator.computeSparsityEstimate(owned, nonOwned, false);
+            std::tie(owned, nonOwned) =
+                estimator.computeSparsityEstimate(false);
             logger.assert_always(
                 owned.size() == indexing1.getNumberOfLocalBasisFunctions(),
                 "Wrong size owned");
@@ -529,7 +626,7 @@ void testRowColumnDifference(std::string meshFile) {
             // or on the adjacent elements.
             Utilities::SparsityEstimator estimator(indexing0, indexing01);
             std::vector<int> owned, nonOwned;
-            estimator.computeSparsityEstimate(owned, nonOwned, true);
+            std::tie(owned, nonOwned) = estimator.computeSparsityEstimate(true);
             logger.assert_always(
                 owned.size() == indexing0.getNumberOfLocalBasisFunctions(),
                 "Wrong size owned");
@@ -549,7 +646,7 @@ void testRowColumnDifference(std::string meshFile) {
             // support
             Utilities::SparsityEstimator estimator(indexing01, indexing0);
             std::vector<int> owned, nonOwned;
-            estimator.computeSparsityEstimate(owned, nonOwned, true);
+            std::tie(owned, nonOwned) = estimator.computeSparsityEstimate(true);
             logger.assert_always(
                 owned.size() == indexing01.getNumberOfLocalBasisFunctions(),
                 "Wrong size owned");
@@ -593,7 +690,7 @@ void testEmptyIndex() {
     Utilities::GlobalIndexing emptyIndex;
     Utilities::SparsityEstimator estimator(emptyIndex);
     std::vector<int> owned, nonOwned;
-    estimator.computeSparsityEstimate(owned, nonOwned);
+    std::tie(owned, nonOwned) = estimator.computeSparsityEstimate();
     logger.assert_always(owned.empty(),
                          "Non empty owned estimate with empty index");
     logger.assert_always(nonOwned.empty(),
@@ -621,4 +718,6 @@ int main(int argc, char** argv) {
     testRowColumnDifference("3Dtriangular1mesh"s);
 
     testEmptyIndex();
+
+    testFaceCoupling1D();
 }
