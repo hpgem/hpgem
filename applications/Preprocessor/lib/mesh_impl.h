@@ -358,9 +358,10 @@ void Mesh<dimension>::setNumberOfNodes(std::size_t number) {
 }
 
 template <std::size_t dimension>
-void Mesh<dimension>::addNode() {
+std::size_t Mesh<dimension>::addNode() {
     std::size_t newIndex = otherEntities.template getData<0>().size();
     otherEntities.template getData<0>().push_back({this, newIndex});
+    return newIndex;
 }
 
 template <std::size_t dimension>
