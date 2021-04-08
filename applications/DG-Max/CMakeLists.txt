@@ -31,6 +31,7 @@ if(hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
 		Utils/CGDGMatrixKPhaseShiftBuilder.cpp
 		Utils/FaceKPhaseShiftBuilder.cpp
 		Utils/PredefinedStructure.cpp
+		Utils/ZoneStructureDescription.cpp
 		Utils/Verification/DGMaxEVConvergenceTest.cpp
 		Utils/Verification/DivDGMaxEVConvergenceTest.cpp
 		Utils/Verification/EVConvergenceResult.cpp
