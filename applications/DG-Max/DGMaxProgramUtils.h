@@ -3,7 +3,7 @@
 #define HPGEM_APP_DGMAXPROGRAMUTILS_H
 
 #include <memory>
-#include <ElementInfos.h>
+#include "Utils/StructureDescription.h"
 
 namespace hpgem {
 namespace Base {
@@ -21,7 +21,7 @@ void printArguments(int argc, char** argv);
 template <std::size_t DIM>
 std::unique_ptr<Base::MeshManipulator<DIM>> readMesh(
     std::string fileName, Base::ConfigurationData* configData,
-    ElementInfos::EpsilonFunc<DIM> epsilonFunc,
+    StructureDescription& structureDescription,
     std::size_t numberOfElementMatrices = 2);
 
 /// A path in either real or reciprocal space
