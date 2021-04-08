@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2020, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,34 +35,24 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef HPGEM_STRUCTUREDESCRIPTION_H
+#define HPGEM_STRUCTUREDESCRIPTION_H
 
-#include "DivDGMaxEVConvergenceTest.h"
-
-#include "DGMaxLogger.h"
-#include "DGMaxProgramUtils.h"
-#include "Utils/PredefinedStructure.h"
+#include "Base/Element.h"
+#include "ElementInfos.h"
 
 namespace DGMax {
-template <std::size_t DIM>
-void DivDGMaxEVConvergenceTest<DIM>::runInternal(
-    typename AbstractEVConvergenceTest<DIM>::Driver& driver,
-    std::size_t level) {
+using namespace hpgem;
 
-    logger.assert_always(level < meshFileNames_.size(), "No such mesh");
-
-    Base::ConfigurationData configData(2, 1);
-    PredefinedStructureDescription structure (testCase_.getStructureId(), DIM);
-    auto mesh =
-        DGMax::readMesh<DIM>(meshFileNames_[level], &configData, structure);
-    DGMaxLogger(INFO, "Loaded mesh % with % local elements.",
-                meshFileNames_[level], mesh->getNumberOfElements());
-
-    DivDGMaxEigenvalue<DIM> solver(*mesh, this->order_, this->stab_);
-    solver.solve(driver);
-}
-
-// Template instantiation
-template class DivDGMaxEVConvergenceTest<2>;
-template class DivDGMaxEVConvergenceTest<3>;
-
+/// Strategy pattern to assign material information to elements
+class StructureDescription {
+   public:
+    virtual ~StructureDescription() = default;
+    /// Create an element info for the element
+    /// \param element The element to create it for
+    /// \return A new ElementInfo, the caller should ensure it is cleaned up
+    virtual ElementInfos* createElementInfo(const Base::Element* element) = 0;
+};
 }  // namespace DGMax
+
+#endif  // HPGEM_STRUCTUREDESCRIPTION_H

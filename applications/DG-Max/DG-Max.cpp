@@ -59,6 +59,9 @@
 #include "ProblemTypes/Harmonic/SampleHarmonicProblems.h"
 #include "ProblemTypes/Time/SampleTestProblems.h"
 #include "Utils/BandstructureGNUPlot.h"
+#include "Utils/StructureDescription.h"
+#include "Utils/PredefinedStructure.h"
+
 
 using namespace hpgem;
 
@@ -106,13 +109,11 @@ int main(int argc, char** argv) {
         divStab.stab2 = 0.01;
         divStab.stab3 = 10.0;
 
-        auto epsilon = [&](const Geometry::PointPhysical<DIM>& p) {
-            // TODO: Hardcoded structure
-            return jelmerStructure(p, 0);
-        };
+        DGMax::PredefinedStructureDescription structure(
+            DGMax::PredefinedStructure::VACUUM, DIM);
 
         std::unique_ptr<Base::MeshManipulator<DIM>> mesh(
-            DGMax::readMesh<DIM>(meshFile.getValue(), &configData, epsilon));
+            DGMax::readMesh<DIM>(meshFile.getValue(), &configData, structure));
         // base.createCentaurMesh(std::string("SmallIW_Mesh4000.hyb"));
         // base.createCentaurMesh(std::string("BoxCylinder_Mesh6000.hyb"));
         // TODO: LC: this does seem rather arbitrary and should probably be done

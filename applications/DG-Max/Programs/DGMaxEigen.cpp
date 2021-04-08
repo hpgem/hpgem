@@ -8,6 +8,8 @@
 #include "Algorithms/DivDGMaxEigenvalue.h"
 #include "Algorithms/DGMaxEigenvalue.h"
 #include "Utils/KSpacePath.h"
+#include "Utils/StructureDescription.h"
+#include "Utils/PredefinedStructure.h"
 
 using namespace hpgem;
 
@@ -325,13 +327,11 @@ void runWithDimension() {
     }
 
     Base::ConfigurationData configData(unknowns, 1);
-    auto mesh = DGMax::readMesh<DIM>(
-        meshFile.getValue(), &configData,
-        [&](const Geometry::PointPhysical<DIM>& p) {
-            // TODO: Hardcoded structure
-            return jelmerStructure(p, structure.getValue());
-        },
-        numberOfElementMatrices);
+
+    DGMax::PredefinedStructureDescription structureDef(
+        DGMax::structureFromInt(structure.getValue()), DIM);
+    auto mesh = DGMax::readMesh<DIM>(meshFile.getValue(), &configData,
+                                     structureDef, numberOfElementMatrices);
     logger(INFO, "Loaded mesh % with % local elements", meshFile.getValue(),
            mesh->getNumberOfElements());
     writeMesh<DIM>("mesh", mesh.get());

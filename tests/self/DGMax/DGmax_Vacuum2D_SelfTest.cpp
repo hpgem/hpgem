@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
 
     // Just a random point in vacuum
     DGMax::EVTestPoint<2> testPoint(LinearAlgebra::SmallVector<2>({0.8, 0.9}),
-                                    0, 10);
+                                    DGMax::PredefinedStructure::VACUUM, 10);
 
     DGMaxEigenvalueBase::SolverConfig config;
     config.stab_ = 100;

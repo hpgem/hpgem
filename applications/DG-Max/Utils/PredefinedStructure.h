@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2020, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,34 +35,45 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef HPGEM_PREDEFINEDSTRUCTURE_H
+#define HPGEM_PREDEFINEDSTRUCTURE_H
 
-#include "DivDGMaxEVConvergenceTest.h"
-
-#include "DGMaxLogger.h"
-#include "DGMaxProgramUtils.h"
-#include "Utils/PredefinedStructure.h"
+#include "StructureDescription.h"
 
 namespace DGMax {
-template <std::size_t DIM>
-void DivDGMaxEVConvergenceTest<DIM>::runInternal(
-    typename AbstractEVConvergenceTest<DIM>::Driver& driver,
-    std::size_t level) {
 
-    logger.assert_always(level < meshFileNames_.size(), "No such mesh");
 
-    Base::ConfigurationData configData(2, 1);
-    PredefinedStructureDescription structure (testCase_.getStructureId(), DIM);
-    auto mesh =
-        DGMax::readMesh<DIM>(meshFileNames_[level], &configData, structure);
-    DGMaxLogger(INFO, "Loaded mesh % with % local elements.",
-                meshFileNames_[level], mesh->getNumberOfElements());
+// Predefined structures
+enum class PredefinedStructure : std::size_t {
+    VACUUM = 0,
+    BRAGG_STACK = 1,           // [-inf,0.5] material 1, [0.5, inf] material 2
+    CYLINDER = 2,              // Cylinder at x,y (0.5, 0.5) radius 0.2
+    SQUARE_HOLE = 3,           // Square hole for x,y in [0.1, 0.9] x [0.1, 0.9]
+    INVERSE_WOODPILE_OLD = 4,  // Old IW definition with a=1, c=1/sqrt(2)
+    INVERSE_WOODPILE_NEW = 5,  // New IW definition with a=sqrt(2),c=1
+};
 
-    DivDGMaxEigenvalue<DIM> solver(*mesh, this->order_, this->stab_);
-    solver.solve(driver);
+/// 'Parse' an integer to a PredefinedStructure
+PredefinedStructure structureFromInt(std::size_t value);
+
+/// Some predefined structures.
+///
+/// Both for historical meshes without zone information and structured meshes
+class PredefinedStructureDescription : public StructureDescription {
+   public:
+    PredefinedStructureDescription(PredefinedStructure structure,
+                                  std::size_t dimension)
+        : structure_(structure), dimension(dimension){};
+
+    ElementInfos* createElementInfo(const Base::Element* element) final;
+
+   private:
+    template<std::size_t DIM>
+    ElementInfos* createElementInfoDim(const Base::Element* element) const;
+
+    PredefinedStructure structure_;
+    std::size_t dimension;
+};
 }
 
-// Template instantiation
-template class DivDGMaxEVConvergenceTest<2>;
-template class DivDGMaxEVConvergenceTest<3>;
-
-}  // namespace DGMax
+#endif  // HPGEM_PREDEFINEDSTRUCTURE_H

@@ -53,7 +53,7 @@ void printArguments(int argc, char** argv) {
 template <std::size_t DIM>
 std::unique_ptr<Base::MeshManipulator<DIM>> readMesh(
     std::string fileName, Base::ConfigurationData* configData,
-    ElementInfos::EpsilonFunc<DIM> epsilon,
+    StructureDescription& structureDescription,
     std::size_t numberOfElementMatrices) {
     auto mesh = std::unique_ptr<Base::MeshManipulator<DIM>>(
         new Base::MeshManipulator<DIM>(configData, numberOfElementMatrices, 3,
@@ -62,7 +62,7 @@ std::unique_ptr<Base::MeshManipulator<DIM>> readMesh(
     for (typename Base::MeshManipulator<DIM>::ElementIterator it =
              mesh->elementColBegin(Base::IteratorType::GLOBAL);
          it != mesh->elementColEnd(Base::IteratorType::GLOBAL); ++it) {
-        (*it)->setUserData(ElementInfos::createStructure<DIM>(**it, epsilon));
+        (*it)->setUserData(structureDescription.createElementInfo(*it));
         (*it)->setNumberOfTimeIntegrationVectors(1);
     }
     return mesh;
@@ -70,10 +70,10 @@ std::unique_ptr<Base::MeshManipulator<DIM>> readMesh(
 
 // Explicit instantiation of the 2,3D versions.
 template std::unique_ptr<Base::MeshManipulator<2>> readMesh(
-    std::string, Base::ConfigurationData*, ElementInfos::EpsilonFunc<2>,
+    std::string, Base::ConfigurationData*, StructureDescription& structureDescription,
     std::size_t);
 template std::unique_ptr<Base::MeshManipulator<3>> readMesh(
-    std::string, Base::ConfigurationData*, ElementInfos::EpsilonFunc<3>,
+    std::string, Base::ConfigurationData*, StructureDescription& structureDescription,
     std::size_t);
 
 /// Parse DIM comma separated numbers as the coordinates of a point.

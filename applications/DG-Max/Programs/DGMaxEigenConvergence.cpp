@@ -69,9 +69,9 @@ auto &method = Base::register_argument<std::string>(
 /// Create a reference bandstructure based on the structure index
 template <std::size_t DIM>
 std::unique_ptr<BandStructure<DIM>> createStructure(
-    std::size_t structureIndex) {
+    DGMax::PredefinedStructure structureIndex) {
     // Using same structure indices as for the Jelmer structure
-    if (structureIndex == 0) {
+    if (structureIndex == DGMax::PredefinedStructure::VACUUM) {
         std::array<LinearAlgebra::SmallVector<DIM>, DIM> reciprocalVectors;
         for (std::size_t i = 0; i < DIM; ++i) {
             for (std::size_t j = 0; j < DIM; ++j) {
@@ -118,10 +118,10 @@ void runWithDimension() {
     const std::size_t numFrequencies = 10;
 
     std::vector<std::string> meshFiles = parseMeshFiles();
-    std::size_t structureId = structureArg.getValue();
 
     std::unique_ptr<DGMax::AbstractEVConvergenceTest<DIM>> convergenceTest;
-    DGMax::EVTestPoint<DIM> testPoint({0.5, 0.8}, structureId, numFrequencies);
+    DGMax::EVTestPoint<DIM> testPoint(
+        {0.5, 0.8}, DGMax::structureFromInt(structureArg.getValue()), numFrequencies);
     if (method.getValue() == "DGMAX") {
         DGMaxEigenvalueBase::SolverConfig config;
         config.useHermitian_ = true;
