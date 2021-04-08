@@ -1558,25 +1558,27 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
     // ZONES //
     ///////////
 
-    std::vector<Zone *> zones;
+    // Pointers to the zones, in order of addition.
+    std::vector<Zone *> zonePointers;
     if (version == 1) {
         // Zones are only present in version > 1, provide a default zone
-        Zone *zone = addZone("Main");
-        zones.push_back(zone);
+        Zone &zone = addZone("Main");
+        zonePointers.push_back(&zone);
     } else {
-        Detail::readSegmentHeader(input, "zones");
-        // Number of zones
+        Detail::readSegmentHeader(input, "zonePointers");
+        // Number of zonePointers
         std::size_t numZones;
         input >> numZones;
-        logger.assert_always(numZones > 0 || numberOfElements == 0,
-                             "Got a file with zero zones but with elements");
+        logger.assert_always(
+            numZones > 0 || numberOfElements == 0,
+            "Got a file with zero zonePointers but with elements");
         input.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         // Zone names
         for (std::size_t i = 0; i < numZones; ++i) {
             std::string zoneName;
             getline(input, zoneName);
-            Zone *zone = addZone(zoneName);
-            zones.push_back(zone);
+            Zone &zone = addZone(zoneName);
+            zonePointers.push_back(&zone);
         }
     }
 
@@ -1644,8 +1646,10 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
     std::map<std::size_t, Element *> actualElement;
 
     for (std::size_t i = 0; i < numberOfElements; ++i) {
+        // Read all the information about the element
         std::size_t nodesPerElement;
         input >> nodesPerElement;
+        // Read node + coordinate indices
         std::vector<std::size_t> coordinateIndices;
         std::vector<std::size_t> nodeNumbers;
         for (std::size_t j = 0; j < nodesPerElement; ++j) {
@@ -1655,45 +1659,50 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
                                         coordinateOffset);
             nodeNumbers.push_back(localNodeIndex[globalIndex]);
         }
+        // Owning partition (= MPI process id)
         std::size_t partition;
         input >> partition;
-        Base::Element *element = nullptr;
-        if (partition == processorID) {
-            element = addElement(coordinateIndices, nullptr, partition, true);
-            actualElement[i] = element;
-            getMesh().getSubmesh().add(element);
-        }
+        // Shadow partitions (= MPI process ids where it is in the shadow layer)
         std::size_t numberOfShadowPartitions;
         input >> numberOfShadowPartitions;
+        std::vector<std::size_t> shadowParitions(numberOfShadowPartitions);
+        // Flag to keep track of whether it is in the shadow layer of this
+        // processor
+        bool inShadow = false;
+
         for (std::size_t j = 0; j < numberOfShadowPartitions; ++j) {
-            std::size_t shadowPartition;
-            input >> shadowPartition;
-            if (shadowPartition == processorID) {
-                element =
-                    addElement(coordinateIndices, nullptr, partition, false);
-                actualElement[i] = element;
+            input >> shadowParitions[j];
+            inShadow |= processorID == shadowParitions[j];
+        }
+
+        std::size_t zoneIndex;
+        if (version == 1) {
+            // Version 1 did not have any zones, this uses the default
+            zoneIndex = 0;
+        } else {
+            input >> zoneIndex;
+        }
+
+        // Create the element if needed
+        bool owning = partition == processorID;
+        if (owning || inShadow) {
+            Base::Element *element = addElement(
+                coordinateIndices, zonePointers[zoneIndex], partition, owning);
+            actualElement[i] = element;
+            if (owning) {
+                getMesh().getSubmesh().add(element);
+                for (std::size_t &shadowPartition : shadowParitions) {
+                    getMesh().getSubmesh().addPush(element, shadowPartition);
+                }
+            } else {
                 getMesh().getSubmesh().addPull(element, partition);
             }
-            if (partition == processorID) {
-                getMesh().getSubmesh().addPush(element, shadowPartition);
-            }
-        }
-        if (element != nullptr) {
             for (std::size_t j = 0; j < nodeNumbers.size(); ++j) {
                 getNodesList()[nodeNumbers[j]]->addElement(element, j);
             }
         } else {
             // reserve the index for use in another processor
             GlobalUniqueIndex::instance().getElementIndex();
-        }
-        std::size_t zoneIndex;
-        if (version == 1) {
-            zoneIndex = 0;  // Default zone
-        } else {
-            input >> zoneIndex;
-        }
-        if (element != nullptr) {
-            element->setZone(zones[zoneIndex]);
         }
     }
 
