@@ -110,6 +110,7 @@ void outputMesh(Mesh<dimension>& mesh,
     printOtherEntityCounts(output, mesh, Detail::tag<dimension - 1>{});
     output << std::endl;
     output << "zones" << std::endl;
+    output << mesh.getZoneNames().size() << std::endl;
     for (const auto& zonename : mesh.getZoneNames()) {
         std::cout << zonename << '\n';
     }
