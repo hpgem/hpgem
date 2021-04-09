@@ -109,12 +109,6 @@ void outputMesh(Mesh<dimension>& mesh,
            << " " << dimension;
     printOtherEntityCounts(output, mesh, Detail::tag<dimension - 1>{});
     output << std::endl;
-    output << "zones" << std::endl;
-    for (const auto& zonename : mesh.getZoneNames()) {
-        std::cout << zonename << '\n';
-    }
-
-    output << "nodes" << std::endl;
     std::size_t reservedSpace =
         std::max(std::log10(mesh.getNumberOfNodes()), 0.) + 2;
     std::string whiteSpace(reservedSpace, ' ');
@@ -125,6 +119,13 @@ void outputMesh(Mesh<dimension>& mesh,
         output << whiteSpace;
     }
     output << std::endl;
+
+    output << "zones" << std::endl;
+    for (const auto& zonename : mesh.getZoneNames()) {
+        std::cout << zonename << '\n';
+    }
+
+    output << "nodes" << std::endl;
     std::vector<std::size_t> partitionData(numberOfPartitions, 0);
     MeshData<std::vector<std::size_t>, dimension, 0> coordinateIndices(&mesh);
     for (auto node : mesh.getNodes()) {
