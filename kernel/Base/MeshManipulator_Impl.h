@@ -1689,8 +1689,9 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
         // Create the element if needed
         bool owning = partition == processorID;
         if (owning || inShadow) {
-            Base::Element *element = addElement(
-                coordinateIndices, meshZoneIndices[zoneIndex], partition, owning);
+            Base::Element *element =
+                addElement(coordinateIndices, meshZoneIndices[zoneIndex],
+                           partition, owning);
             actualElement[i] = element;
             if (owning) {
                 getMesh().getSubmesh().add(element);
