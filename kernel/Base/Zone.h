@@ -52,8 +52,10 @@ class Zone {
     Zone(const std::string& name, std::size_t zoneId)
         : name_(name), zoneId_(zoneId){};
 
-    /// \return Identifier for this zone that uniquely represents the zone for
-    /// the mesh.
+    /// The identifier for this zone in the mesh it belongs to.
+    ///
+    /// It should satisfy mesh.getZones()[i].getZoneId() == i
+    /// \return Identifier for this zone in the mesh.
     std::size_t getZoneId() const { return zoneId_; }
 
     /// \return Name of the zone

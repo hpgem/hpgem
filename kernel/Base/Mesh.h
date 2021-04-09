@@ -80,7 +80,7 @@ class Mesh final {
     ~Mesh();
 
     Element* addElement(const std::vector<std::size_t>& globalNodeIndexes,
-                        Zone* zone, std::size_t owner, bool owning);
+                        std::size_t zoneId, std::size_t owner, bool owning);
 
     void addSubElements(Base::Element* parent,
                         const std::vector<Base::Element*> subElements);

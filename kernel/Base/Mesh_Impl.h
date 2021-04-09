@@ -139,12 +139,12 @@ Mesh<DIM>::~Mesh() {
 
 template <std::size_t DIM>
 Element* Mesh<DIM>::addElement(
-    const std::vector<std::size_t>& globalNodeIndexes, Zone* zone,
+    const std::vector<std::size_t>& globalNodeIndexes, std::size_t zoneId,
     std::size_t owner, bool owning) {
     // some users don't want to see their elements added locally so don't mess
     // with the submesh here
     Element* newElement = ElementFactory::instance().makeElement(
-        globalNodeIndexes, nodeCoordinates_, zone, owner, owning);
+        globalNodeIndexes, nodeCoordinates_, zoneId, owner, owning);
     elements_.addRootEntry(newElement);
     newElement->setPositionInTree((--elements_.end()).getTreeEntry());
     return newElement;

@@ -1119,7 +1119,7 @@ void MeshManipulator<DIM>::addEdgeBasisFunctionSet(
 
 template <std::size_t DIM>
 Base::Element *MeshManipulator<DIM>::addElement(
-    const std::vector<std::size_t> &globalNodeIndexes, Zone *zone,
+    const std::vector<std::size_t> &globalNodeIndexes, std::size_t zoneId,
     std::size_t owner, bool owning) {
     logger.assert_debug(
         [&]() -> bool {
@@ -1130,7 +1130,8 @@ Base::Element *MeshManipulator<DIM>::addElement(
             return true;
         }(),
         "Trying to pass the same node twice");
-    auto result = theMesh_.addElement(globalNodeIndexes, zone, owner, owning);
+    logger.assert_debug(zoneId < getZones().size(), "Invalid zone ID");
+    auto result = theMesh_.addElement(globalNodeIndexes, zoneId, owner, owning);
     return result;
 }
 
@@ -1558,27 +1559,27 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
     // ZONES //
     ///////////
 
-    // Pointers to the zones, in order of addition.
-    std::vector<Zone *> zonePointers;
+    // For each zone, the corresponding zoneId in the mesh.
+    std::vector<std::size_t> meshZoneIndices;
     if (version == 1) {
         // Zones are only present in version > 1, provide a default zone
         Zone &zone = addZone("Main");
-        zonePointers.push_back(&zone);
+        meshZoneIndices.push_back(zone.getZoneId());
     } else {
-        Detail::readSegmentHeader(input, "zonePointers");
-        // Number of zonePointers
+        Detail::readSegmentHeader(input, "zones");
+        // Number of meshZoneIndices
         std::size_t numZones;
         input >> numZones;
         logger.assert_always(
             numZones > 0 || numberOfElements == 0,
-            "Got a file with zero zonePointers but with elements");
+            "Got a file with zero meshZoneIndices but with elements");
         input.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         // Zone names
         for (std::size_t i = 0; i < numZones; ++i) {
             std::string zoneName;
             getline(input, zoneName);
             Zone &zone = addZone(zoneName);
-            zonePointers.push_back(&zone);
+            meshZoneIndices.push_back(zone.getZoneId());
         }
     }
 
@@ -1682,12 +1683,14 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
         } else {
             input >> zoneIndex;
         }
+        logger.assert_always(zoneIndex < meshZoneIndices.size(),
+                             "Zone index % out of bounds", zoneIndex);
 
         // Create the element if needed
         bool owning = partition == processorID;
         if (owning || inShadow) {
             Base::Element *element = addElement(
-                coordinateIndices, zonePointers[zoneIndex], partition, owning);
+                coordinateIndices, meshZoneIndices[zoneIndex], partition, owning);
             actualElement[i] = element;
             if (owning) {
                 getMesh().getSubmesh().add(element);
@@ -1714,7 +1717,7 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
     // FACES //
     ///////////
 
-    if (version > 1) {
+    if (version > 1 && DIM > 1) {
         Detail::readSegmentHeader(input, "codim1");
     }
 
@@ -1781,7 +1784,7 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
     // EDGES //
     ///////////
 
-    if (version > 1) {
+    if (version > 1 && DIM > 2) {
         Detail::readSegmentHeader(input, "codim2");
     }
 
