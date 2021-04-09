@@ -204,10 +204,9 @@ class MeshManipulatorBase {
     /**
      * Add a zone to the mesh
      * @param name The name of the zone
-     * @return A non owned pointer to the new zone, valid as long as the mesh
-     * exists.
+     * @return A reference to the newly created zone.
      */
-    Zone* addZone(std::string name);
+    Zone& addZone(std::string name);
 
     /**
      * @return All the zones in this mesh

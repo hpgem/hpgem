@@ -91,10 +91,10 @@ MeshManipulatorBase::MeshManipulatorBase(const ConfigurationData* config,
 MeshManipulatorBase::MeshManipulatorBase(const MeshManipulatorBase& other) =
     default;
 
-Zone* MeshManipulatorBase::addZone(std::string name) {
+Zone& MeshManipulatorBase::addZone(std::string name) {
     std::size_t index = zones_.size();
     zones_.emplace_back(name, index);
-    return &zones_[index];
+    return zones_.back();
 }
 }  // namespace Base
 
