@@ -75,17 +75,17 @@ MeshPtr<DIM> readMesh(const std::string& filename) {
 // elements belong to it.
 template <std::size_t DIM>
 void testSingleZone(MeshPtr<DIM>& mesh, std::string expectedZoneName) {
-    const std::vector<Base::Zone>& zones = mesh->getZones();
+    const std::vector<std::unique_ptr<Base::Zone>>& zones = mesh->getZones();
     INFO("Exactly 1 zone")
     REQUIRE(zones.size() == 1);
     INFO("Zone has id 0")
-    REQUIRE(zones[0].getZoneId() == 0);
+    REQUIRE(zones[0]->getZoneId() == 0);
     INFO("Correctly named zone");
-    REQUIRE(zones[0].getName() == expectedZoneName);
+    REQUIRE(zones[0]->getName() == expectedZoneName);
 
     INFO("Elements have a zone")
     for (const Base::Element* elem : mesh->getElementsList()) {
-        REQUIRE(elem->getZone() == 0);
+        REQUIRE(&elem->getZone() == zones[0].get());
     }
 }
 
@@ -119,7 +119,7 @@ TEST_CASE("mesh format 2: 1D two zones", "[Mesh reader - fixed meshes]") {
     REQUIRE(mesh->getNumberOfElements() == 2);
 
     const std::size_t numZones = 2;
-    const std::vector<Base::Zone>& zones = mesh->getZones();
+    const std::vector<std::unique_ptr<Base::Zone>>& zones = mesh->getZones();
     INFO("Expect 2 zones");
     REQUIRE(zones.size() == numZones);
 
@@ -133,14 +133,10 @@ TEST_CASE("mesh format 2: 1D two zones", "[Mesh reader - fixed meshes]") {
         effectiveElementId++;
 
         INFO("Valid zone pointer")
-        std::size_t zoneId = element->getZone();
-        // Using pointer subtraction to get an idea of what actually might go
-        // wrong. As raw addresses are hardly readable
-        REQUIRE(zoneId >= 0);
-        REQUIRE(zoneId < numZones);
+        Base::Zone& zone = element->getZone();
 
         std::string expectedZoneNameStr = expectedZoneName.str();
         INFO("Zone matches ID for element " << element->getID());
-        REQUIRE(zones[zoneId].getName() == expectedZoneNameStr);
+        REQUIRE(zone.getName() == expectedZoneNameStr);
     }
 }
