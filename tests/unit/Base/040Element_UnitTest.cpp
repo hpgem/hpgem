@@ -119,10 +119,10 @@ TEST_CASE("040Element_UnitTest", "[040Element_UnitTest]") {
     std::vector<std::shared_ptr<const FE::BasisFunctionSet>> vectorOfFunctions(
         1, std::shared_ptr<const FE::BasisFunctionSet>(basisFunctions));
 
-    Base::Zone zone({"dummy", 0});
+    std::size_t dummyZoneId = 0;
 
     Base::Element test(pointIndexes, &vectorOfFunctions, nodes, 3, 14, 18,
-                       &zone);
+                       dummyZoneId);
     // Register the basis function for use for each of the three coordinates
     for (std::size_t i = 0; i < 3; ++i) {
         test.setDefaultBasisFunctionSet(0, i);
