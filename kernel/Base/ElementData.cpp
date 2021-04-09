@@ -49,8 +49,7 @@ namespace hpgem {
 
 namespace Base {
 ElementData::ElementData(std::size_t timeLevels, std::size_t numberOfUnknowns,
-                         Zone& zone,
-                         std::size_t numberOfElementMatrixes,
+                         Zone& zone, std::size_t numberOfElementMatrixes,
                          std::size_t numberOfElementVectors)
     : timeLevels_(timeLevels),
       numberOfUnknowns_(numberOfUnknowns),

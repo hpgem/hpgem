@@ -116,7 +116,7 @@ TEST_CASE("050Face_UnitTest", "[050Face_UnitTest]") {
     std::vector<std::shared_ptr<const FE::BasisFunctionSet>> vectorOfFunctions(
         1, std::shared_ptr<FE::BasisFunctionSet>(basisFunctions));
 
-    Base::Zone dummyZone ("dummy", 0);
+    Base::Zone dummyZone("dummy", 0);
 
     Base::Element element(pointIndexes, &vectorOfFunctions, nodes, 3, 14, 18,
                           dummyZone);

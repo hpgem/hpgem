@@ -1119,7 +1119,7 @@ void MeshManipulator<DIM>::addEdgeBasisFunctionSet(
 
 template <std::size_t DIM>
 Base::Element *MeshManipulator<DIM>::addElement(
-    const std::vector<std::size_t> &globalNodeIndexes, Zone& zone,
+    const std::vector<std::size_t> &globalNodeIndexes, Zone &zone,
     std::size_t owner, bool owning) {
     logger.assert_debug(
         [&]() -> bool {
@@ -1688,9 +1688,8 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
         // Create the element if needed
         bool owning = partition == processorID;
         if (owning || inShadow) {
-            Base::Element *element =
-                addElement(coordinateIndices, meshZones[zoneIndex],
-                           partition, owning);
+            Base::Element *element = addElement(
+                coordinateIndices, meshZones[zoneIndex], partition, owning);
             actualElement[i] = element;
             if (owning) {
                 getMesh().getSubmesh().add(element);
