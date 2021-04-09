@@ -1119,7 +1119,7 @@ void MeshManipulator<DIM>::addEdgeBasisFunctionSet(
 
 template <std::size_t DIM>
 Base::Element *MeshManipulator<DIM>::addElement(
-    const std::vector<std::size_t> &globalNodeIndexes, std::size_t zoneId,
+    const std::vector<std::size_t> &globalNodeIndexes, Zone& zone,
     std::size_t owner, bool owning) {
     logger.assert_debug(
         [&]() -> bool {
@@ -1130,8 +1130,7 @@ Base::Element *MeshManipulator<DIM>::addElement(
             return true;
         }(),
         "Trying to pass the same node twice");
-    logger.assert_debug(zoneId < getZones().size(), "Invalid zone ID");
-    auto result = theMesh_.addElement(globalNodeIndexes, zoneId, owner, owning);
+    auto result = theMesh_.addElement(globalNodeIndexes, zone, owner, owning);
     return result;
 }
 
@@ -1559,12 +1558,12 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
     // ZONES //
     ///////////
 
-    // For each zone, the corresponding zoneId in the mesh.
-    std::vector<std::size_t> meshZoneIndices;
+    // The actual zone objects for each of the zones, as in mesh file order.
+    std::vector<std::reference_wrapper<Zone>> meshZones;
     if (version == 1) {
         // Zones are only present in version > 1, provide a default zone
         Zone &zone = addZone("Main");
-        meshZoneIndices.push_back(zone.getZoneId());
+        meshZones.emplace_back(zone);
     } else {
         Detail::readSegmentHeader(input, "zones");
         // Number of meshZoneIndices
@@ -1579,7 +1578,7 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
             std::string zoneName;
             getline(input, zoneName);
             Zone &zone = addZone(zoneName);
-            meshZoneIndices.push_back(zone.getZoneId());
+            meshZones.emplace_back(zone);
         }
     }
 
@@ -1683,14 +1682,14 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
         } else {
             input >> zoneIndex;
         }
-        logger.assert_always(zoneIndex < meshZoneIndices.size(),
+        logger.assert_always(zoneIndex < meshZones.size(),
                              "Zone index % out of bounds", zoneIndex);
 
         // Create the element if needed
         bool owning = partition == processorID;
         if (owning || inShadow) {
             Base::Element *element =
-                addElement(coordinateIndices, meshZoneIndices[zoneIndex],
+                addElement(coordinateIndices, meshZones[zoneIndex],
                            partition, owning);
             actualElement[i] = element;
             if (owning) {

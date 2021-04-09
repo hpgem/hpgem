@@ -98,7 +98,9 @@ class MeshManipulatorBase {
                         std::size_t numberOfFaceMatrixes = 0,
                         std::size_t numberOfFaceVectors = 0);
 
-    MeshManipulatorBase(const MeshManipulatorBase& other);
+    // Meshes own a large number of entities like Elements. Copying them
+    // requires a deep copy and is practically never required
+    MeshManipulatorBase(const MeshManipulatorBase& other) = delete;
 
     virtual ~MeshManipulatorBase() = default;
 
@@ -193,16 +195,20 @@ class MeshManipulatorBase {
     virtual std::vector<Node*>& getNodesList(
         IteratorType part = IteratorType::LOCAL) = 0;
 
-    virtual const std::map<int, std::vector<Element*> >& getPullElements() = 0;
+    virtual const std::map<int, std::vector<Element*>>& getPullElements() = 0;
 
-    virtual const std::map<int, std::vector<Element*> >& getPushElements() = 0;
+    virtual const std::map<int, std::vector<Element*>>& getPushElements() = 0;
 
     std::size_t dimension() const { return dimension_; }
 
     const ConfigurationData* getConfigData() { return configData_; }
 
     /**
-     * Add a zone to the mesh
+     * Add a zone to the mesh.
+     *
+     * The lifetime of the created zone (and references to it) is tied to the
+     * lifetime of the mesh.
+     *
      * @param name The name of the zone
      * @return A reference to the newly created zone.
      */
@@ -211,7 +217,9 @@ class MeshManipulatorBase {
     /**
      * @return All the zones in this mesh
      */
-    const std::vector<Zone>& getZones() const { return zones_; }
+    const std::vector<std::unique_ptr<Zone>>& getZones() const {
+        return zones_;
+    }
 
    protected:
     const ConfigurationData* configData_;
@@ -230,7 +238,11 @@ class MeshManipulatorBase {
     std::size_t numberOfFaceVectors_;
     const std::size_t dimension_;
 
-    std::vector<Zone> zones_;
+    /// Zones in the mesh
+    // Implementation note: These are pointers so that elements can directly
+    // refer to them. They are unique_ptr as they are tied to the mesh (just as
+    // as for example Elements)
+    std::vector<std::unique_ptr<Zone>> zones_;
 };
 
 }  // namespace Base

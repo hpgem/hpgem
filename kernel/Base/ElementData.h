@@ -43,6 +43,7 @@
 #include <vector>
 #include "LinearAlgebra/MiddleSizeMatrix.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
+#include "Zone.h"
 
 namespace hpgem {
 
@@ -57,7 +58,7 @@ class ElementData {
 
    public:
     ElementData(std::size_t timeLevels, std::size_t numberOfUnknowns,
-                std::size_t zoneId, std::size_t numberOfElementMatrixes = 0,
+                Zone& zone, std::size_t numberOfElementMatrixes = 0,
                 std::size_t numberOfElementVectors = 0);
 
     ElementData(const ElementData& other);
@@ -190,16 +191,16 @@ class ElementData {
     UserData* getUserData() const;
 
     /**
-     * @return The ID of the zone the element is currently in.
+     * @return The zone the element belongs to.
      */
-    std::size_t getZone() const { return zoneId_; }
+    Zone& getZone() const { return *zone_; }
 
     /**
-     * Set the zone of this Element by its id. This should be zone of the
+     * Set the zone of this element. The zone must be a zone of the
      * corresponding mesh.
-     * @param zoneId The new zone.
+     * @param zone The new zone.
      */
-    void setZone(std::size_t zoneId) { zoneId_ = zoneId; }
+    void setZone(Zone& zone) { zone_ = &zone; }
 
     /// \brief Convert the index corresponding to the basis function
     /// (iBasisFunction) and the index corresponding to the variable (iVar) to a
@@ -257,7 +258,8 @@ class ElementData {
     /// Used only outside of the Kernel.
     mutable UserData* userData_;
 
-    std::size_t zoneId_;
+    /// Current zone, stored as pointer to allow reassignment
+    Zone* zone_;
 
     /// Stores element matrix(es) for this element
     std::vector<LinearAlgebra::MiddleSizeMatrix> elementMatrix_;

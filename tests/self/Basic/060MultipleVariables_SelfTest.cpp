@@ -127,13 +127,13 @@ int main() {
         pBasisFunctionSetVector = &basisFunctionSetVector;
 
     std::cout << "Build elements.\n";
-    std::size_t dummyZoneId = 0;
+    Base::Zone dummyZone ("dummy", 0);
     Base::Element elementLeft(pointIndicesLeft, pBasisFunctionSetVector,
                               pointsPhysical, numberOfUnknowns, 0,
-                              elementIdLeft, dummyZoneId);
+                              elementIdLeft, dummyZone);
     Base::Element elementRight(pointIndicesRight, pBasisFunctionSetVector,
                                pointsPhysical, numberOfUnknowns, 0,
-                               elementIdRight, dummyZoneId);
+                               elementIdRight, dummyZone);
     // Register basis functions
     for (Base::Element* element : {&elementLeft, &elementRight}) {
         for (std::size_t unknown = 0; unknown < numberOfUnknowns; ++unknown) {
