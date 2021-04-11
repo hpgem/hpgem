@@ -57,12 +57,14 @@ using MeshPtr = std::unique_ptr<Base::MeshManipulator<DIM>>;
 template <std::size_t DIM>
 MeshPtr<DIM> readMesh(const std::string& filename) {
 
+#ifdef HPGEM_USE_MPI
     // Initialize MPI if needed
     int initialized;
     MPI_Initialized(&initialized);
     if (!initialized) {
         MPI_Init(nullptr, nullptr);
     }
+#endif
 
     // Actual mesh reading
     auto mesh = std::make_unique<Base::MeshManipulator<DIM>>(&dummyConfig);
