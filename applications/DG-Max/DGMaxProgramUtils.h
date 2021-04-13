@@ -49,6 +49,20 @@ struct PointPath {
 /// string to parse \return The points on the path
 template <std::size_t DIM>
 PointPath<DIM> parsePath(const std::string& path);
+
+/// Heuristically determine the way to determine the structure description.
+/// It accepts two forms:
+///   - A single integer: the index into the predefined structures
+///   - A filename: The file should contain lines of the form 'regex,epsilon',
+///     where regex is a regular expression that matches some of the zones and
+///     epsilon is the corresponding epsilon.
+///
+/// \param input The index or file name
+/// \param dim The dimension of the mesh
+/// \return A structure description based on the input
+std::unique_ptr<StructureDescription> determineStructureDescription(
+    const std::string& input, std::size_t dim);
+
 }  // namespace DGMax
 
 #endif  // HPGEM_APP_DGMAXPROGRAMUTILS_H

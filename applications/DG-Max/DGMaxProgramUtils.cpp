@@ -4,7 +4,8 @@
 #include "Base/MeshManipulator.h"
 
 #include "DGMaxLogger.h"
-#include "ElementInfos.h"
+#include "Utils/PredefinedStructure.h"
+#include "Utils/ZoneStructureDescription.h"
 
 #ifdef HPGEM_USE_MPI
 // In case of MPI it is usefull to know where each process is located
@@ -70,11 +71,11 @@ std::unique_ptr<Base::MeshManipulator<DIM>> readMesh(
 
 // Explicit instantiation of the 2,3D versions.
 template std::unique_ptr<Base::MeshManipulator<2>> readMesh(
-    std::string, Base::ConfigurationData*, StructureDescription& structureDescription,
-    std::size_t);
+    std::string, Base::ConfigurationData*,
+    StructureDescription& structureDescription, std::size_t);
 template std::unique_ptr<Base::MeshManipulator<3>> readMesh(
-    std::string, Base::ConfigurationData*, StructureDescription& structureDescription,
-    std::size_t);
+    std::string, Base::ConfigurationData*,
+    StructureDescription& structureDescription, std::size_t);
 
 /// Parse DIM comma separated numbers as the coordinates of a point.
 /// \tparam DIM The dimension of the point
@@ -148,4 +149,71 @@ PointPath<DIM> parsePath(const std::string& path) {
 template PointPath<1> parsePath(const std::string& path);
 template PointPath<2> parsePath(const std::string& path);
 template PointPath<3> parsePath(const std::string& path);
+
+std::unique_ptr<ZoneInfoStructureDefinition> readZonedDescription(
+    std::ifstream& file) {
+    std::string line;
+    std::vector<std::regex> zoneRegexes;
+    std::vector<double> zoneEpsilons;
+    std::size_t lineNumber = 0;
+    while (!file.eof()) {
+        std::getline(file, line);
+        std::size_t commaLoc = line.find_last_of(',');
+        logger.assert_always(commaLoc != std::string::npos,
+                             "No comma found on line %: line", lineNumber,
+                             line);
+        std::string regexStr = line.substr(0, commaLoc );
+        std::regex regex(regexStr);
+
+        std::string epsilonStr = line.substr(commaLoc + 1);
+        logger.assert_always(!epsilonStr.empty(),
+                             "No value after the comma on line %: %",
+                             lineNumber, line);
+        std::size_t idx;
+        double epsilon = 0.0;
+        try {
+            epsilon = std::stod(epsilonStr, &idx);
+        } catch (std::invalid_argument&) {
+            logger.assert_always(false, "Invalid epsilon value on line %: %",
+                                 lineNumber, line);
+        }
+        logger.assert_always(idx == epsilonStr.size(),
+                             "Trailing data after epsilon on line %: %",
+                             lineNumber, line);
+        zoneRegexes.push_back(regex);
+        zoneEpsilons.push_back(epsilon);
+
+        lineNumber++;
+    }
+    return std::make_unique<ZoneInfoStructureDefinition>(zoneRegexes,
+                                                         zoneEpsilons);
+}
+
+std::unique_ptr<StructureDescription> determineStructureDescription(
+    const std::string& input, std::size_t dim) {
+
+    // Test to see if the input is a number, by trying to parse it
+    char* end;
+    long value = std::strtol(input.c_str(), &end, 10);
+    if (!*end) {
+        // end pointed to the null terminator of the string -> conversion was
+        // successful. Assume that it is an integer defining a predefined
+        // structure
+        DGMaxLogger(INFO, "Using predefined structure %", value);
+        return std::make_unique<PredefinedStructureDescription>(
+            DGMax::structureFromInt(value), dim);
+    }
+    std::ifstream file;
+    file.open(input);
+    if (file.good()) {
+        DGMaxLogger(INFO, "Reading structure defined in file %", input);
+        return readZonedDescription(file);
+    }
+
+    logger.assert_always(
+        false, "Could not determine structure information type from input '%'",
+        input);
+    return nullptr;
+}
+
 }  // namespace DGMax
