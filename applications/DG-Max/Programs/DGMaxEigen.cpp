@@ -56,8 +56,10 @@ auto& pparams = Base::register_argument<std::string>(
 auto& d = Base::register_argument<std::size_t>(
     'd', "dimension", "The dimension of the problem", true);
 
-auto& structure = Base::register_argument<std::size_t>(
-    '\0', "structure", "Structure to use", false, 0);
+// Either a number for the predefined structures or a filename for zone based
+// structure. See DGMax::determineStructureDescription for the exact format.
+auto& structure = Base::register_argument<std::string>(
+    '\0', "structure", "Structure to use", false, "0");
 
 //
 auto& fieldDir = Base::register_argument<std::string>(
@@ -328,10 +330,11 @@ void runWithDimension() {
 
     Base::ConfigurationData configData(unknowns, 1);
 
-    DGMax::PredefinedStructureDescription structureDef(
-        DGMax::structureFromInt(structure.getValue()), DIM);
+    std::unique_ptr<DGMax::StructureDescription> structureDesc =
+        DGMax::determineStructureDescription(structure.getValue(), DIM);
+
     auto mesh = DGMax::readMesh<DIM>(meshFile.getValue(), &configData,
-                                     structureDef, numberOfElementMatrices);
+                                     *structureDesc, numberOfElementMatrices);
     logger(INFO, "Loaded mesh % with % local elements", meshFile.getValue(),
            mesh->getNumberOfElements());
     writeMesh<DIM>("mesh", mesh.get());
