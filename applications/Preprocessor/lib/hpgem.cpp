@@ -223,7 +223,7 @@ class StructuredReader : public PrivateReader {
             }
         };
         MeshSource::Element first;
-        first.zoneName = "Main"; // Only one default zone
+        first.zoneName = "Main";  // Only one default zone
         increment(first);
         std::size_t totalNumberOfElements = 1;
         for (std::size_t i = 0; i < loopIndices.size(); ++i) {
