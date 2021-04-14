@@ -315,7 +315,9 @@ class Element : public MeshEntity<dim, dim> {
     std::vector<std::size_t> getLocalIncidenceListAsIndices(
         const MeshEntity<entityDimension, dim>& entity) const;
 
-    std::string getZoneName() { return this->mesh->zoneNames[zoneId]; }
+    std::string getZoneName() const { return this->mesh->zoneNames[zoneId]; }
+
+    size_t getZoneId() const { return zoneId; }
 
    private:
     friend Mesh<dim>;
@@ -510,6 +512,8 @@ class Mesh {
 
     std::vector<coordinateData>& getNodeCoordinates();
     const std::vector<coordinateData>& getNodeCoordinates() const;
+
+    const std::vector<std::string>& getZoneNames() const { return zoneNames; }
 
     /// Get the list of MeshEntity-s of a specific dimension
     template <int entityDimension>
