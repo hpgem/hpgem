@@ -73,6 +73,9 @@ class MeshSource {
     };
 
     struct Element {
+
+        Element() : coordinateIds(), zoneName("Main"){};
+
         /**
          * Indices of the coordinates of the vertices of this element. The Ids
          * follow that of the coordinates, not of the nodes (that may bin
