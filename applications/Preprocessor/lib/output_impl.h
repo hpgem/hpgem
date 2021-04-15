@@ -123,7 +123,7 @@ void outputMesh(Mesh<dimension>& mesh,
     output << "zones" << std::endl;
     output << mesh.getZoneNames().size() << std::endl;
     for (const auto& zonename : mesh.getZoneNames()) {
-        std::cout << zonename << '\n';
+        output << zonename << '\n';
     }
 
     output << "nodes" << std::endl;

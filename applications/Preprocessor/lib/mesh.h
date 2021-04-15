@@ -714,6 +714,8 @@ Mesh<dimension> readFile(MeshSource& file) {
         }
     }
     for (auto element : file.getElements()) {
+        logger.assert_always(!element.zoneName.empty(),
+                             "Element without a zone name");
         result.addElement(element.coordinateIds, element.zoneName);
     }
     logger.assert_debug(result.isValid(), "Unspecified problem with the mesh");
@@ -747,6 +749,8 @@ Mesh<dimension> fromMeshSource(MeshSource2& file) {
     }
     // Add all the elements
     for (auto element : file.getElements()) {
+        logger.assert_always(!element.zoneName.empty(),
+                             "Element without a zone name");
         result.addElement(element.coordinateIds, element.zoneName);
     }
     logger.assert_debug(result.isValid(), "Unspecified problem with the mesh");

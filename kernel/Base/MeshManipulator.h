@@ -166,7 +166,7 @@ class MeshManipulator : public MeshManipulatorBase {
                                             std::size_t unknown);
 
     Element* addElement(const std::vector<std::size_t>& globalNodeIndexes,
-                        std::size_t owner, bool owning);
+                        Zone& zone, std::size_t owner, bool owning);
 
     bool addFace(
         Element* leftElementPtr, std::size_t leftElementLocalFaceNo,
