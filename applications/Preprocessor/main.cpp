@@ -74,12 +74,38 @@ void printMeshStatistics(const Preprocessor::Mesh<dimension>& mesh) {
     logger(INFO, "Mesh counts");
     logger(INFO, "\tElements: %", mesh.getNumberOfElements());
     logger(INFO, "\tFaces: %", mesh.getNumberOfFaces());
+    {
+        std::size_t boundaryFaces = 0;
+        std::size_t internalFaces = 0;
+        for (const Preprocessor::MeshEntity<dimension - 1, dimension>& face :
+             mesh.getFaces()) {
+            switch (face.getNumberOfElements()) {
+                case 1:
+                    boundaryFaces++;
+                    break;
+                case 2:
+                    internalFaces++;
+                    break;
+                case 0:
+                    logger(WARN, "Orphaned face");
+                    break;
+                default:
+                    logger.assert_always(false, "A face with % elements",
+                                         face.getNumberOfElements());
+            }
+        }
+        logger(INFO, "\t\tInternal: %", internalFaces);
+        logger(INFO, "\t\tBoundary: %", boundaryFaces);
+        // Statistics about faces
+    }
+
     if (dimension > 2) {
         logger(INFO, "\tEdges: %", mesh.getNumberOfEdges());
     }
     if (dimension > 1) {
         logger(INFO, "\tNodes: %", mesh.getNumberOfNodes());
     }
+    logger(INFO, "\tCoordinates: %", mesh.getNodeCoordinates().size());
 
     if (!mesh.getNodeCoordinates().empty()) {
         LinearAlgebra::SmallVector<dimension> minCoord, maxCoord;
@@ -93,6 +119,11 @@ void printMeshStatistics(const Preprocessor::Mesh<dimension>& mesh) {
             }
         }
         logger(INFO, "Mesh bounding box min % - max %", minCoord, maxCoord);
+    }
+
+    logger(INFO, "Zones:", mesh.getZoneNames().size());
+    for (const std::string& zone : mesh.getZoneNames()) {
+        logger(INFO, "\t%", zone);
     }
 }
 
