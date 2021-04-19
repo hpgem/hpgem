@@ -390,7 +390,7 @@ void GmshReader::readPBCs() {
 
     for (size_t i = 0; i < num_periodic_elements; i++) {
         size_t dimension, entity_tag, master_entity_tag;
-        Filehandle_ >> dimension>>entity_tag>>master_entity_tag;
+        Filehandle_ >> dimension >> entity_tag >> master_entity_tag;
     }
 
     std::unordered_map<size_t, size_t> pbc_nodes;
