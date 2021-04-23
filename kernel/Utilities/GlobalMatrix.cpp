@@ -152,11 +152,12 @@ void GlobalMatrix::getMatrixBCEntries(const Base::Face* face,
 }
 
 #if defined(HPGEM_USE_ANY_PETSC)
-
 GlobalPetscMatrix::GlobalPetscMatrix(const GlobalIndexing& rowIndexing,
                                      const GlobalIndexing& columnIndexing,
+                                     Table2D<bool> faceCoupling,
                                      int elementMatrixID, int faceMatrixID)
-    : GlobalMatrix(rowIndexing, columnIndexing, elementMatrixID, faceMatrixID) {
+    : GlobalMatrix(rowIndexing, columnIndexing, elementMatrixID, faceMatrixID),
+      faceCoupling_(std::move(faceCoupling)) {
     PetscBool petscRuns;
     PetscInitialized(&petscRuns);
     logger.assert_debug(
@@ -166,7 +167,10 @@ GlobalPetscMatrix::GlobalPetscMatrix(const GlobalIndexing& rowIndexing,
     // Dummy call to always have an valid matrix in A_.
     MatCreateSeqAIJ(PETSC_COMM_SELF, 0, 0, 0, PETSC_NULL, &A_);
 
-    reinit();
+    // The user passed the face coupling through the constructor so don't reinit
+    // it.
+    const bool reinitFaceCoupling = false;
+    reinit(reinitFaceCoupling);
 }
 
 GlobalPetscMatrix::~GlobalPetscMatrix() {
@@ -186,9 +190,15 @@ GlobalPetscMatrix::operator Mat() {
     return A_;
 }
 
-void GlobalPetscMatrix::reinit() {
+void GlobalPetscMatrix::reinit(bool reinitFaceCoupling) {
+
     if (rowIndexing_.getMesh() == nullptr ||
         columnIndexing_.getMesh() == nullptr) {
+
+        if (reinitFaceCoupling) {
+            faceCoupling_.resize(0, 0);
+        }
+
         // Uninitialized index for at least the rows or columns. So replace it
         // with an empty matrix.
         PetscErrorCode error;
@@ -201,6 +211,14 @@ void GlobalPetscMatrix::reinit() {
         logger.assert_always(
             rowIndexing_.getMesh() == columnIndexing_.getMesh(),
             "Row and column indexing from different meshes");
+
+        if (reinitFaceCoupling) {
+            faceCoupling_ =
+                Table2D<bool>(rowIndexing_.getNumberOfIncludedUnknowns(),
+                              columnIndexing_.getNumberOfIncludedUnknowns(),
+                              faceMatrixID_ >= 0);
+        }
+
         createMat();
         assemble();
     }
@@ -210,10 +228,13 @@ void GlobalPetscMatrix::createMat() {
     PetscErrorCode ierr = MatDestroy(&A_);
     CHKERRV(ierr);
 
+    bool isMultiProcessor =
+        Base::MPIContainer::Instance().getNumberOfProcessors() > 1;
+
     // Create matrix
     ierr = MatCreate(PETSC_COMM_WORLD, &A_);
     CHKERRV(ierr);
-    ierr = MatSetType(A_, MATMPIAIJ);
+    ierr = MatSetType(A_, isMultiProcessor ? MATMPIAIJ : MATSEQAIJ);
     CHKERRV(ierr);
 
     // Set sizes based on indexing
@@ -229,18 +250,27 @@ void GlobalPetscMatrix::createMat() {
         std::vector<PetscInt> offDiagonalPositionsPerRow;
         logger.assert_always(rowIndexing_.getMesh() != nullptr, "Null mesh");
         SparsityEstimator estimator(rowIndexing_, columnIndexing_);
-        estimator.computeSparsityEstimate(numberOfPositionsPerRow,
-                                          offDiagonalPositionsPerRow,
-                                          faceMatrixID_ >= 0);
+        std::tie(numberOfPositionsPerRow, offDiagonalPositionsPerRow) =
+            estimator.computeSparsityEstimate(faceCoupling_);
         // Zeros are passed for the ignored arguments.
-        ierr = MatMPIAIJSetPreallocation(A_, 0, numberOfPositionsPerRow.data(),
-                                         0, offDiagonalPositionsPerRow.data());
+        if (isMultiProcessor) {
+            ierr =
+                MatMPIAIJSetPreallocation(A_, 0, numberOfPositionsPerRow.data(),
+                                          0, offDiagonalPositionsPerRow.data());
+        } else {
+            ierr = MatSeqAIJSetPreallocation(A_, 0,
+                                             numberOfPositionsPerRow.data());
+        }
         CHKERRV(ierr);
     } else {
         logger.assert_always(
             numberOfLocalRows == 0 && numberOfLocalColumns == 0,
             "Degrees of freedom without a mesh");
-        ierr = MatMPIAIJSetPreallocation(A_, 0, nullptr, 0, nullptr);
+        if (isMultiProcessor) {
+            ierr = MatMPIAIJSetPreallocation(A_, 0, nullptr, 0, nullptr);
+        } else {
+            ierr = MatSeqAIJSetPreallocation(A_, 0, nullptr);
+        }
         CHKERRV(ierr);
     }
 
@@ -250,8 +280,14 @@ void GlobalPetscMatrix::createMat() {
     // anything on the diagonal will cause an error with the previous option but
     // without the following.
     MatSetOption(A_, MAT_NEW_NONZERO_LOCATIONS, PETSC_TRUE);
+    // Even when using custom faceCoupling_, the corresponding face matrix will
+    // be inserted fully via MatSetValues. However, a large part of this matrix
+    // is empty. Without the following option all these zeros will create a
+    // large number of unused entries overrunning the estimate from the
+    // sparsityestimator.
+    MatSetOption(A_, MAT_IGNORE_ZERO_ENTRIES, PETSC_TRUE);
     // Enable the following to test that no new allocations were needed
-    // MatSetOption(A_, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_TRUE);
+    MatSetOption(A_, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_TRUE);
 }
 
 void GlobalPetscMatrix::assemble() {
@@ -314,6 +350,9 @@ void GlobalPetscMatrix::assemble() {
                 A_, localToGlobalRow.size(), localToGlobalRow.data(),
                 localToGlobalColumnRef.size(), localToGlobalColumnRef.data(),
                 faceMatrix.data(), ADD_VALUES);
+            if (ierr > 0) {
+                logger(ERROR, "error");
+            }
             CHKERRV(ierr);
         }
     }

@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2017, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,27 +35,4 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef HPGEM_APP_OUTPUT_H
-#define HPGEM_APP_OUTPUT_H
-
-#include <Base/CommandLineOptions.h>
-#include "mesh.h"
-#include "meshData.h"
-
-auto& outputFileName = Base::register_argument<std::string>(
-    '\0', "outFile", "Name of your output file (input for hpGEM)", false,
-    "mesh.hpGEM");
-
-namespace Preprocessor {
-template <typename indexType, std::size_t dimension>
-void outputMesh(Mesh<dimension>& mesh,
-                MeshData<indexType, dimension, dimension> partitions,
-                std::size_t numberOfPartitions);
-}
-
-#include "output_impl.h"
-
-using namespace hpgem;
-
-#endif  // HPGEM_APP_OUTPUT_H
+#include "Zone.h"

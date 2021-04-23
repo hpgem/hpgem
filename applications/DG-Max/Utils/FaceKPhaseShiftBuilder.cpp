@@ -42,9 +42,6 @@
 
 namespace DGMax {
 
-template class FaceMatrixKPhaseShiftBuilder<2>;
-template class FaceMatrixKPhaseShiftBuilder<3>;
-
 template <std::size_t DIM>
 KPhaseShifts<DIM> FaceMatrixKPhaseShiftBuilder<DIM>::build(
     const Utilities::GlobalIndexing& indexing) const {
@@ -149,5 +146,8 @@ KPhaseShiftBlock<DIM> FaceMatrixKPhaseShiftBuilder<DIM>::facePhaseShift(
             DGMax::MatrixBlocks(rowIndices, colIndices, block1, block2), dx);
     }
 }
+
+template class FaceMatrixKPhaseShiftBuilder<2>;
+template class FaceMatrixKPhaseShiftBuilder<3>;
 
 }  // namespace DGMax

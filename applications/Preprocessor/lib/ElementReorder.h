@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2017, University of Twente
+ Copyright (c) 2014, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -36,58 +36,55 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPGEM_APP_HPGEM_H
-#define HPGEM_APP_HPGEM_H
+#ifndef HPGEM_APP_ELEMENTREORDER_H
+#define HPGEM_APP_ELEMENTREORDER_H
 
-#include "customIterator.h"
-#include "MeshSource.h"
 #include <vector>
 #include <string>
-#include <fstream>
-
-using namespace hpgem;
 
 namespace Preprocessor {
 
-class PrivateReader : public MeshSource {
+class ElementReorder {
+
    public:
-    virtual ~PrivateReader() = default;
-    PrivateReader(const PrivateReader&) = delete;
-    PrivateReader(PrivateReader&&) = delete;
-    PrivateReader& operator=(const PrivateReader&) = delete;
-    PrivateReader& operator=(PrivateReader&&) = delete;
+    // order is a vector of indices of the nodes in the mesh format in the order
+    // of hpgem e.g. hpgem ordering is 0,1,2 and your format is 1,0,2
+    // order={1,0,2}
+    void addElementType(size_t dimension, const std::string& name,
+                        const std::vector<size_t>& order);
 
-    virtual Range<MeshSource::Node> getNodeCoordinates() = 0;
-    virtual Range<MeshSource::Element> getElements() = 0;
-    virtual std::size_t getDimension() const = 0;
-    virtual std::size_t getTargetProcessorCount() = 0;
-    virtual Range<std::size_t> getProcessorBindings() = 0;
+    void reorderToHpGem(size_t dimension, std::vector<size_t>& indeces) const;
 
-   protected:
-    PrivateReader() = default;
-};
-
-class HpgemReader : public MeshSource {
-   public:
-    HpgemReader(std::string filename);
-
-    Range<MeshSource::Node> getNodeCoordinates() final {
-        return impl->getNodeCoordinates();
-    }
-    Range<MeshSource::Element> getElements() final {
-        return impl->getElements();
-    }
-    std::size_t getDimension() const final { return impl->getDimension(); }
-    std::size_t getTargetProcessorCount() {
-        return impl->getTargetProcessorCount();
-    }
-    Range<std::size_t> getProcessorBindings() {
-        return impl->getProcessorBindings();
-    }
+    void reorderFromHpGem(size_t dimension, std::vector<size_t>& indeces) const;
 
    private:
-    std::shared_ptr<PrivateReader> impl{nullptr};
+    struct Element {
+
+        Element(size_t dimension, const std::string& name,
+                const std::vector<size_t>& order)
+            : dimension_(dimension), name_(name), order_(order) {
+            checkOrder(order);
+        }
+        size_t dimension_;
+        std::string name_;
+        std::vector<size_t> order_;
+
+        bool operator==(const Element& other) {
+            return dimension_ == other.dimension_ && name_ == other.name_ &&
+                   order_ == other.order_;
+        }
+
+       private:
+        void checkOrder(std::vector<size_t> order) const;
+    };
+
+    const Element& FindElement(size_t dimension, size_t indices_size) const;
+
+    std::vector<Element> orderPerElement_;  // there are like 10 different
+                                            // types so a linear search should
+                                            // be fast enough
 };
+
 }  // namespace Preprocessor
 
-#endif  // HPGEM_APP_HPGEM_H
+#endif
