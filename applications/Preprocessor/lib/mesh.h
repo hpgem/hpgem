@@ -42,6 +42,7 @@
 #include "LinearAlgebra/SmallVector.h"
 #include "elementShape.h"
 #include "MeshSource.h"
+#include "tag.h"
 
 // the data structures needed to represent a mesh
 // they are collected in one file because they are meaningless alone and
@@ -429,10 +430,6 @@ class Mesh {
         /// The coordinates
         LinearAlgebra::SmallVector<dimension> coordinate;
     };
-
-    /// Template class helper to pass a dimension d.
-    template <std::size_t d>
-    struct tag {};
 
    public:
     Mesh() = default;

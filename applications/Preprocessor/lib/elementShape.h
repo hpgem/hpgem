@@ -43,6 +43,8 @@
 #include <vector>
 #include "Logger.h"
 
+#include "tag.h"
+
 namespace Preprocessor {
 
 using namespace hpgem;
@@ -151,8 +153,6 @@ struct EntityData<0, dimension> {
 
 template <std::size_t dimension>
 class ElementShape {
-    template <std::size_t d>
-    struct tag {};
 
    public:
     ElementShape() = default;

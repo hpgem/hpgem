@@ -41,14 +41,13 @@
 #include <fstream>
 #include <set>
 #include <map>
+#include "tag.h"
 
 namespace Preprocessor {
 
 using namespace hpgem;
 
 namespace Detail {
-template <std::size_t d>
-struct tag {};
 
 template <std::size_t dimension>
 void printOtherEntityCounts(std::ofstream& output, const Mesh<dimension>& mesh,
@@ -107,7 +106,7 @@ void outputMesh(Mesh<dimension>& mesh,
     output << "mesh " << version << std::endl;
     output << mesh.getNumberOfNodes() << " " << mesh.getNumberOfElements()
            << " " << dimension;
-    printOtherEntityCounts(output, mesh, Detail::tag<dimension - 1>{});
+    Detail::printOtherEntityCounts(output, mesh, tag<dimension - 1>{});
     output << std::endl;
     std::size_t reservedSpace =
         std::max(std::log10(mesh.getNumberOfNodes()), 0.) + 2;
@@ -198,7 +197,7 @@ void outputMesh(Mesh<dimension>& mesh,
         }
         output << '\n' << element.getZoneId() << '\n';
     }
-    printOtherEntities(output, mesh, partitions, Detail::tag<dimension - 1>{});
+    Detail::printOtherEntities(output, mesh, partitions, tag<dimension - 1>{});
     output.seekp(partitionInformation);
     for (std::size_t i = 0; i < numberOfPartitions; ++i) {
         output << partitionData[i] << " ";
