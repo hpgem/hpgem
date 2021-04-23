@@ -315,7 +315,9 @@ class Element : public MeshEntity<dim, dim> {
     std::vector<std::size_t> getLocalIncidenceListAsIndices(
         const MeshEntity<entityDimension, dim>& entity) const;
 
-    std::string getZoneName() { return this->mesh->zoneNames[zoneId]; }
+    std::string getZoneName() const { return this->mesh->zoneNames[zoneId]; }
+
+    size_t getZoneId() const { return zoneId; }
 
    private:
     friend Mesh<dim>;
@@ -511,6 +513,8 @@ class Mesh {
     std::vector<coordinateData>& getNodeCoordinates();
     const std::vector<coordinateData>& getNodeCoordinates() const;
 
+    const std::vector<std::string>& getZoneNames() const { return zoneNames; }
+
     /// Get the list of MeshEntity-s of a specific dimension
     template <int entityDimension>
     std::vector<MeshEntity<(entityDimension < 0 ? entityDimension + dimension
@@ -536,7 +540,7 @@ class Mesh {
     /// Set the number of nodes in the Mesh. Will add or remove Nodes as
     /// necessary.
     void setNumberOfNodes(std::size_t number);
-    void addNode();
+    std::size_t addNode();
     void addNodes(std::size_t count);
 
     std::size_t addNodeCoordinate(
@@ -710,6 +714,43 @@ Mesh<dimension> readFile(MeshSource& file) {
         }
     }
     for (auto element : file.getElements()) {
+        logger.assert_always(!element.zoneName.empty(),
+                             "Element without a zone name");
+        result.addElement(element.coordinateIds, element.zoneName);
+    }
+    logger.assert_debug(result.isValid(), "Unspecified problem with the mesh");
+    return result;
+}
+
+template <std::size_t dimension>
+Mesh<dimension> fromMeshSource(MeshSource2& file) {
+    Mesh<dimension> result;
+    logger.assert_always(dimension == file.getDimension(),
+                         "Mismatching dimensions");
+    // Mapping of the nodeId, source nodeId -> mesh nodeId
+    std::map<std::size_t, std::size_t> nodeMapping;
+    // Add all the nodes
+    for (auto coord : file.getCoordinates()) {
+        // Find the node in the mesh, or create a new one if needed
+        std::size_t sourceNodeId = coord.nodeId;
+        std::size_t meshNodeId;
+        auto current = nodeMapping.find(sourceNodeId);
+        if (current != nodeMapping.end()) {
+            meshNodeId = current->second;
+        } else {
+            meshNodeId = result.addNode();
+            nodeMapping[sourceNodeId] = meshNodeId;
+        }
+        // Add the actual coordinate
+        logger.assert_debug(
+            coord.coordinate.size() == dimension,
+            "The coordinates read by this reader have the wrong dimension");
+        result.addNodeCoordinate(meshNodeId, coord.coordinate);
+    }
+    // Add all the elements
+    for (auto element : file.getElements()) {
+        logger.assert_always(!element.zoneName.empty(),
+                             "Element without a zone name");
         result.addElement(element.coordinateIds, element.zoneName);
     }
     logger.assert_debug(result.isValid(), "Unspecified problem with the mesh");

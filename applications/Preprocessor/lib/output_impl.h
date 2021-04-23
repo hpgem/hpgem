@@ -70,6 +70,7 @@ template <std::size_t d, std::size_t dimension, typename indexType>
 void printOtherEntities(std::ofstream& output, const Mesh<dimension>& mesh,
                         MeshData<indexType, dimension, dimension>& partitions,
                         tag<d>) {
+    output << "codim" << dimension - d << '\n';
     for (auto entity : mesh.template getEntities<d>()) {
         std::set<std::size_t> localPartitions;
         output << entity.getNumberOfElements() << " ";
@@ -102,7 +103,8 @@ void outputMesh(Mesh<dimension>& mesh,
     }
     std::ofstream output(outputFileName.getValue());
     output << std::hexfloat;
-    output << "mesh 1" << std::endl;
+    size_t version = 2;
+    output << "mesh " << version << std::endl;
     output << mesh.getNumberOfNodes() << " " << mesh.getNumberOfElements()
            << " " << dimension;
     printOtherEntityCounts(output, mesh, Detail::tag<dimension - 1>{});
@@ -117,6 +119,14 @@ void outputMesh(Mesh<dimension>& mesh,
         output << whiteSpace;
     }
     output << std::endl;
+
+    output << "zones" << std::endl;
+    output << mesh.getZoneNames().size() << std::endl;
+    for (const auto& zonename : mesh.getZoneNames()) {
+        output << zonename << '\n';
+    }
+
+    output << "nodes" << std::endl;
     std::vector<std::size_t> partitionData(numberOfPartitions, 0);
     MeshData<std::vector<std::size_t>, dimension, 0> coordinateIndices(&mesh);
     for (auto node : mesh.getNodes()) {
@@ -165,6 +175,7 @@ void outputMesh(Mesh<dimension>& mesh,
         }
         output << std::endl;
     }
+    output << "elements" << std::endl;
     for (auto element : mesh.getElements()) {
         output << element.getNumberOfNodes() << " ";
         for (auto node : element.getNodesList()) {
@@ -185,7 +196,7 @@ void outputMesh(Mesh<dimension>& mesh,
         for (auto index : shadowPartitions) {
             output << index << " ";
         }
-        output << std::endl;
+        output << '\n' << element.getZoneId() << '\n';
     }
     printOtherEntities(output, mesh, partitions, Detail::tag<dimension - 1>{});
     output.seekp(partitionInformation);

@@ -88,8 +88,12 @@ MeshManipulatorBase::MeshManipulatorBase(const ConfigurationData* config,
     logger(VERBOSE, "numberOfFaceVectors = %", numberOfFaceVectors);
 }
 
-MeshManipulatorBase::MeshManipulatorBase(const MeshManipulatorBase& other) =
-    default;
+Zone& MeshManipulatorBase::addZone(std::string name) {
+    std::size_t index = zones_.size();
+    std::unique_ptr<Zone> zone = std::make_unique<Zone>(name, index);
+    zones_.emplace_back(std::move(zone));
+    return *zones_.back().get();
+}
 }  // namespace Base
 
 }  // namespace hpgem

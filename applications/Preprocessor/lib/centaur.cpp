@@ -379,6 +379,7 @@ Range<MeshSource::Element> CentaurReader::getElements() {
 
             currentGroupElements = 0;
             currentZoneIndex = 0;
+            next.zoneName = zones[0].getZoneName();
 
             // Read the line with the element count
             currentLine = readLine();

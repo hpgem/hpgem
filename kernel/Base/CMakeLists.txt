@@ -14,6 +14,7 @@ add_library(hpGEM_Base OBJECT
  		Edge.cpp
  		Node.cpp
 		HpgemAPISimplified.cpp
+		Zone.cpp
 		#miscellaneous required stuff
 		${hpGEM_SOURCE_DIR}/kernel/Base/MeshManipulatorBase.cpp
                 Submesh.cpp

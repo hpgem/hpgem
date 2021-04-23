@@ -1,0 +1,14 @@
+The meshes in this folder are fixed (i.e. not regenerated from scratch). These
+meshes are to test the reader on features that are harder with generated meshes.
+
+A description of the meshes in this folder.
+
+ - meshD1N2:
+   A mesh for the unit line segment seperated into two halfs. Based on 1Drectangular2.
+     - v1: Version 1 mesh format
+     - v2-singlezone: Version 2 mesh format with a single zone "TestZone"
+     - v2-twozones: Version 2 mesh format with two zones "Element0", "Element1"
+ - meshD3N2:
+   A structured mesh for the unit cube consisting of 2^3 cubes. Based on poissonMesh12.
+     - v1: Version 1 mesh format
+     - v2: Version 2 mesh format with a single zone "Test"Zone

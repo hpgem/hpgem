@@ -29,6 +29,7 @@ if [ $failed == 0 ]; then
 	exit 0
 else
 	#if failed leave testlogfile file and return 1
+    cat $testlogname
 	exit 1
 fi
 

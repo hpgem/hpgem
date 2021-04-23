@@ -358,9 +358,10 @@ void Mesh<dimension>::setNumberOfNodes(std::size_t number) {
 }
 
 template <std::size_t dimension>
-void Mesh<dimension>::addNode() {
+std::size_t Mesh<dimension>::addNode() {
     std::size_t newIndex = otherEntities.template getData<0>().size();
     otherEntities.template getData<0>().push_back({this, newIndex});
+    return newIndex;
 }
 
 template <std::size_t dimension>
@@ -381,7 +382,7 @@ template <std::size_t dimension>
 void Mesh<dimension>::addElement(std::vector<std::size_t> nodeCoordinateIDs,
                                  const std::string& zoneName) {
     std::size_t elementID = elementsList.size();
-    Element<dimension> newElement{this, elementID, 0};
+    Element<dimension> newElement{this, elementID, getZoneId(zoneName)};
     newElement.setGeometry(findGeometry(nodeCoordinateIDs.size()));
     for (auto coordinateID : nodeCoordinateIDs) {
         std::size_t nodeID = coordinates[coordinateID].nodeIndex;
