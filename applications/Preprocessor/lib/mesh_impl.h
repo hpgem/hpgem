@@ -320,7 +320,7 @@ std::vector<MeshEntity<(entityDimension < 0 ? entityDimension + dimension
                   "this element");
     constexpr std::size_t actualDimension =
         (entityDimension < 0 ? entityDimension + dimension : entityDimension);
-    return otherEntities.template getData<actualDimension>();
+    return otherEntities.template get<actualDimension>();
 };
 
 template <std::size_t dimension>
@@ -334,7 +334,7 @@ const std::vector<MeshEntity<(entityDimension < 0 ? entityDimension + dimension
                   "this element");
     constexpr std::size_t actualDimension =
         (entityDimension < 0 ? entityDimension + dimension : entityDimension);
-    return otherEntities.template getData<actualDimension>();
+    return otherEntities.template get<actualDimension>();
 }
 
 template <std::size_t dimension>
@@ -351,16 +351,16 @@ const std::vector<typename Mesh<dimension>::coordinateData>&
 
 template <std::size_t dimension>
 void Mesh<dimension>::setNumberOfNodes(std::size_t number) {
-    if (number < otherEntities.template getData<0>().size()) {
-        otherEntities.template getData<0>().resize(number);
+    if (number < otherEntities.template get<0>().size()) {
+        otherEntities.template get<0>().resize(number);
     } else
-        addNodes(number - otherEntities.template getData<0>().size());
+        addNodes(number - otherEntities.template get<0>().size());
 }
 
 template <std::size_t dimension>
 std::size_t Mesh<dimension>::addNode() {
-    std::size_t newIndex = otherEntities.template getData<0>().size();
-    otherEntities.template getData<0>().push_back({this, newIndex});
+    std::size_t newIndex = otherEntities.template get<0>().size();
+    otherEntities.template get<0>().push_back({this, newIndex});
     return newIndex;
 }
 
@@ -389,11 +389,11 @@ void Mesh<dimension>::addElement(std::vector<std::size_t> nodeCoordinateIDs,
         newElement.addNode(nodeID, coordinateID);
     }
     elementsList.push_back(newElement);
-    otherEntities.template getData<dimension>().push_back(newElement);
+    otherEntities.template get<dimension>().push_back(newElement);
     for (std::size_t i = 0; i < nodeCoordinateIDs.size(); ++i) {
         auto coordinateID = nodeCoordinateIDs[i];
         std::size_t nodeID = coordinates[coordinateID].nodeIndex;
-        otherEntities.template getData<0>()[nodeID].addElement(elementID, i);
+        otherEntities.template get<0>()[nodeID].addElement(elementID, i);
     }
     fixElement(elementsList.back(), tag<dimension - 1>{});
 }
@@ -453,7 +453,7 @@ void Mesh<dimension>::fixEntity(Element<dimension>& element,
     std::size_t entityIndex =
         (candidates.size() == 1 ? candidates[0] : newEntity<d>());
     element.template addEntity<d>(entityIndex);
-    otherEntities.template getData<d>()[entityIndex].addElement(
+    otherEntities.template get<d>()[entityIndex].addElement(
         element.getGlobalIndex(), index);
 }
 
