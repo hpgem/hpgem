@@ -200,7 +200,7 @@ class ElementShape {
 
     template <typename... Args>
     ElementShape(Args... args) : shapeData(args...) {
-        completeSubShapes(tag<dimension - 1>{}, tag<dimension - 1>{});
+        completeSubShapes();
         logger.assert_debug(checkShape(),
                             "Input generated an inconsistent shape");
     }
@@ -282,24 +282,49 @@ class ElementShape {
                      std::vector<std::size_t>>
         getAdjacentEntities(std::size_t entityIndex) const;
 
-    bool checkShape() const { return checkBoundaryShape(tag<dimension - 1>{}); }
+    bool checkShape() const { return checkBoundaryShape(itag<dimension - 1>{}); }
 
    private:
-    template <std::size_t d, std::size_t shapeDimension>
+    /// For a shape S on the boundary of this elementShape, do some consistency
+    /// checks on the boundary of S.
+    ///
+    /// \tparam d The dimension of the entities to check on the boundary of S
+    /// \tparam shapeDimension The dimension of S
+    /// \param boundingShape The bounding shape S
+    /// \param boundaryNodes The nodes for the S (subset of the nodes of the
+    /// elementshape)
+    ///
+    /// \param currentIndex Index of S with respect to the elementShape.
+    ///
+    /// \return Whether correct
+    template <int d, std::size_t shapeDimension>
     bool checkSingleShape(const ElementShape<shapeDimension>* boundingShape,
                           std::vector<std::size_t> boundaryNodes,
-                          std::size_t currentIndex, tag<d>) const;
+                          std::size_t currentIndex, itag<d>) const;
 
     template <std::size_t shapeDimension>
     bool checkSingleShape(const ElementShape<shapeDimension>* boundingShape,
                           std::vector<std::size_t> boundaryNodes,
-                          std::size_t currentIndex, tag<0>) const;
+                          std::size_t currentIndex, itag<-1>) const;
 
-    template <std::size_t d>
-    bool checkBoundaryShape(tag<d>) const;
+    /// Check the d-dimensional boundary of this shape
+    template <int d>
+    bool checkBoundaryShape(itag<d>) const;
 
-    bool checkBoundaryShape(tag<0>) const;
+    bool checkBoundaryShape(itag<-1>) const;
 
+    /// Derive the topological connections from the vertices on each subshape.
+    void completeSubShapes() {
+        completeSubShapes(tag<dimension - 1>{}, tag<dimension - 1>{});
+    }
+
+    /// Derive the topological connections of the boundary parts.
+    ///
+    /// \tparam entityDimension The dimension of the boundary parts to derive
+    /// the topological connections for.
+    ///
+    /// \tparam targetDimension The dimension of the boundary parts to which
+    /// they are connected.
     template <std::size_t entityDimension, std::size_t targetDimension>
     void completeSubShapes(tag<entityDimension>, tag<targetDimension>);
 

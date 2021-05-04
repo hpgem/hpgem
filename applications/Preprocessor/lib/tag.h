@@ -61,6 +61,17 @@ namespace Preprocessor {
 template <std::size_t i>
 struct tag {};
 
+/**
+ * @brief Same as tag, but with integer parameter.
+ *
+ * Example use is similar to that of tag, but when using recursion on the
+ * dimension this allows having itag<-1> as base case. With tag, the base case
+ * should be tag<0>, which usually means that the logic of tag<d> needs to be
+ * duplicated.
+ */
+template <int>
+struct itag {};
+
 }  // namespace Preprocessor
 
 #endif  // HPGEM_TAG_H
