@@ -43,7 +43,6 @@
 
 namespace Preprocessor {
 
-
 template <std::size_t dimension>
 template <std::size_t entityDimension>
 std::enable_if_t<(entityDimension == dimension), std::size_t>
@@ -56,7 +55,7 @@ template <std::size_t entityDimension>
 std::enable_if_t<(entityDimension >= 0 && entityDimension < dimension),
                  std::size_t>
     ElementShape<dimension>::getNumberOfEntities() const {
-    return shapeData.template getEntityShapes<entityDimension>().size();
+    return boundaryShapes.template get<entityDimension>().size();
 }
 
 template <std::size_t dimension>
@@ -81,7 +80,8 @@ auto ElementShape<dimension>::getBoundaryShape(std::size_t entityIndex) const
                         "%, but you asked for shape %",
                         getNumberOfEntities<entityDimension>(), entityDimension,
                         entityIndex);
-    return shapeData.template getEntityShapes<entityDimension>()[entityIndex];
+    return boundaryShapes.template get<entityDimension>()[entityIndex]
+        .getShape();
 }
 
 template <std::size_t dimension>
@@ -117,10 +117,8 @@ std::enable_if_t<(entityDimension < dimension && targetDimension < dimension),
                         "%, but you asked for shape %",
                         getNumberOfEntities<entityDimension>(), dimension,
                         entityIndex);
-    //    return boundaryShapes.template
-    //    get<entityDimension>()[entityIndex].getAdjacentShapes(targetDimension);
-    return shapeData.template getAdjacentShapes<
-        entityDimension>()[targetDimension][entityIndex];
+    return boundaryShapes.template get<entityDimension>()[entityIndex]
+        .getAdjacentShapes(targetDimension);
 }
 
 template <std::size_t dimension>
@@ -128,7 +126,7 @@ template <int d, std::size_t shapeDimension>
 bool ElementShape<dimension>::checkSingleShape(
     const ElementShape<shapeDimension>* boundingShape,
     std::vector<std::size_t> boundaryNodes, std::size_t currentIndex,
-    itag<d>) const {
+    itag<d> dimTag) const {
     // We deal here with several shapes (in decreasing dimension)
     // 1. The elementShape E
     // 2. A shape S on the boundary of E, which has index 'currentIndex'
@@ -146,10 +144,8 @@ bool ElementShape<dimension>::checkSingleShape(
         bool match = false;
         // Find E' by looking for the shape that has the same nodes
         // up to permutation
-        for (std::size_t j = 0;
-             j < shapeData.template getAdjacentShapes<d>()[0].size(); ++j) {
-            auto comparisonNodes =
-                shapeData.template getAdjacentShapes<d>()[0][j];
+        for (std::size_t j = 0; j < boundaryShapes[dimTag].size(); ++j) {
+            auto comparisonNodes = boundaryShapes[dimTag][j].getNodes();
             std::sort(comparisonNodes.begin(), comparisonNodes.end());
             if (cellNodes == comparisonNodes) {
                 // Found E'
@@ -192,24 +188,12 @@ bool ElementShape<dimension>::checkSingleShape(
 
 template <std::size_t dimension>
 template <int d>
-bool ElementShape<dimension>::checkBoundaryShape(itag<d>) const {
-    // Check 1: The number of boundary shapes must match the number of boundary
-    // shapes for which we have topology information
-    if (shapeData.template getEntityShapes<d>().size() !=
-        shapeData.template getAdjacentShapes<d>()[0].size()) {
-        logger(ERROR,
-               "There are % %-dimensional bounding shapes described by their "
-               "bounding nodes, but % %-dimensional shapes described by their "
-               "topological shape",
-               shapeData.template getEntityShapes<d>().size(), d,
-               shapeData.template getAdjacentShapes<d>()[0].size(), d);
-        return false;
-    }
-    // Check 2: The individual boundary shapes
+bool ElementShape<dimension>::checkBoundaryShape(itag<d> dimTag) const {
+    // Check the individual boundary shapes
     for (std::size_t i = 0; i < getNumberOfEntities<d>(); ++i) {
 
         auto boundingShape = getBoundaryShape<d>(i);
-        // Check 2a: Does the shape itself make sense?
+        // Check 1: Does the shape itself make sense?
         if (!boundingShape->checkShape()) {
             logger(ERROR,
                    "%-dimensional bounding shape % has an unspecified "
@@ -217,9 +201,9 @@ bool ElementShape<dimension>::checkBoundaryShape(itag<d>) const {
                    d, i);
             return false;
         }
-        // Check 2b: The shape has a number of nodes, check that the topological
+        // Check 2: The shape has a number of nodes, check that the topological
         // information has enough nodes.
-        auto boundaryNodes = shapeData.template getAdjacentShapes<d>()[0][i];
+        auto boundaryNodes = boundaryShapes[dimTag][i].getNodes();
         if (boundaryNodes.size() != boundingShape->getNumberOfNodes()) {
             logger(ERROR,
                    "%-dimensional shape % should be described be % nodes, but "
@@ -247,74 +231,65 @@ bool ElementShape<dimension>::checkBoundaryShape(itag<-1>) const {
 
 template <std::size_t dimension>
 template <std::size_t entityDimension, std::size_t targetDimension>
-void ElementShape<dimension>::completeSubShapes(tag<entityDimension>,
-                                                tag<targetDimension>) {
+void ElementShape<dimension>::completeSubShapes(tag<entityDimension> edimTag,
+                                                tag<targetDimension> tdimTag) {
     // In this function we deal with 3 different shapes:
     // 1. This elementShape: E
     // 2. A boundary shape S for which we need to complete the topological
     //    information (entityDimension)
     // 3. A 'targetDimension' boundary shape S' to which it (could) be connected
+    //
+    // For each entity S it should compute to which S' (of appropriate
+    // dimension) it is connected and use that to fill the adjacency
+    // information.
 
-    shapeData.template getAdjacentShapes<entityDimension>()[targetDimension]
-        .resize(getNumberOfEntities<entityDimension>());
     // Loop over all S to update the dimension
     for (std::size_t entityIndex = 0;
          entityIndex < getNumberOfEntities<entityDimension>(); ++entityIndex) {
-        if (targetDimension < entityDimension) {
-            // Case 1: The target entities S' is on the boundary of S.
+        if (targetDimension == entityDimension) {
+            // Case 1: S and S' have the same dimension, hence S' == S
+            boundaryShapes[edimTag][entityIndex].getAdjacentShapes(
+                targetDimension) = {entityDimension};
+        } else {
+            // Mixed case where either S' is on the boundary of S or vice versa.
             //
             // An entity S' is on the boundary of S if and only if the vertices
             // of S' are a subset of the vertices of S. The ordering of the
             // vertices is then irrelevant.
+            //
+            // The case S on the boundary of S' follows analogously
 
             std::vector<std::size_t> result;  // i.e. indices of S'
             std::vector<std::size_t> adjacentNodes =
                 getAdjacentEntities<entityDimension, 0>(entityIndex);
             std::sort(adjacentNodes.begin(), adjacentNodes.end());
             // Vector with for each S' the nodes that are used
-            const auto& candidates =
-                shapeData.template getAdjacentShapes<targetDimension>()[0];
-            std::vector<std::size_t> candidate;
+            const auto& candidates = boundaryShapes[tdimTag];
             for (std::size_t i = 0; i < candidates.size(); ++i) {
-                candidate = candidates[i];
-                std::sort(candidate.begin(), candidate.end());
-                if (std::includes(adjacentNodes.begin(), adjacentNodes.end(),
-                                  candidate.begin(), candidate.end())) {
-                    // The vertices of S' are a subset of those of S
-                    result.push_back(i);
+                const Detail::ElementBoundaryShape<targetDimension, dimension>&
+                    candidate = candidates[i];
+                std::vector<std::size_t> candidateNodes = candidate.getNodes();
+                std::sort(candidateNodes.begin(), candidateNodes.end());
+
+                if (targetDimension < entityDimension) {
+                    if (std::includes(
+                            adjacentNodes.begin(), adjacentNodes.end(),
+                            candidateNodes.begin(), candidateNodes.end())) {
+                        // The vertices of S' are a subset of those of S
+                        result.push_back(i);
+                    }
+                } else {
+                    if (std::includes(
+                            candidateNodes.begin(), candidateNodes.end(),
+                            adjacentNodes.begin(), adjacentNodes.end())) {
+                        // The vertices of S are a subset of those of S'
+                        result.push_back(i);
+                    }
                 }
             }
-            shapeData.template getAdjacentShapes<
-                entityDimension>()[targetDimension][entityIndex] = result;
-        }
-        if (targetDimension == entityDimension) {
-            // Case 2: S and S' have the same dimension, hence S' == S
-            shapeData.template getAdjacentShapes<
-                entityDimension>()[targetDimension][entityIndex] = {
-                entityIndex};
-        }
-        if (targetDimension > entityDimension) {
-            // Case 3: S is a boundary part of S', the reverse of case 1.
-            // Now using that S is part of the boundary of S' if the vertices of
-            // S are a subset of the vertices of S'
-            std::vector<std::size_t> result;
-            std::vector<std::size_t> adjacentNodes =
-                getAdjacentEntities<entityDimension, 0>(entityIndex);
-            std::sort(adjacentNodes.begin(), adjacentNodes.end());
-            const auto& candidates =
-                shapeData.template getAdjacentShapes<targetDimension>()[0];
-            std::vector<std::size_t> candidate;
-            for (std::size_t i = 0; i < candidates.size(); ++i) {
-                candidate = candidates[i];
-                std::sort(candidate.begin(), candidate.end());
-                // this time the candidate is the bigger entity
-                if (std::includes(candidate.begin(), candidate.end(),
-                                  adjacentNodes.begin(), adjacentNodes.end())) {
-                    result.push_back(i);
-                }
-            }
-            shapeData.template getAdjacentShapes<
-                entityDimension>()[targetDimension][entityIndex] = result;
+            // Assign the found connections
+            boundaryShapes[edimTag][entityIndex].getAdjacentShapes(
+                targetDimension) = result;
         }
     }
     completeSubShapes(tag<entityDimension>{}, tag<targetDimension - 1>{});

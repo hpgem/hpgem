@@ -44,6 +44,7 @@
 #include "Logger.h"
 
 #include "tag.h"
+#include "templateArray.h"
 
 namespace Preprocessor {
 
@@ -54,103 +55,50 @@ class ElementShape;
 
 namespace Detail {
 
-template <std::size_t entityDimension, std::size_t dimension>
-struct EntityData : public EntityData<entityDimension - 1, dimension> {
-    template <typename... superArgs>
-    EntityData(std::vector<std::vector<std::size_t>> adjacentNodes,
-               std::vector<const ElementShape<entityDimension>*> entityShapes,
-               superArgs... args)
-        : EntityData<entityDimension - 1, dimension>(args...),
-          adjacentShapes(),
-          entityShapes(entityShapes) {
-        adjacentShapes[0] = adjacentNodes;
+/// Part of the boundary of an ElementShape
+/// \tparam partDimension The dimension of the part
+/// \tparam dimension The dimension of the original shape
+template <std::size_t partDimension, std::size_t dimension>
+class ElementBoundaryShape {
+   public:
+    ElementBoundaryShape(const ElementShape<partDimension>* shape,
+                         std::vector<std::size_t> nodeIds)
+        : shape(shape), adjacentShapes() {
+        adjacentShapes[0] = nodeIds;
+    };
+    ElementBoundaryShape() = default;
+
+    const ElementShape<partDimension>* getShape() const { return shape; }
+
+    std::vector<std::size_t>& getAdjacentShapes(std::size_t targetDimension) {
+        logger.assert_debug(targetDimension < dimension,
+                            "Invalid target dimension");
+        return adjacentShapes[targetDimension];
+    }
+    const std::vector<std::size_t>& getAdjacentShapes(
+        std::size_t targetDimension) const {
+        logger.assert_debug(targetDimension < dimension,
+                            "Invalid target dimension");
+        return adjacentShapes[targetDimension];
     }
 
-    EntityData() = default;
-
-    ~EntityData() = default;
-
-    EntityData(const EntityData&) = default;
-
-    EntityData(EntityData&&) noexcept = default;
-
-    EntityData& operator=(const EntityData&) = default;
-
-    EntityData& operator=(EntityData&&) noexcept = default;
-
-    // - Target dimension
-    // - Shape
-    // -> indices
-    std::array<std::vector<std::vector<std::size_t>>, dimension> adjacentShapes;
-    std::vector<const ElementShape<entityDimension>*> entityShapes;
-
-    template <std::size_t SUB_DIM>
-    std::vector<const ElementShape<SUB_DIM>*>& getEntityShapes() {
-        return EntityData<SUB_DIM, dimension>::entityShapes;
+    const std::vector<std::size_t>& getNodes() const {
+        return getAdjacentShapes(0);
     }
 
-    template <std::size_t SUB_DIM>
-    const std::vector<const ElementShape<SUB_DIM>*>& getEntityShapes() const {
-        return EntityData<SUB_DIM, dimension>::entityShapes;
-    }
-
-    template <std::size_t SUB_DIM>
-    std::array<std::vector<std::vector<std::size_t>>, dimension>&
-        getAdjacentShapes() {
-        return this->EntityData<SUB_DIM, dimension>::adjacentShapes;
-    }
-
-    template <std::size_t SUB_DIM>
-    const std::array<std::vector<std::vector<std::size_t>>, dimension>&
-        getAdjacentShapes() const {
-        return EntityData<SUB_DIM, dimension>::adjacentShapes;
-    }
-};
-
-template <std::size_t dimension>
-struct EntityData<0, dimension> {
-    EntityData(std::vector<std::vector<std::size_t>> adjacentNodes,
-               std::vector<const ElementShape<0>*> entityShapes)
-        : adjacentShapes(), entityShapes(entityShapes) {
-        adjacentShapes[0] = adjacentNodes;
-    }
-
-    EntityData() = default;
-
-    ~EntityData() = default;
-
-    EntityData(const EntityData&) = default;
-
-    EntityData(EntityData&&) noexcept = default;
-
-    EntityData& operator=(const EntityData&) = default;
-
-    EntityData& operator=(EntityData&&) noexcept = default;
-
-    std::array<std::vector<std::vector<std::size_t>>, dimension> adjacentShapes;
-    std::vector<const ElementShape<0>*> entityShapes;
-
-    template <std::size_t SUB_DIM>
-    std::vector<const ElementShape<SUB_DIM>*>& getEntityShapes() {
-        return EntityData<SUB_DIM, dimension>::entityShapes;
-    }
-
-    template <std::size_t SUB_DIM>
-    std::array<std::vector<std::vector<std::size_t>>, dimension>&
-        getAdjacentShapes() {
-        return this->EntityData<SUB_DIM, dimension>::adjacentShapes;
-    }
-
-    template <std::size_t SUB_DIM>
-    const std::vector<const ElementShape<SUB_DIM>*>& getEntityShapes() const {
-        return EntityData<SUB_DIM, dimension>::entityShapes;
-    }
-
-    template <std::size_t SUB_DIM>
-    const std::array<std::vector<std::vector<std::size_t>>, dimension>&
-        getAdjacentShapes() const {
-        return this->EntityData<SUB_DIM, dimension>::adjacentShapes;
-    }
+   private:
+    /// The shape of this part of the boundary
+    const ElementShape<partDimension>* shape;
+    /// The adjacent boundary parts, as indices into the the list of boundary
+    /// parts of the corresponding element. Grouped by the dimension of the
+    /// specific part. This results in three cases:
+    /// adjacentDim < entityDim
+    ///   -> adjacentShape is part of the boundary of this boundary part.
+    /// adjacentDim == entityDim
+    ///    -> This boundary part itself
+    /// adjacentDim > entityDim
+    ///    -> This boundary part is on the boundary of the adjacentShape
+    std::array<std::vector<std::size_t>, dimension> adjacentShapes;
 };
 }  // namespace Detail
 
@@ -199,7 +147,7 @@ class ElementShape {
     ElementShape& operator=(ElementShape&&) noexcept = default;
 
     template <typename... Args>
-    ElementShape(Args... args) : shapeData(args...) {
+    ElementShape(Args... args) : boundaryShapes(args...) {
         completeSubShapes();
         logger.assert_debug(checkShape(),
                             "Input generated an inconsistent shape");
@@ -272,7 +220,7 @@ class ElementShape {
      */
     template <std::size_t entityDimension, std::size_t targetDimension>
     std::enable_if_t<(entityDimension == dimension ||
-                       targetDimension == dimension),
+                      targetDimension == dimension),
                      std::vector<std::size_t>>
         getAdjacentEntities(std::size_t entityIndex) const;
 
@@ -282,7 +230,9 @@ class ElementShape {
                      std::vector<std::size_t>>
         getAdjacentEntities(std::size_t entityIndex) const;
 
-    bool checkShape() const { return checkBoundaryShape(itag<dimension - 1>{}); }
+    bool checkShape() const {
+        return checkBoundaryShape(itag<dimension - 1>{});
+    }
 
    private:
     /// For a shape S on the boundary of this elementShape, do some consistency
@@ -333,7 +283,12 @@ class ElementShape {
 
     void completeSubShapes(tag<0>, tag<0>) {}
 
-    Detail::EntityData<dimension - 1, dimension> shapeData;
+    /// Specialization to fix the dimension of the entity shape
+    template <std::size_t partDimension>
+    using BoundaryShapeVec =
+        std::vector<Detail::ElementBoundaryShape<partDimension, dimension>>;
+
+    TemplateArray<dimension, BoundaryShapeVec> boundaryShapes;
 };
 
 // Special case for the zero dimension shape: The point. Unlike higher
@@ -411,86 +366,140 @@ class ElementShape<0> {
     bool checkShape() const { return true; }
 };
 
+// Forward declare some helper functions, these require the definition of the
+// point and lines shapes.
+namespace Detail {
+/// Helper function to quickly generate a set of boundary vertices numbered 0 to
+/// N-1
+template <std::size_t dim>
+std::vector<ElementBoundaryShape<0, dim>> generateVertices(
+    std::size_t numPoints);
+
+/// Helper function to generate a set of boundary edges given pairs of
+/// coordinates.
+template <std::size_t dim>
+std::vector<ElementBoundaryShape<1, dim>> generateEdges(
+    std::initializer_list<std::vector<std::size_t>> linePoints);
+}  // namespace Detail
+
 // note when debugging new shapes: invoking the logger during static
 // initialisation can be a bit messy so you may need to use a debugger to see
 // the error message
-const ElementShape<0> point{};
-const ElementShape<1> line(std::vector<std::vector<std::size_t>>{{0}, {1}},
-                           std::vector<const ElementShape<0>*>{&point, &point});
-const ElementShape<2> triangle(
-    std::vector<std::vector<std::size_t>>{{0, 1}, {0, 2}, {1, 2}},
-    std::vector<const ElementShape<1>*>{&line, &line, &line},
-    std::vector<std::vector<std::size_t>>{{0}, {1}, {2}},
-    std::vector<const ElementShape<0>*>{&point, &point, &point});
-const ElementShape<2> square(
-    std::vector<std::vector<std::size_t>>{{0, 1}, {0, 2}, {1, 3}, {2, 3}},
-    std::vector<const ElementShape<1>*>{&line, &line, &line, &line},
-    std::vector<std::vector<std::size_t>>{{0}, {1}, {2}, {3}},
-    std::vector<const ElementShape<0>*>{&point, &point, &point, &point});
-const ElementShape<3> tetrahedron(
-    std::vector<std::vector<std::size_t>>{
-        {0, 3, 2}, {0, 1, 3}, {0, 2, 1}, {1, 2, 3}},
-    std::vector<const ElementShape<2>*>{&triangle, &triangle, &triangle,
-                                        &triangle},
-    std::vector<std::vector<std::size_t>>{
-        {0, 1}, {0, 2}, {0, 3}, {2, 3}, {1, 3}, {1, 2}},
-    std::vector<const ElementShape<1>*>{&line, &line, &line, &line, &line,
-                                        &line},
-    std::vector<std::vector<std::size_t>>{{0}, {1}, {2}, {3}},
-    std::vector<const ElementShape<0>*>{&point, &point, &point, &point});
-const ElementShape<3> cube(
-    std::vector<std::vector<std::size_t>>{{0, 1, 2, 3},
-                                          {0, 1, 4, 5},
-                                          {0, 2, 4, 6},
-                                          {1, 3, 5, 7},
-                                          {2, 3, 6, 7},
-                                          {4, 5, 6, 7}},
-    std::vector<const ElementShape<2>*>{&square, &square, &square, &square,
-                                        &square, &square},
-    std::vector<std::vector<std::size_t>>{{0, 1},
-                                          {2, 3},
-                                          {4, 5},
-                                          {6, 7},
-                                          {0, 2},
-                                          {1, 3},
-                                          {4, 6},
-                                          {5, 7},
-                                          {0, 4},
-                                          {1, 5},
-                                          {2, 6},
-                                          {3, 7}},
-    std::vector<const ElementShape<1>*>{&line, &line, &line, &line, &line,
-                                        &line, &line, &line, &line, &line,
-                                        &line, &line},
-    std::vector<std::vector<std::size_t>>{
-        {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}},
-    std::vector<const ElementShape<0>*>{&point, &point, &point, &point, &point,
-                                        &point, &point, &point});
-const ElementShape<3> triangularPrism(
-    std::vector<std::vector<std::size_t>>{
-        {0, 2, 1}, {3, 4, 5}, {2, 0, 5, 3}, {0, 1, 3, 4}, {1, 2, 4, 5}},
-    std::vector<const ElementShape<2>*>{&triangle, &triangle, &square, &square,
-                                        &square},
-    std::vector<std::vector<std::size_t>>{
-        {0, 1}, {0, 2}, {1, 2}, {3, 4}, {3, 5}, {4, 5}, {0, 3}, {1, 4}, {2, 5}},
-    std::vector<const ElementShape<1>*>{&line, &line, &line, &line, &line,
-                                        &line, &line, &line, &line},
-    std::vector<std::vector<std::size_t>>{{0}, {1}, {2}, {3}, {4}, {5}},
-    std::vector<const ElementShape<0>*>{&point, &point, &point, &point, &point,
-                                        &point});
-const ElementShape<3> pyramid(
-    std::vector<std::vector<std::size_t>>{
-        {3, 4, 1, 2}, {3, 1, 0}, {2, 4, 0}, {1, 2, 0}, {4, 3, 0}},
-    std::vector<const ElementShape<2>*>{&square, &triangle, &triangle,
-                                        &triangle, &triangle},
-    std::vector<std::vector<std::size_t>>{
-        {0, 1}, {0, 2}, {0, 3}, {0, 4}, {1, 2}, {2, 4}, {4, 3}, {3, 1}},
-    std::vector<const ElementShape<1>*>{&line, &line, &line, &line, &line,
-                                        &line, &line, &line},
-    std::vector<std::vector<std::size_t>>{{0}, {1}, {2}, {3}, {4}},
-    std::vector<const ElementShape<0>*>{&point, &point, &point, &point,
-                                        &point});
 
+const ElementShape<0> point{};
+
+const ElementShape<1> line(Detail::generateVertices<1>(2));
+
+const ElementShape<2> triangle{
+    // Boundary lines
+    Detail::generateEdges<2>({{0, 1}, {0, 2}, {1, 2}}),
+    // Corner vertices
+    Detail::generateVertices<2>(3)};
+const ElementShape<2> square{
+    // Boundary lines
+    Detail::generateEdges<2>({{0, 1}, {0, 2}, {1, 3}, {2, 3}}),
+    // Corner vertices
+    Detail::generateVertices<2>(4)};
+
+const ElementShape<3> tetrahedron{
+    // Faces
+    std::vector<Detail::ElementBoundaryShape<2, 3>>{
+        Detail::ElementBoundaryShape<2, 3>{&triangle, {0, 3, 2}},
+        Detail::ElementBoundaryShape<2, 3>{&triangle, {0, 1, 3}},
+        Detail::ElementBoundaryShape<2, 3>{&triangle, {0, 2, 1}},
+        Detail::ElementBoundaryShape<2, 3>{&triangle, {1, 2, 3}},
+    },
+    // Edges
+    Detail::generateEdges<3>({{0, 1}, {0, 2}, {0, 3}, {2, 3}, {1, 3}, {1, 2}}),
+    // Vertices
+    Detail::generateVertices<3>(4)};
+
+const ElementShape<3> cube{
+    // Faces
+    std::vector<Detail::ElementBoundaryShape<2, 3>>{
+        Detail::ElementBoundaryShape<2, 3>{&square, {0, 1, 2, 3}},
+        Detail::ElementBoundaryShape<2, 3>{&square, {0, 1, 4, 5}},
+        Detail::ElementBoundaryShape<2, 3>{&square, {0, 2, 4, 6}},
+        Detail::ElementBoundaryShape<2, 3>{&square, {1, 3, 5, 7}},
+        Detail::ElementBoundaryShape<2, 3>{&square, {2, 3, 6, 7}},
+        Detail::ElementBoundaryShape<2, 3>{&square, {4, 5, 6, 7}},
+    },
+    // Edges
+    Detail::generateEdges<3>({{0, 1},
+                              {2, 3},
+                              {4, 5},
+                              {6, 7},
+                              {0, 2},
+                              {1, 3},
+                              {4, 6},
+                              {5, 7},
+                              {0, 4},
+                              {1, 5},
+                              {2, 6},
+                              {3, 7}}),
+    // Vertices
+    Detail::generateVertices<3>(8)};
+
+const ElementShape<3> triangularPrism{
+    // Faces
+    std::vector<Detail::ElementBoundaryShape<2, 3>>{
+        Detail::ElementBoundaryShape<2, 3>{&triangle, {0, 2, 1}},
+        Detail::ElementBoundaryShape<2, 3>{&triangle, {3, 4, 5}},
+        Detail::ElementBoundaryShape<2, 3>{&square, {2, 0, 5, 3}},
+        Detail::ElementBoundaryShape<2, 3>{&square, {0, 1, 3, 4}},
+        Detail::ElementBoundaryShape<2, 3>{&square, {1, 2, 4, 5}}},
+    // Edges
+    Detail::generateEdges<3>({{0, 1},
+                              {0, 2},
+                              {1, 2},
+                              {3, 4},
+                              {3, 5},
+                              {4, 5},
+                              {0, 3},
+                              {1, 4},
+                              {2, 5}}),
+    // Vertices
+    Detail::generateVertices<3>(6)};
+const ElementShape<3> pyramid{
+    // Faces
+    std::vector<Detail::ElementBoundaryShape<2, 3>>{
+        Detail::ElementBoundaryShape<2, 3>{&square, {3, 4, 1, 2}},
+        Detail::ElementBoundaryShape<2, 3>{&triangle, {3, 1, 0}},
+        Detail::ElementBoundaryShape<2, 3>{&triangle, {2, 4, 0}},
+        Detail::ElementBoundaryShape<2, 3>{&triangle, {1, 2, 0}},
+        Detail::ElementBoundaryShape<2, 3>{&triangle, {4, 3, 0}}
+
+    },
+    // Edges
+    Detail::generateEdges<3>(
+        {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {1, 2}, {2, 4}, {4, 3}, {3, 1}}),
+    // Vertices
+    Detail::generateVertices<3>(5)};
+
+namespace Detail {
+
+template <std::size_t dim>
+std::vector<ElementBoundaryShape<0, dim>> generateVertices(
+    std::size_t numPoints) {
+    std::vector<Detail::ElementBoundaryShape<0, dim>> result(numPoints);
+    for (std::size_t i = 0; i < numPoints; ++i) {
+        result[i] = ElementBoundaryShape<0, dim>{&point, {i}};
+    }
+    return result;
+}
+
+template <std::size_t dim>
+std::vector<ElementBoundaryShape<1, dim>> generateEdges(
+    std::initializer_list<std::vector<std::size_t>> linePoints) {
+    std::vector<ElementBoundaryShape<1, dim>> result;
+    for (auto& linePoint : linePoints) {
+        result.emplace_back(&line, linePoint);
+    }
+    return result;
+}
+}  // namespace Detail
+
+// List of default shapes
 template <std::size_t dimension>
 const std::vector<const ElementShape<dimension>*> defaultShapes;
 

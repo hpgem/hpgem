@@ -65,10 +65,20 @@ class TemplateArray : public TemplateArray<size - 1, V> {
     TemplateArray& operator=(const TemplateArray&) = default;
     TemplateArray& operator=(TemplateArray&&) noexcept = default;
 
+    /// Constructor providing the array items in reverse order
     ///
+    /// This allows constructing a TemplateArray using:
+    /// TemplateArray<size>(v<size-1>, .... v<1>, v<0>), where v<n> is the value
+    /// at position n (and thus type V<n>). Note that contrary to regular array
+    /// construction the values are in reverse order. This is needed for the
+    /// templating.
+    ///
+    /// \tparam superArgs The types of the values
+    /// \param value The value at index 'size-1'
+    /// \param args The values at smaller indices (in reverse order)
     template <typename... superArgs>
-    TemplateArray(superArgs... args, V<size - 1> value)
-        : TemplateArray<size - 1, V>(args...), value(value) {};
+    TemplateArray(V<size - 1> value, superArgs... args)
+        : TemplateArray<size - 1, V>(args...), value(value){};
 
     /**
      * Access the values at a specific index
@@ -98,6 +108,18 @@ class TemplateArray : public TemplateArray<size - 1, V> {
 
     template <std::size_t index>
     const V<index>& operator[](tag<index> tag) const {
+        return get<index>();
+    }
+
+    template <int index>
+    typename std::enable_if<index >= 0, V<index>&>::type operator[](
+        itag<index> tag) {
+        return get<index>();
+    }
+
+    template <int index>
+    typename std::enable_if<index >= 0, const V<index>&>::type operator[](
+        itag<index> tag) const {
         return get<index>();
     }
 
