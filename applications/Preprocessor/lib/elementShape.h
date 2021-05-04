@@ -55,29 +55,33 @@ class ElementShape;
 
 namespace Detail {
 
-/// Part of the boundary of an ElementShape
+/// Part of an ElementShape
+///
+/// Part of an ElementShape, this could be the whole shape, or a part of the
+/// boundary (i.e. a vertex, edge or face).
+///
 /// \tparam partDimension The dimension of the part
 /// \tparam dimension The dimension of the original shape
 template <std::size_t partDimension, std::size_t dimension>
-class ElementBoundaryShape {
+class ElementShapePart {
    public:
-    ElementBoundaryShape(const ElementShape<partDimension>* shape,
-                         std::vector<std::size_t> nodeIds)
+    ElementShapePart(const ElementShape<partDimension>* shape,
+                     std::vector<std::size_t> nodeIds)
         : shape(shape), adjacentShapes() {
         adjacentShapes[0] = nodeIds;
     };
-    ElementBoundaryShape() = default;
+    ElementShapePart() = default;
 
     const ElementShape<partDimension>* getShape() const { return shape; }
 
     std::vector<std::size_t>& getAdjacentShapes(std::size_t targetDimension) {
-        logger.assert_debug(targetDimension < dimension,
+        logger.assert_debug(targetDimension <= dimension,
                             "Invalid target dimension");
         return adjacentShapes[targetDimension];
     }
     const std::vector<std::size_t>& getAdjacentShapes(
         std::size_t targetDimension) const {
-        logger.assert_debug(targetDimension < dimension,
+        logger.assert_debug(targetDimension <= dimension,
                             "Invalid target dimension");
         return adjacentShapes[targetDimension];
     }
@@ -98,7 +102,7 @@ class ElementBoundaryShape {
     ///    -> This boundary part itself
     /// adjacentDim > entityDim
     ///    -> This boundary part is on the boundary of the adjacentShape
-    std::array<std::vector<std::size_t>, dimension> adjacentShapes;
+    std::array<std::vector<std::size_t>, dimension + 1> adjacentShapes;
 };
 }  // namespace Detail
 
@@ -138,16 +142,30 @@ class ElementShape {
 
     ~ElementShape() = default;
 
-    ElementShape(const ElementShape&) = default;
+    // Disallow copying and moving for two reasons:
+    // 1. It contains a self reference as part of its shapeParts, this would
+    //    need a custom copying and moving routine to keep this reference
+    //    correct
+    // 2. Larger shapes store pointers to smaller shapes (for the boundary).
+    //    By moving and copying one could easily break these pointers.
 
-    ElementShape(ElementShape&&) noexcept = default;
+    ElementShape(const ElementShape&) = delete;
 
-    ElementShape& operator=(const ElementShape&) = default;
+    ElementShape(ElementShape&&) noexcept = delete;
 
-    ElementShape& operator=(ElementShape&&) noexcept = default;
+    ElementShape& operator=(const ElementShape&) = delete;
+
+    ElementShape& operator=(ElementShape&&) noexcept = delete;
 
     template <typename... Args>
-    ElementShape(Args... args) : boundaryShapes(args...) {
+    ElementShape(Args... args) : shapeParts({}, args...) {
+
+        auto& shapeVec = shapeParts.template get<dimension>();
+        std::vector<std::size_t> vertices(getNumberOfNodes());
+        std::iota(vertices.begin(), vertices.end(), 0);
+        shapeVec.emplace_back(
+            Detail::ElementShapePart<dimension, dimension>{this, vertices});
+
         completeSubShapes();
         logger.assert_debug(checkShape(),
                             "Input generated an inconsistent shape");
@@ -183,19 +201,11 @@ class ElementShape {
      * @brief returns the number of entities of the specified dimension.
      */
     template <std::size_t entityDimension>
-    std::enable_if_t<(entityDimension == dimension), std::size_t>
-        getNumberOfEntities() const;
-    template <std::size_t entityDimension>
-    std::enable_if_t<(entityDimension >= 0 && entityDimension < dimension),
-                     std::size_t>
+    std::enable_if_t<(entityDimension <= dimension), std::size_t>
         getNumberOfEntities() const;
 
     template <std::size_t entityDimension>
-    std::enable_if_t<(entityDimension == dimension),
-                     const ShapeType<entityDimension>*>
-        getBoundaryShape(std::size_t entityIndex) const;
-    template <std::size_t entityDimension>
-    std::enable_if_t<(entityDimension < dimension),
+    std::enable_if_t<(entityDimension <= dimension),
                      const ShapeType<entityDimension>*>
         getBoundaryShape(std::size_t entityIndex) const;
 
@@ -218,21 +228,14 @@ class ElementShape {
      * @return The indices of the `targetDimension` dimensional entities that
      * are adjacent to the input entity.
      */
+
     template <std::size_t entityDimension, std::size_t targetDimension>
-    std::enable_if_t<(entityDimension == dimension ||
-                      targetDimension == dimension),
+    std::enable_if_t<(entityDimension <= dimension &&
+                      targetDimension <= dimension),
                      std::vector<std::size_t>>
         getAdjacentEntities(std::size_t entityIndex) const;
 
-    template <std::size_t entityDimension, std::size_t targetDimension>
-    std::enable_if_t<(entityDimension < dimension &&
-                      targetDimension < dimension),
-                     std::vector<std::size_t>>
-        getAdjacentEntities(std::size_t entityIndex) const;
-
-    bool checkShape() const {
-        return checkBoundaryShape(itag<dimension - 1>{});
-    }
+    bool checkShape() const { return checkBoundaryShape(itag<dimension>{}); }
 
    private:
     /// For a shape S on the boundary of this elementShape, do some consistency
@@ -265,7 +268,7 @@ class ElementShape {
 
     /// Derive the topological connections from the vertices on each subshape.
     void completeSubShapes() {
-        completeSubShapes(tag<dimension - 1>{}, tag<dimension - 1>{});
+        completeSubShapes(tag<dimension>{}, tag<dimension>{});
     }
 
     /// Derive the topological connections of the boundary parts.
@@ -285,10 +288,10 @@ class ElementShape {
 
     /// Specialization to fix the dimension of the entity shape
     template <std::size_t partDimension>
-    using BoundaryShapeVec =
-        std::vector<Detail::ElementBoundaryShape<partDimension, dimension>>;
+    using ShapePartVec =
+        std::vector<Detail::ElementShapePart<partDimension, dimension>>;
 
-    TemplateArray<dimension, BoundaryShapeVec> boundaryShapes;
+    TemplateArray<dimension + 1, ShapePartVec> shapeParts;
 };
 
 // Special case for the zero dimension shape: The point. Unlike higher
@@ -372,13 +375,12 @@ namespace Detail {
 /// Helper function to quickly generate a set of boundary vertices numbered 0 to
 /// N-1
 template <std::size_t dim>
-std::vector<ElementBoundaryShape<0, dim>> generateVertices(
-    std::size_t numPoints);
+std::vector<ElementShapePart<0, dim>> generateVertices(std::size_t numPoints);
 
 /// Helper function to generate a set of boundary edges given pairs of
 /// coordinates.
 template <std::size_t dim>
-std::vector<ElementBoundaryShape<1, dim>> generateEdges(
+std::vector<ElementShapePart<1, dim>> generateEdges(
     std::initializer_list<std::vector<std::size_t>> linePoints);
 }  // namespace Detail
 
@@ -388,7 +390,7 @@ std::vector<ElementBoundaryShape<1, dim>> generateEdges(
 
 const ElementShape<0> point{};
 
-const ElementShape<1> line(Detail::generateVertices<1>(2));
+const ElementShape<1> line{Detail::generateVertices<1>(2)};
 
 const ElementShape<2> triangle{
     // Boundary lines
@@ -403,11 +405,11 @@ const ElementShape<2> square{
 
 const ElementShape<3> tetrahedron{
     // Faces
-    std::vector<Detail::ElementBoundaryShape<2, 3>>{
-        Detail::ElementBoundaryShape<2, 3>{&triangle, {0, 3, 2}},
-        Detail::ElementBoundaryShape<2, 3>{&triangle, {0, 1, 3}},
-        Detail::ElementBoundaryShape<2, 3>{&triangle, {0, 2, 1}},
-        Detail::ElementBoundaryShape<2, 3>{&triangle, {1, 2, 3}},
+    std::vector<Detail::ElementShapePart<2, 3>>{
+        Detail::ElementShapePart<2, 3>{&triangle, {0, 3, 2}},
+        Detail::ElementShapePart<2, 3>{&triangle, {0, 1, 3}},
+        Detail::ElementShapePart<2, 3>{&triangle, {0, 2, 1}},
+        Detail::ElementShapePart<2, 3>{&triangle, {1, 2, 3}},
     },
     // Edges
     Detail::generateEdges<3>({{0, 1}, {0, 2}, {0, 3}, {2, 3}, {1, 3}, {1, 2}}),
@@ -416,13 +418,13 @@ const ElementShape<3> tetrahedron{
 
 const ElementShape<3> cube{
     // Faces
-    std::vector<Detail::ElementBoundaryShape<2, 3>>{
-        Detail::ElementBoundaryShape<2, 3>{&square, {0, 1, 2, 3}},
-        Detail::ElementBoundaryShape<2, 3>{&square, {0, 1, 4, 5}},
-        Detail::ElementBoundaryShape<2, 3>{&square, {0, 2, 4, 6}},
-        Detail::ElementBoundaryShape<2, 3>{&square, {1, 3, 5, 7}},
-        Detail::ElementBoundaryShape<2, 3>{&square, {2, 3, 6, 7}},
-        Detail::ElementBoundaryShape<2, 3>{&square, {4, 5, 6, 7}},
+    std::vector<Detail::ElementShapePart<2, 3>>{
+        Detail::ElementShapePart<2, 3>{&square, {0, 1, 2, 3}},
+        Detail::ElementShapePart<2, 3>{&square, {0, 1, 4, 5}},
+        Detail::ElementShapePart<2, 3>{&square, {0, 2, 4, 6}},
+        Detail::ElementShapePart<2, 3>{&square, {1, 3, 5, 7}},
+        Detail::ElementShapePart<2, 3>{&square, {2, 3, 6, 7}},
+        Detail::ElementShapePart<2, 3>{&square, {4, 5, 6, 7}},
     },
     // Edges
     Detail::generateEdges<3>({{0, 1},
@@ -442,12 +444,12 @@ const ElementShape<3> cube{
 
 const ElementShape<3> triangularPrism{
     // Faces
-    std::vector<Detail::ElementBoundaryShape<2, 3>>{
-        Detail::ElementBoundaryShape<2, 3>{&triangle, {0, 2, 1}},
-        Detail::ElementBoundaryShape<2, 3>{&triangle, {3, 4, 5}},
-        Detail::ElementBoundaryShape<2, 3>{&square, {2, 0, 5, 3}},
-        Detail::ElementBoundaryShape<2, 3>{&square, {0, 1, 3, 4}},
-        Detail::ElementBoundaryShape<2, 3>{&square, {1, 2, 4, 5}}},
+    std::vector<Detail::ElementShapePart<2, 3>>{
+        Detail::ElementShapePart<2, 3>{&triangle, {0, 2, 1}},
+        Detail::ElementShapePart<2, 3>{&triangle, {3, 4, 5}},
+        Detail::ElementShapePart<2, 3>{&square, {2, 0, 5, 3}},
+        Detail::ElementShapePart<2, 3>{&square, {0, 1, 3, 4}},
+        Detail::ElementShapePart<2, 3>{&square, {1, 2, 4, 5}}},
     // Edges
     Detail::generateEdges<3>({{0, 1},
                               {0, 2},
@@ -462,12 +464,12 @@ const ElementShape<3> triangularPrism{
     Detail::generateVertices<3>(6)};
 const ElementShape<3> pyramid{
     // Faces
-    std::vector<Detail::ElementBoundaryShape<2, 3>>{
-        Detail::ElementBoundaryShape<2, 3>{&square, {3, 4, 1, 2}},
-        Detail::ElementBoundaryShape<2, 3>{&triangle, {3, 1, 0}},
-        Detail::ElementBoundaryShape<2, 3>{&triangle, {2, 4, 0}},
-        Detail::ElementBoundaryShape<2, 3>{&triangle, {1, 2, 0}},
-        Detail::ElementBoundaryShape<2, 3>{&triangle, {4, 3, 0}}
+    std::vector<Detail::ElementShapePart<2, 3>>{
+        Detail::ElementShapePart<2, 3>{&square, {3, 4, 1, 2}},
+        Detail::ElementShapePart<2, 3>{&triangle, {3, 1, 0}},
+        Detail::ElementShapePart<2, 3>{&triangle, {2, 4, 0}},
+        Detail::ElementShapePart<2, 3>{&triangle, {1, 2, 0}},
+        Detail::ElementShapePart<2, 3>{&triangle, {4, 3, 0}}
 
     },
     // Edges
@@ -479,19 +481,18 @@ const ElementShape<3> pyramid{
 namespace Detail {
 
 template <std::size_t dim>
-std::vector<ElementBoundaryShape<0, dim>> generateVertices(
-    std::size_t numPoints) {
-    std::vector<Detail::ElementBoundaryShape<0, dim>> result(numPoints);
+std::vector<ElementShapePart<0, dim>> generateVertices(std::size_t numPoints) {
+    std::vector<Detail::ElementShapePart<0, dim>> result(numPoints);
     for (std::size_t i = 0; i < numPoints; ++i) {
-        result[i] = ElementBoundaryShape<0, dim>{&point, {i}};
+        result[i] = ElementShapePart<0, dim>{&point, {i}};
     }
     return result;
 }
 
 template <std::size_t dim>
-std::vector<ElementBoundaryShape<1, dim>> generateEdges(
+std::vector<ElementShapePart<1, dim>> generateEdges(
     std::initializer_list<std::vector<std::size_t>> linePoints) {
-    std::vector<ElementBoundaryShape<1, dim>> result;
+    std::vector<ElementShapePart<1, dim>> result;
     for (auto& linePoint : linePoints) {
         result.emplace_back(&line, linePoint);
     }
