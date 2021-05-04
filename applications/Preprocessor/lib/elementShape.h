@@ -78,6 +78,9 @@ struct EntityData : public EntityData<entityDimension - 1, dimension> {
 
     EntityData& operator=(EntityData&&) noexcept = default;
 
+    // - Target dimension
+    // - Shape
+    // -> indices
     std::array<std::vector<std::vector<std::size_t>>, dimension> adjacentShapes;
     std::vector<const ElementShape<entityDimension>*> entityShapes;
 
@@ -151,6 +154,34 @@ struct EntityData<0, dimension> {
 };
 }  // namespace Detail
 
+/// @brief Description of the topology of the possible elements in a mesh
+///
+/// The ElementShape defines the shape of the possible reference elements in
+/// the mesh. Which are assumed to be polytopes (point, line, polygon,
+/// polyhedra). Such a reference polytope has several properties that are used
+/// in a FEM code:
+///
+///  1. A coordinate system, describing the geometry of the reference element
+///     and used for the basis functions.
+///  2. The topology of the reference element, as a polytope. That is how are
+///     the parts (vertices, edges, etc.) connected to form the polytope.
+///  3. A numbering of the boundary parts so that each part can be indexed and
+///     their orientation.
+/// In the kernel we don't need the geometry part, but we do need the topology
+/// and the indices of the parts.
+///
+/// To define the topology of the polytope we use two properties:
+///   1. It's boundary is a combination of 0, 1, ... D-1, dimensional polytopes
+///   2. It has N vertices (0 dimensional polytopes).
+/// The vertices are numbered 0...N-1. The intermediate polytopes on the
+/// boundary are then defined by taking a subset of the vertices and providing
+/// the associated polytopical shape. The ordering of the vertices then defines
+/// the relative orientation.
+///
+/// Note: As both of these properties influence the output, they should match
+/// the definition of the shapes in the kernel.
+///
+/// \tparam dimension The dimension of this shape
 template <std::size_t dimension>
 class ElementShape {
 
@@ -178,12 +209,16 @@ class ElementShape {
 
     std::size_t getNumberOfEdges() const { return getNumberOfEntities<1>(); }
 
-    std::size_t getNumberOfFaces() const { return getNumberOfEntities<-1>(); }
+    std::size_t getNumberOfFaces() const {
+        return getNumberOfEntities<dimension - 1>();
+    }
 
-    // if (entityDimension >= 0) ElementShape<entityDimension>
-    // else if(entityDimension + dimension >= 0) ElementShape<entityDimension +
-    // dimension> //codim case else ElementShape<0> //make the compiler not
-    // crash while we invoke the logger
+    // if (entityDimension >= 0)
+    //      ElementShape<entityDimension>
+    // else if(entityDimension + dimension >= 0)
+    //      ElementShape<entityDimension + dimension>
+    // codim case else ElementShape<0>
+    // make the compiler not crash while we invoke the logger
     template <int entityDimension>
     using ShapeType = const ElementShape<(
         entityDimension < 0
@@ -191,65 +226,59 @@ class ElementShape {
                                                : entityDimension + dimension)
             : entityDimension)>;
 
-    ShapeType<-1> getFaceShape(std::size_t faceIndex) const {
-        return getBoundaryShape<-1>(faceIndex);
-    }
-
-    template <int entityDimension>
+    template <std::size_t entityDimension>
     std::vector<std::size_t> getNodesOfEntity(std::size_t entityIndex) const {
         return getAdjacentEntities<entityDimension, 0>(entityIndex);
     }
 
     /**
      * @brief returns the number of entities of the specified dimension.
-     * Negative dimensions are treated as codimensions
      */
-    template <int entityDimension>
-    std::enable_if_t<(entityDimension < 0), std::size_t> getNumberOfEntities()
-        const;
-    template <int entityDimension>
-    std::enable_if_t<(entityDimension >= dimension), std::size_t>
+    template <std::size_t entityDimension>
+    std::enable_if_t<(entityDimension == dimension), std::size_t>
         getNumberOfEntities() const;
-    template <int entityDimension>
+    template <std::size_t entityDimension>
     std::enable_if_t<(entityDimension >= 0 && entityDimension < dimension),
                      std::size_t>
         getNumberOfEntities() const;
 
-    template <int entityDimension>
-    std::enable_if_t<(entityDimension < 0), const ShapeType<entityDimension>*>
-        getBoundaryShape(std::size_t entityIndex) const;
-    template <int entityDimension>
-    std::enable_if_t<(entityDimension >= dimension),
+    template <std::size_t entityDimension>
+    std::enable_if_t<(entityDimension == dimension),
                      const ShapeType<entityDimension>*>
         getBoundaryShape(std::size_t entityIndex) const;
-    template <int entityDimension>
-    std::enable_if_t<(entityDimension >= 0 && entityDimension < dimension),
+    template <std::size_t entityDimension>
+    std::enable_if_t<(entityDimension < dimension),
                      const ShapeType<entityDimension>*>
         getBoundaryShape(std::size_t entityIndex) const;
 
     /**
-     * @brief returns the indices of adjacent entities in the index space of
-     * this shape. If the target dimension is negative, it will be taken with
-     * respect to the full shape
+     * @brief Lookup adjacency information about entities of this shape
+     *
+     * Given an entity on this shape find the adjacent entities
+     * from a specific target dimension. For example let the current shape be a
+     * triangle, and the entity be an edge of this tetrahedron. Then depending
+     * on the target dimension one would get:
+     *  0. The nodes connected to the edge
+     *  1. The edge itself
+     *  2. The triangular faces which have this edge
+     *  3. The tetrahedron
+     *
+     * @tparam entityDimension The dimension of the entity
+     * @tparam targetDimension The dimension of the entities to look to
+     * @param entityIndex The index specifying the specific entity to find the
+     * adjacency of.
+     * @return The indices of the `targetDimension` dimensional entities that
+     * are adjacent to the input entity.
      */
-    template <int entityDimension, int targetDimension>
-    std::enable_if_t<(entityDimension < 0), std::vector<std::size_t>>
-        getAdjacentEntities(std::size_t entityIndex) const;
-    template <int entityDimension, int targetDimension>
-    std::enable_if_t<(targetDimension < 0 && entityDimension >= 0),
+    template <std::size_t entityDimension, std::size_t targetDimension>
+    std::enable_if_t<(entityDimension == dimension ||
+                       targetDimension == dimension),
                      std::vector<std::size_t>>
         getAdjacentEntities(std::size_t entityIndex) const;
 
-    template <int entityDimension, int targetDimension>
-    std::enable_if_t<(entityDimension >= 0 && targetDimension >= 0 &&
-                      (entityDimension >= dimension ||
-                       targetDimension >= dimension)),
-                     std::vector<std::size_t>>
-        getAdjacentEntities(std::size_t entityIndex) const;
-
-    template <int entityDimension, int targetDimension>
-    std::enable_if_t<(entityDimension >= 0 && entityDimension < dimension &&
-                      targetDimension >= 0 && targetDimension < dimension),
+    template <std::size_t entityDimension, std::size_t targetDimension>
+    std::enable_if_t<(entityDimension < dimension &&
+                      targetDimension < dimension),
                      std::vector<std::size_t>>
         getAdjacentEntities(std::size_t entityIndex) const;
 
@@ -282,6 +311,9 @@ class ElementShape {
     Detail::EntityData<dimension - 1, dimension> shapeData;
 };
 
+// Special case for the zero dimension shape: The point. Unlike higher
+// dimensional shapes it does not have a boundary consisting of lower
+// dimensional shapes.
 template <>
 class ElementShape<0> {
    public:
@@ -297,22 +329,15 @@ class ElementShape<0> {
 
     ElementShape& operator=(ElementShape&&) noexcept = default;
 
-    std::size_t getNumberOfNodes() const { return getNumberOfEntities<0>(); }
+    std::size_t getNumberOfNodes() const { return 1; }
 
-    std::size_t getNumberOfEdges() const { return getNumberOfEntities<1>(); }
+    std::size_t getNumberOfEdges() const { return 0; }
 
-    std::size_t getNumberOfFaces() const { return getNumberOfEntities<-1>(); }
+    std::size_t getNumberOfFaces() const { return 0; }
 
-    // if (entityDimension >= 0) ElementShape<entityDimension>
-    // else if(entityDimension + dimension >= 0) ElementShape<entityDimension +
-    // dimension> //codim case else ElementShape<0> //make the compiler not
-    // crash while we invoke the logger
+    // Templated to match the generic case.
     template <int entityDimension>
     using ShapeType = ElementShape<0>;
-
-    ShapeType<-1> getFaceShape(std::size_t faceIndex) const {
-        return getBoundaryShape<-1>(faceIndex);
-    }
 
     template <int entityDimension>
     std::vector<std::size_t> getNodesOfEntity(std::size_t entityIndex) const {
@@ -323,14 +348,13 @@ class ElementShape<0> {
      * @brief returns the number of entities of the specified dimension.
      * Negative dimensions are treated as codimensions
      */
-    template <int entityDimension>
+    template <std::size_t entityDimension>
     std::size_t getNumberOfEntities() const {
         if (entityDimension == 0) return 1;
-
         return 0;
     }
 
-    template <int entityDimension>
+    template <std::size_t entityDimension>
     ShapeType<entityDimension> getBoundaryShape(std::size_t entityIndex) const {
         logger.assert_debug(
             entityDimension == 0,
@@ -342,12 +366,7 @@ class ElementShape<0> {
         return *this;
     }
 
-    /**
-     * @brief returns the indices of adjacent entities in the index space of
-     * this shape. If the target dimension is negative, it will be taken with
-     * respect to the full shape
-     */
-    template <int entityDimension, int targetDimension>
+    template <std::size_t entityDimension, std::size_t targetDimension>
     std::vector<std::size_t> getAdjacentEntities(
         std::size_t entityIndex) const {
         logger.assert_debug(
@@ -357,6 +376,7 @@ class ElementShape<0> {
             entityIndex == 0,
             "A point consists of only 1 shape, but you asked for shape %",
             entityIndex);
+        // The shape itself
         if (targetDimension == 0) return {0};
 
         return {};

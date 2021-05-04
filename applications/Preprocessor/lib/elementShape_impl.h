@@ -39,27 +39,20 @@
 #include <Logger.h>
 #include <numeric>
 #include "elementShape.h"
+#include <algorithm>
 
 namespace Preprocessor {
 
-template <std::size_t dimension>
-template <int entityDimension>
-std::enable_if_t<(entityDimension < 0), std::size_t>
-    ElementShape<dimension>::getNumberOfEntities() const {
-    if (entityDimension + dimension < 0) return 0;
-    return getNumberOfEntities<entityDimension + dimension>();
-}
 
 template <std::size_t dimension>
-template <int entityDimension>
-std::enable_if_t<(entityDimension >= dimension), std::size_t>
+template <std::size_t entityDimension>
+std::enable_if_t<(entityDimension == dimension), std::size_t>
     ElementShape<dimension>::getNumberOfEntities() const {
-    if (entityDimension > dimension) return 0;
     return 1;
 }
 
 template <std::size_t dimension>
-template <int entityDimension>
+template <std::size_t entityDimension>
 std::enable_if_t<(entityDimension >= 0 && entityDimension < dimension),
                  std::size_t>
     ElementShape<dimension>::getNumberOfEntities() const {
@@ -67,23 +60,10 @@ std::enable_if_t<(entityDimension >= 0 && entityDimension < dimension),
 }
 
 template <std::size_t dimension>
-template <int entityDimension>
+template <std::size_t entityDimension>
 auto ElementShape<dimension>::getBoundaryShape(std::size_t entityIndex) const
-    -> std::enable_if_t<(entityDimension < 0),
+    -> std::enable_if_t<(entityDimension == dimension),
                         const ShapeType<entityDimension>*> {
-    logger.assert_debug(entityDimension + dimension >= 0,
-                        "This shape is not bounded by shapes of dimension %",
-                        entityDimension + dimension);
-    return getBoundaryShape<entityDimension + dimension>(entityIndex);
-}
-
-template <std::size_t dimension>
-template <int entityDimension>
-auto ElementShape<dimension>::getBoundaryShape(std::size_t entityIndex) const
-    -> std::enable_if_t<(entityDimension >= dimension),
-                        const ShapeType<entityDimension>*> {
-    logger.assert_debug(entityDimension == dimension,
-                        "This shape is not bounded by shapes of dimension %");
     logger.assert_debug(entityIndex == 0,
                         "This shape is bounded by only 1 shapes of dimension "
                         "%, but you asked for shape %",
@@ -92,9 +72,9 @@ auto ElementShape<dimension>::getBoundaryShape(std::size_t entityIndex) const
 }
 
 template <std::size_t dimension>
-template <int entityDimension>
+template <std::size_t entityDimension>
 auto ElementShape<dimension>::getBoundaryShape(std::size_t entityIndex) const
-    -> std::enable_if_t<(entityDimension >= 0 && entityDimension < dimension),
+    -> std::enable_if_t<(entityDimension < dimension),
                         const ShapeType<entityDimension>*> {
     logger.assert_debug(entityIndex < getNumberOfEntities<entityDimension>(),
                         "This shape is bounded by only % shapes of dimension "
@@ -105,33 +85,8 @@ auto ElementShape<dimension>::getBoundaryShape(std::size_t entityIndex) const
 }
 
 template <std::size_t dimension>
-template <int entityDimension, int targetDimension>
-std::enable_if_t<(entityDimension < 0), std::vector<std::size_t>>
-    ElementShape<dimension>::getAdjacentEntities(
-        std::size_t entityIndex) const {
-    logger.assert_debug(entityDimension + dimension >= 0,
-                        "This shape is not bounded by shapes of dimension %",
-                        entityDimension + dimension);
-    return getAdjacentEntities<entityDimension + dimension, targetDimension>(
-        entityIndex);
-}
-
-template <std::size_t dimension>
-template <int entityDimension, int targetDimension>
-std::enable_if_t<(targetDimension < 0 && entityDimension >= 0),
-                 std::vector<std::size_t>>
-    ElementShape<dimension>::getAdjacentEntities(
-        std::size_t entityIndex) const {
-    if (targetDimension + dimension < 0) return {};
-    return getAdjacentEntities<entityDimension, targetDimension + dimension>(
-        entityIndex);
-}
-
-template <std::size_t dimension>
-template <int entityDimension, int targetDimension>
-std::enable_if_t<(entityDimension >= 0 && targetDimension >= 0 &&
-                  (entityDimension >= dimension ||
-                   targetDimension >= dimension)),
+template <std::size_t entityDimension, std::size_t targetDimension>
+std::enable_if_t<(entityDimension == dimension || targetDimension == dimension),
                  std::vector<std::size_t>>
     ElementShape<dimension>::getAdjacentEntities(
         std::size_t entityIndex) const {
@@ -152,9 +107,8 @@ std::enable_if_t<(entityDimension >= 0 && targetDimension >= 0 &&
 }
 
 template <std::size_t dimension>
-template <int entityDimension, int targetDimension>
-std::enable_if_t<(entityDimension >= 0 && entityDimension < dimension &&
-                  targetDimension >= 0 && targetDimension < dimension),
+template <std::size_t entityDimension, std::size_t targetDimension>
+std::enable_if_t<(entityDimension < dimension && targetDimension < dimension),
                  std::vector<std::size_t>>
     ElementShape<dimension>::getAdjacentEntities(
         std::size_t entityIndex) const {
