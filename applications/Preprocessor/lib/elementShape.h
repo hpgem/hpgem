@@ -39,6 +39,7 @@
 #ifndef HPGEM_APP_ELEMENTSHAPE_H
 #define HPGEM_APP_ELEMENTSHAPE_H
 
+#include <array>
 #include <cstddef>
 #include <numeric>
 #include <vector>
