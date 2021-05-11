@@ -634,7 +634,7 @@ class Mesh {
     // re-stores slices of the elements for consistent use of getEntities<d>,
     // algorithms that need elements can un-slice by asking for the first (and
     // only) element
-    TemplateArray<dimension+1, MeshEntityVec> otherEntities;
+    TemplateArray<dimension + 1, MeshEntityVec> otherEntities;
     std::vector<std::string> zoneNames;
 };
 

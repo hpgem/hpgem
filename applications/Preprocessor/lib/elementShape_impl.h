@@ -45,8 +45,7 @@ namespace Preprocessor {
 
 template <std::size_t dimension>
 template <std::size_t entityDimension>
-std::enable_if_t<(entityDimension <= dimension),
-                 std::size_t>
+std::enable_if_t<(entityDimension <= dimension), std::size_t>
     ElementShape<dimension>::getNumberOfEntities() const {
     return shapeParts.template get<entityDimension>().size();
 }
@@ -61,8 +60,7 @@ auto ElementShape<dimension>::getBoundaryShape(std::size_t entityIndex) const
                         "%, but you asked for shape %",
                         getNumberOfEntities<entityDimension>(), entityDimension,
                         entityIndex);
-    return shapeParts.template get<entityDimension>()[entityIndex]
-        .getShape();
+    return shapeParts.template get<entityDimension>()[entityIndex].getShape();
 }
 
 template <std::size_t dimension>
