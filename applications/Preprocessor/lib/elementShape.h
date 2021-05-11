@@ -44,7 +44,7 @@
 #include "Logger.h"
 
 #include "tag.h"
-#include "templateArray.h"
+#include "TemplateArray.h"
 
 namespace Preprocessor {
 

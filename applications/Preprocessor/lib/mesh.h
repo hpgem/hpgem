@@ -43,7 +43,7 @@
 #include "elementShape.h"
 #include "MeshSource.h"
 #include "tag.h"
-#include "templateArray.h"
+#include "TemplateArray.h"
 
 // the data structures needed to represent a mesh
 // they are collected in one file because they are meaningless alone and

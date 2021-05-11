@@ -46,11 +46,12 @@ template <std::size_t size, template <std::size_t> class V>
 class TemplateArray;
 
 /**
- * Array with index-templates, that is an array of the form
- * [V<0>, V<1>, ..., V<size-1>]
+ * Array for indexed-template, that is given a template V<std::size_t>
+ * an array of the form  [V<0>, V<1>, ... V<size-1>].
  *
- * Note that this is not doable in a normal array, as the type of each entry is
- * different.
+ * Note that each entry of the array has a different type, which would prevent a
+ * regular array from being used.
+ *
  * @tparam size The size of the array
  * @tparam V The entry template
  */
@@ -70,8 +71,8 @@ class TemplateArray : public TemplateArray<size - 1, V> {
     /// This allows constructing a TemplateArray using:
     /// TemplateArray<size>(v<size-1>, .... v<1>, v<0>), where v<n> is the value
     /// at position n (and thus type V<n>). Note that contrary to regular array
-    /// construction the values are in reverse order. This is needed for the
-    /// templating.
+    /// construction the values are in reverse order. This is needed to put the
+    /// parameter packing as last argument.
     ///
     /// \tparam superArgs The types of the values
     /// \param value The value at index 'size-1'
