@@ -159,13 +159,13 @@ class ElementShape {
 
     template <typename... Args>
     ElementShape(Args... args) : shapeParts({}, args...) {
-
+        // Insert ElementShapePart corresponding to the whole element.
         auto& shapeVec = shapeParts.template get<dimension>();
         std::vector<std::size_t> vertices(getNumberOfNodes());
         std::iota(vertices.begin(), vertices.end(), 0);
         shapeVec.emplace_back(
             Detail::ElementShapePart<dimension, dimension>{this, vertices});
-
+        // Compute the topological connections
         completeSubShapes();
         logger.assert_debug(checkShape(),
                             "Input generated an inconsistent shape");
