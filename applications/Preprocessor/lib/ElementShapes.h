@@ -39,13 +39,18 @@
 #define HPGEM_ELEMENTSHAPES_H
 
 #include "elementShape.h"
+#include "TemplateArray.h"
 
 namespace Preprocessor {
 
-/// List of all the shapes in hpgem for the given dimension
-/// \tparam dimension The dimension of the shape
+namespace Detail {
+// Alias to have a template type that directly depends on the dimension
 template <std::size_t dimension>
-const std::vector<const ElementShape<dimension>*> defaultShapes;
+using ShapePointerVec = std::vector<const ElementShape<dimension>*>;
+}  // namespace Detail
+
+/// Listing of all ElementShapes defined in hpGEM
+extern const TemplateArray<4, Detail::ShapePointerVec> hpgemShapes;
 
 }  // namespace Preprocessor
 

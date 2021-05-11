@@ -172,17 +172,12 @@ std::vector<ElementShapePart<1, dim>> generateEdges(
 }
 }  // namespace Detail
 
-template <>
-const std::vector<const ElementShape<0>*> defaultShapes<0> = {&point};
+using Detail::ShapePointerVec;
+const TemplateArray<4, ShapePointerVec> hpgemShapes{
+    ShapePointerVec<3>{&tetrahedron, &cube, &triangularPrism, &pyramid},
+    ShapePointerVec<2>{&triangle, &square},
+    ShapePointerVec<1>{&line},
+    ShapePointerVec<0>{&point},
+};
 
-template <>
-const std::vector<const ElementShape<1>*> defaultShapes<1> = {&line};
-
-template <>
-const std::vector<const ElementShape<2>*> defaultShapes<2> = {&triangle,
-                                                              &square};
-
-template <>
-const std::vector<const ElementShape<3>*> defaultShapes<3> = {
-    &tetrahedron, &cube, &triangularPrism, &pyramid};
 }  // namespace Preprocessor

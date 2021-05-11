@@ -462,7 +462,7 @@ void Mesh<dimension>::fixEntity(Element<dimension>& element,
 template <std::size_t dimension>
 const ElementShape<dimension>* Mesh<dimension>::findGeometry(
     std::size_t numberOfNodes) {
-    for (auto shape : defaultShapes<dimension>) {
+    for (auto shape : hpgemShapes.get<dimension>()) {
         if (shape->getNumberOfNodes() == numberOfNodes) return shape;
     }
     logger(ERROR, "There are no % dimensional default shapes with % nodes",
