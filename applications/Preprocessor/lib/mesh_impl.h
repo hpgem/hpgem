@@ -38,6 +38,8 @@
 
 #include "mesh.h"
 
+#include "ElementShapes.h"
+
 namespace Preprocessor {
 
 template <std::size_t entityDimension, std::size_t meshDimension>
