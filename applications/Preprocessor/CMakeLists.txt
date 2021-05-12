@@ -4,6 +4,7 @@ lib/centaur.cpp
 lib/hpgem.cpp
 lib/gmsh.cpp
 lib/ElementReorder.cpp
+lib/ElementShapes.cpp
 )
 
 # TODO: Lacking source/include separation

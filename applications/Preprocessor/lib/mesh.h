@@ -42,6 +42,8 @@
 #include "LinearAlgebra/SmallVector.h"
 #include "elementShape.h"
 #include "MeshSource.h"
+#include "tag.h"
+#include "TemplateArray.h"
 
 // the data structures needed to represent a mesh
 // they are collected in one file because they are meaningless alone and
@@ -349,66 +351,6 @@ class Element : public MeshEntity<dim, dim> {
     std::size_t zoneId;
 };
 
-namespace Detail {
-
-/// MeshEntities stores MeshEntity-s of all dimensions.
-// Implementation note, inheritiance is used to recursively store all
-// dimensions.
-template <std::size_t entityDimension, std::size_t dimension = entityDimension>
-struct MeshEntities : public MeshEntities<entityDimension - 1, dimension> {
-    /// The entities themselves
-    std::vector<MeshEntity<entityDimension, dimension>> data;
-
-    /// Get the MeshEntity's of a specific entityDimension
-    template <std::size_t SUB_DIM>
-    std::vector<MeshEntity<SUB_DIM, dimension>>& getData() {
-        static_assert(SUB_DIM <= entityDimension,
-                      "Requested data is not available in this entity");
-        return MeshEntities<SUB_DIM, dimension>::data;
-    }
-
-    /// Get the MeshEntity's of a specific entityDimension
-    template <std::size_t SUB_DIM>
-    const std::vector<MeshEntity<SUB_DIM, dimension>>& getData() const {
-        static_assert(SUB_DIM <= entityDimension,
-                      "Requested data is not available in this entity");
-        return MeshEntities<SUB_DIM, dimension>::data;
-    }
-};
-
-// Base case of MeshEntities, there are no MeshEntities of dimension lower than
-// 0.
-template <std::size_t dimension>
-struct MeshEntities<0, dimension> {
-    std::vector<MeshEntity<0, dimension>> data;
-
-    template <std::size_t SUB_DIM>
-    std::vector<MeshEntity<0, dimension>>& getData() {
-        static_assert(SUB_DIM == 0,
-                      "Requested data is not available in this entity");
-        return data;
-    }
-
-    template <std::size_t SUB_DIM>
-    const std::vector<MeshEntity<0, dimension>>& getData() const {
-        static_assert(SUB_DIM == 0,
-                      "Requested data is not available in this entity");
-        return data;
-    }
-};
-
-constexpr std::size_t exp2(std::size_t power) {
-    if (power == 0) {
-        return 1;
-    }
-    if ((power / 2) * 2 == power) {
-        return exp2(power / 2) * exp2(power / 2);
-    } else {
-        return 2 * exp2(power - 1);
-    }
-}
-}  // namespace Detail
-
 /// Simplified Mesh finite element Mesh for use with the preprocessor.
 ///
 /// A bare minimum Mesh for use with the Preprocessor. This is conceptually the
@@ -429,10 +371,6 @@ class Mesh {
         /// The coordinates
         LinearAlgebra::SmallVector<dimension> coordinate;
     };
-
-    /// Template class helper to pass a dimension d.
-    template <std::size_t d>
-    struct tag {};
 
    public:
     Mesh() = default;
@@ -619,8 +557,8 @@ class Mesh {
     /// pairs of (adjecent Element, localIndex) that the MeshEntity is indeed at
     /// localIndex of the Element.
     template <std::size_t d>
-    bool checkEntities(tag<d>) const {
-        for (auto entity : otherEntities.template getData<d>()) {
+    bool checkEntities(tag<d> dimTag) const {
+        for (auto entity : otherEntities[dimTag]) {
             for (std::size_t i = 0; i < entity.getNumberOfElements(); ++i) {
                 if (entity !=
                     entity.getElement(i).template getIncidentEntity<d>(
@@ -636,8 +574,8 @@ class Mesh {
         return checkEntities(tag<d - 1>{});
     }
     // Base case.
-    bool checkEntities(tag<0>) const {
-        for (auto entity : otherEntities.template getData<0>()) {
+    bool checkEntities(tag<0> dimTag) const {
+        for (auto entity : otherEntities[dimTag]) {
             for (std::size_t i = 0; i < entity.getNumberOfElements(); ++i) {
                 if (entity !=
                     entity.getElement(i).template getIncidentEntity<0>(
@@ -659,14 +597,14 @@ class Mesh {
     void fixElement(Element<dimension>& element, tag<0>) {}
 
     template <std::size_t d>
-    void copyEntities(tag<d>) {
-        for (auto& entity : otherEntities.template getData<d>()) {
+    void copyEntities(tag<d> dimTag) {
+        for (auto& entity : otherEntities[dimTag]) {
             entity.mesh = this;
         }
         copyEntities(tag<d - 1>{});
     }
-    void copyEntities(tag<0>) {
-        for (auto& entity : otherEntities.template getData<0>()) {
+    void copyEntities(tag<0> dimTag) {
+        for (auto& entity : otherEntities[dimTag]) {
             entity.mesh = this;
         }
     }
@@ -677,8 +615,8 @@ class Mesh {
     template <std::size_t entityDimension>
     std::size_t newEntity() {
         std::size_t newIndex =
-            otherEntities.template getData<entityDimension>().size();
-        otherEntities.template getData<entityDimension>().push_back(
+            otherEntities.template get<entityDimension>().size();
+        otherEntities.template get<entityDimension>().push_back(
             {this, newIndex});
         return newIndex;
     }
@@ -689,10 +627,14 @@ class Mesh {
 
     std::vector<Element<dimension>> elementsList;
     std::vector<coordinateData> coordinates;
+
+    // Alias template to fill in the dimension of the mesh
+    template <std::size_t entityDimension>
+    using MeshEntityVec = std::vector<MeshEntity<entityDimension, dimension>>;
     // re-stores slices of the elements for consistent use of getEntities<d>,
     // algorithms that need elements can un-slice by asking for the first (and
     // only) element
-    Detail::MeshEntities<dimension> otherEntities;
+    TemplateArray<dimension + 1, MeshEntityVec> otherEntities;
     std::vector<std::string> zoneNames;
 };
 
