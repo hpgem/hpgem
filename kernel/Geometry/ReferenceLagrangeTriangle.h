@@ -42,15 +42,23 @@
 
 namespace hpgem {
 namespace Geometry {
-class ReferenceLagrangeTriangle : public LagrangeReferenceElement<2>{
+/// Lagrange triangle of arbitrary order based on the standard reference
+/// triangle.
+///
+/// The vertices are generated such that if the coordinates are listed (y,x) they
+/// are in lexicographical order. That way the first order triangle has ordering
+/// (0,0) - (1,0) - (0,1) =(x,y), matching that of the regular triangle
+class ReferenceLagrangeTriangle : public LagrangeReferenceElement<2> {
    public:
-    static ReferenceLagrangeTriangle* getReferenceLagrangeTriangle(std::size_t order);
+    static ReferenceLagrangeTriangle* getReferenceLagrangeTriangle(
+        std::size_t order);
 
    private:
     ReferenceLagrangeTriangle(std::size_t order);
-    static std::vector<Geometry::PointReference<2>> createPoints(std::size_t order);
+    static std::vector<Geometry::PointReference<2>> createPoints(
+        std::size_t order);
 };
-}
-}
+}  // namespace Geometry
+}  // namespace hpgem
 
 #endif  // HPGEM_REFERENCELAGRANGETRIANGLE_H

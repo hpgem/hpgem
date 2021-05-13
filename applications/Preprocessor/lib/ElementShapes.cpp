@@ -63,6 +63,8 @@ std::vector<ElementShapePart<1, dim>> generateEdges(
 const ElementShape<0> point{};
 
 const ElementShape<1> line{Detail::generateVertices<1>(2)};
+// Quadratic line
+const ElementShape<1> line2{Detail::generateVertices<1>(3)};
 
 const ElementShape<2> triangle{
     // Boundary lines
@@ -74,6 +76,15 @@ const ElementShape<2> square{
     Detail::generateEdges<2>({{0, 1}, {0, 2}, {1, 3}, {2, 3}}),
     // Corner vertices
     Detail::generateVertices<2>(4)};
+
+const ElementShape<2> triangle2 {
+    std::vector<Detail::ElementShapePart<1,2>> {
+        Detail::ElementShapePart<1,2>{&line2, {0,1,2}},
+        Detail::ElementShapePart<1,2>{&line2, {0,3,5}},
+        Detail::ElementShapePart<1,2>{&line2, {2,4,5}}
+    },
+    Detail::generateVertices<2>(6)
+};
 
 const ElementShape<3> tetrahedron{
     // Faces
