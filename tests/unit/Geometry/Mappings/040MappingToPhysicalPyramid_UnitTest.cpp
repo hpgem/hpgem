@@ -108,9 +108,9 @@ TEST_CASE("040MappingToPhysicalPyramid_UnitTest",
     Geometry::ReferencePyramid& rGeom3D =
         Geometry::ReferencePyramid::Instance();
 
-    Geometry::PhysicalGeometry<3> oops3D {pointIndexes, nodes3D, &rGeom3D};
+    Geometry::PhysicalGeometry<3> oops3D{pointIndexes, nodes3D, &rGeom3D};
     pointIndexes[4] = 18;
-    Geometry::PhysicalGeometry<3> pGeom3D {pointIndexes, nodes3D, &rGeom3D};
+    Geometry::PhysicalGeometry<3> pGeom3D{pointIndexes, nodes3D, &rGeom3D};
 
     Geometry::MappingToPhysPyramid mapping3D(&pGeom3D), reinit3D(&oops3D);
     reinit3D.reinit();

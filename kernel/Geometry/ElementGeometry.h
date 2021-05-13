@@ -55,7 +55,6 @@
 #include "ReferenceCube.h"
 #include "ReferenceHypercube.h"
 
-
 #include "Mappings/MappingReferenceToPhysical.h"
 #include "Mappings/MappingToPhysHypercubeLinear.h"
 #include "Mappings/MappingToPhysSimplexLinear.h"

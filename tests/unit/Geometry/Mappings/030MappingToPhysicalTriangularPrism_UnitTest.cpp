@@ -108,11 +108,11 @@ TEST_CASE("030MappingToPhysicalTriangularPrism_UnitTest",
     Geometry::ReferenceTriangularPrism& rGeom3D =
         Geometry::ReferenceTriangularPrism::Instance();
 
-    Geometry::PhysicalGeometry<3> oops3D {pointIndexes, nodes3D, &rGeom3D};
+    Geometry::PhysicalGeometry<3> oops3D{pointIndexes, nodes3D, &rGeom3D};
     nodes3D[13][0] = 1.4;
     nodes3D[13][1] = 2.4;
     nodes3D[13][2] = 4.;
-    Geometry::PhysicalGeometry<3> pGeom3D {pointIndexes, nodes3D, &rGeom3D};
+    Geometry::PhysicalGeometry<3> pGeom3D{pointIndexes, nodes3D, &rGeom3D};
 
     Geometry::MappingToPhysTriangularPrism mapping3D(&pGeom3D),
         reinit3D(&oops3D);
