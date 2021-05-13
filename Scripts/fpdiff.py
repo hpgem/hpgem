@@ -53,6 +53,7 @@ def fpdiff(filename1,filename2,relative_error,small):
    print()
    print("   [FAILED] : Unable to open the input file", filename1)
    print()
+   sys.exit(2)
 
  #read contents of file1 into a list and close
  tmpfile1 = F1.readlines(); F1.close()
@@ -69,6 +70,7 @@ def fpdiff(filename1,filename2,relative_error,small):
    print()
    print("   [FAILED] : Unable to open the input file", filename2)
    print()
+   sys.exit(3)
 
  #read contents of file2 into a list and close
  tmpfile2 = F2.readlines(); F2.close()

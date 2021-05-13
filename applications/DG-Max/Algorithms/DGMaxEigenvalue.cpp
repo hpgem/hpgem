@@ -682,7 +682,6 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::updateKPoint(
 template <std::size_t DIM>
 void DGMaxEigenvalue<DIM>::SolverWorkspace::solve(
     std::size_t targetNumberOfEigenvalues) {
-    PetscInt usableInitialVectors;
     PetscErrorCode error;
 
     // Setup search space //
@@ -709,7 +708,7 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::solve(
         // if they are not all used.
     }
     if (config_.useProjector_ != DGMaxEigenvalueBase::NONE) {
-        for (std::size_t j = 0; j < usableInitialVectors; ++j) {
+        for (std::size_t j = 0; j < eigenpairs_.size(); ++j) {
             projector->project(eigenpairs_.getRawEigenvectors()[j]);
         }
         DGMaxLogger(INFO, "Projected initial vector");
