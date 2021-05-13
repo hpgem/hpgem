@@ -315,6 +315,20 @@ class FaceGeometry {
     /// \brief Returns true if the face is internal and false otherwise.
     bool isInternal() const;
 
+    /// When internal and at least one side is owned by the current
+    /// processor, whether this element forms the boundary with a different
+    /// processor.
+    ///
+    /// Note: Behaviour on faces where not at least one side is owned is
+    /// unspecified. There are two reasons for this:
+    ///  - The subdomain boundaries don't seem to be set for faces inside the
+    ///    ghost layer where nothing is owned. This may be considered a bug.
+    ///  - The faces on the outside of the ghost layer may be partial. Hence
+    ///    there may not be enough information to determine whether they are
+    ///    subdomain boundaries or not.
+    ///
+    bool isSubdomainBoundary() const;
+
     double getDiameter() const {
         if (diameter_ < 0) {
             diameter_ = computeDiameter();

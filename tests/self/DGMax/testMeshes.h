@@ -40,7 +40,7 @@
 
 #include <string>
 #include <vector>
-#include <CMakeDefinitions.h>
+#include "hpgem-cmake.h"
 
 namespace DGMaxTest {
 
@@ -48,7 +48,7 @@ std::vector<std::string> singleProcessorRefinementMeshes2D() {
 
     using namespace std::string_literals;
 
-    std::string prefix = Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s;
+    std::string prefix = hpgem::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s;
 
     return std::vector<std::string>(
         {prefix + "unitPeriodicSimplexD2N8P1.hpgem",

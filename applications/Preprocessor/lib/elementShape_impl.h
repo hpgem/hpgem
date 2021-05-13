@@ -40,12 +40,12 @@
 #include <numeric>
 #include "elementShape.h"
 
-using namespace hpgem;
+namespace Preprocessor {
 
 template <std::size_t dimension>
 template <int entityDimension>
 std::enable_if_t<(entityDimension < 0), std::size_t>
-    Preprocessor::ElementShape<dimension>::getNumberOfEntities() const {
+    ElementShape<dimension>::getNumberOfEntities() const {
     if (entityDimension + dimension < 0) return 0;
     return getNumberOfEntities<entityDimension + dimension>();
 }
@@ -53,7 +53,7 @@ std::enable_if_t<(entityDimension < 0), std::size_t>
 template <std::size_t dimension>
 template <int entityDimension>
 std::enable_if_t<(entityDimension >= dimension), std::size_t>
-    Preprocessor::ElementShape<dimension>::getNumberOfEntities() const {
+    ElementShape<dimension>::getNumberOfEntities() const {
     if (entityDimension > dimension) return 0;
     return 1;
 }
@@ -62,14 +62,13 @@ template <std::size_t dimension>
 template <int entityDimension>
 std::enable_if_t<(entityDimension >= 0 && entityDimension < dimension),
                  std::size_t>
-    Preprocessor::ElementShape<dimension>::getNumberOfEntities() const {
+    ElementShape<dimension>::getNumberOfEntities() const {
     return shapeData.template getEntityShapes<entityDimension>().size();
 }
 
 template <std::size_t dimension>
 template <int entityDimension>
-auto Preprocessor::ElementShape<dimension>::getBoundaryShape(
-    std::size_t entityIndex) const
+auto ElementShape<dimension>::getBoundaryShape(std::size_t entityIndex) const
     -> std::enable_if_t<(entityDimension < 0),
                         const ShapeType<entityDimension>*> {
     logger.assert_debug(entityDimension + dimension >= 0,
@@ -80,8 +79,7 @@ auto Preprocessor::ElementShape<dimension>::getBoundaryShape(
 
 template <std::size_t dimension>
 template <int entityDimension>
-auto Preprocessor::ElementShape<dimension>::getBoundaryShape(
-    std::size_t entityIndex) const
+auto ElementShape<dimension>::getBoundaryShape(std::size_t entityIndex) const
     -> std::enable_if_t<(entityDimension >= dimension),
                         const ShapeType<entityDimension>*> {
     logger.assert_debug(entityDimension == dimension,
@@ -95,8 +93,7 @@ auto Preprocessor::ElementShape<dimension>::getBoundaryShape(
 
 template <std::size_t dimension>
 template <int entityDimension>
-auto Preprocessor::ElementShape<dimension>::getBoundaryShape(
-    std::size_t entityIndex) const
+auto ElementShape<dimension>::getBoundaryShape(std::size_t entityIndex) const
     -> std::enable_if_t<(entityDimension >= 0 && entityDimension < dimension),
                         const ShapeType<entityDimension>*> {
     logger.assert_debug(entityIndex < getNumberOfEntities<entityDimension>(),
@@ -110,7 +107,7 @@ auto Preprocessor::ElementShape<dimension>::getBoundaryShape(
 template <std::size_t dimension>
 template <int entityDimension, int targetDimension>
 std::enable_if_t<(entityDimension < 0), std::vector<std::size_t>>
-    Preprocessor::ElementShape<dimension>::getAdjacentEntities(
+    ElementShape<dimension>::getAdjacentEntities(
         std::size_t entityIndex) const {
     logger.assert_debug(entityDimension + dimension >= 0,
                         "This shape is not bounded by shapes of dimension %",
@@ -123,7 +120,7 @@ template <std::size_t dimension>
 template <int entityDimension, int targetDimension>
 std::enable_if_t<(targetDimension < 0 && entityDimension >= 0),
                  std::vector<std::size_t>>
-    Preprocessor::ElementShape<dimension>::getAdjacentEntities(
+    ElementShape<dimension>::getAdjacentEntities(
         std::size_t entityIndex) const {
     if (targetDimension + dimension < 0) return {};
     return getAdjacentEntities<entityDimension, targetDimension + dimension>(
@@ -136,7 +133,7 @@ std::enable_if_t<(entityDimension >= 0 && targetDimension >= 0 &&
                   (entityDimension >= dimension ||
                    targetDimension >= dimension)),
                  std::vector<std::size_t>>
-    Preprocessor::ElementShape<dimension>::getAdjacentEntities(
+    ElementShape<dimension>::getAdjacentEntities(
         std::size_t entityIndex) const {
     logger.assert_debug(entityDimension <= dimension,
                         "This shape is not bounded by shapes of dimension %",
@@ -159,7 +156,7 @@ template <int entityDimension, int targetDimension>
 std::enable_if_t<(entityDimension >= 0 && entityDimension < dimension &&
                   targetDimension >= 0 && targetDimension < dimension),
                  std::vector<std::size_t>>
-    Preprocessor::ElementShape<dimension>::getAdjacentEntities(
+    ElementShape<dimension>::getAdjacentEntities(
         std::size_t entityIndex) const {
     logger.assert_debug(entityIndex < getNumberOfEntities<entityDimension>(),
                         "This shape is bounded by only % shapes of dimension "
@@ -172,7 +169,7 @@ std::enable_if_t<(entityDimension >= 0 && entityDimension < dimension &&
 
 template <std::size_t dimension>
 template <std::size_t d, std::size_t shapeDimension>
-bool Preprocessor::ElementShape<dimension>::checkSingleShape(
+bool ElementShape<dimension>::checkSingleShape(
     const ElementShape<shapeDimension>* boundingShape,
     std::vector<std::size_t> boundaryNodes, std::size_t currentIndex,
     tag<d>) const {
@@ -218,7 +215,7 @@ bool Preprocessor::ElementShape<dimension>::checkSingleShape(
 
 template <std::size_t dimension>
 template <std::size_t shapeDimension>
-bool Preprocessor::ElementShape<dimension>::checkSingleShape(
+bool ElementShape<dimension>::checkSingleShape(
     const ElementShape<shapeDimension>* boundingShape,
     std::vector<std::size_t> boundaryNodes, std::size_t currentIndex,
     tag<0>) const {
@@ -263,7 +260,7 @@ bool Preprocessor::ElementShape<dimension>::checkSingleShape(
 
 template <std::size_t dimension>
 template <std::size_t d>
-bool Preprocessor::ElementShape<dimension>::checkBoundaryShape(tag<d>) const {
+bool ElementShape<dimension>::checkBoundaryShape(tag<d>) const {
     if (shapeData.template getEntityShapes<d>().size() !=
         shapeData.template getAdjacentShapes<d>()[0].size()) {
         logger(ERROR,
@@ -304,7 +301,7 @@ bool Preprocessor::ElementShape<dimension>::checkBoundaryShape(tag<d>) const {
 }
 
 template <std::size_t dimension>
-bool Preprocessor::ElementShape<dimension>::checkBoundaryShape(tag<0>) const {
+bool ElementShape<dimension>::checkBoundaryShape(tag<0>) const {
     if (shapeData.template getEntityShapes<0>().size() !=
         shapeData.template getAdjacentShapes<0>()[0].size()) {
         logger(ERROR,
@@ -339,8 +336,8 @@ bool Preprocessor::ElementShape<dimension>::checkBoundaryShape(tag<0>) const {
 
 template <std::size_t dimension>
 template <std::size_t entityDimension, std::size_t targetDimension>
-void Preprocessor::ElementShape<dimension>::completeSubShapes(
-    tag<entityDimension>, tag<targetDimension>) {
+void ElementShape<dimension>::completeSubShapes(tag<entityDimension>,
+                                                tag<targetDimension>) {
     shapeData.template getAdjacentShapes<entityDimension>()[targetDimension]
         .resize(getNumberOfEntities<entityDimension>());
     for (std::size_t entityIndex = 0;
@@ -403,7 +400,8 @@ void Preprocessor::ElementShape<dimension>::completeSubShapes(
 
 template <std::size_t dimension>
 template <std::size_t entityDimension>
-void Preprocessor::ElementShape<dimension>::completeSubShapes(
-    tag<entityDimension>, tag<0>) {
+void ElementShape<dimension>::completeSubShapes(tag<entityDimension>, tag<0>) {
     completeSubShapes(tag<entityDimension - 1>{}, tag<dimension - 1>{});
 }
+
+}  // namespace Preprocessor

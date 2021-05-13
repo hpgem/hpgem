@@ -49,9 +49,10 @@
 #include <ios>
 #include "Logger.h"
 
+namespace Preprocessor {
+
 using namespace hpgem;
 
-namespace Preprocessor {
 template <typename inStream>
 class UnstructuredInputStream {
     // when needed this can be reimplemented to look like moveFunction (and not

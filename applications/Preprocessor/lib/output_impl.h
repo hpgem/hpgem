@@ -42,6 +42,8 @@
 #include <set>
 #include <map>
 
+namespace Preprocessor {
+
 using namespace hpgem;
 
 namespace Detail {
@@ -49,28 +51,26 @@ template <std::size_t d>
 struct tag {};
 
 template <std::size_t dimension>
-void printOtherEntityCounts(std::ofstream& output,
-                            const Preprocessor::Mesh<dimension>& mesh, tag<0>) {
-}
+void printOtherEntityCounts(std::ofstream& output, const Mesh<dimension>& mesh,
+                            tag<0>) {}
 
 template <std::size_t d, std::size_t dimension>
-void printOtherEntityCounts(std::ofstream& output,
-                            const Preprocessor::Mesh<dimension>& mesh, tag<d>) {
+void printOtherEntityCounts(std::ofstream& output, const Mesh<dimension>& mesh,
+                            tag<d>) {
     output << " " << mesh.template getNumberOfEntities<d>();
     printOtherEntityCounts(output, mesh, tag<d - 1>{});
 }
 
 template <std::size_t dimension, typename indexType>
-void printOtherEntities(
-    std::ofstream& output, const Preprocessor::Mesh<dimension>& mesh,
-    Preprocessor::MeshData<indexType, dimension, dimension>& partitions,
-    tag<0>) {}
+void printOtherEntities(std::ofstream& output, const Mesh<dimension>& mesh,
+                        MeshData<indexType, dimension, dimension>& partitions,
+                        tag<0>) {}
 
 template <std::size_t d, std::size_t dimension, typename indexType>
-void printOtherEntities(
-    std::ofstream& output, const Preprocessor::Mesh<dimension>& mesh,
-    Preprocessor::MeshData<indexType, dimension, dimension>& partitions,
-    tag<d>) {
+void printOtherEntities(std::ofstream& output, const Mesh<dimension>& mesh,
+                        MeshData<indexType, dimension, dimension>& partitions,
+                        tag<d>) {
+    output << "codim" << dimension - d << '\n';
     for (auto entity : mesh.template getEntities<d>()) {
         std::set<std::size_t> localPartitions;
         output << entity.getNumberOfElements() << " ";
@@ -95,18 +95,19 @@ void printOtherEntities(
 }  // namespace Detail
 
 template <typename indexType, std::size_t dimension>
-void Preprocessor::outputMesh(
-    Mesh<dimension>& mesh, MeshData<indexType, dimension, dimension> partitions,
-    std::size_t numberOfPartitions) {
+void outputMesh(Mesh<dimension>& mesh,
+                MeshData<indexType, dimension, dimension> partitions,
+                std::size_t numberOfPartitions) {
     if (mesh.getNumberOfNodes() == 0) {
         logger(WARN, "outputting empty mesh");
     }
     std::ofstream output(outputFileName.getValue());
     output << std::hexfloat;
-    output << "mesh 1" << std::endl;
+    size_t version = 2;
+    output << "mesh " << version << std::endl;
     output << mesh.getNumberOfNodes() << " " << mesh.getNumberOfElements()
            << " " << dimension;
-    printOtherEntityCounts(output, mesh, ::Detail::tag<dimension - 1>{});
+    printOtherEntityCounts(output, mesh, Detail::tag<dimension - 1>{});
     output << std::endl;
     std::size_t reservedSpace =
         std::max(std::log10(mesh.getNumberOfNodes()), 0.) + 2;
@@ -118,6 +119,14 @@ void Preprocessor::outputMesh(
         output << whiteSpace;
     }
     output << std::endl;
+
+    output << "zones" << std::endl;
+    output << mesh.getZoneNames().size() << std::endl;
+    for (const auto& zonename : mesh.getZoneNames()) {
+        output << zonename << '\n';
+    }
+
+    output << "nodes" << std::endl;
     std::vector<std::size_t> partitionData(numberOfPartitions, 0);
     MeshData<std::vector<std::size_t>, dimension, 0> coordinateIndices(&mesh);
     for (auto node : mesh.getNodes()) {
@@ -166,6 +175,7 @@ void Preprocessor::outputMesh(
         }
         output << std::endl;
     }
+    output << "elements" << std::endl;
     for (auto element : mesh.getElements()) {
         output << element.getNumberOfNodes() << " ";
         for (auto node : element.getNodesList()) {
@@ -186,13 +196,14 @@ void Preprocessor::outputMesh(
         for (auto index : shadowPartitions) {
             output << index << " ";
         }
-        output << std::endl;
+        output << '\n' << element.getZoneId() << '\n';
     }
-    printOtherEntities(output, mesh, partitions,
-                       ::Detail::tag<dimension - 1>{});
+    printOtherEntities(output, mesh, partitions, Detail::tag<dimension - 1>{});
     output.seekp(partitionInformation);
     for (std::size_t i = 0; i < numberOfPartitions; ++i) {
         output << partitionData[i] << " ";
     }
     output.close();
 }
+
+}  // namespace Preprocessor

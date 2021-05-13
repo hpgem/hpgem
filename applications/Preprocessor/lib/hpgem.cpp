@@ -40,9 +40,9 @@
 #include "hpgem.h"
 #include "Logger.h"
 
-using namespace hpgem;
-
 namespace Preprocessor {
+
+using namespace hpgem;
 
 // this is clearly not a bool so std::vector<Bool> will not behave as badly as
 // std::vector<bool>
@@ -223,6 +223,7 @@ class StructuredReader : public PrivateReader {
             }
         };
         MeshSource::Element first;
+        first.zoneName = "Main";  // Only one default zone
         increment(first);
         std::size_t totalNumberOfElements = 1;
         for (std::size_t i = 0; i < loopIndices.size(); ++i) {

@@ -44,9 +44,9 @@
 #include <Logger.h>
 #include "customIterator.h"
 
-using namespace hpgem;
-
 namespace Preprocessor {
+
+using namespace hpgem;
 
 /**
  * @brief A thing that behaves like vector but can also store a bit of data
