@@ -70,7 +70,9 @@ class SparseUnionFind {
      */
     struct iterator {
        public:
-        using innerIter_t = std::map<std::size_t, std::pair<std::size_t, std::size_t>>::const_iterator;
+        using innerIter_t =
+            std::map<std::size_t,
+                     std::pair<std::size_t, std::size_t>>::const_iterator;
 
         // Be a good LegacyInputIterator
         using reference = const std::size_t&;

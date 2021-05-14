@@ -62,27 +62,26 @@ TEST_CASE("Single set", "[Sparse Union Find]") {
     // Add third element using union
     set.unionSets(0, 1);
     INFO("After merge in same set")
-    CHECK(set.inSameSet(1,2));
-    REQUIRE(set.inSameSet(0,1));
+    CHECK(set.inSameSet(1, 2));
+    REQUIRE(set.inSameSet(0, 1));
 }
 
 TEST_CASE("Two sets", "[Sparse Union Find]") {
     Preprocessor::SparseUnionFind set;
     // Setup two sets {3,4} and {10,11}
-    set.unionSets(3,4);
+    set.unionSets(3, 4);
     set.unionSets(10, 11);
 
     INFO("Check initial connection")
-    CHECK(set.inSameSet(3,4));
-    CHECK(set.inSameSet(10,11));
-    CHECK_FALSE(set.inSameSet(3,10));
-    REQUIRE_FALSE(set.inSameSet(11,4));
-
+    CHECK(set.inSameSet(3, 4));
+    CHECK(set.inSameSet(10, 11));
+    CHECK_FALSE(set.inSameSet(3, 10));
+    REQUIRE_FALSE(set.inSameSet(11, 4));
 
     // Merge the sets
     set.unionSets(10, 3);
     INFO("Check post merge")
-    auto i = GENERATE(3,4,10,11);
-    auto j = GENERATE(3,4,10,11);
+    auto i = GENERATE(3, 4, 10, 11);
+    auto j = GENERATE(3, 4, 10, 11);
     REQUIRE(set.inSameSet(i, j));
 }
