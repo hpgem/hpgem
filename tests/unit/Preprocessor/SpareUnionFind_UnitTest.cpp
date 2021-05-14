@@ -35,67 +35,54 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 #include "SparseUnionFind.h"
 
-namespace Preprocessor {
+#include "../catch.hpp"
 
-std::size_t SparseUnionFind::findSet(std::size_t elem) {
-    auto optTarget = storage_.find(elem);
-    if (optTarget == storage_.end()) {
-        // Singleton set
-        return elem;
-    } else {
-        std::size_t target = findSetPresent(std::get<0>(optTarget->second));
-        // Same update as in findSetPresent()
-        std::get<0>(storage_[elem]) = target;
-        return target;
-    }
+TEST_CASE("Empty Set", "[Sparse Union Find]") {
+    Preprocessor::SparseUnionFind empty;
+    INFO("Empty iterator")
+    REQUIRE(empty.begin() == empty.end());
+
+    auto i = GENERATE(0, 2, 3, 10, 1000000);
+    REQUIRE(empty.findSet(i) == i);
 }
 
-std::size_t SparseUnionFind::findSetPresent(std::size_t elem) {
-    // Note reference
-    std::size_t& target = std::get<0>(storage_[elem]);
-    if (target != elem) {
-        // Note: we update target here (the reason why target is a reference),
-        // so that future lookups don't have to recurse down to the node
-        target = findSetPresent(target);
-    }
-    return target;
+TEST_CASE("Single set", "[Sparse Union Find]") {
+    Preprocessor::SparseUnionFind set;
+    set.unionSets(0, 2);
+    INFO("Unioned are in the same set")
+    REQUIRE(set.inSameSet(0, 2));
+
+    INFO("Distinct from other entries")
+    CHECK_FALSE(set.inSameSet(0, 1));
+    REQUIRE_FALSE(set.inSameSet(1, 2));
+
+    // Add third element using union
+    set.unionSets(0, 1);
+    INFO("After merge in same set")
+    CHECK(set.inSameSet(1,2));
+    REQUIRE(set.inSameSet(0,1));
 }
 
-void SparseUnionFind::unionSets(std::size_t elem1, std::size_t elem2) {
-    if (elem1 == elem2) {
-        return;
-    }
-    // Make sure that both sets are allocated
-    if (storage_.find(elem1) == storage_.end()) {
-        storage_[elem1] = {elem1, 0};
-    }
-    if (storage_.find(elem2) == storage_.end()) {
-        storage_[elem2] = {elem2, 0};
-    }
-    // Safe to use findSetPresent by previous statements
-    std::size_t target1 = findSetPresent(elem1);
-    std::size_t target2 = findSetPresent(elem2);
-    if (target1 == target2) {
-        // Already in the same set
-        return;
-    }
-    // References to allow for update
-    auto& entry1 = storage_[target1];
-    auto& entry2 = storage_[target2];
+TEST_CASE("Two sets", "[Sparse Union Find]") {
+    Preprocessor::SparseUnionFind set;
+    // Setup two sets {3,4} and {10,11}
+    set.unionSets(3,4);
+    set.unionSets(10, 11);
 
-    auto& rank1 = std::get<1>(entry1);
-    auto& rank2 = std::get<1>(entry2);
+    INFO("Check initial connection")
+    CHECK(set.inSameSet(3,4));
+    CHECK(set.inSameSet(10,11));
+    CHECK_FALSE(set.inSameSet(3,10));
+    REQUIRE_FALSE(set.inSameSet(11,4));
 
-    if (rank1 > rank2) {
-        std::get<0>(entry2) = target1;
-    } else {
-        std::get<0>(entry1) = target2;
-        if (rank1 == rank2) {
-            rank2++;
-        }
-    }
+
+    // Merge the sets
+    set.unionSets(10, 3);
+    INFO("Check post merge")
+    auto i = GENERATE(3,4,10,11);
+    auto j = GENERATE(3,4,10,11);
+    REQUIRE(set.inSameSet(i, j));
 }
-
-}  // namespace Preprocessor

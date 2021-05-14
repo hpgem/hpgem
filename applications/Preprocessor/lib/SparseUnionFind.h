@@ -65,9 +65,12 @@ namespace Preprocessor {
  */
 class SparseUnionFind {
    public:
+    /**
+     * Const iterator over the indices for non-singleton-set entries.
+     */
     struct iterator {
        public:
-        using innerIter_t = std::map<std::size_t, std::size_t>::const_iterator;
+        using innerIter_t = std::map<std::size_t, std::pair<std::size_t, std::size_t>>::const_iterator;
 
         // Be a good LegacyInputIterator
         using reference = const std::size_t&;
@@ -121,13 +124,13 @@ class SparseUnionFind {
      * least two elements.
      * @return The iterator
      */
-    iterator begin() const { return iterator(parents_.cbegin()); }
+    iterator begin() const { return iterator(storage_.cbegin()); }
     /**
      * End iterator to the indices of elements that are part of a set with at
      * least two elements.
      * @return The end iterator.
      */
-    iterator end() const { return iterator(parents_.cend()); }
+    iterator end() const { return iterator(storage_.cend()); }
 
    private:
     /**
@@ -139,22 +142,18 @@ class SparseUnionFind {
     std::size_t findSetPresent(std::size_t elem);
 
     /**
-     * Sparse storage of the parents of each element forming a tree structure,
-     * where the representative of a set has itself as parent.
+     * Spare storage of the data. For each element it stores two values
+     *  - A parent entry, forming a tree structure for each set. The top entry
+     *    of the set/tree points to itself and is the representative for that
+     *    set.
+     *  - A rank, estimating the depth of the tree under the entry can be. This
+     *    allows for automatic balancing of the tree during merges.
      *
-     * Sparsity in this case means that only the indices for sets of size >= 2
-     * are present. For all other indices (which are thus singleton sets) the
-     * value is simply the index itself.
+     * Sparsity means that only entries are stored that are part of a set of at
+     * least two entries (i.e. not a singleton set). Entries that are not
+     * included would be of the form: (i, 0), where i is the index.
      */
-    std::map<std::size_t, std::size_t> parents_;
-    /**
-     * Rank of the elements, giving an idea of how deep the tree under this
-     * entry can be.
-     *
-     * Again this map is sparse. The entries of singleton sets are left out and
-     * assumed to be 0.
-     */
-    std::map<std::size_t, std::size_t> ranks_;
+    std::map<std::size_t, std::pair<std::size_t, std::size_t>> storage_;
 };
 
 }  // namespace Preprocessor
