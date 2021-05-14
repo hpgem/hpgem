@@ -85,7 +85,7 @@ using namespace hpgem;
  *    conditions) the data does not follow this format. For example, Zones in 3D
  *    interleave the zone-element-indices and the zone names (instead of having
  *    two separate arrays). While periodic boundary conditions don't use arrays
- *    to group the storage of the properties, instead storing them seperately
+ *    to group the storage of the properties, instead storing them separately
  *    one in each dataline.
  *
  *    Note: My guess is that this multiline storage is needed as the start/end
