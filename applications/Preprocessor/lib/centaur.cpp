@@ -110,7 +110,6 @@ std::string fromFortranString(const std::array<char, N>& fortranString) {
 
 CentaurReader::CentaurReader(std::string filename)
     : centaurFile(filename), elementCount({0, 0, 0, 0}) {
-    // temp(filename);
     readHeader();
 
     // Don't accept hybtype 1 as this lacks hexahedra & pyramids.
