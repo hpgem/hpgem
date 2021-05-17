@@ -165,7 +165,7 @@ class ElementShape {
         auto& shapeVec = shapeParts.template get<dimension>();
         std::vector<std::size_t> vertices(getNumberOfNodes());
         std::iota(vertices.begin(), vertices.end(), 0);
-        shapeVec.emplace_back(
+        shapeVec.push_back(
             Detail::ElementShapePart<dimension, dimension>{this, vertices});
         // Compute the topological connections
         completeSubShapes();
