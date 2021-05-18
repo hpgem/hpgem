@@ -38,6 +38,7 @@
 
 #include "MappingToPhysHypercubeLinear.h"
 #include <vector>
+#include <limits>
 #include "Geometry/PhysicalGeometry.h"
 #include "Geometry/PointReference.h"
 #include "Geometry/Jacobian.h"
