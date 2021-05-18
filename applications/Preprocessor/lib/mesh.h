@@ -631,9 +631,9 @@ class Mesh {
     // Alias template to fill in the dimension of the mesh
     template <std::size_t entityDimension>
     using MeshEntityVec = std::vector<MeshEntity<entityDimension, dimension>>;
-    // re-stores slices of the elements for consistent use of getEntities<d>,
-    // algorithms that need elements can un-slice by asking for the first (and
-    // only) element
+    // Note: Also stores the elements (in addition to elementsList). However,
+    // here as MeshEntitiy<dim,dim>, the parentType of Element. This allows much
+    // easier implementation of getEntities<dim>()
     TemplateArray<dimension + 1, MeshEntityVec> otherEntities;
     std::vector<std::string> zoneNames;
 };
