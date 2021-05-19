@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2014, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -36,25 +36,46 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef HPGEM_KERNEL_PHYSICALLINE_H
-#define HPGEM_KERNEL_PHYSICALLINE_H
-#include "PhysicalGeometry.h"
+#include "TemplateArray.h"
+#include "../catch.hpp"
 
-namespace hpgem {
-
-namespace Geometry {
-class ReferenceLine;
-
-/// \deprecated just pass a referenceLine to the constructor of a
-/// PhysicalGeometry if you want to create a line
-class PhysicalLine : public PhysicalGeometry<1> {
-
-   public:
-    PhysicalLine(const std::vector<std::size_t>&,
-                 std::vector<PointPhysical<1> >&);
+// Dummy template to test with
+template <std::size_t>
+struct V {
+    V() = default;
+    explicit V(std::size_t value) : value(value){};
+    std::size_t value;
 };
 
-}  // namespace Geometry
-}  // namespace hpgem
+TEST_CASE("Constructor & get", "[TemplateArray]") {
+    // Purely testing that it does not generate an error
+    Preprocessor::TemplateArray<0, V> empty;
+    // Single item
+    Preprocessor::TemplateArray<1, V> singleton{V<0>{1}};
+    INFO("Get singleton item")
+    CHECK(singleton.get<0>().value == 1);
 
-#endif  // HPGEM_KERNEL_PHYSICALLINE_H
+    // Multiple items
+    Preprocessor::TemplateArray<3, V> triple{V<2>{3}, V<1>{2}, V<0>{1}};
+    INFO("Check multiple item content")
+    CHECK(triple.get<0>().value == 1);
+    CHECK(triple.get<1>().value == 2);
+    CHECK(triple.get<2>().value == 3);
+}
+
+TEST_CASE("Getters", "[TemplateArray]") {
+    Preprocessor::TemplateArray<2, V> sample{V<1>{1}, V<0>{1}};
+    REQUIRE(sample.get<0>().value == 1);
+    REQUIRE(sample.get<1>().value == 1);
+
+    // Other accessors
+    INFO("Check accessors")
+    REQUIRE(sample[Preprocessor::tag<0>{}].value == 1);
+    REQUIRE(sample[Preprocessor::itag<0>{}].value == 1);
+    // Overwrite
+    sample[Preprocessor::tag<0>{}] = V<0>{2};
+    // Check
+    INFO("Check post modification");
+    REQUIRE(sample.get<0>().value == 2);
+    REQUIRE(sample.get<1>().value == 1);
+}

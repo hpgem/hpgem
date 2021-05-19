@@ -142,9 +142,6 @@ class TemplateArray<0, V> {
     TemplateArray& operator=(TemplateArray&&) noexcept = default;
 };
 
-template <std::size_t>
-class Sample;
-
 }  // namespace Preprocessor
 
 #endif  // HPGEM_TEMPLATEARRAY_H

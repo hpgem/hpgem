@@ -43,6 +43,7 @@
 #include "Geometry/Jacobian.h"
 #include "Geometry/PointPhysical.h"
 #include <cmath>
+#include <limits>
 #include <Base/L2Norm.h>
 
 namespace hpgem {

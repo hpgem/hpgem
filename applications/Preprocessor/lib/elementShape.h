@@ -39,6 +39,7 @@
 #ifndef HPGEM_APP_ELEMENTSHAPE_H
 #define HPGEM_APP_ELEMENTSHAPE_H
 
+#include <array>
 #include <cstddef>
 #include <numeric>
 #include <vector>
@@ -66,10 +67,38 @@ namespace Detail {
 template <std::size_t partDimension, std::size_t dimension>
 class ElementShapePart {
    public:
+    /// Define part of an ElementShape
+    ///
+    /// Each part is characterized by three things.
+    ///  1. The shape of the part
+    ///  2. The nodes of the parent shape used in this part
+    ///  3. The mapping of node numbers of the part-shape to that of the
+    ///     parent-shape.
+    /// For example the first triangular face of the tetrahedron is defined by
+    /// 1. shape: Triangle
+    /// 2. nodes: {0,2,3}
+    /// 3. mapping (triangle node -> tetrahedron node): 0 -> 0, 1 -> 2, 2 -> 3
+    /// With the other three faces having a different subset of nodes, and a
+    /// corresponding mapping.
+    ///
+    /// The mapping and subset of nodes are defined in the same variable, by
+    /// listing the node numbers of the parent shape in the order of the
+    /// mapping. So in the example they should be specified as {0,3,2}.
+    ///
+    /// WARNING: The information should match the definition in the particular
+    ///   ReferenceGeometry in the kernel
+    /// \param shape The geometrical shape of the part
+    ///
+    /// \param nodeIds The subset of nodes of the parent shape that are used in
+    /// this part, in the right order.
     ElementShapePart(const ElementShape<partDimension>* shape,
                      std::vector<std::size_t> nodeIds)
         : shape(shape), adjacentShapes() {
         adjacentShapes[0] = nodeIds;
+        logger.assert_always(
+            shape->getNumberOfNodes() == nodeIds.size(),
+            "Incorrect number of nodes provided, expected %, got %",
+            shape->getNumberOfNodes(), nodeIds.size());
     };
     ElementShapePart() = default;
 
@@ -158,13 +187,21 @@ class ElementShape {
 
     ElementShape& operator=(ElementShape&&) noexcept = delete;
 
+    /// Define a shape by it's boundary parts
+    ///
+    /// \tparam Args The types of the boundary, should be
+    ///    BoundaryPart<dimension-1,dimension>, ... BoundaryPart<1,dimension>,
+    ///    BoundaryPart<0,dimension>
+    ///
+    /// \param args The boundary parts, starting at the highest dimension (codim
+    /// 1) and going down to the vertices.
     template <typename... Args>
     ElementShape(Args... args) : shapeParts({}, args...) {
         // Insert ElementShapePart corresponding to the whole element.
         auto& shapeVec = shapeParts.template get<dimension>();
         std::vector<std::size_t> vertices(getNumberOfNodes());
         std::iota(vertices.begin(), vertices.end(), 0);
-        shapeVec.emplace_back(
+        shapeVec.push_back(
             Detail::ElementShapePart<dimension, dimension>{this, vertices});
         // Compute the topological connections
         completeSubShapes();

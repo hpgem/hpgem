@@ -44,6 +44,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Geometry/PhysicalGeometry.h"
 #include "Geometry/Jacobian.h"
 
+#include <limits>
+
 namespace hpgem {
 
 namespace Geometry {
