@@ -60,6 +60,15 @@ std::vector<ElementShapePart<1, dim>> generateEdges(
 // initialisation can be a bit messy so you may need to use a debugger to see
 // the error message
 
+// NOTE ABOUT THE VALUES
+// ---------------------
+// These value define the hpGEM shapes, so these should match the definitions in
+// the kernel. See for the actual pictures the Reference[Line,etc.] classes in
+// the kernel (some additional pictures in the reference-mapping classes).
+//
+// For the details about the format here see the documentation of
+// ElementShape(Part).
+
 const ElementShape<0> point{};
 
 const ElementShape<1> line{Detail::generateVertices<1>(2)};
