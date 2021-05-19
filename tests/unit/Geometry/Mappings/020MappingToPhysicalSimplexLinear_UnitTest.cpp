@@ -44,11 +44,9 @@
 #include "Logger.h"
 
 #include "Geometry/ReferenceLine.h"
-#include "Geometry/PhysicalLine.h"
+#include "Geometry/PhysicalGeometry.h"
 #include "Geometry/ReferenceTriangle.h"
-#include "Geometry/PhysicalTriangle.h"
 #include "Geometry/ReferenceTetrahedron.h"
-#include "Geometry/PhysicalTetrahedron.h"
 #include "Geometry/PointPhysical.h"
 #include "Geometry/PhysicalGeometry.h"
 #include <cmath>
@@ -104,11 +102,11 @@ TEST_CASE("020MappingToPhysicalSimplexLinear_UnitTest",
     Geometry::ReferenceTriangle& rGeom2D =
         Geometry::ReferenceTriangle::Instance();
 
-    Geometry::PhysicalTriangle oops2D(pointIndexes, nodes2D);
+    Geometry::PhysicalGeometry<2> oops2D(pointIndexes, nodes2D, &rGeom2D);
     nodes2D[13][0] += 0.5;
     nodes2D[13][1] -= 0.5;
     pointIndexes[2] = 18;
-    Geometry::PhysicalTriangle pGeom2D(pointIndexes, nodes2D);
+    Geometry::PhysicalGeometry<2> pGeom2D(pointIndexes, nodes2D, &rGeom2D);
 
     Geometry::MappingToPhysSimplexLinear<2> mapping2D(&pGeom2D),
         reinit2D(&oops2D);
@@ -226,11 +224,11 @@ TEST_CASE("020MappingToPhysicalSimplexLinear_UnitTest",
     Geometry::ReferenceTetrahedron& rGeom3D =
         Geometry::ReferenceTetrahedron::Instance();
 
-    Geometry::PhysicalTetrahedron oops3D(pointIndexes, nodes3D);
+    Geometry::PhysicalGeometry<3> oops3D(pointIndexes, nodes3D, &rGeom3D);
     nodes3D[13][0] = 2.8;
     nodes3D[13][1] = 4.2;
     nodes3D[13][2] = 4.;
-    Geometry::PhysicalTetrahedron pGeom3D(pointIndexes, nodes3D);
+    Geometry::PhysicalGeometry<3> pGeom3D(pointIndexes, nodes3D, &rGeom3D);
 
     Geometry::MappingToPhysSimplexLinear<3> mapping3D(&pGeom3D),
         reinit3D(&oops3D);

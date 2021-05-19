@@ -38,30 +38,6 @@
 
 #include <ElementGeometry.h>
 
-#include "ReferenceTetrahedron.h"
-#include "ReferenceLine.h"
-#include "ReferenceSquare.h"
-#include "ReferenceTriangle.h"
-#include "ReferencePyramid.h"
-#include "ReferenceTriangularPrism.h"
-#include "ReferenceCube.h"
-#include "ReferenceHypercube.h"
-
-#include "PhysicalTetrahedron.h"
-#include "PhysicalLine.h"
-#include "PhysicalQuadrilateral.h"
-#include "PhysicalTriangle.h"
-#include "PhysicalPyramid.h"
-#include "PhysicalTriangularPrism.h"
-#include "PhysicalHexahedron.h"
-#include "PhysicalOctachoron.h"
-
-#include "Mappings/MappingReferenceToPhysical.h"
-#include "Mappings/MappingToPhysHypercubeLinear.h"
-#include "Mappings/MappingToPhysSimplexLinear.h"
-#include "Mappings/MappingToPhysPyramid.h"
-#include "Mappings/MappingToPhysTriangularPrism.h"
-
 #include "PointReference.h"
 
 namespace hpgem {
