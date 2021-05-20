@@ -6,6 +6,7 @@ lib/gmsh.cpp
 lib/ElementReorder.cpp
 lib/SparseUnionFind.cpp
 lib/FortranUnformattedFile.cpp
+lib/ElementShapes.cpp
 )
 
 # TODO: Lacking source/include separation
