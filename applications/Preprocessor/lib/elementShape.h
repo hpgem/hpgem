@@ -39,9 +39,14 @@
 #ifndef HPGEM_APP_ELEMENTSHAPE_H
 #define HPGEM_APP_ELEMENTSHAPE_H
 
+#include <array>
 #include <cstddef>
+#include <numeric>
 #include <vector>
 #include "Logger.h"
+
+#include "tag.h"
+#include "TemplateArray.h"
 
 namespace Preprocessor {
 
@@ -52,124 +57,154 @@ class ElementShape;
 
 namespace Detail {
 
-template <std::size_t entityDimension, std::size_t dimension>
-struct EntityData : public EntityData<entityDimension - 1, dimension> {
-    template <typename... superArgs>
-    EntityData(std::vector<std::vector<std::size_t>> adjacentNodes,
-               std::vector<const ElementShape<entityDimension>*> entityShapes,
-               superArgs... args)
-        : EntityData<entityDimension - 1, dimension>(args...),
-          adjacentShapes(),
-          entityShapes(entityShapes) {
-        adjacentShapes[0] = adjacentNodes;
+/// Part of an ElementShape
+///
+/// Part of an ElementShape, this could be the whole shape, or a part of the
+/// boundary (i.e. a vertex, edge or face).
+///
+/// \tparam partDimension The dimension of the part
+/// \tparam dimension The dimension of the original shape
+template <std::size_t partDimension, std::size_t dimension>
+class ElementShapePart {
+   public:
+    /// Define part of an ElementShape
+    ///
+    /// Each part is characterized by three things.
+    ///  1. The shape of the part
+    ///  2. The nodes of the parent shape used in this part
+    ///  3. The mapping of node numbers of the part-shape to that of the
+    ///     parent-shape.
+    /// For example the first triangular face of the tetrahedron is defined by
+    /// 1. shape: Triangle
+    /// 2. nodes: {0,2,3}
+    /// 3. mapping (triangle node -> tetrahedron node): 0 -> 0, 1 -> 2, 2 -> 3
+    /// With the other three faces having a different subset of nodes, and a
+    /// corresponding mapping.
+    ///
+    /// The mapping and subset of nodes are defined in the same variable, by
+    /// listing the node numbers of the parent shape in the order of the
+    /// mapping. So in the example they should be specified as {0,3,2}.
+    ///
+    /// WARNING: The information should match the definition in the particular
+    ///   ReferenceGeometry in the kernel
+    /// \param shape The geometrical shape of the part
+    ///
+    /// \param nodeIds The subset of nodes of the parent shape that are used in
+    /// this part, in the right order.
+    ElementShapePart(const ElementShape<partDimension>* shape,
+                     std::vector<std::size_t> nodeIds)
+        : shape(shape), adjacentShapes() {
+        adjacentShapes[0] = nodeIds;
+        logger.assert_always(
+            shape->getNumberOfNodes() == nodeIds.size(),
+            "Incorrect number of nodes provided, expected %, got %",
+            shape->getNumberOfNodes(), nodeIds.size());
+    };
+    ElementShapePart() = default;
+
+    const ElementShape<partDimension>* getShape() const { return shape; }
+
+    std::vector<std::size_t>& getAdjacentShapes(std::size_t targetDimension) {
+        logger.assert_debug(targetDimension <= dimension,
+                            "Invalid target dimension");
+        return adjacentShapes[targetDimension];
+    }
+    const std::vector<std::size_t>& getAdjacentShapes(
+        std::size_t targetDimension) const {
+        logger.assert_debug(targetDimension <= dimension,
+                            "Invalid target dimension");
+        return adjacentShapes[targetDimension];
     }
 
-    EntityData() = default;
-
-    ~EntityData() = default;
-
-    EntityData(const EntityData&) = default;
-
-    EntityData(EntityData&&) noexcept = default;
-
-    EntityData& operator=(const EntityData&) = default;
-
-    EntityData& operator=(EntityData&&) noexcept = default;
-
-    std::array<std::vector<std::vector<std::size_t>>, dimension> adjacentShapes;
-    std::vector<const ElementShape<entityDimension>*> entityShapes;
-
-    template <std::size_t SUB_DIM>
-    std::vector<const ElementShape<SUB_DIM>*>& getEntityShapes() {
-        return EntityData<SUB_DIM, dimension>::entityShapes;
+    const std::vector<std::size_t>& getNodes() const {
+        return getAdjacentShapes(0);
     }
 
-    template <std::size_t SUB_DIM>
-    const std::vector<const ElementShape<SUB_DIM>*>& getEntityShapes() const {
-        return EntityData<SUB_DIM, dimension>::entityShapes;
-    }
-
-    template <std::size_t SUB_DIM>
-    std::array<std::vector<std::vector<std::size_t>>, dimension>&
-        getAdjacentShapes() {
-        return this->EntityData<SUB_DIM, dimension>::adjacentShapes;
-    }
-
-    template <std::size_t SUB_DIM>
-    const std::array<std::vector<std::vector<std::size_t>>, dimension>&
-        getAdjacentShapes() const {
-        return EntityData<SUB_DIM, dimension>::adjacentShapes;
-    }
-};
-
-template <std::size_t dimension>
-struct EntityData<0, dimension> {
-    EntityData(std::vector<std::vector<std::size_t>> adjacentNodes,
-               std::vector<const ElementShape<0>*> entityShapes)
-        : adjacentShapes(), entityShapes(entityShapes) {
-        adjacentShapes[0] = adjacentNodes;
-    }
-
-    EntityData() = default;
-
-    ~EntityData() = default;
-
-    EntityData(const EntityData&) = default;
-
-    EntityData(EntityData&&) noexcept = default;
-
-    EntityData& operator=(const EntityData&) = default;
-
-    EntityData& operator=(EntityData&&) noexcept = default;
-
-    std::array<std::vector<std::vector<std::size_t>>, dimension> adjacentShapes;
-    std::vector<const ElementShape<0>*> entityShapes;
-
-    template <std::size_t SUB_DIM>
-    std::vector<const ElementShape<SUB_DIM>*>& getEntityShapes() {
-        return EntityData<SUB_DIM, dimension>::entityShapes;
-    }
-
-    template <std::size_t SUB_DIM>
-    std::array<std::vector<std::vector<std::size_t>>, dimension>&
-        getAdjacentShapes() {
-        return this->EntityData<SUB_DIM, dimension>::adjacentShapes;
-    }
-
-    template <std::size_t SUB_DIM>
-    const std::vector<const ElementShape<SUB_DIM>*>& getEntityShapes() const {
-        return EntityData<SUB_DIM, dimension>::entityShapes;
-    }
-
-    template <std::size_t SUB_DIM>
-    const std::array<std::vector<std::vector<std::size_t>>, dimension>&
-        getAdjacentShapes() const {
-        return this->EntityData<SUB_DIM, dimension>::adjacentShapes;
-    }
+   private:
+    /// The shape of this part of the boundary
+    const ElementShape<partDimension>* shape;
+    /// The adjacent boundary parts, as indices into the the list of boundary
+    /// parts of the corresponding element. Grouped by the dimension of the
+    /// specific part. This results in three cases:
+    /// adjacentDim < entityDim
+    ///   -> adjacentShape is part of the boundary of this boundary part.
+    /// adjacentDim == entityDim
+    ///    -> This boundary part itself
+    /// adjacentDim > entityDim
+    ///    -> This boundary part is on the boundary of the adjacentShape
+    std::array<std::vector<std::size_t>, dimension + 1> adjacentShapes;
 };
 }  // namespace Detail
 
+/// @brief Description of the topology of the possible elements in a mesh
+///
+/// The ElementShape defines the shape of the possible reference elements in
+/// the mesh. Which are assumed to be polytopes (point, line, polygon,
+/// polyhedra). Such a reference polytope has several properties that are used
+/// in a FEM code:
+///
+///  1. A coordinate system, describing the geometry of the reference element
+///     and used for the basis functions.
+///  2. The topology of the reference element, as a polytope. That is how are
+///     the parts (vertices, edges, etc.) connected to form the polytope.
+///  3. A numbering of the boundary parts so that each part can be indexed and
+///     their orientation.
+/// In the kernel we don't need the geometry part, but we do need the topology
+/// and the indices of the parts.
+///
+/// To define the topology of the polytope we use two properties:
+///   1. It's boundary is a combination of 0, 1, ... D-1, dimensional polytopes
+///   2. It has N vertices (0 dimensional polytopes).
+/// The vertices are numbered 0...N-1. The intermediate polytopes on the
+/// boundary are then defined by taking a subset of the vertices and providing
+/// the associated polytopical shape. The ordering of the vertices then defines
+/// the relative orientation.
+///
+/// Note: As both of these properties influence the output, they should match
+/// the definition of the shapes in the kernel.
+///
+/// \tparam dimension The dimension of this shape
 template <std::size_t dimension>
 class ElementShape {
-    template <std::size_t d>
-    struct tag {};
 
    public:
     ElementShape() = default;
 
     ~ElementShape() = default;
 
-    ElementShape(const ElementShape&) = default;
+    // Disallow copying and moving for two reasons:
+    // 1. It contains a self reference as part of its shapeParts, this would
+    //    need a custom copying and moving routine to keep this reference
+    //    correct
+    // 2. Larger shapes store pointers to smaller shapes (for the boundary).
+    //    By moving and copying one could easily break these pointers.
 
-    ElementShape(ElementShape&&) noexcept = default;
+    ElementShape(const ElementShape&) = delete;
 
-    ElementShape& operator=(const ElementShape&) = default;
+    ElementShape(ElementShape&&) noexcept = delete;
 
-    ElementShape& operator=(ElementShape&&) noexcept = default;
+    ElementShape& operator=(const ElementShape&) = delete;
 
+    ElementShape& operator=(ElementShape&&) noexcept = delete;
+
+    /// Define a shape by it's boundary parts
+    ///
+    /// \tparam Args The types of the boundary, should be
+    ///    BoundaryPart<dimension-1,dimension>, ... BoundaryPart<1,dimension>,
+    ///    BoundaryPart<0,dimension>
+    ///
+    /// \param args The boundary parts, starting at the highest dimension (codim
+    /// 1) and going down to the vertices.
     template <typename... Args>
-    ElementShape(Args... args) : shapeData(args...) {
-        completeSubShapes(tag<dimension - 1>{}, tag<dimension - 1>{});
+    ElementShape(Args... args) : shapeParts({}, args...) {
+        // Insert ElementShapePart corresponding to the whole element.
+        auto& shapeVec = shapeParts.template get<dimension>();
+        std::vector<std::size_t> vertices(getNumberOfNodes());
+        std::iota(vertices.begin(), vertices.end(), 0);
+        shapeVec.push_back(
+            Detail::ElementShapePart<dimension, dimension>{this, vertices});
+        // Compute the topological connections
+        completeSubShapes();
         logger.assert_debug(checkShape(),
                             "Input generated an inconsistent shape");
     }
@@ -178,12 +213,16 @@ class ElementShape {
 
     std::size_t getNumberOfEdges() const { return getNumberOfEntities<1>(); }
 
-    std::size_t getNumberOfFaces() const { return getNumberOfEntities<-1>(); }
+    std::size_t getNumberOfFaces() const {
+        return getNumberOfEntities<dimension - 1>();
+    }
 
-    // if (entityDimension >= 0) ElementShape<entityDimension>
-    // else if(entityDimension + dimension >= 0) ElementShape<entityDimension +
-    // dimension> //codim case else ElementShape<0> //make the compiler not
-    // crash while we invoke the logger
+    // if (entityDimension >= 0)
+    //      ElementShape<entityDimension>
+    // else if(entityDimension + dimension >= 0)
+    //      ElementShape<entityDimension + dimension>
+    // codim case else ElementShape<0>
+    // make the compiler not crash while we invoke the logger
     template <int entityDimension>
     using ShapeType = const ElementShape<(
         entityDimension < 0
@@ -191,86 +230,92 @@ class ElementShape {
                                                : entityDimension + dimension)
             : entityDimension)>;
 
-    ShapeType<-1> getFaceShape(std::size_t faceIndex) const {
-        return getBoundaryShape<-1>(faceIndex);
-    }
-
-    template <int entityDimension>
+    template <std::size_t entityDimension>
     std::vector<std::size_t> getNodesOfEntity(std::size_t entityIndex) const {
         return getAdjacentEntities<entityDimension, 0>(entityIndex);
     }
 
     /**
      * @brief returns the number of entities of the specified dimension.
-     * Negative dimensions are treated as codimensions
      */
-    template <int entityDimension>
-    std::enable_if_t<(entityDimension < 0), std::size_t> getNumberOfEntities()
-        const;
-    template <int entityDimension>
-    std::enable_if_t<(entityDimension >= dimension), std::size_t>
-        getNumberOfEntities() const;
-    template <int entityDimension>
-    std::enable_if_t<(entityDimension >= 0 && entityDimension < dimension),
-                     std::size_t>
+    template <std::size_t entityDimension>
+    std::enable_if_t<(entityDimension <= dimension), std::size_t>
         getNumberOfEntities() const;
 
-    template <int entityDimension>
-    std::enable_if_t<(entityDimension < 0), const ShapeType<entityDimension>*>
-        getBoundaryShape(std::size_t entityIndex) const;
-    template <int entityDimension>
-    std::enable_if_t<(entityDimension >= dimension),
-                     const ShapeType<entityDimension>*>
-        getBoundaryShape(std::size_t entityIndex) const;
-    template <int entityDimension>
-    std::enable_if_t<(entityDimension >= 0 && entityDimension < dimension),
+    template <std::size_t entityDimension>
+    std::enable_if_t<(entityDimension <= dimension),
                      const ShapeType<entityDimension>*>
         getBoundaryShape(std::size_t entityIndex) const;
 
     /**
-     * @brief returns the indices of adjacent entities in the index space of
-     * this shape. If the target dimension is negative, it will be taken with
-     * respect to the full shape
+     * @brief Lookup adjacency information about entities of this shape
+     *
+     * Given an entity on this shape find the adjacent entities
+     * from a specific target dimension. For example let the current shape be a
+     * triangle, and the entity be an edge of this tetrahedron. Then depending
+     * on the target dimension one would get:
+     *  0. The nodes connected to the edge
+     *  1. The edge itself
+     *  2. The triangular faces which have this edge
+     *  3. The tetrahedron
+     *
+     * @tparam entityDimension The dimension of the entity
+     * @tparam targetDimension The dimension of the entities to look to
+     * @param entityIndex The index specifying the specific entity to find the
+     * adjacency of.
+     * @return The indices of the `targetDimension` dimensional entities that
+     * are adjacent to the input entity.
      */
-    template <int entityDimension, int targetDimension>
-    std::enable_if_t<(entityDimension < 0), std::vector<std::size_t>>
-        getAdjacentEntities(std::size_t entityIndex) const;
-    template <int entityDimension, int targetDimension>
-    std::enable_if_t<(targetDimension < 0 && entityDimension >= 0),
+
+    template <std::size_t entityDimension, std::size_t targetDimension>
+    std::enable_if_t<(entityDimension <= dimension &&
+                      targetDimension <= dimension),
                      std::vector<std::size_t>>
         getAdjacentEntities(std::size_t entityIndex) const;
 
-    template <int entityDimension, int targetDimension>
-    std::enable_if_t<(entityDimension >= 0 && targetDimension >= 0 &&
-                      (entityDimension >= dimension ||
-                       targetDimension >= dimension)),
-                     std::vector<std::size_t>>
-        getAdjacentEntities(std::size_t entityIndex) const;
-
-    template <int entityDimension, int targetDimension>
-    std::enable_if_t<(entityDimension >= 0 && entityDimension < dimension &&
-                      targetDimension >= 0 && targetDimension < dimension),
-                     std::vector<std::size_t>>
-        getAdjacentEntities(std::size_t entityIndex) const;
-
-    bool checkShape() const { return checkBoundaryShape(tag<dimension - 1>{}); }
+    bool checkShape() const { return checkBoundaryShape(itag<dimension>{}); }
 
    private:
-    template <std::size_t d, std::size_t shapeDimension>
+    /// For a shape S on the boundary of this elementShape, do some consistency
+    /// checks on the boundary of S.
+    ///
+    /// \tparam d The dimension of the entities to check on the boundary of S
+    /// \tparam shapeDimension The dimension of S
+    /// \param boundingShape The bounding shape S
+    /// \param boundaryNodes The nodes for the S (subset of the nodes of the
+    /// elementshape)
+    ///
+    /// \param currentIndex Index of S with respect to the elementShape.
+    ///
+    /// \return Whether correct
+    template <int d, std::size_t shapeDimension>
     bool checkSingleShape(const ElementShape<shapeDimension>* boundingShape,
                           std::vector<std::size_t> boundaryNodes,
-                          std::size_t currentIndex, tag<d>) const;
+                          std::size_t currentIndex, itag<d>) const;
 
     template <std::size_t shapeDimension>
     bool checkSingleShape(const ElementShape<shapeDimension>* boundingShape,
                           std::vector<std::size_t> boundaryNodes,
-                          std::size_t currentIndex, tag<0>) const;
+                          std::size_t currentIndex, itag<-1>) const;
 
-    template <std::size_t d>
-    bool checkBoundaryShape(tag<d>) const;
+    /// Check the d-dimensional boundary of this shape
+    template <int d>
+    bool checkBoundaryShape(itag<d>) const;
 
-    bool checkBoundaryShape(tag<0>) const;
+    bool checkBoundaryShape(itag<-1>) const;
 
+    /// Derive the topological connections from the vertices on each subshape.
+    void completeSubShapes() {
+        completeSubShapes(tag<dimension>{}, tag<dimension>{});
+    }
+
+    /// Derive the topological connections of the boundary parts.
+    ///
+    /// \tparam entityDimension The dimension of the boundary parts to derive
+    /// the topological connections for.
+    ///
+    /// \tparam targetDimension The dimension of the boundary parts to which
+    /// they are connected.
     template <std::size_t entityDimension, std::size_t targetDimension>
     void completeSubShapes(tag<entityDimension>, tag<targetDimension>);
 
@@ -279,9 +324,17 @@ class ElementShape {
 
     void completeSubShapes(tag<0>, tag<0>) {}
 
-    Detail::EntityData<dimension - 1, dimension> shapeData;
+    /// Specialization to fix the dimension of the entity shape
+    template <std::size_t partDimension>
+    using ShapePartVec =
+        std::vector<Detail::ElementShapePart<partDimension, dimension>>;
+
+    TemplateArray<dimension + 1, ShapePartVec> shapeParts;
 };
 
+// Special case for the zero dimension shape: The point. Unlike higher
+// dimensional shapes it does not have a boundary consisting of lower
+// dimensional shapes.
 template <>
 class ElementShape<0> {
    public:
@@ -297,22 +350,15 @@ class ElementShape<0> {
 
     ElementShape& operator=(ElementShape&&) noexcept = default;
 
-    std::size_t getNumberOfNodes() const { return getNumberOfEntities<0>(); }
+    std::size_t getNumberOfNodes() const { return 1; }
 
-    std::size_t getNumberOfEdges() const { return getNumberOfEntities<1>(); }
+    std::size_t getNumberOfEdges() const { return 0; }
 
-    std::size_t getNumberOfFaces() const { return getNumberOfEntities<-1>(); }
+    std::size_t getNumberOfFaces() const { return 0; }
 
-    // if (entityDimension >= 0) ElementShape<entityDimension>
-    // else if(entityDimension + dimension >= 0) ElementShape<entityDimension +
-    // dimension> //codim case else ElementShape<0> //make the compiler not
-    // crash while we invoke the logger
+    // Templated to match the generic case.
     template <int entityDimension>
     using ShapeType = ElementShape<0>;
-
-    ShapeType<-1> getFaceShape(std::size_t faceIndex) const {
-        return getBoundaryShape<-1>(faceIndex);
-    }
 
     template <int entityDimension>
     std::vector<std::size_t> getNodesOfEntity(std::size_t entityIndex) const {
@@ -323,14 +369,13 @@ class ElementShape<0> {
      * @brief returns the number of entities of the specified dimension.
      * Negative dimensions are treated as codimensions
      */
-    template <int entityDimension>
+    template <std::size_t entityDimension>
     std::size_t getNumberOfEntities() const {
         if (entityDimension == 0) return 1;
-
         return 0;
     }
 
-    template <int entityDimension>
+    template <std::size_t entityDimension>
     ShapeType<entityDimension> getBoundaryShape(std::size_t entityIndex) const {
         logger.assert_debug(
             entityDimension == 0,
@@ -342,12 +387,7 @@ class ElementShape<0> {
         return *this;
     }
 
-    /**
-     * @brief returns the indices of adjacent entities in the index space of
-     * this shape. If the target dimension is negative, it will be taken with
-     * respect to the full shape
-     */
-    template <int entityDimension, int targetDimension>
+    template <std::size_t entityDimension, std::size_t targetDimension>
     std::vector<std::size_t> getAdjacentEntities(
         std::size_t entityIndex) const {
         logger.assert_debug(
@@ -357,6 +397,7 @@ class ElementShape<0> {
             entityIndex == 0,
             "A point consists of only 1 shape, but you asked for shape %",
             entityIndex);
+        // The shape itself
         if (targetDimension == 0) return {0};
 
         return {};
@@ -365,103 +406,6 @@ class ElementShape<0> {
     // points are hardcoded to be correct
     bool checkShape() const { return true; }
 };
-
-// note when debugging new shapes: invoking the logger during static
-// initialisation can be a bit messy so you may need to use a debugger to see
-// the error message
-const ElementShape<0> point{};
-const ElementShape<1> line(std::vector<std::vector<std::size_t>>{{0}, {1}},
-                           std::vector<const ElementShape<0>*>{&point, &point});
-const ElementShape<2> triangle(
-    std::vector<std::vector<std::size_t>>{{0, 1}, {0, 2}, {1, 2}},
-    std::vector<const ElementShape<1>*>{&line, &line, &line},
-    std::vector<std::vector<std::size_t>>{{0}, {1}, {2}},
-    std::vector<const ElementShape<0>*>{&point, &point, &point});
-const ElementShape<2> square(
-    std::vector<std::vector<std::size_t>>{{0, 1}, {0, 2}, {1, 3}, {2, 3}},
-    std::vector<const ElementShape<1>*>{&line, &line, &line, &line},
-    std::vector<std::vector<std::size_t>>{{0}, {1}, {2}, {3}},
-    std::vector<const ElementShape<0>*>{&point, &point, &point, &point});
-const ElementShape<3> tetrahedron(
-    std::vector<std::vector<std::size_t>>{
-        {0, 3, 2}, {0, 1, 3}, {0, 2, 1}, {1, 2, 3}},
-    std::vector<const ElementShape<2>*>{&triangle, &triangle, &triangle,
-                                        &triangle},
-    std::vector<std::vector<std::size_t>>{
-        {0, 1}, {0, 2}, {0, 3}, {2, 3}, {1, 3}, {1, 2}},
-    std::vector<const ElementShape<1>*>{&line, &line, &line, &line, &line,
-                                        &line},
-    std::vector<std::vector<std::size_t>>{{0}, {1}, {2}, {3}},
-    std::vector<const ElementShape<0>*>{&point, &point, &point, &point});
-const ElementShape<3> cube(
-    std::vector<std::vector<std::size_t>>{{0, 1, 2, 3},
-                                          {0, 1, 4, 5},
-                                          {0, 2, 4, 6},
-                                          {1, 3, 5, 7},
-                                          {2, 3, 6, 7},
-                                          {4, 5, 6, 7}},
-    std::vector<const ElementShape<2>*>{&square, &square, &square, &square,
-                                        &square, &square},
-    std::vector<std::vector<std::size_t>>{{0, 1},
-                                          {2, 3},
-                                          {4, 5},
-                                          {6, 7},
-                                          {0, 2},
-                                          {1, 3},
-                                          {4, 6},
-                                          {5, 7},
-                                          {0, 4},
-                                          {1, 5},
-                                          {2, 6},
-                                          {3, 7}},
-    std::vector<const ElementShape<1>*>{&line, &line, &line, &line, &line,
-                                        &line, &line, &line, &line, &line,
-                                        &line, &line},
-    std::vector<std::vector<std::size_t>>{
-        {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}},
-    std::vector<const ElementShape<0>*>{&point, &point, &point, &point, &point,
-                                        &point, &point, &point});
-const ElementShape<3> triangularPrism(
-    std::vector<std::vector<std::size_t>>{
-        {0, 2, 1}, {3, 4, 5}, {2, 0, 5, 3}, {0, 1, 3, 4}, {1, 2, 4, 5}},
-    std::vector<const ElementShape<2>*>{&triangle, &triangle, &square, &square,
-                                        &square},
-    std::vector<std::vector<std::size_t>>{
-        {0, 1}, {0, 2}, {1, 2}, {3, 4}, {3, 5}, {4, 5}, {0, 3}, {1, 4}, {2, 5}},
-    std::vector<const ElementShape<1>*>{&line, &line, &line, &line, &line,
-                                        &line, &line, &line, &line},
-    std::vector<std::vector<std::size_t>>{{0}, {1}, {2}, {3}, {4}, {5}},
-    std::vector<const ElementShape<0>*>{&point, &point, &point, &point, &point,
-                                        &point});
-const ElementShape<3> pyramid(
-    std::vector<std::vector<std::size_t>>{
-        {3, 4, 1, 2}, {3, 1, 0}, {2, 4, 0}, {1, 2, 0}, {4, 3, 0}},
-    std::vector<const ElementShape<2>*>{&square, &triangle, &triangle,
-                                        &triangle, &triangle},
-    std::vector<std::vector<std::size_t>>{
-        {0, 1}, {0, 2}, {0, 3}, {0, 4}, {1, 2}, {2, 4}, {4, 3}, {3, 1}},
-    std::vector<const ElementShape<1>*>{&line, &line, &line, &line, &line,
-                                        &line, &line, &line},
-    std::vector<std::vector<std::size_t>>{{0}, {1}, {2}, {3}, {4}},
-    std::vector<const ElementShape<0>*>{&point, &point, &point, &point,
-                                        &point});
-
-template <std::size_t dimension>
-const std::vector<const ElementShape<dimension>*> defaultShapes;
-
-template <>
-const std::vector<const ElementShape<0>*> defaultShapes<0> = {&point};
-
-template <>
-const std::vector<const ElementShape<1>*> defaultShapes<1> = {&line};
-
-template <>
-const std::vector<const ElementShape<2>*> defaultShapes<2> = {&triangle,
-                                                              &square};
-
-template <>
-const std::vector<const ElementShape<3>*> defaultShapes<3> = {
-    &tetrahedron, &cube, &triangularPrism, &pyramid};
 
 }  // namespace Preprocessor
 
