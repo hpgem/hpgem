@@ -35,33 +35,42 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_REFERENCELAGRANGETRIANGLE_H
-#define HPGEM_REFERENCELAGRANGETRIANGLE_H
+#ifndef HPGEM_REFERENCEGEOMETRYFACTORY_H
+#define HPGEM_REFERENCEGEOMETRYFACTORY_H
 
-#include "LagrangeReferenceElement.h"
+#include "ReferenceGeometry.h"
 
 namespace hpgem {
 namespace Geometry {
-/// Lagrange triangle of arbitrary order based on the standard reference
-/// triangle.
-///
-/// The vertices are generated such that if the coordinates are listed (y,x)
-/// they are in lexicographical order. That way the first order triangle has
-/// ordering (0,0) - (1,0) - (0,1) =(x,y), matching that of the regular triangle
-class ReferenceLagrangeTriangle : public LagrangeReferenceElement<2> {
+
+class ReferenceGeometryFactory {
    public:
-    /// Reverse computation finding the order from the number of points.
-    /// Negative values are used to denote that no such element exists
-    static int getOrderFromPoints(std::size_t numberOfPoints);
-    static ReferenceLagrangeTriangle& getReferenceLagrangeTriangle(
-        std::size_t order);
+    static ReferenceGeometryFactory& Instance() {
+        static ReferenceGeometryFactory instance;
+        return instance;
+    }
+
+    /// Lookup the ReferenceGeometry by the dimension of the shape and the
+    /// number of vertices.
+    ///
+    /// \param dimension The dimension of the geometry
+    /// \param numberOfPoints The number of vertices
+    /// \return A reference to the geometry. Will terminate the program if it
+    /// does not exist.
+    ReferenceGeometry& getGeometry(std::size_t dimension,
+                                   std::size_t numberOfPoints);
 
    private:
-    explicit ReferenceLagrangeTriangle(std::size_t order);
-    static std::vector<Geometry::PointReference<2>> createPoints(
-        std::size_t order);
+    ReferenceGeometryFactory() = default;
+    ReferenceGeometry& getGeometry0(std::size_t numberOfPoints);
+    ReferenceGeometry& getGeometry1(std::size_t numberOfPoints);
+    ReferenceGeometry& getGeometry2(std::size_t numberOfPoints);
+    ReferenceGeometry& getGeometry3(std::size_t numberOfPoints);
+    ReferenceGeometry& getGeometry4(std::size_t numberOfPoints);
+    /// Cache for higher order 2D elements, indexed by numberOfPoints.
+    std::map<std::size_t, ReferenceGeometry*> cached2DGeometries_;
 };
 }  // namespace Geometry
 }  // namespace hpgem
 
-#endif  // HPGEM_REFERENCELAGRANGETRIANGLE_H
+#endif  // HPGEM_REFERENCEGEOMETRYFACTORY_H

@@ -16,6 +16,7 @@ add_library(Reference_geometries OBJECT
 		ReferenceLagrangeTriangle.cpp
 	
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceGeometry.cpp
+		ReferenceGeometryFactory.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/PointReferenceBase.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/PointPhysicalBase.cpp
 	# Mappings

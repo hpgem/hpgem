@@ -45,7 +45,7 @@ namespace Geometry{
 
 class ReferenceLagrangeLine : public LagrangeReferenceElement<1> {
    public:
-    static ReferenceLagrangeLine* getReferenceLagrangeLine(std::size_t order);
+    static ReferenceLagrangeLine& getReferenceLagrangeLine(std::size_t order);
    private:
     ReferenceLagrangeLine(std::size_t order);
 };

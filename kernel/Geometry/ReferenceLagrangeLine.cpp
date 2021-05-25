@@ -46,8 +46,11 @@
 namespace hpgem {
 namespace Geometry {
 
-ReferenceLagrangeLine* ReferenceLagrangeLine::getReferenceLagrangeLine(
+ReferenceLagrangeLine& ReferenceLagrangeLine::getReferenceLagrangeLine(
     std::size_t order) {
+    logger.assert_always(order != 0, "A zero-th order line does not exist");
+    logger.assert_always(order != 1,
+                         "Use the regular ReferenceLine for first order");
     // Multiton
     static std::map<std::size_t, ReferenceLagrangeLine*> lines;
 
@@ -55,7 +58,7 @@ ReferenceLagrangeLine* ReferenceLagrangeLine::getReferenceLagrangeLine(
     if (line == nullptr) {
         line = new ReferenceLagrangeLine(order);
     }
-    return line;
+    return *line;
 }
 
 std::string getReferenceLagrangeLineName(std::size_t order) {

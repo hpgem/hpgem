@@ -49,14 +49,29 @@
 namespace hpgem {
 namespace Geometry {
 
-ReferenceLagrangeTriangle*
+int ReferenceLagrangeTriangle::getOrderFromPoints(std::size_t numberOfPoints) {
+    // We need to invert N = (order + 2)*(order + 1)/2;
+    // Using standard mathematics we get
+    // order = (-3 + sqrt(9 + 8*(N-1))/2
+    double orderD = -1.5 + std::sqrt(9 + 8*(numberOfPoints - 1))/2;
+    // Round and check the result using integer arithmetic
+    int order = static_cast<int> (std::lround(orderD));
+    std::size_t actualPoints = (order + 2) * (order + 1)/2;
+    if (actualPoints == numberOfPoints) {
+        return order;
+    } else {
+        return -1;
+    }
+}
+
+ReferenceLagrangeTriangle&
     ReferenceLagrangeTriangle::getReferenceLagrangeTriangle(std::size_t order) {
     static std::map<std::size_t, ReferenceLagrangeTriangle*> triangles;
     ReferenceLagrangeTriangle*& triangle = triangles[order];
     if (triangle == nullptr) {
         triangle = new ReferenceLagrangeTriangle(order);
     }
-    return triangle;
+    return *triangle;
 }
 
 std::string getReferenceLagrangeTriangeName(std::size_t order) {
@@ -86,14 +101,11 @@ ReferenceLagrangeTriangle::ReferenceLagrangeTriangle(std::size_t order)
           &ReferenceTriangle::Instance(),
           // Codim 1 3 Lagrange lines
           std::vector<ReferenceGeometry*>(
-              3, ReferenceLagrangeLine::getReferenceLagrangeLine(order)),
+              3, &ReferenceLagrangeLine::getReferenceLagrangeLine(order)),
           // Codim 2: points -> thus not included
           std::vector<ReferenceGeometry*>(),
           // The actual Lagrange points used for the triangle
-          createPoints(order),
-          getReferenceLagrangeTriangeName(order),
-          order
-      ) {}
+          createPoints(order), getReferenceLagrangeTriangeName(order), order) {}
 
 }  // namespace Geometry
 }  // namespace hpgem

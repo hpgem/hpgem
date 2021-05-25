@@ -46,20 +46,13 @@
 #include "Jacobian.h"
 #include "Mappings/MappingReferenceToPhysical.h"
 
-#include "ReferenceTetrahedron.h"
-#include "ReferenceLine.h"
-#include "ReferenceSquare.h"
-#include "ReferenceTriangle.h"
-#include "ReferencePyramid.h"
-#include "ReferenceTriangularPrism.h"
-#include "ReferenceCube.h"
-#include "ReferenceHypercube.h"
-
+#include "ReferenceGeometryFactory.h"
 #include "Mappings/MappingReferenceToPhysical.h"
 #include "Mappings/MappingToPhysHypercubeLinear.h"
 #include "Mappings/MappingToPhysSimplexLinear.h"
 #include "Mappings/MappingToPhysPyramid.h"
 #include "Mappings/MappingToPhysTriangularPrism.h"
+#include "Mappings/MappingToPhysTriangleBilinear.h"
 
 #include "PointReference.h"
 
@@ -202,64 +195,7 @@ Jacobian<DIM, DIM> ElementGeometry::calcJacobian(
 /// given number of nodes equals 3.
 template <std::size_t DIM>
 ReferenceGeometry* ElementGeometry::createReferenceGeometry(std::size_t size) {
-    switch (size) {
-        // select a proper type based on the number of nodes a reference
-        // geometry should have
-        case 2:
-            logger.assert_debug(
-                DIM == 1,
-                "This Dimension does not contain entities with 2 nodes");
-            logger(VERBOSE, "ElementGeometry created a reference line.");
-            return &ReferenceLine::Instance();
-        case 3:
-            logger.assert_debug(
-                DIM == 2,
-                "This Dimension does not contain entities with 3 nodes");
-            logger(VERBOSE, "ElementGeometry created a reference triangle.");
-            return &ReferenceTriangle::Instance();
-        case 4:
-            if (DIM == 2) {
-                logger(VERBOSE, "ElementGeometry created a reference square.");
-                return &ReferenceSquare::Instance();
-            } else if (DIM == 3) {
-                logger(VERBOSE,
-                       "ElementGeometry created a reference tetrahedron.");
-                return &ReferenceTetrahedron::Instance();
-            } else {
-                logger(ERROR,
-                       "This dimension does not contain entities with 4 nodes. "
-                       "\n");
-            }
-            break;
-        case 5:
-            logger.assert_debug(
-                DIM == 3,
-                "This Dimension does not contain entities with 5 nodes");
-            logger(VERBOSE, "ElementGeometry created a reference pyramid.");
-            return &ReferencePyramid::Instance();
-        case 6:
-            logger.assert_debug(
-                DIM == 3,
-                "This Dimension does not contain entities with 6 nodes");
-            logger(VERBOSE,
-                   "ElementGeometry created a reference triangular prism.");
-            return &ReferenceTriangularPrism::Instance();
-        case 8:
-            logger.assert_debug(
-                DIM == 3,
-                "This Dimension does not contain entities with 8 nodes");
-            logger(VERBOSE, "ElementGeometry created a reference cube.");
-            return &ReferenceCube::Instance();
-        case 16:
-            logger.assert_debug(
-                DIM == 4,
-                "This Dimension does not contain entities with 16 nodes");
-            logger(VERBOSE, "ElementGeometry created a reference hypercube.");
-            return &ReferenceHypercube::Instance();
-        default:
-            logger(FATAL, "No know entities contain this many nodes. \n");
-    }
-    return nullptr;
+    return &ReferenceGeometryFactory::Instance().getGeometry(DIM, size);
 }
 
 template <std::size_t DIM>
@@ -299,6 +235,9 @@ inline MappingReferenceToPhysical* ElementGeometry::createMappings(
         case 4:
             logger(VERBOSE, "ElementGeometry created a mapping for a square.");
             return new Geometry::MappingToPhysHypercubeLinear<2>(pGeo);
+        case 6:
+            logger(VERBOSE, "ElementGeometry created a mapping for a bilinear triangle.");
+            return new Geometry::MappingToPhysTriangleBilinear(pGeo);
     }
     logger(FATAL, "No know entities contain this many nodes. \n");
     return nullptr;
