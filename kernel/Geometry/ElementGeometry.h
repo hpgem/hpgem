@@ -52,7 +52,7 @@
 #include "Mappings/MappingToPhysSimplexLinear.h"
 #include "Mappings/MappingToPhysPyramid.h"
 #include "Mappings/MappingToPhysTriangularPrism.h"
-#include "Mappings/MappingToPhysTriangleBilinear.h"
+#include "Mappings/MappingToPhysTriangleQuadratic.h"
 
 #include "PointReference.h"
 
@@ -236,8 +236,8 @@ inline MappingReferenceToPhysical* ElementGeometry::createMappings(
             logger(VERBOSE, "ElementGeometry created a mapping for a square.");
             return new Geometry::MappingToPhysHypercubeLinear<2>(pGeo);
         case 6:
-            logger(VERBOSE, "ElementGeometry created a mapping for a bilinear triangle.");
-            return new Geometry::MappingToPhysTriangleBilinear(pGeo);
+            logger(VERBOSE, "ElementGeometry created a mapping for a quadratic triangle.");
+            return new Geometry::MappingToPhysTriangleQuadratic(pGeo);
     }
     logger(FATAL, "No know entities contain this many nodes. \n");
     return nullptr;
