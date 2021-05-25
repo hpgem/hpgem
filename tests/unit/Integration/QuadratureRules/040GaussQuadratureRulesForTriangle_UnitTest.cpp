@@ -63,9 +63,17 @@ void testRule(QuadratureRules::GaussQuadratureRule& test,
     const Geometry::ReferenceGeometry& refGeo = *test.forReferenceGeometry();
     INFO("forReferenceGeometry");
     CHECK((typeid(refGeo) == typeid(Geometry::ReferenceTriangle)));
+
+    // Check for negative weights (these are unstable)
+    for (std::size_t  i = 0; i < test.getNumberOfPoints(); ++i) {
+        INFO("Non negative weights");
+        REQUIRE(test.weight(i) >= 0);
+    }
+
     std::cout.precision(14);
     FE::BasisFunctionSet* functions =
         FE::createDGBasisFunctionSet2DH1Triangle(expectedOrder);
+
     for (std::size_t i = 0; i < functions->size(); ++i) {
         double integrated = 0;
         for (std::size_t j = 0; j < test.getNumberOfPoints(); ++j) {
@@ -186,11 +194,9 @@ TEST_CASE("040GaussQuadratureRulesForTriangle_UnitTest",
 
     testRule(QuadratureRules::Tn2_1_1::Instance(), 1);
     testRule(QuadratureRules::Tn2_2_3::Instance(), 2);
-    testRule(QuadratureRules::Tn2_3_4::Instance(), 3);
     testRule(QuadratureRules::Tn2_4_6::Instance(), 4);
     testRule(QuadratureRules::T2_5_7::Instance(), 5);
     testRule(QuadratureRules::T2_6_12::Instance(), 6);
-    testRule(QuadratureRules::T2_7_13::Instance(), 7);
     testRule(QuadratureRules::T2_8_16::Instance(), 8);
     testRule(QuadratureRules::T2_9_19::Instance(), 9);
     testRule(QuadratureRules::T2_10_25::Instance(), 10);
