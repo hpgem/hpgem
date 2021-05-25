@@ -84,12 +84,15 @@ std::vector<Geometry::PointReference<2>>
 ReferenceLagrangeTriangle::ReferenceLagrangeTriangle(std::size_t order)
     : LagrangeReferenceElement<2>(
           &ReferenceTriangle::Instance(),
+          // Codim 1 3 Lagrange lines
           std::vector<ReferenceGeometry*>(
               3, ReferenceLagrangeLine::getReferenceLagrangeLine(order)),
-          std::vector<ReferenceGeometry*>((order + 2) * (order + 1) / 2,
-                                          &ReferencePoint::Instance()),
-          createPoints(order), getReferenceLagrangeTriangeName(order)
-
+          // Codim 2: points -> thus not included
+          std::vector<ReferenceGeometry*>(),
+          // The actual Lagrange points used for the triangle
+          createPoints(order),
+          getReferenceLagrangeTriangeName(order),
+          order
       ) {}
 
 }  // namespace Geometry

@@ -49,7 +49,7 @@ LagrangeReferenceElement<dim>::LagrangeReferenceElement(
     ReferenceGeometry* baseGeometry,
     std::vector<ReferenceGeometry*> codim1Geometries,
     std::vector<ReferenceGeometry*> codim2Geometries,
-    std::vector<Geometry::PointReference<dim>> points, const std::string& name)
+    std::vector<Geometry::PointReference<dim>> points, const std::string& name, std::size_t order)
     : baseGeometry_(baseGeometry),
       codim1Geometries_(std::move(codim1Geometries)),
       codim2Geometries_(std::move(codim2Geometries)),
@@ -59,7 +59,7 @@ LagrangeReferenceElement<dim>::LagrangeReferenceElement(
                              std::numeric_limits<std::size_t>::max()),
       codim1Indices_(baseGeometry->getNumberOfCodim1Entities()),
       codim2Indices_(baseGeometry->getNumberOfCodim2Entities()),
-      ReferenceGeometry(baseGeometry->getGeometryType(), name) {
+      LagrangeReferenceElementBase(baseGeometry->getGeometryType(), name, order) {
 
     // Verify the correct size of codimDGeometries
     if (dim > 1) {
@@ -119,9 +119,9 @@ std::size_t LagrangeReferenceElement<dim>::findPoint(
 // D < 3).
 
 template <>
-void LagrangeReferenceElement<0>::computeCodim1Indices() {}
+inline void LagrangeReferenceElement<0>::computeCodim1Indices() {}
 template <>
-void LagrangeReferenceElement<1>::computeCodim1Indices() {}
+inline void LagrangeReferenceElement<1>::computeCodim1Indices() {}
 
 template <std::size_t dim>
 void LagrangeReferenceElement<dim>::computeCodim1Indices() {
@@ -143,11 +143,11 @@ void LagrangeReferenceElement<dim>::computeCodim1Indices() {
 
 // Nothing to compute for dim=[0,1,2]
 template <>
-void LagrangeReferenceElement<0>::computeCodim2Indices() {}
+inline void LagrangeReferenceElement<0>::computeCodim2Indices() {}
 template <>
-void LagrangeReferenceElement<1>::computeCodim2Indices() {}
+inline void LagrangeReferenceElement<1>::computeCodim2Indices() {}
 template <>
-void LagrangeReferenceElement<2>::computeCodim2Indices() {}
+inline void LagrangeReferenceElement<2>::computeCodim2Indices() {}
 
 template <std::size_t dim>
 void LagrangeReferenceElement<dim>::computeCodim2Indices() {

@@ -43,7 +43,6 @@
 #include "ReferenceLine.h"
 #include "ReferencePoint.h"
 
-
 namespace hpgem {
 namespace Geometry {
 
@@ -78,10 +77,13 @@ std::vector<Geometry::PointReference<1>> createReferencePoints(
 
 ReferenceLagrangeLine::ReferenceLagrangeLine(std::size_t order)
     : LagrangeReferenceElement<1>(&ReferenceLine::Instance(),
+                                  // codim 1 = points -> Not included
                                   std::vector<ReferenceGeometry*>(0),
+                                  // No codim 2
                                   std::vector<ReferenceGeometry*>(0),
+                                  // Lagrange points
                                   createReferencePoints(order),
-                                  getReferenceLagrangeLineName(order)) {}
+                                  getReferenceLagrangeLineName(order), order) {}
 
 }  // namespace Geometry
 }  // namespace hpgem

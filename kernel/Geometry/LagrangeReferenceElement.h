@@ -44,14 +44,30 @@
 namespace hpgem {
 namespace Geometry {
 
+class LagrangeReferenceElementBase : public ReferenceGeometry {
+   protected:
+    LagrangeReferenceElementBase(const ReferenceGeometryType& geo,
+                                 std::string name, std::size_t order)
+        : ReferenceGeometry(geo, name), order_(order){};
+
+   public:
+    virtual ReferenceGeometry* getBaseGeometry() const = 0;
+    std::size_t getOrder() const { return order_; }
+
+   private:
+    std::size_t order_;
+};
+
 template <std::size_t dim>
-class LagrangeReferenceElement : public ReferenceGeometry {
+class LagrangeReferenceElement : public LagrangeReferenceElementBase {
    public:
     LagrangeReferenceElement(ReferenceGeometry* baseGeometry,
                              std::vector<ReferenceGeometry*> codim1Geometries,
                              std::vector<ReferenceGeometry*> codim2Geometries,
                              std::vector<Geometry::PointReference<dim>> points,
-                             const std::string& name);
+                             const std::string& name, std::size_t order);
+
+    ReferenceGeometry* getBaseGeometry() const final { return baseGeometry_; }
 
     bool isInternalPoint(const PointReference<0>& point) const final {
         return baseGeometry_->isInternalPoint(point);
