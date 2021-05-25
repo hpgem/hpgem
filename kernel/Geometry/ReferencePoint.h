@@ -89,7 +89,6 @@ class ReferencePoint : public ReferenceGeometry {
         return points_[i];
     }
 
-    using MappingCodimensions::getCodim0MappingPtr;
 
    private:
     /// \brief List of valid quadrature rules for this reference geometry

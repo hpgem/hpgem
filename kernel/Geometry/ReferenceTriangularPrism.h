@@ -103,8 +103,6 @@ class ReferenceTriangularPrism : public ReferenceGeometry {
     const MappingReferenceToReference<0>* getCodim0MappingPtr(
         const std::size_t) const final;
 
-    using MappingCodimensions::getCodim0MappingPtr;
-
     // ================================== Codimension 1
     // ========================================
 

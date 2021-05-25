@@ -44,6 +44,7 @@
 #include "Mappings/MappingToRefCubeToCube.h"
 #include "LinearAlgebra/MiddleSizeMatrix.h"
 #include "Geometry/PointReference.h"
+#include "ReferenceGeometry.h"
 
 namespace hpgem {
 

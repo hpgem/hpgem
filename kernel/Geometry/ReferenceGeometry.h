@@ -39,9 +39,10 @@
 #ifndef HPGEM_KERNEL_REFERENCEGEOMETRY_H
 #define HPGEM_KERNEL_REFERENCEGEOMETRY_H
 
-#include "Geometry/Mappings/MappingCodimensions.h"
 #include "Geometry/Mappings/RefinementMapping.h"
+#include "Mappings/MappingReferenceToReference.h"
 #include "PointReference.h"
+#include "Logger.h"
 
 #include <map>
 #include <unordered_map>
@@ -191,6 +192,85 @@ class ReferenceGeometry : public MappingCodimensions {
     /// \brief Get a valid quadrature for this geometry.
     QuadratureRules::GaussQuadratureRule* getGaussQuadratureRule(
         std::size_t order) const;
+
+    virtual std::size_t getCodim0MappingIndex(
+        const std::vector<std::size_t>&,
+        const std::vector<std::size_t>&) const = 0;
+    virtual const MappingReferenceToReference<0>* getCodim0MappingPtr(
+        const std::size_t) const = 0;
+    const MappingReferenceToReference<0>* getCodim0MappingPtr(
+        const std::vector<std::size_t>& n1,
+        const std::vector<std::size_t>& n2) const {
+        return getCodim0MappingPtr(getCodim0MappingIndex(n1, n2));
+    }
+    ///\deprecated use getNumberOfCodim1Entities instead
+    std::size_t getNrOfCodim1Entities() const {
+        return getNumberOfCodim1Entities();
+    }
+    virtual std::size_t getNumberOfCodim1Entities() const { return 0; }
+    virtual std::vector<std::size_t> getCodim1EntityLocalIndices(
+        const std::size_t) const {
+        std::vector<std::size_t> dummy(1);
+        logger(ERROR,
+               "The dimension of given entity is too low to warrant maps of "
+               "this codimension.\n");
+        return dummy;
+    }
+    virtual const MappingReferenceToReference<1>* getCodim1MappingPtr(
+        const std::size_t) const {
+        logger(ERROR,
+               "The dimension of given entity is too low to warrant maps of "
+               "this codimension.\n");
+        return nullptr;
+    }
+    virtual const ReferenceGeometry* getCodim1ReferenceGeometry(
+        const std::size_t) const {
+        logger(ERROR,
+               "The dimension of given entity is too low to warrant maps of "
+               "this codimension.\n");
+        return nullptr;
+    }
+    ///\deprecated use getNumberOfCodim2Entities instead
+    std::size_t getNrOfCodim2Entities() const {
+        return getNumberOfCodim2Entities();
+    }
+    virtual std::size_t getNumberOfCodim2Entities() const { return 0; }
+    virtual std::vector<std::size_t> getCodim2EntityLocalIndices(
+        const std::size_t) const {
+        std::vector<std::size_t> dummy(1);
+        logger(ERROR,
+               "The dimension of given entity is too low to warrant maps of "
+               "this codimension.\n");
+        return dummy;
+    }
+    virtual const MappingReferenceToReference<2>* getCodim2MappingPtr(
+        const std::size_t) const {
+        logger(ERROR,
+               "The dimension of given entity is too low to warrant maps of "
+               "this codimension.\n");
+        return nullptr;
+    }
+    virtual const ReferenceGeometry* getCodim2ReferenceGeometry(
+        const std::size_t) const {
+        logger(ERROR,
+               "The dimension of given entity is too low to warrant maps of "
+               "this codimension.\n");
+        return nullptr;
+    }
+    ///\deprecated use getNumberOfCodim3Entities instead
+    std::size_t getNrOfCodim3Entities() const {
+        return getNumberOfCodim3Entities();
+    }
+    virtual std::size_t getNumberOfCodim3Entities() const { return 0; }
+    virtual std::vector<std::size_t> getCodim3EntityLocalIndices(
+        const std::size_t) const {
+        std::vector<std::size_t> dummy(1);
+        logger(ERROR,
+               "The dimension of given entity is too low to warrant maps of "
+               "this codimension.\n");
+        return dummy;
+    }
+    virtual ~ReferenceGeometry() = default;
 
    protected:
     ReferenceGeometry(const ReferenceGeometryType& geo, std::string name);
