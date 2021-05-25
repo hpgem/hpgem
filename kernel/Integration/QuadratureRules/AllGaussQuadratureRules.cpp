@@ -95,8 +95,8 @@ AllGaussQuadratureRules::AllGaussQuadratureRules() {
     // QUADRATURES*****************************
     addRule(&Tn3_1_1::Instance());
     addRule(&Tn3_2_4::Instance());
-    addRule(&Tn3_3_5::Instance());
-    addRule(&Tn3_4_11::Instance());
+    addRule(&Tn3_3_10::Instance());
+    addRule(&Tn3_4_14::Instance());
     addRule(&T3_5_14::Instance());
     addRule(&T3_6_24::Instance());
     addRule(&T3_7_31::Instance());

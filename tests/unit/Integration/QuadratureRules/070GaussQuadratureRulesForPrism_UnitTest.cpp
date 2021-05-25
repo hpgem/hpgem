@@ -64,6 +64,13 @@ void testRule(QuadratureRules::GaussQuadratureRule& test,
     const Geometry::ReferenceGeometry& refGeo = *test.forReferenceGeometry();
     INFO("forReferenceGeometry");
     CHECK((typeid(refGeo) == typeid(Geometry::ReferenceTriangularPrism)));
+
+    // Check for negative weights (these are unstable)
+    for (std::size_t  i = 0; i < test.getNumberOfPoints(); ++i) {
+        INFO("Non negative weights");
+        REQUIRE(test.weight(i) >= 0);
+    }
+
     std::cout.precision(14);
     FE::BasisFunctionSet* functions =
         FE::createDGBasisFunctionSet3DH1ConformingPrism(expectedOrder);

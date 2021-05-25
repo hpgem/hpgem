@@ -64,6 +64,12 @@ void testRule(QuadratureRules::GaussQuadratureRule& test,
     INFO("forReferenceGeometry");
     CHECK((typeid(refGeo) == typeid(Geometry::ReferenceLine)));
 
+    // Check for negative weights (these are unstable)
+    for (std::size_t  i = 0; i < test.getNumberOfPoints(); ++i) {
+        INFO("Non negative weights");
+        REQUIRE(test.weight(i) >= 0);
+    }
+
     FE::BasisFunctionSet* functions =
         FE::createDGBasisFunctionSet1DH1Line(expectedOrder);
 
