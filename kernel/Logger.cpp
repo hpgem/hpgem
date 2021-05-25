@@ -194,7 +194,8 @@ LoggerOutput loggerOutputDefaultImpl = {
     printMessage,  // onWarn
     printInfo,     // onInfo
     printInfo,     // onVerbose
-    printMessage   // onDebug
+    printMessage,  // onDebug
+    printError     // onFail
 };
 
 // And we assign them.
