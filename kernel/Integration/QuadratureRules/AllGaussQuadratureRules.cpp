@@ -72,11 +72,9 @@ AllGaussQuadratureRules::AllGaussQuadratureRules() {
     //*************************TRIANGLE QUADRATURES*****************************
     addRule(&Tn2_1_1::Instance());
     addRule(&Tn2_2_3::Instance());
-    addRule(&Tn2_3_4::Instance());
     addRule(&Tn2_4_6::Instance());
     addRule(&T2_5_7::Instance());
     addRule(&T2_6_12::Instance());
-    addRule(&T2_7_13::Instance());
     addRule(&T2_8_16::Instance());
     addRule(&T2_9_19::Instance());
     addRule(&T2_10_25::Instance());
