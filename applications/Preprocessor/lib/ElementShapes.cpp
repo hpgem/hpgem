@@ -195,8 +195,8 @@ std::vector<ElementShapePart<1, dim>> generateEdges(
 using Detail::ShapePointerVec;
 const TemplateArray<4, ShapePointerVec> hpgemShapes{
     ShapePointerVec<3>{&tetrahedron, &cube, &triangularPrism, &pyramid},
-    ShapePointerVec<2>{&triangle, &square},
-    ShapePointerVec<1>{&line},
+    ShapePointerVec<2>{&triangle, &triangle2, &square},
+    ShapePointerVec<1>{&line, &line2},
     ShapePointerVec<0>{&point},
 };
 
