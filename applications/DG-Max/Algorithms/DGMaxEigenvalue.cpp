@@ -60,6 +60,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace hpgem;
 
+static int matrixIndex = 0;
+
 template <std::size_t DIM>
 DGMaxEigenvalue<DIM>::DGMaxEigenvalue(Base::MeshManipulator<DIM>& mesh,
                                       std::size_t order, SolverConfig config)
@@ -668,6 +670,9 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::updateKPoint(
 
     // TODO: Check with NON HERMITIAN
     stiffnessMatrixShifts_.apply(newK, getActualStiffnessMatrix());
+    std::stringstream filename;
+    filename << "matrices/A" << matrixIndex << ".m";
+    stiffnessMatrix_.writeMatlab(filename.str());
 
     if (config_.useProjector_ != DGMaxEigenvalueBase::NONE) {
         projector->updateKPoint(newK);
@@ -677,6 +682,7 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::updateKPoint(
     // EPSSetOperators, as the matrix used has not changed.
 
     currentK_ = newK;
+    matrixIndex++;
 }
 
 template <std::size_t DIM>
@@ -1015,6 +1021,10 @@ void DGMaxEigenvalue<DIM>::ProjectorWorkspace::updateKPoint(
     const LinearAlgebra::SmallVector<DIM>& k) {
     // Update the matrix
     phaseShifts_.apply(k, projectorMatrix_);
+
+    std::stringstream filename;
+    filename << "matrices/C" << matrixIndex << ".m";
+    projectorMatrix_.writeMatlab(filename.str());
 
     // Update the KSP & the inner projectionMatrix.
     PetscErrorCode error;
