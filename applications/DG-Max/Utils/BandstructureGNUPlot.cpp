@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <set>
+#include <limits>
 
 using namespace hpgem;
 
