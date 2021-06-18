@@ -37,6 +37,7 @@
  */
 
 #include "MappingToPhysHypercubeLinear.h"
+#include <limits>
 #include <vector>
 #include <limits>
 #include "Geometry/PhysicalGeometry.h"

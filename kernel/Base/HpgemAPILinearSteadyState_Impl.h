@@ -141,7 +141,7 @@ void HpgemAPILinearSteadyState<DIM>::solveSteadyStateWithPetsc(
 
     this->registerVTKWriteFunctions();
     Output::VTKTimeDependentWriter<DIM> VTKWriter(outputFileNameVTK,
-                                                  this->meshes_[0]);
+                                                  this->meshes_[0], this->polynomialOrder_);
 
     // Create output files for Tecplot.
 #ifdef HPGEM_USE_MPI
@@ -205,7 +205,7 @@ void HpgemAPILinearSteadyState<DIM>::solveSteadyStateWithPetsc(
 
     x.writeTimeIntegrationVector(this->solutionVectorId_);
 
-    tecplotWriter.write(this->meshes_[0], this->solutionTitle_, false, this, 0);
+    //tecplotWriter.write(this->meshes_[0], this->solutionTitle_, false, this, 0);
     this->VTKWrite(VTKWriter, 0, this->solutionVectorId_);
 
     // Compute the energy norm of the error

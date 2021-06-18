@@ -119,6 +119,23 @@ class TutorialPoisson : public Base::HpgemAPILinearSteadyState<DIM> {
         return integrandVal;
     }
 
+    void registerVTKWriteFunctions() override {
+        HpgemAPILinearSteadyState::registerVTKWriteFunctions();
+        registerVTKWriteFunction(
+            [=](Base::Element* element,
+                const Geometry::PointReference<DIM>& pRef,
+                std::size_t timeIntegrationVectorId) -> double {
+                using valT = LinearAlgebra::MiddleSizeVector::type;
+                valT error =
+                    element->getSolution(timeIntegrationVectorId, pRef)[0];
+                Geometry::PointPhysical<DIM> pPhys =
+                    element->referenceToPhysical(pRef);
+                error -= getExactSolution(pPhys)[0];
+                return std::real(error);
+            },
+            "error");
+    }
+
     /// \brief Compute the integrand for the siffness matrix at the face.
     ///
     /// For every internal face, we want to compute the integral of
@@ -176,14 +193,16 @@ class TutorialPoisson : public Base::HpgemAPILinearSteadyState<DIM> {
                 if (face.isInternal()) {
                     integrandVal(j, i) =
                         -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI) / 2 +
-                        penalty_ * phiNormalI * phiNormalJ;
+                        penalty_ * phiNormalI * phiNormalJ /
+                            face.getFace()->getDiameter();
                 }
                 // Boundary face with Dirichlet boundary conditions:
-                else if (std::abs(pPhys[0]) < 1e-9 ||
+                else if (true || std::abs(pPhys[0]) < 1e-9 ||
                          std::abs(pPhys[0] - 1.) < 1e-9) {
                     integrandVal(j, i) =
                         -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI) +
-                        penalty_ * phiNormalI * phiNormalJ;
+                        penalty_ * phiNormalI * phiNormalJ /
+                            face.getFace()->getDiameter();
                 }
                 // Boundary face with homogeneous Neumann boundary conditions:
                 else {
@@ -201,8 +220,9 @@ class TutorialPoisson : public Base::HpgemAPILinearSteadyState<DIM> {
     LinearAlgebra::MiddleSizeVector getExactSolution(
         const PointPhysicalT& p) override final {
         LinearAlgebra::MiddleSizeVector exactSolution(1);
-        exactSolution[0] =
-            std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]);
+        //        exactSolution[0] =
+        //            std::sin(2 * M_PI * p[0]) * std::cos(2 * M_PI * p[1]);
+        exactSolution[0] = 1 - p[0] * p[0] - p[1] * p[1];
         return exactSolution;
     }
 
@@ -213,8 +233,10 @@ class TutorialPoisson : public Base::HpgemAPILinearSteadyState<DIM> {
     LinearAlgebra::MiddleSizeVector getSourceTerm(
         const PointPhysicalT& p) override final {
         LinearAlgebra::MiddleSizeVector sourceTerm(1);
-        sourceTerm[0] = (-8 * M_PI * M_PI) * std::sin(2 * M_PI * p[0]) *
-                        std::cos(2 * M_PI * p[1]);
+        //        sourceTerm[0] = (-8 * M_PI * M_PI) * std::sin(2 * M_PI * p[0])
+        //        *
+        //                        std::cos(2 * M_PI * p[1]);
+        sourceTerm[0] = -4;
         return sourceTerm;
     }
 

@@ -94,7 +94,7 @@ std::result_of_t<FunctionType(Base::PhysicalFace<DIM>&)>
     // check whether the GaussIntegrationRule is actually for the
     // Element's ReferenceGeometry
     logger.assert_debug(
-        (qdrRuleLoc->forReferenceGeometry() == fa->getReferenceGeometry()),
+        (qdrRuleLoc->forReferenceGeometry()->getGeometryType() == fa->getReferenceGeometry()->getGeometryType()),
         "FaceIntegral: " + qdrRuleLoc->getName() +
             " rule is not for THIS ReferenceGeometry!");
 
