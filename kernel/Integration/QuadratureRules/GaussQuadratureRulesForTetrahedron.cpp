@@ -50,7 +50,8 @@ namespace hpgem {
 // The newly added rules are from:
 // [1]
 // https://people.sc.fsu.edu/~jburkardt/datasets/quadrature_rules_tet/quadrature_rules_tet.html
-// [2]
+// [2] Symmetric quadrature rules for tetrahedra based on a cubic close-packed
+// lattice arrangement, Shunn and Ham, J. Comput. Appl. Math 236 (2012)
 
 namespace {
 const double TET_VOLUME = 1.6666666666666663e-01;
