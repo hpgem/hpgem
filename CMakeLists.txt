@@ -34,7 +34,7 @@ endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 14)
 
-option(ENABLE_WARNING_FLAGS "Inject more warning flags" OFF)
+option(ENABLE_WARNING_FLAGS "Inject more warning flags" ON)
 if(ENABLE_WARNING_FLAGS)
   include(CheckCXXCompilerFlag)
   foreach(_FLAG -Wall -Wextra -Wpedantic -Wshadow -Wconversion) 
