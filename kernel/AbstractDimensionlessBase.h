@@ -35,8 +35,8 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_ANYOFDIMENSION_H
-#define HPGEM_ANYOFDIMENSION_H
+#ifndef HPGEM_ABSTRACTDIMENSIONLESSBASE_H
+#define HPGEM_ABSTRACTDIMENSIONLESSBASE_H
 
 #include "Logger.h"
 
@@ -86,7 +86,7 @@ namespace hpgem {
 /// template<std::size_t DIM>
 /// class T;
 ///
-/// class TBase : public AnyOfDimension<TBase, T> {};
+/// class TBase : public AbstractDimensionlessBase<TBase, T> {};
 ///
 /// template<std::size_t>
 /// class T : TBase {};
@@ -95,7 +95,7 @@ namespace hpgem {
 /// \tparam BaseType The base type which does not have a dimension template.
 /// \tparam TypeWithDim The actual type with a dimension template.
 template <typename BaseType, template <std::size_t> class TypeWithDim>
-class AnyOfDimension {
+class AbstractDimensionlessBase {
    public:
     // Implicit conversion operator to allow easy conversion from TBase to
     // T<0> - T<4>. As this implicit conversion is intended we need to silence
@@ -169,4 +169,4 @@ class AnyOfDimension {
 
 }  // namespace hpgem
 
-#endif  // HPGEM_ANYOFDIMENSION_H
+#endif  // HPGEM_ABSTRACTDIMENSIONLESSBASE_H
