@@ -57,7 +57,8 @@ class PointReference;
 /// run-time checks to make sure everything in done correctly)
 // first define the base class, then define the subclass, then implement the
 // type conversion operators
-class PointReferenceBase : public AbstractDimensionlessBase<PointReferenceBase, PointReference>{
+class PointReferenceBase
+    : public AbstractDimensionlessBase<PointReferenceBase, PointReference> {
    protected:
     PointReferenceBase() = default;
     virtual ~PointReferenceBase() = default;

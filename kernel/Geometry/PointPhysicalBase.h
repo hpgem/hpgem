@@ -57,7 +57,8 @@ class PointPhysical;
 /// run-time checks to make sure everything in done correctly)
 // first define the base class, then define the subclass, then implement the
 // type conversion operators
-class PointPhysicalBase : public AbstractDimensionlessBase<PointPhysicalBase, PointPhysical>{
+class PointPhysicalBase
+    : public AbstractDimensionlessBase<PointPhysicalBase, PointPhysical> {
    public:
     virtual std::size_t size() const = 0;
 
