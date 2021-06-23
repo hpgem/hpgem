@@ -73,7 +73,7 @@ class MappingToPhysHypercubeLinear<1>
     Jacobian<1, 1> calcJacobian(const PointReference<1> &) const final;
     void reinit() final;
 
-    MappingToPhysHypercubeLinear<1>* copy() const final {
+    MappingToPhysHypercubeLinear<1> *copy() const final {
         return new MappingToPhysHypercubeLinear<1>(*this);
     }
 
@@ -97,7 +97,7 @@ class MappingToPhysHypercubeLinear<2>
     Jacobian<2, 2> calcJacobian(const PointReference<2> &) const final;
     void reinit() final;
 
-    MappingToPhysHypercubeLinear<2>* copy() const final {
+    MappingToPhysHypercubeLinear<2> *copy() const final {
         return new MappingToPhysHypercubeLinear<2>(*this);
     }
 
@@ -121,7 +121,7 @@ class MappingToPhysHypercubeLinear<3>
     Jacobian<3, 3> calcJacobian(const PointReference<3> &) const final;
     void reinit() final;
 
-    MappingToPhysHypercubeLinear<3>* copy() const final {
+    MappingToPhysHypercubeLinear<3> *copy() const final {
         return new MappingToPhysHypercubeLinear<3>(*this);
     }
 
@@ -145,7 +145,7 @@ class MappingToPhysHypercubeLinear<4>
     Jacobian<4, 4> calcJacobian(const PointReference<4> &) const final;
     void reinit() final;
 
-    MappingToPhysHypercubeLinear<4>* copy() const final {
+    MappingToPhysHypercubeLinear<4> *copy() const final {
         return new MappingToPhysHypercubeLinear<4>(*this);
     }
 

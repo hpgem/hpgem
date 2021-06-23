@@ -39,10 +39,9 @@
 #ifndef HPGEM_KERNEL_MAPPINGREFERENCETOPHYSICAL_H
 #define HPGEM_KERNEL_MAPPINGREFERENCETOPHYSICAL_H
 
-#include "MappingInterface.h"
-#include "Logger.h"
-#include "Geometry/PhysicalGeometryBase.h"
 #include "Geometry/PhysicalGeometry.h"
+#include "Logger.h"
+
 #include <vector>
 
 namespace hpgem {
@@ -73,6 +72,7 @@ class PointPhysical;
  supported so there in no need to template this class
 */
 
+// Forward definition for templating
 template <std::size_t DIM>
 class MappingReferenceToPhysicalDim;
 
@@ -117,7 +117,8 @@ class MappingReferenceToPhysical
     virtual MappingReferenceToPhysical* copy() const = 0;
 
     /**
-     * @return The dimension of the reference and physical points in the mapping.
+     * @return The dimension of the reference and physical points in the
+     * mapping.
      */
     virtual std::size_t getDimension() const = 0;
 };
