@@ -53,7 +53,7 @@ namespace Geometry {
 // =============================================================================================
 MappingToPhysHypercubeLinear<1>::MappingToPhysHypercubeLinear(
     const PhysicalGeometry<1>* const& physicalGeometry)
-    : MappingReferenceToPhysicalDim<1>(physicalGeometry) {
+    : MappingReferenceToPhysical<1>(physicalGeometry) {
     logger.assert_debug(physicalGeometry != nullptr,
                         "Invalid physical geometry passed");
     mid = slope = 0.0;
@@ -105,7 +105,7 @@ Jacobian<1, 1> MappingToPhysHypercubeLinear<1>::calcJacobian(
 
 MappingToPhysHypercubeLinear<2>::MappingToPhysHypercubeLinear(
     const PhysicalGeometry<2>* const& physicalGeometry)
-    : MappingReferenceToPhysicalDim<2>(physicalGeometry) {
+    : MappingReferenceToPhysical<2>(physicalGeometry) {
     logger.assert_debug(physicalGeometry != nullptr,
                         "Invalid physical geometry passed");
     reinit();
@@ -214,7 +214,7 @@ bool MappingToPhysHypercubeLinear<2>::isValidPoint(
 
 MappingToPhysHypercubeLinear<3>::MappingToPhysHypercubeLinear(
     const PhysicalGeometry<3>* const& physicalGeometry)
-    : MappingReferenceToPhysicalDim<3>(physicalGeometry) {
+    : MappingReferenceToPhysical<3>(physicalGeometry) {
     logger.assert_debug(physicalGeometry != nullptr,
                         "Invalid physical geometry passed");
     reinit();
@@ -320,7 +320,7 @@ bool MappingToPhysHypercubeLinear<3>::isValidPoint(
 
 MappingToPhysHypercubeLinear<4>::MappingToPhysHypercubeLinear(
     const PhysicalGeometry<4>* const& physicalGeometry)
-    : MappingReferenceToPhysicalDim<4>(physicalGeometry) {
+    : MappingReferenceToPhysical<4>(physicalGeometry) {
     logger.assert_debug(physicalGeometry != nullptr,
                         "Invalid physical geometry passed");
     reinit();

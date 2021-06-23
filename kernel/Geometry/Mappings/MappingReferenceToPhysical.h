@@ -74,26 +74,26 @@ class PointPhysical;
 
 // Forward definition for templating
 template <std::size_t DIM>
-class MappingReferenceToPhysicalDim;
+class MappingReferenceToPhysical;
 
 /**
  * Mapping between the reference and physical geometries of an Element.
  * Specifically this maps the PointReference in the ReferenceGeometry to the
  * corresponding PointPhysical in the PhysicalGeometry.
  */
-class MappingReferenceToPhysical
-    : public AbstractDimensionlessBase<MappingReferenceToPhysical,
-                                       MappingReferenceToPhysicalDim> {
+class MappingReferenceToPhysicalBase
+    : public AbstractDimensionlessBase<MappingReferenceToPhysicalBase,
+                                       MappingReferenceToPhysical> {
 
    public:
-    MappingReferenceToPhysical() = default;
+    MappingReferenceToPhysicalBase() = default;
 
     // Note that the memory of nodes is managed by Mesh, so do not make a deep
     // copy.
-    MappingReferenceToPhysical(const MappingReferenceToPhysical& other) =
+    MappingReferenceToPhysicalBase(const MappingReferenceToPhysicalBase& other) =
         default;
 
-    virtual ~MappingReferenceToPhysical() = default;
+    virtual ~MappingReferenceToPhysicalBase() = default;
 
     /**
      * Recompute the map when the physical nodes have moved.
@@ -114,7 +114,7 @@ class MappingReferenceToPhysical
      * @return A pointer to a copy of the actual mapping instance. The caller is
      * responsible for cleaning it up.
      */
-    virtual MappingReferenceToPhysical* copy() const = 0;
+    virtual MappingReferenceToPhysicalBase* copy() const = 0;
 
     /**
      * @return The dimension of the reference and physical points in the
@@ -124,10 +124,10 @@ class MappingReferenceToPhysical
 };
 
 template <std::size_t DIM>
-class MappingReferenceToPhysicalDim : public MappingReferenceToPhysical {
+class MappingReferenceToPhysical : public MappingReferenceToPhysicalBase {
    public:
-    MappingReferenceToPhysicalDim(const PhysicalGeometry<DIM>* target)
-        : MappingReferenceToPhysical(), geometry_(target) {
+    MappingReferenceToPhysical(const PhysicalGeometry<DIM>* target)
+        : MappingReferenceToPhysicalBase(), geometry_(target) {
         logger.assert_debug(geometry_ != nullptr, "Nullpointer geometry");
     }
 

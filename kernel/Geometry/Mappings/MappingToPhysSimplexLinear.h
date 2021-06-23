@@ -62,10 +62,10 @@ namespace Geometry {
  */
 
 template <std::size_t DIM>
-class MappingToPhysSimplexLinear : public MappingReferenceToPhysicalDim<DIM> {
+class MappingToPhysSimplexLinear : public MappingReferenceToPhysical<DIM> {
    public:
     MappingToPhysSimplexLinear(const PhysicalGeometry<DIM>* const& pG)
-        : MappingReferenceToPhysicalDim<DIM>(pG) {
+        : MappingReferenceToPhysical<DIM>(pG) {
         reinit();
     }
 

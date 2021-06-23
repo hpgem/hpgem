@@ -70,7 +70,7 @@ template <std::size_t DIM>
 class PointReference;
 template <std::size_t DIM>
 class PointPhysical;
-class MappingReferenceToPhysical;
+class MappingReferenceToPhysicalBase;
 class PhysicalGeometryBase;
 class ReferenceGeometry;
 class RefinementGeometry;
@@ -90,8 +90,8 @@ class ElementGeometry {
     virtual ~ElementGeometry();
 
     /// Returns a pointer to the referenceToPhysicalMapping
-    const MappingReferenceToPhysical* getReferenceToPhysicalMap() const;
-    MappingReferenceToPhysical* getReferenceToPhysicalMap();
+    const MappingReferenceToPhysicalBase* getReferenceToPhysicalMap() const;
+    MappingReferenceToPhysicalBase* getReferenceToPhysicalMap();
 
     /// Returns a pointer to the physicalGeometry object.
     const PhysicalGeometryBase* getPhysicalGeometry() const;
@@ -153,7 +153,7 @@ class ElementGeometry {
         const ReferenceGeometry* const geo);
 
     template <std::size_t DIM>
-    static MappingReferenceToPhysical* createMappings(
+    static MappingReferenceToPhysicalBase* createMappings(
         std::size_t size, const PhysicalGeometry<DIM>* const pGeo);
 
    protected:
@@ -166,7 +166,7 @@ class ElementGeometry {
 
     /// The referenceToPhysicalMapping relates the coordinates of the reference
     /// object to the physical object; basically a matrix transformation.
-    MappingReferenceToPhysical* referenceToPhysicalMapping_;
+    MappingReferenceToPhysicalBase* referenceToPhysicalMapping_;
 
     /// The corresponding refinementGeometry object
     RefinementMapping* refinementMap_;
@@ -275,14 +275,14 @@ PhysicalGeometry<DIM>* ElementGeometry::createPhysicalGeometry(
 }
 
 template <std::size_t DIM>
-MappingReferenceToPhysical* ElementGeometry::createMappings(
+MappingReferenceToPhysicalBase* ElementGeometry::createMappings(
     std::size_t size, const PhysicalGeometry<DIM>* const pGeo) {
     logger(ERROR, "DIM may range from 1 to 4, but it seems to be %", DIM);
     return nullptr;
 }
 
 template <>
-inline MappingReferenceToPhysical* ElementGeometry::createMappings(
+inline MappingReferenceToPhysicalBase* ElementGeometry::createMappings(
     std::size_t size, const PhysicalGeometry<1>* const pGeo) {
     logger.assert_debug(pGeo != nullptr, "Invalid physical geometry passed");
     logger.assert_debug(size == 2, "1D can only map to a line");
@@ -291,7 +291,7 @@ inline MappingReferenceToPhysical* ElementGeometry::createMappings(
 }
 
 template <>
-inline MappingReferenceToPhysical* ElementGeometry::createMappings(
+inline MappingReferenceToPhysicalBase* ElementGeometry::createMappings(
     std::size_t size, const PhysicalGeometry<2>* const pGeo) {
     logger.assert_debug(pGeo != nullptr, "Invalid physical geometry passed");
     switch (size) {
@@ -308,7 +308,7 @@ inline MappingReferenceToPhysical* ElementGeometry::createMappings(
 }
 
 template <>
-inline MappingReferenceToPhysical* ElementGeometry::createMappings(
+inline MappingReferenceToPhysicalBase* ElementGeometry::createMappings(
     std::size_t size, const PhysicalGeometry<3>* const pGeo) {
     logger.assert_debug(pGeo != nullptr, "Invalid physical geometry passed");
     switch (size) {
@@ -332,7 +332,7 @@ inline MappingReferenceToPhysical* ElementGeometry::createMappings(
 }
 
 template <>
-inline MappingReferenceToPhysical* ElementGeometry::createMappings(
+inline MappingReferenceToPhysicalBase* ElementGeometry::createMappings(
     std::size_t size, const PhysicalGeometry<4>* const pGeo) {
     logger.assert_debug(pGeo != nullptr, "Invalid physical geometry passed");
     logger.assert_debug(size == 16, "4D can only map to a hypercube");

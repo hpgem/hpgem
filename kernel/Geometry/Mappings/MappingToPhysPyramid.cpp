@@ -51,7 +51,7 @@ namespace hpgem {
 namespace Geometry {
 MappingToPhysPyramid::MappingToPhysPyramid(
     const PhysicalGeometry<3>* const physicalGeometry)
-    : MappingReferenceToPhysicalDim<3>(physicalGeometry) {
+    : MappingReferenceToPhysical<3>(physicalGeometry) {
     reinit();
 }
 

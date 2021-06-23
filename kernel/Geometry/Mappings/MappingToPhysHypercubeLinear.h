@@ -62,7 +62,7 @@ class MappingToPhysHypercubeLinear;
 // ~~~==========================================================================
 template <>
 class MappingToPhysHypercubeLinear<1>
-    : public MappingReferenceToPhysicalDim<1> {
+    : public MappingReferenceToPhysical<1> {
 
    public:
     MappingToPhysHypercubeLinear(const PhysicalGeometry<1> *const &);
@@ -86,7 +86,7 @@ class MappingToPhysHypercubeLinear<1>
 // ~~~==========================================================================
 template <>
 class MappingToPhysHypercubeLinear<2>
-    : public MappingReferenceToPhysicalDim<2> {
+    : public MappingReferenceToPhysical<2> {
    public:
     // Constructor.
     MappingToPhysHypercubeLinear(const PhysicalGeometry<2> *const &);
@@ -110,7 +110,7 @@ class MappingToPhysHypercubeLinear<2>
 // ~~~==========================================================================
 template <>
 class MappingToPhysHypercubeLinear<3>
-    : public MappingReferenceToPhysicalDim<3> {
+    : public MappingReferenceToPhysical<3> {
    public:
     // Constructor.
     MappingToPhysHypercubeLinear(const PhysicalGeometry<3> *const &);
@@ -134,7 +134,7 @@ class MappingToPhysHypercubeLinear<3>
 // ~~~==========================================================================
 template <>
 class MappingToPhysHypercubeLinear<4>
-    : public MappingReferenceToPhysicalDim<4> {
+    : public MappingReferenceToPhysical<4> {
    public:
     // Constructor.
     MappingToPhysHypercubeLinear(const PhysicalGeometry<4> *const &);

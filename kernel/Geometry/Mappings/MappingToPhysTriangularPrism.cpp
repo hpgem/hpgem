@@ -51,7 +51,7 @@ namespace hpgem {
 namespace Geometry {
 MappingToPhysTriangularPrism::MappingToPhysTriangularPrism(
     const PhysicalGeometry<3>* const physicalGeometry)
-    : MappingReferenceToPhysicalDim<3>(physicalGeometry) {
+    : MappingReferenceToPhysical<3>(physicalGeometry) {
     logger.assert_debug(physicalGeometry != nullptr,
                         "Invalid physical geometry passed");
     reinit();

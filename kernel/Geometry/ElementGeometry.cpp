@@ -116,12 +116,12 @@ ElementGeometry::~ElementGeometry() {
 
 /// Returns a pointer to the referenceToPhysicalMapping
 
-const MappingReferenceToPhysical* ElementGeometry::getReferenceToPhysicalMap()
+const MappingReferenceToPhysicalBase* ElementGeometry::getReferenceToPhysicalMap()
     const {
     return referenceToPhysicalMapping_;
 }
 
-MappingReferenceToPhysical* ElementGeometry::getReferenceToPhysicalMap() {
+MappingReferenceToPhysicalBase* ElementGeometry::getReferenceToPhysicalMap() {
     return referenceToPhysicalMapping_;
 }
 

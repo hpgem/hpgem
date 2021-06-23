@@ -84,7 +84,7 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
 
     Geometry::ElementGeometry* test =
         new Geometry::ElementGeometry(pointIndexes, nodes1D);
-    const Geometry::MappingReferenceToPhysical& refMap1 =
+    const Geometry::MappingReferenceToPhysicalBase& refMap1 =
         *test->getReferenceToPhysicalMap();
     const Geometry::ReferenceGeometry& refGeo1 = *test->getReferenceGeometry();
     INFO("getReferenceToPhysicalMap");
@@ -133,7 +133,7 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
     delete test;
     test = new Geometry::ElementGeometry(pointIndexes, nodes2D);
 
-    const Geometry::MappingReferenceToPhysical& refMap2 =
+    const Geometry::MappingReferenceToPhysicalBase& refMap2 =
         *test->getReferenceToPhysicalMap();
     const Geometry::ReferenceGeometry& refGeo2 = *test->getReferenceGeometry();
     INFO("getReferenceToPhysicalMap");
@@ -172,7 +172,7 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
     delete test;
     test = new Geometry::ElementGeometry(pointIndexes, nodes2D);
 
-    const Geometry::MappingReferenceToPhysical& refMap3 =
+    const Geometry::MappingReferenceToPhysicalBase& refMap3 =
         *test->getReferenceToPhysicalMap();
     const Geometry::ReferenceGeometry& refGeo3 = *test->getReferenceGeometry();
     INFO("getReferenceToPhysicalMap");
@@ -250,7 +250,7 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
     delete test;
     test = new Geometry::ElementGeometry(pointIndexes, nodes3D);
 
-    const Geometry::MappingReferenceToPhysical& refMap4 =
+    const Geometry::MappingReferenceToPhysicalBase& refMap4 =
         *test->getReferenceToPhysicalMap();
     const Geometry::ReferenceGeometry& refGeo4 = *test->getReferenceGeometry();
     INFO("getReferenceToPhysicalMap");
@@ -304,7 +304,7 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
     delete test;
     test = new Geometry::ElementGeometry(pointIndexes, nodes3D);
 
-    const Geometry::MappingReferenceToPhysical& refMap5 =
+    const Geometry::MappingReferenceToPhysicalBase& refMap5 =
         *test->getReferenceToPhysicalMap();
     const Geometry::ReferenceGeometry& refGeo5 = *test->getReferenceGeometry();
     INFO("getReferenceToPhysicalMap");
@@ -358,7 +358,7 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
     delete test;
     test = new Geometry::ElementGeometry(pointIndexes, nodes3D);
 
-    const Geometry::MappingReferenceToPhysical& refMap6 =
+    const Geometry::MappingReferenceToPhysicalBase& refMap6 =
         *test->getReferenceToPhysicalMap();
     const Geometry::ReferenceGeometry& refGeo6 = *test->getReferenceGeometry();
     INFO("getReferenceToPhysicalMap");
@@ -413,7 +413,7 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
     delete test;
     test = new Geometry::ElementGeometry(pointIndexes, nodes3D);
 
-    const Geometry::MappingReferenceToPhysical& refMap7 =
+    const Geometry::MappingReferenceToPhysicalBase& refMap7 =
         *test->getReferenceToPhysicalMap();
     const Geometry::ReferenceGeometry& refGeo7 = *test->getReferenceGeometry();
     INFO("getReferenceToPhysicalMap");
@@ -560,7 +560,7 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
     delete test;
     test = new Geometry::ElementGeometry(pointIndexes, nodes4D);
 
-    const Geometry::MappingReferenceToPhysical& refMap8 =
+    const Geometry::MappingReferenceToPhysicalBase& refMap8 =
         *test->getReferenceToPhysicalMap();
     const Geometry::ReferenceGeometry& refGeo8 = *test->getReferenceGeometry();
     INFO("getReferenceToPhysicalMap");
