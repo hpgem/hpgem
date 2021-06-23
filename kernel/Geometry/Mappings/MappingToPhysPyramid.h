@@ -53,7 +53,7 @@ namespace Geometry {
  * This class defines the mappings between reference and physical pyramids.
  */
 
-class MappingToPhysPyramid : public MappingReferenceToPhysical {
+class MappingToPhysPyramid : public MappingReferenceToPhysicalDim<3> {
    public:
     MappingToPhysPyramid(const PhysicalGeometry<3>* const physicalGeometry);
 

@@ -51,9 +51,7 @@ namespace hpgem {
 namespace Geometry {
 MappingToPhysPyramid::MappingToPhysPyramid(
     const PhysicalGeometry<3>* const physicalGeometry)
-    : MappingReferenceToPhysical(physicalGeometry) {
-    logger.assert_debug(physicalGeometry != nullptr,
-                        "Invalid physical geometry passed");
+    : MappingReferenceToPhysicalDim<3>(physicalGeometry) {
     reinit();
 }
 
@@ -80,7 +78,7 @@ PointPhysical<3> MappingToPhysPyramid::transform(
     pP[0] = pP[1] = pP[2] = 0.0;
 
     for (std::size_t i = 0; i < 5; ++i) {
-        p = geometry->getLocalNodeCoordinates(i);
+        p = geometry_->getLocalNodeCoordinates(i);
         pP += f8[i] * p;
     }
     return pP;
@@ -154,7 +152,7 @@ Jacobian<3, 3> MappingToPhysPyramid::calcJacobian(
     PointPhysical<3> p;
 
     for (std::size_t i = 0; i < 5; ++i) {
-        p = geometry->getLocalNodeCoordinates(i);
+        p = geometry_->getLocalNodeCoordinates(i);
 
         d_dxi0 += df_dxi0[i] * p;
         d_dxi1 += df_dxi1[i] * p;

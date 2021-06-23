@@ -52,7 +52,7 @@ namespace Geometry {
  *  purpose of individual methods see the documentation of the base classes,
  *  Ref2PhysSpaceMapping and Mapping. */
 
-class MappingToPhysTriangularPrism : public MappingReferenceToPhysical {
+class MappingToPhysTriangularPrism : public MappingReferenceToPhysicalDim<3> {
    public:
     MappingToPhysTriangularPrism(const PhysicalGeometry<3>* const);
 

@@ -178,13 +178,15 @@ class ElementGeometry {
 template <std::size_t DIM>
 PointPhysical<DIM> ElementGeometry::referenceToPhysical(
     const PointReference<DIM>& pointReference) const {
-    return referenceToPhysicalMapping_->transform(pointReference);
+    return referenceToPhysicalMapping_->castDimension<DIM>().transform(
+        pointReference);
 }
 
 template <std::size_t DIM>
 PointReference<DIM> ElementGeometry::physicalToReference(
     const PointPhysical<DIM>& pointPhysical) const {
-    return referenceToPhysicalMapping_->inverseTransform(pointPhysical);
+    return referenceToPhysicalMapping_->castDimension<DIM>().inverseTransform(
+        pointPhysical);
 }
 
 /// This method gets a PointReference and returns the corresponding Jacobian of

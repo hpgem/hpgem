@@ -51,7 +51,7 @@ namespace hpgem {
 namespace Geometry {
 MappingToPhysTriangularPrism::MappingToPhysTriangularPrism(
     const PhysicalGeometry<3>* const physicalGeometry)
-    : MappingReferenceToPhysical(physicalGeometry) {
+    : MappingReferenceToPhysicalDim<3>(physicalGeometry) {
     logger.assert_debug(physicalGeometry != nullptr,
                         "Invalid physical geometry passed");
     reinit();
@@ -78,7 +78,7 @@ PointPhysical<3> MappingToPhysTriangularPrism::transform(
     PointPhysical<3> p;
 
     for (std::size_t i = 0; i < 6; ++i) {
-        p = geometry->getLocalNodeCoordinates(i);
+        p = geometry_->getLocalNodeCoordinates(i);
         pP += f2[i] * p;
     }
     return pP;
@@ -156,7 +156,7 @@ Jacobian<3, 3> MappingToPhysTriangularPrism::calcJacobian(
     Geometry::PointPhysical<3> p;
 
     for (std::size_t i = 0; i < 6; ++i) {
-        p = geometry->getLocalNodeCoordinates(i);
+        p = geometry_->getLocalNodeCoordinates(i);
 
         d_dxi0 += df_dxi0[i] * p;
         d_dxi1 += df_dxi1[i] * p;

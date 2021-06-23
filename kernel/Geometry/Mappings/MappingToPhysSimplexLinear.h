@@ -62,11 +62,10 @@ namespace Geometry {
  */
 
 template <std::size_t DIM>
-class MappingToPhysSimplexLinear : public MappingReferenceToPhysical {
+class MappingToPhysSimplexLinear : public MappingReferenceToPhysicalDim<DIM> {
    public:
     MappingToPhysSimplexLinear(const PhysicalGeometry<DIM>* const& pG)
-        : MappingReferenceToPhysical(pG) {
-        logger.assert_debug(pG != nullptr, "Invalid physical geometry passed");
+        : MappingReferenceToPhysicalDim<DIM>(pG) {
         reinit();
     }
 
