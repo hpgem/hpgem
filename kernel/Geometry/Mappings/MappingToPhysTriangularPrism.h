@@ -68,7 +68,10 @@ class MappingToPhysTriangularPrism : public MappingReferenceToPhysicalDim<3> {
     void reinit() final;
 
     bool isValidPoint(const PointReference<3>&) const;
-    std::size_t getTargetDimension() const final { return 3; }
+
+    MappingToPhysTriangularPrism* copy() const final {
+        return new MappingToPhysTriangularPrism(*this);
+    }
 
    private:
     PointPhysical<3> a0, a1, a2, a3, a4, a5;

@@ -194,7 +194,8 @@ PointReference<DIM> ElementGeometry::physicalToReference(
 template <std::size_t DIM>
 Jacobian<DIM, DIM> ElementGeometry::calcJacobian(
     const PointReference<DIM>& pointReference) const {
-    return referenceToPhysicalMapping_->calcJacobian(pointReference);
+    return referenceToPhysicalMapping_->castDimension<DIM>().calcJacobian(
+        pointReference);
 }
 
 /// Create the reference element for the given number of nodes. Since this

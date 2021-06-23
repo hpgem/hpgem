@@ -72,7 +72,10 @@ class MappingToPhysHypercubeLinear<1>
     PointReference<1> inverseTransform(const PointPhysical<1> &) const final;
     Jacobian<1, 1> calcJacobian(const PointReference<1> &) const final;
     void reinit() final;
-    std::size_t getTargetDimension() const final { return 1; }
+
+    MappingToPhysHypercubeLinear<1>* copy() const final {
+        return new MappingToPhysHypercubeLinear<1>(*this);
+    }
 
    private:
     bool isValidPoint(const PointReference<1> &) const;
@@ -93,7 +96,10 @@ class MappingToPhysHypercubeLinear<2>
     PointReference<2> inverseTransform(const PointPhysical<2> &) const final;
     Jacobian<2, 2> calcJacobian(const PointReference<2> &) const final;
     void reinit() final;
-    std::size_t getTargetDimension() const final { return 2; }
+
+    MappingToPhysHypercubeLinear<2>* copy() const final {
+        return new MappingToPhysHypercubeLinear<2>(*this);
+    }
 
    private:
     bool isValidPoint(const PointReference<2> &) const;
@@ -114,7 +120,10 @@ class MappingToPhysHypercubeLinear<3>
     PointReference<3> inverseTransform(const PointPhysical<3> &) const final;
     Jacobian<3, 3> calcJacobian(const PointReference<3> &) const final;
     void reinit() final;
-    std::size_t getTargetDimension() const final { return 3; }
+
+    MappingToPhysHypercubeLinear<3>* copy() const final {
+        return new MappingToPhysHypercubeLinear<3>(*this);
+    }
 
    private:
     bool isValidPoint(const PointReference<3> &) const;
@@ -135,7 +144,10 @@ class MappingToPhysHypercubeLinear<4>
     PointReference<4> inverseTransform(const PointPhysical<4> &) const final;
     Jacobian<4, 4> calcJacobian(const PointReference<4> &) const final;
     void reinit() final;
-    std::size_t getTargetDimension() const final { return 4; }
+
+    MappingToPhysHypercubeLinear<4>* copy() const final {
+        return new MappingToPhysHypercubeLinear<4>(*this);
+    }
 
    private:
     bool isValidPoint(const PointReference<4> &) const;

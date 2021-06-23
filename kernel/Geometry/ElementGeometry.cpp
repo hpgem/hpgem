@@ -69,6 +69,7 @@ ElementGeometry::ElementGeometry(const ElementGeometry& other)
                                             // default, to  enable it one needs
                                             // to call enableRefinement
 {
+    referenceToPhysicalMapping_ = other.referenceToPhysicalMapping_->copy();
     // we have to un-hide the template arguments to make a copy :(
     switch (referenceGeometry_->getGeometryType()) {
         case ReferenceGeometryType::LINE:
@@ -77,9 +78,6 @@ ElementGeometry::ElementGeometry(const ElementGeometry& other)
                 static_cast<PhysicalGeometry<1>*>(other.physicalGeometry_)
                     ->getNodeCoordinates(),
                 referenceGeometry_);
-            referenceToPhysicalMapping_ = createMappings<1>(
-                other.physicalGeometry_->getNodeIndexes().size(),
-                static_cast<PhysicalGeometry<1>*>(physicalGeometry_));
             break;
         case ReferenceGeometryType::SQUARE:
         case ReferenceGeometryType::TRIANGLE:
@@ -88,9 +86,6 @@ ElementGeometry::ElementGeometry(const ElementGeometry& other)
                 static_cast<PhysicalGeometry<2>*>(other.physicalGeometry_)
                     ->getNodeCoordinates(),
                 referenceGeometry_);
-            referenceToPhysicalMapping_ = createMappings<2>(
-                other.physicalGeometry_->getNodeIndexes().size(),
-                static_cast<PhysicalGeometry<2>*>(physicalGeometry_));
             break;
         case ReferenceGeometryType::TETRAHEDRON:
         case ReferenceGeometryType::CUBE:
@@ -101,9 +96,6 @@ ElementGeometry::ElementGeometry(const ElementGeometry& other)
                 static_cast<PhysicalGeometry<3>*>(other.physicalGeometry_)
                     ->getNodeCoordinates(),
                 referenceGeometry_);
-            referenceToPhysicalMapping_ = createMappings<3>(
-                other.physicalGeometry_->getNodeIndexes().size(),
-                static_cast<PhysicalGeometry<3>*>(physicalGeometry_));
             break;
         case ReferenceGeometryType::HYPERCUBE:
             physicalGeometry_ = createPhysicalGeometry<4>(
@@ -111,9 +103,6 @@ ElementGeometry::ElementGeometry(const ElementGeometry& other)
                 static_cast<PhysicalGeometry<4>*>(other.physicalGeometry_)
                     ->getNodeCoordinates(),
                 referenceGeometry_);
-            referenceToPhysicalMapping_ = createMappings<4>(
-                other.physicalGeometry_->getNodeIndexes().size(),
-                static_cast<PhysicalGeometry<4>*>(physicalGeometry_));
             break;
         case ReferenceGeometryType::POINT:
             logger(ERROR, "-1 dimensional faces are not allowed!");

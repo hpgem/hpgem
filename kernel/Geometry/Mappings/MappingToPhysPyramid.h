@@ -67,8 +67,11 @@ class MappingToPhysPyramid : public MappingReferenceToPhysicalDim<3> {
 
     void reinit() final;
 
+    MappingToPhysPyramid* copy() const final {
+        return new MappingToPhysPyramid(*this);
+    }
+
     bool isValidPoint(const PointReference<3>&) const;
-    std::size_t getTargetDimension() const final { return 3; }
 };
 }  // namespace Geometry
 }  // namespace hpgem

@@ -76,26 +76,50 @@ class PointPhysical;
 template <std::size_t DIM>
 class MappingReferenceToPhysicalDim;
 
+/**
+ * Mapping between the reference and physical geometries of an Element.
+ * Specifically this maps the PointReference in the ReferenceGeometry to the
+ * corresponding PointPhysical in the PhysicalGeometry.
+ */
 class MappingReferenceToPhysical
-    : public MappingInterface<0>,
-      public AbstractDimensionlessBase<MappingReferenceToPhysical,
+    : public AbstractDimensionlessBase<MappingReferenceToPhysical,
                                        MappingReferenceToPhysicalDim> {
 
    public:
-    MappingReferenceToPhysical() : MappingInterface() {}
+    MappingReferenceToPhysical() = default;
 
     // Note that the memory of nodes is managed by Mesh, so do not make a deep
     // copy.
     MappingReferenceToPhysical(const MappingReferenceToPhysical& other) =
         default;
 
-    /// Recompute mapping after physical nodes have moved.
-    /// Note that this typically has to be done for all elements, so make sure
-    /// to use the global iterator to get all the elements when using parallel
-    /// computing.
+    virtual ~MappingReferenceToPhysical() = default;
+
+    /**
+     * Recompute the map when the physical nodes have moved.
+     *
+     * Note that this typically has to be done for all elements, including for
+     * the shadow elements of a parallel computation.
+     */
     virtual void reinit() = 0;
 
+    /**
+     * Reference to the physical geometry to which this instance maps.
+     * @return The physical geometry
+     */
     virtual const PhysicalGeometryBase& getGeometry() const = 0;
+
+    /**
+     * Make a copy of the actual mapping instance.
+     * @return A pointer to a copy of the actual mapping instance. The caller is
+     * responsible for cleaning it up.
+     */
+    virtual MappingReferenceToPhysical* copy() const = 0;
+
+    /**
+     * @return The dimension of the reference and physical points in the mapping.
+     */
+    virtual std::size_t getDimension() const = 0;
 };
 
 template <std::size_t DIM>
@@ -106,22 +130,33 @@ class MappingReferenceToPhysicalDim : public MappingReferenceToPhysical {
         logger.assert_debug(geometry_ != nullptr, "Nullpointer geometry");
     }
 
+    /**
+     * Forward transform
+     * @param p The point inside the reference element
+     * @return  The corresponding point in the physical element
+     */
     virtual PointPhysical<DIM> transform(
         const PointReference<DIM>& p) const = 0;
+    /**
+     * Inverse of the forward transform
+     * @param p A point in the physical element
+     * @return The corresponding point in the reference element
+     */
     virtual PointReference<DIM> inverseTransform(
         const PointPhysical<DIM>& p) const = 0;
+    /**
+     * Compute the Jacobian of the mapping at a point
+     * @param p The point in the reference element
+     * @return
+     */
     virtual Jacobian<DIM, DIM> calcJacobian(
         const PointReference<DIM>& p) const = 0;
 
-    /// Recompute mapping after physical nodes have moved.
-    /// Note that this typically has to be done for all elements, so make sure
-    /// to use the global iterator to get all the elements when using parallel
-    /// computing.
-    virtual void reinit() = 0;
-
-    virtual const PhysicalGeometry<DIM>& getGeometry() const final {
+    const PhysicalGeometry<DIM>& getGeometry() const final {
         return *geometry_;
     }
+
+    std::size_t getDimension() const final { return DIM; }
 
    protected:
     const PhysicalGeometry<DIM>* geometry_;
