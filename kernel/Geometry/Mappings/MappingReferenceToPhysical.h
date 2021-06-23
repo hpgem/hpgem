@@ -40,6 +40,8 @@
 #define HPGEM_KERNEL_MAPPINGREFERENCETOPHYSICAL_H
 
 #include "Geometry/PhysicalGeometry.h"
+#include "Geometry/PointPhysical.h"
+#include "Geometry/Jacobian.h"
 #include "Logger.h"
 
 #include <vector>
@@ -47,9 +49,6 @@
 namespace hpgem {
 
 namespace Geometry {
-
-template <std::size_t DIM>
-class PointPhysical;
 
 /*! ~OC~
  Second layer abstract base class (derived from Mapping) for mappings
