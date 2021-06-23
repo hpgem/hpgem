@@ -89,8 +89,8 @@ class MappingReferenceToPhysicalBase
 
     // Note that the memory of nodes is managed by Mesh, so do not make a deep
     // copy.
-    MappingReferenceToPhysicalBase(const MappingReferenceToPhysicalBase& other) =
-        default;
+    MappingReferenceToPhysicalBase(
+        const MappingReferenceToPhysicalBase& other) = default;
 
     virtual ~MappingReferenceToPhysicalBase() = default;
 
