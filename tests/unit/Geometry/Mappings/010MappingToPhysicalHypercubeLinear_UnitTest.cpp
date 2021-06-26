@@ -138,8 +138,8 @@ TEST_CASE("010MappingToPhysicalHypercubeLinear_UnitTest",
         CHECK((std::abs(point1D[0] - compare1D[0]) < 1e-12));
     }
 
-    INFO("getTargetDimension");
-    CHECK((mapping1D.getTargetDimension() == 1));
+    INFO("getDimension");
+    CHECK((mapping1D.getDimension() == 1));
     // dim2
     pointIndexes[1] = 7;
 
@@ -244,8 +244,8 @@ TEST_CASE("010MappingToPhysicalHypercubeLinear_UnitTest",
         CHECK(std::abs(point2D[1] - compare2D[1]) < 1e-12);
     }
 
-    INFO("getTargetDimension");
-    CHECK((mapping2D.getTargetDimension() == 2));
+    INFO("getDimension");
+    CHECK((mapping2D.getDimension() == 2));
     // dim3
     pointIndexes[3] = 18;
 
@@ -391,6 +391,6 @@ TEST_CASE("010MappingToPhysicalHypercubeLinear_UnitTest",
         CHECK(std::abs(point3D[2] - compare3D[2]) < 1e-12);
     }
 
-    INFO("getTargetDimension");
-    CHECK((mapping3D.getTargetDimension() == 3));
+    INFO("getDimension");
+    CHECK((mapping3D.getDimension() == 3));
 }
