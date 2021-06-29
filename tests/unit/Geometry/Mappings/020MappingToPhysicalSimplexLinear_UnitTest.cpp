@@ -184,8 +184,8 @@ TEST_CASE("020MappingToPhysicalSimplexLinear_UnitTest",
         CHECK(std::abs(point2D[1] - compare2D[1]) < 1e-12);
     }
 
-    INFO("getTargetDimension");
-    CHECK((mapping2D.getTargetDimension() == 2));
+    INFO("getDimension");
+    CHECK((mapping2D.getDimension() == 2));
     // dim3
     pointIndexes[2] = 18;
 
@@ -328,6 +328,6 @@ TEST_CASE("020MappingToPhysicalSimplexLinear_UnitTest",
         CHECK(std::abs(point3D[2] - compare3D[2]) < 1e-12);
     }
 
-    INFO("getTargetDimension");
-    CHECK((mapping3D.getTargetDimension() == 3));
+    INFO("getDimension");
+    CHECK((mapping3D.getDimension() == 3));
 }

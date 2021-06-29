@@ -14,7 +14,6 @@ add_library(Reference_geometries OBJECT
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceHypercube.cpp 
 	
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceGeometry.cpp
-        ${hpGEM_SOURCE_DIR}/kernel/Geometry/PointReferenceBase.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/PointPhysicalBase.cpp
 	# Mappings
 

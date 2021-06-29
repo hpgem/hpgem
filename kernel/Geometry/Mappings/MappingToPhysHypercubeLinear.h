@@ -61,7 +61,7 @@ class MappingToPhysHypercubeLinear;
 // ~~~ Dimension 1
 // ~~~==========================================================================
 template <>
-class MappingToPhysHypercubeLinear<1> : public MappingReferenceToPhysical {
+class MappingToPhysHypercubeLinear<1> : public MappingReferenceToPhysical<1> {
 
    public:
     MappingToPhysHypercubeLinear(const PhysicalGeometry<1> *const &);
@@ -71,7 +71,10 @@ class MappingToPhysHypercubeLinear<1> : public MappingReferenceToPhysical {
     PointReference<1> inverseTransform(const PointPhysical<1> &) const final;
     Jacobian<1, 1> calcJacobian(const PointReference<1> &) const final;
     void reinit() final;
-    std::size_t getTargetDimension() const final { return 1; }
+
+    MappingToPhysHypercubeLinear<1> *copy() const final {
+        return new MappingToPhysHypercubeLinear<1>(*this);
+    }
 
    private:
     bool isValidPoint(const PointReference<1> &) const;
@@ -81,7 +84,7 @@ class MappingToPhysHypercubeLinear<1> : public MappingReferenceToPhysical {
 // ~~~ Dimension 2
 // ~~~==========================================================================
 template <>
-class MappingToPhysHypercubeLinear<2> : public MappingReferenceToPhysical {
+class MappingToPhysHypercubeLinear<2> : public MappingReferenceToPhysical<2> {
    public:
     // Constructor.
     MappingToPhysHypercubeLinear(const PhysicalGeometry<2> *const &);
@@ -91,7 +94,10 @@ class MappingToPhysHypercubeLinear<2> : public MappingReferenceToPhysical {
     PointReference<2> inverseTransform(const PointPhysical<2> &) const final;
     Jacobian<2, 2> calcJacobian(const PointReference<2> &) const final;
     void reinit() final;
-    std::size_t getTargetDimension() const final { return 2; }
+
+    MappingToPhysHypercubeLinear<2> *copy() const final {
+        return new MappingToPhysHypercubeLinear<2>(*this);
+    }
 
    private:
     bool isValidPoint(const PointReference<2> &) const;
@@ -101,7 +107,7 @@ class MappingToPhysHypercubeLinear<2> : public MappingReferenceToPhysical {
 // ~~~ Dimension 3
 // ~~~==========================================================================
 template <>
-class MappingToPhysHypercubeLinear<3> : public MappingReferenceToPhysical {
+class MappingToPhysHypercubeLinear<3> : public MappingReferenceToPhysical<3> {
    public:
     // Constructor.
     MappingToPhysHypercubeLinear(const PhysicalGeometry<3> *const &);
@@ -111,7 +117,10 @@ class MappingToPhysHypercubeLinear<3> : public MappingReferenceToPhysical {
     PointReference<3> inverseTransform(const PointPhysical<3> &) const final;
     Jacobian<3, 3> calcJacobian(const PointReference<3> &) const final;
     void reinit() final;
-    std::size_t getTargetDimension() const final { return 3; }
+
+    MappingToPhysHypercubeLinear<3> *copy() const final {
+        return new MappingToPhysHypercubeLinear<3>(*this);
+    }
 
    private:
     bool isValidPoint(const PointReference<3> &) const;
@@ -121,7 +130,7 @@ class MappingToPhysHypercubeLinear<3> : public MappingReferenceToPhysical {
 // ~~~ Dimension 4
 // ~~~==========================================================================
 template <>
-class MappingToPhysHypercubeLinear<4> : public MappingReferenceToPhysical {
+class MappingToPhysHypercubeLinear<4> : public MappingReferenceToPhysical<4> {
    public:
     // Constructor.
     MappingToPhysHypercubeLinear(const PhysicalGeometry<4> *const &);
@@ -131,7 +140,10 @@ class MappingToPhysHypercubeLinear<4> : public MappingReferenceToPhysical {
     PointReference<4> inverseTransform(const PointPhysical<4> &) const final;
     Jacobian<4, 4> calcJacobian(const PointReference<4> &) const final;
     void reinit() final;
-    std::size_t getTargetDimension() const final { return 4; }
+
+    MappingToPhysHypercubeLinear<4> *copy() const final {
+        return new MappingToPhysHypercubeLinear<4>(*this);
+    }
 
    private:
     bool isValidPoint(const PointReference<4> &) const;
