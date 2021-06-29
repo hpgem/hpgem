@@ -84,7 +84,7 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
 
     Geometry::ElementGeometry* test =
         new Geometry::ElementGeometry(pointIndexes, nodes1D);
-    const Geometry::MappingReferenceToPhysical& refMap1 =
+    const Geometry::MappingReferenceToPhysicalBase& refMap1 =
         *test->getReferenceToPhysicalMap();
     const Geometry::ReferenceGeometry& refGeo1 = *test->getReferenceGeometry();
     INFO("getReferenceToPhysicalMap");
@@ -96,12 +96,14 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
     CHECK((test->getNumberOfNodes() == 2));
 
     for (orig1D[0] = -1.51; orig1D[0] < 1.51; orig1D[0] += 0.1) {
-        compare1D = test->getReferenceToPhysicalMap()->transform((orig1D));
+        const auto& mapping =
+            test->getReferenceToPhysicalMap()->castDimension<1>();
+        compare1D = mapping.transform((orig1D));
         point1D = test->referenceToPhysical((orig1D));
         INFO("referenceToPhysical");
         CHECK((std::abs(point1D[0] - compare1D[0]) < 1e-12));
 
-        jaccompare = test->getReferenceToPhysicalMap()->calcJacobian((orig1D));
+        jaccompare = mapping.calcJacobian((orig1D));
         jac = test->calcJacobian((orig1D));
         INFO("calcJacobian");
         CHECK((std::abs(jac[0] - jaccompare[0]) < 1e-12));
@@ -133,7 +135,7 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
     delete test;
     test = new Geometry::ElementGeometry(pointIndexes, nodes2D);
 
-    const Geometry::MappingReferenceToPhysical& refMap2 =
+    const Geometry::MappingReferenceToPhysicalBase& refMap2 =
         *test->getReferenceToPhysicalMap();
     const Geometry::ReferenceGeometry& refGeo2 = *test->getReferenceGeometry();
     INFO("getReferenceToPhysicalMap");
@@ -144,16 +146,17 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
     CHECK((test->getNumberOfNodes() == 3));
 
     for (orig2D[0] = -1.51; orig2D[0] < 1.51; orig2D[0] += 0.2) {
+        const auto& mapping =
+            test->getReferenceToPhysicalMap()->castDimension<2>();
         for (orig2D[1] = -1.511; orig2D[1] < 1.51; orig2D[1] += 0.2) {
-            compare2D = test->getReferenceToPhysicalMap()->transform((orig2D));
+            compare2D = mapping.transform((orig2D));
             point2D = test->referenceToPhysical((orig2D));
             INFO("referenceToPhysical");
             CHECK((std::abs(point2D[0] - compare2D[0]) < 1e-12));
             INFO("referenceToPhysical");
             CHECK((std::abs(point2D[1] - compare2D[1]) < 1e-12));
 
-            jaccompare2 =
-                test->getReferenceToPhysicalMap()->calcJacobian((orig2D));
+            jaccompare2 = mapping.calcJacobian((orig2D));
             jac2 = test->calcJacobian((orig2D));
             INFO("calcJacobian");
             CHECK((std::abs(jac2[0] - jaccompare2[0]) < 1e-12));
@@ -172,7 +175,7 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
     delete test;
     test = new Geometry::ElementGeometry(pointIndexes, nodes2D);
 
-    const Geometry::MappingReferenceToPhysical& refMap3 =
+    const Geometry::MappingReferenceToPhysicalBase& refMap3 =
         *test->getReferenceToPhysicalMap();
     const Geometry::ReferenceGeometry& refGeo3 = *test->getReferenceGeometry();
     INFO("getReferenceToPhysicalMap");
@@ -184,16 +187,17 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
     CHECK((test->getNumberOfNodes() == 4));
 
     for (orig2D[0] = -1.51; orig2D[0] < 1.51; orig2D[0] += 0.2) {
+        const auto& mapping =
+            test->getReferenceToPhysicalMap()->castDimension<2>();
         for (orig2D[1] = -1.511; orig2D[1] < 1.51; orig2D[1] += 0.2) {
-            compare2D = test->getReferenceToPhysicalMap()->transform((orig2D));
+            compare2D = mapping.transform((orig2D));
             point2D = test->referenceToPhysical((orig2D));
             INFO("referenceToPhysical");
             CHECK((std::abs(point2D[0] - compare2D[0]) < 1e-12));
             INFO("referenceToPhysical");
             CHECK((std::abs(point2D[1] - compare2D[1]) < 1e-12));
 
-            jaccompare2 =
-                test->getReferenceToPhysicalMap()->calcJacobian((orig2D));
+            jaccompare2 = mapping.calcJacobian((orig2D));
             jac2 = test->calcJacobian((orig2D));
             INFO("calcJacobian");
             CHECK((std::abs(jac2[0] - jaccompare2[0]) < 1e-12));
@@ -250,7 +254,7 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
     delete test;
     test = new Geometry::ElementGeometry(pointIndexes, nodes3D);
 
-    const Geometry::MappingReferenceToPhysical& refMap4 =
+    const Geometry::MappingReferenceToPhysicalBase& refMap4 =
         *test->getReferenceToPhysicalMap();
     const Geometry::ReferenceGeometry& refGeo4 = *test->getReferenceGeometry();
     INFO("getReferenceToPhysicalMap");
@@ -263,8 +267,9 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
     for (orig3D[0] = -1.51; orig3D[0] < 1.51; orig3D[0] += 0.3) {
         for (orig3D[1] = -1.511; orig3D[1] < 1.51; orig3D[1] += 0.35) {
             for (orig3D[2] = -1.512; orig3D[2] < 1.51; orig3D[2] += 0.3) {
-                compare3D =
-                    test->getReferenceToPhysicalMap()->transform((orig3D));
+                const auto& mapping =
+                    test->getReferenceToPhysicalMap()->castDimension<3>();
+                compare3D = mapping.transform((orig3D));
                 point3D = test->referenceToPhysical((orig3D));
                 INFO("referenceToPhysical");
                 CHECK((std::abs(point3D[0] - compare3D[0]) < 1e-12));
@@ -273,8 +278,7 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
                 INFO("referenceToPhysical");
                 CHECK((std::abs(point3D[2] - compare3D[2]) < 1e-12));
 
-                jaccompare3 =
-                    test->getReferenceToPhysicalMap()->calcJacobian((orig3D));
+                jaccompare3 = mapping.calcJacobian((orig3D));
                 jac3 = test->calcJacobian((orig3D));
                 INFO("calcJacobian");
                 CHECK((std::abs(jac3[0] - jaccompare3[0]) < 1e-12));
@@ -304,7 +308,7 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
     delete test;
     test = new Geometry::ElementGeometry(pointIndexes, nodes3D);
 
-    const Geometry::MappingReferenceToPhysical& refMap5 =
+    const Geometry::MappingReferenceToPhysicalBase& refMap5 =
         *test->getReferenceToPhysicalMap();
     const Geometry::ReferenceGeometry& refGeo5 = *test->getReferenceGeometry();
     INFO("getReferenceToPhysicalMap");
@@ -315,10 +319,11 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
     CHECK((test->getNumberOfNodes() == 5));
 
     for (orig3D[0] = -1.51; orig3D[0] < 1.51; orig3D[0] += 0.3) {
+        const auto& mapping =
+            test->getReferenceToPhysicalMap()->castDimension<3>();
         for (orig3D[1] = -1.511; orig3D[1] < 1.51; orig3D[1] += 0.35) {
             for (orig3D[2] = -1.512; orig3D[2] < 1.51; orig3D[2] += 0.3) {
-                compare3D =
-                    test->getReferenceToPhysicalMap()->transform((orig3D));
+                compare3D = mapping.transform((orig3D));
                 point3D = test->referenceToPhysical((orig3D));
                 INFO("referenceToPhysical");
                 CHECK((std::abs(point3D[0] - compare3D[0]) < 1e-12));
@@ -327,8 +332,7 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
                 INFO("referenceToPhysical");
                 CHECK((std::abs(point3D[2] - compare3D[2]) < 1e-12));
 
-                jaccompare3 =
-                    test->getReferenceToPhysicalMap()->calcJacobian((orig3D));
+                jaccompare3 = mapping.calcJacobian((orig3D));
                 jac3 = test->calcJacobian((orig3D));
                 INFO("calcJacobian");
                 CHECK((std::abs(jac3[0] - jaccompare3[0]) < 1e-12));
@@ -358,7 +362,7 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
     delete test;
     test = new Geometry::ElementGeometry(pointIndexes, nodes3D);
 
-    const Geometry::MappingReferenceToPhysical& refMap6 =
+    const Geometry::MappingReferenceToPhysicalBase& refMap6 =
         *test->getReferenceToPhysicalMap();
     const Geometry::ReferenceGeometry& refGeo6 = *test->getReferenceGeometry();
     INFO("getReferenceToPhysicalMap");
@@ -369,10 +373,11 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
     CHECK((test->getNumberOfNodes() == 6));
 
     for (orig3D[0] = -1.51; orig3D[0] < 1.51; orig3D[0] += 0.3) {
+        const auto& mapping =
+            test->getReferenceToPhysicalMap()->castDimension<3>();
         for (orig3D[1] = -1.511; orig3D[1] < 1.51; orig3D[1] += 0.35) {
             for (orig3D[2] = -1.512; orig3D[2] < 1.51; orig3D[2] += 0.3) {
-                compare3D =
-                    test->getReferenceToPhysicalMap()->transform((orig3D));
+                compare3D = mapping.transform((orig3D));
                 point3D = test->referenceToPhysical((orig3D));
                 INFO("referenceToPhysical");
                 CHECK((std::abs(point3D[0] - compare3D[0]) < 1e-12));
@@ -381,8 +386,7 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
                 INFO("referenceToPhysical");
                 CHECK((std::abs(point3D[2] - compare3D[2]) < 1e-12));
 
-                jaccompare3 =
-                    test->getReferenceToPhysicalMap()->calcJacobian((orig3D));
+                jaccompare3 = mapping.calcJacobian((orig3D));
                 jac3 = test->calcJacobian((orig3D));
                 INFO("calcJacobian");
                 CHECK((std::abs(jac3[0] - jaccompare3[0]) < 1e-12));
@@ -413,7 +417,7 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
     delete test;
     test = new Geometry::ElementGeometry(pointIndexes, nodes3D);
 
-    const Geometry::MappingReferenceToPhysical& refMap7 =
+    const Geometry::MappingReferenceToPhysicalBase& refMap7 =
         *test->getReferenceToPhysicalMap();
     const Geometry::ReferenceGeometry& refGeo7 = *test->getReferenceGeometry();
     INFO("getReferenceToPhysicalMap");
@@ -425,10 +429,11 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
     CHECK((test->getNumberOfNodes() == 8));
 
     for (orig3D[0] = -1.51; orig3D[0] < 1.51; orig3D[0] += 0.3) {
+        const auto& mapping =
+            test->getReferenceToPhysicalMap()->castDimension<3>();
         for (orig3D[1] = -1.511; orig3D[1] < 1.51; orig3D[1] += 0.35) {
             for (orig3D[2] = -1.512; orig3D[2] < 1.51; orig3D[2] += 0.3) {
-                compare3D =
-                    test->getReferenceToPhysicalMap()->transform((orig3D));
+                compare3D = mapping.transform((orig3D));
                 point3D = test->referenceToPhysical((orig3D));
                 INFO("referenceToPhysical");
                 CHECK((std::abs(point3D[0] - compare3D[0]) < 1e-12));
@@ -437,8 +442,7 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
                 INFO("referenceToPhysical");
                 CHECK((std::abs(point3D[2] - compare3D[2]) < 1e-12));
 
-                jaccompare3 =
-                    test->getReferenceToPhysicalMap()->calcJacobian((orig3D));
+                jaccompare3 = mapping.calcJacobian((orig3D));
                 jac3 = test->calcJacobian((orig3D));
                 INFO("calcJacobian");
                 CHECK((std::abs(jac3[0] - jaccompare3[0]) < 1e-12));
@@ -560,7 +564,7 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
     delete test;
     test = new Geometry::ElementGeometry(pointIndexes, nodes4D);
 
-    const Geometry::MappingReferenceToPhysical& refMap8 =
+    const Geometry::MappingReferenceToPhysicalBase& refMap8 =
         *test->getReferenceToPhysicalMap();
     const Geometry::ReferenceGeometry& refGeo8 = *test->getReferenceGeometry();
     INFO("getReferenceToPhysicalMap");
@@ -572,11 +576,12 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
     CHECK((test->getNumberOfNodes() == 16));
 
     for (orig4D[0] = -1.5189; orig4D[0] < 1.541; orig4D[0] += 0.4) {
+        const auto& mapping =
+            test->getReferenceToPhysicalMap()->castDimension<4>();
         for (orig4D[1] = -1.5189; orig4D[1] < 1.541; orig4D[1] += 0.4) {
             for (orig4D[2] = -1.5189; orig4D[2] < 1.541; orig4D[2] += 0.5) {
                 for (orig4D[3] = -1.5189; orig4D[3] < 1.541; orig4D[3] += 0.5) {
-                    compare4D =
-                        test->getReferenceToPhysicalMap()->transform((orig4D));
+                    compare4D = mapping.transform((orig4D));
                     point4D = test->referenceToPhysical((orig4D));
                     INFO("referenceToPhysical");
                     CHECK((std::abs(point4D[0] - compare4D[0]) < 1e-12));
@@ -587,9 +592,7 @@ TEST_CASE("220ElementGeometry_UnitTest", "[220ElementGeometry_UnitTest]") {
                     INFO("referenceToPhysical");
                     CHECK((std::abs(point4D[3] - compare4D[3]) < 1e-12));
 
-                    jaccompare4 =
-                        test->getReferenceToPhysicalMap()->calcJacobian(
-                            (orig4D));
+                    jaccompare4 = mapping.calcJacobian((orig4D));
                     jac4 = test->calcJacobian((orig4D));
                     INFO("calcJacobian");
                     CHECK((std::abs(jac4[0] - jaccompare4[0]) < 1e-12));

@@ -52,7 +52,7 @@ namespace Geometry {
  *  purpose of individual methods see the documentation of the base classes,
  *  Ref2PhysSpaceMapping and Mapping. */
 
-class MappingToPhysTriangularPrism : public MappingReferenceToPhysical {
+class MappingToPhysTriangularPrism : public MappingReferenceToPhysical<3> {
    public:
     MappingToPhysTriangularPrism(const PhysicalGeometry<3>* const);
 
@@ -68,7 +68,10 @@ class MappingToPhysTriangularPrism : public MappingReferenceToPhysical {
     void reinit() final;
 
     bool isValidPoint(const PointReference<3>&) const;
-    std::size_t getTargetDimension() const final { return 3; }
+
+    MappingToPhysTriangularPrism* copy() const final {
+        return new MappingToPhysTriangularPrism(*this);
+    }
 
    private:
     PointPhysical<3> a0, a1, a2, a3, a4, a5;
