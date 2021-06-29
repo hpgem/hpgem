@@ -41,12 +41,13 @@
 
 #include <cstdlib>
 
+#include "AbstractDimensionlessBase.h"
+
 namespace hpgem {
 
 namespace Geometry {
 template <std::size_t DIM>
 class PointPhysical;
-
 /// \brief evades a compile-time conflict between the virtual and template
 /// keywords \details for technical reasons c++ does not support abstract
 /// templated functions. For some functions this means we get into trouble with
@@ -56,28 +57,9 @@ class PointPhysical;
 /// run-time checks to make sure everything in done correctly)
 // first define the base class, then define the subclass, then implement the
 // type conversion operators
-class PointPhysicalBase {
+class PointPhysicalBase
+    : public AbstractDimensionlessBase<PointPhysicalBase, PointPhysical> {
    public:
-    operator PointPhysical<0> &();
-
-    operator PointPhysical<1> &();
-
-    operator PointPhysical<2> &();
-
-    operator PointPhysical<3> &();
-
-    operator PointPhysical<4> &();
-
-    operator const PointPhysical<0> &() const;
-
-    operator const PointPhysical<1> &() const;
-
-    operator const PointPhysical<2> &() const;
-
-    operator const PointPhysical<3> &() const;
-
-    operator const PointPhysical<4> &() const;
-
     virtual std::size_t size() const = 0;
 
    protected:
