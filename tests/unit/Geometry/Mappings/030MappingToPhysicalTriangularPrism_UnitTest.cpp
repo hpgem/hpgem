@@ -211,6 +211,6 @@ TEST_CASE("030MappingToPhysicalTriangularPrism_UnitTest",
         CHECK(std::abs(point3D[2] - compare3D[2]) < 1e-12);
     }
 
-    INFO("getTargetDimension");
-    CHECK((mapping3D.getTargetDimension() == 3));
+    INFO("getDimension");
+    CHECK((mapping3D.getDimension() == 3));
 }

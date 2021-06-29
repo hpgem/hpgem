@@ -821,7 +821,8 @@ std::vector<LinearAlgebra::SmallVector<DIM>> Element::getSolutionGradient(
     std::vector<std::size_t> numberOfBasisFunctions =
         std::vector<std::size_t>(numberOfUnknowns, 0);
     std::vector<LinearAlgebra::SmallVector<DIM>> solution(numberOfUnknowns);
-    auto jacobean = getReferenceToPhysicalMap()->calcJacobian(p);
+    auto jacobean =
+        getReferenceToPhysicalMap()->castDimension<DIM>().calcJacobian(p);
     jacobean = jacobean.transpose();
 
     LinearAlgebra::MiddleSizeVector data =
