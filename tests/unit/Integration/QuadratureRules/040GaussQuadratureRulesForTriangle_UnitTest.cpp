@@ -65,7 +65,7 @@ void testRule(QuadratureRules::GaussQuadratureRule& test,
     CHECK((typeid(refGeo) == typeid(Geometry::ReferenceTriangle)));
 
     // Check for negative weights (these are unstable)
-    for (std::size_t  i = 0; i < test.getNumberOfPoints(); ++i) {
+    for (std::size_t i = 0; i < test.getNumberOfPoints(); ++i) {
         INFO("Non negative weights");
         REQUIRE(test.weight(i) >= 0);
     }

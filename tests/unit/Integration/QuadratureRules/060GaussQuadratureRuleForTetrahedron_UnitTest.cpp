@@ -65,7 +65,7 @@ void testRule(QuadratureRules::GaussQuadratureRule& test,
     CHECK((typeid(refGeo) == typeid(Geometry::ReferenceTetrahedron)));
 
     // Check for negative weights (these are unstable)
-    for (std::size_t  i = 0; i < test.getNumberOfPoints(); ++i) {
+    for (std::size_t i = 0; i < test.getNumberOfPoints(); ++i) {
         INFO("Non negative weights");
         REQUIRE(test.weight(i) >= 0);
     }
@@ -342,7 +342,7 @@ TEST_CASE("060GaussQuadratureRuleForTetrahedron_UnitTest",
     testRule(QuadratureRules::T3_5_14::Instance(), 5);
     testRule(QuadratureRules::T3_6_24::Instance(), 6);
     testRule(QuadratureRules::T3_7_31::Instance(), 6);
-    //testRule(QuadratureRules::T3_8_43::Instance(), 8);
+    // testRule(QuadratureRules::T3_8_43::Instance(), 8);
     testRule(QuadratureRules::T3_9_53::Instance(), 8);
-    //testRule(QuadratureRules::T3_10_126::Instance(), 11);
+    // testRule(QuadratureRules::T3_10_126::Instance(), 11);
 }
