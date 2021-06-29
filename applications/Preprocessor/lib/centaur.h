@@ -40,7 +40,7 @@
 #define HPGEM_APP_CENTAUR_H
 
 #include "customIterator.h"
-#include "unstructuredFile.h"
+#include "FortranUnformattedFile.h"
 #include "MeshSource.h"
 #include <array>
 #include <vector>
@@ -52,12 +52,14 @@ namespace Preprocessor {
 
 using namespace hpgem;
 
-class CentaurReader : public MeshSource {
+class CentaurReader : public MeshSource2 {
    public:
     CentaurReader(std::string filename);
 
-    Range<MeshSource::Node> getNodeCoordinates() final;
-    Range<MeshSource::Element> getElements() final;
+    std::vector<MeshSource2::Coord>& getCoordinates() final {
+        return coordinates;
+    }
+    std::vector<MeshSource2::Element>& getElements() final { return elements; }
 
     std::size_t getDimension() const final {
         if (centaurFileType > 0) return 3;
@@ -65,20 +67,94 @@ class CentaurReader : public MeshSource {
         return 2;
     }
 
-    bool is2D() { return getDimension() == 2; }
-    bool is3D() { return getDimension() == 3; }
+    bool is2D() const { return getDimension() == 2; }
+    bool is3D() const { return getDimension() == 3; }
 
    private:
-    UnstructuredInputStream<std::istringstream> readLine();
+    /// Helper methods ///
+    //////////////////////
+    //
+    // Helper methods for how centaur uses the fortran file format.
+
+    struct GroupSize {
+        /**
+         * Total number of entries
+         */
+        std::uint32_t totalCount;
+        /**
+         * Entries per line
+         */
+        std::uint32_t perLineCount;
+    };
+
     // returns the number of skipped entities
     std::uint32_t skipGroup(std::size_t linesPerEntity = 1,
                             bool multiline = true);
 
+    /**
+     * Read the size of the next group
+     * @param expectMultiline Whether it can be a multiline group (if the file
+     * type supports it)
+     * @return The size of the next group.
+     */
+    GroupSize readGroupSize(bool expectMultiline);
+
+    /**
+     * Read the size of the next group, assuming it does not support multiline
+     * @return The size of the group.
+     */
+    std::uint32_t readSingleLineGroupSize() {
+        GroupSize groupSize = readGroupSize(false);
+        return groupSize.totalCount;
+    }
+
+    /**
+     * Read a group with a uniform data type
+     * @tparam T The datatype
+     * @param data vector to store the result in
+     * @param numComponents The number of components per entry (e.g. 4 corner
+     * indices for squares)
+     * @param expectMultiline Whether it can be stored as multiline when the
+     * version supports it.
+     * @return The number of entries that were read
+     */
+    template <typename T>
+    std::uint32_t readGroup(std::vector<T>& data, std::uint32_t numComponents,
+                            bool expectMultiline);
+
+    /// Reader Methods ///
+    //////////////////////
+    //
+    // Methods to read parts of the centaur file. Following the same ordering as
+    // in the file.
+
     void readHeader();
-    /// Read the zone information from the file.
-    /// \param elementCount The count for each element type in centaur order.
-    /// For 2D only the first two entries should be used.
-    void readZoneInfo(std::array<std::uint32_t, 4> elementCount);
+    void readCoordinates();
+    /**
+     * Read a group defining the elements
+     * @param elemType the element index
+     * @param numNodes The number of nodes for this type of element
+     */
+    void readElements(std::size_t elemType, std::uint32_t numNodes);
+
+    /**
+     * The number of nodes each centaur element type has.
+     * @param elementType The element type
+     * @return The number of nodes for one element.
+     */
+    std::uint32_t numNodes(std::size_t elementType) const;
+
+    /**
+     * Reorder coordinates to follow hpgem ordering.
+     *
+     * For some element types the ordering of the coordinates is differs between
+     * hpgem and centaur. This function reorders a set of coordinates in centaur
+     * ordering to follow hpgem ordering.
+     * @param coords The coordinates
+     * @param elementType The element type index.
+     */
+    void reorderElementCoords(std::vector<std::size_t>& coords,
+                              std::size_t elementType) const;
 
     /// Read & discard boundary group information
     /// Note: While the information is discarded, it is very useful in debugging
@@ -86,7 +162,19 @@ class CentaurReader : public MeshSource {
     /// for correctness.
     void readBoundaryGroups();
 
+    /**
+     * Read and apply the periodic connections from the centaur file.
+     */
     void readPeriodicNodeConnections();
+
+    /// Read the zone information from the file and update the elements
+    void readZoneInfo();
+
+    /// DATA ///
+    ////////////
+    // All data from the file, following the same ordering as in the file.
+
+    FortranUnformattedFile centaurFile;
 
     // Header information
     /**
@@ -99,20 +187,19 @@ class CentaurReader : public MeshSource {
      */
     std::int32_t centaurFileType;
 
-    UnstructuredInputStream<std::ifstream> centaurFile;
-    /// Location in the file where the node/coordinate information starts
-    std::ifstream::pos_type nodeStart;
-    /// Location in the file where the element definition starts
-    std::ifstream::pos_type elementStart;
-
-    /// Number of Nodes
-    std::uint32_t numberOfNodes;
-    /// Number of Elements (independent of type)
-    std::uint32_t numberOfElements;
-
-    std::map<std::uint32_t, std::vector<std::size_t>> boundaryConnections;
-
-    std::vector<std::size_t> toHpgemNumbering;
+    /**
+     * Coordinates
+     */
+    std::vector<MeshSource2::Coord> coordinates;
+    /**
+     * The elements in the mesh. The different element types are placed
+     * consecutively.
+     */
+    std::vector<MeshSource2::Element> elements;
+    /**
+     * The number of elements of each type.
+     */
+    std::array<std::uint32_t, 4> elementCount;
 
     struct ZoneInformation {
         /// The end-offset for element types and (3D only) boundary faces.

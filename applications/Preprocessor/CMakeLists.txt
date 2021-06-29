@@ -4,6 +4,8 @@ lib/centaur.cpp
 lib/hpgem.cpp
 lib/gmsh.cpp
 lib/ElementReorder.cpp
+lib/SparseUnionFind.cpp
+lib/FortranUnformattedFile.cpp
 lib/ElementShapes.cpp
 )
 
