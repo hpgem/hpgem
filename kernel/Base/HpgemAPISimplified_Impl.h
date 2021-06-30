@@ -36,6 +36,7 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <Integration/QuadratureRules/AllGaussQuadratureRules.h>
 #include "HpgemAPISimplified.h"
 
 #include "Base/CommandLineOptions.h"
@@ -350,7 +351,11 @@ LinearAlgebra::MiddleSizeVector::type
                                                 time);
     };
 
-    return this->elementIntegrator_.integrate(ptrElement, integrandFunction);
+    auto* rule = QuadratureRules::AllGaussQuadratureRules::instance()
+        .getRule(ptrElement->getReferenceGeometry(), 2*this->polynomialOrder_+2);
+
+            return this->elementIntegrator_.integrate(ptrElement,
+                                                      integrandFunction, rule);
 }
 
 /// \param[in] solutionVectorId index of the time integration vector where the
