@@ -85,6 +85,20 @@ std::vector<std::string> getUnitCubeCubeMeshes() {
         prefix + "unitCubeN16.hpgem",
     };
 }
+
+/**
+ * Meshes for the unit cube using tetrahedra. The meshes are subsequent refinements
+ * of a mesh with a single cube.
+ * @return The file names to the meshes
+ */
+std::vector<std::string> getUnitCubeTetMeshes() {
+    std::string prefix = getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/";
+    return {
+        prefix + "unitCubeN1Tet.hpgem", prefix + "unitCubeN2Tet.hpgem",
+        prefix + "unitCubeN4Tet.hpgem", prefix + "unitCubeN8Tet.hpgem",
+    };
+}
+
 }  // namespace hpgem
 
 #endif  // HPGEM_TESTMESHES_H
