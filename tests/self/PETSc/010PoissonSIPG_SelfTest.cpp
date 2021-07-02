@@ -313,8 +313,9 @@ struct PoissonTestParameters {
 };
 
 template <std::size_t DIM>
-void runPoissonTestSeries(ConvergenceTestSet& testSet, PoissonTestParameters& testParameters,
-                   bool ignoreErrors) {
+void runPoissonTestSeries(ConvergenceTestSet& testSet,
+                          PoissonTestParameters& testParameters,
+                          bool ignoreErrors) {
     runConvergenceTest(
         testSet, ignoreErrors,
         [&testParameters](std::string meshName, std::size_t level) {
@@ -345,52 +346,52 @@ int main(int argc, char** argv) {
 
     PoissonTestParameters dim1P2Params = {2, 1};
     ConvergenceTestSet dim1P2Meshes = {getUnitSegmentMeshes(),
-                            {
-                                7.45240563e-03,  //------
-                                1.25626260e-02,  //  0.59
-                                1.45725197e-03,  //  8.62
-                                1.77601092e-04,  //  8.21
-                                2.20303522e-05,  //  8.06
-                                2.74709611e-06,  //  8.02
-                            }};
+                                       {
+                                           7.45240563e-03,  //------
+                                           1.25626260e-02,  //  0.59
+                                           1.45725197e-03,  //  8.62
+                                           1.77601092e-04,  //  8.21
+                                           2.20303522e-05,  //  8.06
+                                           2.74709611e-06,  //  8.02
+                                       }};
     runPoissonTestSeries<1>(dim1P2Meshes, dim1P2Params, ignoreErrors);
 
     PoissonTestParameters dim1P4Params = {4, 1};
     ConvergenceTestSet dim1P4Meshes = {getUnitSegmentMeshes(),
-                            {
-                                2.95738208e-04,  //------
-                                9.80215623e-05,  //  3.02
-                                2.99105904e-06,  // 32.77
-                                9.27117984e-08,  // 32.26
-                                2.89065244e-09,  // 32.07
-                                9.02782781e-11,  // 32.02
-                            }};
+                                       {
+                                           2.95738208e-04,  //------
+                                           9.80215623e-05,  //  3.02
+                                           2.99105904e-06,  // 32.77
+                                           9.27117984e-08,  // 32.26
+                                           2.89065244e-09,  // 32.07
+                                           9.02782781e-11,  // 32.02
+                                       }};
     runPoissonTestSeries<1>(dim1P4Meshes, dim1P4Params, ignoreErrors);
 
     PoissonTestParameters dim2P2Params = {2, 1};
     ConvergenceTestSet dim2P2Meshes = {getUnitSquareTriangleMeshes(),
-                            {
-                                2.16458877e-01,  //------
-                                3.73833650e-02,  //  5.79
-                                3.65233994e-03,  // 10.24
-                                4.66915221e-04,  //  7.82
-                                5.86899243e-05,  //  7.96
-                                7.34507877e-06,  //  7.99
-                                9.18317173e-07,  //  8.00
-                            }};
+                                       {
+                                           2.16458877e-01,  //------
+                                           3.73833650e-02,  //  5.79
+                                           3.65233994e-03,  // 10.24
+                                           4.66915221e-04,  //  7.82
+                                           5.86899243e-05,  //  7.96
+                                           7.34507877e-06,  //  7.99
+                                           9.18317173e-07,  //  8.00
+                                       }};
     runPoissonTestSeries<2>(dim2P2Meshes, dim2P2Params, ignoreErrors);
 
     // Use only p=1 to reduce computational time for this test
     PoissonTestParameters dim3P1Params{1, 1};
     ConvergenceTestSet dim3P1Meshes{getUnitCubeCubeMeshes(),
-                         {
-                             2.08032213e-01,  //------
-                             8.26794259e-02,  //  2.52
-                             2.22900949e-02,  //  3.71
-                             5.70074929e-03,  //  3.91
-                             1.43383386e-03,  //  3.98
+                                    {
+                                        2.08032213e-01,  //------
+                                        8.26794259e-02,  //  2.52
+                                        2.22900949e-02,  //  3.71
+                                        5.70074929e-03,  //  3.91
+                                        1.43383386e-03,  //  3.98
 
-                         }};
+                                    }};
     runPoissonTestSeries<3>(dim3P1Meshes, dim3P1Params, ignoreErrors);
 
     return 0;

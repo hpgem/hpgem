@@ -68,7 +68,8 @@ class VTKTimeDependentWriter final {
     /// if you want to write from multiple meshes, simply have paraview load
     /// both output files
     VTKTimeDependentWriter(std::string baseFileName,
-                           Base::MeshManipulator<DIM>* mesh, std::size_t order = 1);
+                           Base::MeshManipulator<DIM>* mesh,
+                           std::size_t order = 1);
 
     ///\brief write end matter and close the file stream
     ~VTKTimeDependentWriter();

@@ -161,7 +161,7 @@ class PoissonTest : public Base::HpgemAPILinearSteadyState<DIM> {
 
         double ret = -std::sin(M_PI * p[0]) * (M_PI * M_PI);
         if (DIM > 1) {
-            ret *= std::cos(M_PI * p[1])*2;
+            ret *= std::cos(M_PI * p[1]) * 2;
         }
         if (DIM > 2) {
             ret *= std::cos(M_PI * p[2]) * 1.5;
@@ -312,45 +312,45 @@ int main(int argc, char** argv) {
 
     ConvergenceTestSet dim1P2 = {getUnitSegmentMeshes(),
                                  {
-                                     2.03319622e-02, //------
-                                     1.52069546e-02, //  1.34
-                                     1.95232226e-03, //  7.79
-                                     2.45693533e-04, //  7.95
-                                     3.07637057e-05, //  7.99
-                                     3.84709137e-06, //  8.00
+                                     2.03319622e-02,  //------
+                                     1.52069546e-02,  //  1.34
+                                     1.95232226e-03,  //  7.79
+                                     2.45693533e-04,  //  7.95
+                                     3.07637057e-05,  //  7.99
+                                     3.84709137e-06,  //  8.00
                                  }};
     runConformingPoissonTest<1>(dim1P2, 2, ignoreErrors);
 
     ConvergenceTestSet dim1P4 = {getUnitSegmentMeshes(),
                                  {
-                                     4.19454427e-04, //------
-                                     1.05581411e-04, //  3.97
-                                     3.35867926e-06, // 31.44
-                                     1.05426524e-07, // 31.86
-                                     3.29824298e-09, // 31.96
-                                     1.03098789e-10, // 31.99
+                                     4.19454427e-04,  //------
+                                     1.05581411e-04,  //  3.97
+                                     3.35867926e-06,  // 31.44
+                                     1.05426524e-07,  // 31.86
+                                     3.29824298e-09,  // 31.96
+                                     1.03098789e-10,  // 31.99
                                  }};
     runConformingPoissonTest<1>(dim1P4, 4, ignoreErrors);
 
     ConvergenceTestSet dim2P2 = {getUnitSquareTriangleMeshes(),
                                  {
-                                     2.59545045e-01, //------
-                                     4.48506825e-02, //  5.79
-                                     4.83286994e-03, //  9.28
-                                     6.39494399e-04, //  7.56
-                                     8.12241571e-05, //  7.87
-                                     1.01948412e-05, //  7.97
-                                     1.27567489e-06, //  7.99
+                                     2.59545045e-01,  //------
+                                     4.48506825e-02,  //  5.79
+                                     4.83286994e-03,  //  9.28
+                                     6.39494399e-04,  //  7.56
+                                     8.12241571e-05,  //  7.87
+                                     1.01948412e-05,  //  7.97
+                                     1.27567489e-06,  //  7.99
                                  }};
     runConformingPoissonTest<2>(dim2P2, 2, ignoreErrors);
 
     ConvergenceTestSet dim3P1 = {getUnitCubeCubeMeshes(),
                                  {
-                                     3.49473341e-01, //------
-                                     9.30100954e-02, //  3.76
-                                     2.29923181e-02, //  4.05
-                                     5.74619219e-03, //  4.00
-                                     1.43671073e-03, //  4.00
+                                     3.49473341e-01,  //------
+                                     9.30100954e-02,  //  3.76
+                                     2.29923181e-02,  //  4.05
+                                     5.74619219e-03,  //  4.00
+                                     1.43671073e-03,  //  4.00
 
                                  }};
     runConformingPoissonTest<3>(dim3P1, 1, ignoreErrors);
@@ -361,9 +361,9 @@ int main(int argc, char** argv) {
     {
         ConvergenceTestSet dim3P4{getUnitCubeCubeMeshes(0, 3),
                                   {
-                                      2.94250804e-03, //------
-                                      8.97254213e-05, // 32.79
-                                      2.89367228e-06, // 31.01
+                                      2.94250804e-03,  //------
+                                      8.97254213e-05,  // 32.79
+                                      2.89367228e-06,  // 31.01
 
                                   }};
         runConformingPoissonTest<3>(dim3P4, 4, ignoreErrors);

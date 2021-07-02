@@ -50,8 +50,9 @@ namespace hpgem {
  */
 class ConvergenceTestSet {
    public:
-    ConvergenceTestSet(std::vector<std::string> meshes, std::vector<double> expectedError,
-            double relativeAccuracy = 0.01)
+    ConvergenceTestSet(std::vector<std::string> meshes,
+                       std::vector<double> expectedError,
+                       double relativeAccuracy = 0.01)
         : meshes(meshes),
           expectedError(expectedError),
           relativeAccuracy(relativeAccuracy){};
@@ -72,7 +73,8 @@ class ConvergenceTestSet {
  * @param solver Method that accepts the mesh, test input and mesh number and
  * produces the error.
  */
-void runConvergenceTest(ConvergenceTestSet& testSet, bool ignoreFailures,
+void runConvergenceTest(
+    ConvergenceTestSet& testSet, bool ignoreFailures,
     std::function<double(std::string, std::size_t)> solver) {
     std::vector<double> errors;
     for (std::size_t i = 0; i < testSet.meshes.size(); ++i) {
