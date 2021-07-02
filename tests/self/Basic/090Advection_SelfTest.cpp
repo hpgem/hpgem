@@ -303,7 +303,7 @@ int main(int argc, char **argv) {
     startClock = std::chrono::system_clock::now();
 
     // For recomputing the error tables
-    bool ignoreFailures = true;
+    bool ignoreFailures = false;
 
     AdvectionParameters dim1Params = {1, 0.1, 10};
     // Minimum of 4 elements
