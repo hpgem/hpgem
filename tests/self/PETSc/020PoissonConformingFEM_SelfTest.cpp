@@ -43,7 +43,7 @@
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
 
-#include "ConvergenceTest.h"
+#include "../ConvergenceTest.h"
 #include "../TestMeshes.h"
 
 #include "Logger.h"
@@ -359,9 +359,7 @@ int main(int argc, char** argv) {
     // every part (nodes, edges, etc.). To reduce computational time we do not
     // use all available meshes.
     {
-        std::vector<std::string> meshes = getUnitCubeCubeMeshes();
-        meshes.resize(3);
-        ConvergenceTestSet dim3P4{meshes,
+        ConvergenceTestSet dim3P4{getUnitCubeCubeMeshes(0, 3),
                                   {
                                       2.94250804e-03, //------
                                       8.97254213e-05, // 32.79

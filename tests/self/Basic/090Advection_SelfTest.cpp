@@ -52,6 +52,22 @@
 #include "Output/TecplotSingleElementWriter.h"
 #include "Logger.h"
 
+#include "../ConvergenceTest.h"
+#include "../TestMeshes.h"
+
+// This test case is similar to that of 080AdvectionLinear_SelfTest. However
+// there are two differences:
+//  1. Periodic meshes are used
+//  2. The local stiffness matrix is not stored, but instead the matrix vector
+//  product is computed from the basis functions.
+// Both choices are to diversify the number of test paths.
+//
+// Note that the approach of not storing matrices is common for non
+// linear problems and problems with time dependent coefficients (and thus
+// matrices), where such matrices would need to be updated at each timestep. To
+// keep the test case simple the advection speed is constant, allowing
+// comparison with the results of 080AdvectionLinear_SelfTest.
+
 /// This class is used to test if the advection equation is solved correctly
 /// when using HpgemAPISimplified. Linear advection equation: du/dt + a[0] du/dx
 /// + a[1] du/dy = 0, or equivalently: du/dt = - a[0] du/dx - a[1] du/dy = 0.
@@ -246,7 +262,7 @@ class Advection : public Base::HpgemAPISimplified<DIM> {
         const std::size_t nT  // number of time steps
     ) {
         this->readMesh(fileType);
-        this->solve(0, T, (T / nT), 0, false);
+        this->solve(0, T, (T / nT), 1, false);
         return this->computeTotalError(this->solutionVectorId_, T);
     }
 
@@ -257,61 +273,71 @@ class Advection : public Base::HpgemAPISimplified<DIM> {
     LinearAlgebra::SmallVector<DIM> a;
 };
 
+struct AdvectionParameters {
+    std::size_t p;
+    double endTime;
+    std::size_t timeSteps;
+};
+
+template <std::size_t DIM>
+void runAdvectionTestSet(ConvergenceTestSet &testSet,
+                         AdvectionParameters &parameters, bool ignoreFailures) {
+    runConvergenceTest(testSet, ignoreFailures,
+                       [&parameters](std::string meshFile, std::size_t level) {
+                           Advection<DIM> test(meshFile, parameters.p);
+                           return std::real(test.createAndSolve(
+                               parameters.endTime, parameters.timeSteps));
+                       });
+}
+
 int main(int argc, char **argv) {
     using namespace std::string_literals;
     Base::parse_options(argc, argv);
 
-    // Define test parameters
-    const std::size_t numberOfTests = 14;
-    std::array<std::size_t, numberOfTests> dim = {1, 1, 1, 1, 1, 2, 2,
-                                                  2, 2, 2, 3, 3, 3, 3};
-    std::array<std::size_t, numberOfTests> p = {1, 2, 3, 4, 5, 1, 2,
-                                                3, 4, 5, 1, 2, 3, 4};
-    std::array<double, numberOfTests> T = {0.1,  0.1,  0.1,  0.1, 0.1,
-                                           0.1,  0.1,  0.1,  0.1, 0.1,
-                                           0.02, 0.02, 0.02, 0.01};
-    std::array<std::size_t, numberOfTests> nT = {10, 10, 10, 10, 10, 10, 10,
-                                                 10, 10, 10, 2,  2,  2,  1};
-    std::array<double, numberOfTests> errors = {
-        0.00322137, 0.000642002, 0.000417087, 3.90839e-05, 2.83226e-06,
-        0.00361477, 0.000847142, 0.00236532,  4.79497e-05, 7.70023e-05,
-        0.00148113, 0.00113545,  0.000181175, 0.00032545};
+    // Note: These results should be similar to those of
+    // 080AdvectionLinear_SelfTest
 
     // Define clocks for measuring simulation time.
     std::chrono::time_point<std::chrono::system_clock> startClock, endClock;
     std::chrono::duration<double> elapsed_seconds;
-
-    // Define error
-    LinearAlgebra::MiddleSizeVector::type error;
-
     startClock = std::chrono::system_clock::now();
 
-    // Perform tests
-    for (std::size_t i = 0; i < numberOfTests; i++) {
-        std::string fileName = Base::getCMAKE_hpGEM_SOURCE_DIR() +
-                               "/tests/files/"s + "advectionMesh"s +
-                               std::to_string(i + 1) + ".hpgem"s;
+    // For recomputing the error tables
+    bool ignoreFailures = true;
 
-        if (dim[i] == 1) {
-            Advection<1> test(fileName, p[i]);
-            error = test.createAndSolve(T[i], nT[i]);
-            std::cout << "Error: " << error << "\n";
-            logger.assert_always((std::abs(error - errors[i]) < 1e-8),
-                                 "comparison to old results");
-        } else if (dim[i] == 2) {
-            Advection<2> test(fileName, p[i]);
-            error = test.createAndSolve(T[i], nT[i]);
-            std::cout << "Error: " << error << "\n";
-            logger.assert_always((std::abs(error - errors[i]) < 1e-8),
-                                 "comparison to old results");
-        } else {
-            Advection<3> test(fileName, p[i]);
-            error = test.createAndSolve(T[i], nT[i]);
-            std::cout << "Error: " << error << "\n";
-            logger.assert_always((std::abs(error - errors[i]) < 1e-8),
-                                 "comparison to old results");
-        }
-    }
+    AdvectionParameters dim1Params = {1, 0.1, 10};
+    // Minimum of 4 elements
+    ConvergenceTestSet dim1Meshes = {getUnitSegmentPeriodicMeshes(2),
+                                     {
+                                         6.61064338e-02,  //------
+                                         1.79958457e-02,  //  3.67
+                                         5.18359531e-03,  //  3.47
+                                         1.51019916e-03,  //  3.43
+                                     }};
+
+    runAdvectionTestSet<1>(dim1Meshes, dim1Params, ignoreFailures);
+
+    ConvergenceTestSet dim2P1Meshes = {getUnitSquarePeriodicTriangleMeshes(),
+                                       {
+                                           1.03487477e-01,  //------
+                                           2.28412617e-02,  //  4.53
+                                           6.75474161e-03,  //  3.38
+                                           2.01183288e-03,  //  3.36
+                                           5.54617877e-04,  //  3.63
+                                       }};
+    AdvectionParameters dim2P1Params = {1, 0.1, 10};
+    runAdvectionTestSet<2>(dim2P1Meshes, dim2P1Params, ignoreFailures);
+
+    ConvergenceTestSet dim3Meshes = {getUnitCubePeriodicCubeMeshes(0, 3),
+                                     {
+                                         1.03487477e-01,  //------
+                                         2.28412617e-02,  //  4.53
+                                         6.75474161e-03,  //  3.38
+                                         2.01183288e-03,  //  3.36
+                                         5.54617877e-04,  //  3.63
+                                     }};
+    AdvectionParameters dim3Params = {1, 0.02, 2};
+
     endClock = std::chrono::system_clock::now();
     elapsed_seconds = endClock - startClock;
     std::cout << "Elapsed time for solving the PDE: " << elapsed_seconds.count()

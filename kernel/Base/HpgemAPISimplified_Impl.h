@@ -351,11 +351,11 @@ LinearAlgebra::MiddleSizeVector::type
                                                 time);
     };
 
-    auto* rule = QuadratureRules::AllGaussQuadratureRules::instance()
-        .getRule(ptrElement->getReferenceGeometry(), 2*this->polynomialOrder_+2);
+    auto *rule = QuadratureRules::AllGaussQuadratureRules::instance().getRule(
+        ptrElement->getReferenceGeometry(), 2 * this->polynomialOrder_ + 2);
 
-            return this->elementIntegrator_.integrate(ptrElement,
-                                                      integrandFunction, rule);
+    return this->elementIntegrator_.integrate(ptrElement, integrandFunction,
+                                              rule);
 }
 
 /// \param[in] solutionVectorId index of the time integration vector where the
@@ -935,8 +935,8 @@ bool HpgemAPISimplified<DIM>::solve(const double initialTime,
     const std::string outputFileNameVTK = outputFileName_;
 
     registerVTKWriteFunctions();
-    Output::VTKTimeDependentWriter<DIM> VTKWriter(outputFileNameVTK,
-                                                  this->meshes_[0]);
+    Output::VTKTimeDependentWriter<DIM> VTKWriter(
+        outputFileNameVTK, this->meshes_[0], this->polynomialOrder_);
 
     // Create output files for Tecplot.
 #ifdef HPGEM_USE_MPI

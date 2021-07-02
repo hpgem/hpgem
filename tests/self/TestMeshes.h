@@ -41,19 +41,67 @@
 #include "string"
 #include "vector"
 #include "hpgem-cmake.h"
+#include <limits>
 
 namespace hpgem {
+
+namespace {
+
+const std::size_t ALL_ENTRIES = std::numeric_limits<std::size_t>::max();
+
+/**
+ * Helper function to extra a subrange from a vector
+ * @param source The source vector
+ * @param minLevel The index of the first entry
+ * @param maxLevel The index on past the last entry.
+ * @return The subrange [minLevel, maxLevel)
+ */
+std::vector<std::string> limit(const std::vector<std::string>& source,
+                               std::size_t minLevel, std::size_t maxLevel) {
+    logger.assert_always(
+        minLevel < source.size(),
+        "Minimum % needs to be smaller than the number of meshes %", minLevel,
+        source.size());
+    logger.assert_always(
+        minLevel <= maxLevel,
+        "Maximum % needs to be at least larger than the minimum %", maxLevel,
+        minLevel);
+    if (maxLevel == ALL_ENTRIES) {
+        maxLevel = source.size();
+    } else if (maxLevel > source.size()) {
+        logger(WARN, "No mesh at level %", maxLevel);
+        maxLevel = source.size();
+    }
+    return std::vector<std::string>(source.begin() + minLevel,
+                                    source.begin() + maxLevel);
+}
+}  // namespace
 
 /**
  * Mesh for the unit line segment. Each mesh is a complete refinement of the
  * previous mesh starting at a single element.
  * @return The file names to the meshes
  */
-std::vector<std::string> getUnitSegmentMeshes() {
+std::vector<std::string> getUnitSegmentMeshes(
+    std::size_t minLevel = 0, std::size_t maxLevel = ALL_ENTRIES) {
     std::string prefix = getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/";
-    return {prefix + "unitLineN1.hpgem",  prefix + "unitLineN2.hpgem",
-            prefix + "unitLineN4.hpgem",  prefix + "unitLineN8.hpgem",
-            prefix + "unitLineN16.hpgem", prefix + "unitLineN32.hpgem"};
+    return limit({prefix + "unitLineN1.hpgem", prefix + "unitLineN2.hpgem",
+                  prefix + "unitLineN4.hpgem", prefix + "unitLineN8.hpgem",
+                  prefix + "unitLineN16.hpgem", prefix + "unitLineN32.hpgem"},
+                 minLevel, maxLevel);
+}
+
+/**
+ * Same as getUnitSegmentPeriodicMeshes(), with periodic boundary.
+ */
+std::vector<std::string> getUnitSegmentPeriodicMeshes(
+    std::size_t minLevel = 0, std::size_t maxLevel = ALL_ENTRIES) {
+    std::string prefix = getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/";
+    return limit(
+        {prefix + "unitLineN1Per.hpgem", prefix + "unitLineN2Per.hpgem",
+         prefix + "unitLineN4Per.hpgem", prefix + "unitLineN8Per.hpgem",
+         prefix + "unitLineN16Per.hpgem", prefix + "unitLineN32Per.hpgem"},
+        minLevel, maxLevel);
 }
 
 /**
@@ -61,15 +109,32 @@ std::vector<std::string> getUnitSegmentMeshes() {
  * refinements of a mesh with a pair of triangles.
  * @return The file names to the meshes
  */
-std::vector<std::string> getUnitSquareTriangleMeshes() {
+std::vector<std::string> getUnitSquareTriangleMeshes(
+    std::size_t minLevel = 0, std::size_t maxLevel = ALL_ENTRIES) {
     std::string prefix = getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/";
-    return {prefix + "unitSquareTrianglesN1.hpgem",
-            prefix + "unitSquareTrianglesN2.hpgem",
-            prefix + "unitSquareTrianglesN4.hpgem",
-            prefix + "unitSquareTrianglesN8.hpgem",
-            prefix + "unitSquareTrianglesN16.hpgem",
-            prefix + "unitSquareTrianglesN32.hpgem",
-            prefix + "unitSquareTrianglesN64.hpgem"};
+    return limit({prefix + "unitSquareTrianglesN1.hpgem",
+                  prefix + "unitSquareTrianglesN2.hpgem",
+                  prefix + "unitSquareTrianglesN4.hpgem",
+                  prefix + "unitSquareTrianglesN8.hpgem",
+                  prefix + "unitSquareTrianglesN16.hpgem",
+                  prefix + "unitSquareTrianglesN32.hpgem",
+                  prefix + "unitSquareTrianglesN64.hpgem"},
+                 minLevel, maxLevel);
+}
+
+/**
+ * Same as getUnitSquareTriangleMeshes, but with periodic boundaries. As result
+ * the smallest mesh starts with 4x4 squares divided into triangles.
+ */
+std::vector<std::string> getUnitSquarePeriodicTriangleMeshes(
+    std::size_t minLevel = 0, std::size_t maxLevel = ALL_ENTRIES) {
+    std::string prefix = getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/";
+    return limit({prefix + "unitSquareTrianglesN4Per.hpgem",
+                  prefix + "unitSquareTrianglesN8Per.hpgem",
+                  prefix + "unitSquareTrianglesN16Per.hpgem",
+                  prefix + "unitSquareTrianglesN32Per.hpgem",
+                  prefix + "unitSquareTrianglesN64Per.hpgem"},
+                 minLevel, maxLevel);
 }
 
 /**
@@ -77,25 +142,49 @@ std::vector<std::string> getUnitSquareTriangleMeshes() {
  * of a mesh with a single cube.
  * @return The file names to the meshes
  */
-std::vector<std::string> getUnitCubeCubeMeshes() {
+std::vector<std::string> getUnitCubeCubeMeshes(
+    std::size_t minLevel = 0, std::size_t maxLevel = ALL_ENTRIES) {
     std::string prefix = getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/";
-    return {
-        prefix + "unitCubeN1.hpgem", prefix + "unitCubeN2.hpgem",
-        prefix + "unitCubeN4.hpgem", prefix + "unitCubeN8.hpgem",
-        prefix + "unitCubeN16.hpgem",
-    };
+    return limit(
+        {
+            prefix + "unitCubeN1.hpgem",
+            prefix + "unitCubeN2.hpgem",
+            prefix + "unitCubeN4.hpgem",
+            prefix + "unitCubeN8.hpgem",
+            prefix + "unitCubeN16.hpgem",
+        },
+        minLevel, maxLevel);
 }
 
 /**
- * Meshes for the unit cube using tetrahedra. The meshes are subsequent refinements
- * of a mesh with a single cube.
+ * Same as getUnitCubeCubeMeshes but with periodic boundaries.
+ */
+std::vector<std::string> getUnitCubePeriodicCubeMeshes(
+    std::size_t minLevel = 0, std::size_t maxLevel = ALL_ENTRIES) {
+    std::string prefix = getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/";
+    return limit(
+        {
+            prefix + "unitCubeN1Per.hpgem",
+            prefix + "unitCubeN2Per.hpgem",
+            prefix + "unitCubeN4Per.hpgem",
+            prefix + "unitCubeN8Per.hpgem",
+            prefix + "unitCubeN16Per.hpgem",
+        },
+        minLevel, maxLevel);
+}
+
+/**
+ * Meshes for the unit cube using tetrahedra. The meshes are subsequent
+ * refinements of a mesh with a single cube.
  * @return The file names to the meshes
  */
 std::vector<std::string> getUnitCubeTetMeshes() {
     std::string prefix = getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/";
     return {
-        prefix + "unitCubeN1Tet.hpgem", prefix + "unitCubeN2Tet.hpgem",
-        prefix + "unitCubeN4Tet.hpgem", prefix + "unitCubeN8Tet.hpgem",
+        prefix + "unitCubeN1Tet.hpgem",
+        prefix + "unitCubeN2Tet.hpgem",
+        prefix + "unitCubeN4Tet.hpgem",
+        prefix + "unitCubeN8Tet.hpgem",
     };
 }
 

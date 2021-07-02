@@ -45,7 +45,7 @@
 
 #include "Logger.h"
 #include "../TestMeshes.h"
-#include "ConvergenceTest.h"
+#include "../ConvergenceTest.h"
 
 using namespace hpgem;
 

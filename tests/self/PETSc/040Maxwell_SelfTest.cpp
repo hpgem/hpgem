@@ -45,7 +45,7 @@
 #include "Base/HCurlConformingTransformation.h"
 
 #include "Logger.h"
-#include "ConvergenceTest.h"
+#include "../ConvergenceTest.h"
 #include "../TestMeshes.h"
 
 using namespace hpgem;
