@@ -300,7 +300,7 @@ int main(int argc, char** argv) {
     Base::parse_options(argc, argv);
 
     PoissonTest test8(getUnitSquareTriangleMeshes()[3], 5, 8);
-    test8.solveSteadyStateWithPetsc(true);
+    test8.solveSteadyStateWithPetsc(false);
     // actual test is done by comparing output files
     return 0;
 }
