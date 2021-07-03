@@ -67,9 +67,10 @@ class ZoneInfoStructureDefinition : public StructureDescription {
                                 double defaultEpsilon = std::nan(""))
         : regexes_(std::move(regexes)),
           epsilons_(std::move(epsilons)),
-          defaultEpsilon_(defaultEpsilon){logger.assert_always(
-            regexes_.size() == epsilons_.size(),
-            "Regexes not matching material information");};
+          defaultEpsilon_(defaultEpsilon) {
+        logger.assert_always(regexes_.size() == epsilons_.size(),
+                             "Regexes not matching material information");
+    };
 
     ElementInfos* createElementInfo(const Base::Element* element) final;
 
@@ -79,6 +80,6 @@ class ZoneInfoStructureDefinition : public StructureDescription {
     double defaultEpsilon_;
 };
 
-}
+}  // namespace DGMax
 
 #endif  // HPGEM_ZONESTRUCTUREDESCRIPTION_H

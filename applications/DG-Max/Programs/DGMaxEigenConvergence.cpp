@@ -121,7 +121,8 @@ void runWithDimension() {
 
     std::unique_ptr<DGMax::AbstractEVConvergenceTest<DIM>> convergenceTest;
     DGMax::EVTestPoint<DIM> testPoint(
-        {0.5, 0.8}, DGMax::structureFromInt(structureArg.getValue()), numFrequencies);
+        {0.5, 0.8}, DGMax::structureFromInt(structureArg.getValue()),
+        numFrequencies);
     if (method.getValue() == "DGMAX") {
         DGMaxEigenvalueBase::SolverConfig config;
         config.useHermitian_ = true;

@@ -51,7 +51,7 @@ void DivDGMaxEVConvergenceTest<DIM>::runInternal(
     logger.assert_always(level < meshFileNames_.size(), "No such mesh");
 
     Base::ConfigurationData configData(2, 1);
-    PredefinedStructureDescription structure (testCase_.getStructureId(), DIM);
+    PredefinedStructureDescription structure(testCase_.getStructureId(), DIM);
     auto mesh =
         DGMax::readMesh<DIM>(meshFileNames_[level], &configData, structure);
     DGMaxLogger(INFO, "Loaded mesh % with % local elements.",

@@ -51,5 +51,5 @@ int Zone::matchName(const std::vector<std::regex> &regexes) const {
     }
     return -1;
 }
-}
-}
+}  // namespace Base
+}  // namespace hpgem

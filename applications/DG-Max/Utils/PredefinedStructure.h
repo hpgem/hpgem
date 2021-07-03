@@ -42,7 +42,6 @@
 
 namespace DGMax {
 
-
 // Predefined structures
 enum class PredefinedStructure : std::size_t {
     VACUUM = 0,
@@ -62,18 +61,18 @@ PredefinedStructure structureFromInt(std::size_t value);
 class PredefinedStructureDescription : public StructureDescription {
    public:
     PredefinedStructureDescription(PredefinedStructure structure,
-                                  std::size_t dimension)
+                                   std::size_t dimension)
         : structure_(structure), dimension(dimension){};
 
     ElementInfos* createElementInfo(const Base::Element* element) final;
 
    private:
-    template<std::size_t DIM>
+    template <std::size_t DIM>
     ElementInfos* createElementInfoDim(const Base::Element* element) const;
 
     PredefinedStructure structure_;
     std::size_t dimension;
 };
-}
+}  // namespace DGMax
 
 #endif  // HPGEM_PREDEFINEDSTRUCTURE_H

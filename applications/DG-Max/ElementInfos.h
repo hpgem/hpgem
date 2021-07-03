@@ -51,6 +51,5 @@ class ElementInfos : public hpgem::Base::UserElementData {
    public:
     const double epsilon_;
     ElementInfos(double epsilon);
-
 };
 #endif  // HPGEM_APP_ELEMENTINFOS_H

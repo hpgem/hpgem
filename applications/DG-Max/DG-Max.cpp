@@ -62,7 +62,6 @@
 #include "Utils/StructureDescription.h"
 #include "Utils/PredefinedStructure.h"
 
-
 using namespace hpgem;
 
 auto& p = Base::register_argument<std::size_t>(
