@@ -51,11 +51,13 @@ template <std::size_t DIM>
 PointPath<DIM> parsePath(const std::string& path);
 
 /// Heuristically determine the way to determine the structure description.
-/// It accepts two forms:
+/// It accepts three forms:
 ///   - A single integer: the index into the predefined structures
 ///   - A filename: The file should contain lines of the form 'regex,epsilon',
 ///     where regex is a regular expression that matches some of the zones and
 ///     epsilon is the corresponding epsilon.
+///   - An inline version of the filename using where each regex,epsilon pair is
+///     separated by a semicolon. E.g. regex1,1;regex2,12.1
 ///
 /// \param input The index or file name
 /// \param dim The dimension of the mesh

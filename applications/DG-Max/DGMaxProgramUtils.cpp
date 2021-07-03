@@ -151,18 +151,18 @@ template PointPath<2> parsePath(const std::string& path);
 template PointPath<3> parsePath(const std::string& path);
 
 std::unique_ptr<ZoneInfoStructureDefinition> readZonedDescription(
-    std::ifstream& file) {
+    std::istream& file, char separator) {
     std::string line;
     std::vector<std::regex> zoneRegexes;
     std::vector<double> zoneEpsilons;
     std::size_t lineNumber = 0;
     while (!file.eof()) {
-        std::getline(file, line);
+        std::getline(file, line, separator);
         std::size_t commaLoc = line.find_last_of(',');
         logger.assert_always(commaLoc != std::string::npos,
                              "No comma found on line %: line", lineNumber,
                              line);
-        std::string regexStr = line.substr(0, commaLoc );
+        std::string regexStr = line.substr(0, commaLoc);
         std::regex regex(regexStr);
 
         std::string epsilonStr = line.substr(commaLoc + 1);
@@ -202,12 +202,17 @@ std::unique_ptr<StructureDescription> determineStructureDescription(
         DGMaxLogger(INFO, "Using predefined structure %", value);
         return std::make_unique<PredefinedStructureDescription>(
             DGMax::structureFromInt(value), dim);
+    } else if (input.find(',') != std::string::npos) {
+        // Inline regexes
+        std::istringstream iinput(input);
+        return readZonedDescription(iinput, ';');
     }
+
     std::ifstream file;
     file.open(input);
     if (file.good()) {
         DGMaxLogger(INFO, "Reading structure defined in file %", input);
-        return readZonedDescription(file);
+        return readZonedDescription(file, '\n');
     }
 
     logger.assert_always(
