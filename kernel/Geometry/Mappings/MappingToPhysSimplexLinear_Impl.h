@@ -53,11 +53,11 @@ Geometry::PointPhysical<DIM>
     logger.assert_debug(pointReference.size() == DIM,
                         "Reference point has the wrong dimension");
     Geometry::PointPhysical<DIM> pointPhysical =
-        geometry->getLocalNodeCoordinates(0);
+        this->geometry_->getLocalNodeCoordinates(0);
     for (std::size_t i = 1; i <= DIM; ++i) {
         Geometry::PointPhysical<DIM> next =
-            geometry->getLocalNodeCoordinates(i);
-        next = next - geometry->getLocalNodeCoordinates(0);
+            this->geometry_->getLocalNodeCoordinates(i);
+        next = next - this->geometry_->getLocalNodeCoordinates(0);
         pointPhysical += pointReference[i - 1] * next;
     }
     return pointPhysical;
@@ -68,7 +68,8 @@ Geometry::PointReference<DIM>
     Geometry::MappingToPhysSimplexLinear<DIM>::inverseTransform(
         const PointPhysical<DIM>& pointPhysical) const {
     LinearAlgebra::SmallVector<DIM> offSet =
-        (pointPhysical - geometry->getLocalNodeCoordinates(0)).getCoordinates();
+        (pointPhysical - this->geometry_->getLocalNodeCoordinates(0))
+            .getCoordinates();
     calcJacobian({}).solve(offSet);
     return PointReference<DIM>{offSet};
 }
@@ -82,10 +83,10 @@ Geometry::Jacobian<DIM, DIM>
                         "Reference point has the wrong dimension");
     Jacobian<DIM, DIM> jacobian;
     const Geometry::PointPhysical<DIM>& first =
-        geometry->getLocalNodeCoordinates(0);
+        this->geometry_->getLocalNodeCoordinates(0);
     for (std::size_t i = 0; i < DIM; i++) {
         const PointPhysical<DIM>& point =
-            geometry->getLocalNodeCoordinates(i + 1);
+            this->geometry_->getLocalNodeCoordinates(i + 1);
         for (std::size_t j = 0; j < DIM; j++) {
             jacobian(j, i) = point[j] - first[j];
         }

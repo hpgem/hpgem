@@ -44,11 +44,9 @@
 #include "Logger.h"
 
 #include "Geometry/ReferenceLine.h"
-#include "Geometry/PhysicalLine.h"
+#include "Geometry/PhysicalGeometry.h"
 #include "Geometry/ReferenceSquare.h"
-#include "Geometry/PhysicalQuadrilateral.h"
 #include "Geometry/ReferenceCube.h"
-#include "Geometry/PhysicalHexahedron.h"
 #include "Geometry/PointReference.h"
 #include "Geometry/Jacobian.h"
 #include "Base/L2Norm.h"
@@ -96,9 +94,9 @@ TEST_CASE("010MappingToPhysicalHypercubeLinear_UnitTest",
 
     Geometry::ReferenceLine& rGeom = Geometry::ReferenceLine::Instance();
 
-    Geometry::PhysicalLine oops(pointIndexes, nodes1D);
+    Geometry::PhysicalGeometry<1> oops(pointIndexes, nodes1D, &rGeom);
     nodes1D[6][0] += 0.1;
-    Geometry::PhysicalLine pGeom(pointIndexes, nodes1D);
+    Geometry::PhysicalGeometry<1> pGeom(pointIndexes, nodes1D, &rGeom);
 
     Geometry::MappingToPhysHypercubeLinear<1> mapping1D(&pGeom),
         reinit1D(&oops);
@@ -140,8 +138,8 @@ TEST_CASE("010MappingToPhysicalHypercubeLinear_UnitTest",
         CHECK((std::abs(point1D[0] - compare1D[0]) < 1e-12));
     }
 
-    INFO("getTargetDimension");
-    CHECK((mapping1D.getTargetDimension() == 1));
+    INFO("getDimension");
+    CHECK((mapping1D.getDimension() == 1));
     // dim2
     pointIndexes[1] = 7;
 
@@ -166,10 +164,10 @@ TEST_CASE("010MappingToPhysicalHypercubeLinear_UnitTest",
 
     Geometry::ReferenceSquare& rGeom2D = Geometry::ReferenceSquare::Instance();
 
-    Geometry::PhysicalQuadrilateral oops2D(pointIndexes, nodes2D);
+    Geometry::PhysicalGeometry<2> oops2D(pointIndexes, nodes2D, &rGeom2D);
     nodes2D[13][0] += 0.5;
     nodes2D[13][1] -= 0.5;
-    Geometry::PhysicalQuadrilateral pGeom2D(pointIndexes, nodes2D);
+    Geometry::PhysicalGeometry<2> pGeom2D(pointIndexes, nodes2D, &rGeom2D);
 
     Geometry::MappingToPhysHypercubeLinear<2> mapping2D(&pGeom2D),
         reinit2D(&oops2D);
@@ -246,8 +244,8 @@ TEST_CASE("010MappingToPhysicalHypercubeLinear_UnitTest",
         CHECK(std::abs(point2D[1] - compare2D[1]) < 1e-12);
     }
 
-    INFO("getTargetDimension");
-    CHECK((mapping2D.getTargetDimension() == 2));
+    INFO("getDimension");
+    CHECK((mapping2D.getDimension() == 2));
     // dim3
     pointIndexes[3] = 18;
 
@@ -288,11 +286,11 @@ TEST_CASE("010MappingToPhysicalHypercubeLinear_UnitTest",
 
     Geometry::ReferenceCube& rGeom3D = Geometry::ReferenceCube::Instance();
 
-    Geometry::PhysicalHexahedron oops3D(pointIndexes, nodes3D);
+    Geometry::PhysicalGeometry<3> oops3D(pointIndexes, nodes3D, &rGeom3D);
     nodes3D[13][0] = 2.8;
     nodes3D[13][1] = 4.2;
     nodes3D[13][2] = 4.;
-    Geometry::PhysicalHexahedron pGeom3D(pointIndexes, nodes3D);
+    Geometry::PhysicalGeometry<3> pGeom3D(pointIndexes, nodes3D, &rGeom3D);
 
     Geometry::MappingToPhysHypercubeLinear<3> mapping3D(&pGeom3D),
         reinit3D(&oops3D);
@@ -393,6 +391,6 @@ TEST_CASE("010MappingToPhysicalHypercubeLinear_UnitTest",
         CHECK(std::abs(point3D[2] - compare3D[2]) < 1e-12);
     }
 
-    INFO("getTargetDimension");
-    CHECK((mapping3D.getTargetDimension() == 3));
+    INFO("getDimension");
+    CHECK((mapping3D.getDimension() == 3));
 }

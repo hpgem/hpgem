@@ -53,6 +53,7 @@ using idx_t = std::size_t;
 #include "centaur.h"
 #include "meshData.h"
 #include "output.h"
+#include "gmsh.h"
 
 using namespace hpgem;
 
@@ -73,12 +74,38 @@ void printMeshStatistics(const Preprocessor::Mesh<dimension>& mesh) {
     logger(INFO, "Mesh counts");
     logger(INFO, "\tElements: %", mesh.getNumberOfElements());
     logger(INFO, "\tFaces: %", mesh.getNumberOfFaces());
+    {
+        std::size_t boundaryFaces = 0;
+        std::size_t internalFaces = 0;
+        for (const Preprocessor::MeshEntity<dimension - 1, dimension>& face :
+             mesh.getFaces()) {
+            switch (face.getNumberOfElements()) {
+                case 1:
+                    boundaryFaces++;
+                    break;
+                case 2:
+                    internalFaces++;
+                    break;
+                case 0:
+                    logger(WARN, "Orphaned face");
+                    break;
+                default:
+                    logger.assert_always(false, "A face with % elements",
+                                         face.getNumberOfElements());
+            }
+        }
+        logger(INFO, "\t\tInternal: %", internalFaces);
+        logger(INFO, "\t\tBoundary: %", boundaryFaces);
+        // Statistics about faces
+    }
+
     if (dimension > 2) {
         logger(INFO, "\tEdges: %", mesh.getNumberOfEdges());
     }
     if (dimension > 1) {
         logger(INFO, "\tNodes: %", mesh.getNumberOfNodes());
     }
+    logger(INFO, "\tCoordinates: %", mesh.getNodeCoordinates().size());
 
     if (!mesh.getNodeCoordinates().empty()) {
         LinearAlgebra::SmallVector<dimension> minCoord, maxCoord;
@@ -92,6 +119,11 @@ void printMeshStatistics(const Preprocessor::Mesh<dimension>& mesh) {
             }
         }
         logger(INFO, "Mesh bounding box min % - max %", minCoord, maxCoord);
+    }
+
+    logger(INFO, "Zones:", mesh.getZoneNames().size());
+    for (const std::string& zone : mesh.getZoneNames()) {
+        logger(INFO, "\t%", zone);
     }
 }
 
@@ -212,13 +244,35 @@ int main(int argc, char** argv) {
                     centaurFile.getDimension(), dimension.getValue());
             }
             if (centaurFile.getDimension() == 2) {
-                processMesh(Preprocessor::readFile<2>(centaurFile));
+                processMesh(Preprocessor::fromMeshSource<2>(centaurFile));
             } else if (centaurFile.getDimension() == 3) {
-                processMesh(Preprocessor::readFile<3>(centaurFile));
+                processMesh(Preprocessor::fromMeshSource<3>(centaurFile));
             } else {
                 logger(ERROR,
                        "Centaur file should not be able to have dimension %",
                        centaurFile.getDimension());
+            }
+        } else if ((fileType.isUsed() && fileType.getValue() == "gmsh") ||
+                   (!fileType.isUsed() &&
+                    fileName.compare(nameSize - 4, 4, ".msh") == 0)) {
+            auto gmshFile = Preprocessor::GmshReader(inputFileName.getValue());
+            if (dimension.isUsed()) {
+                logger.assert_always(
+                    dimension.getValue() == gmshFile.getDimension(),
+                    "The input file reports being for dimension %, but "
+                    "the "
+                    "code was started for dimension %",
+                    gmshFile.getDimension(), dimension.getValue());
+            }
+            if (gmshFile.getDimension() == 2) {
+                processMesh(Preprocessor::fromMeshSource<2>(gmshFile));
+            } else if (gmshFile.getDimension() == 3) {
+                processMesh(Preprocessor::fromMeshSource<3>(gmshFile));
+            } else {
+                logger(ERROR,
+                       "gmsh file should not be able to have "
+                       "dimension %",
+                       gmshFile.getDimension());
             }
         } else {
             logger(ERROR, "Don't know what to do with this file");

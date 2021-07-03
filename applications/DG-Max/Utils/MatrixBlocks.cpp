@@ -52,6 +52,30 @@ void MatrixBlocks::insertBlock(std::vector<PetscScalar>& storage,
     logger.assert_debug(isRowOriented == PETSC_FALSE,
                         "Requires column orientation");
 #endif
+
+    // Work around for PETSc not correctly ignoring zeros in MatSetValues, see
+    // https://gitlab.com/petsc/petsc/-/merge_requests/3901
+    // We therefore insert each entry individually and suppress the zeros.
+    for (std::size_t i = 0; i < rowIndices_.size(); ++i) {
+        for (std::size_t j = 0; j < columnIndices_.size(); ++j) {
+            std::size_t row = rowIndices_[i];
+            std::size_t col = columnIndices_[j];
+            PetscScalar value;
+            if (!hermitianPart) {
+                value = storage[rowIndices_.size() * j + i];
+            } else {
+                std::swap(row, col);
+                value = storage[getBlockSize() + columnIndices_.size() * i + j];
+            }
+            if (value == 0.0) {
+                continue;
+            }
+            err = MatSetValue(mat, row, col, value, INSERT_VALUES);
+            CHKERRABORT(PETSC_COMM_WORLD, err);
+        }
+    }
+
+    /* Replacement code for when PETSc is fixed
     if (!hermitianPart) {
         // Normal block (block1)
         err =
@@ -66,6 +90,7 @@ void MatrixBlocks::insertBlock(std::vector<PetscScalar>& storage,
                            rowIndices_.data(), data, INSERT_VALUES);
     }
     CHKERRABORT(PETSC_COMM_WORLD, err);
+     */
 }
 
 void MatrixBlocks::validate() const {

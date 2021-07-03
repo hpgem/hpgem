@@ -38,6 +38,7 @@
 
 #include "MappingToPhysHypercubeLinear.h"
 #include <vector>
+#include <limits>
 #include "Geometry/PhysicalGeometry.h"
 #include "Geometry/PointReference.h"
 #include "Geometry/Jacobian.h"
@@ -52,7 +53,7 @@ namespace Geometry {
 // =============================================================================================
 MappingToPhysHypercubeLinear<1>::MappingToPhysHypercubeLinear(
     const PhysicalGeometry<1>* const& physicalGeometry)
-    : MappingReferenceToPhysical(physicalGeometry) {
+    : MappingReferenceToPhysical<1>(physicalGeometry) {
     logger.assert_debug(physicalGeometry != nullptr,
                         "Invalid physical geometry passed");
     mid = slope = 0.0;
@@ -79,8 +80,8 @@ PointReference<1> MappingToPhysHypercubeLinear<1>::inverseTransform(
 }
 
 void MappingToPhysHypercubeLinear<1>::reinit() {
-    PointPhysical<1> p0 = this->geometry->getLocalNodeCoordinates(0);
-    PointPhysical<1> p1 = this->geometry->getLocalNodeCoordinates(1);
+    PointPhysical<1> p0 = this->geometry_->getLocalNodeCoordinates(0);
+    PointPhysical<1> p1 = this->geometry_->getLocalNodeCoordinates(1);
     mid = 0.5 * (p1[0] + p0[0]);
     slope = 0.5 * (p1[0] - p0[0]);
 }
@@ -104,7 +105,7 @@ Jacobian<1, 1> MappingToPhysHypercubeLinear<1>::calcJacobian(
 
 MappingToPhysHypercubeLinear<2>::MappingToPhysHypercubeLinear(
     const PhysicalGeometry<2>* const& physicalGeometry)
-    : MappingReferenceToPhysical(physicalGeometry) {
+    : MappingReferenceToPhysical<2>(physicalGeometry) {
     logger.assert_debug(physicalGeometry != nullptr,
                         "Invalid physical geometry passed");
     reinit();
@@ -180,10 +181,10 @@ void MappingToPhysHypercubeLinear<2>::reinit() {
     // a2  = 0.25 * (p2 - p0 + p3 - p1);
     // a12 = 0.25 * (p3 - p1 + p0 - p2);
 
-    a0 = geometry->getLocalNodeCoordinates(0);
-    a1 = geometry->getLocalNodeCoordinates(1);
-    a2 = geometry->getLocalNodeCoordinates(2);
-    PointPhysical<2> temp = geometry->getLocalNodeCoordinates(3);
+    a0 = geometry_->getLocalNodeCoordinates(0);
+    a1 = geometry_->getLocalNodeCoordinates(1);
+    a2 = geometry_->getLocalNodeCoordinates(2);
+    PointPhysical<2> temp = geometry_->getLocalNodeCoordinates(3);
     a0 += temp;
     a12 = a1;
     a12 += a2;
@@ -213,7 +214,7 @@ bool MappingToPhysHypercubeLinear<2>::isValidPoint(
 
 MappingToPhysHypercubeLinear<3>::MappingToPhysHypercubeLinear(
     const PhysicalGeometry<3>* const& physicalGeometry)
-    : MappingReferenceToPhysical(physicalGeometry) {
+    : MappingReferenceToPhysical<3>(physicalGeometry) {
     logger.assert_debug(physicalGeometry != nullptr,
                         "Invalid physical geometry passed");
     reinit();
@@ -284,14 +285,14 @@ Jacobian<3, 3> MappingToPhysHypercubeLinear<3>::calcJacobian(
 }
 
 void MappingToPhysHypercubeLinear<3>::reinit() {
-    PointPhysical<3> p0 = geometry->getLocalNodeCoordinates(0);
-    PointPhysical<3> p1 = geometry->getLocalNodeCoordinates(1);
-    PointPhysical<3> p2 = geometry->getLocalNodeCoordinates(2);
-    PointPhysical<3> p3 = geometry->getLocalNodeCoordinates(3);
-    PointPhysical<3> p4 = geometry->getLocalNodeCoordinates(4);
-    PointPhysical<3> p5 = geometry->getLocalNodeCoordinates(5);
-    PointPhysical<3> p6 = geometry->getLocalNodeCoordinates(6);
-    PointPhysical<3> p7 = geometry->getLocalNodeCoordinates(7);
+    PointPhysical<3> p0 = geometry_->getLocalNodeCoordinates(0);
+    PointPhysical<3> p1 = geometry_->getLocalNodeCoordinates(1);
+    PointPhysical<3> p2 = geometry_->getLocalNodeCoordinates(2);
+    PointPhysical<3> p3 = geometry_->getLocalNodeCoordinates(3);
+    PointPhysical<3> p4 = geometry_->getLocalNodeCoordinates(4);
+    PointPhysical<3> p5 = geometry_->getLocalNodeCoordinates(5);
+    PointPhysical<3> p6 = geometry_->getLocalNodeCoordinates(6);
+    PointPhysical<3> p7 = geometry_->getLocalNodeCoordinates(7);
 
     a0 = 0.125 * (p0 + p1 + p2 + p3 + p4 + p5 + p6 + p7);
     a1 = 0.125 * (p1 - p0 + p3 - p2 + p5 - p4 + p7 - p6);
@@ -319,7 +320,7 @@ bool MappingToPhysHypercubeLinear<3>::isValidPoint(
 
 MappingToPhysHypercubeLinear<4>::MappingToPhysHypercubeLinear(
     const PhysicalGeometry<4>* const& physicalGeometry)
-    : MappingReferenceToPhysical(physicalGeometry) {
+    : MappingReferenceToPhysical<4>(physicalGeometry) {
     logger.assert_debug(physicalGeometry != nullptr,
                         "Invalid physical geometry passed");
     reinit();
@@ -385,7 +386,7 @@ Jacobian<4, 4> MappingToPhysHypercubeLinear<4>::calcJacobian(
 void MappingToPhysHypercubeLinear<4>::reinit() {
     std::array<PointPhysical<4>, 16> P;
     for (std::size_t i = 0; i < 16; ++i) {
-        P[i] = geometry->getLocalNodeCoordinates(i);
+        P[i] = geometry_->getLocalNodeCoordinates(i);
     }
 
     abar =

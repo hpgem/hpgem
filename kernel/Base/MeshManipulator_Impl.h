@@ -1119,8 +1119,8 @@ void MeshManipulator<DIM>::addEdgeBasisFunctionSet(
 
 template <std::size_t DIM>
 Base::Element *MeshManipulator<DIM>::addElement(
-    const std::vector<std::size_t> &globalNodeIndexes, std::size_t owner,
-    bool owning) {
+    const std::vector<std::size_t> &globalNodeIndexes, Zone &zone,
+    std::size_t owner, bool owning) {
     logger.assert_debug(
         [&]() -> bool {
             for (std::size_t i = 0; i < globalNodeIndexes.size(); ++i)
@@ -1130,7 +1130,7 @@ Base::Element *MeshManipulator<DIM>::addElement(
             return true;
         }(),
         "Trying to pass the same node twice");
-    auto result = theMesh_.addElement(globalNodeIndexes, owner, owning);
+    auto result = theMesh_.addElement(globalNodeIndexes, zone, owner, owning);
     return result;
 }
 
@@ -1396,7 +1396,8 @@ void MeshManipulator<DIM>::refine(
                 }
                 auto newElement = ElementFactory::instance().makeElement(
                     subElementNodeIndices, theMesh_.getNodeCoordinates(),
-                    element->getOwner(), element->isOwnedByCurrentProcessor());
+                    element->getZone(), element->getOwner(),
+                    element->isOwnedByCurrentProcessor());
                 subElements.push_back(newElement);
                 for (std::size_t j = 0;
                      j < refinementMapping->getSubElementReferenceGeometry(i)
@@ -1471,6 +1472,16 @@ void MeshManipulator<DIM>::refine(
         }
     }
 }
+namespace Detail {
+inline void readSegmentHeader(std::istream &stream,
+                              std::string expectedHeader) {
+    std::string line;
+    stream >> line;
+    logger.assert_always(line == expectedHeader,
+                         "Different segment header expected '%' but got '%'",
+                         expectedHeader, line);
+}
+}  // namespace Detail
 
 template <std::size_t DIM>
 void MeshManipulator<DIM>::readMesh(const std::string &filename) {
@@ -1502,9 +1513,17 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
     logger.assert_always(
         rawInput.substr(0, 4) == "mesh",
         "incorrect file type, please use the preprocessor first");
-    logger.assert_always(
-        rawInput == "mesh 1"s,
-        "This file is too new to be read by the current version of hpGEM");
+    // Extract the version
+    std::size_t version;
+    {
+        std::istringstream temp(rawInput.substr(4));
+        temp >> version;
+        logger.assert_always(version >= 1 && version <= 2,
+                             "Version % can't be read by this reader.",
+                             version);
+    }
+    // Header //
+    ////////////
     std::size_t numberOfNodes, numberOfElements, meshDimension;
     input >> numberOfNodes >> numberOfElements >> meshDimension;
     logger.assert_always(meshDimension == DIM,
@@ -1535,6 +1554,40 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
         "This mesh is targeting % parallel threads, but you are running on % "
         "threads, please rerun the preprocessor first",
         numberOfPartitions, MPIContainer::Instance().getNumberOfProcessors());
+
+    // ZONES //
+    ///////////
+
+    // The actual zone objects for each of the zones, as in mesh file order.
+    std::vector<std::reference_wrapper<Zone>> meshZones;
+    if (version == 1) {
+        // Zones are only present in version > 1, provide a default zone
+        Zone &zone = addZone("Main");
+        meshZones.emplace_back(zone);
+    } else {
+        Detail::readSegmentHeader(input, "zones");
+        // Number of meshZoneIndices
+        std::size_t numZones;
+        input >> numZones;
+        logger.assert_always(
+            numZones > 0 || numberOfElements == 0,
+            "Got a file with zero meshZoneIndices but with elements");
+        input.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        // Zone names
+        for (std::size_t i = 0; i < numZones; ++i) {
+            std::string zoneName;
+            getline(input, zoneName);
+            Zone &zone = addZone(zoneName);
+            meshZones.emplace_back(zone);
+        }
+    }
+
+    // NODES //
+    ///////////
+
+    if (version > 1) {
+        Detail::readSegmentHeader(input, "nodes");
+    }
 
     std::size_t processedNodes = 0;
     std::map<std::size_t, std::size_t> localNodeIndex;
@@ -1583,11 +1636,20 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
         processedNodes == localNumberOfNodes,
         "The mesh file lies about how many nodes are in this partition");
 
+    // Elements //
+    //////////////
+
+    if (version > 1) {
+        Detail::readSegmentHeader(input, "elements");
+    }
+
     std::map<std::size_t, Element *> actualElement;
 
     for (std::size_t i = 0; i < numberOfElements; ++i) {
+        // Read all the information about the element
         std::size_t nodesPerElement;
         input >> nodesPerElement;
+        // Read node + coordinate indices
         std::vector<std::size_t> coordinateIndices;
         std::vector<std::size_t> nodeNumbers;
         for (std::size_t j = 0; j < nodesPerElement; ++j) {
@@ -1597,29 +1659,46 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
                                         coordinateOffset);
             nodeNumbers.push_back(localNodeIndex[globalIndex]);
         }
+        // Owning partition (= MPI process id)
         std::size_t partition;
         input >> partition;
-        Base::Element *element = nullptr;
-        if (partition == processorID) {
-            element = addElement(coordinateIndices, partition, true);
-            actualElement[i] = element;
-            getMesh().getSubmesh().add(element);
-        }
+        // Shadow partitions (= MPI process ids where it is in the shadow layer)
         std::size_t numberOfShadowPartitions;
         input >> numberOfShadowPartitions;
+        std::vector<std::size_t> shadowParitions(numberOfShadowPartitions);
+        // Flag to keep track of whether it is in the shadow layer of this
+        // processor
+        bool inShadow = false;
+
         for (std::size_t j = 0; j < numberOfShadowPartitions; ++j) {
-            std::size_t shadowPartition;
-            input >> shadowPartition;
-            if (shadowPartition == processorID) {
-                element = addElement(coordinateIndices, partition, false);
-                actualElement[i] = element;
+            input >> shadowParitions[j];
+            inShadow |= processorID == shadowParitions[j];
+        }
+
+        std::size_t zoneIndex;
+        if (version == 1) {
+            // Version 1 did not have any zones, this uses the default
+            zoneIndex = 0;
+        } else {
+            input >> zoneIndex;
+        }
+        logger.assert_always(zoneIndex < meshZones.size(),
+                             "Zone index % out of bounds", zoneIndex);
+
+        // Create the element if needed
+        bool owning = partition == processorID;
+        if (owning || inShadow) {
+            Base::Element *element = addElement(
+                coordinateIndices, meshZones[zoneIndex], partition, owning);
+            actualElement[i] = element;
+            if (owning) {
+                getMesh().getSubmesh().add(element);
+                for (std::size_t &shadowPartition : shadowParitions) {
+                    getMesh().getSubmesh().addPush(element, shadowPartition);
+                }
+            } else {
                 getMesh().getSubmesh().addPull(element, partition);
             }
-            if (partition == processorID) {
-                getMesh().getSubmesh().addPush(element, shadowPartition);
-            }
-        }
-        if (element != nullptr) {
             for (std::size_t j = 0; j < nodeNumbers.size(); ++j) {
                 getNodesList()[nodeNumbers[j]]->addElement(element, j);
             }
@@ -1633,6 +1712,13 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
         getFacesList(IteratorType::GLOBAL).setPreOrderTraversal();
         getEdgesList(IteratorType::GLOBAL).setPreOrderTraversal();
     });
+
+    // FACES //
+    ///////////
+
+    if (version > 1 && DIM > 1) {
+        Detail::readSegmentHeader(input, "codim1");
+    }
 
     for (std::size_t i = 0; i < numberOfFaces; ++i) {
         std::size_t localNumberOfFaces;
@@ -1692,6 +1778,13 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
         if (!faceIsInPartition) {
             GlobalUniqueIndex::instance().getFaceIndex();
         }
+    }
+
+    // EDGES //
+    ///////////
+
+    if (version > 1 && DIM > 2) {
+        Detail::readSegmentHeader(input, "codim2");
     }
 
     for (std::size_t i = 0; i < numberOfEdges; ++i) {

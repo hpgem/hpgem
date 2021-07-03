@@ -42,66 +42,6 @@ namespace hpgem {
 
 namespace Geometry {
 
-PointPhysicalBase::operator PointPhysical<0> &() {
-    logger.assert_debug(typeid(*this) == typeid(PointPhysical<0>),
-                        "Trying to convert to a point of the wrong dimension");
-    return static_cast<PointPhysical<0>&>(*this);
-}
-
-PointPhysicalBase::operator PointPhysical<1> &() {
-    logger.assert_debug(typeid(*this) == typeid(PointPhysical<1>),
-                        "Trying to convert to a point of the wrong dimension");
-    return static_cast<PointPhysical<1>&>(*this);
-}
-
-PointPhysicalBase::operator PointPhysical<2> &() {
-    logger.assert_debug(typeid(*this) == typeid(PointPhysical<2>),
-                        "Trying to convert to a point of the wrong dimension");
-    return static_cast<PointPhysical<2>&>(*this);
-}
-
-PointPhysicalBase::operator PointPhysical<3> &() {
-    logger.assert_debug(typeid(*this) == typeid(PointPhysical<3>),
-                        "Trying to convert to a point of the wrong dimension");
-    return static_cast<PointPhysical<3>&>(*this);
-}
-
-PointPhysicalBase::operator PointPhysical<4> &() {
-    logger.assert_debug(typeid(*this) == typeid(PointPhysical<4>),
-                        "Trying to convert to a point of the wrong dimension");
-    return static_cast<PointPhysical<4>&>(*this);
-}
-
-PointPhysicalBase::operator const PointPhysical<0> &() const {
-    logger.assert_debug(typeid(*this) == typeid(PointPhysical<0>),
-                        "Trying to convert to a point of the wrong dimension");
-    return static_cast<const PointPhysical<0>&>(*this);
-}
-
-PointPhysicalBase::operator const PointPhysical<1> &() const {
-    logger.assert_debug(typeid(*this) == typeid(PointPhysical<1>),
-                        "Trying to convert to a point of the wrong dimension");
-    return static_cast<const PointPhysical<1>&>(*this);
-}
-
-PointPhysicalBase::operator const PointPhysical<2> &() const {
-    logger.assert_debug(typeid(*this) == typeid(PointPhysical<2>),
-                        "Trying to convert to a point of the wrong dimension");
-    return static_cast<const PointPhysical<2>&>(*this);
-}
-
-PointPhysicalBase::operator const PointPhysical<3> &() const {
-    logger.assert_debug(typeid(*this) == typeid(PointPhysical<3>),
-                        "Trying to convert to a point of the wrong dimension");
-    return static_cast<const PointPhysical<3>&>(*this);
-}
-
-PointPhysicalBase::operator const PointPhysical<4> &() const {
-    logger.assert_debug(typeid(*this) == typeid(PointPhysical<4>),
-                        "Trying to convert to a point of the wrong dimension");
-    return static_cast<const PointPhysical<4>&>(*this);
-}
-
 // output operator can just pretend it is a point of appropriate dimension
 std::ostream& operator<<(std::ostream& out, const PointPhysicalBase& point) {
     switch (point.size()) {

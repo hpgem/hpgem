@@ -40,6 +40,7 @@
 #define HPGEM_KERNEL_POINTREFERENCEBASE_H
 
 #include <cstdlib>
+#include "AbstractDimensionlessBase.h"
 
 namespace hpgem {
 
@@ -56,28 +57,8 @@ class PointReference;
 /// run-time checks to make sure everything in done correctly)
 // first define the base class, then define the subclass, then implement the
 // type conversion operators
-class PointReferenceBase {
-   public:
-    operator PointReference<0> &();
-
-    operator PointReference<1> &();
-
-    operator PointReference<2> &();
-
-    operator PointReference<3> &();
-
-    operator PointReference<4> &();
-
-    operator const PointReference<0> &() const;
-
-    operator const PointReference<1> &() const;
-
-    operator const PointReference<2> &() const;
-
-    operator const PointReference<3> &() const;
-
-    operator const PointReference<4> &() const;
-
+class PointReferenceBase
+    : public AbstractDimensionlessBase<PointReferenceBase, PointReference> {
    protected:
     PointReferenceBase() = default;
     virtual ~PointReferenceBase() = default;

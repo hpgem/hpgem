@@ -41,6 +41,7 @@
 #include "Logger.h"
 #include <algorithm>
 #include <complex>
+#include <limits>
 
 namespace hpgem {
 

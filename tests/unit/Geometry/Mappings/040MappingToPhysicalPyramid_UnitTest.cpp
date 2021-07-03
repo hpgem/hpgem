@@ -44,7 +44,7 @@
 #include "Logger.h"
 
 #include "Geometry/ReferencePyramid.h"
-#include "Geometry/PhysicalPyramid.h"
+#include "Geometry/PhysicalGeometry.h"
 #include "Geometry/PointPhysical.h"
 #include "Geometry/Jacobian.h"
 #include "Geometry/PointReference.h"
@@ -108,9 +108,9 @@ TEST_CASE("040MappingToPhysicalPyramid_UnitTest",
     Geometry::ReferencePyramid& rGeom3D =
         Geometry::ReferencePyramid::Instance();
 
-    Geometry::PhysicalPyramid oops3D(pointIndexes, nodes3D);
+    Geometry::PhysicalGeometry<3> oops3D{pointIndexes, nodes3D, &rGeom3D};
     pointIndexes[4] = 18;
-    Geometry::PhysicalPyramid pGeom3D(pointIndexes, nodes3D);
+    Geometry::PhysicalGeometry<3> pGeom3D{pointIndexes, nodes3D, &rGeom3D};
 
     Geometry::MappingToPhysPyramid mapping3D(&pGeom3D), reinit3D(&oops3D);
     reinit3D.reinit();
@@ -214,6 +214,6 @@ TEST_CASE("040MappingToPhysicalPyramid_UnitTest",
         CHECK(std::abs(point3D[2] - compare3D[2]) < 1e-12);
     }
 
-    INFO("getTargetDimension");
-    CHECK((mapping3D.getTargetDimension() == 3));
+    INFO("getDimension");
+    CHECK((mapping3D.getDimension() == 3));
 }

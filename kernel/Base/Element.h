@@ -85,8 +85,8 @@ class Element final : public Geometry::ElementGeometry, public ElementData {
             const CollectionOfBasisFunctionSets* basisFunctionSet,
             std::vector<Geometry::PointPhysical<DIM>>& allNodes,
             std::size_t numberOfUnkowns, std::size_t numberOfTimeLevels,
-            std::size_t id, std::size_t owner = 0, bool owning = true,
-            std::size_t numberOfElementMatrices = 0,
+            std::size_t id, Zone& zone, std::size_t owner = 0,
+            bool owning = true, std::size_t numberOfElementMatrices = 0,
             std::size_t numberOfElementVectors = 0);
 
     Element(const Element& other) = delete;
@@ -395,7 +395,7 @@ class Element final : public Geometry::ElementGeometry, public ElementData {
         return facesList_[localFaceNumber];
     }
 
-    const std::vector<Face*> getFacesList() const { return facesList_; }
+    const std::vector<Face*>& getFacesList() const { return facesList_; }
 
     Edge* getEdge(std::size_t localEdgeNumber) const {
         logger.assert_debug(localEdgeNumber < getNumberOfEdges(),
@@ -404,7 +404,7 @@ class Element final : public Geometry::ElementGeometry, public ElementData {
         return edgesList_[localEdgeNumber];
     }
 
-    const std::vector<Edge*> getEdgesList() const { return edgesList_; }
+    const std::vector<Edge*>& getEdgesList() const { return edgesList_; }
 
     const Node* getNode(std::size_t localNodeNumber) const {
         logger.assert_debug(localNodeNumber < getNumberOfNodes(),
@@ -420,7 +420,7 @@ class Element final : public Geometry::ElementGeometry, public ElementData {
         return nodesList_[localNodeNumber];
     }
 
-    const std::vector<Node*> getNodesList() const { return nodesList_; }
+    const std::vector<Node*>& getNodesList() const { return nodesList_; }
 
     /// Compute the face id of a face that is adjacent to the element.
     std::size_t getLocalId(const Base::Face* face) const {
@@ -576,12 +576,12 @@ Element::Element(const std::vector<std::size_t>& globalNodeIndexes,
                  const CollectionOfBasisFunctionSets* basisFunctionSet,
                  std::vector<Geometry::PointPhysical<DIM>>& allNodes,
                  std::size_t numberOfUnknowns, std::size_t numberOfTimeLevels,
-                 std::size_t id, std::size_t owner, bool owned,
+                 std::size_t id, Zone& zone, std::size_t owner, bool owned,
                  std::size_t numberOfElementMatrices,
                  std::size_t numberOfElementVectors)
     : ElementGeometry(globalNodeIndexes, allNodes),
-      ElementData(numberOfTimeLevels, numberOfUnknowns, numberOfElementMatrices,
-                  numberOfElementVectors),
+      ElementData(numberOfTimeLevels, numberOfUnknowns, zone,
+                  numberOfElementMatrices, numberOfElementVectors),
       quadratureRule_(nullptr),
       id_(id),
       basisFunctions_(basisFunctionSet, numberOfUnknowns),
@@ -821,7 +821,8 @@ std::vector<LinearAlgebra::SmallVector<DIM>> Element::getSolutionGradient(
     std::vector<std::size_t> numberOfBasisFunctions =
         std::vector<std::size_t>(numberOfUnknowns, 0);
     std::vector<LinearAlgebra::SmallVector<DIM>> solution(numberOfUnknowns);
-    auto jacobean = getReferenceToPhysicalMap()->calcJacobian(p);
+    auto jacobean =
+        getReferenceToPhysicalMap()->castDimension<DIM>().calcJacobian(p);
     jacobean = jacobean.transpose();
 
     LinearAlgebra::MiddleSizeVector data =

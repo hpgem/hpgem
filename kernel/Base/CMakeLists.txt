@@ -14,12 +14,13 @@ add_library(hpGEM_Base OBJECT
  		Edge.cpp
  		Node.cpp
 		HpgemAPISimplified.cpp
+		Zone.cpp
 		#miscellaneous required stuff
 		${hpGEM_SOURCE_DIR}/kernel/Base/MeshManipulatorBase.cpp
                 Submesh.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Base/L2Norm.cpp
                 MpiContainer.cpp
-
+		${hpGEM_SOURCE_DIR}/kernel/Utilities/Eigenpairs.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/GlobalMatrix.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/GlobalVector.cpp
 		${hpGEM_SOURCE_DIR}/kernel/Utilities/GlobalIndexing.cpp

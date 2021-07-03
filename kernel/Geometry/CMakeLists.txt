@@ -14,7 +14,6 @@ add_library(Reference_geometries OBJECT
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceHypercube.cpp 
 	
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceGeometry.cpp
-        ${hpGEM_SOURCE_DIR}/kernel/Geometry/PointReferenceBase.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/PointPhysicalBase.cpp
 	# Mappings
 
@@ -42,14 +41,6 @@ add_library(Geometry OBJECT
  		${hpGEM_SOURCE_DIR}/kernel/Geometry/FaceGeometry.cpp
         # Physical geometries
 		${hpGEM_SOURCE_DIR}/kernel/Geometry/PhysicalGeometryBase.cpp
-        ${hpGEM_SOURCE_DIR}/kernel/Geometry/PhysicalLine.cpp
-        ${hpGEM_SOURCE_DIR}/kernel/Geometry/PhysicalTriangle.cpp
-        ${hpGEM_SOURCE_DIR}/kernel/Geometry/PhysicalQuadrilateral.cpp
-        ${hpGEM_SOURCE_DIR}/kernel/Geometry/PhysicalPyramid.cpp
-        ${hpGEM_SOURCE_DIR}/kernel/Geometry/PhysicalTriangularPrism.cpp
-        ${hpGEM_SOURCE_DIR}/kernel/Geometry/PhysicalTetrahedron.cpp
-        ${hpGEM_SOURCE_DIR}/kernel/Geometry/PhysicalHexahedron.cpp
-        ${hpGEM_SOURCE_DIR}/kernel/Geometry/PhysicalOctachoron.cpp
 
         # Mappings
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToPhysHypercubeLinear.cpp

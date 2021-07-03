@@ -53,7 +53,7 @@ namespace Geometry {
  * This class defines the mappings between reference and physical pyramids.
  */
 
-class MappingToPhysPyramid : public MappingReferenceToPhysical {
+class MappingToPhysPyramid : public MappingReferenceToPhysical<3> {
    public:
     MappingToPhysPyramid(const PhysicalGeometry<3>* const physicalGeometry);
 
@@ -67,8 +67,11 @@ class MappingToPhysPyramid : public MappingReferenceToPhysical {
 
     void reinit() final;
 
+    MappingToPhysPyramid* copy() const final {
+        return new MappingToPhysPyramid(*this);
+    }
+
     bool isValidPoint(const PointReference<3>&) const;
-    std::size_t getTargetDimension() const final { return 3; }
 };
 }  // namespace Geometry
 }  // namespace hpgem
