@@ -75,8 +75,8 @@ void printOtherEntities(std::ofstream& output, const Mesh<dimension>& mesh,
         output << entity.getNumberOfElements() << " ";
         for (std::size_t i = 0; i < entity.getNumberOfElements(); ++i) {
             auto element = entity.getElement(i);
-            output << element.getGlobalIndex().id << " " << entity.getLocalIndex(i).id
-                   << " ";
+            output << element.getGlobalIndex().id << " "
+                   << entity.getLocalIndex(i).id << " ";
             for (auto node : element.getNodesList()) {
                 for (auto neighbour : node.getElementsList()) {
                     localPartitions.insert(partitions[neighbour]);
