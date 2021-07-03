@@ -482,8 +482,8 @@ class Mesh {
     EntityGId addNode();
     void addNodes(std::size_t count);
 
-    std::size_t addNodeCoordinate(
-        EntityGId nodeIndex, LinearAlgebra::SmallVector<dimension> coordinate);
+    CoordId addNodeCoordinate(EntityGId nodeIndex,
+                              LinearAlgebra::SmallVector<dimension> coordinate);
 
     void addElement(std::vector<CoordId> nodeCoordinateIDs,
                     const std::string& zoneName = "main");

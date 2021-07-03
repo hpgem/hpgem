@@ -373,10 +373,10 @@ void Mesh<dimension>::addNodes(std::size_t count) {
 }
 
 template <std::size_t dimension>
-std::size_t Mesh<dimension>::addNodeCoordinate(
+CoordId Mesh<dimension>::addNodeCoordinate(
     EntityGId nodeIndex, LinearAlgebra::SmallVector<dimension> coordinate) {
     coordinates.push_back({nodeIndex, coordinate});
-    return coordinates.size() - 1;
+    return CoordId(coordinates.size() - 1);
 }
 
 template <std::size_t dimension>
