@@ -41,144 +41,149 @@
 #include <memory>
 #include <iostream>
 
-
 namespace Preprocessor {
 
-/// \brief Id for a physical coordinate
-///
-/// A numeric ID for physical coordinates in a mesh, wrapped in a class to
-/// prevent accidental switching with other types of numeric indices.
-struct CoordId {
-    CoordId() = default;
-    explicit CoordId(std::size_t id) : id(id) {}
+namespace {
 
-    /// The actual id
+/**
+ * Wrapper around std::size_t to create type safe identifiers that
+ * can't be mixed.
+ * @tparam T A label to be used to distinguish between different ids.
+ */
+template <typename T>
+struct Id {
+    Id() = default;
+    explicit Id(std::size_t id) : id(id){};
+
     std::size_t id;
 
-    inline bool operator==(const CoordId& other) const {
-        return id == other.id;
-    }
-    inline bool operator!=(const CoordId& other) const {
-        return id != other.id;
-    }
-    inline bool operator<(const CoordId& other) const { return id < other.id; }
-    inline bool operator<=(const CoordId& other) const {
-        return id <= other.id;
-    }
-    inline bool operator>(const CoordId& other) const { return id > other.id; }
-    inline bool operator>=(const CoordId& other) const {
-        return id >= other.id;
-    }
-    inline CoordId& operator++() {
+    // Comparison operators
+    inline bool operator==(const Id& other) const { return id == other.id; }
+    inline bool operator!=(const Id& other) const { return id != other.id; }
+    inline bool operator<(const Id& other) const { return id < other.id; }
+    inline bool operator<=(const Id& other) const { return id <= other.id; }
+    inline bool operator>(const Id& other) const { return id > other.id; }
+    inline bool operator>=(const Id& other) const { return id >= other.id; }
+
+    // Increment/decrement operators, primarily used in for-loops
+    inline Id& operator++() {
         ++id;
         return *this;
     }
-    CoordId operator++(int) {
-        CoordId temp = *this;
+
+    Id operator++(int) {
+        Id temp = *this;
         ++id;
         return temp;
     }
 
+    inline Id& operator--() {
+        --id;
+        return *this;
+    }
+
+    Id operator--(int) {
+        Id temp = *this;
+        --id;
+        return temp;
+    }
 };
 
-std::ostream& operator<<(std::ostream& os, const CoordId& coord) {
-    os << coord.id;
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const Id<T>& id) {
+    os << id.id;
     return os;
 }
 
+/**
+ * Wrapper around std::size_t to create type safe identifiers that
+ * can't be mixed, but with an implicit conversion to/from std::size_t. This
+ * allows much easier looping and array indexing at the cost of safety.
+ *
+ * @tparam T A tag to distinguish different identifiers.
+ */
+template <typename T>
+struct ImplicitId {
+    ImplicitId() = default;
+    // NOLINTNEXTLINE(google-explicit-constructor)
+    ImplicitId(std::size_t id) : id(id){};
 
-/// \brief Mesh-global ID for an entity
-///
-/// A numeric ID for a entity in a mesh. This id, combined with the dimension of
-/// the entity will uniquely define an entity in the mesh.
-struct EntityGId {
-    EntityGId() = default;
-    explicit EntityGId(std::size_t id) : id(id) {}
-
-    /// The actual id
     std::size_t id;
 
-    inline bool operator==(const EntityGId& other) const {
+    // Comparison operators
+    inline bool operator==(const ImplicitId& other) const {
         return id == other.id;
     }
-    inline bool operator!=(const EntityGId& other) const {
+    inline bool operator!=(const ImplicitId& other) const {
         return id != other.id;
     }
-    inline bool operator<(const EntityGId& other) const {
+    inline bool operator<(const ImplicitId& other) const {
         return id < other.id;
     }
-    inline bool operator<=(const EntityGId& other) const {
+    inline bool operator<=(const ImplicitId& other) const {
         return id <= other.id;
     }
-    inline bool operator>(const EntityGId& other) const {
+    inline bool operator>(const ImplicitId& other) const {
         return id > other.id;
     }
-    inline bool operator>=(const EntityGId& other) const {
+    inline bool operator>=(const ImplicitId& other) const {
         return id >= other.id;
     }
-    inline EntityGId& operator++() {
+
+    // Increment/decrement operators, primarily used in for-loops
+    inline ImplicitId& operator++() {
         ++id;
         return *this;
     }
-    EntityGId operator++(int) {
-        EntityGId temp = *this;
+
+    ImplicitId operator++(int) {
+        ImplicitId temp = *this;
         ++id;
         return temp;
     }
-};
 
-std::ostream& operator<<(std::ostream& os, const EntityGId& entityGId) {
-    os << entityGId.id;
-    return os;
-}
+    inline ImplicitId& operator--() {
+        --id;
+        return *this;
+    }
 
-/// \brief Local ID for an entity
-///
-/// A numeric ID for an entity, but in a local fashion. For example, this ID may
-/// an index in the nodes/edges/faces of an element.
-struct EntityLId {
-    EntityLId() = default;
-    EntityLId(std::size_t id) : id(id) {}
+    ImplicitId operator--(int) {
+        ImplicitId temp = *this;
+        --id;
+        return temp;
+    }
 
-    /// The actual id
-    std::size_t id;
-
-    // Allow implicit conversion
+    // NOLINTNEXTLINE(google-explicit-constructor)
     operator std::size_t() { return id; }
-
-    inline bool operator==(const EntityLId& other) const {
-        return id == other.id;
-    }
-    inline bool operator!=(const EntityLId& other) const {
-        return id != other.id;
-    }
-    inline bool operator<(const EntityLId& other) const {
-        return id < other.id;
-    }
-    inline bool operator<=(const EntityLId& other) const {
-        return id <= other.id;
-    }
-    inline bool operator>(const EntityLId& other) const {
-        return id > other.id;
-    }
-    inline bool operator>=(const EntityLId& other) const {
-        return id >= other.id;
-    }
-    inline EntityLId& operator++() {
-        ++id;
-        return *this;
-    }
-    EntityLId operator++(int) {
-        EntityLId temp = *this;
-        ++id;
-        return temp;
-    }
 };
 
-std::ostream& operator<<(std::ostream& os, const EntityLId& entityLId) {
-    os << entityLId.id;
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const ImplicitId<T>& id) {
+    os << id.id;
     return os;
 }
+
+struct CoordLabel {};
+struct EntityGIdLabel {};
+struct EntityLIdLabel {};
+
+}  // namespace
+
+/**
+ * Identitifer for the physical coordinates in a mesh.
+ */
+using CoordId = Id<CoordLabel>;
+
+/**
+ * Identifier for a Mesh Entity. The combination of this id and the dimension of
+ * the entity will uniquely identify the entity in a mesh.
+ */
+using EntityGId = Id<EntityGIdLabel>;
+/**
+ * Local identifier for a MeshEntity. For example, this ID type is used to point
+ * to a node/edge/face of an element.
+ */
+using EntityLId = ImplicitId<EntityLIdLabel>;
 
 }  // namespace Preprocessor
 

@@ -483,8 +483,7 @@ class Mesh {
     void addNodes(std::size_t count);
 
     std::size_t addNodeCoordinate(
-        EntityGId nodeIndex,
-        LinearAlgebra::SmallVector<dimension> coordinate);
+        EntityGId nodeIndex, LinearAlgebra::SmallVector<dimension> coordinate);
 
     void addElement(std::vector<CoordId> nodeCoordinateIDs,
                     const std::string& zoneName = "main");
@@ -662,7 +661,7 @@ Mesh<dimension> readFile(MeshSource& file) {
                              "Element without a zone name");
         // TODO: Move up into MeshSource at a convenient moment
         coords.resize(element.coordinateIds.size());
-        for(std::size_t i = 0; i < coords.size(); ++i) {
+        for (std::size_t i = 0; i < coords.size(); ++i) {
             coords[i] = CoordId(element.coordinateIds[i]);
         }
         result.addElement(coords, element.zoneName);
@@ -706,7 +705,7 @@ Mesh<dimension> fromMeshSource(MeshSource2& file) {
                              "Element without a zone name");
         // TODO: Move up into MeshSource at a convenient moment
         coords.resize(element.coordinateIds.size());
-        for(std::size_t i = 0; i < coords.size(); ++i) {
+        for (std::size_t i = 0; i < coords.size(); ++i) {
             coords[i] = CoordId(element.coordinateIds[i]);
         }
         result.addElement(coords, element.zoneName);
