@@ -89,6 +89,17 @@ class KPhaseShiftBlock {
     void apply(LinearAlgebra::SmallVector<DIM> k,
                std::vector<PetscScalar>& storage, Mat mat) const;
 
+    /// Compute the derivative of the phase shifted blocks with respect to the
+    /// wave vector.
+    ///
+    /// \param k The wave vector
+    /// \param dk The direction of the derivative
+    /// \param storage Temporary storage
+    /// \param mat The matrix in which to insert the blocks
+    void applyDerivative(LinearAlgebra::SmallVector<DIM> k,
+                         LinearAlgebra::SmallVector<DIM> dk,
+                         std::vector<PetscScalar>& storage, Mat mat) const;
+
    private:
     /// The blocks that need to be shifted
     MatrixBlocks blocks_;
@@ -133,9 +144,11 @@ class KPhaseShifts {
     explicit KPhaseShifts(std::vector<KPhaseShiftBlock<DIM>> blocks)
         : blocks_(std::move(blocks)){};
     void apply(LinearAlgebra::SmallVector<DIM> k, Mat mat) const;
-    std::vector<KPhaseShiftBlock<DIM>> blocks_;
+    void applyDeriv(LinearAlgebra::SmallVector<DIM> k,
+                    LinearAlgebra::SmallVector<DIM> dk, Mat mat) const;
 
    private:
+    std::vector<KPhaseShiftBlock<DIM>> blocks_;
 };
 
 };  // namespace DGMax

@@ -189,6 +189,7 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
         }
 
         writeOverlapIntegrals(result);
+        writeKDerivativeFiles(result);
     }
 
     void printFrequencies() {
@@ -289,6 +290,42 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
                                 << "i";
                 }
                 overlapFile << std::endl;
+            }
+        }});
+    }
+
+    void writeKDerivativeFiles(AbstractEigenvalueResult<DIM>& result) const {
+        if (!result.supportsWaveVectorDerivatives()) {
+            return;
+        }
+        DGMaxLogger(INFO, "Writing wavevector derivatives");
+        std::array<LinearAlgebra::MiddleSizeMatrix, DIM> derivatives =
+            result.computeWaveVectorDerivatives();
+        std::size_t numEigenvectors = derivatives[0].getNumberOfColumns();
+        Base::MPIContainer::Instance().onlyOnOneProcessor({[&]() {
+            std::stringstream fileName;
+            fileName << "kderivatives-" << currentPoint_ << ".csv";
+            std::ofstream kderivFile(fileName.str());
+            // Write header
+            kderivFile << "";
+            for (std::size_t i = 0; i < numEigenvectors; ++i) {
+                for (std::size_t kdir = 0; kdir < DIM; ++kdir) {
+                    kderivFile << ",mode" << i << "d" << kdir;
+                }
+            }
+            kderivFile << std::endl;
+            // Body
+            for (std::size_t i = 0; i < numEigenvectors; ++i) {
+                kderivFile << "mode" << i;
+                for (std::size_t j = 0; j < numEigenvectors; ++j) {
+                    for (std::size_t kdir = 0; kdir < DIM; ++kdir) {
+                        kderivFile << "," << std::real(derivatives[kdir](i, j))
+                                   << std::showpos
+                                   << std::imag(derivatives[kdir](i, j))
+                                   << std::noshowpos << "i";
+                    }
+                }
+                kderivFile << std::endl;
             }
         }});
     }

@@ -71,6 +71,31 @@ void KPhaseShiftBlock<DIM>::apply(LinearAlgebra::SmallVector<DIM> k,
     blocks_.insertBlocks(storage, mat);
 }
 
+template <std::size_t DIM>
+void KPhaseShiftBlock<DIM>::applyDerivative(LinearAlgebra::SmallVector<DIM> k,
+                                            LinearAlgebra::SmallVector<DIM> dk,
+                                            std::vector<PetscScalar>& storage,
+                                            Mat mat) const {
+    // Load value in storage
+    blocks_.loadBlocks(storage);
+    std::size_t blockSize = blocks_.getBlockSize();
+    const std::complex<double> phaseDeriv =
+        std::complex<double>(0, dk * dx_) *  // From taking dk . grad_k
+        std::exp(std::complex<double>(0, k * dx_));
+    for (std::size_t i = 0; i < blockSize; ++i) {
+        storage[i] *= phaseDeriv;
+    }
+    if (blocks_.isPair()) {
+        const std::complex<double> antiPhaseDeriv =
+            std::complex<double>(0, -dk * dx_) *
+            std::exp(std::complex<double>(0, -k * dx_));
+        for (std::size_t i = blockSize; i < 2 * blockSize; ++i) {
+            storage[i] *= antiPhaseDeriv;
+        }
+        blocks_.insertBlocks(storage, mat);
+    }
+}
+
 /// Phase Shifts
 template <std::size_t DIM>
 void KPhaseShifts<DIM>::apply(LinearAlgebra::SmallVector<DIM> k,
@@ -81,6 +106,36 @@ void KPhaseShifts<DIM>::apply(LinearAlgebra::SmallVector<DIM> k,
     std::vector<PetscScalar> storage;
     for (const KPhaseShiftBlock<DIM>& block : blocks_) {
         block.apply(k, storage, mat);
+    }
+
+    // Go back to the default row orientation
+    error = MatSetOption(mat, MAT_ROW_ORIENTED, PETSC_TRUE);
+    CHKERRABORT(PETSC_COMM_WORLD, error);
+
+    error = MatAssemblyBegin(mat, MAT_FINAL_ASSEMBLY);
+    CHKERRABORT(PETSC_COMM_WORLD, error);
+    error = MatAssemblyEnd(mat, MAT_FINAL_ASSEMBLY);
+    CHKERRABORT(PETSC_COMM_WORLD, error);
+}
+
+template <std::size_t DIM>
+void KPhaseShifts<DIM>::applyDeriv(LinearAlgebra::SmallVector<DIM> k,
+                                   LinearAlgebra::SmallVector<DIM> dk,
+                                   Mat mat) const {
+    // Normalize
+    if (dk.l2NormSquared() > 1e-8) {
+        dk /= dk.l2Norm();
+    } else {
+        logger(
+            WARN,
+            "Computing directional derivative with zero vector as direction");
+    }
+    PetscErrorCode error = MatSetOption(mat, MAT_ROW_ORIENTED, PETSC_FALSE);
+    CHKERRABORT(PETSC_COMM_WORLD, error);
+
+    std::vector<PetscScalar> storage;
+    for (const KPhaseShiftBlock<DIM>& block : blocks_) {
+        block.applyDerivative(k, dk, storage, mat);
     }
 
     // Go back to the default row orientation

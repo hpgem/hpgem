@@ -38,6 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef HPGEM_APP_ABSTRACTEIGENVALUERESULT_H
 #define HPGEM_APP_ABSTRACTEIGENVALUERESULT_H
 
+#include <array>
 #include <vector>
 #include "LinearAlgebra/SmallVector.h"
 #include "LinearAlgebra/MiddleSizeMatrix.h"
@@ -103,6 +104,20 @@ class AbstractEigenvalueResult {
         DGMaxLogger(WARN, "Field overlap computation not supported");
         return LinearAlgebra::MiddleSizeMatrix(0, 0);
     };
+
+    virtual bool supportsWaveVectorDerivatives() const {
+        return false;
+    }
+
+    virtual std::array<LinearAlgebra::MiddleSizeMatrix, DIM> computeWaveVectorDerivatives() const {
+        DGMaxLogger(WARN, "Wave vector derivatives not supported");
+        // Empty matrices
+        std::array<LinearAlgebra::MiddleSizeMatrix, DIM> result;
+        for (std::size_t i = 0; i < DIM; ++i) {
+            result[i] = LinearAlgebra::MiddleSizeMatrix(0,0);
+        }
+        return result;
+    }
 };
 
 #endif  // HPGEM_APP_ABSTRACTEIGENVALUERESULT_H
