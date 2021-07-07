@@ -387,6 +387,8 @@ void GmshReader::readPBCs() {
 
     bool found_PBCs = locate_in_file(Filehandle_, "$Periodic");
     if (!found_PBCs) {
+        Filehandle_.clear();
+        Filehandle_.seekg(0);
         return;
     }
 
