@@ -39,18 +39,16 @@
 #ifndef HPGEM_KERNEL_MAPPINGREFERENCETOPHYSICAL_H
 #define HPGEM_KERNEL_MAPPINGREFERENCETOPHYSICAL_H
 
-#include "MappingInterface.h"
+#include "Geometry/PhysicalGeometry.h"
+#include "Geometry/PointPhysical.h"
+#include "Geometry/Jacobian.h"
 #include "Logger.h"
-#include "Geometry/PhysicalGeometryBase.h"
+
 #include <vector>
 
 namespace hpgem {
 
 namespace Geometry {
-template <std::size_t DIM>
-class PhysicalGeometry;
-template <std::size_t DIM>
-class PointPhysical;
 
 /*! ~OC~
  Second layer abstract base class (derived from Mapping) for mappings
@@ -73,68 +71,95 @@ class PointPhysical;
  supported so there in no need to template this class
 */
 
-class MappingReferenceToPhysical : public MappingInterface<0> {
+// Forward definition for templating
+template <std::size_t DIM>
+class MappingReferenceToPhysical;
+
+/**
+ * Mapping between the reference and physical geometries of an Element.
+ * Specifically this maps the PointReference in the ReferenceGeometry to the
+ * corresponding PointPhysical in the PhysicalGeometry.
+ */
+class MappingReferenceToPhysicalBase
+    : public AbstractDimensionlessBase<MappingReferenceToPhysicalBase,
+                                       MappingReferenceToPhysical> {
 
    public:
-    MappingReferenceToPhysical(const PhysicalGeometryBase* target)
-        : MappingInterface(), geometry(target) {}
+    MappingReferenceToPhysicalBase() = default;
 
     // Note that the memory of nodes is managed by Mesh, so do not make a deep
     // copy.
-    MappingReferenceToPhysical(const MappingReferenceToPhysical& other) =
-        default;
+    MappingReferenceToPhysicalBase(
+        const MappingReferenceToPhysicalBase& other) = default;
 
-    // Methods.
-    //! ~OC~ Transform a point from reference space to physical space.
-    virtual PointPhysical<1> transform(const PointReference<1>&) const {
-        logger(ERROR, "Passed a point of the wrong dimension");
-        return PointPhysical<1>();
-    }
+    virtual ~MappingReferenceToPhysicalBase() = default;
 
-    virtual PointPhysical<2> transform(const PointReference<2>&) const {
-        logger(ERROR, "Passed a point of the wrong dimension");
-        return PointPhysical<2>();
-    }
-
-    virtual PointPhysical<3> transform(const PointReference<3>&) const {
-        logger(ERROR, "Passed a point of the wrong dimension");
-        return PointPhysical<3>();
-    }
-
-    virtual PointPhysical<4> transform(const PointReference<4>&) const {
-        logger(ERROR, "Passed a point of the wrong dimension");
-        return PointPhysical<4>();
-    }
-
-    virtual PointReference<1> inverseTransform(const PointPhysical<1>&) const {
-        logger(ERROR, "Passed a point of the wrong dimension");
-        return {};
-    }
-
-    virtual PointReference<2> inverseTransform(const PointPhysical<2>&) const {
-        logger(ERROR, "Passed a point of the wrong dimension");
-        return {};
-    }
-
-    virtual PointReference<3> inverseTransform(const PointPhysical<3>&) const {
-        logger(ERROR, "Passed a point of the wrong dimension");
-        return {};
-    }
-
-    virtual PointReference<4> inverseTransform(const PointPhysical<4>&) const {
-        logger(ERROR, "Passed a point of the wrong dimension");
-        return {};
-    }
-
-    /// Recompute mapping after physical nodes have moved.
-    /// Note that this typically has to be done for all elements, so make sure
-    /// to use the global iterator to get all the elements when using parallel
-    /// computing.
+    /**
+     * Recompute the map when the physical nodes have moved.
+     *
+     * Note that this typically has to be done for all elements, including for
+     * the shadow elements of a parallel computation.
+     */
     virtual void reinit() = 0;
 
+    /**
+     * Reference to the physical geometry to which this instance maps.
+     * @return The physical geometry
+     */
+    virtual const PhysicalGeometryBase& getGeometry() const = 0;
+
+    /**
+     * Make a copy of the actual mapping instance.
+     * @return A pointer to a copy of the actual mapping instance. The caller is
+     * responsible for cleaning it up.
+     */
+    virtual MappingReferenceToPhysicalBase* copy() const = 0;
+
+    /**
+     * @return The dimension of the reference and physical points in the
+     * mapping.
+     */
+    virtual std::size_t getDimension() const = 0;
+};
+
+template <std::size_t DIM>
+class MappingReferenceToPhysical : public MappingReferenceToPhysicalBase {
+   public:
+    MappingReferenceToPhysical(const PhysicalGeometry<DIM>* target)
+        : MappingReferenceToPhysicalBase(), geometry_(target) {
+        logger.assert_debug(geometry_ != nullptr, "Nullpointer geometry");
+    }
+
+    /**
+     * Forward transform
+     * @param p The point inside the reference element
+     * @return  The corresponding point in the physical element
+     */
+    virtual PointPhysical<DIM> transform(
+        const PointReference<DIM>& p) const = 0;
+    /**
+     * Inverse of the forward transform
+     * @param p A point in the physical element
+     * @return The corresponding point in the reference element
+     */
+    virtual PointReference<DIM> inverseTransform(
+        const PointPhysical<DIM>& p) const = 0;
+    /**
+     * Compute the Jacobian of the mapping at a point
+     * @param p The point in the reference element
+     * @return
+     */
+    virtual Jacobian<DIM, DIM> calcJacobian(
+        const PointReference<DIM>& p) const = 0;
+
+    const PhysicalGeometry<DIM>& getGeometry() const final {
+        return *geometry_;
+    }
+
+    std::size_t getDimension() const final { return DIM; }
+
    protected:
-    const PhysicalGeometryBase* geometry;  /// Pointer to the physical geometry
-                                           /// (for reinitialisation)
+    const PhysicalGeometry<DIM>* geometry_;
 };
 
 }  // namespace Geometry

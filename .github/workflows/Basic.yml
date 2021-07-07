@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         mpi: [ ON, OFF ] 
-        compiler: [gcc, clang]
+        compiler: [g++, clang++]
         BUILD_TYPE : [Debug, Release]
     steps:
     - uses: actions/checkout@v2 
@@ -22,7 +22,7 @@ jobs:
       run: sudo apt install libblas-dev liblapack-dev libopenmpi-dev libmetis-dev petsc-dev slepc-dev
     - name: configure
       env:
-        CC: ${{ matrix.compiler }}
+        CXX: ${{ matrix.compiler }}
       run: cmake -H. -Bbuild -DhpGEM_USE_MPI=${{ matrix.mpi }} -DENABLE_TESTING=ON -DCMAKE_BUILD_TYPE=${{ matrix.BUILD_TYPE }} -DhpGEM_USE_METIS=ON -DhpGEM_USE_PETSC=${{ matrix.mpi }} -DhpGEM_USE_SLEPC=${{ matrix.mpi }} 
     - name: make
       run: cmake --build build -- -j4

@@ -687,7 +687,9 @@ Mesh<dimension> fromMeshSource(MeshSource2& file) {
         logger.assert_debug(
             coord.coordinate.size() == dimension,
             "The coordinates read by this reader have the wrong dimension");
-        result.addNodeCoordinate(meshNodeId, coord.coordinate);
+        result.addNodeCoordinate(
+            meshNodeId,
+            LinearAlgebra::SmallVector<dimension>(coord.coordinate.data()));
     }
     // Add all the elements
     for (auto element : file.getElements()) {

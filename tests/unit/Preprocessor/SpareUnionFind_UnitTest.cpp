@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2014, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -36,32 +36,52 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "PointPhysical.h"
+#include "SparseUnionFind.h"
 
-namespace hpgem {
+#include "../catch.hpp"
 
-namespace Geometry {
+TEST_CASE("Empty Set", "[Sparse Union Find]") {
+    Preprocessor::SparseUnionFind empty;
+    INFO("Empty iterator")
+    REQUIRE(empty.begin() == empty.end());
 
-// output operator can just pretend it is a point of appropriate dimension
-std::ostream& operator<<(std::ostream& out, const PointPhysicalBase& point) {
-    switch (point.size()) {
-        case 0:
-            out << Point<0>(static_cast<const PointPhysical<0>&>(point));
-            break;
-        case 1:
-            out << Point<1>(static_cast<const PointPhysical<1>&>(point));
-            break;
-        case 2:
-            out << Point<2>(static_cast<const PointPhysical<2>&>(point));
-            break;
-        case 3:
-            out << Point<3>(static_cast<const PointPhysical<3>&>(point));
-            break;
-        case 4:
-            out << Point<4>(static_cast<const PointPhysical<4>&>(point));
-    }
-    return out;
+    auto i = GENERATE(0, 2, 3, 10, 1000000);
+    REQUIRE(empty.findSet(i) == i);
 }
-}  // namespace Geometry
 
-}  // namespace hpgem
+TEST_CASE("Single set", "[Sparse Union Find]") {
+    Preprocessor::SparseUnionFind set;
+    set.unionSets(0, 2);
+    INFO("Unioned are in the same set")
+    REQUIRE(set.inSameSet(0, 2));
+
+    INFO("Distinct from other entries")
+    CHECK_FALSE(set.inSameSet(0, 1));
+    REQUIRE_FALSE(set.inSameSet(1, 2));
+
+    // Add third element using union
+    set.unionSets(0, 1);
+    INFO("After merge in same set")
+    CHECK(set.inSameSet(1, 2));
+    REQUIRE(set.inSameSet(0, 1));
+}
+
+TEST_CASE("Two sets", "[Sparse Union Find]") {
+    Preprocessor::SparseUnionFind set;
+    // Setup two sets {3,4} and {10,11}
+    set.unionSets(3, 4);
+    set.unionSets(10, 11);
+
+    INFO("Check initial connection")
+    CHECK(set.inSameSet(3, 4));
+    CHECK(set.inSameSet(10, 11));
+    CHECK_FALSE(set.inSameSet(3, 10));
+    REQUIRE_FALSE(set.inSameSet(11, 4));
+
+    // Merge the sets
+    set.unionSets(10, 3);
+    INFO("Check post merge")
+    auto i = GENERATE(3, 4, 10, 11);
+    auto j = GENERATE(3, 4, 10, 11);
+    REQUIRE(set.inSameSet(i, j));
+}
