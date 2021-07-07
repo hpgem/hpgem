@@ -144,15 +144,15 @@ Preprocessor::MeshData<idx_t, dimension, dimension> partitionMesh(
             2 * mesh.getNumberOfFaces());  // actually interior faces only
         idx_t connectionsUsed{0};
         for (auto element : mesh.getElements()) {
-            xadj[element.getGlobalIndex()] = connectionsUsed;
+            xadj[element.getGlobalIndex().id] = connectionsUsed;
             for (auto face : element.getFacesList()) {
                 if (face.getNumberOfElements() == 2) {
                     if (face.getElement(0) == element) {
                         adjncy[connectionsUsed++] =
-                            face.getElement(1).getGlobalIndex();
+                            face.getElement(1).getGlobalIndex().id;
                     } else {
                         adjncy[connectionsUsed++] =
-                            face.getElement(0).getGlobalIndex();
+                            face.getElement(0).getGlobalIndex().id;
                     }
                 }
             }
