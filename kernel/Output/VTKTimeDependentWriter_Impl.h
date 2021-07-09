@@ -111,8 +111,8 @@ void Output::VTKTimeDependentWriter<DIM>::write(
         std::string fileName =
             baseName_ + std::to_string(numberOfFilesWritten_);
         numberOfFilesWritten_++;
-        currentFile_ =
-            new VTKSpecificTimeWriter<DIM>{fileName, mesh_, timelevel, order_};
+        currentFile_ = new VTKSpecificTimeWriter<DIM>{
+            fileName, mesh_, timelevel, polynomialOrder_};
         if (fileName.find('/') != std::string::npos) {
             fileName = fileName.substr(fileName.find_last_of('/') + 1);
         }
