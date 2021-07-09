@@ -351,6 +351,9 @@ LinearAlgebra::MiddleSizeVector::type
                                                 time);
     };
 
+    // Technically 2 * polynomialOrder_ would be sufficient. However, it is not
+    // uncommon that this underestimates the error. Therefore we use a rule of
+    // slightly higher order to ensure that we accurately compute the error.
     auto *rule = QuadratureRules::AllGaussQuadratureRules::instance().getRule(
         ptrElement->getReferenceGeometry(), 2 * this->polynomialOrder_ + 2);
 

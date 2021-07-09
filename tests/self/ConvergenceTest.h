@@ -66,7 +66,10 @@ class ConvergenceTestSet {
 };
 
 /**
- * Run a test on multiple meshes
+ * Run a test on multiple meshes. Primarily intended to do convergence tests,
+ * and it will therefore print a simple convergence table with the ratios
+ * between subsequent errors.
+ *
  * @param testSet The meshes and errors for the test
  * @param ignoreFailures Whether to ignore failure (e.g. for recomputing the
  * errors)
