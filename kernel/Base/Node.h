@@ -43,6 +43,7 @@
 #include <vector>
 
 #include "Logger.h"
+#include "MeshEntity.h"
 
 namespace hpgem {
 
@@ -60,7 +61,7 @@ class Face;
 /// is not uniquely defined and its only identifying feature is the set of
 /// elements connected to it. Elements store a PointPhysical for each node
 /// independently from this class that can be used for geometric operations.
-class Node {
+class Node : public MeshEntity {
    public:
     explicit Node(std::size_t ID)
         : elements_(),
@@ -160,6 +161,14 @@ class Node {
     /// The element owning this node, only valid if the node is owned by the
     /// current processor
     Element *getOwningElement() const;
+
+    void visitEntity(MeshEntityVisitor<> &visitor) final {
+        visitor.visit(*this);
+    }
+
+    void visitEntity(MeshEntityVisitor<true> &visitor) const final {
+        visitor.visit(*this);
+    }
 
    private:
     // provide information to map back to a unique corner of the element

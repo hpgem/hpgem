@@ -42,6 +42,7 @@
 #include <vector>
 #include <cstdlib>
 
+#include "MeshEntity.h"
 #include "Logger.h"
 #include "TreeEntry.h"
 
@@ -58,7 +59,7 @@ class Element;
  * so they can connect edge-based conforming degrees of freedom to the proper
  * elements. \todo 4D support
  */
-class Edge {
+class Edge : public MeshEntity {
    public:
     explicit Edge(std::size_t ID)
         : numberOfConformingDOFOnTheEdge_(std::vector<std::size_t>(0, 0)),
@@ -174,6 +175,14 @@ class Edge {
     /// The element owning this edge, only valid if the edge is owned by the
     /// current processor
     Element* getOwningElement() const;
+
+    void visitEntity(MeshEntityVisitor<>& visitor) final {
+        visitor.visit(*this);
+    }
+
+    void visitEntity(MeshEntityVisitor<true>& visitor) const final {
+        visitor.visit(*this);
+    }
 
    private:
     std::vector<Element*> elements_;

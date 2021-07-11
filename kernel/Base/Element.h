@@ -56,6 +56,8 @@
 #include <memory>
 #include <Integration/QuadratureRules/GaussQuadratureRule.h>
 #include <Base/ElementBasisFunctions.h>
+#include "MeshEntity.h"
+
 namespace hpgem {
 
 namespace FE {
@@ -74,7 +76,9 @@ class PhysicalElement;
 
 // class is final as a reminder that the virtual default destructor should be
 // added once something inherits from this class
-class Element final : public Geometry::ElementGeometry, public ElementData {
+class Element final : public Geometry::ElementGeometry,
+                      public ElementData,
+                      public MeshEntity {
    public:
     using SolutionVector = LinearAlgebra::MiddleSizeVector;
     using CollectionOfBasisFunctionSets =
@@ -527,6 +531,14 @@ class Element final : public Geometry::ElementGeometry, public ElementData {
     void setOwnedByCurrentProcessor(std::size_t owner, bool owned);
     bool isOwnedByCurrentProcessor() const;
     std::size_t getOwner() const;
+
+    void visitEntity(MeshEntityVisitor<>& visitor) final {
+        visitor.visit(*this);
+    }
+
+    void visitEntity(MeshEntityVisitor<true>& visitor) const final {
+        visitor.visit(*this);
+    }
 
     /// Output operator.
     friend std::ostream& operator<<(std::ostream& os, const Element& element);

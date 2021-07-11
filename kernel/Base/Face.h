@@ -44,6 +44,7 @@
 #include "Base/FaceMatrix.h"
 #include "Geometry/FaceGeometry.h"
 #include "Base/Element.h"
+#include "MeshEntity.h"
 #include "L2Norm.h"
 #include "TreeEntry.h"
 
@@ -61,7 +62,9 @@ struct FaceCacheData;
 /// FaceGeometry holds all FaceReference related data and appropriate mappings
 // class is final as a reminder that the virtual default destructor should be
 // added once something inherits from this class
-class Face final : public Geometry::FaceGeometry, public FaceData {
+class Face final : public Geometry::FaceGeometry,
+                   public FaceData,
+                   public MeshEntity {
    public:
     using FaceQuadratureRule = QuadratureRules::GaussQuadratureRule;
 
@@ -362,6 +365,14 @@ class Face final : public Geometry::FaceGeometry, public FaceData {
     /// The element owning this face, only valid if the face is owned by the
     /// current processor
     Element* getOwningElement() const;
+
+    void visitEntity(MeshEntityVisitor<>& visitor) final {
+        visitor.visit(*this);
+    }
+
+    void visitEntity(MeshEntityVisitor<true>& visitor) const final {
+        visitor.visit(*this);
+    }
 
    private:
     Element* elementLeft_;
