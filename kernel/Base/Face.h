@@ -264,7 +264,7 @@ class Face final : public Geometry::FaceGeometry,
     std::size_t getNumberOfBasisFunctions() const;
     std::size_t getNumberOfBasisFunctions(std::size_t unknown) const;
 
-    std::size_t getLocalNumberOfBasisFunctions() const {
+    std::size_t getLocalNumberOfBasisFunctions() const final {
         std::size_t number = numberOfConformingDOFOnTheFace_[0];
         for (std::size_t index : numberOfConformingDOFOnTheFace_)
             logger.assert_debug(
@@ -273,14 +273,15 @@ class Face final : public Geometry::FaceGeometry,
         return numberOfConformingDOFOnTheFace_[0];
     }
 
-    std::size_t getLocalNumberOfBasisFunctions(std::size_t unknown) const {
+    std::size_t getLocalNumberOfBasisFunctions(
+        std::size_t unknown) const final {
         logger.assert_debug(unknown < numberOfConformingDOFOnTheFace_.size(),
                             "Asking for unknown % but there are only %",
                             unknown, numberOfConformingDOFOnTheFace_.size());
         return numberOfConformingDOFOnTheFace_[unknown];
     }
 
-    std::size_t getTotalLocalNumberOfBasisFunctions() const {
+    std::size_t getTotalLocalNumberOfBasisFunctions() const final {
         std::size_t result = 0;
         for (auto nbasis : numberOfConformingDOFOnTheFace_) result += nbasis;
         return result;
@@ -319,7 +320,7 @@ class Face final : public Geometry::FaceGeometry,
         setLocalNumberOfBasisFunctions(number);
     }
 
-    std::size_t getID() const { return faceID_; }
+    std::size_t getID() const final { return faceID_; }
 
     /// Specify a time integration vector id, return a vector containing the
     /// data for that time integration vector.
@@ -357,14 +358,14 @@ class Face final : public Geometry::FaceGeometry,
         return positionInTheTree_;
     }
 
-    bool isOwnedByCurrentProcessor() const {
+    bool isOwnedByCurrentProcessor() const final {
         return elementLeft_ != nullptr &&
                elementLeft_->isOwnedByCurrentProcessor();
     }
 
     /// The element owning this face, only valid if the face is owned by the
     /// current processor
-    Element* getOwningElement() const;
+    const Element* getOwningElement() const final;
 
     void visitEntity(MeshEntityVisitor<>& visitor) final {
         visitor.visit(*this);

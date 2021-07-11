@@ -71,7 +71,7 @@ class Edge : public MeshEntity {
 
     void addElement(Element* element, std::size_t edgeNumber);
 
-    std::size_t getLocalNumberOfBasisFunctions() const {
+    std::size_t getLocalNumberOfBasisFunctions() const final {
         std::size_t number = numberOfConformingDOFOnTheEdge_[0];
         for (std::size_t index : numberOfConformingDOFOnTheEdge_)
             logger.assert_debug(
@@ -80,7 +80,8 @@ class Edge : public MeshEntity {
         return numberOfConformingDOFOnTheEdge_[0];
     }
 
-    std::size_t getLocalNumberOfBasisFunctions(std::size_t unknown) const {
+    std::size_t getLocalNumberOfBasisFunctions(
+        std::size_t unknown) const final {
         // TODO: LC, numberOfConformingDOFOnTheNode_ might be smaller than
         // the number of unknowns (as that is not known here). Thus we might
         // index beyond the number of unknowns.
@@ -88,7 +89,7 @@ class Edge : public MeshEntity {
         return numberOfConformingDOFOnTheEdge_[unknown];
     }
 
-    std::size_t getTotalLocalNumberOfBasisFunctions() const {
+    std::size_t getTotalLocalNumberOfBasisFunctions() const final {
         std::size_t result = 0;
         for (auto nbasis : numberOfConformingDOFOnTheEdge_) result += nbasis;
         return result;
@@ -100,7 +101,7 @@ class Edge : public MeshEntity {
         return getLocalNumberOfBasisFunctions();
     }
 
-    std::size_t getID() const { return ID_; }
+    std::size_t getID() const final { return ID_; }
 
     ///\deprecated Does not conform naming conventions, use getNumberOfElements
     /// instead
@@ -170,11 +171,11 @@ class Edge : public MeshEntity {
         return positionInTheTree_;
     }
 
-    bool isOwnedByCurrentProcessor() const;
+    bool isOwnedByCurrentProcessor() const final;
 
     /// The element owning this edge, only valid if the edge is owned by the
     /// current processor
-    Element* getOwningElement() const;
+    const Element* getOwningElement() const final;
 
     void visitEntity(MeshEntityVisitor<>& visitor) final {
         visitor.visit(*this);

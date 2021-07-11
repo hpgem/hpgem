@@ -76,7 +76,52 @@ class MeshEntity {
    public:
     virtual void visitEntity(MeshEntityVisitor<>& vistor) = 0;
     virtual void visitEntity(MeshEntityVisitor<true>& vistor) const = 0;
-}
+
+    /**
+     * @return The identifier for this MeshEntity
+     */
+    virtual std::size_t getID() const = 0;
+    /**
+     * In a distributed (MPI) problem each mesh entity has a single owning
+     * process.
+     * @return Whether the current process owns the MeshEntity.
+     */
+    virtual bool isOwnedByCurrentProcessor() const = 0;
+    /**
+     * Each MeshEntity is associated with a single element. In a distributed
+     * setting this information is not always available due to the finite size
+     * of the ghost layer. In such a setting three guarantees are given:
+     * 1. If the owning element can not be determined the function will error.
+     * 2. An owning element is always available if this MeshEntity is adjacent
+     *    to an element that is owned by the current process.
+     *
+     * @return The owning element
+     */
+    virtual const Base::Element* getOwningElement() const = 0;
+
+    /**
+     * The number of basis functions per unknown that are associated with this
+     * MeshEntity.
+     *
+     * Legacy behaviour: With multiple unknowns this will crash if the value is
+     * different for the differnt unknowns.
+     * @return
+     */
+    virtual std::size_t getLocalNumberOfBasisFunctions() const = 0;
+    /**
+     * The number of basis functions for a specific unknown that are associated
+     * with this MeshEntity.
+     * @param unknown The unknown to ask the number of basis functions of.
+     * @return The number of basis functions
+     */
+    virtual std::size_t getLocalNumberOfBasisFunctions(
+        std::size_t unknown) const = 0;
+    /**
+     * @return The number of basis functions for all unknowns that are
+     * associated with this MeshEntity.
+     */
+    virtual std::size_t getTotalLocalNumberOfBasisFunctions() const = 0;
+};
 
 }  // namespace Base
 }  // namespace hpgem

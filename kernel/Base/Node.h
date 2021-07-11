@@ -82,7 +82,7 @@ class Node : public MeshEntity {
         return getLocalNumberOfBasisFunctions();
     }
 
-    std::size_t getLocalNumberOfBasisFunctions() const {
+    std::size_t getLocalNumberOfBasisFunctions() const final {
         std::size_t number = numberOfConformingDOFOnTheNode_[0];
         for (std::size_t index : numberOfConformingDOFOnTheNode_)
             logger.assert_debug(
@@ -91,20 +91,21 @@ class Node : public MeshEntity {
         return numberOfConformingDOFOnTheNode_[0];
     }
 
-    std::size_t getLocalNumberOfBasisFunctions(std::size_t unknown) const {
+    std::size_t getLocalNumberOfBasisFunctions(
+        std::size_t unknown) const final {
         logger.assert_debug(unknown < numberOfConformingDOFOnTheNode_.size(),
                             "Asking for unknown % but there are only %",
                             unknown, numberOfConformingDOFOnTheNode_.size());
         return numberOfConformingDOFOnTheNode_[unknown];
     }
 
-    std::size_t getTotalLocalNumberOfBasisFunctions() const {
+    std::size_t getTotalLocalNumberOfBasisFunctions() const final {
         std::size_t result = 0;
         for (auto nbasis : numberOfConformingDOFOnTheNode_) result += nbasis;
         return result;
     }
 
-    std::size_t getID() const { return ID_; }
+    std::size_t getID() const final { return ID_; }
 
     ///\deprecated Does not conform naming conventions, use getNumberOfElements
     /// instead
@@ -156,11 +157,11 @@ class Node : public MeshEntity {
         setLocalNumberOfBasisFunctions(number);
     }
 
-    bool isOwnedByCurrentProcessor() const;
+    bool isOwnedByCurrentProcessor() const final;
 
     /// The element owning this node, only valid if the node is owned by the
     /// current processor
-    Element *getOwningElement() const;
+    const Element *getOwningElement() const final;
 
     void visitEntity(MeshEntityVisitor<> &visitor) final {
         visitor.visit(*this);

@@ -137,10 +137,6 @@ void Element::setVertexBasisFunctionSet(std::size_t position,
     setNumberOfBasisFunctions(numberOfBasisFunctions, unknown);
 }
 
-std::size_t Element::getID() const { return id_; }
-
-std::size_t Element::getID() { return id_; }
-
 void Element::setQuadratureRulesWithOrder(std::size_t quadrROrder) {
     bool changed = false;
     if (quadratureRule_ == nullptr) {

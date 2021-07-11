@@ -381,7 +381,7 @@ bool Face::determineIsPeriodicBoundaryFace() const {
     return globalLeftNodes != globalRightNodes;
 }
 
-Element* Face::getOwningElement() const {
+const Element* Face::getOwningElement() const {
 #if HPGEM_ASSERTS
     bool safe = false;
     // If we own it, then we definitely know the owning element
