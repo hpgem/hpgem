@@ -58,6 +58,38 @@ GlobalIndexing::GlobalIndexing(Base::MeshManipulatorBase *mesh, Layout layout,
     reset(mesh, layout, unknowns);
 }
 
+void visitElementParts(const Base::Element *element, std::size_t meshDimension,
+                       std::function<void(const Base::MeshEntity *)> visitor) {
+    visitor(element);
+    for (const Base::Face *face : element->getFacesList()) {
+        visitor(face);
+    }
+    for (const Base::Edge *edge : element->getEdgesList()) {
+        visitor(edge);
+    }
+    if (meshDimension > 1) {
+        for (const Base::Node *node : element->getNodesList()) {
+            visitor(node);
+        }
+    }
+}
+
+void visitElementParts(Base::Element *element, std::size_t meshDimension,
+                       std::function<void(Base::MeshEntity *)> visitor) {
+    visitor(element);
+    for (Base::Face *face : element->getFacesList()) {
+        visitor(face);
+    }
+    for (Base::Edge *edge : element->getEdgesList()) {
+        visitor(edge);
+    }
+    if (meshDimension > 1) {
+        for (Base::Node *node : element->getNodesList()) {
+            visitor(node);
+        }
+    }
+}
+
 std::size_t GlobalIndexing::getGlobalIndices(const Base::Element *element,
                                              std::size_t offset,
                                              std::vector<int> &indices) const {
@@ -82,47 +114,15 @@ std::size_t GlobalIndexing::getGlobalIndices(const Base::Element *element,
         if (!offsets_[unknown].includedInIndex_) {
             continue;
         }
-        std::size_t numberOfElementBasisFunctions =
-            element->getLocalNumberOfBasisFunctions(unknown);
-        int elementBasis0 = getGlobalIndex(element, unknown);
-        for (std::size_t i = 0; i < numberOfElementBasisFunctions; ++i) {
-            indices[localBasisIndex++] = elementBasis0 + i;
-        }
-
-        std::size_t numberOfFaces =
-            element->getPhysicalGeometry()->getNumberOfFaces();
-        for (std::size_t face = 0; face < numberOfFaces; face++) {
-            std::size_t numberOfFaceBasisFunctions =
-                element->getFace(face)->getLocalNumberOfBasisFunctions(unknown);
-            int faceBasis0 = getGlobalIndex(element->getFace(face), unknown);
-            for (std::size_t i = 0; i < numberOfFaceBasisFunctions; ++i) {
-                indices[localBasisIndex++] = faceBasis0 + i;
-            }
-        }
-
-        std::size_t numberOfEdges = element->getNumberOfEdges();
-        for (std::size_t edge = 0; edge < numberOfEdges; edge++) {
-            std::size_t numberOfEdgeBasisFunctions =
-                element->getEdge(edge)->getLocalNumberOfBasisFunctions(unknown);
-            int edgeBasis0 = getGlobalIndex(element->getEdge(edge), unknown);
-            for (std::size_t i = 0; i < numberOfEdgeBasisFunctions; ++i) {
-                indices[localBasisIndex++] = edgeBasis0 + i;
-            }
-        }
-
-        if (mesh_->dimension() > 1) {
-            std::size_t numberOfNodes = element->getNumberOfNodes();
-            for (std::size_t node = 0; node < numberOfNodes; node++) {
-                std::size_t numberOfNodeBasisFunctions =
-                    element->getNode(node)->getLocalNumberOfBasisFunctions(
-                        unknown);
-                int nodeBasis0 =
-                    getGlobalIndex(element->getNode(node), unknown);
-                for (std::size_t i = 0; i < numberOfNodeBasisFunctions; ++i) {
-                    indices[localBasisIndex++] = nodeBasis0 + i;
+        visitElementParts(
+            element, mesh_->dimension(), [&](const Base::MeshEntity *entity) {
+                std::size_t numberOfBasisFunctions =
+                    entity->getLocalNumberOfBasisFunctions(unknown);
+                int offset = getGlobalIndex(entity, unknown);
+                for (int i = 0; i < numberOfBasisFunctions; ++i) {
+                    indices[localBasisIndex++] = offset + i;
                 }
-            }
-        }
+            });
     }
 
     std::size_t expectedNumberOfBasisFunctions = 0;
@@ -226,39 +226,15 @@ void GlobalIndexing::constructUnblocked() {
     // Construct local ordering.
     std::size_t index = 0;
     for (Base::Element *element : mesh_->getElementsList()) {
-        for (std::size_t unknown : includedUnknowns_) {
-            offsets_[unknown].elementOffsets_[element->getID()] = index;
-            index += element->getLocalNumberOfBasisFunctions(unknown);
-        }
-
-        for (Base::Face *face : element->getFacesList()) {
-            if (face->getPtrElementLeft() == element) {
+        visitElementParts(
+            element, mesh_->dimension(), [&](Base::MeshEntity *entity) {
                 for (std::size_t unknown : includedUnknowns_) {
-                    offsets_[unknown].faceOffsets_[face->getID()] = index;
-                    index += face->getLocalNumberOfBasisFunctions(unknown);
+                    OffsetVisitor visitor(offsets_[unknown]);
+                    entity->visitEntity(visitor);
+                    *(visitor.target) = index;
+                    index += entity->getLocalNumberOfBasisFunctions(unknown);
                 }
-            }
-        }
-
-        for (Base::Edge *edge : element->getEdgesList()) {
-            if (edge->getElement(0) == element) {
-                for (std::size_t unknown : includedUnknowns_) {
-                    offsets_[unknown].edgeOffsets_[edge->getID()] = index;
-                    index += edge->getLocalNumberOfBasisFunctions(unknown);
-                }
-            }
-        }
-        // Faces and nodes are the same in 1D
-        if (mesh_->dimension() > 1) {
-            for (Base::Node *node : element->getNodesList()) {
-                if (node->getElement(0) == element) {
-                    for (std::size_t unknown : includedUnknowns_) {
-                        offsets_[unknown].nodeOffsets_[node->getID()] = index;
-                        index += node->getLocalNumberOfBasisFunctions(unknown);
-                    }
-                }
-            }
-        }
+            });
     }
     localNumberOfBasisFunctions_ = index;
 
@@ -302,33 +278,15 @@ void GlobalIndexing::constructBlocked(bool global) {
     //
     for (std::size_t unknown : includedUnknowns_) {
         Offsets &offset = offsets_[unknown];
+        OffsetVisitor visitor(offset);
         std::size_t index = 0;
         for (Base::Element *element : mesh_->getElementsList()) {
-            offset.elementOffsets_[element->getID()] = index;
-            index += element->getLocalNumberOfBasisFunctions(unknown);
-
-            for (Base::Face *face : element->getFacesList()) {
-                if (face->getPtrElementLeft() == element) {
-                    offset.faceOffsets_[face->getID()] = index;
-                    index += face->getLocalNumberOfBasisFunctions(unknown);
-                }
-            }
-
-            for (Base::Edge *edge : element->getEdgesList()) {
-                if (edge->getElement(0) == element) {
-                    offset.edgeOffsets_[edge->getID()] = index;
-                    index += edge->getLocalNumberOfBasisFunctions(unknown);
-                }
-            }
-            // Faces and nodes are the same in 1D
-            if (mesh_->dimension() > 1) {
-                for (Base::Node *node : element->getNodesList()) {
-                    if (node->getElement(0) == element) {
-                        offset.nodeOffsets_[node->getID()] = index;
-                        index += node->getLocalNumberOfBasisFunctions(unknown);
-                    }
-                }
-            }
+            visitElementParts(
+                element, mesh_->dimension(), [&](Base::MeshEntity *entity) {
+                    entity->visitEntity(visitor);
+                    *(visitor.target) = index;
+                    index += entity->getLocalNumberOfBasisFunctions(unknown);
+                });
         }
         numberOfBasisFunctions[unknown] = index;
         localNumberOfBasisFunctions_ += index;

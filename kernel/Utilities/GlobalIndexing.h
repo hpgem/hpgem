@@ -44,6 +44,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../Base/Face.h"
 #include "../Base/MeshManipulatorBase.h"
 #include "../Base/Node.h"
+
+#include "Base/MeshEntity.h"
+
 namespace hpgem {
 namespace Utilities {
 
@@ -116,6 +119,11 @@ namespace Utilities {
 /// processor 1.
 ///
 class GlobalIndexing {
+   private:
+    struct Offsets;
+    struct ConstOffsetVisitor;
+    struct OffsetVisitor;
+
    public:
     enum Layout { SEQUENTIAL, BLOCKED_PROCESSOR, BLOCKED_GLOBAL };
 
@@ -133,115 +141,37 @@ class GlobalIndexing {
                const std::vector<std::size_t>* unknowns = nullptr);
 
     /// \brief Lookup the global index of the 0-th basis function local to an
-    /// element. \param element The element of the basis function \param unknown
-    /// The unknown for which this basis function is. \return The global index
-    /// of the basis function.
-    int getGlobalIndex(const Base::Element* element,
+    /// MeshEntity.
+    ///
+    /// \param entity The entity that owns the basis functiosn
+    /// \param unknown The unknown for which this basis function is.
+    /// \return The global index of the basis function.
+    int getGlobalIndex(const Base::MeshEntity* entity,
                        std::size_t unknown) const {
         logger.assert_debug(unknown < totalNumberOfUnknowns_,
                             "No such unknown %", unknown);
         const Offsets& offset = offsets_[unknown];
-        logger.assert_debug(offset.includedInIndex_,
-                            "Unknown not included % in the index", unknown);
-        const auto basisStart = offset.elementOffsets_.find(element->getID());
-        logger.assert_debug(
-            basisStart != offsets_[unknown].elementOffsets_.end(),
-            "No indices known for element %:%", element->getID(), unknown);
-        return basisStart->second;
-    }
-    int getGlobalIndex(const Base::Face* face, std::size_t unknown) const {
-        logger.assert_debug(unknown < totalNumberOfUnknowns_,
-                            "No such unknown %", unknown);
-        const Offsets& offset = offsets_[unknown];
-        logger.assert_debug(offset.includedInIndex_,
-                            "Unknown not included % in the index", unknown);
-        const auto basisStart = offset.faceOffsets_.find(face->getID());
-        logger.assert_debug(basisStart != offsets_[unknown].faceOffsets_.end(),
-                            "No indices known for face %:%", face->getID(),
-                            unknown);
-        return basisStart->second;
-    }
-    int getGlobalIndex(const Base::Edge* edge, std::size_t unknown) const {
-        logger.assert_debug(unknown < totalNumberOfUnknowns_,
-                            "No such unknown %", unknown);
-        const Offsets& offset = offsets_[unknown];
-        logger.assert_debug(offset.includedInIndex_,
-                            "Unknown not included % in the index", unknown);
-        const auto basisStart = offset.edgeOffsets_.find(edge->getID());
-        logger.assert_debug(basisStart != offsets_[unknown].edgeOffsets_.end(),
-                            "No indices known for edge %:%", edge->getID(),
-                            unknown);
-        return basisStart->second;
-    }
-    int getGlobalIndex(const Base::Node* node, std::size_t unknown) const {
-        logger.assert_debug(unknown < totalNumberOfUnknowns_,
-                            "No such unknown %", unknown);
-        const Offsets& offset = offsets_[unknown];
-        logger.assert_debug(offset.includedInIndex_,
-                            "Unknown not included % in the index", unknown);
-        const auto basisStart = offset.nodeOffsets_.find(node->getID());
-        logger.assert_debug(basisStart != offsets_[unknown].nodeOffsets_.end(),
-                            "No indices known for node %:%", node->getID(),
-                            unknown);
-        return basisStart->second;
+        ConstOffsetVisitor visitor(offset);
+        entity->visitEntity(visitor);
+        return visitor.result;
     }
 
-    /// \brief Lookup the local index of a basis function local to an element
+    /// \brief Lookup the local index of a basis function local to a MeshEntity
     /// that is owned by this processor.
     ///
-    /// \param element The element for which to look it up, this processor
+    /// \param entity The MeshEntity for which to look it up, this processor
     /// should own the basis functions for the element.
     /// \param unknown The unknown for which to look up the index.
     /// \return The local index of the 0-th local basis function on the
     /// given element for the given unknown.
-    int getProcessorLocalIndex(const Base::Element* element,
+    int getProcessorLocalIndex(const Base::MeshEntity* entity,
                                std::size_t unknown) const {
         logger.assert_debug(unknown < totalNumberOfUnknowns_,
                             "No such unknown %", unknown);
         const Offsets& offset = offsets_[unknown];
-        logger.assert_debug(offset.includedInIndex_,
-                            "Unknown not included % in the index", unknown);
-        const auto basisStart = offset.elementOffsets_.find(element->getID());
-        logger.assert_debug(basisStart != offset.elementOffsets_.end(),
-                            "No indices known for element %", element->getID());
-        return basisStart->second - offset.blockStart_ + offset.localOffset_;
-    }
-
-    int getProcessorLocalIndex(const Base::Face* face,
-                               std::size_t unknown) const {
-        logger.assert_debug(unknown < totalNumberOfUnknowns_,
-                            "No such unknown %", unknown);
-        const Offsets& offset = offsets_[unknown];
-        logger.assert_debug(offset.includedInIndex_,
-                            "Unknown not included % in the index", unknown);
-        const auto basisStart = offset.faceOffsets_.find(face->getID());
-        logger.assert_debug(basisStart != offset.faceOffsets_.end(),
-                            "No indices known for face %", face->getID());
-        return basisStart->second - offset.blockStart_ + offset.localOffset_;
-    }
-    int getProcessorLocalIndex(const Base::Edge* edge,
-                               std::size_t unknown) const {
-        logger.assert_debug(unknown < totalNumberOfUnknowns_,
-                            "No such unknown %", unknown);
-        const Offsets& offset = offsets_[unknown];
-        logger.assert_debug(offset.includedInIndex_,
-                            "Unknown not included % in the index", unknown);
-        const auto basisStart = offset.edgeOffsets_.find(edge->getID());
-        logger.assert_debug(basisStart != offset.edgeOffsets_.end(),
-                            "No indices known for edge %", edge->getID());
-        return basisStart->second - offset.blockStart_ + offset.localOffset_;
-    }
-    int getProcessorLocalIndex(const Base::Node* node,
-                               std::size_t unknown) const {
-        logger.assert_debug(unknown < totalNumberOfUnknowns_,
-                            "No such unknown %", unknown);
-        const Offsets& offset = offsets_[unknown];
-        logger.assert_debug(offset.includedInIndex_,
-                            "Unknown not included % in the index", unknown);
-        const auto basisStart = offset.nodeOffsets_.find(node->getID());
-        logger.assert_debug(basisStart != offset.nodeOffsets_.end(),
-                            "No indices known for node %", node->getID());
-        return basisStart->second - offset.blockStart_ + offset.localOffset_;
+        ConstOffsetVisitor visitor(offset);
+        entity->visitEntity(visitor);
+        return visitor.result - offset.blockStart_ + offset.localOffset_;
     }
 
     /// Convert a global index of a basis function into a local index
@@ -493,6 +423,67 @@ class GlobalIndexing {
                    globalIndex < blockStart_ + numberOfBasisFunctionsInBlock_;
         }
     };
+
+    struct OffsetVisitor : public Base::MeshEntityVisitor<> {
+        OffsetVisitor(Offsets& offsets)
+            : visitOffsets_(offsets), target(nullptr){};
+
+        void visit(Base::Element& element) final {
+            target = &visitOffsets_.elementOffsets_[element.getID()];
+        }
+        void visit(Base::Face& face) final {
+            target = &visitOffsets_.faceOffsets_[face.getID()];
+        }
+        void visit(Base::Edge& edge) final {
+            target = &visitOffsets_.edgeOffsets_[edge.getID()];
+        }
+        void visit(Base::Node& node) final {
+            target = &visitOffsets_.nodeOffsets_[node.getID()];
+        }
+
+        Offsets& visitOffsets_;
+        int* target;
+    };
+
+    struct ConstOffsetVisitor : public Base::ConstMeshEntityVisitor {
+        ConstOffsetVisitor(const Offsets& offsets) : visitOffsets_(offsets){};
+        void visit(const Base::Element& element) final {
+            const auto basisStart =
+                visitOffsets_.elementOffsets_.find(element.getID());
+            logger.assert_debug(
+                basisStart != visitOffsets_.elementOffsets_.end(),
+                "No offset for Element %", element.getID());
+            result = basisStart->second;
+        }
+
+        void visit(const Base::Face& face) final {
+            const auto basisStart =
+                visitOffsets_.faceOffsets_.find(face.getID());
+            logger.assert_debug(basisStart != visitOffsets_.faceOffsets_.end(),
+                                "No offset for Face %", face.getID());
+            result = basisStart->second;
+        }
+
+        void visit(const Base::Edge& edge) final {
+            const auto basisStart =
+                visitOffsets_.edgeOffsets_.find(edge.getID());
+            logger.assert_debug(basisStart != visitOffsets_.edgeOffsets_.end(),
+                                "No offset for Edge %", edge.getID());
+            result = basisStart->second;
+        }
+
+        void visit(const Base::Node& node) final {
+            const auto basisStart =
+                visitOffsets_.nodeOffsets_.find(node.getID());
+            logger.assert_debug(basisStart != visitOffsets_.nodeOffsets_.end(),
+                                "No offset for Node %", node.getID());
+            result = basisStart->second;
+        }
+
+        const Offsets& visitOffsets_;
+        int result;
+    };
+
     /// Offsets for each of the unknowns
     std::vector<Offsets> offsets_;
     /// The total number of unknowns in the mesh

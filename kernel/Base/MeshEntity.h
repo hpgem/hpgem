@@ -69,6 +69,8 @@ class MeshEntityVisitor {
     virtual void visit(Constified<Base::Node>& node) = 0;
 };
 
+using ConstMeshEntityVisitor = MeshEntityVisitor<true>;
+
 /**
  * Entity of the Mesh, that is an Element, Face, Edge or Node.
  */
