@@ -40,13 +40,14 @@
 
 #include "Base/HpgemAPILinearSteadyState.h"
 #include "petscksp.h"
-#include "FE/BasisFunctions1DH1ConformingLine.h"
-#include "FE/BasisFunctions2DH1ConformingTriangle.h"
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
 
+#include "../ConvergenceTest.h"
+#include "../TestMeshes.h"
+
 #include "Logger.h"
-#include <CMakeDefinitions.h>
+
 using namespace hpgem;
 // If this test ever breaks it is not a bad thing per se. However, once this
 // breaks a thorough convergence analysis needs to be done. If the results still
@@ -69,7 +70,7 @@ class PoissonTest : public Base::HpgemAPILinearSteadyState<DIM> {
           p_(p),
           totalError_(0) {
         using namespace std::string_literals;
-        readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + name);
+        readMesh(name);
     }
 
     void readMesh(const std::string meshName) final {
@@ -141,12 +142,12 @@ class PoissonTest : public Base::HpgemAPILinearSteadyState<DIM> {
         const PointPhysicalT& p) final {
         LinearAlgebra::MiddleSizeVector exactSolution(1);
 
-        double ret = std::sin(2 * M_PI * p[0]);
+        double ret = std::sin(M_PI * p[0]);
         if (p.size() > 1) {
-            ret *= std::cos(2 * M_PI * p[1]) / 2.;
+            ret *= std::cos(M_PI * p[1]);
         }
         if (p.size() > 2) {
-            ret *= std::cos(2 * M_PI * p[2]) * 2.;
+            ret *= std::cos(M_PI * p[2]);
         }
 
         exactSolution[0] = ret;
@@ -158,12 +159,12 @@ class PoissonTest : public Base::HpgemAPILinearSteadyState<DIM> {
         const PointPhysicalT& p) final {
         LinearAlgebra::MiddleSizeVector sourceTerm(1);
 
-        double ret = -std::sin(2 * M_PI * p[0]) * (4 * M_PI * M_PI);
+        double ret = -std::sin(M_PI * p[0]) * (M_PI * M_PI);
         if (DIM > 1) {
-            ret *= std::cos(2 * M_PI * p[1]);
+            ret *= std::cos(M_PI * p[1]) * 2;
         }
         if (DIM > 2) {
-            ret *= std::cos(2 * M_PI * p[2]) * 3;
+            ret *= std::cos(M_PI * p[2]) * 1.5;
         }
 
         sourceTerm[0] = ret;
@@ -280,84 +281,93 @@ class PoissonTest : public Base::HpgemAPILinearSteadyState<DIM> {
     LinearAlgebra::MiddleSizeVector::type totalError_;
 };
 
+template <std::size_t DIM>
+void runConformingPoissonTest(ConvergenceTestSet& testSet, std::size_t p,
+                              bool ignoreErrors) {
+    runConvergenceTest(testSet, ignoreErrors,
+                       [&p](std::string meshName, std::size_t level) {
+                           PoissonTest<DIM> test(meshName, p);
+                           test.solveSteadyStateWithPetsc(true);
+                           return std::real(test.getTotalError());
+                       });
+}
+
 int main(int argc, char** argv) {
+
+    /*
+     * Test solving a simple Poisson problem using conforming basis functions on
+     * several meshes that form refinements. As this gives numerical results the
+     * failure does not necessarily mean a bug, but merely that the convergence
+     * of the results should be checked and the expectations may need to be
+     * updated.
+     *
+     * The tests compute the L2 norm of the error, so expect a convergence rate
+     * of 2^{p+1}. Note the meshes start at a single element, so the first 2-3
+     * convergence rates may be quite off.
+     */
+
     Base::parse_options(argc, argv);
 
-    PoissonTest<1> test0("poissonMesh1.hpgem", 2);
-    test0.solveSteadyStateWithPetsc(true);
-    logger.assert_always((std::abs(test0.getTotalError() - 0.48478776) < 1e-8),
-                         "comparison to old results");
+    bool ignoreErrors = false;
 
-    PoissonTest<1> test1("poissonMesh2.hpgem", 3);
-    test1.solveSteadyStateWithPetsc(true);
-    logger.assert_always((std::abs(test1.getTotalError() - 0.02225892) < 1e-8),
-                         "comparison to old results");
+    ConvergenceTestSet dim1P2 = {getUnitSegmentMeshes(),
+                                 {
+                                     2.03319622e-02,  //------
+                                     1.52069546e-02,  //  1.34
+                                     1.95232226e-03,  //  7.79
+                                     2.45693533e-04,  //  7.95
+                                     3.07637057e-05,  //  7.99
+                                     3.84709137e-06,  //  8.00
+                                 }};
+    runConformingPoissonTest<1>(dim1P2, 2, ignoreErrors);
 
-    PoissonTest<1> test2("poissonMesh3.hpgem", 4);
-    test2.solveSteadyStateWithPetsc(true);
-    logger.assert_always((std::abs(test2.getTotalError() - 0.00008248) < 1e-8),
-                         "comparison to old results");
+    ConvergenceTestSet dim1P4 = {getUnitSegmentMeshes(),
+                                 {
+                                     4.19454427e-04,  //------
+                                     1.05581411e-04,  //  3.97
+                                     3.35867926e-06,  // 31.44
+                                     1.05426524e-07,  // 31.86
+                                     3.29824298e-09,  // 31.96
+                                     1.03098789e-10,  // 31.99
+                                 }};
+    runConformingPoissonTest<1>(dim1P4, 4, ignoreErrors);
 
-    PoissonTest<1> test3("poissonMesh4.hpgem", 5);
-    test3.solveSteadyStateWithPetsc(true);
-    logger.assert_always((std::abs(test3.getTotalError() - 0.00000008) < 1e-8),
-                         "comparison to old results");
+    ConvergenceTestSet dim2P2 = {getUnitSquareTriangleMeshes(),
+                                 {
+                                     2.59545045e-01,  //------
+                                     4.48506825e-02,  //  5.79
+                                     4.83286994e-03,  //  9.28
+                                     6.39494399e-04,  //  7.56
+                                     8.12241571e-05,  //  7.87
+                                     1.01948412e-05,  //  7.97
+                                     1.27567489e-06,  //  7.99
+                                 }};
+    runConformingPoissonTest<2>(dim2P2, 2, ignoreErrors);
 
-    PoissonTest<1> test4("poissonMesh5.hpgem", 1);
-    test4.solveSteadyStateWithPetsc(true);
-    logger.assert_always((std::abs(test4.getTotalError() - 0.00904309) < 1e-8),
-                         "comparison to old results");
+    ConvergenceTestSet dim3P1 = {getUnitCubeCubeMeshes(),
+                                 {
+                                     3.49473341e-01,  //------
+                                     9.30100954e-02,  //  3.76
+                                     2.29923181e-02,  //  4.05
+                                     5.74619219e-03,  //  4.00
+                                     1.43671073e-03,  //  4.00
 
-    PoissonTest<2> test5("poissonMesh6.hpgem", 2);
-    test5.solveSteadyStateWithPetsc(true);
-    logger.assert_always((std::abs(test5.getTotalError() - 0.21870166) < 1e-8),
-                         "comparison to old results");
+                                 }};
+    runConformingPoissonTest<3>(dim3P1, 1, ignoreErrors);
 
-    PoissonTest<2> test6("poissonMesh7.hpgem", 3);
-    test6.solveSteadyStateWithPetsc(true);
-    logger.assert_always((std::abs(test6.getTotalError() - 0.02345377) < 1e-8),
-                         "comparison to old results");
+    // For 3D one needs 4-th order basis functions to have basis functions on
+    // every part (nodes, edges, etc.). To reduce computational time we do not
+    // use all available meshes.
+    {
+        ConvergenceTestSet dim3P4{getUnitCubeCubeMeshes(0, 3),
+                                  {
+                                      2.94250804e-03,  //------
+                                      8.97254213e-05,  // 32.79
+                                      2.89367228e-06,  // 31.01
 
-    PoissonTest<2> test7("poissonMesh8.hpgem", 4);
-    test7.solveSteadyStateWithPetsc(true);
-    logger.assert_always((std::abs(test7.getTotalError() - 0.00039351) < 1e-8),
-                         "comparison to old results");
-
-    PoissonTest<2> test8("poissonMesh9.hpgem", 5);
-    test8.solveSteadyStateWithPetsc(true);
-    logger.assert_always((std::abs(test8.getTotalError() - 0.00000066) < 1e-8),
-                         "comparison to old results");
-
-    PoissonTest<2> test9("poissonMesh10.hpgem", 1);
-    test9.solveSteadyStateWithPetsc(true);
-    logger.assert_always((std::abs(test9.getTotalError() - 0.00911139) < 1e-8),
-                         "comparison to old results");
-
-    PoissonTest<3> test10("poissonMesh11.hpgem", 5);
-    test10.solveSteadyStateWithPetsc(true);
-    logger.assert_always((std::abs(test10.getTotalError() - 0.0121718) < 1e-8),
-                         "comparison to old results");
-
-    PoissonTest<3> test11("poissonMesh12.hpgem", 4);
-    test11.solveSteadyStateWithPetsc(true);
-    logger.assert_always((std::abs(test11.getTotalError() - 0.00216138) < 1e-8),
-                         "comparison to old results");
-
-    PoissonTest<3> test12("poissonMesh13.hpgem", 3);
-    test12.solveSteadyStateWithPetsc(true);
-    logger.assert_always(
-        (std::abs(test12.getTotalError() - 0.000906667) < 1e-8),
-        "comparison to old results");
-
-    PoissonTest<3> test13("poissonMesh14.hpgem", 2);
-    test13.solveSteadyStateWithPetsc(true);
-    logger.assert_always((std::abs(test13.getTotalError() - 0.00138552) < 1e-8),
-                         "comparison to old results");
-
-    PoissonTest<3> test14("poissonMesh15.hpgem", 1);
-    test14.solveSteadyStateWithPetsc(true);
-    logger.assert_always((std::abs(test14.getTotalError() - 0.00454794) < 1e-8),
-                         "comparison to old results");
+                                  }};
+        runConformingPoissonTest<3>(dim3P4, 4, ignoreErrors);
+    }
 
     return 0;
 }
