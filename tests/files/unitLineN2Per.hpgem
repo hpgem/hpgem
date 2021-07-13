@@ -1,14 +1,16 @@
 mesh 2
-2 1 1
+2 2 1
 1 2 
 zones
 1
 Main
 nodes
 1 0 
-1 0x0p+0 
+2 0x0p+0 0x1p+0 
 1 0 
-1 0x1p+0 
+1 0x1p-1 
 elements
 2 0 0 1 0 0 0 
+0
+2 1 0 0 1 0 0 
 0

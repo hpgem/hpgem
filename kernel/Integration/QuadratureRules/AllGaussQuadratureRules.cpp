@@ -47,6 +47,8 @@
 #include "GaussQuadratureRulesForTriangle.h"
 #include "GaussQuadratureRulesForTriangularPrism.h"
 
+#include "Geometry/ReferenceGeometry.h"
+
 namespace hpgem {
 
 namespace QuadratureRules {
@@ -141,7 +143,8 @@ GaussQuadratureRule* AllGaussQuadratureRules::getRule(
             return rule;
         }
     }
-    logger(ERROR, "Tried to find a quadrature rule but didn't find one");
+    logger.assert_always(false, "No quadrature rule found for % and order %",
+                         referenceGeometry->getName(), order);
     return nullptr;
 }
 

@@ -1,0 +1,12 @@
+mesh 2
+1 1 1
+1 1 
+zones
+1
+Main
+nodes
+1 0 
+2 0x0p+0 0x1p+0 
+elements
+2 0 0 0 0 0 0 
+0

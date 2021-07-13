@@ -39,19 +39,29 @@
 #include <cmath>
 #include <functional>
 #include <chrono>
-#include <CMakeDefinitions.h>
 
 #include "Base/CommandLineOptions.h"
 #include "Base/ConfigurationData.h"
 #include "Base/Element.h"
-#include "Base/Face.h"
 #include "Base/HpgemAPILinear.h"
 #include "Integration/ElementIntegral.h"
 #include "Integration/FaceIntegral.h"
-#include "Output/TecplotDiscontinuousSolutionWriter.h"
-#include "Output/TecplotSingleElementWriter.h"
 #include "FE/BasisFunctions2DH1ConformingTriangle.h"
 #include "Logger.h"
+
+#include "../ConvergenceTest.h"
+#include "../TestMeshes.h"
+
+// This is based on solving the advection equation using an upwind DG scheme.
+// Thus it solves du/dt = -a . grad u, where a is the advective velocity, that
+// is chosen to be constant (but not aligned with the grid).
+//
+// The starting field is sin(2pi x_i) in each coordinate direction x_i, giving
+// the solution sin(2 pi x_i - a_i t). As this implementation uses non periodic
+// boundaries this is also applied as boundary condition on the inflow
+// boundaries.
+//
+// The convergence rate seems to between h^{p + 1/2} and h^{p+1}.
 
 /// This class is used to test if the advection equation is solved correctly
 /// when using HpgemAPILinear. Linear advection equation: du/dt + a[0] du/dx +
@@ -66,10 +76,31 @@ class AdvectionLinear : public Base::HpgemAPILinear<DIM> {
 
     /// Constructor. Assign all private variables.
     AdvectionLinear(const std::string fileName, const std::size_t p)
-        : Base::HpgemAPILinear<DIM>(1, p), fileName(fileName) {
+        : Base::HpgemAPILinear<DIM>(
+              1, p,
+              TimeIntegration::AllTimeIntegrators::Instance().getRule(5, 7), 0,
+              false, true),
+          fileName(fileName) {
         for (std::size_t i = 0; i < DIM; ++i) {
             a[i] = 0.1 + 0.1 * i;
         }
+    }
+
+    virtual LinearAlgebra::MiddleSizeVector computeIntegrandSourceTermAtFace(
+        Base::PhysicalFace<DIM>& face, const double time,
+        const std::size_t orderTimeDerivative) final {
+        const LinearAlgebra::SmallVector<DIM>& normal =
+            face.getUnitNormalVector();
+        LinearAlgebra::MiddleSizeVector result(face.getNumOfBasisFunctions());
+        double flowDirection = normal * a;
+        if (flowDirection < 0 && orderTimeDerivative == 0) {  // Inflow boundary
+            double val = std::real(
+                getExactSolution(face.getPointPhysical(), time, 0)[0]);
+            for (std::size_t i = 0; i < face.getNumOfBasisFunctions(); ++i) {
+                result[i] = -val * flowDirection * face.basisFunction(i);
+            }
+        }
+        return result;
     }
 
     /// \brief Compute the integrals of the right-hand side associated with
@@ -180,7 +211,7 @@ class AdvectionLinear : public Base::HpgemAPILinear<DIM> {
         const std::size_t nT  // number of time steps
     ) {
         this->readMesh(fileName);
-        this->solve(0, T, (T / nT), 0, false);
+        this->solve(0, T, (T / nT), 1, false);
         return this->computeTotalError(this->solutionVectorId_, T);
     }
 
@@ -191,58 +222,80 @@ class AdvectionLinear : public Base::HpgemAPILinear<DIM> {
     LinearAlgebra::SmallVector<DIM> a;
 };
 
+struct AdvectionParameters {
+    std::size_t p;
+    double endTime;
+    std::size_t timeSteps;
+};
+
+template <std::size_t DIM>
+void runAdvectionTestSet(ConvergenceTestSet& testSet,
+                         AdvectionParameters& parameters, bool ignoreFailures) {
+    runConvergenceTest(testSet, ignoreFailures,
+                       [&parameters](std::string meshFile, std::size_t level) {
+                           AdvectionLinear<DIM> test(meshFile, parameters.p);
+                           return std::real(test.createAndSolve(
+                               parameters.endTime, parameters.timeSteps));
+                       });
+}
+
 int main(int argc, char** argv) {
     using namespace std::string_literals;
     Base::parse_options(argc, argv);
-
-    // Define test parameters
-    const std::size_t numberOfTests = 14;
-    std::array<std::size_t, numberOfTests> dim = {1, 1, 1, 1, 1, 2, 2,
-                                                  2, 2, 2, 3, 3, 3, 3};
-    std::array<std::size_t, numberOfTests> p = {1, 2, 3, 4, 5, 1, 2,
-                                                3, 4, 5, 1, 2, 3, 4};
-    std::array<double, numberOfTests> T = {0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
-                                           0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1};
-    std::array<std::size_t, numberOfTests> nT = {10, 10, 10, 10, 10, 10, 10,
-                                                 10, 10, 10, 10, 10, 10, 10};
-    std::array<double, numberOfTests> errors = {
-        0.00322137, 0.000642002, 0.000417087, 3.90839e-05, 2.83226e-06,
-        0.00361477, 0.000847142, 0.00236532,  4.79497e-05, 7.70023e-05,
-        0.00368731, 0.00187681,  0.000534851, 0.00053317};
 
     // Define clocks for measuring simulation time.
     std::chrono::time_point<std::chrono::system_clock> startClock, endClock;
     std::chrono::duration<double> elapsed_seconds;
 
-    // Define error
-    LinearAlgebra::MiddleSizeVector::type error;
-
     startClock = std::chrono::system_clock::now();
-    // Perform tests
-    for (std::size_t i = 0; i < numberOfTests; i++) {
-        std::string fileName = Base::getCMAKE_hpGEM_SOURCE_DIR() +
-                               "/tests/files/"s + "advectionMesh"s +
-                               std::to_string(i + 1) + ".hpgem"s;
-        if (dim[i] == 1) {
-            AdvectionLinear<1> test(fileName, p[i]);
-            error = test.createAndSolve(T[i], nT[i]);
-            logger(INFO, "Error: % (expected %)", error, errors[i]);
-            logger.assert_always((std::abs(error - errors[i]) < 1e-8),
-                                 "comparison to old results");
-        } else if (dim[i] == 2) {
-            AdvectionLinear<2> test(fileName, p[i]);
-            error = test.createAndSolve(T[i], nT[i]);
-            logger(INFO, "Error: % (expected %)", error, errors[i]);
-            logger.assert_always((std::abs(error - errors[i]) < 1e-8),
-                                 "comparison to old results");
-        } else {
-            AdvectionLinear<3> test(fileName, p[i]);
-            error = test.createAndSolve(T[i], nT[i]);
-            logger(INFO, "Error: % (expected %)", error, errors[i]);
-            // logger.assert_always((std::abs(error - errors[i]) < 1e-8),
-            // "comparison to old results");
-        }
-    }
+
+    // For recomputing the error tables
+    bool ignoreFailures = false;
+
+    AdvectionParameters dim1Params = {1, 0.1, 10};
+    // Minimum of 4 elements
+    ConvergenceTestSet dim1Meshes = {getUnitSegmentMeshes(2),
+                                     {
+                                         6.59544434e-02,  //------
+                                         1.79880373e-02,  //  3.67
+                                         5.18317146e-03,  //  3.47
+                                         1.51017550e-03,  //  3.43
+                                     }};
+
+    runAdvectionTestSet<1>(dim1Meshes, dim1Params, ignoreFailures);
+
+    ConvergenceTestSet dim2P1Meshes = {getUnitSquareTriangleMeshes(2),
+                                       {
+                                           1.03268522e-01,  //------
+                                           2.27752735e-02,  //  4.53
+                                           6.72435135e-03,  //  3.39
+                                           2.00067031e-03,  //  3.36
+                                           5.52269096e-04,  //  3.62
+                                       }};
+    AdvectionParameters dim2P1Params = {1, 0.1, 10};
+    runAdvectionTestSet<2>(dim2P1Meshes, dim2P1Params, ignoreFailures);
+
+    // Second order dim2
+    ConvergenceTestSet dim2P2Meshes = {getUnitSquareTriangleMeshes(1, 5),
+                                       {
+                                           6.64556121e-02,  //------
+                                           7.11147068e-03,  //  9.34
+                                           2.71258393e-03,  //  2.62
+                                           3.91992217e-04,  //  6.92
+                                       }};
+    AdvectionParameters dim2P2Params = {2, 0.1, 10};
+    runAdvectionTestSet<2>(dim2P2Meshes, dim2P2Params, ignoreFailures);
+
+    // First order dim 3
+    ConvergenceTestSet dim3Meshes = {getUnitCubeCubeMeshes(2, 5),
+                                     {
+                                         5.55152172e-02,  //------
+                                         1.43980436e-02,  //  3.86
+                                         3.81712900e-03,  //  3.77
+                                     }};
+    AdvectionParameters dim3Params = {1, 0.02, 2};
+    runAdvectionTestSet<3>(dim3Meshes, dim3Params, ignoreFailures);
+
     endClock = std::chrono::system_clock::now();
     elapsed_seconds = endClock - startClock;
     std::cout << "Elapsed time for solving the PDE: " << elapsed_seconds.count()
