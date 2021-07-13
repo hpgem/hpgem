@@ -58,12 +58,9 @@ void DGMaxEVConvergenceTest<DIM>::runInternal(
     std::size_t elementMatrices = solverConfig_.useProjector_ ? 3 : 2;
     Base::ConfigurationData configData(unknowns, 1);
 
-    auto mesh = DGMax::readMesh<DIM>(
-        meshFileNames_[level], &configData,
-        [&](const Geometry::PointPhysical<DIM>& p) {
-            return jelmerStructure(p, testCase_.getStructureId());
-        },
-        elementMatrices);
+    PredefinedStructureDescription structure(testCase_.getStructureId(), DIM);
+    auto mesh = DGMax::readMesh<DIM>(meshFileNames_[level], &configData,
+                                     structure, elementMatrices);
     DGMaxLogger(INFO, "Loaded mesh % with % local elements.",
                 meshFileNames_[level], mesh->getNumberOfElements());
 

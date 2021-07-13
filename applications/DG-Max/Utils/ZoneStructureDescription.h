@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2020, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,47 +35,51 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef HPGEM_ZONESTRUCTUREDESCRIPTION_H
+#define HPGEM_ZONESTRUCTUREDESCRIPTION_H
 
-#ifndef HPGEM_EVTESTPOINT_H
-#define HPGEM_EVTESTPOINT_H
-
-#include <utility>
 #include <vector>
+#include <regex>
+#include <cmath>
+#include "Logger.h"
 
-#include "LinearAlgebra/SmallVector.h"
-#include "EVConvergenceResult.h"
-#include "Utils/PredefinedStructure.h"
+#include "StructureDescription.h"
 
 namespace DGMax {
+/// Structure definition based on the zone information of the mesh
+class ZoneInfoStructureDefinition : public StructureDescription {
 
-/// A description of a point in a bandstructure that can be used as test for
-/// bandstructure eigenvalue solvers. The given information is, combined with a
-/// unit cell sufficient to determine the frequency of the bands.
-///
-/// \tparam DIM The dimension in which the problem is situated.
-template <std::size_t DIM>
-class EVTestPoint {
    public:
-    EVTestPoint(const LinearAlgebra::SmallVector<DIM>& kpoint,
-                PredefinedStructure structureId, size_t numberOfEigenvalues)
-        : kpoint_(kpoint),
-          structureId_(structureId),
-          numberOfEigenvalues_(numberOfEigenvalues) {}
-
-    const LinearAlgebra::SmallVector<DIM>& getKPoint() const {
-        return kpoint_;
+    /// Create a structure definition based on the zone information in the mesh.
+    ///
+    /// This will determine the material properties of each element based on the
+    /// zone it belongs to. The name of the zone will be matched in order to the
+    /// given regexes. The material information (epsilon) of the first matching
+    /// regex will be used. If no regex matches, it will use a default epsilon
+    /// or generate an error when the default is nan.
+    ///
+    /// \param regexes vector of regexes used to match zone names
+    /// \param epsilons vector with corresponding values of epsilon
+    /// \param defaultEpsilon Optional default epsilon when no regex matches
+    ///   (nan, default, will generate an error)
+    ZoneInfoStructureDefinition(std::vector<std::regex> regexes,
+                                std::vector<double> epsilons,
+                                double defaultEpsilon = std::nan(""))
+        : regexes_(std::move(regexes)),
+          epsilons_(std::move(epsilons)),
+          defaultEpsilon_(defaultEpsilon) {
+        logger.assert_always(regexes_.size() == epsilons_.size(),
+                             "Regexes not matching material information");
     };
 
-    PredefinedStructure getStructureId() const { return structureId_; }
-
-    std::size_t getNumberOfEigenvalues() const { return numberOfEigenvalues_; }
+    ElementInfos* createElementInfo(const Base::Element* element) final;
 
    private:
-    LinearAlgebra::SmallVector<DIM> kpoint_;
-    PredefinedStructure structureId_;
-    std::size_t numberOfEigenvalues_;
+    std::vector<std::regex> regexes_;
+    std::vector<double> epsilons_;
+    double defaultEpsilon_;
 };
 
 }  // namespace DGMax
 
-#endif  // HPGEM_EVTESTPOINT_H
+#endif  // HPGEM_ZONESTRUCTUREDESCRIPTION_H

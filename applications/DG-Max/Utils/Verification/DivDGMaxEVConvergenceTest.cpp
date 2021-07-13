@@ -40,6 +40,7 @@
 
 #include "DGMaxLogger.h"
 #include "DGMaxProgramUtils.h"
+#include "Utils/PredefinedStructure.h"
 
 namespace DGMax {
 template <std::size_t DIM>
@@ -50,11 +51,9 @@ void DivDGMaxEVConvergenceTest<DIM>::runInternal(
     logger.assert_always(level < meshFileNames_.size(), "No such mesh");
 
     Base::ConfigurationData configData(2, 1);
-    auto mesh = DGMax::readMesh<DIM>(
-        meshFileNames_[level], &configData,
-        [&](const Geometry::PointPhysical<DIM>& p) {
-            return jelmerStructure(p, testCase_.getStructureId());
-        });
+    PredefinedStructureDescription structure(testCase_.getStructureId(), DIM);
+    auto mesh =
+        DGMax::readMesh<DIM>(meshFileNames_[level], &configData, structure);
     DGMaxLogger(INFO, "Loaded mesh % with % local elements.",
                 meshFileNames_[level], mesh->getNumberOfElements());
 

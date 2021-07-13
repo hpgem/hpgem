@@ -3,7 +3,7 @@
 #define HPGEM_APP_DGMAXPROGRAMUTILS_H
 
 #include <memory>
-#include <ElementInfos.h>
+#include "Utils/StructureDescription.h"
 
 namespace hpgem {
 namespace Base {
@@ -21,7 +21,7 @@ void printArguments(int argc, char** argv);
 template <std::size_t DIM>
 std::unique_ptr<Base::MeshManipulator<DIM>> readMesh(
     std::string fileName, Base::ConfigurationData* configData,
-    ElementInfos::EpsilonFunc<DIM> epsilonFunc,
+    StructureDescription& structureDescription,
     std::size_t numberOfElementMatrices = 2);
 
 /// A path in either real or reciprocal space
@@ -49,6 +49,22 @@ struct PointPath {
 /// string to parse \return The points on the path
 template <std::size_t DIM>
 PointPath<DIM> parsePath(const std::string& path);
+
+/// Heuristically determine the way to determine the structure description.
+/// It accepts three forms:
+///   - A single integer: the index into the predefined structures
+///   - A filename: The file should contain lines of the form 'regex,epsilon',
+///     where regex is a regular expression that matches some of the zones and
+///     epsilon is the corresponding epsilon.
+///   - An inline version of the filename using where each regex,epsilon pair is
+///     separated by a semicolon. E.g. regex1,1;regex2,12.1
+///
+/// \param input The index or file name
+/// \param dim The dimension of the mesh
+/// \return A structure description based on the input
+std::unique_ptr<StructureDescription> determineStructureDescription(
+    const std::string& input, std::size_t dim);
+
 }  // namespace DGMax
 
 #endif  // HPGEM_APP_DGMAXPROGRAMUTILS_H
