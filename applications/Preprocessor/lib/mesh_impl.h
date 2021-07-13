@@ -44,19 +44,18 @@ namespace Preprocessor {
 
 template <std::size_t entityDimension, std::size_t meshDimension>
 Element<meshDimension>& MeshEntity<entityDimension, meshDimension>::getElement(
-    std::size_t i) {
+    EntityLId i) {
     return mesh->getElement(elementIDs[i]);
 };
 
 template <std::size_t entityDimension, std::size_t meshDimension>
 const Element<meshDimension>&
-    MeshEntity<entityDimension, meshDimension>::getElement(
-        std::size_t i) const {
+    MeshEntity<entityDimension, meshDimension>::getElement(EntityLId i) const {
     return mesh->getElement(elementIDs[i]);
 }
 
 template <std::size_t entityDimension, std::size_t meshDimension>
-std::size_t MeshEntity<entityDimension, meshDimension>::getElementIndex(
+EntityLId MeshEntity<entityDimension, meshDimension>::getElementIndex(
     const Element<meshDimension>& element) const {
     for (std::size_t i = 0; i < elementIDs.size(); ++i) {
         if (getElement(i) == element) {
@@ -74,13 +73,13 @@ std::size_t MeshEntity<entityDimension, meshDimension>::getNumberOfElements()
 }
 
 template <std::size_t entityDimension, std::size_t meshDimension>
-std::size_t MeshEntity<entityDimension, meshDimension>::getLocalIndex(
-    std::size_t i) const {
+EntityLId MeshEntity<entityDimension, meshDimension>::getLocalIndex(
+    EntityLId i) const {
     return localIDs[i];
 }
 
 template <std::size_t entityDimension, std::size_t meshDimension>
-std::size_t MeshEntity<entityDimension, meshDimension>::getLocalIndex(
+EntityLId MeshEntity<entityDimension, meshDimension>::getLocalIndex(
     const Element<meshDimension>& element) const {
     for (std::size_t i = 0; i < elementIDs.size(); ++i) {
         if (getElement(i).getGlobalIndex() == element.getGlobalIndex()) {
@@ -94,7 +93,7 @@ std::size_t MeshEntity<entityDimension, meshDimension>::getLocalIndex(
 }
 
 template <std::size_t entityDimension, std::size_t meshDimension>
-std::size_t MeshEntity<entityDimension, meshDimension>::getGlobalIndex() const {
+EntityGId MeshEntity<entityDimension, meshDimension>::getGlobalIndex() const {
     return entityID;
 }
 
@@ -114,7 +113,7 @@ std::vector<MeshEntity<(d < 0 ? d + meshDimension : d), meshDimension>>
 
 template <std::size_t entityDimension, std::size_t meshDimension>
 template <int d>
-std::vector<std::size_t> MeshEntity<
+std::vector<EntityGId> MeshEntity<
     entityDimension, meshDimension>::getIncidenceListAsIndices() const {
     static_assert(d + entityDimension >= 0,
                   "The codimension you are interested in is too high for the "
@@ -126,16 +125,16 @@ std::vector<std::size_t> MeshEntity<
         return {getGlobalIndex()};
     }
     if (d == meshDimension) {
-        return std::vector<std::size_t>(elementIDs.begin(), elementIDs.end());
+        return std::vector<EntityGId>(elementIDs.begin(), elementIDs.end());
     } else if (d < entityDimension) {
         // easy case: all adjacent entities of this entityDimension are adjacent
         // to all adjacent elements
         return getElement(0).template getIncidenceListAsIndices<d>(*this);
     } else {
-        std::vector<std::size_t> result;
+        std::vector<EntityGId> result;
         for (auto elementID : elementIDs) {
             const auto& element = mesh->getElement(elementID);
-            std::vector<std::size_t> newEntries =
+            std::vector<EntityGId> newEntries =
                 element.template getIncidenceListAsIndices<d>(*this);
             result.insert(result.end(), newEntries.begin(), newEntries.end());
         }
@@ -147,7 +146,7 @@ std::vector<std::size_t> MeshEntity<
 
 template <std::size_t entityDimension, std::size_t meshDimension>
 void MeshEntity<entityDimension, meshDimension>::addElement(
-    std::size_t elementID, std::size_t localEntityIndex) {
+    EntityGId elementID, EntityLId localEntityIndex) {
     elementIDs.push_back(elementID);
     localIDs.push_back(localEntityIndex);
 }
@@ -169,14 +168,13 @@ bool Element<dimension>::operator==(const Element& other) const {
 
 template <std::size_t dimension>
 LinearAlgebra::SmallVector<dimension> Element<dimension>::getCoordinate(
-    std::size_t localIndex) const {
-    return this->mesh->getCoordinate(globalCoordinateIndices[localIndex]);
+    EntityLId localIndex) const {
+    return this->mesh->getCoordinate(globalCoordinateIndices[localIndex.id]);
 }
 
 template <std::size_t dimension>
-std::size_t Element<dimension>::getCoordinateIndex(
-    std::size_t localIndex) const {
-    return globalCoordinateIndices[localIndex];
+CoordId Element<dimension>::getCoordinateIndex(EntityLId localIndex) const {
+    return globalCoordinateIndices[localIndex.id];
 }
 
 template <std::size_t dimension>
@@ -192,24 +190,22 @@ std::vector<LinearAlgebra::SmallVector<dimension>>
 
 template <std::size_t dimension>
 void Element<dimension>::setNodeCoordinate(
-    std::size_t localIndex,
-    LinearAlgebra::SmallVector<dimension> newCoordinate) {
-    std::size_t globalIndex = globalCoordinateIndices[localIndex];
+    EntityLId localIndex, LinearAlgebra::SmallVector<dimension> newCoordinate) {
+    CoordId globalIndex = globalCoordinateIndices[localIndex.id];
     this->mesh->updateCoordinate(globalIndex, newCoordinate);
 }
 
 template <std::size_t dimension>
-void Element<dimension>::setNode(std::size_t localIndex,
-                                 std::size_t globalIndex,
-                                 std::size_t coordinateIndex) {
-    incidenceLists[0][localIndex] = globalIndex;
-    globalCoordinateIndices[localIndex] = coordinateIndex;
+void Element<dimension>::setNode(EntityLId localIndex, EntityGId globalIndex,
+                                 CoordId coordinateIndex) {
+    incidenceLists[0][localIndex.id] = globalIndex;
+    globalCoordinateIndices[localIndex.id] = coordinateIndex;
 }
 
 template <std::size_t dimension>
 template <std::size_t d>
-std::enable_if_t<(d > 0)> Element<dimension>::setEntity(
-    std::size_t localIndex, std::size_t globalIndex) {
+std::enable_if_t<(d > 0)> Element<dimension>::setEntity(EntityLId localIndex,
+                                                        EntityGId globalIndex) {
     incidenceLists[d][localIndex] = globalIndex;
 }
 
@@ -229,18 +225,20 @@ std::vector<MeshEntity<(d < 0 ? d + dimension : d), dimension>>
 
 template <std::size_t dimension>
 template <int d, std::size_t entityDimension>
-std::vector<std::size_t> Element<dimension>::getIncidenceListAsIndices(
+std::vector<EntityGId> Element<dimension>::getIncidenceListAsIndices(
     const MeshEntity<entityDimension, dimension>& entity) const {
-    auto result = getLocalIncidenceListAsIndices<d>(entity);
-    for (auto& index : result) {
-        index = incidenceLists[(d < 0 ? d + dimension : d)][index];
+    auto localIndices = getLocalIncidenceListAsIndices<d>(entity);
+    std::vector<EntityGId> globalIndices(localIndices.size());
+    for (std::size_t i = 0; i < globalIndices.size(); ++i) {
+        globalIndices[i] =
+            incidenceLists[(d < 0 ? d + dimension : d)][localIndices[i]];
     }
-    return result;
+    return globalIndices;
 }
 
 template <std::size_t dimension>
 template <int d, std::size_t entityDimension>
-std::vector<std::size_t> Element<dimension>::getLocalIncidenceListAsIndices(
+std::vector<EntityLId> Element<dimension>::getLocalIncidenceListAsIndices(
     const MeshEntity<entityDimension, dimension>& entity) const {
     static_assert(d + dimension >= 0,
                   "The requested codimension is too high for the dimension of "
@@ -253,20 +251,23 @@ std::vector<std::size_t> Element<dimension>::getLocalIncidenceListAsIndices(
         referenceGeometry
             ->template getAdjacentEntities<entityDimension, actualDimension>(
                 entity.getLocalIndex(*this));
-    return result;
+    std::vector<EntityLId> realResult(result.size());
+    for (std::size_t i = 0; i < result.size(); ++i) {
+        realResult[i] = EntityLId(result[i]);
+    }
+    return realResult;
 }
 
 template <std::size_t dimension>
-void Element<dimension>::addNode(std::size_t globalNodeIndex,
-                                 std::size_t coordinateIndex) {
+void Element<dimension>::addNode(EntityGId globalNodeIndex,
+                                 CoordId coordinateIndex) {
     incidenceLists[0].push_back(globalNodeIndex);
     globalCoordinateIndices.push_back(coordinateIndex);
 }
 
 template <std::size_t dimension>
 template <std::size_t d>
-std::enable_if_t<(d > 0)> Element<dimension>::addEntity(
-    std::size_t globalIndex) {
+std::enable_if_t<(d > 0)> Element<dimension>::addEntity(EntityGId globalIndex) {
     incidenceLists[d].push_back(globalIndex);
 }
 
@@ -360,10 +361,8 @@ void Mesh<dimension>::setNumberOfNodes(std::size_t number) {
 }
 
 template <std::size_t dimension>
-std::size_t Mesh<dimension>::addNode() {
-    std::size_t newIndex = otherEntities.template get<0>().size();
-    otherEntities.template get<0>().push_back({this, newIndex});
-    return newIndex;
+EntityGId Mesh<dimension>::addNode() {
+    return newEntity<0>();
 }
 
 template <std::size_t dimension>
@@ -374,28 +373,28 @@ void Mesh<dimension>::addNodes(std::size_t count) {
 }
 
 template <std::size_t dimension>
-std::size_t Mesh<dimension>::addNodeCoordinate(
-    std::size_t nodeIndex, LinearAlgebra::SmallVector<dimension> coordinate) {
+CoordId Mesh<dimension>::addNodeCoordinate(
+    EntityGId nodeIndex, LinearAlgebra::SmallVector<dimension> coordinate) {
     coordinates.push_back({nodeIndex, coordinate});
-    return coordinates.size() - 1;
+    return CoordId(coordinates.size() - 1);
 }
 
 template <std::size_t dimension>
-void Mesh<dimension>::addElement(std::vector<std::size_t> nodeCoordinateIDs,
+void Mesh<dimension>::addElement(std::vector<CoordId> nodeCoordinateIDs,
                                  const std::string& zoneName) {
-    std::size_t elementID = elementsList.size();
+    EntityGId elementID = EntityGId(elementsList.size());
     Element<dimension> newElement{this, elementID, getZoneId(zoneName)};
     newElement.setGeometry(findGeometry(nodeCoordinateIDs.size()));
     for (auto coordinateID : nodeCoordinateIDs) {
-        std::size_t nodeID = coordinates[coordinateID].nodeIndex;
+        EntityGId nodeID = coordinates[coordinateID.id].nodeIndex;
         newElement.addNode(nodeID, coordinateID);
     }
     elementsList.push_back(newElement);
     otherEntities.template get<dimension>().push_back(newElement);
     for (std::size_t i = 0; i < nodeCoordinateIDs.size(); ++i) {
         auto coordinateID = nodeCoordinateIDs[i];
-        std::size_t nodeID = coordinates[coordinateID].nodeIndex;
-        otherEntities.template get<0>()[nodeID].addElement(elementID, i);
+        EntityGId nodeID = coordinates[coordinateID.id].nodeIndex;
+        otherEntities.template get<0>()[nodeID.id].addElement(elementID, i);
     }
     fixElement(elementsList.back(), tag<dimension - 1>{});
 }
@@ -433,18 +432,20 @@ void Mesh<dimension>::fixEntity(Element<dimension>& element,
                                 std::size_t index) {
     std::vector<std::size_t> localNodeIndices =
         element.referenceGeometry->template getAdjacentEntities<d, 0>(index);
-    for (auto& nodeIndex : localNodeIndices) {
-        nodeIndex =
-            element.template getIncidentEntity<0>(nodeIndex).getGlobalIndex();
+    std::vector<EntityGId> globalNodeIndices(localNodeIndices.size());
+    for (std::size_t i = 0; i < localNodeIndices.size(); ++i) {
+        globalNodeIndices[i] =
+            element.template getIncidentEntity<0>(localNodeIndices[i])
+                .getGlobalIndex();
     }
-    auto candidates =
-        getNodes()[localNodeIndices[0]].template getIncidenceListAsIndices<d>();
+    auto candidates = getNodes()[globalNodeIndices[0].id]
+                          .template getIncidenceListAsIndices<d>();
     std::sort(candidates.begin(), candidates.end());
-    for (std::size_t i = 1; i < localNodeIndices.size(); ++i) {
-        auto newElements = getNodes()[localNodeIndices[i]]
+    for (std::size_t i = 1; i < globalNodeIndices.size(); ++i) {
+        auto newElements = getNodes()[globalNodeIndices[i].id]
                                .template getIncidenceListAsIndices<d>();
         std::sort(newElements.begin(), newElements.end());
-        std::vector<std::size_t> temp;
+        std::vector<EntityGId> temp;
         temp.reserve(std::max(candidates.size(), newElements.size()));
         std::set_intersection(candidates.begin(), candidates.end(),
                               newElements.begin(), newElements.end(),
@@ -452,10 +453,10 @@ void Mesh<dimension>::fixEntity(Element<dimension>& element,
         candidates = std::move(temp);
     }
     logger.assert_always(candidates.size() < 2, "mesh data is not consistent");
-    std::size_t entityIndex =
+    EntityGId entityIndex =
         (candidates.size() == 1 ? candidates[0] : newEntity<d>());
     element.template addEntity<d>(entityIndex);
-    otherEntities.template get<d>()[entityIndex].addElement(
+    otherEntities.template get<d>()[entityIndex.id].addElement(
         element.getGlobalIndex(), index);
 }
 
