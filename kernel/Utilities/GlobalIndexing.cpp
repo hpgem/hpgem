@@ -58,6 +58,13 @@ GlobalIndexing::GlobalIndexing(Base::MeshManipulatorBase *mesh, Layout layout,
     reset(mesh, layout, unknowns);
 }
 
+/**
+ * Visit the element and all its boundary parts in the canonical order
+ *
+ * @param element The element to visit
+ * @param meshDimension The dimension of the mesh
+ * @param visitor The visitor to use
+ */
 void visitElementParts(const Base::Element *element, std::size_t meshDimension,
                        std::function<void(const Base::MeshEntity *)> visitor) {
     visitor(element);
@@ -74,18 +81,37 @@ void visitElementParts(const Base::Element *element, std::size_t meshDimension,
     }
 }
 
-void visitElementParts(Base::Element *element, std::size_t meshDimension,
-                       std::function<void(Base::MeshEntity *)> visitor) {
+/**
+ * For an owned element, visit the element and the boundary parts it owns in the
+ * cononical order.
+ *
+ * @param element An element owned by the current process
+ * @param meshDimension The dimension of the mesh
+ * @param visitor The visitor to use
+ */
+void visitElementOwnedParts(Base::Element *element, std::size_t meshDimension,
+                            std::function<void(Base::MeshEntity *)> visitor) {
+    logger.assert_debug(element->isOwnedByCurrentProcessor(),
+                        "Non owned element");
     visitor(element);
+    // Note each part is checked for the owning element to ensure it is added
+    // only once. The check is safe because the element is owned by the current
+    // process.
     for (Base::Face *face : element->getFacesList()) {
-        visitor(face);
+        if (face->getOwningElement() == element) {
+            visitor(face);
+        }
     }
     for (Base::Edge *edge : element->getEdgesList()) {
-        visitor(edge);
+        if (edge->getOwningElement() == element) {
+            visitor(edge);
+        }
     }
     if (meshDimension > 1) {
         for (Base::Node *node : element->getNodesList()) {
-            visitor(node);
+            if (node->getOwningElement() == element) {
+                visitor(node);
+            }
         }
     }
 }
@@ -226,12 +252,12 @@ void GlobalIndexing::constructUnblocked() {
     // Construct local ordering.
     std::size_t index = 0;
     for (Base::Element *element : mesh_->getElementsList()) {
-        visitElementParts(
+        visitElementOwnedParts(
             element, mesh_->dimension(), [&](Base::MeshEntity *entity) {
                 for (std::size_t unknown : includedUnknowns_) {
                     OffsetVisitor visitor(offsets_[unknown]);
                     entity->visitEntity(visitor);
-                    *(visitor.target) = index;
+                    *(visitor.entityOffset_) = index;
                     index += entity->getLocalNumberOfBasisFunctions(unknown);
                 }
             });
@@ -275,16 +301,16 @@ void GlobalIndexing::constructBlocked(bool global) {
 
     // Number the local basis functions for each unknown by 0...Nu-1, where Nu
     // is the number of local basis functions for this unknown.
-    //
     for (std::size_t unknown : includedUnknowns_) {
         Offsets &offset = offsets_[unknown];
         OffsetVisitor visitor(offset);
         std::size_t index = 0;
         for (Base::Element *element : mesh_->getElementsList()) {
-            visitElementParts(
-                element, mesh_->dimension(), [&](Base::MeshEntity *entity) {
+            visitElementOwnedParts(
+                element, mesh_->dimension(),
+                [&index, &visitor, unknown](Base::MeshEntity *entity) {
                     entity->visitEntity(visitor);
-                    *(visitor.target) = index;
+                    *(visitor.entityOffset_) = index;
                     index += entity->getLocalNumberOfBasisFunctions(unknown);
                 });
         }
@@ -695,12 +721,12 @@ void GlobalIndexing::communicatePushPullElements() {
     // and nodes that:
     //  - border an element in the pushElements list;
     //  - are not owned by the current processor;
-    //  - are not adjacent to an element that is owned by the target
+    //  - are not adjacent to an element that is owned by the entityOffset_
     //    processor.
     // As we own all the elements in the pushElements list, we do have this
     // information after round one. Furthermore, we reduce the amount of
     // messages as much as possible with the second two conditions, for which
-    // the target processor has already received the information in round one.
+    // the entityOffset_ processor has already received the information in round one.
     // After sending the information we again receive and process the
     // information send from the other processors.
 
@@ -714,7 +740,7 @@ void GlobalIndexing::communicatePushPullElements() {
     // till after the send finishes. We therefore store a vector of the raw
     // messages here.
     std::vector<std::vector<std::size_t>> sendMessages(firstRoundSends);
-    // For each target processor, the set of tags that need to be send in
+    // For each entityOffset_ processor, the set of tags that need to be send in
     // the second round.
     std::map<std::size_t, std::set<std::size_t>> secondRound;
 

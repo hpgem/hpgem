@@ -153,7 +153,7 @@ class GlobalIndexing {
         const Offsets& offset = offsets_[unknown];
         ConstOffsetVisitor visitor(offset);
         entity->visitEntity(visitor);
-        return visitor.result;
+        return visitor.entityOffset_;
     }
 
     /// \brief Lookup the local index of a basis function local to a MeshEntity
@@ -171,7 +171,7 @@ class GlobalIndexing {
         const Offsets& offset = offsets_[unknown];
         ConstOffsetVisitor visitor(offset);
         entity->visitEntity(visitor);
-        return visitor.result - offset.blockStart_ + offset.localOffset_;
+        return visitor.entityOffset_ - offset.blockStart_ + offset.localOffset_;
     }
 
     /// Convert a global index of a basis function into a local index
@@ -424,27 +424,38 @@ class GlobalIndexing {
         }
     };
 
+    /**
+     * Visitor to access the *Offsets_ members (e.g. elementOffsets_) of the
+     * Offsets class. If there is no offset entry available for the MeshEntity
+     * then it will be created (and initialized to the default 0).
+     */
     struct OffsetVisitor : public Base::MeshEntityVisitor<> {
         OffsetVisitor(Offsets& offsets)
-            : visitOffsets_(offsets), target(nullptr){};
+            : visitOffsets_(offsets), entityOffset_(nullptr){};
 
         void visit(Base::Element& element) final {
-            target = &visitOffsets_.elementOffsets_[element.getID()];
+            entityOffset_ = &visitOffsets_.elementOffsets_[element.getID()];
         }
         void visit(Base::Face& face) final {
-            target = &visitOffsets_.faceOffsets_[face.getID()];
+            entityOffset_ = &visitOffsets_.faceOffsets_[face.getID()];
         }
         void visit(Base::Edge& edge) final {
-            target = &visitOffsets_.edgeOffsets_[edge.getID()];
+            entityOffset_ = &visitOffsets_.edgeOffsets_[edge.getID()];
         }
         void visit(Base::Node& node) final {
-            target = &visitOffsets_.nodeOffsets_[node.getID()];
+            entityOffset_ = &visitOffsets_.nodeOffsets_[node.getID()];
         }
 
         Offsets& visitOffsets_;
-        int* target;
+        /// Pointer to the entry, possibly newly initialized
+        int* entityOffset_;
     };
 
+    /**
+     * Visitor to access the *Offsets_ members (e.g. elementOffsets_) of the
+     * Offsets class. It is undefined behaviour to visit a MeshEntity for which
+     * there is no offset entry available.
+     */
     struct ConstOffsetVisitor : public Base::ConstMeshEntityVisitor {
         ConstOffsetVisitor(const Offsets& offsets) : visitOffsets_(offsets){};
         void visit(const Base::Element& element) final {
@@ -453,7 +464,7 @@ class GlobalIndexing {
             logger.assert_debug(
                 basisStart != visitOffsets_.elementOffsets_.end(),
                 "No offset for Element %", element.getID());
-            result = basisStart->second;
+            entityOffset_ = basisStart->second;
         }
 
         void visit(const Base::Face& face) final {
@@ -461,7 +472,7 @@ class GlobalIndexing {
                 visitOffsets_.faceOffsets_.find(face.getID());
             logger.assert_debug(basisStart != visitOffsets_.faceOffsets_.end(),
                                 "No offset for Face %", face.getID());
-            result = basisStart->second;
+            entityOffset_ = basisStart->second;
         }
 
         void visit(const Base::Edge& edge) final {
@@ -469,7 +480,7 @@ class GlobalIndexing {
                 visitOffsets_.edgeOffsets_.find(edge.getID());
             logger.assert_debug(basisStart != visitOffsets_.edgeOffsets_.end(),
                                 "No offset for Edge %", edge.getID());
-            result = basisStart->second;
+            entityOffset_ = basisStart->second;
         }
 
         void visit(const Base::Node& node) final {
@@ -477,11 +488,11 @@ class GlobalIndexing {
                 visitOffsets_.nodeOffsets_.find(node.getID());
             logger.assert_debug(basisStart != visitOffsets_.nodeOffsets_.end(),
                                 "No offset for Node %", node.getID());
-            result = basisStart->second;
+            entityOffset_ = basisStart->second;
         }
 
         const Offsets& visitOffsets_;
-        int result;
+        int entityOffset_;
     };
 
     /// Offsets for each of the unknowns
