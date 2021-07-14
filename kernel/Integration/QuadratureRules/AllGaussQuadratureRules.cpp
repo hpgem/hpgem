@@ -108,7 +108,6 @@ AllGaussQuadratureRules::AllGaussQuadratureRules() {
     //*************************TRIANGULARPRISM
     // QUADRATURES*****************************
     addRule(&TriPrism_1_1::Instance());
-    addRule(&TriPrism_3_8::Instance());
     addRule(&TriPrism_5_21::Instance());
     addRule(&TriPrism_7_64::Instance());
     //*************************HYPERCUBE

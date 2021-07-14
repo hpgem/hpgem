@@ -147,7 +147,6 @@ TEST_CASE("070GaussQuadratureRulesForPrism_UnitTest",
           "[070GaussQuadratureRulesForPrism_UnitTest]") {
 
     testRule(QuadratureRules::TriPrism_1_1::Instance(), 1);
-    testRule(QuadratureRules::TriPrism_3_8::Instance(), 3);
     testRule(QuadratureRules::TriPrism_5_21::Instance(), 5);
     ///\todo not accurate enough
     testRule(QuadratureRules::TriPrism_7_64::Instance(), 7);
