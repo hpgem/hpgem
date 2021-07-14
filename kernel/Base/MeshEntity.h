@@ -57,6 +57,8 @@ class Node;
 template <bool constify = false>
 class MeshEntityVisitor {
    public:
+    
+    virtual ~MeshEntityVisitor() = default;
     /// Helper to add const
     template <typename T>
     using Constified =
@@ -75,6 +77,10 @@ using ConstMeshEntityVisitor = MeshEntityVisitor<true>;
  * Entity of the Mesh, that is an Element, Face, Edge or Node.
  */
 class MeshEntity {
+   protected:
+    // Deletion of MeshEntities should be governed by the actual instances.
+    ~MeshEntity() = default;
+
    public:
     virtual void visitEntity(MeshEntityVisitor<>& vistor) = 0;
     virtual void visitEntity(MeshEntityVisitor<true>& vistor) const = 0;
