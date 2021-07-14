@@ -160,17 +160,20 @@ std::vector<std::string> getUnitCubeCubeMeshes(
  * Same as getUnitCubeCubeMeshes but with periodic boundaries.
  */
 std::vector<std::string> getUnitCubePeriodicCubeMeshes(
-    std::size_t minLevel = 0, std::size_t maxLevel = ALL_ENTRIES) {
+    std::size_t minLevel = 2, std::size_t maxLevel = ALL_ENTRIES) {
+    logger.assert_always(
+        minLevel >= 2 && maxLevel >= 2,
+        "Periodic meshes with 1 or 2 elements are not supported");
     std::string prefix = getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/";
     return limit(
         {
-            prefix + "unitCubeN1Per.hpgem",
-            prefix + "unitCubeN2Per.hpgem",
+            //            prefix + "unitCubeN1Per.hpgem",
+            //            prefix + "unitCubeN2Per.hpgem",
             prefix + "unitCubeN4Per.hpgem",
             prefix + "unitCubeN8Per.hpgem",
             prefix + "unitCubeN16Per.hpgem",
         },
-        minLevel, maxLevel);
+        minLevel - 2, maxLevel - 2);
 }
 
 /**

@@ -380,15 +380,15 @@ int main(int argc, char **argv) {
      */
 
     // For regenerating the error table
-    bool ignoreErrors = false;
+    bool ignoreErrors = true;
 
     // Expected rate: h^p
     ConvergenceTestSet nedelecP1Meshes = {getUnitCubeTetMeshes(),
                                           {
-                                              5.09786424e-01,  //------
-                                              4.08700385e-01,  //  1.25
-                                              2.30456430e-01,  //  1.77
-                                              1.19038701e-01,  //  1.94
+                                              5.38396066e-01,  //------
+                                              4.08510656e-01,  //  1.32
+                                              2.30454303e-01,  //  1.77
+                                              1.19038653e-01,  //  1.94
                                           }};
     MaxwellTestParams nedelecP1Params = {1, 1, true};
     runTestSet(nedelecP1Meshes, nedelecP1Params, ignoreErrors);
@@ -396,9 +396,11 @@ int main(int argc, char **argv) {
     // Expected rate: h^{p+1}
     ConvergenceTestSet ainsworthCoyleP1Meshes = {getUnitCubeTetMeshes(),
                                                  {
-                                                     4.98316137e-01,  //------
-                                                     2.43132254e-01,  //  2.05
-                                                     4.76572773e-02,  //  5.10
-                                                     1.11573400e-02,  //  4.27
+                                                     5.44988070e-01,  //------
+                                                     1.86176361e-01,  //  2.93
+                                                     4.30331344e-02,  //  4.33
+                                                     1.08552880e-02,  //  3.96
                                                  }};
+    MaxwellTestParams ainsworthCoyleP1Params = {1, 1, false};
+    runTestSet(ainsworthCoyleP1Meshes, ainsworthCoyleP1Params, ignoreErrors);
 }
