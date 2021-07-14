@@ -57,7 +57,6 @@ class Node;
 template <bool constify = false>
 class MeshEntityVisitor {
    public:
-    
     virtual ~MeshEntityVisitor() = default;
     /// Helper to add const
     template <typename T>

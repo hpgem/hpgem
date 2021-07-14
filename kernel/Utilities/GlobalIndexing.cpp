@@ -726,8 +726,8 @@ void GlobalIndexing::communicatePushPullElements() {
     // As we own all the elements in the pushElements list, we do have this
     // information after round one. Furthermore, we reduce the amount of
     // messages as much as possible with the second two conditions, for which
-    // the entityOffset_ processor has already received the information in round one.
-    // After sending the information we again receive and process the
+    // the entityOffset_ processor has already received the information in round
+    // one. After sending the information we again receive and process the
     // information send from the other processors.
 
     // Setup //
