@@ -103,6 +103,8 @@ class Edge : public MeshEntity {
 
     std::size_t getID() const final { return ID_; }
 
+    EntityType getType() const final { return EntityType::EDGE; }
+
     ///\deprecated Does not conform naming conventions, use getNumberOfElements
     /// instead
     std::size_t getNrOfElements() { return getNumberOfElements(); }

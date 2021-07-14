@@ -107,6 +107,8 @@ class Node : public MeshEntity {
 
     std::size_t getID() const final { return ID_; }
 
+    EntityType getType() const final { return EntityType::NODE; }
+
     ///\deprecated Does not conform naming conventions, use getNumberOfElements
     /// instead
     std::size_t getNrOfElements() const { return getNumberOfElements(); }

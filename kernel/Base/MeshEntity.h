@@ -81,6 +81,12 @@ class MeshEntity {
     ~MeshEntity() = default;
 
    public:
+    /// Enumeration of the possible mesh entities. Defines a bijection between
+    /// the EntityTypes and the numbers 0 to N-1 (with N the number of
+    /// EntityTypes). The ordering of the numbers in the bijection is
+    /// unspecified.
+    enum class EntityType : int { ELEMENT = 0, FACE = 1, EDGE = 2, NODE = 3 };
+
     virtual void visitEntity(MeshEntityVisitor<>& vistor) = 0;
     virtual void visitEntity(MeshEntityVisitor<true>& vistor) const = 0;
 
@@ -88,6 +94,9 @@ class MeshEntity {
      * @return The identifier for this MeshEntity
      */
     virtual std::size_t getID() const = 0;
+
+    virtual EntityType getType() const = 0;
+
     /**
      * In a distributed (MPI) problem each mesh entity has a single owning
      * process.

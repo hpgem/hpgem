@@ -100,6 +100,8 @@ class Element final : public Geometry::ElementGeometry,
 
     std::size_t getID() const final { return id_; }
 
+    EntityType getType() const final { return EntityType::ELEMENT; }
+
     void setQuadratureRulesWithOrder(std::size_t quadrROrder);
 
     void setGaussQuadratureRule(

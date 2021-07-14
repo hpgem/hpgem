@@ -322,6 +322,8 @@ class Face final : public Geometry::FaceGeometry,
 
     std::size_t getID() const final { return faceID_; }
 
+    EntityType getType() const final { return EntityType::FACE; }
+
     /// Specify a time integration vector id, return a vector containing the
     /// data for that time integration vector.
     LinearAlgebra::MiddleSizeVector getTimeIntegrationVector(
