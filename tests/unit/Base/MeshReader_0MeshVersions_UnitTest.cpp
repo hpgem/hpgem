@@ -77,7 +77,7 @@ MeshPtr<DIM> readMesh(const std::string& filename) {
 // Checks that there is only 1 zone with the expected name, and that all
 // elements belong to it.
 template <std::size_t DIM>
-void testSingleZone(MeshPtr<DIM>& mesh, std::string expectedZoneName) {
+void testSingleZone(MeshPtr<DIM>& mesh, const std::string& expectedZoneName) {
     const std::vector<std::unique_ptr<Base::Zone>>& zones = mesh->getZones();
     INFO("Exactly 1 zone")
     REQUIRE(zones.size() == 1);
@@ -93,7 +93,7 @@ void testSingleZone(MeshPtr<DIM>& mesh, std::string expectedZoneName) {
 }
 
 // Default zone name when reading the Version 1 mesh format
-const std::string DEFAULT_V1_ZONENAME =
+const std::string& DEFAULT_V1_ZONENAME =
     Base::MeshFileInformation::MESH_V1_ZONENAME;
 
 TEST_CASE("mesh format 1: 1D", "[Mesh reader - fixed meshes]") {
