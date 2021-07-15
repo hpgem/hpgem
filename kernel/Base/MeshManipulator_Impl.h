@@ -1533,7 +1533,8 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
     const std::size_t version = information.version;
     const std::size_t numberOfNodes = information.entityCount[0];
     const std::size_t numberOfEdges = DIM >= 3 ? information.entityCount[1] : 0;
-    const std::size_t numberOfFaces = DIM >= 2 ? information.entityCount[DIM - 1] : 0;
+    const std::size_t numberOfFaces =
+        DIM >= 2 ? information.entityCount[DIM - 1] : 0;
     const std::size_t numberOfElements = information.entityCount[DIM];
 
     const std::size_t localNumberOfNodes =
