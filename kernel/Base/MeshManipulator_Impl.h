@@ -47,6 +47,7 @@
 #include "ConfigurationData.h"
 #include "Element.h"
 #include "Face.h"
+#include "MeshFileInformation.h"
 #include "MeshMoverBase.h"
 #include "Geometry/PointPhysical.h"
 #include "Geometry/ReferenceSquare.h"
@@ -1508,78 +1509,49 @@ void MeshManipulator<DIM>::readMesh(const std::string &filename) {
                          filename);
     logger.assert_always(input.good(),
                          "Something is not so good about this mesh");
-    std::string rawInput;
-    std::getline(input, rawInput);
-    logger.assert_always(
-        rawInput.substr(0, 4) == "mesh",
-        "incorrect file type, please use the preprocessor first");
-    // Extract the version
-    std::size_t version;
-    {
-        std::istringstream temp(rawInput.substr(4));
-        temp >> version;
-        logger.assert_always(version >= 1 && version <= 2,
-                             "Version % can't be read by this reader.",
-                             version);
-    }
-    // Header //
-    ////////////
-    std::size_t numberOfNodes, numberOfElements, meshDimension;
-    input >> numberOfNodes >> numberOfElements >> meshDimension;
-    logger.assert_always(meshDimension == DIM,
-                         "The mesh in this input file has the wrong dimension "
-                         "(read %, but expected %)",
-                         meshDimension, DIM);
-    std::size_t numberOfFaces = 0;
-    std::size_t numberOfEdges = 0;
-    if (DIM > 1) input >> numberOfFaces;
-    if (DIM > 2) input >> numberOfEdges;
-    std::size_t numberOfPartitions, localNumberOfNodes;
-    input >> numberOfPartitions;
-    logger.assert_debug(MPIContainer::Instance().getProcessorID() >= 0,
-                        "We got assigned processor ID % by MPI (expected >=0)",
-                        MPIContainer::Instance().getProcessorID());
-    std::size_t processorID = MPIContainer::Instance().getProcessorID();
-    for (std::size_t i = 0; i < processorID + 1; ++i) {
-        input >> localNumberOfNodes;
-    }
-    input.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    logger.assert_debug(MPIContainer::Instance().getNumberOfProcessors() >= 0,
-                        "MPI thinks we are running only on % processors",
-                        MPIContainer::Instance().getNumberOfProcessors());
-    logger.assert_always(
-        numberOfPartitions ==
-            static_cast<std::size_t>(
-                MPIContainer::Instance().getNumberOfProcessors()),
-        "This mesh is targeting % parallel threads, but you are running on % "
-        "threads, please rerun the preprocessor first",
-        numberOfPartitions, MPIContainer::Instance().getNumberOfProcessors());
 
-    // ZONES //
-    ///////////
+    MeshFileInformation information;
+    information.readInformation(input);
+
+    // Check if the information is acceptable //
+    ////////////////////////////////////////////
+    logger.assert_always(information.version >= 1 && information.version <= 2,
+                         "Mesh reading only implemented for version 1 and 2");
+    logger.assert_always(information.dimension == DIM,
+                         "Reading mesh of the wrong dimension");
+
+    logger.assert_always(MPIContainer::Instance().getNumberOfProcessors() ==
+                             information.getProcessorCount(),
+                         "Mesh with % partitions but running % mpi processes",
+                         information.getProcessorCount(),
+                         MPIContainer::Instance().getNumberOfProcessors());
+    std::size_t processorID = MPIContainer::Instance().getProcessorID();
+
+    // Extract necessary information
+    ////////////////////////////////
+
+    const std::size_t version = information.version;
+    const std::size_t numberOfNodes = information.entityCount[0];
+    const std::size_t numberOfEdges = DIM >= 3 ? information.entityCount[1] : 0;
+    const std::size_t numberOfFaces =
+        DIM >= 2 ? information.entityCount[DIM - 1] : 0;
+    const std::size_t numberOfElements = information.entityCount[DIM];
+
+    const std::size_t localNumberOfNodes =
+        information.partitionNodeCounts[processorID];
+
+    // Convert zone information
+    ///////////////////////////
 
     // The actual zone objects for each of the zones, as in mesh file order.
     std::vector<std::reference_wrapper<Zone>> meshZones;
-    if (version == 1) {
-        // Zones are only present in version > 1, provide a default zone
-        Zone &zone = addZone("Main");
+    logger.assert_always(
+        !information.zoneNames.empty() || information.entityCount[DIM] == 0,
+        "Got a file with zero meshZoneIndices but with elements");
+
+    for (const std::string &zoneName : information.zoneNames) {
+        Zone &zone = addZone(zoneName);
         meshZones.emplace_back(zone);
-    } else {
-        Detail::readSegmentHeader(input, "zones");
-        // Number of meshZoneIndices
-        std::size_t numZones;
-        input >> numZones;
-        logger.assert_always(
-            numZones > 0 || numberOfElements == 0,
-            "Got a file with zero meshZoneIndices but with elements");
-        input.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        // Zone names
-        for (std::size_t i = 0; i < numZones; ++i) {
-            std::string zoneName;
-            getline(input, zoneName);
-            Zone &zone = addZone(zoneName);
-            meshZones.emplace_back(zone);
-        }
     }
 
     // NODES //

@@ -43,6 +43,7 @@
  *  - That it correctly reads zones (which depends on the version)
  */
 
+#include "Base/MeshFileInformation.h"
 #include "Base/MeshManipulator.h"
 #include "hpgem-cmake.h"
 #include "../catch.hpp"
@@ -76,7 +77,7 @@ MeshPtr<DIM> readMesh(const std::string& filename) {
 // Checks that there is only 1 zone with the expected name, and that all
 // elements belong to it.
 template <std::size_t DIM>
-void testSingleZone(MeshPtr<DIM>& mesh, std::string expectedZoneName) {
+void testSingleZone(MeshPtr<DIM>& mesh, const std::string& expectedZoneName) {
     const std::vector<std::unique_ptr<Base::Zone>>& zones = mesh->getZones();
     INFO("Exactly 1 zone")
     REQUIRE(zones.size() == 1);
@@ -92,7 +93,8 @@ void testSingleZone(MeshPtr<DIM>& mesh, std::string expectedZoneName) {
 }
 
 // Default zone name when reading the Version 1 mesh format
-const std::string DEFAULT_V1_ZONENAME = "Main";
+const std::string& DEFAULT_V1_ZONENAME =
+    Base::MeshFileInformation::MESH_V1_ZONENAME;
 
 TEST_CASE("mesh format 1: 1D", "[Mesh reader - fixed meshes]") {
     auto mesh = readMesh<1>("meshD1N2v1.hpgem");
