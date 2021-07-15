@@ -380,7 +380,7 @@ int main(int argc, char **argv) {
      */
 
     // For regenerating the error table
-    bool ignoreErrors = true;
+    bool ignoreErrors = false;
 
     // Expected rate: h^p
     ConvergenceTestSet nedelecP1Meshes = {getUnitCubeTetMeshes(),
