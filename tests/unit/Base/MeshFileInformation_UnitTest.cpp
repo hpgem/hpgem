@@ -39,7 +39,6 @@
 #include "../catch.hpp"
 
 #include <fstream>
-#include <mpi.h>
 #include "hpgem-cmake.h"
 #include "Base/MeshFileInformation.h"
 

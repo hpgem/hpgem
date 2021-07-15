@@ -42,7 +42,7 @@
 #include "Geometry/PhysicalGeometry.h"
 #include "Base/CommandLineOptions.h"
 #include <vector>
-#include "CMakeDefinitions.h"
+#include "hpgem-cmake.h"
 #include <sstream>
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
 
@@ -235,7 +235,7 @@ int main(int argc, char** argv) {
 
         std::stringstream filename;
 
-        filename << Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s
+        filename << getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s
                  << baseFileName << ".hpgem";
 
         mesh.readMesh(filename.str());
@@ -270,7 +270,7 @@ int main(int argc, char** argv) {
 
         std::stringstream filename;
 
-        filename << Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s
+        filename << getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s
                  << baseFileName << ".hpgem";
 
         mesh.readMesh(filename.str());
@@ -305,7 +305,7 @@ int main(int argc, char** argv) {
 
         std::stringstream filename;
 
-        filename << Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s
+        filename << getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s
                  << baseFileName << ".hpgem";
 
         mesh.readMesh(filename.str());
@@ -336,7 +336,7 @@ int main(int argc, char** argv) {
 
         std::stringstream filename;
 
-        filename << Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s
+        filename << getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s
                  << baseFileName << ".hpgem";
 
         mesh.readMesh(filename.str());
