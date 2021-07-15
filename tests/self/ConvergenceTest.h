@@ -100,8 +100,10 @@ void runConvergenceTest(
     for (std::size_t i = 0; i < errors.size(); ++i) {
         std::cout << std::setprecision(8) << std::setw(15) << std::scientific
                   << errors[i];
-        std::cout << ", //";  // Separator to allow easy copy-pasting into
-        // the code
+        // Separator that allows copy pasting the result into the code including
+        // the convergence rate. Note double space to match the formatting
+        // standard.
+        std::cout << ",  //";
 
         // Compute convergence rate
         if (i == 0) {

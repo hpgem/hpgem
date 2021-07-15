@@ -266,11 +266,11 @@ int main(int argc, char** argv) {
 
     ConvergenceTestSet dim2P1Meshes = {getUnitSquareTriangleMeshes(2),
                                        {
-                                           1.03268522e-01,  //------
-                                           2.27752735e-02,  //  4.53
-                                           6.72435135e-03,  //  3.39
-                                           2.00067031e-03,  //  3.36
-                                           5.52269096e-04,  //  3.62
+                                           1.02216627e-01,  //------
+                                           2.25955201e-02,  //  4.52
+                                           6.70683424e-03,  //  3.37
+                                           1.99936525e-03,  //  3.35
+                                           5.52238424e-04,  //  3.62
                                        }};
     AdvectionParameters dim2P1Params = {1, 0.1, 10};
     runAdvectionTestSet<2>(dim2P1Meshes, dim2P1Params, ignoreFailures);

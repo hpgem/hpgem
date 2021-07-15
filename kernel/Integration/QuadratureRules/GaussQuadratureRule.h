@@ -139,12 +139,16 @@ class GaussQuadratureRule {
     /// longer suitable for quick lookup
     void unregisterBasisFunctionSet(const FE::BasisFunctionSet* set) {
         basisFunctionValues_.erase(set);
+        basisFunctionVectorValues_.erase(set);
         basisFunctionGrads_.erase(set);
         basisFunctionCurls_.erase(set);
+        basisFunctionCurls2D_.erase(set);
         basisFunctionDivs_.erase(set);
         faceBasisFunctionValues_.erase(set);
+        faceBasisFunctionVectorValues_.erase(set);
         faceBasisFunctionGrads_.erase(set);
         faceBasisFunctionCurls_.erase(set);
+        faceBasisFunctionCurls2D_.erase(set);
         faceBasisFunctionDivs_.erase(set);
     }
 

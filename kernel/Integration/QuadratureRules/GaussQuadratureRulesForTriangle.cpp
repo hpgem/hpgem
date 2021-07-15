@@ -121,48 +121,6 @@ Tn2_2_3::Tn2_2_3()
 }
 
 //---------------------------------------------------------------------------
-std::string Tn2_3_4::getName() const { return name_; }
-
-std::size_t Tn2_3_4::order() const { return 3; }
-
-std::size_t Tn2_3_4::dimension() const { return 2; }
-
-std::size_t Tn2_3_4::getNumberOfPoints() const { return 4; }
-
-double Tn2_3_4::weight(std::size_t i) const {
-    logger.assert_debug(i < getNumberOfPoints(), "%::weight - wrong index!",
-                        name_);
-    return weight_[i];
-}
-
-const Geometry::PointReferenceBase& Tn2_3_4::getPoint(std::size_t i) const {
-    logger.assert_debug(i < getNumberOfPoints(), "%::getPoint - wrong index!",
-                        name_);
-    return gp_[i];
-}
-
-Geometry::ReferenceGeometry* Tn2_3_4::forReferenceGeometry() const {
-    return refGeoPtr_;
-}
-
-Tn2_3_4::Tn2_3_4()
-    : name_("Tn2_3_1"),
-      refGeoPtr_(&Geometry::ReferenceTriangle::Instance()),
-      gp_(0) {
-    weight_[0] = -2.8125000000000000e-01;
-    gp_.push_back({3.3333333333333348e-01, 3.3333333333333348e-01});
-
-    weight_[1] = 2.6041666666666674e-01;
-    gp_.push_back({2.0000000000000001e-01, 2.0000000000000001e-01});
-
-    weight_[2] = 2.6041666666666674e-01;
-    gp_.push_back({2.0000000000000001e-01, 5.9999999999999998e-01});
-
-    weight_[3] = 2.6041666666666674e-01;
-    gp_.push_back({5.9999999999999998e-01, 2.0000000000000001e-01});
-}
-
-//---------------------------------------------------------------------------
 std::string Tn2_4_6::getName() const { return name_; }
 
 std::size_t Tn2_4_6::order() const { return 4; }
@@ -325,75 +283,6 @@ T2_6_12::T2_6_12()
 
     weight_[11] = 4.1425537809187001e-02;
     gp_.push_back({5.3145049844816994e-02, 6.3650249912139900e-01});
-}
-
-//---------------------------------------------------------------------------
-std::string T2_7_13::getName() const { return name_; }
-
-std::size_t T2_7_13::order() const { return 7; }
-
-std::size_t T2_7_13::dimension() const { return 2; }
-
-std::size_t T2_7_13::getNumberOfPoints() const { return 13; }
-
-double T2_7_13::weight(std::size_t i) const {
-    logger.assert_debug(i < getNumberOfPoints(), "%::weight - wrong index!",
-                        name_);
-    return weight_[i];
-}
-
-const Geometry::PointReferenceBase& T2_7_13::getPoint(std::size_t i) const {
-    logger.assert_debug(i < getNumberOfPoints(), "%::getPoint - wrong index!",
-                        name_);
-    return gp_[i];
-}
-
-Geometry::ReferenceGeometry* T2_7_13::forReferenceGeometry() const {
-    return refGeoPtr_;
-}
-
-T2_7_13::T2_7_13()
-    : name_("T2_7_1"),
-      refGeoPtr_(&Geometry::ReferenceTriangle::Instance()),
-      gp_(0) {
-    weight_[0] = -7.4785022233840995e-02;
-    gp_.push_back({3.3333333333333348e-01, 3.3333333333333348e-01});
-
-    weight_[1] = 8.7807628716603997e-02;
-    gp_.push_back({2.6034596607904004e-01, 2.6034596607904004e-01});
-
-    weight_[2] = 8.7807628716603997e-02;
-    gp_.push_back({2.6034596607904004e-01, 4.7930806784191998e-01});
-
-    weight_[3] = 8.7807628716603997e-02;
-    gp_.push_back({4.7930806784191998e-01, 2.6034596607904004e-01});
-
-    weight_[4] = 2.6673617804419000e-02;
-    gp_.push_back({6.5130102902215992e-02, 6.5130102902215992e-02});
-
-    weight_[5] = 2.6673617804419000e-02;
-    gp_.push_back({6.5130102902215992e-02, 8.6973979419556802e-01});
-
-    weight_[6] = 2.6673617804419000e-02;
-    gp_.push_back({8.6973979419556802e-01, 6.5130102902215992e-02});
-
-    weight_[7] = 3.8556880445128498e-02;
-    gp_.push_back({3.1286549600487401e-01, 6.3844418856981000e-01});
-
-    weight_[8] = 3.8556880445128498e-02;
-    gp_.push_back({6.3844418856981000e-01, 4.8690315425315989e-02});
-
-    weight_[9] = 3.8556880445128498e-02;
-    gp_.push_back({4.8690315425315989e-02, 3.1286549600487401e-01});
-
-    weight_[10] = 3.8556880445128498e-02;
-    gp_.push_back({3.1286549600487401e-01, 4.8690315425315989e-02});
-
-    weight_[11] = 3.8556880445128498e-02;
-    gp_.push_back({6.3844418856981000e-01, 3.1286549600487401e-01});
-
-    weight_[12] = 3.8556880445128498e-02;
-    gp_.push_back({4.8690315425315989e-02, 6.3844418856981000e-01});
 }
 
 //---------------------------------------------------------------------------

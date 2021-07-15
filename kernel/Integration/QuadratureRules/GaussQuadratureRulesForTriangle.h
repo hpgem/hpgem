@@ -101,32 +101,6 @@ class Tn2_2_3 : public GaussQuadratureRule {
 };
 
 //---------------------------------------------------------------------------
-class Tn2_3_4 : public GaussQuadratureRule {
-   public:
-    static Tn2_3_4& Instance() {
-        static Tn2_3_4 theInstance;
-        return theInstance;
-    }
-    Tn2_3_4(const Tn2_3_4&) = delete;
-
-    std::string getName() const final;
-    std::size_t order() const final;
-    std::size_t dimension() const final;
-    std::size_t getNumberOfPoints() const final;
-    double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
-    Geometry::ReferenceGeometry* forReferenceGeometry() const final;
-
-   private:
-    Tn2_3_4();
-
-    const std::string name_;
-    double weight_[4];
-    Geometry::ReferenceGeometry* const refGeoPtr_;
-    std::vector<Geometry::PointReference<2>> gp_;
-};
-
-//---------------------------------------------------------------------------
 class Tn2_4_6 : public GaussQuadratureRule {
    public:
     static Tn2_4_6& Instance() {
@@ -200,32 +174,6 @@ class T2_6_12 : public GaussQuadratureRule {
 
     const std::string name_;
     double weight_[12];
-    Geometry::ReferenceGeometry* const refGeoPtr_;
-    std::vector<Geometry::PointReference<2>> gp_;
-};
-
-//---------------------------------------------------------------------------
-class T2_7_13 : public GaussQuadratureRule {
-   public:
-    static T2_7_13& Instance() {
-        static T2_7_13 theInstance;
-        return theInstance;
-    }
-    T2_7_13(const T2_7_13&) = delete;
-
-    std::string getName() const final;
-    std::size_t order() const final;
-    std::size_t dimension() const final;
-    std::size_t getNumberOfPoints() const final;
-    double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
-    Geometry::ReferenceGeometry* forReferenceGeometry() const final;
-
-   private:
-    T2_7_13();
-
-    const std::string name_;
-    double weight_[13];
     Geometry::ReferenceGeometry* const refGeoPtr_;
     std::vector<Geometry::PointReference<2>> gp_;
 };

@@ -83,61 +83,6 @@ TriPrism_1_1::TriPrism_1_1()
 }
 
 //---------------------------------------------------------------------------
-std::string TriPrism_3_8::getName() const { return name_; }
-
-std::size_t TriPrism_3_8::order() const { return 3; }
-
-std::size_t TriPrism_3_8::dimension() const { return 3; }
-
-std::size_t TriPrism_3_8::getNumberOfPoints() const { return 8; }
-
-double TriPrism_3_8::weight(std::size_t i) const {
-    logger.assert_debug(i < getNumberOfPoints(), "%::weight - wrong index!",
-                        name_);
-    return weight_[i];
-}
-
-const Geometry::PointReferenceBase& TriPrism_3_8::getPoint(
-    std::size_t i) const {
-    logger.assert_debug(i < getNumberOfPoints(), "%::getPoint - wrong index!",
-                        name_);
-    return gp_[i];
-}
-
-Geometry::ReferenceGeometry* TriPrism_3_8::forReferenceGeometry() const {
-    return refGeoPtr_;
-}
-
-TriPrism_3_8::TriPrism_3_8()
-    : name_("TriPrism_3_1"),
-      refGeoPtr_(&Geometry::ReferenceTriangularPrism::Instance()),
-      gp_(0) {
-    weight_[0] = (-9. / 32.) * (1.0);
-    gp_.push_back({1. / 3., 1. / 3., -std::sqrt(3.0) / 3.0});
-
-    weight_[1] = (25. / 96.) * (1.0);
-    gp_.push_back({1. / 5., 1. / 5., -std::sqrt(3.0) / 3.0});
-
-    weight_[2] = (25. / 96.) * (1.0);
-    gp_.push_back({1. / 5., 3. / 5., -std::sqrt(3.0) / 3.0});
-
-    weight_[3] = (25. / 96.) * (1.0);
-    gp_.push_back({3. / 5., 1. / 5., -std::sqrt(3.0) / 3.0});
-
-    weight_[4] = (-9. / 32.) * (1.0);
-    gp_.push_back({1. / 3., 1. / 3., +std::sqrt(3.0) / 3.0});
-
-    weight_[5] = (25. / 96.) * (1.0);
-    gp_.push_back({1. / 5., 1. / 5., +std::sqrt(3.0) / 3.0});
-
-    weight_[6] = (25. / 96.) * (1.0);
-    gp_.push_back({1. / 5., 3. / 5., +std::sqrt(3.0) / 3.0});
-
-    weight_[7] = (25. / 96.) * (1.0);
-    gp_.push_back({3. / 5., 1. / 5., +std::sqrt(3.0) / 3.0});
-}
-
-//---------------------------------------------------------------------------
 std::string TriPrism_5_21::getName() const { return name_; }
 
 std::size_t TriPrism_5_21::order() const { return 5; }

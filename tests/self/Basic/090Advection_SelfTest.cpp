@@ -299,7 +299,6 @@ int main(int argc, char **argv) {
 
     // Define clocks for measuring simulation time.
     std::chrono::time_point<std::chrono::system_clock> startClock, endClock;
-    std::chrono::duration<double> elapsed_seconds;
     startClock = std::chrono::system_clock::now();
 
     // For recomputing the error tables
@@ -319,27 +318,26 @@ int main(int argc, char **argv) {
 
     ConvergenceTestSet dim2P1Meshes = {getUnitSquarePeriodicTriangleMeshes(),
                                        {
-                                           1.03487477e-01,  //------
-                                           2.28412617e-02,  //  4.53
-                                           6.75474161e-03,  //  3.38
-                                           2.01183288e-03,  //  3.36
-                                           5.54617877e-04,  //  3.63
+                                           1.02302560e-01,  //------
+                                           2.26561715e-02,  //  4.52
+                                           6.73640941e-03,  //  3.36
+                                           2.01047198e-03,  //  3.35
+                                           5.54584463e-04,  //  3.63
                                        }};
     AdvectionParameters dim2P1Params = {1, 0.1, 10};
     runAdvectionTestSet<2>(dim2P1Meshes, dim2P1Params, ignoreFailures);
 
-    ConvergenceTestSet dim3Meshes = {getUnitCubePeriodicCubeMeshes(0, 3),
+    ConvergenceTestSet dim3Meshes = {getUnitCubePeriodicCubeMeshes(2),
                                      {
-                                         1.03487477e-01,  //------
-                                         2.28412617e-02,  //  4.53
-                                         6.75474161e-03,  //  3.38
-                                         2.01183288e-03,  //  3.36
-                                         5.54617877e-04,  //  3.63
+                                         5.55789642e-02,  //------
+                                         1.44021875e-02,  //  3.86
+                                         3.81732285e-03,  //  3.77
                                      }};
     AdvectionParameters dim3Params = {1, 0.02, 2};
+    runAdvectionTestSet<3>(dim3Meshes, dim3Params, ignoreFailures);
 
     endClock = std::chrono::system_clock::now();
-    elapsed_seconds = endClock - startClock;
+    std::chrono::duration<double> elapsed_seconds = endClock - startClock;
     std::cout << "Elapsed time for solving the PDE: " << elapsed_seconds.count()
               << "s\n";
 
