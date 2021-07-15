@@ -45,8 +45,18 @@
 namespace hpgem {
 namespace Base {
 
+/**
+ * Reader for the header information in the HPGEM mesh format.
+ *
+ * This will read the meta data of the mesh.
+ */
 class MeshFileInformation {
    public:
+    /**
+     * Zone name used as placeholder for version 1 of the mesh format.
+     */
+    static const std::string MESH_V1_ZONENAME;
+
     MeshFileInformation() = default;
 
     /**
@@ -82,7 +92,8 @@ class MeshFileInformation {
      */
     std::vector<std::size_t> partitionNodeCounts;
     /**
-     * Names of the zones
+     * Names of the zones. If this is a version 1 mesh it will contain
+     * MESH_V1_ZONENAME.
      */
     std::vector<std::string> zoneNames;
 

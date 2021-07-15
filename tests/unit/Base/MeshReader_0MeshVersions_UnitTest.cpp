@@ -43,6 +43,7 @@
  *  - That it correctly reads zones (which depends on the version)
  */
 
+#include "Base/MeshFileInformation.h"
 #include "Base/MeshManipulator.h"
 #include "hpgem-cmake.h"
 #include "../catch.hpp"
@@ -92,7 +93,8 @@ void testSingleZone(MeshPtr<DIM>& mesh, std::string expectedZoneName) {
 }
 
 // Default zone name when reading the Version 1 mesh format
-const std::string DEFAULT_V1_ZONENAME = "Main";
+const std::string DEFAULT_V1_ZONENAME =
+    Base::MeshFileInformation::MESH_V1_ZONENAME;
 
 TEST_CASE("mesh format 1: 1D", "[Mesh reader - fixed meshes]") {
     auto mesh = readMesh<1>("meshD1N2v1.hpgem");

@@ -44,6 +44,8 @@
 namespace hpgem {
 namespace Base {
 
+const std::string MeshFileInformation::MESH_V1_ZONENAME = "Main";
+
 void MeshFileInformation::readInformation(std::istream &stream) {
     {
         // File starts with a line 'mesh [version]'
@@ -87,7 +89,7 @@ void MeshFileInformation::readInformation(std::istream &stream) {
     if (version == 1) {
         // No zone information was available in version 1.
         zoneNames.resize(1);
-        zoneNames[0] = "Main";
+        zoneNames[0] = MESH_V1_ZONENAME;
     } else {
         std::string line;
         std::getline(stream, line);
