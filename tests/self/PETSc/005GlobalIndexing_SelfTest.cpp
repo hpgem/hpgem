@@ -143,8 +143,9 @@ void checkIndex(Base::MeshManipulator<DIM>& mesh,
     }
 
     // Check that all indices are used.
-    for (const bool b : indexStore.usedIndices) {
-        logger.assert_always(b, "Unused index");
+    for (std::size_t i = 0; i < indexStore.usedIndices.size(); ++i) {
+        logger.assert_always(indexStore.usedIndices[i], "Unused index %/%", i,
+                             indexStore.usedIndices.size());
     }
     // Ensure no resize
     logger.assert_always(

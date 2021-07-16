@@ -137,7 +137,7 @@ bool Base::Node::isOwnedByCurrentProcessor() const {
     return elements_.size() > 0 && elements_[0]->isOwnedByCurrentProcessor();
 }
 
-Base::Element *Base::Node::getOwningElement() const {
+const Base::Element *Base::Node::getOwningElement() const {
 #if HPGEM_ASSERTS
     if (!isOwnedByCurrentProcessor()) {
         // The node is part of the boundary layer of ghost elements. On the
