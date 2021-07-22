@@ -120,11 +120,9 @@ CentaurReader::CentaurReader(std::string filename)
                          "File hyb-type 6 uses 64 bit indices for nodes and "
                          "elements, which is not implemented.");
     logger.assert_always(centaurFileType < 6, "File type is too new.");
-    if (centaurFileType < 4 && centaurFileType > 0) {
-        logger(WARN,
-               "Old centaur file format. These files can be upgraded using "
-               "hybconvert.");
-    }
+    logger.assert_always(centaurFileType >= 4 || centaurFileType < 0,
+                         "Old centaur file format. These files can be upgraded "
+                         "using hybconvert.");
 
     /// Scan through the file ///
     /////////////////////////////
@@ -156,22 +154,19 @@ CentaurReader::CentaurReader(std::string filename)
     // (interface) Boundary faces
     // 3D: Face nodes & Panel id
     // 2D: Boundary edges (2 edge ids) & segment id
-    if (is2D() || centaurFileType > 3) {
-        skipGroup(2);
-    } else {
-        // For hybtype < 4 panel id was stored in the face-node table
-        skipGroup(1);  // boundary faces
-    }
+    readBoundaryFaces();
 
     // Mapping of the boundary
     // 3D: Panel -> PanelGroup mapping
     // 2D: Segment -> boundary group mapping
-    skipGroup(1, false);
+    readPanelBoundaryMapping();
 
     // Panel Group -> B.C. type & Name
     // skipGroup(2, false);  // group to b.c. type connections
     readBoundaryGroups();
-    logger(VERBOSE, "done with skipping information");
+    // Now that we have all the information compute which face belongs to which
+    // boundary panel group (region).
+    computeFaceRegionAssignments();
 
     // Periodicity information
     // (<3 only a single periodicity, hence 1 array of periodic node pairs)
@@ -255,7 +250,7 @@ void CentaurReader::readElements(std::size_t elemType, std::uint32_t numNodes) {
     std::size_t elemOffset = elements.size();
     elements.resize(elemOffset + elementCount[elemType]);
     for (std::size_t elem = 0; elem < elementCount[elemType]; ++elem) {
-        elements[elemOffset + elem].zoneName = "UNSET";
+        elements[elemOffset + elem].regionId = NO_REGION_ID;
         std::vector<std::size_t>& localCoordIds =
             elements[elemOffset + elem].coordinateIds;
         localCoordIds.resize(numNodes);
@@ -329,19 +324,78 @@ void CentaurReader::readPeriodicNodeConnections() {
             connectedCoords.unionSets(node0, node1);
         }
     }
+    logger(INFO, "Read % periodic connections",
+           numberOfPeriodicTransformations);
     // Merge the actual node ids.
     for (const std::size_t coord : connectedCoords) {
         std::size_t representative = connectedCoords.findSet(coord);
         coordinates[coord].nodeId = representative;
     }
-    logger(INFO, "Read % periodic connections",
-           numberOfPeriodicTransformations);
+    // Translate coord -> nodeid for the region assignments
+    for (MeshSource2::RegionAssignment& assignment : faceAssignment) {
+        for (std::size_t& id : assignment.nodeIds) {
+            std::size_t representative = connectedCoords.findSet(id);
+            id = representative;
+        }
+    }
+}
+
+void CentaurReader::readBoundaryFaces() {
+    logger.assert_always(is2D() || centaurFileType >= 4,
+                         "Boundary face storage is different for filetype < 4");
+    GroupSize groupSize = readGroupSize(true);
+    // Boundary faces are described in two groups
+    //  1. Ids of the face/edge: in 3D 8 ids, in 2D 2
+    //  2. Panels to which they belong
+
+    std::vector<std::uint32_t> nodeids;
+    std::vector<std::uint32_t> mappingIds;
+
+    std::size_t idsPerFace = is2D() ? 2 : 8;
+    readGroup(nodeids, idsPerFace, groupSize);
+    readGroup(mappingIds, 1, groupSize);
+
+    // Convert Centaur data
+    boundaryFaces.resize(groupSize.totalCount);
+    for (std::size_t i = 0; i < groupSize.totalCount; ++i) {
+        boundaryFaces[i].panelId = mappingIds[i] - 1;  // -1 for Fortran index
+        std::vector<std::size_t>& boundaryNodes = boundaryFaces[i].coordIds;
+        if (is2D()) {
+            boundaryNodes.resize(2);
+            // -1 for Fortran index
+            boundaryNodes[0] = nodeids[2 * i + 0] - 1;
+            boundaryNodes[1] = nodeids[2 * i + 1] - 1;
+        } else {
+            std::size_t offset = 8 * i;
+            // For a triangular face the fourth entry is zero
+            bool squareFace = nodeids[offset + 3] != 0;
+            boundaryNodes.resize(3 + (squareFace ? 1 : 0));
+            for (std::size_t j = 0; j < boundaryNodes.size(); ++j) {
+                // -1 for Fortran index
+                boundaryNodes[j] = nodeids[offset + j] - 1;
+            }
+        }
+    }
+
+    logger(INFO, "Read % boundary faces", groupSize.totalCount);
+}
+
+void CentaurReader::readPanelBoundaryMapping() {
+    std::uint32_t numberOfGroups = readSingleLineGroupSize();
+    panelToBoundaryMapping.resize(numberOfGroups);
+    centaurFile.readRawRecord(
+        numberOfGroups * sizeof(std::uint32_t),
+        reinterpret_cast<char*>(panelToBoundaryMapping.data()));
+    for (std::uint32_t& entry : panelToBoundaryMapping) {
+        // Compensate for Fortran indices
+        --entry;
+    }
+    logger(INFO, "Read % panel -> boundary mappings", numberOfGroups);
 }
 
 void CentaurReader::readBoundaryGroups() {
     GroupSize groupSize = readGroupSize(false);
     std::uint32_t numberOfGroups = groupSize.totalCount;
-    logger(INFO, "Discarding % boundary groups", numberOfGroups);
 
     std::vector<std::uint32_t> boundaryTypeIds(numberOfGroups);
     std::vector<std::array<char, 80>> rawBoundaryNames(numberOfGroups);
@@ -350,10 +404,29 @@ void CentaurReader::readBoundaryGroups() {
                               reinterpret_cast<char*>(boundaryTypeIds.data()));
     centaurFile.readRawRecord(numberOfGroups * 80 * sizeof(char),
                               reinterpret_cast<char*>(rawBoundaryNames.data()));
-    // Output for debugging
+    boundaries.resize(numberOfGroups);
     for (std::uint32_t i = 0; i < numberOfGroups; ++i) {
-        logger(VERBOSE, "Boundary group \"%\" of type %'", rawBoundaryNames[i],
-               boundaryTypeIds[i]);
+        boundaries[i].typeId = boundaryTypeIds[i];
+        boundaries[i].name = fromFortranString(rawBoundaryNames[i]);
+        logger(INFO, "Boundary group \"%\" of type %'", boundaries[i].name,
+               boundaries[i].typeId);
+    }
+    logger(INFO, "Read % boundary groups", numberOfGroups);
+}
+
+void CentaurReader::computeFaceRegionAssignments() {
+    // Add regions for the boundary
+    std::size_t regionOffset = regions.size();
+    for (BoundaryInformation boundary : boundaries) {
+        // Use the type of boundary as extra data
+        regions.emplace_back(boundary.name, std::to_string(boundary.typeId));
+    }
+
+    // Actual face assignment
+    for (BoundaryFace& face : boundaryFaces) {
+        std::size_t boundaryId = panelToBoundaryMapping[face.panelId];
+        faceAssignment.emplace_back(getDimension() - 1,
+                                    regionOffset + boundaryId, face.coordIds);
     }
 }
 
@@ -468,12 +541,16 @@ void CentaurReader::readZoneInfo() {
                       zones[i].rawZoneFamiliyName.end(), ' ');
         }
     }
+    // Offset for translating centaur zones to regions
+    std::size_t regionOffset = regions.size();
     for (const ZoneInformation& zone : zones) {
         logger(VERBOSE, "Zone \"%\"", zone.getZoneName());
         logger(VERBOSE, "\tFamily: \"%\"", zone.getZoneFamilyName());
         for (std::size_t i = 0; i < 5; ++i) {
             logger(DEBUG, "\tOffset % : %", i, zone.endOffsets[i]);
         }
+        // Add the zone family as data for the zone
+        regions.emplace_back(zone.getZoneName(), zone.getZoneFamilyName());
     }
     logger(INFO, "Applying % zones", zones.size());
     // For each element type, centaur ensures that the elements are stored in
@@ -493,13 +570,14 @@ void CentaurReader::readZoneInfo() {
         positions[elemType] =
             positions[elemType - 1] + elementCount[elemType - 1];
     }
-    for (const ZoneInformation& zone : zones) {
+    for (std::size_t i = 0; i < numberOfZones; ++i) {
+        const ZoneInformation& zone = zones[i];
         std::string zoneName = zone.getZoneName();
         // Assign the zone for each elementtype
         for (std::size_t elemType = 0; elemType < 4; ++elemType) {
             for (; positions[elemType] < zone.endOffsets[elemType];
                  ++positions[elemType]) {
-                elements[positions[elemType]].zoneName = zoneName;
+                elements[positions[elemType]].regionId = i + regionOffset;
             }
         }
     }
@@ -534,6 +612,13 @@ std::uint32_t CentaurReader::readGroup(std::vector<T>& data,
                                        std::uint32_t numComponents,
                                        bool expectMultiline) {
     GroupSize groupSize = readGroupSize(expectMultiline);
+    readGroup(data, numComponents, groupSize);
+    return groupSize.totalCount;
+}
+
+template <class T>
+void CentaurReader::readGroup(std::vector<T>& data, std::uint32_t numComponents,
+                              GroupSize& groupSize) {
     // Prevent overflow
     std::size_t totalRawEntries =
         static_cast<std::size_t>(groupSize.totalCount) * numComponents;
@@ -557,7 +642,6 @@ std::uint32_t CentaurReader::readGroup(std::vector<T>& data,
         logger.assert_always(entriesRead == groupSize.totalCount,
                              "Incorrect number of entries read");
     }
-    return groupSize.totalCount;
 }
 
 std::uint32_t CentaurReader::numNodes(std::size_t elementType) const {

@@ -3,11 +3,11 @@
  years by various people at the University of Twente and a full list of
  contributors can be found at http://hpgem.org/about-the-code/team
 
- This code is azdistributed using BSD 3-Clause License. A copy of which can
- found below.
+ This code is distributed using BSD 3-Clause License. A copy of which can found
+ below.
 
 
- Copyright (c) 2017, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,64 +35,36 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef HPGEM_REGIONMETA_H
+#define HPGEM_REGIONMETA_H
 
-#ifndef HPGEM_APP_GMSH_H
-#define HPGEM_APP_GMSH_H
+#include "idtypes.h"
 
-#include <map>
-#include <fstream>
+#include <limits>
 #include <string>
-#include <vector>
-
-#include "MeshSource.h"
-#include "Logger.h"
-
-using namespace hpgem;
+#include <utility>
 
 namespace Preprocessor {
+
 /**
- * @brief Parser for gmsh files
- * This parser only works with gmsh files of version 2.2.
- * For more info see
- * https://gmsh.info/doc/texinfo/gmsh.html#MSH-file-format-version-2-_0028Legacy_0029
+ * Meta data for a region of the mesh.
  */
+struct RegionMeta {
+    RegionMeta() : zone(), data(){};
+    explicit RegionMeta(std::string zone, std::string data = "")
+        : zone(std::move(zone)), data(std::move(data)) {}
 
-class GmshReader final : public MeshSource2 {
-
-   public:
-    GmshReader(std::string filename);
-
-    const std::vector<Coord>& getCoordinates() final { return nodes_; }
-
-    const std::vector<Element>& getElements() final { return elements_; }
-
-    const std::vector<RegionMeta>& getRegions() final { return regions_; }
-
-    std::size_t getDimension() const final { return dimension_; }
-
-   private:
-    void fillElementTypeMap();
-    void readHeader();
-    void readNodes();
-    void readElements();
-    void readElementData();
-    void readPBCs();
-    void purgeLowerDimElements();
-    void pruneCoordinatesToDimension();
-
-    size_t determineDimension(double tol = 1e-12) const;
-
-    size_t dimension_;
-
-    std::vector<MeshSource2::Element> elements_;
-
-    std::vector<MeshSource2::Coord> nodes_;
-    std::vector<RegionMeta> regions_;
-
-    std::ifstream Filehandle_;
-    std::map<size_t, size_t> nodesPerElementtype_;
-    std::map<size_t, size_t> dimensionOfElementtype_;
+    /**
+     * Region or zone name, MUST NOT contain newline characters.
+     */
+    std::string zone;
+    /**
+     *  Freeform data about the region, may be multiline.
+     */
+    std::string data;
 };
 
+
 }  // namespace Preprocessor
-#endif  // HPGEM_APP_GMSH_H
+
+#endif  // HPGEM_REGIONMETA_H

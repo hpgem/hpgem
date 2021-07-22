@@ -61,6 +61,12 @@ class CentaurReader : public MeshSource2 {
     }
     std::vector<MeshSource2::Element>& getElements() final { return elements; }
 
+    const std::vector<RegionMeta>& getRegions() final { return regions; }
+
+    const std::vector<RegionAssignment>& getAssignments() final {
+        return faceAssignment;
+    }
+
     std::size_t getDimension() const final {
         if (centaurFileType > 0) return 3;
 
@@ -121,6 +127,17 @@ class CentaurReader : public MeshSource2 {
     template <typename T>
     std::uint32_t readGroup(std::vector<T>& data, std::uint32_t numComponents,
                             bool expectMultiline);
+    /**
+     * Read a group with a uniform data type
+     * @tparam T The datatype
+     * @param data vector to store the result in
+     * @param numComponents The number of components per entry (e.g. 4 corner
+     * indices for a square)
+     * @param groupSize A description of the group size
+     */
+    template <class T>
+    void readGroup(std::vector<T>& data, std::uint32_t numComponents,
+                   GroupSize& groupSize);
 
     /// Reader Methods ///
     //////////////////////
@@ -156,14 +173,39 @@ class CentaurReader : public MeshSource2 {
     void reorderElementCoords(std::vector<std::size_t>& coords,
                               std::size_t elementType) const;
 
-    /// Read & discard boundary group information
-    /// Note: While the information is discarded, it is very useful in debugging
-    /// The boundary group names are human readable and can be easily checked
-    /// for correctness.
+    void readBoundaryFaces();
+
+    /**
+     * Read the mapping from panel (2D: boundary segments) ids to boundary group
+     * ids.
+     *
+     * Centaur has this intermediate array as there could be multiple (CAD)
+     * panels that form a single boundary/interface. This fills the
+     * panelToBoundaryMapping member.
+     */
+    void readPanelBoundaryMapping();
+
+    /**
+     * Read the boundary groups from the centaur file into the boundaries
+     * member.
+     */
     void readBoundaryGroups();
 
     /**
+     * Compute the region assignments of the faces.
+     *
+     * Note: This still uses coordinate ids instead of node ids, these need to
+     * be updated in readPeriodicNodeConnections();
+     */
+    void computeFaceRegionAssignments();
+
+    /**
      * Read and apply the periodic connections from the centaur file.
+     *
+     * Specifically this updates:
+     *  - The coordinates to merge the nodeIds of coordinates that are
+     *    periodically connected.
+     *  - Translate the coordinate ids in the BoundaryFaces to point to NodeIds.
      */
     void readPeriodicNodeConnections();
 
@@ -196,6 +238,66 @@ class CentaurReader : public MeshSource2 {
      * consecutively.
      */
     std::vector<MeshSource2::Element> elements;
+
+    /**
+     * Description of a face on the boundary (could be an internal one).
+     */
+    struct BoundaryFace {
+        /**
+         * The ids of the coordinates associated with this boundary
+         */
+        std::vector<std::size_t> coordIds;
+        /**
+         * The panel to which it corresponds
+         */
+        std::size_t panelId;
+    };
+
+    /**
+     * Description of a boundary
+     */
+    struct BoundaryInformation {
+        /**
+         * Combined id and type classifier. The number as whole is an ID. The
+         * value is also used as indicator of the boundary type:
+         *   1   -1000  - Viscous Wall
+         *   1001-2000  - Inviscid Wall
+         *   2001-3000  - Symmetry
+         *   3001-4000  - Inlet
+         *   4001-5000  - Outlet
+         *   5001-6000  - Farfield
+         *   6001-7000  - Periodic
+         *   7001-8000  - Shadow
+         *   8001-8500  - Interface
+         *   8501-9000  - Wake Surfaces
+         *   9001-10000 - Moving Walls
+         *  10001-      - Other
+         */
+        std::uint32_t typeId;
+        /**
+         * Name of the boundary
+         */
+        std::string name;
+    };
+    /**
+     * Faces on boundaries
+     */
+    std::vector<BoundaryFace> boundaryFaces;
+    /**
+     * Mapping from panel number to the typeId of the boundary it belongs to.
+     */
+    std::vector<std::uint32_t> panelToBoundaryMapping;
+    /**
+     * Description of the boundary
+     */
+    std::vector<BoundaryInformation> boundaries;
+
+    std::vector<RegionMeta> regions;
+    /**
+     * Assignment of faces to boundary regions.
+     */
+    std::vector<MeshSource2::RegionAssignment> faceAssignment;
+
     /**
      * The number of elements of each type.
      */

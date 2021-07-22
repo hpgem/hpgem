@@ -120,9 +120,9 @@ void outputMesh(Mesh<dimension>& mesh,
     output << std::endl;
 
     output << "zones" << std::endl;
-    output << mesh.getZoneNames().size() << std::endl;
-    for (const auto& zonename : mesh.getZoneNames()) {
-        output << zonename << '\n';
+    output << mesh.getRegions().size() << std::endl;
+    for (const RegionMeta& region : mesh.getRegions()) {
+        output << region.zone << '\n';
     }
 
     output << "nodes" << std::endl;
@@ -195,7 +195,7 @@ void outputMesh(Mesh<dimension>& mesh,
         for (auto index : shadowPartitions) {
             output << index << " ";
         }
-        output << '\n' << element.getZoneId() << '\n';
+        output << '\n' << element.getRegionId() << '\n';
     }
     Detail::printOtherEntities(output, mesh, partitions, tag<dimension - 1>{});
     output.seekp(partitionInformation);

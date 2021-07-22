@@ -40,6 +40,8 @@
 
 #include "ElementShapes.h"
 
+#include <set>
+
 namespace Preprocessor {
 
 template <std::size_t entityDimension, std::size_t meshDimension>
@@ -149,6 +151,54 @@ void MeshEntity<entityDimension, meshDimension>::addElement(
     EntityGId elementID, EntityLId localEntityIndex) {
     elementIDs.push_back(elementID);
     localIDs.push_back(localEntityIndex);
+}
+
+template <std::size_t dimension>
+template <std::size_t edim>
+MeshEntity<edim, dimension>* Mesh<dimension>::findEntityByNodes(
+    std::vector<EntityGId> searchNodes) {
+    // The entity is found by looking up the adjacent entities to each of the
+    // search nodes and taking the intersection.
+
+    logger.assert_always(searchNodes.size() > 0,
+                         "Need at least one search node");
+
+    std::vector<EntityGId> candidates;
+    std::vector<EntityGId> candidatesTemp;
+    candidates =
+        getNode(searchNodes[0]).template getIncidenceListAsIndices<edim>();
+    std::sort(candidates.begin(), candidates.end());
+
+    // Filter till we have one candidate
+    for (std::size_t i = 1; i < searchNodes.size() && candidates.size() > 1;
+         ++i) {
+        std::vector<EntityGId> nodeCandidates =
+            getNode(searchNodes[i]).template getIncidenceListAsIndices<edim>();
+        std::sort(nodeCandidates.begin(), nodeCandidates.end());
+        // Intersection
+        std::set_intersection(candidates.begin(), candidates.end(),
+                              nodeCandidates.begin(), nodeCandidates.end(),
+                              std::back_inserter(candidatesTemp));
+        std::swap(candidates, candidatesTemp);
+        candidatesTemp.clear();
+    }
+    if (candidates.empty()) {
+        return nullptr;
+    }
+    for (const EntityGId& candidateId : candidates) {
+        // Note the candidate has the right nodes, but it may have more. Here we
+        // take the slightly more conservative approach and just check the nodes
+        // against the search nodes.
+        MeshEntity<edim, dimension>& candidate = getEntity<edim>(candidateId);
+        std::vector<EntityGId> actualNodes =
+            candidate.template getIncidenceListAsIndices<0>();
+        std::sort(actualNodes.begin(), actualNodes.end());
+        std::sort(searchNodes.begin(), searchNodes.end());
+        if (actualNodes == searchNodes) {
+            return &candidate;
+        }
+    }
+    return nullptr;
 }
 
 template <std::size_t entityDimension, std::size_t meshDimension>
@@ -381,9 +431,9 @@ CoordId Mesh<dimension>::addNodeCoordinate(
 
 template <std::size_t dimension>
 void Mesh<dimension>::addElement(std::vector<CoordId> nodeCoordinateIDs,
-                                 const std::string& zoneName) {
+                                 RegionId regionId) {
     EntityGId elementID = EntityGId(elementsList.size());
-    Element<dimension> newElement{this, elementID, getZoneId(zoneName)};
+    Element<dimension> newElement{this, elementID, regionId};
     newElement.setGeometry(findGeometry(nodeCoordinateIDs.size()));
     for (auto coordinateID : nodeCoordinateIDs) {
         EntityGId nodeID = coordinates[coordinateID.id].nodeIndex;
@@ -471,15 +521,10 @@ const ElementShape<dimension>* Mesh<dimension>::findGeometry(
     return nullptr;
 }
 
-template <std::size_t DIM>
-std::size_t Mesh<DIM>::getZoneId(const std::string& zoneName) {
-    for (std::size_t i = 0; i < zoneNames.size(); ++i) {
-        if (zoneNames[i] == zoneName) {
-            return i;
-        }
-    }
-    // Not found
-    zoneNames.push_back(zoneName);
-    return zoneNames.size() - 1;
+template <std::size_t dimension>
+RegionId Mesh<dimension>::addRegion(RegionMeta meta) {
+    regions.emplace_back(std::move(meta));
+    return RegionId(regions.size() - 1);
 }
+
 }  // namespace Preprocessor

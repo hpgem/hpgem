@@ -53,7 +53,7 @@ namespace {
 template <typename T>
 struct Id {
     Id() = default;
-    explicit Id(std::size_t id) : id(id){};
+    constexpr explicit Id(std::size_t id) : id(id){};
 
     std::size_t id;
 
@@ -106,7 +106,7 @@ template <typename T>
 struct ImplicitId {
     ImplicitId() = default;
     // NOLINTNEXTLINE(google-explicit-constructor)
-    ImplicitId(std::size_t id) : id(id){};
+    constexpr ImplicitId(std::size_t id) : id(id){};
 
     std::size_t id;
 
@@ -166,6 +166,7 @@ std::ostream& operator<<(std::ostream& os, const ImplicitId<T>& id) {
 struct CoordLabel {};
 struct EntityGIdLabel {};
 struct EntityLIdLabel {};
+struct RegionIdLabel;
 
 }  // namespace
 
@@ -185,6 +186,17 @@ using EntityGId = Id<EntityGIdLabel>;
  */
 using EntityLId = ImplicitId<EntityLIdLabel>;
 
+/**
+ * Identifier for the regions in a mesh. The combination of this id and the mesh
+ * will uniquely identify the region.
+ */
+using RegionId = Id<RegionIdLabel>;
+
+/**
+ * Identifier for the lack of a region
+ */
+constexpr static RegionId NO_REGION_ID = RegionId (std::numeric_limits<std::size_t>::max());
+
 }  // namespace Preprocessor
 
-#endif  // HPGEM_IDTYPES_H
+#endif  // HPGEM_REGIONMETA_H

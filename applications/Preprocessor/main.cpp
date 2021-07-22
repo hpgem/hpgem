@@ -71,6 +71,8 @@ auto& targetMpiCount = Base::register_argument<std::size_t>(
 
 template <std::size_t dimension>
 void printMeshStatistics(const Preprocessor::Mesh<dimension>& mesh) {
+    using namespace Preprocessor;
+
     logger(INFO, "Mesh counts");
     logger(INFO, "\tElements: %", mesh.getNumberOfElements());
     logger(INFO, "\tFaces: %", mesh.getNumberOfFaces());
@@ -121,9 +123,9 @@ void printMeshStatistics(const Preprocessor::Mesh<dimension>& mesh) {
         logger(INFO, "Mesh bounding box min % - max %", minCoord, maxCoord);
     }
 
-    logger(INFO, "Zones:", mesh.getZoneNames().size());
-    for (const std::string& zone : mesh.getZoneNames()) {
-        logger(INFO, "\t%", zone);
+    logger(INFO, "Regions:", mesh.getRegions().size());
+    for (const RegionMeta& region : mesh.getRegions()) {
+        logger(INFO, "\t%", region.zone);
     }
 }
 
@@ -234,23 +236,23 @@ int main(int argc, char** argv) {
         } else if ((fileType.isUsed() && fileType.getValue() == "centaur") ||
                    (!fileType.isUsed() &&
                     fileName.compare(nameSize - 4, 4, ".hyb") == 0)) {
-            auto centaurFile =
-                Preprocessor::CentaurReader(inputFileName.getValue());
+            auto centaurFile = std::make_unique<Preprocessor::CentaurReader>(
+                inputFileName.getValue());
             if (dimension.isUsed()) {
                 logger.assert_always(
-                    dimension.getValue() == centaurFile.getDimension(),
+                    dimension.getValue() == centaurFile->getDimension(),
                     "The input file reports being for dimension %, but the "
                     "code was started for dimension %",
-                    centaurFile.getDimension(), dimension.getValue());
+                    centaurFile->getDimension(), dimension.getValue());
             }
-            if (centaurFile.getDimension() == 2) {
-                processMesh(Preprocessor::fromMeshSource<2>(centaurFile));
-            } else if (centaurFile.getDimension() == 3) {
-                processMesh(Preprocessor::fromMeshSource<3>(centaurFile));
+            if (centaurFile->getDimension() == 2) {
+                processMesh(Preprocessor::fromMeshSource<2>(*centaurFile));
+            } else if (centaurFile->getDimension() == 3) {
+                processMesh(Preprocessor::fromMeshSource<3>(*centaurFile));
             } else {
                 logger(ERROR,
                        "Centaur file should not be able to have dimension %",
-                       centaurFile.getDimension());
+                       centaurFile->getDimension());
             }
         } else if ((fileType.isUsed() && fileType.getValue() == "gmsh") ||
                    (!fileType.isUsed() &&

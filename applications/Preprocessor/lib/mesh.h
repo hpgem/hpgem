@@ -40,11 +40,15 @@
 #define HPGEM_APP_MESH_H
 
 #include "LinearAlgebra/SmallVector.h"
+#include "RegionMeta.h"
 #include "elementShape.h"
 #include "MeshSource.h"
 #include "idtypes.h"
 #include "tag.h"
+#include "RegionMeta.h"
 #include "TemplateArray.h"
+
+#include <limits>
 
 // the data structures needed to represent a mesh
 // they are collected in one file because they are meaningless alone and
@@ -183,10 +187,26 @@ class MeshEntity {
     bool operator==(const MeshEntity&) const;
     bool operator!=(const MeshEntity& other) const { return !(*this == other); }
 
+    RegionId getRegionId() const { return regionId; }
+    // Only const version as the region is shared by multiple elements. For
+    // modification go through the owning mesh.
+    const RegionMeta* getRegionMeta() const {
+        return mesh->getRegion(regionId);
+    }
+
+    void setRegion(RegionId id) {
+        logger.assert_debug(id.id < mesh->getRegions().size() ||
+                                id == NO_REGION_ID,
+                            "Invalid region id");
+        regionId = id;
+    }
+
    protected:
     friend Mesh<meshDimension>;
     MeshEntity(Mesh<meshDimension>* mesh, EntityGId entityID)
-        : mesh(mesh), entityID(entityID) {}
+        : mesh(mesh),
+          entityID(entityID),
+          regionId(NO_REGION_ID) {}
 
     /// Add an element that is this MeshEntity is part of
     ///
@@ -205,6 +225,14 @@ class MeshEntity {
     std::vector<EntityLId> localIDs;
     // NOTE: Probably the following identity should hold:
     // elements[elementIDs[i]].incidenceList[dimension][localIDs[i]] == entityID
+
+    /**
+     * ID of the meta information that is associated with this MeshEntity
+     *
+     * It will have the NO_META_ID value if there is no meta data associated
+     * with this MeshEntity.
+     */
+    RegionId regionId = NO_REGION_ID;
 };
 
 /**
@@ -318,14 +346,11 @@ class Element : public MeshEntity<dim, dim> {
     std::vector<EntityLId> getLocalIncidenceListAsIndices(
         const MeshEntity<entityDimension, dim>& entity) const;
 
-    std::string getZoneName() const { return this->mesh->zoneNames[zoneId]; }
-
-    size_t getZoneId() const { return zoneId; }
-
    private:
     friend Mesh<dim>;
-    Element(Mesh<dim>* mesh, EntityGId elementID, std::size_t zoneId)
-        : MeshEntity<dim, dim>(mesh, elementID), zoneId(zoneId) {
+    Element(Mesh<dim>* mesh, EntityGId elementID, RegionId zoneId)
+        : MeshEntity<dim, dim>(mesh, elementID) {
+        this->setRegion(zoneId);
         this->addElement(elementID, 0);
     }
 
@@ -348,8 +373,6 @@ class Element : public MeshEntity<dim, dim> {
     std::array<std::vector<EntityGId>, dim> incidenceLists;
     /// The global indices of the coordinates for the corners of this element.
     std::vector<CoordId> globalCoordinateIndices;
-
-    std::size_t zoneId;
 };
 
 /// Simplified Mesh finite element Mesh for use with the preprocessor.
@@ -444,15 +467,13 @@ class Mesh {
 
     std::vector<MeshEntity<0, dimension>>& getNodes();
     const std::vector<MeshEntity<0, dimension>>& getNodes() const;
-    MeshEntity<0, dimension> getNode(std::size_t i) const {
-        return getNodes()[i];
+    MeshEntity<0, dimension> getNode(EntityGId i) const {
+        return getNodes()[i.id];
     };
     std::size_t getNumberOfNodes() const { return getNodes().size(); }
 
     std::vector<coordinateData>& getNodeCoordinates();
     const std::vector<coordinateData>& getNodeCoordinates() const;
-
-    const std::vector<std::string>& getZoneNames() const { return zoneNames; }
 
     /// Get the list of MeshEntity-s of a specific dimension
     template <int entityDimension>
@@ -465,8 +486,13 @@ class Mesh {
         (entityDimension < 0 ? entityDimension + dimension : entityDimension),
         dimension>>&
         getEntities() const;
+
     template <int entityDimension>
-    MeshEntity<entityDimension, dimension> getEntity(EntityGId i) const {
+    MeshEntity<entityDimension, dimension>& getEntity(EntityGId i) {
+        return getEntities<entityDimension>()[i.id];
+    };
+    template <int entityDimension>
+    const MeshEntity<entityDimension, dimension>& getEntity(EntityGId i) const {
         return getEntities<entityDimension>()[i.id];
     };
     template <int entityDimension>
@@ -485,8 +511,7 @@ class Mesh {
     CoordId addNodeCoordinate(EntityGId nodeIndex,
                               LinearAlgebra::SmallVector<dimension> coordinate);
 
-    void addElement(std::vector<CoordId> nodeCoordinateIDs,
-                    const std::string& zoneName = "main");
+    void addElement(std::vector<CoordId> nodeCoordinateIDs, RegionId regionId);
 
     void updateCoordinate(CoordId coordinateIndex,
                           LinearAlgebra::SmallVector<dimension> coordinate) {
@@ -514,6 +539,29 @@ class Mesh {
     }
     // todo: is this needed?
     void fixConnectivity();
+
+    template <std::size_t edim>
+    MeshEntity<edim, dimension>* findEntityByNodes(std::vector<EntityGId> searchNodes);
+
+    RegionId addRegion(RegionMeta meta);
+
+    std::vector<RegionMeta>& getRegions() { return regions; }
+    const std::vector<RegionMeta>& getRegions() const { return regions; }
+
+    RegionMeta* getRegion(RegionId id) {
+        if (id == NO_REGION_ID) {
+            return nullptr;
+        } else {
+            return &regions[id.id];
+        }
+    }
+    const RegionMeta* getRegion(RegionId id) const {
+        if (id == NO_REGION_ID) {
+            return nullptr;
+        } else {
+            return &regions[id.id];
+        }
+    }
 
    private:
     /// Recursively checks that for each MeshEntity that is adjacent to an
@@ -635,7 +683,8 @@ class Mesh {
     // here as MeshEntitiy<dim,dim>, the parentType of Element. This allows much
     // easier implementation of getEntities<dim>()
     TemplateArray<dimension + 1, MeshEntityVec> otherEntities;
-    std::vector<std::string> zoneNames;
+
+    std::vector<RegionMeta> regions;
 };
 
 // for use with file readers that can 'guess' the correct numbering of the node
@@ -656,18 +705,60 @@ Mesh<dimension> readFile(MeshSource& file) {
         }
     }
     std::vector<CoordId> coords;
+    std::map<std::string, RegionId> zoneMapping;
+    zoneMapping[""] = NO_REGION_ID;
     for (auto element : file.getElements()) {
-        logger.assert_always(!element.zoneName.empty(),
-                             "Element without a zone name");
+        RegionId regionId;
+        auto iter = zoneMapping.find(element.zoneName);
+        if (iter != zoneMapping.end()) {
+            regionId = iter->second;
+        } else {
+            regionId = result.addRegion(RegionMeta(element.zoneName));
+            zoneMapping[element.zoneName] = regionId;
+        }
+
         // TODO: Move up into MeshSource at a convenient moment
         coords.resize(element.coordinateIds.size());
         for (std::size_t i = 0; i < coords.size(); ++i) {
             coords[i] = CoordId(element.coordinateIds[i]);
         }
-        result.addElement(coords, element.zoneName);
+        result.addElement(coords, regionId);
     }
     logger.assert_debug(result.isValid(), "Unspecified problem with the mesh");
     return result;
+}
+
+template <int entityDimension, std::size_t dimension>
+void assignRegionId(Mesh<dimension>& mesh, std::vector<EntityGId>& targetNodes,
+                    std::size_t targetDimension, RegionId regionId,
+                    itag<entityDimension>) {
+    if (targetDimension == entityDimension) {
+        MeshEntity<entityDimension, dimension>* entity =
+            mesh.template findEntityByNodes<entityDimension>(targetNodes);
+        logger.assert_always(entity != nullptr, "Could not find the entity");
+        if (entity->getRegionId() == regionId) {
+            return;
+        } else if (entity->getRegionId() != NO_REGION_ID) {
+            std::string newRegionName =
+                regionId == NO_REGION_ID
+                    ? "null region"
+                    : mesh.getRegion(regionId)->zone;
+            logger(WARN, "Replacing region % by %",
+                   entity->getRegionMeta()->zone, newRegionName);
+        }
+        entity->setRegion(regionId);
+    } else {
+        // Recurse down
+        assignRegionId(mesh, targetNodes, targetDimension, regionId,
+                       itag<entityDimension - 1>{});
+    }
+}
+
+// Base case for dimension 0
+template <std::size_t dimension>
+void assignRegionId(Mesh<dimension>& mesh, std::vector<EntityGId>& targetNodes,
+                    std::size_t targetDimension, RegionId regionId, itag<-1>) {
+    logger.assert_always(false, "No region with negative dimension");
 }
 
 template <std::size_t dimension>
@@ -697,20 +788,61 @@ Mesh<dimension> fromMeshSource(MeshSource2& file) {
             meshNodeId,
             LinearAlgebra::SmallVector<dimension>(coord.coordinate.data()));
     }
+    // Add all regions
+    for (const RegionMeta& region : file.getRegions()) {
+        // Abuse the knowledge that this will be incremental and thus not need
+        // any translation from source. Hence we will not need to translate
+        // region ids from the source to the target.
+        //
+        // Downside of this is that it will keep any unused regions.
+        result.addRegion(region);
+    }
+
     // Add all the elements
     std::vector<CoordId> coords;
 
     for (auto element : file.getElements()) {
-        logger.assert_always(!element.zoneName.empty(),
-                             "Element without a zone name");
+        // Allow elements without region
+
         // TODO: Move up into MeshSource at a convenient moment
         coords.resize(element.coordinateIds.size());
         for (std::size_t i = 0; i < coords.size(); ++i) {
             coords[i] = CoordId(element.coordinateIds[i]);
         }
-        result.addElement(coords, element.zoneName);
+        RegionId regionId(element.regionId == MeshSource2::NO_REGION_ID
+                              ? NO_REGION_ID
+                              : RegionId(element.regionId));
+        result.addElement(coords, regionId);
     }
     logger.assert_debug(result.isValid(), "Unspecified problem with the mesh");
+
+    logger(INFO, "Created the basic mesh");
+    // Assign face meta informatin
+    std::vector<EntityGId> entityNodes;
+    for (const MeshSource2::RegionAssignment& assignment :
+         file.getAssignments()) {
+        logger.assert_always(
+            assignment.dimension <= dimension,
+            "Can't assign to dimension % on a mesh of dimension %",
+            assignment.dimension, dimension);
+
+        RegionId regionId = assignment.regionId == MeshSource2::NO_REGION_ID
+                                ? NO_REGION_ID
+                                : RegionId(regionId);
+
+        const std::vector<std::size_t>& rawNodeIds = assignment.nodeIds;
+        entityNodes.clear();
+        // Translate nodes from source to mesh id
+        std::transform(rawNodeIds.begin(), rawNodeIds.end(),
+                       std::back_inserter(entityNodes),
+                       [&](const std::size_t& rawNodeId) {
+                           return nodeMapping.at(rawNodeId);
+                       });
+        assignRegionId(result, entityNodes, assignment.dimension, regionId,
+                       itag<dimension>{});
+    }
+    logger(INFO, "Assigned region info to the basic mesh");
+
     return result;
 }
 

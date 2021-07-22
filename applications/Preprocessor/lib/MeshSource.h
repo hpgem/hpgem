@@ -38,8 +38,11 @@
 #ifndef HPGEM_MESHSOURCE_H
 #define HPGEM_MESHSOURCE_H
 
+#include <limits>
+#include <utility>
 #include <vector>
 #include "customIterator.h"
+#include "RegionMeta.h"
 
 namespace Preprocessor {
 
@@ -131,6 +134,13 @@ class MeshSource2 {
    public:
     virtual ~MeshSource2() = default;
 
+    /**
+     * Identifier used for indicating that an entity does not belong to a
+     * region.
+     */
+    static constexpr std::size_t NO_REGION_ID =
+        std::numeric_limits<std::size_t>::max();
+
     struct Coord {
         /// Actual physical coordinate of the node
         std::vector<double> coordinate;
@@ -158,10 +168,9 @@ class MeshSource2 {
         std::vector<std::size_t> coordinateIds;
 
         /**
-         * Zone specifier of this element, for example for differentiating zones
-         * with different materials.
+         * Region identifier
          */
-        std::string zoneName;
+        std::size_t regionId = NO_REGION_ID;
 
         /**
          * Dimension of the Element, this is not used in the generation of the
@@ -175,7 +184,7 @@ class MeshSource2 {
         size_t id;
 
         bool operator==(const Element& o) const {
-            return coordinateIds == o.coordinateIds && zoneName == o.zoneName;
+            return coordinateIds == o.coordinateIds && regionId == o.regionId;
         }
     };
 
@@ -189,6 +198,31 @@ class MeshSource2 {
      * @return A list of the elements.
      */
     virtual const std::vector<Element>& getElements() = 0;
+
+    virtual const std::vector<RegionMeta>& getRegions() {
+        static std::vector<RegionMeta> regions;
+        return regions;
+    }
+
+    /**
+     * Assignment of an entity to a region. For Elements use the more efficient
+     * regionId in Element
+     */
+    struct RegionAssignment {
+        RegionAssignment() = default;
+        RegionAssignment(std::size_t dimension, std::size_t regionId,
+                         std::vector<std::size_t> nodeIds)
+            : dimension(dimension), regionId(regionId), nodeIds(std::move(nodeIds)){};
+
+        std::size_t dimension;
+        std::size_t regionId;
+        std::vector<std::size_t> nodeIds;
+    };
+
+    virtual const std::vector<RegionAssignment>& getAssignments() {
+        static std::vector<RegionAssignment> assignments;
+        return assignments;
+    }
 
     /**
      * Get the dimension of the described mesh
