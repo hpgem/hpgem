@@ -38,7 +38,7 @@
 #ifndef HPGEM_MESHENTITY_IMPL_H
 #define HPGEM_MESHENTITY_IMPL_H
 
-#include "mesh.h"
+#include "Mesh.h"
 
 namespace Preprocessor {
 

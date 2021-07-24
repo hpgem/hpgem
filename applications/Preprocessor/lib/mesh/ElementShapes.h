@@ -39,7 +39,7 @@
 #define HPGEM_ELEMENTSHAPES_H
 
 #include "elementShape.h"
-#include "TemplateArray.h"
+#include "utils/TemplateArray.h"
 
 namespace Preprocessor {
 

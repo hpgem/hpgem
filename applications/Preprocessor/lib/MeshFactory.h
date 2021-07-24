@@ -38,7 +38,7 @@
 #ifndef HPGEM_MESHFACTORY_H
 #define HPGEM_MESHFACTORY_H
 
-#include "mesh.h"
+#include "mesh/Mesh.h"
 #include "MeshSource.h"
 
 namespace Preprocessor {

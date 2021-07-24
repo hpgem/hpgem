@@ -44,8 +44,8 @@
 #include "Element.h"
 #include "idtypes.h"
 #include "MeshEntity.h"
-#include "tag.h"
-#include "TemplateArray.h"
+#include "utils/tag.h"
+#include "utils/TemplateArray.h"
 
 #include "LinearAlgebra/SmallVector.h"
 
@@ -353,6 +353,6 @@ class Mesh {
 };
 }  // namespace Preprocessor
 
-#include "mesh_impl.h"
+#include "Mesh_Impl.h"
 
 #endif  // HPGEM_APP_MESH_H

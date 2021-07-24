@@ -123,14 +123,6 @@ const std::vector<typename Mesh<dimension>::coordinateData>&
 }
 
 template <std::size_t dimension>
-void Mesh<dimension>::setNumberOfNodes(std::size_t number) {
-    if (number < meshEntities.template get<0>().size()) {
-        meshEntities.template get<0>().resize(number);
-    } else
-        addNodes(number - meshEntities.template get<0>().size());
-}
-
-template <std::size_t dimension>
 EntityGId Mesh<dimension>::addNode() {
     return newEntity<0>();
 }
