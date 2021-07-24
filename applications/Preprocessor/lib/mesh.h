@@ -39,318 +39,19 @@
 #ifndef HPGEM_APP_MESH_H
 #define HPGEM_APP_MESH_H
 
-#include "LinearAlgebra/SmallVector.h"
-#include "elementShape.h"
-#include "MeshSource.h"
+#include "MeshPredeclarations.h"
+
+#include "Element.h"
 #include "idtypes.h"
+#include "MeshEntity.h"
 #include "tag.h"
 #include "TemplateArray.h"
 
-// the data structures needed to represent a mesh
-// they are collected in one file because they are meaningless alone and
-// intimately linked they are redesigned here because the classes used in the
-// rest of hpGEM need way more information than what is needed to construct and
-// distribute the mesh
+#include "LinearAlgebra/SmallVector.h"
+
+#include <vector>
 
 namespace Preprocessor {
-
-template <std::size_t dimension, std::size_t gridDimension>
-class MeshEntity;
-
-template <std::size_t dimension>
-class Element;
-
-template <std::size_t dimension>
-class Mesh;
-
-/**
- * \brief Topological part of the Mesh
- *
- * A MeshEntity describes the topology (connectivity) of a single element, face,
- * edge or node of the mesh. To illustrate the connectivity let us look at a
- * Face (2D) in a 3D mesh. This face has a boundary that consist of Nodes (0D)
- * and Edges (1D) and is the boundary of one or more Elements (3D). In general,
- * a MeshEntity of dimension dimE:
- * - Is connected to MeshEntity-s with dimensions smaller than DimE which form
- *   its boundary.
- * - Is connected to MeshEntity-s with dimensions larger than DimE where it is
- *   part of the boundary of such an entity.
- * - Is connected to MeshEntity-s with dimension  equal to DimE, where it is
- *   itself.
- * The last relation may seem superfluous, but this ensures that for
- * any two entities we can determine whether they are connected or not.
- *
- * Note that a MeshEntity does not contain any geometrical information (e.g.
- * coordinate of a Node), as this is not possible in the case of periodic
- * boundaries. This information should be accessed via a connected Element,
- * which does contain geometrical information.
- *
- * @tparam entityDimension The dimension of the entity itself (e.g. 0 for a
- * Node)
- * @tparam meshDimension The dimension of the mesh.
- */
-template <std::size_t entityDimension, std::size_t meshDimension>
-class MeshEntity {
-   public:
-    // the default constructor constructs an entity in a moved-from state so it
-    // is only useful if you want to create a std::array or something similar
-    // that is filled later
-    MeshEntity() = default;
-
-    ~MeshEntity() = default;
-
-    MeshEntity(const MeshEntity&) = default;
-
-    MeshEntity& operator=(const MeshEntity&) = default;
-
-    MeshEntity(MeshEntity&& other) = default;
-
-    MeshEntity& operator=(MeshEntity&&) = default;
-
-    /// Get a connected Element by its local index.
-    Element<meshDimension>& getElement(EntityLId i);
-    const Element<meshDimension>& getElement(EntityLId i) const;
-
-    /// Given a connected Element, what is its local index?
-    EntityLId getElementIndex(const Element<meshDimension>& element) const;
-
-    /// The number of elements that this MeshEntity is part of.
-    std::size_t getNumberOfElements() const;
-
-    /// The Local index of this MeshEntity on the i-th Element.
-    EntityLId getLocalIndex(EntityLId i) const;
-
-    /// Get the local index of this MeshEntity for an element that it is part
-    /// of.
-    /// \param element The element
-    /// \return The local index on the element.
-    EntityLId getLocalIndex(const Element<meshDimension>& element) const;
-
-    /// The global index of this MeshEntity. For a given Mesh and
-    /// entityDimension this uniquely determines the MeshEntity.
-    EntityGId getGlobalIndex() const;
-
-    std::vector<MeshEntity<meshDimension, meshDimension>> getElementsList()
-        const {
-        return getIncidenceList<meshDimension>();
-    }
-
-    /// List of facet-MeshEntities to which this is connected.
-    /// \return
-    std::vector<MeshEntity<meshDimension - 1, meshDimension>> getFacesList()
-        const {
-        return getIncidenceList<meshDimension - 1>();
-    }
-
-    /// Number of facet-MeshEntities to which this is connected.
-    std::size_t getNumberOfFaces() const { return getFacesList().size(); }
-
-    std::vector<MeshEntity<1, meshDimension>> getEdgesList() const {
-        return getIncidenceList<1>();
-    }
-
-    std::size_t getNumberOfEdges() const { return getEdgesList().size(); }
-
-    std::vector<MeshEntity<0, meshDimension>> getNodesList() const {
-        return getIncidenceList<0>();
-    }
-
-    std::size_t getNumberOfNodes() const { return getNodesList().size(); }
-
-    // when d == entityDimension, it will just return {*this}
-    /// List of all connected entities
-    template <int d>
-    std::vector<MeshEntity<(d < 0 ? d + meshDimension : d), meshDimension>>
-        getIncidenceList() const;
-
-    template <int d>
-    std::vector<EntityGId> getIncidenceListAsIndices() const;
-
-    template <int d>
-    std::size_t getNumberOfIncidentEntities() const {
-        return getIncidenceListAsIndices<d>().size();
-    }
-
-    template <int d>
-    MeshEntity<(d < 0 ? d + meshDimension : d), meshDimension>
-        getIncidentEntity(std::size_t i) const {
-        return mesh->template getEntity<(d < 0 ? d + meshDimension : d)>(
-            getIncidenceListAsIndices<(d < 0 ? d + meshDimension : d)>()[i]);
-    }
-
-    const Mesh<meshDimension>* getMesh() const { return mesh; }
-
-    bool operator==(const MeshEntity&) const;
-    bool operator!=(const MeshEntity& other) const { return !(*this == other); }
-
-   protected:
-    friend Mesh<meshDimension>;
-    MeshEntity(Mesh<meshDimension>* mesh, EntityGId entityID)
-        : mesh(mesh), entityID(entityID) {}
-
-    /// Add an element that is this MeshEntity is part of
-    ///
-    /// \param elementID The entityID of the element
-    /// \param localEntityIndex The localIndex of this MeshEntity for the
-    /// element.
-    void addElement(EntityGId elementID, EntityLId EntityLId);
-
-    Mesh<meshDimension>* mesh;
-    /// The id of this MeshEntity
-    EntityGId entityID = EntityGId(std::numeric_limits<std::size_t>::max());
-    /// The entityIDs for the Elements that this MeshEntity is part of
-    std::vector<EntityGId> elementIDs;
-    /// For each of the elements that this MeshEntity is part of, the local id
-    /// of this MeshEntity on the element.
-    std::vector<EntityLId> localIDs;
-    // NOTE: Probably the following identity should hold:
-    // elements[elementIDs[i]].incidenceList[dimension][localIDs[i]] == entityID
-};
-
-/**
- * @brief While this is conceptually just an index into the mesh, it also
- * presents some functions for local inspection and manipulation of the mesh
- * @tparam dim the dimension of the mesh
- */
-/**
- * \brief An Element of the Mesh.
- *
- * The MeshEntity-s of largest dimension in the Mesh are called Elements. In
- * addition to the topological information they also include geometrical
- * information. Speficially:
- *  - A polytope as shape (e.g. a triangle)
- *  - Coordinates for each of the node-type MeshEntity-s (i.e.
- *    MeshEntity<0,dim>) that form the corners of the polytopical shape.
- *
- * The shape determines not only the shape of the Element, but also of the
- * MeshEntity-s that are on the boundary of this Element. The local index of a
- * MeshEntity on this Element can be used to determine its shape.
- *
- * Note that the coordinates for each of the nodes is Element local. While most
- * connected elements to a node usually have the same coordinate, this is not
- * required and not possible with periodic boundaries.
- *
- * @tparam dim The dimension of the
- */
-template <std::size_t dim>
-class Element : public MeshEntity<dim, dim> {
-   public:
-    // the default constructor constructs an entity in a moved-from state so it
-    // is only useful if you want to create a std::array or something similar
-    // that is filled later
-    Element() = default;
-
-    ~Element() = default;
-
-    Element(const Element&) = default;
-
-    Element(Element&&) = default;
-
-    Element& operator=(const Element&) = default;
-
-    Element& operator=(Element&&) = default;
-
-    bool operator==(const Element&) const;
-    bool operator!=(const Element& element) const {
-        return !(*this == element);
-    }
-
-    LinearAlgebra::SmallVector<dim> getCoordinate(EntityLId localIndex) const;
-    CoordId getCoordinateIndex(EntityLId localIndex) const;
-
-    std::vector<LinearAlgebra::SmallVector<dim>> getCoordinatesList() const;
-
-    /// Set the global coordinate of a node
-    /// \param localIndex The local index of the node
-    /// \param newCoordinate The new coordinate.
-    void setNodeCoordinate(EntityLId localIndex,
-                           LinearAlgebra::SmallVector<dim> newCoordinate);
-
-    /// Set the node at a specific local index.
-    ///
-    /// \param localIndex The local index of the node
-    /// \param globalIndex The global index of the node
-    /// \param coordinateIndex  The global coordinate index for the point
-    /// corresponding to the node.
-    void setNode(EntityLId localIndex, EntityGId globalIndex,
-                 CoordId coordinateIndex);
-
-    template <std::size_t d>
-    std::enable_if_t<(d > 0)> setEntity(EntityLId localIndex,
-                                        EntityGId globalIndex);
-
-    using MeshEntity<dim, dim>::getIncidenceList;
-    using MeshEntity<dim, dim>::getIncidenceListAsIndices;
-
-    /// \brief For a MeshEntity on the boundary of this Element, compute the
-    /// MeshEntity-s that are shared with this element.
-    ///
-    /// For a MeshEntity on the boundary (and thus is connected to this Element)
-    /// computes the MeshEntity-s that are connected to this Element and are
-    /// connected to the input MeshEntity. For example, for a node-MeshEntity
-    /// compute the face-MeshEntity-s of this element that have that node.
-    ///
-    /// \tparam d The dimension of the resulting MeshEntity-s.
-    /// \tparam entityDimension The dimension of the input MeshEntity
-    /// \param entity The MeshEntity on the boundary.
-    /// \return The shared MeshEntity-s
-    template <int d, std::size_t entityDimension>
-    std::vector<MeshEntity<(d < 0 ? d + dim : d), dim>> getIncidenceList(
-        const MeshEntity<entityDimension, dim>& entity) const;
-
-    /// Same as getIncidenceList(const MeshEntity<entityDimension, dim>& entity)
-    /// but computing the global indices of the MeshEntity-s
-    /// \tparam d The dimension of the shared MeshEntity-s
-    /// \tparam entityDimension The dimension of the input MeshEntity
-    /// \param entity The MeshEntity on the boundary
-    /// \return The global indices of the shared MeshEntity-s
-    template <int d, std::size_t entityDimension>
-    std::vector<EntityGId> getIncidenceListAsIndices(
-        const MeshEntity<entityDimension, dim>& entity) const;
-
-    /// Same as getIncidenceList(const MeshEntity<entityDimension, dim>& entity)
-    /// but computing the local indices of the MeshEntity-s
-    /// \tparam d The dimension of the shared MeshEntity-s
-    /// \tparam entityDimension The dimension of the input MeshEntity
-    /// \param entity The MeshEntity on the boundary
-    /// \return The local indices of the shared MeshEntity-s
-    template <int d, std::size_t entityDimension>
-    std::vector<EntityLId> getLocalIncidenceListAsIndices(
-        const MeshEntity<entityDimension, dim>& entity) const;
-
-    std::string getZoneName() const { return this->mesh->zoneNames[zoneId]; }
-
-    size_t getZoneId() const { return zoneId; }
-
-   private:
-    friend Mesh<dim>;
-    Element(Mesh<dim>* mesh, EntityGId elementID, std::size_t zoneId)
-        : MeshEntity<dim, dim>(mesh, elementID), zoneId(zoneId) {
-        this->addElement(elementID, 0);
-    }
-
-    /// Add a node to this element.
-    /// \param globalNodeIndex The global index of the (topological) node
-    /// \param coordinateIndex The global index of the coordinate for the node.
-    void addNode(EntityGId globalNodeIndex, CoordId coordinateIndex);
-
-    template <std::size_t d>
-    std::enable_if_t<(d > 0)> addEntity(EntityGId globalIndex);
-
-    void setGeometry(const ElementShape<dim>* shape) {
-        referenceGeometry = shape;
-    }
-
-    /// The geometry of this element (e.g. a cube or tetrahedron)
-    const ElementShape<dim>* referenceGeometry;
-    /// The global indices of all the MeshEntities that form the boundary of
-    /// this element, grouped by the dimension of the MeshEntities.
-    std::array<std::vector<EntityGId>, dim> incidenceLists;
-    /// The global indices of the coordinates for the corners of this element.
-    std::vector<CoordId> globalCoordinateIndices;
-
-    std::size_t zoneId;
-};
 
 /// Simplified Mesh finite element Mesh for use with the preprocessor.
 ///
@@ -380,7 +81,7 @@ class Mesh {
     Mesh(const Mesh& other)
         : elementsList(other.elementsList),
           coordinates(other.coordinates),
-          otherEntities(other.otherEntities) {
+          meshEntities(other.meshEntities) {
         for (auto& element : elementsList) {
             element.mesh = this;
         }
@@ -390,7 +91,7 @@ class Mesh {
     Mesh(Mesh&& other)
         : elementsList(std::move(other.elementsList)),
           coordinates(std::move(other.coordinates)),
-          otherEntities(std::move(other.otherEntities)) {
+          meshEntities(std::move(other.meshEntities)) {
         for (auto& element : elementsList) {
             element.mesh = this;
         }
@@ -400,7 +101,7 @@ class Mesh {
     Mesh& operator=(const Mesh& other) {
         elementsList = other.elementsList;
         coordinates = other.coordinates;
-        otherEntities = other.otherEntities;
+        meshEntities = other.meshEntities;
         for (auto& element : elementsList) {
             element.mesh = this;
         }
@@ -410,15 +111,19 @@ class Mesh {
     Mesh& operator=(Mesh&& other) {
         elementsList = std::move(other.elementsList);
         coordinates = std::move(other.coordinates);
-        otherEntities = std::move(other.otherEntities);
+        meshEntities = std::move(other.meshEntities);
         for (auto& element : elementsList) {
             element.mesh = this;
         }
         copyEntities(tag<dimension>{});
     }
 
+    // Elements //
+    //////////////
+
     std::vector<Element<dimension>>& getElements();
     const std::vector<Element<dimension>>& getElements() const;
+
     /// Get an element by its index.
     /// \param i The global index of the element
     /// \return The element.
@@ -428,12 +133,18 @@ class Mesh {
     }
     std::size_t getNumberOfElements() const { return getElements().size(); }
 
+    // Faces //
+    ///////////
+
     std::vector<MeshEntity<dimension - 1, dimension>>& getFaces();
     const std::vector<MeshEntity<dimension - 1, dimension>>& getFaces() const;
     MeshEntity<dimension - 1, dimension> getFace(std::size_t i) const {
         return getFaces()[i];
     };
     std::size_t getNumberOfFaces() const { return getFaces().size(); }
+
+    // Edges //
+    ///////////
 
     std::vector<MeshEntity<1, dimension>>& getEdges();
     const std::vector<MeshEntity<1, dimension>>& getEdges() const;
@@ -442,6 +153,9 @@ class Mesh {
     };
     std::size_t getNumberOfEdges() const { return getEdges().size(); }
 
+    // Nodes //
+    ///////////
+
     std::vector<MeshEntity<0, dimension>>& getNodes();
     const std::vector<MeshEntity<0, dimension>>& getNodes() const;
     MeshEntity<0, dimension> getNode(std::size_t i) const {
@@ -449,10 +163,25 @@ class Mesh {
     };
     std::size_t getNumberOfNodes() const { return getNodes().size(); }
 
+    // Coordinates //
+    /////////////////
+
     std::vector<coordinateData>& getNodeCoordinates();
     const std::vector<coordinateData>& getNodeCoordinates() const;
 
+    LinearAlgebra::SmallVector<dimension> getCoordinate(
+        CoordId coordinateIndex) const {
+        return getNodeCoordinates()[coordinateIndex.id].coordinate;
+    }
+
+
+    // Zones //
+    ///////////
+
     const std::vector<std::string>& getZoneNames() const { return zoneNames; }
+
+    // MeshEntity //
+    ////////////////
 
     /// Get the list of MeshEntity-s of a specific dimension
     template <int entityDimension>
@@ -476,9 +205,9 @@ class Mesh {
                    : 0;
     }
 
-    /// Set the number of nodes in the Mesh. Will add or remove Nodes as
-    /// necessary.
-    void setNumberOfNodes(std::size_t number);
+    // Modifiers //
+    ///////////////
+
     EntityGId addNode();
     void addNodes(std::size_t count);
 
@@ -492,26 +221,11 @@ class Mesh {
                           LinearAlgebra::SmallVector<dimension> coordinate) {
         getNodeCoordinates()[coordinateIndex.id].coordinate = coordinate;
     }
-    LinearAlgebra::SmallVector<dimension> getCoordinate(
-        CoordId coordinateIndex) const {
-        return getNodeCoordinates()[coordinateIndex.id].coordinate;
-    }
 
-    bool isValid() const {
-        logger(DEBUG, "The mesh has % elements", getNumberOfElements());
-        for (auto element : getElements()) {
-            if (getElement(element.getGlobalIndex()) != element) {
-                logger(ERROR,
-                       "The index for element % has been set incorrectly",
-                       element.getGlobalIndex().id);
-                return false;
-            }
-            if (!checkBoundingEntities(element, tag<dimension - 1>{})) {
-                return false;
-            }
-        }
-        return checkEntities(tag<dimension>{});
-    }
+    // Checks //
+    ////////////
+
+    bool isValid() const;
     // todo: is this needed?
     void fixConnectivity();
 
@@ -558,7 +272,7 @@ class Mesh {
     /// localIndex of the Element.
     template <std::size_t d>
     bool checkEntities(tag<d> dimTag) const {
-        for (auto entity : otherEntities[dimTag]) {
+        for (auto entity : meshEntities[dimTag]) {
             for (std::size_t i = 0; i < entity.getNumberOfElements(); ++i) {
                 if (entity !=
                     entity.getElement(i).template getIncidentEntity<d>(
@@ -575,7 +289,7 @@ class Mesh {
     }
     // Base case.
     bool checkEntities(tag<0> dimTag) const {
-        for (auto entity : otherEntities[dimTag]) {
+        for (auto entity : meshEntities[dimTag]) {
             for (std::size_t i = 0; i < entity.getNumberOfElements(); ++i) {
                 if (entity !=
                     entity.getElement(i).template getIncidentEntity<0>(
@@ -597,26 +311,26 @@ class Mesh {
     void fixElement(Element<dimension>& element, tag<0>) {}
 
     template <std::size_t d>
+    void fixEntity(Element<dimension>& element, std::size_t i);
+
+    template <std::size_t d>
     void copyEntities(tag<d> dimTag) {
-        for (auto& entity : otherEntities[dimTag]) {
+        for (auto& entity : meshEntities[dimTag]) {
             entity.mesh = this;
         }
         copyEntities(tag<d - 1>{});
     }
     void copyEntities(tag<0> dimTag) {
-        for (auto& entity : otherEntities[dimTag]) {
+        for (auto& entity : meshEntities[dimTag]) {
             entity.mesh = this;
         }
     }
 
-    template <std::size_t d>
-    void fixEntity(Element<dimension>& element, std::size_t i);
-
     template <std::size_t entityDimension>
     EntityGId newEntity() {
         EntityGId newIndex =
-            EntityGId(otherEntities.template get<entityDimension>().size());
-        otherEntities.template get<entityDimension>().push_back(
+            EntityGId(meshEntities.template get<entityDimension>().size());
+        meshEntities.template get<entityDimension>().push_back(
             {this, newIndex});
         return newIndex;
     }
@@ -634,86 +348,9 @@ class Mesh {
     // Note: Also stores the elements (in addition to elementsList). However,
     // here as MeshEntitiy<dim,dim>, the parentType of Element. This allows much
     // easier implementation of getEntities<dim>()
-    TemplateArray<dimension + 1, MeshEntityVec> otherEntities;
+    TemplateArray<dimension + 1, MeshEntityVec> meshEntities;
     std::vector<std::string> zoneNames;
 };
-
-// for use with file readers that can 'guess' the correct numbering of the node
-// coordinates file readers that don't do this should overload this function
-template <std::size_t dimension>
-Mesh<dimension> readFile(MeshSource& file) {
-    Mesh<dimension> result;
-    logger.assert_always(dimension == file.getDimension(),
-                         "Mismatching dimensions");
-    for (auto nodeCoordinates : file.getNodeCoordinates()) {
-        result.addNode();
-        for (auto coordinate : nodeCoordinates.coordinates) {
-            logger.assert_debug(
-                coordinate.size() == dimension,
-                "The coordinates read by this reader have the wrong dimension");
-            result.addNodeCoordinate(EntityGId(result.getNumberOfNodes() - 1),
-                                     coordinate.data());
-        }
-    }
-    std::vector<CoordId> coords;
-    for (auto element : file.getElements()) {
-        logger.assert_always(!element.zoneName.empty(),
-                             "Element without a zone name");
-        // TODO: Move up into MeshSource at a convenient moment
-        coords.resize(element.coordinateIds.size());
-        for (std::size_t i = 0; i < coords.size(); ++i) {
-            coords[i] = CoordId(element.coordinateIds[i]);
-        }
-        result.addElement(coords, element.zoneName);
-    }
-    logger.assert_debug(result.isValid(), "Unspecified problem with the mesh");
-    return result;
-}
-
-template <std::size_t dimension>
-Mesh<dimension> fromMeshSource(MeshSource2& file) {
-    Mesh<dimension> result;
-    logger.assert_always(dimension == file.getDimension(),
-                         "Mismatching dimensions");
-    // Mapping of the nodeId, source nodeId -> mesh nodeId
-    std::map<std::size_t, EntityGId> nodeMapping;
-    // Add all the nodes
-    for (auto coord : file.getCoordinates()) {
-        // Find the node in the mesh, or create a new one if needed
-        std::size_t sourceNodeId = coord.nodeId;
-        EntityGId meshNodeId;
-        auto current = nodeMapping.find(sourceNodeId);
-        if (current != nodeMapping.end()) {
-            meshNodeId = current->second;
-        } else {
-            meshNodeId = result.addNode();
-            nodeMapping[sourceNodeId] = meshNodeId;
-        }
-        // Add the actual coordinate
-        logger.assert_debug(
-            coord.coordinate.size() == dimension,
-            "The coordinates read by this reader have the wrong dimension");
-        result.addNodeCoordinate(
-            meshNodeId,
-            LinearAlgebra::SmallVector<dimension>(coord.coordinate.data()));
-    }
-    // Add all the elements
-    std::vector<CoordId> coords;
-
-    for (auto element : file.getElements()) {
-        logger.assert_always(!element.zoneName.empty(),
-                             "Element without a zone name");
-        // TODO: Move up into MeshSource at a convenient moment
-        coords.resize(element.coordinateIds.size());
-        for (std::size_t i = 0; i < coords.size(); ++i) {
-            coords[i] = CoordId(element.coordinateIds[i]);
-        }
-        result.addElement(coords, element.zoneName);
-    }
-    logger.assert_debug(result.isValid(), "Unspecified problem with the mesh");
-    return result;
-}
-
 }  // namespace Preprocessor
 
 #include "mesh_impl.h"

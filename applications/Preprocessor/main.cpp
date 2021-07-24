@@ -49,6 +49,7 @@ using idx_t = std::size_t;
 #include "Base/CommandLineOptions.h"
 #include "Base/MpiContainer.h"
 #include "mesh.h"
+#include "MeshFactory.h"
 #include "hpgem.h"
 #include "centaur.h"
 #include "meshData.h"
