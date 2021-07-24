@@ -39,6 +39,7 @@
 #define HPGEM_MESHENTITY_H
 
 #include <functional>
+#include <memory>
 #include <type_traits>
 
 namespace hpgem {
@@ -87,7 +88,22 @@ class MeshEntity {
     /// the EntityTypes and the numbers 0 to N-1 (with N the number of
     /// EntityTypes). The ordering of the numbers in the bijection is
     /// unspecified.
-    enum class EntityType : int { ELEMENT = 0, FACE = 1, EDGE = 2, NODE = 3 };
+    enum class EntityType : std::size_t {
+        ELEMENT = 0,
+        FACE = 1,
+        EDGE = 2,
+        NODE = 3
+    };
+
+    constexpr static std::size_t NUM_MESH_ENTITY_TYPES = 4;
+    /**
+     * Convert an entity type to a unique number from 0 to
+     * NUM_MESH_ENTITY_TYPES-1.
+     * @param type The type
+     */
+    constexpr static std::size_t entityTypeId(EntityType type) {
+        return static_cast<std::size_t>(type);
+    }
 
     virtual void accept(MeshEntityVisitor& vistor) = 0;
     virtual void accept(ConstMeshEntityVisitor& vistor) const = 0;
