@@ -82,10 +82,10 @@ class Edge : public MeshEntity {
 
     std::size_t getLocalNumberOfBasisFunctions(
         std::size_t unknown) const final {
-        // TODO: LC, numberOfConformingDOFOnTheNode_ might be smaller than
-        // the number of unknowns (as that is not known here). Thus we might
-        // index beyond the number of unknowns.
-        if (unknown >= numberOfConformingDOFOnTheEdge_.size()) return 0;
+        logger.assert_debug(
+            unknown < numberOfConformingDOFOnTheEdge_.size(),
+            "Asked for unknown % with only % unknowns known to the element",
+            unknown, numberOfConformingDOFOnTheEdge_.size());
         return numberOfConformingDOFOnTheEdge_[unknown];
     }
 
