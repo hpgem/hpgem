@@ -50,7 +50,7 @@ namespace Base {
  *
  * This will read the meta data of the mesh.
  */
-class MeshFileInformation {
+struct MeshFileInformation {
    public:
     /**
      * Zone name used as placeholder for version 1 of the mesh format.
