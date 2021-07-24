@@ -17,7 +17,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2 
     - name: blaslapack
-      run: sudo apt install libblas-dev liblapack-dev libopenmpi-dev libmetis-dev libpetsc-complex-dev libslepc-complex3.12-dev
+      run: |
+        sudo apt update
+        sudo apt install libblas-dev liblapack-dev libopenmpi-dev libmetis-dev libpetsc-complex-dev libslepc-complex3.12-dev
     - name: configure
       env:
         CC: ${{ matrix.compiler }}
