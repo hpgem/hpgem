@@ -63,10 +63,15 @@ GlobalIndexing::GlobalIndexing(Base::MeshManipulatorBase *mesh, Layout layout,
  *
  * @param element The element to visit
  * @param meshDimension The dimension of the mesh
- * @param visitor The visitor to use
+ * @param visitor The visiting function to use
+ * @tparam CV The type of the visitor, should be equivalent to
+ *  std::function<void(const MeshEntity*)>
  */
+// Note: Templated to force inlining of the actual visitor type, exposing
+// further optimization options.
+template <typename CV>
 void visitElementParts(const Base::Element *element, std::size_t meshDimension,
-                       std::function<void(const Base::MeshEntity *)> visitor) {
+                       CV visitor) {
     visitor(element);
     for (const Base::Face *face : element->getFacesList()) {
         visitor(face);
@@ -83,14 +88,19 @@ void visitElementParts(const Base::Element *element, std::size_t meshDimension,
 
 /**
  * For an owned element, visit the element and the boundary parts it owns in the
- * cononical order.
+ * canonical order.
  *
  * @param element An element owned by the current process
  * @param meshDimension The dimension of the mesh
  * @param visitor The visitor to use
+ * @tparam V The type of the visitor, should be equivalent to
+ *  std::function<void(MeshEntity*)>
  */
+// Note: Templated to force inlining of the actual visitor type, exposing
+// further optimization options.
+template <typename V>
 void visitElementOwnedParts(Base::Element *element, std::size_t meshDimension,
-                            std::function<void(Base::MeshEntity *)> visitor) {
+                            V visitor) {
     logger.assert_debug(element->isOwnedByCurrentProcessor(),
                         "Non owned element");
     visitor(element);
@@ -256,7 +266,7 @@ void GlobalIndexing::constructUnblocked() {
             element, mesh_->dimension(), [&](Base::MeshEntity *entity) {
                 for (std::size_t unknown : includedUnknowns_) {
                     OffsetVisitor visitor(offsets_[unknown]);
-                    entity->visitEntity(visitor);
+                    entity->accept(visitor);
                     *(visitor.entityOffset_) = index;
                     index += entity->getLocalNumberOfBasisFunctions(unknown);
                 }
@@ -309,7 +319,7 @@ void GlobalIndexing::constructBlocked(bool global) {
             visitElementOwnedParts(
                 element, mesh_->dimension(),
                 [&index, &visitor, unknown](Base::MeshEntity *entity) {
-                    entity->visitEntity(visitor);
+                    entity->accept(visitor);
                     *(visitor.entityOffset_) = index;
                     index += entity->getLocalNumberOfBasisFunctions(unknown);
                 });

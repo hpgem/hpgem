@@ -38,7 +38,7 @@
 #ifndef HPGEM_MESHENTITY_H
 #define HPGEM_MESHENTITY_H
 
-#include "functional"
+#include <functional>
 #include <type_traits>
 
 namespace hpgem {
@@ -51,13 +51,14 @@ class Face;
 class Node;
 
 /**
- * Visitor for the MeshEntity
+ * Visitor for the MeshEntity type, could either be const or non const with
+ * respect to the visited entities.
  * @tparam constify Whether the MeshEntities are const or not
  */
 template <bool constify = false>
-class MeshEntityVisitor {
+class MeshEntityVisitorT {
    public:
-    virtual ~MeshEntityVisitor() = default;
+    virtual ~MeshEntityVisitorT() = default;
     /// Helper to add const
     template <typename T>
     using Constified =
@@ -70,7 +71,8 @@ class MeshEntityVisitor {
     virtual void visit(Constified<Base::Node>& node) = 0;
 };
 
-using ConstMeshEntityVisitor = MeshEntityVisitor<true>;
+using MeshEntityVisitor = MeshEntityVisitorT<false>;
+using ConstMeshEntityVisitor = MeshEntityVisitorT<true>;
 
 /**
  * Entity of the Mesh, that is an Element, Face, Edge or Node.
@@ -87,8 +89,8 @@ class MeshEntity {
     /// unspecified.
     enum class EntityType : int { ELEMENT = 0, FACE = 1, EDGE = 2, NODE = 3 };
 
-    virtual void visitEntity(MeshEntityVisitor<>& vistor) = 0;
-    virtual void visitEntity(MeshEntityVisitor<true>& vistor) const = 0;
+    virtual void accept(MeshEntityVisitor& vistor) = 0;
+    virtual void accept(ConstMeshEntityVisitor& vistor) const = 0;
 
     /**
      * @return The identifier for this MeshEntity

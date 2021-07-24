@@ -535,11 +535,11 @@ class Element final : public Geometry::ElementGeometry,
 
     const Element* getOwningElement() const final { return this; }
 
-    void visitEntity(MeshEntityVisitor<>& visitor) final {
+    void accept(MeshEntityVisitor& visitor) final {
         visitor.visit(*this);
     }
 
-    void visitEntity(MeshEntityVisitor<true>& visitor) const final {
+    void accept(ConstMeshEntityVisitor& visitor) const final {
         visitor.visit(*this);
     }
 

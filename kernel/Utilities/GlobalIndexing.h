@@ -39,11 +39,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef HPGEM_KERNEL_GLOBALINDEXING_H
 #define HPGEM_KERNEL_GLOBALINDEXING_H
 
-#include "../Base/Edge.h"
-#include "../Base/Element.h"
-#include "../Base/Face.h"
-#include "../Base/MeshManipulatorBase.h"
-#include "../Base/Node.h"
+#include "Base/Edge.h"
+#include "Base/Element.h"
+#include "Base/Face.h"
+#include "Base/MeshManipulatorBase.h"
+#include "Base/Node.h"
 
 #include "Base/MeshEntity.h"
 
@@ -152,7 +152,7 @@ class GlobalIndexing {
                             "No such unknown %", unknown);
         const Offsets& offset = offsets_[unknown];
         ConstOffsetVisitor visitor(offset);
-        entity->visitEntity(visitor);
+        entity->accept(visitor);
         return visitor.entityOffset_;
     }
 
@@ -170,7 +170,7 @@ class GlobalIndexing {
                             "No such unknown %", unknown);
         const Offsets& offset = offsets_[unknown];
         ConstOffsetVisitor visitor(offset);
-        entity->visitEntity(visitor);
+        entity->accept(visitor);
         return visitor.entityOffset_ - offset.blockStart_ + offset.localOffset_;
     }
 
@@ -425,24 +425,25 @@ class GlobalIndexing {
     };
 
     /**
-     * Visitor to access the *Offsets_ members (e.g. elementOffsets_) of the
-     * Offsets class. If there is no offset entry available for the MeshEntity
-     * then it will be created (and initialized to the default 0).
+     * Visitor to access the *Offset_ members (e.g. elementOffsets_) with the
+     * possibility of editing the offset. If there is no offset entry
+     * available for the MeshEntity then it will be created (and initialized to
+     * the default 0).
      */
-    struct OffsetVisitor : public Base::MeshEntityVisitor<> {
+    struct OffsetVisitor : public Base::ConstMeshEntityVisitor {
         OffsetVisitor(Offsets& offsets)
             : visitOffsets_(offsets), entityOffset_(nullptr){};
 
-        void visit(Base::Element& element) final {
+        void visit(const Base::Element& element) final {
             entityOffset_ = &visitOffsets_.elementOffsets_[element.getID()];
         }
-        void visit(Base::Face& face) final {
+        void visit(const Base::Face& face) final {
             entityOffset_ = &visitOffsets_.faceOffsets_[face.getID()];
         }
-        void visit(Base::Edge& edge) final {
+        void visit(const Base::Edge& edge) final {
             entityOffset_ = &visitOffsets_.edgeOffsets_[edge.getID()];
         }
-        void visit(Base::Node& node) final {
+        void visit(const Base::Node& node) final {
             entityOffset_ = &visitOffsets_.nodeOffsets_[node.getID()];
         }
 
@@ -453,7 +454,7 @@ class GlobalIndexing {
 
     /**
      * Visitor to access the *Offsets_ members (e.g. elementOffsets_) of the
-     * Offsets class. It is undefined behaviour to visit a MeshEntity for which
+     * Offsets class. It is undefined behaviour to accept a MeshEntity for which
      * there is no offset entry available.
      */
     struct ConstOffsetVisitor : public Base::ConstMeshEntityVisitor {
