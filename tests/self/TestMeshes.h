@@ -157,7 +157,8 @@ std::vector<std::string> getUnitCubeCubeMeshes(
 }
 
 /**
- * Same as getUnitCubeCubeMeshes but with periodic boundaries.
+ * Same as getUnitCubeCubeMeshes but with periodic boundaries. Note only level 2
+ * and larger are supported.
  */
 std::vector<std::string> getUnitCubePeriodicCubeMeshes(
     std::size_t minLevel = 2, std::size_t maxLevel = ALL_ENTRIES) {
@@ -167,8 +168,19 @@ std::vector<std::string> getUnitCubePeriodicCubeMeshes(
     std::string prefix = getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/";
     return limit(
         {
-            //            prefix + "unitCubeN1Per.hpgem",
-            //            prefix + "unitCubeN2Per.hpgem",
+            // These two invalid meshes are commented out because hpgem does not
+            // support these meshes due to their topology (at the time of
+            // writing) . As example of the strange topology, for the N1 mesh
+            // all corners are periodically connected, hence it would have:
+            //  - 1 node with 8 coordinates
+            //  - 3 edges (one for each x,y,z directions) with the same node on
+            //    both sides.
+            //  - 3 faces (normal to x,y and z direction), with 4 times the same
+            //    node the same edge at top/bottom and left/right and the same
+            //    element on both sides.
+            //  - 1 Element
+            //      prefix + "unitCubeN1Per.hpgem",
+            //      prefix + "unitCubeN2Per.hpgem",
             prefix + "unitCubeN4Per.hpgem",
             prefix + "unitCubeN8Per.hpgem",
             prefix + "unitCubeN16Per.hpgem",
