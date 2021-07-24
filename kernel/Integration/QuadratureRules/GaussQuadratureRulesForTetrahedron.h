@@ -41,6 +41,7 @@
 #include "Integration/QuadratureRules/GaussQuadratureRule.h"
 #include "Geometry/PointReference.h"
 #include <vector>
+#include "StandardQaussQuadratureRule.h"
 
 namespace hpgem {
 
@@ -100,55 +101,28 @@ class Tn3_2_4 : public GaussQuadratureRule {
 };
 
 //---------------------------------------------------------------------------
-class Tn3_3_5 : public GaussQuadratureRule {
+class Tn3_3_10 : public StandardGaussQuadratureRule<3> {
    public:
-    static Tn3_3_5& Instance() {
-        static Tn3_3_5 theInstance;
+    static Tn3_3_10& Instance() {
+        static Tn3_3_10 theInstance;
         return theInstance;
     }
-    Tn3_3_5(const Tn3_3_5&) = delete;
-
-    std::string getName() const final;
-    std::size_t order() const final;
-    std::size_t dimension() const final;
-    std::size_t getNumberOfPoints() const final;
-    double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
-    Geometry::ReferenceGeometry* forReferenceGeometry() const final;
+    Tn3_3_10(const Tn3_3_10&) = delete;
 
    private:
-    Tn3_3_5();
-
-    const std::string name_;
-    double weight_[5];
-    Geometry::ReferenceGeometry* const refGeoPtr_;
-    std::vector<Geometry::PointReference<3>> gp_;
+    Tn3_3_10();
 };
 
 //---------------------------------------------------------------------------
-class Tn3_4_11 : public GaussQuadratureRule {
+class Tn3_4_14 : public StandardGaussQuadratureRule<3> {
    public:
-    static Tn3_4_11& Instance() {
-        static Tn3_4_11 theInstance;
+    static Tn3_4_14& Instance() {
+        static Tn3_4_14 theInstance;
         return theInstance;
     }
-    Tn3_4_11(const Tn3_4_11&) = delete;
-
-    std::string getName() const final;
-    std::size_t order() const final;
-    std::size_t dimension() const final;
-    std::size_t getNumberOfPoints() const final;
-    double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
-    Geometry::ReferenceGeometry* forReferenceGeometry() const final;
 
    private:
-    Tn3_4_11();
-
-    const std::string name_;
-    double weight_[11];
-    Geometry::ReferenceGeometry* const refGeoPtr_;
-    std::vector<Geometry::PointReference<3>> gp_;
+    Tn3_4_14();
 };
 
 //---------------------------------------------------------------------------
@@ -204,7 +178,7 @@ class T3_6_24 : public GaussQuadratureRule {
 };
 
 //---------------------------------------------------------------------------
-class T3_7_31 : public GaussQuadratureRule {
+class T3_7_31 : public StandardGaussQuadratureRule<3> {
    public:
     static T3_7_31& Instance() {
         static T3_7_31 theInstance;
@@ -212,21 +186,8 @@ class T3_7_31 : public GaussQuadratureRule {
     }
     T3_7_31(const T3_7_31&) = delete;
 
-    std::string getName() const final;
-    std::size_t order() const final;
-    std::size_t dimension() const final;
-    std::size_t getNumberOfPoints() const final;
-    double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
-    Geometry::ReferenceGeometry* forReferenceGeometry() const final;
-
    private:
     T3_7_31();
-
-    const std::string name_;
-    double weight_[31];
-    Geometry::ReferenceGeometry* const refGeoPtr_;
-    std::vector<Geometry::PointReference<3>> gp_;
 };
 
 //---------------------------------------------------------------------------
@@ -256,7 +217,7 @@ class T3_8_43 : public GaussQuadratureRule {
 };
 
 //---------------------------------------------------------------------------
-class T3_9_53 : public GaussQuadratureRule {
+class T3_9_53 : public StandardGaussQuadratureRule<3> {
    public:
     static T3_9_53& Instance() {
         static T3_9_53 theInstance;
@@ -264,21 +225,8 @@ class T3_9_53 : public GaussQuadratureRule {
     }
     T3_9_53(const T3_9_53&) = delete;
 
-    std::string getName() const final;
-    std::size_t order() const final;
-    std::size_t dimension() const final;
-    std::size_t getNumberOfPoints() const final;
-    double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
-    Geometry::ReferenceGeometry* forReferenceGeometry() const final;
-
    private:
     T3_9_53();
-
-    const std::string name_;
-    double weight_[53];
-    Geometry::ReferenceGeometry* const refGeoPtr_;
-    std::vector<Geometry::PointReference<3>> gp_;
 };
 
 //---------------------------------------------------------------------------
