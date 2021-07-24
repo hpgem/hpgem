@@ -188,7 +188,7 @@ class Element : public MeshEntity<dim, dim> {
     std::size_t zoneId;
 };
 
-}
+}  // namespace Preprocessor
 
 #include "Element_Impl.h"
 

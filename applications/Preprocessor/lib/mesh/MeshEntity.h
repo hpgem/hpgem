@@ -115,14 +115,14 @@ class MeshEntity {
     EntityGId getGlobalIndex() const;
 
     std::vector<MeshEntity<meshDimension, meshDimension>> getElementsList()
-    const {
+        const {
         return getIncidenceList<meshDimension>();
     }
 
     /// List of facet-MeshEntities to which this is connected.
     /// \return
     std::vector<MeshEntity<meshDimension - 1, meshDimension>> getFacesList()
-    const {
+        const {
         return getIncidenceList<meshDimension - 1>();
     }
 
@@ -145,7 +145,7 @@ class MeshEntity {
     /// List of all connected entities
     template <int d>
     std::vector<MeshEntity<(d < 0 ? d + meshDimension : d), meshDimension>>
-    getIncidenceList() const;
+        getIncidenceList() const;
 
     template <int d>
     std::vector<EntityGId> getIncidenceListAsIndices() const;
@@ -157,7 +157,7 @@ class MeshEntity {
 
     template <int d>
     MeshEntity<(d < 0 ? d + meshDimension : d), meshDimension>
-    getIncidentEntity(std::size_t i) const {
+        getIncidentEntity(std::size_t i) const {
         return mesh->template getEntity<(d < 0 ? d + meshDimension : d)>(
             getIncidenceListAsIndices<(d < 0 ? d + meshDimension : d)>()[i]);
     }
@@ -191,10 +191,9 @@ class MeshEntity {
     // elements[elementIDs[i]].incidenceList[dimension][localIDs[i]] == entityID
 };
 
-}
+}  // namespace Preprocessor
 
 // Include all implementations
 #include "MeshEntity_Impl.h"
 
-
-#endif // HPGEM_APP_MESH_ENTITY_H
+#endif  // HPGEM_APP_MESH_ENTITY_H

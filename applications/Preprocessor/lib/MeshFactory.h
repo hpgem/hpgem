@@ -43,7 +43,6 @@
 
 namespace Preprocessor {
 
-
 // for use with file readers that can 'guess' the correct numbering of the node
 // coordinates file readers that don't do this should overload this function
 template <std::size_t dimension>
@@ -120,7 +119,6 @@ Mesh<dimension> fromMeshSource(MeshSource2& file) {
     return result;
 }
 
-
-}
+}  // namespace Preprocessor
 
 #endif  // HPGEM_MESHFACTORY_H

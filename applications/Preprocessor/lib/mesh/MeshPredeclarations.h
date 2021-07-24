@@ -51,6 +51,6 @@ class Element;
 template <std::size_t dimension>
 class Mesh;
 
-}
+}  // namespace Preprocessor
 
 #endif  // HPGEM_MESHPREDECLARATIONS_H

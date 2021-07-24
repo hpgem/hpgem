@@ -40,7 +40,6 @@
 
 namespace Preprocessor {
 
-
 template <std::size_t dimension>
 std::vector<Element<dimension>>& Mesh<dimension>::getElements() {
     return elementsList;
@@ -161,13 +160,12 @@ void Mesh<dimension>::addElement(std::vector<CoordId> nodeCoordinateIDs,
     fixElement(elementsList.back(), tag<dimension - 1>{});
 }
 
-template<std::size_t dimension>
+template <std::size_t dimension>
 bool Mesh<dimension>::isValid() const {
     logger(DEBUG, "The mesh has % elements", getNumberOfElements());
     for (auto element : getElements()) {
         if (getElement(element.getGlobalIndex()) != element) {
-            logger(ERROR,
-                   "The index for element % has been set incorrectly",
+            logger(ERROR, "The index for element % has been set incorrectly",
                    element.getGlobalIndex().id);
             return false;
         }
@@ -177,7 +175,6 @@ bool Mesh<dimension>::isValid() const {
     }
     return checkEntities(tag<dimension>{});
 }
-
 
 template <std::size_t dimension>
 void Mesh<dimension>::fixConnectivity() {

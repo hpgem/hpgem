@@ -174,7 +174,6 @@ class Mesh {
         return getNodeCoordinates()[coordinateIndex.id].coordinate;
     }
 
-
     // Zones //
     ///////////
 
