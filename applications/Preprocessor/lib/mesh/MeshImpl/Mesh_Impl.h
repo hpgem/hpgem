@@ -36,7 +36,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ElementShapes.h"
+// NOTE: Purely implementations related to Mesh (for includes and structure
+// see ../Mesh.h)
 
 namespace Preprocessor {
 

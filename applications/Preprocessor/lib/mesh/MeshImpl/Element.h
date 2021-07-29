@@ -38,13 +38,7 @@
 #ifndef HPGEM_ELEMENT_H
 #define HPGEM_ELEMENT_H
 
-#include "ElementShapes.h"
-#include "MeshPredeclarations.h"
-#include "MeshEntity.h"
-#include "LinearAlgebra/SmallVector.h"
-
-#include <array>
-#include <vector>
+// NOTE: Purely definitions (for includes and structure see ../Mesh.h)
 
 namespace Preprocessor {
 
@@ -189,7 +183,5 @@ class Element : public MeshEntity<dim, dim> {
 };
 
 }  // namespace Preprocessor
-
-#include "Element_Impl.h"
 
 #endif  // HPGEM_ELEMENT_H

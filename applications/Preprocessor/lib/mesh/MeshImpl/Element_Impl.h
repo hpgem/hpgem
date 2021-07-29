@@ -38,6 +38,9 @@
 #ifndef HPGEM_ELEMENT_IMPL_H
 #define HPGEM_ELEMENT_IMPL_H
 
+// NOTE: Purely implementations related to Element (for includes and structure
+// see ../Mesh.h)
+
 namespace Preprocessor {
 
 template <std::size_t dimension>

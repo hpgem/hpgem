@@ -39,11 +39,7 @@
 #ifndef HPGEM_APP_MESH_ENTITY_H
 #define HPGEM_APP_MESH_ENTITY_H
 
-#include "idtypes.h"
-#include "MeshPredeclarations.h"
-
-#include <array>
-#include <vector>
+// NOTE: Purely definitions (for includes and structure see ../Mesh.h)
 
 namespace Preprocessor {
 
@@ -192,8 +188,5 @@ class MeshEntity {
 };
 
 }  // namespace Preprocessor
-
-// Include all implementations
-#include "MeshEntity_Impl.h"
 
 #endif  // HPGEM_APP_MESH_ENTITY_H

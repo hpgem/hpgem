@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2017, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,323 +35,59 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef HPGEM_APP_MESHPREDECLARATIONS_H
+#define HPGEM_APP_MESHPREDECLARATIONS_H
 
-#ifndef HPGEM_APP_MESH_H
-#define HPGEM_APP_MESH_H
-
-#include "MeshPredeclarations.h"
-
-#include "Element.h"
 #include "idtypes.h"
-#include "MeshEntity.h"
+#include "elementShape.h"
+#include "ElementShapes.h"
 #include "utils/tag.h"
 #include "utils/TemplateArray.h"
 
 #include "LinearAlgebra/SmallVector.h"
 
+#include <array>
+#include <memory>
 #include <vector>
+
+// FILE STRUCTURE //
+////////////////////
+//
+// The mesh is a combination of several intertwined classes. This design is
+// complicated by that most of these classes are templated by at least the
+// dimension of the mesh, thus preventing the natural header and implementation
+// file separation.
+//
+// To structure these classes they have been split into several separated header
+// files located in the MeshImpl folder. This header takes these smaller parts
+// and combines them into a definition of the mesh for use.
+//
+// The structure in this file is as follows:
+//  - Includes needed for both definition and implementation
+//  - Predeclarations of the classes to facilitate the definitions and as hint
+//    of the interface provided.
+//  - Includes of definition files
+//  - Includes of the implementation files
 
 namespace Preprocessor {
 
-/// Simplified Mesh finite element Mesh for use with the preprocessor.
-///
-/// A bare minimum Mesh for use with the Preprocessor. This is conceptually the
-/// same as the Mesh in hpGEM, except that it is stripped down to the bare
-/// minimum topological and geometrical information needed for the tasks of the
-/// preprocessor. This ensures that we can still store a large mesh for
-/// partitioning.
-///
-/// \tparam dimension The dimension of the Mesh
+template <std::size_t dimension, std::size_t gridDimension>
+class MeshEntity;
+
 template <std::size_t dimension>
-class Mesh {
+class Element;
 
-    /// A coordinate of a Node in the Mesh
-    struct coordinateData {
-        /// The node to which this belongs. Note that there maybe more than one
-        /// coordinate with the same nodeIndex.
-        EntityGId nodeIndex;
-        /// The coordinates
-        LinearAlgebra::SmallVector<dimension> coordinate;
-    };
+template <std::size_t dimension>
+class Mesh;
 
-   public:
-    Mesh() = default;
-    ~Mesh() = default;
-
-    Mesh(const Mesh& other)
-        : elementsList(other.elementsList),
-          coordinates(other.coordinates),
-          meshEntities(other.meshEntities) {
-        for (auto& element : elementsList) {
-            element.mesh = this;
-        }
-        copyEntities(tag<dimension>{});
-    }
-
-    Mesh(Mesh&& other)
-        : elementsList(std::move(other.elementsList)),
-          coordinates(std::move(other.coordinates)),
-          meshEntities(std::move(other.meshEntities)) {
-        for (auto& element : elementsList) {
-            element.mesh = this;
-        }
-        copyEntities(tag<dimension>{});
-    }
-
-    Mesh& operator=(const Mesh& other) {
-        elementsList = other.elementsList;
-        coordinates = other.coordinates;
-        meshEntities = other.meshEntities;
-        for (auto& element : elementsList) {
-            element.mesh = this;
-        }
-        copyEntities(tag<dimension>{});
-    }
-
-    Mesh& operator=(Mesh&& other) {
-        elementsList = std::move(other.elementsList);
-        coordinates = std::move(other.coordinates);
-        meshEntities = std::move(other.meshEntities);
-        for (auto& element : elementsList) {
-            element.mesh = this;
-        }
-        copyEntities(tag<dimension>{});
-    }
-
-    // Elements //
-    //////////////
-
-    std::vector<Element<dimension>>& getElements();
-    const std::vector<Element<dimension>>& getElements() const;
-
-    /// Get an element by its index.
-    /// \param i The global index of the element
-    /// \return The element.
-    Element<dimension>& getElement(EntityGId i) { return getElements()[i.id]; }
-    const Element<dimension>& getElement(EntityGId i) const {
-        return getElements()[i.id];
-    }
-    std::size_t getNumberOfElements() const { return getElements().size(); }
-
-    // Faces //
-    ///////////
-
-    std::vector<MeshEntity<dimension - 1, dimension>>& getFaces();
-    const std::vector<MeshEntity<dimension - 1, dimension>>& getFaces() const;
-    MeshEntity<dimension - 1, dimension> getFace(std::size_t i) const {
-        return getFaces()[i];
-    };
-    std::size_t getNumberOfFaces() const { return getFaces().size(); }
-
-    // Edges //
-    ///////////
-
-    std::vector<MeshEntity<1, dimension>>& getEdges();
-    const std::vector<MeshEntity<1, dimension>>& getEdges() const;
-    MeshEntity<1, dimension> getEdge(std::size_t i) const {
-        return getEdges()[i];
-    };
-    std::size_t getNumberOfEdges() const { return getEdges().size(); }
-
-    // Nodes //
-    ///////////
-
-    std::vector<MeshEntity<0, dimension>>& getNodes();
-    const std::vector<MeshEntity<0, dimension>>& getNodes() const;
-    MeshEntity<0, dimension> getNode(std::size_t i) const {
-        return getNodes()[i];
-    };
-    std::size_t getNumberOfNodes() const { return getNodes().size(); }
-
-    // Coordinates //
-    /////////////////
-
-    std::vector<coordinateData>& getNodeCoordinates();
-    const std::vector<coordinateData>& getNodeCoordinates() const;
-
-    LinearAlgebra::SmallVector<dimension> getCoordinate(
-        CoordId coordinateIndex) const {
-        return getNodeCoordinates()[coordinateIndex.id].coordinate;
-    }
-
-    // Zones //
-    ///////////
-
-    const std::vector<std::string>& getZoneNames() const { return zoneNames; }
-
-    // MeshEntity //
-    ////////////////
-
-    /// Get the list of MeshEntity-s of a specific dimension
-    template <int entityDimension>
-    std::vector<MeshEntity<(entityDimension < 0 ? entityDimension + dimension
-                                                : entityDimension),
-                           dimension>>&
-        getEntities();
-    template <int entityDimension>
-    const std::vector<MeshEntity<
-        (entityDimension < 0 ? entityDimension + dimension : entityDimension),
-        dimension>>&
-        getEntities() const;
-    template <int entityDimension>
-    MeshEntity<entityDimension, dimension> getEntity(EntityGId i) const {
-        return getEntities<entityDimension>()[i.id];
-    };
-    template <int entityDimension>
-    std::size_t getNumberOfEntities() const {
-        return entityDimension + dimension >= 0
-                   ? getEntities<entityDimension>().size()
-                   : 0;
-    }
-
-    // Modifiers //
-    ///////////////
-
-    EntityGId addNode();
-    void addNodes(std::size_t count);
-
-    CoordId addNodeCoordinate(EntityGId nodeIndex,
-                              LinearAlgebra::SmallVector<dimension> coordinate);
-
-    void addElement(std::vector<CoordId> nodeCoordinateIDs,
-                    const std::string& zoneName = "main");
-
-    void updateCoordinate(CoordId coordinateIndex,
-                          LinearAlgebra::SmallVector<dimension> coordinate) {
-        getNodeCoordinates()[coordinateIndex.id].coordinate = coordinate;
-    }
-
-    // Checks //
-    ////////////
-
-    bool isValid() const;
-    // todo: is this needed?
-    void fixConnectivity();
-
-   private:
-    /// Recursively checks that for each MeshEntity that is adjacent to an
-    /// Element, that that MeshEntity has the Element in its list of adjacent
-    /// Elements.
-    template <std::size_t d>
-    bool checkBoundingEntities(const Element<dimension>& element,
-                               tag<d>) const {
-        for (auto boundingEntity : element.template getIncidenceList<d>()) {
-            auto candidateElements = boundingEntity.getElementsList();
-            if (std::find(candidateElements.begin(), candidateElements.end(),
-                          element) == candidateElements.end()) {
-                logger(ERROR,
-                       "The element is bounded by a %-dimensional shape that "
-                       "is not near the element",
-                       d);
-                return false;
-            }
-        }
-        return checkBoundingEntities(element, tag<d - 1>{});
-    }
-    // Base case.
-    bool checkBoundingEntities(const Element<dimension>& element,
-                               tag<0>) const {
-        for (auto boundingEntity : element.template getIncidenceList<0>()) {
-            auto candidateElements = boundingEntity.getElementsList();
-            if (std::find(candidateElements.begin(), candidateElements.end(),
-                          element) == candidateElements.end()) {
-                logger(ERROR,
-                       "The element is bounded by a %-dimensional shape that "
-                       "is not near the element",
-                       0);
-                return false;
-            }
-        }
-        return true;
-    }
-
-    // do the elements bounded by this 'face' know this
-    /// Reverse of checkBoundingEntities(). For each MeshEntity, check for all
-    /// pairs of (adjecent Element, localIndex) that the MeshEntity is indeed at
-    /// localIndex of the Element.
-    template <std::size_t d>
-    bool checkEntities(tag<d> dimTag) const {
-        for (auto entity : meshEntities[dimTag]) {
-            for (std::size_t i = 0; i < entity.getNumberOfElements(); ++i) {
-                if (entity !=
-                    entity.getElement(i).template getIncidentEntity<d>(
-                        entity.getLocalIndex(i))) {
-                    logger(ERROR,
-                           "This %-dimensional shape is adjacent to an element "
-                           "that is not bounded by this shape",
-                           d);
-                    return false;
-                }
-            }
-        }
-        return checkEntities(tag<d - 1>{});
-    }
-    // Base case.
-    bool checkEntities(tag<0> dimTag) const {
-        for (auto entity : meshEntities[dimTag]) {
-            for (std::size_t i = 0; i < entity.getNumberOfElements(); ++i) {
-                if (entity !=
-                    entity.getElement(i).template getIncidentEntity<0>(
-                        entity.getLocalIndex(i))) {
-                    logger(ERROR,
-                           "This %-dimensional shape is adjacent to an element "
-                           "that is not bounded by this shape",
-                           0);
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    template <std::size_t d>
-    void fixElement(Element<dimension>& element, tag<d>);
-    void fixElement(Element<dimension>& element, tag<1>);
-    void fixElement(Element<dimension>& element, tag<0>) {}
-
-    template <std::size_t d>
-    void fixEntity(Element<dimension>& element, std::size_t i);
-
-    template <std::size_t d>
-    void copyEntities(tag<d> dimTag) {
-        for (auto& entity : meshEntities[dimTag]) {
-            entity.mesh = this;
-        }
-        copyEntities(tag<d - 1>{});
-    }
-    void copyEntities(tag<0> dimTag) {
-        for (auto& entity : meshEntities[dimTag]) {
-            entity.mesh = this;
-        }
-    }
-
-    template <std::size_t entityDimension>
-    EntityGId newEntity() {
-        EntityGId newIndex =
-            EntityGId(meshEntities.template get<entityDimension>().size());
-        meshEntities.template get<entityDimension>().push_back(
-            {this, newIndex});
-        return newIndex;
-    }
-
-    std::size_t getZoneId(const std::string& zoneName);
-
-    const ElementShape<dimension>* findGeometry(std::size_t numberOfNodes);
-
-    std::vector<Element<dimension>> elementsList;
-    std::vector<coordinateData> coordinates;
-
-    // Alias template to fill in the dimension of the mesh
-    template <std::size_t entityDimension>
-    using MeshEntityVec = std::vector<MeshEntity<entityDimension, dimension>>;
-    // Note: Also stores the elements (in addition to elementsList). However,
-    // here as MeshEntitiy<dim,dim>, the parentType of Element. This allows much
-    // easier implementation of getEntities<dim>()
-    TemplateArray<dimension + 1, MeshEntityVec> meshEntities;
-    std::vector<std::string> zoneNames;
-};
 }  // namespace Preprocessor
 
-#include "Mesh_Impl.h"
+#include "MeshImpl/MeshEntity.h"
+#include "MeshImpl/Element.h"
+#include "MeshImpl/Mesh.h"
 
-#endif  // HPGEM_APP_MESH_H
+#include "MeshImpl/MeshEntity_Impl.h"
+#include "MeshImpl/Element_Impl.h"
+#include "MeshImpl/Mesh_Impl.h"
+
+#endif  // HPGEM_MESHPREDECLARATIONS_H

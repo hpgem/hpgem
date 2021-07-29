@@ -38,7 +38,8 @@
 #ifndef HPGEM_MESHENTITY_IMPL_H
 #define HPGEM_MESHENTITY_IMPL_H
 
-#include "Mesh.h"
+// NOTE: Purely implementations related to MeshEntity (for includes and
+// structure see ../Mesh.h)
 
 namespace Preprocessor {
 
