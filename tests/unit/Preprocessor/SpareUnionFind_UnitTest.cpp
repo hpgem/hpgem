@@ -36,7 +36,7 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "SparseUnionFind.h"
+#include "utils/SparseUnionFind.h"
 
 #include "../catch.hpp"
 
