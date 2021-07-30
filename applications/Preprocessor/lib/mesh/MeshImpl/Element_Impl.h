@@ -83,8 +83,11 @@ void Element<dimension>::setNodeCoordinate(
 template <std::size_t dimension>
 void Element<dimension>::setNode(EntityLId localIndex, EntityGId globalIndex,
                                  CoordId coordinateIndex) {
-    // Update the coordinate, not checked whether the coordId and nodeId match
     globalCoordinateIndices[localIndex.id] = coordinateIndex;
+    logger.assert_always(
+        this->mesh->getNodeCoordinates()[coordinateIndex.id].nodeIndex ==
+            globalIndex,
+        "Assigning coordinate from a different node");
     EntityGId currentId = incidenceLists[0][localIndex.id];
     if (currentId != globalIndex) {
         incidenceLists[0][localIndex.id] = globalIndex;
@@ -156,6 +159,14 @@ std::vector<EntityLId> Element<dimension>::getLocalIncidenceListAsIndices(
         realResult[i] = EntityLId(result[i]);
     }
     return realResult;
+}
+
+template <std::size_t dimension>
+void Element<dimension>::renumberEntities(std::size_t entityDimension,
+                                          const std::vector<EntityGId>& renumbering) {
+    for(EntityGId& entityId : incidenceLists[entityDimension]) {
+        entityId = renumbering[entityId.id];
+    }
 }
 
 template <std::size_t dimension>

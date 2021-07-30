@@ -158,6 +158,30 @@ class MeshEntity {
             getIncidenceListAsIndices<(d < 0 ? d + meshDimension : d)>()[i]);
     }
 
+    /// Merges another MeshEntity into this one.
+    ///
+    /// This merges two entities of the same dimension into one. The current
+    /// entity will take over all boundary connections from the source, and
+    /// leaving the source one unused. For 0-dimensional entities the
+    /// coordinate association will be updated as well.
+    ///
+    /// NOTE: For a merge to be valid it is required that
+    ///   - They have the same shape
+    ///   - The boundary shapes (e.g. Nodes & Edges of a Face) are the same
+    ///   - The boundary shapes form the same topology according to the
+    ///     neighbouring elements.
+    /// To remove the now unused entities one should call
+    /// Mesh#removeUnusedEntities();
+    ///
+    /// \param source The id of the entity to merge
+    void merge(EntityGId source) {
+        merge(mesh->getEntity<entityDimension>(source));
+    }
+
+    /// Merges another MeshEntity into this one
+    /// \see merge(EntityGId)
+    void merge(MeshEntity<entityDimension, meshDimension>& source);
+
     const Mesh<meshDimension>* getMesh() const { return mesh; }
 
     bool operator==(const MeshEntity&) const;

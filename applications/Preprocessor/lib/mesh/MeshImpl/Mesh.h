@@ -209,6 +209,12 @@ class Mesh {
         getNodeCoordinates()[coordinateIndex.id].coordinate = coordinate;
     }
 
+    /**
+     * Removes unused MeshEntities, i.e. the MeshEntities without attached
+     * Elements.
+     */
+    void removeUnusedEntities() { removeUnusedEntities(itag<dimension - 1>{}); }
+
     // Checks //
     ////////////
 
@@ -313,6 +319,11 @@ class Mesh {
 
     template <std::size_t d>
     void fixEntity(Element<dimension>& element, std::size_t i);
+
+    template <int d>
+    void removeUnusedEntities(itag<d> dimTag);
+    // Base case
+    void removeUnusedEntities(itag<-1>){};
 
     template <std::size_t d>
     void copyEntities(tag<d> dimTag) {

@@ -232,6 +232,51 @@ void Mesh<dimension>::fixEntity(Element<dimension>& element,
 }
 
 template <std::size_t dimension>
+template <int d>
+void Mesh<dimension>::removeUnusedEntities(itag<d> dimTag) {
+    std::vector<EntityGId> renumbering;
+    // Fill renumbering with invalid data
+    std::size_t currentCount = this->meshEntities[dimTag].size();
+    renumbering.resize(currentCount, EntityGId(-1));
+    EntityGId newId = EntityGId (0);
+    // Whether we are actually removing entities
+    bool removing = false;
+    for (std::size_t i = 0; i < currentCount; ++i) {
+        MeshEntity<d, dimension>& entity = meshEntities[dimTag][i];
+        if (entity.getNumberOfElements() > 0) {
+            // Renumber
+            renumbering[i] = newId;
+            entity.entityID = newId;
+            if (removing) {
+                // Not only do we need to update the id, we also need to move
+                // the entity to the corresponding location.
+                meshEntities[dimTag][newId.id] = entity;
+            }
+            newId++;
+        } else {
+            removing = true;
+        }
+    }
+
+    if (removing) {
+        meshEntities[dimTag].resize(newId.id);
+
+        for (Element<dimension>& element : elementsList) {
+            element.renumberEntities(d, renumbering);
+        }
+
+        if (d == 0) {
+            // For nodes we also need to remap the coordinate->node mapping
+            for (coordinateData& coord : getNodeCoordinates()) {
+                coord.nodeIndex = renumbering[coord.nodeIndex.id];
+            }
+        }
+    }
+
+    removeUnusedEntities(itag<d - 1>{});
+}
+
+template <std::size_t dimension>
 const ElementShape<dimension>* Mesh<dimension>::findGeometry(
     std::size_t numberOfNodes) {
     for (auto shape : hpgemShapes.get<dimension>()) {
