@@ -165,6 +165,11 @@ class MeshEntity {
 
    protected:
     friend Mesh<meshDimension>;
+
+    // Friends that are needed to keep the bidirectional link up to date and as
+    // Element is a child class we can't reference its members
+    friend class Element<meshDimension>;
+
     MeshEntity(Mesh<meshDimension>* mesh, EntityGId entityID)
         : mesh(mesh), entityID(entityID) {}
 
@@ -173,7 +178,15 @@ class MeshEntity {
     /// \param elementID The entityID of the element
     /// \param localEntityIndex The localIndex of this MeshEntity for the
     /// element.
-    void addElement(EntityGId elementID, EntityLId EntityLId);
+    void addElement(EntityGId elementID, EntityLId localEntityIndex);
+
+    /// Reverse of addElement, remove an Element that this MeshEntity is part
+    /// of.
+    ///
+    /// \param elementId The id of the element to remove
+    /// \param localEntityIndex The local index on the element of this
+    /// MeshEntity (before removal).
+    void removeElement(EntityGId elementId, EntityLId localEntityIndex);
 
     Mesh<meshDimension>* mesh;
     /// The id of this MeshEntity

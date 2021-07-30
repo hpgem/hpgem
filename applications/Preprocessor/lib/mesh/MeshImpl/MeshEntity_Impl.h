@@ -153,6 +153,26 @@ void MeshEntity<entityDimension, meshDimension>::addElement(
 }
 
 template <std::size_t entityDimension, std::size_t meshDimension>
+void MeshEntity<entityDimension, meshDimension>::removeElement(
+    EntityGId elementID, EntityLId localEntityIndex) {
+    logger.assert_debug(elementIDs.size() == localIDs.size(),
+                        "ElementIDs and LocalIDs have different length");
+    // Simultaneous iteration
+    auto elemIter = elementIDs.begin();
+    auto localIter = localIDs.begin();
+    for (; elemIter != elementIDs.end(); ++elemIter, ++localIter) {
+        if (*elemIter == elementID && *localIter == localEntityIndex) {
+            elementIDs.erase(elemIter);
+            localIDs.erase(localIter);
+            return;
+        }
+    }
+    logger.assert_always(false,
+                         "Element % (localID %) not found on this MeshEntity",
+                         elementID, localEntityIndex);
+}
+
+template <std::size_t entityDimension, std::size_t meshDimension>
 bool MeshEntity<entityDimension, meshDimension>::operator==(
     const MeshEntity& other) const {
     return mesh == other.mesh && entityID == other.entityID &&

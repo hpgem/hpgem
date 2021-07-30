@@ -83,15 +83,30 @@ void Element<dimension>::setNodeCoordinate(
 template <std::size_t dimension>
 void Element<dimension>::setNode(EntityLId localIndex, EntityGId globalIndex,
                                  CoordId coordinateIndex) {
-    incidenceLists[0][localIndex.id] = globalIndex;
+    // Update the coordinate, not checked whether the coordId and nodeId match
     globalCoordinateIndices[localIndex.id] = coordinateIndex;
+    EntityGId currentId = incidenceLists[0][localIndex.id];
+    if (currentId != globalIndex) {
+        incidenceLists[0][localIndex.id] = globalIndex;
+        EntityGId id = this->getGlobalIndex();
+        this->mesh->getNode(currentId).removeElement(id, localIndex);
+        this->mesh->getNode(globalIndex).addElement(id, localIndex);
+    }
 }
 
 template <std::size_t dimension>
 template <std::size_t d>
 std::enable_if_t<(d > 0)> Element<dimension>::setEntity(EntityLId localIndex,
                                                         EntityGId globalIndex) {
-    incidenceLists[d][localIndex] = globalIndex;
+    EntityGId currentId = incidenceLists[d][localIndex];
+    if (currentId != globalIndex) {
+        incidenceLists[d][localIndex] = globalIndex;
+        EntityGId id = this->getGlobalIndex();
+        this->mesh->template getEntity<d>(currentId).removeElement(id,
+                                                                   localIndex);
+        this->mesh->template getEntity<d>(globalIndex)
+            .addElement(id, localIndex);
+    }
 }
 
 template <std::size_t dimension>
@@ -146,14 +161,18 @@ std::vector<EntityLId> Element<dimension>::getLocalIncidenceListAsIndices(
 template <std::size_t dimension>
 void Element<dimension>::addNode(EntityGId globalNodeIndex,
                                  CoordId coordinateIndex) {
-    incidenceLists[0].push_back(globalNodeIndex);
     globalCoordinateIndices.push_back(coordinateIndex);
+    incidenceLists[0].push_back(globalNodeIndex);
+    this->mesh->getNode(globalNodeIndex)
+        .addElement(this->getGlobalIndex(), incidenceLists[0].size() - 1);
 }
 
 template <std::size_t dimension>
 template <std::size_t d>
 std::enable_if_t<(d > 0)> Element<dimension>::addEntity(EntityGId globalIndex) {
     incidenceLists[d].push_back(globalIndex);
+    this->mesh->template getEntity<d>(globalIndex)
+        .addElement(this->getGlobalIndex(), incidenceLists[d].size() - 1);
 }
 }  // namespace Preprocessor
 

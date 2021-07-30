@@ -148,9 +148,7 @@ class Mesh {
 
     std::vector<MeshEntity<0, dimension>>& getNodes();
     const std::vector<MeshEntity<0, dimension>>& getNodes() const;
-    MeshEntity<0, dimension> getNode(std::size_t i) const {
-        return getNodes()[i];
-    };
+    MeshEntity<0, dimension>& getNode(EntityGId i) { return getNodes()[i.id]; };
     std::size_t getNumberOfNodes() const { return getNodes().size(); }
 
     // Coordinates //
@@ -184,7 +182,7 @@ class Mesh {
         dimension>>&
         getEntities() const;
     template <int entityDimension>
-    MeshEntity<entityDimension, dimension> getEntity(EntityGId i) const {
+    MeshEntity<entityDimension, dimension>& getEntity(EntityGId i) {
         return getEntities<entityDimension>()[i.id];
     };
     template <int entityDimension>
@@ -261,7 +259,14 @@ class Mesh {
     /// localIndex of the Element.
     template <std::size_t d>
     bool checkEntities(tag<d> dimTag) const {
+        EntityGId id = EntityGId(0);
         for (auto entity : meshEntities[dimTag]) {
+            if (entity.getGlobalIndex() != id) {
+                logger(ERROR,
+                       "Incorrect id % for d-dimensional entity at position %",
+                       entity.getGlobalIndex(), d, id);
+            }
+            id++;  // For next entity
             for (std::size_t i = 0; i < entity.getNumberOfElements(); ++i) {
                 if (entity !=
                     entity.getElement(i).template getIncidentEntity<d>(
@@ -278,7 +283,14 @@ class Mesh {
     }
     // Base case.
     bool checkEntities(tag<0> dimTag) const {
+        EntityGId id = EntityGId(0);
         for (auto entity : meshEntities[dimTag]) {
+            if (entity.getGlobalIndex() != id) {
+                logger(ERROR,
+                       "Incorrect id % for 0-dimensional entity at position %",
+                       entity.getGlobalIndex(), id);
+            }
+            id++;  // For next entity
             for (std::size_t i = 0; i < entity.getNumberOfElements(); ++i) {
                 if (entity !=
                     entity.getElement(i).template getIncidentEntity<0>(

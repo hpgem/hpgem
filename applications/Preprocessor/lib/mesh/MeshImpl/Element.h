@@ -164,6 +164,10 @@ class Element : public MeshEntity<dim, dim> {
     /// \param coordinateIndex The global index of the coordinate for the node.
     void addNode(EntityGId globalNodeIndex, CoordId coordinateIndex);
 
+    /// Add a MeshEntity on the boundary of this Element.
+    ///
+    /// @tparam d The dimension of the boundary MeshEntity
+    /// @param globalIndex The globalIndex of the boundary MeshEntity
     template <std::size_t d>
     std::enable_if_t<(d > 0)> addEntity(EntityGId globalIndex);
 
