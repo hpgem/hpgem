@@ -13,6 +13,7 @@ add_library(hpGEM_Base OBJECT
 		FaceMatrix.cpp
  		Edge.cpp
  		Node.cpp
+		MeshFileInformation.cpp
 		HpgemAPISimplified.cpp
 		Zone.cpp
 		#miscellaneous required stuff
