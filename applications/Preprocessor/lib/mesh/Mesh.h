@@ -82,10 +82,12 @@ class Mesh;
 
 }  // namespace Preprocessor
 
+// Definitions
 #include "MeshImpl/MeshEntity.h"
 #include "MeshImpl/Element.h"
 #include "MeshImpl/Mesh.h"
 
+// Implementations
 #include "MeshImpl/MeshEntity_Impl.h"
 #include "MeshImpl/Element_Impl.h"
 #include "MeshImpl/Mesh_Impl.h"
