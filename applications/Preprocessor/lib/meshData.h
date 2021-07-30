@@ -40,7 +40,7 @@
 #define HPGEM_APP_MESHDATA_H
 
 #include <cstddef>
-#include "mesh.h"
+#include "mesh/Mesh.h"
 
 namespace Preprocessor {
 

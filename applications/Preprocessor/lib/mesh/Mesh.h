@@ -35,23 +35,61 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_ELEMENTSHAPES_H
-#define HPGEM_ELEMENTSHAPES_H
+#ifndef HPGEM_APP_MESHPREDECLARATIONS_H
+#define HPGEM_APP_MESHPREDECLARATIONS_H
 
+#include "idtypes.h"
 #include "elementShape.h"
-#include "TemplateArray.h"
+#include "ElementShapes.h"
+#include "utils/tag.h"
+#include "utils/TemplateArray.h"
+
+#include "LinearAlgebra/SmallVector.h"
+
+#include <array>
+#include <memory>
+#include <vector>
+
+// FILE STRUCTURE //
+////////////////////
+//
+// The mesh is a combination of several intertwined classes. This design is
+// complicated by that most of these classes are templated by at least the
+// dimension of the mesh, thus preventing the natural header and implementation
+// file separation.
+//
+// To structure these classes they have been split into several separated header
+// files located in the MeshImpl folder. This header takes these smaller parts
+// and combines them into a definition of the mesh for use.
+//
+// The structure in this file is as follows:
+//  - Includes needed for both definition and implementation
+//  - Predeclarations of the classes to facilitate the definitions and as hint
+//    of the interface provided.
+//  - Includes of definition files
+//  - Includes of the implementation files
 
 namespace Preprocessor {
 
-namespace Detail {
-// Alias to have a template type that directly depends on the dimension
-template <std::size_t dimension>
-using ShapePointerVec = std::vector<const ElementShape<dimension>*>;
-}  // namespace Detail
+template <std::size_t dimension, std::size_t gridDimension>
+class MeshEntity;
 
-/// Listing of all ElementShapes defined in hpGEM
-extern const TemplateArray<4, Detail::ShapePointerVec> hpgemShapes;
+template <std::size_t dimension>
+class Element;
+
+template <std::size_t dimension>
+class Mesh;
 
 }  // namespace Preprocessor
 
-#endif  // HPGEM_ELEMENTSHAPES_H
+// Definitions
+#include "MeshImpl/MeshEntity.h"
+#include "MeshImpl/Element.h"
+#include "MeshImpl/Mesh.h"
+
+// Implementations
+#include "MeshImpl/MeshEntity_Impl.h"
+#include "MeshImpl/Element_Impl.h"
+#include "MeshImpl/Mesh_Impl.h"
+
+#endif  // HPGEM_MESHPREDECLARATIONS_H
