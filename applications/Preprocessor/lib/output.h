@@ -40,7 +40,7 @@
 #define HPGEM_APP_OUTPUT_H
 
 #include <Base/CommandLineOptions.h>
-#include "mesh.h"
+#include "mesh/Mesh.h"
 #include "meshData.h"
 
 auto& outputFileName = hpgem::Base::register_argument<std::string>(
