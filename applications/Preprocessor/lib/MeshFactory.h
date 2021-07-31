@@ -39,6 +39,7 @@
 #define HPGEM_MESHFACTORY_H
 
 #include "mesh/Mesh.h"
+#include "MergePlan.h"
 #include "MeshSource.h"
 
 namespace Preprocessor {
@@ -116,6 +117,30 @@ Mesh<dimension> fromMeshSource(MeshSource2& file) {
         result.addElement(coords, element.zoneName);
     }
     logger.assert_debug(result.isValid(), "Unspecified problem with the mesh");
+
+    for (const std::map<std::size_t, std::size_t> rawCoordPairing :
+         file.getMerges()) {
+        logger(INFO, "Applying coordinate merger with % pairings",
+               rawCoordPairing.size());
+        // 1-1 translation of the indices
+        std::map<CoordId, CoordId> coordPairing;
+        for (const auto& rawPair : rawCoordPairing) {
+            CoordId first = CoordId(rawPair.first);
+            CoordId second = CoordId(rawPair.second);
+            coordPairing[first] = second;
+            // Print a list of coordinates to be merged for debugging
+            logger(DEBUG, "Merging %-% (% -- %)", first, second,
+                   result.getCoordinate(first), result.getCoordinate(second));
+        }
+
+        MergePlan<dimension> plan =
+            MergePlan<dimension>::computeMergePlan(&result, coordPairing);
+        plan.executeMerge();
+    }
+    if (!file.getMerges().empty()) {
+        result.removeUnusedEntities();
+    }
+
     return result;
 }
 

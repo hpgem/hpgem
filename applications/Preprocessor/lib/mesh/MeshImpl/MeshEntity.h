@@ -175,12 +175,14 @@ class MeshEntity {
     ///
     /// \param source The id of the entity to merge
     void merge(EntityGId source) {
-        merge(mesh->getEntity<entityDimension>(source));
+        merge(mesh->template getEntity<entityDimension>(source));
     }
 
     /// Merges another MeshEntity into this one
     /// \see merge(EntityGId)
-    void merge(MeshEntity<entityDimension, meshDimension>& source);
+    void merge(MeshEntity<entityDimension, meshDimension>& source) {
+        merge(source, tag<entityDimension>{});
+    }
 
     const Mesh<meshDimension>* getMesh() const { return mesh; }
 
@@ -211,6 +213,17 @@ class MeshEntity {
     /// \param localEntityIndex The local index on the element of this
     /// MeshEntity (before removal).
     void removeElement(EntityGId elementId, EntityLId localEntityIndex);
+
+    // Actual implementation of merge depends on the dimension of the
+    // MeshEntity, with the zero dimensional one being slightly different due to
+    // having to deal with coordinates. Partial template specialization is not
+    // possible with member functions, this pair of functions is a poor man's
+    // substitute preventing having to specialize the whole class for just this
+    // function.
+    template <std::size_t d>
+    std::enable_if_t<d == entityDimension> merge(
+        MeshEntity<entityDimension, meshDimension>& source, tag<d>);
+    void merge(MeshEntity<entityDimension, meshDimension>& source, tag<0>);
 
     Mesh<meshDimension>* mesh;
     /// The id of this MeshEntity

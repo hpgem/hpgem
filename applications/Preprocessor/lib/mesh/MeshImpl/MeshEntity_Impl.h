@@ -146,8 +146,10 @@ std::vector<EntityGId> MeshEntity<
 }
 
 template <std::size_t entityDimension, std::size_t meshDimension>
-void MeshEntity<entityDimension, meshDimension>::merge(
-    MeshEntity<entityDimension, meshDimension>& source) {
+template <std::size_t d>
+std::enable_if_t<d == entityDimension>
+    MeshEntity<entityDimension, meshDimension>::merge(
+        MeshEntity<entityDimension, meshDimension>& source, tag<d>) {
     // Merging elements is fundamentally more complicated and should not be done
     // via this method.
     static_assert(entityDimension < meshDimension,
@@ -158,29 +160,44 @@ void MeshEntity<entityDimension, meshDimension>::merge(
     logger.assert_debug(this->getGlobalIndex() != source.getGlobalIndex(),
                         "Can't merge an entity into itself");
     // Loop to move all connections
-    // Internally removes the links from the current element.
+    // Internally removes the links from the source element.
     while (!source.elementIDs.empty()) {
         Element<meshDimension>& element = source.getElement(0);
         EntityLId localId = source.getLocalIndex(0);
         if (entityDimension != 0) {
             element.template setEntity<entityDimension>(localId,
                                                         getGlobalIndex());
-        } else {
-            // Merging nodes requires that we also update the corresponding
-            // coordinates.
-            CoordId coordId = element.getCoordinateIndex(localId);
-            // The coordinate should belong to either the source MeshEntity or
-            // the current one. Check this for robustness.
-            EntityGId& nodeIndex =
-                mesh->getNodeCoordinates()[coordId.id].nodeIndex;
-            logger.assert_always(
-                nodeIndex == source.getGlobalIndex() ||
-                    nodeIndex != getGlobalIndex(),
-                "Coordinate belongs to neither the old nor new node.");
-            nodeIndex = getGlobalIndex();
-
-            element.setNode(localId, getGlobalIndex(), coordId);
         }
+    }
+}
+
+template <std::size_t entityDimension, std::size_t dimension>
+void MeshEntity<entityDimension, dimension>::merge(
+    MeshEntity<entityDimension, dimension>& source, tag<0>) {
+    logger.assert_debug(source.getMesh() == getMesh(),
+                        "Merging from different meshes");
+    logger.assert_debug(this->getGlobalIndex() != source.getGlobalIndex(),
+                        "Can't merge an entity into itself");
+
+    // Loop to move all connections
+    // Internally removes the links from the source element.
+    while (!source.elementIDs.empty()) {
+        Element<dimension>& element = source.getElement(0);
+        EntityLId localId = source.getLocalIndex(0);
+
+        // Merging nodes requires that we also update the corresponding
+        // coordinates.
+        CoordId coordId = element.getCoordinateIndex(localId);
+        // The coordinate should belong to either the source MeshEntity or
+        // the current one. Check this for robustness.
+        EntityGId& nodeIndex = mesh->getNodeCoordinates()[coordId.id].nodeIndex;
+        logger.assert_always(
+            nodeIndex == source.getGlobalIndex() ||
+                nodeIndex == getGlobalIndex(),
+            "Coordinate belongs to neither the old nor new node.");
+        nodeIndex = getGlobalIndex();
+
+        element.setNode(localId, getGlobalIndex(), coordId);
     }
 }
 

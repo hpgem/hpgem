@@ -155,6 +155,10 @@ class Element : public MeshEntity<dim, dim> {
     void renumberEntities(std::size_t entityDimension,
                           const std::vector<EntityGId>& renumbering);
 
+    const ElementShape<dim>* getReferenceGeometry() const {
+        return referenceGeometry;
+    }
+
    private:
     friend Mesh<dim>;
     Element(Mesh<dim>* mesh, EntityGId elementID, std::size_t zoneId)

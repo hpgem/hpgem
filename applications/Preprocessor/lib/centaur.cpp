@@ -296,8 +296,7 @@ void CentaurReader::readPeriodicNodeConnections() {
         logger.assert_always(false, "Too old format");
     }
 
-    SparseUnionFind connectedCoords;
-
+    coordinateMerges.resize(numberOfPeriodicTransformations);
     for (std::size_t periodic = 0; periodic < numberOfPeriodicTransformations;
          ++periodic) {
         // For each periodic association the following information is stored:
@@ -315,6 +314,8 @@ void CentaurReader::readPeriodicNodeConnections() {
         centaurFile.skipRecord(transformSize);
         centaurFile.skipRecord(transformSize);
 
+        std::map<std::size_t, std::size_t>& merge = coordinateMerges[periodic];
+
         // Number of Periodic pairs
         // Periodic pairs
         std::size_t periodicPairs = readSingleLineGroupSize();
@@ -325,14 +326,15 @@ void CentaurReader::readPeriodicNodeConnections() {
             // -1 due for Fortran indices
             std::size_t node0 = pairs[2 * i + 0] - 1;
             std::size_t node1 = pairs[2 * i + 1] - 1;
-            // Merge the nodes
-            connectedCoords.unionSets(node0, node1);
+            if (node1 == std::numeric_limits<std::uint32_t>::max()) {
+                // For some unknown reason centaur specifies some connections
+                // with a zero index (invalid in fortran) as second node. These
+                // connections are invalid, as there is no zero-th node. Hence
+                // we skip these transformations.
+                continue;
+            }
+            merge[node0] = node1;
         }
-    }
-    // Merge the actual node ids.
-    for (const std::size_t coord : connectedCoords) {
-        std::size_t representative = connectedCoords.findSet(coord);
-        coordinates[coord].nodeId = representative;
     }
     logger(INFO, "Read % periodic connections",
            numberOfPeriodicTransformations);

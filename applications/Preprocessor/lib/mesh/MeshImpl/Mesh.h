@@ -149,6 +149,7 @@ class Mesh {
     std::vector<MeshEntity<0, dimension>>& getNodes();
     const std::vector<MeshEntity<0, dimension>>& getNodes() const;
     MeshEntity<0, dimension>& getNode(EntityGId i) { return getNodes()[i.id]; };
+    const MeshEntity<0, dimension>& getNode(EntityGId i) const { return getNodes()[i.id]; };
     std::size_t getNumberOfNodes() const { return getNodes().size(); }
 
     // Coordinates //

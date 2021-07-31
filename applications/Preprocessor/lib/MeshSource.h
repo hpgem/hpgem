@@ -38,6 +38,7 @@
 #ifndef HPGEM_MESHSOURCE_H
 #define HPGEM_MESHSOURCE_H
 
+#include <map>
 #include <vector>
 #include "customIterator.h"
 
@@ -189,6 +190,36 @@ class MeshSource2 {
      * @return A list of the elements.
      */
     virtual const std::vector<Element>& getElements() = 0;
+
+    /**
+     * List of merges that should be applied to the mesh after initial
+     * construction.
+     *
+     * Each entry in the vector corresponds to a single merge operation. Where
+     * in each operation the coordinates identified by the indices on 'left' of
+     * the map are merged with the coordinates identified by the indices on the
+     * 'right' of the map. Each of these maps is fed to
+     * MergePlan#computeMergePlan for the actual merging.
+     *
+     * Note that unlike identifying coordinates beforehand (using Coord#nodeId),
+     * doing a merge via this route will prevent several problems in mesh
+     * construction. For example take two triangles in the configuration:
+     *
+     *  1 -- 0 -- 2
+     *    \  |  /
+     *     \ | /
+     *       3
+     * Identifying coordinates 1 & 2 during construction will merge edges:
+     *  - 0-1 with 0-2 and
+     *  - 1-3 with 2-3
+     *  The second one clearly being unintended. By performing the merge {0->0,
+     * 1->2} the coordinate 3 is not included. Hence, only the edges 0-1 and 0-2
+     * will be collapsed to a single edge, leaving edges 1-3 and 2-3 untouched.
+     */
+    virtual const std::vector<std::map<std::size_t, std::size_t>>& getMerges() {
+        static std::vector<std::map<std::size_t, std::size_t>> dummy;
+        return dummy;
+    }
 
     /**
      * Get the dimension of the described mesh
