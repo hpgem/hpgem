@@ -93,8 +93,8 @@ void visitElementParts(const Base::Element *element, std::size_t meshDimension,
  * @param element An element owned by the current process
  * @param meshDimension The dimension of the mesh
  * @param visitor The visitor to use
- * @tparam V The type of the visitor, should be equivalent to
- *  std::function<void(MeshEntity*)>
+ * @tparam V The type of the visitor, should have operator(MeshEntity*) or
+ * equivalent, the result of which is discarded.
  */
 // Note: Templated to force inlining of the actual visitor type, exposing
 // further optimization options.
@@ -261,18 +261,30 @@ void GlobalIndexing::reset(Base::MeshManipulatorBase *mesh, Layout layout,
 void GlobalIndexing::constructUnblocked() {
     // Construct local ordering.
     std::size_t index = 0;
+    // Phase 1:
+    // Assign to each (MeshEntity, unknown) pair the local offset for the
+    // corresponding basis functions. Note that this implies that each basis
+    // function has a local id.
     for (Base::Element *element : mesh_->getElementsList()) {
         visitElementOwnedParts(
             element, mesh_->dimension(), [&](Base::MeshEntity *entity) {
                 for (std::size_t unknown : includedUnknowns_) {
+                    // Obtain a pointer to where the global offset for the
+                    // Entity,unknown pair is stored.
                     OffsetVisitor visitor(offsets_[unknown]);
                     entity->accept(visitor);
+                    // Set the local offset
                     *(visitor.entityOffset_) = index;
                     index += entity->getLocalNumberOfBasisFunctions(unknown);
                 }
             });
     }
     localNumberOfBasisFunctions_ = index;
+
+    // Phase 2:
+    // The local ids for the basis functions overlap (i.e. each process starts
+    // counting from 0). Communicate between the different MPI nodes to get the
+    // offset for this process to make the local ids unique.
 
     // Offset of the first basis function with MPI, for no MPI 0.
     std::size_t mpiOffset = 0;
@@ -297,17 +309,27 @@ void GlobalIndexing::constructUnblocked() {
 #else
     globalNumberOfBasisFunctions_ = localNumberOfBasisFunctions_;
 #endif
+
+    // Phase 3:
+    // Apply the offset to make the basis function ids globally unique
     for (std::size_t unknown = 0; unknown < totalNumberOfUnknowns_; ++unknown) {
         Offsets &offset = offsets_[unknown];
         if (!offset.includedInIndex_) continue;
         offset.setOffset(mpiOffset, 0, localNumberOfBasisFunctions_);
     }
+    // Phase 4:
+    // Communicate the global ids to the neighbouring processors.
     communicatePushPullElements();
 }
 
 void GlobalIndexing::constructBlocked(bool global) {
     std::vector<size_t> numberOfBasisFunctions(totalNumberOfUnknowns_);
     localNumberOfBasisFunctions_ = 0;
+
+    // Phase 1:
+    // Assign to each (MeshEntity, unknown) pair the local offset for the
+    // corresponding basis functions. Note that this implies that each basis
+    // function has a local id.
 
     // Number the local basis functions for each unknown by 0...Nu-1, where Nu
     // is the number of local basis functions for this unknown.
@@ -319,7 +341,10 @@ void GlobalIndexing::constructBlocked(bool global) {
             visitElementOwnedParts(
                 element, mesh_->dimension(),
                 [&index, &visitor, unknown](Base::MeshEntity *entity) {
+                    // Obtain a pointer to where the global offset for the
+                    // Entity,unknown pair is stored.
                     entity->accept(visitor);
+                    // Set the local offset
                     *(visitor.entityOffset_) = index;
                     index += entity->getLocalNumberOfBasisFunctions(unknown);
                 });
@@ -327,6 +352,12 @@ void GlobalIndexing::constructBlocked(bool global) {
         numberOfBasisFunctions[unknown] = index;
         localNumberOfBasisFunctions_ += index;
     }
+
+    // Phase 2:
+    // The local ids for the basis functions overlap (i.e. each process starts
+    // counting from 0). Communicate between the different MPI nodes to get the
+    // offset for this process to make the local ids unique. These are applied
+    // directly.
 
 #ifdef HPGEM_USE_MPI
     auto &mpiInstance = Base::MPIContainer::Instance();
@@ -392,6 +423,9 @@ void GlobalIndexing::constructBlocked(bool global) {
     }
     globalNumberOfBasisFunctions_ = offset;
 #endif
+
+    // Phase 3:
+    // Communicate the global ids to the neighbouring processors.
     communicatePushPullElements();
 }
 

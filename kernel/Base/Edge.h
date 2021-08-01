@@ -179,9 +179,7 @@ class Edge : public MeshEntity {
     /// current processor
     const Element* getOwningElement() const final;
 
-    void accept(MeshEntityVisitor& visitor) final {
-        visitor.visit(*this);
-    }
+    void accept(MeshEntityVisitor& visitor) final { visitor.visit(*this); }
 
     void accept(ConstMeshEntityVisitor& visitor) const final {
         visitor.visit(*this);
