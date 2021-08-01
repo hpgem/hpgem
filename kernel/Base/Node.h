@@ -43,6 +43,7 @@
 #include <vector>
 
 #include "Logger.h"
+#include "MeshEntity.h"
 
 namespace hpgem {
 
@@ -60,7 +61,7 @@ class Face;
 /// is not uniquely defined and its only identifying feature is the set of
 /// elements connected to it. Elements store a PointPhysical for each node
 /// independently from this class that can be used for geometric operations.
-class Node {
+class Node : public MeshEntity {
    public:
     explicit Node(std::size_t ID)
         : elements_(),
@@ -81,7 +82,7 @@ class Node {
         return getLocalNumberOfBasisFunctions();
     }
 
-    std::size_t getLocalNumberOfBasisFunctions() const {
+    std::size_t getLocalNumberOfBasisFunctions() const final {
         std::size_t number = numberOfConformingDOFOnTheNode_[0];
         for (std::size_t index : numberOfConformingDOFOnTheNode_)
             logger.assert_debug(
@@ -90,20 +91,23 @@ class Node {
         return numberOfConformingDOFOnTheNode_[0];
     }
 
-    std::size_t getLocalNumberOfBasisFunctions(std::size_t unknown) const {
+    std::size_t getLocalNumberOfBasisFunctions(
+        std::size_t unknown) const final {
         logger.assert_debug(unknown < numberOfConformingDOFOnTheNode_.size(),
                             "Asking for unknown % but there are only %",
                             unknown, numberOfConformingDOFOnTheNode_.size());
         return numberOfConformingDOFOnTheNode_[unknown];
     }
 
-    std::size_t getTotalLocalNumberOfBasisFunctions() const {
+    std::size_t getTotalLocalNumberOfBasisFunctions() const final {
         std::size_t result = 0;
         for (auto nbasis : numberOfConformingDOFOnTheNode_) result += nbasis;
         return result;
     }
 
-    std::size_t getID() const { return ID_; }
+    std::size_t getID() const final { return ID_; }
+
+    EntityType getType() const final { return EntityType::NODE; }
 
     ///\deprecated Does not conform naming conventions, use getNumberOfElements
     /// instead
@@ -155,11 +159,17 @@ class Node {
         setLocalNumberOfBasisFunctions(number);
     }
 
-    bool isOwnedByCurrentProcessor() const;
+    bool isOwnedByCurrentProcessor() const final;
 
     /// The element owning this node, only valid if the node is owned by the
     /// current processor
-    Element *getOwningElement() const;
+    const Element *getOwningElement() const final;
+
+    void accept(MeshEntityVisitor &visitor) final { visitor.visit(*this); }
+
+    void accept(ConstMeshEntityVisitor &visitor) const final {
+        visitor.visit(*this);
+    }
 
    private:
     // provide information to map back to a unique corner of the element

@@ -56,6 +56,8 @@
 #include <memory>
 #include <Integration/QuadratureRules/GaussQuadratureRule.h>
 #include <Base/ElementBasisFunctions.h>
+#include "MeshEntity.h"
+
 namespace hpgem {
 
 namespace FE {
@@ -74,7 +76,9 @@ class PhysicalElement;
 
 // class is final as a reminder that the virtual default destructor should be
 // added once something inherits from this class
-class Element final : public Geometry::ElementGeometry, public ElementData {
+class Element final : public Geometry::ElementGeometry,
+                      public ElementData,
+                      public MeshEntity {
    public:
     using SolutionVector = LinearAlgebra::MiddleSizeVector;
     using CollectionOfBasisFunctionSets =
@@ -94,9 +98,9 @@ class Element final : public Geometry::ElementGeometry, public ElementData {
 
     Element* copyWithoutFacesEdgesNodes();
 
-    std::size_t getID() const;
+    std::size_t getID() const final { return id_; }
 
-    std::size_t getID();
+    EntityType getType() const final { return EntityType::ELEMENT; }
 
     void setQuadratureRulesWithOrder(std::size_t quadrROrder);
 
@@ -376,15 +380,16 @@ class Element final : public Geometry::ElementGeometry, public ElementData {
     /// element only. This always includes functions with compact support on the
     /// interior of the element and DG basis function, but never include
     /// conforming basis functions that are nonzero on a face, edge or node
-    std::size_t getLocalNumberOfBasisFunctions() const {
+    std::size_t getLocalNumberOfBasisFunctions() const final {
         return basisFunctions_.getNumberOfLocalBasisFunctions();
     }
 
-    std::size_t getLocalNumberOfBasisFunctions(std::size_t unknown) const {
+    std::size_t getLocalNumberOfBasisFunctions(
+        std::size_t unknown) const final {
         return basisFunctions_.getNumberOfLocalBasisFunctions(unknown);
     }
 
-    std::size_t getTotalLocalNumberOfBasisFunctions() const {
+    std::size_t getTotalLocalNumberOfBasisFunctions() const final {
         return basisFunctions_.getTotalLocalNumberOfBasisFunctions();
     }
 
@@ -525,8 +530,16 @@ class Element final : public Geometry::ElementGeometry, public ElementData {
     /// \param owned Whether this element is owned or not by the current
     /// processor.
     void setOwnedByCurrentProcessor(std::size_t owner, bool owned);
-    bool isOwnedByCurrentProcessor() const;
+    bool isOwnedByCurrentProcessor() const final;
     std::size_t getOwner() const;
+
+    const Element* getOwningElement() const final { return this; }
+
+    void accept(MeshEntityVisitor& visitor) final { visitor.visit(*this); }
+
+    void accept(ConstMeshEntityVisitor& visitor) const final {
+        visitor.visit(*this);
+    }
 
     /// Output operator.
     friend std::ostream& operator<<(std::ostream& os, const Element& element);

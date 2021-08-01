@@ -44,6 +44,7 @@
 #include "Base/FaceMatrix.h"
 #include "Geometry/FaceGeometry.h"
 #include "Base/Element.h"
+#include "MeshEntity.h"
 #include "L2Norm.h"
 #include "TreeEntry.h"
 
@@ -61,7 +62,9 @@ struct FaceCacheData;
 /// FaceGeometry holds all FaceReference related data and appropriate mappings
 // class is final as a reminder that the virtual default destructor should be
 // added once something inherits from this class
-class Face final : public Geometry::FaceGeometry, public FaceData {
+class Face final : public Geometry::FaceGeometry,
+                   public FaceData,
+                   public MeshEntity {
    public:
     using FaceQuadratureRule = QuadratureRules::GaussQuadratureRule;
 
@@ -261,7 +264,7 @@ class Face final : public Geometry::FaceGeometry, public FaceData {
     std::size_t getNumberOfBasisFunctions() const;
     std::size_t getNumberOfBasisFunctions(std::size_t unknown) const;
 
-    std::size_t getLocalNumberOfBasisFunctions() const {
+    std::size_t getLocalNumberOfBasisFunctions() const final {
         std::size_t number = numberOfConformingDOFOnTheFace_[0];
         for (std::size_t index : numberOfConformingDOFOnTheFace_)
             logger.assert_debug(
@@ -270,14 +273,15 @@ class Face final : public Geometry::FaceGeometry, public FaceData {
         return numberOfConformingDOFOnTheFace_[0];
     }
 
-    std::size_t getLocalNumberOfBasisFunctions(std::size_t unknown) const {
+    std::size_t getLocalNumberOfBasisFunctions(
+        std::size_t unknown) const final {
         logger.assert_debug(unknown < numberOfConformingDOFOnTheFace_.size(),
                             "Asking for unknown % but there are only %",
                             unknown, numberOfConformingDOFOnTheFace_.size());
         return numberOfConformingDOFOnTheFace_[unknown];
     }
 
-    std::size_t getTotalLocalNumberOfBasisFunctions() const {
+    std::size_t getTotalLocalNumberOfBasisFunctions() const final {
         std::size_t result = 0;
         for (auto nbasis : numberOfConformingDOFOnTheFace_) result += nbasis;
         return result;
@@ -316,7 +320,9 @@ class Face final : public Geometry::FaceGeometry, public FaceData {
         setLocalNumberOfBasisFunctions(number);
     }
 
-    std::size_t getID() const { return faceID_; }
+    std::size_t getID() const final { return faceID_; }
+
+    EntityType getType() const final { return EntityType::FACE; }
 
     /// Specify a time integration vector id, return a vector containing the
     /// data for that time integration vector.
@@ -354,14 +360,20 @@ class Face final : public Geometry::FaceGeometry, public FaceData {
         return positionInTheTree_;
     }
 
-    bool isOwnedByCurrentProcessor() const {
+    bool isOwnedByCurrentProcessor() const final {
         return elementLeft_ != nullptr &&
                elementLeft_->isOwnedByCurrentProcessor();
     }
 
     /// The element owning this face, only valid if the face is owned by the
     /// current processor
-    Element* getOwningElement() const;
+    const Element* getOwningElement() const final;
+
+    void accept(MeshEntityVisitor& visitor) final { visitor.visit(*this); }
+
+    void accept(ConstMeshEntityVisitor& visitor) const final {
+        visitor.visit(*this);
+    }
 
    private:
     Element* elementLeft_;

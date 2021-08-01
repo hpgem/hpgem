@@ -58,6 +58,74 @@ GlobalIndexing::GlobalIndexing(Base::MeshManipulatorBase *mesh, Layout layout,
     reset(mesh, layout, unknowns);
 }
 
+/**
+ * Visit the element and all its boundary parts in the canonical order
+ *
+ * @param element The element to visit
+ * @param meshDimension The dimension of the mesh
+ * @param visitor The visiting function to use
+ * @tparam CV The type of the visitor, should be equivalent to
+ *  std::function<void(const MeshEntity*)>
+ */
+// Note: Templated to force inlining of the actual visitor type, exposing
+// further optimization options.
+template <typename CV>
+void visitElementParts(const Base::Element *element, std::size_t meshDimension,
+                       CV visitor) {
+    visitor(element);
+    for (const Base::Face *face : element->getFacesList()) {
+        visitor(face);
+    }
+    for (const Base::Edge *edge : element->getEdgesList()) {
+        visitor(edge);
+    }
+    if (meshDimension > 1) {
+        for (const Base::Node *node : element->getNodesList()) {
+            visitor(node);
+        }
+    }
+}
+
+/**
+ * For an owned element, visit the element and the boundary parts it owns in the
+ * canonical order.
+ *
+ * @param element An element owned by the current process
+ * @param meshDimension The dimension of the mesh
+ * @param visitor The visitor to use
+ * @tparam V The type of the visitor, should have operator(MeshEntity*) or
+ * equivalent, the result of which is discarded.
+ */
+// Note: Templated to force inlining of the actual visitor type, exposing
+// further optimization options.
+template <typename V>
+void visitElementOwnedParts(Base::Element *element, std::size_t meshDimension,
+                            V visitor) {
+    logger.assert_debug(element->isOwnedByCurrentProcessor(),
+                        "Non owned element");
+    visitor(element);
+    // Note each part is checked for the owning element to ensure it is added
+    // only once. The check is safe because the element is owned by the current
+    // process.
+    for (Base::Face *face : element->getFacesList()) {
+        if (face->getOwningElement() == element) {
+            visitor(face);
+        }
+    }
+    for (Base::Edge *edge : element->getEdgesList()) {
+        if (edge->getOwningElement() == element) {
+            visitor(edge);
+        }
+    }
+    if (meshDimension > 1) {
+        for (Base::Node *node : element->getNodesList()) {
+            if (node->getOwningElement() == element) {
+                visitor(node);
+            }
+        }
+    }
+}
+
 std::size_t GlobalIndexing::getGlobalIndices(const Base::Element *element,
                                              std::size_t offset,
                                              std::vector<int> &indices) const {
@@ -82,47 +150,15 @@ std::size_t GlobalIndexing::getGlobalIndices(const Base::Element *element,
         if (!offsets_[unknown].includedInIndex_) {
             continue;
         }
-        std::size_t numberOfElementBasisFunctions =
-            element->getLocalNumberOfBasisFunctions(unknown);
-        int elementBasis0 = getGlobalIndex(element, unknown);
-        for (std::size_t i = 0; i < numberOfElementBasisFunctions; ++i) {
-            indices[localBasisIndex++] = elementBasis0 + i;
-        }
-
-        std::size_t numberOfFaces =
-            element->getPhysicalGeometry()->getNumberOfFaces();
-        for (std::size_t face = 0; face < numberOfFaces; face++) {
-            std::size_t numberOfFaceBasisFunctions =
-                element->getFace(face)->getLocalNumberOfBasisFunctions(unknown);
-            int faceBasis0 = getGlobalIndex(element->getFace(face), unknown);
-            for (std::size_t i = 0; i < numberOfFaceBasisFunctions; ++i) {
-                indices[localBasisIndex++] = faceBasis0 + i;
-            }
-        }
-
-        std::size_t numberOfEdges = element->getNumberOfEdges();
-        for (std::size_t edge = 0; edge < numberOfEdges; edge++) {
-            std::size_t numberOfEdgeBasisFunctions =
-                element->getEdge(edge)->getLocalNumberOfBasisFunctions(unknown);
-            int edgeBasis0 = getGlobalIndex(element->getEdge(edge), unknown);
-            for (std::size_t i = 0; i < numberOfEdgeBasisFunctions; ++i) {
-                indices[localBasisIndex++] = edgeBasis0 + i;
-            }
-        }
-
-        if (mesh_->dimension() > 1) {
-            std::size_t numberOfNodes = element->getNumberOfNodes();
-            for (std::size_t node = 0; node < numberOfNodes; node++) {
-                std::size_t numberOfNodeBasisFunctions =
-                    element->getNode(node)->getLocalNumberOfBasisFunctions(
-                        unknown);
-                int nodeBasis0 =
-                    getGlobalIndex(element->getNode(node), unknown);
-                for (std::size_t i = 0; i < numberOfNodeBasisFunctions; ++i) {
-                    indices[localBasisIndex++] = nodeBasis0 + i;
+        visitElementParts(
+            element, mesh_->dimension(), [&](const Base::MeshEntity *entity) {
+                std::size_t numberOfBasisFunctions =
+                    entity->getLocalNumberOfBasisFunctions(unknown);
+                int offset = getGlobalIndex(entity, unknown);
+                for (int i = 0; i < numberOfBasisFunctions; ++i) {
+                    indices[localBasisIndex++] = offset + i;
                 }
-            }
-        }
+            });
     }
 
     std::size_t expectedNumberOfBasisFunctions = 0;
@@ -225,42 +261,30 @@ void GlobalIndexing::reset(Base::MeshManipulatorBase *mesh, Layout layout,
 void GlobalIndexing::constructUnblocked() {
     // Construct local ordering.
     std::size_t index = 0;
+    // Phase 1:
+    // Assign to each (MeshEntity, unknown) pair the local offset for the
+    // corresponding basis functions. Note that this implies that each basis
+    // function has a local id.
     for (Base::Element *element : mesh_->getElementsList()) {
-        for (std::size_t unknown : includedUnknowns_) {
-            offsets_[unknown].elementOffsets_[element->getID()] = index;
-            index += element->getLocalNumberOfBasisFunctions(unknown);
-        }
-
-        for (Base::Face *face : element->getFacesList()) {
-            if (face->getPtrElementLeft() == element) {
+        visitElementOwnedParts(
+            element, mesh_->dimension(), [&](Base::MeshEntity *entity) {
                 for (std::size_t unknown : includedUnknowns_) {
-                    offsets_[unknown].faceOffsets_[face->getID()] = index;
-                    index += face->getLocalNumberOfBasisFunctions(unknown);
+                    // Obtain a pointer to where the global offset for the
+                    // Entity,unknown pair is stored.
+                    OffsetVisitor visitor(offsets_[unknown]);
+                    entity->accept(visitor);
+                    // Set the local offset
+                    *(visitor.entityOffset_) = index;
+                    index += entity->getLocalNumberOfBasisFunctions(unknown);
                 }
-            }
-        }
-
-        for (Base::Edge *edge : element->getEdgesList()) {
-            if (edge->getElement(0) == element) {
-                for (std::size_t unknown : includedUnknowns_) {
-                    offsets_[unknown].edgeOffsets_[edge->getID()] = index;
-                    index += edge->getLocalNumberOfBasisFunctions(unknown);
-                }
-            }
-        }
-        // Faces and nodes are the same in 1D
-        if (mesh_->dimension() > 1) {
-            for (Base::Node *node : element->getNodesList()) {
-                if (node->getElement(0) == element) {
-                    for (std::size_t unknown : includedUnknowns_) {
-                        offsets_[unknown].nodeOffsets_[node->getID()] = index;
-                        index += node->getLocalNumberOfBasisFunctions(unknown);
-                    }
-                }
-            }
-        }
+            });
     }
     localNumberOfBasisFunctions_ = index;
+
+    // Phase 2:
+    // The local ids for the basis functions overlap (i.e. each process starts
+    // counting from 0). Communicate between the different MPI nodes to get the
+    // offset for this process to make the local ids unique.
 
     // Offset of the first basis function with MPI, for no MPI 0.
     std::size_t mpiOffset = 0;
@@ -285,11 +309,16 @@ void GlobalIndexing::constructUnblocked() {
 #else
     globalNumberOfBasisFunctions_ = localNumberOfBasisFunctions_;
 #endif
+
+    // Phase 3:
+    // Apply the offset to make the basis function ids globally unique
     for (std::size_t unknown = 0; unknown < totalNumberOfUnknowns_; ++unknown) {
         Offsets &offset = offsets_[unknown];
         if (!offset.includedInIndex_) continue;
         offset.setOffset(mpiOffset, 0, localNumberOfBasisFunctions_);
     }
+    // Phase 4:
+    // Communicate the global ids to the neighbouring processors.
     communicatePushPullElements();
 }
 
@@ -297,42 +326,38 @@ void GlobalIndexing::constructBlocked(bool global) {
     std::vector<size_t> numberOfBasisFunctions(totalNumberOfUnknowns_);
     localNumberOfBasisFunctions_ = 0;
 
+    // Phase 1:
+    // Assign to each (MeshEntity, unknown) pair the local offset for the
+    // corresponding basis functions. Note that this implies that each basis
+    // function has a local id.
+
     // Number the local basis functions for each unknown by 0...Nu-1, where Nu
     // is the number of local basis functions for this unknown.
-    //
     for (std::size_t unknown : includedUnknowns_) {
         Offsets &offset = offsets_[unknown];
+        OffsetVisitor visitor(offset);
         std::size_t index = 0;
         for (Base::Element *element : mesh_->getElementsList()) {
-            offset.elementOffsets_[element->getID()] = index;
-            index += element->getLocalNumberOfBasisFunctions(unknown);
-
-            for (Base::Face *face : element->getFacesList()) {
-                if (face->getPtrElementLeft() == element) {
-                    offset.faceOffsets_[face->getID()] = index;
-                    index += face->getLocalNumberOfBasisFunctions(unknown);
-                }
-            }
-
-            for (Base::Edge *edge : element->getEdgesList()) {
-                if (edge->getElement(0) == element) {
-                    offset.edgeOffsets_[edge->getID()] = index;
-                    index += edge->getLocalNumberOfBasisFunctions(unknown);
-                }
-            }
-            // Faces and nodes are the same in 1D
-            if (mesh_->dimension() > 1) {
-                for (Base::Node *node : element->getNodesList()) {
-                    if (node->getElement(0) == element) {
-                        offset.nodeOffsets_[node->getID()] = index;
-                        index += node->getLocalNumberOfBasisFunctions(unknown);
-                    }
-                }
-            }
+            visitElementOwnedParts(
+                element, mesh_->dimension(),
+                [&index, &visitor, unknown](Base::MeshEntity *entity) {
+                    // Obtain a pointer to where the global offset for the
+                    // Entity,unknown pair is stored.
+                    entity->accept(visitor);
+                    // Set the local offset
+                    *(visitor.entityOffset_) = index;
+                    index += entity->getLocalNumberOfBasisFunctions(unknown);
+                });
         }
         numberOfBasisFunctions[unknown] = index;
         localNumberOfBasisFunctions_ += index;
     }
+
+    // Phase 2:
+    // The local ids for the basis functions overlap (i.e. each process starts
+    // counting from 0). Communicate between the different MPI nodes to get the
+    // offset for this process to make the local ids unique. These are applied
+    // directly.
 
 #ifdef HPGEM_USE_MPI
     auto &mpiInstance = Base::MPIContainer::Instance();
@@ -398,6 +423,9 @@ void GlobalIndexing::constructBlocked(bool global) {
     }
     globalNumberOfBasisFunctions_ = offset;
 #endif
+
+    // Phase 3:
+    // Communicate the global ids to the neighbouring processors.
     communicatePushPullElements();
 }
 
@@ -737,13 +765,13 @@ void GlobalIndexing::communicatePushPullElements() {
     // and nodes that:
     //  - border an element in the pushElements list;
     //  - are not owned by the current processor;
-    //  - are not adjacent to an element that is owned by the target
+    //  - are not adjacent to an element that is owned by the entityOffset_
     //    processor.
     // As we own all the elements in the pushElements list, we do have this
     // information after round one. Furthermore, we reduce the amount of
     // messages as much as possible with the second two conditions, for which
-    // the target processor has already received the information in round one.
-    // After sending the information we again receive and process the
+    // the entityOffset_ processor has already received the information in round
+    // one. After sending the information we again receive and process the
     // information send from the other processors.
 
     // Setup //
@@ -756,7 +784,7 @@ void GlobalIndexing::communicatePushPullElements() {
     // till after the send finishes. We therefore store a vector of the raw
     // messages here.
     std::vector<std::vector<std::size_t>> sendMessages(firstRoundSends);
-    // For each target processor, the set of tags that need to be send in
+    // For each entityOffset_ processor, the set of tags that need to be send in
     // the second round.
     std::map<std::size_t, std::set<std::size_t>> secondRound;
 

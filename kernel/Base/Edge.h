@@ -42,6 +42,7 @@
 #include <vector>
 #include <cstdlib>
 
+#include "MeshEntity.h"
 #include "Logger.h"
 #include "TreeEntry.h"
 
@@ -58,7 +59,7 @@ class Element;
  * so they can connect edge-based conforming degrees of freedom to the proper
  * elements. \todo 4D support
  */
-class Edge {
+class Edge : public MeshEntity {
    public:
     explicit Edge(std::size_t ID)
         : numberOfConformingDOFOnTheEdge_(std::vector<std::size_t>(0, 0)),
@@ -70,7 +71,7 @@ class Edge {
 
     void addElement(Element* element, std::size_t edgeNumber);
 
-    std::size_t getLocalNumberOfBasisFunctions() const {
+    std::size_t getLocalNumberOfBasisFunctions() const final {
         std::size_t number = numberOfConformingDOFOnTheEdge_[0];
         for (std::size_t index : numberOfConformingDOFOnTheEdge_)
             logger.assert_debug(
@@ -79,15 +80,16 @@ class Edge {
         return numberOfConformingDOFOnTheEdge_[0];
     }
 
-    std::size_t getLocalNumberOfBasisFunctions(std::size_t unknown) const {
-        // TODO: LC, numberOfConformingDOFOnTheNode_ might be smaller than
-        // the number of unknowns (as that is not known here). Thus we might
-        // index beyond the number of unknowns.
-        if (unknown >= numberOfConformingDOFOnTheEdge_.size()) return 0;
+    std::size_t getLocalNumberOfBasisFunctions(
+        std::size_t unknown) const final {
+        logger.assert_debug(
+            unknown < numberOfConformingDOFOnTheEdge_.size(),
+            "Asked for unknown % with only % unknowns known to the element",
+            unknown, numberOfConformingDOFOnTheEdge_.size());
         return numberOfConformingDOFOnTheEdge_[unknown];
     }
 
-    std::size_t getTotalLocalNumberOfBasisFunctions() const {
+    std::size_t getTotalLocalNumberOfBasisFunctions() const final {
         std::size_t result = 0;
         for (auto nbasis : numberOfConformingDOFOnTheEdge_) result += nbasis;
         return result;
@@ -99,7 +101,9 @@ class Edge {
         return getLocalNumberOfBasisFunctions();
     }
 
-    std::size_t getID() const { return ID_; }
+    std::size_t getID() const final { return ID_; }
+
+    EntityType getType() const final { return EntityType::EDGE; }
 
     ///\deprecated Does not conform naming conventions, use getNumberOfElements
     /// instead
@@ -169,11 +173,17 @@ class Edge {
         return positionInTheTree_;
     }
 
-    bool isOwnedByCurrentProcessor() const;
+    bool isOwnedByCurrentProcessor() const final;
 
     /// The element owning this edge, only valid if the edge is owned by the
     /// current processor
-    Element* getOwningElement() const;
+    const Element* getOwningElement() const final;
+
+    void accept(MeshEntityVisitor& visitor) final { visitor.visit(*this); }
+
+    void accept(ConstMeshEntityVisitor& visitor) const final {
+        visitor.visit(*this);
+    }
 
    private:
     std::vector<Element*> elements_;

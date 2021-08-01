@@ -111,7 +111,7 @@ bool Edge::isOwnedByCurrentProcessor() const {
     return elements_.size() > 0 && elements_[0]->isOwnedByCurrentProcessor();
 }
 
-Element* Edge::getOwningElement() const {
+const Element* Edge::getOwningElement() const {
 #if HPGEM_ASSERTS
     if (!isOwnedByCurrentProcessor()) {
         // This edge is part of the layer of ghost cells around the owned part
