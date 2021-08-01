@@ -149,7 +149,9 @@ class Mesh {
     std::vector<MeshEntity<0, dimension>>& getNodes();
     const std::vector<MeshEntity<0, dimension>>& getNodes() const;
     MeshEntity<0, dimension>& getNode(EntityGId i) { return getNodes()[i.id]; };
-    const MeshEntity<0, dimension>& getNode(EntityGId i) const { return getNodes()[i.id]; };
+    const MeshEntity<0, dimension>& getNode(EntityGId i) const {
+        return getNodes()[i.id];
+    };
     std::size_t getNumberOfNodes() const { return getNodes().size(); }
 
     // Coordinates //
@@ -191,6 +193,30 @@ class Mesh {
         return entityDimension + dimension >= 0
                    ? getEntities<entityDimension>().size()
                    : 0;
+    }
+
+    /**
+     * Get the number of entities of a certain dimension.
+     *
+     * This includes the unused entities (i.e. entities without an attached
+     * element).
+     *
+     * Note the following equivalence should hold for 0 <= i <= dimension
+     * getNumberOfEntities(i) == getNumberOfEntities<i>(), but the latter is
+     * probably slightly faster.
+     *
+     * @param entityDim The dimension of the entity, must be <= dimension
+     * @return The number entities
+     */
+    std::size_t getNumberOfEntities(std::size_t entityDim) const {
+        if (entityDim == dimension) {
+            return elementsList.size();
+        } else {
+            logger.assert_debug(
+                entityDim < dimension,
+                "Asking for entities with dimension higher than the mesh.");
+            return getNumberOfEntities(entityDim, itag<dimension - 1>{});
+        }
     }
 
     // Modifiers //
@@ -325,6 +351,16 @@ class Mesh {
     void removeUnusedEntities(itag<d> dimTag);
     // Base case
     void removeUnusedEntities(itag<-1>){};
+
+    /**
+     * Helper for getNumberOfEntities(std::size_t)
+     * @tparam d The recursion dimension
+     * @param entityDimension The dimension to get the count of
+     * @return The number of entities of entityDimension.
+     */
+    template <int d>
+    std::size_t getNumberOfEntities(std::size_t entityDimension, itag<d>) const;
+    std::size_t getNumberOfEntities(std::size_t, itag<-1>) const { return 0; }
 
     template <std::size_t d>
     void copyEntities(tag<d> dimTag) {

@@ -47,6 +47,7 @@
 #include "LinearAlgebra/SmallVector.h"
 
 #include <array>
+#include <limits>
 #include <memory>
 #include <vector>
 

@@ -238,7 +238,7 @@ void Mesh<dimension>::removeUnusedEntities(itag<d> dimTag) {
     // Fill renumbering with invalid data
     std::size_t currentCount = this->meshEntities[dimTag].size();
     renumbering.resize(currentCount, EntityGId(-1));
-    EntityGId newId = EntityGId (0);
+    EntityGId newId = EntityGId(0);
     // Whether we are actually removing entities
     bool removing = false;
     for (std::size_t i = 0; i < currentCount; ++i) {
@@ -274,6 +274,17 @@ void Mesh<dimension>::removeUnusedEntities(itag<d> dimTag) {
     }
 
     removeUnusedEntities(itag<d - 1>{});
+}
+
+template <std::size_t dimension>
+template <int d>
+inline std::size_t Mesh<dimension>::getNumberOfEntities(std::size_t entityDimension,
+                                                 itag<d> dimtag) const {
+    if (entityDimension == d) {
+        return meshEntities[dimtag].size();
+    } else {
+        return getNumberOfEntities(entityDimension, itag<d-1>{});
+    }
 }
 
 template <std::size_t dimension>

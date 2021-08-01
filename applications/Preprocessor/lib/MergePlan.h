@@ -115,6 +115,15 @@ class MergePlan {
     void executeMerge() { executeMerge(tag<0>{}); }
 
     /**
+     * Exposes the planed merges
+     * @return The planned merges
+     */
+    const std::array<std::vector<EntityMergeGroup>, dimension>& getMerges()
+        const {
+        return merges_;
+    }
+
+    /**
      * \brief Create a merge plan based on pairing coordinates.
      *
      * Create a merge plan based on a pairing of coordinates. Each coordinate
@@ -441,7 +450,7 @@ std::set<EntityGId>
     // Go over all coordinates:
     //   - Find the corresponding node
     //   - Of this node take all adjacent Elements
-    //     - Check if the element uses the given coordinate index for the node.000000000
+    //     - Check if the element uses the given coordinate index for the node
 
     std::set<EntityGId> result;
     for (const auto& pair : pairing) {
