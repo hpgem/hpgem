@@ -278,12 +278,12 @@ void Mesh<dimension>::removeUnusedEntities(itag<d> dimTag) {
 
 template <std::size_t dimension>
 template <int d>
-inline std::size_t Mesh<dimension>::getNumberOfEntities(std::size_t entityDimension,
-                                                 itag<d> dimtag) const {
+inline std::size_t Mesh<dimension>::getNumberOfEntities(
+    std::size_t entityDimension, itag<d> dimtag) const {
     if (entityDimension == d) {
         return meshEntities[dimtag].size();
     } else {
-        return getNumberOfEntities(entityDimension, itag<d-1>{});
+        return getNumberOfEntities(entityDimension, itag<d - 1>{});
     }
 }
 

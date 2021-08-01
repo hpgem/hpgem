@@ -162,9 +162,9 @@ std::vector<EntityLId> Element<dimension>::getLocalIncidenceListAsIndices(
 }
 
 template <std::size_t dimension>
-void Element<dimension>::renumberEntities(std::size_t entityDimension,
-                                          const std::vector<EntityGId>& renumbering) {
-    for(EntityGId& entityId : incidenceLists[entityDimension]) {
+void Element<dimension>::renumberEntities(
+    std::size_t entityDimension, const std::vector<EntityGId>& renumbering) {
+    for (EntityGId& entityId : incidenceLists[entityDimension]) {
         entityId = renumbering[entityId.id];
     }
 }

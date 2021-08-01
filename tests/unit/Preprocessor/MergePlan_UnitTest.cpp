@@ -53,7 +53,7 @@ using namespace Preprocessor;
  */
 template <std::size_t dim>
 void checkRemovedEntityCount(Mesh<dim>& mesh, MergePlan<dim>& plan) {
-    std::array<std::size_t, dim> beforeCounts {};
+    std::array<std::size_t, dim> beforeCounts{};
     for (std::size_t i = 0; i < dim; ++i) {
         beforeCounts[i] = mesh.getNumberOfEntities(i);
     }
