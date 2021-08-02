@@ -60,8 +60,8 @@ PointPath<DIM> parsePath(const std::string& path);
 ///     example: "zones.csv" with as content of the file:
 ///       Silicon*,12.1
 ///       Pore*,1
-///   - An inline version of the filename using where each regex,epsilon pair is
-///     separated by a semicolon.
+///   - An inline version of file based case. In this case the 'regex,epsilon'
+///     pairs are separated by semicolons.
 ///     example (equivalent to the file one): "Silicon*,12.1;Pore*,1"
 ///
 /// \param input The index or file name
