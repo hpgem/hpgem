@@ -196,16 +196,28 @@ std::unique_ptr<ZoneInfoStructureDefinition> readZonedDescription(
                                                          zoneEpsilons);
 }
 
+/**
+ * Tries to parse a string which contains a integer in base 10.
+ * @param input The input string to parse
+ * @param out The parsed number
+ * @return Whether successful, that is whether the whole string was consumed.
+ */
+bool tryParseLong(const std::string& input, long& out) {
+    const char* cinput = input.c_str();
+    char* end;
+    out = std::strtol(cinput, &end, 10);
+    // End points to the first entry after the numerical value, if parsing was
+    // successful this means that the complete string was consumed and the first
+    // character is '\0'.
+    return !*end;
+}
+
 std::unique_ptr<StructureDescription> determineStructureDescription(
     const std::string& input, std::size_t dim) {
 
     // Test to see if the input is a number, by trying to parse it
-    char* end;
-    long value = std::strtol(input.c_str(), &end, 10);
-    if (!*end) {
-        // end pointed to the null terminator of the string -> conversion was
-        // successful. Assume that it is an integer defining a predefined
-        // structure
+    long value;
+    if (tryParseLong(input, value)) {
         DGMaxLogger(INFO, "Using predefined structure %", value);
         return std::make_unique<PredefinedStructureDescription>(
             DGMax::structureFromInt(value), dim);
