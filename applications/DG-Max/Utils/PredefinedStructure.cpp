@@ -140,69 +140,32 @@ double jelmerStructure(const Geometry::PointPhysical<DIM>& pPhys,
         }
         return 1;
 
-    } else if (structureType == PredefinedStructure::CYLINDER) {  // Cylinder
-        // Case with
-        // radius 0.2a
+    } else if (structureType == PredefinedStructure::CYLINDER) {
+        // Cylinder Case with radius 0.2 at (0.5, 0.5)
         if ((pPhys[0] - 0.5) * (pPhys[0] - 0.5) +
                 (pPhys[1] - 0.5) * (pPhys[1] - 0.5) <=
             0.2 * 0.2) {
             return 13;
-            // std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << "
-            // " << epsilon_ << "\n";
         }
         return 1;
-        // std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << "
-        // " << epsilon_ << "\n";
 
-    } else if (structureType ==
-               PredefinedStructure::SQUARE_HOLE) {  // Cube in Cuboid Case with
-        // width of
-        // pilars of 0.1a
+    } else if (structureType == PredefinedStructure::SQUARE_HOLE) {
+        // Cube in Cuboid Case with width of pilars of 0.1a
         if (pPhys[0] < 0.1 || pPhys[0] > 0.9 || pPhys[1] < 0.1 ||
             pPhys[1] > 0.9) {
             return 1;
-            // std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << "
-            // " << epsilon_ << "\n";
         }
         return 13;
-        // std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << "
-        // " << epsilon_ << "\n";
 
     }
 
-    else if (structureType ==
-             PredefinedStructure::INVERSE_WOODPILE_OLD) {  // Inverse Woodpile
+    else if (structureType == PredefinedStructure::INVERSE_WOODPILE_OLD) {
+        // Inverse Woodpile
         // here y has length 10, whereas the lenght of x and y are
         // length(y)/sqrt(2) = 7.07.
         // The first three circles, 2 halves and 1 whole circle, are in x,y
         // plane. The second set of circles, 4 quarters and 1 whole, is in the
         // y,z plane. Diameter of cylinders are 0.19a.
-        /*
-        if((pPhys[0]-0.3535)*(pPhys[0]-0.3535) + (pPhys[1]-0.75)*(pPhys[1]-0.75)
-        <= 0.19*0.19    || (pPhys[0]-0.707)*(pPhys[0]-0.707) +
-        (pPhys[1]-0.25)*(pPhys[1]-0.25) <= 0.19*0.19      ||
-           (pPhys[0])*(pPhys[0]) + (pPhys[1]-0.25)*(pPhys[1]-0.25) <= 0.19*0.19
-        ||
-
-           (pPhys[2]-0.3535)*(pPhys[2]-0.3535) + (pPhys[1]-0.5)*(pPhys[1]-0.5)
-        <= 0.19*0.19      || (pPhys[2])*(pPhys[2]) + (pPhys[1])*(pPhys[1]) <=
-        0.19*0.19                            || (pPhys[2])*(pPhys[2]) +
-        (pPhys[1]-1)*(pPhys[1]-1) <= 0.19*0.19                        ||
-           (pPhys[2]-0.707)*(pPhys[2]-0.707) + (pPhys[1])*(pPhys[1]) ||
-           (pPhys[2]-0.707)*(pPhys[2]-0.707) + (pPhys[1]-1)*(pPhys[1]-1) <=
-        0.19*0.19)
-        {
-            epsilon_ = 13;
-            std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << " "
-        << epsilon_ << "\n";
-        }
-        else
-        {
-            epsilon_ = 1;
-            std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << " "
-        << epsilon_ << "\n";
-        }
-         */
 
         if ((pPhys[2] - 0.3535) * (pPhys[2] - 0.3535) +
                     (pPhys[1] - 0.5) * (pPhys[1] - 0.5) <=
@@ -225,12 +188,8 @@ double jelmerStructure(const Geometry::PointPhysical<DIM>& pPhys,
                     (pPhys[1] - 0.25) * (pPhys[1] - 0.25) <=
                 0.19 * 0.19) {
             return 1;
-            // std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << "
-            // " << epsilon_ << "\n";
         }
         return 13;
-        // std::cout << pPhys[0] << " " << pPhys[1] << " " << pPhys[2]  << "
-        // " << epsilon_ << "\n";
 
     } else if (structureType == PredefinedStructure::INVERSE_WOODPILE_NEW) {
         const double a = 1.414;
