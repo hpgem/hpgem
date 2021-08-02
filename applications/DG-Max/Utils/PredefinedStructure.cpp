@@ -42,14 +42,14 @@ namespace DGMax {
 
 ElementInfos* PredefinedStructureDescription::createElementInfo(
     const Base::Element* element) {
-    switch (dimension) {
+    switch (dimension_) {
         case 2:
             return createElementInfoDim<2>(element);
         case 3:
             return createElementInfoDim<3>(element);
         default:
-            logger.assert_always(false, "Not programmed for dimension %",
-                                 dimension);
+            logger.assert_always(false, "Not implemented for dimension %",
+                                 dimension_);
             return nullptr;
     }
 }

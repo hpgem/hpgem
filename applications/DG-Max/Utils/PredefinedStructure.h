@@ -62,7 +62,7 @@ class PredefinedStructureDescription : public StructureDescription {
    public:
     PredefinedStructureDescription(PredefinedStructure structure,
                                    std::size_t dimension)
-        : structure_(structure), dimension(dimension){};
+        : structure_(structure), dimension_(dimension){};
 
     ElementInfos* createElementInfo(const Base::Element* element) final;
 
@@ -71,7 +71,7 @@ class PredefinedStructureDescription : public StructureDescription {
     ElementInfos* createElementInfoDim(const Base::Element* element) const;
 
     PredefinedStructure structure_;
-    std::size_t dimension;
+    std::size_t dimension_;
 };
 }  // namespace DGMax
 
