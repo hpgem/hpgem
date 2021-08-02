@@ -46,12 +46,14 @@
 namespace hpgem {
 template <std::size_t DIM>
 Output::VTKTimeDependentWriter<DIM>::VTKTimeDependentWriter(
-    std::string baseFileName, Base::MeshManipulator<DIM>* mesh)
+    std::string baseFileName, Base::MeshManipulator<DIM>* mesh,
+    std::size_t polynomialOrder)
     : baseName_(baseFileName),
       mesh_(mesh),
       currentFile_(nullptr),
       time_(0),
-      numberOfFilesWritten_(0) {
+      numberOfFilesWritten_(0),
+      polynomialOrder_(polynomialOrder) {
     logger.assert_debug(mesh != nullptr, "Invalid mesh passed");
     std::size_t id = Base::MPIContainer::Instance().getProcessorID();
     if (id == 0) {
@@ -109,8 +111,8 @@ void Output::VTKTimeDependentWriter<DIM>::write(
         std::string fileName =
             baseName_ + std::to_string(numberOfFilesWritten_);
         numberOfFilesWritten_++;
-        currentFile_ =
-            new VTKSpecificTimeWriter<DIM>{fileName, mesh_, timelevel};
+        currentFile_ = new VTKSpecificTimeWriter<DIM>{
+            fileName, mesh_, timelevel, polynomialOrder_};
         if (fileName.find('/') != std::string::npos) {
             fileName = fileName.substr(fileName.find_last_of('/') + 1);
         }
