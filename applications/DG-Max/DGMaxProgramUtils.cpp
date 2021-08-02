@@ -158,6 +158,12 @@ std::unique_ptr<ZoneInfoStructureDefinition> readZonedDescription(
     std::size_t lineNumber = 0;
     while (!file.eof()) {
         std::getline(file, line, separator);
+        // Discard empty lines
+        if (line.empty()) {
+            continue;
+        }
+        // Find the position of the comma, the separator between the regex and
+        // values.
         std::size_t commaLoc = line.find_last_of(',');
         logger.assert_always(commaLoc != std::string::npos,
                              "No comma found on line %: line", lineNumber,
@@ -165,6 +171,7 @@ std::unique_ptr<ZoneInfoStructureDefinition> readZonedDescription(
         std::string regexStr = line.substr(0, commaLoc);
         std::regex regex(regexStr);
 
+        // Extract the epsilon value
         std::string epsilonStr = line.substr(commaLoc + 1);
         logger.assert_always(!epsilonStr.empty(),
                              "No value after the comma on line %: %",
