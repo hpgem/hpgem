@@ -11,5 +11,5 @@ foreach(CPPFILE ${CPPFILES})
     #Make the exe
     add_executable(${EXECNAME} ${FILENAME})
 
-    target_link_libraries(${EXECNAME} DGMax-lib)
+    target_link_libraries(${EXECNAME} DGMax-lib tests-main)
 endforeach()

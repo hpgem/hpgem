@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2020, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,47 +35,24 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef HPGEM_STRUCTUREDESCRIPTION_H
+#define HPGEM_STRUCTUREDESCRIPTION_H
 
-#ifndef HPGEM_EVTESTPOINT_H
-#define HPGEM_EVTESTPOINT_H
-
-#include <utility>
-#include <vector>
-
-#include "LinearAlgebra/SmallVector.h"
-#include "EVConvergenceResult.h"
-#include "Utils/PredefinedStructure.h"
+#include "Base/Element.h"
+#include "ElementInfos.h"
 
 namespace DGMax {
+using namespace hpgem;
 
-/// A description of a point in a bandstructure that can be used as test for
-/// bandstructure eigenvalue solvers. The given information is, combined with a
-/// unit cell sufficient to determine the frequency of the bands.
-///
-/// \tparam DIM The dimension in which the problem is situated.
-template <std::size_t DIM>
-class EVTestPoint {
+/// Strategy pattern to assign material information to elements
+class StructureDescription {
    public:
-    EVTestPoint(const LinearAlgebra::SmallVector<DIM>& kpoint,
-                PredefinedStructure structureId, size_t numberOfEigenvalues)
-        : kpoint_(kpoint),
-          structureId_(structureId),
-          numberOfEigenvalues_(numberOfEigenvalues) {}
-
-    const LinearAlgebra::SmallVector<DIM>& getKPoint() const {
-        return kpoint_;
-    };
-
-    PredefinedStructure getStructureId() const { return structureId_; }
-
-    std::size_t getNumberOfEigenvalues() const { return numberOfEigenvalues_; }
-
-   private:
-    LinearAlgebra::SmallVector<DIM> kpoint_;
-    PredefinedStructure structureId_;
-    std::size_t numberOfEigenvalues_;
+    virtual ~StructureDescription() = default;
+    /// Create an element info for the element
+    /// \param element The element to create it for
+    /// \return A new ElementInfo, the caller should ensure it is cleaned up
+    virtual ElementInfos* createElementInfo(const Base::Element* element) = 0;
 };
-
 }  // namespace DGMax
 
-#endif  // HPGEM_EVTESTPOINT_H
+#endif  // HPGEM_STRUCTUREDESCRIPTION_H

@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2020, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,47 +35,19 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef HPGEM_EVTESTPOINT_H
-#define HPGEM_EVTESTPOINT_H
-
-#include <utility>
-#include <vector>
-
-#include "LinearAlgebra/SmallVector.h"
-#include "EVConvergenceResult.h"
-#include "Utils/PredefinedStructure.h"
-
+#include "ZoneStructureDescription.h"
 namespace DGMax {
 
-/// A description of a point in a bandstructure that can be used as test for
-/// bandstructure eigenvalue solvers. The given information is, combined with a
-/// unit cell sufficient to determine the frequency of the bands.
-///
-/// \tparam DIM The dimension in which the problem is situated.
-template <std::size_t DIM>
-class EVTestPoint {
-   public:
-    EVTestPoint(const LinearAlgebra::SmallVector<DIM>& kpoint,
-                PredefinedStructure structureId, size_t numberOfEigenvalues)
-        : kpoint_(kpoint),
-          structureId_(structureId),
-          numberOfEigenvalues_(numberOfEigenvalues) {}
-
-    const LinearAlgebra::SmallVector<DIM>& getKPoint() const {
-        return kpoint_;
-    };
-
-    PredefinedStructure getStructureId() const { return structureId_; }
-
-    std::size_t getNumberOfEigenvalues() const { return numberOfEigenvalues_; }
-
-   private:
-    LinearAlgebra::SmallVector<DIM> kpoint_;
-    PredefinedStructure structureId_;
-    std::size_t numberOfEigenvalues_;
-};
-
+ElementInfos *ZoneInfoStructureDefinition::createElementInfo(
+    const Base::Element *element) {
+    auto &zone = element->getZone();
+    int index = zone.matchName(regexes_);
+    if (index >= 0) {
+        return new ElementInfos(epsilons_[index]);
+    } else {
+        logger.assert_always(!std::isnan(defaultEpsilon_), "Unmatched zone '%'",
+                             zone.getName());
+        return new ElementInfos(defaultEpsilon_);
+    }
+}
 }  // namespace DGMax
-
-#endif  // HPGEM_EVTESTPOINT_H

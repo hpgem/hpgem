@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2020, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,47 +35,44 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef HPGEM_PREDEFINEDSTRUCTURE_H
+#define HPGEM_PREDEFINEDSTRUCTURE_H
 
-#ifndef HPGEM_EVTESTPOINT_H
-#define HPGEM_EVTESTPOINT_H
-
-#include <utility>
-#include <vector>
-
-#include "LinearAlgebra/SmallVector.h"
-#include "EVConvergenceResult.h"
-#include "Utils/PredefinedStructure.h"
+#include "StructureDescription.h"
 
 namespace DGMax {
 
-/// A description of a point in a bandstructure that can be used as test for
-/// bandstructure eigenvalue solvers. The given information is, combined with a
-/// unit cell sufficient to determine the frequency of the bands.
-///
-/// \tparam DIM The dimension in which the problem is situated.
-template <std::size_t DIM>
-class EVTestPoint {
-   public:
-    EVTestPoint(const LinearAlgebra::SmallVector<DIM>& kpoint,
-                PredefinedStructure structureId, size_t numberOfEigenvalues)
-        : kpoint_(kpoint),
-          structureId_(structureId),
-          numberOfEigenvalues_(numberOfEigenvalues) {}
-
-    const LinearAlgebra::SmallVector<DIM>& getKPoint() const {
-        return kpoint_;
-    };
-
-    PredefinedStructure getStructureId() const { return structureId_; }
-
-    std::size_t getNumberOfEigenvalues() const { return numberOfEigenvalues_; }
-
-   private:
-    LinearAlgebra::SmallVector<DIM> kpoint_;
-    PredefinedStructure structureId_;
-    std::size_t numberOfEigenvalues_;
+// Predefined structures
+enum class PredefinedStructure : std::size_t {
+    VACUUM = 0,
+    BRAGG_STACK = 1,           // [-inf,0.5] material 1, [0.5, inf] material 2
+    CYLINDER = 2,              // Cylinder at x,y (0.5, 0.5) radius 0.2
+    SQUARE_HOLE = 3,           // Square hole for x,y in [0.1, 0.9] x [0.1, 0.9]
+    INVERSE_WOODPILE_OLD = 4,  // Old IW definition with a=1, c=1/sqrt(2)
+    INVERSE_WOODPILE_NEW = 5,  // New IW definition with a=sqrt(2),c=1
 };
 
+/// 'Parse' an integer to a PredefinedStructure
+PredefinedStructure structureFromInt(std::size_t value);
+
+/// Some predefined structures.
+///
+/// Both for historical meshes without zone information and structured meshes
+class PredefinedStructureDescription : public StructureDescription {
+   public:
+    PredefinedStructureDescription(PredefinedStructure structure,
+                                   std::size_t dimension)
+        : structure_(structure), dimension_(dimension){};
+
+    ElementInfos* createElementInfo(const Base::Element* element) final;
+
+   private:
+    template <std::size_t DIM>
+    ElementInfos* createElementInfoDim(const Base::Element* element) const;
+
+    PredefinedStructure structure_;
+    std::size_t dimension_;
+};
 }  // namespace DGMax
 
-#endif  // HPGEM_EVTESTPOINT_H
+#endif  // HPGEM_PREDEFINEDSTRUCTURE_H
