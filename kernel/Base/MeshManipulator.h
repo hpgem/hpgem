@@ -108,6 +108,8 @@ class MeshManipulator : public MeshManipulatorBase {
 
     ~MeshManipulator() override;
 
+    void clearBasisFunctionAssignment();
+
     /// creates some cheap, easy to construct basis function set (monomials) to
     /// use as a placeholder Note that they usually result in very badly
     /// conditioned matrices.
@@ -349,14 +351,6 @@ class MeshManipulator : public MeshManipulatorBase {
     }
     // ************************************************************************
 
-    //! Changes the default set of basisFunctions for this mesh and all of its
-    //! elements. Ignores any conforming basisFunctionset that may be linked to
-    //! faces/edges/...
-    /// Using this to set the hpGEM provided conforming or DG basis functions is
-    /// deprecated: The routines useDefaultDGBasisFunctionSet and
-    /// useDefaultConformingBasisFunctionSet can do this more flexibly and also
-    /// support mixed meshes
-    void setDefaultBasisFunctionSet(FE::BasisFunctionSet* bFSet);
 
     //! Adds vertex based degrees of freedom to the set of basisfunctions for
     //! this mesh and all of its vertices. This routine will assume that the
