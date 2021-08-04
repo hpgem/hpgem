@@ -43,18 +43,19 @@
 #include "Base/H1ConformingTransformation.h"
 #include "Base/MeshManipulator.h"
 #include "Integration/ElementIntegral.h"
+#include "Output/VTKSpecificTimeWriter.h"
 #include "Utilities/GlobalIndexing.h"
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
+
+#include "L2ProjectionErrorQualityMetric.h"
 
 #include "Logger.h"
 
 using namespace hpgem;
 
 auto& name = Base::register_argument<std::string>(
-    'n', "meshName", "name of the mesh file", true);
-auto& polynomialOrder = Base::register_argument<std::size_t>(
-    'p', "order", "polynomial order of the solution", true);
+    'm', "meshFile", "name of the mesh file", true);
 
 template <std::size_t>
 void runWithDimension();
@@ -73,6 +74,9 @@ int main(int argc, char** argv) {
     return 0;
 }
 
+template <std::size_t dim>
+std::vector<std::unique_ptr<QualityMetricComputation<dim>>> getMetrics(const Base::MeshManipulator<dim>& mesh);
+
 template <std::size_t DIM>
 void runTestsWithDGBasis(Base::MeshManipulator<DIM>& mesh);
 template <std::size_t DIM>
@@ -86,8 +90,21 @@ void runWithDimension() {
     Base::MeshManipulator<DIM> mesh(&configData, 1, 1, 1, 1);
     mesh.readMesh(name.getValue());
 
-    runTestsWithDGBasis(mesh);
-    runTestsWithConformingBasis(mesh);
+    std::vector<std::unique_ptr<QualityMetricComputation<DIM>>> metrics =
+        getMetrics<DIM>(mesh);
+    Output::VTKSpecificTimeWriter<DIM> plotter("meshQuality", &mesh);
+    for (auto& metric : metrics) {
+        metric->computeAndPlotMetric(mesh, plotter);
+    }
+}
+
+template <std::size_t DIM>
+double testingFunction(const Geometry::PointPhysical<DIM>& p) {
+    double functionValue = 0;
+    for (std::size_t i = 0; i < DIM; ++i) {
+        functionValue += (i + 1) * p[i];
+    }
+    return functionValue;
 }
 
 template <std::size_t DIM>
@@ -121,7 +138,7 @@ void runTestsWithDGBasis(Base::MeshManipulator<DIM>& mesh) {
                         mat(j, i) = mat(i, j);
                     }
                 }
-                return 1.0;
+                return mat;
             });
         element->setElementMatrix(mat, ELEM_MAT_ID);
         // Compute source vector
@@ -134,10 +151,7 @@ void runTestsWithDGBasis(Base::MeshManipulator<DIM>& mesh) {
                 // x + 2y + 3z etc.
                 const Geometry::PointPhysical<DIM>& p =
                     pelement.getPointPhysical();
-                double functionValue = 0;
-                for (std::size_t i = 0; i < DIM; ++i) {
-                    functionValue += (i + 1) * p[i];
-                }
+                double functionValue = testingFunction(p);
                 for (std::size_t i = 0; i < n; ++i) {
                     vec[i] = functionValue * pelement.basisFunction(i);
                 }
@@ -147,9 +161,9 @@ void runTestsWithDGBasis(Base::MeshManipulator<DIM>& mesh) {
     }
     // Setup global system
     Utilities::GlobalIndexing indexing(&mesh);
-    Utilities::GlobalPetscMatrix massMatrix (indexing, ELEM_MAT_ID, -1);
-    Utilities::GlobalPetscVector loadVector (indexing, ELEM_VEC_ID, -1);
-    Utilities::GlobalPetscVector resultVector (indexing, -1, -1);
+    Utilities::GlobalPetscMatrix massMatrix(indexing, ELEM_MAT_ID, -1);
+    Utilities::GlobalPetscVector loadVector(indexing, ELEM_VEC_ID, -1);
+    Utilities::GlobalPetscVector resultVector(indexing, -1, -1);
     // Solve system
     KSP ksp;
     KSPCreate(PETSC_COMM_WORLD, &ksp);
@@ -158,10 +172,95 @@ void runTestsWithDGBasis(Base::MeshManipulator<DIM>& mesh) {
     KSPSetOperators(ksp, massMatrix, massMatrix);
     KSPSolve(ksp, loadVector, resultVector);
 
+    // Reserve time integration vector
+    for (Base::Element* element : mesh.getElementsList()) {
+        element->setNumberOfTimeIntegrationVectors(1);
+    }
     // Computing the error
     resultVector.writeTimeIntegrationVector(0);
 
-    for (Base::Element* element : mesh.getElementsList()) {
+    std::map<const Base::Element*, double> errors;
 
+    for (Base::Element* element : mesh.getElementsList()) {
+        LinearAlgebra::MiddleSizeVector coefficients =
+            element->getTimeIntegrationVector(0);
+
+        double localError = integral.integrate(
+            element, [&coefficients](Base::PhysicalElement<DIM>& pelement) {
+                std::size_t n = pelement.getNumberOfBasisFunctions();
+                const Geometry::PointPhysical<DIM>& p =
+                    pelement.getPointPhysical();
+                LinearAlgebra::MiddleSizeVector::type error =
+                    testingFunction(p);
+                for (std::size_t i = 0; i < n; ++i) {
+                    error -= coefficients[i] * pelement.basisFunction(i);
+                }
+                double result = std::real(error) * std::real(error);
+                result += std::imag(error) * std::imag(error);
+                return result;
+            });
+        errors[element] = localError;
     }
+
+    // Plotting
+    Output::VTKSpecificTimeWriter<DIM> writer("meshquality", &mesh);
+    writer.write(
+        [&errors](Base::Element* element, const Geometry::PointReference<DIM>&,
+                  std::size_t) { return errors[element]; },
+        "error");
+}
+
+template <std::size_t dim>
+std::vector<std::unique_ptr<QualityMetricComputation<dim>>> getMetrics(const Base::MeshManipulator<dim>& mesh) {
+    std::vector<std::unique_ptr<QualityMetricComputation<dim>>> metrics;
+
+    // L2-projection for exp(ik.x), using both dg and cg basis functions. When
+    // using real computations we need two source functions, one for the real
+    // and one for the imaginary part.
+    {
+        using Function =
+            typename L2ProjectionErrorQualityMetric<dim>::TestingFunction;
+        std::vector<Function> functions;
+        LinearAlgebra::SmallVector<dim> k;
+        // Compute k such that we have exactly 1 period over the mesh bounding box
+        LinearAlgebra::SmallVector<dim> minVec, maxVec;
+        minVec.set(std::numeric_limits<double>::max());
+        maxVec.set(std::numeric_limits<double>::min());
+        for(const Geometry::PointPhysical<dim>& p : mesh.getNodeCoordinates()) {
+            for(std::size_t i = 0; i < dim; ++i) {
+                minVec[i] = std::min(minVec[i], p[i]);
+                maxVec[i] = std::max(maxVec[i], p[i]);
+            }
+        }
+        k = maxVec - minVec;
+        for(std::size_t i = 0; i < dim; ++i) {
+            k[i] = 2*M_PI/k[i];
+        }
+
+#ifdef HPGEM_USE_COMPLEX_PETSC
+        functions.push_back([&k](const Geometry::PointPhysical<dim>& p) {
+            return std::exp(std::complex<double>(0, p.getCoordinates() * k));
+        });
+#else
+        functions.push_back([&k](const Geometry::PointPhysical<dim>& p) {
+            return std::cos(p.getCoordinates() * k);
+        });
+        functions.push_back([&k](const Geometry::PointPhysical<dim>& p) {
+            return std::sin(p.getCoordinates() * k);
+        });
+#endif
+        using BFType =
+            typename L2ProjectionErrorQualityMetric<dim>::BasisFunctionType;
+
+        metrics.emplace_back(new L2ProjectionErrorQualityMetric<dim>(
+            BFType::DISCONTINUOUS, 1, "L2-projection-dg1", functions));
+        metrics.emplace_back(new L2ProjectionErrorQualityMetric<dim>(
+            BFType::CONFORMING, 1, "L2-projection-cg1", functions));
+        metrics.emplace_back(new L2ProjectionErrorQualityMetric<dim>(
+            BFType::DISCONTINUOUS, 2, "L2-projection-dg2", functions));
+        metrics.emplace_back(new L2ProjectionErrorQualityMetric<dim>(
+            BFType::CONFORMING, 2, "L2-projection-cg2", functions));
+    }
+
+    return metrics;
 }
