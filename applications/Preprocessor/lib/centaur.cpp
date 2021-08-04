@@ -43,7 +43,7 @@
 #include "centaur.h"
 #include "Logger.h"
 #include "FortranUnformattedFile.h"
-#include "SparseUnionFind.h"
+#include "utils/SparseUnionFind.h"
 
 namespace Preprocessor {
 

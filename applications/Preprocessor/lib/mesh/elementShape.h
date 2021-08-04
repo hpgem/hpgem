@@ -45,8 +45,8 @@
 #include <vector>
 #include "Logger.h"
 
-#include "tag.h"
-#include "TemplateArray.h"
+#include "utils/tag.h"
+#include "utils/TemplateArray.h"
 
 namespace Preprocessor {
 
@@ -409,6 +409,6 @@ class ElementShape<0> {
 
 }  // namespace Preprocessor
 
-#include <elementShape_impl.h>
+#include "elementShape_impl.h"
 
 #endif  // HPGEM_APP_ELEMENTSHAPE_H

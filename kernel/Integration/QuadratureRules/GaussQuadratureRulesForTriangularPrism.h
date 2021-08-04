@@ -75,32 +75,6 @@ class TriPrism_1_1 : public GaussQuadratureRule {
 };
 
 //---------------------------------------------------------------------------
-class TriPrism_3_8 : public GaussQuadratureRule {
-   public:
-    static TriPrism_3_8& Instance() {
-        static TriPrism_3_8 theInstance;
-        return theInstance;
-    }
-    TriPrism_3_8(const TriPrism_3_8&) = delete;
-
-    std::string getName() const final;
-    std::size_t order() const final;
-    std::size_t dimension() const final;
-    std::size_t getNumberOfPoints() const final;
-    double weight(std::size_t i) const final;
-    const Geometry::PointReferenceBase& getPoint(std::size_t i) const final;
-    Geometry::ReferenceGeometry* forReferenceGeometry() const final;
-
-   private:
-    TriPrism_3_8();
-
-    const std::string name_;
-    double weight_[8];
-    Geometry::ReferenceGeometry* const refGeoPtr_;
-    std::vector<Geometry::PointReference<3>> gp_;
-};
-
-//---------------------------------------------------------------------------
 class TriPrism_5_21 : public GaussQuadratureRule {
    public:
     static TriPrism_5_21& Instance() {

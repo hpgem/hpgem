@@ -35,23 +35,19 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_ELEMENTSHAPES_H
-#define HPGEM_ELEMENTSHAPES_H
+#include "ZoneStructureDescription.h"
+namespace DGMax {
 
-#include "elementShape.h"
-#include "TemplateArray.h"
-
-namespace Preprocessor {
-
-namespace Detail {
-// Alias to have a template type that directly depends on the dimension
-template <std::size_t dimension>
-using ShapePointerVec = std::vector<const ElementShape<dimension>*>;
-}  // namespace Detail
-
-/// Listing of all ElementShapes defined in hpGEM
-extern const TemplateArray<4, Detail::ShapePointerVec> hpgemShapes;
-
-}  // namespace Preprocessor
-
-#endif  // HPGEM_ELEMENTSHAPES_H
+ElementInfos *ZoneInfoStructureDefinition::createElementInfo(
+    const Base::Element *element) {
+    auto &zone = element->getZone();
+    int index = zone.matchName(regexes_);
+    if (index >= 0) {
+        return new ElementInfos(epsilons_[index]);
+    } else {
+        logger.assert_always(!std::isnan(defaultEpsilon_), "Unmatched zone '%'",
+                             zone.getName());
+        return new ElementInfos(defaultEpsilon_);
+    }
+}
+}  // namespace DGMax
