@@ -58,12 +58,13 @@ class L2ProjectionErrorQualityMetric
 
     // Timeintegration vector to use for the solution
     const std::size_t SOLUTION_VECTOR_ID = 0;
+    // Type of the value from solutions, may be complex.
+    using VALUE_TYPE = hpgem::LinearAlgebra::MiddleSizeVector::type;
 
    public:
     // Note: We may have complex valued functions
-    using ValueType = hpgem::LinearAlgebra::MiddleSizeVector::type;
-    using TestingFunction = std::function<ValueType(
-        const hpgem::Geometry::PointPhysical<dimension>&)>;
+    using TestingFunction =
+        std::function<double(const hpgem::Geometry::PointPhysical<dimension>&)>;
 
     enum class BasisFunctionType { DISCONTINUOUS, CONFORMING };
 
@@ -92,7 +93,7 @@ class L2ProjectionErrorQualityMetric
         std::size_t functionId, hpgem::Base::Element* element,
         hpgem::Integration::ElementIntegral<dimension>& integral);
 
-    double computeLocalError(
+    VALUE_TYPE computeLocalError(
         std::size_t functionId, hpgem::Base::Element* element,
         const hpgem ::Geometry::PointReference<dimension>& p);
 
@@ -185,14 +186,33 @@ void L2ProjectionErrorQualityMetric<dimension>::computeAndPlotMetric(
             elementErrorSquared[element] +=
                 computeElementError(i, element, integral);
         }
+
+        // Plot the error of each individual function
+        std::stringstream errorName;
+        errorName << name_ << "-error-" << i;
+        plotter.write(
+            [&](Base::Element* element,
+                const Geometry::PointReference<dimension>& p, std::size_t) {
+                LinearAlgebra::MiddleSizeVector coefficients =
+                    element->getTimeIntegrationVector(SOLUTION_VECTOR_ID);
+                double value = 0;
+                for (std::size_t i = 0; i < coefficients.size(); ++i) {
+                    value += std::real(coefficients[i]) *
+                             element->basisFunction(i, p);
+                }
+                value -= std::real(
+                    testingFunctions_[i](element->referenceToPhysical(p)));
+                return value;
+            },
+            errorName.str());
     }
+
     // Plot the result
     plotter.write(
         [&elementErrorSquared](
             Base::Element* element, const Geometry::PointReference<dimension>&,
             std::size_t) { return std::sqrt(elementErrorSquared[element]); },
         name_);
-    
 }
 
 template <std::size_t dimension>
@@ -206,7 +226,7 @@ hpgem::LinearAlgebra::MiddleSizeVector
         element, [&](Base::PhysicalElement<dimension>& pelement) {
             LinearAlgebra::MiddleSizeVector result(
                 pelement.getTotalNumberOfBasisFunctions());
-            ValueType functionValue =
+            double functionValue =
                 testingFunctions_[functionId](pelement.getPointPhysical());
             for (std::size_t i = 0; i < result.size(); ++i) {
                 result[i] = functionValue * pelement.basisFunction(i);
@@ -223,8 +243,11 @@ double L2ProjectionErrorQualityMetric<dimension>::computeElementError(
     double error = integral.integrate(
         element,
         [&](Base::PhysicalElement<dimension>& pelement) {
-            return computeLocalError(functionId, element,
-                                     pelement.getPointReference());
+            VALUE_TYPE localError = computeLocalError(
+                functionId, element, pelement.getPointReference());
+            // When using complex petsc the error may include imaginary part.
+            return std::real(localError) * std::real(localError) +
+                   std::imag(localError) * std::imag(localError);
         },
         // Higher quadrature order than needed to improve accuracy
         QuadratureRules::AllGaussQuadratureRules::instance().getRule(
@@ -233,25 +256,25 @@ double L2ProjectionErrorQualityMetric<dimension>::computeElementError(
 }
 
 template <std::size_t dimension>
-double L2ProjectionErrorQualityMetric<dimension>::computeLocalError(
-    std::size_t functionId, hpgem::Base::Element* element,
-    const hpgem ::Geometry::PointReference<dimension>& p) {
+typename L2ProjectionErrorQualityMetric<dimension>::VALUE_TYPE
+    L2ProjectionErrorQualityMetric<dimension>::computeLocalError(
+        std::size_t functionId, hpgem::Base::Element* element,
+        const hpgem ::Geometry::PointReference<dimension>& p) {
     using namespace hpgem;
 
-    ;
-
-    ValueType error =
+    VALUE_TYPE error =
         testingFunctions_[functionId](element->getReferenceToPhysicalMap()
                                           ->castDimension<dimension>()
                                           .transform(p));
     LinearAlgebra::MiddleSizeVector& coefficients =
         element->getTimeIntegrationVector(SOLUTION_VECTOR_ID);
     for (std::size_t i = 0; i < coefficients.size(); ++i) {
-        error -= coefficients[i] * element->basisFunction(i, p);
+        double phi_i = element->basisFunction(i, p);
+
+        error -= coefficients[i] * phi_i;
     }
     // In case complex valued
-    return std::real(error) * std::real(error) +
-           std::imag(error) * std::imag(error);
+    return error;
 }
 
 #endif  // HPGEM_L2PROJECTIONERRORQUALITYMETRIC_H

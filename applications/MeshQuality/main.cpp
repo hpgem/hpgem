@@ -49,6 +49,7 @@
 #include "Utilities/GlobalVector.h"
 
 #include "L2ProjectionErrorQualityMetric.h"
+#include "SIPGErrorQualityMetric.h"
 
 #include "Logger.h"
 
@@ -75,7 +76,8 @@ int main(int argc, char** argv) {
 }
 
 template <std::size_t dim>
-std::vector<std::unique_ptr<QualityMetricComputation<dim>>> getMetrics(const Base::MeshManipulator<dim>& mesh);
+std::vector<std::unique_ptr<QualityMetricComputation<dim>>> getMetrics(
+    const Base::MeshManipulator<dim>& mesh);
 
 template <std::size_t DIM>
 void runTestsWithDGBasis(Base::MeshManipulator<DIM>& mesh);
@@ -92,7 +94,7 @@ void runWithDimension() {
 
     std::vector<std::unique_ptr<QualityMetricComputation<DIM>>> metrics =
         getMetrics<DIM>(mesh);
-    Output::VTKSpecificTimeWriter<DIM> plotter("meshQuality", &mesh);
+    Output::VTKSpecificTimeWriter<DIM> plotter("meshQuality", &mesh, 0, 2);
     for (auto& metric : metrics) {
         metric->computeAndPlotMetric(mesh, plotter);
     }
@@ -211,7 +213,32 @@ void runTestsWithDGBasis(Base::MeshManipulator<DIM>& mesh) {
 }
 
 template <std::size_t dim>
-std::vector<std::unique_ptr<QualityMetricComputation<dim>>> getMetrics(const Base::MeshManipulator<dim>& mesh) {
+class SinCosFunc : public Func<dim> {
+
+   public:
+    SinCosFunc(LinearAlgebra::SmallVector<dim>& k, bool sinFunc)
+        : k_(k), sinFunc_(sinFunc){};
+
+    double value(const Geometry::PointPhysical<dim>& p) const final {
+        if (sinFunc_) {
+            return std::sin(p.getCoordinates() * k_);
+        } else {
+            return std::cos(p.getCoordinates() * k_);
+        }
+    }
+
+    double laplacian(const Geometry::PointPhysical<dim>& p) const final {
+        return -k_.l2NormSquared() * value(p);
+    }
+
+   private:
+    bool sinFunc_;
+    LinearAlgebra::SmallVector<dim> k_;
+};
+
+template <std::size_t dim>
+std::vector<std::unique_ptr<QualityMetricComputation<dim>>> getMetrics(
+    const Base::MeshManipulator<dim>& mesh) {
     std::vector<std::unique_ptr<QualityMetricComputation<dim>>> metrics;
 
     // L2-projection for exp(ik.x), using both dg and cg basis functions. When
@@ -222,33 +249,29 @@ std::vector<std::unique_ptr<QualityMetricComputation<dim>>> getMetrics(const Bas
             typename L2ProjectionErrorQualityMetric<dim>::TestingFunction;
         std::vector<Function> functions;
         LinearAlgebra::SmallVector<dim> k;
-        // Compute k such that we have exactly 1 period over the mesh bounding box
+        // Compute k such that we have exactly 1 period over the mesh bounding
+        // box
         LinearAlgebra::SmallVector<dim> minVec, maxVec;
         minVec.set(std::numeric_limits<double>::max());
         maxVec.set(std::numeric_limits<double>::min());
-        for(const Geometry::PointPhysical<dim>& p : mesh.getNodeCoordinates()) {
-            for(std::size_t i = 0; i < dim; ++i) {
+        for (const Geometry::PointPhysical<dim>& p :
+             mesh.getNodeCoordinates()) {
+            for (std::size_t i = 0; i < dim; ++i) {
                 minVec[i] = std::min(minVec[i], p[i]);
                 maxVec[i] = std::max(maxVec[i], p[i]);
             }
         }
         k = maxVec - minVec;
-        for(std::size_t i = 0; i < dim; ++i) {
-            k[i] = 2*M_PI/k[i];
+        for (std::size_t i = 0; i < dim; ++i) {
+            k[i] = 2 * M_PI / k[i];
         }
 
-#ifdef HPGEM_USE_COMPLEX_PETSC
-        functions.push_back([&k](const Geometry::PointPhysical<dim>& p) {
-            return std::exp(std::complex<double>(0, p.getCoordinates() * k));
-        });
-#else
-        functions.push_back([&k](const Geometry::PointPhysical<dim>& p) {
+        functions.push_back([k](const Geometry::PointPhysical<dim>& p) {
             return std::cos(p.getCoordinates() * k);
         });
-        functions.push_back([&k](const Geometry::PointPhysical<dim>& p) {
+        functions.push_back([k](const Geometry::PointPhysical<dim>& p) {
             return std::sin(p.getCoordinates() * k);
         });
-#endif
         using BFType =
             typename L2ProjectionErrorQualityMetric<dim>::BasisFunctionType;
 
@@ -260,6 +283,13 @@ std::vector<std::unique_ptr<QualityMetricComputation<dim>>> getMetrics(const Bas
             BFType::DISCONTINUOUS, 2, "L2-projection-dg2", functions));
         metrics.emplace_back(new L2ProjectionErrorQualityMetric<dim>(
             BFType::CONFORMING, 2, "L2-projection-cg2", functions));
+
+        metrics.template emplace_back(new SIPGErrorQualityMetric<dim>(
+            1, "SIPG-linear",
+            std::vector<std::shared_ptr<Func<dim>>>({
+                std::make_shared<SinCosFunc<dim>>(k, true),
+                std::make_shared<SinCosFunc<dim>>(k, false),
+            })));
     }
 
     return metrics;
