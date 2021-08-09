@@ -50,7 +50,8 @@ class QualityMetricComputation {
     virtual ~QualityMetricComputation() = default;
     virtual void computeAndPlotMetric(
         hpgem::Base::MeshManipulator<dimension>& mesh,
-        hpgem::Output::VTKSpecificTimeWriter<dimension>& plotter) = 0;
+        hpgem::Output::VTKSpecificTimeWriter<dimension>& plotter,
+        const std::string& filePrefix) = 0;
 };
 
 #endif  // HPGEM_QUALITYMETRICCOMPUTATION_H

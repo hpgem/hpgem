@@ -78,7 +78,8 @@ class L2ProjectionErrorQualityMetric
 
     void computeAndPlotMetric(
         hpgem::Base::MeshManipulator<dimension>& mesh,
-        hpgem::Output::VTKSpecificTimeWriter<dimension>& plotter) final;
+        hpgem::Output::VTKSpecificTimeWriter<dimension>& plotter,
+        const std::string& filePrefix) final;
 
     void setTestingFunctions(std::vector<TestingFunction> functions) {
         testingFunctions_ = std::move(functions);
@@ -106,13 +107,15 @@ class L2ProjectionErrorQualityMetric
 template <std::size_t dimension>
 void L2ProjectionErrorQualityMetric<dimension>::computeAndPlotMetric(
     hpgem::Base::MeshManipulator<dimension>& mesh,
-    hpgem::Output::VTKSpecificTimeWriter<dimension>& plotter) {
+    hpgem::Output::VTKSpecificTimeWriter<dimension>& plotter,
+    const std::string& filePrefix) {
 
     if (testingFunctions_.empty()) {
         return;
     }
-
     using namespace hpgem;
+
+    logger(INFO, "Setting up L2-projection-%", name_);
 
     std::map<const Base::Element*, double> elementErrorSquared;
 
@@ -170,15 +173,24 @@ void L2ProjectionErrorQualityMetric<dimension>::computeAndPlotMetric(
     Utilities::GlobalPetscVector resultVector(indexing, -1, -1);
     KSP ksp;
     KSPCreate(PETSC_COMM_WORLD, &ksp);
-    KSPSetType(ksp, KSPPREONLY);
+    KSPSetType(ksp, KSPCG);
+    KSPSetTolerances(ksp, 1e-12, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
+
+    std::stringstream detailPlotFile;
+    detailPlotFile << filePrefix << name_;
+    Output::VTKSpecificTimeWriter<dimension> detailPlotter(detailPlotFile.str(),
+                                                           &mesh, 0, order_);
 
     // Compute the element error for each test function
     for (std::size_t i = 0; i < testingFunctions_.size(); ++i) {
+        logger(INFO, "Creating sources for %-%", name_, i);
+
         for (Base::Element* element : mesh.getElementsList()) {
             element->setElementVector(
                 computeElementVector(i, element, integral), ELEM_VEC_ID);
         }
         loadVector.reinit();
+        logger(INFO, "Solving for %-%", name_, i);
         KSPSetOperators(ksp, massMatrix, massMatrix);
         KSPSolve(ksp, loadVector, resultVector);
         resultVector.writeTimeIntegrationVector(SOLUTION_VECTOR_ID);
@@ -187,22 +199,15 @@ void L2ProjectionErrorQualityMetric<dimension>::computeAndPlotMetric(
                 computeElementError(i, element, integral);
         }
 
+        logger(INFO, "Creating output for %-%", name_, i);
+
         // Plot the error of each individual function
         std::stringstream errorName;
         errorName << name_ << "-error-" << i;
-        plotter.write(
+        detailPlotter.write(
             [&](Base::Element* element,
                 const Geometry::PointReference<dimension>& p, std::size_t) {
-                LinearAlgebra::MiddleSizeVector coefficients =
-                    element->getTimeIntegrationVector(SOLUTION_VECTOR_ID);
-                double value = 0;
-                for (std::size_t i = 0; i < coefficients.size(); ++i) {
-                    value += std::real(coefficients[i]) *
-                             element->basisFunction(i, p);
-                }
-                value -= std::real(
-                    testingFunctions_[i](element->referenceToPhysical(p)));
-                return value;
+                return std::real(computeLocalError(i, element, p));
             },
             errorName.str());
     }

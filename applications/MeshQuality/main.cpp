@@ -37,6 +37,7 @@
  */
 
 #include <chrono>
+#include <random>
 #include "petsc.h"
 
 #include "Base/CommandLineOptions.h"
@@ -94,9 +95,9 @@ void runWithDimension() {
 
     std::vector<std::unique_ptr<QualityMetricComputation<DIM>>> metrics =
         getMetrics<DIM>(mesh);
-    Output::VTKSpecificTimeWriter<DIM> plotter("meshQuality", &mesh, 0, 2);
+    Output::VTKSpecificTimeWriter<DIM> plotter("meshQuality", &mesh, 0, 1);
     for (auto& metric : metrics) {
-        metric->computeAndPlotMetric(mesh, plotter);
+        metric->computeAndPlotMetric(mesh, plotter, "meshQuality-");
     }
 }
 
@@ -216,14 +217,14 @@ template <std::size_t dim>
 class SinCosFunc : public Func<dim> {
 
    public:
-    SinCosFunc(LinearAlgebra::SmallVector<dim>& k, bool sinFunc)
-        : k_(k), sinFunc_(sinFunc){};
+    SinCosFunc(LinearAlgebra::SmallVector<dim>& k, double phase, bool sinFunc)
+        : k_(k), sinFunc_(sinFunc), phase_ (phase){};
 
     double value(const Geometry::PointPhysical<dim>& p) const final {
         if (sinFunc_) {
-            return std::sin(p.getCoordinates() * k_);
+            return std::sin(p.getCoordinates() * k_ + phase_);
         } else {
-            return std::cos(p.getCoordinates() * k_);
+            return std::cos(p.getCoordinates() * k_ + phase_);
         }
     }
 
@@ -234,6 +235,20 @@ class SinCosFunc : public Func<dim> {
    private:
     bool sinFunc_;
     LinearAlgebra::SmallVector<dim> k_;
+    double phase_;
+};
+
+template <std::size_t dim>
+class TestingFunc : public Func<dim> {
+   public:
+    double value(const Geometry::PointPhysical<dim>& p) const final {
+        return p[0] * (1 - p[0]) * p[1] * (1 - p[1]);
+        //        return 1.0;
+    }
+    double laplacian(const Geometry::PointPhysical<dim>& p) const final {
+        return -2 * (p[0] * (1 - p[0]) + p[1] * (1 - p[1]));
+        //        return -0.0;
+    }
 };
 
 template <std::size_t dim>
@@ -241,9 +256,8 @@ std::vector<std::unique_ptr<QualityMetricComputation<dim>>> getMetrics(
     const Base::MeshManipulator<dim>& mesh) {
     std::vector<std::unique_ptr<QualityMetricComputation<dim>>> metrics;
 
-    // L2-projection for exp(ik.x), using both dg and cg basis functions. When
-    // using real computations we need two source functions, one for the real
-    // and one for the imaginary part.
+    // L2-projection for exp(ik.x), using both dg and cg basis functions.  Split
+    // over two source functions, sin and cos.
     {
         using Function =
             typename L2ProjectionErrorQualityMetric<dim>::TestingFunction;
@@ -262,8 +276,11 @@ std::vector<std::unique_ptr<QualityMetricComputation<dim>>> getMetrics(
             }
         }
         k = maxVec - minVec;
+        double maxK = 0.0;
         for (std::size_t i = 0; i < dim; ++i) {
-            k[i] = 2 * M_PI / k[i];
+            double value = 2 * M_PI / k[i];
+            k[i] = value;
+            maxK = std::max(value, maxK);
         }
 
         functions.push_back([k](const Geometry::PointPhysical<dim>& p) {
@@ -284,12 +301,27 @@ std::vector<std::unique_ptr<QualityMetricComputation<dim>>> getMetrics(
         metrics.emplace_back(new L2ProjectionErrorQualityMetric<dim>(
             BFType::CONFORMING, 2, "L2-projection-cg2", functions));
 
-        metrics.template emplace_back(new SIPGErrorQualityMetric<dim>(
-            1, "SIPG-linear",
-            std::vector<std::shared_ptr<Func<dim>>>({
-                std::make_shared<SinCosFunc<dim>>(k, true),
-                std::make_shared<SinCosFunc<dim>>(k, false),
-            })));
+        // Several pairs of the form {sin(kx), cos(kx)} for different k.
+
+        const std::size_t NUM_DIRECTIONS = 5;
+        std::vector<std::shared_ptr<Func<dim>>> sipgFunctions;
+
+        std::mt19937 generator;  // Use fixed default seed
+        std::uniform_real_distribution<double> distribution(-1.0, 1.0);
+
+        for (std::size_t i = 0; i < NUM_DIRECTIONS; ++i) {
+            LinearAlgebra::SmallVector<dim> localK;
+            for (std::size_t j = 0; j < dim; ++j) {
+                localK[j] = 2 * maxK * distribution(generator);
+            }
+            double phase = M_PI*distribution(generator);
+            sipgFunctions.push_back(
+                std::make_shared<SinCosFunc<dim>>(localK, phase, true));
+            sipgFunctions.push_back(
+                std::make_shared<SinCosFunc<dim>>(localK, phase, false));
+        }
+        metrics.emplace_back(
+            new SIPGErrorQualityMetric<dim>(1, "SIPG-linear", sipgFunctions));
     }
 
     return metrics;
