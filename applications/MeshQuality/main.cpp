@@ -303,7 +303,7 @@ std::vector<std::unique_ptr<QualityMetricComputation<dim>>> getMetrics(
 
         // Several pairs of the form {sin(kx), cos(kx)} for different k.
 
-        const std::size_t NUM_DIRECTIONS = 5;
+        const std::size_t NUM_DIRECTIONS = 10;
         std::vector<std::shared_ptr<Func<dim>>> sipgFunctions;
 
         std::mt19937 generator;  // Use fixed default seed

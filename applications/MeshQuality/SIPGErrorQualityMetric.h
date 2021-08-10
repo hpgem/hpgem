@@ -59,12 +59,6 @@ class Func {
 
 template <std::size_t dimension>
 class SIPGErrorQualityMetric : public GlobalSolveQualityMetric<dimension> {
-    // Timeintegration vector to use for the solution
-    const std::size_t SOLUTION_VECTOR_ID = 0;
-    const std::size_t ELEMENT_MATRIX = 0;
-    const std::size_t ELEMENT_VECTOR = 0;
-    const std::size_t FACE_MATRIX = 0;
-    const std::size_t FACE_VECTOR = 0;
     // Generally 10 is sufficient, just a bit more to be safe
     const double PENALTY_CONSTANT = 10;
 
@@ -143,10 +137,10 @@ void SIPGErrorQualityMetric<dimension>::computeLocalMatrices(
 
     for (Base::Element* element : mesh.getElementsList()) {
         element->setElementMatrix(computeElementMatrix(element),
-                                  ELEMENT_MATRIX);
+                                  this->ELEMENT_MATRIX_ID);
     }
     for (Base::Face* face : mesh.getFacesList()) {
-        face->setFaceMatrix(computeFaceMatrix(face), FACE_MATRIX);
+        face->setFaceMatrix(computeFaceMatrix(face), this->FACE_MATRIX_ID);
     }
 }
 
@@ -156,10 +150,10 @@ void SIPGErrorQualityMetric<dimension>::computeLocalVectors(
     using namespace hpgem;
     for (Base::Element* element : mesh.getElementsList()) {
         element->setElementVector(computeElementVector(solve, element),
-                                  ELEMENT_VECTOR);
+                                  this->ELEMENT_VECTOR_ID);
     }
     for (Base::Face* face : mesh.getFacesList()) {
-        face->setFaceVector(computeFaceVector(solve, face), FACE_VECTOR);
+        face->setFaceVector(computeFaceVector(solve, face), this->FACE_VECTOR_ID);
     }
 }
 
@@ -280,7 +274,7 @@ double SIPGErrorQualityMetric<dimension>::computeSolutionValue(
 
     VALUE_TYPE value = 0.0;
     LinearAlgebra::MiddleSizeVector& coefficients =
-        element->getTimeIntegrationVector(SOLUTION_VECTOR_ID);
+        element->getTimeIntegrationVector(this->SOLUTION_VECTOR_ID);
     for (std::size_t i = 0; i < coefficients.size(); ++i) {
         double phi_i = element->basisFunction(i, p);
 
