@@ -307,14 +307,18 @@ std::vector<std::unique_ptr<QualityMetricComputation<dim>>> getMetrics(
         std::vector<std::shared_ptr<Func<dim>>> sipgFunctions;
 
         std::mt19937 generator;  // Use fixed default seed
-        std::uniform_real_distribution<double> distribution(-1.0, 1.0);
+        std::uniform_real_distribution<double> phaseDistribution(-M_PI, M_PI);
+        std::normal_distribution<double> directionDistribution;
 
         for (std::size_t i = 0; i < NUM_DIRECTIONS; ++i) {
             LinearAlgebra::SmallVector<dim> localK;
+            // Create a random direction on the sphere
             for (std::size_t j = 0; j < dim; ++j) {
-                localK[j] = 2 * maxK * distribution(generator);
+                localK[j] = directionDistribution(generator);
             }
-            double phase = M_PI*distribution(generator);
+            localK /= localK.l2Norm();
+            localK *= 2 * maxK;
+            double phase = phaseDistribution(generator);
             sipgFunctions.push_back(
                 std::make_shared<SinCosFunc<dim>>(localK, phase, true));
             sipgFunctions.push_back(

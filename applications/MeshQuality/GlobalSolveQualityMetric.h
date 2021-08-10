@@ -199,11 +199,7 @@ void GlobalSolveQualityMetric<dim>::computeAndPlotMetric(
     KSPSetFromOptions(ksp);
     KSPSetUp(ksp);
 
-    // vtk output for more detailes beyong the regular error.
-    std::stringstream detailPlotFile;
-    detailPlotFile << filePrefix << name_;
-    Output::VTKSpecificTimeWriter<dim> detailPlotter(detailPlotFile.str(),
-                                                     &mesh, 0, order_);
+    std::map<const Base::Element*, double> totalElementErrorSquared;
     std::map<const Base::Element*, double> elementErrorSquared;
 
     for (std::size_t sid = 0; sid < numberOfSolves(); ++sid) {
@@ -237,57 +233,60 @@ void GlobalSolveQualityMetric<dim>::computeAndPlotMetric(
 
         resultVector.writeTimeIntegrationVector(SOLUTION_VECTOR_ID);
         for (Base::Element* element : mesh.getElementsList()) {
-            elementErrorSquared[element] +=
-                computeElementSquareError(sid, element);
+            double error = computeElementSquareError(sid, element);
+            totalElementErrorSquared[element] += error;
+            elementErrorSquared[element] = error;
         }
 
         // Plot details
+
+        std::stringstream detailPlotFile;
+        detailPlotFile << filePrefix << name_ << "-" << sid;
+        Output::VTKSpecificTimeWriter<dim> detailPlotter(detailPlotFile.str(),
+                                                         &mesh, 0, order_);
+
         // The solution
-        {
-            std::stringstream solutionName;
-            solutionName << name_ << "-" << sid << "-solution";
-            detailPlotter.write(
-                [&sid, this](Base::Element* element,
-                             const Geometry::PointReference<dim>& p,
-                             std::size_t) {
-                    return computeSolutionValue(element, p);
-                },
-                solutionName.str());
-        }
+        detailPlotter.write(
+            [&sid, this](Base::Element* element,
+                         const Geometry::PointReference<dim>& p, std::size_t) {
+                return computeSolutionValue(element, p);
+            },
+            "solution");
         // The original function
-        {
-            std::stringstream functionName;
-            functionName << name_ << "-" << sid << "-function";
-            detailPlotter.write(
-                [&sid, this](Base::Element* element,
-                             const Geometry::PointReference<dim>& p,
-                             std::size_t) {
-                    return computeFunctionValue(
-                        sid, element->referenceToPhysical(p));
-                },
-                functionName.str());
-        }
+        detailPlotter.write(
+            [&sid, this](Base::Element* element,
+                         const Geometry::PointReference<dim>& p, std::size_t) {
+                return computeFunctionValue(sid,
+                                            element->referenceToPhysical(p));
+            },
+            "function");
         // The error in the solution
-        {
-            std::stringstream errorName;
-            errorName << name_ << "-" << sid << "-error";
-            detailPlotter.write(
-                [&sid, this](Base::Element* element,
-                             const Geometry::PointReference<dim>& p,
-                             std::size_t) {
-                    double error = computeSolutionValue(element, p);
-                    error -= computeFunctionValue(
-                        sid, element->referenceToPhysical(p));
-                    return error;
-                },
-                errorName.str());
-        }
+        detailPlotter.write(
+            [&sid, this](Base::Element* element,
+                         const Geometry::PointReference<dim>& p, std::size_t) {
+                double error = computeSolutionValue(element, p);
+                error -=
+                    computeFunctionValue(sid, element->referenceToPhysical(p));
+                return error;
+            },
+            "error");
+
+        // Local error
+        detailPlotter.write(
+            [&elementErrorSquared](Base::Element* element,
+                                   const Geometry::PointReference<dim>&,
+                                   std::size_t) {
+                return std::sqrt(elementErrorSquared[element]);
+            },
+            "elementError");
     }
     // Plot the error in the result
     plotter.write(
-        [&elementErrorSquared](
-            Base::Element* element, const Geometry::PointReference<dim>&,
-            std::size_t) { return std::sqrt(elementErrorSquared[element]); },
+        [&totalElementErrorSquared](Base::Element* element,
+                                    const Geometry::PointReference<dim>&,
+                                    std::size_t) {
+            return std::sqrt(totalElementErrorSquared[element]);
+        },
         name_);
 }
 
