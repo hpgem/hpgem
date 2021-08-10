@@ -58,7 +58,7 @@ class Func {
 };
 
 template <std::size_t dimension>
-class SIPGErrorQualityMetric : public QualityMetricComputation<dimension> {
+class SIPGErrorQualityMetric : public GlobalSolveQualityMetric<dimension> {
     // Timeintegration vector to use for the solution
     const std::size_t SOLUTION_VECTOR_ID = 0;
     const std::size_t ELEMENT_MATRIX = 0;
@@ -74,200 +74,102 @@ class SIPGErrorQualityMetric : public QualityMetricComputation<dimension> {
     SIPGErrorQualityMetric(
         std::size_t order, std::string name,
         std::vector<std::shared_ptr<Func<dimension>>> functions)
-        : order_(order), name_(name), functions_(functions){};
+        : GlobalSolveQualityMetric<dimension>(order, std::move(name)),
+          functions_(functions) {
 
-    void computeAndPlotMetric(
-        hpgem::Base::MeshManipulator<dimension>& mesh,
-        hpgem::Output::VTKSpecificTimeWriter<dimension>& plotter,
-        const std::string& filePrefix) final;
+        auto transform = std::make_shared<
+            hpgem::Base::H1ConformingTransformation<dimension>>();
+
+        elementIntegrator_.setTransformation(transform);
+        faceIntegrator_.setTransformation(transform);
+    };
+
+   protected:
+    bool usesFaceMatrixAndVector() const final { return true; }
+    std::size_t numberOfSolves() const final { return functions_.size(); }
+
+    void computeLocalMatrices(
+        hpgem::Base::MeshManipulator<dimension>& mesh) final;
+    void computeLocalVectors(
+        std::size_t solve,
+        hpgem::Base::MeshManipulator<dimension>& mesh) final;
+
+    virtual double computeSolutionValue(
+        hpgem::Base::Element* element,
+        const hpgem::Geometry::PointReference<dimension>& p) const final;
+    virtual double computeFunctionValue(
+        std::size_t solve,
+        const hpgem::Geometry::PointPhysical<dimension>& p) const final {
+        return functions_[solve]->value(p);
+    }
+    virtual hpgem::Integration::ElementIntegral<dimension>&
+        getIntegrator() final {
+        return elementIntegrator_;
+    }
 
    private:
-    double computeElementError(
-        std::size_t functionId, hpgem::Base::Element* element,
-        hpgem::Integration::ElementIntegral<dimension>& integral);
-
+    // The element matrix with the term
+    // integral(grad phi_i . grad phi_j)
     hpgem::LinearAlgebra::MiddleSizeMatrix computeElementMatrix(
-        hpgem::Base::Element* element,
-        hpgem::Integration::ElementIntegral<dimension>& integral);
+        hpgem::Base::Element* element);
 
+    // Element vector integral(phi_i f)
     hpgem::LinearAlgebra::MiddleSizeVector computeElementVector(
-        std::size_t functionId, hpgem::Base::Element* element,
-        hpgem::Integration::ElementIntegral<dimension>& integral);
+        std::size_t functionId, hpgem::Base::Element* element);
 
+    // Face matrix
+    // integral( -{{grad phi_i}} . [[phi_j]] - [[phi_i]] . {{grad phi_j}}
+    //           + alpha/h [[phi_i]] [[phi_j]])
     hpgem::LinearAlgebra::MiddleSizeMatrix computeFaceMatrix(
-        hpgem::Base::Face* face,
-        hpgem::Integration::FaceIntegral<dimension>& integral);
+        hpgem::Base::Face* face);
 
+    // Face vector:
+    // Internal faces: 0
+    // Boundary faces integral( f(-grad phi_i . n + alpha/h phi_i))
     hpgem::LinearAlgebra::MiddleSizeVector computeFaceVector(
-        std::size_t functionId, hpgem::Base::Face* face,
-        hpgem::Integration::FaceIntegral<dimension>& integral);
+        std::size_t functionId, hpgem::Base::Face* face);
 
-    VALUE_TYPE computeSolutionValue(
-        hpgem::Base::Element* element,
-        const hpgem ::Geometry::PointReference<dimension>& p);
-
-    std::size_t order_;
-    std::string name_;
     std::vector<std::shared_ptr<Func<dimension>>> functions_;
+    hpgem::Integration::ElementIntegral<dimension> elementIntegrator_;
+    hpgem::Integration::FaceIntegral<dimension> faceIntegrator_;
 };
 
 template <std::size_t dimension>
-void SIPGErrorQualityMetric<dimension>::computeAndPlotMetric(
-    hpgem::Base::MeshManipulator<dimension>& mesh,
-    hpgem::Output::VTKSpecificTimeWriter<dimension>& plotter,
-    const std::string& filePrefix) {
-    if (functions_.empty()) {
-        return;
-    }
-
+void SIPGErrorQualityMetric<dimension>::computeLocalMatrices(
+    hpgem::Base::MeshManipulator<dimension>& mesh) {
     using namespace hpgem;
 
-    logger(INFO, "Setting up %", name_);
+    mesh.useDefaultDGBasisFunctions(this->getOrder());
 
-    std::map<const Base::Element*, double> elementErrorSquared;
-    mesh.useDefaultDGBasisFunctions(order_);
-
-    Integration::ElementIntegral<dimension> integral;
-    integral.setTransformation(
-        std::make_shared<Base::H1ConformingTransformation<dimension>>());
-
-    // Set up matrices
-
-    // Element matrix = grad phi_i . grad phi_j
     for (Base::Element* element : mesh.getElementsList()) {
-        element->setNumberOfTimeIntegrationVectors(1);
-        element->setElementMatrix(computeElementMatrix(element, integral),
+        element->setElementMatrix(computeElementMatrix(element),
                                   ELEMENT_MATRIX);
-        // Temporary vector to make assembly easier
-        LinearAlgebra::MiddleSizeVector tempVec(
-            element->getTotalNumberOfBasisFunctions());
-        element->setElementVector(tempVec, ELEMENT_VECTOR);
     }
-    // Face matrix
-
-    Integration::FaceIntegral<dimension> faceIntegral;
-    faceIntegral.setTransformation(
-        std::make_shared<Base::H1ConformingTransformation<dimension>>());
-    // Face matrix -{{grad phi_i}}[[phi_j]] -[[phi_j]]{{grad phi_i}}
-    //   + alpha/h [[phi_i]] [[phi_j]]
     for (Base::Face* face : mesh.getFacesList()) {
-        face->setFaceMatrix(computeFaceMatrix(face, faceIntegral), FACE_MATRIX);
-        // Temporary
-        face->setFaceVector(
-            LinearAlgebra::MiddleSizeVector(face->getNumberOfBasisFunctions()),
-            FACE_VECTOR);
+        face->setFaceMatrix(computeFaceMatrix(face), FACE_MATRIX);
     }
+}
 
-    // Preparation: Set up the global solver
-    Utilities::GlobalIndexing indexing(&mesh);
-    Utilities::GlobalPetscMatrix stiffnessMatrix(indexing, ELEMENT_MATRIX,
-                                                 FACE_MATRIX);
-    Utilities::GlobalPetscVector loadVector(indexing, ELEMENT_VECTOR,
-                                            FACE_VECTOR);
-    Utilities::GlobalPetscVector resultVector(indexing, -1, -1);
-    KSP ksp;
-    KSPCreate(PETSC_COMM_WORLD, &ksp);
-    KSPSetType(ksp, KSPGMRES);
-    KSPSetOperators(ksp, stiffnessMatrix, stiffnessMatrix);
-    KSPSetTolerances(ksp, 1e-12, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
-    KSPSetFromOptions(ksp);
-
-    std::stringstream detailPlotFile;
-    detailPlotFile << filePrefix << name_;
-    Output::VTKSpecificTimeWriter<dimension> detailPlotter(detailPlotFile.str(),
-                                                           &mesh, 0, order_);
-
-    for (std::size_t fid = 0; fid < functions_.size(); ++fid) {
-        // Compute local parts of the load vector
-
-        logger(INFO, "Creating source for %-%", name_, fid);
-
-        // Element vector = phi_i . j
-        for (Base::Element* element : mesh.getElementsList()) {
-            element->setElementVector(
-                computeElementVector(fid, element, integral), ELEMENT_VECTOR);
-        }
-        // Face vector (alpha/h[[phi_j]] . n - {{grad phi_j}}) . g
-        for (Base::Face* face : mesh.getFacesList()) {
-            face->setFaceVector(computeFaceVector(fid, face, faceIntegral),
-                                FACE_VECTOR);
-        }
-        // Assemble load vector & solve the system
-        loadVector.reinit();
-
-        logger(INFO, "Solving for %-%", name_, fid);
-
-        KSPSolve(ksp, loadVector, resultVector);
-        resultVector.writeTimeIntegrationVector(SOLUTION_VECTOR_ID);
-
-        KSPConvergedReason reason;
-        KSPGetConvergedReason(ksp, &reason);
-        if (reason > 0) {
-            logger(INFO, "Converged with reason %", reason);
-        } else {
-            logger(WARN, "Unconverged with reason %", reason);
-        }
-
-        logger(INFO, "Outputting for %-%", name_, fid);
-
-        for (Base::Element* element : mesh.getElementsList()) {
-            elementErrorSquared[element] +=
-                computeElementError(fid, element, integral);
-        }
-
-        // Plot the error of each individual function
-        std::stringstream errorName;
-        errorName << name_ << "-error-" << fid;
-        detailPlotter.write(
-            [&](Base::Element* element,
-                const Geometry::PointReference<dimension>& p, std::size_t) {
-                double error = std::real(computeSolutionValue(element, p));
-                error -=
-                    functions_[fid]->value(element->referenceToPhysical(p));
-                return error;
-            },
-            errorName.str());
-
-        // Solution
-        std::stringstream solutionName;
-        solutionName << name_ << "-solution-" << fid;
-        detailPlotter.write(
-            [&](Base::Element* element,
-                const Geometry::PointReference<dimension>& p, std::size_t) {
-                return std::real(computeSolutionValue(element, p));
-            },
-            solutionName.str());
-
-        // Function
-        std::stringstream funcName;
-        funcName << name_ << "-func-" << fid;
-        detailPlotter.write(
-            [&](Base::Element* element,
-                const Geometry::PointReference<dimension>& pref,
-                std::size_t) -> double {
-                Geometry::PointPhysical<dimension> phys =
-                    element->referenceToPhysical(pref);
-                return functions_[fid]->value(phys);
-            },
-            funcName.str());
+template <std::size_t dimension>
+void SIPGErrorQualityMetric<dimension>::computeLocalVectors(
+    std::size_t solve, hpgem::Base::MeshManipulator<dimension>& mesh) {
+    using namespace hpgem;
+    for (Base::Element* element : mesh.getElementsList()) {
+        element->setElementVector(computeElementVector(solve, element),
+                                  ELEMENT_VECTOR);
     }
-
-    // Plot the result
-    plotter.write(
-        [&elementErrorSquared](
-            Base::Element* element, const Geometry::PointReference<dimension>&,
-            std::size_t) { return std::sqrt(elementErrorSquared[element]); },
-        name_);
+    for (Base::Face* face : mesh.getFacesList()) {
+        face->setFaceVector(computeFaceVector(solve, face), FACE_VECTOR);
+    }
 }
 
 template <std::size_t dimension>
 hpgem::LinearAlgebra::MiddleSizeMatrix
     SIPGErrorQualityMetric<dimension>::computeElementMatrix(
-        hpgem::Base::Element* element,
-        hpgem::Integration::ElementIntegral<dimension>& integral) {
+        hpgem::Base::Element* element) {
     using namespace hpgem;
 
-    return integral.integrate(
+    return elementIntegrator_.integrate(
         element, [](Base::PhysicalElement<dimension>& pelement) {
             std::size_t n = pelement.getNumberOfBasisFunctions();
             LinearAlgebra::MiddleSizeMatrix mat(n, n);
@@ -284,10 +186,9 @@ hpgem::LinearAlgebra::MiddleSizeMatrix
 template <std::size_t dimension>
 hpgem::LinearAlgebra::MiddleSizeVector
     SIPGErrorQualityMetric<dimension>::computeElementVector(
-        std::size_t functionId, hpgem::Base::Element* element,
-        hpgem::Integration::ElementIntegral<dimension>& integral) {
+        std::size_t functionId, hpgem::Base::Element* element) {
     using namespace hpgem;
-    return integral.integrate(
+    return elementIntegrator_.integrate(
         element, [&](Base::PhysicalElement<dimension>& pelement) {
             std::size_t n = pelement.getNumberOfBasisFunctions();
             LinearAlgebra::MiddleSizeVector vec(n);
@@ -303,112 +204,78 @@ hpgem::LinearAlgebra::MiddleSizeVector
 template <std::size_t dimension>
 hpgem::LinearAlgebra::MiddleSizeMatrix
     SIPGErrorQualityMetric<dimension>::computeFaceMatrix(
-        hpgem::Base::Face* face,
-        hpgem::Integration::FaceIntegral<dimension>& integral) {
+        hpgem::Base::Face* face) {
     using namespace hpgem;
 
-    return integral.integrate(face, [&](Base::PhysicalFace<dimension>& pface) {
-        std::size_t n = face->getNumberOfBasisFunctions();
-        LinearAlgebra::MiddleSizeMatrix mat(n, n);
-        for (std::size_t i = 0; i < n; ++i) {
-            // normal_i phi_i is computed at point p, the result is stored in
-            // phiNormalI.
-            const LinearAlgebra::SmallVector<dimension>& phiNormalI =
-                pface.basisFunctionUnitNormal(i);
-            // The gradient of basisfunction phi_i is computed at point p, the
-            // result is stored in phiDerivI.
-            const LinearAlgebra::SmallVector<dimension>& phiDerivI =
-                pface.basisFunctionDeriv(i);
+    return faceIntegrator_.integrate(
+        face, [&](Base::PhysicalFace<dimension>& pface) {
+            std::size_t n = face->getNumberOfBasisFunctions();
+            LinearAlgebra::MiddleSizeMatrix mat(n, n);
+            for (std::size_t i = 0; i < n; ++i) {
+                const LinearAlgebra::SmallVector<dimension>& phiNormalI =
+                    pface.basisFunctionUnitNormal(i);
+                const LinearAlgebra::SmallVector<dimension>& phiDerivI =
+                    pface.basisFunctionDeriv(i);
 
-            for (std::size_t j = 0; j < n; ++j) {
-                // normal_j phi_j is computed at point p, the result is stored
-                // in phiNormalJ.
-                const LinearAlgebra::SmallVector<dimension>& phiNormalJ =
-                    pface.basisFunctionUnitNormal(j);
-                // The gradient of basisfunction phi_j is computed at point p,
-                // the result is stored in phiDerivJ.
-                const LinearAlgebra::SmallVector<dimension>& phiDerivJ =
-                    pface.basisFunctionDeriv(j);
+                for (std::size_t j = 0; j < n; ++j) {
+                    const LinearAlgebra::SmallVector<dimension>& phiNormalJ =
+                        pface.basisFunctionUnitNormal(j);
+                    const LinearAlgebra::SmallVector<dimension>& phiDerivJ =
+                        pface.basisFunctionDeriv(j);
 
-                // Switch to the correct type of face, and compute the integrand
-                // accordingly you could also compute the integrandVal by
-                // directly using face->basisFunctionDeriv and
-                // face->basisFunctionNormal in the following lines, but this
-                // results in very long expressions Internal face:
-                if (face->isInternal()) {
-                    mat(j, i) =
-                        -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI) / 2 +
-                        PENALTY_CONSTANT / face->getDiameter() * phiNormalI *
-                            phiNormalJ;
-                } else {
-                    mat(j, i) =
-                        -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI) +
-                        PENALTY_CONSTANT / face->getDiameter() * phiNormalI *
-                            phiNormalJ;
+                    if (face->isInternal()) {
+                        mat(j, i) =
+                            -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI) /
+                                2 +
+                            PENALTY_CONSTANT / face->getDiameter() *
+                                phiNormalI * phiNormalJ;
+                    } else {
+                        mat(j, i) =
+                            -(phiNormalI * phiDerivJ + phiNormalJ * phiDerivI) +
+                            PENALTY_CONSTANT / face->getDiameter() *
+                                phiNormalI * phiNormalJ;
+                    }
                 }
             }
-        }
-        return mat;
-    });
+            return mat;
+        });
 }
 
 template <std::size_t dimension>
 hpgem::LinearAlgebra::MiddleSizeVector
     SIPGErrorQualityMetric<dimension>::computeFaceVector(
-        std::size_t functionId, hpgem::Base::Face* face,
-        hpgem::Integration::FaceIntegral<dimension>& integral) {
+        std::size_t functionId, hpgem::Base::Face* face) {
     using namespace hpgem;
     if (face->isInternal()) {
         return LinearAlgebra::MiddleSizeVector(
             face->getNumberOfBasisFunctions());
     }
 
-    return integral.integrate(face, [&](Base::PhysicalFace<dimension>& pface) {
-        std::size_t n = pface.getNumberOfBasisFunctions();
-        LinearAlgebra::MiddleSizeVector vec(n);
+    return faceIntegrator_.integrate(
+        face, [&](Base::PhysicalFace<dimension>& pface) {
+            std::size_t n = pface.getNumberOfBasisFunctions();
+            LinearAlgebra::MiddleSizeVector vec(n);
 
-        double fvalue = functions_[functionId]->value(pface.getPointPhysical());
-        const LinearAlgebra::SmallVector<dimension>& normal =
-            pface.getUnitNormalVector();
-        for (std::size_t i = 0; i < n; ++i) {
-            vec(i) += fvalue * (
-                                   // Symmetry term
-                                   -pface.basisFunctionDeriv(i) * normal +
-                                   // Penalty term
-                                   PENALTY_CONSTANT / face->getDiameter() *
-                                       pface.basisFunction(i));
-        }
-        return vec;
-    });
+            double fvalue =
+                functions_[functionId]->value(pface.getPointPhysical());
+            const LinearAlgebra::SmallVector<dimension>& normal =
+                pface.getUnitNormalVector();
+            for (std::size_t i = 0; i < n; ++i) {
+                vec(i) += fvalue * (
+                                       // Symmetry term
+                                       -pface.basisFunctionDeriv(i) * normal +
+                                       // Penalty term
+                                       PENALTY_CONSTANT / face->getDiameter() *
+                                           pface.basisFunction(i));
+            }
+            return vec;
+        });
 }
 
 template <std::size_t dimension>
-double SIPGErrorQualityMetric<dimension>::computeElementError(
-    std::size_t functionId, hpgem::Base::Element* element,
-    hpgem::Integration::ElementIntegral<dimension>& integral) {
-    using namespace hpgem;
-    double error = integral.integrate(
-        element,
-        [&](Base::PhysicalElement<dimension>& pelement) {
-            VALUE_TYPE localError = computeSolutionValue(
-                element, pelement.getPointReference());
-            localError -=
-                functions_[functionId]->value(pelement.getPointPhysical());
-            // When using complex petsc the error may include imaginary part.
-            return std::real(localError) * std::real(localError) +
-                   std::imag(localError) * std::imag(localError);
-        },
-        // Higher quadrature order than needed to improve accuracy
-        QuadratureRules::AllGaussQuadratureRules::instance().getRule(
-            element->getReferenceGeometry(), 2 * order_ + 4));
-    return error;
-}
-
-template <std::size_t dimension>
-typename SIPGErrorQualityMetric<dimension>::VALUE_TYPE
-    SIPGErrorQualityMetric<dimension>::computeSolutionValue(
-        hpgem::Base::Element* element,
-        const hpgem::Geometry::PointReference<dimension>& p) {
+double SIPGErrorQualityMetric<dimension>::computeSolutionValue(
+    hpgem::Base::Element* element,
+    const hpgem::Geometry::PointReference<dimension>& p) const {
     using namespace hpgem;
 
     VALUE_TYPE value = 0.0;
@@ -420,7 +287,7 @@ typename SIPGErrorQualityMetric<dimension>::VALUE_TYPE
         value += coefficients[i] * phi_i;
     }
     // In case complex valued
-    return value;
+    return std::real(value);
 }
 
 #endif  // HPGEM_SIPGERRORQUALITYMETRIC_H
