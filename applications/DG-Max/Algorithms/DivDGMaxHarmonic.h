@@ -43,6 +43,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "DivDGMaxDiscretization.h"
 
+#include <Output/VTKSpecificTimeWriter.h>
+
 using namespace hpgem;
 
 template <std::size_t DIM>
@@ -55,6 +57,7 @@ class DivDGMaxHarmonic {
                typename DivDGMaxDiscretization<DIM>::Stab stab,
                std::size_t order);
     void writeTec(std::string fileName) const;
+    void writeVTK(Output::VTKSpecificTimeWriter<DIM>& output) const;
     // TODO: Error computation and tec-plot writing
     double computeL2Error(
         const typename DivDGMaxDiscretization<DIM>::InputFunction&

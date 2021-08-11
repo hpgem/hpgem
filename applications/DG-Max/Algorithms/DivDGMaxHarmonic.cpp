@@ -119,6 +119,61 @@ void DivDGMaxHarmonic<DIM>::solve(
 }
 
 template <std::size_t DIM>
+void DivDGMaxHarmonic<DIM>::writeVTK(
+    Output::VTKSpecificTimeWriter<DIM>& output) const {
+
+    using Fields = typename DivDGMaxDiscretization<DIM>::Fields;
+
+    // 4 fields to output, Ereal, Eimag, preal, pcomplex
+    output.write(
+        [this](Base::Element* element,
+               const Geometry::PointReference<DIM>& point, std::size_t) {
+            LinearAlgebra::MiddleSizeVector coefficients =
+                element->getTimeIntegrationVector(0);
+            Fields fields =
+                discretization_.computeFields(element, point, coefficients);
+
+            return fields.realEField;
+        },
+        "Ereal");
+    output.write(
+        [this](Base::Element* element,
+               const Geometry::PointReference<DIM>& point, std::size_t) {
+            LinearAlgebra::MiddleSizeVector coefficients =
+                element->getTimeIntegrationVector(0);
+            Fields fields =
+                discretization_.computeFields(element, point, coefficients);
+
+            return fields.imagEField;
+        },
+        "Eimag");
+
+    output.write(
+        [this](Base::Element* element,
+               const Geometry::PointReference<DIM>& point, std::size_t) {
+            LinearAlgebra::MiddleSizeVector coefficients =
+                element->getTimeIntegrationVector(0);
+            Fields fields =
+                discretization_.computeFields(element, point, coefficients);
+
+            return std::real(fields.potential);
+        },
+        "preal");
+
+    output.write(
+        [this](Base::Element* element,
+               const Geometry::PointReference<DIM>& point, std::size_t) {
+            LinearAlgebra::MiddleSizeVector coefficients =
+                element->getTimeIntegrationVector(0);
+            Fields fields =
+                discretization_.computeFields(element, point, coefficients);
+
+            return std::imag(fields.potential);
+        },
+        "pimag");
+}
+
+template <std::size_t DIM>
 void DivDGMaxHarmonic<DIM>::writeTec(std::string fileName) const {
     std::ofstream fileWriter;
     fileWriter.open(fileName);
