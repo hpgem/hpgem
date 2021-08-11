@@ -374,8 +374,12 @@ class PhysicalFace final {
     void computeBasisFunctionDiv(std::vector<double>& values,
                                  std::size_t unknown);
 
+    /// Updates the transformation information between the left and right faces
     void updateLeftRightTransform();
-    LinearAlgebra::SmallMatrix<DIM, DIM> computeLocalCoordinateSystem(
+    /// Compute a set of direction vectors on the left/right face from
+    ///
+    /// helper for #updateLeftRightTransform()
+    LinearAlgebra::SmallMatrix<DIM, DIM> computeDirectionVectors(
         std::array<LinearAlgebra::SmallVector<DIM>, DIM> points);
 
     PhysicalElement<DIM> left, right;
@@ -434,6 +438,9 @@ class PhysicalFace final {
      * matrix. Moreover, we assume that the rotation is a proper rotation.
      */
     ValueCoordinateTransformationData<DIM> rightVectorTransform;
+    /**
+     * Whether a transformation of vectors is needed
+     */
     bool requiresTransformation;
 
     // need to store this to keep it existing

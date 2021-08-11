@@ -1144,18 +1144,38 @@ void PhysicalFace<DIM>::computeBasisFunctionDiv(std::vector<double>& values,
 
 template <std::size_t DIM>
 void PhysicalFace<DIM>::updateLeftRightTransform() {
-    if (!face_->isInternal()) {
+    if (!face_->isInternal() || DIM == 1) {
         requiresTransformation = false;
         return;
     }
 
+    // We need to compute how the affine transformation from the right face to
+    // the left one. We proceed as follows:
+    //
+    // 1. Compute the DIM-1 physical vectors in real space that correspond to
+    //    the unit vectors e_i on the reference face.
+    // 2. Add a physical normal vector for one the outer for the other the
+    //    inner so that they should transform onto each other. Giving DIM
+    //    independent physical vectors for both faces.
+    // 3. Compute the rotation matrix that transforms the right set of vectors
+    //    onto that of the left Set.
+    //
+    // Optionally one could compute the offset of the affine transformation, but
+    // that is not needed.
+
     std::array<LinearAlgebra::SmallVector<DIM>, DIM> leftPoints, rightPoints;
 
-    const auto* faceRefGeom = face_->getReferenceGeometry();
+    bool identicalPoints = true;
     for (std::size_t i = 0; i < DIM; ++i) {
-        Geometry::PointReference<DIM - 1> facePoint =
-            faceRefGeom->getReferenceNodeCoordinate(i);
-        // Ideally this would just look up the global coordinates of the corners
+        // We map the zero vector and unit vectors e_i. This abuses the
+        // knowledge that these vectors are inside the reference shape for each
+        // reference shape.
+        Geometry::PointReference<DIM - 1> facePoint;
+        if (i > 1) {
+            facePoint[i - 1] = 1.0;
+        }
+
+        // Compute the physical coordinates for both the left and right face
         leftPoints[i] =
             left.getElement()
                 ->referenceToPhysical(
@@ -1166,12 +1186,23 @@ void PhysicalFace<DIM>::updateLeftRightTransform() {
                 ->referenceToPhysical(
                     face_->refFaceToRefElemMapR()->transform(facePoint))
                 .getCoordinates();
+
+        // Small optimization, most faces are non-periodic. If all left and
+        // right points match we can directly conclude no transform is needed.
+        identicalPoints &=
+            (leftPoints[i] - rightPoints[i]).l2NormSquared() < 1e-24;
     }
+    if (identicalPoints) {
+        requiresTransformation = false;
+        return;
+    }
+
+    // Compute the physical vectors
     LinearAlgebra::SmallMatrix<DIM, DIM> leftMatrix =
-        computeLocalCoordinateSystem(leftPoints);
+        computeDirectionVectors(leftPoints);
 
     LinearAlgebra::SmallMatrix<DIM, DIM> rightMatrix =
-        computeLocalCoordinateSystem(rightPoints);
+        computeDirectionVectors(rightPoints);
 
     leftMatrix.solve(rightMatrix);
 
@@ -1185,16 +1216,17 @@ void PhysicalFace<DIM>::updateLeftRightTransform() {
         }
     }
     if (requiresTransformation) {
-        std::cout << rightMatrix << std::endl << std::endl;
-        // TODO: Check orientation
+        // Check that it is a proper rotation matrix, no scaling and no improper
+        // rotations.
+        logger.assert_debug(std::abs(rightMatrix.determinant() - 1.0) < 1e-8,
+                            "Not a good rotation matrix.");
         rightVectorTransform.setJacobian(rightMatrix);
     }
 }
 
 template <std::size_t DIM>
-LinearAlgebra::SmallMatrix<DIM, DIM>
-    PhysicalFace<DIM>::computeLocalCoordinateSystem(
-        std::array<LinearAlgebra::SmallVector<DIM>, DIM> points) {
+LinearAlgebra::SmallMatrix<DIM, DIM> PhysicalFace<DIM>::computeDirectionVectors(
+    std::array<LinearAlgebra::SmallVector<DIM>, DIM> points) {
     LinearAlgebra::SmallMatrix<DIM, DIM - 1> temp;
     LinearAlgebra::SmallMatrix<DIM, DIM> result;
     for (std::size_t i = 0; i < DIM - 1; ++i) {
