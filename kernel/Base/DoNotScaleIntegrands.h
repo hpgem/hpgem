@@ -41,6 +41,7 @@
 
 #include <cstdlib>
 #include "LinearAlgebra/SmallVector.h"
+#include "CoordinateTransformation.h"
 
 namespace hpgem {
 
@@ -58,31 +59,31 @@ class DoNotScaleIntegrands : public CoordinateTransformation<DIM> {
     ~DoNotScaleIntegrands() { delete underlying_; }
 
     double transform(double referenceData,
-                     PhysicalElement<DIM>& element) const final {
-        return underlying_->transform(referenceData, element);
+                     CoordinateTransformationData<DIM>& data) const final {
+        return underlying_->transform(referenceData, data);
     }
 
     LinearAlgebra::SmallVector<DIM> transform(
         LinearAlgebra::SmallVector<DIM> referenceData,
-        PhysicalElement<DIM>& element) const final {
-        return underlying_->transform(referenceData, element);
+        CoordinateTransformationData<DIM>& data) const final {
+        return underlying_->transform(referenceData, data);
     }
 
     LinearAlgebra::SmallVector<DIM> transformDeriv(
         LinearAlgebra::SmallVector<DIM> referenceData,
-        PhysicalElement<DIM>& element) const final {
-        return underlying_->transformDeriv(referenceData, element);
+        CoordinateTransformationData<DIM>& data) const final {
+        return underlying_->transformDeriv(referenceData, data);
     }
 
     double transformDiv(double referenceData,
-                        PhysicalElement<DIM>& element) const final {
-        return underlying_->transformDiv(referenceData, element);
+                        CoordinateTransformationData<DIM>& data) const final {
+        return underlying_->transformDiv(referenceData, data);
     }
 
     LinearAlgebra::SmallVector<DIM> transformCurl(
         LinearAlgebra::SmallVector<DIM> referenceData,
-        PhysicalElement<DIM>& element) const final {
-        return underlying_->transformCurl(referenceData, element);
+        CoordinateTransformationData<DIM>& data) const final {
+        return underlying_->transformCurl(referenceData, data);
     }
 
     double getIntegrandScaleFactor(PhysicalElement<DIM>& element) const final {

@@ -40,8 +40,10 @@
 
 #include <functional>
 
-#include "Base/PhysicalElement.h"
 #include "Base/Face.h"
+#include "Base/PhysicalElement.h"
+#include "Base/PhysicalFace.h"
+
 namespace hpgem {
 namespace LinearAlgebra {
 class MiddleSizeVector;

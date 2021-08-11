@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2020, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,25 +35,51 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "FaceLocalIndexing.h"
+#ifndef HPGEM_COORDINATETRANSFORMATIONDATA_H
+#define HPGEM_COORDINATETRANSFORMATIONDATA_H
 
-#include "Face.h"
+#include "Geometry/Jacobian.h"
 
 namespace hpgem {
-namespace Utilities {
+namespace Base {
 
-FaceLocalIndexing::FaceLocalIndexing() : face_(nullptr), left_(), right_() {}
+/**
+ * Interface for CoordinateTransformation providing the information about the
+ * underlying coordinate transformation.
+ *
+ * Note CoordinateTransformation is a misnomer, it is a transformation of
+ * function values based on a coordinate transformation.
+ *
+ * @tparam DIM The dimension of the coordinate change.
+ */
+template <std::size_t DIM>
+class CoordinateTransformationData {
+    // Design note: This class is used to transform function values. The usual
+    // application is to transform multiple functions in a row. For example
+    // transforming all the basis functions at a fixed quadrature point. Hence,
+    // the values of this function will be request multiple times.
+    //
+    // The functions are thus designed to give a const reference, as the results
+    // should be cached by the implementing class.
 
-void FaceLocalIndexing::reinit(
-    const std::vector<std::size_t> &includedUnknowns) {
-    left_.reinit(includedUnknowns);
-    right_.reinit(includedUnknowns);
-}
+   public:
+    /**
+     * Get the Jacobian of the coordinate transformation
+     */
+    virtual const Geometry::Jacobian<DIM, DIM>& getJacobian() const = 0;
+    /**
+     * Get the transpose of the Jacobian.
+     */
+    virtual const Geometry::Jacobian<DIM, DIM>& getTransposeJacobian()
+        const = 0;
 
-void FaceLocalIndexing::reinit(const Base::Face *face) {
-    face_ = face;
-    left_.reinit(face->getPtrElementLeft());
-    right_.reinit(face->getPtrElementRight());
-}
-}  // namespace Utilities
+    /**
+     * Get the determinant of the Jacobian.
+     */
+    virtual double getJacobianDet() const = 0;
+};
+
+}  // namespace Base
 }  // namespace hpgem
+
+#endif  // HPGEM_COORDINATETRANSFORMATIONDATA_H

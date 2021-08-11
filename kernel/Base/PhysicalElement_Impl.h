@@ -475,7 +475,8 @@ inline const Geometry::PointPhysical<DIM>&
 }
 
 template <std::size_t DIM>
-inline const Geometry::Jacobian<DIM, DIM>& PhysicalElement<DIM>::getJacobian() {
+inline const Geometry::Jacobian<DIM, DIM>& PhysicalElement<DIM>::getJacobian()
+    const {
     logger.assert_debug(hasPointReference && hasElement,
                         "Need a location to evaluate the data");
     if (hasJacobian) {
@@ -501,7 +502,7 @@ inline const Geometry::Jacobian<DIM, DIM>&
 
 template <std::size_t DIM>
 inline const Geometry::Jacobian<DIM, DIM>&
-    PhysicalElement<DIM>::getTransposeJacobian() {
+    PhysicalElement<DIM>::getTransposeJacobian() const {
     logger.assert_debug(hasPointReference && hasElement,
                         "Need a location to evaluate the data");
     if (hasTransposeJacobian) {
@@ -525,7 +526,7 @@ inline double PhysicalElement<DIM>::getJacobianAbsDet() {
 }
 
 template <std::size_t DIM>
-inline double PhysicalElement<DIM>::getJacobianDet() {
+inline double PhysicalElement<DIM>::getJacobianDet() const {
     logger.assert_debug(hasPointReference && hasElement,
                         "Need a location to evaluate the data");
     if (hasJacobianDet) {

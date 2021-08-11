@@ -55,16 +55,16 @@ class HCurlConformingTransformation : public CoordinateTransformation<DIM> {
     /// kernel of the reference curl-operator.
     LinearAlgebra::SmallVector<DIM> transform(
         LinearAlgebra::SmallVector<DIM> referenceData,
-        PhysicalElement<DIM>& element) const final {
-        element.getTransposeJacobian().solve(referenceData);
+        const CoordinateTransformationData<DIM>& data) const final {
+        data.getTransposeJacobian().solve(referenceData);
         return referenceData;
     }
 
     /// transform the curl by using the chain rule
     LinearAlgebra::SmallVector<DIM> transformCurl(
         LinearAlgebra::SmallVector<DIM> referenceData,
-        PhysicalElement<DIM>& element) const final {
-        return element.getJacobian() * referenceData / element.getJacobianDet();
+        const CoordinateTransformationData<DIM>& data) const final {
+        return data.getJacobian() * referenceData / data.getJacobianDet();
     }
 
     /// integrands for elements are multiplied by the absolute value of the
@@ -84,8 +84,8 @@ template <>
 inline LinearAlgebra::SmallVector<2>
     HCurlConformingTransformation<2>::transformCurl(
         LinearAlgebra::SmallVector<2> referenceData,
-        PhysicalElement<2>& element) const {
-    return referenceData / element.getJacobianDet();
+        const CoordinateTransformationData<2>& data) const {
+    return referenceData / data.getJacobianDet();
 }
 }  // namespace Base
 

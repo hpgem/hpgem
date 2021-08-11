@@ -41,8 +41,7 @@
 
 #include <cstdlib>
 #include "LinearAlgebra/SmallVector.h"
-#include "PhysicalElement.h"
-#include "PhysicalFace.h"
+#include "CoordinateTransformationData.h"
 
 namespace hpgem {
 
@@ -52,6 +51,8 @@ template <std::size_t DIM>
 class PhysicalElement;
 template <std::size_t DIM>
 class PhysicalFace;
+template <std::size_t>
+class CoordinateTransformationData;
 
 /// Base class for coordinate transformations. Coordinate transformations are
 /// used internally to rewrite the integral expressions in the physical domain
@@ -69,7 +70,7 @@ class CoordinateTransformation {
 
     /// provide a transformation strategy for (scalar valued) functions
     virtual double transform(double referenceData,
-                             PhysicalElement<DIM>& element) const {
+                             const CoordinateTransformationData<DIM>& data) const {
         logger(ERROR,
                "Transforming scalar data is not supported, please set a "
                "different transformation");
@@ -81,7 +82,7 @@ class CoordinateTransformation {
     /// need to override only one of the overloads
     virtual LinearAlgebra::SmallVector<DIM> transform(
         LinearAlgebra::SmallVector<DIM> referenceData,
-        PhysicalElement<DIM>& element) const {
+        const CoordinateTransformationData<DIM>& data) const {
         logger(ERROR,
                "Transforming vector data is not supported, please set a "
                "different transformation");
@@ -91,7 +92,7 @@ class CoordinateTransformation {
     /// provide a transformation for the derivative of a function
     virtual LinearAlgebra::SmallVector<DIM> transformDeriv(
         LinearAlgebra::SmallVector<DIM> referenceData,
-        PhysicalElement<DIM>& element) const {
+        const CoordinateTransformationData<DIM>& data) const {
         logger(ERROR,
                "Transforming derivative data is not supported, please set a "
                "different transformation");
@@ -100,7 +101,7 @@ class CoordinateTransformation {
 
     /// provide a transformation for the divergence of a function
     virtual double transformDiv(double referenceData,
-                                PhysicalElement<DIM>& element) const {
+                                const CoordinateTransformationData<DIM>& data) const {
         logger(ERROR,
                "Transforming derivative data is not supported, please set a "
                "different transformation");
@@ -110,7 +111,7 @@ class CoordinateTransformation {
     /// provide a transformation for the curl of a function
     virtual LinearAlgebra::SmallVector<DIM> transformCurl(
         LinearAlgebra::SmallVector<DIM> referenceData,
-        PhysicalElement<DIM>& element) const {
+        const CoordinateTransformationData<DIM>& data) const {
         logger(ERROR,
                "Transforming curl data is not supported, please set a "
                "different transformation");
