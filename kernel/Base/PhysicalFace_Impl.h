@@ -1148,6 +1148,9 @@ void PhysicalFace<DIM>::updateLeftRightTransform() {
         requiresTransformation = false;
         return;
     }
+    // NOTE: face->getFaceType() is not very reliable, otherwise a very good
+    // optimization would be to check if it is a periodic (subdomain) boundary
+    // and only compute the transform if so.
 
     // We need to compute how the affine transformation from the right face to
     // the left one. We proceed as follows:
