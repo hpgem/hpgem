@@ -81,10 +81,8 @@ std::result_of_t<FunctionType(Base::PhysicalFace<DIM>&)>
     // resizing of the relevant data structures
     if (fa->isInternal()) {
         face_ = &internalFace_;
-        face_->setFace(fa);
     } else {
         face_ = &boundaryFace_;
-        face_->setFace(fa);
     }
     face_->setFace(fa);
     // quadrature rule is allowed to be equal to nullptr!
