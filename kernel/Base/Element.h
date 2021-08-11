@@ -103,13 +103,19 @@ class Element final : public Geometry::ElementGeometry, public ElementData {
     void setGaussQuadratureRule(
         QuadratureRules::GaussQuadratureRule* const quadR);
 
-    void setDefaultBasisFunctionSet(std::size_t position) {
-        // Clear all unknowns so that no old data is left from previous basis
-        // function configurations.
+    void clearBasisFunctions() {
         for (std::size_t unknown = 0; unknown < getNumberOfUnknowns();
              ++unknown) {
             basisFunctions_.clearBasisFunctionPosition(unknown);
         }
+        setNumberOfBasisFunctions(0);
+    }
+
+    void setDefaultBasisFunctionSet(std::size_t position) {
+        // Clear all unknowns so that no old data is left from previous basis
+        // function configurations.
+        clearBasisFunctions();
+        // Then assign new default basis function size
         for (std::size_t unknown = 0; unknown < getNumberOfUnknowns();
              ++unknown) {
             setDefaultBasisFunctionSet(position, unknown);
