@@ -178,7 +178,8 @@ class PhysicalFace final {
     /// divergence of basis function i at the current reference point; indexing
     /// the left and the right element separately
     const double& basisFunctionDiv(Side side, std::size_t i);
-    const double& basisFunctionDiv(Side side, std::size_t i, std::size_t unknown);
+    const double& basisFunctionDiv(Side side, std::size_t i,
+                                   std::size_t unknown);
 
     /// value of basis function i multiplied by the normal vector at the current
     /// reference point; indexing functions in the right element after functions

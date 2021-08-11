@@ -48,8 +48,8 @@ TEST_CASE("Basic test", "[LazyCached]") {
     LazyCached<std::size_t> cache = LazyCached<std::size_t>(
         [&index](std::size_t& value) { index = ++value; });
 
-    REQUIRE(cache.get() == 1); // Does the first computation
-    REQUIRE(index == 1);  // Should been done once
+    REQUIRE(cache.get() == 1);  // Does the first computation
+    REQUIRE(index == 1);        // Should been done once
     // No reset, so still the same value
     REQUIRE(cache.get() == 1);
 

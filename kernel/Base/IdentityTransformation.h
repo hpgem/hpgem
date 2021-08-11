@@ -73,8 +73,9 @@ class IdentityTransformation : public CoordinateTransformation<DIM> {
     }
 
     /// just do noting with the data
-    double transformDiv(double referenceData,
-                        CoordinateTransformationData<DIM>&) const override final {
+    double transformDiv(
+        double referenceData,
+        CoordinateTransformationData<DIM>&) const override final {
         return referenceData;
     }
 

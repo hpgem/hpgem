@@ -60,8 +60,9 @@ class HDivConformingTransformation : public CoordinateTransformation<DIM> {
     }
 
     /// transform the div by using the chain rule
-    double transformDiv(double referenceData,
-                        const CoordinateTransformationData<DIM>& data) const override final {
+    double transformDiv(
+        double referenceData,
+        const CoordinateTransformationData<DIM>& data) const override final {
         return referenceData / data.getJacobianDet();
     }
 

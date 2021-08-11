@@ -69,8 +69,9 @@ class CoordinateTransformation {
     virtual ~CoordinateTransformation() = default;
 
     /// provide a transformation strategy for (scalar valued) functions
-    virtual double transform(double referenceData,
-                             const CoordinateTransformationData<DIM>& data) const {
+    virtual double transform(
+        double referenceData,
+        const CoordinateTransformationData<DIM>& data) const {
         logger(ERROR,
                "Transforming scalar data is not supported, please set a "
                "different transformation");
@@ -100,8 +101,9 @@ class CoordinateTransformation {
     }
 
     /// provide a transformation for the divergence of a function
-    virtual double transformDiv(double referenceData,
-                                const CoordinateTransformationData<DIM>& data) const {
+    virtual double transformDiv(
+        double referenceData,
+        const CoordinateTransformationData<DIM>& data) const {
         logger(ERROR,
                "Transforming derivative data is not supported, please set a "
                "different transformation");

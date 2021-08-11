@@ -54,8 +54,9 @@ class H1ConformingTransformation : public CoordinateTransformation<DIM> {
    public:
     /// function values are not scaled, just evaluated using reference
     /// coordinates
-    double transform(double referenceData,
-                     const CoordinateTransformationData<DIM>& data) const final {
+    double transform(
+        double referenceData,
+        const CoordinateTransformationData<DIM>& data) const final {
         return referenceData;
     }
 
