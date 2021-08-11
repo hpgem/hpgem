@@ -79,6 +79,36 @@ class CoordinateTransformationData {
     virtual double getJacobianDet() const = 0;
 };
 
+/**
+ * Simple implementation of CoordinateTransformationData that holds the required
+ * values.
+ */
+template <std::size_t DIM>
+class ValueCoordinateTransformationData final
+    : public CoordinateTransformationData<DIM> {
+   public:
+    ValueCoordinateTransformationData()
+        : jacobian(), transposeJacobian(), jacobianDet(0.0){};
+
+    const Geometry::Jacobian<DIM, DIM>& getJacobian() const final {
+        return jacobian;
+    }
+    const Geometry::Jacobian<DIM, DIM>& getTransposeJacobian() const final {
+        return transposeJacobian;
+    }
+    double getJacobianDet() const final { return jacobianDet; }
+
+    void setJacobian(const Geometry::Jacobian<DIM, DIM>& newJacobian) {
+        jacobian = newJacobian;
+        transposeJacobian = jacobian.transpose();
+        jacobianDet = jacobian.determinant();
+    }
+
+   private:
+    Geometry::Jacobian<DIM, DIM> jacobian, transposeJacobian;
+    double jacobianDet;
+};
+
 }  // namespace Base
 }  // namespace hpgem
 
