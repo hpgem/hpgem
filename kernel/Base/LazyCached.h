@@ -55,14 +55,19 @@ class LazyCached {
     ///
     /// Note the computation is only run when the value is first obtained. This
     /// should be taken into account for any side effects that it may cause.
-    /// \param computation The computation to compute the value
-    explicit LazyCached(std::function<T()> computation)
-        : compute_(computation), hasValue_(false) {}
+    ///
+    /// Note: For the computation, the value is initialized to the default.
+    /// \param computation The computation to update the value
+    explicit LazyCached(std::function<void(T&)> computation)
+        : compute_(computation), hasValue_(false), value_() {}
 
-    /// Get the cached value, computing it if necessary
+    /// Create a cache backed by a computation doing nothing
+    LazyCached() : compute_([](T&) {}), hasValue_(false), value_(){};
+
+    /// Get the cached value
     const T& get() {
         if (!hasValue_) {
-            value_ = compute_();
+            compute_(value_);
             hasValue_ = true;
         }
         return value_;
@@ -72,7 +77,12 @@ class LazyCached {
     void reset() { hasValue_ = false; }
 
    private:
-    std::function<T()> compute_;
+    /// Function to update the value
+    ///
+    /// Design note: the signature is chosen so that the value can be updated
+    /// in place. This can for example be used in conjunction with a vector
+    /// as value to prevent allocating new vectors each time.
+    std::function<void(T&)> compute_;
     /// Whether or not a value has been computed
     bool hasValue_;
     T value_;

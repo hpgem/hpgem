@@ -110,70 +110,31 @@ inline double PhysicalFace<DIM>::basisFunction(Side side, std::size_t i,
 template <std::size_t DIM>
 inline const LinearAlgebra::SmallVector<DIM>&
     PhysicalFace<DIM>::basisFunctionDeriv(std::size_t i) {
-    logger.assert_debug(hasPointReference && hasFace,
-                        "Need a location to evaluate the data");
-    if (i < nLeftBasisFunctions[0]) {
-        return left.basisFunctionDeriv(i);
-    }
-    logger.assert_debug(isInternal_, "basis function index out of bounds");
-    double value = right.basisFunctionDeriv(i - nLeftBasisFunctions[0]);
-    if (requiresTransformation) {
-        value = transform_[0]->transformDeriv(value, rightVectorTransform);
-    }
-    return value;
+    return basisFunctionDeriv_[0].get()[i];
 }
 template <std::size_t DIM>
 inline const LinearAlgebra::SmallVector<DIM>&
     PhysicalFace<DIM>::basisFunctionDeriv(std::size_t i, std::size_t unknown) {
-    logger.assert_debug(hasPointReference && hasFace,
-                        "Need a location to evaluate the data");
-    if (i < nLeftBasisFunctions[unknown]) {
-        return left.basisFunctionDeriv(i, unknown);
-    }
-    logger.assert_debug(isInternal_, "basis function index out of bounds");
-    double value =
-        right.basisFunctionDeriv(i - nLeftBasisFunctions[unknown], unknown);
-    if (requiresTransformation) {
-        value =
-            transform_[unknown]->transformDeriv(value, rightVectorTransform);
-    }
-    return value;
+    return basisFunctionDeriv_[unknown].get()[i];
 }
 
 template <std::size_t DIM>
 inline const LinearAlgebra::SmallVector<DIM>&
     PhysicalFace<DIM>::basisFunctionDeriv(Side side, std::size_t i) {
-    logger.assert_debug(hasPointReference && hasFace,
-                        "Need a location to evaluate the data");
-    if (side == Side::LEFT) {
-        return left.basisFunctionDeriv(i);
+    if (side == Side::RIGHT) {
+        i += nLeftBasisFunctions[0];
     }
-    logger.assert_debug(isInternal_,
-                        "cannot find the right element for a boundary face");
-    double value = right.basisFunctionDeriv(i);
-    if (requiresTransformation) {
-        value = transform_[0]->transformDeriv(value, rightVectorTransform);
-    }
-    return value;
+    return basisFunctionDeriv(i);
 }
 
 template <std::size_t DIM>
 inline const LinearAlgebra::SmallVector<DIM>&
     PhysicalFace<DIM>::basisFunctionDeriv(Side side, std::size_t i,
                                           std::size_t unknown) {
-    logger.assert_debug(hasPointReference && hasFace,
-                        "Need a location to evaluate the data");
-    if (side == Side::LEFT) {
-        return left.basisFunctionDeriv(i, unknown);
+    if (side == Side::RIGHT) {
+        i += nLeftBasisFunctions[unknown];
     }
-    logger.assert_debug(isInternal_,
-                        "cannot find the right element for a boundary face");
-    double value = right.basisFunctionDeriv(i, unknown);
-    if (requiresTransformation) {
-        value =
-            transform_[unknown]->transformDeriv(value, rightVectorTransform);
-    }
-    return value;
+    return basisFunctionDeriv(i, unknown);
 }
 
 template <std::size_t DIM>
@@ -387,141 +348,65 @@ inline void PhysicalFace<DIM>::basisFunction(
 }
 
 template <std::size_t DIM>
-inline LinearAlgebra::SmallVector<DIM> PhysicalFace<DIM>::basisFunctionCurl(
-    std::size_t i) {
-    logger.assert_debug(hasPointReference && hasFace,
-                        "Need a location to evaluate the data");
-    if (i < nLeftBasisFunctions[0]) {
-        return left.basisFunctionCurl(i);
-    }
-    logger.assert_debug(isInternal_, "basis function index out of bounds");
-    LinearAlgebra::SmallVector<DIM> result =
-        right.basisFunctionCurl(i - nLeftBasisFunctions[0]);
-    if (requiresTransformation) {
-        result = transform_[0]->transformCurl(result, rightVectorTransform);
-    }
-    return result;
+inline const LinearAlgebra::SmallVector<DIM>&
+    PhysicalFace<DIM>::basisFunctionCurl(std::size_t i) {
+    return basisFunctionCurl_[0].get()[i];
 }
 
 template <std::size_t DIM>
-inline LinearAlgebra::SmallVector<DIM> PhysicalFace<DIM>::basisFunctionCurl(
-    std::size_t i, std::size_t unknown) {
-    logger.assert_debug(hasPointReference && hasFace,
-                        "Need a location to evaluate the data");
-    if (i < nLeftBasisFunctions[unknown]) {
-        return left.basisFunctionCurl(i, unknown);
-    }
-    logger.assert_debug(isInternal_, "basis function index out of bounds");
-    LinearAlgebra::SmallVector<DIM> result =
-        right.basisFunctionCurl(i - nLeftBasisFunctions[unknown], unknown);
-    if (requiresTransformation) {
-        result =
-            transform_[unknown]->transformCurl(result, rightVectorTransform);
-    }
-    return result;
+inline const LinearAlgebra::SmallVector<DIM>&
+    PhysicalFace<DIM>::basisFunctionCurl(std::size_t i, std::size_t unknown) {
+    return basisFunctionCurl_[unknown].get()[i];
 }
 
 template <std::size_t DIM>
-inline LinearAlgebra::SmallVector<DIM> PhysicalFace<DIM>::basisFunctionCurl(
-    Side side, std::size_t i) {
-    logger.assert_debug(hasPointReference && hasFace,
-                        "Need a location to evaluate the data");
-    if (side == Side::LEFT) {
-        return left.basisFunctionCurl(i);
+inline const LinearAlgebra::SmallVector<DIM>&
+    PhysicalFace<DIM>::basisFunctionCurl(Side side, std::size_t i) {
+    if (side == Side::RIGHT) {
+        i += nLeftBasisFunctions[0];
     }
-    logger.assert_debug(isInternal_,
-                        "cannot find the right element for a boundary face");
-
-    LinearAlgebra::SmallVector<DIM> result = right.basisFunctionCurl(i);
-    if (requiresTransformation) {
-        result = transform_[0]->transformCurl(result, rightVectorTransform);
-    }
-    return result;
+    return basisFunctionCurl(i);
 }
 template <std::size_t DIM>
-inline LinearAlgebra::SmallVector<DIM> PhysicalFace<DIM>::basisFunctionCurl(
-    Side side, std::size_t i, std::size_t unknown) {
-    logger.assert_debug(hasPointReference && hasFace,
-                        "Need a location to evaluate the data");
-    if (side == Side::LEFT) {
-        return left.basisFunctionCurl(i, unknown);
+inline const LinearAlgebra::SmallVector<DIM>&
+    PhysicalFace<DIM>::basisFunctionCurl(Side side, std::size_t i,
+                                         std::size_t unknown) {
+    if (side == Side::RIGHT) {
+        i += nLeftBasisFunctions[unknown];
     }
-    logger.assert_debug(isInternal_,
-                        "cannot find the right element for a boundary face");
-    LinearAlgebra::SmallVector<DIM> result =
-        right.basisFunctionCurl(i, unknown);
-    if (requiresTransformation) {
-        result =
-            transform_[unknown]->transformCurl(result, rightVectorTransform);
-    }
-    return result;
+    return basisFunctionCurl(i, unknown);
 }
 
 template <std::size_t DIM>
-inline double PhysicalFace<DIM>::basisFunctionDiv(std::size_t i) {
-    logger.assert_debug(hasPointReference && hasFace,
-                        "Need a location to evaluate the data");
-    if (i < nLeftBasisFunctions[0]) {
-        return left.basisFunctionDiv(i);
-    }
-    logger.assert_debug(isInternal_, "basis function index out of bounds");
-    double result = right.basisFunctionDiv(i - nLeftBasisFunctions[0]);
-    if (requiresTransformation) {
-        result = transform_[0]->transformDiv(result, rightVectorTransform);
-    }
-    return result;
+inline const double& PhysicalFace<DIM>::basisFunctionDiv(std::size_t i) {
+    return basisFunctionDiv_[0].get()[i];
 }
 
 template <std::size_t DIM>
-inline double PhysicalFace<DIM>::basisFunctionDiv(std::size_t i,
-                                                  std::size_t unknown) {
-    logger.assert_debug(hasPointReference && hasFace,
-                        "Need a location to evaluate the data");
-    if (i < nLeftBasisFunctions[unknown]) {
-        return left.basisFunctionDiv(i, unknown);
-    }
-    logger.assert_debug(isInternal_, "basis function index out of bounds");
-    double result =
-        right.basisFunctionDiv(i - nLeftBasisFunctions[unknown], unknown);
-    if (requiresTransformation) {
-        result =
-            transform_[unknown]->transformDiv(result, rightVectorTransform);
-    }
-    return result;
+inline const double& PhysicalFace<DIM>::basisFunctionDiv(std::size_t i,
+                                                         std::size_t unknown) {
+    return basisFunctionDiv_[unknown].get()[i];
 }
 
 template <std::size_t DIM>
-inline double PhysicalFace<DIM>::basisFunctionDiv(Side side, std::size_t i) {
+inline const double& PhysicalFace<DIM>::basisFunctionDiv(Side side,
+                                                         std::size_t i) {
     logger.assert_debug(hasPointReference && hasFace,
                         "Need a location to evaluate the data");
-    if (side == Side::LEFT) {
-        return left.basisFunctionDiv(i);
+    if (side == Side::RIGHT) {
+        i += nLeftBasisFunctions[0];
     }
-    logger.assert_debug(isInternal_,
-                        "cannot find the right element for a boundary face");
-    double result = right.basisFunctionDiv(i);
-    if (requiresTransformation) {
-        result = transform_[0]->transformDiv(result, rightVectorTransform);
-    }
-    return result;
+    return basisFunctionDiv(i);
 }
 
 template <std::size_t DIM>
-inline double PhysicalFace<DIM>::basisFunctionDiv(Side side, std::size_t i,
-                                                  std::size_t unknown) {
-    logger.assert_debug(hasPointReference && hasFace,
-                        "Need a location to evaluate the data");
-    if (side == Side::LEFT) {
-        return left.basisFunctionDiv(i, unknown);
+inline const double& PhysicalFace<DIM>::basisFunctionDiv(Side side,
+                                                         std::size_t i,
+                                                         std::size_t unknown) {
+    if (side == Side::RIGHT) {
+        i += nLeftBasisFunctions[unknown];
     }
-    logger.assert_debug(isInternal_,
-                        "cannot find the right element for a boundary face");
-    double result = right.basisFunctionDiv(i, unknown);
-    if (requiresTransformation) {
-        result =
-            transform_[unknown]->transformDiv(result, rightVectorTransform);
-    }
-    return result;
+    return basisFunctionDiv(i, unknown);
 }
 
 template <std::size_t DIM>
@@ -970,6 +855,9 @@ inline void PhysicalFace<DIM>::setPointReference(
     hasBasisFunctionUnitNormal.assign(unknowns, false);
     hasVectorBasisFunctionNormal.assign(unknowns, false);
     hasVectorBasisFunctionUnitNormal.assign(unknowns, false);
+
+    resetLazyCaches(unknowns);
+
     hasSolutionNormal = false;
     hasSolutionUnitNormal = false;
     hasVectorSolutionNormal = false;
@@ -1058,6 +946,9 @@ inline void PhysicalFace<DIM>::setFace(const Face* face) {
     hasBasisFunctionUnitNormal.assign(numberOfUnknowns, false);
     hasVectorBasisFunctionNormal.assign(numberOfUnknowns, false);
     hasVectorBasisFunctionUnitNormal.assign(numberOfUnknowns, false);
+
+    resetLazyCaches(numberOfUnknowns);
+
     hasSolutionNormal = false;
     hasSolutionUnitNormal = false;
     hasVectorSolutionNormal = false;
@@ -1106,6 +997,9 @@ inline void PhysicalFace<DIM>::setTransform(
                                         false);
     hasVectorBasisFunctionUnitNormal.assign(
         hasVectorBasisFunctionUnitNormal.size(), false);
+
+    resetLazyCaches(basisFunctionDeriv_.size());
+
     hasSolutionNormal = false;
     hasSolutionUnitNormal = false;
     hasVectorSolutionNormal = false;
@@ -1157,6 +1051,98 @@ inline void PhysicalFace<DIM>::setQuadraturePointIndex(std::size_t index) {
 }
 
 template <std::size_t DIM>
+void PhysicalFace<DIM>::resetLazyCaches(std::size_t currentUnknowns) {
+    std::size_t prevUnknowns = basisFunctionDeriv_.size();
+    if (prevUnknowns > currentUnknowns) {
+        basisFunctionDeriv_.resize(currentUnknowns);
+        basisFunctionCurl_.resize(currentUnknowns);
+        basisFunctionDiv_.resize(currentUnknowns);
+    } else if (prevUnknowns < currentUnknowns) {
+        using VectorValues = std::vector<LinearAlgebra::SmallVector<DIM>>;
+
+        // When extending we need to set updating function
+        for (std::size_t i = prevUnknowns; i < currentUnknowns; ++i) {
+            basisFunctionDeriv_.emplace_back([i, this](VectorValues& values) {
+                computeBasisFunctionDeriv(values, i);
+            });
+            basisFunctionCurl_.emplace_back([i, this](VectorValues& values) {
+                computeBasisFunctionCurl(values, i);
+            });
+            basisFunctionDiv_.emplace_back(
+                [i, this](std::vector<double>& values) {
+                    computeBasisFunctionDiv(values, i);
+                });
+        }
+    }
+    for (std::size_t i = 0; i < std::min(prevUnknowns, currentUnknowns); ++i) {
+        basisFunctionDeriv_[i].reset();
+        basisFunctionCurl_[i].reset();
+        basisFunctionDiv_[i].reset();
+    }
+}
+
+template <std::size_t DIM>
+void PhysicalFace<DIM>::computeBasisFunctionDeriv(
+    std::vector<LinearAlgebra::SmallVector<DIM>>& values, std::size_t unknown) {
+    logger.assert_debug(hasPointReference && hasFace,
+                        "Need a location to evaluate the data");
+
+    std::size_t numBasisFunctions = face_->getNumberOfBasisFunctions(unknown);
+    std::size_t nLeft = nLeftBasisFunctions[unknown];
+    values.resize(numBasisFunctions);
+    for (std::size_t i = 0; i < numBasisFunctions; ++i) {
+        if (i < nLeft) {
+            values[i] = left.basisFunctionDeriv(i, unknown);
+        } else {
+            values[i] = right.basisFunctionDeriv(i - nLeft, unknown);
+            if (requiresTransformation) {
+                values[i] = transform_[unknown]->transformDeriv(
+                    values[i], rightVectorTransform);
+            }
+        }
+    }
+}
+
+template <std::size_t DIM>
+void PhysicalFace<DIM>::computeBasisFunctionCurl(
+    std::vector<LinearAlgebra::SmallVector<DIM>>& values, std::size_t unknown) {
+    std::size_t numBasisFunctions = face_->getNumberOfBasisFunctions(unknown);
+    std::size_t nLeft = nLeftBasisFunctions[unknown];
+    values.resize(numBasisFunctions);
+    for (std::size_t i = 0; i < numBasisFunctions; ++i) {
+        if (i < nLeft) {
+            values[i] = left.basisFunctionCurl(i, unknown);
+        } else {
+            values[i] = right.basisFunctionCurl(i - nLeft, unknown);
+            if (requiresTransformation) {
+                values[i] = transform_[unknown]->transformCurl(
+                    values[i], rightVectorTransform);
+            }
+        }
+    }
+}
+
+template <std::size_t DIM>
+void PhysicalFace<DIM>::computeBasisFunctionDiv(std::vector<double>& values,
+                                                std::size_t unknown) {
+    std::size_t numBasisFunctions = face_->getNumberOfBasisFunctions(unknown);
+    std::size_t nLeft = nLeftBasisFunctions[unknown];
+    values.resize(numBasisFunctions);
+
+    for (std::size_t i = 0; i < numBasisFunctions; ++i) {
+        if (i < nLeft) {
+            values[i] = left.basisFunctionDiv(i, unknown);
+        } else {
+            values[i] = right.basisFunctionDiv(i - nLeft, unknown);
+            if (requiresTransformation) {
+                values[i] = transform_[unknown]->transformDiv(
+                    values[i], rightVectorTransform);
+            }
+        }
+    }
+}
+
+template <std::size_t DIM>
 void PhysicalFace<DIM>::updateLeftRightTransform() {
     if (!face_->isInternal()) {
         requiresTransformation = false;
@@ -1198,7 +1184,7 @@ void PhysicalFace<DIM>::updateLeftRightTransform() {
             requiresTransformation |= std::abs(rightMatrix(i, j) - val) > 1e-8;
         }
     }
-    if(requiresTransformation) {
+    if (requiresTransformation) {
         std::cout << rightMatrix << std::endl << std::endl;
         // TODO: Check orientation
         rightVectorTransform.setJacobian(rightMatrix);

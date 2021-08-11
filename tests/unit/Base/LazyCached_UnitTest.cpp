@@ -43,27 +43,26 @@ using hpgem::Base::LazyCached;
 
 TEST_CASE("Basic test", "[LazyCached]") {
 
-    // Counter used both as result and to check how many computation have been
-    // performed.
+    // Counter to mirror the internal state
     std::size_t index = 0;
-    LazyCached<std::size_t> cache =
-        LazyCached<std::size_t>([&index] { return index++; });
+    LazyCached<std::size_t> cache = LazyCached<std::size_t>(
+        [&index](std::size_t& value) { index = ++value; });
 
-    REQUIRE(cache.get() == 0);
+    REQUIRE(cache.get() == 1); // Does the first computation
     REQUIRE(index == 1);  // Should been done once
     // No reset, so still the same value
-    REQUIRE(cache.get() == 0);
+    REQUIRE(cache.get() == 1);
 
     cache.reset();
-    REQUIRE(index == 1);        // No computation yet
-    REQUIRE(cache.get() == 1);  // Now the computation should run
+    REQUIRE(index == 1);        // Computation is only run when calling get()
+    REQUIRE(cache.get() == 2);  // Now the computation should run
     REQUIRE(index == 2);        // Second computation did actually run
 
     // Check that the value remains the same
-    REQUIRE(cache.get() == 1);  // Value did not change
-    REQUIRE(cache.get() == 1);  // Value did not change
+    REQUIRE(cache.get() == 2);  // Value did not change
+    REQUIRE(cache.get() == 2);  // Value did not change
 
     // Last reset and check
     cache.reset();
-    REQUIRE(cache.get() == 2);
+    REQUIRE(cache.get() == 3);
 }

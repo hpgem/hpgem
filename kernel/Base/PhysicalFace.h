@@ -40,8 +40,11 @@
 #define HPGEM_KERNEL_PHYSICALFACE_H
 
 #include "PhysicalElement.h"
+
 #include "FaceMatrix.h"
 #include "Face.h"
+#include "LazyCached.h"
+
 namespace hpgem {
 namespace Base {
 
@@ -156,26 +159,26 @@ class PhysicalFace final {
 
     /// curl of basis function i at the current reference point; indexing
     /// functions in the right element after functions in the left element
-    LinearAlgebra::SmallVector<DIM> basisFunctionCurl(std::size_t i);
-    LinearAlgebra::SmallVector<DIM> basisFunctionCurl(
+    const LinearAlgebra::SmallVector<DIM>& basisFunctionCurl(std::size_t i);
+    const LinearAlgebra::SmallVector<DIM>& basisFunctionCurl(
         std::size_t i, std::size_t unknown);
 
     /// curl of basis function i at the current reference point; indexing the
     /// left and the right element separately
-    LinearAlgebra::SmallVector<DIM> basisFunctionCurl(Side side,
+    const LinearAlgebra::SmallVector<DIM>& basisFunctionCurl(Side side,
                                                              std::size_t i);
-    LinearAlgebra::SmallVector<DIM> basisFunctionCurl(
+    const LinearAlgebra::SmallVector<DIM>& basisFunctionCurl(
         Side side, std::size_t i, std::size_t unknown);
 
     /// divergence of basis function i at the current reference point; indexing
     /// functions in the right element after functions in the left element
-    double basisFunctionDiv(std::size_t i);
-    double basisFunctionDiv(std::size_t i, std::size_t unknown);
+    const double& basisFunctionDiv(std::size_t i);
+    const double& basisFunctionDiv(std::size_t i, std::size_t unknown);
 
     /// divergence of basis function i at the current reference point; indexing
     /// the left and the right element separately
-    double basisFunctionDiv(Side side, std::size_t i);
-    double basisFunctionDiv(Side side, std::size_t i, std::size_t unknown);
+    const double& basisFunctionDiv(Side side, std::size_t i);
+    const double& basisFunctionDiv(Side side, std::size_t i, std::size_t unknown);
 
     /// value of basis function i multiplied by the normal vector at the current
     /// reference point; indexing functions in the right element after functions
@@ -361,6 +364,16 @@ class PhysicalFace final {
     void setQuadraturePointIndex(std::size_t index);
 
    private:
+    void resetLazyCaches(std::size_t currentUnknowns);
+    void computeBasisFunctionDeriv(
+        std::vector<LinearAlgebra::SmallVector<DIM>>& values,
+        std::size_t unknown);
+    void computeBasisFunctionCurl(
+        std::vector<LinearAlgebra::SmallVector<DIM>>& values,
+        std::size_t unknown);
+    void computeBasisFunctionDiv(std::vector<double>& values,
+                                 std::size_t unknown);
+
     void updateLeftRightTransform();
     LinearAlgebra::SmallMatrix<DIM, DIM> computeLocalCoordinateSystem(
         std::array<LinearAlgebra::SmallVector<DIM>, DIM> points);
@@ -376,6 +389,12 @@ class PhysicalFace final {
         basisFunctionUnitNormal_;
     std::vector<std::vector<LinearAlgebra::SmallVector<DIM>>>
         vectorBasisFunctionUnitNormal_;
+    std::vector<LazyCached<std::vector<LinearAlgebra::SmallVector<DIM>>>>
+        basisFunctionDeriv_;
+    std::vector<LazyCached<std::vector<LinearAlgebra::SmallVector<DIM>>>>
+        basisFunctionCurl_;
+    std::vector<LazyCached<std::vector<double>>> basisFunctionDiv_;
+
     std::vector<LinearAlgebra::SmallVector<DIM>> solutionNormal_;
     std::vector<LinearAlgebra::SmallVector<DIM>> vectorSolutionNormal_;
     std::vector<LinearAlgebra::SmallVector<DIM>> solutionUnitNormal_;
