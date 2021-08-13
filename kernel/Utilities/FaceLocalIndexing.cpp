@@ -37,7 +37,7 @@
  */
 #include "FaceLocalIndexing.h"
 
-#include "Face.h"
+#include "Base/Face.h"
 
 namespace hpgem {
 namespace Utilities {
