@@ -49,7 +49,6 @@
 #include "Geometry/Jacobian.h"
 #include "Geometry/PointReference.h"
 #include <cmath>
-#include <Base/L2Norm.h>
 
 #include "../catch.hpp"
 

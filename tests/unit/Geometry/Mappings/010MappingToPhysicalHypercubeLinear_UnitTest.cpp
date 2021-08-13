@@ -49,7 +49,6 @@
 #include "Geometry/ReferenceCube.h"
 #include "Geometry/PointReference.h"
 #include "Geometry/Jacobian.h"
-#include "Base/L2Norm.h"
 #include <cmath>
 
 #include "../catch.hpp"

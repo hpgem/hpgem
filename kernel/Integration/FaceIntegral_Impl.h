@@ -40,7 +40,6 @@
 
 #include "QuadratureRules/GaussQuadratureRule.h"
 #include "Logger.h"
-#include "Base/L2Norm.h"
 #include "FaceIntegrandBase.h"
 #include "LinearAlgebra/Axpy.h"
 

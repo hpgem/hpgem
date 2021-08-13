@@ -44,7 +44,6 @@
 #include "Base/FaceMatrix.h"
 #include "Geometry/FaceGeometry.h"
 #include "Base/Element.h"
-#include "L2Norm.h"
 #include "TreeEntry.h"
 
 namespace hpgem {

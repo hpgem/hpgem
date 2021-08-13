@@ -56,7 +56,6 @@ CHECK($1); the documentation
 #include "Logger.h"
 
 #include "FE/BasisFunctionSet.h"
-#include "Base/Base::L2Norm.h"
 #include "Geometry/PointReference.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "Geometry/ReferenceGeometry.h"
