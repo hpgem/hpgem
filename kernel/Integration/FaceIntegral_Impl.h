@@ -251,7 +251,7 @@ integral);
 
 //! \brief Construct an FaceIntegral with cache on.
 template <std::size_t DIM>
-FaceIntegral<DIM>::FaceIntegral() : internalFace_(true), boundaryFace_(false) {}
+FaceIntegral<DIM>::FaceIntegral() : internalFace_(true), boundaryFace_(false), jacobianScaling_(true) {}
 
 //! \brief Free the memory used for the data storage.
 template <std::size_t DIM>

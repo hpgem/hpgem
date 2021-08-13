@@ -201,7 +201,7 @@ IntegrandType ElementIntegral<DIM>::referenceElementIntegral(
 
 //! \brief Construct an ElementIntegral with cache on.
 template <std::size_t DIM>
-ElementIntegral<DIM>::ElementIntegral() = default;
+ElementIntegral<DIM>::ElementIntegral() : jacobianScaling_(true){};
 
 //! \brief Class destructor
 template <std::size_t DIM>

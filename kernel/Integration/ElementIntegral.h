@@ -133,7 +133,7 @@ class ElementIntegral {
     }
 
     Base::PhysicalElement<DIM> element_;
-    bool jacobianScaling_ = true;
+    bool jacobianScaling_;
 };
 
 }  // namespace Integration
