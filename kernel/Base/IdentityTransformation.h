@@ -73,8 +73,9 @@ class IdentityTransformation : public CoordinateTransformation<DIM> {
     }
 
     /// just do noting with the data
-    double transformDiv(double referenceData,
-                        CoordinateTransformationData<DIM>&) const override final {
+    double transformDiv(
+        double referenceData,
+        CoordinateTransformationData<DIM>&) const override final {
         return referenceData;
     }
 
@@ -83,18 +84,6 @@ class IdentityTransformation : public CoordinateTransformation<DIM> {
         LinearAlgebra::SmallVector<DIM> referenceData,
         CoordinateTransformationData<DIM>&) const override final {
         return referenceData;
-    }
-
-    /// just multiply by 1
-    double getIntegrandScaleFactor(
-        PhysicalElement<DIM>& element) const override final {
-        return 1.;
-    }
-
-    /// just multiply by 1
-    double getIntegrandScaleFactor(
-        PhysicalFace<DIM>& face) const override final {
-        return 1.;
     }
 };
 }  // namespace Base

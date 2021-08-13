@@ -39,20 +39,13 @@
 #ifndef HPGEM_KERNEL_COORDINATETRANSFORMATION_H
 #define HPGEM_KERNEL_COORDINATETRANSFORMATION_H
 
-#include <cstdlib>
+#include "Logger.h"
 #include "LinearAlgebra/SmallVector.h"
 #include "CoordinateTransformationData.h"
 
 namespace hpgem {
 
 namespace Base {
-// Due to recursive includes these need a forward defined
-template <std::size_t DIM>
-class PhysicalElement;
-template <std::size_t DIM>
-class PhysicalFace;
-template <std::size_t>
-class CoordinateTransformationData;
 
 /// Base class for coordinate transformations. Coordinate transformations are
 /// used internally to rewrite the integral expressions in the physical domain
@@ -69,8 +62,9 @@ class CoordinateTransformation {
     virtual ~CoordinateTransformation() = default;
 
     /// provide a transformation strategy for (scalar valued) functions
-    virtual double transform(double referenceData,
-                             const CoordinateTransformationData<DIM>& data) const {
+    virtual double transform(
+        double referenceData,
+        const CoordinateTransformationData<DIM>& data) const {
         logger(ERROR,
                "Transforming scalar data is not supported, please set a "
                "different transformation");
@@ -100,8 +94,9 @@ class CoordinateTransformation {
     }
 
     /// provide a transformation for the divergence of a function
-    virtual double transformDiv(double referenceData,
-                                const CoordinateTransformationData<DIM>& data) const {
+    virtual double transformDiv(
+        double referenceData,
+        const CoordinateTransformationData<DIM>& data) const {
         logger(ERROR,
                "Transforming derivative data is not supported, please set a "
                "different transformation");
@@ -116,28 +111,6 @@ class CoordinateTransformation {
                "Transforming curl data is not supported, please set a "
                "different transformation");
         return LinearAlgebra::SmallVector<DIM>();
-    }
-
-    /// provide a scaling that will be applied to the entire integrand when
-    /// integrating over elements (typically this will be the absolute value of
-    /// the determinant of the Jacobian)
-    virtual double getIntegrandScaleFactor(
-        PhysicalElement<DIM>& element) const {
-        logger(ERROR,
-               "Scaling integrands is not supported, please set a different "
-               "transformation");
-        return 0.;
-    }
-
-    /// provide a scaling that will be applied to the entire integrand when
-    /// integrating over faces
-    ///(in hpGEM, this will typically be the norm of the (non-unit) outward
-    /// pointing normal vector)
-    virtual double getIntegrandScaleFactor(PhysicalFace<DIM>& face) const {
-        logger(ERROR,
-               "Scaling integrands is not supported, please set a different "
-               "transformation");
-        return 0.;
     }
 };
 }  // namespace Base

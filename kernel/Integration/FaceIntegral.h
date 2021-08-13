@@ -113,9 +113,26 @@ class FaceIntegral {
     // QuadratureRules::GaussQuadratureRule *ptrQdrRule,
     // std::function<IntegrandType()> integrandFunction) const;
 
+    /**
+     * Change whether the integrands are scaled to compensate for the coordinate
+     * transformation from physical to reference frame.
+     *
+     * By default scaling is on.
+     */
+    void setJacobianScaling(bool scaling) { jacobianScaling_ = scaling; }
+
    private:
+    double getScaleFactor(Base::PhysicalFace<DIM>& face) {
+        if (jacobianScaling_) {
+            return face.getRelativeSurfaceArea();
+        } else {
+            return 1.0;
+        }
+    }
+
     Base::PhysicalFace<DIM> internalFace_;
     Base::PhysicalFace<DIM> boundaryFace_;
+    bool jacobianScaling_;
 
 };  // class FaceIntegral
 

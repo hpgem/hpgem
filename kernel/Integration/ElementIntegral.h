@@ -115,8 +115,25 @@ class ElementIntegral {
         const QuadratureRules::GaussQuadratureRule* ptrQdrRule,
         std::function<IntegrandType()> integrandFunction);
 
+    /**
+     * Change whether the integrands are scaled to compensate for the coordinate
+     * transformation from physical to reference frame.
+     *
+     * By default scaling is on.
+     */
+    void setJacobianScaling(bool scaling) { jacobianScaling_ = scaling; }
+
    private:
+    double getScaleFactor() {
+        if (jacobianScaling_) {
+            return element_.getJacobianAbsDet();
+        } else {
+            return 1.0;
+        }
+    }
+
     Base::PhysicalElement<DIM> element_;
+    bool jacobianScaling_ = true;
 };
 
 }  // namespace Integration
