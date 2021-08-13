@@ -43,15 +43,9 @@
 #include "Base/Face.h"
 #include "Base/PhysicalElement.h"
 #include "Base/PhysicalFace.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
 
 namespace hpgem {
-namespace LinearAlgebra {
-class MiddleSizeVector;
-}
-
-namespace Base {
-class Face;
-}
 
 namespace Geometry {
 template <std::size_t DIM>

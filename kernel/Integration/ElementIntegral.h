@@ -43,17 +43,15 @@
 // Package includes:
 #include <functional>
 #include <memory>
+
+#include "Base/CoordinateTransformation.h"
+#include "Base/Element.h"
+#include "Base/PhysicalElement.h"
+
+#include "LinearAlgebra/MiddleSizeVector.h"
+
 //------------------------------------------------------------------------------
 namespace hpgem {
-namespace Base {
-class Element;
-
-template <std::size_t DIM>
-class PhysicalElement;
-
-template <std::size_t DIM>
-class CoordinateTransformation;
-}  // namespace Base
 
 namespace QuadratureRules {
 class GaussQuadratureRule;
@@ -62,10 +60,6 @@ class GaussQuadratureRule;
 namespace Geometry {
 template <std::size_t DIM>
 class PointReference;
-}
-
-namespace LinearAlgebra {
-class MiddleSizeVector;
 }
 
 namespace Integration {
