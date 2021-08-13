@@ -59,7 +59,12 @@ TEST_CASE("010Norms_UnitTest", "[010Norms_UnitTest]") {
     Geometry::PointPhysical<0> point0D(vec0D);
 
     INFO("0D case");
-    CHECK(Base::L2Norm(vec0D) == 0.);
+    CHECK({
+        const LinearAlgebra::MiddleSizeVector& v2 = vec0D;
+        LinearAlgebra::MiddleSizeVector::type result2;
+        result2 = v2.l2Norm();
+        result2 == 0.
+    });
     INFO("0D case");
     CHECK({
         const Geometry::Point<DIM>& v1 = point0D;
@@ -74,7 +79,12 @@ TEST_CASE("010Norms_UnitTest", "[010Norms_UnitTest]") {
     Geometry::PointPhysical<1> point1D(vec1D);
 
     INFO("1D case, positive");
-    CHECK(std::abs(Base::L2Norm(vec1D) - 1.) < 1e-12);
+    CHECK({
+        const LinearAlgebra::MiddleSizeVector& v2 = vec1D;
+        LinearAlgebra::MiddleSizeVector::type result2;
+        result2 = v2.l2Norm();
+        std::abs(result2 - 1.) < 1e-12
+    });
     INFO("1D case, positive");
     CHECK({
         const Geometry::Point<DIM>& v1 = point1D;
@@ -87,7 +97,12 @@ TEST_CASE("010Norms_UnitTest", "[010Norms_UnitTest]") {
     point1D[0] = -1;
 
     INFO("1D case, negative");
-    CHECK(std::abs(Base::L2Norm(vec1D) - 1.) < 1e-12);
+    CHECK({
+        const LinearAlgebra::MiddleSizeVector& v2 = vec1D;
+        LinearAlgebra::MiddleSizeVector::type result2;
+        result2 = v2.l2Norm();
+        std::abs(result2 - 1.) < 1e-12
+    });
     INFO("1D case, negative");
     CHECK({
         const Geometry::Point<DIM>& v1 = point1D;
@@ -100,7 +115,12 @@ TEST_CASE("010Norms_UnitTest", "[010Norms_UnitTest]") {
     point1D[0] = 4.38573895783677438;
 
     INFO("non-unit data");
-    CHECK(std::abs(Base::L2Norm(vec1D) - 4.38573895783677438) < 1e-12);
+    CHECK({
+        const LinearAlgebra::MiddleSizeVector& v2 = vec1D;
+        LinearAlgebra::MiddleSizeVector::type result2;
+        result2 = v2.l2Norm();
+        std::abs(result2 - 4.38573895783677438) < 1e-12
+    });
     INFO("non-unit data");
     CHECK({
         const Geometry::Point<DIM>& v1 = point1D;
@@ -117,7 +137,12 @@ TEST_CASE("010Norms_UnitTest", "[010Norms_UnitTest]") {
     Geometry::PointPhysical<2> point2D(vec2D);
 
     INFO("2D case, positive");
-    CHECK(std::abs(Base::L2Norm(vec2D) - std::sqrt(2.)) < 1e-12);
+    CHECK({
+        const LinearAlgebra::MiddleSizeVector& v2 = vec2D;
+        LinearAlgebra::MiddleSizeVector::type result2;
+        result2 = v2.l2Norm();
+        std::abs(result2 - std::sqrt(2.)) < 1e-12
+    });
     INFO("2D case, positive");
     CHECK({
         const LinearAlgebra::SmallVector<DIM>& v = smallVec2D;
@@ -138,7 +163,12 @@ TEST_CASE("010Norms_UnitTest", "[010Norms_UnitTest]") {
     point2D[0] = -1;
 
     INFO("2D case, mix");
-    CHECK(std::abs(Base::L2Norm(vec2D) - std::sqrt(2.)) < 1e-12);
+    CHECK({
+        const LinearAlgebra::MiddleSizeVector& v2 = vec2D;
+        LinearAlgebra::MiddleSizeVector::type result2;
+        result2 = v2.l2Norm();
+        std::abs(result2 - std::sqrt(2.)) < 1e-12
+    });
     INFO("2D case, mix");
     CHECK({
         const LinearAlgebra::SmallVector<DIM>& v = smallVec2D;
@@ -159,7 +189,12 @@ TEST_CASE("010Norms_UnitTest", "[010Norms_UnitTest]") {
     point2D[1] = -1;
 
     INFO("2D case, negative");
-    CHECK(std::abs(Base::L2Norm(vec2D) - std::sqrt(2.)) < 1e-12);
+    CHECK({
+        const LinearAlgebra::MiddleSizeVector& v1 = vec2D;
+        LinearAlgebra::MiddleSizeVector::type result1;
+        result1 = v1.l2Norm();
+        std::abs(result1 - std::sqrt(2.)) < 1e-12
+    });
     INFO("2D case, negative");
     CHECK({
         const LinearAlgebra::SmallVector<DIM>& v = smallVec2D;
@@ -183,7 +218,12 @@ TEST_CASE("010Norms_UnitTest", "[010Norms_UnitTest]") {
     Geometry::PointPhysical<3> point3D(vec3D);
 
     INFO("3D case, positive");
-    CHECK(std::abs(Base::L2Norm(vec3D) - std::sqrt(6.)) < 1e-12);
+    CHECK({
+        const LinearAlgebra::MiddleSizeVector& v1 = vec3D;
+        LinearAlgebra::MiddleSizeVector::type result1;
+        result1 = v1.l2Norm();
+        std::abs(result1 - std::sqrt(6.)) < 1e-12
+    });
     INFO("3D case, positive");
     CHECK({
         const Geometry::Point<DIM>& v = point3D;
@@ -196,7 +236,12 @@ TEST_CASE("010Norms_UnitTest", "[010Norms_UnitTest]") {
     point3D[0] = -1;
 
     INFO("3D case, mix");
-    CHECK(std::abs(Base::L2Norm(vec3D) - std::sqrt(6.)) < 1e-12);
+    CHECK({
+        const LinearAlgebra::MiddleSizeVector& v1 = vec3D;
+        LinearAlgebra::MiddleSizeVector::type result1;
+        result1 = v1.l2Norm();
+        std::abs(result1 - std::sqrt(6.)) < 1e-12
+    });
     INFO("3D case, mix");
     CHECK({
         const Geometry::Point<DIM>& v = point3D;
@@ -209,7 +254,12 @@ TEST_CASE("010Norms_UnitTest", "[010Norms_UnitTest]") {
     point3D[1] = -1;
 
     INFO("3D case, mix");
-    CHECK(std::abs(Base::L2Norm(vec3D) - std::sqrt(6.)) < 1e-12);
+    CHECK({
+        const LinearAlgebra::MiddleSizeVector& v1 = vec3D;
+        LinearAlgebra::MiddleSizeVector::type result1;
+        result1 = v1.l2Norm();
+        std::abs(result1 - std::sqrt(6.)) < 1e-12
+    });
     INFO("3D case, mix");
     CHECK({
         const Geometry::Point<DIM>& v = point3D;
@@ -222,7 +272,12 @@ TEST_CASE("010Norms_UnitTest", "[010Norms_UnitTest]") {
     point3D[2] = -2;
 
     INFO("3D case, negative");
-    CHECK(std::abs(Base::L2Norm(vec3D) - std::sqrt(6.)) < 1e-12);
+    CHECK({
+        const LinearAlgebra::MiddleSizeVector& v1 = vec3D;
+        LinearAlgebra::MiddleSizeVector::type result1;
+        result1 = v1.l2Norm();
+        std::abs(result1 - std::sqrt(6.)) < 1e-12
+    });
     INFO("3D case, negative");
     CHECK({
         const Geometry::Point<DIM>& v = point3D;

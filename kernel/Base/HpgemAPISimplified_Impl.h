@@ -722,8 +722,11 @@ std::tuple<double, double> HpgemAPISimplified<DIM>::computeErrorAndNormOfUpdate(
     double error = 0.;
     double norm = 0.;
     for (Base::Element *element : this->meshes_[0]->getElementsList()) {
-        norm += std::real(
-            Base::L2Norm(element->getTimeIntegrationVector(solutionVectorId_)));
+        const LinearAlgebra::MiddleSizeVector &v =
+            element->getTimeIntegrationVector(solutionVectorId_);
+        LinearAlgebra::MiddleSizeVector::type result;
+        result = v.l2Norm();
+        norm += std::real(result);
         LinearAlgebra::MiddleSizeVector deviation(
             element->getNumberOfBasisFunctions() *
             element->getNumberOfUnknowns());
@@ -734,7 +737,9 @@ std::tuple<double, double> HpgemAPISimplified<DIM>::computeErrorAndNormOfUpdate(
                 element->getTimeIntegrationVector(auxiliaryVectorIds_[i]) * dt *
                 ptrButcherTableau_->getErrorCoefficient(i);
         }
-        error += std::real(std::pow(Base::L2Norm(deviation), 2.));
+        LinearAlgebra::MiddleSizeVector::type result1;
+        result1 = deviation.l2Norm();
+        error += std::real(std::pow(result1, 2.));
     }
 #ifdef HPGEM_USE_MPI
     auto &communicator = MPIContainer::Instance();

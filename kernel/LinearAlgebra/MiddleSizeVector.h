@@ -151,6 +151,9 @@ class MiddleSizeVector {
 
     void set(type value) { std::fill(data_.begin(), data_.end(), value); }
 
+    double l2Norm() const { return std::sqrt(l2NormSquared()); }
+    double l2NormSquared() const;
+
    private:
     std::vector<type> data_;
 };  // namespace hpgem
