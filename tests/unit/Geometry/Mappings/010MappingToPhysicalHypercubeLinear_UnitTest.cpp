@@ -123,8 +123,9 @@ TEST_CASE("010MappingToPhysicalHypercubeLinear_UnitTest",
                1e-5));  // mappings
         refPoint1D[0] += 1e-8;
 
-        double dist =
-            Base::L2Norm(refPoint1D - mapping1D.inverseTransform(point1D));
+        const Geometry::Point<DIM>& v =
+            refPoint1D - mapping1D.inverseTransform(point1D);
+        double dist = v.l2Norm();
         INFO("inverse transformation(difference is" << dist << ", point is "
                                                     << refPoint1D);
         CHECK(dist < 1e-12);
@@ -223,8 +224,9 @@ TEST_CASE("010MappingToPhysicalHypercubeLinear_UnitTest",
             // different locations; due to nonlinearities) or they are inside
             // and
             // on the same location
-            double dist =
-                Base::L2Norm(refPoint2D - mapping2D.inverseTransform(point2D));
+            const Geometry::Point<DIM>& v =
+                refPoint2D - mapping2D.inverseTransform(point2D);
+            double dist = v.l2Norm();
             INFO("inverse transformation, (distance is" << dist << ", point is"
                                                         << refPoint2D);
             bool check_or = (!rGeom2D.isInternalPoint(refPoint2D) &&
@@ -366,8 +368,9 @@ TEST_CASE("010MappingToPhysicalHypercubeLinear_UnitTest",
                 // inside
                 // and on the same location
 
-                double dist = Base::L2Norm(refPoint3D -
-                                           mapping3D.inverseTransform(point3D));
+                const Geometry::Point<DIM>& v =
+                    refPoint3D - mapping3D.inverseTransform(point3D);
+                double dist = v.l2Norm();
                 bool check = (!rGeom3D.isInternalPoint(refPoint3D) &&
                               !rGeom3D.isInternalPoint(
                                   mapping3D.inverseTransform(point3D))) ||

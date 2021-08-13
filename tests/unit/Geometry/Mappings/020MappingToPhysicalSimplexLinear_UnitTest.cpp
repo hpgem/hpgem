@@ -163,8 +163,9 @@ TEST_CASE("020MappingToPhysicalSimplexLinear_UnitTest",
             // and
             // on the same location
 
-            double dist =
-                Base::L2Norm(refPoint2D - mapping2D.inverseTransform(point2D));
+            const Geometry::Point<DIM>& v =
+                refPoint2D - mapping2D.inverseTransform(point2D);
+            double dist = v.l2Norm();
             bool check2 = (!rGeom2D.isInternalPoint(refPoint2D) &&
                            !rGeom2D.isInternalPoint(
                                mapping2D.inverseTransform(point2D))) ||
@@ -304,8 +305,9 @@ TEST_CASE("020MappingToPhysicalSimplexLinear_UnitTest",
                 // inside
                 // and on the same location
 
-                double dist = Base::L2Norm(refPoint3D -
-                                           mapping3D.inverseTransform(point3D));
+                const Geometry::Point<DIM>& v =
+                    refPoint3D - mapping3D.inverseTransform(point3D);
+                double dist = v.l2Norm();
                 bool check = (!rGeom3D.isInternalPoint(refPoint3D) &&
                               !rGeom3D.isInternalPoint(
                                   mapping3D.inverseTransform(point3D))) ||

@@ -187,12 +187,12 @@ TEST_CASE("030MappingToPhysicalTriangularPrism_UnitTest",
                 // different locations; due to nonlinearities) or they are
                 // inside
                 // and on the same location
-                bool check =
-                    !rGeom3D.isInternalPoint(refPoint3D) &&
-                        !rGeom3D.isInternalPoint(
-                            mapping3D.inverseTransform(point3D)) ||
-                    (Base::L2Norm(refPoint3D -
-                                  mapping3D.inverseTransform(point3D)) < 1e-12);
+                const Geometry::Point<DIM>& v =
+                    refPoint3D - mapping3D.inverseTransform(point3D);
+                bool check = !rGeom3D.isInternalPoint(refPoint3D) &&
+                                 !rGeom3D.isInternalPoint(
+                                     mapping3D.inverseTransform(point3D)) ||
+                             (v.l2Norm() < 1e-12);
                 CHECK(check);
                 INFO("inverse transformation, (distance is "
                      << refPoint3D - mapping3D.inverseTransform(point3D)

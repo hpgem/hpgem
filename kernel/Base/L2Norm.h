@@ -49,20 +49,11 @@ template <std::size_t DIM>
 class SmallVector;
 }
 
-namespace Geometry {
-template <std::size_t DIM>
-class Point;
-}
-
 namespace Base {
 /*! Compute the 2 norm of a vector. */
 LinearAlgebra::MiddleSizeVector::type L2Norm(
     const LinearAlgebra::MiddleSizeVector&);
 
-template <std::size_t DIM>
-double L2Norm(const Geometry::Point<DIM>& v) {
-    return v.l2Norm();
-}
 }  // namespace Base
 }  // namespace hpgem
 
