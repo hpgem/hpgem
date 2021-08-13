@@ -292,8 +292,9 @@ class PoissonTest : public Base::HpgemAPILinearSteadyState<DIM> {
                 [](Base::Element* element,
                    const Geometry::PointReference<DIM>& point,
                    std::size_t timeLevel) -> LinearAlgebra::SmallVector<DIM> {
-            if (std::isnan(Base::L2Norm(
-                    element->getSolutionGradient(timeLevel, point)[0]))) {
+            const LinearAlgebra::SmallVector<DIM>& v =
+                element->getSolutionGradient(timeLevel, point)[0];
+            if (std::isnan(v.l2Norm())) {
                 logger(INFO, "%", element->calcJacobian(point));
                 logger(ERROR,
                        "nan gradient detected at element % (type %) at point %",

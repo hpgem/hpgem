@@ -370,7 +370,7 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::RoeRiemannFluxFunction(
     LinearAlgebra::SmallVector<DIM> &normal) {
 
     // Compute correct normal direction and difference vector
-    double area = Base::L2Norm(normal);
+    double area = normal.l2Norm();
     normal = normal / area;
 
     LinearAlgebra::MiddleSizeVector qDifference =

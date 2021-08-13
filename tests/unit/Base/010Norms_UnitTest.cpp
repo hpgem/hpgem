@@ -99,7 +99,12 @@ TEST_CASE("010Norms_UnitTest", "[010Norms_UnitTest]") {
     INFO("2D case, positive");
     CHECK(std::abs(Base::L2Norm(vec2D) - std::sqrt(2.)) < 1e-12);
     INFO("2D case, positive");
-    CHECK(std::abs(Base::L2Norm(smallVec2D) - std::sqrt(2.)) < 1e-12);
+    CHECK({
+        const LinearAlgebra::SmallVector<DIM>& v = smallVec2D;
+        double result;
+        result = v.l2Norm();
+        std::abs(result - std::sqrt(2.)) < 1e-12
+    });
     INFO("2D case, positive");
     CHECK(std::abs(Base::L2Norm(point2D) - std::sqrt(2.)) < 1e-12);
 
@@ -110,7 +115,12 @@ TEST_CASE("010Norms_UnitTest", "[010Norms_UnitTest]") {
     INFO("2D case, mix");
     CHECK(std::abs(Base::L2Norm(vec2D) - std::sqrt(2.)) < 1e-12);
     INFO("2D case, mix");
-    CHECK(std::abs(Base::L2Norm(smallVec2D) - std::sqrt(2.)) < 1e-12);
+    CHECK({
+        const LinearAlgebra::SmallVector<DIM>& v = smallVec2D;
+        double result;
+        result = v.l2Norm();
+        std::abs(result - std::sqrt(2.)) < 1e-12
+    });
     INFO("2D case, mix");
     CHECK(std::abs(Base::L2Norm(point2D) - std::sqrt(2.)) < 1e-12);
 
@@ -121,7 +131,12 @@ TEST_CASE("010Norms_UnitTest", "[010Norms_UnitTest]") {
     INFO("2D case, negative");
     CHECK(std::abs(Base::L2Norm(vec2D) - std::sqrt(2.)) < 1e-12);
     INFO("2D case, negative");
-    CHECK(std::abs(Base::L2Norm(smallVec2D) - std::sqrt(2.)) < 1e-12);
+    CHECK({
+        const LinearAlgebra::SmallVector<DIM>& v = smallVec2D;
+        double result;
+        result = v.l2Norm();
+        std::abs(result - std::sqrt(2.)) < 1e-12
+    });
     INFO("2D case, negative");
     CHECK(std::abs(Base::L2Norm(point2D) - std::sqrt(2.)) < 1e-12);
 

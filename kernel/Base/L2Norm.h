@@ -60,17 +60,8 @@ LinearAlgebra::MiddleSizeVector::type L2Norm(
     const LinearAlgebra::MiddleSizeVector&);
 
 template <std::size_t DIM>
-double L2Norm(const LinearAlgebra::SmallVector<DIM>& v) {
-    return std::sqrt(v * v);
-}
-
-template <std::size_t DIM>
 double L2Norm(const Geometry::Point<DIM>& v) {
-    double retSquared(0);
-    for (std::size_t i = 0; i < v.size(); ++i) {
-        retSquared += v[i] * v[i];
-    }
-    return std::sqrt(retSquared);
+    return v.l2Norm();
 }
 }  // namespace Base
 }  // namespace hpgem

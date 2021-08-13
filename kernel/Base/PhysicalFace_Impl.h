@@ -769,7 +769,8 @@ inline double PhysicalFace<DIM>::getRelativeSurfaceArea() {
         return normalNorm;
     }
     hasNormalNorm = true;
-    normalNorm = L2Norm(getNormalVector());
+    const LinearAlgebra::SmallVector<DIM>& v = getNormalVector();
+    normalNorm = v.l2Norm();
     return normalNorm;
 }
 
