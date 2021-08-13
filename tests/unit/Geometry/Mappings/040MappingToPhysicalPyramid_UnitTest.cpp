@@ -190,9 +190,8 @@ TEST_CASE("040MappingToPhysicalPyramid_UnitTest",
                 // might not be; due to nonlinearities) or they are inside and
                 // on
                 // the same location
-                const Geometry::Point<DIM>& v =
-                    refPoint3D - mapping3D.inverseTransform(point3D);
-                double dist = v.l2Norm();
+                double dist =
+                    (refPoint3D - mapping3D.inverseTransform(point3D)).l2Norm();
 
                 INFO("inverse transformation, (distance is "
                      << dist << ", point is " << refPoint3D << "/"

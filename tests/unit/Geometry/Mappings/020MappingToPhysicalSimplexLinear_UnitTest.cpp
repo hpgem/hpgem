@@ -50,7 +50,6 @@
 #include "Geometry/PointPhysical.h"
 #include "Geometry/PhysicalGeometry.h"
 #include <cmath>
-#include <Base/L2Norm.h>
 
 #include "../catch.hpp"
 
@@ -163,9 +162,8 @@ TEST_CASE("020MappingToPhysicalSimplexLinear_UnitTest",
             // and
             // on the same location
 
-            const Geometry::Point<DIM>& v =
-                refPoint2D - mapping2D.inverseTransform(point2D);
-            double dist = v.l2Norm();
+            double dist =
+                (refPoint2D - mapping2D.inverseTransform(point2D)).l2Norm();
             bool check2 = (!rGeom2D.isInternalPoint(refPoint2D) &&
                            !rGeom2D.isInternalPoint(
                                mapping2D.inverseTransform(point2D))) ||
@@ -305,9 +303,8 @@ TEST_CASE("020MappingToPhysicalSimplexLinear_UnitTest",
                 // inside
                 // and on the same location
 
-                const Geometry::Point<DIM>& v =
-                    refPoint3D - mapping3D.inverseTransform(point3D);
-                double dist = v.l2Norm();
+                double dist =
+                    (refPoint3D - mapping3D.inverseTransform(point3D)).l2Norm();
                 bool check = (!rGeom3D.isInternalPoint(refPoint3D) &&
                               !rGeom3D.isInternalPoint(
                                   mapping3D.inverseTransform(point3D))) ||
