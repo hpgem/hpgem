@@ -40,7 +40,6 @@
 #define HPGEM_KERNEL_REFERENCEGEOMETRY_H
 
 #include "Geometry/Mappings/MappingCodimensions.h"
-#include "Geometry/Mappings/RefinementMapping.h"
 #include "PointReference.h"
 
 #include <map>
