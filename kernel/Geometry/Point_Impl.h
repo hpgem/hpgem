@@ -128,12 +128,12 @@ std::size_t Point<DIM>::size() const {
     return coordinates_.size();
 }
 
-template<std::size_t DIM>
+template <std::size_t DIM>
 double Point<DIM>::l2Norm() const {
     return coordinates_.l2Norm();
 }
 
-template<std::size_t DIM>
+template <std::size_t DIM>
 double Point<DIM>::l2NormSquared() const {
     return coordinates_.l2NormSquared();
 }
