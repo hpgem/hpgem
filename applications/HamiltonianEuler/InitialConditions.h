@@ -15,6 +15,7 @@ using namespace std;
 #include "Geometry/PointPhysical.h"
 #include "Geometry/PointReference.h"
 #include "Base/Element.h"
+#include "Base/PhysicalElement.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "Integration/ElementIntegrandBase.h"
 

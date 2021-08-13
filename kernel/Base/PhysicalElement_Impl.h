@@ -413,7 +413,25 @@ inline const LinearAlgebra::MiddleSizeVector&
         return solution;
     }
     hasSolution = true;
-    solution = theElement_->getSolution(0, *this);
+
+    std::size_t numberOfUnknowns = getNumberOfUnknowns();
+    std::vector<std::size_t> numberOfBasisFunctions =
+        std::vector<std::size_t>(numberOfUnknowns, 0);
+
+    solution.resize(numberOfUnknowns);
+    solution.set(0.0);
+
+    const LinearAlgebra::MiddleSizeVector& data =
+        theElement_->getTimeIntegrationVector(0);
+
+    std::size_t iVb = 0;
+    for (std::size_t iV = 0; iV < numberOfUnknowns; ++iV) {
+        numberOfBasisFunctions[iV] = theElement_->getNumberOfBasisFunctions(iV);
+        for (std::size_t iB = 0; iB < numberOfBasisFunctions[iV]; ++iB) {
+            iVb = theElement_->convertToSingleIndex(iB, iV);
+            solution[iV] += data(iVb) * basisFunction(iB);
+        }
+    }
     return solution;
 }
 
@@ -426,7 +444,24 @@ inline const std::vector<LinearAlgebra::SmallVector<DIM> >&
         return solutionDeriv;
     }
     hasSolutionDeriv = true;
-    solutionDeriv = theElement_->getSolutionGradient(0, *this);
+
+    std::size_t numberOfUnknowns = getNumberOfUnknowns();
+    std::vector<std::size_t> numberOfBasisFunctions =
+        std::vector<std::size_t>(numberOfUnknowns, 0);
+    solutionDeriv.resize(numberOfUnknowns);
+
+    const LinearAlgebra::MiddleSizeVector& data =
+        theElement_->getTimeIntegrationVector(0);
+
+    std::size_t iVB = 0;
+    for (std::size_t iV = 0; iV < numberOfUnknowns; ++iV) {
+        solutionDeriv[iV].set(0.0);
+        numberOfBasisFunctions[iV] = theElement_->getNumberOfBasisFunctions(iV);
+        for (std::size_t iB = 0; iB < numberOfBasisFunctions[iV]; ++iB) {
+            iVB = convertToSingleIndex(iB, iV);
+            solutionDeriv[iV] += data(iVB) * basisFunctionDeriv(iB);
+        }
+    }
     return solutionDeriv;
 }
 
@@ -475,7 +510,8 @@ inline const Geometry::PointPhysical<DIM>&
 }
 
 template <std::size_t DIM>
-inline const Geometry::Jacobian<DIM, DIM>& PhysicalElement<DIM>::getJacobian() {
+inline const Geometry::Jacobian<DIM, DIM>& PhysicalElement<DIM>::getJacobian()
+    const {
     logger.assert_debug(hasPointReference && hasElement,
                         "Need a location to evaluate the data");
     if (hasJacobian) {
@@ -501,7 +537,7 @@ inline const Geometry::Jacobian<DIM, DIM>&
 
 template <std::size_t DIM>
 inline const Geometry::Jacobian<DIM, DIM>&
-    PhysicalElement<DIM>::getTransposeJacobian() {
+    PhysicalElement<DIM>::getTransposeJacobian() const {
     logger.assert_debug(hasPointReference && hasElement,
                         "Need a location to evaluate the data");
     if (hasTransposeJacobian) {
@@ -525,7 +561,7 @@ inline double PhysicalElement<DIM>::getJacobianAbsDet() {
 }
 
 template <std::size_t DIM>
-inline double PhysicalElement<DIM>::getJacobianDet() {
+inline double PhysicalElement<DIM>::getJacobianDet() const {
     logger.assert_debug(hasPointReference && hasElement,
                         "Need a location to evaluate the data");
     if (hasJacobianDet) {

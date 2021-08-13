@@ -37,6 +37,7 @@
  */
 
 #include "TvbLimiterWithDetector1D.h"
+#include "Base/Face.h"
 #include "../HelperFunctions.h"
 
 using namespace hpgem;

@@ -695,8 +695,8 @@ template <std::size_t DIM>
 void Euler<DIM>::tasksBeforeSolving() {
     this->faceIntegrator_.setTransformation(
         std::shared_ptr<Base::CoordinateTransformation<DIM> >(
-            new Base::DoNotScaleIntegrands<DIM>(
-                new Base::H1ConformingTransformation<DIM>())));
+            new Base::H1ConformingTransformation<DIM>()));
+    this->faceIntegrator_.setJacobianScaling(false);
     Base::HpgemAPISimplified<DIM>::tasksBeforeSolving();
 }
 

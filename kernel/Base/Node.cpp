@@ -38,6 +38,7 @@
 
 #include "Node.h"
 #include "Element.h"
+#include "Face.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include <algorithm>
 
