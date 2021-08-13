@@ -124,9 +124,8 @@ void SavageHutter2DBasic::registerVTKWriteFunctions() {
                 const double h = element->getSolution(timeLevel, pRef)[0];
                 const double u = element->getSolution(timeLevel, pRef)[1] / h;
                 const double v = element->getSolution(timeLevel, pRef)[2] / h;
-                const MiddleSizeVector& v1 =
-                    LinearAlgebra::MiddleSizeVector({u, v});
-                return v1.l2Norm() /
+                LinearAlgebra::SmallVector<2> uv = {u, v};
+                return uv.l2Norm() /
                        std::sqrt(h * epsilon_ * std::cos(chuteAngle_));
             }
             return 0;
@@ -154,11 +153,13 @@ LinearAlgebra::MiddleSizeVector SavageHutter2DBasic::computeSourceTerm(
         v = hv / h;
     }
 
+    LinearAlgebra::SmallVector<2> uv = {u, v};
     double uNormalized = 0;
     double vNormalized = 0;
-    if (((const MiddleSizeVector){u, v}).l2Norm() > 1e-16) {
-        uNormalized = u / ((const MiddleSizeVector){u, v}).l2Norm();
-        vNormalized = v / ((const MiddleSizeVector){u, v}).l2Norm();
+    if (uv.l2NormSquared() > 1e-32) {
+        double norm = uv.l2Norm();
+        uNormalized = u / norm;
+        vNormalized = v / norm;
     }
     const double mu = computeFriction(numericalSolution);
     const double sourceX = h * std::sin(chuteAngle_) -
