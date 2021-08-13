@@ -128,6 +128,16 @@ std::size_t Point<DIM>::size() const {
     return coordinates_.size();
 }
 
+template<std::size_t DIM>
+double Point<DIM>::l2Norm() const {
+    return coordinates_.l2Norm();
+}
+
+template<std::size_t DIM>
+double Point<DIM>::l2NormSquared() const {
+    return coordinates_.l2NormSquared();
+}
+
 template <std::size_t DIM>
 double Point<DIM>::getCoordinate(std::size_t n) const {
     logger.assert_debug(n < size(),

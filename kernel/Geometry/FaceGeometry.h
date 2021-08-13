@@ -94,10 +94,6 @@
 // handled in the code.)
 //--------------------------------------------------------------------------------------------------
 namespace hpgem {
-namespace Base {
-
-class Face;
-}
 
 namespace LinearAlgebra {
 class MiddleSizeMatrix;

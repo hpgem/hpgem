@@ -36,7 +36,6 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <Base/L2Norm.h>
 #include "MappingToPhysTriangularPrism.h"
 
 #include "Geometry/PointPhysical.h"
@@ -90,14 +89,14 @@ PointReference<3> MappingToPhysTriangularPrism::inverseTransform(
     Geometry::PointReference<3> result;
     Geometry::PointPhysical<3> comparison = transform(result);
     LinearAlgebra::SmallVector<3> correction;
-    double error = Base::L2Norm(pointPhysical - comparison);
+    double error = (pointPhysical - comparison).l2NormSquared();
     std::size_t loop_count{0};
-    while (error > 1e-14 && loop_count++ < 100) {
+    while (error > 1e-28 && loop_count++ < 100) {
         correction = (pointPhysical - comparison).getCoordinates();
         calcJacobian(result).solve(correction);
         result = PointReference<3>(result + correction);
         comparison = transform(result);
-        error = Base::L2Norm(pointPhysical - comparison);
+        error = (pointPhysical - comparison).l2NormSquared();
     }
     if (loop_count == 100) {
         return {std::numeric_limits<double>::quiet_NaN(),
