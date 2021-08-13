@@ -258,7 +258,7 @@ LinearAlgebra::MiddleSizeVector SavageHutter2DBase::localLaxFriedrichsFlux(
     const LinearAlgebra::MiddleSizeVector& numericalSolutionLeft,
     const LinearAlgebra::MiddleSizeVector& numericalSolutionRight,
     const LinearAlgebra::SmallVector<2>& normal) {
-    logger.assert_debug(std::abs(Base::L2Norm(normal) - 1) < 1e-16,
+    logger.assert_debug(std::abs(normal.l2Norm() - 1) < 1e-16,
                         "LLF flux needs a unit normal vector");
     const double hLeft = numericalSolutionLeft[0];
     const double hRight = numericalSolutionRight[0];
@@ -323,7 +323,7 @@ LinearAlgebra::MiddleSizeVector SavageHutter2DBase::hllcFlux(
     const LinearAlgebra::MiddleSizeVector& numericalSolutionLeft,
     const LinearAlgebra::MiddleSizeVector& numericalSolutionRight,
     const LinearAlgebra::SmallVector<2>& normal) {
-    logger.assert_debug(std::abs(Base::L2Norm(normal) - 1) < 1e-14,
+    logger.assert_debug(std::abs(normal.l2Norm() - 1) < 1e-14,
                         "hllc flux needs unit normal vector");
     const double nx = normal[0];
     const double ny = normal[1];

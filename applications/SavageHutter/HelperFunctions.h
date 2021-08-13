@@ -43,7 +43,6 @@
 #include "Geometry/PointReference.h"
 #include "Integration/ElementIntegral.h"
 #include "Base/UserData.h"
-#include "Base/L2Norm.h"
 
 using namespace hpgem;
 
@@ -115,11 +114,11 @@ LinearAlgebra::MiddleSizeVector computeAverageOfSolution(
         element->getPhysicalGeometry()->getLocalNodeCoordinates(0);
     Geometry::PointPhysical<DIM> p1 =
         element->getPhysicalGeometry()->getLocalNodeCoordinates(1);
-    average /= Base::L2Norm(p1 - p0);
+    average /= (p1 - p0).l2Norm();
     if (DIM == 2) {
         Geometry::PointPhysical<DIM> p2 =
             element->getPhysicalGeometry()->getLocalNodeCoordinates(2);
-        average /= Base::L2Norm(p2 - p0);
+        average /= (p2 - p0).l2Norm();
     }
 
     logger(DEBUG, "Average over element %: %", element->getID(), average);

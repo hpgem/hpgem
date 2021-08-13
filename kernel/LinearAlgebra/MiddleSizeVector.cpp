@@ -225,6 +225,15 @@ MiddleSizeVector operator-(const MiddleSizeVector& right) {
     return MiddleSizeVector(right * -1.0);
 }
 
+double MiddleSizeVector::l2NormSquared() const {
+    double result = 0.0;
+    std::size_t n = data_.size();
+    for (std::size_t i = 0; i < n; ++i) {
+        result += std::norm(data_[i]);
+    }
+    return result;
+}
+
 std::ostream& operator<<(std::ostream& os, const MiddleSizeVector& A) {
     os << '[';
     for (std::size_t i = 0; i < A.size(); i++) {

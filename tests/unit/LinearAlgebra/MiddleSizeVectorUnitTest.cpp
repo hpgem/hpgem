@@ -47,6 +47,24 @@
 using namespace hpgem;
 using LinearAlgebra::MiddleSizeVector;
 
+TEST_CASE("L2 norm", "[MiddleSizeVectorUnitTest]") {
+    INFO("Real vector l2 norm");
+    LinearAlgebra::MiddleSizeVector vec({1.0, 2.0, 3.0});
+    // Note there should not be any rounding errors here
+    REQUIRE(vec.l2NormSquared() == 14.0);
+    vec = {3.0, -4.0};
+    REQUIRE(vec.l2NormSquared() == 25.0);
+    REQUIRE(vec.l2Norm() == Approx(5.0));
+
+#ifdef HPGEM_USE_COMPLEX_PETSC
+    INFO("Complex vector l2 norm");
+    vec = {std::complex<double>(3.0, 4.0)};
+    REQUIRE(vec.l2NormSquared() == 25.0);
+    vec = {std::complex<double>(1.0, 2.0), std::complex<double>(3.0, 4.0)};
+    REQUIRE(vec.l2NormSquared() == 30.0);
+#endif
+}
+
 TEST_CASE("MiddleSizeVectorUnitTest", "[MiddleSizeVectorUnitTest]") {
     //(operator[], operator() and size() don't have a stand-alone test, but are
     // used throughout the test in multiple assertions
