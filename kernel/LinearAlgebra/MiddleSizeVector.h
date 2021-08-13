@@ -149,9 +149,7 @@ class MiddleSizeVector {
 
     type* data() { return data_.data(); }
 
-    void set(type value) {
-        std::fill(data_.begin(), data_.end(), value);
-    }
+    void set(type value) { std::fill(data_.begin(), data_.end(), value); }
 
    private:
     std::vector<type> data_;

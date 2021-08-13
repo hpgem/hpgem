@@ -545,7 +545,6 @@ class Element final : public Geometry::ElementGeometry, public ElementData {
 }  // namespace Base
 }  // namespace hpgem
 
-
 namespace hpgem {
 
 namespace Base {

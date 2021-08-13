@@ -416,7 +416,7 @@ inline const LinearAlgebra::MiddleSizeVector&
 
     std::size_t numberOfUnknowns = getNumberOfUnknowns();
     std::vector<std::size_t> numberOfBasisFunctions =
-            std::vector<std::size_t>(numberOfUnknowns, 0);
+        std::vector<std::size_t>(numberOfUnknowns, 0);
 
     solution.resize(numberOfUnknowns);
     solution.set(0.0);
@@ -426,8 +426,7 @@ inline const LinearAlgebra::MiddleSizeVector&
 
     std::size_t iVb = 0;
     for (std::size_t iV = 0; iV < numberOfUnknowns; ++iV) {
-        numberOfBasisFunctions[iV] =
-            theElement_->getNumberOfBasisFunctions(iV);
+        numberOfBasisFunctions[iV] = theElement_->getNumberOfBasisFunctions(iV);
         for (std::size_t iB = 0; iB < numberOfBasisFunctions[iV]; ++iB) {
             iVb = theElement_->convertToSingleIndex(iB, iV);
             solution[iV] += data(iVb) * basisFunction(iB);
