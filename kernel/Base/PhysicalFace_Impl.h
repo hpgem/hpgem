@@ -1106,7 +1106,7 @@ void PhysicalFace<DIM>::updateLeftRightTransform() {
         // knowledge that these vectors are inside the reference shape for each
         // reference shape.
         Geometry::PointReference<DIM - 1> facePoint;
-        if (i > 1) {
+        if (i > 0) {
             facePoint[i - 1] = 1.0;
         }
 
