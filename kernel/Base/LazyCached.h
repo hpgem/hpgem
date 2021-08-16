@@ -39,6 +39,7 @@
 #define HPGEM_LAZYCACHED_H
 
 #include <functional>
+#include "Logger.h"
 
 namespace hpgem {
 namespace Base {
@@ -46,23 +47,37 @@ namespace Base {
 /**
  * A cache for a single value that is computed lazily.
  *
+ * Note: As with most of hpgem, this is not safe for multithreading.
+ *
  * @tparam T The type of the value that is cached
  */
 template <typename T>
 class LazyCached {
    public:
-    /// Create a cache backed by a computation to obtain the value.
-    ///
-    /// Note the computation is only run when the value is first obtained. This
-    /// should be taken into account for any side effects that it may cause.
-    ///
-    /// Note: For the computation, the value is initialized to the default.
-    /// \param computation The computation to update the value
+    /// Create a cache backed by a computation doing nothing
+    LazyCached() : compute_([](T&) {}), hasValue_(false), value_(){};
+    /**
+     *  Create a cache backed by a computation to obtain the value.
+     *
+     *  Note the computation is only run when the value is first obtained. This
+     *  should be taken into account for any side effects that it may cause.
+     *
+     *  Note: For the computation, the value is initialized to the default.
+     *  \param computation The computation to update the value
+     */
     explicit LazyCached(std::function<void(T&)> computation)
         : compute_(computation), hasValue_(false), value_() {}
 
-    /// Create a cache backed by a computation doing nothing
-    LazyCached() : compute_([](T&) {}), hasValue_(false), value_(){};
+    /**
+     * Utility constructor using a non static member function as update
+     * computation.
+     * @tparam C The type of the class
+     * @param instance The instance to call the member function on
+     * @param func Pointer to the member function.
+     */
+    template <typename C>
+    LazyCached(C* instance, void (C::*func)(T&))
+        : LazyCached(std::bind(func, instance, std::placeholders::_1)){};
 
     /// Get the cached value
     const T& get() {
@@ -84,8 +99,95 @@ class LazyCached {
     /// as value to prevent allocating new vectors each time.
     std::function<void(T&)> compute_;
     /// Whether or not a value has been computed
-    bool hasValue_;
+    bool hasValue_{};
     T value_;
+};
+
+/**
+ * The equivalent to a vector of LazyCached instances with a single computation.
+ *
+ * Note: Just like LazyCached this class is non thread-safe.
+ *
+ * @tparam T The type of value that is actually stored
+ */
+template <typename T>
+class LazyVectorCached {
+    using Entry = std::pair<bool, T>;
+
+   public:
+    /**
+     * Default constructor, uses a comptuation that does not update the value.
+     */
+    LazyVectorCached() : compute_([](T&, std::size_t) {}), values_(){};
+
+    /**
+     * Create a cache vector backed by a computation that is used to compute the
+     * entries of the vector on demand.
+     *
+     * Note the computation will be run only the first time the value for that
+     * index is requested, and for each time after the first reset. This needs
+     * to be taken into account for any side effects the computation may have.
+     *
+     * The first computation for a specific index after growing the cache to
+     * include the index, will get a T() as value argument.
+     *
+     * @param computation The computation used to update the value.
+     */
+    explicit LazyVectorCached(std::function<void(T&, std::size_t)> computation)
+        : compute_(computation), values_(){};
+
+    /**
+     * Utility constructor to use a non static member function as computation.
+     * @tparam C The class
+     * @param instance The instance to call the member function on
+     * @param func The member function used to update the cache.
+     */
+    template <typename C>
+    LazyVectorCached(C* instance, void (C::*func)(T&, std::size_t))
+        : LazyVectorCached(std::bind(func, instance, std::placeholders::_1,
+                                     std::placeholders::_2)){};
+
+    const T& get(std::size_t index) {
+        logger.assert_debug(index < values_.size(),
+                            "Asking for index % with only % values", index,
+                            values.size());
+        Entry& entry = values_[index];
+        if (!entry.first) {
+            compute_(entry.second, index);
+            entry.first = true;
+        }
+        return entry.second;
+    }
+
+    /**
+     * Resets all the entries in the cache
+     */
+    inline void reset() {
+        std::for_each(values_.begin(), values_.end(),
+                      [](Entry& entry) { entry.first = false; });
+    }
+    /**
+     * Reset and resize the cache.
+     *
+     * The parameterless constructor will be used to construct the new entries.
+     *
+     * @param newSize The new size of this cache
+     */
+    void reset(std::size_t newSize) {
+        // A tiny performance gain could be had from comparing newSize to the
+        // currentSize, but this is probably inconsequential to the cost of the
+        // computation that is being cached.
+        reset();
+        values_.resize(newSize, Entry(false, T()));
+    }
+
+    std::size_t size() const { return values_.size(); }
+
+    const T& operator[](std::size_t index) { return get(index); }
+
+   private:
+    std::function<void(T&, std::size_t)> compute_;
+    std::vector<Entry> values_;
 };
 
 }  // namespace Base

@@ -68,8 +68,14 @@ class PhysicalFace final {
           right(),
           isInternal_(forInternalFace),
           hasPointReference(false),
-          hasFace(false)  // other fields will be initialized when we have more
-                          // information
+          hasFace(false),
+          basisFunctionDeriv_(this,
+                              &PhysicalFace<DIM>::computeBasisFunctionDeriv),
+          basisFunctionCurl_(this,
+                             &PhysicalFace<DIM>::computeBasisFunctionCurl),
+          basisFunctionDiv_(this, &PhysicalFace<DIM>::computeBasisFunctionDiv)
+    // other fields will be initialized when we have more
+    // information
     {
         std::shared_ptr<Base::CoordinateTransformation<DIM>> transform(
             new H1ConformingTransformation<DIM>{});
@@ -394,11 +400,11 @@ class PhysicalFace final {
         basisFunctionUnitNormal_;
     std::vector<std::vector<LinearAlgebra::SmallVector<DIM>>>
         vectorBasisFunctionUnitNormal_;
-    std::vector<LazyCached<std::vector<LinearAlgebra::SmallVector<DIM>>>>
+    LazyVectorCached<std::vector<LinearAlgebra::SmallVector<DIM>>>
         basisFunctionDeriv_;
-    std::vector<LazyCached<std::vector<LinearAlgebra::SmallVector<DIM>>>>
+    LazyVectorCached<std::vector<LinearAlgebra::SmallVector<DIM>>>
         basisFunctionCurl_;
-    std::vector<LazyCached<std::vector<double>>> basisFunctionDiv_;
+    LazyVectorCached<std::vector<double>> basisFunctionDiv_;
 
     std::vector<LinearAlgebra::SmallVector<DIM>> solutionNormal_;
     std::vector<LinearAlgebra::SmallVector<DIM>> vectorSolutionNormal_;

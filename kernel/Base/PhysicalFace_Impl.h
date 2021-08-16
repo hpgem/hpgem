@@ -110,12 +110,12 @@ inline double PhysicalFace<DIM>::basisFunction(Side side, std::size_t i,
 template <std::size_t DIM>
 inline const LinearAlgebra::SmallVector<DIM>&
     PhysicalFace<DIM>::basisFunctionDeriv(std::size_t i) {
-    return basisFunctionDeriv_[0].get()[i];
+    return basisFunctionDeriv_[0][i];
 }
 template <std::size_t DIM>
 inline const LinearAlgebra::SmallVector<DIM>&
     PhysicalFace<DIM>::basisFunctionDeriv(std::size_t i, std::size_t unknown) {
-    return basisFunctionDeriv_[unknown].get()[i];
+    return basisFunctionDeriv_[unknown][i];
 }
 
 template <std::size_t DIM>
@@ -350,13 +350,13 @@ inline void PhysicalFace<DIM>::basisFunction(
 template <std::size_t DIM>
 inline const LinearAlgebra::SmallVector<DIM>&
     PhysicalFace<DIM>::basisFunctionCurl(std::size_t i) {
-    return basisFunctionCurl_[0].get()[i];
+    return basisFunctionCurl_[0][i];
 }
 
 template <std::size_t DIM>
 inline const LinearAlgebra::SmallVector<DIM>&
     PhysicalFace<DIM>::basisFunctionCurl(std::size_t i, std::size_t unknown) {
-    return basisFunctionCurl_[unknown].get()[i];
+    return basisFunctionCurl_[unknown][i];
 }
 
 template <std::size_t DIM>
@@ -379,13 +379,13 @@ inline const LinearAlgebra::SmallVector<DIM>&
 
 template <std::size_t DIM>
 inline const double& PhysicalFace<DIM>::basisFunctionDiv(std::size_t i) {
-    return basisFunctionDiv_[0].get()[i];
+    return basisFunctionDiv_[0][i];
 }
 
 template <std::size_t DIM>
 inline const double& PhysicalFace<DIM>::basisFunctionDiv(std::size_t i,
                                                          std::size_t unknown) {
-    return basisFunctionDiv_[unknown].get()[i];
+    return basisFunctionDiv_[unknown][i];
 }
 
 template <std::size_t DIM>
@@ -1052,33 +1052,9 @@ inline void PhysicalFace<DIM>::setQuadraturePointIndex(std::size_t index) {
 
 template <std::size_t DIM>
 void PhysicalFace<DIM>::resetLazyCaches(std::size_t currentUnknowns) {
-    std::size_t prevUnknowns = basisFunctionDeriv_.size();
-    if (prevUnknowns > currentUnknowns) {
-        basisFunctionDeriv_.resize(currentUnknowns);
-        basisFunctionCurl_.resize(currentUnknowns);
-        basisFunctionDiv_.resize(currentUnknowns);
-    } else if (prevUnknowns < currentUnknowns) {
-        using VectorValues = std::vector<LinearAlgebra::SmallVector<DIM>>;
-
-        // When extending we need to set updating function
-        for (std::size_t i = prevUnknowns; i < currentUnknowns; ++i) {
-            basisFunctionDeriv_.emplace_back([i, this](VectorValues& values) {
-                computeBasisFunctionDeriv(values, i);
-            });
-            basisFunctionCurl_.emplace_back([i, this](VectorValues& values) {
-                computeBasisFunctionCurl(values, i);
-            });
-            basisFunctionDiv_.emplace_back(
-                [i, this](std::vector<double>& values) {
-                    computeBasisFunctionDiv(values, i);
-                });
-        }
-    }
-    for (std::size_t i = 0; i < std::min(prevUnknowns, currentUnknowns); ++i) {
-        basisFunctionDeriv_[i].reset();
-        basisFunctionCurl_[i].reset();
-        basisFunctionDiv_[i].reset();
-    }
+    basisFunctionDeriv_.reset(currentUnknowns);
+    basisFunctionCurl_.reset(currentUnknowns);
+    basisFunctionDiv_.reset(currentUnknowns);
 }
 
 template <std::size_t DIM>
