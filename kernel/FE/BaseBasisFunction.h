@@ -145,6 +145,11 @@ class BaseBasisFunction {
         return 0;
     }
 
+    virtual LinearAlgebra::SmallVector<1> evalCurl(
+        const Geometry::PointReference<1>& p) const {
+        return {evalDeriv0(p)};
+    }
+
     virtual LinearAlgebra::SmallVector<2> evalCurl(
         const Geometry::PointReference<2>& p) const {
         logger(ERROR,
@@ -159,6 +164,16 @@ class BaseBasisFunction {
                "The curl of a scalar valued basis function is not implemented. "
                "Perhaps you meant evalDeriv?");
         return LinearAlgebra::SmallVector<3>();
+    }
+
+    LinearAlgebra::SmallVector<4> evalCurl(
+        const Geometry::PointReference<4>& p) const {
+        logger(ERROR, "Curl not defined in 4D");
+        return {};
+    }
+
+    virtual double evalDiv(const Geometry::PointReference<1>& p) const {
+        return evalDeriv0(p);
     }
 
     virtual double evalDiv(const Geometry::PointReference<2>& p) const {
