@@ -166,10 +166,17 @@ void GlobalSolveQualityMetric<dim>::computeAndPlotMetric(
 
     // Initialize vectors with appropriately sized zero vectors so that global
     // vector assembly works.
+    std::map<const Base::Element*, double> elementVolume;
+    Integration::ElementIntegral<dim> volumeIntegral;
+
     for (Base::Element* element : mesh.getElementsList()) {
         LinearAlgebra::MiddleSizeVector vec(
             element->getTotalNumberOfBasisFunctions());
         element->setElementVector(vec, ELEMENT_VECTOR_ID);
+        elementVolume[element] = volumeIntegral.integrate(
+            element, [](Base::PhysicalElement<dim>&) -> double { return 1.0; },
+            QuadratureRules::AllGaussQuadratureRules::instance().getRule(
+                element->getReferenceGeometry(), 0));
     }
     if (usesFaceMatrixAndVector()) {
         for (Base::Face* face : mesh.getFacesList()) {
@@ -234,8 +241,14 @@ void GlobalSolveQualityMetric<dim>::computeAndPlotMetric(
         resultVector.writeTimeIntegrationVector(SOLUTION_VECTOR_ID);
         for (Base::Element* element : mesh.getElementsList()) {
             double error = computeElementSquareError(sid, element);
-            totalElementErrorSquared[element] += error;
-            elementErrorSquared[element] = error;
+            double volume = elementVolume[element];
+
+            // Divide the L2 error by the volume, so that the error quantity
+            // gives an average difference in the same units as the actual
+            // solution. Moreover, this ensures that a similar difference on a
+            // small and large element will give a similar error metric.
+            totalElementErrorSquared[element] += error / volume;
+            elementErrorSquared[element] = error / volume;
         }
 
         // Plot details
