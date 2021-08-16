@@ -54,6 +54,7 @@
 #include "ReferenceTriangularPrism.h"
 #include "ReferenceCube.h"
 #include "ReferenceHypercube.h"
+#include "Mappings/RefinementMapping.h"
 
 #include "Mappings/MappingReferenceToPhysical.h"
 #include "Mappings/MappingToPhysHypercubeLinear.h"

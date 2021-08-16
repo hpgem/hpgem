@@ -351,7 +351,6 @@ class MeshManipulator : public MeshManipulatorBase {
     }
     // ************************************************************************
 
-
     //! Adds vertex based degrees of freedom to the set of basisfunctions for
     //! this mesh and all of its vertices. This routine will assume that the
     //! first basisfunctionset connects to the first vertex (local numbering)

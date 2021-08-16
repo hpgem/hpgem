@@ -37,6 +37,7 @@
  */
 
 #include "TvbLimiter1D.h"
+#include "Base/Face.h"
 
 using namespace hpgem;
 

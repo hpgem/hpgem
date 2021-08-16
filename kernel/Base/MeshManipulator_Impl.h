@@ -56,7 +56,6 @@
 #include "Geometry/Mappings/MappingReferenceToPhysical.h"
 #include "ElementFactory.h"
 #include "FaceFactory.h"
-#include "L2Norm.h"
 #include "Geometry/Jacobian.h"
 #include "Geometry/ReferenceGeometry.h"
 #include "FE/BasisFunctions1DH1ConformingLine.h"
@@ -99,17 +98,17 @@ class EnumHash {
 namespace hpgem {
 namespace Base {
 
-template<std::size_t DIM>
+template <std::size_t DIM>
 void MeshManipulator<DIM>::clearBasisFunctionAssignment() {
     collBasisFSet_.clear();
-    for(Base::Element* element : getElementsList(IteratorType::GLOBAL)) {
+    for (Base::Element *element : getElementsList(IteratorType::GLOBAL)) {
         element->clearBasisFunctions();
     }
 
-    for(Base::Face* face : getFacesList(IteratorType::GLOBAL)) {
+    for (Base::Face *face : getFacesList(IteratorType::GLOBAL)) {
         face->setLocalNumberOfBasisFunctions(0);
     }
-    for(Base::Edge* edge : getEdgesList(IteratorType::GLOBAL)) {
+    for (Base::Edge *edge : getEdgesList(IteratorType::GLOBAL)) {
         edge->setLocalNumberOfBasisFunctions(0);
     }
     if (dimension_ > 1) {

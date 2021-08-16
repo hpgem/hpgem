@@ -46,7 +46,6 @@
 #include "Geometry/ReferenceGeometry.h"
 #include "Geometry/PointReference.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
-#include "L2Norm.h"
 #include "Node.h"
 #include "Geometry/PhysicalGeometry.h"
 #include "Geometry/PointPhysical.h"

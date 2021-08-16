@@ -223,12 +223,12 @@ class AcousticWave : public Base::HpgemAPISimplified<DIM> {
     void tasksBeforeSolving() override final {
         this->elementIntegrator_.setTransformation(
             std::shared_ptr<Base::CoordinateTransformation<DIM> >(
-                new Base::DoNotScaleIntegrands<DIM>(
-                    new Base::H1ConformingTransformation<DIM>())));
+                new Base::H1ConformingTransformation<DIM>()));
+        this->elementIntegrator_.setJacobianScaling(false);
         this->faceIntegrator_.setTransformation(
             std::shared_ptr<Base::CoordinateTransformation<DIM> >(
-                new Base::DoNotScaleIntegrands<DIM>(
-                    new Base::H1ConformingTransformation<DIM>())));
+                new Base::H1ConformingTransformation<DIM>()));
+        this->faceIntegrator_.setJacobianScaling(false);
         Base::HpgemAPISimplified<DIM>::tasksBeforeSolving();
     }
 

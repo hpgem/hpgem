@@ -43,17 +43,15 @@
 // Package includes:
 #include <functional>
 #include <memory>
+
+#include "Base/CoordinateTransformation.h"
+#include "Base/Element.h"
+#include "Base/PhysicalElement.h"
+
+#include "LinearAlgebra/MiddleSizeVector.h"
+
 //------------------------------------------------------------------------------
 namespace hpgem {
-namespace Base {
-class Element;
-
-template <std::size_t DIM>
-class PhysicalElement;
-
-template <std::size_t DIM>
-class CoordinateTransformation;
-}  // namespace Base
 
 namespace QuadratureRules {
 class GaussQuadratureRule;
@@ -62,10 +60,6 @@ class GaussQuadratureRule;
 namespace Geometry {
 template <std::size_t DIM>
 class PointReference;
-}
-
-namespace LinearAlgebra {
-class MiddleSizeVector;
 }
 
 namespace Integration {
@@ -115,8 +109,25 @@ class ElementIntegral {
         const QuadratureRules::GaussQuadratureRule* ptrQdrRule,
         std::function<IntegrandType()> integrandFunction);
 
+    /**
+     * Change whether the integrands are scaled to compensate for the coordinate
+     * transformation from physical to reference frame.
+     *
+     * By default scaling is on.
+     */
+    void setJacobianScaling(bool scaling) { jacobianScaling_ = scaling; }
+
    private:
+    double getScaleFactor() {
+        if (jacobianScaling_) {
+            return element_.getJacobianAbsDet();
+        } else {
+            return 1.0;
+        }
+    }
+
     Base::PhysicalElement<DIM> element_;
+    bool jacobianScaling_;
 };
 
 }  // namespace Integration

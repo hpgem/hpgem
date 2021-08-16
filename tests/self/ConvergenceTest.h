@@ -88,7 +88,9 @@ void runConvergenceTest(
             logger.assert_always(difference / testSet.expectedError[i] <
                                          testSet.relativeAccuracy ||
                                      ignoreFailures,
-                                 "Comparing to old results");
+                                 "Comparing to old results, expected %, got % "
+                                 "for the %-th level",
+                                 testSet.expectedError[i], error, i);
         } else if (!ignoreFailures) {
             // Require expected error information available when actually
             // testing
