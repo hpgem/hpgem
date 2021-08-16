@@ -150,7 +150,7 @@ class LazyVectorCached {
     const T& get(std::size_t index) {
         logger.assert_debug(index < values_.size(),
                             "Asking for index % with only % values", index,
-                            values.size());
+                            values_.size());
         Entry& entry = values_[index];
         if (!entry.first) {
             compute_(entry.second, index);
