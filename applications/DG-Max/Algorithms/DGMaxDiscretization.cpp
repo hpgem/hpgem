@@ -452,7 +452,7 @@ void DGMaxDiscretization<DIM>::faceVector(
     LinearAlgebra::MiddleSizeVector& ret, double stab) const {
     const Base::Face* face = fa.getFace();
     LinearAlgebra::SmallVector<DIM> normal = fa.getNormalVector();
-    normal /= Base::L2Norm(normal);
+    normal /= normal.l2Norm();
     const Geometry::PointReference<DIM - 1>& p = fa.getPointReference();
 
     if (face->isInternal()) {
@@ -628,9 +628,9 @@ LinearAlgebra::SmallVector<2> DGMaxDiscretization<DIM>::elementErrorIntegrand(
             errorCurl -= (std::real(data[i]) * phiCurl);
         }
     }
-    double l2Error = Base::L2Norm(error);
+    double l2Error = error.l2Norm();
     l2Error *= l2Error;
-    double curlError = Base::L2Norm(errorCurl);
+    double curlError = errorCurl.l2Norm();
     curlError *= curlError;
     LinearAlgebra::SmallVector<2> errors;
     errors[0] = l2Error;
@@ -649,7 +649,7 @@ double DGMaxDiscretization<DIM>::faceErrorIntegrand(
     // and a x n for boundary faces (n is the normal).
     const Base::Face* face = fa.getFace();
     LinearAlgebra::SmallVector<DIM> normal = fa.getNormalVector();
-    normal /= Base::L2Norm(normal);
+    normal /= normal.l2Norm();
     const Geometry::PointReference<2>& p = fa.getPointReference();
 
     Base::Element* element =
@@ -701,7 +701,7 @@ double DGMaxDiscretization<DIM>::faceErrorIntegrand(
             error -= (std::real(solutionCoefficients[i - n]) * phiNormal);
         }
     }
-    double result = Base::L2Norm(error);
+    double result = error.l2Norm();
     result *= result;
     // To remove double contribution of flux computed on the boudary faces by
     // different processors

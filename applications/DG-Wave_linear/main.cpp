@@ -37,7 +37,6 @@
  */
 
 #include "Base/HpgemAPIBase.h"
-#include "Base/L2Norm.h"
 #include "Output/TecplotSingleElementWriter.h"
 #include <fstream>
 #include "FE/BasisFunctions2DH1ConformingSquare.h"
