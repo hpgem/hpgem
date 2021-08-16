@@ -380,8 +380,8 @@ class PhysicalFace final {
     /// Compute a set of direction vectors on the left/right face from
     ///
     /// helper for #updateLeftRightTransform()
-    LinearAlgebra::SmallMatrix<DIM, DIM> computeDirectionVectors(
-        std::array<LinearAlgebra::SmallVector<DIM>, DIM> points);
+    static LinearAlgebra::SmallMatrix<DIM, DIM> computeDirectionVectors(
+        const std::array<LinearAlgebra::SmallVector<DIM>, DIM>& points);
 
     PhysicalElement<DIM> left, right;
     std::vector<std::size_t> nLeftBasisFunctions;

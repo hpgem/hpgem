@@ -1200,13 +1200,15 @@ void PhysicalFace<DIM>::updateLeftRightTransform() {
         return;
     }
 
-    // Compute the physical vectors
+    // Compute the direction vectors relative to the left and right face.
     LinearAlgebra::SmallMatrix<DIM, DIM> leftMatrix =
         computeDirectionVectors(leftPoints);
 
     LinearAlgebra::SmallMatrix<DIM, DIM> rightMatrix =
         computeDirectionVectors(rightPoints);
 
+    // Computes the transformation matrix to map the directions on the right
+    // face to those on the left face.
     leftMatrix.solve(rightMatrix);
 
     // Check if transformation is needed by comparing the matrix to the identity
@@ -1229,9 +1231,11 @@ void PhysicalFace<DIM>::updateLeftRightTransform() {
 
 template <std::size_t DIM>
 LinearAlgebra::SmallMatrix<DIM, DIM> PhysicalFace<DIM>::computeDirectionVectors(
-    std::array<LinearAlgebra::SmallVector<DIM>, DIM> points) {
+    const std::array<LinearAlgebra::SmallVector<DIM>, DIM>& points) {
     LinearAlgebra::SmallMatrix<DIM, DIM - 1> temp;
     LinearAlgebra::SmallMatrix<DIM, DIM> result;
+    // Use the first vector as origin and compute direction vectors to the other
+    // DIM-1 vectors.
     for (std::size_t i = 0; i < DIM - 1; ++i) {
         for (std::size_t j = 0; j < DIM; ++j) {
             double value = points[i + 1][j] - points[0][j];
@@ -1239,6 +1243,8 @@ LinearAlgebra::SmallMatrix<DIM, DIM> PhysicalFace<DIM>::computeDirectionVectors(
             result(i, j) = value;
         }
     }
+    // ALl vectors are in the plane of the face, compute a normal vector to the
+    // face as DIM-th independent direction.
     LinearAlgebra::SmallVector<DIM> normal = temp.computeWedgeStuffVector();
     for (std::size_t j = 0; j < DIM; ++j) {
         result(DIM - 1, j) = normal[j];
