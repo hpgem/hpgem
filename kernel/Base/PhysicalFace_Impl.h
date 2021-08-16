@@ -109,22 +109,8 @@ inline double PhysicalFace<DIM>::basisFunction(Side side, std::size_t i,
 
 template <std::size_t DIM>
 inline const LinearAlgebra::SmallVector<DIM>&
-    PhysicalFace<DIM>::basisFunctionDeriv(std::size_t i) {
-    return basisFunctionDeriv_[0][i];
-}
-template <std::size_t DIM>
-inline const LinearAlgebra::SmallVector<DIM>&
     PhysicalFace<DIM>::basisFunctionDeriv(std::size_t i, std::size_t unknown) {
     return basisFunctionDeriv_[unknown][i];
-}
-
-template <std::size_t DIM>
-inline const LinearAlgebra::SmallVector<DIM>&
-    PhysicalFace<DIM>::basisFunctionDeriv(Side side, std::size_t i) {
-    if (side == Side::RIGHT) {
-        i += nLeftBasisFunctions[0];
-    }
-    return basisFunctionDeriv(i);
 }
 
 template <std::size_t DIM>
@@ -349,24 +335,10 @@ inline void PhysicalFace<DIM>::basisFunction(
 
 template <std::size_t DIM>
 inline const LinearAlgebra::SmallVector<DIM>&
-    PhysicalFace<DIM>::basisFunctionCurl(std::size_t i) {
-    return basisFunctionCurl_[0][i];
-}
-
-template <std::size_t DIM>
-inline const LinearAlgebra::SmallVector<DIM>&
     PhysicalFace<DIM>::basisFunctionCurl(std::size_t i, std::size_t unknown) {
     return basisFunctionCurl_[unknown][i];
 }
 
-template <std::size_t DIM>
-inline const LinearAlgebra::SmallVector<DIM>&
-    PhysicalFace<DIM>::basisFunctionCurl(Side side, std::size_t i) {
-    if (side == Side::RIGHT) {
-        i += nLeftBasisFunctions[0];
-    }
-    return basisFunctionCurl(i);
-}
 template <std::size_t DIM>
 inline const LinearAlgebra::SmallVector<DIM>&
     PhysicalFace<DIM>::basisFunctionCurl(Side side, std::size_t i,
@@ -378,25 +350,9 @@ inline const LinearAlgebra::SmallVector<DIM>&
 }
 
 template <std::size_t DIM>
-inline const double& PhysicalFace<DIM>::basisFunctionDiv(std::size_t i) {
-    return basisFunctionDiv_[0][i];
-}
-
-template <std::size_t DIM>
 inline const double& PhysicalFace<DIM>::basisFunctionDiv(std::size_t i,
                                                          std::size_t unknown) {
     return basisFunctionDiv_[unknown][i];
-}
-
-template <std::size_t DIM>
-inline const double& PhysicalFace<DIM>::basisFunctionDiv(Side side,
-                                                         std::size_t i) {
-    logger.assert_debug(hasPointReference && hasFace,
-                        "Need a location to evaluate the data");
-    if (side == Side::RIGHT) {
-        i += nLeftBasisFunctions[0];
-    }
-    return basisFunctionDiv(i);
 }
 
 template <std::size_t DIM>

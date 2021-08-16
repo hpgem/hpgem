@@ -101,16 +101,13 @@ class PhysicalFace final {
 
     /// derivative of basis function i at the current reference point; indexing
     /// functions in the right element after functions in the left element
-    const LinearAlgebra::SmallVector<DIM>& basisFunctionDeriv(std::size_t i);
     const LinearAlgebra::SmallVector<DIM>& basisFunctionDeriv(
-        std::size_t i, std::size_t unknown);
+        std::size_t i, std::size_t unknown = 0);
 
     /// derivative of basis function i at the current reference point; indexing
     /// the left and the right element separately
-    const LinearAlgebra::SmallVector<DIM>& basisFunctionDeriv(Side side,
-                                                              std::size_t i);
     const LinearAlgebra::SmallVector<DIM>& basisFunctionDeriv(
-        Side side, std::size_t i, std::size_t unknown);
+        Side side, std::size_t i, std::size_t unknown = 0);
 
     /// value of basis function i multiplied by the normal vector at the current
     /// reference point; indexing functions in the right element after functions
@@ -165,27 +162,22 @@ class PhysicalFace final {
 
     /// curl of basis function i at the current reference point; indexing
     /// functions in the right element after functions in the left element
-    const LinearAlgebra::SmallVector<DIM>& basisFunctionCurl(std::size_t i);
     const LinearAlgebra::SmallVector<DIM>& basisFunctionCurl(
-        std::size_t i, std::size_t unknown);
+        std::size_t i, std::size_t unknown = 0);
 
     /// curl of basis function i at the current reference point; indexing the
     /// left and the right element separately
-    const LinearAlgebra::SmallVector<DIM>& basisFunctionCurl(Side side,
-                                                             std::size_t i);
     const LinearAlgebra::SmallVector<DIM>& basisFunctionCurl(
-        Side side, std::size_t i, std::size_t unknown);
+        Side side, std::size_t i, std::size_t unknown = 0);
 
     /// divergence of basis function i at the current reference point; indexing
     /// functions in the right element after functions in the left element
-    const double& basisFunctionDiv(std::size_t i);
-    const double& basisFunctionDiv(std::size_t i, std::size_t unknown);
+    const double& basisFunctionDiv(std::size_t i, std::size_t unknown = 0);
 
     /// divergence of basis function i at the current reference point; indexing
     /// the left and the right element separately
-    const double& basisFunctionDiv(Side side, std::size_t i);
     const double& basisFunctionDiv(Side side, std::size_t i,
-                                   std::size_t unknown);
+                                   std::size_t unknown = 0);
 
     /// value of basis function i multiplied by the normal vector at the current
     /// reference point; indexing functions in the right element after functions
