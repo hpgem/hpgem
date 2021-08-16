@@ -40,7 +40,6 @@
 
 #include "QuadratureRules/GaussQuadratureRule.h"
 #include "Logger.h"
-#include "Base/L2Norm.h"
 #include "FaceIntegrandBase.h"
 #include "LinearAlgebra/Axpy.h"
 
@@ -110,8 +109,7 @@ std::result_of_t<FunctionType(Base::PhysicalFace<DIM>&)>
 
     // first Gauss point;
     result = integrandFunc(*face_);
-    result *= (qdrRuleLoc->weight(0) *
-               face_->getTransform(0)->getIntegrandScaleFactor(*face_));
+    result *= (qdrRuleLoc->weight(0) * getScaleFactor(*face_));
 
     // next Gauss points
     for (std::size_t i = 1; i < numberOfPoints; ++i) {
@@ -121,10 +119,8 @@ std::result_of_t<FunctionType(Base::PhysicalFace<DIM>&)>
         value = integrandFunc(*face_);
 
         // Y = alpha * X + Y
-        LinearAlgebra::axpy(
-            qdrRuleLoc->weight(i) *
-                face_->getTransform(0)->getIntegrandScaleFactor(*face_),
-            value, result);
+        LinearAlgebra::axpy(qdrRuleLoc->weight(i) * getScaleFactor(*face_),
+                            value, result);
     }
     return result;
 }  // function
@@ -176,10 +172,8 @@ std::result_of_t<FunctionType(Base::PhysicalFace<DIM>&)>
 
     // first Gauss point;
     result = integrandFunc(*face_);
-    result.first *= (qdrRuleLoc->weight(0) *
-                     face_->getTransform()->getIntegrandScaleFactor(*face_));
-    result.second *= (qdrRuleLoc->weight(0) *
-                      face_->getTransform()->getIntegrandScaleFactor(*face_));
+    result.first *= (qdrRuleLoc->weight(0) * getScaleFactor(*face_));
+    result.second *= (qdrRuleLoc->weight(0) * getScaleFactor(*face_));
 
     // next Gauss points
     for (std::size_t i = 1; i < numberOfPoints; ++i) {
@@ -189,14 +183,10 @@ std::result_of_t<FunctionType(Base::PhysicalFace<DIM>&)>
         value = integrandFunc(*face_);
 
         // Y = alpha * X + Y
-        LinearAlgebra::axpy(
-            qdrRuleLoc->weight(i) *
-                face_->getTransform()->getIntegrandScaleFactor(*face_),
-            value.first, result.first);
-        LinearAlgebra::axpy(
-            qdrRuleLoc->weight(i) *
-                face_->getTransform()->getIntegrandScaleFactor(*face_),
-            value.second, result.second);
+        LinearAlgebra::axpy(qdrRuleLoc->weight(i) * getScaleFactor(*face_),
+                            value.first, result.first);
+        LinearAlgebra::axpy(qdrRuleLoc->weight(i) * getScaleFactor(*face_),
+                            value.second, result.second);
     }
     return result;
 }  // function
@@ -258,7 +248,8 @@ integral);
 
 //! \brief Construct an FaceIntegral with cache on.
 template <std::size_t DIM>
-FaceIntegral<DIM>::FaceIntegral() : internalFace_(true), boundaryFace_(false) {}
+FaceIntegral<DIM>::FaceIntegral()
+    : internalFace_(true), boundaryFace_(false), jacobianScaling_(true) {}
 
 //! \brief Free the memory used for the data storage.
 template <std::size_t DIM>

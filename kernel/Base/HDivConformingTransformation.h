@@ -65,20 +65,6 @@ class HDivConformingTransformation : public CoordinateTransformation<DIM> {
         const CoordinateTransformationData<DIM>& data) const override final {
         return referenceData / data.getJacobianDet();
     }
-
-    /// integrands for elements are multiplied by the absolute value of the
-    /// determinant of the Jacobian to correct for the difference in volume
-    double getIntegrandScaleFactor(
-        PhysicalElement<DIM>& element) const override final {
-        return element.getJacobianAbsDet();
-    }
-
-    /// integrands for faces are multiplied by the norm of the outward normal
-    /// vector to correct for the difference in area
-    double getIntegrandScaleFactor(
-        PhysicalFace<DIM>& face) const override final {
-        return face.getRelativeSurfaceArea();
-    }
 };
 }  // namespace Base
 

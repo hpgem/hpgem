@@ -85,18 +85,6 @@ class IdentityTransformation : public CoordinateTransformation<DIM> {
         CoordinateTransformationData<DIM>&) const override final {
         return referenceData;
     }
-
-    /// just multiply by 1
-    double getIntegrandScaleFactor(
-        PhysicalElement<DIM>& element) const override final {
-        return 1.;
-    }
-
-    /// just multiply by 1
-    double getIntegrandScaleFactor(
-        PhysicalFace<DIM>& face) const override final {
-        return 1.;
-    }
 };
 }  // namespace Base
 

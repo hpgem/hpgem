@@ -741,7 +741,7 @@ inline double PhysicalFace<DIM>::getRelativeSurfaceArea() {
         return normalNorm;
     }
     hasNormalNorm = true;
-    normalNorm = L2Norm(getNormalVector());
+    normalNorm = getNormalVector().l2Norm();
     return normalNorm;
 }
 

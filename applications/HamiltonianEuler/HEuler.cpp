@@ -231,7 +231,7 @@ void HEuler::faceIntegrand(Base::PhysicalFace<3>& fa, FluxData& ret) {
     const Geometry::PointReference<2>& p = fa.getPointReference();
     ret.resize(face->getNrOfBasisFunctions());
     if (face->isInternal()) {
-        const double magn = Base::L2Norm(normal);
+        const double magn = normal.l2Norm();
         unsigned int numberOfDegreesOfFreedom =
             face->getPtrElementLeft()->getNrOfBasisFunctions();
 

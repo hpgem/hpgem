@@ -166,6 +166,11 @@ std::vector<std::string> getUnitCubePeriodicCubeMeshes(
         minLevel >= 2 && maxLevel >= 2,
         "Periodic meshes with 1 or 2 elements are not supported");
     std::string prefix = getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/";
+    // Compensate for missing first two meshes
+    minLevel -= 2;
+    if (maxLevel != ALL_ENTRIES) {
+        maxLevel -= 2;
+    }
     return limit(
         {
             // These two invalid meshes are commented out because hpgem does not
@@ -185,7 +190,7 @@ std::vector<std::string> getUnitCubePeriodicCubeMeshes(
             prefix + "unitCubeN8Per.hpgem",
             prefix + "unitCubeN16Per.hpgem",
         },
-        minLevel - 2, maxLevel - 2);
+        minLevel, maxLevel);
 }
 
 /**
