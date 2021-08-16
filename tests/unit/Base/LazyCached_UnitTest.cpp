@@ -39,6 +39,8 @@
 #include "../catch.hpp"
 #include "Base/LazyCached.h"
 
+#include <array>
+
 using hpgem::Base::LazyCached;
 using hpgem::Base::LazyVectorCached;
 
