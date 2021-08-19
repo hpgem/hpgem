@@ -41,15 +41,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <petscksp.h>
 
 #include <complex>
+#include "Base/PhysicalFace.h"
 #include "Output/TecplotDiscontinuousSolutionWriter.h"
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
 
+
 using namespace hpgem;
 
 template <std::size_t DIM>
-DGMaxHarmonic<DIM>::DGMaxHarmonic(Base::MeshManipulator<DIM>& mesh,
-                                  double stab, std::size_t order)
+DGMaxHarmonic<DIM>::DGMaxHarmonic(Base::MeshManipulator<DIM>& mesh, double stab,
+                                  std::size_t order)
     : mesh_(mesh), stab_(stab) {
     discretization.initializeBasisFunctions(mesh_, order);
 }
@@ -64,6 +66,40 @@ void DGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& harmonicProblem) {
     elementVectors[DGMaxDiscretization<DIM>::SOURCE_TERM_VECTOR_ID] =
         std::bind(&HarmonicProblem<DIM>::sourceTerm, std::ref(harmonicProblem),
                   std::placeholders::_1, std::placeholders::_2);
+
+    discretization.setBoundaryIndicator([](const Base::Face* face) {
+        using BCT = DGMaxDiscretizationBase::BoundaryConditionType;
+        using Vector = LinearAlgebra::SmallVector<DIM>;
+        Base::PhysicalFace<DIM> pFace(false);
+        pFace.setFace(face);
+        pFace.setPointReference(face->getReferenceGeometry()->getCenter());
+        const Vector& normal = pFace.getNormalVector();
+
+        std::size_t maxDirection = -1;
+        // Find the direction of the normal.
+        double maxDirComponent = -1.0;
+        for (std::size_t i = 0; i < DIM; ++i) {
+            Vector dir;
+            dir[i] = 1.0;
+            double dirComponent = std::abs(dir * normal);
+            if (dirComponent > maxDirComponent) {
+                maxDirComponent = dirComponent;
+                maxDirection = i;
+            }
+        }
+
+        switch (maxDirection) {
+            case 0:
+                return BCT::DIRICHLET;
+            case 1:
+                return BCT::NEUMANN_ZERO;
+            case 2:
+                return BCT::NEUMANN_ZERO;
+            default:
+                logger.assert_always(false, "Undefined direction boundary");
+                return BCT::DIRICHLET;
+        }
+    });
 
     discretization.computeElementIntegrands(
         mesh_, DGMaxDiscretizationBase::NORMAL, elementVectors);

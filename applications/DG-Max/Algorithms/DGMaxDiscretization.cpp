@@ -302,14 +302,17 @@ void DGMaxDiscretization<DIM>::computeFaceIntegrals(
         face->setFaceMatrix(stiffnessFaceMatrix, FACE_MATRIX_ID);
 
         for (auto const& faceVectorDef : boundaryVectors) {
-            tempFaceVector.resize(numberOfBasisFunctions);
-            if (faceVectorDef.second && boundaryIndicator_(face) == DIRICHLET) {
-                tempFaceVector = faIntegral.integrate(
-                    face, [&](Base::PhysicalFace<DIM>& face) {
-                        LinearAlgebra::MiddleSizeVector res;
-                        faceVector(face, faceVectorDef.second, res, stab);
-                        return res;
-                    });
+            if (faceVectorDef.second) {
+                tempFaceVector.resize(numberOfBasisFunctions);
+                if (!face->isInternal() &&
+                    boundaryIndicator_(face) == DIRICHLET) {
+                    tempFaceVector = faIntegral.integrate(
+                        face, [&](Base::PhysicalFace<DIM>& face) {
+                            LinearAlgebra::MiddleSizeVector res;
+                            faceVector(face, faceVectorDef.second, res, stab);
+                            return res;
+                        });
+                }
             }
             face->setFaceVector(tempFaceVector, faceVectorDef.first);
         }

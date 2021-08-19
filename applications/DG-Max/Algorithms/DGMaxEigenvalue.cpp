@@ -51,6 +51,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <ElementInfos.h>
 
 #include "Base/MeshManipulator.h"
+#include "Base/PhysicalFace.h"
 #include "LinearAlgebra/SmallVector.h"
 #include "Utilities/Eigenpairs.h"
 #include "Utilities/GlobalMatrix.h"
