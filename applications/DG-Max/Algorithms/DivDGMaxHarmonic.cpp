@@ -56,8 +56,7 @@ DivDGMaxHarmonic<DIM>::DivDGMaxHarmonic(
 }
 
 template <std::size_t DIM>
-void DivDGMaxHarmonic<DIM>::solve(
-    const HarmonicProblem<DIM>& input) {
+void DivDGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& input) {
     PetscErrorCode error;
 
     discretization_.computeElementIntegrands(

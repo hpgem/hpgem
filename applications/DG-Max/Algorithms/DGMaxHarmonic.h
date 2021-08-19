@@ -48,9 +48,10 @@ using namespace hpgem;
 
 /// \brief Solver for a harmonic problem to find the fields.
 template <std::size_t DIM>
-class DGMaxHarmonic : public DGMax::AbstractHarmonicSolver<DIM>{
+class DGMaxHarmonic : public DGMax::AbstractHarmonicSolver<DIM> {
    public:
-    DGMaxHarmonic(Base::MeshManipulator<DIM>& mesh, double stab, std::size_t order);
+    DGMaxHarmonic(Base::MeshManipulator<DIM>& mesh, double stab,
+                  std::size_t order);
     void solve(const HarmonicProblem<DIM>& harmonicProblem) final;
 
     std::map<typename DGMaxDiscretization<DIM>::NormType, double> computeError(

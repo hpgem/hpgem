@@ -58,8 +58,8 @@ auto& order = Base::register_argument<std::size_t>(
     'p', "order", "Polynomial order of the solution", true);
 
 auto& method = Base::register_argument<std::string>(
-    '\0', "method", "Method to use, either DivDGMax (default) or DGMax",
-    false, "DivDGMax");
+    '\0', "method", "Method to use, either DivDGMax (default) or DGMax", false,
+    "DivDGMax");
 
 template <std::size_t dim>
 void runWithDimension();
