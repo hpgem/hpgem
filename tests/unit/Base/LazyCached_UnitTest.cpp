@@ -70,6 +70,30 @@ TEST_CASE("Basic test", "[LazyCached]") {
     REQUIRE(cache.get() == 3);
 }
 
+// Simple class for testing
+class ClassMethodTestHelper {
+   public:
+    ClassMethodTestHelper() : lastValue(0){};
+
+    void update(std::size_t& value) { value = ++lastValue; }
+    std::size_t lastValue;
+};
+
+TEST_CASE("ClassMethodConstructor", "[LazyCached]") {
+    ClassMethodTestHelper helper;
+    LazyCached<std::size_t> cache =
+        LazyCached<std::size_t>(&helper, &ClassMethodTestHelper::update);
+
+    REQUIRE(cache.get() == 1);
+    REQUIRE(helper.lastValue == 1);
+    REQUIRE(cache.get() == 1);
+
+    cache.reset();
+    REQUIRE(helper.lastValue == 1);
+    REQUIRE(cache.get() == 2);
+    REQUIRE(helper.lastValue == 2);
+}
+
 TEST_CASE("Basic Vector test", "[LazyVectorCached]") {
 
     std::array<std::size_t, 2> indices = {0, 0};
