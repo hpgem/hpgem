@@ -298,11 +298,12 @@ void DGMaxDiscretization<DIM>::computeFaceIntegrals(
                 stiffnessFaceMatrix, hpgem::LinearAlgebra::Side::OP_RIGHT,
                 LinearAlgebra::Transpose::HERMITIAN_TRANSPOSE);
         }
+
         face->setFaceMatrix(stiffnessFaceMatrix, FACE_MATRIX_ID);
 
         for (auto const& faceVectorDef : boundaryVectors) {
             tempFaceVector.resize(numberOfBasisFunctions);
-            if (faceVectorDef.second) {
+            if (faceVectorDef.second && boundaryIndicator_(face) == DIRICHLET) {
                 tempFaceVector = faIntegral.integrate(
                     face, [&](Base::PhysicalFace<DIM>& face) {
                         LinearAlgebra::MiddleSizeVector res;
@@ -404,6 +405,11 @@ void DGMaxDiscretization<DIM>::faceMatrix(
         M += face->getPtrElementRight()->getNrOfBasisFunctions(0);
     }
     ret.resize(M, M);
+
+    if (!internalFace && boundaryIndicator_(face) == NEUMANN_ZERO) {
+        return;
+    }
+
     LinearAlgebra::SmallVector<DIM> phi_i_normal, phi_j_normal, phi_i_curl,
         phi_j_curl;
     for (std::size_t i = 0; i < M; ++i) {
@@ -434,6 +440,11 @@ void DGMaxDiscretization<DIM>::facePenaltyMatrix(
     }
 
     ret.resize(M, M);
+
+    if (!face->isInternal() && boundaryIndicator_(face) == NEUMANN_ZERO) {
+        return;
+    }
+
     LinearAlgebra::SmallVector<DIM> phi_i, phi_j;
     for (std::size_t i = 0; i < M; ++i) {
         fa.basisFunctionUnitNormalCross(i, phi_i, 0);

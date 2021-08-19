@@ -50,6 +50,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace hpgem {
 namespace Base {
 class Element;
+class Face;
 template <std::size_t>
 class MeshManipulator;
 template <std::size_t DIM>
@@ -102,6 +103,15 @@ class DGMaxDiscretizationBase {
         /// respect to the innerproduct defined by the mass matrix.
         ORTHOGONALIZE
     };
+
+    /// Boundary condition type to use for non internal faces
+    enum BoundaryConditionType {
+        /// Boundary condition n x E = n x g, where E is the field and g is
+        /// vector valued function.
+        DIRICHLET,
+        /// Boundary condition n x (curl E) = 0
+        NEUMANN_ZERO,
+    };
 };
 
 template <std::size_t DIM>
@@ -125,7 +135,8 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
     };
 
     DGMaxDiscretization(bool includeProjector = false)
-        : includeProjector_(includeProjector) {}
+        : includeProjector_(includeProjector),
+          boundaryIndicator_([](const Base::Face*) { return DIRICHLET; }) {}
 
     void initializeBasisFunctions(Base::MeshManipulator<DIM>& mesh,
                                   std::size_t order);
@@ -175,6 +186,12 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
         const Base::Element* element, const Geometry::PointReference<DIM>& p,
         const LinearAlgebra::MiddleSizeVector& coefficients) const;
 
+    void setBoundaryIndicator(
+        std::function<BoundaryConditionType(const Base::Face*)>
+            boundaryIndicator) {
+        boundaryIndicator_ = boundaryIndicator;
+    }
+
    private:
     // Mass matrix of the element
     void elementMassMatrix(Base::PhysicalElement<DIM>& el,
@@ -213,6 +230,9 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
                               InputFunction exactValue) const;
 
     const bool includeProjector_;
+
+    std::function<BoundaryConditionType(const Base::Face* face)>
+        boundaryIndicator_;
 };
 
 #endif  // HPGEM_APP_DGMAXDISCRETIZATION_H
