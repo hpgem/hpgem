@@ -48,16 +48,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace hpgem;
 
 template <std::size_t DIM>
-DivDGMaxHarmonic<DIM>::DivDGMaxHarmonic(Base::MeshManipulator<DIM>& mesh)
-    : mesh_(mesh) {}
+DivDGMaxHarmonic<DIM>::DivDGMaxHarmonic(
+    Base::MeshManipulator<DIM>& mesh,
+    typename DivDGMaxDiscretization<DIM>::Stab stab, std::size_t order)
+    : mesh_(mesh), stab_(stab) {
+    discretization_.initializeBasisFunctions(mesh_, order);
+}
 
 template <std::size_t DIM>
 void DivDGMaxHarmonic<DIM>::solve(
-    const HarmonicProblem<DIM>& input,
-    typename DivDGMaxDiscretization<DIM>::Stab stab, std::size_t order) {
+    const HarmonicProblem<DIM>& input) {
     PetscErrorCode error;
 
-    discretization_.initializeBasisFunctions(mesh_, order);
     discretization_.computeElementIntegrands(
         mesh_, false,
         std::bind(&HarmonicProblem<DIM>::sourceTerm, std::ref(input),
@@ -68,7 +70,7 @@ void DivDGMaxHarmonic<DIM>::solve(
         std::bind(&HarmonicProblem<DIM>::boundaryCondition, std::ref(input),
                   std::placeholders::_1, std::placeholders::_2,
                   std::placeholders::_3),
-        stab);
+        stab_);
 
     Utilities::GlobalIndexing indexing(&mesh_);
     Utilities::GlobalPetscMatrix massMatrix(

@@ -44,6 +44,7 @@
 
 #include <DGMaxLogger.h>
 #include <DGMaxProgramUtils.h>
+#include <Algorithms/DGMaxHarmonic.h>
 #include <Algorithms/DivDGMaxHarmonic.h>
 #include <ProblemTypes/Harmonic/SampleHarmonicProblems.h>
 
@@ -55,6 +56,10 @@ auto& structureString = Base::register_argument<std::string>(
 
 auto& order = Base::register_argument<std::size_t>(
     'p', "order", "Polynomial order of the solution", true);
+
+auto& method = Base::register_argument<std::string>(
+    '\0', "method", "Method to use, either DivDGMax (default) or DGMax",
+    false, "DivDGMax");
 
 template <std::size_t dim>
 void runWithDimension();
@@ -122,8 +127,20 @@ class TestingProblem : public HarmonicProblem<dim> {
 
 template <std::size_t dim>
 void runWithDimension() {
+    bool divdgmax;
+    std::size_t unknowns;
+    if (method.getValue() == "DivDGMax") {
+        divdgmax = true;
+        unknowns = 2;
+    } else if (method.getValue() == "DGMax") {
+        divdgmax = false;
+        unknowns = 1;
+    } else {
+        logger(ERROR, "Unkown method %", method.getValue());
+        return;
+    }
+
     std::size_t numberOfElementMatrices = 2;
-    std::size_t unknowns = 2;
 
     Base::ConfigurationData configData(unknowns, 1);
     auto structure =
@@ -135,13 +152,23 @@ void runWithDimension() {
            mesh->getNumberOfElements());
     writeMesh<dim>("mesh", mesh.get());
 
-    DivDGMaxHarmonic<dim> harmonic(*mesh);
-    // Placeholder for more complicate fluxes
-    typename DivDGMaxDiscretization<dim>::Stab stab;
-    stab.stab1 = 5;
-    stab.stab2 = 0;
-    stab.stab3 = 5;
-    stab.setAllFluxeTypes(DivDGMaxDiscretization<dim>::FluxType::BREZZI);
+    std::unique_ptr<DGMax::AbstractHarmonicSolver<dim>> solver;
+
+    if (divdgmax) {
+        // Placeholder for more complicate fluxes
+        typename DivDGMaxDiscretization<dim>::Stab stab;
+        stab.stab1 = 5;
+        stab.stab2 = 0;
+        stab.stab3 = 5;
+        stab.setAllFluxeTypes(DivDGMaxDiscretization<dim>::FluxType::BREZZI);
+
+        solver = std::make_unique<DivDGMaxHarmonic<dim>>(*mesh, stab,
+                                                         order.getValue());
+    } else {
+        double stab = 100;
+        solver =
+            std::make_unique<DGMaxHarmonic<dim>>(*mesh, stab, order.getValue());
+    }
 
     // Problem definition
     std::unique_ptr<HarmonicProblem<dim>> problem;
@@ -149,7 +176,7 @@ void runWithDimension() {
         SampleHarmonicProblems<dim>::Problem::CONSTANT, 1);
     problem = std::make_unique<TestingProblem<dim>>();
 
-    harmonic.solve(*problem, stab, order.getValue());
+    solver->solve(*problem);
 
     // Output
     Output::VTKSpecificTimeWriter<dim> output("harmonic", mesh.get(), 0,
@@ -165,15 +192,14 @@ void runWithDimension() {
         },
         "epsilon");
     output.write(
-        [&problem](Base::Element* element, const Geometry::PointReference<dim>& p,
-           std::size_t) {
+        [&problem](Base::Element* element,
+                   const Geometry::PointReference<dim>& p, std::size_t) {
             LinearAlgebra::SmallVector<dim> source;
-            problem->sourceTerm(element->referenceToPhysical(p),
-                                source);
+            problem->sourceTerm(element->referenceToPhysical(p), source);
             return source;
         },
         "source");
-    harmonic.writeVTK(output);
+    solver->writeVTK(output);
 }
 
 template <std::size_t DIM>

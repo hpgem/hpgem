@@ -49,14 +49,13 @@ using namespace hpgem;
 
 template <std::size_t DIM>
 DGMaxHarmonic<DIM>::DGMaxHarmonic(Base::MeshManipulator<DIM>& mesh,
-                                  std::size_t order)
-    : mesh_(mesh) {
+                                  double stab, std::size_t order)
+    : mesh_(mesh), stab_(stab) {
     discretization.initializeBasisFunctions(mesh_, order);
 }
 
 template <std::size_t DIM>
-void DGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& harmonicProblem,
-                               double stab) {
+void DGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& harmonicProblem) {
     PetscErrorCode error;
     std::cout << "finding a time-harmonic solution" << std::endl;
 
@@ -76,7 +75,7 @@ void DGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& harmonicProblem,
         std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
 
     discretization.computeFaceIntegrals(mesh_, DGMaxDiscretizationBase::NORMAL,
-                                        faceVectors, stab);
+                                        faceVectors, stab_);
 
     Utilities::GlobalIndexing indexing(&mesh_);
     Utilities::GlobalPetscMatrix massMatrix(
@@ -202,6 +201,33 @@ void DGMaxHarmonic<DIM>::writeTec(std::string fileName) const {
         });
 
     fileWriter.close();
+}
+
+template <std::size_t DIM>
+void DGMaxHarmonic<DIM>::writeVTK(
+    Output::VTKSpecificTimeWriter<DIM>& output) const {
+    using Fields = typename DGMaxDiscretization<DIM>::Fields;
+
+    output.write(
+        [this](Base::Element* element,
+               const Geometry::PointReference<DIM>& point, std::size_t) {
+            LinearAlgebra::MiddleSizeVector coefficients =
+                element->getTimeIntegrationVector(0);
+            Fields fields =
+                discretization.computeFields(element, point, coefficients);
+            return fields.realEField;
+        },
+        "Ereal");
+    output.write(
+        [this](Base::Element* element,
+               const Geometry::PointReference<DIM>& point, std::size_t) {
+            LinearAlgebra::MiddleSizeVector coefficients =
+                element->getTimeIntegrationVector(0);
+            Fields fields =
+                discretization.computeFields(element, point, coefficients);
+            return fields.imagEField;
+        },
+        "Eimag");
 }
 
 template class DGMaxHarmonic<2>;
