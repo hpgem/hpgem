@@ -46,12 +46,12 @@ SampleTestProblems<DIM>::SampleTestProblems(
     : problem_(problem) {}
 
 template <std::size_t DIM>
-void SampleTestProblems<DIM>::initialConditionDerivative(
-    const Geometry::PointPhysical<DIM> &point,
-    LinearAlgebra::SmallVector<DIM> &result) const {
+LinearAlgebra::SmallVector<DIM> SampleTestProblems<DIM>::initialConditionDerivative(
+    const Geometry::PointPhysical<DIM> &point) const {
+    LinearAlgebra::SmallVector<DIM> result;
     switch (problem_) {
         case CONSTANT: {
-            result.set(0);
+            // 0
             break;
         }
         case LINEAR: {
@@ -59,52 +59,51 @@ void SampleTestProblems<DIM>::initialConditionDerivative(
             break;
         }
         case SINSIN: {
-            sinx(point, result);
             // d sin(pi t)/dt at t = 0.
-            result *= M_PI;
+            result = sinx(point) * M_PI;
             break;
         }
         case SARMANY2013: {
             // Derivatives of all three cosines are 0.
-            result.set(0);
             break;
         }
         default:
             logger.assert_debug(false, "Unknown problem");
     }
+    return result;
 }
 
 template <std::size_t DIM>
-void SampleTestProblems<DIM>::sourceTermRef(
-    const Geometry::PointPhysical<DIM> &point,
-    LinearAlgebra::SmallVector<DIM> &result) const {
+LinearAlgebra::SmallVector<DIM> SampleTestProblems<DIM>::sourceTermRef(
+    const Geometry::PointPhysical<DIM> &point) const {
+    LinearAlgebra::SmallVector<DIM> result;
     switch (problem_) {
         case CONSTANT: {
-            result.set(0);
+            // 0
             break;
         }
         case LINEAR: {
-            result.set(0);
+            // 0
             break;
         }
         case SINSIN: {
-            sinx(point, result);
-            result *= -M_PI * M_PI;
+            result = sinx(point) * -M_PI * M_PI;
             break;
         }
         case SARMANY2013: {
-            sarmany2013x(point, result);
+            result = sarmany2013x(point);
             break;
         }
         default:
             logger.assert_debug(false, "Unknown problem");
     }
+    return result;
 }
 
 template <std::size_t DIM>
-void SampleTestProblems<DIM>::exactSolution(
-    const Geometry::PointPhysical<DIM> &point, double t,
-    LinearAlgebra::SmallVector<DIM> &result) const {
+LinearAlgebra::SmallVector<DIM> SampleTestProblems<DIM>::exactSolution(
+    const Geometry::PointPhysical<DIM> &point, double t) const {
+    LinearAlgebra::SmallVector<DIM> result;
     switch (problem_) {
         case CONSTANT: {
             result.set(1);
@@ -115,29 +114,29 @@ void SampleTestProblems<DIM>::exactSolution(
             break;
         }
         case SINSIN: {
-            sinx(point, result);
-            result *= sin(M_PI * t);
+            result = sinx(point) * sin(M_PI * t);
             break;
         }
         case SARMANY2013: {
-            sarmany2013x(point, result);
+            result = sarmany2013x(point);
             result *= (cos(t) + cos(t / 2) + cos(t / 3));
             break;
         }
         default:
             logger.assert_debug(false, "Unknown problem");
     }
+    return result;
 }
 
 template <std::size_t DIM>
-void SampleTestProblems<DIM>::exactSolutionCurl(
-    const Geometry::PointPhysical<DIM> &point, double t,
-    LinearAlgebra::SmallVector<DIM> &result) const {
+LinearAlgebra::SmallVector<DIM> SampleTestProblems<DIM>::exactSolutionCurl(
+    const Geometry::PointPhysical<DIM> &point, double t) const {
+    LinearAlgebra::SmallVector<DIM> result;
     switch (problem_) {
         case CONSTANT:
         case LINEAR:
         case SINSIN: {
-            result.set(0);
+            // 0
             break;
         }
         case SARMANY2013: {
@@ -157,6 +156,7 @@ void SampleTestProblems<DIM>::exactSolutionCurl(
         default:
             logger.assert_debug(false, "Unknown problem");
     }
+    return result;
 }
 
 template <std::size_t DIM>
@@ -216,20 +216,21 @@ double SampleTestProblems<DIM>::timeScalingSource(double t) const {
 }
 
 template <std::size_t DIM>
-void SampleTestProblems<DIM>::sinx(
-    const Geometry::PointPhysical<DIM> &point,
-    LinearAlgebra::SmallVector<DIM> &result) const {
+LinearAlgebra::SmallVector<DIM> SampleTestProblems<DIM>::sinx(
+    const Geometry::PointPhysical<DIM> &point) const {
+    LinearAlgebra::SmallVector<DIM> result;
     for (int i = 0; i < DIM; ++i) {
         double v = sin(M_PI * point[i]);
         v *= v;
         result[i] = v;
     }
+    return result;
 }
 
 template <std::size_t DIM>
-void SampleTestProblems<DIM>::sarmany2013x(
-    const Geometry::PointPhysical<DIM> &point,
-    LinearAlgebra::SmallVector<DIM> &result) const {
+LinearAlgebra::SmallVector<DIM> SampleTestProblems<DIM>::sarmany2013x(
+    const Geometry::PointPhysical<DIM> &point) const {
+    LinearAlgebra::SmallVector<DIM> result;
     if (DIM == 3) {
         double sx = sin(M_PI * point[0]), sy = sin(M_PI * point[1]),
                sz = sin(M_PI * point[2]);
@@ -239,6 +240,7 @@ void SampleTestProblems<DIM>::sarmany2013x(
     } else {
         logger.assert_debug(DIM == 3, "Sarmany test case only works in 3D.");
     }
+    return result;
 }
 
 template class SampleTestProblems<2>;

@@ -64,7 +64,7 @@ void DGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& harmonicProblem,
         elementVectors;
     elementVectors[DGMaxDiscretization<DIM>::SOURCE_TERM_VECTOR_ID] =
         std::bind(&HarmonicProblem<DIM>::sourceTerm, std::ref(harmonicProblem),
-                  std::placeholders::_1, std::placeholders::_2);
+                  std::placeholders::_1);
 
     discretization.computeElementIntegrands(
         mesh_, DGMaxDiscretizationBase::NORMAL, elementVectors);
@@ -73,7 +73,7 @@ void DGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& harmonicProblem,
         faceVectors;
     faceVectors[DGMaxDiscretization<DIM>::FACE_VECTOR_ID] = std::bind(
         &HarmonicProblem<DIM>::boundaryCondition, std::ref(harmonicProblem),
-        std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+        std::placeholders::_1);
 
     discretization.computeFaceIntegrals(mesh_, DGMaxDiscretizationBase::NORMAL,
                                         faceVectors, stab);
@@ -168,10 +168,9 @@ std::map<typename DGMaxDiscretization<DIM>::NormType, double>
     return computeError(
         norms,
         std::bind(&ExactHarmonicProblem<DIM>::exactSolution, std::ref(problem),
-                  std::placeholders::_1, std::placeholders::_2),
+                  std::placeholders::_1),
         std::bind(&ExactHarmonicProblem<DIM>::exactSolutionCurl,
-                  std::ref(problem), std::placeholders::_1,
-                  std::placeholders::_2));
+                  std::ref(problem), std::placeholders::_1));
 }
 
 template <std::size_t DIM>

@@ -56,21 +56,20 @@ class SampleHarmonicProblems : public ExactHarmonicProblem<DIM> {
     SampleHarmonicProblems(Problem problem, double omega);
 
     double omega() const override;
-    void sourceTerm(const Geometry::PointPhysical<DIM>& point,
-                    LinearAlgebra::SmallVector<DIM>& result) const override;
-    void exactSolution(const Geometry::PointPhysical<DIM>& point,
-                       LinearAlgebra::SmallVector<DIM>& result) const override;
-    void exactSolutionCurl(
-        const Geometry::PointPhysical<DIM>& point,
-        LinearAlgebra::SmallVector<DIM>& result) const override;
+    LinearAlgebra::SmallVector<DIM> sourceTerm(
+        const Geometry::PointPhysical<DIM>& point) const override;
+    LinearAlgebra::SmallVector<DIM> exactSolution(
+        const Geometry::PointPhysical<DIM>& point) const override;
+    LinearAlgebra::SmallVector<DIM> exactSolutionCurl(
+        const Geometry::PointPhysical<DIM>& point) const override;
 
    private:
     const Problem problem_;
     const double omega_;
 
     // x component of Sarmany's solution.
-    void sarmanyx(const Geometry::PointPhysical<DIM>& point,
-                  LinearAlgebra::SmallVector<DIM>& result) const;
+    LinearAlgebra::SmallVector<DIM> sarmanyx(
+        const Geometry::PointPhysical<DIM>& point) const;
 };
 
 #endif  // HPGEM_APP_SAMPLEHARMONICPROBLEMS_H

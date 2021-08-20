@@ -65,33 +65,26 @@ class HarmonicProblem {
    public:
     virtual ~HarmonicProblem() = default;
     virtual double omega() const = 0;
-    virtual void sourceTerm(const Geometry::PointPhysical<DIM>& point,
-                            LinearAlgebra::SmallVector<DIM>& result) const = 0;
-    virtual void boundaryCondition(
-        const Geometry::PointPhysical<DIM>& point,
-        Base::PhysicalFace<DIM>& face,
-        LinearAlgebra::SmallVector<DIM>& result) const = 0;
+    virtual LinearAlgebra::SmallVector<DIM> sourceTerm(
+        const Geometry::PointPhysical<DIM>& point) const = 0;
+    virtual LinearAlgebra::SmallVector<DIM> boundaryCondition(
+        Base::PhysicalFace<DIM>& face) const = 0;
 };
 
 template <std::size_t DIM>
 class ExactHarmonicProblem : public HarmonicProblem<DIM> {
    public:
-    virtual void exactSolution(
-        const Geometry::PointPhysical<DIM>& point,
-        LinearAlgebra::SmallVector<DIM>& result) const = 0;
-    virtual void exactSolutionCurl(
-        const Geometry::PointPhysical<DIM>& point,
-        LinearAlgebra::SmallVector<DIM>& result) const = 0;
+    virtual LinearAlgebra::SmallVector<DIM> exactSolution(
+        const Geometry::PointPhysical<DIM>& point) const = 0;
+    virtual LinearAlgebra::SmallVector<DIM> exactSolutionCurl(
+        const Geometry::PointPhysical<DIM>& point) const = 0;
 
-    void boundaryCondition(
-        const Geometry::PointPhysical<DIM>& point,
-        Base::PhysicalFace<DIM>& face,
-        LinearAlgebra::SmallVector<DIM>& result) const final {
-        LinearAlgebra::SmallVector<DIM> sol;
-        exactSolution(point, sol);
+    LinearAlgebra::SmallVector<DIM> boundaryCondition(
+        Base::PhysicalFace<DIM>& face) const final {
+        LinearAlgebra::SmallVector<DIM> efield = exactSolution(face.getPointPhysical());
         const LinearAlgebra::SmallVector<DIM>& normal =
             face.getUnitNormalVector();
-        normal.crossProduct(sol, result);
+        return normal.crossProduct(efield);
     }
 };
 

@@ -61,13 +61,12 @@ void DivDGMaxHarmonic<DIM>::solve(
     discretization_.computeElementIntegrands(
         mesh_, false,
         std::bind(&HarmonicProblem<DIM>::sourceTerm, std::ref(input),
-                  std::placeholders::_1, std::placeholders::_2),
+                  std::placeholders::_1),
         nullptr, nullptr);
     discretization_.computeFaceIntegrals(
         mesh_,
         std::bind(&HarmonicProblem<DIM>::boundaryCondition, std::ref(input),
-                  std::placeholders::_1, std::placeholders::_2,
-                  std::placeholders::_3),
+                  std::placeholders::_1),
         stab);
 
     Utilities::GlobalIndexing indexing(&mesh_);
@@ -152,8 +151,7 @@ template <std::size_t DIM>
 double DivDGMaxHarmonic<DIM>::computeL2Error(
     const ExactHarmonicProblem<DIM>& problem) const {
     return computeL2Error(std::bind(&ExactHarmonicProblem<DIM>::exactSolution,
-                                    std::ref(problem), std::placeholders::_1,
-                                    std::placeholders::_2));
+                                    std::ref(problem), std::placeholders::_1));
 }
 
 template class DivDGMaxHarmonic<2>;
