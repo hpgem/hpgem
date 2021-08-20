@@ -76,9 +76,8 @@ int main(int argc, char** argv) {
 
     Base::MeshFileInformation meshInfo =
         Base::MeshFileInformation::readInformation(meshFileName.getValue());
-    const std::size_t dimension = meshInfo.dimension;
     try {
-        switch (dimension) {
+        switch (meshInfo.dimension) {
             case 2:
                 runWithDimension<2>();
                 break;
