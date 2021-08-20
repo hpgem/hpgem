@@ -41,8 +41,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace hpgem;
 
 template <std::size_t DIM>
-LinearAlgebra::SmallVector<DIM> DummyTestProblem<DIM>::initialConditionDerivative(
-    const Geometry::PointPhysical<DIM> &point) const {
+LinearAlgebra::SmallVector<DIM>
+    DummyTestProblem<DIM>::initialConditionDerivative(
+        const Geometry::PointPhysical<DIM> &point) const {
     return {};
 }
 

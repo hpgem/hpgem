@@ -71,9 +71,9 @@ void DGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& harmonicProblem,
 
     std::map<std::size_t, typename DGMaxDiscretization<DIM>::FaceInputFunction>
         faceVectors;
-    faceVectors[DGMaxDiscretization<DIM>::FACE_VECTOR_ID] = std::bind(
-        &HarmonicProblem<DIM>::boundaryCondition, std::ref(harmonicProblem),
-        std::placeholders::_1);
+    faceVectors[DGMaxDiscretization<DIM>::FACE_VECTOR_ID] =
+        std::bind(&HarmonicProblem<DIM>::boundaryCondition,
+                  std::ref(harmonicProblem), std::placeholders::_1);
 
     discretization.computeFaceIntegrals(mesh_, DGMaxDiscretizationBase::NORMAL,
                                         faceVectors, stab);
@@ -165,12 +165,11 @@ std::map<typename DGMaxDiscretization<DIM>::NormType, double>
     DGMaxHarmonic<DIM>::computeError(
         const std::set<typename DGMaxDiscretization<DIM>::NormType>& norms,
         const ExactHarmonicProblem<DIM>& problem) const {
-    return computeError(
-        norms,
-        std::bind(&ExactHarmonicProblem<DIM>::exactSolution, std::ref(problem),
-                  std::placeholders::_1),
-        std::bind(&ExactHarmonicProblem<DIM>::exactSolutionCurl,
-                  std::ref(problem), std::placeholders::_1));
+    return computeError(norms,
+                        std::bind(&ExactHarmonicProblem<DIM>::exactSolution,
+                                  std::ref(problem), std::placeholders::_1),
+                        std::bind(&ExactHarmonicProblem<DIM>::exactSolutionCurl,
+                                  std::ref(problem), std::placeholders::_1));
 }
 
 template <std::size_t DIM>

@@ -130,8 +130,8 @@ class DivDGMaxDiscretization {
     using PointPhysicalT = Geometry::PointPhysical<DIM>;
     using InputFunction = std::function<void(const PointPhysicalT&,
                                              LinearAlgebra::SmallVector<DIM>&)>;
-    using FaceInputFunction =
-        std::function<LinearAlgebra::SmallVector<DIM>(Base::PhysicalFace<DIM>&)>;
+    using FaceInputFunction = std::function<LinearAlgebra::SmallVector<DIM>(
+        Base::PhysicalFace<DIM>&)>;
 
     void initializeBasisFunctions(Base::MeshManipulator<DIM>& mesh,
                                   std::size_t order);

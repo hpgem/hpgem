@@ -81,7 +81,8 @@ class ExactHarmonicProblem : public HarmonicProblem<DIM> {
 
     LinearAlgebra::SmallVector<DIM> boundaryCondition(
         Base::PhysicalFace<DIM>& face) const final {
-        LinearAlgebra::SmallVector<DIM> efield = exactSolution(face.getPointPhysical());
+        LinearAlgebra::SmallVector<DIM> efield =
+            exactSolution(face.getPointPhysical());
         const LinearAlgebra::SmallVector<DIM>& normal =
             face.getUnitNormalVector();
         return normal.crossProduct(efield);

@@ -46,8 +46,9 @@ SampleTestProblems<DIM>::SampleTestProblems(
     : problem_(problem) {}
 
 template <std::size_t DIM>
-LinearAlgebra::SmallVector<DIM> SampleTestProblems<DIM>::initialConditionDerivative(
-    const Geometry::PointPhysical<DIM> &point) const {
+LinearAlgebra::SmallVector<DIM>
+    SampleTestProblems<DIM>::initialConditionDerivative(
+        const Geometry::PointPhysical<DIM> &point) const {
     LinearAlgebra::SmallVector<DIM> result;
     switch (problem_) {
         case CONSTANT: {
