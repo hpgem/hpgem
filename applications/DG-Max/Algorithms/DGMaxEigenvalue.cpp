@@ -78,13 +78,12 @@ void DGMaxEigenvalue<DIM>::initializeMatrices() {
     // No element vectors
     std::map<std::size_t, typename DGMaxDiscretization<DIM>::InputFunction>
         elementVectors;
-    discretization_.computeElementIntegrands(mesh_, massMatrixHandling,
-                                             elementVectors);
+    discretization_.setMatrixHandling(massMatrixHandling);
+    discretization_.computeElementIntegrands(mesh_, elementVectors);
     // No face vectors
     std::map<std::size_t, typename DGMaxDiscretization<DIM>::FaceInputFunction>
         faceVectors;
-    discretization_.computeFaceIntegrals(mesh_, massMatrixHandling, faceVectors,
-                                         config_.stab_);
+    discretization_.computeFaceIntegrals(mesh_, faceVectors, config_.stab_);
 }
 
 // SolverWorkspace //
@@ -473,7 +472,7 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::initStiffnessShellMatrix() {
                            PETSC_DETERMINE, this, &shell_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     error = MatShellSetOperation(shell_, MATOP_MULT,
-                                 (void (*)(void))staticShellMultiply);
+                                 (void(*)(void))staticShellMultiply);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 }
 
