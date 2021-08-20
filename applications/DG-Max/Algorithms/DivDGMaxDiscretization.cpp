@@ -1128,14 +1128,10 @@ void DivDGMaxDiscretization<DIM>::faceBoundaryVector(
         }
     } else {
         double diameter = face->getDiameter();
-        const Geometry::PointReference<DIM>& PLeft =
-            face->mapRefFaceToRefElemL(p);
-        const PointPhysicalT PPhys =
-            face->getPtrElementLeft()->referenceToPhysical(PLeft);
 
         LinearAlgebra::SmallVector<DIM> val, phi_curl;
         LinearAlgebra::SmallVector<DIM> phi;
-        boundaryValue(PPhys, fa, val);
+        val = boundaryValue(fa);
 
         std::size_t totalUDoFs =
             face->getPtrElementLeft()->getNumberOfBasisFunctions(0);
@@ -1196,15 +1192,7 @@ LinearAlgebra::MiddleSizeVector
             LinearAlgebra::SmallVector<DIM> basisV;
 
             // Compute boundary value
-            const Base::Face* baseFace = face.getFace();
-            const Geometry::PointReference<DIM - 1>& p =
-                face.getPointReference();
-            const Geometry::PointReference<DIM>& PLeft =
-                baseFace->mapRefFaceToRefElemL(p);
-            const PointPhysicalT PPhys =
-                baseFace->getPtrElementLeft()->referenceToPhysical(PLeft);
-            LinearAlgebra::SmallVector<DIM> val;
-            boundaryValue(PPhys, face, val);
+            LinearAlgebra::SmallVector<DIM> val = boundaryValue(face);
 
             for (std::size_t i = 0; i < faceInfo.totalUDoFs(); ++i) {
                 face.basisFunction(i, basisV, 0);

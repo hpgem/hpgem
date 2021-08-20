@@ -108,13 +108,12 @@ template <std::size_t DIM>
 class DGMaxDiscretization : public DGMaxDiscretizationBase {
    public:
     using PointPhysicalT = Geometry::PointPhysical<DIM>;
-    using InputFunction = std::function<void(const PointPhysicalT&,
-                                             LinearAlgebra::SmallVector<DIM>&)>;
-    using FaceInputFunction =
-        std::function<void(const PointPhysicalT&, Base::PhysicalFace<DIM>&,
-                           LinearAlgebra::SmallVector<DIM>&)>;
-    using TimeFunction = std::function<void(const PointPhysicalT&, double,
-                                            LinearAlgebra::SmallVector<DIM>&)>;
+    using InputFunction =
+        std::function<LinearAlgebra::SmallVector<DIM>(const PointPhysicalT&)>;
+    using FaceInputFunction = std::function<LinearAlgebra::SmallVector<DIM>(
+        Base::PhysicalFace<DIM>&)>;
+    using TimeFunction = std::function<LinearAlgebra::SmallVector<DIM>(
+        const PointPhysicalT&, double)>;
 
     /// Computed fields of the solution
     struct Fields {

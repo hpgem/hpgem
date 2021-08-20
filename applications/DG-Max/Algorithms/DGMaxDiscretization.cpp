@@ -378,15 +378,11 @@ template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::elementInnerProduct(
     Base::PhysicalElement<DIM>& el, const InputFunction& function,
     LinearAlgebra::MiddleSizeVector& ret) const {
-    const Base::Element* element = el.getElement();
-    const Geometry::PointReference<DIM>& p = el.getPointReference();
-    const std::size_t numberOfBasisFunctions =
-        element->getNumberOfBasisFunctions(0);
+    const std::size_t numberOfBasisFunctions = el.getNumberOfBasisFunctions(0);
 
     ret.resize(numberOfBasisFunctions);
-    const PointPhysicalT pPhys = element->referenceToPhysical(p);
     LinearAlgebra::SmallVector<DIM> val, phi;
-    function(pPhys, val);
+    val = function(el.getPointPhysical());
     for (std::size_t i = 0; i < numberOfBasisFunctions; ++i) {
         el.basisFunction(i, phi, 0);
         ret[i] = phi * val;
@@ -462,17 +458,10 @@ void DGMaxDiscretization<DIM>::faceVector(
         for (std::size_t i = 0; i < M; ++i) ret(i) = 0;
     } else {
         double diameter = face->getDiameter();
-        const Base::Element* left = face->getPtrElementLeft();
-        const Geometry::PointReference<DIM>& PLeft =
-            face->mapRefFaceToRefElemL(p);
-
-        PointPhysicalT PPhys;
-        PPhys = left->referenceToPhysical(PLeft);
         LinearAlgebra::SmallVector<DIM> val, phi, phi_curl, boundaryValues;
 
-        boundaryCondition(PPhys, fa,
-                          boundaryValues);  // assumes the initial conditions
-                                            // and the boundary conditions match
+        // assumes the initial conditions and the boundary conditions match
+        boundaryValues = boundaryCondition(fa);
 
         val = boundaryValues;
         std::size_t n = face->getPtrElementLeft()->getNrOfBasisFunctions(0);
@@ -608,15 +597,12 @@ LinearAlgebra::SmallVector<2> DGMaxDiscretization<DIM>::elementErrorIntegrand(
     DGMaxDiscretization<DIM>::InputFunction exactValues,
     DGMaxDiscretization<DIM>::InputFunction curlValues) const {
     const Base::Element* element = el.getElement();
-    const Geometry::PointReference<DIM>& p = el.getPointReference();
-    PointPhysicalT pPhys;
-    pPhys = element->referenceToPhysical(p);
 
     LinearAlgebra::SmallVector<DIM> phi, phiCurl, error, errorCurl;
 
-    exactValues(pPhys, error);
+    error = exactValues(el.getPointPhysical());
     if (computeCurl) {
-        curlValues(pPhys, errorCurl);
+        errorCurl = curlValues(el.getPointPhysical());
     }
     LinearAlgebra::MiddleSizeVector data;
     data = element->getTimeIntegrationVector(timeVector);
@@ -662,7 +648,7 @@ double DGMaxDiscretization<DIM>::faceErrorIntegrand(
     LinearAlgebra::SmallVector<DIM> error, phiNormal, solutionValues;
 
     // Compute u_L x n_L
-    exactSolution(PPhys, solutionValues);
+    solutionValues = exactSolution(PPhys);
     error = normal.crossProduct(solutionValues);
     std::size_t n = face->getPtrElementLeft()->getNrOfBasisFunctions(0);
     LinearAlgebra::MiddleSizeVector solutionCoefficients =
@@ -685,7 +671,7 @@ double DGMaxDiscretization<DIM>::faceErrorIntegrand(
             face->mapRefFaceToRefElemR(p);
         PPhys = element->referenceToPhysical(pElement);
         // Compute u_R x n_L
-        exactSolution(PPhys, solutionValues);
+        solutionValues = exactSolution(PPhys);
         otherSideError = normal.crossProduct(solutionValues);
         error -= otherSideError;  // Note subtraction as n_L = - n_R.
 
