@@ -48,16 +48,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace hpgem;
 
 template <std::size_t DIM>
-DivDGMaxHarmonic<DIM>::DivDGMaxHarmonic(Base::MeshManipulator<DIM>& mesh)
-    : mesh_(mesh) {}
+DivDGMaxHarmonic<DIM>::DivDGMaxHarmonic(
+    Base::MeshManipulator<DIM>& mesh,
+    typename DivDGMaxDiscretization<DIM>::Stab stab, std::size_t order)
+    : mesh_(mesh), stab_(stab) {
+    discretization_.initializeBasisFunctions(mesh_, order);
+}
 
 template <std::size_t DIM>
-void DivDGMaxHarmonic<DIM>::solve(
-    const HarmonicProblem<DIM>& input,
-    typename DivDGMaxDiscretization<DIM>::Stab stab, std::size_t order) {
+void DivDGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& input) {
     PetscErrorCode error;
 
-    discretization_.initializeBasisFunctions(mesh_, order);
     discretization_.computeElementIntegrands(
         mesh_, false,
         std::bind(&HarmonicProblem<DIM>::sourceTerm, std::ref(input),
@@ -67,7 +68,7 @@ void DivDGMaxHarmonic<DIM>::solve(
         mesh_,
         std::bind(&HarmonicProblem<DIM>::boundaryCondition, std::ref(input),
                   std::placeholders::_1),
-        stab);
+        stab_);
 
     Utilities::GlobalIndexing indexing(&mesh_);
     Utilities::GlobalPetscMatrix massMatrix(
@@ -115,6 +116,61 @@ void DivDGMaxHarmonic<DIM>::solve(
     // Cleanup
     error = KSPDestroy(&solver);
     CHKERRABORT(PETSC_COMM_WORLD, error);
+}
+
+template <std::size_t DIM>
+void DivDGMaxHarmonic<DIM>::writeVTK(
+    Output::VTKSpecificTimeWriter<DIM>& output) const {
+
+    using Fields = typename DivDGMaxDiscretization<DIM>::Fields;
+
+    // 4 fields to output, Ereal, Eimag, preal, pcomplex
+    output.write(
+        [this](Base::Element* element,
+               const Geometry::PointReference<DIM>& point, std::size_t) {
+            LinearAlgebra::MiddleSizeVector coefficients =
+                element->getTimeIntegrationVector(0);
+            Fields fields =
+                discretization_.computeFields(element, point, coefficients);
+
+            return fields.realEField;
+        },
+        "Ereal");
+    output.write(
+        [this](Base::Element* element,
+               const Geometry::PointReference<DIM>& point, std::size_t) {
+            LinearAlgebra::MiddleSizeVector coefficients =
+                element->getTimeIntegrationVector(0);
+            Fields fields =
+                discretization_.computeFields(element, point, coefficients);
+
+            return fields.imagEField;
+        },
+        "Eimag");
+
+    output.write(
+        [this](Base::Element* element,
+               const Geometry::PointReference<DIM>& point, std::size_t) {
+            LinearAlgebra::MiddleSizeVector coefficients =
+                element->getTimeIntegrationVector(0);
+            Fields fields =
+                discretization_.computeFields(element, point, coefficients);
+
+            return std::real(fields.potential);
+        },
+        "preal");
+
+    output.write(
+        [this](Base::Element* element,
+               const Geometry::PointReference<DIM>& point, std::size_t) {
+            LinearAlgebra::MiddleSizeVector coefficients =
+                element->getTimeIntegrationVector(0);
+            Fields fields =
+                discretization_.computeFields(element, point, coefficients);
+
+            return std::imag(fields.potential);
+        },
+        "pimag");
 }
 
 template <std::size_t DIM>
