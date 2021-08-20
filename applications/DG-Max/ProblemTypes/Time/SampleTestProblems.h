@@ -62,17 +62,15 @@ class SampleTestProblems : public ExactSeparableTimeIntegrationProblem<DIM> {
 
     SampleTestProblems(Problem problem);
 
-    void initialConditionDerivative(
-        const Geometry::PointPhysical<DIM>& point,
-        LinearAlgebra::SmallVector<DIM>& result) const override;
-    void sourceTermRef(const Geometry::PointPhysical<DIM>& point,
-                       LinearAlgebra::SmallVector<DIM>& result) const override;
+    LinearAlgebra::SmallVector<DIM> initialConditionDerivative(
+        const Geometry::PointPhysical<DIM>& point) const override;
+    LinearAlgebra::SmallVector<DIM> sourceTermRef(
+        const Geometry::PointPhysical<DIM>& point) const override;
 
-    void exactSolution(const Geometry::PointPhysical<DIM>& point, double t,
-                       LinearAlgebra::SmallVector<DIM>& result) const override;
-    void exactSolutionCurl(
-        const Geometry::PointPhysical<DIM>& point, double t,
-        LinearAlgebra::SmallVector<DIM>& result) const override;
+    LinearAlgebra::SmallVector<DIM> exactSolution(
+        const Geometry::PointPhysical<DIM>& point, double t) const override;
+    LinearAlgebra::SmallVector<DIM> exactSolutionCurl(
+        const Geometry::PointPhysical<DIM>& point, double t) const override;
 
     double referenceTimeBoundary() const override;
 
@@ -85,11 +83,11 @@ class SampleTestProblems : public ExactSeparableTimeIntegrationProblem<DIM> {
 
     /// Helper function for the SINSIN test case, computing the basis field
     /// strength.
-    void sinx(const Geometry::PointPhysical<DIM>& point,
-              LinearAlgebra::SmallVector<DIM>& result) const;
+    LinearAlgebra::SmallVector<DIM> sinx(
+        const Geometry::PointPhysical<DIM>& point) const;
     // Helper function for the SARMANY2013 case with the electric field
-    void sarmany2013x(const Geometry::PointPhysical<DIM>& point,
-                      LinearAlgebra::SmallVector<DIM>& result) const;
+    LinearAlgebra::SmallVector<DIM> sarmany2013x(
+        const Geometry::PointPhysical<DIM>& point) const;
 };
 
 #endif  // HPGEM_APP_SAMPLETESTPROBLEMS_H
