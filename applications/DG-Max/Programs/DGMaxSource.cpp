@@ -110,18 +110,19 @@ class TestingProblem : public HarmonicProblem<dim> {
 
     double omega() const final { return 4.0e-2; }
 
-    void sourceTerm(const Geometry::PointPhysical<dim>& point,
-                    LinearAlgebra::SmallVector<dim>& result) const final {
+    LinearAlgebra::SmallVector<dim> sourceTerm(
+        const Geometry::PointPhysical<dim>& point) const final {
+        LinearAlgebra::SmallVector<dim> result;
 
         result.set(0.0);
         if (point[1] > 0 && point[1] < 50) result[0] = 1.0;
+
+        return result;
     }
 
-    void boundaryCondition(
-        const Geometry::PointPhysical<dim>& point,
-        Base::PhysicalFace<dim>& face,
-        LinearAlgebra::SmallVector<dim>& result) const override {
-        result.set(0.0);
+    LinearAlgebra::SmallVector<dim> boundaryCondition(
+        Base::PhysicalFace<dim>& face) const override {
+        return {};
     }
 };
 
@@ -194,9 +195,7 @@ void runWithDimension() {
     output.write(
         [&problem](Base::Element* element,
                    const Geometry::PointReference<dim>& p, std::size_t) {
-            LinearAlgebra::SmallVector<dim> source;
-            problem->sourceTerm(element->referenceToPhysical(p), source);
-            return source;
+            return problem->sourceTerm(element->referenceToPhysical(p));
         },
         "source");
     solver->writeVTK(output);
