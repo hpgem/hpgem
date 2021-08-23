@@ -58,9 +58,11 @@ DivDGMaxHarmonic<DIM>::DivDGMaxHarmonic(Base::MeshManipulator<DIM>& mesh,
 template <std::size_t DIM>
 void DivDGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& input) {
     PetscErrorCode error;
-
     using Discretization = DivDGMaxDiscretization<DIM>;
 
+    discretization_.setBoundaryIndicator(
+        std::bind(&HarmonicProblem<DIM>::getBoundaryConditionType, &input,
+                  std::placeholders::_1));
     {
         std::map<std::size_t, typename Discretization::InputFunction>
             elementVecs = {{Discretization::ELEMENT_SOURCE_VECTOR_ID,
