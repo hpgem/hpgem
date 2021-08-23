@@ -86,26 +86,25 @@ void DGMaxTimeIntegration<DIM>::solve(
 
     elementVectors[DGMaxDiscretizationBase::SOURCE_TERM_VECTOR_ID] =
         std::bind(&SeparableTimeIntegrationProblem<DIM>::sourceTermRef,
-                  std::ref(input), _1, _2);
+                  std::ref(input), _1);
     elementVectors[DGMaxDiscretizationBase::INITIAL_CONDITION_VECTOR_ID] =
         std::bind(&TimeIntegrationProblem<DIM>::initialCondition,
-                  std::ref(input), _1, _2);
+                  std::ref(input), _1);
     elementVectors
         [DGMaxDiscretizationBase::INITIAL_CONDITION_DERIVATIVE_VECTOR_ID] =
             std::bind(&TimeIntegrationProblem<DIM>::initialConditionDerivative,
-                      std::ref(input), _1, _2);
+                      std::ref(input), _1);
 
-    discretization.computeElementIntegrands(
-        mesh_, DGMaxDiscretizationBase::INVERT, elementVectors);
+    discretization.setMatrixHandling(DGMaxDiscretizationBase::INVERT);
+    discretization.computeElementIntegrands(mesh_, elementVectors);
 
     std::map<std::size_t, typename DGMaxDiscretization<DIM>::FaceInputFunction>
         faceVectors;
     faceVectors[DGMaxDiscretizationBase::FACE_VECTOR_ID] =
         std::bind(&SeparableTimeIntegrationProblem<DIM>::boundaryConditionRef,
-                  std::ref(input), _1, _2, _3);
+                  std::ref(input), _1);
 
-    discretization.computeFaceIntegrals(mesh_, DGMaxDiscretizationBase::INVERT,
-                                        faceVectors, parameters.stab);
+    discretization.computeFaceIntegrals(mesh_, faceVectors, parameters.stab);
     //    MHasToBeInverted_ = true;
     //    assembler->fillMatrices(this);
 
@@ -379,7 +378,7 @@ template <std::size_t DIM>
 void DGMaxTimeIntegration<DIM>::printErrors(
     const std::vector<typename DGMaxDiscretization<DIM>::NormType>& norms,
     const typename DGMaxDiscretization<DIM>::TimeFunction& exactField,
-    const typename DGMaxDiscretization<DIM>::TimeFunction& exactCurl) const {
+    const typename DGMaxDiscretization<DIM>::TimeFunction& exactCurl) {
     using NormType = typename DGMaxDiscretization<DIM>::NormType;
     std::set<NormType> normSet;
 
@@ -393,12 +392,8 @@ void DGMaxTimeIntegration<DIM>::printErrors(
     for (std::size_t level = 0; level < numberOfSnapshots; ++level) {
         double time = snapshotTime[level];
         std::map<NormType, double> normValues = discretization.computeError(
-            mesh_, level,
-            std::bind(exactField, std::placeholders::_1, time,
-                      std::placeholders::_2),
-            std::bind(exactCurl, std::placeholders::_1, time,
-                      std::placeholders::_2),
-            normSet);
+            mesh_, level, std::bind(exactField, std::placeholders::_1, time),
+            std::bind(exactCurl, std::placeholders::_1, time), normSet);
         std::cout << time;
         for (auto norm : norms) {
             std::cout << "\t" << normValues[norm];
@@ -410,14 +405,14 @@ void DGMaxTimeIntegration<DIM>::printErrors(
 template <std::size_t DIM>
 void DGMaxTimeIntegration<DIM>::printErrors(
     const std::vector<typename DGMaxDiscretization<DIM>::NormType>& norms,
-    const ExactTimeIntegrationProblem<DIM>& problem) const {
+    const ExactTimeIntegrationProblem<DIM>& problem) {
     printErrors(norms,
                 std::bind(&ExactTimeIntegrationProblem<DIM>::exactSolution,
                           std::ref(problem), std::placeholders::_1,
-                          std::placeholders::_2, std::placeholders::_3),
+                          std::placeholders::_2),
                 std::bind(&ExactTimeIntegrationProblem<DIM>::exactSolutionCurl,
                           std::ref(problem), std::placeholders::_1,
-                          std::placeholders::_2, std::placeholders::_3));
+                          std::placeholders::_2));
 }
 
 template class DGMaxTimeIntegration<2>;

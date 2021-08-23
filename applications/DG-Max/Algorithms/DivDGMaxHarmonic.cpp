@@ -48,27 +48,27 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace hpgem;
 
 template <std::size_t DIM>
-DivDGMaxHarmonic<DIM>::DivDGMaxHarmonic(Base::MeshManipulator<DIM>& mesh)
-    : mesh_(mesh) {}
+DivDGMaxHarmonic<DIM>::DivDGMaxHarmonic(
+    Base::MeshManipulator<DIM>& mesh,
+    typename DivDGMaxDiscretization<DIM>::Stab stab, std::size_t order)
+    : mesh_(mesh), stab_(stab) {
+    discretization_.initializeBasisFunctions(mesh_, order);
+}
 
 template <std::size_t DIM>
-void DivDGMaxHarmonic<DIM>::solve(
-    const HarmonicProblem<DIM>& input,
-    typename DivDGMaxDiscretization<DIM>::Stab stab, std::size_t order) {
+void DivDGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& input) {
     PetscErrorCode error;
 
-    discretization_.initializeBasisFunctions(mesh_, order);
     discretization_.computeElementIntegrands(
         mesh_, false,
         std::bind(&HarmonicProblem<DIM>::sourceTerm, std::ref(input),
-                  std::placeholders::_1, std::placeholders::_2),
+                  std::placeholders::_1),
         nullptr, nullptr);
     discretization_.computeFaceIntegrals(
         mesh_,
         std::bind(&HarmonicProblem<DIM>::boundaryCondition, std::ref(input),
-                  std::placeholders::_1, std::placeholders::_2,
-                  std::placeholders::_3),
-        stab);
+                  std::placeholders::_1),
+        stab_);
 
     Utilities::GlobalIndexing indexing(&mesh_);
     Utilities::GlobalPetscMatrix massMatrix(
@@ -119,6 +119,61 @@ void DivDGMaxHarmonic<DIM>::solve(
 }
 
 template <std::size_t DIM>
+void DivDGMaxHarmonic<DIM>::writeVTK(
+    Output::VTKSpecificTimeWriter<DIM>& output) const {
+
+    using Fields = typename DivDGMaxDiscretization<DIM>::Fields;
+
+    // 4 fields to output, Ereal, Eimag, preal, pcomplex
+    output.write(
+        [this](Base::Element* element,
+               const Geometry::PointReference<DIM>& point, std::size_t) {
+            LinearAlgebra::MiddleSizeVector coefficients =
+                element->getTimeIntegrationVector(0);
+            Fields fields =
+                discretization_.computeFields(element, point, coefficients);
+
+            return fields.realEField;
+        },
+        "Ereal");
+    output.write(
+        [this](Base::Element* element,
+               const Geometry::PointReference<DIM>& point, std::size_t) {
+            LinearAlgebra::MiddleSizeVector coefficients =
+                element->getTimeIntegrationVector(0);
+            Fields fields =
+                discretization_.computeFields(element, point, coefficients);
+
+            return fields.imagEField;
+        },
+        "Eimag");
+
+    output.write(
+        [this](Base::Element* element,
+               const Geometry::PointReference<DIM>& point, std::size_t) {
+            LinearAlgebra::MiddleSizeVector coefficients =
+                element->getTimeIntegrationVector(0);
+            Fields fields =
+                discretization_.computeFields(element, point, coefficients);
+
+            return std::real(fields.potential);
+        },
+        "preal");
+
+    output.write(
+        [this](Base::Element* element,
+               const Geometry::PointReference<DIM>& point, std::size_t) {
+            LinearAlgebra::MiddleSizeVector coefficients =
+                element->getTimeIntegrationVector(0);
+            Fields fields =
+                discretization_.computeFields(element, point, coefficients);
+
+            return std::imag(fields.potential);
+        },
+        "pimag");
+}
+
+template <std::size_t DIM>
 void DivDGMaxHarmonic<DIM>::writeTec(std::string fileName) const {
     std::ofstream fileWriter;
     fileWriter.open(fileName);
@@ -152,8 +207,7 @@ template <std::size_t DIM>
 double DivDGMaxHarmonic<DIM>::computeL2Error(
     const ExactHarmonicProblem<DIM>& problem) const {
     return computeL2Error(std::bind(&ExactHarmonicProblem<DIM>::exactSolution,
-                                    std::ref(problem), std::placeholders::_1,
-                                    std::placeholders::_2));
+                                    std::ref(problem), std::placeholders::_1));
 }
 
 template class DivDGMaxHarmonic<2>;

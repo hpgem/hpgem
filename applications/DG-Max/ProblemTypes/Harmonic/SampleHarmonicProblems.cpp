@@ -74,31 +74,30 @@ double SampleHarmonicProblems<DIM>::omega() const {
 }
 
 template <std::size_t DIM>
-void SampleHarmonicProblems<DIM>::exactSolution(
-    const Geometry::PointPhysical<DIM> &point,
-    LinearAlgebra::SmallVector<DIM> &result) const {
+LinearAlgebra::SmallVector<DIM> SampleHarmonicProblems<DIM>::exactSolution(
+    const Geometry::PointPhysical<DIM> &point) const {
+    LinearAlgebra::SmallVector<DIM> result;
     switch (problem_) {
         case CONSTANT: {
             result.set(1);
             break;
         }
         case SARMANY2010: {
-            sarmanyx(point, result);
-            break;
+            return sarmanyx(point);
         }
         default:
             logger.assert_debug(false, "Not implemented for this problem.");
     }
+    return result;
 }
 
 template <std::size_t DIM>
-void SampleHarmonicProblems<DIM>::exactSolutionCurl(
-    const Geometry::PointPhysical<DIM> &point,
-    LinearAlgebra::SmallVector<DIM> &result) const {
+LinearAlgebra::SmallVector<DIM> SampleHarmonicProblems<DIM>::exactSolutionCurl(
+    const Geometry::PointPhysical<DIM> &point) const {
+    LinearAlgebra::SmallVector<DIM> result;
     switch (problem_) {
         case CONSTANT: {
-            result.set(0);
-            break;
+            return {};
         }
         case SARMANY2010: {
             double x = point[0], y = point[1], z = point[2];
@@ -111,31 +110,31 @@ void SampleHarmonicProblems<DIM>::exactSolutionCurl(
         default:
             logger.assert_debug(false, "Not implemented for this problem.");
     }
+    return result;
 }
 
 template <std::size_t DIM>
-void SampleHarmonicProblems<DIM>::sourceTerm(
-    const Geometry::PointPhysical<DIM> &point,
-    LinearAlgebra::SmallVector<DIM> &result) const {
+LinearAlgebra::SmallVector<DIM> SampleHarmonicProblems<DIM>::sourceTerm(
+    const Geometry::PointPhysical<DIM> &point) const {
+    LinearAlgebra::SmallVector<DIM> result;
     switch (problem_) {
         case CONSTANT: {
             result.set(-omega_ * omega_);
             break;
         }
         case SARMANY2010: {
-            sarmanyx(point, result);
-            result *= (2 * M_PI * M_PI - omega_ * omega_);
-            break;
+            return sarmanyx(point) * (2 * M_PI * M_PI - omega_ * omega_);
         }
         default:
             logger.assert_debug(false, "Not implemented for this problem.");
     }
+    return result;
 }
 
 template <std::size_t DIM>
-void SampleHarmonicProblems<DIM>::sarmanyx(
-    const Geometry::PointPhysical<DIM> &point,
-    LinearAlgebra::SmallVector<DIM> &result) const {
+LinearAlgebra::SmallVector<DIM> SampleHarmonicProblems<DIM>::sarmanyx(
+    const Geometry::PointPhysical<DIM> &point) const {
+    LinearAlgebra::SmallVector<DIM> result;
     if (DIM == 3) {
         double sx = sin(M_PI * point[0]), sy = sin(M_PI * point[1]),
                sz = sin(M_PI * point[2]);
@@ -145,6 +144,7 @@ void SampleHarmonicProblems<DIM>::sarmanyx(
     } else {
         logger.assert_debug(DIM == 3, "Sarmany test case only works in 3D.");
     }
+    return result;
 }
 
 template class SampleHarmonicProblems<2>;

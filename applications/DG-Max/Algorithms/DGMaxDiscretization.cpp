@@ -41,9 +41,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <complex>
 
 #include "Base/HCurlConformingTransformation.h"
+#include "Base/H1ConformingTransformation.h"
 #include "Base/MeshManipulator.h"
-#include "Integration/ElementIntegral.h"
-#include "Integration/FaceIntegral.h"
 
 #include "ElementInfos.h"
 
@@ -60,6 +59,20 @@ const std::size_t DGMaxDiscretizationBase::SOURCE_TERM_VECTOR_ID;
 
 const std::size_t DGMaxDiscretizationBase::FACE_MATRIX_ID;
 const std::size_t DGMaxDiscretizationBase::FACE_VECTOR_ID;
+
+template <std::size_t DIM>
+DGMaxDiscretization<DIM>::DGMaxDiscretization(bool includeProjector)
+    : includeProjector_(includeProjector), matrixHandling_(NORMAL) {
+
+    transforms_.emplace_back(new Base::HCurlConformingTransformation<DIM>());
+    if (includeProjector_) {
+        transforms_.emplace_back(new Base::H1ConformingTransformation<DIM>());
+    }
+    for (std::size_t i = 0; i < transforms_.size(); ++i) {
+        elementIntegrator_.setTransformation(transforms_[i], i);
+        faceIntegrator_.setTransformation(transforms_[i], i);
+    }
+}
 
 template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::initializeBasisFunctions(
@@ -86,25 +99,12 @@ void DGMaxDiscretization<DIM>::initializeBasisFunctions(
 
 template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::computeElementIntegrands(
-    Base::MeshManipulator<DIM>& mesh, MassMatrixHandling massMatrixHandling,
-    const std::map<std::size_t, InputFunction>& elementVectors) const {
+    Base::MeshManipulator<DIM>& mesh,
+    const std::map<std::size_t, InputFunction>& elementVectors) {
     logger.assert_always(
-        !(massMatrixHandling == ORTHOGONALIZE && !elementVectors.empty()),
+        !(matrixHandling_ == ORTHOGONALIZE && !elementVectors.empty()),
         "Mass matrix rescale with input functions is not implemented");
-    LinearAlgebra::MiddleSizeMatrix massMatrix(1, 1), stiffnessMatrix(1, 1),
-        projectorMatrix(0, 0);
     LinearAlgebra::MiddleSizeVector tempElementVector;
-    Integration::ElementIntegral<DIM> elIntegral;
-
-    elIntegral.setTransformation(
-        std::shared_ptr<Base::CoordinateTransformation<DIM>>(
-            new Base::HCurlConformingTransformation<DIM>()));
-    if (includeProjector_) {
-        elIntegral.setTransformation(
-            std::shared_ptr<Base::CoordinateTransformation<DIM>>(
-                new Base::H1ConformingTransformation<DIM>()),
-            1);
-    }
 
     // Using the Global iterator as:
     //  - The projector needs to integration over all elements on which the
@@ -117,94 +117,16 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(
              mesh.elementColBegin(Base::IteratorType::GLOBAL);
          it != end; ++it) {
         Base::Element* element = *it;
-        std::size_t numberOfBasisFunctions =
-            element->getNumberOfBasisFunctions(0);
 
-        // TODO: Are these resizes needed, as the content seems to be
-        // overwritten by the integral.
-        massMatrix.resize(numberOfBasisFunctions, numberOfBasisFunctions);
-        massMatrix = elIntegral.integrate(
-            element, [&](Base::PhysicalElement<DIM>& pelement) {
-                LinearAlgebra::MiddleSizeMatrix res;
-                elementMassMatrix(pelement, res);
-                return res;
-            });
-        switch (massMatrixHandling) {
-            case DGMaxDiscretizationBase::NORMAL:
-                break;
-            case DGMaxDiscretizationBase::INVERT:
-                massMatrix = massMatrix.inverse();
-                break;
-            case DGMaxDiscretizationBase::ORTHOGONALIZE:
-                massMatrix.cholesky();
-                break;
-            default:
-                logger.assert_always(false,
-                                     "Not implemented mass matrix handling");
-        }
-        element->setElementMatrix(massMatrix, MASS_MATRIX_ID);
-
-        stiffnessMatrix.resize(numberOfBasisFunctions, numberOfBasisFunctions);
-        stiffnessMatrix = elIntegral.integrate(
-            element, [&](Base::PhysicalElement<DIM>& pelement) {
-                LinearAlgebra::MiddleSizeMatrix res;
-                elementStiffnessMatrix(pelement, res);
-                return res;
-            });
-        if (massMatrixHandling == DGMaxDiscretizationBase::ORTHOGONALIZE) {
-            // Compute L^{-1} S L^{-H}, where S is the stiffness matrix and
-            // LL^H is the mass matrix.
-            LinearAlgebra::MiddleSizeMatrix original = stiffnessMatrix;
-            massMatrix.solveLowerTriangular(stiffnessMatrix,
-                                            LinearAlgebra::Side::OP_LEFT,
-                                            LinearAlgebra::Transpose::NOT);
-            massMatrix.solveLowerTriangular(
-                stiffnessMatrix, LinearAlgebra::Side::OP_RIGHT,
-                LinearAlgebra::Transpose::HERMITIAN_TRANSPOSE);
-            // Due to rounding errors the matrix might be slightly non
-            // Hermitian, fix this by replacing S by 0.5(S + S^H).
-            for (std::size_t i = 0; i < stiffnessMatrix.getNumberOfRows();
-                 ++i) {
-                stiffnessMatrix(i, i) = std::real(stiffnessMatrix(i, i));
-                for (std::size_t j = i;
-                     j < stiffnessMatrix.getNumberOfColumns(); ++j) {
-                    std::complex<double> upper =
-                        0.5 * (stiffnessMatrix(i, j) +
-                               std::conj(stiffnessMatrix(j, i)));
-                    stiffnessMatrix(i, j) = upper;
-                    stiffnessMatrix(j, i) = std::conj(upper);
-                }
-            }
-        }
-        element->setElementMatrix(stiffnessMatrix, STIFFNESS_MATRIX_ID);
-
-        if (includeProjector_) {
-            std::size_t numberOfProjectorBasisFunctions =
-                element->getNumberOfBasisFunctions(1);
-            projectorMatrix.resize(numberOfProjectorBasisFunctions,
-                                   numberOfBasisFunctions);
-            projectorMatrix = elIntegral.integrate(
-                element, [&](Base::PhysicalElement<DIM>& pelement) {
-                    LinearAlgebra::MiddleSizeMatrix res;
-                    elementProjectorMatrix(pelement, res);
-                    return res;
-                });
-
-            if (massMatrixHandling == DGMaxDiscretizationBase::ORTHOGONALIZE) {
-                // Compute B L^{-H}, where B is the projector matrix and L is
-                // the Cholesky factor of the mass matrix.
-                massMatrix.solveLowerTriangular(
-                    projectorMatrix, LinearAlgebra::Side::OP_RIGHT,
-                    LinearAlgebra::Transpose::HERMITIAN_TRANSPOSE);
-            }
-
-            element->setElementMatrix(projectorMatrix, PROJECTOR_MATRIX_ID);
-        }
+        computeElementMatrices(element);
+        postProcessElementMatrices(element);
 
         for (auto const& elementVectorDef : elementVectors) {
+            std::size_t numberOfBasisFunctions =
+                element->getNumberOfBasisFunctions(0);
             tempElementVector.resize(numberOfBasisFunctions);
             if (elementVectorDef.second) {
-                tempElementVector = elIntegral.integrate(
+                tempElementVector = elementIntegrator_.integrate(
                     element, [&](Base::PhysicalElement<DIM>& element) {
                         LinearAlgebra::MiddleSizeVector res;
                         elementInnerProduct(element, elementVectorDef.second,
@@ -220,9 +142,10 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(
 
 template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::computeFaceIntegrals(
-    Base::MeshManipulator<DIM>& mesh, MassMatrixHandling massMatrixHandling,
+    Base::MeshManipulator<DIM>& mesh,
     const std::map<std::size_t, FaceInputFunction>& boundaryVectors,
-    double stab) const {
+    double stab) {
+    MassMatrixHandling massMatrixHandling = matrixHandling_;
     logger.assert_always(
         !(massMatrixHandling == ORTHOGONALIZE && !boundaryVectors.empty()),
         "Rescale not implemented in combination with boundary conditions");
@@ -242,63 +165,15 @@ void DGMaxDiscretization<DIM>::computeFaceIntegrals(
          it != end; ++it) {
         Base::Face* face = *it;
 
-        // Resize all the matrices and vectors;
+        computeFaceMatrix(face, stab);
+        postProcessFaceMatrices(face);
+
         std::size_t numberOfBasisFunctions =
             face->getPtrElementLeft()->getNumberOfBasisFunctions(0);
         if (face->isInternal()) {
             numberOfBasisFunctions +=
                 face->getPtrElementRight()->getNumberOfBasisFunctions(0);
         }
-
-        stiffnessFaceMatrix.resize(numberOfBasisFunctions,
-                                   numberOfBasisFunctions);
-        tempFaceVector.resize(numberOfBasisFunctions);
-
-        // Compute the actual face  integrals.
-        stiffnessFaceMatrix =
-            faIntegral.integrate(face, [&](Base::PhysicalFace<DIM>& pface) {
-                LinearAlgebra::MiddleSizeMatrix res;
-                faceMatrix(pface, res);
-                LinearAlgebra::MiddleSizeMatrix temp;
-                facePenaltyMatrix(pface, temp, stab);
-                res += temp;
-                return res;
-            });
-        if (massMatrixHandling == DGMaxDiscretizationBase::ORTHOGONALIZE) {
-            massMatrix.resize(numberOfBasisFunctions, numberOfBasisFunctions);
-            massMatrix *= 0.0;  // Clear the contents
-            const LinearAlgebra::MiddleSizeMatrix& leftMassMat =
-                face->getPtrElementLeft()->getElementMatrix(MASS_MATRIX_ID);
-            std::size_t leftRows = leftMassMat.getNumberOfRows();
-            // Copy lower triagonal part
-            for (std::size_t i = 0; i < leftRows; ++i) {
-                for (std::size_t j = i; j < leftRows; ++j) {
-                    massMatrix(j, i) = leftMassMat(j, i);
-                }
-            }
-            if (face->isInternal()) {
-                const LinearAlgebra::MiddleSizeMatrix& rightMassMat =
-                    face->getPtrElementRight()->getElementMatrix(
-                        MASS_MATRIX_ID);
-                std::size_t rightRows = rightMassMat.getNumberOfRows();
-                // Copy lower triagonal part, now offset by leftRows.
-                for (std::size_t i = 0; i < rightRows; ++i) {
-                    for (std::size_t j = i; j < rightRows; ++j) {
-                        massMatrix(leftRows + j, leftRows + i) =
-                            rightMassMat(j, i);
-                    }
-                }
-            }
-            LinearAlgebra::MiddleSizeMatrix original = stiffnessFaceMatrix;
-            // Rescaling
-            massMatrix.solveLowerTriangular(stiffnessFaceMatrix,
-                                            hpgem::LinearAlgebra::Side::OP_LEFT,
-                                            LinearAlgebra::Transpose::NOT);
-            massMatrix.solveLowerTriangular(
-                stiffnessFaceMatrix, hpgem::LinearAlgebra::Side::OP_RIGHT,
-                LinearAlgebra::Transpose::HERMITIAN_TRANSPOSE);
-        }
-        face->setFaceMatrix(stiffnessFaceMatrix, FACE_MATRIX_ID);
 
         for (auto const& faceVectorDef : boundaryVectors) {
             tempFaceVector.resize(numberOfBasisFunctions);
@@ -316,60 +191,121 @@ void DGMaxDiscretization<DIM>::computeFaceIntegrals(
 }
 
 template <std::size_t DIM>
-void DGMaxDiscretization<DIM>::elementMassMatrix(
-    Base::PhysicalElement<DIM>& el,
-    LinearAlgebra::MiddleSizeMatrix& ret) const {
-    const Base::Element* element = el.getElement();
-    const std::size_t numberOfBasisFunctions =
-        element->getNumberOfBasisFunctions(0);
-    ret.resize(numberOfBasisFunctions, numberOfBasisFunctions);
-    LinearAlgebra::SmallVector<DIM> phi_i, phi_j;
-    double epsilon =
-        static_cast<ElementInfos*>(element->getUserData())->epsilon_;
-    for (std::size_t i = 0; i < numberOfBasisFunctions; ++i) {
-        el.basisFunction(i, phi_i, 0);
-        for (std::size_t j = 0; j < numberOfBasisFunctions; ++j) {
-            el.basisFunction(j, phi_j, 0);
-            ret(i, j) = phi_i * phi_j * epsilon;
-            ret(j, i) = ret(i, j);
-        }
-    }
-}
-
-template <std::size_t DIM>
-void DGMaxDiscretization<DIM>::elementStiffnessMatrix(
-    Base::PhysicalElement<DIM>& el,
-    LinearAlgebra::MiddleSizeMatrix& ret) const {
-    const Base::Element* element = el.getElement();
-    const std::size_t numberOfBasisFunctions =
-        element->getNumberOfBasisFunctions(0);
-    ret.resize(numberOfBasisFunctions, numberOfBasisFunctions);
-    LinearAlgebra::SmallVector<DIM> phi_i, phi_j;
-    for (std::size_t i = 0; i < numberOfBasisFunctions; ++i) {
-        phi_i = el.basisFunctionCurl(i, 0);
-        for (std::size_t j = i; j < numberOfBasisFunctions; ++j) {
-            phi_j = el.basisFunctionCurl(j, 0);
-            ret(i, j) = phi_i * phi_j;
-            ret(j, i) = ret(i, j);
-        }
-    }
-}
-
-template <std::size_t DIM>
-void DGMaxDiscretization<DIM>::elementProjectorMatrix(
-    Base::PhysicalElement<DIM>& el,
-    LinearAlgebra::MiddleSizeMatrix& ret) const {
-    const Base::Element* element = el.getElement();
-    double epsilon =
+void DGMaxDiscretization<DIM>::computeElementMatrices(Base::Element* element) {
+    // Shared information
+    const double epsilon =
         static_cast<ElementInfos*>(element->getUserData())->epsilon_;
     const std::size_t dofU = element->getNumberOfBasisFunctions(0);
-    const std::size_t dofP = element->getNumberOfBasisFunctions(1);
-    ret.resize(dofP, dofU);
-    LinearAlgebra::SmallVector<DIM> phiU;
-    for (std::size_t i = 0; i < dofU; ++i) {
-        el.basisFunction(i, phiU, 0);
-        for (std::size_t j = 0; j < dofP; ++j) {
-            ret(j, i) = epsilon * phiU * el.basisFunctionDeriv(j, 1);
+
+    // Mass matrix
+    LinearAlgebra::MiddleSizeMatrix massMatrix = elementIntegrator_.integrate(
+        element, [&](Base::PhysicalElement<DIM>& pel) {
+            LinearAlgebra::MiddleSizeMatrix ret;
+            ret.resize(dofU, dofU);
+            LinearAlgebra::SmallVector<DIM> phi_i, phi_j;
+            for (std::size_t i = 0; i < dofU; ++i) {
+                pel.basisFunction(i, phi_i, 0);
+                for (std::size_t j = 0; j < dofU; ++j) {
+                    pel.basisFunction(j, phi_j, 0);
+                    ret(i, j) = phi_i * phi_j * epsilon;
+                    ret(j, i) = ret(i, j);
+                }
+            }
+            return ret;
+        });
+    element->setElementMatrix(massMatrix, MASS_MATRIX_ID);
+    // Stiffness matrix
+    LinearAlgebra::MiddleSizeMatrix stiffnessMatrix =
+        elementIntegrator_.integrate(
+            element, [&element, &dofU](Base::PhysicalElement<DIM>& pel) {
+                LinearAlgebra::MiddleSizeMatrix ret;
+                ret.resize(dofU, dofU);
+                LinearAlgebra::SmallVector<DIM> phi_i, phi_j;
+                for (std::size_t i = 0; i < dofU; ++i) {
+                    phi_i = pel.basisFunctionCurl(i, 0);
+                    for (std::size_t j = i; j < dofU; ++j) {
+                        phi_j = pel.basisFunctionCurl(j, 0);
+                        ret(i, j) = phi_i * phi_j;
+                        ret(j, i) = ret(i, j);
+                    }
+                }
+                return ret;
+            });
+    element->setElementMatrix(stiffnessMatrix, STIFFNESS_MATRIX_ID);
+    if (includeProjector_) {
+        LinearAlgebra::MiddleSizeMatrix projectorMatrix =
+            elementIntegrator_.integrate(
+                element, [&](Base::PhysicalElement<DIM>& pel) {
+                    LinearAlgebra::MiddleSizeMatrix ret;
+                    const std::size_t dofP =
+                        element->getNumberOfBasisFunctions(1);
+                    ret.resize(dofP, dofU);
+                    LinearAlgebra::SmallVector<DIM> phiU;
+                    for (std::size_t i = 0; i < dofU; ++i) {
+                        pel.basisFunction(i, phiU, 0);
+                        for (std::size_t j = 0; j < dofP; ++j) {
+                            ret(j, i) =
+                                epsilon * phiU * pel.basisFunctionDeriv(j, 1);
+                        }
+                    }
+                    return ret;
+                });
+        element->setElementMatrix(projectorMatrix, PROJECTOR_MATRIX_ID);
+    }
+}
+
+template <std::size_t DIM>
+void DGMaxDiscretization<DIM>::postProcessElementMatrices(
+    Base::Element* element) const {
+    if (matrixHandling_ == NORMAL) {
+        return;
+    } else if (matrixHandling_ == INVERT) {
+        // Note reference to allow overwriting
+        LinearAlgebra::MiddleSizeMatrix& massMat =
+            element->getElementMatrix(MASS_MATRIX_ID);
+        // Note: Overwrites it.
+        massMat = massMat.inverse();
+    } else if (matrixHandling_ == ORTHOGONALIZE) {
+        // Note reference to allow overwriting
+        LinearAlgebra::MiddleSizeMatrix& massMatrix =
+            element->getElementMatrix(MASS_MATRIX_ID);
+        // Inplace cholesky
+        massMatrix.cholesky();
+
+        // NOTE: All solves happen in place, updating the matrix in place!
+        LinearAlgebra::MiddleSizeMatrix& stiffnessMatrix =
+            element->getElementMatrix(STIFFNESS_MATRIX_ID);
+
+        // Compute L^{-1} S L^{-H}, where S is the stiffness matrix and
+        // LL^H is the mass matrix.
+        massMatrix.solveLowerTriangular(stiffnessMatrix,
+                                        LinearAlgebra::Side::OP_LEFT,
+                                        LinearAlgebra::Transpose::NOT);
+        massMatrix.solveLowerTriangular(
+            stiffnessMatrix, LinearAlgebra::Side::OP_RIGHT,
+            LinearAlgebra::Transpose::HERMITIAN_TRANSPOSE);
+        // Due to rounding errors the matrix might be slightly non
+        // Hermitian, fix this by replacing S by 0.5(S + S^H).
+        for (std::size_t i = 0; i < stiffnessMatrix.getNumberOfRows(); ++i) {
+            stiffnessMatrix(i, i) = std::real(stiffnessMatrix(i, i));
+            for (std::size_t j = i; j < stiffnessMatrix.getNumberOfColumns();
+                 ++j) {
+                std::complex<double> upper =
+                    0.5 *
+                    (stiffnessMatrix(i, j) + std::conj(stiffnessMatrix(j, i)));
+                stiffnessMatrix(i, j) = upper;
+                stiffnessMatrix(j, i) = std::conj(upper);
+            }
+        }
+
+        if (includeProjector_) {
+            LinearAlgebra::MiddleSizeMatrix& projectorMatrix =
+                element->getElementMatrix(PROJECTOR_MATRIX_ID);
+            // Compute B L^{-H}, where B is the projector matrix and L is
+            // the Cholesky factor of the mass matrix.
+            massMatrix.solveLowerTriangular(
+                projectorMatrix, LinearAlgebra::Side::OP_RIGHT,
+                LinearAlgebra::Transpose::HERMITIAN_TRANSPOSE);
         }
     }
 }
@@ -378,15 +314,11 @@ template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::elementInnerProduct(
     Base::PhysicalElement<DIM>& el, const InputFunction& function,
     LinearAlgebra::MiddleSizeVector& ret) const {
-    const Base::Element* element = el.getElement();
-    const Geometry::PointReference<DIM>& p = el.getPointReference();
-    const std::size_t numberOfBasisFunctions =
-        element->getNumberOfBasisFunctions(0);
+    const std::size_t numberOfBasisFunctions = el.getNumberOfBasisFunctions(0);
 
     ret.resize(numberOfBasisFunctions);
-    const PointPhysicalT pPhys = element->referenceToPhysical(p);
     LinearAlgebra::SmallVector<DIM> val, phi;
-    function(pPhys, val);
+    val = function(el.getPointPhysical());
     for (std::size_t i = 0; i < numberOfBasisFunctions; ++i) {
         el.basisFunction(i, phi, 0);
         ret[i] = phi * val;
@@ -394,54 +326,75 @@ void DGMaxDiscretization<DIM>::elementInnerProduct(
 }
 
 template <std::size_t DIM>
-void DGMaxDiscretization<DIM>::faceMatrix(
-    Base::PhysicalFace<DIM>& fa, LinearAlgebra::MiddleSizeMatrix& ret) const {
-    const Base::Face* face = fa.getFace();
-
-    std::size_t M = face->getPtrElementLeft()->getNrOfBasisFunctions(0);
+void DGMaxDiscretization<DIM>::computeFaceMatrix(Base::Face* face,
+                                                 double stab) {
+    std::size_t numDoFs = face->getNumberOfBasisFunctions(0);
     const bool internalFace = face->isInternal();
-    if (internalFace) {
-        M += face->getPtrElementRight()->getNrOfBasisFunctions(0);
-    }
-    ret.resize(M, M);
-    LinearAlgebra::SmallVector<DIM> phi_i_normal, phi_j_normal, phi_i_curl,
-        phi_j_curl;
-    for (std::size_t i = 0; i < M; ++i) {
-        phi_i_curl = fa.basisFunctionCurl(i, 0);
-        fa.basisFunctionUnitNormalCross(i, phi_i_normal, 0);
+    // Factor for averaging. Negative sign is from the weak formulation
+    double factor = -(internalFace ? 0.5 : 1.);
+    // Standard rescaling of the stability parameter so that it does not need to
+    // depend on the mesh size.
+    stab /= face->getDiameter();
 
-        for (std::size_t j = i; j < M; ++j) {
-            phi_j_curl = fa.basisFunctionCurl(j, 0);
-            fa.basisFunctionUnitNormalCross(j, phi_j_normal, 0);
+    LinearAlgebra::MiddleSizeMatrix stiffnessMatrix =
+        faceIntegrator_.integrate(face, [&](Base::PhysicalFace<DIM>& pfa) {
+            LinearAlgebra::MiddleSizeMatrix ret(numDoFs, numDoFs);
 
-            ret(i, j) = -(internalFace ? 0.5 : 1.) *
-                        (phi_i_normal * phi_j_curl + phi_j_normal * phi_i_curl);
-            ret(j, i) = ret(i, j);
-        }
-    }
+            LinearAlgebra::SmallVector<DIM> phiNi, phiNj, phiCi, phiCj;
+
+            for (std::size_t i = 0; i < numDoFs; ++i) {
+                phiCi = pfa.basisFunctionCurl(i, 0);
+                pfa.basisFunctionUnitNormalCross(i, phiNi, 0);
+
+                for (std::size_t j = i; j < numDoFs; ++j) {
+                    phiCj = pfa.basisFunctionCurl(j, 0);
+                    pfa.basisFunctionUnitNormalCross(j, phiNj, 0);
+                    double value = factor * (phiCi * phiNj + phiNi * phiCj) +
+                                   stab * phiNi * phiNj;
+                    ret(i, j) = value;
+                    if (i != j) {
+                        ret(j, i) = value;
+                    }
+                }
+            }
+
+            return ret;
+        });
+    face->setFaceMatrix(stiffnessMatrix, FACE_MATRIX_ID);
 }
 
 template <std::size_t DIM>
-void DGMaxDiscretization<DIM>::facePenaltyMatrix(
-    Base::PhysicalFace<DIM>& fa, LinearAlgebra::MiddleSizeMatrix& ret,
-    double stab) const {
-    const Base::Face* face = fa.getFace();
-    double diameter = face->getDiameter();
+void DGMaxDiscretization<DIM>::postProcessFaceMatrices(Base::Face* face) const {
+    if (matrixHandling_ == ORTHOGONALIZE) {
+        // A reference to the matrix that will be updated in place.
+        Base::FaceMatrix& faceMatrix = face->getFaceMatrix(FACE_MATRIX_ID);
 
-    std::size_t M = face->getPtrElementLeft()->getNrOfBasisFunctions(0);
-    if (face->isInternal()) {
-        M += face->getPtrElementRight()->getNrOfBasisFunctions(0);
-    }
-
-    ret.resize(M, M);
-    LinearAlgebra::SmallVector<DIM> phi_i, phi_j;
-    for (std::size_t i = 0; i < M; ++i) {
-        fa.basisFunctionUnitNormalCross(i, phi_i, 0);
-        for (std::size_t j = i; j < M; ++j) {
-            fa.basisFunctionUnitNormalCross(j, phi_j, 0);
-
-            ret(i, j) = stab / diameter * (phi_i * phi_j);
-            ret(j, i) = ret(i, j);
+        bool isInternal = face->isInternal();
+        std::size_t sideCount = isInternal ? 2 : 1;
+        // The mass matrix/matrices that form a block diagonal matrix
+        std::array<LinearAlgebra::MiddleSizeMatrix*, 2> massMatrices = {
+            nullptr, nullptr};
+        massMatrices[0] =
+            &face->getPtrElementLeft()->getElementMatrix(MASS_MATRIX_ID);
+        std::array<hpgem::Base::Side, 2> sides = {Base::Side::LEFT,
+                                                  Base::Side::RIGHT};
+        if (isInternal) {
+            massMatrices[1] =
+                &face->getPtrElementRight()->getElementMatrix(MASS_MATRIX_ID);
+        }
+        for (std::size_t i = 0; i < sideCount; ++i) {
+            for (std::size_t j = 0; j < sideCount; ++j) {
+                LinearAlgebra::MiddleSizeMatrix& subMatrix =
+                    faceMatrix.getElementMatrix(sides[i], sides[j]);
+                // Rescale the submatrix, note that different mass matrices may
+                // be used for the left and right side.
+                massMatrices[i]->solveLowerTriangular(
+                    subMatrix, hpgem::LinearAlgebra::Side::OP_LEFT,
+                    hpgem::LinearAlgebra::Transpose::NOT);
+                massMatrices[j]->solveLowerTriangular(
+                    subMatrix, LinearAlgebra::Side::OP_RIGHT,
+                    LinearAlgebra::Transpose::HERMITIAN_TRANSPOSE);
+            }
         }
     }
 }
@@ -462,17 +415,10 @@ void DGMaxDiscretization<DIM>::faceVector(
         for (std::size_t i = 0; i < M; ++i) ret(i) = 0;
     } else {
         double diameter = face->getDiameter();
-        const Base::Element* left = face->getPtrElementLeft();
-        const Geometry::PointReference<DIM>& PLeft =
-            face->mapRefFaceToRefElemL(p);
-
-        PointPhysicalT PPhys;
-        PPhys = left->referenceToPhysical(PLeft);
         LinearAlgebra::SmallVector<DIM> val, phi, phi_curl, boundaryValues;
 
-        boundaryCondition(PPhys, fa,
-                          boundaryValues);  // assumes the initial conditions
-                                            // and the boundary conditions match
+        // assumes the initial conditions and the boundary conditions match
+        boundaryValues = boundaryCondition(fa);
 
         val = boundaryValues;
         std::size_t n = face->getPtrElementLeft()->getNrOfBasisFunctions(0);
@@ -548,16 +494,11 @@ std::map<typename DGMaxDiscretization<DIM>::NormType, double>
         Base::MeshManipulator<DIM>& mesh, std::size_t timeVector,
         DGMaxDiscretization<DIM>::InputFunction electricField,
         DGMaxDiscretization<DIM>::InputFunction electricFieldCurl,
-        std::set<DGMaxDiscretization<DIM>::NormType> norms) const {
+        std::set<DGMaxDiscretization<DIM>::NormType> norms) {
     // Note these are actually the squared norms
     double l2Norm = 0;
     double hCurlNorm = 0;
     // Setup the element integration.
-    Integration::ElementIntegral<DIM> elIntegral;
-    elIntegral.setTransformation(
-        std::shared_ptr<Base::CoordinateTransformation<DIM>>(
-            new Base::HCurlConformingTransformation<DIM>()));
-
     bool l2Wanted = norms.find(NormType::L2) != norms.end();
     bool hcurlWanted = norms.find(NormType::HCurl) != norms.end();
     bool dgWanted = norms.find(NormType::DG) != norms.end();
@@ -566,8 +507,8 @@ std::map<typename DGMaxDiscretization<DIM>::NormType, double>
     for (typename Base::MeshManipulator<DIM>::ElementIterator it =
              mesh.elementColBegin();
          it != end; ++it) {
-        LinearAlgebra::SmallVector<2> errors =
-            elIntegral.integrate((*it), [&](Base::PhysicalElement<DIM>& el) {
+        LinearAlgebra::SmallVector<2> errors = elementIntegrator_.integrate(
+            (*it), [&](Base::PhysicalElement<DIM>& el) {
                 return elementErrorIntegrand(el, dgWanted || hcurlWanted,
                                              timeVector, electricField,
                                              electricFieldCurl);
@@ -581,15 +522,12 @@ std::map<typename DGMaxDiscretization<DIM>::NormType, double>
 
     if (dgWanted) {
         Integration::FaceIntegral<DIM> faIntegral;
-        faIntegral.setTransformation(
-            std::shared_ptr<Base::CoordinateTransformation<DIM>>(
-                new Base::HCurlConformingTransformation<DIM>()));
         auto end = mesh.faceColEnd();
         for (typename Base::MeshManipulator<DIM>::FaceIterator it =
                  mesh.faceColBegin();
              it != end; ++it) {
-            dgNorm +=
-                faIntegral.integrate(*it, [&](Base::PhysicalFace<DIM>& face) {
+            dgNorm += faceIntegrator_.integrate(
+                *it, [&](Base::PhysicalFace<DIM>& face) {
                     return faceErrorIntegrand(face, timeVector, electricField);
                 });
         }
@@ -608,15 +546,12 @@ LinearAlgebra::SmallVector<2> DGMaxDiscretization<DIM>::elementErrorIntegrand(
     DGMaxDiscretization<DIM>::InputFunction exactValues,
     DGMaxDiscretization<DIM>::InputFunction curlValues) const {
     const Base::Element* element = el.getElement();
-    const Geometry::PointReference<DIM>& p = el.getPointReference();
-    PointPhysicalT pPhys;
-    pPhys = element->referenceToPhysical(p);
 
     LinearAlgebra::SmallVector<DIM> phi, phiCurl, error, errorCurl;
 
-    exactValues(pPhys, error);
+    error = exactValues(el.getPointPhysical());
     if (computeCurl) {
-        curlValues(pPhys, errorCurl);
+        errorCurl = curlValues(el.getPointPhysical());
     }
     LinearAlgebra::MiddleSizeVector data;
     data = element->getTimeIntegrationVector(timeVector);
@@ -662,7 +597,7 @@ double DGMaxDiscretization<DIM>::faceErrorIntegrand(
     LinearAlgebra::SmallVector<DIM> error, phiNormal, solutionValues;
 
     // Compute u_L x n_L
-    exactSolution(PPhys, solutionValues);
+    solutionValues = exactSolution(PPhys);
     error = normal.crossProduct(solutionValues);
     std::size_t n = face->getPtrElementLeft()->getNrOfBasisFunctions(0);
     LinearAlgebra::MiddleSizeVector solutionCoefficients =
@@ -685,7 +620,7 @@ double DGMaxDiscretization<DIM>::faceErrorIntegrand(
             face->mapRefFaceToRefElemR(p);
         PPhys = element->referenceToPhysical(pElement);
         // Compute u_R x n_L
-        exactSolution(PPhys, solutionValues);
+        solutionValues = exactSolution(PPhys);
         otherSideError = normal.crossProduct(solutionValues);
         error -= otherSideError;  // Note subtraction as n_L = - n_R.
 
