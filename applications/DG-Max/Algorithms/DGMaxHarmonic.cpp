@@ -65,8 +65,8 @@ void DGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& harmonicProblem) {
         std::bind(&HarmonicProblem<DIM>::sourceTerm, std::ref(harmonicProblem),
                   std::placeholders::_1);
 
-    discretization.computeElementIntegrands(
-        mesh_, DGMaxDiscretizationBase::NORMAL, elementVectors);
+    discretization.setMatrixHandling(DGMaxDiscretizationBase::NORMAL);
+    discretization.computeElementIntegrands(mesh_, elementVectors);
 
     std::map<std::size_t, typename DGMaxDiscretization<DIM>::FaceInputFunction>
         faceVectors;
@@ -74,8 +74,7 @@ void DGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& harmonicProblem) {
         std::bind(&HarmonicProblem<DIM>::boundaryCondition,
                   std::ref(harmonicProblem), std::placeholders::_1);
 
-    discretization.computeFaceIntegrals(mesh_, DGMaxDiscretizationBase::NORMAL,
-                                        faceVectors, stab_);
+    discretization.computeFaceIntegrals(mesh_, faceVectors, stab_);
 
     Utilities::GlobalIndexing indexing(&mesh_);
     Utilities::GlobalPetscMatrix massMatrix(
@@ -151,7 +150,7 @@ std::map<typename DGMaxDiscretization<DIM>::NormType, double>
         const std::set<typename DGMaxDiscretization<DIM>::NormType>& norms,
         const typename DGMaxDiscretization<DIM>::InputFunction& exactSolution,
         const typename DGMaxDiscretization<DIM>::InputFunction&
-            exactSolutionCurl) const {
+            exactSolutionCurl) {
     // Note, this only works by grace of distributing the solution as
     // timeIntegrationVector
     return discretization.computeError(mesh_,
@@ -163,7 +162,7 @@ template <std::size_t DIM>
 std::map<typename DGMaxDiscretization<DIM>::NormType, double>
     DGMaxHarmonic<DIM>::computeError(
         const std::set<typename DGMaxDiscretization<DIM>::NormType>& norms,
-        const ExactHarmonicProblem<DIM>& problem) const {
+        const ExactHarmonicProblem<DIM>& problem) {
     return computeError(norms,
                         std::bind(&ExactHarmonicProblem<DIM>::exactSolution,
                                   std::ref(problem), std::placeholders::_1),

@@ -59,11 +59,11 @@ class DGMaxHarmonic : public DGMax::AbstractHarmonicSolver<DIM> {
             norms,
         const typename DGMaxDiscretization<DIM>::InputFunction& exactSolution,
         const typename DGMaxDiscretization<DIM>::InputFunction&
-            exactSolutionCurl) const;
+            exactSolutionCurl);
 
     std::map<typename DGMaxDiscretization<DIM>::NormType, double> computeError(
         const std::set<typename DGMaxDiscretization<DIM>::NormType>& norms,
-        const ExactHarmonicProblem<DIM>& problem) const;
+        const ExactHarmonicProblem<DIM>& problem);
 
     void writeTec(std::string fileName) const;
     void writeVTK(Output::VTKSpecificTimeWriter<DIM>& output) const final;

@@ -182,6 +182,22 @@ const LinearAlgebra::MiddleSizeMatrix &FaceMatrix::getElementMatrix(
     }
 }
 
+LinearAlgebra::MiddleSizeMatrix &FaceMatrix::getElementMatrix(Side iSide,
+                                                              Side jSide) {
+    if (iSide == Side::LEFT) {
+        if (jSide == Side::LEFT) {
+            return M_LeftLeft_;
+        }
+        return M_LeftRight_;
+
+    } else {
+        if (jSide == Side::LEFT) {
+            return M_RightLeft_;
+        }
+        return M_RightRight_;
+    }
+}
+
 /// \param[in] elementMatrix The matrix used to set the element matrix
 /// corresponding to sides iSide and jSide. \param[in] iSide Side of the
 /// adjacent element to consider the test function. \param[in] jSide Side of the

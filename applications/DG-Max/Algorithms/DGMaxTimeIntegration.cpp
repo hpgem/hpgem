@@ -95,8 +95,8 @@ void DGMaxTimeIntegration<DIM>::solve(
             std::bind(&TimeIntegrationProblem<DIM>::initialConditionDerivative,
                       std::ref(input), _1);
 
-    discretization.computeElementIntegrands(
-        mesh_, DGMaxDiscretizationBase::INVERT, elementVectors);
+    discretization.setMatrixHandling(DGMaxDiscretizationBase::INVERT);
+    discretization.computeElementIntegrands(mesh_, elementVectors);
 
     std::map<std::size_t, typename DGMaxDiscretization<DIM>::FaceInputFunction>
         faceVectors;
@@ -104,8 +104,7 @@ void DGMaxTimeIntegration<DIM>::solve(
         std::bind(&SeparableTimeIntegrationProblem<DIM>::boundaryConditionRef,
                   std::ref(input), _1);
 
-    discretization.computeFaceIntegrals(mesh_, DGMaxDiscretizationBase::INVERT,
-                                        faceVectors, parameters.stab);
+    discretization.computeFaceIntegrals(mesh_, faceVectors, parameters.stab);
     //    MHasToBeInverted_ = true;
     //    assembler->fillMatrices(this);
 
@@ -379,7 +378,7 @@ template <std::size_t DIM>
 void DGMaxTimeIntegration<DIM>::printErrors(
     const std::vector<typename DGMaxDiscretization<DIM>::NormType>& norms,
     const typename DGMaxDiscretization<DIM>::TimeFunction& exactField,
-    const typename DGMaxDiscretization<DIM>::TimeFunction& exactCurl) const {
+    const typename DGMaxDiscretization<DIM>::TimeFunction& exactCurl) {
     using NormType = typename DGMaxDiscretization<DIM>::NormType;
     std::set<NormType> normSet;
 
@@ -406,7 +405,7 @@ void DGMaxTimeIntegration<DIM>::printErrors(
 template <std::size_t DIM>
 void DGMaxTimeIntegration<DIM>::printErrors(
     const std::vector<typename DGMaxDiscretization<DIM>::NormType>& norms,
-    const ExactTimeIntegrationProblem<DIM>& problem) const {
+    const ExactTimeIntegrationProblem<DIM>& problem) {
     printErrors(norms,
                 std::bind(&ExactTimeIntegrationProblem<DIM>::exactSolution,
                           std::ref(problem), std::placeholders::_1,
