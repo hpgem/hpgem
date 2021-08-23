@@ -80,6 +80,13 @@ FaceDoFInfo getFaceDoFInfo(const Base::Face& face) {
 }
 
 template <std::size_t DIM>
+DivDGMaxDiscretization<DIM>::DivDGMaxDiscretization()
+    : boundaryIndicator_([](const Base::Face&) {
+          // By default assume DIRICHLET boundary conditions
+          return DGMax::BoundaryConditionType::DIRICHLET;
+      }){};
+
+template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::initializeBasisFunctions(
     Base::MeshManipulator<DIM>& mesh, std::size_t order) {
     // We would like to configure the number of unknowns here, but this is
@@ -205,6 +212,11 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
             totalDoFs +=
                 (*it)->getPtrElementRight()->getNumberOfBasisFunctions(0) +
                 (*it)->getPtrElementRight()->getNumberOfBasisFunctions(1);
+        } else {
+            logger.assert_always(
+                boundaryIndicator_(**it) ==
+                    DGMax::BoundaryConditionType::DIRICHLET,
+                "Non Dirichlet boundaries not supported by DivDGMax");
         }
 
         faceMatrix.resize(totalDoFs, totalDoFs);

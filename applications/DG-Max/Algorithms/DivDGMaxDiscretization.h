@@ -43,6 +43,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <memory>
 
 #include "Base/MeshManipulator.h"
+#include "ProblemTypes/BoundaryConditionType.h"
 
 // Forward definitions
 namespace hpgem {
@@ -133,8 +134,14 @@ class DivDGMaxDiscretization {
     using FaceInputFunction = std::function<LinearAlgebra::SmallVector<DIM>(
         Base::PhysicalFace<DIM>&)>;
 
+    DivDGMaxDiscretization();
+
     void initializeBasisFunctions(Base::MeshManipulator<DIM>& mesh,
                                   std::size_t order);
+
+    void setBoundaryIndicator(DGMax::BoundaryConditionIndicator indicator) {
+        boundaryIndicator_ = indicator;
+    }
 
     void computeElementIntegrands(
         Base::MeshManipulator<DIM>& mesh, bool invertMassMatrix,
@@ -289,6 +296,8 @@ class DivDGMaxDiscretization {
     double elementErrorIntegrand(Base::PhysicalElement<DIM>& el,
                                  std::size_t timeVector,
                                  const InputFunction& exactValues) const;
+
+    DGMax::BoundaryConditionIndicator boundaryIndicator_;
 };
 
 // TODO: Deduction fails for a templated variant, hence using explicit versions
