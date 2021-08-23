@@ -208,51 +208,57 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
 
         totalDoFs = (*it)->getPtrElementLeft()->getNumberOfBasisFunctions(0) +
                     (*it)->getPtrElementLeft()->getNumberOfBasisFunctions(1);
+        using BCT = DGMax::BoundaryConditionType;
+        BCT bct;
         if ((*it)->isInternal()) {
             totalDoFs +=
                 (*it)->getPtrElementRight()->getNumberOfBasisFunctions(0) +
                 (*it)->getPtrElementRight()->getNumberOfBasisFunctions(1);
+            bct = BCT::INTERNAL;
         } else {
-            logger.assert_always(
-                boundaryIndicator_(**it) ==
-                    DGMax::BoundaryConditionType::DIRICHLET,
-                "Non Dirichlet boundaries not supported by DivDGMax");
+            bct = boundaryIndicator_(**it);
         }
 
         faceMatrix.resize(totalDoFs, totalDoFs);
         faceVector.resize(totalDoFs);
 
-        faceMatrix =
-            faceIntegral.integrate((*it), [&](Base::PhysicalFace<DIM>& face) {
-                LinearAlgebra::MiddleSizeMatrix result, temp;
-                faceStiffnessMatrix1(face, result);
+        if (bct == BCT::NEUMANN) {
+            // For Neumann boundaries there is no contribution from face
+            // integrals. However, the faceMatrix may contain data from the
+            // previous face, so clear it.
+            faceMatrix *= 0.0;
+        } else {
+            faceMatrix = faceIntegral.integrate(
+                (*it), [&](Base::PhysicalFace<DIM>& face) {
+                    LinearAlgebra::MiddleSizeMatrix result, temp;
+                    faceStiffnessMatrix1(face, result);
 
-                if (stab.fluxType1 == FluxType::IP) {
-                    faceStiffnessMatrix2(face, temp, stab.stab1);
+                    if (stab.fluxType1 == FluxType::IP) {
+                        faceStiffnessMatrix2(face, temp, stab.stab1);
+                        result += temp;
+                        temp *= 0;  // Reset the variable;
+                    }
+                    if (stab.fluxType2 == FluxType::IP) {
+                        faceStiffnessMatrix3(face, temp, stab.stab2);
+                        result += temp;
+                        temp *= 0;  // Reset the variable;
+                    }
+                    if (stab.fluxType3 == FluxType::IP) {
+                        faceStiffnessScalarMatrix4(face, temp, stab.stab3);
+                        // Note the matrix contribution is -C.
+                        result -= temp;
+                        temp *= 0;  // Reset the variable;
+                    }
+
+                    faceScalarVectorCoupling(face, temp);
                     result += temp;
-                    temp *= 0;  // Reset the variable;
-                }
-                if (stab.fluxType2 == FluxType::IP) {
-                    faceStiffnessMatrix3(face, temp, stab.stab2);
-                    result += temp;
-                    temp *= 0;  // Reset the variable;
-                }
-                if (stab.fluxType3 == FluxType::IP) {
-                    faceStiffnessScalarMatrix4(face, temp, stab.stab3);
-                    // Note the matrix contribution is -C.
-                    result -= temp;
-                    temp *= 0;  // Reset the variable;
-                }
 
-                faceScalarVectorCoupling(face, temp);
-                result += temp;
-
-                // Reset no longer needed.
-                return result;
-            });
-
-        if (stab.hasFlux(FluxType::BREZZI)) {
-            faceMatrix += brezziFluxBilinearTerm(it, stab);
+                    // Reset no longer needed.
+                    return result;
+                });
+            if (stab.hasFlux(FluxType::BREZZI)) {
+                faceMatrix += brezziFluxBilinearTerm(it, stab);
+            }
         }
         (*it)->setFaceMatrix(faceMatrix, FACE_STIFFNESS_MATRIX_ID);
 
