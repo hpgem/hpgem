@@ -62,7 +62,12 @@ const std::size_t DGMaxDiscretizationBase::FACE_VECTOR_ID;
 
 template <std::size_t DIM>
 DGMaxDiscretization<DIM>::DGMaxDiscretization(bool includeProjector)
-    : includeProjector_(includeProjector), matrixHandling_(NORMAL) {
+    : includeProjector_(includeProjector),
+      matrixHandling_(NORMAL),
+      boundaryIndicator_([](const Base::Face&) {
+          // By default assume DIRICHLET boundary conditions
+          return DGMax::BoundaryConditionType::DIRICHLET;
+      }) {
 
     transforms_.emplace_back(new Base::HCurlConformingTransformation<DIM>());
     if (includeProjector_) {
@@ -330,36 +335,51 @@ void DGMaxDiscretization<DIM>::computeFaceMatrix(Base::Face* face,
                                                  double stab) {
     std::size_t numDoFs = face->getNumberOfBasisFunctions(0);
     const bool internalFace = face->isInternal();
-    // Factor for averaging. Negative sign is from the weak formulation
-    double factor = -(internalFace ? 0.5 : 1.);
-    // Standard rescaling of the stability parameter so that it does not need to
-    // depend on the mesh size.
-    stab /= face->getDiameter();
 
-    LinearAlgebra::MiddleSizeMatrix stiffnessMatrix =
-        faceIntegrator_.integrate(face, [&](Base::PhysicalFace<DIM>& pfa) {
-            LinearAlgebra::MiddleSizeMatrix ret(numDoFs, numDoFs);
+    using BCT = DGMax::BoundaryConditionType;
+    BCT bct = internalFace ? BCT::INTERNAL : boundaryIndicator_(*face);
 
-            LinearAlgebra::SmallVector<DIM> phiNi, phiNj, phiCi, phiCj;
+    LinearAlgebra::MiddleSizeMatrix stiffnessMatrix(0, 0);
+    if (bct == BCT::NEUMANN) {
+        // The Neumann boundary condition is a natural boundary condition and
+        // such a face does not have a contribution to the stiffness matrix.
+        stiffnessMatrix.resize(numDoFs, numDoFs);
+    } else if (bct == BCT::INTERNAL || bct == BCT::DIRICHLET) {
+        // Internal and Dirichlet faces have SIPG like face integrals:
+        //  -[[u]]_T {{curl v}} - {{curl u}} [[v]]_T
+        //  + stab/h [[u]]_T [[v]]_T
 
-            for (std::size_t i = 0; i < numDoFs; ++i) {
-                phiCi = pfa.basisFunctionCurl(i, 0);
-                pfa.basisFunctionUnitNormalCross(i, phiNi, 0);
+        // Factor for averaging. Negative sign is from the weak formulation
+        double factor = -(internalFace ? 0.5 : 1.);
+        // Standard rescaling of the stability parameter so that it does not
+        // need to depend on the mesh size.
+        stab /= face->getDiameter();
+        stiffnessMatrix =
+            faceIntegrator_.integrate(face, [&](Base::PhysicalFace<DIM>& pfa) {
+                LinearAlgebra::MiddleSizeMatrix ret(numDoFs, numDoFs);
 
-                for (std::size_t j = i; j < numDoFs; ++j) {
-                    phiCj = pfa.basisFunctionCurl(j, 0);
-                    pfa.basisFunctionUnitNormalCross(j, phiNj, 0);
-                    double value = factor * (phiCi * phiNj + phiNi * phiCj) +
-                                   stab * phiNi * phiNj;
-                    ret(i, j) = value;
-                    if (i != j) {
-                        ret(j, i) = value;
+                LinearAlgebra::SmallVector<DIM> phiNi, phiNj, phiCi, phiCj;
+
+                for (std::size_t i = 0; i < numDoFs; ++i) {
+                    phiCi = pfa.basisFunctionCurl(i, 0);
+                    pfa.basisFunctionUnitNormalCross(i, phiNi, 0);
+
+                    for (std::size_t j = i; j < numDoFs; ++j) {
+                        phiCj = pfa.basisFunctionCurl(j, 0);
+                        pfa.basisFunctionUnitNormalCross(j, phiNj, 0);
+                        double value =
+                            factor * (phiCi * phiNj + phiNi * phiCj) +
+                            stab * phiNi * phiNj;
+                        ret(i, j) = value;
+                        if (i != j) {
+                            ret(j, i) = value;
+                        }
                     }
                 }
-            }
 
-            return ret;
-        });
+                return ret;
+            });
+    }
     face->setFaceMatrix(stiffnessMatrix, FACE_MATRIX_ID);
 }
 

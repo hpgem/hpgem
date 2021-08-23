@@ -42,6 +42,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Geometry/PointPhysical.h"
 #include "Base/PhysicalFace.h"
 #include "LinearAlgebra/SmallVector.h"
+#include "BoundaryConditionType.h"
 
 using namespace hpgem;
 
@@ -69,6 +70,8 @@ class HarmonicProblem {
         const Geometry::PointPhysical<DIM>& point) const = 0;
     virtual LinearAlgebra::SmallVector<DIM> boundaryCondition(
         Base::PhysicalFace<DIM>& face) const = 0;
+    virtual DGMax::BoundaryConditionType getBoundaryConditionType(
+        const Base::Face& face) const = 0;
 };
 
 template <std::size_t DIM>
@@ -86,6 +89,12 @@ class ExactHarmonicProblem : public HarmonicProblem<DIM> {
         const LinearAlgebra::SmallVector<DIM>& normal =
             face.getUnitNormalVector();
         return normal.crossProduct(efield);
+    }
+
+    // Implementation to match boundaryCondition implementation
+    DGMax::BoundaryConditionType getBoundaryConditionType(
+        const Base::Face& face) const final {
+        return DGMax::BoundaryConditionType::DIRICHLET;
     }
 };
 

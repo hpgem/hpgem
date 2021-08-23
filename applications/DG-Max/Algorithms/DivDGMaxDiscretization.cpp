@@ -114,11 +114,15 @@ FaceDoFInfo getFaceDoFInfo(const Base::Face& face) {
 }
 
 template <std::size_t DIM>
-DivDGMaxDiscretization<DIM>::DivDGMaxDiscretization()
+    DivDGMaxDiscretization<DIM>::DivDGMaxDiscretization()
     : fieldTransform_(
           std::make_shared<Base::HCurlConformingTransformation<DIM>>()),
-      potentialTransform_(
-          std::make_shared<Base::H1ConformingTransformation<DIM>>()) {
+    potentialTransform_(
+        std::make_shared<Base::H1ConformingTransformation<DIM>>()),
+    boundaryIndicator_([](const Base::Face&) {
+        // By default assume DIRICHLET boundary conditions
+        return DGMax::BoundaryConditionType::DIRICHLET;
+    }) {
     elementIntegrator_.setTransformation(fieldTransform_, 0);
     elementIntegrator_.setTransformation(potentialTransform_, 1);
     faceIntegrator_.setTransformation(fieldTransform_, 0);
@@ -189,6 +193,13 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
         indexing.reinit(face);
 
         std::size_t totalDoFs = indexing.getNumberOfDoFs();
+        if (!face->isInternal()) {
+            logger.assert_always(
+                boundaryIndicator_(**it) ==
+                    DGMax::BoundaryConditionType::DIRICHLET,
+                "Non Dirichlet boundaries not supported by DivDGMax");
+        }
+
         faceMatrix = faceIntegrator_.integrate(
             face, [&indexing, &stab, this](Base::PhysicalFace<DIM>& face) {
                 LinearAlgebra::MiddleSizeMatrix result, temp;
@@ -200,7 +211,7 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
         if (stab.hasFlux(FluxType::BREZZI)) {
             faceMatrix += brezziFluxBilinearTerm(face, stab);
         }
-        (*it)->setFaceMatrix(faceMatrix, FACE_STIFFNESS_MATRIX_ID);
+        face->setFaceMatrix(faceMatrix, FACE_STIFFNESS_MATRIX_ID);
 
         for (const auto& boundaryVec : boundaryVectors) {
             LinearAlgebra::MiddleSizeVector vec;

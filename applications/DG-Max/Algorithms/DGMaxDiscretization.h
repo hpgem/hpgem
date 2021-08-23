@@ -52,6 +52,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Geometry/PointPhysical.h"
 #include "Integration/ElementIntegral.h"
 #include "Integration/FaceIntegral.h"
+#include "ProblemTypes/BoundaryConditionType.h"
 
 using namespace hpgem;
 
@@ -126,6 +127,11 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
 
     void setMatrixHandling(MassMatrixHandling matrixHandling) {
         matrixHandling_ = matrixHandling;
+    }
+
+    void setBoundaryIndicator(
+        DGMax::BoundaryConditionIndicator indicator) {
+        boundaryIndicator_ = indicator;
     }
 
     void initializeBasisFunctions(Base::MeshManipulator<DIM>& mesh,
@@ -210,6 +216,7 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
 
     const bool includeProjector_;
     MassMatrixHandling matrixHandling_;
+    DGMax::BoundaryConditionIndicator boundaryIndicator_;
 
     std::vector<std::shared_ptr<Base::CoordinateTransformation<DIM>>>
         transforms_;

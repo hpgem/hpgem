@@ -48,6 +48,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Integration/ElementIntegral.h"
 #include "Integration/FaceIntegral.h"
 
+#include "ProblemTypes/BoundaryConditionType.h"
+
+
 // Forward definitions
 namespace hpgem {
 namespace Base {
@@ -152,6 +155,10 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
 
     void initializeBasisFunctions(Base::MeshManipulator<DIM>& mesh,
                                   std::size_t order);
+
+    void setBoundaryIndicator(DGMax::BoundaryConditionIndicator indicator) {
+        boundaryIndicator_ = indicator;
+    }
 
     void computeElementIntegrands(
         Base::MeshManipulator<DIM>& mesh,
@@ -306,6 +313,8 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     Integration::FaceIntegral<DIM> faceIntegrator_;
     std::shared_ptr<Base::HCurlConformingTransformation<DIM>> fieldTransform_;
     std::shared_ptr<Base::H1ConformingTransformation<DIM>> potentialTransform_;
+
+    DGMax::BoundaryConditionIndicator boundaryIndicator_;
 };
 
 // TODO: Deduction fails for a templated variant, hence using explicit versions
