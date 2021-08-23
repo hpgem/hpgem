@@ -81,7 +81,6 @@ class FaceData {
     LinearAlgebra::MiddleSizeMatrix getFaceMatrixMatrix(
         std::size_t matrixID = 0) const;
 
-
     FaceMatrix& getFaceMatrix(std::size_t matrixID);
 
     /// \brief Returns face matrix number 'matrixID'.
