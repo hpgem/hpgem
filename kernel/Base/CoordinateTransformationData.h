@@ -57,7 +57,7 @@ class CoordinateTransformationData {
     // Design note: This class is used to transform function values. The usual
     // application is to transform multiple functions in a row. For example
     // transforming all the basis functions at a fixed quadrature point. Hence,
-    // the values of this function will be request multiple times.
+    // the values of this function will be requested multiple times.
     //
     // The functions are thus designed to give a const reference, as the results
     // should be cached by the implementing class.
