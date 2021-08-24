@@ -391,15 +391,12 @@ void DivDGMaxDiscretization<DIM>::elementSourceVector(
     Base::PhysicalElement<DIM>& el, const InputFunction& source,
     LinearAlgebra::MiddleSizeVector& ret) const {
     const Base::Element* element = el.getElement();
-    const Geometry::PointReference<DIM>& p = el.getPointReference();
     std::size_t uDoFs = element->getNumberOfBasisFunctions(0);
     std::size_t pDoFs = element->getNumberOfBasisFunctions(1);
     ret.resize(uDoFs + pDoFs);
 
-    PointPhysicalT pPhys;
-    pPhys = element->referenceToPhysical(p);
     LinearAlgebra::SmallVector<DIM> sourceValue, phi;
-    source(pPhys, sourceValue);
+    sourceValue = source(el.getPointPhysical());
     for (std::size_t i = 0; i < (uDoFs); ++i) {
         el.basisFunction(i, phi, 0);
         ret(i) = phi * sourceValue;
@@ -1244,7 +1241,6 @@ double DivDGMaxDiscretization<DIM>::elementErrorIntegrand(
     Base::PhysicalElement<DIM>& el, std::size_t timeVector,
     const DivDGMaxDiscretization<DIM>::InputFunction& exactValues) const {
     const Base::Element* element = el.getElement();
-    const Geometry::PointPhysical<DIM>& pPhys = el.getPointPhysical();
 
     std::size_t numberOfUDoFs = element->getNumberOfBasisFunctions(0),
                 numberOfPDoFs = element->getNumberOfBasisFunctions(1);
@@ -1252,7 +1248,7 @@ double DivDGMaxDiscretization<DIM>::elementErrorIntegrand(
         element->getTimeIntegrationVector(timeVector);
 
     LinearAlgebra::SmallVector<DIM> error, phi;
-    exactValues(pPhys, error);
+    error = exactValues(el.getPointPhysical());
     for (std::size_t i = 0; i < numberOfUDoFs; ++i) {
         el.basisFunction(i, phi, 0);
         error -= std::real(data[i]) * phi;
