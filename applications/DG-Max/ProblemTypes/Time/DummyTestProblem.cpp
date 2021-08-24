@@ -41,18 +41,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace hpgem;
 
 template <std::size_t DIM>
-void DummyTestProblem<DIM>::initialConditionDerivative(
-    const Geometry::PointPhysical<DIM> &point,
-    LinearAlgebra::SmallVector<DIM> &result) const {
-    for (std::size_t i = 0; i < DIM; i++) {
-        result[i] = 0;
-    }
+LinearAlgebra::SmallVector<DIM>
+    DummyTestProblem<DIM>::initialConditionDerivative(
+        const Geometry::PointPhysical<DIM> &point) const {
+    return {};
 }
 
 template <std::size_t DIM>
-void DummyTestProblem<DIM>::exactSolution(
-    const Geometry::PointPhysical<DIM> &p, double t,
-    LinearAlgebra::SmallVector<DIM> &ret) const {
+LinearAlgebra::SmallVector<DIM> DummyTestProblem<DIM>::exactSolution(
+    const Geometry::PointPhysical<DIM> &p, double t) const {
+    LinearAlgebra::SmallVector<DIM> ret;
     // TODO: Code literaly copied, no verification
     // ret[0]=sin(M_PI*2*p[1])*sin(M_PI*2*p[2]);
     // ret[1]=sin(M_PI*2*p[2])*sin(M_PI*2*p[0]);
@@ -71,12 +69,13 @@ void DummyTestProblem<DIM>::exactSolution(
     //     ret[0]=p[0]*(1-p[0]);
     //     ret[1]=0;
     // 	   ret[2]=0;
+    return ret;
 }
 
 template <std::size_t DIM>
-void DummyTestProblem<DIM>::exactSolutionCurl(
-    const Geometry::PointPhysical<DIM> &p, double t,
-    LinearAlgebra::SmallVector<DIM> &ret) const {
+LinearAlgebra::SmallVector<DIM> DummyTestProblem<DIM>::exactSolutionCurl(
+    const Geometry::PointPhysical<DIM> &p, double t) const {
+    LinearAlgebra::SmallVector<DIM> ret;
     // TODO: Code literaly copied, no verification
     // ret[0]=sin(M_PI*2*p[0])*(cos(M_PI*2*p[1])-cos(M_PI*2*p[2]));
     // ret[1]=sin(M_PI*2*p[1])*(cos(M_PI*2*p[2])-cos(M_PI*2*p[0]));
@@ -94,6 +93,7 @@ void DummyTestProblem<DIM>::exactSolutionCurl(
     // ret[2] = 1.0;
 
     //          ret[0]=0;ret[1]=0;ret[2]=0;
+    return ret;
 }
 
 template <std::size_t DIM>
@@ -104,10 +104,9 @@ double DummyTestProblem<DIM>::timeScalingBoundary(double t) const {
 }
 
 template <std::size_t DIM>
-void DummyTestProblem<DIM>::sourceTermRef(
-    const Geometry::PointPhysical<DIM> &point,
-    LinearAlgebra::SmallVector<DIM> &result) const {
-    exactSolution(point, 0, result);
+LinearAlgebra::SmallVector<DIM> DummyTestProblem<DIM>::sourceTermRef(
+    const Geometry::PointPhysical<DIM> &point) const {
+    LinearAlgebra::SmallVector<DIM> result = exactSolution(point, 0);
     // 	ret*=-1;
     // ret*=M_PI*M_PI*8-1;
     result *= M_PI * M_PI * 2 - 1;
@@ -116,6 +115,8 @@ void DummyTestProblem<DIM>::sourceTermRef(
     // ret[0] = 0.0;
     // ret[1] = 0.0;
     // ret[2] = 0.0;
+
+    return result;
 }
 
 template <std::size_t DIM>

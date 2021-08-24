@@ -39,22 +39,26 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef HPGEM_APP_DIVDGMAXHARMONIC_H
 #define HPGEM_APP_DIVDGMAXHARMONIC_H
 
+#include "../ProblemTypes/AbstractHarmonicSolver.h"
 #include "../ProblemTypes/HarmonicProblem.h"
 
 #include "DivDGMaxDiscretization.h"
 
+#include <Output/VTKSpecificTimeWriter.h>
+
 using namespace hpgem;
 
 template <std::size_t DIM>
-class DivDGMaxHarmonic {
+class DivDGMaxHarmonic : public DGMax::AbstractHarmonicSolver<DIM> {
 
    public:
-    DivDGMaxHarmonic(Base::MeshManipulator<DIM>& mesh);
+    DivDGMaxHarmonic(Base::MeshManipulator<DIM>& mesh,
+                     typename DivDGMaxDiscretization<DIM>::Stab stab,
+                     std::size_t order);
 
-    void solve(const HarmonicProblem<DIM>& input,
-               typename DivDGMaxDiscretization<DIM>::Stab stab,
-               std::size_t order);
+    void solve(const HarmonicProblem<DIM>& input) final;
     void writeTec(std::string fileName) const;
+    void writeVTK(Output::VTKSpecificTimeWriter<DIM>& output) const final;
     // TODO: Error computation and tec-plot writing
     double computeL2Error(
         const typename DivDGMaxDiscretization<DIM>::InputFunction&
@@ -64,6 +68,7 @@ class DivDGMaxHarmonic {
    private:
     Base::MeshManipulator<DIM>& mesh_;
     DivDGMaxDiscretization<DIM> discretization_;
+    typename DivDGMaxDiscretization<DIM>::Stab stab_;
 };
 
 #endif  // HPGEM_APP_DIVDGMAXHARMONIC_H

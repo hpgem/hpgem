@@ -35,6 +35,8 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#ifndef HPGEM_APP_DGMAXDISCRETIZATION_H
+#define HPGEM_APP_DGMAXDISCRETIZATION_H
 
 #include <functional>
 #include <map>
@@ -42,43 +44,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <set>
 
 #include "Logger.h"
-
-#ifndef HPGEM_APP_DGMAXDISCRETIZATION_H
-#define HPGEM_APP_DGMAXDISCRETIZATION_H
-
-// Forward definitions
-namespace hpgem {
-namespace Base {
-class Element;
-template <std::size_t>
-class MeshManipulator;
-template <std::size_t DIM>
-class PhysicalElement;
-template <std::size_t DIM>
-class PhysicalFace;
-}  // namespace Base
-
-namespace LinearAlgebra {
-class MiddleSizeMatrix;
-class MiddleSizeVector;
-
-template <std::size_t DIM>
-class SmallVector;
-}  // namespace LinearAlgebra
-
-namespace Geometry {
-template <std::size_t DIM>
-class PointReference;
-template <std::size_t DIM>
-class PointPhysical;
-}  // namespace Geometry
-}  // namespace hpgem
+#include "Base/Element.h"
+#include "Base/Face.h"
+#include "Base/PhysicalElement.h"
+#include "Base/PhysicalFace.h"
+#include "Base/MeshManipulator.h"
+#include "Geometry/PointPhysical.h"
+#include "Integration/ElementIntegral.h"
+#include "Integration/FaceIntegral.h"
 
 using namespace hpgem;
 
 /// Dimension independent constants of DGMaxDiscretization
 class DGMaxDiscretizationBase {
    public:
+    /**
+     * Processed mass matrix, contents depends on the rescaling approach.
+     */
     static const std::size_t MASS_MATRIX_ID = 0;
     static const std::size_t STIFFNESS_MATRIX_ID = 1;
     static const std::size_t PROJECTOR_MATRIX_ID = 2;
@@ -91,15 +73,32 @@ class DGMaxDiscretizationBase {
 
     enum NormType { L2, HCurl, DG };
 
+    /**
+     * Several options for how matrices are rescaled to aid the using algorithm.
+     */
     enum MassMatrixHandling {
-        /// Compute the mass matrix
+        /**
+         * Compute the mass matrix, no extra steps
+         */
         NORMAL,
-        /// Compute the inverse of the mass matrix
+        /**
+         * Compute the inverse of the mass matrix and store it as
+         * MASS_MATRIX_ID.
+         */
         INVERT,
-        /// Compute the Cholesky decomposition LL^H = M of the mass matrix and
-        /// use this to rescale the stiffness matrix and mass matrix.
-        /// Effectively this is an orthogonalization of the basis functions with
-        /// respect to the innerproduct defined by the mass matrix.
+        /**
+         * Symmetrically rescale the matrices. The effect is the same as if the
+         * basis functions were orthonormalized with respect to the L2-epsilon
+         * inner product.
+         *
+         * The mass matrix M is factored as LL^H = M. The following
+         * transformations are done:
+         *  - Instead of the mass matrix its factor L is stored
+         *  - The stiffness matrix S is rescaled to L^{-1} S L^{-H}
+         *  - The projector B is rescaled to B L^{-H}
+         *  - Any resulting vector y needs to be unscaled y = L^H x, to obtain
+         * basis function coefficients x.
+         */
         ORTHOGONALIZE
     };
 };
@@ -107,14 +106,13 @@ class DGMaxDiscretizationBase {
 template <std::size_t DIM>
 class DGMaxDiscretization : public DGMaxDiscretizationBase {
    public:
-    using PointPhysicalT = Geometry::PointPhysical<DIM>;
-    using InputFunction = std::function<void(const PointPhysicalT&,
-                                             LinearAlgebra::SmallVector<DIM>&)>;
-    using FaceInputFunction =
-        std::function<void(const PointPhysicalT&, Base::PhysicalFace<DIM>&,
-                           LinearAlgebra::SmallVector<DIM>&)>;
-    using TimeFunction = std::function<void(const PointPhysicalT&, double,
-                                            LinearAlgebra::SmallVector<DIM>&)>;
+    using PointPhysicalT = hpgem::Geometry::PointPhysical<DIM>;
+    using InputFunction =
+        std::function<LinearAlgebra::SmallVector<DIM>(const PointPhysicalT&)>;
+    using FaceInputFunction = std::function<LinearAlgebra::SmallVector<DIM>(
+        Base::PhysicalFace<DIM>&)>;
+    using TimeFunction = std::function<LinearAlgebra::SmallVector<DIM>(
+        const PointPhysicalT&, double)>;
 
     /// Computed fields of the solution
     struct Fields {
@@ -124,8 +122,11 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
         LinearAlgebra::SmallVector<DIM> imagEField;
     };
 
-    DGMaxDiscretization(bool includeProjector = false)
-        : includeProjector_(includeProjector) {}
+    DGMaxDiscretization(bool includeProjector = false);
+
+    void setMatrixHandling(MassMatrixHandling matrixHandling) {
+        matrixHandling_ = matrixHandling;
+    }
 
     void initializeBasisFunctions(Base::MeshManipulator<DIM>& mesh,
                                   std::size_t order);
@@ -138,12 +139,12 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
      * to the function to use.
      */
     void computeElementIntegrands(
-        Base::MeshManipulator<DIM>& mesh, MassMatrixHandling massMatrix,
-        const std::map<std::size_t, InputFunction>& elementVectors) const;
+        Base::MeshManipulator<DIM>& mesh,
+        const std::map<std::size_t, InputFunction>& elementVectors);
     void computeFaceIntegrals(
-        Base::MeshManipulator<DIM>& mesh, MassMatrixHandling massMatrix,
+        Base::MeshManipulator<DIM>& mesh,
         const std::map<std::size_t, FaceInputFunction>& boundaryVectors,
-        double stab) const;
+        double stab);
 
     static std::string normName(NormType norm) {
         switch (norm) {
@@ -163,7 +164,7 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
                                             std::size_t timeVector,
                                             InputFunction electricField,
                                             InputFunction electricFieldCurl,
-                                            std::set<NormType> norms) const;
+                                            std::set<NormType> norms);
 
     Fields computeFields(
         const Base::Element* element, const Geometry::PointReference<DIM>& p,
@@ -176,28 +177,23 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
         const LinearAlgebra::MiddleSizeVector& coefficients) const;
 
    private:
-    // Mass matrix of the element
-    void elementMassMatrix(Base::PhysicalElement<DIM>& el,
-                           LinearAlgebra::MiddleSizeMatrix& ret) const;
-    // Stiffness matrix, TODO: Is this the real stiffness or is this more
-    // something like curl-stiffness?
-    void elementStiffnessMatrix(Base::PhysicalElement<DIM>& el,
-                                LinearAlgebra::MiddleSizeMatrix& ret) const;
-    void elementProjectorMatrix(Base::PhysicalElement<DIM>& el,
-                                LinearAlgebra::MiddleSizeMatrix& ret) const;
+    /**
+     * Compute the element local matrices
+     */
+    void computeElementMatrices(Base::Element* element);
+    /**
+     * Post process the element local matrices based on matrixHandling_
+     */
+    void postProcessElementMatrices(Base::Element* element) const;
+
     // Element vector integrand for the source term
     void elementInnerProduct(Base::PhysicalElement<DIM>& el,
                              const InputFunction& function,
                              LinearAlgebra::MiddleSizeVector& ret) const;
 
-    // TODO: when this code can be tested, merge the two functions
-    // The 'standard part' in the face matrix (jump-avg + avg-jump)
-    void faceMatrix(Base::PhysicalFace<DIM>& fa,
-                    LinearAlgebra::MiddleSizeMatrix& ret) const;
-    // The penalty term in the face matrix
-    void facePenaltyMatrix(Base::PhysicalFace<DIM>& fa,
-                           LinearAlgebra::MiddleSizeMatrix& ret,
-                           double stab) const;
+    void computeFaceMatrix(Base::Face* face, double stab);
+    void postProcessFaceMatrices(Base::Face* face) const;
+
     // The face vector integrand.
     void faceVector(Base::PhysicalFace<DIM>& fa,
                     const FaceInputFunction& boundaryCondition,
@@ -213,6 +209,12 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
                               InputFunction exactValue) const;
 
     const bool includeProjector_;
+    MassMatrixHandling matrixHandling_;
+
+    std::vector<std::shared_ptr<Base::CoordinateTransformation<DIM>>>
+        transforms_;
+    Integration::ElementIntegral<DIM> elementIntegrator_;
+    Integration::FaceIntegral<DIM> faceIntegrator_;
 };
 
 #endif  // HPGEM_APP_DGMAXDISCRETIZATION_H

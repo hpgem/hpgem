@@ -48,15 +48,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace hpgem;
 
 template <std::size_t DIM>
-DGMaxHarmonic<DIM>::DGMaxHarmonic(Base::MeshManipulator<DIM>& mesh,
+DGMaxHarmonic<DIM>::DGMaxHarmonic(Base::MeshManipulator<DIM>& mesh, double stab,
                                   std::size_t order)
-    : mesh_(mesh) {
+    : mesh_(mesh), stab_(stab) {
     discretization.initializeBasisFunctions(mesh_, order);
 }
 
 template <std::size_t DIM>
-void DGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& harmonicProblem,
-                               double stab) {
+void DGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& harmonicProblem) {
     PetscErrorCode error;
     std::cout << "finding a time-harmonic solution" << std::endl;
 
@@ -64,19 +63,18 @@ void DGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& harmonicProblem,
         elementVectors;
     elementVectors[DGMaxDiscretization<DIM>::SOURCE_TERM_VECTOR_ID] =
         std::bind(&HarmonicProblem<DIM>::sourceTerm, std::ref(harmonicProblem),
-                  std::placeholders::_1, std::placeholders::_2);
+                  std::placeholders::_1);
 
-    discretization.computeElementIntegrands(
-        mesh_, DGMaxDiscretizationBase::NORMAL, elementVectors);
+    discretization.setMatrixHandling(DGMaxDiscretizationBase::NORMAL);
+    discretization.computeElementIntegrands(mesh_, elementVectors);
 
     std::map<std::size_t, typename DGMaxDiscretization<DIM>::FaceInputFunction>
         faceVectors;
-    faceVectors[DGMaxDiscretization<DIM>::FACE_VECTOR_ID] = std::bind(
-        &HarmonicProblem<DIM>::boundaryCondition, std::ref(harmonicProblem),
-        std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+    faceVectors[DGMaxDiscretization<DIM>::FACE_VECTOR_ID] =
+        std::bind(&HarmonicProblem<DIM>::boundaryCondition,
+                  std::ref(harmonicProblem), std::placeholders::_1);
 
-    discretization.computeFaceIntegrals(mesh_, DGMaxDiscretizationBase::NORMAL,
-                                        faceVectors, stab);
+    discretization.computeFaceIntegrals(mesh_, faceVectors, stab_);
 
     Utilities::GlobalIndexing indexing(&mesh_);
     Utilities::GlobalPetscMatrix massMatrix(
@@ -152,7 +150,7 @@ std::map<typename DGMaxDiscretization<DIM>::NormType, double>
         const std::set<typename DGMaxDiscretization<DIM>::NormType>& norms,
         const typename DGMaxDiscretization<DIM>::InputFunction& exactSolution,
         const typename DGMaxDiscretization<DIM>::InputFunction&
-            exactSolutionCurl) const {
+            exactSolutionCurl) {
     // Note, this only works by grace of distributing the solution as
     // timeIntegrationVector
     return discretization.computeError(mesh_,
@@ -164,14 +162,12 @@ template <std::size_t DIM>
 std::map<typename DGMaxDiscretization<DIM>::NormType, double>
     DGMaxHarmonic<DIM>::computeError(
         const std::set<typename DGMaxDiscretization<DIM>::NormType>& norms,
-        const ExactHarmonicProblem<DIM>& problem) const {
-    return computeError(
-        norms,
-        std::bind(&ExactHarmonicProblem<DIM>::exactSolution, std::ref(problem),
-                  std::placeholders::_1, std::placeholders::_2),
-        std::bind(&ExactHarmonicProblem<DIM>::exactSolutionCurl,
-                  std::ref(problem), std::placeholders::_1,
-                  std::placeholders::_2));
+        const ExactHarmonicProblem<DIM>& problem) {
+    return computeError(norms,
+                        std::bind(&ExactHarmonicProblem<DIM>::exactSolution,
+                                  std::ref(problem), std::placeholders::_1),
+                        std::bind(&ExactHarmonicProblem<DIM>::exactSolutionCurl,
+                                  std::ref(problem), std::placeholders::_1));
 }
 
 template <std::size_t DIM>
@@ -202,6 +198,33 @@ void DGMaxHarmonic<DIM>::writeTec(std::string fileName) const {
         });
 
     fileWriter.close();
+}
+
+template <std::size_t DIM>
+void DGMaxHarmonic<DIM>::writeVTK(
+    Output::VTKSpecificTimeWriter<DIM>& output) const {
+    using Fields = typename DGMaxDiscretization<DIM>::Fields;
+
+    output.write(
+        [this](Base::Element* element,
+               const Geometry::PointReference<DIM>& point, std::size_t) {
+            LinearAlgebra::MiddleSizeVector coefficients =
+                element->getTimeIntegrationVector(0);
+            Fields fields =
+                discretization.computeFields(element, point, coefficients);
+            return fields.realEField;
+        },
+        "Ereal");
+    output.write(
+        [this](Base::Element* element,
+               const Geometry::PointReference<DIM>& point, std::size_t) {
+            LinearAlgebra::MiddleSizeVector coefficients =
+                element->getTimeIntegrationVector(0);
+            Fields fields =
+                discretization.computeFields(element, point, coefficients);
+            return fields.imagEField;
+        },
+        "Eimag");
 }
 
 template class DGMaxHarmonic<2>;

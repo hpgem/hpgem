@@ -37,7 +37,7 @@
  */
 #include "ElementLocalIndexing.h"
 
-#include "Element.h"
+#include "Base/Element.h"
 
 namespace hpgem {
 namespace Utilities {

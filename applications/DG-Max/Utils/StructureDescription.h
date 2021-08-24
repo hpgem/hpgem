@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2014, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,48 +35,24 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef HPGEM_STRUCTUREDESCRIPTION_H
+#define HPGEM_STRUCTUREDESCRIPTION_H
 
-#ifndef HPGEM_KERNEL_HCURLCONFORMINGTRANSFORMATION_H
-#define HPGEM_KERNEL_HCURLCONFORMINGTRANSFORMATION_H
+#include "Base/Element.h"
+#include "ElementInfos.h"
 
-#include <cstdlib>
-#include "LinearAlgebra/SmallVector.h"
-#include "CoordinateTransformation.h"
+namespace DGMax {
+using namespace hpgem;
 
-namespace hpgem {
-
-namespace Base {
-/// transforms vector functions and their curl in a conforming way
-template <std::size_t DIM>
-class HCurlConformingTransformation : public CoordinateTransformation<DIM> {
+/// Strategy pattern to assign material information to elements
+class StructureDescription {
    public:
-    /// transform functions as if they are the gradient of some other function.
-    /// This will exactly map the kernel of the physical curl-operator to the
-    /// kernel of the reference curl-operator.
-    LinearAlgebra::SmallVector<DIM> transform(
-        LinearAlgebra::SmallVector<DIM> referenceData,
-        const CoordinateTransformationData<DIM>& data) const final {
-        data.getTransposeJacobian().solve(referenceData);
-        return referenceData;
-    }
-
-    /// transform the curl by using the chain rule
-    LinearAlgebra::SmallVector<DIM> transformCurl(
-        LinearAlgebra::SmallVector<DIM> referenceData,
-        const CoordinateTransformationData<DIM>& data) const final {
-        return data.getJacobian() * referenceData / data.getJacobianDet();
-    }
+    virtual ~StructureDescription() = default;
+    /// Create an element info for the element
+    /// \param element The element to create it for
+    /// \return A new ElementInfo, the caller should ensure it is cleaned up
+    virtual ElementInfos* createElementInfo(const Base::Element* element) = 0;
 };
+}  // namespace DGMax
 
-template <>
-inline LinearAlgebra::SmallVector<2>
-    HCurlConformingTransformation<2>::transformCurl(
-        LinearAlgebra::SmallVector<2> referenceData,
-        const CoordinateTransformationData<2>& data) const {
-    return referenceData / data.getJacobianDet();
-}
-}  // namespace Base
-
-}  // namespace hpgem
-
-#endif  // HPGEM_KERNEL_HCURLCONFORMINGTRANSFORMATION_H
+#endif  // HPGEM_STRUCTUREDESCRIPTION_H

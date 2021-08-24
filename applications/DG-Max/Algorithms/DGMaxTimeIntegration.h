@@ -66,10 +66,10 @@ class DGMaxTimeIntegration {
     void printErrors(
         const std::vector<typename DGMaxDiscretization<DIM>::NormType>& norms,
         const typename DGMaxDiscretization<DIM>::TimeFunction& exactField,
-        const typename DGMaxDiscretization<DIM>::TimeFunction& exactCurl) const;
+        const typename DGMaxDiscretization<DIM>::TimeFunction& exactCurl);
     void printErrors(
         const std::vector<typename DGMaxDiscretization<DIM>::NormType>& norms,
-        const ExactTimeIntegrationProblem<DIM>& problem) const;
+        const ExactTimeIntegrationProblem<DIM>& problem);
 
    private:
     /// \brief Coefficients for the CO4 algorithm.

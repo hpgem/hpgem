@@ -56,7 +56,6 @@
 #include "Geometry/Mappings/MappingReferenceToPhysical.h"
 #include "ElementFactory.h"
 #include "FaceFactory.h"
-#include "L2Norm.h"
 #include "Geometry/Jacobian.h"
 #include "Geometry/ReferenceGeometry.h"
 #include "FE/BasisFunctions1DH1ConformingLine.h"
@@ -98,6 +97,27 @@ class EnumHash {
 };
 namespace hpgem {
 namespace Base {
+
+template <std::size_t DIM>
+void MeshManipulator<DIM>::clearBasisFunctionAssignment() {
+    collBasisFSet_.clear();
+    for (Base::Element *element : getElementsList(IteratorType::GLOBAL)) {
+        element->clearBasisFunctions();
+    }
+
+    for (Base::Face *face : getFacesList(IteratorType::GLOBAL)) {
+        face->setLocalNumberOfBasisFunctions(0);
+    }
+    for (Base::Edge *edge : getEdgesList(IteratorType::GLOBAL)) {
+        edge->setLocalNumberOfBasisFunctions(0);
+    }
+    if (dimension_ > 1) {
+        for (Base::Node *node : getNodesList(IteratorType::GLOBAL)) {
+            node->setLocalNumberOfBasisFunctions(0);
+        }
+    }
+}
+
 template <std::size_t DIM>
 void MeshManipulator<DIM>::useMonomialBasisFunctions(std::size_t order) {
     FE::BasisFunctionSet *bFset1 = new FE::BasisFunctionSet(order);
@@ -118,6 +138,7 @@ void MeshManipulator<DIM>::useMonomialBasisFunctions(std::size_t order) {
         default:
             logger(ERROR, "No basisfunctions exist in this dimension");
     }
+    clearBasisFunctionAssignment();
     collBasisFSet_.resize(1);
     collBasisFSet_[0] = std::shared_ptr<const FE::BasisFunctionSet>(bFset1);
     // Register them all for usage
@@ -131,7 +152,7 @@ void MeshManipulator<DIM>::useMonomialBasisFunctions(std::size_t order) {
 
 template <std::size_t DIM>
 void MeshManipulator<DIM>::useDefaultDGBasisFunctions(std::size_t order) {
-    collBasisFSet_.clear();
+    clearBasisFunctionAssignment();
     std::unordered_map<Geometry::ReferenceGeometryType, std::size_t,
                        EnumHash<Geometry::ReferenceGeometryType>>
         shapeToIndex;
@@ -301,7 +322,7 @@ void MeshManipulator<DIM>::useDefaultDGBasisFunctions(std::size_t order,
 
 template <std::size_t DIM>
 void MeshManipulator<DIM>::useNedelecDGBasisFunctions(std::size_t order) {
-    collBasisFSet_.clear();
+    clearBasisFunctionAssignment();
     std::unordered_map<Geometry::ReferenceGeometryType, std::size_t,
                        EnumHash<Geometry::ReferenceGeometryType>>
         shapeToIndex;
@@ -338,7 +359,7 @@ void MeshManipulator<DIM>::useNedelecDGBasisFunctions(std::size_t order) {
 template <std::size_t DIM>
 void MeshManipulator<DIM>::useAinsworthCoyleDGBasisFunctions(
     std::size_t order) {
-    collBasisFSet_.clear();
+    clearBasisFunctionAssignment();
     std::unordered_map<Geometry::ReferenceGeometryType, std::size_t,
                        EnumHash<Geometry::ReferenceGeometryType>>
         shapeToIndex;
@@ -373,7 +394,7 @@ void MeshManipulator<DIM>::useDefaultConformingBasisFunctions(
                         "Basis function may not have an empty union of "
                         "supporting elements. Use a DG basis function on a "
                         "single element non-periodic mesh instead");
-    collBasisFSet_.clear();
+    clearBasisFunctionAssignment();
     std::unordered_map<Geometry::ReferenceGeometryType, std::size_t,
                        EnumHash<Geometry::ReferenceGeometryType>>
         shapeToElementIndex;
@@ -1010,29 +1031,6 @@ MeshManipulator<DIM>::MeshManipulator(const MeshManipulator &other)
 template <std::size_t DIM>
 MeshManipulator<DIM>::~MeshManipulator() {
     delete meshMover_;
-}
-
-template <std::size_t DIM>
-void MeshManipulator<DIM>::setDefaultBasisFunctionSet(
-    FE::BasisFunctionSet *bFSet) {
-    logger.assert_debug(bFSet != nullptr, "Invalid basis function set passed");
-    if (collBasisFSet_.size() == 0) collBasisFSet_.resize(1);
-    collBasisFSet_[0] = std::shared_ptr<const FE::BasisFunctionSet>(bFSet);
-    const_cast<ConfigurationData *>(configData_)->numberOfBasisFunctions_ =
-        bFSet->size();
-    for (Base::Face *face : getFacesList(IteratorType::GLOBAL)) {
-        face->setLocalNumberOfBasisFunctions(0);
-    }
-    for (Base::Edge *edge : getEdgesList(IteratorType::GLOBAL)) {
-        edge->setLocalNumberOfBasisFunctions(0);
-    }
-    for (Base::Node *node : getNodesList(IteratorType::GLOBAL)) {
-        node->setLocalNumberOfBasisFunctions(0);
-    }
-    for (ElementIterator it = elementColBegin(IteratorType::GLOBAL);
-         it != elementColEnd(IteratorType::GLOBAL); ++it) {
-        (*it)->setDefaultBasisFunctionSet(0);
-    }
 }
 
 template <std::size_t DIM>

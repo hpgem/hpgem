@@ -38,7 +38,7 @@
 
 #include "BasisFunctionsPiecewiseConstant.h"
 
-#include "memory"
+#include <memory>
 #include "BaseBasisFunction.h"
 #include "BasisFunctionSet.h"
 

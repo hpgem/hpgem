@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2014, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,44 +35,44 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_KERNEL_L2NORM_H
-#define HPGEM_KERNEL_L2NORM_H
+#ifndef HPGEM_PREDEFINEDSTRUCTURE_H
+#define HPGEM_PREDEFINEDSTRUCTURE_H
 
-#include <cstdlib>
-#include <cmath>
-#include "LinearAlgebra/MiddleSizeVector.h"
+#include "StructureDescription.h"
 
-namespace hpgem {
+namespace DGMax {
 
-namespace LinearAlgebra {
-template <std::size_t DIM>
-class SmallVector;
-}
+// Predefined structures
+enum class PredefinedStructure : std::size_t {
+    VACUUM = 0,
+    BRAGG_STACK = 1,           // [-inf,0.5] material 1, [0.5, inf] material 2
+    CYLINDER = 2,              // Cylinder at x,y (0.5, 0.5) radius 0.2
+    SQUARE_HOLE = 3,           // Square hole for x,y in [0.1, 0.9] x [0.1, 0.9]
+    INVERSE_WOODPILE_OLD = 4,  // Old IW definition with a=1, c=1/sqrt(2)
+    INVERSE_WOODPILE_NEW = 5,  // New IW definition with a=sqrt(2),c=1
+};
 
-namespace Geometry {
-template <std::size_t DIM>
-class Point;
-}
+/// 'Parse' an integer to a PredefinedStructure
+PredefinedStructure structureFromInt(std::size_t value);
 
-namespace Base {
-/*! Compute the 2 norm of a vector. */
-LinearAlgebra::MiddleSizeVector::type L2Norm(
-    const LinearAlgebra::MiddleSizeVector&);
+/// Some predefined structures.
+///
+/// Both for historical meshes without zone information and structured meshes
+class PredefinedStructureDescription : public StructureDescription {
+   public:
+    PredefinedStructureDescription(PredefinedStructure structure,
+                                   std::size_t dimension)
+        : structure_(structure), dimension_(dimension){};
 
-template <std::size_t DIM>
-double L2Norm(const LinearAlgebra::SmallVector<DIM>& v) {
-    return std::sqrt(v * v);
-}
+    ElementInfos* createElementInfo(const Base::Element* element) final;
 
-template <std::size_t DIM>
-double L2Norm(const Geometry::Point<DIM>& v) {
-    double retSquared(0);
-    for (std::size_t i = 0; i < v.size(); ++i) {
-        retSquared += v[i] * v[i];
-    }
-    return std::sqrt(retSquared);
-}
-}  // namespace Base
-}  // namespace hpgem
+   private:
+    template <std::size_t DIM>
+    ElementInfos* createElementInfoDim(const Base::Element* element) const;
 
-#endif  // HPGEM_KERNEL_L2NORM_H
+    PredefinedStructure structure_;
+    std::size_t dimension_;
+};
+}  // namespace DGMax
+
+#endif  // HPGEM_PREDEFINEDSTRUCTURE_H

@@ -39,6 +39,7 @@
 #define HPGEM_ZONEINFORMATION_H
 
 #include <string>
+#include <regex>
 
 namespace hpgem {
 namespace Base {
@@ -60,6 +61,12 @@ class Zone {
 
     /// \return Name of the zone
     const std::string& getName() const { return name_; }
+
+    /// Test whether the name matches the given regex
+    bool matchesName(std::regex regex) const;
+
+    /// Find the index of the first matching regex or -1 if none.
+    int matchName(const std::vector<std::regex>& regexes) const;
 
    private:
     std::size_t zoneId_;

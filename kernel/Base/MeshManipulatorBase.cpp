@@ -53,7 +53,6 @@
 #include "Geometry/Mappings/MappingReferenceToPhysical.h"
 #include "ElementFactory.h"
 #include "FaceFactory.h"
-#include "L2Norm.h"
 #include "Geometry/Jacobian.h"
 #include "Geometry/ReferenceGeometry.h"
 #include "Logger.h"

@@ -60,30 +60,25 @@ class TimeIntegrationProblem {
     virtual ~TimeIntegrationProblem() = default;
 
     /// \brief Initial value of the electric field E
-    virtual void initialCondition(
-        const Geometry::PointPhysical<DIM>& point,
-        LinearAlgebra::SmallVector<DIM>& result) const = 0;
+    virtual LinearAlgebra::SmallVector<DIM> initialCondition(
+        const Geometry::PointPhysical<DIM>& point) const = 0;
     /// \brief Initial value of the time derivative of the electric field
-    virtual void initialConditionDerivative(
-        const Geometry::PointPhysical<DIM>& point,
-        LinearAlgebra::SmallVector<DIM>& result) const = 0;
+    virtual LinearAlgebra::SmallVector<DIM> initialConditionDerivative(
+        const Geometry::PointPhysical<DIM>& point) const = 0;
     /// \brief The source term, -dJ/dt, where J is the electric current density.
     ///
     /// \param point The point at which to evaluate the source term.
     /// \param t  The time to evaluate it at
     /// \param result the value of -dJ/dt.
-    virtual void sourceTerm(const Geometry::PointPhysical<DIM>& point, double t,
-                            LinearAlgebra::SmallVector<DIM>& result) const = 0;
+    virtual LinearAlgebra::SmallVector<DIM> sourceTerm(
+        const Geometry::PointPhysical<DIM>& point, double t) const = 0;
     /// \brief The boundary condition n x E
     ///
-    /// \param point The point for which to evaluate the boundary condition.
     /// \param t The time to evaluate the boundary condition at
-    /// \param face The face where it is evaluated (e.g. for the normal).
+    /// \param face The point on the face where it is evaluated
     /// \param result The resulting value of n x E
-    virtual void boundaryCondition(
-        const Geometry::PointPhysical<DIM>& point, double t,
-        Base::PhysicalFace<DIM>& face,
-        LinearAlgebra::SmallVector<DIM>& result) const = 0;
+    virtual LinearAlgebra::SmallVector<DIM> boundaryCondition(
+        double t, Base::PhysicalFace<DIM>& face) const = 0;
 
     /// \brief The conductivity of the medium.
     ///
@@ -114,28 +109,21 @@ class SeparableTimeIntegrationProblem
     : virtual public TimeIntegrationProblem<DIM> {
    public:
     /// \brief The time independent boundary field (Xg)
-    virtual void boundaryConditionRef(
-        const Geometry::PointPhysical<DIM>& point,
-        Base::PhysicalFace<DIM>& face,
-        LinearAlgebra::SmallVector<DIM>& result) const = 0;
+    virtual LinearAlgebra::SmallVector<DIM> boundaryConditionRef(
+        Base::PhysicalFace<DIM>& face) const = 0;
 
-    void boundaryCondition(
-        const Geometry::PointPhysical<DIM>& point, double t,
-        Base::PhysicalFace<DIM>& face,
-        LinearAlgebra::SmallVector<DIM>& result) const override {
-        boundaryConditionRef(point, face, result);
-        result *= timeScalingBoundary(t);
+    LinearAlgebra::SmallVector<DIM> boundaryCondition(
+        double t, Base::PhysicalFace<DIM>& face) const override {
+        return boundaryConditionRef(face) * timeScalingBoundary(t);
     }
 
     /// \brief The time independent field of the source (Xj)
-    virtual void sourceTermRef(
-        const Geometry::PointPhysical<DIM>& point,
-        LinearAlgebra::SmallVector<DIM>& result) const = 0;
+    virtual LinearAlgebra::SmallVector<DIM> sourceTermRef(
+        const Geometry::PointPhysical<DIM>& point) const = 0;
 
-    void sourceTerm(const Geometry::PointPhysical<DIM>& point, double t,
-                    LinearAlgebra::SmallVector<DIM>& result) const override {
-        sourceTermRef(point, result);
-        result *= timeScalingSource(t);
+    LinearAlgebra::SmallVector<DIM> sourceTerm(
+        const Geometry::PointPhysical<DIM>& point, double t) const override {
+        return sourceTermRef(point) * timeScalingSource(t);
     }
 
     // virtual double referenceTimeSource() const = 0;
@@ -154,27 +142,20 @@ template <std::size_t DIM>
 class ExactTimeIntegrationProblem : virtual public TimeIntegrationProblem<DIM> {
    public:
     /// \brief Analytical solution to the problem.
-    virtual void exactSolution(
-        const Geometry::PointPhysical<DIM>& point, double t,
-        LinearAlgebra::SmallVector<DIM>& result) const = 0;
+    virtual LinearAlgebra::SmallVector<DIM> exactSolution(
+        const Geometry::PointPhysical<DIM>& point, double t) const = 0;
     /// \brief Curl of the analytical solution.
-    virtual void exactSolutionCurl(
-        const Geometry::PointPhysical<DIM>& point, double t,
-        LinearAlgebra::SmallVector<DIM>& result) const = 0;
+    virtual LinearAlgebra::SmallVector<DIM> exactSolutionCurl(
+        const Geometry::PointPhysical<DIM>& point, double t) const = 0;
 
-    void initialCondition(
-        const Geometry::PointPhysical<DIM>& point,
-        LinearAlgebra::SmallVector<DIM>& result) const override {
-        exactSolution(point, 0, result);
+    LinearAlgebra::SmallVector<DIM> initialCondition(
+        const Geometry::PointPhysical<DIM>& point) const override {
+        return exactSolution(point, 0);
     }
-    void boundaryCondition(
-        const Geometry::PointPhysical<DIM>& point, double t,
-        Base::PhysicalFace<DIM>& face,
-        LinearAlgebra::SmallVector<DIM>& result) const override {
-        LinearAlgebra::SmallVector<DIM> eField;
-        exactSolution(point, t, eField);
+    LinearAlgebra::SmallVector<DIM> boundaryCondition(
+        double t, Base::PhysicalFace<DIM>& face) const override {
         LinearAlgebra::SmallVector<DIM> normal = face.getUnitNormalVector();
-        normal.crossProduct(eField, result);
+        return normal.crossProduct(exactSolution(face.getPointPhysical(), t));
     }
 };
 
@@ -185,25 +166,19 @@ class ExactSeparableTimeIntegrationProblem
     : public ExactTimeIntegrationProblem<DIM>,
       public SeparableTimeIntegrationProblem<DIM> {
 
-    void boundaryConditionRef(
-        const Geometry::PointPhysical<DIM>& point,
-        Base::PhysicalFace<DIM>& face,
-        LinearAlgebra::SmallVector<DIM>& result) const final {
-        LinearAlgebra::SmallVector<DIM> values;
-        this->exactSolution(point, referenceTimeBoundary(), values);
+    LinearAlgebra::SmallVector<DIM> boundaryConditionRef(
+        Base::PhysicalFace<DIM>& face) const final {
         LinearAlgebra::SmallVector<DIM> normal = face.getUnitNormalVector();
-        normal.crossProduct(values, result);
+        return normal.crossProduct(this->exactSolution(
+            face.getPointPhysical(), referenceTimeBoundary()));
     }
 
-    void boundaryCondition(
-        const Geometry::PointPhysical<DIM>& point, double t,
-        Base::PhysicalFace<DIM>& face,
-        LinearAlgebra::SmallVector<DIM>& result) const final {
+    LinearAlgebra::SmallVector<DIM> boundaryCondition(
+        double t, Base::PhysicalFace<DIM>& face) const final {
         // Note, both the Exact and Separable problems override
         // boundaryCondition, thus we have to tell the compiler which is the one
         // that we want to use for a problem that is both separable and exact.
-        SeparableTimeIntegrationProblem<DIM>::boundaryCondition(point, t, face,
-                                                                result);
+        return SeparableTimeIntegrationProblem<DIM>::boundaryCondition(t, face);
     }
 
     /// \brief Time used to compute `boundaryConditionRef`.

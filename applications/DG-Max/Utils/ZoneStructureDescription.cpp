@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2014, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,29 +35,19 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "ZoneStructureDescription.h"
+namespace DGMax {
 
-//------------------------------------------------------------------------------
-// File: L2Norm.cc
-//------------------------------------------------------------------------------
-// System includes and names imported from them:
-#include <cmath>
-//------------------------------------------------------------------------------
-#include "L2Norm.h"
-#include "LinearAlgebra/MiddleSizeVector.h"
-#include "Geometry/PointPhysical.h"
-
-namespace hpgem {
-
-//------------------------------------------------------------------------------
-namespace Base {
-LinearAlgebra::MiddleSizeVector::type L2Norm(
-    const LinearAlgebra::MiddleSizeVector& v) {
-    LinearAlgebra::MiddleSizeVector::type retSquared(0);
-    for (std::size_t i = 0; i < v.size(); ++i) {
-        retSquared += v[i] * v[i];
+ElementInfos *ZoneInfoStructureDefinition::createElementInfo(
+    const Base::Element *element) {
+    auto &zone = element->getZone();
+    int index = zone.matchName(regexes_);
+    if (index >= 0) {
+        return new ElementInfos(epsilons_[index]);
+    } else {
+        logger.assert_always(!std::isnan(defaultEpsilon_), "Unmatched zone '%'",
+                             zone.getName());
+        return new ElementInfos(defaultEpsilon_);
     }
-    return std::sqrt(retSquared);
 }
-}  // namespace Base
-
-}  // namespace hpgem
+}  // namespace DGMax

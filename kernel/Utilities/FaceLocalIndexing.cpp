@@ -37,8 +37,7 @@
  */
 #include "FaceLocalIndexing.h"
 
-// Would like to include Face.h, but that has a dependency loop
-#include "Element.h"
+#include "Base/Face.h"
 
 namespace hpgem {
 namespace Utilities {

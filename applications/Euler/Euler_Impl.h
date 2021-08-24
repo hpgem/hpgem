@@ -370,7 +370,7 @@ LinearAlgebra::MiddleSizeVector Euler<DIM>::RoeRiemannFluxFunction(
     LinearAlgebra::SmallVector<DIM> &normal) {
 
     // Compute correct normal direction and difference vector
-    double area = Base::L2Norm(normal);
+    double area = normal.l2Norm();
     normal = normal / area;
 
     LinearAlgebra::MiddleSizeVector qDifference =
@@ -695,8 +695,8 @@ template <std::size_t DIM>
 void Euler<DIM>::tasksBeforeSolving() {
     this->faceIntegrator_.setTransformation(
         std::shared_ptr<Base::CoordinateTransformation<DIM> >(
-            new Base::DoNotScaleIntegrands<DIM>(
-                new Base::H1ConformingTransformation<DIM>())));
+            new Base::H1ConformingTransformation<DIM>()));
+    this->faceIntegrator_.setJacobianScaling(false);
     Base::HpgemAPISimplified<DIM>::tasksBeforeSolving();
 }
 

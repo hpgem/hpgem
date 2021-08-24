@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2014, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,48 +35,33 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef HPGEM_ABSTRACTHARMONICSOLVER_H
+#define HPGEM_ABSTRACTHARMONICSOLVER_H
 
-#ifndef HPGEM_KERNEL_HCURLCONFORMINGTRANSFORMATION_H
-#define HPGEM_KERNEL_HCURLCONFORMINGTRANSFORMATION_H
+#include "HarmonicProblem.h"
+#include <Output/VTKSpecificTimeWriter.h>
 
-#include <cstdlib>
-#include "LinearAlgebra/SmallVector.h"
-#include "CoordinateTransformation.h"
+namespace DGMax {
 
-namespace hpgem {
-
-namespace Base {
-/// transforms vector functions and their curl in a conforming way
-template <std::size_t DIM>
-class HCurlConformingTransformation : public CoordinateTransformation<DIM> {
+/**
+ * A Solver for the Maxwell harmonic problem
+ * @tparam dim The dimension of the problem
+ */
+template <std::size_t dim>
+class AbstractHarmonicSolver {
    public:
-    /// transform functions as if they are the gradient of some other function.
-    /// This will exactly map the kernel of the physical curl-operator to the
-    /// kernel of the reference curl-operator.
-    LinearAlgebra::SmallVector<DIM> transform(
-        LinearAlgebra::SmallVector<DIM> referenceData,
-        const CoordinateTransformationData<DIM>& data) const final {
-        data.getTransposeJacobian().solve(referenceData);
-        return referenceData;
-    }
-
-    /// transform the curl by using the chain rule
-    LinearAlgebra::SmallVector<DIM> transformCurl(
-        LinearAlgebra::SmallVector<DIM> referenceData,
-        const CoordinateTransformationData<DIM>& data) const final {
-        return data.getJacobian() * referenceData / data.getJacobianDet();
-    }
+    /**
+     * Solve the problem
+     * @param problem The problem to solve
+     */
+    virtual void solve(const HarmonicProblem<dim>& problem) = 0;
+    /**
+     * Plot the output to VTK
+     * @param output Write the output
+     */
+    virtual void writeVTK(Output::VTKSpecificTimeWriter<dim>& output) const = 0;
 };
 
-template <>
-inline LinearAlgebra::SmallVector<2>
-    HCurlConformingTransformation<2>::transformCurl(
-        LinearAlgebra::SmallVector<2> referenceData,
-        const CoordinateTransformationData<2>& data) const {
-    return referenceData / data.getJacobianDet();
-}
-}  // namespace Base
+}  // namespace DGMax
 
-}  // namespace hpgem
-
-#endif  // HPGEM_KERNEL_HCURLCONFORMINGTRANSFORMATION_H
+#endif  // HPGEM_ABSTRACTHARMONICSOLVER_H

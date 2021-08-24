@@ -39,6 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef HPGEM_APP_DGMAXHARMONIC_H
 #define HPGEM_APP_DGMAXHARMONIC_H
 
+#include "../ProblemTypes/AbstractHarmonicSolver.h"
 #include "../ProblemTypes/HarmonicProblem.h"
 
 #include "DGMaxDiscretization.h"
@@ -47,27 +48,30 @@ using namespace hpgem;
 
 /// \brief Solver for a harmonic problem to find the fields.
 template <std::size_t DIM>
-class DGMaxHarmonic {
+class DGMaxHarmonic : public DGMax::AbstractHarmonicSolver<DIM> {
    public:
-    explicit DGMaxHarmonic(Base::MeshManipulator<DIM>& mesh, std::size_t order);
-    void solve(const HarmonicProblem<DIM>& harmonicProblem, double stab);
+    DGMaxHarmonic(Base::MeshManipulator<DIM>& mesh, double stab,
+                  std::size_t order);
+    void solve(const HarmonicProblem<DIM>& harmonicProblem) final;
 
     std::map<typename DGMaxDiscretization<DIM>::NormType, double> computeError(
         const typename std::set<typename DGMaxDiscretization<DIM>::NormType>&
             norms,
         const typename DGMaxDiscretization<DIM>::InputFunction& exactSolution,
         const typename DGMaxDiscretization<DIM>::InputFunction&
-            exactSolutionCurl) const;
+            exactSolutionCurl);
 
     std::map<typename DGMaxDiscretization<DIM>::NormType, double> computeError(
         const std::set<typename DGMaxDiscretization<DIM>::NormType>& norms,
-        const ExactHarmonicProblem<DIM>& problem) const;
+        const ExactHarmonicProblem<DIM>& problem);
 
     void writeTec(std::string fileName) const;
+    void writeVTK(Output::VTKSpecificTimeWriter<DIM>& output) const final;
 
    private:
     Base::MeshManipulator<DIM>& mesh_;
     DGMaxDiscretization<DIM> discretization;
+    double stab_;
 };
 
 #endif  // HPGEM_APP_DGMAXHARMONIC_H
