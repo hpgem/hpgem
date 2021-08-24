@@ -128,8 +128,8 @@ class DivDGMaxDiscretization {
 
     // See notes in DGMaxDiscretization
     using PointPhysicalT = Geometry::PointPhysical<DIM>;
-    using InputFunction = std::function<void(const PointPhysicalT&,
-                                             LinearAlgebra::SmallVector<DIM>&)>;
+    using InputFunction =
+        std::function<LinearAlgebra::SmallVector<DIM>(const PointPhysicalT&)>;
     using FaceInputFunction = std::function<LinearAlgebra::SmallVector<DIM>(
         Base::PhysicalFace<DIM>&)>;
 
