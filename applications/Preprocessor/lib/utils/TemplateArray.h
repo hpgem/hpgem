@@ -39,6 +39,7 @@
 #define HPGEM_TEMPLATEARRAY_H
 
 #include "tag.h"
+#include "Logger.h"
 
 namespace Preprocessor {
 
@@ -124,9 +125,60 @@ class TemplateArray : public TemplateArray<size - 1, V> {
         return get<index>();
     }
 
+    // Dynamic access
+
+    /**
+     * @brief Dynamic mapping of the TemplateArray.
+     *
+     * This function is similar to functor(this[index]), but allows index to be
+     * a runtime variable instead of a template argument. The functor must be
+     * such that the return type is independent of the index that is accessed.
+     *
+     * Example use:
+     *
+     *     // The template array contains vectors of templated types
+     *     template<std::size_t index>
+     *     using VectorContent = std::vector<SomeTemplateType<index>>;
+     *     TemplateArray<VectorContent> array;
+     *     // Compute the size of the vector at 'parameter'.
+     *     array.map(parameter, [](const auto& entry){return entry.size();}
+     *
+     * @param index The index to access
+     * @param mapping The function to apply to the value identified by index.
+     * Most likely a generic lambda, i.e. [](const auto&){....}
+     * @tparam T The return type of the mapping
+     * @tparam M The type of the mapping, should be equivalent to
+     * template<i> T(V<i>&).
+     * @return The return value of the function
+     */
+    template <typename T, typename M>
+    T map(std::size_t index, M mapping) const {
+        hpgem::logger.assert_debug(index < size, "Index % out of bounds [0,%)",
+                                   index, size);
+        // We can't index the values by a dynamic value. Hence, we need to do it
+        // recursively via a helper function.
+        return map(index, mapping, itag<size - 1>{});
+    }
+
    protected:  // Protected to allow access from other dimensions
     /// The value
     V<size - 1> value;
+
+   private:
+    /// recursive helper for T map(std::size_t, F)
+    template <typename T, typename F, int tindex>
+    T map(std::size_t index, F functor, itag<tindex> tag) const {
+        if (tindex == index) {
+            return functor(value);
+        } else {
+            return map(index, functor, itag<tindex - 1>{});
+        }
+    }
+    /// Base case
+    template <typename T, typename F>
+    T map(std::size_t, F, itag<-1>) const {
+        return {};
+    }
 };
 
 // Empty array
