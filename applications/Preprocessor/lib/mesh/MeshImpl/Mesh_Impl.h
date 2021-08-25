@@ -234,31 +234,38 @@ void Mesh<dimension>::fixEntity(Element<dimension>& element,
 template <std::size_t dimension>
 template <int d>
 void Mesh<dimension>::removeUnusedEntities(itag<d> dimTag) {
-    std::vector<EntityGId> renumbering;
     // Fill renumbering with invalid data
     std::size_t currentCount = this->meshEntities[dimTag].size();
-    renumbering.resize(currentCount, EntityGId(-1));
+    std::vector<EntityGId> renumbering(currentCount, EntityGId(-1));
     EntityGId newId = EntityGId(0);
-    // Whether we are actually removing entities
-    bool removing = false;
+
+    // The current simple strategy is to keep the order of the MeshEntities and
+    // just remove the unused ones. Thus, after removing at least one entity,
+    // all the subsequent entities need to be moved resulting in that the global
+    // index needs to be updated.
+    //
+    // A more optimal implementation would use the entries at the end of the
+    // vector to fill the gaps, thereby reducing the number of entities that
+    // need to be moved and renumbered.
+    bool hasRemoved = false;
     for (std::size_t i = 0; i < currentCount; ++i) {
         MeshEntity<d, dimension>& entity = meshEntities[dimTag][i];
         if (entity.getNumberOfElements() > 0) {
             // Renumber
             renumbering[i] = newId;
             entity.entityID = newId;
-            if (removing) {
+            if (hasRemoved) {
                 // Not only do we need to update the id, we also need to move
                 // the entity to the corresponding location.
                 meshEntities[dimTag][newId.id] = entity;
             }
             newId++;
         } else {
-            removing = true;
+            hasRemoved = true;
         }
     }
 
-    if (removing) {
+    if (hasRemoved) {
         meshEntities[dimTag].resize(newId.id);
 
         for (Element<dimension>& element : elementsList) {
