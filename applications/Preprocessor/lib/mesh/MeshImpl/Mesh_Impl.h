@@ -284,6 +284,17 @@ void Mesh<dimension>::removeUnusedEntities(itag<d> dimTag) {
 }
 
 template <std::size_t dimension>
+template <int d>
+inline std::size_t Mesh<dimension>::getNumberOfEntities(
+    std::size_t entityDimension, itag<d> dimtag) const {
+    if (entityDimension == d) {
+        return meshEntities[dimtag].size();
+    } else {
+        return getNumberOfEntities(entityDimension, itag<d - 1>{});
+    }
+}
+
+template <std::size_t dimension>
 const ElementShape<dimension>* Mesh<dimension>::findGeometry(
     std::size_t numberOfNodes) {
     for (auto shape : hpgemShapes.get<dimension>()) {

@@ -212,9 +212,10 @@ class Mesh {
         if (entityDim == dimension) {
             return elementsList.size();
         } else {
-            return meshEntities.map(entityDim, [](const auto& entities) {
-                return entities.size();
-            });
+            logger.assert_debug(
+                entityDim < dimension,
+                "Asking for entities with dimension higher than the mesh.");
+            return getNumberOfEntities(entityDim, itag<dimension - 1>{});
         }
     }
 
@@ -350,6 +351,16 @@ class Mesh {
     void removeUnusedEntities(itag<d> dimTag);
     // Base case
     void removeUnusedEntities(itag<-1>){};
+
+    /**
+     * Helper for getNumberOfEntities(std::size_t)
+     * @tparam d The recursion dimension
+     * @param entityDimension The dimension to get the count of
+     * @return The number of entities of entityDimension.
+     */
+    template <int d>
+    std::size_t getNumberOfEntities(std::size_t entityDimension, itag<d>) const;
+    std::size_t getNumberOfEntities(std::size_t, itag<-1>) const { return 0; }
 
     template <std::size_t d>
     void copyEntities(tag<d> dimTag) {
