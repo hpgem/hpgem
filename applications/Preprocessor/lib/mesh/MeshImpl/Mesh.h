@@ -215,6 +215,9 @@ class Mesh {
             logger.assert_debug(
                 entityDim < dimension,
                 "Asking for entities with dimension higher than the mesh.");
+            // Each level of MeshEntities can only be accessed using a template
+            // parameter. Hence, we need a recursive function to match each
+            // possible dimension as template parameter against entityDim.
             return getNumberOfEntities(entityDim, itag<dimension - 1>{});
         }
     }
