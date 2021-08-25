@@ -113,6 +113,21 @@ std::enable_if_t<(d > 0)> Element<dimension>::setEntity(EntityLId localIndex,
 }
 
 template <std::size_t dimension>
+template <std::size_t d>
+EntityGId Element<dimension>::getIncidentEntityIndex(EntityLId index) const {
+    static_assert(
+        d <= dimension,
+        "Asking for an entity of dimension higher than the mesh dimension");
+    if (d == dimension) {
+        return this->getGlobalIndex();
+    } else {
+        const std::vector<EntityGId>& indices = incidenceLists[d];
+        logger.assert_debug(index.id < indices.size(), "Too few entities");
+        return indices[index.id];
+    }
+}
+
+template <std::size_t dimension>
 template <int d, std::size_t entityDimension>
 std::vector<MeshEntity<(d < 0 ? d + dimension : d), dimension>>
     Element<dimension>::getIncidenceList(

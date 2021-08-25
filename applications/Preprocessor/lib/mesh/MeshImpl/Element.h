@@ -112,6 +112,17 @@ class Element : public MeshEntity<dim, dim> {
     using MeshEntity<dim, dim>::getIncidenceList;
     using MeshEntity<dim, dim>::getIncidenceListAsIndices;
 
+    /// Get the global index of the i-th MeshEntity of dimension d.
+    ///
+    /// Equivalent to get getIncidenceListAsIndices()[index] but much more
+    /// efficient.
+    ///
+    /// \tparam d The dimension of the MeshEntity
+    /// \param index The local index of the MeshEntity
+    /// \return The corresponding global index.
+    template <std::size_t d>
+    EntityGId getIncidentEntityIndex(EntityLId index) const;
+
     /// \brief For a MeshEntity on the boundary of this Element, compute the
     /// MeshEntity-s that are shared with this element.
     ///

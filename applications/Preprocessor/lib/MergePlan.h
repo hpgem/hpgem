@@ -64,10 +64,13 @@ class MergePlan {
      */
     struct MergeElements {
         MergeElements(const Mesh<dimension>* mesh,
-                      const std::map<CoordId, CoordId>& pairing) {
+                      const std::map<CoordId, CoordId>& pairing)
+            : mesh_(mesh) {
             leftElements = computeAdjacentElements(mesh, pairing, true);
             rightElements = computeAdjacentElements(mesh, pairing, false);
         }
+
+        const Mesh<dimension>* mesh_;
 
         /**
          * Set of elements for which at least one node uses the left coordinate.
@@ -78,6 +81,36 @@ class MergePlan {
          * coordinate.
          */
         std::set<EntityGId> rightElements;
+
+        /**
+         * For each loop over all the MeshEntities that are adjacent to either
+         * the left or right elements. Note that this includes both entities
+         * that have coordinates in the left/right coordinate pairing, or none
+         * at all.
+         *
+         * @tparam d The dimension of the MeshEntity to iterate over
+         * @param left Whether to go over the left=true elements or the
+         * right=false ones.
+         * @param f The function that is invoked for each MeshEntity. The
+         * signature is void(const Element<dimension>&, EntityLId) corresponding
+         * to the i-th meshEntity of that dimension the element.
+         */
+        template <std::size_t d>
+        void forEachBoundingEntity(
+            bool left,
+            std::function<void(const Element<dimension>&, EntityLId)> f) const {
+
+            const std::set<EntityGId>& elements =
+                left ? leftElements : rightElements;
+            for (const EntityGId& gid : elements) {
+                const Element<dimension>& element = mesh_->getElement(gid);
+                std::size_t numEntities =
+                    element.template getNumberOfIncidentEntities<d>();
+                for (std::size_t i = 0; i < numEntities; ++i) {
+                    f(element, i);
+                }
+            }
+        }
 
        private:
         /**
@@ -202,6 +235,39 @@ class MergePlan {
         const MergeElements& elements,
         std::array<std::vector<EntityMergeGroup>, dimension>& merges,
         tag<dimension>){};
+
+    /**
+     * Helper for computeMergePlanLevels finding all candidate left MeshEntities
+     * that could be merged if a suitable matching right partner is found.
+     *
+     * A MeshEntity is eligible if all its nodes have coordinates in the left
+     * side of the coordinate pairing[1]. The coordinates used for the
+     * MeshEntity specify also the coordinates that a matching right partner
+     * should have. To facilitate finding the right partner the set of
+     * candidates is indexed by the CoordIds that a matching right partner
+     * should have.
+     *
+     * [1] Technical note: The coordinates are not associated directly with the
+     * MeshEntity but depend on the element. So the correcter statement would
+     * be: If the MeshEntity is on the boundary of an Element E, such that the
+     * nodes the of the MeshEntity have, on element E, coordinates from the left
+     * set. This distinction is important, because it means that the same
+     * MeshEntity could occur multiple times in the result. This can happen when
+     * a boundary node of the MeshEntity has multiple coordinate ids that are in
+     * the left set.
+     *
+     * @tparam d The dimension of entities to find
+     * @param mesh The mesh
+     * @param pairing The pairing of left -> right coordinates
+     * @param elements The elements from the mesh with suitable entities
+     * @return The id's of the MeshEntities on the left that could be merged.
+     *   Indexed by the coordinate ids of the nodes as th
+     */
+    template <std::size_t d>
+    static std::map<std::set<CoordId>, EntityGId> findLeftCandidates(
+        const std::map<CoordId, CoordId>& pairing,
+        const MergeElements& elements);
+
     /**
      * Create MergeGroups based on pairs of entities that need to be merged.
      *
@@ -325,91 +391,46 @@ void MergePlan<dimension>::computeMergePlanLevels(
     static_assert(d < dimension, "Can't merge elements or higher dimension");
 
     // Computing the merge plan for a single level done in two steps
-    //  1. Find all eligible left-entities. That is an Entity where there is an
-    //     Element such that all the nodes of the entity have a coordinate in
-    //     the left set of the coordinate pairing.
-    //     Map the coordinates to the corresponding right coordinates and store
-    //     the set of right coordinates with a reference to the left-entity.
-    //  2. Find all eligible right entities, and check if there is a matching
+    //  1. Find all eligible left-entities.
+    //  2. List all possible right-entities, and check if there is a matching
     //     left-entity.
 
     // Eligible left-entities, indexed by the mapped coordinates (i.e.
     // coordinates in the right set).
-    std::map<std::set<CoordId>, EntityGId> leftCandidates;
-
-    for (const EntityGId& leftElementId : elements.leftElements) {
-        const Element<dimension>& leftElement = mesh->getElement(leftElementId);
-        const ElementShape<dimension>* shape =
-            leftElement.getReferenceGeometry();
-        // Mapping local-id -> global-id for d-dimensional MeshEntities on the
-        // boundary.
-        const std::vector<EntityGId> entityIds =
-            leftElement.template getIncidenceListAsIndices<d>();
-        // Check all d-dimensional entities on the boundary
-        for (std::size_t i = 0; i < shape->template getNumberOfEntities<d>();
-             ++i) {
-            // Try to translate the left coordinates of the d-dimensional
-            // MeshEntity.
-            std::vector<std::size_t> boundaryNodes =
-                shape->template getNodesOfEntity<d>(i);
-            std::set<CoordId> rightCoords;
-            for (const std::size_t& boundaryNode : boundaryNodes) {
-                CoordId leftCoord =
-                    leftElement.getCoordinateIndex(boundaryNode);
-                auto iter = pairing.find(leftCoord);
-                if (iter == pairing.end()) {
-                    // Can't translate the coordinate for this node -> Not a
-                    // candidate
-                    break;
-                } else {
-                    rightCoords.insert(iter->second);
-                }
-            }
-            if (boundaryNodes.size() != rightCoords.size()) {
-                // Could not translate all nodes, so this MeshEntity is not a
-                // candidate for merging.
-                continue;
-            }
-            leftCandidates[rightCoords] = entityIds[i];
-        }
-    }
+    std::map<std::set<CoordId>, EntityGId> leftCandidates =
+        findLeftCandidates<d>(mesh, pairing, elements);
 
     logger(DEBUG, "Found % left candidates of dimension %",
            leftCandidates.size(), d);
     // Phase 2: Find candidate right-entities and try to match them with a
     // left-entity.
     std::vector<MergePair> levelMerges;
-    for (const EntityGId& rightElementId : elements.rightElements) {
-        // Approach is the same as for phase one
-        const Element<dimension>& rightElement =
-            mesh->getElement(rightElementId);
-        const std::vector<EntityGId> entityIds =
-            rightElement.template getIncidenceListAsIndices<d>();
-        const ElementShape<dimension>* shape =
-            rightElement.getReferenceGeometry();
-        for (std::size_t i = 0; i < shape->template getNumberOfEntities<d>();
-             ++i) {
+    elements.template forEachBoundingEntity<d>(
+        false, [&](const Element<dimension>& rightElement, EntityLId rid) {
+            // Find the global coordinates for the mesh entity with respect to
+            // the rightElement. Note that this may include CoordIds that are
+            // not part of the pairing, but this is no problem, as then no match
+            // will be found.
             std::vector<std::size_t> boundaryNodes =
-                shape->template getNodesOfEntity<d>(i);
+                rightElement.getReferenceGeometry()
+                    ->template getNodesOfEntity<d>(rid);
             std::set<CoordId> rightCoords;
-            // Note this may produce coordinate ids that are not in the right
-            // set of the mapping. This is no problem as these will prevent
-            // matching against any left element.
             std::transform(
                 boundaryNodes.begin(), boundaryNodes.end(),
                 std::inserter(rightCoords, rightCoords.begin()),
                 [&rightElement](const std::size_t& nodeNumber) -> CoordId {
                     return rightElement.getCoordinateIndex(nodeNumber);
                 });
+
             auto candidateIter = leftCandidates.find(rightCoords);
             if (candidateIter != leftCandidates.end()) {
-                // A match is found
+                // A matching left element is found.
                 EntityGId leftEntity = candidateIter->second;
-                EntityGId rightEntity = entityIds[i];
+                EntityGId rightEntity =
+                    rightElement.template getIncidentEntityIndex<d>(rid);
                 levelMerges.emplace_back(leftEntity, rightEntity);
             }
-        }
-    }
+        });
     logger(DEBUG, "Matched % right candidates of dimension %",
            levelMerges.size(), d);
 
@@ -418,6 +439,56 @@ void MergePlan<dimension>::computeMergePlanLevels(
 
     // Recurse to higher dimensions
     computeMergePlanLevels(mesh, pairing, elements, merges, tag<d + 1>{});
+}
+
+template <std::size_t dimension>
+template <std::size_t d>
+std::map<std::set<CoordId>, EntityGId> MergePlan<dimension>::findLeftCandidates(
+    const std::map<CoordId, CoordId>& pairing, const MergeElements& elements) {
+    // Eligible left-entities, indexed by the mapped coordinates (i.e.
+    // coordinates in the right set).
+    std::map<std::set<CoordId>, EntityGId> leftCandidates;
+
+    elements.template forEachBoundingEntity<d>(
+        true, [&](const Element<dimension>& leftElement, EntityLId lid) {
+            // This is the lid-th MeshEntity on the border of the leftElement.
+            // This is a possible candidate, but only if the coordinates for all
+            // the nodes are in the left set of the pairing.
+
+            // Listing of which nodes of the Element the entity uses, e.g.
+            // the edge uses nodes 0 and 2 of the triangle (nodes 0-2).
+            std::vector<std::size_t> boundaryNodes =
+                leftElement.getReferenceGeometry()
+                    ->template getNodesOfEntity<d>(lid);
+
+            // For each node that is used, find the corresponding coordinate for
+            // the element and try and translate it. If that succeeds for all
+            // nodes then we have a possible left-candidate-MeshEntity.
+            std::set<CoordId> rightCoords;
+            for (const std::size_t& boundaryNode : boundaryNodes) {
+                CoordId leftCoord =
+                    leftElement.getCoordinateIndex(boundaryNode);
+                auto iter = pairing.find(leftCoord);
+                if (iter == pairing.end()) {
+                    // Can't translate the coordinate for this node -> Not a
+                    // candidate
+                    return;
+                } else {
+                    rightCoords.insert(iter->second);
+                }
+            }
+            if (boundaryNodes.size() != rightCoords.size()) {
+                // Backup check
+                logger.assert_always(
+                    false,
+                    "Multiple nodes of the MeshEntity are merged onto the same "
+                    "coordinate. This is not supported by hpgem.");
+                return;
+            }
+            leftCandidates[rightCoords] =
+                leftElement.template getIncidentEntityIndex<d>(lid);
+        });
+    return leftCandidates;
 }
 
 template <std::size_t dimension>
