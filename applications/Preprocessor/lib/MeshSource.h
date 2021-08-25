@@ -209,12 +209,16 @@ class MeshSource2 {
      *    \  |  /
      *     \ | /
      *       3
-     * Identifying coordinates 1 & 2 during construction will merge edges:
+     * Identifying coordinates 1 & 2 during construction[1] will merge edges:
      *  - 0-1 with 0-2 and
      *  - 1-3 with 2-3
      *  The second one clearly being unintended. By performing the merge {0->0,
      * 1->2} the coordinate 3 is not included. Hence, only the edges 0-1 and 0-2
      * will be collapsed to a single edge, leaving edges 1-3 and 2-3 untouched.
+     *
+     * [1] This configuration would happen when you have a periodic boundary as
+     * result of a rotation. In this case a rotation with node 0 as the centre
+     * of a 180 degree rotation.
      */
     virtual const std::vector<std::map<std::size_t, std::size_t>>& getMerges() {
         static std::vector<std::map<std::size_t, std::size_t>> dummy;
