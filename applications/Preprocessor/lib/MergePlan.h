@@ -247,9 +247,9 @@ std::vector<typename MergePlan<dimension>::EntityMergeGroup>
     std::map<EntityGId, std::size_t> mergeGroup;
     for (const std::size_t rawEntityId : groups) {
         EntityGId entityId = EntityGId(rawEntityId);
-        EntityGId represantative = EntityGId(groups.findSet(rawEntityId));
+        EntityGId representative = EntityGId(groups.findSet(rawEntityId));
 
-        auto iter = mergeGroup.find(represantative);
+        auto iter = mergeGroup.find(representative);
         if (iter != mergeGroup.end()) {
             // Additional entity to add to the merge group
             merges[iter->second].push_back(entityId);
@@ -258,7 +258,7 @@ std::vector<typename MergePlan<dimension>::EntityMergeGroup>
             std::size_t index = merges.size();
             // Add singleton element as start of the group
             merges.push_back({entityId});
-            mergeGroup[represantative] = index;
+            mergeGroup[representative] = index;
         }
     }
     return merges;
