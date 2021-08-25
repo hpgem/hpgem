@@ -157,7 +157,7 @@ class TemplateArray : public TemplateArray<size - 1, V> {
                                    index, size);
         // We can't index the values by a dynamic value. Hence, we need to do it
         // recursively via a helper function.
-        return map(index, mapping, itag<size - 1>{});
+        return map<T, M, size - 1>(index, mapping, itag<size - 1>{});
     }
 
    protected:  // Protected to allow access from other dimensions
@@ -166,17 +166,18 @@ class TemplateArray : public TemplateArray<size - 1, V> {
 
    private:
     /// recursive helper for T map(std::size_t, F)
-    template <typename T, typename F, int tindex>
-    T map(std::size_t index, F functor, itag<tindex> tag) const {
+    template <typename T, typename M, int tindex>
+    T mapImpl(std::size_t index, M functor, itag<tindex> tag) const {
         if (tindex == index) {
             return functor(value);
         } else {
-            return map(index, functor, itag<tindex - 1>{});
+            return mapImpl<T, M, tindex - 1>(index, functor,
+                                             itag<tindex - 1>{});
         }
     }
     /// Base case
-    template <typename T, typename F>
-    T map(std::size_t, F, itag<-1>) const {
+    template <typename T, typename M>
+    T mapImpl(std::size_t, M, itag<-1>) const {
         return {};
     }
 };
