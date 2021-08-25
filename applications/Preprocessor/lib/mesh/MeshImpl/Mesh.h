@@ -212,9 +212,10 @@ class Mesh {
         if (entityDim == dimension) {
             return elementsList.size();
         } else {
-            return meshEntities.map(entityDim, [](const auto& entities) {
-                return entities.size();
-            });
+            return meshEntities.map(entityDim,
+                                    [](const auto& entities) -> std::size_t {
+                                        return entities.size();
+                                    });
         }
     }
 
