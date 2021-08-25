@@ -398,7 +398,7 @@ void MergePlan<dimension>::computeMergePlanLevels(
     // Eligible left-entities, indexed by the mapped coordinates (i.e.
     // coordinates in the right set).
     std::map<std::set<CoordId>, EntityGId> leftCandidates =
-        findLeftCandidates<d>(mesh, pairing, elements);
+        findLeftCandidates<d>(pairing, elements);
 
     logger(DEBUG, "Found % left candidates of dimension %",
            leftCandidates.size(), d);
