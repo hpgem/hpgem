@@ -199,15 +199,16 @@ class MeshEntity {
     MeshEntity(Mesh<meshDimension>* mesh, EntityGId entityID)
         : mesh(mesh), entityID(entityID) {}
 
-    /// Add an element that is this MeshEntity is part of
+    /// Function for Element to add itself when updating its link to this
+    /// MeshEntity.
     ///
     /// \param elementID The entityID of the element
     /// \param localEntityIndex The localIndex of this MeshEntity for the
     /// element.
     void addElement(EntityGId elementID, EntityLId localEntityIndex);
 
-    /// Reverse of addElement, remove an Element that this MeshEntity is part
-    /// of.
+    /// Function for Element to remove itself when updating its link to this
+    /// MeshEntity.
     ///
     /// \param elementId The id of the element to remove
     /// \param localEntityIndex The local index on the element of this
