@@ -53,6 +53,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Integration/ElementIntegral.h"
 #include "Integration/FaceIntegral.h"
 #include "ProblemTypes/BoundaryConditionType.h"
+#include "ProblemTypes/BoundaryFunction.h"
 
 using namespace hpgem;
 
@@ -110,8 +111,6 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
     using PointPhysicalT = hpgem::Geometry::PointPhysical<DIM>;
     using InputFunction =
         std::function<LinearAlgebra::SmallVector<DIM>(const PointPhysicalT&)>;
-    using FaceInputFunction = std::function<LinearAlgebra::SmallVector<DIM>(
-        Base::PhysicalFace<DIM>&)>;
     using TimeFunction = std::function<LinearAlgebra::SmallVector<DIM>(
         const PointPhysicalT&, double)>;
 
@@ -149,7 +148,7 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
         const std::map<std::size_t, InputFunction>& elementVectors);
     void computeFaceIntegrals(
         Base::MeshManipulator<DIM>& mesh,
-        const std::map<std::size_t, FaceInputFunction>& boundaryVectors,
+        const std::map<std::size_t, DGMax::BoundaryFunction<DIM>*>& boundaryVectors,
         double stab);
 
     static std::string normName(NormType norm) {
@@ -202,7 +201,7 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
 
     // The face vector integrand.
     void faceVector(Base::PhysicalFace<DIM>& fa,
-                    const FaceInputFunction& boundaryCondition,
+                    const DGMax::BoundaryFunction<DIM>* boundaryFunction,
                     LinearAlgebra::MiddleSizeVector& ret, double stab) const;
 
     // TODO: Replace this by a better type than SmallVector<2>.

@@ -148,7 +148,7 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(
 template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::computeFaceIntegrals(
     Base::MeshManipulator<DIM>& mesh,
-    const std::map<std::size_t, FaceInputFunction>& boundaryVectors,
+    const std::map<std::size_t, DGMax::BoundaryFunction<DIM>*>& boundaryVectors,
     double stab) {
     MassMatrixHandling massMatrixHandling = matrixHandling_;
     logger.assert_always(
@@ -180,16 +180,27 @@ void DGMaxDiscretization<DIM>::computeFaceIntegrals(
                 face->getPtrElementRight()->getNumberOfBasisFunctions(0);
         }
 
+        using BCT = DGMax::BoundaryConditionType;
+        BCT faceBCT =
+            face->isInternal() ? BCT::INTERNAL : boundaryIndicator_(*face);
+
         for (auto const& faceVectorDef : boundaryVectors) {
             tempFaceVector.resize(numberOfBasisFunctions);
-            if (faceVectorDef.second) {
-                tempFaceVector = faIntegral.integrate(
-                    face, [&](Base::PhysicalFace<DIM>& face) {
-                        LinearAlgebra::MiddleSizeVector res;
-                        faceVector(face, faceVectorDef.second, res, stab);
-                        return res;
-                    });
+            const DGMax::BoundaryFunction<DIM>* boundarFunc =
+                faceVectorDef.second;
+            if (boundarFunc->getType() != faceBCT) {
+                // Boundary function for a different type of boundary. So this
+                // face does not contribute.
+                tempFaceVector.set(0.0);
+                face->setFaceVector(tempFaceVector, faceVectorDef.first);
+                continue;
             }
+            tempFaceVector =
+                faIntegral.integrate(face, [&](Base::PhysicalFace<DIM>& face) {
+                    LinearAlgebra::MiddleSizeVector res;
+                    faceVector(face, boundarFunc, res, stab);
+                    return res;
+                });
             face->setFaceVector(tempFaceVector, faceVectorDef.first);
         }
     }
@@ -421,36 +432,42 @@ void DGMaxDiscretization<DIM>::postProcessFaceMatrices(Base::Face* face) const {
 
 template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::faceVector(
-    Base::PhysicalFace<DIM>& fa, const FaceInputFunction& boundaryCondition,
+    Base::PhysicalFace<DIM>& fa,
+    const DGMax::BoundaryFunction<DIM>* boundaryCondition,
     LinearAlgebra::MiddleSizeVector& ret, double stab) const {
     const Base::Face* face = fa.getFace();
-    LinearAlgebra::SmallVector<DIM> normal = fa.getNormalVector();
-    normal /= normal.l2Norm();
-    const Geometry::PointReference<DIM - 1>& p = fa.getPointReference();
 
-    if (face->isInternal()) {
-        std::size_t M = face->getPtrElementLeft()->getNrOfBasisFunctions(0) +
-                        face->getPtrElementRight()->getNrOfBasisFunctions(0);
-        ret.resize(M);
-        for (std::size_t i = 0; i < M; ++i) ret(i) = 0;
-    } else {
+    logger.assert_always(!face->isInternal(),
+                         "Face contribution for boundary faces only");
+
+    std::size_t numDoFs = face->getNumberOfBasisFunctions(0);
+    ret.resize(numDoFs);
+
+    LinearAlgebra::SmallVector<DIM> value = boundaryCondition->value(fa);
+
+    if (boundaryCondition->getType() ==
+        DGMax::BoundaryConditionType::DIRICHLET) {
         double diameter = face->getDiameter();
-        LinearAlgebra::SmallVector<DIM> val, phi, phi_curl, boundaryValues;
 
-        // assumes the initial conditions and the boundary conditions match
-        boundaryValues = boundaryCondition(fa);
-
-        val = boundaryValues;
-        std::size_t n = face->getPtrElementLeft()->getNrOfBasisFunctions(0);
-        ret.resize(n);
-
-        for (std::size_t i = 0; i < n; ++i) {
+        LinearAlgebra::SmallVector<DIM> phi;
+        for (std::size_t i = 0; i < numDoFs; ++i) {
             fa.basisFunctionUnitNormalCross(i, phi, 0);
-
-            phi_curl = fa.basisFunctionCurl(i, 0);
-
-            ret(i) = -(phi_curl * val) + stab / diameter * (phi * val);
+            const auto& phiCurl = fa.basisFunctionCurl(i, 0);
+            ret(i) = -(phiCurl * value) + stab / diameter * (phi * value);
         }
+
+    } else if (boundaryCondition->getType() ==
+               DGMax::BoundaryConditionType::NEUMANN) {
+        LinearAlgebra::SmallVector<DIM> phi;
+        for(std::size_t i = 0; i < numDoFs; ++i) {
+            // TODO: Figure this out
+            fa.basisFunctionUnitNormalCross(i, phi, 0);
+            ret(i) = phi * value;
+        }
+    } else {
+        logger.assert_always(
+            false,
+            "Face vector not implemented for this boundary condition type.");
     }
 }
 
