@@ -63,7 +63,10 @@ class TestingProblem : public ExactHarmonicProblem<2> {
         //     are the normal directions in the mesh.
         : k_({1 * M_PI, 0.5 * M_PI}), E0_({0.5, -1}), bface(false){};
 
-    double omega() const final { return 3.0; }
+    double omega() const final {
+        // Off resonance so that we need a source term and test that as well.
+        return 3.0;
+    }
 
     double modulation(const Point& p) const {
         return std::cos(p.getCoordinates() * k_);
