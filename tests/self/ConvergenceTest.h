@@ -40,8 +40,10 @@
 
 #include "Logger.h"
 
-#include "string"
-#include "iomanip"
+#include <iomanip>
+#include <iostream>
+#include <string>
+#include <vector>
 
 namespace hpgem {
 

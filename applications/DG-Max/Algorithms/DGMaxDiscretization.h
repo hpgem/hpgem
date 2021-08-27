@@ -129,8 +129,7 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
         matrixHandling_ = matrixHandling;
     }
 
-    void setBoundaryIndicator(
-        DGMax::BoundaryConditionIndicator indicator) {
+    void setBoundaryIndicator(DGMax::BoundaryConditionIndicator indicator) {
         boundaryIndicator_ = indicator;
     }
 
@@ -203,7 +202,8 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
     // The face vector integrand.
     void faceVector(Base::PhysicalFace<DIM>& fa,
                     const FaceInputFunction& boundaryCondition,
-                    LinearAlgebra::MiddleSizeVector& ret, double stab) const;
+                    LinearAlgebra::MiddleSizeVector& ret,
+                    DGMax::BoundaryConditionType bct, double stab) const;
 
     // TODO: Replace this by a better type than SmallVector<2>.
     LinearAlgebra::SmallVector<2> elementErrorIntegrand(

@@ -51,12 +51,12 @@ namespace DGMax {
  */
 enum class BoundaryConditionType {
     /**
-     * Boundary condition of the form n x E = n x g, thus prescribing the
+     * Boundary condition of the form n x E = n x g_D, thus prescribing the
      * tangential part of the field on the boundary face.
      */
     DIRICHLET,
     /**
-     * Boundary condition of the form n x (curl E) = n x g, thus prescribing the
+     * Boundary condition of the form n x (curl E) = n x g_N, thus prescribing the
      * tangential part of the curl on the boundary face.
      */
     NEUMANN,
