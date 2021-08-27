@@ -135,7 +135,7 @@ void runWithDimension() {
             1, config, nullptr);
     } else if (method.getValue() == "DIVDGMAX") {
         // Some default stabilization parameters
-        typename DivDGMaxDiscretization<DIM>::Stab stab;
+        DivDGMaxDiscretizationBase::Stab stab;
         stab.stab1 = 5;
         stab.stab2 = 0;
         stab.stab3 = 5;

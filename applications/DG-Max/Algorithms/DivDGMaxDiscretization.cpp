@@ -47,6 +47,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace hpgem;
 
+// Definition of the constants to reference to.
+const std::size_t DivDGMaxDiscretizationBase::ELEMENT_MASS_MATRIX_ID;
+const std::size_t DivDGMaxDiscretizationBase::ELEMENT_STIFFNESS_MATRIX_ID;
+const std::size_t DivDGMaxDiscretizationBase::ELEMENT_SOURCE_VECTOR_ID;
+const std::size_t DivDGMaxDiscretizationBase::FACE_STIFFNESS_MATRIX_ID;
+const std::size_t DivDGMaxDiscretizationBase::FACE_BOUNDARY_VECTOR_ID;
+
 // Utility function
 struct FaceDoFInfo {
     std::size_t leftUDoFs;
@@ -1261,12 +1268,11 @@ double DivDGMaxDiscretization<DIM>::elementErrorIntegrand(
     return error.l2NormSquared();
 }
 
-template <std::size_t DIM>
-char fluxName(typename DivDGMaxDiscretization<DIM>::FluxType f) {
+char fluxName(typename DivDGMaxDiscretizationBase::FluxType f) {
     switch (f) {
-        case DivDGMaxDiscretization<DIM>::FluxType::BREZZI:
+        case DivDGMaxDiscretizationBase::FluxType::BREZZI:
             return 'b';
-        case DivDGMaxDiscretization<DIM>::FluxType::IP:
+        case DivDGMaxDiscretizationBase::FluxType::IP:
             return 'i';
         default:
             logger.assert_always(false, "Unknown flux type.");
@@ -1274,22 +1280,12 @@ char fluxName(typename DivDGMaxDiscretization<DIM>::FluxType f) {
     }
 }
 
-template <std::size_t DIM>
-std::ostream& printStab(
-    std::ostream& os, const typename DivDGMaxDiscretization<DIM>::Stab& stab) {
-    os << "Stab{" << fluxName<DIM>(stab.fluxType1) << "=" << stab.stab1 << ", "
-       << fluxName<DIM>(stab.fluxType2) << "=" << stab.stab2 << ", "
-       << fluxName<DIM>(stab.fluxType3) << "=" << stab.stab3 << "}";
+std::ostream& operator<<(
+    std::ostream& os, const DivDGMaxDiscretizationBase::Stab& stab) {
+    os << "Stab{" << fluxName(stab.fluxType1) << "=" << stab.stab1 << ", "
+       << fluxName(stab.fluxType2) << "=" << stab.stab2 << ", "
+       << fluxName(stab.fluxType3) << "=" << stab.stab3 << "}";
     return os;
-}
-
-std::ostream& operator<<(std::ostream& os,
-                         typename DivDGMaxDiscretization<2>::Stab& stab) {
-    return printStab<2>(os, stab);
-}
-std::ostream& operator<<(std::ostream& os,
-                         typename DivDGMaxDiscretization<3>::Stab& stab) {
-    return printStab<3>(os, stab);
 }
 
 template class DivDGMaxDiscretization<2>;

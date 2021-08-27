@@ -53,7 +53,7 @@ class DivDGMaxHarmonic : public DGMax::AbstractHarmonicSolver<DIM> {
 
    public:
     DivDGMaxHarmonic(Base::MeshManipulator<DIM>& mesh,
-                     typename DivDGMaxDiscretization<DIM>::Stab stab,
+                     DivDGMaxDiscretizationBase::Stab stab,
                      std::size_t order);
 
     void solve(const HarmonicProblem<DIM>& input) final;
@@ -68,7 +68,7 @@ class DivDGMaxHarmonic : public DGMax::AbstractHarmonicSolver<DIM> {
    private:
     Base::MeshManipulator<DIM>& mesh_;
     DivDGMaxDiscretization<DIM> discretization_;
-    typename DivDGMaxDiscretization<DIM>::Stab stab_;
+    DivDGMaxDiscretizationBase::Stab stab_;
 };
 
 #endif  // HPGEM_APP_DIVDGMAXHARMONIC_H

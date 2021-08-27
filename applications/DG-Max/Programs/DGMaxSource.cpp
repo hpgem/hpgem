@@ -156,7 +156,7 @@ void runWithDimension() {
 
     if (divdgmax) {
         // Placeholder for more complicate fluxes
-        typename DivDGMaxDiscretization<dim>::Stab stab;
+        DivDGMaxDiscretizationBase::Stab stab;
         stab.stab1 = 5;
         stab.stab2 = 0;
         stab.stab3 = 5;

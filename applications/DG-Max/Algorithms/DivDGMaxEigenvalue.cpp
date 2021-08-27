@@ -59,10 +59,10 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
         : indexing_(nullptr),
           stiffnessMatrix_(
               indexing_,
-              DivDGMaxDiscretization<DIM>::ELEMENT_STIFFNESS_MATRIX_ID,
-              DivDGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID),
+              DivDGMaxDiscretizationBase::ELEMENT_STIFFNESS_MATRIX_ID,
+              DivDGMaxDiscretizationBase::FACE_STIFFNESS_MATRIX_ID),
           massMatrix_(indexing_,
-                      DivDGMaxDiscretization<DIM>::ELEMENT_MASS_MATRIX_ID, -1),
+                      DivDGMaxDiscretizationBase::ELEMENT_MASS_MATRIX_ID, -1),
           tempVector_(indexing_, -1, -1),
           solver_(nullptr) {
         // Separate from initializer list to allow for more flexibility
@@ -173,7 +173,7 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
         DGMax::FaceMatrixKPhaseShiftBuilder<DIM> builder;
         builder.setMatrixExtractor([&](const Base::Face* face) {
             const Base::FaceMatrix& faceMatrix = face->getFaceMatrix(
-                DivDGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID);
+                DivDGMaxDiscretizationBase::FACE_STIFFNESS_MATRIX_ID);
             LinearAlgebra::MiddleSizeMatrix block1, block2;
             block1 = faceMatrix.getElementMatrix(Base::Side::LEFT,
                                                  Base::Side::RIGHT);
@@ -344,7 +344,7 @@ void DivDGMaxEigenvalue<DIM>::Result::writeField(
 template <std::size_t DIM>
 DivDGMaxEigenvalue<DIM>::DivDGMaxEigenvalue(
     Base::MeshManipulator<DIM>& mesh, std::size_t order,
-    typename DivDGMaxDiscretization<DIM>::Stab stab)
+    DivDGMaxDiscretizationBase::Stab stab)
     : mesh_(mesh), order_(order), stab_(stab) {}
 
 template <std::size_t DIM>

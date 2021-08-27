@@ -50,7 +50,7 @@ using namespace hpgem;
 template <std::size_t DIM>
 DivDGMaxHarmonic<DIM>::DivDGMaxHarmonic(
     Base::MeshManipulator<DIM>& mesh,
-    typename DivDGMaxDiscretization<DIM>::Stab stab, std::size_t order)
+    DivDGMaxDiscretizationBase::Stab stab, std::size_t order)
     : mesh_(mesh), stab_(stab) {
     discretization_.initializeBasisFunctions(mesh_, order);
 }
@@ -72,13 +72,13 @@ void DivDGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& input) {
 
     Utilities::GlobalIndexing indexing(&mesh_);
     Utilities::GlobalPetscMatrix massMatrix(
-        indexing, DivDGMaxDiscretization<DIM>::ELEMENT_MASS_MATRIX_ID, -1),
+        indexing, DivDGMaxDiscretizationBase::ELEMENT_MASS_MATRIX_ID, -1),
         stiffnessMatrix(
-            indexing, DivDGMaxDiscretization<DIM>::ELEMENT_STIFFNESS_MATRIX_ID,
-            DivDGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID);
+            indexing, DivDGMaxDiscretizationBase::ELEMENT_STIFFNESS_MATRIX_ID,
+            DivDGMaxDiscretizationBase::FACE_STIFFNESS_MATRIX_ID);
     Utilities::GlobalPetscVector rhs(
-        indexing, DivDGMaxDiscretization<DIM>::ELEMENT_SOURCE_VECTOR_ID,
-        DivDGMaxDiscretization<DIM>::FACE_BOUNDARY_VECTOR_ID),
+        indexing, DivDGMaxDiscretizationBase::ELEMENT_SOURCE_VECTOR_ID,
+        DivDGMaxDiscretizationBase::FACE_BOUNDARY_VECTOR_ID),
         result(indexing, -1, -1);
 
     rhs.assemble();

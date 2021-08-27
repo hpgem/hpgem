@@ -61,25 +61,10 @@ template <std::size_t DIM>
 class SmallVector;
 }  // namespace LinearAlgebra
 }  // namespace hpgem
-using namespace hpgem;
-/// \brief Discontinuous Galerkin discretization for Maxwell, where the
-/// divergence constraint (div E = 0) is part of the discretization.
-///
-/// This implementation is based on chapter 5 of Devashish2017PhD, and similar
-/// to for example Lu2016JSciComput. It decomposes E = u + grad p, forming a
-/// mixed system (for eigenvalue problems) of the form
-/// [ A   B ] [u] = λ [ M 0 ] [u]
-/// [ BT -C ] [p]     [ 0 0 ] [p]
-///
-/// Where A corresponds to the curl-curl operator, B the coupling between
-/// u and p, and C is a stabilization term. The matrix M is the mass
-/// matrix, corresponding to the omega^2 E term in the timeharmonic
-/// formulation.
-template <std::size_t DIM>
-class DivDGMaxDiscretization {
-   public:
-    // TODO: static const std::size_t matrix/vector ids
 
+/// Base class with all dimensionless constants
+class DivDGMaxDiscretizationBase {
+   public:
     static const std::size_t ELEMENT_MASS_MATRIX_ID = 0;
     static const std::size_t ELEMENT_STIFFNESS_MATRIX_ID = 1;
     // Note: Missing are the initial conditions, taking up positions 0, 1
@@ -115,6 +100,26 @@ class DivDGMaxDiscretization {
             fluxType3 = type;
         }
     };
+};
+
+using namespace hpgem;
+/// \brief Discontinuous Galerkin discretization for Maxwell, where the
+/// divergence constraint (div E = 0) is part of the discretization.
+///
+/// This implementation is based on chapter 5 of Devashish2017PhD, and similar
+/// to for example Lu2016JSciComput. It decomposes E = u + grad p, forming a
+/// mixed system (for eigenvalue problems) of the form
+/// [ A   B ] [u] = λ [ M 0 ] [u]
+/// [ BT -C ] [p]     [ 0 0 ] [p]
+///
+/// Where A corresponds to the curl-curl operator, B the coupling between
+/// u and p, and C is a stabilization term. The matrix M is the mass
+/// matrix, corresponding to the omega^2 E term in the timeharmonic
+/// formulation.
+template <std::size_t DIM>
+class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
+   public:
+    // TODO: static const std::size_t matrix/vector ids
 
     /// Value class for the solution.
     struct Fields {
@@ -295,8 +300,6 @@ class DivDGMaxDiscretization {
 // here
 
 std::ostream& operator<<(std::ostream& os,
-                         typename DivDGMaxDiscretization<2>::Stab& stab);
-std::ostream& operator<<(std::ostream& os,
-                         typename DivDGMaxDiscretization<3>::Stab& stab);
+                         const DivDGMaxDiscretizationBase::Stab& stab);
 
 #endif  // HPGEM_APP_DIVDGMAXDISCRETIZATION_H
