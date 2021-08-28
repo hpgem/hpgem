@@ -119,6 +119,10 @@ void DivDGMaxDiscretization<DIM>::computeElementIntegrands(
     const DivDGMaxDiscretization<DIM>::InputFunction& initialCondition,
     const DivDGMaxDiscretization<DIM>::InputFunction&
         initialConditionDerivative) {
+
+    Utilities::ElementLocalIndexing indexing;
+    indexing.reinit({0, 1});
+
     // TODO: Add initial condition integration.
     LinearAlgebra::MiddleSizeMatrix massMatrix(2, 2), stiffnessMatrix(2, 2);
 
@@ -134,30 +138,16 @@ void DivDGMaxDiscretization<DIM>::computeElementIntegrands(
         totalPDoFs = (*it)->getNumberOfBasisFunctions(1);
         totalDoFs = totalUDoFs + totalPDoFs;
 
-        // mass matrix
-        massMatrix.resize(totalDoFs, totalDoFs);
-        massMatrix = elementIntegrator_.integrate(
-            (*it), [&](Base::PhysicalElement<DIM>& element) {
-                LinearAlgebra::MiddleSizeMatrix result;
-                elementMassMatrix(element, result);
-                return result;
-            });
+        Base::Element* element = *it;
+        indexing.reinit(element);
+        computeElementMatrices(element, indexing);
+
         if (invertMassMatrix) {
+            // Note reference to allow overwriting it
+            LinearAlgebra::MiddleSizeMatrix& massMatrix =
+                element->getElementMatrix(ELEMENT_MASS_MATRIX_ID);
             massMatrix = massMatrix.inverse();
         }
-        (*it)->setElementMatrix(massMatrix, ELEMENT_MASS_MATRIX_ID);
-
-        stiffnessMatrix.resize(totalDoFs, totalDoFs);
-        stiffnessMatrix = elementIntegrator_.integrate(
-            (*it), [&](Base::PhysicalElement<DIM>& element) {
-                LinearAlgebra::MiddleSizeMatrix result, temp;
-                elementStiffnessMatrix(element, result);
-                elementScalarVectorCoupling(element, temp);
-                result += temp;
-                return result;
-            });
-
-        (*it)->setElementMatrix(stiffnessMatrix, ELEMENT_STIFFNESS_MATRIX_ID);
 
         if (initialCondition) {
             logger.assert_debug(
@@ -320,44 +310,65 @@ double DivDGMaxDiscretization<DIM>::computePotential(
 }
 
 template <std::size_t DIM>
-void DivDGMaxDiscretization<DIM>::elementMassMatrix(
-    Base::PhysicalElement<DIM>& el,
-    LinearAlgebra::MiddleSizeMatrix& ret) const {
-    const Base::Element* element = el.getElement();
-    std::size_t el_size1 = element->getNumberOfBasisFunctions(0);
-    std::size_t el_size2 = element->getNumberOfBasisFunctions(1);
-    ret.resize(el_size1 + el_size2, el_size1 + el_size2);
+void DivDGMaxDiscretization<DIM>::computeElementMatrices(
+    Base::Element* element, Utilities::ElementLocalIndexing& indexing) {
+
     double epsilon =
         static_cast<ElementInfos*>(element->getUserData())->epsilon_;
-    LinearAlgebra::SmallVector<DIM> phi_i, phi_j;
-    for (std::size_t i = 0; i < el_size1; ++i) {
-        el.basisFunction(i, phi_i, 0);
-        for (std::size_t j = i; j < el_size1; ++j) {
-            el.basisFunction(j, phi_j, 0);
-            ret(i, j) = phi_i * phi_j * epsilon;
-            ret(j, i) = ret(i, j);
-        }
-    }
-}
 
-template <std::size_t DIM>
-void DivDGMaxDiscretization<DIM>::elementStiffnessMatrix(
-    Base::PhysicalElement<DIM>& el,
-    LinearAlgebra::MiddleSizeMatrix& ret) const {
-    const Base::Element* element = el.getElement();
-    std::size_t el_size1 = element->getNumberOfBasisFunctions(0);
-    std::size_t el_size2 = element->getNumberOfBasisFunctions(1);
-    ret.resize(el_size1 + el_size2, el_size1 + el_size2);
-    LinearAlgebra::SmallVector<DIM> phi_i, phi_j;
+    LinearAlgebra::MiddleSizeMatrix massMatrix = elementIntegrator_.integrate(
+        element, [&indexing, &epsilon](Base::PhysicalElement<DIM>& pelem) {
+            std::size_t numDoFs = indexing.getNumberOfDoFs();
+            std::size_t numUDoFs = indexing.getNumberOfDoFs(0);
+            LinearAlgebra::MiddleSizeMatrix ret(numDoFs, numDoFs);
 
-    for (std::size_t i = 0; i < el_size1; ++i) {
-        phi_i = el.basisFunctionCurl(i, 0);
-        for (std::size_t j = i; j < el_size1; ++j) {
-            phi_j = el.basisFunctionCurl(j, 0);
-            ret(i, j) = phi_i * phi_j;
-            ret(j, i) = ret(i, j);
-        }
-    }
+            LinearAlgebra::SmallVector<DIM> phi_i, phi_j;
+            for (std::size_t i = 0; i < numUDoFs; ++i) {
+                pelem.basisFunction(i, phi_i, 0);
+                for (std::size_t j = i; j < numUDoFs; ++j) {
+                    pelem.basisFunction(j, phi_j, 0);
+                    double value = epsilon * (phi_i * phi_j);
+                    ret(i, j) = value;
+                    if (i != j) {
+                        ret(j, i) = value;
+                    }
+                }
+            }
+            return ret;
+        });
+    element->setElementMatrix(massMatrix, ELEMENT_MASS_MATRIX_ID);
+
+    LinearAlgebra::MiddleSizeMatrix stiffnessMatrix =
+        elementIntegrator_.integrate(
+            element, [&indexing, &epsilon](Base::PhysicalElement<DIM>& pelem) {
+                std::size_t numDoFs = indexing.getNumberOfDoFs();
+                std::size_t numUDoFs = indexing.getNumberOfDoFs(0);
+                std::size_t numPDoFs = indexing.getNumberOfDoFs(1);
+                std::size_t offPDoFs = indexing.getDoFOffset(1);
+                LinearAlgebra::MiddleSizeMatrix ret(numDoFs, numDoFs);
+
+                LinearAlgebra::SmallVector<DIM> phiI;
+                for (std::size_t i = 0; i < numUDoFs; ++i) {
+                    const LinearAlgebra::SmallVector<DIM>& phiIC =
+                        pelem.basisFunctionCurl(i, 0);
+                    for (std::size_t j = i; j < numUDoFs; ++j) {
+                        double value = phiIC * pelem.basisFunctionCurl(j, 0);
+                        ret(i, j) = value;
+                        if (i != j) {
+                            ret(j, i) = value;
+                        }
+                    }
+                    pelem.basisFunction(i, phiI, 0);
+
+                    for (std::size_t j = 0; j < numPDoFs; ++j) {
+                        double value = (phiI * pelem.basisFunctionDeriv(j, 1)) * -epsilon;
+                        ret(i, j + offPDoFs) = value;
+                        ret(j + offPDoFs, i) = value;
+                    }
+                }
+                return ret;
+            });
+    element->setElementMatrix(stiffnessMatrix, ELEMENT_STIFFNESS_MATRIX_ID);
 }
 
 template <std::size_t DIM>

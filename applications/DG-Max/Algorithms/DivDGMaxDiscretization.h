@@ -42,11 +42,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <functional>
 #include <memory>
 
+#include "Base/HCurlConformingTransformation.h"
+#include "Base/H1ConformingTransformation.h"
 #include "Base/MeshManipulator.h"
 #include "Integration/ElementIntegral.h"
 #include "Integration/FaceIntegral.h"
-#include "Base/HCurlConformingTransformation.h"
-#include "Base/H1ConformingTransformation.h"
+#include "Utilities/ElementLocalIndexing.h"
 
 // Forward definitions
 namespace hpgem {
@@ -153,8 +154,7 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
         const InputFunction& initialConditionDerivative);
 
     void computeFaceIntegrals(Base::MeshManipulator<DIM>& mesh,
-                              FaceInputFunction boundaryCondition,
-                              Stab stab);
+                              FaceInputFunction boundaryCondition, Stab stab);
 
     // TODO: LJ include the same norms as in DGMaxDiscretization
     double computeL2Error(Base::MeshManipulator<DIM>& mesh,
@@ -177,12 +177,10 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
         const LinearAlgebra::MiddleSizeVector& coefficients) const;
 
    private:
-    /// Element part of matrix M, with zero matrices around it (u, v)
-    void elementMassMatrix(Base::PhysicalElement<DIM>& el,
-                           LinearAlgebra::MiddleSizeMatrix& ret) const;
-    /// Element part of matrix A, with zeros around it,  (curl u, curl v)
-    void elementStiffnessMatrix(Base::PhysicalElement<DIM>& el,
-                                LinearAlgebra::MiddleSizeMatrix& ret) const;
+    /// Compute Mass and Stiffness matrix for the element
+    void computeElementMatrices(Base::Element* element,
+                                Utilities::ElementLocalIndexing& indexing);
+
     /// Element part of matrix B and B^T, with zeros around it (- grad p, eps v)
     void elementScalarVectorCoupling(
         Base::PhysicalElement<DIM>& el,
@@ -216,8 +214,7 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
                                     double stab3) const;
 
     LinearAlgebra::MiddleSizeMatrix brezziFluxBilinearTerm(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace,
-        Stab stab);
+        typename Base::MeshManipulator<DIM>::FaceIterator rawFace, Stab stab);
 
     /// \brief Compute mass matrix for vector components on elements adjacent to
     /// a face
