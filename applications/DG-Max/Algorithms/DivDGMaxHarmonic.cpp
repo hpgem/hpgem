@@ -198,14 +198,13 @@ void DivDGMaxHarmonic<DIM>::writeTec(std::string fileName) const {
 
 template <std::size_t DIM>
 double DivDGMaxHarmonic<DIM>::computeL2Error(
-    const typename DivDGMaxDiscretization<DIM>::InputFunction& exactSolution)
-    const {
+    const typename DivDGMaxDiscretization<DIM>::InputFunction& exactSolution){
     return discretization_.computeL2Error(mesh_, 0, exactSolution);
 }
 
 template <std::size_t DIM>
 double DivDGMaxHarmonic<DIM>::computeL2Error(
-    const ExactHarmonicProblem<DIM>& problem) const {
+    const ExactHarmonicProblem<DIM>& problem) {
     return computeL2Error(std::bind(&ExactHarmonicProblem<DIM>::exactSolution,
                                     std::ref(problem), std::placeholders::_1));
 }

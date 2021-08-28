@@ -205,7 +205,7 @@ class PhysicalElement final : public CoordinateTransformationData<DIM> {
 
     /// setters should only be needed internally
     void setTransformation(
-        std::shared_ptr<Base::CoordinateTransformation<DIM> > &transform,
+        std::shared_ptr<Base::CoordinateTransformation<DIM> > transform,
         std::size_t unknown = 0);
 
     /// setters should only be needed internally

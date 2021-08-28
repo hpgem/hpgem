@@ -43,6 +43,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <memory>
 
 #include "Base/MeshManipulator.h"
+#include "Integration/ElementIntegral.h"
+#include "Integration/FaceIntegral.h"
+#include "Base/HCurlConformingTransformation.h"
+#include "Base/H1ConformingTransformation.h"
 
 // Forward definitions
 namespace hpgem {
@@ -138,22 +142,24 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     using FaceInputFunction = std::function<LinearAlgebra::SmallVector<DIM>(
         Base::PhysicalFace<DIM>&)>;
 
+    DivDGMaxDiscretization();
+
     void initializeBasisFunctions(Base::MeshManipulator<DIM>& mesh,
                                   std::size_t order);
 
     void computeElementIntegrands(
         Base::MeshManipulator<DIM>& mesh, bool invertMassMatrix,
         const InputFunction& sourceTerm, const InputFunction& initialCondition,
-        const InputFunction& initialConditionDerivative) const;
+        const InputFunction& initialConditionDerivative);
 
     void computeFaceIntegrals(Base::MeshManipulator<DIM>& mesh,
                               FaceInputFunction boundaryCondition,
-                              Stab stab) const;
+                              Stab stab);
 
     // TODO: LJ include the same norms as in DGMaxDiscretization
     double computeL2Error(Base::MeshManipulator<DIM>& mesh,
                           std::size_t timeVector,
-                          const InputFunction& electricField) const;
+                          const InputFunction& electricField);
 
     Fields computeFields(
         const Base::Element* element,
@@ -211,7 +217,7 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
 
     LinearAlgebra::MiddleSizeMatrix brezziFluxBilinearTerm(
         typename Base::MeshManipulator<DIM>::FaceIterator rawFace,
-        Stab stab) const;
+        Stab stab);
 
     /// \brief Compute mass matrix for vector components on elements adjacent to
     /// a face
@@ -226,7 +232,7 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     /// \param rawFace The face to compute the local mass matrix for
     /// \return The mass matrix
     LinearAlgebra::MiddleSizeMatrix computeFaceVectorMassMatrix(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace) const;
+        typename Base::MeshManipulator<DIM>::FaceIterator rawFace);
 
     /// \brief Compute mass matrix for scalar basis functions on elements
     /// adjacent to a face
@@ -235,7 +241,7 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     /// \param rawFace The face to compute the matrix forr
     /// \return The mass matrix
     LinearAlgebra::MiddleSizeMatrix computeFaceScalarMassMatrix(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace) const;
+        typename Base::MeshManipulator<DIM>::FaceIterator rawFace);
 
     /// \brief Compute projection matrix of the jump of the scalar basis
     /// functions
@@ -251,7 +257,7 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     /// \param rawFace The face to compute it on
     /// \return The (dofs u) by (dofs p) projection matrix.
     LinearAlgebra::MiddleSizeMatrix computeScalarLiftProjector(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace) const;
+        typename Base::MeshManipulator<DIM>::FaceIterator rawFace);
 
     /// \brief Compute the projection matrix of the tangential jump of the
     /// vector
@@ -265,7 +271,7 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     /// \param rawFace The face to compute it on
     /// \return The (dofs u)^2 projection matrix.
     LinearAlgebra::MiddleSizeMatrix computeVectorLiftProjector(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace) const;
+        typename Base::MeshManipulator<DIM>::FaceIterator rawFace);
 
     /// \brief Compute the projection matrix for the normal part of the
     ///         vector basis functions in the lifting operators.
@@ -278,7 +284,7 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     /// \param rawFace The face to compute it on
     /// \return The (dofs p) by (dofs u) projection matrix.
     LinearAlgebra::MiddleSizeMatrix computeVectorNormalLiftProjector(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace) const;
+        typename Base::MeshManipulator<DIM>::FaceIterator rawFace);
 
     void faceBoundaryVector(Base::PhysicalFace<DIM>& fa,
                             const FaceInputFunction& boundaryValue,
@@ -289,11 +295,17 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     /// boundary
     LinearAlgebra::MiddleSizeVector brezziFluxBoundaryVector(
         typename Base::MeshManipulator<DIM>::FaceIterator rawFace,
-        const FaceInputFunction& boundaryValue, Stab stab) const;
+        const FaceInputFunction& boundaryValue, Stab stab);
 
     double elementErrorIntegrand(Base::PhysicalElement<DIM>& el,
                                  std::size_t timeVector,
                                  const InputFunction& exactValues) const;
+
+    /// Shared parts for computing integrals
+    Integration::ElementIntegral<DIM> elementIntegrator_;
+    Integration::FaceIntegral<DIM> faceIntegrator_;
+    std::shared_ptr<Base::HCurlConformingTransformation<DIM>> fieldTransform_;
+    std::shared_ptr<Base::H1ConformingTransformation<DIM>> potentialTransform_;
 };
 
 // TODO: Deduction fails for a templated variant, hence using explicit versions

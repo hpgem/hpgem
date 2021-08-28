@@ -62,8 +62,8 @@ class DivDGMaxHarmonic : public DGMax::AbstractHarmonicSolver<DIM> {
     // TODO: Error computation and tec-plot writing
     double computeL2Error(
         const typename DivDGMaxDiscretization<DIM>::InputFunction&
-            exactSolution) const;
-    double computeL2Error(const ExactHarmonicProblem<DIM>& problem) const;
+            exactSolution);
+    double computeL2Error(const ExactHarmonicProblem<DIM>& problem);
 
    private:
     Base::MeshManipulator<DIM>& mesh_;

@@ -87,6 +87,18 @@ FaceDoFInfo getFaceDoFInfo(const Base::Face& face) {
 }
 
 template <std::size_t DIM>
+DivDGMaxDiscretization<DIM>::DivDGMaxDiscretization()
+    : fieldTransform_(
+          std::make_shared<Base::HCurlConformingTransformation<DIM>>()),
+      potentialTransform_(
+          std::make_shared<Base::H1ConformingTransformation<DIM>>()) {
+    elementIntegrator_.setTransformation(fieldTransform_, 0);
+    elementIntegrator_.setTransformation(potentialTransform_, 1);
+    faceIntegrator_.setTransformation(fieldTransform_, 0);
+    faceIntegrator_.setTransformation(potentialTransform_, 1);
+}
+
+template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::initializeBasisFunctions(
     Base::MeshManipulator<DIM>& mesh, std::size_t order) {
     // We would like to configure the number of unknowns here, but this is
@@ -106,23 +118,13 @@ void DivDGMaxDiscretization<DIM>::computeElementIntegrands(
     const DivDGMaxDiscretization<DIM>::InputFunction& sourceTerm,
     const DivDGMaxDiscretization<DIM>::InputFunction& initialCondition,
     const DivDGMaxDiscretization<DIM>::InputFunction&
-        initialConditionDerivative) const {
+        initialConditionDerivative) {
     // TODO: Add initial condition integration.
     LinearAlgebra::MiddleSizeMatrix massMatrix(2, 2), stiffnessMatrix(2, 2);
 
     LinearAlgebra::MiddleSizeVector vector1(2), vector2(2), sourceVector(2);
 
     std::size_t totalDoFs = 0, totalUDoFs = 0, totalPDoFs = 0;
-    Integration::ElementIntegral<DIM> elementIntegral;
-
-    elementIntegral.setTransformation(
-        std::shared_ptr<Base::CoordinateTransformation<DIM>>(
-            new Base::HCurlConformingTransformation<DIM>()),
-        0);
-    elementIntegral.setTransformation(
-        std::shared_ptr<Base::CoordinateTransformation<DIM>>(
-            new Base::H1ConformingTransformation<DIM>()),
-        1);
 
     auto end = mesh.elementColEnd();
     for (typename Base::MeshManipulator<DIM>::ElementIterator it =
@@ -134,7 +136,7 @@ void DivDGMaxDiscretization<DIM>::computeElementIntegrands(
 
         // mass matrix
         massMatrix.resize(totalDoFs, totalDoFs);
-        massMatrix = elementIntegral.integrate(
+        massMatrix = elementIntegrator_.integrate(
             (*it), [&](Base::PhysicalElement<DIM>& element) {
                 LinearAlgebra::MiddleSizeMatrix result;
                 elementMassMatrix(element, result);
@@ -146,7 +148,7 @@ void DivDGMaxDiscretization<DIM>::computeElementIntegrands(
         (*it)->setElementMatrix(massMatrix, ELEMENT_MASS_MATRIX_ID);
 
         stiffnessMatrix.resize(totalDoFs, totalDoFs);
-        stiffnessMatrix = elementIntegral.integrate(
+        stiffnessMatrix = elementIntegrator_.integrate(
             (*it), [&](Base::PhysicalElement<DIM>& element) {
                 LinearAlgebra::MiddleSizeMatrix result, temp;
                 elementStiffnessMatrix(element, result);
@@ -170,7 +172,7 @@ void DivDGMaxDiscretization<DIM>::computeElementIntegrands(
 
         if (sourceTerm) {
             sourceVector.resize(totalDoFs);
-            sourceVector = elementIntegral.integrate(
+            sourceVector = elementIntegrator_.integrate(
                 (*it), [&](Base::PhysicalElement<DIM>& element) {
                     LinearAlgebra::MiddleSizeVector result;
                     elementSourceVector(element, sourceTerm, result);
@@ -185,19 +187,9 @@ template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
     Base::MeshManipulator<DIM>& mesh,
     DivDGMaxDiscretization<DIM>::FaceInputFunction boundaryCondition,
-    Stab stab) const {
+    Stab stab) {
     LinearAlgebra::MiddleSizeMatrix faceMatrix(2, 2);
     LinearAlgebra::MiddleSizeVector faceVector(2);
-    Integration::FaceIntegral<DIM> faceIntegral;
-
-    faceIntegral.setTransformation(
-        std::shared_ptr<Base::CoordinateTransformation<DIM>>(
-            new Base::HCurlConformingTransformation<DIM>()),
-        0);
-    faceIntegral.setTransformation(
-        std::shared_ptr<Base::CoordinateTransformation<DIM>>(
-            new Base::H1ConformingTransformation<DIM>()),
-        1);
 
     auto end = mesh.faceColEnd();
     for (typename Base::MeshManipulator<DIM>::FaceIterator it =
@@ -217,8 +209,8 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
         faceMatrix.resize(totalDoFs, totalDoFs);
         faceVector.resize(totalDoFs);
 
-        faceMatrix =
-            faceIntegral.integrate((*it), [&](Base::PhysicalFace<DIM>& face) {
+        faceMatrix = faceIntegrator_.integrate(
+            (*it), [&](Base::PhysicalFace<DIM>& face) {
                 LinearAlgebra::MiddleSizeMatrix result, temp;
                 faceStiffnessMatrix1(face, result);
 
@@ -252,7 +244,7 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
         (*it)->setFaceMatrix(faceMatrix, FACE_STIFFNESS_MATRIX_ID);
 
         if (boundaryCondition) {
-            faceVector = faceIntegral.integrate(
+            faceVector = faceIntegrator_.integrate(
                 (*it), [&](Base::PhysicalFace<DIM>& face) {
                     LinearAlgebra::MiddleSizeVector result;
                     faceBoundaryVector(face, boundaryCondition, result, stab);
@@ -284,8 +276,8 @@ typename DivDGMaxDiscretization<DIM>::Fields
             new Base::HCurlConformingTransformation<DIM>()};
     std::shared_ptr<Base::CoordinateTransformation<DIM>>
         coordinateTransformationP{new Base::H1ConformingTransformation<DIM>()};
-    physicalElement.setTransformation(coordinateTransformationU, 0);
-    physicalElement.setTransformation(coordinateTransformationP, 1);
+    physicalElement.setTransformation(fieldTransform_, 0);
+    physicalElement.setTransformation(potentialTransform_, 1);
     physicalElement.setElement(element);
     physicalElement.setPointReference(point);
     Geometry::PointPhysical<DIM> pointPhysical;
@@ -727,21 +719,10 @@ void DivDGMaxDiscretization<DIM>::faceStiffnessScalarMatrix4(
 template <std::size_t DIM>
 LinearAlgebra::MiddleSizeMatrix
     DivDGMaxDiscretization<DIM>::computeFaceVectorMassMatrix(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace) const {
-    Integration::ElementIntegral<DIM> elementIntegral;
-
-    elementIntegral.setTransformation(
-        std::shared_ptr<Base::CoordinateTransformation<DIM>>(
-            new Base::HCurlConformingTransformation<DIM>()),
-        0);
-    elementIntegral.setTransformation(
-        std::shared_ptr<Base::CoordinateTransformation<DIM>>(
-            new Base::H1ConformingTransformation<DIM>()),
-        1);
-
+        typename Base::MeshManipulator<DIM>::FaceIterator rawFace) {
     FaceDoFInfo faceInfo = getFaceDoFInfo(**rawFace);
 
-    LinearAlgebra::MiddleSizeMatrix result = elementIntegral.integrate(
+    LinearAlgebra::MiddleSizeMatrix result = elementIntegrator_.integrate(
         (*rawFace)->getPtrElementLeft(),
         [&](Base::PhysicalElement<DIM>& element) {
             LinearAlgebra::MiddleSizeMatrix lmassMat(faceInfo.totalUDoFs(),
@@ -763,7 +744,7 @@ LinearAlgebra::MiddleSizeMatrix
         });
     if (faceInfo.internal) {
         // Build the mass matrix for the right element if it exists.
-        result += elementIntegral.integrate(
+        result += elementIntegrator_.integrate(
             (*rawFace)->getPtrElementRight(),
             [&](Base::PhysicalElement<DIM>& element) {
                 LinearAlgebra::MiddleSizeMatrix rmassMat(faceInfo.totalUDoFs(),
@@ -792,21 +773,10 @@ LinearAlgebra::MiddleSizeMatrix
 template <std::size_t DIM>
 LinearAlgebra::MiddleSizeMatrix
     DivDGMaxDiscretization<DIM>::computeFaceScalarMassMatrix(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace) const {
-    Integration::ElementIntegral<DIM> elementIntegral;
-
-    elementIntegral.setTransformation(
-        std::shared_ptr<Base::CoordinateTransformation<DIM>>(
-            new Base::HCurlConformingTransformation<DIM>()),
-        0);
-    elementIntegral.setTransformation(
-        std::shared_ptr<Base::CoordinateTransformation<DIM>>(
-            new Base::H1ConformingTransformation<DIM>()),
-        1);
-
+        typename Base::MeshManipulator<DIM>::FaceIterator rawFace) {
     FaceDoFInfo faceInfo = getFaceDoFInfo(**rawFace);
 
-    LinearAlgebra::MiddleSizeMatrix result = elementIntegral.integrate(
+    LinearAlgebra::MiddleSizeMatrix result = elementIntegrator_.integrate(
         (*rawFace)->getPtrElementLeft(),
         [&](Base::PhysicalElement<DIM>& element) {
             LinearAlgebra::MiddleSizeMatrix lmassMat(faceInfo.totalPDoFs(),
@@ -828,7 +798,7 @@ LinearAlgebra::MiddleSizeMatrix
         });
     if (faceInfo.internal) {
         // Build the mass matrix for the right element if it exists.
-        result += elementIntegral.integrate(
+        result += elementIntegrator_.integrate(
             (*rawFace)->getPtrElementRight(),
             [&](Base::PhysicalElement<DIM>& element) {
                 LinearAlgebra::MiddleSizeMatrix rmassMat(faceInfo.totalPDoFs(),
@@ -858,85 +828,61 @@ LinearAlgebra::MiddleSizeMatrix
 template <std::size_t DIM>
 LinearAlgebra::MiddleSizeMatrix
     DivDGMaxDiscretization<DIM>::computeScalarLiftProjector(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace) const {
-    Integration::FaceIntegral<DIM> faceIntegral;
-    faceIntegral.setTransformation(
-        std::shared_ptr<Base::CoordinateTransformation<DIM>>(
-            new Base::HCurlConformingTransformation<DIM>()),
-        0);
-    faceIntegral.setTransformation(
-        std::shared_ptr<Base::CoordinateTransformation<DIM>>(
-            new Base::H1ConformingTransformation<DIM>()),
-        1);
+        typename Base::MeshManipulator<DIM>::FaceIterator rawFace) {
     FaceDoFInfo faceInfo = getFaceDoFInfo(**rawFace);
 
-    return faceIntegral.integrate(*rawFace, [&](Base::PhysicalFace<DIM>& face) {
-        LinearAlgebra::MiddleSizeMatrix result;
-        result.resize(faceInfo.totalUDoFs(), faceInfo.totalPDoFs());
-        const LinearAlgebra::SmallVector<DIM>& normal =
-            face.getUnitNormalVector();
-        LinearAlgebra::SmallVector<DIM> basisV;
-        double factor = faceInfo.internal ? 0.5 : 1;  // For the average
-        for (std::size_t i = 0; i < faceInfo.totalPDoFs(); ++i) {
-            // For the normal.
-            double nfactor = i < faceInfo.leftPDoFs ? 1 : -1;
-            for (std::size_t j = 0; j < faceInfo.totalUDoFs(); ++j) {
-                face.basisFunction(j, basisV, 0);  // v
-                // [[p]] {{v}}
-                result(j, i) = face.basisFunction(i, 1) * nfactor * factor *
-                               (normal * basisV);
+    return faceIntegrator_.integrate(
+        *rawFace, [&](Base::PhysicalFace<DIM>& face) {
+            LinearAlgebra::MiddleSizeMatrix result;
+            result.resize(faceInfo.totalUDoFs(), faceInfo.totalPDoFs());
+            const LinearAlgebra::SmallVector<DIM>& normal =
+                face.getUnitNormalVector();
+            LinearAlgebra::SmallVector<DIM> basisV;
+            double factor = faceInfo.internal ? 0.5 : 1;  // For the average
+            for (std::size_t i = 0; i < faceInfo.totalPDoFs(); ++i) {
+                // For the normal.
+                double nfactor = i < faceInfo.leftPDoFs ? 1 : -1;
+                for (std::size_t j = 0; j < faceInfo.totalUDoFs(); ++j) {
+                    face.basisFunction(j, basisV, 0);  // v
+                    // [[p]] {{v}}
+                    result(j, i) = face.basisFunction(i, 1) * nfactor * factor *
+                                   (normal * basisV);
+                }
             }
-        }
-        return result;
-    });
+            return result;
+        });
 }
 
 template <std::size_t DIM>
 LinearAlgebra::MiddleSizeMatrix
     DivDGMaxDiscretization<DIM>::computeVectorLiftProjector(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace) const {
-    Integration::FaceIntegral<DIM> faceIntegral;
-    faceIntegral.setTransformation(
-        std::shared_ptr<Base::CoordinateTransformation<DIM>>(
-            new Base::HCurlConformingTransformation<DIM>()),
-        0);
-    faceIntegral.setTransformation(
-        std::shared_ptr<Base::CoordinateTransformation<DIM>>(
-            new Base::H1ConformingTransformation<DIM>()),
-        1);
+        typename Base::MeshManipulator<DIM>::FaceIterator rawFace) {
+
     FaceDoFInfo faceInfo = getFaceDoFInfo(**rawFace);
 
-    return faceIntegral.integrate(*rawFace, [&](Base::PhysicalFace<DIM>& face) {
-        LinearAlgebra::MiddleSizeMatrix result;
-        result.resize(faceInfo.totalUDoFs(), faceInfo.totalUDoFs());
-        const LinearAlgebra::SmallVector<DIM>& normal =
-            face.getUnitNormalVector();
-        LinearAlgebra::SmallVector<DIM> basisUnormal, basisV;
-        double factor = faceInfo.internal ? 0.5 : 1;  // For the average
-        for (std::size_t i = 0; i < faceInfo.totalUDoFs(); ++i) {
-            face.basisFunction(i, basisV, 0);
-            for (std::size_t j = 0; j < faceInfo.totalUDoFs(); ++j) {
-                face.basisFunctionUnitNormalCross(j, basisUnormal, 0);
-                result(i, j) = factor * (basisUnormal * basisV);
+    return faceIntegrator_.integrate(
+        *rawFace, [&](Base::PhysicalFace<DIM>& face) {
+            LinearAlgebra::MiddleSizeMatrix result;
+            result.resize(faceInfo.totalUDoFs(), faceInfo.totalUDoFs());
+            const LinearAlgebra::SmallVector<DIM>& normal =
+                face.getUnitNormalVector();
+            LinearAlgebra::SmallVector<DIM> basisUnormal, basisV;
+            double factor = faceInfo.internal ? 0.5 : 1;  // For the average
+            for (std::size_t i = 0; i < faceInfo.totalUDoFs(); ++i) {
+                face.basisFunction(i, basisV, 0);
+                for (std::size_t j = 0; j < faceInfo.totalUDoFs(); ++j) {
+                    face.basisFunctionUnitNormalCross(j, basisUnormal, 0);
+                    result(i, j) = factor * (basisUnormal * basisV);
+                }
             }
-        }
-        return result;
-    });
+            return result;
+        });
 }
 
 template <std::size_t DIM>
 LinearAlgebra::MiddleSizeMatrix
     DivDGMaxDiscretization<DIM>::computeVectorNormalLiftProjector(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace) const {
-    Integration::FaceIntegral<DIM> faceIntegral;
-    faceIntegral.setTransformation(
-        std::shared_ptr<Base::CoordinateTransformation<DIM>>(
-            new Base::HCurlConformingTransformation<DIM>()),
-        0);
-    faceIntegral.setTransformation(
-        std::shared_ptr<Base::CoordinateTransformation<DIM>>(
-            new Base::H1ConformingTransformation<DIM>()),
-        1);
+        typename Base::MeshManipulator<DIM>::FaceIterator rawFace) {
     FaceDoFInfo faceInfo = getFaceDoFInfo(**rawFace);
 
     double epsilonLeft = static_cast<ElementInfos*>(
@@ -948,28 +894,29 @@ LinearAlgebra::MiddleSizeMatrix
                                 ->epsilon_
                           : 0.0;  // Should not be used.
 
-    return faceIntegral.integrate(*rawFace, [&](Base::PhysicalFace<DIM>& face) {
-        LinearAlgebra::MiddleSizeMatrix result;
-        result.resize(faceInfo.totalPDoFs(), faceInfo.totalUDoFs());
-        LinearAlgebra::SmallVector<DIM> basisU, normal;
-        normal = face.getUnitNormalVector();
-        double factor = faceInfo.internal ? 0.5 : 1.0;  // From the average
-        for (std::size_t i = 0; i < faceInfo.totalPDoFs(); ++i) {
-            double basisP = face.basisFunction(i, 1);
-            for (std::size_t j = 0; j < faceInfo.totalUDoFs(); ++j) {
-                face.basisFunction(j, basisU, 0);
-                double uvalue = basisU * normal;  // [[epsilon u]]_N
-                if (j > faceInfo.leftUDoFs) {
-                    // - form the change in normal
-                    uvalue *= -epsilonRight;
-                } else {
-                    uvalue *= epsilonLeft;
+    return faceIntegrator_.integrate(
+        *rawFace, [&](Base::PhysicalFace<DIM>& face) {
+            LinearAlgebra::MiddleSizeMatrix result;
+            result.resize(faceInfo.totalPDoFs(), faceInfo.totalUDoFs());
+            LinearAlgebra::SmallVector<DIM> basisU, normal;
+            normal = face.getUnitNormalVector();
+            double factor = faceInfo.internal ? 0.5 : 1.0;  // From the average
+            for (std::size_t i = 0; i < faceInfo.totalPDoFs(); ++i) {
+                double basisP = face.basisFunction(i, 1);
+                for (std::size_t j = 0; j < faceInfo.totalUDoFs(); ++j) {
+                    face.basisFunction(j, basisU, 0);
+                    double uvalue = basisU * normal;  // [[epsilon u]]_N
+                    if (j > faceInfo.leftUDoFs) {
+                        // - form the change in normal
+                        uvalue *= -epsilonRight;
+                    } else {
+                        uvalue *= epsilonLeft;
+                    }
+                    result(i, j) = factor * basisP * uvalue;
                 }
-                result(i, j) = factor * basisP * uvalue;
             }
-        }
-        return result;
-    });
+            return result;
+        });
 }
 
 /// Distribute a face matrix with only vector or scalar components to the whole
@@ -1020,8 +967,7 @@ void distributeFaceMatrix(FaceDoFInfo faceInfo, bool vector,
 template <std::size_t DIM>
 LinearAlgebra::MiddleSizeMatrix
     DivDGMaxDiscretization<DIM>::brezziFluxBilinearTerm(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace,
-        Stab stab) const {
+        typename Base::MeshManipulator<DIM>::FaceIterator rawFace, Stab stab) {
     FaceDoFInfo faceInfo = getFaceDoFInfo(**rawFace);
     LinearAlgebra::MiddleSizeMatrix result(faceInfo.totalDoFs(),
                                            faceInfo.totalDoFs());
@@ -1161,7 +1107,7 @@ LinearAlgebra::MiddleSizeVector
     DivDGMaxDiscretization<DIM>::brezziFluxBoundaryVector(
         typename Base::MeshManipulator<DIM>::FaceIterator rawFace,
         const DivDGMaxDiscretization<DIM>::FaceInputFunction& boundaryValue,
-        DivDGMaxDiscretization<DIM>::Stab stab) const {
+        DivDGMaxDiscretization<DIM>::Stab stab) {
     FaceDoFInfo faceInfo = getFaceDoFInfo(**rawFace);
     if (faceInfo.internal) {
         LinearAlgebra::MiddleSizeVector result;
@@ -1219,24 +1165,15 @@ template <std::size_t DIM>
 double DivDGMaxDiscretization<DIM>::computeL2Error(
 
     Base::MeshManipulator<DIM>& mesh, std::size_t timeVector,
-    const DivDGMaxDiscretization<DIM>::InputFunction& electricField) const {
-    Integration::ElementIntegral<DIM> elIntegral;
-    elIntegral.setTransformation(
-        std::shared_ptr<Base::CoordinateTransformation<DIM>>(
-            new Base::HCurlConformingTransformation<DIM>()),
-        0);
-    elIntegral.setTransformation(
-        std::shared_ptr<Base::CoordinateTransformation<DIM>>(
-            new Base::H1ConformingTransformation<DIM>()),
-        1);
+    const DivDGMaxDiscretization<DIM>::InputFunction& electricField) {
 
     double error = 0;
     auto end = mesh.elementColEnd();
     for (typename Base::MeshManipulator<DIM>::ElementIterator it =
              mesh.elementColBegin();
          it != end; ++it) {
-        error +=
-            elIntegral.integrate((*it), [&](Base::PhysicalElement<DIM>& el) {
+        error += elementIntegrator_.integrate(
+            (*it), [&](Base::PhysicalElement<DIM>& el) {
                 return elementErrorIntegrand(el, timeVector, electricField);
             });
     }
@@ -1280,8 +1217,8 @@ char fluxName(typename DivDGMaxDiscretizationBase::FluxType f) {
     }
 }
 
-std::ostream& operator<<(
-    std::ostream& os, const DivDGMaxDiscretizationBase::Stab& stab) {
+std::ostream& operator<<(std::ostream& os,
+                         const DivDGMaxDiscretizationBase::Stab& stab) {
     os << "Stab{" << fluxName(stab.fluxType1) << "=" << stab.stab1 << ", "
        << fluxName(stab.fluxType2) << "=" << stab.stab2 << ", "
        << fluxName(stab.fluxType3) << "=" << stab.stab3 << "}";
