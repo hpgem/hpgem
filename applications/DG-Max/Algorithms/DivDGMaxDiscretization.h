@@ -217,7 +217,7 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
                                   LinearAlgebra::MiddleSizeMatrix& ret) const;
 
     LinearAlgebra::MiddleSizeMatrix brezziFluxBilinearTerm(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace, Stab stab);
+        Base::Face* face, Stab stab);
 
     /// \brief Compute mass matrix for vector components on elements adjacent to
     /// a face
@@ -229,19 +229,19 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     ///
     /// Note that the resulting matrix only contains the degrees of freedom for
     /// the vector valued basis functions.
-    /// \param rawFace The face to compute the local mass matrix for
+    /// \param face The face to compute the local mass matrix for
     /// \return The mass matrix
     LinearAlgebra::MiddleSizeMatrix computeFaceVectorMassMatrix(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace);
+        Base::Face* face);
 
     /// \brief Compute mass matrix for scalar basis functions on elements
     /// adjacent to a face
     ///
     /// Same as computeFaceVectorMassMatrix but for the scalar basis functions.
-    /// \param rawFace The face to compute the matrix forr
+    /// \param face The face to compute the matrix forr
     /// \return The mass matrix
     LinearAlgebra::MiddleSizeMatrix computeFaceScalarMassMatrix(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace);
+        Base::Face* face);
 
     /// \brief Compute projection matrix of the jump of the scalar basis
     /// functions
@@ -254,10 +254,10 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     ///
     /// This term is needed for the implementation of the lifting operator for
     /// the Brezzi fluxes.
-    /// \param rawFace The face to compute it on
+    /// \param face The face to compute it on
     /// \return The (dofs u) by (dofs p) projection matrix.
     LinearAlgebra::MiddleSizeMatrix computeScalarLiftProjector(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace);
+        Base::Face* face);
 
     /// \brief Compute the projection matrix of the tangential jump of the
     /// vector
@@ -268,10 +268,10 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     /// with u_i, u_j the vector basis functions and n the outward pointing
     /// normal
     ///   to the element on which u_j has support.
-    /// \param rawFace The face to compute it on
+    /// \param face The face to compute it on
     /// \return The (dofs u)^2 projection matrix.
     LinearAlgebra::MiddleSizeMatrix computeVectorLiftProjector(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace);
+        Base::Face* face);
 
     /// \brief Compute the projection matrix for the normal part of the
     ///         vector basis functions in the lifting operators.
@@ -281,10 +281,10 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     /// with u_j and p_i the basis functions for the vector part and scalar part
     /// and epsilon is the permittivity.
     ///
-    /// \param rawFace The face to compute it on
+    /// \param face The face to compute it on
     /// \return The (dofs p) by (dofs u) projection matrix.
     LinearAlgebra::MiddleSizeMatrix computeVectorNormalLiftProjector(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace);
+        Base::Face* face);
 
     void faceBoundaryVector(Base::PhysicalFace<DIM>& fa,
                             const FaceInputFunction& boundaryValue,
@@ -294,7 +294,7 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     /// Compute contribution of the brezzi flux to the face vector on the
     /// boundary
     LinearAlgebra::MiddleSizeVector brezziFluxBoundaryVector(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace,
+        Base::Face* face,
         const FaceInputFunction& boundaryValue, Stab stab);
 
     double elementErrorIntegrand(Base::PhysicalElement<DIM>& el,

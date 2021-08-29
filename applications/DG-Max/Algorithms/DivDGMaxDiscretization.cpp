@@ -208,27 +208,20 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
     auto end = mesh.faceColEnd();
     for (auto it = mesh.faceColBegin(); it != end; ++it) {
 
-        const Base::Face* face = *it;
+        Base::Face* face = *it;
         indexing.reinit(face);
 
         std::size_t totalDoFs = indexing.getNumberOfDoFs();
-        faceMatrix =
-            faceIntegrator_.integrate(face, [&](Base::PhysicalFace<DIM>& face) {
+        faceMatrix = faceIntegrator_.integrate(
+            face, [&indexing, &stab, this](Base::PhysicalFace<DIM>& face) {
                 LinearAlgebra::MiddleSizeMatrix result, temp;
                 faceStiffnessMatrix1(face, indexing, stab, result);
-
-                //                if (stab.fluxType2 == FluxType::IP) {
-                //                    faceStiffnessMatrix3(face, temp,
-                //                    stab.stab2); result += temp;
-                //                }
-
                 addScalarFaceMatrixTerms(face, indexing, stab, result);
-
                 return result;
             });
 
         if (stab.hasFlux(FluxType::BREZZI)) {
-            faceMatrix += brezziFluxBilinearTerm(it, stab);
+            faceMatrix += brezziFluxBilinearTerm(face, stab);
         }
         (*it)->setFaceMatrix(faceMatrix, FACE_STIFFNESS_MATRIX_ID);
 
@@ -241,7 +234,7 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
                 });
             if (stab.fluxType1 == FluxType::BREZZI) {
                 faceVector +=
-                    brezziFluxBoundaryVector(it, boundaryCondition, stab);
+                    brezziFluxBoundaryVector(face, boundaryCondition, stab);
             }
 
             (*it)->setFaceVector(faceVector, FACE_BOUNDARY_VECTOR_ID);
@@ -593,16 +586,13 @@ void DivDGMaxDiscretization<DIM>::addScalarFaceMatrixTerms(
     }
 }
 
-
 template <std::size_t DIM>
 LinearAlgebra::MiddleSizeMatrix
-    DivDGMaxDiscretization<DIM>::computeFaceVectorMassMatrix(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace) {
-    FaceDoFInfo faceInfo = getFaceDoFInfo(**rawFace);
+    DivDGMaxDiscretization<DIM>::computeFaceVectorMassMatrix(Base::Face* face) {
+    FaceDoFInfo faceInfo = getFaceDoFInfo(*face);
 
     LinearAlgebra::MiddleSizeMatrix result = elementIntegrator_.integrate(
-        (*rawFace)->getPtrElementLeft(),
-        [&](Base::PhysicalElement<DIM>& element) {
+        face->getPtrElementLeft(), [&](Base::PhysicalElement<DIM>& element) {
             LinearAlgebra::MiddleSizeMatrix lmassMat(faceInfo.totalUDoFs(),
                                                      faceInfo.totalUDoFs());
 
@@ -623,7 +613,7 @@ LinearAlgebra::MiddleSizeMatrix
     if (faceInfo.internal) {
         // Build the mass matrix for the right element if it exists.
         result += elementIntegrator_.integrate(
-            (*rawFace)->getPtrElementRight(),
+            face->getPtrElementRight(),
             [&](Base::PhysicalElement<DIM>& element) {
                 LinearAlgebra::MiddleSizeMatrix rmassMat(faceInfo.totalUDoFs(),
                                                          faceInfo.totalUDoFs());
@@ -650,13 +640,11 @@ LinearAlgebra::MiddleSizeMatrix
 
 template <std::size_t DIM>
 LinearAlgebra::MiddleSizeMatrix
-    DivDGMaxDiscretization<DIM>::computeFaceScalarMassMatrix(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace) {
-    FaceDoFInfo faceInfo = getFaceDoFInfo(**rawFace);
+    DivDGMaxDiscretization<DIM>::computeFaceScalarMassMatrix(Base::Face* face) {
+    FaceDoFInfo faceInfo = getFaceDoFInfo(*face);
 
     LinearAlgebra::MiddleSizeMatrix result = elementIntegrator_.integrate(
-        (*rawFace)->getPtrElementLeft(),
-        [&](Base::PhysicalElement<DIM>& element) {
+        face->getPtrElementLeft(), [&](Base::PhysicalElement<DIM>& element) {
             LinearAlgebra::MiddleSizeMatrix lmassMat(faceInfo.totalPDoFs(),
                                                      faceInfo.totalPDoFs());
 
@@ -677,7 +665,7 @@ LinearAlgebra::MiddleSizeMatrix
     if (faceInfo.internal) {
         // Build the mass matrix for the right element if it exists.
         result += elementIntegrator_.integrate(
-            (*rawFace)->getPtrElementRight(),
+            face->getPtrElementRight(),
             [&](Base::PhysicalElement<DIM>& element) {
                 LinearAlgebra::MiddleSizeMatrix rmassMat(faceInfo.totalPDoFs(),
                                                          faceInfo.totalPDoFs());
@@ -705,96 +693,91 @@ LinearAlgebra::MiddleSizeMatrix
 
 template <std::size_t DIM>
 LinearAlgebra::MiddleSizeMatrix
-    DivDGMaxDiscretization<DIM>::computeScalarLiftProjector(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace) {
-    FaceDoFInfo faceInfo = getFaceDoFInfo(**rawFace);
+    DivDGMaxDiscretization<DIM>::computeScalarLiftProjector(Base::Face* face) {
+    FaceDoFInfo faceInfo = getFaceDoFInfo(*face);
 
-    return faceIntegrator_.integrate(
-        *rawFace, [&](Base::PhysicalFace<DIM>& face) {
-            LinearAlgebra::MiddleSizeMatrix result;
-            result.resize(faceInfo.totalUDoFs(), faceInfo.totalPDoFs());
-            const LinearAlgebra::SmallVector<DIM>& normal =
-                face.getUnitNormalVector();
-            LinearAlgebra::SmallVector<DIM> basisV;
-            double factor = faceInfo.internal ? 0.5 : 1;  // For the average
-            for (std::size_t i = 0; i < faceInfo.totalPDoFs(); ++i) {
-                // For the normal.
-                double nfactor = i < faceInfo.leftPDoFs ? 1 : -1;
-                for (std::size_t j = 0; j < faceInfo.totalUDoFs(); ++j) {
-                    face.basisFunction(j, basisV, 0);  // v
-                    // [[p]] {{v}}
-                    result(j, i) = face.basisFunction(i, 1) * nfactor * factor *
-                                   (normal * basisV);
-                }
+    return faceIntegrator_.integrate(face, [&](Base::PhysicalFace<DIM>& face) {
+        LinearAlgebra::MiddleSizeMatrix result;
+        result.resize(faceInfo.totalUDoFs(), faceInfo.totalPDoFs());
+        const LinearAlgebra::SmallVector<DIM>& normal =
+            face.getUnitNormalVector();
+        LinearAlgebra::SmallVector<DIM> basisV;
+        double factor = faceInfo.internal ? 0.5 : 1;  // For the average
+        for (std::size_t i = 0; i < faceInfo.totalPDoFs(); ++i) {
+            // For the normal.
+            double nfactor = i < faceInfo.leftPDoFs ? 1 : -1;
+            for (std::size_t j = 0; j < faceInfo.totalUDoFs(); ++j) {
+                face.basisFunction(j, basisV, 0);  // v
+                // [[p]] {{v}}
+                result(j, i) = face.basisFunction(i, 1) * nfactor * factor *
+                               (normal * basisV);
             }
-            return result;
-        });
+        }
+        return result;
+    });
 }
 
 template <std::size_t DIM>
 LinearAlgebra::MiddleSizeMatrix
-    DivDGMaxDiscretization<DIM>::computeVectorLiftProjector(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace) {
+    DivDGMaxDiscretization<DIM>::computeVectorLiftProjector(Base::Face* face) {
 
-    FaceDoFInfo faceInfo = getFaceDoFInfo(**rawFace);
+    FaceDoFInfo faceInfo = getFaceDoFInfo(*face);
 
-    return faceIntegrator_.integrate(
-        *rawFace, [&](Base::PhysicalFace<DIM>& face) {
-            LinearAlgebra::MiddleSizeMatrix result;
-            result.resize(faceInfo.totalUDoFs(), faceInfo.totalUDoFs());
-            const LinearAlgebra::SmallVector<DIM>& normal =
-                face.getUnitNormalVector();
-            LinearAlgebra::SmallVector<DIM> basisUnormal, basisV;
-            double factor = faceInfo.internal ? 0.5 : 1;  // For the average
-            for (std::size_t i = 0; i < faceInfo.totalUDoFs(); ++i) {
-                face.basisFunction(i, basisV, 0);
-                for (std::size_t j = 0; j < faceInfo.totalUDoFs(); ++j) {
-                    face.basisFunctionUnitNormalCross(j, basisUnormal, 0);
-                    result(i, j) = factor * (basisUnormal * basisV);
-                }
+    return faceIntegrator_.integrate(face, [&](Base::PhysicalFace<DIM>& face) {
+        LinearAlgebra::MiddleSizeMatrix result;
+        result.resize(faceInfo.totalUDoFs(), faceInfo.totalUDoFs());
+        const LinearAlgebra::SmallVector<DIM>& normal =
+            face.getUnitNormalVector();
+        LinearAlgebra::SmallVector<DIM> basisUnormal, basisV;
+        double factor = faceInfo.internal ? 0.5 : 1;  // For the average
+        for (std::size_t i = 0; i < faceInfo.totalUDoFs(); ++i) {
+            face.basisFunction(i, basisV, 0);
+            for (std::size_t j = 0; j < faceInfo.totalUDoFs(); ++j) {
+                face.basisFunctionUnitNormalCross(j, basisUnormal, 0);
+                result(i, j) = factor * (basisUnormal * basisV);
             }
-            return result;
-        });
+        }
+        return result;
+    });
 }
 
 template <std::size_t DIM>
 LinearAlgebra::MiddleSizeMatrix
     DivDGMaxDiscretization<DIM>::computeVectorNormalLiftProjector(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace) {
-    FaceDoFInfo faceInfo = getFaceDoFInfo(**rawFace);
+        Base::Face* face) {
+    FaceDoFInfo faceInfo = getFaceDoFInfo(*face);
 
-    double epsilonLeft = static_cast<ElementInfos*>(
-                             (*rawFace)->getPtrElementLeft()->getUserData())
-                             ->epsilon_;
-    double epsilonRight =
-        faceInfo.internal ? static_cast<ElementInfos*>(
-                                (*rawFace)->getPtrElementRight()->getUserData())
-                                ->epsilon_
-                          : 0.0;  // Should not be used.
+    double epsilonLeft =
+        static_cast<ElementInfos*>(face->getPtrElementLeft()->getUserData())
+            ->epsilon_;
+    double epsilonRight = faceInfo.internal
+                              ? static_cast<ElementInfos*>(
+                                    face->getPtrElementRight()->getUserData())
+                                    ->epsilon_
+                              : 0.0;  // Should not be used.
 
-    return faceIntegrator_.integrate(
-        *rawFace, [&](Base::PhysicalFace<DIM>& face) {
-            LinearAlgebra::MiddleSizeMatrix result;
-            result.resize(faceInfo.totalPDoFs(), faceInfo.totalUDoFs());
-            LinearAlgebra::SmallVector<DIM> basisU, normal;
-            normal = face.getUnitNormalVector();
-            double factor = faceInfo.internal ? 0.5 : 1.0;  // From the average
-            for (std::size_t i = 0; i < faceInfo.totalPDoFs(); ++i) {
-                double basisP = face.basisFunction(i, 1);
-                for (std::size_t j = 0; j < faceInfo.totalUDoFs(); ++j) {
-                    face.basisFunction(j, basisU, 0);
-                    double uvalue = basisU * normal;  // [[epsilon u]]_N
-                    if (j > faceInfo.leftUDoFs) {
-                        // - form the change in normal
-                        uvalue *= -epsilonRight;
-                    } else {
-                        uvalue *= epsilonLeft;
-                    }
-                    result(i, j) = factor * basisP * uvalue;
+    return faceIntegrator_.integrate(face, [&](Base::PhysicalFace<DIM>& face) {
+        LinearAlgebra::MiddleSizeMatrix result;
+        result.resize(faceInfo.totalPDoFs(), faceInfo.totalUDoFs());
+        LinearAlgebra::SmallVector<DIM> basisU, normal;
+        normal = face.getUnitNormalVector();
+        double factor = faceInfo.internal ? 0.5 : 1.0;  // From the average
+        for (std::size_t i = 0; i < faceInfo.totalPDoFs(); ++i) {
+            double basisP = face.basisFunction(i, 1);
+            for (std::size_t j = 0; j < faceInfo.totalUDoFs(); ++j) {
+                face.basisFunction(j, basisU, 0);
+                double uvalue = basisU * normal;  // [[epsilon u]]_N
+                if (j > faceInfo.leftUDoFs) {
+                    // - form the change in normal
+                    uvalue *= -epsilonRight;
+                } else {
+                    uvalue *= epsilonLeft;
                 }
+                result(i, j) = factor * basisP * uvalue;
             }
-            return result;
-        });
+        }
+        return result;
+    });
 }
 
 /// Distribute a face matrix with only vector or scalar components to the whole
@@ -844,24 +827,21 @@ void distributeFaceMatrix(FaceDoFInfo faceInfo, bool vector,
 
 template <std::size_t DIM>
 LinearAlgebra::MiddleSizeMatrix
-    DivDGMaxDiscretization<DIM>::brezziFluxBilinearTerm(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace, Stab stab) {
-    FaceDoFInfo faceInfo = getFaceDoFInfo(**rawFace);
+    DivDGMaxDiscretization<DIM>::brezziFluxBilinearTerm(Base::Face* face,
+                                                        Stab stab) {
+    FaceDoFInfo faceInfo = getFaceDoFInfo(*face);
     LinearAlgebra::MiddleSizeMatrix result(faceInfo.totalDoFs(),
                                            faceInfo.totalDoFs());
 
     // Mass matrix for vector valued components
-    LinearAlgebra::MiddleSizeMatrix massMat =
-        computeFaceVectorMassMatrix(rawFace);
+    LinearAlgebra::MiddleSizeMatrix massMat = computeFaceVectorMassMatrix(face);
     massMat.cholesky();
 
     if (stab.fluxType1 == FluxType::BREZZI) {
-        std::size_t leftFaces =
-            (*rawFace)->getPtrElementLeft()->getNumberOfFaces();
+        std::size_t leftFaces = face->getPtrElementLeft()->getNumberOfFaces();
         std::size_t rightFaces =
-            faceInfo.internal
-                ? (*rawFace)->getPtrElementLeft()->getNumberOfFaces()
-                : 0;
+            faceInfo.internal ? face->getPtrElementLeft()->getNumberOfFaces()
+                              : 0;
 
         // Compute vector stabilizer, R^T L^{-T} (stab1 + numFaces * muinv)
         // L^{-1} R with R the lifting matrix for [[u_j]]_T {{u_i}} (stab1 +
@@ -869,7 +849,7 @@ LinearAlgebra::MiddleSizeMatrix
         // of the element (left on top diagonal, right bottom diagonal) L the
         // lower triangular part of the cholesky decomposition of M.
         LinearAlgebra::MiddleSizeMatrix vectorStabilizer =
-            computeVectorLiftProjector(rawFace);
+            computeVectorLiftProjector(face);
         // massMat.solve(vectorStabilizer); // M^{-1}R
         massMat.solveLowerTriangular(vectorStabilizer);  // L^{-1}R, with LL^{T}
                                                          // = M
@@ -904,10 +884,10 @@ LinearAlgebra::MiddleSizeMatrix
         // Compute normal vector stabilizer, stab2 * S^T M^{-T} S, S = lift
         // matrix Again we are using the Cholesky decomposition off LL^T = M.
         LinearAlgebra::MiddleSizeMatrix pmassMat =
-            computeFaceScalarMassMatrix(rawFace);
+            computeFaceScalarMassMatrix(face);
         pmassMat.cholesky();
         LinearAlgebra::MiddleSizeMatrix vectorStabilizer =
-            computeVectorNormalLiftProjector(rawFace);
+            computeVectorNormalLiftProjector(face);
         pmassMat.solveLowerTriangular(vectorStabilizer);  // L^{-T} S
         vectorStabilizer = vectorStabilizer.transpose() * vectorStabilizer;
         vectorStabilizer *= stab.stab2;
@@ -919,7 +899,7 @@ LinearAlgebra::MiddleSizeMatrix
         // Compute scalar stabilizer, stab3 * R^T M^{-1} R, R = lift matrix
         // using stab3 * R^T L^{-T} L{-1} R, where LL^{T} = M
         LinearAlgebra::MiddleSizeMatrix scalarStabilizer =
-            computeScalarLiftProjector(rawFace);
+            computeScalarLiftProjector(face);
         massMat.solveLowerTriangular(scalarStabilizer);  // L^{-1}R
         scalarStabilizer = scalarStabilizer.transpose() * scalarStabilizer;
         // minus sign as it is -c_h(p,q)
@@ -983,10 +963,10 @@ void DivDGMaxDiscretization<DIM>::faceBoundaryVector(
 template <std::size_t DIM>
 LinearAlgebra::MiddleSizeVector
     DivDGMaxDiscretization<DIM>::brezziFluxBoundaryVector(
-        typename Base::MeshManipulator<DIM>::FaceIterator rawFace,
+        Base::Face* face,
         const DivDGMaxDiscretization<DIM>::FaceInputFunction& boundaryValue,
         DivDGMaxDiscretization<DIM>::Stab stab) {
-    FaceDoFInfo faceInfo = getFaceDoFInfo(**rawFace);
+    FaceDoFInfo faceInfo = getFaceDoFInfo(*face);
     if (faceInfo.internal) {
         LinearAlgebra::MiddleSizeVector result;
         result.resize(faceInfo.totalDoFs());
@@ -998,9 +978,9 @@ LinearAlgebra::MiddleSizeVector
     // and R, M the lifting matrix and mass matrix for the vector component
 
     LinearAlgebra::MiddleSizeMatrix massMatrix =
-        computeFaceVectorMassMatrix(rawFace);
+        computeFaceVectorMassMatrix(face);
     LinearAlgebra::MiddleSizeMatrix liftMatrix =
-        computeVectorLiftProjector(rawFace);
+        computeVectorLiftProjector(face);
 
     // Compute the r-vector
     Integration::FaceIntegral<DIM> faceIntegral;
@@ -1014,7 +994,7 @@ LinearAlgebra::MiddleSizeVector
         1);
 
     LinearAlgebra::MiddleSizeVector rvector =
-        faceIntegral.integrate(*rawFace, [&](Base::PhysicalFace<DIM>& face) {
+        faceIntegral.integrate(face, [&](Base::PhysicalFace<DIM>& face) {
             LinearAlgebra::MiddleSizeVector result;
             result.resize(faceInfo.totalUDoFs());
             LinearAlgebra::SmallVector<DIM> basisV;
@@ -1028,7 +1008,7 @@ LinearAlgebra::MiddleSizeVector
             }
             return result;
         });
-    rvector *= stab.stab1 + (*rawFace)->getPtrElementLeft()->getNumberOfFaces();
+    rvector *= stab.stab1 + face->getPtrElementLeft()->getNumberOfFaces();
     massMatrix.transpose().solve(rvector);
     rvector = liftMatrix.transpose() * rvector;
     // Extend the  result to include degrees of freedom for the scalar part
