@@ -354,8 +354,7 @@ void runWithDimension() {
 
     // Method dependent solving
     if (useDivDGMax) {
-        DivDGMaxDiscretizationBase::Stab stab =
-            parsePenaltyParmaters();
+        DivDGMaxDiscretizationBase::Stab stab = parsePenaltyParmaters();
         DivDGMaxEigenvalue<DIM> solver(*mesh, order.getValue(), stab);
         solver.solve(driver);
     } else {

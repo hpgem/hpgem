@@ -53,8 +53,7 @@ class DivDGMaxHarmonic : public DGMax::AbstractHarmonicSolver<DIM> {
 
    public:
     DivDGMaxHarmonic(Base::MeshManipulator<DIM>& mesh,
-                     DivDGMaxDiscretizationBase::Stab stab,
-                     std::size_t order);
+                     DivDGMaxDiscretizationBase::Stab stab, std::size_t order);
 
     void solve(const HarmonicProblem<DIM>& input) final;
     void writeTec(std::string fileName) const;
