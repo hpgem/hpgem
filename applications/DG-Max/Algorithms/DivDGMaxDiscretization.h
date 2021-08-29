@@ -196,27 +196,25 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
                              const InputFunction& source,
                              LinearAlgebra::MiddleSizeVector& ret) const;
 
-    /// The part -[[v]]_t {{mu^{-1} curl u}} - [[u]]_t {{mu^{-1} curl v}} of the
-    /// stiffness integrand.
+    /// Part 1 of face integrand for the stiffness matrix. Consists of the
+    /// terms:
+    ///
+    ///  1.  -[[v]]_t {{mu^{-1} curl u}} - [[u]]_t {{mu^{-1} curl v}}
+    ///  2. For IP-stab1: stab1/diameter * [[u]]_t [[v]]_t
+    ///  3. For IP-stab2: stab2*diameter/espMax [[eps u]]_n . [[eps v]]_n
     void faceStiffnessMatrix1(Base::PhysicalFace<DIM>& fa,
+                              const Utilities::FaceLocalIndexing& indexing,
+                              const Stab& stab,
                               LinearAlgebra::MiddleSizeMatrix& ret) const;
-    /// The tangential stability term stab * [[u]]_T [[v]]_T part of the
-    /// stiffness integrand
-    void faceStiffnessMatrix2(Base::PhysicalFace<DIM>& fa,
-                              LinearAlgebra::MiddleSizeMatrix& ret,
-                              double stab1) const;
-    /// The normal stability term stab [[eps u]]_N [[eps v]]_N
-    void faceStiffnessMatrix3(Base::PhysicalFace<DIM>& fa,
-                              LinearAlgebra::MiddleSizeMatrix& ret,
-                              double stab2) const;
-    /// The face part of B and B^T, [[p]]_N {{eps v}}
-    void faceScalarVectorCoupling(Base::PhysicalFace<DIM>& fa,
+    /// Part 2 of the face integrand for the stiffness matrix, consisting of the
+    /// terms with the potential. This contributes two parts
+    ///
+    ///  1. The coupling scalar-vector: [[p]] {{eps v}}
+    ///  2. For IP-stab3: stab3/diameter * epsMax [[p]] [[q]]
+    void addScalarFaceMatrixTerms(Base::PhysicalFace<DIM>& fa,
+                                  const Utilities::FaceLocalIndexing& indexing,
+                                  const Stab& stab,
                                   LinearAlgebra::MiddleSizeMatrix& ret) const;
-    /// Matrix C, stab [[p]]_N [[q]]_n, note that C itself has a minus
-    /// contribution.
-    void faceStiffnessScalarMatrix4(Base::PhysicalFace<DIM>& fa,
-                                    LinearAlgebra::MiddleSizeMatrix& ret,
-                                    double stab3) const;
 
     LinearAlgebra::MiddleSizeMatrix brezziFluxBilinearTerm(
         typename Base::MeshManipulator<DIM>::FaceIterator rawFace, Stab stab);

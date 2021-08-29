@@ -102,6 +102,26 @@ class FaceLocalIndexing {
         }
     }
 
+    /**
+     * For a given unknown, what are the indices in the face matrx.
+     * @param unknown The unkown
+     * @param mapping Mapping from the i-th DoF/basisFunction to the
+     * corresponding row/column in the face matrix.
+     */
+    void getDoFMapping(std::size_t unknown,
+                       std::vector<std::size_t>& mapping) const {
+        std::size_t leftOff = getDoFOffset(unknown, Base::Side::LEFT);
+        std::size_t leftCount = getNumberOfDoFs(unknown, Base::Side::LEFT);
+        std::size_t rightOff = getDoFOffset(unknown, Base::Side::RIGHT);
+        std::size_t rightCount = getNumberOfDoFs(unknown, Base::Side::RIGHT);
+
+        mapping.resize(leftCount + rightCount);
+        auto begin = mapping.begin();
+        auto endL = begin + leftCount;
+        std::iota(begin, endL, leftOff);
+        std::iota(endL, mapping.end(), rightOff);
+    }
+
     /// \return The total number of DoFs for all the included unknowns.
     std::size_t getNumberOfDoFs() const {
         return left_.getNumberOfDoFs() + right_.getNumberOfDoFs();
