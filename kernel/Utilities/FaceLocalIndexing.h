@@ -112,14 +112,20 @@ class FaceLocalIndexing {
                        std::vector<std::size_t>& mapping) const {
         std::size_t leftOff = getDoFOffset(unknown, Base::Side::LEFT);
         std::size_t leftCount = getNumberOfDoFs(unknown, Base::Side::LEFT);
-        std::size_t rightOff = getDoFOffset(unknown, Base::Side::RIGHT);
-        std::size_t rightCount = getNumberOfDoFs(unknown, Base::Side::RIGHT);
+        if (right_.getElement() == nullptr) {
+            mapping.resize(leftCount);
+            std::iota(mapping.begin(), mapping.end(), leftOff);
+        } else {
+            std::size_t rightOff = getDoFOffset(unknown, Base::Side::RIGHT);
+            std::size_t rightCount =
+                getNumberOfDoFs(unknown, Base::Side::RIGHT);
 
-        mapping.resize(leftCount + rightCount);
-        auto begin = mapping.begin();
-        auto endL = begin + leftCount;
-        std::iota(begin, endL, leftOff);
-        std::iota(endL, mapping.end(), rightOff);
+            mapping.resize(leftCount + rightCount);
+            auto begin = mapping.begin();
+            auto endL = begin + leftCount;
+            std::iota(begin, endL, leftOff);
+            std::iota(endL, mapping.end(), rightOff);
+        }
     }
 
     /// \return The total number of DoFs for all the included unknowns.
