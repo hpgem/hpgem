@@ -155,11 +155,12 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
 
     void computeElementIntegrands(
         Base::MeshManipulator<DIM>& mesh, bool invertMassMatrix,
-        const InputFunction& sourceTerm, const InputFunction& initialCondition,
-        const InputFunction& initialConditionDerivative);
+        const std::map<std::size_t, InputFunction>& elementVectors);
 
-    void computeFaceIntegrals(Base::MeshManipulator<DIM>& mesh,
-                              FaceInputFunction boundaryCondition, Stab stab);
+    void computeFaceIntegrals(
+        Base::MeshManipulator<DIM>& mesh,
+        const std::map<std::size_t, FaceInputFunction>& boundaryVectors,
+        Stab stab);
 
     // TODO: LJ include the same norms as in DGMaxDiscretization
     double computeL2Error(Base::MeshManipulator<DIM>& mesh,
@@ -216,8 +217,8 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
                                   const Stab& stab,
                                   LinearAlgebra::MiddleSizeMatrix& ret) const;
 
-    LinearAlgebra::MiddleSizeMatrix brezziFluxBilinearTerm(
-        Base::Face* face, Stab stab);
+    LinearAlgebra::MiddleSizeMatrix brezziFluxBilinearTerm(Base::Face* face,
+                                                           Stab stab);
 
     /// \brief Compute mass matrix for vector components on elements adjacent to
     /// a face
@@ -294,8 +295,7 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     /// Compute contribution of the brezzi flux to the face vector on the
     /// boundary
     LinearAlgebra::MiddleSizeVector brezziFluxBoundaryVector(
-        Base::Face* face,
-        const FaceInputFunction& boundaryValue, Stab stab);
+        Base::Face* face, const FaceInputFunction& boundaryValue, Stab stab);
 
     double elementErrorIntegrand(Base::PhysicalElement<DIM>& el,
                                  std::size_t timeVector,

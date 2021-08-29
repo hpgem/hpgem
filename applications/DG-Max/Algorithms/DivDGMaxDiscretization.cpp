@@ -142,18 +142,10 @@ void DivDGMaxDiscretization<DIM>::initializeBasisFunctions(
 template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::computeElementIntegrands(
     Base::MeshManipulator<DIM>& mesh, bool invertMassMatrix,
-    const DivDGMaxDiscretization<DIM>::InputFunction& sourceTerm,
-    const DivDGMaxDiscretization<DIM>::InputFunction& initialCondition,
-    const DivDGMaxDiscretization<DIM>::InputFunction&
-        initialConditionDerivative) {
+    const std::map<std::size_t, InputFunction>& elementVectors) {
 
     Utilities::ElementLocalIndexing indexing;
     indexing.reinit({0, 1});
-
-    // TODO: Add initial condition integration.
-    LinearAlgebra::MiddleSizeMatrix massMatrix(2, 2), stiffnessMatrix(2, 2);
-
-    LinearAlgebra::MiddleSizeVector vector1(2), vector2(2), sourceVector(2);
 
     auto end = mesh.elementColEnd();
     for (typename Base::MeshManipulator<DIM>::ElementIterator it =
@@ -170,26 +162,19 @@ void DivDGMaxDiscretization<DIM>::computeElementIntegrands(
             massMatrix = massMatrix.inverse();
         }
 
-        if (initialCondition) {
-            logger.assert_debug(
-                false, "Initial condition integration not ported yet.");
-        }
-
-        if (initialConditionDerivative) {
-            logger.assert_debug(
-                false,
-                "Initial condition derivative integration not ported yet.");
-        }
-
-        if (sourceTerm) {
-            sourceVector.resize(indexing.getNumberOfDoFs());
-            sourceVector = elementIntegrator_.integrate(
-                (*it), [&](Base::PhysicalElement<DIM>& element) {
-                    LinearAlgebra::MiddleSizeVector result;
-                    elementSourceVector(element, sourceTerm, result);
-                    return result;
-                });
-            (*it)->setElementVector(sourceVector, ELEMENT_SOURCE_VECTOR_ID);
+        for (const auto& elementVec : elementVectors) {
+            LinearAlgebra::MiddleSizeVector vec;
+            if (!elementVec.second) {
+                vec.resize(indexing.getNumberOfDoFs());
+            } else {
+                vec = elementIntegrator_.integrate(
+                    (*it), [&](Base::PhysicalElement<DIM>& element) {
+                        LinearAlgebra::MiddleSizeVector result;
+                        elementSourceVector(element, elementVec.second, result);
+                        return result;
+                    });
+            }
+            element->setElementVector(vec, elementVec.first);
         }
     }
 }
@@ -197,10 +182,9 @@ void DivDGMaxDiscretization<DIM>::computeElementIntegrands(
 template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
     Base::MeshManipulator<DIM>& mesh,
-    DivDGMaxDiscretization<DIM>::FaceInputFunction boundaryCondition,
+    const std::map<std::size_t, FaceInputFunction>& boundaryVectors,
     Stab stab) {
     LinearAlgebra::MiddleSizeMatrix faceMatrix;
-    LinearAlgebra::MiddleSizeVector faceVector;
 
     Utilities::FaceLocalIndexing indexing;
     indexing.reinit({0, 1});
@@ -225,19 +209,20 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
         }
         (*it)->setFaceMatrix(faceMatrix, FACE_STIFFNESS_MATRIX_ID);
 
-        if (boundaryCondition) {
-            faceVector = faceIntegrator_.integrate(
-                (*it), [&](Base::PhysicalFace<DIM>& face) {
-                    LinearAlgebra::MiddleSizeVector result;
-                    faceBoundaryVector(face, boundaryCondition, result, stab);
-                    return result;
-                });
-            if (stab.fluxType1 == FluxType::BREZZI) {
-                faceVector +=
-                    brezziFluxBoundaryVector(face, boundaryCondition, stab);
+        for (const auto& boundaryVec : boundaryVectors) {
+            LinearAlgebra::MiddleSizeVector vec;
+            if (!boundaryVec.second) {
+                vec.resize(totalDoFs);
+            } else {
+                vec = faceIntegrator_.integrate(
+                    face, [&](Base::PhysicalFace<DIM>& face) {
+                        LinearAlgebra::MiddleSizeVector result;
+                        faceBoundaryVector(face, boundaryVec.second, result,
+                                           stab);
+                        return result;
+                    });
             }
-
-            (*it)->setFaceVector(faceVector, FACE_BOUNDARY_VECTOR_ID);
+            face->setFaceVector(vec, boundaryVec.first);
         }
     }
 }

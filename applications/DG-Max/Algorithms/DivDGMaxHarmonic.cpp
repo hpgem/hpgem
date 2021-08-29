@@ -48,9 +48,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace hpgem;
 
 template <std::size_t DIM>
-DivDGMaxHarmonic<DIM>::DivDGMaxHarmonic(
-    Base::MeshManipulator<DIM>& mesh,
-    DivDGMaxDiscretizationBase::Stab stab, std::size_t order)
+DivDGMaxHarmonic<DIM>::DivDGMaxHarmonic(Base::MeshManipulator<DIM>& mesh,
+                                        DivDGMaxDiscretizationBase::Stab stab,
+                                        std::size_t order)
     : mesh_(mesh), stab_(stab) {
     discretization_.initializeBasisFunctions(mesh_, order);
 }
@@ -59,23 +59,29 @@ template <std::size_t DIM>
 void DivDGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& input) {
     PetscErrorCode error;
 
-    discretization_.computeElementIntegrands(
-        mesh_, false,
-        std::bind(&HarmonicProblem<DIM>::sourceTerm, std::ref(input),
-                  std::placeholders::_1),
-        nullptr, nullptr);
-    discretization_.computeFaceIntegrals(
-        mesh_,
-        std::bind(&HarmonicProblem<DIM>::boundaryCondition, std::ref(input),
-                  std::placeholders::_1),
-        stab_);
+    using Discretization = DivDGMaxDiscretization<DIM>;
+
+    {
+        std::map<std::size_t, typename Discretization::InputFunction>
+            elementVecs = {{Discretization::ELEMENT_SOURCE_VECTOR_ID,
+                            std::bind(&HarmonicProblem<DIM>::sourceTerm,
+                                      std::ref(input), std::placeholders::_1)}};
+        discretization_.computeElementIntegrands(mesh_, false, elementVecs);
+    }
+    {
+        std::map<std::size_t, typename Discretization::FaceInputFunction>
+            faceVecs = {{Discretization::FACE_BOUNDARY_VECTOR_ID,
+                         std::bind(&HarmonicProblem<DIM>::boundaryCondition,
+                                   std::ref(input), std::placeholders::_1)}};
+        discretization_.computeFaceIntegrals(mesh_, faceVecs, stab_);
+    }
 
     Utilities::GlobalIndexing indexing(&mesh_);
     Utilities::GlobalPetscMatrix massMatrix(
         indexing, DivDGMaxDiscretizationBase::ELEMENT_MASS_MATRIX_ID, -1),
-        stiffnessMatrix(
-            indexing, DivDGMaxDiscretizationBase::ELEMENT_STIFFNESS_MATRIX_ID,
-            DivDGMaxDiscretizationBase::FACE_STIFFNESS_MATRIX_ID);
+        stiffnessMatrix(indexing,
+                        DivDGMaxDiscretizationBase::ELEMENT_STIFFNESS_MATRIX_ID,
+                        DivDGMaxDiscretizationBase::FACE_STIFFNESS_MATRIX_ID);
     Utilities::GlobalPetscVector rhs(
         indexing, DivDGMaxDiscretizationBase::ELEMENT_SOURCE_VECTOR_ID,
         DivDGMaxDiscretizationBase::FACE_BOUNDARY_VECTOR_ID),
@@ -198,7 +204,7 @@ void DivDGMaxHarmonic<DIM>::writeTec(std::string fileName) const {
 
 template <std::size_t DIM>
 double DivDGMaxHarmonic<DIM>::computeL2Error(
-    const typename DivDGMaxDiscretization<DIM>::InputFunction& exactSolution){
+    const typename DivDGMaxDiscretization<DIM>::InputFunction& exactSolution) {
     return discretization_.computeL2Error(mesh_, 0, exactSolution);
 }
 
