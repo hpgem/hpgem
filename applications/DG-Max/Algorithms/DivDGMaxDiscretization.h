@@ -47,7 +47,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Base/MeshManipulator.h"
 #include "Integration/ElementIntegral.h"
 #include "Integration/FaceIntegral.h"
-#include "Utilities/ElementLocalIndexing.h"
 
 // Forward definitions
 namespace hpgem {
@@ -65,6 +64,12 @@ class MiddleSizeVector;
 template <std::size_t DIM>
 class SmallVector;
 }  // namespace LinearAlgebra
+
+namespace Utilities {
+class ElementLocalIndexing;
+class FaceLocalIndexing;
+}  // namespace Utilities
+
 }  // namespace hpgem
 
 /// Base class with all dimensionless constants

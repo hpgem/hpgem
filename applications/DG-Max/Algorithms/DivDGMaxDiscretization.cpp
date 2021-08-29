@@ -38,10 +38,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "DivDGMaxDiscretization.h"
 
-#include "Base/MeshManipulator.h"
-#include "Base/HCurlConformingTransformation.h"
-#include "Integration/ElementIntegral.h"
-#include "Integration/FaceIntegral.h"
+#include "Utilities/ElementLocalIndexing.h"
+#include "Utilities/FaceLocalIndexing.h"
 
 #include "ElementInfos.h"
 
