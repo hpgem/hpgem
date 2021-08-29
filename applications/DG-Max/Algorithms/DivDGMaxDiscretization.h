@@ -203,19 +203,19 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     ///  1.  -[[v]]_t {{mu^{-1} curl u}} - [[u]]_t {{mu^{-1} curl v}}
     ///  2. For IP-stab1: stab1/diameter * [[u]]_t [[v]]_t
     ///  3. For IP-stab2: stab2*diameter/espMax [[eps u]]_n . [[eps v]]_n
-    void faceStiffnessMatrix1(Base::PhysicalFace<DIM>& fa,
-                              const Utilities::FaceLocalIndexing& indexing,
-                              const Stab& stab,
-                              LinearAlgebra::MiddleSizeMatrix& ret) const;
+    void faceStiffnessMatrixFieldIntegrand(
+        Base::PhysicalFace<DIM>& fa,
+        const Utilities::FaceLocalIndexing& indexing, const Stab& stab,
+        LinearAlgebra::MiddleSizeMatrix& ret) const;
     /// Part 2 of the face integrand for the stiffness matrix, consisting of the
     /// terms with the potential. This contributes two parts
     ///
     ///  1. The coupling scalar-vector: [[p]] {{eps v}}
     ///  2. For IP-stab3: stab3/diameter * epsMax [[p]] [[q]]
-    void addScalarFaceMatrixTerms(Base::PhysicalFace<DIM>& fa,
-                                  const Utilities::FaceLocalIndexing& indexing,
-                                  const Stab& stab,
-                                  LinearAlgebra::MiddleSizeMatrix& ret) const;
+    void addFaceMatrixPotentialIntegrand(
+        Base::PhysicalFace<DIM>& fa,
+        const Utilities::FaceLocalIndexing& indexing, const Stab& stab,
+        LinearAlgebra::MiddleSizeMatrix& ret) const;
 
     LinearAlgebra::MiddleSizeMatrix brezziFluxBilinearTerm(Base::Face* face,
                                                            Stab stab);

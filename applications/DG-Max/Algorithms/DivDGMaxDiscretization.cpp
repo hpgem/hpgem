@@ -199,8 +199,8 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
         faceMatrix = faceIntegrator_.integrate(
             face, [&indexing, &stab, this](Base::PhysicalFace<DIM>& face) {
                 LinearAlgebra::MiddleSizeMatrix result, temp;
-                faceStiffnessMatrix1(face, indexing, stab, result);
-                addScalarFaceMatrixTerms(face, indexing, stab, result);
+                faceStiffnessMatrixFieldIntegrand(face, indexing, stab, result);
+                addFaceMatrixPotentialIntegrand(face, indexing, stab, result);
                 return result;
             });
 
@@ -392,7 +392,7 @@ void DivDGMaxDiscretization<DIM>::elementSourceVector(
 }
 
 template <std::size_t DIM>
-void DivDGMaxDiscretization<DIM>::faceStiffnessMatrix1(
+void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
     Base::PhysicalFace<DIM>& fa, const Utilities::FaceLocalIndexing& indexing,
     const Stab& stab, LinearAlgebra::MiddleSizeMatrix& ret) const {
 
@@ -480,7 +480,7 @@ void DivDGMaxDiscretization<DIM>::faceStiffnessMatrix1(
 }
 
 template <std::size_t DIM>
-void DivDGMaxDiscretization<DIM>::addScalarFaceMatrixTerms(
+void DivDGMaxDiscretization<DIM>::addFaceMatrixPotentialIntegrand(
     Base::PhysicalFace<DIM>& fa, const Utilities::FaceLocalIndexing& indexing,
     const Stab& stab, LinearAlgebra::MiddleSizeMatrix& ret) const {
 
