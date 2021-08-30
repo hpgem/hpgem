@@ -38,6 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "DivDGMaxHarmonic.h"
 
+#include "DGMaxLogger.h"
 #include <Output/TecplotDiscontinuousSolutionWriter.h>
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
@@ -117,6 +118,24 @@ void DivDGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& input) {
     CHKERRABORT(PETSC_COMM_WORLD, error);
     error = KSPSolve(solver, rhs, result);
     CHKERRABORT(PETSC_COMM_WORLD, error);
+
+    {
+        // Convergence diagnostics
+        PetscInt niters;
+        KSPGetIterationNumber(solver, &niters);
+        KSPConvergedReason converged;
+        KSPGetConvergedReason(solver, &converged);
+        const char* convergedReason;
+        KSPGetConvergedReasonString(solver, &convergedReason);
+        if (converged > 0) {
+            // Successful
+            DGMaxLogger(INFO, "Successfully converged in % iterations with reason %",
+                        niters, convergedReason);
+        } else {
+            DGMaxLogger(WARN, "Failed to converge in % iterations with reason %",
+                        niters, convergedReason);
+        }
+    }
 
     // TODO: This is a bit dirty to store it in the time integration vector.
     result.writeTimeIntegrationVector(0);
