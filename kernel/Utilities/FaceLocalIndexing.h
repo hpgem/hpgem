@@ -103,10 +103,11 @@ class FaceLocalIndexing {
     }
 
     /**
-     * For a given unknown, what are the indices in the face matrx.
-     * @param unknown The unkown
+     * For a given unknown, what are the indices in the face matrix.
+     * @param unknown The unknown
      * @param mapping Mapping from the i-th DoF/basisFunction to the
-     * corresponding row/column in the face matrix.
+     * corresponding row/column in the face matrix. Passed by reference to
+     * allow for reducing allocation.
      */
     void getDoFMapping(std::size_t unknown,
                        std::vector<std::size_t>& mapping) const {
