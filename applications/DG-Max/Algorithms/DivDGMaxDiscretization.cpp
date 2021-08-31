@@ -147,10 +147,9 @@ void DivDGMaxDiscretization<DIM>::computeElementIntegrands(
     Utilities::ElementLocalIndexing indexing;
     indexing.reinit({0, 1});
 
+    // Out of efficiency, elementColEnd may be expensive
     auto end = mesh.elementColEnd();
-    for (typename Base::MeshManipulator<DIM>::ElementIterator it =
-             mesh.elementColBegin();
-         it != end; ++it) {
+    for (auto it = mesh.elementColBegin(); it != end; ++it) {
         Base::Element* element = *it;
         indexing.reinit(element);
         computeElementMatrices(element, indexing);
@@ -189,6 +188,7 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
     Utilities::FaceLocalIndexing indexing;
     indexing.reinit({0, 1});
 
+    // For efficiency, faceColEnd may be expensive
     auto end = mesh.faceColEnd();
     for (auto it = mesh.faceColBegin(); it != end; ++it) {
 
