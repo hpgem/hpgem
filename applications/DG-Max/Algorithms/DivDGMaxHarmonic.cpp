@@ -66,7 +66,7 @@ void DivDGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& input) {
             elementVecs = {{Discretization::ELEMENT_SOURCE_VECTOR_ID,
                             std::bind(&HarmonicProblem<DIM>::sourceTerm,
                                       std::ref(input), std::placeholders::_1)}};
-        discretization_.computeElementIntegrands(mesh_, false, elementVecs);
+        discretization_.computeElementIntegrands(mesh_, elementVecs);
     }
     {
         std::map<std::size_t, typename Discretization::FaceInputFunction>

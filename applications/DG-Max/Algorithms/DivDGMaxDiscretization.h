@@ -154,7 +154,7 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
                                   std::size_t order);
 
     void computeElementIntegrands(
-        Base::MeshManipulator<DIM>& mesh, bool invertMassMatrix,
+        Base::MeshManipulator<DIM>& mesh,
         const std::map<std::size_t, InputFunction>& elementVectors);
 
     void computeFaceIntegrals(

@@ -359,7 +359,7 @@ void DivDGMaxEigenvalue<DIM>::solve(
     PetscErrorCode error;
     DGMaxLogger(INFO, "Starting assembly");
     discretization.initializeBasisFunctions(mesh_, order_);
-    discretization.computeElementIntegrands(mesh_, false, {});
+    discretization.computeElementIntegrands(mesh_, {});
     discretization.computeFaceIntegrals(mesh_, {}, stab_);
 
     SolverWorkspace workspace(&mesh_);

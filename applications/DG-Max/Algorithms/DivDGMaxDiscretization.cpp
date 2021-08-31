@@ -141,7 +141,7 @@ void DivDGMaxDiscretization<DIM>::initializeBasisFunctions(
 
 template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::computeElementIntegrands(
-    Base::MeshManipulator<DIM>& mesh, bool invertMassMatrix,
+    Base::MeshManipulator<DIM>& mesh,
     const std::map<std::size_t, InputFunction>& elementVectors) {
 
     Utilities::ElementLocalIndexing indexing;
@@ -153,13 +153,6 @@ void DivDGMaxDiscretization<DIM>::computeElementIntegrands(
         Base::Element* element = *it;
         indexing.reinit(element);
         computeElementMatrices(element, indexing);
-
-        if (invertMassMatrix) {
-            // Note reference to allow overwriting it
-            LinearAlgebra::MiddleSizeMatrix& massMatrix =
-                element->getElementMatrix(ELEMENT_MASS_MATRIX_ID);
-            massMatrix = massMatrix.inverse();
-        }
 
         for (const auto& elementVec : elementVectors) {
             LinearAlgebra::MiddleSizeVector vec;
