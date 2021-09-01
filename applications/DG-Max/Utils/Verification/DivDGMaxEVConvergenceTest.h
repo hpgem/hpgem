@@ -53,7 +53,7 @@ class DivDGMaxEVConvergenceTest : public AbstractEVConvergenceTest<DIM> {
     DivDGMaxEVConvergenceTest(EVTestPoint<DIM> testCase,
                               std::vector<std::string> meshFileNames,
                               double tolerance, std::size_t order,
-                              typename DivDGMaxDiscretization<DIM>::Stab stab,
+                              DivDGMaxDiscretizationBase::Stab stab,
                               EVConvergenceResult* expected)
         : testCase_(testCase),
           meshFileNames_(std::move(meshFileNames)),
@@ -87,7 +87,7 @@ class DivDGMaxEVConvergenceTest : public AbstractEVConvergenceTest<DIM> {
     std::vector<std::string> meshFileNames_;
     double tolerance_;
     std::size_t order_;
-    typename DivDGMaxDiscretization<DIM>::Stab stab_;
+    DivDGMaxDiscretizationBase::Stab stab_;
     // TODO: This is usually static data
     EVConvergenceResult* expected_;
 };

@@ -356,7 +356,7 @@ class PhysicalFace final {
 
     void setPointReference(const Geometry::PointReference<DIM - 1>& point);
     void setFace(const Face* face);
-    void setTransform(std::shared_ptr<CoordinateTransformation<DIM>>& transform,
+    void setTransform(std::shared_ptr<CoordinateTransformation<DIM>> transform,
                       std::size_t unknown = 0);
 
     void setQuadratureRule(QuadratureRules::GaussQuadratureRule* rule);

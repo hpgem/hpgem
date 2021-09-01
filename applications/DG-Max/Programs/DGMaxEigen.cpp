@@ -78,8 +78,8 @@ auto& lengthScale = Base::register_argument<double>(
 template <std::size_t DIM>
 void runWithDimension();
 double parseDGMaxPenaltyParameter();
-template <std::size_t DIM>
-typename DivDGMaxDiscretization<DIM>::Stab parsePenaltyParmaters();
+
+DivDGMaxDiscretizationBase::Stab parsePenaltyParmaters();
 template <std::size_t DIM>
 KSpacePath<DIM> parsePath();
 
@@ -354,8 +354,7 @@ void runWithDimension() {
 
     // Method dependent solving
     if (useDivDGMax) {
-        typename DivDGMaxDiscretization<DIM>::Stab stab =
-            parsePenaltyParmaters<DIM>();
+        DivDGMaxDiscretizationBase::Stab stab = parsePenaltyParmaters();
         DivDGMaxEigenvalue<DIM> solver(*mesh, order.getValue(), stab);
         solver.solve(driver);
     } else {
@@ -444,10 +443,9 @@ double parseDGMaxPenaltyParameter() {
     }
 }
 
-template <std::size_t DIM>
-typename DivDGMaxDiscretization<DIM>::Stab parsePenaltyParmaters() {
+DivDGMaxDiscretizationBase::Stab parsePenaltyParmaters() {
     if (pparams.isUsed()) {
-        typename DivDGMaxDiscretization<DIM>::Stab stab;
+        DivDGMaxDiscretizationBase::Stab stab;
         std::string input = pparams.getValue();
         std::vector<bool> useBrezzi;
         std::vector<double> values;
@@ -510,12 +508,12 @@ typename DivDGMaxDiscretization<DIM>::Stab parsePenaltyParmaters() {
             error = true;
         }
         if (!error) {
-            typename DivDGMaxDiscretization<DIM>::Stab result;
+            DivDGMaxDiscretizationBase::Stab result;
             result.stab1 = values[0];
             result.stab2 = values[1];
             result.stab3 = values[2];
 
-            using FLUX = typename DivDGMaxDiscretization<DIM>::FluxType;
+            using FLUX = DivDGMaxDiscretizationBase::FluxType;
 
             result.fluxType1 = useBrezzi[0] ? FLUX::BREZZI : FLUX::IP;
             result.fluxType2 = useBrezzi[1] ? FLUX::BREZZI : FLUX::IP;
@@ -527,11 +525,11 @@ typename DivDGMaxDiscretization<DIM>::Stab parsePenaltyParmaters() {
 
     } else {
         // Default values
-        typename DivDGMaxDiscretization<DIM>::Stab stab;
+        DivDGMaxDiscretizationBase::Stab stab;
         stab.stab1 = 5;
         stab.stab2 = 0;
         stab.stab3 = 5;
-        stab.setAllFluxeTypes(DivDGMaxDiscretization<DIM>::FluxType::BREZZI);
+        stab.setAllFluxeTypes(DivDGMaxDiscretizationBase::FluxType::BREZZI);
         return stab;
     }
 }

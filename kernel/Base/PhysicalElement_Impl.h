@@ -709,7 +709,7 @@ inline void PhysicalElement<DIM>::setElement(const Element* element) {
 
 template <std::size_t DIM>
 inline void PhysicalElement<DIM>::setTransformation(
-    std::shared_ptr<Base::CoordinateTransformation<DIM> >& transform,
+    std::shared_ptr<Base::CoordinateTransformation<DIM> > transform,
     std::size_t unknown) {
     if (transform_.size() <= unknown) {
         // We should not need to resize when we know the exact number of
