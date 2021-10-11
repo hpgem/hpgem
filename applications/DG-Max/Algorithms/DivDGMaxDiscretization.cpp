@@ -198,25 +198,23 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
         if (!face->isInternal()) {
             bct = boundaryIndicator_(*face);
         }
-        if (bct == BCT::NEUMANN) {
-            // For Neumann boundaries there is no contribution from face
-            // integrals. However, the faceMatrix may contain data from the
-            // previous face, so clear it.
-            faceMatrix.resize(totalDoFs, totalDoFs);
-            faceMatrix *= 0.0;
-        } else {
-            faceMatrix = faceIntegrator_.integrate(
-                face, [&indexing, &stab, this](Base::PhysicalFace<DIM>& face) {
-                    LinearAlgebra::MiddleSizeMatrix result, temp;
+        faceMatrix = faceIntegrator_.integrate(
+            face,
+            [&indexing, &stab, &bct, this](Base::PhysicalFace<DIM>& face) {
+                std::size_t numDoFs = indexing.getNumberOfDoFs();
+                LinearAlgebra::MiddleSizeMatrix result(numDoFs, numDoFs);
+                if (bct != BCT::NEUMANN) {
                     faceStiffnessMatrixFieldIntegrand(face, indexing, stab,
                                                       result);
-                    addFaceMatrixPotentialIntegrand(face, indexing, stab,
-                                                    result);
-                    return result;
-                });
-            if (stab.hasFlux(FluxType::BREZZI)) {
-                faceMatrix += brezziFluxBilinearTerm(face, stab);
-            }
+                } else {
+                    // TODO: Add impedance integral
+                }
+                addFaceMatrixPotentialIntegrand(face, indexing, stab, bct,
+                                                result);
+                return result;
+            });
+        if (stab.hasFlux(FluxType::BREZZI)) {
+            faceMatrix += brezziFluxBilinearTerm(face, bct, stab);
         }
         face->setFaceMatrix(faceMatrix, FACE_STIFFNESS_MATRIX_ID);
 
@@ -229,9 +227,17 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
                     face, [&](Base::PhysicalFace<DIM>& face) {
                         LinearAlgebra::MiddleSizeVector result;
                         faceBoundaryVector(face, boundaryVec.second, result,
-                                           stab);
+                                           bct, stab);
                         return result;
                     });
+                if (stab.hasFlux(FluxType::BREZZI) &&
+                    bct == DGMax::BoundaryConditionType::DIRICHLET) {
+                    vec += brezziFluxBoundaryVector(face, boundaryVec.second,
+                                                    stab);
+                }
+            }
+            if (bct == DGMax::BoundaryConditionType::NEUMANN) {
+                logger(INFO, "Vec %", vec);
             }
             face->setFaceVector(vec, boundaryVec.first);
         }
@@ -493,7 +499,8 @@ void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
 template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::addFaceMatrixPotentialIntegrand(
     Base::PhysicalFace<DIM>& fa, const Utilities::FaceLocalIndexing& indexing,
-    const Stab& stab, LinearAlgebra::MiddleSizeMatrix& ret) const {
+    const Stab& stab, DGMax::BoundaryConditionType bct,
+    LinearAlgebra::MiddleSizeMatrix& ret) const {
 
     // Mapping from basis function -> face matrix entry
     std::vector<std::size_t> mappingU, mappingP;
@@ -554,6 +561,7 @@ void DivDGMaxDiscretization<DIM>::addFaceMatrixPotentialIntegrand(
 
             const double entry = averageFactor * epsUNi * phiPj;
             const std::size_t jIndex = mappingP[j];
+
             ret(iIndex, jIndex) += entry;
             ret(jIndex, iIndex) += entry;
         }
@@ -823,17 +831,27 @@ void distributeFaceMatrix(FaceDoFInfo faceInfo, bool vector,
 
 template <std::size_t DIM>
 LinearAlgebra::MiddleSizeMatrix
-    DivDGMaxDiscretization<DIM>::brezziFluxBilinearTerm(Base::Face* face,
-                                                        Stab stab) {
+    DivDGMaxDiscretization<DIM>::brezziFluxBilinearTerm(
+        Base::Face* face, DGMax::BoundaryConditionType bct, Stab stab) {
     FaceDoFInfo faceInfo = getFaceDoFInfo(*face);
     LinearAlgebra::MiddleSizeMatrix result(faceInfo.totalDoFs(),
                                            faceInfo.totalDoFs());
+
+    if (bct == DGMax::BoundaryConditionType::NEUMANN &&
+        stab.fluxType3 != FluxType::BREZZI) {
+        // On a neumann boundary the first two stabilization terms (fluxType1,2)
+        // are not used. So prevent doing any work if the last stabilization
+        // term (fluxType3) uses a different flux.
+        std::size_t dofs = faceInfo.totalDoFs();
+        return LinearAlgebra::MiddleSizeMatrix(dofs, dofs);
+    }
 
     // Mass matrix for vector valued components
     LinearAlgebra::MiddleSizeMatrix massMat = computeFaceVectorMassMatrix(face);
     massMat.cholesky();
 
-    if (stab.fluxType1 == FluxType::BREZZI) {
+    if (stab.fluxType1 == FluxType::BREZZI &&
+        bct != DGMax::BoundaryConditionType::NEUMANN) {
         std::size_t leftFaces = face->getPtrElementLeft()->getNumberOfFaces();
         std::size_t rightFaces =
             faceInfo.internal ? face->getPtrElementLeft()->getNumberOfFaces()
@@ -875,8 +893,8 @@ LinearAlgebra::MiddleSizeMatrix
         distributeFaceMatrix(faceInfo, true, vectorStabilizer, result);
     }
 
-    if (faceInfo.internal && stab.fluxType2 == FluxType::BREZZI) {
-        // TODO: Make hermitian and reduce hermiticity tolerance below
+    if (faceInfo.internal && stab.fluxType2 == FluxType::BREZZI &&
+        bct != DGMax::BoundaryConditionType::NEUMANN) {
         // Compute normal vector stabilizer, stab2 * S^T M^{-T} S, S = lift
         // matrix Again we are using the Cholesky decomposition off LL^T = M.
         LinearAlgebra::MiddleSizeMatrix pmassMat =
@@ -913,7 +931,8 @@ template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::faceBoundaryVector(
     Base::PhysicalFace<DIM>& fa,
     const DivDGMaxDiscretization<DIM>::FaceInputFunction& boundaryValue,
-    LinearAlgebra::MiddleSizeVector& ret, Stab stab) const {
+    LinearAlgebra::MiddleSizeVector& ret, DGMax::BoundaryConditionType bct,
+    Stab stab) const {
     const Base::Face* face = fa.getFace();
     const Geometry::PointReference<DIM - 1>& p = fa.getPointReference();
 
@@ -930,7 +949,7 @@ void DivDGMaxDiscretization<DIM>::faceBoundaryVector(
         for (std::size_t i = 0; i < (totalUDoFs + totalPDoFs); ++i) {
             ret(i) = 0;
         }
-    } else {
+    } else if (bct == DGMax::BoundaryConditionType::DIRICHLET) {
         double diameter = face->getDiameter();
 
         LinearAlgebra::SmallVector<DIM> val, phi_curl;
@@ -953,6 +972,23 @@ void DivDGMaxDiscretization<DIM>::faceBoundaryVector(
             // Scale with mu^{-1} in the future
             ret(i) = value;
         }
+    } else if (bct == DGMax::BoundaryConditionType::NEUMANN) {
+        // Valid for both IP and Brezzi fluxes
+        std::size_t totalUDoFs =
+            face->getPtrElementLeft()->getNumberOfBasisFunctions(0);
+        std::size_t totalPDoFs =
+            face->getPtrElementLeft()->getNumberOfBasisFunctions(1);
+        ret.resize(totalUDoFs + totalPDoFs);
+
+        auto val = boundaryValue(fa);
+        LinearAlgebra::SmallVector<DIM> phiUN;
+        for (std::size_t i = 0; i < totalUDoFs; ++i) {
+            fa.basisFunctionUnitNormalCross(i, phiUN, 0);
+            ret(i) = val * phiUN;
+        }
+    } else {
+        logger(ERROR,
+               "Boundary condition face vector not implemented in DivDGMax");
     }
 }
 

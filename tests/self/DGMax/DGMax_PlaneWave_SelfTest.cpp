@@ -43,6 +43,7 @@
 #include <DGMaxProgramUtils.h>
 #include <DGMaxLogger.h>
 #include <Algorithms/DGMaxHarmonic.h>
+#include <Algorithms/DivDGMaxHarmonic.h>
 #include <Utils/PredefinedStructure.h>
 
 #include <petsc.h>
@@ -106,7 +107,7 @@ class TestingProblem : public ExactHarmonicProblem<2> {
     mutable Base::PhysicalFace<2> bface;
 };
 
-double solve(std::string meshFile, std::size_t level) {
+double solveDGMax(std::string meshFile, std::size_t level) {
     Base::ConfigurationData config(1);
 
     PredefinedStructureDescription structure =
@@ -114,16 +115,40 @@ double solve(std::string meshFile, std::size_t level) {
 
     auto mesh = DGMax::readMesh<2>(meshFile, &config, structure, 2);
     DGMaxHarmonic<2> solver(*mesh, 100, 2);
-
     TestingProblem problem;
-
     solver.solve(problem);
     std::stringstream fileName;
-    fileName << "solution-" << level;
+    fileName << "solution-dgmax-" << level;
     Output::VTKSpecificTimeWriter<2> output(fileName.str(), mesh.get(), 0, 2);
     solver.writeVTK(output);
     auto errors = solver.computeError({DGMaxDiscretizationBase::L2}, problem);
     return errors[DGMaxDiscretizationBase::L2];
+}
+
+double solveDivDGMax(std::string meshFile, std::size_t level) {
+    Base::ConfigurationData config(2);
+
+    PredefinedStructureDescription structure =
+        PredefinedStructureDescription(PredefinedStructure::VACUUM, 2);
+
+    auto mesh = DGMax::readMesh<2>(meshFile, &config, structure, 2);
+
+    std::stringstream fileName;
+    fileName << "solution-divdgmax-" << level;
+    Output::VTKSpecificTimeWriter<2> output(fileName.str(), mesh.get(), 0, 2);
+
+    DivDGMaxDiscretizationBase::Stab stab;
+    stab.stab1 = 105;
+    stab.stab2 = 0;
+    stab.stab3 = 10;
+    stab.setAllFluxeTypes(DivDGMaxDiscretizationBase::FluxType::IP);
+
+    DivDGMaxHarmonic<2> solver(*mesh, stab, 2);
+    TestingProblem problem;
+    solver.solve(problem);
+    solver.writeVTK(output);
+
+    return solver.computeL2Error(problem);
 }
 
 int main(int argc, char** argv) {
@@ -131,7 +156,7 @@ int main(int argc, char** argv) {
     Base::parse_options(argc, argv);
     initDGMaxLogging();
 
-    bool ignoreFailures = false;
+    bool ignoreFailures = true;
 
     // Default the solver if not specified to a direct LU solver
     std::map<std::string, std::string> defaultOptions = {
@@ -158,4 +183,6 @@ int main(int argc, char** argv) {
                                      5.45037524e-05,  //  3.99
                                  }};
     runConvergenceTest(meshes, ignoreFailures, &solve);
+    ConvergenceTestSet meshes2 = {getUnitSquareTriangleMeshes(0, 5), {}};
+    runConvergenceTest(meshes2, ignoreFailures, &solveDivDGMax);
 }

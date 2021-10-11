@@ -139,9 +139,9 @@ class TestingProblem : public HarmonicProblem<dim> {
 
         double nx = std::abs(std::abs(normal[0]) - 1.0);
         if (nx < 1e-8) {
-            return DGMax::BoundaryConditionType::NEUMANN;
-        } else {
             return DGMax::BoundaryConditionType::DIRICHLET;
+        } else {
+            return DGMax::BoundaryConditionType::NEUMANN;
         }
     }
 

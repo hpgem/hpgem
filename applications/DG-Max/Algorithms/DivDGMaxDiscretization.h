@@ -222,9 +222,11 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     void addFaceMatrixPotentialIntegrand(
         Base::PhysicalFace<DIM>& fa,
         const Utilities::FaceLocalIndexing& indexing, const Stab& stab,
+        DGMax::BoundaryConditionType bct,
         LinearAlgebra::MiddleSizeMatrix& ret) const;
 
     LinearAlgebra::MiddleSizeMatrix brezziFluxBilinearTerm(Base::Face* face,
+                                                           DGMax::BoundaryConditionType bct,
                                                            Stab stab);
 
     /// \brief Compute mass matrix for vector components on elements adjacent to
@@ -297,6 +299,7 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     void faceBoundaryVector(Base::PhysicalFace<DIM>& fa,
                             const FaceInputFunction& boundaryValue,
                             LinearAlgebra::MiddleSizeVector& ret,
+                            DGMax::BoundaryConditionType bct,
                             Stab stab) const;
 
     /// Compute contribution of the brezzi flux to the face vector on the
