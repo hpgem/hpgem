@@ -234,9 +234,6 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
                                                     stab);
                 }
             }
-            if (bct == DGMax::BoundaryConditionType::NEUMANN) {
-                logger(INFO, "Vec %", vec);
-            }
             face->setFaceVector(vec, boundaryVec.first);
         }
     }
