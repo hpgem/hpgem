@@ -206,8 +206,6 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
                 if (bct != BCT::NEUMANN) {
                     faceStiffnessMatrixFieldIntegrand(face, indexing, stab,
                                                       result);
-                } else {
-                    // TODO: Add impedance integral
                 }
                 addFaceMatrixPotentialIntegrand(face, indexing, stab, bct,
                                                 result);
