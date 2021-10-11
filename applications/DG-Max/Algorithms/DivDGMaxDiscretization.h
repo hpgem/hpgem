@@ -50,7 +50,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "ProblemTypes/BoundaryConditionType.h"
 
-
 // Forward definitions
 namespace hpgem {
 namespace Base {
@@ -225,9 +224,8 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
         DGMax::BoundaryConditionType bct,
         LinearAlgebra::MiddleSizeMatrix& ret) const;
 
-    LinearAlgebra::MiddleSizeMatrix brezziFluxBilinearTerm(Base::Face* face,
-                                                           DGMax::BoundaryConditionType bct,
-                                                           Stab stab);
+    LinearAlgebra::MiddleSizeMatrix brezziFluxBilinearTerm(
+        Base::Face* face, DGMax::BoundaryConditionType bct, Stab stab);
 
     /// \brief Compute mass matrix for vector components on elements adjacent to
     /// a face
@@ -299,8 +297,7 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     void faceBoundaryVector(Base::PhysicalFace<DIM>& fa,
                             const FaceInputFunction& boundaryValue,
                             LinearAlgebra::MiddleSizeVector& ret,
-                            DGMax::BoundaryConditionType bct,
-                            Stab stab) const;
+                            DGMax::BoundaryConditionType bct, Stab stab) const;
 
     /// Compute contribution of the brezzi flux to the face vector on the
     /// boundary

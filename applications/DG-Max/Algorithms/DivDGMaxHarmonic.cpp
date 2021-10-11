@@ -129,10 +129,12 @@ void DivDGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& input) {
         KSPGetConvergedReasonString(solver, &convergedReason);
         if (converged > 0) {
             // Successful
-            DGMaxLogger(INFO, "Successfully converged in % iterations with reason %",
+            DGMaxLogger(INFO,
+                        "Successfully converged in % iterations with reason %",
                         niters, convergedReason);
         } else {
-            DGMaxLogger(WARN, "Failed to converge in % iterations with reason %",
+            DGMaxLogger(WARN,
+                        "Failed to converge in % iterations with reason %",
                         niters, convergedReason);
         }
     }

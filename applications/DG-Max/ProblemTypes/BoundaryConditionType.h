@@ -56,8 +56,8 @@ enum class BoundaryConditionType {
      */
     DIRICHLET,
     /**
-     * Boundary condition of the form n x (curl E) = n x g_N, thus prescribing the
-     * tangential part of the curl on the boundary face.
+     * Boundary condition of the form n x (curl E) = n x g_N, thus prescribing
+     * the tangential part of the curl on the boundary face.
      */
     NEUMANN,
     /**
@@ -68,8 +68,8 @@ enum class BoundaryConditionType {
     INTERNAL,
 };
 
-using BoundaryConditionIndicator = typename std::function<BoundaryConditionType(
-    const hpgem::Base::Face&)>;
+using BoundaryConditionIndicator =
+    typename std::function<BoundaryConditionType(const hpgem::Base::Face&)>;
 
 }  // namespace DGMax
 
