@@ -182,7 +182,14 @@ int main(int argc, char** argv) {
                                      2.17527652e-04,  //  3.98
                                      5.45037524e-05,  //  3.99
                                  }};
-    runConvergenceTest(meshes, ignoreFailures, &solve);
-    ConvergenceTestSet meshes2 = {getUnitSquareTriangleMeshes(0, 5), {}};
+    runConvergenceTest(meshes, ignoreFailures, &solveDGMax);
+    ConvergenceTestSet meshes2 = {getUnitSquareTriangleMeshes(0, 5),
+                                  {
+                                      1.59795098e-01,  //------
+                                      4.93777108e-02,  //  3.24
+                                      1.17391078e-02,  //  4.21
+                                      2.92095459e-03,  //  4.02
+                                      7.30300125e-04,  //  4.00
+                                  }};
     runConvergenceTest(meshes2, ignoreFailures, &solveDivDGMax);
 }
