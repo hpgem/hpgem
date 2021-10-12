@@ -43,18 +43,18 @@
 // Predeclaration header for LinearAlgebra
 
 namespace hpgem {
-namespace LinearAlgebra{
+namespace LinearAlgebra {
 
-template<std::size_t numberOfRows, typename EntryT>
+template <std::size_t numberOfRows, typename EntryT>
 class GSmallVector;
-template<std::size_t numberOfRows>
+template <std::size_t numberOfRows>
 using SmallVector = GSmallVector<numberOfRows, double>;
-template<std::size_t numberOfRows>
+template <std::size_t numberOfRows>
 using SmallVectorC = GSmallVector<numberOfRows, std::complex<double>>;
 
 class MiddleSizeVector;
 
-}
-}
+}  // namespace LinearAlgebra
+}  // namespace hpgem
 
 #endif  // HPGEM_TYPES_H

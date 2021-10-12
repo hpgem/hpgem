@@ -41,7 +41,6 @@
 namespace hpgem {
 namespace LinearAlgebra {
 
-
 template class GSmallVector<0, double>;
 template class GSmallVector<1, double>;
 template class GSmallVector<2, double>;
@@ -54,5 +53,5 @@ template class GSmallVector<2, std::complex<double>>;
 template class GSmallVector<3, std::complex<double>>;
 template class GSmallVector<4, std::complex<double>>;
 
-}
-}
+}  // namespace LinearAlgebra
+}  // namespace hpgem
