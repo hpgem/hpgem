@@ -126,7 +126,13 @@ void DivDGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& input) {
         KSPConvergedReason converged;
         KSPGetConvergedReason(solver, &converged);
         const char* convergedReason;
+
+#if PETSC_VERSION_GE(3, 15, 0)
         KSPGetConvergedReasonString(solver, &convergedReason);
+#else
+        convergedReason = KSPConvergedReasons[converged];
+#endif
+
         if (converged > 0) {
             // Successful
             DGMaxLogger(INFO,
