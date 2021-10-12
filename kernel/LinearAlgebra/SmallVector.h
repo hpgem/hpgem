@@ -68,12 +68,24 @@ void computeCrossProduct(const GSmallVector<nRows, T>&,
                          const GSmallVector<nRows, T>&,
                          GSmallVector<nRows, T>&);
 
-inline MiddleSizeVector::type convertToMiddleSize(std::complex<double> v);
-inline MiddleSizeVector::type convertToMiddleSize(double v);
-// As out argument to allow overloading
-inline void convertFromMiddleSize(MiddleSizeVector::type v, double& out);
-inline void convertFromMiddleSize(MiddleSizeVector::type v,
-                                  std::complex<double>& out);
+// Conversion operators to allow converting vectors especially needed for
+// MiddleSizeVector conversions.
+// Note: using an out parameter to allow overloading
+template <typename T>
+inline void convert(const T& in, T& out) {
+    out = in;
+}
+template <typename T>
+inline void convert(const T& in, std::complex<T>& out) {
+    out = in;
+}
+template <typename T>
+inline void convert(const std::complex<T>& in, T& out) {
+    logger.assert_debug(std::abs(in.imag()) < 1e-9,
+                        "Converting complex number with non zero complex part "
+                        "into a real one.");
+    out = in.real();
+}
 
 inline double conj(double v) { return v; }
 inline std::complex<double> conj(std::complex<double> v) {
@@ -121,6 +133,14 @@ class GSmallVector {
 
     GSmallVector(const GSmallVector& other) : data_(other.data_) {}
 
+    template <typename EntryTOther>
+    GSmallVector(const GSmallVector<numberOfRows, EntryTOther>& other)
+        : data_() {
+        for (std::size_t i = 0; i < numberOfRows; ++i) {
+            Detail::convert(other[i], data_[i]);
+        }
+    }
+
     // this constructor is implicit because both vector types should allow for
     // the same mathematical operations, with the only potential difference
     // being in the implementation
@@ -130,7 +150,7 @@ class GSmallVector {
             "Cannot construct a vector of size % from a vector of size %",
             numberOfRows, other.size());
         for (std::size_t i = 0; i < numberOfRows; ++i) {
-            Detail::convertFromMiddleSize(other[i], data_[i]);
+            Detail::convert(other[i], data_[i]);
         }
     }
 
@@ -424,51 +444,9 @@ MiddleSizeVector::MiddleSizeVector(const GSmallVector<nRows, EntryT>& other)
            "Constructing middle size vector from small vector, consider using "
            "small vectors everywhere for fixed length vectors of size <= 4");
     for (std::size_t i = 0; i < nRows; ++i) {
-        data_[i] = Detail::convertToMiddleSize(other[i]);
+        Detail::convert(other[i], data_[i]);
     }
 }
-
-namespace Detail {
-#ifdef HPGEM_USE_COMPLEX_PETSC
-
-inline MiddleSizeVector::type convertToMiddleSize(double v) { return v; }
-inline MiddleSizeVector::type convertToMiddleSize(std::complex<double> v) {
-    return v;
-}
-
-// Conversion to a real valued small vector will be a problem
-inline void convertFromMiddleSize(MiddleSizeVector::type v, double& out) {
-    logger.assert_debug(std::abs(v.imag()) < 1e-9,
-                        "Constructing a real SmallVector from a complex valued "
-                        "MiddleSizeVector");
-    out = v.real();
-}
-inline void convertFromMiddleSize(MiddleSizeVector::type v,
-                                  std::complex<double>& out) {
-    out = v;
-}
-
-#else
-
-inline MiddleSizeVector::type convertToMiddleSize(std::complex<double> v) {
-    logger.assert_debug(std::abs(v.imag()) < 1e-9,
-                        "Converting a complex valued SmallVector to a real "
-                        "valued MiddleSizeVector");
-    return v.real();
-}
-
-inline MiddleSizeVector::type convertToMiddleSize(double v) { return v; }
-
-// Both pass through
-inline void convertFromMiddleSize(MiddleSizeVector::type v, double& out) {
-    out = v;
-}
-inline void convertFromMiddleSize(MiddleSizeVector::type v,
-                                  std::complex<double>& out) {
-    out = v;
-}
-#endif
-}  // namespace Detail
 
 // Standard instances
 extern template class GSmallVector<0, double>;

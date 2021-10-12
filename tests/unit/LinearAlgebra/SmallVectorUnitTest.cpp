@@ -299,3 +299,14 @@ TEST_CASE("Complex Inner product", "[SmallVectorUnitTest]") {
     CHECK(v1 * v1 == 1.0 + 4.0 + 1.0);
     CHECK(v2 * v2 == 1.0 + 4.0 + 9.0);
 }
+
+TEST_CASE("Conversion complex <-> real", "[SmallVectorUnitTest]") {
+    SmallVector<1> vreal = {1.0};
+    SmallVectorC<1> vcreal = {1.0 + 0i};
+
+    INFO("Conversion real -> complex");
+    CHECK(SmallVectorC<1>(vreal) == vcreal);
+
+    INFO("Conversion complex -> real");
+    CHECK(SmallVector<1>(vcreal) == vreal);
+}
