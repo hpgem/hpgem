@@ -48,6 +48,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Integration/ElementIntegral.h"
 #include "Integration/FaceIntegral.h"
 
+#include "LinearAlgebra/MiddleSizeMatrix.h"
+#include "LinearAlgebra/MiddleSizeVector.h"
+#include "LinearAlgebra/SmallVector.h"
+
 // Forward definitions
 namespace hpgem {
 namespace Base {
@@ -56,14 +60,6 @@ class PhysicalElement;
 template <std::size_t DIM>
 class PhysicalFace;
 }  // namespace Base
-
-namespace LinearAlgebra {
-class MiddleSizeMatrix;
-class MiddleSizeVector;
-
-template <std::size_t DIM>
-class SmallVector;
-}  // namespace LinearAlgebra
 
 namespace Utilities {
 class ElementLocalIndexing;
