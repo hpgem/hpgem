@@ -108,7 +108,7 @@ template <std::size_t dim>
 class TestingProblem : public HarmonicProblem<dim> {
 
    public:
-    TestingProblem() : pface(false){};
+    TestingProblem(){};
 
     double omega() const final { return 4.0e-2; }
 
@@ -129,13 +129,14 @@ class TestingProblem : public HarmonicProblem<dim> {
 
     DGMax::BoundaryConditionType getBoundaryConditionType(
         const Base::Face& face) const final {
-        pface.setFace(&face);
-        pface.setPointReference(face.getReferenceGeometry()->getCenter());
+
         if (face.isInternal()) {
             return DGMax::BoundaryConditionType::INTERNAL;
         }
 
-        LinearAlgebra::SmallVector<dim> normal = pface.getUnitNormalVector();
+        LinearAlgebra::SmallVector<dim> normal = face.getNormalVector(
+            face.getReferenceGeometry()->getCenter().castDimension<dim - 1>());
+        normal /= normal.l2Norm();
 
         double nx = std::abs(std::abs(normal[0]) - 1.0);
         if (nx < 1e-8) {
@@ -144,9 +145,6 @@ class TestingProblem : public HarmonicProblem<dim> {
             return DGMax::BoundaryConditionType::NEUMANN;
         }
     }
-
-   private:
-    mutable Base::PhysicalFace<dim> pface;
 };
 
 template <std::size_t dim>
