@@ -11,5 +11,5 @@ add_library(Output OBJECT
 	VTKStandardElements.cpp
 )
 
-target_link_libraries(Output)
+target_link_libraries(Output LinearAlgebra)
 set_target_properties(Output PROPERTIES POSITION_INDEPENDENT_CODE true)

@@ -41,92 +41,23 @@
 namespace hpgem {
 
 namespace LinearAlgebra {
-extern "C" {
-
-/// This does matrix times vector and is from blas level 2.
-void dgemv_(const char* trans, int* m, int* n, double* alpha, double* A,
-            int* LDA, double* x, int* incx, double* beta, double* y, int* incy);
-
-/// This is the gernal matrix multiplication from blas level 3
-int dgemm_(const char* transA, const char* transB, int* M, int* N, int* k,
-           double* alpha, double* A, int* LDA, double* B, int* LDB,
-           double* beta, double* C, int* LDC);
-
-/// This is the gerneral scalar times vector + vector from blas, hence from blas
-/// level 1. Here we also use on a matrix by treating as a vector
-int daxpy_(int* N, double* DA, double* DX, int* INCX, double* DY, int* INCY);
-
-/// This is LU factorisation of the matrix A. This has been taken from LAPACK
-void dgetrf_(int* M, int* N, double* A, int* lda, int* IPIV, int* INFO);
-
-/// This is the inverse calulation also from LAPACK. Calculates inverse if you
-/// pass it the LU factorisation.
-void dgetri_(int* N, double* A, int* lda, int* IPIV, double* WORK, int* lwork,
-             int* INFO);
-
-/// This is used for solve Ax=B for x. Again this is from LAPACK.
-void dgesv_(int* N, int* NRHS, double* A, int* lda, int* IPIV, double* B,
-            int* LDB, int* INFO);
-}
 
 template <std::size_t numberOfRows, std::size_t numberOfColumns>
 SmallVector<numberOfRows> SmallMatrix<numberOfRows, numberOfColumns>::operator*(
     SmallVector<numberOfColumns>& right) {
-    if (numberOfRows == 0) {
-        logger(WARN,
-               "Trying to multiply a vector with a matrix without any rows.");
-        return SmallVector<numberOfRows>();
-    }
-    if (numberOfColumns == 0) {
-        logger(
-            WARN,
-            "Trying to multiply a vector with a matrix without any columns.");
-        return SmallVector<numberOfRows>();
-    }
-    int nr = numberOfRows;
-    int nc = numberOfColumns;
 
-    int i_one = 1;
-    double d_one = 1.0;
-    double d_zero = 0.0;
-
-    SmallVector<numberOfRows> result;
-
-    logger(DEBUG, "Matrix size: % x % \n Vector size: %", nr, nc, right.size());
-
-    dgemv_("N", &nr, &nc, &d_one, this->data(), &nr, right.data(), &i_one,
-           &d_zero, result.data(), &i_one);
-    return result;
+    typename SmallVector<numberOfColumns>::EigenType& rightData = right;
+    typename SmallVector<numberOfRows>::EigenType res = data2_ * rightData;
+    return res;
 }
 
 template <std::size_t numberOfRows, std::size_t numberOfColumns>
 SmallVector<numberOfRows> SmallMatrix<numberOfRows, numberOfColumns>::operator*(
     SmallVector<numberOfColumns>& right) const {
-    if (numberOfRows == 0) {
-        logger(WARN,
-               "Trying to multiply a vector with a matrix without any rows.");
-        return SmallVector<numberOfRows>();
-    }
-    if (numberOfColumns == 0) {
-        logger(
-            WARN,
-            "Trying to multiply a vector with a matrix without any columns.");
-        return SmallVector<numberOfRows>();
-    }
-    int nr = numberOfRows;
-    int nc = numberOfColumns;
 
-    int i_one = 1;
-    double d_one = 1.0;
-    double d_zero = 0.0;
-
-    SmallVector<numberOfRows> result;
-
-    logger(DEBUG, "Matrix size: % x % \n Vector size: %", nr, nc, right.size());
-
-    dgemv_("N", &nr, &nc, &d_one, (const_cast<double*>(this->data())), &nr,
-           right.data(), &i_one, &d_zero, result.data(), &i_one);
-    return result;
+    typename SmallVector<numberOfColumns>::EigenType& rightData = right;
+    typename SmallVector<numberOfRows>::EigenType res = data2_ * rightData;
+    return res;
 }
 
 template <std::size_t numberOfRows, std::size_t numberOfColumns>
@@ -134,27 +65,11 @@ template <std::size_t K>
 SmallMatrix<numberOfRows, K>
     SmallMatrix<numberOfRows, numberOfColumns>::operator*(
         const SmallMatrix<numberOfColumns, K>& other) {
-    int i = numberOfRows;
-    int j = numberOfColumns;
-    int k = K;
 
-    if (numberOfColumns == 0) {
-        logger(
-            WARN,
-            "Trying to multiply a matrix with a matrix without any columns.");
-        return SmallMatrix<numberOfRows, K>();
-    }
-    // The result of the matrix is left.numberOfRows, right.numberOfColumns()
-    SmallMatrix<numberOfRows, K> C;
-
-    double d_one = 1.0;
-    double d_zero = 0.0;
-
-    // Let the actual multiplication be done by Fortran
-    dgemm_("N", "N", &i, &k, &j, &d_one, this->data(), &i,
-           const_cast<double*>(other.data()), &j, &d_zero, C.data(), &i);
-
-    return C;
+    const typename SmallMatrix<numberOfColumns, K>::EigenType& otherMat = other;
+    typename SmallMatrix<numberOfRows, K>::EigenType res;
+    res = data2_ * otherMat;
+    return res;
 }
 
 template <std::size_t numberOfRows, std::size_t numberOfColumns>
@@ -162,35 +77,19 @@ template <std::size_t K>
 SmallMatrix<numberOfRows, K>
     SmallMatrix<numberOfRows, numberOfColumns>::operator*(
         const SmallMatrix<numberOfColumns, K>& other) const {
-    int i = numberOfRows;
-    int j = numberOfColumns;
-    int k = K;
 
-    if (numberOfColumns == 0) {
-        logger(
-            WARN,
-            "Trying to multiply a matrix with a matrix without any columns.");
-        return SmallMatrix<numberOfRows, K>();
-    }
-    // The result of the matrix is left.Nrows, right.NCols()
-    SmallMatrix<numberOfRows, K> C;
-
-    double d_one = 1.0;
-    double d_zero = 0.0;
-
-    // Let the actual multiplication be done by Fortran
-    dgemm_("N", "N", &i, &k, &j, &d_one, const_cast<double*>(this->data()), &i,
-           const_cast<double*>(other.data()), &j, &d_zero, C.data(), &i);
-
-    return C;
+    const typename SmallMatrix<numberOfColumns, K>::EigenType& otherMat = other;
+    typename SmallMatrix<numberOfRows, K>::EigenType res;
+    res = data2_ * otherMat;
+    return res;
 }
 
 template <std::size_t numberOfRows, std::size_t numberOfColumns>
 SmallMatrix<numberOfRows, numberOfColumns>&
     SmallMatrix<numberOfRows, numberOfColumns>::operator*=(
         const SmallMatrix<numberOfColumns, numberOfColumns>& other) {
-    // blas does not support in-place multiply
-    return (*this) = (*this) * other;
+    data2_ *= other.data2_;
+    return (*this);
 }
 
 template <std::size_t numberOfRows, std::size_t numberOfColumns>
@@ -251,116 +150,18 @@ SmallVector<numberOfRows> SmallMatrix<
     return (result);
 }
 
-template <std::size_t numberOfRows, std::size_t numberOfColumns>
-SmallMatrix<numberOfRows, numberOfColumns>
-    SmallMatrix<numberOfRows, numberOfColumns>::LUfactorisation() const {
-    int nr = numberOfRows;
-    int nc = numberOfColumns;
-    constexpr int nPivot = std::min(numberOfRows, numberOfColumns);
-    int iPivot[nPivot];
-
-    SmallMatrix result(*this);
-
-    int info;
-
-    dgetrf_(&nr, &nc, result.data(), &nr, iPivot, &info);
-
-    return result;
-}
-
 // class template specialization for this one function is a waste of code
 // duplication just let the compiler figure out which case it needs
 template <std::size_t numberOfRows, std::size_t numberOfColumns>
 double SmallMatrix<numberOfRows, numberOfColumns>::determinant() const {
-    logger.assert_debug(numberOfRows == numberOfColumns,
-                        "Matrix should be square to have a determinant!");
-
-    switch (numberOfRows) {
-        case 0:
-            return 1;
-        case 1:
-            return (*this)(0, 0);
-        case 2:
-            return (*this)(0, 0) * (*this)(1, 1) -
-                   (*this)(0, 1) * (*this)(1, 0);
-
-        case 3:
-            return (*this)(0, 0) * ((*this)(1, 1) * (*this)(2, 2) -
-                                    (*this)(1, 2) * (*this)(2, 1)) -
-                   (*this)(0, 1) * ((*this)(1, 0) * (*this)(2, 2) -
-                                    (*this)(2, 0) * (*this)(1, 2)) +
-                   (*this)(0, 2) * ((*this)(1, 0) * (*this)(2, 1) -
-                                    (*this)(2, 0) * (*this)(1, 1));
-
-        case 4:
-            return ((*this)(3, 0) * (*this)(2, 1) * (*this)(0, 3) -
-                    (*this)(2, 0) * (*this)(3, 1) * (*this)(0, 3)) *
-                       (*this)(1, 2) +
-                   (-(*this)(3, 0) * (*this)(0, 3) * (*this)(2, 2) +
-                    (*this)(2, 0) * (*this)(0, 3) * (*this)(3, 2)) *
-                       (*this)(1, 1) +
-                   ((*this)(3, 1) * (*this)(0, 3) * (*this)(2, 2) -
-                    (*this)(2, 1) * (*this)(0, 3) * (*this)(3, 2)) *
-                       (*this)(1, 0) +
-                   (-(*this)(3, 0) * (*this)(2, 1) * (*this)(1, 3) +
-                    (*this)(2, 0) * (*this)(3, 1) * (*this)(1, 3) +
-                    (-(*this)(2, 0) * (*this)(3, 3) +
-                     (*this)(3, 0) * (*this)(2, 3)) *
-                        (*this)(1, 1) +
-                    ((*this)(2, 1) * (*this)(3, 3) -
-                     (*this)(3, 1) * (*this)(2, 3)) *
-                        (*this)(1, 0)) *
-                       (*this)(0, 2) +
-                   ((*this)(3, 0) * (*this)(1, 3) * (*this)(2, 2) -
-                    (*this)(2, 0) * (*this)(1, 3) * (*this)(3, 2) +
-                    ((*this)(2, 0) * (*this)(3, 3) -
-                     (*this)(3, 0) * (*this)(2, 3)) *
-                        (*this)(1, 2) +
-                    (-(*this)(2, 2) * (*this)(3, 3) +
-                     (*this)(2, 3) * (*this)(3, 2)) *
-                        (*this)(1, 0)) *
-                       (*this)(0, 1) +
-                   (-(*this)(3, 1) * (*this)(1, 3) * (*this)(2, 2) +
-                    (*this)(2, 1) * (*this)(1, 3) * (*this)(3, 2) +
-                    ((*this)(3, 1) * (*this)(2, 3) -
-                     (*this)(2, 1) * (*this)(3, 3)) *
-                        (*this)(1, 2) +
-                    (*this)(1, 1) * ((*this)(2, 2) * (*this)(3, 3) -
-                                     (*this)(2, 3) * (*this)(3, 2))) *
-                       (*this)(0, 0);
-            // ... says Maple; this can possibly be done more efficiently,
-            // maybe even with LU (with pivoting, though...)
-        default:
-            logger(ERROR,
-                   "Computing the Determinant for size % is not implemented",
-                   numberOfRows);
-            break;
-    }
-    return 0;
+    return data2_.determinant();
 }
 
 template <std::size_t numberOfRows, std::size_t numberOfColumns>
 SmallMatrix<numberOfRows, numberOfColumns>
     SmallMatrix<numberOfRows, numberOfColumns>::inverse() const {
-    logger.assert_debug(numberOfRows == numberOfColumns,
-                        "Cannot invert a non-square matrix");
-    SmallMatrix<numberOfRows, numberOfColumns> result = (*this);
-
-    int nr = numberOfRows;
-    int nc = numberOfColumns;
-
-    constexpr int nPivot = numberOfRows;
-    int iPivot[nPivot];
-
-    int info = 0;
-
-    dgetrf_(&nr, &nc, result.data(), &nr, iPivot, &info);
-
-    int lwork = numberOfRows * numberOfColumns;
-    SmallMatrix work;
-    dgetri_(&nc, result.data(), &nc, iPivot, work.data(), &lwork, &info);
-
-    return result;
+    EigenType res = data2_.inverse();
+    return res;
 }
 
 template <std::size_t numberOfRows, std::size_t numberOfColumns>
@@ -370,13 +171,13 @@ void SmallMatrix<numberOfRows, numberOfColumns>::solve(
     logger.assert_debug(numberOfRows == numberOfColumns,
                         "can only solve for square matrixes");
 
-    int n = numberOfRows;
-    int nrhs = numberOfRightHandSideColumns;
-    int info;
-
-    int IPIV[numberOfRows];
-    SmallMatrix<numberOfRows, numberOfColumns> matThis = *this;
-    dgesv_(&n, &nrhs, matThis.data(), &n, IPIV, B.data(), &n, &info);
+    const typename SmallMatrix<
+        numberOfRows, numberOfRightHandSideColumns>::EigenType& rawVec = B;
+    typename SmallMatrix<numberOfRows, numberOfRightHandSideColumns>::EigenType
+        res;
+    res = data2_.fullPivLu().solve(rawVec);
+    // To prevent aliasing
+    B = res;
 }
 
 template <std::size_t numberOfRows, std::size_t numberOfColumns>
@@ -385,39 +186,23 @@ void SmallMatrix<numberOfRows, numberOfColumns>::solve(
     logger.assert_debug(numberOfRows == numberOfColumns,
                         "can only solve for square matrixes");
 
-    int n = numberOfRows;
-    int nrhs = 1;
-    int info;
-
-    int IPIV[numberOfRows];
-    SmallMatrix matThis = *this;
-    dgesv_(&n, &nrhs, matThis.data(), &n, IPIV, b.data(), &n, &info);
+    const typename SmallVector<numberOfRows>::EigenType& rawVec = b;
+    typename SmallVector<numberOfRows>::EigenType res;
+    // To prevent aliasing
+    res = data2_.fullPivLu().solve(rawVec);
+    b = res;
 }
 
 template <std::size_t numberOfRows, std::size_t numberOfColumns>
 SmallVector<numberOfColumns> operator*(
     SmallVector<numberOfRows>& vec,
     SmallMatrix<numberOfRows, numberOfColumns>& mat) {
-    if (numberOfColumns == 0) {
-        logger(
-            WARN,
-            "Trying to multiply a vector with a matrix without any columns.");
-        return SmallVector<numberOfColumns>();
-    }
-    int nr = numberOfRows;
-    int nc = numberOfColumns;
-
-    int i_one = 1;
-    double d_one = 1.0;
-    double d_zero = 0.0;
-
-    SmallVector<numberOfColumns> result;
-
-    logger(DEBUG, "Matrix size: % x % \n Vector size: %", nr, nc, vec.size());
-
-    dgemv_("T", &nr, &nc, &d_one, mat.data(), &nr, vec.data(), &i_one, &d_zero,
-           result.data(), &i_one);
-    return result;
+    const typename SmallVector<numberOfRows>::EigenType& rawVec = vec;
+    const typename SmallMatrix<numberOfRows, numberOfColumns>::EigenType
+        rawMat = mat;
+    typename SmallVector<numberOfColumns>::EigenType res =
+        rawVec.adjoint() * rawMat;
+    return res;
 }
 }  // namespace LinearAlgebra
 }  // namespace hpgem

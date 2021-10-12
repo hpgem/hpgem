@@ -43,6 +43,8 @@
 #include "SmallVector.h"
 #include "MiddleSizeMatrix.h"
 
+#include "Eigen/Eigen"
+
 namespace hpgem {
 namespace LinearAlgebra {
 /// \class SmallMatrix
@@ -60,22 +62,24 @@ namespace LinearAlgebra {
 template <std::size_t numberOfRows, std::size_t numberOfColumns>
 class SmallMatrix {
    public:
-    /// \brief Constructs a matrix of size n-rows by m-columns.
-    SmallMatrix() : data_() {}
+    using EigenType = Eigen::Matrix<double, numberOfRows, numberOfColumns>;
 
-    explicit SmallMatrix(const SmallVector<numberOfRows>& other) : data_() {
+    /// \brief Constructs a matrix of size n-rows by m-columns.
+    SmallMatrix() : data2_(EigenType::Zero()) {}
+
+    explicit SmallMatrix(const SmallVector<numberOfRows>& other) : data2_() {
         logger.assert_debug(numberOfColumns == 1,
                             "Trying to construct a matrix with more than 1 "
                             "columns from a vector");
-        std::copy(other.data(), other.data() + numberOfRows, data_.begin());
+        std::copy(other.data(), other.data() + numberOfRows, data2_.begin());
     }
 
     /// \brief Constructs a matrix of size n-rows by m-columns and initialises
     /// all entry to a constant
-    explicit SmallMatrix(const double& c) : data_() { data_.fill(c); }
+    explicit SmallMatrix(const double& c) : data2_(EigenType::Constant(c)) {}
 
     SmallMatrix(const std::initializer_list<SmallVector<numberOfRows>>& entries)
-        : data_() {
+        : data2_() {
         logger.assert_debug(
             entries.size() == numberOfColumns,
             "expected a matrix with % columns, but got a matrix with % columns",
@@ -91,13 +95,12 @@ class SmallMatrix {
 
     /// \brief Construct and copy Matrix from another Matrix i.e. B(A) where B
     /// and A are both matrices
-    SmallMatrix(const SmallMatrix& other) : data_() {
-        std::copy(other.data_.begin(), other.data_.end(), data_.begin());
+    SmallMatrix(const SmallMatrix& other) : data2_(other.data2_) {
     }
 
     /// \brief Construct and copy Matrix from another Matrix i.e. B(A) where B
     /// and A are both matrices
-    SmallMatrix(const MiddleSizeMatrix& other) : data_() {
+    SmallMatrix(const MiddleSizeMatrix& other) : data2_() {
         logger.assert_debug(
             other.getNumberOfRows() == numberOfRows,
             "expected a matrix with % rows, but got a matrix with % rows",
@@ -107,13 +110,13 @@ class SmallMatrix {
             "expected a matrix with % columns, but got a matrix with % columns",
             numberOfColumns, other.getNumberOfColumns());
         for (std::size_t i = 0; i < numberOfRows * numberOfColumns; ++i) {
-            data_[i] = std::real(other[i]);
+            data2_(i) = std::real(other[i]);
         }
     }
 
     /// \brief Glues one or more vectors with the same number of rows together
     SmallMatrix(std::array<SmallVector<numberOfRows>, numberOfColumns> entries)
-        : data_() {
+        : data2_() {
         for (std::size_t i = 0; i < numberOfRows; ++i) {
             for (std::size_t j = 0; j < numberOfColumns; ++j) {
                 (*this)(i, j) = entries[j][i];
@@ -122,51 +125,29 @@ class SmallMatrix {
     }
 
     /// \brief Move Matrix from another Matrix
-    SmallMatrix(SmallMatrix&& other) : data_(std::move(other.data_)) {}
+    SmallMatrix(SmallMatrix&& other) : data2_(std::move(other.data2_)) {}
+
+    SmallMatrix(EigenType rawData) : data2_(rawData) {}
 
     /// \brief defines the operator (n,m) to access the element on row n and
     /// column m
     double& operator()(std::size_t n, std::size_t m) {
-        logger.assert_debug(
-            n < numberOfRows,
-            "Requested row number % for a matrix with only % rows", n,
-            numberOfRows);
-        logger.assert_debug(
-            m < numberOfColumns,
-            "Requested column number % for a matrix with only % columns", m,
-            numberOfColumns);
-        return data_[n + m * numberOfRows];
+        return data2_(n,m);
     }
 
     /// \brief defines the operator (n,m) to access the element on row n and
     /// column m
     const double& operator()(std::size_t n, std::size_t m) const {
-        logger.assert_debug(
-            n < numberOfRows,
-            "Requested row number % for a matrix with only % rows", n,
-            numberOfRows);
-        logger.assert_debug(
-            m < numberOfColumns,
-            "Requested column number % for a matrix with only % columns", m,
-            numberOfColumns);
-        return data_[n + m * numberOfRows];
+        return data2_(n,m);
     }
 
     /// \brief Access the n linear element in the matrix.
     double& operator[](const std::size_t n) {
-        logger.assert_debug(
-            n < numberOfRows * numberOfColumns,
-            "Requested entry % for a matrix with only % entries", n,
-            numberOfRows * numberOfColumns);
-        return data_[n];
+        return data2_(n);
     }
 
     const double& operator[](const std::size_t n) const {
-        logger.assert_debug(
-            n < numberOfRows * numberOfColumns,
-            "Requested entry % for a matrix with only % entries", n,
-            numberOfRows * numberOfColumns);
-        return data_[n];
+        return data2_(n);
     }
 
     /// \brief Defines Matrix A times vector B and return vector C i.e. C_,j=
@@ -177,10 +158,7 @@ class SmallMatrix {
 
     /// \brief Does matrix A_ij=scalar*B_ij
     SmallMatrix operator*(const double& right) const {
-        SmallMatrix result;
-        std::transform(
-            data_.begin(), data_.end(), result.data_.begin(),
-            std::bind(std::multiplies<double>(), std::placeholders::_1, right));
+        EigenType result = data2_ * right;
         return result;
     }
 
@@ -193,38 +171,30 @@ class SmallMatrix {
         const SmallMatrix<numberOfColumns, K>& other) const;
 
     SmallMatrix& operator+=(const SmallMatrix& other) {
-        std::transform(data_.begin(), data_.end(), other.data_.begin(),
-                       data_.begin(), std::plus<double>());
+        data2_ += other.data2_;
         return *this;
     }
 
     SmallMatrix& operator-=(const SmallMatrix& other) {
-        std::transform(data_.begin(), data_.end(), other.data_.begin(),
-                       data_.begin(), std::minus<double>());
+        data2_ -= other.data2_;
         return *this;
     }
 
     SmallMatrix operator+(const SmallMatrix& other) const {
-        SmallMatrix result;
-        std::transform(data_.begin(), data_.end(), other.data_.begin(),
-                       result.data_.begin(), std::plus<double>());
-        return result;
+        EigenType res = data2_ + other.data2_;
+        return res;
     }
 
     SmallMatrix operator-(const SmallMatrix& other) const {
-        SmallMatrix result;
-        std::transform(data_.begin(), data_.end(), other.data_.begin(),
-                       result.data_.begin(), std::minus<double>());
-        return result;
+        EigenType res = data2_ - other.data2_;
+        return res;
     }
 
     SmallMatrix operator-() const { return *this * -1.; }
 
     /// \brief Does matrix A_ij=scalar*A_ij
     SmallMatrix& operator*=(const double& scalar) {
-        std::transform(data_.begin(), data_.end(), data_.begin(),
-                       std::bind(std::multiplies<double>(),
-                                 std::placeholders::_1, scalar));
+        data2_ *= scalar;
         return *this;
     }
 
@@ -235,30 +205,25 @@ class SmallMatrix {
 
     /// \brief Does matrix A_ij=scalar*A_ij
     SmallMatrix& operator/=(const double& scalar) {
-        std::transform(
-            data_.begin(), data_.end(), data_.begin(),
-            std::bind(std::divides<double>(), std::placeholders::_1, scalar));
+        data2_ /= scalar;
         return *this;
     }
 
     /// \brief this does element by divided by a scalar
     SmallMatrix operator/(const double& scalar) const {
-        SmallMatrix result;
-        std::transform(
-            data_.begin(), data_.end(), result.data_.begin(),
-            std::bind(std::divides<double>(), std::placeholders::_1, scalar));
-        return result;
+        EigenType res = data2_ / scalar;
+        return res;
     }
 
     /// \brief Assigns one matrix to another.
     SmallMatrix& operator=(const SmallMatrix& right) {
-        std::copy(right.data_.begin(), right.data_.end(), data_.begin());
+        data2_ = right.data2_;
         return *this;
     }
 
     /// \brief Assigns one matrix to another.
     SmallMatrix& operator=(SmallMatrix&& right) {
-        std::move(right.data_.begin(), right.data_.end(), data_.begin());
+        data2_ = right.data2_;
         return *this;
     }
 
@@ -268,9 +233,7 @@ class SmallMatrix {
     /// \brief Applies the matrix y=ax + y, where x is another matrix and a is a
     /// scalar
     void axpy(double a, const SmallMatrix& x) {
-        for (std::size_t i = 0; i < numberOfRows * numberOfColumns; ++i) {
-            data_[i] += a * x[i];
-        }
+        data2_ += a * x.data2_;
     }
 
     /// \brief Get total number of Matrix entries
@@ -290,26 +253,15 @@ class SmallMatrix {
 
     /// \brief get the j^th column
     SmallVector<numberOfRows> getColumn(std::size_t j) const {
-        logger.assert_debug(j < numberOfColumns,
-                            "Asked for column %, but there are only % columns",
-                            j, numberOfColumns);
-        return SmallVector<numberOfRows>(data() + j * numberOfRows);
+        typename SmallVector<numberOfRows>::EigenType res = data2_.col(j);
+        return res;
     }
 
     /// \brief get the i^th row
     SmallVector<numberOfColumns> getRow(std::size_t i) const {
-        logger.assert_debug(i < numberOfRows,
-                            "Asked for row %, but there are only % rows", i,
-                            numberOfRows);
-        SmallVector<numberOfColumns> result;
-        for (std::size_t j = 0; j < numberOfColumns; ++j) {
-            result[j] = (*this)(i, j);
-        }
-        return result;
+        typename SmallVector<numberOfColumns>::EigenType res = data2_.row(i);
+        return res;
     }
-
-    /// \brief Return the LUfactorisation of the matrix
-    SmallMatrix LUfactorisation() const;
 
     double determinant() const;
 
@@ -318,13 +270,9 @@ class SmallMatrix {
     SmallMatrix inverse() const;
 
     SmallMatrix<numberOfColumns, numberOfRows> transpose() const {
-        SmallMatrix<numberOfColumns, numberOfRows> result;
-        for (std::size_t i = 0; i < numberOfRows; ++i) {
-            for (std::size_t j = 0; j < numberOfColumns; ++j) {
-                result(j, i) = (*this)(i, j);
-            }
-        }
-        return result;
+        Eigen::Matrix<double, numberOfColumns, numberOfRows> res;
+        res = data2_.transpose();
+        return res;
     }
 
     /// \brief solves Ax=B where A is the current matrix and B is passed in. The
@@ -337,13 +285,22 @@ class SmallMatrix {
     /// is the input parameter. The result is returned in b.
     void solve(SmallVector<numberOfRows>& b) const;
 
-    double* data() { return data_.data(); }
+    double* data() { return data2_.data(); }
 
-    const double* data() const { return data_.data(); }
+    const double* data() const { return data2_.data(); }
+
+    operator EigenType& () {
+        return data2_;
+    }
+
+    operator const EigenType& () const {
+        return data2_;
+    }
 
    private:
+
     /// The actually data of the matrix class
-    std::array<double, numberOfRows * numberOfColumns> data_;
+    EigenType data2_;
 };
 
 /// Writes nicely formatted entries of the Matrix A to the stream os.

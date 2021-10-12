@@ -17,6 +17,29 @@ if(LAPACK_FOUND AND NOT TARGET LAPACK::LAPACK)
 endif()
 
 
+### Eigen ###
+
+# Following
+# https://stackoverflow.com/questions/65860094/how-to-add-eigen-library-to-a-cmake-c-project-via-fetchcontent
+include(FetchContent)
+FetchContent_Declare(
+        Eigen
+        GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+        GIT_TAG 3.4.0
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE)
+if(NOT eigen_POPULATED)
+    # Fetch the content using previously declared details
+    FetchContent_Populate(Eigen)
+
+    set(EIGEN_BUILD_DOC OFF)
+    set(EIGEN_BUILD_PKGCONFIG OFF)
+    set(BUILD_TESTING OFF)
+    set( OFF)
+    add_subdirectory(${eigen_SOURCE_DIR} ${eigen_BINARY_DIR})
+endif()
+message("Finished setting up Eigen")
+
 
 ### OPTIONAL DEPENDENCIES ###
 #############################
@@ -32,7 +55,7 @@ if(hpGEM_USE_METIS)
     include_directories(${METIS_INCLUDE_DIR})
     # Create target for easy linking
     add_library(METIS::METIS INTERFACE IMPORTED)
-    set_target_properties(METIS::METIS PROPERTIES 
+    set_target_properties(METIS::METIS PROPERTIES
         INTERFACE_LINK_LIBRARIES "${METIS_LIBRARIES}"
         INTERFACE_INCLUDE_DIRECTORIES "${METIS_INCLUDE_DIR}")
 endif()

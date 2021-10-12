@@ -46,6 +46,8 @@
 #include <algorithm>
 #include <numeric>
 
+#include <Eigen/Eigen>
+
 namespace hpgem {
 namespace LinearAlgebra {
 class MiddleSizeVector;
@@ -57,9 +59,10 @@ class MiddleSizeVector;
 /// Note it is encapulating a std::array for its data storage.
 template <std::size_t numberOfRows>
 class SmallVector {
-
    public:
-    SmallVector() : data_() {}
+    using EigenType = Eigen::Matrix<double, numberOfRows, 1>;
+
+    SmallVector() : data_() { data_.setZero(); }
 
     /*SmallVector(std::array<double, numberOfRows> t)
         : data_(t)
@@ -84,12 +87,12 @@ class SmallVector {
         }
     }
 
-    SmallVector(const std::vector<double>& vec) {
+    SmallVector(const std::vector<double>& other) {
         logger.assert_debug(
-            vec.size() == numberOfRows,
+            other.size() == numberOfRows,
             "Cannot construct a vector of size % from a std::vector of size %",
-            numberOfRows, vec.size());
-        std::copy_n(vec.begin(), numberOfRows, data_.begin());
+            numberOfRows, other.size());
+        std::copy_n(other.begin(), numberOfRows, data_.begin());
     }
 
     SmallVector(SmallVector&& other) : data_(std::move(other.data_)) {}
@@ -97,6 +100,8 @@ class SmallVector {
     SmallVector(const double array[]) : data_() {
         std::copy(array, array + numberOfRows, data_.begin());
     }
+
+    SmallVector(EigenType rawVec) : data_(rawVec){};
 
     SmallVector(std::initializer_list<double> data) : data_() {
         logger.assert_debug(data.size() == numberOfRows,
@@ -106,135 +111,87 @@ class SmallVector {
     }
 
     SmallVector& operator=(const SmallVector& right) {
-        std::copy(right.data_.begin(), right.data_.end(), data_.begin());
+        data_ = right.data_;
         return *this;
     }
 
     SmallVector& operator=(const std::array<double, numberOfRows> l) {
-        std::copy(l.begin(), l.end(), data_.begin());
+        data_ = l;
         return *this;
     }
 
     SmallVector operator+(const SmallVector& right) const {
-        SmallVector result;
-        std::transform(data_.begin(), data_.end(), right.data_.begin(),
-                       result.data_.begin(), std::plus<double>());
-        return result;
+        EigenType res = data_ + right.data_;
+        return res;
     }
 
     SmallVector operator-(const SmallVector& right) const {
-        SmallVector result;
-        std::transform(data_.begin(), data_.end(), right.data_.begin(),
-                       result.data_.begin(), std::minus<double>());
-        return result;
+        EigenType res = data_ - right.data_;
+        return res;
     }
 
     SmallVector operator*(const double& right) const {
-        SmallVector result;
-        std::transform(
-            data_.begin(), data_.end(), result.data_.begin(),
-            std::bind(std::multiplies<double>(), std::placeholders::_1, right));
-        return result;
+        EigenType res = right * data_;
+        return res;
     }
 
     /// Computes inner product between two vectors.
     double operator*(const SmallVector& right) const {
-        return std::inner_product(right.data_.begin(), right.data_.end(),
-                                  data_.begin(), 0.);
+        return data_.dot(right.data_);
     }
 
     SmallVector& operator/=(const double& right) {
-        std::transform(
-            data_.begin(), data_.end(), data_.begin(),
-            std::bind(std::divides<double>(), std::placeholders::_1, right));
+        data_ /= right;
         return *this;
     }
 
     SmallVector operator/(const double& right) const {
-        SmallVector result;
-        std::transform(
-            data_.begin(), data_.end(), result.data_.begin(),
-            std::bind(std::divides<double>(), std::placeholders::_1, right));
-        return result;
+        EigenType res = data_ / right;
+        return res;
     }
 
-    void axpy(double a, const SmallVector& x) {
-        for (std::size_t i = 0; i < numberOfRows; ++i) {
-            data_[i] += a * x[i];
-        }
-    }
+    void axpy(double a, const SmallVector& x) { data_ += a * x.data_; }
 
     /// This function is dangerous to use, since it compares doubles without
     /// a tolerance interval to see if they are equal.
     bool operator==(const SmallVector& right) const {
-        for (std::size_t i = 0; i < numberOfRows; ++i) {
-            if (data_[i] != right[i]) {
-                return false;
-            }
-        }
-        return true;
+        return data_ == right.data_;
     }
 
     /// This function is dangerous to use, since it compares doubles without
     /// a tolerance interval to see if they are equal.
     bool operator<(const SmallVector& right) const {
         for (std::size_t i = 0; i < numberOfRows; ++i) {
-            if (data_[i] < right[i]) {
-                return true;
-            }
-            if (data_[i] > right[i]) {
-                return false;
+            if (data_[i] != right.data_[i]) {
+                return data_[i] < right.data_[i];
             }
         }
+        // Identical
         return false;
     }
 
     SmallVector& operator+=(const SmallVector& right) {
-        std::transform(data_.begin(), data_.end(), right.data_.begin(),
-                       data_.begin(), std::plus<double>());
+        data_ += right.data_;
         return *this;
     }
 
     SmallVector& operator-=(const SmallVector& right) {
-        std::transform(data_.begin(), data_.end(), right.data_.begin(),
-                       data_.begin(), std::minus<double>());
+        data_ -= right.data_;
         return *this;
     }
 
     SmallVector& operator*=(const double& right) {
-        std::transform(
-            data_.begin(), data_.end(), data_.begin(),
-            std::bind(std::multiplies<double>(), std::placeholders::_1, right));
+        data_ *= right;
         return *this;
     }
 
-    double& operator[](std::size_t n) {
-        logger.assert_debug(n < numberOfRows,
-                            "Requested entry %, but there are only % entries",
-                            n, numberOfRows);
-        return data_[n];
-    }
+    double& operator[](std::size_t n) { return data_[n]; }
 
-    const double& operator[](std::size_t n) const {
-        logger.assert_debug(n < numberOfRows,
-                            "Requested entry %, but there are only % entries",
-                            n, numberOfRows);
-        return data_[n];
-    }
+    const double& operator[](std::size_t n) const { return data_[n]; }
 
-    double& operator()(std::size_t n) {
-        logger.assert_debug(n < numberOfRows,
-                            "Requested entry %, but there are only % entries",
-                            n, numberOfRows);
-        return data_[n];
-    }
+    double& operator()(std::size_t n) { return data_[n]; }
 
-    const double& operator()(std::size_t n) const {
-        logger.assert_debug(n < numberOfRows,
-                            "Requested entry %, but there are only % entries",
-                            n, numberOfRows);
-        return data_[n];
-    }
+    const double& operator()(std::size_t n) const { return data_[n]; }
 
     std::size_t size() const { return numberOfRows; }
     const double* data() const { return data_.data(); }
@@ -243,11 +200,7 @@ class SmallVector {
 
     SmallVector operator-() const { return *this * -1.; }
 
-    void set(double value) {
-        for (std::size_t i = 0; i < numberOfRows; ++i) {
-            data_[i] = value;
-        }
-    }
+    void set(double value) { data_.setConstant(value); }
 
     /// \brief Cross product for 2D and 3D vectors.
     ///
@@ -266,9 +219,9 @@ class SmallVector {
         return result;
     }
 
-    double l2NormSquared() const { return this->operator*(*this); }
+    double l2NormSquared() const { return data_.squaredNorm(); }
 
-    double l2Norm() const { return std::sqrt(l2NormSquared()); }
+    double l2Norm() const { return data_.norm(); }
 
     /// \brief Append a number to the vector.
     ///
@@ -276,14 +229,16 @@ class SmallVector {
     /// \return A new vector with the value appended to the values in this
     /// vector.
     SmallVector<numberOfRows + 1> append(double value) {
-        SmallVector<numberOfRows + 1> result;
-        for (std::size_t i = 0; i < numberOfRows; ++i) result[i] = data_[i];
-        result[numberOfRows] = value;
-        return result;
+        Eigen::Matrix<double, numberOfRows + 1, 1> res;
+        res << data_, value;
+        return res;
     }
 
+    operator EigenType&() { return data_; }
+    operator const EigenType&() const { return data_; }
+
    private:
-    std::array<double, numberOfRows> data_;
+    EigenType data_;
 };
 
 template <std::size_t numberOfRows>
@@ -314,9 +269,7 @@ template <>
 inline void SmallVector<3>::crossProduct(
     const LinearAlgebra::SmallVector<3>& other,
     LinearAlgebra::SmallVector<3>& result) const {
-    result[0] = data_[1] * other[2] - data_[2] * other[1];
-    result[1] = data_[2] * other[0] - data_[0] * other[2];
-    result[2] = data_[0] * other[1] - data_[1] * other[0];
+    result.data_ = data_.cross(other.data_);
 }
 
 template <std::size_t numberOfRows>
