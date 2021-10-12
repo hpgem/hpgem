@@ -155,6 +155,7 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     void initializeBasisFunctions(Base::MeshManipulator<DIM>& mesh,
                                   std::size_t order);
 
+    /// Set the indicator function for the boundary condition to use
     void setBoundaryIndicator(DGMax::BoundaryConditionIndicator indicator) {
         boundaryIndicator_ = indicator;
     }

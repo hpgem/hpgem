@@ -138,10 +138,13 @@ class TestingProblem : public HarmonicProblem<dim> {
             face.getReferenceGeometry()->getCenter().castDimension<dim - 1>());
         normal /= normal.l2Norm();
 
+        // Check if the normal matches: {1,0} or {-1,0}
         double nx = std::abs(std::abs(normal[0]) - 1.0);
         if (nx < 1e-8) {
+            // For faces at y=0,1
             return DGMax::BoundaryConditionType::DIRICHLET;
         } else {
+            // For faces at x=0,1
             return DGMax::BoundaryConditionType::NEUMANN;
         }
     }

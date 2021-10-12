@@ -62,27 +62,33 @@ class TestingProblem : public ExactHarmonicProblem<2> {
         //     finer meshes.
         //  3. Not in the cardinal directions or along the diagonals, as those
         //     are the normal directions in the mesh.
-        : k_({1 * M_PI, 0.5 * M_PI}), E0_({0.5, -1}), bface(false){};
+        : k_({1 * M_PI, 0.5 * M_PI}), E0_({0.5, -1}), bface(false) {
+
+        // Required for a correct plane wave.
+        logger.assert_debug(
+            std::abs(k_ * E0_) < 1e-12,
+            "Field must be orthogonal to propagation direction");
+    };
 
     double omega() const final {
         // Off resonance so that we need a source term and test that as well.
         return 3.0;
     }
 
-    double modulation(const Point& p) const {
-        return std::cos(p.getCoordinates() * k_);
+    Vec2 exactSolution(const Point& p) const final {
+        return E0_ * std::cos(p.getCoordinates() * k_);
+    }
+
+    Vec2 exactSolutionCurl(const Point& p) const final {
+        return -k_.crossProduct(E0_) * std::sin(p.getCoordinates() * k_);
     }
 
     Vec2 sourceTerm(const Point& p) const final {
+        // Computed under the assumption that
+        // k_ is orthogonal to E0_
         double omega2 = omega();
         omega2 *= omega2;
-        return E0_ * modulation(p) * (k_.l2NormSquared() - omega2);
-    }
-    Vec2 exactSolution(const Point& p) const final {
-        return E0_ * modulation(p);
-    }
-    Vec2 exactSolutionCurl(const Point& p) const final {
-        return -k_.crossProduct(E0_) * std::sin(p.getCoordinates() * k_);
+        return exactSolution(p) * (k_.l2NormSquared() - omega2);
     }
 
     BoundaryConditionType getBoundaryConditionType(
@@ -93,8 +99,10 @@ class TestingProblem : public ExactHarmonicProblem<2> {
         Vec2 normal = bface.getUnitNormalVector();
         double nx = std::abs(normal[0]);
         if (std::abs(nx - 1.0) < 1e-8) {
-            return BoundaryConditionType::NEUMANN;
+            // Case normal={1,0} => face at y=1
+            return BoundaryConditionType::DIRICHLET;
         } else {
+            // All other boundary faces
             return BoundaryConditionType::NEUMANN;
         }
     }
@@ -156,7 +164,8 @@ int main(int argc, char** argv) {
     Base::parse_options(argc, argv);
     initDGMaxLogging();
 
-    bool ignoreFailures = true;
+    // For testing and updating => Should be false to actually use this test
+    bool ignoreFailures = false;
 
     // Default the solver if not specified to a direct LU solver
     std::map<std::string, std::string> defaultOptions = {
@@ -174,22 +183,22 @@ int main(int argc, char** argv) {
     // L2 norm is expected at h^{p} => reduction of a factor 4 with each level
     ConvergenceTestSet meshes = {getUnitSquareTriangleMeshes(),
                                  {
-                                     1.42329582e-01,  //------
-                                     5.25619738e-02,  //  2.71
-                                     1.34616005e-02,  //  3.90
-                                     3.43157573e-03,  //  3.92
-                                     8.66123561e-04,  //  3.96
-                                     2.17527652e-04,  //  3.98
-                                     5.45037524e-05,  //  3.99
+                                     1.73487833e-01,  //------
+                                     5.49663411e-02,  //  3.16
+                                     1.38124599e-02,  //  3.98
+                                     3.47325613e-03,  //  3.98
+                                     8.71270183e-04,  //  3.99
+                                     2.18168883e-04,  //  3.99
+                                     5.45838131e-05,  //  4.00
                                  }};
     runConvergenceTest(meshes, ignoreFailures, &solveDGMax);
     ConvergenceTestSet meshes2 = {getUnitSquareTriangleMeshes(0, 5),
                                   {
-                                      1.59795098e-01,  //------
-                                      4.93777108e-02,  //  3.24
-                                      1.17391078e-02,  //  4.21
-                                      2.92095459e-03,  //  4.02
-                                      7.30300125e-04,  //  4.00
+                                      1.82791849e-01,  //------
+                                      4.98064965e-02,  //  3.67
+                                      1.20771131e-02,  //  4.12
+                                      2.97631344e-03,  //  4.06
+                                      7.37982121e-04,  //  4.03
                                   }};
     runConvergenceTest(meshes2, ignoreFailures, &solveDivDGMax);
 }
