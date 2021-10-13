@@ -107,6 +107,9 @@ void writeMesh(std::string, const Base::MeshManipulator<dim>* mesh);
 template <std::size_t dim>
 class TestingProblem : public HarmonicProblem<dim> {
 
+   public:
+    TestingProblem(){};
+
     double omega() const final { return 4.0e-2; }
 
     LinearAlgebra::SmallVector<dim> sourceTerm(
@@ -122,6 +125,28 @@ class TestingProblem : public HarmonicProblem<dim> {
     LinearAlgebra::SmallVector<dim> boundaryCondition(
         Base::PhysicalFace<dim>& face) const override {
         return {};
+    }
+
+    DGMax::BoundaryConditionType getBoundaryConditionType(
+        const Base::Face& face) const final {
+
+        if (face.isInternal()) {
+            return DGMax::BoundaryConditionType::INTERNAL;
+        }
+
+        LinearAlgebra::SmallVector<dim> normal = face.getNormalVector(
+            face.getReferenceGeometry()->getCenter().castDimension<dim - 1>());
+        normal /= normal.l2Norm();
+
+        // Check if the normal matches: {1,0} or {-1,0}
+        double nx = std::abs(std::abs(normal[0]) - 1.0);
+        if (nx < 1e-8) {
+            // For faces at y=0,1
+            return DGMax::BoundaryConditionType::DIRICHLET;
+        } else {
+            // For faces at x=0,1
+            return DGMax::BoundaryConditionType::NEUMANN;
+        }
     }
 };
 

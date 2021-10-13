@@ -459,6 +459,21 @@ void GlobalPetscVector::writeTimeIntegrationVector(
     VecDestroy(&localB);
     CHKERRV(ierr);
 }
+
+void GlobalPetscVector::writeMatlab(Vec vec, const std::string& fileName) {
+    PetscViewer viewer;
+    PetscErrorCode err;
+
+    err = PetscViewerASCIIOpen(PETSC_COMM_WORLD, fileName.c_str(), &viewer);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
+    err = PetscViewerPushFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
+    err = VecView(vec, viewer);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
+    err = PetscViewerDestroy(&viewer);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
+}
+
 #endif
 
 }  // namespace Utilities

@@ -42,6 +42,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Geometry/PointPhysical.h"
 #include "Base/PhysicalFace.h"
 #include "LinearAlgebra/SmallVector.h"
+#include "BoundaryConditionType.h"
 
 using namespace hpgem;
 
@@ -67,6 +68,20 @@ class HarmonicProblem {
     virtual double omega() const = 0;
     virtual LinearAlgebra::SmallVector<DIM> sourceTerm(
         const Geometry::PointPhysical<DIM>& point) const = 0;
+    virtual DGMax::BoundaryConditionType getBoundaryConditionType(
+        const Base::Face& face) const = 0;
+
+    /**
+     * Value of the boundary function. The use of this value depends on
+     * getBoundaryConditionType(). For the different boundary conditions this
+     * should be:
+     *
+     * - Dirichlet: n x g_D (TODO: Future refactor -> g_D)
+     * - Neumann: g_N
+     *
+     * @param face The face and point to evaluate the BC on
+     * @return The value.
+     */
     virtual LinearAlgebra::SmallVector<DIM> boundaryCondition(
         Base::PhysicalFace<DIM>& face) const = 0;
 };
@@ -81,11 +96,23 @@ class ExactHarmonicProblem : public HarmonicProblem<DIM> {
 
     LinearAlgebra::SmallVector<DIM> boundaryCondition(
         Base::PhysicalFace<DIM>& face) const final {
-        LinearAlgebra::SmallVector<DIM> efield =
-            exactSolution(face.getPointPhysical());
-        const LinearAlgebra::SmallVector<DIM>& normal =
-            face.getUnitNormalVector();
-        return normal.crossProduct(efield);
+
+        using BCT = DGMax::BoundaryConditionType;
+        using Vec = LinearAlgebra::SmallVector<DIM>;
+        BCT bct = this->getBoundaryConditionType(*face.getFace());
+        switch (bct) {
+            case BCT::DIRICHLET: {
+                Vec efield = this->exactSolution(face.getPointPhysical());
+                Vec normal = face.getUnitNormalVector();
+                return normal.crossProduct(efield);
+            }
+            case BCT::NEUMANN:
+                return this->exactSolutionCurl(face.getPointPhysical());
+            default:
+                logger(ERROR,
+                       "Not implemented for this type of boundary condition.");
+                return {};
+        }
     }
 };
 

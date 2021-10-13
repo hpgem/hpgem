@@ -147,6 +147,11 @@ class GlobalPetscVector : public GlobalVector {
 
     void assemble() override;
 
+    void writeMatlab(const std::string& fileName) {
+        writeMatlab(b_, fileName);
+    };
+    static void writeMatlab(Vec vec, const std::string& fileName);
+
    private:
     void createVec();
     void zeroVector();

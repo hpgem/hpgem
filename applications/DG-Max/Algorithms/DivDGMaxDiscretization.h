@@ -48,6 +48,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Integration/ElementIntegral.h"
 #include "Integration/FaceIntegral.h"
 
+#include "ProblemTypes/BoundaryConditionType.h"
+
 // Forward definitions
 namespace hpgem {
 namespace Base {
@@ -153,6 +155,11 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     void initializeBasisFunctions(Base::MeshManipulator<DIM>& mesh,
                                   std::size_t order);
 
+    /// Set the indicator function for the boundary condition to use
+    void setBoundaryIndicator(DGMax::BoundaryConditionIndicator indicator) {
+        boundaryIndicator_ = indicator;
+    }
+
     void computeElementIntegrands(
         Base::MeshManipulator<DIM>& mesh,
         const std::map<std::size_t, InputFunction>& elementVectors);
@@ -215,10 +222,11 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     void addFaceMatrixPotentialIntegrand(
         Base::PhysicalFace<DIM>& fa,
         const Utilities::FaceLocalIndexing& indexing, const Stab& stab,
+        DGMax::BoundaryConditionType bct,
         LinearAlgebra::MiddleSizeMatrix& ret) const;
 
-    LinearAlgebra::MiddleSizeMatrix brezziFluxBilinearTerm(Base::Face* face,
-                                                           Stab stab);
+    LinearAlgebra::MiddleSizeMatrix brezziFluxBilinearTerm(
+        Base::Face* face, DGMax::BoundaryConditionType bct, Stab stab);
 
     /// \brief Compute mass matrix for vector components on elements adjacent to
     /// a face
@@ -290,7 +298,7 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     void faceBoundaryVector(Base::PhysicalFace<DIM>& fa,
                             const FaceInputFunction& boundaryValue,
                             LinearAlgebra::MiddleSizeVector& ret,
-                            Stab stab) const;
+                            DGMax::BoundaryConditionType bct, Stab stab) const;
 
     /// Compute contribution of the brezzi flux to the face vector on the
     /// boundary
@@ -306,6 +314,8 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     Integration::FaceIntegral<DIM> faceIntegrator_;
     std::shared_ptr<Base::HCurlConformingTransformation<DIM>> fieldTransform_;
     std::shared_ptr<Base::H1ConformingTransformation<DIM>> potentialTransform_;
+
+    DGMax::BoundaryConditionIndicator boundaryIndicator_;
 };
 
 // TODO: Deduction fails for a templated variant, hence using explicit versions
