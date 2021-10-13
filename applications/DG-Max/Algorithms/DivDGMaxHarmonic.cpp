@@ -38,6 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "DivDGMaxHarmonic.h"
 
+#include "DGMaxLogger.h"
 #include <Output/TecplotDiscontinuousSolutionWriter.h>
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
@@ -58,9 +59,11 @@ DivDGMaxHarmonic<DIM>::DivDGMaxHarmonic(Base::MeshManipulator<DIM>& mesh,
 template <std::size_t DIM>
 void DivDGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& input) {
     PetscErrorCode error;
-
     using Discretization = DivDGMaxDiscretization<DIM>;
 
+    discretization_.setBoundaryIndicator(
+        std::bind(&HarmonicProblem<DIM>::getBoundaryConditionType, &input,
+                  std::placeholders::_1));
     {
         std::map<std::size_t, typename Discretization::InputFunction>
             elementVecs = {{Discretization::ELEMENT_SOURCE_VECTOR_ID,
@@ -115,6 +118,32 @@ void DivDGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& input) {
     CHKERRABORT(PETSC_COMM_WORLD, error);
     error = KSPSolve(solver, rhs, result);
     CHKERRABORT(PETSC_COMM_WORLD, error);
+
+    {
+        // Convergence diagnostics
+        PetscInt niters;
+        KSPGetIterationNumber(solver, &niters);
+        KSPConvergedReason converged;
+        KSPGetConvergedReason(solver, &converged);
+        const char* convergedReason;
+
+#if PETSC_VERSION_GE(3, 15, 0)
+        KSPGetConvergedReasonString(solver, &convergedReason);
+#else
+        convergedReason = KSPConvergedReasons[converged];
+#endif
+
+        if (converged > 0) {
+            // Successful
+            DGMaxLogger(INFO,
+                        "Successfully converged in % iterations with reason %",
+                        niters, convergedReason);
+        } else {
+            DGMaxLogger(WARN,
+                        "Failed to converge in % iterations with reason %",
+                        niters, convergedReason);
+        }
+    }
 
     // TODO: This is a bit dirty to store it in the time integration vector.
     result.writeTimeIntegrationVector(0);

@@ -63,6 +63,12 @@ class SampleHarmonicProblems : public ExactHarmonicProblem<DIM> {
     LinearAlgebra::SmallVector<DIM> exactSolutionCurl(
         const Geometry::PointPhysical<DIM>& point) const override;
 
+    // Historical implementation
+    DGMax::BoundaryConditionType getBoundaryConditionType(
+        const Base::Face& face) const override {
+        return DGMax::BoundaryConditionType::DIRICHLET;
+    }
+
    private:
     const Problem problem_;
     const double omega_;

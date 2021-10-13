@@ -52,6 +52,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Geometry/PointPhysical.h"
 #include "Integration/ElementIntegral.h"
 #include "Integration/FaceIntegral.h"
+#include "ProblemTypes/BoundaryConditionType.h"
 
 using namespace hpgem;
 
@@ -128,6 +129,10 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
         matrixHandling_ = matrixHandling;
     }
 
+    void setBoundaryIndicator(DGMax::BoundaryConditionIndicator indicator) {
+        boundaryIndicator_ = indicator;
+    }
+
     void initializeBasisFunctions(Base::MeshManipulator<DIM>& mesh,
                                   std::size_t order);
 
@@ -197,7 +202,8 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
     // The face vector integrand.
     void faceVector(Base::PhysicalFace<DIM>& fa,
                     const FaceInputFunction& boundaryCondition,
-                    LinearAlgebra::MiddleSizeVector& ret, double stab) const;
+                    LinearAlgebra::MiddleSizeVector& ret,
+                    DGMax::BoundaryConditionType bct, double stab) const;
 
     // TODO: Replace this by a better type than SmallVector<2>.
     LinearAlgebra::SmallVector<2> elementErrorIntegrand(
@@ -210,6 +216,7 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
 
     const bool includeProjector_;
     MassMatrixHandling matrixHandling_;
+    DGMax::BoundaryConditionIndicator boundaryIndicator_;
 
     std::vector<std::shared_ptr<Base::CoordinateTransformation<DIM>>>
         transforms_;

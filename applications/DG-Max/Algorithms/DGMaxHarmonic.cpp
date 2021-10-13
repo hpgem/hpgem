@@ -66,6 +66,10 @@ void DGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& harmonicProblem) {
                   std::placeholders::_1);
 
     discretization.setMatrixHandling(DGMaxDiscretizationBase::NORMAL);
+    discretization.setBoundaryIndicator(
+        std::bind(&HarmonicProblem<DIM>::getBoundaryConditionType,
+                  &harmonicProblem, std::placeholders::_1));
+
     discretization.computeElementIntegrands(mesh_, elementVectors);
 
     std::map<std::size_t, typename DGMaxDiscretization<DIM>::FaceInputFunction>
