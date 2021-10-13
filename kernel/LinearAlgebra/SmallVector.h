@@ -94,8 +94,13 @@ inline std::complex<double> conj(std::complex<double> v) {
 
 inline std::size_t hash(double v) noexcept { return std::hash<double>()(v); }
 inline std::size_t hash(std::complex<double> v) noexcept {
+    // Same as
+    // https://stackoverflow.com/questions/1646807/quick-and-simple-hash-code-combinations
+    std::size_t hash = 17;
+    hash = hash * 31 + std::hash<double>()(v.real());
+    hash = hash * 31 + std::hash<double>()(v.imag());
 
-    return std::hash<double>()(v.real()) + 17 * std::hash<double>()(v.imag());
+    return hash;
 }
 
 inline bool less(const double& v1, const double& v2) noexcept {
@@ -379,13 +384,16 @@ class GSmallVector {
     }
 
     std::size_t hash() const noexcept {
-        std::size_t result = 0;
+        // Similar to
+        // https://stackoverflow.com/questions/1646807/quick-and-simple-hash-code-combinations
+
+        std::size_t hash = 17;
         for (std::size_t i = 0; i < numberOfRows; ++i) {
             // Basic hash combining function
             std::size_t v = Detail::hash(data_[i]);
-            result ^= v + 0x9e3779b9L + (result << 6) + (result >> 2);
+            hash = hash * 31 + v;
         }
-        return result;
+        return hash;
     }
 
     SmallVector<numberOfRows> real() const {
