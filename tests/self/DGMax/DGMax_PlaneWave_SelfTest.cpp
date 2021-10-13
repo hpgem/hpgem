@@ -169,7 +169,8 @@ int main(int argc, char** argv) {
 
     // Default the solver if not specified to a direct LU solver
     std::map<std::string, std::string> defaultOptions = {
-        {"-ksp_type", "preonly"}, {"-pc_type", "lu"},
+        {"-ksp_type", "preonly"},
+        {"-pc_type", "lu"},
         // The DivDGMax system can't be solved with the petsc solver
         {"-pc_factor_mat_solver_type", "umfpack"}};
     for (const auto& option : defaultOptions) {
