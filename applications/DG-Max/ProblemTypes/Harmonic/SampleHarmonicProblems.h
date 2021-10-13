@@ -56,11 +56,11 @@ class SampleHarmonicProblems : public ExactHarmonicProblem<DIM> {
     SampleHarmonicProblems(Problem problem, double omega);
 
     double omega() const override;
-    LinearAlgebra::SmallVector<DIM> sourceTerm(
+    LinearAlgebra::SmallVectorC<DIM> sourceTerm(
         const Geometry::PointPhysical<DIM>& point) const override;
-    LinearAlgebra::SmallVector<DIM> exactSolution(
+    LinearAlgebra::SmallVectorC<DIM> exactSolution(
         const Geometry::PointPhysical<DIM>& point) const override;
-    LinearAlgebra::SmallVector<DIM> exactSolutionCurl(
+    LinearAlgebra::SmallVectorC<DIM> exactSolutionCurl(
         const Geometry::PointPhysical<DIM>& point) const override;
 
     // Historical implementation

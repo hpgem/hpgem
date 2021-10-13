@@ -66,7 +66,7 @@ class HarmonicProblem {
    public:
     virtual ~HarmonicProblem() = default;
     virtual double omega() const = 0;
-    virtual LinearAlgebra::SmallVector<DIM> sourceTerm(
+    virtual LinearAlgebra::SmallVectorC<DIM> sourceTerm(
         const Geometry::PointPhysical<DIM>& point) const = 0;
     virtual DGMax::BoundaryConditionType getBoundaryConditionType(
         const Base::Face& face) const = 0;
@@ -82,21 +82,20 @@ class HarmonicProblem {
      * @param face The face and point to evaluate the BC on
      * @return The value.
      */
-    virtual LinearAlgebra::SmallVector<DIM> boundaryCondition(
+    virtual LinearAlgebra::SmallVectorC<DIM> boundaryCondition(
         Base::PhysicalFace<DIM>& face) const = 0;
 };
 
 template <std::size_t DIM>
 class ExactHarmonicProblem : public HarmonicProblem<DIM> {
    public:
-    virtual LinearAlgebra::SmallVector<DIM> exactSolution(
+    virtual LinearAlgebra::SmallVectorC<DIM> exactSolution(
         const Geometry::PointPhysical<DIM>& point) const = 0;
-    virtual LinearAlgebra::SmallVector<DIM> exactSolutionCurl(
+    virtual LinearAlgebra::SmallVectorC<DIM> exactSolutionCurl(
         const Geometry::PointPhysical<DIM>& point) const = 0;
 
-    LinearAlgebra::SmallVector<DIM> boundaryCondition(
+    LinearAlgebra::SmallVectorC<DIM> boundaryCondition(
         Base::PhysicalFace<DIM>& face) const final {
-
         using BCT = DGMax::BoundaryConditionType;
         using Vec = LinearAlgebra::SmallVector<DIM>;
         BCT bct = this->getBoundaryConditionType(*face.getFace());

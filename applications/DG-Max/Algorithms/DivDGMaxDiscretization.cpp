@@ -392,7 +392,8 @@ void DivDGMaxDiscretization<DIM>::elementSourceVector(
     std::size_t pDoFs = element->getNumberOfBasisFunctions(1);
     ret.resize(uDoFs + pDoFs);
 
-    LinearAlgebra::SmallVector<DIM> sourceValue, phi;
+    LinearAlgebra::SmallVectorC<DIM> sourceValue;
+    LinearAlgebra::SmallVector<DIM> phi;
     sourceValue = source(el.getPointPhysical());
     for (std::size_t i = 0; i < (uDoFs); ++i) {
         el.basisFunction(i, phi, 0);
@@ -944,8 +945,8 @@ void DivDGMaxDiscretization<DIM>::faceBoundaryVector(
     } else if (bct == DGMax::BoundaryConditionType::DIRICHLET) {
         double diameter = face->getDiameter();
 
-        LinearAlgebra::SmallVector<DIM> val, phi_curl;
-        LinearAlgebra::SmallVector<DIM> phi;
+        LinearAlgebra::SmallVectorC<DIM> val;
+        LinearAlgebra::SmallVector<DIM> phi, phi_curl;
         val = boundaryValue(fa);
 
         std::size_t totalUDoFs =

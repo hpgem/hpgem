@@ -212,6 +212,16 @@ class GSmallVector {
         return result;
     }
 
+    // Multiplication by a cmoplex number
+    GSmallVector<numberOfRows, std::complex<EntryT>> operator*(
+        const std::complex<EntryT>& right) const {
+        GSmallVector<numberOfRows, std::complex<EntryT>> result;
+        for (std::size_t i = 0; i < numberOfRows; ++i) {
+            result[i] = right * data_[i];
+        }
+        return result;
+    }
+
     /// Computes inner product between two vectors.
     EntryT operator*(const GSmallVector& right) const {
         EntryT result = 0;
@@ -419,6 +429,14 @@ class GSmallVector {
 template <std::size_t numberOfRows, typename EntryT>
 GSmallVector<numberOfRows, EntryT> operator*(
     const EntryT& left, const GSmallVector<numberOfRows, EntryT>& right) {
+    return right * left;
+}
+
+// Multiply real vector by complex number
+template <std::size_t numberOfRows, typename EntryT>
+GSmallVector<numberOfRows, std::complex<EntryT>> operator*(
+    const std::complex<EntryT>& left,
+    const GSmallVector<numberOfRows, EntryT>& right) {
     return right * left;
 }
 

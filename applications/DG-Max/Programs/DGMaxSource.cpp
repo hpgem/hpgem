@@ -112,7 +112,7 @@ class TestingProblem : public HarmonicProblem<dim> {
 
     double omega() const final { return 4.0e-2; }
 
-    LinearAlgebra::SmallVector<dim> sourceTerm(
+    LinearAlgebra::SmallVectorC<dim> sourceTerm(
         const Geometry::PointPhysical<dim>& point) const final {
         LinearAlgebra::SmallVector<dim> result;
 
@@ -122,7 +122,7 @@ class TestingProblem : public HarmonicProblem<dim> {
         return result;
     }
 
-    LinearAlgebra::SmallVector<dim> boundaryCondition(
+    LinearAlgebra::SmallVectorC<dim> boundaryCondition(
         Base::PhysicalFace<dim>& face) const override {
         return {};
     }

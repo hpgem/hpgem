@@ -50,6 +50,9 @@ namespace DGMax {
 template <std::size_t dim>
 class AbstractHarmonicSolver {
    public:
+
+    virtual ~AbstractHarmonicSolver() = default;
+
     /**
      * Solve the problem
      * @param problem The problem to solve

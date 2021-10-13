@@ -109,10 +109,10 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
    public:
     using PointPhysicalT = hpgem::Geometry::PointPhysical<DIM>;
     using InputFunction =
-        std::function<LinearAlgebra::SmallVector<DIM>(const PointPhysicalT&)>;
-    using FaceInputFunction = std::function<LinearAlgebra::SmallVector<DIM>(
+        std::function<LinearAlgebra::SmallVectorC<DIM>(const PointPhysicalT&)>;
+    using FaceInputFunction = std::function<LinearAlgebra::SmallVectorC<DIM>(
         Base::PhysicalFace<DIM>&)>;
-    using TimeFunction = std::function<LinearAlgebra::SmallVector<DIM>(
+    using TimeFunction = std::function<LinearAlgebra::SmallVectorC<DIM>(
         const PointPhysicalT&, double)>;
 
     DGMaxDiscretization(bool includeProjector = false);
