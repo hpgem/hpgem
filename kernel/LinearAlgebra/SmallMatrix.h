@@ -95,8 +95,7 @@ class SmallMatrix {
 
     /// \brief Construct and copy Matrix from another Matrix i.e. B(A) where B
     /// and A are both matrices
-    SmallMatrix(const SmallMatrix& other) : data2_(other.data2_) {
-    }
+    SmallMatrix(const SmallMatrix& other) : data2_(other.data2_) {}
 
     /// \brief Construct and copy Matrix from another Matrix i.e. B(A) where B
     /// and A are both matrices
@@ -131,24 +130,18 @@ class SmallMatrix {
 
     /// \brief defines the operator (n,m) to access the element on row n and
     /// column m
-    double& operator()(std::size_t n, std::size_t m) {
-        return data2_(n,m);
-    }
+    double& operator()(std::size_t n, std::size_t m) { return data2_(n, m); }
 
     /// \brief defines the operator (n,m) to access the element on row n and
     /// column m
     const double& operator()(std::size_t n, std::size_t m) const {
-        return data2_(n,m);
+        return data2_(n, m);
     }
 
     /// \brief Access the n linear element in the matrix.
-    double& operator[](const std::size_t n) {
-        return data2_(n);
-    }
+    double& operator[](const std::size_t n) { return data2_(n); }
 
-    const double& operator[](const std::size_t n) const {
-        return data2_(n);
-    }
+    const double& operator[](const std::size_t n) const { return data2_(n); }
 
     /// \brief Defines Matrix A times vector B and return vector C i.e. C_,j=
     /// A_ij B_,j
@@ -232,9 +225,7 @@ class SmallMatrix {
 
     /// \brief Applies the matrix y=ax + y, where x is another matrix and a is a
     /// scalar
-    void axpy(double a, const SmallMatrix& x) {
-        data2_ += a * x.data2_;
-    }
+    void axpy(double a, const SmallMatrix& x) { data2_ += a * x.data2_; }
 
     /// \brief Get total number of Matrix entries
     std::size_t size() const { return numberOfRows * numberOfColumns; }
@@ -289,16 +280,11 @@ class SmallMatrix {
 
     const double* data() const { return data2_.data(); }
 
-    operator EigenType& () {
-        return data2_;
-    }
+    operator EigenType&() { return data2_; }
 
-    operator const EigenType& () const {
-        return data2_;
-    }
+    operator const EigenType&() const { return data2_; }
 
    private:
-
     /// The actually data of the matrix class
     EigenType data2_;
 };
