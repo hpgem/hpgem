@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2014, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,51 +35,26 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef HPGEM_TYPES_H
+#define HPGEM_TYPES_H
 
-#ifndef HPGEM_KERNEL_PHYSGRADIENTOFBASISFUNCTION_H
-#define HPGEM_KERNEL_PHYSGRADIENTOFBASISFUNCTION_H
+#include <memory>
 
-#include "Logger.h"
+// Predeclaration header for LinearAlgebra
+
 namespace hpgem {
+namespace LinearAlgebra {
 
-namespace Geometry {
-template <std::size_t DIM>
-class PointReference;
-}
+template <std::size_t numberOfRows, typename EntryT>
+class GSmallVector;
+template <std::size_t numberOfRows>
+using SmallVector = GSmallVector<numberOfRows, double>;
+template <std::size_t numberOfRows>
+using SmallVectorC = GSmallVector<numberOfRows, std::complex<double>>;
 
-namespace Base {
-class Element;
-class BaseBasisFunction;
-}  // namespace Base
+class MiddleSizeVector;
 
-namespace Utilities {
-/*! For a basis function we also need its physical space gradient as opposed
- *  to the one in reference space (which can be harvested by evaluating the
- *  derivatives of basis functions). Hence this class computes the
- *  reference space gradient, transforms it with the Jacobian of the mapping
- *  and thus yields the physical space gradient.
- *  \deprecated functionality is specific for H1 conforming basisfunctions*/
-struct PhysGradientOfBasisFunction {
-
-    PhysGradientOfBasisFunction(const Base::Element* e,
-                                const Base::BaseBasisFunction* function)
-        : myElement_(e), myFunction_(function) {
-        logger.assert_debug(e != nullptr, "Invalid element passed");
-        logger.assert_debug(function != nullptr, "Invalid function passed");
-    }
-
-    //! Evaluation operator, also compatible with integration routines.
-    template <std::size_t DIM>
-    LinearAlgebra::SmallVector<DIM> operator()(
-        const Geometry::PointReference<DIM>& p) const;
-
-   private:
-    const Base::Element* myElement_;
-    const Base::BaseBasisFunction* myFunction_;
-};
-
-}  // namespace Utilities
+}  // namespace LinearAlgebra
 }  // namespace hpgem
-#include "PhysGradientOfBasisFunction_Impl.h"
 
-#endif  // HPGEM_KERNEL_PHYSGRADIENTOFBASISFUNCTION_H
+#endif  // HPGEM_TYPES_H

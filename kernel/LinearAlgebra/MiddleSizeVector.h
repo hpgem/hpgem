@@ -44,10 +44,11 @@
 #include <cmath>
 #include <iostream>
 #include <complex>
+
+#include "Types.h"
+
 namespace hpgem {
 namespace LinearAlgebra {
-template <std::size_t numberOfRows>
-class SmallVector;
 
 /// \class MiddleSizeVector
 /// \brief This is a vector of doubles
@@ -79,8 +80,8 @@ class MiddleSizeVector {
     MiddleSizeVector(MiddleSizeVector&& other);
 
     // implemented with SmallVector for dependency reasons
-    template <std::size_t numberOfRows>
-    MiddleSizeVector(const SmallVector<numberOfRows>& other);
+    template <std::size_t numberOfRows, typename EntryT>
+    MiddleSizeVector(const GSmallVector<numberOfRows, EntryT>& other);
 
     MiddleSizeVector(const type array[], std::size_t size);
 

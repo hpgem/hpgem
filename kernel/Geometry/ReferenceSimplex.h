@@ -6,13 +6,8 @@
 #include "ReferenceGeometry.h"
 
 namespace hpgem {
-
-namespace LinearAlgebra {
-template <std::size_t DIM>
-class SmallVector;
-}
-
 namespace Geometry {
+
 /// Implementation of a reference simplex (triangle, tetrahedron)
 ///
 /// The standard reference simplex is formed by the origin and each of the
