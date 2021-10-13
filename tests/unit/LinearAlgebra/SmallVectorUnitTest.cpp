@@ -310,3 +310,21 @@ TEST_CASE("Conversion complex <-> real", "[SmallVectorUnitTest]") {
     INFO("Conversion complex -> real");
     CHECK(SmallVector<1>(vcreal) == vreal);
 }
+
+TEST_CASE("Vector real imag", "[SmallVectorUnitTest]") {
+    SmallVectorC<2> cvector = {1.0 + 2.0i, 3.0 + 4.0i};
+    SmallVector<2> realPart = {1.0, 3.0};
+    SmallVector<2> imagPart = {2.0, 4.0};
+    SmallVector<2> zeroVec = {0.0, 0.0};
+
+    {
+        INFO("Check complex vector")
+        CHECK(cvector.real() == realPart);
+        CHECK(cvector.imag() == imagPart);
+    }
+    {
+        INFO("Check real vector");
+        CHECK(realPart.real() == realPart);
+        CHECK(realPart.imag() == zeroVec);
+    }
+}

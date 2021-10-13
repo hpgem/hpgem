@@ -388,6 +388,22 @@ class GSmallVector {
         return result;
     }
 
+    SmallVector<numberOfRows> real() const {
+        SmallVector<numberOfRows> res;
+        for (std::size_t i = 0; i < numberOfRows; ++i) {
+            res[i] = std::real(data_[i]);
+        }
+        return res;
+    }
+
+    SmallVector<numberOfRows> imag() const {
+        SmallVector<numberOfRows> res;
+        for (std::size_t i = 0; i < numberOfRows; ++i) {
+            res[i] = std::imag(data_[i]);
+        }
+        return res;
+    }
+
    private:
     std::array<EntryT, numberOfRows> data_;
 };
