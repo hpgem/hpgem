@@ -319,7 +319,8 @@ void DGMaxEigenvalue<DIM>::Result::writeField(
             const Geometry::PointReference<DIM>& pref, std::size_t) {
             const LinearAlgebra::MiddleSizeVector& coefficients =
                 element->getTimeIntegrationVector(VECTOR_ID);
-            return discretization_.computeField(element, pref, coefficients).real();
+            return discretization_.computeField(element, pref, coefficients)
+                .real();
         },
         "Ereal");
     writer.write(
@@ -327,7 +328,8 @@ void DGMaxEigenvalue<DIM>::Result::writeField(
             const Geometry::PointReference<DIM>& pref, std::size_t) {
             const LinearAlgebra::MiddleSizeVector& coefficients =
                 element->getTimeIntegrationVector(VECTOR_ID);
-            return discretization_.computeField(element, pref, coefficients).imag();
+            return discretization_.computeField(element, pref, coefficients)
+                .imag();
         },
         "Eimag");
     // Also write epsilon for post processing

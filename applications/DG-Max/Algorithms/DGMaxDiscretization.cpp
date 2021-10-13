@@ -499,8 +499,7 @@ LinearAlgebra::SmallVectorC<DIM> DGMaxDiscretization<DIM>::computeCurlField(
 
     LinearAlgebra::SmallVector<DIM> result;
     for (std::size_t i = 0; i < element->getNumberOfBasisFunctions(0); ++i) {
-        result += coefficients[i] *
-                  physicalElement.basisFunctionCurl(i, 0);
+        result += coefficients[i] * physicalElement.basisFunctionCurl(i, 0);
     }
     return result;
 }

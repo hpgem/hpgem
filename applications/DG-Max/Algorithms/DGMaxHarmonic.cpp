@@ -212,7 +212,8 @@ void DGMaxHarmonic<DIM>::writeVTK(
                const Geometry::PointReference<DIM>& point, std::size_t) {
             LinearAlgebra::MiddleSizeVector coefficients =
                 element->getTimeIntegrationVector(0);
-            return discretization.computeField(element, point, coefficients).real();
+            return discretization.computeField(element, point, coefficients)
+                .real();
         },
         "Ereal");
     output.write(
@@ -220,7 +221,8 @@ void DGMaxHarmonic<DIM>::writeVTK(
                const Geometry::PointReference<DIM>& point, std::size_t) {
             LinearAlgebra::MiddleSizeVector coefficients =
                 element->getTimeIntegrationVector(0);
-            return discretization.computeField(element, point, coefficients).imag();
+            return discretization.computeField(element, point, coefficients)
+                .imag();
         },
         "Eimag");
 }
