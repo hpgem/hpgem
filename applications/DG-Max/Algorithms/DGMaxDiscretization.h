@@ -115,14 +115,6 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
     using TimeFunction = std::function<LinearAlgebra::SmallVector<DIM>(
         const PointPhysicalT&, double)>;
 
-    /// Computed fields of the solution
-    struct Fields {
-        /// Real part of the field
-        LinearAlgebra::SmallVector<DIM> realEField;
-        /// Imaginary part of the field
-        LinearAlgebra::SmallVector<DIM> imagEField;
-    };
-
     DGMaxDiscretization(bool includeProjector = false);
 
     void setMatrixHandling(MassMatrixHandling matrixHandling) {
@@ -171,13 +163,10 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
                                             InputFunction electricFieldCurl,
                                             std::set<NormType> norms);
 
-    Fields computeFields(
+    LinearAlgebra::SmallVectorC<DIM> computeField(
         const Base::Element* element, const Geometry::PointReference<DIM>& p,
         const LinearAlgebra::MiddleSizeVector& coefficients) const;
-    LinearAlgebra::SmallVector<DIM> computeField(
-        const Base::Element* element, const Geometry::PointReference<DIM>& p,
-        const LinearAlgebra::MiddleSizeVector& coefficients) const;
-    LinearAlgebra::SmallVector<DIM> computeCurlField(
+    LinearAlgebra::SmallVectorC<DIM> computeCurlField(
         const Base::Element* element, const Geometry::PointReference<DIM>& p,
         const LinearAlgebra::MiddleSizeVector& coefficients) const;
 

@@ -309,10 +309,9 @@ void DGMaxEigenvalue<DIM>::Result::writeField(
             const Geometry::PointReference<DIM>& pref, std::size_t) {
             const LinearAlgebra::MiddleSizeVector& coefficients =
                 element->getTimeIntegrationVector(VECTOR_ID);
-            auto fields =
-                discretization_.computeFields(element, pref, coefficients);
-            return std::sqrt(fields.realEField.l2NormSquared() +
-                             fields.imagEField.l2NormSquared());
+            auto field =
+                discretization_.computeField(element, pref, coefficients);
+            return field.l2Norm();
         },
         "Emag");
     writer.write(
@@ -320,9 +319,7 @@ void DGMaxEigenvalue<DIM>::Result::writeField(
             const Geometry::PointReference<DIM>& pref, std::size_t) {
             const LinearAlgebra::MiddleSizeVector& coefficients =
                 element->getTimeIntegrationVector(VECTOR_ID);
-            auto fields =
-                discretization_.computeFields(element, pref, coefficients);
-            return fields.realEField;
+            return discretization_.computeField(element, pref, coefficients).real();
         },
         "Ereal");
     writer.write(
@@ -330,9 +327,7 @@ void DGMaxEigenvalue<DIM>::Result::writeField(
             const Geometry::PointReference<DIM>& pref, std::size_t) {
             const LinearAlgebra::MiddleSizeVector& coefficients =
                 element->getTimeIntegrationVector(VECTOR_ID);
-            auto fields =
-                discretization_.computeFields(element, pref, coefficients);
-            return fields.imagEField;
+            return discretization_.computeField(element, pref, coefficients).imag();
         },
         "Eimag");
     // Also write epsilon for post processing

@@ -267,8 +267,7 @@ typename DivDGMaxDiscretization<DIM>::Fields
     for (std::size_t i = 0; i < nPhiU; ++i) {
         LinearAlgebra::SmallVector<DIM> phiU;
         physicalElement.basisFunction(i, phiU, 0);
-        result.realEField += std::real(coefficients[i]) * phiU;
-        result.imagEField += std::imag(coefficients[i]) * phiU;
+        result.electricField += coefficients[i] * phiU;
     }
     // Compute potential
     for (std::size_t i = 0; i < nPhiP; ++i) {
@@ -279,21 +278,19 @@ typename DivDGMaxDiscretization<DIM>::Fields
 }
 
 template <std::size_t DIM>
-LinearAlgebra::SmallVector<DIM> DivDGMaxDiscretization<DIM>::computeField(
+LinearAlgebra::SmallVectorC<DIM> DivDGMaxDiscretization<DIM>::computeField(
     const Base::Element* element, const Geometry::PointReference<DIM>& point,
     const LinearAlgebra::MiddleSizeVector& coefficients) const {
 
-    logger.log(Log::WARN, "Only computing the real part of the field.");
     Fields fields = computeFields(element, point, coefficients);
-    return fields.realEField;
+    return fields.electricField;
 }
 
 template <std::size_t DIM>
-double DivDGMaxDiscretization<DIM>::computePotential(
+std::complex<double> DivDGMaxDiscretization<DIM>::computePotential(
     const Base::Element* element, const Geometry::PointReference<DIM>& point,
     const LinearAlgebra::MiddleSizeVector& coefficients) const {
 
-    logger.log(Log::WARN, "Only computing the real part of the potential.");
     Fields fields = computeFields(element, point, coefficients);
     return fields.potential.real();
 }

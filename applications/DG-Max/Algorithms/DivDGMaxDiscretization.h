@@ -130,10 +130,8 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
 
     /// Value class for the solution.
     struct Fields {
-        // Real part of the E field
-        LinearAlgebra::SmallVector<DIM> realEField;
-        // Imaginary part of the E field
-        LinearAlgebra::SmallVector<DIM> imagEField;
+        // The electric field
+        LinearAlgebra::SmallVectorC<DIM> electricField;
         // Complex valued p scalar function;
         std::complex<double> potential;
     };
@@ -174,12 +172,12 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
         const Geometry::PointReference<DIM>& point,
         const LinearAlgebra::MiddleSizeVector& coefficients) const;
 
-    LinearAlgebra::SmallVector<DIM> computeField(
+    LinearAlgebra::SmallVectorC<DIM> computeField(
         const Base::Element* element,
         const Geometry::PointReference<DIM>& point,
         const LinearAlgebra::MiddleSizeVector& coefficients) const;
 
-    double computePotential(
+    std::complex<double> computePotential(
         const Base::Element* element,
         const Geometry::PointReference<DIM>& point,
         const LinearAlgebra::MiddleSizeVector& coefficients) const;
