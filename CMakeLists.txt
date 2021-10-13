@@ -117,7 +117,7 @@ if(hpGEM_BUILD_DOCUMENTATION)
     include(conf/cmake/ConfigureDocumentation.cmake)
 endif()
 
-# Find all the optional dependencies
+# Find all the (optional) dependencies
 include(conf/cmake/ConfigureDependencies.cmake)
 
 ################################################################################
