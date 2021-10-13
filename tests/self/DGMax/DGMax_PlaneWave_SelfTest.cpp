@@ -169,7 +169,9 @@ int main(int argc, char** argv) {
 
     // Default the solver if not specified to a direct LU solver
     std::map<std::string, std::string> defaultOptions = {
-        {"-ksp_type", "preonly"}, {"-pc_type", "lu"}};
+        {"-ksp_type", "preonly"}, {"-pc_type", "lu"},
+        // The DivDGMax system can't be solved with the petsc solver
+        {"-pc_factor_mat_solver_type", "umfpack"}};
     for (const auto& option : defaultOptions) {
         PetscBool present;
         PetscOptionsHasName(nullptr, nullptr, option.first.c_str(), &present);
@@ -198,7 +200,7 @@ int main(int argc, char** argv) {
                                       4.98064965e-02,  //  3.67
                                       1.20771131e-02,  //  4.12
                                       2.97631344e-03,  //  4.06
-                                      7.37982121e-04,  //  4.03
+                                      7.37982120e-04,  //  4.03
                                   }};
     runConvergenceTest(meshes2, ignoreFailures, &solveDivDGMax);
 }
