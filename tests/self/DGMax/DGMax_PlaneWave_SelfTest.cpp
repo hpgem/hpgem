@@ -50,7 +50,7 @@
 
 using namespace DGMax;
 
-using Vec2 = LinearAlgebra::SmallVector<2>;
+using Vec2 = LinearAlgebra::SmallVectorC<2>;
 using Point = Geometry::PointPhysical<2>;
 
 class TestingProblem : public ExactHarmonicProblem<2> {
