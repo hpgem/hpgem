@@ -207,16 +207,13 @@ void DGMaxHarmonic<DIM>::writeTec(std::string fileName) const {
 template <std::size_t DIM>
 void DGMaxHarmonic<DIM>::writeVTK(
     Output::VTKSpecificTimeWriter<DIM>& output) const {
-    using Fields = typename DGMaxDiscretization<DIM>::Fields;
-
     output.write(
         [this](Base::Element* element,
                const Geometry::PointReference<DIM>& point, std::size_t) {
             LinearAlgebra::MiddleSizeVector coefficients =
                 element->getTimeIntegrationVector(0);
-            Fields fields =
-                discretization.computeFields(element, point, coefficients);
-            return fields.realEField;
+            return discretization.computeField(element, point, coefficients)
+                .real();
         },
         "Ereal");
     output.write(
@@ -224,9 +221,8 @@ void DGMaxHarmonic<DIM>::writeVTK(
                const Geometry::PointReference<DIM>& point, std::size_t) {
             LinearAlgebra::MiddleSizeVector coefficients =
                 element->getTimeIntegrationVector(0);
-            Fields fields =
-                discretization.computeFields(element, point, coefficients);
-            return fields.imagEField;
+            return discretization.computeField(element, point, coefficients)
+                .imag();
         },
         "Eimag");
 }

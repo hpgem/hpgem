@@ -168,7 +168,7 @@ void DivDGMaxHarmonic<DIM>::writeVTK(
             Fields fields =
                 discretization_.computeFields(element, point, coefficients);
 
-            return fields.realEField;
+            return fields.electricField.real();
         },
         "Ereal");
     output.write(
@@ -179,7 +179,7 @@ void DivDGMaxHarmonic<DIM>::writeVTK(
             Fields fields =
                 discretization_.computeFields(element, point, coefficients);
 
-            return fields.imagEField;
+            return fields.electricField.imag();
         },
         "Eimag");
 

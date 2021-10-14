@@ -285,8 +285,7 @@ void DivDGMaxEigenvalue<DIM>::Result::writeField(
                 element->getTimeIntegrationVector(VECTOR_ID);
             auto fields =
                 discretization_.computeFields(element, pref, coefficients);
-            return std::sqrt(fields.realEField.l2NormSquared() +
-                             fields.imagEField.l2NormSquared());
+            return fields.electricField.l2Norm();
         },
         "Emag");
     writer.write(
@@ -295,7 +294,7 @@ void DivDGMaxEigenvalue<DIM>::Result::writeField(
             const LinearAlgebra::MiddleSizeVector& coefficients =
                 element->getTimeIntegrationVector(VECTOR_ID);
             return discretization_.computeFields(element, pref, coefficients)
-                .realEField;
+                .electricField.real();
         },
         "Ereal");
     writer.write(
@@ -304,7 +303,7 @@ void DivDGMaxEigenvalue<DIM>::Result::writeField(
             const LinearAlgebra::MiddleSizeVector& coefficients =
                 element->getTimeIntegrationVector(VECTOR_ID);
             return discretization_.computeFields(element, pref, coefficients)
-                .imagEField;
+                .electricField.imag();
         },
         "Eimag");
     writer.write(

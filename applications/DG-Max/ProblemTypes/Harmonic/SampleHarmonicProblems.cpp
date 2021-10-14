@@ -74,7 +74,7 @@ double SampleHarmonicProblems<DIM>::omega() const {
 }
 
 template <std::size_t DIM>
-LinearAlgebra::SmallVector<DIM> SampleHarmonicProblems<DIM>::exactSolution(
+LinearAlgebra::SmallVectorC<DIM> SampleHarmonicProblems<DIM>::exactSolution(
     const Geometry::PointPhysical<DIM> &point) const {
     LinearAlgebra::SmallVector<DIM> result;
     switch (problem_) {
@@ -92,7 +92,7 @@ LinearAlgebra::SmallVector<DIM> SampleHarmonicProblems<DIM>::exactSolution(
 }
 
 template <std::size_t DIM>
-LinearAlgebra::SmallVector<DIM> SampleHarmonicProblems<DIM>::exactSolutionCurl(
+LinearAlgebra::SmallVectorC<DIM> SampleHarmonicProblems<DIM>::exactSolutionCurl(
     const Geometry::PointPhysical<DIM> &point) const {
     LinearAlgebra::SmallVector<DIM> result;
     switch (problem_) {
@@ -114,7 +114,7 @@ LinearAlgebra::SmallVector<DIM> SampleHarmonicProblems<DIM>::exactSolutionCurl(
 }
 
 template <std::size_t DIM>
-LinearAlgebra::SmallVector<DIM> SampleHarmonicProblems<DIM>::sourceTerm(
+LinearAlgebra::SmallVectorC<DIM> SampleHarmonicProblems<DIM>::sourceTerm(
     const Geometry::PointPhysical<DIM> &point) const {
     LinearAlgebra::SmallVector<DIM> result;
     switch (problem_) {
