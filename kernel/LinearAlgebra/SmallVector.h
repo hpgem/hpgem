@@ -212,7 +212,7 @@ class GSmallVector {
         return result;
     }
 
-    // Multiplication by a cmoplex number
+    // Multiplication by a complex number
     GSmallVector<numberOfRows, std::complex<EntryT>> operator*(
         const std::complex<EntryT>& right) const {
         GSmallVector<numberOfRows, std::complex<EntryT>> result;

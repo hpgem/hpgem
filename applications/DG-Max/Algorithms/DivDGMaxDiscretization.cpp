@@ -292,7 +292,7 @@ std::complex<double> DivDGMaxDiscretization<DIM>::computePotential(
     const LinearAlgebra::MiddleSizeVector& coefficients) const {
 
     Fields fields = computeFields(element, point, coefficients);
-    return fields.potential.real();
+    return fields.potential;
 }
 
 template <std::size_t DIM>
