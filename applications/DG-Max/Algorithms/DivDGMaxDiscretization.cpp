@@ -408,7 +408,7 @@ void DivDGMaxDiscretization<DIM>::elementSourceVector(
     sourceValue = source(el.getPointPhysical());
     for (std::size_t i = 0; i < (uDoFs); ++i) {
         el.basisFunction(i, phi, 0);
-        ret(i) = phi * sourceValue;
+        ret(i) = sourceValue * phi;
     }
 }
 
@@ -999,9 +999,9 @@ void DivDGMaxDiscretization<DIM>::faceBoundaryVector(
         for (std::size_t i = 0; i < totalUDoFs; ++i) {
             fa.basisFunctionUnitNormalCross(i, phi, 0);
             phi_curl = fa.basisFunctionCurl(i, 0);
-            double value = -(phi_curl * val);
+            std::complex<double> value = -(val * phi_curl);
             if (stab.fluxType1 == FluxType::IP) {
-                value += stab.stab1 / (diameter) * (phi * val);
+                value += stab.stab1 / (diameter) * (val * phi);
             }
             // Scale with mu^{-1} in the future
             ret(i) = value;
@@ -1067,7 +1067,7 @@ LinearAlgebra::MiddleSizeVector
             LinearAlgebra::SmallVector<DIM> basisV;
 
             // Compute boundary value
-            LinearAlgebra::SmallVector<DIM> val = boundaryValue(face);
+            LinearAlgebra::SmallVectorC<DIM> val = boundaryValue(face);
 
             for (std::size_t i = 0; i < faceInfo.totalUDoFs(); ++i) {
                 face.basisFunction(i, basisV, 0);

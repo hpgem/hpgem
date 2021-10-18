@@ -325,11 +325,12 @@ void DGMaxDiscretization<DIM>::elementInnerProduct(
     const std::size_t numberOfBasisFunctions = el.getNumberOfBasisFunctions(0);
 
     ret.resize(numberOfBasisFunctions);
-    LinearAlgebra::SmallVector<DIM> val, phi;
+    LinearAlgebra::SmallVectorC<DIM> val;
+    LinearAlgebra::SmallVector<DIM> phi;
     val = function(el.getPointPhysical());
     for (std::size_t i = 0; i < numberOfBasisFunctions; ++i) {
         el.basisFunction(i, phi, 0);
-        ret[i] = phi * val;
+        ret[i] = val * phi;
     }
 }
 
@@ -438,7 +439,8 @@ void DGMaxDiscretization<DIM>::faceVector(
         ret.set(0.0);
     } else if (bct == DGMax::BoundaryConditionType::DIRICHLET) {
         double diameter = face->getDiameter();
-        LinearAlgebra::SmallVector<DIM> val, phi, phi_curl;
+        LinearAlgebra::SmallVectorC<DIM> val;
+        LinearAlgebra::SmallVector<DIM> phi, phi_curl;
 
         val = boundaryCondition(fa);
 
@@ -447,12 +449,12 @@ void DGMaxDiscretization<DIM>::faceVector(
 
             phi_curl = fa.basisFunctionCurl(i, 0);
 
-            ret(i) = -(phi_curl * val) + stab / diameter * (phi * val);
+            ret(i) = -(val * phi_curl) + stab / diameter * (val * phi);
         }
     } else if (bct == DGMax::BoundaryConditionType::NEUMANN) {
         // Compute g_N (n x phi_i)
         LinearAlgebra::SmallVector<DIM> phiN;
-        LinearAlgebra::SmallVector<DIM> val = boundaryCondition(fa);
+        LinearAlgebra::SmallVectorC<DIM> val = boundaryCondition(fa);
         for (std::size_t i = 0; i < numDoFs; ++i) {
             fa.basisFunctionUnitNormalCross(i, phiN, 0);
             ret(i) = val * phiN;
@@ -497,7 +499,7 @@ LinearAlgebra::SmallVectorC<DIM> DGMaxDiscretization<DIM>::computeCurlField(
     physicalElement.setTransformation(transform);
     physicalElement.setPointReference(p);
 
-    LinearAlgebra::SmallVector<DIM> result;
+    LinearAlgebra::SmallVectorC<DIM> result;
     for (std::size_t i = 0; i < element->getNumberOfBasisFunctions(0); ++i) {
         result += coefficients[i] * physicalElement.basisFunctionCurl(i, 0);
     }
