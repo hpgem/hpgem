@@ -225,6 +225,15 @@ void DGMaxHarmonic<DIM>::writeVTK(
                 .imag();
         },
         "Eimag");
+    output.write(
+        [this](Base::Element* element,
+               const Geometry::PointReference<DIM>& point, std::size_t) {
+            LinearAlgebra::MiddleSizeVector coefficients =
+                element->getTimeIntegrationVector(0);
+            return discretization.computeField(element, point, coefficients)
+                .l2Norm();
+        },
+        "Emag");
 }
 
 template class DGMaxHarmonic<2>;

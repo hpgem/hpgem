@@ -85,8 +85,9 @@ void DivDGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& input) {
         stiffnessMatrix(indexing,
                         DivDGMaxDiscretizationBase::ELEMENT_STIFFNESS_MATRIX_ID,
                         DivDGMaxDiscretizationBase::FACE_STIFFNESS_MATRIX_ID),
-        impedanceMatrix(indexing, -1,
-                        DivDGMaxDiscretizationBase::FACE_STIFFNESS_IMPEDANCE_MATRIX_ID);
+        impedanceMatrix(
+            indexing, -1,
+            DivDGMaxDiscretizationBase::FACE_STIFFNESS_IMPEDANCE_MATRIX_ID);
     Utilities::GlobalPetscVector rhs(
         indexing, DivDGMaxDiscretizationBase::ELEMENT_SOURCE_VECTOR_ID,
         DivDGMaxDiscretizationBase::FACE_BOUNDARY_VECTOR_ID),
@@ -187,6 +188,15 @@ void DivDGMaxHarmonic<DIM>::writeVTK(
             return fields.electricField.imag();
         },
         "Eimag");
+    output.write([this](Base::Element* element,
+                        const Geometry::PointReference<DIM>& point,
+                        std::size_t) {
+        LinearAlgebra::MiddleSizeVector coefficients =
+            element->getTimeIntegrationVector(0);
+        Fields fields =
+            discretization_.computeFields(element, point, coefficients);
+        return fields.electricField.l2Norm();
+    }, "Emag");
 
     output.write(
         [this](Base::Element* element,
