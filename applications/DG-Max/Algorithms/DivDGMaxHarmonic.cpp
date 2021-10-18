@@ -84,7 +84,9 @@ void DivDGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& input) {
         indexing, DivDGMaxDiscretizationBase::ELEMENT_MASS_MATRIX_ID, -1),
         stiffnessMatrix(indexing,
                         DivDGMaxDiscretizationBase::ELEMENT_STIFFNESS_MATRIX_ID,
-                        DivDGMaxDiscretizationBase::FACE_STIFFNESS_MATRIX_ID);
+                        DivDGMaxDiscretizationBase::FACE_STIFFNESS_MATRIX_ID),
+        impedanceMatrix(indexing, -1,
+                        DivDGMaxDiscretizationBase::FACE_STIFFNESS_IMPEDANCE_MATRIX_ID);
     Utilities::GlobalPetscVector rhs(
         indexing, DivDGMaxDiscretizationBase::ELEMENT_SOURCE_VECTOR_ID,
         DivDGMaxDiscretizationBase::FACE_BOUNDARY_VECTOR_ID),
@@ -95,6 +97,9 @@ void DivDGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& input) {
     std::complex<double> omega2 = input.omega();
     omega2 *= omega2;
     error = MatAXPY(stiffnessMatrix, -1.0 * omega2, massMatrix,
+                    SUBSET_NONZERO_PATTERN);
+    CHKERRABORT(PETSC_COMM_WORLD, error);
+    error = MatAXPY(stiffnessMatrix, input.omega(), impedanceMatrix,
                     SUBSET_NONZERO_PATTERN);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 

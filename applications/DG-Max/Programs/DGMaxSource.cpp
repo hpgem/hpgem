@@ -110,21 +110,33 @@ class TestingProblem : public HarmonicProblem<dim> {
    public:
     TestingProblem(){};
 
-    double omega() const final { return 4.0e-2; }
+    double omega() const final { return 1.0; }
 
     LinearAlgebra::SmallVectorC<dim> sourceTerm(
         const Geometry::PointPhysical<dim>& point) const final {
         LinearAlgebra::SmallVector<dim> result;
 
         result.set(0.0);
-        if (point[1] > 0 && point[1] < 50) result[0] = 1.0;
+        // if (point[1] > 0 && point[1] < 50) result[0] = 1.0;
 
         return result;
     }
 
     LinearAlgebra::SmallVectorC<dim> boundaryCondition(
         Base::PhysicalFace<dim>& face) const override {
-        return {};
+
+        LinearAlgebra::SmallVector<dim> normal = face.getUnitNormalVector();
+
+        LinearAlgebra::SmallVector<dim> E0{1.0, 0}, k{0, 1.0};
+        std::complex<double> phase(0, face.getPointPhysical().getCoordinates() * k);
+        LinearAlgebra::SmallVectorC<dim> result = k.crossProduct(E0);
+        result = result.crossProduct(normal) * std::complex<double>(0,1);
+        LinearAlgebra::SmallVector<dim> ET
+                = normal.crossProduct(E0.crossProduct(normal));
+        result += std::complex<double>(0,1) * omega() * ET;
+        result *= std::exp(phase);
+
+        return result;
     }
 
     DGMax::BoundaryConditionType getBoundaryConditionType(
@@ -142,10 +154,10 @@ class TestingProblem : public HarmonicProblem<dim> {
         double nx = std::abs(std::abs(normal[0]) - 1.0);
         if (nx < 1e-8) {
             // For faces at y=0,1
-            return DGMax::BoundaryConditionType::DIRICHLET;
+            return DGMax::BoundaryConditionType::SILVER_MULLER;
         } else {
             // For faces at x=0,1
-            return DGMax::BoundaryConditionType::NEUMANN;
+            return DGMax::BoundaryConditionType::SILVER_MULLER;
         }
     }
 };
