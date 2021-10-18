@@ -56,9 +56,13 @@ std::unique_ptr<Base::MeshManipulator<DIM>> readMesh(
     std::string fileName, Base::ConfigurationData* configData,
     StructureDescription& structureDescription,
     std::size_t numberOfElementMatrices) {
+
+    // One for the double curl, one for the impedance part
+    const std::size_t faceMatrices = 2;
+
     auto mesh = std::unique_ptr<Base::MeshManipulator<DIM>>(
         new Base::MeshManipulator<DIM>(configData, numberOfElementMatrices, 3,
-                                       1, 1));
+                                       faceMatrices, 1));
     mesh->readMesh(fileName);
     for (typename Base::MeshManipulator<DIM>::ElementIterator it =
              mesh->elementColBegin(Base::IteratorType::GLOBAL);

@@ -65,6 +65,12 @@ class DGMaxHarmonic : public DGMax::AbstractHarmonicSolver<DIM> {
         const std::set<typename DGMaxDiscretization<DIM>::NormType>& norms,
         const ExactHarmonicProblem<DIM>& problem);
 
+    double computeL2Error(
+        const ExactHarmonicProblem<DIM>& problem) final {
+        return computeError({DGMaxDiscretizationBase::NormType::L2},
+                            problem)[DGMaxDiscretizationBase::NormType::L2];
+    }
+
     void writeTec(std::string fileName) const;
     void writeVTK(Output::VTKSpecificTimeWriter<DIM>& output) const final;
 

@@ -110,7 +110,7 @@ class TestingProblem : public HarmonicProblem<dim> {
    public:
     TestingProblem(){};
 
-    double omega() const final { return 1.0; }
+    double omega() const final { return 0.01; }
 
     LinearAlgebra::SmallVectorC<dim> sourceTerm(
         const Geometry::PointPhysical<dim>& point) const final {
@@ -125,16 +125,21 @@ class TestingProblem : public HarmonicProblem<dim> {
     LinearAlgebra::SmallVectorC<dim> boundaryCondition(
         Base::PhysicalFace<dim>& face) const override {
 
-        LinearAlgebra::SmallVector<dim> normal = face.getUnitNormalVector();
+        LinearAlgebra::SmallVectorC<dim> normal = face.getUnitNormalVector();
 
-        LinearAlgebra::SmallVector<dim> E0{1.0, 0}, k{0, 1.0};
-        std::complex<double> phase(0, face.getPointPhysical().getCoordinates() * k);
+        // E = E_0 exp(ik.x)
+        // g_N = Curl E + i kappa E x n
+        //     = i[(k x E_0) + kappa (E_0 x n)] exp(ik.x)
+
+        LinearAlgebra::SmallVectorC<dim> E0{1.0, 0}, k{0, 0.01};
+        // (kxE_0) + kappa (E_0 x n)
         LinearAlgebra::SmallVectorC<dim> result = k.crossProduct(E0);
-        result = result.crossProduct(normal) * std::complex<double>(0,1);
-        LinearAlgebra::SmallVector<dim> ET
-                = normal.crossProduct(E0.crossProduct(normal));
-        result += std::complex<double>(0,1) * omega() * ET;
-        result *= std::exp(phase);
+        result += omega() * E0.crossProduct(normal);
+
+        // i exp(ik.x)
+        std::complex<double> phase(
+            0, face.getPointPhysical().getCoordinates() * k);
+        result *= std::complex<double>(0, 1) * std::exp(phase);
 
         return result;
     }
@@ -235,6 +240,12 @@ void runWithDimension() {
         },
         "source");
     solver->writeVTK(output);
+
+    auto* eproblem = dynamic_cast<ExactHarmonicProblem<dim>*>(problem.get());
+    if (eproblem != nullptr) {
+        double l2Error = solver->computeL2Error(*eproblem);
+        DGMaxLogger(INFO, "L2 error %", l2Error);
+    }
 }
 
 template <std::size_t DIM>

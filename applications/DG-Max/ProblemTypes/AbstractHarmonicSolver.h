@@ -62,6 +62,14 @@ class AbstractHarmonicSolver {
      * @param output Write the output
      */
     virtual void writeVTK(Output::VTKSpecificTimeWriter<dim>& output) const = 0;
+
+    /**
+     * Compute L2 error for the previous solve.
+     * @param problem The problem that was solved
+     * @return The L2 error
+     */
+    virtual double computeL2Error(
+        const ExactHarmonicProblem<dim>& problem) = 0;
 };
 
 }  // namespace DGMax

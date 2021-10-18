@@ -439,6 +439,13 @@ GSmallVector<numberOfRows, std::complex<EntryT>> operator*(
     const GSmallVector<numberOfRows, EntryT>& right) {
     return right * left;
 }
+// Multiply complex number by vector
+template <std::size_t numberOfRows, typename EntryT>
+GSmallVector<numberOfRows, std::complex<EntryT>> operator*(
+    const double& left,
+    const GSmallVector<numberOfRows, std::complex<EntryT>> right) {
+    return std::complex<EntryT>(left) * right;
+}
 
 template <std::size_t numberOfRows, typename EntryT>
 std::ostream& operator<<(std::ostream& os,
