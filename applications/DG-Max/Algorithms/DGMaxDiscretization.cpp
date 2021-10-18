@@ -511,7 +511,6 @@ LinearAlgebra::SmallVectorC<DIM> DGMaxDiscretization<DIM>::computeField(
         LinearAlgebra::SmallVector<DIM> phi;
         physicalElement.basisFunction(i, phi, 0);
         result += coefficients[i] * phi;
-        result += coefficients[i] * phi;
     }
     return result;
 }
