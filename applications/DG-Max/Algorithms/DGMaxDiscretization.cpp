@@ -595,7 +595,8 @@ LinearAlgebra::SmallVector<2> DGMaxDiscretization<DIM>::elementErrorIntegrand(
     DGMaxDiscretization<DIM>::InputFunction curlValues) const {
     const Base::Element* element = el.getElement();
 
-    LinearAlgebra::SmallVector<DIM> phi, phiCurl, error, errorCurl;
+    LinearAlgebra::SmallVector<DIM> phi, phiCurl;
+    LinearAlgebra::SmallVectorC<DIM> error, errorCurl;
 
     error = exactValues(el.getPointPhysical());
     if (computeCurl) {
@@ -611,10 +612,8 @@ LinearAlgebra::SmallVector<2> DGMaxDiscretization<DIM>::elementErrorIntegrand(
             errorCurl -= (std::real(data[i]) * phiCurl);
         }
     }
-    double l2Error = error.l2Norm();
-    l2Error *= l2Error;
-    double curlError = errorCurl.l2Norm();
-    curlError *= curlError;
+    double l2Error = error.l2NormSquared();
+    double curlError = errorCurl.l2NormSquared();
     LinearAlgebra::SmallVector<2> errors;
     errors[0] = l2Error;
     errors[1] = curlError;

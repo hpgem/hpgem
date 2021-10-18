@@ -594,11 +594,14 @@ void DivDGMaxDiscretization<DIM>::addFaceMatrixPotentialIntegrand(
     }
 }
 
-template<std::size_t DIM>
-LinearAlgebra::MiddleSizeMatrix DivDGMaxDiscretization<DIM>::computeFaceImpedanceIntegrand(Base::PhysicalFace<DIM>& face, Utilities::FaceLocalIndexing& indexing, DGMax::BoundaryConditionType& bct) const {
+template <std::size_t DIM>
+LinearAlgebra::MiddleSizeMatrix
+    DivDGMaxDiscretization<DIM>::computeFaceImpedanceIntegrand(
+        Base::PhysicalFace<DIM>& face, Utilities::FaceLocalIndexing& indexing,
+        DGMax::BoundaryConditionType& bct) const {
     std::size_t nUDoFs = indexing.getNumberOfDoFs(0, Base::Side::LEFT);
     std::size_t nDoFs = indexing.getNumberOfDoFs();
-    LinearAlgebra::MiddleSizeMatrix result (nDoFs, nDoFs);
+    LinearAlgebra::MiddleSizeMatrix result(nDoFs, nDoFs);
 
     // Just to make sure
     logger.assert_debug(bct == DGMax::BoundaryConditionType::SILVER_MULLER,
@@ -607,14 +610,15 @@ LinearAlgebra::MiddleSizeMatrix DivDGMaxDiscretization<DIM>::computeFaceImpedanc
     std::complex<double> impedance;
     {
         double epsilonLeft =
-            static_cast<ElementInfos*>(face.getFace()->getPtrElementLeft()->getUserData())
+            static_cast<ElementInfos*>(
+                face.getFace()->getPtrElementLeft()->getUserData())
                 ->epsilon_;
         impedance = std::complex<double>(0, std::sqrt(epsilonLeft));
     }
-    for(std::size_t i = 0; i < nUDoFs; ++i) {
+    for (std::size_t i = 0; i < nUDoFs; ++i) {
         LinearAlgebra::SmallVector<DIM> phiUNi;
         face.basisFunctionUnitNormalCross(i, phiUNi, 0);
-        for(std::size_t j = 0; j < nUDoFs; ++j) {
+        for (std::size_t j = 0; j < nUDoFs; ++j) {
             LinearAlgebra::SmallVector<DIM> phiUNj;
             face.basisFunctionUnitNormalCross(j, phiUNj, 0);
             result(j, i) = -impedance * (phiUNi * phiUNj);
@@ -1116,18 +1120,20 @@ double DivDGMaxDiscretization<DIM>::elementErrorIntegrand(
     LinearAlgebra::MiddleSizeVector data =
         element->getTimeIntegrationVector(timeVector);
 
-    LinearAlgebra::SmallVector<DIM> error, phi;
+    LinearAlgebra::SmallVectorC<DIM> error;
+    std::complex<double> potentialError = 0.0; // Should be zero
+    LinearAlgebra::SmallVector<DIM> phi;
     error = exactValues(el.getPointPhysical());
     for (std::size_t i = 0; i < numberOfUDoFs; ++i) {
         el.basisFunction(i, phi, 0);
-        error -= std::real(data[i]) * phi;
+        error -= data[i] * phi;
+
     }
     for (std::size_t i = 0; i < numberOfPDoFs; ++i) {
-        error -=
-            std::real(data[i + numberOfUDoFs]) * el.basisFunctionDeriv(i, 1);
+        potentialError += data[i + numberOfUDoFs] * el.basisFunction(i, 1);
     }
 
-    return error.l2NormSquared();
+    return error.l2NormSquared() + std::norm(potentialError);
 }
 
 char fluxName(typename DivDGMaxDiscretizationBase::FluxType f) {
