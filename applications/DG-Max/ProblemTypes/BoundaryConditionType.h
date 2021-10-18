@@ -89,12 +89,12 @@ inline bool isNaturalBoundary(BoundaryConditionType type) {
             return true;
         case BoundaryConditionType::INTERNAL:
             DGMaxLogger.assert_always(false,
-                                 "Internal boundary to isNaturalBoundary");
+                                      "Internal boundary to isNaturalBoundary");
             return false;
         default:
             DGMaxLogger.assert_always(false,
-                                 "isNaturalBoundary not implemented for this "
-                                 "type boundary condition type");
+                                      "isNaturalBoundary not implemented for "
+                                      "this boundary condition type");
             return false;
     }
 }

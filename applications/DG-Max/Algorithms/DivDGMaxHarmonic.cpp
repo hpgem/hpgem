@@ -188,15 +188,16 @@ void DivDGMaxHarmonic<DIM>::writeVTK(
             return fields.electricField.imag();
         },
         "Eimag");
-    output.write([this](Base::Element* element,
-                        const Geometry::PointReference<DIM>& point,
-                        std::size_t) {
-        LinearAlgebra::MiddleSizeVector coefficients =
-            element->getTimeIntegrationVector(0);
-        Fields fields =
-            discretization_.computeFields(element, point, coefficients);
-        return fields.electricField.l2Norm();
-    }, "Emag");
+    output.write(
+        [this](Base::Element* element,
+               const Geometry::PointReference<DIM>& point, std::size_t) {
+            LinearAlgebra::MiddleSizeVector coefficients =
+                element->getTimeIntegrationVector(0);
+            Fields fields =
+                discretization_.computeFields(element, point, coefficients);
+            return fields.electricField.l2Norm();
+        },
+        "Emag");
 
     output.write(
         [this](Base::Element* element,

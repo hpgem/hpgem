@@ -110,7 +110,8 @@ class ExactHarmonicProblem : public HarmonicProblem<DIM> {
                 return this->exactSolutionCurl(face.getPointPhysical());
             case BCT::SILVER_MULLER: {
                 Vec efield = this->exactSolution(face.getPointPhysical());
-                Vec efieldCurl = this->exactSolutionCurl(face.getPointPhysical());
+                Vec efieldCurl =
+                    this->exactSolutionCurl(face.getPointPhysical());
                 const Vec& normal = face.getUnitNormalVector();
                 auto impedance = std::complex<double>(0, this->omega());
                 // n x (Curl E + Z [E x n]) = n x g_N

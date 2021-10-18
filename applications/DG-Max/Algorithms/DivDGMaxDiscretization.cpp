@@ -1121,13 +1121,12 @@ double DivDGMaxDiscretization<DIM>::elementErrorIntegrand(
         element->getTimeIntegrationVector(timeVector);
 
     LinearAlgebra::SmallVectorC<DIM> error;
-    std::complex<double> potentialError = 0.0; // Should be zero
+    std::complex<double> potentialError = 0.0;  // Should be zero
     LinearAlgebra::SmallVector<DIM> phi;
     error = exactValues(el.getPointPhysical());
     for (std::size_t i = 0; i < numberOfUDoFs; ++i) {
         el.basisFunction(i, phi, 0);
         error -= data[i] * phi;
-
     }
     for (std::size_t i = 0; i < numberOfPDoFs; ++i) {
         potentialError += data[i + numberOfUDoFs] * el.basisFunction(i, 1);

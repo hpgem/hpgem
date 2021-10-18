@@ -68,8 +68,7 @@ class AbstractHarmonicSolver {
      * @param problem The problem that was solved
      * @return The L2 error
      */
-    virtual double computeL2Error(
-        const ExactHarmonicProblem<dim>& problem) = 0;
+    virtual double computeL2Error(const ExactHarmonicProblem<dim>& problem) = 0;
 };
 
 }  // namespace DGMax
