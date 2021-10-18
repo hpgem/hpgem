@@ -84,18 +84,16 @@ void DGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& harmonicProblem) {
     Utilities::GlobalPetscMatrix massMatrix(
         indexing, DGMaxDiscretization<DIM>::MASS_MATRIX_ID, -1),
         stiffnessMatrix(indexing, DGMaxDiscretization<DIM>::STIFFNESS_MATRIX_ID,
-                        DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
-    std::cout << "GlobalPetscMatrix initialised" << std::endl;
+                        DGMaxDiscretization<DIM>::FACE_MATRIX_ID),
+        stiffnessImpedanceMatrix(
+            indexing, -1, DGMaxDiscretizationBase::FACE_IMPEDANCE_MATRIX_ID);
+    DGMaxLogger(INFO, "Global matrices assembled");
     Utilities::GlobalPetscVector resultVector(
         indexing, -1, -1),  // The vector that we will use for the solution,
                             // initialize it with zeros.
         rhsVector(indexing, DGMaxDiscretization<DIM>::SOURCE_TERM_VECTOR_ID,
                   DGMaxDiscretization<DIM>::FACE_VECTOR_ID);
-    std::cout << "GlobalPetscVector initialised" << std::endl;
-    resultVector.assemble();
-    std::cout << "resultVector assembled" << std::endl;
-    rhsVector.assemble();
-    std::cout << "rhsVector assembled" << std::endl;
+    DGMaxLogger(INFO, "Global vectors assembled");
 
     //    std::complex<double> I = std::complex<double>(0, 1);
     // Apply the factor i omega to the source term J.
@@ -116,10 +114,12 @@ void DGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& harmonicProblem) {
     error = KSPSetPC(solver, preconditioner);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
-    double omega2 = harmonicProblem.omega();
-    omega2 *= omega2;
-
+    double omega = harmonicProblem.omega();
+    double omega2 = omega * omega;
     error = MatAXPY(stiffnessMatrix, -1.0 * omega2, massMatrix,
+                    SUBSET_NONZERO_PATTERN);
+    CHKERRABORT(PETSC_COMM_WORLD, error);
+    error = MatAXPY(stiffnessMatrix, omega, stiffnessImpedanceMatrix,
                     SUBSET_NONZERO_PATTERN);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 

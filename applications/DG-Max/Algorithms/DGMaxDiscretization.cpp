@@ -58,6 +58,7 @@ const std::size_t
 const std::size_t DGMaxDiscretizationBase::SOURCE_TERM_VECTOR_ID;
 
 const std::size_t DGMaxDiscretizationBase::FACE_MATRIX_ID;
+const std::size_t DGMaxDiscretizationBase::FACE_IMPEDANCE_MATRIX_ID;
 const std::size_t DGMaxDiscretizationBase::FACE_VECTOR_ID;
 
 template <std::size_t DIM>
@@ -344,7 +345,7 @@ void DGMaxDiscretization<DIM>::computeFaceMatrix(Base::Face* face,
     BCT bct = internalFace ? BCT::INTERNAL : boundaryIndicator_(*face);
 
     LinearAlgebra::MiddleSizeMatrix stiffnessMatrix(0, 0);
-    if (bct == BCT::NEUMANN) {
+    if (!internalFace && DGMax::isNaturalBoundary(bct)) {
         // The Neumann boundary condition is a natural boundary condition and
         // such a face does not have a contribution to the stiffness matrix.
         stiffnessMatrix.resize(numDoFs, numDoFs);
@@ -385,6 +386,32 @@ void DGMaxDiscretization<DIM>::computeFaceMatrix(Base::Face* face,
             });
     }
     face->setFaceMatrix(stiffnessMatrix, FACE_MATRIX_ID);
+
+    // Impedance contribution to the stiffness matrix
+    if (bct == DGMax::BoundaryConditionType::SILVER_MULLER) {
+        const double epsilon =
+            static_cast<ElementInfos*>(face->getPtrElementLeft()->getUserData())
+                ->epsilon_;
+        std::complex<double> impedance =
+            std::complex<double>(0, std::sqrt(epsilon));
+        stiffnessMatrix = faceIntegrator_.integrate(
+            face, [numDoFs, impedance](Base::PhysicalFace<DIM>& pfa) {
+                LinearAlgebra::MiddleSizeMatrix result(numDoFs, numDoFs);
+                for (std::size_t i = 0; i < numDoFs; ++i) {
+                    LinearAlgebra::SmallVector<DIM> phiUNi;
+                    pfa.basisFunctionUnitNormalCross(i, phiUNi, 0);
+                    for (std::size_t j = 0; j < numDoFs; ++j) {
+                        LinearAlgebra::SmallVector<DIM> phiUNj;
+                        pfa.basisFunctionUnitNormalCross(j, phiUNj, 0);
+                        result(j, i) = -impedance * (phiUNi * phiUNj);
+                    }
+                }
+                return result;
+            });
+    } else {
+        stiffnessMatrix *= 0.0;
+    }
+    face->setFaceMatrix(stiffnessMatrix, FACE_IMPEDANCE_MATRIX_ID);
 }
 
 template <std::size_t DIM>
@@ -451,7 +478,8 @@ void DGMaxDiscretization<DIM>::faceVector(
 
             ret(i) = -(val * phi_curl) + stab / diameter * (val * phi);
         }
-    } else if (bct == DGMax::BoundaryConditionType::NEUMANN) {
+    } else if (bct == DGMax::BoundaryConditionType::NEUMANN ||
+               bct == DGMax::BoundaryConditionType::SILVER_MULLER) {
         // Compute g_N (n x phi_i)
         LinearAlgebra::SmallVector<DIM> phiN;
         LinearAlgebra::SmallVectorC<DIM> val = boundaryCondition(fa);

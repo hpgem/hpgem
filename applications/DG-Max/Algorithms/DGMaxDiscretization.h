@@ -70,6 +70,7 @@ class DGMaxDiscretizationBase {
     static const std::size_t SOURCE_TERM_VECTOR_ID = 2;
 
     static const std::size_t FACE_MATRIX_ID = 0;
+    static const std::size_t FACE_IMPEDANCE_MATRIX_ID = 1;
     static const std::size_t FACE_VECTOR_ID = 0;
 
     enum NormType { L2, HCurl, DG };
