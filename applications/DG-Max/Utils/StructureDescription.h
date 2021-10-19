@@ -42,8 +42,6 @@
 #include "ElementInfos.h"
 
 namespace DGMax {
-using namespace hpgem;
-
 /// Strategy pattern to assign material information to elements
 class StructureDescription {
    public:
@@ -51,7 +49,11 @@ class StructureDescription {
     /// Create an element info for the element
     /// \param element The element to create it for
     /// \return A new ElementInfo, the caller should ensure it is cleaned up
-    virtual ElementInfos* createElementInfo(const Base::Element* element) = 0;
+    virtual ElementInfos* createElementInfo(
+        const hpgem::Base::Element* element) = 0;
+
+    static std::shared_ptr<StructureDescription> fromFunction(
+        const std::function<ElementInfos*(const hpgem::Base::Element*)>& func);
 };
 }  // namespace DGMax
 

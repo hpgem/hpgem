@@ -40,6 +40,8 @@
 
 namespace DGMax {
 
+using namespace hpgem;
+
 ElementInfos* PredefinedStructureDescription::createElementInfo(
     const Base::Element* element) {
     switch (dimension_) {

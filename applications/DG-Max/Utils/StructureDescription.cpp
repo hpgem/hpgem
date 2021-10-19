@@ -35,13 +35,6 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_ZONESTRUCTUREDESCRIPTION_H
-#define HPGEM_ZONESTRUCTUREDESCRIPTION_H
-
-#include <vector>
-#include <regex>
-#include <cmath>
-#include "Logger.h"
 
 #include "StructureDescription.h"
 
@@ -49,40 +42,26 @@ namespace DGMax {
 
 using namespace hpgem;
 
-/// Structure definition based on the zone information of the mesh
-class ZoneInfoStructureDefinition : public StructureDescription {
-
+class FunctionalStructureDescription : public StructureDescription {
+    using Func = std::function<ElementInfos *(const Base::Element *)>;
    public:
-    /// Create a structure definition based on the zone information in the mesh.
-    ///
-    /// This will determine the material properties of each element based on the
-    /// zone it belongs to. The name of the zone will be matched in order to the
-    /// given regexes. The material information (epsilon) of the first matching
-    /// regex will be used. If no regex matches, it will use a default epsilon
-    /// or generate an error when the default is nan.
-    ///
-    /// \param regexes vector of regexes used to match zone names
-    /// \param epsilons vector with corresponding values of epsilon
-    /// \param defaultEpsilon Optional default epsilon when no regex matches
-    ///   (nan, default, will generate an error)
-    ZoneInfoStructureDefinition(std::vector<std::regex> regexes,
-                                std::vector<double> epsilons,
-                                double defaultEpsilon = std::nan(""))
-        : regexes_(std::move(regexes)),
-          epsilons_(std::move(epsilons)),
-          defaultEpsilon_(defaultEpsilon) {
-        logger.assert_always(regexes_.size() == epsilons_.size(),
-                             "Regexes not matching material information");
-    };
+    FunctionalStructureDescription(const Func& function) : function_(function) {
+        logger.assert_debug(static_cast<bool>(function),
+                            "No function to assign information");
+    }
 
-    ElementInfos* createElementInfo(const Base::Element* element) final;
+    ElementInfos *createElementInfo(
+        const hpgem::Base::Element *element) override {
+        return function_(element);
+    }
 
    private:
-    std::vector<std::regex> regexes_;
-    std::vector<double> epsilons_;
-    double defaultEpsilon_;
+    Func function_;
 };
 
-}  // namespace DGMax
+std::shared_ptr<StructureDescription> StructureDescription::fromFunction(
+    const std::function<ElementInfos *(const Base::Element *)>& func) {
+    return std::make_shared<FunctionalStructureDescription>(func);
+}
 
-#endif  // HPGEM_ZONESTRUCTUREDESCRIPTION_H
+}  // namespace DGMax

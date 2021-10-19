@@ -43,6 +43,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Base/PhysicalFace.h"
 #include "LinearAlgebra/SmallVector.h"
 #include "BoundaryConditionType.h"
+#include "ElementInfos.h"
 
 using namespace hpgem;
 
@@ -109,11 +110,16 @@ class ExactHarmonicProblem : public HarmonicProblem<DIM> {
             case BCT::NEUMANN:
                 return this->exactSolutionCurl(face.getPointPhysical());
             case BCT::SILVER_MULLER: {
+                double epsilon =
+                    static_cast<ElementInfos*>(
+                        face.getFace()->getPtrElementLeft()->getUserData())
+                        ->epsilon_;
                 Vec efield = this->exactSolution(face.getPointPhysical());
                 Vec efieldCurl =
                     this->exactSolutionCurl(face.getPointPhysical());
                 const Vec& normal = face.getUnitNormalVector();
-                auto impedance = std::complex<double>(0, this->omega());
+                auto impedance =
+                    std::complex<double>(0, this->omega() * std::sqrt(epsilon));
                 // n x (Curl E + Z [E x n]) = n x g_N
                 return efieldCurl + impedance * efield.crossProduct(normal);
             }

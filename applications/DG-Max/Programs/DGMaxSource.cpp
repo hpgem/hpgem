@@ -214,8 +214,7 @@ void runWithDimension() {
 
     // Problem definition
     std::unique_ptr<HarmonicProblem<dim>> problem;
-    problem = std::make_unique<SampleHarmonicProblems<dim>>(
-        SampleHarmonicProblems<dim>::Problem::CONSTANT, 1);
+    problem = std::make_unique<DGMax::ConstantHarmonicProblem<dim>>(1.0);
     problem = std::make_unique<TestingProblem<dim>>();
 
     solver->solve(*problem);
