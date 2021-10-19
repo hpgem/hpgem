@@ -606,10 +606,10 @@ LinearAlgebra::SmallVector<2> DGMaxDiscretization<DIM>::elementErrorIntegrand(
     data = element->getTimeIntegrationVector(timeVector);
     for (std::size_t i = 0; i < element->getNrOfBasisFunctions(0); ++i) {
         el.basisFunction(i, phi, 0);
-        error -= (std::real(data[i]) * phi);
+        error -= data[i] * phi;
         if (computeCurl) {
             phiCurl = el.basisFunctionCurl(i, 0);
-            errorCurl -= (std::real(data[i]) * phiCurl);
+            errorCurl -= data[i] * phiCurl;
         }
     }
     double l2Error = error.l2NormSquared();
