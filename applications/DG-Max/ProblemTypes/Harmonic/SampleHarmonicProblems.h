@@ -177,8 +177,8 @@ class [[maybe_unused]] PlaneWaveProblem : public SampleHarmonicProblem<dim> {
     }
 
    private:
-    std::complex<double> pointPhase(
-        const Geometry::PointPhysical<dim>& point) const {
+    std::complex<double> pointPhase(const Geometry::PointPhysical<dim>& point)
+        const {
         using namespace std::complex_literals;
         return std::exp(1i * (phase_ + k_ * point.getCoordinates()));
     }

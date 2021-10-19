@@ -71,5 +71,4 @@ LinearAlgebra::SmallVectorC<3> SarmanyHarmonicProblem::sourceTerm(
 template class ConstantHarmonicProblem<2>;
 template class ConstantHarmonicProblem<3>;
 
-
 }  // namespace DGMax

@@ -44,8 +44,9 @@ using namespace hpgem;
 
 class FunctionalStructureDescription : public StructureDescription {
     using Func = std::function<ElementInfos *(const Base::Element *)>;
+
    public:
-    FunctionalStructureDescription(const Func& function) : function_(function) {
+    FunctionalStructureDescription(const Func &function) : function_(function) {
         logger.assert_debug(static_cast<bool>(function),
                             "No function to assign information");
     }
@@ -60,7 +61,7 @@ class FunctionalStructureDescription : public StructureDescription {
 };
 
 std::shared_ptr<StructureDescription> StructureDescription::fromFunction(
-    const std::function<ElementInfos *(const Base::Element *)>& func) {
+    const std::function<ElementInfos *(const Base::Element *)> &func) {
     return std::make_shared<FunctionalStructureDescription>(func);
 }
 
