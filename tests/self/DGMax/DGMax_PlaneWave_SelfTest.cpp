@@ -103,68 +103,6 @@ struct ProblemData {
 const LinearAlgebra::SmallVector<2> ProblemData::k{1 * M_PI, 0.5 * M_PI};
 const LinearAlgebra::SmallVectorC<2> ProblemData::E0{0.5, -1};
 
-class TestingProblem : public ExactHarmonicProblem<2> {
-   public:
-    TestingProblem()
-        // k_ is choosen such that:
-        //  1. Not too small, as that would only show the linear part
-        //  2. Not too large, as multiple period will only converge on very
-        //     finer meshes.
-        //  3. Not in the cardinal directions or along the diagonals, as those
-        //     are the normal directions in the mesh.
-        : k_({1 * M_PI, 0.5 * M_PI}), E0_({0.5, -1}), bface(false) {
-
-        // Required for a correct plane wave.
-        logger.assert_debug(
-            std::abs(k_ * E0_) < 1e-12,
-            "Field must be orthogonal to propagation direction");
-    };
-
-    double omega() const final {
-        // Off resonance so that we need a source term and test that as well.
-        return 3.0;
-    }
-
-    Vec2 exactSolution(const Point& p) const final {
-        return E0_ * std::cos(p.getCoordinates() * k_);
-    }
-
-    Vec2 exactSolutionCurl(const Point& p) const final {
-        return -k_.crossProduct(E0_) * std::sin(p.getCoordinates() * k_);
-    }
-
-    Vec2 sourceTerm(const Point& p) const final {
-        // Computed under the assumption that
-        // k_ is orthogonal to E0_
-        double omega2 = omega();
-        omega2 *= omega2;
-        return exactSolution(p) * (k_.l2NormSquared() - omega2);
-    }
-
-    BoundaryConditionType getBoundaryConditionType(
-        const Base::Face& face) const final {
-
-        bface.setFace(&face);
-        bface.setPointReference(face.getReferenceGeometry()->getCenter());
-        Vec2 normal = bface.getUnitNormalVector();
-        double nx = std::abs(normal[0]);
-        if (std::abs(nx - 1.0) < 1e-8) {
-            // Case normal={1,0} => face at y=1
-            return BoundaryConditionType::NEUMANN;
-        } else {
-            // All other boundary faces
-            return BoundaryConditionType::NEUMANN;
-        }
-    }
-
-   private:
-    Vec2 k_;
-    /// Direction of the field
-    Vec2 E0_;
-    /// Used for computing the boundary condition type
-    mutable Base::PhysicalFace<2> bface;
-};
-
 double solveDGMax(std::string meshFile, std::size_t level) {
 
     ProblemData problemData;
