@@ -97,7 +97,7 @@ class ExactHarmonicProblem : public HarmonicProblem<DIM> {
         const Geometry::PointPhysical<DIM>& point) const = 0;
 
     LinearAlgebra::SmallVectorC<DIM> boundaryCondition(
-        Base::PhysicalFace<DIM>& face) const final {
+        Base::PhysicalFace<DIM>& face) const override {
         using BCT = DGMax::BoundaryConditionType;
         using Vec = LinearAlgebra::SmallVectorC<DIM>;
         BCT bct = this->getBoundaryConditionType(*face.getFace());

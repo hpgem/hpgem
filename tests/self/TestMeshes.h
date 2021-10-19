@@ -198,14 +198,13 @@ std::vector<std::string> getUnitCubePeriodicCubeMeshes(
  * refinements of a mesh with a single cube.
  * @return The file names to the meshes
  */
-std::vector<std::string> getUnitCubeTetMeshes() {
+std::vector<std::string> getUnitCubeTetMeshes(
+    std::size_t minLevel = 0, std::size_t maxLevel = ALL_ENTRIES) {
     std::string prefix = getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/";
-    return {
-        prefix + "unitCubeN1Tet.hpgem",
-        prefix + "unitCubeN2Tet.hpgem",
-        prefix + "unitCubeN4Tet.hpgem",
-        prefix + "unitCubeN8Tet.hpgem",
-    };
+    return limit(
+        {prefix + "unitCubeN1Tet.hpgem", prefix + "unitCubeN2Tet.hpgem",
+         prefix + "unitCubeN4Tet.hpgem", prefix + "unitCubeN8Tet.hpgem"},
+        minLevel, maxLevel);
 }
 
 }  // namespace hpgem
