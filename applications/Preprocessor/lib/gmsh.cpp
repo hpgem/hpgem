@@ -37,6 +37,7 @@
  */
 
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -343,18 +344,36 @@ void GmshReader::readElementData() {
         }
         return;
     }
+
+    // Element data has two parts
+    //  - It starts with some global string, real, integer tags for the dataset
+    //    as a whole
+    //  - The second half has doubles stored per element
+
+    // Read global strings
     size_t numStringelements;
     Filehandle_ >> numStringelements;
     for (size_t i = 0; i < numStringelements; i++) {
         std::string view_names;
         Filehandle_ >> view_names;
     }
+    // Read  global reals (doubles)
     size_t numrealelements;
     Filehandle_ >> numrealelements;
     for (size_t i = 0; i < numrealelements; i++) {
         double real;
         Filehandle_ >> real;
     }
+
+    // Read global integers
+    // These follow the convention:
+    //  - Timestamp index
+    //  - Number of components (1,3,9 by default)
+    //  - The number of Elements in view
+    //  - The partition index for the view data (0 for no partition)
+    //
+    // The second value specifies the number of values used in the per-element
+    // part, while the third is the number of elements
     size_t numintegerelements;
     Filehandle_ >> numintegerelements;
     logger.assert_always(numintegerelements > 2,
@@ -366,20 +385,29 @@ void GmshReader::readElementData() {
 
     logger.assert_always(field_components == 1,
                          "We only read in Scalar data as material identifiers");
+    // Read the integer elements that follow afterwards
     for (int i = 3; i < numintegerelements; i++) {
         size_t dummy;
         Filehandle_ >> dummy;
     }
+
+    // Read the data for each entity
     for (int i = 0; i < num_entities; i++) {
         size_t elementid;
-        size_t zoneinfo;
+        double zoneinfo;
         Filehandle_ >> elementid >> zoneinfo;
         elementid--;  // gmsh is 1 indexed hpgem is zero indexed
         logger.assert_always(elements_[elementid].id == elementid,
                              "Your elements are not indexed continously. This "
                              "parser cannot handle it. % vs %",
                              elements_[elementid].id, elementid);
-        elements_[elementid].zoneName = std::to_string(zoneinfo);
+        if (std::round(zoneinfo) == zoneinfo) {
+            // Convert to integer if possible
+            std::size_t zoneInfoInt = zoneinfo;
+            elements_[elementid].zoneName = std::to_string(zoneInfoInt);
+        } else {
+            elements_[elementid].zoneName = std::to_string(zoneinfo);
+        }
     }
 }
 
