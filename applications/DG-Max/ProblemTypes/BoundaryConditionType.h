@@ -39,6 +39,7 @@
 #define HPGEM_BOUNDARYCONDITIONTYPE_H
 
 #include <functional>
+#include "DGMaxLogger.h"
 #include "Base/Face.h"
 
 namespace DGMax {
@@ -61,12 +62,42 @@ enum class BoundaryConditionType {
      */
     NEUMANN,
     /**
+     * Boundary condition of the form
+     * n x (Curl E)  + i omega sqrt[epsilon_r mu_r] E_tangent = n x g_N,
+     * corresponding to the Silver-Muller radiation condition applied to the
+     * boundary (instead of at infinity). This is an Impedance boundary
+     * condition with a fixed impedance. Mathematically it is of a Robin type.
+     *
+     * Note: The right hand side has a 'n x' to enforce that only the tangential
+     * part of g_N is used.
+     */
+    SILVER_MULLER,
+    /**
      * Dummy value for internal faces, should not be used for external faces.
      *
      * This is primarily intended so that we can assign each face a value
      */
     INTERNAL,
 };
+
+inline bool isNaturalBoundary(BoundaryConditionType type) {
+    switch (type) {
+        case BoundaryConditionType::DIRICHLET:
+            return false;
+        case BoundaryConditionType::NEUMANN:  // Fall through
+        case BoundaryConditionType::SILVER_MULLER:
+            return true;
+        case BoundaryConditionType::INTERNAL:
+            DGMaxLogger.assert_always(false,
+                                      "Internal boundary to isNaturalBoundary");
+            return false;
+        default:
+            DGMaxLogger.assert_always(false,
+                                      "isNaturalBoundary not implemented for "
+                                      "this boundary condition type");
+            return false;
+    }
+}
 
 using BoundaryConditionIndicator =
     typename std::function<BoundaryConditionType(const hpgem::Base::Face&)>;

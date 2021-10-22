@@ -44,6 +44,7 @@
 #include <DGMaxLogger.h>
 #include <Algorithms/DGMaxHarmonic.h>
 #include <Algorithms/DivDGMaxHarmonic.h>
+#include <ProblemTypes/Harmonic/SampleHarmonicProblems.h>
 #include <Utils/PredefinedStructure.h>
 
 #include <petsc.h>
@@ -53,94 +54,79 @@ using namespace DGMax;
 using Vec2 = LinearAlgebra::SmallVectorC<2>;
 using Point = Geometry::PointPhysical<2>;
 
-class TestingProblem : public ExactHarmonicProblem<2> {
+struct ProblemData {
    public:
-    TestingProblem()
-        // k_ is choosen such that:
-        //  1. Not too small, as that would only show the linear part
-        //  2. Not too large, as multiple period will only converge on very
-        //     finer meshes.
-        //  3. Not in the cardinal directions or along the diagonals, as those
-        //     are the normal directions in the mesh.
-        : k_({1 * M_PI, 0.5 * M_PI}), E0_({0.5, -1}), bface(false) {
+    // Different from 1 to increase the likelihood of detecting a bug
+    constexpr static const double epsilon = 2.0;
+    // Not on the dispersion curve to require a source term
+    // On dispersion would be k.l2Norm()/sqrt(epsilon)
+    constexpr static const double omega = 1.5;
+    constexpr static const double phase = 0.5;
 
-        // Required for a correct plane wave.
-        logger.assert_debug(
-            std::abs(k_ * E0_) < 1e-12,
-            "Field must be orthogonal to propagation direction");
-    };
+    static const LinearAlgebra::SmallVector<2> k;
+    static const LinearAlgebra::SmallVectorC<2> E0;
 
-    double omega() const final {
-        // Off resonance so that we need a source term and test that as well.
-        return 3.0;
+    ProblemData()
+        : infos(epsilon),
+          structureDescription(StructureDescription::fromFunction(
+              [this](const Base::Element*) { return &this->infos; })),
+          problem(k, E0, omega, phase, epsilon) {
+        problem.setBoundaryConditionIndicator([](const Base::Face& face) {
+            auto normal = face.getNormalVector(
+                face.getReferenceGeometry()->getCenter().castDimension<1>());
+            // Different boundary conditions on each boundary
+            double xn = normal[0];
+            if (std::abs(xn - 1) < 1e-9) {
+                // normal = <1,0> => y = 1 boundary
+                return BoundaryConditionType::DIRICHLET;
+            } else if (std::abs(xn + 1) < 1e-9) {
+                // normal = <-1,0> => y = 0 boundary
+                return BoundaryConditionType::NEUMANN;
+            } else {
+                // normal = <0,+-1> => x=0,1 boundary
+                return BoundaryConditionType::SILVER_MULLER;
+            }
+        });
     }
 
-    Vec2 exactSolution(const Point& p) const final {
-        return E0_ * std::cos(p.getCoordinates() * k_);
-    }
-
-    Vec2 exactSolutionCurl(const Point& p) const final {
-        return -k_.crossProduct(E0_) * std::sin(p.getCoordinates() * k_);
-    }
-
-    Vec2 sourceTerm(const Point& p) const final {
-        // Computed under the assumption that
-        // k_ is orthogonal to E0_
-        double omega2 = omega();
-        omega2 *= omega2;
-        return exactSolution(p) * (k_.l2NormSquared() - omega2);
-    }
-
-    BoundaryConditionType getBoundaryConditionType(
-        const Base::Face& face) const final {
-
-        bface.setFace(&face);
-        bface.setPointReference(face.getReferenceGeometry()->getCenter());
-        Vec2 normal = bface.getUnitNormalVector();
-        double nx = std::abs(normal[0]);
-        if (std::abs(nx - 1.0) < 1e-8) {
-            // Case normal={1,0} => face at y=1
-            return BoundaryConditionType::DIRICHLET;
-        } else {
-            // All other boundary faces
-            return BoundaryConditionType::NEUMANN;
-        }
-    }
-
-   private:
-    Vec2 k_;
-    /// Direction of the field
-    Vec2 E0_;
-    /// Used for computing the boundary condition type
-    mutable Base::PhysicalFace<2> bface;
+    ElementInfos infos;
+    std::shared_ptr<StructureDescription> structureDescription;
+    PlaneWaveProblem<2> problem;
 };
+// k_ is choosen such that:
+//  1. Not too small, as that would only show the linear part
+//  2. Not too large, as multiple period will only converge on very
+//     finer meshes.
+//  3. Not in the cardinal directions or along the diagonals, as those
+//     are the normal directions in the mesh.
+// E0 follows from the requirement that it is orthogonal.
+const LinearAlgebra::SmallVector<2> ProblemData::k{1 * M_PI, 0.5 * M_PI};
+const LinearAlgebra::SmallVectorC<2> ProblemData::E0{0.5, -1};
 
 double solveDGMax(std::string meshFile, std::size_t level) {
+
+    ProblemData problemData;
     Base::ConfigurationData config(1);
-
-    PredefinedStructureDescription structure =
-        PredefinedStructureDescription(PredefinedStructure::VACUUM, 2);
-
-    auto mesh = DGMax::readMesh<2>(meshFile, &config, structure, 2);
+    auto mesh = DGMax::readMesh<2>(meshFile, &config,
+                                   *problemData.structureDescription, 2);
     DGMaxHarmonic<2> solver(*mesh, 100, 2);
-    TestingProblem problem;
-    solver.solve(problem);
+
+    solver.solve(problemData.problem);
     std::stringstream fileName;
     fileName << "solution-dgmax-" << level;
     Output::VTKSpecificTimeWriter<2> output(fileName.str(), mesh.get(), 0, 2);
     solver.writeVTK(output);
-    auto errors = solver.computeError({DGMaxDiscretizationBase::L2}, problem);
-    return errors[DGMaxDiscretizationBase::L2];
+    return solver.computeL2Error(problemData.problem);
 }
 
 double solveDivDGMax(std::string meshFile, std::size_t level) {
+    ProblemData problemData;
+
     Base::ConfigurationData config(2);
+    auto mesh = DGMax::readMesh<2>(meshFile, &config,
+                                   *problemData.structureDescription, 2);
 
-    PredefinedStructureDescription structure =
-        PredefinedStructureDescription(PredefinedStructure::VACUUM, 2);
-
-    auto mesh = DGMax::readMesh<2>(meshFile, &config, structure, 2);
-
+    // Prepare the plotting code. The result is only used for manual inspection.
     std::stringstream fileName;
     fileName << "solution-divdgmax-" << level;
     Output::VTKSpecificTimeWriter<2> output(fileName.str(), mesh.get(), 0, 2);
@@ -152,11 +138,10 @@ double solveDivDGMax(std::string meshFile, std::size_t level) {
     stab.setAllFluxeTypes(DivDGMaxDiscretizationBase::FluxType::IP);
 
     DivDGMaxHarmonic<2> solver(*mesh, stab, 2);
-    TestingProblem problem;
-    solver.solve(problem);
+    solver.solve(problemData.problem);
     solver.writeVTK(output);
 
-    return solver.computeL2Error(problem);
+    return solver.computeL2Error(problemData.problem);
 }
 
 int main(int argc, char** argv) {
@@ -186,22 +171,23 @@ int main(int argc, char** argv) {
     // L2 norm is expected at h^{p} => reduction of a factor 4 with each level
     ConvergenceTestSet meshes = {getUnitSquareTriangleMeshes(),
                                  {
-                                     1.73487833e-01,  //------
-                                     5.49663411e-02,  //  3.16
-                                     1.38124599e-02,  //  3.98
-                                     3.47325613e-03,  //  3.98
-                                     8.71270183e-04,  //  3.99
-                                     2.18168883e-04,  //  3.99
-                                     5.45838131e-05,  //  4.00
+                                     2.32455311e-01,  //------
+                                     7.78569137e-02,  //  2.99
+                                     1.97411586e-02,  //  3.94
+                                     4.94737345e-03,  //  3.99
+                                     1.23692989e-03,  //  4.00
+                                     3.09147735e-04,  //  4.00
+                                     7.72701909e-05,  //  4.00
                                  }};
     runConvergenceTest(meshes, ignoreFailures, &solveDGMax);
-    ConvergenceTestSet meshes2 = {getUnitSquareTriangleMeshes(0, 5),
+    ConvergenceTestSet meshes2 = {getUnitSquareTriangleMeshes(0, 6),
                                   {
-                                      1.82791849e-01,  //------
-                                      4.98064965e-02,  //  3.67
-                                      1.20771131e-02,  //  4.12
-                                      2.97631344e-03,  //  4.06
-                                      7.37982120e-04,  //  4.03
+                                      2.50221220e-01,  //------
+                                      7.84254413e-02,  //  3.19
+                                      1.97608759e-02,  //  3.97
+                                      4.94782994e-03,  //  3.99
+                                      1.23693191e-03,  //  4.00
+                                      3.09147016e-04,  //  4.00
                                   }};
     runConvergenceTest(meshes2, ignoreFailures, &solveDivDGMax);
 }

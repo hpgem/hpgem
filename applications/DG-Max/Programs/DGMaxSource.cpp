@@ -110,21 +110,38 @@ class TestingProblem : public HarmonicProblem<dim> {
    public:
     TestingProblem(){};
 
-    double omega() const final { return 4.0e-2; }
+    double omega() const final { return 0.01; }
 
     LinearAlgebra::SmallVectorC<dim> sourceTerm(
         const Geometry::PointPhysical<dim>& point) const final {
         LinearAlgebra::SmallVector<dim> result;
 
         result.set(0.0);
-        if (point[1] > 0 && point[1] < 50) result[0] = 1.0;
+        // if (point[1] > 0 && point[1] < 50) result[0] = 1.0;
 
         return result;
     }
 
     LinearAlgebra::SmallVectorC<dim> boundaryCondition(
         Base::PhysicalFace<dim>& face) const override {
-        return {};
+
+        LinearAlgebra::SmallVectorC<dim> normal = face.getUnitNormalVector();
+
+        // E = E_0 exp(ik.x)
+        // g_N = Curl E + i kappa E x n
+        //     = i[(k x E_0) + kappa (E_0 x n)] exp(ik.x)
+
+        LinearAlgebra::SmallVectorC<dim> E0{1.0, 0}, k{0, 0.01};
+        // (kxE_0) + kappa (E_0 x n)
+        LinearAlgebra::SmallVectorC<dim> result = k.crossProduct(E0);
+        result += omega() * E0.crossProduct(normal);
+
+        // i exp(ik.x)
+        std::complex<double> phase(
+            0, face.getPointPhysical().getCoordinates() * k);
+        result *= std::complex<double>(0, 1) * std::exp(phase);
+
+        return result;
     }
 
     DGMax::BoundaryConditionType getBoundaryConditionType(
@@ -142,10 +159,10 @@ class TestingProblem : public HarmonicProblem<dim> {
         double nx = std::abs(std::abs(normal[0]) - 1.0);
         if (nx < 1e-8) {
             // For faces at y=0,1
-            return DGMax::BoundaryConditionType::DIRICHLET;
+            return DGMax::BoundaryConditionType::SILVER_MULLER;
         } else {
             // For faces at x=0,1
-            return DGMax::BoundaryConditionType::NEUMANN;
+            return DGMax::BoundaryConditionType::SILVER_MULLER;
         }
     }
 };
@@ -197,8 +214,7 @@ void runWithDimension() {
 
     // Problem definition
     std::unique_ptr<HarmonicProblem<dim>> problem;
-    problem = std::make_unique<SampleHarmonicProblems<dim>>(
-        SampleHarmonicProblems<dim>::Problem::CONSTANT, 1);
+    problem = std::make_unique<DGMax::ConstantHarmonicProblem<dim>>(1.0);
     problem = std::make_unique<TestingProblem<dim>>();
 
     solver->solve(*problem);
@@ -223,6 +239,12 @@ void runWithDimension() {
         },
         "source");
     solver->writeVTK(output);
+
+    auto* eproblem = dynamic_cast<ExactHarmonicProblem<dim>*>(problem.get());
+    if (eproblem != nullptr) {
+        double l2Error = solver->computeL2Error(*eproblem);
+        DGMaxLogger(INFO, "L2 error %", l2Error);
+    }
 }
 
 template <std::size_t DIM>

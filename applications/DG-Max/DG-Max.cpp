@@ -125,8 +125,8 @@ int main(int argc, char** argv) {
             element->setNumberOfTimeIntegrationVectors(3);
         }
 
-        SampleHarmonicProblems<DIM> harmonicProblem(
-            SampleHarmonicProblems<DIM>::CONSTANT, 1);
+        auto harmonicProblem =
+            std::make_shared<DGMax::ConstantHarmonicProblem<DIM>>(1.0);
 
         //        DGMaxHarmonic<DIM> harmonicSolver(*mesh, p.getValue());
         //        harmonicSolver.solve(harmonicProblem, stab);

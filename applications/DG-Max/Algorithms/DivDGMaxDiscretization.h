@@ -77,6 +77,7 @@ class DivDGMaxDiscretizationBase {
     // Note: Missing are the initial conditions, taking up positions 0, 1
     static const std::size_t ELEMENT_SOURCE_VECTOR_ID = 2;
     static const std::size_t FACE_STIFFNESS_MATRIX_ID = 0;
+    static const std::size_t FACE_STIFFNESS_IMPEDANCE_MATRIX_ID = 1;
     static const std::size_t FACE_BOUNDARY_VECTOR_ID = 0;
 
     enum class FluxType { IP, BREZZI };
@@ -220,6 +221,10 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
 
     LinearAlgebra::MiddleSizeMatrix brezziFluxBilinearTerm(
         Base::Face* face, DGMax::BoundaryConditionType bct, Stab stab);
+
+    LinearAlgebra::MiddleSizeMatrix computeFaceImpedanceIntegrand(
+        Base::PhysicalFace<DIM>& face, Utilities::FaceLocalIndexing& indexing,
+        DGMax::BoundaryConditionType& bct) const;
 
     /// \brief Compute mass matrix for vector components on elements adjacent to
     /// a face

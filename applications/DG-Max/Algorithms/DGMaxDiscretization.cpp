@@ -58,6 +58,7 @@ const std::size_t
 const std::size_t DGMaxDiscretizationBase::SOURCE_TERM_VECTOR_ID;
 
 const std::size_t DGMaxDiscretizationBase::FACE_MATRIX_ID;
+const std::size_t DGMaxDiscretizationBase::FACE_IMPEDANCE_MATRIX_ID;
 const std::size_t DGMaxDiscretizationBase::FACE_VECTOR_ID;
 
 template <std::size_t DIM>
@@ -325,11 +326,12 @@ void DGMaxDiscretization<DIM>::elementInnerProduct(
     const std::size_t numberOfBasisFunctions = el.getNumberOfBasisFunctions(0);
 
     ret.resize(numberOfBasisFunctions);
-    LinearAlgebra::SmallVector<DIM> val, phi;
+    LinearAlgebra::SmallVectorC<DIM> val;
+    LinearAlgebra::SmallVector<DIM> phi;
     val = function(el.getPointPhysical());
     for (std::size_t i = 0; i < numberOfBasisFunctions; ++i) {
         el.basisFunction(i, phi, 0);
-        ret[i] = phi * val;
+        ret[i] = val * phi;
     }
 }
 
@@ -343,7 +345,7 @@ void DGMaxDiscretization<DIM>::computeFaceMatrix(Base::Face* face,
     BCT bct = internalFace ? BCT::INTERNAL : boundaryIndicator_(*face);
 
     LinearAlgebra::MiddleSizeMatrix stiffnessMatrix(0, 0);
-    if (bct == BCT::NEUMANN) {
+    if (!internalFace && DGMax::isNaturalBoundary(bct)) {
         // The Neumann boundary condition is a natural boundary condition and
         // such a face does not have a contribution to the stiffness matrix.
         stiffnessMatrix.resize(numDoFs, numDoFs);
@@ -384,6 +386,32 @@ void DGMaxDiscretization<DIM>::computeFaceMatrix(Base::Face* face,
             });
     }
     face->setFaceMatrix(stiffnessMatrix, FACE_MATRIX_ID);
+
+    // Impedance contribution to the stiffness matrix
+    if (bct == DGMax::BoundaryConditionType::SILVER_MULLER) {
+        const double epsilon =
+            static_cast<ElementInfos*>(face->getPtrElementLeft()->getUserData())
+                ->epsilon_;
+        std::complex<double> impedance =
+            std::complex<double>(0, std::sqrt(epsilon));
+        stiffnessMatrix = faceIntegrator_.integrate(
+            face, [numDoFs, impedance](Base::PhysicalFace<DIM>& pfa) {
+                LinearAlgebra::MiddleSizeMatrix result(numDoFs, numDoFs);
+                for (std::size_t i = 0; i < numDoFs; ++i) {
+                    LinearAlgebra::SmallVector<DIM> phiUNi;
+                    pfa.basisFunctionUnitNormalCross(i, phiUNi, 0);
+                    for (std::size_t j = 0; j < numDoFs; ++j) {
+                        LinearAlgebra::SmallVector<DIM> phiUNj;
+                        pfa.basisFunctionUnitNormalCross(j, phiUNj, 0);
+                        result(j, i) = -impedance * (phiUNi * phiUNj);
+                    }
+                }
+                return result;
+            });
+    } else {
+        stiffnessMatrix *= 0.0;
+    }
+    face->setFaceMatrix(stiffnessMatrix, FACE_IMPEDANCE_MATRIX_ID);
 }
 
 template <std::size_t DIM>
@@ -438,7 +466,8 @@ void DGMaxDiscretization<DIM>::faceVector(
         ret.set(0.0);
     } else if (bct == DGMax::BoundaryConditionType::DIRICHLET) {
         double diameter = face->getDiameter();
-        LinearAlgebra::SmallVector<DIM> val, phi, phi_curl;
+        LinearAlgebra::SmallVectorC<DIM> val;
+        LinearAlgebra::SmallVector<DIM> phi, phi_curl;
 
         val = boundaryCondition(fa);
 
@@ -447,12 +476,13 @@ void DGMaxDiscretization<DIM>::faceVector(
 
             phi_curl = fa.basisFunctionCurl(i, 0);
 
-            ret(i) = -(phi_curl * val) + stab / diameter * (phi * val);
+            ret(i) = -(val * phi_curl) + stab / diameter * (val * phi);
         }
-    } else if (bct == DGMax::BoundaryConditionType::NEUMANN) {
+    } else if (bct == DGMax::BoundaryConditionType::NEUMANN ||
+               bct == DGMax::BoundaryConditionType::SILVER_MULLER) {
         // Compute g_N (n x phi_i)
         LinearAlgebra::SmallVector<DIM> phiN;
-        LinearAlgebra::SmallVector<DIM> val = boundaryCondition(fa);
+        LinearAlgebra::SmallVectorC<DIM> val = boundaryCondition(fa);
         for (std::size_t i = 0; i < numDoFs; ++i) {
             fa.basisFunctionUnitNormalCross(i, phiN, 0);
             ret(i) = val * phiN;
@@ -481,7 +511,6 @@ LinearAlgebra::SmallVectorC<DIM> DGMaxDiscretization<DIM>::computeField(
         LinearAlgebra::SmallVector<DIM> phi;
         physicalElement.basisFunction(i, phi, 0);
         result += coefficients[i] * phi;
-        result += coefficients[i] * phi;
     }
     return result;
 }
@@ -497,7 +526,7 @@ LinearAlgebra::SmallVectorC<DIM> DGMaxDiscretization<DIM>::computeCurlField(
     physicalElement.setTransformation(transform);
     physicalElement.setPointReference(p);
 
-    LinearAlgebra::SmallVector<DIM> result;
+    LinearAlgebra::SmallVectorC<DIM> result;
     for (std::size_t i = 0; i < element->getNumberOfBasisFunctions(0); ++i) {
         result += coefficients[i] * physicalElement.basisFunctionCurl(i, 0);
     }
@@ -566,7 +595,8 @@ LinearAlgebra::SmallVector<2> DGMaxDiscretization<DIM>::elementErrorIntegrand(
     DGMaxDiscretization<DIM>::InputFunction curlValues) const {
     const Base::Element* element = el.getElement();
 
-    LinearAlgebra::SmallVector<DIM> phi, phiCurl, error, errorCurl;
+    LinearAlgebra::SmallVector<DIM> phi, phiCurl;
+    LinearAlgebra::SmallVectorC<DIM> error, errorCurl;
 
     error = exactValues(el.getPointPhysical());
     if (computeCurl) {
@@ -576,16 +606,14 @@ LinearAlgebra::SmallVector<2> DGMaxDiscretization<DIM>::elementErrorIntegrand(
     data = element->getTimeIntegrationVector(timeVector);
     for (std::size_t i = 0; i < element->getNrOfBasisFunctions(0); ++i) {
         el.basisFunction(i, phi, 0);
-        error -= (std::real(data[i]) * phi);
+        error -= data[i] * phi;
         if (computeCurl) {
             phiCurl = el.basisFunctionCurl(i, 0);
-            errorCurl -= (std::real(data[i]) * phiCurl);
+            errorCurl -= data[i] * phiCurl;
         }
     }
-    double l2Error = error.l2Norm();
-    l2Error *= l2Error;
-    double curlError = errorCurl.l2Norm();
-    curlError *= curlError;
+    double l2Error = error.l2NormSquared();
+    double curlError = errorCurl.l2NormSquared();
     LinearAlgebra::SmallVector<2> errors;
     errors[0] = l2Error;
     errors[1] = curlError;

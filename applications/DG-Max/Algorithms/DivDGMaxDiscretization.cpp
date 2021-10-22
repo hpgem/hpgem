@@ -203,7 +203,7 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
             [&indexing, &stab, &bct, this](Base::PhysicalFace<DIM>& face) {
                 std::size_t numDoFs = indexing.getNumberOfDoFs();
                 LinearAlgebra::MiddleSizeMatrix result(numDoFs, numDoFs);
-                if (bct != BCT::NEUMANN) {
+                if (bct == BCT::INTERNAL || !isNaturalBoundary(bct)) {
                     faceStiffnessMatrixFieldIntegrand(face, indexing, stab,
                                                       result);
                 }
@@ -215,6 +215,17 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
             faceMatrix += brezziFluxBilinearTerm(face, bct, stab);
         }
         face->setFaceMatrix(faceMatrix, FACE_STIFFNESS_MATRIX_ID);
+
+        if (bct == DGMax::BoundaryConditionType::SILVER_MULLER) {
+            faceMatrix = faceIntegrator_.integrate(
+                face, [&indexing, &bct, this](Base::PhysicalFace<DIM>& face) {
+                    return computeFaceImpedanceIntegrand(face, indexing, bct);
+                });
+        } else {
+            // Matrix is already of the right size, just zero it
+            faceMatrix *= 0.0;
+        }
+        face->setFaceMatrix(faceMatrix, FACE_STIFFNESS_IMPEDANCE_MATRIX_ID);
 
         for (const auto& boundaryVec : boundaryVectors) {
             LinearAlgebra::MiddleSizeVector vec;
@@ -397,7 +408,7 @@ void DivDGMaxDiscretization<DIM>::elementSourceVector(
     sourceValue = source(el.getPointPhysical());
     for (std::size_t i = 0; i < (uDoFs); ++i) {
         el.basisFunction(i, phi, 0);
-        ret(i) = phi * sourceValue;
+        ret(i) = sourceValue * phi;
     }
 }
 
@@ -581,6 +592,39 @@ void DivDGMaxDiscretization<DIM>::addFaceMatrixPotentialIntegrand(
             }
         }
     }
+}
+
+template <std::size_t DIM>
+LinearAlgebra::MiddleSizeMatrix
+    DivDGMaxDiscretization<DIM>::computeFaceImpedanceIntegrand(
+        Base::PhysicalFace<DIM>& face, Utilities::FaceLocalIndexing& indexing,
+        DGMax::BoundaryConditionType& bct) const {
+    std::size_t nUDoFs = indexing.getNumberOfDoFs(0, Base::Side::LEFT);
+    std::size_t nDoFs = indexing.getNumberOfDoFs();
+    LinearAlgebra::MiddleSizeMatrix result(nDoFs, nDoFs);
+
+    // Just to make sure
+    logger.assert_debug(bct == DGMax::BoundaryConditionType::SILVER_MULLER,
+                        "Function only written for SilverMuller type faces");
+
+    std::complex<double> impedance;
+    {
+        double epsilonLeft =
+            static_cast<ElementInfos*>(
+                face.getFace()->getPtrElementLeft()->getUserData())
+                ->epsilon_;
+        impedance = std::complex<double>(0, std::sqrt(epsilonLeft));
+    }
+    for (std::size_t i = 0; i < nUDoFs; ++i) {
+        LinearAlgebra::SmallVector<DIM> phiUNi;
+        face.basisFunctionUnitNormalCross(i, phiUNi, 0);
+        for (std::size_t j = 0; j < nUDoFs; ++j) {
+            LinearAlgebra::SmallVector<DIM> phiUNj;
+            face.basisFunctionUnitNormalCross(j, phiUNj, 0);
+            result(j, i) = -impedance * (phiUNi * phiUNj);
+        }
+    }
+    return result;
 }
 
 template <std::size_t DIM>
@@ -830,11 +874,13 @@ LinearAlgebra::MiddleSizeMatrix
     LinearAlgebra::MiddleSizeMatrix result(faceInfo.totalDoFs(),
                                            faceInfo.totalDoFs());
 
-    if (bct == DGMax::BoundaryConditionType::NEUMANN &&
-        stab.fluxType3 != FluxType::BREZZI) {
-        // On a neumann boundary the first two stabilization terms (fluxType1,2)
-        // are not used. So prevent doing any work if the last stabilization
-        // term (fluxType3) uses a different flux.
+    bool isNaturalBCT = !face->isInternal() && DGMax::isNaturalBoundary(bct);
+
+    if (isNaturalBCT && stab.fluxType3 != FluxType::BREZZI) {
+        // On a boundaries with natural boundary conditions the first two
+        // stabilization terms (fluxType1,2) are not used. So prevent doing any
+        // work if the last stabilization term (fluxType3) uses a different
+        // flux.
         std::size_t dofs = faceInfo.totalDoFs();
         return LinearAlgebra::MiddleSizeMatrix(dofs, dofs);
     }
@@ -843,8 +889,7 @@ LinearAlgebra::MiddleSizeMatrix
     LinearAlgebra::MiddleSizeMatrix massMat = computeFaceVectorMassMatrix(face);
     massMat.cholesky();
 
-    if (stab.fluxType1 == FluxType::BREZZI &&
-        bct != DGMax::BoundaryConditionType::NEUMANN) {
+    if (stab.fluxType1 == FluxType::BREZZI && !isNaturalBCT) {
         std::size_t leftFaces = face->getPtrElementLeft()->getNumberOfFaces();
         std::size_t rightFaces =
             faceInfo.internal ? face->getPtrElementLeft()->getNumberOfFaces()
@@ -887,7 +932,7 @@ LinearAlgebra::MiddleSizeMatrix
     }
 
     if (faceInfo.internal && stab.fluxType2 == FluxType::BREZZI &&
-        bct != DGMax::BoundaryConditionType::NEUMANN) {
+        !isNaturalBCT) {
         // Compute normal vector stabilizer, stab2 * S^T M^{-T} S, S = lift
         // matrix Again we are using the Cholesky decomposition off LL^T = M.
         LinearAlgebra::MiddleSizeMatrix pmassMat =
@@ -958,14 +1003,15 @@ void DivDGMaxDiscretization<DIM>::faceBoundaryVector(
         for (std::size_t i = 0; i < totalUDoFs; ++i) {
             fa.basisFunctionUnitNormalCross(i, phi, 0);
             phi_curl = fa.basisFunctionCurl(i, 0);
-            double value = -(phi_curl * val);
+            std::complex<double> value = -(val * phi_curl);
             if (stab.fluxType1 == FluxType::IP) {
-                value += stab.stab1 / (diameter) * (phi * val);
+                value += stab.stab1 / (diameter) * (val * phi);
             }
             // Scale with mu^{-1} in the future
             ret(i) = value;
         }
-    } else if (bct == DGMax::BoundaryConditionType::NEUMANN) {
+    } else if (bct == DGMax::BoundaryConditionType::NEUMANN ||
+               bct == DGMax::BoundaryConditionType::SILVER_MULLER) {
         // Valid for both IP and Brezzi fluxes
         std::size_t totalUDoFs =
             face->getPtrElementLeft()->getNumberOfBasisFunctions(0);
@@ -1025,7 +1071,7 @@ LinearAlgebra::MiddleSizeVector
             LinearAlgebra::SmallVector<DIM> basisV;
 
             // Compute boundary value
-            LinearAlgebra::SmallVector<DIM> val = boundaryValue(face);
+            LinearAlgebra::SmallVectorC<DIM> val = boundaryValue(face);
 
             for (std::size_t i = 0; i < faceInfo.totalUDoFs(); ++i) {
                 face.basisFunction(i, basisV, 0);
@@ -1074,18 +1120,19 @@ double DivDGMaxDiscretization<DIM>::elementErrorIntegrand(
     LinearAlgebra::MiddleSizeVector data =
         element->getTimeIntegrationVector(timeVector);
 
-    LinearAlgebra::SmallVector<DIM> error, phi;
+    LinearAlgebra::SmallVectorC<DIM> error;
+    std::complex<double> potentialError = 0.0;  // Should be zero
+    LinearAlgebra::SmallVector<DIM> phi;
     error = exactValues(el.getPointPhysical());
     for (std::size_t i = 0; i < numberOfUDoFs; ++i) {
         el.basisFunction(i, phi, 0);
-        error -= std::real(data[i]) * phi;
+        error -= data[i] * phi;
     }
     for (std::size_t i = 0; i < numberOfPDoFs; ++i) {
-        error -=
-            std::real(data[i + numberOfUDoFs]) * el.basisFunctionDeriv(i, 1);
+        potentialError += data[i + numberOfUDoFs] * el.basisFunction(i, 1);
     }
 
-    return error.l2NormSquared();
+    return error.l2NormSquared() + std::norm(potentialError);
 }
 
 char fluxName(typename DivDGMaxDiscretizationBase::FluxType f) {
