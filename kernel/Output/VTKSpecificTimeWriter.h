@@ -106,6 +106,15 @@ class VTKSpecificTimeWriter final {
             Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)>,
         const std::string& name);
 
+
+    template<typename T>
+    void writeMultiple(
+        std::function<T(Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)>
+            extractor,
+        std::map<std::string, std::function<double(T&)>> scalars,
+        std::map<std::string, std::function<LinearAlgebra::SmallVector<DIM>(T&)>> vectors = {},
+        std::map<std::string, std::function<LinearAlgebra::SmallMatrix<DIM, DIM>(T&)>> tensors = {});
+
     ///\brief do not copy the writer to prevent havoc when destructing all the
     /// copies
     VTKSpecificTimeWriter(const VTKSpecificTimeWriter& orig) = delete;
