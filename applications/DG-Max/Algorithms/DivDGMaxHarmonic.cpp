@@ -162,35 +162,7 @@ void DivDGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& input) {
 template <std::size_t DIM>
 void DivDGMaxHarmonic<DIM>::writeVTK(
     Output::VTKSpecificTimeWriter<DIM>& output) const {
-
-    using Fields = typename DivDGMaxDiscretization<DIM>::Fields;
-    using VecR = LinearAlgebra::SmallVector<DIM>;
-    std::map<std::string, std::function<double(Fields&)>> scalars;
-    std::map<std::string, std::function<VecR(Fields&)>> vectors;
-
-    // 4 parts of the field
-    vectors["Ereal"] = [](Fields& fields) {
-        return fields.electricField.real();
-    };
-    vectors["Eimag"] = [](Fields& fields) {
-        return fields.electricField.imag();
-    };
-    scalars["preal"] = [](Fields& fields) { return fields.potential.real(); };
-    scalars["pimag"] = [](Fields& fields) { return fields.potential.imag(); };
-
-    // Derived quantities
-    scalars["Emag"] = [](Fields& fields) {
-        return fields.electricField.l2Norm();
-    };
-
-    output.template writeMultiple<Fields>(
-        [this](Base::Element* element,
-               const Geometry::PointReference<DIM>& point, std::size_t) {
-            LinearAlgebra::MiddleSizeVector coefficients =
-                element->getTimeIntegrationVector(0);
-            return discretization_.computeFields(element, point, coefficients);
-        },
-        scalars, vectors);
+    discretization_.writeFields(output, 0);
 }
 
 template <std::size_t DIM>

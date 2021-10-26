@@ -533,6 +533,55 @@ LinearAlgebra::SmallVectorC<DIM> DGMaxDiscretization<DIM>::computeCurlField(
     return result;
 }
 
+template <std::size_t DIM>
+void DGMaxDiscretization<DIM>::writeFields(
+    Output::VTKSpecificTimeWriter<DIM>& writer,
+    std::size_t timeIntegrationVectorId) const {
+    using VecR = LinearAlgebra::SmallVector<DIM>;
+    using Fields = LinearAlgebra::SmallVectorC<DIM>;
+    std::map<std::string, std::function<double(Fields&)>> scalars;
+    std::map<std::string, std::function<VecR(Fields&)>> vectors;
+
+    vectors["Ereal"] = [](Fields& fields) { return fields.real(); };
+    vectors["Eimag"] = [](Fields& fields) { return fields.imag(); };
+    scalars["Emag"] = [](Fields& fields) { return fields.l2Norm(); };
+
+    writer.template writeMultiple<Fields>(
+        [this](Base::Element* element,
+               const Geometry::PointReference<DIM>& point, std::size_t) {
+            LinearAlgebra::MiddleSizeVector coefficients =
+                element->getTimeIntegrationVector(0);
+            // When using the Hermitian system we applied a rescaling of the
+            // solution coefficients to use y = L^H x (LL^H = M is the Cholesky
+            // decomposition of the mass matrix and x the actual coefficients).
+            // Undo this transformation to correctly compute the fields.
+            if (matrixHandling_ == ORTHOGONALIZE) {
+                // In place solve
+                element->getElementMatrix(MASS_MATRIX_ID)
+                    .solveLowerTriangular(
+                        coefficients, hpgem::LinearAlgebra::Side::OP_LEFT,
+                        hpgem::LinearAlgebra::Transpose::HERMITIAN_TRANSPOSE);
+            }
+            return computeField(element, point, coefficients);
+        },
+        scalars, vectors);
+
+    // Output the epsilon separately
+    writer.write(
+        [](Base::Element* element, const Geometry::PointReference<DIM>&,
+           std::size_t) {
+            auto* userData = element->getUserData();
+            const ElementInfos* elementInfo =
+                dynamic_cast<ElementInfos*>(userData);
+            if (elementInfo != nullptr) {
+                return elementInfo->epsilon_;
+            } else {
+                return -1.0;  // Clearly invalid value
+            }
+        },
+        "epsilon");
+}
+
 // TODO: The code saves snapshots in the timeIntegrationVector, this is not
 // particularly nice It might be better to pass the global vector here and
 // distribute it ourselves.

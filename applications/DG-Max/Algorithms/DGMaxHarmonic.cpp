@@ -215,24 +215,7 @@ void DGMaxHarmonic<DIM>::writeTec(std::string fileName) const {
 template <std::size_t DIM>
 void DGMaxHarmonic<DIM>::writeVTK(
     Output::VTKSpecificTimeWriter<DIM>& output) const {
-
-    using VecR = LinearAlgebra::SmallVector<DIM>;
-    using Fields = LinearAlgebra::SmallVectorC<DIM>;
-    std::map<std::string, std::function<double(Fields&)>> scalars;
-    std::map<std::string, std::function<VecR(Fields&)>> vectors;
-
-    vectors["Ereal"] = [](Fields& fields) { return fields.real(); };
-    vectors["Eimag"] = [](Fields& fields) { return fields.imag(); };
-    scalars["Emag"] = [](Fields& fields) { return fields.l2Norm(); };
-
-    output.template writeMultiple<Fields>(
-        [this](Base::Element* element,
-               const Geometry::PointReference<DIM>& point, std::size_t) {
-            LinearAlgebra::MiddleSizeVector coefficients =
-                element->getTimeIntegrationVector(0);
-            return discretization.computeField(element, point, coefficients);
-        },
-        scalars, vectors);
+    discretization.writeFields(output, 0);
 }
 
 template class DGMaxHarmonic<2>;

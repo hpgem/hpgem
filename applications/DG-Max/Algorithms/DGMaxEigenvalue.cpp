@@ -288,64 +288,9 @@ void DGMaxEigenvalue<DIM>::Result::writeField(
     std::size_t eigenvalue, Output::VTKSpecificTimeWriter<DIM>& writer) {
     const std::size_t VECTOR_ID = 0;
     workspace_.writeAsTimeIntegrationVector(eigenvalue, VECTOR_ID);
-    // When using the Hermitian system we applied a rescaling of the
-    // solution coefficients to use y = L^H x (LL^H = M is the Cholesky
-    // decomposition of the mass matrix and x the actual coefficients). Undo
-    // this transformation to correctly compute the fields.
-    if (workspace_.getConfig().useHermitian_) {
-        for (Base::Element* element : mesh_->getElementsList()) {
-            // Note: this all happens inplace.
-            LinearAlgebra::MiddleSizeVector& coeffs =
-                element->getTimeIntegrationVector(VECTOR_ID);
-            element->getElementMatrix(DGMaxDiscretizationBase::MASS_MATRIX_ID)
-                .solveLowerTriangular(
-                    coeffs, LinearAlgebra::Side::OP_LEFT,
-                    LinearAlgebra::Transpose::HERMITIAN_TRANSPOSE);
-        }
-    }
-    // Write the actual fields
-    writer.write(
-        [&](const Base::Element* element,
-            const Geometry::PointReference<DIM>& pref, std::size_t) {
-            const LinearAlgebra::MiddleSizeVector& coefficients =
-                element->getTimeIntegrationVector(VECTOR_ID);
-            auto field =
-                discretization_.computeField(element, pref, coefficients);
-            return field.l2Norm();
-        },
-        "Emag");
-    writer.write(
-        [&](const Base::Element* element,
-            const Geometry::PointReference<DIM>& pref, std::size_t) {
-            const LinearAlgebra::MiddleSizeVector& coefficients =
-                element->getTimeIntegrationVector(VECTOR_ID);
-            return discretization_.computeField(element, pref, coefficients)
-                .real();
-        },
-        "Ereal");
-    writer.write(
-        [&](const Base::Element* element,
-            const Geometry::PointReference<DIM>& pref, std::size_t) {
-            const LinearAlgebra::MiddleSizeVector& coefficients =
-                element->getTimeIntegrationVector(VECTOR_ID);
-            return discretization_.computeField(element, pref, coefficients)
-                .imag();
-        },
-        "Eimag");
-    // Also write epsilon for post processing
-    writer.write(
-        [&](const Base::Element* element, const Geometry::PointReference<DIM>&,
-            std::size_t) {
-            auto* userData = element->getUserData();
-            const ElementInfos* elementInfo =
-                dynamic_cast<ElementInfos*>(userData);
-            if (elementInfo != nullptr) {
-                return elementInfo->epsilon_;
-            } else {
-                return -1.0;  // Clearly invalid value
-            }
-        },
-        "epsilon");
+    // Possible modifications from the Hermitian system are handled by the
+    // discretization.
+    discretization_.writeFields(writer, VECTOR_ID);
 }
 
 ///
@@ -469,7 +414,7 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::initStiffnessShellMatrix() {
                            PETSC_DETERMINE, this, &shell_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     error = MatShellSetOperation(shell_, MATOP_MULT,
-                                 (void (*)(void))staticShellMultiply);
+                                 (void(*)(void))staticShellMultiply);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 }
 
