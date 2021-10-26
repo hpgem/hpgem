@@ -253,7 +253,7 @@ void VTKSpecificTimeWriter<DIM>::write(
     std::map<std::string, std::function<double(MatT&)>> scalars;
     std::map<std::string, std::function<VecT(MatT&)>> vectors;
     std::map<std::string, std::function<MatT(MatT&)>> tensors;
-    tensors[name] = [](MatT& t){return t;};
+    tensors[name] = [](MatT& t) { return t; };
 
     writeMultiple(dataCompute, scalars, vectors, tensors);
 }
