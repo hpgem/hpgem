@@ -488,9 +488,10 @@ void DGMaxDiscretization<DIM>::faceVector(
 }
 
 template <std::size_t DIM>
-LinearAlgebra::SmallVectorC<DIM> DGMaxDiscretization<DIM>::computeField(
-    const Base::Element* element, const Geometry::PointReference<DIM>& p,
-    const LinearAlgebra::MiddleSizeVector& coefficients) const {
+typename DGMaxDiscretization<DIM>::Fields
+    DGMaxDiscretization<DIM>::computeFields(
+        const Base::Element* element, const Geometry::PointReference<DIM>& p,
+        const LinearAlgebra::MiddleSizeVector& coefficients) const {
     Base::PhysicalElement<DIM> physicalElement;
     physicalElement.setElement(element);
     std::shared_ptr<Base::CoordinateTransformation<DIM>> transform{
@@ -498,30 +499,20 @@ LinearAlgebra::SmallVectorC<DIM> DGMaxDiscretization<DIM>::computeField(
     physicalElement.setTransformation(transform);
     physicalElement.setPointReference(p);
 
-    LinearAlgebra::SmallVectorC<DIM> result;
+    Fields result;
 
     for (std::size_t i = 0; i < element->getNumberOfBasisFunctions(0); ++i) {
         LinearAlgebra::SmallVector<DIM> phi;
         physicalElement.basisFunction(i, phi, 0);
-        result += coefficients[i] * phi;
+        result.electricField += coefficients[i] * phi;
+        result.electricFieldCurl +=
+            coefficients[i] * physicalElement.basisFunctionCurl(i);
     }
-    return result;
-}
-
-template <std::size_t DIM>
-LinearAlgebra::SmallVectorC<DIM> DGMaxDiscretization<DIM>::computeCurlField(
-    const Base::Element* element, const Geometry::PointReference<DIM>& p,
-    const LinearAlgebra::MiddleSizeVector& coefficients) const {
-    Base::PhysicalElement<DIM> physicalElement;
-    physicalElement.setElement(element);
-    std::shared_ptr<Base::CoordinateTransformation<DIM>> transform{
-        new Base::HCurlConformingTransformation<DIM>()};
-    physicalElement.setTransformation(transform);
-    physicalElement.setPointReference(p);
-
-    LinearAlgebra::SmallVectorC<DIM> result;
-    for (std::size_t i = 0; i < element->getNumberOfBasisFunctions(0); ++i) {
-        result += coefficients[i] * physicalElement.basisFunctionCurl(i, 0);
+    auto* userData = dynamic_cast<ElementInfos*>(element->getUserData());
+    if (userData != nullptr) {
+        result.permittivity = userData->epsilon_;
+    } else {
+        result.permittivity = -1.0;
     }
     return result;
 }
@@ -531,13 +522,29 @@ void DGMaxDiscretization<DIM>::writeFields(
     Output::VTKSpecificTimeWriter<DIM>& writer,
     std::size_t timeIntegrationVectorId) const {
     using VecR = LinearAlgebra::SmallVector<DIM>;
-    using Fields = LinearAlgebra::SmallVectorC<DIM>;
     std::map<std::string, std::function<double(Fields&)>> scalars;
     std::map<std::string, std::function<VecR(Fields&)>> vectors;
 
-    vectors["Ereal"] = [](Fields& fields) { return fields.real(); };
-    vectors["Eimag"] = [](Fields& fields) { return fields.imag(); };
-    scalars["Emag"] = [](Fields& fields) { return fields.l2Norm(); };
+    vectors["Ereal"] = [](Fields& fields) { return fields.electricField.real(); };
+    vectors["Eimag"] = [](Fields& fields) { return fields.electricField.imag(); };
+
+    // Derived quantities
+    scalars["Emag"] = [](Fields& fields) {
+        return fields.electricField.l2Norm();
+    };
+    vectors["S-kappa-real"] = [](Fields& fields) {
+        // S = 1/2 Re(E x H^*)
+        //   = -1/(2 omega mu) Im(E x Curl E)
+        // Using i omega mu H = Curl E
+        return -0.5 * LinearAlgebra::leftDoubledCrossProduct(
+                          fields.electricField, fields.electricFieldCurl.conj())
+                          .imag();
+    };
+    scalars["Energy"] = [](Fields& fields) {
+        // u = 1/2(epsilon |E|^2 + mu |H|^2)
+        //   = epsilon |E|^2 (via curl-curl relation)
+        return fields.permittivity * fields.electricField.l2NormSquared();
+    };
 
     writer.template writeMultiple<Fields>(
         [this](Base::Element* element,
@@ -555,7 +562,7 @@ void DGMaxDiscretization<DIM>::writeFields(
                         coefficients, hpgem::LinearAlgebra::Side::OP_LEFT,
                         hpgem::LinearAlgebra::Transpose::HERMITIAN_TRANSPOSE);
             }
-            return computeField(element, point, coefficients);
+            return computeFields(element, point, coefficients);
         },
         scalars, vectors);
 

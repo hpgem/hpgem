@@ -358,10 +358,12 @@ void DGMaxTimeIntegration<DIM>::writeTimeLevel(
             const Geometry::PointReference<DIM>& point, std::ostream& stream) {
             const LinearAlgebra::MiddleSizeVector coefficients =
                 element->getTimeIntegrationVector(timeLevel);
+            auto fields =
+                discretization.computeFields(element, point, coefficients);
             LinearAlgebra::SmallVector<DIM> electricField =
-                discretization.computeField(element, point, coefficients);
+                fields.electricField;
             LinearAlgebra::SmallVector<DIM> curlField =
-                discretization.computeCurlField(element, point, coefficients);
+                fields.electricFieldCurl;
             if (DIM == 2) {
                 stream << electricField[0] << " " << electricField[1] << " "
                        << curlField[0] << " " << curlField[1] << std::endl;
