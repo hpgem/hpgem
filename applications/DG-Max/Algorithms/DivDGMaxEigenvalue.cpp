@@ -278,66 +278,7 @@ void DivDGMaxEigenvalue<DIM>::Result::writeField(
     // element.
     workspace_.writeEigenvectorAsTimeIntegrationVector(eigenvalue, VECTOR_ID);
     // write all field components
-    writer.write(
-        [&](const Base::Element* element,
-            const Geometry::PointReference<DIM>& pref, std::size_t) {
-            const LinearAlgebra::MiddleSizeVector& coefficients =
-                element->getTimeIntegrationVector(VECTOR_ID);
-            auto fields =
-                discretization_.computeFields(element, pref, coefficients);
-            return fields.electricField.l2Norm();
-        },
-        "Emag");
-    writer.write(
-        [&](const Base::Element* element,
-            const Geometry::PointReference<DIM>& pref, std::size_t) {
-            const LinearAlgebra::MiddleSizeVector& coefficients =
-                element->getTimeIntegrationVector(VECTOR_ID);
-            return discretization_.computeFields(element, pref, coefficients)
-                .electricField.real();
-        },
-        "Ereal");
-    writer.write(
-        [&](const Base::Element* element,
-            const Geometry::PointReference<DIM>& pref, std::size_t) {
-            const LinearAlgebra::MiddleSizeVector& coefficients =
-                element->getTimeIntegrationVector(VECTOR_ID);
-            return discretization_.computeFields(element, pref, coefficients)
-                .electricField.imag();
-        },
-        "Eimag");
-    writer.write(
-        [&](const Base::Element* element,
-            const Geometry::PointReference<DIM>& pref, std::size_t) {
-            const LinearAlgebra::MiddleSizeVector& coefficients =
-                element->getTimeIntegrationVector(VECTOR_ID);
-            return discretization_.computeFields(element, pref, coefficients)
-                .potential.real();
-        },
-        "preal");
-    writer.write(
-        [&](const Base::Element* element,
-            const Geometry::PointReference<DIM>& pref, std::size_t) {
-            const LinearAlgebra::MiddleSizeVector& coefficients =
-                element->getTimeIntegrationVector(VECTOR_ID);
-            return discretization_.computeFields(element, pref, coefficients)
-                .potential.imag();
-        },
-        "pimag");
-    // Also write epsilon, for later filtering
-    writer.write(
-        [&](const Base::Element* element, const Geometry::PointReference<DIM>&,
-            std::size_t) {
-            auto* userData = element->getUserData();
-            const ElementInfos* elementInfo =
-                dynamic_cast<ElementInfos*>(userData);
-            if (elementInfo != nullptr) {
-                return elementInfo->epsilon_;
-            } else {
-                return -1.0;  // Clearly invalid value
-            }
-        },
-        "epsilon");
+    discretization_.writeFields(writer, VECTOR_ID);
 }
 
 template <std::size_t DIM>

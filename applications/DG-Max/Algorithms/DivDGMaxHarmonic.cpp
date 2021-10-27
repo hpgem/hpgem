@@ -162,66 +162,7 @@ void DivDGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& input) {
 template <std::size_t DIM>
 void DivDGMaxHarmonic<DIM>::writeVTK(
     Output::VTKSpecificTimeWriter<DIM>& output) const {
-
-    using Fields = typename DivDGMaxDiscretization<DIM>::Fields;
-
-    // 4 fields to output, Ereal, Eimag, preal, pcomplex
-    output.write(
-        [this](Base::Element* element,
-               const Geometry::PointReference<DIM>& point, std::size_t) {
-            LinearAlgebra::MiddleSizeVector coefficients =
-                element->getTimeIntegrationVector(0);
-            Fields fields =
-                discretization_.computeFields(element, point, coefficients);
-
-            return fields.electricField.real();
-        },
-        "Ereal");
-    output.write(
-        [this](Base::Element* element,
-               const Geometry::PointReference<DIM>& point, std::size_t) {
-            LinearAlgebra::MiddleSizeVector coefficients =
-                element->getTimeIntegrationVector(0);
-            Fields fields =
-                discretization_.computeFields(element, point, coefficients);
-
-            return fields.electricField.imag();
-        },
-        "Eimag");
-    output.write(
-        [this](Base::Element* element,
-               const Geometry::PointReference<DIM>& point, std::size_t) {
-            LinearAlgebra::MiddleSizeVector coefficients =
-                element->getTimeIntegrationVector(0);
-            Fields fields =
-                discretization_.computeFields(element, point, coefficients);
-            return fields.electricField.l2Norm();
-        },
-        "Emag");
-
-    output.write(
-        [this](Base::Element* element,
-               const Geometry::PointReference<DIM>& point, std::size_t) {
-            LinearAlgebra::MiddleSizeVector coefficients =
-                element->getTimeIntegrationVector(0);
-            Fields fields =
-                discretization_.computeFields(element, point, coefficients);
-
-            return std::real(fields.potential);
-        },
-        "preal");
-
-    output.write(
-        [this](Base::Element* element,
-               const Geometry::PointReference<DIM>& point, std::size_t) {
-            LinearAlgebra::MiddleSizeVector coefficients =
-                element->getTimeIntegrationVector(0);
-            Fields fields =
-                discretization_.computeFields(element, point, coefficients);
-
-            return std::imag(fields.potential);
-        },
-        "pimag");
+    discretization_.writeFields(output, 0);
 }
 
 template <std::size_t DIM>

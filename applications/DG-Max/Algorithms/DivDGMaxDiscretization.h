@@ -50,6 +50,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "LinearAlgebra/MiddleSizeMatrix.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
 #include "LinearAlgebra/SmallVector.h"
+#include "Output/VTKSpecificTimeWriter.h"
 
 #include "ProblemTypes/BoundaryConditionType.h"
 
@@ -182,6 +183,9 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
         const Base::Element* element,
         const Geometry::PointReference<DIM>& point,
         const LinearAlgebra::MiddleSizeVector& coefficients) const;
+
+    void writeFields(Output::VTKSpecificTimeWriter<DIM>& output,
+                     std::size_t timeIntegrationVectorId) const;
 
    private:
     /// Compute Mass and Stiffness matrix for the element

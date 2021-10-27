@@ -52,6 +52,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Geometry/PointPhysical.h"
 #include "Integration/ElementIntegral.h"
 #include "Integration/FaceIntegral.h"
+#include "Output/VTKSpecificTimeWriter.h"
+
 #include "ProblemTypes/BoundaryConditionType.h"
 
 using namespace hpgem;
@@ -170,6 +172,9 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
     LinearAlgebra::SmallVectorC<DIM> computeCurlField(
         const Base::Element* element, const Geometry::PointReference<DIM>& p,
         const LinearAlgebra::MiddleSizeVector& coefficients) const;
+
+    void writeFields(Output::VTKSpecificTimeWriter<DIM>& writer,
+                     std::size_t timeIntegrationVectorId) const;
 
    private:
     /**

@@ -307,6 +307,54 @@ std::complex<double> DivDGMaxDiscretization<DIM>::computePotential(
 }
 
 template <std::size_t DIM>
+void DivDGMaxDiscretization<DIM>::writeFields(
+    Output::VTKSpecificTimeWriter<DIM>& output,
+    std::size_t timeIntegrationVectorId) const {
+    using VecR = LinearAlgebra::SmallVector<DIM>;
+    std::map<std::string, std::function<double(Fields&)>> scalars;
+    std::map<std::string, std::function<VecR(Fields&)>> vectors;
+
+    // 4 parts of the field
+    vectors["Ereal"] = [](Fields& fields) {
+        return fields.electricField.real();
+    };
+    vectors["Eimag"] = [](Fields& fields) {
+        return fields.electricField.imag();
+    };
+    scalars["preal"] = [](Fields& fields) { return fields.potential.real(); };
+    scalars["pimag"] = [](Fields& fields) { return fields.potential.imag(); };
+
+    // Derived quantities
+    scalars["Emag"] = [](Fields& fields) {
+        return fields.electricField.l2Norm();
+    };
+
+    output.template writeMultiple<Fields>(
+        [this, timeIntegrationVectorId](
+            Base::Element* element, const Geometry::PointReference<DIM>& point,
+            std::size_t) {
+            LinearAlgebra::MiddleSizeVector coefficients =
+                element->getTimeIntegrationVector(timeIntegrationVectorId);
+            return computeFields(element, point, coefficients);
+        },
+        scalars, vectors);
+    // For various use
+    output.write(
+        [](Base::Element* element, const Geometry::PointReference<DIM>&,
+           std::size_t) {
+            auto* userData = element->getUserData();
+            const ElementInfos* elementInfo =
+                dynamic_cast<ElementInfos*>(userData);
+            if (elementInfo != nullptr) {
+                return elementInfo->epsilon_;
+            } else {
+                return -1.0;  // Clearly invalid value
+            }
+        },
+        "epsilon");
+}
+
+template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::computeElementMatrices(
     Base::Element* element, Utilities::ElementLocalIndexing& indexing) {
 
