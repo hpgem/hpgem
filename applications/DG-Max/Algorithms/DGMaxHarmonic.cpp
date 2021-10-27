@@ -198,12 +198,14 @@ void DGMaxHarmonic<DIM>::writeTec(std::string fileName) const {
             const Geometry::PointReference<DIM>& point, std::ostream& stream) {
             const LinearAlgebra::MiddleSizeVector coefficients =
                 element->getTimeIntegrationVector(0);
-            LinearAlgebra::SmallVector<DIM> electricField =
+            auto fields =
                 discretization.computeField(element, point, coefficients);
+            LinearAlgebra::SmallVector<DIM> electricField =
+                fields.electricField;
             // TODO: Note that we computeCurlField already converts to real
             // numbers, so we can not compute H = i/(omega mu) curl E
             LinearAlgebra::SmallVector<DIM> curlField =
-                discretization.computeCurlField(element, point, coefficients);
+                fields.electricFieldCurl;
             stream << electricField[0] << " " << electricField[1] << " "
                    << electricField[2] << " " << curlField[0] << " "
                    << curlField[1] << " " << curlField[2] << std::endl;

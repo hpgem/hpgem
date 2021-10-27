@@ -92,7 +92,7 @@ class DGMaxDiscretizationBase {
         INVERT,
         /**
          * Symmetrically rescale the matrices. The effect is the same as if the
-         * basis functions were orthonormalized with respect to the L2-epsilon
+         * basis functions were orthonormalized with respect to the L2-permitivity
          * inner product.
          *
          * The mass matrix M is factored as LL^H = M. The following
@@ -117,6 +117,16 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
         Base::PhysicalFace<DIM>&)>;
     using TimeFunction = std::function<LinearAlgebra::SmallVectorC<DIM>(
         const PointPhysicalT&, double)>;
+
+    struct Fields {
+        Fields()
+            : electricField (), electricFieldCurl(), permittivity(0.0) {};
+
+        LinearAlgebra::SmallVectorC<DIM> electricField;
+        LinearAlgebra::SmallVectorC<DIM> electricFieldCurl;
+        double permittivity;
+    };
+
 
     DGMaxDiscretization(bool includeProjector = false);
 
@@ -166,7 +176,7 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
                                             InputFunction electricFieldCurl,
                                             std::set<NormType> norms);
 
-    LinearAlgebra::SmallVectorC<DIM> computeField(
+    Fields computeField(
         const Base::Element* element, const Geometry::PointReference<DIM>& p,
         const LinearAlgebra::MiddleSizeVector& coefficients) const;
     LinearAlgebra::SmallVectorC<DIM> computeCurlField(
