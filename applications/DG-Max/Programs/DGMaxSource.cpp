@@ -125,22 +125,34 @@ class TestingProblem : public HarmonicProblem<dim> {
     LinearAlgebra::SmallVectorC<dim> boundaryCondition(
         Base::PhysicalFace<dim>& face) const override {
 
+        auto bct = getBoundaryConditionType(*face.getFace());
+
+        if (bct == DGMax::BoundaryConditionType::DIRICHLET) {
+            return {};
+        }
         LinearAlgebra::SmallVectorC<dim> normal = face.getUnitNormalVector();
 
         // E = E_0 exp(ik.x)
-        // g_N = Curl E + i kappa E x n
-        //     = i[(k x E_0) + kappa (E_0 x n)] exp(ik.x)
+        // g_N = Curl E + i kappa sqrt(epsilon) E x n
+        //     = i[(k x E_0) + kappa sqrt(epsilon) (E_0 x n)] exp(ik.x)
 
-        LinearAlgebra::SmallVectorC<dim> E0{1.0, 0}, k{0, 0.01};
-        // (kxE_0) + kappa (E_0 x n)
+        using namespace std::complex_literals;
+        LinearAlgebra::SmallVectorC<dim> E0{1.0, 0}, k{0, omega()};
+
+        auto* userData = dynamic_cast<ElementInfos*>(
+            face.getFace()->getPtrElementLeft()->getUserData());
+        logger.assert_always(userData != nullptr, "Incorrect data");
+
+        k[1] *= std::sqrt(userData->epsilon_);
+
+        // (kxE_0) + kappa * sqrt(epsilon) (E_0 x n)
         LinearAlgebra::SmallVectorC<dim> result = k.crossProduct(E0);
-        result += omega() * E0.crossProduct(normal);
+        result +=
+            omega() * std::sqrt(userData->epsilon_) * E0.crossProduct(normal);
 
         // i exp(ik.x)
-        std::complex<double> phase(
-            0, face.getPointPhysical().getCoordinates() * k);
-        result *= std::complex<double>(0, 1) * std::exp(phase);
-
+        result *=
+            1i * std::exp(1i * face.getPointPhysical().getCoordinates() * k);
         return result;
     }
 
@@ -158,10 +170,10 @@ class TestingProblem : public HarmonicProblem<dim> {
         // Check if the normal matches: {1,0} or {-1,0}
         double nx = std::abs(std::abs(normal[0]) - 1.0);
         if (nx < 1e-8) {
-            // For faces at y=0,1
-            return DGMax::BoundaryConditionType::SILVER_MULLER;
-        } else {
             // For faces at x=0,1
+            return DGMax::BoundaryConditionType::DIRICHLET;
+        } else {
+            // For faces at y=0,1
             return DGMax::BoundaryConditionType::SILVER_MULLER;
         }
     }
@@ -199,10 +211,10 @@ void runWithDimension() {
     if (divdgmax) {
         // Placeholder for more complicate fluxes
         DivDGMaxDiscretizationBase::Stab stab;
-        stab.stab1 = 5;
+        stab.stab1 = 105;
         stab.stab2 = 0;
-        stab.stab3 = 5;
-        stab.setAllFluxeTypes(DivDGMaxDiscretization<dim>::FluxType::BREZZI);
+        stab.stab3 = 500;
+        stab.setAllFluxeTypes(DivDGMaxDiscretization<dim>::FluxType::IP);
 
         solver = std::make_unique<DivDGMaxHarmonic<dim>>(*mesh, stab,
                                                          order.getValue());
@@ -214,7 +226,7 @@ void runWithDimension() {
 
     // Problem definition
     std::unique_ptr<HarmonicProblem<dim>> problem;
-    problem = std::make_unique<DGMax::ConstantHarmonicProblem<dim>>(1.0);
+    //    problem = std::make_unique<DGMax::ConstantHarmonicProblem<dim>>(1.0);
     problem = std::make_unique<TestingProblem<dim>>();
 
     solver->solve(*problem);
@@ -235,16 +247,32 @@ void runWithDimension() {
     output.write(
         [&problem](Base::Element* element,
                    const Geometry::PointReference<dim>& p, std::size_t) {
-            return problem->sourceTerm(element->referenceToPhysical(p));
+            return problem->sourceTerm(element->referenceToPhysical(p)).real();
         },
         "source");
-    solver->writeVTK(output);
 
     auto* eproblem = dynamic_cast<ExactHarmonicProblem<dim>*>(problem.get());
     if (eproblem != nullptr) {
         double l2Error = solver->computeL2Error(*eproblem);
         DGMaxLogger(INFO, "L2 error %", l2Error);
+
+        output.write(
+            [&eproblem](Base::Element* element,
+                        const Geometry::PointReference<dim>& p, std::size_t) {
+                return eproblem->exactSolution(element->referenceToPhysical(p))
+                    .real();
+            },
+            "SolutionReal");
+        output.write(
+            [&eproblem](Base::Element* element,
+                        const Geometry::PointReference<dim>& p, std::size_t) {
+                return eproblem->exactSolution(element->referenceToPhysical(p))
+                    .imag();
+            },
+            "SolutionImag");
     }
+
+    solver->writeVTK(output);
 }
 
 template <std::size_t DIM>
