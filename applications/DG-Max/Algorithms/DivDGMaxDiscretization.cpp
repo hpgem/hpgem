@@ -347,9 +347,10 @@ void DivDGMaxDiscretization<DIM>::writeFields(
     };
     vectors["S-kappa-real"] = [](Fields& fields) {
         // S = 1/2 Re(E x H^*)
-        //   = 1/(2 omega mu) Im(E x Curl E)
-        return 0.5 * LinearAlgebra::leftDoubledCrossProduct(
-                         fields.electricField, fields.electricFieldCurl)
+        //   = -1/(2 omega mu) Im(E x Curl E)
+        // Using i omega mu H = Curl E
+        return -0.5 * LinearAlgebra::leftDoubledCrossProduct(
+                         fields.electricField, fields.electricFieldCurl.conj())
                          .imag();
     };
     scalars["Energy"] = [](Fields& fields) {

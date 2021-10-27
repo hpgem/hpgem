@@ -87,8 +87,8 @@ inline void convert(const std::complex<T>& in, T& out) {
     out = in.real();
 }
 
-inline double conj(double v) { return v; }
-inline std::complex<double> conj(std::complex<double> v) {
+inline double conj(const double& v) { return v; }
+inline std::complex<double> conj(const std::complex<double>& v) {
     return std::conj(v);
 }
 
@@ -418,6 +418,14 @@ class GSmallVector {
         SmallVector<numberOfRows> res;
         for (std::size_t i = 0; i < numberOfRows; ++i) {
             res[i] = std::imag(data_[i]);
+        }
+        return res;
+    }
+
+    GSmallVector conj() const {
+        GSmallVector res;
+        for(std::size_t i = 0; i < numberOfRows; ++i) {
+            res.data_[i] = Detail::conj(data_[i]);
         }
         return res;
     }
