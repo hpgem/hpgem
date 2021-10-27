@@ -447,6 +447,24 @@ GSmallVector<numberOfRows, std::complex<EntryT>> operator*(
     return std::complex<EntryT>(left) * right;
 }
 
+/// 2D cross product for the double cross product of the form
+/// A x (B x C) with left = A, right = B x C (possibly B = nabla)
+/// Needed due to storing the cross product as 'x' entry
+template <typename EntryT>
+GSmallVector<2, EntryT> leftDoubledCrossProduct(
+    const GSmallVector<2, EntryT>& left, const GSmallVector<2, EntryT>& right) {
+    GSmallVector<2, EntryT> result;
+    result[0] = left[1] * right[0];
+    result[1] = -left[0] * right[0];
+    return result;
+}
+template <std::size_t numberOfRows, typename EntryT>
+GSmallVector<numberOfRows, EntryT> leftDoubledCrossProduct(
+    const GSmallVector<numberOfRows, EntryT>& left,
+    const GSmallVector<numberOfRows, EntryT>& right) {
+    return left.crossProduct(right);
+}
+
 template <std::size_t numberOfRows, typename EntryT>
 std::ostream& operator<<(std::ostream& os,
                          const GSmallVector<numberOfRows, EntryT>& A) {

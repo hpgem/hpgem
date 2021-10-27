@@ -132,10 +132,22 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
 
     /// Value class for the solution.
     struct Fields {
+
+        Fields()
+            : electricField(),
+              electricFieldCurl(),
+              potential(0),
+              permittivity(0){};
+
         // The electric field
         LinearAlgebra::SmallVectorC<DIM> electricField;
+        // Curl of the electric field, corresponds to the H field by
+        // Curl E = i omega mu_r H (omega = the wave number)
+        LinearAlgebra::SmallVectorC<DIM> electricFieldCurl;
         // Complex valued p scalar function;
         std::complex<double> potential;
+        // Relative permittivity
+        double permittivity;
     };
 
     // See notes in DGMaxDiscretization
