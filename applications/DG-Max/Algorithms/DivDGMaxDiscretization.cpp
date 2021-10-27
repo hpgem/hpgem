@@ -271,6 +271,15 @@ typename DivDGMaxDiscretization<DIM>::Fields
     Geometry::PointPhysical<DIM> pointPhysical;
     pointPhysical = element->referenceToPhysical(point);
 
+    auto* userData = element->getUserData();
+    auto* elementInfo = dynamic_cast<ElementInfos*>(userData);
+    if (elementInfo != nullptr) {
+        result.permittivity = elementInfo->epsilon_;
+    } else {
+        // Clearly invalid
+        result.permittivity = -1;
+    }
+
     // Actual value computation
     // Compute field part
     for (std::size_t i = 0; i < nPhiU; ++i) {
@@ -323,18 +332,30 @@ void DivDGMaxDiscretization<DIM>::writeFields(
     std::map<std::string, std::function<VecR(Fields&)>> vectors;
 
     // 4 parts of the field
-    vectors["Ereal"] = [](Fields& fields) {
+    vectors["E-real"] = [](Fields& fields) {
         return fields.electricField.real();
     };
-    vectors["Eimag"] = [](Fields& fields) {
+    vectors["E-imag"] = [](Fields& fields) {
         return fields.electricField.imag();
     };
-    scalars["preal"] = [](Fields& fields) { return fields.potential.real(); };
-    scalars["pimag"] = [](Fields& fields) { return fields.potential.imag(); };
+    scalars["p-real"] = [](Fields& fields) { return fields.potential.real(); };
+    scalars["p-imag"] = [](Fields& fields) { return fields.potential.imag(); };
 
     // Derived quantities
     scalars["Emag"] = [](Fields& fields) {
         return fields.electricField.l2Norm();
+    };
+    vectors["S-kappa-real"] = [](Fields& fields) {
+        // S = 1/2 Re(E x H^*)
+        //   = 1/(2 omega mu) Im(E x Curl E)
+        return 0.5 * LinearAlgebra::leftDoubledCrossProduct(
+                         fields.electricField, fields.electricFieldCurl)
+                         .imag();
+    };
+    scalars["Energy"] = [](Fields& fields) {
+        // u = 1/2(epsilon |E|^2 + mu |H|^2)
+        //   = epsilon |E|^2 (via curl-curl relation)
+        return fields.permittivity * fields.electricField.l2NormSquared();
     };
 
     output.template writeMultiple<Fields>(
