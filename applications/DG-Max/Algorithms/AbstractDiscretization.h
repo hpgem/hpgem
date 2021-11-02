@@ -114,7 +114,7 @@ class AbstractDiscretization : public AbstractDiscretizationBase {
     }
 
 
-    virtual double computeError(hpgem::Base::MeshManipulator<dim>& mesh,
+    virtual double computeL2Error(hpgem::Base::MeshManipulator<dim>& mesh,
                         std::size_t timeIntegrationVectorId,
                         InputFunction electricField) = 0;
 

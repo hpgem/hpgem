@@ -58,11 +58,10 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
     explicit SolverWorkspace(Base::MeshManipulator<DIM>* mesh)
         : indexing_(nullptr),
           stiffnessMatrix_(
-              indexing_,
-              DivDGMaxDiscretizationBase::ELEMENT_STIFFNESS_MATRIX_ID,
+              indexing_, DivDGMaxDiscretizationBase::STIFFNESS_MATRIX_ID,
               DivDGMaxDiscretizationBase::FACE_STIFFNESS_MATRIX_ID),
-          massMatrix_(indexing_,
-                      DivDGMaxDiscretizationBase::ELEMENT_MASS_MATRIX_ID, -1),
+          massMatrix_(indexing_, DivDGMaxDiscretizationBase::MASS_MATRIX_ID,
+                      -1),
           tempVector_(indexing_, -1, -1),
           solver_(nullptr) {
         // Separate from initializer list to allow for more flexibility
@@ -285,7 +284,7 @@ template <std::size_t DIM>
 DivDGMaxEigenvalue<DIM>::DivDGMaxEigenvalue(
     Base::MeshManipulator<DIM>& mesh, std::size_t order,
     DivDGMaxDiscretizationBase::Stab stab)
-    : mesh_(mesh), order_(order), stab_(stab) {}
+    : mesh_(mesh), discretization(order_, stab), order_(order), stab_(stab) {}
 
 template <std::size_t DIM>
 void DivDGMaxEigenvalue<DIM>::solve(
@@ -298,9 +297,9 @@ void DivDGMaxEigenvalue<DIM>::solve(
 
     PetscErrorCode error;
     DGMaxLogger(INFO, "Starting assembly");
-    discretization.initializeBasisFunctions(mesh_, order_);
-    discretization.computeElementIntegrands(mesh_, {});
-    discretization.computeFaceIntegrals(mesh_, {}, stab_);
+    discretization.initializeBasisFunctions(mesh_);
+    discretization.computeElementIntegrals(mesh_, {});
+    discretization.computeFaceIntegrals(mesh_, {});
 
     SolverWorkspace workspace(&mesh_);
 

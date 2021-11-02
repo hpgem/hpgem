@@ -54,8 +54,8 @@ template <std::size_t DIM>
 DivDGMaxHarmonic<DIM>::DivDGMaxHarmonic(Base::MeshManipulator<DIM>& mesh,
                                         DivDGMaxDiscretizationBase::Stab stab,
                                         std::size_t order)
-    : mesh_(mesh), stab_(stab) {
-    discretization_.initializeBasisFunctions(mesh_, order);
+    : mesh_(mesh), discretization_(order, stab_), stab_(stab) {
+    discretization_.initializeBasisFunctions(mesh_);
 }
 
 template <std::size_t DIM>
@@ -100,31 +100,30 @@ void DivDGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& input) {
                   std::placeholders::_1));
     {
         std::map<std::size_t, typename Discretization::InputFunction>
-            elementVecs = {{Discretization::ELEMENT_SOURCE_VECTOR_ID,
+            elementVecs = {{Discretization::ELEMENT_VECTOR_ID,
                             std::bind(&HarmonicProblem<DIM>::sourceTerm,
                                       std::ref(input), std::placeholders::_1)}};
-        discretization_.computeElementIntegrands(mesh_, elementVecs);
+        discretization_.computeElementIntegrals(mesh_, elementVecs);
     }
     {
         std::map<std::size_t, typename Discretization::FaceInputFunction>
-            faceVecs = {{Discretization::FACE_BOUNDARY_VECTOR_ID,
+            faceVecs = {{Discretization::FACE_VECTOR_ID,
                          std::bind(&HarmonicProblem<DIM>::boundaryCondition,
                                    std::ref(input), std::placeholders::_1)}};
-        discretization_.computeFaceIntegrals(mesh_, faceVecs, stab_);
+        discretization_.computeFaceIntegrals(mesh_, faceVecs);
     }
 
     Utilities::GlobalIndexing indexing(&mesh_);
     Utilities::GlobalPetscMatrix massMatrix(
-        indexing, DivDGMaxDiscretizationBase::ELEMENT_MASS_MATRIX_ID, -1),
+        indexing, DivDGMaxDiscretizationBase::MASS_MATRIX_ID, -1),
         stiffnessMatrix(indexing,
-                        DivDGMaxDiscretizationBase::ELEMENT_STIFFNESS_MATRIX_ID,
+                        DivDGMaxDiscretizationBase::STIFFNESS_MATRIX_ID,
                         DivDGMaxDiscretizationBase::FACE_STIFFNESS_MATRIX_ID),
-        impedanceMatrix(
-            indexing, -1,
-            DivDGMaxDiscretizationBase::FACE_STIFFNESS_IMPEDANCE_MATRIX_ID);
+        impedanceMatrix(indexing, -1,
+                        DivDGMaxDiscretizationBase::FACE_IMPEDANCE_MATRIX_ID);
     Utilities::GlobalPetscVector rhs(
-        indexing, DivDGMaxDiscretizationBase::ELEMENT_SOURCE_VECTOR_ID,
-        DivDGMaxDiscretizationBase::FACE_BOUNDARY_VECTOR_ID),
+        indexing, DivDGMaxDiscretizationBase::ELEMENT_VECTOR_ID,
+        DivDGMaxDiscretizationBase::FACE_VECTOR_ID),
         result(indexing, -1, -1);
 
     rhs.assemble();

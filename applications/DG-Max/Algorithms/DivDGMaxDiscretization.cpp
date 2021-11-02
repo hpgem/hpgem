@@ -45,13 +45,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace hpgem;
 
-// Definition of the constants to reference to.
-const std::size_t DivDGMaxDiscretizationBase::ELEMENT_MASS_MATRIX_ID;
-const std::size_t DivDGMaxDiscretizationBase::ELEMENT_STIFFNESS_MATRIX_ID;
-const std::size_t DivDGMaxDiscretizationBase::ELEMENT_SOURCE_VECTOR_ID;
-const std::size_t DivDGMaxDiscretizationBase::FACE_STIFFNESS_MATRIX_ID;
-const std::size_t DivDGMaxDiscretizationBase::FACE_BOUNDARY_VECTOR_ID;
-
 /// Helper struct to access the material information in elements adjacent to a
 /// face.
 struct FaceMaterialInfo {
@@ -114,8 +107,11 @@ FaceDoFInfo getFaceDoFInfo(const Base::Face& face) {
 }
 
 template <std::size_t DIM>
-DivDGMaxDiscretization<DIM>::DivDGMaxDiscretization()
-    : fieldTransform_(
+DivDGMaxDiscretization<DIM>::DivDGMaxDiscretization(std::size_t order,
+                                                    Stab stab)
+    : order_(order),
+      stab_(stab),
+      fieldTransform_(
           std::make_shared<Base::HCurlConformingTransformation<DIM>>()),
       potentialTransform_(
           std::make_shared<Base::H1ConformingTransformation<DIM>>()),
@@ -131,7 +127,7 @@ DivDGMaxDiscretization<DIM>::DivDGMaxDiscretization()
 
 template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::initializeBasisFunctions(
-    Base::MeshManipulator<DIM>& mesh, std::size_t order) {
+    Base::MeshManipulator<DIM>& mesh) const {
     // We would like to configure the number of unknowns here, but this is
     // unfortunately not possible, as it is configured at the creation of
     // the mesh. The best we can do is check if it is configured correctly.
@@ -139,14 +135,15 @@ void DivDGMaxDiscretization<DIM>::initializeBasisFunctions(
     logger.assert_always(unknowns == 2, "DivDGMax expects 2 unknowns but got %",
                          unknowns);
     // TODO: This needs the additional unknown id.
-    mesh.useNedelecDGBasisFunctions(order);
-    mesh.useDefaultDGBasisFunctions(order, 1);
+    mesh.useNedelecDGBasisFunctions(order_);
+    mesh.useDefaultDGBasisFunctions(order_, 1);
 }
 
 template <std::size_t DIM>
-void DivDGMaxDiscretization<DIM>::computeElementIntegrands(
+void DivDGMaxDiscretization<DIM>::computeElementIntegralsImpl(
     Base::MeshManipulator<DIM>& mesh,
-    const std::map<std::size_t, InputFunction>& elementVectors) {
+    const std::map<std::size_t, InputFunction>& elementVectors,
+    LocalIntegrals integrals) {
 
     Utilities::ElementLocalIndexing indexing;
     indexing.reinit({0, 1});
@@ -156,7 +153,9 @@ void DivDGMaxDiscretization<DIM>::computeElementIntegrands(
     for (auto it = mesh.elementColBegin(); it != end; ++it) {
         Base::Element* element = *it;
         indexing.reinit(element);
-        computeElementMatrices(element, indexing);
+        if (integrals == LocalIntegrals::ALL) {
+            computeElementMatrices(element, indexing);
+        }
 
         for (const auto& elementVec : elementVectors) {
             LinearAlgebra::MiddleSizeVector vec;
@@ -176,10 +175,10 @@ void DivDGMaxDiscretization<DIM>::computeElementIntegrands(
 }
 
 template <std::size_t DIM>
-void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
+void DivDGMaxDiscretization<DIM>::computeFaceIntegralsImpl(
     Base::MeshManipulator<DIM>& mesh,
     const std::map<std::size_t, FaceInputFunction>& boundaryVectors,
-    Stab stab) {
+    LocalIntegrals integrals) {
     LinearAlgebra::MiddleSizeMatrix faceMatrix;
 
     Utilities::FaceLocalIndexing indexing;
@@ -198,34 +197,37 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
         if (!face->isInternal()) {
             bct = boundaryIndicator_(*face);
         }
-        faceMatrix = faceIntegrator_.integrate(
-            face,
-            [&indexing, &stab, &bct, this](Base::PhysicalFace<DIM>& face) {
-                std::size_t numDoFs = indexing.getNumberOfDoFs();
-                LinearAlgebra::MiddleSizeMatrix result(numDoFs, numDoFs);
-                if (bct == BCT::INTERNAL || !isNaturalBoundary(bct)) {
-                    faceStiffnessMatrixFieldIntegrand(face, indexing, stab,
-                                                      result);
-                }
-                addFaceMatrixPotentialIntegrand(face, indexing, stab, bct,
-                                                result);
-                return result;
-            });
-        if (stab.hasFlux(FluxType::BREZZI)) {
-            faceMatrix += brezziFluxBilinearTerm(face, bct, stab);
-        }
-        face->setFaceMatrix(faceMatrix, FACE_STIFFNESS_MATRIX_ID);
-
-        if (bct == DGMax::BoundaryConditionType::SILVER_MULLER) {
+        if (integrals == LocalIntegrals::ALL) {
             faceMatrix = faceIntegrator_.integrate(
                 face, [&indexing, &bct, this](Base::PhysicalFace<DIM>& face) {
-                    return computeFaceImpedanceIntegrand(face, indexing, bct);
+                    std::size_t numDoFs = indexing.getNumberOfDoFs();
+                    LinearAlgebra::MiddleSizeMatrix result(numDoFs, numDoFs);
+                    if (bct == BCT::INTERNAL || !isNaturalBoundary(bct)) {
+                        faceStiffnessMatrixFieldIntegrand(face, indexing,
+                                                          result);
+                    }
+                    addFaceMatrixPotentialIntegrand(face, indexing, bct,
+                                                    result);
+                    return result;
                 });
-        } else {
-            // Matrix is already of the right size, just zero it
-            faceMatrix *= 0.0;
+            if (stab_.hasFlux(FluxType::BREZZI)) {
+                faceMatrix += brezziFluxBilinearTerm(face, bct);
+            }
+            face->setFaceMatrix(faceMatrix, FACE_STIFFNESS_MATRIX_ID);
+
+            if (bct == DGMax::BoundaryConditionType::SILVER_MULLER) {
+                faceMatrix = faceIntegrator_.integrate(
+                    face,
+                    [&indexing, &bct, this](Base::PhysicalFace<DIM>& face) {
+                        return computeFaceImpedanceIntegrand(face, indexing,
+                                                             bct);
+                    });
+            } else {
+                // Matrix is already of the right size, just zero it
+                faceMatrix *= 0.0;
+            }
+            face->setFaceMatrix(faceMatrix, FACE_IMPEDANCE_MATRIX_ID);
         }
-        face->setFaceMatrix(faceMatrix, FACE_STIFFNESS_IMPEDANCE_MATRIX_ID);
 
         for (const auto& boundaryVec : boundaryVectors) {
             LinearAlgebra::MiddleSizeVector vec;
@@ -236,13 +238,12 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegrals(
                     face, [&](Base::PhysicalFace<DIM>& face) {
                         LinearAlgebra::MiddleSizeVector result;
                         faceBoundaryVector(face, boundaryVec.second, result,
-                                           bct, stab);
+                                           bct);
                         return result;
                     });
-                if (stab.hasFlux(FluxType::BREZZI) &&
+                if (stab_.hasFlux(FluxType::BREZZI) &&
                     bct == DGMax::BoundaryConditionType::DIRICHLET) {
-                    vec += brezziFluxBoundaryVector(face, boundaryVec.second,
-                                                    stab);
+                    vec += brezziFluxBoundaryVector(face, boundaryVec.second);
                 }
             }
             face->setFaceVector(vec, boundaryVec.first);
@@ -279,6 +280,8 @@ typename DivDGMaxDiscretization<DIM>::Fields
         LinearAlgebra::SmallVector<DIM> phiU;
         physicalElement.basisFunction(i, phiU, 0);
         result.electricField += coefficients[i] * phiU;
+        result.electricFieldCurl +=
+            coefficients[i] * physicalElement.basisFunctionCurl(i, 0);
     }
     // Compute potential
     for (std::size_t i = 0; i < nPhiP; ++i) {
@@ -295,6 +298,14 @@ LinearAlgebra::SmallVectorC<DIM> DivDGMaxDiscretization<DIM>::computeField(
 
     Fields fields = computeFields(element, point, coefficients);
     return fields.electricField;
+}
+
+template <std::size_t DIM>
+LinearAlgebra::SmallVectorC<DIM> DivDGMaxDiscretization<DIM>::computeCurlField(
+    const Base::Element* element, const PointReferenceT& point,
+    const LinearAlgebra::MiddleSizeVector& coefficients) const {
+    Fields fields = computeFields(element, point, coefficients);
+    return fields.electricFieldCurl;
 }
 
 template <std::size_t DIM>
@@ -381,7 +392,7 @@ void DivDGMaxDiscretization<DIM>::computeElementMatrices(
             }
             return ret;
         });
-    element->setElementMatrix(massMatrix, ELEMENT_MASS_MATRIX_ID);
+    element->setElementMatrix(massMatrix, MASS_MATRIX_ID);
 
     LinearAlgebra::MiddleSizeMatrix stiffnessMatrix =
         elementIntegrator_.integrate(
@@ -414,7 +425,7 @@ void DivDGMaxDiscretization<DIM>::computeElementMatrices(
                 }
                 return ret;
             });
-    element->setElementMatrix(stiffnessMatrix, ELEMENT_STIFFNESS_MATRIX_ID);
+    element->setElementMatrix(stiffnessMatrix, STIFFNESS_MATRIX_ID);
 }
 
 template <std::size_t DIM>
@@ -463,11 +474,11 @@ void DivDGMaxDiscretization<DIM>::elementSourceVector(
 template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
     Base::PhysicalFace<DIM>& fa, const Utilities::FaceLocalIndexing& indexing,
-    const Stab& stab, LinearAlgebra::MiddleSizeMatrix& ret) const {
+    LinearAlgebra::MiddleSizeMatrix& ret) const {
 
     const Base::Face* face = fa.getFace();
     // For IP fluxes
-    const double stab1 = stab.stab1 / face->getDiameter();
+    const double stab1 = stab_.stab1 / face->getDiameter();
 
     // Mapping from basis function -> face matrix entry
     std::vector<std::size_t> mapping;
@@ -496,7 +507,7 @@ void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
             double entry =
                 factor * (phiUCurli * phiUNormalj + phiUNormali * phiUCurlj);
 
-            if (stab.fluxType1 == FluxType::IP) {
+            if (stab_.fluxType1 == FluxType::IP) {
                 entry += stab1 * phiUNormali * phiUNormalj;
             }
 
@@ -505,8 +516,8 @@ void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
         }
     }
 
-    if (face->isInternal() && stab.fluxType2 == FluxType::IP &&
-        stab.stab2 != 0.0) {
+    if (face->isInternal() && stab_.fluxType2 == FluxType::IP &&
+        stab_.stab2 != 0.0) {
         // Note checking against 0.0 exactly, as this value is set by the user
         // and often disabled by setting it to 0.
 
@@ -522,7 +533,7 @@ void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
             std::fill(leftEnd, signedEpsilon.end(), -minfo.epsilonRight);
         }
 
-        const double stab2 = stab.stab2 * face->getDiameter() / minfo.epsMax;
+        const double stab2 = stab_.stab2 * face->getDiameter() / minfo.epsMax;
         const LinearAlgebra::SmallVector<DIM>& normal =
             fa.getUnitNormalVector();
         LinearAlgebra::SmallVector<DIM> phi;
@@ -551,7 +562,7 @@ void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
 template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::addFaceMatrixPotentialIntegrand(
     Base::PhysicalFace<DIM>& fa, const Utilities::FaceLocalIndexing& indexing,
-    const Stab& stab, DGMax::BoundaryConditionType bct,
+    DGMax::BoundaryConditionType bct,
     LinearAlgebra::MiddleSizeMatrix& ret) const {
 
     // Mapping from basis function -> face matrix entry
@@ -618,10 +629,10 @@ void DivDGMaxDiscretization<DIM>::addFaceMatrixPotentialIntegrand(
             ret(jIndex, iIndex) += entry;
         }
     }
-    if (stab.fluxType3 == FluxType::IP) {
+    if (stab_.fluxType3 == FluxType::IP) {
         /// Stabilization of the potential term
         /// stab3/diameter * epsMax [[p]] [[q]]
-        const double stab3 = stab.stab3 / face->getDiameter() * minfo.epsMax;
+        const double stab3 = stab_.stab3 / face->getDiameter() * minfo.epsMax;
 
         for (std::size_t i = 0; i < totalPDoFs; ++i) {
             const std::size_t iIndex = mappingP[i];
@@ -917,14 +928,14 @@ void distributeFaceMatrix(FaceDoFInfo faceInfo, bool vector,
 template <std::size_t DIM>
 LinearAlgebra::MiddleSizeMatrix
     DivDGMaxDiscretization<DIM>::brezziFluxBilinearTerm(
-        Base::Face* face, DGMax::BoundaryConditionType bct, Stab stab) {
+        Base::Face* face, DGMax::BoundaryConditionType bct) {
     FaceDoFInfo faceInfo = getFaceDoFInfo(*face);
     LinearAlgebra::MiddleSizeMatrix result(faceInfo.totalDoFs(),
                                            faceInfo.totalDoFs());
 
     bool isNaturalBCT = !face->isInternal() && DGMax::isNaturalBoundary(bct);
 
-    if (isNaturalBCT && stab.fluxType3 != FluxType::BREZZI) {
+    if (isNaturalBCT && stab_.fluxType3 != FluxType::BREZZI) {
         // On a boundaries with natural boundary conditions the first two
         // stabilization terms (fluxType1,2) are not used. So prevent doing any
         // work if the last stabilization term (fluxType3) uses a different
@@ -937,7 +948,7 @@ LinearAlgebra::MiddleSizeMatrix
     LinearAlgebra::MiddleSizeMatrix massMat = computeFaceVectorMassMatrix(face);
     massMat.cholesky();
 
-    if (stab.fluxType1 == FluxType::BREZZI && !isNaturalBCT) {
+    if (stab_.fluxType1 == FluxType::BREZZI && !isNaturalBCT) {
         std::size_t leftFaces = face->getPtrElementLeft()->getNumberOfFaces();
         std::size_t rightFaces =
             faceInfo.internal ? face->getPtrElementLeft()->getNumberOfFaces()
@@ -954,14 +965,14 @@ LinearAlgebra::MiddleSizeMatrix
         massMat.solveLowerTriangular(vectorStabilizer);  // L^{-1}R, with LL^{T}
                                                          // = M
         // Inplace multiplication with diagonal matrix
-        double lfactor = std::sqrt(stab.stab1 + leftFaces);
+        double lfactor = std::sqrt(stab_.stab1 + leftFaces);
         for (std::size_t i = 0; i < faceInfo.totalUDoFs(); ++i) {
             for (std::size_t j = 0; j < faceInfo.leftUDoFs; ++j) {
                 vectorStabilizer(i, j) *= lfactor;
             }
         }
         if (faceInfo.internal) {
-            double rfactor = std::sqrt(stab.stab1 + rightFaces);
+            double rfactor = std::sqrt(stab_.stab1 + rightFaces);
             if (faceInfo.internal && (leftFaces != rightFaces)) {
                 logger(WARN,
                        "Brezzi stabilization with unequal number of left and "
@@ -979,7 +990,7 @@ LinearAlgebra::MiddleSizeMatrix
         distributeFaceMatrix(faceInfo, true, vectorStabilizer, result);
     }
 
-    if (faceInfo.internal && stab.fluxType2 == FluxType::BREZZI &&
+    if (faceInfo.internal && stab_.fluxType2 == FluxType::BREZZI &&
         !isNaturalBCT) {
         // Compute normal vector stabilizer, stab2 * S^T M^{-T} S, S = lift
         // matrix Again we are using the Cholesky decomposition off LL^T = M.
@@ -990,12 +1001,12 @@ LinearAlgebra::MiddleSizeMatrix
             computeVectorNormalLiftProjector(face);
         pmassMat.solveLowerTriangular(vectorStabilizer);  // L^{-T} S
         vectorStabilizer = vectorStabilizer.transpose() * vectorStabilizer;
-        vectorStabilizer *= stab.stab2;
+        vectorStabilizer *= stab_.stab2;
         // Copy stabilizer to result matrix
         distributeFaceMatrix(faceInfo, true, vectorStabilizer, result);
     }
 
-    if (stab.fluxType3 == FluxType::BREZZI) {
+    if (stab_.fluxType3 == FluxType::BREZZI) {
         // Compute scalar stabilizer, stab3 * R^T M^{-1} R, R = lift matrix
         // using stab3 * R^T L^{-T} L{-1} R, where LL^{T} = M
         LinearAlgebra::MiddleSizeMatrix scalarStabilizer =
@@ -1003,7 +1014,7 @@ LinearAlgebra::MiddleSizeMatrix
         massMat.solveLowerTriangular(scalarStabilizer);  // L^{-1}R
         scalarStabilizer = scalarStabilizer.transpose() * scalarStabilizer;
         // minus sign as it is -c_h(p,q)
-        scalarStabilizer *= -stab.stab3;
+        scalarStabilizer *= -stab_.stab3;
 
         // Copy the scalar stabilizer into the result matrix
         distributeFaceMatrix(faceInfo, false, scalarStabilizer, result);
@@ -1017,8 +1028,8 @@ template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::faceBoundaryVector(
     Base::PhysicalFace<DIM>& fa,
     const DivDGMaxDiscretization<DIM>::FaceInputFunction& boundaryValue,
-    LinearAlgebra::MiddleSizeVector& ret, DGMax::BoundaryConditionType bct,
-    Stab stab) const {
+    LinearAlgebra::MiddleSizeVector& ret,
+    DGMax::BoundaryConditionType bct) const {
     const Base::Face* face = fa.getFace();
     const Geometry::PointReference<DIM - 1>& p = fa.getPointReference();
 
@@ -1052,8 +1063,8 @@ void DivDGMaxDiscretization<DIM>::faceBoundaryVector(
             fa.basisFunctionUnitNormalCross(i, phi, 0);
             phi_curl = fa.basisFunctionCurl(i, 0);
             std::complex<double> value = -(val * phi_curl);
-            if (stab.fluxType1 == FluxType::IP) {
-                value += stab.stab1 / (diameter) * (val * phi);
+            if (stab_.fluxType1 == FluxType::IP) {
+                value += stab_.stab1 / (diameter) * (val * phi);
             }
             // Scale with mu^{-1} in the future
             ret(i) = value;
@@ -1083,8 +1094,7 @@ template <std::size_t DIM>
 LinearAlgebra::MiddleSizeVector
     DivDGMaxDiscretization<DIM>::brezziFluxBoundaryVector(
         Base::Face* face,
-        const DivDGMaxDiscretization<DIM>::FaceInputFunction& boundaryValue,
-        DivDGMaxDiscretization<DIM>::Stab stab) {
+        const DivDGMaxDiscretization<DIM>::FaceInputFunction& boundaryValue) {
     FaceDoFInfo faceInfo = getFaceDoFInfo(*face);
     if (faceInfo.internal) {
         LinearAlgebra::MiddleSizeVector result;
@@ -1127,7 +1137,7 @@ LinearAlgebra::MiddleSizeVector
             }
             return result;
         });
-    rvector *= stab.stab1 + face->getPtrElementLeft()->getNumberOfFaces();
+    rvector *= stab_.stab1 + face->getPtrElementLeft()->getNumberOfFaces();
     massMatrix.transpose().solve(rvector);
     rvector = liftMatrix.transpose() * rvector;
     // Extend the  result to include degrees of freedom for the scalar part
@@ -1140,9 +1150,8 @@ LinearAlgebra::MiddleSizeVector
 
 template <std::size_t DIM>
 double DivDGMaxDiscretization<DIM>::computeL2Error(
-
-    Base::MeshManipulator<DIM>& mesh, std::size_t timeVector,
-    const DivDGMaxDiscretization<DIM>::InputFunction& electricField) {
+    Base::MeshManipulator<DIM>& mesh, std::size_t timeIntegrationVectorId,
+    InputFunction electricField) {
 
     double error = 0;
     auto end = mesh.elementColEnd();
@@ -1151,7 +1160,8 @@ double DivDGMaxDiscretization<DIM>::computeL2Error(
          it != end; ++it) {
         error += elementIntegrator_.integrate(
             (*it), [&](Base::PhysicalElement<DIM>& el) {
-                return elementErrorIntegrand(el, timeVector, electricField);
+                return elementErrorIntegrand(el, timeIntegrationVectorId,
+                                             electricField);
             });
     }
     return std::sqrt(error);

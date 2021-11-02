@@ -144,7 +144,7 @@ class DGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>, public vi
                                             InputFunction electricFieldCurl,
                                             std::set<NormType> norms);
 
-    virtual double computeError(hpgem::Base::MeshManipulator<DIM>& mesh,
+    virtual double computeL2Error(hpgem::Base::MeshManipulator<DIM>& mesh,
                                 std::size_t timeIntegrationVectorId,
                                 InputFunction electricField) final {
         return computeError(mesh, timeIntegrationVectorId, electricField, nullptr, {NormType::L2})[NormType::L2];
