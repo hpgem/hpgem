@@ -106,7 +106,8 @@ void DGMaxDiscretization<DIM>::initializeBasisFunctions(
 template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::computeElementIntegrands(
     Base::MeshManipulator<DIM>& mesh,
-    const std::map<std::size_t, InputFunction>& elementVectors) {
+    const std::map<std::size_t, InputFunction>& elementVectors,
+    LocalIntegrals integrals) {
     logger.assert_always(
         !(matrixHandling_ == ORTHOGONALIZE && !elementVectors.empty()),
         "Mass matrix rescale with input functions is not implemented");
@@ -124,8 +125,10 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(
          it != end; ++it) {
         Base::Element* element = *it;
 
-        computeElementMatrices(element);
-        postProcessElementMatrices(element);
+        if (integrals == LocalIntegrals::ALL) {
+            computeElementMatrices(element);
+            postProcessElementMatrices(element);
+        }
 
         for (auto const& elementVectorDef : elementVectors) {
             std::size_t numberOfBasisFunctions =
@@ -150,7 +153,7 @@ template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::computeFaceIntegrals(
     Base::MeshManipulator<DIM>& mesh,
     const std::map<std::size_t, FaceInputFunction>& boundaryVectors,
-    double stab) {
+    double stab, LocalIntegrals integrals) {
     MassMatrixHandling massMatrixHandling = matrixHandling_;
     logger.assert_always(
         !(massMatrixHandling == ORTHOGONALIZE && !boundaryVectors.empty()),
@@ -171,17 +174,19 @@ void DGMaxDiscretization<DIM>::computeFaceIntegrals(
          it != end; ++it) {
         Base::Face* face = *it;
 
-        computeFaceMatrix(face, stab);
-        postProcessFaceMatrices(face);
-
-        std::size_t numberOfBasisFunctions =
-            face->getPtrElementLeft()->getNumberOfBasisFunctions(0);
-        if (face->isInternal()) {
-            numberOfBasisFunctions +=
-                face->getPtrElementRight()->getNumberOfBasisFunctions(0);
+        if (integrals == LocalIntegrals::ALL) {
+            computeFaceMatrix(face, stab);
+            postProcessFaceMatrices(face);
         }
 
         for (auto const& faceVectorDef : boundaryVectors) {
+            std::size_t numberOfBasisFunctions =
+                face->getPtrElementLeft()->getNumberOfBasisFunctions(0);
+            if (face->isInternal()) {
+                numberOfBasisFunctions +=
+                    face->getPtrElementRight()->getNumberOfBasisFunctions(0);
+            }
+
             tempFaceVector.resize(numberOfBasisFunctions);
             using BCT = DGMax::BoundaryConditionType;
             BCT bct =

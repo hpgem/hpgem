@@ -54,6 +54,7 @@ DGMaxHarmonic<DIM>::DGMaxHarmonic(Base::MeshManipulator<DIM>& mesh, double stab,
                                   std::size_t order)
     : mesh_(mesh), stab_(stab) {
     discretization.initializeBasisFunctions(mesh_, order);
+    discretization.setMatrixHandling(DGMaxDiscretizationBase::NORMAL);
 }
 
 template <std::size_t DIM>
@@ -80,11 +81,16 @@ class DGMaxHarmonic<DIM>::Result : public AbstractHarmonicResult<DIM> {
 template <std::size_t DIM>
 class DGMaxHarmonic<DIM>::Workspace {
    public:
-    Workspace();
-    ~Workspace();
-    //    void solve(const HarmonicProblem<DIM>& problem);
+    static constexpr const std::size_t VECTOR_ID = 0;
 
-    void reinit(Base::MeshManipulator<DIM>& mesh);
+    Workspace(DGMaxDiscretization<DIM>& discretization,
+              Base::MeshManipulator<DIM>& mesh, double stab);
+    ~Workspace();
+
+    /**
+     * (re) compute the element and face integrands
+     */
+    void computeIntegrals(AbstractHarmonicSolverDriver<DIM>& driver);
 
     /**
      * Assemble the solverMatrix out of the individual matrices
@@ -96,11 +102,16 @@ class DGMaxHarmonic<DIM>::Workspace {
      * Runs the solver:
      *  - Assumes that the solverMatrix and loadVector has been set up
      *  - Result is written to resultVector_
+     *  - resultVector_ is distributed
      */
     void solve();
 
    public:
     void configureSolver();
+
+    DGMaxDiscretization<DIM>* discretization_;
+    Base::MeshManipulator<DIM>* mesh_;
+    double stab_;
 
     Utilities::GlobalIndexing indexing_;
     Utilities::GlobalPetscMatrix massMatrix_;
@@ -114,8 +125,13 @@ class DGMaxHarmonic<DIM>::Workspace {
 };
 
 template <std::size_t DIM>
-DGMaxHarmonic<DIM>::Workspace::Workspace()
-    : indexing_(nullptr),
+DGMaxHarmonic<DIM>::Workspace::Workspace(
+    DGMaxDiscretization<DIM>& discretization, Base::MeshManipulator<DIM>& mesh,
+    double stab)
+    : discretization_(&discretization),
+      mesh_(&mesh),
+      stab_(stab),
+      indexing_(nullptr),
       massMatrix_(indexing_, DGMaxDiscretizationBase::MASS_MATRIX_ID, -1),
       stiffnessMatrix_(indexing_, DGMaxDiscretizationBase::STIFFNESS_MATRIX_ID,
                        DGMaxDiscretizationBase::FACE_MATRIX_ID),
@@ -126,6 +142,9 @@ DGMaxHarmonic<DIM>::Workspace::Workspace()
                   DGMaxDiscretizationBase::FACE_VECTOR_ID),
       solverMatrix_(nullptr),
       solver_(nullptr) {
+    indexing_.reset(mesh_, Utilities::GlobalIndexing::BLOCKED_GLOBAL);
+    resultVector_.reinit();
+
     PetscErrorCode err;
     err = KSPCreate(PETSC_COMM_WORLD, &solver_);
     CHKERRABORT(PETSC_COMM_WORLD, err);
@@ -154,20 +173,61 @@ void DGMaxHarmonic<DIM>::Workspace::configureSolver() {
 }
 
 template <std::size_t DIM>
-void DGMaxHarmonic<DIM>::Workspace::reinit(Base::MeshManipulator<DIM>& mesh) {
-    indexing_.reset(&mesh, Utilities::GlobalIndexing::BLOCKED_GLOBAL);
-    DGMaxLogger(INFO, "Assembling global matrices");
-    massMatrix_.reinit();
-    stiffnessMatrix_.reinit();
-    stiffnessImpedanceMatrix_.reinit();
+void DGMaxHarmonic<DIM>::Workspace::computeIntegrals(
+    AbstractHarmonicSolverDriver<DIM>& driver) {
 
-    PetscErrorCode error;
-    error =
-        MatDuplicate(stiffnessMatrix_, MAT_DO_NOT_COPY_VALUES, &solverMatrix_);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
+    logger.assert_always(mesh_ != nullptr,
+                         "Computing integrals without a mesh");
 
-    DGMaxLogger(INFO, "Assembling global vectors");
-    resultVector_.reinit();
+    const HarmonicProblem<DIM>& problem = driver.currentProblem();
+
+    bool bctChanged =
+        driver.hasChanged(HarmonicProblemChanges::BOUNDARY_CONDITION_TYPE);
+
+    if (bctChanged ||
+        driver.hasChanged(HarmonicProblemChanges::CURRENT_SOURCE)) {
+        std::map<std::size_t, typename DGMaxDiscretization<DIM>::InputFunction>
+            elementVectors;
+        elementVectors[DGMaxDiscretization<DIM>::SOURCE_TERM_VECTOR_ID] =
+            [&problem](const Geometry::PointPhysical<DIM>& p) {
+                return problem.sourceTerm(p);
+            };
+        discretization_->computeElementIntegrands(
+            *mesh_, elementVectors,
+            bctChanged ? DGMaxDiscretizationBase::LocalIntegrals::ALL
+                       : DGMaxDiscretizationBase::LocalIntegrals::ONLY_VECTORS);
+    }
+    if (bctChanged ||
+        driver.hasChanged(HarmonicProblemChanges::BOUNDARY_CONDITION_VALUE)) {
+        std::map<std::size_t,
+                 typename DGMaxDiscretization<DIM>::FaceInputFunction>
+            faceVectors;
+        faceVectors[DGMaxDiscretization<DIM>::FACE_VECTOR_ID] =
+            [&problem](Base::PhysicalFace<DIM>& pface) {
+                return problem.boundaryCondition(pface);
+            };
+        discretization_->computeFaceIntegrals(
+            *mesh_, faceVectors, stab_,
+            bctChanged ? DGMaxDiscretizationBase::LocalIntegrals::ALL
+                       : DGMaxDiscretizationBase::LocalIntegrals::ONLY_VECTORS);
+    }
+    if (bctChanged) {
+        DGMaxLogger(INFO, "Assembling global matrices vector");
+        massMatrix_.reinit();
+        stiffnessMatrix_.reinit();
+        stiffnessImpedanceMatrix_.reinit();
+
+        PetscErrorCode error;
+        if (solverMatrix_ == nullptr) {
+            error =
+                MatDuplicate(stiffnessMatrix_, MAT_COPY_VALUES, &solverMatrix_);
+        } else {
+            error = MatCopy(stiffnessMatrix_, solverMatrix_,
+                            DIFFERENT_NONZERO_PATTERN);
+        }
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+    }
+    DGMaxLogger(INFO, "Assembling load vector");
     loadVector_.reinit();
 }
 
@@ -198,57 +258,33 @@ void DGMaxHarmonic<DIM>::Workspace::solve() {
     error = KSPSolve(solver_, loadVector_, resultVector_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     DGMaxLogger(INFO, "Solved harmonic problem");
+    resultVector_.writeTimeIntegrationVector(VECTOR_ID);
 }
 
 template <std::size_t DIM>
 void DGMaxHarmonic<DIM>::solve(
     DGMax::AbstractHarmonicSolverDriver<DIM>& driver) {
+    Workspace workspace(discretization, mesh_, stab_);
+
     while (!driver.stop()) {
         driver.nextProblem();
         const HarmonicProblem<DIM>& problem = driver.currentProblem();
-        solve(problem);
+
+        discretization.setBoundaryIndicator([&problem](const Base::Face& face) {
+            return problem.getBoundaryConditionType(face);
+        });
+
+        workspace.computeIntegrals(driver);
+
+        if (driver.hasChanged(HarmonicProblemChanges::OMEGA)
+            || driver.hasChanged(HarmonicProblemChanges::BOUNDARY_CONDITION_TYPE)) {
+            workspace.assembleSolverMatrix(problem.omega());
+        }
+        workspace.solve();
 
         Result result(problem, *this);
         driver.handleResult(result);
     }
-}
-
-template <std::size_t DIM>
-void DGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& harmonicProblem) {
-    PetscErrorCode error;
-
-    DGMaxLogger(INFO, "Computing local matrices");
-    Workspace workspace;
-
-    std::map<std::size_t, typename DGMaxDiscretization<DIM>::InputFunction>
-        elementVectors;
-    elementVectors[DGMaxDiscretization<DIM>::SOURCE_TERM_VECTOR_ID] =
-        std::bind(&HarmonicProblem<DIM>::sourceTerm, std::ref(harmonicProblem),
-                  std::placeholders::_1);
-
-    discretization.setMatrixHandling(DGMaxDiscretizationBase::NORMAL);
-    discretization.setBoundaryIndicator(
-        std::bind(&HarmonicProblem<DIM>::getBoundaryConditionType,
-                  &harmonicProblem, std::placeholders::_1));
-
-    discretization.computeElementIntegrands(mesh_, elementVectors);
-
-    std::map<std::size_t, typename DGMaxDiscretization<DIM>::FaceInputFunction>
-        faceVectors;
-    faceVectors[DGMaxDiscretization<DIM>::FACE_VECTOR_ID] =
-        std::bind(&HarmonicProblem<DIM>::boundaryCondition,
-                  std::ref(harmonicProblem), std::placeholders::_1);
-
-    discretization.computeFaceIntegrals(mesh_, faceVectors, stab_);
-
-
-    workspace.reinit(mesh_);
-    DGMaxLogger(INFO, "Combining global matrices");
-    double omega = harmonicProblem.omega();
-    workspace.assembleSolverMatrix(omega);
-
-    workspace.solve();
-    workspace.resultVector_.writeTimeIntegrationVector(0);
 }
 
 template <std::size_t DIM>

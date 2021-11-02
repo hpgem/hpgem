@@ -69,6 +69,14 @@ class AbstractHarmonicSolverDriver {
      * @param result Reference to the result, only valid during the call
      */
     virtual void handleResult(AbstractHarmonicResult<dim>& result) = 0;
+
+    /**
+     * Check whether a property of the HarmonicProblem has changed compared to
+     * the previous solve.
+     */
+    bool hasChanged(HarmonicProblemChanges change) const {
+        return true;
+    }
 };
 
 }  // namespace DGMax

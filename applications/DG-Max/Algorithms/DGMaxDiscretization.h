@@ -105,6 +105,17 @@ class DGMaxDiscretizationBase {
          */
         ORTHOGONALIZE
     };
+
+    enum class LocalIntegrals {
+        /**
+         * Compute both matrix and vector integrals
+         */
+        ALL,
+        /**
+         * Compute only the vector intergals
+         */
+        ONLY_VECTORS
+    };
 };
 
 template <std::size_t DIM>
@@ -140,11 +151,13 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
      */
     void computeElementIntegrands(
         Base::MeshManipulator<DIM>& mesh,
-        const std::map<std::size_t, InputFunction>& elementVectors);
+        const std::map<std::size_t, InputFunction>& elementVectors,
+        LocalIntegrals integrals = LocalIntegrals::ALL);
     void computeFaceIntegrals(
         Base::MeshManipulator<DIM>& mesh,
         const std::map<std::size_t, FaceInputFunction>& boundaryVectors,
-        double stab);
+        double stab,
+        LocalIntegrals integrals = LocalIntegrals::ALL);
 
     static std::string normName(NormType norm) {
         switch (norm) {
