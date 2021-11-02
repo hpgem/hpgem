@@ -55,8 +55,6 @@ class DGMaxHarmonic : public DGMax::AbstractHarmonicSolver<DIM> {
 
     void solve(DGMax::AbstractHarmonicSolverDriver<DIM>& driver) final;
 
-    void solve(const HarmonicProblem<DIM>& problem);
-
     std::map<typename DGMaxDiscretization<DIM>::NormType, double> computeError(
         const typename std::set<typename DGMaxDiscretization<DIM>::NormType>&
             norms,

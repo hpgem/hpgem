@@ -38,6 +38,8 @@
 
 #include "../ConvergenceTest.h"
 #include "../TestMeshes.h"
+#include "HarmonicErrorDriver.h"
+
 #include <Base/CommandLineOptions.h>
 #include <DGMaxProgramUtils.h>
 #include <DGMaxLogger.h>
@@ -90,20 +92,15 @@ double solveDGMax(std::string meshFile, std::size_t level) {
         DGMax::readMesh<3>(meshFile, &config, *problem.structureDescription, 2);
 
     DGMaxHarmonic<3> solver(*mesh, 100, 1);
-    solver.solve(problem.problem);
+    HarmonicErrorDriver<3> driver(problem.problem);
 
     std::stringstream fileName;
     fileName << "reflection-solution-dgmax-" << level;
     Output::VTKSpecificTimeWriter<3> output(fileName.str(), mesh.get(), 0, 1);
-    solver.writeVTK(output);
-    output.write(
-        [&](Base::Element* element, const Geometry::PointReference<3>&,
-            std::size_t) {
-            return static_cast<ElementInfos*>(element->getUserData())->epsilon_;
-        },
-        "epsilon");
+    driver.setOutputPlotter(&output);
 
-    return solver.computeL2Error(problem.problem);
+    solver.solve(driver);
+    return driver.getError();
 }
 
 double solveDivDGMax(std::string meshFile, std::size_t level) {
