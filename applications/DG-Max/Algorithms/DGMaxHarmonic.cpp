@@ -52,8 +52,8 @@ namespace DGMax {
 template <std::size_t DIM>
 DGMaxHarmonic<DIM>::DGMaxHarmonic(Base::MeshManipulator<DIM>& mesh, double stab,
                                   std::size_t order)
-    : mesh_(mesh), stab_(stab) {
-    discretization.initializeBasisFunctions(mesh_, order);
+    : mesh_(mesh), discretization(order, stab) {
+    discretization.initializeBasisFunctions(mesh_);
     discretization.setMatrixHandling(DGMaxDiscretizationBase::NORMAL);
 }
 
@@ -84,7 +84,7 @@ class DGMaxHarmonic<DIM>::Workspace {
     static constexpr const std::size_t VECTOR_ID = 0;
 
     Workspace(DGMaxDiscretization<DIM>& discretization,
-              Base::MeshManipulator<DIM>& mesh, double stab);
+              Base::MeshManipulator<DIM>& mesh);
     ~Workspace();
 
     /**
@@ -111,7 +111,6 @@ class DGMaxHarmonic<DIM>::Workspace {
 
     DGMaxDiscretization<DIM>* discretization_;
     Base::MeshManipulator<DIM>* mesh_;
-    double stab_;
 
     Utilities::GlobalIndexing indexing_;
     Utilities::GlobalPetscMatrix massMatrix_;
@@ -126,19 +125,17 @@ class DGMaxHarmonic<DIM>::Workspace {
 
 template <std::size_t DIM>
 DGMaxHarmonic<DIM>::Workspace::Workspace(
-    DGMaxDiscretization<DIM>& discretization, Base::MeshManipulator<DIM>& mesh,
-    double stab)
+    DGMaxDiscretization<DIM>& discretization, Base::MeshManipulator<DIM>& mesh)
     : discretization_(&discretization),
       mesh_(&mesh),
-      stab_(stab),
       indexing_(nullptr),
       massMatrix_(indexing_, DGMaxDiscretizationBase::MASS_MATRIX_ID, -1),
       stiffnessMatrix_(indexing_, DGMaxDiscretizationBase::STIFFNESS_MATRIX_ID,
-                       DGMaxDiscretizationBase::FACE_MATRIX_ID),
+                       DGMaxDiscretizationBase::FACE_STIFFNESS_MATRIX_ID),
       stiffnessImpedanceMatrix_(
           indexing_, -1, DGMaxDiscretizationBase::FACE_IMPEDANCE_MATRIX_ID),
       resultVector_(indexing_, -1, -1),
-      loadVector_(indexing_, DGMaxDiscretizationBase::SOURCE_TERM_VECTOR_ID,
+      loadVector_(indexing_, DGMaxDiscretizationBase::ELEMENT_VECTOR_ID,
                   DGMaxDiscretizationBase::FACE_VECTOR_ID),
       solverMatrix_(nullptr),
       solver_(nullptr) {
@@ -188,11 +185,11 @@ void DGMaxHarmonic<DIM>::Workspace::computeIntegrals(
         driver.hasChanged(HarmonicProblemChanges::CURRENT_SOURCE)) {
         std::map<std::size_t, typename DGMaxDiscretization<DIM>::InputFunction>
             elementVectors;
-        elementVectors[DGMaxDiscretization<DIM>::SOURCE_TERM_VECTOR_ID] =
+        elementVectors[DGMaxDiscretization<DIM>::ELEMENT_VECTOR_ID] =
             [&problem](const Geometry::PointPhysical<DIM>& p) {
                 return problem.sourceTerm(p);
             };
-        discretization_->computeElementIntegrands(
+        discretization_->computeElementIntegrals(
             *mesh_, elementVectors,
             bctChanged ? DGMaxDiscretizationBase::LocalIntegrals::ALL
                        : DGMaxDiscretizationBase::LocalIntegrals::ONLY_VECTORS);
@@ -207,7 +204,7 @@ void DGMaxHarmonic<DIM>::Workspace::computeIntegrals(
                 return problem.boundaryCondition(pface);
             };
         discretization_->computeFaceIntegrals(
-            *mesh_, faceVectors, stab_,
+            *mesh_, faceVectors,
             bctChanged ? DGMaxDiscretizationBase::LocalIntegrals::ALL
                        : DGMaxDiscretizationBase::LocalIntegrals::ONLY_VECTORS);
     }
@@ -264,7 +261,7 @@ void DGMaxHarmonic<DIM>::Workspace::solve() {
 template <std::size_t DIM>
 void DGMaxHarmonic<DIM>::solve(
     DGMax::AbstractHarmonicSolverDriver<DIM>& driver) {
-    Workspace workspace(discretization, mesh_, stab_);
+    Workspace workspace(discretization, mesh_);
 
     while (!driver.stop()) {
         driver.nextProblem();

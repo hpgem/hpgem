@@ -66,8 +66,8 @@ DGMaxEigenvalue<DIM>::DGMaxEigenvalue(Base::MeshManipulator<DIM>& mesh,
     : mesh_(mesh),
       order_(order),
       config_(config),
-      discretization_(config.useProjector_ != DGMaxEigenvalueBase::NONE) {
-    discretization_.initializeBasisFunctions(mesh_, order);
+      discretization_(order, config.stab_, config.useProjector_ != DGMaxEigenvalueBase::NONE) {
+    discretization_.initializeBasisFunctions(mesh_);
 }
 
 template <std::size_t DIM>
@@ -79,11 +79,11 @@ void DGMaxEigenvalue<DIM>::initializeMatrices() {
     std::map<std::size_t, typename DGMaxDiscretization<DIM>::InputFunction>
         elementVectors;
     discretization_.setMatrixHandling(massMatrixHandling);
-    discretization_.computeElementIntegrands(mesh_, elementVectors);
+    discretization_.computeElementIntegrals(mesh_, elementVectors);
     // No face vectors
     std::map<std::size_t, typename DGMaxDiscretization<DIM>::FaceInputFunction>
         faceVectors;
-    discretization_.computeFaceIntegrals(mesh_, faceVectors, config_.stab_);
+    discretization_.computeFaceIntegrals(mesh_, faceVectors);
 }
 
 // SolverWorkspace //
@@ -337,7 +337,7 @@ DGMaxEigenvalue<DIM>::SolverWorkspace::SolverWorkspace(
       fieldIndex_(nullptr),  // Initialized in initMatrices()
       stiffnessMatrix_(fieldIndex_,
                        DGMaxDiscretizationBase::STIFFNESS_MATRIX_ID,
-                       DGMaxDiscretizationBase::FACE_MATRIX_ID),
+                       DGMaxDiscretizationBase::FACE_STIFFNESS_MATRIX_ID),
       massMatrix_(fieldIndex_, DGMaxDiscretizationBase::MASS_MATRIX_ID, -1),
       tempFieldVector_(fieldIndex_, -1, -1),
       targetFrequency_(1) {
@@ -520,7 +520,7 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::initStiffnessMatrixShifts() {
     DGMax::FaceMatrixKPhaseShiftBuilder<DIM> builder;
     builder.setMatrixExtractor([&](const Base::Face* face) {
         const Base::FaceMatrix& faceMatrix =
-            face->getFaceMatrix(DGMaxDiscretizationBase::FACE_MATRIX_ID);
+            face->getFaceMatrix(DGMaxDiscretizationBase::FACE_STIFFNESS_MATRIX_ID);
         LinearAlgebra::MiddleSizeMatrix block1, block2;
         block1 =
             faceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::RIGHT);

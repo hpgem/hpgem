@@ -10,6 +10,7 @@ if(hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
 		kspaceData.cpp
         DGMaxProgramUtils.cpp
 
+		Algorithms/AbstractDiscretization.cpp
 		Algorithms/DGMaxEigenvalue.cpp
 		Algorithms/DGMaxDiscretization.cpp
 		Algorithms/DGMaxTimeIntegration.cpp
