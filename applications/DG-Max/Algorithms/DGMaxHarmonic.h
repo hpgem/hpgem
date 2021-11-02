@@ -44,7 +44,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "DGMaxDiscretization.h"
 
-using namespace hpgem;
+namespace DGMax {
 
 /// \brief Solver for a harmonic problem to find the fields.
 template <std::size_t DIM>
@@ -52,7 +52,10 @@ class DGMaxHarmonic : public DGMax::AbstractHarmonicSolver<DIM> {
    public:
     DGMaxHarmonic(Base::MeshManipulator<DIM>& mesh, double stab,
                   std::size_t order);
-    void solve(const HarmonicProblem<DIM>& harmonicProblem) final;
+
+    void solve(DGMax::AbstractHarmonicSolverDriver<DIM>& driver) final;
+
+    void solve(const HarmonicProblem<DIM>& problem);
 
     std::map<typename DGMaxDiscretization<DIM>::NormType, double> computeError(
         const typename std::set<typename DGMaxDiscretization<DIM>::NormType>&
@@ -65,18 +68,21 @@ class DGMaxHarmonic : public DGMax::AbstractHarmonicSolver<DIM> {
         const std::set<typename DGMaxDiscretization<DIM>::NormType>& norms,
         const ExactHarmonicProblem<DIM>& problem);
 
-    double computeL2Error(const ExactHarmonicProblem<DIM>& problem) final {
+    double computeL2Error(const ExactHarmonicProblem<DIM>& problem) {
         return computeError({DGMaxDiscretizationBase::NormType::L2},
                             problem)[DGMaxDiscretizationBase::NormType::L2];
     }
 
     void writeTec(std::string fileName) const;
-    void writeVTK(Output::VTKSpecificTimeWriter<DIM>& output) const final;
+    void writeVTK(Output::VTKSpecificTimeWriter<DIM>& output) const;
 
    private:
+    struct Result;
+
     Base::MeshManipulator<DIM>& mesh_;
     DGMaxDiscretization<DIM> discretization;
     double stab_;
 };
 
+}
 #endif  // HPGEM_APP_DGMAXHARMONIC_H

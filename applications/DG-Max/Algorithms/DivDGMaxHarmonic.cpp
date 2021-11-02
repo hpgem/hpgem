@@ -48,12 +48,46 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace hpgem;
 
+namespace DGMax {
+
 template <std::size_t DIM>
 DivDGMaxHarmonic<DIM>::DivDGMaxHarmonic(Base::MeshManipulator<DIM>& mesh,
                                         DivDGMaxDiscretizationBase::Stab stab,
                                         std::size_t order)
     : mesh_(mesh), stab_(stab) {
     discretization_.initializeBasisFunctions(mesh_, order);
+}
+
+template <std::size_t DIM>
+class DivDGMaxHarmonic<DIM>::Result : public AbstractHarmonicResult<DIM> {
+   public:
+    Result(const HarmonicProblem<DIM>& problem, DivDGMaxHarmonic<DIM>& solver)
+        : problem_(&problem), solver_(&solver){};
+
+    const HarmonicProblem<DIM>& solvedProblem() override { return *problem_; }
+    void writeVTK(Output::VTKSpecificTimeWriter<DIM>& output) override {
+        solver_->writeVTK(output);
+    }
+    double computeL2Error(const ExactHarmonicProblem<DIM>& solution) override {
+        return solver_->computeL2Error(solution);
+    }
+
+    Base::MeshManipulator<DIM>& getMesh() override { return solver_->mesh_; }
+
+   private:
+    const HarmonicProblem<DIM>* problem_;
+    DivDGMaxHarmonic<DIM>* solver_;
+};
+
+template <std::size_t DIM>
+void DivDGMaxHarmonic<DIM>::solve(AbstractHarmonicSolverDriver<DIM>& driver) {
+    while (!driver.stop()) {
+        driver.nextProblem();
+        const HarmonicProblem<DIM>& problem = driver.currentProblem();
+        solve(problem);
+        Result result(problem, *this);
+        driver.handleResult(result);
+    }
 }
 
 template <std::size_t DIM>
@@ -203,3 +237,5 @@ double DivDGMaxHarmonic<DIM>::computeL2Error(
 
 template class DivDGMaxHarmonic<2>;
 template class DivDGMaxHarmonic<3>;
+
+}  // namespace DGMax

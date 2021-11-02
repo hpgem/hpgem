@@ -47,11 +47,46 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace hpgem;
 
+namespace DGMax {
 template <std::size_t DIM>
 DGMaxHarmonic<DIM>::DGMaxHarmonic(Base::MeshManipulator<DIM>& mesh, double stab,
                                   std::size_t order)
     : mesh_(mesh), stab_(stab) {
     discretization.initializeBasisFunctions(mesh_, order);
+}
+
+template <std::size_t DIM>
+class DGMaxHarmonic<DIM>::Result : public AbstractHarmonicResult<DIM> {
+   public:
+    Result(const HarmonicProblem<DIM>& problem, DGMaxHarmonic<DIM>& solver)
+        : problem_(&problem), solver_(&solver){};
+
+    const HarmonicProblem<DIM>& solvedProblem() final { return *problem_; }
+
+    void writeVTK(Output::VTKSpecificTimeWriter<DIM>& output) final {
+        solver_->writeVTK(output);
+    }
+    double computeL2Error(const ExactHarmonicProblem<DIM>& solution) final {
+        return solver_->computeL2Error(solution);
+    }
+    Base::MeshManipulator<DIM>& getMesh() final { return solver_->mesh_; }
+
+   private:
+    const HarmonicProblem<DIM>* problem_;
+    DGMaxHarmonic<DIM>* solver_;
+};
+
+template <std::size_t DIM>
+void DGMaxHarmonic<DIM>::solve(
+    DGMax::AbstractHarmonicSolverDriver<DIM>& driver) {
+    while (!driver.stop()) {
+        driver.nextProblem();
+        const HarmonicProblem<DIM>& problem = driver.currentProblem();
+        solve(problem);
+
+        Result result(problem, *this);
+        driver.handleResult(result);
+    }
 }
 
 template <std::size_t DIM>
@@ -220,3 +255,5 @@ void DGMaxHarmonic<DIM>::writeVTK(
 
 template class DGMaxHarmonic<2>;
 template class DGMaxHarmonic<3>;
+
+}  // namespace DGMax

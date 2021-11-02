@@ -47,6 +47,7 @@
 #include <Algorithms/DGMaxHarmonic.h>
 #include <Algorithms/DivDGMaxHarmonic.h>
 #include <ProblemTypes/Harmonic/SampleHarmonicProblems.h>
+#include <ProblemTypes/SingleProblemHarmonicDriver.h>
 
 auto& meshFileName = Base::register_argument<std::string>(
     'm', "meshFile", "The hpgem meshfile to use", true);
@@ -180,6 +181,65 @@ class TestingProblem : public HarmonicProblem<dim> {
 };
 
 template <std::size_t dim>
+class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
+   public:
+    Driver(Base::MeshManipulator<dim>& mesh)
+        : mesh_(&mesh),
+          problem_(std::make_shared<TestingProblem<dim>>()),
+          nextCalled_(false){};
+
+    bool stop() const override { return nextCalled_; }
+    void nextProblem() override { nextCalled_ = true; }
+    const HarmonicProblem<dim>& currentProblem() const override {
+        return *problem_;
+    }
+    void handleResult(DGMax::AbstractHarmonicResult<dim>& result) override {
+        Output::VTKSpecificTimeWriter<dim> output("harmonic", mesh_, 0,
+                                                  order.getValue());
+        result.writeVTK(output);
+        // Additional output
+        output.write(
+            [this](Base::Element* element,
+                   const Geometry::PointReference<dim>& p, std::size_t) {
+                return problem_->sourceTerm(element->referenceToPhysical(p))
+                    .real();
+            },
+            "source");
+
+        auto* eproblem =
+            dynamic_cast<ExactHarmonicProblem<dim>*>(problem_.get());
+        if (eproblem != nullptr) {
+            double l2Error = result.computeL2Error(*eproblem);
+            DGMaxLogger(INFO, "L2 error %", l2Error);
+
+            output.write(
+                [&eproblem](Base::Element* element,
+                            const Geometry::PointReference<dim>& p,
+                            std::size_t) {
+                    return eproblem
+                        ->exactSolution(element->referenceToPhysical(p))
+                        .real();
+                },
+                "SolutionReal");
+            output.write(
+                [&eproblem](Base::Element* element,
+                            const Geometry::PointReference<dim>& p,
+                            std::size_t) {
+                    return eproblem
+                        ->exactSolution(element->referenceToPhysical(p))
+                        .imag();
+                },
+                "SolutionImag");
+        }
+    }
+
+   private:
+    Base::MeshManipulator<dim>* mesh_;
+    std::shared_ptr<HarmonicProblem<dim>> problem_;
+    bool nextCalled_;
+};
+
+template <std::size_t dim>
 void runWithDimension() {
     bool divdgmax;
     std::size_t unknowns;
@@ -216,12 +276,12 @@ void runWithDimension() {
         stab.stab3 = 500;
         stab.setAllFluxeTypes(DivDGMaxDiscretization<dim>::FluxType::IP);
 
-        solver = std::make_unique<DivDGMaxHarmonic<dim>>(*mesh, stab,
-                                                         order.getValue());
+        solver = std::make_unique<DGMax::DivDGMaxHarmonic<dim>>(
+            *mesh, stab, order.getValue());
     } else {
         double stab = 100;
-        solver =
-            std::make_unique<DGMaxHarmonic<dim>>(*mesh, stab, order.getValue());
+        solver = std::make_unique<DGMax::DGMaxHarmonic<dim>>(*mesh, stab,
+                                                             order.getValue());
     }
 
     // Problem definition
@@ -229,50 +289,9 @@ void runWithDimension() {
     //    problem = std::make_unique<DGMax::ConstantHarmonicProblem<dim>>(1.0);
     problem = std::make_unique<TestingProblem<dim>>();
 
-    solver->solve(*problem);
+    Driver<dim> driver(*mesh);
 
-    // Output
-    Output::VTKSpecificTimeWriter<dim> output("harmonic", mesh.get(), 0,
-                                              order.getValue());
-    output.write(
-        [](Base::Element* element, const Geometry::PointReference<dim>&,
-           std::size_t) {
-            const ElementInfos* elementInfos =
-                dynamic_cast<ElementInfos*>(element->getUserData());
-            logger.assert_debug(elementInfos != nullptr,
-                                "Incorrect user data type");
-            return elementInfos->epsilon_;
-        },
-        "epsilon");
-    output.write(
-        [&problem](Base::Element* element,
-                   const Geometry::PointReference<dim>& p, std::size_t) {
-            return problem->sourceTerm(element->referenceToPhysical(p)).real();
-        },
-        "source");
-
-    auto* eproblem = dynamic_cast<ExactHarmonicProblem<dim>*>(problem.get());
-    if (eproblem != nullptr) {
-        double l2Error = solver->computeL2Error(*eproblem);
-        DGMaxLogger(INFO, "L2 error %", l2Error);
-
-        output.write(
-            [&eproblem](Base::Element* element,
-                        const Geometry::PointReference<dim>& p, std::size_t) {
-                return eproblem->exactSolution(element->referenceToPhysical(p))
-                    .real();
-            },
-            "SolutionReal");
-        output.write(
-            [&eproblem](Base::Element* element,
-                        const Geometry::PointReference<dim>& p, std::size_t) {
-                return eproblem->exactSolution(element->referenceToPhysical(p))
-                    .imag();
-            },
-            "SolutionImag");
-    }
-
-    solver->writeVTK(output);
+    solver->solve(driver);
 }
 
 template <std::size_t DIM>

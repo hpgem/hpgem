@@ -46,7 +46,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <Output/VTKSpecificTimeWriter.h>
 
-using namespace hpgem;
+namespace DGMax {
 
 template <std::size_t DIM>
 class DivDGMaxHarmonic : public DGMax::AbstractHarmonicSolver<DIM> {
@@ -55,19 +55,25 @@ class DivDGMaxHarmonic : public DGMax::AbstractHarmonicSolver<DIM> {
     DivDGMaxHarmonic(Base::MeshManipulator<DIM>& mesh,
                      DivDGMaxDiscretizationBase::Stab stab, std::size_t order);
 
-    void solve(const HarmonicProblem<DIM>& input) final;
+    virtual void solve(AbstractHarmonicSolverDriver<DIM>& driver) final;
+
+    void solve(const HarmonicProblem<DIM>& input);
     void writeTec(std::string fileName) const;
-    void writeVTK(Output::VTKSpecificTimeWriter<DIM>& output) const final;
+    void writeVTK(Output::VTKSpecificTimeWriter<DIM>& output) const;
     // TODO: Error computation and tec-plot writing
     double computeL2Error(
         const typename DivDGMaxDiscretization<DIM>::InputFunction&
             exactSolution);
-    double computeL2Error(const ExactHarmonicProblem<DIM>& problem) final;
+    double computeL2Error(const ExactHarmonicProblem<DIM>& problem);
 
    private:
+    class Result;
+
     Base::MeshManipulator<DIM>& mesh_;
     DivDGMaxDiscretization<DIM> discretization_;
     DivDGMaxDiscretizationBase::Stab stab_;
 };
+
+}
 
 #endif  // HPGEM_APP_DIVDGMAXHARMONIC_H

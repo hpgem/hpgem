@@ -35,27 +35,42 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_ABSTRACTHARMONICSOLVER_H
-#define HPGEM_ABSTRACTHARMONICSOLVER_H
+#ifndef HPGEM_ABSTRACTHARMONICSOLVERDRIVER_H
+#define HPGEM_ABSTRACTHARMONICSOLVERDRIVER_H
 
+#include "AbstractHarmonicResult.h"
 #include "HarmonicProblem.h"
-#include "AbstractHarmonicSolverDriver.h"
-#include <Output/VTKSpecificTimeWriter.h>
 
 namespace DGMax {
 
-/**
- * A Solver for the Maxwell harmonic problem
- * @tparam dim The dimension of the problem
- */
 template <std::size_t dim>
-class AbstractHarmonicSolver {
+class AbstractHarmonicSolverDriver {
    public:
-    virtual ~AbstractHarmonicSolver() = default;
+    virtual ~AbstractHarmonicSolverDriver() = default;
 
-    virtual void solve(AbstractHarmonicSolverDriver<dim>& driver) = 0;
+    /**
+     * @return Whether to stop solving (the current problem is the last problem)
+     */
+    virtual bool stop() const = 0;
+
+    /**
+     * Advance to the next problem
+     */
+    virtual void nextProblem() = 0;
+
+    /**
+     * Description of the current problem to solve
+     * @return The problem to solve
+     */
+    virtual const HarmonicProblem<dim>& currentProblem() const = 0;
+
+    /**
+     * Call back after the solving has finished
+     * @param result Reference to the result, only valid during the call
+     */
+    virtual void handleResult(AbstractHarmonicResult<dim>& result) = 0;
 };
 
 }  // namespace DGMax
 
-#endif  // HPGEM_ABSTRACTHARMONICSOLVER_H
+#endif  // HPGEM_ABSTRACTHARMONICSOLVERDRIVER_H

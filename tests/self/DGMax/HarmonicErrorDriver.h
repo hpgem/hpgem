@@ -35,27 +35,46 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_ABSTRACTHARMONICSOLVER_H
-#define HPGEM_ABSTRACTHARMONICSOLVER_H
+#ifndef HPGEM_HARMONICERRORDRIVER_H
+#define HPGEM_HARMONICERRORDRIVER_H
 
-#include "HarmonicProblem.h"
-#include "AbstractHarmonicSolverDriver.h"
+#include <ProblemTypes/AbstractHarmonicSolverDriver.h>
+#include <ProblemTypes/AbstractHarmonicSolver.h>
 #include <Output/VTKSpecificTimeWriter.h>
 
-namespace DGMax {
-
-/**
- * A Solver for the Maxwell harmonic problem
- * @tparam dim The dimension of the problem
- */
 template <std::size_t dim>
-class AbstractHarmonicSolver {
+class HarmonicErrorDriver : public DGMax::AbstractHarmonicSolverDriver<dim> {
    public:
-    virtual ~AbstractHarmonicSolver() = default;
+    HarmonicErrorDriver(ExactHarmonicProblem<dim>& problem)
+        : problem_(&problem),
+          nextCalled_(false),
+          errorResult_(std::nan("")),
+          plotter_(nullptr){};
 
-    virtual void solve(AbstractHarmonicSolverDriver<dim>& driver) = 0;
+    bool stop() const override { return nextCalled_; }
+    void nextProblem() override { nextCalled_ = true; }
+
+    const HarmonicProblem<dim>& currentProblem() const override {
+        return *problem_;
+    }
+    void handleResult(DGMax::AbstractHarmonicResult<dim>& result) override {
+        errorResult_ = result.computeL2Error(*problem_);
+        if (plotter_ != nullptr) {
+            result.writeVTK(*plotter_);
+        }
+    }
+
+    double getError() { return errorResult_; }
+
+    void setOutputPlotter(Output::VTKSpecificTimeWriter<dim>* plotter) {
+        plotter_ = plotter;
+    }
+
+   private:
+    ExactHarmonicProblem<dim>* problem_;
+    bool nextCalled_;
+    double errorResult_;
+    Output::VTKSpecificTimeWriter<dim>* plotter_;
 };
 
-}  // namespace DGMax
-
-#endif  // HPGEM_ABSTRACTHARMONICSOLVER_H
+#endif  // HPGEM_HARMONICERRORDRIVER_H

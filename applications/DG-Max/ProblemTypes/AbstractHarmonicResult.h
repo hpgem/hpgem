@@ -35,27 +35,32 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_ABSTRACTHARMONICSOLVER_H
-#define HPGEM_ABSTRACTHARMONICSOLVER_H
+#ifndef HPGEM_ABSTRACTHARMONICRESULT_H
+#define HPGEM_ABSTRACTHARMONICRESULT_H
 
-#include "HarmonicProblem.h"
-#include "AbstractHarmonicSolverDriver.h"
 #include <Output/VTKSpecificTimeWriter.h>
+#include "HarmonicProblem.h"
 
 namespace DGMax {
 
-/**
- * A Solver for the Maxwell harmonic problem
- * @tparam dim The dimension of the problem
- */
 template <std::size_t dim>
-class AbstractHarmonicSolver {
+class AbstractHarmonicResult {
    public:
-    virtual ~AbstractHarmonicSolver() = default;
+    virtual ~AbstractHarmonicResult() = default;
 
-    virtual void solve(AbstractHarmonicSolverDriver<dim>& driver) = 0;
+    /// The problem that was solved
+    virtual const HarmonicProblem<dim>& solvedProblem() = 0;
+
+    virtual Base::MeshManipulator<dim>& getMesh() = 0;
+
+    /// Plot the output
+    virtual void writeVTK(
+        hpgem::Output::VTKSpecificTimeWriter<dim>& output) = 0;
+
+    virtual double computeL2Error(
+        const ExactHarmonicProblem<dim>& solution) = 0;
 };
 
 }  // namespace DGMax
 
-#endif  // HPGEM_ABSTRACTHARMONICSOLVER_H
+#endif  // HPGEM_ABSTRACTHARMONICRESULT_H
