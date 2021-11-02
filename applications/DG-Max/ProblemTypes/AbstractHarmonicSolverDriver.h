@@ -74,7 +74,7 @@ class AbstractHarmonicSolverDriver {
      * Check whether a property of the HarmonicProblem has changed compared to
      * the previous solve.
      */
-    bool hasChanged(HarmonicProblemChanges change) const {
+    virtual bool hasChanged(HarmonicProblemChanges change) const {
         return true;
     }
 };

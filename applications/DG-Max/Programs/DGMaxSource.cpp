@@ -109,9 +109,9 @@ template <std::size_t dim>
 class TestingProblem : public HarmonicProblem<dim> {
 
    public:
-    TestingProblem(){};
+    TestingProblem(double omega) : omega_(omega){};
 
-    double omega() const final { return 0.01; }
+    double omega() const final { return omega_; }
 
     LinearAlgebra::SmallVectorC<dim> sourceTerm(
         const Geometry::PointPhysical<dim>& point) const final {
@@ -178,23 +178,48 @@ class TestingProblem : public HarmonicProblem<dim> {
             return DGMax::BoundaryConditionType::SILVER_MULLER;
         }
     }
+
+   private:
+    double omega_;
 };
 
 template <std::size_t dim>
 class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
    public:
     Driver(Base::MeshManipulator<dim>& mesh)
-        : mesh_(&mesh),
-          problem_(std::make_shared<TestingProblem<dim>>()),
-          nextCalled_(false){};
+        : mesh_(&mesh), problem_(), nextCalled_(0){};
 
-    bool stop() const override { return nextCalled_; }
-    void nextProblem() override { nextCalled_ = true; }
+    bool stop() const override { return nextCalled_ == 5; }
+    void nextProblem() override {
+        nextCalled_++;
+        problem_ = std::make_shared<TestingProblem<dim>>(0.01 * nextCalled_);
+    }
+
     const HarmonicProblem<dim>& currentProblem() const override {
         return *problem_;
     }
+
+    bool hasChanged(HarmonicProblemChanges change) const override {
+        if (nextCalled_ == 1) {
+            return true;
+        } else {
+            switch (change) {
+                case HarmonicProblemChanges::OMEGA:
+                case HarmonicProblemChanges::BOUNDARY_CONDITION_VALUE:
+                    return true;
+                case HarmonicProblemChanges::BOUNDARY_CONDITION_TYPE:
+                case HarmonicProblemChanges::CURRENT_SOURCE:
+                    return false;
+                default:
+                    return true;
+            }
+        }
+    }
+
     void handleResult(DGMax::AbstractHarmonicResult<dim>& result) override {
-        Output::VTKSpecificTimeWriter<dim> output("harmonic", mesh_, 0,
+        std::stringstream outputFile;
+        outputFile << "harmonic-" << nextCalled_;
+        Output::VTKSpecificTimeWriter<dim> output(outputFile.str(), mesh_, 0,
                                                   order.getValue());
         result.writeVTK(output);
         // Additional output
@@ -236,7 +261,7 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
    private:
     Base::MeshManipulator<dim>* mesh_;
     std::shared_ptr<HarmonicProblem<dim>> problem_;
-    bool nextCalled_;
+    int nextCalled_;
 };
 
 template <std::size_t dim>
@@ -285,9 +310,9 @@ void runWithDimension() {
     }
 
     // Problem definition
-    std::unique_ptr<HarmonicProblem<dim>> problem;
+    //    std::unique_ptr<HarmonicProblem<dim>> problem;
     //    problem = std::make_unique<DGMax::ConstantHarmonicProblem<dim>>(1.0);
-    problem = std::make_unique<TestingProblem<dim>>();
+    //    problem = std::make_unique<TestingProblem<dim>>();
 
     Driver<dim> driver(*mesh);
 
