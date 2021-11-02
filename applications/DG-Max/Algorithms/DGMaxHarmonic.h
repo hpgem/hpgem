@@ -78,6 +78,7 @@ class DGMaxHarmonic : public DGMax::AbstractHarmonicSolver<DIM> {
 
    private:
     struct Result;
+    struct Workspace;
 
     Base::MeshManipulator<DIM>& mesh_;
     DGMaxDiscretization<DIM> discretization;

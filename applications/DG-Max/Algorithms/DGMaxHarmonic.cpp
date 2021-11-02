@@ -48,6 +48,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace hpgem;
 
 namespace DGMax {
+
 template <std::size_t DIM>
 DGMaxHarmonic<DIM>::DGMaxHarmonic(Base::MeshManipulator<DIM>& mesh, double stab,
                                   std::size_t order)
@@ -77,6 +78,129 @@ class DGMaxHarmonic<DIM>::Result : public AbstractHarmonicResult<DIM> {
 };
 
 template <std::size_t DIM>
+class DGMaxHarmonic<DIM>::Workspace {
+   public:
+    Workspace();
+    ~Workspace();
+    //    void solve(const HarmonicProblem<DIM>& problem);
+
+    void reinit(Base::MeshManipulator<DIM>& mesh);
+
+    /**
+     * Assemble the solverMatrix out of the individual matrices
+     * @param waveNumber The wave number
+     */
+    void assembleSolverMatrix(double waveNumber);
+
+    /**
+     * Runs the solver:
+     *  - Assumes that the solverMatrix and loadVector has been set up
+     *  - Result is written to resultVector_
+     */
+    void solve();
+
+   public:
+    void configureSolver();
+
+    Utilities::GlobalIndexing indexing_;
+    Utilities::GlobalPetscMatrix massMatrix_;
+    Utilities::GlobalPetscMatrix stiffnessMatrix_;
+    Utilities::GlobalPetscMatrix stiffnessImpedanceMatrix_;
+    Utilities::GlobalPetscVector resultVector_;
+    Utilities::GlobalPetscVector loadVector_;
+
+    Mat solverMatrix_;
+    KSP solver_;
+};
+
+template <std::size_t DIM>
+DGMaxHarmonic<DIM>::Workspace::Workspace()
+    : indexing_(nullptr),
+      massMatrix_(indexing_, DGMaxDiscretizationBase::MASS_MATRIX_ID, -1),
+      stiffnessMatrix_(indexing_, DGMaxDiscretizationBase::STIFFNESS_MATRIX_ID,
+                       DGMaxDiscretizationBase::FACE_MATRIX_ID),
+      stiffnessImpedanceMatrix_(
+          indexing_, -1, DGMaxDiscretizationBase::FACE_IMPEDANCE_MATRIX_ID),
+      resultVector_(indexing_, -1, -1),
+      loadVector_(indexing_, DGMaxDiscretizationBase::SOURCE_TERM_VECTOR_ID,
+                  DGMaxDiscretizationBase::FACE_VECTOR_ID),
+      solverMatrix_(nullptr),
+      solver_(nullptr) {
+    PetscErrorCode err;
+    err = KSPCreate(PETSC_COMM_WORLD, &solver_);
+    CHKERRABORT(PETSC_COMM_WORLD, err);
+
+    configureSolver();
+}
+
+template <std::size_t DIM>
+DGMaxHarmonic<DIM>::Workspace::~Workspace() {
+    if (solverMatrix_ != nullptr) {
+        MatDestroy(&solverMatrix_);
+    }
+    KSPDestroy(&solver_);
+}
+
+template <std::size_t DIM>
+void DGMaxHarmonic<DIM>::Workspace::configureSolver() {
+    PetscErrorCode error;
+
+    error = KSPSetTolerances(solver_, 1e-8, PETSC_DEFAULT, PETSC_DEFAULT,
+                             PETSC_DEFAULT);
+    CHKERRABORT(PETSC_COMM_WORLD, error);
+
+    error = KSPSetFromOptions(solver_);
+    CHKERRABORT(PETSC_COMM_WORLD, error);
+}
+
+template <std::size_t DIM>
+void DGMaxHarmonic<DIM>::Workspace::reinit(Base::MeshManipulator<DIM>& mesh) {
+    indexing_.reset(&mesh, Utilities::GlobalIndexing::BLOCKED_GLOBAL);
+    DGMaxLogger(INFO, "Assembling global matrices");
+    massMatrix_.reinit();
+    stiffnessMatrix_.reinit();
+    stiffnessImpedanceMatrix_.reinit();
+
+    PetscErrorCode error;
+    error =
+        MatDuplicate(stiffnessMatrix_, MAT_DO_NOT_COPY_VALUES, &solverMatrix_);
+    CHKERRABORT(PETSC_COMM_WORLD, error);
+
+    DGMaxLogger(INFO, "Assembling global vectors");
+    resultVector_.reinit();
+    loadVector_.reinit();
+}
+
+template <std::size_t DIM>
+void DGMaxHarmonic<DIM>::Workspace::assembleSolverMatrix(double waveNumber) {
+    PetscErrorCode error;
+    error = MatCopy(stiffnessMatrix_, solverMatrix_, DIFFERENT_NONZERO_PATTERN);
+    CHKERRABORT(PETSC_COMM_WORLD, error);
+    // Usually this is a subset, but sometimes the rounding is slightly
+    // different and is not a subset. So using SUBSET_NONZERO would crash.
+    error = MatAXPY(solverMatrix_, waveNumber, stiffnessImpedanceMatrix_,
+                    UNKNOWN_NONZERO_PATTERN);
+    CHKERRABORT(PETSC_COMM_WORLD, error);
+    error = MatAXPY(solverMatrix_, -waveNumber * waveNumber, massMatrix_,
+                    SUBSET_NONZERO_PATTERN);
+    CHKERRABORT(PETSC_COMM_WORLD, error);
+}
+
+template <std::size_t DIM>
+void DGMaxHarmonic<DIM>::Workspace::solve() {
+    PetscErrorCode error;
+    DGMaxLogger(INFO, "Setting up solver");
+    error = KSPSetOperators(solver_, solverMatrix_, solverMatrix_);
+    CHKERRABORT(PETSC_COMM_WORLD, error);
+    error = KSPSetUp(solver_);
+    CHKERRABORT(PETSC_COMM_WORLD, error);
+    DGMaxLogger(INFO, "Solving harmonic problem");
+    error = KSPSolve(solver_, loadVector_, resultVector_);
+    CHKERRABORT(PETSC_COMM_WORLD, error);
+    DGMaxLogger(INFO, "Solved harmonic problem");
+}
+
+template <std::size_t DIM>
 void DGMaxHarmonic<DIM>::solve(
     DGMax::AbstractHarmonicSolverDriver<DIM>& driver) {
     while (!driver.stop()) {
@@ -94,6 +218,7 @@ void DGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& harmonicProblem) {
     PetscErrorCode error;
 
     DGMaxLogger(INFO, "Computing local matrices");
+    Workspace workspace;
 
     std::map<std::size_t, typename DGMaxDiscretization<DIM>::InputFunction>
         elementVectors;
@@ -116,79 +241,14 @@ void DGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& harmonicProblem) {
 
     discretization.computeFaceIntegrals(mesh_, faceVectors, stab_);
 
-    DGMaxLogger(INFO, "Assembling global matrices");
 
-    Utilities::GlobalIndexing indexing(&mesh_);
-    Utilities::GlobalPetscMatrix massMatrix(
-        indexing, DGMaxDiscretization<DIM>::MASS_MATRIX_ID, -1),
-        stiffnessMatrix(indexing, DGMaxDiscretization<DIM>::STIFFNESS_MATRIX_ID,
-                        DGMaxDiscretization<DIM>::FACE_MATRIX_ID),
-        stiffnessImpedanceMatrix(
-            indexing, -1, DGMaxDiscretizationBase::FACE_IMPEDANCE_MATRIX_ID);
-    DGMaxLogger(INFO, "Assembling global vectors");
-    Utilities::GlobalPetscVector resultVector(
-        indexing, -1, -1),  // The vector that we will use for the solution,
-                            // initialize it with zeros.
-        rhsVector(indexing, DGMaxDiscretization<DIM>::SOURCE_TERM_VECTOR_ID,
-                  DGMaxDiscretization<DIM>::FACE_VECTOR_ID);
-
+    workspace.reinit(mesh_);
     DGMaxLogger(INFO, "Combining global matrices");
     double omega = harmonicProblem.omega();
-    double omega2 = omega * omega;
-    error = MatAXPY(stiffnessMatrix, -1.0 * omega2, massMatrix,
-                    SUBSET_NONZERO_PATTERN);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    error = MatAXPY(stiffnessMatrix, omega, stiffnessImpedanceMatrix,
-                    SUBSET_NONZERO_PATTERN);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
+    workspace.assembleSolverMatrix(omega);
 
-    DGMaxLogger(INFO, "Creating solver");
-
-    //    std::complex<double> I = std::complex<double>(0, 1);
-    // Apply the factor i omega to the source term J.
-    //    error = VecScale(rhsVector, harmonicProblem.omega());
-    //    CHKERRABORT(PETSC_COMM_WORLD, error);
-
-    KSP solver;
-    error = KSPCreate(PETSC_COMM_WORLD, &solver);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-
-    // Preconditioner
-    PC preconditioner;
-    // The KSP solver will 'create' a valid preconditioner for us to work with.
-    error = KSPGetPC(solver, &preconditioner);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    error = PCSetType(preconditioner, "jacobi");
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    error = KSPSetPC(solver, preconditioner);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-
-    error = KSPSetTolerances(solver, 1e-10, PETSC_DEFAULT, PETSC_DEFAULT,
-                             PETSC_DEFAULT);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-
-    error = KSPSetType(solver, "minres");
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-
-    // everything that is set in the code, but before this line is overridden by
-    // command-line options
-    error = KSPSetFromOptions(solver);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-
-    error = KSPSetOperators(solver, stiffnessMatrix, stiffnessMatrix);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    DGMaxLogger(INFO, "Seting up solver");
-    error = KSPSetUp(solver);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    DGMaxLogger(INFO, "Solving harmonic problem");
-    error = KSPSolve(solver, rhsVector, resultVector);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-
-    error = KSPDestroy(&solver);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    DGMaxLogger(INFO, "Solved harmonic problem");
-
-    resultVector.writeTimeIntegrationVector(0);  // DOUBTFUL
+    workspace.solve();
+    workspace.resultVector_.writeTimeIntegrationVector(0);
 }
 
 template <std::size_t DIM>
