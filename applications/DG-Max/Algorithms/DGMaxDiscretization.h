@@ -156,8 +156,7 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
     void computeFaceIntegrals(
         Base::MeshManipulator<DIM>& mesh,
         const std::map<std::size_t, FaceInputFunction>& boundaryVectors,
-        double stab,
-        LocalIntegrals integrals = LocalIntegrals::ALL);
+        double stab, LocalIntegrals integrals = LocalIntegrals::ALL);
 
     static std::string normName(NormType norm) {
         switch (norm) {

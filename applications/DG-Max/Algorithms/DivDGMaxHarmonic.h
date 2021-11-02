@@ -74,6 +74,6 @@ class DivDGMaxHarmonic : public DGMax::AbstractHarmonicSolver<DIM> {
     DivDGMaxDiscretizationBase::Stab stab_;
 };
 
-}
+}  // namespace DGMax
 
 #endif  // HPGEM_APP_DIVDGMAXHARMONIC_H

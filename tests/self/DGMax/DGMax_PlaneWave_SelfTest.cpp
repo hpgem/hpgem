@@ -110,7 +110,7 @@ double solveDGMax(std::string meshFile, std::size_t level) {
     auto mesh = DGMax::readMesh<2>(meshFile, &config,
                                    *problemData.structureDescription, 2);
     DGMaxHarmonic<2> solver(*mesh, 100, 2);
-    HarmonicErrorDriver<2> driver (problemData.problem);
+    HarmonicErrorDriver<2> driver(problemData.problem);
     std::stringstream fileName;
     fileName << "solution-dgmax-" << level;
     Output::VTKSpecificTimeWriter<2> output(fileName.str(), mesh.get(), 0, 2);

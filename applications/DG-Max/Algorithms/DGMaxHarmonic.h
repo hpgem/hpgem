@@ -85,5 +85,5 @@ class DGMaxHarmonic : public DGMax::AbstractHarmonicSolver<DIM> {
     double stab_;
 };
 
-}
+}  // namespace DGMax
 #endif  // HPGEM_APP_DGMAXHARMONIC_H

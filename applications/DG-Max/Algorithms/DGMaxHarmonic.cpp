@@ -276,8 +276,9 @@ void DGMaxHarmonic<DIM>::solve(
 
         workspace.computeIntegrals(driver);
 
-        if (driver.hasChanged(HarmonicProblemChanges::OMEGA)
-            || driver.hasChanged(HarmonicProblemChanges::BOUNDARY_CONDITION_TYPE)) {
+        if (driver.hasChanged(HarmonicProblemChanges::OMEGA) ||
+            driver.hasChanged(
+                HarmonicProblemChanges::BOUNDARY_CONDITION_TYPE)) {
             workspace.assembleSolverMatrix(problem.omega());
         }
         workspace.solve();
