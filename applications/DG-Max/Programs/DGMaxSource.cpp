@@ -48,7 +48,6 @@
 #include <Algorithms/DGMaxDiscretization.h>
 #include <Algorithms/DivDGMaxDiscretization.h>
 
-
 auto& meshFileName = Base::register_argument<std::string>(
     'm', "meshFile", "The hpgem meshfile to use", true);
 
