@@ -279,7 +279,32 @@ void HarmonicSolver<DIM>::Workspace::solve() {
     DGMaxLogger(INFO, "Solving harmonic problem");
     error = KSPSolve(solver_, loadVector_, resultVector_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
-    DGMaxLogger(INFO, "Solved harmonic problem");
+
+    {
+        // Convergence diagnostics
+        PetscInt niters;
+        KSPGetIterationNumber(solver_, &niters);
+        KSPConvergedReason converged;
+        KSPGetConvergedReason(solver_, &converged);
+        const char* convergedReason;
+
+#if PETSC_VERSION_GE(3, 15, 0)
+        KSPGetConvergedReasonString(solver_, &convergedReason);
+#else
+        convergedReason = KSPConvergedReasons[converged];
+#endif
+
+        if (converged > 0) {
+            // Successful
+            DGMaxLogger(INFO,
+                        "Successfully converged in % iterations with reason %",
+                        niters, convergedReason);
+        } else {
+            DGMaxLogger(WARN,
+                        "Failed to converge in % iterations with reason %",
+                        niters, convergedReason);
+        }
+    }
     resultVector_.writeTimeIntegrationVector(VECTOR_ID);
 }
 
