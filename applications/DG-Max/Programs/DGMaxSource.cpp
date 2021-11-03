@@ -45,9 +45,9 @@
 #include <DGMaxLogger.h>
 #include <DGMaxProgramUtils.h>
 #include <Algorithms/DGMaxHarmonic.h>
-#include <Algorithms/DivDGMaxHarmonic.h>
-#include <ProblemTypes/Harmonic/SampleHarmonicProblems.h>
-#include <ProblemTypes/SingleProblemHarmonicDriver.h>
+#include <Algorithms/DGMaxDiscretization.h>
+#include <Algorithms/DivDGMaxDiscretization.h>
+
 
 auto& meshFileName = Base::register_argument<std::string>(
     'm', "meshFile", "The hpgem meshfile to use", true);

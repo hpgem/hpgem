@@ -44,7 +44,6 @@
 #include <DGMaxProgramUtils.h>
 #include <DGMaxLogger.h>
 #include <Algorithms/DGMaxHarmonic.h>
-#include <Algorithms/DivDGMaxHarmonic.h>
 #include <ProblemTypes/Harmonic/SampleHarmonicProblems.h>
 
 #include <petsc.h>

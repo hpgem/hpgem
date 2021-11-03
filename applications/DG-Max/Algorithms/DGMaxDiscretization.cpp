@@ -579,7 +579,7 @@ void DGMaxDiscretization<DIM>::writeFields(
 // particularly nice It might be better to pass the global vector here and
 // distribute it ourselves.
 template <std::size_t DIM>
-std::map<typename DGMaxDiscretization<DIM>::NormType, double>
+std::map<typename DGMaxDiscretizationBase::NormType, double>
     DGMaxDiscretization<DIM>::computeError(
         Base::MeshManipulator<DIM>& mesh, std::size_t timeVector,
         DGMaxDiscretization<DIM>::InputFunction electricField,

@@ -53,8 +53,8 @@
 #include "DGMaxProgramUtils.h"
 
 #include "Algorithms/DGMaxHarmonic.h"
+#include "Algorithms/DivDGMaxDiscretization.h"
 #include "Algorithms/DGMaxTimeIntegration.h"
-#include "Algorithms/DivDGMaxHarmonic.h"
 
 #include "ProblemTypes/Harmonic/SampleHarmonicProblems.h"
 #include "ProblemTypes/Time/SampleTestProblems.h"
@@ -101,7 +101,7 @@ int main(int argc, char** argv) {
     Base::ConfigurationData configData(numberOfUnknowns, numberOfTimeLevels);
     try {
         double stab = (p.getValue() + 1) * (p.getValue() + 3);
-        DivDGMaxDiscretization<DIM>::Stab divStab;
+        DivDGMaxDiscretizationBase::Stab divStab;
         // Values from the Jelmer fix code.
         divStab.stab1 = 100;
         // Note: for 2D harmonic it looks like that we need 10 instead of 0.01.
