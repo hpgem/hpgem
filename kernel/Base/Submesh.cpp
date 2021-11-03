@@ -36,7 +36,6 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "PhysicalElement.h"
 #include "Submesh.h"
 #include "Mesh.h"
 #include "Element.h"

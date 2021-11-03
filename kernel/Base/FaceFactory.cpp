@@ -36,7 +36,6 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "PhysicalElement.h"
 #include "FaceFactory.h"
 #include "Face.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
