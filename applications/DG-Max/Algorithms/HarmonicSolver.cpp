@@ -252,6 +252,14 @@ void HarmonicSolver<DIM>::Workspace::assembleSolverMatrix(double waveNumber) {
     CHKERRABORT(PETSC_COMM_WORLD, error);
     // Usually this is a subset, but sometimes the rounding is slightly
     // different and is not a subset. So using SUBSET_NONZERO would crash.
+
+    MatStructure structure;
+#if PETSC_VERSION_GE(3, 15, 0)
+    structure = UNKNOWN_NONZERO_PATTERN;
+#else
+    structure = DIFFERENT_NONZERO_PATTERN;
+#endif
+
     error = MatAXPY(solverMatrix_, waveNumber, stiffnessImpedanceMatrix_,
                     UNKNOWN_NONZERO_PATTERN);
     CHKERRABORT(PETSC_COMM_WORLD, error);
