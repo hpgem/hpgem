@@ -39,8 +39,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef HPGEM_APP_DGMAXHARMONIC_H
 #define HPGEM_APP_DGMAXHARMONIC_H
 
-#include "../ProblemTypes/AbstractHarmonicSolver.h"
 #include "../ProblemTypes/HarmonicProblem.h"
+#include "../ProblemTypes/AbstractHarmonicSolverDriver.h"
 
 #include "DGMaxDiscretization.h"
 #include "AbstractDiscretization.h"
@@ -49,17 +49,17 @@ namespace DGMax {
 
 /// \brief Solver for a harmonic problem to find the fields.
 template <std::size_t DIM>
-class DGMaxHarmonic : public DGMax::AbstractHarmonicSolver<DIM> {
+class HarmonicSolver {
    public:
-    DGMaxHarmonic(std::size_t order, double stab)
-        : DGMaxHarmonic(
+    HarmonicSolver(std::size_t order, double stab)
+        : HarmonicSolver(
               std::make_shared<DGMaxDiscretization<DIM>>(order, stab)){};
 
-    DGMaxHarmonic(std::shared_ptr<AbstractDiscretization<DIM>> discretization)
+    HarmonicSolver(std::shared_ptr<AbstractDiscretization<DIM>> discretization)
         : discretization_(discretization){};
 
     void solve(Base::MeshManipulator<DIM>& mesh,
-               DGMax::AbstractHarmonicSolverDriver<DIM>& driver) final;
+               DGMax::AbstractHarmonicSolverDriver<DIM>& driver);
 
    private:
     struct Result;

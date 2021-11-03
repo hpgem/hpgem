@@ -14,7 +14,7 @@ if(hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
 		Algorithms/DGMaxEigenvalue.cpp
 		Algorithms/DGMaxDiscretization.cpp
 		Algorithms/DGMaxTimeIntegration.cpp
-		Algorithms/DGMaxHarmonic.cpp
+		Algorithms/HarmonicSolver.cpp
 		Algorithms/DivDGMaxDiscretization.cpp
 		Algorithms/DivDGMaxEigenvalue.cpp
 

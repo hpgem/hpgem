@@ -39,7 +39,6 @@
 #define HPGEM_HARMONICERRORDRIVER_H
 
 #include <ProblemTypes/AbstractHarmonicSolverDriver.h>
-#include <ProblemTypes/AbstractHarmonicSolver.h>
 #include <Output/VTKSpecificTimeWriter.h>
 
 template <std::size_t dim>

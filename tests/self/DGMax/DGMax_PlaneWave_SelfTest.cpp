@@ -43,7 +43,7 @@
 #include <Base/CommandLineOptions.h>
 #include <DGMaxProgramUtils.h>
 #include <DGMaxLogger.h>
-#include <Algorithms/DGMaxHarmonic.h>
+#include <Algorithms/HarmonicSolver.h>
 #include <ProblemTypes/Harmonic/SampleHarmonicProblems.h>
 
 #include <petsc.h>
@@ -113,7 +113,7 @@ double solve(std::string meshFile, std::size_t level,
         DGMax::readMesh<2>(meshFile, &config, *problemData.structureDescription,
                            discretization->getNumberOfElementMatrices());
 
-    DGMaxHarmonic<2> solver(discretization);
+    HarmonicSolver<2> solver(discretization);
 
     std::stringstream fileName;
     fileName << "solution-dgmax-" << level;

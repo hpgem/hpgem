@@ -36,7 +36,7 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "DGMaxHarmonic.h"
+#include "HarmonicSolver.h"
 
 #include <petscksp.h>
 
@@ -50,10 +50,10 @@ using namespace hpgem;
 namespace DGMax {
 
 template <std::size_t DIM>
-class DGMaxHarmonic<DIM>::Result : public AbstractHarmonicResult<DIM> {
+class HarmonicSolver<DIM>::Result : public AbstractHarmonicResult<DIM> {
    public:
     Result(const HarmonicProblem<DIM>& problem,
-           DGMaxHarmonic<DIM>::Workspace& workspace)
+           HarmonicSolver<DIM>::Workspace& workspace)
         : problem_(&problem), workspace_(&workspace){};
 
     const HarmonicProblem<DIM>& solvedProblem() final { return *problem_; }
@@ -70,11 +70,11 @@ class DGMaxHarmonic<DIM>::Result : public AbstractHarmonicResult<DIM> {
 
    private:
     const HarmonicProblem<DIM>* problem_;
-    DGMaxHarmonic<DIM>::Workspace* workspace_;
+    HarmonicSolver<DIM>::Workspace* workspace_;
 };
 
 template <std::size_t DIM>
-class DGMaxHarmonic<DIM>::Workspace {
+class HarmonicSolver<DIM>::Workspace {
    public:
     Workspace(AbstractDiscretization<DIM>& discretization,
               Base::MeshManipulator<DIM>& mesh);
@@ -134,7 +134,7 @@ class DGMaxHarmonic<DIM>::Workspace {
 };
 
 template <std::size_t DIM>
-DGMaxHarmonic<DIM>::Workspace::Workspace(
+HarmonicSolver<DIM>::Workspace::Workspace(
     AbstractDiscretization<DIM>& discretization,
     Base::MeshManipulator<DIM>& mesh)
     : discretization_(&discretization),
@@ -164,7 +164,7 @@ DGMaxHarmonic<DIM>::Workspace::Workspace(
 }
 
 template <std::size_t DIM>
-DGMaxHarmonic<DIM>::Workspace::~Workspace() {
+HarmonicSolver<DIM>::Workspace::~Workspace() {
     if (solverMatrix_ != nullptr) {
         MatDestroy(&solverMatrix_);
     }
@@ -172,7 +172,7 @@ DGMaxHarmonic<DIM>::Workspace::~Workspace() {
 }
 
 template <std::size_t DIM>
-void DGMaxHarmonic<DIM>::Workspace::configureSolver() {
+void HarmonicSolver<DIM>::Workspace::configureSolver() {
     PetscErrorCode error;
 
     error = KSPSetTolerances(solver_, 1e-8, PETSC_DEFAULT, PETSC_DEFAULT,
@@ -184,7 +184,7 @@ void DGMaxHarmonic<DIM>::Workspace::configureSolver() {
 }
 
 template <std::size_t DIM>
-void DGMaxHarmonic<DIM>::Workspace::computeIntegrals(
+void HarmonicSolver<DIM>::Workspace::computeIntegrals(
     AbstractHarmonicSolverDriver<DIM>& driver) {
 
     logger.assert_always(mesh_ != nullptr,
@@ -246,7 +246,7 @@ void DGMaxHarmonic<DIM>::Workspace::computeIntegrals(
 }
 
 template <std::size_t DIM>
-void DGMaxHarmonic<DIM>::Workspace::assembleSolverMatrix(double waveNumber) {
+void HarmonicSolver<DIM>::Workspace::assembleSolverMatrix(double waveNumber) {
     PetscErrorCode error;
     error = MatCopy(stiffnessMatrix_, solverMatrix_, DIFFERENT_NONZERO_PATTERN);
     CHKERRABORT(PETSC_COMM_WORLD, error);
@@ -261,7 +261,7 @@ void DGMaxHarmonic<DIM>::Workspace::assembleSolverMatrix(double waveNumber) {
 }
 
 template <std::size_t DIM>
-void DGMaxHarmonic<DIM>::Workspace::solve() {
+void HarmonicSolver<DIM>::Workspace::solve() {
     PetscErrorCode error;
     DGMaxLogger(INFO, "Setting up solver");
     error = KSPSetOperators(solver_, solverMatrix_, solverMatrix_);
@@ -276,7 +276,7 @@ void DGMaxHarmonic<DIM>::Workspace::solve() {
 }
 
 template <std::size_t DIM>
-void DGMaxHarmonic<DIM>::solve(
+void HarmonicSolver<DIM>::solve(
     Base::MeshManipulator<DIM>& mesh,
     DGMax::AbstractHarmonicSolverDriver<DIM>& driver) {
     Workspace workspace(*discretization_, mesh);
@@ -298,7 +298,7 @@ void DGMaxHarmonic<DIM>::solve(
     }
 }
 
-template class DGMaxHarmonic<2>;
-template class DGMaxHarmonic<3>;
+template class HarmonicSolver<2>;
+template class HarmonicSolver<3>;
 
 }  // namespace DGMax

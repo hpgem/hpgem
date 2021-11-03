@@ -52,7 +52,7 @@
 #include "ElementInfos.h"
 #include "DGMaxProgramUtils.h"
 
-#include "Algorithms/DGMaxHarmonic.h"
+#include "Algorithms/HarmonicSolver.h"
 #include "Algorithms/DivDGMaxDiscretization.h"
 #include "Algorithms/DGMaxTimeIntegration.h"
 
@@ -128,7 +128,7 @@ int main(int argc, char** argv) {
         auto harmonicProblem =
             std::make_shared<DGMax::ConstantHarmonicProblem<DIM>>(1.0);
 
-        //        DGMaxHarmonic<DIM> harmonicSolver(*mesh, p.getValue());
+        //        HarmonicSolver<DIM> harmonicSolver(*mesh, p.getValue());
         //        harmonicSolver.solve(harmonicProblem, stab);
         //        auto errors = harmonicSolver.computeError(
         //            {DGMaxDiscretizationBase::L2,

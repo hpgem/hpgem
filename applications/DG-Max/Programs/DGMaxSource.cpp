@@ -44,7 +44,7 @@
 
 #include <DGMaxLogger.h>
 #include <DGMaxProgramUtils.h>
-#include <Algorithms/DGMaxHarmonic.h>
+#include <Algorithms/HarmonicSolver.h>
 #include <Algorithms/DGMaxDiscretization.h>
 #include <Algorithms/DivDGMaxDiscretization.h>
 
@@ -298,7 +298,7 @@ void runWithDimension() {
            mesh->getNumberOfElements());
     writeMesh<dim>("mesh", mesh.get());
 
-    DGMax::DGMaxHarmonic<dim> solver(discretization);
+    DGMax::HarmonicSolver<dim> solver(discretization);
     Driver<dim> driver(*mesh);
     solver.solve(*mesh, driver);
 }
