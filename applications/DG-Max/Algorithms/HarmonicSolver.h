@@ -42,7 +42,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../ProblemTypes/HarmonicProblem.h"
 #include "../ProblemTypes/AbstractHarmonicSolverDriver.h"
 
-#include "DGMaxDiscretization.h"
 #include "AbstractDiscretization.h"
 
 namespace DGMax {
@@ -51,10 +50,6 @@ namespace DGMax {
 template <std::size_t DIM>
 class HarmonicSolver {
    public:
-    HarmonicSolver(std::size_t order, double stab)
-        : HarmonicSolver(
-              std::make_shared<DGMaxDiscretization<DIM>>(order, stab)){};
-
     HarmonicSolver(std::shared_ptr<AbstractDiscretization<DIM>> discretization)
         : discretization_(discretization){};
 

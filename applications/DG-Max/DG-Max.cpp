@@ -53,6 +53,7 @@
 #include "DGMaxProgramUtils.h"
 
 #include "Algorithms/HarmonicSolver.h"
+#include "Algorithms/DGMaxDiscretization.h"
 #include "Algorithms/DivDGMaxDiscretization.h"
 #include "Algorithms/DGMaxTimeIntegration.h"
 

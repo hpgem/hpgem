@@ -140,14 +140,15 @@ HarmonicSolver<DIM>::Workspace::Workspace(
     : discretization_(&discretization),
       mesh_(&mesh),
       indexing_(nullptr),
-      massMatrix_(indexing_, DGMaxDiscretizationBase::MASS_MATRIX_ID, -1),
-      stiffnessMatrix_(indexing_, DGMaxDiscretizationBase::STIFFNESS_MATRIX_ID,
-                       DGMaxDiscretizationBase::FACE_STIFFNESS_MATRIX_ID),
+      massMatrix_(indexing_, AbstractDiscretizationBase::MASS_MATRIX_ID, -1),
+      stiffnessMatrix_(indexing_,
+                       AbstractDiscretizationBase::STIFFNESS_MATRIX_ID,
+                       AbstractDiscretizationBase::FACE_STIFFNESS_MATRIX_ID),
       stiffnessImpedanceMatrix_(
-          indexing_, -1, DGMaxDiscretizationBase::FACE_IMPEDANCE_MATRIX_ID),
+          indexing_, -1, AbstractDiscretizationBase::FACE_IMPEDANCE_MATRIX_ID),
       resultVector_(indexing_, -1, -1),
-      loadVector_(indexing_, DGMaxDiscretizationBase::ELEMENT_VECTOR_ID,
-                  DGMaxDiscretizationBase::FACE_VECTOR_ID),
+      loadVector_(indexing_, AbstractDiscretizationBase::ELEMENT_VECTOR_ID,
+                  AbstractDiscretizationBase::FACE_VECTOR_ID),
       solverMatrix_(nullptr),
       solver_(nullptr) {
     // Initialize the basis functions and indices after creating the matrices,
@@ -197,23 +198,25 @@ void HarmonicSolver<DIM>::Workspace::computeIntegrals(
 
     if (bctChanged ||
         driver.hasChanged(HarmonicProblemChanges::CURRENT_SOURCE)) {
-        std::map<std::size_t, typename DGMaxDiscretization<DIM>::InputFunction>
+        std::map<std::size_t,
+                 typename AbstractDiscretization<DIM>::InputFunction>
             elementVectors;
-        elementVectors[DGMaxDiscretization<DIM>::ELEMENT_VECTOR_ID] =
+        elementVectors[AbstractDiscretizationBase::ELEMENT_VECTOR_ID] =
             [&problem](const Geometry::PointPhysical<DIM>& p) {
                 return problem.sourceTerm(p);
             };
         discretization_->computeElementIntegrals(
             *mesh_, elementVectors,
-            bctChanged ? DGMaxDiscretizationBase::LocalIntegrals::ALL
-                       : DGMaxDiscretizationBase::LocalIntegrals::ONLY_VECTORS);
+            bctChanged
+                ? AbstractDiscretizationBase::LocalIntegrals::ALL
+                : AbstractDiscretizationBase::LocalIntegrals::ONLY_VECTORS);
     }
     if (bctChanged ||
         driver.hasChanged(HarmonicProblemChanges::BOUNDARY_CONDITION_VALUE)) {
         std::map<std::size_t,
-                 typename DGMaxDiscretization<DIM>::FaceInputFunction>
+                 typename AbstractDiscretization<DIM>::FaceInputFunction>
             faceVectors;
-        faceVectors[DGMaxDiscretization<DIM>::FACE_VECTOR_ID] =
+        faceVectors[AbstractDiscretizationBase::FACE_VECTOR_ID] =
             [&problem](Base::PhysicalFace<DIM>& pface) {
                 return problem.boundaryCondition(pface);
             };
@@ -222,8 +225,9 @@ void HarmonicSolver<DIM>::Workspace::computeIntegrals(
             [&problem](const Base::Face& face) {
                 return problem.getBoundaryConditionType(face);
             },
-            bctChanged ? DGMaxDiscretizationBase::LocalIntegrals::ALL
-                       : DGMaxDiscretizationBase::LocalIntegrals::ONLY_VECTORS);
+            bctChanged
+                ? AbstractDiscretizationBase::LocalIntegrals::ALL
+                : AbstractDiscretizationBase::LocalIntegrals::ONLY_VECTORS);
     }
     if (bctChanged) {
         DGMaxLogger(INFO, "Assembling global matrices vector");
