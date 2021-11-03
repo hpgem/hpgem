@@ -261,7 +261,7 @@ void HarmonicSolver<DIM>::Workspace::assembleSolverMatrix(double waveNumber) {
 #endif
 
     error = MatAXPY(solverMatrix_, waveNumber, stiffnessImpedanceMatrix_,
-                    UNKNOWN_NONZERO_PATTERN);
+                    structure);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     error = MatAXPY(solverMatrix_, -waveNumber * waveNumber, massMatrix_,
                     SUBSET_NONZERO_PATTERN);
