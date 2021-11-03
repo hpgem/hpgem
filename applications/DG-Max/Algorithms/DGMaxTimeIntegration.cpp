@@ -122,8 +122,7 @@ void DGMaxTimeIntegration<DIM>::solve(
             DGMaxDiscretization<DIM>::INITIAL_CONDITION_DERIVATIVE_VECTOR_ID,
             -1),
         rhsBoundary(indexing, -1, DGMaxDiscretization<DIM>::FACE_VECTOR_ID),
-        rhsSource(indexing, DGMaxDiscretization<DIM>::ELEMENT_VECTOR_ID,
-                  -1);
+        rhsSource(indexing, DGMaxDiscretization<DIM>::ELEMENT_VECTOR_ID, -1);
     std::cout << "GlobalPetscVector initialised" << std::endl;
     resultVector.assemble();
     std::cout << "resultVector assembled" << std::endl;

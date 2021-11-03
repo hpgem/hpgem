@@ -84,53 +84,26 @@ struct ProblemData {
     PlaneWaveReflectionProblem<3> problem;
 };
 
-double solveDGMax(std::string meshFile, std::size_t level) {
-    ProblemData problem;
+double solve(std::string meshFile, std::size_t level,
+             std::shared_ptr<AbstractDiscretization<3>> discretization,
+             std::string prefix) {
+    ProblemData problemData;
 
-    Base::ConfigurationData config(1);
+    Base::ConfigurationData config(discretization->getNumberOfUnknowns());
     auto mesh =
-        DGMax::readMesh<3>(meshFile, &config, *problem.structureDescription, 2);
+        DGMax::readMesh<3>(meshFile, &config, *problemData.structureDescription,
+                           discretization->getNumberOfElementMatrices());
 
-    DGMaxHarmonic<3> solver(*mesh, 100, 1);
-    HarmonicErrorDriver<3> driver(problem.problem);
+    DGMaxHarmonic<3> solver(discretization);
 
-    std::stringstream fileName;
-    fileName << "reflection-solution-dgmax-" << level;
-    Output::VTKSpecificTimeWriter<3> output(fileName.str(), mesh.get(), 0, 1);
+    std::stringstream outputfileName;
+    outputfileName << prefix << "-" << level;
+    Output::VTKSpecificTimeWriter<3> output(outputfileName.str(), mesh.get(), 0,
+                                            discretization->getOrder());
+    HarmonicErrorDriver<3> driver(problemData.problem);
     driver.setOutputPlotter(&output);
-
-    solver.solve(driver);
+    solver.solve(*mesh, driver);
     return driver.getError();
-}
-
-double solveDivDGMax(std::string meshFile, std::size_t level) {
-    ProblemData problem;
-
-    Base::ConfigurationData config(2);
-    auto mesh =
-        DGMax::readMesh<3>(meshFile, &config, *problem.structureDescription, 2);
-
-    DivDGMaxDiscretizationBase::Stab stab;
-    stab.stab1 = 5;
-    stab.stab2 = 0;
-    stab.stab3 = 1;
-    stab.setAllFluxeTypes(DivDGMaxDiscretizationBase::FluxType::BREZZI);
-
-    DivDGMaxHarmonic<3> solver(*mesh, stab, 1);
-    solver.solve(problem.problem);
-
-    std::stringstream fileName;
-    fileName << "reflection-solution-divdgmax-" << level;
-    Output::VTKSpecificTimeWriter<3> output(fileName.str(), mesh.get(), 0, 1);
-    solver.writeVTK(output);
-    output.write(
-        [&](Base::Element* element, const Geometry::PointReference<3>&,
-            std::size_t) {
-            return static_cast<ElementInfos*>(element->getUserData())->epsilon_;
-        },
-        "epsilon");
-
-    return solver.computeL2Error(problem.problem);
 }
 
 int main(int argc, char** argv) {
@@ -164,7 +137,12 @@ int main(int argc, char** argv) {
                                           3.55215886e-01,  //  2.10
                                           1.73896389e-01,  //  2.04
                                       }};
-    runConvergenceTest(meshesDGMax, ignoreFailures, &solveDGMax);
+    auto dgmax = std::make_shared<DGMaxDiscretization<3>>(1, 100);
+    runConvergenceTest(meshesDGMax, ignoreFailures,
+                       [&dgmax](std::string meshFile, std::size_t order) {
+                           return solve(meshFile, order, dgmax,
+                                        "reflection-solution-dgmax");
+                       });
 
     ConvergenceTestSet meshesDivDGMax = {getUnitCubeTetMeshes(1, 4),
                                          {
@@ -172,5 +150,15 @@ int main(int argc, char** argv) {
                                              4.76665783e-01,  //  2.14
                                              2.01204463e-01,  //  2.37
                                          }};
-    runConvergenceTest(meshesDivDGMax, ignoreFailures, &solveDivDGMax);
+    DivDGMaxDiscretizationBase::Stab stab;
+    stab.stab1 = 5;
+    stab.stab2 = 0;
+    stab.stab3 = 1;
+    stab.setAllFluxeTypes(DivDGMaxDiscretizationBase::FluxType::BREZZI);
+    auto divdgmax = std::make_shared<DivDGMaxDiscretization<3>>(1, stab);
+    runConvergenceTest(meshesDivDGMax, ignoreFailures,
+                       [&divdgmax](std::string meshFile, std::size_t order) {
+                           return solve(meshFile, order, divdgmax,
+                                        "reflection-solution-divdgmax");
+                       });
 }

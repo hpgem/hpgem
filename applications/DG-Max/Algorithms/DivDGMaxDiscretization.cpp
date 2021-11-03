@@ -114,11 +114,7 @@ DivDGMaxDiscretization<DIM>::DivDGMaxDiscretization(std::size_t order,
       fieldTransform_(
           std::make_shared<Base::HCurlConformingTransformation<DIM>>()),
       potentialTransform_(
-          std::make_shared<Base::H1ConformingTransformation<DIM>>()),
-      boundaryIndicator_([](const Base::Face&) {
-          // By default assume DIRICHLET boundary conditions
-          return DGMax::BoundaryConditionType::DIRICHLET;
-      }) {
+          std::make_shared<Base::H1ConformingTransformation<DIM>>()) {
     elementIntegrator_.setTransformation(fieldTransform_, 0);
     elementIntegrator_.setTransformation(potentialTransform_, 1);
     faceIntegrator_.setTransformation(fieldTransform_, 0);
@@ -178,6 +174,7 @@ template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::computeFaceIntegralsImpl(
     Base::MeshManipulator<DIM>& mesh,
     const std::map<std::size_t, FaceInputFunction>& boundaryVectors,
+    DGMax::BoundaryConditionIndicator boundaryIndicator,
     LocalIntegrals integrals) {
     LinearAlgebra::MiddleSizeMatrix faceMatrix;
 
@@ -195,7 +192,7 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegralsImpl(
         using BCT = DGMax::BoundaryConditionType;
         BCT bct = BCT::INTERNAL;
         if (!face->isInternal()) {
-            bct = boundaryIndicator_(*face);
+            bct = boundaryIndicator(*face);
         }
         if (integrals == LocalIntegrals::ALL) {
             faceMatrix = faceIntegrator_.integrate(

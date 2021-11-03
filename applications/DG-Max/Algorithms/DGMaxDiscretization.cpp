@@ -49,15 +49,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace hpgem;
 
 template <std::size_t DIM>
-DGMaxDiscretization<DIM>::DGMaxDiscretization(std::size_t order, double stab, bool includeProjector)
-    : order_ (order),
+DGMaxDiscretization<DIM>::DGMaxDiscretization(std::size_t order, double stab,
+                                              bool includeProjector)
+    : order_(order),
       stab_(stab),
       includeProjector_(includeProjector),
-      matrixHandling_(NORMAL),
-      boundaryIndicator_([](const Base::Face&) {
-          // By default assume DIRICHLET boundary conditions
-          return DGMax::BoundaryConditionType::DIRICHLET;
-      }) {
+      matrixHandling_(NORMAL) {
 
     transforms_.emplace_back(new Base::HCurlConformingTransformation<DIM>());
     if (includeProjector_) {
@@ -141,7 +138,9 @@ void DGMaxDiscretization<DIM>::computeElementIntegralsImpl(
 template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::computeFaceIntegralsImpl(
     Base::MeshManipulator<DIM>& mesh,
-    const std::map<std::size_t, FaceInputFunction>& boundaryVectors, LocalIntegrals integrals) {
+    const std::map<std::size_t, FaceInputFunction>& boundaryVectors,
+    DGMax::BoundaryConditionIndicator boundaryIndicator,
+    LocalIntegrals integrals) {
     MassMatrixHandling massMatrixHandling = matrixHandling_;
     logger.assert_always(
         !(massMatrixHandling == ORTHOGONALIZE && !boundaryVectors.empty()),
@@ -163,7 +162,7 @@ void DGMaxDiscretization<DIM>::computeFaceIntegralsImpl(
         Base::Face* face = *it;
 
         if (integrals == LocalIntegrals::ALL) {
-            computeFaceMatrix(face);
+            computeFaceMatrix(face, boundaryIndicator);
             postProcessFaceMatrices(face);
         }
 
@@ -178,7 +177,7 @@ void DGMaxDiscretization<DIM>::computeFaceIntegralsImpl(
             tempFaceVector.resize(numberOfBasisFunctions);
             using BCT = DGMax::BoundaryConditionType;
             BCT bct =
-                face->isInternal() ? BCT::INTERNAL : boundaryIndicator_(*face);
+                face->isInternal() ? BCT::INTERNAL : boundaryIndicator(*face);
             if (faceVectorDef.second) {
                 tempFaceVector = faIntegral.integrate(
                     face, [&](Base::PhysicalFace<DIM>& face) {
@@ -329,12 +328,13 @@ void DGMaxDiscretization<DIM>::elementInnerProduct(
 }
 
 template <std::size_t DIM>
-void DGMaxDiscretization<DIM>::computeFaceMatrix(Base::Face* face) {
+void DGMaxDiscretization<DIM>::computeFaceMatrix(
+    Base::Face* face, DGMax::BoundaryConditionIndicator boundaryIndicator) {
     std::size_t numDoFs = face->getNumberOfBasisFunctions(0);
     const bool internalFace = face->isInternal();
 
     using BCT = DGMax::BoundaryConditionType;
-    BCT bct = internalFace ? BCT::INTERNAL : boundaryIndicator_(*face);
+    BCT bct = internalFace ? BCT::INTERNAL : boundaryIndicator(*face);
 
     LinearAlgebra::MiddleSizeMatrix stiffnessMatrix(0, 0);
     if (!internalFace && DGMax::isNaturalBoundary(bct)) {
@@ -410,7 +410,8 @@ template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::postProcessFaceMatrices(Base::Face* face) const {
     if (matrixHandling_ == ORTHOGONALIZE) {
         // A reference to the matrix that will be updated in place.
-        Base::FaceMatrix& faceMatrix = face->getFaceMatrix(FACE_STIFFNESS_MATRIX_ID);
+        Base::FaceMatrix& faceMatrix =
+            face->getFaceMatrix(FACE_STIFFNESS_MATRIX_ID);
 
         bool isInternal = face->isInternal();
         std::size_t sideCount = isInternal ? 2 : 1;
@@ -445,7 +446,8 @@ void DGMaxDiscretization<DIM>::postProcessFaceMatrices(Base::Face* face) const {
 template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::faceVector(
     Base::PhysicalFace<DIM>& fa, const FaceInputFunction& boundaryCondition,
-    LinearAlgebra::MiddleSizeVector& ret, DGMax::BoundaryConditionType bct) const {
+    LinearAlgebra::MiddleSizeVector& ret,
+    DGMax::BoundaryConditionType bct) const {
 
     std::size_t numDoFs = fa.getNumberOfBasisFunctions();
     ret.resize(numDoFs);

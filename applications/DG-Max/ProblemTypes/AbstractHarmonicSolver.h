@@ -40,6 +40,7 @@
 
 #include "HarmonicProblem.h"
 #include "AbstractHarmonicSolverDriver.h"
+#include <Base/MeshManipulator.h>
 #include <Output/VTKSpecificTimeWriter.h>
 
 namespace DGMax {
@@ -53,7 +54,8 @@ class AbstractHarmonicSolver {
    public:
     virtual ~AbstractHarmonicSolver() = default;
 
-    virtual void solve(AbstractHarmonicSolverDriver<dim>& driver) = 0;
+    virtual void solve(hpgem::Base::MeshManipulator<dim>& mesh,
+                       AbstractHarmonicSolverDriver<dim>& driver) = 0;
 };
 
 }  // namespace DGMax

@@ -66,7 +66,8 @@ DGMaxEigenvalue<DIM>::DGMaxEigenvalue(Base::MeshManipulator<DIM>& mesh,
     : mesh_(mesh),
       order_(order),
       config_(config),
-      discretization_(order, config.stab_, config.useProjector_ != DGMaxEigenvalueBase::NONE) {
+      discretization_(order, config.stab_,
+                      config.useProjector_ != DGMaxEigenvalueBase::NONE) {
     discretization_.initializeBasisFunctions(mesh_);
 }
 
@@ -519,8 +520,8 @@ template <std::size_t DIM>
 void DGMaxEigenvalue<DIM>::SolverWorkspace::initStiffnessMatrixShifts() {
     DGMax::FaceMatrixKPhaseShiftBuilder<DIM> builder;
     builder.setMatrixExtractor([&](const Base::Face* face) {
-        const Base::FaceMatrix& faceMatrix =
-            face->getFaceMatrix(DGMaxDiscretizationBase::FACE_STIFFNESS_MATRIX_ID);
+        const Base::FaceMatrix& faceMatrix = face->getFaceMatrix(
+            DGMaxDiscretizationBase::FACE_STIFFNESS_MATRIX_ID);
         LinearAlgebra::MiddleSizeMatrix block1, block2;
         block1 =
             faceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::RIGHT);

@@ -43,6 +43,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../ProblemTypes/HarmonicProblem.h"
 
 #include "DGMaxDiscretization.h"
+#include "AbstractDiscretization.h"
 
 namespace DGMax {
 
@@ -50,37 +51,21 @@ namespace DGMax {
 template <std::size_t DIM>
 class DGMaxHarmonic : public DGMax::AbstractHarmonicSolver<DIM> {
    public:
-    DGMaxHarmonic(Base::MeshManipulator<DIM>& mesh, double stab,
-                  std::size_t order);
+    DGMaxHarmonic(std::size_t order, double stab)
+        : DGMaxHarmonic(
+              std::make_shared<DGMaxDiscretization<DIM>>(order, stab)){};
 
-    void solve(DGMax::AbstractHarmonicSolverDriver<DIM>& driver) final;
+    DGMaxHarmonic(std::shared_ptr<AbstractDiscretization<DIM>> discretization)
+        : discretization_(discretization){};
 
-    std::map<typename DGMaxDiscretization<DIM>::NormType, double> computeError(
-        const typename std::set<typename DGMaxDiscretization<DIM>::NormType>&
-            norms,
-        const typename DGMaxDiscretization<DIM>::InputFunction& exactSolution,
-        const typename DGMaxDiscretization<DIM>::InputFunction&
-            exactSolutionCurl);
-
-    std::map<typename DGMaxDiscretization<DIM>::NormType, double> computeError(
-        const std::set<typename DGMaxDiscretization<DIM>::NormType>& norms,
-        const ExactHarmonicProblem<DIM>& problem);
-
-    double computeL2Error(const ExactHarmonicProblem<DIM>& problem) {
-        return computeError({DGMaxDiscretizationBase::NormType::L2},
-                            problem)[DGMaxDiscretizationBase::NormType::L2];
-    }
-
-    void writeTec(std::string fileName) const;
-    void writeVTK(Output::VTKSpecificTimeWriter<DIM>& output) const;
+    void solve(Base::MeshManipulator<DIM>& mesh,
+               DGMax::AbstractHarmonicSolverDriver<DIM>& driver) final;
 
    private:
     struct Result;
     struct Workspace;
 
-    Base::MeshManipulator<DIM>& mesh_;
-    DGMaxDiscretization<DIM> discretization;
-    double stab_;
+    std::shared_ptr<AbstractDiscretization<DIM>> discretization_;
 };
 
 }  // namespace DGMax

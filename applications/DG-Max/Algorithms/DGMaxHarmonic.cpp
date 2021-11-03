@@ -50,40 +50,33 @@ using namespace hpgem;
 namespace DGMax {
 
 template <std::size_t DIM>
-DGMaxHarmonic<DIM>::DGMaxHarmonic(Base::MeshManipulator<DIM>& mesh, double stab,
-                                  std::size_t order)
-    : mesh_(mesh), discretization(order, stab) {
-    discretization.initializeBasisFunctions(mesh_);
-    discretization.setMatrixHandling(DGMaxDiscretizationBase::NORMAL);
-}
-
-template <std::size_t DIM>
 class DGMaxHarmonic<DIM>::Result : public AbstractHarmonicResult<DIM> {
    public:
-    Result(const HarmonicProblem<DIM>& problem, DGMaxHarmonic<DIM>& solver)
-        : problem_(&problem), solver_(&solver){};
+    Result(const HarmonicProblem<DIM>& problem,
+           DGMaxHarmonic<DIM>::Workspace& workspace)
+        : problem_(&problem), workspace_(&workspace){};
 
     const HarmonicProblem<DIM>& solvedProblem() final { return *problem_; }
 
     void writeVTK(Output::VTKSpecificTimeWriter<DIM>& output) final {
-        solver_->writeVTK(output);
+        workspace_->writeVTK(output);
     }
     double computeL2Error(const ExactHarmonicProblem<DIM>& solution) final {
-        return solver_->computeL2Error(solution);
+        return workspace_->computeL2Error(solution);
     }
-    Base::MeshManipulator<DIM>& getMesh() final { return solver_->mesh_; }
+    Base::MeshManipulator<DIM>& getMesh() final {
+        return workspace_->getMesh();
+    }
 
    private:
     const HarmonicProblem<DIM>* problem_;
-    DGMaxHarmonic<DIM>* solver_;
+    DGMaxHarmonic<DIM>::Workspace* workspace_;
 };
 
 template <std::size_t DIM>
 class DGMaxHarmonic<DIM>::Workspace {
    public:
-    static constexpr const std::size_t VECTOR_ID = 0;
-
-    Workspace(DGMaxDiscretization<DIM>& discretization,
+    Workspace(AbstractDiscretization<DIM>& discretization,
               Base::MeshManipulator<DIM>& mesh);
     ~Workspace();
 
@@ -106,10 +99,27 @@ class DGMaxHarmonic<DIM>::Workspace {
      */
     void solve();
 
-   public:
+    // Exposition to the solution
+    Base::MeshManipulator<DIM>& getMesh() { return *mesh_; }
+
+    double computeL2Error(const ExactHarmonicProblem<DIM>& solution) {
+        return discretization_->computeL2Error(
+            *mesh_, VECTOR_ID,
+            [&solution](const Geometry::PointPhysical<DIM>& p) {
+                return solution.exactSolution(p);
+            });
+    }
+
+    void writeVTK(Output::VTKSpecificTimeWriter<DIM>& output) {
+        discretization_->writeFields(output, VECTOR_ID);
+    }
+
+   private:
+    static constexpr const std::size_t VECTOR_ID = 0;
+
     void configureSolver();
 
-    DGMaxDiscretization<DIM>* discretization_;
+    AbstractDiscretization<DIM>* discretization_;
     Base::MeshManipulator<DIM>* mesh_;
 
     Utilities::GlobalIndexing indexing_;
@@ -125,7 +135,8 @@ class DGMaxHarmonic<DIM>::Workspace {
 
 template <std::size_t DIM>
 DGMaxHarmonic<DIM>::Workspace::Workspace(
-    DGMaxDiscretization<DIM>& discretization, Base::MeshManipulator<DIM>& mesh)
+    AbstractDiscretization<DIM>& discretization,
+    Base::MeshManipulator<DIM>& mesh)
     : discretization_(&discretization),
       mesh_(&mesh),
       indexing_(nullptr),
@@ -139,6 +150,9 @@ DGMaxHarmonic<DIM>::Workspace::Workspace(
                   DGMaxDiscretizationBase::FACE_VECTOR_ID),
       solverMatrix_(nullptr),
       solver_(nullptr) {
+    // Initialize the basis functions and indices after creating the matrices,
+    // so that the matrices are not yet assembled.
+    discretization_->initializeBasisFunctions(*mesh_);
     indexing_.reset(mesh_, Utilities::GlobalIndexing::BLOCKED_GLOBAL);
     resultVector_.reinit();
 
@@ -205,6 +219,9 @@ void DGMaxHarmonic<DIM>::Workspace::computeIntegrals(
             };
         discretization_->computeFaceIntegrals(
             *mesh_, faceVectors,
+            [&problem](const Base::Face& face) {
+                return problem.getBoundaryConditionType(face);
+            },
             bctChanged ? DGMaxDiscretizationBase::LocalIntegrals::ALL
                        : DGMaxDiscretizationBase::LocalIntegrals::ONLY_VECTORS);
     }
@@ -260,17 +277,13 @@ void DGMaxHarmonic<DIM>::Workspace::solve() {
 
 template <std::size_t DIM>
 void DGMaxHarmonic<DIM>::solve(
+    Base::MeshManipulator<DIM>& mesh,
     DGMax::AbstractHarmonicSolverDriver<DIM>& driver) {
-    Workspace workspace(discretization, mesh_);
+    Workspace workspace(*discretization_, mesh);
 
     while (!driver.stop()) {
         driver.nextProblem();
         const HarmonicProblem<DIM>& problem = driver.currentProblem();
-
-        discretization.setBoundaryIndicator([&problem](const Base::Face& face) {
-            return problem.getBoundaryConditionType(face);
-        });
-
         workspace.computeIntegrals(driver);
 
         if (driver.hasChanged(HarmonicProblemChanges::OMEGA) ||
@@ -280,71 +293,9 @@ void DGMaxHarmonic<DIM>::solve(
         }
         workspace.solve();
 
-        Result result(problem, *this);
+        Result result(problem, workspace);
         driver.handleResult(result);
     }
-}
-
-template <std::size_t DIM>
-std::map<typename DGMaxDiscretization<DIM>::NormType, double>
-    DGMaxHarmonic<DIM>::computeError(
-        const std::set<typename DGMaxDiscretization<DIM>::NormType>& norms,
-        const typename DGMaxDiscretization<DIM>::InputFunction& exactSolution,
-        const typename DGMaxDiscretization<DIM>::InputFunction&
-            exactSolutionCurl) {
-    // Note, this only works by grace of distributing the solution as
-    // timeIntegrationVector
-    return discretization.computeError(mesh_,
-                                       0,  // The abused time vector
-                                       exactSolution, exactSolutionCurl, norms);
-}
-
-template <std::size_t DIM>
-std::map<typename DGMaxDiscretization<DIM>::NormType, double>
-    DGMaxHarmonic<DIM>::computeError(
-        const std::set<typename DGMaxDiscretization<DIM>::NormType>& norms,
-        const ExactHarmonicProblem<DIM>& problem) {
-    return computeError(norms,
-                        std::bind(&ExactHarmonicProblem<DIM>::exactSolution,
-                                  std::ref(problem), std::placeholders::_1),
-                        std::bind(&ExactHarmonicProblem<DIM>::exactSolutionCurl,
-                                  std::ref(problem), std::placeholders::_1));
-}
-
-template <std::size_t DIM>
-void DGMaxHarmonic<DIM>::writeTec(std::string fileName) const {
-    std::ofstream fileWriter;
-    fileWriter.open(fileName);
-    Output::TecplotDiscontinuousSolutionWriter<DIM> tecplotWriter(
-        fileWriter, "The electric field", "012", "E0,E1,E2,H0,H1,H2");
-
-    logger.log(Log::WARN, "The magnetic field output is incorrectly computed.");
-
-    std::string zoneName("field");  // Dummy
-    tecplotWriter.write(
-        &mesh_, zoneName, false,
-        [&](const Base::Element* element,
-            const Geometry::PointReference<DIM>& point, std::ostream& stream) {
-            const LinearAlgebra::MiddleSizeVector coefficients =
-                element->getTimeIntegrationVector(0);
-            LinearAlgebra::SmallVector<DIM> electricField =
-                discretization.computeField(element, point, coefficients);
-            // TODO: Note that we computeCurlField already converts to real
-            // numbers, so we can not compute H = i/(omega mu) curl E
-            LinearAlgebra::SmallVector<DIM> curlField =
-                discretization.computeCurlField(element, point, coefficients);
-            stream << electricField[0] << " " << electricField[1] << " "
-                   << electricField[2] << " " << curlField[0] << " "
-                   << curlField[1] << " " << curlField[2] << std::endl;
-        });
-
-    fileWriter.close();
-}
-
-template <std::size_t DIM>
-void DGMaxHarmonic<DIM>::writeVTK(
-    Output::VTKSpecificTimeWriter<DIM>& output) const {
-    discretization.writeFields(output, 0);
 }
 
 template class DGMaxHarmonic<2>;

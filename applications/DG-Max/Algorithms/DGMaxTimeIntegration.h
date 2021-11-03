@@ -58,7 +58,8 @@ class DGMaxTimeIntegration {
    public:
     enum IntegrationMethod { CO2, CO4 };
 
-    DGMaxTimeIntegration(Base::MeshManipulator<DIM>& mesh, std::size_t order, double stab);
+    DGMaxTimeIntegration(Base::MeshManipulator<DIM>& mesh, std::size_t order,
+                         double stab);
     ~DGMaxTimeIntegration();
     void solve(const SeparableTimeIntegrationProblem<DIM>& input,
                TimeIntegrationParameters<DIM> parameters);

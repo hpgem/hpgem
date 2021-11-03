@@ -266,57 +266,41 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
 
 template <std::size_t dim>
 void runWithDimension() {
-    bool divdgmax;
-    std::size_t unknowns;
+    std::shared_ptr<DGMax::AbstractDiscretization<dim>> discretization;
+
     if (method.getValue() == "DivDGMax") {
-        divdgmax = true;
-        unknowns = 2;
-    } else if (method.getValue() == "DGMax") {
-        divdgmax = false;
-        unknowns = 1;
-    } else {
-        logger(ERROR, "Unkown method %", method.getValue());
-        return;
-    }
-
-    std::size_t numberOfElementMatrices = 2;
-
-    Base::ConfigurationData configData(unknowns, 1);
-    auto structure =
-        DGMax::determineStructureDescription(structureString.getValue(), dim);
-
-    auto mesh = DGMax::readMesh<dim>(meshFileName.getValue(), &configData,
-                                     *structure, numberOfElementMatrices);
-    logger(INFO, "Loaded mesh % with % local elements", meshFileName.getValue(),
-           mesh->getNumberOfElements());
-    writeMesh<dim>("mesh", mesh.get());
-
-    std::unique_ptr<DGMax::AbstractHarmonicSolver<dim>> solver;
-
-    if (divdgmax) {
         // Placeholder for more complicate fluxes
         DivDGMaxDiscretizationBase::Stab stab;
         stab.stab1 = 105;
         stab.stab2 = 0;
         stab.stab3 = 500;
         stab.setAllFluxeTypes(DivDGMaxDiscretization<dim>::FluxType::IP);
-
-        solver = std::make_unique<DGMax::DivDGMaxHarmonic<dim>>(
-            *mesh, stab, order.getValue());
-    } else {
+        discretization = std::make_shared<DivDGMaxDiscretization<dim>>(
+            order.getValue(), stab);
+    } else if (method.getValue() == "DGMax") {
         double stab = 100;
-        solver = std::make_unique<DGMax::DGMaxHarmonic<dim>>(*mesh, stab,
-                                                             order.getValue());
+        discretization =
+            std::make_shared<DGMaxDiscretization<dim>>(order.getValue(), stab);
+    } else {
+        logger(ERROR, "Unkown method %", method.getValue());
+        return;
     }
 
-    // Problem definition
-    //    std::unique_ptr<HarmonicProblem<dim>> problem;
-    //    problem = std::make_unique<DGMax::ConstantHarmonicProblem<dim>>(1.0);
-    //    problem = std::make_unique<TestingProblem<dim>>();
+    Base::ConfigurationData configData(discretization->getNumberOfUnknowns(),
+                                       1);
+    auto structure =
+        DGMax::determineStructureDescription(structureString.getValue(), dim);
 
+    auto mesh =
+        DGMax::readMesh<dim>(meshFileName.getValue(), &configData, *structure,
+                             discretization->getNumberOfElementMatrices());
+    logger(INFO, "Loaded mesh % with % local elements", meshFileName.getValue(),
+           mesh->getNumberOfElements());
+    writeMesh<dim>("mesh", mesh.get());
+
+    DGMax::DGMaxHarmonic<dim> solver(discretization);
     Driver<dim> driver(*mesh);
-
-    solver->solve(driver);
+    solver.solve(*mesh, driver);
 }
 
 template <std::size_t DIM>

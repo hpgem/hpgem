@@ -223,6 +223,10 @@ class PhysicalElement final : public CoordinateTransformationData<DIM> {
 
    private:
     const Base::Element *theElement_;
+    // Caching for when element becomes invalid
+    std::size_t numberfOfUnknowns;
+    std::size_t totalNumberOfBasisFunctions;
+
     Geometry::PointReference<DIM> pointReference_;
     QuadratureRules::GaussQuadratureRule *quadratureRule_;
     const Geometry::MappingReferenceToReference<1> *faceToElementMap_;

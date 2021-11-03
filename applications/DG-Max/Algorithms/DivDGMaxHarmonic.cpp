@@ -95,9 +95,6 @@ void DivDGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& input) {
     PetscErrorCode error;
     using Discretization = DivDGMaxDiscretization<DIM>;
 
-    discretization_.setBoundaryIndicator(
-        std::bind(&HarmonicProblem<DIM>::getBoundaryConditionType, &input,
-                  std::placeholders::_1));
     {
         std::map<std::size_t, typename Discretization::InputFunction>
             elementVecs = {{Discretization::ELEMENT_VECTOR_ID,
@@ -110,7 +107,10 @@ void DivDGMaxHarmonic<DIM>::solve(const HarmonicProblem<DIM>& input) {
             faceVecs = {{Discretization::FACE_VECTOR_ID,
                          std::bind(&HarmonicProblem<DIM>::boundaryCondition,
                                    std::ref(input), std::placeholders::_1)}};
-        discretization_.computeFaceIntegrals(mesh_, faceVecs);
+        discretization_.computeFaceIntegrals(
+            mesh_, faceVecs,
+            std::bind(&HarmonicProblem<DIM>::getBoundaryConditionType, &input,
+                      std::placeholders::_1));
     }
 
     Utilities::GlobalIndexing indexing(&mesh_);

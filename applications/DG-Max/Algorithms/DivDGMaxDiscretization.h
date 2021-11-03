@@ -144,12 +144,12 @@ class DivDGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
 
     DivDGMaxDiscretization(std::size_t order, Stab stab);
 
-    void initializeBasisFunctions(Base::MeshManipulator<DIM>& mesh) const final;
+    size_t getOrder() const override { return order_; }
+    size_t getNumberOfUnknowns() const override { return 2; }
+    size_t getNumberOfElementMatrices() const override { return 2; }
+    size_t getNumberOfFaceMatrices() const override { return 2; }
 
-    /// Set the indicator function for the boundary condition to use
-    void setBoundaryIndicator(DGMax::BoundaryConditionIndicator indicator) {
-        boundaryIndicator_ = indicator;
-    }
+    void initializeBasisFunctions(Base::MeshManipulator<DIM>& mesh) const final;
 
     // TODO: LJ include the same norms as in DGMaxDiscretization
     double computeL2Error(Base::MeshManipulator<DIM>& mesh,
@@ -179,7 +179,6 @@ class DivDGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
                      std::size_t timeIntegrationVectorId) const final;
 
    private:
-
     void computeElementIntegralsImpl(
         Base::MeshManipulator<DIM>& mesh,
         const std::map<std::size_t, InputFunction>& elementVectors,
@@ -188,8 +187,8 @@ class DivDGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
     void computeFaceIntegralsImpl(
         Base::MeshManipulator<DIM>& mesh,
         const std::map<std::size_t, FaceInputFunction>& boundaryVectors,
+        DGMax::BoundaryConditionIndicator indicator,
         LocalIntegrals integrals) final;
-
 
     /// Compute Mass and Stiffness matrix for the element
     void computeElementMatrices(Base::Element* element,
@@ -322,8 +321,6 @@ class DivDGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
     Integration::FaceIntegral<DIM> faceIntegrator_;
     std::shared_ptr<Base::HCurlConformingTransformation<DIM>> fieldTransform_;
     std::shared_ptr<Base::H1ConformingTransformation<DIM>> potentialTransform_;
-
-    DGMax::BoundaryConditionIndicator boundaryIndicator_;
 };
 
 // TODO: Deduction fails for a templated variant, hence using explicit versions

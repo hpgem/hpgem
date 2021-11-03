@@ -103,46 +103,28 @@ struct ProblemData {
 const LinearAlgebra::SmallVector<2> ProblemData::k{1 * M_PI, 0.5 * M_PI};
 const LinearAlgebra::SmallVectorC<2> ProblemData::E0{0.5, -1};
 
-double solveDGMax(std::string meshFile, std::size_t level) {
+double solve(std::string meshFile, std::size_t level,
+             std::shared_ptr<AbstractDiscretization<2>> discretization,
+             std::string prefix) {
 
     ProblemData problemData;
-    Base::ConfigurationData config(1);
-    auto mesh = DGMax::readMesh<2>(meshFile, &config,
-                                   *problemData.structureDescription, 2);
-    DGMaxHarmonic<2> solver(*mesh, 100, 2);
-    HarmonicErrorDriver<2> driver(problemData.problem);
+    Base::ConfigurationData config(discretization->getNumberOfUnknowns());
+
+    auto mesh =
+        DGMax::readMesh<2>(meshFile, &config, *problemData.structureDescription,
+                           discretization->getNumberOfElementMatrices());
+
+    DGMaxHarmonic<2> solver(discretization);
+
     std::stringstream fileName;
     fileName << "solution-dgmax-" << level;
     Output::VTKSpecificTimeWriter<2> output(fileName.str(), mesh.get(), 0, 2);
+
+    HarmonicErrorDriver<2> driver(problemData.problem);
     driver.setOutputPlotter(&output);
 
-    solver.solve(driver);
+    solver.solve(*mesh, driver);
     return driver.getError();
-}
-
-double solveDivDGMax(std::string meshFile, std::size_t level) {
-    ProblemData problemData;
-
-    Base::ConfigurationData config(2);
-    auto mesh = DGMax::readMesh<2>(meshFile, &config,
-                                   *problemData.structureDescription, 2);
-
-    // Prepare the plotting code. The result is only used for manual inspection.
-    std::stringstream fileName;
-    fileName << "solution-divdgmax-" << level;
-    Output::VTKSpecificTimeWriter<2> output(fileName.str(), mesh.get(), 0, 2);
-
-    DivDGMaxDiscretizationBase::Stab stab;
-    stab.stab1 = 105;
-    stab.stab2 = 0;
-    stab.stab3 = 10;
-    stab.setAllFluxeTypes(DivDGMaxDiscretizationBase::FluxType::IP);
-
-    DivDGMaxHarmonic<2> solver(*mesh, stab, 2);
-    solver.solve(problemData.problem);
-    solver.writeVTK(output);
-
-    return solver.computeL2Error(problemData.problem);
 }
 
 int main(int argc, char** argv) {
@@ -170,6 +152,8 @@ int main(int argc, char** argv) {
 
     // Using second order Nedelec basis functions. So convergence rate for the
     // L2 norm is expected at h^{p} => reduction of a factor 4 with each level
+    auto dgmax = std::make_shared<DGMaxDiscretization<2>>(2, 100);
+
     ConvergenceTestSet meshes = {getUnitSquareTriangleMeshes(),
                                  {
                                      2.32455311e-01,  //------
@@ -180,7 +164,12 @@ int main(int argc, char** argv) {
                                      3.09147735e-04,  //  4.00
                                      7.72701909e-05,  //  4.00
                                  }};
-    runConvergenceTest(meshes, ignoreFailures, &solveDGMax);
+    runConvergenceTest(meshes, ignoreFailures,
+                       [&dgmax](std::string meshFile, std::size_t order) {
+                           return solve(meshFile, order, dgmax,
+                                        "planewave-solution-dgmax");
+                       });
+
     ConvergenceTestSet meshes2 = {getUnitSquareTriangleMeshes(0, 6),
                                   {
                                       2.50221220e-01,  //------
@@ -190,5 +179,16 @@ int main(int argc, char** argv) {
                                       1.23693191e-03,  //  4.00
                                       3.09147016e-04,  //  4.00
                                   }};
-    runConvergenceTest(meshes2, ignoreFailures, &solveDivDGMax);
+    DivDGMaxDiscretizationBase::Stab stab;
+    stab.stab1 = 105;
+    stab.stab2 = 0;
+    stab.stab3 = 10;
+    stab.setAllFluxeTypes(DivDGMaxDiscretizationBase::FluxType::IP);
+    auto divdgmax = std::make_shared<DivDGMaxDiscretization<2>>(2, stab);
+
+    runConvergenceTest(meshes2, ignoreFailures,
+                       [&divdgmax](std::string meshFile, std::size_t order) {
+                           return solve(meshFile, order, divdgmax,
+                                        "planewave-solution-divdgmax");
+                       });
 }

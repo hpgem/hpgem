@@ -49,6 +49,8 @@
 #include <LinearAlgebra/MiddleSizeVector.h>
 #include <Output/VTKSpecificTimeWriter.h>
 
+#include "../ProblemTypes/BoundaryConditionType.h"
+
 namespace DGMax {
 
 class AbstractDiscretizationBase {
@@ -82,6 +84,11 @@ class AbstractDiscretizationBase {
          */
         ONLY_VECTORS
     };
+
+    virtual std::size_t getOrder() const = 0;
+    virtual std::size_t getNumberOfUnknowns() const = 0;
+    virtual std::size_t getNumberOfElementMatrices() const = 0;
+    virtual std::size_t getNumberOfFaceMatrices() const = 0;
 };
 
 template <std::size_t dim>
@@ -109,14 +116,18 @@ class AbstractDiscretization : public AbstractDiscretizationBase {
     void computeFaceIntegrals(
         hpgem::Base::MeshManipulator<dim>& mesh,
         const std::map<std::size_t, FaceInputFunction>& faceVectors,
+        BoundaryConditionIndicator boundaryIndicator =
+            [](const hpgem::Base::Face&) {
+                return BoundaryConditionType::DIRICHLET;
+            },
         LocalIntegrals integrals = LocalIntegrals::ALL) {
-        computeFaceIntegralsImpl(mesh, faceVectors, integrals);
+        computeFaceIntegralsImpl(mesh, faceVectors, boundaryIndicator,
+                                 integrals);
     }
 
-
     virtual double computeL2Error(hpgem::Base::MeshManipulator<dim>& mesh,
-                        std::size_t timeIntegrationVectorId,
-                        InputFunction electricField) = 0;
+                                  std::size_t timeIntegrationVectorId,
+                                  InputFunction electricField) = 0;
 
     virtual FieldT computeField(
         const hpgem::Base::Element* element, const PointReferenceT& p,
@@ -126,10 +137,9 @@ class AbstractDiscretization : public AbstractDiscretizationBase {
         const hpgem::LinearAlgebra::MiddleSizeVector& coefficients) const = 0;
 
     virtual void writeFields(hpgem::Output::VTKSpecificTimeWriter<dim>& writer,
-                     std::size_t timeIntegrationVectorId) const = 0;
+                             std::size_t timeIntegrationVectorId) const = 0;
 
    protected:
-
     virtual void computeElementIntegralsImpl(
         hpgem::Base::MeshManipulator<dim>& mesh,
         const std::map<std::size_t, InputFunction>& elementVectors,
@@ -138,6 +148,7 @@ class AbstractDiscretization : public AbstractDiscretizationBase {
     virtual void computeFaceIntegralsImpl(
         hpgem::Base::MeshManipulator<dim>& mesh,
         const std::map<std::size_t, FaceInputFunction>& faceVectors,
+        BoundaryConditionIndicator boundaryIndicator,
         LocalIntegrals integrals) = 0;
 };
 
