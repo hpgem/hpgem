@@ -47,9 +47,9 @@ using namespace hpgem;
 
 template <std::size_t DIM>
 DGMaxTimeIntegration<DIM>::DGMaxTimeIntegration(
-    Base::MeshManipulator<DIM>& mesh, std::size_t order)
-    : mesh_(mesh), discretization(), snapshotTime(nullptr) {
-    discretization.initializeBasisFunctions(mesh_, order);
+    Base::MeshManipulator<DIM>& mesh, std::size_t order, double stab)
+    : mesh_(mesh), discretization(order, stab), snapshotTime(nullptr) {
+    discretization.initializeBasisFunctions(mesh_);
 }
 
 template <std::size_t DIM>
@@ -84,7 +84,7 @@ void DGMaxTimeIntegration<DIM>::solve(
     std::map<std::size_t, typename DGMaxDiscretization<DIM>::InputFunction>
         elementVectors;
 
-    elementVectors[DGMaxDiscretizationBase::SOURCE_TERM_VECTOR_ID] =
+    elementVectors[DGMaxDiscretizationBase::ELEMENT_VECTOR_ID] =
         std::bind(&SeparableTimeIntegrationProblem<DIM>::sourceTermRef,
                   std::ref(input), _1);
     elementVectors[DGMaxDiscretizationBase::INITIAL_CONDITION_VECTOR_ID] =
@@ -96,7 +96,7 @@ void DGMaxTimeIntegration<DIM>::solve(
                       std::ref(input), _1);
 
     discretization.setMatrixHandling(DGMaxDiscretizationBase::INVERT);
-    discretization.computeElementIntegrands(mesh_, elementVectors);
+    discretization.computeElementIntegrals(mesh_, elementVectors);
 
     std::map<std::size_t, typename DGMaxDiscretization<DIM>::FaceInputFunction>
         faceVectors;
@@ -104,7 +104,7 @@ void DGMaxTimeIntegration<DIM>::solve(
         std::bind(&SeparableTimeIntegrationProblem<DIM>::boundaryConditionRef,
                   std::ref(input), _1);
 
-    discretization.computeFaceIntegrals(mesh_, faceVectors, parameters.stab);
+    discretization.computeFaceIntegrals(mesh_, faceVectors);
     //    MHasToBeInverted_ = true;
     //    assembler->fillMatrices(this);
 
@@ -113,7 +113,7 @@ void DGMaxTimeIntegration<DIM>::solve(
     Utilities::GlobalPetscMatrix massMatrix(
         indexing, DGMaxDiscretization<DIM>::MASS_MATRIX_ID, -1),
         stiffnessMatrix(indexing, DGMaxDiscretization<DIM>::STIFFNESS_MATRIX_ID,
-                        DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
+                        DGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID);
     std::cout << "GlobalPetscMatrix initialised" << std::endl;
     Utilities::GlobalPetscVector resultVector(
         indexing, DGMaxDiscretization<DIM>::INITIAL_CONDITION_VECTOR_ID, -1),
@@ -122,8 +122,7 @@ void DGMaxTimeIntegration<DIM>::solve(
             DGMaxDiscretization<DIM>::INITIAL_CONDITION_DERIVATIVE_VECTOR_ID,
             -1),
         rhsBoundary(indexing, -1, DGMaxDiscretization<DIM>::FACE_VECTOR_ID),
-        rhsSource(indexing, DGMaxDiscretization<DIM>::SOURCE_TERM_VECTOR_ID,
-                  -1);
+        rhsSource(indexing, DGMaxDiscretization<DIM>::ELEMENT_VECTOR_ID, -1);
     std::cout << "GlobalPetscVector initialised" << std::endl;
     resultVector.assemble();
     std::cout << "resultVector assembled" << std::endl;

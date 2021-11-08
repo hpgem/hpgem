@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2014, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,48 +35,45 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef HPGEM_HARMONICERRORDRIVER_H
+#define HPGEM_HARMONICERRORDRIVER_H
 
-#include "FaceFactory.h"
-#include "Face.h"
-#include "LinearAlgebra/MiddleSizeVector.h"
-#include "GlobalUniqueIndex.h"
+#include <ProblemTypes/AbstractHarmonicSolverDriver.h>
+#include <Output/VTKSpecificTimeWriter.h>
 
-namespace hpgem {
+template <std::size_t dim>
+class HarmonicErrorDriver : public DGMax::AbstractHarmonicSolverDriver<dim> {
+   public:
+    HarmonicErrorDriver(ExactHarmonicProblem<dim>& problem)
+        : problem_(&problem),
+          nextCalled_(false),
+          errorResult_(std::nan("")),
+          plotter_(nullptr){};
 
-namespace Base {
+    bool stop() const override { return nextCalled_; }
+    void nextProblem() override { nextCalled_ = true; }
 
-FaceFactory::FaceFactory()
-    : numberOfFaceMatrices_(0), numberOfFaceVectors_(0) {}
+    const HarmonicProblem<dim>& currentProblem() const override {
+        return *problem_;
+    }
+    void handleResult(DGMax::AbstractHarmonicResult<dim>& result) override {
+        errorResult_ = result.computeL2Error(*problem_);
+        if (plotter_ != nullptr) {
+            result.writeVTK(*plotter_);
+        }
+    }
 
-Face* FaceFactory::makeFace(Element* leftElementPtr,
-                            std::size_t leftElementLocalFaceNo,
-                            Geometry::FaceType faceType) {
-    logger.assert_debug(leftElementPtr != nullptr, "Invalid element passed");
-    return new Face(leftElementPtr, leftElementLocalFaceNo, faceType,
-                    GlobalUniqueIndex::instance().getFaceIndex(),
-                    numberOfFaceMatrices_, numberOfFaceVectors_);
-}
-Face* FaceFactory::makeFace(Element* leftElementPtr,
-                            std::size_t leftElementLocalFaceNo,
-                            Element* rightElementPtr,
-                            std::size_t rightElementLocalFaceNo) {
-    logger.assert_debug(leftElementPtr != nullptr, "Invalid element passed");
-    logger.assert_debug(rightElementPtr != nullptr,
-                        "This routine is intended for internal faces");
-    return new Face(leftElementPtr, leftElementLocalFaceNo, rightElementPtr,
-                    rightElementLocalFaceNo,
-                    GlobalUniqueIndex::instance().getFaceIndex(),
-                    numberOfFaceMatrices_, numberOfFaceVectors_);
-}
+    double getError() { return errorResult_; }
 
-void FaceFactory::setNumberOfFaceMatrices(std::size_t matrices) {
-    numberOfFaceMatrices_ = matrices;
-}
+    void setOutputPlotter(Output::VTKSpecificTimeWriter<dim>* plotter) {
+        plotter_ = plotter;
+    }
 
-void FaceFactory::setNumberOfFaceVectors(std::size_t vectors) {
-    numberOfFaceVectors_ = vectors;
-}
+   private:
+    ExactHarmonicProblem<dim>* problem_;
+    bool nextCalled_;
+    double errorResult_;
+    Output::VTKSpecificTimeWriter<dim>* plotter_;
+};
 
-}  // namespace Base
-
-}  // namespace hpgem
+#endif  // HPGEM_HARMONICERRORDRIVER_H

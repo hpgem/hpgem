@@ -655,32 +655,31 @@ inline void PhysicalElement<DIM>::setPointReference(
 
 template <std::size_t DIM>
 inline void PhysicalElement<DIM>::setElement(const Element* element) {
-    if (!hasElement || element->getTotalNumberOfBasisFunctions() !=
-                           theElement_->getTotalNumberOfBasisFunctions()) {
+    std::size_t unknowns = element->getNumberOfUnknowns();
+    if (!hasElement || basisFunctionValue.size() != unknowns) {
         basisFunctionValue.resize(element->getNumberOfUnknowns());
         vectorBasisFunctionValue.resize(element->getNumberOfUnknowns());
         basisFunctionDeriv_.resize(element->getNumberOfUnknowns());
         basisFunctionCurl_.resize(element->getNumberOfUnknowns());
         basisFunctionDiv_.resize(element->getNumberOfUnknowns());
-        std::size_t numberOfEntries = 0;
-        for (std::size_t i = 0; i < element->getNumberOfUnknowns(); ++i) {
-            numberOfEntries += element->getNumberOfBasisFunctions(i);
-            basisFunctionValue[i].resize(element->getNumberOfBasisFunctions(i));
-            vectorBasisFunctionValue[i].resize(
-                element->getNumberOfBasisFunctions(i));
-            basisFunctionDeriv_[i].resize(
-                element->getNumberOfBasisFunctions(i));
-            basisFunctionCurl_[i].resize(element->getNumberOfBasisFunctions(i));
-            basisFunctionDiv_[i].resize(element->getNumberOfBasisFunctions(i));
-        }
-        resultMatrix.resize(numberOfEntries, numberOfEntries);
-        resultVector.resize(numberOfEntries);
     }
+
+    std::size_t numberOfEntries = 0;
+    for (std::size_t i = 0; i < element->getNumberOfUnknowns(); ++i) {
+        numberOfEntries += element->getNumberOfBasisFunctions(i);
+        basisFunctionValue[i].resize(element->getNumberOfBasisFunctions(i));
+        vectorBasisFunctionValue[i].resize(
+            element->getNumberOfBasisFunctions(i));
+        basisFunctionDeriv_[i].resize(element->getNumberOfBasisFunctions(i));
+        basisFunctionCurl_[i].resize(element->getNumberOfBasisFunctions(i));
+        basisFunctionDiv_[i].resize(element->getNumberOfBasisFunctions(i));
+    }
+    resultMatrix.resize(numberOfEntries, numberOfEntries);
+    resultVector.resize(numberOfEntries);
+
     theElement_ = element;
     hasElement = true;
     // even if they are already computed, the information is now out of date
-    std::size_t unknowns = theElement_->getNumberOfUnknowns();
-
     hasFunctionValue.assign(unknowns, false);
     hasVectorFunctionValue.assign(unknowns, false);
     hasFunctionDeriv.assign(unknowns, false);

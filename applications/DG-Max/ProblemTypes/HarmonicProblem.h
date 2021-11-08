@@ -88,6 +88,20 @@ class HarmonicProblem {
         Base::PhysicalFace<DIM>& face) const = 0;
 };
 
+/**
+ * Bit field enumeration indicating which properties can be different between
+ * two harmonic problems.
+ *
+ * Note: Not inside HarmonicProblem to not have template parameters
+ */
+enum class HarmonicProblemChanges : unsigned int {
+    OMEGA = 0x1,
+    CURRENT_SOURCE = 0x2,
+    BOUNDARY_CONDITION_TYPE = 0x4,
+    BOUNDARY_CONDITION_VALUE = 0x8,
+    ANY = 0xf,
+};
+
 template <std::size_t DIM>
 class ExactHarmonicProblem : public HarmonicProblem<DIM> {
    public:

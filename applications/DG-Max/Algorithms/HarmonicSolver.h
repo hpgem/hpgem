@@ -39,44 +39,29 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef HPGEM_APP_DGMAXHARMONIC_H
 #define HPGEM_APP_DGMAXHARMONIC_H
 
-#include "../ProblemTypes/AbstractHarmonicSolver.h"
 #include "../ProblemTypes/HarmonicProblem.h"
+#include "../ProblemTypes/AbstractHarmonicSolverDriver.h"
 
-#include "DGMaxDiscretization.h"
+#include "AbstractDiscretization.h"
 
-using namespace hpgem;
+namespace DGMax {
 
 /// \brief Solver for a harmonic problem to find the fields.
 template <std::size_t DIM>
-class DGMaxHarmonic : public DGMax::AbstractHarmonicSolver<DIM> {
+class HarmonicSolver {
    public:
-    DGMaxHarmonic(Base::MeshManipulator<DIM>& mesh, double stab,
-                  std::size_t order);
-    void solve(const HarmonicProblem<DIM>& harmonicProblem) final;
+    HarmonicSolver(std::shared_ptr<AbstractDiscretization<DIM>> discretization)
+        : discretization_(discretization){};
 
-    std::map<typename DGMaxDiscretization<DIM>::NormType, double> computeError(
-        const typename std::set<typename DGMaxDiscretization<DIM>::NormType>&
-            norms,
-        const typename DGMaxDiscretization<DIM>::InputFunction& exactSolution,
-        const typename DGMaxDiscretization<DIM>::InputFunction&
-            exactSolutionCurl);
-
-    std::map<typename DGMaxDiscretization<DIM>::NormType, double> computeError(
-        const std::set<typename DGMaxDiscretization<DIM>::NormType>& norms,
-        const ExactHarmonicProblem<DIM>& problem);
-
-    double computeL2Error(const ExactHarmonicProblem<DIM>& problem) final {
-        return computeError({DGMaxDiscretizationBase::NormType::L2},
-                            problem)[DGMaxDiscretizationBase::NormType::L2];
-    }
-
-    void writeTec(std::string fileName) const;
-    void writeVTK(Output::VTKSpecificTimeWriter<DIM>& output) const final;
+    void solve(Base::MeshManipulator<DIM>& mesh,
+               DGMax::AbstractHarmonicSolverDriver<DIM>& driver);
 
    private:
-    Base::MeshManipulator<DIM>& mesh_;
-    DGMaxDiscretization<DIM> discretization;
-    double stab_;
+    struct Result;
+    struct Workspace;
+
+    std::shared_ptr<AbstractDiscretization<DIM>> discretization_;
 };
 
+}  // namespace DGMax
 #endif  // HPGEM_APP_DGMAXHARMONIC_H

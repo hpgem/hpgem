@@ -223,6 +223,7 @@ class PhysicalElement final : public CoordinateTransformationData<DIM> {
 
    private:
     const Base::Element *theElement_;
+
     Geometry::PointReference<DIM> pointReference_;
     QuadratureRules::GaussQuadratureRule *quadratureRule_;
     const Geometry::MappingReferenceToReference<1> *faceToElementMap_;

@@ -48,27 +48,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace hpgem;
 
-// Definition of the constants to reference to.
-const std::size_t DGMaxDiscretizationBase::MASS_MATRIX_ID;
-const std::size_t DGMaxDiscretizationBase::STIFFNESS_MATRIX_ID;
-const std::size_t DGMaxDiscretizationBase::PROJECTOR_MATRIX_ID;
-const std::size_t DGMaxDiscretizationBase::INITIAL_CONDITION_VECTOR_ID;
-const std::size_t
-    DGMaxDiscretizationBase::INITIAL_CONDITION_DERIVATIVE_VECTOR_ID;
-const std::size_t DGMaxDiscretizationBase::SOURCE_TERM_VECTOR_ID;
-
-const std::size_t DGMaxDiscretizationBase::FACE_MATRIX_ID;
-const std::size_t DGMaxDiscretizationBase::FACE_IMPEDANCE_MATRIX_ID;
-const std::size_t DGMaxDiscretizationBase::FACE_VECTOR_ID;
-
 template <std::size_t DIM>
-DGMaxDiscretization<DIM>::DGMaxDiscretization(bool includeProjector)
-    : includeProjector_(includeProjector),
-      matrixHandling_(NORMAL),
-      boundaryIndicator_([](const Base::Face&) {
-          // By default assume DIRICHLET boundary conditions
-          return DGMax::BoundaryConditionType::DIRICHLET;
-      }) {
+DGMaxDiscretization<DIM>::DGMaxDiscretization(std::size_t order, double stab,
+                                              bool includeProjector)
+    : order_(order),
+      stab_(stab),
+      includeProjector_(includeProjector),
+      matrixHandling_(NORMAL) {
 
     transforms_.emplace_back(new Base::HCurlConformingTransformation<DIM>());
     if (includeProjector_) {
@@ -82,7 +68,7 @@ DGMaxDiscretization<DIM>::DGMaxDiscretization(bool includeProjector)
 
 template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::initializeBasisFunctions(
-    Base::MeshManipulator<DIM>& mesh, std::size_t order) {
+    Base::MeshManipulator<DIM>& mesh) const {
     // We would like to configure the number of unknowns here, but this is
     // unfortunately not possible, as it is configured at the creation of
     // the mesh. The best we can do is check if it is configured correctly.
@@ -91,12 +77,12 @@ void DGMaxDiscretization<DIM>::initializeBasisFunctions(
         logger.assert_always(unknowns == 2,
                              "DGMax+Projector expects 2 unknowns but got %",
                              unknowns);
-        mesh.useNedelecDGBasisFunctions(order);
-        mesh.useDefaultConformingBasisFunctions(order, 1);
+        mesh.useNedelecDGBasisFunctions(order_);
+        mesh.useDefaultConformingBasisFunctions(order_, 1);
     } else {
         logger.assert_always(unknowns == 1, "DGMax expects 1 unknown but got %",
                              unknowns);
-        mesh.useNedelecDGBasisFunctions(order);
+        mesh.useNedelecDGBasisFunctions(order_);
     }
     // TODO: This should probably also be exposed by using a constructor
     // parameter.
@@ -104,9 +90,10 @@ void DGMaxDiscretization<DIM>::initializeBasisFunctions(
 }
 
 template <std::size_t DIM>
-void DGMaxDiscretization<DIM>::computeElementIntegrands(
+void DGMaxDiscretization<DIM>::computeElementIntegralsImpl(
     Base::MeshManipulator<DIM>& mesh,
-    const std::map<std::size_t, InputFunction>& elementVectors) {
+    const std::map<std::size_t, InputFunction>& elementVectors,
+    LocalIntegrals integrals) {
     logger.assert_always(
         !(matrixHandling_ == ORTHOGONALIZE && !elementVectors.empty()),
         "Mass matrix rescale with input functions is not implemented");
@@ -124,8 +111,10 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(
          it != end; ++it) {
         Base::Element* element = *it;
 
-        computeElementMatrices(element);
-        postProcessElementMatrices(element);
+        if (integrals == LocalIntegrals::ALL) {
+            computeElementMatrices(element);
+            postProcessElementMatrices(element);
+        }
 
         for (auto const& elementVectorDef : elementVectors) {
             std::size_t numberOfBasisFunctions =
@@ -147,10 +136,11 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(
 }
 
 template <std::size_t DIM>
-void DGMaxDiscretization<DIM>::computeFaceIntegrals(
+void DGMaxDiscretization<DIM>::computeFaceIntegralsImpl(
     Base::MeshManipulator<DIM>& mesh,
     const std::map<std::size_t, FaceInputFunction>& boundaryVectors,
-    double stab) {
+    DGMax::BoundaryConditionIndicator boundaryIndicator,
+    LocalIntegrals integrals) {
     MassMatrixHandling massMatrixHandling = matrixHandling_;
     logger.assert_always(
         !(massMatrixHandling == ORTHOGONALIZE && !boundaryVectors.empty()),
@@ -171,26 +161,28 @@ void DGMaxDiscretization<DIM>::computeFaceIntegrals(
          it != end; ++it) {
         Base::Face* face = *it;
 
-        computeFaceMatrix(face, stab);
-        postProcessFaceMatrices(face);
-
-        std::size_t numberOfBasisFunctions =
-            face->getPtrElementLeft()->getNumberOfBasisFunctions(0);
-        if (face->isInternal()) {
-            numberOfBasisFunctions +=
-                face->getPtrElementRight()->getNumberOfBasisFunctions(0);
+        if (integrals == LocalIntegrals::ALL) {
+            computeFaceMatrix(face, boundaryIndicator);
+            postProcessFaceMatrices(face);
         }
 
         for (auto const& faceVectorDef : boundaryVectors) {
+            std::size_t numberOfBasisFunctions =
+                face->getPtrElementLeft()->getNumberOfBasisFunctions(0);
+            if (face->isInternal()) {
+                numberOfBasisFunctions +=
+                    face->getPtrElementRight()->getNumberOfBasisFunctions(0);
+            }
+
             tempFaceVector.resize(numberOfBasisFunctions);
             using BCT = DGMax::BoundaryConditionType;
             BCT bct =
-                face->isInternal() ? BCT::INTERNAL : boundaryIndicator_(*face);
+                face->isInternal() ? BCT::INTERNAL : boundaryIndicator(*face);
             if (faceVectorDef.second) {
                 tempFaceVector = faIntegral.integrate(
                     face, [&](Base::PhysicalFace<DIM>& face) {
                         LinearAlgebra::MiddleSizeVector res;
-                        faceVector(face, faceVectorDef.second, res, bct, stab);
+                        faceVector(face, faceVectorDef.second, res, bct);
                         return res;
                     });
             }
@@ -336,13 +328,13 @@ void DGMaxDiscretization<DIM>::elementInnerProduct(
 }
 
 template <std::size_t DIM>
-void DGMaxDiscretization<DIM>::computeFaceMatrix(Base::Face* face,
-                                                 double stab) {
+void DGMaxDiscretization<DIM>::computeFaceMatrix(
+    Base::Face* face, DGMax::BoundaryConditionIndicator boundaryIndicator) {
     std::size_t numDoFs = face->getNumberOfBasisFunctions(0);
     const bool internalFace = face->isInternal();
 
     using BCT = DGMax::BoundaryConditionType;
-    BCT bct = internalFace ? BCT::INTERNAL : boundaryIndicator_(*face);
+    BCT bct = internalFace ? BCT::INTERNAL : boundaryIndicator(*face);
 
     LinearAlgebra::MiddleSizeMatrix stiffnessMatrix(0, 0);
     if (!internalFace && DGMax::isNaturalBoundary(bct)) {
@@ -358,7 +350,7 @@ void DGMaxDiscretization<DIM>::computeFaceMatrix(Base::Face* face,
         double factor = -(internalFace ? 0.5 : 1.);
         // Standard rescaling of the stability parameter so that it does not
         // need to depend on the mesh size.
-        stab /= face->getDiameter();
+        double localStab = stab_ / face->getDiameter();
         stiffnessMatrix =
             faceIntegrator_.integrate(face, [&](Base::PhysicalFace<DIM>& pfa) {
                 LinearAlgebra::MiddleSizeMatrix ret(numDoFs, numDoFs);
@@ -374,7 +366,7 @@ void DGMaxDiscretization<DIM>::computeFaceMatrix(Base::Face* face,
                         pfa.basisFunctionUnitNormalCross(j, phiNj, 0);
                         double value =
                             factor * (phiCi * phiNj + phiNi * phiCj) +
-                            stab * phiNi * phiNj;
+                            localStab * phiNi * phiNj;
                         ret(i, j) = value;
                         if (i != j) {
                             ret(j, i) = value;
@@ -385,7 +377,7 @@ void DGMaxDiscretization<DIM>::computeFaceMatrix(Base::Face* face,
                 return ret;
             });
     }
-    face->setFaceMatrix(stiffnessMatrix, FACE_MATRIX_ID);
+    face->setFaceMatrix(stiffnessMatrix, FACE_STIFFNESS_MATRIX_ID);
 
     // Impedance contribution to the stiffness matrix
     if (bct == DGMax::BoundaryConditionType::SILVER_MULLER) {
@@ -418,7 +410,8 @@ template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::postProcessFaceMatrices(Base::Face* face) const {
     if (matrixHandling_ == ORTHOGONALIZE) {
         // A reference to the matrix that will be updated in place.
-        Base::FaceMatrix& faceMatrix = face->getFaceMatrix(FACE_MATRIX_ID);
+        Base::FaceMatrix& faceMatrix =
+            face->getFaceMatrix(FACE_STIFFNESS_MATRIX_ID);
 
         bool isInternal = face->isInternal();
         std::size_t sideCount = isInternal ? 2 : 1;
@@ -453,8 +446,8 @@ void DGMaxDiscretization<DIM>::postProcessFaceMatrices(Base::Face* face) const {
 template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::faceVector(
     Base::PhysicalFace<DIM>& fa, const FaceInputFunction& boundaryCondition,
-    LinearAlgebra::MiddleSizeVector& ret, DGMax::BoundaryConditionType bct,
-    double stab) const {
+    LinearAlgebra::MiddleSizeVector& ret,
+    DGMax::BoundaryConditionType bct) const {
 
     std::size_t numDoFs = fa.getNumberOfBasisFunctions();
     ret.resize(numDoFs);
@@ -476,7 +469,7 @@ void DGMaxDiscretization<DIM>::faceVector(
 
             phi_curl = fa.basisFunctionCurl(i, 0);
 
-            ret(i) = -(val * phi_curl) + stab / diameter * (val * phi);
+            ret(i) = -(val * phi_curl) + stab_ / diameter * (val * phi);
         }
     } else if (bct == DGMax::BoundaryConditionType::NEUMANN ||
                bct == DGMax::BoundaryConditionType::SILVER_MULLER) {
@@ -586,12 +579,12 @@ void DGMaxDiscretization<DIM>::writeFields(
 // particularly nice It might be better to pass the global vector here and
 // distribute it ourselves.
 template <std::size_t DIM>
-std::map<typename DGMaxDiscretization<DIM>::NormType, double>
+std::map<typename DGMaxDiscretizationBase::NormType, double>
     DGMaxDiscretization<DIM>::computeError(
         Base::MeshManipulator<DIM>& mesh, std::size_t timeVector,
         DGMaxDiscretization<DIM>::InputFunction electricField,
         DGMaxDiscretization<DIM>::InputFunction electricFieldCurl,
-        std::set<DGMaxDiscretization<DIM>::NormType> norms) {
+        std::set<DGMaxDiscretizationBase::NormType> norms) {
     // Note these are actually the squared norms
     double l2Norm = 0;
     double hCurlNorm = 0;

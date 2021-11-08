@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2014, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,48 +35,32 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef HPGEM_ABSTRACTHARMONICRESULT_H
+#define HPGEM_ABSTRACTHARMONICRESULT_H
 
-#include "FaceFactory.h"
-#include "Face.h"
-#include "LinearAlgebra/MiddleSizeVector.h"
-#include "GlobalUniqueIndex.h"
+#include <Output/VTKSpecificTimeWriter.h>
+#include "HarmonicProblem.h"
 
-namespace hpgem {
+namespace DGMax {
 
-namespace Base {
+template <std::size_t dim>
+class AbstractHarmonicResult {
+   public:
+    virtual ~AbstractHarmonicResult() = default;
 
-FaceFactory::FaceFactory()
-    : numberOfFaceMatrices_(0), numberOfFaceVectors_(0) {}
+    /// The problem that was solved
+    virtual const HarmonicProblem<dim>& solvedProblem() = 0;
 
-Face* FaceFactory::makeFace(Element* leftElementPtr,
-                            std::size_t leftElementLocalFaceNo,
-                            Geometry::FaceType faceType) {
-    logger.assert_debug(leftElementPtr != nullptr, "Invalid element passed");
-    return new Face(leftElementPtr, leftElementLocalFaceNo, faceType,
-                    GlobalUniqueIndex::instance().getFaceIndex(),
-                    numberOfFaceMatrices_, numberOfFaceVectors_);
-}
-Face* FaceFactory::makeFace(Element* leftElementPtr,
-                            std::size_t leftElementLocalFaceNo,
-                            Element* rightElementPtr,
-                            std::size_t rightElementLocalFaceNo) {
-    logger.assert_debug(leftElementPtr != nullptr, "Invalid element passed");
-    logger.assert_debug(rightElementPtr != nullptr,
-                        "This routine is intended for internal faces");
-    return new Face(leftElementPtr, leftElementLocalFaceNo, rightElementPtr,
-                    rightElementLocalFaceNo,
-                    GlobalUniqueIndex::instance().getFaceIndex(),
-                    numberOfFaceMatrices_, numberOfFaceVectors_);
-}
+    virtual Base::MeshManipulator<dim>& getMesh() = 0;
 
-void FaceFactory::setNumberOfFaceMatrices(std::size_t matrices) {
-    numberOfFaceMatrices_ = matrices;
-}
+    /// Plot the output
+    virtual void writeVTK(
+        hpgem::Output::VTKSpecificTimeWriter<dim>& output) = 0;
 
-void FaceFactory::setNumberOfFaceVectors(std::size_t vectors) {
-    numberOfFaceVectors_ = vectors;
-}
+    virtual double computeL2Error(
+        const ExactHarmonicProblem<dim>& solution) = 0;
+};
 
-}  // namespace Base
+}  // namespace DGMax
 
-}  // namespace hpgem
+#endif  // HPGEM_ABSTRACTHARMONICRESULT_H

@@ -39,8 +39,11 @@
 #ifndef HPGEM_KERNEL_SUBMESH_H
 #define HPGEM_KERNEL_SUBMESH_H
 
+#include <algorithm>
 #include <vector>
 #include <map>
+
+#include "Element.h"
 #include "LevelTree.h"
 
 namespace hpgem {
@@ -52,7 +55,6 @@ class PointPhysical;
 
 namespace Base {
 
-class Element;
 class Face;
 class Edge;
 class Node;

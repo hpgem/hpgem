@@ -35,42 +35,50 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_ABSTRACTHARMONICSOLVER_H
-#define HPGEM_ABSTRACTHARMONICSOLVER_H
+#ifndef HPGEM_ABSTRACTHARMONICSOLVERDRIVER_H
+#define HPGEM_ABSTRACTHARMONICSOLVERDRIVER_H
 
+#include "AbstractHarmonicResult.h"
 #include "HarmonicProblem.h"
-#include <Output/VTKSpecificTimeWriter.h>
 
 namespace DGMax {
 
-/**
- * A Solver for the Maxwell harmonic problem
- * @tparam dim The dimension of the problem
- */
 template <std::size_t dim>
-class AbstractHarmonicSolver {
+class AbstractHarmonicSolverDriver {
    public:
-    virtual ~AbstractHarmonicSolver() = default;
+    virtual ~AbstractHarmonicSolverDriver() = default;
 
     /**
-     * Solve the problem
-     * @param problem The problem to solve
+     * @return Whether to stop solving (the current problem is the last problem)
      */
-    virtual void solve(const HarmonicProblem<dim>& problem) = 0;
-    /**
-     * Plot the output to VTK
-     * @param output Write the output
-     */
-    virtual void writeVTK(Output::VTKSpecificTimeWriter<dim>& output) const = 0;
+    virtual bool stop() const = 0;
 
     /**
-     * Compute L2 error for the previous solve.
-     * @param problem The problem that was solved
-     * @return The L2 error
+     * Advance to the next problem
      */
-    virtual double computeL2Error(const ExactHarmonicProblem<dim>& problem) = 0;
+    virtual void nextProblem() = 0;
+
+    /**
+     * Description of the current problem to solve
+     * @return The problem to solve
+     */
+    virtual const HarmonicProblem<dim>& currentProblem() const = 0;
+
+    /**
+     * Call back after the solving has finished
+     * @param result Reference to the result, only valid during the call
+     */
+    virtual void handleResult(AbstractHarmonicResult<dim>& result) = 0;
+
+    /**
+     * Check whether a property of the HarmonicProblem has changed compared to
+     * the previous solve.
+     */
+    virtual bool hasChanged(HarmonicProblemChanges change) const {
+        return true;
+    }
 };
 
 }  // namespace DGMax
 
-#endif  // HPGEM_ABSTRACTHARMONICSOLVER_H
+#endif  // HPGEM_ABSTRACTHARMONICSOLVERDRIVER_H

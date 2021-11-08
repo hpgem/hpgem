@@ -42,6 +42,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <functional>
 #include <memory>
 
+#include "AbstractDiscretization.h"
+
 #include "Base/HCurlConformingTransformation.h"
 #include "Base/H1ConformingTransformation.h"
 #include "Base/MeshManipulator.h"
@@ -71,16 +73,8 @@ class FaceLocalIndexing;
 }  // namespace hpgem
 
 /// Base class with all dimensionless constants
-class DivDGMaxDiscretizationBase {
+class DivDGMaxDiscretizationBase : public DGMax::AbstractDiscretizationBase {
    public:
-    static const std::size_t ELEMENT_MASS_MATRIX_ID = 0;
-    static const std::size_t ELEMENT_STIFFNESS_MATRIX_ID = 1;
-    // Note: Missing are the initial conditions, taking up positions 0, 1
-    static const std::size_t ELEMENT_SOURCE_VECTOR_ID = 2;
-    static const std::size_t FACE_STIFFNESS_MATRIX_ID = 0;
-    static const std::size_t FACE_STIFFNESS_IMPEDANCE_MATRIX_ID = 1;
-    static const std::size_t FACE_BOUNDARY_VECTOR_ID = 0;
-
     enum class FluxType { IP, BREZZI };
 
     struct Stab {
@@ -126,7 +120,8 @@ using namespace hpgem;
 /// matrix, corresponding to the omega^2 E term in the timeharmonic
 /// formulation.
 template <std::size_t DIM>
-class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
+class DivDGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
+                               public virtual DivDGMaxDiscretizationBase {
    public:
     // TODO: static const std::size_t matrix/vector ids
 
@@ -134,40 +129,32 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     struct Fields {
         // The electric field
         LinearAlgebra::SmallVectorC<DIM> electricField;
+        // Curl of the electric field
+        LinearAlgebra::SmallVectorC<DIM> electricFieldCurl;
         // Complex valued p scalar function;
         std::complex<double> potential;
     };
 
     // See notes in DGMaxDiscretization
-    using PointPhysicalT = Geometry::PointPhysical<DIM>;
-    using InputFunction =
-        std::function<LinearAlgebra::SmallVectorC<DIM>(const PointPhysicalT&)>;
-    using FaceInputFunction = std::function<LinearAlgebra::SmallVectorC<DIM>(
-        Base::PhysicalFace<DIM>&)>;
 
-    DivDGMaxDiscretization();
+    using typename DGMax::AbstractDiscretization<DIM>::PointPhysicalT;
+    using typename DGMax::AbstractDiscretization<DIM>::PointReferenceT;
+    using typename DGMax::AbstractDiscretization<DIM>::InputFunction;
+    using typename DGMax::AbstractDiscretization<DIM>::FaceInputFunction;
 
-    void initializeBasisFunctions(Base::MeshManipulator<DIM>& mesh,
-                                  std::size_t order);
+    DivDGMaxDiscretization(std::size_t order, Stab stab);
 
-    /// Set the indicator function for the boundary condition to use
-    void setBoundaryIndicator(DGMax::BoundaryConditionIndicator indicator) {
-        boundaryIndicator_ = indicator;
-    }
+    size_t getOrder() const override { return order_; }
+    size_t getNumberOfUnknowns() const override { return 2; }
+    size_t getNumberOfElementMatrices() const override { return 2; }
+    size_t getNumberOfFaceMatrices() const override { return 2; }
 
-    void computeElementIntegrands(
-        Base::MeshManipulator<DIM>& mesh,
-        const std::map<std::size_t, InputFunction>& elementVectors);
-
-    void computeFaceIntegrals(
-        Base::MeshManipulator<DIM>& mesh,
-        const std::map<std::size_t, FaceInputFunction>& boundaryVectors,
-        Stab stab);
+    void initializeBasisFunctions(Base::MeshManipulator<DIM>& mesh) const final;
 
     // TODO: LJ include the same norms as in DGMaxDiscretization
     double computeL2Error(Base::MeshManipulator<DIM>& mesh,
-                          std::size_t timeVector,
-                          const InputFunction& electricField);
+                          std::size_t timeIntegrationVectorId,
+                          InputFunction electricField) final;
 
     Fields computeFields(
         const Base::Element* element,
@@ -177,7 +164,11 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     LinearAlgebra::SmallVectorC<DIM> computeField(
         const Base::Element* element,
         const Geometry::PointReference<DIM>& point,
-        const LinearAlgebra::MiddleSizeVector& coefficients) const;
+        const LinearAlgebra::MiddleSizeVector& coefficients) const final;
+
+    LinearAlgebra::SmallVectorC<DIM> computeCurlField(
+        const hpgem::Base::Element* element, const PointReferenceT& p,
+        const hpgem::LinearAlgebra::MiddleSizeVector& coefficients) const final;
 
     std::complex<double> computePotential(
         const Base::Element* element,
@@ -185,9 +176,20 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
         const LinearAlgebra::MiddleSizeVector& coefficients) const;
 
     void writeFields(Output::VTKSpecificTimeWriter<DIM>& output,
-                     std::size_t timeIntegrationVectorId) const;
+                     std::size_t timeIntegrationVectorId) const final;
 
    private:
+    void computeElementIntegralsImpl(
+        Base::MeshManipulator<DIM>& mesh,
+        const std::map<std::size_t, InputFunction>& elementVectors,
+        LocalIntegrals integrals) final;
+
+    void computeFaceIntegralsImpl(
+        Base::MeshManipulator<DIM>& mesh,
+        const std::map<std::size_t, FaceInputFunction>& boundaryVectors,
+        DGMax::BoundaryConditionIndicator indicator,
+        LocalIntegrals integrals) final;
+
     /// Compute Mass and Stiffness matrix for the element
     void computeElementMatrices(Base::Element* element,
                                 Utilities::ElementLocalIndexing& indexing);
@@ -210,7 +212,7 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     ///  3. For IP-stab2: stab2*diameter/espMax [[eps u]]_n . [[eps v]]_n
     void faceStiffnessMatrixFieldIntegrand(
         Base::PhysicalFace<DIM>& fa,
-        const Utilities::FaceLocalIndexing& indexing, const Stab& stab,
+        const Utilities::FaceLocalIndexing& indexing,
         LinearAlgebra::MiddleSizeMatrix& ret) const;
     /// Part 2 of the face integrand for the stiffness matrix, consisting of the
     /// terms with the potential. This contributes two parts
@@ -219,12 +221,12 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     ///  2. For IP-stab3: stab3/diameter * epsMax [[p]] [[q]]
     void addFaceMatrixPotentialIntegrand(
         Base::PhysicalFace<DIM>& fa,
-        const Utilities::FaceLocalIndexing& indexing, const Stab& stab,
+        const Utilities::FaceLocalIndexing& indexing,
         DGMax::BoundaryConditionType bct,
         LinearAlgebra::MiddleSizeMatrix& ret) const;
 
     LinearAlgebra::MiddleSizeMatrix brezziFluxBilinearTerm(
-        Base::Face* face, DGMax::BoundaryConditionType bct, Stab stab);
+        Base::Face* face, DGMax::BoundaryConditionType bct);
 
     LinearAlgebra::MiddleSizeMatrix computeFaceImpedanceIntegrand(
         Base::PhysicalFace<DIM>& face, Utilities::FaceLocalIndexing& indexing,
@@ -300,24 +302,25 @@ class DivDGMaxDiscretization : public DivDGMaxDiscretizationBase {
     void faceBoundaryVector(Base::PhysicalFace<DIM>& fa,
                             const FaceInputFunction& boundaryValue,
                             LinearAlgebra::MiddleSizeVector& ret,
-                            DGMax::BoundaryConditionType bct, Stab stab) const;
+                            DGMax::BoundaryConditionType bct) const;
 
     /// Compute contribution of the brezzi flux to the face vector on the
     /// boundary
     LinearAlgebra::MiddleSizeVector brezziFluxBoundaryVector(
-        Base::Face* face, const FaceInputFunction& boundaryValue, Stab stab);
+        Base::Face* face, const FaceInputFunction& boundaryValue);
 
     double elementErrorIntegrand(Base::PhysicalElement<DIM>& el,
                                  std::size_t timeVector,
                                  const InputFunction& exactValues) const;
+
+    std::size_t order_;
+    Stab stab_;
 
     /// Shared parts for computing integrals
     Integration::ElementIntegral<DIM> elementIntegrator_;
     Integration::FaceIntegral<DIM> faceIntegrator_;
     std::shared_ptr<Base::HCurlConformingTransformation<DIM>> fieldTransform_;
     std::shared_ptr<Base::H1ConformingTransformation<DIM>> potentialTransform_;
-
-    DGMax::BoundaryConditionIndicator boundaryIndicator_;
 };
 
 // TODO: Deduction fails for a templated variant, hence using explicit versions

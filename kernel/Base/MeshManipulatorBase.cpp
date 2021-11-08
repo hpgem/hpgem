@@ -38,23 +38,9 @@
 
 #include "MeshManipulator.h"
 
-#include "Geometry/PhysicalGeometry.h"
-#include "Geometry/ReferenceTriangle.h"
-#include "Edge.h"
 #include "ConfigurationData.h"
 #include "Element.h"
-#include "PhysicalElement.h"
-#include "Face.h"
-#include "MeshMoverBase.h"
 #include "Geometry/PointPhysical.h"
-#include "Geometry/ReferenceSquare.h"
-#include "Geometry/GlobalNamespaceGeometry.h"
-#include "Geometry/PointReference.h"
-#include "Geometry/Mappings/MappingReferenceToPhysical.h"
-#include "ElementFactory.h"
-#include "FaceFactory.h"
-#include "Geometry/Jacobian.h"
-#include "Geometry/ReferenceGeometry.h"
 #include "Logger.h"
 
 #include <algorithm>
