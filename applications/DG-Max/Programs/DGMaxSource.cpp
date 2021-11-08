@@ -38,6 +38,7 @@
 
 #include <chrono>
 #include <exception>
+#include <iomanip>
 #include <Base/CommandLineOptions.h>
 #include <Base/MeshFileInformation.h>
 #include <Output/VTKSpecificTimeWriter.h>
@@ -186,7 +187,11 @@ template <std::size_t dim>
 class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
    public:
     Driver(Base::MeshManipulator<dim>& mesh)
-        : mesh_(&mesh), problem_(), nextCalled_(0){};
+        : mesh_(&mesh), problem_(), nextCalled_(0) {
+        outfile.open("harmonic.csv");
+        logger.assert_always(outfile.good(), "Opening output file failed");
+        outfile << "wavenumber,outflux,influx" << std::endl;
+    };
 
     bool stop() const override { return nextCalled_ == 5; }
     void nextProblem() override {
@@ -230,6 +235,32 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
             },
             "source");
 
+        // Compute fluxes
+        double influx = 0.0;
+        double outflux = 0.0;
+        for (Base::Face* face : mesh_->getFacesList()) {
+            if (!face->isInternal()) {
+                // TODO: Generalized in MPI setting
+                double flux = result.computeEnergyFlux(*face, Base::Side::LEFT,
+                                                       problem_->omega());
+                auto normal = face->getNormalVector(
+                    face->getReferenceGeometry()
+                        ->getCenter()
+                        .template castDimension<dim - 1>());
+                if (flux < 0) {
+                    influx += flux;
+                } else {
+                    outflux += flux;
+                }
+                DGMaxLogger(DEBUG, "Face normal %, flux %", normal, flux);
+            }
+        }
+        DGMaxLogger(INFO, "Flux balance: out % - in % = %", outflux, -influx,
+                    outflux + influx);
+        outfile << std::setprecision(16);
+        outfile << problem_->omega() << "," << outflux << "," << influx
+                << std::endl;
+
         auto* eproblem =
             dynamic_cast<ExactHarmonicProblem<dim>*>(problem_.get());
         if (eproblem != nullptr) {
@@ -260,6 +291,7 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
    private:
     Base::MeshManipulator<dim>* mesh_;
     std::shared_ptr<HarmonicProblem<dim>> problem_;
+    std::ofstream outfile;
     int nextCalled_;
 };
 

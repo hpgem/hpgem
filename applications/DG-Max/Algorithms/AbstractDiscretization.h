@@ -139,6 +139,28 @@ class AbstractDiscretization : public AbstractDiscretizationBase {
     virtual void writeFields(hpgem::Output::VTKSpecificTimeWriter<dim>& writer,
                              std::size_t timeIntegrationVectorId) const = 0;
 
+    /**
+     * Compute the energy flux by integrating the inner product between the
+     * normal vector and the numerical Poynting vector.
+     *
+     * Note:
+     *  - The normal is chosen as outward normal from the given side.
+     *  - The numerical Poynting vector may have compensations for jump terms
+     *    in the fields. As such it may be different between the left and right
+     *    sides.
+     *
+     * @param face The face to integrate over
+     * @param side The side to consider the energy flux from.
+     * @param wavenumber The wave number use in the computation
+     * @param timeIntegrationVectorId id of the coefficient vector
+     * @return The flux
+     */
+    virtual double computeEnergyFlux(Base::Face& face, hpgem::Base::Side side,
+                                     double wavenumber,
+                             std::size_t timeIntegrationVectorId) {
+        return 0.0;
+    }
+
    protected:
     virtual void computeElementIntegralsImpl(
         hpgem::Base::MeshManipulator<dim>& mesh,

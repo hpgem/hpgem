@@ -68,6 +68,11 @@ class HarmonicSolver<DIM>::Result : public AbstractHarmonicResult<DIM> {
         return workspace_->getMesh();
     }
 
+    double computeEnergyFlux(Base::Face& face, hpgem::Base::Side side,
+                             double wavenumber) final {
+        return workspace_->computeEnergyFlux(face, side, wavenumber);
+    }
+
    private:
     const HarmonicProblem<DIM>* problem_;
     HarmonicSolver<DIM>::Workspace* workspace_;
@@ -112,6 +117,12 @@ class HarmonicSolver<DIM>::Workspace {
 
     void writeVTK(Output::VTKSpecificTimeWriter<DIM>& output) {
         discretization_->writeFields(output, VECTOR_ID);
+    }
+
+    double computeEnergyFlux(Base::Face& face, hpgem::Base::Side side,
+                             double wavenumber) {
+        return discretization_->computeEnergyFlux(face, side, wavenumber,
+                                                  VECTOR_ID);
     }
 
    private:
