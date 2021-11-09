@@ -329,7 +329,12 @@ void HarmonicSolver<DIM>::solve(
     DGMax::AbstractHarmonicSolverDriver<DIM>& driver) {
     Workspace workspace(*discretization_, mesh);
 
+    std::size_t index = 0;
+
     while (!driver.stop()) {
+        index++;
+        std::size_t expectedCount = driver.getExpectedNumberOfProblems();
+        DGMaxLogger(INFO, "Starting problem %/%", index, expectedCount);
         driver.nextProblem();
         const HarmonicProblem<DIM>& problem = driver.currentProblem();
         workspace.computeIntegrals(driver);

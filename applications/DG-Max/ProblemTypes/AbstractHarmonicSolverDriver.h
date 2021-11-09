@@ -59,6 +59,14 @@ class AbstractHarmonicSolverDriver {
     virtual void nextProblem() = 0;
 
     /**
+     * The expected number of problems that will be solved. Default: 0 (unknown)
+     * @return
+     */
+    virtual std::size_t getExpectedNumberOfProblems() const {
+        return 0;
+    }
+
+    /**
      * Description of the current problem to solve
      * @return The problem to solve
      */
