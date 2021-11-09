@@ -188,6 +188,10 @@ class DivDGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
     void writeFields(Output::VTKSpecificTimeWriter<DIM>& output,
                      std::size_t timeIntegrationVectorId) const final;
 
+    double computeEnergyFlux(Base::Face& face, hpgem::Base::Side side,
+                             double wavenumber,
+                             std::size_t timeIntegrationVectorId) final;
+
    private:
     void computeElementIntegralsImpl(
         Base::MeshManipulator<DIM>& mesh,

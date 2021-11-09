@@ -672,7 +672,7 @@ double DGMaxDiscretization<DIM>::computeEnergyFlux(
             // using complex inner product
             //   = omega Im((n x E) . muinv flux[Curl E])
             // Using flux[Curl E] = avg[Curl E] - stab/h jumpT[E]
-            return (nEside * (avgCurl - localStab * (nEright + nEleft))).imag();
+            return (nEside * (avgCurl - localStab * (nEleft + nEright))).imag();
         });
     return flux / wavenumber;
 }

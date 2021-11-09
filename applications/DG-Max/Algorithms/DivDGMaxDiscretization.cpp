@@ -350,8 +350,8 @@ void DivDGMaxDiscretization<DIM>::writeFields(
         //   = -1/(2 omega mu) Im(E x Curl E)
         // Using i omega mu H = Curl E
         return -0.5 * LinearAlgebra::leftDoubledCrossProduct(
-                         fields.electricField, fields.electricFieldCurl.conj())
-                         .imag();
+                          fields.electricField, fields.electricFieldCurl.conj())
+                          .imag();
     };
     scalars["Energy"] = [](Fields& fields) {
         // u = 1/2(epsilon |E|^2 + mu |H|^2)
@@ -382,6 +382,51 @@ void DivDGMaxDiscretization<DIM>::writeFields(
             }
         },
         "epsilon");
+}
+
+template <std::size_t DIM>
+double DivDGMaxDiscretization<DIM>::computeEnergyFlux(
+    Base::Face& face, hpgem::Base::Side side, double wavenumber,
+    std::size_t timeIntegrationVectorId) {
+
+    using VecC = LinearAlgebra::SmallVectorC<DIM>;
+
+    const auto& coefficients =
+        face.getTimeIntegrationVector(timeIntegrationVectorId);
+    auto dofInfo = getFaceDoFInfo(face);
+
+    double factor = face.isInternal() ? 0.5 : 1.0;
+    // TODO: Extend to brezzi
+    logger.assert_always(stab_.fluxType1 == FluxType::IP, "Non IP fluxes");
+    double localStab = stab_.stab1 / face.getDiameter();
+    double flux = faceIntegrator_.integrate(
+        &face, [&coefficients, &side, &dofInfo, &localStab,
+                &factor](Base::PhysicalFace<DIM>& pface) {
+            VecC avgCurl;
+            VecC nEleft, nEright;
+            LinearAlgebra::SmallVector<DIM> phi;
+            VecC normal = pface.getUnitNormalVector();
+            for (int i = 0; i < dofInfo.leftUDoFs; ++i) {
+                avgCurl +=
+                    factor * coefficients[i] * pface.basisFunctionCurl(i, 0);
+                pface.basisFunction(i, phi, 0);
+                nEleft += coefficients[i] * normal.crossProduct(phi);
+            }
+            if (dofInfo.internal) {
+                std::size_t leftDoFs = dofInfo.leftUDoFs + dofInfo.leftPDoFs;
+                for (int i = 0; i < dofInfo.rightUDoFs; ++i) {
+                    const auto& coef = coefficients[i + leftDoFs];
+                    avgCurl += factor * coef *
+                               pface.basisFunctionCurl(Base::Side::RIGHT, i, 0);
+                    pface.basisFunction(Base::Side::RIGHT, i, phi, 0);
+                    // Compensation for the sign of the normal
+                    nEright -= normal.crossProduct(phi);
+                }
+            }
+            auto& nEside = side == Base::Side::LEFT ? nEleft : nEright;
+            return (nEside * (avgCurl - localStab * (nEleft + nEright))).imag();
+        });
+    return flux / wavenumber;
 }
 
 template <std::size_t DIM>
