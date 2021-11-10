@@ -116,31 +116,14 @@ void VTKSpecificTimeWriter<DIM>::write(
                          std::size_t)>
         dataCompute,
     const std::string& name) {
-    std::size_t id = Base::MPIContainer::Instance().getProcessorID();
-    if (id == 0) {
-        masterFile_ << "      <PDataArray type=\"Float64\" Name=\"" << name
-                    << "\"/>" << std::endl;
-    }
-    std::vector<double> data;
-    data.reserve(totalPoints_);
-    for (Base::Element* element : mesh_->getElementsList()) {
-        auto vtkElement = elementMapping_.find(
-            element->getReferenceGeometry()->getGeometryType());
-        logger.assert_always(vtkElement != elementMapping_.end(),
-                             "No mapping to VTK element for %",
-                             element->getReferenceGeometry());
 
-        for (const Geometry::PointReference<DIM>& node :
-             vtkElement->second->getPoints()) {
-            data.push_back(dataCompute(element, node, timelevel_));
-        }
-    }
-    /// Write local data
-    localFile_ << "      <DataArray type=\"Float64\" Name=\"" << name
-               << "\" format=\"binary\">" << std::endl;
-    localFile_ << "        ";
-    writeBinaryDataArrayData(data);
-    localFile_ << "      </DataArray>" << std::endl;
+    std::map<std::string, std::function<double(double&)>> scalars;
+    scalars[name] = [](double& v) { return v; };
+    std::map<std::string,
+             std::function<LinearAlgebra::SmallVector<DIM>(double&)>>
+        vectors;
+
+    writeMultiple(dataCompute, scalars, vectors);
 }
 
 template <std::size_t DIM>
@@ -149,34 +132,113 @@ void VTKSpecificTimeWriter<DIM>::write(
         Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)>
         dataCompute,
     const std::string& name) {
+
+    using VecT = LinearAlgebra::SmallVector<DIM>;
+
+    std::map<std::string, std::function<double(VecT&)>> scalars;
+    std::map<std::string, std::function<VecT(VecT&)>> vectors;
+    vectors[name] = [](VecT& v) { return v; };
+    writeMultiple(dataCompute, scalars, vectors);
+}
+
+template <std::size_t DIM>
+template <typename T>
+void VTKSpecificTimeWriter<DIM>::writeMultiple(
+    std::function<T(Base::Element*, const Geometry::PointReference<DIM>&,
+                    std::size_t)>
+        extractor,
+    std::map<std::string, std::function<double(T&)>> scalars,
+    std::map<std::string, std::function<LinearAlgebra::SmallVector<DIM>(T&)>>
+        vectors,
+    std::map<std::string,
+             std::function<LinearAlgebra::SmallMatrix<DIM, DIM>(T&)>>
+        tensors) {
     std::size_t id = Base::MPIContainer::Instance().getProcessorID();
     if (id == 0) {
-        masterFile_ << "      <PDataArray type=\"Float64\" Name=\"" << name
-                    << "\" NumberOfComponents=\"3\"/>" << std::endl;
+        // Write the header in the master file
+        for (const auto& entry : scalars) {
+            masterFile_ << R"(      <PDataArray type="Float64" Name=")"
+                        << entry.first << "\"/>" << std::endl;
+        }
+        for (const auto& entry : vectors) {
+            masterFile_ << R"(      <PDataArray type="Float64" Name=")"
+                        << entry.first << R"(" NumberOfComponents="3"/>)"
+                        << std::endl;
+        }
+        for (const auto& entry : tensors) {
+            // Note: It seems strange that this is identical to the vector case
+            // this was just copied from the previous implementation.
+            masterFile_ << R"(      <PDataArray type="Float64" Name=")"
+                        << entry.first << R"(" NumberOfComponents="3"/>)"
+                        << std::endl;
+        }
     }
-    // Prepare local data
-    std::vector<double> data(3 * totalPoints_, 0.0);
+    // Prepare writing of the local data
     std::size_t pointId = 0;
+    std::map<std::string, std::vector<double>> data;
+    for (const auto& entry : scalars) {
+        data[entry.first].resize(totalPoints_);
+    }
+    for (const auto& entry : vectors) {
+        data[entry.first].resize(3 * totalPoints_);
+    }
+    for (const auto& entry : tensors) {
+        data[entry.first].resize(9 * totalPoints_);
+    }
+    // Compute the data
     for (Base::Element* element : mesh_->getElementsList()) {
         auto vtkElement = elementMapping_.find(
             element->getReferenceGeometry()->getGeometryType());
         logger.assert_always(vtkElement != elementMapping_.end(),
                              "No mapping to VTK element for %",
                              element->getReferenceGeometry());
-
-        for (const Geometry::PointReference<DIM>& node :
+        for (const Geometry::PointReference<DIM>& plotPoint :
              vtkElement->second->getPoints()) {
-            writePaddedVector(dataCompute(element, node, timelevel_), pointId,
-                              data);
+            T localData = extractor(element, plotPoint, timelevel_);
+
+            for (const auto& entry : scalars) {
+                data[entry.first][pointId] = entry.second(localData);
+            }
+            for (const auto& entry : vectors) {
+                LinearAlgebra::SmallVector<DIM> vec = entry.second(localData);
+                writePaddedVector(vec, pointId, data[entry.first]);
+            }
+            for (const auto& entry : tensors) {
+                LinearAlgebra::SmallMatrix<DIM, DIM> tensor =
+                    entry.second(localData);
+                writePaddedTensor(tensor, pointId, data[entry.first]);
+            }
             pointId++;
         }
     }
-    // Write local data
-    localFile_ << "      <DataArray type=\"Float64\" Name=\"" << name
-               << "\" NumberOfComponents=\"3\" format=\"binary\">" << std::endl;
-    localFile_ << "        ";
-    writeBinaryDataArrayData(data);
-    localFile_ << "      </DataArray>" << std::endl;
+    // Write data to file
+    for (const auto& entry : scalars) {
+        const std::string& name = entry.first;
+        localFile_ << R"(      <DataArray type="Float64" Name=")" << name
+                   << R"(" format="binary">)" << std::endl;
+        localFile_ << "        ";
+        writeBinaryDataArrayData(data[name]);
+        localFile_ << "      </DataArray>" << std::endl;
+    }
+    for (const auto& entry : vectors) {
+        const std::string& name = entry.first;
+        localFile_ << R"(      <DataArray type="Float64" Name=")" << name
+                   << R"(" NumberOfComponents="3" format="binary">)"
+                   << std::endl;
+        localFile_ << "        ";
+        writeBinaryDataArrayData(data[name]);
+        localFile_ << "      </DataArray>" << std::endl;
+    }
+
+    for (const auto& entry : tensors) {
+        const std::string& name = entry.first;
+        localFile_ << R"(      <DataArray type="Float64" Name=")" << name
+                   << R"(" NumberOfComponents="3" format="binary">)"
+                   << std::endl;
+        localFile_ << "        ";
+        writeBinaryDataArrayData(data[name]);
+        localFile_ << "      </DataArray>" << std::endl;
+    }
 }
 
 template <std::size_t DIM>
@@ -185,33 +247,15 @@ void VTKSpecificTimeWriter<DIM>::write(
         Base::Element*, const Geometry::PointReference<DIM>&, std::size_t)>
         dataCompute,
     const std::string& name) {
-    std::size_t id = Base::MPIContainer::Instance().getProcessorID();
-    if (id == 0) {
-        masterFile_ << "      <PDataArray type=\"Float64\" Name=\"" << name
-                    << "\" NumberOfComponents=\"3\"/>" << std::endl;
-    }
-    std::vector<double> data(9 * totalPoints_);
-    std::size_t pointId = 0;
-    for (Base::Element* element : mesh_->getElementsList()) {
-        auto vtkElement = elementMapping_.find(
-            element->getReferenceGeometry()->getGeometryType());
-        logger.assert_always(vtkElement != elementMapping_.end(),
-                             "No mapping to VTK element for %",
-                             element->getReferenceGeometry());
 
-        for (const Geometry::PointReference<DIM>& node :
-             vtkElement->second->getPoints()) {
-            writePaddedTensor(dataCompute(element, node, timelevel_), pointId,
-                              data);
-            pointId++;
-        }
-    }
-    std::uint32_t totalData = sizeof(double) * data.size();
-    localFile_ << "      <DataArray type=\"Float64\" Name=\"" << name
-               << "\" NumberOfComponents=\"3\" format=\"binary\">" << std::endl;
-    localFile_ << "        ";
-    writeBinaryDataArrayData(data);
-    localFile_ << "      </DataArray>" << std::endl;
+    using VecT = LinearAlgebra::SmallVector<DIM>;
+    using MatT = LinearAlgebra::SmallMatrix<DIM, DIM>;
+    std::map<std::string, std::function<double(MatT&)>> scalars;
+    std::map<std::string, std::function<VecT(MatT&)>> vectors;
+    std::map<std::string, std::function<MatT(MatT&)>> tensors;
+    tensors[name] = [](MatT& t) { return t; };
+
+    writeMultiple(dataCompute, scalars, vectors, tensors);
 }
 
 template <std::size_t DIM>

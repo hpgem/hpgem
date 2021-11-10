@@ -43,12 +43,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Logger.h"
 #include "BaseBasisFunction.h"
 namespace hpgem {
-namespace LinearAlgebra {
-template <std::size_t DIM>
-class SmallVector;
-}
-
 namespace Geometry {
+
 template <std::size_t DIM>
 class PointReference;
 

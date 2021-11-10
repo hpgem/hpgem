@@ -41,7 +41,7 @@
 #include <fstream>
 #include <set>
 #include <map>
-#include "tag.h"
+#include "utils/tag.h"
 
 namespace Preprocessor {
 
@@ -75,8 +75,8 @@ void printOtherEntities(std::ofstream& output, const Mesh<dimension>& mesh,
         output << entity.getNumberOfElements() << " ";
         for (std::size_t i = 0; i < entity.getNumberOfElements(); ++i) {
             auto element = entity.getElement(i);
-            output << element.getGlobalIndex() << " " << entity.getLocalIndex(i)
-                   << " ";
+            output << element.getGlobalIndex().id << " "
+                   << entity.getLocalIndex(i).id << " ";
             for (auto node : element.getNodesList()) {
                 for (auto neighbour : node.getElementsList()) {
                     localPartitions.insert(partitions[neighbour]);
@@ -178,7 +178,7 @@ void outputMesh(Mesh<dimension>& mesh,
     for (auto element : mesh.getElements()) {
         output << element.getNumberOfNodes() << " ";
         for (auto node : element.getNodesList()) {
-            output << node.getGlobalIndex() << " ";
+            output << node.getGlobalIndex().id << " ";
             output << coordinateIndices[node][node.getElementIndex(element)]
                    << " ";
         }

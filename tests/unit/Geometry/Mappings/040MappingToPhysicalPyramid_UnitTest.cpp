@@ -49,7 +49,6 @@
 #include "Geometry/Jacobian.h"
 #include "Geometry/PointReference.h"
 #include <cmath>
-#include <Base/L2Norm.h>
 
 #include "../catch.hpp"
 
@@ -190,8 +189,8 @@ TEST_CASE("040MappingToPhysicalPyramid_UnitTest",
                 // might not be; due to nonlinearities) or they are inside and
                 // on
                 // the same location
-                double dist = Base::L2Norm(refPoint3D -
-                                           mapping3D.inverseTransform(point3D));
+                double dist =
+                    (refPoint3D - mapping3D.inverseTransform(point3D)).l2Norm();
 
                 INFO("inverse transformation, (distance is "
                      << dist << ", point is " << refPoint3D << "/"
@@ -214,6 +213,6 @@ TEST_CASE("040MappingToPhysicalPyramid_UnitTest",
         CHECK(std::abs(point3D[2] - compare3D[2]) < 1e-12);
     }
 
-    INFO("getTargetDimension");
-    CHECK((mapping3D.getTargetDimension() == 3));
+    INFO("getDimension");
+    CHECK((mapping3D.getDimension() == 3));
 }

@@ -40,112 +40,113 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace hpgem;
 
-template <std::size_t DIM>
-SampleHarmonicProblems<DIM>::SampleHarmonicProblems(
-    SampleHarmonicProblems<DIM>::Problem problem, double omega)
-    : problem_(problem), omega_(omega) {
-    // Note: the tolerances here are just a guess.
-    switch (problem) {
-        case CONSTANT: {
-            logger.assert_debug(
-                std::abs(omega_) > 1e-3,
-                "Given omega is very close to the eigenvalue 0.");
-        }
-        case SARMANY2010: {
-            logger.assert_debug(
-                std::abs(omega_ * omega_ - 2 * M_PI * M_PI) > 1e-1,
-                "Given omega^2 is very close to the eigenvalue 2 pi^2.");
-            break;
-        }
-    }
+namespace DGMax {
+
+LinearAlgebra::SmallVectorC<3> SarmanyHarmonicProblem::exactSolution(
+    const Geometry::PointPhysical<3> &point) const {
+    LinearAlgebra::SmallVectorC<3> result;
+    double sx = sin(M_PI * point[0]), sy = sin(M_PI * point[1]),
+           sz = sin(M_PI * point[2]);
+    result[0] = sy * sz;
+    result[1] = sz * sx;
+    result[2] = sx * sy;
+    return result;
+}
+LinearAlgebra::SmallVectorC<3> SarmanyHarmonicProblem::exactSolutionCurl(
+    const Geometry::PointPhysical<3> &point) const {
+    LinearAlgebra::SmallVectorC<3> result;
+    double x = point[0], y = point[1], z = point[2];
+    result[0] = sin(M_PI * x) * (cos(M_PI * y) - cos(M_PI * z));
+    result[1] = sin(M_PI * y) * (cos(M_PI * z) - cos(M_PI * x));
+    result[2] = sin(M_PI * z) * (cos(M_PI * x) - cos(M_PI * y));
+    result *= M_PI;
+    return result;
 }
 
-template <std::size_t DIM>
-double SampleHarmonicProblems<DIM>::omega() const {
-    switch (problem_) {
-        case CONSTANT:
-            return omega_;
-        case SARMANY2010:
-            return omega_;
-        default:
-            logger.assert_debug(false, "Not implemented for this problem.");
-            return -1;
-    }
+LinearAlgebra::SmallVectorC<3> SarmanyHarmonicProblem::sourceTerm(
+    const Geometry::PointPhysical<3> &point) const {
+    return exactSolution(point) * (2 * M_PI * M_PI - omega_ * omega_);
 }
 
-template <std::size_t DIM>
-void SampleHarmonicProblems<DIM>::exactSolution(
-    const Geometry::PointPhysical<DIM> &point,
-    LinearAlgebra::SmallVector<DIM> &result) const {
-    switch (problem_) {
-        case CONSTANT: {
-            result.set(1);
-            break;
-        }
-        case SARMANY2010: {
-            sarmanyx(point, result);
-            break;
-        }
-        default:
-            logger.assert_debug(false, "Not implemented for this problem.");
-    }
-}
+template class ConstantHarmonicProblem<2>;
+template class ConstantHarmonicProblem<3>;
 
-template <std::size_t DIM>
-void SampleHarmonicProblems<DIM>::exactSolutionCurl(
-    const Geometry::PointPhysical<DIM> &point,
-    LinearAlgebra::SmallVector<DIM> &result) const {
-    switch (problem_) {
-        case CONSTANT: {
-            result.set(0);
-            break;
-        }
-        case SARMANY2010: {
-            double x = point[0], y = point[1], z = point[2];
-            result[0] = sin(M_PI * x) * (cos(M_PI * y) - cos(M_PI * z));
-            result[1] = sin(M_PI * y) * (cos(M_PI * z) - cos(M_PI * x));
-            result[2] = sin(M_PI * z) * (cos(M_PI * x) - cos(M_PI * y));
-            result *= M_PI;
-            break;
-        }
-        default:
-            logger.assert_debug(false, "Not implemented for this problem.");
-    }
-}
+template <std::size_t dim>
+LinearAlgebra::SmallVectorC<dim> PlaneWaveReflectionProblem<dim>::exactSolution(
+    const Geometry::PointPhysical<dim> &point) const {
 
-template <std::size_t DIM>
-void SampleHarmonicProblems<DIM>::sourceTerm(
-    const Geometry::PointPhysical<DIM> &point,
-    LinearAlgebra::SmallVector<DIM> &result) const {
-    switch (problem_) {
-        case CONSTANT: {
-            result.set(-omega_ * omega_);
-            break;
-        }
-        case SARMANY2010: {
-            sarmanyx(point, result);
-            result *= (2 * M_PI * M_PI - omega_ * omega_);
-            break;
-        }
-        default:
-            logger.assert_debug(false, "Not implemented for this problem.");
-    }
-}
+    using namespace std::complex_literals;
+    LinearAlgebra::SmallVectorC<dim> result;
+    result[1] = 1.0;
 
-template <std::size_t DIM>
-void SampleHarmonicProblems<DIM>::sarmanyx(
-    const Geometry::PointPhysical<DIM> &point,
-    LinearAlgebra::SmallVector<DIM> &result) const {
-    if (DIM == 3) {
-        double sx = sin(M_PI * point[0]), sy = sin(M_PI * point[1]),
-               sz = sin(M_PI * point[2]);
-        result[0] = sy * sz;
-        result[1] = sz * sx;
-        result[2] = sx * sy;
+    double x = point.getCoordinate(0);
+
+    if (point.getCoordinates()[0] < interfacePosition_) {
+        result *= (incidentPhasor_ * std::exp(1i * k1_ * x) +
+                   reflectionPhasor_ * std::exp(-1i * k1_ * x));
     } else {
-        logger.assert_debug(DIM == 3, "Sarmany test case only works in 3D.");
+        result *= transmissionPhasor_ * std::exp(1i * k2_ * x);
     }
+    return result;
 }
 
-template class SampleHarmonicProblems<2>;
-template class SampleHarmonicProblems<3>;
+template <std::size_t dim>
+LinearAlgebra::SmallVectorC<dim>
+    PlaneWaveReflectionProblem<dim>::exactSolutionCurl(
+        const Geometry::PointPhysical<dim> &point) const {
+
+    double x = point.getCoordinate(0);
+
+    using namespace std::complex_literals;
+    LinearAlgebra::SmallVectorC<dim> result;
+    LinearAlgebra::SmallVectorC<dim> kdir;
+    kdir[0] = 1.0;
+    result[1] = 1.0;
+    // Curl E0 exp(ikx) = ik x E0 exp(ikx)
+    result = kdir.crossProduct(result);
+
+    if (x < interfacePosition_) {
+        result *= 1i * k1_ *
+                  (incidentPhasor_ * std::exp(1i * k1_ * x) -
+                   reflectionPhasor_ * std::exp(-1i * k1_ * x));
+    } else {
+        result *= 1i * k2_ * transmissionPhasor_ * std::exp(1i * k2_ * x);
+    }
+    return result;
+}
+
+template <std::size_t dim>
+BoundaryConditionType PlaneWaveReflectionProblem<dim>::getBoundaryConditionType(
+    const Base::Face &face) const {
+    auto normal = face.getNormalVector(
+        face.getReferenceGeometry()->getCenter().castDimension<dim - 1>());
+    normal /= normal.l2Norm();
+
+    if (std::abs(normal[0]) > 0.9) {
+        // Normal in x direction
+        return BoundaryConditionType::SILVER_MULLER;
+    } else if (std::abs(normal[1]) > 0.9) {
+        // Normal in y-direction, E-field parallel to the normal
+        // use perfect electric conductor
+        return BoundaryConditionType::DIRICHLET;
+    } else if (dim > 2 && std::abs(normal[2]) > 0.9) {
+        // Normal in z direction, field parallel to the face
+        // use perfect magnetic conductor
+        return BoundaryConditionType::NEUMANN;
+    } else {
+        logger.assert_always(
+            false, "Problem not set up for a face in normal direction %",
+            normal);
+        return BoundaryConditionType::DIRICHLET;
+    }
+}
+template <std::size_t dim>
+LinearAlgebra::SmallVectorC<dim>
+    PlaneWaveReflectionProblem<dim>::boundaryCondition(
+        Base::PhysicalFace<dim> &face) const {
+    return ExactHarmonicProblem<dim>::boundaryCondition(face);
+}
+
+template class PlaneWaveReflectionProblem<2>;
+template class PlaneWaveReflectionProblem<3>;
+}  // namespace DGMax

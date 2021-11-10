@@ -47,8 +47,10 @@
 
 using namespace hpgem;
 using LinearAlgebra::SmallVector;
+using LinearAlgebra::SmallVectorC;
+using namespace std::complex_literals;
 
-void crossProductTests3D() {
+TEST_CASE("Cross product 3D", "[SmallVectorUnitTest]") {
     SmallVector<3> x({1, 0, 0}), y({0, 1, 0}), z({0, 0, 1});
 
     // Checking the orientation.
@@ -91,7 +93,8 @@ void crossProductTests3D() {
           1e-12);
 }
 
-void crossProductTests2D() {
+// Run 3D case first, as this uses that
+TEST_CASE("Cross product 2D", "[SmallVectorUnitTest]") {
     SmallVector<2> x({1, 0}), y({0, 1});
 
     // Checking basic unit vectors crosses
@@ -271,9 +274,57 @@ TEST_CASE("SmallVectorUnitTest", "[SmallVectorUnitTest]") {
     CHECK(std::abs(convenient(3) - 2.) < 1e-12);
 
     std::cout << pc2 << convenient << std::endl;
+}
 
-    crossProductTests3D();
-    // Test 2D after 3D as it test the equivalence between 2D cross product and
-    // 3D crossproduct
-    crossProductTests2D();
+TEST_CASE("L2Norm", "[SmallVectorUnitTest]") {
+    // Following tests use integers and should therefore be exact.
+    SmallVector<2> v1 = {2.0, 3.0};
+    CHECK(v1.l2NormSquared() == 13);
+    SmallVectorC<2> vc1 = {2.0 + 3.0i, 4.0 + 5.0i};
+    CHECK(vc1.l2NormSquared() == 4 + 9 + 16 + 25);
+}
+
+TEST_CASE("Complex Inner product", "[SmallVectorUnitTest]") {
+    SmallVectorC<2> v1 = {1.0 + 2.0i, 1.0};
+    SmallVectorC<2> v2 = {1.0i, 3.0 + 2.0i};
+    // Expected value: 5-3i
+    // (1+2i) * conj(1i) = 2-1i
+    // 1 * conj(3+2i)    = 3-2i
+    CHECK(v1 * v2 == 5.0 - 3.0i);
+    // Flipping the order conjugates the output
+    CHECK(v2 * v1 == 5.0 + 3.0i);
+
+    // Consistency with l2 norm squared
+    INFO("l2 norm <-> inner product equivalence");
+    CHECK(v1 * v1 == 1.0 + 4.0 + 1.0);
+    CHECK(v2 * v2 == 1.0 + 4.0 + 9.0);
+}
+
+TEST_CASE("Conversion complex <-> real", "[SmallVectorUnitTest]") {
+    SmallVector<1> vreal = {1.0};
+    SmallVectorC<1> vcreal = {1.0 + 0i};
+
+    INFO("Conversion real -> complex");
+    CHECK(SmallVectorC<1>(vreal) == vcreal);
+
+    INFO("Conversion complex -> real");
+    CHECK(SmallVector<1>(vcreal) == vreal);
+}
+
+TEST_CASE("Vector real imag", "[SmallVectorUnitTest]") {
+    SmallVectorC<2> cvector = {1.0 + 2.0i, 3.0 + 4.0i};
+    SmallVector<2> realPart = {1.0, 3.0};
+    SmallVector<2> imagPart = {2.0, 4.0};
+    SmallVector<2> zeroVec = {0.0, 0.0};
+
+    {
+        INFO("Check complex vector")
+        CHECK(cvector.real() == realPart);
+        CHECK(cvector.imag() == imagPart);
+    }
+    {
+        INFO("Check real vector");
+        CHECK(realPart.real() == realPart);
+        CHECK(realPart.imag() == zeroVec);
+    }
 }

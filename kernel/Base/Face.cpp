@@ -36,19 +36,13 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "PhysicalElement.h"
 #include "Face.h"
 #include "Element.h"
 
 #include "Logger.h"
 #include <iostream>
-#include "Integration/QuadratureRules/GaussQuadratureRule.h"
-#include "Geometry/ReferenceGeometry.h"
-#include "Geometry/PointReference.h"
 #include "LinearAlgebra/MiddleSizeVector.h"
-#include "L2Norm.h"
 #include "Node.h"
-#include "Geometry/PhysicalGeometry.h"
 #include "Geometry/PointPhysical.h"
 #include "TreeIterator.h"
 

@@ -37,6 +37,7 @@
  */
 
 #include "TvbLimiterWithDetector1D.h"
+#include "Base/Face.h"
 #include "../HelperFunctions.h"
 
 using namespace hpgem;
@@ -126,7 +127,7 @@ std::vector<bool> TvbLimiterWithDetector1D::detectDiscontinuity(
         element->getPhysicalGeometry()->getLocalNodeCoordinates(0);
     const Geometry::PointPhysical<1> &pPhys1 =
         element->getPhysicalGeometry()->getLocalNodeCoordinates(1);
-    const double dx = Base::L2Norm(pPhys0 - pPhys1);
+    const double dx = (pPhys0 - pPhys1).l2Norm();
     logger(DEBUG, "grid size: %", dx);
     totalIntegral /= std::pow(dx, (polynomialOrder_ + 1.) / 2);
 

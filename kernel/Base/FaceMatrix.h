@@ -111,6 +111,7 @@ class FaceMatrix {
     /// combination of two elements connected to the face.
     const LinearAlgebra::MiddleSizeMatrix &getElementMatrix(Side iSide,
                                                             Side jSide) const;
+    LinearAlgebra::MiddleSizeMatrix &getElementMatrix(Side iSide, Side jSide);
 
     /// \brief Sets the submatrix corresponding to a combination of two elements
     /// connected to the face.

@@ -50,7 +50,6 @@
 #include "Geometry/PointPhysical.h"
 #include "Geometry/PhysicalGeometry.h"
 #include <cmath>
-#include <Base/L2Norm.h>
 
 #include "../catch.hpp"
 
@@ -164,7 +163,7 @@ TEST_CASE("020MappingToPhysicalSimplexLinear_UnitTest",
             // on the same location
 
             double dist =
-                Base::L2Norm(refPoint2D - mapping2D.inverseTransform(point2D));
+                (refPoint2D - mapping2D.inverseTransform(point2D)).l2Norm();
             bool check2 = (!rGeom2D.isInternalPoint(refPoint2D) &&
                            !rGeom2D.isInternalPoint(
                                mapping2D.inverseTransform(point2D))) ||
@@ -184,8 +183,8 @@ TEST_CASE("020MappingToPhysicalSimplexLinear_UnitTest",
         CHECK(std::abs(point2D[1] - compare2D[1]) < 1e-12);
     }
 
-    INFO("getTargetDimension");
-    CHECK((mapping2D.getTargetDimension() == 2));
+    INFO("getDimension");
+    CHECK((mapping2D.getDimension() == 2));
     // dim3
     pointIndexes[2] = 18;
 
@@ -304,8 +303,8 @@ TEST_CASE("020MappingToPhysicalSimplexLinear_UnitTest",
                 // inside
                 // and on the same location
 
-                double dist = Base::L2Norm(refPoint3D -
-                                           mapping3D.inverseTransform(point3D));
+                double dist =
+                    (refPoint3D - mapping3D.inverseTransform(point3D)).l2Norm();
                 bool check = (!rGeom3D.isInternalPoint(refPoint3D) &&
                               !rGeom3D.isInternalPoint(
                                   mapping3D.inverseTransform(point3D))) ||
@@ -328,6 +327,6 @@ TEST_CASE("020MappingToPhysicalSimplexLinear_UnitTest",
         CHECK(std::abs(point3D[2] - compare3D[2]) < 1e-12);
     }
 
-    INFO("getTargetDimension");
-    CHECK((mapping3D.getTargetDimension() == 3));
+    INFO("getDimension");
+    CHECK((mapping3D.getDimension() == 3));
 }

@@ -48,7 +48,6 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/Jacobian.h"
 #include <cmath>
-#include <Base/L2Norm.h>
 
 #include "../catch.hpp"
 
@@ -187,12 +186,11 @@ TEST_CASE("030MappingToPhysicalTriangularPrism_UnitTest",
                 // different locations; due to nonlinearities) or they are
                 // inside
                 // and on the same location
-                bool check =
-                    !rGeom3D.isInternalPoint(refPoint3D) &&
-                        !rGeom3D.isInternalPoint(
-                            mapping3D.inverseTransform(point3D)) ||
-                    (Base::L2Norm(refPoint3D -
-                                  mapping3D.inverseTransform(point3D)) < 1e-12);
+                bool check = !rGeom3D.isInternalPoint(refPoint3D) &&
+                                 !rGeom3D.isInternalPoint(
+                                     mapping3D.inverseTransform(point3D)) ||
+                             ((refPoint3D - mapping3D.inverseTransform(point3D))
+                                  .l2Norm() < 1e-12);
                 CHECK(check);
                 INFO("inverse transformation, (distance is "
                      << refPoint3D - mapping3D.inverseTransform(point3D)
@@ -211,6 +209,6 @@ TEST_CASE("030MappingToPhysicalTriangularPrism_UnitTest",
         CHECK(std::abs(point3D[2] - compare3D[2]) < 1e-12);
     }
 
-    INFO("getTargetDimension");
-    CHECK((mapping3D.getTargetDimension() == 3));
+    INFO("getDimension");
+    CHECK((mapping3D.getDimension() == 3));
 }

@@ -46,11 +46,6 @@
 #include "FE/BasisFunctionSet.h"
 #include "TreeEntry.h"
 
-//#include "PhysGradientOfBasisFunction.h"//included after class definition due
-// to cross dependencies (needed for templated function definition) #include
-//"PhysicalElement.h"//included after class definition due to cross dependencies
-//(needed for templated function definition)
-
 #include <vector>
 #include <iostream>
 #include <memory>
@@ -67,10 +62,6 @@ namespace Base {
 class Node;
 class Edge;
 class Face;
-
-class ElementCacheData;
-template <std::size_t DIM>
-class PhysicalElement;
 
 // class is final as a reminder that the virtual default destructor should be
 // added once something inherits from this class
@@ -103,13 +94,19 @@ class Element final : public Geometry::ElementGeometry, public ElementData {
     void setGaussQuadratureRule(
         QuadratureRules::GaussQuadratureRule* const quadR);
 
-    void setDefaultBasisFunctionSet(std::size_t position) {
-        // Clear all unknowns so that no old data is left from previous basis
-        // function configurations.
+    void clearBasisFunctions() {
         for (std::size_t unknown = 0; unknown < getNumberOfUnknowns();
              ++unknown) {
             basisFunctions_.clearBasisFunctionPosition(unknown);
         }
+        setNumberOfBasisFunctions(0);
+    }
+
+    void setDefaultBasisFunctionSet(std::size_t position) {
+        // Clear all unknowns so that no old data is left from previous basis
+        // function configurations.
+        clearBasisFunctions();
+        // Then assign new default basis function size
         for (std::size_t unknown = 0; unknown < getNumberOfUnknowns();
              ++unknown) {
             setDefaultBasisFunctionSet(position, unknown);
@@ -337,21 +334,6 @@ class Element final : public Geometry::ElementGeometry, public ElementData {
     std::vector<LinearAlgebra::SmallVector<DIM>> getSolutionGradient(
         std::size_t timeLevel, const Geometry::PointReference<DIM>& p) const;
 
-    /// \brief Get the solution at the given timeLevel at the physical point
-    /// corresponding to reference point p. \details uses the physical element
-    /// for evaluation and transformation of the basis functions
-    template <std::size_t DIM>
-    SolutionVector getSolution(std::size_t timeLevel,
-                               PhysicalElement<DIM>& element) const;
-
-    /// \brief Get the gradient of the solution at the given timeLevel at the
-    /// physical point corresponding to reference point p. \details returns a
-    /// vector of gradients. Uses the physical element for evaluation and
-    /// transformation of gradients of the basis functions
-    template <std::size_t DIM>
-    std::vector<LinearAlgebra::SmallVector<DIM>> getSolutionGradient(
-        std::size_t timeLevel, PhysicalElement<DIM>& element) const;
-
     ///\todo not implemented
     void initialiseSolution(std::size_t timeLevel, std::size_t solutionId,
                             const SolutionVector& solution);
@@ -562,8 +544,6 @@ class Element final : public Geometry::ElementGeometry, public ElementData {
 };
 }  // namespace Base
 }  // namespace hpgem
-#include "PhysGradientOfBasisFunction.h"
-#include "PhysicalElement.h"
 
 namespace hpgem {
 
@@ -821,7 +801,8 @@ std::vector<LinearAlgebra::SmallVector<DIM>> Element::getSolutionGradient(
     std::vector<std::size_t> numberOfBasisFunctions =
         std::vector<std::size_t>(numberOfUnknowns, 0);
     std::vector<LinearAlgebra::SmallVector<DIM>> solution(numberOfUnknowns);
-    auto jacobean = getReferenceToPhysicalMap()->calcJacobian(p);
+    auto jacobean =
+        getReferenceToPhysicalMap()->castDimension<DIM>().calcJacobian(p);
     jacobean = jacobean.transpose();
 
     LinearAlgebra::MiddleSizeVector data =
@@ -835,55 +816,6 @@ std::vector<LinearAlgebra::SmallVector<DIM>> Element::getSolutionGradient(
             auto derivative = basisFunctionDeriv(iB, p);
             jacobean.solve(derivative);
             solution[iV] += data(iVB) * derivative;
-        }
-    }
-    return solution;
-}
-
-template <std::size_t DIM>
-Element::SolutionVector Element::getSolution(
-    std::size_t timeIntegrationVectorId, PhysicalElement<DIM>& element) const {
-    logger.assert_debug(element.getElement() == this,
-                        "Cannot find the solution in a different element!");
-    std::size_t numberOfUnknowns = ElementData::getNumberOfUnknowns();
-    std::vector<std::size_t> numberOfBasisFunctions =
-        std::vector<std::size_t>(numberOfUnknowns, 0);
-    SolutionVector solution(numberOfUnknowns);
-
-    const LinearAlgebra::MiddleSizeVector& data =
-        ElementData::getTimeIntegrationVector(timeIntegrationVectorId);
-
-    std::size_t iVB = 0;
-    for (std::size_t iV = 0; iV < numberOfUnknowns; ++iV) {
-        numberOfBasisFunctions[iV] = ElementData::getNumberOfBasisFunctions(iV);
-        for (std::size_t iB = 0; iB < numberOfBasisFunctions[iV]; ++iB) {
-            iVB = convertToSingleIndex(iB, iV);
-            solution[iV] += data(iVB) * element.basisFunction(iB);
-        }
-    }
-    return solution;
-}
-
-template <std::size_t DIM>
-std::vector<LinearAlgebra::SmallVector<DIM>> Element::getSolutionGradient(
-    std::size_t timeIntegrationVectorId, PhysicalElement<DIM>& element) const {
-    logger.assert_debug(
-        element.getElement() == this,
-        "Cannot find the gradient of the solution in a different element!");
-    std::size_t numberOfUnknowns = ElementData::getNumberOfUnknowns();
-    std::vector<std::size_t> numberOfBasisFunctions =
-        std::vector<std::size_t>(numberOfUnknowns, 0);
-    std::vector<LinearAlgebra::SmallVector<DIM>> solution(numberOfUnknowns);
-
-    LinearAlgebra::MiddleSizeVector data =
-        ElementData::getTimeIntegrationVector(timeIntegrationVectorId);
-
-    std::size_t iVB = 0;
-    for (std::size_t iV = 0; iV < numberOfUnknowns; ++iV) {
-        numberOfBasisFunctions[iV] = ElementData::getNumberOfBasisFunctions(iV);
-        for (std::size_t iB = 0; iB < numberOfBasisFunctions[iV]; ++iB) {
-            iVB = convertToSingleIndex(iB, iV);
-            solution[iV] += data(iVB) * element.basisFunctionDeriv(iB);
         }
     }
     return solution;

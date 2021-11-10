@@ -10,13 +10,13 @@ if(hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
 		kspaceData.cpp
         DGMaxProgramUtils.cpp
 
+		Algorithms/AbstractDiscretization.cpp
 		Algorithms/DGMaxEigenvalue.cpp
 		Algorithms/DGMaxDiscretization.cpp
 		Algorithms/DGMaxTimeIntegration.cpp
-		Algorithms/DGMaxHarmonic.cpp
+		Algorithms/HarmonicSolver.cpp
 		Algorithms/DivDGMaxDiscretization.cpp
 		Algorithms/DivDGMaxEigenvalue.cpp
-		Algorithms/DivDGMaxHarmonic.cpp
 
 		ProblemTypes/Harmonic/SampleHarmonicProblems.cpp
 		ProblemTypes/Time/DummyTestProblem.cpp
@@ -30,6 +30,9 @@ if(hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
 		Utils/KPhaseShift.cpp
 		Utils/CGDGMatrixKPhaseShiftBuilder.cpp
 		Utils/FaceKPhaseShiftBuilder.cpp
+		Utils/PredefinedStructure.cpp
+		Utils/StructureDescription.cpp
+		Utils/ZoneStructureDescription.cpp
 		Utils/Verification/DGMaxEVConvergenceTest.cpp
 		Utils/Verification/DivDGMaxEVConvergenceTest.cpp
 		Utils/Verification/EVConvergenceResult.cpp

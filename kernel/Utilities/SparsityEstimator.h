@@ -2,7 +2,7 @@
 #ifndef HPGEM_KERNEL_SPARSITYESTIMATOR_H
 #define HPGEM_KERNEL_SPARSITYESTIMATOR_H
 
-#include "vector"
+#include <vector>
 #include "Utilities/Table2D.h"
 
 namespace hpgem {

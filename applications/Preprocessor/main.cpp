@@ -48,7 +48,8 @@ using idx_t = std::size_t;
 #include <random>
 #include "Base/CommandLineOptions.h"
 #include "Base/MpiContainer.h"
-#include "mesh.h"
+#include "mesh/Mesh.h"
+#include "MeshFactory.h"
 #include "hpgem.h"
 #include "centaur.h"
 #include "meshData.h"
@@ -144,15 +145,15 @@ Preprocessor::MeshData<idx_t, dimension, dimension> partitionMesh(
             2 * mesh.getNumberOfFaces());  // actually interior faces only
         idx_t connectionsUsed{0};
         for (auto element : mesh.getElements()) {
-            xadj[element.getGlobalIndex()] = connectionsUsed;
+            xadj[element.getGlobalIndex().id] = connectionsUsed;
             for (auto face : element.getFacesList()) {
                 if (face.getNumberOfElements() == 2) {
                     if (face.getElement(0) == element) {
                         adjncy[connectionsUsed++] =
-                            face.getElement(1).getGlobalIndex();
+                            face.getElement(1).getGlobalIndex().id;
                     } else {
                         adjncy[connectionsUsed++] =
-                            face.getElement(0).getGlobalIndex();
+                            face.getElement(0).getGlobalIndex().id;
                     }
                 }
             }
@@ -244,9 +245,9 @@ int main(int argc, char** argv) {
                     centaurFile.getDimension(), dimension.getValue());
             }
             if (centaurFile.getDimension() == 2) {
-                processMesh(Preprocessor::readFile<2>(centaurFile));
+                processMesh(Preprocessor::fromMeshSource<2>(centaurFile));
             } else if (centaurFile.getDimension() == 3) {
-                processMesh(Preprocessor::readFile<3>(centaurFile));
+                processMesh(Preprocessor::fromMeshSource<3>(centaurFile));
             } else {
                 logger(ERROR,
                        "Centaur file should not be able to have dimension %",

@@ -36,3 +36,20 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "Zone.h"
+
+namespace hpgem {
+namespace Base {
+bool Zone::matchesName(std::regex regex) const {
+    return std::regex_match(name_, regex);
+}
+
+int Zone::matchName(const std::vector<std::regex> &regexes) const {
+    for (int i = 0; i < regexes.size(); ++i) {
+        if (matchesName(regexes[i])) {
+            return i;
+        }
+    }
+    return -1;
+}
+}  // namespace Base
+}  // namespace hpgem

@@ -36,7 +36,6 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <Base/L2Norm.h>
 #include "MappingToPhysTriangularPrism.h"
 
 #include "Geometry/PointPhysical.h"
@@ -51,7 +50,7 @@ namespace hpgem {
 namespace Geometry {
 MappingToPhysTriangularPrism::MappingToPhysTriangularPrism(
     const PhysicalGeometry<3>* const physicalGeometry)
-    : MappingReferenceToPhysical(physicalGeometry) {
+    : MappingReferenceToPhysical<3>(physicalGeometry) {
     logger.assert_debug(physicalGeometry != nullptr,
                         "Invalid physical geometry passed");
     reinit();
@@ -78,7 +77,7 @@ PointPhysical<3> MappingToPhysTriangularPrism::transform(
     PointPhysical<3> p;
 
     for (std::size_t i = 0; i < 6; ++i) {
-        p = geometry->getLocalNodeCoordinates(i);
+        p = geometry_->getLocalNodeCoordinates(i);
         pP += f2[i] * p;
     }
     return pP;
@@ -90,14 +89,14 @@ PointReference<3> MappingToPhysTriangularPrism::inverseTransform(
     Geometry::PointReference<3> result;
     Geometry::PointPhysical<3> comparison = transform(result);
     LinearAlgebra::SmallVector<3> correction;
-    double error = Base::L2Norm(pointPhysical - comparison);
+    double error = (pointPhysical - comparison).l2NormSquared();
     std::size_t loop_count{0};
-    while (error > 1e-14 && loop_count++ < 100) {
+    while (error > 1e-28 && loop_count++ < 100) {
         correction = (pointPhysical - comparison).getCoordinates();
         calcJacobian(result).solve(correction);
         result = PointReference<3>(result + correction);
         comparison = transform(result);
-        error = Base::L2Norm(pointPhysical - comparison);
+        error = (pointPhysical - comparison).l2NormSquared();
     }
     if (loop_count == 100) {
         return {std::numeric_limits<double>::quiet_NaN(),
@@ -156,7 +155,7 @@ Jacobian<3, 3> MappingToPhysTriangularPrism::calcJacobian(
     Geometry::PointPhysical<3> p;
 
     for (std::size_t i = 0; i < 6; ++i) {
-        p = geometry->getLocalNodeCoordinates(i);
+        p = geometry_->getLocalNodeCoordinates(i);
 
         d_dxi0 += df_dxi0[i] * p;
         d_dxi1 += df_dxi1[i] * p;

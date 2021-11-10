@@ -44,7 +44,6 @@
 #include "Base/FaceMatrix.h"
 #include "Geometry/FaceGeometry.h"
 #include "Base/Element.h"
-#include "L2Norm.h"
 #include "TreeEntry.h"
 
 namespace hpgem {
@@ -512,12 +511,12 @@ LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionNormal(
     if (i < n) {
         ret = normal;
         ret *= getPtrElementLeft()->basisFunction(i, mapRefFaceToRefElemL(p)) /
-               Base::L2Norm(normal);
+               normal.l2Norm();
     } else {
         ret = normal;
         ret *= -getPtrElementRight()->basisFunction(i - n,
                                                     mapRefFaceToRefElemR(p)) /
-               Base::L2Norm(normal);
+               normal.l2Norm();
     }
     return ret;
 }
@@ -536,12 +535,12 @@ LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionNormal(
         ret = normal;
         ret *= getPtrElementLeft()->basisFunction(i, mapRefFaceToRefElemL(p),
                                                   unknown) /
-               Base::L2Norm(normal);
+               normal.l2Norm();
     } else {
         ret = normal;
         ret *= -getPtrElementRight()->basisFunction(
                    i - n, mapRefFaceToRefElemR(p), unknown) /
-               Base::L2Norm(normal);
+               normal.l2Norm();
     }
     return ret;
 }
@@ -563,7 +562,7 @@ LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionNormal(
             iBasisFunction, getPtrElementLeft()->getNumberOfBasisFunctions());
         return getPtrElementLeft()->basisFunction(iBasisFunction,
                                                   mapRefFaceToRefElemL(p)) *
-               normal / Base::L2Norm(normal);
+               normal / normal.l2Norm();
     }
     logger.assert_debug(isInternal(),
                         "boundary faces only have a \"left\" element");
@@ -573,7 +572,7 @@ LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionNormal(
         iBasisFunction, getPtrElementRight()->getNumberOfBasisFunctions());
     return -getPtrElementRight()->basisFunction(iBasisFunction,
                                                 mapRefFaceToRefElemR(p)) *
-           normal / Base::L2Norm(normal);
+           normal / normal.l2Norm();
 }
 
 /// \param[in] iSide The index corresponding to the side of the face.
@@ -595,7 +594,7 @@ LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionNormal(
             getPtrElementLeft()->getNumberOfBasisFunctions(unknown));
         return getPtrElementLeft()->basisFunction(
                    iBasisFunction, mapRefFaceToRefElemL(p), unknown) *
-               normal / Base::L2Norm(normal);
+               normal / normal.l2Norm();
     }
     logger.assert_debug(isInternal(),
                         "boundary faces only have a \"left\" element");
@@ -607,7 +606,7 @@ LinearAlgebra::SmallVector<DIM + 1> Face::basisFunctionNormal(
         getPtrElementRight()->getNumberOfBasisFunctions(unknown));
     return -getPtrElementRight()->basisFunction(
                iBasisFunction, mapRefFaceToRefElemR(p), unknown) *
-           normal / Base::L2Norm(normal);
+           normal / normal.l2Norm();
 }
 
 template <std::size_t DIM>

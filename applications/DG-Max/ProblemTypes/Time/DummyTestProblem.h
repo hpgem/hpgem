@@ -50,18 +50,16 @@ using namespace hpgem;
 /// TODO: Cleanup the implementation to make all problems accessiblea
 template <std::size_t DIM>
 class DummyTestProblem : public ExactSeparableTimeIntegrationProblem<DIM> {
-    void initialConditionDerivative(
-        const Geometry::PointPhysical<DIM>& point,
-        LinearAlgebra::SmallVector<DIM>& result) const override;
+    LinearAlgebra::SmallVector<DIM> initialConditionDerivative(
+        const Geometry::PointPhysical<DIM>& point) const override;
 
-    void sourceTermRef(const Geometry::PointPhysical<DIM>& point,
-                       LinearAlgebra::SmallVector<DIM>& result) const override;
+    LinearAlgebra::SmallVector<DIM> sourceTermRef(
+        const Geometry::PointPhysical<DIM>& point) const override;
 
-    void exactSolution(const Geometry::PointPhysical<DIM>& point, double t,
-                       LinearAlgebra::SmallVector<DIM>& result) const override;
-    void exactSolutionCurl(
-        const Geometry::PointPhysical<DIM>& point, double t,
-        LinearAlgebra::SmallVector<DIM>& result) const override;
+    LinearAlgebra::SmallVector<DIM> exactSolution(
+        const Geometry::PointPhysical<DIM>& point, double t) const override;
+    LinearAlgebra::SmallVector<DIM> exactSolutionCurl(
+        const Geometry::PointPhysical<DIM>& point, double t) const override;
 
     double timeScalingBoundary(double t) const override;
     double timeScalingSource(double t) const override;

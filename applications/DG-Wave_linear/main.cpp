@@ -37,7 +37,6 @@
  */
 
 #include "Base/HpgemAPIBase.h"
-#include "Base/L2Norm.h"
 #include "Output/TecplotSingleElementWriter.h"
 #include <fstream>
 #include "FE/BasisFunctions2DH1ConformingSquare.h"
@@ -73,14 +72,7 @@ class DGWave : public Base::HpgemAPIBase<DIM>,
     bool initialise() {
         addMesh("mesh.hpgem", 1, 1, 1, 1);
         setNumberOfTimeIntegrationVectorsGlobally(1);
-        meshes_[0]->setDefaultBasisFunctionSet(
-            FE::createInteriorBasisFunctionSet2DH1Square(p_));
-        std::vector<const FE::BasisFunctionSet*> bFsets;
-        bFsets = FE::createVertexBasisFunctionSet2DH1Square(p_);
-        meshes_[0]->addVertexBasisFunctionSet(bFsets);
-        std::vector<const FE::OrientedBasisFunctionSet*> oBFsets;
-        oBFsets = FE::createFaceBasisFunctionSet2DH1Square(p_);
-        meshes_[0]->addFaceBasisFunctionSet(oBFsets);
+        meshes_[0]->useDefaultConformingBasisFunctions(p_);
         return true;
     }
 

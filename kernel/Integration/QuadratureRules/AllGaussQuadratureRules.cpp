@@ -47,6 +47,8 @@
 #include "GaussQuadratureRulesForTriangle.h"
 #include "GaussQuadratureRulesForTriangularPrism.h"
 
+#include "Geometry/ReferenceGeometry.h"
+
 namespace hpgem {
 
 namespace QuadratureRules {
@@ -95,8 +97,8 @@ AllGaussQuadratureRules::AllGaussQuadratureRules() {
     // QUADRATURES*****************************
     addRule(&Tn3_1_1::Instance());
     addRule(&Tn3_2_4::Instance());
-    addRule(&Tn3_3_5::Instance());
-    addRule(&Tn3_4_11::Instance());
+    addRule(&Tn3_3_10::Instance());
+    addRule(&Tn3_4_14::Instance());
     addRule(&T3_5_14::Instance());
     addRule(&T3_6_24::Instance());
     addRule(&T3_7_31::Instance());
@@ -106,7 +108,6 @@ AllGaussQuadratureRules::AllGaussQuadratureRules() {
     //*************************TRIANGULARPRISM
     // QUADRATURES*****************************
     addRule(&TriPrism_1_1::Instance());
-    addRule(&TriPrism_3_8::Instance());
     addRule(&TriPrism_5_21::Instance());
     addRule(&TriPrism_7_64::Instance());
     //*************************HYPERCUBE
@@ -141,7 +142,8 @@ GaussQuadratureRule* AllGaussQuadratureRules::getRule(
             return rule;
         }
     }
-    logger(ERROR, "Tried to find a quadrature rule but didn't find one");
+    logger.assert_always(false, "No quadrature rule found for % and order %",
+                         referenceGeometry->getName(), order);
     return nullptr;
 }
 
