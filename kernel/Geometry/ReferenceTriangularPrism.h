@@ -116,7 +116,7 @@ class ReferenceTriangularPrism : public ReferenceGeometry {
         const std::size_t) const final;
 
     //! (see MappingCodimensions.h)
-    const MappingReferenceToReference<1>* getCodim1MappingPtr(
+    const BoundaryFaceMapping* getCodim1MappingPtr(
         const std::size_t) const final;
 
     //! (see MappingCodimensions.h)
@@ -166,7 +166,7 @@ class ReferenceTriangularPrism : public ReferenceGeometry {
 
     //! Codimension 1 mappings, from a square or triangle to a triangular prism
     //! face.
-    const MappingReferenceToReference<1>* mappingsFaceToTriangularPrism_[5];
+    const BoundaryFaceMapping* mappingsFaceToTriangularPrism_[5];
 
     //! Pointer to the Codimension 1 reference geometry.
     ReferenceGeometry* const referenceGeometryCodim1TrianglePtr_;

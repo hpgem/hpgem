@@ -42,6 +42,8 @@
 
 namespace hpgem {
 
+// Warning: Normal signs are taken from an older version and untested.
+
 namespace Geometry {
 // ~~~ index 0
 // ~~~==============================================================================
@@ -80,7 +82,8 @@ Jacobian<3, 4> MappingToRefCubeToHypercube0::calcJacobian(
     return jacobian;
 }
 
-MappingToRefCubeToHypercube0::MappingToRefCubeToHypercube0() = default;
+MappingToRefCubeToHypercube0::MappingToRefCubeToHypercube0()
+    : BoundaryFaceMapping(-1.0) {}
 
 // ~~~ index 1
 // ~~~==============================================================================
@@ -119,7 +122,8 @@ Jacobian<3, 4> MappingToRefCubeToHypercube1::calcJacobian(
     return jacobian;
 }
 
-MappingToRefCubeToHypercube1::MappingToRefCubeToHypercube1() = default;
+MappingToRefCubeToHypercube1::MappingToRefCubeToHypercube1()
+    : BoundaryFaceMapping(1.0) {}
 
 // ~~~ index 2
 // ~~~==============================================================================
@@ -158,7 +162,8 @@ Jacobian<3, 4> MappingToRefCubeToHypercube2::calcJacobian(
     return jacobian;
 }
 
-MappingToRefCubeToHypercube2::MappingToRefCubeToHypercube2() = default;
+MappingToRefCubeToHypercube2::MappingToRefCubeToHypercube2()
+    : BoundaryFaceMapping(-1.0) {}
 
 // ~~~ index 3
 // ~~~==============================================================================
@@ -197,7 +202,8 @@ Jacobian<3, 4> MappingToRefCubeToHypercube3::calcJacobian(
     return jacobian;
 }
 
-MappingToRefCubeToHypercube3::MappingToRefCubeToHypercube3() = default;
+MappingToRefCubeToHypercube3::MappingToRefCubeToHypercube3()
+    : BoundaryFaceMapping(1.0) {}
 
 // ~~~ index 4
 // ~~~==============================================================================
@@ -236,7 +242,8 @@ Jacobian<3, 4> MappingToRefCubeToHypercube4::calcJacobian(
     return jacobian;
 }
 
-MappingToRefCubeToHypercube4::MappingToRefCubeToHypercube4() = default;
+MappingToRefCubeToHypercube4::MappingToRefCubeToHypercube4()
+    : BoundaryFaceMapping(-1.0) {}
 
 // ~~~ index 5
 // ~~~==============================================================================
@@ -275,7 +282,8 @@ Jacobian<3, 4> MappingToRefCubeToHypercube5::calcJacobian(
     return jacobian;
 }
 
-MappingToRefCubeToHypercube5::MappingToRefCubeToHypercube5() = default;
+MappingToRefCubeToHypercube5::MappingToRefCubeToHypercube5()
+    : BoundaryFaceMapping(1.0) {}
 
 // ~~~ index 6
 // ~~~==============================================================================
@@ -314,7 +322,8 @@ Jacobian<3, 4> MappingToRefCubeToHypercube6::calcJacobian(
     return jacobian;
 }
 
-MappingToRefCubeToHypercube6::MappingToRefCubeToHypercube6() = default;
+MappingToRefCubeToHypercube6::MappingToRefCubeToHypercube6()
+    : BoundaryFaceMapping(-1.0){};
 
 // ~~~ index 7
 // ~~~==============================================================================
@@ -353,7 +362,8 @@ Jacobian<3, 4> MappingToRefCubeToHypercube7::calcJacobian(
     return jacobian;
 }
 
-MappingToRefCubeToHypercube7::MappingToRefCubeToHypercube7() = default;
+MappingToRefCubeToHypercube7::MappingToRefCubeToHypercube7()
+    : BoundaryFaceMapping(1.0) {}
 }  // namespace Geometry
 
 }  // namespace hpgem

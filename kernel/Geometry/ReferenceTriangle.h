@@ -94,7 +94,7 @@ class ReferenceTriangle : public ReferenceSimplex<2> {
         const std::size_t) const final;
 
     //! (see MappingCodimensions.h)
-    const MappingReferenceToReference<1>* getCodim1MappingPtr(
+    const BoundaryFaceMapping* getCodim1MappingPtr(
         const std::size_t) const final;
 
     //! (see MappingCodimensions.h)
@@ -124,7 +124,7 @@ class ReferenceTriangle : public ReferenceSimplex<2> {
 
     //! Codimension 1 mappings, from a line to a triangle. (used to map a
     //! coorinate from a face to an element)
-    const MappingReferenceToReference<1>* mappingsLineToTriangle_[3];
+    const BoundaryFaceMapping* mappingsLineToTriangle_[3];
 
     //! Codimension 0 mappings, from a triangle to a triangle. (Used to rotate
     //! the face when the left and right elements dont think it has the same

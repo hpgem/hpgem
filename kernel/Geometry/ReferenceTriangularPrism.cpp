@@ -157,7 +157,7 @@ const ReferenceGeometry* ReferenceTriangularPrism::getCodim1ReferenceGeometry(
     return nullptr;
 }
 
-const MappingReferenceToReference<1>*
+const BoundaryFaceMapping*
     ReferenceTriangularPrism::getCodim1MappingPtr(
         const std::size_t faceIndex) const {
     logger.assert_debug((faceIndex < 5),

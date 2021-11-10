@@ -74,8 +74,8 @@ Jacobian<2, 3> MappingToRefTriangleToTetrahedron0::calcJacobian(
     return jacobian;
 }
 
-MappingToRefTriangleToTetrahedron0::MappingToRefTriangleToTetrahedron0() =
-    default;
+MappingToRefTriangleToTetrahedron0::MappingToRefTriangleToTetrahedron0()
+    : BoundaryFaceMapping(1.0) {}
 
 // ~~~ index 1
 // ~~~==============================================================================
@@ -108,8 +108,8 @@ Jacobian<2, 3> MappingToRefTriangleToTetrahedron1::calcJacobian(
     return jacobian;
 }
 
-MappingToRefTriangleToTetrahedron1::MappingToRefTriangleToTetrahedron1() =
-    default;
+MappingToRefTriangleToTetrahedron1::MappingToRefTriangleToTetrahedron1()
+    : BoundaryFaceMapping(1.0) {}
 
 // ~~~ index 2
 // ~~~==============================================================================
@@ -142,8 +142,8 @@ Jacobian<2, 3> MappingToRefTriangleToTetrahedron2::calcJacobian(
     return jacobian;
 }
 
-MappingToRefTriangleToTetrahedron2::MappingToRefTriangleToTetrahedron2() =
-    default;
+MappingToRefTriangleToTetrahedron2::MappingToRefTriangleToTetrahedron2()
+    : BoundaryFaceMapping(1.0) {}
 
 // ~~~ index 3
 // ~~~==============================================================================
@@ -176,8 +176,8 @@ Jacobian<2, 3> MappingToRefTriangleToTetrahedron3::calcJacobian(
     return jacobian;
 }
 
-MappingToRefTriangleToTetrahedron3::MappingToRefTriangleToTetrahedron3() =
-    default;
+MappingToRefTriangleToTetrahedron3::MappingToRefTriangleToTetrahedron3()
+    : BoundaryFaceMapping(1.0) {}
 }  // namespace Geometry
 
 }  // namespace hpgem

@@ -112,7 +112,7 @@ class ReferencePyramid : public ReferenceGeometry {
         const std::size_t) const final;
 
     //! (see MappingCodimensions.h)
-    const MappingReferenceToReference<1>* getCodim1MappingPtr(
+    const BoundaryFaceMapping* getCodim1MappingPtr(
         const std::size_t) const final;
 
     //! (see MappingCodimensions.h)
@@ -170,7 +170,7 @@ class ReferencePyramid : public ReferenceGeometry {
 
     //! Codimension 1 mappings, from a face to a pyramid. (used to map a
     //! coordinate to a pyramid from one of its faces)
-    const MappingReferenceToReference<1>* mappingsFaceToPyramid_[5];
+    const BoundaryFaceMapping* mappingsFaceToPyramid_[5];
 
     //! Codimension 0 mappings, from a Pyramid to a pyramid. Only needed when an
     //! element has a pyramid as a face.

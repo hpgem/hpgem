@@ -49,7 +49,6 @@
 #include "Geometry/Mappings/MappingReferenceToReference.h"
 #include "Geometry/PointReference.h"
 #include "Geometry/Jacobian.h"
-#include "Geometry/Mappings/OutwardNormalVectorSign.h"
 #include "Geometry/Mappings/ConcatenatedMapping.h"
 
 #include "Logger.h"

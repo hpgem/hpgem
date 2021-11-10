@@ -128,7 +128,7 @@ const ReferenceGeometry* ReferenceLine::getCodim1ReferenceGeometry(
                         "There are only 2 'faces' in a line!");
     return referenceGeometryCodim1Ptr_;
 }
-const MappingReferenceToReference<1>* ReferenceLine::getCodim1MappingPtr(
+const BoundaryFaceMapping* ReferenceLine::getCodim1MappingPtr(
     const std::size_t faceIndex) const {
     logger.assert_debug((faceIndex < 2),
                         "ERROR: Asked for a square point index larger than 3. "

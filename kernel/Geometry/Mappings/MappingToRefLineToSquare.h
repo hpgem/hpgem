@@ -71,7 +71,7 @@ namespace Geometry {
 
 // ~~~ index 0
 // ~~~==============================================================================
-class MappingToRefLineToSquare0 : public MappingReferenceToReference<1> {
+class MappingToRefLineToSquare0 : public BoundaryFaceMapping {
    public:
     static const MappingToRefLineToSquare0& Instance();
     PointReference<2> transform(
@@ -88,7 +88,7 @@ class MappingToRefLineToSquare0 : public MappingReferenceToReference<1> {
 };
 // ~~~ index 1
 // ~~~==============================================================================
-class MappingToRefLineToSquare1 : public MappingReferenceToReference<1> {
+class MappingToRefLineToSquare1 : public BoundaryFaceMapping {
    public:
     static const MappingToRefLineToSquare1& Instance();
     PointReference<2> transform(
@@ -106,7 +106,7 @@ class MappingToRefLineToSquare1 : public MappingReferenceToReference<1> {
 };
 // ~~~ index 2
 // ~~~==============================================================================
-class MappingToRefLineToSquare2 : public MappingReferenceToReference<1> {
+class MappingToRefLineToSquare2 : public BoundaryFaceMapping {
    public:
     static const MappingToRefLineToSquare2& Instance();
     PointReference<2> transform(
@@ -124,7 +124,7 @@ class MappingToRefLineToSquare2 : public MappingReferenceToReference<1> {
 };
 // ~~~ index 3
 // ~~~==============================================================================
-class MappingToRefLineToSquare3 : public MappingReferenceToReference<1> {
+class MappingToRefLineToSquare3 : public BoundaryFaceMapping {
    public:
     static const MappingToRefLineToSquare3& Instance();
     PointReference<2> transform(

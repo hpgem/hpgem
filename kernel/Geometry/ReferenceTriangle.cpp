@@ -145,7 +145,7 @@ const ReferenceGeometry* ReferenceTriangle::getCodim1ReferenceGeometry(
                         "There are only 3 faces in a triangle.\n");
     return referenceGeometryCodim1Ptr_;
 }
-const MappingReferenceToReference<1>* ReferenceTriangle::getCodim1MappingPtr(
+const BoundaryFaceMapping* ReferenceTriangle::getCodim1MappingPtr(
     const std::size_t faceIndex) const {
     logger.assert_debug((faceIndex < 3),
                         "ERROR: Asked for a triangle point index larger than "
