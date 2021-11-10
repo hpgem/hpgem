@@ -62,8 +62,7 @@ namespace Geometry {
 
 // ~~~ index 0
 // ~~~==============================================================================
-class MappingToRefTriangleToTetrahedron0
-    : public BoundaryFaceMapping {
+class MappingToRefTriangleToTetrahedron0 : public BoundaryFaceMapping {
    public:
     static const MappingToRefTriangleToTetrahedron0& Instance();
     PointReference<3> transform(
@@ -84,8 +83,7 @@ class MappingToRefTriangleToTetrahedron0
 // ~~~ index 1
 // ~~~==============================================================================
 
-class MappingToRefTriangleToTetrahedron1
-    : public BoundaryFaceMapping {
+class MappingToRefTriangleToTetrahedron1 : public BoundaryFaceMapping {
    public:
     static const MappingToRefTriangleToTetrahedron1& Instance();
     PointReference<3> transform(
@@ -106,8 +104,7 @@ class MappingToRefTriangleToTetrahedron1
 // ~~~ index 2
 // ~~~==============================================================================
 
-class MappingToRefTriangleToTetrahedron2
-    : public BoundaryFaceMapping {
+class MappingToRefTriangleToTetrahedron2 : public BoundaryFaceMapping {
    public:
     static const MappingToRefTriangleToTetrahedron2& Instance();
     PointReference<3> transform(
@@ -128,8 +125,7 @@ class MappingToRefTriangleToTetrahedron2
 // ~~~ index 3
 // ~~~==============================================================================
 
-class MappingToRefTriangleToTetrahedron3
-    : public BoundaryFaceMapping {
+class MappingToRefTriangleToTetrahedron3 : public BoundaryFaceMapping {
    public:
     static const MappingToRefTriangleToTetrahedron3& Instance();
     PointReference<3> transform(

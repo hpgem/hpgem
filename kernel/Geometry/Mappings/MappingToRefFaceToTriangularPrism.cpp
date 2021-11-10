@@ -75,7 +75,7 @@ Jacobian<2, 3> MappingToRefFaceToTriangularPrism0::calcJacobian(
 }
 
 MappingToRefFaceToTriangularPrism0::MappingToRefFaceToTriangularPrism0()
-    : BoundaryFaceMapping(1.0){}
+    : BoundaryFaceMapping(1.0) {}
 
 // ~~~ index 1
 // ~~~==============================================================================
@@ -109,7 +109,7 @@ Jacobian<2, 3> MappingToRefFaceToTriangularPrism1::calcJacobian(
 }
 
 MappingToRefFaceToTriangularPrism1::MappingToRefFaceToTriangularPrism1()
-    : BoundaryFaceMapping(1.0){}
+    : BoundaryFaceMapping(1.0) {}
 
 // ~~~ index 2
 // ~~~==============================================================================
@@ -143,7 +143,7 @@ Jacobian<2, 3> MappingToRefFaceToTriangularPrism2::calcJacobian(
 }
 
 MappingToRefFaceToTriangularPrism2::MappingToRefFaceToTriangularPrism2()
-    : BoundaryFaceMapping(1.0){}
+    : BoundaryFaceMapping(1.0) {}
 
 // ~~~ index 3
 // ~~~==============================================================================
@@ -177,7 +177,7 @@ Jacobian<2, 3> MappingToRefFaceToTriangularPrism3::calcJacobian(
 }
 
 MappingToRefFaceToTriangularPrism3::MappingToRefFaceToTriangularPrism3()
-    : BoundaryFaceMapping(1.0){}
+    : BoundaryFaceMapping(1.0) {}
 
 // ~~~ index 4
 // ~~~==============================================================================
@@ -211,7 +211,7 @@ Jacobian<2, 3> MappingToRefFaceToTriangularPrism4::calcJacobian(
 }
 
 MappingToRefFaceToTriangularPrism4::MappingToRefFaceToTriangularPrism4()
-    : BoundaryFaceMapping(1.0){}
+    : BoundaryFaceMapping(1.0) {}
 
 }  // namespace Geometry
 

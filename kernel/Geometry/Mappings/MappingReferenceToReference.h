@@ -110,8 +110,7 @@ class MappingReferenceToReference : public MappingInterface<codim> {
 class BoundaryFaceMapping : public MappingReferenceToReference<1> {
    public:
     constexpr BoundaryFaceMapping(double normalSign)
-        : normalSign_(normalSign)
-    {};
+        : normalSign_(normalSign){};
 
     /// The normal of the face can either point inward or outward. The direction
     /// of the normal computed by taking the wedgestuff factor of the Jacobian

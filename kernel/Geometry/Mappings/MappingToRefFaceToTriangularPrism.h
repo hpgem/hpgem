@@ -47,8 +47,7 @@ namespace Geometry {
 
 // ~~~ index 0
 // ~~~==============================================================================
-class MappingToRefFaceToTriangularPrism0
-    : public BoundaryFaceMapping {
+class MappingToRefFaceToTriangularPrism0 : public BoundaryFaceMapping {
    public:
     static const MappingToRefFaceToTriangularPrism0& Instance();
     PointReference<3> transform(
@@ -69,8 +68,7 @@ class MappingToRefFaceToTriangularPrism0
 // ~~~ index 1
 // ~~~==============================================================================
 
-class MappingToRefFaceToTriangularPrism1
-    : public BoundaryFaceMapping {
+class MappingToRefFaceToTriangularPrism1 : public BoundaryFaceMapping {
    public:
     static const MappingToRefFaceToTriangularPrism1& Instance();
     PointReference<3> transform(
@@ -91,8 +89,7 @@ class MappingToRefFaceToTriangularPrism1
 // ~~~ index 2
 // ~~~==============================================================================
 
-class MappingToRefFaceToTriangularPrism2
-    : public BoundaryFaceMapping {
+class MappingToRefFaceToTriangularPrism2 : public BoundaryFaceMapping {
    public:
     static const MappingToRefFaceToTriangularPrism2& Instance();
     PointReference<3> transform(
@@ -113,8 +110,7 @@ class MappingToRefFaceToTriangularPrism2
 // ~~~ index 3
 // ~~~==============================================================================
 
-class MappingToRefFaceToTriangularPrism3
-    : public BoundaryFaceMapping {
+class MappingToRefFaceToTriangularPrism3 : public BoundaryFaceMapping {
    public:
     static const MappingToRefFaceToTriangularPrism3& Instance();
     PointReference<3> transform(
@@ -135,8 +131,7 @@ class MappingToRefFaceToTriangularPrism3
 // ~~~ index 4
 // ~~~==============================================================================
 
-class MappingToRefFaceToTriangularPrism4
-    : public BoundaryFaceMapping {
+class MappingToRefFaceToTriangularPrism4 : public BoundaryFaceMapping {
    public:
     static const MappingToRefFaceToTriangularPrism4& Instance();
     PointReference<3> transform(
