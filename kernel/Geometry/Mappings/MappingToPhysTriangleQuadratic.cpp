@@ -80,7 +80,7 @@ PointPhysical<2> MappingToPhysTriangleQuadratic::transform(
 
     PointPhysical<2> p;
     for (std::size_t i = 0; i < 6; ++i) {
-        p = geometry->getLocalNodeCoordinates(i);
+        p = geometry_->getLocalNodeCoordinates(i);
         result += weights[i] * p;
     }
     return result;
@@ -135,7 +135,7 @@ Jacobian<2, 2> MappingToPhysTriangleQuadratic::calcJacobian(
     Jacobian<2, 2> result;
     PointPhysical<2> pphys;
     for (std::size_t i = 0; i < 6; ++i) {
-        pphys = geometry->getLocalNodeCoordinates(i);
+        pphys = geometry_->getLocalNodeCoordinates(i);
         for (std::size_t j = 0; j < 2; ++j) {
             for (std::size_t k = 0; k < 2; ++k) {
                 result(j, k) += pphys[j] * derivs[k][i];
@@ -145,6 +145,9 @@ Jacobian<2, 2> MappingToPhysTriangleQuadratic::calcJacobian(
     return result;
 }
 void MappingToPhysTriangleQuadratic::reinit() {}
+MappingReferenceToPhysicalBase *MappingToPhysTriangleQuadratic::copy() const {
+    return new MappingToPhysTriangleQuadratic(*this);
+}
 
 }  // namespace Geometry
 }  // namespace hpgem

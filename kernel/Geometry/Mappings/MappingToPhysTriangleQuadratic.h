@@ -42,7 +42,7 @@
 
 namespace hpgem {
 namespace Geometry {
-class MappingToPhysTriangleQuadratic : public MappingReferenceToPhysical {
+class MappingToPhysTriangleQuadratic : public MappingReferenceToPhysical<2> {
    public:
     explicit MappingToPhysTriangleQuadratic(
         const PhysicalGeometry<2> *const physicalGeometry);
@@ -54,9 +54,9 @@ class MappingToPhysTriangleQuadratic : public MappingReferenceToPhysical {
 
     Jacobian<2, 2> calcJacobian(const PointReference<2>&) const final;
 
-    void reinit() final;
+    MappingReferenceToPhysicalBase* copy() const override;
 
-    std::size_t getTargetDimension() const final { return 2; }
+    void reinit() final;
 };
 }  // namespace Geometry
 }  // namespace hpgem

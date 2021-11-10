@@ -47,6 +47,7 @@
 #include "Mappings/MappingReferenceToPhysical.h"
 
 #include "ReferenceGeometryFactory.h"
+#include "Mappings/RefinementMapping.h"
 #include "Mappings/MappingReferenceToPhysical.h"
 #include "Mappings/MappingToPhysHypercubeLinear.h"
 #include "Mappings/MappingToPhysSimplexLinear.h"
