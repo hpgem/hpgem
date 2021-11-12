@@ -69,19 +69,65 @@ class GmshReader final : public MeshSource2 {
     std::size_t getDimension() const { return dimension_; }
 
    private:
+    // Element as used by gmsh
+    struct Element {
+
+        static constexpr const std::size_t NO_TAG =
+            std::numeric_limits<std::size_t>::max();
+
+        /// Tag of gmsh
+        std::size_t gmshTag = NO_TAG;
+        /// dimension of this entity/element
+        std::size_t dimension_;
+
+        /// Tag corresponding to the physical name
+        /// May be overwritten by one from the element data
+        std::size_t physicalNameTag = NO_TAG;
+
+        // Reordered to hpgem ordering and using hpgem indices
+        std::vector<std::size_t> coordinates_;
+    };
+
     void fillElementTypeMap();
+    /// Read the MeshFormat header section
     void readHeader();
-    void readNodes();
+    /// Read a PhysicalNames section
+    void readPhysicalNames();
+    /// Read a Nodes section
+    void readNodes(double tol = 1e-12);
+    /// Read an Elements section
     void readElements();
+    /// Read an ElementData section
     void readElementData();
+    /// Read a Periodic section
     void readPBCs();
-    void purgeLowerDimElements();
+    /// Post processing read 3D coordinates to the used dimension
     void pruneCoordinatesToDimension();
+    /// Skip a section that is not of relevance
+    ///
+    /// \param sectionName The name of the section
+    void skipSection(std::string sectionName);
+    /// Read the end of-section marker for a section. Will consume any white
+    /// space before it.
+    ///
+    /// \param sectionName The name of the section
+    void readSectionEnd(std::string sectionName);
 
-    size_t determineDimension(double tol = 1e-12) const;
+    /// Convert the raw gmsh elements from rawElements_ into hpgem elements
+    /// in elements_. After this call rawElements_ is empty.
+    void convertRawElements();
 
+    double version_;
     size_t dimension_;
 
+    // Physical names indexed by dimension and tag
+    std::vector<std::map<std::size_t, std::string>> physicalNames_;
+
+    /// Raw elements as read from gmsh. For gmsh every mesh entity is an
+    /// element, so depending on the dimension this contains points, lines etc.
+    /// Note that 'Entity' in gmsh files refers to model description parts.
+    std::vector<Element> rawElements_;
+    /// Actual elements for hpgem
     std::vector<MeshSource2::Element> elements_;
 
     std::vector<MeshSource2::Coord> nodes_;
