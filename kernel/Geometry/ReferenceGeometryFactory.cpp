@@ -39,8 +39,8 @@
 
 #include "ReferenceCube.h"
 #include "ReferenceHypercube.h"
-#include "ReferenceLagrangeLine.h"
-#include "ReferenceLagrangeTriangle.h"
+#include "ReferenceCurvilinearLine.h"
+#include "ReferenceCurvilinearTriangle.h"
 #include "ReferenceLine.h"
 #include "ReferencePoint.h"
 #include "ReferencePyramid.h"
@@ -88,7 +88,7 @@ ReferenceGeometry& ReferenceGeometryFactory::getGeometry1(
         return ReferenceLine::Instance();
     } else {
         logger.assert_always(numberOfPoints > 2, "Too few points for a Line");
-        return ReferenceLagrangeLine::getReferenceLagrangeLine(numberOfPoints -
+        return ReferenceCurvilinearLine::getReferenceLagrangeLine(numberOfPoints -
                                                                1);
     }
 }
@@ -107,9 +107,9 @@ ReferenceGeometry& ReferenceGeometryFactory::getGeometry2(
     ReferenceGeometry*& geometry = cached2DGeometries_[numberOfPoints];
     if (geometry == nullptr) {
         int order =
-            ReferenceLagrangeTriangle::getOrderFromPoints(numberOfPoints);
+            ReferenceCurvilinearTriangle::getOrderFromPoints(numberOfPoints);
         logger.assert_always(order > 0, "No 2D shape with % points", numberOfPoints);
-        geometry = &ReferenceLagrangeTriangle::getReferenceLagrangeTriangle(order);
+        geometry = &ReferenceCurvilinearTriangle::getReferenceLagrangeTriangle(order);
     }
     return *geometry;
 }

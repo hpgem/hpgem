@@ -35,33 +35,22 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_REFERENCELAGRANGETRIANGLE_H
-#define HPGEM_REFERENCELAGRANGETRIANGLE_H
+#ifndef HPGEM_REFERENCECURVILINEARLINE_H
+#define HPGEM_REFERENCECURVILINEARLINE_H
 
-#include "LagrangeReferenceElement.h"
+#include "ReferenceCurvilinearElement.h"
 
 namespace hpgem {
-namespace Geometry {
-/// Lagrange triangle of arbitrary order based on the standard reference
-/// triangle.
-///
-/// The vertices are generated such that if the coordinates are listed (y,x)
-/// they are in lexicographical order. That way the first order triangle has
-/// ordering (0,0) - (1,0) - (0,1) =(x,y), matching that of the regular triangle
-class ReferenceLagrangeTriangle : public LagrangeReferenceElement<2> {
+namespace Geometry{
+
+class ReferenceCurvilinearLine : public ReferenceCurvilinearElement<1> {
    public:
-    /// Reverse computation finding the order from the number of points.
-    /// Negative values are used to denote that no such element exists
-    static int getOrderFromPoints(std::size_t numberOfPoints);
-    static ReferenceLagrangeTriangle& getReferenceLagrangeTriangle(
-        std::size_t order);
-
+    static ReferenceCurvilinearLine& getReferenceLagrangeLine(std::size_t order);
    private:
-    explicit ReferenceLagrangeTriangle(std::size_t order);
-    static std::vector<Geometry::PointReference<2>> createPoints(
-        std::size_t order);
+    ReferenceCurvilinearLine(std::size_t order);
 };
-}  // namespace Geometry
-}  // namespace hpgem
 
-#endif  // HPGEM_REFERENCELAGRANGETRIANGLE_H
+}
+}
+
+#endif  // HPGEM_REFERENCECURVILINEARLINE_H

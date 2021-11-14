@@ -35,58 +35,33 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "ReferenceLagrangeLine.h"
+#ifndef HPGEM_REFERENCECURVILINEARTRIANGLE_H
+#define HPGEM_REFERENCECURVILINEARTRIANGLE_H
 
-#include <map>
-
-#include "LagrangeReferenceElement_Impl.h"
-#include "ReferenceLine.h"
-#include "ReferencePoint.h"
+#include "ReferenceCurvilinearElement.h"
 
 namespace hpgem {
 namespace Geometry {
+/// Lagrange triangle of arbitrary order based on the standard reference
+/// triangle.
+///
+/// The vertices are generated such that if the coordinates are listed (y,x)
+/// they are in lexicographical order. That way the first order triangle has
+/// ordering (0,0) - (1,0) - (0,1) =(x,y), matching that of the regular triangle
+class ReferenceCurvilinearTriangle : public ReferenceCurvilinearElement<2> {
+   public:
+    /// Reverse computation finding the order from the number of points.
+    /// Negative values are used to denote that no such element exists
+    static int getOrderFromPoints(std::size_t numberOfPoints);
+    static ReferenceCurvilinearTriangle& getReferenceLagrangeTriangle(
+        std::size_t order);
 
-ReferenceLagrangeLine& ReferenceLagrangeLine::getReferenceLagrangeLine(
-    std::size_t order) {
-    logger.assert_always(order != 0, "A zero-th order line does not exist");
-    logger.assert_always(order != 1,
-                         "Use the regular ReferenceLine for first order");
-    // Multiton
-    static std::map<std::size_t, ReferenceLagrangeLine*> lines;
-
-    ReferenceLagrangeLine*& line = lines[order];
-    if (line == nullptr) {
-        line = new ReferenceLagrangeLine(order);
-    }
-    return *line;
-}
-
-std::string getReferenceLagrangeLineName(std::size_t order) {
-    std::stringstream name;
-    name << "Lagrange-ReferenceLine-" << order;
-    return name.str();
-}
-
-std::vector<Geometry::PointReference<1>> createReferencePoints(
-    std::size_t order) {
-    // order + 1 equally spaced points from -1 to 1
-    double h = 2.0 / order;
-    std::vector<Geometry::PointReference<1>> result(order + 1);
-    for (std::size_t i = 0; i < order + 1; ++i) {
-        result[i] = {-1.0 + i * h};
-    }
-    return result;
-}
-
-ReferenceLagrangeLine::ReferenceLagrangeLine(std::size_t order)
-    : LagrangeReferenceElement<1>(&ReferenceLine::Instance(),
-                                  // codim 1 = points -> Not included
-                                  std::vector<ReferenceGeometry*>(0),
-                                  // No codim 2
-                                  std::vector<ReferenceGeometry*>(0),
-                                  // Lagrange points
-                                  createReferencePoints(order),
-                                  getReferenceLagrangeLineName(order), order) {}
-
+   private:
+    explicit ReferenceCurvilinearTriangle(std::size_t order);
+    static std::vector<Geometry::PointReference<2>> createPoints(
+        std::size_t order);
+};
 }  // namespace Geometry
 }  // namespace hpgem
+
+#endif  // HPGEM_REFERENCECURVILINEARTRIANGLE_H

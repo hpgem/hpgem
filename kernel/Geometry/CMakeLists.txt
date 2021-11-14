@@ -12,8 +12,8 @@ add_library(Reference_geometries OBJECT
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceTriangularPrism.cpp 
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceCube.cpp 
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceHypercube.cpp
-		ReferenceLagrangeLine.cpp
-		ReferenceLagrangeTriangle.cpp
+		ReferenceCurvilinearLine.cpp
+		ReferenceCurvilinearTriangle.cpp
 
 		ReferenceGeometryFactory.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceGeometry.cpp

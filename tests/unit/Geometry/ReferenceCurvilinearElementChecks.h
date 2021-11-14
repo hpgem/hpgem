@@ -35,10 +35,10 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_LAGRANGEELEMENTCHECKS_H
-#define HPGEM_LAGRANGEELEMENTCHECKS_H
+#ifndef HPGEM_REFERENCECURVILINEARELEMENTCHECKS_H
+#define HPGEM_REFERENCECURVILINEARELEMENTCHECKS_H
 
-#include "Geometry/LagrangeReferenceElement.h"
+#include "Geometry/ReferenceCurvilinearElement.h"
 #include "../catch.hpp"
 #include "typeinfo"
 
@@ -46,7 +46,7 @@ namespace hpgem {
 
 template <std::size_t d>
 void testLowestLevelIsPoints(
-    const Geometry::LagrangeReferenceElement<d>& geom) {
+    const Geometry::ReferenceCurvilinearElement<d>& geom) {
     static_assert(d > 0 && d <= 2, "Not implemented for this dimension");
     std::size_t nent;
     if (d == 1) {
@@ -69,4 +69,4 @@ void testLowestLevelIsPoints(
 
 }  // namespace hpgem
 
-#endif  // HPGEM_LAGRANGEELEMENTCHECKS_H
+#endif  // HPGEM_REFERENCECURVILINEARELEMENTCHECKS_H

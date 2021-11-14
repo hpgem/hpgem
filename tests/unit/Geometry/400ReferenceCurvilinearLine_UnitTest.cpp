@@ -35,22 +35,17 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_REFERENCELAGRANGELINE_H
-#define HPGEM_REFERENCELAGRANGELINE_H
 
-#include "LagrangeReferenceElement.h"
+#include "../catch.hpp"
+#include "Geometry/ReferenceCurvilinearLine.h"
+#include "ReferenceCurvilinearElementChecks.h"
 
-namespace hpgem {
-namespace Geometry{
+using namespace hpgem;
+using Geometry::ReferenceCurvilinearLine;
 
-class ReferenceLagrangeLine : public LagrangeReferenceElement<1> {
-   public:
-    static ReferenceLagrangeLine& getReferenceLagrangeLine(std::size_t order);
-   private:
-    ReferenceLagrangeLine(std::size_t order);
-};
+TEST_CASE("CurvilinearLine Codim1", "[400ReferenceCurvilinearLine_UnitTest]") {
+    auto p = GENERATE(2,4);
 
+    const auto& line = Geometry::ReferenceCurvilinearLine::getReferenceLagrangeLine(p);
+    testLowestLevelIsPoints<1>(line);
 }
-}
-
-#endif  // HPGEM_REFERENCELAGRANGELINE_H

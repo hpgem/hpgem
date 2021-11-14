@@ -35,7 +35,7 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "LagrangeReferenceElement.h"
+#include "ReferenceCurvilinearElement.h"
 
 #include <limits>
 
@@ -45,12 +45,15 @@ namespace hpgem {
 namespace Geometry {
 
 template <std::size_t dim>
-LagrangeReferenceElement<dim>::LagrangeReferenceElement(
+ReferenceCurvilinearElement<dim>::ReferenceCurvilinearElement(
     ReferenceGeometry* baseGeometry,
     std::vector<ReferenceGeometry*> codim1Geometries,
     std::vector<ReferenceGeometry*> codim2Geometries,
-    std::vector<Geometry::PointReference<dim>> points, const std::string& name, std::size_t order)
-    : baseGeometry_(baseGeometry),
+    std::vector<Geometry::PointReference<dim>> points, const std::string& name,
+    std::size_t order)
+    : ReferenceCurvilinearElementBase(baseGeometry->getGeometryType(), name,
+                                      order),
+      baseGeometry_(baseGeometry),
       codim1Geometries_(std::move(codim1Geometries)),
       codim2Geometries_(std::move(codim2Geometries)),
       points_(std::move(points)),
@@ -58,8 +61,7 @@ LagrangeReferenceElement<dim>::LagrangeReferenceElement(
       baseGeometryIndicices_(baseGeometry->getNumberOfNodes(),
                              std::numeric_limits<std::size_t>::max()),
       codim1Indices_(baseGeometry->getNumberOfCodim1Entities()),
-      codim2Indices_(baseGeometry->getNumberOfCodim2Entities()),
-      LagrangeReferenceElementBase(baseGeometry->getGeometryType(), name, order) {
+      codim2Indices_(baseGeometry->getNumberOfCodim2Entities()) {
 
     // Verify the correct size of codimDGeometries
     if (dim > 1) {
@@ -91,7 +93,7 @@ LagrangeReferenceElement<dim>::LagrangeReferenceElement(
 }
 
 template <std::size_t dim>
-std::size_t LagrangeReferenceElement<dim>::findPoint(
+std::size_t ReferenceCurvilinearElement<dim>::findPoint(
     const PointReference<dim>& point) const {
     // Epsilon for comparing point coordinates. Reference points are of order 1,
     // and should match up to small rounding.
@@ -102,8 +104,7 @@ std::size_t LagrangeReferenceElement<dim>::findPoint(
             return j;
         }
     }
-    logger.assert_always(false, "Point not found.");
-    return std::numeric_limits<std::size_t>::max();
+    logger.fail("Point % not found.", point);
 }
 
 // Computing CODIM-D Indices //
@@ -114,17 +115,17 @@ std::size_t LagrangeReferenceElement<dim>::findPoint(
 // specialization as the (dim - D) < 0, underflows. This would therefore require
 // a PointReference of a very high dimension (that would not be used).
 //
-// The specialization for dim < D is explicitly written without template magic,
-// to keep it readable. This is feasible as we only have dim <= 3 (and therefore
-// D < 3).
+// Two functions are used for Codim1, Codim2. No templates are use as:
+//  - The required functions like getCodimNMappingPtr are not templated
+//  - Readability
 
 template <>
-inline void LagrangeReferenceElement<0>::computeCodim1Indices() {}
+inline void ReferenceCurvilinearElement<0>::computeCodim1Indices() {}
 template <>
-inline void LagrangeReferenceElement<1>::computeCodim1Indices() {}
+inline void ReferenceCurvilinearElement<1>::computeCodim1Indices() {}
 
 template <std::size_t dim>
-void LagrangeReferenceElement<dim>::computeCodim1Indices() {
+void ReferenceCurvilinearElement<dim>::computeCodim1Indices() {
     for (std::size_t i = 0; i < getNumberOfCodim1Entities(); ++i) {
         const auto* codim1Mapping = getCodim1MappingPtr(i);
         const auto* codim1Geom = getCodim1ReferenceGeometry(i);
@@ -143,14 +144,14 @@ void LagrangeReferenceElement<dim>::computeCodim1Indices() {
 
 // Nothing to compute for dim=[0,1,2]
 template <>
-inline void LagrangeReferenceElement<0>::computeCodim2Indices() {}
+inline void ReferenceCurvilinearElement<0>::computeCodim2Indices() {}
 template <>
-inline void LagrangeReferenceElement<1>::computeCodim2Indices() {}
+inline void ReferenceCurvilinearElement<1>::computeCodim2Indices() {}
 template <>
-inline void LagrangeReferenceElement<2>::computeCodim2Indices() {}
+inline void ReferenceCurvilinearElement<2>::computeCodim2Indices() {}
 
 template <std::size_t dim>
-void LagrangeReferenceElement<dim>::computeCodim2Indices() {
+void ReferenceCurvilinearElement<dim>::computeCodim2Indices() {
     // Derive the codim2Indices
     for (std::size_t i = 0; i < getNumberOfCodim2Entities(); ++i) {
         const auto* codim2Mapping = getCodim2MappingPtr(i);

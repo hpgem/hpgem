@@ -35,8 +35,8 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_LAGRANGEREFERENCEELEMENT_H
-#define HPGEM_LAGRANGEREFERENCEELEMENT_H
+#ifndef HPGEM_REFERENCECURVILINEARELEMENT_H
+#define HPGEM_REFERENCECURVILINEARELEMENT_H
 
 #include "ReferenceGeometry.h"
 #include "ReferencePoint.h"
@@ -44,28 +44,45 @@
 namespace hpgem {
 namespace Geometry {
 
-class LagrangeReferenceElementBase : public ReferenceGeometry {
+/// \brief Dimensionless base class for ReferenceCurvilinearElement
+class ReferenceCurvilinearElementBase : public ReferenceGeometry {
    protected:
-    LagrangeReferenceElementBase(const ReferenceGeometryType& geo,
-                                 std::string name, std::size_t order)
-        : ReferenceGeometry(geo, name), order_(order){};
+    ReferenceCurvilinearElementBase(const ReferenceGeometryType& geo,
+                                    std::string name, std::size_t order)
+        : ReferenceGeometry(geo, std::move(name)), order_(order){};
 
    public:
+    /// The linear version of this curvilinear element
+    /// \return
     virtual ReferenceGeometry* getBaseGeometry() const = 0;
+    /// The polynomial order of this curvilinear element
     std::size_t getOrder() const { return order_; }
 
    private:
     std::size_t order_;
 };
 
+/// Parent class for Curvilinear elements
+///
+/// Each curvilinear element is defined by
+///  - A linear base geometry (e.g. ReferenceTriangle)
+///  - A reference geometry for the boundary
+///  - A set of reference points
+///
+/// Implementation:
+///  - The mappings of the linear element are reused
+///  - The mappings are used to compute the correspondence of reference points
+///  on the codim-geometries to those on the element.
+/// \tparam dim
 template <std::size_t dim>
-class LagrangeReferenceElement : public LagrangeReferenceElementBase {
+class ReferenceCurvilinearElement : public ReferenceCurvilinearElementBase {
    public:
-    LagrangeReferenceElement(ReferenceGeometry* baseGeometry,
-                             std::vector<ReferenceGeometry*> codim1Geometries,
-                             std::vector<ReferenceGeometry*> codim2Geometries,
-                             std::vector<Geometry::PointReference<dim>> points,
-                             const std::string& name, std::size_t order);
+    ReferenceCurvilinearElement(
+        ReferenceGeometry* baseGeometry,
+        std::vector<ReferenceGeometry*> codim1Geometries,
+        std::vector<ReferenceGeometry*> codim2Geometries,
+        std::vector<Geometry::PointReference<dim>> points,
+        const std::string& name, std::size_t order);
 
     ReferenceGeometry* getBaseGeometry() const final { return baseGeometry_; }
 
@@ -101,12 +118,16 @@ class LagrangeReferenceElement : public LagrangeReferenceElementBase {
 
     // Mapping codims
 
+    // CODIM 0 //
+    // ------- //
+
     std::size_t getCodim0MappingIndex(
         const std::vector<std::size_t>& v1,
         const std::vector<std::size_t>& v2) const final {
         // Compute the mapping by using the base geometry
-        // As v1 and v2 also include all the extra (Lagrange) nodes, we need to
-        // select the nodes that correspond to the base geometry.
+        // As v1 and v2 also include all the extra nodes of the curvilinear
+        // element, we need to select the nodes that correspond to the base
+        // geometry.
         std::size_t baseNumberOfNodes = baseGeometry_->getNumberOfNodes();
         std::vector<std::size_t> v1selection(baseNumberOfNodes);
         std::vector<std::size_t> v2selection(baseNumberOfNodes);
@@ -121,6 +142,9 @@ class LagrangeReferenceElement : public LagrangeReferenceElementBase {
         const std::size_t index) const final {
         return baseGeometry_->getCodim0MappingPtr(index);
     }
+
+    // CODIM 1 //
+    // ------- //
 
     std::size_t getNumberOfCodim1Entities() const final {
         if (dim == 1) {
@@ -161,6 +185,9 @@ class LagrangeReferenceElement : public LagrangeReferenceElementBase {
         }
     }
 
+    // CODIM 2 //
+    // ------- //
+
     std::size_t getNumberOfCodim2Entities() const final {
         if (dim == 2) {
             return points_.size();
@@ -200,6 +227,9 @@ class LagrangeReferenceElement : public LagrangeReferenceElementBase {
         }
     }
 
+    // CODIM 3 //
+    // ------- //
+
     std::size_t getNumberOfCodim3Entities() const final {
         if (dim == 3) {
             return points_.size();
@@ -227,14 +257,19 @@ class LagrangeReferenceElement : public LagrangeReferenceElementBase {
     }
 
    private:
-    /// The base (non Lagrange) geometry which this extends upon
+    /// The base linear geometry which this extends upon
     ReferenceGeometry* baseGeometry_;
-    /// Reference Lagrange geometries for the codim1 entities
+    /// Reference Curvilinear geometries for the codim1 entities
     std::vector<ReferenceGeometry*> codim1Geometries_;
-    /// Reference Lagrange geometries for the codim2 entities
+    /// Reference Curvilinear geometries for the codim2 entities
     std::vector<ReferenceGeometry*> codim2Geometries_;
 
-    /// Lagrange points, in arbitrary order
+    /// Reference points that are used to define the mapping between reference
+    /// and physical elements. The following assumptions are made:
+    ///  - Each reference point is unique
+    ///  - The reference points of the baseGeometry are a subset
+    ///  - The reference points of the curvilinear boundary geometries map onto
+    ///    reference points of this element.
     std::vector<Geometry::PointReference<dim>> points_;
 
     /// Indices in points_ of the nodes of the baseGeometry
@@ -242,15 +277,17 @@ class LagrangeReferenceElement : public LagrangeReferenceElementBase {
     /// baseGeometry->getReferenceNodeCoordinate(i) ==
     ///     getReferenceNodeCoordinate(baseGeometryIndices[i])
     std::vector<std::size_t> baseGeometryIndicices_;
-    /// For each codim 1 entity, the mapping between the reference points on
-    /// that entity to to the corresponding reference points on this element.
-    /// Only available if dim > 1
+
+    /// The mapping of the reference points of each codim-1 element, to the
+    /// corresponding reference point on this element. Only available if
+    /// dim > 1.
     ///
-    /// i.e. The following identity should hold:
+    /// The mapping is completely determined by the identity:
     /// getReferenceNodeCoordinate(codim1Indices[i][n])
     ///  == getCodim1MappingPtr(i).transform(
     ///     getCodim1ReferenceGeometry(i)->getReferenceNodeCoordinate(n))
     std::vector<std::vector<std::size_t>> codim1Indices_;
+
     /// Same as the codim1Indices, but for the codim2 entities.
     /// Only available if dim > 2
     std::vector<std::vector<std::size_t>> codim2Indices_;
@@ -260,10 +297,12 @@ class LagrangeReferenceElement : public LagrangeReferenceElementBase {
     /// \return The index of that point in points_
     std::size_t findPoint(const PointReference<dim>& point) const;
 
+    /// Compute codim1Indices_
     void computeCodim1Indices();
+    /// Compute codim2Indices_
     void computeCodim2Indices();
 };
 }  // namespace Geometry
 }  // namespace hpgem
 
-#endif  // HPGEM_LAGRANGEREFERENCEELEMENT_H
+#endif  // HPGEM_REFERENCECURVILINEARELEMENT_H

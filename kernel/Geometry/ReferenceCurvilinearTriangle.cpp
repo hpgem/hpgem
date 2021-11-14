@@ -35,13 +35,13 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "ReferenceLagrangeTriangle.h"
+#include "ReferenceCurvilinearTriangle.h"
 
 #include <map>
 
-#include "LagrangeReferenceElement_Impl.h"
+#include "ReferenceCurvilinearElement_Impl.h"
 
-#include "ReferenceLagrangeLine.h"
+#include "ReferenceCurvilinearLine.h"
 #include "ReferenceLine.h"
 #include "ReferencePoint.h"
 #include "ReferenceTriangle.h"
@@ -49,7 +49,7 @@
 namespace hpgem {
 namespace Geometry {
 
-int ReferenceLagrangeTriangle::getOrderFromPoints(std::size_t numberOfPoints) {
+int ReferenceCurvilinearTriangle::getOrderFromPoints(std::size_t numberOfPoints) {
     // We need to invert N = (order + 2)*(order + 1)/2;
     // Using standard mathematics we get
     // order = (-3 + sqrt(9 + 8*(N-1))/2
@@ -64,12 +64,12 @@ int ReferenceLagrangeTriangle::getOrderFromPoints(std::size_t numberOfPoints) {
     }
 }
 
-ReferenceLagrangeTriangle&
-    ReferenceLagrangeTriangle::getReferenceLagrangeTriangle(std::size_t order) {
-    static std::map<std::size_t, ReferenceLagrangeTriangle*> triangles;
-    ReferenceLagrangeTriangle*& triangle = triangles[order];
+ReferenceCurvilinearTriangle&
+    ReferenceCurvilinearTriangle::getReferenceLagrangeTriangle(std::size_t order) {
+    static std::map<std::size_t, ReferenceCurvilinearTriangle*> triangles;
+    ReferenceCurvilinearTriangle*& triangle = triangles[order];
     if (triangle == nullptr) {
-        triangle = new ReferenceLagrangeTriangle(order);
+        triangle = new ReferenceCurvilinearTriangle(order);
     }
     return *triangle;
 }
@@ -81,7 +81,7 @@ std::string getReferenceLagrangeTriangeName(std::size_t order) {
 }
 
 std::vector<Geometry::PointReference<2>>
-    ReferenceLagrangeTriangle::createPoints(std::size_t order) {
+    ReferenceCurvilinearTriangle::createPoints(std::size_t order) {
     double h = 1.0 / order;
     std::size_t numPoints = (order + 2) * (order + 1) / 2;
     std::vector<PointReference<2>> result;
@@ -96,12 +96,12 @@ std::vector<Geometry::PointReference<2>>
     return result;
 }
 
-ReferenceLagrangeTriangle::ReferenceLagrangeTriangle(std::size_t order)
-    : LagrangeReferenceElement<2>(
+ReferenceCurvilinearTriangle::ReferenceCurvilinearTriangle(std::size_t order)
+    : ReferenceCurvilinearElement<2>(
           &ReferenceTriangle::Instance(),
           // Codim 1 3 Lagrange lines
           std::vector<ReferenceGeometry*>(
-              3, &ReferenceLagrangeLine::getReferenceLagrangeLine(order)),
+              3, &ReferenceCurvilinearLine::getReferenceLagrangeLine(order)),
           // Codim 2: points -> thus not included
           std::vector<ReferenceGeometry*>(),
           // The actual Lagrange points used for the triangle

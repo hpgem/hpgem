@@ -46,7 +46,7 @@
 #include "GaussQuadratureRulesForTetrahedron.h"
 #include "GaussQuadratureRulesForTriangle.h"
 #include "GaussQuadratureRulesForTriangularPrism.h"
-#include "Geometry/LagrangeReferenceElement.h"
+#include "Geometry/ReferenceCurvilinearElement.h"
 
 #include "Geometry/ReferenceGeometry.h"
 
@@ -138,7 +138,7 @@ void AllGaussQuadratureRules::addRule(GaussQuadratureRule* rule) {
 
 GaussQuadratureRule* AllGaussQuadratureRules::getRule(
     const Geometry::ReferenceGeometry* referenceGeometry, std::size_t order) {
-    auto* lagrange = dynamic_cast<const Geometry::LagrangeReferenceElementBase*>(
+    auto* lagrange = dynamic_cast<const Geometry::ReferenceCurvilinearElementBase*>(
         referenceGeometry);
     if (lagrange != nullptr) {
         order += lagrange->getOrder();
