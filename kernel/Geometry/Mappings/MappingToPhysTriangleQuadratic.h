@@ -45,9 +45,9 @@ namespace Geometry {
 class MappingToPhysTriangleQuadratic : public MappingReferenceToPhysical<2> {
    public:
     explicit MappingToPhysTriangleQuadratic(
-        const PhysicalGeometry<2> *const physicalGeometry);
-    MappingToPhysTriangleQuadratic(const MappingToPhysTriangleQuadratic& other) =
-        default;
+        const PhysicalGeometry<2>* const physicalGeometry);
+    MappingToPhysTriangleQuadratic(
+        const MappingToPhysTriangleQuadratic& other) = default;
 
     PointPhysical<2> transform(const PointReference<2>&) const final;
     PointReference<2> inverseTransform(const PointPhysical<2>&) const final;

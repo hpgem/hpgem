@@ -88,8 +88,8 @@ ReferenceGeometry& ReferenceGeometryFactory::getGeometry1(
         return ReferenceLine::Instance();
     } else {
         logger.assert_always(numberOfPoints > 2, "Too few points for a Line");
-        return ReferenceCurvilinearLine::getReferenceLagrangeLine(numberOfPoints -
-                                                               1);
+        return ReferenceCurvilinearLine::getReferenceLagrangeLine(
+            numberOfPoints - 1);
     }
 }
 
@@ -108,8 +108,10 @@ ReferenceGeometry& ReferenceGeometryFactory::getGeometry2(
     if (geometry == nullptr) {
         int order =
             ReferenceCurvilinearTriangle::getOrderFromPoints(numberOfPoints);
-        logger.assert_always(order > 0, "No 2D shape with % points", numberOfPoints);
-        geometry = &ReferenceCurvilinearTriangle::getReferenceLagrangeTriangle(order);
+        logger.assert_always(order > 0, "No 2D shape with % points",
+                             numberOfPoints);
+        geometry =
+            &ReferenceCurvilinearTriangle::getReferenceLagrangeTriangle(order);
     }
     return *geometry;
 }

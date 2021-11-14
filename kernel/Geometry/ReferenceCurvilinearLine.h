@@ -41,16 +41,18 @@
 #include "ReferenceCurvilinearElement.h"
 
 namespace hpgem {
-namespace Geometry{
+namespace Geometry {
 
 class ReferenceCurvilinearLine : public ReferenceCurvilinearElement<1> {
    public:
-    static ReferenceCurvilinearLine& getReferenceLagrangeLine(std::size_t order);
+    static ReferenceCurvilinearLine& getReferenceLagrangeLine(
+        std::size_t order);
+
    private:
     ReferenceCurvilinearLine(std::size_t order);
 };
 
-}
-}
+}  // namespace Geometry
+}  // namespace hpgem
 
 #endif  // HPGEM_REFERENCECURVILINEARLINE_H

@@ -199,7 +199,7 @@ class LoggerOutput {
     std::function<void(std::string, std::string)> onDebug;
     // Failure handler. This MUST not return, but instead either stop the
     // program or throw an appropriate exception
-    std::function<void(std::string, std::string) > onFail;
+    std::function<void(std::string, std::string)> onFail;
 };
 
 /*!

@@ -49,14 +49,15 @@
 namespace hpgem {
 namespace Geometry {
 
-int ReferenceCurvilinearTriangle::getOrderFromPoints(std::size_t numberOfPoints) {
+int ReferenceCurvilinearTriangle::getOrderFromPoints(
+    std::size_t numberOfPoints) {
     // We need to invert N = (order + 2)*(order + 1)/2;
     // Using standard mathematics we get
     // order = (-3 + sqrt(9 + 8*(N-1))/2
-    double orderD = -1.5 + std::sqrt(9 + 8*(numberOfPoints - 1))/2;
+    double orderD = -1.5 + std::sqrt(9 + 8 * (numberOfPoints - 1)) / 2;
     // Round and check the result using integer arithmetic
-    int order = static_cast<int> (std::lround(orderD));
-    std::size_t actualPoints = (order + 2) * (order + 1)/2;
+    int order = static_cast<int>(std::lround(orderD));
+    std::size_t actualPoints = (order + 2) * (order + 1) / 2;
     if (actualPoints == numberOfPoints) {
         return order;
     } else {
@@ -65,7 +66,8 @@ int ReferenceCurvilinearTriangle::getOrderFromPoints(std::size_t numberOfPoints)
 }
 
 ReferenceCurvilinearTriangle&
-    ReferenceCurvilinearTriangle::getReferenceLagrangeTriangle(std::size_t order) {
+    ReferenceCurvilinearTriangle::getReferenceLagrangeTriangle(
+        std::size_t order) {
     static std::map<std::size_t, ReferenceCurvilinearTriangle*> triangles;
     ReferenceCurvilinearTriangle*& triangle = triangles[order];
     if (triangle == nullptr) {

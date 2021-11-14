@@ -86,14 +86,12 @@ const ElementShape<2> square{
     // Corner vertices
     Detail::generateVertices<2>(4)};
 
-const ElementShape<2> triangle2 {
-    std::vector<Detail::ElementShapePart<1,2>> {
-        Detail::ElementShapePart<1,2>{&line2, {0,1,2}},
-        Detail::ElementShapePart<1,2>{&line2, {0,3,5}},
-        Detail::ElementShapePart<1,2>{&line2, {2,4,5}}
-    },
-    Detail::generateVertices<2>(6)
-};
+const ElementShape<2> triangle2{
+    std::vector<Detail::ElementShapePart<1, 2>>{
+        Detail::ElementShapePart<1, 2>{&line2, {0, 1, 2}},
+        Detail::ElementShapePart<1, 2>{&line2, {0, 3, 5}},
+        Detail::ElementShapePart<1, 2>{&line2, {2, 4, 5}}},
+    Detail::generateVertices<2>(6)};
 
 const ElementShape<3> tetrahedron{
     // Faces

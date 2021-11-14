@@ -80,13 +80,14 @@ std::vector<Geometry::PointReference<1>> createReferencePoints(
 
 ReferenceCurvilinearLine::ReferenceCurvilinearLine(std::size_t order)
     : ReferenceCurvilinearElement<1>(&ReferenceLine::Instance(),
-                                  // codim 1 = points -> Not included
-                                  std::vector<ReferenceGeometry*>(0),
-                                  // No codim 2
-                                  std::vector<ReferenceGeometry*>(0),
-                                  // Lagrange points
-                                  createReferencePoints(order),
-                                  getReferenceLagrangeLineName(order), order) {}
+                                     // codim 1 = points -> Not included
+                                     std::vector<ReferenceGeometry*>(0),
+                                     // No codim 2
+                                     std::vector<ReferenceGeometry*>(0),
+                                     // Lagrange points
+                                     createReferencePoints(order),
+                                     getReferenceLagrangeLineName(order),
+                                     order) {}
 
 }  // namespace Geometry
 }  // namespace hpgem

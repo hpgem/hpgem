@@ -44,8 +44,9 @@ using namespace hpgem;
 using Geometry::ReferenceCurvilinearLine;
 
 TEST_CASE("CurvilinearLine Codim1", "[400ReferenceCurvilinearLine_UnitTest]") {
-    auto p = GENERATE(2,4);
+    auto p = GENERATE(2, 4);
 
-    const auto& line = Geometry::ReferenceCurvilinearLine::getReferenceLagrangeLine(p);
+    const auto& line =
+        Geometry::ReferenceCurvilinearLine::getReferenceLagrangeLine(p);
     testLowestLevelIsPoints<1>(line);
 }
