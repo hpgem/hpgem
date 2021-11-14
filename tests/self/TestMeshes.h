@@ -207,6 +207,26 @@ std::vector<std::string> getUnitCubeTetMeshes(
         minLevel, maxLevel);
 }
 
+/**
+ * Meshes for the unit circle using quadratic elements. The meshes are
+ * subsequent uniform refinements of the first mesh.
+ * @param minLevel
+ * @param maxLevel
+ * @return
+ */
+std::vector<std::string> getUnitCircleQuadraticTriangleMeshes(
+    std::size_t minLevel = 0, std::size_t maxLevel = ALL_ENTRIES) {
+    std::string prefix = getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/";
+    return limit(
+        {
+            prefix + "circle-domain-quadratic-N1.hpgem",
+            prefix + "circle-domain-quadratic-N2.hpgem",
+            prefix + "circle-domain-quadratic-N3.hpgem",
+            prefix + "circle-domain-quadratic-N4.hpgem",
+        },
+        minLevel, maxLevel);
+}
+
 }  // namespace hpgem
 
 #endif  // HPGEM_TESTMESHES_H
