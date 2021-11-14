@@ -39,13 +39,15 @@
 #define HPGEM_REFERENCECURVILINEARELEMENTCHECKS_H
 
 #include "Geometry/ReferenceCurvilinearElement.h"
+#include "Geometry/Mappings/MappingReferenceToReference.h"
 #include "../catch.hpp"
 #include "typeinfo"
 
 namespace hpgem {
 
+/// Check
 template <std::size_t d>
-void testLowestLevelIsPoints(
+void testReferenceGeometryOfCodimReferencePoints(
     const Geometry::ReferenceCurvilinearElement<d>& geom) {
     static_assert(d > 0 && d <= 2, "Not implemented for this dimension");
     std::size_t nent;
@@ -64,6 +66,79 @@ void testLowestLevelIsPoints(
         INFO("Check codim " << d << " entity " << i << "to be a point.");
         // Stringent test, it should not even be a subclass.
         CHECK(typeid(Geometry::ReferencePoint) == typeid(*pointlike));
+    }
+}
+
+template <std::size_t d>
+void testAllReferencePointsAreInside(
+    const Geometry::ReferenceCurvilinearElement<d>& geom) {
+    std::size_t numPoints = geom.getNumberOfNodes();
+
+    auto* baseGeom = geom.getBaseGeometry();
+    REQUIRE(baseGeom != nullptr);
+
+    INFO("All reference points should be internal");
+    for (std::size_t i = 0; i < numPoints; ++i) {
+        const Geometry::PointReference<d> p =
+            geom.getReferenceNodeCoordinate(i);
+        // Internal by both base and curvilinear geometry
+        CHECK(baseGeom->isInternalPoint(p));
+        CHECK(geom.isInternalPoint(p));
+    }
+}
+
+template <std::size_t d>
+void testCodim1CorrespondenceWithBaseGeometry(
+    const Geometry::ReferenceCurvilinearElement<d>& geom) {
+    static_assert(d >= 1, "Codim 1 entities only relevant for dim >= 1");
+    std::size_t numCodim1 = geom.getNumberOfCodim1Entities();
+    Geometry::ReferenceGeometry* baseGeom = geom.getBaseGeometry();
+
+    REQUIRE(numCodim1 == baseGeom->getNumberOfCodim1Entities());
+
+    for (std::size_t c1 = 0; c1 < numCodim1; ++c1) {
+        const auto* mapping = baseGeom->getCodim1MappingPtr(c1);
+        const auto* c1Geom = geom.getCodim1ReferenceGeometry(c1);
+        INFO("Codim-1 entity: " + std::to_string(c1));
+        REQUIRE(c1Geom->getGeometryType() ==
+                baseGeom->getCodim1ReferenceGeometry(c1)->getGeometryType());
+        auto pointIndices = geom.getCodim1EntityLocalIndices(c1);
+        for (std::size_t p = 0; p < c1Geom->getNumberOfNodes(); ++p) {
+            Geometry::PointReference<d - 1> pface =
+                c1Geom->getReferenceNodeCoordinate(p);
+            Geometry::PointReference<d> mappedpface = mapping->transform(pface);
+            Geometry::PointReference<d> localp =
+                geom.getReferenceNodeCoordinate(pointIndices[p]);
+            CHECK(localp == mappedpface);
+        }
+    }
+}
+
+template <std::size_t d>
+void testCodim2CorrespondenceWithBaseGeometry(
+    const Geometry::ReferenceCurvilinearElement<d>& geom) {
+    static_assert(d > 2, "Codim 2 entities only relevant for d > 2");
+    std::size_t numCodim2 = geom.getNumberOfCodim2Entities();
+    Geometry::ReferenceGeometry* baseGeom = geom.getBaseGeometry();
+
+    using Geometry::PointReference;
+
+    REQUIRE(numCodim2 == baseGeom->getNumberOfCodim2Entities());
+    for (std::size_t c2 = 0; c2 < numCodim2; ++c2) {
+        const auto* mapping = baseGeom->getCodim2MappingPtr(c2);
+        const auto* c2Geom = geom.getCodim2ReferenceGeometry(c2);
+        INFO("Codim-2 entity: " + std::to_string(c2));
+        REQUIRE(c2Geom->getGeometryType() ==
+                baseGeom->getCodim2ReferenceGeometry(c2)->getGeometryType());
+        auto pointIndices = baseGeom->getCodim2EntityLocalIndices(c2);
+        for (std::size_t p = 0; p < c2Geom->getNumberOfNodes(); ++p) {
+            PointReference<d - 2> pridge =
+                c2Geom->getReferenceNodeCoordinate(p);
+            PointReference<d> mappedPoint = mapping->transform(pridge);
+            PointReference<d> localPoint =
+                geom.getReferenceNodeCoordinate(pointIndices[p]);
+            CHECK(localPoint == mappedPoint);
+        }
     }
 }
 

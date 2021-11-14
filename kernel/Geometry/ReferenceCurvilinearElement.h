@@ -69,14 +69,33 @@ class ReferenceCurvilinearElementBase : public ReferenceGeometry {
 ///  - A reference geometry for the boundary
 ///  - A set of reference points
 ///
+/// Note: For curvilinear elements there are usually multiple nodes on each
+/// side. Hence, for dim-dimensional curvilinear element we have that the number
+/// of codim-dim entities is smaller than the number of nodes. As the codim-dim
+/// entities are the nodes of the base geometry.
+///
 /// Implementation:
 ///  - The mappings of the linear element are reused
-///  - The mappings are used to compute the correspondence of reference points
-///  on the codim-geometries to those on the element.
+///  - The mappings are used to compute the which reference points correspond to
+///    what reference points on the faces and other codim-X entities.
 /// \tparam dim
 template <std::size_t dim>
 class ReferenceCurvilinearElement : public ReferenceCurvilinearElementBase {
    public:
+    /// Create a curvilinear element based on a linear element
+    /// \param baseGeometry The geometry of the base element
+    /// \param codim1Geometries
+    ///   For dim > 1, the description of the codim 1 entities on the boundary.
+    ///   These should follow the same order as the ones in the base element,
+    ///   but correspond to the curvilinear nature of the boundary.
+    /// \param codim2Geometries
+    ///  Same as codim1Geometries for codim 2, for dim > 2.
+    /// \param points The reference points, these should include:
+    ///   - The reference points of the base geometry
+    ///   - The reference points on each codim1/codim2 geometry mapped by the
+    ///     corresponding mapping.
+    /// \param name A name for this element (as required by ReferenceGeometry)
+    /// \param order The order of the element
     ReferenceCurvilinearElement(
         ReferenceGeometry* baseGeometry,
         std::vector<ReferenceGeometry*> codim1Geometries,
@@ -102,13 +121,13 @@ class ReferenceCurvilinearElement : public ReferenceCurvilinearElementBase {
         return baseGeometry_->isInternalPoint(point);
     }
 
-    const PointReferenceBase& getCenter() const final {
+    const PointReference<dim>& getCenter() const final {
         return baseGeometry_->getCenter();
     }
 
     std::size_t getNumberOfNodes() const final { return points_.size(); }
 
-    const PointReferenceBase& getReferenceNodeCoordinate(
+    const PointReference<dim>& getReferenceNodeCoordinate(
         const std::size_t& localIndex) const final {
         logger.assert_debug(localIndex < points_.size(),
                             "Index % larger than the number of nodes %",
@@ -147,11 +166,7 @@ class ReferenceCurvilinearElement : public ReferenceCurvilinearElementBase {
     // ------- //
 
     std::size_t getNumberOfCodim1Entities() const final {
-        if (dim == 1) {
-            return points_.size();
-        } else {
-            return baseGeometry_->getNumberOfCodim1Entities();
-        }
+        return baseGeometry_->getNumberOfCodim1Entities();
     }
 
     std::vector<std::size_t> getCodim1EntityLocalIndices(
@@ -161,7 +176,7 @@ class ReferenceCurvilinearElement : public ReferenceCurvilinearElementBase {
         if (dim > 1) {
             return codim1Indices_[index];
         } else if (dim == 1) {
-            return {index};  // Implicit conversion
+            return {baseGeometryIndicices_[index]};
         } else {
             logger.assert_always(false,
                                  "Dimension too low for codim 1 entities");
@@ -189,11 +204,7 @@ class ReferenceCurvilinearElement : public ReferenceCurvilinearElementBase {
     // ------- //
 
     std::size_t getNumberOfCodim2Entities() const final {
-        if (dim == 2) {
-            return points_.size();
-        } else {
-            return baseGeometry_->getNumberOfCodim3Entities();
-        }
+        return baseGeometry_->getNumberOfCodim2Entities();
     }
 
     std::vector<std::size_t> getCodim2EntityLocalIndices(
@@ -203,10 +214,9 @@ class ReferenceCurvilinearElement : public ReferenceCurvilinearElementBase {
         if (dim > 2) {
             return codim2Indices_[index];
         } else if (dim == 2) {
-            return {index};
+            return {baseGeometryIndicices_[index]};
         } else {
-            logger.assert_always(false,
-                                 "Dimension too low for codim 2 entities");
+            logger.fail("Dimension too low for codim 2 entities");
             return {};
         }
     }
@@ -231,11 +241,7 @@ class ReferenceCurvilinearElement : public ReferenceCurvilinearElementBase {
     // ------- //
 
     std::size_t getNumberOfCodim3Entities() const final {
-        if (dim == 3) {
-            return points_.size();
-        } else {
-            return baseGeometry_->getNumberOfCodim3Entities();
-        }
+        return baseGeometry_->getNumberOfCodim3Entities();
     }
 
     std::vector<std::size_t> getCodim3EntityLocalIndices(
@@ -243,16 +249,12 @@ class ReferenceCurvilinearElement : public ReferenceCurvilinearElementBase {
         logger.assert_debug(index < getNumberOfCodim3Entities(),
                             "Too large codim 3 index %", index);
         if (dim == 3) {
-            return {index};
+            return {baseGeometryIndicices_[index]};
         } else if (dim > 3) {
             // Don't support 4D
-            logger.assert_always(
-                false, "Codim 3 not implemented for object of dim %", dim);
-            return {};
+            logger.fail("Codim 3 not implemented for object of dim %", dim);
         } else {
-            logger.assert_always(false,
-                                 "Dimension too low for codim 3 entities");
-            return {};
+            logger.fail("Dimension too low for codim 3 entities");
         }
     }
 

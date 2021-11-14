@@ -43,10 +43,23 @@
 using namespace hpgem;
 using Geometry::ReferenceCurvilinearLine;
 
+TEST_CASE("CurvilinearLine points", "[400ReferenceCurvilinearLine_UnitTest]") {
+    auto p = GENERATE(2, 4);
+
+    INFO("Testing CurvalinearLine-" + std::to_string(p));
+    const auto& line =
+        Geometry::ReferenceCurvilinearLine::getReferenceLagrangeLine(p);
+
+    testReferenceGeometryOfCodimReferencePoints(line);
+    testAllReferencePointsAreInside(line);
+}
+
 TEST_CASE("CurvilinearLine Codim1", "[400ReferenceCurvilinearLine_UnitTest]") {
     auto p = GENERATE(2, 4);
 
+    INFO("Testing CurvalinearLine-" + std::to_string(p));
     const auto& line =
         Geometry::ReferenceCurvilinearLine::getReferenceLagrangeLine(p);
-    testLowestLevelIsPoints<1>(line);
+
+    testCodim1CorrespondenceWithBaseGeometry(line);
 }

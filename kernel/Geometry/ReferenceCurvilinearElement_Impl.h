@@ -142,7 +142,7 @@ void ReferenceCurvilinearElement<dim>::computeCodim1Indices() {
     }
 }
 
-// Nothing to compute for dim=[0,1,2]
+// Nothing to compute for dim=[0,1]
 template <>
 inline void ReferenceCurvilinearElement<0>::computeCodim2Indices() {}
 template <>

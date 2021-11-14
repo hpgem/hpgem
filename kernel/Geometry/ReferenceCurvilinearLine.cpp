@@ -63,7 +63,7 @@ ReferenceCurvilinearLine& ReferenceCurvilinearLine::getReferenceLagrangeLine(
 
 std::string getReferenceLagrangeLineName(std::size_t order) {
     std::stringstream name;
-    name << "Lagrange-ReferenceLine-" << order;
+    name << "Curvilinear-ReferenceLine-" << order;
     return name.str();
 }
 

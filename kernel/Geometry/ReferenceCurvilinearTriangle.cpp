@@ -78,7 +78,7 @@ ReferenceCurvilinearTriangle&
 
 std::string getReferenceLagrangeTriangeName(std::size_t order) {
     std::stringstream name;
-    name << "Lagrange-ReferenceTriangle-" << order;
+    name << "Curvilinear-ReferenceTriangle-" << order;
     return name.str();
 }
 
