@@ -138,8 +138,9 @@ void AllGaussQuadratureRules::addRule(GaussQuadratureRule* rule) {
 
 GaussQuadratureRule* AllGaussQuadratureRules::getRule(
     const Geometry::ReferenceGeometry* referenceGeometry, std::size_t order) {
-    auto* lagrange = dynamic_cast<const Geometry::ReferenceCurvilinearElementBase*>(
-        referenceGeometry);
+    auto* lagrange =
+        dynamic_cast<const Geometry::ReferenceCurvilinearElementBase*>(
+            referenceGeometry);
     if (lagrange != nullptr) {
         order += lagrange->getOrder();
     }
