@@ -94,7 +94,7 @@ int main(int argc, char** argv) {
     startClock = std::chrono::system_clock::now();
 
     // For recomputing the error tables
-    bool ignoreFailures = true;
+    bool ignoreFailures = false;
 
     ConvergenceTestSet set = {
         getUnitCircleQuadraticTriangleMeshes(),

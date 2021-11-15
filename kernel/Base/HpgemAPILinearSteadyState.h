@@ -220,6 +220,9 @@ class HpgemAPILinearSteadyState : public HpgemAPILinear<DIM> {
     /// \brief Solve the steady-state problem using Petsc.
     virtual void solveSteadyStateWithPetsc(bool doComputeError);
 
+    void setWriteTecOutput(bool writeTec) { this->writeTec_ = writeTec; }
+    void setWriteVTK(bool writeVTK) { this->writeVTK_ = writeVTK; }
+
    protected:
     /// Index to indicate where the vectors for the source terms for the
     /// elements are stored.
@@ -228,6 +231,10 @@ class HpgemAPILinearSteadyState : public HpgemAPILinear<DIM> {
     /// Index to indicate where the vectors for the source terms for the faces
     /// are stored.
     const std::size_t sourceFaceVectorID_;
+
+    /// Whether to write output in TEC plot format or not
+    bool writeTec_;
+    bool writeVTK_;
 };
 }  // namespace Base
 }  // namespace hpgem
