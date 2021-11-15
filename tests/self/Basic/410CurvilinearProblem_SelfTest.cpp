@@ -165,12 +165,12 @@ double solve(const std::string& filename, std::size_t level) {
     std::stringstream outputFile;
     outputFile << "solution-" << level << "-";
 
-    Problem problem(3, 10.0);
+    Problem problem(2, 10.0);
     problem.setOutputFileName(outputFile.str());
 
     problem.readMesh(filename);
     problem.solveSteadyStateWithPetsc(false);
-    return problem.computeTotalError(0, 0).real();
+    return std::abs(problem.computeTotalError(0, 0));
 }
 
 int main(int argc, char** argv) {
@@ -182,7 +182,7 @@ int main(int argc, char** argv) {
     startClock = std::chrono::system_clock::now();
 
     // For recomputing the error tables
-    bool ignoreFailures = true;
+    bool ignoreFailures = false;
 
     // Convergence of 2-r^2 on a unit circle with second order basis functions.
     // Were it not for the curvilinear elements, the solution would be perfectly
