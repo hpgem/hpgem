@@ -73,7 +73,8 @@ Jacobian<2, 3> MappingToRefSquareToCube0::calcJacobian(
     return jacobian;
 }
 
-MappingToRefSquareToCube0::MappingToRefSquareToCube0() = default;
+MappingToRefSquareToCube0::MappingToRefSquareToCube0()
+    : BoundaryFaceMapping(-1.0) {}
 
 // ~~~ index 1
 // ~~~==============================================================================
@@ -105,7 +106,8 @@ Jacobian<2, 3> MappingToRefSquareToCube1::calcJacobian(
     return jacobian;
 }
 
-MappingToRefSquareToCube1::MappingToRefSquareToCube1() = default;
+MappingToRefSquareToCube1::MappingToRefSquareToCube1()
+    : BoundaryFaceMapping(1.0) {}
 
 // ~~~ index 2
 // ~~~==============================================================================
@@ -137,7 +139,8 @@ Jacobian<2, 3> MappingToRefSquareToCube2::calcJacobian(
     return jacobian;
 }
 
-MappingToRefSquareToCube2::MappingToRefSquareToCube2() = default;
+MappingToRefSquareToCube2::MappingToRefSquareToCube2()
+    : BoundaryFaceMapping(-1.0) {}
 
 // ~~~ index 3
 // ~~~==============================================================================
@@ -169,7 +172,8 @@ Jacobian<2, 3> MappingToRefSquareToCube3::calcJacobian(
     return jacobian;
 }
 
-MappingToRefSquareToCube3::MappingToRefSquareToCube3() = default;
+MappingToRefSquareToCube3::MappingToRefSquareToCube3()
+    : BoundaryFaceMapping(1.0) {}
 
 // ~~~ index 4
 // ~~~==============================================================================
@@ -201,7 +205,8 @@ Jacobian<2, 3> MappingToRefSquareToCube4::calcJacobian(
     return jacobian;
 }
 
-MappingToRefSquareToCube4::MappingToRefSquareToCube4() = default;
+MappingToRefSquareToCube4::MappingToRefSquareToCube4()
+    : BoundaryFaceMapping(-1.0) {}
 
 // ~~~ index 5
 // ~~~==============================================================================
@@ -233,7 +238,8 @@ Jacobian<2, 3> MappingToRefSquareToCube5::calcJacobian(
     return jacobian;
 }
 
-MappingToRefSquareToCube5::MappingToRefSquareToCube5() = default;
+MappingToRefSquareToCube5::MappingToRefSquareToCube5()
+    : BoundaryFaceMapping(1.0) {}
 
 }  // namespace Geometry
 

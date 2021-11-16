@@ -70,7 +70,8 @@ Jacobian<1, 2> MappingToRefLineToSquare0::calcJacobian(
     return jacobian;
 }
 
-MappingToRefLineToSquare0::MappingToRefLineToSquare0() = default;
+MappingToRefLineToSquare0::MappingToRefLineToSquare0()
+    : BoundaryFaceMapping(-1.0) {}
 
 // ~~~~~~~~~~~~~~~==============================================================================
 // ~~~ index 1
@@ -99,7 +100,8 @@ Jacobian<1, 2> MappingToRefLineToSquare1::calcJacobian(
     return jacobian;
 }
 
-MappingToRefLineToSquare1::MappingToRefLineToSquare1() = default;
+MappingToRefLineToSquare1::MappingToRefLineToSquare1()
+    : BoundaryFaceMapping(1.0) {}
 
 // ~~~~~~~~~~~~~~~==============================================================================
 // ~~~ index 2
@@ -128,7 +130,8 @@ Jacobian<1, 2> MappingToRefLineToSquare2::calcJacobian(
     return jacobian;
 }
 
-MappingToRefLineToSquare2::MappingToRefLineToSquare2() = default;
+MappingToRefLineToSquare2::MappingToRefLineToSquare2()
+    : BoundaryFaceMapping(-1.0) {}
 
 // ~~~~~~~~~~~~~~~==============================================================================
 // ~~~ index 3
@@ -157,7 +160,8 @@ Jacobian<1, 2> MappingToRefLineToSquare3::calcJacobian(
     return jacobian;
 }
 
-MappingToRefLineToSquare3::MappingToRefLineToSquare3() = default;
+MappingToRefLineToSquare3::MappingToRefLineToSquare3()
+    : BoundaryFaceMapping(1.0) {}
 }  // namespace Geometry
 
 }  // namespace hpgem

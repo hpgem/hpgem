@@ -118,7 +118,7 @@ const ReferenceGeometry* ReferenceTetrahedron::getCodim1ReferenceGeometry(
     return referenceGeometryCodim1Ptr_;
 }
 
-const MappingReferenceToReference<1>* ReferenceTetrahedron::getCodim1MappingPtr(
+const BoundaryFaceMapping* ReferenceTetrahedron::getCodim1MappingPtr(
     const std::size_t faceIndex) const {
     logger.assert_debug(
         (faceIndex < 4),

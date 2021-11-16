@@ -51,7 +51,6 @@
 #include "ElementGeometry.h"
 #include "Mappings/MappingReferenceToReference.h"
 #include "Jacobian.h"
-#include "Mappings/OutwardNormalVectorSign.h"
 
 //--------------------------------------------------------------------------------------------------
 //
@@ -435,9 +434,9 @@ LinearAlgebra::SmallVector<DIM + 1> FaceGeometry::getNormalVector(
 
         double det = j2.determinant();
 
-        double sign = OutwardNormalVectorSign(
-            leftElementGeom_->getReferenceGeometry()->getCodim1MappingPtr(
-                localFaceNumberLeft_));
+        double sign = leftElementGeom_->getReferenceGeometry()
+                          ->getCodim1MappingPtr(localFaceNumberLeft_)
+                          ->outwardNormalSign();
         result *= ((det > 0) ? 1 : -1) * sign;
     } else {  // if DIM==0
               // for one dimension the fancy wedge stuff wont work

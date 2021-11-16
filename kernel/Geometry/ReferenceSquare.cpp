@@ -198,7 +198,7 @@ const ReferenceGeometry* ReferenceSquare::getCodim1ReferenceGeometry(
                         "There are only 4 faces in a square.\n");
     return referenceGeometryCodim1Ptr_;
 }
-const MappingReferenceToReference<1>* ReferenceSquare::getCodim1MappingPtr(
+const BoundaryFaceMapping* ReferenceSquare::getCodim1MappingPtr(
     const std::size_t faceIndex) const {
     logger.assert_debug((faceIndex < 4),
                         "ERROR: Asked for a square point index larger than 3. "

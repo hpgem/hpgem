@@ -154,7 +154,7 @@ const MappingReferenceToReference<0>* ReferenceCube::getCodim0MappingPtr(
 // ================================== Codimension 1
 // ============================================
 
-const MappingReferenceToReference<1>* ReferenceCube::getCodim1MappingPtr(
+const BoundaryFaceMapping* ReferenceCube::getCodim1MappingPtr(
     const std::size_t faceIndex) const {
     logger.assert_debug((faceIndex < 6), "Cube100.\n");
     return mappingsSquareToCube_[faceIndex];
