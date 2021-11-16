@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2014, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,48 +35,42 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-//------------------------------------------------------------------------------
-#ifndef HPGEM_KERNEL_ALLGAUSSQUADRATURERULES_H
-#define HPGEM_KERNEL_ALLGAUSSQUADRATURERULES_H
+#ifndef HPGEM_REFERENCEGEOMETRYFACTORY_H
+#define HPGEM_REFERENCEGEOMETRYFACTORY_H
 
-#include <vector>
-#include <map>
-#include "Geometry/ReferenceGeometry.h"
+#include "ReferenceGeometry.h"
 
 namespace hpgem {
+namespace Geometry {
 
-namespace QuadratureRules {
-class GaussQuadratureRule;
-
-/**
- * Storage class for all the quadrature rules. If you add a rule, make sure to
- * also add it here in the constructor. If you are integrating and want a
- * quadrature rule, this is the appropriate place to get one
- */
-class AllGaussQuadratureRules {
+class ReferenceGeometryFactory {
    public:
-    static AllGaussQuadratureRules& instance();
+    static ReferenceGeometryFactory& Instance() {
+        static ReferenceGeometryFactory instance;
+        return instance;
+    }
 
-    // it is possible to call this from an external location, but it is nicer to
-    // list all the rules inside this class
-    void addRule(GaussQuadratureRule* rule);
-
-    GaussQuadratureRule* getRule(
-        const Geometry::ReferenceGeometry* referenceGeometry,
-        std::size_t order);
-
-    AllGaussQuadratureRules(AllGaussQuadratureRules&) = delete;
-    void operator=(AllGaussQuadratureRules&) = delete;
+    /// Lookup the ReferenceGeometry by the dimension of the shape and the
+    /// number of vertices.
+    ///
+    /// \param dimension The dimension of the geometry
+    /// \param numberOfPoints The number of vertices
+    /// \return A reference to the geometry. Will terminate the program if it
+    /// does not exist.
+    ReferenceGeometry& getGeometry(std::size_t dimension,
+                                   std::size_t numberOfPoints);
 
    private:
-    AllGaussQuadratureRules();
-
-    std::map<Geometry::ReferenceGeometryType, std::vector<GaussQuadratureRule*>>
-        listOfRules_;
+    ReferenceGeometryFactory() = default;
+    ReferenceGeometry& getGeometry0(std::size_t numberOfPoints);
+    ReferenceGeometry& getGeometry1(std::size_t numberOfPoints);
+    ReferenceGeometry& getGeometry2(std::size_t numberOfPoints);
+    ReferenceGeometry& getGeometry3(std::size_t numberOfPoints);
+    ReferenceGeometry& getGeometry4(std::size_t numberOfPoints);
+    /// Cache for higher order 2D elements, indexed by numberOfPoints.
+    std::map<std::size_t, ReferenceGeometry*> cached2DGeometries_;
 };
-
-}  // namespace QuadratureRules
-//---------------------------------------------------------------------------
+}  // namespace Geometry
 }  // namespace hpgem
 
-#endif  // HPGEM_KERNEL_ALLGAUSSQUADRATURERULES_H
+#endif  // HPGEM_REFERENCEGEOMETRYFACTORY_H

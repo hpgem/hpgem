@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2014, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,48 +35,33 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-//------------------------------------------------------------------------------
-#ifndef HPGEM_KERNEL_ALLGAUSSQUADRATURERULES_H
-#define HPGEM_KERNEL_ALLGAUSSQUADRATURERULES_H
+#ifndef HPGEM_REFERENCECURVILINEARTRIANGLE_H
+#define HPGEM_REFERENCECURVILINEARTRIANGLE_H
 
-#include <vector>
-#include <map>
-#include "Geometry/ReferenceGeometry.h"
+#include "ReferenceCurvilinearElement.h"
 
 namespace hpgem {
-
-namespace QuadratureRules {
-class GaussQuadratureRule;
-
-/**
- * Storage class for all the quadrature rules. If you add a rule, make sure to
- * also add it here in the constructor. If you are integrating and want a
- * quadrature rule, this is the appropriate place to get one
- */
-class AllGaussQuadratureRules {
+namespace Geometry {
+/// Lagrange triangle of arbitrary order based on the standard reference
+/// triangle.
+///
+/// The vertices are generated such that if the coordinates are listed (y,x)
+/// they are in lexicographical order. That way the first order triangle has
+/// ordering (0,0) - (1,0) - (0,1) =(x,y), matching that of the regular triangle
+class ReferenceCurvilinearTriangle : public ReferenceCurvilinearElement<2> {
    public:
-    static AllGaussQuadratureRules& instance();
-
-    // it is possible to call this from an external location, but it is nicer to
-    // list all the rules inside this class
-    void addRule(GaussQuadratureRule* rule);
-
-    GaussQuadratureRule* getRule(
-        const Geometry::ReferenceGeometry* referenceGeometry,
+    /// Reverse computation finding the order from the number of points.
+    /// Negative values are used to denote that no such element exists
+    static int getOrderFromPoints(std::size_t numberOfPoints);
+    static ReferenceCurvilinearTriangle& getReferenceLagrangeTriangle(
         std::size_t order);
 
-    AllGaussQuadratureRules(AllGaussQuadratureRules&) = delete;
-    void operator=(AllGaussQuadratureRules&) = delete;
-
    private:
-    AllGaussQuadratureRules();
-
-    std::map<Geometry::ReferenceGeometryType, std::vector<GaussQuadratureRule*>>
-        listOfRules_;
+    explicit ReferenceCurvilinearTriangle(std::size_t order);
+    static std::vector<Geometry::PointReference<2>> createPoints(
+        std::size_t order);
 };
-
-}  // namespace QuadratureRules
-//---------------------------------------------------------------------------
+}  // namespace Geometry
 }  // namespace hpgem
 
-#endif  // HPGEM_KERNEL_ALLGAUSSQUADRATURERULES_H
+#endif  // HPGEM_REFERENCECURVILINEARTRIANGLE_H

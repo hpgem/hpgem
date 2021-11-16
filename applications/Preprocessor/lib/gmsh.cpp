@@ -270,7 +270,15 @@ void GmshReader::readElements() {
 
     ElementReorder reorder;
     reorder.addElementType(1, "line:", {0, 1});
+    // GMSH: 0,1 as endpoints, 2-N as inbetween points
+    // HPGEM: 0 and N as endpoints
+    reorder.addElementType(1, "line2", {0, 2, 1});
+
     reorder.addElementType(2, "triangle:", {0, 1, 2});
+    // GMSH: Nodes, Edges, internal order
+    // HPGEM lexicographical on (y,x)-coord
+    reorder.addElementType(2, "triangle2", {0, 3, 1, 5, 4, 2});
+
     reorder.addElementType(2, "square:", {0, 1, 3, 2});
     reorder.addElementType(3, "tetrahedron:", {0, 3, 1, 2});
     reorder.addElementType(3, "pyramid:", {4, 1, 2, 0, 3});

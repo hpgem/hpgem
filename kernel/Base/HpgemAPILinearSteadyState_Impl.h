@@ -77,7 +77,9 @@ HpgemAPILinearSteadyState<DIM>::HpgemAPILinearSteadyState(
     : HpgemAPILinear<DIM>(numberOfVariables, polynomialOrder, 1, 0,
                           useSourceTerm, useSourceTermAtBoundary),
       sourceElementVectorID_(0),
-      sourceFaceVectorID_(0) {}
+      sourceFaceVectorID_(0),
+      writeTec_(true),
+      writeVTK_(true) {}
 
 template <std::size_t DIM>
 void HpgemAPILinearSteadyState<DIM>::readMesh(const std::string meshName) {
@@ -140,33 +142,6 @@ void HpgemAPILinearSteadyState<DIM>::solveSteadyStateWithPetsc(
     std::string outputFileNameVTK = this->outputFileName_;
 
     this->registerVTKWriteFunctions();
-    Output::VTKTimeDependentWriter<DIM> VTKWriter(outputFileNameVTK,
-                                                  this->meshes_[0]);
-
-    // Create output files for Tecplot.
-#ifdef HPGEM_USE_MPI
-    std::string outputFileName =
-        this->outputFileName_ + "." +
-        std::to_string(Base::MPIContainer::Instance().getProcessorID());
-#else
-    std::string outputFileName = this->outputFileName_;
-#endif
-
-    std::string outputFileNameTecplot = outputFileName + ".dat";
-    std::string dimensionsToWrite = "";
-    for (std::size_t i = 0; i < DIM; i++) {
-        dimensionsToWrite = dimensionsToWrite + std::to_string(i);
-    }
-
-    std::string variableString = this->variableNames_[0];
-    for (std::size_t iV = 1; iV < this->variableNames_.size(); iV++) {
-        variableString = variableString + "," + this->variableNames_[iV];
-    }
-
-    std::ofstream outputFile(outputFileNameTecplot);
-    Output::TecplotDiscontinuousSolutionWriter<DIM> tecplotWriter(
-        outputFile, this->internalFileTitle_, dimensionsToWrite,
-        variableString);
 
     // Create and Store things before solving the problem.
     tasksBeforeSolving();
@@ -205,8 +180,41 @@ void HpgemAPILinearSteadyState<DIM>::solveSteadyStateWithPetsc(
 
     x.writeTimeIntegrationVector(this->solutionVectorId_);
 
-    tecplotWriter.write(this->meshes_[0], this->solutionTitle_, false, this, 0);
-    this->VTKWrite(VTKWriter, 0, this->solutionVectorId_);
+    if (writeTec_) {
+// Create output files for Tecplot.
+#ifdef HPGEM_USE_MPI
+        std::string outputFileName =
+            this->outputFileName_ + "." +
+            std::to_string(Base::MPIContainer::Instance().getProcessorID());
+#else
+        std::string outputFileName = this->outputFileName_;
+#endif
+
+        std::string outputFileNameTecplot = outputFileName + ".dat";
+        std::string dimensionsToWrite = "";
+        for (std::size_t i = 0; i < DIM; i++) {
+            dimensionsToWrite = dimensionsToWrite + std::to_string(i);
+        }
+
+        std::string variableString = this->variableNames_[0];
+        for (std::size_t iV = 1; iV < this->variableNames_.size(); iV++) {
+            variableString = variableString + "," + this->variableNames_[iV];
+        }
+
+        std::ofstream outputFile(outputFileNameTecplot);
+        Output::TecplotDiscontinuousSolutionWriter<DIM> tecplotWriter(
+            outputFile, this->internalFileTitle_, dimensionsToWrite,
+            variableString);
+        tecplotWriter.write(this->meshes_[0], this->solutionTitle_, false, this,
+                            0);
+    }
+
+    if (writeVTK_) {
+        Output::VTKSpecificTimeWriter<DIM> VTKWriter(
+            outputFileNameVTK, this->meshes_[0], this->solutionVectorId_,
+            this->polynomialOrder_);
+        this->VTKWrite(VTKWriter);
+    }
 
     // Compute the energy norm of the error
     if (doComputeError) {

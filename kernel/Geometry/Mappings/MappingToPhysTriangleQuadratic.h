@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2014, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,48 +35,30 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-//------------------------------------------------------------------------------
-#ifndef HPGEM_KERNEL_ALLGAUSSQUADRATURERULES_H
-#define HPGEM_KERNEL_ALLGAUSSQUADRATURERULES_H
+#ifndef HPGEM_MAPPINGTOPHYSTRIANGLEQUADRATIC_H
+#define HPGEM_MAPPINGTOPHYSTRIANGLEQUADRATIC_H
 
-#include <vector>
-#include <map>
-#include "Geometry/ReferenceGeometry.h"
+#include "MappingReferenceToPhysical.h"
 
 namespace hpgem {
-
-namespace QuadratureRules {
-class GaussQuadratureRule;
-
-/**
- * Storage class for all the quadrature rules. If you add a rule, make sure to
- * also add it here in the constructor. If you are integrating and want a
- * quadrature rule, this is the appropriate place to get one
- */
-class AllGaussQuadratureRules {
+namespace Geometry {
+class MappingToPhysTriangleQuadratic : public MappingReferenceToPhysical<2> {
    public:
-    static AllGaussQuadratureRules& instance();
+    explicit MappingToPhysTriangleQuadratic(
+        const PhysicalGeometry<2>* const physicalGeometry);
+    MappingToPhysTriangleQuadratic(
+        const MappingToPhysTriangleQuadratic& other) = default;
 
-    // it is possible to call this from an external location, but it is nicer to
-    // list all the rules inside this class
-    void addRule(GaussQuadratureRule* rule);
+    PointPhysical<2> transform(const PointReference<2>&) const final;
+    PointReference<2> inverseTransform(const PointPhysical<2>&) const final;
 
-    GaussQuadratureRule* getRule(
-        const Geometry::ReferenceGeometry* referenceGeometry,
-        std::size_t order);
+    Jacobian<2, 2> calcJacobian(const PointReference<2>&) const final;
 
-    AllGaussQuadratureRules(AllGaussQuadratureRules&) = delete;
-    void operator=(AllGaussQuadratureRules&) = delete;
+    MappingReferenceToPhysicalBase* copy() const override;
 
-   private:
-    AllGaussQuadratureRules();
-
-    std::map<Geometry::ReferenceGeometryType, std::vector<GaussQuadratureRule*>>
-        listOfRules_;
+    void reinit() final;
 };
-
-}  // namespace QuadratureRules
-//---------------------------------------------------------------------------
+}  // namespace Geometry
 }  // namespace hpgem
 
-#endif  // HPGEM_KERNEL_ALLGAUSSQUADRATURERULES_H
+#endif  // HPGEM_MAPPINGTOPHYSTRIANGLEQUADRATIC_H

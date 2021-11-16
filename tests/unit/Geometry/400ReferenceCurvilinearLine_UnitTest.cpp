@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2014, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,48 +35,31 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-//------------------------------------------------------------------------------
-#ifndef HPGEM_KERNEL_ALLGAUSSQUADRATURERULES_H
-#define HPGEM_KERNEL_ALLGAUSSQUADRATURERULES_H
 
-#include <vector>
-#include <map>
-#include "Geometry/ReferenceGeometry.h"
+#include "../catch.hpp"
+#include "Geometry/ReferenceCurvilinearLine.h"
+#include "ReferenceCurvilinearElementChecks.h"
 
-namespace hpgem {
+using namespace hpgem;
+using Geometry::ReferenceCurvilinearLine;
 
-namespace QuadratureRules {
-class GaussQuadratureRule;
+TEST_CASE("CurvilinearLine points", "[400ReferenceCurvilinearLine_UnitTest]") {
+    auto p = GENERATE(2, 4);
 
-/**
- * Storage class for all the quadrature rules. If you add a rule, make sure to
- * also add it here in the constructor. If you are integrating and want a
- * quadrature rule, this is the appropriate place to get one
- */
-class AllGaussQuadratureRules {
-   public:
-    static AllGaussQuadratureRules& instance();
+    INFO("Testing CurvalinearLine-" + std::to_string(p));
+    const auto& line =
+        Geometry::ReferenceCurvilinearLine::getReferenceLagrangeLine(p);
 
-    // it is possible to call this from an external location, but it is nicer to
-    // list all the rules inside this class
-    void addRule(GaussQuadratureRule* rule);
+    testReferenceGeometryOfCodimReferencePoints(line);
+    testAllReferencePointsAreInside(line);
+}
 
-    GaussQuadratureRule* getRule(
-        const Geometry::ReferenceGeometry* referenceGeometry,
-        std::size_t order);
+TEST_CASE("CurvilinearLine Codim1", "[400ReferenceCurvilinearLine_UnitTest]") {
+    auto p = GENERATE(2, 4);
 
-    AllGaussQuadratureRules(AllGaussQuadratureRules&) = delete;
-    void operator=(AllGaussQuadratureRules&) = delete;
+    INFO("Testing CurvalinearLine-" + std::to_string(p));
+    const auto& line =
+        Geometry::ReferenceCurvilinearLine::getReferenceLagrangeLine(p);
 
-   private:
-    AllGaussQuadratureRules();
-
-    std::map<Geometry::ReferenceGeometryType, std::vector<GaussQuadratureRule*>>
-        listOfRules_;
-};
-
-}  // namespace QuadratureRules
-//---------------------------------------------------------------------------
-}  // namespace hpgem
-
-#endif  // HPGEM_KERNEL_ALLGAUSSQUADRATURERULES_H
+    testCodim1CorrespondenceWithBaseGeometry(line);
+}
