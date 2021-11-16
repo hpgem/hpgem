@@ -197,6 +197,9 @@ class LoggerOutput {
     std::function<void(std::string, std::string)> onInfo;
     std::function<void(std::string, std::string)> onVerbose;
     std::function<void(std::string, std::string)> onDebug;
+    // Failure handler. This MUST not return, but instead either stop the
+    // program or throw an appropriate exception
+    std::function<void(std::string, std::string)> onFail;
 };
 
 /*!
@@ -431,6 +434,21 @@ class Logger {
     void assert_always(bool assertion, const std::string format,
                        Args&&... arg) {
         assert_always(assertion, format.c_str(), std::forward<Args>(arg)...);
+    }
+
+    /// Trigger handling for an unrecoverable failure.
+    template <typename... Args>
+    void fail [[noreturn]] (const char* format, Args&&... arg) {
+        std::stringstream msgstream;
+        createMessage(msgstream, format, std::forward<Args>(arg)...);
+        loggerOutput->onFail(module, msgstream.str());
+        // Fall back, should never be triggered for a correct onFail.
+        exit(1);
+    }
+
+    template <typename... Args>
+    void fail [[noreturn]] (const std::string format, Args&&... arg) {
+        fail(format.c_str(), std::forward<Args>(arg)...);
     }
 
     /*!

@@ -111,7 +111,8 @@ std::result_of_t<FunctionType(Base::PhysicalElement<DIM>&)>
     // check whether the GaussQuadratureRule is actually for the element's
     // ReferenceGeometry
     logger.assert_debug(
-        (qdrRuleLoc->forReferenceGeometry() == el->getReferenceGeometry()),
+        (qdrRuleLoc->forReferenceGeometry()->getGeometryType() ==
+         el->getReferenceGeometry()->getGeometryType()),
         "ElementIntegral: wrong geometry.");
 
     // value returned by the integrand

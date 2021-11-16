@@ -61,7 +61,7 @@ namespace Geometry {
 // ~~~ index 0
 // ~~~===========================================================================
 // //
-class MappingToRefPointToLine0 : public MappingReferenceToReference<1> {
+class MappingToRefPointToLine0 : public BoundaryFaceMapping {
    public:
     static const MappingToRefPointToLine0& Instance();
     PointReference<1> transform(
@@ -81,7 +81,7 @@ class MappingToRefPointToLine0 : public MappingReferenceToReference<1> {
 // ~~~ index 1
 // ~~~===========================================================================
 // //
-class MappingToRefPointToLine1 : public MappingReferenceToReference<1> {
+class MappingToRefPointToLine1 : public BoundaryFaceMapping {
    public:
     static const MappingToRefPointToLine1& Instance();
     PointReference<1> transform(

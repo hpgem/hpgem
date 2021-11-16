@@ -121,7 +121,7 @@ const MappingReferenceToReference<0>* ReferencePyramid::getCodim0MappingPtr(
 // ================================== Codimension 1
 // ============================================
 
-const MappingReferenceToReference<1>* ReferencePyramid::getCodim1MappingPtr(
+const BoundaryFaceMapping* ReferencePyramid::getCodim1MappingPtr(
     const std::size_t faceIndex) const {
     logger.assert_debug((faceIndex < 5),
                         "ReferencePyramid::getCodim1MappingPtr Index out of "

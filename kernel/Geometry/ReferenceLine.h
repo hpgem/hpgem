@@ -105,7 +105,7 @@ class ReferenceLine : public ReferenceGeometry {
         const std::size_t) const final;
 
     //! (see MappingCodimensions.h)
-    const MappingReferenceToReference<1>* getCodim1MappingPtr(
+    const BoundaryFaceMapping* getCodim1MappingPtr(
         const std::size_t) const final;
 
     //! (see MappingCodimensions.h)
@@ -126,7 +126,7 @@ class ReferenceLine : public ReferenceGeometry {
 
     //! Codimension 1 mappings, from a point to a line. This is the 1D
     //! face->element map
-    const MappingReferenceToReference<1>* mappingsPointToLine_[2];
+    const BoundaryFaceMapping* mappingsPointToLine_[2];
 
     //! Pointer to the Codimension 1 reference geometry, in this case, to
     //! ReferencePoint.

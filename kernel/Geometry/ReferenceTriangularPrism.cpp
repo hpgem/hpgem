@@ -157,9 +157,8 @@ const ReferenceGeometry* ReferenceTriangularPrism::getCodim1ReferenceGeometry(
     return nullptr;
 }
 
-const MappingReferenceToReference<1>*
-    ReferenceTriangularPrism::getCodim1MappingPtr(
-        const std::size_t faceIndex) const {
+const BoundaryFaceMapping* ReferenceTriangularPrism::getCodim1MappingPtr(
+    const std::size_t faceIndex) const {
     logger.assert_debug((faceIndex < 5),
                         "Asked for a square point index larger than 3. There "
                         "are only 4 nodes in a square!.\n");

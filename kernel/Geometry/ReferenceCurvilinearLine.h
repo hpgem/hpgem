@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2014, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,27 +35,24 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_KERNEL_OUTWARDNORMALVECTORSIGN_H
-#define HPGEM_KERNEL_OUTWARDNORMALVECTORSIGN_H
+#ifndef HPGEM_REFERENCECURVILINEARLINE_H
+#define HPGEM_REFERENCECURVILINEARLINE_H
+
+#include "ReferenceCurvilinearElement.h"
 
 namespace hpgem {
-
 namespace Geometry {
-template <int codim>
-class MappingReferenceToReference;
 
-/*!
- * Some of the Mappings from reference geometries to other reference geometries
- * are oriented such that the normal vector is inward, so there
- * the normal vector must be multiplied by -1 to get the outward normal vector.
- * This function determines whether or not the normal vector of a certain
- * mapping is inward or outward. It returns -1 if the normal vector is inward,
- * and 1 if it is outward.
- *
- * \todo: Switch old mappings to be outward.
- */
-double OutwardNormalVectorSign(const MappingReferenceToReference<1>* const map);
+class ReferenceCurvilinearLine : public ReferenceCurvilinearElement<1> {
+   public:
+    static ReferenceCurvilinearLine& getReferenceLagrangeLine(
+        std::size_t order);
+
+   private:
+    ReferenceCurvilinearLine(std::size_t order);
+};
+
 }  // namespace Geometry
 }  // namespace hpgem
 
-#endif  // HPGEM_KERNEL_OUTWARDNORMALVECTORSIGN_H
+#endif  // HPGEM_REFERENCECURVILINEARLINE_H

@@ -46,7 +46,7 @@ namespace hpgem {
 namespace Geometry {
 // ~~~ index 0
 // ~~~==============================================================================
-class MappingToRefFaceToPyramid0 : public MappingReferenceToReference<1> {
+class MappingToRefFaceToPyramid0 : public BoundaryFaceMapping {
    public:
     static const MappingToRefFaceToPyramid0& Instance();
     PointReference<3> transform(
@@ -66,7 +66,7 @@ class MappingToRefFaceToPyramid0 : public MappingReferenceToReference<1> {
 // ~~~ index 1
 // ~~~==============================================================================
 
-class MappingToRefFaceToPyramid1 : public MappingReferenceToReference<1> {
+class MappingToRefFaceToPyramid1 : public BoundaryFaceMapping {
    public:
     static const MappingToRefFaceToPyramid1& Instance();
     PointReference<3> transform(
@@ -86,7 +86,7 @@ class MappingToRefFaceToPyramid1 : public MappingReferenceToReference<1> {
 // ~~~ index 2
 // ~~~==============================================================================
 
-class MappingToRefFaceToPyramid2 : public MappingReferenceToReference<1> {
+class MappingToRefFaceToPyramid2 : public BoundaryFaceMapping {
    public:
     static const MappingToRefFaceToPyramid2& Instance();
     PointReference<3> transform(
@@ -106,7 +106,7 @@ class MappingToRefFaceToPyramid2 : public MappingReferenceToReference<1> {
 // ~~~ index 3
 // ~~~==============================================================================
 
-class MappingToRefFaceToPyramid3 : public MappingReferenceToReference<1> {
+class MappingToRefFaceToPyramid3 : public BoundaryFaceMapping {
    public:
     static const MappingToRefFaceToPyramid3& Instance();
     PointReference<3> transform(
@@ -126,7 +126,7 @@ class MappingToRefFaceToPyramid3 : public MappingReferenceToReference<1> {
 // ~~~ index 4
 // ~~~==============================================================================
 
-class MappingToRefFaceToPyramid4 : public MappingReferenceToReference<1> {
+class MappingToRefFaceToPyramid4 : public BoundaryFaceMapping {
    public:
     static const MappingToRefFaceToPyramid4& Instance();
     PointReference<3> transform(
