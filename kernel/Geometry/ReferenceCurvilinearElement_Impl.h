@@ -92,6 +92,112 @@ ReferenceCurvilinearElement<dim>::ReferenceCurvilinearElement(
     computeCodim2Indices();
 }
 
+// Codim 0 //
+/////////////
+
+template <std::size_t dim>
+std::size_t ReferenceCurvilinearElement<dim>::getCodim0MappingIndex(
+    const std::vector<std::size_t>& v1,
+    const std::vector<std::size_t>& v2) const {
+    // Compute the mapping by using the base geometry
+    // As v1 and v2 also include all the extra nodes of the curvilinear
+    // element, we need to select the nodes that correspond to the base
+    // geometry.
+    std::size_t baseNumberOfNodes = baseGeometry_->getNumberOfNodes();
+    std::vector<std::size_t> v1selection(baseNumberOfNodes);
+    std::vector<std::size_t> v2selection(baseNumberOfNodes);
+    for (std::size_t i = 0; i < baseNumberOfNodes; ++i) {
+        v1selection[i] = v1[baseGeometryIndicices_[i]];
+        v2selection[i] = v2[baseGeometryIndicices_[i]];
+    }
+    return baseGeometry_->getCodim0MappingIndex(v1selection, v2selection);
+}
+
+// Codim 1 //
+/////////////
+
+template <std::size_t dim>
+std::vector<std::size_t>
+    ReferenceCurvilinearElement<dim>::getCodim1EntityLocalIndices(
+        const std::size_t index) const {
+    logger.assert_debug(index < getNumberOfCodim1Entities(),
+                        "Too large face index %", index);
+    if (dim > 1) {
+        return codim1Indices_[index];
+    } else if (dim == 1) {
+        return {baseGeometryIndicices_[index]};
+    } else {
+        logger.assert_always(false, "Dimension too low for codim 1 entities");
+        return {};
+    }
+}
+
+template <std::size_t dim>
+const ReferenceGeometry*
+    ReferenceCurvilinearElement<dim>::getCodim1ReferenceGeometry(
+        const std::size_t index) const {
+    logger.assert_debug(index < getNumberOfCodim1Entities(),
+                        "Too large face number %", index);
+    if (dim == 1) {
+        return &ReferencePoint::Instance();
+    } else {
+        return codim1Geometries_[index];
+    }
+}
+
+// Codim 2 //
+/////////////
+
+template <std::size_t dim>
+std::vector<std::size_t>
+    ReferenceCurvilinearElement<dim>::getCodim2EntityLocalIndices(
+        const std::size_t index) const {
+    logger.assert_debug(index < getNumberOfCodim2Entities(),
+                        "Too large codim 2 index %", index);
+    if (dim > 2) {
+        return codim2Indices_[index];
+    } else if (dim == 2) {
+        return {baseGeometryIndicices_[index]};
+    } else {
+        logger.fail("Dimension too low for codim 2 entities");
+        return {};
+    }
+}
+template <std::size_t dim>
+const ReferenceGeometry*
+    ReferenceCurvilinearElement<dim>::getCodim2ReferenceGeometry(
+        const std::size_t index) const {
+    logger.assert_debug(index < getNumberOfCodim2Entities(),
+                        "Too large codim 2 index %", index);
+    if (dim == 2) {
+        return &ReferencePoint::Instance();
+    } else {
+        return codim2Geometries_[index];
+    }
+}
+
+// Codim 3 //
+/////////////
+
+template <std::size_t dim>
+std::vector<std::size_t>
+    ReferenceCurvilinearElement<dim>::getCodim3EntityLocalIndices(
+        const std::size_t index) const {
+    logger.assert_debug(index < getNumberOfCodim3Entities(),
+                        "Too large codim 3 index %", index);
+    if (dim == 3) {
+        return {baseGeometryIndicices_[index]};
+    } else if (dim > 3) {
+        // Don't support 4D
+        logger.fail("Codim 3 not implemented for object of dim %", dim);
+    } else {
+        logger.fail("Dimension too low for codim 3 entities");
+    }
+}
+
+// Helper methods //
+////////////////////
+
 template <std::size_t dim>
 std::size_t ReferenceCurvilinearElement<dim>::findPoint(
     const PointReference<dim>& point) const {
