@@ -89,11 +89,11 @@ void testAllReferencePointsAreInside(
 }
 
 /// Check the result of getCodim1EntityLocalIndices(), by comparing it to
-/// mapping the reference point from the face to the element. Valid for d > 1.
+/// mapping the reference point from the face to the element. Valid for d >= 1.
 template <std::size_t d>
 void testCodim1CorrespondenceWithBaseGeometry(
     const Geometry::ReferenceCurvilinearElement<d>& geom) {
-    static_assert(d > 1, "Codim 1 entities only relevant for dim >=1");
+    static_assert(d >= 1, "Codim 1 entities only relevant for dim >=1");
     std::size_t numCodim1 = geom.getNumberOfCodim1Entities();
     Geometry::ReferenceGeometry* baseGeom = geom.getBaseGeometry();
 
