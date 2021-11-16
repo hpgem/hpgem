@@ -184,7 +184,7 @@ class ReferenceCurvilinearElement : public ReferenceCurvilinearElementBase {
         }
     }
 
-    const MappingReferenceToReference<1>* getCodim1MappingPtr(
+    const BoundaryFaceMapping* getCodim1MappingPtr(
         const std::size_t faceIndex) const final {
         return baseGeometry_->getCodim1MappingPtr(faceIndex);
     }
