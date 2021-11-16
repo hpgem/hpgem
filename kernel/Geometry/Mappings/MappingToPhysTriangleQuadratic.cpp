@@ -44,7 +44,8 @@ namespace Geometry {
 
 /*
  * Implementation notes:
- * Ordering of the points in the LagrangeTriangle: (multiplied by 2)
+ * Ordering of the points in the LagrangeTriangle:
+ * (2.0 * coordinates) -> Corresponding function
  * (0,0) -> (1-x-y)(1-2x-2y)
  * (1,0) -> 4x(1-x-y)
  * (2,0) -> x(2x-1)
@@ -89,7 +90,7 @@ PointPhysical<2> MappingToPhysTriangleQuadratic::transform(
 PointReference<2> MappingToPhysTriangleQuadratic::inverseTransform(
     const PointPhysical<2> &p) const {
     PointReference<2> result = {0.3333, 0.333};  // Centroid
-    // Dirty way: Newton iteration
+    // Simple but effective: Newton iteration
     PointReference<2> correction;
     PointPhysical<2> physError;
     do {
