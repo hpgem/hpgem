@@ -194,13 +194,17 @@ void DGMaxDiscretization<DIM>::computeFaceIntegralsImpl(
 template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::computeElementMatrices(Base::Element* element) {
     // Shared information
-    const double epsilon =
-        static_cast<ElementInfos*>(element->getUserData())->epsilon_;
+    auto* material = dynamic_cast<ElementInfos*>(element->getUserData());
+    logger.assert_debug(material != nullptr, "No material information");
+    double permittivity = material->getPermittivity();
+    double permeability = material->getPermeability();
+
     const std::size_t dofU = element->getNumberOfBasisFunctions(0);
 
     // Mass matrix
     LinearAlgebra::MiddleSizeMatrix massMatrix = elementIntegrator_.integrate(
-        element, [&](Base::PhysicalElement<DIM>& pel) {
+        element, [permittivity = permittivity,
+                  dofU = dofU](Base::PhysicalElement<DIM>& pel) {
             LinearAlgebra::MiddleSizeMatrix ret;
             ret.resize(dofU, dofU);
             LinearAlgebra::SmallVector<DIM> phi_i, phi_j;
@@ -208,7 +212,7 @@ void DGMaxDiscretization<DIM>::computeElementMatrices(Base::Element* element) {
                 pel.basisFunction(i, phi_i, 0);
                 for (std::size_t j = 0; j < dofU; ++j) {
                     pel.basisFunction(j, phi_j, 0);
-                    ret(i, j) = phi_i * phi_j * epsilon;
+                    ret(i, j) = phi_i * phi_j * permittivity;
                     ret(j, i) = ret(i, j);
                 }
             }
@@ -218,7 +222,8 @@ void DGMaxDiscretization<DIM>::computeElementMatrices(Base::Element* element) {
     // Stiffness matrix
     LinearAlgebra::MiddleSizeMatrix stiffnessMatrix =
         elementIntegrator_.integrate(
-            element, [&element, &dofU](Base::PhysicalElement<DIM>& pel) {
+            element, [permeability = permeability,
+                      dofU = dofU](Base::PhysicalElement<DIM>& pel) {
                 LinearAlgebra::MiddleSizeMatrix ret;
                 ret.resize(dofU, dofU);
                 LinearAlgebra::SmallVector<DIM> phi_i, phi_j;
@@ -226,7 +231,7 @@ void DGMaxDiscretization<DIM>::computeElementMatrices(Base::Element* element) {
                     phi_i = pel.basisFunctionCurl(i, 0);
                     for (std::size_t j = i; j < dofU; ++j) {
                         phi_j = pel.basisFunctionCurl(j, 0);
-                        ret(i, j) = phi_i * phi_j;
+                        ret(i, j) = (phi_i / permeability) * phi_j;
                         ret(j, i) = ret(i, j);
                     }
                 }
@@ -245,8 +250,8 @@ void DGMaxDiscretization<DIM>::computeElementMatrices(Base::Element* element) {
                     for (std::size_t i = 0; i < dofU; ++i) {
                         pel.basisFunction(i, phiU, 0);
                         for (std::size_t j = 0; j < dofP; ++j) {
-                            ret(j, i) =
-                                epsilon * phiU * pel.basisFunctionDeriv(j, 1);
+                            ret(j, i) = permittivity * phiU *
+                                        pel.basisFunctionDeriv(j, 1);
                         }
                     }
                     return ret;
@@ -346,6 +351,24 @@ void DGMaxDiscretization<DIM>::computeFaceMatrix(
         //  -[[u]]_T {{curl v}} - {{curl u}} [[v]]_T
         //  + stab/h [[u]]_T [[v]]_T
 
+        double permeabilityLeft = 0.0;
+        double permeabilityRight = 0.0;
+
+        {
+            auto* materialLeft = dynamic_cast<ElementInfos*>(
+                face->getPtrElementLeft()->getUserData());
+            logger.assert_debug(materialLeft != nullptr, "No left material");
+            permeabilityLeft = materialLeft->getPermeability();
+        }
+        if (face->isInternal()) {
+            auto* materialRight = dynamic_cast<ElementInfos*>(
+                face->getPtrElementRight()->getUserData());
+            logger.assert_debug(materialRight != nullptr, "No right material");
+            permeabilityRight = materialRight->getPermeability();
+        }
+        std::size_t leftDoFs =
+            face->getPtrElementLeft()->getNumberOfBasisFunctions(0);
+
         // Factor for averaging. Negative sign is from the weak formulation
         double factor = -(internalFace ? 0.5 : 1.);
         // Standard rescaling of the stability parameter so that it does not
@@ -360,9 +383,13 @@ void DGMaxDiscretization<DIM>::computeFaceMatrix(
                 for (std::size_t i = 0; i < numDoFs; ++i) {
                     phiCi = pfa.basisFunctionCurl(i, 0);
                     pfa.basisFunctionUnitNormalCross(i, phiNi, 0);
+                    phiCi /=
+                        (i < leftDoFs) ? permeabilityLeft : permeabilityRight;
 
                     for (std::size_t j = i; j < numDoFs; ++j) {
                         phiCj = pfa.basisFunctionCurl(j, 0);
+                        phiCj /= (j < leftDoFs) ? permeabilityLeft
+                                                : permeabilityRight;
                         pfa.basisFunctionUnitNormalCross(j, phiNj, 0);
                         double value =
                             factor * (phiCi * phiNj + phiNi * phiCj) +
@@ -381,11 +408,12 @@ void DGMaxDiscretization<DIM>::computeFaceMatrix(
 
     // Impedance contribution to the stiffness matrix
     if (bct == DGMax::BoundaryConditionType::SILVER_MULLER) {
-        const double epsilon =
-            static_cast<ElementInfos*>(face->getPtrElementLeft()->getUserData())
-                ->epsilon_;
+        auto* material = dynamic_cast<ElementInfos*>(
+            face->getPtrElementLeft()->getUserData());
+        logger.assert_debug(material != nullptr, "No material");
+
         std::complex<double> impedance =
-            std::complex<double>(0, std::sqrt(epsilon));
+            std::complex<double>(0, material->impedance());
         stiffnessMatrix = faceIntegrator_.integrate(
             face, [numDoFs, impedance](Base::PhysicalFace<DIM>& pfa) {
                 LinearAlgebra::MiddleSizeMatrix result(numDoFs, numDoFs);
@@ -462,12 +490,17 @@ void DGMaxDiscretization<DIM>::faceVector(
         LinearAlgebra::SmallVectorC<DIM> val;
         LinearAlgebra::SmallVector<DIM> phi, phi_curl;
 
+        auto* material = dynamic_cast<ElementInfos*>(
+            face->getPtrElementLeft()->getUserData());
+        logger.assert_debug(material != nullptr, "No material");
+
         val = boundaryCondition(fa);
 
         for (std::size_t i = 0; i < numDoFs; ++i) {
             fa.basisFunctionUnitNormalCross(i, phi, 0);
 
             phi_curl = fa.basisFunctionCurl(i, 0);
+            phi_curl /= material->getPermeability();
 
             ret(i) = -(val * phi_curl) + stab_ / diameter * (val * phi);
         }

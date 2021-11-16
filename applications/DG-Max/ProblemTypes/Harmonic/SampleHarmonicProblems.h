@@ -142,8 +142,13 @@ class [[maybe_unused]] PlaneWaveProblem : public SampleHarmonicProblem<dim> {
    public:
     PlaneWaveProblem(LinearAlgebra::SmallVector<dim> k,
                      LinearAlgebra::SmallVectorC<dim> E0, double omega,
-                     double phase, double epsilon)
-        : k_(k), E0_(E0), omega_(omega), phase_(phase), epsilon_(epsilon) {
+                     double phase, double epsilon, double permeability = 1.0)
+        : k_(k),
+          E0_(E0),
+          omega_(omega),
+          phase_(phase),
+          epsilon_(epsilon),
+          permeability_(permeability) {
         logger.assert_debug(epsilon > 1e-3, "Negative or almost zero epsilon");
         logger.assert_debug(k.l2Norm() > 1e-9, "Zero wave vector k");
         logger.assert_debug(E0_.l2Norm() > 1e-9, "Zero field direction E0");
@@ -153,9 +158,14 @@ class [[maybe_unused]] PlaneWaveProblem : public SampleHarmonicProblem<dim> {
 
     static PlaneWaveProblem onDispersionPlaneWave(
         LinearAlgebra::SmallVector<dim> k, LinearAlgebra::SmallVectorC<dim> E0,
-        double epsilon, double phase = 0.0) {
+        double epsilon, double phase = 0.0, double permeability = 1.0) {
         return PlaneWaveProblem<dim>{
-            k, E0, std::sqrt(k.l2NormSquared() / epsilon), phase, epsilon};
+            k,
+            E0,
+            std::sqrt(k.l2NormSquared() / (epsilon * permeability)),
+            phase,
+            epsilon,
+            permeability};
     }
 
     double omega() const override { return omega_; }
@@ -172,13 +182,14 @@ class [[maybe_unused]] PlaneWaveProblem : public SampleHarmonicProblem<dim> {
     }
     LinearAlgebra::SmallVectorC<dim> sourceTerm(
         const Geometry::PointPhysical<dim>& point) const override {
-        return (k_.l2NormSquared() - epsilon_ * omega_ * omega_) *
+        return (k_.l2NormSquared() / permeability_ -
+                epsilon_ * omega_ * omega_) *
                exactSolution(point);
     }
 
    private:
-    std::complex<double> pointPhase(const Geometry::PointPhysical<dim>& point)
-        const {
+    std::complex<double> pointPhase(
+        const Geometry::PointPhysical<dim>& point) const {
         using namespace std::complex_literals;
         return std::exp(1i * (phase_ + k_ * point.getCoordinates()));
     }
@@ -188,6 +199,7 @@ class [[maybe_unused]] PlaneWaveProblem : public SampleHarmonicProblem<dim> {
     double omega_;
     double phase_;
     double epsilon_;
+    double permeability_;
 };
 
 /// Reflection of a plane wave from an interface.
@@ -258,11 +270,11 @@ class [[maybe_unused]] PlaneWaveReflectionProblem
         return {};
     }
 
-    LinearAlgebra::SmallVectorC<dim> boundaryCondition(Base::PhysicalFace<dim> &
-                                                       face) const override;
+    LinearAlgebra::SmallVectorC<dim> boundaryCondition(
+        Base::PhysicalFace<dim>& face) const override;
 
-    BoundaryConditionType getBoundaryConditionType(const Base::Face& face)
-        const override;
+    BoundaryConditionType getBoundaryConditionType(
+        const Base::Face& face) const override;
 
    private:
     double omega_;

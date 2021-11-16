@@ -50,6 +50,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class ElementInfos : public hpgem::Base::UserElementData {
    public:
     const double epsilon_;
-    ElementInfos(double epsilon);
+    ElementInfos(double epsilon, double permeability = 1.0);
+
+    const double& getPermittivity() const { return epsilon_; }
+
+    const double& getPermeability() const { return permeability_; }
+
+    double impedance() const { return std::sqrt(epsilon_ / permeability_); }
+
+   private:
+    /// Relative permeability
+    double permeability_;
 };
 #endif  // HPGEM_APP_ELEMENTINFOS_H
