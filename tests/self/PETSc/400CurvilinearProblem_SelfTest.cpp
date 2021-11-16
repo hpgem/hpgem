@@ -47,6 +47,11 @@
 
 using namespace hpgem;
 
+// Solve
+//  -Laplacian u(r, theta) = 4.0
+//  u(1, theta) = 1.0
+// with solution u(r, theta) = 2 - r^2
+// using SIPG
 class Problem : public Base::HpgemAPILinearSteadyState<2> {
    public:
     Problem(std::size_t order, double penalty)

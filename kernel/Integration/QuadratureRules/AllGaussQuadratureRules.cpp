@@ -138,11 +138,13 @@ void AllGaussQuadratureRules::addRule(GaussQuadratureRule* rule) {
 
 GaussQuadratureRule* AllGaussQuadratureRules::getRule(
     const Geometry::ReferenceGeometry* referenceGeometry, std::size_t order) {
-    auto* lagrange =
+    auto* curvilinear =
         dynamic_cast<const Geometry::ReferenceCurvilinearElementBase*>(
             referenceGeometry);
-    if (lagrange != nullptr) {
-        order += lagrange->getOrder();
+    // p-th order curvilinear element has a boundary that is accurate to order
+    // h^{p+1}. Hence, use at least order p+1 for integration.
+    if (curvilinear != nullptr) {
+        order = std::max(order, curvilinear->getOrder() + 1);
     }
     for (GaussQuadratureRule* rule :
          listOfRules_[referenceGeometry->getGeometryType()]) {

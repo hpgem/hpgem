@@ -45,7 +45,8 @@
 
 namespace hpgem {
 
-/// Check
+/// Check that a d-dimensional curvilinear element has as ReferencePoint for the
+/// codim-d reference geometries. Only usable if d = {1,2}
 template <std::size_t d>
 void testReferenceGeometryOfCodimReferencePoints(
     const Geometry::ReferenceCurvilinearElement<d>& geom) {
@@ -87,10 +88,12 @@ void testAllReferencePointsAreInside(
     }
 }
 
+/// Check the result of getCodim1EntityLocalIndices(), by comparing it to
+/// mapping the reference point from the face to the element. Valid for d > 1.
 template <std::size_t d>
 void testCodim1CorrespondenceWithBaseGeometry(
     const Geometry::ReferenceCurvilinearElement<d>& geom) {
-    static_assert(d >= 1, "Codim 1 entities only relevant for dim >= 1");
+    static_assert(d > 1, "Codim 1 entities only relevant for dim >=1");
     std::size_t numCodim1 = geom.getNumberOfCodim1Entities();
     Geometry::ReferenceGeometry* baseGeom = geom.getBaseGeometry();
 
@@ -114,6 +117,7 @@ void testCodim1CorrespondenceWithBaseGeometry(
     }
 }
 
+/// Same as codim1, but for the codim 2 entities. Valid for dim > 2.
 template <std::size_t d>
 void testCodim2CorrespondenceWithBaseGeometry(
     const Geometry::ReferenceCurvilinearElement<d>& geom) {
