@@ -79,7 +79,7 @@ namespace Geometry {
 
 // ~~~ index 0
 // ~~~==============================================================================
-class MappingToRefSquareToCube0 : public MappingReferenceToReference<1> {
+class MappingToRefSquareToCube0 : public BoundaryFaceMapping {
    public:
     static const MappingToRefSquareToCube0& Instance();
     PointReference<3> transform(
@@ -99,7 +99,7 @@ class MappingToRefSquareToCube0 : public MappingReferenceToReference<1> {
 // ~~~ index 1
 // ~~~==============================================================================
 
-class MappingToRefSquareToCube1 : public MappingReferenceToReference<1> {
+class MappingToRefSquareToCube1 : public BoundaryFaceMapping {
    public:
     static const MappingToRefSquareToCube1& Instance();
     PointReference<3> transform(
@@ -119,7 +119,7 @@ class MappingToRefSquareToCube1 : public MappingReferenceToReference<1> {
 // ~~~ index 2
 // ~~~==============================================================================
 
-class MappingToRefSquareToCube2 : public MappingReferenceToReference<1> {
+class MappingToRefSquareToCube2 : public BoundaryFaceMapping {
    public:
     static const MappingToRefSquareToCube2& Instance();
     PointReference<3> transform(
@@ -139,7 +139,7 @@ class MappingToRefSquareToCube2 : public MappingReferenceToReference<1> {
 // ~~~ index 3
 // ~~~==============================================================================
 
-class MappingToRefSquareToCube3 : public MappingReferenceToReference<1> {
+class MappingToRefSquareToCube3 : public BoundaryFaceMapping {
    public:
     static const MappingToRefSquareToCube3& Instance();
     PointReference<3> transform(
@@ -159,7 +159,7 @@ class MappingToRefSquareToCube3 : public MappingReferenceToReference<1> {
 // ~~~ index 4
 // ~~~==============================================================================
 
-class MappingToRefSquareToCube4 : public MappingReferenceToReference<1> {
+class MappingToRefSquareToCube4 : public BoundaryFaceMapping {
    public:
     static const MappingToRefSquareToCube4& Instance();
     PointReference<3> transform(
@@ -179,7 +179,7 @@ class MappingToRefSquareToCube4 : public MappingReferenceToReference<1> {
 // ~~~ index 5
 // ~~~==============================================================================
 
-class MappingToRefSquareToCube5 : public MappingReferenceToReference<1> {
+class MappingToRefSquareToCube5 : public BoundaryFaceMapping {
    public:
     static const MappingToRefSquareToCube5& Instance();
     PointReference<3> transform(

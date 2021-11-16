@@ -78,7 +78,8 @@ Jacobian<0, 1> MappingToRefPointToLine0::calcJacobian(
     return Jacobian<0, 1>();
 }
 
-MappingToRefPointToLine0::MappingToRefPointToLine0() = default;
+MappingToRefPointToLine0::MappingToRefPointToLine0()
+    : BoundaryFaceMapping(-1.0) {}
 
 // ~~~~~~~~~~~~~~~==============================================================================
 // ~~~ index 1
@@ -104,7 +105,8 @@ Jacobian<0, 1> MappingToRefPointToLine1::calcJacobian(
     return Jacobian<0, 1>();
 }
 
-MappingToRefPointToLine1::MappingToRefPointToLine1() = default;
+MappingToRefPointToLine1::MappingToRefPointToLine1()
+    : BoundaryFaceMapping(1.0) {}
 
 }  // namespace Geometry
 

@@ -47,7 +47,7 @@ namespace Geometry {
 
 // ~~~ index 0
 // ~~~==============================================================================
-class MappingToRefCubeToHypercube0 : public MappingReferenceToReference<1> {
+class MappingToRefCubeToHypercube0 : public BoundaryFaceMapping {
    public:
     static const MappingToRefCubeToHypercube0& Instance();
     PointReference<4> transform(
@@ -67,7 +67,7 @@ class MappingToRefCubeToHypercube0 : public MappingReferenceToReference<1> {
 // ~~~ index 1
 // ~~~==============================================================================
 
-class MappingToRefCubeToHypercube1 : public MappingReferenceToReference<1> {
+class MappingToRefCubeToHypercube1 : public BoundaryFaceMapping {
    public:
     static const MappingToRefCubeToHypercube1& Instance();
     PointReference<4> transform(
@@ -87,7 +87,7 @@ class MappingToRefCubeToHypercube1 : public MappingReferenceToReference<1> {
 // ~~~ index 2
 // ~~~==============================================================================
 
-class MappingToRefCubeToHypercube2 : public MappingReferenceToReference<1> {
+class MappingToRefCubeToHypercube2 : public BoundaryFaceMapping {
    public:
     static const MappingToRefCubeToHypercube2& Instance();
     PointReference<4> transform(
@@ -107,7 +107,7 @@ class MappingToRefCubeToHypercube2 : public MappingReferenceToReference<1> {
 // ~~~ index 3
 // ~~~==============================================================================
 
-class MappingToRefCubeToHypercube3 : public MappingReferenceToReference<1> {
+class MappingToRefCubeToHypercube3 : public BoundaryFaceMapping {
    public:
     static const MappingToRefCubeToHypercube3& Instance();
     PointReference<4> transform(
@@ -127,7 +127,7 @@ class MappingToRefCubeToHypercube3 : public MappingReferenceToReference<1> {
 // ~~~ index 4
 // ~~~==============================================================================
 
-class MappingToRefCubeToHypercube4 : public MappingReferenceToReference<1> {
+class MappingToRefCubeToHypercube4 : public BoundaryFaceMapping {
    public:
     static const MappingToRefCubeToHypercube4& Instance();
     PointReference<4> transform(
@@ -147,7 +147,7 @@ class MappingToRefCubeToHypercube4 : public MappingReferenceToReference<1> {
 // ~~~ index 5
 // ~~~==============================================================================
 
-class MappingToRefCubeToHypercube5 : public MappingReferenceToReference<1> {
+class MappingToRefCubeToHypercube5 : public BoundaryFaceMapping {
    public:
     static const MappingToRefCubeToHypercube5& Instance();
     PointReference<4> transform(
@@ -167,7 +167,7 @@ class MappingToRefCubeToHypercube5 : public MappingReferenceToReference<1> {
 // ~~~ index 6
 // ~~~==============================================================================
 
-class MappingToRefCubeToHypercube6 : public MappingReferenceToReference<1> {
+class MappingToRefCubeToHypercube6 : public BoundaryFaceMapping {
    public:
     static const MappingToRefCubeToHypercube6& Instance();
     PointReference<4> transform(
@@ -187,7 +187,7 @@ class MappingToRefCubeToHypercube6 : public MappingReferenceToReference<1> {
 // ~~~ index 7
 // ~~~==============================================================================
 
-class MappingToRefCubeToHypercube7 : public MappingReferenceToReference<1> {
+class MappingToRefCubeToHypercube7 : public BoundaryFaceMapping {
    public:
     static const MappingToRefCubeToHypercube7& Instance();
     PointReference<4> transform(

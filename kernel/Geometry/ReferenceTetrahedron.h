@@ -94,7 +94,7 @@ class ReferenceTetrahedron : public ReferenceSimplex<3> {
         const std::size_t) const final;
 
     //! (see MappingCodimensions.h)
-    const MappingReferenceToReference<1>* getCodim1MappingPtr(
+    const BoundaryFaceMapping* getCodim1MappingPtr(
         const std::size_t) const final;
 
     //! (see MappingCodimensions.h)
@@ -139,7 +139,7 @@ class ReferenceTetrahedron : public ReferenceSimplex<3> {
 
     //! Codimension 1 mappings, from a square to a tetrahedron face. (used to
     //! map a coordinate from a face to an element)
-    const MappingReferenceToReference<1>* mappingsTriangleToTetrahedron_[4];
+    const BoundaryFaceMapping* mappingsTriangleToTetrahedron_[4];
     // const MappingReferenceToReference<0>*
     // mappingsTetrahedronToTetrahedron_[1];
 
