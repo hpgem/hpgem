@@ -143,3 +143,26 @@ TEST_CASE("ReadingFile_NOPBC", "[ReadingFile]") {
         REQUIRE(elements[i].coordinateIds == ref_Elements[i].coordinateIds);
     }
 }
+
+TEST_CASE("Line mesh with physical names", "[GmshReader]") {
+    Preprocessor::GmshReader reader(std::string(TEST_DATA_FOLDER) +
+                                    "/gmsh2.physical_line_mesh.msh");
+    {
+        INFO("Dimension")
+        REQUIRE(reader.getDimension() == 1);
+    }
+    // Coordinates at positions x = {0, 1, 2}
+    const auto& coords = reader.getCoordinates();
+    REQUIRE(coords.size() == 3);
+    for (std::size_t i = 0; i < 3; ++i) {
+        INFO("Coordinate " + std::to_string(i));
+        REQUIRE(coords[i].coordinate.size() == 1);
+        REQUIRE(coords[i].coordinate[0] == Approx(i));
+    }
+    std::vector<std::string> zones = {"line", "line2"};
+    const auto& elements = reader.getElements();
+    REQUIRE(elements.size() == 2);
+    for (std::size_t i = 0; i < 2; ++i) {
+        CHECK(elements[i].zoneName == zones[i]);
+    }
+}
