@@ -136,7 +136,7 @@ class ExactHarmonicProblem : public HarmonicProblem<DIM> {
                     this->exactSolutionCurl(face.getPointPhysical());
                 const Vec& normal = face.getUnitNormalVector();
                 auto impedance = std::complex<double>(
-                    0, this->omega() * material->impedance());
+                    0, this->omega() * material->getImpedance());
                 // n x (Curl E + Z [E x n]) = n x g_N
                 return efieldCurl / material->getPermeability() +
                        impedance * efield.crossProduct(normal);

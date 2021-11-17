@@ -53,14 +53,14 @@ struct FaceMaterialInfo {
         const Base::Face* face = fa.getFace();
         auto* leftInfo = dynamic_cast<ElementInfos*>(
             face->getPtrElementLeft()->getUserData());
-        epsilonLeft = leftInfo->epsilon_;
+        epsilonLeft = leftInfo->getPermittivity();
         permeabilityLeft = leftInfo->getPermeability();
         epsMax = epsilonLeft;
 
         if (face->isInternal()) {
             auto* rightInfo = dynamic_cast<ElementInfos*>(
                 face->getPtrElementRight()->getUserData());
-            epsilonRight = rightInfo->epsilon_;
+            epsilonRight = rightInfo->getPermittivity();
             permeabilityRight = rightInfo->getPermeability();
             if (epsilonLeft < epsilonRight) {
                 epsMax = epsilonRight;
@@ -359,7 +359,7 @@ void DivDGMaxDiscretization<DIM>::writeFields(
             const ElementInfos* elementInfo =
                 dynamic_cast<ElementInfos*>(userData);
             if (elementInfo != nullptr) {
-                return elementInfo->epsilon_;
+                return elementInfo->getPermittivity();
             } else {
                 return -1.0;  // Clearly invalid value
             }
@@ -442,7 +442,7 @@ void DivDGMaxDiscretization<DIM>::elementScalarVectorCoupling(
     std::size_t pDoFs = element->getNumberOfBasisFunctions(1);
     ret.resize(uDoFs + pDoFs, uDoFs + pDoFs);
     double epsilon =
-        static_cast<ElementInfos*>(element->getUserData())->epsilon_;
+        static_cast<ElementInfos*>(element->getUserData())->getPermittivity();
     LinearAlgebra::SmallVector<DIM> phi_i, phi_j;
 
     // Note, this loop only loops over the basis functions for the second
@@ -681,7 +681,7 @@ LinearAlgebra::MiddleSizeMatrix
         auto* material = dynamic_cast<ElementInfos*>(
             face.getFace()->getPtrElementLeft()->getUserData());
         logger.assert_debug(material != nullptr, "No material information");
-        impedance = std::complex<double>(0, material->impedance());
+        impedance = std::complex<double>(0, material->getImpedance());
     }
     for (std::size_t i = 0; i < nUDoFs; ++i) {
         LinearAlgebra::SmallVector<DIM> phiUNi;
@@ -858,11 +858,11 @@ LinearAlgebra::MiddleSizeMatrix
 
     double epsilonLeft =
         static_cast<ElementInfos*>(face->getPtrElementLeft()->getUserData())
-            ->epsilon_;
+            ->getPermittivity();
     double epsilonRight = faceInfo.internal
                               ? static_cast<ElementInfos*>(
                                     face->getPtrElementRight()->getUserData())
-                                    ->epsilon_
+                                    ->getPermittivity()
                               : 0.0;  // Should not be used.
 
     return faceIntegrator_.integrate(face, [&](Base::PhysicalFace<DIM>& face) {

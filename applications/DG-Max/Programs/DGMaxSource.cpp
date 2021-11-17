@@ -133,22 +133,22 @@ class TestingProblem : public HarmonicProblem<dim> {
         LinearAlgebra::SmallVectorC<dim> normal = face.getUnitNormalVector();
 
         // E = E_0 exp(ik.x)
-        // g_N = Curl E + i kappa sqrt(epsilon) E x n
+        // g_N = muinv * Curl E + i kappa sqrt(epsilon/mu) E x n
         //     = i[(k x E_0) + kappa sqrt(epsilon) (E_0 x n)] exp(ik.x)
-
-        using namespace std::complex_literals;
-        LinearAlgebra::SmallVectorC<dim> E0{1.0, 0}, k{0, omega()};
 
         auto* userData = dynamic_cast<ElementInfos*>(
             face.getFace()->getPtrElementLeft()->getUserData());
+
+        using namespace std::complex_literals;
+        LinearAlgebra::SmallVectorC<dim> E0{1.0, 0},
+            k{0, omega() * userData->getRefractiveIndex()};
+
         logger.assert_always(userData != nullptr, "Incorrect data");
 
-        k[1] *= std::sqrt(userData->epsilon_);
-
-        // (kxE_0) + kappa * sqrt(epsilon) (E_0 x n)
-        LinearAlgebra::SmallVectorC<dim> result = k.crossProduct(E0);
-        result +=
-            omega() * std::sqrt(userData->epsilon_) * E0.crossProduct(normal);
+        // muInv(kxE_0) + kappa * sqrt(epsilon) (E_0 x n)
+        LinearAlgebra::SmallVectorC<dim> result =
+            k.crossProduct(E0) / userData->getPermeability();
+        result += omega() * userData->getImpedance() * E0.crossProduct(normal);
 
         // i exp(ik.x)
         result *=
@@ -312,7 +312,7 @@ void writeMesh(std::string fileName, const Base::MeshManipulator<DIM>* mesh) {
                 dynamic_cast<ElementInfos*>(element->getUserData());
             logger.assert_debug(elementInfos != nullptr,
                                 "Incorrect user data type");
-            return elementInfos->epsilon_;
+            return elementInfos->getPermittivity();
         },
         "epsilon");
 }

@@ -413,7 +413,7 @@ void DGMaxDiscretization<DIM>::computeFaceMatrix(
         logger.assert_debug(material != nullptr, "No material");
 
         std::complex<double> impedance =
-            std::complex<double>(0, material->impedance());
+            std::complex<double>(0, material->getImpedance());
         stiffnessMatrix = faceIntegrator_.integrate(
             face, [numDoFs, impedance](Base::PhysicalFace<DIM>& pfa) {
                 LinearAlgebra::MiddleSizeMatrix result(numDoFs, numDoFs);
@@ -600,7 +600,7 @@ void DGMaxDiscretization<DIM>::writeFields(
             const ElementInfos* elementInfo =
                 dynamic_cast<ElementInfos*>(userData);
             if (elementInfo != nullptr) {
-                return elementInfo->epsilon_;
+                return elementInfo->getPermittivity();
             } else {
                 return -1.0;  // Clearly invalid value
             }

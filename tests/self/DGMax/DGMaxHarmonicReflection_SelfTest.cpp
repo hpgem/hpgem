@@ -57,15 +57,15 @@ using namespace DGMax;
 // additionally only a few coarse meshes are used for the same reason.
 
 struct ProblemData {
-    constexpr static const double epsilonLeft = 4.0;
-    constexpr static const double epsilonRight = 1.0;
+    constexpr static const Material leftMaterial = Material(4.0, 1.2);
+    constexpr static const Material rightMaterial = Material(1.0, 1.1);
     constexpr static const double omega = M_PI;
     constexpr static const double phase = 1.0;
     constexpr static const double xInterface = 0.5;
 
     ProblemData()
-        : infosLeft(epsilonLeft),
-          infosRight(epsilonRight),
+        : infosLeft(leftMaterial),
+          infosRight(rightMaterial),
           structureDescription(StructureDescription::fromFunction(
               [&](const Base::Element* element) {
                   auto centerPos = element->referenceToPhysical(
@@ -78,12 +78,15 @@ struct ProblemData {
                       return &infosRight;
                   }
               })),
-          problem(omega, phase, epsilonLeft, epsilonRight, xInterface) {}
+          problem(omega, phase, leftMaterial, rightMaterial, xInterface) {}
 
     ElementInfos infosLeft, infosRight;
     std::shared_ptr<StructureDescription> structureDescription;
     PlaneWaveReflectionProblem<3> problem;
 };
+
+const Material ProblemData::leftMaterial;
+const Material ProblemData::rightMaterial;
 
 double solve(std::string meshFile, std::size_t level,
              std::shared_ptr<AbstractDiscretization<3>> discretization,
@@ -113,7 +116,7 @@ int main(int argc, char** argv) {
     initDGMaxLogging();
 
     // For testing and updating => Should be false to actually use this test
-    bool ignoreFailures = true;
+    bool ignoreFailures = false;
 
     // Default the solver if not specified to a direct LU solver
     std::map<std::string, std::string> defaultOptions = {
@@ -134,9 +137,9 @@ int main(int argc, char** argv) {
     // Expected convergence rate: 2 (=2^p with p=1)
     ConvergenceTestSet meshesDGMax = {getUnitCubeTetMeshes(1, 4),
                                       {
-                                          7.47369700e-01,  //------
-                                          3.55215886e-01,  //  2.10
-                                          1.73896389e-01,  //  2.04
+                                          7.48237144e-01,  //------
+                                          3.80443878e-01,  //  1.97
+                                          1.83605884e-01,  //  2.07
                                       }};
     auto dgmax = std::make_shared<DGMaxDiscretization<3>>(1, 100);
     runConvergenceTest(meshesDGMax, ignoreFailures,
@@ -147,9 +150,9 @@ int main(int argc, char** argv) {
 
     ConvergenceTestSet meshesDivDGMax = {getUnitCubeTetMeshes(1, 4),
                                          {
-                                             1.02154508e+00,  //------
-                                             4.76665783e-01,  //  2.14
-                                             2.01204463e-01,  //  2.37
+                                             1.09286633e+00,  //------
+                                             5.36898591e-01,  //  2.04
+                                             2.22872838e-01,  //  2.41
                                          }};
     DivDGMaxDiscretizationBase::Stab stab;
     stab.stab1 = 5;
