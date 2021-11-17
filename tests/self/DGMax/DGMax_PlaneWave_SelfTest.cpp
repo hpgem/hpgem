@@ -71,7 +71,8 @@ struct ProblemData {
         : infos(material),
           structureDescription(StructureDescription::fromFunction(
               [this](const Base::Element*) { return &this->infos; })),
-          problem(k, E0, omega, phase, material) {
+          problem(k, E0, omega, phase, material,
+                  DGMax::ProblemField::ELECTRIC_FIELD) {
         problem.setBoundaryConditionIndicator([](const Base::Face& face) {
             auto normal = face.getNormalVector(
                 face.getReferenceGeometry()->getCenter().castDimension<1>());
@@ -79,10 +80,10 @@ struct ProblemData {
             double xn = normal[0];
             if (std::abs(xn - 1) < 1e-9) {
                 // normal = <1,0> => y = 1 boundary
-                return BoundaryConditionType::DIRICHLET;
+                return BoundaryConditionType::SILVER_MULLER;
             } else if (std::abs(xn + 1) < 1e-9) {
                 // normal = <-1,0> => y = 0 boundary
-                return BoundaryConditionType::NEUMANN;
+                return BoundaryConditionType::SILVER_MULLER;
             } else {
                 // normal = <0,+-1> => x=0,1 boundary
                 return BoundaryConditionType::SILVER_MULLER;

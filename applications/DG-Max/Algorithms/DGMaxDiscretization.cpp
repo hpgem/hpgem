@@ -50,10 +50,12 @@ using namespace hpgem;
 
 template <std::size_t DIM>
 DGMaxDiscretization<DIM>::DGMaxDiscretization(std::size_t order, double stab,
-                                              bool includeProjector)
+                                              bool includeProjector,
+                                              DGMax::ProblemField field)
     : order_(order),
       stab_(stab),
       includeProjector_(includeProjector),
+      field_(field),
       matrixHandling_(NORMAL) {
 
     transforms_.emplace_back(new Base::HCurlConformingTransformation<DIM>());
@@ -196,14 +198,15 @@ void DGMaxDiscretization<DIM>::computeElementMatrices(Base::Element* element) {
     // Shared information
     auto* material = dynamic_cast<ElementInfos*>(element->getUserData());
     logger.assert_debug(material != nullptr, "No material information");
-    double permittivity = material->getPermittivity();
-    double permeability = material->getPermeability();
+    // Used in [curlMaterial]^{-1} Curl [Field]
+    double materialCurl = material->getMaterialConstantCurl(field_);
+    double materialDiv = material->getMaterialConstantDiv(field_);
 
     const std::size_t dofU = element->getNumberOfBasisFunctions(0);
 
     // Mass matrix
     LinearAlgebra::MiddleSizeMatrix massMatrix = elementIntegrator_.integrate(
-        element, [permittivity = permittivity,
+        element, [materialDiv = materialDiv,
                   dofU = dofU](Base::PhysicalElement<DIM>& pel) {
             LinearAlgebra::MiddleSizeMatrix ret;
             ret.resize(dofU, dofU);
@@ -212,7 +215,7 @@ void DGMaxDiscretization<DIM>::computeElementMatrices(Base::Element* element) {
                 pel.basisFunction(i, phi_i, 0);
                 for (std::size_t j = 0; j < dofU; ++j) {
                     pel.basisFunction(j, phi_j, 0);
-                    ret(i, j) = phi_i * phi_j * permittivity;
+                    ret(i, j) = phi_i * phi_j * materialDiv;
                     ret(j, i) = ret(i, j);
                 }
             }
@@ -222,7 +225,7 @@ void DGMaxDiscretization<DIM>::computeElementMatrices(Base::Element* element) {
     // Stiffness matrix
     LinearAlgebra::MiddleSizeMatrix stiffnessMatrix =
         elementIntegrator_.integrate(
-            element, [permeability = permeability,
+            element, [materialCurl = materialCurl,
                       dofU = dofU](Base::PhysicalElement<DIM>& pel) {
                 LinearAlgebra::MiddleSizeMatrix ret;
                 ret.resize(dofU, dofU);
@@ -231,7 +234,7 @@ void DGMaxDiscretization<DIM>::computeElementMatrices(Base::Element* element) {
                     phi_i = pel.basisFunctionCurl(i, 0);
                     for (std::size_t j = i; j < dofU; ++j) {
                         phi_j = pel.basisFunctionCurl(j, 0);
-                        ret(i, j) = (phi_i / permeability) * phi_j;
+                        ret(i, j) = (phi_i * materialCurl) * phi_j;
                         ret(j, i) = ret(i, j);
                     }
                 }
@@ -250,7 +253,7 @@ void DGMaxDiscretization<DIM>::computeElementMatrices(Base::Element* element) {
                     for (std::size_t i = 0; i < dofU; ++i) {
                         pel.basisFunction(i, phiU, 0);
                         for (std::size_t j = 0; j < dofP; ++j) {
-                            ret(j, i) = permittivity * phiU *
+                            ret(j, i) = materialDiv * phiU *
                                         pel.basisFunctionDeriv(j, 1);
                         }
                     }
@@ -351,20 +354,20 @@ void DGMaxDiscretization<DIM>::computeFaceMatrix(
         //  -[[u]]_T {{curl v}} - {{curl u}} [[v]]_T
         //  + stab/h [[u]]_T [[v]]_T
 
-        double permeabilityLeft = 0.0;
-        double permeabilityRight = 0.0;
+        double materialCurlLeft = 0.0;
+        double materialCurlRight = 0.0;
 
         {
             auto* materialLeft = dynamic_cast<ElementInfos*>(
                 face->getPtrElementLeft()->getUserData());
             logger.assert_debug(materialLeft != nullptr, "No left material");
-            permeabilityLeft = materialLeft->getPermeability();
+            materialCurlLeft = materialLeft->getMaterialConstantCurl(field_);
         }
         if (face->isInternal()) {
             auto* materialRight = dynamic_cast<ElementInfos*>(
                 face->getPtrElementRight()->getUserData());
             logger.assert_debug(materialRight != nullptr, "No right material");
-            permeabilityRight = materialRight->getPermeability();
+            materialCurlRight = materialRight->getMaterialConstantCurl(field_);
         }
         std::size_t leftDoFs =
             face->getPtrElementLeft()->getNumberOfBasisFunctions(0);
@@ -383,13 +386,13 @@ void DGMaxDiscretization<DIM>::computeFaceMatrix(
                 for (std::size_t i = 0; i < numDoFs; ++i) {
                     phiCi = pfa.basisFunctionCurl(i, 0);
                     pfa.basisFunctionUnitNormalCross(i, phiNi, 0);
-                    phiCi /=
-                        (i < leftDoFs) ? permeabilityLeft : permeabilityRight;
+                    phiCi *=
+                        (i < leftDoFs) ? materialCurlLeft : materialCurlRight;
 
                     for (std::size_t j = i; j < numDoFs; ++j) {
                         phiCj = pfa.basisFunctionCurl(j, 0);
-                        phiCj /= (j < leftDoFs) ? permeabilityLeft
-                                                : permeabilityRight;
+                        phiCj *= (j < leftDoFs) ? materialCurlLeft
+                                                : materialCurlRight;
                         pfa.basisFunctionUnitNormalCross(j, phiNj, 0);
                         double value =
                             factor * (phiCi * phiNj + phiNi * phiCj) +
@@ -412,8 +415,13 @@ void DGMaxDiscretization<DIM>::computeFaceMatrix(
             face->getPtrElementLeft()->getUserData());
         logger.assert_debug(material != nullptr, "No material");
 
+        using namespace std::complex_literals;
+
         std::complex<double> impedance =
-            std::complex<double>(0, material->getImpedance());
+            1.0i * material->getFieldImpedance(field_);
+        if (field_ == DGMax::ProblemField::MAGNETIC_FIELD) {
+            impedance *= -1.0;
+        }
         stiffnessMatrix = faceIntegrator_.integrate(
             face, [numDoFs, impedance](Base::PhysicalFace<DIM>& pfa) {
                 LinearAlgebra::MiddleSizeMatrix result(numDoFs, numDoFs);
@@ -493,6 +501,7 @@ void DGMaxDiscretization<DIM>::faceVector(
         auto* material = dynamic_cast<ElementInfos*>(
             face->getPtrElementLeft()->getUserData());
         logger.assert_debug(material != nullptr, "No material");
+        double materialCurl = material->getMaterialConstantCurl(field_);
 
         val = boundaryCondition(fa);
 
@@ -500,7 +509,7 @@ void DGMaxDiscretization<DIM>::faceVector(
             fa.basisFunctionUnitNormalCross(i, phi, 0);
 
             phi_curl = fa.basisFunctionCurl(i, 0);
-            phi_curl /= material->getPermeability();
+            phi_curl *= materialCurl;
 
             ret(i) = -(val * phi_curl) + stab_ / diameter * (val * phi);
         }
@@ -568,9 +577,15 @@ void DGMaxDiscretization<DIM>::writeFields(
     std::map<std::string, std::function<double(Fields&)>> scalars;
     std::map<std::string, std::function<VecR(Fields&)>> vectors;
 
-    vectors["Ereal"] = [](Fields& fields) { return fields.real(); };
-    vectors["Eimag"] = [](Fields& fields) { return fields.imag(); };
-    scalars["Emag"] = [](Fields& fields) { return fields.l2Norm(); };
+    if (field_ == DGMax::ProblemField::ELECTRIC_FIELD) {
+        vectors["Ereal"] = [](Fields& fields) { return fields.real(); };
+        vectors["Eimag"] = [](Fields& fields) { return fields.imag(); };
+        scalars["Emag"] = [](Fields& fields) { return fields.l2Norm(); };
+    } else {
+        vectors["Hreal"] = [](Fields& fields) { return fields.real(); };
+        vectors["Himag"] = [](Fields& fields) { return fields.imag(); };
+        scalars["Hmag"] = [](Fields& fields) { return fields.l2Norm(); };
+    }
 
     writer.template writeMultiple<Fields>(
         [this](Base::Element* element,

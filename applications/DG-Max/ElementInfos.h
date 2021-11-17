@@ -43,6 +43,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Base/UserData.h"
 #include "Material.h"
+#include "ProblemTypes/ProblemField.h"
 
 class ElementInfos : public hpgem::Base::UserElementData {
    public:
@@ -60,6 +61,33 @@ class ElementInfos : public hpgem::Base::UserElementData {
     double getImpedance() const { return material_.getImpedance(); }
 
     double getRefractiveIndex() const { return material_.getRefractiveIndex(); }
+
+    /// The material constant that is used between the two curls in the second
+    /// order form. For E-field 1/permeability, for H-field 1/permittivity
+    double getMaterialConstantCurl(DGMax::ProblemField field) const {
+        if (field == DGMax::ProblemField::ELECTRIC_FIELD) {
+            return 1.0 / getPermeability();
+        } else {
+            return 1.0 / getPermittivity();
+        }
+    }
+
+    /// The material constant that is used for the divergence constraint.
+    /// For E-field permittivity, for H-field permeability
+    double getMaterialConstantDiv(DGMax::ProblemField field) const {
+        return field == DGMax::ProblemField::ELECTRIC_FIELD ? getPermittivity()
+                                                            : getPermeability();
+    }
+
+    /// Impedance for the given field, for E-field the standard impedance, for
+    /// H-field the inverse.
+    double getFieldImpedance(DGMax::ProblemField field) {
+        if (field == DGMax::ProblemField::ELECTRIC_FIELD) {
+            return std::sqrt(getPermittivity() / getPermeability());
+        } else {
+            return std::sqrt(getPermeability() / getPermittivity());
+        }
+    }
 
    private:
     DGMax::Material material_;

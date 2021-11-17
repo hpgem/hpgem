@@ -54,7 +54,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "LinearAlgebra/SmallVector.h"
 #include "Output/VTKSpecificTimeWriter.h"
 
-#include "ProblemTypes/BoundaryConditionType.h"
+#include <ProblemTypes/BoundaryConditionType.h>
+#include <ProblemTypes/ProblemField.h>
 
 // Forward definitions
 namespace hpgem {
@@ -142,12 +143,17 @@ class DivDGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
     using typename DGMax::AbstractDiscretization<DIM>::InputFunction;
     using typename DGMax::AbstractDiscretization<DIM>::FaceInputFunction;
 
-    DivDGMaxDiscretization(std::size_t order, Stab stab);
+    DivDGMaxDiscretization(
+        std::size_t order, Stab stab,
+        DGMax::ProblemField field = DGMax::ProblemField::ELECTRIC_FIELD);
 
     size_t getOrder() const override { return order_; }
     size_t getNumberOfUnknowns() const override { return 2; }
     size_t getNumberOfElementMatrices() const override { return 2; }
     size_t getNumberOfFaceMatrices() const override { return 2; }
+
+    DGMax::ProblemField getField() const final { return field_; }
+    void setField(DGMax::ProblemField field) final { field_ = field; }
 
     void initializeBasisFunctions(Base::MeshManipulator<DIM>& mesh) const final;
 
@@ -315,6 +321,7 @@ class DivDGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
 
     std::size_t order_;
     Stab stab_;
+    DGMax::ProblemField field_;
 
     /// Shared parts for computing integrals
     Integration::ElementIntegral<DIM> elementIntegrator_;

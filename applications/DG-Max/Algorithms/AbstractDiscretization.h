@@ -50,6 +50,7 @@
 #include <Output/VTKSpecificTimeWriter.h>
 
 #include "../ProblemTypes/BoundaryConditionType.h"
+#include "../ProblemTypes/ProblemField.h"
 
 namespace DGMax {
 
@@ -89,6 +90,9 @@ class AbstractDiscretizationBase {
     virtual std::size_t getNumberOfUnknowns() const = 0;
     virtual std::size_t getNumberOfElementMatrices() const = 0;
     virtual std::size_t getNumberOfFaceMatrices() const = 0;
+
+    virtual ProblemField getField() const  = 0;
+    virtual void setField(ProblemField field) = 0;
 };
 
 template <std::size_t dim>

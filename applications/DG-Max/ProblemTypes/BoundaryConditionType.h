@@ -52,21 +52,28 @@ namespace DGMax {
  */
 enum class BoundaryConditionType {
     /**
-     * Boundary condition of the form n x E = n x g_D, thus prescribing the
-     * tangential part of the field on the boundary face.
+     * Boundary condition of the form
+     *  - n x E = n x g_D
+     *  - n x H = n x g_D,
+     * thus prescribing the tangential part of the field on the boundary face.
      */
     DIRICHLET,
     /**
-     * Boundary condition of the form n x (curl E) = n x g_N, thus prescribing
-     * the tangential part of the curl on the boundary face.
+     * Boundary condition of the form
+     * - n x (mu^{-1} Curl E) = n x g_N
+     * - n x (eps^{-1} Curl H) = n x g_N
+     * Using Maxwell's equations we see that the right hand sides correspond to:
+     * - n x g_N = n x (i omega H)
+     * - n x g_N = n x (-J -i omega E)
      */
     NEUMANN,
     /**
-     * Boundary condition of the form
-     * n x (Curl E)  + i omega sqrt[epsilon_r mu_r] E_tangent = n x g_N,
-     * corresponding to the Silver-Muller radiation condition applied to the
-     * boundary (instead of at infinity). This is an Impedance boundary
-     * condition with a fixed impedance. Mathematically it is of a Robin type.
+     * Boundary condition corresponding to imposing the Silver-Muller radiation
+     * condition not at infinity but at the boundary of the domain.
+     * This corresponds to setting:
+     *  - n x (mu^{-1} Curl E) + i omega sqrt(eps/mu) E_t = n x g_N
+     *  - n x (eps^{-1} Curl H) + i omega sqrt(mu/eps) H_t = n x g_N
+     * where E_t, H_t is the tangential part of the E and H field
      *
      * Note: The right hand side has a 'n x' to enforce that only the tangential
      * part of g_N is used.

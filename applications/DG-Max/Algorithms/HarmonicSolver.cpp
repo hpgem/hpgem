@@ -318,9 +318,22 @@ void HarmonicSolver<DIM>::solve(
     DGMax::AbstractHarmonicSolverDriver<DIM>& driver) {
     Workspace workspace(*discretization_, mesh);
 
+    bool first = true;
+    ProblemField field;
+
     while (!driver.stop()) {
         driver.nextProblem();
         const HarmonicProblem<DIM>& problem = driver.currentProblem();
+        if (first) {
+            field = problem.problemField();
+            discretization_->setField(field);
+            first = false;
+        } else {
+            logger.assert_always(
+                field == problem.problemField(),
+                "Switching field during solve not implemented");
+        }
+
         workspace.computeIntegrals(driver);
 
         if (driver.hasChanged(HarmonicProblemChanges::OMEGA) ||

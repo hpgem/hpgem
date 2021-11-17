@@ -142,8 +142,13 @@ class [[maybe_unused]] PlaneWaveProblem : public SampleHarmonicProblem<dim> {
    public:
     PlaneWaveProblem(LinearAlgebra::SmallVector<dim> k,
                      LinearAlgebra::SmallVectorC<dim> E0, double omega,
-                     double phase, Material material)
-        : k_(k), E0_(E0), omega_(omega), phase_(phase), material_(material) {
+                     double phase, Material material, ProblemField field)
+        : k_(k),
+          E0_(E0),
+          omega_(omega),
+          phase_(phase),
+          material_(material),
+          field_(field) {
         logger.assert_debug(k.l2Norm() > 1e-9, "Zero wave vector k");
         logger.assert_debug(E0_.l2Norm() > 1e-9, "Zero field direction E0");
         logger.assert_debug(std::abs(k * E0) < 1e-9,
@@ -152,13 +157,19 @@ class [[maybe_unused]] PlaneWaveProblem : public SampleHarmonicProblem<dim> {
 
     static PlaneWaveProblem onDispersionPlaneWave(
         LinearAlgebra::SmallVector<dim> k, LinearAlgebra::SmallVectorC<dim> E0,
-        Material material, double phase = 0.0) {
+        Material material, ProblemField field, double phase = 0.0) {
         return PlaneWaveProblem<dim>{
-            k, E0, std::sqrt(k.l2NormSquared()) / material.getRefractiveIndex(),
-            phase, material};
+            k,
+            E0,
+            std::sqrt(k.l2NormSquared()) / material.getRefractiveIndex(),
+            phase,
+            material,
+            field};
     }
 
     double omega() const override { return omega_; }
+
+    ProblemField problemField() const override { return field_; }
 
     LinearAlgebra::SmallVectorC<dim> exactSolution(
         const Geometry::PointPhysical<dim>& point) const override {
@@ -172,8 +183,15 @@ class [[maybe_unused]] PlaneWaveProblem : public SampleHarmonicProblem<dim> {
     }
     LinearAlgebra::SmallVectorC<dim> sourceTerm(
         const Geometry::PointPhysical<dim>& point) const override {
-        return (k_.l2NormSquared() / material_.getPermeability() -
-                material_.getPermittivity() * omega_ * omega_) *
+        double materialCurl = field_ == ProblemField::ELECTRIC_FIELD
+                                  ? 1 / material_.getPermeability()
+                                  : 1 / material_.getPermittivity();
+        double materialDiv = field_ == ProblemField::ELECTRIC_FIELD
+                                 ? material_.getPermittivity()
+                                 : material_.getPermeability();
+
+        return (materialCurl * k_.l2NormSquared() -
+                materialDiv * omega_ * omega_) *
                exactSolution(point);
     }
 
@@ -189,6 +207,7 @@ class [[maybe_unused]] PlaneWaveProblem : public SampleHarmonicProblem<dim> {
     double omega_;
     double phase_;
     Material material_;
+    ProblemField field_;
 };
 
 /// Reflection of a plane wave from an interface.

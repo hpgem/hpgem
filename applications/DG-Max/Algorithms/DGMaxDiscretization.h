@@ -56,7 +56,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Integration/FaceIntegral.h"
 #include "Output/VTKSpecificTimeWriter.h"
 
-#include "ProblemTypes/BoundaryConditionType.h"
+#include <ProblemTypes/BoundaryConditionType.h>
+#include <ProblemTypes/ProblemField.h>
 
 using namespace hpgem;
 
@@ -110,8 +111,9 @@ class DGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
     using TimeFunction = std::function<LinearAlgebra::SmallVectorC<DIM>(
         const PointPhysicalT&, double)>;
 
-    DGMaxDiscretization(std::size_t order, double stab,
-                        bool includeProjector = false);
+    DGMaxDiscretization(
+        std::size_t order, double stab, bool includeProjector = false,
+        DGMax::ProblemField field = DGMax::ProblemField::ELECTRIC_FIELD);
 
     void setMatrixHandling(MassMatrixHandling matrixHandling) {
         matrixHandling_ = matrixHandling;
@@ -127,6 +129,9 @@ class DGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
         return includeProjector_ ? 3 : 2;
     }
     size_t getNumberOfFaceMatrices() const override { return 2; }
+
+    DGMax::ProblemField getField() const final { return field_; }
+    void setField(DGMax::ProblemField field) final { field_ = field; }
 
     static std::string normName(NormType norm) {
         switch (norm) {
@@ -219,6 +224,7 @@ class DGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
     std::size_t order_;
     double stab_;
     bool includeProjector_;
+    DGMax::ProblemField field_;
     MassMatrixHandling matrixHandling_;
 
     std::vector<std::shared_ptr<Base::CoordinateTransformation<DIM>>>

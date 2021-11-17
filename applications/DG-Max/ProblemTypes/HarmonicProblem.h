@@ -44,6 +44,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "LinearAlgebra/SmallVector.h"
 #include "BoundaryConditionType.h"
 #include "ElementInfos.h"
+#include "ProblemField.h"
 
 using namespace hpgem;
 
@@ -53,12 +54,15 @@ using namespace hpgem;
 /// that the current density J(x,t) can be written as e^(i omega t) J(x) and
 /// similarly decomposing both E(x,t) and H(x,t) (and no free charges).
 ///
-/// The maxwell equations for such a harmonic problem reduce to finding E such
-/// that
-/// curl mu^{-1} curl E - omega^2 eps E = i omega J  in the domain
-/// n x curl E = g (on the boundary)
-/// For some known mu, eps, omega, J and g. Where it is required (but not
-/// checked) that div J = 0.
+/// This problem can correspond to either the E-field problem:
+/// Curl mu^{-1} Curl E - omega^2 eps E = i omega J
+///                           Div eps E = 0
+/// or the H-field problem:
+/// Curl eps^{-1} Curl H - omega^2 mu E = Curl J
+///                            Div mu H = 0
+/// with some known mu, eps, omega, J and with known boundary conditions.
+///
+/// For the E-field problem it is expected that Div J = 0.
 ///
 /// For more information, see for example section 5.2.1 of Devashish's thesis.
 ///
@@ -71,6 +75,12 @@ class HarmonicProblem {
         const Geometry::PointPhysical<DIM>& point) const = 0;
     virtual DGMax::BoundaryConditionType getBoundaryConditionType(
         const Base::Face& face) const = 0;
+
+    /// What is the primary field of the problem
+    virtual DGMax::ProblemField problemField() const {
+        // Backwards compatible
+        return DGMax::ProblemField::ELECTRIC_FIELD;
+    }
 
     /**
      * Value of the boundary function. The use of this value depends on
@@ -124,22 +134,27 @@ class ExactHarmonicProblem : public HarmonicProblem<DIM> {
             case BCT::NEUMANN: {
                 auto* material = dynamic_cast<ElementInfos*>(
                     face.getFace()->getPtrElementLeft()->getUserData());
-                return this->exactSolutionCurl(face.getPointPhysical()) /
-                       material->getPermeability();
+                return material->getMaterialConstantCurl(this->problemField()) *
+                       this->exactSolutionCurl(face.getPointPhysical());
             }
             case BCT::SILVER_MULLER: {
                 auto* material = dynamic_cast<ElementInfos*>(
                     face.getFace()->getPtrElementLeft()->getUserData());
+                auto fieldType = this->problemField();
                 logger.assert_debug(material != nullptr, "No material.");
-                Vec efield = this->exactSolution(face.getPointPhysical());
-                Vec efieldCurl =
+                Vec field = this->exactSolution(face.getPointPhysical());
+                Vec fieldCurl =
+                    material->getMaterialConstantCurl(fieldType) *
                     this->exactSolutionCurl(face.getPointPhysical());
                 const Vec& normal = face.getUnitNormalVector();
-                auto impedance = std::complex<double>(
-                    0, this->omega() * material->getImpedance());
-                // n x (Curl E + Z [E x n]) = n x g_N
-                return efieldCurl / material->getPermeability() +
-                       impedance * efield.crossProduct(normal);
+                using namespace std::complex_literals;
+                auto impedance = 1.0i * this->omega() *
+                                 material->getFieldImpedance(fieldType);
+                if (fieldType == DGMax::ProblemField::ELECTRIC_FIELD) {
+                    return fieldCurl + impedance * field.crossProduct(normal);
+                } else {
+                    return fieldCurl - impedance * field.crossProduct(normal);
+                }
             }
             default:
                 logger(ERROR,
