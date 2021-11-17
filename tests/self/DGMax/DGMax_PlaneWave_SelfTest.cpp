@@ -58,8 +58,7 @@ using Point = Geometry::PointPhysical<2>;
 struct ProblemData {
    public:
     // Different from 1 to increase the likelihood of detecting a bug
-    constexpr static const double epsilon = 2.0;
-    constexpr static const double permeability = 1.2;
+    constexpr static const Material material = Material(2.0, 1.2);
     // Not on the dispersion curve to require a source term
     // On dispersion would be k.l2Norm()/sqrt(epsilon)
     constexpr static const double omega = 1.5;
@@ -69,10 +68,10 @@ struct ProblemData {
     static const LinearAlgebra::SmallVectorC<2> E0;
 
     ProblemData()
-        : infos(epsilon, permeability),
+        : infos(material),
           structureDescription(StructureDescription::fromFunction(
               [this](const Base::Element*) { return &this->infos; })),
-          problem(k, E0, omega, phase, epsilon, permeability) {
+          problem(k, E0, omega, phase, material) {
         problem.setBoundaryConditionIndicator([](const Base::Face& face) {
             auto normal = face.getNormalVector(
                 face.getReferenceGeometry()->getCenter().castDimension<1>());
@@ -95,6 +94,9 @@ struct ProblemData {
     std::shared_ptr<StructureDescription> structureDescription;
     PlaneWaveProblem<2> problem;
 };
+
+const Material ProblemData::material;
+
 // k_ is chosen such that:
 //  1. Not too small, as that would only show the linear part
 //  2. Not too large, as multiple period will only converge on very
