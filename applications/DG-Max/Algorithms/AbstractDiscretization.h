@@ -145,9 +145,8 @@ class AbstractDiscretization : public AbstractDiscretizationBase {
      *
      * Note:
      *  - The normal is chosen as outward normal from the given side.
-     *  - The numerical Poynting vector may have compensations for jump terms
-     *    in the fields. As such it may be different between the left and right
-     *    sides.
+     *  - The implementation of the numerical Poynting vector is dependent
+     *    on the discretization.
      *
      * @param face The face to integrate over
      * @param side The side to consider the energy flux from.
@@ -157,7 +156,7 @@ class AbstractDiscretization : public AbstractDiscretizationBase {
      */
     virtual double computeEnergyFlux(Base::Face& face, hpgem::Base::Side side,
                                      double wavenumber,
-                             std::size_t timeIntegrationVectorId) {
+                                     std::size_t timeIntegrationVectorId) {
         return 0.0;
     }
 

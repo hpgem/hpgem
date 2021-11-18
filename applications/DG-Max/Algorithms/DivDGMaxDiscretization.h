@@ -123,8 +123,6 @@ template <std::size_t DIM>
 class DivDGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
                                public virtual DivDGMaxDiscretizationBase {
    public:
-    // TODO: static const std::size_t matrix/vector ids
-
     /// Value class for the solution.
     struct Fields {
 

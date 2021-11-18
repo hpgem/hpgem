@@ -650,30 +650,25 @@ double DGMaxDiscretization<DIM>::computeEnergyFlux(
             // Average curl of the field
             VecC avgCurl;
             // n cross E for the two sides
-            VecC nEleft;
-            VecC nEright;
+            VecC avgE;
             LinearAlgebra::SmallVector<DIM> phi;
             VecC normal = pface.getUnitNormalVector();
             for (int i = 0; i < pface.getNumberOfBasisFunctions(); ++i) {
                 avgCurl +=
                     factor * coefficients[i] * pface.basisFunctionCurl(i);
                 pface.basisFunction(i, phi);
-                if (i < leftDoFs) {
-                    nEleft += coefficients[i] * normal.crossProduct(phi);
-                } else {
-                    // Compensate for the normal direction changing
-                    nEright -= coefficients[i] * normal.crossProduct(phi);
-                }
+                avgE += factor * coefficients[i] * normal.crossProduct(phi);
             }
-            auto& nEside = side == Base::Side::LEFT ? nEleft : nEright;
             // Compute n . Re(S) = n . Re(E x flux[H]^*)
             // with H = i omega muinv Curl E
             //   = omega n . Im(E x muinv flux[Curl E]^*)
             // using complex inner product
             //   = omega Im((n x E) . muinv flux[Curl E])
-            // Using flux[Curl E] = avg[Curl E] - stab/h jumpT[E]
-            return (nEside * (avgCurl - localStab * (nEleft + nEright))).imag();
+            return (avgE * avgCurl).imag();
         });
+    if (side == hpgem::Base::Side::RIGHT) {
+        flux *= -1.0;
+    }
     return flux / wavenumber;
 }
 
