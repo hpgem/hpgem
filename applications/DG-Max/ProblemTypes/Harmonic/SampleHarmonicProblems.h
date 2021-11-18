@@ -178,8 +178,8 @@ class [[maybe_unused]] PlaneWaveProblem : public SampleHarmonicProblem<dim> {
     }
 
    private:
-    std::complex<double> pointPhase(
-        const Geometry::PointPhysical<dim>& point) const {
+    std::complex<double> pointPhase(const Geometry::PointPhysical<dim>& point)
+        const {
         using namespace std::complex_literals;
         return std::exp(1i * (phase_ + k_ * point.getCoordinates()));
     }
@@ -208,8 +208,8 @@ template <std::size_t dim>
 class [[maybe_unused]] PlaneWaveReflectionProblem
     : public ExactHarmonicProblem<dim> {
    public:
-    PlaneWaveReflectionProblem(double omega, double phase,
-                               Material material1, Material material2, double interfacePosition)
+    PlaneWaveReflectionProblem(double omega, double phase, Material material1,
+                               Material material2, double interfacePosition)
         : omega_(omega),
           k1_(omega_ * material1.getRefractiveIndex()),
           k2_(omega_ * material2.getRefractiveIndex()),
@@ -259,11 +259,11 @@ class [[maybe_unused]] PlaneWaveReflectionProblem
         return {};
     }
 
-    LinearAlgebra::SmallVectorC<dim> boundaryCondition(
-        Base::PhysicalFace<dim>& face) const override;
+    LinearAlgebra::SmallVectorC<dim> boundaryCondition(Base::PhysicalFace<dim> &
+                                                       face) const override;
 
-    BoundaryConditionType getBoundaryConditionType(
-        const Base::Face& face) const override;
+    BoundaryConditionType getBoundaryConditionType(const Base::Face& face)
+        const override;
 
    private:
     double omega_;

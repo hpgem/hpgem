@@ -47,18 +47,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class ElementInfos : public hpgem::Base::UserElementData {
    public:
     ElementInfos(double epsilon, double permeability = 1.0);
-    ElementInfos(DGMax::Material material)
-        : material_(material) {};
+    ElementInfos(DGMax::Material material) : material_(material){};
 
-    const double& getPermittivity() const { return material_.getPermittivity(); }
+    const double& getPermittivity() const {
+        return material_.getPermittivity();
+    }
 
-    const double& getPermeability() const { return material_.getPermeability(); }
+    const double& getPermeability() const {
+        return material_.getPermeability();
+    }
 
     double getImpedance() const { return material_.getImpedance(); }
 
-    double getRefractiveIndex() const {
-        return material_.getRefractiveIndex();
-    }
+    double getRefractiveIndex() const { return material_.getRefractiveIndex(); }
 
    private:
     DGMax::Material material_;
