@@ -67,12 +67,11 @@ struct ProblemData {
     static const LinearAlgebra::SmallVector<2> k;
     static const LinearAlgebra::SmallVectorC<2> E0;
 
-    ProblemData()
+    ProblemData(DGMax::ProblemField field)
         : infos(material),
           structureDescription(StructureDescription::fromFunction(
               [this](const Base::Element*) { return &this->infos; })),
-          problem(k, E0, omega, phase, material,
-                  DGMax::ProblemField::ELECTRIC_FIELD) {
+          problem(k, E0, omega, phase, material, field) {
         problem.setBoundaryConditionIndicator([](const Base::Face& face) {
             auto normal = face.getNormalVector(
                 face.getReferenceGeometry()->getCenter().castDimension<1>());
@@ -110,9 +109,9 @@ const LinearAlgebra::SmallVectorC<2> ProblemData::E0{0.5, -1};
 
 double solve(std::string meshFile, std::size_t level,
              std::shared_ptr<AbstractDiscretization<2>> discretization,
-             std::string prefix) {
+             DGMax::ProblemField field, std::string prefix) {
 
-    ProblemData problemData;
+    ProblemData problemData(field);
     Base::ConfigurationData config(discretization->getNumberOfUnknowns());
 
     auto mesh =
@@ -138,7 +137,7 @@ int main(int argc, char** argv) {
     initDGMaxLogging();
 
     // For testing and updating => Should be false to actually use this test
-    bool ignoreFailures = true;
+    bool ignoreFailures = false;
 
     // Default the solver if not specified to a direct LU solver
     std::map<std::string, std::string> defaultOptions = {
@@ -159,31 +158,40 @@ int main(int argc, char** argv) {
     // L2 norm is expected at h^{p} => reduction of a factor 4 with each level
     auto dgmax = std::make_shared<DGMaxDiscretization<2>>(2, 100);
 
-    ConvergenceTestSet meshes = {getUnitSquareTriangleMeshes(),
-                                 {
-                                     2.32455311e-01,  //------
-                                     7.78569137e-02,  //  2.99
-                                     1.97411586e-02,  //  3.94
-                                     4.94737345e-03,  //  3.99
-                                     1.23692989e-03,  //  4.00
-                                     3.09147735e-04,  //  4.00
-                                     7.72701909e-05,  //  4.00
-                                 }};
-    runConvergenceTest(meshes, ignoreFailures,
+    ConvergenceTestSet dgmaxEmeshes = {getUnitSquareTriangleMeshes(),
+                                       {
+                                           2.32455311e-01,  //------
+                                           7.78569137e-02,  //  2.99
+                                           1.97411586e-02,  //  3.94
+                                           4.94737345e-03,  //  3.99
+                                           1.23692989e-03,  //  4.00
+                                           3.09147735e-04,  //  4.00
+                                           7.72701909e-05,  //  4.00
+                                       }};
+    runConvergenceTest(dgmaxEmeshes, ignoreFailures,
                        [&dgmax](std::string meshFile, std::size_t order) {
                            return solve(meshFile, order, dgmax,
-                                        "planewave-solution-dgmax");
+                                        DGMax::ProblemField::ELECTRIC_FIELD,
+                                        "planewave-solution-E-dgmax");
                        });
 
-    ConvergenceTestSet meshes2 = {getUnitSquareTriangleMeshes(0, 6),
-                                  {
-                                      2.50221220e-01,  //------
-                                      7.84254413e-02,  //  3.19
-                                      1.97608759e-02,  //  3.97
-                                      4.94782994e-03,  //  3.99
-                                      1.23693191e-03,  //  4.00
-                                      3.09147016e-04,  //  4.00
-                                  }};
+    ConvergenceTestSet dgmaxHmeshes = {getUnitSquareTriangleMeshes(),
+                                       {
+                                           2.31487075e-01,  //------
+                                           7.79008978e-02,  //  2.97
+                                           1.97479187e-02,  //  3.94
+                                           4.94794130e-03,  //  3.99
+                                           1.23697054e-03,  //  4.00
+                                           3.09150444e-04,  //  4.00
+                                           7.72703656e-05,  //  4.00
+                                       }};
+    runConvergenceTest(dgmaxHmeshes, ignoreFailures,
+                       [&dgmax](std::string meshFile, std::size_t order) {
+                           return solve(meshFile, order, dgmax,
+                                        DGMax::ProblemField::MAGNETIC_FIELD,
+                                        "planewave-solution-H-dgmax");
+                       });
+
     DivDGMaxDiscretizationBase::Stab stab;
     stab.stab1 = 105;
     stab.stab2 = 0;
@@ -191,9 +199,36 @@ int main(int argc, char** argv) {
     stab.setAllFluxeTypes(DivDGMaxDiscretizationBase::FluxType::IP);
     auto divdgmax = std::make_shared<DivDGMaxDiscretization<2>>(2, stab);
 
-    runConvergenceTest(meshes2, ignoreFailures,
+    ConvergenceTestSet divdgmaxEmeshes = {getUnitSquareTriangleMeshes(0, 6),
+                                          {
+                                              2.50221220e-01,  //------
+                                              7.84254413e-02,  //  3.19
+                                              1.97608759e-02,  //  3.97
+                                              4.94782994e-03,  //  3.99
+                                              1.23693191e-03,  //  4.00
+                                              3.09147016e-04,  //  4.00
+                                          }};
+
+    runConvergenceTest(divdgmaxEmeshes, ignoreFailures,
                        [&divdgmax](std::string meshFile, std::size_t order) {
                            return solve(meshFile, order, divdgmax,
-                                        "planewave-solution-divdgmax");
+                                        DGMax::ProblemField::ELECTRIC_FIELD,
+                                        "planewave-solution-E-divdgmax");
+                       });
+
+    ConvergenceTestSet divdgmaxHmeshes = {getUnitSquareTriangleMeshes(0, 6),
+                                          {
+                                              2.50824628e-01,  //------
+                                              7.85117077e-02,  //  3.19
+                                              1.97687962e-02,  //  3.97
+                                              4.94835840e-03,  //  4.00
+                                              1.23696598e-03,  //  4.00
+                                              3.09149183e-04,  //  4.00
+                                          }};
+    runConvergenceTest(divdgmaxEmeshes, ignoreFailures,
+                       [&divdgmax](std::string meshFile, std::size_t order) {
+                           return solve(meshFile, order, divdgmax,
+                                        DGMax::ProblemField::MAGNETIC_FIELD,
+                                        "planewave-solution-H-divdgmax");
                        });
 }
