@@ -544,7 +544,7 @@ void writeMesh(std::string fileName, const Base::MeshManipulator<DIM>* mesh) {
                 dynamic_cast<ElementInfos*>(element->getUserData());
             logger.assert_debug(elementInfos != nullptr,
                                 "Incorrect user data type");
-            return elementInfos->epsilon_;
+            return elementInfos->getPermittivity();
         },
         "epsilon");
 }

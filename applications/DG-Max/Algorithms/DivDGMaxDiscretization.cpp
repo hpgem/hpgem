@@ -53,24 +53,29 @@ struct FaceMaterialInfo {
         const Base::Face* face = fa.getFace();
         auto* leftInfo = dynamic_cast<ElementInfos*>(
             face->getPtrElementLeft()->getUserData());
-        epsilonLeft = leftInfo->epsilon_;
+        epsilonLeft = leftInfo->getPermittivity();
+        permeabilityLeft = leftInfo->getPermeability();
         epsMax = epsilonLeft;
 
         if (face->isInternal()) {
             auto* rightInfo = dynamic_cast<ElementInfos*>(
                 face->getPtrElementRight()->getUserData());
-            epsilonRight = rightInfo->epsilon_;
+            epsilonRight = rightInfo->getPermittivity();
+            permeabilityRight = rightInfo->getPermeability();
             if (epsilonLeft < epsilonRight) {
                 epsMax = epsilonRight;
             }
         } else {
             // Just in case
             epsilonRight = std::numeric_limits<double>::signaling_NaN();
+            permeabilityRight = std::numeric_limits<double>::signaling_NaN();
         }
     }
 
     double epsilonLeft;
+    double permeabilityLeft;
     double epsilonRight;
+    double permeabilityRight;
     double epsMax;
 };
 
@@ -354,7 +359,7 @@ void DivDGMaxDiscretization<DIM>::writeFields(
             const ElementInfos* elementInfo =
                 dynamic_cast<ElementInfos*>(userData);
             if (elementInfo != nullptr) {
-                return elementInfo->epsilon_;
+                return elementInfo->getPermittivity();
             } else {
                 return -1.0;  // Clearly invalid value
             }
@@ -366,11 +371,12 @@ template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::computeElementMatrices(
     Base::Element* element, Utilities::ElementLocalIndexing& indexing) {
 
-    double epsilon =
-        static_cast<ElementInfos*>(element->getUserData())->epsilon_;
+    auto* material = dynamic_cast<ElementInfos*>(element->getUserData());
+    logger.assert_debug(material != nullptr, "No material information");
 
     LinearAlgebra::MiddleSizeMatrix massMatrix = elementIntegrator_.integrate(
-        element, [&indexing, &epsilon](Base::PhysicalElement<DIM>& pelem) {
+        element, [&indexing, permittivity = material->getPermittivity()](
+                     Base::PhysicalElement<DIM>& pelem) {
             std::size_t numDoFs = indexing.getNumberOfDoFs();
             std::size_t numUDoFs = indexing.getNumberOfDoFs(0);
             LinearAlgebra::MiddleSizeMatrix ret(numDoFs, numDoFs);
@@ -380,7 +386,7 @@ void DivDGMaxDiscretization<DIM>::computeElementMatrices(
                 pelem.basisFunction(i, phi_i, 0);
                 for (std::size_t j = i; j < numUDoFs; ++j) {
                     pelem.basisFunction(j, phi_j, 0);
-                    double value = epsilon * (phi_i * phi_j);
+                    double value = permittivity * (phi_i * phi_j);
                     ret(i, j) = value;
                     if (i != j) {
                         ret(j, i) = value;
@@ -393,7 +399,9 @@ void DivDGMaxDiscretization<DIM>::computeElementMatrices(
 
     LinearAlgebra::MiddleSizeMatrix stiffnessMatrix =
         elementIntegrator_.integrate(
-            element, [&indexing, &epsilon](Base::PhysicalElement<DIM>& pelem) {
+            element, [&indexing, permittivity = material->getPermittivity(),
+                      permeability = material->getPermeability()](
+                         Base::PhysicalElement<DIM>& pelem) {
                 std::size_t numDoFs = indexing.getNumberOfDoFs();
                 std::size_t numUDoFs = indexing.getNumberOfDoFs(0);
                 std::size_t numPDoFs = indexing.getNumberOfDoFs(1);
@@ -403,7 +411,7 @@ void DivDGMaxDiscretization<DIM>::computeElementMatrices(
                 LinearAlgebra::SmallVector<DIM> phiI;
                 for (std::size_t i = 0; i < numUDoFs; ++i) {
                     const LinearAlgebra::SmallVector<DIM>& phiIC =
-                        pelem.basisFunctionCurl(i, 0);
+                        pelem.basisFunctionCurl(i, 0) / permeability;
                     for (std::size_t j = i; j < numUDoFs; ++j) {
                         double value = phiIC * pelem.basisFunctionCurl(j, 0);
                         ret(i, j) = value;
@@ -414,8 +422,8 @@ void DivDGMaxDiscretization<DIM>::computeElementMatrices(
                     pelem.basisFunction(i, phiI, 0);
 
                     for (std::size_t j = 0; j < numPDoFs; ++j) {
-                        double value =
-                            (phiI * pelem.basisFunctionDeriv(j, 1)) * -epsilon;
+                        double value = (phiI * pelem.basisFunctionDeriv(j, 1)) *
+                                       -permittivity;
                         ret(i, j + offPDoFs) = value;
                         ret(j + offPDoFs, i) = value;
                     }
@@ -434,7 +442,7 @@ void DivDGMaxDiscretization<DIM>::elementScalarVectorCoupling(
     std::size_t pDoFs = element->getNumberOfBasisFunctions(1);
     ret.resize(uDoFs + pDoFs, uDoFs + pDoFs);
     double epsilon =
-        static_cast<ElementInfos*>(element->getUserData())->epsilon_;
+        static_cast<ElementInfos*>(element->getUserData())->getPermittivity();
     LinearAlgebra::SmallVector<DIM> phi_i, phi_j;
 
     // Note, this loop only loops over the basis functions for the second
@@ -474,6 +482,7 @@ void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
     LinearAlgebra::MiddleSizeMatrix& ret) const {
 
     const Base::Face* face = fa.getFace();
+    FaceMaterialInfo minfo(fa);
     // For IP fluxes
     const double stab1 = stab_.stab1 / face->getDiameter();
 
@@ -483,23 +492,29 @@ void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
 
     const std::size_t totalDoFs = indexing.getNumberOfDoFs();
     const std::size_t totalUDoFs = mapping.size();
+    const std::size_t leftUDoFs = indexing.getNumberOfDoFs(0, Base::Side::LEFT);
 
     ret.resize(totalDoFs, totalDoFs);
 
     // Averaging factor
     double factor = face->isInternal() ? -0.5 : -1;
 
-    LinearAlgebra::SmallVector<DIM> phiUNormali, phiUNormalj;
+    LinearAlgebra::SmallVector<DIM> phiUNormali, phiUNormalj, phiUCurli,
+        phiUCurlj;
 
     for (std::size_t i = 0; i < totalUDoFs; ++i) {
         const std::size_t& iIndex = mapping[i];
         fa.basisFunctionUnitNormalCross(i, phiUNormali, 0);
-        const auto& phiUCurli = fa.basisFunctionCurl(i, 0);
+        phiUCurli = fa.basisFunctionCurl(i, 0);
+        phiUCurli /=
+            (i < leftUDoFs) ? minfo.permeabilityLeft : minfo.permeabilityRight;
 
         for (std::size_t j = i; j < totalUDoFs; ++j) {
             const std::size_t& jIndex = mapping[j];
             fa.basisFunctionUnitNormalCross(j, phiUNormalj, 0);
-            const auto& phiUCurlj = fa.basisFunctionCurl(j, 0);
+            phiUCurlj = fa.basisFunctionCurl(j, 0);
+            phiUCurlj /= (j < leftUDoFs) ? minfo.permeabilityLeft
+                                         : minfo.permeabilityRight;
 
             double entry =
                 factor * (phiUCurli * phiUNormalj + phiUNormali * phiUCurlj);
@@ -518,8 +533,6 @@ void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
         // Note checking against 0.0 exactly, as this value is set by the user
         // and often disabled by setting it to 0.
 
-        // Vector of epsilons
-        FaceMaterialInfo minfo(fa);
         // Combination of both epsilon and the sign of the normal.
         std::vector<double> signedEpsilon;
         {
@@ -665,11 +678,10 @@ LinearAlgebra::MiddleSizeMatrix
 
     std::complex<double> impedance;
     {
-        double epsilonLeft =
-            static_cast<ElementInfos*>(
-                face.getFace()->getPtrElementLeft()->getUserData())
-                ->epsilon_;
-        impedance = std::complex<double>(0, std::sqrt(epsilonLeft));
+        auto* material = dynamic_cast<ElementInfos*>(
+            face.getFace()->getPtrElementLeft()->getUserData());
+        logger.assert_debug(material != nullptr, "No material information");
+        impedance = std::complex<double>(0, material->getImpedance());
     }
     for (std::size_t i = 0; i < nUDoFs; ++i) {
         LinearAlgebra::SmallVector<DIM> phiUNi;
@@ -846,11 +858,11 @@ LinearAlgebra::MiddleSizeMatrix
 
     double epsilonLeft =
         static_cast<ElementInfos*>(face->getPtrElementLeft()->getUserData())
-            ->epsilon_;
+            ->getPermittivity();
     double epsilonRight = faceInfo.internal
                               ? static_cast<ElementInfos*>(
                                     face->getPtrElementRight()->getUserData())
-                                    ->epsilon_
+                                    ->getPermittivity()
                               : 0.0;  // Should not be used.
 
     return faceIntegrator_.integrate(face, [&](Base::PhysicalFace<DIM>& face) {
@@ -1046,6 +1058,10 @@ void DivDGMaxDiscretization<DIM>::faceBoundaryVector(
     } else if (bct == DGMax::BoundaryConditionType::DIRICHLET) {
         double diameter = face->getDiameter();
 
+        auto* material = dynamic_cast<ElementInfos*>(
+            face->getPtrElementLeft()->getUserData());
+        logger.assert_debug(material != nullptr, "No material info");
+
         LinearAlgebra::SmallVectorC<DIM> val;
         LinearAlgebra::SmallVector<DIM> phi, phi_curl;
         val = boundaryValue(fa);
@@ -1059,6 +1075,7 @@ void DivDGMaxDiscretization<DIM>::faceBoundaryVector(
         for (std::size_t i = 0; i < totalUDoFs; ++i) {
             fa.basisFunctionUnitNormalCross(i, phi, 0);
             phi_curl = fa.basisFunctionCurl(i, 0);
+            phi_curl /= material->getPermeability();
             std::complex<double> value = -(val * phi_curl);
             if (stab_.fluxType1 == FluxType::IP) {
                 value += stab_.stab1 / (diameter) * (val * phi);

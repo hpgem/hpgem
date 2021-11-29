@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2014, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,8 +35,35 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef HPGEM_MATERIAL_H
+#define HPGEM_MATERIAL_H
 
-#include "ElementInfos.h"
+#include <cmath>
 
-ElementInfos::ElementInfos(double epsilon, double permeability)
-    : material_({epsilon, permeability}) {}
+namespace DGMax {
+
+class Material {
+   public:
+    constexpr Material(double permittivity, double permeability = 1.0) noexcept
+        : permittivity_(permittivity), permeability_(permeability) {}
+
+    constexpr const double& getPermittivity() const { return permittivity_; }
+
+    constexpr const double& getPermeability() const { return permeability_; }
+
+    constexpr double getImpedance() const {
+        return std::sqrt(permittivity_ / permeability_);
+    }
+
+    constexpr double getRefractiveIndex() const {
+        return std::sqrt(permittivity_ * permeability_);
+    }
+
+   private:
+    double permittivity_;
+    double permeability_;
+};
+
+}  // namespace DGMax
+
+#endif  // HPGEM_MATERIAL_H

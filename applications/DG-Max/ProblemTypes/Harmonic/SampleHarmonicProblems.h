@@ -142,9 +142,8 @@ class [[maybe_unused]] PlaneWaveProblem : public SampleHarmonicProblem<dim> {
    public:
     PlaneWaveProblem(LinearAlgebra::SmallVector<dim> k,
                      LinearAlgebra::SmallVectorC<dim> E0, double omega,
-                     double phase, double epsilon)
-        : k_(k), E0_(E0), omega_(omega), phase_(phase), epsilon_(epsilon) {
-        logger.assert_debug(epsilon > 1e-3, "Negative or almost zero epsilon");
+                     double phase, Material material)
+        : k_(k), E0_(E0), omega_(omega), phase_(phase), material_(material) {
         logger.assert_debug(k.l2Norm() > 1e-9, "Zero wave vector k");
         logger.assert_debug(E0_.l2Norm() > 1e-9, "Zero field direction E0");
         logger.assert_debug(std::abs(k * E0) < 1e-9,
@@ -153,9 +152,10 @@ class [[maybe_unused]] PlaneWaveProblem : public SampleHarmonicProblem<dim> {
 
     static PlaneWaveProblem onDispersionPlaneWave(
         LinearAlgebra::SmallVector<dim> k, LinearAlgebra::SmallVectorC<dim> E0,
-        double epsilon, double phase = 0.0) {
+        Material material, double phase = 0.0) {
         return PlaneWaveProblem<dim>{
-            k, E0, std::sqrt(k.l2NormSquared() / epsilon), phase, epsilon};
+            k, E0, std::sqrt(k.l2NormSquared()) / material.getRefractiveIndex(),
+            phase, material};
     }
 
     double omega() const override { return omega_; }
@@ -172,7 +172,8 @@ class [[maybe_unused]] PlaneWaveProblem : public SampleHarmonicProblem<dim> {
     }
     LinearAlgebra::SmallVectorC<dim> sourceTerm(
         const Geometry::PointPhysical<dim>& point) const override {
-        return (k_.l2NormSquared() - epsilon_ * omega_ * omega_) *
+        return (k_.l2NormSquared() / material_.getPermeability() -
+                material_.getPermittivity() * omega_ * omega_) *
                exactSolution(point);
     }
 
@@ -187,7 +188,7 @@ class [[maybe_unused]] PlaneWaveProblem : public SampleHarmonicProblem<dim> {
     LinearAlgebra::SmallVectorC<dim> E0_;
     double omega_;
     double phase_;
-    double epsilon_;
+    Material material_;
 };
 
 /// Reflection of a plane wave from an interface.
@@ -207,11 +208,11 @@ template <std::size_t dim>
 class [[maybe_unused]] PlaneWaveReflectionProblem
     : public ExactHarmonicProblem<dim> {
    public:
-    PlaneWaveReflectionProblem(double omega, double phase, double epsilon1,
-                               double epsilon2, double interfacePosition)
+    PlaneWaveReflectionProblem(double omega, double phase, Material material1,
+                               Material material2, double interfacePosition)
         : omega_(omega),
-          k1_(omega_ * std::sqrt(epsilon1)),
-          k2_(omega_ * std::sqrt(epsilon2)),
+          k1_(omega_ * material1.getRefractiveIndex()),
+          k2_(omega_ * material2.getRefractiveIndex()),
           interfacePosition_(interfacePosition) {
 
         using namespace std::complex_literals;
@@ -227,7 +228,7 @@ class [[maybe_unused]] PlaneWaveReflectionProblem
         // EM-textbooks.
         // beta = sqrt(epsilon_2 mu_1/epsilon_1 mu_2)
         // r=(1-beta)/(1+beta), t=2/(1+beta)
-        double beta = std::sqrt(epsilon2 / epsilon1);
+        double beta = material2.getImpedance() / material1.getImpedance();
         // The reflected wave is represented as
         // ER(x,y,z) = <0, phasor, 0> exp[-i k1 x]
         reflectionPhasor_ = phasorAtInterface *
