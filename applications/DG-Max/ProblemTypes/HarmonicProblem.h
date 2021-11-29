@@ -121,21 +121,25 @@ class ExactHarmonicProblem : public HarmonicProblem<DIM> {
                 Vec normal = face.getUnitNormalVector();
                 return normal.crossProduct(efield);
             }
-            case BCT::NEUMANN:
-                return this->exactSolutionCurl(face.getPointPhysical());
+            case BCT::NEUMANN: {
+                auto* material = dynamic_cast<ElementInfos*>(
+                    face.getFace()->getPtrElementLeft()->getUserData());
+                return this->exactSolutionCurl(face.getPointPhysical()) /
+                       material->getPermeability();
+            }
             case BCT::SILVER_MULLER: {
-                double epsilon =
-                    static_cast<ElementInfos*>(
-                        face.getFace()->getPtrElementLeft()->getUserData())
-                        ->epsilon_;
+                auto* material = dynamic_cast<ElementInfos*>(
+                    face.getFace()->getPtrElementLeft()->getUserData());
+                logger.assert_debug(material != nullptr, "No material.");
                 Vec efield = this->exactSolution(face.getPointPhysical());
                 Vec efieldCurl =
                     this->exactSolutionCurl(face.getPointPhysical());
                 const Vec& normal = face.getUnitNormalVector();
-                auto impedance =
-                    std::complex<double>(0, this->omega() * std::sqrt(epsilon));
+                auto impedance = std::complex<double>(
+                    0, this->omega() * material->getImpedance());
                 // n x (Curl E + Z [E x n]) = n x g_N
-                return efieldCurl + impedance * efield.crossProduct(normal);
+                return efieldCurl / material->getPermeability() +
+                       impedance * efield.crossProduct(normal);
             }
             default:
                 logger(ERROR,

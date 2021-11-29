@@ -42,14 +42,26 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define HPGEM_APP_ELEMENTINFOS_H
 
 #include "Base/UserData.h"
-#include "Base/Element.h"
-#include "Base/Face.h"
-#include "Base/GlobalData.h"
-#include "Geometry/Jacobian.h"
+#include "Material.h"
 
 class ElementInfos : public hpgem::Base::UserElementData {
    public:
-    const double epsilon_;
-    ElementInfos(double epsilon);
+    ElementInfos(double epsilon, double permeability = 1.0);
+    ElementInfos(DGMax::Material material) : material_(material){};
+
+    const double& getPermittivity() const {
+        return material_.getPermittivity();
+    }
+
+    const double& getPermeability() const {
+        return material_.getPermeability();
+    }
+
+    double getImpedance() const { return material_.getImpedance(); }
+
+    double getRefractiveIndex() const { return material_.getRefractiveIndex(); }
+
+   private:
+    DGMax::Material material_;
 };
 #endif  // HPGEM_APP_ELEMENTINFOS_H

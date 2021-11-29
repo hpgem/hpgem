@@ -58,7 +58,7 @@ using Point = Geometry::PointPhysical<2>;
 struct ProblemData {
    public:
     // Different from 1 to increase the likelihood of detecting a bug
-    constexpr static const double epsilon = 2.0;
+    constexpr static const Material material = Material(2.0, 1.2);
     // Not on the dispersion curve to require a source term
     // On dispersion would be k.l2Norm()/sqrt(epsilon)
     constexpr static const double omega = 1.5;
@@ -68,10 +68,10 @@ struct ProblemData {
     static const LinearAlgebra::SmallVectorC<2> E0;
 
     ProblemData()
-        : infos(epsilon),
+        : infos(material),
           structureDescription(StructureDescription::fromFunction(
               [this](const Base::Element*) { return &this->infos; })),
-          problem(k, E0, omega, phase, epsilon) {
+          problem(k, E0, omega, phase, material) {
         problem.setBoundaryConditionIndicator([](const Base::Face& face) {
             auto normal = face.getNormalVector(
                 face.getReferenceGeometry()->getCenter().castDimension<1>());
@@ -166,7 +166,9 @@ class Driver : public AbstractHarmonicSolverDriver<2> {
     std::vector<double> errors_;
 };
 
-// k_ is choosen such that:
+const Material ProblemData::material;
+
+// k_ is chosen such that:
 //  1. Not too small, as that would only show the linear part
 //  2. Not too large, as multiple period will only converge on very
 //     finer meshes.
@@ -191,7 +193,7 @@ std::vector<double> solve(
     HarmonicSolver<2> solver(discretization);
 
     std::stringstream fileName;
-    fileName << "solution-dgmax-" << level;
+    fileName << prefix << level;
     Output::VTKSpecificTimeWriter<2> output(fileName.str(), mesh.get(), 0, 2);
 
     Driver driver(problemData.problem);
@@ -207,7 +209,7 @@ int main(int argc, char** argv) {
     initDGMaxLogging();
 
     // For testing and updating => Should be false to actually use this test
-    bool ignoreFailures = false;
+    bool ignoreFailures = true;
 
     // Default the solver if not specified to a direct LU solver
     std::map<std::string, std::string> defaultOptions = {

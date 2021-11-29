@@ -77,9 +77,9 @@ TEST_CASE("Two zones", "[ZoneStructureDescription]") {
                                     {1.0, 2.0, 3.0});
 
     ElementInfos* infos1 = def.createElementInfo(element1.get());
-    REQUIRE(infos1->epsilon_ == 1.0);
+    REQUIRE(infos1->getPermittivity() == 1.0);
     ElementInfos* infos2 = def.createElementInfo(element2.get());
-    REQUIRE(infos2->epsilon_ == 3.0);
+    REQUIRE(infos2->getPermittivity() == 3.0);
     delete infos1;
     delete infos2;
 }
@@ -93,6 +93,6 @@ TEST_CASE("Default value", "[ZoneStructureDescription]") {
 
     ZoneInfoStructureDefinition def(fromStrings({"g.*"}), {1.0}, 13);
     ElementInfos* infos = def.createElementInfo(element.get());
-    REQUIRE(infos->epsilon_ == 13);
+    REQUIRE(infos->getPermittivity() == 13);
     delete infos;
 }

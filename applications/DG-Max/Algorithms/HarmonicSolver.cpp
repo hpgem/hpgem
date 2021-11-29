@@ -279,7 +279,7 @@ void HarmonicSolver<DIM>::Workspace::assembleSolverMatrix(double waveNumber) {
                     structure);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     error = MatAXPY(solverMatrix_, -waveNumber * waveNumber, massMatrix_,
-                    SUBSET_NONZERO_PATTERN);
+                    structure);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 }
 
