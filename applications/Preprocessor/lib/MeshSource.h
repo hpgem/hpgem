@@ -133,6 +133,13 @@ class MeshSource2 {
     virtual ~MeshSource2() = default;
 
     struct Coord {
+        Coord() = default;
+        Coord(const Coord&) = default;
+        Coord(Coord& other) = default;
+
+        Coord(std::size_t nodeId, std::vector<double> coordinate)
+            : nodeId(nodeId), coordinate(std::move(coordinate)){};
+
         /// Actual physical coordinate of the node
         std::vector<double> coordinate;
         /**
