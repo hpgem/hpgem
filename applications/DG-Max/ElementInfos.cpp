@@ -38,4 +38,5 @@
 
 #include "ElementInfos.h"
 
-ElementInfos::ElementInfos(double epsilon) : epsilon_(epsilon) {}
+ElementInfos::ElementInfos(double epsilon, double permeability)
+    : material_({epsilon, permeability}) {}

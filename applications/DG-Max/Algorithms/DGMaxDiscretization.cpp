@@ -48,21 +48,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace hpgem;
 
-// Definition of the constants to reference to.
-const std::size_t DGMaxDiscretizationBase::MASS_MATRIX_ID;
-const std::size_t DGMaxDiscretizationBase::STIFFNESS_MATRIX_ID;
-const std::size_t DGMaxDiscretizationBase::PROJECTOR_MATRIX_ID;
-const std::size_t DGMaxDiscretizationBase::INITIAL_CONDITION_VECTOR_ID;
-const std::size_t
-    DGMaxDiscretizationBase::INITIAL_CONDITION_DERIVATIVE_VECTOR_ID;
-const std::size_t DGMaxDiscretizationBase::SOURCE_TERM_VECTOR_ID;
-
-const std::size_t DGMaxDiscretizationBase::FACE_MATRIX_ID;
-const std::size_t DGMaxDiscretizationBase::FACE_VECTOR_ID;
-
 template <std::size_t DIM>
-DGMaxDiscretization<DIM>::DGMaxDiscretization(bool includeProjector)
-    : includeProjector_(includeProjector), matrixHandling_(NORMAL) {
+DGMaxDiscretization<DIM>::DGMaxDiscretization(std::size_t order, double stab,
+                                              bool includeProjector)
+    : order_(order),
+      stab_(stab),
+      includeProjector_(includeProjector),
+      matrixHandling_(NORMAL) {
 
     transforms_.emplace_back(new Base::HCurlConformingTransformation<DIM>());
     if (includeProjector_) {
@@ -76,7 +68,7 @@ DGMaxDiscretization<DIM>::DGMaxDiscretization(bool includeProjector)
 
 template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::initializeBasisFunctions(
-    Base::MeshManipulator<DIM>& mesh, std::size_t order) {
+    Base::MeshManipulator<DIM>& mesh) const {
     // We would like to configure the number of unknowns here, but this is
     // unfortunately not possible, as it is configured at the creation of
     // the mesh. The best we can do is check if it is configured correctly.
@@ -85,12 +77,12 @@ void DGMaxDiscretization<DIM>::initializeBasisFunctions(
         logger.assert_always(unknowns == 2,
                              "DGMax+Projector expects 2 unknowns but got %",
                              unknowns);
-        mesh.useNedelecDGBasisFunctions(order);
-        mesh.useDefaultConformingBasisFunctions(order, 1);
+        mesh.useNedelecDGBasisFunctions(order_);
+        mesh.useDefaultConformingBasisFunctions(order_, 1);
     } else {
         logger.assert_always(unknowns == 1, "DGMax expects 1 unknown but got %",
                              unknowns);
-        mesh.useNedelecDGBasisFunctions(order);
+        mesh.useNedelecDGBasisFunctions(order_);
     }
     // TODO: This should probably also be exposed by using a constructor
     // parameter.
@@ -98,9 +90,10 @@ void DGMaxDiscretization<DIM>::initializeBasisFunctions(
 }
 
 template <std::size_t DIM>
-void DGMaxDiscretization<DIM>::computeElementIntegrands(
+void DGMaxDiscretization<DIM>::computeElementIntegralsImpl(
     Base::MeshManipulator<DIM>& mesh,
-    const std::map<std::size_t, InputFunction>& elementVectors) {
+    const std::map<std::size_t, InputFunction>& elementVectors,
+    LocalIntegrals integrals) {
     logger.assert_always(
         !(matrixHandling_ == ORTHOGONALIZE && !elementVectors.empty()),
         "Mass matrix rescale with input functions is not implemented");
@@ -118,8 +111,10 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(
          it != end; ++it) {
         Base::Element* element = *it;
 
-        computeElementMatrices(element);
-        postProcessElementMatrices(element);
+        if (integrals == LocalIntegrals::ALL) {
+            computeElementMatrices(element);
+            postProcessElementMatrices(element);
+        }
 
         for (auto const& elementVectorDef : elementVectors) {
             std::size_t numberOfBasisFunctions =
@@ -141,10 +136,11 @@ void DGMaxDiscretization<DIM>::computeElementIntegrands(
 }
 
 template <std::size_t DIM>
-void DGMaxDiscretization<DIM>::computeFaceIntegrals(
+void DGMaxDiscretization<DIM>::computeFaceIntegralsImpl(
     Base::MeshManipulator<DIM>& mesh,
     const std::map<std::size_t, FaceInputFunction>& boundaryVectors,
-    double stab) {
+    DGMax::BoundaryConditionIndicator boundaryIndicator,
+    LocalIntegrals integrals) {
     MassMatrixHandling massMatrixHandling = matrixHandling_;
     logger.assert_always(
         !(massMatrixHandling == ORTHOGONALIZE && !boundaryVectors.empty()),
@@ -165,23 +161,28 @@ void DGMaxDiscretization<DIM>::computeFaceIntegrals(
          it != end; ++it) {
         Base::Face* face = *it;
 
-        computeFaceMatrix(face, stab);
-        postProcessFaceMatrices(face);
-
-        std::size_t numberOfBasisFunctions =
-            face->getPtrElementLeft()->getNumberOfBasisFunctions(0);
-        if (face->isInternal()) {
-            numberOfBasisFunctions +=
-                face->getPtrElementRight()->getNumberOfBasisFunctions(0);
+        if (integrals == LocalIntegrals::ALL) {
+            computeFaceMatrix(face, boundaryIndicator);
+            postProcessFaceMatrices(face);
         }
 
         for (auto const& faceVectorDef : boundaryVectors) {
+            std::size_t numberOfBasisFunctions =
+                face->getPtrElementLeft()->getNumberOfBasisFunctions(0);
+            if (face->isInternal()) {
+                numberOfBasisFunctions +=
+                    face->getPtrElementRight()->getNumberOfBasisFunctions(0);
+            }
+
             tempFaceVector.resize(numberOfBasisFunctions);
+            using BCT = DGMax::BoundaryConditionType;
+            BCT bct =
+                face->isInternal() ? BCT::INTERNAL : boundaryIndicator(*face);
             if (faceVectorDef.second) {
                 tempFaceVector = faIntegral.integrate(
                     face, [&](Base::PhysicalFace<DIM>& face) {
                         LinearAlgebra::MiddleSizeVector res;
-                        faceVector(face, faceVectorDef.second, res, stab);
+                        faceVector(face, faceVectorDef.second, res, bct);
                         return res;
                     });
             }
@@ -193,13 +194,17 @@ void DGMaxDiscretization<DIM>::computeFaceIntegrals(
 template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::computeElementMatrices(Base::Element* element) {
     // Shared information
-    const double epsilon =
-        static_cast<ElementInfos*>(element->getUserData())->epsilon_;
+    auto* material = dynamic_cast<ElementInfos*>(element->getUserData());
+    logger.assert_debug(material != nullptr, "No material information");
+    double permittivity = material->getPermittivity();
+    double permeability = material->getPermeability();
+
     const std::size_t dofU = element->getNumberOfBasisFunctions(0);
 
     // Mass matrix
     LinearAlgebra::MiddleSizeMatrix massMatrix = elementIntegrator_.integrate(
-        element, [&](Base::PhysicalElement<DIM>& pel) {
+        element, [permittivity = permittivity,
+                  dofU = dofU](Base::PhysicalElement<DIM>& pel) {
             LinearAlgebra::MiddleSizeMatrix ret;
             ret.resize(dofU, dofU);
             LinearAlgebra::SmallVector<DIM> phi_i, phi_j;
@@ -207,7 +212,7 @@ void DGMaxDiscretization<DIM>::computeElementMatrices(Base::Element* element) {
                 pel.basisFunction(i, phi_i, 0);
                 for (std::size_t j = 0; j < dofU; ++j) {
                     pel.basisFunction(j, phi_j, 0);
-                    ret(i, j) = phi_i * phi_j * epsilon;
+                    ret(i, j) = phi_i * phi_j * permittivity;
                     ret(j, i) = ret(i, j);
                 }
             }
@@ -217,7 +222,8 @@ void DGMaxDiscretization<DIM>::computeElementMatrices(Base::Element* element) {
     // Stiffness matrix
     LinearAlgebra::MiddleSizeMatrix stiffnessMatrix =
         elementIntegrator_.integrate(
-            element, [&element, &dofU](Base::PhysicalElement<DIM>& pel) {
+            element, [permeability = permeability,
+                      dofU = dofU](Base::PhysicalElement<DIM>& pel) {
                 LinearAlgebra::MiddleSizeMatrix ret;
                 ret.resize(dofU, dofU);
                 LinearAlgebra::SmallVector<DIM> phi_i, phi_j;
@@ -225,7 +231,7 @@ void DGMaxDiscretization<DIM>::computeElementMatrices(Base::Element* element) {
                     phi_i = pel.basisFunctionCurl(i, 0);
                     for (std::size_t j = i; j < dofU; ++j) {
                         phi_j = pel.basisFunctionCurl(j, 0);
-                        ret(i, j) = phi_i * phi_j;
+                        ret(i, j) = (phi_i / permeability) * phi_j;
                         ret(j, i) = ret(i, j);
                     }
                 }
@@ -244,8 +250,8 @@ void DGMaxDiscretization<DIM>::computeElementMatrices(Base::Element* element) {
                     for (std::size_t i = 0; i < dofU; ++i) {
                         pel.basisFunction(i, phiU, 0);
                         for (std::size_t j = 0; j < dofP; ++j) {
-                            ret(j, i) =
-                                epsilon * phiU * pel.basisFunctionDeriv(j, 1);
+                            ret(j, i) = permittivity * phiU *
+                                        pel.basisFunctionDeriv(j, 1);
                         }
                     }
                     return ret;
@@ -317,57 +323,123 @@ void DGMaxDiscretization<DIM>::elementInnerProduct(
     const std::size_t numberOfBasisFunctions = el.getNumberOfBasisFunctions(0);
 
     ret.resize(numberOfBasisFunctions);
-    LinearAlgebra::SmallVector<DIM> val, phi;
+    LinearAlgebra::SmallVectorC<DIM> val;
+    LinearAlgebra::SmallVector<DIM> phi;
     val = function(el.getPointPhysical());
     for (std::size_t i = 0; i < numberOfBasisFunctions; ++i) {
         el.basisFunction(i, phi, 0);
-        ret[i] = phi * val;
+        ret[i] = val * phi;
     }
 }
 
 template <std::size_t DIM>
-void DGMaxDiscretization<DIM>::computeFaceMatrix(Base::Face* face,
-                                                 double stab) {
+void DGMaxDiscretization<DIM>::computeFaceMatrix(
+    Base::Face* face, DGMax::BoundaryConditionIndicator boundaryIndicator) {
     std::size_t numDoFs = face->getNumberOfBasisFunctions(0);
     const bool internalFace = face->isInternal();
-    // Factor for averaging. Negative sign is from the weak formulation
-    double factor = -(internalFace ? 0.5 : 1.);
-    // Standard rescaling of the stability parameter so that it does not need to
-    // depend on the mesh size.
-    stab /= face->getDiameter();
 
-    LinearAlgebra::MiddleSizeMatrix stiffnessMatrix =
-        faceIntegrator_.integrate(face, [&](Base::PhysicalFace<DIM>& pfa) {
-            LinearAlgebra::MiddleSizeMatrix ret(numDoFs, numDoFs);
+    using BCT = DGMax::BoundaryConditionType;
+    BCT bct = internalFace ? BCT::INTERNAL : boundaryIndicator(*face);
 
-            LinearAlgebra::SmallVector<DIM> phiNi, phiNj, phiCi, phiCj;
+    LinearAlgebra::MiddleSizeMatrix stiffnessMatrix(0, 0);
+    if (!internalFace && DGMax::isNaturalBoundary(bct)) {
+        // The Neumann boundary condition is a natural boundary condition and
+        // such a face does not have a contribution to the stiffness matrix.
+        stiffnessMatrix.resize(numDoFs, numDoFs);
+    } else if (bct == BCT::INTERNAL || bct == BCT::DIRICHLET) {
+        // Internal and Dirichlet faces have SIPG like face integrals:
+        //  -[[u]]_T {{curl v}} - {{curl u}} [[v]]_T
+        //  + stab/h [[u]]_T [[v]]_T
 
-            for (std::size_t i = 0; i < numDoFs; ++i) {
-                phiCi = pfa.basisFunctionCurl(i, 0);
-                pfa.basisFunctionUnitNormalCross(i, phiNi, 0);
+        double permeabilityLeft = 0.0;
+        double permeabilityRight = 0.0;
 
-                for (std::size_t j = i; j < numDoFs; ++j) {
-                    phiCj = pfa.basisFunctionCurl(j, 0);
-                    pfa.basisFunctionUnitNormalCross(j, phiNj, 0);
-                    double value = factor * (phiCi * phiNj + phiNi * phiCj) +
-                                   stab * phiNi * phiNj;
-                    ret(i, j) = value;
-                    if (i != j) {
-                        ret(j, i) = value;
+        {
+            auto* materialLeft = dynamic_cast<ElementInfos*>(
+                face->getPtrElementLeft()->getUserData());
+            logger.assert_debug(materialLeft != nullptr, "No left material");
+            permeabilityLeft = materialLeft->getPermeability();
+        }
+        if (face->isInternal()) {
+            auto* materialRight = dynamic_cast<ElementInfos*>(
+                face->getPtrElementRight()->getUserData());
+            logger.assert_debug(materialRight != nullptr, "No right material");
+            permeabilityRight = materialRight->getPermeability();
+        }
+        std::size_t leftDoFs =
+            face->getPtrElementLeft()->getNumberOfBasisFunctions(0);
+
+        // Factor for averaging. Negative sign is from the weak formulation
+        double factor = -(internalFace ? 0.5 : 1.);
+        // Standard rescaling of the stability parameter so that it does not
+        // need to depend on the mesh size.
+        double localStab = stab_ / face->getDiameter();
+        stiffnessMatrix =
+            faceIntegrator_.integrate(face, [&](Base::PhysicalFace<DIM>& pfa) {
+                LinearAlgebra::MiddleSizeMatrix ret(numDoFs, numDoFs);
+
+                LinearAlgebra::SmallVector<DIM> phiNi, phiNj, phiCi, phiCj;
+
+                for (std::size_t i = 0; i < numDoFs; ++i) {
+                    phiCi = pfa.basisFunctionCurl(i, 0);
+                    pfa.basisFunctionUnitNormalCross(i, phiNi, 0);
+                    phiCi /=
+                        (i < leftDoFs) ? permeabilityLeft : permeabilityRight;
+
+                    for (std::size_t j = i; j < numDoFs; ++j) {
+                        phiCj = pfa.basisFunctionCurl(j, 0);
+                        phiCj /= (j < leftDoFs) ? permeabilityLeft
+                                                : permeabilityRight;
+                        pfa.basisFunctionUnitNormalCross(j, phiNj, 0);
+                        double value =
+                            factor * (phiCi * phiNj + phiNi * phiCj) +
+                            localStab * phiNi * phiNj;
+                        ret(i, j) = value;
+                        if (i != j) {
+                            ret(j, i) = value;
+                        }
                     }
                 }
-            }
 
-            return ret;
-        });
-    face->setFaceMatrix(stiffnessMatrix, FACE_MATRIX_ID);
+                return ret;
+            });
+    }
+    face->setFaceMatrix(stiffnessMatrix, FACE_STIFFNESS_MATRIX_ID);
+
+    // Impedance contribution to the stiffness matrix
+    if (bct == DGMax::BoundaryConditionType::SILVER_MULLER) {
+        auto* material = dynamic_cast<ElementInfos*>(
+            face->getPtrElementLeft()->getUserData());
+        logger.assert_debug(material != nullptr, "No material");
+
+        std::complex<double> impedance =
+            std::complex<double>(0, material->getImpedance());
+        stiffnessMatrix = faceIntegrator_.integrate(
+            face, [numDoFs, impedance](Base::PhysicalFace<DIM>& pfa) {
+                LinearAlgebra::MiddleSizeMatrix result(numDoFs, numDoFs);
+                for (std::size_t i = 0; i < numDoFs; ++i) {
+                    LinearAlgebra::SmallVector<DIM> phiUNi;
+                    pfa.basisFunctionUnitNormalCross(i, phiUNi, 0);
+                    for (std::size_t j = 0; j < numDoFs; ++j) {
+                        LinearAlgebra::SmallVector<DIM> phiUNj;
+                        pfa.basisFunctionUnitNormalCross(j, phiUNj, 0);
+                        result(j, i) = -impedance * (phiUNi * phiUNj);
+                    }
+                }
+                return result;
+            });
+    } else {
+        stiffnessMatrix *= 0.0;
+    }
+    face->setFaceMatrix(stiffnessMatrix, FACE_IMPEDANCE_MATRIX_ID);
 }
 
 template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::postProcessFaceMatrices(Base::Face* face) const {
     if (matrixHandling_ == ORTHOGONALIZE) {
         // A reference to the matrix that will be updated in place.
-        Base::FaceMatrix& faceMatrix = face->getFaceMatrix(FACE_MATRIX_ID);
+        Base::FaceMatrix& faceMatrix =
+            face->getFaceMatrix(FACE_STIFFNESS_MATRIX_ID);
 
         bool isInternal = face->isInternal();
         std::size_t sideCount = isInternal ? 2 : 1;
@@ -402,51 +474,56 @@ void DGMaxDiscretization<DIM>::postProcessFaceMatrices(Base::Face* face) const {
 template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::faceVector(
     Base::PhysicalFace<DIM>& fa, const FaceInputFunction& boundaryCondition,
-    LinearAlgebra::MiddleSizeVector& ret, double stab) const {
+    LinearAlgebra::MiddleSizeVector& ret,
+    DGMax::BoundaryConditionType bct) const {
+
+    std::size_t numDoFs = fa.getNumberOfBasisFunctions();
+    ret.resize(numDoFs);
+
     const Base::Face* face = fa.getFace();
-    LinearAlgebra::SmallVector<DIM> normal = fa.getNormalVector();
-    normal /= normal.l2Norm();
-    const Geometry::PointReference<DIM - 1>& p = fa.getPointReference();
 
     if (face->isInternal()) {
-        std::size_t M = face->getPtrElementLeft()->getNrOfBasisFunctions(0) +
-                        face->getPtrElementRight()->getNrOfBasisFunctions(0);
-        ret.resize(M);
-        for (std::size_t i = 0; i < M; ++i) ret(i) = 0;
-    } else {
+        // Set the vector to zero for the internal contribution
+        ret.set(0.0);
+    } else if (bct == DGMax::BoundaryConditionType::DIRICHLET) {
         double diameter = face->getDiameter();
-        LinearAlgebra::SmallVector<DIM> val, phi, phi_curl, boundaryValues;
+        LinearAlgebra::SmallVectorC<DIM> val;
+        LinearAlgebra::SmallVector<DIM> phi, phi_curl;
 
-        // assumes the initial conditions and the boundary conditions match
-        boundaryValues = boundaryCondition(fa);
+        auto* material = dynamic_cast<ElementInfos*>(
+            face->getPtrElementLeft()->getUserData());
+        logger.assert_debug(material != nullptr, "No material");
 
-        val = boundaryValues;
-        std::size_t n = face->getPtrElementLeft()->getNrOfBasisFunctions(0);
-        ret.resize(n);
+        val = boundaryCondition(fa);
 
-        for (std::size_t i = 0; i < n; ++i) {
+        for (std::size_t i = 0; i < numDoFs; ++i) {
             fa.basisFunctionUnitNormalCross(i, phi, 0);
 
             phi_curl = fa.basisFunctionCurl(i, 0);
+            phi_curl /= material->getPermeability();
 
-            ret(i) = -(phi_curl * val) + stab / diameter * (phi * val);
+            ret(i) = -(val * phi_curl) + stab_ / diameter * (val * phi);
         }
+    } else if (bct == DGMax::BoundaryConditionType::NEUMANN ||
+               bct == DGMax::BoundaryConditionType::SILVER_MULLER) {
+        // Compute g_N (n x phi_i)
+        LinearAlgebra::SmallVector<DIM> phiN;
+        LinearAlgebra::SmallVectorC<DIM> val = boundaryCondition(fa);
+        for (std::size_t i = 0; i < numDoFs; ++i) {
+            fa.basisFunctionUnitNormalCross(i, phiN, 0);
+            ret(i) = val * phiN;
+        }
+    } else {
+        logger(ERROR,
+               "No boundary source term implemented for this boundary "
+               "condition type.");
     }
 }
 
 template <std::size_t DIM>
-LinearAlgebra::SmallVector<DIM> DGMaxDiscretization<DIM>::computeField(
+LinearAlgebra::SmallVectorC<DIM> DGMaxDiscretization<DIM>::computeField(
     const Base::Element* element, const Geometry::PointReference<DIM>& p,
     const LinearAlgebra::MiddleSizeVector& coefficients) const {
-    logger.log(Log::WARN, "Only computing the real part of the field.");
-    return computeFields(element, p, coefficients).realEField;
-}
-
-template <std::size_t DIM>
-typename DGMaxDiscretization<DIM>::Fields
-    DGMaxDiscretization<DIM>::computeFields(
-        const Base::Element* element, const Geometry::PointReference<DIM>& p,
-        const LinearAlgebra::MiddleSizeVector& coefficients) const {
     Base::PhysicalElement<DIM> physicalElement;
     physicalElement.setElement(element);
     std::shared_ptr<Base::CoordinateTransformation<DIM>> transform{
@@ -454,22 +531,20 @@ typename DGMaxDiscretization<DIM>::Fields
     physicalElement.setTransformation(transform);
     physicalElement.setPointReference(p);
 
-    DGMaxDiscretization<DIM>::Fields result;
+    LinearAlgebra::SmallVectorC<DIM> result;
 
     for (std::size_t i = 0; i < element->getNumberOfBasisFunctions(0); ++i) {
         LinearAlgebra::SmallVector<DIM> phi;
         physicalElement.basisFunction(i, phi, 0);
-        result.realEField += std::real(coefficients[i]) * phi;
-        result.imagEField += std::imag(coefficients[i]) * phi;
+        result += coefficients[i] * phi;
     }
     return result;
 }
 
 template <std::size_t DIM>
-LinearAlgebra::SmallVector<DIM> DGMaxDiscretization<DIM>::computeCurlField(
+LinearAlgebra::SmallVectorC<DIM> DGMaxDiscretization<DIM>::computeCurlField(
     const Base::Element* element, const Geometry::PointReference<DIM>& p,
     const LinearAlgebra::MiddleSizeVector& coefficients) const {
-    logger.log(Log::WARN, "Only computing the real part of the field.");
     Base::PhysicalElement<DIM> physicalElement;
     physicalElement.setElement(element);
     std::shared_ptr<Base::CoordinateTransformation<DIM>> transform{
@@ -477,24 +552,72 @@ LinearAlgebra::SmallVector<DIM> DGMaxDiscretization<DIM>::computeCurlField(
     physicalElement.setTransformation(transform);
     physicalElement.setPointReference(p);
 
-    LinearAlgebra::SmallVector<DIM> result;
+    LinearAlgebra::SmallVectorC<DIM> result;
     for (std::size_t i = 0; i < element->getNumberOfBasisFunctions(0); ++i) {
-        result += std::real(coefficients[i]) *
-                  physicalElement.basisFunctionCurl(i, 0);
+        result += coefficients[i] * physicalElement.basisFunctionCurl(i, 0);
     }
     return result;
+}
+
+template <std::size_t DIM>
+void DGMaxDiscretization<DIM>::writeFields(
+    Output::VTKSpecificTimeWriter<DIM>& writer,
+    std::size_t timeIntegrationVectorId) const {
+    using VecR = LinearAlgebra::SmallVector<DIM>;
+    using Fields = LinearAlgebra::SmallVectorC<DIM>;
+    std::map<std::string, std::function<double(Fields&)>> scalars;
+    std::map<std::string, std::function<VecR(Fields&)>> vectors;
+
+    vectors["Ereal"] = [](Fields& fields) { return fields.real(); };
+    vectors["Eimag"] = [](Fields& fields) { return fields.imag(); };
+    scalars["Emag"] = [](Fields& fields) { return fields.l2Norm(); };
+
+    writer.template writeMultiple<Fields>(
+        [this](Base::Element* element,
+               const Geometry::PointReference<DIM>& point, std::size_t) {
+            LinearAlgebra::MiddleSizeVector coefficients =
+                element->getTimeIntegrationVector(0);
+            // When using the Hermitian system we applied a rescaling of the
+            // solution coefficients to use y = L^H x (LL^H = M is the Cholesky
+            // decomposition of the mass matrix and x the actual coefficients).
+            // Undo this transformation to correctly compute the fields.
+            if (matrixHandling_ == ORTHOGONALIZE) {
+                // In place solve
+                element->getElementMatrix(MASS_MATRIX_ID)
+                    .solveLowerTriangular(
+                        coefficients, hpgem::LinearAlgebra::Side::OP_LEFT,
+                        hpgem::LinearAlgebra::Transpose::HERMITIAN_TRANSPOSE);
+            }
+            return computeField(element, point, coefficients);
+        },
+        scalars, vectors);
+
+    // Output the epsilon separately
+    writer.write(
+        [](Base::Element* element, const Geometry::PointReference<DIM>&,
+           std::size_t) {
+            auto* userData = element->getUserData();
+            const ElementInfos* elementInfo =
+                dynamic_cast<ElementInfos*>(userData);
+            if (elementInfo != nullptr) {
+                return elementInfo->getPermittivity();
+            } else {
+                return -1.0;  // Clearly invalid value
+            }
+        },
+        "epsilon");
 }
 
 // TODO: The code saves snapshots in the timeIntegrationVector, this is not
 // particularly nice It might be better to pass the global vector here and
 // distribute it ourselves.
 template <std::size_t DIM>
-std::map<typename DGMaxDiscretization<DIM>::NormType, double>
+std::map<typename DGMaxDiscretizationBase::NormType, double>
     DGMaxDiscretization<DIM>::computeError(
         Base::MeshManipulator<DIM>& mesh, std::size_t timeVector,
         DGMaxDiscretization<DIM>::InputFunction electricField,
         DGMaxDiscretization<DIM>::InputFunction electricFieldCurl,
-        std::set<DGMaxDiscretization<DIM>::NormType> norms) {
+        std::set<DGMaxDiscretizationBase::NormType> norms) {
     // Note these are actually the squared norms
     double l2Norm = 0;
     double hCurlNorm = 0;
@@ -547,7 +670,8 @@ LinearAlgebra::SmallVector<2> DGMaxDiscretization<DIM>::elementErrorIntegrand(
     DGMaxDiscretization<DIM>::InputFunction curlValues) const {
     const Base::Element* element = el.getElement();
 
-    LinearAlgebra::SmallVector<DIM> phi, phiCurl, error, errorCurl;
+    LinearAlgebra::SmallVector<DIM> phi, phiCurl;
+    LinearAlgebra::SmallVectorC<DIM> error, errorCurl;
 
     error = exactValues(el.getPointPhysical());
     if (computeCurl) {
@@ -557,16 +681,14 @@ LinearAlgebra::SmallVector<2> DGMaxDiscretization<DIM>::elementErrorIntegrand(
     data = element->getTimeIntegrationVector(timeVector);
     for (std::size_t i = 0; i < element->getNrOfBasisFunctions(0); ++i) {
         el.basisFunction(i, phi, 0);
-        error -= (std::real(data[i]) * phi);
+        error -= data[i] * phi;
         if (computeCurl) {
             phiCurl = el.basisFunctionCurl(i, 0);
-            errorCurl -= (std::real(data[i]) * phiCurl);
+            errorCurl -= data[i] * phiCurl;
         }
     }
-    double l2Error = error.l2Norm();
-    l2Error *= l2Error;
-    double curlError = errorCurl.l2Norm();
-    curlError *= curlError;
+    double l2Error = error.l2NormSquared();
+    double curlError = errorCurl.l2NormSquared();
     LinearAlgebra::SmallVector<2> errors;
     errors[0] = l2Error;
     errors[1] = curlError;

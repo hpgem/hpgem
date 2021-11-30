@@ -43,6 +43,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <memory>
 #include <set>
 
+#include "AbstractDiscretization.h"
+
 #include "Logger.h"
 #include "Base/Element.h"
 #include "Base/Face.h"
@@ -52,24 +54,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Geometry/PointPhysical.h"
 #include "Integration/ElementIntegral.h"
 #include "Integration/FaceIntegral.h"
+#include "Output/VTKSpecificTimeWriter.h"
+
+#include "ProblemTypes/BoundaryConditionType.h"
 
 using namespace hpgem;
 
 /// Dimension independent constants of DGMaxDiscretization
-class DGMaxDiscretizationBase {
+class DGMaxDiscretizationBase : public DGMax::AbstractDiscretizationBase {
    public:
-    /**
-     * Processed mass matrix, contents depends on the rescaling approach.
-     */
-    static const std::size_t MASS_MATRIX_ID = 0;
-    static const std::size_t STIFFNESS_MATRIX_ID = 1;
-    static const std::size_t PROJECTOR_MATRIX_ID = 2;
-    static const std::size_t INITIAL_CONDITION_VECTOR_ID = 0;
-    static const std::size_t INITIAL_CONDITION_DERIVATIVE_VECTOR_ID = 1;
-    static const std::size_t SOURCE_TERM_VECTOR_ID = 2;
-
-    static const std::size_t FACE_MATRIX_ID = 0;
-    static const std::size_t FACE_VECTOR_ID = 0;
+    // Additional matrices
+    static const constexpr std::size_t PROJECTOR_MATRIX_ID = 2;
 
     enum NormType { L2, HCurl, DG };
 
@@ -104,47 +99,34 @@ class DGMaxDiscretizationBase {
 };
 
 template <std::size_t DIM>
-class DGMaxDiscretization : public DGMaxDiscretizationBase {
+class DGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
+                            public virtual DGMaxDiscretizationBase {
    public:
-    using PointPhysicalT = hpgem::Geometry::PointPhysical<DIM>;
-    using InputFunction =
-        std::function<LinearAlgebra::SmallVector<DIM>(const PointPhysicalT&)>;
-    using FaceInputFunction = std::function<LinearAlgebra::SmallVector<DIM>(
-        Base::PhysicalFace<DIM>&)>;
-    using TimeFunction = std::function<LinearAlgebra::SmallVector<DIM>(
+    using typename DGMax::AbstractDiscretization<DIM>::PointPhysicalT;
+    using typename DGMax::AbstractDiscretization<DIM>::PointReferenceT;
+    using typename DGMax::AbstractDiscretization<DIM>::InputFunction;
+    using typename DGMax::AbstractDiscretization<DIM>::FaceInputFunction;
+
+    using TimeFunction = std::function<LinearAlgebra::SmallVectorC<DIM>(
         const PointPhysicalT&, double)>;
 
-    /// Computed fields of the solution
-    struct Fields {
-        /// Real part of the field
-        LinearAlgebra::SmallVector<DIM> realEField;
-        /// Imaginary part of the field
-        LinearAlgebra::SmallVector<DIM> imagEField;
-    };
-
-    DGMaxDiscretization(bool includeProjector = false);
+    DGMaxDiscretization(std::size_t order, double stab,
+                        bool includeProjector = false);
 
     void setMatrixHandling(MassMatrixHandling matrixHandling) {
         matrixHandling_ = matrixHandling;
     }
 
-    void initializeBasisFunctions(Base::MeshManipulator<DIM>& mesh,
-                                  std::size_t order);
+    void initializeBasisFunctions(Base::MeshManipulator<DIM>& mesh) const final;
 
-    /**
-     * Compute element matrices and vectors
-     * @param mesh The mesh
-     * @param massMatrix The possible transformation applied to the mass matrix
-     * @param elementVectors The element vectors to compute as mapping from id
-     * to the function to use.
-     */
-    void computeElementIntegrands(
-        Base::MeshManipulator<DIM>& mesh,
-        const std::map<std::size_t, InputFunction>& elementVectors);
-    void computeFaceIntegrals(
-        Base::MeshManipulator<DIM>& mesh,
-        const std::map<std::size_t, FaceInputFunction>& boundaryVectors,
-        double stab);
+    size_t getOrder() const override { return order_; }
+    size_t getNumberOfUnknowns() const override {
+        return includeProjector_ ? 2 : 1;
+    }
+    size_t getNumberOfElementMatrices() const override {
+        return includeProjector_ ? 3 : 2;
+    }
+    size_t getNumberOfFaceMatrices() const override { return 2; }
 
     static std::string normName(NormType norm) {
         switch (norm) {
@@ -166,17 +148,41 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
                                             InputFunction electricFieldCurl,
                                             std::set<NormType> norms);
 
-    Fields computeFields(
+    virtual double computeL2Error(hpgem::Base::MeshManipulator<DIM>& mesh,
+                                  std::size_t timeIntegrationVectorId,
+                                  InputFunction electricField) final {
+        return computeError(mesh, timeIntegrationVectorId, electricField,
+                            nullptr, {NormType::L2})[NormType::L2];
+    }
+
+    LinearAlgebra::SmallVectorC<DIM> computeField(
         const Base::Element* element, const Geometry::PointReference<DIM>& p,
-        const LinearAlgebra::MiddleSizeVector& coefficients) const;
-    LinearAlgebra::SmallVector<DIM> computeField(
+        const LinearAlgebra::MiddleSizeVector& coefficients) const final;
+    LinearAlgebra::SmallVectorC<DIM> computeCurlField(
         const Base::Element* element, const Geometry::PointReference<DIM>& p,
-        const LinearAlgebra::MiddleSizeVector& coefficients) const;
-    LinearAlgebra::SmallVector<DIM> computeCurlField(
-        const Base::Element* element, const Geometry::PointReference<DIM>& p,
-        const LinearAlgebra::MiddleSizeVector& coefficients) const;
+        const LinearAlgebra::MiddleSizeVector& coefficients) const final;
+
+    void writeFields(Output::VTKSpecificTimeWriter<DIM>& writer,
+                     std::size_t timeIntegrationVectorId) const final;
 
    private:
+    /**
+     * Compute element matrices and vectors
+     * @param mesh The mesh
+     * @param massMatrix The possible transformation applied to the mass matrix
+     * @param elementVectors The element vectors to compute as mapping from id
+     * to the function to use.
+     */
+    void computeElementIntegralsImpl(
+        Base::MeshManipulator<DIM>& mesh,
+        const std::map<std::size_t, InputFunction>& elementVectors,
+        LocalIntegrals integrals) final;
+    void computeFaceIntegralsImpl(
+        hpgem::Base::MeshManipulator<DIM>& mesh,
+        const std::map<std::size_t, FaceInputFunction>& faceVectors,
+        DGMax::BoundaryConditionIndicator boundaryIndicator,
+        LocalIntegrals integrals) final;
+
     /**
      * Compute the element local matrices
      */
@@ -191,13 +197,15 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
                              const InputFunction& function,
                              LinearAlgebra::MiddleSizeVector& ret) const;
 
-    void computeFaceMatrix(Base::Face* face, double stab);
+    void computeFaceMatrix(Base::Face* face,
+                           DGMax::BoundaryConditionIndicator boundaryIndicator);
     void postProcessFaceMatrices(Base::Face* face) const;
 
     // The face vector integrand.
     void faceVector(Base::PhysicalFace<DIM>& fa,
                     const FaceInputFunction& boundaryCondition,
-                    LinearAlgebra::MiddleSizeVector& ret, double stab) const;
+                    LinearAlgebra::MiddleSizeVector& ret,
+                    DGMax::BoundaryConditionType bct) const;
 
     // TODO: Replace this by a better type than SmallVector<2>.
     LinearAlgebra::SmallVector<2> elementErrorIntegrand(
@@ -208,7 +216,9 @@ class DGMaxDiscretization : public DGMaxDiscretizationBase {
                               std::size_t timeVector,
                               InputFunction exactValue) const;
 
-    const bool includeProjector_;
+    std::size_t order_;
+    double stab_;
+    bool includeProjector_;
     MassMatrixHandling matrixHandling_;
 
     std::vector<std::shared_ptr<Base::CoordinateTransformation<DIM>>>

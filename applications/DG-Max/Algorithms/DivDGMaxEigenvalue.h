@@ -54,12 +54,12 @@ template <std::size_t DIM>
 class DivDGMaxEigenvalue : public AbstractEigenvalueSolver<DIM> {
    public:
     DivDGMaxEigenvalue(Base::MeshManipulator<DIM>& mesh, std::size_t order,
-                       typename DivDGMaxDiscretization<DIM>::Stab stab);
+                       DivDGMaxDiscretizationBase::Stab stab);
     void solve(AbstractEigenvalueSolverDriver<DIM>& driver) override;
 
    private:
     Base::MeshManipulator<DIM>& mesh_;
-    typename DivDGMaxDiscretization<DIM>::Stab stab_;
+    DivDGMaxDiscretizationBase::Stab stab_;
     std::size_t order_;
     DivDGMaxDiscretization<DIM> discretization;
 

@@ -46,6 +46,9 @@
 #include "StructureDescription.h"
 
 namespace DGMax {
+
+using namespace hpgem;
+
 /// Structure definition based on the zone information of the mesh
 class ZoneInfoStructureDefinition : public StructureDescription {
 

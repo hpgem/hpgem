@@ -379,6 +379,8 @@ class HpgemAPISimplified : public HpgemAPIBase<DIM>,
     virtual void computeOneTimeStep(double &time, const double maxRelativeError,
                                     const double dtMax);
 
+    virtual void setOutputFileName(std::string outputFileName);
+
     /// \brief Set output names.
     virtual void setOutputNames(std::string outputFileName,
                                 std::string internalFileTitle,
@@ -402,6 +404,18 @@ class HpgemAPISimplified : public HpgemAPIBase<DIM>,
         }
         for (auto p : VTKMatrixWrite_) {
             out.write(p.first, p.second, t, timeIntegrationVectorId);
+        }
+    }
+
+    virtual void VTKWrite(Output::VTKSpecificTimeWriter<DIM> &out) {
+        for (auto p : VTKDoubleWrite_) {
+            out.write(p.first, p.second);
+        }
+        for (auto p : VTKVectorWrite_) {
+            out.write(p.first, p.second);
+        }
+        for (auto p : VTKMatrixWrite_) {
+            out.write(p.first, p.second);
         }
     }
 

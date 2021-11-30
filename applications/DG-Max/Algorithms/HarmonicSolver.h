@@ -36,39 +36,32 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef HPGEM_APP_DIVDGMAXHARMONIC_H
-#define HPGEM_APP_DIVDGMAXHARMONIC_H
+#ifndef HPGEM_APP_DGMAXHARMONIC_H
+#define HPGEM_APP_DGMAXHARMONIC_H
 
-#include "../ProblemTypes/AbstractHarmonicSolver.h"
 #include "../ProblemTypes/HarmonicProblem.h"
+#include "../ProblemTypes/AbstractHarmonicSolverDriver.h"
 
-#include "DivDGMaxDiscretization.h"
+#include "AbstractDiscretization.h"
 
-#include <Output/VTKSpecificTimeWriter.h>
+namespace DGMax {
 
-using namespace hpgem;
-
+/// \brief Solver for a harmonic problem to find the fields.
 template <std::size_t DIM>
-class DivDGMaxHarmonic : public DGMax::AbstractHarmonicSolver<DIM> {
-
+class HarmonicSolver {
    public:
-    DivDGMaxHarmonic(Base::MeshManipulator<DIM>& mesh,
-                     typename DivDGMaxDiscretization<DIM>::Stab stab,
-                     std::size_t order);
+    HarmonicSolver(std::shared_ptr<AbstractDiscretization<DIM>> discretization)
+        : discretization_(discretization){};
 
-    void solve(const HarmonicProblem<DIM>& input) final;
-    void writeTec(std::string fileName) const;
-    void writeVTK(Output::VTKSpecificTimeWriter<DIM>& output) const final;
-    // TODO: Error computation and tec-plot writing
-    double computeL2Error(
-        const typename DivDGMaxDiscretization<DIM>::InputFunction&
-            exactSolution) const;
-    double computeL2Error(const ExactHarmonicProblem<DIM>& problem) const;
+    void solve(Base::MeshManipulator<DIM>& mesh,
+               DGMax::AbstractHarmonicSolverDriver<DIM>& driver);
 
    private:
-    Base::MeshManipulator<DIM>& mesh_;
-    DivDGMaxDiscretization<DIM> discretization_;
-    typename DivDGMaxDiscretization<DIM>::Stab stab_;
+    struct Result;
+    struct Workspace;
+
+    std::shared_ptr<AbstractDiscretization<DIM>> discretization_;
 };
 
-#endif  // HPGEM_APP_DIVDGMAXHARMONIC_H
+}  // namespace DGMax
+#endif  // HPGEM_APP_DGMAXHARMONIC_H

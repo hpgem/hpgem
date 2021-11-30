@@ -129,7 +129,7 @@ const MappingReferenceToReference<0>* ReferenceHypercube::getCodim0MappingPtr(
 // ================================== Codimension 1
 // ============================================
 
-const MappingReferenceToReference<1>* ReferenceHypercube::getCodim1MappingPtr(
+const BoundaryFaceMapping* ReferenceHypercube::getCodim1MappingPtr(
     const std::size_t faceIndex) const {
     logger.assert_debug((faceIndex < 8),
                         "ERROR: ReferenceHypercube::getCodim1MappingPtr "

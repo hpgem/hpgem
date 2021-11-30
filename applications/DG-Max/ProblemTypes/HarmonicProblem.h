@@ -42,6 +42,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Geometry/PointPhysical.h"
 #include "Base/PhysicalFace.h"
 #include "LinearAlgebra/SmallVector.h"
+#include "BoundaryConditionType.h"
+#include "ElementInfos.h"
 
 using namespace hpgem;
 
@@ -65,27 +67,85 @@ class HarmonicProblem {
    public:
     virtual ~HarmonicProblem() = default;
     virtual double omega() const = 0;
-    virtual LinearAlgebra::SmallVector<DIM> sourceTerm(
+    virtual LinearAlgebra::SmallVectorC<DIM> sourceTerm(
         const Geometry::PointPhysical<DIM>& point) const = 0;
-    virtual LinearAlgebra::SmallVector<DIM> boundaryCondition(
+    virtual DGMax::BoundaryConditionType getBoundaryConditionType(
+        const Base::Face& face) const = 0;
+
+    /**
+     * Value of the boundary function. The use of this value depends on
+     * getBoundaryConditionType(). For the different boundary conditions this
+     * should be:
+     *
+     * - Dirichlet: n x g_D (TODO: Future refactor -> g_D)
+     * - Neumann: g_N
+     * - SilverMuller: g_N
+     *
+     * @param face The face and point to evaluate the BC on
+     * @return The value.
+     */
+    virtual LinearAlgebra::SmallVectorC<DIM> boundaryCondition(
         Base::PhysicalFace<DIM>& face) const = 0;
+};
+
+/**
+ * Bit field enumeration indicating which properties can be different between
+ * two harmonic problems.
+ *
+ * Note: Not inside HarmonicProblem to not have template parameters
+ */
+enum class HarmonicProblemChanges : unsigned int {
+    OMEGA = 0x1,
+    CURRENT_SOURCE = 0x2,
+    BOUNDARY_CONDITION_TYPE = 0x4,
+    BOUNDARY_CONDITION_VALUE = 0x8,
+    ANY = 0xf,
 };
 
 template <std::size_t DIM>
 class ExactHarmonicProblem : public HarmonicProblem<DIM> {
    public:
-    virtual LinearAlgebra::SmallVector<DIM> exactSolution(
+    virtual LinearAlgebra::SmallVectorC<DIM> exactSolution(
         const Geometry::PointPhysical<DIM>& point) const = 0;
-    virtual LinearAlgebra::SmallVector<DIM> exactSolutionCurl(
+    virtual LinearAlgebra::SmallVectorC<DIM> exactSolutionCurl(
         const Geometry::PointPhysical<DIM>& point) const = 0;
 
-    LinearAlgebra::SmallVector<DIM> boundaryCondition(
-        Base::PhysicalFace<DIM>& face) const final {
-        LinearAlgebra::SmallVector<DIM> efield =
-            exactSolution(face.getPointPhysical());
-        const LinearAlgebra::SmallVector<DIM>& normal =
-            face.getUnitNormalVector();
-        return normal.crossProduct(efield);
+    LinearAlgebra::SmallVectorC<DIM> boundaryCondition(
+        Base::PhysicalFace<DIM>& face) const override {
+        using BCT = DGMax::BoundaryConditionType;
+        using Vec = LinearAlgebra::SmallVectorC<DIM>;
+        BCT bct = this->getBoundaryConditionType(*face.getFace());
+        switch (bct) {
+            case BCT::DIRICHLET: {
+                Vec efield = this->exactSolution(face.getPointPhysical());
+                Vec normal = face.getUnitNormalVector();
+                return normal.crossProduct(efield);
+            }
+            case BCT::NEUMANN: {
+                auto* material = dynamic_cast<ElementInfos*>(
+                    face.getFace()->getPtrElementLeft()->getUserData());
+                return this->exactSolutionCurl(face.getPointPhysical()) /
+                       material->getPermeability();
+            }
+            case BCT::SILVER_MULLER: {
+                auto* material = dynamic_cast<ElementInfos*>(
+                    face.getFace()->getPtrElementLeft()->getUserData());
+                logger.assert_debug(material != nullptr, "No material.");
+                Vec efield = this->exactSolution(face.getPointPhysical());
+                Vec efieldCurl =
+                    this->exactSolutionCurl(face.getPointPhysical());
+                const Vec& normal = face.getUnitNormalVector();
+                auto impedance = std::complex<double>(
+                    0, this->omega() * material->getImpedance());
+                // n x (Curl E + Z [E x n]) = n x g_N
+                return efieldCurl / material->getPermeability() +
+                       impedance * efield.crossProduct(normal);
+            }
+            default:
+                logger(ERROR,
+                       "Not implemented for this type of boundary condition.");
+                return {};
+        }
     }
 };
 

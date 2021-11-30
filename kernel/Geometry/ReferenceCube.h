@@ -111,7 +111,7 @@ class ReferenceCube : public ReferenceGeometry {
         const std::size_t) const final;
 
     //! (see MappingCodimensions.h)
-    const MappingReferenceToReference<1>* getCodim1MappingPtr(
+    const BoundaryFaceMapping* getCodim1MappingPtr(
         const std::size_t) const final;
 
     //! (see MappingCodimensions.h)
@@ -161,7 +161,7 @@ class ReferenceCube : public ReferenceGeometry {
 
     //! Codimension 1 mappings, from a square to a cube. (Used to map a
     //! coordinate on a face to a coordinate on an element)
-    const MappingReferenceToReference<1>* mappingsSquareToCube_[6];
+    const BoundaryFaceMapping* mappingsSquareToCube_[6];
 
     //! Codimension 0 mappings, from a cube to a cube. (Used to rotate the face
     //! when the left and right elements dont think it has the same orientation)

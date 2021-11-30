@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2014, University of Twente
+ Copyright (c) 2021, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,27 +35,35 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_KERNEL_OUTWARDNORMALVECTORSIGN_H
-#define HPGEM_KERNEL_OUTWARDNORMALVECTORSIGN_H
+#ifndef HPGEM_MATERIAL_H
+#define HPGEM_MATERIAL_H
 
-namespace hpgem {
+#include <cmath>
 
-namespace Geometry {
-template <int codim>
-class MappingReferenceToReference;
+namespace DGMax {
 
-/*!
- * Some of the Mappings from reference geometries to other reference geometries
- * are oriented such that the normal vector is inward, so there
- * the normal vector must be multiplied by -1 to get the outward normal vector.
- * This function determines whether or not the normal vector of a certain
- * mapping is inward or outward. It returns -1 if the normal vector is inward,
- * and 1 if it is outward.
- *
- * \todo: Switch old mappings to be outward.
- */
-double OutwardNormalVectorSign(const MappingReferenceToReference<1>* const map);
-}  // namespace Geometry
-}  // namespace hpgem
+class Material {
+   public:
+    constexpr Material(double permittivity, double permeability = 1.0) noexcept
+        : permittivity_(permittivity), permeability_(permeability) {}
 
-#endif  // HPGEM_KERNEL_OUTWARDNORMALVECTORSIGN_H
+    constexpr const double& getPermittivity() const { return permittivity_; }
+
+    constexpr const double& getPermeability() const { return permeability_; }
+
+    constexpr double getImpedance() const {
+        return std::sqrt(permittivity_ / permeability_);
+    }
+
+    constexpr double getRefractiveIndex() const {
+        return std::sqrt(permittivity_ * permeability_);
+    }
+
+   private:
+    double permittivity_;
+    double permeability_;
+};
+
+}  // namespace DGMax
+
+#endif  // HPGEM_MATERIAL_H

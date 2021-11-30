@@ -35,33 +35,24 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_ABSTRACTHARMONICSOLVER_H
-#define HPGEM_ABSTRACTHARMONICSOLVER_H
+#ifndef HPGEM_REFERENCECURVILINEARLINE_H
+#define HPGEM_REFERENCECURVILINEARLINE_H
 
-#include "HarmonicProblem.h"
-#include <Output/VTKSpecificTimeWriter.h>
+#include "ReferenceCurvilinearElement.h"
 
-namespace DGMax {
+namespace hpgem {
+namespace Geometry {
 
-/**
- * A Solver for the Maxwell harmonic problem
- * @tparam dim The dimension of the problem
- */
-template <std::size_t dim>
-class AbstractHarmonicSolver {
+class ReferenceCurvilinearLine : public ReferenceCurvilinearElement<1> {
    public:
-    /**
-     * Solve the problem
-     * @param problem The problem to solve
-     */
-    virtual void solve(const HarmonicProblem<dim>& problem) = 0;
-    /**
-     * Plot the output to VTK
-     * @param output Write the output
-     */
-    virtual void writeVTK(Output::VTKSpecificTimeWriter<dim>& output) const = 0;
+    static ReferenceCurvilinearLine& getReferenceLagrangeLine(
+        std::size_t order);
+
+   private:
+    ReferenceCurvilinearLine(std::size_t order);
 };
 
-}  // namespace DGMax
+}  // namespace Geometry
+}  // namespace hpgem
 
-#endif  // HPGEM_ABSTRACTHARMONICSOLVER_H
+#endif  // HPGEM_REFERENCECURVILINEARLINE_H

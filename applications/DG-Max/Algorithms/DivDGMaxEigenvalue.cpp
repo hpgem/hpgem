@@ -58,11 +58,10 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
     explicit SolverWorkspace(Base::MeshManipulator<DIM>* mesh)
         : indexing_(nullptr),
           stiffnessMatrix_(
-              indexing_,
-              DivDGMaxDiscretization<DIM>::ELEMENT_STIFFNESS_MATRIX_ID,
-              DivDGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID),
-          massMatrix_(indexing_,
-                      DivDGMaxDiscretization<DIM>::ELEMENT_MASS_MATRIX_ID, -1),
+              indexing_, DivDGMaxDiscretizationBase::STIFFNESS_MATRIX_ID,
+              DivDGMaxDiscretizationBase::FACE_STIFFNESS_MATRIX_ID),
+          massMatrix_(indexing_, DivDGMaxDiscretizationBase::MASS_MATRIX_ID,
+                      -1),
           tempVector_(indexing_, -1, -1),
           solver_(nullptr) {
         // Separate from initializer list to allow for more flexibility
@@ -173,7 +172,7 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
         DGMax::FaceMatrixKPhaseShiftBuilder<DIM> builder;
         builder.setMatrixExtractor([&](const Base::Face* face) {
             const Base::FaceMatrix& faceMatrix = face->getFaceMatrix(
-                DivDGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID);
+                DivDGMaxDiscretizationBase::FACE_STIFFNESS_MATRIX_ID);
             LinearAlgebra::MiddleSizeMatrix block1, block2;
             block1 = faceMatrix.getElementMatrix(Base::Side::LEFT,
                                                  Base::Side::RIGHT);
@@ -278,74 +277,14 @@ void DivDGMaxEigenvalue<DIM>::Result::writeField(
     // element.
     workspace_.writeEigenvectorAsTimeIntegrationVector(eigenvalue, VECTOR_ID);
     // write all field components
-    writer.write(
-        [&](const Base::Element* element,
-            const Geometry::PointReference<DIM>& pref, std::size_t) {
-            const LinearAlgebra::MiddleSizeVector& coefficients =
-                element->getTimeIntegrationVector(VECTOR_ID);
-            auto fields =
-                discretization_.computeFields(element, pref, coefficients);
-            return std::sqrt(fields.realEField.l2NormSquared() +
-                             fields.imagEField.l2NormSquared());
-        },
-        "Emag");
-    writer.write(
-        [&](const Base::Element* element,
-            const Geometry::PointReference<DIM>& pref, std::size_t) {
-            const LinearAlgebra::MiddleSizeVector& coefficients =
-                element->getTimeIntegrationVector(VECTOR_ID);
-            return discretization_.computeFields(element, pref, coefficients)
-                .realEField;
-        },
-        "Ereal");
-    writer.write(
-        [&](const Base::Element* element,
-            const Geometry::PointReference<DIM>& pref, std::size_t) {
-            const LinearAlgebra::MiddleSizeVector& coefficients =
-                element->getTimeIntegrationVector(VECTOR_ID);
-            return discretization_.computeFields(element, pref, coefficients)
-                .imagEField;
-        },
-        "Eimag");
-    writer.write(
-        [&](const Base::Element* element,
-            const Geometry::PointReference<DIM>& pref, std::size_t) {
-            const LinearAlgebra::MiddleSizeVector& coefficients =
-                element->getTimeIntegrationVector(VECTOR_ID);
-            return discretization_.computeFields(element, pref, coefficients)
-                .potential.real();
-        },
-        "preal");
-    writer.write(
-        [&](const Base::Element* element,
-            const Geometry::PointReference<DIM>& pref, std::size_t) {
-            const LinearAlgebra::MiddleSizeVector& coefficients =
-                element->getTimeIntegrationVector(VECTOR_ID);
-            return discretization_.computeFields(element, pref, coefficients)
-                .potential.imag();
-        },
-        "pimag");
-    // Also write epsilon, for later filtering
-    writer.write(
-        [&](const Base::Element* element, const Geometry::PointReference<DIM>&,
-            std::size_t) {
-            auto* userData = element->getUserData();
-            const ElementInfos* elementInfo =
-                dynamic_cast<ElementInfos*>(userData);
-            if (elementInfo != nullptr) {
-                return elementInfo->epsilon_;
-            } else {
-                return -1.0;  // Clearly invalid value
-            }
-        },
-        "epsilon");
+    discretization_.writeFields(writer, VECTOR_ID);
 }
 
 template <std::size_t DIM>
 DivDGMaxEigenvalue<DIM>::DivDGMaxEigenvalue(
     Base::MeshManipulator<DIM>& mesh, std::size_t order,
-    typename DivDGMaxDiscretization<DIM>::Stab stab)
-    : mesh_(mesh), order_(order), stab_(stab) {}
+    DivDGMaxDiscretizationBase::Stab stab)
+    : mesh_(mesh), discretization(order_, stab), order_(order), stab_(stab) {}
 
 template <std::size_t DIM>
 void DivDGMaxEigenvalue<DIM>::solve(
@@ -358,10 +297,9 @@ void DivDGMaxEigenvalue<DIM>::solve(
 
     PetscErrorCode error;
     DGMaxLogger(INFO, "Starting assembly");
-    discretization.initializeBasisFunctions(mesh_, order_);
-    discretization.computeElementIntegrands(mesh_, false, nullptr, nullptr,
-                                            nullptr);
-    discretization.computeFaceIntegrals(mesh_, nullptr, stab_);
+    discretization.initializeBasisFunctions(mesh_);
+    discretization.computeElementIntegrals(mesh_, {});
+    discretization.computeFaceIntegrals(mesh_, {});
 
     SolverWorkspace workspace(&mesh_);
 

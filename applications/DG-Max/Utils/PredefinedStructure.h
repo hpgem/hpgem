@@ -64,11 +64,12 @@ class PredefinedStructureDescription : public StructureDescription {
                                    std::size_t dimension)
         : structure_(structure), dimension_(dimension){};
 
-    ElementInfos* createElementInfo(const Base::Element* element) final;
+    ElementInfos* createElementInfo(const hpgem::Base::Element* element) final;
 
    private:
     template <std::size_t DIM>
-    ElementInfos* createElementInfoDim(const Base::Element* element) const;
+    ElementInfos* createElementInfoDim(
+        const hpgem::Base::Element* element) const;
 
     PredefinedStructure structure_;
     std::size_t dimension_;

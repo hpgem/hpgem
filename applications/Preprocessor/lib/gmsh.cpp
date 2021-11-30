@@ -37,7 +37,9 @@
  */
 
 #include <algorithm>
+#include <cmath>
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <unordered_map>
 
@@ -50,6 +52,7 @@ using namespace hpgem;
 
 namespace Preprocessor {
 
+namespace {
 //
 // Non-class helper function for line-reading
 // Because getline works only on text files from the OS that it was compiled
@@ -105,6 +108,7 @@ bool locate_in_file(std::ifstream& filestream, const std::string& searchname) {
     }
     return found;
 }
+}  // namespace
 
 void GmshReader::fillElementTypeMap() {
 
@@ -229,132 +233,183 @@ void GmshReader::fillElementTypeMap() {
 }
 
 void GmshReader::readHeader() {
+    int filetype;  // ASCII (0), Binary (1)
+    int datasize;  // sizeof(sizet) used for binary
+    Filehandle_ >> version_ >> filetype >> datasize;
 
-    bool found_header = locate_in_file(Filehandle_, "$MeshFormat");
-    logger.assert_always(found_header, "Header of gmsh file not found");
-    double version;
-    int filetype, datasize;
-    Filehandle_ >> version >> filetype >> datasize;
-
-    logger(VERBOSE, "msh version is % and storage format is %", version,
+    logger(VERBOSE, "msh version is % and storage format is %", version_,
            (filetype == 1 ? "binary" : "ASCII"));
 
-    logger.assert_always(version == 2.2,
+    logger.assert_always(version_ == 2.2,
                          "Error: Cannot read file versions other than 2.2");
     logger.assert_always(filetype == 0,
                          "Error: Cannot read binary format files");
+
+    readSectionEnd("MeshFormat");
 }
 
-void GmshReader::readNodes() {
-    bool found_nodes = locate_in_file(Filehandle_, "$Nodes");
-    logger.assert_always(found_nodes, "Nodes section of gmsh file not found");
+void GmshReader::readPhysicalNames() {
+    std::size_t numNames;
+    Filehandle_ >> numNames;
+    for (std::size_t i = 0; i < numNames; ++i) {
+        // Note: The same tag may correspond to different physical names for
+        // different dimensions.
+        std::size_t dimension;
+        int tag;
+        std::string name;
+        Filehandle_ >> dimension >> tag >> std::quoted(name);
+
+        if (dimension > dimension_) {
+            dimension_ = dimension;
+        }
+        if (physicalNames_.size() < dimension + 1) {
+            physicalNames_.resize(dimension + 1);
+        }
+        if (tag < 0) {
+            // Negative tags are used to denote that curves need to be
+            // reversed. Discard this information.
+            tag = -tag;
+        }
+        physicalNames_[dimension][tag] = name;
+    }
+    readSectionEnd("PhysicalNames");
+}
+
+void GmshReader::readNodes(double tol) {
     size_t number_nodes;
     Filehandle_ >> number_nodes;
     size_t nodeTag;
     double x;
     double y;
     double z;
-    nodes_.reserve(number_nodes);
+    nodes_.reserve(nodes_.size() + number_nodes);
     for (size_t index = 0; index < number_nodes; index++) {
         Filehandle_ >> nodeTag >> x >> y >> z;
+
+        // Determine the minimum dimension while reading
+        if (dimension_ < 3 && std::abs(z) > tol) {
+            dimension_ = 3;
+        } else if (dimension_ < 2 && std::abs(y) > tol) {
+            dimension_ = 2;
+        } else if (dimension_ < 1 && std::abs(x) > tol) {
+            dimension_ = 1;
+        }
+
         MeshSource2::Coord temp;
         temp.nodeId =
             nodeTag - 1;  // gmsh ids are 1 indexed hpgem is zero indexed
         temp.coordinate = std::vector<double>{x, y, z};
         nodes_.push_back(temp);
     }
+    readSectionEnd("Nodes");
 }
 
 void GmshReader::readElements() {
 
+    // Reordering of the nodes
     ElementReorder reorder;
+    reorder.addElementType(0, "point:", {0});
     reorder.addElementType(1, "line:", {0, 1});
+    // GMSH: 0,1 as endpoints, 2-N as inbetween points
+    // HPGEM: 0 and N as endpoints
+    reorder.addElementType(1, "line2", {0, 2, 1});
+
     reorder.addElementType(2, "triangle:", {0, 1, 2});
+    // GMSH: Nodes, Edges, internal order
+    // HPGEM lexicographical on (y,x)-coord
+    reorder.addElementType(2, "triangle2", {0, 3, 1, 5, 4, 2});
+
     reorder.addElementType(2, "square:", {0, 1, 3, 2});
     reorder.addElementType(3, "tetrahedron:", {0, 3, 1, 2});
     reorder.addElementType(3, "pyramid:", {4, 1, 2, 0, 3});
     reorder.addElementType(3, "cube:", {4, 5, 0, 1, 7, 6, 3, 2});
     reorder.addElementType(3, "prism", {0, 2, 1, 3, 5, 4});
 
-    bool found_elements = locate_in_file(Filehandle_, "$Elements");
-    logger.assert_always(found_elements,
-                         "Elements section of gmsh file  not found");
     size_t numElements;
     Filehandle_ >> numElements;
 
-    elements_.reserve(numElements);
+    elements_.reserve(numElements + elements_.size());
     for (size_t index = 0; index < numElements; index++) {
-        size_t elm_number;
-        size_t elm_type;
+        size_t elm_number;  // The number of the element according to gmsh
+        size_t elm_type;    // The type of element (e.g. triangle)
+        // Number of tags associated with the element
+        // Default interpretation of the tags
+        //  1. The physical entity to which it belongs
+        //  2. The Elementary model to which it belongs
+        //  3. Number of partitions in which it belongs
+        //  n. The partitions ids, negative for ghost cell
+        // Gmsh requires at least the first two
         size_t no_tags;
 
         Filehandle_ >> elm_number >> elm_type >> no_tags;
-        MeshSource2::Element element;
-        element.dimension = dimensionOfElementtype_.at(elm_type);
-        element.id =
-            elm_number - 1;  // gmsh ids are 1 indexed hpgem is zero indexed
-        for (int i = 0; i < no_tags; i++) {
+        Element element;
+        element.dimension_ = dimensionOfElementtype_.at(elm_type);
+        element.gmshTag = elm_number;
+        element.physicalNameTag = Element::NO_TAG;
+        // gmsh ids are 1 indexed and hpgem is zero indexed.
+        logger.assert_always(elm_number - 1 == rawElements_.size(),
+                             "hpGEM expects the element numbers to be "
+                             "consecutive starting from 1");
+        if (no_tags > 0) {
+            Filehandle_ >> element.physicalNameTag;
+        }
+        for (std::size_t i = 0; i < no_tags - 1; i++) {
             int dummy;
             Filehandle_ >> dummy;
         }
-        int num_points = nodesPerElementtype_.at(elm_type);
-        for (int i = 0; i < num_points; i++) {
+
+        std::size_t num_points = nodesPerElementtype_.at(elm_type);
+        for (std::size_t i = 0; i < num_points; i++) {
             size_t nodetag;
             Filehandle_ >> nodetag;
-            element.coordinateIds.push_back(
-                nodetag - 1);  // gmsh ids are 1 indexed hpgem is zero indexed
+            // gmsh ids are 1 indexed hpgem is zero indexed
+            element.coordinates_.push_back(nodetag - 1);
         }
-        reorder.reorderToHpGem(element.dimension, element.coordinateIds);
-        elements_.push_back(element);
+        reorder.reorderToHpGem(element.dimension_, element.coordinates_);
+        rawElements_.push_back(std::move(element));
     }
-}
 
-size_t GmshReader::determineDimension(double tol) const {
-
-    size_t dimension = 3;
-
-    bool two_dim = std::all_of(
-        nodes_.begin(), nodes_.end(), [&](const MeshSource2::Coord& node) {
-            return (std::abs(node.coordinate.back()) < tol);
-        });
-
-    if (two_dim) {
-        dimension--;
-        bool one_dim = std::all_of(
-            nodes_.begin(), nodes_.end(), [&](const MeshSource2::Coord& node) {
-                return (std::abs(node.coordinate[1]) < tol);
-            });
-        if (one_dim) {
-            dimension--;
-        }
-    }
-    logger(VERBOSE, "Dimension of the net is %", dimension);
-    return dimension;
+    readSectionEnd("Elements");
 }
 
 void GmshReader::readElementData() {
-    // The zones are determined based on the ElementData section
-    bool found_elements = locate_in_file(Filehandle_, "$ElementData");
-    if (!found_elements) {
-        // Very simple mesh files, like those generated by gmsh itself, may not
-        // contain element data. So assign a single zone to all elements.
-        for (auto& element : elements_) {
-            element.zoneName = "Main";
-        }
+    if (!physicalNames_.empty()) {
+        // We only use ElementData as non standard way to assign zones to
+        // elements. Thus we are only interested in the content if there are no
+        // PhysicalNames.
+        skipSection("ElementData");
         return;
     }
+
+    // Element data has two parts
+    //  - It starts with some global string, real, integer tags for the dataset
+    //    as a whole
+    //  - The second half has doubles stored per element
+
+    // Read global strings
     size_t numStringelements;
     Filehandle_ >> numStringelements;
     for (size_t i = 0; i < numStringelements; i++) {
         std::string view_names;
         Filehandle_ >> view_names;
     }
+    // Read  global reals (doubles)
     size_t numrealelements;
     Filehandle_ >> numrealelements;
     for (size_t i = 0; i < numrealelements; i++) {
         double real;
         Filehandle_ >> real;
     }
+
+    // Read global integers
+    // These follow the convention:
+    //  - Timestamp index
+    //  - Number of components (1,3,9 by default)
+    //  - The number of Elements in view
+    //  - The partition index for the view data (0 for no partition)
+    //
+    // The second value specifies the number of values used in the per-element
+    // part, while the third is the number of elements
     size_t numintegerelements;
     Filehandle_ >> numintegerelements;
     logger.assert_always(numintegerelements > 2,
@@ -366,40 +421,37 @@ void GmshReader::readElementData() {
 
     logger.assert_always(field_components == 1,
                          "We only read in Scalar data as material identifiers");
+    // Read the integer elements that follow afterwards
     for (int i = 3; i < numintegerelements; i++) {
         size_t dummy;
         Filehandle_ >> dummy;
     }
+
+    // Read the data for each entity
     for (int i = 0; i < num_entities; i++) {
         size_t elementid;
-        size_t zoneinfo;
+        double zoneinfo;
         Filehandle_ >> elementid >> zoneinfo;
-        elementid--;  // gmsh is 1 indexed hpgem is zero indexed
-        logger.assert_always(elements_[elementid].id == elementid,
-                             "Your elements are not indexed continously. This "
-                             "parser cannot handle it. % vs %",
-                             elements_[elementid].id, elementid);
-        elements_[elementid].zoneName = std::to_string(zoneinfo);
+        Element& element = rawElements_[elementid - 1];
+        logger.assert_always(element.gmshTag == elementid,
+                             "The elements are not indexed continuously");
+        element.physicalNameTag =
+            static_cast<std::size_t>(std::round(zoneinfo));
     }
+    readSectionEnd("ElementData");
 }
 
 void GmshReader::readPBCs() {
-
-    bool found_PBCs = locate_in_file(Filehandle_, "$Periodic");
-    if (!found_PBCs) {
-        Filehandle_.clear();
-        Filehandle_.seekg(0);
-        return;
-    }
-
     size_t num_periodic_elements;
     Filehandle_ >> num_periodic_elements;
 
+    // We are not interested the connected entities
     for (size_t i = 0; i < num_periodic_elements; i++) {
         size_t dimension, entity_tag, master_entity_tag;
         Filehandle_ >> dimension >> entity_tag >> master_entity_tag;
     }
 
+    // Merge all nodes
     std::unordered_map<size_t, size_t> pbc_nodes;
 
     size_t periodic_nodes;
@@ -428,18 +480,45 @@ void GmshReader::readPBCs() {
                          "Not all pbc pairs were used to replace node ids, so "
                          "probably the indexing is wrong. % pairs unused",
                          pbc_nodes.size() - replaced_nodes);
+    readSectionEnd("Periodic");
 }
 
-void GmshReader::purgeLowerDimElements() {
+void GmshReader::convertRawElements() {
+    std::size_t elementCount =
+        std::count_if(rawElements_.cbegin(), rawElements_.cend(),
+                      [dimension = dimension_](auto& element) {
+                          return element.dimension_ == dimension;
+                      });
+    elements_.reserve(elementCount);
 
-    // gmsh elements can be of any dimension smaller than the mesh dimension
-    // we sort them to the back of the vector and then resize it
-    elements_.erase(std::remove_if(elements_.begin(), elements_.end(),
-                                   [&](const Element& e) {
-                                       return e.dimension < dimension_;
-                                   }),
-                    elements_.end());
-};
+    std::size_t index = 0;
+    for (auto& element : rawElements_) {
+        if (element.dimension_ != dimension_) {
+            continue;
+        }
+
+        MeshSource2::Element newElement;
+        newElement.id = index++;
+        // No need for copying, the raw elements will be deleted afterwards.
+        newElement.coordinateIds = std::move(element.coordinates_);
+
+        if (element.physicalNameTag == Element::NO_TAG) {
+            newElement.zoneName = "Main";
+        } else if (!physicalNames_.empty()) {
+            newElement.zoneName =
+                physicalNames_[dimension_][element.physicalNameTag];
+        } else {
+            newElement.zoneName = std::to_string(element.physicalNameTag);
+        }
+        newElement.dimension = element.dimension_;
+
+        elements_.push_back(std::move(newElement));
+    }
+    rawElements_.clear();
+
+    logger.assert_debug(elements_.size() == elementCount,
+                        "Created more elements than expected");
+}
 
 void GmshReader::pruneCoordinatesToDimension() {
     if (dimension_ == 3) {
@@ -450,7 +529,44 @@ void GmshReader::pruneCoordinatesToDimension() {
     }
 }
 
-GmshReader::GmshReader(std::string filename) {
+void GmshReader::skipSection(std::string sectionName) {
+    std::string line;
+    while (!Filehandle_.eof()) {
+        safeGetline(Filehandle_, line);
+        if (line.rfind("$End", 0) != 0) {
+            // Line did not start with $End -> not the end of the section
+            continue;
+        }
+        logger.assert_always(line.substr(4) == sectionName,
+                             "Section '%' ended with '%'", sectionName, line);
+        return;
+    }
+    logger.assert_always("Section % was unclosed at the end of the file",
+                         sectionName);
+}
+
+void GmshReader::readSectionEnd(std::string sectionName) {
+    std::string line;
+    while (!Filehandle_.eof()) {
+        safeGetline(Filehandle_, line);
+        if (line.empty() ||
+            std::all_of(line.cbegin(), line.cend(), [](const char c) {
+                return std::isspace(std::char_traits<char>::to_int_type(c));
+            })) {
+            // Line is empty or only whitespace
+            continue;
+        } else if (line.rfind("$End", 0) != 0) {
+            logger(WARN, "Extra data at the end of the section %", sectionName);
+        }
+        logger.assert_always(line.substr(4) == sectionName,
+                             "Section % ended with %", sectionName, line);
+        return;
+    }
+    logger.assert_always("Section % was unclosed at the end of the file",
+                         sectionName);
+}
+
+GmshReader::GmshReader(std::string filename) : dimension_(0) {
 
     fillElementTypeMap();
     // Fileformat is defined in
@@ -461,15 +577,49 @@ GmshReader::GmshReader(std::string filename) {
     logger.assert_always(Filehandle_.good(),
                          "Something is not so good about this mesh in file %",
                          filename);
+    std::string line;
+    bool meshFormatFound = false;
+    while (!Filehandle_.eof()) {
+        // Read section by section
+        safeGetline(Filehandle_, line);
+        if (line.empty()) {
+            continue;
+        }
+        if (line[0] != '$') {
+            // Not the start of a tag
+            logger(WARN, "Unknown line '%'", line);
+            continue;
+        }
 
-    readHeader();
-    readNodes();
-    dimension_ = determineDimension();
-    readElements();
-    readPBCs();
-    readElementData();
+        // Handle the sections
+        auto sectionName = line.substr(1);
+        if (sectionName == "MeshFormat") {
+            logger.assert_always(!meshFormatFound,
+                                 "Multiple mesh format sections");
+            meshFormatFound = true;
+            readHeader();
+        } else if (sectionName == "PhysicalNames") {
+            logger.assert_always(meshFormatFound,
+                                 "PhysicalNames before MeshFormat");
+            readPhysicalNames();
+        } else if (sectionName == "Nodes") {
+            logger.assert_always(meshFormatFound, "Nodes before MeshFormat");
+            readNodes();
+        } else if (sectionName == "Elements") {
+            logger.assert_always(meshFormatFound, "Elements before MeshFormat");
+            readElements();
+        } else if (sectionName == "Periodic") {
+            readPBCs();
+        } else if (sectionName == "ElementData") {
+            readElementData();
+        } else {
+            skipSection(sectionName);
+        }
+    }
+    Filehandle_.clear();
+    Filehandle_.seekg(0);
 
-    purgeLowerDimElements();
+    convertRawElements();
     pruneCoordinatesToDimension();
 }
 

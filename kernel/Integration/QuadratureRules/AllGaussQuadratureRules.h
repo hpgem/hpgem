@@ -41,12 +41,9 @@
 
 #include <vector>
 #include <map>
+#include "Geometry/ReferenceGeometry.h"
 
 namespace hpgem {
-
-namespace Geometry {
-class ReferenceGeometry;
-}
 
 namespace QuadratureRules {
 class GaussQuadratureRule;
@@ -74,8 +71,7 @@ class AllGaussQuadratureRules {
    private:
     AllGaussQuadratureRules();
 
-    std::map<const Geometry::ReferenceGeometry*,
-             std::vector<GaussQuadratureRule*>>
+    std::map<Geometry::ReferenceGeometryType, std::vector<GaussQuadratureRule*>>
         listOfRules_;
 };
 

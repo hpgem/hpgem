@@ -44,9 +44,9 @@
 
 #include <DGMaxLogger.h>
 #include <DGMaxProgramUtils.h>
-#include <Algorithms/DGMaxHarmonic.h>
-#include <Algorithms/DivDGMaxHarmonic.h>
-#include <ProblemTypes/Harmonic/SampleHarmonicProblems.h>
+#include <Algorithms/HarmonicSolver.h>
+#include <Algorithms/DGMaxDiscretization.h>
+#include <Algorithms/DivDGMaxDiscretization.h>
 
 auto& meshFileName = Base::register_argument<std::string>(
     'm', "meshFile", "The hpgem meshfile to use", true);
@@ -107,97 +107,199 @@ void writeMesh(std::string, const Base::MeshManipulator<dim>* mesh);
 template <std::size_t dim>
 class TestingProblem : public HarmonicProblem<dim> {
 
-    double omega() const final { return 4.0e-2; }
+   public:
+    TestingProblem(double omega) : omega_(omega){};
 
-    LinearAlgebra::SmallVector<dim> sourceTerm(
+    double omega() const final { return omega_; }
+
+    LinearAlgebra::SmallVectorC<dim> sourceTerm(
         const Geometry::PointPhysical<dim>& point) const final {
         LinearAlgebra::SmallVector<dim> result;
 
         result.set(0.0);
-        if (point[1] > 0 && point[1] < 50) result[0] = 1.0;
+        // if (point[1] > 0 && point[1] < 50) result[0] = 1.0;
 
         return result;
     }
 
-    LinearAlgebra::SmallVector<dim> boundaryCondition(
+    LinearAlgebra::SmallVectorC<dim> boundaryCondition(
         Base::PhysicalFace<dim>& face) const override {
-        return {};
+
+        auto bct = getBoundaryConditionType(*face.getFace());
+
+        if (bct == DGMax::BoundaryConditionType::DIRICHLET) {
+            return {};
+        }
+        LinearAlgebra::SmallVectorC<dim> normal = face.getUnitNormalVector();
+
+        // E = E_0 exp(ik.x)
+        // g_N = muinv * Curl E + i kappa sqrt(epsilon/mu) E x n
+        //     = i[(k x E_0) + kappa sqrt(epsilon) (E_0 x n)] exp(ik.x)
+
+        auto* userData = dynamic_cast<ElementInfos*>(
+            face.getFace()->getPtrElementLeft()->getUserData());
+
+        using namespace std::complex_literals;
+        LinearAlgebra::SmallVectorC<dim> E0{1.0, 0},
+            k{0, omega() * userData->getRefractiveIndex()};
+
+        logger.assert_always(userData != nullptr, "Incorrect data");
+
+        // muInv(kxE_0) + kappa * sqrt(epsilon) (E_0 x n)
+        LinearAlgebra::SmallVectorC<dim> result =
+            k.crossProduct(E0) / userData->getPermeability();
+        result += omega() * userData->getImpedance() * E0.crossProduct(normal);
+
+        // i exp(ik.x)
+        result *=
+            1i * std::exp(1i * face.getPointPhysical().getCoordinates() * k);
+        return result;
     }
+
+    DGMax::BoundaryConditionType getBoundaryConditionType(
+        const Base::Face& face) const final {
+
+        if (face.isInternal()) {
+            return DGMax::BoundaryConditionType::INTERNAL;
+        }
+
+        LinearAlgebra::SmallVector<dim> normal = face.getNormalVector(
+            face.getReferenceGeometry()->getCenter().castDimension<dim - 1>());
+        normal /= normal.l2Norm();
+
+        // Check if the normal matches: {1,0} or {-1,0}
+        double nx = std::abs(std::abs(normal[0]) - 1.0);
+        if (nx < 1e-8) {
+            // For faces at x=0,1
+            return DGMax::BoundaryConditionType::DIRICHLET;
+        } else {
+            // For faces at y=0,1
+            return DGMax::BoundaryConditionType::SILVER_MULLER;
+        }
+    }
+
+   private:
+    double omega_;
+};
+
+template <std::size_t dim>
+class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
+   public:
+    Driver(Base::MeshManipulator<dim>& mesh)
+        : mesh_(&mesh), problem_(), nextCalled_(0){};
+
+    bool stop() const override { return nextCalled_ == 5; }
+    void nextProblem() override {
+        nextCalled_++;
+        problem_ = std::make_shared<TestingProblem<dim>>(0.01 * nextCalled_);
+    }
+
+    const HarmonicProblem<dim>& currentProblem() const override {
+        return *problem_;
+    }
+
+    bool hasChanged(HarmonicProblemChanges change) const override {
+        if (nextCalled_ == 1) {
+            return true;
+        } else {
+            switch (change) {
+                case HarmonicProblemChanges::OMEGA:
+                case HarmonicProblemChanges::BOUNDARY_CONDITION_VALUE:
+                    return true;
+                case HarmonicProblemChanges::BOUNDARY_CONDITION_TYPE:
+                case HarmonicProblemChanges::CURRENT_SOURCE:
+                    return false;
+                default:
+                    return true;
+            }
+        }
+    }
+
+    void handleResult(DGMax::AbstractHarmonicResult<dim>& result) override {
+        std::stringstream outputFile;
+        outputFile << "harmonic-" << nextCalled_;
+        Output::VTKSpecificTimeWriter<dim> output(outputFile.str(), mesh_, 0,
+                                                  order.getValue());
+        result.writeVTK(output);
+        // Additional output
+        output.write(
+            [this](Base::Element* element,
+                   const Geometry::PointReference<dim>& p, std::size_t) {
+                return problem_->sourceTerm(element->referenceToPhysical(p))
+                    .real();
+            },
+            "source");
+
+        auto* eproblem =
+            dynamic_cast<ExactHarmonicProblem<dim>*>(problem_.get());
+        if (eproblem != nullptr) {
+            double l2Error = result.computeL2Error(*eproblem);
+            DGMaxLogger(INFO, "L2 error %", l2Error);
+
+            output.write(
+                [&eproblem](Base::Element* element,
+                            const Geometry::PointReference<dim>& p,
+                            std::size_t) {
+                    return eproblem
+                        ->exactSolution(element->referenceToPhysical(p))
+                        .real();
+                },
+                "SolutionReal");
+            output.write(
+                [&eproblem](Base::Element* element,
+                            const Geometry::PointReference<dim>& p,
+                            std::size_t) {
+                    return eproblem
+                        ->exactSolution(element->referenceToPhysical(p))
+                        .imag();
+                },
+                "SolutionImag");
+        }
+    }
+
+   private:
+    Base::MeshManipulator<dim>* mesh_;
+    std::shared_ptr<HarmonicProblem<dim>> problem_;
+    int nextCalled_;
 };
 
 template <std::size_t dim>
 void runWithDimension() {
-    bool divdgmax;
-    std::size_t unknowns;
+    std::shared_ptr<DGMax::AbstractDiscretization<dim>> discretization;
+
     if (method.getValue() == "DivDGMax") {
-        divdgmax = true;
-        unknowns = 2;
+        // Placeholder for more complicate fluxes
+        DivDGMaxDiscretizationBase::Stab stab;
+        stab.stab1 = 105;
+        stab.stab2 = 0;
+        stab.stab3 = 500;
+        stab.setAllFluxeTypes(DivDGMaxDiscretization<dim>::FluxType::IP);
+        discretization = std::make_shared<DivDGMaxDiscretization<dim>>(
+            order.getValue(), stab);
     } else if (method.getValue() == "DGMax") {
-        divdgmax = false;
-        unknowns = 1;
+        double stab = 100;
+        discretization =
+            std::make_shared<DGMaxDiscretization<dim>>(order.getValue(), stab);
     } else {
         logger(ERROR, "Unkown method %", method.getValue());
         return;
     }
 
-    std::size_t numberOfElementMatrices = 2;
-
-    Base::ConfigurationData configData(unknowns, 1);
+    Base::ConfigurationData configData(discretization->getNumberOfUnknowns(),
+                                       1);
     auto structure =
         DGMax::determineStructureDescription(structureString.getValue(), dim);
 
-    auto mesh = DGMax::readMesh<dim>(meshFileName.getValue(), &configData,
-                                     *structure, numberOfElementMatrices);
+    auto mesh =
+        DGMax::readMesh<dim>(meshFileName.getValue(), &configData, *structure,
+                             discretization->getNumberOfElementMatrices());
     logger(INFO, "Loaded mesh % with % local elements", meshFileName.getValue(),
            mesh->getNumberOfElements());
     writeMesh<dim>("mesh", mesh.get());
 
-    std::unique_ptr<DGMax::AbstractHarmonicSolver<dim>> solver;
-
-    if (divdgmax) {
-        // Placeholder for more complicate fluxes
-        typename DivDGMaxDiscretization<dim>::Stab stab;
-        stab.stab1 = 5;
-        stab.stab2 = 0;
-        stab.stab3 = 5;
-        stab.setAllFluxeTypes(DivDGMaxDiscretization<dim>::FluxType::BREZZI);
-
-        solver = std::make_unique<DivDGMaxHarmonic<dim>>(*mesh, stab,
-                                                         order.getValue());
-    } else {
-        double stab = 100;
-        solver =
-            std::make_unique<DGMaxHarmonic<dim>>(*mesh, stab, order.getValue());
-    }
-
-    // Problem definition
-    std::unique_ptr<HarmonicProblem<dim>> problem;
-    problem = std::make_unique<SampleHarmonicProblems<dim>>(
-        SampleHarmonicProblems<dim>::Problem::CONSTANT, 1);
-    problem = std::make_unique<TestingProblem<dim>>();
-
-    solver->solve(*problem);
-
-    // Output
-    Output::VTKSpecificTimeWriter<dim> output("harmonic", mesh.get(), 0,
-                                              order.getValue());
-    output.write(
-        [](Base::Element* element, const Geometry::PointReference<dim>&,
-           std::size_t) {
-            const ElementInfos* elementInfos =
-                dynamic_cast<ElementInfos*>(element->getUserData());
-            logger.assert_debug(elementInfos != nullptr,
-                                "Incorrect user data type");
-            return elementInfos->epsilon_;
-        },
-        "epsilon");
-    output.write(
-        [&problem](Base::Element* element,
-                   const Geometry::PointReference<dim>& p, std::size_t) {
-            return problem->sourceTerm(element->referenceToPhysical(p));
-        },
-        "source");
-    solver->writeVTK(output);
+    DGMax::HarmonicSolver<dim> solver(discretization);
+    Driver<dim> driver(*mesh);
+    solver.solve(*mesh, driver);
 }
 
 template <std::size_t DIM>
@@ -210,7 +312,7 @@ void writeMesh(std::string fileName, const Base::MeshManipulator<DIM>* mesh) {
                 dynamic_cast<ElementInfos*>(element->getUserData());
             logger.assert_debug(elementInfos != nullptr,
                                 "Incorrect user data type");
-            return elementInfos->epsilon_;
+            return elementInfos->getPermittivity();
         },
         "epsilon");
 }

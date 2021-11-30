@@ -41,10 +41,6 @@
 
 #include "Logger.h"
 namespace hpgem {
-namespace LinearAlgebra {
-template <std::size_t DIM>
-class SmallVector;
-}
 
 namespace Geometry {
 template <std::size_t DIM>

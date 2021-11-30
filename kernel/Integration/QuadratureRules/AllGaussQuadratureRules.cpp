@@ -46,6 +46,7 @@
 #include "GaussQuadratureRulesForTetrahedron.h"
 #include "GaussQuadratureRulesForTriangle.h"
 #include "GaussQuadratureRulesForTriangularPrism.h"
+#include "Geometry/ReferenceCurvilinearElement.h"
 
 #include "Geometry/ReferenceGeometry.h"
 
@@ -124,7 +125,7 @@ AllGaussQuadratureRules& AllGaussQuadratureRules::instance() {
 void AllGaussQuadratureRules::addRule(GaussQuadratureRule* rule) {
     logger.assert_debug(rule != nullptr, "Invalid quadrature rule added");
     std::vector<GaussQuadratureRule*>& listForGeometry =
-        listOfRules_[rule->forReferenceGeometry()];
+        listOfRules_[rule->forReferenceGeometry()->getGeometryType()];
     std::vector<GaussQuadratureRule*>::iterator it = listForGeometry.begin();
     while (it != listForGeometry.end()) {
         if ((*it)->order() < rule->order())
@@ -137,7 +138,16 @@ void AllGaussQuadratureRules::addRule(GaussQuadratureRule* rule) {
 
 GaussQuadratureRule* AllGaussQuadratureRules::getRule(
     const Geometry::ReferenceGeometry* referenceGeometry, std::size_t order) {
-    for (GaussQuadratureRule* rule : listOfRules_[referenceGeometry]) {
+    auto* curvilinear =
+        dynamic_cast<const Geometry::ReferenceCurvilinearElementBase*>(
+            referenceGeometry);
+    // p-th order curvilinear element has a boundary that is accurate to order
+    // h^{p+1}. Hence, use at least order p+1 for integration.
+    if (curvilinear != nullptr) {
+        order = std::max(order, curvilinear->getOrder() + 1);
+    }
+    for (GaussQuadratureRule* rule :
+         listOfRules_[referenceGeometry->getGeometryType()]) {
         if (rule->order() >= order) {
             return rule;
         }

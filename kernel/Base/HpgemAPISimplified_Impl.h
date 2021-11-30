@@ -860,6 +860,11 @@ void HpgemAPISimplified<DIM>::computeOneTimeStep(
     time += dt;
 }
 
+template <std::size_t DIM>
+void HpgemAPISimplified<DIM>::setOutputFileName(std::string outputFileName) {
+    outputFileName_ = outputFileName;
+}
+
 /// \param[in] outputFileName Name of the output file (minus extensions like
 /// .dat). \param[in] internalFileTitle Title of the file as used by Tecplot
 /// internally. \param[in] solutionTitle Title of the solution. \param[in]

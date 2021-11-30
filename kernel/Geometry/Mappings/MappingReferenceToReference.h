@@ -101,6 +101,27 @@ class MappingReferenceToReference : public MappingInterface<codim> {
     //    std::map<const PointReference*, const PointReference*>
     //    transformedCoordinates;
 };
+
+/**
+ * Specialized mapping between a boundary face and the element that it is
+ * bounding. For such a mapping we have that one side corresponds to the inside
+ * and one to the outside.
+ */
+class BoundaryFaceMapping : public MappingReferenceToReference<1> {
+   public:
+    constexpr BoundaryFaceMapping(double normalSign)
+        : normalSign_(normalSign){};
+
+    /// The normal of the face can either point inward or outward. The direction
+    /// of the normal computed by taking the wedgestuff factor of the Jacobian
+    /// can be either one of those. This function gives 1 if the normal is the
+    /// outward normal and -1 if it is the inward one.
+    constexpr double outwardNormalSign() const { return normalSign_; }
+
+   private:
+    const double normalSign_;
+};
+
 }  // namespace Geometry
 }  // namespace hpgem
 
