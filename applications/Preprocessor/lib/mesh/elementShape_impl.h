@@ -60,7 +60,8 @@ auto ElementShape<dimension>::getBoundaryShape(std::size_t entityIndex) const
                         "%, but you asked for shape %",
                         getNumberOfEntities<entityDimension>(), entityDimension,
                         entityIndex);
-    return shapeParts.template get<entityDimension>()[entityIndex].getShape();
+    return shapeParts.template get<entityDimension>()[entityIndex]
+        .getReferenceGeometry();
 }
 
 template <std::size_t dimension>

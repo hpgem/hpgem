@@ -35,62 +35,33 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_APP_MESHPREDECLARATIONS_H
-#define HPGEM_APP_MESHPREDECLARATIONS_H
+#ifndef HPGEM_BOUNDARYFUNCTION_H
+#define HPGEM_BOUNDARYFUNCTION_H
 
-#include "idtypes.h"
-#include "elementShape.h"
-#include "ElementShapes.h"
-#include "utils/tag.h"
-#include "utils/TemplateArray.h"
+#include "BoundaryConditionType.h"
 
-#include "LinearAlgebra/SmallVector.h"
+#include <LinearAlgebra/SmallVector.h>
+#include <Base/PhysicalFace.h>
 
-#include <array>
-#include <limits>
-#include <memory>
-#include <vector>
+namespace DGMax {
 
-// FILE STRUCTURE //
-////////////////////
-//
-// The mesh is a combination of several intertwined classes. This design is
-// complicated by that most of these classes are templated by at least the
-// dimension of the mesh, thus preventing the natural header and implementation
-// file separation.
-//
-// To structure these classes they have been split into several separated header
-// files located in the MeshImpl folder. This header takes these smaller parts
-// and combines them into a definition of the mesh for use.
-//
-// The structure in this file is as follows:
-//  - Includes needed for both definition and implementation
-//  - Predeclarations of the classes to facilitate the definitions and as hint
-//    of the interface provided.
-//  - Includes of definition files
-//  - Includes of the implementation files
+template <std::size_t DIM>
+class BoundaryFunction {
+   public:
+    /**
+     * @param face The face, with point, for which to evaluate the boundary
+     * function.
+     * @return The value
+     */
+    virtual LinearAlgebra::SmallVector<DIM> value(
+        hpgem::Base::PhysicalFace<DIM>& face) const = 0;
+    /**
+     * @return The type of boundary condition that this should be used for. For
+     * example, only use this as part of a Dichlet boundary condition.
+     */
+    virtual BoundaryConditionType getType() const = 0;
+};
 
-namespace Preprocessor {
+}  // namespace DGMax
 
-template <std::size_t dimension, std::size_t gridDimension>
-class MeshEntity;
-
-template <std::size_t dimension>
-class Element;
-
-template <std::size_t dimension>
-class Mesh;
-
-}  // namespace Preprocessor
-
-// Definitions
-#include "MeshImpl/MeshEntity.h"
-#include "MeshImpl/Element.h"
-#include "MeshImpl/Mesh.h"
-
-// Implementations
-#include "MeshImpl/MeshEntity_Impl.h"
-#include "MeshImpl/Element_Impl.h"
-#include "MeshImpl/Mesh_Impl.h"
-
-#endif  // HPGEM_MESHPREDECLARATIONS_H
+#endif  // HPGEM_BOUNDARYFUNCTION_H
