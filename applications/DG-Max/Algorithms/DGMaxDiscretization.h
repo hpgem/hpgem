@@ -57,6 +57,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Output/VTKSpecificTimeWriter.h"
 
 #include "ProblemTypes/BoundaryConditionType.h"
+#include "Material.h"
 
 using namespace hpgem;
 
@@ -111,11 +112,11 @@ class DGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
         const PointPhysicalT&, double)>;
 
     struct Fields {
-        Fields() : electricField(), electricFieldCurl(), permittivity(0.0){};
+        Fields() : electricField(), electricFieldCurl(), material(){};
 
         LinearAlgebra::SmallVectorC<DIM> electricField;
         LinearAlgebra::SmallVectorC<DIM> electricFieldCurl;
-        double permittivity;
+        DGMax::Material material;
     };
 
     DGMaxDiscretization(std::size_t order, double stab,

@@ -44,6 +44,7 @@ namespace DGMax {
 
 class Material {
    public:
+    constexpr Material() noexcept : permittivity_(1.0), permeability_(1.0){};
     constexpr Material(double permittivity, double permeability = 1.0) noexcept
         : permittivity_(permittivity), permeability_(permeability) {}
 

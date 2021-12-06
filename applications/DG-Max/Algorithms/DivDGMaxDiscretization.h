@@ -55,6 +55,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Output/VTKSpecificTimeWriter.h"
 
 #include "ProblemTypes/BoundaryConditionType.h"
+#include "Material.h"
 
 // Forward definitions
 namespace hpgem {
@@ -130,7 +131,7 @@ class DivDGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
             : electricField(),
               electricFieldCurl(),
               potential(0),
-              permittivity(0){};
+              material() {};
 
         // The electric field
         LinearAlgebra::SmallVectorC<DIM> electricField;
@@ -139,8 +140,8 @@ class DivDGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
         LinearAlgebra::SmallVectorC<DIM> electricFieldCurl;
         // Complex valued p scalar function;
         std::complex<double> potential;
-        // Relative permittivity
-        double permittivity;
+        // Material constants
+        DGMax::Material material;
     };
 
     // See notes in DGMaxDiscretization

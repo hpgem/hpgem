@@ -279,7 +279,7 @@ typename DivDGMaxDiscretization<DIM>::Fields
     auto* userData = element->getUserData();
     auto* elementInfo = dynamic_cast<ElementInfos*>(userData);
     logger.assert_debug(elementInfo != nullptr, "No material information");
-    result.permittivity = elementInfo->getPermittivity();
+    result.material = elementInfo->getMaterial();
 
     // Actual value computation
     // Compute field part
@@ -350,14 +350,17 @@ void DivDGMaxDiscretization<DIM>::writeFields(
         // S = 1/2 Re(E x H^*)
         //   = -1/(2 omega mu) Im(E x Curl E)
         // Using i omega mu H = Curl E
-        return -0.5 * LinearAlgebra::leftDoubledCrossProduct(
-                          fields.electricField, fields.electricFieldCurl.conj())
-                          .imag();
+        return -0.5 *
+               LinearAlgebra::leftDoubledCrossProduct(
+                   fields.electricField, fields.electricFieldCurl.conj())
+                   .imag() /
+               fields.material.getPermeability();
     };
     scalars["Energy"] = [](Fields& fields) {
         // u = 1/2(epsilon |E|^2 + mu |H|^2)
         //   = epsilon |E|^2 (via curl-curl relation)
-        return fields.permittivity * fields.electricField.l2NormSquared();
+        return fields.material.getPermittivity() *
+               fields.electricField.l2NormSquared();
     };
 
     output.template writeMultiple<Fields>(
