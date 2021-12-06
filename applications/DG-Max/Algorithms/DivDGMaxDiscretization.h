@@ -128,10 +128,7 @@ class DivDGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
     struct Fields {
 
         Fields()
-            : electricField(),
-              electricFieldCurl(),
-              potential(0),
-              material() {};
+            : electricField(), electricFieldCurl(), potential(0), material(){};
 
         // The electric field
         LinearAlgebra::SmallVectorC<DIM> electricField;

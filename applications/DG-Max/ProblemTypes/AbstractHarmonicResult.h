@@ -66,8 +66,8 @@ class AbstractHarmonicResult {
      * @see AbstractDiscretization#computeEnergyFlux for more information about
      * the computational aspects.
      */
-    virtual double computeEnergyFlux(Base::Face& face,
-                                     hpgem::Base::Side side, double wavenumber) = 0;
+    virtual double computeEnergyFlux(Base::Face& face, hpgem::Base::Side side,
+                                     double wavenumber) = 0;
 };
 
 }  // namespace DGMax

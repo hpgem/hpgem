@@ -424,7 +424,7 @@ class GSmallVector {
 
     GSmallVector conj() const {
         GSmallVector res;
-        for(std::size_t i = 0; i < numberOfRows; ++i) {
+        for (std::size_t i = 0; i < numberOfRows; ++i) {
             res.data_[i] = Detail::conj(data_[i]);
         }
         return res;

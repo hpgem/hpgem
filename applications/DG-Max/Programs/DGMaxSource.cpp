@@ -186,6 +186,7 @@ class TestingProblem : public HarmonicProblem<dim> {
 template <std::size_t dim>
 class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
     static const constexpr std::size_t NUMBER_OF_PROBLEMS = 400;
+
    public:
     Driver(Base::MeshManipulator<dim>& mesh)
         : mesh_(&mesh), problem_(), nextCalled_(0) {
@@ -202,7 +203,8 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
 
     void nextProblem() override {
         nextCalled_++;
-        problem_ = std::make_shared<TestingProblem<dim>>(0.01 + 0.0001 * nextCalled_);
+        problem_ =
+            std::make_shared<TestingProblem<dim>>(0.01 + 0.0001 * nextCalled_);
     }
 
     const HarmonicProblem<dim>& currentProblem() const override {
