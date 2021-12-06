@@ -676,10 +676,8 @@ double DGMaxDiscretization<DIM>::computeEnergyFlux(
 
     double factor = face.isInternal() ? 0.5 : 1.0;
 
-    double localStab = stab_ / face.getDiameter();
     double flux = faceIntegrator_.integrate(
-        &face, [&coefficients, &side, &leftDoFs, &localStab,
-                &factor](Base::PhysicalFace<DIM>& pface) {
+        &face, [&coefficients, &factor](Base::PhysicalFace<DIM>& pface) {
             // Average curl of the field
             VecC avgCurl;
             // n cross E for the two sides

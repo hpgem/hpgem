@@ -401,10 +401,9 @@ double DivDGMaxDiscretization<DIM>::computeEnergyFlux(
 
     double factor = face.isInternal() ? 0.5 : 1.0;
 
-    double localStab = stab_.stab1 / face.getDiameter();
     double flux = faceIntegrator_.integrate(
-        &face, [&coefficients, &side, &dofInfo, &localStab,
-                &factor](Base::PhysicalFace<DIM>& pface) {
+        &face,
+        [&coefficients, &dofInfo, &factor](Base::PhysicalFace<DIM>& pface) {
             VecC avgCurl;
             VecC avgField;
             LinearAlgebra::SmallVector<DIM> phi;
