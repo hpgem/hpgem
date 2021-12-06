@@ -397,6 +397,7 @@ double DivDGMaxDiscretization<DIM>::computeEnergyFlux(
     auto dofInfo = getFaceDoFInfo(face);
 
     double factor = face.isInternal() ? 0.5 : 1.0;
+
     double localStab = stab_.stab1 / face.getDiameter();
     double flux = faceIntegrator_.integrate(
         &face, [&coefficients, &side, &dofInfo, &localStab,
@@ -419,7 +420,10 @@ double DivDGMaxDiscretization<DIM>::computeEnergyFlux(
     if (side == hpgem::Base::Side::RIGHT) {
         flux *= -1.0;
     }
-    return flux / wavenumber;
+    auto infos =
+        dynamic_cast<ElementInfos*>(face.getPtrElement(side)->getUserData());
+    logger.assert_debug(infos != nullptr, "No material information");
+    return flux / (wavenumber * infos->getPermeability());
 }
 
 template <std::size_t DIM>

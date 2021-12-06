@@ -185,7 +185,7 @@ class [[maybe_unused]] PlaneWaveProblem : public SampleHarmonicProblem<dim> {
         //  = 1/omega Im(E x 1/mu Curl E*)
         auto field = exactSolution(point);
         auto curlFieldConj = exactSolutionCurl(point).conj();
-        return 1 / omega_ *
+        return 1 / (omega_ * material_.getPermeability()) *
                LinearAlgebra::leftDoubledCrossProduct(field, curlFieldConj).imag();
     }
 

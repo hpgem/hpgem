@@ -699,7 +699,10 @@ double DGMaxDiscretization<DIM>::computeEnergyFlux(
     if (side == hpgem::Base::Side::RIGHT) {
         flux *= -1.0;
     }
-    return flux / wavenumber;
+    auto infos =
+        dynamic_cast<ElementInfos*>(face.getPtrElement(side)->getUserData());
+    logger.assert_debug(infos != nullptr, "No material information");
+    return flux / (wavenumber * infos->getPermeability());
 }
 
 // TODO: The code saves snapshots in the timeIntegrationVector, this is not
