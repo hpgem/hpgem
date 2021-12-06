@@ -153,11 +153,6 @@ void Mesh<dimension>::addElement(std::vector<CoordId> nodeCoordinateIDs,
     }
     elementsList.push_back(newElement);
     meshEntities.template get<dimension>().push_back(newElement);
-    for (std::size_t i = 0; i < nodeCoordinateIDs.size(); ++i) {
-        auto coordinateID = nodeCoordinateIDs[i];
-        EntityGId nodeID = coordinates[coordinateID.id].nodeIndex;
-        meshEntities.template get<0>()[nodeID.id].addElement(elementID, i);
-    }
     fixElement(elementsList.back(), tag<dimension - 1>{});
 }
 
@@ -234,8 +229,69 @@ void Mesh<dimension>::fixEntity(Element<dimension>& element,
     EntityGId entityIndex =
         (candidates.size() == 1 ? candidates[0] : newEntity<d>());
     element.template addEntity<d>(entityIndex);
-    meshEntities.template get<d>()[entityIndex.id].addElement(
-        element.getGlobalIndex(), index);
+}
+
+template <std::size_t dimension>
+template <int d>
+void Mesh<dimension>::removeUnusedEntities(itag<d> dimTag) {
+    // Fill renumbering with invalid data
+    std::size_t currentCount = this->meshEntities[dimTag].size();
+    std::vector<EntityGId> renumbering(currentCount, EntityGId(-1));
+    EntityGId newId = EntityGId(0);
+
+    // The current simple strategy is to keep the order of the MeshEntities and
+    // just remove the unused ones. Thus, after removing at least one entity,
+    // all the subsequent entities need to be moved resulting in that the global
+    // index needs to be updated.
+    //
+    // A more optimal implementation would use the entries at the end of the
+    // vector to fill the gaps, thereby reducing the number of entities that
+    // need to be moved and renumbered.
+    bool hasRemoved = false;
+    for (std::size_t i = 0; i < currentCount; ++i) {
+        MeshEntity<d, dimension>& entity = meshEntities[dimTag][i];
+        if (entity.getNumberOfElements() > 0) {
+            // Renumber
+            renumbering[i] = newId;
+            entity.entityID = newId;
+            if (hasRemoved) {
+                // Not only do we need to update the id, we also need to move
+                // the entity to the corresponding location.
+                meshEntities[dimTag][newId.id] = entity;
+            }
+            newId++;
+        } else {
+            hasRemoved = true;
+        }
+    }
+
+    if (hasRemoved) {
+        meshEntities[dimTag].resize(newId.id);
+
+        for (Element<dimension>& element : elementsList) {
+            element.renumberEntities(d, renumbering);
+        }
+
+        if (d == 0) {
+            // For nodes we also need to remap the coordinate->node mapping
+            for (coordinateData& coord : getNodeCoordinates()) {
+                coord.nodeIndex = renumbering[coord.nodeIndex.id];
+            }
+        }
+    }
+
+    removeUnusedEntities(itag<d - 1>{});
+}
+
+template <std::size_t dimension>
+template <int d>
+inline std::size_t Mesh<dimension>::getNumberOfEntities(
+    std::size_t entityDimension, itag<d> dimtag) const {
+    if (entityDimension == d) {
+        return meshEntities[dimtag].size();
+    } else {
+        return getNumberOfEntities(entityDimension, itag<d - 1>{});
+    }
 }
 
 template <std::size_t dimension>

@@ -112,6 +112,17 @@ class Element : public MeshEntity<dim, dim> {
     using MeshEntity<dim, dim>::getIncidenceList;
     using MeshEntity<dim, dim>::getIncidenceListAsIndices;
 
+    /// Get the global index of the i-th MeshEntity of dimension d.
+    ///
+    /// Equivalent to get getIncidenceListAsIndices()[index] but much more
+    /// efficient.
+    ///
+    /// \tparam d The dimension of the MeshEntity
+    /// \param index The local index of the MeshEntity
+    /// \return The corresponding global index.
+    template <std::size_t d>
+    EntityGId getIncidentEntityIndex(EntityLId index) const;
+
     /// \brief For a MeshEntity on the boundary of this Element, compute the
     /// MeshEntity-s that are shared with this element.
     ///
@@ -152,6 +163,13 @@ class Element : public MeshEntity<dim, dim> {
 
     size_t getZoneId() const { return zoneId; }
 
+    void renumberEntities(std::size_t entityDimension,
+                          const std::vector<EntityGId>& renumbering);
+
+    const ElementShape<dim>* getReferenceGeometry() const {
+        return referenceGeometry;
+    }
+
    private:
     friend Mesh<dim>;
     Element(Mesh<dim>* mesh, EntityGId elementID, std::size_t zoneId)
@@ -164,6 +182,10 @@ class Element : public MeshEntity<dim, dim> {
     /// \param coordinateIndex The global index of the coordinate for the node.
     void addNode(EntityGId globalNodeIndex, CoordId coordinateIndex);
 
+    /// Add a MeshEntity on the boundary of this Element.
+    ///
+    /// @tparam d The dimension of the boundary MeshEntity
+    /// @param globalIndex The globalIndex of the boundary MeshEntity
     template <std::size_t d>
     std::enable_if_t<(d > 0)> addEntity(EntityGId globalIndex);
 

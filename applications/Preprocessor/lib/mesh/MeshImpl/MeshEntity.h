@@ -158,6 +158,32 @@ class MeshEntity {
             getIncidenceListAsIndices<(d < 0 ? d + meshDimension : d)>()[i]);
     }
 
+    /// Merges another MeshEntity into this one.
+    ///
+    /// This merges two entities of the same dimension into one. The current
+    /// entity will take over all boundary connections from the source, and
+    /// leaving the source one unused. For 0-dimensional entities the
+    /// coordinate association will be updated as well.
+    ///
+    /// NOTE: For a merge to be valid it is required that
+    ///   - They have the same shape
+    ///   - The boundary shapes (e.g. Nodes & Edges of a Face) are the same
+    ///   - The boundary shapes form the same topology according to the
+    ///     neighbouring elements.
+    /// To remove the now unused entities one should call
+    /// Mesh#removeUnusedEntities();
+    ///
+    /// \param source The id of the entity to merge
+    void merge(EntityGId source) {
+        merge(mesh->template getEntity<entityDimension>(source));
+    }
+
+    /// Merges another MeshEntity into this one
+    /// \see merge(EntityGId)
+    void merge(MeshEntity<entityDimension, meshDimension>& source) {
+        merge(source, tag<entityDimension>{});
+    }
+
     const Mesh<meshDimension>* getMesh() const { return mesh; }
 
     bool operator==(const MeshEntity&) const;
@@ -165,15 +191,40 @@ class MeshEntity {
 
    protected:
     friend Mesh<meshDimension>;
+
+    // Friends that are needed to keep the bidirectional link up to date and as
+    // Element is a child class we can't reference its members
+    friend class Element<meshDimension>;
+
     MeshEntity(Mesh<meshDimension>* mesh, EntityGId entityID)
         : mesh(mesh), entityID(entityID) {}
 
-    /// Add an element that is this MeshEntity is part of
+    /// Function for Element to add itself when updating its link to this
+    /// MeshEntity.
     ///
     /// \param elementID The entityID of the element
     /// \param localEntityIndex The localIndex of this MeshEntity for the
     /// element.
-    void addElement(EntityGId elementID, EntityLId EntityLId);
+    void addElement(EntityGId elementID, EntityLId localEntityIndex);
+
+    /// Function for Element to remove itself when updating its link to this
+    /// MeshEntity.
+    ///
+    /// \param elementId The id of the element to remove
+    /// \param localEntityIndex The local index on the element of this
+    /// MeshEntity (before removal).
+    void removeElement(EntityGId elementId, EntityLId localEntityIndex);
+
+    // Actual implementation of merge depends on the dimension of the
+    // MeshEntity, with the zero dimensional one being slightly different due to
+    // having to deal with coordinates. Partial template specialization is not
+    // possible with member functions, this pair of functions is a poor man's
+    // substitute preventing having to specialize the whole class for just this
+    // function.
+    template <std::size_t d>
+    std::enable_if_t<d == entityDimension> merge(
+        MeshEntity<entityDimension, meshDimension>& source, tag<d>);
+    void merge(MeshEntity<entityDimension, meshDimension>& source, tag<0>);
 
     Mesh<meshDimension>* mesh;
     /// The id of this MeshEntity

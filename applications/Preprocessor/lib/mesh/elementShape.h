@@ -102,7 +102,9 @@ class ElementShapePart {
     };
     ElementShapePart() = default;
 
-    const ElementShape<partDimension>* getShape() const { return shape; }
+    const ElementShape<partDimension>* getReferenceGeometry() const {
+        return shape;
+    }
 
     std::vector<std::size_t>& getAdjacentShapes(std::size_t targetDimension) {
         logger.assert_debug(targetDimension <= dimension,
