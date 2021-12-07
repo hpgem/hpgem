@@ -247,7 +247,9 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
             "source");
 
         // Compute fluxes
-        std::array<double,2> inOutFlux = {0.0, 0.0};
+
+        // Fluxes are stored in an array to allow easier MPIReduce
+        std::array<double, 2> inOutFlux = {0.0, 0.0};
         for (Base::Face* face : mesh_->getFacesList()) {
             if (face->isOwnedByCurrentProcessor() && !face->isInternal()) {
                 double flux = result.computeEnergyFlux(*face, Base::Side::LEFT,
