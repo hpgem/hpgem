@@ -46,13 +46,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace DGMax {
 
+/// A plane wave E0 exp(ik.x) (with E0 . k == 0)
+///
+/// Note: This is just a field profile, it is not associated with a material or
+/// frequency.
+///
+/// \tparam dim The dimension of the domain (2 or 3)
 template <std::size_t dim>
 class PlaneWave {
    public:
     PlaneWave(LinearAlgebra::SmallVector<dim> k,
-              LinearAlgebra::SmallVectorC<dim> E0, DGMax::Material material,
-              double phase)
-        : k_(k), E0_(E0), material_(material), phase_(phase) {
+              LinearAlgebra::SmallVectorC<dim> E0, double phase)
+        : k_(k), E0_(E0), phase_(phase) {
 
         logger.assert_debug(
             std::abs(E0 * k) <= 1e-8 * (k.l2Norm() * E0.l2Norm()),
@@ -65,11 +70,7 @@ class PlaneWave {
                                   DGMax::Material material, double phase) {
         // Set the length of the wave vector to be on dispersion relation
         khat *= omega * material.getRefractiveIndex() / khat.l2Norm();
-        return PlaneWave(khat, E0, material, phase);
-    }
-
-    double omega() const {
-        return k_.l2Norm() / material_.getRefractiveIndex();
+        return PlaneWave(khat, E0, phase);
     }
 
     LinearAlgebra::SmallVectorC<dim> field(
@@ -86,6 +87,8 @@ class PlaneWave {
         return kc.crossProduct(E0_) * (1i * phaseFactor(p));
     }
 
+    const LinearAlgebra::SmallVector<dim>& waveVector() const { return k_; }
+
    private:
     std::complex<double> phaseFactor(
         const Geometry::PointPhysical<dim>& p) const {
@@ -95,7 +98,6 @@ class PlaneWave {
 
     LinearAlgebra::SmallVector<dim> k_;
     LinearAlgebra::SmallVectorC<dim> E0_;
-    DGMax::Material material_;
     double phase_;
 };
 
