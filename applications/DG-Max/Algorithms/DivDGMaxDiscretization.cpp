@@ -276,6 +276,11 @@ typename DivDGMaxDiscretization<DIM>::Fields
     Geometry::PointPhysical<DIM> pointPhysical;
     pointPhysical = element->referenceToPhysical(point);
 
+    auto* userData = element->getUserData();
+    auto* elementInfo = dynamic_cast<ElementInfos*>(userData);
+    logger.assert_debug(elementInfo != nullptr, "No material information");
+    result.material = elementInfo->getMaterial();
+
     // Actual value computation
     // Compute field part
     for (std::size_t i = 0; i < nPhiU; ++i) {
@@ -328,18 +333,34 @@ void DivDGMaxDiscretization<DIM>::writeFields(
     std::map<std::string, std::function<VecR(Fields&)>> vectors;
 
     // 4 parts of the field
-    vectors["Ereal"] = [](Fields& fields) {
+    vectors["E-real"] = [](Fields& fields) {
         return fields.electricField.real();
     };
-    vectors["Eimag"] = [](Fields& fields) {
+    vectors["E-imag"] = [](Fields& fields) {
         return fields.electricField.imag();
     };
-    scalars["preal"] = [](Fields& fields) { return fields.potential.real(); };
-    scalars["pimag"] = [](Fields& fields) { return fields.potential.imag(); };
+    scalars["p-real"] = [](Fields& fields) { return fields.potential.real(); };
+    scalars["p-imag"] = [](Fields& fields) { return fields.potential.imag(); };
 
     // Derived quantities
     scalars["Emag"] = [](Fields& fields) {
         return fields.electricField.l2Norm();
+    };
+    vectors["S-kappa-real"] = [](Fields& fields) {
+        // S = 1/2 Re(E x H^*)
+        //   = -1/(2 omega mu) Im(E x Curl E)
+        // Using i omega mu H = Curl E
+        return -0.5 *
+               LinearAlgebra::leftDoubledCrossProduct(
+                   fields.electricField, fields.electricFieldCurl.conj())
+                   .imag() /
+               fields.material.getPermeability();
+    };
+    scalars["Energy"] = [](Fields& fields) {
+        // u = 1/2(epsilon |E|^2 + mu |H|^2)
+        //   = epsilon |E|^2 (via curl-curl relation)
+        return fields.material.getPermittivity() *
+               fields.electricField.l2NormSquared();
     };
 
     output.template writeMultiple<Fields>(
@@ -365,6 +386,46 @@ void DivDGMaxDiscretization<DIM>::writeFields(
             }
         },
         "epsilon");
+}
+
+template <std::size_t DIM>
+double DivDGMaxDiscretization<DIM>::computeEnergyFlux(
+    Base::Face& face, hpgem::Base::Side side, double wavenumber,
+    std::size_t timeIntegrationVectorId) {
+
+    using VecC = LinearAlgebra::SmallVectorC<DIM>;
+
+    const auto& coefficients =
+        face.getTimeIntegrationVector(timeIntegrationVectorId);
+    auto dofInfo = getFaceDoFInfo(face);
+
+    double factor = face.isInternal() ? 0.5 : 1.0;
+
+    double flux = faceIntegrator_.integrate(
+        &face,
+        [&coefficients, &dofInfo, &factor](Base::PhysicalFace<DIM>& pface) {
+            VecC avgCurl;
+            VecC avgField;
+            LinearAlgebra::SmallVector<DIM> phi;
+            VecC normal = pface.getUnitNormalVector();
+            std::size_t leftDoFs = dofInfo.leftUDoFs + dofInfo.leftPDoFs;
+            for (std::size_t i = 0; i < dofInfo.totalUDoFs(); ++i) {
+                const auto& coefficient = i < dofInfo.leftUDoFs
+                                              ? coefficients[i]
+                                              : coefficients[i + leftDoFs];
+                avgCurl += factor * coefficient * pface.basisFunctionCurl(i, 0);
+                pface.basisFunction(i, phi, 0);
+                avgField += factor * coefficient * normal.crossProduct(phi);
+            }
+            return (avgField * avgCurl).imag();
+        });
+    if (side == hpgem::Base::Side::RIGHT) {
+        flux *= -1.0;
+    }
+    auto infos =
+        dynamic_cast<ElementInfos*>(face.getPtrElement(side)->getUserData());
+    logger.assert_debug(infos != nullptr, "No material information");
+    return flux / (wavenumber * infos->getPermeability());
 }
 
 template <std::size_t DIM>

@@ -87,8 +87,8 @@ inline void convert(const std::complex<T>& in, T& out) {
     out = in.real();
 }
 
-inline double conj(double v) { return v; }
-inline std::complex<double> conj(std::complex<double> v) {
+inline double conj(const double& v) { return v; }
+inline std::complex<double> conj(const std::complex<double>& v) {
     return std::conj(v);
 }
 
@@ -422,6 +422,14 @@ class GSmallVector {
         return res;
     }
 
+    GSmallVector conj() const {
+        GSmallVector res;
+        for (std::size_t i = 0; i < numberOfRows; ++i) {
+            res.data_[i] = Detail::conj(data_[i]);
+        }
+        return res;
+    }
+
    private:
     std::array<EntryT, numberOfRows> data_;
 };
@@ -445,6 +453,24 @@ GSmallVector<numberOfRows, std::complex<EntryT>> operator*(
     const double& left,
     const GSmallVector<numberOfRows, std::complex<EntryT>> right) {
     return std::complex<EntryT>(left) * right;
+}
+
+/// 2D cross product for the double cross product of the form
+/// A x (B x C) with left = A, right = B x C (possibly B = nabla)
+/// Needed due to storing the cross product as 'x' entry
+template <typename EntryT>
+GSmallVector<2, EntryT> leftDoubledCrossProduct(
+    const GSmallVector<2, EntryT>& left, const GSmallVector<2, EntryT>& right) {
+    GSmallVector<2, EntryT> result;
+    result[0] = left[1] * right[0];
+    result[1] = -left[0] * right[0];
+    return result;
+}
+template <std::size_t numberOfRows, typename EntryT>
+GSmallVector<numberOfRows, EntryT> leftDoubledCrossProduct(
+    const GSmallVector<numberOfRows, EntryT>& left,
+    const GSmallVector<numberOfRows, EntryT>& right) {
+    return left.crossProduct(right);
 }
 
 template <std::size_t numberOfRows, typename EntryT>

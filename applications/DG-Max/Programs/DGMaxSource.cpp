@@ -38,6 +38,7 @@
 
 #include <chrono>
 #include <exception>
+#include <iomanip>
 #include <Base/CommandLineOptions.h>
 #include <Base/MeshFileInformation.h>
 #include <Output/VTKSpecificTimeWriter.h>
@@ -184,14 +185,29 @@ class TestingProblem : public HarmonicProblem<dim> {
 
 template <std::size_t dim>
 class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
+    static const constexpr std::size_t NUMBER_OF_PROBLEMS = 10;
+
    public:
     Driver(Base::MeshManipulator<dim>& mesh)
-        : mesh_(&mesh), problem_(), nextCalled_(0){};
+        : mesh_(&mesh), problem_(), nextCalled_(0) {
 
-    bool stop() const override { return nextCalled_ == 5; }
+        if (Base::MPIContainer::Instance().getProcessorID() == 0) {
+            outfile.open("harmonic.csv");
+            logger.assert_always(outfile.good(), "Opening output file failed");
+            outfile << "wavenumber,outflux,influx" << std::endl;
+        }
+    };
+
+    bool stop() const override { return nextCalled_ == NUMBER_OF_PROBLEMS; }
+
+    size_t getExpectedNumberOfProblems() const override {
+        return NUMBER_OF_PROBLEMS;
+    }
+
     void nextProblem() override {
         nextCalled_++;
-        problem_ = std::make_shared<TestingProblem<dim>>(0.01 * nextCalled_);
+        problem_ =
+            std::make_shared<TestingProblem<dim>>(0.01 + 0.0001 * nextCalled_);
     }
 
     const HarmonicProblem<dim>& currentProblem() const override {
@@ -230,6 +246,38 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
             },
             "source");
 
+        // Compute fluxes
+
+        // Fluxes are stored in an array to allow easier MPIReduce
+        std::array<double, 2> inOutFlux = {0.0, 0.0};
+        for (Base::Face* face : mesh_->getFacesList()) {
+            if (face->isOwnedByCurrentProcessor() && !face->isInternal()) {
+                double flux = result.computeEnergyFlux(*face, Base::Side::LEFT,
+                                                       problem_->omega());
+                auto normal = face->getNormalVector(
+                    face->getReferenceGeometry()
+                        ->getCenter()
+                        .template castDimension<dim - 1>());
+                if (flux < 0) {
+                    inOutFlux[0] += flux;
+                } else {
+                    inOutFlux[1] += flux;
+                }
+            }
+        }
+
+        Base::MPIContainer::Instance().reduce(inOutFlux, MPI_SUM);
+
+        if (Base::MPIContainer::Instance().getProcessorID() == 0) {
+            double influx = inOutFlux[0], outflux = inOutFlux[1];
+
+            DGMaxLogger(INFO, "Flux balance: out % - in % = %", outflux,
+                        -influx, outflux + influx);
+            outfile << std::setprecision(16);
+            outfile << problem_->omega() << "," << outflux << "," << influx
+                    << std::endl;
+        }
+
         auto* eproblem =
             dynamic_cast<ExactHarmonicProblem<dim>*>(problem_.get());
         if (eproblem != nullptr) {
@@ -260,6 +308,7 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
    private:
     Base::MeshManipulator<dim>* mesh_;
     std::shared_ptr<HarmonicProblem<dim>> problem_;
+    std::ofstream outfile;
     int nextCalled_;
 };
 

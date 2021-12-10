@@ -59,6 +59,15 @@ class AbstractHarmonicResult {
 
     virtual double computeL2Error(
         const ExactHarmonicProblem<dim>& solution) = 0;
+
+    /**
+     * Compute the energy flux through a face from a given side
+     *
+     * @see AbstractDiscretization#computeEnergyFlux for more information about
+     * the computational aspects.
+     */
+    virtual double computeEnergyFlux(Base::Face& face, hpgem::Base::Side side,
+                                     double wavenumber) = 0;
 };
 
 }  // namespace DGMax

@@ -57,6 +57,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Output/VTKSpecificTimeWriter.h"
 
 #include "ProblemTypes/BoundaryConditionType.h"
+#include "Material.h"
 
 using namespace hpgem;
 
@@ -83,8 +84,8 @@ class DGMaxDiscretizationBase : public DGMax::AbstractDiscretizationBase {
         INVERT,
         /**
          * Symmetrically rescale the matrices. The effect is the same as if the
-         * basis functions were orthonormalized with respect to the L2-epsilon
-         * inner product.
+         * basis functions were orthonormalized with respect to the
+         * L2-permitivity inner product.
          *
          * The mass matrix M is factored as LL^H = M. The following
          * transformations are done:
@@ -109,6 +110,14 @@ class DGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
 
     using TimeFunction = std::function<LinearAlgebra::SmallVectorC<DIM>(
         const PointPhysicalT&, double)>;
+
+    struct Fields {
+        Fields() : electricField(), electricFieldCurl(), material(){};
+
+        LinearAlgebra::SmallVectorC<DIM> electricField;
+        LinearAlgebra::SmallVectorC<DIM> electricFieldCurl;
+        DGMax::Material material;
+    };
 
     DGMaxDiscretization(std::size_t order, double stab,
                         bool includeProjector = false);
@@ -155,15 +164,27 @@ class DGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
                             nullptr, {NormType::L2})[NormType::L2];
     }
 
+    Fields computeFields(
+        const Base::Element* element, const Geometry::PointReference<DIM>& p,
+        const LinearAlgebra::MiddleSizeVector& coefficients) const;
+
     LinearAlgebra::SmallVectorC<DIM> computeField(
         const Base::Element* element, const Geometry::PointReference<DIM>& p,
-        const LinearAlgebra::MiddleSizeVector& coefficients) const final;
+        const LinearAlgebra::MiddleSizeVector& coefficients) const final {
+        return computeFields(element, p, coefficients).electricField;
+    }
     LinearAlgebra::SmallVectorC<DIM> computeCurlField(
         const Base::Element* element, const Geometry::PointReference<DIM>& p,
-        const LinearAlgebra::MiddleSizeVector& coefficients) const final;
+        const LinearAlgebra::MiddleSizeVector& coefficients) const final {
+        return computeFields(element, p, coefficients).electricFieldCurl;
+    }
 
     void writeFields(Output::VTKSpecificTimeWriter<DIM>& writer,
                      std::size_t timeIntegrationVectorId) const final;
+
+    double computeEnergyFlux(Base::Face& face, hpgem::Base::Side side,
+                             double wavenumber,
+                             std::size_t timeIntegrationVectorId) final;
 
    private:
     /**

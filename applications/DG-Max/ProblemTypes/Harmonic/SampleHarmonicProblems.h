@@ -177,6 +177,19 @@ class [[maybe_unused]] PlaneWaveProblem : public SampleHarmonicProblem<dim> {
                exactSolution(point);
     }
 
+    LinearAlgebra::SmallVector<dim> localFlux(
+        const Geometry::PointPhysical<dim>& point) {
+        // Poynting vector =
+        //    Re(E x H*)
+        //  = Re(i/omega E x 1/mu Curl E*)
+        //  = 1/omega Im(E x 1/mu Curl E*)
+        auto field = exactSolution(point);
+        auto curlFieldConj = exactSolutionCurl(point).conj();
+        return 1 / (omega_ * material_.getPermeability()) *
+               LinearAlgebra::leftDoubledCrossProduct(field, curlFieldConj)
+                   .imag();
+    }
+
    private:
     std::complex<double> pointPhase(const Geometry::PointPhysical<dim>& point)
         const {

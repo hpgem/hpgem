@@ -55,6 +55,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Output/VTKSpecificTimeWriter.h"
 
 #include "ProblemTypes/BoundaryConditionType.h"
+#include "Material.h"
 
 // Forward definitions
 namespace hpgem {
@@ -123,16 +124,21 @@ template <std::size_t DIM>
 class DivDGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
                                public virtual DivDGMaxDiscretizationBase {
    public:
-    // TODO: static const std::size_t matrix/vector ids
-
     /// Value class for the solution.
     struct Fields {
+
+        Fields()
+            : electricField(), electricFieldCurl(), potential(0), material(){};
+
         // The electric field
         LinearAlgebra::SmallVectorC<DIM> electricField;
-        // Curl of the electric field
+        // Curl of the electric field, corresponds to the H field by
+        // Curl E = i omega mu_r H (omega = the wave number)
         LinearAlgebra::SmallVectorC<DIM> electricFieldCurl;
         // Complex valued p scalar function;
         std::complex<double> potential;
+        // Material constants
+        DGMax::Material material;
     };
 
     // See notes in DGMaxDiscretization
@@ -177,6 +183,10 @@ class DivDGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
 
     void writeFields(Output::VTKSpecificTimeWriter<DIM>& output,
                      std::size_t timeIntegrationVectorId) const final;
+
+    double computeEnergyFlux(Base::Face& face, hpgem::Base::Side side,
+                             double wavenumber,
+                             std::size_t timeIntegrationVectorId) final;
 
    private:
     void computeElementIntegralsImpl(

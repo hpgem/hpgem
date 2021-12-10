@@ -521,9 +521,10 @@ void DGMaxDiscretization<DIM>::faceVector(
 }
 
 template <std::size_t DIM>
-LinearAlgebra::SmallVectorC<DIM> DGMaxDiscretization<DIM>::computeField(
-    const Base::Element* element, const Geometry::PointReference<DIM>& p,
-    const LinearAlgebra::MiddleSizeVector& coefficients) const {
+typename DGMaxDiscretization<DIM>::Fields
+    DGMaxDiscretization<DIM>::computeFields(
+        const Base::Element* element, const Geometry::PointReference<DIM>& p,
+        const LinearAlgebra::MiddleSizeVector& coefficients) const {
     Base::PhysicalElement<DIM> physicalElement;
     physicalElement.setElement(element);
     std::shared_ptr<Base::CoordinateTransformation<DIM>> transform{
@@ -531,31 +532,18 @@ LinearAlgebra::SmallVectorC<DIM> DGMaxDiscretization<DIM>::computeField(
     physicalElement.setTransformation(transform);
     physicalElement.setPointReference(p);
 
-    LinearAlgebra::SmallVectorC<DIM> result;
+    Fields result;
 
     for (std::size_t i = 0; i < element->getNumberOfBasisFunctions(0); ++i) {
         LinearAlgebra::SmallVector<DIM> phi;
         physicalElement.basisFunction(i, phi, 0);
-        result += coefficients[i] * phi;
+        result.electricField += coefficients[i] * phi;
+        result.electricFieldCurl +=
+            coefficients[i] * physicalElement.basisFunctionCurl(i);
     }
-    return result;
-}
-
-template <std::size_t DIM>
-LinearAlgebra::SmallVectorC<DIM> DGMaxDiscretization<DIM>::computeCurlField(
-    const Base::Element* element, const Geometry::PointReference<DIM>& p,
-    const LinearAlgebra::MiddleSizeVector& coefficients) const {
-    Base::PhysicalElement<DIM> physicalElement;
-    physicalElement.setElement(element);
-    std::shared_ptr<Base::CoordinateTransformation<DIM>> transform{
-        new Base::HCurlConformingTransformation<DIM>()};
-    physicalElement.setTransformation(transform);
-    physicalElement.setPointReference(p);
-
-    LinearAlgebra::SmallVectorC<DIM> result;
-    for (std::size_t i = 0; i < element->getNumberOfBasisFunctions(0); ++i) {
-        result += coefficients[i] * physicalElement.basisFunctionCurl(i, 0);
-    }
+    auto* userData = dynamic_cast<ElementInfos*>(element->getUserData());
+    logger.assert_debug(userData != nullptr, "No material information");
+    result.material = userData->getMaterial();
     return result;
 }
 
@@ -564,13 +552,36 @@ void DGMaxDiscretization<DIM>::writeFields(
     Output::VTKSpecificTimeWriter<DIM>& writer,
     std::size_t timeIntegrationVectorId) const {
     using VecR = LinearAlgebra::SmallVector<DIM>;
-    using Fields = LinearAlgebra::SmallVectorC<DIM>;
     std::map<std::string, std::function<double(Fields&)>> scalars;
     std::map<std::string, std::function<VecR(Fields&)>> vectors;
 
-    vectors["Ereal"] = [](Fields& fields) { return fields.real(); };
-    vectors["Eimag"] = [](Fields& fields) { return fields.imag(); };
-    scalars["Emag"] = [](Fields& fields) { return fields.l2Norm(); };
+    vectors["Ereal"] = [](Fields& fields) {
+        return fields.electricField.real();
+    };
+    vectors["Eimag"] = [](Fields& fields) {
+        return fields.electricField.imag();
+    };
+
+    // Derived quantities
+    scalars["Emag"] = [](Fields& fields) {
+        return fields.electricField.l2Norm();
+    };
+    vectors["S-kappa-real"] = [](Fields& fields) {
+        // S = 1/2 Re(E x H^*)
+        //   = -1/(2 omega mu) Im(E x Curl E)
+        // Using i omega mu H = Curl E
+        return -0.5 *
+               LinearAlgebra::leftDoubledCrossProduct(
+                   fields.electricField, fields.electricFieldCurl.conj())
+                   .imag() /
+               fields.material.getPermeability();
+    };
+    scalars["Energy"] = [](Fields& fields) {
+        // u = 1/2(epsilon |E|^2 + mu |H|^2)
+        //   = epsilon |E|^2 (via curl-curl relation)
+        return fields.material.getPermittivity() *
+               fields.electricField.l2NormSquared();
+    };
 
     writer.template writeMultiple<Fields>(
         [this](Base::Element* element,
@@ -588,7 +599,7 @@ void DGMaxDiscretization<DIM>::writeFields(
                         coefficients, hpgem::LinearAlgebra::Side::OP_LEFT,
                         hpgem::LinearAlgebra::Transpose::HERMITIAN_TRANSPOSE);
             }
-            return computeField(element, point, coefficients);
+            return computeFields(element, point, coefficients);
         },
         scalars, vectors);
 
@@ -606,6 +617,93 @@ void DGMaxDiscretization<DIM>::writeFields(
             }
         },
         "epsilon");
+}
+
+template <std::size_t DIM>
+double DGMaxDiscretization<DIM>::computeEnergyFlux(
+    Base::Face& face, hpgem::Base::Side side, double wavenumber,
+    std::size_t timeIntegrationVectorId) {
+
+    using VecC = LinearAlgebra::SmallVectorC<DIM>;
+
+    auto coefficients = face.getTimeIntegrationVector(timeIntegrationVectorId);
+    auto leftDoFs = face.getPtrElementLeft()->getNumberOfBasisFunctions();
+    if (matrixHandling_ == ORTHOGONALIZE) {
+        // We need to undo the orthogonalization
+        // for boundary faces this is easy (see computing of fields). For
+        // internal faces we need to solve the left and right coefficients with
+        // different mass matrices.
+        LinearAlgebra::MiddleSizeVector temp;
+        auto& solveCoefs = face.isInternal() ? temp : coefficients;
+        if (face.isInternal()) {
+            // Copy for the left side
+            temp.resize(leftDoFs);
+            for (int i = 0; i < leftDoFs; ++i) {
+                temp[i] = coefficients[i];
+            }
+        }
+
+        // In place solve
+        face.getPtrElementLeft()
+            ->getElementMatrix(MASS_MATRIX_ID)
+            .solveLowerTriangular(
+                coefficients, hpgem::LinearAlgebra::Side::OP_LEFT,
+                hpgem::LinearAlgebra::Transpose::HERMITIAN_TRANSPOSE);
+
+        if (face.isInternal()) {
+            // Copy updated values back to the coefficient vector
+            for (std::size_t i = 0; i < leftDoFs; ++i) {
+                coefficients[i] = temp[i];
+            }
+
+            // Same process but now for the coefficients on the right side.
+            std::size_t rightDoFs =
+                face.getPtrElementRight()->getNumberOfBasisFunctions();
+            temp.resize(rightDoFs);
+            for (std::size_t i = 0; i < rightDoFs; ++i) {
+                temp[i] = coefficients[i + rightDoFs];
+            }
+            face.getPtrElementRight()
+                ->getElementMatrix(MASS_MATRIX_ID)
+                .solveLowerTriangular(
+                    temp, hpgem::LinearAlgebra::Side::OP_LEFT,
+                    hpgem::LinearAlgebra::Transpose::HERMITIAN_TRANSPOSE);
+            for (std::size_t i = 0; i < rightDoFs; ++i) {
+                coefficients[i + rightDoFs] = temp[i];
+            }
+        }
+    }
+
+    double factor = face.isInternal() ? 0.5 : 1.0;
+
+    double flux = faceIntegrator_.integrate(
+        &face, [&coefficients, &factor](Base::PhysicalFace<DIM>& pface) {
+            // Average curl of the field
+            VecC avgCurl;
+            // n cross E for the two sides
+            VecC avgE;
+            LinearAlgebra::SmallVector<DIM> phi;
+            VecC normal = pface.getUnitNormalVector();
+            for (int i = 0; i < pface.getNumberOfBasisFunctions(); ++i) {
+                avgCurl +=
+                    factor * coefficients[i] * pface.basisFunctionCurl(i);
+                pface.basisFunction(i, phi);
+                avgE += factor * coefficients[i] * normal.crossProduct(phi);
+            }
+            // Compute n . Re(S) = n . Re(E x flux[H]^*)
+            // with H = i omega muinv Curl E
+            //   = omega n . Im(E x muinv flux[Curl E]^*)
+            // using complex inner product
+            //   = omega Im((n x E) . muinv flux[Curl E])
+            return (avgE * avgCurl).imag();
+        });
+    if (side == hpgem::Base::Side::RIGHT) {
+        flux *= -1.0;
+    }
+    auto infos =
+        dynamic_cast<ElementInfos*>(face.getPtrElement(side)->getUserData());
+    logger.assert_debug(infos != nullptr, "No material information");
+    return flux / (wavenumber * infos->getPermeability());
 }
 
 // TODO: The code saves snapshots in the timeIntegrationVector, this is not

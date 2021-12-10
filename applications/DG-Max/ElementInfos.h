@@ -57,6 +57,8 @@ class ElementInfos : public hpgem::Base::UserElementData {
         return material_.getPermeability();
     }
 
+    const DGMax::Material& getMaterial() const { return material_; }
+
     double getImpedance() const { return material_.getImpedance(); }
 
     double getRefractiveIndex() const { return material_.getRefractiveIndex(); }
