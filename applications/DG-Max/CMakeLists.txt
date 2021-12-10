@@ -20,6 +20,7 @@ if(hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
 
 		ProblemTypes/Harmonic/SampleHarmonicProblems.cpp
 		ProblemTypes/Harmonic/PlaneWaveReflectionProblem.cpp
+		ProblemTypes/Harmonic/TrenchReflectionProblem.cpp
 		ProblemTypes/Time/DummyTestProblem.cpp
 		ProblemTypes/Time/SampleTestProblems.cpp
 		Utils/BandstructureGNUPlot.cpp

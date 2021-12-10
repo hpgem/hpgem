@@ -55,6 +55,7 @@ namespace DGMax {
 template <std::size_t dim>
 class PlaneWave {
    public:
+    PlaneWave() : k_(), E0_(), phase_(0.0) {}
     PlaneWave(LinearAlgebra::SmallVector<dim> k,
               LinearAlgebra::SmallVectorC<dim> E0, double phase)
         : k_(k), E0_(E0), phase_(phase) {
