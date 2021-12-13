@@ -60,6 +60,14 @@ using namespace hpgem;
 /// For some known mu, eps, omega, J and g. Where it is required (but not
 /// checked) that div J = 0.
 ///
+/// For scattering problems it is common to split the incident field into two
+/// parts E = Ei + Es. The incident field Ei is the theoretical solution in the
+/// background medium (epsilon, mu). The scattering object then modifies this
+/// background resulting in different mu, epsilon or boundary resulting in a
+/// scattered electric field Es. The interaction of the indecent field with the
+/// different material acts as a source function for the scattered field, or as
+/// boundary condition (e.g. mirror).
+///
 /// For more information, see for example section 5.2.1 of Devashish's thesis.
 ///
 template <std::size_t DIM>
@@ -87,6 +95,31 @@ class HarmonicProblem {
      */
     virtual LinearAlgebra::SmallVectorC<DIM> boundaryCondition(
         Base::PhysicalFace<DIM>& face) const = 0;
+
+    /**
+     * @return Whether the problem describes the scattered field
+     */
+    bool isScatterFieldProblem() const { return false; }
+
+    /**
+     * If this is a scattered field problem, the incident field.
+     * @param p The point to evaluate the incident field at
+     * @return The field
+     */
+    virtual LinearAlgebra::SmallVectorC<DIM> incidentField(
+        Geometry::PointPhysical<DIM>& p) const {
+        return {};
+    }
+    
+    /**
+     * If this is a scattered field problem, the curl of the incident field
+     * @param p The point to evaluate at
+     * @return The curl of the incident field.
+     */
+    virtual LinearAlgebra::SmallVectorC<DIM> incidentFieldCurl(
+        Geometry::PointPhysical<DIM>& p) const {
+        return {};
+    }
 };
 
 /**
