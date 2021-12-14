@@ -41,11 +41,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef HPGEM_APP_ELEMENTINFOS_H
 #define HPGEM_APP_ELEMENTINFOS_H
 
-#include "Base/UserData.h"
+#include <AbstractDimensionlessBase.h>
+#include <Base/UserData.h>
+
+#include <Logger.h>
+#include <Base/Element.h>
+#include <Geometry/PointPhysicalBase.h>
+
 #include "Material.h"
 
-class ElementInfos : public hpgem::Base::UserElementData {
+class ElementInfos : public hpgem::Base::UserData {
    public:
+    using Element = hpgem::Base::Element;
+    using PointPhysicalBase = hpgem::Geometry::PointPhysicalBase;
+
     ElementInfos(double epsilon, double permeability = 1.0);
     ElementInfos(DGMax::Material material) : material_(material){};
 
@@ -55,6 +64,63 @@ class ElementInfos : public hpgem::Base::UserElementData {
 
     const double& getPermeability() const {
         return material_.getPermeability();
+    }
+    static ElementInfos* get(const Element* element) {
+        using hpgem::logger;
+        if (element == nullptr) {
+            return nullptr;
+        } else {
+            return &get(*element);
+        }
+    }
+
+    static ElementInfos& get(const Element& element) {
+        using hpgem::logger;
+        auto* data = element.getUserData();
+        logger.assert_debug(data != nullptr,
+                            "No material information available for element %",
+                            element.getID());
+        auto* elementInfo = dynamic_cast<ElementInfos*>(data);
+        logger.assert_debug(elementInfo != nullptr,
+                            "Element has incorrect material information");
+        return *elementInfo;
+    }
+
+    /**
+     * Material constant used in second order Maxwells equation.
+     *
+     * This is the material constant that is used in second order Maxwell's
+     * equation at two points. It is the permittivity for the E-field
+     * formulation, for H-field it would be the permeability. This constant is
+     * used in two places:
+     *
+     *  - The divergence constrain Div(constant field) = 0 (Div(epsilon E) = 0)
+     *  - The omega^2 term: -omega^2 constant field.
+     *
+     * For PMLs and similar materials it may vary inside the element.
+     *
+     * @param p The position
+     * @return The constant
+     */
+    double getMaterialConstantDiv(const PointPhysicalBase& p) const {
+        return material_.getPermittivity();
+    }
+
+    /**
+     * Material constant used in second order Maxwells equation.
+     *
+     * This material constant that is used in second order Maxwells equation
+     * between the two Curls. It is the inverse of the permeability for the
+     * E-field formulation. For the H-field it would be the inverse of the
+     * permittivity.
+     *
+     * For PMLs and similar materials it may vary inside the element.
+     *
+     * @param p The position
+     * @return The constant
+     */
+    double getMaterialConstantCurl(const PointPhysicalBase& p) const {
+        return 1.0 / material_.getPermeability();
     }
 
     const DGMax::Material& getMaterial() const { return material_; }
