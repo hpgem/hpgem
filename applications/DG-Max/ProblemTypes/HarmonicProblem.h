@@ -127,22 +127,21 @@ class ExactHarmonicProblem : public HarmonicProblem<DIM> {
                 const auto material =
                     ElementInfos::get(*face.getFace()->getPtrElementLeft())
                         .getMaterialConstantCurl(point);
-                return applyMaterialTensorCurl(material,
-                                               this->exactSolution(point));
+                return material.applyCurl(exactSolution(point));
             }
             case BCT::SILVER_MULLER: {
+                const auto& point = face.getPointPhysical();
                 auto& material =
                     ElementInfos::get(*face.getFace()->getPtrElementLeft());
-                Vec efield = this->exactSolution(face.getPointPhysical());
+                Vec efield = this->exactSolution(point);
                 Vec efieldCurl =
-                    this->exactSolutionCurl(face.getPointPhysical());
+                    this->exactSolutionCurl(point);
                 const Vec& normal = face.getUnitNormalVector();
                 auto impedance = std::complex<double>(
                     0, this->omega() * material.getImpedance());
                 // n x (Curl E + Z [E x n]) = n x g_N
-                return applyMaterialTensorCurl(material.getMaterialConstantCurl(
-                                                   face.getPointPhysical()),
-                                               efieldCurl) +
+                return material.getMaterialConstantCurl(point).applyCurl(
+                           efieldCurl) +
                        impedance * efield.crossProduct(normal);
             }
             default:

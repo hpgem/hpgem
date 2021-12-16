@@ -415,7 +415,7 @@ void DivDGMaxDiscretization<DIM>::computeElementMatrices(
                 for (std::size_t j = 0; j < numUDoFs; ++j) {
                     pelem.basisFunction(j, phi_j, 0);
                     std::complex<double> value =
-                        applyMaterialTensorDiv(materialDiv, phi_j) * phi_i;
+                        materialDiv.applyDiv(phi_j) * phi_i;
 
                     ret(i, j) = value;
                 }
@@ -440,9 +440,8 @@ void DivDGMaxDiscretization<DIM>::computeElementMatrices(
 
                 LinearAlgebra::SmallVector<DIM> phiI;
                 for (std::size_t i = 0; i < numUDoFs; ++i) {
-                    const LinearAlgebra::SmallVectorC<DIM>& phiIC =
-                        applyMaterialTensorCurl(materialCurl,
-                                                pelem.basisFunctionCurl(i, 0));
+                    LinearAlgebra::SmallVectorC<DIM> phiIC =
+                        materialCurl.applyCurl(pelem.basisFunctionCurl(i, 0));
                     for (std::size_t j = 0; j < numUDoFs; ++j) {
                         std::complex<double> value =
                             phiIC * pelem.basisFunctionCurl(j, 0);
@@ -452,7 +451,7 @@ void DivDGMaxDiscretization<DIM>::computeElementMatrices(
 
                     for (std::size_t j = 0; j < numPDoFs; ++j) {
                         std::complex<double> value =
-                            -applyMaterialTensorDiv(materialDiv, phiI) *
+                            -materialDiv.applyDiv(phiI) *
                             pelem.basisFunctionDeriv(j, 1);
                         // FIXME: Conjugation
                         ret(i, j + offPDoFs) = std::conj(value);
@@ -484,9 +483,9 @@ void DivDGMaxDiscretization<DIM>::elementScalarVectorCoupling(
 
         for (std::size_t j = 0; j < uDoFs; ++j) {
             el.basisFunction(j, phi_j, 0);
+            const DGMax::MaterialTensor material = materialDiv.adjoint();
             std::complex<double> value =
-                -1.0 * phi_i *
-                applyMaterialTensorDiv(materialDiv.conj(), phi_j);
+                -1.0 * phi_i * material.applyDiv(phi_j);
             // TODO: Conjugation
             ret(j, i) = value;
             ret(i, j) = std::conj(ret(j, i));
@@ -525,13 +524,11 @@ void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
     const auto materialCurlLeft = materialLeft.getMaterialConstantCurl(p);
     const auto materialDivLeft = materialLeft.getMaterialConstantDiv(p);
     const auto materialCurlRight =
-        materialRight != nullptr
-            ? materialRight->getMaterialConstantCurl(p)
-            : LinearAlgebra::SmallVectorC<3>({0.0, 0.0, 0.0});
-    const auto materialDivRight =
-        materialRight != nullptr
-            ? materialRight->getMaterialConstantDiv(p)
-            : LinearAlgebra::SmallVectorC<3>({0.0, 0.0, 0.0});
+        materialRight != nullptr ? materialRight->getMaterialConstantCurl(p)
+                                 : DGMax::MaterialTensor();
+    const auto materialDivRight = materialRight != nullptr
+                                      ? materialRight->getMaterialConstantDiv(p)
+                                      : DGMax::MaterialTensor();
 
     // For IP fluxes
     const double stab1 = stab_.stab1 / face->getDiameter();
@@ -555,17 +552,16 @@ void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
     for (std::size_t i = 0; i < totalUDoFs; ++i) {
         const std::size_t& iIndex = mapping[i];
         fa.basisFunctionUnitNormalCross(i, phiUNormali, 0);
-        phiUCurli = applyMaterialTensorCurl(
-            (i < leftUDoFs) ? materialCurlLeft : materialCurlRight,
-            fa.basisFunctionCurl(i, 0));
+        phiUCurli = ((i < leftUDoFs) ? materialCurlLeft : materialCurlRight)
+                        .applyCurl(fa.basisFunctionCurl(i, 0));
 
         for (std::size_t j = 0; j < totalUDoFs; ++j) {
             const std::size_t& jIndex = mapping[j];
             fa.basisFunctionUnitNormalCross(j, phiUNormalj, 0);
-            phiUCurlj = applyMaterialTensorCurl((j < leftUDoFs)
-                                                    ? materialCurlLeft.conj()
-                                                    : materialCurlRight.conj(),
-                                                fa.basisFunctionCurl(j, 0));
+            const DGMax::MaterialTensor material =
+                (j < leftUDoFs) ? materialCurlLeft.adjoint()
+                                : materialCurlRight.adjoint();
+            phiUCurlj = material.applyCurl(fa.basisFunctionCurl(j, 0));
 
             std::complex<double> entry =
                 factor * (phiUCurli * phiUNormalj + phiUNormali * phiUCurlj);
@@ -593,10 +589,9 @@ void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
         for (std::size_t i = 0; i < totalUDoFs; ++i) {
             const std::size_t& iIndex = mapping[i];
             fa.basisFunction(i, phi, 0);
-            std::complex<double> phiUi =
-                applyMaterialTensorDiv(
-                    i < leftUDoFs ? materialDivLeft : materialDivRight, phi) *
-                normal;
+            const auto& materiali =
+                (i < leftUDoFs ? materialDivLeft : materialDivRight);
+            std::complex<double> phiUi = materiali.applyDiv(phi) * normal;
             if (i >= leftUDoFs) {
                 phiUi *= -1.0;
             }
@@ -605,11 +600,10 @@ void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
                 const std::size_t& jIndex = mapping[j];
 
                 fa.basisFunction(j, phi, 0);
-                std::complex<double> phiUj =
-                    applyMaterialTensorDiv(
-                        j < leftUDoFs ? materialDivLeft.conj() : materialDivRight.conj(),
-                        phi) *
-                    normal;
+                const auto materialj = j < leftUDoFs
+                                           ? materialDivLeft.adjoint()
+                                           : materialDivRight.adjoint();
+                std::complex<double> phiUj = materialj.applyDiv(phi) * normal;
                 if (j >= leftUDoFs) {
                     phiUj *= -1.0;
                 }
@@ -655,7 +649,7 @@ void DivDGMaxDiscretization<DIM>::addFaceMatrixPotentialIntegrand(
     const auto materialDivRight =
         face->isInternal() ? ElementInfos::get(*face->getPtrElementRight())
                                  .getMaterialConstantDiv(point)
-                           : LinearAlgebra::SmallVectorC<3>({0.0, 0.0, 0.0});
+                           : DGMax::MaterialTensor();
 
     // Factor for the normal, indexed by P-variable;
     std::vector<int> normalSign;
@@ -685,8 +679,8 @@ void DivDGMaxDiscretization<DIM>::addFaceMatrixPotentialIntegrand(
         // where s(j) = 1.0 for the left values of j, and -1 for the right ones.
 
         std::complex<double> epsUNi =
-            applyMaterialTensorDiv(
-                i < leftUDoFs ? materialDivLeft : materialDivRight, phiUi) *
+            (i < leftUDoFs ? materialDivLeft : materialDivRight)
+                .applyDiv(phiUi) *
             normal;
 
         for (std::size_t j = 0; j < totalPDoFs; ++j) {
@@ -932,7 +926,7 @@ LinearAlgebra::MiddleSizeMatrix
         const auto materialDivRight =
             materialRight != nullptr
                 ? materialRight->getMaterialConstantCurl(point)
-                : LinearAlgebra::SmallVectorC<3>({0.0, 0.0, 0.0});
+                : DGMax::MaterialTensor();
 
         normal = face.getUnitNormalVector();
         double factor = faceInfo.internal ? 0.5 : 1.0;  // From the average
@@ -943,13 +937,13 @@ LinearAlgebra::MiddleSizeMatrix
 
                 // - form the change in normal
                 if (j < faceInfo.leftUDoFs) {
-                    matBasisU = applyMaterialTensorDiv(materialDivLeft, basisU);
+                    matBasisU = materialDivLeft.applyDiv(basisU);
                 } else {
-                    matBasisU =
-                        -applyMaterialTensorDiv(materialDivRight, basisU);
+                    matBasisU = -materialDivRight.applyDiv(basisU);
                 }
 
-                std::complex<double> uvalue = matBasisU * normal;  // [[epsilon u]]_N
+                std::complex<double> uvalue =
+                    matBasisU * normal;  // [[epsilon u]]_N
                 result(i, j) = factor * uvalue * basisP;
             }
         }
@@ -1143,8 +1137,8 @@ void DivDGMaxDiscretization<DIM>::faceBoundaryVector(
 
         for (std::size_t i = 0; i < totalUDoFs; ++i) {
             fa.basisFunctionUnitNormalCross(i, phi, 0);
-            phi_curlMat = applyMaterialTensorCurl(materialCurl.conj(),
-                                                  fa.basisFunctionCurl(i, 0));
+            const DGMax::MaterialTensor& material1 = materialCurl.adjoint();
+            phi_curlMat = material1.applyCurl(fa.basisFunctionCurl(i, 0));
             std::complex<double> value = -(val * phi_curlMat);
             if (stab_.fluxType1 == FluxType::IP) {
                 value += stab_.stab1 / (diameter) * (val * phi);

@@ -138,7 +138,7 @@ template <std::size_t numberOfRows, typename EntryT>
 class GSmallVector {
 
    public:
-    GSmallVector() : data_() {}
+    GSmallVector() = default;
 
     /*GSmallVector(std::array<double, numberOfRows> t)
         : data_(t)

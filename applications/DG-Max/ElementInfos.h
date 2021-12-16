@@ -50,6 +50,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <LinearAlgebra/SmallVector.h>
 
 #include "Material.h"
+#include "MaterialTensor.h"
 
 class ElementInfos : public hpgem::Base::UserData {
    public:
@@ -106,9 +107,9 @@ class ElementInfos : public hpgem::Base::UserData {
      * @return Diagonal of the material tensor, for 2D the last component should
      * be used.
      */
-    virtual SmallVectorC getMaterialConstantDiv(
+    virtual DGMax::MaterialTensor getMaterialConstantDiv(
         const PointPhysicalBase& p) const {
-        return SmallVectorC({1.0, 1.0, 1.0}) * material_.getPermittivity();
+        return DGMax::MaterialTensor(material_.getPermittivity());
     }
 
     /**
@@ -125,9 +126,9 @@ class ElementInfos : public hpgem::Base::UserData {
      * @return Diagonal of the material tensor, for 2D the first two components
      * should be used.
      */
-    virtual SmallVectorC getMaterialConstantCurl(
+    virtual DGMax::MaterialTensor getMaterialConstantCurl(
         const PointPhysicalBase& p) const {
-        return SmallVectorC({1.0, 1.0, 1.0}) / material_.getPermeability();
+        return DGMax::MaterialTensor(material_.getPermeability());
     }
 
     const DGMax::Material& getMaterial() const { return material_; }
@@ -139,50 +140,5 @@ class ElementInfos : public hpgem::Base::UserData {
    private:
     DGMax::Material material_;
 };
-
-template <std::size_t DIM>
-hpgem::LinearAlgebra::SmallVectorC<DIM> applyMaterialTensorDiv(
-    const hpgem::LinearAlgebra::SmallVectorC<3>& material,
-    hpgem::LinearAlgebra::SmallVectorC<DIM> field) {
-    for (std::size_t i = 0; i < DIM; ++i) {
-        field[i] *= material[i];
-    }
-    return field;
-}
-
-inline hpgem::LinearAlgebra::SmallVectorC<3> applyMaterialTensorCurl(
-    const hpgem::LinearAlgebra::SmallVectorC<3>& material,
-    hpgem::LinearAlgebra::SmallVectorC<3> field) {
-    for (std::size_t i = 0; i < 3; ++i) {
-        field[i] *= material[i];
-    }
-    return field;
-}
-
-inline hpgem::LinearAlgebra::SmallVectorC<2> applyMaterialTensorCurl(
-    const hpgem::LinearAlgebra::SmallVectorC<3>& material,
-    hpgem::LinearAlgebra::SmallVectorC<2> field) {
-    // Z-component is stored in the first entry.
-    field[0] *= material[2];
-    hpgem::logger.assert_debug(field[1] == 0.0,
-                        "Vector does not follow hpgem-curl convention.");
-    return field;
-}
-
-// Wrapping methods for real vectors
-template <std::size_t DIM>
-hpgem::LinearAlgebra::SmallVectorC<DIM> applyMaterialTensorDiv(
-    const hpgem::LinearAlgebra::SmallVectorC<3>& material,
-    hpgem::LinearAlgebra::SmallVector<DIM> field) {
-    return applyMaterialTensorDiv(
-        material, hpgem::LinearAlgebra::SmallVectorC<DIM>(field));
-};
-template <std::size_t DIM>
-hpgem::LinearAlgebra::SmallVectorC<DIM> applyMaterialTensorCurl(
-    const hpgem::LinearAlgebra::SmallVectorC<3>& material,
-    hpgem::LinearAlgebra::SmallVector<3> field) {
-    return applyMaterialTensorCurl(
-        material, hpgem::LinearAlgebra::SmallVectorC<DIM>(field));
-}
 
 #endif  // HPGEM_APP_ELEMENTINFOS_H
