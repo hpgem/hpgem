@@ -123,11 +123,12 @@ class ExactHarmonicProblem : public HarmonicProblem<DIM> {
             }
             case BCT::NEUMANN: {
 
-                auto& material =
-                    ElementInfos::get(*face.getFace()->getPtrElementLeft());
-                return this->exactSolutionCurl(face.getPointPhysical()) *
-                       material.getMaterialConstantCurl(
-                           face.getPointPhysical());
+                const auto& point = face.getPointPhysical();
+                const auto material =
+                    ElementInfos::get(*face.getFace()->getPtrElementLeft())
+                        .getMaterialConstantCurl(point);
+                return applyMaterialTensorCurl(material,
+                                               this->exactSolution(point));
             }
             case BCT::SILVER_MULLER: {
                 auto& material =
@@ -139,8 +140,9 @@ class ExactHarmonicProblem : public HarmonicProblem<DIM> {
                 auto impedance = std::complex<double>(
                     0, this->omega() * material.getImpedance());
                 // n x (Curl E + Z [E x n]) = n x g_N
-                return efieldCurl * material.getMaterialConstantCurl(
-                                        face.getPointPhysical()) +
+                return applyMaterialTensorCurl(material.getMaterialConstantCurl(
+                                                   face.getPointPhysical()),
+                                               efieldCurl) +
                        impedance * efield.crossProduct(normal);
             }
             default:

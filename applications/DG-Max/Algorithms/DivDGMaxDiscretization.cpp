@@ -7,7 +7,7 @@ This code is distributed using BSD 3-Clause License. A copy of which can found
 below.
 
 
-Copyright (c) 2018, Univesity of Twenete
+Copyright (c) 2018, University of Twente
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -406,19 +406,18 @@ void DivDGMaxDiscretization<DIM>::computeElementMatrices(
             std::size_t numUDoFs = indexing.getNumberOfDoFs(0);
             LinearAlgebra::MiddleSizeMatrix ret(numDoFs, numDoFs);
 
-            double mconstant =
+            const auto materialDiv =
                 material.getMaterialConstantDiv(pelem.getPointPhysical());
 
             LinearAlgebra::SmallVector<DIM> phi_i, phi_j;
             for (std::size_t i = 0; i < numUDoFs; ++i) {
                 pelem.basisFunction(i, phi_i, 0);
-                for (std::size_t j = i; j < numUDoFs; ++j) {
+                for (std::size_t j = 0; j < numUDoFs; ++j) {
                     pelem.basisFunction(j, phi_j, 0);
-                    double value = mconstant * (phi_i * phi_j);
+                    std::complex<double> value =
+                        applyMaterialTensorDiv(materialDiv, phi_j) * phi_i;
+
                     ret(i, j) = value;
-                    if (i != j) {
-                        ret(j, i) = value;
-                    }
                 }
             }
             return ret;
@@ -435,26 +434,28 @@ void DivDGMaxDiscretization<DIM>::computeElementMatrices(
                 LinearAlgebra::MiddleSizeMatrix ret(numDoFs, numDoFs);
 
                 const auto& point = pelem.getPointPhysical();
-                double mconstantCurl = material.getMaterialConstantCurl(point);
-                double mconstantDiv = material.getMaterialConstantDiv(point);
+                const auto materialCurl =
+                    material.getMaterialConstantCurl(point);
+                const auto materialDiv = material.getMaterialConstantDiv(point);
 
                 LinearAlgebra::SmallVector<DIM> phiI;
                 for (std::size_t i = 0; i < numUDoFs; ++i) {
-                    const LinearAlgebra::SmallVector<DIM>& phiIC =
-                        pelem.basisFunctionCurl(i, 0) * mconstantCurl;
-                    for (std::size_t j = i; j < numUDoFs; ++j) {
-                        double value = phiIC * pelem.basisFunctionCurl(j, 0);
+                    const LinearAlgebra::SmallVectorC<DIM>& phiIC =
+                        applyMaterialTensorCurl(materialCurl,
+                                                pelem.basisFunctionCurl(i, 0));
+                    for (std::size_t j = 0; j < numUDoFs; ++j) {
+                        std::complex<double> value =
+                            phiIC * pelem.basisFunctionCurl(j, 0);
                         ret(i, j) = value;
-                        if (i != j) {
-                            ret(j, i) = value;
-                        }
                     }
                     pelem.basisFunction(i, phiI, 0);
 
                     for (std::size_t j = 0; j < numPDoFs; ++j) {
-                        double value = (phiI * pelem.basisFunctionDeriv(j, 1)) *
-                                       -mconstantDiv;
-                        ret(i, j + offPDoFs) = value;
+                        std::complex<double> value =
+                            -applyMaterialTensorDiv(materialDiv, phiI) *
+                            pelem.basisFunctionDeriv(j, 1);
+                        // FIXME: Conjugation
+                        ret(i, j + offPDoFs) = std::conj(value);
                         ret(j + offPDoFs, i) = value;
                     }
                 }
@@ -471,9 +472,10 @@ void DivDGMaxDiscretization<DIM>::elementScalarVectorCoupling(
     std::size_t uDoFs = element->getNumberOfBasisFunctions(0);
     std::size_t pDoFs = element->getNumberOfBasisFunctions(1);
     ret.resize(uDoFs + pDoFs, uDoFs + pDoFs);
-    double mconstant = ElementInfos::get(element)->getMaterialConstantDiv(
+    const auto materialDiv = ElementInfos::get(element)->getMaterialConstantDiv(
         el.getPointPhysical());
-    LinearAlgebra::SmallVector<DIM> phi_i, phi_j;
+    LinearAlgebra::SmallVectorC<DIM> phi_i;
+    LinearAlgebra::SmallVector<DIM> phi_j;
 
     // Note, this loop only loops over the basis functions for the second
     // unknown. However, it needs the offset for the first unknown.
@@ -482,8 +484,12 @@ void DivDGMaxDiscretization<DIM>::elementScalarVectorCoupling(
 
         for (std::size_t j = 0; j < uDoFs; ++j) {
             el.basisFunction(j, phi_j, 0);
-            ret(j, i) = -1.0 * (phi_i * phi_j) * mconstant;
-            ret(i, j) = ret(j, i);
+            std::complex<double> value =
+                -1.0 * phi_i *
+                applyMaterialTensorDiv(materialDiv.conj(), phi_j);
+            // TODO: Conjugation
+            ret(j, i) = value;
+            ret(i, j) = std::conj(ret(j, i));
         }
     }
 }
@@ -516,14 +522,16 @@ void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
     const auto* materialRight = ElementInfos::get(face->getPtrElementRight());
 
     const auto& p = fa.getPointPhysical();
-    const double materialCurlLeft = materialLeft.getMaterialConstantCurl(p);
-    const double materialDivLeft = materialLeft.getMaterialConstantDiv(p);
-    const double materialCurlRight =
-        materialRight != nullptr ? materialRight->getMaterialConstantCurl(p)
-                                 : 0.0;
-    const double materialDivRight =
-        materialRight != nullptr ? materialRight->getMaterialConstantDiv(p)
-                                 : 0.0;
+    const auto materialCurlLeft = materialLeft.getMaterialConstantCurl(p);
+    const auto materialDivLeft = materialLeft.getMaterialConstantDiv(p);
+    const auto materialCurlRight =
+        materialRight != nullptr
+            ? materialRight->getMaterialConstantCurl(p)
+            : LinearAlgebra::SmallVectorC<3>({0.0, 0.0, 0.0});
+    const auto materialDivRight =
+        materialRight != nullptr
+            ? materialRight->getMaterialConstantDiv(p)
+            : LinearAlgebra::SmallVectorC<3>({0.0, 0.0, 0.0});
 
     // For IP fluxes
     const double stab1 = stab_.stab1 / face->getDiameter();
@@ -541,29 +549,31 @@ void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
     // Averaging factor
     double factor = face->isInternal() ? -0.5 : -1;
 
-    LinearAlgebra::SmallVector<DIM> phiUNormali, phiUNormalj, phiUCurli,
-        phiUCurlj;
+    LinearAlgebra::SmallVector<DIM> phiUNormali, phiUNormalj;
+    LinearAlgebra::SmallVectorC<DIM> phiUCurli, phiUCurlj;
 
     for (std::size_t i = 0; i < totalUDoFs; ++i) {
         const std::size_t& iIndex = mapping[i];
         fa.basisFunctionUnitNormalCross(i, phiUNormali, 0);
-        phiUCurli = fa.basisFunctionCurl(i, 0);
-        phiUCurli *= (i < leftUDoFs) ? materialCurlLeft : materialCurlRight;
+        phiUCurli = applyMaterialTensorCurl(
+            (i < leftUDoFs) ? materialCurlLeft : materialCurlRight,
+            fa.basisFunctionCurl(i, 0));
 
-        for (std::size_t j = i; j < totalUDoFs; ++j) {
+        for (std::size_t j = 0; j < totalUDoFs; ++j) {
             const std::size_t& jIndex = mapping[j];
             fa.basisFunctionUnitNormalCross(j, phiUNormalj, 0);
-            phiUCurlj = fa.basisFunctionCurl(j, 0);
-            phiUCurlj /= (j < leftUDoFs) ? materialCurlLeft : materialCurlRight;
+            phiUCurlj = applyMaterialTensorCurl((j < leftUDoFs)
+                                                    ? materialCurlLeft.conj()
+                                                    : materialCurlRight.conj(),
+                                                fa.basisFunctionCurl(j, 0));
 
-            double entry =
+            std::complex<double> entry =
                 factor * (phiUCurli * phiUNormalj + phiUNormali * phiUCurlj);
 
             if (stab_.fluxType1 == FluxType::IP) {
                 entry += stab1 * phiUNormali * phiUNormalj;
             }
 
-            ret(iIndex, jIndex) = entry;
             ret(jIndex, iIndex) = entry;
         }
     }
@@ -573,18 +583,9 @@ void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
         // Note checking against 0.0 exactly, as this value is set by the user
         // and often disabled by setting it to 0.
 
-        // Combination of both material div and the sign of the normal.
-        std::vector<double> signedMaterialDiv;
-        {
-            signedMaterialDiv.resize(totalUDoFs);
-            auto leftEnd = signedMaterialDiv.begin() +
-                           indexing.getNumberOfDoFs(0, Base::Side::LEFT);
-            std::fill(signedMaterialDiv.begin(), leftEnd, materialDivLeft);
-            std::fill(leftEnd, signedMaterialDiv.end(), -materialDivRight);
-        }
-
-        const double stab2 = stab_.stab2 * face->getDiameter() /
-                             std::max(materialDivLeft, materialDivRight);
+        // TODO: Think about the max(epsLeft, epsRight)^{-1} that was used to
+        // make this independent of epsilon scaling.
+        const double stab2 = stab_.stab2 * face->getDiameter();
         const LinearAlgebra::SmallVector<DIM>& normal =
             fa.getUnitNormalVector();
         LinearAlgebra::SmallVector<DIM> phi;
@@ -592,18 +593,32 @@ void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
         for (std::size_t i = 0; i < totalUDoFs; ++i) {
             const std::size_t& iIndex = mapping[i];
             fa.basisFunction(i, phi, 0);
-            double phiUi = phi * normal * signedMaterialDiv[i];
+            std::complex<double> phiUi =
+                applyMaterialTensorDiv(
+                    i < leftUDoFs ? materialDivLeft : materialDivRight, phi) *
+                normal;
+            if (i >= leftUDoFs) {
+                phiUi *= -1.0;
+            }
 
             for (std::size_t j = i; j < totalUDoFs; ++j) {
                 const std::size_t& jIndex = mapping[j];
 
                 fa.basisFunction(j, phi, 0);
+                std::complex<double> phiUj =
+                    applyMaterialTensorDiv(
+                        j < leftUDoFs ? materialDivLeft.conj() : materialDivRight.conj(),
+                        phi) *
+                    normal;
+                if (j >= leftUDoFs) {
+                    phiUj *= -1.0;
+                }
 
-                double value =
-                    stab2 * phiUi * (phi * normal) * signedMaterialDiv[j];
-                ret(iIndex, jIndex) += value;
+                std::complex<double> value = stab2 * phiUi * phiUj;
+                ret(jIndex, iIndex) += value;
                 if (i != j) {
-                    ret(jIndex, iIndex) += value;
+                    // TODO: Conjugate
+                    ret(iIndex, jIndex) += std::conj(value);
                 }
             }
         }
@@ -624,6 +639,8 @@ void DivDGMaxDiscretization<DIM>::addFaceMatrixPotentialIntegrand(
     const std::size_t totalDoFs = indexing.getNumberOfDoFs();
     const std::size_t totalUDoFs = mappingU.size();
     const std::size_t totalPDoFs = mappingP.size();
+    const std::size_t leftUDoFs =
+        indexing.getNumberOfDoFs(0, hpgem::Base::Side::LEFT);
 
     ret.resize(totalDoFs, totalDoFs);
 
@@ -631,27 +648,14 @@ void DivDGMaxDiscretization<DIM>::addFaceMatrixPotentialIntegrand(
     const Base::Face* face = fa.getFace();
     double averageFactor = face->isInternal() ? 0.5 : 1;
 
-    // Vector of epsilon, indexed by the U-variable
-    std::vector<double> materialDiv;
-    double materialDivMax;
-    {
-        materialDiv.resize(totalUDoFs);
-        auto leftEnd =
-            materialDiv.begin() + indexing.getNumberOfDoFs(0, Base::Side::LEFT);
-        const auto& point = fa.getPointPhysical();
-
-        double materialDivLeft = ElementInfos::get(*face->getPtrElementLeft())
+    // Material constant for the U-variable.
+    const auto& point = fa.getPointPhysical();
+    const auto materialDivLeft = ElementInfos::get(*face->getPtrElementLeft())
                                      .getMaterialConstantDiv(point);
-        materialDivMax = materialDivLeft;
-        std::fill(materialDiv.begin(), leftEnd, materialDivLeft);
-        if (face->isInternal()) {
-            double materialDivRight =
-                ElementInfos::get(*face->getPtrElementRight())
-                    .getMaterialConstantDiv(point);
-            std::fill(leftEnd, materialDiv.end(), materialDivRight);
-            materialDivMax = std::max(materialDivMax, materialDivRight);
-        }
-    }
+    const auto materialDivRight =
+        face->isInternal() ? ElementInfos::get(*face->getPtrElementRight())
+                                 .getMaterialConstantDiv(point)
+                           : LinearAlgebra::SmallVectorC<3>({0.0, 0.0, 0.0});
 
     // Factor for the normal, indexed by P-variable;
     std::vector<int> normalSign;
@@ -679,22 +683,28 @@ void DivDGMaxDiscretization<DIM>::addFaceMatrixPotentialIntegrand(
         // transformed into
         // [epsilon(i) phiUi . n(left)] * [phiQj(j) s(j)]
         // where s(j) = 1.0 for the left values of j, and -1 for the right ones.
-        double epsUNi = (phiUi * normal) * materialDiv[i];
+
+        std::complex<double> epsUNi =
+            applyMaterialTensorDiv(
+                i < leftUDoFs ? materialDivLeft : materialDivRight, phiUi) *
+            normal;
 
         for (std::size_t j = 0; j < totalPDoFs; ++j) {
             double phiPj = fa.basisFunction(j, 1) * normalSign[j];
 
-            const double entry = averageFactor * epsUNi * phiPj;
+            const std::complex<double> entry = averageFactor * epsUNi * phiPj;
             const std::size_t jIndex = mappingP[j];
 
-            ret(iIndex, jIndex) += entry;
+            // FIXME: Conjugation
             ret(jIndex, iIndex) += entry;
+            ret(iIndex, jIndex) += std::conj(entry);
         }
     }
     if (stab_.fluxType3 == FluxType::IP) {
         /// Stabilization of the potential term
         /// stab3/diameter * epsMax [[p]] [[q]]
-        const double stab3 = stab_.stab3 / face->getDiameter() * materialDivMax;
+        // Note: epsMax removed due to complex tensors.
+        const double stab3 = stab_.stab3 / face->getDiameter();
 
         for (std::size_t i = 0; i < totalPDoFs; ++i) {
             const std::size_t iIndex = mappingP[i];
@@ -915,13 +925,14 @@ LinearAlgebra::MiddleSizeMatrix
         LinearAlgebra::MiddleSizeMatrix result;
         result.resize(faceInfo.totalPDoFs(), faceInfo.totalUDoFs());
         LinearAlgebra::SmallVector<DIM> basisU, normal;
+        LinearAlgebra::SmallVectorC<DIM> matBasisU;
 
         const auto& point = face.getPointPhysical();
-        double materialDivLeft = materialLeft.getMaterialConstantDiv(point);
-        double materialDivRight =
+        const auto materialDivLeft = materialLeft.getMaterialConstantDiv(point);
+        const auto materialDivRight =
             materialRight != nullptr
                 ? materialRight->getMaterialConstantCurl(point)
-                : 0.0;
+                : LinearAlgebra::SmallVectorC<3>({0.0, 0.0, 0.0});
 
         normal = face.getUnitNormalVector();
         double factor = faceInfo.internal ? 0.5 : 1.0;  // From the average
@@ -929,14 +940,17 @@ LinearAlgebra::MiddleSizeMatrix
             double basisP = face.basisFunction(i, 1);
             for (std::size_t j = 0; j < faceInfo.totalUDoFs(); ++j) {
                 face.basisFunction(j, basisU, 0);
-                double uvalue = basisU * normal;  // [[epsilon u]]_N
-                if (j > faceInfo.leftUDoFs) {
-                    // - form the change in normal
-                    uvalue *= -materialDivRight;
+
+                // - form the change in normal
+                if (j < faceInfo.leftUDoFs) {
+                    matBasisU = applyMaterialTensorDiv(materialDivLeft, basisU);
                 } else {
-                    uvalue *= materialDivLeft;
+                    matBasisU =
+                        -applyMaterialTensorDiv(materialDivRight, basisU);
                 }
-                result(i, j) = factor * basisP * uvalue;
+
+                std::complex<double> uvalue = matBasisU * normal;  // [[epsilon u]]_N
+                result(i, j) = factor * uvalue * basisP;
             }
         }
         return result;
@@ -1113,7 +1127,8 @@ void DivDGMaxDiscretization<DIM>::faceBoundaryVector(
         double diameter = face->getDiameter();
 
         LinearAlgebra::SmallVectorC<DIM> val;
-        LinearAlgebra::SmallVector<DIM> phi, phi_curl;
+        LinearAlgebra::SmallVector<DIM> phi;
+        LinearAlgebra::SmallVectorC<DIM> phi_curlMat;
         val = boundaryValue(fa);
 
         std::size_t totalUDoFs =
@@ -1123,18 +1138,17 @@ void DivDGMaxDiscretization<DIM>::faceBoundaryVector(
         ret.resize(totalUDoFs + totalPDoFs);
 
         const auto& material = ElementInfos::get(*face->getPtrElementLeft());
-        const double materialCurl =
+        const auto materialCurl =
             material.getMaterialConstantCurl(fa.getPointPhysical());
 
         for (std::size_t i = 0; i < totalUDoFs; ++i) {
             fa.basisFunctionUnitNormalCross(i, phi, 0);
-            phi_curl = fa.basisFunctionCurl(i, 0);
-            phi_curl *= materialCurl;
-            std::complex<double> value = -(val * phi_curl);
+            phi_curlMat = applyMaterialTensorCurl(materialCurl.conj(),
+                                                  fa.basisFunctionCurl(i, 0));
+            std::complex<double> value = -(val * phi_curlMat);
             if (stab_.fluxType1 == FluxType::IP) {
                 value += stab_.stab1 / (diameter) * (val * phi);
             }
-            // Scale with mu^{-1} in the future
             ret(i) = value;
         }
     } else if (bct == DGMax::BoundaryConditionType::NEUMANN ||

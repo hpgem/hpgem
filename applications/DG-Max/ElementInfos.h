@@ -47,6 +47,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <Logger.h>
 #include <Base/Element.h>
 #include <Geometry/PointPhysicalBase.h>
+#include <LinearAlgebra/SmallVector.h>
 
 #include "Material.h"
 
@@ -54,6 +55,7 @@ class ElementInfos : public hpgem::Base::UserData {
    public:
     using Element = hpgem::Base::Element;
     using PointPhysicalBase = hpgem::Geometry::PointPhysicalBase;
+    using SmallVectorC = hpgem::LinearAlgebra::SmallVectorC<3>;
 
     ElementInfos(double epsilon, double permeability = 1.0);
     ElementInfos(DGMax::Material material) : material_(material){};
@@ -100,10 +102,13 @@ class ElementInfos : public hpgem::Base::UserData {
      * For PMLs and similar materials it may vary inside the element.
      *
      * @param p The position
-     * @return The constant
+     *
+     * @return Diagonal of the material tensor, for 2D the last component should
+     * be used.
      */
-    double getMaterialConstantDiv(const PointPhysicalBase& p) const {
-        return material_.getPermittivity();
+    virtual SmallVectorC getMaterialConstantDiv(
+        const PointPhysicalBase& p) const {
+        return SmallVectorC({1.0, 1.0, 1.0}) * material_.getPermittivity();
     }
 
     /**
@@ -117,10 +122,12 @@ class ElementInfos : public hpgem::Base::UserData {
      * For PMLs and similar materials it may vary inside the element.
      *
      * @param p The position
-     * @return The constant
+     * @return Diagonal of the material tensor, for 2D the first two components
+     * should be used.
      */
-    double getMaterialConstantCurl(const PointPhysicalBase& p) const {
-        return 1.0 / material_.getPermeability();
+    virtual SmallVectorC getMaterialConstantCurl(
+        const PointPhysicalBase& p) const {
+        return SmallVectorC({1.0, 1.0, 1.0}) / material_.getPermeability();
     }
 
     const DGMax::Material& getMaterial() const { return material_; }
@@ -132,4 +139,50 @@ class ElementInfos : public hpgem::Base::UserData {
    private:
     DGMax::Material material_;
 };
+
+template <std::size_t DIM>
+hpgem::LinearAlgebra::SmallVectorC<DIM> applyMaterialTensorDiv(
+    const hpgem::LinearAlgebra::SmallVectorC<3>& material,
+    hpgem::LinearAlgebra::SmallVectorC<DIM> field) {
+    for (std::size_t i = 0; i < DIM; ++i) {
+        field[i] *= material[i];
+    }
+    return field;
+}
+
+inline hpgem::LinearAlgebra::SmallVectorC<3> applyMaterialTensorCurl(
+    const hpgem::LinearAlgebra::SmallVectorC<3>& material,
+    hpgem::LinearAlgebra::SmallVectorC<3> field) {
+    for (std::size_t i = 0; i < 3; ++i) {
+        field[i] *= material[i];
+    }
+    return field;
+}
+
+inline hpgem::LinearAlgebra::SmallVectorC<2> applyMaterialTensorCurl(
+    const hpgem::LinearAlgebra::SmallVectorC<3>& material,
+    hpgem::LinearAlgebra::SmallVectorC<2> field) {
+    // Z-component is stored in the first entry.
+    field[0] *= material[2];
+    hpgem::logger.assert_debug(field[1] == 0.0,
+                        "Vector does not follow hpgem-curl convention.");
+    return field;
+}
+
+// Wrapping methods for real vectors
+template <std::size_t DIM>
+hpgem::LinearAlgebra::SmallVectorC<DIM> applyMaterialTensorDiv(
+    const hpgem::LinearAlgebra::SmallVectorC<3>& material,
+    hpgem::LinearAlgebra::SmallVector<DIM> field) {
+    return applyMaterialTensorDiv(
+        material, hpgem::LinearAlgebra::SmallVectorC<DIM>(field));
+};
+template <std::size_t DIM>
+hpgem::LinearAlgebra::SmallVectorC<DIM> applyMaterialTensorCurl(
+    const hpgem::LinearAlgebra::SmallVectorC<3>& material,
+    hpgem::LinearAlgebra::SmallVector<3> field) {
+    return applyMaterialTensorCurl(
+        material, hpgem::LinearAlgebra::SmallVectorC<DIM>(field));
+}
+
 #endif  // HPGEM_APP_ELEMENTINFOS_H
