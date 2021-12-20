@@ -192,21 +192,22 @@ class DivDGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
     void computeElementIntegralsImpl(
         Base::MeshManipulator<DIM>& mesh,
         const std::map<std::size_t, InputFunction>& elementVectors,
-        LocalIntegrals integrals) final;
+        double omega, LocalIntegrals integrals) final;
 
     void computeFaceIntegralsImpl(
         Base::MeshManipulator<DIM>& mesh,
         const std::map<std::size_t, FaceInputFunction>& boundaryVectors,
-        DGMax::BoundaryConditionIndicator indicator,
+        double omega, DGMax::BoundaryConditionIndicator indicator,
         LocalIntegrals integrals) final;
 
     /// Compute Mass and Stiffness matrix for the element
     void computeElementMatrices(Base::Element* element,
-                                Utilities::ElementLocalIndexing& indexing);
+                                Utilities::ElementLocalIndexing& indexing,
+                                double omega);
 
     /// Element part of matrix B and B^T, with zeros around it (- grad p, eps v)
     void elementScalarVectorCoupling(
-        Base::PhysicalElement<DIM>& el,
+        Base::PhysicalElement<DIM>& el, double omega,
         LinearAlgebra::MiddleSizeMatrix& ret) const;
 
     /// The source vector for harmonic problems.
@@ -222,7 +223,7 @@ class DivDGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
     ///  3. For IP-stab2: stab2*diameter/espMax [[eps u]]_n . [[eps v]]_n
     void faceStiffnessMatrixFieldIntegrand(
         Base::PhysicalFace<DIM>& fa,
-        const Utilities::FaceLocalIndexing& indexing,
+        const Utilities::FaceLocalIndexing& indexing, double omega,
         LinearAlgebra::MiddleSizeMatrix& ret) const;
     /// Part 2 of the face integrand for the stiffness matrix, consisting of the
     /// terms with the potential. This contributes two parts
@@ -231,12 +232,12 @@ class DivDGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
     ///  2. For IP-stab3: stab3/diameter * epsMax [[p]] [[q]]
     void addFaceMatrixPotentialIntegrand(
         Base::PhysicalFace<DIM>& fa,
-        const Utilities::FaceLocalIndexing& indexing,
+        const Utilities::FaceLocalIndexing& indexing, double omega,
         DGMax::BoundaryConditionType bct,
         LinearAlgebra::MiddleSizeMatrix& ret) const;
 
     LinearAlgebra::MiddleSizeMatrix brezziFluxBilinearTerm(
-        Base::Face* face, DGMax::BoundaryConditionType bct);
+        Base::Face* face, double omega, DGMax::BoundaryConditionType bct);
 
     LinearAlgebra::MiddleSizeMatrix computeFaceImpedanceIntegrand(
         Base::PhysicalFace<DIM>& face, Utilities::FaceLocalIndexing& indexing,
@@ -305,13 +306,14 @@ class DivDGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
     /// and epsilon is the permittivity.
     ///
     /// \param face The face to compute it on
+    /// \param omega The frequency to use for dispersion
     /// \return The (dofs p) by (dofs u) projection matrix.
     LinearAlgebra::MiddleSizeMatrix computeVectorNormalLiftProjector(
-        Base::Face* face);
+        Base::Face* face, double omega);
 
     void faceBoundaryVector(Base::PhysicalFace<DIM>& fa,
                             const FaceInputFunction& boundaryValue,
-                            LinearAlgebra::MiddleSizeVector& ret,
+                            double omega, LinearAlgebra::MiddleSizeVector& ret,
                             DGMax::BoundaryConditionType bct) const;
 
     /// Compute contribution of the brezzi flux to the face vector on the

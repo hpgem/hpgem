@@ -84,7 +84,7 @@ void DGMaxDiscretization<DIM>::initializeBasisFunctions(
                              unknowns);
         mesh.useNedelecDGBasisFunctions(order_);
     }
-    for(Base::Element* element : mesh.getElementsList()) {
+    for (Base::Element* element : mesh.getElementsList()) {
         element->setQuadratureRulesWithOrder(10);
     }
     // TODO: This should probably also be exposed by using a constructor
@@ -95,7 +95,7 @@ void DGMaxDiscretization<DIM>::initializeBasisFunctions(
 template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::computeElementIntegralsImpl(
     Base::MeshManipulator<DIM>& mesh,
-    const std::map<std::size_t, InputFunction>& elementVectors,
+    const std::map<std::size_t, InputFunction>& elementVectors, double omega,
     LocalIntegrals integrals) {
     logger.assert_always(
         !(matrixHandling_ == ORTHOGONALIZE && !elementVectors.empty()),
@@ -115,7 +115,7 @@ void DGMaxDiscretization<DIM>::computeElementIntegralsImpl(
         Base::Element* element = *it;
 
         if (integrals == LocalIntegrals::ALL) {
-            computeElementMatrices(element);
+            computeElementMatrices(element, omega);
             postProcessElementMatrices(element);
         }
 
@@ -142,7 +142,7 @@ template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::computeFaceIntegralsImpl(
     Base::MeshManipulator<DIM>& mesh,
     const std::map<std::size_t, FaceInputFunction>& boundaryVectors,
-    DGMax::BoundaryConditionIndicator boundaryIndicator,
+    double omega, DGMax::BoundaryConditionIndicator boundaryIndicator,
     LocalIntegrals integrals) {
     MassMatrixHandling massMatrixHandling = matrixHandling_;
     logger.assert_always(
@@ -165,7 +165,7 @@ void DGMaxDiscretization<DIM>::computeFaceIntegralsImpl(
         Base::Face* face = *it;
 
         if (integrals == LocalIntegrals::ALL) {
-            computeFaceMatrix(face, boundaryIndicator);
+            computeFaceMatrix(face, omega, boundaryIndicator);
             postProcessFaceMatrices(face);
         }
 
@@ -185,7 +185,7 @@ void DGMaxDiscretization<DIM>::computeFaceIntegralsImpl(
                 tempFaceVector = faIntegral.integrate(
                     face, [&](Base::PhysicalFace<DIM>& face) {
                         LinearAlgebra::MiddleSizeVector res;
-                        faceVector(face, faceVectorDef.second, res, bct);
+                        faceVector(face, omega, faceVectorDef.second, res, bct);
                         return res;
                     });
             }
@@ -195,7 +195,8 @@ void DGMaxDiscretization<DIM>::computeFaceIntegralsImpl(
 }
 
 template <std::size_t DIM>
-void DGMaxDiscretization<DIM>::computeElementMatrices(Base::Element* element) {
+void DGMaxDiscretization<DIM>::computeElementMatrices(Base::Element* element,
+                                                      double omega) {
     // Shared information
     const auto& material = ElementInfos::get(*element);
 
@@ -203,9 +204,11 @@ void DGMaxDiscretization<DIM>::computeElementMatrices(Base::Element* element) {
 
     // Mass matrix
     LinearAlgebra::MiddleSizeMatrix massMatrix = elementIntegrator_.integrate(
-        element, [&material, dofU = dofU](Base::PhysicalElement<DIM>& pel) {
+        element, [&material, dofU = dofU,
+                  omega = omega](Base::PhysicalElement<DIM>& pel) {
             const auto& point = pel.getPointPhysical();
-            const auto materialDiv = material.getMaterialConstantDiv(point);
+            const auto materialDiv =
+                material.getMaterialConstantDiv(point, omega);
 
             LinearAlgebra::MiddleSizeMatrix ret;
             ret.resize(dofU, dofU);
@@ -225,13 +228,14 @@ void DGMaxDiscretization<DIM>::computeElementMatrices(Base::Element* element) {
     // Stiffness matrix
     LinearAlgebra::MiddleSizeMatrix stiffnessMatrix =
         elementIntegrator_.integrate(
-            element, [&material, dofU = dofU](Base::PhysicalElement<DIM>& pel) {
+            element, [&material, dofU = dofU,
+                      omega = omega](Base::PhysicalElement<DIM>& pel) {
                 LinearAlgebra::MiddleSizeMatrix ret;
                 ret.resize(dofU, dofU);
 
                 const auto& point = pel.getPointPhysical();
                 const auto materialCurl =
-                    material.getMaterialConstantCurl(point);
+                    material.getMaterialConstantCurl(point, omega);
 
                 LinearAlgebra::SmallVector<DIM> phi_i, phi_j;
                 for (std::size_t i = 0; i < dofU; ++i) {
@@ -257,7 +261,7 @@ void DGMaxDiscretization<DIM>::computeElementMatrices(Base::Element* element) {
 
                     const auto& point = pel.getPointPhysical();
                     const auto materialDiv =
-                        material.getMaterialConstantDiv(point);
+                        material.getMaterialConstantDiv(point, omega);
 
                     LinearAlgebra::SmallVector<DIM> phiU;
                     for (std::size_t i = 0; i < dofU; ++i) {
@@ -347,7 +351,8 @@ void DGMaxDiscretization<DIM>::elementInnerProduct(
 
 template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::computeFaceMatrix(
-    Base::Face* face, DGMax::BoundaryConditionIndicator boundaryIndicator) {
+    Base::Face* face, double omega,
+    DGMax::BoundaryConditionIndicator boundaryIndicator) {
     std::size_t numDoFs = face->getNumberOfBasisFunctions(0);
     const bool internalFace = face->isInternal();
 
@@ -380,10 +385,10 @@ void DGMaxDiscretization<DIM>::computeFaceMatrix(
 
                 auto p = pfa.getPointPhysical();
                 const auto materialLeftCurl =
-                    materialLeft.getMaterialConstantCurl(p);
+                    materialLeft.getMaterialConstantCurl(p, omega);
                 const auto materialRightCurl =
                     materialRight != nullptr
-                        ? materialRight->getMaterialConstantCurl(p)
+                        ? materialRight->getMaterialConstantCurl(p, omega)
                         : DGMax::MaterialTensor();
 
                 LinearAlgebra::SmallVector<DIM> phiNi, phiNj;
@@ -479,7 +484,8 @@ void DGMaxDiscretization<DIM>::postProcessFaceMatrices(Base::Face* face) const {
 
 template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::faceVector(
-    Base::PhysicalFace<DIM>& fa, const FaceInputFunction& boundaryCondition,
+    Base::PhysicalFace<DIM>& fa, double omega,
+    const FaceInputFunction& boundaryCondition,
     LinearAlgebra::MiddleSizeVector& ret,
     DGMax::BoundaryConditionType bct) const {
 
@@ -499,7 +505,7 @@ void DGMaxDiscretization<DIM>::faceVector(
         const auto point = fa.getPointPhysical();
         const auto& materialCurlAdj =
             ElementInfos::get(*face->getPtrElementLeft())
-                .getMaterialConstantCurl(point)
+                .getMaterialConstantCurl(point, omega)
                 .adjoint();
 
         val = boundaryCondition(fa);

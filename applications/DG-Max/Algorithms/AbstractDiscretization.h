@@ -109,19 +109,21 @@ class AbstractDiscretization : public AbstractDiscretizationBase {
     void computeElementIntegrals(
         hpgem::Base::MeshManipulator<dim>& mesh,
         const std::map<std::size_t, InputFunction>& elementVectors,
+        double dispersionOmega,
         LocalIntegrals integrals = LocalIntegrals::ALL) {
-        computeElementIntegralsImpl(mesh, elementVectors, integrals);
+        computeElementIntegralsImpl(mesh, elementVectors, dispersionOmega, integrals);
     }
 
     void computeFaceIntegrals(
         hpgem::Base::MeshManipulator<dim>& mesh,
         const std::map<std::size_t, FaceInputFunction>& faceVectors,
+        double dispersionOmega,
         BoundaryConditionIndicator boundaryIndicator =
             [](const hpgem::Base::Face&) {
                 return BoundaryConditionType::DIRICHLET;
             },
         LocalIntegrals integrals = LocalIntegrals::ALL) {
-        computeFaceIntegralsImpl(mesh, faceVectors, boundaryIndicator,
+        computeFaceIntegralsImpl(mesh, faceVectors, dispersionOmega, boundaryIndicator,
                                  integrals);
     }
 
@@ -164,11 +166,13 @@ class AbstractDiscretization : public AbstractDiscretizationBase {
     virtual void computeElementIntegralsImpl(
         hpgem::Base::MeshManipulator<dim>& mesh,
         const std::map<std::size_t, InputFunction>& elementVectors,
+        double dispersionOmega,
         LocalIntegrals integrals) = 0;
 
     virtual void computeFaceIntegralsImpl(
         hpgem::Base::MeshManipulator<dim>& mesh,
         const std::map<std::size_t, FaceInputFunction>& faceVectors,
+        double dispersionOmega,
         BoundaryConditionIndicator boundaryIndicator,
         LocalIntegrals integrals) = 0;
 };
