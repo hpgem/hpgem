@@ -448,7 +448,8 @@ GSmallVector<numberOfRows, typename Detail::ResultT<EntryT, double>::Type>
 
 template <std::size_t numberOfRows, typename EntryT>
 GSmallVector<numberOfRows, std::complex<double>> operator*(
-    const std::complex<double>& left, const GSmallVector<numberOfRows, EntryT>& right) {
+    const std::complex<double>& left,
+    const GSmallVector<numberOfRows, EntryT>& right) {
     return right * left;
 }
 

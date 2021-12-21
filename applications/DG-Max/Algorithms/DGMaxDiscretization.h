@@ -197,8 +197,7 @@ class DGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
     void computeElementIntegralsImpl(
         Base::MeshManipulator<DIM>& mesh,
         const std::map<std::size_t, InputFunction>& elementVectors,
-        double dispersionOmega,
-        LocalIntegrals integrals) final;
+        double dispersionOmega, LocalIntegrals integrals) final;
     void computeFaceIntegralsImpl(
         hpgem::Base::MeshManipulator<DIM>& mesh,
         const std::map<std::size_t, FaceInputFunction>& faceVectors,

@@ -89,7 +89,8 @@ class MaterialTensor {
         return *this;
     }
 
-    explicit MaterialTensor(std::complex<double> val) : type(Type::SCALAR), value(val){};
+    explicit MaterialTensor(std::complex<double> val)
+        : type(Type::SCALAR), value(val){};
 
     explicit MaterialTensor(const DiagonalTensor& val)
         : type(Type::DIAGONAL_TENSOR), value(val){};
@@ -105,7 +106,7 @@ class MaterialTensor {
         }
     }
 
-    template<std::size_t d>
+    template <std::size_t d>
     VecC<d> applyDiv(const hpgem::LinearAlgebra::SmallVector<d>& vec) const {
         return applyDiv(VecC<d>(vec));
     }

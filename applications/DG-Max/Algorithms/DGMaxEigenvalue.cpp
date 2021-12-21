@@ -420,7 +420,7 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::initStiffnessShellMatrix() {
                            PETSC_DETERMINE, this, &shell_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
     error = MatShellSetOperation(shell_, MATOP_MULT,
-                                 (void(*)(void))staticShellMultiply);
+                                 (void (*)(void))staticShellMultiply);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 }
 
