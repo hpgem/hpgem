@@ -43,6 +43,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <Geometry/PointPhysical.h>
 
 #include "../Material.h"
+#include "ProblemTypes/FieldPattern.h"
 
 namespace DGMax {
 
@@ -53,7 +54,7 @@ namespace DGMax {
 ///
 /// \tparam dim The dimension of the domain (2 or 3)
 template <std::size_t dim>
-class PlaneWave {
+class PlaneWave : public FieldPattern<dim> {
    public:
     PlaneWave() : k_(), E0_(), phase_(0.0) {}
     PlaneWave(LinearAlgebra::SmallVector<dim> k,
@@ -75,17 +76,28 @@ class PlaneWave {
     }
 
     LinearAlgebra::SmallVectorC<dim> field(
-        const Geometry::PointPhysical<dim>& p) const {
+        const Geometry::PointPhysical<dim>& p) const final {
         return E0_ * phaseFactor(p);
     }
 
     LinearAlgebra::SmallVectorC<dim> fieldCurl(
-        const Geometry::PointPhysical<dim>& p) const {
+        const Geometry::PointPhysical<dim>& p) const final {
         // To ensure the complex valued cross product is used
         LinearAlgebra::SmallVectorC<dim> kc = k_;
         using namespace std::complex_literals;
 
         return kc.crossProduct(E0_) * (1i * phaseFactor(p));
+    }
+
+    LinearAlgebra::SmallVectorC<dim> fieldDoubleCurl(const Geometry::PointPhysical<dim>& p,
+                         const MaterialTensor& material) const final {
+        // To ensure the complex valued cross product is used
+        LinearAlgebra::SmallVectorC<dim> kc = k_;
+        using namespace std::complex_literals;
+        // -1.0 is from two derivatives, each giving a factor 1i
+        return LinearAlgebra::leftDoubledCrossProduct(
+                   kc, material.applyCurl(kc.crossProduct(E0_))) *
+               (-1.0 * phaseFactor(p));
     }
 
     const LinearAlgebra::SmallVector<dim>& waveVector() const { return k_; }

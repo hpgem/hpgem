@@ -74,6 +74,11 @@ namespace DGMax {
 /// corresponding boundary has PMC/Neumann boundary conditions
 ///
 /// \tparam dim The dimension of the problem (2, 3)
+// Implementation note: This is not using ExactFieldHarmonicProblem as base
+// class. That class assumes that the 'source terms' at the boundary are to
+// match the exact solution. Here we do the opposite, we set an incident field
+// and the homogeneous+incident field boundary condition. Then we derive what
+// the analytical reflection should be from the boundary.
 template <std::size_t dim>
 class TrenchReflectionProblem : public SampleHarmonicProblem<dim> {
    public:

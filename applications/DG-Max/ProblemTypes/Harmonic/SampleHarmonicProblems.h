@@ -70,39 +70,6 @@ class SampleHarmonicProblem : public ExactHarmonicProblem<dim> {
     BoundaryConditionIndicator boundaryConditionIndicator_;
 };
 
-template <std::size_t dim>
-class [[maybe_unused]] ConstantHarmonicProblem
-    : public SampleHarmonicProblem<dim> {
-   public:
-    ConstantHarmonicProblem(double omega = 1) : omega_(omega) {
-        for (std::size_t i = 0; i < dim; ++i) {
-            field_[i] = static_cast<double>(i);
-        }
-    }
-    ConstantHarmonicProblem(LinearAlgebra::SmallVectorC<dim> field,
-                            double omega = 1)
-        : field_(field), omega_(omega) {}
-
-    double omega() const override { return omega_; }
-    LinearAlgebra::SmallVectorC<dim> sourceTerm(
-        const Base::Element&,
-        const Geometry::PointPhysical<dim>& point) const override {
-        return -(omega_ * omega_) * field_;
-    }
-    LinearAlgebra::SmallVectorC<dim> exactSolution(
-        const Geometry::PointPhysical<dim>& point) const override {
-        return field_;
-    }
-    LinearAlgebra::SmallVectorC<dim> exactSolutionCurl(
-        const Geometry::PointPhysical<dim>& point) const override {
-        return {};
-    }
-
-   private:
-    double omega_;
-    LinearAlgebra::SmallVectorC<dim> field_;
-};
-
 /// Sample problem in 3D using a product of sin-functions for each coordinate
 ///
 /// Problem used in:
