@@ -149,7 +149,13 @@ int main(int argc, char** argv) {
     ConvergenceTestSet meshesDGMax{
         getUnitSquareTriangleMeshes(3),
     };
-    meshesDGMax.addExpectedErrors("L2error", {});
+    meshesDGMax.addExpectedErrors("L2error",
+                                  {
+                                      4.51790819e-02,  //------
+                                      1.12970130e-02,  //  4.00
+                                      2.82503227e-03,  //  4.00
+                                      7.06274236e-04,  //  4.00
+                                  });
     auto dgmax = std::make_shared<DGMaxDiscretization<2>>(2, 100);
     runConvergenceTest(meshesDGMax, runToDebug.getValue(),
                        [&dgmax](std::string meshFile, std::size_t level) {
