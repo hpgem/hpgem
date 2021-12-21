@@ -65,10 +65,21 @@ struct ProblemData {
     static constexpr const std::size_t TRANSVERSE_HALF_WAVE_COUNT = 1;
 
     static constexpr const double PML_START = 0.5;
+    // This coefficient results in medium attenuation of
+    // exp(-10/FREQUENCY * PML_DEPTH^3/3 * ky) ~= 0.66
+    // for the incident wave to the back boundary, and the same factor for the
+    // reflected wave. Assuming Dirichlet boundary conditions the reflection is
+    // thus about 33%. Which is a significant dampening from no PML (100%
+    // reflection) as well as large enough to affect the solution before the PML
+    // and thus be detectable in the L2-error.
     static constexpr const double PML_SCALING = 10.0;
 
+    // Non unity material parameters to check that those work.
+    static constexpr const double permittivity = 1.5;
+    static constexpr const double permeability = 1.3;
+
     ProblemData()
-        : baseMaterial(1.0, 1.0),
+        : baseMaterial(permittivity, permeability),
           baseInfos(baseMaterial),
           pmlInfos(baseMaterial, {0, PML_START}, {0, 1}, PML_SCALING),
           structureDescription(StructureDescription::fromFunction(

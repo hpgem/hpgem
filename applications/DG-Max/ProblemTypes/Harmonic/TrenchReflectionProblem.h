@@ -95,6 +95,14 @@ class TrenchReflectionProblem : public SampleHarmonicProblem<dim> {
         farEndBCT_ = bct;
     }
 
+    /**
+     * Set that a region y > y_PML is ocupied by the rectilinear PML.
+     *
+     * This assumes the PML uses sigma = i/omega * a * (y - y_PML)^2 as
+     * scaling/conductivity.
+     * @param ystart The start of the PML
+     * @param scaling The scaling constant
+     */
     void setPML(double ystart, double scaling) {
         pmlYstart_ = ystart;
         pmlScaling_ = scaling;
