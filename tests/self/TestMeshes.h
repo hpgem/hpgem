@@ -41,6 +41,7 @@
 #include "string"
 #include "vector"
 #include "hpgem-cmake.h"
+#include "Logger.h"
 #include <limits>
 
 namespace hpgem {

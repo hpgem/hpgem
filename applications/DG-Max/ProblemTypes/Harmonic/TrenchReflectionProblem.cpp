@@ -50,7 +50,11 @@ TrenchReflectionProblem<dim>::TrenchReflectionProblem(double omega,
       width_(width),
       waveCount_(waveCount),
       length_(length),
-      material_(material) {
+      material_(material),
+      farEndBCT_(BoundaryConditionType::SILVER_MULLER),
+      // Disable PML by setting scaling to 0
+      pmlYstart_(0.0),
+      pmlScaling_(0.0) {
     logger.assert_always(waveCount > 0, "Non zero wave count");
     double kx = waveCount_ * M_PI / width_;
     double ky2 = omega_ * omega_ * material.getPermittivity() *
@@ -71,8 +75,11 @@ BoundaryConditionType TrenchReflectionProblem<dim>::getBoundaryConditionType(
 
     auto normal = face.getNormalVector(
         face.getReferenceGeometry()->getCenter().castDimension<1>());
+    normal /= normal.l2Norm();
     if (std::abs(normal[0]) > 1e-8) {
         return BoundaryConditionType::DIRICHLET;
+    } else if (normal[1] > 1e-1) {
+        return farEndBCT_;
     } else if (dim > 2 && std::abs(normal[2]) > 1e-8) {
         return BoundaryConditionType::NEUMANN;
     } else {
@@ -85,7 +92,7 @@ LinearAlgebra::SmallVectorC<dim> TrenchReflectionProblem<dim>::exactSolution(
     auto forward = waveIn1_.field(point) + waveIn2_.field(point);
     auto backWard = waveR1_.field(point) + waveR2_.field(point);
 
-    return combineWaves(forward, backWard);
+    return combineWaves(forward, backWard, point[1]);
 }
 
 template <std::size_t dim>
@@ -95,7 +102,7 @@ LinearAlgebra::SmallVectorC<dim>
     auto forward = waveIn1_.fieldCurl(point) + waveIn2_.fieldCurl(point);
     auto backWard = waveR1_.fieldCurl(point) + waveR2_.fieldCurl(point);
 
-    return combineWaves(forward, backWard);
+    return combineWaves(forward, backWard, point[1]);
 }
 
 template <std::size_t dim>
@@ -131,20 +138,79 @@ LinearAlgebra::SmallVectorC<dim>
 
 template <std::size_t dim>
 template <typename T>
-T TrenchReflectionProblem<dim>::combineWaves(T forward, T backward) const {
+T TrenchReflectionProblem<dim>::combineWaves(T forward, T backward,
+                                             double y) const {
+    using namespace std::complex_literals;
+
     double k2 = waveIn1_.waveVector().l2NormSquared();
     // Choosing wave in as ky > 0
     double ky = waveIn1_.waveVector()[1];
+
+    // The effect of the PML is to attenuate the incoming wave and its
+    // reflection. The incident and reflected wave are assumed to not include
+    // the effects of the PML. Hence, we need to include several effects:
+    //  - For a position inside the PML we need to attenuate the incident field
+    //  - For a position inside the PML we need to exponentially increase the
+    //    reflected wave.
+    //  - The reflection coefficient needs to include the total attenuation of
+    //    both the incident wave going into the PML and from the reflection
+    //    traveling out of the PML.
+
+    /// Attenuation factor from the PML
+    double pmlFactor;
+    {
+        // PML rescaling from attenuation
+        double pmly = (y - pmlYstart_);
+        if (pmly > 0) {
+            // Scales as exp(-1/omega int_(pmly, y) pmlscaling (y-pmly)^2)
+            double exponent =
+                -pmlScaling_ * ky / (3 * omega_) * pmly * pmly * pmly;
+            double scaling = std::exp(exponent);
+            forward *= scaling;
+            // The backwards wave is from the reflection, so that grows
+            // exponentially towards the far side.
+            backward /= scaling;
+
+            // Inside the PML we compute not E, but E multiplied by the
+            // diagonal PML-tensor (d1, d2, d3). Here only d2 != 1.0
+            auto yfactor = 1.0 + 1.0i / omega_ * pmlScaling_ * pmly * pmly;
+            forward[1] *= yfactor;
+            backward[1] *= yfactor;
+        }
+        double pmlDepth = (length_ - pmlYstart_);
+        double exponent =
+            -pmlScaling_ * ky / (3 * omega_) * pmlDepth * pmlDepth * pmlDepth;
+        // 2 from both traveling into, and then out of it
+        exponent *= 2;
+        pmlFactor = std::exp(exponent);
+    }
+
     // Compute reflection coefficient using the wavevector. This is equivalent
     // to -tan^2(theta/2), where ky = |k| cos(theta)
     // i.e. theta is the angle of the wave vector with respect to the normal.
     double r = 1.0 - 2 * k2 / (k2 + ky * std::sqrt(k2));
+    // Reflection coefficient of the y=Ly side
+    double rL;
+    switch (farEndBCT_) {
+        case BoundaryConditionType::DIRICHLET:
+            rL = 1.0 * pmlFactor;
+            break;
+        case BoundaryConditionType::SILVER_MULLER:
+            rL = r * pmlFactor;
+            break;
+        case BoundaryConditionType::NEUMANN:
+            rL = -1.0 * pmlFactor;
+            break;
+        default:
+            logger.fail(
+                "Reflection coefficient not implemented for this boundary "
+                "condition type");
+    }
 
     // Phase gained from traversing to the back boundary and back.
-    using namespace std::complex_literals;
     auto phase = std::exp(2.0i * (length_ * ky));
 
-    return (forward - r * phase * backward) / (1.0 - r * r * phase);
+    return (forward - rL * phase * backward) / (1.0 - rL * r * phase);
 }
 
 template class TrenchReflectionProblem<2>;

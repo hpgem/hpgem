@@ -87,6 +87,19 @@ class TrenchReflectionProblem : public SampleHarmonicProblem<dim> {
         return {};
     }
 
+    /**
+     * The boundary condition to use at y=Ly, i.e. the far end of the trench.
+     * @param bct
+     */
+    void setFarEndBoundaryCondition(BoundaryConditionType bct) {
+        farEndBCT_ = bct;
+    }
+
+    void setPML(double ystart, double scaling) {
+        pmlYstart_ = ystart;
+        pmlScaling_ = scaling;
+    }
+
     BoundaryConditionType getBoundaryConditionType(
         const Base::Face& face) const final;
     LinearAlgebra::SmallVectorC<dim> exactSolution(
@@ -99,21 +112,23 @@ class TrenchReflectionProblem : public SampleHarmonicProblem<dim> {
    private:
     /**
      * Combine a quantity from the forward and (reflected) backward wave to
-     * account for the Fabry-Perot effect of the boundaries.
+     * account for the Fabry-Perot effect of the boundaries and the dampening of
+     * the PML.
      *
      * The forward quantity should correspond to the value from the incident
      * wave. The backward quantity should correspond the to value from the
      * backward wave, with zero phase at y=0.
      *
      * This is then combined to include the reflection at both the y=Ly and y=0,
-     * boundaries.
+     * boundaries and the attenuation of the PML.
      * @tparam T The value type
      * @param forward Quantity from the forward wave
      * @param backward Quantity from the backward wave
+     * @param y
      * @return The combined value, including all reflections
      */
     template <typename T>
-    T combineWaves(T forward, T backward) const;
+    T combineWaves(T forward, T backward, double y) const;
 
     double omega_;
     /**
@@ -132,7 +147,17 @@ class TrenchReflectionProblem : public SampleHarmonicProblem<dim> {
      * Material in the channel
      */
     Material material_;
+    /**
+     * Boundary condition used at the y=Ly end.
+     */
+    DGMax::BoundaryConditionType farEndBCT_;
 
+    double pmlYstart_;
+    double pmlScaling_;
+
+    /**
+     * Solution functions
+     */
     PlaneWave<dim> waveIn1_, waveIn2_, waveR1_, waveR2_;
 };
 
