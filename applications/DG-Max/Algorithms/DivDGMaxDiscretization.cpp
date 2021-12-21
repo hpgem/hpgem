@@ -509,7 +509,7 @@ void DivDGMaxDiscretization<DIM>::elementSourceVector(
 
     LinearAlgebra::SmallVectorC<DIM> sourceValue;
     LinearAlgebra::SmallVector<DIM> phi;
-    sourceValue = source(el.getPointPhysical());
+    sourceValue = source(*element, el.getPointPhysical());
     for (std::size_t i = 0; i < (uDoFs); ++i) {
         el.basisFunction(i, phi, 0);
         ret(i) = sourceValue * phi;
@@ -1266,7 +1266,7 @@ double DivDGMaxDiscretization<DIM>::elementErrorIntegrand(
     LinearAlgebra::SmallVectorC<DIM> error;
     std::complex<double> potentialError = 0.0;  // Should be zero
     LinearAlgebra::SmallVector<DIM> phi;
-    error = exactValues(el.getPointPhysical());
+    error = exactValues(*element, el.getPointPhysical());
     for (std::size_t i = 0; i < numberOfUDoFs; ++i) {
         el.basisFunction(i, phi, 0);
         error -= data[i] * phi;

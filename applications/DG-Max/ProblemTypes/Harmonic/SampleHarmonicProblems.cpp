@@ -64,6 +64,7 @@ LinearAlgebra::SmallVectorC<3> SarmanyHarmonicProblem::exactSolutionCurl(
 }
 
 LinearAlgebra::SmallVectorC<3> SarmanyHarmonicProblem::sourceTerm(
+    const Base::Element&,
     const Geometry::PointPhysical<3> &point) const {
     return exactSolution(point) * (2 * M_PI * M_PI - omega_ * omega_);
 }

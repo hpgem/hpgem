@@ -110,7 +110,7 @@ class HarmonicSolver<DIM>::Workspace {
     double computeL2Error(const ExactHarmonicProblem<DIM>& solution) {
         return discretization_->computeL2Error(
             *mesh_, VECTOR_ID,
-            [&solution](const Geometry::PointPhysical<DIM>& p) {
+            [&solution](const Base::Element&, const Geometry::PointPhysical<DIM>& p) {
                 return solution.exactSolution(p);
             });
     }
@@ -230,8 +230,9 @@ void HarmonicSolver<DIM>::Workspace::computeIntegrals(
                  typename AbstractDiscretization<DIM>::InputFunction>
             elementVectors;
         elementVectors[AbstractDiscretizationBase::ELEMENT_VECTOR_ID] =
-            [&problem](const Geometry::PointPhysical<DIM>& p) {
-                return problem.sourceTerm(p);
+            [&problem](const Base::Element& element,
+                       const Geometry::PointPhysical<DIM>& p) {
+                return problem.sourceTerm(element, p);
             };
         discretization_->computeElementIntegrals(
             *mesh_, elementVectors, problem.omega(),

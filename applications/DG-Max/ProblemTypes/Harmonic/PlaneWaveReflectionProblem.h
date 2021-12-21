@@ -105,7 +105,8 @@ class [[maybe_unused]] PlaneWaveReflectionProblem
     LinearAlgebra::SmallVectorC<dim> exactSolutionCurl(
         const Geometry::PointPhysical<dim>& point) const override;
     LinearAlgebra::SmallVectorC<dim> sourceTerm(
-        const Geometry::PointPhysical<dim>& point) const override {
+        const Base::Element&,
+        const Geometry::PointPhysical<dim>&) const override {
         // No source term, on dispersion curve
         return {};
     }

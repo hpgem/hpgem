@@ -115,6 +115,7 @@ class TestingProblem : public HarmonicProblem<dim> {
     double omega() const final { return omega_; }
 
     LinearAlgebra::SmallVectorC<dim> sourceTerm(
+        const Base::Element&,
         const Geometry::PointPhysical<dim>& point) const final {
         LinearAlgebra::SmallVector<dim> result;
 

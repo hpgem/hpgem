@@ -342,7 +342,7 @@ void DGMaxDiscretization<DIM>::elementInnerProduct(
     ret.resize(numberOfBasisFunctions);
     LinearAlgebra::SmallVectorC<DIM> val;
     LinearAlgebra::SmallVector<DIM> phi;
-    val = function(el.getPointPhysical());
+    val = function(*el.getElement(), el.getPointPhysical());
     for (std::size_t i = 0; i < numberOfBasisFunctions; ++i) {
         el.basisFunction(i, phi, 0);
         ret[i] = val * phi;
@@ -782,9 +782,9 @@ LinearAlgebra::SmallVector<2> DGMaxDiscretization<DIM>::elementErrorIntegrand(
     LinearAlgebra::SmallVector<DIM> phi, phiCurl;
     LinearAlgebra::SmallVectorC<DIM> error, errorCurl;
 
-    error = exactValues(el.getPointPhysical());
+    error = exactValues(*element, el.getPointPhysical());
     if (computeCurl) {
-        errorCurl = curlValues(el.getPointPhysical());
+        errorCurl = curlValues(*element, el.getPointPhysical());
     }
     LinearAlgebra::MiddleSizeVector data;
     data = element->getTimeIntegrationVector(timeVector);
@@ -828,7 +828,7 @@ double DGMaxDiscretization<DIM>::faceErrorIntegrand(
     LinearAlgebra::SmallVector<DIM> error, phiNormal, solutionValues;
 
     // Compute u_L x n_L
-    solutionValues = exactSolution(PPhys);
+    solutionValues = exactSolution(*element, PPhys);
     error = normal.crossProduct(solutionValues);
     std::size_t n = face->getPtrElementLeft()->getNrOfBasisFunctions(0);
     LinearAlgebra::MiddleSizeVector solutionCoefficients =
@@ -851,7 +851,7 @@ double DGMaxDiscretization<DIM>::faceErrorIntegrand(
             face->mapRefFaceToRefElemR(p);
         PPhys = element->referenceToPhysical(pElement);
         // Compute u_R x n_L
-        solutionValues = exactSolution(PPhys);
+        solutionValues = exactSolution(*element, PPhys);
         otherSideError = normal.crossProduct(solutionValues);
         error -= otherSideError;  // Note subtraction as n_L = - n_R.
 

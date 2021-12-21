@@ -97,6 +97,7 @@ class AbstractDiscretization : public AbstractDiscretizationBase {
     using PointPhysicalT = hpgem::Geometry::PointPhysical<dim>;
     using PointReferenceT = hpgem::Geometry::PointReference<dim>;
     using InputFunction = std::function<hpgem::LinearAlgebra::SmallVectorC<dim>(
+        const Base::Element& element,
         const PointPhysicalT&)>;
     using FaceInputFunction =
         std::function<hpgem::LinearAlgebra::SmallVectorC<dim>(

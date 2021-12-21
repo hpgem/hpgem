@@ -85,6 +85,7 @@ class [[maybe_unused]] ConstantHarmonicProblem
 
     double omega() const override { return omega_; }
     LinearAlgebra::SmallVectorC<dim> sourceTerm(
+        const Base::Element&,
         const Geometry::PointPhysical<dim>& point) const override {
         return -(omega_ * omega_) * field_;
     }
@@ -122,6 +123,7 @@ class [[maybe_unused]] SarmanyHarmonicProblem
     LinearAlgebra::SmallVectorC<3> exactSolutionCurl(
         const Geometry::PointPhysical<3>& point) const override;
     LinearAlgebra::SmallVectorC<3> sourceTerm(
+        const Base::Element&,
         const Geometry::PointPhysical<3>& point) const override;
 
    private:
