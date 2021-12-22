@@ -19,7 +19,6 @@ if(hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
 		Algorithms/DivDGMaxEigenvalue.cpp
 
 		ProblemTypes/Harmonic/SampleHarmonicProblems.cpp
-		ProblemTypes/Harmonic/PlaneWaveReflectionProblem.cpp
 		ProblemTypes/Harmonic/TrenchReflectionProblem.cpp
 		ProblemTypes/Harmonic/ExactFieldHarmonicProblem.cpp
 		ProblemTypes/Time/DummyTestProblem.cpp

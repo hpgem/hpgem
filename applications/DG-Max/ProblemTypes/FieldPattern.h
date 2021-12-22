@@ -40,7 +40,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "LinearAlgebra/SmallVector.h"
 #include "Geometry/PointPhysical.h"
-#include "Material.h"
+#include "MaterialTensor.h"
+
 
 namespace DGMax {
 
@@ -97,7 +98,7 @@ class FieldPattern {
         auto Efield = field(p);
         auto EfieldCurlConj = fieldCurl(p).conj();
         return 1 / omega *
-               LinearAlgebra::leftDoubledCrossProduct(
+               hpgem::LinearAlgebra::leftDoubledCrossProduct(
                    Efield, material.adjoint().applyCurl(EfieldCurlConj))
                    .imag();
     }

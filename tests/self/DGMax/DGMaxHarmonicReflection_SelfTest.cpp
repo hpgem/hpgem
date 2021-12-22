@@ -46,7 +46,8 @@
 #include <Algorithms/HarmonicSolver.h>
 #include <Algorithms/DGMaxDiscretization.h>
 #include <Algorithms/DivDGMaxDiscretization.h>
-#include <ProblemTypes/Harmonic/PlaneWaveReflectionProblem.h>
+#include <ProblemTypes/Harmonic/InterfaceReflectionField.h>
+#include <ProblemTypes/Harmonic/ExactFieldHarmonicProblem.h>
 
 #include <petsc.h>
 
@@ -61,7 +62,7 @@ struct ProblemData {
     constexpr static const Material rightMaterial = Material(1.0, 1.1);
     constexpr static const double omega = M_PI;
     constexpr static const double phase = 1.0;
-    constexpr static const double xInterface = 0.5;
+    constexpr static const double xInterface = -0.5;
 
     ProblemData()
         : infosLeft(leftMaterial),
@@ -78,15 +79,38 @@ struct ProblemData {
                       return &infosRight;
                   }
               })),
-          problem(omega, phase, leftMaterial, rightMaterial, xInterface) {}
+          problem(omega,
+                  std::make_shared<InterfaceReflectionField<3>>(
+                      omega, phase, leftMaterial, rightMaterial, xInterface)) {
+        problem.setBoundaryConditionIndicator([](const Base::Face& face) {
+            auto normal = face.getNormalVector(
+                face.getReferenceGeometry()->getCenter().castDimension<2>());
+            normal /= normal.l2Norm();
+            if (std::abs(normal[0]) > 1e-1 ) {
+                return BoundaryConditionType::SILVER_MULLER;
+            } else if (std::abs(normal[1]) > 1e-1) {
+                // Field is in y-direction thus along the normal direction
+                // = PEC boundary
+                return BoundaryConditionType::DIRICHLET;
+            } else if (std::abs(normal[2]) > 1e-1){
+                // Field is parallel to the face => PMC
+                return BoundaryConditionType::DIRICHLET;
+            } else {
+                logger.fail("Problem with setting the boundary condition");
+            }
+        });
+    }
 
     ElementInfos infosLeft, infosRight;
     std::shared_ptr<StructureDescription> structureDescription;
-    PlaneWaveReflectionProblem<3> problem;
+    ExactFieldHarmonicProblem<3> problem;
 };
 
 const Material ProblemData::leftMaterial;
 const Material ProblemData::rightMaterial;
+const double ProblemData::omega;
+const double ProblemData::phase;
+const double ProblemData::xInterface;
 
 double solve(std::string meshFile, std::size_t level,
              std::shared_ptr<AbstractDiscretization<3>> discretization,
@@ -116,7 +140,7 @@ int main(int argc, char** argv) {
     initDGMaxLogging();
 
     // For testing and updating => Should be false to actually use this test
-    bool ignoreFailures = false;
+    bool ignoreFailures = true;
 
     // Default the solver if not specified to a direct LU solver
     std::map<std::string, std::string> defaultOptions = {
