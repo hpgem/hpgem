@@ -127,7 +127,7 @@ class ExactHarmonicProblem : public HarmonicProblem<DIM> {
                 const auto material =
                     ElementInfos::get(*face.getFace()->getPtrElementLeft())
                         .getMaterialConstantCurl(point, this->omega());
-                return material.applyCurl(exactSolution(point));
+                return material.applyCurl(exactSolutionCurl(point));
             }
             case BCT::SILVER_MULLER: {
                 const auto& point = face.getPointPhysical();
