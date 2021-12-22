@@ -151,10 +151,10 @@ int main(int argc, char** argv) {
     };
     meshesDGMax.addExpectedErrors("L2error",
                                   {
-                                      4.51790819e-02,  //------
-                                      1.12970130e-02,  //  4.00
-                                      2.82503227e-03,  //  4.00
-                                      7.06274236e-04,  //  4.00
+                                      4.71091751e-02,  //------
+                                      1.17673957e-02,  //  4.00
+                                      2.94181156e-03,  //  4.00
+                                      7.35406176e-04,  //  4.00
                                   });
     auto dgmax = std::make_shared<DGMaxDiscretization<2>>(2, 100);
     runConvergenceTest(meshesDGMax, runToDebug.getValue(),

@@ -53,19 +53,18 @@
 // should be re-run and the expected results updated.
 
 auto& runAsTestArg = Base::register_argument<bool>(
-    't', "test",
-    "Whether to run as test (true, default) or as convergence study (false)",
-    false, true);
+    'd', "debug",
+    "Whether to run to debug by ignoring differences and print the table",
+    false, false);
 
 // clang-format off
 // Leave the results as an easily readable table
 DGMax::EVConvergenceResult expected ({
-     {1.204336889,5.411086151,5.524294257,7.066481048,7.149443644,7.72780029},
-     {1.204203888,5.43456121,5.548559589,7.1219632,7.208314184,7.695794404,8.910736644},
-     {1.20417057,5.440372736,5.554561455,7.13560546,7.222790797,7.68700507,8.900260151,9.040610049},
-     {1.204162236,5.441822184,5.556058059,7.139002763,7.226395987,7.684761581,8.897550726}
-
- });
+    {1.204336889,5.411086151,5.524294257,7.066481049,7.149443644,7.72780029, 8.946301727,9.089005444,10.17894552,11.33621279,11.43525969},
+    {1.204203888,5.43456121, 5.548559589,7.1219632,  7.208314184,7.695794404,8.910736644,9.051669692,10.1143353, 11.60767607},
+    {1.20417057, 5.440372736,5.554561455,7.13560546, 7.222790797,7.68700507, 8.900260151,9.040610049,10.09484974,11.67241301},
+    {1.204162241,5.441822184,5.556058059,7.139002763,7.226395987,7.684761581,8.897550726,9.03774721, 10.08979572,11.68843905}
+});
 
 DGMax::EVConvergenceResult expected2({
     {1.2043368891,5.4110861511,5.5242942569,7.0664810486,7.1494436437,7.7278002899,8.9463017271,9.0890054436,10.1789455152,11.3362127914,11.4352596910},
@@ -115,7 +114,7 @@ int main(int argc, char** argv) {
 
     // Code to check the results if they change
     // Expected convergence speed = 2^2p = 4
-    if (!runAsTest) {
+    if (runAsTest) {
         std::array<LinearAlgebra::SmallVector<2>, 2> reciprocal;
         // Standard cubic lattice.
         reciprocal[0] = LinearAlgebra::SmallVector<2>({2 * M_PI, 0});
