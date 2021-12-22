@@ -50,6 +50,30 @@ using LinearAlgebra::SmallVector;
 using LinearAlgebra::SmallVectorC;
 using namespace std::complex_literals;
 
+TEST_CASE("Empty vector is zero", "[SmallVectorUnitTest]") {
+    // Test that the default constructor actually zeros the entries. When the
+    // entries are not zero-ed, they will contain whatever data is left by the
+    // previous user of that piece of memory.
+    {
+        // To make it more likely that we use polluted memory (i.e. memory that
+        // is not accidentally containing zeros), we first create the same
+        // objects and fill them with non-zero values.
+        LinearAlgebra::SmallVector<1> vecR;
+        LinearAlgebra::SmallVectorC<1> vecC;
+        vecR[0] = 1.0;
+        vecC[0] = 1.0;
+    }
+    {
+        // Test that the default initialization will zero the entries.
+        LinearAlgebra::SmallVector<1> vecR;
+        LinearAlgebra::SmallVectorC<1> vecC;
+        for (std::size_t i = 0; i < 1; ++i) {
+            REQUIRE(vecR[i] == 0.0);
+            REQUIRE(vecC[i] == 0.0);
+        }
+    }
+}
+
 TEST_CASE("Cross product 3D", "[SmallVectorUnitTest]") {
     SmallVector<3> x({1, 0, 0}), y({0, 1, 0}), z({0, 0, 1});
 

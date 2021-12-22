@@ -138,7 +138,8 @@ template <std::size_t numberOfRows, typename EntryT>
 class GSmallVector {
 
    public:
-    GSmallVector() = default;
+    // This will actually zero the memory, unlike =default;
+    GSmallVector() : data_(){};
 
     /*GSmallVector(std::array<double, numberOfRows> t)
         : data_(t)
