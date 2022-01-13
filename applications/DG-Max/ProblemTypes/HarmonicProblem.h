@@ -99,7 +99,7 @@ class HarmonicProblem {
     /**
      * @return Whether the problem describes the scattered field
      */
-    bool isScatterFieldProblem() const { return false; }
+    virtual bool isScatterFieldProblem() const { return false; }
 
     /**
      * If this is a scattered field problem, the incident field, else 0
