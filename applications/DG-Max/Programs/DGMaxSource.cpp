@@ -49,6 +49,7 @@
 #include <Algorithms/DGMaxDiscretization.h>
 #include <Algorithms/DivDGMaxDiscretization.h>
 #include <Utils/PlaneWave.h>
+#include <ProblemTypes/Harmonic/ScatteringProblem.h>
 
 #include <PMLElementInfos.h>
 
@@ -182,7 +183,7 @@ class TestingProblem : public HarmonicProblem<dim> {
 
 template <std::size_t dim>
 class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
-    static const constexpr std::size_t NUMBER_OF_PROBLEMS = 10;
+    static const constexpr std::size_t NUMBER_OF_PROBLEMS = 21;
 
    public:
     Driver(Base::MeshManipulator<dim>& mesh)
@@ -205,6 +206,13 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
         nextCalled_++;
         problem_ =
             std::make_shared<TestingProblem<dim>>(0.01 + 0.0001 * nextCalled_);
+        double omega = 1 * M_PI * (1.0 + 0.1 * (nextCalled_-1));
+        LinearAlgebra::SmallVector<dim> k;
+        LinearAlgebra::SmallVectorC<dim> E0;
+        k[0] = omega;  // Assume vacuum
+        E0[1] = 1.0;
+        problem_ = std::make_shared<DGMax::ScatteringProblem<dim>>(
+            omega, std::make_shared<DGMax::PlaneWave<dim>>(k, E0, 0.0));
     }
 
     const HarmonicProblem<dim>& currentProblem() const override {
@@ -218,9 +226,9 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
             switch (change) {
                 case HarmonicProblemChanges::OMEGA:
                 case HarmonicProblemChanges::BOUNDARY_CONDITION_VALUE:
+                case HarmonicProblemChanges::CURRENT_SOURCE:
                     return true;
                 case HarmonicProblemChanges::BOUNDARY_CONDITION_TYPE:
-                case HarmonicProblemChanges::CURRENT_SOURCE:
                     return false;
                 default:
                     return true;
@@ -238,10 +246,30 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
         output.write(
             [this](Base::Element* element,
                    const Geometry::PointReference<dim>& p, std::size_t) {
-                return problem_->sourceTerm(*element, element->referenceToPhysical(p))
+                return problem_
+                    ->sourceTerm(*element, element->referenceToPhysical(p))
                     .real();
             },
             "source");
+
+        auto scatteringProblem =
+            std::dynamic_pointer_cast<DGMax::ScatteringProblem<dim>>(problem_);
+        if (scatteringProblem) {
+            output.write(
+                [&scatteringProblem](Base::Element* element,
+                                     const Geometry::PointReference<dim>& p,
+                                     std::size_t) {
+                    auto pphys = element->referenceToPhysical(p);
+                    return scatteringProblem->incidentField(pphys).real();
+                }, "Ein-real");
+            output.write(
+                [&scatteringProblem](Base::Element* element,
+                                     const Geometry::PointReference<dim>& p,
+                                     std::size_t) {
+                    auto pphys = element->referenceToPhysical(p);
+                    return scatteringProblem->incidentField(pphys).imag();
+                }, "Ein-imag");
+        }
 
         // Compute fluxes
 

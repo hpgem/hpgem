@@ -58,7 +58,7 @@ class ElementInfos : public hpgem::Base::UserData {
     using PointPhysicalBase = hpgem::Geometry::PointPhysicalBase;
     using SmallVectorC = hpgem::LinearAlgebra::SmallVectorC<3>;
 
-    ElementInfos(double epsilon, double permeability = 1.0);
+    ElementInfos(double epsilon = 1.0, double permeability = 1.0);
     ElementInfos(DGMax::Material material) : material_(material){};
 
     const double& getPermittivity() const {

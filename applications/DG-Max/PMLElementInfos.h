@@ -67,6 +67,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 template <std::size_t dim>
 class PMLElementInfos : public ElementInfos {
    public:
+    PMLElementInfos() = default;
     /**
      * Constructor
      * @param material Background material (epsilon, sigma)
