@@ -109,6 +109,35 @@ int main(int argc, char** argv) {
 template <std::size_t dim>
 void writeMesh(std::string, const Base::MeshManipulator<dim>* mesh);
 
+/**
+ * Facets of the mesh through which the flux needs to be computed
+ */
+class FluxFacets {
+
+   public:
+    FluxFacets(const Base::MeshManipulatorBase& mesh);
+
+    template <std::size_t dim>
+    std::map<std::string, double> computeFluxes(
+        DGMax::AbstractHarmonicResult<dim>& result, double wavenumber) const;
+
+    // Public to allow writing the header
+    /**
+     * Face for which an energy flux needs to be computed
+     */
+    struct FluxFace {
+        /**
+         * The face
+         */
+        Base::Face* face;
+        /**
+         * The side from which it needs to be computed
+         */
+        Base::Side side;
+    };
+    std::map<std::string, std::vector<FluxFace>> facets;
+};
+
 template <std::size_t dim>
 class TestingProblem : public HarmonicProblem<dim> {
 
@@ -193,12 +222,16 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
 
    public:
     Driver(Base::MeshManipulator<dim>& mesh)
-        : mesh_(&mesh), problem_(), nextCalled_(0) {
+        : mesh_(&mesh), problem_(), nextCalled_(0), fluxFacets_(mesh) {
 
         if (Base::MPIContainer::Instance().getProcessorID() == 0) {
             outfile.open("harmonic.csv");
             logger.assert_always(outfile.good(), "Opening output file failed");
-            outfile << "wavenumber,outflux,influx" << std::endl;
+            outfile << "wavenumber";
+            for (const auto& facet : fluxFacets_.facets) {
+                outfile << "," << facet.first;
+            }
+            outfile << std::endl;
         }
     };
 
@@ -260,57 +293,18 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
 
         plotResult(result, output);
 
-        // Compute fluxes
+        // Fluxes
+        std::map<std::string, double> fluxes =
+            fluxFacets_.computeFluxes(result, problem_->omega());
 
-        // Fluxes are stored in an array to allow easier MPIReduce
-        std::array<double, 2> inOutFlux = {0.0, 0.0};
-        for (Base::Face* face : mesh_->getFacesList()) {
-            if (face->isOwnedByCurrentProcessor()) {
-                Base::Side side;
-                auto* leftInfos = ElementInfos::get(face->getPtrElementLeft());
-                auto* rightInfos =
-                    ElementInfos::get(face->getPtrElementRight());
-                bool leftPML = dynamic_cast<PMLElementInfos<dim>*>(leftInfos);
-                bool rightPML = dynamic_cast<PMLElementInfos<dim>*>(rightInfos);
-                if (face->isInternal()) {
-                    if (leftPML == rightPML) {
-                        continue;
-                    } else {
-                        side = leftPML ? Base::Side::RIGHT : Base::Side::LEFT;
-                    }
-                } else {
-                    if (leftPML) {
-                        continue;
-                    } else {
-                        side = Base::Side::LEFT;
-                    }
-                }
-
-                double flux =
-                    result.computeEnergyFlux(*face, side, problem_->omega());
-                auto normal = face->getNormalVector(
-                    face->getReferenceGeometry()
-                        ->getCenter()
-                        .template castDimension<dim - 1>());
-                if (flux < 0) {
-                    inOutFlux[0] += flux;
-                } else {
-                    inOutFlux[1] += flux;
-                }
-            }
+        outfile << std::setprecision(16) << problem_->omega();
+        double totalFlux = 0.0;
+        for (const auto& entry : fluxes) {
+            outfile << "," << std::setprecision(16) << entry.second;
+            totalFlux += entry.second;
         }
-
-        Base::MPIContainer::Instance().reduce(inOutFlux, MPI_SUM);
-
-        if (Base::MPIContainer::Instance().getProcessorID() == 0) {
-            double influx = inOutFlux[0], outflux = inOutFlux[1];
-
-            DGMaxLogger(INFO, "Flux balance: out % - in % = %", outflux,
-                        -influx, outflux + influx);
-            outfile << std::setprecision(16);
-            outfile << problem_->omega() << "," << outflux << "," << influx
-                    << std::endl;
-        }
+        outfile << std::endl;
+        DGMaxLogger(INFO, "Total net flux %", totalFlux);
     }
 
    private:
@@ -321,6 +315,7 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
     std::shared_ptr<HarmonicProblem<dim>> problem_;
     std::ofstream outfile;
     int nextCalled_;
+    FluxFacets fluxFacets_;
 };
 
 template <std::size_t dim>
@@ -377,6 +372,63 @@ void writeMesh(std::string fileName, const Base::MeshManipulator<DIM>* mesh) {
         "epsilon");
 }
 
+FluxFacets::FluxFacets(const Base::MeshManipulatorBase& mesh) {
+    // When using more than 1 MPI rank, we would need to aggregate data. But the
+    // first processor may not know all the regions and possible boundaries.
+    logger.assert_always(Base::MPIContainer::Instance().getNumProcessors() == 1,
+                         "FluxFacets not suitable for more than 1 MPI rank");
+    for (Base::Face* face : mesh.getFacesList()) {
+        using Base::Side;
+        if (!face->isOwnedByCurrentProcessor()) {
+            continue;
+        }
+        const Base::Zone& leftZone = face->getPtrElementLeft()->getZone();
+        FluxFace fface;
+        fface.face = face;
+        std::string facetName;
+
+        if (face->isInternal()) {
+            const Base::Zone& rightZone = face->getPtrElementRight()->getZone();
+            if (leftZone.getZoneId() == rightZone.getZoneId()) {
+                // Only interested in zone boundaries
+                continue;
+            }
+            // Stable direction
+            fface.side = leftZone.getZoneId() < rightZone.getZoneId()
+                             ? Side::LEFT
+                             : Side::RIGHT;
+            // Name
+            std::stringstream name;
+            name << "flux-"
+                 << (fface.side == Side::LEFT ? leftZone : rightZone).getName()
+                 << "--"
+                 << (fface.side == Side::LEFT ? rightZone : leftZone).getName();
+            facetName = name.str();
+        } else {
+            // Outward fluxes are always included
+            std::stringstream name;
+            name << "flux-" << leftZone.getName();
+            facetName = name.str();
+        }
+        facets[facetName].push_back(fface);
+    }
+}
+
+template <std::size_t dim>
+std::map<std::string, double> FluxFacets::computeFluxes(
+    DGMax::AbstractHarmonicResult<dim>& result, double wavenumber) const {
+    std::map<std::string, double> fluxes;
+    for (const auto& facet : facets) {
+        double flux = 0.0;
+        for (const auto& face : facet.second) {
+            flux += result.computeEnergyFlux(*face.face, face.side, wavenumber);
+        }
+        fluxes[facet.first] = flux;
+    }
+    // TODO: MPI
+    return fluxes;
+}
+
 template <std::size_t dim>
 void Driver<dim>::plotResult(DGMax::AbstractHarmonicResult<dim>& result,
                              Output::VTKSpecificTimeWriter<dim>& output) {
@@ -431,8 +483,8 @@ void Driver<dim>::plotResult(DGMax::AbstractHarmonicResult<dim>& result,
 
         output.write(
             [&exactProblem](Base::Element* element,
-                        const Geometry::PointReference<dim>& p,
-                        std::size_t) {
+                            const Geometry::PointReference<dim>& p,
+                            std::size_t) {
                 return exactProblem
                     ->exactSolution(element->referenceToPhysical(p))
                     .real();
@@ -440,8 +492,8 @@ void Driver<dim>::plotResult(DGMax::AbstractHarmonicResult<dim>& result,
             "SolutionReal");
         output.write(
             [&exactProblem](Base::Element* element,
-                        const Geometry::PointReference<dim>& p,
-                        std::size_t) {
+                            const Geometry::PointReference<dim>& p,
+                            std::size_t) {
                 return exactProblem
                     ->exactSolution(element->referenceToPhysical(p))
                     .imag();
