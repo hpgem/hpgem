@@ -185,6 +185,12 @@ template <std::size_t dim>
 class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
     static const constexpr std::size_t NUMBER_OF_PROBLEMS = 21;
 
+    // For plotting in combination with scattered fields
+    struct Fields {
+        LinearAlgebra::SmallVectorC<dim> field;
+        LinearAlgebra::SmallVectorC<dim> incident;
+    };
+
    public:
     Driver(Base::MeshManipulator<dim>& mesh)
         : mesh_(&mesh), problem_(), nextCalled_(0) {
@@ -206,7 +212,7 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
         nextCalled_++;
         problem_ =
             std::make_shared<TestingProblem<dim>>(0.01 + 0.0001 * nextCalled_);
-        double omega = 1 * M_PI * (1.0 + 0.1 * (nextCalled_-1));
+        double omega = 1 * M_PI * (1.0 + 0.1 * (nextCalled_ - 1));
         LinearAlgebra::SmallVector<dim> k;
         LinearAlgebra::SmallVectorC<dim> E0;
         k[0] = omega;  // Assume vacuum
@@ -252,24 +258,7 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
             },
             "source");
 
-        auto scatteringProblem =
-            std::dynamic_pointer_cast<DGMax::ScatteringProblem<dim>>(problem_);
-        if (scatteringProblem) {
-            output.write(
-                [&scatteringProblem](Base::Element* element,
-                                     const Geometry::PointReference<dim>& p,
-                                     std::size_t) {
-                    auto pphys = element->referenceToPhysical(p);
-                    return scatteringProblem->incidentField(pphys).real();
-                }, "Ein-real");
-            output.write(
-                [&scatteringProblem](Base::Element* element,
-                                     const Geometry::PointReference<dim>& p,
-                                     std::size_t) {
-                    auto pphys = element->referenceToPhysical(p);
-                    return scatteringProblem->incidentField(pphys).imag();
-                }, "Ein-imag");
-        }
+        plotResult(result, output);
 
         // Compute fluxes
 
@@ -322,35 +311,12 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
             outfile << problem_->omega() << "," << outflux << "," << influx
                     << std::endl;
         }
-
-        auto* eproblem =
-            dynamic_cast<ExactHarmonicProblem<dim>*>(problem_.get());
-        if (eproblem != nullptr) {
-            double l2Error = result.computeL2Error(*eproblem);
-            DGMaxLogger(INFO, "L2 error %", l2Error);
-
-            output.write(
-                [&eproblem](Base::Element* element,
-                            const Geometry::PointReference<dim>& p,
-                            std::size_t) {
-                    return eproblem
-                        ->exactSolution(element->referenceToPhysical(p))
-                        .real();
-                },
-                "SolutionReal");
-            output.write(
-                [&eproblem](Base::Element* element,
-                            const Geometry::PointReference<dim>& p,
-                            std::size_t) {
-                    return eproblem
-                        ->exactSolution(element->referenceToPhysical(p))
-                        .imag();
-                },
-                "SolutionImag");
-        }
     }
 
    private:
+    void plotResult(DGMax::AbstractHarmonicResult<dim>& result,
+                    Output::VTKSpecificTimeWriter<dim>& output);
+
     Base::MeshManipulator<dim>* mesh_;
     std::shared_ptr<HarmonicProblem<dim>> problem_;
     std::ofstream outfile;
@@ -409,4 +375,77 @@ void writeMesh(std::string fileName, const Base::MeshManipulator<DIM>* mesh) {
             return elementInfos->getPermittivity();
         },
         "epsilon");
+}
+
+template <std::size_t dim>
+void Driver<dim>::plotResult(DGMax::AbstractHarmonicResult<dim>& result,
+                             Output::VTKSpecificTimeWriter<dim>& output) {
+    // Plotting of extra quantities for various types of problems
+
+    auto scatteringProblem =
+        std::dynamic_pointer_cast<DGMax::ScatteringProblem<dim>>(problem_);
+    if (scatteringProblem) {
+        using VecR = LinearAlgebra::SmallVector<dim>;
+        std::map<std::string, std::function<double(Fields&)>> scalars;
+        std::map<std::string, std::function<VecR(Fields&)>> vectors;
+
+        scalars["Eincident-mag"] = [](Fields& fields) {
+            return fields.incident.l2Norm();
+        };
+        vectors["Eincident-real"] = [](Fields& fields) {
+            return fields.incident.real();
+        };
+        vectors["Eincident-imag"] = [](Fields& fields) {
+            return fields.incident.imag();
+        };
+
+        scalars["Etotal-mag"] = [](Fields& fields) {
+            return (fields.incident + fields.field).l2Norm();
+        };
+
+        vectors["Etotal-real"] = [](Fields& fields) {
+            return fields.incident.real() + fields.field.real();
+        };
+        vectors["Etotal-imag"] = [](Fields& fields) {
+            return fields.incident.imag() + fields.field.imag();
+        };
+
+        output.template writeMultiple<Fields>(
+            [&result, &scatteringProblem](
+                Base::Element* element, const Geometry::PointReference<dim>& p,
+                std::size_t) {
+                Fields fields;
+                fields.field = result.computeField(element, p);
+                auto pphys = element->template referenceToPhysical(p);
+                fields.incident = scatteringProblem->incidentField(pphys);
+                return fields;
+            },
+            scalars, vectors);
+    }
+
+    auto* exactProblem =
+        dynamic_cast<ExactHarmonicProblem<dim>*>(problem_.get());
+    if (exactProblem != nullptr) {
+        double l2Error = result.computeL2Error(*exactProblem);
+        DGMaxLogger(INFO, "L2 error %", l2Error);
+
+        output.write(
+            [&exactProblem](Base::Element* element,
+                        const Geometry::PointReference<dim>& p,
+                        std::size_t) {
+                return exactProblem
+                    ->exactSolution(element->referenceToPhysical(p))
+                    .real();
+            },
+            "SolutionReal");
+        output.write(
+            [&exactProblem](Base::Element* element,
+                        const Geometry::PointReference<dim>& p,
+                        std::size_t) {
+                return exactProblem
+                    ->exactSolution(element->referenceToPhysical(p))
+                    .imag();
+            },
+            "SolutionImag");
+    }
 }

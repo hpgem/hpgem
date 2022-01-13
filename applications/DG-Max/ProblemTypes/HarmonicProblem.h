@@ -102,7 +102,9 @@ class HarmonicProblem {
     bool isScatterFieldProblem() const { return false; }
 
     /**
-     * If this is a scattered field problem, the incident field.
+     * If this is a scattered field problem, the incident field, else 0
+     * (default).
+     *
      * @param p The point to evaluate the incident field at
      * @return The field
      */
@@ -110,9 +112,11 @@ class HarmonicProblem {
         Geometry::PointPhysical<DIM>& p) const {
         return {};
     }
-    
+
     /**
-     * If this is a scattered field problem, the curl of the incident field
+     * If this is a scattered field problem, the curl of the incident field,
+     * else 0 (default).
+     *
      * @param p The point to evaluate at
      * @return The curl of the incident field.
      */

@@ -73,6 +73,12 @@ class HarmonicSolver<DIM>::Result : public AbstractHarmonicResult<DIM> {
         return workspace_->computeEnergyFlux(face, side, wavenumber);
     }
 
+    virtual LinearAlgebra::SmallVectorC<DIM> computeField(
+        const Base::Element* element,
+        const Geometry::PointReference<DIM>& p) final {
+        return workspace_->computeField(element, p);
+    }
+
    private:
     const HarmonicProblem<DIM>* problem_;
     HarmonicSolver<DIM>::Workspace* workspace_;
@@ -107,10 +113,17 @@ class HarmonicSolver<DIM>::Workspace {
     // Exposition to the solution
     Base::MeshManipulator<DIM>& getMesh() { return *mesh_; }
 
+    LinearAlgebra::SmallVectorC<DIM> computeField(
+        const Base::Element* element, const Geometry::PointReference<DIM>& p) const {
+        return discretization_->computeField(
+            element, p, element->getTimeIntegrationVector(VECTOR_ID));
+    }
+
     double computeL2Error(const ExactHarmonicProblem<DIM>& solution) {
         return discretization_->computeL2Error(
             *mesh_, VECTOR_ID,
-            [&solution](const Base::Element&, const Geometry::PointPhysical<DIM>& p) {
+            [&solution](const Base::Element&,
+                        const Geometry::PointPhysical<DIM>& p) {
                 return solution.exactSolution(p);
             });
     }
