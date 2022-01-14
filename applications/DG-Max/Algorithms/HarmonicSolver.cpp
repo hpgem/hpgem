@@ -68,9 +68,11 @@ class HarmonicSolver<DIM>::Result : public AbstractHarmonicResult<DIM> {
         return workspace_->getMesh();
     }
 
-    double computeEnergyFlux(Base::Face& face, hpgem::Base::Side side,
-                             double wavenumber) final {
-        return workspace_->computeEnergyFlux(face, side, wavenumber);
+    LinearAlgebra::SmallVector<4> computeEnergyFlux(
+        Base::Face& face, hpgem::Base::Side side, double wavenumber,
+        const FieldPattern<DIM>* background) final {
+        return workspace_->computeEnergyFlux(face, side, wavenumber,
+                                             background);
     }
 
     virtual LinearAlgebra::SmallVectorC<DIM> computeField(
@@ -114,7 +116,8 @@ class HarmonicSolver<DIM>::Workspace {
     Base::MeshManipulator<DIM>& getMesh() { return *mesh_; }
 
     LinearAlgebra::SmallVectorC<DIM> computeField(
-        const Base::Element* element, const Geometry::PointReference<DIM>& p) const {
+        const Base::Element* element,
+        const Geometry::PointReference<DIM>& p) const {
         return discretization_->computeField(
             element, p, element->getTimeIntegrationVector(VECTOR_ID));
     }
@@ -132,10 +135,11 @@ class HarmonicSolver<DIM>::Workspace {
         discretization_->writeFields(output, VECTOR_ID);
     }
 
-    double computeEnergyFlux(Base::Face& face, hpgem::Base::Side side,
-                             double wavenumber) {
-        return discretization_->computeEnergyFlux(face, side, wavenumber,
-                                                  VECTOR_ID);
+    LinearAlgebra::SmallVector<4> computeEnergyFlux(
+        Base::Face& face, hpgem::Base::Side side, double wavenumber,
+        const FieldPattern<DIM>* background) {
+        return discretization_->computeEnergyFluxes(face, side, wavenumber,
+                                                    VECTOR_ID, background);
     }
 
    private:

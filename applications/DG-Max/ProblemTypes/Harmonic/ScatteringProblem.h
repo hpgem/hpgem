@@ -94,6 +94,10 @@ class ScatteringProblem : public HarmonicProblem<dim> {
         return incidentField_->fieldCurl(p);
     }
 
+    std::shared_ptr<const FieldPattern<dim>> incidentFieldPattern() const {
+        return incidentField_;
+    }
+
    private:
     double omega_;
     std::shared_ptr<FieldPattern<dim>> incidentField_;

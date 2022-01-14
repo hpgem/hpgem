@@ -631,9 +631,10 @@ void DGMaxDiscretization<DIM>::writeFields(
 }
 
 template <std::size_t DIM>
-double DGMaxDiscretization<DIM>::computeEnergyFlux(
+LinearAlgebra::SmallVector<4> DGMaxDiscretization<DIM>::computeEnergyFluxes(
     Base::Face& face, hpgem::Base::Side side, double wavenumber,
-    std::size_t timeIntegrationVectorId) {
+    std::size_t timeIntegrationVectorId,
+    const DGMax::FieldPattern<DIM>* background) {
 
     using VecC = LinearAlgebra::SmallVectorC<DIM>;
 
@@ -687,8 +688,10 @@ double DGMaxDiscretization<DIM>::computeEnergyFlux(
 
     double factor = face.isInternal() ? 0.5 : 1.0;
 
-    double flux = faceIntegrator_.integrate(
-        &face, [&coefficients, &factor](Base::PhysicalFace<DIM>& pface) {
+    auto flux = faceIntegrator_.integrate(
+        &face,
+        [&coefficients, &factor, background](Base::PhysicalFace<DIM>& pface) {
+            LinearAlgebra::SmallVector<4> result;
             // Average curl of the field
             VecC avgCurl;
             // n cross E for the two sides
@@ -706,7 +709,21 @@ double DGMaxDiscretization<DIM>::computeEnergyFlux(
             //   = omega n . Im(E x muinv flux[Curl E]^*)
             // using complex inner product
             //   = omega Im((n x E) . muinv flux[Curl E])
-            return (avgE * avgCurl).imag();
+            // return (avgE * avgCurl).imag();
+            result[0] = (avgE * avgCurl).imag();
+            if (background) {
+                VecC backgroundE = normal.crossProduct(
+                    background->field(pface.getPointPhysical()));
+                VecC totalE = avgE + backgroundE;
+                VecC backgroundCurl =
+                    background->fieldCurl(pface.getPointPhysical());
+                VecC totalCurl = avgCurl + backgroundCurl;
+                result[1] = (backgroundE * backgroundCurl).imag();
+                result[2] =
+                    (backgroundE * avgCurl + avgE * backgroundCurl).imag();
+                result[3] = (totalE * totalCurl).imag();
+            }
+            return result;
         });
     if (side == hpgem::Base::Side::RIGHT) {
         flux *= -1.0;

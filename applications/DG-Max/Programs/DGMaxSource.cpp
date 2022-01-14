@@ -118,8 +118,9 @@ class FluxFacets {
     FluxFacets(const Base::MeshManipulatorBase& mesh);
 
     template <std::size_t dim>
-    std::map<std::string, double> computeFluxes(
-        DGMax::AbstractHarmonicResult<dim>& result, double wavenumber) const;
+    std::map<std::string, LinearAlgebra::SmallVector<4>> computeFluxes(
+        DGMax::AbstractHarmonicResult<dim>& result, double wavenumber,
+        const DGMax::FieldPattern<dim>* background) const;
 
     // Public to allow writing the header
     /**
@@ -230,6 +231,11 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
             outfile << "wavenumber";
             for (const auto& facet : fluxFacets_.facets) {
                 outfile << "," << facet.first;
+                if (true) {
+                    outfile << "," << facet.first << "-incident";
+                    outfile << "," << facet.first << "-extinction";
+                    outfile << "," << facet.first << "-total";
+                }
             }
             outfile << std::endl;
         }
@@ -293,14 +299,26 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
 
         plotResult(result, output);
 
+        const DGMax::FieldPattern<dim>* background = nullptr;
+        auto scatteringProblem =
+            std::dynamic_pointer_cast<DGMax::ScatteringProblem<dim>>(problem_);
+        if (scatteringProblem) {
+            background = scatteringProblem->incidentFieldPattern().get();
+        }
+
         // Fluxes
-        std::map<std::string, double> fluxes =
-            fluxFacets_.computeFluxes(result, problem_->omega());
+        std::map<std::string, LinearAlgebra::SmallVector<4>> fluxes =
+            fluxFacets_.computeFluxes(result, problem_->omega(), background);
 
         outfile << std::setprecision(16) << problem_->omega();
-        double totalFlux = 0.0;
+        LinearAlgebra::SmallVector<4> totalFlux = {};
         for (const auto& entry : fluxes) {
-            outfile << "," << std::setprecision(16) << entry.second;
+            std::size_t nfluxes = problem_->isScatterFieldProblem() ? 4 : 1;
+            for(std::size_t i = 0; i < nfluxes; ++i) {
+                outfile << "," << std::setprecision(16) << entry.second[i];
+            }
+
+            // TODO: Change to only boundary
             totalFlux += entry.second;
         }
         outfile << std::endl;
@@ -415,15 +433,17 @@ FluxFacets::FluxFacets(const Base::MeshManipulatorBase& mesh) {
 }
 
 template <std::size_t dim>
-std::map<std::string, double> FluxFacets::computeFluxes(
-    DGMax::AbstractHarmonicResult<dim>& result, double wavenumber) const {
-    std::map<std::string, double> fluxes;
+std::map<std::string, LinearAlgebra::SmallVector<4>> FluxFacets::computeFluxes(
+    DGMax::AbstractHarmonicResult<dim>& result, double wavenumber,
+    const DGMax::FieldPattern<dim>* background) const {
+    std::map<std::string, LinearAlgebra::SmallVector<4>> fluxes;
     for (const auto& facet : facets) {
-        double flux = 0.0;
+        LinearAlgebra::SmallVector<4> flux = {};
         for (const auto& face : facet.second) {
-            flux += result.computeEnergyFlux(*face.face, face.side, wavenumber);
+            flux += result.computeEnergyFlux(*face.face, face.side,
+                                               wavenumber, background);
         }
-        fluxes[facet.first] = flux;
+        fluxes[facet.first] += flux;
     }
     // TODO: MPI
     return fluxes;

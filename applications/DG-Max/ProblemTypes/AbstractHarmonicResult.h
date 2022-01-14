@@ -40,6 +40,7 @@
 
 #include <Output/VTKSpecificTimeWriter.h>
 #include "HarmonicProblem.h"
+#include "FieldPattern.h"
 
 namespace DGMax {
 
@@ -61,8 +62,7 @@ class AbstractHarmonicResult {
      * Compute the electric field of the solution at a specific point
      */
     virtual LinearAlgebra::SmallVectorC<dim> computeField(
-        const Base::Element* element,
-        const Geometry::PointReference<dim>&) = 0;
+        const Base::Element* element, const Geometry::PointReference<dim>&) = 0;
 
     virtual double computeL2Error(
         const ExactHarmonicProblem<dim>& solution) = 0;
@@ -73,8 +73,22 @@ class AbstractHarmonicResult {
      * @see AbstractDiscretization#computeEnergyFlux for more information about
      * the computational aspects.
      */
-    virtual double computeEnergyFlux(Base::Face& face, hpgem::Base::Side side,
-                                     double wavenumber) = 0;
+    double computeEnergyFlux(Base::Face& face, hpgem::Base::Side side,
+                             double wavenumber) {
+        return computeEnergyFlux(face, side, wavenumber, nullptr)[0];
+    }
+    /**
+     * Compute energy fluxes through a face.
+     *
+     * @param face
+     * @param side
+     * @param waveNumber
+     * @param background
+     * @return
+     */
+    virtual LinearAlgebra::SmallVector<4> computeEnergyFlux(
+        Base::Face& face, Base::Side side, double waveNumber,
+        const FieldPattern<dim>* background) = 0;
 };
 
 }  // namespace DGMax
