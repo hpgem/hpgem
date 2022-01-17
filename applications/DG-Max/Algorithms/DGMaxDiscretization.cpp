@@ -628,6 +628,24 @@ void DGMaxDiscretization<DIM>::writeFields(
             }
         },
         "epsilon");
+    writer.write(
+        [](Base::Element* element, const Geometry::PointReference<DIM>& p,
+           std::size_t) {
+            const ElementInfos& material = ElementInfos::get(*element);
+            auto tensor = material.getMaterialConstantDiv(
+                element->referenceToPhysical(p), 2 * M_PI);
+            return tensor.diag(LinearAlgebra::SmallVectorC<DIM>{}).real();
+        },
+        "epsilon-real");
+    writer.write(
+        [](Base::Element* element, const Geometry::PointReference<DIM>& p,
+           std::size_t) {
+            const ElementInfos& material = ElementInfos::get(*element);
+            auto tensor = material.getMaterialConstantDiv(
+                element->referenceToPhysical(p), 2 * M_PI);
+            return tensor.diag(LinearAlgebra::SmallVectorC<DIM>{}).imag();
+        },
+        "epsilon-imag");
 }
 
 template <std::size_t DIM>

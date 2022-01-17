@@ -106,6 +106,31 @@ class MaterialTensor {
         }
     }
 
+    VecC<2> diag(VecC<2> sample) {
+        switch (type) {
+            case Type::SCALAR:
+                return VecC<2>{value.scalar, value.scalar};
+            case Type::DIAGONAL_TENSOR: {
+                VecC<2> result;
+                result[0] = value.diag[0];
+                result[1] = value.diag[1];
+                return result;
+            }
+            default:
+                hpgem::logger.fail("Unknown material tensor type");
+        }
+    }
+    VecC<3> diag(VecC<3> sample) {
+        switch (type) {
+            case Type::SCALAR:
+                return VecC<3>{value.scalar, value.scalar, value.scalar};
+            case Type::DIAGONAL_TENSOR:
+                return value.diag;
+            default:
+                hpgem::logger.fail("Unknown material tensor type");
+        }
+    }
+
     template <std::size_t d>
     VecC<d> applyDiv(const hpgem::LinearAlgebra::SmallVector<d>& vec) const {
         return applyDiv(VecC<d>(vec));

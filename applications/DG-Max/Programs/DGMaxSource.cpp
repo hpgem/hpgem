@@ -366,6 +366,51 @@ void runWithDimension() {
     auto mesh =
         DGMax::readMesh<dim>(meshFileName.getValue(), &configData, *structure,
                              discretization->getNumberOfElementMatrices());
+
+    std::vector<PMLElementInfos<dim>> pmls;
+    {
+        // Dirty generation of PMLs
+        pmls.reserve(3 * 3);
+        double pmlstart = 1.0;
+        std::vector<int> signs = {-1, 0, 1};
+        double pmlScale = 4 * M_PI * 3;
+        DGMax::Material material;  // Vacuum
+
+        for (std::size_t ix = 0; ix < 3; ++ix) {
+            for (std::size_t iy = 0; iy < 3; ++iy) {
+                LinearAlgebra::SmallVector<dim> offset;
+                offset[0] = pmlstart * signs[ix];
+                offset[1] = pmlstart * signs[iy];
+                LinearAlgebra::SmallVector<dim> direction;
+                direction[0] = signs[ix];
+                direction[1] = signs[iy];
+                pmls.emplace_back(PMLElementInfos<dim>(material, offset,
+                                                       direction, pmlScale));
+            }
+        }
+        for (Base::Element* element : mesh->getElementsList()) {
+            const std::string& zoneName = element->getZone().getName();
+            if (zoneName == "PML-SW") {
+                element->setUserData(&pmls[0]);
+            } else if (zoneName == "PML-W") {
+                element->setUserData(&pmls[1]);
+            } else if (zoneName == "PML-NW") {
+                element->setUserData(&pmls[2]);
+            } else if (zoneName == "PML-S") {
+                element->setUserData(&pmls[3]);
+            } else if (zoneName == "PML-N") {
+                // Skip 4, which has directions {0,0}
+                element->setUserData(&pmls[5]);
+            } else if (zoneName == "PML-SE") {
+                element->setUserData(&pmls[6]);
+            } else if (zoneName == "PML-E") {
+                element->setUserData(&pmls[7]);
+            } else if (zoneName == "PML-NE") {
+                element->setUserData(&pmls[8]);
+            }
+        }
+    }
+
     logger(INFO, "Loaded mesh % with % local elements", meshFileName.getValue(),
            mesh->getNumberOfElements());
     writeMesh<dim>("mesh", mesh.get());
