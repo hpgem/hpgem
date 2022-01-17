@@ -424,6 +424,7 @@ FluxFacets::FluxFacets(const Base::MeshManipulatorBase& mesh) {
             facetName = name.str();
         } else {
             // Outward fluxes are always included
+            fface.side = Side::LEFT;
             std::stringstream name;
             name << "flux-" << leftZone.getName();
             facetName = name.str();
