@@ -50,6 +50,7 @@
 #include <Algorithms/DivDGMaxDiscretization.h>
 #include <Utils/PlaneWave.h>
 #include <ProblemTypes/Harmonic/ScatteringProblem.h>
+#include <ProblemTypes/Harmonic/InterfaceReflectionField.h>
 
 #include <PMLElementInfos.h>
 
@@ -213,7 +214,7 @@ class TestingProblem : public HarmonicProblem<dim> {
 
 template <std::size_t dim>
 class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
-    static const constexpr std::size_t NUMBER_OF_PROBLEMS = 21;
+    static const constexpr std::size_t NUMBER_OF_PROBLEMS = 301;
 
     // For plotting in combination with scattered fields
     struct Fields {
@@ -251,13 +252,32 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
         nextCalled_++;
         problem_ =
             std::make_shared<TestingProblem<dim>>(0.01 + 0.0001 * nextCalled_);
-        double omega = 1 * M_PI * (1.0 + 0.1 * (nextCalled_ - 1));
+        //        double omega = 2 * M_PI * (0.001 + 0.001 * (nextCalled_ - 1));
+
+        // Inverse cm wavenumbers
+        const double wavenumberMin = 2000;
+        const double waveNumberMax = 8000;
+        const double dWavenumber = waveNumberMax - wavenumberMin;
+        // Conversion factor (mesh length-unit) = N cm
+        const double meshConversion = 1e-6;
+
+        // Linear spacing in wavenumber
+        double omega = 2.0 * M_PI * meshConversion *
+                       (wavenumberMin + dWavenumber * (nextCalled_ - 1) /
+                                            (NUMBER_OF_PROBLEMS + 1));
+
         LinearAlgebra::SmallVector<dim> k;
         LinearAlgebra::SmallVectorC<dim> E0;
-        k[0] = omega;  // Assume vacuum
-        E0[1] = 1.0;
+        k[1] = omega;  // Assume vacuum
+        E0[0] = 1.0;
+        DGMax::Material outside(1.0, 1.0);
+        DGMax::Material inside(12.1, 1.0);
         problem_ = std::make_shared<DGMax::ScatteringProblem<dim>>(
-            omega, std::make_shared<DGMax::PlaneWave<dim>>(k, E0, 0.0));
+            omega, std::make_shared<DGMax::InterfaceReflectionField<dim>>(
+                       omega, 0.0, outside, inside, 0.0));
+        //        problem_ = std::make_shared<DGMax::ScatteringProblem<dim>>(
+        //            omega, std::make_shared<DGMax::PlaneWave<dim>>(k, E0,
+        //            0.0));
     }
 
     const HarmonicProblem<dim>& currentProblem() const override {
@@ -314,7 +334,7 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
         LinearAlgebra::SmallVector<4> totalFlux = {};
         for (const auto& entry : fluxes) {
             std::size_t nfluxes = problem_->isScatterFieldProblem() ? 4 : 1;
-            for(std::size_t i = 0; i < nfluxes; ++i) {
+            for (std::size_t i = 0; i < nfluxes; ++i) {
                 outfile << "," << std::setprecision(16) << entry.second[i];
             }
 
@@ -366,6 +386,31 @@ void runWithDimension() {
     auto mesh =
         DGMax::readMesh<dim>(meshFileName.getValue(), &configData, *structure,
                              discretization->getNumberOfElementMatrices());
+
+    std::vector<PMLElementInfos<dim>> pmls;
+    {
+        double strength = 1e-5;
+        LinearAlgebra::SmallVector<dim> offset, direction;
+        offset[1] = -300.0;
+        direction[1] = -1.0;
+
+        pmls.emplace_back(PMLElementInfos<dim>(DGMax::Material(), offset,
+                                               direction, strength / 10));
+        offset[1] = 719.0;
+        direction[1] = 1.0;
+        DGMax::Material silicon(12.1, 1);
+        pmls.emplace_back(
+            PMLElementInfos<dim>(silicon, offset, direction, strength));
+    }
+    for (Base::Element* element : mesh->getElementsList()) {
+        const std::string& zoneName = element->getZone().getName();
+        if (zoneName == "4") {
+            element->setUserData(&pmls[0]);
+        } else if (zoneName == "5") {
+            element->setUserData(&pmls[1]);
+        }
+    }
+
     logger(INFO, "Loaded mesh % with % local elements", meshFileName.getValue(),
            mesh->getNumberOfElements());
     writeMesh<dim>("mesh", mesh.get());
@@ -441,8 +486,8 @@ std::map<std::string, LinearAlgebra::SmallVector<4>> FluxFacets::computeFluxes(
     for (const auto& facet : facets) {
         LinearAlgebra::SmallVector<4> flux = {};
         for (const auto& face : facet.second) {
-            flux += result.computeEnergyFlux(*face.face, face.side,
-                                               wavenumber, background);
+            flux += result.computeEnergyFlux(*face.face, face.side, wavenumber,
+                                             background);
         }
         fluxes[facet.first] += flux;
     }

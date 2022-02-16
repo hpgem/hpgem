@@ -191,6 +191,7 @@ std::unique_ptr<ZoneInfoStructureDefinition> readZonedDescription(
         logger.assert_always(idx == epsilonStr.size(),
                              "Trailing data after epsilon on line %: %",
                              lineNumber, line);
+        DGMaxLogger(INFO, "Adding zone regexp '%' with material %", regexStr, epsilon);
         zoneRegexes.push_back(regex);
         zoneEpsilons.push_back(epsilon);
 

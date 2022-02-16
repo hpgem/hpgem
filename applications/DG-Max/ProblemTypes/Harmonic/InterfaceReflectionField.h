@@ -71,10 +71,10 @@ class InterfaceReflectionField : public FieldPattern<dim> {
         // Wavevectors in x-direction with the right magnitude
         using VecR = LinearAlgebra::SmallVector<dim>;
         VecR kin, kref, ktrans, E0;
-        kin[0] = omega * mat1.getRefractiveIndex();
-        kref[0] = -kin[0];
-        ktrans[0] = omega * mat2.getRefractiveIndex();
-        E0[1] = 1.0;
+        kin[1] = omega * mat1.getRefractiveIndex();
+        kref[1] = -kin[1];
+        ktrans[1] = omega * mat2.getRefractiveIndex();
+        E0[0] = 1.0;
 
         // The reflection and transmission coefficients are derived in several
         // standard textbooks.
@@ -93,22 +93,22 @@ class InterfaceReflectionField : public FieldPattern<dim> {
         // Et = <0,t> exp(ik_t x + phi)
         // However, we have in interface at x = x_L, as such we need to
         // compensate the phase of each wave.
-        auto rPhase = phase + kin[0] * position - kref[0] * position;
-        auto tPhase = phase + kin[0] * position - ktrans[0] * position;
+        auto rPhase = phase + kin[1] * position - kref[1] * position;
+        auto tPhase = phase + kin[1] * position - ktrans[1] * position;
         incident_ = PlaneWave<dim>(kin, E0, phase);
         reflected_ = PlaneWave<dim>(kref, r * E0, rPhase);
         transmitted_ = PlaneWave<dim>(ktrans, t * E0, tPhase);
     };
 
     VecC field(const PPhys& p) const override {
-        if (p[0] < interfacePosition_) {
+        if (p[1] < interfacePosition_) {
             return incident_.field(p) + reflected_.field(p);
         } else {
             return transmitted_.field(p);
         }
     }
     VecC fieldCurl(const PPhys& p) const override {
-        if (p[0] < interfacePosition_) {
+        if (p[1] < interfacePosition_) {
             return incident_.fieldCurl(p) + reflected_.fieldCurl(p);
         } else {
             return transmitted_.fieldCurl(p);
@@ -116,7 +116,7 @@ class InterfaceReflectionField : public FieldPattern<dim> {
     }
     VecC fieldDoubleCurl(const PPhys& p,
                          const MaterialTensor& material) const override {
-        if (p[0] < interfacePosition_) {
+        if (p[1] < interfacePosition_) {
             return incident_.fieldDoubleCurl(p, material) +
                    reflected_.fieldDoubleCurl(p, material);
         } else {
