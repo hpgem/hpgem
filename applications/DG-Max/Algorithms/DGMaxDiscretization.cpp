@@ -84,9 +84,6 @@ void DGMaxDiscretization<DIM>::initializeBasisFunctions(
                              unknowns);
         mesh.useNedelecDGBasisFunctions(order_);
     }
-    for (Base::Element* element : mesh.getElementsList()) {
-        element->setQuadratureRulesWithOrder(10);
-    }
     // TODO: This should probably also be exposed by using a constructor
     // parameter.
     // mesh.useAinsworthCoyleDGBasisFunctions();
