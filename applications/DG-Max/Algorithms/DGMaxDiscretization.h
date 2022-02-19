@@ -190,24 +190,25 @@ class DGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
     /**
      * Compute element matrices and vectors
      * @param mesh The mesh
-     * @param massMatrix The possible transformation applied to the mass matrix
      * @param elementVectors The element vectors to compute as mapping from id
+     * @param dispersionOmega Frequency to use for dispersive materials
      * to the function to use.
      */
     void computeElementIntegralsImpl(
         Base::MeshManipulator<DIM>& mesh,
         const std::map<std::size_t, InputFunction>& elementVectors,
-        LocalIntegrals integrals) final;
+        double dispersionOmega, LocalIntegrals integrals) final;
     void computeFaceIntegralsImpl(
         hpgem::Base::MeshManipulator<DIM>& mesh,
         const std::map<std::size_t, FaceInputFunction>& faceVectors,
+        double dispersionOmega,
         DGMax::BoundaryConditionIndicator boundaryIndicator,
         LocalIntegrals integrals) final;
 
     /**
      * Compute the element local matrices
      */
-    void computeElementMatrices(Base::Element* element);
+    void computeElementMatrices(Base::Element* element, double omega);
     /**
      * Post process the element local matrices based on matrixHandling_
      */
@@ -218,12 +219,12 @@ class DGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
                              const InputFunction& function,
                              LinearAlgebra::MiddleSizeVector& ret) const;
 
-    void computeFaceMatrix(Base::Face* face,
+    void computeFaceMatrix(Base::Face* face, double omega,
                            DGMax::BoundaryConditionIndicator boundaryIndicator);
     void postProcessFaceMatrices(Base::Face* face) const;
 
     // The face vector integrand.
-    void faceVector(Base::PhysicalFace<DIM>& fa,
+    void faceVector(Base::PhysicalFace<DIM>& fa, double omega,
                     const FaceInputFunction& boundaryCondition,
                     LinearAlgebra::MiddleSizeVector& ret,
                     DGMax::BoundaryConditionType bct) const;

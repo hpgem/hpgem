@@ -129,9 +129,14 @@ class HarmonicSolver<DIM>::Workspace {
     static constexpr const std::size_t VECTOR_ID = 0;
 
     void configureSolver();
+    bool checkDispersion();
 
     AbstractDiscretization<DIM>* discretization_;
     Base::MeshManipulator<DIM>* mesh_;
+    /**
+     * Whether any material in the mesh is frequency dependent
+     */
+    bool dispersion_;
 
     Utilities::GlobalIndexing indexing_;
     Utilities::GlobalPetscMatrix massMatrix_;
@@ -150,6 +155,7 @@ HarmonicSolver<DIM>::Workspace::Workspace(
     Base::MeshManipulator<DIM>& mesh)
     : discretization_(&discretization),
       mesh_(&mesh),
+      dispersion_(checkDispersion()),
       indexing_(nullptr),
       massMatrix_(indexing_, AbstractDiscretizationBase::MASS_MATRIX_ID, -1),
       stiffnessMatrix_(indexing_,
@@ -196,6 +202,16 @@ void HarmonicSolver<DIM>::Workspace::configureSolver() {
 }
 
 template <std::size_t DIM>
+bool HarmonicSolver<DIM>::Workspace::checkDispersion() {
+    for (const Base::Element* element : mesh_->getElementsList()) {
+        if (ElementInfos::get(*element).isDispersive()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+template <std::size_t DIM>
 void HarmonicSolver<DIM>::Workspace::computeIntegrals(
     AbstractHarmonicSolverDriver<DIM>& driver) {
 
@@ -204,10 +220,11 @@ void HarmonicSolver<DIM>::Workspace::computeIntegrals(
 
     const HarmonicProblem<DIM>& problem = driver.currentProblem();
 
-    bool bctChanged =
-        driver.hasChanged(HarmonicProblemChanges::BOUNDARY_CONDITION_TYPE);
+    bool fullRecompute =
+        driver.hasChanged(HarmonicProblemChanges::BOUNDARY_CONDITION_TYPE) ||
+        (dispersion_ && driver.hasChanged(HarmonicProblemChanges::OMEGA));
 
-    if (bctChanged ||
+    if (fullRecompute ||
         driver.hasChanged(HarmonicProblemChanges::CURRENT_SOURCE)) {
         std::map<std::size_t,
                  typename AbstractDiscretization<DIM>::InputFunction>
@@ -217,12 +234,12 @@ void HarmonicSolver<DIM>::Workspace::computeIntegrals(
                 return problem.sourceTerm(p);
             };
         discretization_->computeElementIntegrals(
-            *mesh_, elementVectors,
-            bctChanged
+            *mesh_, elementVectors, problem.omega(),
+            fullRecompute
                 ? AbstractDiscretizationBase::LocalIntegrals::ALL
                 : AbstractDiscretizationBase::LocalIntegrals::ONLY_VECTORS);
     }
-    if (bctChanged ||
+    if (fullRecompute ||
         driver.hasChanged(HarmonicProblemChanges::BOUNDARY_CONDITION_VALUE)) {
         std::map<std::size_t,
                  typename AbstractDiscretization<DIM>::FaceInputFunction>
@@ -232,15 +249,15 @@ void HarmonicSolver<DIM>::Workspace::computeIntegrals(
                 return problem.boundaryCondition(pface);
             };
         discretization_->computeFaceIntegrals(
-            *mesh_, faceVectors,
+            *mesh_, faceVectors, problem.omega(),
             [&problem](const Base::Face& face) {
                 return problem.getBoundaryConditionType(face);
             },
-            bctChanged
+            fullRecompute
                 ? AbstractDiscretizationBase::LocalIntegrals::ALL
                 : AbstractDiscretizationBase::LocalIntegrals::ONLY_VECTORS);
     }
-    if (bctChanged) {
+    if (fullRecompute) {
         DGMaxLogger(INFO, "Assembling global matrices vector");
         massMatrix_.reinit();
         stiffnessMatrix_.reinit();

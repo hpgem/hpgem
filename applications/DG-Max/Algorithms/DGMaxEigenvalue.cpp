@@ -76,15 +76,20 @@ void DGMaxEigenvalue<DIM>::initializeMatrices() {
     auto massMatrixHandling = config_.useHermitian_
                                   ? DGMaxDiscretizationBase::ORTHOGONALIZE
                                   : DGMaxDiscretizationBase::INVERT;
+    // Using dispersive materials is not supported
+    const double dispersionFrequency =
+        std::numeric_limits<double>::signaling_NaN();
     // No element vectors
     std::map<std::size_t, typename DGMaxDiscretization<DIM>::InputFunction>
         elementVectors;
     discretization_.setMatrixHandling(massMatrixHandling);
-    discretization_.computeElementIntegrals(mesh_, elementVectors);
+    discretization_.computeElementIntegrals(mesh_, elementVectors,
+                                            dispersionFrequency);
     // No face vectors
     std::map<std::size_t, typename DGMaxDiscretization<DIM>::FaceInputFunction>
         faceVectors;
-    discretization_.computeFaceIntegrals(mesh_, faceVectors);
+    discretization_.computeFaceIntegrals(mesh_, faceVectors,
+                                         dispersionFrequency);
 }
 
 // SolverWorkspace //

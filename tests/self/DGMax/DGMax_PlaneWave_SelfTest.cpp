@@ -46,7 +46,7 @@
 #include <Algorithms/HarmonicSolver.h>
 #include <Algorithms/DGMaxDiscretization.h>
 #include <Algorithms/DivDGMaxDiscretization.h>
-#include <ProblemTypes/Harmonic/SampleHarmonicProblems.h>
+#include <ProblemTypes/Harmonic/PlaneWaveProblem.h>
 
 #include <petsc.h>
 
@@ -209,7 +209,7 @@ int main(int argc, char** argv) {
     initDGMaxLogging();
 
     // For testing and updating => Should be false to actually use this test
-    bool ignoreFailures = true;
+    bool ignoreFailures = false;
 
     // Default the solver if not specified to a direct LU solver
     std::map<std::string, std::string> defaultOptions = {
@@ -232,31 +232,31 @@ int main(int argc, char** argv) {
 
     ConvergenceTestSet meshes = {getUnitSquareTriangleMeshes()};
     meshes.addExpectedErrors("L2 error", {
-                                             2.32455311e-01,  //------
-                                             7.78569137e-02,  //  2.99
-                                             1.97411586e-02,  //  3.94
-                                             4.94737345e-03,  //  3.99
-                                             1.23692989e-03,  //  4.00
-                                             3.09147735e-04,  //  4.00
-                                             7.72701909e-05,  //  4.00)
+                                             2.31544492e-01,  //------
+                                             7.78755325e-02,  //  2.97
+                                             1.97460447e-02,  //  3.94
+                                             4.94781906e-03,  //  3.99
+                                             1.23696273e-03,  //  4.00
+                                             3.09149950e-04,  //  4.00
+                                             7.72703345e-05,  //  4.00
                                          });
     meshes.addExpectedErrors("Outflux", {
-                                            3.39100853e-01,  //------
-                                            3.20113283e-01,  //  1.06
-                                            1.02324552e-01,  //  3.13
-                                            2.70451883e-02,  //  3.78
-                                            6.85129516e-03,  //  3.95
-                                            1.71800404e-03,  //  3.99
-                                            4.29764608e-04,  //  4.00
+                                            2.86300153e-01,  //------
+                                            2.66147184e-01,  //  1.08
+                                            8.53078798e-02,  //  3.12
+                                            2.25630286e-02,  //  3.78
+                                            5.71747856e-03,  //  3.95
+                                            1.43387188e-03,  //  3.99
+                                            3.58708541e-04,  //  4.00
                                         });
     meshes.addExpectedErrors("Influx", {
-                                           -3.45303837e-01,  //------
-                                           -3.15202590e-01,  //  1.10
-                                           -1.01889058e-01,  //  3.09
-                                           -2.70226520e-02,  //  3.77
-                                           -6.85008794e-03,  //  3.94
-                                           -1.71793569e-03,  //  3.99
-                                           -4.29760562e-04,  //  4.00
+                                           -2.75684494e-01,  //------
+                                           -2.61542159e-01,  //  1.05
+                                           -8.48998638e-02,  //  3.08
+                                           -2.25414966e-02,  //  3.77
+                                           -5.71630571e-03,  //  3.94
+                                           -1.43380470e-03,  //  3.99
+                                           -3.58704496e-04,  //  4.00
                                        });
     runConvergenceTest(meshes, ignoreFailures,
                        [&dgmax](std::string meshFile, std::size_t order) {
@@ -266,28 +266,28 @@ int main(int argc, char** argv) {
 
     ConvergenceTestSet meshes2 = {getUnitSquareTriangleMeshes(0, 6)};
     meshes2.addExpectedErrors("L2 error", {
-                                              2.50221220e-01,  //------
-                                              7.84254413e-02,  //  3.19
-                                              1.97608759e-02,  //  3.97
-                                              4.94782994e-03,  //  3.99
-                                              1.23693191e-03,  //  4.00
-                                              3.09147016e-04,  //  4.00
+                                              2.87642577e-01,  //------
+                                              7.96248160e-02,  //  3.61
+                                              1.97976622e-02,  //  4.02
+                                              4.94929023e-03,  //  4.00
+                                              1.23700845e-03,  //  4.00
+                                              3.09151533e-04,  //  4.00
                                           });
     meshes2.addExpectedErrors("Outflux", {
-                                             3.34694680e-01,  //------
-                                             3.16171119e-01,  //  1.06
-                                             1.01976385e-01,  //  3.10
-                                             2.70322081e-02,  //  3.77
-                                             6.85283654e-03,  //  3.94
-                                             1.71869399e-03,  //  3.99
+                                             2.52041706e-01,  //------
+                                             2.57375069e-01,  //  0.98
+                                             8.45657740e-02,  //  3.04
+                                             2.25232154e-02,  //  3.75
+                                             5.71665736e-03,  //  3.94
+                                             1.43422355e-03,  //  3.99
                                          });
     meshes2.addExpectedErrors("Influx", {
-                                            -3.17129614e-01,  //------
-                                            -3.12017624e-01,  //  1.02
-                                            -1.01503813e-01,  //  3.07
-                                            -2.70028573e-02,  //  3.76
-                                            -6.85106208e-03,  //  3.94
-                                            -1.71858594e-03,  //  3.99
+                                            -1.69073609e-01,  //------
+                                            -2.54790852e-01,  //  0.66
+                                            -8.40758550e-02,  //  3.03
+                                            -2.24894193e-02,  //  3.74
+                                            -5.71456834e-03,  //  3.94
+                                            -1.43409513e-03,  //  3.98
                                         });
 
     DivDGMaxDiscretizationBase::Stab stab;

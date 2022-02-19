@@ -7,7 +7,7 @@ This code is distributed using BSD 3-Clause License. A copy of which can found
 below.
 
 
-Copyright (c) 2018, Univesity of Twenete
+Copyright (c) 2018, University of Twente
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -44,40 +44,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ElementInfos.h"
 
 using namespace hpgem;
-
-/// Helper struct to access the material information in elements adjacent to a
-/// face.
-struct FaceMaterialInfo {
-    template <std::size_t DIM>
-    FaceMaterialInfo(Base::PhysicalFace<DIM>& fa) {
-        const Base::Face* face = fa.getFace();
-        auto* leftInfo = dynamic_cast<ElementInfos*>(
-            face->getPtrElementLeft()->getUserData());
-        epsilonLeft = leftInfo->getPermittivity();
-        permeabilityLeft = leftInfo->getPermeability();
-        epsMax = epsilonLeft;
-
-        if (face->isInternal()) {
-            auto* rightInfo = dynamic_cast<ElementInfos*>(
-                face->getPtrElementRight()->getUserData());
-            epsilonRight = rightInfo->getPermittivity();
-            permeabilityRight = rightInfo->getPermeability();
-            if (epsilonLeft < epsilonRight) {
-                epsMax = epsilonRight;
-            }
-        } else {
-            // Just in case
-            epsilonRight = std::numeric_limits<double>::signaling_NaN();
-            permeabilityRight = std::numeric_limits<double>::signaling_NaN();
-        }
-    }
-
-    double epsilonLeft;
-    double permeabilityLeft;
-    double epsilonRight;
-    double permeabilityRight;
-    double epsMax;
-};
 
 // Utility function
 struct FaceDoFInfo {
@@ -143,7 +109,7 @@ void DivDGMaxDiscretization<DIM>::initializeBasisFunctions(
 template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::computeElementIntegralsImpl(
     Base::MeshManipulator<DIM>& mesh,
-    const std::map<std::size_t, InputFunction>& elementVectors,
+    const std::map<std::size_t, InputFunction>& elementVectors, double omega,
     LocalIntegrals integrals) {
 
     Utilities::ElementLocalIndexing indexing;
@@ -155,7 +121,7 @@ void DivDGMaxDiscretization<DIM>::computeElementIntegralsImpl(
         Base::Element* element = *it;
         indexing.reinit(element);
         if (integrals == LocalIntegrals::ALL) {
-            computeElementMatrices(element, indexing);
+            computeElementMatrices(element, indexing, omega);
         }
 
         for (const auto& elementVec : elementVectors) {
@@ -179,7 +145,7 @@ template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::computeFaceIntegralsImpl(
     Base::MeshManipulator<DIM>& mesh,
     const std::map<std::size_t, FaceInputFunction>& boundaryVectors,
-    DGMax::BoundaryConditionIndicator boundaryIndicator,
+    double omega, DGMax::BoundaryConditionIndicator boundaryIndicator,
     LocalIntegrals integrals) {
     LinearAlgebra::MiddleSizeMatrix faceMatrix;
 
@@ -201,19 +167,20 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegralsImpl(
         }
         if (integrals == LocalIntegrals::ALL) {
             faceMatrix = faceIntegrator_.integrate(
-                face, [&indexing, &bct, this](Base::PhysicalFace<DIM>& face) {
+                face,
+                [&indexing, &bct, &omega, this](Base::PhysicalFace<DIM>& face) {
                     std::size_t numDoFs = indexing.getNumberOfDoFs();
                     LinearAlgebra::MiddleSizeMatrix result(numDoFs, numDoFs);
                     if (bct == BCT::INTERNAL || !isNaturalBoundary(bct)) {
-                        faceStiffnessMatrixFieldIntegrand(face, indexing,
+                        faceStiffnessMatrixFieldIntegrand(face, indexing, omega,
                                                           result);
                     }
-                    addFaceMatrixPotentialIntegrand(face, indexing, bct,
+                    addFaceMatrixPotentialIntegrand(face, indexing, omega, bct,
                                                     result);
                     return result;
                 });
             if (stab_.hasFlux(FluxType::BREZZI)) {
-                faceMatrix += brezziFluxBilinearTerm(face, bct);
+                faceMatrix += brezziFluxBilinearTerm(face, omega, bct);
             }
             face->setFaceMatrix(faceMatrix, FACE_STIFFNESS_MATRIX_ID);
 
@@ -239,8 +206,8 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegralsImpl(
                 vec = faceIntegrator_.integrate(
                     face, [&](Base::PhysicalFace<DIM>& face) {
                         LinearAlgebra::MiddleSizeVector result;
-                        faceBoundaryVector(face, boundaryVec.second, result,
-                                           bct);
+                        faceBoundaryVector(face, boundaryVec.second, omega,
+                                           result, bct);
                         return result;
                     });
                 if (stab_.hasFlux(FluxType::BREZZI) &&
@@ -430,28 +397,30 @@ double DivDGMaxDiscretization<DIM>::computeEnergyFlux(
 
 template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::computeElementMatrices(
-    Base::Element* element, Utilities::ElementLocalIndexing& indexing) {
+    Base::Element* element, Utilities::ElementLocalIndexing& indexing,
+    double omega) {
 
-    auto* material = dynamic_cast<ElementInfos*>(element->getUserData());
-    logger.assert_debug(material != nullptr, "No material information");
+    const auto& material = ElementInfos::get(*element);
 
     LinearAlgebra::MiddleSizeMatrix massMatrix = elementIntegrator_.integrate(
-        element, [&indexing, permittivity = material->getPermittivity()](
-                     Base::PhysicalElement<DIM>& pelem) {
+        element,
+        [&indexing, &material, &omega](Base::PhysicalElement<DIM>& pelem) {
             std::size_t numDoFs = indexing.getNumberOfDoFs();
             std::size_t numUDoFs = indexing.getNumberOfDoFs(0);
             LinearAlgebra::MiddleSizeMatrix ret(numDoFs, numDoFs);
 
+            const auto materialDiv = material.getMaterialConstantDiv(
+                pelem.getPointPhysical(), omega);
+
             LinearAlgebra::SmallVector<DIM> phi_i, phi_j;
             for (std::size_t i = 0; i < numUDoFs; ++i) {
                 pelem.basisFunction(i, phi_i, 0);
-                for (std::size_t j = i; j < numUDoFs; ++j) {
+                for (std::size_t j = 0; j < numUDoFs; ++j) {
                     pelem.basisFunction(j, phi_j, 0);
-                    double value = permittivity * (phi_i * phi_j);
+                    std::complex<double> value =
+                        materialDiv.applyDiv(phi_j) * phi_i;
+
                     ret(i, j) = value;
-                    if (i != j) {
-                        ret(j, i) = value;
-                    }
                 }
             }
             return ret;
@@ -460,63 +429,49 @@ void DivDGMaxDiscretization<DIM>::computeElementMatrices(
 
     LinearAlgebra::MiddleSizeMatrix stiffnessMatrix =
         elementIntegrator_.integrate(
-            element, [&indexing, permittivity = material->getPermittivity(),
-                      permeability = material->getPermeability()](
-                         Base::PhysicalElement<DIM>& pelem) {
+            element,
+            [&indexing, &material, &omega](Base::PhysicalElement<DIM>& pelem) {
                 std::size_t numDoFs = indexing.getNumberOfDoFs();
                 std::size_t numUDoFs = indexing.getNumberOfDoFs(0);
                 std::size_t numPDoFs = indexing.getNumberOfDoFs(1);
                 std::size_t offPDoFs = indexing.getDoFOffset(1);
                 LinearAlgebra::MiddleSizeMatrix ret(numDoFs, numDoFs);
 
+                const auto& point = pelem.getPointPhysical();
+                const auto materialCurl =
+                    material.getMaterialConstantCurl(point, omega);
+                const auto materialDiv =
+                    material.getMaterialConstantDiv(point, omega);
+
                 LinearAlgebra::SmallVector<DIM> phiI;
                 for (std::size_t i = 0; i < numUDoFs; ++i) {
-                    const LinearAlgebra::SmallVector<DIM>& phiIC =
-                        pelem.basisFunctionCurl(i, 0) / permeability;
-                    for (std::size_t j = i; j < numUDoFs; ++j) {
-                        double value = phiIC * pelem.basisFunctionCurl(j, 0);
+                    LinearAlgebra::SmallVectorC<DIM> phiIC =
+                        materialCurl.applyCurl(pelem.basisFunctionCurl(i, 0));
+                    for (std::size_t j = 0; j < numUDoFs; ++j) {
+                        std::complex<double> value =
+                            phiIC * pelem.basisFunctionCurl(j, 0);
                         ret(i, j) = value;
-                        if (i != j) {
-                            ret(j, i) = value;
-                        }
                     }
                     pelem.basisFunction(i, phiI, 0);
 
                     for (std::size_t j = 0; j < numPDoFs; ++j) {
-                        double value = (phiI * pelem.basisFunctionDeriv(j, 1)) *
-                                       -permittivity;
-                        ret(i, j + offPDoFs) = value;
+                        // The term from Maxwell is Div (epsilon E) = 0, thus
+                        // for the Lagrange multiplier we have the adjoint
+                        // operator of Div (epsilon .) = epsilon^H grad
+                        // The (Div epsilon E, q) in the weak formulation is
+                        // reworked into - (epsilon E, grad q), to ensure
+                        // symmetry. We compute here -(epsilon E, grad q)
+                        std::complex<double> value =
+                            -materialDiv.applyDiv(phiI) *
+                            pelem.basisFunctionDeriv(j, 1);
                         ret(j + offPDoFs, i) = value;
+                        // -(grad p, epsilon* v) is just the conjugate value
+                        ret(i, j + offPDoFs) = std::conj(value);
                     }
                 }
                 return ret;
             });
     element->setElementMatrix(stiffnessMatrix, STIFFNESS_MATRIX_ID);
-}
-
-template <std::size_t DIM>
-void DivDGMaxDiscretization<DIM>::elementScalarVectorCoupling(
-    Base::PhysicalElement<DIM>& el,
-    LinearAlgebra::MiddleSizeMatrix& ret) const {
-    const Base::Element* element = el.getElement();
-    std::size_t uDoFs = element->getNumberOfBasisFunctions(0);
-    std::size_t pDoFs = element->getNumberOfBasisFunctions(1);
-    ret.resize(uDoFs + pDoFs, uDoFs + pDoFs);
-    double epsilon =
-        static_cast<ElementInfos*>(element->getUserData())->getPermittivity();
-    LinearAlgebra::SmallVector<DIM> phi_i, phi_j;
-
-    // Note, this loop only loops over the basis functions for the second
-    // unknown. However, it needs the offset for the first unknown.
-    for (std::size_t i = uDoFs; i < uDoFs + pDoFs; ++i) {
-        phi_i = el.basisFunctionDeriv(i - uDoFs, 1);
-
-        for (std::size_t j = 0; j < uDoFs; ++j) {
-            el.basisFunction(j, phi_j, 0);
-            ret(j, i) = -1.0 * (phi_i * phi_j) * epsilon;
-            ret(i, j) = ret(j, i);
-        }
-    }
 }
 
 template <std::size_t DIM>
@@ -540,10 +495,25 @@ void DivDGMaxDiscretization<DIM>::elementSourceVector(
 template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
     Base::PhysicalFace<DIM>& fa, const Utilities::FaceLocalIndexing& indexing,
-    LinearAlgebra::MiddleSizeMatrix& ret) const {
+    double omega, LinearAlgebra::MiddleSizeMatrix& ret) const {
 
     const Base::Face* face = fa.getFace();
-    FaceMaterialInfo minfo(fa);
+    const auto& materialLeft = ElementInfos::get(*face->getPtrElementLeft());
+    const auto* materialRight = ElementInfos::get(face->getPtrElementRight());
+
+    const auto& p = fa.getPointPhysical();
+    const auto materialCurlLeft =
+        materialLeft.getMaterialConstantCurl(p, omega);
+    const auto materialDivLeft = materialLeft.getMaterialConstantDiv(p, omega);
+    const auto materialCurlRight =
+        materialRight != nullptr
+            ? materialRight->getMaterialConstantCurl(p, omega)
+            : DGMax::MaterialTensor();
+    const auto materialDivRight =
+        materialRight != nullptr
+            ? materialRight->getMaterialConstantDiv(p, omega)
+            : DGMax::MaterialTensor();
+
     // For IP fluxes
     const double stab1 = stab_.stab1 / face->getDiameter();
 
@@ -560,31 +530,33 @@ void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
     // Averaging factor
     double factor = face->isInternal() ? -0.5 : -1;
 
-    LinearAlgebra::SmallVector<DIM> phiUNormali, phiUNormalj, phiUCurli,
-        phiUCurlj;
+    LinearAlgebra::SmallVector<DIM> phiUNormali, phiUNormalj;
+    LinearAlgebra::SmallVectorC<DIM> phiUCurli, phiUCurlj;
 
     for (std::size_t i = 0; i < totalUDoFs; ++i) {
         const std::size_t& iIndex = mapping[i];
         fa.basisFunctionUnitNormalCross(i, phiUNormali, 0);
-        phiUCurli = fa.basisFunctionCurl(i, 0);
-        phiUCurli /=
-            (i < leftUDoFs) ? minfo.permeabilityLeft : minfo.permeabilityRight;
+        phiUCurli = ((i < leftUDoFs) ? materialCurlLeft : materialCurlRight)
+                        .applyCurl(fa.basisFunctionCurl(i, 0));
 
-        for (std::size_t j = i; j < totalUDoFs; ++j) {
+        for (std::size_t j = 0; j < totalUDoFs; ++j) {
             const std::size_t& jIndex = mapping[j];
             fa.basisFunctionUnitNormalCross(j, phiUNormalj, 0);
-            phiUCurlj = fa.basisFunctionCurl(j, 0);
-            phiUCurlj /= (j < leftUDoFs) ? minfo.permeabilityLeft
-                                         : minfo.permeabilityRight;
+            const DGMax::MaterialTensor material =
+                (j < leftUDoFs) ? materialCurlLeft.adjoint()
+                                : materialCurlRight.adjoint();
+            phiUCurlj = material.applyCurl(fa.basisFunctionCurl(j, 0));
 
-            double entry =
+            // Note the ordering is important to get the conjugation of complex
+            // material parameters correctly. The i=trial, j=test function and
+            // the second argument of the inner product is conjugated.
+            std::complex<double> entry =
                 factor * (phiUCurli * phiUNormalj + phiUNormali * phiUCurlj);
 
             if (stab_.fluxType1 == FluxType::IP) {
                 entry += stab1 * phiUNormali * phiUNormalj;
             }
 
-            ret(iIndex, jIndex) = entry;
             ret(jIndex, iIndex) = entry;
         }
     }
@@ -594,17 +566,9 @@ void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
         // Note checking against 0.0 exactly, as this value is set by the user
         // and often disabled by setting it to 0.
 
-        // Combination of both epsilon and the sign of the normal.
-        std::vector<double> signedEpsilon;
-        {
-            signedEpsilon.resize(totalUDoFs);
-            auto leftEnd = signedEpsilon.begin() +
-                           indexing.getNumberOfDoFs(0, Base::Side::LEFT);
-            std::fill(signedEpsilon.begin(), leftEnd, minfo.epsilonLeft);
-            std::fill(leftEnd, signedEpsilon.end(), -minfo.epsilonRight);
-        }
-
-        const double stab2 = stab_.stab2 * face->getDiameter() / minfo.epsMax;
+        // TODO: Think about the max(epsLeft, epsRight)^{-1} that was used to
+        // make this independent of epsilon scaling.
+        const double stab2 = stab_.stab2 * face->getDiameter();
         const LinearAlgebra::SmallVector<DIM>& normal =
             fa.getUnitNormalVector();
         LinearAlgebra::SmallVector<DIM> phi;
@@ -612,18 +576,33 @@ void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
         for (std::size_t i = 0; i < totalUDoFs; ++i) {
             const std::size_t& iIndex = mapping[i];
             fa.basisFunction(i, phi, 0);
-            double phiUi = phi * normal * signedEpsilon[i];
+            const auto& materiali =
+                (i < leftUDoFs ? materialDivLeft : materialDivRight);
+            std::complex<double> phiUi = materiali.applyDiv(phi) * normal;
+            if (i >= leftUDoFs) {
+                phiUi *= -1.0;
+            }
 
             for (std::size_t j = i; j < totalUDoFs; ++j) {
                 const std::size_t& jIndex = mapping[j];
 
                 fa.basisFunction(j, phi, 0);
+                const auto materialj =
+                    j < leftUDoFs ? materialDivLeft : materialDivRight;
+                std::complex<double> phiUj = materialj.applyDiv(phi) * normal;
+                if (j >= leftUDoFs) {
+                    phiUj *= -1.0;
+                }
 
-                double value =
-                    stab2 * phiUi * (phi * normal) * signedEpsilon[j];
-                ret(iIndex, jIndex) += value;
+                // Again first argument = trial function => not conjugated
+                // Test functions are conjugated as an inner product is
+                // computed. This is not done by * for complex<double> so we do
+                // it manually.
+                phiUj = std::conj(phiUi);
+                std::complex<double> value = stab2 * phiUi * phiUj;
+                ret(jIndex, iIndex) += value;
                 if (i != j) {
-                    ret(jIndex, iIndex) += value;
+                    ret(iIndex, jIndex) += std::conj(value);
                 }
             }
         }
@@ -633,7 +612,7 @@ void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
 template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::addFaceMatrixPotentialIntegrand(
     Base::PhysicalFace<DIM>& fa, const Utilities::FaceLocalIndexing& indexing,
-    DGMax::BoundaryConditionType bct,
+    double omega, DGMax::BoundaryConditionType bct,
     LinearAlgebra::MiddleSizeMatrix& ret) const {
 
     // Mapping from basis function -> face matrix entry
@@ -644,6 +623,8 @@ void DivDGMaxDiscretization<DIM>::addFaceMatrixPotentialIntegrand(
     const std::size_t totalDoFs = indexing.getNumberOfDoFs();
     const std::size_t totalUDoFs = mappingU.size();
     const std::size_t totalPDoFs = mappingP.size();
+    const std::size_t leftUDoFs =
+        indexing.getNumberOfDoFs(0, hpgem::Base::Side::LEFT);
 
     ret.resize(totalDoFs, totalDoFs);
 
@@ -651,16 +632,14 @@ void DivDGMaxDiscretization<DIM>::addFaceMatrixPotentialIntegrand(
     const Base::Face* face = fa.getFace();
     double averageFactor = face->isInternal() ? 0.5 : 1;
 
-    // Vector of epsilon, indexed by the U-variable
-    FaceMaterialInfo minfo(fa);
-    std::vector<double> epsilons;
-    {
-        epsilons.resize(totalUDoFs);
-        auto leftEnd =
-            epsilons.begin() + indexing.getNumberOfDoFs(0, Base::Side::LEFT);
-        std::fill(epsilons.begin(), leftEnd, minfo.epsilonLeft);
-        std::fill(leftEnd, epsilons.end(), minfo.epsilonRight);
-    }
+    // Material constant for the U-variable.
+    const auto& point = fa.getPointPhysical();
+    const auto materialDivLeft = ElementInfos::get(*face->getPtrElementLeft())
+                                     .getMaterialConstantDiv(point, omega);
+    const auto materialDivRight =
+        face->isInternal() ? ElementInfos::get(*face->getPtrElementRight())
+                                 .getMaterialConstantDiv(point, omega)
+                           : DGMax::MaterialTensor();
 
     // Factor for the normal, indexed by P-variable;
     std::vector<int> normalSign;
@@ -688,22 +667,29 @@ void DivDGMaxDiscretization<DIM>::addFaceMatrixPotentialIntegrand(
         // transformed into
         // [epsilon(i) phiUi . n(left)] * [phiQj(j) s(j)]
         // where s(j) = 1.0 for the left values of j, and -1 for the right ones.
-        double epsUNi = (phiUi * normal) * epsilons[i];
+
+        std::complex<double> epsUNi =
+            (i < leftUDoFs ? materialDivLeft : materialDivRight)
+                .applyDiv(phiUi) *
+            normal;
 
         for (std::size_t j = 0; j < totalPDoFs; ++j) {
             double phiPj = fa.basisFunction(j, 1) * normalSign[j];
 
-            const double entry = averageFactor * epsUNi * phiPj;
+            // Note i = trial function -> not conjugated
+            const std::complex<double> entry = averageFactor * epsUNi * phiPj;
             const std::size_t jIndex = mappingP[j];
 
-            ret(iIndex, jIndex) += entry;
             ret(jIndex, iIndex) += entry;
+            // Hermitian counterpart => conjugate
+            ret(iIndex, jIndex) += std::conj(entry);
         }
     }
     if (stab_.fluxType3 == FluxType::IP) {
         /// Stabilization of the potential term
         /// stab3/diameter * epsMax [[p]] [[q]]
-        const double stab3 = stab_.stab3 / face->getDiameter() * minfo.epsMax;
+        // Note: epsMax removed due to complex tensors.
+        const double stab3 = stab_.stab3 / face->getDiameter();
 
         for (std::size_t i = 0; i < totalPDoFs; ++i) {
             const std::size_t iIndex = mappingP[i];
@@ -914,36 +900,43 @@ LinearAlgebra::MiddleSizeMatrix
 template <std::size_t DIM>
 LinearAlgebra::MiddleSizeMatrix
     DivDGMaxDiscretization<DIM>::computeVectorNormalLiftProjector(
-        Base::Face* face) {
+        Base::Face* face, double omega) {
     FaceDoFInfo faceInfo = getFaceDoFInfo(*face);
 
-    double epsilonLeft =
-        static_cast<ElementInfos*>(face->getPtrElementLeft()->getUserData())
-            ->getPermittivity();
-    double epsilonRight = faceInfo.internal
-                              ? static_cast<ElementInfos*>(
-                                    face->getPtrElementRight()->getUserData())
-                                    ->getPermittivity()
-                              : 0.0;  // Should not be used.
+    const auto& materialLeft = ElementInfos::get(*face->getPtrElementLeft());
+    const auto* materialRight = ElementInfos::get(face->getPtrElementRight());
 
     return faceIntegrator_.integrate(face, [&](Base::PhysicalFace<DIM>& face) {
         LinearAlgebra::MiddleSizeMatrix result;
         result.resize(faceInfo.totalPDoFs(), faceInfo.totalUDoFs());
         LinearAlgebra::SmallVector<DIM> basisU, normal;
+        LinearAlgebra::SmallVectorC<DIM> matBasisU;
+
+        const auto& point = face.getPointPhysical();
+        const auto materialDivLeft =
+            materialLeft.getMaterialConstantDiv(point, omega);
+        const auto materialDivRight =
+            materialRight != nullptr
+                ? materialRight->getMaterialConstantCurl(point, omega)
+                : DGMax::MaterialTensor();
+
         normal = face.getUnitNormalVector();
         double factor = faceInfo.internal ? 0.5 : 1.0;  // From the average
         for (std::size_t i = 0; i < faceInfo.totalPDoFs(); ++i) {
             double basisP = face.basisFunction(i, 1);
             for (std::size_t j = 0; j < faceInfo.totalUDoFs(); ++j) {
                 face.basisFunction(j, basisU, 0);
-                double uvalue = basisU * normal;  // [[epsilon u]]_N
-                if (j > faceInfo.leftUDoFs) {
-                    // - form the change in normal
-                    uvalue *= -epsilonRight;
+
+                // - form the change in normal
+                if (j < faceInfo.leftUDoFs) {
+                    matBasisU = materialDivLeft.applyDiv(basisU);
                 } else {
-                    uvalue *= epsilonLeft;
+                    matBasisU = -materialDivRight.applyDiv(basisU);
                 }
-                result(i, j) = factor * basisP * uvalue;
+
+                std::complex<double> uvalue =
+                    matBasisU * normal;  // [[epsilon u]]_N
+                result(i, j) = factor * uvalue * basisP;
             }
         }
         return result;
@@ -998,7 +991,7 @@ void distributeFaceMatrix(FaceDoFInfo faceInfo, bool vector,
 template <std::size_t DIM>
 LinearAlgebra::MiddleSizeMatrix
     DivDGMaxDiscretization<DIM>::brezziFluxBilinearTerm(
-        Base::Face* face, DGMax::BoundaryConditionType bct) {
+        Base::Face* face, double omega, DGMax::BoundaryConditionType bct) {
     FaceDoFInfo faceInfo = getFaceDoFInfo(*face);
     LinearAlgebra::MiddleSizeMatrix result(faceInfo.totalDoFs(),
                                            faceInfo.totalDoFs());
@@ -1068,7 +1061,7 @@ LinearAlgebra::MiddleSizeMatrix
             computeFaceScalarMassMatrix(face);
         pmassMat.cholesky();
         LinearAlgebra::MiddleSizeMatrix vectorStabilizer =
-            computeVectorNormalLiftProjector(face);
+            computeVectorNormalLiftProjector(face, omega);
         pmassMat.solveLowerTriangular(vectorStabilizer);  // L^{-T} S
         vectorStabilizer = vectorStabilizer.transpose() * vectorStabilizer;
         vectorStabilizer *= stab_.stab2;
@@ -1098,7 +1091,7 @@ template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::faceBoundaryVector(
     Base::PhysicalFace<DIM>& fa,
     const DivDGMaxDiscretization<DIM>::FaceInputFunction& boundaryValue,
-    LinearAlgebra::MiddleSizeVector& ret,
+    double omega, LinearAlgebra::MiddleSizeVector& ret,
     DGMax::BoundaryConditionType bct) const {
     const Base::Face* face = fa.getFace();
     const Geometry::PointReference<DIM - 1>& p = fa.getPointReference();
@@ -1119,12 +1112,9 @@ void DivDGMaxDiscretization<DIM>::faceBoundaryVector(
     } else if (bct == DGMax::BoundaryConditionType::DIRICHLET) {
         double diameter = face->getDiameter();
 
-        auto* material = dynamic_cast<ElementInfos*>(
-            face->getPtrElementLeft()->getUserData());
-        logger.assert_debug(material != nullptr, "No material info");
-
         LinearAlgebra::SmallVectorC<DIM> val;
-        LinearAlgebra::SmallVector<DIM> phi, phi_curl;
+        LinearAlgebra::SmallVector<DIM> phi;
+        LinearAlgebra::SmallVectorC<DIM> phi_curlMat;
         val = boundaryValue(fa);
 
         std::size_t totalUDoFs =
@@ -1133,15 +1123,18 @@ void DivDGMaxDiscretization<DIM>::faceBoundaryVector(
             face->getPtrElementLeft()->getNumberOfBasisFunctions(1);
         ret.resize(totalUDoFs + totalPDoFs);
 
+        const auto& material = ElementInfos::get(*face->getPtrElementLeft());
+        const auto materialCurl =
+            material.getMaterialConstantCurl(fa.getPointPhysical(), omega);
+
+        const DGMax::MaterialTensor& material1 = materialCurl.adjoint();
         for (std::size_t i = 0; i < totalUDoFs; ++i) {
             fa.basisFunctionUnitNormalCross(i, phi, 0);
-            phi_curl = fa.basisFunctionCurl(i, 0);
-            phi_curl /= material->getPermeability();
-            std::complex<double> value = -(val * phi_curl);
+            phi_curlMat = material1.applyCurl(fa.basisFunctionCurl(i, 0));
+            std::complex<double> value = -(val * phi_curlMat);
             if (stab_.fluxType1 == FluxType::IP) {
                 value += stab_.stab1 / (diameter) * (val * phi);
             }
-            // Scale with mu^{-1} in the future
             ret(i) = value;
         }
     } else if (bct == DGMax::BoundaryConditionType::NEUMANN ||

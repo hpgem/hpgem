@@ -48,6 +48,7 @@
 #include <Algorithms/HarmonicSolver.h>
 #include <Algorithms/DGMaxDiscretization.h>
 #include <Algorithms/DivDGMaxDiscretization.h>
+#include <Utils/PlaneWave.h>
 
 auto& meshFileName = Base::register_argument<std::string>(
     'm', "meshFile", "The hpgem meshfile to use", true);
@@ -133,28 +134,21 @@ class TestingProblem : public HarmonicProblem<dim> {
         }
         LinearAlgebra::SmallVectorC<dim> normal = face.getUnitNormalVector();
 
-        // E = E_0 exp(ik.x)
-        // g_N = muinv * Curl E + i kappa sqrt(epsilon/mu) E x n
-        //     = i[(k x E_0) + kappa sqrt(epsilon) (E_0 x n)] exp(ik.x)
-
         auto* userData = dynamic_cast<ElementInfos*>(
             face.getFace()->getPtrElementLeft()->getUserData());
-
-        using namespace std::complex_literals;
-        LinearAlgebra::SmallVectorC<dim> E0{1.0, 0},
-            k{0, omega() * userData->getRefractiveIndex()};
-
         logger.assert_always(userData != nullptr, "Incorrect data");
 
-        // muInv(kxE_0) + kappa * sqrt(epsilon) (E_0 x n)
-        LinearAlgebra::SmallVectorC<dim> result =
-            k.crossProduct(E0) / userData->getPermeability();
-        result += omega() * userData->getImpedance() * E0.crossProduct(normal);
+        DGMax::PlaneWave<dim> incidentWave =
+            DGMax::PlaneWave<dim>::onDispersion(omega_, {0.0, 1.0}, {1.0, 0.0},
+                                                userData->getMaterial(), 0.0);
 
-        // i exp(ik.x)
-        result *=
-            1i * std::exp(1i * face.getPointPhysical().getCoordinates() * k);
-        return result;
+        const auto& p = face.getPointPhysical();
+
+        using namespace std::complex_literals;
+        // Curl E/mu + i omega Z (E x n)
+        return incidentWave.fieldCurl(p) / userData->getPermeability() +
+               1i * omega_ * userData->getImpedance() *
+                   incidentWave.field(p).crossProduct(normal);
     }
 
     DGMax::BoundaryConditionType getBoundaryConditionType(

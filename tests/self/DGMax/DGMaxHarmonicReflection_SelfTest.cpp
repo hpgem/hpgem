@@ -46,7 +46,7 @@
 #include <Algorithms/HarmonicSolver.h>
 #include <Algorithms/DGMaxDiscretization.h>
 #include <Algorithms/DivDGMaxDiscretization.h>
-#include <ProblemTypes/Harmonic/SampleHarmonicProblems.h>
+#include <ProblemTypes/Harmonic/PlaneWaveReflectionProblem.h>
 
 #include <petsc.h>
 

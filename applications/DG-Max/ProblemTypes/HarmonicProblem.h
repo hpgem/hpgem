@@ -122,23 +122,25 @@ class ExactHarmonicProblem : public HarmonicProblem<DIM> {
                 return normal.crossProduct(efield);
             }
             case BCT::NEUMANN: {
-                auto* material = dynamic_cast<ElementInfos*>(
-                    face.getFace()->getPtrElementLeft()->getUserData());
-                return this->exactSolutionCurl(face.getPointPhysical()) /
-                       material->getPermeability();
+
+                const auto& point = face.getPointPhysical();
+                const auto material =
+                    ElementInfos::get(*face.getFace()->getPtrElementLeft())
+                        .getMaterialConstantCurl(point, this->omega());
+                return material.applyCurl(exactSolutionCurl(point));
             }
             case BCT::SILVER_MULLER: {
-                auto* material = dynamic_cast<ElementInfos*>(
-                    face.getFace()->getPtrElementLeft()->getUserData());
-                logger.assert_debug(material != nullptr, "No material.");
-                Vec efield = this->exactSolution(face.getPointPhysical());
-                Vec efieldCurl =
-                    this->exactSolutionCurl(face.getPointPhysical());
+                const auto& point = face.getPointPhysical();
+                auto& material =
+                    ElementInfos::get(*face.getFace()->getPtrElementLeft());
+                Vec efield = this->exactSolution(point);
+                Vec efieldCurl = this->exactSolutionCurl(point);
                 const Vec& normal = face.getUnitNormalVector();
                 auto impedance = std::complex<double>(
-                    0, this->omega() * material->getImpedance());
+                    0, this->omega() * material.getImpedance());
                 // n x (Curl E + Z [E x n]) = n x g_N
-                return efieldCurl / material->getPermeability() +
+                return material.getMaterialConstantCurl(point, this->omega())
+                           .applyCurl(efieldCurl) +
                        impedance * efield.crossProduct(normal);
             }
             default:

@@ -60,6 +60,23 @@ class HarmonicErrorDriver : public DGMax::AbstractHarmonicSolverDriver<dim> {
         errorResult_ = result.computeL2Error(*problem_);
         if (plotter_ != nullptr) {
             result.writeVTK(*plotter_);
+            // Plot the exact solution for comparison
+            using VecR = LinearAlgebra::SmallVector<dim>;
+            using VecC = LinearAlgebra::SmallVectorC<dim>;
+
+            std::map<std::string, std::function<double(VecC&)>> scalars;
+            scalars["Emag-sol"] = [](VecC& v) { return v.l2Norm(); };
+            std::map<std::string, std::function<VecR(VecC&)>> vectors;
+            vectors["ESol-real"] = [](VecC& v) { return v.real(); };
+            vectors["ESol-imag"] = [](VecC& v) { return v.imag(); };
+
+            plotter_->template writeMultiple<VecC>(
+                [this](Base::Element* element,
+                       const Geometry::PointReference<dim>& p, std::size_t) {
+                    return problem_->exactSolution(
+                        element->template referenceToPhysical(p));
+                },
+                scalars, vectors);
         }
     }
 
