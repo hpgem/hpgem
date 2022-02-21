@@ -110,7 +110,8 @@ class HarmonicSolver<DIM>::Workspace {
     double computeL2Error(const ExactHarmonicProblem<DIM>& solution) {
         return discretization_->computeL2Error(
             *mesh_, VECTOR_ID,
-            [&solution](const Base::Element&, const Geometry::PointPhysical<DIM>& p) {
+            [&solution](const Base::Element&,
+                        const Geometry::PointPhysical<DIM>& p) {
                 return solution.exactSolution(p);
             });
     }

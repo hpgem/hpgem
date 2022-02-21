@@ -238,7 +238,8 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
         output.write(
             [this](Base::Element* element,
                    const Geometry::PointReference<dim>& p, std::size_t) {
-                return problem_->sourceTerm(*element, element->referenceToPhysical(p))
+                return problem_
+                    ->sourceTerm(*element, element->referenceToPhysical(p))
                     .real();
             },
             "source");

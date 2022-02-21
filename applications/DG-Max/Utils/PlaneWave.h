@@ -61,9 +61,7 @@ class PlaneWave : public FieldPattern<dim> {
     using typename FieldPattern<dim>::PPhys;
 
     PlaneWave() : k_(), E0_(), phase_(0.0) {}
-    PlaneWave(VecR k,
-              VecC E0, double phase)
-        : k_(k), E0_(E0), phase_(phase) {
+    PlaneWave(VecR k, VecC E0, double phase) : k_(k), E0_(E0), phase_(phase) {
 
         using namespace hpgem;
 
@@ -72,22 +70,16 @@ class PlaneWave : public FieldPattern<dim> {
             "Non orthogonal wavevector and field.");
     };
 
-    static PlaneWave onDispersion(double omega,
-                                  VecR khat,
-                                  VecC E0,
+    static PlaneWave onDispersion(double omega, VecR khat, VecC E0,
                                   DGMax::Material material, double phase) {
         // Set the length of the wave vector to be on dispersion relation
         khat *= omega * material.getRefractiveIndex() / khat.l2Norm();
         return PlaneWave(khat, E0, phase);
     }
 
-    VecC field(
-        const PPhys& p) const final {
-        return E0_ * phaseFactor(p);
-    }
+    VecC field(const PPhys& p) const final { return E0_ * phaseFactor(p); }
 
-    VecC fieldCurl(
-        const PPhys& p) const final {
+    VecC fieldCurl(const PPhys& p) const final {
         // To ensure the complex valued cross product is used
         VecC kc = k_;
         using namespace std::complex_literals;
@@ -109,8 +101,7 @@ class PlaneWave : public FieldPattern<dim> {
     const VecR& waveVector() const { return k_; }
 
    private:
-    std::complex<double> phaseFactor(
-        const PPhys& p) const {
+    std::complex<double> phaseFactor(const PPhys& p) const {
         using namespace std::complex_literals;
         return std::exp(1i * (k_ * p.getCoordinates() + phase_));
     }

@@ -90,8 +90,8 @@ class [[maybe_unused]] SarmanyHarmonicProblem
     LinearAlgebra::SmallVectorC<3> exactSolutionCurl(
         const Geometry::PointPhysical<3>& point) const override;
     LinearAlgebra::SmallVectorC<3> sourceTerm(
-        const Base::Element&,
-        const Geometry::PointPhysical<3>& point) const override;
+        const Base::Element&, const Geometry::PointPhysical<3>& point)
+        const override;
 
    private:
     double omega_;

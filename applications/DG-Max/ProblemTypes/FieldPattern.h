@@ -42,7 +42,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Geometry/PointPhysical.h"
 #include "MaterialTensor.h"
 
-
 namespace DGMax {
 
 /**
