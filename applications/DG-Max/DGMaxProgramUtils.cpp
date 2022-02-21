@@ -191,7 +191,8 @@ std::unique_ptr<ZoneInfoStructureDefinition> readZonedDescription(
         logger.assert_always(idx == epsilonStr.size(),
                              "Trailing data after epsilon on line %: %",
                              lineNumber, line);
-        DGMaxLogger(INFO, "Adding zone regexp '%' with material %", regexStr, epsilon);
+        DGMaxLogger(INFO, "Adding zone regexp '%' with material %", regexStr,
+                    epsilon);
         zoneRegexes.push_back(regex);
         zoneEpsilons.push_back(epsilon);
 
@@ -243,6 +244,23 @@ std::unique_ptr<StructureDescription> determineStructureDescription(
         false, "Could not determine structure information type from input '%'",
         input);
     return nullptr;
+}
+
+std::vector<std::string> stringSplit(const std::string& input, char separator) {
+    if (input.empty()) {
+        return {};
+    }
+    std::size_t pos = 0;
+    std::size_t next_pos;
+    std::vector<std::string> result;
+    while ((next_pos = input.find_first_of(separator, pos)) !=
+           std::string::npos) {
+        result.push_back(input.substr(pos, next_pos - pos));
+        pos = next_pos + 1;
+    }
+    // Remainder after the last separator
+    result.push_back(input.substr(pos));
+    return result;
 }
 
 }  // namespace DGMax

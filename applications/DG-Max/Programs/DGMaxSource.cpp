@@ -67,6 +67,15 @@ auto& method = Base::register_argument<std::string>(
     '\0', "method", "Method to use, either DivDGMax (default) or DGMax", false,
     "DivDGMax");
 
+auto& wavenumberscm = Base::register_argument<std::string>(
+    '\0', "wavenumberscm",
+    "Wavenumbers to compute at in cm^{-1}.\n"
+    "Either listed as w1,w2, ..,wn or as N equidistant values @N,wmin,wmax",
+    true);
+auto& meshsize = Base::register_argument<double>(
+    '\0', "scalenm",
+    "Length scale of the mesh in nm (i.e. 1 mesh unit is x nanometers)");
+
 template <std::size_t dim>
 void runWithDimension();
 
@@ -109,6 +118,12 @@ int main(int argc, char** argv) {
 
 template <std::size_t dim>
 void writeMesh(std::string, const Base::MeshManipulator<dim>* mesh);
+
+/// Parses the wavenumbers passed to the program.
+///
+/// \return A list of wavenumbers as pair. First the computational value, second
+/// the input value (e.g. in cm^{-1})
+std::vector<std::pair<double, double>> parseWaveNumbers();
 
 /**
  * Facets of the mesh through which the flux needs to be computed
@@ -214,8 +229,6 @@ class TestingProblem : public HarmonicProblem<dim> {
 
 template <std::size_t dim>
 class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
-    static const constexpr std::size_t NUMBER_OF_PROBLEMS = 301;
-
     // For plotting in combination with scattered fields
     struct Fields {
         LinearAlgebra::SmallVectorC<dim> field;
@@ -224,12 +237,16 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
 
    public:
     Driver(Base::MeshManipulator<dim>& mesh)
-        : mesh_(&mesh), problem_(), nextCalled_(0), fluxFacets_(mesh) {
+        : mesh_(&mesh),
+          wavenumbers_(parseWaveNumbers()),
+          problem_(),
+          nextCalled_(0),
+          fluxFacets_(mesh) {
 
         if (Base::MPIContainer::Instance().getProcessorID() == 0) {
             outfile.open("harmonic.csv");
             logger.assert_always(outfile.good(), "Opening output file failed");
-            outfile << "wavenumber";
+            outfile << "wavenumber-computational,wavenumber";
             for (const auto& facet : fluxFacets_.facets) {
                 outfile << "," << facet.first;
                 if (true) {
@@ -242,29 +259,20 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
         }
     };
 
-    bool stop() const override { return nextCalled_ == NUMBER_OF_PROBLEMS; }
+    bool stop() const override { return nextCalled_ == wavenumbers_.size(); }
 
     size_t getExpectedNumberOfProblems() const override {
-        return NUMBER_OF_PROBLEMS;
+        return wavenumbers_.size();
     }
 
     void nextProblem() override {
         nextCalled_++;
-        problem_ =
-            std::make_shared<TestingProblem<dim>>(0.01 + 0.0001 * nextCalled_);
+        //        problem_ =
+        //            std::make_shared<TestingProblem<dim>>(0.01 + 0.0001 *
+        //            nextCalled_);
         //        double omega = 2 * M_PI * (0.001 + 0.001 * (nextCalled_ - 1));
 
-        // Inverse cm wavenumbers
-        const double wavenumberMin = 2000;
-        const double waveNumberMax = 8000;
-        const double dWavenumber = waveNumberMax - wavenumberMin;
-        // Conversion factor (mesh length-unit) = N cm
-        const double meshConversion = 1e-6;
-
-        // Linear spacing in wavenumber
-        double omega = 2.0 * M_PI * meshConversion *
-                       (wavenumberMin + dWavenumber * (nextCalled_ - 1) /
-                                            (NUMBER_OF_PROBLEMS + 1));
+        double omega = wavenumbers_[nextCalled_ - 1].first;
 
         LinearAlgebra::SmallVector<dim> k;
         LinearAlgebra::SmallVectorC<dim> E0;
@@ -275,9 +283,6 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
         problem_ = std::make_shared<DGMax::ScatteringProblem<dim>>(
             omega, std::make_shared<DGMax::InterfaceReflectionField<dim>>(
                        omega, 0.0, outside, inside, 0.0));
-        //        problem_ = std::make_shared<DGMax::ScatteringProblem<dim>>(
-        //            omega, std::make_shared<DGMax::PlaneWave<dim>>(k, E0,
-        //            0.0));
     }
 
     const HarmonicProblem<dim>& currentProblem() const override {
@@ -331,6 +336,8 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
             fluxFacets_.computeFluxes(result, problem_->omega(), background);
 
         outfile << std::setprecision(16) << problem_->omega();
+        outfile << "," << std::setprecision(16)
+                << wavenumbers_[nextCalled_ - 1].second;
         LinearAlgebra::SmallVector<4> totalFlux = {};
         for (const auto& entry : fluxes) {
             std::size_t nfluxes = problem_->isScatterFieldProblem() ? 4 : 1;
@@ -350,6 +357,7 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
                     Output::VTKSpecificTimeWriter<dim>& output);
 
     Base::MeshManipulator<dim>* mesh_;
+    std::vector<std::pair<double, double>> wavenumbers_;
     std::shared_ptr<HarmonicProblem<dim>> problem_;
     std::ofstream outfile;
     int nextCalled_;
@@ -566,4 +574,63 @@ void Driver<dim>::plotResult(DGMax::AbstractHarmonicResult<dim>& result,
             },
             "SolutionImag");
     }
+}
+
+double parseDouble(const std::string& input) {
+    std::size_t len;
+    try {
+        double result = std::stod(input, &len);
+        logger.assert_always(len == input.size(),
+                             "Failed to parse \"%\" as a number", input);
+        return result;
+    } catch (std::invalid_argument&) {
+        DGMaxLogger.fail("Failed to parse \"%\" as a number", input);
+    }
+}
+
+std::vector<std::pair<double, double>> parseWaveNumbers() {
+    const std::string& input = wavenumberscm.getValue();
+    std::vector<std::string> parts = DGMax::stringSplit(input, ',');
+    std::vector<double> tempResult;
+    if (parts.empty()) {
+        DGMaxLogger.fail("Empty set of wavenumbers");
+    }
+    // Check the first value for an '@' to indicate equidistant spacing
+    auto p0 = parts[0];
+    DGMaxLogger.assert_always(!p0.empty(), "No first value");
+    if (p0[0] == '@') {
+        // Equidistant spaced numbers
+        logger.assert_always(parts.size() == 3,
+                             "Expected exactly 3 parts for a wavelength range");
+        std::size_t len;
+        unsigned long npoints = std::stoul(p0.substr(1), &len);
+        DGMaxLogger.assert_always(
+            len == p0.size() - 1,
+            "Failed to convert \"%\" to a number of points", p0.substr(1));
+        double w1 = parseDouble(parts[1]);
+        double w2 = parseDouble(parts[2]);
+        DGMaxLogger.assert_always(
+            npoints >= 1, "Need at least 1 point for equidistant spacing.");
+        double dw = (w2 - w1) / (npoints - 1);
+        tempResult.reserve(npoints);
+        for (std::size_t i = 0; i < npoints; ++i) {
+            tempResult.push_back(w1 + i * dw);
+        }
+    } else {
+        tempResult.reserve(parts.size());
+        for (const std::string& waveLength : parts) {
+            tempResult.push_back(parseDouble(waveLength));
+        }
+    }
+    // Convert to computational wavenumbers
+    // *1e-7    wavenumber (per cm) -> wavenumber (per nm)
+    // *scalenm wavenumber (per nm) -> wavenumber (per unit length)
+    // *2 PI    wavenumber -> angular wavenumber
+    double factor = 1e-7 * meshsize.getValue() * 2 * M_PI;
+    std::vector<std::pair<double, double>> result;
+    result.reserve(tempResult.size());
+    for (const double& waveLength : tempResult) {
+        result.emplace_back(factor * waveLength, waveLength);
+    }
+    return result;
 }

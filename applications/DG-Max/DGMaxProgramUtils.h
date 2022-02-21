@@ -70,6 +70,8 @@ PointPath<DIM> parsePath(const std::string& path);
 std::unique_ptr<StructureDescription> determineStructureDescription(
     const std::string& input, std::size_t dim);
 
+std::vector<std::string> stringSplit(const std::string& input, char separator);
+
 }  // namespace DGMax
 
 #endif  // HPGEM_APP_DGMAXPROGRAMUTILS_H
