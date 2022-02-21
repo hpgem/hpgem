@@ -161,9 +161,9 @@ int main(int argc, char** argv) {
     // Expected convergence rate: 2 (=2^p with p=1)
     ConvergenceTestSet meshesDGMax = {getUnitCubeTetMeshes(1, 4),
                                       {
-                                          7.39613968e-01,  //------
-                                          3.81524577e-01,  //  1.94
-                                          1.83728547e-01,  //  2.08
+                                          7.48237144e-01,  //------
+                                          3.80443878e-01,  //  1.97
+                                          1.83605884e-01,  //  2.07
                                       }};
     auto dgmax = std::make_shared<DGMaxDiscretization<3>>(1, 100);
     runConvergenceTest(meshesDGMax, ignoreFailures,
