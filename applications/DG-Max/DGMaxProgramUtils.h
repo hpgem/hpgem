@@ -91,7 +91,7 @@ std::vector<
 
 template <std::size_t dim>
 struct PMLZoneDescription {
-    std::size_t zoneId_;
+    std::string zoneName_;
     LinearAlgebra::SmallVector<dim> direction_;
     // Attenuation from the PML (excluding far side boundary condition) based on
     // a plane wave in the i-th direction. This includes both the path from the

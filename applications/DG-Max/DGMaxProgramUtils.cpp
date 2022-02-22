@@ -351,9 +351,15 @@ std::vector<std::shared_ptr<PMLElementInfos<dim>>> applyPMLs(
     //   - Negative values are indices in pmls (offset by 1)
     //   - NO_PML_NEEDED is a signalling value that there is no PML in the
     //   region
-    std::vector<int> pmlIndices(boundingBoxes.size(), NO_PML_NEEDED);
-    for (std::size_t i = 0; i < pmls.size(); ++i) {
-        pmlIndices[pmls[i].zoneId_] = -i - 1;
+    const std::vector<Base::Zone>& zones = mesh.getZones();
+    std::vector<int> pmlIndices(zones.size(), NO_PML_NEEDED);
+    for (int i = 0; i < pmls.size(); ++i) {
+        for (std::size_t j = 0; j < zones.size(); ++j) {
+            if (pmls[i].zoneName_ == zones[j].getName()) {
+                pmlIndices[j] = -i - 1;
+                break;
+            }
+        }
     }
 
     for (Base::Element* element : mesh.getElementsList()) {
@@ -401,4 +407,12 @@ std::vector<std::shared_ptr<PMLElementInfos<dim>>> applyPMLs(
     return pmlinfos;
 }
 
+template <>
+std::vector<std::shared_ptr<PMLElementInfos<2>>> applyPMLs(
+    Base::MeshManipulator<2>& mesh,
+    const std::vector<PMLZoneDescription<2>>& pmls);
+template <>
+std::vector<std::shared_ptr<PMLElementInfos<3>>> applyPMLs(
+    Base::MeshManipulator<3>& mesh,
+    const std::vector<PMLZoneDescription<3>>& pmls);
 }  // namespace DGMax
