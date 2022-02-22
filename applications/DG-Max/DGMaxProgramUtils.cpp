@@ -335,6 +335,64 @@ std::vector<std::pair<Geometry::PointPhysical<3>, Geometry::PointPhysical<3>>>
     computeZoneBoundingBoxes(const Base::MeshManipulator<3>& mesh);
 
 template <std::size_t dim>
+PMLZoneDescription<dim> parsePMLZoneDescription(const std::string& input) {
+    PMLZoneDescription<dim> result;
+
+    std::vector<std::string> parts = stringSplit(input, ',');
+    DGMaxLogger.assert_always(
+        parts.size() == 2 + dim,
+        "Expected 2+dim fields to a PML description but got % in \"%\"",
+        parts.size(), input);
+    DGMaxLogger.assert_always(!parts[0].empty(),
+                              "Empty zone name for PML description");
+    result.zoneName_ = std::move(parts[0]);
+
+    DGMaxLogger.assert_always(
+        parts[1].size() == dim,
+        "Expected exactly % direction characters but got \"\"", dim, parts[1]);
+
+    for (std::size_t j = 0; j < dim; ++j) {
+        switch (parts[1][j]) {
+            case '0':
+                result.direction_[j] = 0.0;
+                break;
+            case '+':
+                result.direction_[j] = 1.0;
+                break;
+            case '-':
+                result.direction_[j] = -1.0;
+                break;
+            default:
+                DGMaxLogger.fail(
+                    "Unknown direction character \"%\" for the %-th direction",
+                    parts[1][j], j);
+        }
+        {
+
+            std::size_t p;
+            double attenuation = std::stod(parts[2 + j], &p);
+            DGMaxLogger.assert_always(
+                p == parts[2 + j].length(),
+                "Left over information after parsing attenuation\"%\"",
+                parts[2 + j]);
+            result.attenuation_[j] = attenuation;
+            if (result.direction_[j] != 0) {
+                DGMaxLogger.assert_always(attenuation <= 1.0 && attenuation > 0,
+                                          "Invalid attenuation value %",
+                                          attenuation);
+            }
+        }
+    }
+
+    return result;
+}
+
+template
+PMLZoneDescription<2> parsePMLZoneDescription(const std::string& input);
+template
+PMLZoneDescription<3> parsePMLZoneDescription(const std::string& input);
+
+template <std::size_t dim>
 std::vector<std::shared_ptr<PMLElementInfos<dim>>> applyPMLs(
     Base::MeshManipulator<dim>& mesh,
     const std::vector<PMLZoneDescription<dim>>& pmls) {

@@ -99,6 +99,28 @@ struct PMLZoneDescription {
     LinearAlgebra::SmallVector<dim> attenuation_;
 };
 
+/// Parses the description of a single PML zone.
+///
+/// Parses the description of pml zones, it expects a comma separated line with
+/// the following fields:
+///  - The zone name of the region to which to apply the PML
+///  - The direction, specified as a string of length dim containing the
+///    characters {+,0,-}. For example in dim=3 this could be "+0-".
+///  - dim fields with the attenuation in x,y(,z) direction specified as double
+///    in the range (0, 1].
+///
+/// Example in 2D: 'PML-YPlus,0+,1,1e-2', describes a PML for the zone with name
+/// PML-YPlus. The PML attenuates in the y-direction increasing in +y direction,
+/// the attenuation for a plane wave in the y-direction is 1e-2. An attenuation
+/// of 1 is specified in x direction, but this does not matter as the PML does
+/// not attenuate in that direction.
+///
+/// \tparam dim The dimension of the mesh
+/// \param input The line with input information
+/// \return The zonedescription
+template <std::size_t dim>
+PMLZoneDescription<dim> parsePMLZoneDescription(const std::string& input);
+
 template <std::size_t dim>
 std::vector<std::shared_ptr<PMLElementInfos<dim>>> applyPMLs(
     Base::MeshManipulator<dim>& mesh,

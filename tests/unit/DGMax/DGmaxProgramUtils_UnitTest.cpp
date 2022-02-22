@@ -69,3 +69,19 @@ TEST_CASE("Separator", "[StringSplit]") {
     std::vector<std::string> expected = {"foo", "bar", ",", ""};
     REQUIRE(result == expected);
 }
+
+TEST_CASE("2D test", "parsePMLZoneDescription") {
+    DGMax::PMLZoneDescription<2> pml =
+        DGMax::parsePMLZoneDescription<2>("TEST,+-,1e-1,1e-2");
+    CHECK(pml.zoneName_ == "TEST");
+    LinearAlgebra::SmallVector<2> expectedDirection{1, -1};
+    LinearAlgebra::SmallVector<2> expectedAttenuation{1e-1, 1e-2};
+}
+
+TEST_CASE("2D test", "parsePMLZoneDescription") {
+    DGMax::PMLZoneDescription<3> pml =
+        DGMax::parsePMLZoneDescription<3>("Dummy,0+0,1,1e-4,1");
+    CHECK(pml.zoneName_ == "Dummy");
+    LinearAlgebra::SmallVector<3> expectedDirection{0, 1, 0};
+    LinearAlgebra::SmallVector<3> expectedAttenuation{1, 1e-4, 1};
+}
