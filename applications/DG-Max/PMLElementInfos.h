@@ -41,6 +41,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "ElementInfos.h"
 
+#include "LinearAlgebra/SmallVector.h"
+
 /**
  * PML ElementInfos, currently only supporting
  *  - Axis aligned PML regions
@@ -66,7 +68,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 template <std::size_t dim>
 class PMLElementInfos : public ElementInfos {
+    using VecC3 = hpgem::LinearAlgebra::SmallVectorC<3>;
    public:
+    using VecR = hpgem::LinearAlgebra::SmallVector<dim>;
+
     PMLElementInfos() = default;
     /**
      * Constructor
@@ -78,13 +83,20 @@ class PMLElementInfos : public ElementInfos {
      * @param scaling The scaling constant.
      */
     PMLElementInfos(const DGMax::Material& material,
-                    const LinearAlgebra::SmallVector<dim>& offset,
-                    const LinearAlgebra::SmallVector<dim>& directions,
-                    double scaling)
+                    const VecR& offset,
+                    const VecR& directions,
+                    const VecR& scaling)
         : ElementInfos(material),
           offset_(offset),
           directions_(directions),
           scaling_(scaling) {}
+
+    PMLElementInfos(const DGMax::Material& material,
+                    const VecR& offset,
+                    const VecR& directions,
+                    double scaling)
+        : PMLElementInfos(material, offset, directions,
+                          VecR::constant(scaling)) {}
 
     DGMax::MaterialTensor getMaterialConstantDiv(const PointPhysicalBase& p,
                                                  double omega) const override {
@@ -99,21 +111,49 @@ class PMLElementInfos : public ElementInfos {
         return DGMax::MaterialTensor(diagTensor);
     }
 
+    /// \brief Compute the required scaling parameter for an attenuation.
+    ///
+    /// Computes the scaling parameter to get the desired attenuation. This
+    /// computation is done independently for each PML direction
+    /// (direction[j] == +- 1). This allows computing corner regions.
+    ///
+    /// The computation for a direction i assumes a plane wave propagating along
+    /// the i-axis (direction depends on direction[i]). After this plane wave
+    /// enters the PML it will travel to the interface at the far end, being
+    /// attenuated on the way. It is reflected of the far interface and then
+    /// attenuated again on its way back to the front interface (where it exits
+    /// the PML). The scaling parameter is such that the attenuation of the PML
+    /// (excluding the reflection at the far end) is the specified value.
+    ///
+    /// For inactive directions (i.e. direction[i] == 0) the scaling value will
+    /// be 0.
+    ///
+    /// \param material The base material.
+    /// \param direction The direction of PML
+    /// \param thickness The thickness of the PML
+    /// \param attenuation The required attenuation in each direction
+    /// \return The required scaling for each direction.
+    static VecR computeScaling(
+        const DGMax::Material& material,
+        VecR direction,
+        VecR thickness,
+        VecR attenuation);
+
    private:
-    LinearAlgebra::SmallVectorC<3> diagonalTensor(
-        const Geometry::PointPhysical<dim>& point, double omega) const {
+    VecC3 diagonalTensor(
+        const hpgem::Geometry::PointPhysical<dim>& point, double omega) const {
         using namespace std::complex_literals;
 
-        LinearAlgebra::SmallVectorC<3> ds;
+        VecC3 ds;
         ds.set(1.0);
         for (std::size_t i = 0; i < dim; ++i) {
             double xi = (point[i] - offset_[i]) * directions_[i];
             if (xi > 0) {
-                ds[i] += 1i / omega * scaling_ * xi * xi;
+                ds[i] += 1i / omega * scaling_[i] * xi * xi;
             }
         }
         // Mix the di's
-        LinearAlgebra::SmallVectorC<3> result;
+        VecC3 result;
         result.set(1.0);
         for (std::size_t i = 0; i < 3; ++i) {
             for (std::size_t j = 0; j < 3; ++j) {
@@ -128,9 +168,37 @@ class PMLElementInfos : public ElementInfos {
         return result;
     }
 
-    LinearAlgebra::SmallVector<dim> offset_;
-    LinearAlgebra::SmallVector<dim> directions_;
-    double scaling_;
+    VecR offset_;
+    VecR directions_;
+    VecR scaling_;
 };
+
+template <std::size_t dim>
+hpgem::LinearAlgebra::SmallVector<dim> PMLElementInfos<dim>::computeScaling(
+    const DGMax::Material& material, VecR direction,
+    VecR thickness,
+    VecR attenuation) {
+    VecR scaling;
+    for (std::size_t d = 0; d < dim; ++d) {
+        if (static_cast<int>(direction[d]) == 0) {
+            scaling[d] = 0.0;
+            continue;
+        }
+        // One way attenuation is given by:
+        // exp(-scaling_i (d_i^3)/3 n)
+        // with
+        //  - scaling_i the scaling factor,
+        //  - d_i the thickness,
+        //  - n the refractive index (needed for the ratio k_i / omega)
+        // Two way attenuation is the square of one way attenuation
+
+        // Divide by 2 for 2way -> 1way
+        double att = -std::log(attenuation[d]) / 2.0;
+        att /= material.getRefractiveIndex();
+        att /= thickness[d] * thickness[d] * thickness[d] / 3;
+        scaling[d] = att;
+    }
+    return scaling;
+}
 
 #endif  // HPGEM_PMLELEMENTINFOS_H

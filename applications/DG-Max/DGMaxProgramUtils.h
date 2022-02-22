@@ -4,6 +4,7 @@
 
 #include <memory>
 #include "Utils/StructureDescription.h"
+#include "PMLElementInfos.h"
 
 namespace hpgem {
 namespace Base {
@@ -71,6 +72,37 @@ std::unique_ptr<StructureDescription> determineStructureDescription(
     const std::string& input, std::size_t dim);
 
 std::vector<std::string> stringSplit(const std::string& input, char separator);
+
+/// Computes the bounding box for each zone
+///
+/// Computes the axis-aligned bounding box for each region. For linear elements
+/// this is exact. For curvilinear elements on the boundary a small part of the
+/// element may fall outside. It is guaranteed that all reference points are
+/// inside the bounding box.
+///
+/// \tparam dim The dimension of the mesh
+/// \param mesh The mesh
+/// \return For each zone a vector with minimum and maximum coordinates. Result
+/// for regions without elements are undefined.
+template <std::size_t dim>
+std::vector<
+    std::pair<Geometry::PointPhysical<dim>, Geometry::PointPhysical<dim>>>
+    computeZoneBoundingBoxes(const Base::MeshManipulator<dim>& mesh);
+
+template <std::size_t dim>
+struct PMLZoneDescription {
+    std::size_t zoneId_;
+    LinearAlgebra::SmallVector<dim> direction_;
+    // Attenuation from the PML (excluding far side boundary condition) based on
+    // a plane wave in the i-th direction. This includes both the path from the
+    // incident face to the far end, and the way back (far end -> interface)
+    LinearAlgebra::SmallVector<dim> attenuation_;
+};
+
+template <std::size_t dim>
+std::vector<std::shared_ptr<PMLElementInfos<dim>>> applyPMLs(
+    Base::MeshManipulator<dim>& mesh,
+    const std::vector<PMLZoneDescription<dim>>& pmls);
 
 }  // namespace DGMax
 

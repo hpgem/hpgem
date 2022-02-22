@@ -263,4 +263,142 @@ std::vector<std::string> stringSplit(const std::string& input, char separator) {
     return result;
 }
 
+template <std::size_t dim>
+std::vector<
+    std::pair<Geometry::PointPhysical<dim>, Geometry::PointPhysical<dim>>>
+    computeZoneBoundingBoxes(const Base::MeshManipulator<dim>& mesh) {
+
+    logger.assert_always(Base::MPIContainer::Instance().getNumProcessors() == 1,
+                         "Not MPI Enabled");
+
+    std::size_t zoneCount = mesh.getZones().size();
+    // Two vectors with the minimum/maximum coordinates for each zone.
+    // Sequential layout (e.g. x_0, y_0, x_1, y_1, ... with subscripts for
+    // zoneIds). Using vectors allows easier MPI communication.
+    //
+    // Default value +- infinity, as that is always updated by
+    // std::min/std::max
+    std::vector<double> mins(dim * zoneCount,
+                             std::numeric_limits<double>::infinity());
+    std::vector<double> maxs(dim * zoneCount,
+                             -std::numeric_limits<double>::infinity());
+
+    // Update mins/maxs for each element based on the node coordinates.
+    for (const Base::Element* element : mesh.getElementsList()) {
+        if (!element->isOwnedByCurrentProcessor()) {
+            continue;
+        }
+        const Geometry::PhysicalGeometry<dim>* pgeom =
+            element->getPhysicalGeometry();
+        std::size_t zoneId = element->getZone().getZoneId();
+        std::size_t nodeCount = pgeom->getNumberOfNodes();
+        std::size_t offset = dim * zoneId;
+        for (std::size_t i = 0; i < nodeCount; ++i) {
+            const Geometry::PointPhysical<dim> node =
+                pgeom->getLocalNodeCoordinates(i);
+            for (std::size_t j = 0; j < dim; ++j) {
+                mins[offset + j] = std::min(mins[offset + j], node[j]);
+                maxs[offset + j] = std::max(maxs[offset + j], node[j]);
+            }
+        }
+    }
+
+#ifdef HPGEM_USE_MPI
+    // We only know about the bounds due to the elements in our own part of the
+    // mesh. Communicate with the other processors to get the global bounds.
+    MPI_Allreduce(MPI_IN_PLACE, mins.data(), dim * zoneCount, MPI_DOUBLE,
+                  MPI_MIN, MPI_COMM_WORLD);
+    MPI_Allreduce(MPI_IN_PLACE, maxs.data(), dim * zoneCount, MPI_DOUBLE,
+                  MPI_MAX, MPI_COMM_WORLD);
+#endif
+
+    // Convert the results to output types
+    using Bounds =
+        std::pair<Geometry::PointPhysical<dim>, Geometry::PointPhysical<dim>>;
+    std::vector<Bounds> result(zoneCount);
+    for (std::size_t i = 0; i < zoneCount; ++i) {
+        Bounds& bounds = result[i];
+        std::size_t offset = dim * i;
+        for (std::size_t j = 0; j < dim; ++j) {
+            bounds.first[j] = mins[offset + j];
+            bounds.second[j] = maxs[offset + j];
+        }
+    }
+    return result;
+}
+
+template <>
+std::vector<std::pair<Geometry::PointPhysical<2>, Geometry::PointPhysical<2>>>
+    computeZoneBoundingBoxes(const Base::MeshManipulator<2>& mesh);
+template <>
+std::vector<std::pair<Geometry::PointPhysical<3>, Geometry::PointPhysical<3>>>
+    computeZoneBoundingBoxes(const Base::MeshManipulator<3>& mesh);
+
+template <std::size_t dim>
+std::vector<std::shared_ptr<PMLElementInfos<dim>>> applyPMLs(
+    Base::MeshManipulator<dim>& mesh,
+    const std::vector<PMLZoneDescription<dim>>& pmls) {
+    if (pmls.empty()) {
+        return {};
+    }
+    const int NO_PML_NEEDED = std::numeric_limits<int>::min();
+
+    auto boundingBoxes = computeZoneBoundingBoxes(mesh);
+    // Actual PMLElementInfos used by this MPI rank
+    std::vector<std::shared_ptr<PMLElementInfos<dim>>> pmlinfos;
+    // Index of the PMLElementInfos for each zone.
+    //   - Positive values are indices in pmlinfos
+    //   - Negative values are indices in pmls (offset by 1)
+    //   - NO_PML_NEEDED is a signalling value that there is no PML in the
+    //   region
+    std::vector<int> pmlIndices(boundingBoxes.size(), NO_PML_NEEDED);
+    for (std::size_t i = 0; i < pmls.size(); ++i) {
+        pmlIndices[pmls[i].zoneId_] = -i - 1;
+    }
+
+    for (Base::Element* element : mesh.getElementsList()) {
+        std::size_t zoneId = element->getZone().getZoneId();
+        int index = pmlIndices[zoneId];
+        if (index == NO_PML_NEEDED) {
+            continue;
+        }
+        if (index < 0) {
+            // PML needs to be generated
+            const PMLZoneDescription<dim>& description = pmls[-index - 1];
+
+            auto box = boundingBoxes[zoneId];
+            // Size of the bounding box
+            auto pmlThickness =
+                box.second.getCoordinates() - box.first.getCoordinates();
+            const Material& material =
+                ElementInfos::get(*element).getMaterial();
+
+            LinearAlgebra::SmallVector<dim> scaling =
+                PMLElementInfos<dim>::computeScaling(
+                    material, description.direction_, pmlThickness,
+                    description.attenuation_);
+
+            LinearAlgebra::SmallVector<dim> offset;
+            for (std::size_t i = 0; i < dim; ++i) {
+                // Should be +-1 or 0
+                int direction = static_cast<int>(description.direction_[i]);
+                if (direction < 0) {
+                    // e.g. PML for x < 0
+                    offset[i] = box.second[i];
+                } else if (direction > 0) {
+                    offset[i] = box.first[i];
+                } else {
+                    offset[i] = 0.0;
+                }
+            }
+            pmlinfos.emplace_back(std::make_shared<PMLElementInfos<dim>>(
+                material, offset, description.direction_, scaling));
+            pmlIndices[zoneId] = pmlinfos.size() - 1;
+        }
+        // Now that we know that a PML is present, set it
+        element->setUserData(pmlinfos[pmlIndices[zoneId]].get());
+    }
+    return pmlinfos;
+}
+
 }  // namespace DGMax
