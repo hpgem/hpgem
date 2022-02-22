@@ -288,7 +288,7 @@ std::vector<
         if (!element->isOwnedByCurrentProcessor()) {
             continue;
         }
-        const Geometry::PhysicalGeometry<dim>* pgeom =
+        const Geometry::PhysicalGeometryBase* pgeom =
             element->getPhysicalGeometry();
         std::size_t zoneId = element->getZone().getZoneId();
         std::size_t nodeCount = pgeom->getNumberOfNodes();
@@ -327,10 +327,10 @@ std::vector<
     return result;
 }
 
-template <>
+template
 std::vector<std::pair<Geometry::PointPhysical<2>, Geometry::PointPhysical<2>>>
     computeZoneBoundingBoxes(const Base::MeshManipulator<2>& mesh);
-template <>
+template
 std::vector<std::pair<Geometry::PointPhysical<3>, Geometry::PointPhysical<3>>>
     computeZoneBoundingBoxes(const Base::MeshManipulator<3>& mesh);
 
@@ -351,11 +351,11 @@ std::vector<std::shared_ptr<PMLElementInfos<dim>>> applyPMLs(
     //   - Negative values are indices in pmls (offset by 1)
     //   - NO_PML_NEEDED is a signalling value that there is no PML in the
     //   region
-    const std::vector<Base::Zone>& zones = mesh.getZones();
+    const auto& zones = mesh.getZones();
     std::vector<int> pmlIndices(zones.size(), NO_PML_NEEDED);
     for (int i = 0; i < pmls.size(); ++i) {
         for (std::size_t j = 0; j < zones.size(); ++j) {
-            if (pmls[i].zoneName_ == zones[j].getName()) {
+            if (pmls[i].zoneName_ == zones[j]->getName()) {
                 pmlIndices[j] = -i - 1;
                 break;
             }
@@ -407,11 +407,11 @@ std::vector<std::shared_ptr<PMLElementInfos<dim>>> applyPMLs(
     return pmlinfos;
 }
 
-template <>
+template
 std::vector<std::shared_ptr<PMLElementInfos<2>>> applyPMLs(
     Base::MeshManipulator<2>& mesh,
     const std::vector<PMLZoneDescription<2>>& pmls);
-template <>
+template
 std::vector<std::shared_ptr<PMLElementInfos<3>>> applyPMLs(
     Base::MeshManipulator<3>& mesh,
     const std::vector<PMLZoneDescription<3>>& pmls);
