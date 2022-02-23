@@ -76,6 +76,14 @@ auto& meshsize = Base::register_argument<double>(
     '\0', "scalenm",
     "Length scale of the mesh in nm (i.e. 1 mesh unit is x nanometers)");
 
+auto& pmlFile = Base::register_argument<std::string>(
+    '\0', "pmlfile", "File with description of the PMLs", false);
+auto& pmlString = Base::register_argument<std::string>(
+    '\0', "pmls",
+    "Inline description of the PMLs. Same format as a PML file but using ';' "
+    "instead of newlines",
+    false);
+
 template <std::size_t dim>
 void runWithDimension();
 
@@ -124,6 +132,16 @@ void writeMesh(std::string, const Base::MeshManipulator<dim>* mesh);
 /// \return A list of wavenumbers as pair. First the computational value, second
 /// the input value (e.g. in cm^{-1})
 std::vector<std::pair<double, double>> parseWaveNumbers();
+
+/// Apply PMLs from command line arguments to the mesh
+///
+/// \tparam dim The dimension of the mesh
+/// \param mesh The mesh
+/// \return The PMLElementInfos for the PMLs (and referenced to by the Elements
+/// in the mesh).
+template <std::size_t dim>
+std::vector<std::shared_ptr<PMLElementInfos<dim>>> applyPMLs(
+    Base::MeshManipulator<dim>& mesh);
 
 /**
  * Facets of the mesh through which the flux needs to be computed
@@ -395,29 +413,7 @@ void runWithDimension() {
         DGMax::readMesh<dim>(meshFileName.getValue(), &configData, *structure,
                              discretization->getNumberOfElementMatrices());
 
-    std::vector<PMLElementInfos<dim>> pmls;
-    {
-        double strength = 1e-5;
-        LinearAlgebra::SmallVector<dim> offset, direction;
-        offset[1] = -300.0;
-        direction[1] = -1.0;
-
-        pmls.emplace_back(PMLElementInfos<dim>(DGMax::Material(), offset,
-                                               direction, strength / 10));
-        offset[1] = 719.0;
-        direction[1] = 1.0;
-        DGMax::Material silicon(12.1, 1);
-        pmls.emplace_back(
-            PMLElementInfos<dim>(silicon, offset, direction, strength));
-    }
-    for (Base::Element* element : mesh->getElementsList()) {
-        const std::string& zoneName = element->getZone().getName();
-        if (zoneName == "4") {
-            element->setUserData(&pmls[0]);
-        } else if (zoneName == "5") {
-            element->setUserData(&pmls[1]);
-        }
-    }
+    auto pmlElementInfos = applyPMLs(*mesh);
 
     logger(INFO, "Loaded mesh % with % local elements", meshFileName.getValue(),
            mesh->getNumberOfElements());
@@ -633,4 +629,34 @@ std::vector<std::pair<double, double>> parseWaveNumbers() {
         result.emplace_back(factor * waveLength, waveLength);
     }
     return result;
+}
+
+template <std::size_t dim>
+std::vector<std::shared_ptr<PMLElementInfos<dim>>> applyPMLs(
+    Base::MeshManipulator<dim>& mesh) {
+    std::vector<DGMax::PMLZoneDescription<dim>> pmlDescriptions;
+
+    // Step 1: Parse the input
+    if (pmlString.isUsed()) {
+        auto lines = DGMax::stringSplit(pmlString.getValue(), ';');
+        for (const std::string& line : lines) {
+            pmlDescriptions.push_back(
+                DGMax::parsePMLZoneDescription<dim>(line));
+        }
+    }
+    if (pmlFile.isUsed()) {
+        std::ifstream file(pmlFile.getValue());
+        DGMaxLogger.assert_always(
+            file.good(), "Something went wrong in opening the PML file \"%\"",
+            pmlFile.getValue());
+        for (std::string line; std::getline(file, line);) {
+            if (line.empty()) {
+                continue;
+            }
+            pmlDescriptions.push_back(
+                DGMax::parsePMLZoneDescription<dim>(line));
+        }
+    }
+    // Step 2: Apply the input
+    return DGMax::applyPMLs(mesh, pmlDescriptions);
 }
