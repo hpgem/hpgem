@@ -62,7 +62,7 @@ struct ProblemData {
     constexpr static const Material rightMaterial = Material(1.0, 1.1);
     constexpr static const double omega = M_PI;
     constexpr static const double phase = 1.0;
-    constexpr static const double xInterface = -0.5;
+    constexpr static const double xInterface = 0.5;
 
     ProblemData()
         : infosLeft(leftMaterial),
@@ -140,7 +140,7 @@ int main(int argc, char** argv) {
     initDGMaxLogging();
 
     // For testing and updating => Should be false to actually use this test
-    bool ignoreFailures = true;
+    bool ignoreFailures = false;
 
     // Default the solver if not specified to a direct LU solver
     std::map<std::string, std::string> defaultOptions = {
@@ -161,9 +161,9 @@ int main(int argc, char** argv) {
     // Expected convergence rate: 2 (=2^p with p=1)
     ConvergenceTestSet meshesDGMax = {getUnitCubeTetMeshes(1, 4),
                                       {
-                                          7.48237144e-01,  //------
-                                          3.80443878e-01,  //  1.97
-                                          1.83605884e-01,  //  2.07
+                                          6.55960756e-01,  //------
+                                          3.57299399e-01,  //  1.84
+                                          1.80478375e-01,  //  1.98
                                       }};
     auto dgmax = std::make_shared<DGMaxDiscretization<3>>(1, 100);
     runConvergenceTest(meshesDGMax, ignoreFailures,
@@ -174,9 +174,9 @@ int main(int argc, char** argv) {
 
     ConvergenceTestSet meshesDivDGMax = {getUnitCubeTetMeshes(1, 4),
                                          {
-                                             1.09286633e+00,  //------
-                                             5.36898591e-01,  //  2.04
-                                             2.22872838e-01,  //  2.41
+                                             1.12856812e+00,  //------
+                                             6.07642819e-01,  //  1.86
+                                             2.38693549e-01,  //  2.55
                                          }};
     DivDGMaxDiscretizationBase::Stab stab;
     stab.stab1 = 5;
