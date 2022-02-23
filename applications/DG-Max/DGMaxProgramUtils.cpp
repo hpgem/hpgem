@@ -327,11 +327,11 @@ std::vector<
     return result;
 }
 
-template
-std::vector<std::pair<Geometry::PointPhysical<2>, Geometry::PointPhysical<2>>>
+template std::vector<
+    std::pair<Geometry::PointPhysical<2>, Geometry::PointPhysical<2>>>
     computeZoneBoundingBoxes(const Base::MeshManipulator<2>& mesh);
-template
-std::vector<std::pair<Geometry::PointPhysical<3>, Geometry::PointPhysical<3>>>
+template std::vector<
+    std::pair<Geometry::PointPhysical<3>, Geometry::PointPhysical<3>>>
     computeZoneBoundingBoxes(const Base::MeshManipulator<3>& mesh);
 
 template <std::size_t dim>
@@ -387,10 +387,49 @@ PMLZoneDescription<dim> parsePMLZoneDescription(const std::string& input) {
     return result;
 }
 
-template
-PMLZoneDescription<2> parsePMLZoneDescription(const std::string& input);
-template
-PMLZoneDescription<3> parsePMLZoneDescription(const std::string& input);
+template PMLZoneDescription<2> parsePMLZoneDescription(
+    const std::string& input);
+template PMLZoneDescription<3> parsePMLZoneDescription(
+    const std::string& input);
+
+template<std::size_t dim>
+using Bounds = std::pair<Geometry::PointPhysical<dim>,
+                                     Geometry::PointPhysical<dim>>;
+
+template<std::size_t dim>
+std::shared_ptr<PMLElementInfos<dim>> createPML(
+    const PMLZoneDescription<dim>& description, const Bounds<dim>& box,
+    const Base::Element& element) {
+
+    // Size of the bounding box
+    auto pmlThickness =
+        box.second.getCoordinates() - box.first.getCoordinates();
+
+    const Material& material =
+        ElementInfos::get(element).getMaterial();
+
+    LinearAlgebra::SmallVector<dim> scaling =
+        PMLElementInfos<dim>::computeScaling(
+            material, description.direction_, pmlThickness,
+            description.attenuation_);
+
+    LinearAlgebra::SmallVector<dim> offset;
+    for (std::size_t i = 0; i < dim; ++i) {
+        // Should be +-1 or 0
+        int direction = static_cast<int>(description.direction_[i]);
+        if (direction < 0) {
+            // e.g. PML for x < 0
+            offset[i] = box.second[i];
+        } else if (direction > 0) {
+            offset[i] = box.first[i];
+        } else {
+            offset[i] = 0.0;
+        }
+    }
+
+    return std::make_shared<PMLElementInfos<dim>>(
+        material, offset, description.direction_, scaling);
+}
 
 template <std::size_t dim>
 std::vector<std::shared_ptr<PMLElementInfos<dim>>> applyPMLs(
@@ -431,32 +470,8 @@ std::vector<std::shared_ptr<PMLElementInfos<dim>>> applyPMLs(
             const PMLZoneDescription<dim>& description = pmls[-index - 1];
 
             auto box = boundingBoxes[zoneId];
-            // Size of the bounding box
-            auto pmlThickness =
-                box.second.getCoordinates() - box.first.getCoordinates();
-            const Material& material =
-                ElementInfos::get(*element).getMaterial();
 
-            LinearAlgebra::SmallVector<dim> scaling =
-                PMLElementInfos<dim>::computeScaling(
-                    material, description.direction_, pmlThickness,
-                    description.attenuation_);
-
-            LinearAlgebra::SmallVector<dim> offset;
-            for (std::size_t i = 0; i < dim; ++i) {
-                // Should be +-1 or 0
-                int direction = static_cast<int>(description.direction_[i]);
-                if (direction < 0) {
-                    // e.g. PML for x < 0
-                    offset[i] = box.second[i];
-                } else if (direction > 0) {
-                    offset[i] = box.first[i];
-                } else {
-                    offset[i] = 0.0;
-                }
-            }
-            pmlinfos.emplace_back(std::make_shared<PMLElementInfos<dim>>(
-                material, offset, description.direction_, scaling));
+            pmlinfos.emplace_back(createPML(description, box, *element));
             pmlIndices[zoneId] = pmlinfos.size() - 1;
         }
         // Now that we know that a PML is present, set it
@@ -465,12 +480,10 @@ std::vector<std::shared_ptr<PMLElementInfos<dim>>> applyPMLs(
     return pmlinfos;
 }
 
-template
-std::vector<std::shared_ptr<PMLElementInfos<2>>> applyPMLs(
+template std::vector<std::shared_ptr<PMLElementInfos<2>>> applyPMLs(
     Base::MeshManipulator<2>& mesh,
     const std::vector<PMLZoneDescription<2>>& pmls);
-template
-std::vector<std::shared_ptr<PMLElementInfos<3>>> applyPMLs(
+template std::vector<std::shared_ptr<PMLElementInfos<3>>> applyPMLs(
     Base::MeshManipulator<3>& mesh,
     const std::vector<PMLZoneDescription<3>>& pmls);
 }  // namespace DGMax
