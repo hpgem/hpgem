@@ -410,7 +410,7 @@ std::shared_ptr<PMLElementInfos<dim>> createPML(
 
     LinearAlgebra::SmallVector<dim> scaling =
         PMLElementInfos<dim>::computeScaling(
-            material, description.direction_, pmlThickness,
+            material, description.direction_,
             description.attenuation_);
 
     LinearAlgebra::SmallVector<dim> offset;
@@ -428,7 +428,7 @@ std::shared_ptr<PMLElementInfos<dim>> createPML(
     }
 
     return std::make_shared<PMLElementInfos<dim>>(
-        material, offset, description.direction_, scaling);
+        material, offset, description.direction_, pmlThickness, scaling);
 }
 
 template <std::size_t dim>

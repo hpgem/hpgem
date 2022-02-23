@@ -65,6 +65,7 @@ struct ProblemData {
     static constexpr const std::size_t TRANSVERSE_HALF_WAVE_COUNT = 1;
 
     static constexpr const double PML_START = 0.5;
+    static constexpr const double PML_DEPTH = LENGTH - PML_START;
     // This coefficient results in medium attenuation of
     // exp(-10/FREQUENCY * PML_DEPTH^3/3 * ky) ~= 0.66
     // for the incident wave to the back boundary, and the same factor for the
@@ -72,7 +73,7 @@ struct ProblemData {
     // thus about 33%. Which is a significant dampening from no PML (100%
     // reflection) as well as large enough to affect the solution before the PML
     // and thus be detectable in the L2-error.
-    static constexpr const double PML_SCALING = 10.0;
+    static constexpr const double PML_SCALING = 10.0 * (PML_DEPTH * PML_DEPTH * PML_DEPTH);
 
     // Non unity material parameters to check that those work.
     static constexpr const double permittivity = 1.5;
@@ -81,7 +82,7 @@ struct ProblemData {
     ProblemData()
         : baseMaterial(permittivity, permeability),
           baseInfos(baseMaterial),
-          pmlInfos(baseMaterial, {0, PML_START}, {0, 1}, PML_SCALING),
+          pmlInfos(baseMaterial, {0, PML_START}, {0, 1}, {1, PML_DEPTH}, {0, PML_SCALING}),
           structureDescription(StructureDescription::fromFunction(
               [this](const Base::Element* element) -> ElementInfos* {
                   auto centre = element->referenceToPhysical(
@@ -97,7 +98,7 @@ struct ProblemData {
           problem(FREQUENCY, WIDTH, TRANSVERSE_HALF_WAVE_COUNT, LENGTH,
                   baseMaterial) {
         problem.setFarEndBoundaryCondition(BoundaryConditionType::DIRICHLET);
-        problem.setPML(PML_START, PML_SCALING);
+        problem.setPML(PML_START, PML_SCALING, PML_DEPTH);
     }
 
     Material baseMaterial;
