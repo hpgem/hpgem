@@ -35,78 +35,64 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#ifndef HPGEM_EXACTFIELDHARMONICPROBLEM_H
+#define HPGEM_EXACTFIELDHARMONICPROBLEM_H
 
 #include "SampleHarmonicProblems.h"
-
-#include <Utils/PlaneWave.h>
-
-#ifndef HPGEM_PLANEWAVEPROBLEM_H
-#define HPGEM_PLANEWAVEPROBLEM_H
+#include "../FieldPattern.h"
 
 namespace DGMax {
 
-/// Harmonic test case for the plane wave
-///     E0 exp[i (k.x + phi)]
-/// where
-///   - E0 is the direction of the field (may be complex valued)
-///   - k is the wave vector
-///   - phi is a phase
-/// The wave is assumed to propagate in a medium of constant material
-/// coefficients.
-///
+/**
+ * Implementation of ExactHarmonicProblem based on FieldPattern.
+ *
+ * This implementation takes a FieldPattern, the exact solution. It then derives
+ * the required source term and boundary conditions. The boundary conditions to
+ * use can be set by the user.
+ *
+ * @tparam dim dimension of a problem
+ */
 template <std::size_t dim>
-class [[maybe_unused]] PlaneWaveProblem : public SampleHarmonicProblem<dim> {
+class ExactFieldHarmonicProblem : public SampleHarmonicProblem<dim> {
    public:
-    PlaneWaveProblem(LinearAlgebra::SmallVector<dim> k,
-                     LinearAlgebra::SmallVectorC<dim> E0, double omega,
-                     double phase, Material material)
-        : planeWave_(k, E0, phase), material_(material), omega_(omega) {}
-
-    static PlaneWaveProblem onDispersionPlaneWave(
-        LinearAlgebra::SmallVector<dim> k, LinearAlgebra::SmallVectorC<dim> E0,
-        Material material, double phase = 0.0) {
-        return PlaneWaveProblem<dim>{
-            k, E0, std::sqrt(k.l2NormSquared()) / material.getRefractiveIndex(),
-            phase, material};
-    }
+    ExactFieldHarmonicProblem(double omega,
+                              std::shared_ptr<FieldPattern<dim>> field)
+        : omega_(omega), field_(field){};
 
     double omega() const override { return omega_; }
 
-    LinearAlgebra::SmallVectorC<dim> exactSolution(
-        const Geometry::PointPhysical<dim>& point) const override {
-        return planeWave_.field(point);
-    }
-    LinearAlgebra::SmallVectorC<dim> exactSolutionCurl(
-        const Geometry::PointPhysical<dim>& point) const override {
-        return planeWave_.fieldCurl(point);
-    }
     LinearAlgebra::SmallVectorC<dim> sourceTerm(
+        const Base::Element& element,
         const Geometry::PointPhysical<dim>& point) const override {
-        return (planeWave_.waveVector().l2NormSquared() /
-                    material_.getPermeability() -
-                omega_ * omega_ * material_.getPermittivity()) *
-               planeWave_.field(point);
+        ElementInfos& infos = ElementInfos::get(element);
+        // Compute the source term as
+        // Curl (mu^{-1} Curl E) - omega^2 epsilon E
+        return field_->fieldDoubleCurl(
+                   point, infos.getMaterialConstantCurl(point, omega_)) -
+               (omega_ * omega_) * infos.getMaterialConstantDiv(point, omega_)
+                                       .applyDiv(field_->field(point));
+        ;
     }
 
-    LinearAlgebra::SmallVector<dim> localFlux(
-        const Geometry::PointPhysical<dim>& point) {
-        // Poynting vector =
-        //    Re(E x H*)
-        //  = Re(i/omega E x 1/mu Curl E*)
-        //  = 1/omega Im(E x 1/mu Curl E*)
-        auto field = exactSolution(point);
-        auto curlFieldConj = exactSolutionCurl(point).conj();
-        return 1 / (omega_ * material_.getPermeability()) *
-               LinearAlgebra::leftDoubledCrossProduct(field, curlFieldConj)
-                   .imag();
+    LinearAlgebra::SmallVectorC<dim> exactSolution(
+        const Geometry::PointPhysical<dim>& point) const override {
+        return field_->field(point);
+    }
+
+    LinearAlgebra::SmallVectorC<dim> exactSolutionCurl(
+        const Geometry::PointPhysical<dim>& point) const override {
+        return field_->fieldCurl(point);
+    }
+
+    const std::shared_ptr<FieldPattern<dim>>& getField() const {
+        return field_;
     }
 
    private:
-    DGMax::PlaneWave<dim> planeWave_;
-    Material material_;
     double omega_;
+    std::shared_ptr<FieldPattern<dim>> field_;
 };
 
 }  // namespace DGMax
 
-#endif  // HPGEM_PLANEWAVEPROBLEM_H
+#endif  // HPGEM_EXACTFIELDHARMONICPROBLEM_H

@@ -43,6 +43,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <Geometry/PointPhysical.h>
 
 #include "../Material.h"
+#include "ProblemTypes/FieldPattern.h"
 
 namespace DGMax {
 
@@ -53,52 +54,60 @@ namespace DGMax {
 ///
 /// \tparam dim The dimension of the domain (2 or 3)
 template <std::size_t dim>
-class PlaneWave {
+class PlaneWave : public FieldPattern<dim> {
    public:
+    using typename FieldPattern<dim>::VecR;
+    using typename FieldPattern<dim>::VecC;
+    using typename FieldPattern<dim>::PPhys;
+
     PlaneWave() : k_(), E0_(), phase_(0.0) {}
-    PlaneWave(LinearAlgebra::SmallVector<dim> k,
-              LinearAlgebra::SmallVectorC<dim> E0, double phase)
-        : k_(k), E0_(E0), phase_(phase) {
+    PlaneWave(VecR k, VecC E0, double phase) : k_(k), E0_(E0), phase_(phase) {
+
+        using namespace hpgem;
 
         logger.assert_debug(
             std::abs(E0 * k) <= 1e-8 * (k.l2Norm() * E0.l2Norm()),
             "Non orthogonal wavevector and field.");
     };
 
-    static PlaneWave onDispersion(double omega,
-                                  LinearAlgebra::SmallVector<dim> khat,
-                                  LinearAlgebra::SmallVectorC<dim> E0,
+    static PlaneWave onDispersion(double omega, VecR khat, VecC E0,
                                   DGMax::Material material, double phase) {
         // Set the length of the wave vector to be on dispersion relation
         khat *= omega * material.getRefractiveIndex() / khat.l2Norm();
         return PlaneWave(khat, E0, phase);
     }
 
-    LinearAlgebra::SmallVectorC<dim> field(
-        const Geometry::PointPhysical<dim>& p) const {
-        return E0_ * phaseFactor(p);
-    }
+    VecC field(const PPhys& p) const final { return E0_ * phaseFactor(p); }
 
-    LinearAlgebra::SmallVectorC<dim> fieldCurl(
-        const Geometry::PointPhysical<dim>& p) const {
+    VecC fieldCurl(const PPhys& p) const final {
         // To ensure the complex valued cross product is used
-        LinearAlgebra::SmallVectorC<dim> kc = k_;
+        VecC kc = k_;
         using namespace std::complex_literals;
 
         return kc.crossProduct(E0_) * (1i * phaseFactor(p));
     }
 
-    const LinearAlgebra::SmallVector<dim>& waveVector() const { return k_; }
+    VecC fieldDoubleCurl(const PPhys& p,
+                         const MaterialTensor& material) const final {
+        // To ensure the complex valued cross product is used
+        VecC kc = k_;
+        using namespace std::complex_literals;
+        // -1.0 is from two derivatives, each giving a factor 1i
+        return hpgem::LinearAlgebra::leftDoubledCrossProduct(
+                   kc, material.applyCurl(kc.crossProduct(E0_))) *
+               (-1.0 * phaseFactor(p));
+    }
+
+    const VecR& waveVector() const { return k_; }
 
    private:
-    std::complex<double> phaseFactor(
-        const Geometry::PointPhysical<dim>& p) const {
+    std::complex<double> phaseFactor(const PPhys& p) const {
         using namespace std::complex_literals;
         return std::exp(1i * (k_ * p.getCoordinates() + phase_));
     }
 
-    LinearAlgebra::SmallVector<dim> k_;
-    LinearAlgebra::SmallVectorC<dim> E0_;
+    VecR k_;
+    VecC E0_;
     double phase_;
 };
 

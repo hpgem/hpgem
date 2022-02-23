@@ -46,7 +46,8 @@
 #include <Algorithms/HarmonicSolver.h>
 #include <Algorithms/DGMaxDiscretization.h>
 #include <Algorithms/DivDGMaxDiscretization.h>
-#include <ProblemTypes/Harmonic/PlaneWaveReflectionProblem.h>
+#include <ProblemTypes/Harmonic/InterfaceReflectionField.h>
+#include <ProblemTypes/Harmonic/ExactFieldHarmonicProblem.h>
 
 #include <petsc.h>
 
@@ -78,15 +79,38 @@ struct ProblemData {
                       return &infosRight;
                   }
               })),
-          problem(omega, phase, leftMaterial, rightMaterial, xInterface) {}
+          problem(omega,
+                  std::make_shared<InterfaceReflectionField<3>>(
+                      omega, phase, leftMaterial, rightMaterial, xInterface)) {
+        problem.setBoundaryConditionIndicator([](const Base::Face& face) {
+            auto normal = face.getNormalVector(
+                face.getReferenceGeometry()->getCenter().castDimension<2>());
+            normal /= normal.l2Norm();
+            if (std::abs(normal[0]) > 1e-1) {
+                return BoundaryConditionType::SILVER_MULLER;
+            } else if (std::abs(normal[1]) > 1e-1) {
+                // Field is in y-direction thus along the normal direction
+                // = PEC boundary
+                return BoundaryConditionType::DIRICHLET;
+            } else if (std::abs(normal[2]) > 1e-1) {
+                // Field is parallel to the face => PMC
+                return BoundaryConditionType::DIRICHLET;
+            } else {
+                logger.fail("Problem with setting the boundary condition");
+            }
+        });
+    }
 
     ElementInfos infosLeft, infosRight;
     std::shared_ptr<StructureDescription> structureDescription;
-    PlaneWaveReflectionProblem<3> problem;
+    ExactFieldHarmonicProblem<3> problem;
 };
 
 const Material ProblemData::leftMaterial;
 const Material ProblemData::rightMaterial;
+const double ProblemData::omega;
+const double ProblemData::phase;
+const double ProblemData::xInterface;
 
 double solve(std::string meshFile, std::size_t level,
              std::shared_ptr<AbstractDiscretization<3>> discretization,
@@ -137,9 +161,9 @@ int main(int argc, char** argv) {
     // Expected convergence rate: 2 (=2^p with p=1)
     ConvergenceTestSet meshesDGMax = {getUnitCubeTetMeshes(1, 4),
                                       {
-                                          7.48237144e-01,  //------
-                                          3.80443878e-01,  //  1.97
-                                          1.83605884e-01,  //  2.07
+                                          6.55960756e-01,  //------
+                                          3.57299399e-01,  //  1.84
+                                          1.80478375e-01,  //  1.98
                                       }};
     auto dgmax = std::make_shared<DGMaxDiscretization<3>>(1, 100);
     runConvergenceTest(meshesDGMax, ignoreFailures,
@@ -150,9 +174,9 @@ int main(int argc, char** argv) {
 
     ConvergenceTestSet meshesDivDGMax = {getUnitCubeTetMeshes(1, 4),
                                          {
-                                             1.09286633e+00,  //------
-                                             5.36898591e-01,  //  2.04
-                                             2.22872838e-01,  //  2.41
+                                             1.12856812e+00,  //------
+                                             6.07642819e-01,  //  1.86
+                                             2.38693549e-01,  //  2.55
                                          }};
     DivDGMaxDiscretizationBase::Stab stab;
     stab.stab1 = 5;

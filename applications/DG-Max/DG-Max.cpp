@@ -58,7 +58,8 @@
 #include "Algorithms/DGMaxTimeIntegration.h"
 
 #include "ProblemTypes/Harmonic/SampleHarmonicProblems.h"
-#include "ProblemTypes/Time/SampleTestProblems.h"
+#include "ProblemTypes/Harmonic/ExactFieldHarmonicProblem.h"
+#include "ProblemTypes/Harmonic/ConstantField.h"
 #include "Utils/BandstructureGNUPlot.h"
 #include "Utils/StructureDescription.h"
 #include "Utils/PredefinedStructure.h"
@@ -127,7 +128,8 @@ int main(int argc, char** argv) {
         }
 
         auto harmonicProblem =
-            std::make_shared<DGMax::ConstantHarmonicProblem<DIM>>(1.0);
+            std::make_shared<DGMax::ExactFieldHarmonicProblem<DIM>>(
+                1.0, std::make_shared<DGMax::ConstantField<DIM>>());
 
         //        HarmonicSolver<DIM> harmonicSolver(*mesh, p.getValue());
         //        harmonicSolver.solve(harmonicProblem, stab);

@@ -46,7 +46,8 @@
 #include <Algorithms/HarmonicSolver.h>
 #include <Algorithms/DGMaxDiscretization.h>
 #include <Algorithms/DivDGMaxDiscretization.h>
-#include <ProblemTypes/Harmonic/PlaneWaveProblem.h>
+#include <ProblemTypes/Harmonic/ExactFieldHarmonicProblem.h>
+#include <Utils/PlaneWave.h>
 
 #include <petsc.h>
 
@@ -71,7 +72,7 @@ struct ProblemData {
         : infos(material),
           structureDescription(StructureDescription::fromFunction(
               [this](const Base::Element*) { return &this->infos; })),
-          problem(k, E0, omega, phase, material) {
+          problem(omega, std::make_shared<DGMax::PlaneWave<2>>(k, E0, phase)) {
         problem.setBoundaryConditionIndicator([](const Base::Face& face) {
             auto normal = face.getNormalVector(
                 face.getReferenceGeometry()->getCenter().castDimension<1>());
@@ -92,12 +93,12 @@ struct ProblemData {
 
     ElementInfos infos;
     std::shared_ptr<StructureDescription> structureDescription;
-    PlaneWaveProblem<2> problem;
+    ExactFieldHarmonicProblem<2> problem;
 };
 
 class Driver : public AbstractHarmonicSolverDriver<2> {
    public:
-    Driver(PlaneWaveProblem<2>& problem)
+    Driver(ExactFieldHarmonicProblem<2>& problem)
         : nextCalled_(false), problem_(&problem){};
 
     bool stop() const override { return nextCalled_; }
@@ -124,15 +125,21 @@ class Driver : public AbstractHarmonicSolverDriver<2> {
             }
             double flux = result.computeEnergyFlux(*face, Base::Side::LEFT,
                                                    problem_->omega());
+
             Geometry::PointReference<1> midPoint =
                 face->getReferenceGeometry()->getCenter();
             LinearAlgebra::SmallVector<2> normal =
                 face->getNormalVector(midPoint);
             normal /= normal.l2Norm();
+            // Get one of the element infos
+            auto point = face->referenceToPhysical(midPoint);
+            auto materialTensor =
+                ElementInfos::get(*face->getPtrElementLeft())
+                    .getMaterialConstantCurl(point, problem_->omega());
             // Point flux at the middle of the face
             double expectedFlux =
-                normal *
-                problem_->localFlux(face->referenceToPhysical(midPoint));
+                normal * problem_->getField()->localFlux(point, materialTensor,
+                                                         problem_->omega());
             // Assume flat flux profile
             expectedFlux *= face->getDiameter();
 
@@ -160,13 +167,14 @@ class Driver : public AbstractHarmonicSolverDriver<2> {
 
    private:
     bool nextCalled_;
-    PlaneWaveProblem<2>* problem_;
+    ExactFieldHarmonicProblem<2>* problem_;
     Output::VTKSpecificTimeWriter<2>* plotter_;
 
     std::vector<double> errors_;
 };
 
 const Material ProblemData::material;
+const double ProblemData::phase;
 
 // k_ is chosen such that:
 //  1. Not too small, as that would only show the linear part

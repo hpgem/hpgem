@@ -68,6 +68,7 @@ class HarmonicProblem {
     virtual ~HarmonicProblem() = default;
     virtual double omega() const = 0;
     virtual LinearAlgebra::SmallVectorC<DIM> sourceTerm(
+        const Base::Element& element,
         const Geometry::PointPhysical<DIM>& point) const = 0;
     virtual DGMax::BoundaryConditionType getBoundaryConditionType(
         const Base::Face& face) const = 0;

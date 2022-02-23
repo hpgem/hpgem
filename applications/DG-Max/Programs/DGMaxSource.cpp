@@ -50,6 +50,8 @@
 #include <Algorithms/DivDGMaxDiscretization.h>
 #include <Utils/PlaneWave.h>
 
+#include <PMLElementInfos.h>
+
 auto& meshFileName = Base::register_argument<std::string>(
     'm', "meshFile", "The hpgem meshfile to use", true);
 
@@ -115,6 +117,7 @@ class TestingProblem : public HarmonicProblem<dim> {
     double omega() const final { return omega_; }
 
     LinearAlgebra::SmallVectorC<dim> sourceTerm(
+        const Base::Element&,
         const Geometry::PointPhysical<dim>& point) const final {
         LinearAlgebra::SmallVector<dim> result;
 
@@ -235,7 +238,8 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
         output.write(
             [this](Base::Element* element,
                    const Geometry::PointReference<dim>& p, std::size_t) {
-                return problem_->sourceTerm(element->referenceToPhysical(p))
+                return problem_
+                    ->sourceTerm(*element, element->referenceToPhysical(p))
                     .real();
             },
             "source");
@@ -245,9 +249,29 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
         // Fluxes are stored in an array to allow easier MPIReduce
         std::array<double, 2> inOutFlux = {0.0, 0.0};
         for (Base::Face* face : mesh_->getFacesList()) {
-            if (face->isOwnedByCurrentProcessor() && !face->isInternal()) {
-                double flux = result.computeEnergyFlux(*face, Base::Side::LEFT,
-                                                       problem_->omega());
+            if (face->isOwnedByCurrentProcessor()) {
+                Base::Side side;
+                auto* leftInfos = ElementInfos::get(face->getPtrElementLeft());
+                auto* rightInfos =
+                    ElementInfos::get(face->getPtrElementRight());
+                bool leftPML = dynamic_cast<PMLElementInfos<dim>*>(leftInfos);
+                bool rightPML = dynamic_cast<PMLElementInfos<dim>*>(rightInfos);
+                if (face->isInternal()) {
+                    if (leftPML == rightPML) {
+                        continue;
+                    } else {
+                        side = leftPML ? Base::Side::RIGHT : Base::Side::LEFT;
+                    }
+                } else {
+                    if (leftPML) {
+                        continue;
+                    } else {
+                        side = Base::Side::LEFT;
+                    }
+                }
+
+                double flux =
+                    result.computeEnergyFlux(*face, side, problem_->omega());
                 auto normal = face->getNormalVector(
                     face->getReferenceGeometry()
                         ->getCenter()
