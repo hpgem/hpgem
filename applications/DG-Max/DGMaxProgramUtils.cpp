@@ -426,6 +426,11 @@ std::shared_ptr<PMLElementInfos<dim>> createPML(
             offset[i] = 0.0;
         }
     }
+    // Compromise: We want this information in the output. But with MPI
+    // computations we will duplicate this.
+    DGMaxLogger(
+        INFO, "Creating PML for zone %, direction %, thickness %, scaling %",
+        description.zoneName_, description.direction_, pmlThickness, scaling);
 
     return std::make_shared<PMLElementInfos<dim>>(
         material, offset, description.direction_, pmlThickness, scaling);
