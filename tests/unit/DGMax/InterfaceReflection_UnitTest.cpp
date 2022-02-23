@@ -56,7 +56,7 @@ void checkContinuity(const InterfaceReflectionField<dim>& field, VecR<dim> p) {
     auto rightTangentialField = field.field(right).crossProduct(normal);
     auto diff = leftTangentialField - rightTangentialField;
     double l2Diff = diff.l2Norm();
-    logger(INFO, "Difference % (=norm %)", l2Diff,  diff);
+    logger(INFO, "Difference % (=norm %)", l2Diff, diff);
     CHECK(l2Diff < 1e-4);
 }
 

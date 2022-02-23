@@ -86,13 +86,13 @@ struct ProblemData {
             auto normal = face.getNormalVector(
                 face.getReferenceGeometry()->getCenter().castDimension<2>());
             normal /= normal.l2Norm();
-            if (std::abs(normal[0]) > 1e-1 ) {
+            if (std::abs(normal[0]) > 1e-1) {
                 return BoundaryConditionType::SILVER_MULLER;
             } else if (std::abs(normal[1]) > 1e-1) {
                 // Field is in y-direction thus along the normal direction
                 // = PEC boundary
                 return BoundaryConditionType::DIRICHLET;
-            } else if (std::abs(normal[2]) > 1e-1){
+            } else if (std::abs(normal[2]) > 1e-1) {
                 // Field is parallel to the face => PMC
                 return BoundaryConditionType::DIRICHLET;
             } else {

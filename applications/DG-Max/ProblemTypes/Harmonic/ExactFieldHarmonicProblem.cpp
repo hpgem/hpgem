@@ -37,6 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "ExactFieldHarmonicProblem.h"
 
-
-template<> class DGMax::ExactFieldHarmonicProblem<2>;
-template<> class DGMax::ExactFieldHarmonicProblem<3>;
+template <>
+class DGMax::ExactFieldHarmonicProblem<2>;
+template <>
+class DGMax::ExactFieldHarmonicProblem<3>;

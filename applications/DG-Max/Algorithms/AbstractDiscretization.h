@@ -168,7 +168,8 @@ class AbstractDiscretization : public AbstractDiscretizationBase {
      */
     virtual LinearAlgebra::SmallVector<4> computeEnergyFluxes(
         Base::Face& face, Base::Side side, double waveNumber,
-        std::size_t timeIntegrationVectorId, const FieldPattern<dim>* background) {
+        std::size_t timeIntegrationVectorId,
+        const FieldPattern<dim>* background) {
         return {};
     }
 

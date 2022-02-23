@@ -73,7 +73,8 @@ struct ProblemData {
     // thus about 33%. Which is a significant dampening from no PML (100%
     // reflection) as well as large enough to affect the solution before the PML
     // and thus be detectable in the L2-error.
-    static constexpr const double PML_SCALING = 10.0 * (PML_DEPTH * PML_DEPTH * PML_DEPTH);
+    static constexpr const double PML_SCALING =
+        10.0 * (PML_DEPTH * PML_DEPTH * PML_DEPTH);
 
     // Non unity material parameters to check that those work.
     static constexpr const double permittivity = 1.5;
@@ -82,7 +83,8 @@ struct ProblemData {
     ProblemData()
         : baseMaterial(permittivity, permeability),
           baseInfos(baseMaterial),
-          pmlInfos(baseMaterial, {0, PML_START}, {0, 1}, {1, PML_DEPTH}, {0, PML_SCALING}),
+          pmlInfos(baseMaterial, {0, PML_START}, {0, 1}, {1, PML_DEPTH},
+                   {0, PML_SCALING}),
           structureDescription(StructureDescription::fromFunction(
               [this](const Base::Element* element) -> ElementInfos* {
                   auto centre = element->referenceToPhysical(

@@ -73,9 +73,7 @@ class ScatteringProblem : public HarmonicProblem<dim> {
                omega_ * omega_ * matDiv.applyDiv(incidentField_->field(point));
     }
 
-    bool isScatterFieldProblem() const override {
-        return true;
-    }
+    bool isScatterFieldProblem() const override { return true; }
 
     BoundaryConditionType getBoundaryConditionType(
         const Base::Face& face) const override {

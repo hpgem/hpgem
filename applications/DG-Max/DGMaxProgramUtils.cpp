@@ -392,11 +392,11 @@ template PMLZoneDescription<2> parsePMLZoneDescription(
 template PMLZoneDescription<3> parsePMLZoneDescription(
     const std::string& input);
 
-template<std::size_t dim>
-using Bounds = std::pair<Geometry::PointPhysical<dim>,
-                                     Geometry::PointPhysical<dim>>;
+template <std::size_t dim>
+using Bounds =
+    std::pair<Geometry::PointPhysical<dim>, Geometry::PointPhysical<dim>>;
 
-template<std::size_t dim>
+template <std::size_t dim>
 std::shared_ptr<PMLElementInfos<dim>> createPML(
     const PMLZoneDescription<dim>& description, const Bounds<dim>& box,
     const Base::Element& element) {
@@ -405,13 +405,11 @@ std::shared_ptr<PMLElementInfos<dim>> createPML(
     auto pmlThickness =
         box.second.getCoordinates() - box.first.getCoordinates();
 
-    const Material& material =
-        ElementInfos::get(element).getMaterial();
+    const Material& material = ElementInfos::get(element).getMaterial();
 
     LinearAlgebra::SmallVector<dim> scaling =
-        PMLElementInfos<dim>::computeScaling(
-            material, description.direction_,
-            description.attenuation_);
+        PMLElementInfos<dim>::computeScaling(material, description.direction_,
+                                             description.attenuation_);
 
     LinearAlgebra::SmallVector<dim> offset;
     for (std::size_t i = 0; i < dim; ++i) {

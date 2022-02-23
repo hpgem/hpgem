@@ -184,7 +184,8 @@ class DGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
 
     virtual LinearAlgebra::SmallVector<4> computeEnergyFluxes(
         Base::Face& face, Base::Side side, double waveNumber,
-        std::size_t timeIntegrationVectorId, const DGMax::FieldPattern<DIM>* background) final;
+        std::size_t timeIntegrationVectorId,
+        const DGMax::FieldPattern<DIM>* background) final;
 
    private:
     /**
