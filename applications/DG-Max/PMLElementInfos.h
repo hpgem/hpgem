@@ -196,7 +196,7 @@ hpgem::LinearAlgebra::SmallVector<dim> PMLElementInfos<dim>::computeScaling(
         // Divide by 2 for 2way -> 1way
         double att = -std::log(attenuation[d]) / 2.0;
         att /= material.getRefractiveIndex();
-        att /= 3;  // From the integration
+        att *= 3;  // From the integration
         scaling[d] = att;
     }
     return scaling;
