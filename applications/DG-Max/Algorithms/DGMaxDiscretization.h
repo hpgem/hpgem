@@ -166,20 +166,24 @@ class DGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
 
     Fields computeFields(
         const Base::Element* element, const Geometry::PointReference<DIM>& p,
+        double omega,
         const LinearAlgebra::MiddleSizeVector& coefficients) const;
 
     LinearAlgebra::SmallVectorC<DIM> computeField(
         const Base::Element* element, const Geometry::PointReference<DIM>& p,
+        double omega,
         const LinearAlgebra::MiddleSizeVector& coefficients) const final {
-        return computeFields(element, p, coefficients).electricField;
+        return computeFields(element, p, omega, coefficients).electricField;
     }
     LinearAlgebra::SmallVectorC<DIM> computeCurlField(
         const Base::Element* element, const Geometry::PointReference<DIM>& p,
+        double omega,
         const LinearAlgebra::MiddleSizeVector& coefficients) const final {
-        return computeFields(element, p, coefficients).electricFieldCurl;
+        return computeFields(element, p, omega, coefficients).electricFieldCurl;
     }
 
     void writeFields(Output::VTKSpecificTimeWriter<DIM>& writer,
+                     double omega,
                      std::size_t timeIntegrationVectorId) const final;
 
     virtual LinearAlgebra::SmallVector<4> computeEnergyFluxes(

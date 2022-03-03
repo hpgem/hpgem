@@ -135,12 +135,15 @@ class AbstractDiscretization : public AbstractDiscretizationBase {
 
     virtual FieldT computeField(
         const hpgem::Base::Element* element, const PointReferenceT& p,
+        double omega,
         const hpgem::LinearAlgebra::MiddleSizeVector& coefficients) const = 0;
     virtual FieldT computeCurlField(
         const hpgem::Base::Element* element, const PointReferenceT& p,
+        double omega,
         const hpgem::LinearAlgebra::MiddleSizeVector& coefficients) const = 0;
 
     virtual void writeFields(hpgem::Output::VTKSpecificTimeWriter<dim>& writer,
+                             double omega,
                              std::size_t timeIntegrationVectorId) const = 0;
 
     /**

@@ -535,6 +535,7 @@ template <std::size_t DIM>
 typename DGMaxDiscretization<DIM>::Fields
     DGMaxDiscretization<DIM>::computeFields(
         const Base::Element* element, const Geometry::PointReference<DIM>& p,
+        double omega,
         const LinearAlgebra::MiddleSizeVector& coefficients) const {
     Base::PhysicalElement<DIM> physicalElement;
     physicalElement.setElement(element);
@@ -552,15 +553,22 @@ typename DGMaxDiscretization<DIM>::Fields
         result.electricFieldCurl +=
             coefficients[i] * physicalElement.basisFunctionCurl(i);
     }
+
     auto* userData = dynamic_cast<ElementInfos*>(element->getUserData());
     logger.assert_debug(userData != nullptr, "No material information");
     result.material = userData->getMaterial();
+    // Rescaling for the PMLs
+    const auto& phys = physicalElement.getPointPhysical();
+    result.electricField = userData->getFieldRescaling(phys, 1.0).applyDiv(result.electricField);
+    result.electricFieldCurl = userData->getCurlFieldRescaling(phys, 1.0).applyCurl(result.electricFieldCurl);
+
     return result;
 }
 
 template <std::size_t DIM>
 void DGMaxDiscretization<DIM>::writeFields(
     Output::VTKSpecificTimeWriter<DIM>& writer,
+    double omega,
     std::size_t timeIntegrationVectorId) const {
     using VecR = LinearAlgebra::SmallVector<DIM>;
     std::map<std::string, std::function<double(Fields&)>> scalars;
@@ -595,7 +603,7 @@ void DGMaxDiscretization<DIM>::writeFields(
     };
 
     writer.template writeMultiple<Fields>(
-        [this](Base::Element* element,
+        [this,omega = omega](Base::Element* element,
                const Geometry::PointReference<DIM>& point, std::size_t) {
             LinearAlgebra::MiddleSizeVector coefficients =
                 element->getTimeIntegrationVector(0);
@@ -610,7 +618,7 @@ void DGMaxDiscretization<DIM>::writeFields(
                         coefficients, hpgem::LinearAlgebra::Side::OP_LEFT,
                         hpgem::LinearAlgebra::Transpose::HERMITIAN_TRANSPOSE);
             }
-            return computeFields(element, point, coefficients);
+            return computeFields(element, point, omega, coefficients);
         },
         scalars, vectors);
 

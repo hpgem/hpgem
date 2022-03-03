@@ -134,6 +134,32 @@ class ElementInfos : public hpgem::Base::UserData {
     }
 
     /**
+     * Rescaling of the field after computation.
+     *
+     * Primarily intended for PMLs, where the field computed in Maxwell's
+     * equation is rescaled.
+     *
+     * @param p The position
+     * @param omega The frequency
+     * @return The rescaling factor
+     */
+    virtual DGMax::MaterialTensor getFieldRescaling(const PointPhysicalBase& p,
+                                                    double omega) const {
+        return DGMax::MaterialTensor(1.0);
+    }
+
+    /**
+     * Same as getFieldRescaling but for the curl of the field.
+     * @param p
+     * @param omega
+     * @return
+     */
+    virtual DGMax::MaterialTensor getCurlFieldRescaling(
+        const PointPhysicalBase& p, double omega) const {
+        return DGMax::MaterialTensor(1.0);
+    }
+
+    /**
      * @return Whether the material is dispersive (i.e. either materialConstants
      * depend on omega).
      */

@@ -118,6 +118,43 @@ class PMLElementInfos : public ElementInfos {
         return DGMax::MaterialTensor(diagTensor);
     }
 
+    DGMax::MaterialTensor getFieldRescaling(const PointPhysicalBase& p,
+                                            double omega) const override {
+        // The actual solution is rescaled by multiplying it with di. Compute
+        // the tensor corresponding to 1/di
+        VecC3 ds = coordinateStretching(p, omega);
+        for (std::size_t i = 0; i < 3; ++i) {
+            ds[i] = 1.0 / ds[i];
+        }
+        return DGMax::MaterialTensor(ds);
+    }
+
+    /**
+     * Same as getFieldRescaling but for the curl of the field.
+     * @param p
+     * @param omega
+     * @return
+     */
+    virtual DGMax::MaterialTensor getCurlFieldRescaling(
+        // The curl needs to be rescaled by the diagonal tensor
+        // 1/d2d3, 1/d1d3, 1/d1d2.
+        // applyCurl in MaterialConstant applies the inverse of the values so
+        // compute d2d3 d1d3 d1d2.
+        const PointPhysicalBase& p, double omega) {
+        VecC3 ds = coordinateStretching(p, omega);
+        VecC3 result = VecC3 ::constant(1.0);
+        for (std::size_t i = 0; i < 3; ++i) {
+            for (std::size_t j = 0; j < 3; ++j) {
+                auto val = ds[j];
+                if (i != j) {
+                    result[i] *= val;
+                }
+            }
+        }
+
+        return DGMax::MaterialTensor(result);
+    }
+
     /// \brief Compute the required scaling parameter for an attenuation.
     ///
     /// Computes the scaling parameter to get the desired attenuation. This
@@ -143,10 +180,9 @@ class PMLElementInfos : public ElementInfos {
                                VecR attenuation);
 
    private:
-    VecC3 diagonalTensor(const hpgem::Geometry::PointPhysical<dim>& point,
-                         double omega) const {
+    VecC3 coordinateStretching(const hpgem::Geometry::PointPhysical<dim>& point,
+                               double omega) const {
         using namespace std::complex_literals;
-
         VecC3 ds;
         ds.set(1.0);
         for (std::size_t i = 0; i < dim; ++i) {
@@ -155,6 +191,12 @@ class PMLElementInfos : public ElementInfos {
                 ds[i] += 1i / omega * scaling_[i] * xi * xi;
             }
         }
+        return ds;
+    }
+
+    VecC3 diagonalTensor(const hpgem::Geometry::PointPhysical<dim>& point,
+                         double omega) const {
+        VecC3 ds = coordinateStretching(point, omega);
         // Mix the di's
         VecC3 result;
         result.set(1.0);

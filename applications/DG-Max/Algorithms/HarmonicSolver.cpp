@@ -77,8 +77,9 @@ class HarmonicSolver<DIM>::Result : public AbstractHarmonicResult<DIM> {
 
     virtual LinearAlgebra::SmallVectorC<DIM> computeField(
         const Base::Element* element,
-        const Geometry::PointReference<DIM>& p) final {
-        return workspace_->computeField(element, p);
+        const Geometry::PointReference<DIM>& p,
+        double omega) final {
+        return workspace_->computeField(element, p, omega);
     }
 
    private:
@@ -117,9 +118,9 @@ class HarmonicSolver<DIM>::Workspace {
 
     LinearAlgebra::SmallVectorC<DIM> computeField(
         const Base::Element* element,
-        const Geometry::PointReference<DIM>& p) const {
+        const Geometry::PointReference<DIM>& p, double omega) const {
         return discretization_->computeField(
-            element, p, element->getTimeIntegrationVector(VECTOR_ID));
+            element, p, omega, element->getTimeIntegrationVector(VECTOR_ID));
     }
 
     double computeL2Error(const ExactHarmonicProblem<DIM>& solution) {

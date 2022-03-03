@@ -225,6 +225,7 @@ typename DivDGMaxDiscretization<DIM>::Fields
     DivDGMaxDiscretization<DIM>::computeFields(
         const Base::Element* element,
         const Geometry::PointReference<DIM>& point,
+        double omega,
         const LinearAlgebra::MiddleSizeVector& coefficients) const {
     Fields result;
     std::size_t nPhiU = element->getNumberOfBasisFunctions(0);
@@ -268,32 +269,36 @@ typename DivDGMaxDiscretization<DIM>::Fields
 template <std::size_t DIM>
 LinearAlgebra::SmallVectorC<DIM> DivDGMaxDiscretization<DIM>::computeField(
     const Base::Element* element, const Geometry::PointReference<DIM>& point,
+    double omega,
     const LinearAlgebra::MiddleSizeVector& coefficients) const {
 
-    Fields fields = computeFields(element, point, coefficients);
+    Fields fields = computeFields(element, point, omega, coefficients);
     return fields.electricField;
 }
 
 template <std::size_t DIM>
 LinearAlgebra::SmallVectorC<DIM> DivDGMaxDiscretization<DIM>::computeCurlField(
     const Base::Element* element, const PointReferenceT& point,
+    double omega,
     const LinearAlgebra::MiddleSizeVector& coefficients) const {
-    Fields fields = computeFields(element, point, coefficients);
+    Fields fields = computeFields(element, point, omega, coefficients);
     return fields.electricFieldCurl;
 }
 
 template <std::size_t DIM>
 std::complex<double> DivDGMaxDiscretization<DIM>::computePotential(
     const Base::Element* element, const Geometry::PointReference<DIM>& point,
+    double omega,
     const LinearAlgebra::MiddleSizeVector& coefficients) const {
 
-    Fields fields = computeFields(element, point, coefficients);
+    Fields fields = computeFields(element, point, omega, coefficients);
     return fields.potential;
 }
 
 template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::writeFields(
     Output::VTKSpecificTimeWriter<DIM>& output,
+    double omega,
     std::size_t timeIntegrationVectorId) const {
     using VecR = LinearAlgebra::SmallVector<DIM>;
     std::map<std::string, std::function<double(Fields&)>> scalars;
@@ -331,12 +336,12 @@ void DivDGMaxDiscretization<DIM>::writeFields(
     };
 
     output.template writeMultiple<Fields>(
-        [this, timeIntegrationVectorId](
+        [this, timeIntegrationVectorId, omega=omega](
             Base::Element* element, const Geometry::PointReference<DIM>& point,
             std::size_t) {
             LinearAlgebra::MiddleSizeVector coefficients =
                 element->getTimeIntegrationVector(timeIntegrationVectorId);
-            return computeFields(element, point, coefficients);
+            return computeFields(element, point, omega, coefficients);
         },
         scalars, vectors);
     // For various use
