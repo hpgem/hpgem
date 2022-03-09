@@ -102,7 +102,7 @@ class TrenchReflectionProblem : public SampleHarmonicProblem<dim> {
     }
 
     /**
-     * Set that a region y > y_PML is ocupied by the rectilinear PML.
+     * Set that a region y > y_PML is occupied by the rectilinear PML.
      *
      * This assumes the PML uses sigma = i/omega * a * (y - y_PML)^2/depth^3 as
      * scaling/conductivity.

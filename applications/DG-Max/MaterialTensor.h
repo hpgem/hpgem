@@ -172,6 +172,20 @@ class MaterialTensor {
         }
         return vec;
     }
+
+    VecC<3> asVector() const {
+        switch (type) {
+            case Type::SCALAR: {
+                VecC<3> result;
+                result.set(value.scalar);
+                return result;
+            }
+            case Type::DIAGONAL_TENSOR:
+                return value.diag;
+            default:
+                hpgem::logger.fail("Unknown material tensor type");
+        }
+    }
 };
 
 }  // namespace DGMax

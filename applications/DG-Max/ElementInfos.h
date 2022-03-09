@@ -139,6 +139,11 @@ class ElementInfos : public hpgem::Base::UserData {
      */
     virtual bool isDispersive() const { return false; }
 
+    virtual DGMax::MaterialTensor getFieldScalingTensor(
+        const PointPhysicalBase& p, double omega) const {
+        return DGMax::MaterialTensor(1.0);
+    }
+
     const DGMax::Material& getMaterial() const { return material_; }
 
     double getImpedance() const { return material_.getImpedance(); }

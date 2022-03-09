@@ -142,6 +142,24 @@ class PMLElementInfos : public ElementInfos {
     static VecR computeScaling(const DGMax::Material& material, VecR direction,
                                VecR attenuation);
 
+    DGMax::MaterialTensor getFieldScalingTensor(const PointPhysicalBase &p, double omega) const final {
+        const hpgem::Geometry::PointPhysical<dim>& point (p);
+        using namespace std::complex_literals;
+        VecC3 ds;
+        ds.set(1.0);
+        for (std::size_t i = 0; i < dim; ++i) {
+            double xi = (point[i] - offset_[i]) * directions_[i];
+            if (xi > 0) {
+                //                ds[i] += 1i / omega * scaling_[i] * xi * xi;
+                ds[i] +=(scaling_[i] * xi * xi) / (M_PI/137.0 - 1i * omega);
+                if (directions_[i] < 0) {
+                    ds[i] += 4.0* (xi / 300) * (xi / 300);
+                }
+            }
+        }
+        return DGMax::MaterialTensor(ds);
+    }
+
    private:
     VecC3 diagonalTensor(const hpgem::Geometry::PointPhysical<dim>& point,
                          double omega) const {
@@ -152,7 +170,12 @@ class PMLElementInfos : public ElementInfos {
         for (std::size_t i = 0; i < dim; ++i) {
             double xi = (point[i] - offset_[i]) * directions_[i];
             if (xi > 0) {
-                ds[i] += 1i / omega * scaling_[i] * xi * xi;
+//                ds[i] += 1i / omega * scaling_[i] * xi * xi;
+
+                ds[i] +=(scaling_[i] * xi * xi) / (M_PI/137.0 - 1i * omega);
+                if (directions_[i] < 0) {
+                    ds[i] += 4.0* (xi / 300) * (xi / 300);
+                }
             }
         }
         // Mix the di's

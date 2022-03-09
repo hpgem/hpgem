@@ -340,6 +340,32 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
             },
             "source");
 
+        std::map<std::string, std::function<LinearAlgebra::SmallVector<dim>(DGMax::MaterialTensor&)>> vectors;
+        vectors["eps-real"] = [](DGMax::MaterialTensor& tensor) {
+            auto vector = tensor.asVector();
+            LinearAlgebra::SmallVector<dim> result;
+            for(std::size_t i = 0; i < dim; ++i)
+                result[i] = vector[i].real();
+            return result;
+        };
+        vectors["eps-imag"] = [](DGMax::MaterialTensor& tensor) {
+            auto vector = tensor.asVector();
+            LinearAlgebra::SmallVector<dim> result;
+            for(std::size_t i = 0; i < dim; ++i)
+                result[i] = vector[i].imag();
+            return result;
+        };
+
+        output.template writeMultiple<DGMax::MaterialTensor>(
+            [this](Base::Element* element,
+                   const Geometry::PointReference<dim>& pref, std::size_t) {
+                Geometry::PointPhysical<dim> phys =
+                    element->referenceToPhysical(pref);
+                return ElementInfos::get(*element).getFieldScalingTensor(
+                    phys, this->problem_->omega());
+            },
+            {}, vectors);
+
         plotResult(result, output);
 
         const DGMax::FieldPattern<dim>* background = nullptr;
