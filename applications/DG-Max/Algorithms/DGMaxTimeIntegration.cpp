@@ -99,12 +99,8 @@ void DGMaxTimeIntegration<DIM>::solve(
                 return input.initialConditionDerivative(p);
             };
 
-    // Using this is not supported
-    const double dispersionFrequency =
-        std::numeric_limits<double>::signaling_NaN();
     discretization.setMatrixHandling(DGMaxDiscretizationBase::INVERT);
-    discretization.computeElementIntegrals(mesh_, elementVectors,
-                                           dispersionFrequency);
+    discretization.computeElementIntegrals(mesh_, elementVectors);
 
     std::map<std::size_t, typename DGMaxDiscretization<DIM>::FaceInputFunction>
         faceVectors;
@@ -112,8 +108,7 @@ void DGMaxTimeIntegration<DIM>::solve(
         std::bind(&SeparableTimeIntegrationProblem<DIM>::boundaryConditionRef,
                   std::ref(input), _1);
 
-    discretization.computeFaceIntegrals(mesh_, faceVectors,
-                                        dispersionFrequency);
+    discretization.computeFaceIntegrals(mesh_, faceVectors);
     //    MHasToBeInverted_ = true;
     //    assembler->fillMatrices(this);
 

@@ -42,6 +42,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ElementInfos.h"
 
 #include "LinearAlgebra/SmallVector.h"
+#include "Utils/Dispersive.h"
 
 /**
  * PML ElementInfos, currently only supporting
@@ -69,7 +70,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * @tparam dim The dimension of the problem
  */
 template <std::size_t dim>
-class PMLElementInfos : public ElementInfos {
+class PMLElementInfos : public ElementInfos, public DGMax::Dispersive {
     using VecC3 = hpgem::LinearAlgebra::SmallVectorC<3>;
 
    public:
@@ -105,18 +106,20 @@ class PMLElementInfos : public ElementInfos {
         : PMLElementInfos(material, offset, directions, depths,
                           VecR::constant(scaling)) {}
 
-    DGMax::MaterialTensor getMaterialConstantDiv(const PointPhysicalBase& p,
-                                                 double omega) const override {
-        auto diagTensor = diagonalTensor(p, omega) *
+    DGMax::MaterialTensor getMaterialConstantDiv(
+        const PointPhysicalBase& p) const override {
+        auto diagTensor = diagonalTensor(p, getDispersionWavenumber()) *
                           ElementInfos::getMaterial().getPermittivity();
         return DGMax::MaterialTensor(diagTensor);
     }
-    DGMax::MaterialTensor getMaterialConstantCurl(const PointPhysicalBase& p,
-                                                  double omega) const override {
-        auto diagTensor = diagonalTensor(p, omega) *
+    DGMax::MaterialTensor getMaterialConstantCurl(
+        const PointPhysicalBase& p) const override {
+        auto diagTensor = diagonalTensor(p, getDispersionWavenumber()) *
                           ElementInfos::getMaterial().getPermeability();
         return DGMax::MaterialTensor(diagTensor);
     }
+
+    bool isDispersive() const final { return true; }
 
     /// \brief Compute the required scaling parameter for an attenuation.
     ///

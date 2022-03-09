@@ -68,8 +68,8 @@ class ExactFieldHarmonicProblem : public SampleHarmonicProblem<dim> {
         // Compute the source term as
         // Curl (mu^{-1} Curl E) - omega^2 epsilon E
         return field_->fieldDoubleCurl(
-                   point, infos.getMaterialConstantCurl(point, omega_)) -
-               (omega_ * omega_) * infos.getMaterialConstantDiv(point, omega_)
+                   point, infos.getMaterialConstantCurl(point)) -
+               (omega_ * omega_) * infos.getMaterialConstantDiv(point)
                                        .applyDiv(field_->field(point));
         ;
     }

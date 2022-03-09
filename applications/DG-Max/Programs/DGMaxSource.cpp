@@ -420,6 +420,10 @@ void runWithDimension() {
     writeMesh<dim>("mesh", mesh.get());
 
     DGMax::HarmonicSolver<dim> solver(discretization);
+    for (auto& pml : pmlElementInfos) {
+        solver.addDispersive(pml);
+    }
+
     Driver<dim> driver(*mesh);
     solver.solve(*mesh, driver);
 }

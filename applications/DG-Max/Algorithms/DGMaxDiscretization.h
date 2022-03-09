@@ -192,24 +192,21 @@ class DGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
      * Compute element matrices and vectors
      * @param mesh The mesh
      * @param elementVectors The element vectors to compute as mapping from id
-     * @param dispersionOmega Frequency to use for dispersive materials
-     * to the function to use.
      */
     void computeElementIntegralsImpl(
         Base::MeshManipulator<DIM>& mesh,
         const std::map<std::size_t, InputFunction>& elementVectors,
-        double dispersionOmega, LocalIntegrals integrals) final;
+        LocalIntegrals integrals) final;
     void computeFaceIntegralsImpl(
         hpgem::Base::MeshManipulator<DIM>& mesh,
         const std::map<std::size_t, FaceInputFunction>& faceVectors,
-        double dispersionOmega,
         DGMax::BoundaryConditionIndicator boundaryIndicator,
         LocalIntegrals integrals) final;
 
     /**
      * Compute the element local matrices
      */
-    void computeElementMatrices(Base::Element* element, double omega);
+    void computeElementMatrices(Base::Element* element);
     /**
      * Post process the element local matrices based on matrixHandling_
      */
@@ -220,12 +217,12 @@ class DGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
                              const InputFunction& function,
                              LinearAlgebra::MiddleSizeVector& ret) const;
 
-    void computeFaceMatrix(Base::Face* face, double omega,
+    void computeFaceMatrix(Base::Face* face,
                            DGMax::BoundaryConditionIndicator boundaryIndicator);
     void postProcessFaceMatrices(Base::Face* face) const;
 
     // The face vector integrand.
-    void faceVector(Base::PhysicalFace<DIM>& fa, double omega,
+    void faceVector(Base::PhysicalFace<DIM>& fa,
                     const FaceInputFunction& boundaryCondition,
                     LinearAlgebra::MiddleSizeVector& ret,
                     DGMax::BoundaryConditionType bct) const;

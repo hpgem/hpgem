@@ -64,8 +64,8 @@ class ScatteringProblem : public HarmonicProblem<dim> {
             return {};
         }
 
-        auto matCurl = material.getMaterialConstantCurl(point, omega_);
-        auto matDiv = material.getMaterialConstantDiv(point, omega_);
+        auto matCurl = material.getMaterialConstantCurl(point);
+        auto matDiv = material.getMaterialConstantDiv(point);
 
         // Note the minus sign compared to the standard
         // Curl^2 E - omega^2 E = 0 of Maxwell's equations.

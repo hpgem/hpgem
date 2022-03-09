@@ -252,7 +252,7 @@ void HarmonicSolver<DIM>::Workspace::computeIntegrals(
                 return problem.sourceTerm(element, p);
             };
         discretization_->computeElementIntegrals(
-            *mesh_, elementVectors, problem.omega(),
+            *mesh_, elementVectors,
             fullRecompute
                 ? AbstractDiscretizationBase::LocalIntegrals::ALL
                 : AbstractDiscretizationBase::LocalIntegrals::ONLY_VECTORS);
@@ -267,7 +267,7 @@ void HarmonicSolver<DIM>::Workspace::computeIntegrals(
                 return problem.boundaryCondition(pface);
             };
         discretization_->computeFaceIntegrals(
-            *mesh_, faceVectors, problem.omega(),
+            *mesh_, faceVectors,
             [&problem](const Base::Face& face) {
                 return problem.getBoundaryConditionType(face);
             },
@@ -372,6 +372,11 @@ void HarmonicSolver<DIM>::solve(
         DGMaxLogger(INFO, "Starting problem %/%", index, expectedCount);
         driver.nextProblem();
         const HarmonicProblem<DIM>& problem = driver.currentProblem();
+
+        if (driver.hasChanged(HarmonicProblemChanges::OMEGA)) {
+            setDispersionWavenumber(problem.omega());
+        }
+
         workspace.computeIntegrals(driver);
 
         if (driver.hasChanged(HarmonicProblemChanges::OMEGA) ||

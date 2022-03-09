@@ -103,13 +103,12 @@ class ElementInfos : public hpgem::Base::UserData {
      * For PMLs and similar materials it may vary inside the element.
      *
      * @param p The position
-     * @param omega Frequency to use for dispersive media
      *
      * @return Diagonal of the material tensor, for 2D the last component should
      * be used.
      */
     virtual DGMax::MaterialTensor getMaterialConstantDiv(
-        const PointPhysicalBase& p, double omega) const {
+        const PointPhysicalBase& p) const {
         return DGMax::MaterialTensor(material_.getPermittivity());
     }
 
@@ -124,12 +123,11 @@ class ElementInfos : public hpgem::Base::UserData {
      * For PMLs and similar materials it may vary inside the element.
      *
      * @param p The position
-     * @param omega Frequency to use for dispersive media
      * @return Diagonal of the material tensor, for 2D the first two components
      * should be used.
      */
     virtual DGMax::MaterialTensor getMaterialConstantCurl(
-        const PointPhysicalBase& p, double omega) const {
+        const PointPhysicalBase& p) const {
         return DGMax::MaterialTensor(material_.getPermeability());
     }
 

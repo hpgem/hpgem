@@ -109,7 +109,7 @@ void DivDGMaxDiscretization<DIM>::initializeBasisFunctions(
 template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::computeElementIntegralsImpl(
     Base::MeshManipulator<DIM>& mesh,
-    const std::map<std::size_t, InputFunction>& elementVectors, double omega,
+    const std::map<std::size_t, InputFunction>& elementVectors,
     LocalIntegrals integrals) {
 
     Utilities::ElementLocalIndexing indexing;
@@ -121,7 +121,7 @@ void DivDGMaxDiscretization<DIM>::computeElementIntegralsImpl(
         Base::Element* element = *it;
         indexing.reinit(element);
         if (integrals == LocalIntegrals::ALL) {
-            computeElementMatrices(element, indexing, omega);
+            computeElementMatrices(element, indexing);
         }
 
         for (const auto& elementVec : elementVectors) {
@@ -145,7 +145,7 @@ template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::computeFaceIntegralsImpl(
     Base::MeshManipulator<DIM>& mesh,
     const std::map<std::size_t, FaceInputFunction>& boundaryVectors,
-    double omega, DGMax::BoundaryConditionIndicator boundaryIndicator,
+    DGMax::BoundaryConditionIndicator boundaryIndicator,
     LocalIntegrals integrals) {
     LinearAlgebra::MiddleSizeMatrix faceMatrix;
 
@@ -167,20 +167,19 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegralsImpl(
         }
         if (integrals == LocalIntegrals::ALL) {
             faceMatrix = faceIntegrator_.integrate(
-                face,
-                [&indexing, &bct, &omega, this](Base::PhysicalFace<DIM>& face) {
+                face, [&indexing, &bct, this](Base::PhysicalFace<DIM>& face) {
                     std::size_t numDoFs = indexing.getNumberOfDoFs();
                     LinearAlgebra::MiddleSizeMatrix result(numDoFs, numDoFs);
                     if (bct == BCT::INTERNAL || !isNaturalBoundary(bct)) {
-                        faceStiffnessMatrixFieldIntegrand(face, indexing, omega,
+                        faceStiffnessMatrixFieldIntegrand(face, indexing,
                                                           result);
                     }
-                    addFaceMatrixPotentialIntegrand(face, indexing, omega, bct,
+                    addFaceMatrixPotentialIntegrand(face, indexing, bct,
                                                     result);
                     return result;
                 });
             if (stab_.hasFlux(FluxType::BREZZI)) {
-                faceMatrix += brezziFluxBilinearTerm(face, omega, bct);
+                faceMatrix += brezziFluxBilinearTerm(face, bct);
             }
             face->setFaceMatrix(faceMatrix, FACE_STIFFNESS_MATRIX_ID);
 
@@ -206,8 +205,8 @@ void DivDGMaxDiscretization<DIM>::computeFaceIntegralsImpl(
                 vec = faceIntegrator_.integrate(
                     face, [&](Base::PhysicalFace<DIM>& face) {
                         LinearAlgebra::MiddleSizeVector result;
-                        faceBoundaryVector(face, boundaryVec.second, omega,
-                                           result, bct);
+                        faceBoundaryVector(face, boundaryVec.second, result,
+                                           bct);
                         return result;
                     });
                 if (stab_.hasFlux(FluxType::BREZZI) &&
@@ -412,20 +411,18 @@ LinearAlgebra::SmallVector<4> DivDGMaxDiscretization<DIM>::computeEnergyFluxes(
 
 template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::computeElementMatrices(
-    Base::Element* element, Utilities::ElementLocalIndexing& indexing,
-    double omega) {
+    Base::Element* element, Utilities::ElementLocalIndexing& indexing) {
 
     const auto& material = ElementInfos::get(*element);
 
     LinearAlgebra::MiddleSizeMatrix massMatrix = elementIntegrator_.integrate(
-        element,
-        [&indexing, &material, &omega](Base::PhysicalElement<DIM>& pelem) {
+        element, [&indexing, &material](Base::PhysicalElement<DIM>& pelem) {
             std::size_t numDoFs = indexing.getNumberOfDoFs();
             std::size_t numUDoFs = indexing.getNumberOfDoFs(0);
             LinearAlgebra::MiddleSizeMatrix ret(numDoFs, numDoFs);
 
-            const auto materialDiv = material.getMaterialConstantDiv(
-                pelem.getPointPhysical(), omega);
+            const auto materialDiv =
+                material.getMaterialConstantDiv(pelem.getPointPhysical());
 
             LinearAlgebra::SmallVector<DIM> phi_i, phi_j;
             for (std::size_t i = 0; i < numUDoFs; ++i) {
@@ -444,8 +441,7 @@ void DivDGMaxDiscretization<DIM>::computeElementMatrices(
 
     LinearAlgebra::MiddleSizeMatrix stiffnessMatrix =
         elementIntegrator_.integrate(
-            element,
-            [&indexing, &material, &omega](Base::PhysicalElement<DIM>& pelem) {
+            element, [&indexing, &material](Base::PhysicalElement<DIM>& pelem) {
                 std::size_t numDoFs = indexing.getNumberOfDoFs();
                 std::size_t numUDoFs = indexing.getNumberOfDoFs(0);
                 std::size_t numPDoFs = indexing.getNumberOfDoFs(1);
@@ -454,9 +450,8 @@ void DivDGMaxDiscretization<DIM>::computeElementMatrices(
 
                 const auto& point = pelem.getPointPhysical();
                 const auto materialCurl =
-                    material.getMaterialConstantCurl(point, omega);
-                const auto materialDiv =
-                    material.getMaterialConstantDiv(point, omega);
+                    material.getMaterialConstantCurl(point);
+                const auto materialDiv = material.getMaterialConstantDiv(point);
 
                 LinearAlgebra::SmallVector<DIM> phiI;
                 for (std::size_t i = 0; i < numUDoFs; ++i) {
@@ -485,14 +480,14 @@ void DivDGMaxDiscretization<DIM>::computeElementMatrices(
 
 template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::elementScalarVectorCoupling(
-    Base::PhysicalElement<DIM>& el, double omega,
+    Base::PhysicalElement<DIM>& el,
     LinearAlgebra::MiddleSizeMatrix& ret) const {
     const Base::Element* element = el.getElement();
     std::size_t uDoFs = element->getNumberOfBasisFunctions(0);
     std::size_t pDoFs = element->getNumberOfBasisFunctions(1);
     ret.resize(uDoFs + pDoFs, uDoFs + pDoFs);
     const auto materialDiv = ElementInfos::get(element)->getMaterialConstantDiv(
-        el.getPointPhysical(), omega);
+        el.getPointPhysical());
     LinearAlgebra::SmallVectorC<DIM> phi_i;
     LinearAlgebra::SmallVector<DIM> phi_j;
 
@@ -534,24 +529,21 @@ void DivDGMaxDiscretization<DIM>::elementSourceVector(
 template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
     Base::PhysicalFace<DIM>& fa, const Utilities::FaceLocalIndexing& indexing,
-    double omega, LinearAlgebra::MiddleSizeMatrix& ret) const {
+    LinearAlgebra::MiddleSizeMatrix& ret) const {
 
     const Base::Face* face = fa.getFace();
     const auto& materialLeft = ElementInfos::get(*face->getPtrElementLeft());
     const auto* materialRight = ElementInfos::get(face->getPtrElementRight());
 
     const auto& p = fa.getPointPhysical();
-    const auto materialCurlLeft =
-        materialLeft.getMaterialConstantCurl(p, omega);
-    const auto materialDivLeft = materialLeft.getMaterialConstantDiv(p, omega);
+    const auto materialCurlLeft = materialLeft.getMaterialConstantCurl(p);
+    const auto materialDivLeft = materialLeft.getMaterialConstantDiv(p);
     const auto materialCurlRight =
-        materialRight != nullptr
-            ? materialRight->getMaterialConstantCurl(p, omega)
-            : DGMax::MaterialTensor();
-    const auto materialDivRight =
-        materialRight != nullptr
-            ? materialRight->getMaterialConstantDiv(p, omega)
-            : DGMax::MaterialTensor();
+        materialRight != nullptr ? materialRight->getMaterialConstantCurl(p)
+                                 : DGMax::MaterialTensor();
+    const auto materialDivRight = materialRight != nullptr
+                                      ? materialRight->getMaterialConstantDiv(p)
+                                      : DGMax::MaterialTensor();
 
     // For IP fluxes
     const double stab1 = stab_.stab1 / face->getDiameter();
@@ -645,7 +637,7 @@ void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
 template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::addFaceMatrixPotentialIntegrand(
     Base::PhysicalFace<DIM>& fa, const Utilities::FaceLocalIndexing& indexing,
-    double omega, DGMax::BoundaryConditionType bct,
+    DGMax::BoundaryConditionType bct,
     LinearAlgebra::MiddleSizeMatrix& ret) const {
 
     // Mapping from basis function -> face matrix entry
@@ -668,10 +660,10 @@ void DivDGMaxDiscretization<DIM>::addFaceMatrixPotentialIntegrand(
     // Material constant for the U-variable.
     const auto& point = fa.getPointPhysical();
     const auto materialDivLeft = ElementInfos::get(*face->getPtrElementLeft())
-                                     .getMaterialConstantDiv(point, omega);
+                                     .getMaterialConstantDiv(point);
     const auto materialDivRight =
         face->isInternal() ? ElementInfos::get(*face->getPtrElementRight())
-                                 .getMaterialConstantDiv(point, omega)
+                                 .getMaterialConstantDiv(point)
                            : DGMax::MaterialTensor();
 
     // Factor for the normal, indexed by P-variable;
@@ -932,7 +924,7 @@ LinearAlgebra::MiddleSizeMatrix
 template <std::size_t DIM>
 LinearAlgebra::MiddleSizeMatrix
     DivDGMaxDiscretization<DIM>::computeVectorNormalLiftProjector(
-        Base::Face* face, double omega) {
+        Base::Face* face) {
     FaceDoFInfo faceInfo = getFaceDoFInfo(*face);
 
     const auto& materialLeft = ElementInfos::get(*face->getPtrElementLeft());
@@ -945,11 +937,10 @@ LinearAlgebra::MiddleSizeMatrix
         LinearAlgebra::SmallVectorC<DIM> matBasisU;
 
         const auto& point = face.getPointPhysical();
-        const auto materialDivLeft =
-            materialLeft.getMaterialConstantDiv(point, omega);
+        const auto materialDivLeft = materialLeft.getMaterialConstantDiv(point);
         const auto materialDivRight =
             materialRight != nullptr
-                ? materialRight->getMaterialConstantCurl(point, omega)
+                ? materialRight->getMaterialConstantCurl(point)
                 : DGMax::MaterialTensor();
 
         normal = face.getUnitNormalVector();
@@ -1023,7 +1014,7 @@ void distributeFaceMatrix(FaceDoFInfo faceInfo, bool vector,
 template <std::size_t DIM>
 LinearAlgebra::MiddleSizeMatrix
     DivDGMaxDiscretization<DIM>::brezziFluxBilinearTerm(
-        Base::Face* face, double omega, DGMax::BoundaryConditionType bct) {
+        Base::Face* face, DGMax::BoundaryConditionType bct) {
     FaceDoFInfo faceInfo = getFaceDoFInfo(*face);
     LinearAlgebra::MiddleSizeMatrix result(faceInfo.totalDoFs(),
                                            faceInfo.totalDoFs());
@@ -1093,7 +1084,7 @@ LinearAlgebra::MiddleSizeMatrix
             computeFaceScalarMassMatrix(face);
         pmassMat.cholesky();
         LinearAlgebra::MiddleSizeMatrix vectorStabilizer =
-            computeVectorNormalLiftProjector(face, omega);
+            computeVectorNormalLiftProjector(face);
         pmassMat.solveLowerTriangular(vectorStabilizer);  // L^{-T} S
         vectorStabilizer = vectorStabilizer.transpose() * vectorStabilizer;
         vectorStabilizer *= stab_.stab2;
@@ -1123,7 +1114,7 @@ template <std::size_t DIM>
 void DivDGMaxDiscretization<DIM>::faceBoundaryVector(
     Base::PhysicalFace<DIM>& fa,
     const DivDGMaxDiscretization<DIM>::FaceInputFunction& boundaryValue,
-    double omega, LinearAlgebra::MiddleSizeVector& ret,
+    LinearAlgebra::MiddleSizeVector& ret,
     DGMax::BoundaryConditionType bct) const {
     const Base::Face* face = fa.getFace();
     const Geometry::PointReference<DIM - 1>& p = fa.getPointReference();
@@ -1157,7 +1148,7 @@ void DivDGMaxDiscretization<DIM>::faceBoundaryVector(
 
         const auto& material = ElementInfos::get(*face->getPtrElementLeft());
         const auto materialCurl =
-            material.getMaterialConstantCurl(fa.getPointPhysical(), omega);
+            material.getMaterialConstantCurl(fa.getPointPhysical());
 
         for (std::size_t i = 0; i < totalUDoFs; ++i) {
             fa.basisFunctionUnitNormalCross(i, phi, 0);
