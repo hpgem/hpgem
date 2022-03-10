@@ -40,7 +40,7 @@
 #define HPGEM_APP_MESHDATA_H
 
 #include <cstddef>
-#include "mesh.h"
+#include "mesh/Mesh.h"
 
 namespace Preprocessor {
 
@@ -92,14 +92,14 @@ class MeshData {
         const MeshEntity<associatedDimension, meshDimension>& entity) {
         logger.assert_debug(mesh == entity.getMesh(),
                             "The entity does not belong to this mesh");
-        return (*this)[entity.getGlobalIndex()];
+        return (*this)[entity.getGlobalIndex().id];
     }
 
     dataType operator[](
         const MeshEntity<associatedDimension, meshDimension>& entity) const {
         logger.assert_debug(mesh == entity.getMesh(),
                             "The entity does not belong to this mesh");
-        return (*this)[entity.getGlobalIndex()];
+        return (*this)[entity.getGlobalIndex().id];
     }
 
     dataType* data() { return data_.data(); }

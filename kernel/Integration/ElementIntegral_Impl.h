@@ -46,7 +46,6 @@
 #include "Geometry/ReferenceGeometry.h"
 #include "ElementIntegral.h"
 #include "LinearAlgebra/Axpy.h"
-#include "Base/DoNotScaleIntegrands.h"
 
 namespace hpgem {
 
@@ -112,7 +111,8 @@ std::result_of_t<FunctionType(Base::PhysicalElement<DIM>&)>
     // check whether the GaussQuadratureRule is actually for the element's
     // ReferenceGeometry
     logger.assert_debug(
-        (qdrRuleLoc->forReferenceGeometry() == el->getReferenceGeometry()),
+        (qdrRuleLoc->forReferenceGeometry()->getGeometryType() ==
+         el->getReferenceGeometry()->getGeometryType()),
         "ElementIntegral: wrong geometry.");
 
     // value returned by the integrand
@@ -134,9 +134,7 @@ std::result_of_t<FunctionType(Base::PhysicalElement<DIM>&)>
 
     result = integrandFun(element_);
     // We use the same quadrature rule for all unknowns.
-    result *=
-        (qdrRuleLoc->weight(0) *
-         element_.getTransformation(0)->getIntegrandScaleFactor(element_));
+    result *= (qdrRuleLoc->weight(0) * getScaleFactor());
 
     // next Gauss points, again calculate the jacobian, value at gauss point and
     // add this value multiplied with jacobian and weight to result.
@@ -146,11 +144,8 @@ std::result_of_t<FunctionType(Base::PhysicalElement<DIM>&)>
         value = integrandFun(element_);
 
         // axpy: Y = alpha * X + Y
-        LinearAlgebra::axpy(
-            qdrRuleLoc->weight(i) *
-                element_.getTransformation(0)->getIntegrandScaleFactor(
-                    element_),
-            value, result);
+        LinearAlgebra::axpy(qdrRuleLoc->weight(i) * getScaleFactor(), value,
+                            result);
     }
     return result;
 }
@@ -207,7 +202,7 @@ IntegrandType ElementIntegral<DIM>::referenceElementIntegral(
 
 //! \brief Construct an ElementIntegral with cache on.
 template <std::size_t DIM>
-ElementIntegral<DIM>::ElementIntegral() = default;
+ElementIntegral<DIM>::ElementIntegral() : jacobianScaling_(true){};
 
 //! \brief Class destructor
 template <std::size_t DIM>

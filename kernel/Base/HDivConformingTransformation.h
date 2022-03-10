@@ -55,28 +55,15 @@ class HDivConformingTransformation : public CoordinateTransformation<DIM> {
     /// of the reference div-operator.
     LinearAlgebra::SmallVector<DIM> transform(
         LinearAlgebra::SmallVector<DIM> referenceData,
-        PhysicalElement<DIM>& element) const override final {
-        return element.getJacobian() * referenceData / element.getJacobianDet();
+        const CoordinateTransformationData<DIM>& data) const override final {
+        return data.getJacobian() * referenceData / data.getJacobianDet();
     }
 
     /// transform the div by using the chain rule
-    double transformDiv(double referenceData,
-                        PhysicalElement<DIM>& element) const override final {
-        return referenceData / element.getJacobianDet();
-    }
-
-    /// integrands for elements are multiplied by the absolute value of the
-    /// determinant of the Jacobian to correct for the difference in volume
-    double getIntegrandScaleFactor(
-        PhysicalElement<DIM>& element) const override final {
-        return element.getJacobianAbsDet();
-    }
-
-    /// integrands for faces are multiplied by the norm of the outward normal
-    /// vector to correct for the difference in area
-    double getIntegrandScaleFactor(
-        PhysicalFace<DIM>& face) const override final {
-        return face.getRelativeSurfaceArea();
+    double transformDiv(
+        double referenceData,
+        const CoordinateTransformationData<DIM>& data) const override final {
+        return referenceData / data.getJacobianDet();
     }
 };
 }  // namespace Base

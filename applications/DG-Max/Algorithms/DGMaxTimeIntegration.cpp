@@ -47,9 +47,9 @@ using namespace hpgem;
 
 template <std::size_t DIM>
 DGMaxTimeIntegration<DIM>::DGMaxTimeIntegration(
-    Base::MeshManipulator<DIM>& mesh, std::size_t order)
-    : mesh_(mesh), discretization(), snapshotTime(nullptr) {
-    discretization.initializeBasisFunctions(mesh_, order);
+    Base::MeshManipulator<DIM>& mesh, std::size_t order, double stab)
+    : mesh_(mesh), discretization(order, stab), snapshotTime(nullptr) {
+    discretization.initializeBasisFunctions(mesh_);
 }
 
 template <std::size_t DIM>
@@ -84,28 +84,36 @@ void DGMaxTimeIntegration<DIM>::solve(
     std::map<std::size_t, typename DGMaxDiscretization<DIM>::InputFunction>
         elementVectors;
 
-    elementVectors[DGMaxDiscretizationBase::SOURCE_TERM_VECTOR_ID] =
-        std::bind(&SeparableTimeIntegrationProblem<DIM>::sourceTermRef,
-                  std::ref(input), _1, _2);
+    elementVectors[DGMaxDiscretizationBase::ELEMENT_VECTOR_ID] =
+        [&input](const Base::Element&, const Geometry::PointPhysical<DIM>& p) {
+            return input.sourceTermRef(p);
+        };
     elementVectors[DGMaxDiscretizationBase::INITIAL_CONDITION_VECTOR_ID] =
-        std::bind(&TimeIntegrationProblem<DIM>::initialCondition,
-                  std::ref(input), _1, _2);
+        [&input](const Base::Element&, const Geometry::PointPhysical<DIM>& p) {
+            return input.initialCondition(p);
+        };
     elementVectors
         [DGMaxDiscretizationBase::INITIAL_CONDITION_DERIVATIVE_VECTOR_ID] =
-            std::bind(&TimeIntegrationProblem<DIM>::initialConditionDerivative,
-                      std::ref(input), _1, _2);
+            [&input](const Base::Element&,
+                     const Geometry::PointPhysical<DIM>& p) {
+                return input.initialConditionDerivative(p);
+            };
 
-    discretization.computeElementIntegrands(
-        mesh_, DGMaxDiscretizationBase::INVERT, elementVectors);
+    // Using this is not supported
+    const double dispersionFrequency =
+        std::numeric_limits<double>::signaling_NaN();
+    discretization.setMatrixHandling(DGMaxDiscretizationBase::INVERT);
+    discretization.computeElementIntegrals(mesh_, elementVectors,
+                                           dispersionFrequency);
 
     std::map<std::size_t, typename DGMaxDiscretization<DIM>::FaceInputFunction>
         faceVectors;
     faceVectors[DGMaxDiscretizationBase::FACE_VECTOR_ID] =
         std::bind(&SeparableTimeIntegrationProblem<DIM>::boundaryConditionRef,
-                  std::ref(input), _1, _2, _3);
+                  std::ref(input), _1);
 
-    discretization.computeFaceIntegrals(mesh_, DGMaxDiscretizationBase::INVERT,
-                                        faceVectors, parameters.stab);
+    discretization.computeFaceIntegrals(mesh_, faceVectors,
+                                        dispersionFrequency);
     //    MHasToBeInverted_ = true;
     //    assembler->fillMatrices(this);
 
@@ -114,7 +122,7 @@ void DGMaxTimeIntegration<DIM>::solve(
     Utilities::GlobalPetscMatrix massMatrix(
         indexing, DGMaxDiscretization<DIM>::MASS_MATRIX_ID, -1),
         stiffnessMatrix(indexing, DGMaxDiscretization<DIM>::STIFFNESS_MATRIX_ID,
-                        DGMaxDiscretization<DIM>::FACE_MATRIX_ID);
+                        DGMaxDiscretization<DIM>::FACE_STIFFNESS_MATRIX_ID);
     std::cout << "GlobalPetscMatrix initialised" << std::endl;
     Utilities::GlobalPetscVector resultVector(
         indexing, DGMaxDiscretization<DIM>::INITIAL_CONDITION_VECTOR_ID, -1),
@@ -123,8 +131,7 @@ void DGMaxTimeIntegration<DIM>::solve(
             DGMaxDiscretization<DIM>::INITIAL_CONDITION_DERIVATIVE_VECTOR_ID,
             -1),
         rhsBoundary(indexing, -1, DGMaxDiscretization<DIM>::FACE_VECTOR_ID),
-        rhsSource(indexing, DGMaxDiscretization<DIM>::SOURCE_TERM_VECTOR_ID,
-                  -1);
+        rhsSource(indexing, DGMaxDiscretization<DIM>::ELEMENT_VECTOR_ID, -1);
     std::cout << "GlobalPetscVector initialised" << std::endl;
     resultVector.assemble();
     std::cout << "resultVector assembled" << std::endl;
@@ -360,10 +367,12 @@ void DGMaxTimeIntegration<DIM>::writeTimeLevel(
             const Geometry::PointReference<DIM>& point, std::ostream& stream) {
             const LinearAlgebra::MiddleSizeVector coefficients =
                 element->getTimeIntegrationVector(timeLevel);
+            auto fields =
+                discretization.computeFields(element, point, coefficients);
             LinearAlgebra::SmallVector<DIM> electricField =
-                discretization.computeField(element, point, coefficients);
+                fields.electricField;
             LinearAlgebra::SmallVector<DIM> curlField =
-                discretization.computeCurlField(element, point, coefficients);
+                fields.electricFieldCurl;
             if (DIM == 2) {
                 stream << electricField[0] << " " << electricField[1] << " "
                        << curlField[0] << " " << curlField[1] << std::endl;
@@ -379,7 +388,7 @@ template <std::size_t DIM>
 void DGMaxTimeIntegration<DIM>::printErrors(
     const std::vector<typename DGMaxDiscretization<DIM>::NormType>& norms,
     const typename DGMaxDiscretization<DIM>::TimeFunction& exactField,
-    const typename DGMaxDiscretization<DIM>::TimeFunction& exactCurl) const {
+    const typename DGMaxDiscretization<DIM>::TimeFunction& exactCurl) {
     using NormType = typename DGMaxDiscretization<DIM>::NormType;
     std::set<NormType> normSet;
 
@@ -394,10 +403,14 @@ void DGMaxTimeIntegration<DIM>::printErrors(
         double time = snapshotTime[level];
         std::map<NormType, double> normValues = discretization.computeError(
             mesh_, level,
-            std::bind(exactField, std::placeholders::_1, time,
-                      std::placeholders::_2),
-            std::bind(exactCurl, std::placeholders::_1, time,
-                      std::placeholders::_2),
+            [&exactField, &time](const Base::Element&,
+                                 const Geometry::PointPhysical<DIM>& p) {
+                return exactField(p, time);
+            },
+            [&exactCurl, &time](const Base::Element& element,
+                                const Geometry::PointPhysical<DIM>& p) {
+                return exactCurl(p, time);
+            },
             normSet);
         std::cout << time;
         for (auto norm : norms) {
@@ -410,14 +423,14 @@ void DGMaxTimeIntegration<DIM>::printErrors(
 template <std::size_t DIM>
 void DGMaxTimeIntegration<DIM>::printErrors(
     const std::vector<typename DGMaxDiscretization<DIM>::NormType>& norms,
-    const ExactTimeIntegrationProblem<DIM>& problem) const {
+    const ExactTimeIntegrationProblem<DIM>& problem) {
     printErrors(norms,
                 std::bind(&ExactTimeIntegrationProblem<DIM>::exactSolution,
                           std::ref(problem), std::placeholders::_1,
-                          std::placeholders::_2, std::placeholders::_3),
+                          std::placeholders::_2),
                 std::bind(&ExactTimeIntegrationProblem<DIM>::exactSolutionCurl,
                           std::ref(problem), std::placeholders::_1,
-                          std::placeholders::_2, std::placeholders::_3));
+                          std::placeholders::_2));
 }
 
 template class DGMaxTimeIntegration<2>;

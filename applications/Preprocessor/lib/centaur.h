@@ -56,10 +56,16 @@ class CentaurReader : public MeshSource2 {
    public:
     CentaurReader(std::string filename);
 
-    std::vector<MeshSource2::Coord>& getCoordinates() final {
+    const std::vector<MeshSource2::Coord>& getCoordinates() final {
         return coordinates;
     }
-    std::vector<MeshSource2::Element>& getElements() final { return elements; }
+    const std::vector<MeshSource2::Element>& getElements() final {
+        return elements;
+    }
+
+    const std::vector<std::map<std::size_t, std::size_t>>& getMerges() final {
+        return coordinateMerges;
+    };
 
     std::size_t getDimension() const final {
         if (centaurFileType > 0) return 3;
@@ -200,6 +206,11 @@ class CentaurReader : public MeshSource2 {
      * The number of elements of each type.
      */
     std::array<std::uint32_t, 4> elementCount;
+
+    /**
+     * A series of coordinate identifications from periodic boundary conditions.
+     */
+    std::vector<std::map<std::size_t, std::size_t>> coordinateMerges;
 
     struct ZoneInformation {
         /// The end-offset for element types and (3D only) boundary faces.

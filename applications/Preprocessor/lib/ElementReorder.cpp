@@ -50,7 +50,10 @@ const ElementReorder::Element& ElementReorder::FindElement(
                                      return e.dimension_ == dimension &&
                                             e.order_.size() == indices_size;
                                  });
-
+    hpgem::logger.assert_always(
+        iterator != orderPerElement_.end(),
+        "Element with dimension % and % nodes is not known to this reordering",
+        dimension, indices_size);
     return *iterator;
 }
 

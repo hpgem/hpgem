@@ -45,7 +45,9 @@
 #include "Base/HCurlConformingTransformation.h"
 
 #include "Logger.h"
-#include <CMakeDefinitions.h>
+#include "../ConvergenceTest.h"
+#include "../TestMeshes.h"
+
 using namespace hpgem;
 // If this test ever breaks it is not a bad thing per se. However, once this
 // breaks a thorough convergence analysis needs to be done. If the results still
@@ -64,7 +66,7 @@ class MaxwellTest : public Base::HpgemAPILinearSteadyState<3> {
         : Base::HpgemAPILinearSteadyState<3>(1, p, true, true), totalError(0) {
         using namespace std::string_literals;
         penalty = n * (p + 1) * (p + 3) + 1;
-        readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + name);
+        readMesh(name);
         elementIntegrator_.setTransformation(
             std::shared_ptr<Base::CoordinateTransformation<3>>(
                 new Base::HCurlConformingTransformation<3>));
@@ -347,45 +349,58 @@ class MaxwellTest : public Base::HpgemAPILinearSteadyState<3> {
     double penalty;
 };
 
+struct MaxwellTestParams {
+    std::size_t n;    // Base mesh size
+    std::size_t p;    // Polynomial order
+    bool useNedelec;  // Type of elements to use
+};
+
+void runTestSet(ConvergenceTestSet &testSet, MaxwellTestParams &params,
+                bool ignoreErrors) {
+    runConvergenceTest(
+        testSet, ignoreErrors, [&params](std::string mesh, std::size_t level) {
+            std::size_t n = params.n * (1 << level);
+            MaxwellTest test(mesh, n, params.p, params.useNedelec);
+            test.solveSteadyStateWithPetsc(true);
+            return std::real(test.getTotalError());
+        });
+}
+
 int main(int argc, char **argv) {
     Base::parse_options(argc, argv);
-    MaxwellTest test0("maxwellMesh1.hpgem", 1, 4, true);
-    test0.solveSteadyStateWithPetsc(true);
-    logger.assert_always(std::abs(test0.getTotalError() - 0.03355038) < 1e-8,
-                         "comparison to old results");
 
-    MaxwellTest test1("maxwellMesh2.hpgem", 2, 3, true);
-    test1.solveSteadyStateWithPetsc(true);
-    logger.assert_always(std::abs(test1.getTotalError() - 0.01697762) < 1e-8,
-                         "comparison to old results");
+    /*
+     * Test solving a Maxwell source problem using a SIPG like method on the
+     * unit cube. The basis functions are either Nedelec or AinsworthCoyle,
+     * giving rates h^p and h^{p+1} respectively for the L2 error under the mesh
+     * refinement. This mesh refinement only gives numerical results, thus a
+     * failure does not necessarily mean a bug, but merely that the convergence
+     * of the results should be checked and the expectations may need to be
+     * updated.
+     */
 
-    MaxwellTest test2("maxwellMesh3.hpgem", 4, 2, true);
-    test2.solveSteadyStateWithPetsc(true);
-    logger.assert_always(std::abs(test2.getTotalError() - 0.02863282) < 1e-8,
-                         "comparison to old results");
+    // For regenerating the error table
+    bool ignoreErrors = false;
 
-    MaxwellTest test3("maxwellMesh4.hpgem", 8, 1, true);
-    test3.solveSteadyStateWithPetsc(true);
-    logger.assert_always(std::abs(test3.getTotalError() - 0.1189594) < 1e-8,
-                         "comparison to old results");
+    // Expected rate: h^p
+    ConvergenceTestSet nedelecP1Meshes = {getUnitCubeTetMeshes(),
+                                          {
+                                              5.38396066e-01,  //------
+                                              4.08510656e-01,  //  1.32
+                                              2.30454303e-01,  //  1.77
+                                              1.19038653e-01,  //  1.94
+                                          }};
+    MaxwellTestParams nedelecP1Params = {1, 1, true};
+    runTestSet(nedelecP1Meshes, nedelecP1Params, ignoreErrors);
 
-    MaxwellTest test4("maxwellMesh1.hpgem", 1, 4, false);
-    test4.solveSteadyStateWithPetsc(true);
-    logger.assert_always(std::abs(test4.getTotalError() - 0.02266147) < 1e-8,
-                         "comparison to old results");
-
-    MaxwellTest test5("maxwellMesh2.hpgem", 2, 3, false);
-    test5.solveSteadyStateWithPetsc(true);
-    logger.assert_always(std::abs(test5.getTotalError() - 0.00469313) < 1e-8,
-                         "comparison to old results");
-
-    MaxwellTest test6("maxwellMesh3.hpgem", 4, 2, false);
-    test6.solveSteadyStateWithPetsc(true);
-    logger.assert_always(std::abs(test6.getTotalError() - 0.00306707) < 1e-8,
-                         "comparison to old results");
-
-    MaxwellTest test7("maxwellMesh4.hpgem", 8, 1, false);
-    test7.solveSteadyStateWithPetsc(true);
-    logger.assert_always(std::abs(test7.getTotalError() - 0.00828368) < 1e-8,
-                         "comparison to old results");
+    // Expected rate: h^{p+1}
+    ConvergenceTestSet ainsworthCoyleP1Meshes = {getUnitCubeTetMeshes(),
+                                                 {
+                                                     5.44988070e-01,  //------
+                                                     1.86176361e-01,  //  2.93
+                                                     4.30331344e-02,  //  4.33
+                                                     1.08552880e-02,  //  3.96
+                                                 }};
+    MaxwellTestParams ainsworthCoyleP1Params = {1, 1, false};
+    runTestSet(ainsworthCoyleP1Meshes, ainsworthCoyleP1Params, ignoreErrors);
 }

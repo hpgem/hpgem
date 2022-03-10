@@ -7,7 +7,7 @@ This code is distributed using BSD 3-Clause License. A copy of which can found
 below.
 
 
-Copyright (c) 2018, Univesity of Twenete
+Copyright (c) 2018, University of Twente
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -40,112 +40,32 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace hpgem;
 
-template <std::size_t DIM>
-SampleHarmonicProblems<DIM>::SampleHarmonicProblems(
-    SampleHarmonicProblems<DIM>::Problem problem, double omega)
-    : problem_(problem), omega_(omega) {
-    // Note: the tolerances here are just a guess.
-    switch (problem) {
-        case CONSTANT: {
-            logger.assert_debug(
-                std::abs(omega_) > 1e-3,
-                "Given omega is very close to the eigenvalue 0.");
-        }
-        case SARMANY2010: {
-            logger.assert_debug(
-                std::abs(omega_ * omega_ - 2 * M_PI * M_PI) > 1e-1,
-                "Given omega^2 is very close to the eigenvalue 2 pi^2.");
-            break;
-        }
-    }
+namespace DGMax {
+
+LinearAlgebra::SmallVectorC<3> SarmanyHarmonicProblem::exactSolution(
+    const Geometry::PointPhysical<3> &point) const {
+    LinearAlgebra::SmallVectorC<3> result;
+    double sx = sin(M_PI * point[0]), sy = sin(M_PI * point[1]),
+           sz = sin(M_PI * point[2]);
+    result[0] = sy * sz;
+    result[1] = sz * sx;
+    result[2] = sx * sy;
+    return result;
+}
+LinearAlgebra::SmallVectorC<3> SarmanyHarmonicProblem::exactSolutionCurl(
+    const Geometry::PointPhysical<3> &point) const {
+    LinearAlgebra::SmallVectorC<3> result;
+    double x = point[0], y = point[1], z = point[2];
+    result[0] = sin(M_PI * x) * (cos(M_PI * y) - cos(M_PI * z));
+    result[1] = sin(M_PI * y) * (cos(M_PI * z) - cos(M_PI * x));
+    result[2] = sin(M_PI * z) * (cos(M_PI * x) - cos(M_PI * y));
+    result *= M_PI;
+    return result;
 }
 
-template <std::size_t DIM>
-double SampleHarmonicProblems<DIM>::omega() const {
-    switch (problem_) {
-        case CONSTANT:
-            return omega_;
-        case SARMANY2010:
-            return omega_;
-        default:
-            logger.assert_debug(false, "Not implemented for this problem.");
-            return -1;
-    }
+LinearAlgebra::SmallVectorC<3> SarmanyHarmonicProblem::sourceTerm(
+    const Base::Element &, const Geometry::PointPhysical<3> &point) const {
+    return exactSolution(point) * (2 * M_PI * M_PI - omega_ * omega_);
 }
 
-template <std::size_t DIM>
-void SampleHarmonicProblems<DIM>::exactSolution(
-    const Geometry::PointPhysical<DIM> &point,
-    LinearAlgebra::SmallVector<DIM> &result) const {
-    switch (problem_) {
-        case CONSTANT: {
-            result.set(1);
-            break;
-        }
-        case SARMANY2010: {
-            sarmanyx(point, result);
-            break;
-        }
-        default:
-            logger.assert_debug(false, "Not implemented for this problem.");
-    }
-}
-
-template <std::size_t DIM>
-void SampleHarmonicProblems<DIM>::exactSolutionCurl(
-    const Geometry::PointPhysical<DIM> &point,
-    LinearAlgebra::SmallVector<DIM> &result) const {
-    switch (problem_) {
-        case CONSTANT: {
-            result.set(0);
-            break;
-        }
-        case SARMANY2010: {
-            double x = point[0], y = point[1], z = point[2];
-            result[0] = sin(M_PI * x) * (cos(M_PI * y) - cos(M_PI * z));
-            result[1] = sin(M_PI * y) * (cos(M_PI * z) - cos(M_PI * x));
-            result[2] = sin(M_PI * z) * (cos(M_PI * x) - cos(M_PI * y));
-            result *= M_PI;
-            break;
-        }
-        default:
-            logger.assert_debug(false, "Not implemented for this problem.");
-    }
-}
-
-template <std::size_t DIM>
-void SampleHarmonicProblems<DIM>::sourceTerm(
-    const Geometry::PointPhysical<DIM> &point,
-    LinearAlgebra::SmallVector<DIM> &result) const {
-    switch (problem_) {
-        case CONSTANT: {
-            result.set(-omega_ * omega_);
-            break;
-        }
-        case SARMANY2010: {
-            sarmanyx(point, result);
-            result *= (2 * M_PI * M_PI - omega_ * omega_);
-            break;
-        }
-        default:
-            logger.assert_debug(false, "Not implemented for this problem.");
-    }
-}
-
-template <std::size_t DIM>
-void SampleHarmonicProblems<DIM>::sarmanyx(
-    const Geometry::PointPhysical<DIM> &point,
-    LinearAlgebra::SmallVector<DIM> &result) const {
-    if (DIM == 3) {
-        double sx = sin(M_PI * point[0]), sy = sin(M_PI * point[1]),
-               sz = sin(M_PI * point[2]);
-        result[0] = sy * sz;
-        result[1] = sz * sx;
-        result[2] = sx * sy;
-    } else {
-        logger.assert_debug(DIM == 3, "Sarmany test case only works in 3D.");
-    }
-}
-
-template class SampleHarmonicProblems<2>;
-template class SampleHarmonicProblems<3>;
+}  // namespace DGMax

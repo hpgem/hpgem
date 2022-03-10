@@ -40,8 +40,11 @@
 #define HPGEM_KERNEL_PHYSICALFACE_H
 
 #include "PhysicalElement.h"
+
 #include "FaceMatrix.h"
 #include "Face.h"
+#include "LazyCached.h"
+
 namespace hpgem {
 namespace Base {
 
@@ -65,8 +68,14 @@ class PhysicalFace final {
           right(),
           isInternal_(forInternalFace),
           hasPointReference(false),
-          hasFace(false)  // other fields will be initialized when we have more
-                          // information
+          hasFace(false),
+          basisFunctionDeriv_(this,
+                              &PhysicalFace<DIM>::computeBasisFunctionDeriv),
+          basisFunctionCurl_(this,
+                             &PhysicalFace<DIM>::computeBasisFunctionCurl),
+          basisFunctionDiv_(this, &PhysicalFace<DIM>::computeBasisFunctionDiv)
+    // other fields will be initialized when we have more
+    // information
     {
         std::shared_ptr<Base::CoordinateTransformation<DIM>> transform(
             new H1ConformingTransformation<DIM>{});
@@ -92,16 +101,13 @@ class PhysicalFace final {
 
     /// derivative of basis function i at the current reference point; indexing
     /// functions in the right element after functions in the left element
-    const LinearAlgebra::SmallVector<DIM>& basisFunctionDeriv(std::size_t i);
     const LinearAlgebra::SmallVector<DIM>& basisFunctionDeriv(
-        std::size_t i, std::size_t unknown);
+        std::size_t i, std::size_t unknown = 0);
 
     /// derivative of basis function i at the current reference point; indexing
     /// the left and the right element separately
-    const LinearAlgebra::SmallVector<DIM>& basisFunctionDeriv(Side side,
-                                                              std::size_t i);
     const LinearAlgebra::SmallVector<DIM>& basisFunctionDeriv(
-        Side side, std::size_t i, std::size_t unknown);
+        Side side, std::size_t i, std::size_t unknown = 0);
 
     /// value of basis function i multiplied by the normal vector at the current
     /// reference point; indexing functions in the right element after functions
@@ -156,27 +162,22 @@ class PhysicalFace final {
 
     /// curl of basis function i at the current reference point; indexing
     /// functions in the right element after functions in the left element
-    const LinearAlgebra::SmallVector<DIM>& basisFunctionCurl(std::size_t i);
     const LinearAlgebra::SmallVector<DIM>& basisFunctionCurl(
-        std::size_t i, std::size_t unknown);
+        std::size_t i, std::size_t unknown = 0);
 
     /// curl of basis function i at the current reference point; indexing the
     /// left and the right element separately
-    const LinearAlgebra::SmallVector<DIM>& basisFunctionCurl(Side side,
-                                                             std::size_t i);
     const LinearAlgebra::SmallVector<DIM>& basisFunctionCurl(
-        Side side, std::size_t i, std::size_t unknown);
+        Side side, std::size_t i, std::size_t unknown = 0);
 
     /// divergence of basis function i at the current reference point; indexing
     /// functions in the right element after functions in the left element
-    const double& basisFunctionDiv(std::size_t i);
-    const double& basisFunctionDiv(std::size_t i, std::size_t unknown);
+    const double& basisFunctionDiv(std::size_t i, std::size_t unknown = 0);
 
     /// divergence of basis function i at the current reference point; indexing
     /// the left and the right element separately
-    const double& basisFunctionDiv(Side side, std::size_t i);
     const double& basisFunctionDiv(Side side, std::size_t i,
-                                   std::size_t unknown);
+                                   std::size_t unknown = 0);
 
     /// value of basis function i multiplied by the normal vector at the current
     /// reference point; indexing functions in the right element after functions
@@ -355,13 +356,31 @@ class PhysicalFace final {
 
     void setPointReference(const Geometry::PointReference<DIM - 1>& point);
     void setFace(const Face* face);
-    void setTransform(std::shared_ptr<CoordinateTransformation<DIM>>& transform,
+    void setTransform(std::shared_ptr<CoordinateTransformation<DIM>> transform,
                       std::size_t unknown = 0);
 
     void setQuadratureRule(QuadratureRules::GaussQuadratureRule* rule);
     void setQuadraturePointIndex(std::size_t index);
 
    private:
+    void resetLazyCaches(std::size_t currentUnknowns);
+    void computeBasisFunctionDeriv(
+        std::vector<LinearAlgebra::SmallVector<DIM>>& values,
+        std::size_t unknown);
+    void computeBasisFunctionCurl(
+        std::vector<LinearAlgebra::SmallVector<DIM>>& values,
+        std::size_t unknown);
+    void computeBasisFunctionDiv(std::vector<double>& values,
+                                 std::size_t unknown);
+
+    /// Updates the transformation information between the left and right faces
+    void updateLeftRightTransform();
+    /// Compute a set of direction vectors on the left/right face from
+    ///
+    /// helper for #updateLeftRightTransform()
+    static LinearAlgebra::SmallMatrix<DIM, DIM> computeDirectionVectors(
+        const std::array<LinearAlgebra::SmallVector<DIM>, DIM>& points);
+
     PhysicalElement<DIM> left, right;
     std::vector<std::size_t> nLeftBasisFunctions;
 
@@ -373,6 +392,12 @@ class PhysicalFace final {
         basisFunctionUnitNormal_;
     std::vector<std::vector<LinearAlgebra::SmallVector<DIM>>>
         vectorBasisFunctionUnitNormal_;
+    LazyVectorCached<std::vector<LinearAlgebra::SmallVector<DIM>>>
+        basisFunctionDeriv_;
+    LazyVectorCached<std::vector<LinearAlgebra::SmallVector<DIM>>>
+        basisFunctionCurl_;
+    LazyVectorCached<std::vector<double>> basisFunctionDiv_;
+
     std::vector<LinearAlgebra::SmallVector<DIM>> solutionNormal_;
     std::vector<LinearAlgebra::SmallVector<DIM>> vectorSolutionNormal_;
     std::vector<LinearAlgebra::SmallVector<DIM>> solutionUnitNormal_;
@@ -385,6 +410,37 @@ class PhysicalFace final {
     LinearAlgebra::SmallVector<DIM> normal;
     LinearAlgebra::SmallVector<DIM> unitNormal;
     double normalNorm;
+
+    /**
+     * Transformation matrix connecting the left and right faces (up to
+     * translation). Given a reference point xref on the face we get two
+     * coordinates x_left(xref) and x_right(xref). These two coordinates are
+     * related by the affine transformation:
+     * x_left = R x_right + x_off
+     * For most internal faces the coordinates on the left and right are the
+     * same and so R = I and x_off = 0. For periodically connected faces we will
+     * have x_off != 0 and/or R != I.
+     *
+     * In case R != I we have that the faces are rotated[1] with respect to
+     * each other. This poses a problem for all vector based quantities. With R
+     * != I the left and right faces are not aligned. Hence a vector that is
+     * normal with respect to the left face, may be tangent to the right face.
+     *
+     * For computing face based quantities (like face integrals) we need to
+     * choose a fixed coordinate system for the vectors. The choice here is to
+     * take that of the left element. All quantities from the right element are
+     * transformed such that it looks like the right element was directly
+     * stitched to the face.
+     *
+     * [1] In general R can be a general transformation matrix. However, as both
+     * faces have the same shape and area we are restricted to a rotation
+     * matrix. Moreover, we assume that the rotation is a proper rotation.
+     */
+    ValueCoordinateTransformationData<DIM> rightVectorTransform;
+    /**
+     * Whether a transformation of vectors is needed
+     */
+    bool requiresTransformation;
 
     // need to store this to keep it existing
     std::shared_ptr<const Geometry::MappingReferenceToReference<1>>

@@ -41,52 +41,112 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef HPGEM_APP_ELEMENTINFOS_H
 #define HPGEM_APP_ELEMENTINFOS_H
 
-#include "Base/UserData.h"
-#include "Base/Element.h"
-#include "Base/Face.h"
-#include "Base/GlobalData.h"
-#include "Geometry/Jacobian.h"
+#include <AbstractDimensionlessBase.h>
+#include <Base/UserData.h>
 
-/**
- * store some usefull information that needs to be computed everytime at the
- * beginning of an integrand specialized for tetrahedra
- */
-namespace hpgem {
-namespace Geometry {
-template <std::size_t DIM>
-class PointPhysical;
-}
-}  // namespace hpgem
-using namespace hpgem;
-class ElementInfos : public UserElementData {
+#include <Logger.h>
+#include <Base/Element.h>
+#include <Geometry/PointPhysicalBase.h>
+#include <LinearAlgebra/SmallVector.h>
+
+#include "Material.h"
+#include "MaterialTensor.h"
+
+class ElementInfos : public hpgem::Base::UserData {
    public:
-    template <std::size_t DIM>
-    using EpsilonFunc =
-        std::function<double(const Geometry::PointPhysical<DIM>&)>;
+    using Element = hpgem::Base::Element;
+    using PointPhysicalBase = hpgem::Geometry::PointPhysicalBase;
+    using SmallVectorC = hpgem::LinearAlgebra::SmallVectorC<3>;
 
-    const double epsilon_;
-    ElementInfos(double epsilon);
+    ElementInfos(double epsilon, double permeability = 1.0);
+    ElementInfos(DGMax::Material material) : material_(material){};
 
-    template <std::size_t DIM>
-    static ElementInfos* createStructure(const Base::Element& element,
-                                         EpsilonFunc<DIM> epsilon);
+    const double& getPermittivity() const {
+        return material_.getPermittivity();
+    }
+
+    const double& getPermeability() const {
+        return material_.getPermeability();
+    }
+    static ElementInfos* get(const Element* element) {
+        using hpgem::logger;
+        if (element == nullptr) {
+            return nullptr;
+        } else {
+            return &get(*element);
+        }
+    }
+
+    static ElementInfos& get(const Element& element) {
+        using hpgem::logger;
+        auto* data = element.getUserData();
+        logger.assert_debug(data != nullptr,
+                            "No material information available for element %",
+                            element.getID());
+        auto* elementInfo = dynamic_cast<ElementInfos*>(data);
+        logger.assert_debug(elementInfo != nullptr,
+                            "Element has incorrect material information");
+        return *elementInfo;
+    }
+
+    /**
+     * Material constant used in second order Maxwells equation.
+     *
+     * This is the material constant that is used in second order Maxwell's
+     * equation at two points. It is the permittivity for the E-field
+     * formulation, for H-field it would be the permeability. This constant is
+     * used in two places:
+     *
+     *  - The divergence constrain Div(constant field) = 0 (Div(epsilon E) = 0)
+     *  - The omega^2 term: -omega^2 constant field.
+     *
+     * For PMLs and similar materials it may vary inside the element.
+     *
+     * @param p The position
+     * @param omega Frequency to use for dispersive media
+     *
+     * @return Diagonal of the material tensor, for 2D the last component should
+     * be used.
+     */
+    virtual DGMax::MaterialTensor getMaterialConstantDiv(
+        const PointPhysicalBase& p, double omega) const {
+        return DGMax::MaterialTensor(material_.getPermittivity());
+    }
+
+    /**
+     * Material constant used in second order Maxwells equation.
+     *
+     * This material constant that is used in second order Maxwells equation
+     * between the two Curls. It is the inverse of the permeability for the
+     * E-field formulation. For the H-field it would be the inverse of the
+     * permittivity.
+     *
+     * For PMLs and similar materials it may vary inside the element.
+     *
+     * @param p The position
+     * @param omega Frequency to use for dispersive media
+     * @return Diagonal of the material tensor, for 2D the first two components
+     * should be used.
+     */
+    virtual DGMax::MaterialTensor getMaterialConstantCurl(
+        const PointPhysicalBase& p, double omega) const {
+        return DGMax::MaterialTensor(material_.getPermeability());
+    }
+
+    /**
+     * @return Whether the material is dispersive (i.e. either materialConstants
+     * depend on omega).
+     */
+    virtual bool isDispersive() const { return false; }
+
+    const DGMax::Material& getMaterial() const { return material_; }
+
+    double getImpedance() const { return material_.getImpedance(); }
+
+    double getRefractiveIndex() const { return material_.getRefractiveIndex(); }
+
+   private:
+    DGMax::Material material_;
 };
-
-enum class StructureDefinition : std::size_t {
-    VACUUM = 0,
-    BRAGG_STACK = 1,           // [-inf,0.5] material 1, [0.5, inf] material 2
-    CYLINDER = 2,              // Cylinder at x,y (0.5, 0.5) radius 0.2
-    SQUARE_HOLE = 3,           // Square hole for x,y in [0.1, 0.9] x [0.1, 0.9]
-    INVERSE_WOODPILE_OLD = 4,  // Old IW definition with a=1, c=1/sqrt(2)
-    INVERSE_WOODPILE_NEW = 5,  // New IW definition with a=sqrt(2),c=1
-};
-
-// Jelmer: Select the case you are want to use. Note that for certain cases
-// diameters can differ. Vacuum Case:         SetEpsilon = 0; Bragg Stack:
-// SetEpsilon = 1; Cylinder Case:       SetEpsilon = 2; Cube in Cuboid case:
-// SetEpsilon = 3; Inverse Woodpile:    SetEpsilon = 4;
-template <std::size_t DIM>
-double jelmerStructure(const Geometry::PointPhysical<DIM>& point,
-                       std::size_t structure);
 
 #endif  // HPGEM_APP_ELEMENTINFOS_H

@@ -64,7 +64,7 @@ namespace Geometry {
 
 // ~~~ index 0
 // ~~~==============================================================================
-class MappingToRefLineToTriangle0 : public MappingReferenceToReference<1> {
+class MappingToRefLineToTriangle0 : public BoundaryFaceMapping {
    public:
     static const MappingToRefLineToTriangle0& Instance();
     PointReference<2> transform(
@@ -82,7 +82,7 @@ class MappingToRefLineToTriangle0 : public MappingReferenceToReference<1> {
 };
 // ~~~ index 1
 // ~~~==============================================================================
-class MappingToRefLineToTriangle1 : public MappingReferenceToReference<1> {
+class MappingToRefLineToTriangle1 : public BoundaryFaceMapping {
    public:
     static const MappingToRefLineToTriangle1& Instance();
     PointReference<2> transform(
@@ -100,7 +100,7 @@ class MappingToRefLineToTriangle1 : public MappingReferenceToReference<1> {
 };
 // ~~~ index 2
 // ~~~==============================================================================
-class MappingToRefLineToTriangle2 : public MappingReferenceToReference<1> {
+class MappingToRefLineToTriangle2 : public BoundaryFaceMapping {
    public:
     static const MappingToRefLineToTriangle2& Instance();
     PointReference<2> transform(

@@ -36,7 +36,6 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "PhysicalElement.h"
 #include "FaceData.h"
 #include <iostream>
 
@@ -119,6 +118,14 @@ LinearAlgebra::MiddleSizeMatrix Base::FaceData::getFaceMatrixMatrix(
                         "Not enough face matrices stored.");
 
     return faceMatrix_[matrixID].getEntireMatrix();
+}
+
+Base::FaceMatrix& Base::FaceData::getFaceMatrix(std::size_t matrixID) {
+    // Check if there are enough faces matrices stored.
+    logger.assert_debug(matrixID < faceMatrix_.size(),
+                        "Not enough face matrices stored.");
+
+    return faceMatrix_[matrixID];
 }
 
 /// \param[in] matrixID The index to specify which FaceMatrix to get.

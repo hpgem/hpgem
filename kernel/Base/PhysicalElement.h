@@ -43,8 +43,10 @@
 #include "Geometry/PointReference.h"
 #include "Geometry/PointPhysical.h"
 #include "Geometry/Jacobian.h"
+#include "CoordinateTransformationData.h"
 #include "CoordinateTransformation.h"
 #include "Element.h"
+
 namespace hpgem {
 namespace Base {
 template <std::size_t DIM>
@@ -53,6 +55,10 @@ template <std::size_t DIM>
 class CoordinateTransformation;
 
 // class is final as a reminder that there is no virtual destructor
+//
+// NOTE (historical note below), some methods are now const with mutable
+// backing. When working on methods feel free to convert them to this new style.
+//
 // note that none of the functions in here is marked const, because a
 // PhysicalElement reserves the right to alter its internal state to optimize
 // future repeated calls note that names in this class match the names in
@@ -60,7 +66,7 @@ class CoordinateTransformation;
 // kernel be careful to avoid infinite recursion
 ///\todo generalize implementation to support the cached data
 template <std::size_t DIM>
-class PhysicalElement final {
+class PhysicalElement final : public CoordinateTransformationData<DIM> {
    public:
     PhysicalElement();
 
@@ -115,21 +121,21 @@ class PhysicalElement final {
     const Geometry::PointPhysical<DIM> &getPointPhysical();
 
     /// the Jacobian of the coordinate transformation
-    const Geometry::Jacobian<DIM, DIM> &getJacobian();
+    const Geometry::Jacobian<DIM, DIM> &getJacobian() const final;
 
     /// the transpose of the inverse of the Jacobian of the coordinate
     /// transformation
     const Geometry::Jacobian<DIM, DIM> &getInverseTransposeJacobian();
 
     /// the transpose of the Jacobian of the coordinate transformation
-    const Geometry::Jacobian<DIM, DIM> &getTransposeJacobian();
+    const Geometry::Jacobian<DIM, DIM> &getTransposeJacobian() const final;
 
     /// the absolute value of the determinant of the Jacobian of the coordinate
     /// transformation
     double getJacobianAbsDet();
 
     /// the determinant of the Jacobian of the coordinate transformation
-    double getJacobianDet();
+    double getJacobianDet() const final;
 
     /// a middle size square matrix of size nBasisFunctions x nUnknowns
     ///\details this gets zeroed out every time the reference point is changed
@@ -199,7 +205,7 @@ class PhysicalElement final {
 
     /// setters should only be needed internally
     void setTransformation(
-        std::shared_ptr<Base::CoordinateTransformation<DIM> > &transform,
+        std::shared_ptr<Base::CoordinateTransformation<DIM> > transform,
         std::size_t unknown = 0);
 
     /// setters should only be needed internally
@@ -217,6 +223,7 @@ class PhysicalElement final {
 
    private:
     const Base::Element *theElement_;
+
     Geometry::PointReference<DIM> pointReference_;
     QuadratureRules::GaussQuadratureRule *quadratureRule_;
     const Geometry::MappingReferenceToReference<1> *faceToElementMap_;
@@ -240,10 +247,10 @@ class PhysicalElement final {
     LinearAlgebra::MiddleSizeVector solutionDiv;
 
     Geometry::PointPhysical<DIM> pointPhysical;
-    Geometry::Jacobian<DIM, DIM> jacobian, transposeJacobian,
-        inverseTransposeJacobian;
+    mutable Geometry::Jacobian<DIM, DIM> jacobian, transposeJacobian;
+    Geometry::Jacobian<DIM, DIM> inverseTransposeJacobian;
     double jacobianAbsDet;
-    double jacobianDet;
+    mutable double jacobianDet;
 
     LinearAlgebra::MiddleSizeMatrix resultMatrix;
     LinearAlgebra::MiddleSizeVector resultVector;
@@ -260,8 +267,8 @@ class PhysicalElement final {
     std::vector<bool> hasFunctionDiv;
     bool hasSolution, hasVectorSolution, hasSolutionDeriv, hasSolutionCurl,
         hasSolutionDiv;
-    bool hasPointPhysical, hasJacobian, hasTransposeJacobian,
-        hasInverseTransposeJacobian, hasJacobianDet, hasJacobianAbsDet;
+    bool hasPointPhysical, hasInverseTransposeJacobian, hasJacobianAbsDet;
+    mutable bool hasJacobian, hasTransposeJacobian, hasJacobianDet;
 };
 
 }  // namespace Base

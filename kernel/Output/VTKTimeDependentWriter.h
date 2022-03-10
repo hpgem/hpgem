@@ -64,10 +64,13 @@ class VTKTimeDependentWriter final {
     ///\brief write front matter and open file stream
     ///\param baseFileName name of the file WITHOUT extentions
     ///\param mesh the mesh containing the data you want to output
+    ///\param polynomialOrder the order of the polynomials in the output and
+    ///    used for describing the shape element shape.
     /// if you want to write from multiple meshes, simply have paraview load
     /// both output files
     VTKTimeDependentWriter(std::string baseFileName,
-                           Base::MeshManipulator<DIM>* mesh);
+                           Base::MeshManipulator<DIM>* mesh,
+                           std::size_t polynomialOrder = 1);
 
     ///\brief write end matter and close the file stream
     ~VTKTimeDependentWriter();
@@ -93,6 +96,7 @@ class VTKTimeDependentWriter final {
     std::size_t timelevel_;
     double time_;
     std::size_t numberOfFilesWritten_;
+    std::size_t polynomialOrder_;
 };
 
 }  // namespace Output

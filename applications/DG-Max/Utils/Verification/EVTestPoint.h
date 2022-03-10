@@ -44,6 +44,7 @@
 
 #include "LinearAlgebra/SmallVector.h"
 #include "EVConvergenceResult.h"
+#include "Utils/PredefinedStructure.h"
 
 namespace DGMax {
 
@@ -56,7 +57,7 @@ template <std::size_t DIM>
 class EVTestPoint {
    public:
     EVTestPoint(const LinearAlgebra::SmallVector<DIM>& kpoint,
-                size_t structureId, size_t numberOfEigenvalues)
+                PredefinedStructure structureId, size_t numberOfEigenvalues)
         : kpoint_(kpoint),
           structureId_(structureId),
           numberOfEigenvalues_(numberOfEigenvalues) {}
@@ -65,13 +66,13 @@ class EVTestPoint {
         return kpoint_;
     };
 
-    std::size_t getStructureId() const { return structureId_; }
+    PredefinedStructure getStructureId() const { return structureId_; }
 
     std::size_t getNumberOfEigenvalues() const { return numberOfEigenvalues_; }
 
    private:
     LinearAlgebra::SmallVector<DIM> kpoint_;
-    std::size_t structureId_;
+    PredefinedStructure structureId_;
     std::size_t numberOfEigenvalues_;
 };
 

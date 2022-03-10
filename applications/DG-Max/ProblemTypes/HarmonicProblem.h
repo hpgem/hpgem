@@ -42,6 +42,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Geometry/PointPhysical.h"
 #include "Base/PhysicalFace.h"
 #include "LinearAlgebra/SmallVector.h"
+#include "BoundaryConditionType.h"
+#include "ElementInfos.h"
 
 using namespace hpgem;
 
@@ -65,33 +67,88 @@ class HarmonicProblem {
    public:
     virtual ~HarmonicProblem() = default;
     virtual double omega() const = 0;
-    virtual void sourceTerm(const Geometry::PointPhysical<DIM>& point,
-                            LinearAlgebra::SmallVector<DIM>& result) const = 0;
-    virtual void boundaryCondition(
-        const Geometry::PointPhysical<DIM>& point,
-        Base::PhysicalFace<DIM>& face,
-        LinearAlgebra::SmallVector<DIM>& result) const = 0;
+    virtual LinearAlgebra::SmallVectorC<DIM> sourceTerm(
+        const Base::Element& element,
+        const Geometry::PointPhysical<DIM>& point) const = 0;
+    virtual DGMax::BoundaryConditionType getBoundaryConditionType(
+        const Base::Face& face) const = 0;
+
+    /**
+     * Value of the boundary function. The use of this value depends on
+     * getBoundaryConditionType(). For the different boundary conditions this
+     * should be:
+     *
+     * - Dirichlet: n x g_D (TODO: Future refactor -> g_D)
+     * - Neumann: g_N
+     * - SilverMuller: g_N
+     *
+     * @param face The face and point to evaluate the BC on
+     * @return The value.
+     */
+    virtual LinearAlgebra::SmallVectorC<DIM> boundaryCondition(
+        Base::PhysicalFace<DIM>& face) const = 0;
+};
+
+/**
+ * Bit field enumeration indicating which properties can be different between
+ * two harmonic problems.
+ *
+ * Note: Not inside HarmonicProblem to not have template parameters
+ */
+enum class HarmonicProblemChanges : unsigned int {
+    OMEGA = 0x1,
+    CURRENT_SOURCE = 0x2,
+    BOUNDARY_CONDITION_TYPE = 0x4,
+    BOUNDARY_CONDITION_VALUE = 0x8,
+    ANY = 0xf,
 };
 
 template <std::size_t DIM>
 class ExactHarmonicProblem : public HarmonicProblem<DIM> {
    public:
-    virtual void exactSolution(
-        const Geometry::PointPhysical<DIM>& point,
-        LinearAlgebra::SmallVector<DIM>& result) const = 0;
-    virtual void exactSolutionCurl(
-        const Geometry::PointPhysical<DIM>& point,
-        LinearAlgebra::SmallVector<DIM>& result) const = 0;
+    virtual LinearAlgebra::SmallVectorC<DIM> exactSolution(
+        const Geometry::PointPhysical<DIM>& point) const = 0;
+    virtual LinearAlgebra::SmallVectorC<DIM> exactSolutionCurl(
+        const Geometry::PointPhysical<DIM>& point) const = 0;
 
-    void boundaryCondition(
-        const Geometry::PointPhysical<DIM>& point,
-        Base::PhysicalFace<DIM>& face,
-        LinearAlgebra::SmallVector<DIM>& result) const final {
-        LinearAlgebra::SmallVector<DIM> sol;
-        exactSolution(point, sol);
-        const LinearAlgebra::SmallVector<DIM>& normal =
-            face.getUnitNormalVector();
-        normal.crossProduct(sol, result);
+    LinearAlgebra::SmallVectorC<DIM> boundaryCondition(
+        Base::PhysicalFace<DIM>& face) const override {
+        using BCT = DGMax::BoundaryConditionType;
+        using Vec = LinearAlgebra::SmallVectorC<DIM>;
+        BCT bct = this->getBoundaryConditionType(*face.getFace());
+        switch (bct) {
+            case BCT::DIRICHLET: {
+                Vec efield = this->exactSolution(face.getPointPhysical());
+                Vec normal = face.getUnitNormalVector();
+                return normal.crossProduct(efield);
+            }
+            case BCT::NEUMANN: {
+
+                const auto& point = face.getPointPhysical();
+                const auto material =
+                    ElementInfos::get(*face.getFace()->getPtrElementLeft())
+                        .getMaterialConstantCurl(point, this->omega());
+                return material.applyCurl(exactSolutionCurl(point));
+            }
+            case BCT::SILVER_MULLER: {
+                const auto& point = face.getPointPhysical();
+                auto& material =
+                    ElementInfos::get(*face.getFace()->getPtrElementLeft());
+                Vec efield = this->exactSolution(point);
+                Vec efieldCurl = this->exactSolutionCurl(point);
+                const Vec& normal = face.getUnitNormalVector();
+                auto impedance = std::complex<double>(
+                    0, this->omega() * material.getImpedance());
+                // n x (Curl E + Z [E x n]) = n x g_N
+                return material.getMaterialConstantCurl(point, this->omega())
+                           .applyCurl(efieldCurl) +
+                       impedance * efield.crossProduct(normal);
+            }
+            default:
+                logger(ERROR,
+                       "Not implemented for this type of boundary condition.");
+                return {};
+        }
     }
 };
 

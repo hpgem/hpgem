@@ -41,36 +41,61 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../HarmonicProblem.h"
 
+namespace DGMax {
+
 using namespace hpgem;
 
-template <std::size_t DIM>
-class SampleHarmonicProblems : public ExactHarmonicProblem<DIM> {
+/// Helper class to handle setting boundary conditions
+template <std::size_t dim>
+class SampleHarmonicProblem : public ExactHarmonicProblem<dim> {
    public:
-    enum Problem {
-        // Constant field E = <1, 1, 1>
-        CONSTANT,
-        // TODO Credit to Sarmany
-        SARMANY2010,
-    };
+    using BoundaryConditionIndicator =
+        std::function<BoundaryConditionType(const Base::Face& face)>;
 
-    SampleHarmonicProblems(Problem problem, double omega);
+    BoundaryConditionType getBoundaryConditionType(
+        const Base::Face& face) const override {
+        if (boundaryConditionIndicator_) {
+            return boundaryConditionIndicator_(face);
+        } else {
+            // Traditional default
+            return BoundaryConditionType::DIRICHLET;
+        }
+    }
 
-    double omega() const override;
-    void sourceTerm(const Geometry::PointPhysical<DIM>& point,
-                    LinearAlgebra::SmallVector<DIM>& result) const override;
-    void exactSolution(const Geometry::PointPhysical<DIM>& point,
-                       LinearAlgebra::SmallVector<DIM>& result) const override;
-    void exactSolutionCurl(
-        const Geometry::PointPhysical<DIM>& point,
-        LinearAlgebra::SmallVector<DIM>& result) const override;
+    void setBoundaryConditionIndicator(BoundaryConditionIndicator indicator) {
+        boundaryConditionIndicator_ = indicator;
+    }
 
    private:
-    const Problem problem_;
-    const double omega_;
-
-    // x component of Sarmany's solution.
-    void sarmanyx(const Geometry::PointPhysical<DIM>& point,
-                  LinearAlgebra::SmallVector<DIM>& result) const;
+    BoundaryConditionIndicator boundaryConditionIndicator_;
 };
 
+/// Sample problem in 3D using a product of sin-functions for each coordinate
+///
+/// Problem used in:
+/// "Optimal Penalty Parameters for Symmetric Discontinous Galerkin
+/// Discretizations of the Time-Harmonic Maxwell Equations"
+/// D Sarmany, F Izsak and JJW van der Vegt
+/// J. Sci. Comput. (2010) 44: 219-254
+/// DOI: 10.1007/s10915-010-9366-1
+class [[maybe_unused]] SarmanyHarmonicProblem
+    : public SampleHarmonicProblem<3> {
+   public:
+    SarmanyHarmonicProblem(double omega) : omega_(omega) {}
+
+    double omega() const override { return omega_; }
+
+    LinearAlgebra::SmallVectorC<3> exactSolution(
+        const Geometry::PointPhysical<3>& point) const override;
+    LinearAlgebra::SmallVectorC<3> exactSolutionCurl(
+        const Geometry::PointPhysical<3>& point) const override;
+    LinearAlgebra::SmallVectorC<3> sourceTerm(
+        const Base::Element&, const Geometry::PointPhysical<3>& point)
+        const override;
+
+   private:
+    double omega_;
+};
+
+}  // namespace DGMax
 #endif  // HPGEM_APP_SAMPLEHARMONICPROBLEMS_H

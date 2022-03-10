@@ -73,7 +73,8 @@ Jacobian<2, 3> MappingToRefFaceToPyramid0::calcJacobian(
     return jacobian;
 }
 
-MappingToRefFaceToPyramid0::MappingToRefFaceToPyramid0() = default;
+MappingToRefFaceToPyramid0::MappingToRefFaceToPyramid0()
+    : BoundaryFaceMapping(1.0) {}
 
 // ~~~ index 1
 // ~~~==============================================================================
@@ -105,7 +106,8 @@ Jacobian<2, 3> MappingToRefFaceToPyramid1::calcJacobian(
     return jacobian;
 }
 
-MappingToRefFaceToPyramid1::MappingToRefFaceToPyramid1() = default;
+MappingToRefFaceToPyramid1::MappingToRefFaceToPyramid1()
+    : BoundaryFaceMapping(1.0) {}
 
 // ~~~ index 2
 // ~~~==============================================================================
@@ -137,7 +139,8 @@ Jacobian<2, 3> MappingToRefFaceToPyramid2::calcJacobian(
     return jacobian;
 }
 
-MappingToRefFaceToPyramid2::MappingToRefFaceToPyramid2() = default;
+MappingToRefFaceToPyramid2::MappingToRefFaceToPyramid2()
+    : BoundaryFaceMapping(1.0) {}
 
 // ~~~ index 3
 // ~~~==============================================================================
@@ -169,7 +172,8 @@ Jacobian<2, 3> MappingToRefFaceToPyramid3::calcJacobian(
     return jacobian;
 }
 
-MappingToRefFaceToPyramid3::MappingToRefFaceToPyramid3() = default;
+MappingToRefFaceToPyramid3::MappingToRefFaceToPyramid3()
+    : BoundaryFaceMapping(1.0) {}
 
 // ~~~ index 4
 // ~~~==============================================================================
@@ -201,7 +205,8 @@ Jacobian<2, 3> MappingToRefFaceToPyramid4::calcJacobian(
     return jacobian;
 }
 
-MappingToRefFaceToPyramid4::MappingToRefFaceToPyramid4() = default;
+MappingToRefFaceToPyramid4::MappingToRefFaceToPyramid4()
+    : BoundaryFaceMapping(1.0) {}
 
 }  // namespace Geometry
 

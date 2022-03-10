@@ -101,7 +101,7 @@ class ReferenceHypercube : public ReferenceGeometry {
         const std::size_t) const final;
 
     //! (see MappingCodimensions.h)
-    const MappingReferenceToReference<1>* getCodim1MappingPtr(
+    const BoundaryFaceMapping* getCodim1MappingPtr(
         const std::size_t) const final;
 
     //! (see MappingCodimensions.h)
@@ -150,7 +150,7 @@ class ReferenceHypercube : public ReferenceGeometry {
 
     //! Codimension 1 mappings, from a cube to a hypercube. (Used to map a
     //! coordinate from a face to an element)
-    const MappingReferenceToReference<1>* mappingsCubeToHypercube_[8];
+    const BoundaryFaceMapping* mappingsCubeToHypercube_[8];
 
     //! Only required for 5D elements
     // const MappingReferenceToReference<4, 4>*

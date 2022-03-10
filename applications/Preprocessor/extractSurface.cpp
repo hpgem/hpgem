@@ -86,7 +86,8 @@ using idx_t = std::size_t;
 #include <string>
 #include "Base/CommandLineOptions.h"
 #include "Base/MpiContainer.h"
-#include "mesh.h"
+#include "mesh/Mesh.h"
+#include "MeshFactory.h"
 #include "hpgem.h"
 #include "centaur.h"
 #include "meshData.h"
@@ -94,6 +95,7 @@ using idx_t = std::size_t;
 
 using namespace hpgem;
 
+// Describes an axis aligned boundary plane boundary
 class Boundary {
    public:
     Boundary() = default;
@@ -127,6 +129,8 @@ class Boundary {
 
     Boundary& operator=(const Boundary&) = default;
     Boundary& operator=(Boundary&&) = default;
+
+    ///  Check whether a coordinate is on the boundary
     template <std::size_t dimension>
     bool onBoundary(LinearAlgebra::SmallVector<dimension> coordinate) {
         logger.assert_always(coordinateIndex < dimension,
@@ -136,6 +140,7 @@ class Boundary {
         return std::abs(coordinate[coordinateIndex] - location) < 1e-12;
     }
 
+    /// Project a coordinate onto the plane
     template <std::size_t dimension>
     LinearAlgebra::SmallVector<dimension - 1> boundaryCoordinate(
         LinearAlgebra::SmallVector<dimension> coordinate) {
@@ -159,6 +164,9 @@ auto& boundaryData = Base::register_argument<Boundary>(
 
 template <std::size_t dimension>
 void processMesh(Preprocessor::HpgemReader& meshFile) {
+    using Preprocessor::CoordId;
+    using Preprocessor::EntityGId;
+
     auto inputMesh = Preprocessor::readFile<dimension>(meshFile);
     Preprocessor::MeshData<std::size_t, dimension, dimension> inputPartitionID(
         &inputMesh);
@@ -174,35 +182,47 @@ void processMesh(Preprocessor::HpgemReader& meshFile) {
     Preprocessor::Mesh<dimension - 1> resultMesh;
     Preprocessor::MeshData<std::size_t, dimension - 1, dimension - 1>
         resultPartitionID(&resultMesh);
-    std::vector<std::size_t> boundaryNodes;
-    std::map<std::size_t, std::size_t> toBoundaryIndex;
-    std::set<LinearAlgebra::SmallVector<dimension>> processedCoordinates;
+    // Ids of the nodes in the original mesh that are on the boundary
+    std::vector<EntityGId> boundaryNodes;
+    // Mapping from coordinateId in the old mesh to that in the new mesh. Only
+    // has coordinateIds of coordinates on the boundary.
+    std::map<CoordId, CoordId> toBoundaryIndex;
+    // Coordinates that have been processed, independent of whether they are on
+    // the boundary or not.
+    std::set<CoordId> processedCoordinates;
     for (auto& node : inputMesh.getNodes()) {
         bool added = false;
+        EntityGId newNodeId;  // Id of the node in the processed mesh
         for (std::size_t i = 0; i < node.getNumberOfElements(); ++i) {
             Preprocessor::Element<dimension>& element = node.getElement(i);
+            CoordId nodeCoordId =
+                element.getCoordinateIndex(node.getLocalIndex(i));
             auto nodeCoordinate = element.getCoordinate(node.getLocalIndex(i));
             if (position.onBoundary(nodeCoordinate) &&
-                std::find(processedCoordinates.begin(),
-                          processedCoordinates.end(),
-                          nodeCoordinate) == processedCoordinates.end()) {
+                processedCoordinates.find(nodeCoordId) ==
+                    processedCoordinates.end()) {
                 if (!added) {
-                    resultMesh.addNode();
+                    // Only add the node to the new mesh if it has at least one
+                    // coordinate on the boundary.
+                    newNodeId = resultMesh.addNode();
                     boundaryNodes.push_back(node.getGlobalIndex());
                     added = true;
                 }
-                toBoundaryIndex[processedCoordinates.size()] =
-                    resultMesh.getNodeCoordinates().size();
-                logger(DEBUG, "% -> %", processedCoordinates.size(),
-                       toBoundaryIndex[processedCoordinates.size()]);
-                resultMesh.addNodeCoordinate(
-                    resultMesh.getNumberOfNodes() - 1,
-                    position.boundaryCoordinate(nodeCoordinate));
+                // Project the coordinate and add it to the new mesh and update
+                // the mapping old -> new.
+                CoordId newCoordId = resultMesh.addNodeCoordinate(
+                    newNodeId, position.boundaryCoordinate(nodeCoordinate));
+                toBoundaryIndex[nodeCoordId] = newCoordId;
+                logger(DEBUG, "% -> %", nodeCoordId, newCoordId);
             }
-            processedCoordinates.insert(nodeCoordinate);
+            processedCoordinates.insert(nodeCoordId);
         }
     }
+    // The faces from the input mesh that are on the boundary will form the
+    // elements of the target mesh.
     for (auto& face : inputMesh.getFaces()) {
+        // Due to the input mesh restriction we know that a face is on the
+        // boundary if all its nodes are on the boundary.
         auto nodeIndices = face.template getIncidenceListAsIndices<0>();
         bool onBoundary = true;
         for (auto index : nodeIndices) {
@@ -212,19 +232,25 @@ void processMesh(Preprocessor::HpgemReader& meshFile) {
             }
         }
         if (onBoundary) {
+            // To get coordinates for the face we need to go through a adjacent
+            // element.
             auto inputElement = face.getElement(0);
             auto localNodeIndices =
                 inputElement.template getLocalIncidenceListAsIndices<0>(face);
-            std::vector<std::size_t> globalCoordinateIndices;
+            // Coordinate ids in the original mesh
+            std::vector<CoordId> globalCoordinateIndices;
             for (auto localIndex : localNodeIndices) {
                 globalCoordinateIndices.push_back(
                     inputElement.getCoordinateIndex(localIndex));
             }
+            // Overwrite the coordinates with coordinates from the new mesh
             for (auto& inputIndex : globalCoordinateIndices) {
                 inputIndex = toBoundaryIndex[inputIndex];
             }
             resultMesh.addElement(globalCoordinateIndices);
             auto resultElement = resultMesh.getElements().back();
+            // Assign the partition of the face based on the element it belonged
+            // to.
             resultPartitionID[resultElement] = inputPartitionID[inputElement];
         }
     }
@@ -233,9 +259,8 @@ void processMesh(Preprocessor::HpgemReader& meshFile) {
 }
 
 /**
- * @brief preprocessing tool to generate distributed mesh files and/or to
- * convert supported file formats to the hpGEM native format
- *
+ * @brief Tool to generate a surface mesh for one of the sides of generated by
+ * the structured mesh generator.
  */
 int main(int argc, char** argv) {
     auto start = std::chrono::steady_clock::now();

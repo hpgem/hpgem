@@ -52,13 +52,17 @@
 #include "ElementInfos.h"
 #include "DGMaxProgramUtils.h"
 
-#include "Algorithms/DGMaxHarmonic.h"
+#include "Algorithms/HarmonicSolver.h"
+#include "Algorithms/DGMaxDiscretization.h"
+#include "Algorithms/DivDGMaxDiscretization.h"
 #include "Algorithms/DGMaxTimeIntegration.h"
-#include "Algorithms/DivDGMaxHarmonic.h"
 
 #include "ProblemTypes/Harmonic/SampleHarmonicProblems.h"
-#include "ProblemTypes/Time/SampleTestProblems.h"
+#include "ProblemTypes/Harmonic/ExactFieldHarmonicProblem.h"
+#include "ProblemTypes/Harmonic/ConstantField.h"
 #include "Utils/BandstructureGNUPlot.h"
+#include "Utils/StructureDescription.h"
+#include "Utils/PredefinedStructure.h"
 
 using namespace hpgem;
 
@@ -99,20 +103,18 @@ int main(int argc, char** argv) {
     Base::ConfigurationData configData(numberOfUnknowns, numberOfTimeLevels);
     try {
         double stab = (p.getValue() + 1) * (p.getValue() + 3);
-        DivDGMaxDiscretization<DIM>::Stab divStab;
+        DivDGMaxDiscretizationBase::Stab divStab;
         // Values from the Jelmer fix code.
         divStab.stab1 = 100;
         // Note: for 2D harmonic it looks like that we need 10 instead of 0.01.
         divStab.stab2 = 0.01;
         divStab.stab3 = 10.0;
 
-        auto epsilon = [&](const Geometry::PointPhysical<DIM>& p) {
-            // TODO: Hardcoded structure
-            return jelmerStructure(p, 0);
-        };
+        DGMax::PredefinedStructureDescription structure(
+            DGMax::PredefinedStructure::VACUUM, DIM);
 
         std::unique_ptr<Base::MeshManipulator<DIM>> mesh(
-            DGMax::readMesh<DIM>(meshFile.getValue(), &configData, epsilon));
+            DGMax::readMesh<DIM>(meshFile.getValue(), &configData, structure));
         // base.createCentaurMesh(std::string("SmallIW_Mesh4000.hyb"));
         // base.createCentaurMesh(std::string("BoxCylinder_Mesh6000.hyb"));
         // TODO: LC: this does seem rather arbitrary and should probably be done
@@ -125,10 +127,11 @@ int main(int argc, char** argv) {
             element->setNumberOfTimeIntegrationVectors(3);
         }
 
-        SampleHarmonicProblems<DIM> harmonicProblem(
-            SampleHarmonicProblems<DIM>::CONSTANT, 1);
+        auto harmonicProblem =
+            std::make_shared<DGMax::ExactFieldHarmonicProblem<DIM>>(
+                1.0, std::make_shared<DGMax::ConstantField<DIM>>());
 
-        //        DGMaxHarmonic<DIM> harmonicSolver(*mesh, p.getValue());
+        //        HarmonicSolver<DIM> harmonicSolver(*mesh, p.getValue());
         //        harmonicSolver.solve(harmonicProblem, stab);
         //        auto errors = harmonicSolver.computeError(
         //            {DGMaxDiscretizationBase::L2,

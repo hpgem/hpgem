@@ -378,6 +378,10 @@ void GlobalPetscMatrix::printMatInfo(MatInfoType type, std::ostream& stream) {
 }
 
 void GlobalPetscMatrix::writeMatlab(const std::string& fileName) {
+    writeMatlab(A_, fileName);
+}
+
+void GlobalPetscMatrix::writeMatlab(Mat mat, const std::string& fileName) {
     PetscViewer viewer;
     PetscErrorCode err;
 
@@ -385,7 +389,7 @@ void GlobalPetscMatrix::writeMatlab(const std::string& fileName) {
     CHKERRABORT(PETSC_COMM_WORLD, err);
     err = PetscViewerPushFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
     CHKERRABORT(PETSC_COMM_WORLD, err);
-    err = MatView(A_, viewer);
+    err = MatView(mat, viewer);
     CHKERRABORT(PETSC_COMM_WORLD, err);
     err = PetscViewerDestroy(&viewer);
     CHKERRABORT(PETSC_COMM_WORLD, err);

@@ -55,28 +55,16 @@ class HCurlConformingTransformation : public CoordinateTransformation<DIM> {
     /// kernel of the reference curl-operator.
     LinearAlgebra::SmallVector<DIM> transform(
         LinearAlgebra::SmallVector<DIM> referenceData,
-        PhysicalElement<DIM>& element) const final {
-        element.getTransposeJacobian().solve(referenceData);
+        const CoordinateTransformationData<DIM>& data) const final {
+        data.getTransposeJacobian().solve(referenceData);
         return referenceData;
     }
 
     /// transform the curl by using the chain rule
     LinearAlgebra::SmallVector<DIM> transformCurl(
         LinearAlgebra::SmallVector<DIM> referenceData,
-        PhysicalElement<DIM>& element) const final {
-        return element.getJacobian() * referenceData / element.getJacobianDet();
-    }
-
-    /// integrands for elements are multiplied by the absolute value of the
-    /// determinant of the Jacobian to correct for the difference in volume
-    double getIntegrandScaleFactor(PhysicalElement<DIM>& element) const final {
-        return element.getJacobianAbsDet();
-    }
-
-    /// integrands for faces are multiplied by the norm of the outward normal
-    /// vector to correct for the difference in area
-    double getIntegrandScaleFactor(PhysicalFace<DIM>& face) const final {
-        return face.getRelativeSurfaceArea();
+        const CoordinateTransformationData<DIM>& data) const final {
+        return data.getJacobian() * referenceData / data.getJacobianDet();
     }
 };
 
@@ -84,8 +72,8 @@ template <>
 inline LinearAlgebra::SmallVector<2>
     HCurlConformingTransformation<2>::transformCurl(
         LinearAlgebra::SmallVector<2> referenceData,
-        PhysicalElement<2>& element) const {
-    return referenceData / element.getJacobianDet();
+        const CoordinateTransformationData<2>& data) const {
+    return referenceData / data.getJacobianDet();
 }
 }  // namespace Base
 

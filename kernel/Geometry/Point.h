@@ -102,6 +102,9 @@ class Point {
 
     std::size_t size();
 
+    double l2Norm() const;
+    double l2NormSquared() const;
+
     double getCoordinate(std::size_t n) const;
     const LinearAlgebra::SmallVector<DIM>& getCoordinates() const;
 

@@ -42,6 +42,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <CMakeDefinitions.h>
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
+#include "../TestMeshes.h"
+
 using namespace hpgem;
 void testWithEmptyIndex() {
     // Test that creating a GlobalMatrix and GlobalVector with an empty index is
@@ -86,8 +88,7 @@ void testReinit() {
     Base::ConfigurationData data(1);  // 1 unknown
     Base::MeshManipulator<1>* mesh = new Base::MeshManipulator<1>(&data);
     using namespace std::string_literals;
-    mesh->readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() +
-                   "/tests/files/poissonMesh1.hpgem"s);
+    mesh->readMesh(getUnitSegmentMeshes()[0]);
 
     // Associate some basis functions with the elements so that there will be
     // DoFs

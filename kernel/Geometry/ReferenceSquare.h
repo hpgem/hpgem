@@ -109,7 +109,7 @@ class ReferenceSquare : public ReferenceGeometry {
         const std::size_t) const final;
 
     //! (see MappingCodimensions.h)
-    const MappingReferenceToReference<1>* getCodim1MappingPtr(
+    const BoundaryFaceMapping* getCodim1MappingPtr(
         const std::size_t) const final;
 
     //! (see MappingCodimensions.h)
@@ -140,7 +140,7 @@ class ReferenceSquare : public ReferenceGeometry {
 
     //! Codimension 1 mappings, from a line to a square. (Used to map a
     //! cooridate from a face to an element)
-    const MappingReferenceToReference<1>* mappingsLineToSquare_[4];
+    const BoundaryFaceMapping* mappingsLineToSquare_[4];
 
     //! Codimension 0 mappings, from a square to a square. (Used to rotate the
     //! face when the left and right elements dont think it has the same

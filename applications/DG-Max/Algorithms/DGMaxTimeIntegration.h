@@ -58,7 +58,8 @@ class DGMaxTimeIntegration {
    public:
     enum IntegrationMethod { CO2, CO4 };
 
-    DGMaxTimeIntegration(Base::MeshManipulator<DIM>& mesh, std::size_t order);
+    DGMaxTimeIntegration(Base::MeshManipulator<DIM>& mesh, std::size_t order,
+                         double stab);
     ~DGMaxTimeIntegration();
     void solve(const SeparableTimeIntegrationProblem<DIM>& input,
                TimeIntegrationParameters<DIM> parameters);
@@ -66,10 +67,10 @@ class DGMaxTimeIntegration {
     void printErrors(
         const std::vector<typename DGMaxDiscretization<DIM>::NormType>& norms,
         const typename DGMaxDiscretization<DIM>::TimeFunction& exactField,
-        const typename DGMaxDiscretization<DIM>::TimeFunction& exactCurl) const;
+        const typename DGMaxDiscretization<DIM>::TimeFunction& exactCurl);
     void printErrors(
         const std::vector<typename DGMaxDiscretization<DIM>::NormType>& norms,
-        const ExactTimeIntegrationProblem<DIM>& problem) const;
+        const ExactTimeIntegrationProblem<DIM>& problem);
 
    private:
     /// \brief Coefficients for the CO4 algorithm.

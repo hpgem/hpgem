@@ -46,7 +46,7 @@
 #include "petscksp.h"
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
-#include <CMakeDefinitions.h>
+#include "../TestMeshes.h"
 using namespace hpgem;
 // If this test ever breaks it is not a bad thing per se.
 // If the results are still readable by tecplot, and you are convinced that your
@@ -60,9 +60,8 @@ class PoissonTest : public Base::HpgemAPILinearSteadyState<2> {
     PoissonTest(const std::string name, const std::size_t p,
                 const std::size_t n)
         : HpgemAPILinearSteadyState(1, p, true, true), p_(p), totalError_(0) {
-        using namespace std::string_literals;
         penalty_ = 3 * n * p_ * (p_ + 2 - 1) + 1;
-        readMesh(Base::getCMAKE_hpGEM_SOURCE_DIR() + "/tests/files/"s + name);
+        readMesh(name);
     }
 
     ///\brief Compute the integrand for the stiffness matrix at the element.
@@ -300,8 +299,8 @@ class PoissonTest : public Base::HpgemAPILinearSteadyState<2> {
 int main(int argc, char** argv) {
     Base::parse_options(argc, argv);
 
-    PoissonTest test8("poissonMesh9.hpgem", 5, 8);
-    test8.solveSteadyStateWithPetsc(true);
+    PoissonTest test8(getUnitSquareTriangleMeshes()[3], 5, 8);
+    test8.solveSteadyStateWithPetsc(false);
     // actual test is done by comparing output files
     return 0;
 }

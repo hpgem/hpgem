@@ -66,8 +66,9 @@ DGMaxEigenvalue<DIM>::DGMaxEigenvalue(Base::MeshManipulator<DIM>& mesh,
     : mesh_(mesh),
       order_(order),
       config_(config),
-      discretization_(config.useProjector_ != DGMaxEigenvalueBase::NONE) {
-    discretization_.initializeBasisFunctions(mesh_, order);
+      discretization_(order, config.stab_,
+                      config.useProjector_ != DGMaxEigenvalueBase::NONE) {
+    discretization_.initializeBasisFunctions(mesh_);
 }
 
 template <std::size_t DIM>
@@ -75,16 +76,20 @@ void DGMaxEigenvalue<DIM>::initializeMatrices() {
     auto massMatrixHandling = config_.useHermitian_
                                   ? DGMaxDiscretizationBase::ORTHOGONALIZE
                                   : DGMaxDiscretizationBase::INVERT;
+    // Using dispersive materials is not supported
+    const double dispersionFrequency =
+        std::numeric_limits<double>::signaling_NaN();
     // No element vectors
     std::map<std::size_t, typename DGMaxDiscretization<DIM>::InputFunction>
         elementVectors;
-    discretization_.computeElementIntegrands(mesh_, massMatrixHandling,
-                                             elementVectors);
+    discretization_.setMatrixHandling(massMatrixHandling);
+    discretization_.computeElementIntegrals(mesh_, elementVectors,
+                                            dispersionFrequency);
     // No face vectors
     std::map<std::size_t, typename DGMaxDiscretization<DIM>::FaceInputFunction>
         faceVectors;
-    discretization_.computeFaceIntegrals(mesh_, massMatrixHandling, faceVectors,
-                                         config_.stab_);
+    discretization_.computeFaceIntegrals(mesh_, faceVectors,
+                                         dispersionFrequency);
 }
 
 // SolverWorkspace //
@@ -289,67 +294,9 @@ void DGMaxEigenvalue<DIM>::Result::writeField(
     std::size_t eigenvalue, Output::VTKSpecificTimeWriter<DIM>& writer) {
     const std::size_t VECTOR_ID = 0;
     workspace_.writeAsTimeIntegrationVector(eigenvalue, VECTOR_ID);
-    // When using the Hermitian system we applied a rescaling of the
-    // solution coefficients to use y = L^H x (LL^H = M is the Cholesky
-    // decomposition of the mass matrix and x the actual coefficients). Undo
-    // this transformation to correctly compute the fields.
-    if (workspace_.getConfig().useHermitian_) {
-        for (Base::Element* element : mesh_->getElementsList()) {
-            // Note: this all happens inplace.
-            LinearAlgebra::MiddleSizeVector& coeffs =
-                element->getTimeIntegrationVector(VECTOR_ID);
-            element->getElementMatrix(DGMaxDiscretizationBase::MASS_MATRIX_ID)
-                .solveLowerTriangular(
-                    coeffs, LinearAlgebra::Side::OP_LEFT,
-                    LinearAlgebra::Transpose::HERMITIAN_TRANSPOSE);
-        }
-    }
-    // Write the actual fields
-    writer.write(
-        [&](const Base::Element* element,
-            const Geometry::PointReference<DIM>& pref, std::size_t) {
-            const LinearAlgebra::MiddleSizeVector& coefficients =
-                element->getTimeIntegrationVector(VECTOR_ID);
-            auto fields =
-                discretization_.computeFields(element, pref, coefficients);
-            return std::sqrt(fields.realEField.l2NormSquared() +
-                             fields.imagEField.l2NormSquared());
-        },
-        "Emag");
-    writer.write(
-        [&](const Base::Element* element,
-            const Geometry::PointReference<DIM>& pref, std::size_t) {
-            const LinearAlgebra::MiddleSizeVector& coefficients =
-                element->getTimeIntegrationVector(VECTOR_ID);
-            auto fields =
-                discretization_.computeFields(element, pref, coefficients);
-            return fields.realEField;
-        },
-        "Ereal");
-    writer.write(
-        [&](const Base::Element* element,
-            const Geometry::PointReference<DIM>& pref, std::size_t) {
-            const LinearAlgebra::MiddleSizeVector& coefficients =
-                element->getTimeIntegrationVector(VECTOR_ID);
-            auto fields =
-                discretization_.computeFields(element, pref, coefficients);
-            return fields.imagEField;
-        },
-        "Eimag");
-    // Also write epsilon for post processing
-    writer.write(
-        [&](const Base::Element* element, const Geometry::PointReference<DIM>&,
-            std::size_t) {
-            auto* userData = element->getUserData();
-            const ElementInfos* elementInfo =
-                dynamic_cast<ElementInfos*>(userData);
-            if (elementInfo != nullptr) {
-                return elementInfo->epsilon_;
-            } else {
-                return -1.0;  // Clearly invalid value
-            }
-        },
-        "epsilon");
+    // Possible modifications from the Hermitian system are handled by the
+    // discretization.
+    discretization_.writeFields(writer, VECTOR_ID);
 }
 
 ///
@@ -396,7 +343,7 @@ DGMaxEigenvalue<DIM>::SolverWorkspace::SolverWorkspace(
       fieldIndex_(nullptr),  // Initialized in initMatrices()
       stiffnessMatrix_(fieldIndex_,
                        DGMaxDiscretizationBase::STIFFNESS_MATRIX_ID,
-                       DGMaxDiscretizationBase::FACE_MATRIX_ID),
+                       DGMaxDiscretizationBase::FACE_STIFFNESS_MATRIX_ID),
       massMatrix_(fieldIndex_, DGMaxDiscretizationBase::MASS_MATRIX_ID, -1),
       tempFieldVector_(fieldIndex_, -1, -1),
       targetFrequency_(1) {
@@ -578,8 +525,8 @@ template <std::size_t DIM>
 void DGMaxEigenvalue<DIM>::SolverWorkspace::initStiffnessMatrixShifts() {
     DGMax::FaceMatrixKPhaseShiftBuilder<DIM> builder;
     builder.setMatrixExtractor([&](const Base::Face* face) {
-        const Base::FaceMatrix& faceMatrix =
-            face->getFaceMatrix(DGMaxDiscretizationBase::FACE_MATRIX_ID);
+        const Base::FaceMatrix& faceMatrix = face->getFaceMatrix(
+            DGMaxDiscretizationBase::FACE_STIFFNESS_MATRIX_ID);
         LinearAlgebra::MiddleSizeMatrix block1, block2;
         block1 =
             faceMatrix.getElementMatrix(Base::Side::LEFT, Base::Side::RIGHT);

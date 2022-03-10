@@ -40,7 +40,6 @@
 #define HPGEM_KERNEL_REFERENCEGEOMETRY_H
 
 #include "Geometry/Mappings/MappingCodimensions.h"
-#include "Geometry/Mappings/RefinementMapping.h"
 #include "PointReference.h"
 
 #include <map>
@@ -65,6 +64,10 @@ class BaseBasisFunction;
 
 namespace Geometry {
 
+/**
+ * Shape class of the ReferenceGeometry. Note that this does not make a
+ * distinction between linear and higher order elements.
+ */
 enum class ReferenceGeometryType {
     POINT,
     LINE,

@@ -45,7 +45,6 @@
 
 #include "FE/BasisFunctions1DH1ConformingLine.h"
 #include "Base/ConfigurationData.h"
-#include "Base/L2Norm.h"
 #include "Base/CommandLineOptions.h"
 #include <cmath>
 #include <CMakeDefinitions.h>

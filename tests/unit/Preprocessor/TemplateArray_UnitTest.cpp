@@ -36,7 +36,7 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "TemplateArray.h"
+#include "utils/TemplateArray.h"
 #include "../catch.hpp"
 
 // Dummy template to test with

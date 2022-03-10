@@ -27,6 +27,15 @@ do
   "$PREPROCESSOR" --inFile "$meshSource" --outFile "$filename"
 done
 
+# GMSH meshes
+for meshSource in sources/*.msh
+do
+  echo "Meshing ${meshSource}"
+  filename=$(basename -- "$meshSource")
+  # Replacing extension hyb -> hpgem
+  filename="${filename%msh}hpgem"
+  "$PREPROCESSOR" --inFile "$meshSource" --outFile "$filename"
+done
 # Centaur meshes
 for meshSource in sources/*.hyb
 do

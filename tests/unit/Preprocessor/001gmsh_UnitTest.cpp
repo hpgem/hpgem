@@ -91,3 +91,78 @@ TEST_CASE("ReadingFile", "[ReadingFile]") {
         REQUIRE(elements[i].coordinateIds == ref_Elements[i].coordinateIds);
     }
 }
+
+TEST_CASE("ReadingFile_NOPBC", "[ReadingFile]") {
+
+    Preprocessor::GmshReader reader(std::string(TEST_DATA_FOLDER) +
+                                    "/gmsh2.2_nopbc.gmsh");
+    INFO("Dimension");
+    REQUIRE(reader.getDimension() == 2);
+
+    std::vector<Preprocessor::MeshSource2::Coord> ref_Coords;
+    ref_Coords.reserve(6);
+    ref_Coords.push_back({{0.0, 0.0}, 0});
+    ref_Coords.push_back({{1.0, 0.0}, 1});
+    ref_Coords.push_back({{1.0, 1.0}, 2});
+    ref_Coords.push_back({{0.0, 1.0}, 3});
+    ref_Coords.push_back({{2.0, 0.0}, 4});
+    ref_Coords.push_back({{2.0, 1.0}, 5});
+
+    const auto& coords = reader.getCoordinates();
+    INFO("Nodes");
+    REQUIRE(coords.size() == ref_Coords.size());
+    for (size_t i = 0; i < coords.size(); i++) {
+        INFO("Coordinate:" + std::to_string(i));
+        REQUIRE(coords[i].nodeId == ref_Coords[i].nodeId);
+        for (size_t dim = 0; dim < 2; dim++) {
+            INFO("Dim:" + std::to_string(dim));
+            REQUIRE(coords[i].coordinate[dim] ==
+                    Approx(ref_Coords[i].coordinate[dim]));
+        }
+    }
+
+    std::vector<Preprocessor::MeshSource2::Element> ref_Elements;
+    ref_Elements.reserve(2);
+    ref_Elements.push_back({{0, 1, 3, 2}, "2", 2, 0});
+    ref_Elements.push_back({{1, 4, 2, 5}, "1", 2, 1});
+
+    const auto& elements = reader.getElements();
+
+    INFO("Elements");
+    REQUIRE(elements.size() == ref_Elements.size());
+
+    for (size_t i = 0; i < elements.size(); i++) {
+        INFO("Element:" + std::to_string(i));
+        INFO("id");
+        REQUIRE(elements[i].id == ref_Elements[i].id);
+        INFO("dimension");
+        REQUIRE(elements[i].dimension == ref_Elements[i].dimension);
+        INFO("zone name");
+        REQUIRE(elements[i].zoneName == ref_Elements[i].zoneName);
+        INFO("coordinates");
+        REQUIRE(elements[i].coordinateIds == ref_Elements[i].coordinateIds);
+    }
+}
+
+TEST_CASE("Line mesh with physical names", "[GmshReader]") {
+    Preprocessor::GmshReader reader(std::string(TEST_DATA_FOLDER) +
+                                    "/gmsh2.physical_line_mesh.msh");
+    {
+        INFO("Dimension")
+        REQUIRE(reader.getDimension() == 1);
+    }
+    // Coordinates at positions x = {0, 1, 2}
+    const auto& coords = reader.getCoordinates();
+    REQUIRE(coords.size() == 3);
+    for (std::size_t i = 0; i < 3; ++i) {
+        INFO("Coordinate " + std::to_string(i));
+        REQUIRE(coords[i].coordinate.size() == 1);
+        REQUIRE(coords[i].coordinate[0] == Approx(i));
+    }
+    std::vector<std::string> zones = {"line", "line2"};
+    const auto& elements = reader.getElements();
+    REQUIRE(elements.size() == 2);
+    for (std::size_t i = 0; i < 2; ++i) {
+        CHECK(elements[i].zoneName == zones[i]);
+    }
+}

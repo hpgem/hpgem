@@ -41,14 +41,12 @@
 
 #include <vector>
 #include "Logger.h"
+#include "MappingReferenceToReference.h"
 
 namespace hpgem {
 
 namespace Geometry {
 class ReferenceGeometry;
-
-template <int codim>
-class MappingReferenceToReference;
 
 /*!
  *  ~OC~ CodimMaps can be used as base class for ReferenceGeometry
@@ -93,7 +91,7 @@ class MappingCodimensions {
         return dummy;
     }
 
-    virtual const MappingReferenceToReference<1>* getCodim1MappingPtr(
+    virtual const BoundaryFaceMapping* getCodim1MappingPtr(
         const std::size_t) const {
         logger(ERROR,
                "The dimension of given entity is too low to warrant maps of "

@@ -46,6 +46,9 @@
 #include "GaussQuadratureRulesForTetrahedron.h"
 #include "GaussQuadratureRulesForTriangle.h"
 #include "GaussQuadratureRulesForTriangularPrism.h"
+#include "Geometry/ReferenceCurvilinearElement.h"
+
+#include "Geometry/ReferenceGeometry.h"
 
 namespace hpgem {
 
@@ -72,11 +75,9 @@ AllGaussQuadratureRules::AllGaussQuadratureRules() {
     //*************************TRIANGLE QUADRATURES*****************************
     addRule(&Tn2_1_1::Instance());
     addRule(&Tn2_2_3::Instance());
-    addRule(&Tn2_3_4::Instance());
     addRule(&Tn2_4_6::Instance());
     addRule(&T2_5_7::Instance());
     addRule(&T2_6_12::Instance());
-    addRule(&T2_7_13::Instance());
     addRule(&T2_8_16::Instance());
     addRule(&T2_9_19::Instance());
     addRule(&T2_10_25::Instance());
@@ -97,8 +98,8 @@ AllGaussQuadratureRules::AllGaussQuadratureRules() {
     // QUADRATURES*****************************
     addRule(&Tn3_1_1::Instance());
     addRule(&Tn3_2_4::Instance());
-    addRule(&Tn3_3_5::Instance());
-    addRule(&Tn3_4_11::Instance());
+    addRule(&Tn3_3_10::Instance());
+    addRule(&Tn3_4_14::Instance());
     addRule(&T3_5_14::Instance());
     addRule(&T3_6_24::Instance());
     addRule(&T3_7_31::Instance());
@@ -108,7 +109,6 @@ AllGaussQuadratureRules::AllGaussQuadratureRules() {
     //*************************TRIANGULARPRISM
     // QUADRATURES*****************************
     addRule(&TriPrism_1_1::Instance());
-    addRule(&TriPrism_3_8::Instance());
     addRule(&TriPrism_5_21::Instance());
     addRule(&TriPrism_7_64::Instance());
     //*************************HYPERCUBE
@@ -125,7 +125,7 @@ AllGaussQuadratureRules& AllGaussQuadratureRules::instance() {
 void AllGaussQuadratureRules::addRule(GaussQuadratureRule* rule) {
     logger.assert_debug(rule != nullptr, "Invalid quadrature rule added");
     std::vector<GaussQuadratureRule*>& listForGeometry =
-        listOfRules_[rule->forReferenceGeometry()];
+        listOfRules_[rule->forReferenceGeometry()->getGeometryType()];
     std::vector<GaussQuadratureRule*>::iterator it = listForGeometry.begin();
     while (it != listForGeometry.end()) {
         if ((*it)->order() < rule->order())
@@ -138,12 +138,22 @@ void AllGaussQuadratureRules::addRule(GaussQuadratureRule* rule) {
 
 GaussQuadratureRule* AllGaussQuadratureRules::getRule(
     const Geometry::ReferenceGeometry* referenceGeometry, std::size_t order) {
-    for (GaussQuadratureRule* rule : listOfRules_[referenceGeometry]) {
+    auto* curvilinear =
+        dynamic_cast<const Geometry::ReferenceCurvilinearElementBase*>(
+            referenceGeometry);
+    // p-th order curvilinear element has a boundary that is accurate to order
+    // h^{p+1}. Hence, use at least order p+1 for integration.
+    if (curvilinear != nullptr) {
+        order = std::max(order, curvilinear->getOrder() + 1);
+    }
+    for (GaussQuadratureRule* rule :
+         listOfRules_[referenceGeometry->getGeometryType()]) {
         if (rule->order() >= order) {
             return rule;
         }
     }
-    logger(ERROR, "Tried to find a quadrature rule but didn't find one");
+    logger.assert_always(false, "No quadrature rule found for % and order %",
+                         referenceGeometry->getName(), order);
     return nullptr;
 }
 
