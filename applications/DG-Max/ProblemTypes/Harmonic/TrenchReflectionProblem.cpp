@@ -171,11 +171,11 @@ T TrenchReflectionProblem<dim>::combineWaves(T forward, T backward,
             // exponentially towards the far side.
             backward /= scaling;
 
-            // Inside the PML we compute not E, but E multiplied by the
-            // diagonal PML-tensor (d1, d2, d3). Here only d2 != 1.0
-            auto yfactor = 1.0 + 1.0i / omega_ * pmlScaling_ * pmly * pmly;
-            forward[1] *= yfactor;
-            backward[1] *= yfactor;
+//            // Inside the PML we compute not E, but E multiplied by the
+//            // diagonal PML-tensor (d1, d2, d3). Here only d2 != 1.0
+//            auto yfactor = 1.0 + 1.0i / omega_ * pmlScaling_ * pmly * pmly;
+//            forward[1] *= yfactor;
+//            backward[1] *= yfactor;
         }
         double pmlDepth = (length_ - pmlYstart_);
         double exponent =

@@ -546,9 +546,16 @@ typename DGMaxDiscretization<DIM>::Fields
         result.electricFieldCurl +=
             coefficients[i] * physicalElement.basisFunctionCurl(i);
     }
-    auto* userData = dynamic_cast<ElementInfos*>(element->getUserData());
-    logger.assert_debug(userData != nullptr, "No material information");
-    result.material = userData->getMaterial();
+    const ElementInfos& userData = ElementInfos::get(*element);
+
+    result.material = userData.getMaterial();
+
+    // Rescale for PMLs
+    const auto& pPhys = physicalElement.getPointPhysical();
+    result.electricField = userData.getFieldRescaling(pPhys)
+                               .applyDiv(result.electricField);
+    result.electricFieldCurl = userData.getCurlFieldRescaling(pPhys)
+                               .applyCurl(result.electricFieldCurl);
     return result;
 }
 

@@ -242,10 +242,8 @@ typename DivDGMaxDiscretization<DIM>::Fields
     Geometry::PointPhysical<DIM> pointPhysical;
     pointPhysical = element->referenceToPhysical(point);
 
-    auto* userData = element->getUserData();
-    auto* elementInfo = dynamic_cast<ElementInfos*>(userData);
-    logger.assert_debug(elementInfo != nullptr, "No material information");
-    result.material = elementInfo->getMaterial();
+    ElementInfos& userData = ElementInfos::get(*element);
+    result.material = userData.getMaterial();
 
     // Actual value computation
     // Compute field part
@@ -261,6 +259,14 @@ typename DivDGMaxDiscretization<DIM>::Fields
         result.potential +=
             coefficients[nPhiU + i] * physicalElement.basisFunction(i, 1);
     }
+
+    // Rescale for PMLs
+    const auto& pPhys = physicalElement.getPointPhysical();
+    result.electricField = userData.getFieldRescaling(pPhys)
+                               .applyDiv(result.electricField);
+    result.electricFieldCurl = userData.getCurlFieldRescaling(pPhys)
+                                   .applyCurl(result.electricFieldCurl);
+
     return result;
 }
 

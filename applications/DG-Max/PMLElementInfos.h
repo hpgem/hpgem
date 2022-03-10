@@ -119,6 +119,36 @@ class PMLElementInfos : public ElementInfos, public DGMax::Dispersive {
         return DGMax::MaterialTensor(diagTensor);
     }
 
+    DGMax::MaterialTensor getFieldRescaling(
+        const PointPhysicalBase& p) const override {
+        VecC3 stretching =
+            getCoordinateStretching(p, getDispersionWavenumber());
+        for (std::size_t i = 0; i < 3; ++i) {
+            stretching[i] = 1.0 / stretching[i];
+        }
+        return DGMax::MaterialTensor(stretching);
+    }
+
+    DGMax::MaterialTensor getCurlFieldRescaling(
+        const PointPhysicalBase& p) const override {
+        // The curl needs to be rescaled by the diagonal tensor
+        // 1/d2d3, 1/d1d3, 1/d1d2.
+        // applyCurl in MaterialConstant applies the inverse of the values so
+        // compute d2d3 d1d3 d1d2.
+        VecC3 stretching = getCoordinateStretching(p, getDispersionWavenumber());
+        VecC3 result = VecC3 ::constant(1.0);
+        for (std::size_t i = 0; i < 3; ++i) {
+            for (std::size_t j = 0; j < 3; ++j) {
+                auto val = stretching[j];
+                if (i != j) {
+                    result[i] *= val;
+                }
+            }
+        }
+
+        return DGMax::MaterialTensor(result);
+    }
+
     bool isDispersive() const final { return true; }
 
     /// \brief Compute the required scaling parameter for an attenuation.
@@ -146,18 +176,24 @@ class PMLElementInfos : public ElementInfos, public DGMax::Dispersive {
                                VecR attenuation);
 
    private:
-    VecC3 diagonalTensor(const hpgem::Geometry::PointPhysical<dim>& point,
-                         double omega) const {
+    VecC3 getCoordinateStretching(
+        const hpgem::Geometry::PointPhysical<dim>& point, double omega) const {
         using namespace std::complex_literals;
 
-        VecC3 ds;
-        ds.set(1.0);
+        VecC3 stretching;
+        stretching.set(1.0);
         for (std::size_t i = 0; i < dim; ++i) {
             double xi = (point[i] - offset_[i]) * directions_[i];
             if (xi > 0) {
-                ds[i] += 1i / omega * scaling_[i] * xi * xi;
+                stretching[i] += (1i / omega) * scaling_[i] * xi * xi;
             }
         }
+        return stretching;
+    }
+
+    VecC3 diagonalTensor(const hpgem::Geometry::PointPhysical<dim>& point,
+                         double omega) const {
+        VecC3 ds = getCoordinateStretching(point, omega);
         // Mix the di's
         VecC3 result;
         result.set(1.0);
