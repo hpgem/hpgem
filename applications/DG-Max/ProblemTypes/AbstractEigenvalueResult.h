@@ -105,16 +105,15 @@ class AbstractEigenvalueResult {
         return LinearAlgebra::MiddleSizeMatrix(0, 0);
     };
 
-    virtual bool supportsWaveVectorDerivatives() const {
-        return false;
-    }
+    virtual bool supportsWaveVectorDerivatives() const { return false; }
 
-    virtual std::array<LinearAlgebra::MiddleSizeMatrix, DIM> computeWaveVectorDerivatives() const {
+    virtual std::array<LinearAlgebra::MiddleSizeMatrix, DIM>
+        computeWaveVectorDerivatives() const {
         DGMaxLogger(WARN, "Wave vector derivatives not supported");
         // Empty matrices
         std::array<LinearAlgebra::MiddleSizeMatrix, DIM> result;
         for (std::size_t i = 0; i < DIM; ++i) {
-            result[i] = LinearAlgebra::MiddleSizeMatrix(0,0);
+            result[i] = LinearAlgebra::MiddleSizeMatrix(0, 0);
         }
         return result;
     }

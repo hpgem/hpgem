@@ -193,8 +193,8 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
                     std::complex<double> derivative;
                     VecDot(tempVector_, eigenpairs_.getEigenvector(j),
                            &derivative);
-                    result[kdir](i,j) = derivative;
-                    result[kdir](j,i) = std::conj(derivative);
+                    result[kdir](i, j) = derivative;
+                    result[kdir](j, i) = std::conj(derivative);
                 }
             }
         }
