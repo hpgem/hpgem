@@ -81,6 +81,12 @@ class HarmonicSolver<DIM>::Result : public AbstractHarmonicResult<DIM> {
         return workspace_->computeField(element, p);
     }
 
+    virtual LinearAlgebra::SmallVectorC<DIM> computeFieldCurl(
+        const Base::Element* element,
+        const Geometry::PointReference<DIM>& p) final {
+        return workspace_->computeFieldCurl(element, p);
+    }
+
    private:
     const HarmonicProblem<DIM>* problem_;
     HarmonicSolver<DIM>::Workspace* workspace_;
@@ -119,6 +125,13 @@ class HarmonicSolver<DIM>::Workspace {
         const Base::Element* element,
         const Geometry::PointReference<DIM>& p) const {
         return discretization_->computeField(
+            element, p, element->getTimeIntegrationVector(VECTOR_ID));
+    }
+
+    LinearAlgebra::SmallVectorC<DIM> computeFieldCurl(
+        const Base::Element* element,
+        const Geometry::PointReference<DIM>& p) const {
+        return discretization_->computeCurlField(
             element, p, element->getTimeIntegrationVector(VECTOR_ID));
     }
 

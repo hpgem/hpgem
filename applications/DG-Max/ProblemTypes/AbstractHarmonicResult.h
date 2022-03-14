@@ -64,6 +64,12 @@ class AbstractHarmonicResult {
     virtual LinearAlgebra::SmallVectorC<dim> computeField(
         const Base::Element* element, const Geometry::PointReference<dim>&) = 0;
 
+    /**
+     * Compute the curl of the electric field of the solution at a specific point
+     */
+    virtual LinearAlgebra::SmallVectorC<dim> computeFieldCurl(
+        const Base::Element* element, const Geometry::PointReference<dim>&) = 0;
+
     virtual double computeL2Error(
         const ExactHarmonicProblem<dim>& solution) = 0;
 

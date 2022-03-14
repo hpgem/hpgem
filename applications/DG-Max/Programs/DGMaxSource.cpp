@@ -228,6 +228,8 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
     struct Fields {
         LinearAlgebra::SmallVectorC<dim> field;
         LinearAlgebra::SmallVectorC<dim> incident;
+        LinearAlgebra::SmallVectorC<dim> totalCurl;
+        DGMax::Material material;
     };
 
    public:
@@ -471,6 +473,18 @@ void Driver<dim>::plotResult(DGMax::AbstractHarmonicResult<dim>& result,
         vectors["Etotal-imag"] = [](Fields& fields) {
             return fields.incident.imag() + fields.field.imag();
         };
+        vectors["Poynting"] = [&scatteringProblem](Fields& fields) {
+            // Real part of the Poynting vector
+            auto totalField = fields.incident + fields.field;
+            // E x (Curl E)^*
+            auto rawPoyntingVector =
+                -1.0 * LinearAlgebra::leftDoubledCrossProduct(
+                           totalField, fields.totalCurl.conj());
+            // Compensate for that -i mu omega Curl E = H
+            return rawPoyntingVector.imag() /
+                   (scatteringProblem->omega() *
+                    fields.material.getPermittivity());
+        };
 
         output.template writeMultiple<Fields>(
             [&result, &scatteringProblem](
@@ -480,6 +494,8 @@ void Driver<dim>::plotResult(DGMax::AbstractHarmonicResult<dim>& result,
                 fields.field = result.computeField(element, p);
                 auto pphys = element->template referenceToPhysical(p);
                 fields.incident = scatteringProblem->incidentField(pphys);
+                fields.totalCurl = result.computeFieldCurl(element, p) +
+                                   scatteringProblem->incidentFieldCurl(pphys);
                 return fields;
             },
             scalars, vectors);
