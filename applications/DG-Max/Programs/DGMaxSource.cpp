@@ -258,7 +258,7 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
         : mesh_(&mesh),
           wavenumbers_(parseWaveNumbers()),
           problem_(),
-          nextCalled_(0),
+          nextCalled_(-1),
           fluxFacets_(mesh) {
 
         if (Base::MPIContainer::Instance().getProcessorID() == 0) {
@@ -277,7 +277,7 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
         }
     };
 
-    bool stop() const override { return nextCalled_ == wavenumbers_.size(); }
+    bool stop() const override { return nextCalled_ == wavenumbers_.size()-1; }
 
     size_t getExpectedNumberOfProblems() const override {
         return wavenumbers_.size();
@@ -290,7 +290,7 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
         //            nextCalled_);
         //        double omega = 2 * M_PI * (0.001 + 0.001 * (nextCalled_ - 1));
 
-        double omega = wavenumbers_[nextCalled_ - 1].first;
+        double omega = wavenumbers_[nextCalled_].first;
 
         LinearAlgebra::SmallVector<dim> k;
         LinearAlgebra::SmallVectorC<dim> E0;
@@ -308,7 +308,7 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
     }
 
     bool hasChanged(HarmonicProblemChanges change) const override {
-        if (nextCalled_ == 1) {
+        if (nextCalled_ == 0) {
             return true;
         } else {
             switch (change) {
@@ -355,7 +355,7 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
 
         outfile << std::setprecision(16) << problem_->omega();
         outfile << "," << std::setprecision(16)
-                << wavenumbers_[nextCalled_ - 1].second;
+                << wavenumbers_[nextCalled_].second;
         LinearAlgebra::SmallVector<4> totalFlux = {};
         for (const auto& entry : fluxes) {
             std::size_t nfluxes = problem_->isScatterFieldProblem() ? 4 : 1;
