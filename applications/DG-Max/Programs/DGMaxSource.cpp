@@ -84,6 +84,12 @@ auto& pmlString = Base::register_argument<std::string>(
     "instead of newlines",
     false);
 
+auto& fieldIndices = Base::register_argument<std::string>(
+    '\0', "fields",
+    "Computational indices at which to output the fields, comma separated "
+    "(default = all)",
+    false);
+
 template <std::size_t dim>
 void runWithDimension();
 
@@ -275,9 +281,23 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
             }
             outfile << std::endl;
         }
+        if (fieldIndices.isUsed()) {
+            auto indexStrings =
+                DGMax::stringSplit(fieldIndices.getValue(), ',');
+            for (const auto& indexString : indexStrings) {
+                std::size_t pos;
+                int index = std::stoi(indexString, &pos);
+                DGMaxLogger.assert_always(pos == indexString.size(),
+                                          "Could not parse index string '%'",
+                                          indexString);
+                fieldPrintIndices_.push_back(index);
+            }
+        }
     };
 
-    bool stop() const override { return nextCalled_ == wavenumbers_.size()-1; }
+    bool stop() const override {
+        return nextCalled_ == wavenumbers_.size() - 1;
+    }
 
     size_t getExpectedNumberOfProblems() const override {
         return wavenumbers_.size();
@@ -327,20 +347,26 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
     void handleResult(DGMax::AbstractHarmonicResult<dim>& result) override {
         std::stringstream outputFile;
         outputFile << "harmonic-" << nextCalled_;
-        Output::VTKSpecificTimeWriter<dim> output(outputFile.str(), mesh_, 0,
-                                                  order.getValue());
-        result.writeVTK(output);
-        // Additional output
-        output.write(
-            [this](Base::Element* element,
-                   const Geometry::PointReference<dim>& p, std::size_t) {
-                return problem_
-                    ->sourceTerm(*element, element->referenceToPhysical(p))
-                    .real();
-            },
-            "source");
 
-        plotResult(result, output);
+        bool inPrintIndices =
+            std::find(fieldPrintIndices_.begin(), fieldPrintIndices_.end(),
+                      nextCalled_) != fieldPrintIndices_.end();
+        if (inPrintIndices || !fieldIndices.isUsed()) {
+            Output::VTKSpecificTimeWriter<dim> output(outputFile.str(), mesh_,
+                                                      0, order.getValue());
+            result.writeVTK(output);
+            // Additional output
+            output.write(
+                [this](Base::Element* element,
+                       const Geometry::PointReference<dim>& p, std::size_t) {
+                    return problem_
+                        ->sourceTerm(*element, element->referenceToPhysical(p))
+                        .real();
+                },
+                "source");
+
+            plotResult(result, output);
+        }
 
         const DGMax::FieldPattern<dim>* background = nullptr;
         auto scatteringProblem =
@@ -376,6 +402,7 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
 
     Base::MeshManipulator<dim>* mesh_;
     std::vector<std::pair<double, double>> wavenumbers_;
+    std::vector<int> fieldPrintIndices_;
     std::shared_ptr<HarmonicProblem<dim>> problem_;
     std::ofstream outfile;
     int nextCalled_;
