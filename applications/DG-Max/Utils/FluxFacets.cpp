@@ -40,10 +40,6 @@
 namespace DGMax {
 
 FluxFacets::FluxFacets(const Base::MeshManipulatorBase& mesh) {
-    // When using more than 1 MPI rank, we would need to aggregate data. But the
-    // first processor may not know all the regions and possible boundaries.
-    logger.assert_always(Base::MPIContainer::Instance().getNumProcessors() == 1,
-                         "FluxFacets not suitable for more than 1 MPI rank");
     for (Base::Face* face : mesh.getFacesList()) {
         using Base::Side;
         if (!face->isOwnedByCurrentProcessor()) {
