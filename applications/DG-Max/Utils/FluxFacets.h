@@ -59,7 +59,7 @@ class FluxFacets {
     FluxFacets(const Base::MeshManipulatorBase& mesh);
 
     template <std::size_t dim>
-    std::map<std::string, LinearAlgebra::SmallVector<4>> computeFluxes(
+    std::vector<LinearAlgebra::SmallVector<4>> computeFluxes(
         DGMax::AbstractHarmonicResult<dim>& result, double wavenumber,
         const DGMax::FieldPattern<dim>* background) const;
 
@@ -77,9 +77,39 @@ class FluxFacets {
          */
         Base::Side side;
     };
-    std::map<std::string, std::vector<FluxFace>> facets;
+
+    const std::vector<std::string>& getFacetNames() const {
+        return facetNames_;
+    }
+
+   private:
+    /**
+     * Pair of indices for the zones adjacent to a face.
+     *  - For external faces the second index is -1
+     *  - For internal faces the first index should be smaller than the second
+     */
+    using FaceZoneIndexPair = std::pair<int, int>;
+
+    /**
+     * Generate the names of the facets
+     */
+    void generateFacetNames(const Base::MeshManipulatorBase& mesh);
+    void generateZoneOrdering(std::size_t numberOfZones);
+    FaceZoneIndexPair getZoneIndexPair(const Base::Face& face) const;
+
+    /**
+     * For a consistent output and communication we order the zone pairs of the
+     * faces.
+     */
+    std::map<FaceZoneIndexPair, std::size_t> faceIndexOrdering_;
+    /**
+     * Mapping from zone pair index to the corresponding name
+     */
+    std::vector<std::string> facetNames_;
+
+    std::map<FaceZoneIndexPair, std::vector<FluxFace>> facets;
 };
 
-}
+}  // namespace DGMax
 
 #endif  // HPGEM_FLUXFACETS_H

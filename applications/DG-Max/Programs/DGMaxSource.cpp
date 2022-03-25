@@ -242,12 +242,12 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
             outfile.open("harmonic.csv");
             logger.assert_always(outfile.good(), "Opening output file failed");
             outfile << "wavenumber-computational,wavenumber";
-            for (const auto& facet : fluxFacets_.facets) {
-                outfile << "," << facet.first;
+            for (const auto& facetName : fluxFacets_.getFacetNames()) {
+                outfile << "," << facetName;
                 if (true) {
-                    outfile << "," << facet.first << "-incident";
-                    outfile << "," << facet.first << "-extinction";
-                    outfile << "," << facet.first << "-total";
+                    outfile << "," << facetName << "-incident";
+                    outfile << "," << facetName << "-extinction";
+                    outfile << "," << facetName << "-total";
                 }
             }
             outfile << std::endl;
@@ -347,7 +347,7 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
         }
 
         // Fluxes
-        std::map<std::string, LinearAlgebra::SmallVector<4>> fluxes =
+        std::vector<LinearAlgebra::SmallVector<4>> fluxes =
             fluxFacets_.computeFluxes(result, problem_->omega(), background);
 
         outfile << std::setprecision(16) << problem_->omega();
@@ -357,11 +357,9 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
         for (const auto& entry : fluxes) {
             std::size_t nfluxes = problem_->isScatterFieldProblem() ? 4 : 1;
             for (std::size_t i = 0; i < nfluxes; ++i) {
-                outfile << "," << std::setprecision(16) << entry.second[i];
+                outfile << "," << std::setprecision(16) << entry[i];
             }
-
-            // TODO: Change to only boundary
-            totalFlux += entry.second;
+            totalFlux += entry;
         }
         outfile << std::endl;
         DGMaxLogger(INFO, "Total net flux %", totalFlux);
