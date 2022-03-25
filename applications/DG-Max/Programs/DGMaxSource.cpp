@@ -49,6 +49,7 @@
 #include <Algorithms/DGMaxDiscretization.h>
 #include <Algorithms/DivDGMaxDiscretization.h>
 #include <Utils/PlaneWave.h>
+#include <Utils/FluxFacets.h>
 #include <ProblemTypes/Harmonic/ScatteringProblem.h>
 #include <ProblemTypes/Harmonic/InterfaceReflectionField.h>
 
@@ -148,36 +149,6 @@ std::vector<std::pair<double, double>> parseWaveNumbers();
 template <std::size_t dim>
 std::vector<std::shared_ptr<PMLElementInfos<dim>>> applyPMLs(
     Base::MeshManipulator<dim>& mesh);
-
-/**
- * Facets of the mesh through which the flux needs to be computed
- */
-class FluxFacets {
-
-   public:
-    FluxFacets(const Base::MeshManipulatorBase& mesh);
-
-    template <std::size_t dim>
-    std::map<std::string, LinearAlgebra::SmallVector<4>> computeFluxes(
-        DGMax::AbstractHarmonicResult<dim>& result, double wavenumber,
-        const DGMax::FieldPattern<dim>* background) const;
-
-    // Public to allow writing the header
-    /**
-     * Face for which an energy flux needs to be computed
-     */
-    struct FluxFace {
-        /**
-         * The face
-         */
-        Base::Face* face;
-        /**
-         * The side from which it needs to be computed
-         */
-        Base::Side side;
-    };
-    std::map<std::string, std::vector<FluxFace>> facets;
-};
 
 template <std::size_t dim>
 class TestingProblem : public HarmonicProblem<dim> {
@@ -406,7 +377,7 @@ class Driver : public DGMax::AbstractHarmonicSolverDriver<dim> {
     std::shared_ptr<HarmonicProblem<dim>> problem_;
     std::ofstream outfile;
     int nextCalled_;
-    FluxFacets fluxFacets_;
+    DGMax::FluxFacets fluxFacets_;
 };
 
 template <std::size_t dim>
@@ -468,66 +439,6 @@ void writeMesh(std::string fileName, const Base::MeshManipulator<DIM>* mesh) {
             return elementInfos->getPermittivity();
         },
         "epsilon");
-}
-
-FluxFacets::FluxFacets(const Base::MeshManipulatorBase& mesh) {
-    // When using more than 1 MPI rank, we would need to aggregate data. But the
-    // first processor may not know all the regions and possible boundaries.
-    logger.assert_always(Base::MPIContainer::Instance().getNumProcessors() == 1,
-                         "FluxFacets not suitable for more than 1 MPI rank");
-    for (Base::Face* face : mesh.getFacesList()) {
-        using Base::Side;
-        if (!face->isOwnedByCurrentProcessor()) {
-            continue;
-        }
-        const Base::Zone& leftZone = face->getPtrElementLeft()->getZone();
-        FluxFace fface;
-        fface.face = face;
-        std::string facetName;
-
-        if (face->isInternal()) {
-            const Base::Zone& rightZone = face->getPtrElementRight()->getZone();
-            if (leftZone.getZoneId() == rightZone.getZoneId()) {
-                // Only interested in zone boundaries
-                continue;
-            }
-            // Stable direction
-            fface.side = leftZone.getZoneId() < rightZone.getZoneId()
-                             ? Side::LEFT
-                             : Side::RIGHT;
-            // Name
-            std::stringstream name;
-            name << "flux-"
-                 << (fface.side == Side::LEFT ? leftZone : rightZone).getName()
-                 << "--"
-                 << (fface.side == Side::LEFT ? rightZone : leftZone).getName();
-            facetName = name.str();
-        } else {
-            // Outward fluxes are always included
-            fface.side = Side::LEFT;
-            std::stringstream name;
-            name << "flux-" << leftZone.getName();
-            facetName = name.str();
-        }
-        facets[facetName].push_back(fface);
-    }
-}
-
-template <std::size_t dim>
-std::map<std::string, LinearAlgebra::SmallVector<4>> FluxFacets::computeFluxes(
-    DGMax::AbstractHarmonicResult<dim>& result, double wavenumber,
-    const DGMax::FieldPattern<dim>* background) const {
-    std::map<std::string, LinearAlgebra::SmallVector<4>> fluxes;
-    for (const auto& facet : facets) {
-        LinearAlgebra::SmallVector<4> flux = {};
-        for (const auto& face : facet.second) {
-            flux += result.computeEnergyFlux(*face.face, face.side, wavenumber,
-                                             background);
-        }
-        fluxes[facet.first] += flux;
-    }
-    // TODO: MPI
-    return fluxes;
 }
 
 template <std::size_t dim>
