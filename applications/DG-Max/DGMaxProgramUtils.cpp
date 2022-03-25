@@ -268,9 +268,6 @@ std::vector<
     std::pair<Geometry::PointPhysical<dim>, Geometry::PointPhysical<dim>>>
     computeZoneBoundingBoxes(const Base::MeshManipulator<dim>& mesh) {
 
-    logger.assert_always(Base::MPIContainer::Instance().getNumProcessors() == 1,
-                         "Not MPI Enabled");
-
     std::size_t zoneCount = mesh.getZones().size();
     // Two vectors with the minimum/maximum coordinates for each zone.
     // Sequential layout (e.g. x_0, y_0, x_1, y_1, ... with subscripts for
