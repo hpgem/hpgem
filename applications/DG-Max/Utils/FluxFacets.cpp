@@ -67,8 +67,7 @@ FluxFacets::FluxFacets(const Base::MeshManipulatorBase& mesh) {
         FaceZoneIndexPair zoneIndexPair = getZoneIndexPair(*face);
         facets[zoneIndexPair].push_back(fface);
     }
-    generateZoneOrdering(mesh.getZones().size());
-    generateFacetNames(mesh);
+    generateZoneOrdering(mesh);
 }
 
 FluxFacets::FaceZoneIndexPair FluxFacets::getZoneIndexPair(
@@ -86,7 +85,9 @@ FluxFacets::FaceZoneIndexPair FluxFacets::getZoneIndexPair(
     return result;
 }
 
-void FluxFacets::generateZoneOrdering(std::size_t numberOfZones) {
+void FluxFacets::generateZoneOrdering(const Base::MeshManipulatorBase& mesh) {
+    const auto& zones = mesh.getZones();
+    std::size_t numberOfZones = zones.size();
     // Converts the index pair into a linear index using lexicographical
     // ordering.
 
@@ -104,28 +105,30 @@ void FluxFacets::generateZoneOrdering(std::size_t numberOfZones) {
     MPI_Allreduce(MPI_IN_PLACE, ordering.data(), ordering.size(), MPI_INT,
                   MPI_MAX, MPI_COMM_WORLD);
 #endif
-    // Convert the 'is presence' into an ordering index.
-    std::accumulate(ordering.begin(), ordering.end(), -1);
-    // Extract the ordering for the local facets.
-    for (const auto& facet : facets) {
-        const FaceZoneIndexPair& zoneIndexPair = facet.first;
-        std::size_t index = zoneIndexPair.first * (numberOfZones + 1) +
-                            zoneIndexPair.second + 1;
-        faceIndexOrdering_[zoneIndexPair] = ordering[index];
-    }
-}
 
-void FluxFacets::generateFacetNames(const Base::MeshManipulatorBase& mesh) {
-    facetNames_.resize(faceIndexOrdering_.size());
-    for (const auto& facetPair : faceIndexOrdering_) {
-        const FaceZoneIndexPair& zonePair = facetPair.first;
-        std::stringstream name;
-        name << "flux-";
-        name << mesh.getZones()[zonePair.first]->getName();
-        if (zonePair.second != -1) {
-            name << "--" << mesh.getZones()[zonePair.second]->getName();
+    // Use the presence matrix to build a global ordering
+    std::size_t linearIndex = 0;
+    for(int i = 0; i < ordering.size(); ++i) {
+        if (ordering[i] == 0) {
+            // Not present in the mesh
+            continue;
         }
-        facetNames_[facetPair.second] = name.str();
+        FaceZoneIndexPair pair;
+        pair.first = i / (numberOfZones + 1);
+        // -1 as boundary has linear index 0, 0th zone index 1, etc.
+        pair.second = i % (numberOfZones + 1) - 1;
+        faceIndexOrdering_[pair] = linearIndex++;
+
+        // Construct a name
+        std::stringstream  name;
+        name << "flux-";
+        name << zones[pair.first]->getName();
+        if (pair.second >= 0) {
+            name << "--" << zones[pair.second]->getName();
+        }
+        facetNames_.push_back(name.str());
+        // Debug output
+        DGMaxLogger(INFO, "Facet %: %", faceIndexOrdering_[pair], name.str());
     }
 }
 

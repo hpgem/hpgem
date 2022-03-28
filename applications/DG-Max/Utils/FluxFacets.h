@@ -93,8 +93,7 @@ class FluxFacets {
     /**
      * Generate the names of the facets
      */
-    void generateFacetNames(const Base::MeshManipulatorBase& mesh);
-    void generateZoneOrdering(std::size_t numberOfZones);
+    void generateZoneOrdering(const Base::MeshManipulatorBase& mesh);
     FaceZoneIndexPair getZoneIndexPair(const Base::Face& face) const;
 
     /**
