@@ -152,6 +152,9 @@ class HarmonicSolver<DIM>::Workspace {
     Base::MeshManipulator<DIM>* mesh_;
     /**
      * Whether any material in the mesh is frequency dependent
+     *
+     * Note for distributed computations this will include the for all
+     * processors.
      */
     bool dispersion_;
 
@@ -220,12 +223,21 @@ void HarmonicSolver<DIM>::Workspace::configureSolver() {
 
 template <std::size_t DIM>
 bool HarmonicSolver<DIM>::Workspace::checkDispersion() {
+    char has_dispersion = 0;
+    // NOTE: If a local dispersion is desired, this may have to change to use
+    // IteratorType::GLOBAL
     for (const Base::Element* element : mesh_->getElementsList()) {
         if (ElementInfos::get(*element).isDispersive()) {
-            return true;
+            has_dispersion = 1;
+            break;
         }
     }
-    return false;
+
+#ifdef HPGEM_USE_MPI
+    MPI_Allreduce(MPI_IN_PLACE, &has_dispersion, 1, MPI_CHAR, MPI_MAX,
+                  PETSC_COMM_WORLD);
+#endif
+    return has_dispersion;
 }
 
 template <std::size_t DIM>
@@ -237,6 +249,9 @@ void HarmonicSolver<DIM>::Workspace::computeIntegrals(
 
     const HarmonicProblem<DIM>& problem = driver.currentProblem();
 
+    // Note: There are some possible improvements by splitting the dispersion
+    // property into local (known elements of the mesh) and global (all the
+    // elements).
     bool fullRecompute =
         driver.hasChanged(HarmonicProblemChanges::BOUNDARY_CONDITION_TYPE) ||
         (dispersion_ && driver.hasChanged(HarmonicProblemChanges::OMEGA));
@@ -276,7 +291,7 @@ void HarmonicSolver<DIM>::Workspace::computeIntegrals(
                 : AbstractDiscretizationBase::LocalIntegrals::ONLY_VECTORS);
     }
     if (fullRecompute) {
-        DGMaxLogger(INFO, "Assembling global matrices vector");
+        DGMaxLogger(INFO, "Assembling global matrices");
         massMatrix_.reinit();
         stiffnessMatrix_.reinit();
         stiffnessImpedanceMatrix_.reinit();
