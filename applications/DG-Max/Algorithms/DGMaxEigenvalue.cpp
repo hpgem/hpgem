@@ -52,6 +52,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Base/MeshManipulator.h"
 #include "LinearAlgebra/SmallVector.h"
+#include "LinearAlgebra/JacobiDavidsonMaxwell.h"
 #include "Utilities/Eigenpairs.h"
 #include "Utilities/GlobalMatrix.h"
 #include "Utilities/GlobalVector.h"
@@ -107,7 +108,8 @@ class DGMaxEigenvalue<DIM>::SolverWorkspace {
      */
     SolverWorkspace(DGMaxEigenvalueBase::SolverConfig config,
                     Base::MeshManipulatorBase* mesh,
-                    std::size_t targetNumberOfEigenvalues);
+                    std::size_t targetNumberOfEigenvalues,
+                    bool use_jdmax);
 
     ~SolverWorkspace();
 
@@ -167,8 +169,11 @@ class DGMaxEigenvalue<DIM>::SolverWorkspace {
     /// Shell matrix P*product_, where P is the projection operator
     Mat shell_;
 
-    // Solver
-    EPS solver_;
+    // SLEPC Solver
+    EPS eps_solver_;
+
+    // Jacobi Davidson solver
+    JacobiDavidsonMaxwellSolver jdmax_solver_;
 
     // Phase offset shifts
     std::unique_ptr<typename DGMaxEigenvalue<DIM>::ShiftWorkspace> shifts;
@@ -337,7 +342,7 @@ void DGMaxEigenvalue<DIM>::solve(AbstractEigenvalueSolverDriver<DIM>& driver) {
 template <std::size_t DIM>
 DGMaxEigenvalue<DIM>::SolverWorkspace::SolverWorkspace(
     DGMaxEigenvalueBase::SolverConfig config, Base::MeshManipulatorBase* mesh,
-    std::size_t targetNumberOfEigenvalues)
+    std::size_t targetNumberOfEigenvalues, bool use_jdmax)
     : config_(config),
       mesh_(mesh),
       fieldIndex_(nullptr),  // Initialized in initMatrices()
@@ -346,7 +351,8 @@ DGMaxEigenvalue<DIM>::SolverWorkspace::SolverWorkspace(
                        DGMaxDiscretizationBase::FACE_STIFFNESS_MATRIX_ID),
       massMatrix_(fieldIndex_, DGMaxDiscretizationBase::MASS_MATRIX_ID, -1),
       tempFieldVector_(fieldIndex_, -1, -1),
-      targetFrequency_(1) {
+      targetFrequency_(1),
+      use_jdmax_(use_jdmax) {
 
     initMatrices();
     DGMaxLogger(INFO, "Matrices assembled");
@@ -372,11 +378,12 @@ DGMaxEigenvalue<DIM>::SolverWorkspace::~SolverWorkspace() {
     projector = nullptr;
     shifts = nullptr;
 
+
     PetscErrorCode error;
     error = VecDestroy(&tempFieldVector2_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
-    error = EPSDestroy(&solver_);
+    error = EPSDestroy(&eps_solver_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
     error = MatDestroy(&shell_);
@@ -489,28 +496,36 @@ PetscErrorCode compareEigen(PetscScalar ar, PetscScalar ai, PetscScalar br,
 
 template <std::size_t DIM>
 void DGMaxEigenvalue<DIM>::SolverWorkspace::initSolver() {
-    PetscErrorCode err = EPSCreate(PETSC_COMM_WORLD, &solver_);
-    CHKERRABORT(PETSC_COMM_WORLD, err);
 
-    err =
-        EPSSetProblemType(solver_, config_.useHermitian_ ? EPS_HEP : EPS_NHEP);
-    CHKERRABORT(PETSC_COMM_WORLD, err);
-    err = EPSSetWhichEigenpairs(solver_, EPS_WHICH_USER);
-    CHKERRABORT(PETSC_COMM_WORLD, err);
-    err = EPSSetEigenvalueComparison(solver_, compareEigen,
-                                     &(this->targetFrequency_));
-    CHKERRABORT(PETSC_COMM_WORLD, err);
-    err = EPSSetTarget(solver_, targetFrequency_ * targetFrequency_);
-    CHKERRABORT(PETSC_COMM_WORLD, err);
+    if (use_jdmax_)
+    {
+        jdmax_solver_(stiffnessMatrix_, massMatrix_, projector->projectorMatrix_);
+    }
+    else {
 
-    // So far we have configured the the parameters of the eigenvalue solver in
-    // code. This overrides these settings with the values that are in SLEPc's
-    // options database (if there are any). This can be used for commandline
-    // overrides of the standard values.
-    err = EPSSetFromOptions(solver_);
-    CHKERRABORT(PETSC_COMM_WORLD, err);
-    err = EPSSetOperators(solver_, shell_, nullptr);
-    CHKERRABORT(PETSC_COMM_WORLD, err);
+        PetscErrorCode err = EPSCreate(PETSC_COMM_WORLD, &eps_solver_);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+
+        err =
+            EPSSetProblemType(eps_solver_, config_.useHermitian_ ? EPS_HEP : EPS_NHEP);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+        err = EPSSetWhichEigenpairs(eps_solver_, EPS_WHICH_USER);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+        err = EPSSetEigenvalueComparison(eps_solver_, compareEigen,
+                                        &(this->targetFrequency_));
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+        err = EPSSetTarget(eps_solver_, targetFrequency_ * targetFrequency_);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+
+        // So far we have configured the the parameters of the eigenvalue solver in
+        // code. This overrides these settings with the values that are in SLEPc's
+        // options database (if there are any). This can be used for commandline
+        // overrides of the standard values.
+        err = EPSSetFromOptions(eps_solver_);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+        err = EPSSetOperators(eps_solver_, shell_, nullptr);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+    }
 }
 
 template <std::size_t DIM>
@@ -583,7 +598,14 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::initStiffnessMatrixShifts() {
 template <std::size_t DIM>
 void DGMaxEigenvalue<DIM>::SolverWorkspace::extractEigenVectors() {
     std::swap(eigenpairs_, previousEigenpairs_);
-    eigenpairs_.loadEigenpairs(solver_, tempFieldVector_);
+    if (use_jdmax_)
+    {
+        eigenpairs_.loadEigenpairs(jdmax_solver_, tempFieldVector_);
+    }
+    else{
+        eigenpairs_.loadEigenpairs(eps_solver_, tempFieldVector_);
+        }
+
     // Reorder
     std::vector<std::size_t> ordering(eigenpairs_.size());
     std::iota(ordering.begin(), ordering.end(), 0);
@@ -661,50 +683,61 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::solve(
         DGMaxLogger(INFO, "Projected initial vector");
     }
 
-    // Use solution of previous time as starting point for the next one.
-    error = EPSSetInitialSpace(solver_, eigenpairs_.size(),
-                               eigenpairs_.getRawEigenvectors());
-    CHKERRABORT(PETSC_COMM_WORLD, error);
+    if (use_jdmax_) {
 
-    // Final Options //
-    ///////////////////
+        jdmax_solver_.solve(targetNumberOfEigenvalues);
 
-    // Set the actual target number of eigenvalues for this solve
-    error = EPSSetDimensions(solver_, targetNumberOfEigenvalues, PETSC_DECIDE,
-                             PETSC_DECIDE);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
+    }
+    else {
 
-    // Final overrides from the command line just before solving.
-    error = EPSSetFromOptions(solver_);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
 
-    // Actual Solve //
-    //////////////////
 
-    DGMaxLogger(INFO, "Solving eigenvalue problem");
+        // Use solution of previous time as starting point for the next one.
+        error = EPSSetInitialSpace(eps_solver_, eigenpairs_.size(),
+                                eigenpairs_.getRawEigenvectors());
+        CHKERRABORT(PETSC_COMM_WORLD, error);
 
-    error = EPSSetUp(solver_);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    DGMaxLogger(INFO, "Solver setup completed");
+        // Final Options //
+        ///////////////////
 
-    auto start = std::chrono::high_resolution_clock::now();
+        // Set the actual target number of eigenvalues for this solve
+        error = EPSSetDimensions(eps_solver_, targetNumberOfEigenvalues, PETSC_DECIDE,
+                                PETSC_DECIDE);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
 
-    error = EPSSolve(solver_);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
+        // Final overrides from the command line just before solving.
+        error = EPSSetFromOptions(eps_solver_);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
 
-    // Some basic statistics
-    std::chrono::duration<double> time =
-        std::chrono::high_resolution_clock::now() - start;
-    PetscInt numEigenvalues, iterations;
-    error = EPSGetConverged(solver_, &numEigenvalues);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
-    error = EPSGetIterationNumber(solver_, &iterations);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
+        // Actual Solve //
+        //////////////////
 
-    DGMaxLogger(INFO,
-                "Eigenvalue solver stopped after % iterations with % "
-                "eigenvalues in %s",
-                iterations, numEigenvalues, time.count());
+        DGMaxLogger(INFO, "Solving eigenvalue problem");
+
+        error = EPSSetUp(eps_solver_);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+        DGMaxLogger(INFO, "Solver setup completed");
+
+        auto start = std::chrono::high_resolution_clock::now();
+
+        error = EPSSolve(eps_solver_);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+
+        // Some basic statistics
+        std::chrono::duration<double> time =
+            std::chrono::high_resolution_clock::now() - start;
+        PetscInt numEigenvalues, iterations;
+        error = EPSGetConverged(eps_solver_, &numEigenvalues);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+        error = EPSGetIterationNumber(eps_solver_, &iterations);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+
+        DGMaxLogger(INFO,
+                    "Eigenvalue solver stopped after % iterations with % "
+                    "eigenvalues in %s",
+                    iterations, numEigenvalues, time.count());
+
+    }
 
     // Post processing //
     /////////////////////
