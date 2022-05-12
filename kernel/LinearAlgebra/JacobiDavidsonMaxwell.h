@@ -40,7 +40,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define JACOBIDAVIDSONMAXWELLSOLVER_H
 
 
-#include "petsc.h"
+// #include<petsc.h>
+#include <petsc.h>
 #include "petscksp.h"
 #include "petscviewerhdf5.h"
 #include "slepcbv.h"

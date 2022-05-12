@@ -1,4 +1,4 @@
-#include "JacobiDavidsonMaxwellSolver.h"
+#include "JacobiDavidsonMaxwell.h"
 
 #include <chrono>  // For timing
 #include <iostream>
@@ -10,7 +10,7 @@
 #include <vector>
 #include <chrono>
 
-#include "petsc.h"
+#include <petsc.h>
 #include "petscksp.h"
 #include "petscviewerhdf5.h"
 #include "slepcbv.h"
