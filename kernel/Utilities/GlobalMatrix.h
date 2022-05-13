@@ -163,6 +163,8 @@ class GlobalPetscMatrix : public GlobalMatrix {
     void createMat();
     // Optional override for the face coupling
     Table2D<bool> faceCoupling_;
+
+   public:
     Mat A_;
 };
 #endif

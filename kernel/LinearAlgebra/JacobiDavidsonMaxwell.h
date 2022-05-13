@@ -40,15 +40,22 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define JACOBIDAVIDSONMAXWELLSOLVER_H
 
 
-// #include<petsc.h>
+
 #include <petsc.h>
-#include "petscksp.h"
-#include "petscviewerhdf5.h"
-#include "slepcbv.h"
+#include <petscksp.h>
+
+#include <slepcbv.h>
+#include <slepceps.h>
+
 #include <iostream>
 #include <math.h>
 #include <cstdlib>
 #include <vector>
+
+#include <chrono>  // For timing
+
+#include <utility>
+#include <valarray>
 
 
 /**
@@ -67,9 +74,10 @@ namespace hpgem {
 
 namespace LinearAlgebra {
 
-class JacobiDavidsonMaxwellSolver {
+class JacobiDavidsonMaxwellSolver final {
 
    public:
+    // JacobiDavidsonMaxwellSolver();
     JacobiDavidsonMaxwellSolver(Mat &A, Mat &M, Mat &C);
     PetscErrorCode solve(PetscInt nev);
 
@@ -82,7 +90,7 @@ class JacobiDavidsonMaxwellSolver {
     PetscErrorCode solveMultipleLinearSystems();
     PetscErrorCode computeRayleighQuotient(const Vec &x, PetscReal *out);
     PetscErrorCode normalizeVector(Vec &x);
-    PetscErrorCode VecxTAx(const Vec &x, const Mat &K, PetscReal *val);
+    PetscErrorCode VecxTAx(const Vec &x, const Mat &K, PetscScalar *val);
     PetscErrorCode getCorrectionOperator(Mat &op);
     PetscErrorCode solveCorrectionEquation(const Vec &res, Vec &sol);
     PetscErrorCode computeResidueVector(const Vec &q, const PetscReal rho, Vec &res);
@@ -93,7 +101,7 @@ class JacobiDavidsonMaxwellSolver {
     PetscErrorCode computeSmallEigenvalues(std::vector<PetscReal> &eval, Vec *evec);
     PetscErrorCode correctionOperatorMatMult(Vec x, Vec y);
     static PetscErrorCode staticMatMultCorrOp(Mat M, Vec x, Vec y);
-    PetscErrorCode VecxTinvAx(const Vec &x, const Mat &K, PetscReal *val);
+    PetscErrorCode VecxTinvAx(const Vec &x, const Mat &K, PetscScalar *val);
     PetscErrorCode computeThreshold(Vec q, Vec r, PetscReal *eps);
     PetscErrorCode correctionPreconditionerMatMult(Vec x, Vec y);
     static PetscErrorCode staticMatMultCorrPrec(Mat M, Vec x, Vec y);
@@ -126,7 +134,7 @@ class JacobiDavidsonMaxwellSolver {
     bool print_small_evs = false;
 };
 
-}  // namespace LinearAlgebra
+} // namespace LinearAlgebra
 
 }  // namespace hpgem
 

@@ -40,8 +40,12 @@
 #include <numeric>
 #include "Eigenpairs.h"
 
+
+
+
 namespace hpgem {
 namespace Utilities {
+
 Eigenpairs::Eigenpairs()
     : numberOfEigenvectors_(0),
       eigenvectors_(nullptr),
@@ -111,6 +115,10 @@ void Eigenpairs::loadEigenpairs(EPS eps, Vec sample) {
     }
     // Reset the ordering
     std::iota(ordering_.begin(), ordering_.end(), 0);
+}
+
+void Eigenpairs::loadEigenpairs(LinearAlgebra::JacobiDavidsonMaxwellSolver eps, Vec sample) {
+
 }
 
 void Eigenpairs::reorder(std::vector<std::size_t> ordering) {

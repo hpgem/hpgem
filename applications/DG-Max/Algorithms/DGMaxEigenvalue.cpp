@@ -170,10 +170,12 @@ class DGMaxEigenvalue<DIM>::SolverWorkspace {
     Mat shell_;
 
     // SLEPC Solver
+    bool use_jdmax_;
     EPS eps_solver_;
 
     // Jacobi Davidson solver
-    JacobiDavidsonMaxwellSolver jdmax_solver_;
+    LinearAlgebra::JacobiDavidsonMaxwellSolver jdmax_solver_;
+
 
     // Phase offset shifts
     std::unique_ptr<typename DGMaxEigenvalue<DIM>::ShiftWorkspace> shifts;
@@ -311,8 +313,9 @@ void DGMaxEigenvalue<DIM>::solve(AbstractEigenvalueSolverDriver<DIM>& driver) {
     std::size_t numberOfEigenvalues = driver.getTargetNumberOfEigenvalues();
 
     initializeMatrices();
+    bool use_jdmax = true;
 
-    SolverWorkspace workspace(config_, &mesh_, numberOfEigenvalues);
+    SolverWorkspace workspace(config_, &mesh_, numberOfEigenvalues, use_jdmax);
 
     // Setup the boundary block shifting //
     ///////////////////////////////////////
@@ -499,7 +502,10 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::initSolver() {
 
     if (use_jdmax_)
     {
-        jdmax_solver_(stiffnessMatrix_, massMatrix_, projector->projectorMatrix_);
+        jdmax_solver_(stiffnessMatrix_.A_, 
+                      massMatrix_.A_, 
+                      projector->projectorMatrix_.A_);
+       
     }
     else {
 
@@ -525,7 +531,7 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::initSolver() {
         CHKERRABORT(PETSC_COMM_WORLD, err);
         err = EPSSetOperators(eps_solver_, shell_, nullptr);
         CHKERRABORT(PETSC_COMM_WORLD, err);
-    }
+    }   
 }
 
 template <std::size_t DIM>
@@ -598,13 +604,14 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::initStiffnessMatrixShifts() {
 template <std::size_t DIM>
 void DGMaxEigenvalue<DIM>::SolverWorkspace::extractEigenVectors() {
     std::swap(eigenpairs_, previousEigenpairs_);
-    if (use_jdmax_)
-    {
-        eigenpairs_.loadEigenpairs(jdmax_solver_, tempFieldVector_);
-    }
-    else{
+    // if (use_jdmax_)
+    // {
+    //     eigenpairs_.loadEigenpairs(jdmax_solver_, tempFieldVector_);
+    // }
+    // else
+    // {
         eigenpairs_.loadEigenpairs(eps_solver_, tempFieldVector_);
-        }
+    // }
 
     // Reorder
     std::vector<std::size_t> ordering(eigenpairs_.size());
@@ -683,12 +690,12 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::solve(
         DGMaxLogger(INFO, "Projected initial vector");
     }
 
-    if (use_jdmax_) {
+    // if (use_jdmax_) {
 
-        jdmax_solver_.solve(targetNumberOfEigenvalues);
+    //     jdmax_solver_.solve(targetNumberOfEigenvalues);
 
-    }
-    else {
+    // }
+    // else {
 
 
 
@@ -737,7 +744,7 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::solve(
                     "eigenvalues in %s",
                     iterations, numEigenvalues, time.count());
 
-    }
+    // }
 
     // Post processing //
     /////////////////////

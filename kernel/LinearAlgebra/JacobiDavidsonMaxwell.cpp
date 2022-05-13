@@ -1,33 +1,17 @@
 #include "JacobiDavidsonMaxwell.h"
 
-#include <chrono>  // For timing
-#include <iostream>
-#include <utility>
-#include <valarray>
-#include <vector>
-#include <math.h>
-#include <cstdlib>
-#include <vector>
-#include <chrono>
-
-#include <petsc.h>
-#include "petscksp.h"
-#include "petscviewerhdf5.h"
-#include "slepcbv.h"
-#include "slepceps.h"
-
-
-
 namespace hpgem {
 
 namespace LinearAlgebra {
-
 
 extern "C" {
 // lapack diag
 void dsyev_(char *jobz, char *uplo, int *n, double *a, int *lda,
            double *w, double *work, int *lwork, int *info);
 }
+
+// JacobiDavidsonMaxwellSolver::JacobiDavidsonMaxwellSolver()
+//     : A(PETSC_NULL), M(PETSC_NULL), C(PETSC_NULL) {}
 
 
 JacobiDavidsonMaxwellSolver::JacobiDavidsonMaxwellSolver(Mat &A, Mat &M, Mat &C)
@@ -43,7 +27,7 @@ PetscBool JacobiDavidsonMaxwellSolver::check_vect_nan(const Vec &vec) {
 
     VecGetOwnershipRange(vec, &low, &high);
     local_size = high-low;
-    vals = new PetscReal [local_size];
+    vals = new PetscScalar [local_size];
     idx = new PetscInt [local_size];
 
     for(ii=0; ii<local_size; ii++){
@@ -54,7 +38,7 @@ PetscBool JacobiDavidsonMaxwellSolver::check_vect_nan(const Vec &vec) {
 
     isnan = PETSC_FALSE;
     for(ii=0;ii<local_size;ii++){
-        if(PetscIsNanReal(vals[ii]))
+        if(PetscIsNanScalar(vals[ii]))
         {
             isnan = PETSC_TRUE;
             break;
@@ -68,7 +52,7 @@ PetscBool JacobiDavidsonMaxwellSolver::check_vect_nan(const Vec &vec) {
 void JacobiDavidsonMaxwellSolver::initializeMatrices() {
 
     PetscInt        y_nrows, y_ncols;
-    PetscScalar     eps = 1.;
+    PetscReal     eps = 1.;
 
     MatScale(this->A, eps);
     MatScale(this->M, eps);
@@ -166,7 +150,7 @@ void JacobiDavidsonMaxwellSolver::initializeVectors(){
 
 PetscErrorCode JacobiDavidsonMaxwellSolver::solveMultipleLinearSystems(){
     KSP         ksp;
-    PetscReal   *tmp_val;
+    PetscScalar *tmp_val;
     PetscInt    ncols, nrows, *idx_rows;
     Vec         rhs, sol;
     PetscInt    local_row_start, local_row_end, local_size;
@@ -195,7 +179,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solveMultipleLinearSystems(){
         idx_rows[i] = local_row_start + i;
 
     // create the array
-    tmp_val = new PetscReal [local_size];
+    tmp_val = new PetscScalar [local_size];
 
     // set up the linear system
     KSPCreate(PETSC_COMM_WORLD,&ksp);
@@ -225,12 +209,12 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solveMultipleLinearSystems(){
 
 PetscErrorCode JacobiDavidsonMaxwellSolver::computeRayleighQuotient(const Vec &x, PetscReal *out)
 {
-    PetscReal       a, m;
+    PetscScalar       a, m;
 
     VecxTAx(x, this->A, &a);
     VecxTAx(x, this->M, &m);
 
-    *out = (abs(m)>1E-12) ? a/m : 1.0;
+    *out = (abs(PetscRealPart(m))>1E-12) ? PetscRealPart(a)/PetscRealPart(m) : 1.0;
     return(0);
 }
 
@@ -239,15 +223,15 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::normalizeVector(Vec &x)
 {
 
     // compute x / sqrt(x.T M X)
-    PetscReal      norm, inv_sqrt_norm;
+    PetscScalar      norm, inv_sqrt_norm;
     PetscBool      isnan, isinf;
 
     // create x = x.T M * x
     this->VecxTAx(x, this->M, &norm);
     inv_sqrt_norm = 1.0/sqrt(norm);
 
-    isnan = PetscIsNanReal(inv_sqrt_norm);
-    isinf = PetscIsInfReal(inv_sqrt_norm);
+    isnan = PetscIsNanScalar(inv_sqrt_norm);
+    isinf = PetscIsInfScalar(inv_sqrt_norm);
 
     if(isnan || isinf){
         PetscPrintf(PETSC_COMM_WORLD, " Warning : Nan detected in the norm");
@@ -268,7 +252,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::normalizeVector(Vec &x)
     return(0);
 }
 
-PetscErrorCode JacobiDavidsonMaxwellSolver::VecxTAx(const Vec &x, const Mat &K, PetscReal *val)
+PetscErrorCode JacobiDavidsonMaxwellSolver::VecxTAx(const Vec &x, const Mat &K, PetscScalar *val)
 {
     // Compute val = x.T K X
     Vec             tmp;
@@ -459,7 +443,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeRightProjection(Vec &v, const
 {
     // Compute v = v - Q Q.T M v
     Vec         tmp_column_vector;
-    PetscReal   *tmp_row_vector;
+    PetscScalar *tmp_row_vector;
     PetscInt    local_size, ncol, nrow;
 
     // get sizes
@@ -471,7 +455,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeRightProjection(Vec &v, const
     VecSetFromOptions(tmp_column_vector);
 
     // create tmp_row_vector
-    tmp_row_vector = new PetscReal [ncol];
+    tmp_row_vector = new PetscScalar [ncol];
 
     // compute tmp_col_vect = M v
     MatMult(this->M, v, tmp_column_vector);
@@ -494,7 +478,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeLeftProjection(Vec &v)
 {
     // Compute v = v - M Q Q.T v
     // Vec         tmp_row_vector;
-    PetscReal   *tmp_row_vector;
+    PetscScalar   *tmp_row_vector;
     PetscInt    local_size, ncol, nrow;
     BV          MQ;
 
@@ -506,7 +490,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeLeftProjection(Vec &v)
 
 
     // create tmp_row_vector
-    tmp_row_vector = new PetscReal [this->Qt_current_size];
+    tmp_row_vector = new PetscScalar [this->Qt_current_size];
 
     // compute tmp_row_vect = Q.T v
     BVDotVec(this->Qt, v, tmp_row_vector);
@@ -532,7 +516,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeLeftProjection(Vec &v)
 
 }
 
-PetscErrorCode JacobiDavidsonMaxwellSolver::VecxTinvAx(const Vec &x, const Mat &K, PetscReal *val)
+PetscErrorCode JacobiDavidsonMaxwellSolver::VecxTinvAx(const Vec &x, const Mat &K, PetscScalar *val)
 {
     // Compute val = x.T K^{-1} x
 
@@ -635,12 +619,13 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeSmallEigenvalues(std::vector<
     EPS             eps;
     PetscErrorCode  ierr;
     PetscInt        nconv, nc, nr;
-    PetscReal       eigr, eigi;
+    PetscScalar     eigr, eigi;
     Vec             Vr, Vi;
     PetscBool       flg;
 
     PetscInt        sort_idx[this->V_current_size];
-    PetscReal       eval_tmp[this->V_current_size];
+    PetscScalar     eval_tmp[this->V_current_size];
+    PetscReal       eval_tmp_real[this->V_current_size];
     Vec             evec_tmp[this->V_current_size];
 
     PetscInt        i;
@@ -657,9 +642,6 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeSmallEigenvalues(std::vector<
     MatCreateHermitianTranspose(Ak, &AkT);
     MatAXPY(Ak, 1.0, AkT, SAME_NONZERO_PATTERN);
     MatScale(Ak, 0.5);
-
-
-
 
     MatGetSize(Ak, &nr, &nc);
     MatIsHermitian(Ak,0.000, &flg);
@@ -689,14 +671,19 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeSmallEigenvalues(std::vector<
         ierr = VecCopy(Vr, evec_tmp[i]);CHKERRQ(ierr);
     }
 
+    // extract the real part of the eigenvalues
+    for(i=0; i<this->V_current_size; i++){
+        eval_tmp_real[i] = PetscRealPart(eval_tmp[i]);
+    }
+
     // get sort indexes eigenvalues
-    PetscSortRealWithArrayInt(this->V_current_size, eval_tmp, sort_idx);
+    PetscSortRealWithArrayInt(this->V_current_size, eval_tmp_real, sort_idx);
 
     // sort eigenvalues
     eigenvalues.clear();
     for (i=0; i<nconv; i++){
-        if(eval_tmp[i] > 1E-6){
-            eigenvalues.push_back(eval_tmp[i]);
+        if(eval_tmp_real[i] > 1E-6){
+            eigenvalues.push_back(eval_tmp_real[i]);
             ierr = MatCreateVecs(Ak, NULL, &eigenvectors[i]);CHKERRQ(ierr);
             ierr = VecCopy(evec_tmp[sort_idx[i]], eigenvectors[i]);CHKERRQ(ierr);
         }
@@ -740,7 +727,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeSmallEigenvalues(std::vector<
 
 PetscErrorCode JacobiDavidsonMaxwellSolver::computeThreshold(Vec q, Vec r, PetscReal *eps)
 {
-    PetscReal num, denom;
+    PetscScalar num, denom;
 
     // compute q.T M q
     VecxTAx(q, this->M, &denom);
@@ -749,7 +736,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeThreshold(Vec q, Vec r, Petsc
     VecxTinvAx(r, this->M, &num);
 
     // compute the threshold
-    *eps = sqrt(num / denom);
+    *eps = sqrt(PetscRealPart(num) / PetscRealPart(denom));
 
     return(0);
 }
@@ -766,7 +753,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev)
     Vec             q, tmp_q;
     PetscInt        k, idx_evect, ii;
     PetscBool       found, stop;
-    PetscReal       *vec_values;
+    PetscScalar       *vec_values;
     PetscErrorCode  ierr;
 
     this->search_space_minsize = nev+1;
@@ -975,6 +962,6 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev)
     return(0);
 }
 
-}  // namespace LinearAlgebra
+} //namespace LinearAlgebra
 
 }  // namespace hpgem

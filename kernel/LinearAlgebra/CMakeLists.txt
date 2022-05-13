@@ -5,9 +5,12 @@ add_library(LinearAlgebra OBJECT
         MiddleSizeMatrix.cpp
         SmallVector.cpp
         JacobiDavidsonMaxwell.cpp)
+
 target_link_libraries(LinearAlgebra
     PUBLIC
         Logger
+        MPI::MPI_CXX
         BLAS::BLAS
         LAPACK::LAPACK
+        PETSc::PETSc SLEPc::SLEPc
 )

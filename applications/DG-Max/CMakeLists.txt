@@ -10,6 +10,7 @@ if(hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
 		kspaceData.cpp
         DGMaxProgramUtils.cpp
 
+		# Algorithms/JacobiDavidsonMaxwell.cpp
 		Algorithms/AbstractDiscretization.cpp
 		Algorithms/DGMaxEigenvalue.cpp
 		Algorithms/DGMaxDiscretization.cpp
@@ -17,6 +18,7 @@ if(hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
 		Algorithms/HarmonicSolver.cpp
 		Algorithms/DivDGMaxDiscretization.cpp
 		Algorithms/DivDGMaxEigenvalue.cpp
+		
 
 		ProblemTypes/Harmonic/SampleHarmonicProblems.cpp
 		ProblemTypes/Harmonic/TrenchReflectionProblem.cpp
