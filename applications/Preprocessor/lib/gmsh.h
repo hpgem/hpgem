@@ -68,6 +68,10 @@ class GmshReader final : public MeshSource2 {
 
     std::size_t getDimension() const { return dimension_; }
 
+    const std::vector<std::map<std::size_t, std::size_t>>& getMerges() final {
+        return coordinateMerges;
+    };
+
    private:
     // Element as used by gmsh
     struct Element {
@@ -122,6 +126,11 @@ class GmshReader final : public MeshSource2 {
 
     // Physical names indexed by dimension and tag
     std::vector<std::map<std::size_t, std::string>> physicalNames_;
+
+    /**
+     * A series of coordinate identifications from periodic boundary conditions.
+     */
+    std::vector<std::map<std::size_t, std::size_t>> coordinateMerges;
 
     /// Raw elements as read from gmsh. For gmsh every mesh entity is an
     /// element, so depending on the dimension this contains points, lines etc.

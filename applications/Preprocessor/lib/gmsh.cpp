@@ -445,41 +445,36 @@ void GmshReader::readPBCs() {
     size_t num_periodic_elements;
     Filehandle_ >> num_periodic_elements;
 
+    coordinateMerges.resize(num_periodic_elements);
+
+    for (std::size_t i = 0; i < num_periodic_elements; ++i) {
+        // Dimension of the entities that are periodically connected,
+        // and the tags of the entities that are connected
+        size_t dimension, entity_tag, master_entity_tag;
+        Filehandle_ >> dimension >> entity_tag >> master_entity_tag;
+
+        std::map<std::size_t, std::size_t>& merge = coordinateMerges[i];
+
+        // The number of nodes for this entity that are periodically connected
+        size_t periodic_nodes;
+        Filehandle_ >> periodic_nodes;
+        logger(INFO, "Reading periodic connection with % node pairs",
+               periodic_nodes);
+
+        for (size_t i = 0; i < periodic_nodes; i++) {
+            size_t node1;
+            size_t node2;
+            Filehandle_ >> node2 >> node1;
+            // gmsh is 1 indexed hpgem is zero indexed
+            merge[node2 - 1] = node1 - 1;
+        }
+    }
+
     // We are not interested the connected entities
     for (size_t i = 0; i < num_periodic_elements; i++) {
         size_t dimension, entity_tag, master_entity_tag;
         Filehandle_ >> dimension >> entity_tag >> master_entity_tag;
     }
-
-    // Merge all nodes
-    std::unordered_map<size_t, size_t> pbc_nodes;
-
-    size_t periodic_nodes;
-    Filehandle_ >> periodic_nodes;
-    logger(VERBOSE, "Found % periodic nodes", periodic_nodes);
-    for (size_t i = 0; i < periodic_nodes; i++) {
-        size_t node1;
-        size_t node2;
-        Filehandle_ >> node2 >> node1;
-        // gmsh is 1 indexed hpgem is zero indexed
-        pbc_nodes[node2 - 1] = node1 - 1;
-    }
-
-    // because element ids are indices into the coordinate vector for the pbcs
-    // all we have to do is renumber the node ids.
-
-    size_t replaced_nodes = 0;
-    for (auto& node : nodes_) {
-        auto found = pbc_nodes.find(node.nodeId);
-        if (found != pbc_nodes.end()) {
-            node.nodeId = found->second;
-            replaced_nodes++;
-        }
-    }
-    logger.assert_always(replaced_nodes == pbc_nodes.size(),
-                         "Not all pbc pairs were used to replace node ids, so "
-                         "probably the indexing is wrong. % pairs unused",
-                         pbc_nodes.size() - replaced_nodes);
     readSectionEnd("Periodic");
 }
 
