@@ -82,6 +82,7 @@ void KPhaseShiftBlock<DIM>::applyDerivative(LinearAlgebra::SmallVector<DIM> k,
     const std::complex<double> phaseDeriv =
         std::complex<double>(0, dk * dx_) *  // From taking dk . grad_k
         std::exp(std::complex<double>(0, k * dx_));
+    std::cout << "Phase deriv" << phaseDeriv << std::endl;
     for (std::size_t i = 0; i < blockSize; ++i) {
         storage[i] *= phaseDeriv;
     }
@@ -89,6 +90,7 @@ void KPhaseShiftBlock<DIM>::applyDerivative(LinearAlgebra::SmallVector<DIM> k,
         const std::complex<double> antiPhaseDeriv =
             std::complex<double>(0, -dk * dx_) *
             std::exp(std::complex<double>(0, -k * dx_));
+        std::cout << "Phase deriv" << antiPhaseDeriv << std::endl;
         for (std::size_t i = blockSize; i < 2 * blockSize; ++i) {
             storage[i] *= antiPhaseDeriv;
         }

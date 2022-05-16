@@ -322,7 +322,7 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
             // Write header
             kderivFile << "";
             for (std::size_t i = 0; i < numEigenvectors; ++i) {
-                for (std::size_t kdir = 0; kdir < DIM; ++kdir) {
+                for (std::size_t kdir = 0; kdir < 3; ++kdir) {
                     kderivFile << ",mode" << i << "d" << kdir;
                 }
             }
@@ -331,10 +331,12 @@ class DGMaxEigenDriver : public AbstractEigenvalueSolverDriver<DIM> {
             for (std::size_t i = 0; i < numEigenvectors; ++i) {
                 kderivFile << "mode" << i;
                 for (std::size_t j = 0; j < numEigenvectors; ++j) {
-                    for (std::size_t kdir = 0; kdir < DIM; ++kdir) {
-                        kderivFile << "," << std::real(derivatives[kdir](i, j))
+                    for (std::size_t kdir = 0; kdir < 3; ++kdir) {
+                        std::complex<double> kderivative =
+                            kdir < DIM ? derivatives[kdir](i, j) : 0.0;
+                        kderivFile << "," << std::real(kderivative)
                                    << std::showpos
-                                   << std::imag(derivatives[kdir](i, j))
+                                   << std::imag(kderivative)
                                    << std::noshowpos << "i";
                     }
                 }

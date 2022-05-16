@@ -93,6 +93,13 @@ KPhaseShiftBlock<DIM> FaceMatrixKPhaseShiftBuilder<DIM>::facePhaseShift(
     if (extraShift_) {
         dx += extraShift_(face);
     }
+    for (std::size_t i = 0; i < DIM; ++i) {
+        if (std::abs(dx[i]) < 1e-10){
+            dx[i] = 0;
+        }
+    }
+    std::cout << dx << std::endl;
+    // logger(INFO, "%", dx);
     LinearAlgebra::MiddleSizeMatrix block1, block2;
     std::tie(block1, block2) = matrixExtractor_(face);
 

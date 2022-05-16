@@ -174,6 +174,7 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
 
     std::array<LinearAlgebra::MiddleSizeMatrix, DIM>
         computeWaveVectorDerivatives() {
+        PetscErrorCode err;
         std::array<LinearAlgebra::MiddleSizeMatrix, DIM> result;
         std::size_t numEigenvectors = eigenpairs_.size();
         LinearAlgebra::SmallVector<DIM> dk;
@@ -184,17 +185,33 @@ class DivDGMaxEigenvalue<DIM>::SolverWorkspace {
             // derivatives
             dk.set(0.0);
             dk[kdir] = 1.0;
-            MatZeroEntries(kderivativeMat_);
+            err = MatZeroEntries(kderivativeMat_);
+            CHKERRABORT(PETSC_COMM_WORLD, err);
+            MPI_Barrier(PETSC_COMM_WORLD);
             kphaseshifts_.applyDeriv(kpoint_, dk, kderivativeMat_);
+            for(NormType nt : {NORM_1, NORM_FROBENIUS, NORM_INFINITY}) {
+                PetscReal normval;
+                MatNorm(kderivativeMat_, nt, &normval);
+                DGMaxLogger(INFO, "Norm %: %", NormTypes[nt], normval);
+            }
+
+
+            MPI_Barrier(PETSC_COMM_WORLD);
             for (std::size_t i = 0; i < numEigenvectors; ++i) {
-                MatMult(kderivativeMat_, eigenpairs_.getEigenvector(i),
+                err = MatMult(kderivativeMat_, eigenpairs_.getEigenvector(i),
                         tempVector_);
+                CHKERRABORT(PETSC_COMM_WORLD, err);
                 for (std::size_t j = i; j < numEigenvectors; ++j) {
                     std::complex<double> derivative;
-                    VecDot(tempVector_, eigenpairs_.getEigenvector(j),
+                    err = VecDot(tempVector_, eigenpairs_.getEigenvector(j),
                            &derivative);
+                    CHKERRABORT(PETSC_COMM_WORLD, err);
                     result[kdir](i, j) = derivative;
                     result[kdir](j, i) = std::conj(derivative);
+
+                    if (i <= 1 && j <= 1) {
+                        std::cout << "Term " << i << j << ":" << derivative << std::endl;
+                    }
                 }
             }
         }
