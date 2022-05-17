@@ -77,8 +77,9 @@ namespace LinearAlgebra {
 class JacobiDavidsonMaxwellSolver final {
 
    public:
-    // JacobiDavidsonMaxwellSolver();
+    JacobiDavidsonMaxwellSolver();
     JacobiDavidsonMaxwellSolver(Mat &A, Mat &M, Mat &C);
+    void setMatrices(Mat &Ain, Mat &Min, Mat &Cin);
     PetscErrorCode solve(PetscInt nev);
 
    private:

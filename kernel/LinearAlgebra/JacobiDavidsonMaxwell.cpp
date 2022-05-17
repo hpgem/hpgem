@@ -13,6 +13,7 @@ void dsyev_(char *jobz, char *uplo, int *n, double *a, int *lda,
 // JacobiDavidsonMaxwellSolver::JacobiDavidsonMaxwellSolver()
 //     : A(PETSC_NULL), M(PETSC_NULL), C(PETSC_NULL) {}
 
+JacobiDavidsonMaxwellSolver::JacobiDavidsonMaxwellSolver() {}
 
 JacobiDavidsonMaxwellSolver::JacobiDavidsonMaxwellSolver(Mat &A, Mat &M, Mat &C)
     : A(A), M(M), C(C) {}
@@ -48,6 +49,13 @@ PetscBool JacobiDavidsonMaxwellSolver::check_vect_nan(const Vec &vec) {
     return(isnan);
 
 }
+
+void JacobiDavidsonMaxwellSolver::setMatrices(Mat &Ain, Mat &Min, Mat &Cin) {
+    this->A = Ain;
+    this->M = Min;
+    this->C = Cin;
+}
+
 
 void JacobiDavidsonMaxwellSolver::initializeMatrices() {
 

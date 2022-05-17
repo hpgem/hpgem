@@ -502,9 +502,9 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::initSolver() {
 
     if (use_jdmax_)
     {
-        jdmax_solver_(stiffnessMatrix_.A_, 
-                      massMatrix_.A_, 
-                      projector->projectorMatrix_.A_);
+        jdmax_solver_.setMatrices(stiffnessMatrix_.A_, 
+                                  massMatrix_.A_, 
+                                  projector->projectorMatrix_.A_);
        
     }
     else {
