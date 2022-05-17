@@ -92,8 +92,8 @@ void KPhaseShiftBlock<DIM>::applyDerivative(LinearAlgebra::SmallVector<DIM> k,
         for (std::size_t i = blockSize; i < 2 * blockSize; ++i) {
             storage[i] *= antiPhaseDeriv;
         }
-        blocks_.insertBlocks(storage, mat);
     }
+    blocks_.insertBlocks(storage, mat);
 }
 
 /// Phase Shifts
