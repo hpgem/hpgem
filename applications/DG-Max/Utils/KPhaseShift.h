@@ -101,6 +101,17 @@ class KPhaseShiftBlock {
                          std::vector<PetscScalar>& storage, Mat mat) const;
 
    private:
+    /// Apply with computed phase shifts.
+    ///
+    /// \param factor Multiplicative factor for the primary matrix block
+    /// \param pairFactor Multiplicative factor for the second 'pair' block (if present).
+    /// \param storage Temporary storage
+    /// \param mat The matrix in which to insert the blocks
+    void applyFactor(
+        std::complex<double> factor,
+        std::complex<double> pairFactor,
+        std::vector<PetscScalar>& storage, Mat mat) const;
+
     /// The blocks that need to be shifted
     MatrixBlocks blocks_;
     /// The distance x for the phase factor e^{ikx}.

@@ -49,26 +49,11 @@ void KPhaseShiftBlock<DIM>::apply(LinearAlgebra::SmallVector<DIM> k,
     // Note we could optimize and only apply this if needed, that is if
     // exp(ixk_old) = exp(ix k_new). However, that may give a minimal
     // improvement in performance and would add the need to keep track of k_old.
-
-    // Load values in storage
-    blocks_.loadBlocks(storage);
-    // Apply phase shift
-    std::size_t blockSize = blocks_.getBlockSize();
     const std::complex<double> phase =
         std::exp(std::complex<double>(0, k * dx_));
-
-    for (std::size_t i = 0; i < blockSize; ++i) {
-        storage[i] *= phase;
-    }
-    if (blocks_.isPair()) {
-        const std::complex<double> antiPhase =
-            std::exp(std::complex<double>(0, -(k * dx_)));
-        for (std::size_t i = 0; i < blockSize; ++i) {
-            storage[i + blockSize] *= antiPhase;
-        }
-    }
-    // Insert the now phase shifted blocks into the matrix
-    blocks_.insertBlocks(storage, mat);
+    const std::complex<double> antiPhase =
+        std::exp(std::complex<double>(0, -(k * dx_)));
+    applyFactor(phase, antiPhase, storage, mat);
 }
 
 template <std::size_t DIM>
@@ -76,23 +61,33 @@ void KPhaseShiftBlock<DIM>::applyDerivative(LinearAlgebra::SmallVector<DIM> k,
                                             LinearAlgebra::SmallVector<DIM> dk,
                                             std::vector<PetscScalar>& storage,
                                             Mat mat) const {
-    // Load value in storage
-    blocks_.loadBlocks(storage);
-    std::size_t blockSize = blocks_.getBlockSize();
     const std::complex<double> phaseDeriv =
         std::complex<double>(0, dk * dx_) *  // From taking dk . grad_k
         std::exp(std::complex<double>(0, k * dx_));
+    const std::complex<double> antiPhaseDeriv =
+        std::complex<double>(0, -dk * dx_) *
+        std::exp(std::complex<double>(0, -k * dx_));
+    applyFactor(phaseDeriv, antiPhaseDeriv, storage, mat);
+}
+
+template <std::size_t DIM>
+void KPhaseShiftBlock<DIM>::applyFactor(std::complex<double> factor,
+                                        std::complex<double> pairFactor,
+                                        std::vector<PetscScalar>& storage,
+                                        Mat mat) const {
+    // Load value in storage
+    blocks_.loadBlocks(storage);
+    // Apply factors to the storage
+    std::size_t blockSize = blocks_.getBlockSize();
     for (std::size_t i = 0; i < blockSize; ++i) {
-        storage[i] *= phaseDeriv;
+        storage[i] *= factor;
     }
     if (blocks_.isPair()) {
-        const std::complex<double> antiPhaseDeriv =
-            std::complex<double>(0, -dk * dx_) *
-            std::exp(std::complex<double>(0, -k * dx_));
         for (std::size_t i = blockSize; i < 2 * blockSize; ++i) {
-            storage[i] *= antiPhaseDeriv;
+            storage[i] *= pairFactor;
         }
     }
+    // Insert multiplied blocks in the target matrix
     blocks_.insertBlocks(storage, mat);
 }
 
