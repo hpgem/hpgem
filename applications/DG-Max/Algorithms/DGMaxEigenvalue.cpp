@@ -658,7 +658,10 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::updateKPoint(
 template <std::size_t DIM>
 void DGMaxEigenvalue<DIM>::SolverWorkspace::solve(
     std::size_t targetNumberOfEigenvalues) {
+
     PetscErrorCode error;
+    PetscInt numEigenvalues, iterations;
+    std::chrono::duration<double> time;
 
     // Setup search space //
     ////////////////////////
@@ -690,14 +693,23 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::solve(
         DGMaxLogger(INFO, "Projected initial vector");
     }
 
-    // if (use_jdmax_) {
+    if (use_jdmax_) {
 
-    //     jdmax_solver_.solve(targetNumberOfEigenvalues);
+        auto start = std::chrono::high_resolution_clock::now();
+        jdmax_solver_.solve(targetNumberOfEigenvalues);
+        std::chrono::duration<double> time = std::chrono::high_resolution_clock::now() - start;
+        
+        numEigenvalues = jdmax_solver_.getConverged();
+        iterations = jdmax_solver_.getIterationCount();
 
-    // }
-    // else {
+        DGMaxLogger(INFO,
+                    "Eigenvalue solver stopped after % iterations with % "
+                    "eigenvalues in %s",
+                    iterations, numEigenvalues, time.count());
 
+    }
 
+    else {
 
         // Use solution of previous time as starting point for the next one.
         error = EPSSetInitialSpace(eps_solver_, eigenpairs_.size(),
@@ -731,9 +743,8 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::solve(
         CHKERRABORT(PETSC_COMM_WORLD, error);
 
         // Some basic statistics
-        std::chrono::duration<double> time =
-            std::chrono::high_resolution_clock::now() - start;
-        PetscInt numEigenvalues, iterations;
+        std::chrono::duration<double> time = std::chrono::high_resolution_clock::now() - start;
+        
         error = EPSGetConverged(eps_solver_, &numEigenvalues);
         CHKERRABORT(PETSC_COMM_WORLD, error);
         error = EPSGetIterationNumber(eps_solver_, &iterations);
@@ -744,7 +755,11 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::solve(
                     "eigenvalues in %s",
                     iterations, numEigenvalues, time.count());
 
-    // }
+
+    }
+
+
+    
 
     // Post processing //
     /////////////////////

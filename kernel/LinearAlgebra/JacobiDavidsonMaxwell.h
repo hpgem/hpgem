@@ -83,7 +83,7 @@ class JacobiDavidsonMaxwellSolver final {
     PetscErrorCode solve(PetscInt nev);
     PetscInt getConverged();
     PetscErrorCode getEigenPair(PetscInt index, PetscScalar &eval, Vec &evec);
-
+    PetscInt getIterationCount();
    private:
 
     void initializeMatrices();

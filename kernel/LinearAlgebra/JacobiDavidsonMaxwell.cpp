@@ -52,6 +52,10 @@ PetscInt JacobiDavidsonMaxwellSolver::getConverged(){
     return this->Q_current_size;
 }
 
+PetscInt JacobiDavidsonMaxwellSolver::getIterationCount(){
+    return this->iter;
+}
+
 PetscErrorCode JacobiDavidsonMaxwellSolver::getEigenPair(PetscInt index, 
                                                      PetscScalar &eval,
                                                      Vec &evec )
