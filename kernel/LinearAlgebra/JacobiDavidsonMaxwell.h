@@ -81,6 +81,8 @@ class JacobiDavidsonMaxwellSolver final {
     JacobiDavidsonMaxwellSolver(Mat &A, Mat &M, Mat &C);
     void setMatrices(Mat &Ain, Mat &Min, Mat &Cin);
     PetscErrorCode solve(PetscInt nev);
+    PetscInt getConverged();
+    PetscErrorCode getEigenPair(PetscInt index, PetscScalar &eval, Vec &evec);
 
    private:
 
@@ -120,6 +122,7 @@ class JacobiDavidsonMaxwellSolver final {
     PetscInt V_current_size = 0;
     PetscInt Q_current_size = 0;
     PetscInt Qt_current_size = 0;
+    PetscInt nconverged = 0;
 
 
     Mat A, M, C;
@@ -128,8 +131,11 @@ class JacobiDavidsonMaxwellSolver final {
     Vec search_vect;
     Vec residue_vect;
 
-    Vec eigenvalues;
-    Vec *eigenvectors;
+    std::vector<PetscScalar>  eigenvalues;
+
+    // Vec                     eigenvectors[this->search_space_maxsize];
+    // Vec eigenvalues;
+    // Vec *eigenvectors;
 
     bool print_time = false;
     bool print_small_evs = false;

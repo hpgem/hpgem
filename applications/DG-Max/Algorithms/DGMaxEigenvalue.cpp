@@ -604,14 +604,14 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::initStiffnessMatrixShifts() {
 template <std::size_t DIM>
 void DGMaxEigenvalue<DIM>::SolverWorkspace::extractEigenVectors() {
     std::swap(eigenpairs_, previousEigenpairs_);
-    // if (use_jdmax_)
-    // {
-    //     eigenpairs_.loadEigenpairs(jdmax_solver_, tempFieldVector_);
-    // }
-    // else
-    // {
+    if (use_jdmax_)
+    {
+        eigenpairs_.loadEigenpairs(jdmax_solver_, tempFieldVector_);
+    }
+    else
+    {
         eigenpairs_.loadEigenpairs(eps_solver_, tempFieldVector_);
-    // }
+    }
 
     // Reorder
     std::vector<std::size_t> ordering(eigenpairs_.size());

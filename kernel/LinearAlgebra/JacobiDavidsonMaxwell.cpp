@@ -50,6 +50,22 @@ PetscBool JacobiDavidsonMaxwellSolver::check_vect_nan(const Vec &vec) {
 
 }
 
+PetscInt JacobiDavidsonMaxwellSolver::getConverged(){
+    return this->Q_current_size;
+}
+
+PetscErrorCode JacobiDavidsonMaxwellSolver::getEigenPair(PetscInt index, 
+                                                     PetscScalar &eval,
+                                                     Vec &evec )
+{
+    PetscErrorCode ierr;
+    eval = this->eigenvalues[index];
+    ierr = BVGetColumn(this->Q, index, &evec);
+
+    return (0);
+
+}
+
 void JacobiDavidsonMaxwellSolver::setMatrices(Mat &Ain, Mat &Min, Mat &Cin) {
     this->A = Ain;
     this->M = Min;
@@ -765,7 +781,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev)
     PetscErrorCode  ierr;
 
     this->search_space_minsize = nev+1;
-
+    this->nconverged = 0;
 
     // init the solver matrices and vectors
     initializeMatrices();
@@ -861,6 +877,14 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev)
             if(found)
             {
                 PetscPrintf(PETSC_COMM_WORLD, "\n     =====> Another vector found, eigenvalue %f\n\n", rho);
+
+                // store the eigenvalue/eigenvector
+                this->eigenvalues.push_back(rho);
+
+                // ierr = MatCreateVecs(Ak, NULL, &eigenvectors[this->nconverged]);CHKERRQ(ierr);
+                // ierr = VecDuplicate(q, &eigenvectors[this->nconverged]); CHKERRQ(ierr);
+                // ierr = VecCopy(q, this->eigenvectors[this->nconverged]);CHKERRQ(ierr);
+                // this->nconverged ++;
 
                 // add a new vector to the basis
                 BVInsertVec(Q, Q_current_size, q);

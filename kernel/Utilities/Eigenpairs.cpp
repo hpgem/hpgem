@@ -117,8 +117,25 @@ void Eigenpairs::loadEigenpairs(EPS eps, Vec sample) {
     std::iota(ordering_.begin(), ordering_.end(), 0);
 }
 
-void Eigenpairs::loadEigenpairs(LinearAlgebra::JacobiDavidsonMaxwellSolver eps, Vec sample) {
+void Eigenpairs::loadEigenpairs(LinearAlgebra::JacobiDavidsonMaxwellSolver jdmax, Vec sample) {
+    
+    PetscInt converged;
+    PetscErrorCode err;
+    converged = jdmax.getConverged();
 
+    // Ensure that we have enough space
+    reserve(converged, sample);
+    eigenvalues_.resize(converged);
+    ordering_.resize(converged);
+
+    // Load the eigenpairs
+    for (PetscInt i = 0; i < converged; ++i) {
+        
+        err = jdmax.getEigenPair(i, eigenvalues_[i], eigenvectors_[i]);
+        CHKERRABORT(PETSC_COMM_WORLD, err);
+    }
+    // Reset the ordering
+    std::iota(ordering_.begin(), ordering_.end(), 0);
 }
 
 void Eigenpairs::reorder(std::vector<std::size_t> ordering) {
