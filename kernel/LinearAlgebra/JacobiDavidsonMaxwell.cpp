@@ -68,22 +68,42 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::getEigenPair(PetscInt index,
 
 }
 
-void JacobiDavidsonMaxwellSolver::setMatrices(Mat &Ain, Mat &Min, Mat &Cin) {
+void JacobiDavidsonMaxwellSolver::setMatrices(const Mat &Ain, const Mat &Min, const Mat &Cin) {
     
-    this->A = Ain;
-    this->M = Min;
-    this->C = Cin;
-}
+    PetscErrorCode ierr; 
+    PetscInt n,m;
 
+
+    ierr = MatGetSize(Ain, &n, &m);
+    PetscPrintf(PETSC_COMM_WORLD, "size A: %d, %d\n", n,m);
+    // ierr =  MatDuplicate(Ain, MAT_COPY_VALUES, &this->A);
+    this->A = Ain;
+    PetscPrintf(PETSC_COMM_WORLD, " set A Done \n");
+
+
+    ierr = MatGetSize(Min, &n, &m);
+    PetscPrintf(PETSC_COMM_WORLD, "size M: %d, %d\n", n,m);
+    // ierr =  MatDuplicate(Min, MAT_COPY_VALUES, &this->M);
+    this->M = Min;
+    PetscPrintf(PETSC_COMM_WORLD, " set M Done\n");
+
+
+    ierr = MatGetSize(Cin, &n, &m);
+    PetscPrintf(PETSC_COMM_WORLD, "size C: %d, %d\n", n,m);
+    // ierr =  MatDuplicate(Cin, MAT_COPY_VALUES, &this->C);
+    this->C = Cin;
+    PetscPrintf(PETSC_COMM_WORLD, " setMatrices Done\n");
+
+}
 
 void JacobiDavidsonMaxwellSolver::initializeMatrices() {
 
     PetscInt        y_nrows, y_ncols;
-    PetscReal     eps = 1.;
+    PetscScalar     eps = 1.;
 
-    MatScale(this->A, eps);
-    MatScale(this->M, eps);
-    MatScale(this->C, eps);
+    // MatScale(this->A, eps);
+    // MatScale(this->M, eps);
+    // MatScale(this->C, eps);
 
     // transpose C
     MatTranspose(this->C, MAT_INPLACE_MATRIX, &this->C);
@@ -96,7 +116,9 @@ void JacobiDavidsonMaxwellSolver::initializeMatrices() {
     MatSetUp(this->Y);
 
     // solve M * Y = C for each C vector
+    PetscPrintf(PETSC_COMM_WORLD, " Start Multiple Linear Systems\n");
     solveMultipleLinearSystems();
+    PetscPrintf(PETSC_COMM_WORLD, " Multiple Linear Systems Done\n");
 
 
     // create the H matrix and
@@ -210,14 +232,15 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solveMultipleLinearSystems(){
 
     // set up the linear system
     KSPCreate(PETSC_COMM_WORLD,&ksp);
-    KSPSetType(ksp,KSPGMRES);
+    // KSPSetType(ksp,KSPGMRES);
+    KSPSetType(ksp,KSPCG);
     KSPSetOperators(ksp,M,M);
-    KSPSetTolerances(ksp, 1e-6, 1.e-12, PETSC_DEFAULT, 4000);
+    KSPSetTolerances(ksp, 1e-6, 1.e-6, PETSC_DEFAULT, 100);
     KSPSetFromOptions(ksp);
 
     // solve each M * y = c
     for (i=0; i<ncols; i++){
-
+        PetscPrintf(PETSC_COMM_WORLD, " Linear system %d\n", i);
         MatGetColumnVector(this->C, rhs, i);
         KSPSolve(ksp, rhs, sol);
         VecGetArray(sol, &tmp_val);
@@ -250,18 +273,19 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::normalizeVector(Vec &x)
 {
 
     // compute x / sqrt(x.T M X)
-    PetscScalar      norm, inv_sqrt_norm;
-    PetscBool      isnan, isinf;
+    PetscScalar      norm; 
+    PetscReal        inv_sqrt_norm;
+    PetscBool        isnan, isinf;
 
     // create x = x.T M * x
     this->VecxTAx(x, this->M, &norm);
-    inv_sqrt_norm = 1.0/sqrt(norm);
+    inv_sqrt_norm = 1.0/sqrt(PetscRealPart(norm));
 
-    isnan = PetscIsNanScalar(inv_sqrt_norm);
-    isinf = PetscIsInfScalar(inv_sqrt_norm);
+    isnan = PetscIsNanReal(inv_sqrt_norm);
+    isinf = PetscIsInfReal(inv_sqrt_norm);
 
     if(isnan || isinf){
-        PetscPrintf(PETSC_COMM_WORLD, " Warning : Nan detected in the norm");
+        PetscPrintf(PETSC_COMM_WORLD, " Warning : Nan detected in the norm\n");
         VecSet(x, 0.0);
     } else {
         // scale the vector
@@ -714,8 +738,9 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeSmallEigenvalues(std::vector<
         }
         else{
             PetscPrintf(PETSC_COMM_WORLD, " Error : Zero Eigenvalue detected: %d %f\n", i, eval_tmp[i]);
-            PetscFinalize();
-            exit(0);
+            // PetscFinalize();
+            // exit(0);
+            return(1);
         }
     }
 
@@ -786,15 +811,19 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev)
 
     // init the solver matrices and vectors
     initializeMatrices();
+    PetscPrintf(PETSC_COMM_WORLD, "init matrices done\n");
     initializeVectors();
+    PetscPrintf(PETSC_COMM_WORLD, "init vector done\n");
     initializeSearchSpace(nev);
+    PetscPrintf(PETSC_COMM_WORLD, "init search space done\n");
 
     // rayleigh quotient
     computeRayleighQuotient(this->search_vect, &rho);
+    PetscPrintf(PETSC_COMM_WORLD, "compute rayleigh done\n");
 
     // compute initial residue vector
     computeResidueVector(this->search_vect, rho, this->residue_vect);
-
+    PetscPrintf(PETSC_COMM_WORLD, "compute residues done\n");
 
     // duplicate residue vector and create the correction vector
     VecDuplicate(this->residue_vect, &residue_vect_copy);
@@ -846,8 +875,8 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev)
 
 
         // compute eigenpairs on small subspace
-        computeSmallEigenvalues(small_evals, small_evects);
-
+        ierr = computeSmallEigenvalues(small_evals, small_evects);
+        CHKERRABORT(PETSC_COMM_WORLD, ierr);
 
         // create q
         VecDuplicate(this->residue_vect, &q);

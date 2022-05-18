@@ -360,16 +360,24 @@ DGMaxEigenvalue<DIM>::SolverWorkspace::SolverWorkspace(
     initMatrices();
     DGMaxLogger(INFO, "Matrices assembled");
     initStiffnessShellMatrix();
+    DGMaxLogger(INFO, "Stiffness Shell Initialized");
     if (config_.usesShifts()) {
         shifts = std::make_unique<DGMaxEigenvalue<DIM>::ShiftWorkspace>(
             tempFieldVector_, config_);
+        DGMaxLogger(INFO, "ShiftWorkspace Initialized");
     }
+    
     if (config_.useProjector_ != DGMaxEigenvalueBase::NONE) {
         projector =
             std::make_unique<DGMaxEigenvalue<DIM>::ProjectorWorkspace>(*this);
+        DGMaxLogger(INFO, "ProjectorWorksapce Initialized");
     }
+    
     initSolver();
+    DGMaxLogger(INFO, "Solver Initialized");
+
     initEigenvectorStorage(targetNumberOfEigenvalues);
+    
     initStiffnessMatrixShifts();
     DGMaxLogger(INFO, "Solver workspace init completed");
 }
@@ -696,7 +704,8 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::solve(
     if (use_jdmax_) {
 
         auto start = std::chrono::high_resolution_clock::now();
-        jdmax_solver_.solve(targetNumberOfEigenvalues);
+        error = jdmax_solver_.solve(targetNumberOfEigenvalues);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
         std::chrono::duration<double> time = std::chrono::high_resolution_clock::now() - start;
         
         numEigenvalues = jdmax_solver_.getConverged();
