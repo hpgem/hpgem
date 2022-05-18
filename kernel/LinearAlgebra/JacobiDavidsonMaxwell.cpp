@@ -274,8 +274,6 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::normalizeVector(Vec &x)
         PetscPrintf(PETSC_COMM_WORLD, "inv_sqrt_norm = %f", inv_sqrt_norm);
         exit(0);}
 
-
-
     return(0);
 }
 
