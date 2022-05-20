@@ -84,7 +84,11 @@ void JacobiDavidsonMaxwellSolver::setMatrices(const Mat &Ain, const Mat &Min, co
     ierr = MatGetSize(Min, &n, &m);
     PetscPrintf(PETSC_COMM_WORLD, "size M: %d, %d\n", n,m);
     // ierr =  MatDuplicate(Min, MAT_COPY_VALUES, &this->M);
-    this->M = Min;
+    
+    // If config.useHermitian_ is true, M is identity and therefore invM as well.
+    // this->M = Min;
+    MatCreateConstantDiagonal(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, n,m, 1.0, &this->M);
+    MatCreateConstantDiagonal(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, n,m, 1.0, &this->invM);
     PetscPrintf(PETSC_COMM_WORLD, " set M Done\n");
 
 
@@ -100,6 +104,7 @@ void JacobiDavidsonMaxwellSolver::initializeMatrices() {
 
     PetscInt        y_nrows, y_ncols;
     PetscScalar     eps = 1.;
+    PetscErrorCode ierr;
 
     // MatScale(this->A, eps);
     // MatScale(this->M, eps);
@@ -109,18 +114,40 @@ void JacobiDavidsonMaxwellSolver::initializeMatrices() {
     MatHermitianTranspose(this->C, MAT_INPLACE_MATRIX, &this->C);
     MatGetSize(this->C, &y_nrows, &y_ncols);
 
-    // create Y matrix
-    MatCreate(PETSC_COMM_WORLD, &this->Y);
-    MatSetSizes(this->Y,PETSC_DECIDE,PETSC_DECIDE,y_nrows,y_ncols);
-    MatSetFromOptions(this->Y);
-    MatSetUp(this->Y);
+    // if we know invM we can directly use it to compute Y = M^{-1} C
+    if(1) {
 
-    // solve M * Y = C for each C vector
-    PetscPrintf(PETSC_COMM_WORLD, " Start Multiple Linear Systems\n");
-    solveMultipleLinearSystems();
-    PetscPrintf(PETSC_COMM_WORLD, " Multiple Linear Systems Done\n");
+        // MatMatMult(this->invM, this->C, MAT_INITIAL_MATRIX, PETSC_DEFAULT, &this->Y);
 
+        // MatProductCreate(this->invM,this->C,NULL,&this->Y);
+        // MatProductSetFromOptions(this->Y);
+        // MatProductSetType(this->Y,MATPRODUCT_AB);
+        // MatProductSymbolic(this->Y);
+        // MatProductNumeric(this->Y); // compute C=A * B
 
+        ierr = MatDuplicate(C, MAT_COPY_VALUES, &this->Y);
+        CHKERRABORT(PETSC_COMM_WORLD, ierr);
+    }
+
+    
+
+    // if we don't know invM we have to solve M y = c 
+    if(0) {
+        // solve M * Y = C for each C vector
+        PetscPrintf(PETSC_COMM_WORLD, " Start Multiple Linear Systems\n");
+
+        // create Y matrix
+        MatCreate(PETSC_COMM_WORLD, &this->Y);
+        MatSetSizes(this->Y,PETSC_DECIDE,PETSC_DECIDE,y_nrows,y_ncols);
+        MatSetFromOptions(this->Y);
+        MatSetUp(this->Y);
+
+        
+        solveMultipleLinearSystems();
+
+        PetscPrintf(PETSC_COMM_WORLD, " Multiple Linear Systems Done\n");
+
+    }
     // create the H matrix and
     // compute the projection H = Y.T M Y
     MatGetSize(this->Y, &y_nrows, &y_ncols);
@@ -231,9 +258,10 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solveMultipleLinearSystems(){
     tmp_val = new PetscScalar [local_size];
 
     // set up the linear system
+    // MatView(M,PETSC_VIEWER_STDOUT_WORLD);
     KSPCreate(PETSC_COMM_WORLD,&ksp);
-    // KSPSetType(ksp,KSPGMRES);
     KSPSetType(ksp,KSPCG);
+    // KSPSetType(ksp,KSPGMRES);
     KSPSetOperators(ksp,M,M);
     KSPSetTolerances(ksp, 1e-6, 1.e-6, PETSC_DEFAULT, 100);
     KSPSetFromOptions(ksp);

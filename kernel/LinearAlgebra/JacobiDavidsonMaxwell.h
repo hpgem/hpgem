@@ -126,6 +126,7 @@ class JacobiDavidsonMaxwellSolver final {
 
 
     Mat A, M, C;
+    Mat invM;
     Mat Y, H;
     BV Qt, Q, V;
     Vec search_vect;

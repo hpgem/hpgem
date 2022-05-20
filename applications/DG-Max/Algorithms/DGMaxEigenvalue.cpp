@@ -91,6 +91,8 @@ void DGMaxEigenvalue<DIM>::initializeMatrices() {
         faceVectors;
     discretization_.computeFaceIntegrals(mesh_, faceVectors,
                                          dispersionFrequency);
+
+
 }
 
 // SolverWorkspace //
