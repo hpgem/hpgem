@@ -106,7 +106,7 @@ void JacobiDavidsonMaxwellSolver::initializeMatrices() {
     // MatScale(this->C, eps);
 
     // transpose C
-    MatTranspose(this->C, MAT_INPLACE_MATRIX, &this->C);
+    MatHermitianTranspose(this->C, MAT_INPLACE_MATRIX, &this->C);
     MatGetSize(this->C, &y_nrows, &y_ncols);
 
     // create Y matrix
@@ -624,7 +624,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::projectCorrectionVector(Vec &corr)
     VecSetFromOptions(rhs);
 
     // compute rhs = C.T corr
-    MatMultTranspose(this->C, corr, rhs);
+    MatMultHermitianTranspose(this->C, corr, rhs);
 
     // set up the linear system
     KSPCreate(PETSC_COMM_WORLD,&ksp);
