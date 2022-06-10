@@ -205,11 +205,6 @@ class DivDGMaxDiscretization : public DGMax::AbstractDiscretization<DIM>,
     void computeElementMatrices(Base::Element* element,
                                 Utilities::ElementLocalIndexing& indexing);
 
-    /// Element part of matrix B and B^T, with zeros around it (- grad p, eps v)
-    void elementScalarVectorCoupling(
-        Base::PhysicalElement<DIM>& el,
-        LinearAlgebra::MiddleSizeMatrix& ret) const;
-
     /// The source vector for harmonic problems.
     void elementSourceVector(Base::PhysicalElement<DIM>& el,
                              const InputFunction& source,

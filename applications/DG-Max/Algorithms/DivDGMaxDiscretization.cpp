@@ -471,47 +471,23 @@ void DivDGMaxDiscretization<DIM>::computeElementMatrices(
                     pelem.basisFunction(i, phiI, 0);
 
                     for (std::size_t j = 0; j < numPDoFs; ++j) {
+                        // The term from Maxwell is Div (epsilon E) = 0, thus
+                        // for the Lagrange multiplier we have the adjoint
+                        // operator of Div (epsilon .) = epsilon^H grad
+                        // The (Div epsilon E, q) in the weak formulation is
+                        // reworked into - (epsilon E, grad q), to ensure
+                        // symmetry. We compute here -(epsilon E, grad q)
                         std::complex<double> value =
                             -materialDiv.applyDiv(phiI) *
                             pelem.basisFunctionDeriv(j, 1);
-                        // FIXME: Conjugation
-                        ret(i, j + offPDoFs) = std::conj(value);
                         ret(j + offPDoFs, i) = value;
+                        // -(grad p, epsilon* v) is just the conjugate value
+                        ret(i, j + offPDoFs) = std::conj(value);
                     }
                 }
                 return ret;
             });
     element->setElementMatrix(stiffnessMatrix, STIFFNESS_MATRIX_ID);
-}
-
-template <std::size_t DIM>
-void DivDGMaxDiscretization<DIM>::elementScalarVectorCoupling(
-    Base::PhysicalElement<DIM>& el,
-    LinearAlgebra::MiddleSizeMatrix& ret) const {
-    const Base::Element* element = el.getElement();
-    std::size_t uDoFs = element->getNumberOfBasisFunctions(0);
-    std::size_t pDoFs = element->getNumberOfBasisFunctions(1);
-    ret.resize(uDoFs + pDoFs, uDoFs + pDoFs);
-    const auto materialDiv = ElementInfos::get(element)->getMaterialConstantDiv(
-        el.getPointPhysical());
-    LinearAlgebra::SmallVectorC<DIM> phi_i;
-    LinearAlgebra::SmallVector<DIM> phi_j;
-
-    // Note, this loop only loops over the basis functions for the second
-    // unknown. However, it needs the offset for the first unknown.
-    for (std::size_t i = uDoFs; i < uDoFs + pDoFs; ++i) {
-        phi_i = el.basisFunctionDeriv(i - uDoFs, 1);
-
-        for (std::size_t j = 0; j < uDoFs; ++j) {
-            el.basisFunction(j, phi_j, 0);
-            const DGMax::MaterialTensor material = materialDiv.adjoint();
-            std::complex<double> value =
-                -1.0 * phi_i * material.applyDiv(phi_j);
-            // TODO: Conjugation
-            ret(j, i) = value;
-            ret(i, j) = std::conj(ret(j, i));
-        }
-    }
 }
 
 template <std::size_t DIM>
@@ -584,6 +560,9 @@ void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
                                 : materialCurlRight.adjoint();
             phiUCurlj = material.applyCurl(fa.basisFunctionCurl(j, 0));
 
+            // Note the ordering is important to get the conjugation of complex
+            // material parameters correctly. The i=trial, j=test function and
+            // the second argument of the inner product is conjugated.
             std::complex<double> entry =
                 factor * (phiUCurli * phiUNormalj + phiUNormali * phiUCurlj);
 
@@ -621,18 +600,21 @@ void DivDGMaxDiscretization<DIM>::faceStiffnessMatrixFieldIntegrand(
                 const std::size_t& jIndex = mapping[j];
 
                 fa.basisFunction(j, phi, 0);
-                const auto materialj = j < leftUDoFs
-                                           ? materialDivLeft.adjoint()
-                                           : materialDivRight.adjoint();
+                const auto materialj =
+                    j < leftUDoFs ? materialDivLeft : materialDivRight;
                 std::complex<double> phiUj = materialj.applyDiv(phi) * normal;
                 if (j >= leftUDoFs) {
                     phiUj *= -1.0;
                 }
 
+                // Again first argument = trial function => not conjugated
+                // Test functions are conjugated as an inner product is
+                // computed. This is not done by * for complex<double> so we do
+                // it manually.
+                phiUj = std::conj(phiUi);
                 std::complex<double> value = stab2 * phiUi * phiUj;
                 ret(jIndex, iIndex) += value;
                 if (i != j) {
-                    // TODO: Conjugate
                     ret(iIndex, jIndex) += std::conj(value);
                 }
             }
@@ -707,11 +689,12 @@ void DivDGMaxDiscretization<DIM>::addFaceMatrixPotentialIntegrand(
         for (std::size_t j = 0; j < totalPDoFs; ++j) {
             double phiPj = fa.basisFunction(j, 1) * normalSign[j];
 
+            // Note i = trial function -> not conjugated
             const std::complex<double> entry = averageFactor * epsUNi * phiPj;
             const std::size_t jIndex = mappingP[j];
 
-            // FIXME: Conjugation
             ret(jIndex, iIndex) += entry;
+            // Hermitian counterpart => conjugate
             ret(iIndex, jIndex) += std::conj(entry);
         }
     }
@@ -1156,9 +1139,9 @@ void DivDGMaxDiscretization<DIM>::faceBoundaryVector(
         const auto materialCurl =
             material.getMaterialConstantCurl(fa.getPointPhysical());
 
+        const DGMax::MaterialTensor& material1 = materialCurl.adjoint();
         for (std::size_t i = 0; i < totalUDoFs; ++i) {
             fa.basisFunctionUnitNormalCross(i, phi, 0);
-            const DGMax::MaterialTensor& material1 = materialCurl.adjoint();
             phi_curlMat = material1.applyCurl(fa.basisFunctionCurl(i, 0));
             std::complex<double> value = -(val * phi_curlMat);
             if (stab_.fluxType1 == FluxType::IP) {

@@ -165,4 +165,28 @@ int main(int argc, char** argv) {
                            return solve(meshFile, level, "pml-reflection-dgmax",
                                         dgmax);
                        });
+    // DivDGMax
+
+    ConvergenceTestSet meshesDivDGMax{getUnitSquareTriangleMeshes(3)};
+    meshesDivDGMax.addExpectedErrors("L2error",
+                                     {
+                                         4.69745300e-02,  //------
+                                         1.17584389e-02,  //  3.99
+                                         2.94123592e-03,  //  4.00
+                                         7.35369615e-04,  //  4.00
+                                     });
+
+    DivDGMaxDiscretizationBase::Stab stab;
+    // Using IP fluxes as correct conjugation with Brezzi fluxes has not been
+    // worked out.
+    stab.setAllFluxeTypes(DivDGMaxDiscretizationBase::FluxType::IP);
+    stab.stab1 = 100;
+    stab.stab2 = 0;
+    stab.stab3 = 5;
+    auto divDGMax = std::make_shared<DivDGMaxDiscretization<2>>(2, stab);
+    runConvergenceTest(meshesDivDGMax, runToDebug.getValue(),
+                       [&divDGMax](std::string meshFile, std::size_t level) {
+                           return solve(meshFile, level,
+                                        "pml-reflection-divdgmax", divDGMax);
+                       });
 }
