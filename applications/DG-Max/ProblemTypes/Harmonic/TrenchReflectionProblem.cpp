@@ -170,7 +170,6 @@ T TrenchReflectionProblem<dim>::combineWaves(T forward, T backward,
             // The backwards wave is from the reflection, so that grows
             // exponentially towards the far side.
             backward /= scaling;
-
         }
         double pmlDepth = (length_ - pmlYstart_);
         double exponent =

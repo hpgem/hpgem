@@ -87,8 +87,8 @@ class TrenchReflectionProblem : public SampleHarmonicProblem<dim> {
 
     double omega() const final { return omega_; }
     LinearAlgebra::SmallVectorC<dim> sourceTerm(
-        const Base::Element&,
-        const Geometry::PointPhysical<dim>& point) const final {
+        const Base::Element&, const Geometry::PointPhysical<dim>& point)
+        const final {
         // On dispersion by design
         return {};
     }
