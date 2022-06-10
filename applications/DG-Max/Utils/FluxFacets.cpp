@@ -108,7 +108,7 @@ void FluxFacets::generateZoneOrdering(const Base::MeshManipulatorBase& mesh) {
 
     // Use the presence matrix to build a global ordering
     std::size_t linearIndex = 0;
-    for(int i = 0; i < ordering.size(); ++i) {
+    for (int i = 0; i < ordering.size(); ++i) {
         if (ordering[i] == 0) {
             // Not present in the mesh
             continue;
@@ -120,7 +120,7 @@ void FluxFacets::generateZoneOrdering(const Base::MeshManipulatorBase& mesh) {
         faceIndexOrdering_[pair] = linearIndex++;
 
         // Construct a name
-        std::stringstream  name;
+        std::stringstream name;
         name << "flux-";
         name << zones[pair.first]->getName();
         if (pair.second >= 0) {

@@ -135,7 +135,8 @@ class PMLElementInfos : public ElementInfos, public DGMax::Dispersive {
         // 1/d2d3, 1/d1d3, 1/d1d2.
         // applyCurl in MaterialConstant applies the inverse of the values so
         // compute d2d3 d1d3 d1d2.
-        VecC3 stretching = getCoordinateStretching(p, getDispersionWavenumber());
+        VecC3 stretching =
+            getCoordinateStretching(p, getDispersionWavenumber());
         VecC3 result = VecC3 ::constant(1.0);
         for (std::size_t i = 0; i < 3; ++i) {
             for (std::size_t j = 0; j < 3; ++j) {

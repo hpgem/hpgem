@@ -77,8 +77,9 @@ class Dispersive {
 class DispersionContainer {
    public:
     void setDispersionWavenumber(double wavenumber) {
-        for(auto& weakDispersive : weakDispersives_) {
-            if(std::shared_ptr<Dispersive> dispersive = weakDispersive.lock()) {
+        for (auto& weakDispersive : weakDispersives_) {
+            if (std::shared_ptr<Dispersive> dispersive =
+                    weakDispersive.lock()) {
                 dispersive->setDispersionWavenumber(wavenumber);
             }
         }
@@ -87,9 +88,9 @@ class DispersionContainer {
         weakDispersives_.push_back(dispersive);
     }
 
-    private:
-     std::vector<std::weak_ptr<DGMax::Dispersive>> weakDispersives_;
+   private:
+    std::vector<std::weak_ptr<DGMax::Dispersive>> weakDispersives_;
 };
 
-}
+}  // namespace DGMax
 #endif  // HPGEM_DISPERSIVE_H

@@ -262,10 +262,10 @@ typename DivDGMaxDiscretization<DIM>::Fields
 
     // Rescale for PMLs
     const auto& pPhys = physicalElement.getPointPhysical();
-    result.electricField = userData.getFieldRescaling(pPhys)
-                               .applyDiv(result.electricField);
-    result.electricFieldCurl = userData.getCurlFieldRescaling(pPhys)
-                                   .applyCurl(result.electricFieldCurl);
+    result.electricField =
+        userData.getFieldRescaling(pPhys).applyDiv(result.electricField);
+    result.electricFieldCurl = userData.getCurlFieldRescaling(pPhys).applyCurl(
+        result.electricFieldCurl);
 
     return result;
 }
