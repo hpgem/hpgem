@@ -88,11 +88,11 @@ TEST_CASE("Check zero source", "InterfaceReflectionField") {
 
     double omega = 3.0, phase = 1.5;
     double xinterface = 0.0;
-    PlaneWave<3> incident ({omega * mat1.getRefractiveIndex(), 0.0, 0.0}, {0, 1.0, 0}, phase);
+    PlaneWave<3> incident ({omega * mat1.getRefractiveIndex(), 0.0, 0.0},
+                          {0, 1.0, 0}, phase);
     VecR<3> normal = {1.0, 0, 0};
     InterfaceReflectionField<3> field(incident, mat1, mat2, normal, xinterface);
-
-
+    
     INFO("Material one")
     VecR<3> p = {-1.0, 32.1, 1.54};
     auto source =
