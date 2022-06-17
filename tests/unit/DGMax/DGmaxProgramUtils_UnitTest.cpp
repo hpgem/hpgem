@@ -70,7 +70,7 @@ TEST_CASE("Separator", "[StringSplit]") {
     REQUIRE(result == expected);
 }
 
-TEST_CASE("2D test", "parsePMLZoneDescription") {
+TEST_CASE("2D test", "[parsePMLZoneDescription]") {
     DGMax::PMLZoneDescription<2> pml =
         DGMax::parsePMLZoneDescription<2>("TEST,+-,1e-1,1e-2");
     CHECK(pml.zoneName_ == "TEST");
@@ -78,7 +78,7 @@ TEST_CASE("2D test", "parsePMLZoneDescription") {
     LinearAlgebra::SmallVector<2> expectedAttenuation{1e-1, 1e-2};
 }
 
-TEST_CASE("2D test", "parsePMLZoneDescription") {
+TEST_CASE("3D test", "[parsePMLZoneDescription[") {
     DGMax::PMLZoneDescription<3> pml =
         DGMax::parsePMLZoneDescription<3>("Dummy,0+0,1,1e-4,1");
     CHECK(pml.zoneName_ == "Dummy");
