@@ -79,9 +79,14 @@ struct ProblemData {
                       return &infosRight;
                   }
               })),
+          // Plane wave in x-direction, field polarized in y-direction
           problem(omega,
                   std::make_shared<InterfaceReflectionField<3>>(
-                      omega, phase, leftMaterial, rightMaterial, xInterface)) {
+                      PlaneWave<3>(
+                          {omega * leftMaterial.getRefractiveIndex(), 0, 0},
+                          {0, 1.0, 0}, phase),
+                      leftMaterial, rightMaterial,
+                      LinearAlgebra::SmallVector<3>({1.0, 0, 0}), xInterface)) {
         problem.setBoundaryConditionIndicator([](const Base::Face& face) {
             auto normal = face.getNormalVector(
                 face.getReferenceGeometry()->getCenter().castDimension<2>());
