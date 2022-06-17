@@ -101,6 +101,7 @@ struct ProblemData {
                   baseMaterial) {
         problem.setFarEndBoundaryCondition(BoundaryConditionType::DIRICHLET);
         problem.setPML(PML_START, PML_SCALING, PML_DEPTH);
+        pmlInfos.setDispersionWavenumber(FREQUENCY);
     }
 
     Material baseMaterial;

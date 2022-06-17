@@ -796,6 +796,10 @@ LinearAlgebra::SmallVector<2> DGMaxDiscretization<DIM>::elementErrorIntegrand(
 
     LinearAlgebra::SmallVector<DIM> phi, phiCurl;
     LinearAlgebra::SmallVectorC<DIM> error, errorCurl;
+    auto fieldRescale =
+        ElementInfos::get(*element).getFieldRescaling(el.getPointPhysical());
+    auto curlRescale = ElementInfos::get(*element).getCurlFieldRescaling(
+        el.getPointPhysical());
 
     error = exactValues(*element, el.getPointPhysical());
     if (computeCurl) {
@@ -805,10 +809,10 @@ LinearAlgebra::SmallVector<2> DGMaxDiscretization<DIM>::elementErrorIntegrand(
     data = element->getTimeIntegrationVector(timeVector);
     for (std::size_t i = 0; i < element->getNrOfBasisFunctions(0); ++i) {
         el.basisFunction(i, phi, 0);
-        error -= data[i] * phi;
+        error -= fieldRescale.applyDiv(data[i] * phi);
         if (computeCurl) {
             phiCurl = el.basisFunctionCurl(i, 0);
-            errorCurl -= data[i] * phiCurl;
+            errorCurl -= curlRescale.applyCurl(data[i] * phiCurl);
         }
     }
     double l2Error = error.l2NormSquared();
@@ -823,6 +827,8 @@ template <std::size_t DIM>
 double DGMaxDiscretization<DIM>::faceErrorIntegrand(
     Base::PhysicalFace<DIM>& fa, std::size_t timeVector,
     DGMaxDiscretization<DIM>::InputFunction exactSolution) const {
+    logger(WARN, "DG-Error does not work with PMLs");
+
     // The face error part of the DG norm is given by
     // || h^0.5 [[u - u_h]]_T ||^2. Where h is the diameter of the face, u and
     // u_h are the exact and computed solutions. Further more the [[ . ]]_T is

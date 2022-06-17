@@ -1258,13 +1258,16 @@ double DivDGMaxDiscretization<DIM>::elementErrorIntegrand(
     LinearAlgebra::MiddleSizeVector data =
         element->getTimeIntegrationVector(timeVector);
 
+    auto fieldRescale =
+        ElementInfos::get(*element).getFieldRescaling(el.getPointPhysical());
+
     LinearAlgebra::SmallVectorC<DIM> error;
     std::complex<double> potentialError = 0.0;  // Should be zero
     LinearAlgebra::SmallVector<DIM> phi;
     error = exactValues(*element, el.getPointPhysical());
     for (std::size_t i = 0; i < numberOfUDoFs; ++i) {
         el.basisFunction(i, phi, 0);
-        error -= data[i] * phi;
+        error -= fieldRescale.applyDiv(data[i] * phi);
     }
     for (std::size_t i = 0; i < numberOfPDoFs; ++i) {
         potentialError += data[i + numberOfUDoFs] * el.basisFunction(i, 1);
