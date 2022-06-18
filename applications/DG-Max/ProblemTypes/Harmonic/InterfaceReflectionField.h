@@ -46,35 +46,50 @@ namespace DGMax {
 
 /// Reflection of a plane wave from an interface.
 ///
-/// This field pattern assumes that an incoming wave
-///   E(x,y) = <0,1> exp[i (k.x + phi)]
-/// is reflected by an interface at x = x0, where the material changes
-/// changes from mat1 (x < x0) to mat2 (x > x0). The wave is assumed to
-/// be on the dispersion curve.
+/// This field pattern assumes that a plane wave is normal incident on an
+/// interface. This is then partially reflected and partially transmitted.
+/// The interface is specified by the condition n . x = c, for some normal
+/// vector n and scalar c, with n . x < c being the first material with the
+/// incident wave and n . x > c the material with the transmitted wave.
 ///
-/// Natural boundary conditions would be:
-///  - x-normal: Silver Muller with incoming plane wave imposed
-///  - y-normal: PEC (as field is in y direction)
-///  - z-normal: PMC (field is parallel to the surface)
+/// For a logical interpretation one should have n . k > 0.
 template <std::size_t dim>
 class InterfaceReflectionField : public FieldPattern<dim> {
    public:
     using typename FieldPattern<dim>::VecC;
     using typename FieldPattern<dim>::PPhys;
 
-    InterfaceReflectionField(double omega, double phase, Material mat1,
-                             Material mat2, double position)
-        : interfacePosition_(position) {
+    /// \param incidentWave The incident plane wave
+    /// \param mat1 Material 1 (incident, reflected wave)
+    /// \param mat2 Material 2 (transmitted wave)
+    /// \param interfaceNormal Normal direction of the interface
+    /// \param position Position c of the interface
+    InterfaceReflectionField(PlaneWave<dim> incidentWave, Material mat1,
+                             Material mat2,
+                             LinearAlgebra::SmallVector<dim> interfaceNormal,
+                             double position)
+        : incident_(incidentWave),
+          interfaceNormal_(interfaceNormal),
+          interfacePosition_(position) {
+        logger.assert_always(
+            std::abs(std::abs(incidentWave.waveVector() * interfaceNormal_) -
+                     incidentWave.waveVector().l2Norm()) <
+                1e-8 * incidentWave.waveVector().l2Norm(),
+            "Wave vector and interface normal are not parallel");
+
         using namespace std::complex_literals;
         using namespace hpgem;
 
         // Wavevectors in x-direction with the right magnitude
         using VecR = LinearAlgebra::SmallVector<dim>;
-        VecR kin, kref, ktrans, E0;
-        kin[0] = omega * mat1.getRefractiveIndex();
-        kref[0] = -kin[0];
-        ktrans[0] = omega * mat2.getRefractiveIndex();
-        E0[1] = 1.0;
+        VecR kin, kref, ktrans;
+        kin = incidentWave.waveVector();
+        kref = kin - 2 * (interfaceNormal_ * kin) *
+                         interfaceNormal_;  // non-normal incident
+        // Only for normal incidence
+        ktrans = kin * mat2.getRefractiveIndex() / mat1.getRefractiveIndex();
+
+        VecC E0 = incidentWave.field({});  // Field at the origin
 
         // The reflection and transmission coefficients are derived in several
         // standard textbooks.
@@ -87,28 +102,40 @@ class InterfaceReflectionField : public FieldPattern<dim> {
 
         // At the interface the phases of the fields should match. The
         // reflection and transmission coefficients would ensure this when using
-        // three plane waves and an interface at x=0:
+        // three plane waves and an interface at x=0 (normal = e_x):
         // Ei = <0,1> exp(ik_i x + phi)
         // Er = <0,r> exp(ik_r x + phi)
         // Et = <0,t> exp(ik_t x + phi)
-        // However, we have in interface at x = x_L, as such we need to
-        // compensate the phase of each wave.
-        auto rPhase = phase + kin[0] * position - kref[0] * position;
-        auto tPhase = phase + kin[0] * position - ktrans[0] * position;
-        incident_ = PlaneWave<dim>(kin, E0, phase);
+        // However, we have in interface away from the origin, so we have to
+        // compensate with a phase factor.
+        // Choose a point on the interface
+        auto pos = interfaceNormal_ * position;
+        auto inPhase = pos * kin;
+        auto rPhase = inPhase - kref * pos;
+        auto tPhase = inPhase - ktrans * pos;
         reflected_ = PlaneWave<dim>(kref, r * E0, rPhase);
         transmitted_ = PlaneWave<dim>(ktrans, t * E0, tPhase);
-    };
+    }
+
+    /// Lecagy constructor. Assumes normal in <0,1,0> direction and polarization
+    /// <1, 0, 0>.
+    /// \param omega Frequency of the wave
+    /// \param phase Phase offset
+    /// \param mat1 Material 1 (incident, reflected)
+    /// \param mat2 Material 2 (transmitted)
+    /// \param position position of interface (y coordinate).
+    InterfaceReflectionField(double omega, double phase, Material mat1,
+                             Material mat2, double position);
 
     VecC field(const PPhys& p) const override {
-        if (p[0] < interfacePosition_) {
+        if (interfaceNormal_ * p.getCoordinates() < interfacePosition_) {
             return incident_.field(p) + reflected_.field(p);
         } else {
             return transmitted_.field(p);
         }
     }
     VecC fieldCurl(const PPhys& p) const override {
-        if (p[0] < interfacePosition_) {
+        if (interfaceNormal_ * p.getCoordinates() < interfacePosition_) {
             return incident_.fieldCurl(p) + reflected_.fieldCurl(p);
         } else {
             return transmitted_.fieldCurl(p);
@@ -116,7 +143,7 @@ class InterfaceReflectionField : public FieldPattern<dim> {
     }
     VecC fieldDoubleCurl(const PPhys& p,
                          const MaterialTensor& material) const override {
-        if (p[0] < interfacePosition_) {
+        if (interfaceNormal_ * p.getCoordinates() < interfacePosition_) {
             return incident_.fieldDoubleCurl(p, material) +
                    reflected_.fieldDoubleCurl(p, material);
         } else {
@@ -125,6 +152,7 @@ class InterfaceReflectionField : public FieldPattern<dim> {
     }
 
    private:
+    LinearAlgebra::SmallVector<dim> interfaceNormal_;
     double interfacePosition_;
     PlaneWave<dim> incident_;
     PlaneWave<dim> reflected_;

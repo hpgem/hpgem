@@ -35,64 +35,72 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef HPGEM_EXACTFIELDHARMONICPROBLEM_H
-#define HPGEM_EXACTFIELDHARMONICPROBLEM_H
+#ifndef HPGEM_SCATTERINGPROBLEM_H
+#define HPGEM_SCATTERINGPROBLEM_H
 
-#include "SampleHarmonicProblems.h"
+#include <memory>
+
 #include "../FieldPattern.h"
+#include "../HarmonicProblem.h"
+#include "../../PMLElementInfos.h"
 
 namespace DGMax {
 
-/**
- * Implementation of ExactHarmonicProblem based on FieldPattern.
- *
- * This implementation takes a FieldPattern, the exact solution. It then derives
- * the required source term and boundary conditions. The boundary conditions to
- * use can be set by the user.
- *
- * @tparam dim dimension of a problem
- */
 template <std::size_t dim>
-class ExactFieldHarmonicProblem : public SampleHarmonicProblem<dim> {
+class ScatteringProblem : public HarmonicProblem<dim> {
    public:
-    ExactFieldHarmonicProblem(double omega,
-                              std::shared_ptr<FieldPattern<dim>> field)
-        : omega_(omega), field_(field){};
+    ScatteringProblem(double omega,
+                      std::shared_ptr<FieldPattern<dim>> incidentField)
+        : omega_(omega), incidentField_(std::move(incidentField)){};
 
     double omega() const override { return omega_; }
 
     LinearAlgebra::SmallVectorC<dim> sourceTerm(
         const Base::Element& element,
         const Geometry::PointPhysical<dim>& point) const override {
-        ElementInfos& infos = ElementInfos::get(element);
-        // Compute the source term as
-        // Curl (mu^{-1} Curl E) - omega^2 epsilon E
-        return field_->fieldDoubleCurl(point,
-                                       infos.getMaterialConstantCurl(point)) -
-               (omega_ * omega_) * infos.getMaterialConstantDiv(point).applyDiv(
-                                       field_->field(point));
-        ;
+
+        const ElementInfos& material = ElementInfos::get(element);
+        if (dynamic_cast<const PMLElementInfos<dim>*>(&material) != nullptr) {
+            return {};
+        }
+
+        auto matCurl = material.getMaterialConstantCurl(point);
+        auto matDiv = material.getMaterialConstantDiv(point);
+
+        // Note the minus sign compared to the standard
+        // Curl^2 E - omega^2 E = 0 of Maxwell's equations.
+        return -incidentField_->fieldDoubleCurl(point, matCurl) +
+               omega_ * omega_ * matDiv.applyDiv(incidentField_->field(point));
     }
 
-    LinearAlgebra::SmallVectorC<dim> exactSolution(
-        const Geometry::PointPhysical<dim>& point) const override {
-        return field_->field(point);
+    bool isScatterFieldProblem() const override { return true; }
+
+    BoundaryConditionType getBoundaryConditionType(
+        const Base::Face& face) const override {
+        return BoundaryConditionType::DIRICHLET;
+    }
+    LinearAlgebra::SmallVectorC<dim> boundaryCondition(
+        Base::PhysicalFace<dim>& face) const override {
+        return {};
+    }
+    LinearAlgebra::SmallVectorC<dim> incidentField(
+        Geometry::PointPhysical<dim>& p) const override {
+        return incidentField_->field(p);
+    }
+    LinearAlgebra::SmallVectorC<dim> incidentFieldCurl(
+        Geometry::PointPhysical<dim>& p) const override {
+        return incidentField_->fieldCurl(p);
     }
 
-    LinearAlgebra::SmallVectorC<dim> exactSolutionCurl(
-        const Geometry::PointPhysical<dim>& point) const override {
-        return field_->fieldCurl(point);
-    }
-
-    const std::shared_ptr<FieldPattern<dim>>& getField() const {
-        return field_;
+    std::shared_ptr<const FieldPattern<dim>> incidentFieldPattern() const {
+        return incidentField_;
     }
 
    private:
     double omega_;
-    std::shared_ptr<FieldPattern<dim>> field_;
+    std::shared_ptr<FieldPattern<dim>> incidentField_;
 };
 
 }  // namespace DGMax
 
-#endif  // HPGEM_EXACTFIELDHARMONICPROBLEM_H
+#endif  // HPGEM_SCATTERINGPROBLEM_H
