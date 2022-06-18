@@ -62,7 +62,7 @@ template <std::size_t dim>
 InterfaceReflectionField<dim>::InterfaceReflectionField(
     double omega, double phase, Material mat1, Material mat2, double position)
     : InterfaceReflectionField<dim>(legacyIncidentWave<dim>(omega, mat1, phase),
-                               mat1, mat2, legacyNormal<dim>(), position) {
+                                    mat1, mat2, legacyNormal<dim>(), position) {
 }
 
 template class InterfaceReflectionField<2>;
