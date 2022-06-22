@@ -72,13 +72,15 @@ void JacobiDavidsonMaxwellSolver::setMatrices(const Mat &Ain, const Mat &Min, co
     
     PetscErrorCode ierr; 
     PetscInt n,m;
-
+    MatType mtype;
 
     ierr = MatGetSize(Ain, &n, &m);
     PetscPrintf(PETSC_COMM_WORLD, "size A: %d, %d\n", n,m);
     // ierr =  MatDuplicate(Ain, MAT_COPY_VALUES, &this->A);
     this->A = Ain;
     PetscPrintf(PETSC_COMM_WORLD, " set A Done \n");
+    MatGetType(this->A, &mtype);
+    PetscPrintf(PETSC_COMM_WORLD, " A Mat type %s\n", mtype);
 
 
     ierr = MatGetSize(Min, &n, &m);
@@ -88,9 +90,14 @@ void JacobiDavidsonMaxwellSolver::setMatrices(const Mat &Ain, const Mat &Min, co
     // If config.useHermitian_ is true, M is identity and therefore invM as well.
     // this->M = Min;
     MatCreateConstantDiagonal(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, n,m, 1.0, &this->M);
-    MatCreateConstantDiagonal(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, n,m, 1.0, &this->invM);
-    PetscPrintf(PETSC_COMM_WORLD, " set M Done\n");
+    MatSetFromOptions(this->M);
+    MatConvert(this->M, MATSEQAIJ, MAT_INITIAL_MATRIX, &this->M);
 
+
+    MatCreateConstantDiagonal(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, n,m, 1.0, &this->invM);
+    MatSetFromOptions(this->invM);
+    PetscPrintf(PETSC_COMM_WORLD, " set M Done\n");
+    MatConvert(this->invM, MATSEQAIJ, MAT_INITIAL_MATRIX, &this->invM);
 
     ierr = MatGetSize(Cin, &n, &m);
     PetscPrintf(PETSC_COMM_WORLD, "size C: %d, %d\n", n,m);
@@ -103,27 +110,39 @@ void JacobiDavidsonMaxwellSolver::setMatrices(const Mat &Ain, const Mat &Min, co
 void JacobiDavidsonMaxwellSolver::initializeMatrices() {
 
     PetscInt        y_nrows, y_ncols;
+    PetscInt        m_nrows, m_ncols;
     PetscScalar     eps = 1.;
-    PetscErrorCode ierr;
+    PetscErrorCode  ierr;
+    PetscBool       hasop, isshell;
+    Mat             tmp_mat;
+    MatType         mtype;
 
     // MatScale(this->A, eps);
     // MatScale(this->M, eps);
     // MatScale(this->C, eps);
 
     // transpose C
-    MatHermitianTranspose(this->C, MAT_INPLACE_MATRIX, &this->C);
-    MatGetSize(this->C, &y_nrows, &y_ncols);
+    ierr = MatHermitianTranspose(this->C, MAT_INPLACE_MATRIX, &this->C);
+    CHKERRABORT(PETSC_COMM_WORLD, ierr);
+
+    ierr = MatGetSize(this->C, &y_nrows, &y_ncols);
+    CHKERRABORT(PETSC_COMM_WORLD, ierr);
 
     // if we know invM we can directly use it to compute Y = M^{-1} C
     if(1) {
 
         // MatMatMult(this->invM, this->C, MAT_INITIAL_MATRIX, PETSC_DEFAULT, &this->Y);
 
-        // MatProductCreate(this->invM,this->C,NULL,&this->Y);
-        // MatProductSetFromOptions(this->Y);
-        // MatProductSetType(this->Y,MATPRODUCT_AB);
-        // MatProductSymbolic(this->Y);
-        // MatProductNumeric(this->Y); // compute C=A * B
+        // ierr = MatProductCreate(this->invM,this->C,NULL,&this->Y);
+        // CHKERRABORT(PETSC_COMM_WORLD, ierr);
+        // ierr = MatProductSetFromOptions(this->Y);
+        // CHKERRABORT(PETSC_COMM_WORLD, ierr);
+        // ierr = MatProductSetType(this->Y,MATPRODUCT_AB);
+        // CHKERRABORT(PETSC_COMM_WORLD, ierr);
+        // ierr = MatProductSymbolic(this->Y);
+        // CHKERRABORT(PETSC_COMM_WORLD, ierr);
+        // ierr = MatProductNumeric(this->Y); 
+        // CHKERRABORT(PETSC_COMM_WORLD, ierr);
 
         ierr = MatDuplicate(C, MAT_COPY_VALUES, &this->Y);
         CHKERRABORT(PETSC_COMM_WORLD, ierr);
@@ -148,14 +167,35 @@ void JacobiDavidsonMaxwellSolver::initializeMatrices() {
         PetscPrintf(PETSC_COMM_WORLD, " Multiple Linear Systems Done\n");
 
     }
-    // create the H matrix and
-    // compute the projection H = Y.T M Y
-    MatGetSize(this->Y, &y_nrows, &y_ncols);
-    MatCreate(PETSC_COMM_WORLD, &this->H);
-    MatSetSizes(this->H,PETSC_DECIDE,PETSC_DECIDE,y_ncols,y_ncols);
-    MatSetFromOptions(this->H);
-    MatSetUp(this->H);
-    MatPtAP(this->M, this->Y, MAT_INITIAL_MATRIX, PETSC_DEFAULT, &this->H);
+
+
+    // Compute H = Y.T M Y 
+
+    ierr = MatHasOperation(this->M, MATOP_MAT_MULT_NUMERIC, &hasop);
+    if(hasop){ PetscPrintf(PETSC_COMM_WORLD, " Mat has operations\n"); }
+    else{PetscPrintf(PETSC_COMM_WORLD, " Mat has not operations\n"); }
+
+    ierr = MatIsShell(this->M, &isshell);
+    if(isshell){ PetscPrintf(PETSC_COMM_WORLD, " Mat is shell\n"); }
+    else{PetscPrintf(PETSC_COMM_WORLD, " Mat is not shell\n"); }
+
+    ierr = MatGetType(this->M, &mtype);
+    PetscPrintf(PETSC_COMM_WORLD, " Mat type %s\n", mtype);
+
+    ierr = MatProductCreate(this->M, this->Y, NULL, &this->H);
+    CHKERRABORT(PETSC_COMM_WORLD, ierr);
+
+    ierr = MatProductSetType(this->H,MATPRODUCT_PtAP);
+    CHKERRABORT(PETSC_COMM_WORLD, ierr);
+
+    ierr = MatProductSetFromOptions(this->H);
+    CHKERRABORT(PETSC_COMM_WORLD, ierr);
+
+    ierr = MatProductSymbolic(this->H);
+    CHKERRABORT(PETSC_COMM_WORLD, ierr);
+
+    ierr = MatProductNumeric(this->H); 
+    CHKERRABORT(PETSC_COMM_WORLD, ierr);
 
 }
 
@@ -840,14 +880,17 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev)
     // init the solver matrices and vectors
     initializeMatrices();
     PetscPrintf(PETSC_COMM_WORLD, "init matrices done\n");
+    
     initializeVectors();
     PetscPrintf(PETSC_COMM_WORLD, "init vector done\n");
     initializeSearchSpace(nev);
     PetscPrintf(PETSC_COMM_WORLD, "init search space done\n");
 
+
     // rayleigh quotient
     computeRayleighQuotient(this->search_vect, &rho);
     PetscPrintf(PETSC_COMM_WORLD, "compute rayleigh done\n");
+
 
     // compute initial residue vector
     computeResidueVector(this->search_vect, rho, this->residue_vect);

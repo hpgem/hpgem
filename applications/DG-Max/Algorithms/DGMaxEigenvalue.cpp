@@ -510,8 +510,14 @@ PetscErrorCode compareEigen(PetscScalar ar, PetscScalar ai, PetscScalar br,
 template <std::size_t DIM>
 void DGMaxEigenvalue<DIM>::SolverWorkspace::initSolver() {
 
+    MatType mtype;
+
     if (use_jdmax_)
     {
+        MatGetType(stiffnessMatrix_.A_, &mtype);
+        PetscPrintf(PETSC_COMM_WORLD, " stifness Mat type %s\n", mtype);
+
+
         jdmax_solver_.setMatrices(stiffnessMatrix_.A_, 
                                   massMatrix_.A_, 
                                   projector->projectorMatrix_.A_);
