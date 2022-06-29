@@ -335,9 +335,13 @@ void DGMaxEigenvalue<DIM>::solve(AbstractEigenvalueSolverDriver<DIM>& driver) {
         workspace.updateKPoint(currentK);
 
         workspace.solve(driver.getTargetNumberOfEigenvalues());
+        
+
         // Actual result processing
         DGMaxEigenvalue<DIM>::Result result(workspace, &mesh_, discretization_);
+        
         driver.handleResult(result);
+        // exit(0);
     }
 }
 
@@ -390,22 +394,25 @@ DGMaxEigenvalue<DIM>::SolverWorkspace::~SolverWorkspace() {
     // Force cleanup of the projector & shifts workspace (if available)
     projector = nullptr;
     shifts = nullptr;
-
-
     PetscErrorCode error;
-    error = VecDestroy(&tempFieldVector2_);
-    CHKERRABORT(PETSC_COMM_WORLD, error);
 
-    error = EPSDestroy(&eps_solver_);
+    error = VecDestroy(&tempFieldVector2_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
 
     error = MatDestroy(&shell_);
     CHKERRABORT(PETSC_COMM_WORLD, error);
+
     // always clean up after you are done
     if (!config_.useHermitian_) {
         error = MatDestroy(&product_);
         CHKERRABORT(PETSC_COMM_WORLD, error);
     }
+
+    if(!use_jdmax_) {
+        error = EPSDestroy(&eps_solver_);
+        CHKERRABORT(PETSC_COMM_WORLD, error);
+    }
+
 }
 
 template <std::size_t DIM>
@@ -514,9 +521,6 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::initSolver() {
 
     if (use_jdmax_)
     {
-        MatGetType(stiffnessMatrix_.A_, &mtype);
-        PetscPrintf(PETSC_COMM_WORLD, " stifness Mat type %s\n", mtype);
-
 
         jdmax_solver_.setMatrices(stiffnessMatrix_.A_, 
                                   massMatrix_.A_, 
@@ -723,7 +727,7 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::solve(
                     "Eigenvalue solver stopped after % iterations with % "
                     "eigenvalues in %s",
                     iterations, numEigenvalues, time.count());
-
+        
     }
 
     else {
@@ -775,12 +779,10 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::solve(
 
     }
 
-
-    
-
     // Post processing //
     /////////////////////
     extractEigenVectors();
+
 }
 
 template <std::size_t DIM>

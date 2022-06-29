@@ -1,4 +1,5 @@
 #include "JacobiDavidsonMaxwell.h"
+#include "Logger.h"
 
 namespace hpgem {
 
@@ -61,9 +62,12 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::getEigenPair(PetscInt index,
                                                      Vec &evec )
 {
     PetscErrorCode ierr;
+    Vec tmp_vec;
     eval = this->eigenvalues[index];
-    ierr = BVGetColumn(this->Q, index, &evec);
-
+    ierr = BVGetColumn(this->Q, index, &tmp_vec);
+    VecCopy(tmp_vec, evec);
+    BVRestoreColumn(this->Q, index, &tmp_vec);
+    VecDestroy(&tmp_vec);
     return (0);
 
 }
@@ -72,38 +76,16 @@ void JacobiDavidsonMaxwellSolver::setMatrices(const Mat &Ain, const Mat &Min, co
     
     PetscErrorCode ierr; 
     PetscInt n,m;
-    MatType mtype;
+    PetscViewer viewer; 
 
-    ierr = MatGetSize(Ain, &n, &m);
-    PetscPrintf(PETSC_COMM_WORLD, "size A: %d, %d\n", n,m);
-    // ierr =  MatDuplicate(Ain, MAT_COPY_VALUES, &this->A);
     this->A = Ain;
-    PetscPrintf(PETSC_COMM_WORLD, " set A Done \n");
-    MatGetType(this->A, &mtype);
-    PetscPrintf(PETSC_COMM_WORLD, " A Mat type %s\n", mtype);
+    this->C = Cin;
 
-
-    ierr = MatGetSize(Min, &n, &m);
-    PetscPrintf(PETSC_COMM_WORLD, "size M: %d, %d\n", n,m);
-    // ierr =  MatDuplicate(Min, MAT_COPY_VALUES, &this->M);
-    
     // If config.useHermitian_ is true, M is identity and therefore invM as well.
-    // this->M = Min;
+    ierr = MatGetSize(Min, &n, &m);
     MatCreateConstantDiagonal(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, n,m, 1.0, &this->M);
     MatSetFromOptions(this->M);
     MatConvert(this->M, MATSEQAIJ, MAT_INITIAL_MATRIX, &this->M);
-
-
-    MatCreateConstantDiagonal(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, n,m, 1.0, &this->invM);
-    MatSetFromOptions(this->invM);
-    PetscPrintf(PETSC_COMM_WORLD, " set M Done\n");
-    MatConvert(this->invM, MATSEQAIJ, MAT_INITIAL_MATRIX, &this->invM);
-
-    ierr = MatGetSize(Cin, &n, &m);
-    PetscPrintf(PETSC_COMM_WORLD, "size C: %d, %d\n", n,m);
-    // ierr =  MatDuplicate(Cin, MAT_COPY_VALUES, &this->C);
-    this->C = Cin;
-    PetscPrintf(PETSC_COMM_WORLD, " setMatrices Done\n");
 
 }
 
@@ -111,38 +93,14 @@ void JacobiDavidsonMaxwellSolver::initializeMatrices() {
 
     PetscInt        y_nrows, y_ncols;
     PetscInt        m_nrows, m_ncols;
-    PetscScalar     eps = 1.;
     PetscErrorCode  ierr;
-    PetscBool       hasop, isshell;
-    Mat             tmp_mat;
-    MatType         mtype;
-
-    // MatScale(this->A, eps);
-    // MatScale(this->M, eps);
-    // MatScale(this->C, eps);
 
     // transpose C
     ierr = MatHermitianTranspose(this->C, MAT_INPLACE_MATRIX, &this->C);
     CHKERRABORT(PETSC_COMM_WORLD, ierr);
 
-    ierr = MatGetSize(this->C, &y_nrows, &y_ncols);
-    CHKERRABORT(PETSC_COMM_WORLD, ierr);
-
     // if we know invM we can directly use it to compute Y = M^{-1} C
     if(1) {
-
-        // MatMatMult(this->invM, this->C, MAT_INITIAL_MATRIX, PETSC_DEFAULT, &this->Y);
-
-        // ierr = MatProductCreate(this->invM,this->C,NULL,&this->Y);
-        // CHKERRABORT(PETSC_COMM_WORLD, ierr);
-        // ierr = MatProductSetFromOptions(this->Y);
-        // CHKERRABORT(PETSC_COMM_WORLD, ierr);
-        // ierr = MatProductSetType(this->Y,MATPRODUCT_AB);
-        // CHKERRABORT(PETSC_COMM_WORLD, ierr);
-        // ierr = MatProductSymbolic(this->Y);
-        // CHKERRABORT(PETSC_COMM_WORLD, ierr);
-        // ierr = MatProductNumeric(this->Y); 
-        // CHKERRABORT(PETSC_COMM_WORLD, ierr);
 
         ierr = MatDuplicate(C, MAT_COPY_VALUES, &this->Y);
         CHKERRABORT(PETSC_COMM_WORLD, ierr);
@@ -151,9 +109,10 @@ void JacobiDavidsonMaxwellSolver::initializeMatrices() {
     
 
     // if we don't know invM we have to solve M y = c 
-    if(0) {
-        // solve M * Y = C for each C vector
-        PetscPrintf(PETSC_COMM_WORLD, " Start Multiple Linear Systems\n");
+    else {
+
+        ierr = MatGetSize(this->C, &y_nrows, &y_ncols);
+        CHKERRABORT(PETSC_COMM_WORLD, ierr);
 
         // create Y matrix
         MatCreate(PETSC_COMM_WORLD, &this->Y);
@@ -161,26 +120,12 @@ void JacobiDavidsonMaxwellSolver::initializeMatrices() {
         MatSetFromOptions(this->Y);
         MatSetUp(this->Y);
 
-        
+        // solve M * Y = C for each C vector
         solveMultipleLinearSystems();
-
-        PetscPrintf(PETSC_COMM_WORLD, " Multiple Linear Systems Done\n");
-
     }
 
 
     // Compute H = Y.T M Y 
-
-    ierr = MatHasOperation(this->M, MATOP_MAT_MULT_NUMERIC, &hasop);
-    if(hasop){ PetscPrintf(PETSC_COMM_WORLD, " Mat has operations\n"); }
-    else{PetscPrintf(PETSC_COMM_WORLD, " Mat has not operations\n"); }
-
-    ierr = MatIsShell(this->M, &isshell);
-    if(isshell){ PetscPrintf(PETSC_COMM_WORLD, " Mat is shell\n"); }
-    else{PetscPrintf(PETSC_COMM_WORLD, " Mat is not shell\n"); }
-
-    ierr = MatGetType(this->M, &mtype);
-    PetscPrintf(PETSC_COMM_WORLD, " Mat type %s\n", mtype);
 
     ierr = MatProductCreate(this->M, this->Y, NULL, &this->H);
     CHKERRABORT(PETSC_COMM_WORLD, ierr);
@@ -258,7 +203,6 @@ void JacobiDavidsonMaxwellSolver::initializeVectors(){
     projectCorrectionVector(this->search_vect);
     normalizeVector(this->search_vect);
 
-
     // init the residue
     VecDuplicate(this->search_vect, &this->residue_vect);
 }
@@ -301,14 +245,15 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solveMultipleLinearSystems(){
     // MatView(M,PETSC_VIEWER_STDOUT_WORLD);
     KSPCreate(PETSC_COMM_WORLD,&ksp);
     KSPSetType(ksp,KSPCG);
-    // KSPSetType(ksp,KSPGMRES);
+
     KSPSetOperators(ksp,M,M);
     KSPSetTolerances(ksp, 1e-6, 1.e-6, PETSC_DEFAULT, 100);
     KSPSetFromOptions(ksp);
 
     // solve each M * y = c
     for (i=0; i<ncols; i++){
-        PetscPrintf(PETSC_COMM_WORLD, " Linear system %d\n", i);
+
+        PetscPrintf(PETSC_COMM_WORLD, " Linear system [%dx%d] %d/%d\n", nrows, ncols, i, ncols);
         MatGetColumnVector(this->C, rhs, i);
         KSPSolve(ksp, rhs, sol);
         VecGetArray(sol, &tmp_val);
@@ -360,11 +305,15 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::normalizeVector(Vec &x)
         VecScale(x, inv_sqrt_norm);
     }
 
-    isnan = check_vect_nan(x);
-    if(isnan){
-        PetscPrintf(PETSC_COMM_WORLD, "   ==> Error : x is nans in normalization\n");
-        PetscPrintf(PETSC_COMM_WORLD, "inv_sqrt_norm = %f", inv_sqrt_norm);
-        exit(0);}
+
+    logger.assert_debug(!check_vect_nan(x),
+                        "x is nans in normalization");
+    
+    //  isnan = check_vect_nan(x);
+    // if(isnan){
+    //     PetscPrintf(PETSC_COMM_WORLD, "   ==> Error : x is nans in normalization\n");
+    //     PetscPrintf(PETSC_COMM_WORLD, "inv_sqrt_norm = %f", inv_sqrt_norm);
+    //     exit(0);}
 
     return(0);
 }
@@ -755,6 +704,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeSmallEigenvalues(std::vector<
     BVMatProject(this->V, this->A, this->V, Ak);
 
     // MatView(Ak, PETSC_VIEWER_STDOUT_SELF);
+    // exit(0);
 
     MatCreateHermitianTranspose(Ak, &AkT);
     MatAXPY(Ak, 1.0, AkT, SAME_NONZERO_PATTERN);
@@ -805,9 +755,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeSmallEigenvalues(std::vector<
             ierr = VecCopy(evec_tmp[sort_idx[i]], eigenvectors[i]);CHKERRQ(ierr);
         }
         else{
-            PetscPrintf(PETSC_COMM_WORLD, " Error : Zero Eigenvalue detected: %d %f\n", i, eval_tmp[i]);
-            // PetscFinalize();
-            // exit(0);
+            PetscPrintf(PETSC_COMM_WORLD, " Error : Zero Eigenvalue detected: %d %f\n", i, eval_tmp_real[i]);
             return(1);
         }
     }
@@ -822,11 +770,8 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeSmallEigenvalues(std::vector<
         VecDestroy(&evec_tmp[i]);
     }
 
-
-
     auto tstop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(tstop - tstart);
-
 
     if (this->print_small_evs){
         for (int ii=0; ii<this->V_current_size;ii++)
@@ -877,24 +822,22 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev)
     this->search_space_minsize = nev+1;
     this->nconverged = 0;
 
+
+    if(this->search_space_minsize >= search_space_maxsize){
+        PetscPrintf(PETSC_COMM_WORLD, " Too many eigenvalues required");
+        exit(0);
+    }
+
     // init the solver matrices and vectors
     initializeMatrices();
-    PetscPrintf(PETSC_COMM_WORLD, "init matrices done\n");
-    
     initializeVectors();
-    PetscPrintf(PETSC_COMM_WORLD, "init vector done\n");
     initializeSearchSpace(nev);
-    PetscPrintf(PETSC_COMM_WORLD, "init search space done\n");
-
 
     // rayleigh quotient
     computeRayleighQuotient(this->search_vect, &rho);
-    PetscPrintf(PETSC_COMM_WORLD, "compute rayleigh done\n");
-
 
     // compute initial residue vector
     computeResidueVector(this->search_vect, rho, this->residue_vect);
-    PetscPrintf(PETSC_COMM_WORLD, "compute residues done\n");
 
     // duplicate residue vector and create the correction vector
     VecDuplicate(this->residue_vect, &residue_vect_copy);
@@ -907,7 +850,8 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev)
     for (this->iter=0; this->iter<this->maxIter; this->iter++)
     {
 
-        PetscPrintf(PETSC_COMM_WORLD, "== iteration : %d, k = %d, rho = %f\n", iter, k, rho);
+        // PetscPrintf(PETSC_COMM_WORLD, "== iteration : %d, k = %d, rho = %f\n", iter, k, rho);
+        logger(INFO, "JacobiDavidsonSolver iteration : %, k = %, rho = %", iter, k, rho);
 
         // determine eta
         eps = (PetscReal)(std::rand())/ (PetscReal)(RAND_MAX);
@@ -977,8 +921,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev)
             found = (eps < 1E-3 && k>0) ? PETSC_TRUE : PETSC_FALSE;
             if(found)
             {
-                PetscPrintf(PETSC_COMM_WORLD, "\n     =====> Another vector found, eigenvalue %f\n\n", rho);
-
+                logger(INFO, "JacobiDavidsonSolver new eigenvector found with eigenvalue %", rho);
                 // store the eigenvalue/eigenvector
                 this->eigenvalues.push_back(rho);
 
@@ -1061,13 +1004,14 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev)
 
         // restart
         if(k == this->search_space_maxsize) {
-            PetscPrintf(PETSC_COMM_WORLD, " \n\n=============\n== Restart == \n=============\n\n");
 
             // compute tmp = V Sk[:,:size_min]
             for (ii=0; ii<this->search_space_minsize;ii++){
+                
                 VecGetArray(small_evects[ii], &vec_values);
                 VecDuplicate(this->residue_vect, &tmp_v[ii]);
                 VecSet(tmp_v[ii], 0.0);
+                
                 BVMultVec(this->V, 1.0, 0.0, tmp_v[ii], vec_values);
                 VecRestoreArray(small_evects[ii+1], &vec_values);
             }
@@ -1077,6 +1021,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev)
                 ierr = BVInsertVec(this->V, ii, tmp_v[ii]); CHKERRQ(ierr);
                 ierr = VecDestroy(&tmp_v[ii]); CHKERRQ(ierr);
             }
+
 
             // set all other columes to 0
             for (ii=search_space_minsize;ii<this->search_space_maxsize;ii++){
@@ -1088,6 +1033,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev)
             this->V_current_size = search_space_minsize;
 
             k = this->search_space_minsize;
+
         }
 
     }

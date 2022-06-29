@@ -43,6 +43,7 @@
 
 
 
+
 namespace hpgem {
 namespace Utilities {
 
@@ -130,13 +131,21 @@ void Eigenpairs::loadEigenpairs(LinearAlgebra::JacobiDavidsonMaxwellSolver jdmax
 
     // Load the eigenpairs
     for (PetscInt i = 0; i < converged; ++i) {
-        
         err = jdmax.getEigenPair(i, eigenvalues_[i], eigenvectors_[i]);
         CHKERRABORT(PETSC_COMM_WORLD, err);
     }
+
     // Reset the ordering
     std::iota(ordering_.begin(), ordering_.end(), 0);
+
+    auto lcomp = [this](int a, int b){
+        return PetscRealPart(this->eigenvalues_[a]) < PetscRealPart(this->eigenvalues_[b]);
+    };
+    std::sort(ordering_.begin(), ordering_.end(), lcomp);
+    
 }
+
+
 
 void Eigenpairs::reorder(std::vector<std::size_t> ordering) {
     logger.assert_always(ordering.size() == size(),

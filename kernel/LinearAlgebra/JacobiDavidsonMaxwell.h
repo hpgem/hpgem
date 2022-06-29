@@ -84,6 +84,8 @@ class JacobiDavidsonMaxwellSolver final {
     PetscInt getConverged();
     PetscErrorCode getEigenPair(PetscInt index, PetscScalar &eval, Vec &evec);
     PetscInt getIterationCount();
+
+
    private:
 
     void initializeMatrices();
@@ -132,7 +134,7 @@ class JacobiDavidsonMaxwellSolver final {
     Vec search_vect;
     Vec residue_vect;
 
-    std::vector<PetscScalar>  eigenvalues;
+    std::vector<PetscScalar>  eigenvalues;    
 
     // Vec                     eigenvectors[this->search_space_maxsize];
     // Vec eigenvalues;
