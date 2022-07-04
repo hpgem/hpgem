@@ -140,7 +140,7 @@ class JacobiDavidsonMaxwellSolver final {
     // Vec eigenvalues;
     // Vec *eigenvectors;
 
-    bool print_time = false;
+    bool print_time = true;
     bool print_small_evs = false;
 };
 

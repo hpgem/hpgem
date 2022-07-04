@@ -518,6 +518,7 @@ template <std::size_t DIM>
 void DGMaxEigenvalue<DIM>::SolverWorkspace::initSolver() {
 
     MatType mtype;
+    EPSType etype;
 
     if (use_jdmax_)
     {
@@ -551,6 +552,9 @@ void DGMaxEigenvalue<DIM>::SolverWorkspace::initSolver() {
         CHKERRABORT(PETSC_COMM_WORLD, err);
         err = EPSSetOperators(eps_solver_, shell_, nullptr);
         CHKERRABORT(PETSC_COMM_WORLD, err);
+
+        EPSGetType(eps_solver_, &etype);
+        DGMaxLogger(INFO, "EPS Type : %", etype);
     }   
 }
 
