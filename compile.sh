@@ -1,0 +1,3 @@
+!#/bin/bash
+cmake -H. -Bbuild -DhpGEM_USE_MPI=ON -DENABLE_TESTING=OFF -DCMAKE_BUILD_TYPE=DEBUG -DhpGEM_USE_COMPLEX_PETSC=ON -DhpGEM_USE_SLEPC=ON
+cmake --build build
