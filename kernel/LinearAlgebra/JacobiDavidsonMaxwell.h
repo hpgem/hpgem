@@ -116,7 +116,7 @@ class JacobiDavidsonMaxwellSolver final {
 
     PetscReal tau = 1.2;
     PetscReal eta;
-    PetscInt maxIter = 500;
+    PetscInt maxIter = 100;
     PetscInt iter = 0;
     PetscInt search_space_maxsize = 25;
     PetscInt search_space_minsize;

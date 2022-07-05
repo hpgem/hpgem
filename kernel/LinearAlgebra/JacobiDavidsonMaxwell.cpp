@@ -810,15 +810,16 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeSmallEigenvalues(std::vector<
     // sort eigenvalues
     eigenvalues.clear();
     for (i=0; i<nconv; i++){
-        if(eval_tmp_real[i] > 1E-6){
-            eigenvalues.push_back(eval_tmp_real[i]);
-            ierr = MatCreateVecs(Ak, NULL, &eigenvectors[i]);CHKERRQ(ierr);
-            ierr = VecCopy(evec_tmp[sort_idx[i]], eigenvectors[i]);CHKERRQ(ierr);
+
+        if(eval_tmp_real[i] < 1E-6){
+            PetscPrintf(PETSC_COMM_WORLD, " Warning : Zero Eigenvalue detected: %d %f\n", i, eval_tmp_real[i]);
+            // return(0);
         }
-        else{
-            PetscPrintf(PETSC_COMM_WORLD, " Error : Zero Eigenvalue detected: %d %f\n", i, eval_tmp_real[i]);
-            return(1);
-        }
+        
+        eigenvalues.push_back(eval_tmp_real[i]);
+        ierr = MatCreateVecs(Ak, NULL, &eigenvectors[i]);CHKERRQ(ierr);
+        ierr = VecCopy(evec_tmp[sort_idx[i]], eigenvectors[i]);CHKERRQ(ierr);
+
     }
 
     // clean up
@@ -827,6 +828,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeSmallEigenvalues(std::vector<
     MatDestroy(&AkT);
     VecDestroy(&Vr);
     VecDestroy(&Vi);
+    
     for(i=0; i<nconv; i++){
         VecDestroy(&evec_tmp[i]);
     }
@@ -983,7 +985,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev)
             found = (eps < 1E-3 && k>0) ? PETSC_TRUE : PETSC_FALSE;
             if(found)
             {
-                // logger(INFO, "JacobiDavidsonSolver new eigenvector found with eigenvalue %", rho);
+                logger(INFO, "JacobiDavidsonSolver new eigenvector found with eigenvalue %", rho);
                 // store the eigenvalue/eigenvector
                 this->eigenvalues.push_back(rho);
 
