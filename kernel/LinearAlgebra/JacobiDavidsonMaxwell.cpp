@@ -89,6 +89,9 @@ void JacobiDavidsonMaxwellSolver::setMatrices(const Mat &Ain, const Mat &Min, co
     MatSetFromOptions(this->M);
     MatConvert(this->M, MATSEQAIJ, MAT_INITIAL_MATRIX, &this->M);
 
+    ierr = MatGetSize(Ain, &n, &m);
+    logger(INFO, "JacobiDavidsonSolver System Size : % x %", n,m);
+
 }
 
 void JacobiDavidsonMaxwellSolver::initializeMatrices() {
@@ -918,7 +921,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev)
         this->eta = (this->iter>0 && eps<0.5) ? rho : this->tau;
 
         // FOR now keep eta = tau
-        this->eta = this->tau;
+        // this->eta = this->tau;
 
         // copy res to res_new and left project
         ierr = VecCopy(this->residue_vect, residue_vect_copy); CHKERRABORT(PETSC_COMM_WORLD, ierr);
