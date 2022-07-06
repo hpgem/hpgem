@@ -30,6 +30,10 @@ auto& method = Base::register_argument<std::string>(
     "(default)",
     false, "DIVDGMAX");
 
+// Number of eigenvalues to compute, e.g. -e 40
+auto& useJDMax = Base::register_argument<bool>(
+    '\0', "use_jdmax", "boolean to use Jacobi-Davidson eigensolver (default)", false, false);
+
 // Compute a single point --point 1,0.5,0 or a path of points
 // [steps@]0,0:1,0:1,1
 // Which corresponds to the point pi, 0.5pi, 0 in k-space and a path from 0,0
@@ -364,6 +368,7 @@ void runWithDimension() {
         config.useHermitian_ = true;
         config.shiftFactor_ = 0;
         config.useProjector_ = useProjector;
+        config.use_jdmax_ = useJDMax.getValue();
         DGMaxEigenvalue<DIM> solver(*mesh, order.getValue(), config);
         solver.solve(driver);
     }

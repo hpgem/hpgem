@@ -112,8 +112,6 @@ void JacobiDavidsonMaxwellSolver::initializeMatrices() {
         CHKERRABORT(PETSC_COMM_WORLD, ierr);
     }
 
-    
-
     // if we don't know invM we have to solve M y = c 
     else {
 

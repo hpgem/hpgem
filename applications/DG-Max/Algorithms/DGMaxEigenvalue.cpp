@@ -315,9 +315,9 @@ void DGMaxEigenvalue<DIM>::solve(AbstractEigenvalueSolverDriver<DIM>& driver) {
     std::size_t numberOfEigenvalues = driver.getTargetNumberOfEigenvalues();
 
     initializeMatrices();
-    bool use_jdmax = true;
+    // bool use_jdmax = true;
 
-    SolverWorkspace workspace(config_, &mesh_, numberOfEigenvalues, use_jdmax);
+    SolverWorkspace workspace(config_, &mesh_, numberOfEigenvalues, config_.use_jdmax_);
 
     // Setup the boundary block shifting //
     ///////////////////////////////////////
