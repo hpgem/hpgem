@@ -98,6 +98,7 @@ void JacobiDavidsonMaxwellSolver::initializeMatrices() {
 
     PetscInt        y_nrows, y_ncols;
     PetscInt        m_nrows, m_ncols;
+    Mat             Yh;
     PetscErrorCode  ierr;
 
     // transpose C
@@ -131,11 +132,19 @@ void JacobiDavidsonMaxwellSolver::initializeMatrices() {
 
 
     // Compute H = Y.T M Y 
-
-    ierr = MatProductCreate(this->M, this->Y, NULL, &this->H);
+    // MatCreateHermitianTranspose(this->Y, &Yh);
+    ierr = MatDuplicate(this->Y, MAT_COPY_VALUES, &Yh);
+    ierr = MatHermitianTranspose(Yh, MAT_INPLACE_MATRIX, &Yh);
     CHKERRABORT(PETSC_COMM_WORLD, ierr);
 
-    ierr = MatProductSetType(this->H,MATPRODUCT_PtAP);
+
+    // ierr = MatProductCreate(this->M, this->Y, NULL, &this->H);
+    // ierr = MatProductCreate(this->Y, this->Y, NULL, &this->H);
+    ierr = MatProductCreate(Yh, this->Y, NULL, &this->H);
+    CHKERRABORT(PETSC_COMM_WORLD, ierr);
+
+    // ierr = MatProductSetType(this->H,MATPRODUCT_PtAP);
+    ierr = MatProductSetType(this->H, MATPRODUCT_AB);
     CHKERRABORT(PETSC_COMM_WORLD, ierr);
 
     ierr = MatProductSetFromOptions(this->H);
@@ -146,6 +155,8 @@ void JacobiDavidsonMaxwellSolver::initializeMatrices() {
 
     ierr = MatProductNumeric(this->H); 
     CHKERRABORT(PETSC_COMM_WORLD, ierr);
+
+    MatDestroy(&Yh);
 
 }
 
@@ -277,10 +288,13 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solveMultipleLinearSystems(){
 
 PetscErrorCode JacobiDavidsonMaxwellSolver::computeRayleighQuotient(const Vec &x, PetscReal *out)
 {
-    PetscScalar       a, m;
+    PetscScalar       a;
+    PetscScalar         m;
 
     VecxTAx(x, this->A, &a);
-    VecxTAx(x, this->M, &m);
+    // VecxTAx(x, this->M, &m);
+    // VecNorm(x, NORM_2, &m);
+    VecDot(x,x, &m);
 
     *out = (abs(PetscRealPart(m))>1E-12) ? PetscRealPart(a)/PetscRealPart(m) : 1.0;
     return(0);
@@ -297,9 +311,22 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::normalizeVector(Vec &x)
 
     // create x = x.T M * x
     this->VecxTAx(x, this->M, &norm);
+    // VecNorm(x, NORM_2, &norm);
+    // VecDot(x, x, &norm);
+    // VecView(x, PETSC_VIEWER_STDOUT_WORLD);  
     inv_sqrt_norm = 1.0/sqrt(PetscRealPart(norm));
 
     isnan = PetscIsNanReal(inv_sqrt_norm);
+    if(PetscIsNanReal(inv_sqrt_norm)){
+        logger(INFO, "Norm is Nan : %", norm);
+        exit(0);
+    }
+
+    if(PetscIsInfReal(inv_sqrt_norm)){
+        logger(INFO, "Norm is Nan : %", norm);
+        exit(0);
+    }
+
     isinf = PetscIsInfReal(inv_sqrt_norm);
 
     if(isnan || isinf){
@@ -900,7 +927,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev)
 
     // rayleigh quotient
     computeRayleighQuotient(this->search_vect, &rho);
-
+ 
     // compute initial residue vector
     computeResidueVector(this->search_vect, rho, this->residue_vect);
 
