@@ -14,6 +14,7 @@ add_library(Reference_geometries OBJECT
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceHypercube.cpp
 		ReferenceCurvilinearLine.cpp
 		ReferenceCurvilinearTriangle.cpp
+		ReferenceCurvilinearTetrahedron.cpp
 
 		ReferenceGeometryFactory.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/ReferenceGeometry.cpp
@@ -48,6 +49,7 @@ add_library(Geometry OBJECT
 		${hpGEM_SOURCE_DIR}/kernel/Geometry/PhysicalGeometryBase.cpp
 
         # Mappings
+		Mappings/MappingToPhysTetrahedronQuadratic.cpp
         Mappings/MappingToPhysTriangleQuadratic.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToPhysHypercubeLinear.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToPhysPyramid.cpp

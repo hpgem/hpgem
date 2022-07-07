@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2021, University of Twente
+ Copyright (c) 2022, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,43 +35,31 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_REFERENCEGEOMETRYFACTORY_H
-#define HPGEM_REFERENCEGEOMETRYFACTORY_H
+#ifndef HPGEM_MAPPINGTOPHYSTETRAHEDRONQUADRATIC_H
+#define HPGEM_MAPPINGTOPHYSTETRAHEDRONQUADRATIC_H
 
-#include "ReferenceGeometry.h"
+#include "MappingReferenceToPhysical.h"
+#include <map>
+#include <vector>
+#include <FE/BaseBasisFunction.h>
 
 namespace hpgem {
 namespace Geometry {
 
-class ReferenceGeometryFactory {
+class MappingToPhysTetrahedronQuadratic : public MappingReferenceToPhysical<3> {
    public:
-    static ReferenceGeometryFactory& Instance() {
-        static ReferenceGeometryFactory instance;
-        return instance;
-    }
+    explicit MappingToPhysTetrahedronQuadratic(
+        const PhysicalGeometry<3>* physicalGeometry);
 
-    /// Lookup the ReferenceGeometry by the dimension of the shape and the
-    /// number of vertices.
-    ///
-    /// \param dimension The dimension of the geometry
-    /// \param numberOfPoints The number of vertices
-    /// \return A reference to the geometry. Will terminate the program if it
-    /// does not exist.
-    ReferenceGeometry& getGeometry(std::size_t dimension,
-                                   std::size_t numberOfPoints);
+    void reinit() final;
+    MappingReferenceToPhysicalBase* copy() const final;
+    PointPhysical<3> transform(const PointReference<3>& p) const final;
+    PointReference<3> inverseTransform(const PointPhysical<3>& p) const final;
+    Jacobian<3, 3> calcJacobian(const PointReference<3>& p) const final;
 
-   private:
-    ReferenceGeometryFactory() = default;
-    ReferenceGeometry& getGeometry0(std::size_t numberOfPoints);
-    ReferenceGeometry& getGeometry1(std::size_t numberOfPoints);
-    ReferenceGeometry& getGeometry2(std::size_t numberOfPoints);
-    ReferenceGeometry& getGeometry3(std::size_t numberOfPoints);
-    ReferenceGeometry& getGeometry4(std::size_t numberOfPoints);
-    /// Cache for higher order 2D elements, indexed by numberOfPoints.
-    std::map<std::size_t, ReferenceGeometry*> cached2DGeometries_;
-    std::map<std::size_t, ReferenceGeometry*> cached3DGeometries_;
 };
+
 }  // namespace Geometry
 }  // namespace hpgem
 
-#endif  // HPGEM_REFERENCEGEOMETRYFACTORY_H
+#endif  // HPGEM_MAPPINGTOPHYSTETRAHEDRONQUADRATIC_H

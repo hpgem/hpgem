@@ -134,14 +134,15 @@ void testCodim2CorrespondenceWithBaseGeometry(
         INFO("Codim-2 entity: " + std::to_string(c2));
         REQUIRE(c2Geom->getGeometryType() ==
                 baseGeom->getCodim2ReferenceGeometry(c2)->getGeometryType());
-        auto pointIndices = baseGeom->getCodim2EntityLocalIndices(c2);
+        auto pointIndices = geom.getCodim2EntityLocalIndices(c2);
         for (std::size_t p = 0; p < c2Geom->getNumberOfNodes(); ++p) {
             PointReference<d - 2> pridge =
                 c2Geom->getReferenceNodeCoordinate(p);
             PointReference<d> mappedPoint = mapping->transform(pridge);
             PointReference<d> localPoint =
                 geom.getReferenceNodeCoordinate(pointIndices[p]);
-            CHECK(localPoint == mappedPoint);
+            auto difference = (localPoint - mappedPoint).getCoordinates();
+            CHECK(difference.l2NormSquared() <= 1e-24);
         }
     }
 }

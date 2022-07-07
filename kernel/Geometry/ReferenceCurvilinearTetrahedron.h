@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2021, University of Twente
+ Copyright (c) 2022, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,43 +35,35 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_REFERENCEGEOMETRYFACTORY_H
-#define HPGEM_REFERENCEGEOMETRYFACTORY_H
+#ifndef HPGEM_REFERENCECURVILINEARTETRAHEDRON_H
+#define HPGEM_REFERENCECURVILINEARTETRAHEDRON_H
 
-#include "ReferenceGeometry.h"
+#include "ReferenceCurvilinearElement.h"
 
 namespace hpgem {
 namespace Geometry {
 
-class ReferenceGeometryFactory {
-   public:
-    static ReferenceGeometryFactory& Instance() {
-        static ReferenceGeometryFactory instance;
-        return instance;
-    }
+/// Curvilinear tetrahedron of arbitrary order based on the standard reference
+/// tetrahedron.
+///
+/// The vertices are generate such that if the coordinates are listed in
+/// lexicographic order with x the fastest and z the slowest changing
+/// coordinate. This order ensures that the four corners of the reference
+/// tetrahedron follow this ordering.
 
-    /// Lookup the ReferenceGeometry by the dimension of the shape and the
-    /// number of vertices.
-    ///
-    /// \param dimension The dimension of the geometry
-    /// \param numberOfPoints The number of vertices
-    /// \return A reference to the geometry. Will terminate the program if it
-    /// does not exist.
-    ReferenceGeometry& getGeometry(std::size_t dimension,
-                                   std::size_t numberOfPoints);
+class ReferenceCurvilinearTetrahedron : public ReferenceCurvilinearElement<3> {
+   public:
+    static int getOrderFromPoints(std::size_t numberOfPoints);
+    static ReferenceCurvilinearTetrahedron& getReferenceCurvilinearTetrahedron(
+        std::size_t order);
 
    private:
-    ReferenceGeometryFactory() = default;
-    ReferenceGeometry& getGeometry0(std::size_t numberOfPoints);
-    ReferenceGeometry& getGeometry1(std::size_t numberOfPoints);
-    ReferenceGeometry& getGeometry2(std::size_t numberOfPoints);
-    ReferenceGeometry& getGeometry3(std::size_t numberOfPoints);
-    ReferenceGeometry& getGeometry4(std::size_t numberOfPoints);
-    /// Cache for higher order 2D elements, indexed by numberOfPoints.
-    std::map<std::size_t, ReferenceGeometry*> cached2DGeometries_;
-    std::map<std::size_t, ReferenceGeometry*> cached3DGeometries_;
+    explicit ReferenceCurvilinearTetrahedron(std::size_t order);
+    static std::vector<Geometry::PointReference<3>> createPoints(
+        std::size_t order);
 };
+
 }  // namespace Geometry
 }  // namespace hpgem
 
-#endif  // HPGEM_REFERENCEGEOMETRYFACTORY_H
+#endif  // HPGEM_REFERENCECURVILINEARTETRAHEDRON_H

@@ -35,43 +35,41 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_REFERENCEGEOMETRYFACTORY_H
-#define HPGEM_REFERENCEGEOMETRYFACTORY_H
 
-#include "ReferenceGeometry.h"
+#include "../catch.hpp"
+#include "Geometry/ReferenceCurvilinearTetrahedron.h"
+#include "ReferenceCurvilinearElementChecks.h"
 
-namespace hpgem {
-namespace Geometry {
+using namespace hpgem;
+using Geometry::ReferenceCurvilinearTetrahedron;
 
-class ReferenceGeometryFactory {
-   public:
-    static ReferenceGeometryFactory& Instance() {
-        static ReferenceGeometryFactory instance;
-        return instance;
-    }
+TEST_CASE("CurvilinearTetrahedron Points",
+          "[410ReferenceCurvilinearTetrahedron_UnitTest]") {
+    auto p = GENERATE(2, 4);
 
-    /// Lookup the ReferenceGeometry by the dimension of the shape and the
-    /// number of vertices.
-    ///
-    /// \param dimension The dimension of the geometry
-    /// \param numberOfPoints The number of vertices
-    /// \return A reference to the geometry. Will terminate the program if it
-    /// does not exist.
-    ReferenceGeometry& getGeometry(std::size_t dimension,
-                                   std::size_t numberOfPoints);
+    const auto& tetrahedron =
+        ReferenceCurvilinearTetrahedron::getReferenceCurvilinearTetrahedron(p);
+    INFO("Testing " + tetrahedron.getName());
 
-   private:
-    ReferenceGeometryFactory() = default;
-    ReferenceGeometry& getGeometry0(std::size_t numberOfPoints);
-    ReferenceGeometry& getGeometry1(std::size_t numberOfPoints);
-    ReferenceGeometry& getGeometry2(std::size_t numberOfPoints);
-    ReferenceGeometry& getGeometry3(std::size_t numberOfPoints);
-    ReferenceGeometry& getGeometry4(std::size_t numberOfPoints);
-    /// Cache for higher order 2D elements, indexed by numberOfPoints.
-    std::map<std::size_t, ReferenceGeometry*> cached2DGeometries_;
-    std::map<std::size_t, ReferenceGeometry*> cached3DGeometries_;
-};
-}  // namespace Geometry
-}  // namespace hpgem
+    testAllReferencePointsAreInside(tetrahedron);
+}
 
-#endif  // HPGEM_REFERENCEGEOMETRYFACTORY_H
+TEST_CASE("ReferenceCurvilinearTetrahedron Codim1",
+          "[420ReferenceCurvilinearTetrahedron_UnitTest]") {
+    auto p = GENERATE(2, 4);
+
+    const auto& tetrahedron =
+        ReferenceCurvilinearTetrahedron::getReferenceCurvilinearTetrahedron(p);
+    INFO("Testing " + tetrahedron.getName());
+    testCodim1CorrespondenceWithBaseGeometry(tetrahedron);
+}
+
+TEST_CASE("ReferenceCurvilinearTetrahedron Codim2",
+          "[420ReferenceCurvilinearTetrahedron_UnitTest]") {
+    auto p = GENERATE(2, 4);
+
+    const auto& tetrahedron =
+        ReferenceCurvilinearTetrahedron::getReferenceCurvilinearTetrahedron(p);
+    INFO("Testing " + tetrahedron.getName());
+    testCodim2CorrespondenceWithBaseGeometry(tetrahedron);
+}
