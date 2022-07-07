@@ -33,7 +33,9 @@ add_library(Reference_geometries OBJECT
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefLineToLine.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefPointToLine.cpp
         ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/ConcatenatedMapping.cpp
-        ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefPointToPoint.cpp)
+        ${hpGEM_SOURCE_DIR}/kernel/Geometry/Mappings/MappingToRefPointToPoint.cpp
+		Mappings/MappingRefLineToTetrahedron.cpp
+	)
 
 set_target_properties(Reference_geometries PROPERTIES POSITION_INDEPENDENT_CODE true)
 

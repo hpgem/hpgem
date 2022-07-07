@@ -41,33 +41,13 @@
 #include <Geometry/Mappings/MappingToPhysTriangleQuadratic.h>
 #include <LinearAlgebra/SmallMatrix.h>
 #include <Geometry/ReferenceCurvilinearTriangle.h>
+#include "MappingTestHelpers.h"
 
 using namespace hpgem;
 using namespace hpgem::LinearAlgebra;
 using namespace hpgem::Geometry;
 
 using PRef = PointReference<2>;
-
-void testJacobian(const PointReference<2>& pref,
-                  const MappingToPhysTriangleQuadratic& mapping) {
-    const double h = 1e-8;
-    auto phys = mapping.transform(pref);
-    Jacobian<2, 2> jac = mapping.calcJacobian(pref);
-    logger(INFO, "Jac: %", jac);
-
-    // Calculate Jacobian by finite difference
-    for (std::size_t i = 0; i < 2; ++i) {
-        PRef prefh;
-        prefh[i] = h;
-        auto dphys = mapping.transform(PRef(prefh + pref)) - phys;
-        auto dh = dphys.getCoordinates() / h;
-
-        // Factor 1000 is for rounding errors in the comptutation, could be
-        // improved by taking into account the condition number of the Jacobian
-        // and/or relative size of the columns.
-        REQUIRE((jac.getColumn(i) - dh).l2NormSquared() < 1e3 * h * h);
-    }
-}
 
 TEST_CASE("Affine mapped coordinates", "[MappingToPhysTriangleQuadratic]") {
     // x' = 0.5x + 2y + 0.5
