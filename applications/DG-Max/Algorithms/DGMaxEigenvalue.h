@@ -82,6 +82,7 @@ class DGMaxEigenvalueBase {
         int jdmax_niter_;
         int jdmax_search_space_max_size_;
         int jdmax_corr_iter_;
+        PetscReal jdmax_tol_;
 
         /// Whether the config uses shifts
         bool usesShifts() const {

@@ -78,7 +78,7 @@ class JacobiDavidsonMaxwellSolver final {
 
    public:
     JacobiDavidsonMaxwellSolver();
-    JacobiDavidsonMaxwellSolver(Mat &A, Mat &M, Mat &C);
+    
     void setMatrices(const Mat &Ain, const Mat &Cin);
     PetscErrorCode solve(PetscInt nev);
     PetscInt getConverged();
@@ -88,6 +88,7 @@ class JacobiDavidsonMaxwellSolver final {
     void set_maxIter(int n);
     void set_search_space_maxsize(int n);
     void set_correction_niter(int n);
+    void set_tolerance(PetscReal tol);
 
 
    private:
@@ -96,7 +97,7 @@ class JacobiDavidsonMaxwellSolver final {
     void initializeVectors();
     void initializeSearchSpace(int nev);
 
-    PetscErrorCode solveMultipleLinearSystems();
+    
     PetscErrorCode computeRayleighQuotient(const Vec &x, PetscReal *out);
     PetscErrorCode normalizeVector(Vec &x);
     PetscErrorCode VecxTAx(const Vec &x, const Mat &K, PetscScalar *val);
@@ -114,9 +115,7 @@ class JacobiDavidsonMaxwellSolver final {
     PetscErrorCode computeThreshold(Vec q, Vec r, PetscReal *eps);
     PetscErrorCode correctionPreconditionerMatMult(Vec x, Vec y);
     static PetscErrorCode staticMatMultCorrPrec(Mat M, Vec x, Vec y);
-    PetscBool check_vect_nan(const Vec &vec);
-    void smallev_solver(const Mat Ak, std::vector<PetscReal> &eigenvalues, Vec *eigenvectors);
-
+    
 
     PetscReal tau = 1.2;
     PetscReal eta;
@@ -130,6 +129,7 @@ class JacobiDavidsonMaxwellSolver final {
     PetscInt Q_current_size = 0;
     PetscInt Qt_current_size = 0;
     PetscInt nconverged = 0;
+    PetscReal tolerance = 1E-3;
 
 
     Mat A, C;
@@ -139,10 +139,6 @@ class JacobiDavidsonMaxwellSolver final {
     Vec residue_vect;
 
     std::vector<PetscScalar>  eigenvalues;    
-
-    // Vec                     eigenvectors[this->search_space_maxsize];
-    // Vec eigenvalues;
-    // Vec *eigenvectors;
 
     bool print_time = true;
     bool print_small_evs = false;

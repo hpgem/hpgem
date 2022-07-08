@@ -37,7 +37,6 @@ auto& method = Base::register_argument<std::string>(
 auto& useJDMax = Base::register_argument<bool>(
     '\0', "use_jdmax", "boolean to use Jacobi-Davidson eigensolver (default)", false, false);
 
-
 // Max number of Jacobi Davidson iterations, e.g. -jd_iter 140
 auto& jdNiter = Base::register_argument<std::size_t>(
     '\0', "jd_niter", "The maximum number of Jacobi Davidson iterations", false, 100);
@@ -50,6 +49,9 @@ auto& jdMaxSize = Base::register_argument<std::size_t>(
 auto& jdCorrIter = Base::register_argument<std::size_t>(
     '\0', "jd_corr_iter", "The maximum number of iteration for the correction equation", false, 10);
 
+// Max size of the JD max search space
+auto& jdTol = Base::register_argument<std::string>(
+    '\0', "jd_tol", "Tolerance of the Jacobi Davidson solver", false, "1E-3");
 
 // Compute a single point --point 1,0.5,0 or a path of points
 // [steps@]0,0:1,0:1,1
@@ -389,6 +391,7 @@ void runWithDimension() {
         config.jdmax_niter_ = jdNiter.getValue();
         config.jdmax_search_space_max_size_ = jdMaxSize.getValue();
         config.jdmax_corr_iter_ = jdCorrIter.getValue();
+        config.jdmax_tol_ = std::stod(jdTol.getValue());
 
         DGMaxEigenvalue<DIM> solver(*mesh, order.getValue(), config);
         solver.solve(driver);

@@ -14,62 +14,18 @@ void dsyev_(char *jobz, char *uplo, int *n, double *a, int *lda,
 
 JacobiDavidsonMaxwellSolver::JacobiDavidsonMaxwellSolver() {}
 
-void JacobiDavidsonMaxwellSolver::set_maxIter(int niter){
-    this->maxIter = niter;
-}
+void JacobiDavidsonMaxwellSolver::set_maxIter(int niter){ this->maxIter = niter; }
+void JacobiDavidsonMaxwellSolver::set_search_space_maxsize(int n){ this->search_space_maxsize = n; }
+void JacobiDavidsonMaxwellSolver::set_correction_niter(int n){this->correction_niter = n;}
+void JacobiDavidsonMaxwellSolver::set_tolerance(PetscReal tol){this->tolerance=tol;}
 
-void JacobiDavidsonMaxwellSolver::set_search_space_maxsize(int n){
-    this->search_space_maxsize = n;
-}
+PetscInt JacobiDavidsonMaxwellSolver::getConverged(){ return this->Q_current_size;}
 
-void JacobiDavidsonMaxwellSolver::set_correction_niter(int n){
-    this->correction_niter = n;
-}
+PetscInt JacobiDavidsonMaxwellSolver::getIterationCount(){ return this->iter; }
 
-
-PetscBool JacobiDavidsonMaxwellSolver::check_vect_nan(const Vec &vec) {
-
-    PetscBool isnan;
-    PetscInt ii, low, high, local_size;
-    PetscInt *idx;
-    PetscScalar *vals;
-
-    VecGetOwnershipRange(vec, &low, &high);
-    local_size = high-low;
-    vals = new PetscScalar [local_size];
-    idx = new PetscInt [local_size];
-
-    for(ii=0; ii<local_size; ii++){
-        idx[ii] = low+ii;
-    }
-
-    VecGetValues(vec, local_size, idx, vals);
-
-    isnan = PETSC_FALSE;
-    for(ii=0;ii<local_size;ii++){
-        if(PetscIsNanScalar(vals[ii]))
-        {
-            isnan = PETSC_TRUE;
-            break;
-        }
-    }
-
-    return(isnan);
-
-}
-
-PetscInt JacobiDavidsonMaxwellSolver::getConverged(){
-    return this->Q_current_size;
-}
-
-PetscInt JacobiDavidsonMaxwellSolver::getIterationCount(){
-    return this->iter;
-}
-
-PetscErrorCode JacobiDavidsonMaxwellSolver::getEigenPair(PetscInt index, 
-                                                     PetscScalar &eval,
-                                                     Vec &evec )
+PetscErrorCode JacobiDavidsonMaxwellSolver::getEigenPair(PetscInt index, PetscScalar &eval, Vec &evec )
 {
+    // return the eigen value at the position index
     PetscErrorCode ierr;
     Vec tmp_vec;
     eval = this->eigenvalues[index];
@@ -81,13 +37,14 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::getEigenPair(PetscInt index,
 
 }
 
-void JacobiDavidsonMaxwellSolver::setMatrices(const Mat &Ain, const Mat &Cin) {
-    
+void JacobiDavidsonMaxwellSolver::setMatrices(const Mat &Ain, const Mat &Cin) 
+{    
+    // Set the A and C matrices describing the problem
+    // Ax = lambda x with C x = 0
     PetscErrorCode ierr; 
     PetscInt n,m;
     PetscViewer viewer; 
     
-
     this->A = Ain;
     MatSetOption(this->A, MAT_HERMITIAN, PETSC_TRUE);
     this->C = Cin;
@@ -97,8 +54,10 @@ void JacobiDavidsonMaxwellSolver::setMatrices(const Mat &Ain, const Mat &Cin) {
 
 }
 
-void JacobiDavidsonMaxwellSolver::initializeMatrices() {
+void JacobiDavidsonMaxwellSolver::initializeMatrices() 
+{
 
+    // initialize the Y and H matrix needed for the JD algorithm
     PetscInt        y_nrows, y_ncols;
     PetscInt        m_nrows, m_ncols;
     Mat             Yh;
@@ -205,7 +164,8 @@ void JacobiDavidsonMaxwellSolver::initializeVectors(){
 
 PetscErrorCode JacobiDavidsonMaxwellSolver::computeRayleighQuotient(const Vec &x, PetscReal *out)
 {
-    PetscScalar       a;
+    // compute x.T A x / (x.T x)
+    PetscScalar        a;
     PetscScalar         m;
 
     VecxTAx(x, this->A, &a);
@@ -239,9 +199,6 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::normalizeVector(Vec &x)
         // scale the vector
         VecScale(x, inv_sqrt_norm);
     }
-
-    logger.assert_debug(!check_vect_nan(x),
-                        "x is nans in normalization");
 
     return(0);
 }
@@ -354,6 +311,9 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::correctionOperatorMatMult(Vec x, Vec
 
 PetscErrorCode JacobiDavidsonMaxwellSolver::solveCorrectionEquation(const Vec &res, Vec &sol)
 {
+    // solve the correction equation given by 
+    // (I - M Q Q.T) (A - eta M) (I - Q Q.T M) sol = -res
+    // with M being identity
 
     Mat         op;
     Mat         prec;
@@ -485,7 +445,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::computeProjection(Vec &v, const BV &
 PetscErrorCode JacobiDavidsonMaxwellSolver::projectCorrectionVector(Vec &corr)
 {
 
-     // compute corr - Y H^{-1} C.T corr
+     // compute corr = corr - Y H^{-1} C.T corr
 
     Vec         rhs, ksp_sol, tmp_vec;
     PetscInt    c_ncols, c_nrows;
@@ -544,6 +504,10 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::projectCorrectionVector(Vec &corr)
 
 PetscErrorCode JacobiDavidsonMaxwellSolver::computeSmallEigenvalues(std::vector<PetscReal> &eigenvalues, Vec *eigenvectors)
 {
+    // project the total matrix following
+    // Ak = V.T A V
+    // and computes the eigenvalues of Ak using LAPACK
+
     Mat             Ak, AkT;
     EPS             eps;
     PetscErrorCode  ierr;
@@ -777,7 +741,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::solve(PetscInt nev)
 
 
             // compute covnergence criteria
-            found = (eps < 1E-3 && k>0) ? PETSC_TRUE : PETSC_FALSE;
+            found = (eps < this->tolerance && k>0) ? PETSC_TRUE : PETSC_FALSE;
             if(found)
             {
                 logger(INFO, "JacobiDavidsonSolver new eigenvector found with eigenvalue %", rho);
