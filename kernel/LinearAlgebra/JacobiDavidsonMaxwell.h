@@ -85,6 +85,10 @@ class JacobiDavidsonMaxwellSolver final {
     PetscErrorCode getEigenPair(PetscInt index, PetscScalar &eval, Vec &evec);
     PetscInt getIterationCount();
 
+    void set_maxIter(int n);
+    void set_search_space_maxsize(int n);
+    void set_correction_niter(int n);
+
 
    private:
 
@@ -99,14 +103,14 @@ class JacobiDavidsonMaxwellSolver final {
     PetscErrorCode getCorrectionOperator(Mat &op);
     PetscErrorCode solveCorrectionEquation(const Vec &res, Vec &sol);
     PetscErrorCode computeResidueVector(const Vec &q, const PetscReal rho, Vec &res);
-    PetscErrorCode computeRightProjection(Vec &v, const BV &Q);
-    PetscErrorCode computeLeftProjection(Vec &v);
+    
+    PetscErrorCode computeProjection(Vec &v, const BV &Q);
+    
     PetscErrorCode projectCorrectionVector(Vec &corr);
     PetscErrorCode addVectorToSearchSpace(const Vec &v, PetscInt idx);
     PetscErrorCode computeSmallEigenvalues(std::vector<PetscReal> &eval, Vec *evec);
     PetscErrorCode correctionOperatorMatMult(Vec x, Vec y);
     static PetscErrorCode staticMatMultCorrOp(Mat M, Vec x, Vec y);
-    PetscErrorCode VecxTinvAx(const Vec &x, const Mat &K, PetscScalar *val);
     PetscErrorCode computeThreshold(Vec q, Vec r, PetscReal *eps);
     PetscErrorCode correctionPreconditionerMatMult(Vec x, Vec y);
     static PetscErrorCode staticMatMultCorrPrec(Mat M, Vec x, Vec y);
@@ -117,6 +121,7 @@ class JacobiDavidsonMaxwellSolver final {
     PetscReal tau = 1.2;
     PetscReal eta;
     PetscInt maxIter = 100;
+    PetscInt correction_niter = 10;
     PetscInt iter = 0;
     PetscInt search_space_maxsize = 25;
     PetscInt search_space_minsize;

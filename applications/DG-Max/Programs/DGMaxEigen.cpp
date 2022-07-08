@@ -17,22 +17,39 @@ using namespace hpgem;
 // File name of the mesh file, e.g. -m mesh.hpgem
 auto& meshFile = Base::register_argument<std::string>(
     'm', "meshFile", "The hpgem meshfile to use", true);
+
 // Polynomial order of the basis functions, e.g. -p 2
 auto& order = Base::register_argument<std::size_t>(
     'p', "order", "Polynomial order of the solution", true);
+
 // Number of eigenvalues to compute, e.g. -e 40
 auto& numEigenvalues = Base::register_argument<std::size_t>(
     'e', "eigenvalues", "The number of eigenvalues to compute", false, 24);
 
+// method used to solve the problem
 auto& method = Base::register_argument<std::string>(
     '\0', "method",
     "The method to be used, either 'DGMAX', 'DGMAX_PROJECT' or 'DIVDGMAX' "
     "(default)",
     false, "DIVDGMAX");
 
-// Number of eigenvalues to compute, e.g. -e 40
+// use Jacobi Davidson solver or Krylov-Schur
 auto& useJDMax = Base::register_argument<bool>(
     '\0', "use_jdmax", "boolean to use Jacobi-Davidson eigensolver (default)", false, false);
+
+
+// Max number of Jacobi Davidson iterations, e.g. -jd_iter 140
+auto& jdNiter = Base::register_argument<std::size_t>(
+    '\0', "jd_niter", "The maximum number of Jacobi Davidson iterations", false, 100);
+
+// Max size of the JD max search space
+auto& jdMaxSize = Base::register_argument<std::size_t>(
+    '\0', "jd_maxsize", "The maximum size of the JD search space", false, 25);
+
+// Max size of the JD max search space
+auto& jdCorrIter = Base::register_argument<std::size_t>(
+    '\0', "jd_corr_iter", "The maximum number of iteration for the correction equation", false, 10);
+
 
 // Compute a single point --point 1,0.5,0 or a path of points
 // [steps@]0,0:1,0:1,1
@@ -369,6 +386,10 @@ void runWithDimension() {
         config.shiftFactor_ = 0;
         config.useProjector_ = useProjector;
         config.use_jdmax_ = useJDMax.getValue();
+        config.jdmax_niter_ = jdNiter.getValue();
+        config.jdmax_search_space_max_size_ = jdMaxSize.getValue();
+        config.jdmax_corr_iter_ = jdCorrIter.getValue();
+
         DGMaxEigenvalue<DIM> solver(*mesh, order.getValue(), config);
         solver.solve(driver);
     }
