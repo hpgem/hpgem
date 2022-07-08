@@ -79,6 +79,7 @@ class DGMaxEigenvalueBase {
         ProjectorUse useProjector_;
         // use jacobi davidson solver
         bool use_jdmax_;
+        // options of the jd solver
         int jdmax_niter_;
         int jdmax_search_space_max_size_;
         int jdmax_corr_iter_;
