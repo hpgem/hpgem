@@ -79,7 +79,7 @@ class JacobiDavidsonMaxwellSolver final {
    public:
     JacobiDavidsonMaxwellSolver();
     JacobiDavidsonMaxwellSolver(Mat &A, Mat &M, Mat &C);
-    void setMatrices(const Mat &Ain, const Mat &Min, const Mat &Cin);
+    void setMatrices(const Mat &Ain, const Mat &Cin);
     PetscErrorCode solve(PetscInt nev);
     PetscInt getConverged();
     PetscErrorCode getEigenPair(PetscInt index, PetscScalar &eval, Vec &evec);
@@ -132,8 +132,7 @@ class JacobiDavidsonMaxwellSolver final {
     PetscInt nconverged = 0;
 
 
-    Mat A, M, C;
-    Mat invM;
+    Mat A, C;
     Mat Y, H;
     BV Qt, Q, V;
     Vec search_vect;

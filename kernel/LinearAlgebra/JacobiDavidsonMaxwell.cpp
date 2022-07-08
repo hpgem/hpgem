@@ -14,9 +14,6 @@ void dsyev_(char *jobz, char *uplo, int *n, double *a, int *lda,
 
 JacobiDavidsonMaxwellSolver::JacobiDavidsonMaxwellSolver() {}
 
-JacobiDavidsonMaxwellSolver::JacobiDavidsonMaxwellSolver(Mat &A, Mat &M, Mat &C)
-    : A(A), M(M), C(C) {}
-
 void JacobiDavidsonMaxwellSolver::set_maxIter(int niter){
     this->maxIter = niter;
 }
@@ -84,7 +81,7 @@ PetscErrorCode JacobiDavidsonMaxwellSolver::getEigenPair(PetscInt index,
 
 }
 
-void JacobiDavidsonMaxwellSolver::setMatrices(const Mat &Ain, const Mat &Min, const Mat &Cin) {
+void JacobiDavidsonMaxwellSolver::setMatrices(const Mat &Ain, const Mat &Cin) {
     
     PetscErrorCode ierr; 
     PetscInt n,m;
