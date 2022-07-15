@@ -64,7 +64,7 @@ class CentaurReader : public MeshSource2 {
     }
 
     const std::vector<std::map<std::size_t, std::size_t>>& getMerges() final {
-        return coordinateMerges;
+         return coordinateMerges;
     };
 
     std::size_t getDimension() const final {

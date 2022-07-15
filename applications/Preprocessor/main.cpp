@@ -78,6 +78,10 @@ auto& translations = Base::register_argument<std::string>(
     "translation vectors, e.g. 1.0,0;0,1.0",
     false, "");
 
+auto& ignorePeriodicity = Base::register_argument<bool>(
+    '\0', "ignore-periodicity",
+    "Ignore periodicity information in the source mesh", false, false);
+
 template <std::size_t dimension>
 void printMeshStatistics(const Preprocessor::Mesh<dimension>& mesh) {
     logger(INFO, "Mesh counts");
@@ -292,9 +296,11 @@ int main(int argc, char** argv) {
                     centaurFile.getDimension(), dimension.getValue());
             }
             if (centaurFile.getDimension() == 2) {
-                processMesh(Preprocessor::fromMeshSource<2>(centaurFile));
+                processMesh(Preprocessor::fromMeshSource<2>(
+                    centaurFile, ignorePeriodicity.getValue()));
             } else if (centaurFile.getDimension() == 3) {
-                processMesh(Preprocessor::fromMeshSource<3>(centaurFile));
+                processMesh(Preprocessor::fromMeshSource<3>(
+                    centaurFile, ignorePeriodicity.getValue()));
             } else {
                 logger(ERROR,
                        "Centaur file should not be able to have dimension %",
@@ -313,9 +319,11 @@ int main(int argc, char** argv) {
                     gmshFile.getDimension(), dimension.getValue());
             }
             if (gmshFile.getDimension() == 2) {
-                processMesh(Preprocessor::fromMeshSource<2>(gmshFile));
+                processMesh(Preprocessor::fromMeshSource<2>(
+                    gmshFile, ignorePeriodicity.getValue()));
             } else if (gmshFile.getDimension() == 3) {
-                processMesh(Preprocessor::fromMeshSource<3>(gmshFile));
+                processMesh(Preprocessor::fromMeshSource<3>(
+                    gmshFile, ignorePeriodicity.getValue()));
             } else {
                 logger(ERROR,
                        "gmsh file should not be able to have "
