@@ -43,6 +43,15 @@
 
 template <std::size_t dim>
 class HarmonicErrorDriver : public DGMax::AbstractHarmonicSolverDriver<dim> {
+   private:
+    using VecR = LinearAlgebra::SmallVector<dim>;
+    using VecC = LinearAlgebra::SmallVectorC<dim>;
+
+    struct Solution {
+        VecC theory;
+        VecC numerical;
+    };
+
    public:
     HarmonicErrorDriver(ExactHarmonicProblem<dim>& problem)
         : problem_(&problem),
@@ -60,6 +69,28 @@ class HarmonicErrorDriver : public DGMax::AbstractHarmonicSolverDriver<dim> {
         errorResult_ = result.computeL2Error(*problem_);
         if (plotter_ != nullptr) {
             result.writeVTK(*plotter_);
+            // Plot the exact solution for comparison
+
+            std::map<std::string, std::function<double(Solution&)>> scalars;
+            scalars["Emag-sol"] = [](Solution& v) { return v.theory.l2Norm(); };
+            scalars["Error"] = [](Solution& v) {
+                return (v.theory - v.numerical).l2Norm();
+            };
+            std::map<std::string, std::function<VecR(Solution&)>> vectors;
+            vectors["ESol-real"] = [](Solution& v) { return v.theory.real(); };
+            vectors["ESol-imag"] = [](Solution& v) { return v.theory.imag(); };
+
+            plotter_->template writeMultiple<Solution>(
+                [this, &result](Base::Element* element,
+                                const Geometry::PointReference<dim>& p,
+                                std::size_t) {
+                    Solution sol;
+                    sol.theory = problem_->exactSolution(
+                        element->template referenceToPhysical(p));
+                    sol.numerical = result.computeField(element, p);
+                    return sol;
+                },
+                scalars, vectors);
         }
     }
 

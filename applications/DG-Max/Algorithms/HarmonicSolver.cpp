@@ -68,6 +68,25 @@ class HarmonicSolver<DIM>::Result : public AbstractHarmonicResult<DIM> {
         return workspace_->getMesh();
     }
 
+    LinearAlgebra::SmallVector<4> computeEnergyFlux(
+        Base::Face& face, hpgem::Base::Side side, double wavenumber,
+        const FieldPattern<DIM>* background) final {
+        return workspace_->computeEnergyFlux(face, side, wavenumber,
+                                             background);
+    }
+
+    virtual LinearAlgebra::SmallVectorC<DIM> computeField(
+        const Base::Element* element,
+        const Geometry::PointReference<DIM>& p) final {
+        return workspace_->computeField(element, p);
+    }
+
+    virtual LinearAlgebra::SmallVectorC<DIM> computeFieldCurl(
+        const Base::Element* element,
+        const Geometry::PointReference<DIM>& p) final {
+        return workspace_->computeFieldCurl(element, p);
+    }
+
    private:
     const HarmonicProblem<DIM>* problem_;
     HarmonicSolver<DIM>::Workspace* workspace_;
@@ -102,10 +121,25 @@ class HarmonicSolver<DIM>::Workspace {
     // Exposition to the solution
     Base::MeshManipulator<DIM>& getMesh() { return *mesh_; }
 
+    LinearAlgebra::SmallVectorC<DIM> computeField(
+        const Base::Element* element,
+        const Geometry::PointReference<DIM>& p) const {
+        return discretization_->computeField(
+            element, p, element->getTimeIntegrationVector(VECTOR_ID));
+    }
+
+    LinearAlgebra::SmallVectorC<DIM> computeFieldCurl(
+        const Base::Element* element,
+        const Geometry::PointReference<DIM>& p) const {
+        return discretization_->computeCurlField(
+            element, p, element->getTimeIntegrationVector(VECTOR_ID));
+    }
+
     double computeL2Error(const ExactHarmonicProblem<DIM>& solution) {
         return discretization_->computeL2Error(
             *mesh_, VECTOR_ID,
-            [&solution](const Geometry::PointPhysical<DIM>& p) {
+            [&solution](const Base::Element&,
+                        const Geometry::PointPhysical<DIM>& p) {
                 return solution.exactSolution(p);
             });
     }
@@ -114,13 +148,28 @@ class HarmonicSolver<DIM>::Workspace {
         discretization_->writeFields(output, VECTOR_ID);
     }
 
+    LinearAlgebra::SmallVector<4> computeEnergyFlux(
+        Base::Face& face, hpgem::Base::Side side, double wavenumber,
+        const FieldPattern<DIM>* background) {
+        return discretization_->computeEnergyFluxes(face, side, wavenumber,
+                                                    VECTOR_ID, background);
+    }
+
    private:
     static constexpr const std::size_t VECTOR_ID = 0;
 
     void configureSolver();
+    bool checkDispersion();
 
     AbstractDiscretization<DIM>* discretization_;
     Base::MeshManipulator<DIM>* mesh_;
+    /**
+     * Whether any material in the mesh is frequency dependent
+     *
+     * Note for distributed computations this will include the for all
+     * processors.
+     */
+    bool dispersion_;
 
     Utilities::GlobalIndexing indexing_;
     Utilities::GlobalPetscMatrix massMatrix_;
@@ -139,6 +188,7 @@ HarmonicSolver<DIM>::Workspace::Workspace(
     Base::MeshManipulator<DIM>& mesh)
     : discretization_(&discretization),
       mesh_(&mesh),
+      dispersion_(checkDispersion()),
       indexing_(nullptr),
       massMatrix_(indexing_, AbstractDiscretizationBase::MASS_MATRIX_ID, -1),
       stiffnessMatrix_(indexing_,
@@ -185,6 +235,25 @@ void HarmonicSolver<DIM>::Workspace::configureSolver() {
 }
 
 template <std::size_t DIM>
+bool HarmonicSolver<DIM>::Workspace::checkDispersion() {
+    char has_dispersion = 0;
+    // NOTE: If a local dispersion is desired, this may have to change to use
+    // IteratorType::GLOBAL
+    for (const Base::Element* element : mesh_->getElementsList()) {
+        if (ElementInfos::get(*element).isDispersive()) {
+            has_dispersion = 1;
+            break;
+        }
+    }
+
+#ifdef HPGEM_USE_MPI
+    MPI_Allreduce(MPI_IN_PLACE, &has_dispersion, 1, MPI_CHAR, MPI_MAX,
+                  PETSC_COMM_WORLD);
+#endif
+    return has_dispersion;
+}
+
+template <std::size_t DIM>
 void HarmonicSolver<DIM>::Workspace::computeIntegrals(
     AbstractHarmonicSolverDriver<DIM>& driver) {
 
@@ -193,25 +262,30 @@ void HarmonicSolver<DIM>::Workspace::computeIntegrals(
 
     const HarmonicProblem<DIM>& problem = driver.currentProblem();
 
-    bool bctChanged =
-        driver.hasChanged(HarmonicProblemChanges::BOUNDARY_CONDITION_TYPE);
+    // Note: There are some possible improvements by splitting the dispersion
+    // property into local (known elements of the mesh) and global (all the
+    // elements).
+    bool fullRecompute =
+        driver.hasChanged(HarmonicProblemChanges::BOUNDARY_CONDITION_TYPE) ||
+        (dispersion_ && driver.hasChanged(HarmonicProblemChanges::OMEGA));
 
-    if (bctChanged ||
+    if (fullRecompute ||
         driver.hasChanged(HarmonicProblemChanges::CURRENT_SOURCE)) {
         std::map<std::size_t,
                  typename AbstractDiscretization<DIM>::InputFunction>
             elementVectors;
         elementVectors[AbstractDiscretizationBase::ELEMENT_VECTOR_ID] =
-            [&problem](const Geometry::PointPhysical<DIM>& p) {
-                return problem.sourceTerm(p);
+            [&problem](const Base::Element& element,
+                       const Geometry::PointPhysical<DIM>& p) {
+                return problem.sourceTerm(element, p);
             };
         discretization_->computeElementIntegrals(
             *mesh_, elementVectors,
-            bctChanged
+            fullRecompute
                 ? AbstractDiscretizationBase::LocalIntegrals::ALL
                 : AbstractDiscretizationBase::LocalIntegrals::ONLY_VECTORS);
     }
-    if (bctChanged ||
+    if (fullRecompute ||
         driver.hasChanged(HarmonicProblemChanges::BOUNDARY_CONDITION_VALUE)) {
         std::map<std::size_t,
                  typename AbstractDiscretization<DIM>::FaceInputFunction>
@@ -225,12 +299,12 @@ void HarmonicSolver<DIM>::Workspace::computeIntegrals(
             [&problem](const Base::Face& face) {
                 return problem.getBoundaryConditionType(face);
             },
-            bctChanged
+            fullRecompute
                 ? AbstractDiscretizationBase::LocalIntegrals::ALL
                 : AbstractDiscretizationBase::LocalIntegrals::ONLY_VECTORS);
     }
-    if (bctChanged) {
-        DGMaxLogger(INFO, "Assembling global matrices vector");
+    if (fullRecompute) {
+        DGMaxLogger(INFO, "Assembling global matrices");
         massMatrix_.reinit();
         stiffnessMatrix_.reinit();
         stiffnessImpedanceMatrix_.reinit();
@@ -318,9 +392,19 @@ void HarmonicSolver<DIM>::solve(
     DGMax::AbstractHarmonicSolverDriver<DIM>& driver) {
     Workspace workspace(*discretization_, mesh);
 
+    int index = -1;
+
     while (!driver.stop()) {
+        index++;
+        std::size_t expectedCount = driver.getExpectedNumberOfProblems();
+        DGMaxLogger(INFO, "Starting problem %/%", index, expectedCount);
         driver.nextProblem();
         const HarmonicProblem<DIM>& problem = driver.currentProblem();
+
+        if (driver.hasChanged(HarmonicProblemChanges::OMEGA)) {
+            setDispersionWavenumber(problem.omega());
+        }
+
         workspace.computeIntegrals(driver);
 
         if (driver.hasChanged(HarmonicProblemChanges::OMEGA) ||

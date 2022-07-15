@@ -7,7 +7,7 @@ This code is distributed using BSD 3-Clause License. A copy of which can found
 below.
 
 
-Copyright (c) 2018, Univesity of Twenete
+Copyright (c) 2021, University of Twente
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -35,34 +35,9 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#include "ExactFieldHarmonicProblem.h"
 
-#ifndef HPGEM_APP_DGMAXHARMONIC_H
-#define HPGEM_APP_DGMAXHARMONIC_H
-
-#include "../ProblemTypes/HarmonicProblem.h"
-#include "../ProblemTypes/AbstractHarmonicSolverDriver.h"
-
-#include "AbstractDiscretization.h"
-#include "Utils/Dispersive.h"
-
-namespace DGMax {
-
-/// \brief Solver for a harmonic problem to find the fields.
-template <std::size_t DIM>
-class HarmonicSolver : public DispersionContainer {
-   public:
-    HarmonicSolver(std::shared_ptr<AbstractDiscretization<DIM>> discretization)
-        : discretization_(discretization){};
-
-    void solve(Base::MeshManipulator<DIM>& mesh,
-               DGMax::AbstractHarmonicSolverDriver<DIM>& driver);
-
-   private:
-    struct Result;
-    struct Workspace;
-
-    std::shared_ptr<AbstractDiscretization<DIM>> discretization_;
-};
-
-}  // namespace DGMax
-#endif  // HPGEM_APP_DGMAXHARMONIC_H
+template <>
+class DGMax::ExactFieldHarmonicProblem<2>;
+template <>
+class DGMax::ExactFieldHarmonicProblem<3>;

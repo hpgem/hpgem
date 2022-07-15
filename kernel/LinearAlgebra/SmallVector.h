@@ -68,6 +68,15 @@ void computeCrossProduct(const GSmallVector<nRows, T>&,
                          const GSmallVector<nRows, T>&,
                          GSmallVector<nRows, T>&);
 
+template <typename T1, typename T2>
+struct ResultT {
+    using Type = std::complex<double>;
+};
+template <>
+struct ResultT<double, double> {
+    using Type = double;
+};
+
 // Conversion operators to allow converting vectors especially needed for
 // MiddleSizeVector conversions.
 // Note: using an out parameter to allow overloading
@@ -87,8 +96,8 @@ inline void convert(const std::complex<T>& in, T& out) {
     out = in.real();
 }
 
-inline double conj(double v) { return v; }
-inline std::complex<double> conj(std::complex<double> v) {
+inline double conj(const double& v) { return v; }
+inline std::complex<double> conj(const std::complex<double>& v) {
     return std::conj(v);
 }
 
@@ -129,7 +138,8 @@ template <std::size_t numberOfRows, typename EntryT>
 class GSmallVector {
 
    public:
-    GSmallVector() : data_() {}
+    // This will actually zero the memory, unlike =default;
+    GSmallVector() : data_(){};
 
     /*GSmallVector(std::array<double, numberOfRows> t)
         : data_(t)
@@ -180,6 +190,12 @@ class GSmallVector {
         std::copy(data.begin(), data.end(), data_.begin());
     }
 
+    static GSmallVector constant(EntryT entry) {
+        GSmallVector result;
+        result.set(entry);
+        return result;
+    }
+
     GSmallVector& operator=(const GSmallVector& right) {
         std::copy(right.data_.begin(), right.data_.end(), data_.begin());
         return *this;
@@ -204,18 +220,12 @@ class GSmallVector {
         return result;
     }
 
-    GSmallVector operator*(const EntryT& right) const {
-        GSmallVector result;
-        std::transform(
-            data_.begin(), data_.end(), result.data_.begin(),
-            std::bind(std::multiplies<EntryT>(), std::placeholders::_1, right));
-        return result;
-    }
-
-    // Multiplication by a complex number
-    GSmallVector<numberOfRows, std::complex<EntryT>> operator*(
-        const std::complex<EntryT>& right) const {
-        GSmallVector<numberOfRows, std::complex<EntryT>> result;
+    template <typename EntryT2>
+    GSmallVector<numberOfRows, typename Detail::ResultT<EntryT, EntryT2>::Type>
+        operator*(const EntryT2& right) const {
+        GSmallVector<numberOfRows,
+                     typename Detail::ResultT<EntryT, EntryT2>::Type>
+            result;
         for (std::size_t i = 0; i < numberOfRows; ++i) {
             result[i] = right * data_[i];
         }
@@ -223,10 +233,11 @@ class GSmallVector {
     }
 
     /// Computes inner product between two vectors.
-    EntryT operator*(const GSmallVector& right) const {
-        EntryT result = 0;
+    template <typename EntryT2>
+    auto operator*(const GSmallVector<numberOfRows, EntryT2>& right) const {
+        typename Detail::ResultT<EntryT, EntryT2>::Type result = 0.0;
         for (std::size_t i = 0; i < numberOfRows; ++i) {
-            result += data_[i] * Detail::conj(right.data_[i]);
+            result += data_[i] * Detail::conj(right[i]);
         }
         return result;
     }
@@ -422,29 +433,49 @@ class GSmallVector {
         return res;
     }
 
+    GSmallVector conj() const {
+        GSmallVector res;
+        for (std::size_t i = 0; i < numberOfRows; ++i) {
+            res.data_[i] = Detail::conj(data_[i]);
+        }
+        return res;
+    }
+
    private:
     std::array<EntryT, numberOfRows> data_;
 };
 
+// Multiplication of number by vector
 template <std::size_t numberOfRows, typename EntryT>
-GSmallVector<numberOfRows, EntryT> operator*(
-    const EntryT& left, const GSmallVector<numberOfRows, EntryT>& right) {
+GSmallVector<numberOfRows, typename Detail::ResultT<EntryT, double>::Type>
+    operator*(const double& left,
+              const GSmallVector<numberOfRows, EntryT>& right) {
     return right * left;
 }
 
-// Multiply real vector by complex number
 template <std::size_t numberOfRows, typename EntryT>
-GSmallVector<numberOfRows, std::complex<EntryT>> operator*(
-    const std::complex<EntryT>& left,
+GSmallVector<numberOfRows, std::complex<double>> operator*(
+    const std::complex<double>& left,
     const GSmallVector<numberOfRows, EntryT>& right) {
     return right * left;
 }
-// Multiply complex number by vector
+
+/// 2D cross product for the double cross product of the form
+/// A x (B x C) with left = A, right = B x C (possibly B = nabla)
+/// Needed due to storing the cross product as 'x' entry
+template <typename EntryT>
+GSmallVector<2, EntryT> leftDoubledCrossProduct(
+    const GSmallVector<2, EntryT>& left, const GSmallVector<2, EntryT>& right) {
+    GSmallVector<2, EntryT> result;
+    result[0] = left[1] * right[0];
+    result[1] = -left[0] * right[0];
+    return result;
+}
 template <std::size_t numberOfRows, typename EntryT>
-GSmallVector<numberOfRows, std::complex<EntryT>> operator*(
-    const double& left,
-    const GSmallVector<numberOfRows, std::complex<EntryT>> right) {
-    return std::complex<EntryT>(left) * right;
+GSmallVector<numberOfRows, EntryT> leftDoubledCrossProduct(
+    const GSmallVector<numberOfRows, EntryT>& left,
+    const GSmallVector<numberOfRows, EntryT>& right) {
+    return left.crossProduct(right);
 }
 
 template <std::size_t numberOfRows, typename EntryT>

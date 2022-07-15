@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2021, University of Twente
+ Copyright (c) 2022, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,36 +35,62 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_MATERIAL_H
-#define HPGEM_MATERIAL_H
+#ifndef HPGEM_DISPERSIVE_H
+#define HPGEM_DISPERSIVE_H
 
-#include <cmath>
+#include <limits>
 
 namespace DGMax {
 
-class Material {
+/**
+ * Interface for a class with Dispersive behaviour.
+ *
+ * This interface is for properties which depend on the wavenumber. Passing this
+ * wavenumber around in the code is a major hassle, this interface allows
+ * setting a value of the wavenumber.
+ */
+class Dispersive {
    public:
-    constexpr Material() noexcept : permittivity_(1.0), permeability_(1.0){};
-    constexpr Material(double permittivity, double permeability = 1.0) noexcept
-        : permittivity_(permittivity), permeability_(permeability) {}
+    Dispersive()
+        : dispersionWaveNumber_(std::numeric_limits<double>::signaling_NaN()){};
 
-    constexpr const double& getPermittivity() const { return permittivity_; }
+    explicit Dispersive(double defaultWavenumber)
+        : dispersionWaveNumber_(defaultWavenumber) {}
 
-    constexpr const double& getPermeability() const { return permeability_; }
+    virtual ~Dispersive() = default;
 
-    constexpr double getImpedance() const {
-        return std::sqrt(permittivity_ / permeability_);
+    void setDispersionWavenumber(double omega) {
+        dispersionWaveNumber_ = omega;
     }
 
-    constexpr double getRefractiveIndex() const {
-        return std::sqrt(permittivity_ * permeability_);
+    inline double getDispersionWavenumber() const {
+        return dispersionWaveNumber_;
     }
 
    private:
-    double permittivity_;
-    double permeability_;
+    double dispersionWaveNumber_;
+};
+
+/**
+ * Container for several Dispersive objects
+ */
+class DispersionContainer {
+   public:
+    void setDispersionWavenumber(double wavenumber) {
+        for (auto& weakDispersive : weakDispersives_) {
+            if (std::shared_ptr<Dispersive> dispersive =
+                    weakDispersive.lock()) {
+                dispersive->setDispersionWavenumber(wavenumber);
+            }
+        }
+    }
+    void addDispersive(std::weak_ptr<DGMax::Dispersive> dispersive) {
+        weakDispersives_.push_back(dispersive);
+    }
+
+   private:
+    std::vector<std::weak_ptr<DGMax::Dispersive>> weakDispersives_;
 };
 
 }  // namespace DGMax
-
-#endif  // HPGEM_MATERIAL_H
+#endif  // HPGEM_DISPERSIVE_H

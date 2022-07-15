@@ -44,24 +44,41 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace hpgem {
 
 /**
- * Input of several meshes with expected errors for testing
+ * Input of several meshes with expected errors for testing. This supports
+ * multiple different error measures to be tested simultaneously.
  */
 class ConvergenceTestSet {
    public:
     ConvergenceTestSet(std::vector<std::string> meshes,
-                       std::vector<double> expectedError,
                        double relativeAccuracy = 0.01)
-        : meshes(meshes),
-          expectedError(expectedError),
+        : meshes(std::move(meshes)),
+          expectedErrors(),
           relativeAccuracy(relativeAccuracy){};
 
+    // Backwards compatibility to test with a single measure
+    ConvergenceTestSet(std::vector<std::string> meshes,
+                       std::vector<double> expectedErrors,
+                       double relativeAccuracy = 0.01)
+        : meshes(std::move(meshes)),
+          errorNames({"error"}),
+          expectedErrors({std::move(expectedErrors)}),
+          relativeAccuracy(relativeAccuracy){};
+
+    /// Add a set of errors for testing
+    void addExpectedErrors(std::string name, std::vector<double> errors) {
+        errorNames.push_back(std::move(name));
+        expectedErrors.push_back(std::move(errors));
+    }
+
     std::vector<std::string> meshes;
-    std::vector<double> expectedError;
+    std::vector<std::string> errorNames;
+    std::vector<std::vector<double>> expectedErrors;
     // Criterion for checking the errors:
     // |error - expectedError|  < relAccuracy * |expectedError|
     // Which allows slight numerical differences between platforms
@@ -81,45 +98,69 @@ class ConvergenceTestSet {
  */
 void runConvergenceTest(
     ConvergenceTestSet& testSet, bool ignoreFailures,
-    std::function<double(std::string, std::size_t)> solver) {
-    std::vector<double> errors;
+    std::function<std::vector<double>(std::string, std::size_t)> solver) {
+
+    std::size_t numErrors = testSet.expectedErrors.size();
+    std::vector<std::vector<double>> observedErrors(numErrors);
+
     for (std::size_t i = 0; i < testSet.meshes.size(); ++i) {
-        double error = solver(testSet.meshes[i], i);
-        errors.push_back(error);
-        if (i < testSet.expectedError.size()) {
-            double difference = std::abs(error - testSet.expectedError[i]);
-            logger.assert_always(difference / testSet.expectedError[i] <
-                                         testSet.relativeAccuracy ||
-                                     ignoreFailures,
-                                 "Comparing to old results, expected %, got % "
-                                 "for the %-th level",
-                                 testSet.expectedError[i], error, i);
-        } else if (!ignoreFailures) {
-            // Require expected error information available when actually
-            // testing
-            logger.assert_always(false, "No error data for test");
+        std::vector<double> levelErrors = solver(testSet.meshes[i], i);
+        for (std::size_t j = 0; j < numErrors; ++j) {
+            double error = levelErrors[j];
+            observedErrors[j].push_back(error);
+
+            if (i < testSet.expectedErrors[j].size()) {
+                double difference =
+                    std::abs(error - testSet.expectedErrors[j][i]);
+                logger.assert_always(
+                    difference / testSet.expectedErrors[j][i] <
+                            testSet.relativeAccuracy ||
+                        ignoreFailures,
+                    "Comparing to old results, expected %, got % "
+                    "for % at the %-th level",
+                    testSet.expectedErrors[j][i], testSet.errorNames[j], error,
+                    i);
+            } else if (!ignoreFailures) {
+                // Require expected error information available when actually
+                // testing
+                logger.assert_always(false, "No error data for % at level %",
+                                     testSet.errorNames[j], i);
+            }
         }
     }
 
     // Print convergence table
-    for (std::size_t i = 0; i < errors.size(); ++i) {
-        std::cout << std::setprecision(8) << std::setw(15) << std::scientific
-                  << errors[i];
-        // Separator that allows copy pasting the result into the code including
-        // the convergence rate. Note double space to match the formatting
-        // standard.
-        std::cout << ",  //";
+    for (std::size_t j = 0; j < numErrors; ++j) {
+        std::cout << testSet.errorNames[j] << std::endl;
+        for (std::size_t i = 0; i < observedErrors[j].size(); ++i) {
+            std::cout << std::setprecision(8) << std::setw(15)
+                      << std::scientific << observedErrors[j][i];
+            // Separator that allows copy pasting the result into the code
+            // including the convergence rate. Note double space to match the
+            // formatting standard.
+            std::cout << ",  //";
 
-        // Compute convergence rate
-        if (i == 0) {
-            std::cout << "------";
-        } else {
-            double rate = errors[i - 1] / errors[i];
-            std::cout << std::setprecision(2) << std::setw(6) << std::fixed
-                      << rate;
+            // Compute convergence rate
+            if (i == 0) {
+                std::cout << "------";
+            } else {
+                double rate = observedErrors[j][i - 1] / observedErrors[j][i];
+                std::cout << std::setprecision(2) << std::setw(6) << std::fixed
+                          << rate;
+            }
+            std::cout << std::endl;
         }
-        std::cout << std::endl;
     }
+}
+
+void runConvergenceTest(
+    ConvergenceTestSet& testSet, bool ignoreFailures,
+    std::function<double(std::string, std::size_t)> solver) {
+    runConvergenceTest(
+        testSet, ignoreFailures,
+        [&solver](std::string mesh, std::size_t level) -> std::vector<double> {
+            return {solver(std::move(mesh), level)};
+        });
 }
 
 }  // namespace hpgem

@@ -46,7 +46,8 @@
 #include <Algorithms/HarmonicSolver.h>
 #include <Algorithms/DGMaxDiscretization.h>
 #include <Algorithms/DivDGMaxDiscretization.h>
-#include <ProblemTypes/Harmonic/SampleHarmonicProblems.h>
+#include <ProblemTypes/Harmonic/ExactFieldHarmonicProblem.h>
+#include <Utils/PlaneWave.h>
 
 #include <petsc.h>
 
@@ -71,7 +72,7 @@ struct ProblemData {
         : infos(material),
           structureDescription(StructureDescription::fromFunction(
               [this](const Base::Element*) { return &this->infos; })),
-          problem(k, E0, omega, phase, material) {
+          problem(omega, std::make_shared<DGMax::PlaneWave<2>>(k, E0, phase)) {
         problem.setBoundaryConditionIndicator([](const Base::Face& face) {
             auto normal = face.getNormalVector(
                 face.getReferenceGeometry()->getCenter().castDimension<1>());
@@ -92,10 +93,87 @@ struct ProblemData {
 
     ElementInfos infos;
     std::shared_ptr<StructureDescription> structureDescription;
-    PlaneWaveProblem<2> problem;
+    ExactFieldHarmonicProblem<2> problem;
+};
+
+class Driver : public AbstractHarmonicSolverDriver<2> {
+   public:
+    Driver(ExactFieldHarmonicProblem<2>& problem)
+        : nextCalled_(false), problem_(&problem){};
+
+    bool stop() const override { return nextCalled_; }
+    void nextProblem() override { nextCalled_ = true; }
+    size_t getExpectedNumberOfProblems() const override { return 1; }
+    const HarmonicProblem<2>& currentProblem() const override {
+        return *problem_;
+    }
+
+    void handleResult(AbstractHarmonicResult<2>& result) override {
+        if (plotter_ != nullptr) {
+            result.writeVTK(*plotter_);
+        }
+        errors_.resize(3);
+        errors_[0] = result.computeL2Error(*problem_);
+        double actualInFlux = 0.0;
+        double expectedInFlux = 0.0;
+        double actualOutFlux = 0.0;
+        double expectedOutFlux = 0.0;
+
+        for (Base::Face* face : result.getMesh().getFacesList()) {
+            if (face->isInternal()) {
+                continue;
+            }
+            double flux = result.computeEnergyFlux(*face, Base::Side::LEFT,
+                                                   problem_->omega());
+
+            Geometry::PointReference<1> midPoint =
+                face->getReferenceGeometry()->getCenter();
+            LinearAlgebra::SmallVector<2> normal =
+                face->getNormalVector(midPoint);
+            normal /= normal.l2Norm();
+            // Get one of the element infos
+            auto point = face->referenceToPhysical(midPoint);
+            auto materialTensor = ElementInfos::get(*face->getPtrElementLeft())
+                                      .getMaterialConstantCurl(point);
+            // Point flux at the middle of the face
+            double expectedFlux =
+                normal * problem_->getField()->localFlux(point, materialTensor,
+                                                         problem_->omega());
+            // Assume flat flux profile
+            expectedFlux *= face->getDiameter();
+
+            if (expectedFlux < 0) {
+                actualInFlux += flux;
+                expectedInFlux += expectedFlux;
+            } else {
+                actualOutFlux += flux;
+                expectedOutFlux += expectedFlux;
+            }
+        }
+        errors_[1] = actualOutFlux - expectedOutFlux;
+        errors_[2] = actualInFlux - expectedInFlux;
+    }
+
+    bool hasChanged(HarmonicProblemChanges change) const override {
+        return true;
+    }
+
+    void setPlotter(Output::VTKSpecificTimeWriter<2>* plotter) {
+        plotter_ = plotter;
+    }
+
+    std::vector<double> getErrors() { return errors_; }
+
+   private:
+    bool nextCalled_;
+    ExactFieldHarmonicProblem<2>* problem_;
+    Output::VTKSpecificTimeWriter<2>* plotter_;
+
+    std::vector<double> errors_;
 };
 
 const Material ProblemData::material;
+const double ProblemData::phase;
 
 // k_ is chosen such that:
 //  1. Not too small, as that would only show the linear part
@@ -107,9 +185,10 @@ const Material ProblemData::material;
 const LinearAlgebra::SmallVector<2> ProblemData::k{1 * M_PI, 0.5 * M_PI};
 const LinearAlgebra::SmallVectorC<2> ProblemData::E0{0.5, -1};
 
-double solve(std::string meshFile, std::size_t level,
-             std::shared_ptr<AbstractDiscretization<2>> discretization,
-             std::string prefix) {
+std::vector<double> solve(
+    std::string meshFile, std::size_t level,
+    std::shared_ptr<AbstractDiscretization<2>> discretization,
+    std::string prefix) {
 
     ProblemData problemData;
     Base::ConfigurationData config(discretization->getNumberOfUnknowns());
@@ -124,11 +203,11 @@ double solve(std::string meshFile, std::size_t level,
     fileName << prefix << level;
     Output::VTKSpecificTimeWriter<2> output(fileName.str(), mesh.get(), 0, 2);
 
-    HarmonicErrorDriver<2> driver(problemData.problem);
-    driver.setOutputPlotter(&output);
+    Driver driver(problemData.problem);
+    driver.setPlotter(&output);
 
     solver.solve(*mesh, driver);
-    return driver.getError();
+    return driver.getErrors();
 }
 
 int main(int argc, char** argv) {
@@ -137,7 +216,7 @@ int main(int argc, char** argv) {
     initDGMaxLogging();
 
     // For testing and updating => Should be false to actually use this test
-    bool ignoreFailures = true;
+    bool ignoreFailures = false;
 
     // Default the solver if not specified to a direct LU solver
     std::map<std::string, std::string> defaultOptions = {
@@ -158,31 +237,66 @@ int main(int argc, char** argv) {
     // L2 norm is expected at h^{p} => reduction of a factor 4 with each level
     auto dgmax = std::make_shared<DGMaxDiscretization<2>>(2, 100);
 
-    ConvergenceTestSet meshes = {getUnitSquareTriangleMeshes(),
-                                 {
-                                     2.32455311e-01,  //------
-                                     7.78569137e-02,  //  2.99
-                                     1.97411586e-02,  //  3.94
-                                     4.94737345e-03,  //  3.99
-                                     1.23692989e-03,  //  4.00
-                                     3.09147735e-04,  //  4.00
-                                     7.72701909e-05,  //  4.00
-                                 }};
+    ConvergenceTestSet meshes = {getUnitSquareTriangleMeshes()};
+    meshes.addExpectedErrors("L2 error", {
+                                             2.31544492e-01,  //------
+                                             7.78755325e-02,  //  2.97
+                                             1.97460447e-02,  //  3.94
+                                             4.94781906e-03,  //  3.99
+                                             1.23696273e-03,  //  4.00
+                                             3.09149950e-04,  //  4.00
+                                             7.72703345e-05,  //  4.00
+                                         });
+    meshes.addExpectedErrors("Outflux", {
+                                            2.86300153e-01,  //------
+                                            2.66147184e-01,  //  1.08
+                                            8.53078798e-02,  //  3.12
+                                            2.25630286e-02,  //  3.78
+                                            5.71747856e-03,  //  3.95
+                                            1.43387188e-03,  //  3.99
+                                            3.58708541e-04,  //  4.00
+                                        });
+    meshes.addExpectedErrors("Influx", {
+                                           -2.75684494e-01,  //------
+                                           -2.61542159e-01,  //  1.05
+                                           -8.48998638e-02,  //  3.08
+                                           -2.25414966e-02,  //  3.77
+                                           -5.71630571e-03,  //  3.94
+                                           -1.43380470e-03,  //  3.99
+                                           -3.58704496e-04,  //  4.00
+                                       });
     runConvergenceTest(meshes, ignoreFailures,
                        [&dgmax](std::string meshFile, std::size_t order) {
                            return solve(meshFile, order, dgmax,
                                         "planewave-solution-dgmax");
                        });
 
-    ConvergenceTestSet meshes2 = {getUnitSquareTriangleMeshes(0, 6),
-                                  {
-                                      2.50221220e-01,  //------
-                                      7.84254413e-02,  //  3.19
-                                      1.97608759e-02,  //  3.97
-                                      4.94782994e-03,  //  3.99
-                                      1.23693191e-03,  //  4.00
-                                      3.09147016e-04,  //  4.00
-                                  }};
+    ConvergenceTestSet meshes2 = {getUnitSquareTriangleMeshes(0, 6)};
+    meshes2.addExpectedErrors("L2 error", {
+                                              2.87642577e-01,  //------
+                                              7.96248160e-02,  //  3.61
+                                              1.97976622e-02,  //  4.02
+                                              4.94929023e-03,  //  4.00
+                                              1.23700845e-03,  //  4.00
+                                              3.09151533e-04,  //  4.00
+                                          });
+    meshes2.addExpectedErrors("Outflux", {
+                                             2.52041706e-01,  //------
+                                             2.57375069e-01,  //  0.98
+                                             8.45657740e-02,  //  3.04
+                                             2.25232154e-02,  //  3.75
+                                             5.71665736e-03,  //  3.94
+                                             1.43422355e-03,  //  3.99
+                                         });
+    meshes2.addExpectedErrors("Influx", {
+                                            -1.69073609e-01,  //------
+                                            -2.54790852e-01,  //  0.66
+                                            -8.40758550e-02,  //  3.03
+                                            -2.24894193e-02,  //  3.74
+                                            -5.71456834e-03,  //  3.94
+                                            -1.43409513e-03,  //  3.98
+                                        });
+
     DivDGMaxDiscretizationBase::Stab stab;
     stab.stab1 = 105;
     stab.stab2 = 0;

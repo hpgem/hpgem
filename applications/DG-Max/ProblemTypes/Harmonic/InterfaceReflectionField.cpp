@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2021, University of Twente
+ Copyright (c) 2022, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,36 +35,37 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_MATERIAL_H
-#define HPGEM_MATERIAL_H
 
-#include <cmath>
+#include "InterfaceReflectionField.h"
 
 namespace DGMax {
 
-class Material {
-   public:
-    constexpr Material() noexcept : permittivity_(1.0), permeability_(1.0){};
-    constexpr Material(double permittivity, double permeability = 1.0) noexcept
-        : permittivity_(permittivity), permeability_(permeability) {}
+namespace {
+template <std::size_t dim>
+PlaneWave<dim> legacyIncidentWave(double omega, Material mat, double phase) {
+    LinearAlgebra::SmallVector<dim> kin, E0;
+    kin[1] = omega * mat.getRefractiveIndex();
+    E0[0] = 1.0;
+    return PlaneWave<dim>(kin, E0, phase);
+}
 
-    constexpr const double& getPermittivity() const { return permittivity_; }
+template <std::size_t dim>
+LinearAlgebra::SmallVector<dim> legacyNormal() {
+    LinearAlgebra::SmallVector<dim> normal;
+    normal[1] = 1.0;
+    return normal;
+}
 
-    constexpr const double& getPermeability() const { return permeability_; }
+}  // namespace
 
-    constexpr double getImpedance() const {
-        return std::sqrt(permittivity_ / permeability_);
-    }
+template <std::size_t dim>
+InterfaceReflectionField<dim>::InterfaceReflectionField(
+    double omega, double phase, Material mat1, Material mat2, double position)
+    : InterfaceReflectionField<dim>(legacyIncidentWave<dim>(omega, mat1, phase),
+                                    mat1, mat2, legacyNormal<dim>(), position) {
+}
 
-    constexpr double getRefractiveIndex() const {
-        return std::sqrt(permittivity_ * permeability_);
-    }
-
-   private:
-    double permittivity_;
-    double permeability_;
-};
+template class InterfaceReflectionField<2>;
+template class InterfaceReflectionField<3>;
 
 }  // namespace DGMax
-
-#endif  // HPGEM_MATERIAL_H

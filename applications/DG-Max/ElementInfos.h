@@ -41,12 +41,24 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef HPGEM_APP_ELEMENTINFOS_H
 #define HPGEM_APP_ELEMENTINFOS_H
 
-#include "Base/UserData.h"
-#include "Material.h"
+#include <AbstractDimensionlessBase.h>
+#include <Base/UserData.h>
 
-class ElementInfos : public hpgem::Base::UserElementData {
+#include <Logger.h>
+#include <Base/Element.h>
+#include <Geometry/PointPhysicalBase.h>
+#include <LinearAlgebra/SmallVector.h>
+
+#include "Material.h"
+#include "MaterialTensor.h"
+
+class ElementInfos : public hpgem::Base::UserData {
    public:
-    ElementInfos(double epsilon, double permeability = 1.0);
+    using Element = hpgem::Base::Element;
+    using PointPhysicalBase = hpgem::Geometry::PointPhysicalBase;
+    using SmallVectorC = hpgem::LinearAlgebra::SmallVectorC<3>;
+
+    ElementInfos(double epsilon = 1.0, double permeability = 1.0);
     ElementInfos(DGMax::Material material) : material_(material){};
 
     const double& getPermittivity() const {
@@ -56,6 +68,102 @@ class ElementInfos : public hpgem::Base::UserElementData {
     const double& getPermeability() const {
         return material_.getPermeability();
     }
+    static ElementInfos* get(const Element* element) {
+        using hpgem::logger;
+        if (element == nullptr) {
+            return nullptr;
+        } else {
+            return &get(*element);
+        }
+    }
+
+    static ElementInfos& get(const Element& element) {
+        using hpgem::logger;
+        auto* data = element.getUserData();
+        logger.assert_debug(data != nullptr,
+                            "No material information available for element %",
+                            element.getID());
+        auto* elementInfo = dynamic_cast<ElementInfos*>(data);
+        logger.assert_debug(elementInfo != nullptr,
+                            "Element has incorrect material information");
+        return *elementInfo;
+    }
+
+    /**
+     * Material constant used in second order Maxwells equation.
+     *
+     * This is the material constant that is used in second order Maxwell's
+     * equation at two points. It is the permittivity for the E-field
+     * formulation, for H-field it would be the permeability. This constant is
+     * used in two places:
+     *
+     *  - The divergence constrain Div(constant field) = 0 (Div(epsilon E) = 0)
+     *  - The omega^2 term: -omega^2 constant field.
+     *
+     * For PMLs and similar materials it may vary inside the element.
+     *
+     * @param p The position
+     *
+     * @return Diagonal of the material tensor, for 2D the last component should
+     * be used.
+     */
+    virtual DGMax::MaterialTensor getMaterialConstantDiv(
+        const PointPhysicalBase& p) const {
+        return DGMax::MaterialTensor(material_.getPermittivity());
+    }
+
+    /**
+     * Material constant used in second order Maxwells equation.
+     *
+     * This material constant that is used in second order Maxwells equation
+     * between the two Curls. It is the inverse of the permeability for the
+     * E-field formulation. For the H-field it would be the inverse of the
+     * permittivity.
+     *
+     * For PMLs and similar materials it may vary inside the element.
+     *
+     * @param p The position
+     * @return Diagonal of the material tensor, for 2D the first two components
+     * should be used.
+     */
+    virtual DGMax::MaterialTensor getMaterialConstantCurl(
+        const PointPhysicalBase& p) const {
+        return DGMax::MaterialTensor(material_.getPermeability());
+    }
+
+    /**
+     * Rescaling of the computed field for plotting, energy computation etc.
+     *
+     * The field components of the field inside a PML are a multiplication of
+     * the actual field with a Tensors. To get the actual field we need the
+     * inverse scaling.
+     *
+     * @param p The point to compute the scaling at
+     * @return The inverse tensor, should be applied with applyDiv()
+     */
+    virtual DGMax::MaterialTensor getFieldRescaling(
+        const PointPhysicalBase& p) const {
+        return DGMax::MaterialTensor(1.0);
+    }
+
+    /**
+     * Similar to getFieldRescaling but for the curl of the field.
+     *
+     * @param p The point to compute the scaling at
+     * @return The inverse tensor, should be applied with applyCurl
+     */
+    virtual DGMax::MaterialTensor getCurlFieldRescaling(
+        const PointPhysicalBase& p) const {
+        return DGMax::MaterialTensor(1.0);
+    }
+
+    /**
+     * @return Whether the material is dispersive (i.e. either materialConstants
+     * depend on omega).
+     */
+    virtual bool isDispersive() const { return false; }
+
+    const DGMax::Material& getMaterial() const { return material_; }
 
     double getImpedance() const { return material_.getImpedance(); }
 
@@ -64,4 +172,5 @@ class ElementInfos : public hpgem::Base::UserElementData {
    private:
     DGMax::Material material_;
 };
+
 #endif  // HPGEM_APP_ELEMENTINFOS_H

@@ -49,6 +49,7 @@
 #include <LinearAlgebra/MiddleSizeVector.h>
 #include <Output/VTKSpecificTimeWriter.h>
 
+#include "../ProblemTypes/FieldPattern.h"
 #include "../ProblemTypes/BoundaryConditionType.h"
 
 namespace DGMax {
@@ -97,7 +98,7 @@ class AbstractDiscretization : public AbstractDiscretizationBase {
     using PointPhysicalT = hpgem::Geometry::PointPhysical<dim>;
     using PointReferenceT = hpgem::Geometry::PointReference<dim>;
     using InputFunction = std::function<hpgem::LinearAlgebra::SmallVectorC<dim>(
-        const PointPhysicalT&)>;
+        const Base::Element& element, const PointPhysicalT&)>;
     using FaceInputFunction =
         std::function<hpgem::LinearAlgebra::SmallVectorC<dim>(
             hpgem::Base::PhysicalFace<dim>&)>;
@@ -138,6 +139,36 @@ class AbstractDiscretization : public AbstractDiscretizationBase {
 
     virtual void writeFields(hpgem::Output::VTKSpecificTimeWriter<dim>& writer,
                              std::size_t timeIntegrationVectorId) const = 0;
+
+    /**
+     * Compute the energy flux through a face by integrating normal component of
+     * the numerical Poynting vector.
+     *
+     * Note:
+     *  - The direction of the normal is outward from the element on the given
+     *    side.
+     *  - When a background field is give, 4 fluxes will be computed
+     *      0. The flux of the field itself
+     *      1. The flux of the background field
+     *      2. The flux from cross terms between the field and the background
+     *      3. The flux from the combined field (should equal 0+1+2)
+     *  - The implementation of the Poynting vector may include extra numerical
+     *   terms from the discretization.
+     *
+     * @param face The face
+     * @param side The side which is the inside
+     * @param waveNumber The angular wavenumber omega used in the computation
+     *    (Poynting vector scales as 1/wavenumber)
+     * @param timeIntegrationVectorId id of the vector with coefficients
+     * @param background Optional background field
+     * @return The fluxes
+     */
+    virtual LinearAlgebra::SmallVector<4> computeEnergyFluxes(
+        Base::Face& face, Base::Side side, double waveNumber,
+        std::size_t timeIntegrationVectorId,
+        const FieldPattern<dim>* background) {
+        return {};
+    }
 
    protected:
     virtual void computeElementIntegralsImpl(

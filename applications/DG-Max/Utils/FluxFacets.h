@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2021, University of Twente
+ Copyright (c) 2022, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,56 +35,80 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_ABSTRACTHARMONICSOLVERDRIVER_H
-#define HPGEM_ABSTRACTHARMONICSOLVERDRIVER_H
+#ifndef HPGEM_FLUXFACETS_H
+#define HPGEM_FLUXFACETS_H
 
-#include "AbstractHarmonicResult.h"
-#include "HarmonicProblem.h"
+#include <memory>
+#include <vector>
+#include <map>
+
+#include <LinearAlgebra/SmallVector.h>
+#include <Base/MeshManipulator.h>
+
+#include <ProblemTypes/AbstractHarmonicResult.h>
+#include <ProblemTypes/FieldPattern.h>
 
 namespace DGMax {
 
-template <std::size_t dim>
-class AbstractHarmonicSolverDriver {
+/**
+ * Facets of the mesh through which the flux needs to be computed
+ */
+class FluxFacets {
+
    public:
-    virtual ~AbstractHarmonicSolverDriver() = default;
+    FluxFacets(const Base::MeshManipulatorBase& mesh);
 
-    /**
-     * @return Whether to stop solving (the current problem is the last problem)
-     */
-    virtual bool stop() const = 0;
+    template <std::size_t dim>
+    std::vector<LinearAlgebra::SmallVector<4>> computeFluxes(
+        DGMax::AbstractHarmonicResult<dim>& result, double wavenumber,
+        const DGMax::FieldPattern<dim>* background) const;
 
+    // Public to allow writing the header
     /**
-     * Advance to the next problem
+     * Face for which an energy flux needs to be computed
      */
-    virtual void nextProblem() = 0;
+    struct FluxFace {
+        /**
+         * The face
+         */
+        Base::Face* face;
+        /**
+         * The side from which it needs to be computed
+         */
+        Base::Side side;
+    };
 
-    /**
-     * The expected number of problems that will be solved. Default: 0 (unknown)
-     * @return
-     */
-    virtual std::size_t getExpectedNumberOfProblems() const { return 0; }
-
-    /**
-     * Description of the current problem to solve
-     * @return The problem to solve
-     */
-    virtual const HarmonicProblem<dim>& currentProblem() const = 0;
-
-    /**
-     * Call back after the solving has finished
-     * @param result Reference to the result, only valid during the call
-     */
-    virtual void handleResult(AbstractHarmonicResult<dim>& result) = 0;
-
-    /**
-     * Check whether a property of the HarmonicProblem has changed compared to
-     * the previous solve.
-     */
-    virtual bool hasChanged(HarmonicProblemChanges change) const {
-        return true;
+    const std::vector<std::string>& getFacetNames() const {
+        return facetNames_;
     }
+
+   private:
+    /**
+     * Pair of indices for the zones adjacent to a face.
+     *  - For external faces the second index is -1
+     *  - For internal faces the first index should be smaller than the second
+     */
+    using FaceZoneIndexPair = std::pair<int, int>;
+
+    /**
+     * Generate the names of the facets
+     */
+    void generateZoneOrdering(const Base::MeshManipulatorBase& mesh);
+    FaceZoneIndexPair getZoneIndexPair(const Base::Face& face) const;
+
+    /**
+     * For a consistent output and communication we order the zone pairs of the
+     * faces.
+     */
+    std::map<FaceZoneIndexPair, std::size_t> faceIndexOrdering_;
+    /**
+     * Mapping from zone pair index to the corresponding name
+     */
+    std::vector<std::string> facetNames_;
+
+    std::map<FaceZoneIndexPair, std::vector<FluxFace>> facets;
 };
 
 }  // namespace DGMax
 
-#endif  // HPGEM_ABSTRACTHARMONICSOLVERDRIVER_H
+#endif  // HPGEM_FLUXFACETS_H

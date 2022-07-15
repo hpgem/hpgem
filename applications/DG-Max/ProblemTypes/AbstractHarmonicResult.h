@@ -40,6 +40,7 @@
 
 #include <Output/VTKSpecificTimeWriter.h>
 #include "HarmonicProblem.h"
+#include "FieldPattern.h"
 
 namespace DGMax {
 
@@ -57,8 +58,44 @@ class AbstractHarmonicResult {
     virtual void writeVTK(
         hpgem::Output::VTKSpecificTimeWriter<dim>& output) = 0;
 
+    /**
+     * Compute the electric field of the solution at a specific point
+     */
+    virtual LinearAlgebra::SmallVectorC<dim> computeField(
+        const Base::Element* element, const Geometry::PointReference<dim>&) = 0;
+
+    /**
+     * Compute the curl of the electric field of the solution at a specific
+     * point
+     */
+    virtual LinearAlgebra::SmallVectorC<dim> computeFieldCurl(
+        const Base::Element* element, const Geometry::PointReference<dim>&) = 0;
+
     virtual double computeL2Error(
         const ExactHarmonicProblem<dim>& solution) = 0;
+
+    /**
+     * Compute the energy flux through a face from a given side
+     *
+     * @see AbstractDiscretization#computeEnergyFlux for more information about
+     * the computational aspects.
+     */
+    double computeEnergyFlux(Base::Face& face, hpgem::Base::Side side,
+                             double wavenumber) {
+        return computeEnergyFlux(face, side, wavenumber, nullptr)[0];
+    }
+    /**
+     * Compute energy fluxes through a face.
+     *
+     * @param face
+     * @param side
+     * @param waveNumber
+     * @param background
+     * @return
+     */
+    virtual LinearAlgebra::SmallVector<4> computeEnergyFlux(
+        Base::Face& face, Base::Side side, double waveNumber,
+        const FieldPattern<dim>* background) = 0;
 };
 
 }  // namespace DGMax

@@ -60,6 +60,14 @@ using namespace hpgem;
 /// For some known mu, eps, omega, J and g. Where it is required (but not
 /// checked) that div J = 0.
 ///
+/// For scattering problems it is common to split the incident field into two
+/// parts E = Ei + Es. The incident field Ei is the theoretical solution in the
+/// background medium (epsilon, mu). The scattering object then modifies this
+/// background resulting in different mu, epsilon or boundary resulting in a
+/// scattered electric field Es. The interaction of the indecent field with the
+/// different material acts as a source function for the scattered field, or as
+/// boundary condition (e.g. mirror).
+///
 /// For more information, see for example section 5.2.1 of Devashish's thesis.
 ///
 template <std::size_t DIM>
@@ -68,6 +76,7 @@ class HarmonicProblem {
     virtual ~HarmonicProblem() = default;
     virtual double omega() const = 0;
     virtual LinearAlgebra::SmallVectorC<DIM> sourceTerm(
+        const Base::Element& element,
         const Geometry::PointPhysical<DIM>& point) const = 0;
     virtual DGMax::BoundaryConditionType getBoundaryConditionType(
         const Base::Face& face) const = 0;
@@ -86,6 +95,35 @@ class HarmonicProblem {
      */
     virtual LinearAlgebra::SmallVectorC<DIM> boundaryCondition(
         Base::PhysicalFace<DIM>& face) const = 0;
+
+    /**
+     * @return Whether the problem describes the scattered field
+     */
+    virtual bool isScatterFieldProblem() const { return false; }
+
+    /**
+     * If this is a scattered field problem, the incident field, else 0
+     * (default).
+     *
+     * @param p The point to evaluate the incident field at
+     * @return The field
+     */
+    virtual LinearAlgebra::SmallVectorC<DIM> incidentField(
+        Geometry::PointPhysical<DIM>& p) const {
+        return {};
+    }
+
+    /**
+     * If this is a scattered field problem, the curl of the incident field,
+     * else 0 (default).
+     *
+     * @param p The point to evaluate at
+     * @return The curl of the incident field.
+     */
+    virtual LinearAlgebra::SmallVectorC<DIM> incidentFieldCurl(
+        Geometry::PointPhysical<DIM>& p) const {
+        return {};
+    }
 };
 
 /**
@@ -122,23 +160,25 @@ class ExactHarmonicProblem : public HarmonicProblem<DIM> {
                 return normal.crossProduct(efield);
             }
             case BCT::NEUMANN: {
-                auto* material = dynamic_cast<ElementInfos*>(
-                    face.getFace()->getPtrElementLeft()->getUserData());
-                return this->exactSolutionCurl(face.getPointPhysical()) /
-                       material->getPermeability();
+
+                const auto& point = face.getPointPhysical();
+                const auto material =
+                    ElementInfos::get(*face.getFace()->getPtrElementLeft())
+                        .getMaterialConstantCurl(point);
+                return material.applyCurl(exactSolutionCurl(point));
             }
             case BCT::SILVER_MULLER: {
-                auto* material = dynamic_cast<ElementInfos*>(
-                    face.getFace()->getPtrElementLeft()->getUserData());
-                logger.assert_debug(material != nullptr, "No material.");
-                Vec efield = this->exactSolution(face.getPointPhysical());
-                Vec efieldCurl =
-                    this->exactSolutionCurl(face.getPointPhysical());
+                const auto& point = face.getPointPhysical();
+                auto& material =
+                    ElementInfos::get(*face.getFace()->getPtrElementLeft());
+                Vec efield = this->exactSolution(point);
+                Vec efieldCurl = this->exactSolutionCurl(point);
                 const Vec& normal = face.getUnitNormalVector();
                 auto impedance = std::complex<double>(
-                    0, this->omega() * material->getImpedance());
+                    0, this->omega() * material.getImpedance());
                 // n x (Curl E + Z [E x n]) = n x g_N
-                return efieldCurl / material->getPermeability() +
+                return material.getMaterialConstantCurl(point).applyCurl(
+                           efieldCurl) +
                        impedance * efield.crossProduct(normal);
             }
             default:

@@ -85,15 +85,19 @@ void DGMaxTimeIntegration<DIM>::solve(
         elementVectors;
 
     elementVectors[DGMaxDiscretizationBase::ELEMENT_VECTOR_ID] =
-        std::bind(&SeparableTimeIntegrationProblem<DIM>::sourceTermRef,
-                  std::ref(input), _1);
+        [&input](const Base::Element&, const Geometry::PointPhysical<DIM>& p) {
+            return input.sourceTermRef(p);
+        };
     elementVectors[DGMaxDiscretizationBase::INITIAL_CONDITION_VECTOR_ID] =
-        std::bind(&TimeIntegrationProblem<DIM>::initialCondition,
-                  std::ref(input), _1);
+        [&input](const Base::Element&, const Geometry::PointPhysical<DIM>& p) {
+            return input.initialCondition(p);
+        };
     elementVectors
         [DGMaxDiscretizationBase::INITIAL_CONDITION_DERIVATIVE_VECTOR_ID] =
-            std::bind(&TimeIntegrationProblem<DIM>::initialConditionDerivative,
-                      std::ref(input), _1);
+            [&input](const Base::Element&,
+                     const Geometry::PointPhysical<DIM>& p) {
+                return input.initialConditionDerivative(p);
+            };
 
     discretization.setMatrixHandling(DGMaxDiscretizationBase::INVERT);
     discretization.computeElementIntegrals(mesh_, elementVectors);
@@ -358,10 +362,12 @@ void DGMaxTimeIntegration<DIM>::writeTimeLevel(
             const Geometry::PointReference<DIM>& point, std::ostream& stream) {
             const LinearAlgebra::MiddleSizeVector coefficients =
                 element->getTimeIntegrationVector(timeLevel);
+            auto fields =
+                discretization.computeFields(element, point, coefficients);
             LinearAlgebra::SmallVector<DIM> electricField =
-                discretization.computeField(element, point, coefficients);
+                fields.electricField;
             LinearAlgebra::SmallVector<DIM> curlField =
-                discretization.computeCurlField(element, point, coefficients);
+                fields.electricFieldCurl;
             if (DIM == 2) {
                 stream << electricField[0] << " " << electricField[1] << " "
                        << curlField[0] << " " << curlField[1] << std::endl;
@@ -391,8 +397,16 @@ void DGMaxTimeIntegration<DIM>::printErrors(
     for (std::size_t level = 0; level < numberOfSnapshots; ++level) {
         double time = snapshotTime[level];
         std::map<NormType, double> normValues = discretization.computeError(
-            mesh_, level, std::bind(exactField, std::placeholders::_1, time),
-            std::bind(exactCurl, std::placeholders::_1, time), normSet);
+            mesh_, level,
+            [&exactField, &time](const Base::Element&,
+                                 const Geometry::PointPhysical<DIM>& p) {
+                return exactField(p, time);
+            },
+            [&exactCurl, &time](const Base::Element& element,
+                                const Geometry::PointPhysical<DIM>& p) {
+                return exactCurl(p, time);
+            },
+            normSet);
         std::cout << time;
         for (auto norm : norms) {
             std::cout << "\t" << normValues[norm];
