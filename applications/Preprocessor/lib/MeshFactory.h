@@ -77,7 +77,8 @@ Mesh<dimension> readFile(MeshSource& file) {
 }
 
 template <std::size_t dimension>
-Mesh<dimension> fromMeshSource(MeshSource2& file, bool ignorePeriodicity) {
+Mesh<dimension> fromMeshSource(MeshSource2& file,
+                               bool ignorePeriodicity = false) {
     Mesh<dimension> result;
     logger.assert_always(dimension == file.getDimension(),
                          "Mismatching dimensions");
