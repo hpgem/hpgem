@@ -49,12 +49,12 @@ TEST_CASE("ReadingFile", "[ReadingFile]") {
 
     std::vector<Preprocessor::MeshSource2::Coord> ref_Coords;
     ref_Coords.reserve(6);
-    ref_Coords.push_back({{0.0, 0.0}, 0});
-    ref_Coords.push_back({{1.0, 0.0}, 1});
-    ref_Coords.push_back({{1.0, 1.0}, 2});
-    ref_Coords.push_back({{0.0, 1.0}, 3});
-    ref_Coords.push_back({{2.0, 0.0}, 0});
-    ref_Coords.push_back({{2.0, 1.0}, 3});
+    ref_Coords.push_back({0, {0.0, 0.0}});
+    ref_Coords.push_back({1, {1.0, 0.0}});
+    ref_Coords.push_back({2, {1.0, 1.0}});
+    ref_Coords.push_back({3, {0.0, 1.0}});
+    ref_Coords.push_back({0, {2.0, 0.0}});
+    ref_Coords.push_back({3, {2.0, 1.0}});
 
     const auto& coords = reader.getCoordinates();
     INFO("Nodes");
@@ -101,12 +101,12 @@ TEST_CASE("ReadingFile_NOPBC", "[ReadingFile]") {
 
     std::vector<Preprocessor::MeshSource2::Coord> ref_Coords;
     ref_Coords.reserve(6);
-    ref_Coords.push_back({{0.0, 0.0}, 0});
-    ref_Coords.push_back({{1.0, 0.0}, 1});
-    ref_Coords.push_back({{1.0, 1.0}, 2});
-    ref_Coords.push_back({{0.0, 1.0}, 3});
-    ref_Coords.push_back({{2.0, 0.0}, 4});
-    ref_Coords.push_back({{2.0, 1.0}, 5});
+    ref_Coords.push_back({0, {0.0, 0.0}});
+    ref_Coords.push_back({1, {1.0, 0.0}});
+    ref_Coords.push_back({2, {1.0, 1.0}});
+    ref_Coords.push_back({3, {0.0, 1.0}});
+    ref_Coords.push_back({4, {2.0, 0.0}});
+    ref_Coords.push_back({5, {2.0, 1.0}});
 
     const auto& coords = reader.getCoordinates();
     INFO("Nodes");

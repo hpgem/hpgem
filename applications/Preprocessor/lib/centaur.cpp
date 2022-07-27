@@ -225,7 +225,8 @@ void CentaurReader::readHeader() {
     // "Unstructured hybrid grid format"
     // But can be ignored
 
-    logger(INFO, "This mesh is in Centaur version % format", version);
+    logger(INFO, "This mesh is in Centaur version % format of type %", version,
+           centaurFileType);
 }
 
 void CentaurReader::readCoordinates() {
