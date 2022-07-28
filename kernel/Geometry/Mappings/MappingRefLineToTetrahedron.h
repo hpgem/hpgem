@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2021, University of Twente
+ Copyright (c) 2022, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,32 +35,35 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_MAPPINGTOPHYSTRIANGLEQUADRATIC_H
-#define HPGEM_MAPPINGTOPHYSTRIANGLEQUADRATIC_H
+#ifndef HPGEM_MAPPINGREFLINETOTETRAHEDRON_H
+#define HPGEM_MAPPINGREFLINETOTETRAHEDRON_H
 
-#include "MappingReferenceToPhysical.h"
+#include "MappingReferenceToReference.h"
 
-#include <map>
+#include <LinearAlgebra/SmallVector.h>
 
 namespace hpgem {
 namespace Geometry {
-class MappingToPhysTriangleQuadratic : public MappingReferenceToPhysical<2> {
+
+class MappingRefLineToTetrahedron : public MappingReferenceToReference<2> {
    public:
-    explicit MappingToPhysTriangleQuadratic(
-        const PhysicalGeometry<2>* const physicalGeometry);
-    MappingToPhysTriangleQuadratic(
-        const MappingToPhysTriangleQuadratic& other) = default;
+    MappingRefLineToTetrahedron(std::size_t face,
+                                const std::size_t nodesOnEdges[6][2],
+                                const PointReference<3> nodes[4]);
+    Geometry::PointReference<3> transform(
+        const Geometry::PointReference<1>&) const final;
+    Geometry::Jacobian<1, 3> calcJacobian(const PointReference<1>&) const final;
 
-    PointPhysical<2> transform(const PointReference<2>&) const final;
-    PointReference<2> inverseTransform(const PointPhysical<2>&) const final;
+    size_t getTargetDimension() const override {
+        return 3;
+    }
 
-    Jacobian<2, 2> calcJacobian(const PointReference<2>&) const final;
-
-    MappingReferenceToPhysicalBase* copy() const override;
-
-    void reinit() final;
+   private:
+    LinearAlgebra::SmallVector<3> basis_;
+    Geometry::Jacobian<1, 3> jacobian_;
 };
+
 }  // namespace Geometry
 }  // namespace hpgem
 
-#endif  // HPGEM_MAPPINGTOPHYSTRIANGLEQUADRATIC_H
+#endif  // HPGEM_MAPPINGREFLINETOTETRAHEDRON_H

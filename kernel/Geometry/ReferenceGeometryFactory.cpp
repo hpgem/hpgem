@@ -40,6 +40,7 @@
 #include "ReferenceCube.h"
 #include "ReferenceHypercube.h"
 #include "ReferenceCurvilinearLine.h"
+#include "ReferenceCurvilinearTetrahedron.h"
 #include "ReferenceCurvilinearTriangle.h"
 #include "ReferenceLine.h"
 #include "ReferencePoint.h"
@@ -131,7 +132,16 @@ ReferenceGeometry& ReferenceGeometryFactory::getGeometry3(
             // Handled below
             break;
     }
-    logger.fail("No 3D shape with % points known", numberOfPoints);
+    ReferenceGeometry*& geometry = cached3DGeometries_[numberOfPoints];
+    if (geometry == nullptr) {
+        int order =
+            ReferenceCurvilinearTetrahedron::getOrderFromPoints(numberOfPoints);
+        logger.assert_always(order > 0, "No 3D shape with % points",
+                             numberOfPoints);
+        geometry = &ReferenceCurvilinearTetrahedron::
+                       getReferenceCurvilinearTetrahedron(order);
+    }
+    return *geometry;
 }
 ReferenceGeometry& ReferenceGeometryFactory::getGeometry4(
     std::size_t numberOfPoints) {

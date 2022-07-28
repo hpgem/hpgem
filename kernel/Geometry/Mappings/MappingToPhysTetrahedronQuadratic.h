@@ -7,7 +7,7 @@
  below.
 
 
- Copyright (c) 2021, University of Twente
+ Copyright (c) 2022, University of Twente
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,32 +35,31 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_MAPPINGTOPHYSTRIANGLEQUADRATIC_H
-#define HPGEM_MAPPINGTOPHYSTRIANGLEQUADRATIC_H
+#ifndef HPGEM_MAPPINGTOPHYSTETRAHEDRONQUADRATIC_H
+#define HPGEM_MAPPINGTOPHYSTETRAHEDRONQUADRATIC_H
 
 #include "MappingReferenceToPhysical.h"
-
 #include <map>
+#include <vector>
+#include <FE/BaseBasisFunction.h>
 
 namespace hpgem {
 namespace Geometry {
-class MappingToPhysTriangleQuadratic : public MappingReferenceToPhysical<2> {
+
+class MappingToPhysTetrahedronQuadratic : public MappingReferenceToPhysical<3> {
    public:
-    explicit MappingToPhysTriangleQuadratic(
-        const PhysicalGeometry<2>* const physicalGeometry);
-    MappingToPhysTriangleQuadratic(
-        const MappingToPhysTriangleQuadratic& other) = default;
-
-    PointPhysical<2> transform(const PointReference<2>&) const final;
-    PointReference<2> inverseTransform(const PointPhysical<2>&) const final;
-
-    Jacobian<2, 2> calcJacobian(const PointReference<2>&) const final;
-
-    MappingReferenceToPhysicalBase* copy() const override;
+    explicit MappingToPhysTetrahedronQuadratic(
+        const PhysicalGeometry<3>* physicalGeometry);
 
     void reinit() final;
+    MappingReferenceToPhysicalBase* copy() const final;
+    PointPhysical<3> transform(const PointReference<3>& p) const final;
+    PointReference<3> inverseTransform(const PointPhysical<3>& p) const final;
+    Jacobian<3, 3> calcJacobian(const PointReference<3>& p) const final;
+
 };
+
 }  // namespace Geometry
 }  // namespace hpgem
 
-#endif  // HPGEM_MAPPINGTOPHYSTRIANGLEQUADRATIC_H
+#endif  // HPGEM_MAPPINGTOPHYSTETRAHEDRONQUADRATIC_H

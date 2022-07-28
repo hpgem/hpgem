@@ -35,32 +35,41 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef HPGEM_MAPPINGTOPHYSTRIANGLEQUADRATIC_H
-#define HPGEM_MAPPINGTOPHYSTRIANGLEQUADRATIC_H
 
-#include "MappingReferenceToPhysical.h"
+#include "../catch.hpp"
+#include "Geometry/ReferenceCurvilinearTetrahedron.h"
+#include "ReferenceCurvilinearElementChecks.h"
 
-#include <map>
+using namespace hpgem;
+using Geometry::ReferenceCurvilinearTetrahedron;
 
-namespace hpgem {
-namespace Geometry {
-class MappingToPhysTriangleQuadratic : public MappingReferenceToPhysical<2> {
-   public:
-    explicit MappingToPhysTriangleQuadratic(
-        const PhysicalGeometry<2>* const physicalGeometry);
-    MappingToPhysTriangleQuadratic(
-        const MappingToPhysTriangleQuadratic& other) = default;
+TEST_CASE("CurvilinearTetrahedron Points",
+          "[410ReferenceCurvilinearTetrahedron_UnitTest]") {
+    auto p = GENERATE(2, 4);
 
-    PointPhysical<2> transform(const PointReference<2>&) const final;
-    PointReference<2> inverseTransform(const PointPhysical<2>&) const final;
+    const auto& tetrahedron =
+        ReferenceCurvilinearTetrahedron::getReferenceCurvilinearTetrahedron(p);
+    INFO("Testing " + tetrahedron.getName());
 
-    Jacobian<2, 2> calcJacobian(const PointReference<2>&) const final;
+    testAllReferencePointsAreInside(tetrahedron);
+}
 
-    MappingReferenceToPhysicalBase* copy() const override;
+TEST_CASE("ReferenceCurvilinearTetrahedron Codim1",
+          "[420ReferenceCurvilinearTetrahedron_UnitTest]") {
+    auto p = GENERATE(2, 4);
 
-    void reinit() final;
-};
-}  // namespace Geometry
-}  // namespace hpgem
+    const auto& tetrahedron =
+        ReferenceCurvilinearTetrahedron::getReferenceCurvilinearTetrahedron(p);
+    INFO("Testing " + tetrahedron.getName());
+    testCodim1CorrespondenceWithBaseGeometry(tetrahedron);
+}
 
-#endif  // HPGEM_MAPPINGTOPHYSTRIANGLEQUADRATIC_H
+TEST_CASE("ReferenceCurvilinearTetrahedron Codim2",
+          "[420ReferenceCurvilinearTetrahedron_UnitTest]") {
+    auto p = GENERATE(2, 4);
+
+    const auto& tetrahedron =
+        ReferenceCurvilinearTetrahedron::getReferenceCurvilinearTetrahedron(p);
+    INFO("Testing " + tetrahedron.getName());
+    testCodim2CorrespondenceWithBaseGeometry(tetrahedron);
+}

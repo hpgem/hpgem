@@ -320,10 +320,14 @@ void GmshReader::readElements() {
     reorder.addElementType(2, "triangle2", {0, 3, 1, 5, 4, 2});
 
     reorder.addElementType(2, "square:", {0, 1, 3, 2});
-    reorder.addElementType(3, "tetrahedron:", {0, 3, 1, 2});
+    // Tetrahedrons should not require reordering
+    // reorder.addElementType(3, "tetrahedron:", {0, 3, 1, 2});
     reorder.addElementType(3, "pyramid:", {4, 1, 2, 0, 3});
     reorder.addElementType(3, "cube:", {4, 5, 0, 1, 7, 6, 3, 2});
     reorder.addElementType(3, "prism", {0, 2, 1, 3, 5, 4});
+    // GMSH: Nodes, edges
+    // HPGEM: Lexicographical (z, y, x)
+    reorder.addElementType(3, "tetrahedron2", {0, 4, 1, 6, 5, 2, 7, 9, 8, 3});
 
     size_t numElements;
     Filehandle_ >> numElements;

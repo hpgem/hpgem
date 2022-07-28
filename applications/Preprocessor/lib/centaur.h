@@ -122,11 +122,17 @@ class CentaurReader : public MeshSource2 {
      * indices for squares)
      * @param expectMultiline Whether it can be stored as multiline when the
      * version supports it.
+     * @param lineCountIsComponents Switch the interpretation of
+     *  numComponents and the totalCount from the groupHeader. That is,
+     *  numComponents is the number of lines in the group. The totalCount read
+     *  by readGroupSize() is the number of components. Returns the number of
+     *  components instead of the number of line.
      * @return The number of entries that were read
      */
     template <typename T>
     std::uint32_t readGroup(std::vector<T>& data, std::uint32_t numComponents,
-                            bool expectMultiline);
+                            bool expectMultiline,
+                            bool lineCountIsComponents = false);
 
     /// Reader Methods ///
     //////////////////////
@@ -175,6 +181,13 @@ class CentaurReader : public MeshSource2 {
 
     /// Read the zone information from the file and update the elements
     void readZoneInfo();
+
+    // Read higher order elements
+    void readHigherOrder();
+
+    void addHigherOrderNodes(std::size_t elementType, std::size_t elementIndex,
+                             const std::vector<std::uint32_t>& extraNodes,
+                             std::size_t extraNodeOffset);
 
     /// DATA ///
     ////////////

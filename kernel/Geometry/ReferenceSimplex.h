@@ -42,7 +42,7 @@ class ReferenceSimplex : public ReferenceGeometry {
         return points_[localIndex];
     }
 
-    const PointReference<DIM>& getPoints() { return points_; }
+    const PointReference<DIM>* getPoints() { return points_; }
 
    private:
     const PointReference<DIM> center_;
