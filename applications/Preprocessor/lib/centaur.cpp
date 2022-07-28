@@ -207,6 +207,23 @@ CentaurReader::CentaurReader(std::string filename)
     readZoneInfo();
     logger(INFO, "Finished scanning through hyb-file");
 
+    if (is3D()) {
+        // Internal information
+        for (std::size_t i = 0; i < 10; ++i) {
+            std::uint32_t size = centaurFile.peekRecordSize();
+            centaurFile.skipRecord(size);
+            logger(VERBOSE, "Ignoring centaur internal information of size %",
+                   size);
+        }
+        if (version > 6.99) {
+            // Read higher order
+            readHigherOrder();
+        }
+        if ((version > 6.49 && version < 6.99) || version > 7.49) {
+            // Polyhedra
+            // NOT supported
+        }
+    }
     // More internal information is possible, for example polyhedrons.
 }
 
@@ -507,6 +524,91 @@ void CentaurReader::readZoneInfo() {
     }
 }
 
+void CentaurReader::readHigherOrder() {
+    // Presumably the order of the elements. This seems to be lacking from the
+    // documentation example.
+    std::uint32_t order;
+    centaurFile.readRawRecord(4, reinterpret_cast<char*>(&order));
+    logger.assert_always(order == 2,
+                         "Only second order is implemented for version >= 7");
+    logger(INFO, "Order %", order);
+    std::size_t elementIndex = 0;
+    for (std::size_t elemType = 0; elemType < 4; ++elemType) {
+        // Multiple groups, one for each element type with the extra nodes
+        // indices needed to 'upgrade' the first order element to the higher
+        // order one. Note, unlike the regular groups the number of lines is now
+        // known as the number of elements. The number of extra nodes is
+        // specified in the group header.
+        std::vector<std::uint32_t> data;
+        std::uint32_t numExtraNodes =
+            readGroup(data, elementCount[elemType], true, true);
+        logger(VERBOSE, "Read % extra node indices for element type %",
+               numExtraNodes, elemType);
+        for(std::size_t i = 0; i < data.size(); ++i) {
+            // Compensate for Fortran indices.
+            // TODO: Has not fixed it yet
+            data[i]--;
+        }
+        for (std::size_t i = 0; i < elementCount[elemType]; ++i) {
+            // Add nodes
+            addHigherOrderNodes(elemType, elementIndex++, data,
+                                numExtraNodes * i);
+        }
+    }
+    logger(INFO, "Added extra node indices for % order elements", order);
+    {
+        // Ignored: Boundary faces
+        // Format:
+        // Multiline group with as header the number of extra nodes for each
+        // face. Followed by a possibly multiline group with extra nodes.
+        // These follow the QUAD_9 or TRI_6 depending on whether it is a
+        // quadrilateral or triangle.
+
+        // Testing/demonstration code for non multiline
+        //        GroupSize sizes = readGroupSize(false);
+        //        std::uint32_t totalSize = centaurFile.peekRecordSize();
+        //        std::size_t entries = totalSize / sizeof(std::uint32_t);
+        //        std::vector<std::uint32_t> data(entries);
+        //        centaurFile.readRawRecord(totalSize,
+        //                                  reinterpret_cast<char*>(data.data()));
+        //        // totalCount == number of nodes per line
+        //        // Prints a line with all the extra nodes
+        //        for(std::size_t i = 0; i < entries/sizes.totalCount; ++i) {
+        //            for(std::size_t j = 0; j < sizes.totalCount; ++j) {
+        //                if (j != 0) {
+        //                    std::cout << " ";
+        //                }
+        //                std::cout << data[i * sizes.totalCount + j];
+        //            }
+        //            std::cout << std::endl;
+        //        }
+    }
+}
+
+void CentaurReader::addHigherOrderNodes(
+    std::size_t elementType, std::size_t elementIndex,
+    const std::vector<std::uint32_t>& extraNodes, std::size_t extraNodeOffset) {
+    auto& element = elements[elementIndex];
+    // Input follows: https://cgns.github.io/CGNS_docs_current/sids/conv.html
+    // With corner nodes already in coordinateIds
+    // extra nodes provided as argument to this function
+    logger.assert_always(
+        elementType == 3,
+        "Higher order elements only implemented for tetrahedra");
+    element.coordinateIds.resize(10);
+    // Reorder corner vertices to match hpGEM ordering
+    element.coordinateIds[9] = element.coordinateIds[3];
+    element.coordinateIds[5] = element.coordinateIds[2];
+    element.coordinateIds[2] = element.coordinateIds[1];
+    // Add intermediate vertices
+    element.coordinateIds[1] = extraNodes[extraNodeOffset + 0];
+    element.coordinateIds[3] = extraNodes[extraNodeOffset + 2];
+    element.coordinateIds[4] = extraNodes[extraNodeOffset + 1];
+    element.coordinateIds[6] = extraNodes[extraNodeOffset + 3];
+    element.coordinateIds[7] = extraNodes[extraNodeOffset + 4];
+    element.coordinateIds[8] = extraNodes[extraNodeOffset + 5];
+}
+
 std::string CentaurReader::ZoneInformation::getZoneName() const {
     return fromFortranString(rawZoneName);
 }
@@ -534,8 +636,15 @@ CentaurReader::GroupSize CentaurReader::readGroupSize(bool expectMultiline) {
 template <typename T>
 std::uint32_t CentaurReader::readGroup(std::vector<T>& data,
                                        std::uint32_t numComponents,
-                                       bool expectMultiline) {
+                                       bool expectMultiline,
+                                       bool lineCountIsComponents) {
     GroupSize groupSize = readGroupSize(expectMultiline);
+    if (lineCountIsComponents) {
+        std::swap(numComponents, groupSize.totalCount);
+        if (centaurFileType <= 4) {
+            groupSize.perLineCount = groupSize.totalCount;
+        }
+    }
     // Prevent overflow
     std::size_t totalRawEntries =
         static_cast<std::size_t>(groupSize.totalCount) * numComponents;
@@ -559,7 +668,7 @@ std::uint32_t CentaurReader::readGroup(std::vector<T>& data,
         logger.assert_always(entriesRead == groupSize.totalCount,
                              "Incorrect number of entries read");
     }
-    return groupSize.totalCount;
+    return lineCountIsComponents ? numComponents : groupSize.totalCount;
 }
 
 std::uint32_t CentaurReader::numNodes(std::size_t elementType) const {
