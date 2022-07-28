@@ -47,6 +47,7 @@ using idx_t = std::size_t;
 #include <chrono>
 #include <random>
 #include "Base/CommandLineOptions.h"
+#include "Base/CommandLineHelpers.h"
 #include "Base/MpiContainer.h"
 #include "mesh/Mesh.h"
 #include "MeshFactory.h"
@@ -55,6 +56,7 @@ using idx_t = std::size_t;
 #include "meshData.h"
 #include "output.h"
 #include "gmsh.h"
+#include "TransformationConnector.h"
 
 using namespace hpgem;
 
@@ -69,6 +71,16 @@ auto& dimension = Base::register_argument<std::size_t>(
     false);
 auto& targetMpiCount = Base::register_argument<std::size_t>(
     'n', "MPICount", "Target number of processors", false, 1);
+
+auto& translations = Base::register_argument<std::string>(
+    '\0', "translations",
+    "Translation periodicity to be added. Input semicolon separated "
+    "translation vectors, e.g. 1.0,0;0,1.0",
+    false, "");
+
+auto& ignorePeriodicity = Base::register_argument<bool>(
+    '\0', "ignore-periodicity",
+    "Ignore periodicity information in the source mesh", false, false);
 
 template <std::size_t dimension>
 void printMeshStatistics(const Preprocessor::Mesh<dimension>& mesh) {
@@ -183,8 +195,47 @@ Preprocessor::MeshData<idx_t, dimension, dimension> partitionMesh(
 }
 
 template <std::size_t dimension>
+std::vector<LinearAlgebra::SmallVector<dimension>> parseTranslations() {
+    if (!translations.isUsed()) {
+        return {};
+    }
+    std::vector<LinearAlgebra::SmallVector<dimension>> translationVecs;
+    std::size_t index = 0;
+    const auto& input = translations.getValue();
+    while (index < input.size()) {
+        LinearAlgebra::SmallVector<dimension> vec;
+        index = Base::parsePoint<dimension>(input, index, vec);
+        translationVecs.push_back(vec);
+        if (index < input.size()) {
+            logger.assert_always(input[index] == ';',
+                                 "Expected a semi colon as separator at "
+                                 "position % instead found '%'",
+                                 index, input[index]);
+            index++;
+        }
+    }
+    return translationVecs;
+}
+
+template <std::size_t dimension>
 void processMesh(Preprocessor::Mesh<dimension> mesh) {
     printMeshStatistics(mesh);
+    auto translationVecs = parseTranslations<dimension>();
+    if (!translationVecs.empty()) {
+        logger(INFO, "");
+        logger(INFO, "Parsed % translations for adding periodicity",
+               translationVecs.size());
+
+        for (auto& translation : translationVecs) {
+            logger(INFO, "");
+            logger(INFO, "Applying translation periodicity%", translation);
+            Preprocessor::translationConnect(mesh, translation);
+        }
+        mesh.removeUnusedEntities();
+        logger(INFO, "");
+        logger(INFO, "After adding periodicity");
+        printMeshStatistics(mesh);
+    }
 
     Preprocessor::MeshData<idx_t, dimension, dimension> partitionID =
         partitionMesh(mesh);
@@ -245,9 +296,11 @@ int main(int argc, char** argv) {
                     centaurFile.getDimension(), dimension.getValue());
             }
             if (centaurFile.getDimension() == 2) {
-                processMesh(Preprocessor::fromMeshSource<2>(centaurFile));
+                processMesh(Preprocessor::fromMeshSource<2>(
+                    centaurFile, ignorePeriodicity.getValue()));
             } else if (centaurFile.getDimension() == 3) {
-                processMesh(Preprocessor::fromMeshSource<3>(centaurFile));
+                processMesh(Preprocessor::fromMeshSource<3>(
+                    centaurFile, ignorePeriodicity.getValue()));
             } else {
                 logger(ERROR,
                        "Centaur file should not be able to have dimension %",
@@ -266,9 +319,11 @@ int main(int argc, char** argv) {
                     gmshFile.getDimension(), dimension.getValue());
             }
             if (gmshFile.getDimension() == 2) {
-                processMesh(Preprocessor::fromMeshSource<2>(gmshFile));
+                processMesh(Preprocessor::fromMeshSource<2>(
+                    gmshFile, ignorePeriodicity.getValue()));
             } else if (gmshFile.getDimension() == 3) {
-                processMesh(Preprocessor::fromMeshSource<3>(gmshFile));
+                processMesh(Preprocessor::fromMeshSource<3>(
+                    gmshFile, ignorePeriodicity.getValue()));
             } else {
                 logger(ERROR,
                        "gmsh file should not be able to have "
