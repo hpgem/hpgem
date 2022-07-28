@@ -58,7 +58,7 @@ class ElementInfos : public hpgem::Base::UserData {
     using PointPhysicalBase = hpgem::Geometry::PointPhysicalBase;
     using SmallVectorC = hpgem::LinearAlgebra::SmallVectorC<3>;
 
-    ElementInfos(double epsilon, double permeability = 1.0);
+    ElementInfos(double epsilon = 1.0, double permeability = 1.0);
     ElementInfos(DGMax::Material material) : material_(material){};
 
     const double& getPermittivity() const {
@@ -103,13 +103,12 @@ class ElementInfos : public hpgem::Base::UserData {
      * For PMLs and similar materials it may vary inside the element.
      *
      * @param p The position
-     * @param omega Frequency to use for dispersive media
      *
      * @return Diagonal of the material tensor, for 2D the last component should
      * be used.
      */
     virtual DGMax::MaterialTensor getMaterialConstantDiv(
-        const PointPhysicalBase& p, double omega) const {
+        const PointPhysicalBase& p) const {
         return DGMax::MaterialTensor(material_.getPermittivity());
     }
 
@@ -124,13 +123,38 @@ class ElementInfos : public hpgem::Base::UserData {
      * For PMLs and similar materials it may vary inside the element.
      *
      * @param p The position
-     * @param omega Frequency to use for dispersive media
      * @return Diagonal of the material tensor, for 2D the first two components
      * should be used.
      */
     virtual DGMax::MaterialTensor getMaterialConstantCurl(
-        const PointPhysicalBase& p, double omega) const {
+        const PointPhysicalBase& p) const {
         return DGMax::MaterialTensor(material_.getPermeability());
+    }
+
+    /**
+     * Rescaling of the computed field for plotting, energy computation etc.
+     *
+     * The field components of the field inside a PML are a multiplication of
+     * the actual field with a Tensors. To get the actual field we need the
+     * inverse scaling.
+     *
+     * @param p The point to compute the scaling at
+     * @return The inverse tensor, should be applied with applyDiv()
+     */
+    virtual DGMax::MaterialTensor getFieldRescaling(
+        const PointPhysicalBase& p) const {
+        return DGMax::MaterialTensor(1.0);
+    }
+
+    /**
+     * Similar to getFieldRescaling but for the curl of the field.
+     *
+     * @param p The point to compute the scaling at
+     * @return The inverse tensor, should be applied with applyCurl
+     */
+    virtual DGMax::MaterialTensor getCurlFieldRescaling(
+        const PointPhysicalBase& p) const {
+        return DGMax::MaterialTensor(1.0);
     }
 
     /**

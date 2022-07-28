@@ -81,6 +81,20 @@ double solvePerimeter(const std::string& meshFileName, std::size_t) {
     return perimeter - 2 * M_PI;
 }
 
+double solveVolume(const std::string& meshFileName, std::size_t) {
+    // Compute the error in integrating the volume of the unit sphere
+    Base::ConfigurationData config(0);
+    Base::MeshManipulator<3> mesh(&config, 0, 0, 0, 0);
+    mesh.readMesh(meshFileName);
+    double volume = 0.0;
+    Integration::ElementIntegral<3> integrator;
+    for (Base::Element* element : mesh.getElementsList()) {
+        volume += integrator.integrate(
+            element, [](Base::PhysicalElement<3>&) { return 1.0; });
+    }
+    return volume - 4.0 * M_PI / 3.0;
+}
+
 int main(int argc, char** argv) {
     using namespace std::string_literals;
     Base::parse_options(argc, argv);
@@ -117,6 +131,20 @@ int main(int argc, char** argv) {
             -6.07670078e-07,  // 15.97
         }};
     runConvergenceTest(set, ignoreFailures, solvePerimeter);
+
+    {
+        // 3D
+        ConvergenceTestSet set3 = {
+            getUnitSphereQuadraticTriangleMeshes(),
+            {
+                // Slowly converging to 16, i.e. fourth order convergence = 2p
+                -3.42059203e-01,  //------
+                -3.14787174e-02,  // 10.87
+                -2.16687656e-03,  // 14.53
+                -1.38684858e-04,  // 15.62
+            }};
+        runConvergenceTest(set3, ignoreFailures, solveVolume);
+    }
 
     endClock = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = endClock - startClock;

@@ -19,8 +19,9 @@ if(hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
 		Algorithms/DivDGMaxEigenvalue.cpp
 
 		ProblemTypes/Harmonic/SampleHarmonicProblems.cpp
-		ProblemTypes/Harmonic/TrenchReflectionProblem.cpp
 		ProblemTypes/Harmonic/ExactFieldHarmonicProblem.cpp
+		ProblemTypes/Harmonic/InterfaceReflectionField.cpp
+		ProblemTypes/Harmonic/TrenchReflectionProblem.cpp
 		ProblemTypes/Time/DummyTestProblem.cpp
 		ProblemTypes/Time/SampleTestProblems.cpp
 		Utils/BandstructureGNUPlot.cpp
@@ -32,6 +33,7 @@ if(hpGEM_USE_COMPLEX_PETSC AND hpGEM_USE_SLEPC)
 		Utils/KPhaseShift.cpp
 		Utils/CGDGMatrixKPhaseShiftBuilder.cpp
 		Utils/FaceKPhaseShiftBuilder.cpp
+		Utils/FluxFacets.cpp
 		Utils/PredefinedStructure.cpp
 		Utils/StructureDescription.cpp
 		Utils/ZoneStructureDescription.cpp

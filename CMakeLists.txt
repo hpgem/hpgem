@@ -123,6 +123,8 @@ include(conf/cmake/ConfigureDependencies.cmake)
 ################################################################################
 ####### KERNEL, TESTS, APPLICATIONS
 ################################################################################
+
+# Note: Also include any directory in the configuration for clang-format
 add_subdirectory(kernel)
 if(ENABLE_TESTING)
 	add_subdirectory(tests)

@@ -133,9 +133,8 @@ class Driver : public AbstractHarmonicSolverDriver<2> {
             normal /= normal.l2Norm();
             // Get one of the element infos
             auto point = face->referenceToPhysical(midPoint);
-            auto materialTensor =
-                ElementInfos::get(*face->getPtrElementLeft())
-                    .getMaterialConstantCurl(point, problem_->omega());
+            auto materialTensor = ElementInfos::get(*face->getPtrElementLeft())
+                                      .getMaterialConstantCurl(point);
             // Point flux at the middle of the face
             double expectedFlux =
                 normal * problem_->getField()->localFlux(point, materialTensor,

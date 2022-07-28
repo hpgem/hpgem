@@ -12,6 +12,7 @@
 #include <unistd.h>
 
 #include "CMakeDefinitions.h"
+#include <Base/CommandLineHelpers.h>
 
 using namespace hpgem;
 
@@ -81,38 +82,6 @@ template std::unique_ptr<Base::MeshManipulator<3>> readMesh(
     std::string, Base::ConfigurationData*,
     StructureDescription& structureDescription, std::size_t);
 
-/// Parse DIM comma separated numbers as the coordinates of a point.
-/// \tparam DIM The dimension of the point
-/// \param pointString The string containing the point coordinates
-/// \param start The starting index in pointString
-/// \param point The point (out)
-/// \return The first index in pointString after the number.
-template <std::size_t DIM>
-std::size_t parsePoint(const std::string& pointString, std::size_t start,
-                       LinearAlgebra::SmallVector<DIM>& point) {
-    for (std::size_t i = 0; i < DIM; ++i) {
-        if (start >= pointString.size()) {
-            throw std::invalid_argument(
-                "Not enough coordinates for a reciprocal point");
-        }
-        std::size_t len = 0;
-        try {
-            point[i] = std::stod(pointString.substr(start), &len);
-        } catch (const std::invalid_argument&) {
-            // No parse, i.e. len == 0
-            throw std::invalid_argument("Number point parsing failed at '" +
-                                        pointString.substr(start) +
-                                        "', expected a coordinate");
-        }
-        start += len;
-        if (i < DIM - 1) {
-            // Skip the comma, space, whatever that ended the point
-            start++;
-        }
-    }
-    return start;
-}
-
 template <std::size_t DIM>
 PointPath<DIM> parsePath(const std::string& path) {
     LinearAlgebra::SmallVector<DIM> point;
@@ -134,7 +103,7 @@ PointPath<DIM> parsePath(const std::string& path) {
     std::vector<LinearAlgebra::SmallVector<DIM>> points;
     while (index < path.length()) {
         LinearAlgebra::SmallVector<DIM> point;
-        index = parsePoint(path, index, point);
+        index = Base::parsePoint(path, index, point);
         points.push_back(point);
         // Strip character if needed
         while (
@@ -191,6 +160,8 @@ std::unique_ptr<ZoneInfoStructureDefinition> readZonedDescription(
         logger.assert_always(idx == epsilonStr.size(),
                              "Trailing data after epsilon on line %: %",
                              lineNumber, line);
+        DGMaxLogger(INFO, "Adding zone regexp '%' with material %", regexStr,
+                    epsilon);
         zoneRegexes.push_back(regex);
         zoneEpsilons.push_back(epsilon);
 
@@ -244,4 +215,244 @@ std::unique_ptr<StructureDescription> determineStructureDescription(
     return nullptr;
 }
 
+std::vector<std::string> stringSplit(const std::string& input, char separator) {
+    if (input.empty()) {
+        return {};
+    }
+    std::size_t pos = 0;
+    std::size_t next_pos;
+    std::vector<std::string> result;
+    while ((next_pos = input.find_first_of(separator, pos)) !=
+           std::string::npos) {
+        result.push_back(input.substr(pos, next_pos - pos));
+        pos = next_pos + 1;
+    }
+    // Remainder after the last separator
+    result.push_back(input.substr(pos));
+    return result;
+}
+
+template <std::size_t dim>
+std::vector<
+    std::pair<Geometry::PointPhysical<dim>, Geometry::PointPhysical<dim>>>
+    computeZoneBoundingBoxes(const Base::MeshManipulator<dim>& mesh) {
+
+    std::size_t zoneCount = mesh.getZones().size();
+    // Two vectors with the minimum/maximum coordinates for each zone.
+    // Sequential layout (e.g. x_0, y_0, x_1, y_1, ... with subscripts for
+    // zoneIds). Using vectors allows easier MPI communication.
+    //
+    // Default value +- infinity, as that is always updated by
+    // std::min/std::max
+    std::vector<double> mins(dim * zoneCount,
+                             std::numeric_limits<double>::infinity());
+    std::vector<double> maxs(dim * zoneCount,
+                             -std::numeric_limits<double>::infinity());
+
+    // Update mins/maxs for each element based on the node coordinates.
+    for (const Base::Element* element : mesh.getElementsList()) {
+        if (!element->isOwnedByCurrentProcessor()) {
+            continue;
+        }
+        const Geometry::PhysicalGeometryBase* pgeom =
+            element->getPhysicalGeometry();
+        std::size_t zoneId = element->getZone().getZoneId();
+        std::size_t nodeCount = pgeom->getNumberOfNodes();
+        std::size_t offset = dim * zoneId;
+        for (std::size_t i = 0; i < nodeCount; ++i) {
+            const Geometry::PointPhysical<dim> node =
+                pgeom->getLocalNodeCoordinates(i);
+            for (std::size_t j = 0; j < dim; ++j) {
+                mins[offset + j] = std::min(mins[offset + j], node[j]);
+                maxs[offset + j] = std::max(maxs[offset + j], node[j]);
+            }
+        }
+    }
+
+#ifdef HPGEM_USE_MPI
+    // We only know about the bounds due to the elements in our own part of the
+    // mesh. Communicate with the other processors to get the global bounds.
+    MPI_Allreduce(MPI_IN_PLACE, mins.data(), dim * zoneCount, MPI_DOUBLE,
+                  MPI_MIN, MPI_COMM_WORLD);
+    MPI_Allreduce(MPI_IN_PLACE, maxs.data(), dim * zoneCount, MPI_DOUBLE,
+                  MPI_MAX, MPI_COMM_WORLD);
+#endif
+
+    // Convert the results to output types
+    using Bounds =
+        std::pair<Geometry::PointPhysical<dim>, Geometry::PointPhysical<dim>>;
+    std::vector<Bounds> result(zoneCount);
+    for (std::size_t i = 0; i < zoneCount; ++i) {
+        Bounds& bounds = result[i];
+        std::size_t offset = dim * i;
+        for (std::size_t j = 0; j < dim; ++j) {
+            bounds.first[j] = mins[offset + j];
+            bounds.second[j] = maxs[offset + j];
+        }
+    }
+    return result;
+}
+
+template std::vector<
+    std::pair<Geometry::PointPhysical<2>, Geometry::PointPhysical<2>>>
+    computeZoneBoundingBoxes(const Base::MeshManipulator<2>& mesh);
+template std::vector<
+    std::pair<Geometry::PointPhysical<3>, Geometry::PointPhysical<3>>>
+    computeZoneBoundingBoxes(const Base::MeshManipulator<3>& mesh);
+
+template <std::size_t dim>
+PMLZoneDescription<dim> parsePMLZoneDescription(const std::string& input) {
+    PMLZoneDescription<dim> result;
+
+    std::vector<std::string> parts = stringSplit(input, ',');
+    DGMaxLogger.assert_always(
+        parts.size() == 2 + dim,
+        "Expected 2+dim fields to a PML description but got % in \"%\"",
+        parts.size(), input);
+    DGMaxLogger.assert_always(!parts[0].empty(),
+                              "Empty zone name for PML description");
+    result.zoneName_ = std::move(parts[0]);
+
+    DGMaxLogger.assert_always(
+        parts[1].size() == dim,
+        "Expected exactly % direction characters but got \"\"", dim, parts[1]);
+
+    for (std::size_t j = 0; j < dim; ++j) {
+        switch (parts[1][j]) {
+            case '0':
+                result.direction_[j] = 0.0;
+                break;
+            case '+':
+                result.direction_[j] = 1.0;
+                break;
+            case '-':
+                result.direction_[j] = -1.0;
+                break;
+            default:
+                DGMaxLogger.fail(
+                    "Unknown direction character \"%\" for the %-th direction",
+                    parts[1][j], j);
+        }
+        {
+
+            std::size_t p;
+            double attenuation = std::stod(parts[2 + j], &p);
+            DGMaxLogger.assert_always(
+                p == parts[2 + j].length(),
+                "Left over information after parsing attenuation\"%\"",
+                parts[2 + j]);
+            result.attenuation_[j] = attenuation;
+            if (result.direction_[j] != 0) {
+                DGMaxLogger.assert_always(attenuation <= 1.0 && attenuation > 0,
+                                          "Invalid attenuation value %",
+                                          attenuation);
+            }
+        }
+    }
+
+    return result;
+}
+
+template PMLZoneDescription<2> parsePMLZoneDescription(
+    const std::string& input);
+template PMLZoneDescription<3> parsePMLZoneDescription(
+    const std::string& input);
+
+template <std::size_t dim>
+using Bounds =
+    std::pair<Geometry::PointPhysical<dim>, Geometry::PointPhysical<dim>>;
+
+template <std::size_t dim>
+std::shared_ptr<PMLElementInfos<dim>> createPML(
+    const PMLZoneDescription<dim>& description, const Bounds<dim>& box,
+    const Base::Element& element) {
+
+    // Size of the bounding box
+    auto pmlThickness =
+        box.second.getCoordinates() - box.first.getCoordinates();
+
+    const Material& material = ElementInfos::get(element).getMaterial();
+
+    LinearAlgebra::SmallVector<dim> scaling =
+        PMLElementInfos<dim>::computeScaling(material, description.direction_,
+                                             description.attenuation_);
+
+    LinearAlgebra::SmallVector<dim> offset;
+    for (std::size_t i = 0; i < dim; ++i) {
+        // Should be +-1 or 0
+        int direction = static_cast<int>(description.direction_[i]);
+        if (direction < 0) {
+            // e.g. PML for x < 0
+            offset[i] = box.second[i];
+        } else if (direction > 0) {
+            offset[i] = box.first[i];
+        } else {
+            offset[i] = 0.0;
+        }
+    }
+    // Compromise: We want this information in the output. But with MPI
+    // computations we will duplicate this.
+    DGMaxLogger(
+        INFO, "Creating PML for zone %, direction %, thickness %, scaling %",
+        description.zoneName_, description.direction_, pmlThickness, scaling);
+
+    return std::make_shared<PMLElementInfos<dim>>(
+        material, offset, description.direction_, pmlThickness, scaling);
+}
+
+template <std::size_t dim>
+std::vector<std::shared_ptr<PMLElementInfos<dim>>> applyPMLs(
+    Base::MeshManipulator<dim>& mesh,
+    const std::vector<PMLZoneDescription<dim>>& pmls) {
+    if (pmls.empty()) {
+        return {};
+    }
+    const int NO_PML_NEEDED = std::numeric_limits<int>::min();
+
+    auto boundingBoxes = computeZoneBoundingBoxes(mesh);
+    // Actual PMLElementInfos used by this MPI rank
+    std::vector<std::shared_ptr<PMLElementInfos<dim>>> pmlinfos;
+    // Index of the PMLElementInfos for each zone.
+    //   - Positive values are indices in pmlinfos
+    //   - Negative values are indices in pmls (offset by 1)
+    //   - NO_PML_NEEDED is a signalling value that there is no PML in the
+    //   region
+    const auto& zones = mesh.getZones();
+    std::vector<int> pmlIndices(zones.size(), NO_PML_NEEDED);
+    for (int i = 0; i < pmls.size(); ++i) {
+        for (std::size_t j = 0; j < zones.size(); ++j) {
+            if (pmls[i].zoneName_ == zones[j]->getName()) {
+                pmlIndices[j] = -i - 1;
+                break;
+            }
+        }
+    }
+
+    for (Base::Element* element : mesh.getElementsList()) {
+        std::size_t zoneId = element->getZone().getZoneId();
+        int index = pmlIndices[zoneId];
+        if (index == NO_PML_NEEDED) {
+            continue;
+        }
+        if (index < 0) {
+            // PML needs to be generated
+            const PMLZoneDescription<dim>& description = pmls[-index - 1];
+
+            auto box = boundingBoxes[zoneId];
+
+            pmlinfos.emplace_back(createPML(description, box, *element));
+            pmlIndices[zoneId] = pmlinfos.size() - 1;
+        }
+        // Now that we know that a PML is present, set it
+        element->setUserData(pmlinfos[pmlIndices[zoneId]].get());
+    }
+    return pmlinfos;
+}
+
+template std::vector<std::shared_ptr<PMLElementInfos<2>>> applyPMLs(
+    Base::MeshManipulator<2>& mesh,
+    const std::vector<PMLZoneDescription<2>>& pmls);
+template std::vector<std::shared_ptr<PMLElementInfos<3>>> applyPMLs(
+    Base::MeshManipulator<3>& mesh,
+    const std::vector<PMLZoneDescription<3>>& pmls);
 }  // namespace DGMax
