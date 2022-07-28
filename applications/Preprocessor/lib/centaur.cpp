@@ -545,10 +545,9 @@ void CentaurReader::readHigherOrder() {
             readGroup(data, elementCount[elemType], true, true);
         logger(VERBOSE, "Read % extra node indices for element type %",
                numExtraNodes, elemType);
-        for(std::size_t i = 0; i < data.size(); ++i) {
+        for (unsigned int& i : data) {
             // Compensate for Fortran indices.
-            // TODO: Has not fixed it yet
-            data[i]--;
+            i--;
         }
         for (std::size_t i = 0; i < elementCount[elemType]; ++i) {
             // Add nodes
